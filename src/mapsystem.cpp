@@ -4,7 +4,7 @@
 
 #include "boost/multi_array.hpp"
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "act_movement.h"
 #include "color.h"
@@ -714,116 +714,116 @@ void print_map(CharData *ch, CharData *imm) {
 void Options::olc_menu(CharData *ch) {
 	std::stringstream out;
 	out << "Доступно для отображения на карте:\r\n";
-	boost::format menu1("%s%2d%s) %s %-30s");
-	boost::format menu2("   %s%2d%s) %s %-30s\r\n");
+	const std::string_view menu1{"{}{:<2}{}) {} {:<30}"};
+	const std::string_view menu2{"   {}{:<2}{}) {} {:<30}\r\n"};
 
 	int cnt = 0;
 	for (int i = 0; i < TOTAL_MAP_OPTIONS; ++i) {
 		switch (i) {
 			case MAP_MODE_MOBS:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOBS] ? "[x]" : "[ ]")
-					% "существа кроме игроков (мобы)";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOBS] ? "[x]" : "[ ]"),
+					"существа кроме игроков (мобы)");
 				break;
 			case MAP_MODE_PLAYERS:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_PLAYERS] ? "[x]" : "[ ]")
-					% "другие игроки";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_PLAYERS] ? "[x]" : "[ ]"),
+					"другие игроки");
 				break;
 			case MAP_MODE_MOBS_CORPSES:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOBS_CORPSES] ? "[x]" : "[ ]")
-					% "трупы существ (кроме игроков)";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOBS_CORPSES] ? "[x]" : "[ ]"),
+					"трупы существ (кроме игроков)");
 				break;
 			case MAP_MODE_PLAYER_CORPSES:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_PLAYER_CORPSES] ? "[x]" : "[ ]")
-					% "трупы игроков";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_PLAYER_CORPSES] ? "[x]" : "[ ]"),
+					"трупы игроков");
 				break;
 			case MAP_MODE_INGREDIENTS:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_INGREDIENTS] ? "[x]" : "[ ]")
-					% "ингредиенты";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_INGREDIENTS] ? "[x]" : "[ ]"),
+					"ингредиенты");
 				break;
 			case MAP_MODE_OTHER_OBJECTS:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_OTHER_OBJECTS] ? "[x]" : "[ ]")
-					% "другие предметы\r\n";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_OTHER_OBJECTS] ? "[x]" : "[ ]"),
+					"другие предметы\r\n");
 				break;
 			case MAP_MODE_1_DEPTH:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_1_DEPTH] ? "[x]" : "[ ]")
-					% "только прилегающие комнаты";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_1_DEPTH] ? "[x]" : "[ ]"),
+					"только прилегающие комнаты");
 				break;
 			case MAP_MODE_2_DEPTH:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_2_DEPTH] ? "[x]" : "[ ]")
-					% "прилегающие комнаты + 1";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_2_DEPTH] ? "[x]" : "[ ]"),
+					"прилегающие комнаты + 1");
 				break;
 			case MAP_MODE_DEPTH_FIXED:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_DEPTH_FIXED] ? "[x]" : "[ ]")
-					% "фиксировать высоту карты прилегающих комнат\r\n\r\n";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_DEPTH_FIXED] ? "[x]" : "[ ]"),
+					"фиксировать высоту карты прилегающих комнат\r\n\r\n");
 				break;
 			case MAP_MODE_MOB_SPEC_SHOP:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_SHOP] ? "[x]" : "[ ]")
-					% "продавцы (магазины, $)";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_SHOP] ? "[x]" : "[ ]"),
+					"продавцы (магазины, $)");
 				break;
 			case MAP_MODE_MOB_SPEC_RENT:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_RENT] ? "[x]" : "[ ]")
-					% "рентеры (постой, R)";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_RENT] ? "[x]" : "[ ]"),
+					"рентеры (постой, R)");
 				break;
 			case MAP_MODE_MOB_SPEC_MAIL:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_MAIL] ? "[x]" : "[ ]")
-					% "ямщики (почта, M)";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_MAIL] ? "[x]" : "[ ]"),
+					"ямщики (почта, M)");
 				break;
 			case MAP_MODE_MOB_SPEC_BANK:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_BANK] ? "[x]" : "[ ]")
-					% "банкиры (лежня, B)";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_BANK] ? "[x]" : "[ ]"),
+					"банкиры (лежня, B)");
 				break;
 			case MAP_MODE_MOB_SPEC_EXCH:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]")
-					% "зазывалы (базар, E)";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]"),
+					"зазывалы (базар, E)");
 				break;
 			case MAP_MODE_MOB_SPEC_HORSE:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_HORSE] ? "[x]" : "[ ]")
-					% "конюхи (конюшня, H)";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_HORSE] ? "[x]" : "[ ]"),
+					"конюхи (конюшня, H)");
 				break;
 			case MAP_MODE_MOB_SPEC_TEACH:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_TEACH] ? "[x]" : "[ ]")
-					% "учителя (любые, T)";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_TEACH] ? "[x]" : "[ ]"),
+					"учителя (любые, T)");
 				break;
 			case MAP_MODE_MOB_SPEC_TORC:
-				out << menu2 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_TORC] ? "[x]" : "[ ]")
-					% "глашатаи (гривны, G)";
+				out << fmt::format(fmt::runtime(menu2), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_TORC] ? "[x]" : "[ ]"),
+					"глашатаи (гривны, G)");
 				break;
 			case MAP_MODE_MOB_SPEC_ALL:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOB_SPEC_ALL] ? "[x]" : "[ ]")
-					% "все мобы со спец. функциями\r\n\r\n";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOB_SPEC_ALL] ? "[x]" : "[ ]"),
+					"все мобы со спец. функциями\r\n\r\n");
 				break;
 			case MAP_MODE_MOBS_CURR_ROOM:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_MOBS_CURR_ROOM] ? "[x]" : "[ ]")
-					% "существа (п. 1-2) в комнате с персонажем\r\n";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_MOBS_CURR_ROOM] ? "[x]" : "[ ]"),
+					"существа (п. 1-2) в комнате с персонажем\r\n");
 				break;
 			case MAP_MODE_OBJS_CURR_ROOM:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_OBJS_CURR_ROOM] ? "[x]" : "[ ]")
-					% "объекты (п. 3-6) в комнате с персонажем\r\n";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_OBJS_CURR_ROOM] ? "[x]" : "[ ]"),
+					"объекты (п. 3-6) в комнате с персонажем\r\n");
 				break;
 			case MAP_MODE_BIG:
-				out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
-					% (bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]")
-					% "увеличенный размер карты\r\n\r\n";
+				out << fmt::format(fmt::runtime(menu1), CCGRN(ch, C_NRM), ++cnt, CCNRM(ch, C_NRM),
+					(bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]"),
+					"увеличенный размер карты\r\n\r\n");
 				break;
 		}
 	}

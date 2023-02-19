@@ -309,7 +309,7 @@ void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) 
 		act(GetMsg(EMsg::kFailToChar), false, ch, nullptr, trainer, kToChar);
 		act(GetMsg(EMsg::kFailToRoom), false, ch, nullptr, trainer, kToRoom);
 	} else {
-		auto out = fmt::format(GetMsg(EMsg::kTalentEarned),
+		auto out = fmt::format(fmt::runtime(GetMsg(EMsg::kTalentEarned)),
 							   talent->GetTalentTypeName(), KIYEL, talent->GetName(), KNRM);
 		act(out, false, ch, nullptr, trainer, kToChar);
 		talent->SetTalent(ch);
@@ -326,9 +326,9 @@ bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr 
 	auto price = talent->CalcPrice(ch);
 	if (price > 0) {
 		auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
-		act(fmt::format(GetMsg(EMsg::kYouGiveMoney), description),
+		act(fmt::format(fmt::runtime(GetMsg(EMsg::kYouGiveMoney)), description),
 			false, ch, nullptr, trainer, kToChar);
-		act(fmt::format(GetMsg(EMsg::kSomeoneGivesMoney), description),
+		act(fmt::format(fmt::runtime(GetMsg(EMsg::kSomeoneGivesMoney)), description),
 			false, ch, nullptr, trainer, kToRoom);
 	}
 

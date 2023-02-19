@@ -7,7 +7,7 @@
 #include "utils/file_crc.h"
 #include "communication/ignores_loader.h"
 #include "olc/olc.h"
-#include "game_fight/pk.h"
+//#include "game_fight/pk.h"
 #include "utils/diskio.h"
 #include "genchar.h"
 #include "handler.h"

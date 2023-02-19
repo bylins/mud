@@ -14,11 +14,8 @@
 
 #include "game_limits.h"
 
-#include <boost/format.hpp>
-#include <random>
-
-#include "entities/world_characters.h"
-#include "game_skills/townportal.h"
+//#include "entities/world_characters.h"
+//#include "game_skills/townportal.h"
 #include "handler.h"
 #include "color.h"
 #include "house.h"
@@ -31,9 +28,12 @@
 #include "game_fight/fight.h"
 #include "game_economics/ext_money.h"
 #include "statistics/mob_stat.h"
-#include "game_magic/spells_info.h"
+//#include "game_magic/spells_info.h"
 #include "liquid.h"
 #include "structs/global_objects.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
+#include <random>
 
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
@@ -1245,10 +1245,10 @@ void clan_chest_invoice(ObjData *j) {
 
 	for (const auto &i : Clan::ClanList) {
 		if (i->GetRent() == room) {
-			std::string log_text = boost::str(boost::format("%s%s рассыпал%s в прах\r\n")
-												  % j->get_short_description()
-												  % clan_get_custom_label(j, i)
-												  % GET_OBJ_SUF_2(j));
+			std::string log_text = fmt::format("{}{} рассыпал{} в прах\r\n",
+												  j->get_short_description(),
+												  clan_get_custom_label(j, i),
+												  GET_OBJ_SUF_2(j));
 			i->chest_log.add(log_text);
 			return;
 		}

@@ -150,7 +150,7 @@
 #include "game_fight/pk.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <stdexcept>
 #include <algorithm>
@@ -2485,7 +2485,7 @@ void DoAfterPassword(DescriptorData *d) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
 				std::string cmd_line =
-					str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
+					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
 				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
@@ -3446,7 +3446,7 @@ void nanny(DescriptorData *d, char *arg) {
 				*(GET_EMAIL(d->character) + 127) = '\0';
 				utils::ConvertToLow(GET_EMAIL(d->character));
 				std::string cmd_line =
-					str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
+					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
 				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);

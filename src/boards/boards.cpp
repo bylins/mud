@@ -1,10 +1,8 @@
 // Copyright (c) 2005 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "boards.h"
-#include "boards_types.h"
+//#include "boards.h"
 
-#include "utils/logger.h"
 #include "boards_changelog_loaders.h"
 #include "boards_constants.h"
 #include "boards_formatters.h"
@@ -13,13 +11,8 @@
 #include "administration/privilege.h"
 #include "entities/char_data.h"
 #include "modify.h"
-#include "structs/descriptor_data.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include <iomanip>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace Boards {
 // общий список досок
@@ -83,7 +76,7 @@ void add_server_message(const std::string &subj, const std::string &text) {
 	temp_message->author = "Сервер";
 	temp_message->subject = subj;
 	temp_message->text = text;
-	temp_message->date = time(0);
+	temp_message->date = time(nullptr);
 	// чтобы при релоаде не убилось
 	temp_message->unique = 1;
 	temp_message->level = 1;
@@ -169,7 +162,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	std::string buffer, buffer2 = argument;
 	GetOneParam(buffer2, buffer);
-	boost::trim_if(buffer2, boost::is_any_of(std::string(" \'")));
+	utils::TrimIf(buffer2, " \'");
 	// первый аргумент в buffer, второй в buffer2
 
 	if (CompareParam(buffer, "список") || CompareParam(buffer, "list")) {
@@ -300,7 +293,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		// для ошибок опечаток впереди пишем комнату, где стоит отправитель
 		std::string subj;
 		if (subcmd == ERROR_BOARD || subcmd == MISPRINT_BOARD) {
-			subj += "[" + boost::lexical_cast<std::string>(GET_ROOM_VNUM(ch->in_room)) + "] ";
+			subj += fmt::format("[{}]", GET_ROOM_VNUM(ch->in_room));
 		}
 		subj += buffer2;
 		tempMessage->subject = subj;
@@ -397,14 +390,14 @@ std::string print_access(const std::bitset<Boards::ACCESS_NUM> &acess_flags) {
 }
 // чтобы не травмировать народ спешиалы вешаем на старые доски с новым содержимым
 int Static::Special(CharData *ch, void *me, int cmd, char *argument) {
-	ObjData *board = (ObjData *) me;
+	auto *board = (ObjData *) me;
 	if (!ch->desc) {
 		return 0;
 	}
 	// список сообщений
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
-	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
+	utils::TrimIf(buffer, " \'");
 
 	if ((CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")
 		|| CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска") || CompareParam(buffer2, "board"))) {
@@ -576,9 +569,7 @@ bool Static::full_access(CharData *ch, const Board::shared_ptr board) {
 
 void Static::clan_delete_message(const std::string &name, int vnum) {
 	const std::string subj = "неактивная дружина";
-	const std::string text = boost::str(boost::format(
-		"Дружина %1% была автоматически удалена.\r\n"
-		"Номер зоны: %2%\r\n") % name % vnum);
+	const std::string text = fmt::format("Дружина {} была автоматически удалена.\r\nНомер зоны: {}\r\n", name, vnum);
 	add_server_message(subj, text);
 }
 
@@ -711,17 +702,16 @@ std::string Static::print_stats(CharData *ch, const Board::shared_ptr board, int
 		|| PRF_FLAGGED(ch, EPrf::kCoderinfo)
 		|| !board->get_blind()) {
 		const int unread = board->count_unread(ch->get_board_date(board->get_type()));
-		out += boost::str(boost::format
-							  (" %3d)  %10s   [%3d|%3d]   %40s  %6s\r\n")
-							  % num % board->get_name() % unread % board->messages_count()
-							  % board->get_description() % access);
+		out += fmt::format(" {:>3})  {:<10}   [{:>3}|{:>3}]   {:<40}  {:<6}\r\n",
+							  num, board->get_name(), unread, board->messages_count(),
+							  board->get_description(), access);
 	} else {
 		std::string tmp = board->get_description();
 		if (!board->get_alias().empty()) {
 			tmp += " (" + board->get_alias() + ")";
 		}
-		out += boost::str(boost::format(" %2d)  %10s   [ - | - ]   %40s  %6s\r\n")
-							  % num % board->get_name() % tmp % access);
+		out += fmt::format(" {:>2})  {:<10}   [ - | - ]   {:<40}  {:<6}\r\n",
+							  num, board->get_name(), tmp, access);
 	}
 	return out;
 }
@@ -927,9 +917,9 @@ void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
 	temp_message->level = GetRealLevel(ch);
 	temp_message->rank = 0;
-	temp_message->subject = "[" + boost::lexical_cast<std::string>(GET_ROOM_VNUM(ch->in_room)) + "]";
+	temp_message->subject = fmt::format("[{}]", GET_ROOM_VNUM(ch->in_room));
 	temp_message->text = argument;
-	temp_message->date = time(0);
+	temp_message->date = time(nullptr);
 
 	(*board)->write_message(temp_message);
 //	(*board)->renumerate_messages();

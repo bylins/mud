@@ -23,10 +23,7 @@
 #include "communication/social.h"
 #include "game_crafts/jewelry.h"
 #include "game_crafts/mining.h"
-#include "game_mechanics/celebrates.h"
-#include "entities/char_data.h"
 #include "entities/player_races.h"
-#include "entities/world_characters.h"
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
@@ -34,7 +31,6 @@
 #include "depot.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
-#include "game_mechanics/guilds.h"
 #include "game_fight/fight.h"
 #include "game_fight/mobact.h"
 #include "utils/file_crc.h"
@@ -61,16 +57,12 @@
 #include "game_economics/shop_ext.h"
 #include "game_skills/townportal.h"
 #include "stuff.h"
-#include "utils/id_converter.h"
 #include "title.h"
 #include "statistics/top.h"
 #include "backtrace.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
-
-#include <boost/lexical_cast.hpp>
 
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -1196,8 +1188,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	std::string str = boost::str(boost::format("%s reload %s.")
-									 % ch->get_name() % arg);
+	std::string str = fmt::format("{} reload {}.", ch->get_name(), arg);
 	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
 
 	SendMsgToChar(OK, ch);

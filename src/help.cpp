@@ -4,7 +4,7 @@
 
 #include "help.h"
 
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
 
@@ -73,11 +73,11 @@ bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const i
 std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, bool activ) {
 	std::string out;
 	if (skill.second != 0) {
-		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
-							  % (activ ? " +    " : "   ") % KCYN
-							  % MUD::Skill(skill.first).GetName() % KNRM
-							  % KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
-							  % abs(skill.second) % KNRM);
+		out += fmt::format("%s%s%s%s%s%s%d%%%s\r\n",
+							  (activ ? " +    " : "   "), KCYN,
+							  MUD::Skill(skill.first).GetName(), KNRM,
+							  KCYN, (skill.second < 0 ? " ухудшает на " : " улучшает на "),
+							  abs(skill.second), KNRM);
 	}
 	return out;
 }
@@ -111,8 +111,8 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
-		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
-			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
+		out << fmt::format("Наносимые повреждения '{}D{}' среднее {:.1}\r\n",
+			drndice, drsdice, (drsdice + 1) * drndice / 2.0);
 	}
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon
@@ -192,8 +192,8 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
 		if (drsdice > 0 && drndice > 0) {
-			out << boost::format(" + Устанавливает наносимые повреждения '%dD%d' среднее %.1f\r\n")
-				% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
+			out << fmt::format(" + Устанавливает наносимые повреждения '{}D{}' среднее {:.1}\r\n",
+				drndice, drsdice, (drsdice + 1) * drndice / 2.0);
 		}
 	}
 
@@ -551,8 +551,9 @@ void init_zone_all() {
 
 	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum) {
 		if (zone_table[rnum].location) {
-			out << boost::format("  %2d - %s. Расположена: %s. Группа: %d. Примерный уровень: %d.\r\n") % i
-				% zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].group % zone_table[rnum].level;
+			out << fmt::format("  {:<2} - {}. Расположена: {}. Группа: {}. Примерный уровень: {}.\r\n",
+							   i, zone_table[rnum].name, zone_table[rnum].location,
+							   zone_table[rnum].group, zone_table[rnum].level);
 			++i;
 		}
 	}
@@ -941,7 +942,7 @@ void init_group_zones() {
 	for (std::size_t rnum = 0; rnum < zone_table.size(); ++rnum) {
 		const auto group = zone_table[rnum].group;
 		if (group > 1) {
-			out << boost::format("  %2d - %s (гр. %d+).\r\n") % (1 + rnum) % zone_table[rnum].name % group;
+			out << fmt::format("  {:2} - {} (гр. {}+).\r\n", (1 + rnum), zone_table[rnum].name, group);
 		}
 	}
 	out << "\r\nСм. также: &CЗОНЫ&n";
@@ -1060,7 +1061,7 @@ void UserSearch::print_key_list() const {
 	std::stringstream out;
 	out << "&WПо вашему запросу '&w" << arg_str << "&W' найдены следующие разделы справки:&n\r\n\r\n";
 	for (unsigned i = 0, count = 1; i < key_list.size(); ++i, ++count) {
-		out << boost::format("|&C %-23.23s &n|") % key_list[i]->keyword;
+		out << fmt::format("|&C {:<23.23} &n|", key_list[i]->keyword);
 		if ((count % 3) == 0) {
 			out << "\r\n";
 		}

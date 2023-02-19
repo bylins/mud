@@ -23,8 +23,8 @@
   <description lvl="44">Исполинский белый волк</description>
 
   <messages>
-    <message destination="room">$n обернул$u, повернул$u - %1% обернул$u.</message>
-    <message destination="char">Обернулись Вы, повернулись, и %1% обернулись.</message>
+    <message destination="room">$n обернул$u, повернул$u - {} обернул$u.</message>
+    <message destination="char">Обернулись Вы, повернулись, и {} обернулись.</message>
   </messages>
 
   <skills>
@@ -65,8 +65,8 @@
   <description lvl="44">Исполинский снежный барс</description>
 
   <messages>
-    <message destination="room">Плюнул$g $n через плечо, прыгнул$g задом наперед и обернул$u %1%.</message>
-    <message destination="char">Плюнули Вы через плечо, прыгнули задом наперед и обернулись %1%.</message>
+    <message destination="room">Плюнул$g $n через плечо, прыгнул$g задом наперед и обернул$u {}.</message>
+    <message destination="char">Плюнули Вы через плечо, прыгнули задом наперед и обернулись {}.</message>
   </messages>
 
   <skills>
@@ -99,8 +99,8 @@
   <toCha>0</toCha>
 
   <messages>
-    <message destination="room">Ударил$u $n о сыру землю, %1% предстал.</message>
-    <message destination="char">Ударились Вы о сыру землю, %1% предстали.</message>
+    <message destination="room">Ударил$u $n о сыру землю, {} предстал.</message>
+    <message destination="char">Ударились Вы о сыру землю, {} предстали.</message>
   </messages>
 
   <description lvl="1">Сокол</description>
@@ -139,8 +139,8 @@
 
 
   <messages>
-    <message destination="room">$n гикнул$g-свистнул$g да и обернул$u %1%.</message>
-    <message destination="char">Вы гикнули-свистнули да и обернулись %1%.</message>
+    <message destination="room">$n гикнул$g-свистнул$g да и обернул$u {}.</message>
+    <message destination="char">Вы гикнули-свистнули да и обернулись {}.</message>
   </messages>
 
   <skills>

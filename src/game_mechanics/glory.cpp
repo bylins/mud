@@ -19,7 +19,7 @@
 #include "glory_misc.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <sstream>
 
@@ -1095,42 +1095,6 @@ void show_stats(CharData *ch) {
 	}
 	SendMsgToChar(ch, "  Слава: вложено %d, свободно %d, всего %d\r\n",
 				  spend_glory, free_glory, free_glory + spend_glory);
-}
-
-// * Распечатка топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).
-void print_glory_top(CharData *ch) {
-	std::stringstream out;
-	boost::format class_format("\t%-20s %-2d\r\n");
-	std::map<int, GloryNodePtr> temp_list;
-	std::stringstream hide;
-
-	bool print_hide = false;
-	if (IS_IMMORTAL(ch)) {
-		print_hide = true;
-		hide << "\r\nПерсонажи, исключенные из списка: ";
-	}
-
-	for (const auto & it : glory_list) {
-		if (!it.second->hide && !it.second->freeze)
-			temp_list[it.second->free_glory + it.second->spend_glory * 1000] = it.second;
-		else if (print_hide)
-			hide << it.second->name << " ";
-	}
-
-	out << CCWHT(ch, C_NRM) << "Лучшие прославленные:\r\n" << CCNRM(ch, C_NRM);
-
-	int i = 0;
-	for (auto t_it = temp_list.rbegin(); t_it != temp_list.rend() && i < kPlayerChartSize; ++t_it, ++i) {
-		//имя с заглавной буквы. мб можно сделать как-то лучше...
-		t_it->second->name[0] = UPPER(t_it->second->name[0]);
-		out << class_format % t_it->second->name % (t_it->second->free_glory + t_it->second->spend_glory * 1000);
-	}
-	SendMsgToChar(out.str().c_str(), ch);
-
-	if (print_hide) {
-		hide << "\r\n";
-		SendMsgToChar(hide.str().c_str(), ch);
-	}
 }
 
 // * Вкдючение/выключение показа чара в топе славы (glory hide on|off).

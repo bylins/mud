@@ -17,7 +17,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
@@ -500,9 +500,9 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 			|| isname(arg, print_value)
 			|| (!name_value.empty()
 				&& isname(arg, name_value))) {
-			std::string format_str = "%4d)  %10s  %-"
-				+ std::to_string(std::count(print_value.begin(), print_value.end(), '&') * 2 + 45) + "s %8d\r\n";
-			out << boost::str(boost::format(format_str) % num++ % numToShow % print_value % item->get_price());
+			auto color_count = std::count(print_value.begin(), print_value.end(), '&')*2 + 45;
+			auto format_str = fmt::format("{}{}{}",  "{:4})  {:10}  {:<", color_count,"} {:8}\r\n");
+			out << fmt::format(fmt::runtime(format_str), num++, numToShow, print_value, item->get_price());
 		} else {
 			num++;
 		}
@@ -704,8 +704,8 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 								: boost::lexical_cast<std::string>(count);
 
 		if (show_name) {
-			out << (boost::str(
-				boost::format("%4d)  %10s  %-47s %8d\r\n") % num++ % numToShow % print_value % item->get_price()));
+			out << fmt::format("{:>4})  {:>10}  {:<47} {:>8}\r\n",
+							   num++, numToShow, print_value, item->get_price());
 		} else {
 			num++;
 		}

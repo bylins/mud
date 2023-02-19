@@ -14,10 +14,11 @@
 #include "db.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/detail/util.hpp>
+//#include <boost/algorithm/string/detail/util.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+
+#include <filesystem>
 
 namespace craft {
 using xml::loading::CHelper;
@@ -1141,7 +1142,7 @@ bool CCraftModel::load() {
 	for (const auto include : model.children("include")) {
 		const auto filename_attribute = include.attribute("filename");
 		if (!filename_attribute.empty()) {
-			using boost::filesystem::path;
+			using std::filesystem::path;
 			const std::string filename = (path(FILE_NAME).parent_path() / filename_attribute.value()).generic_string();
 			pugi::xml_document idoc;
 			const auto iresult = idoc.load_file(filename.c_str());
@@ -1216,7 +1217,7 @@ bool CCraftModel::load_prototype(const pugi::xml_node *prototype, const size_t n
 			return false;
 		}
 	} else {
-		using boost::filesystem::path;
+		using std::filesystem::path;
 		const std::string
 			filename = (path(FILE_NAME).parent_path() / prototype->attribute("filename").value()).generic_string();
 		pugi::xml_document pdoc;
@@ -1278,7 +1279,7 @@ bool CCraftModel::load_material(const pugi::xml_node *material, const size_t num
 			return false;
 		}
 	} else {
-		using boost::filesystem::path;
+		using std::filesystem::path;
 		const std::string
 			filename = (path(FILE_NAME).parent_path() / material->attribute("filename").value()).generic_string();
 		pugi::xml_document mdoc;
@@ -1333,7 +1334,7 @@ bool CCraftModel::load_recipe(const pugi::xml_node *recipe, const size_t number)
 			return false;
 		}
 	} else {
-		using boost::filesystem::path;
+		using std::filesystem::path;
 		const std::string
 			filename = (path(FILE_NAME).parent_path() / recipe->attribute("filename").value()).generic_string();
 		pugi::xml_document rdoc;

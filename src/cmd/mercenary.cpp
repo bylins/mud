@@ -1,12 +1,11 @@
-#include "cmd/mercenary.h"
+//#include "cmd/mercenary.h"
 
 #include "handler.h"
 #include "entities/char_player.h"
 #include "modify.h"
 #include "statistics/mob_stat.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 int do_social(CharData *ch, char *argument);
 
@@ -49,7 +48,6 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 				  "------------------------------------------------------------\r\n");
 	auto it = m->begin();
 	std::stringstream out;
-	std::string format_str = "%3d)  %-54s\r\n";
 	std::string mobname;
 	for (int num = 1; it != m->end(); ++it, ++num) {
 		if (it->second.currRemortAvail == 0)
@@ -57,7 +55,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 		if (isFavList && it->second.isFavorite == 0)
 			continue;
 		mobname = mob_stat::PrintMobName(it->first, 54);
-		out << boost::str(boost::format(format_str) % num % mobname);
+		out << fmt::format("{:<3})  {:<54.54}\r\n", num, mobname);
 	}
 	page_string(ch->desc, out.str());
 	SendMsgToChar(ch, "------------------------------------------------------------\r\n");
@@ -79,7 +77,8 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 	m = ch->getMercList();
 	const int cost = MERC::BASE_COST * (GetRealRemort(ch) + 1);
 	MobRnum rnum;
-	std::map<int, MERCDATA>::iterator it = m->begin();
+	//std::map<int, MERCDATA>::iterator
+	auto it = m->begin();
 	for (unsigned int num = 1; it != m->end(); ++it, ++num) {
 		if (num != pos)
 			continue;
@@ -131,13 +130,12 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			ExtractCharFromWorld(mob, false);
 		}
 	}
-	return;
 };
 
 void doForget(CharData *ch, CharData *boss, unsigned int pos) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
-	std::map<int, MERCDATA>::iterator it = m->begin();
+	auto it = m->begin();
 	for (unsigned int num = 1; it != m->end(); ++it, ++num) {
 		if (num != pos)
 			continue;
@@ -156,7 +154,6 @@ void doForget(CharData *ch, CharData *boss, unsigned int pos) {
 	}
 	sprintf(buf1, "[ERROR] MERC::doForget, не найден моб, pos: %d", pos);
 	mudlog(buf1, LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
-	return;
 };
 
 unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
@@ -164,12 +161,11 @@ unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
 	try {
-		pos = boost::lexical_cast<unsigned>(arg);
-	}
-	catch (const boost::bad_lexical_cast &) {
+		pos = std::stoi(arg);
+	} catch (const std::invalid_argument &) {
 		pos = 0;
 	}
-	if (pos < 1 || pos > m->size() || m->size() == 0) {
+	if (pos < 1 || pos > m->size() || m->empty()) {
 		sprintf(buf, "Протри глаза, такой персонаж тебе неведом!");
 		tell_to_char(boss, ch, buf);
 		return 0;
