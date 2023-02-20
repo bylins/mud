@@ -13,7 +13,6 @@
 #include "game_affects/affect_data.h"
 #include "conf.h"
 #include "entities/entities_constants.h"
-#include "features.h"
 #include "interpreter.h"
 #include "game_skills/skills.h"
 

@@ -76,7 +76,7 @@
         <spell id="kMindless"			level="29"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
         <spell id="kStunning"			level="29"	remort="6"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kEviless"			level="29"	remort="0"	circle="9"	mem="0"		cast="0.0"/>
-       <spell id="kPoosinedFog"			level="27"	remort="2"	circle="9"	mem="0"		cast="0.0"/>
+       <spell id="kDeadlyFog"			level="27"	remort="2"	circle="9"	mem="0"		cast="0.0"/>
         <spell id="kMassFear"			level="26"	remort="0"	circle="8"	mem="0"		cast="0.0"/>
     </spells>
     <feats remorts_for_slot="6">

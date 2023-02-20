@@ -1180,7 +1180,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
 			char tmp[kMaxInputLength];
-			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in {}() at %s:%d",
+			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in {}() at %s:%s:%d",
 					 static_cast<unsigned>(events[i].events),
 					 __func__, __FILE__, __LINE__);
 			log("%s", tmp);
