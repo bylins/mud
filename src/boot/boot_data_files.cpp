@@ -1,18 +1,12 @@
 #include "boot/boot_data_files.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "obj_prototypes.h"
-#include "dg_script/dg_scripts.h"
 #include "dg_script/dg_olc.h"
 #include "boards/boards.h"
 #include "communication/social.h"
 #include "description.h"
-#include "game_crafts/im.h"
-#include "entities/char_data.h"
 #include "help.h"
 #include "dg_script/dg_db_scripts.h"
-#include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
 #include <regex>
@@ -421,7 +415,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_realnum]->set_name(tmpstr);
 
 	std::string desc = fread_string();
-	boost::trim_right_if(desc, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
+	utils::TrimRightIf(desc, " _");
 	desc.shrink_to_fit();
 	world[room_realnum]->description_num = RoomDescription::add_desc(desc);
 
@@ -1235,13 +1229,6 @@ void MobileFile::parse_espec(char *buf, int i, int nr) {
 	interpret_espec(buf, ptr, i, nr);
 }
 
-std::vector<std::string> split_string(const char *str, std::string separator = " ") {
-	std::vector<std::string> array_string;
-	const auto temp_string = std::string(str);
-	boost::split(array_string, temp_string, boost::is_any_of(separator));
-	return array_string;
-}
-
 /*
  * interpret_espec is the function that takes espec keywords and values
  * and assigns the correct value to the mob as appropriate.  Adding new
@@ -1256,7 +1243,8 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 #define CASE(test) if (!matched && !str_cmp(keyword, test) && (matched = 1))
 
 	CASE("Resistances") {
-		auto array_string = split_string(value);
+		std::vector<std::string> array_string;
+		utils::Split(array_string, value);
 		if (array_string.size() < 7 || array_string.size() > EResist::kLastResist + 1) {
 			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;
@@ -1600,25 +1588,25 @@ bool ZoneFile::load_regular_zone() {
 
 		if (*buf == '^') {
 			std::string comment(buf);
-			boost::trim_if(comment, boost::is_any_of(std::string("^~")));
+			utils::TrimIf(comment, "^~");
 			zone.comment = str_dup(comment.c_str());
 		}
 
 		if (*buf == '&') {
 			std::string location(buf);
-			boost::trim_if(location, boost::is_any_of(std::string("&~")));
+			utils::TrimIf(location, "&~");
 			zone.location = str_dup(location.c_str());
 		}
 
 		if (*buf == '!') {
 			std::string autor(buf);
-			boost::trim_if(autor, boost::is_any_of(std::string("!~")));
+			utils::TrimIf(autor, "!~");
 			zone.author = str_dup(autor.c_str());
 		}
 
 		if (*buf == '$') {
 			std::string description(buf);
-			boost::trim_if(description, boost::is_any_of(std::string("$~")));
+			utils::TrimIf(description, "$~");
 			zone.description = str_dup(description.c_str());
 		}
 	}

@@ -8,15 +8,15 @@
 #include "cmd/do_features.h"
 #include "cmd/do_skills.h"
 #include "cmd/do_spells.h"
-#include "cmd_god/shutdown_parameters.h"
+//#include "cmd_god/shutdown_parameters.h"
 #include "communication/parcel.h"
 #include "communication/mail.h"
 #include "depot.h"
 #include "dg_script/dg_event.h"
-#include "entities/char_data.h"
-#include "entities/world_characters.h"
-#include "entities/world_objects.h"
-#include "game_abilities/abilities_info.h"
+//#include "entities/char_data.h"
+//#include "entities/world_characters.h"
+//#include "entities/world_objects.h"
+//#include "game_abilities/abilities_info.h"
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_utils.h"
@@ -31,7 +31,7 @@
 #include "utils/file_crc.h"
 #include "entities/char_player.h"
 
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/algorithm/string.hpp>
 
 extern int buf_switches, buf_largecount, buf_overflows;
@@ -205,16 +205,12 @@ void print_mob_bosses(CharData *ch, bool lvl_sort) {
 
 		const auto mob = mob_proto + mob_rnum;
 		const auto vnum = GET_MOB_VNUM(mob);
-		out += boost::str(boost::format("%3d %31s [%2d][%6d] %31s\r\n")
-							  % ++cnt
-							  % (mob->get_name_str().size() > 31
-								 ? mob->get_name_str().substr(0, 31)
-								 : mob->get_name_str())
-							  % zone_table[mob_index[mob_rnum].zone].mob_level
-							  % vnum
-							  % (zone_name_str.size() > 31
-								 ? zone_name_str.substr(0, 31)
-								 : zone_name_str));
+		out += fmt::format("{:<3} {:<31}s [{:<2}][{:<6}] {:<31}s\r\n",
+							  ++cnt,
+							  mob->get_name_str().substr(0, 31),
+							  zone_table[mob_index[mob_rnum].zone].mob_level,
+							  vnum,
+							  zone_name_str.substr(0, 31));
 	}
 	page_string(ch->desc, out);
 }

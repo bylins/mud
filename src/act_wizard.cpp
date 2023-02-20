@@ -87,9 +87,8 @@
 #include "game_magic/spells_info.h"
 #include "game_magic/magic_rooms.h"
 
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <sstream>
 #include <iomanip>
 #include <fstream>
@@ -3781,37 +3780,34 @@ std::string print_role(CharData *mob) {
 }
 
 std::string print_script(CharData *mob, const std::string &key) {
-	std::string out;
-
 	bool print_name = false;
 	if (key == "scriptname" || key == "triggername") {
 		print_name = true;
 	}
 
+	auto out = fmt::memory_buffer();
 	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script->empty()) {
 		bool first = true;
 		for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script) {
 			const int trg_rnum = real_trigger(trigger_vnum);
 			if (trg_rnum >= 0) {
 				if (!first) {
-					out += ", ";
+					format_to(std::back_inserter(out), ", ");
 				} else {
 					first = false;
 				}
-				out += boost::lexical_cast<std::string>(trig_index[trg_rnum]->vnum);
+				format_to(std::back_inserter(out), "{}", trig_index[trg_rnum]->vnum);
 				if (print_name) {
-					out += "(";
 					const auto &trigger_name = trig_index[trg_rnum]->proto->get_name();
-					out += !trigger_name.empty() ? trigger_name.c_str() : "null";
-					out += ")";
+					format_to(std::back_inserter(out), "({})", (trigger_name.empty() ? "null" : trigger_name.c_str()));
 				}
 			}
 		}
 	} else {
-		out += "---";
+		format_to(std::back_inserter(out), "---");
 	}
 
-	return out;
+	return to_string(out);
 }
 
 std::string print_special(CharData *mob) {
@@ -3848,57 +3844,52 @@ std::string print_flag(CharData *ch, CharData *mob, const std::string &options) 
 	std::vector<std::string> option_list;
 	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
 
-	std::string out;
+	auto out = fmt::memory_buffer();
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
-			out += boost::str(boost::format(" [раса: %s%s%s ]")
-								  % CCCYN(ch, C_NRM) % print_race(mob) % CCNRM(ch, C_NRM));
+			format_to(std::back_inserter(out), " [раса: {}{}{} ]",
+					  CCCYN(ch, C_NRM), print_race(mob), CCNRM(ch, C_NRM));
 		} else if (isname(i, "role")) {
-			out += boost::str(boost::format(" [роли: %s%s%s ]")
-								  % CCCYN(ch, C_NRM) % print_role(mob) % CCNRM(ch, C_NRM));
+			format_to(std::back_inserter(out), " [роли: {}{}{} ]",
+					  CCCYN(ch, C_NRM), print_role(mob), CCNRM(ch, C_NRM));
 		} else if (isname(i, "script trigger scriptname triggername")) {
-			out += boost::str(boost::format(" [скрипты: %s%s%s ]")
-								  % CCCYN(ch, C_NRM) % print_script(mob, i) % CCNRM(ch, C_NRM));
+			format_to(std::back_inserter(out), " [скрипты: %s%s%s ]",
+				CCCYN(ch, C_NRM), print_script(mob, i), CCNRM(ch, C_NRM));
 		} else if (isname(i, "special")) {
-			out += boost::str(boost::format(" [спец-проц: %s%s%s ]")
-								  % CCCYN(ch, C_NRM) % print_special(mob) % CCNRM(ch, C_NRM));
+			format_to(std::back_inserter(out), " [спец-проц: %s%s%s ]",
+					  CCCYN(ch, C_NRM), print_special(mob), CCNRM(ch, C_NRM));
 		}
 	}
 
-	return out;
+	return to_string(out);
 }
 
 void print(CharData *ch, int first, int last, const std::string &options) {
-	std::stringstream out;
-	out << "Список мобов от " << first << " до " << last << "\r\n";
+	auto out = fmt::memory_buffer();
+	format_to(std::back_inserter(out), "Список мобов от {} до {}\r\n", first, last);
 	int cnt = 0;
 	for (int i = 0; i <= top_of_mobt; ++i) {
 		if (mob_index[i].vnum >= first && mob_index[i].vnum <= last) {
-			out << boost::format("%5d. %45s [%6d] [%2d]%s")
-				% ++cnt
-				% (mob_proto[i].get_name_str().size() > 45
-				   ? mob_proto[i].get_name_str().substr(0, 45)
-				   : mob_proto[i].get_name_str())
-				% mob_index[i].vnum
-				% mob_proto[i].GetLevel()
-				% print_flag(ch, mob_proto + i, options);
+			format_to(std::back_inserter(out), "{:5}. {:<45} [{:<6}] [{:<2}]{}",
+					  ++cnt, mob_proto[i].get_name_str().substr(0, 45),
+					  mob_index[i].vnum, mob_proto[i].GetLevel(),
+					  print_flag(ch, mob_proto + i, options));
 			if (!mob_proto[i].proto_script->empty()) {
-				out << " - есть скрипты -";
+				format_to(std::back_inserter(out), " - есть скрипты -");
 				for (const auto trigger_vnum : *mob_proto[i].proto_script) {
-					sprintf(buf1, " [%d]", trigger_vnum);
-					out << buf1;
+					format_to(std::back_inserter(out), " {}", trigger_vnum);
 				}
-			} else
-				out << " - нет скриптов";
-			sprintf(buf1, " Всего в мире: %d\r\n", mob_index[i].total_online);
-			out << buf1;
+			} else {
+				format_to(std::back_inserter(out), " - нет скриптов");
+			}
+			format_to(std::back_inserter(out), " Всего в мире: {}\r\n", mob_index[i].total_online);
 		}
 	}
 
 	if (cnt == 0) {
 		SendMsgToChar("Нет мобов в этом промежутке.\r\n", ch);
 	} else {
-		page_string(ch->desc, out.str());
+		page_string(ch->desc, to_string(out));
 	}
 }
 

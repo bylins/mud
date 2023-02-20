@@ -14,8 +14,7 @@
 #include <iomanip>
 #include <limits>
 
-#include <boost/format.hpp>
-#include <third_party_libs/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "entities/world_objects.h"
 #include "entities/world_characters.h"
@@ -649,8 +648,7 @@ void Clan::HconShow(CharData *ch) {
 	std::ostringstream buffer;
 	buffer
 		<< "Abbrev|  Rent|OutRent| Chest|iChest|  Guard|CreateDate|      StoredExp|      Bank|Items| Ing |DayTax|Lvl|Test|Распущена\r\n";
-	//boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s|%9s\r\n");
-	std::string show("{:<4}|{:<6}|{:<7}|{:<6}|{:<6}|{:<7}|{:<10}|{:<15}|{:<10}|{:<5}|{:<5}|{:<6}|{:<3}|{:<4}|{:<9}\r\n");
+	std::string_view show("{:<4}|{:<6}|{:<7}|{:<6}|{:<6}|{:<7}|{:<10}|{:<15}|{:<10}|{:<5}|{:<5}|{:<6}|{:<3}|{:<4}|{:<9}\r\n");
 	int total_day_tax = 0;
 
 	for (auto & clan : Clan::ClanList) {
@@ -661,7 +659,7 @@ void Clan::HconShow(CharData *ch) {
 		cost += clan->calculate_clan_tax();
 		total_day_tax += cost;
 
-		buffer << fmt::format(show, clan->abbrev, clan->rent, clan->out_rent, clan->chest_room,
+		buffer << fmt::format(fmt::runtime(show), clan->abbrev, clan->rent, clan->out_rent, clan->chest_room,
 			GET_ROOM_VNUM(clan->get_ingr_chest_room_rnum()), clan->guard, timeBuf,
 			clan->clan_exp, clan->bank, clan->chest_objcount,
 			clan->ingr_chest_objcount_, cost, clan->clan_level,
@@ -1683,7 +1681,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		std::ostringstream out;
 		// \todo Тут нужно использовать table_wrapper::Table а не формат.
-		boost::format clanTopFormat(" %5d  %6s   %-30s %14s%14s %9d\r\n");
+		std::string_view clanTopFormat{" {:5}  {:6}   {:>30} {:14}{:14} {:9}\r\n"};
 		out << "В игре зарегистрированы следующие дружины:\r\n"
 			<< "     #           Название                          Всего опыта    За 30 дней   Человек\r\n\r\n";
 		int count = 1;
@@ -1693,12 +1691,12 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			const auto& clan = it.second;
 			if (clan->is_pk())
-				out << clanTopFormat % count % clan->abbrev % clan->name % ExpFormat(clan->exp)
-					% ExpFormat(clan->last_exp.get_exp()) % clan->m_members.size();
+				out << fmt::format(fmt::runtime(clanTopFormat), count, clan->abbrev, clan->name, ExpFormat(clan->exp),
+					ExpFormat(clan->last_exp.get_exp()), clan->m_members.size());
 			else
 				out << "&g"
-					<< clanTopFormat % count % clan->abbrev % clan->name % ExpFormat(clan->exp)
-						% ExpFormat(clan->last_exp.get_exp()) % clan->m_members.size() << "&n";
+					<< fmt::format(fmt::runtime(clanTopFormat), count, clan->abbrev, clan->name, ExpFormat(clan->exp),
+						ExpFormat(clan->last_exp.get_exp()), clan->m_members.size()) << "&n";
 			++count;
 		}
 		SendMsgToChar(out.str(), ch);
@@ -1749,18 +1747,18 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	std::ostringstream buffer2;
 	buffer2 << "В игре зарегистрированы следующие дружины:\r\n" << "     #                  Глава Название\r\n\r\n";
-	boost::format clanFormat(" %5d  %6s %15s %s\r\n");
-	boost::format memberFormat(" %-10s %s%s%s %s%s%s\r\n");
+	std::string_view clanFormat{" {:5}  {:6} {:15} {}\r\n"};
+	std::string_view memberFormat{" {:>10} {}{}{} {}{}{}\r\n"};
 	// если искали конкретную дружину - выводим ее
 	if (!all) {
-		buffer2 << clanFormat % 1 % (*clan)->abbrev % (*clan)->owner % (*clan)->name;
+		buffer2 << fmt::format(fmt::runtime(clanFormat), 1, (*clan)->abbrev, (*clan)->owner, (*clan)->name);
 		for (const auto &it : temp_list) {
-			buffer2 << memberFormat % (IS_MALE(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num]
-												   : (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num])
-				% CCPK(ch, C_NRM, it) % (it)->noclan_title()
-				% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
-				% (PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : "")
-				% CCNRM(ch, C_NRM);
+			buffer2 << fmt::format(fmt::runtime(memberFormat), (IS_MALE(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num]
+												   : (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num]),
+				CCPK(ch, C_NRM, it), (it)->noclan_title(),
+				CCNRM(ch, C_NRM), CCIRED(ch, C_NRM),
+				(PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
+				CCNRM(ch, C_NRM));
 		}
 	}
 		// просто выводим все дружины и всех членов (без параметра 'все' в списке будут только дружины)
@@ -1771,14 +1769,15 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			buffer2 << clanFormat % count % (*clan_i)->abbrev % (*clan_i)->owner % (*clan_i)->name;
+			buffer2 << fmt::format(fmt::runtime(clanFormat),
+								   count, (*clan_i)->abbrev, (*clan_i)->owner, (*clan_i)->name);
 			for (const auto &it : temp_list) {
 				if (CLAN(it) == *clan_i) {
-					buffer2 << memberFormat % (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num]
-						% CCPK(ch, C_NRM, it) % it->noclan_title()
-						% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
-						% (PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : "")
-						% CCNRM(ch, C_NRM);
+					buffer2 << fmt::format(fmt::runtime(memberFormat), (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num],
+						CCPK(ch, C_NRM, it), it->noclan_title(),
+						CCNRM(ch, C_NRM), CCIRED(ch, C_NRM),
+						(PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
+						CCNRM(ch, C_NRM));
 				}
 			}
 			++count;
@@ -1901,7 +1900,9 @@ void DoShowWars(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //-Polud
 
 void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc()) return;
+	if (ch->IsNpc()) {
+		return;
+	}
 	std::string buffer = argument;
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии союза:\r\n";
@@ -1960,9 +1961,7 @@ void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	boost::format strFormat("  %-3s             %s%-11s%s                 %s%-11s%s\r\n");
 	int p1 = 0, p2 = 0;
-
 	std::ostringstream buffer2;
 	buffer2 << "Отношения Вашей дружины с другими дружинами:\r\n" <<
 			"Название     Отношение Вашей дружины     Отношение к вашей дружине\r\n";
@@ -1973,11 +1972,11 @@ void DoShowPolitics(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		p1 = CLAN(ch)->CheckPolitics(clanVictim->rent);
 		p2 = clanVictim->CheckPolitics(CLAN(ch)->rent);
-		buffer2 << strFormat % clanVictim->abbrev
-			% (p1 == kPoliticsWar ? CCIRED(ch, C_NRM) : (p1 == kPoliticsAlliance ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM)))
-			% politicsnames[p1] % CCNRM(ch, C_NRM)
-			% (p2 == kPoliticsWar ? CCIRED(ch, C_NRM) : (p2 == kPoliticsAlliance ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM)))
-			% politicsnames[p2] % CCNRM(ch, C_NRM);
+		buffer2 << fmt::format("  {:>3}             {}{:>11}{}                 {}{:>11}{}\r\n", clanVictim->abbrev,
+			(p1 == kPoliticsWar ? CCIRED(ch, C_NRM) : (p1 == kPoliticsAlliance ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM))),
+			politicsnames[p1], CCNRM(ch, C_NRM),
+			(p2 == kPoliticsWar ? CCIRED(ch, C_NRM) : (p2 == kPoliticsAlliance ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM))),
+			politicsnames[p2], CCNRM(ch, C_NRM));
 	}
 	SendMsgToChar(buffer2.str(), ch);
 }
@@ -2614,8 +2613,8 @@ void DoWhoClan(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::ostringstream buffer;
-	buffer << boost::format(" Ваша дружина: %s%s%s.\r\n") % CCIRED(ch, C_NRM) % CLAN(ch)->abbrev % CCNRM(ch, C_NRM);
-	buffer << boost::format(" %sСейчас в игре Ваши соратники:%s\r\n\r\n") % CCWHT(ch, C_NRM) % CCNRM(ch, C_NRM);
+	buffer << fmt::format(" Ваша дружина: {}{}{}.\r\n", CCIRED(ch, C_NRM), CLAN(ch)->abbrev, CCNRM(ch, C_NRM));
+	buffer << fmt::format(" {}Сейчас в игре Ваши соратники:{}\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	DescriptorData *d;
 	int num = 0;
 
@@ -2656,13 +2655,13 @@ bool check_online_state(long uid) {
 // * Распечатка пкл/дрл с учетом режима 'пкфортмат'.
 void print_pkl(CharData *ch, std::ostringstream &stream, ClanPkList::const_iterator &it) {
 	static char timeBuf[11];
-	static boost::format frmt("%s [%s] :: %s\r\n%s\r\n\r\n");
 
 	if (PRF_FLAGGED(ch, EPrf::kPkFormatMode))
 		stream << it->second->victimName << " : " << it->second->text << "\n";
 	else {
 		strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-		stream << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
+		stream << fmt::format("{} [{}] :: {}\r\n{}\r\n\r\n",
+							  timeBuf, it->second->authorName, it->second->victimName, it->second->text);
 	}
 }
 
@@ -2676,7 +2675,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	GetOneParam(buffer, buffer2);
 	std::ostringstream info;
 
-	boost::format frmt("%s [%s] :: %s\r\n%s\r\n\r\n");
+	//std::string frmt{"%s [%s] :: %s\r\n%s\r\n\r\n"};
 	if (buffer2.empty()) {
 		// выводим список тех, кто онлайн
 		SendMsgToChar(ch,
@@ -3048,9 +3047,9 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 	if (obj->get_carried_by() == ch) {
-		std::string log_text = boost::str(boost::format("%s забрал%s %s%s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->get_PName(3)
-											  % clan_get_custom_label(obj, CLAN(ch)));
+		std::string log_text = fmt::format("{} забрал{} {}{}\r\n",
+											 GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(3),
+											 clan_get_custom_label(obj, CLAN(ch)));
 		CLAN(ch)->chest_log.add(log_text);
 
 		// канал хранилища
@@ -3334,9 +3333,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 						  over,
 						  GetDeclensionInNumber(over, EWhat::kMoneyU));
 			act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
-			std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
-												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
-												  % GetDeclensionInNumber(over, EWhat::kMoneyU));
+			std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
+												 GET_NAME(ch), GET_CH_SUF_1(ch), over,
+												 GetDeclensionInNumber(over, EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
@@ -3345,8 +3344,8 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
 		SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
-		std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
-				% GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold, EWhat::kMoneyU));
+		std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch), gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 	} else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw")) {
@@ -3374,9 +3373,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), over);
 			SendMsgToChar(ch, "Вам удалось снять только %ld %s.\r\n", over, GetDeclensionInNumber(over, EWhat::kMoneyU));
 			act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
-			std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
-												  % GET_NAME(ch) % GET_CH_SUF_1(ch) % over
-												  % GetDeclensionInNumber(over, EWhat::kMoneyU));
+			std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
+												 GET_NAME(ch), GET_CH_SUF_1(ch), over,
+												 GetDeclensionInNumber(over, EWhat::kMoneyU));
 			CLAN(ch)->chest_log.add(log_text);
 			return true;
 		}
@@ -3385,9 +3384,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		ch->add_gold(gold);
 		SendMsgToChar(ch, "Вы сняли %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
-		std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
-											  % GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % GetDeclensionInNumber(gold,
-																											   EWhat::kMoneyU));
+		std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
+											 GET_NAME(ch), GET_CH_SUF_1(ch),
+											 gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 	} else
@@ -5586,7 +5585,7 @@ std::string clan_get_custom_label(ObjData *obj, Clan::shared_ptr clan) {
 		&& obj->get_custom_label()->clan_abbrev
 		&& clan
 		&& !strcmp(clan->GetAbbrev(), obj->get_custom_label()->clan_abbrev)) {
-		return boost::str(boost::format(" *%s*") % obj->get_custom_label()->text_label);
+		return fmt::format(" *{}*", obj->get_custom_label()->text_label);
 	} else {
 		return "";
 	}

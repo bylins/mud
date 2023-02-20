@@ -3,10 +3,7 @@
 
 #include "bonus.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "bonus_command_parser.h"
-#include "handler.h"
 #include "modify.h"
 #include "entities/char_player.h"
 
@@ -58,7 +55,7 @@ void bonus_log_add(const std::string &name) {
 	std::stringstream ss;
 	ss << rustime(localtime(&nt)) << " " << name;
 	std::string buf = ss.str();
-	boost::replace_all(buf, "\r\n", "");
+	utils::EraseAll(buf, "\r\n");
 	bonus_log.push_back(buf);
 
 	std::ofstream fout("../log/bonus.log", std::ios_base::app);
@@ -70,15 +67,15 @@ class AbstractErrorReporter {
  public:
 	using shared_ptr = std::shared_ptr<AbstractErrorReporter>;
 
-	virtual ~AbstractErrorReporter() {}
+	virtual ~AbstractErrorReporter() = default;
 	virtual void report(const std::string &message) = 0;
 };
 
 class CharacterReporter : public AbstractErrorReporter {
  public:
-	CharacterReporter(CharData *character) : m_character(character) {}
+	explicit CharacterReporter(CharData *character) : m_character(character) {}
 
-	virtual void report(const std::string &message) override;
+	void report(const std::string &message) override;
 
 	static shared_ptr create(CharData *character) { return std::make_shared<CharacterReporter>(character); }
 
@@ -92,7 +89,7 @@ void CharacterReporter::report(const std::string &message) {
 
 class MudlogReporter : public AbstractErrorReporter {
  public:
-	virtual void report(const std::string &message) override;
+	void report(const std::string &message) override;
 
 	static shared_ptr create() { return std::make_shared<MudlogReporter>(); }
 };
@@ -108,7 +105,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 
 	const auto result = bonus.result();
 	switch (result) {
-		case ArgumentsParser::ER_ERROR: reporter->report(bonus.error_message().c_str());
+		case ArgumentsParser::ER_ERROR: reporter->report(bonus.error_message());
 			break;
 
 		case ArgumentsParser::ER_START:
@@ -122,7 +119,7 @@ void do_bonus(const AbstractErrorReporter::shared_ptr &reporter, const char *arg
 					std::stringstream ss;
 					ss << "&W" << message << "&n\r\n";
 					bonus_log_add(ss.str());
-					setup_bonus(bonus.time(), bonus.multiplier(), bonus.type());
+					setup_bonus(static_cast<int>(bonus.time()), bonus.multiplier(), bonus.type());
 				}
 			}
 			break;
@@ -164,7 +161,7 @@ std::string time_to_bonus_end_as_string() {
 
 std::string active_bonus_as_string() {
 	if (bonus_info.time_bonus == -1) {
-		return std::string();
+		return {};
 	}
 	switch (bonus_info.type_bonus) {
 		case EBonusType::BONUS_DAMAGE: return "Сейчас идет бонус: повышенный урон, множитель " + std::to_string(bonus_info.mult_bonus) + ".";

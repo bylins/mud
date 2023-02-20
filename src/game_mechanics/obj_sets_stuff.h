@@ -84,15 +84,15 @@ struct ActivNode {
 	bool operator==(const ActivNode &r) const {
 		return !(*this != r);
 	}
-	bool empty() const {
+	[[nodiscard]] bool empty() const {
 		if (!affects.empty()
 			|| skill.first >= ESkill::kFirst
 			|| !bonus.empty()
 			|| !enchant.second.empty()) {
 			return false;
 		}
-		for (auto i = apply.begin(); i != apply.end(); ++i) {
-			if (i->location > 0) {
+		for (auto i : apply) {
+			if (i.location > 0) {
 				return false;
 			}
 		}
@@ -117,7 +117,7 @@ struct SetNode {
 	// любая доп инфа, видимая только в slist
 	std::string comment;
 	// внумы предметов, активаций/деактиваций (опционально)
-	std::map<int, SetMsgNode> obj_list;
+	std::map<ObjVnum, SetMsgNode> obj_list;
 	// first - кол-во предметов для активации
 	std::map<unsigned, ActivNode> activ_list;
 	// сообщения активаций/деактиваций на весь сет (опционально)

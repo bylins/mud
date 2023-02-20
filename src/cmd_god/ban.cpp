@@ -7,15 +7,12 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "interpreter.h"
-#include "handler.h"
 #include "ban.h"
 #include "modify.h"
 #include "structs/global_objects.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/tokenizer.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
 
 extern DescriptorData *descriptor_list;
 
@@ -248,7 +245,7 @@ void SaveProxyList() {
 		return;
 	}
 
-	for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
+	for (auto it = proxyList.begin(); it != proxyList.end(); ++it) {
 		file << it->second->textIp << "  " << (it->second->textIp2.empty() ? "0"
 																		   : it->second->textIp2) << "  "
 			 << it->second->num << "  " << it->second->text << "\n";
@@ -334,13 +331,13 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GetOneParam(buffer, buffer2);
 
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
-		boost::format proxyFormat(" %-15s   %-15s   %-2d   %s\r\n");
 		std::ostringstream out;
 		out << "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n";
 
-		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it)
-			out << proxyFormat % it->second->textIp % it->second->textIp2 % it->second->num % it->second->text;
-
+		for (const auto &it : proxyList) {
+			out << fmt::format(" {:<15}   {:<15}   {:<2}   {}\r\n",
+							   it.second->textIp, it.second->textIp2, it.second->num, it.second->text);
+		}
 		page_string(ch->desc, out.str());
 
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
@@ -379,7 +376,7 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 
-		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
+		utils::TrimIf(buffer, " \'");
 		if (buffer.empty()) {
 			SendMsgToChar("Укажите причину регистрации.\r\n", ch);
 			return;

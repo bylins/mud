@@ -38,7 +38,7 @@
 #include "game_mechanics/mem_queue.h"
 #include <sys/stat.h>
 
-#include <boost/format.hpp>
+//#include <third_party_libs/fmt/include/fmt/format.h>
 #include <stack>
 #include <sstream>
 

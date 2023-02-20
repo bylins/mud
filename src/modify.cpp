@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "modify.h"
 
@@ -763,9 +763,7 @@ void string_add(DescriptorData *d, char *str) {
 						&& CLAN(d->character)->CheckPrivilege(
 							CLAN_MEMBER(d->character)->rank_num,
 							ClanSystem::MAY_CLAN_MOD)) {
-						std::string head = boost::str(boost::format
-														  ("Сообщение дружины (автор %1%):\r\n")
-														  % GET_NAME(d->character));
+						std::string head = fmt::format("Сообщение дружины (автор {}):\r\n", GET_NAME(d->character));
 						// отступ (копи-паст из CON_WRITEBOARD выше)
 						format_news_message(body);
 						head += body;

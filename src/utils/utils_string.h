@@ -118,7 +118,7 @@ void ConvertToLow(char *text);
  * @param s - разделяемая строка.
  * @param delimiter - символ-разделитель, по умолчаниб - пробел.
  */
-void Split(std::vector<std::string> &tokens, const std::string& s, char delimiter = ' ');
+void Split(std::vector<std::string> &tokens, const std::string &s, char delimiter = ' ');
 
 /**
  * Обрезать пробелы слева.
@@ -128,11 +128,11 @@ void TrimLeft(std::string &s);
 /**
  *  Обрезать пробелы справа.
  */
-void TrimRight(std::string &s)
+void TrimRight(std::string &s);
 
 /**
  * Обрезать пробелы справа и слева.
- */;
+ */
 void Trim(std::string &s);
 
 /**
@@ -143,42 +143,99 @@ std::string TrimLeftCopy(std::string s);
 /**
  *  Обрезать пробелы справа, вернуть копию.
  */
-
 std::string TrimRightCopy(std::string s);
 
 /**
  * Обрезать пробелы справа и слева, вернуть копию.
- */;
+ */
 std::string TrimCopy(std::string s);
 
-// сконвертировать в WIN для сортировки
+/**
+ * Обрезать ведущие пробелы и рассматриваемые как пробелы символы.
+ * Если нужно удалить только настоящие пробелы, используйте семейство функций Trim.
+ * @param s - входная строка.
+ * @param whitespaces - набор символов, которые считаются пробелами.
+ */
+void TrimLeftIf(std::string &s, const std::string &whitespaces);
+
+/**
+ * Обрезать конечные пробелы и рассматриваемые как пробелы символы.
+ * Если нужно удалить только настоящие пробелы, используйте семейство функций Trim.
+ * @param s - входная строка.
+ * @param whitespaces - набор символов, которые считаются пробелами.
+ */
+void TrimRightIf(std::string &s, const std::string &whitespaces);
+
+/**
+ * Обрезать ведущие и конечные пробелы и рассматриваемые как пробелы символы.
+ * Если нужно удалить только настоящие пробелы, используйте семейство функций Trim.
+ * @param s - входная строка.
+ * @param whitespaces - набор символов, которые считаются пробелами.
+ */
+void TrimIf(std::string &s, const std::string &whitespaces);
+
+/**
+ * Конвертировать Koi в WIN.
+ */
 void ConvertKtoW(std::string &text);
 
-// обратно
+/**
+ * Конвертировать WIN в Koi.
+ */
 void ConvertWtoK(std::string &text);
 
-// На копии
+/**
+ * Конвертировать Koi в WIN. Вернуть копию.
+ */
 std::string SubstKtoW(std::string s);
 
-// На копии
+/**
+ * Конвертировать WIN в Koi. Вернуть копию.
+ */
 std::string SubstWtoK(std::string s);
 
-// соортировка KOI8-R строк, а-я
+/**
+ * Соортировка KOI8-R строки, прямая (а-я).
+ */
 void SortKoiString(std::vector<std::string> &str);
 
-// соортировка KOI8-R строк, я-а
+/**
+ * Соортировка KOI8-R строки, обратная (я-а).
+ */
 void SortKoiStringReverse(std::vector<std::string> &str);
 
-// Замена . и _ на пробел
+/**
+ * Заменить '.' и '_' на пробелы.
+ */
 std::string FixDot(std::string s);
 
-// строку в нижний регистр
+/**
+ * Перевести строку в нижний регистр.
+ */
 std::string SubstStrToLow(std::string s);
 
-// строку в верхний регистр
+/**
+ * Перевести строку в верхний регистр.
+ */
 std::string SubstStrToUpper(std::string s);
 
-}
+/**
+ * Заменить вхождения указанной подстроки на другую строку.
+ * @param s - исходная строка.
+ * @param toSearch - искомая подстрока.
+ * @param replacer - строка-заменитель.
+ */
+void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &replacer);
+
+/**
+ * Удалить все вхождения указанной подстроки.
+ * @param s - исходная строка.
+ * @param toSearch - искомая подстрока.
+ */
+void EraseAll(std::string &s, const std::string &toSearch);
+
+} // namespace utils
+
 #endif // UTILS_STRING_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

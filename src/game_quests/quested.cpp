@@ -6,10 +6,7 @@
 
 #include "entities/char_data.h"
 
-//#include <boost/algorithm/string/predicate.hpp>
-
 void smash_tilde(char *str);
-
 
 // * Добавление выполненного квеста номер/строка данных (kMaxTrglineLength символов).
 

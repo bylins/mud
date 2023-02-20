@@ -74,11 +74,7 @@
 #include "game_crafts/mining.h"
 #include "structs/global_objects.h"
 
-//#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-//#include <boost/format.hpp>
 #include <iomanip>
-
 #include <string>
 #include <sstream>
 #include <vector>
@@ -414,7 +410,7 @@ std::string AddLeadingStringSpace(const std::string& text) {
 	if (!text.empty()) {
 		std::string tmp(" ");
 		tmp += text;
-		boost::replace_all(tmp, "\n", "\n ");
+		utils::ReplaceAll(tmp, "\n", "\n ");
 		return tmp;
 	}
 	return "";

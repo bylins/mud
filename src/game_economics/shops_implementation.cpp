@@ -15,9 +15,8 @@
 #include "game_fight/pk.h"
 #include "entities/zone.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
@@ -228,9 +227,9 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		if (is_number(buffer1.c_str())) {
 			// buy 5
 			try {
-				item_num = boost::lexical_cast<unsigned>(buffer1);
+				item_num = std::stoul(buffer1);
 			}
-			catch (const boost::bad_lexical_cast &) {
+			catch (const std::exception &) {
 				item_num = 0;
 			}
 		} else {
@@ -241,9 +240,9 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		if (is_number(buffer2.c_str())) {
 			// buy 5 10
 			try {
-				item_num = boost::lexical_cast<unsigned>(buffer2);
+				item_num = std::stoul(buffer2);
 			}
-			catch (const boost::bad_lexical_cast &) {
+			catch (std::exception &) {
 				item_num = 0;
 			}
 		} else {
@@ -251,9 +250,9 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			item_num = get_item_num(buffer2, GET_MOB_VNUM(keeper));
 		}
 		try {
-			item_count = boost::lexical_cast<unsigned>(buffer1);
+			item_count = std::stoul(buffer1);
 		}
-		catch (const boost::bad_lexical_cast &) {
+		catch (std::exception &) {
 			item_count = 1000;
 		}
 	} else {
@@ -493,16 +492,16 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 			}
 		}
 
-		std::string numToShow = (count == -1 || count > 999 ? "Навалом" : boost::lexical_cast<std::string>(count));
+		std::string numToShow = (count == -1 || count > 999 ? "Навалом" : fmt::format("{}", count));
 
 		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
 		if (arg.empty()
 			|| isname(arg, print_value)
 			|| (!name_value.empty()
 				&& isname(arg, name_value))) {
-			std::string format_str = "%4d)  %10s  %-"
-				+ std::to_string(std::count(print_value.begin(), print_value.end(), '&') * 2 + 45) + "s %8d\r\n";
-			out << boost::str(boost::format(format_str) % num++ % numToShow % print_value % item->get_price());
+			auto color_count = std::count(print_value.begin(), print_value.end(), '&')*2 + 45;
+			auto format_str = fmt::format("{}{}{}",  "{:4})  {:10}  {:<", color_count,"} {:8}\r\n");
+			out << fmt::format(fmt::runtime(format_str), num++, numToShow, print_value, item->get_price());
 		} else {
 			num++;
 		}
@@ -699,13 +698,10 @@ void shop_node::filter_shop_list(CharData *ch, const std::string &arg, int keepe
 			}
 		}
 
-		std::string numToShow = count == -1
-								? "Навалом"
-								: boost::lexical_cast<std::string>(count);
-
+		std::string numToShow = count == -1 ? "Навалом" : fmt::format("{}", count);
 		if (show_name) {
-			out << (boost::str(
-				boost::format("%4d)  %10s  %-47s %8d\r\n") % num++ % numToShow % print_value % item->get_price()));
+			out << fmt::format("{:>4})  {:>10}  {:<47} {:>8}\r\n",
+							   num++, numToShow, print_value, item->get_price());
 		} else {
 			num++;
 		}
@@ -828,9 +824,9 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 	if (is_number(buffer.c_str())) {
 		// характеристики 5
 		try {
-			item_num = boost::lexical_cast<unsigned>(buffer);
+			item_num = std::stoul(buffer);
 		}
-		catch (const boost::bad_lexical_cast &) {
+		catch (std::exception &) {
 		}
 	} else {
 		// характеристики меч
@@ -1131,10 +1127,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		buy_price = buy_price_old;
 	}
 
-	std::string price_to_show =
-		boost::lexical_cast<std::string>(buy_price) + " " + std::string(GetDeclensionInNumber(buy_price,
-																							  EWhat::kMoneyU));
-
+	std::string price_to_show = fmt::format("{} {}", buy_price, GetDeclensionInNumber(buy_price, EWhat::kMoneyU));
 	if (cmd == "Оценить") {
 		if (bloody::is_bloody(obj)) {
 			tell_to_char(keeper, ch, "Иди от крови отмой сначала!");
@@ -1226,10 +1219,9 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 						 ("Я не буду тратить свое драгоценное время на " + GET_OBJ_PNAME(obj, 3) + ".").c_str());
 			return;
 		}
-
-		tell_to_char(keeper, ch, ("Починка " + std::string(GET_OBJ_PNAME(obj, 1)) + " обойдется в "
-			+ boost::lexical_cast<std::string>(repair_price) + " " + GetDeclensionInNumber(repair_price,
-																						   EWhat::kMoneyU)).c_str());
+		std::string tell = fmt::format("Починка {} обойдется в {}.",
+									   GET_OBJ_PNAME(obj, 1), GetDeclensionInNumber(repair_price, EWhat::kMoneyU));
+		tell_to_char(keeper, ch, tell.c_str());
 
 		if (!IS_GOD(ch) && repair_price > ch->get_gold()) {
 			act("А вот их у тебя как-раз то и нет.", false, ch, 0, 0, kToChar);

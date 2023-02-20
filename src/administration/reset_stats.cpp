@@ -3,10 +3,8 @@
 
 #include "genchar.h"
 #include "color.h"
-#include "utils/parse.h"
 #include "entities/char_data.h"
-
-#include <boost/format.hpp>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
 extern bool ValidateStats(DescriptorData *d);
@@ -120,19 +118,19 @@ void print_menu(DescriptorData *d) {
 	const int feats_price = calc_price(d->character.get(), Type::FEATS);
 	const int religion_price = calc_price(d->character.get(), Type::RELIGION);
 
-	std::string str = boost::str(boost::format(
-		"%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n"
-		"1) оплатить %d %s и начать перераспределение стартовых характеристик.\r\n"
-		"2) оплатить %d %s и перейти к выбору рода.\r\n"
-		"3) оплатить %d %s и сбросить способности (кроме врожденных).\r\n"
-		"4) оплатить %d %s и перейти к выбору вероисповедания.\r\n"
+	std::string str = fmt::format(
+		"{}В случае потери связи процедуру можно будет продолжить при следующем входе в игру.{}\r\n\r\n"
+		"1) оплатить {} {} и начать перераспределение стартовых характеристик.\r\n"
+		"2) оплатить {} {} и перейти к выбору рода.\r\n"
+		"3) оплатить {} {} и сбросить способности (кроме врожденных).\r\n"
+		"4) оплатить {} {} и перейти к выбору вероисповедания.\r\n"
 		"5) отменить и вернуться в главное меню\r\n"
-		"\r\nВаш выбор:")
-									 % CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR)
-									 % stats_price % GetDeclensionInNumber(stats_price, EWhat::kMoneyA)
-									 % race_price % GetDeclensionInNumber(race_price, EWhat::kMoneyA)
-									 % feats_price % GetDeclensionInNumber(feats_price, EWhat::kMoneyA)
-									 % religion_price % GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
+		"\r\nВаш выбор:",
+									 CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR),
+									 stats_price, GetDeclensionInNumber(stats_price, EWhat::kMoneyA),
+									 race_price, GetDeclensionInNumber(race_price, EWhat::kMoneyA),
+									 feats_price, GetDeclensionInNumber(feats_price, EWhat::kMoneyA),
+									 religion_price, GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
 	SEND_TO_Q(str.c_str(), d);
 }
 
