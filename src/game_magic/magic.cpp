@@ -1675,7 +1675,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
 				CalcGeneralSaving(ch, victim, savetype, modi))) {
 				if (ch->in_room
-					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
+					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_DEADLY_FOG не спамил чару постоянно
 					SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;
@@ -4054,7 +4054,31 @@ const AreaSpellParams mag_messages[] =
 		 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
 		 nullptr,
 		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"},
-		 {ESpell::kPoison,
+		{ESpell::kPoison,
+		 nullptr,
+		 nullptr,
+		 nullptr},
+		{ESpell::kFever,
+		 nullptr,
+		 nullptr,
+		 nullptr},
+		{ESpell::kWeaknes,
+		 nullptr,
+		 nullptr,
+		 nullptr},
+		{ESpell::kPowerBlindness,
+		 nullptr,
+		 nullptr,
+		 nullptr},
+		{ESpell::kDamageCritic,
+		 nullptr,
+		 nullptr,
+		 nullptr},
+		{ESpell::kSacrifice,
+		 nullptr,
+		 nullptr,
+		 nullptr},
+		{ESpell::kAcidArrow,
 		 nullptr,
 		 nullptr,
 		 nullptr},

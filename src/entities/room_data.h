@@ -57,7 +57,7 @@ struct WeatherControl {
 
 // Структура хранит разннобразные характеристики комнат //
 struct RoomState {
-	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
+	int poison; //Пока только степень зараженности для SPELL_DEADLY_FOG//
 };
 
 struct RoomData {
@@ -110,7 +110,7 @@ struct RoomData {
 	// Добавки к параметрам  которые модифицируются аффектами ...
 	struct RoomState add_property;
 
-	int poison;        // Степень заражения территории в SPELL_POISONED_FOG //
+	int poison;        // Степень заражения территории в SPELL_DEADLY_FOG //
 
 	bool get_flag(const Bitvector flag) const { return m_room_flags.get(flag); }
 	void set_flag(const Bitvector flag) { m_room_flags.set(flag); }

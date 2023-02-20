@@ -180,7 +180,7 @@ enum class ESpell {
 	kBerserk = 164,
 	kStoneBones = 165,
 	kRoomLight = 166,
-	kPoosinedFog = 167,
+	kDeadlyFog = 167,
 	kThunderstorm = 168,
 	kLightWalk = 169,
 	kFailure = 170,

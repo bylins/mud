@@ -16,7 +16,7 @@ const int kSecsPerRoomAffect = 2;
 // Битвекторы аффектов комнат - порождаются заклинаниями и не сохраняются в файле.
 enum ERoomAffect : Bitvector {
 	kLight = 1 << 0,
-	kPoisonFog = 1 << 1,
+	kDeadlyFog = 1 << 1,
 	kRuneLabel = 1 << 2,        // Комната помечена SPELL_MAGIC_LABEL //
 	kForbidden = 1 << 3,        // Комната помечена SPELL_FORBIDDEN //
 	kHypnoticPattern = 1 << 4,  // Комната под SPELL_HYPNOTIC_PATTERN //
