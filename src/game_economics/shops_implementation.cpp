@@ -1219,8 +1219,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 						 ("Я не буду тратить свое драгоценное время на " + GET_OBJ_PNAME(obj, 3) + ".").c_str());
 			return;
 		}
-		std::string tell = fmt::format("Починка {} обойдется в {}.",
-									   GET_OBJ_PNAME(obj, 1), GetDeclensionInNumber(repair_price, EWhat::kMoneyU));
+		std::string tell = fmt::format("Починка {} обойдется в {} {}.",
+				GET_OBJ_PNAME(obj, 1), repair_price, GetDeclensionInNumber(repair_price, EWhat::kMoneyU));
 		tell_to_char(keeper, ch, tell.c_str());
 
 		if (!IS_GOD(ch) && repair_price > ch->get_gold()) {
