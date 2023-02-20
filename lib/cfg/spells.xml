@@ -793,8 +793,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="6" sdice="15" adice="30"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="0.5"/>
+                    <dices ndice="7" sdice="15" adice="30"/>
+                    <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="32" weight="5"/>
                 </damage>
                 <area>
@@ -2233,7 +2233,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="18" adice="25"/>
+                    <dices ndice="18" sdice="14" adice="25"/>
                     <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="32" weight="3.5"/>
                 </damage>

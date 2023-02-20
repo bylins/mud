@@ -555,8 +555,8 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 				SendMsgToChar(SUMMON_FAIL2, ch);
 				return;
 			}
-			if (NORENTABLE(victim)) {
-				ch->send_to_TC(true, true, true, "Ваш чармис совсем не рентабелен!\r\n");
+			if (NORENTABLE(victim) && !IS_CHARMICE(ch)) {
+				ch->send_to_TC(true, true, true, "Ваша жертва совсем не рентабельна!\r\n");
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
 			}

@@ -513,6 +513,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kWhirlwind: {
 				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 				count += number(1, 7)==1?1:0;
+				count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kAcid: {
@@ -4053,6 +4054,10 @@ const AreaSpellParams mag_messages[] =
 		 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
 		 nullptr,
 		 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"},
+		 {ESpell::kPoison,
+		 nullptr,
+		 nullptr,
+		 nullptr},
 		{ESpell::kUndefined,
 		 nullptr,
 		 nullptr,
