@@ -1820,7 +1820,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom"/>
     </spell>
-    <spell id="kDeadlyFog" element="kLife" mode="kEnabled">
+    <spell id="kDeadlyFog" element="kDark" mode="kEnabled">
         <name rus="туман смерти" eng="deadly fog"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="110" change="1"/>
