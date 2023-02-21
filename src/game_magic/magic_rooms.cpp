@@ -444,11 +444,11 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		case ESpell::kDeadlyFog: af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = 7;
+			af[0].duration = 8;
 			af[0].bitvector = ERoomAffect::kDeadlyFog;
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
-			update_spell = true;
+			update_spell = false;
 			to_char = "Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
 			to_room = "Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
 			break;
