@@ -16,7 +16,6 @@
 #include "handler.h"
 #include "dg_script/dg_olc.h"
 #include "constants.h"
-#include "features.h"
 #include "game_crafts/im.h"
 #include "entities/char_data.h"
 #include "game_skills/skills.h"

@@ -22,7 +22,6 @@
 #include "olc.h"
 #include "dg_script/dg_olc.h"
 #include "game_crafts/im.h"
-#include "features.h"
 #include "depot.h"
 #include "entities/char_data.h"
 #include "house.h"

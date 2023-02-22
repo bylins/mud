@@ -30,7 +30,6 @@
 #include "constants.h"
 #include "game_crafts/im.h"
 #include "dg_script/dg_scripts.h"
-#include "features.h"
 #include "administration/privilege.h"
 #include "entities/char_data.h"
 #include "entities/room_data.h"
