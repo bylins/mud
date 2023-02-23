@@ -1348,7 +1348,7 @@ int calc_initiative(CharData *ch, bool mode) {
 
 // indra
 // рраскомменчу, посмотрим
-	initiative = MAX(initiative, 1);
+	initiative = std::max(initiative, 1);
 	//Почему инициатива не может быть отрицательной?
 	return initiative;
 }
