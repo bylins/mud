@@ -1326,23 +1326,19 @@ int calc_initiative(CharData *ch, bool mode) {
 		switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch))) {
 			case 10:
 			case 9:
-			case 8: initiative -= 2;
+			case 8: initiative -= 20;
 				break;
 			case 7:
 			case 6:
-			case 5: initiative -= 1;
+			case 5: initiative -= 10;
 				break;
 		}
 	}
 
 	if (GET_AF_BATTLE(ch, kEafAwake))
-		initiative -= 2;
+		initiative -= 20;
 	if (GET_AF_BATTLE(ch, kEafPunctual))
-		initiative -= 1;
-	if (AFF_FLAGGED(ch, EAffect::kSlow))
 		initiative -= 10;
-	if (AFF_FLAGGED(ch, EAffect::kHaste))
-		initiative += 10;
 	if (ch->get_wait() > 0)
 		initiative -= 1;
 	if (calc_leadership(ch))
@@ -1350,7 +1346,10 @@ int calc_initiative(CharData *ch, bool mode) {
 	if (GET_AF_BATTLE(ch, kEafSlow))
 		initiative = 1;
 
-	//initiative = MAX(initiative, 1); //Почему инициатива не может быть отрицательной?
+// indra
+// рраскомменчу, посмотрим
+	initiative = MAX(initiative, 1);
+	//Почему инициатива не может быть отрицательной?
 	return initiative;
 }
 
