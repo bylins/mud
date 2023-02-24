@@ -9,6 +9,7 @@
 #ifndef BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
 #define BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
 
+#include "game_affects/affect_contants.h"
 #include "game_skills/skills.h"
 #include "entities/entities_constants.h"
 #include "utils/parser_wrapper.h"
@@ -44,47 +45,63 @@ class Roll {
 };
 
 enum class ETalentEffect : Bitvector {
-	kAffect			= 0u,
-	kDamage			= 1u << 0,
-	kArea			= 1u << 1,
-	kPointsChange	= 1u << 2,
-	kPosChange		= 1u << 3
+	kAffect = 0u,
+	kDamage = 1u << 0,
+	kArea = 1u << 1,
+	kPointsChange = 1u << 2,
+	kPosChange = 1u << 3
 };
 
 class TalentEffect {
  private:
 	Roll power_roll_;
- 	ESaving saving_{ESaving::kReflex};
 
-	void ParseSaving(parser_wrapper::DataNode &node);
+ protected:
+	TalentEffect() = default;
+	explicit TalentEffect(parser_wrapper::DataNode &node);
 
  public:
-	explicit TalentEffect(parser_wrapper::DataNode &node);
 	virtual ~TalentEffect() = default;
+	void ParseBaseFields(parser_wrapper::DataNode &node);
 	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const { return power_roll_.CalcSkillCoeff(ch); };
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const { return power_roll_.CalcBaseStatCoeff(ch); };
-	void Print(std::ostringstream &buffer) const;
+	virtual void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
 class Damage : public TalentEffect {
+	ESaving saving_{ESaving::kReflex};
+
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
-	void Print(CharData *ch, std::ostringstream &buffer) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
-/*
+
 class Duration : public TalentEffect {
+	int min_{1};
+	int cap_{1};
+	bool accumulate_{false};
+
  public:
+	Duration() = default;
 	explicit Duration(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 class Affect : public TalentEffect {
+	ESaving saving_{ESaving::kReflex};
+	Duration duration_;
+	EApply location_{EApply::kNone};
+	EAffect affect_{EAffect::kUndefinded};
+	int mod_{0};
+	int cap_{0};
+	bool accumulate_{false};
+
  public:
 	explicit Affect(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
-*/
+
 class Area : public TalentEffect {
  public:
 	double cast_decay{0.0};
@@ -98,7 +115,7 @@ class Area : public TalentEffect {
 
 	explicit Area(parser_wrapper::DataNode &node);
 	[[nodiscard]] int CalcTargetsQuantity(int skill_level) const;
-	void Print(CharData *ch, std::ostringstream &buffer) const;
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 //class TalentAction {
@@ -116,9 +133,6 @@ class Actions {
 	ActionsRosterPtr actions_;
 
 	static void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
-	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {

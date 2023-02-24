@@ -499,10 +499,6 @@ base_stat id - (например "kWis") какой берем параметр,
                         <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
                         <base_stat id="kWis" threshold="22" weight="5"/>
                     </roll>
-                    <apply location="kMagicResist" min="1" cap="10"/>
-                    <remove_affects val=""/>
-                    <fail affects="" flags=""/>
-                    <flags bitvector="" battleflgs=""/>
                     <duration min="1" cap="6" accumulate="false">
                         <roll>
                             <dices ndice="1" sdice="1" adice="1"/>
@@ -510,18 +506,11 @@ base_stat id - (например "kWis") какой берем параметр,
                             <base_stat id="kWis" threshold="22" weight="5"/>
                         </roll>
                     </duration>
+                    <apply location="kStr" affect="kUndefinded" val="1" cap="10" accumulate="false"/>
+                    <remove_affects val=""/>
+                    <fail affects="" flags=""/>
+                    <flags bitvector="" battleflgs=""/>
                 </affect>
-                <damage saving="kReflex">
-                    <roll>
-                        <dices ndice="1" sdice="1" adice="1"/>
-                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                        <base_stat id="kWis" threshold="22" weight="5"/>
-                    </roll>
-                </damage>
-                <area>
-                    <decay cast="0.05" level="7" free_targets="3"/>
-                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
-                </area>
             </action>
         </talent_actions>
     </spell>
