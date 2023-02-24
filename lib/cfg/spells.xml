@@ -96,9 +96,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="10" sdice="3" adice="10"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="5"/>
+                    <roll>
+                        <dices ndice="10" sdice="3" adice="10"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
@@ -116,9 +118,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="10" sdice="6" adice="40"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="3.5" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="32" weight="5"/>
+                    <roll>
+                        <dices ndice="10" sdice="6" adice="40"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="3.5" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="32" weight="5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
@@ -143,9 +147,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="15" sdice="4" adice="30"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="32" weight="5"/>
+                    <roll>
+                        <dices ndice="15" sdice="4" adice="30"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+                        <base_stat id="kWis" threshold="32" weight="5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -166,9 +172,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="12" sdice="30" adice="55"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
-                    <base_stat id="kWis" threshold="22" weight="5"/>
+                    <roll>
+                        <dices ndice="12" sdice="30" adice="55"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="2"/>
@@ -263,9 +271,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="4" sdice="30" adice="60"/>
-                    <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="4" sdice="30" adice="60"/>
+                        <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -279,9 +289,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="40" sdice="3" adice="30"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="0.3"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="40" sdice="3" adice="30"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="0.3"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="5"/>
@@ -306,9 +318,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="2" sdice="4" adice="2"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="0.3" hi_skill_bonus="0.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="2" sdice="4" adice="2"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="0.3" hi_skill_bonus="0.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -322,9 +336,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="21" sdice="10" adice="80"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="2.0" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="32" weight="4.5"/>
+                    <roll>
+                        <dices ndice="21" sdice="10" adice="80"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="2.0" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="32" weight="4.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -338,9 +354,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical">
-                    <dices ndice="8" sdice="20" adice="100"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="1.5" hi_skill_bonus="3"/>
-                    <base_stat id="kWis" threshold="32" weight="2.5"/>
+                    <roll>
+                        <dices ndice="8" sdice="20" adice="100"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="1.5" hi_skill_bonus="3"/>
+                        <base_stat id="kWis" threshold="32" weight="2.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -368,9 +386,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="4" sdice="18" adice="5"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="4" sdice="18" adice="5"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
@@ -395,9 +415,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="6" sdice="4" adice="10"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
-                    <base_stat id="kWis" threshold="22" weight="5"/>
+                    <roll>
+                        <dices ndice="6" sdice="4" adice="10"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -447,9 +469,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="15" sdice="3" adice="20"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="3.5" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="15" sdice="3" adice="20"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3.5" hi_skill_bonus="1.75"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -467,6 +491,39 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affect saving="kReflex">
+                    <roll>
+                        <dices ndice="1" sdice="1" adice="1"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </roll>
+                    <apply location="kMagicResist" min="1" cap="10"/>
+                    <remove_affects val=""/>
+                    <fail affects="" flags=""/>
+                    <flags bitvector="" battleflgs=""/>
+                    <duration min="1" cap="6" accumulate="false">
+                        <roll>
+                            <dices ndice="1" sdice="1" adice="1"/>
+                            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                            <base_stat id="kWis" threshold="22" weight="5"/>
+                        </roll>
+                    </duration>
+                </affect>
+                <damage saving="kReflex">
+                    <roll>
+                        <dices ndice="1" sdice="1" adice="1"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </roll>
+                </damage>
+                <area>
+                    <decay cast="0.05" level="7" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSummon" element="kMind" mode="kEnabled">
         <name rus="призвать" eng="summon"/>
@@ -519,9 +576,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="10" sdice="15" adice="22"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="10" sdice="15" adice="22"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -708,9 +767,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="40" sdice="4" adice="60"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="32" weight="5"/>
+                    <roll>
+                        <dices ndice="40" sdice="4" adice="60"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="32" weight="5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="1"/>
@@ -728,9 +789,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="15" sdice="9" adice="45"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="2.25" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="15" sdice="9" adice="45"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="2.25" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="3" free_targets="3"/>
@@ -748,9 +811,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kWill">
-                    <dices ndice="25" sdice="30" adice="180"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
-                    <base_stat id="kWis" threshold="22" weight="3.5"/>
+                    <roll>
+                        <dices ndice="25" sdice="30" adice="180"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
+                        <base_stat id="kWis" threshold="22" weight="3.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -801,9 +866,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="7" sdice="15" adice="30"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="32" weight="5"/>
+                    <roll>
+                        <dices ndice="7" sdice="15" adice="30"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+                        <base_stat id="kWis" threshold="32" weight="5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -842,9 +909,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kWill">
-                    <dices ndice="8" sdice="15" adice="60"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
-                    <base_stat id="kWis" threshold="32" weight="4.5"/>
+                    <roll>
+                        <dices ndice="8" sdice="15" adice="60"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+                        <base_stat id="kWis" threshold="32" weight="4.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="20"/>
@@ -977,9 +1046,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical">
-                    <dices ndice="3" sdice="5" adice="35"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="0.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="3" sdice="5" adice="35"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="0.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -993,9 +1064,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical">
-                    <dices ndice="5" sdice="5" adice="55"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="2.5" hi_skill_bonus="0.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="5" sdice="5" adice="55"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="2.5" hi_skill_bonus="0.75"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="0" free_targets="20"/>
@@ -1013,9 +1086,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical">
-                    <dices ndice="10" sdice="5" adice="70"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="2.25" hi_skill_bonus="1"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="10" sdice="5" adice="70"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="2.25" hi_skill_bonus="1"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="20"/>
@@ -1048,9 +1123,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kWill">
-                    <dices ndice="30" sdice="4" adice="180"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="0.5" hi_skill_bonus="2.75"/>
-                    <base_stat id="kWis" threshold="32" weight="5.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="4" adice="180"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="0.5" hi_skill_bonus="2.75"/>
+                        <base_stat id="kWis" threshold="32" weight="5.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -1105,9 +1182,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="90" adice="16"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="18" sdice="90" adice="16"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -1156,9 +1235,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="11" sdice="7" adice="55"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="2.25" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="11" sdice="7" adice="55"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="2.25" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="4" free_targets="5"/>
@@ -1368,9 +1449,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="20" sdice="5" adice="50"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="0.75" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="1"/>
+                    <roll>
+                        <dices ndice="20" sdice="5" adice="50"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="0.75" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="22" weight="1"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="4" free_targets="3"/>
@@ -1395,9 +1478,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="10" sdice="4" adice="15"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="2" hi_skill_bonus="0.75"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="10" sdice="4" adice="15"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="2" hi_skill_bonus="0.75"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -1440,9 +1525,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="4" sdice="90" adice="400"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="1.5"/>
+                    <roll>
+                        <dices ndice="4" sdice="90" adice="400"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="22" weight="1.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -1544,9 +1631,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="8" sdice="15" adice="60"/>
-                    <base_skill id="kLightMagic" low_skill_bonus="0.75" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="32" weight="2.5"/>
+                    <roll>
+                        <dices ndice="8" sdice="15" adice="60"/>
+                        <base_skill id="kLightMagic" low_skill_bonus="0.75" hi_skill_bonus="1.75"/>
+                        <base_stat id="kWis" threshold="32" weight="2.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="8" free_targets="2"/>
@@ -1645,9 +1734,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="6" sdice="8" adice="90"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="0.25" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="6" sdice="8" adice="90"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="0.25" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -1665,9 +1756,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="12" sdice="12" adice="90"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="0.75" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="50" weight="7"/>
+                    <roll>
+                        <dices ndice="12" sdice="12" adice="90"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="0.75" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="50" weight="7"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="8" free_targets="1"/>
@@ -1685,9 +1778,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="30" sdice="2" adice="50"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="3"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="2" adice="50"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="3"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="3" free_targets="3"/>
@@ -1705,9 +1800,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical">
-                    <dices ndice="10" sdice="8" adice="150"/>
-                    <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="10" sdice="8" adice="150"/>
+                        <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -1887,9 +1984,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="12" sdice="30" adice="150"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="1.25" hi_skill_bonus="2.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="12" sdice="30" adice="150"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="1.25" hi_skill_bonus="2.25"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="3"/>
@@ -1965,9 +2064,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="11" sdice="6" adice="8"/>
-                    <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="11" sdice="6" adice="8"/>
+                        <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
@@ -2000,9 +2101,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="40" sdice="5" adice="0"/>
-                    <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="40" sdice="5" adice="0"/>
+                        <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
@@ -2265,9 +2368,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="14" adice="25"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="32" weight="3.5"/>
+                    <roll>
+                        <dices ndice="18" sdice="14" adice="25"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
+                        <base_stat id="kWis" threshold="32" weight="3.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -2285,9 +2390,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="5" sdice="9" adice="12"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="5" sdice="9" adice="12"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -2301,9 +2408,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="20" sdice="25" adice="75"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
-                    <base_stat id="kWis" threshold="22" weight="1.5"/>
+                    <roll>
+                        <dices ndice="20" sdice="25" adice="75"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
+                        <base_stat id="kWis" threshold="22" weight="1.5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -2321,9 +2430,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="15" sdice="6" adice="30"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="40" weight="5"/>
+                    <roll>
+                        <dices ndice="15" sdice="6" adice="30"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
+                        <base_stat id="kWis" threshold="40" weight="5"/>
+                    </roll>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
@@ -2341,9 +2452,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="22" sdice="20" adice="60"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
-                    <base_stat id="kWis" threshold="22" weight="2.5"/>
+                    <roll>
+                        <dices ndice="22" sdice="20" adice="60"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
+                        <base_stat id="kWis" threshold="22" weight="2.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -2544,9 +2657,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="30" sdice="4" adice="45"/>
-                    <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="4" adice="45"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -2560,9 +2675,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="30" sdice="4" adice="45"/>
-                    <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="4" adice="45"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -2576,9 +2693,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="30" sdice="4" adice="45"/>
-                    <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="4" adice="45"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -2592,9 +2711,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="30" sdice="4" adice="45"/>
-                    <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="4" adice="45"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>
@@ -2608,9 +2729,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="30" sdice="4" adice="45"/>
-                    <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                    <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    <roll>
+                        <dices ndice="30" sdice="4" adice="45"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.5"/>
+                    </roll>
                 </damage>
             </action>
         </talent_actions>

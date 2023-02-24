@@ -355,7 +355,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
+int CallMagic(CharData *caster, CharData *char_vict, ObjData *obj_vict, RoomData *room_vict, ESpell spell_id, int level) {
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
@@ -367,7 +367,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		return 0;
 	}
 
-	if (!MayCastHere(caster, cvict, spell_id)) {
+	if (!MayCastHere(caster, char_vict, spell_id)) {
 		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 			SendMsgToChar("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
@@ -385,7 +385,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
-		return CallMagicToArea(caster, cvict, rvict, spell_id, level);
+		return CallMagicToArea(caster, char_vict, room_vict, spell_id, level);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
@@ -393,10 +393,10 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
-		return room_spells::CallMagicToRoom(level, caster, rvict, spell_id);
+		return room_spells::CallMagicToRoom(level, caster, room_vict, spell_id);
 	}
 
-	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);
+	return CastToSingleTarget(level, caster, char_vict, obj_vict, spell_id);
 }
 
 const char *what_sky_type[] = {"пасмурно",

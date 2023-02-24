@@ -50,7 +50,7 @@ void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 int CallMagicToGroup(int level, CharData *ch, ESpell spell_id);
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level);
 
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
+int CallMagic(CharData *caster, CharData *char_vict, ObjData *obj_vict, RoomData *room_vict, ESpell spell_id, int level);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);

@@ -15,14 +15,14 @@
 #include "magic.h"
 
 #include "action_targeting.h"
-#include "game_affects/affect_handler.h"
-#include "entities/world_characters.h"
+//#include "game_affects/affect_handler.h"
+//#include "entities/world_characters.h"
 #include "cmd/hire.h"
 #include "corpse.h"
 #include "game_fight/fight.h"
 #include "game_fight/fight_hit.h"
 #include "game_fight/mobact.h"
-#include "game_fight/pk.h"
+//#include "game_fight/pk.h"
 #include "handler.h"
 #include "magic_utils.h"
 #include "obj_prototypes.h"
@@ -372,7 +372,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 		base_dmg = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice) +
 			GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
 	} else {
-		base_dmg = spell_dmg.RollDmgDices();
+		base_dmg = spell_dmg.RollDices();
 	}
 
 	if (!ch->IsNpc()) {
@@ -385,13 +385,13 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	auto spell_dmg = MUD::Spell(spell_id).actions.GetDmg();
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
-		float base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
-		float skill_mod = base_dmg * spell_dmg.CalcSkillDmgCoeff(ch);
-		float wis_mod = base_dmg * spell_dmg.CalcBaseStatCoeff(ch);
-		float bonus_mod = ch->add_abils.percent_magdam_add / 100.0;
+		auto base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
+		auto skill_mod = base_dmg * spell_dmg.CalcSkillCoeff(ch);
+		auto wis_mod = base_dmg * spell_dmg.CalcBaseStatCoeff(ch);
+		auto bonus_mod = ch->add_abils.percent_magdam_add / 100.0;
 //		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
-		float poison_mod = AFF_FLAGGED(ch, EAffect::kDaturaPoison) ? (-base_dmg * GET_POISON(ch) / 100) : 0;
-		float elem_coeff = CalcMagicElementCoeff(victim, spell_id);
+		auto poison_mod = AFF_FLAGGED(ch, EAffect::kDaturaPoison) ? (-base_dmg * GET_POISON(ch) / 100) : 0;
+		auto elem_coeff = CalcMagicElementCoeff(victim, spell_id);
 
 		total_dmg = static_cast<int>((base_dmg + skill_mod + wis_mod + poison_mod) * elem_coeff);
 		total_dmg += static_cast<int>(total_dmg * bonus_mod);
@@ -4185,7 +4185,6 @@ int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
 	}
 
 	TrySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], FindIndexOfMsg(spell_id));
-
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target: roster) {

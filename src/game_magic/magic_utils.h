@@ -35,7 +35,7 @@ ESpell FindSpellIdWithName(const std::string &name);
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
+int CallMagic(CharData *caster, CharData *char_vict, ObjData *obj_vict, RoomData *room_vict, ESpell spell_id, int level);
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);

@@ -17,43 +17,76 @@ class CharData;
 
 namespace talents_actions {
 
-enum class EAction {
-	kDamage,
-	kArea
-};
-
-class IAction {
- public:
-	virtual ~IAction() = default;
-
-	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
-};
-
-class Damage : public IAction {
+class Roll {
+ private:
+	ESkill base_skill_{ESkill::kUndefined};
+	double low_skill_bonus_{0.0};
+	double hi_skill_bonus_{0.0};
+	EBaseStat base_stat_{EBaseStat::kFirst};
+	int base_stat_threshold_{10};
+	double base_stat_weight_{0.0};
 	int dice_num_{1};
 	int dice_size_{1};
 	int dice_add_{1};
 
-	ESkill base_skill_{ESkill::kUndefined};
-	double low_skill_bonus_{0.0};
-	double hi_skill_bonus_{0.0};
+	void ParseDices(parser_wrapper::DataNode &node);
+	void ParseBaseSkill(parser_wrapper::DataNode &node);
+	void ParseBaseStat(parser_wrapper::DataNode &node);
 
-	EBaseStat base_stat_{EBaseStat::kFirst};
-	int base_stat_threshold_{10};
-	double base_stat_weight_{0.0};
+ public:
+	explicit Roll() = default;
+	~Roll() = default;
+	void ParseRoll(parser_wrapper::DataNode &node);
+	[[nodiscard]] int RollDices() const;
+	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
+	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
+	void Print(std::ostringstream &buffer) const;
+};
 
-	ESaving saving_{ESaving::kReflex};
+enum class ETalentEffect : Bitvector {
+	kAffect			= 0u,
+	kDamage			= 1u << 0,
+	kArea			= 1u << 1,
+	kPointsChange	= 1u << 2,
+	kPosChange		= 1u << 3
+};
+
+class TalentEffect {
+ private:
+	Roll power_roll_;
+ 	ESaving saving_{ESaving::kReflex};
+
+	void ParseSaving(parser_wrapper::DataNode &node);
+
+ public:
+	explicit TalentEffect(parser_wrapper::DataNode &node);
+	virtual ~TalentEffect() = default;
+	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
+	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const { return power_roll_.CalcSkillCoeff(ch); };
+	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const { return power_roll_.CalcBaseStatCoeff(ch); };
+	void Print(std::ostringstream &buffer) const;
+};
+
+class Damage : public TalentEffect {
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
-
-	[[nodiscard]] int RollDmgDices() const;
-	[[nodiscard]] double CalcSkillDmgCoeff(const CharData *ch) const;
-	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
-
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+};
+/*
+class Duration : public TalentEffect {
+ public:
+	explicit Duration(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-struct Area : public IAction {
+class Affect : public TalentEffect {
+ public:
+	explicit Affect(parser_wrapper::DataNode &node);
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+*/
+class Area : public TalentEffect {
+ public:
 	double cast_decay{0.0};
 	int level_decay{0};
 	int free_targets{1};
@@ -63,20 +96,29 @@ struct Area : public IAction {
 	int min_targets{1};
 	int max_targets{1};
 
+	explicit Area(parser_wrapper::DataNode &node);
 	[[nodiscard]] int CalcTargetsQuantity(int skill_level) const;
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
-using ActionPtr = std::shared_ptr<IAction>;
+//class TalentAction {
+//	Roll success_roll_;
+//	ESaving saving_{ESaving::kReflex};
+//
+// public:
+//	explicit TalentAction(parser_wrapper::DataNode &node);
+//};
 
 class Actions {
-	using ActionsRoster = std::unordered_multimap<EAction, ActionPtr>;
+	using EffectPtr = std::shared_ptr<TalentEffect>;
+	using ActionsRoster = std::unordered_multimap<ETalentEffect, EffectPtr>;
 	using ActionsRosterPtr = std::unique_ptr<ActionsRoster>;
 	ActionsRosterPtr actions_;
 
 	static void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {
