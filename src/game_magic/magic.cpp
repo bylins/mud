@@ -272,24 +272,27 @@ float CalcDurationCoef(ESpell spell_id, int skill_percent) {
 }
 
 // зависимость модификации спелла от скила магии
-float CalcModCoef(ESpell spell_id, int percent) {
+float CalcModCoef(CharData *ch, ESpell spell_id, int percent) {
 	switch (spell_id) {
+		// аффекты дебафы
 		case ESpell::kStrength:
 		case ESpell::kDexterity:
-			if (percent > 100)
-				return 1;
-			return 0;
+			if (percent > 75)
+				return (percent - 75) / 25.00 + 1.00;
+			return 1;
 			break;
+		case ESpell::kGroupHaste:
+		case ESpell::kHaste:
 		case ESpell::kMassSlow:
-		case ESpell::kSlowdown: {
-			if (percent >= 80) {
-				return (percent - 80) / 20.00 + 1.00;
+		case ESpell::kSlowdown:
+		case ESpell::kEnergyDrain:
+		case ESpell::kWeaknes:
+		case ESpell::kPoison:
+			if (ch->IsNpc()) {
+				return GetRealLevel(ch)/3 + 1;
 			}
-		}
-			break;
-		case ESpell::kSonicWave:
-			if (percent > 100) {
-				return (percent - 80) / 20.00; // после 100% идет прибавка
+			if (percent >= 80) {
+				return (percent - 80) / 10.00 + 1.00;
 			}
 			return 1;
 			break;
@@ -300,13 +303,32 @@ float CalcModCoef(ESpell spell_id, int percent) {
 			}
 			return 1;
 			break;
+		case ESpell::kChillTouch:
+			if (percent >= 80) {
+				return (percent - 80) / 10 + 1.00;
+			}
+			return 1;
+			break;
+		// боевая магия 
+		case ESpell::kSonicWave:
+			if (percent > 100) {
+				return (percent - 80) / 20.00; // после 100% идет прибавка
+			}
+			return 1;
+			break;
 		case ESpell::kWhirlwind:
+			if (ch->IsNpc()) {
+				return GetRealLevel(ch)/15 + 1;
+			}
 			if (percent > 80) {
 				return (percent) / 80; // 160 -2 вихря, 240 - 3 вихря и т.д.
 			}
 			return 1;
 			break;
 		case ESpell::kLightingBolt:
+			if (ch->IsNpc()) {
+				return GetRealLevel(ch)/10 + 1;
+			}
 			if (percent > 100) {
 				return (percent - 70) / 30; // 130 - 2 молнии, 160 -3, 190 -4
 			}
@@ -505,13 +527,13 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kLightingBolt: {
-				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+				count = CalcModCoef(ch, spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 				count += number(1, 5)==1?1:0;
 				count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kWhirlwind: {
-				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+				count = CalcModCoef(ch, spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 				count += number(1, 7)==1?1:0;
 				count = std::min(count, 4);
 			break;
@@ -562,22 +584,22 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				CastAffect(level, ch, victim, ESpell::kSilence); 
 					break;
 				case 2: // телесный ожог - лихорадка
-				act("$n покрылся язвами по всему телу.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("$n покрыл$u язвами по всему телу.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Кислота причинила вам жуткие ожоги кожи!", false, victim, nullptr, nullptr, kToChar);
 				CastAffect(level, ch, victim, ESpell::kFever); 
 					break;
 				case 3: // ядовитые испарения - яд
-				act("$n позеленел от действия кислотной стрелы.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("$n позеленел$g от действия кислотной стрелы.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Кислота обожгла вам все тело!", false, victim, nullptr, nullptr, kToChar);
 				CastAffect(level, ch, victim, ESpell::kPoison); 
 					break;
 				case 4: // обожгло глаза - слепота
-				act("Часть кислоты попала в глаза $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Часть кислоты попала в глаза $n2.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Кислотные испарения выедают вам глаза!", false, victim, nullptr, nullptr, kToChar);
 				CastAffect(level, ch, victim, ESpell::kBlindness); 
 					break;
 				case 5: // обожгот экип - кислотой
-				act("Кислота покрыла доспехи $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act("Кислота покрыла доспехи $n1.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Кислота покрыла ваши доспехи.", false, victim, nullptr, nullptr, kToChar);
 				CastDamage(level, ch, victim, ESpell::kAcid); 
 					break;
@@ -984,7 +1006,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 
 	const auto koef_duration = CalcDurationCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-	const auto koef_modifier = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+	const auto koef_modifier = CalcModCoef(ch, spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 
 	auto savetype{ESaving::kStability};
 	switch (spell_id) {
@@ -997,7 +1019,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].location = EApply::kStr;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
-			af[0].modifier = -1 - GetRealRemort(ch) / 2;
+			af[0].modifier = -1 - koef_modifier;
 			af[0].battleflag = kAfBattledec;
 			accum_duration = true;
 			to_room = "Боевой пыл $n1 несколько остыл.";
@@ -1025,9 +1047,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 										 CalcDuration(victim, 4, level, 5, 4, 0)) * koef_duration;
 			af[0].location = EApply::kStr;
 			if (spell_id == ESpell::kWeaknes)
-				af[0].modifier = -1 * ((level / 6 + GetRealRemort(ch) / 2));
+				af[0].modifier = -1 * ((level / 6 + koef_modifier));
 			else
-				af[0].modifier = -2 * ((level / 6 + GetRealRemort(ch) / 2));
+				af[0].modifier = -2 * ((level / 6 + koef_modifier));
 			if (ch->IsNpc() && level >= (kLvlImmortal))
 				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
 			af[0].battleflag = kAfBattledec;
@@ -1287,7 +1309,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].bitvector = to_underlying(EAffect::kHaste);
 			af[0].location = EApply::kSavingReflex;
-			af[0].modifier = -1 - GetRealRemort(ch) / 5;
+			af[0].modifier = -1 - koef_modifier;
+			af[1].duration = af[0].duration;
+			af[1].bitvector = to_underlying(EAffect::kHaste);
+			af[1].location = EApply::kInitiative;
+			af[1].modifier = 1 + koef_modifier;
 			to_vict = "Вы начали двигаться быстрее.";
 			to_room = "$n начал$g двигаться заметно быстрее.";
 			spell_id = ESpell::kHaste;
@@ -1549,11 +1575,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffect::kSlow);
-			af[1].duration =
-				ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 9, 0, 0, 0, 0))
-					* koef_duration;
-			af[1].location = EApply::kDex;
-			af[1].modifier = -koef_modifier;
+			af[0].location = EApply::kSavingReflex;
+			af[0].modifier = 1 + koef_modifier;
+			af[1].duration = af[0].duration;
+			af[1].bitvector = to_underlying(EAffect::kSlow);
+			af[1].location = EApply::kInitiative;
+			af[1].modifier = -1 - koef_modifier;
 			to_room = "Движения $n1 заметно замедлились.";
 			to_vict = "Ваши движения заметно замедлились.";
 			spell_id = ESpell::kSlowdown;
@@ -1682,13 +1709,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].location = EApply::kStr;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
-			af[0].modifier = -2;
+			af[0].modifier = - koef_modifier;
 			af[0].bitvector = to_underlying(EAffect::kPoisoned);
 			af[0].battleflag = kAfSameTime;
 
 			af[1].location = EApply::kPoison;
 			af[1].duration = af[0].duration;
-			af[1].modifier = level + GetRealRemort(ch) / 2;
+			af[1].modifier = level + koef_modifier;
 			af[1].bitvector = to_underlying(EAffect::kPoisoned);
 			af[1].battleflag = kAfSameTime;
 
@@ -1779,9 +1806,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 9) / 10 + koef_modifier;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 14) / 15 + koef_modifier;
 			accum_duration = true;
 			accum_affect = true;
 			to_vict = "Вы почувствовали себя сильнее.";
@@ -1799,9 +1826,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 9) / 10 + koef_modifier;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 14) / 15 + koef_modifier;
 			accum_duration = true;
 			accum_affect = true;
 			to_vict = "Вы почувствовали себя более шустрым.";
@@ -2206,7 +2233,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kPeaceful: {
 			if (AFF_FLAGGED(victim, EAffect::kPeaceful)
-				|| (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) ||
+				|| (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) || // обсудить зачем нпс ?
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;

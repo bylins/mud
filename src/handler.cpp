@@ -269,7 +269,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
 			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
 			// иначе пве, и просто кастим сон на входящего
-			float mkof = CalcModCoef(ESpell::kHypnoticPattern,
+			float mkof = CalcModCoef(caster, ESpell::kHypnoticPattern,
 									 caster->GetSkill(GetMagicSkillId(ESpell::kHypnoticPattern)));
 			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
 				return;

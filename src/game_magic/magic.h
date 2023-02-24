@@ -65,7 +65,7 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
 bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
-float CalcModCoef(ESpell spell_id, int percent);
+float CalcModCoef(CharData *ch, ESpell spell_id, int percent);
 
 #endif // MAGIC_H_
 
