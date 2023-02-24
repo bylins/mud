@@ -186,8 +186,8 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Mana min: " << KGRN << min_mana_ << KNRM
 		   << " Mana max: " << KGRN << max_mana_ << KNRM
 		   << " Mana change: " << KGRN << mana_change_ << KNRM << std::endl
-		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
-		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
+		   << " Flags: " << KGRN << parse::BitvectorToString<EMagic>(flags_) << KNRM << std::endl
+		   << " Targets: " << KGRN << parse::BitvectorToString<ETarget>(targets_) << KNRM << std::endl;
 
 	actions.Print(ch, buffer);
 }

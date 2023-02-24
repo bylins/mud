@@ -96,7 +96,7 @@ void Duration::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "\r\n Duration:\r\n";
 	buffer << "  Min: " << KGRN << min_ << KNRM
 		   << " Cap: " << KGRN << cap_ << KNRM
-		   << " Accumulate: " << KGRN << (accumulate_ ? "true" : "false") << KNRM << "\r\n";
+		   << " Accumulate: " << KGRN << (accumulate_ ? "Yes" : "No") << KNRM << "\r\n";
 	TalentEffect::Print(ch, buffer);
 }
 
@@ -115,23 +115,29 @@ Affect::Affect(parser_wrapper::DataNode &node)
 	}
 	if (node.GoToChild("duration")) {
 		duration_.ParseBaseFields(node);
+		node.GoToParent();
+	}
+	if (node.GoToChild("flags")) {
+		flags_ = parse::ReadAsConstantsBitvector<EAffectFlag>(node.GetValue("val"));
+		node.GoToParent();
 	}
 }
 
 void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "\r\n Affect:\r\n";
 	buffer << "  Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
+	buffer << "  Flags: " << KGRN << parse::BitvectorToString<EAffectFlag>(flags_) << KNRM << "\r\n";
 
 	buffer << "\r\n  Applies:\r\n";
 	table_wrapper::Table table;
 	table.set_left_margin(3);
 	table << table_wrapper::kHeader
-		  << "Location" << "Affect" << "Mod" << "Cap" << "Accumulate affect" << table_wrapper::kEndRow;
+		  << "Location" << "Affect" << "Mod" << "Cap" << "Accumulate" << table_wrapper::kEndRow;
 	table << NAME_BY_ITEM<EApply>(location_)
 		  << NAME_BY_ITEM<EAffect>(affect_)
 		  << mod_
 		  << cap_
-		  << accumulate_
+		  << (accumulate_ ? "Yes" : "No")
 		  << table_wrapper::kEndRow;
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
@@ -174,7 +180,7 @@ Area::Area(parser_wrapper::DataNode &node)
 }
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " Area:" << "\r\n"
+	buffer << "\r\n Area:\r\n"
 		   << "  Cast decay: " << KGRN << cast_decay << KNRM
 		   << " Level decay: " << KGRN << level_decay << KNRM
 		   << " Free targets: " << KGRN << free_targets << KNRM << "\r\n"

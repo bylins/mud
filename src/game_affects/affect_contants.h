@@ -12,11 +12,20 @@
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
 
-// Типы таймеров аффектов.
-constexpr Bitvector kAfBattledec = 1u << 0;
-constexpr Bitvector kAfDeadkeep = 1u << 1;
-constexpr Bitvector kAfPulsedec = 1u << 2;
-constexpr Bitvector kAfSameTime = 1u << 3; // тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
+enum EAffectFlag : Bitvector {
+	kAfNone			= 0u,
+	kAfBattledec	= 1u << 0,
+	kAfDeadkeep		= 1u << 1,
+	kAfPulsedec		= 1u << 2,
+	kAfSameTime		= 1u << 3,	// тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
+	kAfCurable		= 1u << 4,
+	kAfDispelable	= 1u << 5
+};
+
+template<>
+const std::string &NAME_BY_ITEM<EAffectFlag>(EAffectFlag item);
+template<>
+EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string &name);
 
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //

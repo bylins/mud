@@ -648,11 +648,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					auto wait = 4 + std::max(1, GetRealLevel(ch) + (GetRealWis(ch) - 29)) / 7;
 					Affect<EApply> af;
 					af.type = spell_id;
-					af.bitvector = to_underlying(EAffect::kMagicStopFight);
+					af.affect_bits = to_underlying(EAffect::kMagicStopFight);
 					af.modifier = 0;
 					af.duration = wait * kBattleRound;
 					ch->send_to_TC(false, true, true, "Круг пустоты длительность = %d пульсов.\r\n", af.duration);
-					af.battleflag = kAfPulsedec;
+					af.flags = kAfPulsedec;
 					af.location = EApply::kNone;
 					ImposeAffect(victim, af);
 					GET_POS(victim) = EPosition::kStun;
@@ -967,9 +967,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	Affect<EApply> af[kMaxSpellAffects];
 	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
-		af[i].bitvector = 0;
+		af[i].affect_bits = 0;
 		af[i].modifier = 0;
-		af[i].battleflag = 0;
+		af[i].flags = 0;
 		af[i].location = EApply::kNone;
 	}
 
@@ -998,7 +998,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
 			af[0].modifier = -1 - GetRealRemort(ch) / 2;
-			af[0].battleflag = kAfBattledec;
+			af[0].flags = kAfBattledec;
 			accum_duration = true;
 			to_room = "Боевой пыл $n1 несколько остыл.";
 			to_vict = "Вы почувствовали себя слабее!";
@@ -1030,7 +1030,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				af[0].modifier = -2 * ((level / 6 + GetRealRemort(ch) / 2));
 			if (ch->IsNpc() && level >= (kLvlImmortal))
 				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
-			af[0].battleflag = kAfBattledec;
+			af[0].flags = kAfBattledec;
 			accum_duration = true;
 			to_room = "$n стал$g немного слабее.";
 			to_vict = "Вы почувствовали себя слабее!";
@@ -1069,8 +1069,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (IsAffectedBySpell(victim, ESpell::kFireShield)) {
 				RemoveAffectFromChar(victim, ESpell::kFireShield);
 			}
-			af[0].bitvector = to_underlying(EAffect::kAirShield);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kAirShield);
+			af[0].flags = kAfBattledec;
 			if (victim->IsNpc() || victim == ch)
 				af[0].duration = CalcDuration(victim, 10 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
 			else
@@ -1084,8 +1084,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				RemoveAffectFromChar(victim, ESpell::kIceShield);
 			if (IsAffectedBySpell(victim, ESpell::kAirShield))
 				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			af[0].bitvector = to_underlying(EAffect::kFireShield);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kFireShield);
+			af[0].flags = kAfBattledec;
 			if (victim->IsNpc() || victim == ch)
 				af[0].duration = CalcDuration(victim, 10 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
 			else
@@ -1099,8 +1099,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				RemoveAffectFromChar(victim, ESpell::kFireShield);
 			if (IsAffectedBySpell(victim, ESpell::kAirShield))
 				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			af[0].bitvector = to_underlying(EAffect::kIceShield);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kIceShield);
+			af[0].flags = kAfBattledec;
 			if (victim->IsNpc() || victim == ch)
 				af[0].duration = CalcDuration(victim, 10 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
 			else
@@ -1111,7 +1111,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kAirAura: af[0].location = EApply::kResistAir;
 			af[0].modifier = level;
-			af[0].bitvector = to_underlying(EAffect::kAirAura);
+			af[0].affect_bits = to_underlying(EAffect::kAirAura);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1121,7 +1121,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kEarthAura: af[0].location = EApply::kResistEarth;
 			af[0].modifier = level;
-			af[0].bitvector = to_underlying(EAffect::kEarthAura);
+			af[0].affect_bits = to_underlying(EAffect::kEarthAura);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1131,7 +1131,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kFireAura: af[0].location = EApply::kResistWater;
 			af[0].modifier = level;
-			af[0].bitvector = to_underlying(EAffect::kFireAura);
+			af[0].affect_bits = to_underlying(EAffect::kFireAura);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1141,7 +1141,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kIceAura: af[0].location = EApply::kResistFire;
 			af[0].modifier = level;
-			af[0].bitvector = to_underlying(EAffect::kIceAura);
+			af[0].affect_bits = to_underlying(EAffect::kIceAura);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1203,11 +1203,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].modifier = -5 - GetRealRemort(ch) / 3;
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kBless);
+			af[0].affect_bits = to_underlying(EAffect::kBless);
 			af[1].location = EApply::kSavingWill;
 			af[1].modifier = -5 - GetRealRemort(ch) / 4;
 			af[1].duration = af[0].duration;
-			af[1].bitvector = to_underlying(EAffect::kBless);
+			af[1].affect_bits = to_underlying(EAffect::kBless);
 			to_room = "$n осветил$u на миг неземным светом.";
 			to_vict = "Боги одарили вас своей улыбкой.";
 			spell_id = ESpell::kBless;
@@ -1246,31 +1246,31 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kAwareness:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kAwarness);
+			af[0].affect_bits = to_underlying(EAffect::kAwarness);
 			af[1].location = EApply::kSavingReflex;
 			af[1].modifier = -1 - GetRealRemort(ch) / 4;
 			af[1].duration = af[0].duration;
-			af[1].bitvector = to_underlying(EAffect::kAwarness);
+			af[1].affect_bits = to_underlying(EAffect::kAwarness);
 			to_room = "$n начал$g внимательно осматриваться по сторонам.";
 			to_vict = "Вы стали более внимательны к окружающему.";
 			spell_id = ESpell::kAwareness;
 			break;
 
 		case ESpell::kGodsShield: af[0].duration = CalcDuration(victim, 4, 0, 0, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kGodsShield);
+			af[0].affect_bits = to_underlying(EAffect::kGodsShield);
 			af[0].location = EApply::kSavingStability;
 			af[0].modifier = -10;
-			af[0].battleflag = kAfBattledec;
+			af[0].flags = kAfBattledec;
 			af[1].duration = af[0].duration;
-			af[1].bitvector = to_underlying(EAffect::kGodsShield);
+			af[1].affect_bits = to_underlying(EAffect::kGodsShield);
 			af[1].location = EApply::kSavingWill;
 			af[1].modifier = -10;
-			af[1].battleflag = kAfBattledec;
+			af[1].flags = kAfBattledec;
 			af[2].duration = af[0].duration;
-			af[2].bitvector = to_underlying(EAffect::kGodsShield);
+			af[2].affect_bits = to_underlying(EAffect::kGodsShield);
 			af[2].location = EApply::kSavingReflex;
 			af[2].modifier = -10;
-			af[2].battleflag = kAfBattledec;
+			af[2].flags = kAfBattledec;
 
 			to_room = "$n покрыл$u сверкающим коконом.";
 			to_vict = "Вас покрыл голубой кокон.";
@@ -1285,7 +1285,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kHaste);
+			af[0].affect_bits = to_underlying(EAffect::kHaste);
 			af[0].location = EApply::kSavingReflex;
 			af[0].modifier = -1 - GetRealRemort(ch) / 5;
 			to_vict = "Вы начали двигаться быстрее.";
@@ -1293,7 +1293,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			spell_id = ESpell::kHaste;
 			break;
 
-		case ESpell::kShadowCloak: af[0].bitvector = to_underlying(EAffect::kShadowCloak);
+		case ESpell::kShadowCloak: af[0].affect_bits = to_underlying(EAffect::kShadowCloak);
 			af[0].location = EApply::kSavingStability;
 			af[0].modifier = -(GetRealLevel(ch) / 3 + GetRealRemort(ch)) / 4;
 			af[0].duration =
@@ -1334,7 +1334,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kMagicGlass:
-		case ESpell::kGroupMagicGlass: af[0].bitvector = to_underlying(EAffect::kMagicGlass);
+		case ESpell::kGroupMagicGlass: af[0].affect_bits = to_underlying(EAffect::kMagicGlass);
 			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
 			to_room = "$n3 покрыла зеркальная пелена.";
@@ -1345,7 +1345,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kCloudOfArrows:
 			af[0].duration =
 				CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kCloudOfArrows);
+			af[0].affect_bits = to_underlying(EAffect::kCloudOfArrows);
 			af[0].location = EApply::kHitroll;
 			af[0].modifier = level / 6;
 			accum_duration = true;
@@ -1353,7 +1353,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			to_vict = "Вас окружило облако летающих огненных стрел.";
 			break;
 
-		case ESpell::kStoneHands: af[0].bitvector = to_underlying(EAffect::kStoneHands);
+		case ESpell::kStoneHands: af[0].affect_bits = to_underlying(EAffect::kStoneHands);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1376,7 +1376,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-			af[0].bitvector = to_underlying(EAffect::kPrismaticAura);
+			af[0].affect_bits = to_underlying(EAffect::kPrismaticAura);
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1447,8 +1447,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				default: break;
 			}
-			af[0].bitvector = to_underlying(EAffect::kBlind);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kBlind);
+			af[0].flags = kAfBattledec;
 			to_room = "$n0 ослеп$q!";
 			to_vict = "Вы ослепли!";
 			spell_id = ESpell::kBlindness;
@@ -1463,7 +1463,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kNoFlee);
+			af[0].affect_bits = to_underlying(EAffect::kNoFlee);
 			af[1].location = EApply::kMadness;
 			af[1].duration = af[0].duration;
 			af[1].modifier = level;
@@ -1483,13 +1483,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].modifier = -2 - GetRealRemort(ch) / 5;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 3, level, 6, 0, 0)) * koef_duration;
-			af[0].battleflag = kAfBattledec;
-			af[0].bitvector = to_underlying(EAffect::kNoFlee);
+			af[0].flags = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kNoFlee);
 			af[1].location = EApply::kAc;
 			af[1].modifier = 20;
 			af[1].duration = af[0].duration;
-			af[1].battleflag = kAfBattledec;
-			af[1].bitvector = to_underlying(EAffect::kNoFlee);
+			af[1].flags = kAfBattledec;
+			af[1].affect_bits = to_underlying(EAffect::kNoFlee);
 			to_room = "$n3 покрыла невидимая паутина, сковывая $s движения!";
 			to_vict = "Вас покрыла невидимая паутина!";
 			break;
@@ -1509,12 +1509,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 1, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = -(5 + decline_mod);
-			af[0].bitvector = to_underlying(EAffect::kCurse);
+			af[0].affect_bits = to_underlying(EAffect::kCurse);
 
 			af[1].location = EApply::kHitroll;
 			af[1].duration = af[0].duration;
 			af[1].modifier = -(level / 6 + decline_mod + GetRealRemort(ch) / 5);
-			af[1].bitvector = to_underlying(EAffect::kCurse);
+			af[1].affect_bits = to_underlying(EAffect::kCurse);
 
 			if (level >= 20) {
 				af[2].location = EApply::kCastSuccess;
@@ -1522,7 +1522,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				af[2].modifier = -(level / 3 + GetRealRemort(ch));
 				if (ch->IsNpc() && level >= (kLvlImmortal))
 					af[2].modifier += (kLvlImmortal - level - 1);    //1 cast per mob level above 30
-				af[2].bitvector = to_underlying(EAffect::kCurse);
+				af[2].affect_bits = to_underlying(EAffect::kCurse);
 			}
 			accum_duration = true;
 			accum_affect = true;
@@ -1548,7 +1548,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kSlow);
+			af[0].affect_bits = to_underlying(EAffect::kSlow);
 			af[1].duration =
 				ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 9, 0, 0, 0, 0))
 					* koef_duration;
@@ -1563,7 +1563,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDetectAlign:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kDetectAlign);
+			af[0].affect_bits = to_underlying(EAffect::kDetectAlign);
 			accum_duration = true;
 			to_vict = "Ваши глаза приобрели зеленый оттенок.";
 			to_room = "Глаза $n1 приобрели зеленый оттенок.";
@@ -1574,7 +1574,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDetectInvis:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kDetectInvisible);
+			af[0].affect_bits = to_underlying(EAffect::kDetectInvisible);
 			accum_duration = true;
 			to_vict = "Ваши глаза приобрели золотистый оттенок.";
 			to_room = "Глаза $n1 приобрели золотистый оттенок.";
@@ -1585,7 +1585,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDetectMagic:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kDetectMagic);
+			af[0].affect_bits = to_underlying(EAffect::kDetectMagic);
 			accum_duration = true;
 			to_vict = "Ваши глаза приобрели желтый оттенок.";
 			to_room = "Глаза $n1 приобрели желтый оттенок.";
@@ -1596,7 +1596,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kInfravision:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kInfravision);
+			af[0].affect_bits = to_underlying(EAffect::kInfravision);
 			accum_duration = true;
 			to_vict = "Ваши глаза приобрели красный оттенок.";
 			to_room = "Глаза $n1 приобрели красный оттенок.";
@@ -1607,7 +1607,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDetectPoison:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kDetectPoison);
+			af[0].affect_bits = to_underlying(EAffect::kDetectPoison);
 			accum_duration = true;
 			to_vict = "Ваши глаза приобрели карий оттенок.";
 			to_room = "Глаза $n1 приобрели карий оттенок.";
@@ -1628,7 +1628,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].modifier = -40;
 			af[0].location = EApply::kAc;
-			af[0].bitvector = to_underlying(EAffect::kInvisible);
+			af[0].affect_bits = to_underlying(EAffect::kInvisible);
 			accum_duration = true;
 			to_vict = "Вы стали невидимы для окружающих.";
 			to_room = "$n медленно растворил$u в пустоте.";
@@ -1683,14 +1683,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].location = EApply::kStr;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
 			af[0].modifier = -2;
-			af[0].bitvector = to_underlying(EAffect::kPoisoned);
-			af[0].battleflag = kAfSameTime;
+			af[0].affect_bits = to_underlying(EAffect::kPoisoned);
+			af[0].flags = kAfSameTime;
 
 			af[1].location = EApply::kPoison;
 			af[1].duration = af[0].duration;
 			af[1].modifier = level + GetRealRemort(ch) / 2;
-			af[1].bitvector = to_underlying(EAffect::kPoisoned);
-			af[1].battleflag = kAfSameTime;
+			af[1].affect_bits = to_underlying(EAffect::kPoisoned);
+			af[1].flags = kAfSameTime;
 
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
@@ -1713,7 +1713,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kProtectFromDark);
+			af[0].affect_bits = to_underlying(EAffect::kProtectFromDark);
 			accum_duration = true;
 			to_vict = "Вы подавили в себе страх к тьме.";
 			to_room = "$n подавил$g в себе страх к тьме.";
@@ -1737,7 +1737,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kSanctuary);
+			af[0].affect_bits = to_underlying(EAffect::kSanctuary);
 			to_vict = "Белая аура мгновенно окружила вас.";
 			to_room = "Белая аура покрыла $n3 с головы до пят.";
 			spell_id = ESpell::kSanctuary;
@@ -1755,8 +1755,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				stop_fighting(victim, false);
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 1, level, 6, 1, 6)) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kSleep);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kSleep);
+			af[0].flags = kAfBattledec;
 			if (GET_POS(victim) > EPosition::kSleep && success) {
 				if (victim->IsOnHorse()) {
 					victim->drop_from_horse();
@@ -1826,7 +1826,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			to_room = "$n0 начал$g замечать любые движения.";
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kDetectLife);
+			af[0].affect_bits = to_underlying(EAffect::kDetectLife);
 			accum_duration = true;
 			spell_id = ESpell::kSenseLife;
 			break;
@@ -1834,7 +1834,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kWaterwalk:
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kWaterWalk);
+			af[0].affect_bits = to_underlying(EAffect::kWaterWalk);
 			accum_duration = true;
 			to_vict = "На рыбалку вы можете отправляться без лодки.";
 			break;
@@ -1843,7 +1843,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kWaterbreath:
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kWaterBreath);
+			af[0].affect_bits = to_underlying(EAffect::kWaterBreath);
 			accum_duration = true;
 			to_vict = "У вас выросли жабры.";
 			to_room = "У $n1 выросли жабры.";
@@ -1873,8 +1873,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id), spell_id == ESpell::kPowerHold ?
 					CalcDuration(victim, 2, level + 7, 8, 2, 5) : CalcDuration(victim, 1, level + 9, 10, 1, 3))
 					* koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kHold);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kHold);
+			af[0].flags = kAfBattledec;
 			to_room = "$n0 замер$q на месте!";
 			to_vict = "Вы замерли на месте, не в силах пошевельнуться.";
 			spell_id = ESpell::kHold;
@@ -1919,8 +1919,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				default: break;
 			}
-			af[0].bitvector = to_underlying(EAffect::kDeafness);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kDeafness);
+			af[0].flags = kAfBattledec;
 			to_room = "$n0 оглох$q!";
 			to_vict = "Вы оглохли.";
 			spell_id = ESpell::kDeafness;
@@ -1938,8 +1938,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id), spell_id == ESpell::kPowerSilence ?
 					CalcDuration(victim, 2, level + 3, 4, 6, 0) : CalcDuration(victim, 2, level + 7, 8, 3, 0))
 					* koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kSilence);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kSilence);
+			af[0].flags = kAfBattledec;
 			to_room = "$n0 прикусил$g язык!";
 			to_vict = "Вы не в состоянии вымолвить ни слова.";
 			spell_id = ESpell::kSilence;
@@ -1949,7 +1949,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kFly:
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kFly);
+			af[0].affect_bits = to_underlying(EAffect::kFly);
 			to_room = "$n0 медленно поднял$u в воздух.";
 			to_vict = "Вы медленно поднялись в воздух.";
 			spell_id = ESpell::kFly;
@@ -1957,8 +1957,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kBrokenChains:
 			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kBrokenChains);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kBrokenChains);
+			af[0].flags = kAfBattledec;
 			to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
 			to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
 			break;
@@ -1989,7 +1989,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kNoflee: // "приковать противника"
 		case ESpell::kIndriksTeeth:
-		case ESpell::kSnare: af[0].battleflag = kAfBattledec;
+		case ESpell::kSnare: af[0].flags = kAfBattledec;
 			savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
@@ -1999,7 +1999,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 					CalcDuration(victim, 3, level, 4, 4, 0)) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kNoTeleport);
+			af[0].affect_bits = to_underlying(EAffect::kNoTeleport);
 			to_room = "$n0 теперь прикован$a к $N2.";
 			to_vict = "Вы не сможете покинуть $N3.";
 			break;
@@ -2011,7 +2011,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kHolyLight);
+			af[0].affect_bits = to_underlying(EAffect::kHolyLight);
 			to_room = "$n0 начал$g светиться ярким светом.";
 			to_vict = "Вы засветились, освещая комнату.";
 			break;
@@ -2023,14 +2023,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kHolyDark);
+			af[0].affect_bits = to_underlying(EAffect::kHolyDark);
 			to_room = "$n0 погрузил$g комнату во мрак.";
 			to_vict = "Вы погрузили комнату в непроглядную тьму.";
 			break;
 		case ESpell::kVampirism: af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].location = EApply::kDamroll;
 			af[0].modifier = 0;
-			af[0].bitvector = to_underlying(EAffect::kVampirism);
+			af[0].affect_bits = to_underlying(EAffect::kVampirism);
 			to_room = "Зрачки $n3 приобрели красный оттенок.";
 			to_vict = "Ваши зрачки приобрели красный оттенок.";
 			break;
@@ -2043,14 +2043,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].location = EApply::kDamroll;
 			af[0].modifier = 15 + (GetRealRemort(ch) > 8 ? (GetRealRemort(ch) - 8) : 0);
-			af[0].bitvector = to_underlying(EAffect::kForcesOfEvil);
+			af[0].affect_bits = to_underlying(EAffect::kForcesOfEvil);
 			af[1].duration = af[0].duration;
 			af[1].location = EApply::kHitroll;
 			af[1].modifier = 7 + (GetRealRemort(ch) > 8 ? (GetRealRemort(ch) - 8) : 0);;
-			af[1].bitvector = to_underlying(EAffect::kForcesOfEvil);
+			af[1].affect_bits = to_underlying(EAffect::kForcesOfEvil);
 			af[2].duration = af[0].duration;
 			af[2].location = EApply::kHp;
-			af[2].bitvector = to_underlying(EAffect::kForcesOfEvil);
+			af[2].affect_bits = to_underlying(EAffect::kForcesOfEvil);
 
 			// иначе, при рекасте, модификатор суммируется с текущим аффектом.
 			if (!AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
@@ -2061,8 +2061,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				tmpaf.duration = 1;
 				tmpaf.modifier = 0;
 				tmpaf.location = EApply::kNone;
-				tmpaf.battleflag = 0;
-				tmpaf.bitvector = to_underlying(EAffect::kForcesOfEvil);
+				tmpaf.flags = 0;
+				tmpaf.affect_bits = to_underlying(EAffect::kForcesOfEvil);
 				affect_to_char(ch, tmpaf);
 			}
 			to_vict = "Черное облако покрыло вас.";
@@ -2101,12 +2101,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 							 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].duration = CalcComplexSpellMod(ch, ESpell::kDeafness, GAPPLY_SPELL_EFFECT, af[0].duration);
-					af[0].bitvector = to_underlying(EAffect::kDeafness);
-					af[0].battleflag = kAfBattledec;
+					af[0].affect_bits = to_underlying(EAffect::kDeafness);
+					af[0].flags = kAfBattledec;
 					to_room = "$n0 оглох$q!";
 					to_vict = "Вы оглохли.";
 					if ((victim->IsNpc()
-						&& AFF_FLAGGED(victim, static_cast<EAffect>(af[0].bitvector)))
+						&& AFF_FLAGGED(victim, static_cast<EAffect>(af[0].affect_bits)))
 						|| (ch != victim
 							&& IsAffectedBySpell(victim, ESpell::kDeafness))) {
 						if (ch->in_room == IN_ROOM(victim))
@@ -2122,8 +2122,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				case ESpell::kEarthfall: SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
-					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].affect_bits = to_underlying(EAffect::kMagicStopFight);
+					af[0].flags = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
@@ -2133,8 +2133,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
-					af[0].bitvector = to_underlying(EAffect::kMagicStopFight);
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					af[0].affect_bits = to_underlying(EAffect::kMagicStopFight);
+					af[0].flags = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
 					spell_id = ESpell::kMagicBattle;
@@ -2159,14 +2159,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				-1 * std::max(1,
 						 (std::min(29, GetRealLevel(ch)) - std::min(24, GetRealLevel(victim)) +
 							 GetRealRemort(ch) / 3) * GET_MAX_HIT(victim) / 100);
-			af[0].bitvector = to_underlying(EAffect::kCrying);
+			af[0].affect_bits = to_underlying(EAffect::kCrying);
 			if (victim->IsNpc()) {
 				af[1].location = EApply::kLikes;
 				af[1].duration = ApplyResist(victim, GetResistType(spell_id),
 						CalcDuration(victim, 5, 0, 0, 0, 0));
 				af[1].modifier = -1 * std::max(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
-				af[1].bitvector = to_underlying(EAffect::kCrying);
-				af[1].battleflag = kAfBattledec;
+				af[1].affect_bits = to_underlying(EAffect::kCrying);
+				af[1].flags = kAfBattledec;
 				to_room = "$n0 издал$g протяжный стон.";
 				break;
 			}
@@ -2174,13 +2174,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[1].duration = ApplyResist(victim, GetResistType(spell_id),
 					CalcDuration(victim, 5, 0, 0, 0, 0));
 			af[1].modifier = -1 * std::max(1, (level / 3 + GetRealRemort(ch) / 3 - GetRealLevel(victim) / 10));
-			af[1].bitvector = to_underlying(EAffect::kCrying);
-			af[1].battleflag = kAfBattledec;
+			af[1].affect_bits = to_underlying(EAffect::kCrying);
+			af[1].flags = kAfBattledec;
 			af[2].location = EApply::kMorale;
 			af[2].duration = af[1].duration;
 			af[2].modifier = -1 * std::max(1, (level / 3 + GetRealRemort(ch) / 5 - GetRealLevel(victim) / 5));
-			af[2].bitvector = to_underlying(EAffect::kCrying);
-			af[2].battleflag = kAfBattledec;
+			af[2].affect_bits = to_underlying(EAffect::kCrying);
+			af[2].flags = kAfBattledec;
 			to_room = "$n0 издал$g протяжный стон.";
 			to_vict = "Вы впали в уныние.";
 			break;
@@ -2196,8 +2196,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			SetWaitState(victim, (level / 10 + 1) * kBattleRound);
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 3, 0, 0, 0, 0)) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kSlow);
-			af[0].battleflag = kAfBattledec;
+			af[0].affect_bits = to_underlying(EAffect::kSlow);
+			af[0].flags = kAfBattledec;
 			to_room = "Облако забвения окружило $n3.";
 			to_vict = "Ваш разум помутился.";
 			spell_id = ESpell::kOblivion;
@@ -2219,7 +2219,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
-			af[0].bitvector = to_underlying(EAffect::kPeaceful);
+			af[0].affect_bits = to_underlying(EAffect::kPeaceful);
 			to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 			to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
 			break;
@@ -2283,7 +2283,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier = (GetRealLevel(ch) + GetRealRemort(ch)) / 3;
-			af[0].bitvector = to_underlying(EAffect::kGlitterDust);
+			af[0].affect_bits = to_underlying(EAffect::kGlitterDust);
 			accum_duration = true;
 			accum_affect = true;
 			to_room = "Облако ярко блестящей пыли накрыло $n3.";
@@ -2298,13 +2298,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-			af[0].bitvector = to_underlying(EAffect::kAffright);
+			af[0].affect_bits = to_underlying(EAffect::kAffright);
 			af[0].location = EApply::kSavingWill;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 2, level, 2, 0, 0)) * koef_duration;
 			af[0].modifier = (2 * GetRealLevel(ch) + GetRealRemort(ch)) / 4;
 
-			af[1].bitvector = to_underlying(EAffect::kAffright);
+			af[1].affect_bits = to_underlying(EAffect::kAffright);
 			af[1].location = EApply::kMorale;
 			af[1].duration = af[0].duration;
 			af[1].modifier = -(GetRealLevel(ch) + GetRealRemort(ch)) / 6;
@@ -2517,8 +2517,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kAconitumPoison: af[0].location = EApply::kAconitumPoison;
 			af[0].duration = 7;
 			af[0].modifier = level;
-			af[0].bitvector = to_underlying(EAffect::kPoisoned);
-			af[0].battleflag = kAfSameTime;
+			af[0].affect_bits = to_underlying(EAffect::kPoisoned);
+			af[0].flags = kAfSameTime;
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
 			break;
@@ -2526,8 +2526,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kScopolaPoison: af[0].location = EApply::kScopolaPoison;
 			af[0].duration = 7;
 			af[0].modifier = 5;
-			af[0].bitvector = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
-			af[0].battleflag = kAfSameTime;
+			af[0].affect_bits = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
+			af[0].flags = kAfSameTime;
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
 			break;
@@ -2535,8 +2535,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kBelenaPoison: af[0].location = EApply::kBelenaPoison;
 			af[0].duration = 7;
 			af[0].modifier = 5;
-			af[0].bitvector = to_underlying(EAffect::kPoisoned);
-			af[0].battleflag = kAfSameTime;
+			af[0].affect_bits = to_underlying(EAffect::kPoisoned);
+			af[0].flags = kAfSameTime;
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
 			break;
@@ -2544,14 +2544,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDaturaPoison: af[0].location = EApply::kDaturaPoison;
 			af[0].duration = 7;
 			af[0].modifier = 5;
-			af[0].bitvector = to_underlying(EAffect::kPoisoned);
-			af[0].battleflag = kAfSameTime;
+			af[0].affect_bits = to_underlying(EAffect::kPoisoned);
+			af[0].flags = kAfSameTime;
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
 			break;
 
 		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
-			af[0].bitvector = to_underlying(EAffect::kCombatLuck);
+			af[0].affect_bits = to_underlying(EAffect::kCombatLuck);
 			//Polud пробный обработчик аффектов
 			af[0].handler.reset(new CombatLuckAffectHandler());
 			af[0].type = ESpell::kCombatLuck;
@@ -2582,7 +2582,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			else
 				rnd = number(1, 4);
 			af[0].type = ESpell::kPaladineInspiration;
-			af[0].battleflag = kAfBattledec | kAfPulsedec;
+			af[0].flags = kAfBattledec | kAfPulsedec;
 			switch (rnd) {
 				case 1:af[0].location = EApply::kPhysicDamagePercent;
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
@@ -2611,7 +2611,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	//чтобы этот аффект не очистился, при спадении спелла
 	if (victim->IsNpc() && success) {
 		for (i = 0; i < kMaxSpellAffects && success; ++i) {
-			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].bitvector))) {
+			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].affect_bits))) {
 				if (ch->in_room == IN_ROOM(victim)) {
 					SendMsgToChar(NOEFFECT, ch);
 				}
@@ -2632,7 +2632,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	for (i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
-		if (af[i].bitvector || af[i].location != EApply::kNone) {
+		if (af[i].affect_bits || af[i].location != EApply::kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
 
 			if (update_spell)
@@ -2948,11 +2948,11 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	af.duration = duration;
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kCharmed);
-	af.battleflag = 0;
+	af.affect_bits = to_underlying(EAffect::kCharmed);
+	af.flags = 0;
 	affect_to_char(mob, af);
 	if (keeper) {
-		af.bitvector = to_underlying(EAffect::kHelper);
+		af.affect_bits = to_underlying(EAffect::kHelper);
 		affect_to_char(mob, af);
 		mob->set_skill(ESkill::kRescue, 100);
 	}
@@ -3048,8 +3048,8 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			af.duration = duration * (1 + GetRealRemort(ch));
 			af.modifier = 0;
 			af.location = EApply::kNone;
-			af.bitvector = to_underlying(EAffect::kIceShield);
-			af.battleflag = 0;
+			af.affect_bits = to_underlying(EAffect::kIceShield);
+			af.flags = 0;
 			affect_to_char(mob, af);
 		}
 
@@ -3075,12 +3075,12 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		af.duration = duration;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
+		af.flags = 0;
 		if (get_effective_cha(ch) >= 30) {
-			af.bitvector = to_underlying(EAffect::kFireShield);
+			af.affect_bits = to_underlying(EAffect::kFireShield);
 			affect_to_char(mob, af);
 		} else {
-			af.bitvector = to_underlying(EAffect::kFireAura);
+			af.affect_bits = to_underlying(EAffect::kFireAura);
 			affect_to_char(mob, af);
 		}
 
@@ -3216,7 +3216,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 	return !affect
 		|| MUD::Spell(affect->type).IsInvalid()
-		|| affect->bitvector == to_underlying(EAffect::kCharmed)
+		|| affect->affect_bits == to_underlying(EAffect::kCharmed)
 		|| affect->type == ESpell::kCharm
 		|| affect->type == ESpell::kQUest
 		|| affect->type == ESpell::kPatronage

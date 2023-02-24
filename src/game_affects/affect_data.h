@@ -24,21 +24,19 @@ class Affect {
  public:
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
-	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
-			   battleflag(0), bitvector(0), caster_id(0), must_handled(false),
-			   apply_time(0) {};
+	Affect() = default;
 	[[nodiscard]] bool removable() const;
 
-	ESpell type;        // The type of spell that caused this      //
-	int duration;    // For how long its effects will last      //
-	int modifier;        // This is added to appropriate ability     //
-	TLocation location;        // Tells which ability to change(APPLY_XXX) //
-	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
-	Bitvector bitvector;        // Tells which bits to set (AFF_XXX) //
-	FlagData aff;
-	long caster_id; //Unique caster ID //
-	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
-	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
+	ESpell type{ESpell::kUndefined};        // The type of spell that caused this      //
+	int duration{0};    // For how long its effects will last      //
+	int modifier{0};        // This is added to appropriate ability     //
+	TLocation location{static_cast<TLocation>(0)};        // Tells which ability to change(APPLY_XXX) //
+	Bitvector flags{0u};
+	Bitvector affect_bits{0u};        // Tells which bits to set (AFF_XXX) //
+	FlagData aff;			// Такое впечатление, что это нигде не используется
+	long caster_id{0L}; //Unique caster ID //
+	bool must_handled{false}; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
+	sh_int apply_time{0}; // Указывает сколько аффект висит (пока используется только в комнатах) //
 	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 

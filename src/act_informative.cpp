@@ -1692,7 +1692,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 	std::ostringstream buffer;
 
 	for (const auto &af : world[ch->in_room]->affected) {
-		switch (af->bitvector) {
+		switch (af->affect_bits) {
 			case room_spells::ERoomAffect::kLight:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kLight)) {
 					if (af->caster_id == ch->id && *name_self_affects[0] != '\0') {
@@ -4032,7 +4032,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			*buf2 = '\0';
 			strcpy(sp_name, MUD::Spell(aff->type).GetCName());
 			int mod = 0;
-			if (aff->battleflag == kAfPulsedec) {
+			if (aff->flags == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
 			} else {
 				mod = aff->duration;
@@ -4061,14 +4061,14 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					strcat(buf, buf2);
 				}
-				if (aff->bitvector) {
+				if (aff->affect_bits) {
 					if (*buf2) {
 						strcat(buf, ", устанавливает ");
 					} else {
 						strcat(buf, "устанавливает ");
 					}
 					strcat(buf, CCIRED(ch, C_NRM));
-					sprintbit(aff->bitvector, affected_bits, buf2);
+					sprintbit(aff->affect_bits, affected_bits, buf2);
 					strcat(buf, buf2);
 					strcat(buf, CCNRM(ch, C_NRM));
 				}
@@ -4079,7 +4079,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		for (const auto &aff : ch->affected) {
 			if (aff->type == ESpell::kSolobonus) {
 				int mod;
-				if (aff->battleflag == kAfPulsedec) {
+				if (aff->flags == kAfPulsedec) {
 					mod = aff->duration / 51; //если в пульсах приводим к тикам	25.5 в сек 2 минуты
 				} else {
 					mod = aff->duration;

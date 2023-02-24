@@ -278,8 +278,8 @@ void forget_all_spells(CharData *ch) {
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 
 		af.duration = CalcDuration(ch, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
-		af.battleflag = kAfPulsedec | kAfDeadkeep;
+		af.affect_bits = to_underlying(EAffect::kMemorizeSpells);
+		af.flags = kAfPulsedec | kAfDeadkeep;
 		ImposeAffect(ch, af, false, false, false, false);
 	}
 }

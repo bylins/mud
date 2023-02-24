@@ -537,20 +537,20 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		for (const auto &aff : k->affected) {
 			*buf2 = '\0';
 			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
-					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
-					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
+					(aff->flags & kAfPulsedec) || (aff->flags & kAfSameTime) ? "плс" : "мин",
+					(aff->flags & kAfBattledec) || (aff->flags & kAfSameTime) ? "рнд" : "мин",
 					CCCYN(ch, C_NRM), MUD::Spell(aff->type).GetCName(), CCNRM(ch, C_NRM));
 			if (aff->modifier) {
 				sprintf(buf2, "%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 				strcat(buf, buf2);
 			}
-			if (aff->bitvector) {
+			if (aff->affect_bits) {
 				if (*buf2) {
 					strcat(buf, ", sets ");
 				} else {
 					strcat(buf, "sets ");
 				}
-				sprintbit(aff->bitvector, affected_bits, buf2);
+				sprintbit(aff->affect_bits, affected_bits, buf2);
 				strcat(buf, buf2);
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);

@@ -96,6 +96,7 @@ class Affect : public TalentEffect {
 	int mod_{0};
 	int cap_{0};
 	bool accumulate_{false};
+	Bitvector flags_{0u};
 
  public:
 	explicit Affect(parser_wrapper::DataNode &node);

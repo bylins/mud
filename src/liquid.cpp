@@ -257,14 +257,14 @@ void do_drink_poison(CharData *ch, ObjData *jar, int amount) {
 		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
 		af.location = EApply::kStr;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
-		af.battleflag = kAfSameTime;
+		af.affect_bits = to_underlying(EAffect::kPoisoned);
+		af.flags = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
-		af.battleflag = kAfSameTime;
+		af.affect_bits = to_underlying(EAffect::kPoisoned);
+		af.flags = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		ch->poisoner = 0;
 	}
@@ -472,24 +472,24 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
 			af.location = EApply::kAc;
-			af.bitvector = to_underlying(EAffect::kDrunked);
-			af.battleflag = 0;
+			af.affect_bits = to_underlying(EAffect::kDrunked);
+			af.flags = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
 			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
 			af.location = EApply::kHitroll;
-			af.bitvector = to_underlying(EAffect::kDrunked);
-			af.battleflag = 0;
+			af.affect_bits = to_underlying(EAffect::kDrunked);
+			af.flags = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
 			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GetRealLevel(ch) + 4) / 5;
 			af.location = EApply::kDamroll;
-			af.bitvector = to_underlying(EAffect::kDrunked);
-			af.battleflag = 0;
+			af.affect_bits = to_underlying(EAffect::kDrunked);
+			af.flags = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 		}
 	}
@@ -703,20 +703,20 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af[0].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[0].modifier = 0;
 		af[0].location = EApply::kDamroll;
-		af[0].bitvector = to_underlying(EAffect::kAbstinent);
-		af[0].battleflag = 0;
+		af[0].affect_bits = to_underlying(EAffect::kAbstinent);
+		af[0].flags = 0;
 		af[1].type = ESpell::kAbstinent;
 		af[1].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = EApply::kHitroll;
-		af[1].bitvector = to_underlying(EAffect::kAbstinent);
-		af[1].battleflag = 0;
+		af[1].affect_bits = to_underlying(EAffect::kAbstinent);
+		af[1].flags = 0;
 		af[2].type = ESpell::kAbstinent;
 		af[2].duration = CalcDuration(ch, duration, 0, 0, 0, 0);
 		af[2].modifier = 0;
 		af[2].location = EApply::kAc;
-		af[2].bitvector = to_underlying(EAffect::kAbstinent);
-		af[2].battleflag = 0;
+		af[2].affect_bits = to_underlying(EAffect::kAbstinent);
+		af[2].flags = 0;
 		switch (number(0, ch->GetSkill(ESkill::kHangovering) / 20)) {
 			case 0:
 			case 1: af[0].modifier = -2;

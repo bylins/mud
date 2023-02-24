@@ -935,6 +935,7 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_value_by_name.clear();
 	EMagic_name_by_value.clear();
 
+	EMagic_name_by_value[EMagic::kMagNone] = "kMagNone";
 	EMagic_name_by_value[EMagic::kMagDamage] = "kMagDamage";
 	EMagic_name_by_value[EMagic::kMagAffects] = "kMagAffects";
 	EMagic_name_by_value[EMagic::kMagUnaffects] = "kMagUnaffects";

@@ -140,8 +140,8 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.modifier = 0;
 		af.location = EApply::kNone;
 	}
-	af.battleflag = 0;
-	af.bitvector = 0;
+	af.flags = 0;
+	af.affect_bits = 0;
 	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spell_id;
 }

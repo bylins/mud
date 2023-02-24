@@ -331,7 +331,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		Affect<EApply> af;
 		af.type = index_s;
 
-		af.battleflag = battle;
+		af.flags = battle;
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {
@@ -340,11 +340,11 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		if (type == AFFECT_TYPE) {
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.bitvector = index;
+			af.affect_bits = index;
 		} else {
 			af.location = static_cast<EApply>(index);
 			af.modifier = value;
-			af.bitvector = 0;
+			af.affect_bits = 0;
 		}
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {

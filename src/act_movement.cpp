@@ -1004,8 +1004,8 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
-		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
-		af.battleflag = 0;
+		af.affect_bits = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
+		af.flags = 0;
 		ImposeAffect(ch, af, false, false, false, false);
 	}
 	perform_move(ch, dir, 0, true, nullptr);

@@ -975,7 +975,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
+		af.flags = 0;
 		af.type = ESpell::kCharm;
 
 		// резервируем место под фит ()
@@ -1155,36 +1155,36 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 			// простые аффекты
 			if (r_cha > 25)  {
-				af.bitvector = to_underlying(EAffect::kInfravision);
+				af.affect_bits = to_underlying(EAffect::kInfravision);
 				affect_to_char(victim, af);
 			} 
 			 if (r_cha >= 30) {
-				af.bitvector = to_underlying(EAffect::kDetectInvisible);
+				af.affect_bits = to_underlying(EAffect::kDetectInvisible);
 				affect_to_char(victim, af);
 			} 
 			if (r_cha >= 35) {
-				af.bitvector = to_underlying(EAffect::kFly);
+				af.affect_bits = to_underlying(EAffect::kFly);
 				affect_to_char(victim, af);
 			} 
 			if (r_cha >= 39) {	
-				af.bitvector = to_underlying(EAffect::kStoneHands);
+				af.affect_bits = to_underlying(EAffect::kStoneHands);
 				affect_to_char(victim, af);
 			}
 			
 			// расщет крутых маг аффектов
 			if (r_cha > 56) {
-				af.bitvector = to_underlying(EAffect::kShadowCloak);
+				af.affect_bits = to_underlying(EAffect::kShadowCloak);
 				affect_to_char(victim, af);
 			} 
 			
 			if ((r_cha > 65) && (r_cha < 74)) {
-				af.bitvector = to_underlying(EAffect::kFireShield);
+				af.affect_bits = to_underlying(EAffect::kFireShield);
 			} else if ((r_cha >= 74) && (r_cha < 82)){
-				af.bitvector = to_underlying(EAffect::kAirShield);
+				af.affect_bits = to_underlying(EAffect::kAirShield);
 			} else if (r_cha >= 82) {
-				af.bitvector = to_underlying(EAffect::kIceShield);
+				af.affect_bits = to_underlying(EAffect::kIceShield);
 				affect_to_char(victim, af);
-				af.bitvector = to_underlying(EAffect::kBrokenChains);
+				af.affect_bits = to_underlying(EAffect::kBrokenChains);
 			}
 			affect_to_char(victim, af);
 			
@@ -1192,7 +1192,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			RemoveAllSkills(victim);
 			victim->real_abils.Feats.reset();
 			// выбираем тип бойца - рандомно из 8 вариантов
-			af.bitvector = to_underlying(EAffect::kHelper);
+			af.affect_bits = to_underlying(EAffect::kHelper);
 			affect_to_char(victim, af);
 			switch (type_mob)
 			{ // готовим наборы скиллов / способностей
@@ -1294,7 +1294,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kBowsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
+					af.affect_bits = to_underlying(EAffect::kCloudOfArrows);
 					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					affect_to_char(victim, af);
@@ -1407,9 +1407,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = 0;
+		af.flags = 0;
 		af.type = ESpell::kCharm;
-		af.bitvector = to_underlying(EAffect::kCharmed);
+		af.affect_bits = to_underlying(EAffect::kCharmed);
 		affect_to_char(victim, af);
 		ch->add_follower(victim);
 	}
@@ -2225,17 +2225,17 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
-	af.bitvector = to_underlying(EAffect::kHelper);
+	af.flags = 0;
+	af.affect_bits = to_underlying(EAffect::kHelper);
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffect::kFly);
+	af.affect_bits = to_underlying(EAffect::kFly);
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffect::kInfravision);
+	af.affect_bits = to_underlying(EAffect::kInfravision);
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffect::kSanctuary);
+	af.affect_bits = to_underlying(EAffect::kSanctuary);
 	affect_to_char(mob, af);
 
 	//Set shields
@@ -2244,15 +2244,15 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
 		MOB_FLAGS(mob).set(EMobFlag::kNoHold);
-		af.bitvector = to_underlying(EAffect::kAirShield);
+		af.affect_bits = to_underlying(EAffect::kAirShield);
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 1) {
-		af.bitvector = to_underlying(EAffect::kIceShield);
+		af.affect_bits = to_underlying(EAffect::kIceShield);
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 2) {
-		af.bitvector = to_underlying(EAffect::kFireShield);
+		af.affect_bits = to_underlying(EAffect::kFireShield);
 		affect_to_char(mob, af);
 	}
 
@@ -2391,8 +2391,8 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
 	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kHelper);
-	af.battleflag = 0;
+	af.affect_bits = to_underlying(EAffect::kHelper);
+	af.flags = 0;
 	affect_to_char(mob, af);
 	
 	GET_MAX_HIT(mob) = floorf(hp + hp_per_int * (eff_int - 20) + GET_HIT(ch)/4);
@@ -2403,19 +2403,19 @@ void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjDat
      	SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_bits = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 
 	} else if(eff_int >= 38 && eff_int < 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 2);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_bits = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		
 	} else if(eff_int >= 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 3);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_bits = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
-		af.bitvector = to_underlying(EAffect::kBrokenChains);
+		af.affect_bits = to_underlying(EAffect::kBrokenChains);
 		affect_to_char(mob, af);
 	}
 	if (mob->GetSkill(ESkill::kAwake)) {

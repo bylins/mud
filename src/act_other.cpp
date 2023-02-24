@@ -352,11 +352,11 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.flags = 0;
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_bits = 0;
 	} else {
-		af.bitvector = to_underlying(EAffect::kSneak);
+		af.affect_bits = to_underlying(EAffect::kSneak);
 	}
 
 	affect_to_char(ch, af);
@@ -405,12 +405,12 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 6, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.flags = 0;
 
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_bits = 0;
 	} else {
-		af.bitvector = to_underlying(EAffect::kDisguise);
+		af.affect_bits = to_underlying(EAffect::kDisguise);
 	}
 
 	affect_to_char(ch, af);
@@ -461,12 +461,12 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.battleflag = 0;
+	af.flags = 0;
 
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_bits = 0;
 	} else {
-		af.bitvector = to_underlying(EAffect::kHide);
+		af.affect_bits = to_underlying(EAffect::kHide);
 	}
 
 	affect_to_char(ch, af);
@@ -729,26 +729,26 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
 	af[0].location = EApply::kAc;
-	af[0].bitvector = to_underlying(EAffect::kNoFlee);
-	af[0].battleflag = 0;
+	af[0].affect_bits = to_underlying(EAffect::kNoFlee);
+	af[0].flags = 0;
 	af[1].type = ESpell::kCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[1].modifier = MAX(1, prob);
 	af[1].location = EApply::kDamroll;
-	af[1].bitvector = to_underlying(EAffect::kCourage);
-	af[1].battleflag = 0;
+	af[1].affect_bits = to_underlying(EAffect::kCourage);
+	af[1].flags = 0;
 	af[2].type = ESpell::kCourage;
 	af[2].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[2].modifier = MAX(1, prob * 7);
 	af[2].location = EApply::kAbsorbe;
-	af[2].bitvector = to_underlying(EAffect::kCourage);
-	af[2].battleflag = 0;
+	af[2].affect_bits = to_underlying(EAffect::kCourage);
+	af[2].flags = 0;
 	af[3].type = ESpell::kCourage;
 	af[3].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = EApply::kHpRegen;
-	af[3].bitvector = to_underlying(EAffect::kCourage);
-	af[3].battleflag = 0;
+	af[3].affect_bits = to_underlying(EAffect::kCourage);
+	af[3].flags = 0;
 
 	for (i = 0; i < 4; i++) {
 		ImposeAffect(ch, af[i], false, false, false, false);
@@ -2258,8 +2258,8 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.duration = CalcDuration(ch, 12, 0, 0, 0, 0);
 			af.modifier = i.modifier;
 			af.location = i.location;
-			af.bitvector = i.bitvector;
-			af.battleflag = i.battleflag;
+			af.affect_bits = i.bitvector;
+			af.flags = i.battleflag;
 			ImposeAffect(ch, af, false, false, false, false);
 		}
 	}
@@ -2407,15 +2407,15 @@ void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af.location = EApply::kNone;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
 	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
-	af.bitvector = to_underlying(EAffect::kBandage);
-	af.battleflag = kAfPulsedec;
+	af.affect_bits = to_underlying(EAffect::kBandage);
+	af.flags = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
 
 	af.type = ESpell::kNoBandage;
 	af.location = EApply::kNone;
 	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
-	af.bitvector = to_underlying(EAffect::kCannotBeBandaged);
-	af.battleflag = kAfPulsedec;
+	af.affect_bits = to_underlying(EAffect::kCannotBeBandaged);
+	af.flags = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
 
 	bandage->set_weight(bandage->get_weight() - 1);

@@ -11,11 +11,11 @@
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;
 	noflee.type = ESpell::kExpedientFail;
-	noflee.bitvector = to_underlying(EAffect::kNoFlee);
+	noflee.affect_bits = to_underlying(EAffect::kNoFlee);
 	noflee.location = EApply::kNone;
 	noflee.modifier = 0;
 	noflee.duration = CalcDuration(ch, duration, 0, 0, 0, 0);;
-	noflee.battleflag = kAfBattledec | kAfPulsedec;
+	noflee.flags = kAfBattledec | kAfPulsedec;
 	ImposeAffect(ch, noflee, true, false, true, false);
 	SendMsgToChar("Вы выпали из ритма боя.\r\n", ch);
 }
@@ -24,14 +24,14 @@ void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	Affect<EApply> cut;
 	cut.type = ESpell::kBattle;
 	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
-	cut.battleflag = kAfBattledec;
+	cut.flags = kAfBattledec;
 	if (PRF_FLAGGED(roll.GetActor(), EPrf::kPerformSerratedBlade)) {
 		cut.modifier = 1;
-		cut.bitvector = to_underlying(EAffect::kLacerations);
+		cut.affect_bits = to_underlying(EAffect::kLacerations);
 		cut.location = EApply::kNone;
 	} else {
 		cut.modifier = -std::min(25, number(1, roll.GetActorRating()) / 10) - (roll.IsCriticalSuccess() ? 10 : 0);
-		cut.bitvector = to_underlying(EAffect::kHaemorrhage);
+		cut.affect_bits = to_underlying(EAffect::kHaemorrhage);
 		cut.location = EApply::kResistVitality;
 	}
 	ImposeAffect(roll.GetRival(), cut, false, true, false, true);

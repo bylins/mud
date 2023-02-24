@@ -42,7 +42,6 @@ std::string ReadChildValueAsStr(const pugi::xml_node &node, const char *text);
 pugi::xml_node GetChild(const pugi::xml_document &node, const char *name);
 pugi::xml_node GetChild(const pugi::xml_node &node, const char *name);
 
-
 const char *ReadAsStr(const char *value);
 int ReadAsInt(const char *value);
 void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value);
@@ -66,7 +65,7 @@ void ReadAsConstantsSet(std::unordered_set<T> &roster, const char *value) {
 	}
 	std::vector<std::string> str_array;
 	utils::Split(str_array, value, '|');
-	for (const auto &str : str_array) {
+	for (const auto &str: str_array) {
 		try {
 			roster.emplace(ITEM_BY_NAME<T>(str));
 		} catch (...) {
@@ -83,7 +82,7 @@ Bitvector ReadAsConstantsBitvector(const char *value) {
 	std::vector<std::string> str_array;
 	utils::Split(str_array, value, '|');
 	Bitvector result{0};
-	for (const auto &str : str_array) {
+	for (const auto &str: str_array) {
 		try {
 			result |= ITEM_BY_NAME<T>(str);
 		} catch (...) {
@@ -92,6 +91,38 @@ Bitvector ReadAsConstantsBitvector(const char *value) {
 	}
 
 	return result;
+}
+
+template<typename T>
+std::string BitvectorToString(Bitvector bits) {
+	if (bits == 0u) {
+		try {
+			return NAME_BY_ITEM<T>(static_cast<T>(bits));
+		} catch (...) {
+			err_log("value '%dl' is incorrcect constant in this context.", bits);
+		}
+	}
+
+	Bitvector flag;
+	Bitvector bit_number = 0u;
+	std::ostringstream buffer;
+	while (bits != 0u) {
+		auto bit = bits & 1u;
+		if (bit) {
+			flag = (1u << bit_number);
+			try {
+				buffer << NAME_BY_ITEM<T>(static_cast<T>(flag));
+			} catch (...) {
+				err_log("value '%dl' is incorrcect constant in this context.", flag);
+			}
+		}
+		bits >>= 1;
+		if (bit && bits != 0u) {
+			buffer << "|";
+		}
+		++bit_number;
+	}
+	return buffer.str();
 }
 
 } // namespace Parse

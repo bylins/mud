@@ -106,8 +106,8 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SetWaitState(ch, 3 * kBattleRound);
 		Affect<EApply> af;
 		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
-		af.bitvector = to_underlying(EAffect::kNoTeleport);
-		af.battleflag = kAfPulsedec;
+		af.affect_bits = to_underlying(EAffect::kNoTeleport);
+		af.flags = kAfPulsedec;
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;

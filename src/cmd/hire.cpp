@@ -296,15 +296,15 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kCharmed);
-		af.battleflag = 0;
+		af.affect_bits = to_underlying(EAffect::kCharmed);
+		af.flags = 0;
 		affect_to_char(helpee, af);
 
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kHelper);
-		af.battleflag = 0;
+		af.affect_bits = to_underlying(EAffect::kHelper);
+		af.flags = 0;
 		affect_to_char(helpee, af);
 
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");

@@ -51,8 +51,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af.duration = vict->IsNpc() ? 8 : 15;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.battleflag = kAfSameTime;
-		af.bitvector = to_underlying(EAffect::kStrangled);
+		af.flags = kAfSameTime;
+		af.affect_bits = to_underlying(EAffect::kStrangled);
 		affect_to_char(vict, af);
 
 		int dam = (GET_MAX_HIT(vict) * GaussIntNumber((300 + 5 * ch->GetSkill(ESkill::kStrangle)) / 70,

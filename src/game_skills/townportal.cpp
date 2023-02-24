@@ -48,10 +48,10 @@ RoomData *get_from_room(RoomData *to_room) {
 void AddPortalTimer(CharData *ch, RoomData *room, int time) {
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = room_spells::ERoomAffect::kPortalTimer;
+	af.affect_bits = room_spells::ERoomAffect::kPortalTimer;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = 0;
-	af.battleflag = 0;
+	af.flags = 0;
 	af.location = room_spells::ERoomApply::kNone;
 	af.caster_id = ch? GET_ID(ch) : 0;
 	af.must_handled = false;

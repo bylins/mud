@@ -221,7 +221,7 @@ void CharData::set_abstinent() {
 
 	Affect<EApply> af;
 	af.type = ESpell::kAbstinent;
-	af.bitvector = to_underlying(EAffect::kAbstinent);
+	af.affect_bits = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
 	af.location = EApply::kAc;
@@ -248,7 +248,7 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	}
 
 	const auto af = *affect_i;
-	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->bitvector), false);
+	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->affect_bits), false);
 	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {
 			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = std::min(GET_COND(this, DRUNK), kDrunked - 1);

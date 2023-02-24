@@ -161,7 +161,7 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		++next_affect_i;
 		const auto &affect = *affect_i;
 
-		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
+		if (!IS_SET(affect->flags, kAfPulsedec)) {
 			continue;
 		}
 /*
@@ -212,11 +212,11 @@ void player_affect_update() {
 			++next_affect_i;
 			const auto &affect = *affect_i;
 			// нечего тикать аффектам вне раунда боя
-			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
+			if (IS_SET(affect->flags, kAfBattledec) && i->GetEnemy()) {
 				continue;
 			}
 			if (affect->duration >= 1) {
-				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
+				if (IS_SET(affect->flags, kAfSameTime) && !i->GetEnemy()) {
 					// здесь плеера могут спуржить
 					if (ProcessPoisonDmg(i.get(), affect) == -1) {
 						was_purged = true;
@@ -232,13 +232,13 @@ void player_affect_update() {
 							break;
 						}
 					}
-					if (IS_SET(affect->battleflag, kAfPulsedec))
+					if (IS_SET(affect->flags, kAfPulsedec))
 						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 					else
 						affect->duration--;
 					affect->duration = std::max(0, affect->duration);
 				} else {
-					if (IS_SET(affect->battleflag, kAfPulsedec))
+					if (IS_SET(affect->flags, kAfPulsedec))
 						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 					else
 						affect->duration--;
@@ -294,7 +294,7 @@ void battle_affect_update(CharData *ch) {
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
 
-		if (!IS_SET((*affect_i)->battleflag, kAfBattledec) && !IS_SET((*affect_i)->battleflag, kAfSameTime)) {
+		if (!IS_SET((*affect_i)->flags, kAfBattledec) && !IS_SET((*affect_i)->flags, kAfSameTime)) {
 			continue;
 		}
 		if (ch->IsNpc() && (*affect_i)->location == EApply::kPoison) {
@@ -306,7 +306,7 @@ void battle_affect_update(CharData *ch) {
 		}
 */
 		if ((*affect_i)->duration >= 1) {
-			if (IS_SET((*affect_i)->battleflag, kAfSameTime)) {
+			if (IS_SET((*affect_i)->flags, kAfSameTime)) {
 				if (ProcessPoisonDmg(ch, (*affect_i)) == -1) {// жертва умерла
 					return;
 				}
@@ -333,8 +333,8 @@ void battle_affect_update(CharData *ch) {
 					log("АНГЕЛ снимается модификатор %d, апплай %s",
 						(*affect_i)->modifier, apply_types[(int) (*affect_i)->location]);
 				}
-				if ((*affect_i)->bitvector) {
-					sprintbit((*affect_i)->bitvector, affected_bits, buf2);
+				if ((*affect_i)->affect_bits) {
+					sprintbit((*affect_i)->affect_bits, affected_bits, buf2);
 					log("АНГЕЛ снимается спелл %s", buf2);
 				}
 			}
@@ -366,7 +366,7 @@ void mobile_affect_update() {
 				const auto &affect = *affect_i;
 
 				if (affect->duration >= 1) {
-					if (IS_SET(affect->battleflag, kAfSameTime)
+					if (IS_SET(affect->flags, kAfSameTime)
 						&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
 						// здесь плеера могут спуржить
 						if (ProcessPoisonDmg(i.get(), affect) == -1) {
@@ -394,7 +394,7 @@ void mobile_affect_update() {
 							if (affect->type > ESpell::kFirst && affect->type <= ESpell::kLast) {
 								ShowAffExpiredMsg(affect->type, i.get());
 								if (affect->type == ESpell::kCharm
-									|| affect->bitvector == to_underlying(EAffect::kCharmed)) {
+									|| affect->affect_bits == to_underlying(EAffect::kCharmed)) {
 									was_charmed = true;
 								}
 							}
@@ -573,7 +573,7 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, static_cast<EAffect>(af->bitvector), true);
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffect>(af->affect_bits), true);
 	}
 
 	// move race and class modifiers
@@ -722,7 +722,7 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	bool found = false;
 
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_bits == af.affect_bits);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -787,8 +787,8 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
+	if (af.affect_bits)
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.affect_bits), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	CheckLight(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
@@ -935,7 +935,7 @@ void reset_affects(CharData *ch) {
 			|| AFF_FLAGGED(ch, EAffect::kHelper))
 			continue;
 		const auto &affect = *af;
-		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
+		if (!IS_SET(affect->flags, kAfDeadkeep)) {
 			ch->affect_remove(af);
 		}
 	}

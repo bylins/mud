@@ -313,6 +313,7 @@ template<>
 const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType item);
 
 enum EMagic : Bitvector {
+	kMagNone = 0u,
 	kMagDamage = 1 << 0,
 	kMagAffects = 1 << 1,
 	kMagUnaffects = 1 << 2,
@@ -348,7 +349,7 @@ template<>
 const std::string &NAME_BY_ITEM<EMagic>(const EMagic item);
 
 enum ETarget : Bitvector {
-	kTarNone = 0,
+	kTarNone = 0u,
 	kTarIgnore = 1 << 0,
 	kTarCharRoom = 1 << 1,
 	kTarCharWorld = 1 << 2,	// не ищет мобов при касте чарами (призвать/переместиться/переход)

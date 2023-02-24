@@ -62,8 +62,8 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		af.location = EApply::kAconitumPoison;
 		af.duration = 7;
 		af.modifier = GetRealLevel(ch) / 2 + 5;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
-		af.battleflag = kAfSameTime;
+		af.affect_bits = to_underlying(EAffect::kPoisoned);
+		af.flags = kAfSameTime;
 		if (poison_affect_join(vict, af)) {
 			vict->poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, kEafPoisoned);
@@ -76,8 +76,8 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		af.location = EApply::kScopolaPoison;
 		af.duration = 7;
 		af.modifier = 5;
-		af.bitvector = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
-		af.battleflag = kAfSameTime;
+		af.affect_bits = to_underlying(EAffect::kPoisoned) | to_underlying(EAffect::kScopolaPoison);
+		af.flags = kAfSameTime;
 		if (poison_affect_join(vict, af)) {
 			vict->poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, kEafPoisoned);
@@ -112,11 +112,11 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		for (auto & i : af) {
 			i.type = ESpell::kBelenaPoison;
 			i.duration = 7;
-			i.bitvector = to_underlying(EAffect::kPoisoned)
+			i.affect_bits = to_underlying(EAffect::kPoisoned)
 				| to_underlying(EAffect::kBelenaPoison)
 				| to_underlying(EAffect::kSkillReduce)
 				| to_underlying(EAffect::kNoBattleSwitch);
-			i.battleflag = kAfSameTime;
+			i.flags = kAfSameTime;
 
 			if (!poison_affect_join(vict, i)) {
 				was_poisoned = false;
@@ -157,11 +157,11 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		for (auto & i : af) {
 			i.type = ESpell::kDaturaPoison;
 			i.duration = 7;
-			i.bitvector = to_underlying(EAffect::kPoisoned)
+			i.affect_bits = to_underlying(EAffect::kPoisoned)
 				| to_underlying(EAffect::kDaturaPoison)
 				| to_underlying(EAffect::kSkillReduce)
 				| to_underlying(EAffect::kNoBattleSwitch);
-			i.battleflag = kAfSameTime;
+			i.flags = kAfSameTime;
 
 			if (!poison_affect_join(vict, i)) {
 				was_poisoned = false;
@@ -212,8 +212,8 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 				af.type = ESpell::kPoison;
 				af.duration = 30;
 				af.modifier = -GetRealLevel(ch) / 6;
-				af.bitvector = to_underlying(EAffect::kPoisoned);
-				af.battleflag = kAfSameTime;
+				af.affect_bits = to_underlying(EAffect::kPoisoned);
+				af.flags = kAfSameTime;
 
 				for (int i = EApply::kStr; i <= EApply::kCha; i++) {
 					af.location = static_cast<EApply>(i);
@@ -232,8 +232,8 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 				af.duration = 30;
 				af.location = EApply::kSavingReflex;
 				af.modifier = GetRealLevel(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
-				af.bitvector = to_underlying(EAffect::kPoisoned);
-				af.battleflag = kAfSameTime;
+				af.affect_bits = to_underlying(EAffect::kPoisoned);
+				af.flags = kAfSameTime;
 				ImposeAffect(vict, af, false, false, false, false);
 				SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
 							  CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
@@ -247,8 +247,8 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 				af.duration = 30;
 				af.location = EApply::kInitiative;
 				af.modifier = -GetRealLevel(ch) / 6;
-				af.bitvector = to_underlying(EAffect::kPoisoned);
-				af.battleflag = kAfSameTime;
+				af.affect_bits = to_underlying(EAffect::kPoisoned);
+				af.flags = kAfSameTime;
 				ImposeAffect(vict, af, false, false, false, false);
 				SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 							  CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
@@ -263,8 +263,8 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 				af.duration = 30;
 				af.location = EApply::kResistVitality;
 				af.modifier = -GetRealLevel(ch) / 6;
-				af.bitvector = to_underlying(EAffect::kPoisoned);
-				af.battleflag = kAfSameTime;
+				af.affect_bits = to_underlying(EAffect::kPoisoned);
+				af.flags = kAfSameTime;
 				ImposeAffect(vict, af, false, false, false, false);
 				SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
 							  CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
@@ -288,29 +288,29 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	af[0].location = EApply::kStr;
 	af[0].duration = CalcDuration(vict, 0, std::max(2, GetRealLevel(ch) - GetRealLevel(vict)), 2, 0, 1);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
-	af[0].bitvector = to_underlying(EAffect::kPoisoned);
-	af[0].battleflag = kAfSameTime;
+	af[0].affect_bits = to_underlying(EAffect::kPoisoned);
+	af[0].flags = kAfSameTime;
 	// change damroll
 	af[1].type = ESpell::kPoison;
 	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
-	af[1].bitvector = to_underlying(EAffect::kPoisoned);
-	af[1].battleflag = kAfSameTime;
+	af[1].affect_bits = to_underlying(EAffect::kPoisoned);
+	af[1].flags = kAfSameTime;
 	// change hitroll
 	af[2].type = ESpell::kPoison;
 	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
-	af[2].bitvector = to_underlying(EAffect::kPoisoned);
-	af[2].battleflag = kAfSameTime;
+	af[2].affect_bits = to_underlying(EAffect::kPoisoned);
+	af[2].flags = kAfSameTime;
 	// change poison level
 	af[3].type = ESpell::kPoison;
 	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
-	af[3].bitvector = to_underlying(EAffect::kPoisoned);
-	af[3].battleflag = kAfSameTime;
+	af[3].affect_bits = to_underlying(EAffect::kPoisoned);
+	af[3].flags = kAfSameTime;
 
 	for (auto & i : af) {
 		ImposeAffect(vict, i, false, false, false, false);

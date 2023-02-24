@@ -50,8 +50,8 @@ void CharacterBuilder::add_poison()
 	poison.modifier = 0;
 	poison.location = APPLY_STR;
 	poison.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	poison.bitvector = to_underlying(EAffectFlag::AFF_POISON);
-	poison.battleflag = AF_SAME_TIME;
+	poison.affect_bits = to_underlying(EAffectFlag::AFF_POISON);
+	poison.flags = AF_SAME_TIME;
 	affect_join(m_result.get(), poison, false, false, false, false);
 }
 
@@ -64,8 +64,8 @@ void CharacterBuilder::add_sleep()
 	sleep.modifier = 0;
 	sleep.location = APPLY_AC;
 	sleep.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	sleep.bitvector = to_underlying(EAffectFlag::AFF_SLEEP);
-	sleep.battleflag = AF_SAME_TIME;
+	sleep.affect_bits = to_underlying(EAffectFlag::AFF_SLEEP);
+	sleep.flags = AF_SAME_TIME;
 	affect_join(m_result.get(), sleep, false, false, false, false);
 }
 
@@ -78,8 +78,8 @@ void CharacterBuilder::add_detect_invis()
 	detect_invis.modifier = 0;
 	detect_invis.location = APPLY_AC;
 	detect_invis.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	detect_invis.bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
-	detect_invis.battleflag = AF_SAME_TIME;
+	detect_invis.affect_bits = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
+	detect_invis.flags = AF_SAME_TIME;
 	affect_join(m_result.get(), detect_invis, false, false, false, false);
 }
 
@@ -92,8 +92,8 @@ void CharacterBuilder::add_detect_align()
 	detect_align.modifier = 0;
 	detect_align.location = APPLY_AC;
 	detect_align.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	detect_align.bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
-	detect_align.battleflag = AF_SAME_TIME;
+	detect_align.affect_bits = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
+	detect_align.flags = AF_SAME_TIME;
 	affect_join(m_result.get(), detect_align, false, false, false, false);
 }
 
