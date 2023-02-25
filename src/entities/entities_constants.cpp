@@ -576,4 +576,112 @@ EDirection& operator++(EDirection &d) {
 	return d;
 }
 
+// =====================================================================================================================
+
+typedef std::map<EMobFlag, std::string> EMobFlag_name_by_value_t;
+typedef std::map<const std::string, EMobFlag> EMobFlag_value_by_name_t;
+EMobFlag_name_by_value_t EMobFlag_name_by_value;
+EMobFlag_value_by_name_t EMobFlag_value_by_name;
+
+void init_EMobFlag_ITEM_NAMES() {
+	EMobFlag_name_by_value.clear();
+	EMobFlag_value_by_name.clear();
+
+	EMobFlag_name_by_value[EMobFlag::kSpec] = "kSpec";
+	EMobFlag_name_by_value[EMobFlag::kSpec] = "kSpec";
+	EMobFlag_name_by_value[EMobFlag::kSentinel] = "kSentinel";
+	EMobFlag_name_by_value[EMobFlag::kScavenger] = "kScavenger";
+	EMobFlag_name_by_value[EMobFlag::kNpc] = "kNpc";
+	EMobFlag_name_by_value[EMobFlag::kAware] = "kAware";
+	EMobFlag_name_by_value[EMobFlag::kAgressive] = "kAgressive";
+	EMobFlag_name_by_value[EMobFlag::kStayZone] = "kStayZone";
+	EMobFlag_name_by_value[EMobFlag::kWimpy] = "kWimpy";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveDay] = "kAgressiveDay";
+	EMobFlag_name_by_value[EMobFlag::kAggressiveNight] = "kAggressiveNight";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveFullmoon] = "kAgressiveFullmoon";
+	EMobFlag_name_by_value[EMobFlag::kMemory] = "kMemory";
+	EMobFlag_name_by_value[EMobFlag::kHelper] = "kHelper";
+	EMobFlag_name_by_value[EMobFlag::kNoCharm] = "kNoCharm";
+	EMobFlag_name_by_value[EMobFlag::kNoSummon] = "kNoSummon";
+	EMobFlag_name_by_value[EMobFlag::kNoSleep] = "kNoSleep";
+	EMobFlag_name_by_value[EMobFlag::kNoBash] = "kNoBash";
+	EMobFlag_name_by_value[EMobFlag::kNoBlind] = "kNoBlind";
+	EMobFlag_name_by_value[EMobFlag::kMounting] = "kMounting";
+	EMobFlag_name_by_value[EMobFlag::kNoHold] = "kNoHold";
+	EMobFlag_name_by_value[EMobFlag::kNoSilence] = "kNoSilence";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveMono] = "kAgressiveMono";
+	EMobFlag_name_by_value[EMobFlag::kAgressivePoly] = "kAgressivePoly";
+	EMobFlag_name_by_value[EMobFlag::kNoFear] = "kNoFear";
+	EMobFlag_name_by_value[EMobFlag::kNoGroup] = "kNoGroup";
+	EMobFlag_name_by_value[EMobFlag::kCorpse] = "kCorpse";
+	EMobFlag_name_by_value[EMobFlag::kLooter] = "kLooter";
+	EMobFlag_name_by_value[EMobFlag::kProtect] = "kProtect";
+	EMobFlag_name_by_value[EMobFlag::kMobDeleted] = "kMobDeleted";
+	EMobFlag_name_by_value[EMobFlag::kMobFreed] = "kMobFreed";
+	EMobFlag_name_by_value[EMobFlag::kSwimming] = "kSwimming";
+	EMobFlag_name_by_value[EMobFlag::kFlying] = "kFlying";
+	EMobFlag_name_by_value[EMobFlag::kOnlySwimming] = "kOnlySwimming";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveWinter] = "kAgressiveWinter";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveSpring] = "kAgressiveSpring";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveSummer] = "kAgressiveSummer";
+	EMobFlag_name_by_value[EMobFlag::kAgressiveAutumn] = "kAgressiveAutumn";
+	EMobFlag_name_by_value[EMobFlag::kAppearsDay] = "kAppearsDay";
+	EMobFlag_name_by_value[EMobFlag::kAppearsNight] = "kAppearsNight";
+	EMobFlag_name_by_value[EMobFlag::kAppearsFullmoon] = "kAppearsFullmoon";
+	EMobFlag_name_by_value[EMobFlag::kAppearsWinter] = "kAppearsWinter";
+	EMobFlag_name_by_value[EMobFlag::kAppearsSpring] = "kAppearsSpring";
+	EMobFlag_name_by_value[EMobFlag::kAppearsSummer] = "kAppearsSummer";
+	EMobFlag_name_by_value[EMobFlag::kAppearsAutumn] = "kAppearsAutumn";
+	EMobFlag_name_by_value[EMobFlag::kNoFight] = "kNoFight";
+	EMobFlag_name_by_value[EMobFlag::kDecreaseAttack] = "kDecreaseAttack";
+	EMobFlag_name_by_value[EMobFlag::kHorde] = "kHorde";
+	EMobFlag_name_by_value[EMobFlag::kClone] = "kClone";
+	EMobFlag_name_by_value[EMobFlag::kNotKillPunctual] = "kNotKillPunctual";
+	EMobFlag_name_by_value[EMobFlag::kNoUndercut] = "kNoUndercut";
+	EMobFlag_name_by_value[EMobFlag::kTutelar] = "kTutelar";
+	EMobFlag_name_by_value[EMobFlag::kCityGuardian] = "kCityGuardian";
+	EMobFlag_name_by_value[EMobFlag::kIgnoreForbidden] = "kIgnoreForbidden";
+	EMobFlag_name_by_value[EMobFlag::kNoBattleExp] = "kNoBattleExp";
+	EMobFlag_name_by_value[EMobFlag::kNoHammer] = "kNoHammer";
+	EMobFlag_name_by_value[EMobFlag::kMentalShadow] = "kMentalShadow";
+	EMobFlag_name_by_value[EMobFlag::kSummoned] = "kSummoned";
+	EMobFlag_name_by_value[EMobFlag::kFireBreath] = "kFireBreath";
+	EMobFlag_name_by_value[EMobFlag::kGasBreath] = "kGasBreath";
+	EMobFlag_name_by_value[EMobFlag::kFrostBreath] = "kFrostBreath";
+	EMobFlag_name_by_value[EMobFlag::kAcidBreath] = "kAcidBreath";
+	EMobFlag_name_by_value[EMobFlag::kLightingBreath] = "kLightingBreath";
+	EMobFlag_name_by_value[EMobFlag::kNoSkillTrain] = "kNoSkillTrain";
+	EMobFlag_name_by_value[EMobFlag::kNoRest] = "kNoRest";
+	EMobFlag_name_by_value[EMobFlag::kAreaAttack] = "kAreaAttack";
+	EMobFlag_name_by_value[EMobFlag::kNoOverwhelm] = "kNoOverwhelm";
+	EMobFlag_name_by_value[EMobFlag::kNoHelp] = "kNoHelp";
+	EMobFlag_name_by_value[EMobFlag::kOpensDoor] = "kOpensDoor";
+	EMobFlag_name_by_value[EMobFlag::kIgnoresNoMob] = "kIgnoresNoMob";
+	EMobFlag_name_by_value[EMobFlag::kIgnoresPeaceRoom] = "kIgnoresPeaceRoom";
+	EMobFlag_name_by_value[EMobFlag::kResurrected] = "kResurrected";
+	EMobFlag_name_by_value[EMobFlag::kNoResurrection] = "kNoResurrection";
+	EMobFlag_name_by_value[EMobFlag::kMobAwake] = "kMobAwake";
+	EMobFlag_name_by_value[EMobFlag::kIgnoresFormation] = "kIgnoresFormation";
+
+	for (const auto &i : EMobFlag_name_by_value) {
+		EMobFlag_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EMobFlag>(const EMobFlag item) {
+	if (EMobFlag_name_by_value.empty()) {
+		init_ESaving_ITEM_NAMES();
+	}
+	return EMobFlag_name_by_value.at(item);
+}
+
+template<>
+EMobFlag ITEM_BY_NAME<EMobFlag>(const std::string &name) {
+	if (EMobFlag_name_by_value.empty()) {
+		init_EMobFlag_ITEM_NAMES();
+	}
+	return EMobFlag_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

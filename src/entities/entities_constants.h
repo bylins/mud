@@ -444,6 +444,11 @@ enum EMobFlag : Bitvector {
 	kIgnoresFormation = kIntTwo | (1 << 22)
 };
 
+template<>
+const std::string &NAME_BY_ITEM<EMobFlag>(EMobFlag item);
+template<>
+EMobFlag ITEM_BY_NAME<EMobFlag>(const std::string &name);
+
 /**
  * NPC's flags used by CharData.mob_specials.npc_flags
  */

@@ -97,9 +97,20 @@ class Affect : public TalentEffect {
 	int cap_{0};
 	bool accumulate_{false};
 	Bitvector flags_{0u};
+	std::unordered_set<EAffect> removes_affects_;
+	std::unordered_set<EAffect> replaces_affects_;
+	std::unordered_set<EAffect> blocked_by_affects_;
+	std::unordered_set<EMobFlag> blocked_by_mob_flags_;
 
  public:
 	explicit Affect(parser_wrapper::DataNode &node);
+	[[nodiscard]] ESaving Saving()			const { return saving_; }
+	[[nodiscard]] EApply Location()			const { return location_; }
+	[[nodiscard]] EAffect AffectBits()		const { return affect_; }
+	[[nodiscard]] int Modifier()			const { return mod_; }
+	[[nodiscard]] int Cap()					const { return cap_; }
+	[[nodiscard]] bool AccumulateEffect()	const { return accumulate_; }
+	[[nodiscard]] Bitvector Flags()			const { return flags_; }
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
@@ -145,6 +156,7 @@ class Actions {
 
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
+	[[nodiscard]] auto GetAffects() const;
 };
 
 }

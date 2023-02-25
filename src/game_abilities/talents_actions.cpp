@@ -121,12 +121,29 @@ Affect::Affect(parser_wrapper::DataNode &node)
 		flags_ = parse::ReadAsConstantsBitvector<EAffectFlag>(node.GetValue("val"));
 		node.GoToParent();
 	}
+	if (node.GoToChild("removes_affects")) {
+		parse::ReadAsConstantsSet<EAffect>(removes_affects_, node.GetValue("val"));
+		node.GoToParent();
+	}
+	if (node.GoToChild("replaces_affects")) {
+		parse::ReadAsConstantsSet<EAffect>(replaces_affects_, node.GetValue("val"));
+		node.GoToParent();
+	}
+	if (node.GoToChild("blocked")) {
+		parse::ReadAsConstantsSet<EAffect>(blocked_by_affects_, node.GetValue("affects"));
+		parse::ReadAsConstantsSet<EMobFlag>(blocked_by_mob_flags_, node.GetValue("flags"));
+		node.GoToParent();
+	}
 }
 
 void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "\r\n Affect:\r\n";
 	buffer << "  Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
-	buffer << "  Flags: " << KGRN << parse::BitvectorToString<EAffectFlag>(flags_) << KNRM << "\r\n";
+	buffer << "  Affect flags: " << KGRN << parse::BitvectorToString<EAffectFlag>(flags_) << KNRM << "\r\n";
+	buffer << "  Removes affects: " << KGRN << parse::ConstantsSetToString<EAffect>(removes_affects_) << KNRM << "\r\n";
+	buffer << "  Replaces affects: " << KGRN << parse::ConstantsSetToString<EAffect>(replaces_affects_) << KNRM << "\r\n";
+	buffer << "  Blocked by affects: " << KGRN << parse::ConstantsSetToString<EAffect>(blocked_by_affects_) << KNRM << "\r\n";
+	buffer << "  Blocked by mob flag: " << KGRN << parse::ConstantsSetToString<EMobFlag>(blocked_by_mob_flags_) << KNRM << "\r\n";
 
 	buffer << "\r\n  Applies:\r\n";
 	table_wrapper::Table table;
@@ -250,6 +267,14 @@ const Damage &Actions::GetDmg() const {
 const Area &Actions::GetArea() const {
 	if (actions_->contains(ETalentEffect::kArea)) {
 		return *std::static_pointer_cast<Area>(actions_->find(ETalentEffect::kArea)->second);
+	} else {
+		throw std::runtime_error("Getting area parameters from talent which has no 'area' action.");
+	}
+}
+
+auto Actions::GetAffects() const {
+	if (actions_->contains(ETalentEffect::kAffect)) {
+		return actions_->equal_range(ETalentEffect::kAffect);
 	} else {
 		throw std::runtime_error("Getting area parameters from talent which has no 'area' action.");
 	}

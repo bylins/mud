@@ -430,11 +430,13 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rand = 0, count = 1, modi = 0;
 	ObjData *obj = nullptr;
 
-	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
-		return (0);
+	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
+		return 0;
+	}
 
-	if (!pk_agro_action(ch, victim))
-		return (0);
+	if (!pk_agro_action(ch, victim)) {
+		return 0;
+	}
 
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 	// Magic glass
@@ -506,13 +508,13 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kLightingBolt: {
 				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 5)==1?1:0;
+				count += number(1, 5) == 1 ? 1 : 0;
 				count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kWhirlwind: {
 				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 7)==1?1:0;
+				count += number(1, 7) == 1 ? 1 : 0;
 				count = std::min(count, 4);
 			break;
 		}
@@ -528,9 +530,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				}
 			}
 			if (obj) {
-				// уберем костыльное снижение урона за бессмысленностью - все ранво мало кто пользуктся
-				// лучше потом реалиховать нормальную механику модификацию урона от обстоятельств
-				// spell_dmg.value().dice_size = spell_dmg.value().dice_size * 2 / 3;
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
 				alterate_object(obj, number(level * 2, level * 4), 100);
 			}
@@ -642,7 +641,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
 								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
 					act("Круг пустоты отшиб сознание у $N1.", false, ch, nullptr, victim, kToChar);
-//					act("$n0 упал$q без сознания!", true, victim, nullptr, ch, kToRoom | kToArenaListen);
 					act("Круг пустоты $n1 отшиб сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
 					auto wait = 4 + std::max(1, GetRealLevel(ch) + (GetRealWis(ch) - 29)) / 7;
@@ -1395,12 +1393,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].location = EApply::kManaRegen;
 			af[0].modifier = -50;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim,
-													  0,
-													  GetRealWis(ch) + GetRealInt(ch),
-													  10,
-													  0,
-													  0))
+										 CalcDuration(victim, 0, GetRealWis(ch) + GetRealInt(ch), 10, 0, 0))
 				* koef_duration;
 			af[1].location = EApply::kCastSuccess;
 			af[1].modifier = -50;
@@ -1674,9 +1667,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kPoison: savetype = ESaving::kCritical;
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
 				CalcGeneralSaving(ch, victim, savetype, modi))) {
-				if (ch->in_room
-					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_DEADLY_FOG не спамил чару постоянно
+				if (ch->in_room == victim->in_room) {
 					SendMsgToChar(NOEFFECT, ch);
+				}
 				success = false;
 				break;
 			}
