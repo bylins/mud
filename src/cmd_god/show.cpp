@@ -8,15 +8,10 @@
 #include "cmd/do_features.h"
 #include "cmd/do_skills.h"
 #include "cmd/do_spells.h"
-//#include "cmd_god/shutdown_parameters.h"
 #include "communication/parcel.h"
 #include "communication/mail.h"
 #include "depot.h"
 #include "dg_script/dg_event.h"
-//#include "entities/char_data.h"
-//#include "entities/world_characters.h"
-//#include "entities/world_objects.h"
-//#include "game_abilities/abilities_info.h"
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_utils.h"
@@ -32,7 +27,7 @@
 #include "entities/char_player.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
+//#include <boost/algorithm/string.hpp>
 
 extern int buf_switches, buf_largecount, buf_overflows;
 extern unsigned long int number_of_bytes_read;
@@ -105,6 +100,25 @@ void ShowFeatInfo(CharData *ch, const std::string &name) {
 
 	std::ostringstream out;
 	MUD::Feat(id).Print(ch, out);
+	page_string(ch->desc, out.str());
+}
+
+void ShowSkillInfo(CharData *ch, const std::string &name) {
+	std::ostringstream out;
+	if (name.empty()) {
+		for (const auto &skill : MUD::Skills()) {
+			skill.Print(out);
+			out << "\r\n";
+		}
+	} else {
+		auto name_copy = name;
+		auto id = FixNameFndFindSkillId(name_copy);
+		if (id == ESkill::kUndefined) {
+			SendMsgToChar("Неизвестное название умения.", ch);
+			return;
+		}
+		MUD::Skill(id).Print(out);
+	}
 	page_string(ch->desc, out.str());
 }
 
@@ -342,7 +356,7 @@ struct show_struct show_fields[] = {
 	{"mobstat", kLvlImplementator},
 	{"bosses", kLvlImplementator},
 	{"remort", kLvlImplementator}, // 25
-	{"apply", kLvlGod}, // 26
+	{"apply", kLvlGod},
 	{"worlds", kLvlImmortal},
 	{"triggers", kLvlImmortal},
 	{"class", kLvlImmortal},
@@ -351,7 +365,8 @@ struct show_struct show_fields[] = {
 	{"spellinfo", kLvlImmortal},
 	{"featinfo", kLvlImmortal},
 	{"abilityinfo", kLvlImmortal},
-	{"account", kLvlGod}, //35
+	{"skillinfo", kLvlImmortal},  //35
+	{"account", kLvlGod},
 	{"\n", 0}
 };
 
@@ -859,7 +874,10 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 34: // ability
 			ShowAbilityInfo(ch, value);
 			break;
-		case 35: {// account
+		case 35: // skill
+			ShowSkillInfo(ch, value);
+			break;
+		case 36: {// account
 			if (!*value) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
