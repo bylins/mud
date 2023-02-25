@@ -99,7 +99,7 @@ Bitvector ReadAsConstantsBitvector(const char *value) {
  * Из-за особенности хранения флаговв битвекторах обратная конвертация для
  * констант с номерами выше 29 (т.е. имеющими первые три бита, отличные от нуля)
  * работает некорректно.
- * Если нужно хранить набор таких констант, используйте std::unordered_set.
+ * Если нужно хранить набор таких констант, используйте std::set.
  */
 template<typename T>
 std::string BitvectorToString(Bitvector bits) {
@@ -148,7 +148,7 @@ std::string ConstantsSetToString(const std::unordered_set<T> &constants) {
 		try {
 			buffer << NAME_BY_ITEM<T>(static_cast<T>(constant)) << "|";
 		} catch (...) {
-			err_log("value '%dl' is incorrcect constant in this context.", constant);
+			err_log("value '%ud' is incorrcect constant in this context.", to_underlying(constant));
 		}
 	}
 	auto out = buffer.str();

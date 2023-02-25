@@ -46,13 +46,6 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 	*buf = '\0';
 	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
-	// Say phrase ?
-	const auto &cast_phrase_list = GetCastPhrase(spell_id);
-	if (!cast_phrase_list) {
-		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
-		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
-		return;
-	}
 	if (ch->IsNpc()) {
 		switch (GET_RACE(ch)) {
 			case ENpcRace::kBoggart:
@@ -61,8 +54,11 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			case ENpcRace::kZombie:
 			case ENpcRace::kSpirit: {
 				const int religion = number(kReligionPoly, kReligionMono);
-				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
-				if (!cast_phrase.empty()) {
+				const std::string &cast_phrase = GetCastPhrase(spell_id, religion);
+				if (cast_phrase.empty()) {
+					sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
+					mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+				} else {
 					strcpy(buf, cast_phrase.c_str());
 				}
 				say_to_self = "$n пробормотал$g : '%s'.";
@@ -96,7 +92,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
 		}
-		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+		const std::string &cast_phrase = GetCastPhrase(spell_id, GET_RELIGION(ch));
 		if (!cast_phrase.empty()) {
 			strcpy(buf, cast_phrase.c_str());
 		}
