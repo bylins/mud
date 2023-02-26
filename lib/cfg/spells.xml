@@ -499,19 +499,19 @@ base_stat id - (например "kWis") какой берем параметр,
                         <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
                         <base_stat id="kWis" threshold="22" weight="5"/>
                     </roll>
-                    <duration min="1" cap="6" resist_weight="5" accumulate="false">
-                        <roll>
-                            <dices ndice="3" sdice="3" adice="5"/>
-                            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
-                            <base_stat id="kWis" threshold="22" weight="5"/>
-                        </roll>
-                    </duration>
                     <apply location="kStr" affect="kUndefinded" val="1" cap="10" accumulate="false"/>
                     <flags val="kAfBattledec|kAfCurable|kAfDispelable"/>
                     <removes_affects val="kBrokenChains|kSleep"/>
                     <replaces_affects val="kHold|kGlitterDust"/>
                     <blocked affects="kGodsShield|kDrunked" flags="kNoSleep|kNoBlind"/>
                 </affect>
+                <duration min="1" cap="6" resist_weight="5" accumulate="false">
+                    <roll>
+                        <dices ndice="3" sdice="3" adice="5"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </roll>
+                </duration>
             </action>
         </talent_actions>
     </spell>

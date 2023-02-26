@@ -45,11 +45,12 @@ class Roll {
 };
 
 enum class ETalentEffect : Bitvector {
-	kAffect = 0u,
-	kDamage = 1u << 0,
-	kArea = 1u << 1,
-	kPointsChange = 1u << 2,
-	kPosChange = 1u << 3
+	kAffect			= 0u,
+	kDamage			= 1u << 0,
+	kArea			= 1u << 1,
+	kDuration		= 1u << 2,
+	kPointsChange	= 1u << 3,
+	kPosChange		= 1u << 4
 };
 
 class TalentEffect {
@@ -77,20 +78,8 @@ class Damage : public TalentEffect {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-class Duration : public TalentEffect {
-	int min_{1};
-	int cap_{1};
-	bool accumulate_{false};
-
- public:
-	Duration() = default;
-	explicit Duration(parser_wrapper::DataNode &node);
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
-};
-
 class Affect : public TalentEffect {
 	ESaving saving_{ESaving::kReflex};
-	Duration duration_;
 	EApply location_{EApply::kNone};
 	EAffect affect_{EAffect::kUndefinded};
 	int mod_{0};
@@ -111,6 +100,17 @@ class Affect : public TalentEffect {
 	[[nodiscard]] int Cap()					const { return cap_; }
 	[[nodiscard]] bool AccumulateEffect()	const { return accumulate_; }
 	[[nodiscard]] Bitvector Flags()			const { return flags_; }
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+
+class Duration : public TalentEffect {
+	int min_{1};
+	int cap_{1};
+	bool accumulate_{false};
+
+ public:
+	Duration() = default;
+	explicit Duration(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 

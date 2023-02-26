@@ -113,10 +113,6 @@ Affect::Affect(parser_wrapper::DataNode &node)
 		accumulate_ = parse::ReadAsBool(node.GetValue("accumulate"));
 		node.GoToParent();
 	}
-	if (node.GoToChild("duration")) {
-		duration_.ParseBaseFields(node);
-		node.GoToParent();
-	}
 	if (node.GoToChild("flags")) {
 		flags_ = parse::ReadAsConstantsBitvector<EAffectFlag>(node.GetValue("val"));
 		node.GoToParent();
@@ -160,7 +156,6 @@ void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	table_wrapper::PrintTableToStream(buffer, table);
 
 	TalentEffect::Print(ch, buffer);
-	duration_.Print(ch, buffer);
 	buffer << "\r\n";
 }
 
@@ -245,6 +240,8 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			info->emplace(ETalentEffect::kArea, std::make_shared<Area>(manifestation));
 		} else if (strcmp(manifestation.GetName(), "affect") == 0) {
 			info->emplace(ETalentEffect::kAffect, std::make_shared<Affect>(manifestation));
+		} else if (strcmp(manifestation.GetName(), "duration") == 0) {
+			info->emplace(ETalentEffect::kDuration, std::make_shared<Duration>(manifestation));
 		}
 	}
 	node.GoToParent();
