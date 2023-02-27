@@ -37,6 +37,9 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool ProcessMatComponents(CharData *caster, int, ESpell spell_id);
 
+bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim);
+bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *victim);
+
 bool is_room_forbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
 		if (af->type == ESpell::kForbidden && (number(1, 100) <= af->modifier)) {
@@ -55,30 +58,30 @@ bool is_room_forbidden(RoomData *room) {
  * saving throw instead of the random number of the character as
  * in some other systems.
  */
-int bonus_saving[] ={
-			-9,-8,-7,-6,-5,-4,-3,-2,-1, 0,
-			1, 2, 3 ,4, 5, 6, 7, 8, 9, 10,
-			11,12,13,14,15,16,17,18,19,20,
-			21,21,22,22,23,23,24,24,25,25,
-			26,26,27,27,28,28,29,29,30,30,
-			31,31,32,32,33,33,34,34,35,35,
-			36,36,37,37,38,38,39,39,40,40,
-			41,41,41,42,42,42,43,43,43,44,
-			44,44,45,45,45,46,46,46,47,47,
-			47,48,48,48,49,49,49,50,50,50,
+int bonus_saving[] = {
+	-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
+	1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+	21, 21, 22, 22, 23, 23, 24, 24, 25, 25,
+	26, 26, 27, 27, 28, 28, 29, 29, 30, 30,
+	31, 31, 32, 32, 33, 33, 34, 34, 35, 35,
+	36, 36, 37, 37, 38, 38, 39, 39, 40, 40,
+	41, 41, 41, 42, 42, 42, 43, 43, 43, 44,
+	44, 44, 45, 45, 45, 46, 46, 46, 47, 47,
+	47, 48, 48, 48, 49, 49, 49, 50, 50, 50,
 };
 
-int bonus_antisaving[] ={
-			-9,-8,-7,-6,-5,-4,-3,-2,-1, 0,
-			1, 2, 3 ,4, 5, 6, 7, 8, 9, 10,
-			11,12,13,14,15,16,17,18,19,20,
-			21,21,22,22,23,23,24,24,25,25,
-			26,26,27,27,28,28,29,29,30,30,
-			31,31,32,32,33,33,34,34,35,35,
-			36,36,37,37,38,38,39,39,40,40,
-			41,41,41,42,42,42,43,43,43,44,
-			44,44,45,45,45,46,46,46,47,47,
-			47,48,48,48,49,49,49,50,50,50,
+int bonus_antisaving[] = {
+	-9, -8, -7, -6, -5, -4, -3, -2, -1, 0,
+	1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+	21, 21, 22, 22, 23, 23, 24, 24, 25, 25,
+	26, 26, 27, 27, 28, 28, 29, 29, 30, 30,
+	31, 31, 32, 32, 33, 33, 34, 34, 35, 35,
+	36, 36, 37, 37, 38, 38, 39, 39, 40, 40,
+	41, 41, 41, 42, 42, 42, 43, 43, 43, 44,
+	44, 44, 45, 45, 45, 46, 46, 46, 47, 47,
+	47, 48, 48, 48, 49, 49, 49, 50, 50, 50,
 };
 
 int CalcAntiSavings(CharData *ch) {
@@ -102,14 +105,14 @@ int CalcAntiSavings(CharData *ch) {
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
 	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
-	return static_cast<int>(mod*skill);
+	return static_cast<int>(mod * skill);
 }
-
 
 int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	auto class_sav = ch->GetClass();
 //	std::stringstream ss;
-	int save = (100 - GetExtendSavingThrows(class_sav, saving, GetRealLevel(ch))) * -1; // Базовые спасброски профессии/уровня
+	int save =
+		(100 - GetExtendSavingThrows(class_sav, saving, GetRealLevel(ch))) * -1; // Базовые спасброски профессии/уровня
 	if (ch->IsNpc()) {
 		class_sav = ECharClass::kMob;    // неизвестный класс моба
 	} else {
@@ -119,24 +122,19 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	}
 //	ss << "Базовый save персонажа " << GET_NAME(ch) << " (" << saving_name.find(saving)->second << "): " << save;
 	switch (saving) {
-		case ESaving::kReflex:
-			save -= bonus_saving[GetRealDex(ch) - 1];
+		case ESaving::kReflex: save -= bonus_saving[GetRealDex(ch) - 1];
 			if (ch->IsOnHorse())
 				save += 20;
 			break;
-		case ESaving::kStability: 
-			save -= bonus_saving[GetRealCon(ch) - 1];
+		case ESaving::kStability: save -= bonus_saving[GetRealCon(ch) - 1];
 			if (ch->IsOnHorse())
 				save -= 20;
 			break;
-		case ESaving::kWill: 
-			save -= bonus_saving[GetRealWis(ch) - 1];
+		case ESaving::kWill: save -= bonus_saving[GetRealWis(ch) - 1];
 			break;
-		case ESaving::kCritical: 
-			save -= bonus_saving[GetRealCon(ch) - 1];
+		case ESaving::kCritical: save -= bonus_saving[GetRealCon(ch) - 1];
 			break;
-		default:
-		break;
+		default: break;
 	}
 //	ss << " с учетом статов: " << save << std::endl;
 	if (log) {
@@ -168,29 +166,33 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	}
 	save += GetSave(victim, saving);    // одежда бафы и слава
 	if (need_log) {
-		killer->send_to_TC(false, true, true,
-				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
-				saving_name.find(saving)->second.c_str(),
-				GET_NAME(killer),
-				GET_NAME(victim),
-				GET_MOB_VNUM(victim),
-				GetRealLevel(victim),
-				GetBasicSave(victim, saving, false),
-				GetSave(victim, saving),
-				victim->GetSkill(ESkill::kAwake) / 5,
-				save);
+		killer->send_to_TC(false,
+						   true,
+						   true,
+						   "SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
+						   saving_name.find(saving)->second.c_str(),
+						   GET_NAME(killer),
+						   GET_NAME(victim),
+						   GET_MOB_VNUM(victim),
+						   GetRealLevel(victim),
+						   GetBasicSave(victim, saving, false),
+						   GetSave(victim, saving),
+						   victim->GetSkill(ESkill::kAwake) / 5,
+						   save);
 		if (killer != victim && !victim->IsNpc()) {
-			victim->send_to_TC(false, true, true,
-					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save==%d\r\n",
-					saving_name.find(saving)->second.c_str(),
-					GET_NAME(killer),
-					GET_NAME(victim),
-					GET_MOB_VNUM(killer),
-					GetRealLevel(victim),
-					GetBasicSave(victim, saving, false),
-					GetSave(victim, saving),
-					victim->GetSkill(ESkill::kAwake) / 5,
-					save);
+			victim->send_to_TC(false,
+							   true,
+							   true,
+							   "SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save==%d\r\n",
+							   saving_name.find(saving)->second.c_str(),
+							   GET_NAME(killer),
+							   GET_NAME(victim),
+							   GET_MOB_VNUM(killer),
+							   GetRealLevel(victim),
+							   GetBasicSave(victim, saving, false),
+							   GetSave(victim, saving),
+							   victim->GetSkill(ESkill::kAwake) / 5,
+							   save);
 		}
 	}
 	// Throwing a 0 is always a failure.
@@ -201,25 +203,29 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
 	char smallbuf[256];
-	if (number(1, 100) <=5) { //абсолютный фейл
+	if (number(1, 100) <= 5) { //абсолютный фейл
 		save /= 2;
-		sprintf(smallbuf, "Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n", 
-				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		if (killer->get_name_str() == "Верий" 
-				|| killer->get_name_str() == "Кудояр"
-				|| killer->get_name_str() == "Рогоза")
-			SendMsgToChar(killer, "%s", smallbuf);
-		else
-			killer->send_to_TC(false, true, true, smallbuf);
+		sprintf(smallbuf,
+				"Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n",
+				GET_NAME(victim),
+				GetRealLevel(victim),
+				ext_apply,
+				saving_name.find(type)->second.c_str(),
+				save,
+				rnd,
+				((std::clamp(save + ext_apply, -200, 200) + 200) / 400.) * 100.);
+		killer->send_to_TC(false, true, true, smallbuf);
 	} else {
-		sprintf(smallbuf, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
-				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		if (killer->get_name_str() == "Верий" 
-				|| killer->get_name_str() == "Кудояр"
-				|| killer->get_name_str() == "Рогоза")
-			SendMsgToChar(killer, "%s", smallbuf);
-		else
-			killer->send_to_TC(false, true, true, smallbuf);
+		sprintf(smallbuf,
+				"Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n",
+				GET_NAME(victim),
+				GetRealLevel(victim),
+				ext_apply,
+				saving_name.find(type)->second.c_str(),
+				save,
+				rnd,
+				((std::clamp(save + ext_apply, -200, 200) + 200) / 400.) * 100.);
+		killer->send_to_TC(false, true, true, smallbuf);
 	}
 	save += ext_apply;    // внешний модификатор (обычно +каст)
 
@@ -314,12 +320,12 @@ float CalcModCoef(ESpell spell_id, int percent) {
 	return 0;
 }
 bool IsBreath(ESpell spell_id) {
-	static const std::set<ESpell> magic_breath {
-	 	ESpell::kFireBreath,
-	 	ESpell::kGasBreath,
-	 	ESpell::kFrostBreath,
-	 	ESpell::kAcidBreath,
-	 	ESpell::kLightingBreath
+	static const std::set<ESpell> magic_breath{
+		ESpell::kFireBreath,
+		ESpell::kGasBreath,
+		ESpell::kFrostBreath,
+		ESpell::kAcidBreath,
+		ESpell::kLightingBreath
 	};
 
 	return magic_breath.contains(spell_id);
@@ -395,29 +401,33 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 		int complex_mod = total_dmg;
 		total_dmg = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, total_dmg);
 		complex_mod = total_dmg - complex_mod;
-		ch->send_to_TC(false, true, true,
-				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %1.2f, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(victim),
-				base_dmg,
-				skill_mod,
-				wis_mod,
-				1 + bonus_mod,
-				complex_mod,
-				poison_mod,
-				elem_coeff,
-				total_dmg);
+		ch->send_to_TC(false,
+					   true,
+					   true,
+					   "&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %1.2f, Elem.coeff: %1.2f, Total: %d &n\r\n",
+					   GET_NAME(victim),
+					   base_dmg,
+					   skill_mod,
+					   wis_mod,
+					   1 + bonus_mod,
+					   complex_mod,
+					   poison_mod,
+					   elem_coeff,
+					   total_dmg);
 
-		victim->send_to_TC(false, true, true,
-				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %1.2f, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(ch),
-				base_dmg,
-				skill_mod,
-				wis_mod,
-				bonus_mod,
-				complex_mod,
-				poison_mod,
-				elem_coeff,
-				total_dmg);
+		victim->send_to_TC(false,
+						   true,
+						   true,
+						   "&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %1.2f, Elem.coeff: %1.2f, Total: %d &n\r\n",
+						   GET_NAME(ch),
+						   base_dmg,
+						   skill_mod,
+						   wis_mod,
+						   bonus_mod,
+						   complex_mod,
+						   poison_mod,
+						   elem_coeff,
+						   total_dmg);
 	}
 
 	return total_dmg;
@@ -473,8 +483,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			!MUD::Spell(spell_id).IsFlagged(kMagAreas) &&
 			(victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) &&
 			CanUseFeat(victim, EFeat::kMagicalShield) &&
-			(number(1, 100)	<
-			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
+			(number(1, 100) <
+				((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
 			act("Ловким движением щита $N отразил вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Ловким движением щита $N отразил магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
@@ -504,15 +514,15 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kLightingBolt: {
-				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 5) == 1 ? 1 : 0;
-				count = std::min(count, 4);
+			count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+			count += number(1, 5) == 1 ? 1 : 0;
+			count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kWhirlwind: {
-				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 7) == 1 ? 1 : 0;
-				count = std::min(count, 4);
+			count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
+			count += number(1, 7) == 1 ? 1 : 0;
+			count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kAcid: {
@@ -533,8 +543,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kClod: {
-				if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
-					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+				(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(victim))
 					victim->drop_from_horse();
 				act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -546,39 +556,44 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kAcidArrow: {
-	      // шанс доп аффекта 25% при 100% магии, 45 - 200, 85 -400..
-			if (number(1, 100)>(5 + (ch->GetSkill(GetMagicSkillId(spell_id))/5))) { 
-			 	break;
-			 }
+			// шанс доп аффекта 25% при 100% магии, 45 - 200, 85 -400..
+			if (number(1, 100) > (5 + (ch->GetSkill(GetMagicSkillId(spell_id)) / 5))) {
+				break;
+			}
 			int rnd = number(1, 5);
 			switch (rnd) {
 				case 1: // обожгло глотку - молча
-				act("Кислота плеснула на горло $n1", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Жуткая кислота опалила ваше горло!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kSilence); 
+					act("Кислота плеснула на горло $n1", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("Жуткая кислота опалила ваше горло!", false, victim, nullptr, nullptr, kToChar);
+					CastAffect(level, ch, victim, ESpell::kSilence);
 					break;
 				case 2: // телесный ожог - лихорадка
-				act("$n покрылся язвами по всему телу.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислота причинила вам жуткие ожоги кожи!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kFever); 
+					act("$n покрылся язвами по всему телу.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("Кислота причинила вам жуткие ожоги кожи!", false, victim, nullptr, nullptr, kToChar);
+					CastAffect(level, ch, victim, ESpell::kFever);
 					break;
 				case 3: // ядовитые испарения - яд
-				act("$n позеленел от действия кислотной стрелы.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислота обожгла вам все тело!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kPoison); 
+					act("$n позеленел от действия кислотной стрелы.",
+						false,
+						victim,
+						nullptr,
+						nullptr,
+						kToRoom | kToArenaListen);
+					act("Кислота обожгла вам все тело!", false, victim, nullptr, nullptr, kToChar);
+					CastAffect(level, ch, victim, ESpell::kPoison);
 					break;
 				case 4: // обожгло глаза - слепота
-				act("Часть кислоты попала в глаза $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислотные испарения выедают вам глаза!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kBlindness); 
+					act("Часть кислоты попала в глаза $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("Кислотные испарения выедают вам глаза!", false, victim, nullptr, nullptr, kToChar);
+					CastAffect(level, ch, victim, ESpell::kBlindness);
 					break;
 				case 5: // обожгот экип - кислотой
-				act("Кислота покрыла доспехи $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислота покрыла ваши доспехи.", false, victim, nullptr, nullptr, kToChar);
-				CastDamage(level, ch, victim, ESpell::kAcid); 
+					act("Кислота покрыла доспехи $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("Кислота покрыла ваши доспехи.", false, victim, nullptr, nullptr, kToChar);
+					CastDamage(level, ch, victim, ESpell::kAcid);
 					break;
 				default:break;
-			}	
+			}
 			break;
 		}
 		case ESpell::kEarthquake: {
@@ -593,7 +608,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				}
 			}
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
-					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+				(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(ch))
 					ch->drop_from_horse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -606,8 +621,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kSonicWave: {
 			if (GET_POS(victim) > EPosition::kSit &&
-				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) 
-						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
+				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim))
+				&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -618,7 +633,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kStunning: {
 			if (ch == victim ||
-					((number(1, 100) > GET_AR(victim)) && !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
+				((number(1, 100) > GET_AR(victim)) && !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
 				int choice_stunning = 750;
 				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GetRealRemort(ch) * 15;
@@ -635,8 +650,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kVacuum: {
 			if (!IsAffectedBySpell(victim, spell_id)) {
 				if (ch == victim ||
-						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
-								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
+					((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
+						&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
 					act("Круг пустоты отшиб сознание у $N1.", false, ch, nullptr, victim, kToChar);
 					act("Круг пустоты $n1 отшиб сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
@@ -883,15 +898,8 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 }
 
 int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
-	bool accum_affect = false, accum_duration = false, success = true;
-	bool update_spell = false;
-	//const char *to_vict = nullptr, *to_room = nullptr;
-	int i, modi = 0;
-	int rnd = 0;
 	int decline_mod = 0;
-	if (victim == nullptr
-		|| IN_ROOM(victim) == kNowhere
-		|| ch == nullptr) {
+	if (victim == nullptr || IN_ROOM(victim) == kNowhere || ch == nullptr) {
 		return 0;
 	}
 
@@ -901,7 +909,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (!pk_agro_action(ch, victim)) {
 				return 0;
 			}
-		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc) && victim->GetEnemy())	{
+		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc) && victim->GetEnemy()) {
 			if (!pk_agro_action(ch, victim->GetEnemy()))
 				return 0;
 		}
@@ -952,16 +960,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		return 0;
 	}
 
-	Affect<EApply> af[kMaxSpellAffects];
-	for (i = 0; i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
-		af[i].affect_bits = 0;
-		af[i].modifier = 0;
-		af[i].flags = 0;
-		af[i].location = EApply::kNone;
-	}
-
 	// decrease modi for failing, increese fo success
+	int modi{0};
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
@@ -974,7 +974,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	const auto koef_duration = CalcDurationCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 	const auto koef_modifier = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 
+	Affect<EApply> af[kMaxSpellAffects];
 	auto savetype{ESaving::kStability};
+	bool success{true};
+	bool accum_duration{false};
+	bool accum_affect{false};
+	bool update_spell{false};
 	switch (spell_id) {
 		case ESpell::kChillTouch: savetype = ESaving::kStability;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
@@ -1273,8 +1278,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kMagicGlass:
-		case ESpell::kGroupMagicGlass:
-			af[0].affect_bits = to_underlying(EAffect::kMagicGlass);
+		case ESpell::kGroupMagicGlass: af[0].affect_bits = to_underlying(EAffect::kMagicGlass);
 			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
 			spell_id = ESpell::kMagicGlass;
@@ -1341,8 +1345,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kShineFlash:
 		case ESpell::kMassBlindness:
 		case ESpell::kPowerBlindness:
-		case ESpell::kBlindness:
-			savetype = ESaving::kStability;
+		case ESpell::kBlindness: savetype = ESaving::kStability;
 			if (MOB_FLAGGED(victim, EMobFlag::kNoBlind) ||
 				IS_IMMORTAL(victim) ||
 				((ch != victim) &&
@@ -1582,7 +1585,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			af[0].location = EApply::kStr;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
+			af[0].duration =
+				ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 0, level, 1, 0, 0)) * koef_duration;
 			af[0].modifier = -2;
 			af[0].affect_bits = to_underlying(EAffect::kPoisoned);
 			af[0].flags = kAfSameTime;
@@ -1662,7 +1666,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kGroupStrength:
-		case ESpell::kStrength:
+		//case ESpell::kStrength:
 			if (IsAffectedBySpell(victim, ESpell::kWeaknes)) {
 				RemoveAffectFromChar(victim, ESpell::kWeaknes);
 				success = false;
@@ -1688,7 +1692,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].location = EApply::kDex;
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
 				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
 			else
@@ -1706,7 +1710,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kEyeOfGods:
 		case ESpell::kSenseLife:
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kDetectLife);
 			accum_duration = true;
 			spell_id = ESpell::kSenseLife;
@@ -1714,7 +1718,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kWaterwalk:
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kWaterWalk);
 			accum_duration = true;
 			break;
@@ -1722,7 +1726,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kBreathingAtDepth:
 		case ESpell::kWaterbreath:
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kWaterBreath);
 			accum_duration = true;
 			spell_id = ESpell::kWaterbreath;
@@ -1740,17 +1744,24 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kMassHold:
 		case ESpell::kPowerHold:
 		case ESpell::kHold:
-			if (MOB_FLAGGED(victim, EMobFlag::kNoHold) 
-					|| AFF_FLAGGED(victim, EAffect::kBrokenChains)
-					|| AFF_FLAGGED(victim, EAffect::kSleep)
-					|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
+			if (MOB_FLAGGED(victim, EMobFlag::kNoHold)
+				|| AFF_FLAGGED(victim, EAffect::kBrokenChains)
+				|| AFF_FLAGGED(victim, EAffect::kSleep)
+				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;
 			}
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id), spell_id == ESpell::kPowerHold ?
-					CalcDuration(victim, 2, level + 7, 8, 2, 5) : CalcDuration(victim, 1, level + 9, 10, 1, 3))
-					* koef_duration;
+																		  CalcDuration(victim, 2, level + 7, 8, 2, 5)
+																										 : CalcDuration(
+					victim,
+					1,
+					level + 9,
+					10,
+					1,
+					3))
+				* koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kHold);
 			af[0].flags = kAfBattledec;
 			spell_id = ESpell::kHold;
@@ -1784,14 +1795,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				case ESpell::kPowerDeafness:
 				case ESpell::kSonicWave:
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, level + 3, 4, 6, 0))
-							* koef_duration;
+												 CalcDuration(victim, 2, level + 3, 4, 6, 0))
+						* koef_duration;
 					break;
 				case ESpell::kMassDeafness:
 				case ESpell::kDeafness:
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, level + 7, 8, 3, 0))
-							* koef_duration;
+												 CalcDuration(victim, 2, level + 7, 8, 3, 0))
+						* koef_duration;
 					break;
 				default: break;
 			}
@@ -1810,8 +1821,15 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id), spell_id == ESpell::kPowerSilence ?
-					CalcDuration(victim, 2, level + 3, 4, 6, 0) : CalcDuration(victim, 2, level + 7, 8, 3, 0))
-					* koef_duration;
+																		  CalcDuration(victim, 2, level + 3, 4, 6, 0)
+																											: CalcDuration(
+					victim,
+					2,
+					level + 7,
+					8,
+					3,
+					0))
+				* koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kSilence);
 			af[0].flags = kAfBattledec;
 			spell_id = ESpell::kSilence;
@@ -1834,14 +1852,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kBlink: af[0].location = EApply::kSpelledBlink;
 			af[0].modifier = 10 + GetRealRemort(ch);
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			spell_id = ESpell::kBlink;
 			break;
 
 		case ESpell::kMagicShield: af[0].location = EApply::kAc;
 			af[0].modifier = -GetRealLevel(ch) * 10 / 6;
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[1].location = EApply::kSavingReflex;
 			af[1].modifier = -GetRealLevel(ch) / 5;
 			af[1].duration = af[0].duration;
@@ -1862,7 +1880,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-					CalcDuration(victim, 3, level, 4, 4, 0)) * koef_duration;
+										 CalcDuration(victim, 3, level, 4, 4, 0)) * koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kNoTeleport);
 			break;
 
@@ -1872,7 +1890,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				return 0;
 			}
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kHolyLight);
 			break;
 
@@ -1882,7 +1900,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				return 0;
 			}
 			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			af[0].affect_bits = to_underlying(EAffect::kHolyDark);
 			break;
 		case ESpell::kVampirism: af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
@@ -1942,8 +1960,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				default: break;
 			}
 */
-			if (spell_id==ESpell::kEarthfall){
-				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
+			if (spell_id == ESpell::kEarthfall) {
+				modi += ch->GetSkill(GetMagicSkillId(spell_id)) / 5;
 			}
 			if (IS_IMMORTAL(victim) || (!IS_IMMORTAL(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
@@ -1951,10 +1969,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			switch (spell_id) {
-				case ESpell::kWarcryOfThunder:
-					af[0].type = ESpell::kDeafness;
+				case ESpell::kWarcryOfThunder: af[0].type = ESpell::kDeafness;
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
+												 CalcDuration(victim, 2, level + 3, 4, 6, 0)) * koef_duration;
 					af[0].duration = CalcComplexSpellMod(ch, ESpell::kDeafness, GAPPLY_SPELL_EFFECT, af[0].duration);
 					af[0].affect_bits = to_underlying(EAffect::kDeafness);
 					af[0].flags = kAfBattledec;
@@ -1974,16 +1991,15 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				case ESpell::kIceStorm:
 				case ESpell::kEarthfall: SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].affect_bits = to_underlying(EAffect::kMagicStopFight);
 					af[0].flags = kAfBattledec | kAfPulsedec;
 					spell_id = ESpell::kMagicBattle;
 					break;
 
-				case ESpell::kShock:
-					SetWaitState(victim, 2 * kBattleRound);
+				case ESpell::kShock: SetWaitState(victim, 2 * kBattleRound);
 					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
+												 CalcDuration(victim, 2, 0, 0, 0, 0)) * koef_duration;
 					af[0].affect_bits = to_underlying(EAffect::kMagicStopFight);
 					af[0].flags = kAfBattledec | kAfPulsedec;
 					spell_id = ESpell::kMagicBattle;
@@ -2003,25 +2019,25 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			af[0].location = EApply::kHp;
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-					CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
+										 CalcDuration(victim, 4, 0, 0, 0, 0)) * koef_duration;
 			af[0].modifier =
 				-1 * std::max(1,
-						 (std::min(29, GetRealLevel(ch)) - std::min(24, GetRealLevel(victim)) +
-							 GetRealRemort(ch) / 3) * GET_MAX_HIT(victim) / 100);
+							  (std::min(29, GetRealLevel(ch)) - std::min(24, GetRealLevel(victim)) +
+								  GetRealRemort(ch) / 3) * GET_MAX_HIT(victim) / 100);
 			af[0].affect_bits = to_underlying(EAffect::kCrying);
 			if (victim->IsNpc()) {
 				af[1].location = EApply::kLikes;
 				af[1].duration = ApplyResist(victim, GetResistType(spell_id),
-						CalcDuration(victim, 5, 0, 0, 0, 0));
+											 CalcDuration(victim, 5, 0, 0, 0, 0));
 				af[1].modifier = -1 * std::max(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
 				af[1].affect_bits = to_underlying(EAffect::kCrying);
 				af[1].flags = kAfBattledec;
-	//			to_room = "$n0 издал$g протяжный стон.";
+				//			to_room = "$n0 издал$g протяжный стон.";
 				break;
 			}
 			af[1].location = EApply::kCastSuccess;
 			af[1].duration = ApplyResist(victim, GetResistType(spell_id),
-					CalcDuration(victim, 5, 0, 0, 0, 0));
+										 CalcDuration(victim, 5, 0, 0, 0, 0));
 			af[1].modifier = -1 * std::max(1, (level / 3 + GetRealRemort(ch) / 3 - GetRealLevel(victim) / 10));
 			af[1].affect_bits = to_underlying(EAffect::kCrying);
 			af[1].flags = kAfBattledec;
@@ -2364,14 +2380,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			//Додати обработчик
 			break;
 		}
-		
-		case ESpell::kPaladineInspiration:
+
+		case ESpell::kPaladineInspiration: {
 			/*
          * групповой спелл, развешивающий рандомные аффекты, к сожалению
          * не может быть применен по принципа "сгенерили рандом - и применили"
          * поэтому на каждого члена группы применяется свой аффект, а кастер еще и полечить может
          * */
-
+			int rnd{0};
 			if (ch == victim && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 				rnd = number(1, 5);
 			else
@@ -2379,33 +2395,41 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].type = ESpell::kPaladineInspiration;
 			af[0].flags = kAfBattledec | kAfPulsedec;
 			switch (rnd) {
-				case 1:af[0].location = EApply::kPhysicDamagePercent;
+				case 1: af[0].location = EApply::kPhysicDamagePercent;
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
 					break;
-				case 2:af[0].location = EApply::kCastSuccess;
+				case 2: af[0].location = EApply::kCastSuccess;
 					af[0].duration = CalcDuration(victim, 3, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
 					break;
-				case 3:af[0].location = EApply::kManaRegen;
+				case 3: af[0].location = EApply::kManaRegen;
 					af[0].duration = CalcDuration(victim, 10, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch) * 5;
 					break;
-				case 4:af[0].location = EApply::kMagicDamagePercent;
+				case 4: af[0].location = EApply::kMagicDamagePercent;
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
 					break;
-				case 5:CallMagic(ch, ch, nullptr, nullptr, ESpell::kGroupHeal, GetRealLevel(ch));
+				case 5: CallMagic(ch, ch, nullptr, nullptr, ESpell::kGroupHeal, GetRealLevel(ch));
 					break;
-				default:break;
+				default: break;
+					break;
 			}
+		}
 		default: break;
 	}
-	ch->send_to_TC(false, true, false, "Кастуем спелл %s по цели %s длительносить %d\r\n", MUD::Spell(af[0].type).GetCName(), GET_PAD(victim, 2), af[0].duration);
+	ch->send_to_TC(false,
+				   true,
+				   false,
+				   "Кастуем спелл %s по цели %s длительносить %d\r\n",
+				   MUD::Spell(af[0].type).GetCName(),
+				   GET_PAD(victim, 2),
+				   af[0].duration);
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
 	if (victim->IsNpc() && success) {
-		for (i = 0; i < kMaxSpellAffects && success; ++i) {
+		for (auto i = 0; i < kMaxSpellAffects && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].affect_bits))) {
 				if (ch->in_room == IN_ROOM(victim)) {
 					SendMsgToChar(NOEFFECT, ch);
@@ -2426,7 +2450,60 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		success = false;
 	}
 
-	for (i = 0; success && i < kMaxSpellAffects; i++) {
+	// ============================================================================================
+
+	if (spell_id == ESpell::kStrength) {
+
+		auto affects = MUD::Spell(spell_id).actions.GetAffects();
+		auto duration = MUD::Spell(spell_id).actions.GetDuration();
+//		auto duration_time = duration.DoRoll(ch);
+		auto duration_time = 4;
+		duration_time = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration_time);
+		bool failed{true};
+		for (const auto &affect: affects) {
+			if (MUD::Spell(spell_id).IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+				continue;
+			}
+			if (IsBlockedByAffect(affect, victim) || IsBlockedByMobFlag(affect, victim)) {
+				continue;
+			}
+
+			Affect<EApply> new_affect;
+			new_affect.type = spell_id;
+			new_affect.duration = duration_time;
+			new_affect.modifier = affect.Modifier();
+			new_affect.location = affect.Location();
+			new_affect.flags = affect.Flags();
+			new_affect.affect_bits = affect.AffectBits();
+			new_affect.caster_id = ch->get_uid();
+
+
+			if (new_affect.flags & EAffectFlag::kAfUpdate) {
+				ImposeAffect(victim, new_affect);
+			} else {
+				auto accum_duration = duration.Accumulate();
+				auto accum_affect = affect.Accumulate();
+				ImposeAffect(victim, new_affect, accum_duration, !accum_duration, accum_affect, !accum_affect);
+			}
+
+			// Send messages
+			auto to_vict = GetSpellMsg(spell_id, ESpellMsg::kAffImposedForVict);
+			act(to_vict, false, victim, nullptr, ch, kToChar);
+			auto to_room = GetSpellMsg(spell_id, ESpellMsg::kAffImposedForRoom);
+			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
+			failed = false;
+		}
+		if (failed) {
+			SendMsgToChar(NOEFFECT, ch);
+		}
+		return 1;
+	}
+
+	//SendMsgToChar(NOEFFECT, ch);
+
+	// ============================================================================================
+
+	for (auto i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].affect_bits || af[i].location != EApply::kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
@@ -2459,6 +2536,24 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	return 0;
 }
 
+
+bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim) {
+	const auto &blocking_affects = affect.BlockingAffects();
+	auto predicate = [victim](EAffect victim_affect) { return AFF_FLAGGED(victim, victim_affect); };
+	if (std::any_of(blocking_affects.begin(), blocking_affects.end(), predicate)) {
+		return true;
+	}
+	return false;
+}
+
+bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *victim) {
+	const auto &mob_flags = affect.BlockingMobFlags();
+	auto predicate = [victim](EMobFlag flag) { return MOB_FLAGGED(victim, flag); };
+	if (std::any_of(mob_flags.begin(), mob_flags.end(), predicate)) {
+		return true;
+	}
+	return false;
+}
 
 /*
  *  Every spell which summons/gates/conjours a mob comes through here.
@@ -2974,8 +3069,9 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			SendMsgToChar("Вы полностью насытились.\r\n", victim);
 		}
 			break;
-		default: log("MAG_POINTS: Ошибка! Передан неопределенный лечащий спелл spell_id: %d!\r\n",
-					 to_underlying(spell_id));
+		default:
+			log("MAG_POINTS: Ошибка! Передан неопределенный лечащий спелл spell_id: %d!\r\n",
+				to_underlying(spell_id));
 			return 0;
 			break;
 	}
@@ -3003,7 +3099,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				GET_HIT(victim) = std::max(GET_HIT(victim), std::min(GET_HIT(victim) + hit, 1));
 			} else {
 				GET_HIT(victim) = std::clamp(GET_HIT(victim) + hit, GET_HIT(victim),
-						GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100);
+											 GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100);
 			}
 		}
 	}
@@ -3494,7 +3590,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	if (cvict && (caster != cvict))
 		if (IS_GOD(cvict) || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
-				!caster->IsNpc())) {
+			!caster->IsNpc())) {
 			SendMsgToChar(NOEFFECT, caster);
 			return (-1);
 		}

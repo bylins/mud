@@ -18,8 +18,9 @@ enum EAffectFlag : Bitvector {
 	kAfDeadkeep		= 1u << 1,
 	kAfPulsedec		= 1u << 2,
 	kAfSameTime		= 1u << 3,	// тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
-	kAfCurable		= 1u << 4,
-	kAfDispelable	= 1u << 5
+	kAfUpdate		= 1u << 4,	// аффект перенакладывается полностью, обновляя таймер и модификатор
+	kAfCurable		= 1u << 5,
+	kAfDispelable	= 1u << 6
 };
 
 template<>

@@ -248,7 +248,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "прибежище други"},
 			 {ESpellMsg::kCastChrist, "... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"},
 			 {ESpellMsg::kAreaForChar, "Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n"},
-			 {ESpellMsg::kAffExpired, "!Group Armor!"},
+			 {ESpellMsg::kAffExpired, "Вы почувствовали себя менее защищенно."},
 			 {ESpellMsg::kAffImposedForVict, "Вы почувствовали вокруг себя невидимую защиту."},
 			 {ESpellMsg::kAffImposedForRoom, "Вокруг $n1 вспыхнул белый щит и тут же погас."}}},
 		 {ESpell::kGroupHeal, {
@@ -281,7 +281,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "други сильны"},
 			 {ESpellMsg::kCastChrist, "... и даст нам Господь силу."},
 			 {ESpellMsg::kAreaForChar, "Вы наделили союзников силой медведя.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL GROUP STRENGTH!"},
+			 {ESpellMsg::kAffExpired, "Вы чувствуете себя немного слабее."},
 			 {ESpellMsg::kAffImposedForVict, "Вы почувствовали себя сильнее."},
 			 {ESpellMsg::kAffImposedForRoom, "Мышцы $n1 налились силой."}}},
 		 {ESpell::kHold, {
@@ -301,7 +301,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... замрите."},
 			 {ESpellMsg::kAreaForChar, "Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей."},
 			 {ESpellMsg::kAreaForVict, "В вас попал каменный луч, исходящий от $n1."},
-			 {ESpellMsg::kAffExpired, "!SPELL MASS HOLD!"},
+			 {ESpellMsg::kAffExpired, "К вам вернулась способность двигаться."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 замер$q на месте!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы замерли на месте, не в силах пошевельнуться."}}},
 		 {ESpell::kFly, {
@@ -382,7 +382,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "други, низовати мечетны."},
 			 {ESpellMsg::kCastChrist, "... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."},
 			 {ESpellMsg::kAreaForChar, "Вы вызвали прозрачный туман, поглотивший все дружественное вам.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL GROUP INVISIBLE!"},
+			 {ESpellMsg::kAffExpired, "Вы вновь видимы."},
 			 {ESpellMsg::kAffImposedForVict, "Вы стали невидимы для окружающих."},
 			 {ESpellMsg::kAffImposedForRoom, "$n медленно растворил$u в пустоте."},}},
 		 {ESpell::kShadowCloak, {
@@ -441,13 +441,13 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kAreaForChar, "У вас над головой возникла яркая вспышка, которая ослепила все живое."},
 			 {ESpellMsg::kAreaForRoom, "Вдруг над головой $n1 возникла яркая вспышка."},
 			 {ESpellMsg::kAreaForVict, "Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."},
-			 {ESpellMsg::kAffExpired, "!SPELL MASS BLINDNESS!"},
+			 {ESpellMsg::kAffExpired, "Вы вновь можете видеть."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 ослеп$q!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы ослепли!"}}},
 		 {ESpell::kPowerSilence, {
 			 {ESpellMsg::kCastPoly, "згола не прерчет"},
 			 {ESpellMsg::kCastChrist, "... исходящее из уст твоих, да не осквернит слуха."},
-			 {ESpellMsg::kAffExpired, "!SPELL POWER SIELENCE!"},
+			 {ESpellMsg::kAffExpired, "Теперь вы можете болтать, все что думаете."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 прикусил$g язык!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы не в состоянии вымолвить ни слова."}}},
 		 {ESpell::kExtraHits, {
@@ -473,15 +473,13 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... да замкнутся уста ваши."},
 			 {ESpellMsg::kAreaForChar, "Поведя вокруг грозным взглядом, вы заставили всех замолчать."},
 			 {ESpellMsg::kAreaForVict, "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."},
-			 {ESpellMsg::kAffExpired, "!SPELL MASS SIELENCE!"},
+			 {ESpellMsg::kAffExpired, "Теперь вы можете болтать, все что думаете."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 прикусил$g язык!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы не в состоянии вымолвить ни слова."}}},
 		 {ESpell::kRemoveSilence, {
 			 {ESpellMsg::kCastPoly, "глаголите"},
 			 {ESpellMsg::kCastChrist, "... слова из уст мудрого - благодать."},
-			 {ESpellMsg::kAffExpired, "!SPELL REMOVE SIELENCE!"},
-			 {ESpellMsg::kAffImposedForRoom, "$n0 прикусил$g язык!"},
-			 {ESpellMsg::kAffImposedForVict, "Вы не в состоянии вымолвить ни слова."}}},
+			 {ESpellMsg::kAffExpired, "!SPELL REMOVE SIELENCE!"}}},
 		 {ESpell::kDamageLight, {
 			 {ESpellMsg::kCastPoly, "падош"},
 			 {ESpellMsg::kCastChrist, "... будет чувствовать боль."},
@@ -499,7 +497,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... прокляты вы пред всеми скотами."},
 			 {ESpellMsg::kAreaForChar, "Медленно оглянувшись, вы прошептали древние слова."},
 			 {ESpellMsg::kAreaForVict, "$n злобно посмотрел$g на вас и начал$g шептать древние слова."},
-			 {ESpellMsg::kAffExpired, "!SPELL MASS CURSE!"},
+			 {ESpellMsg::kAffExpired, "Вы почувствовали себя более уверенно."},
 			 {ESpellMsg::kAffImposedForRoom, "Красное сияние вспыхнуло над $n4 и тут же погасло!"},
 			 {ESpellMsg::kAffImposedForVict, "Боги сурово поглядели на вас."}}},
 		 {ESpell::kArmageddon, {
@@ -512,14 +510,14 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "крыла им створисте"},
 			 {ESpellMsg::kCastChrist, "... и все летающие по роду их."},
 			 {ESpellMsg::kAreaForChar, "Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL GROUP FLY!"},
+			 {ESpellMsg::kAffExpired, "Вы приземлились на землю."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 медленно поднял$u в воздух."},
 			 {ESpellMsg::kAffImposedForVict, "Вы медленно поднялись в воздух."}}},
 		 {ESpell::kGroupBless, {
 			 {ESpellMsg::kCastPoly, "други, наполнися ратнаго духа"},
 			 {ESpellMsg::kCastChrist, "... блажены те, слышащие слово Божие."},
 			 {ESpellMsg::kAreaForChar, "Прикрыв глаза, вы прошептали таинственную молитву.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL GROUP BLESS!"},
+			 {ESpellMsg::kAffExpired, "Вы почувствовали себя менее доблестно."},
 			 {ESpellMsg::kAffImposedForVict, "Боги одарили вас своей улыбкой."},
 			 {ESpellMsg::kAffImposedForRoom, "$n осветил$u на миг неземным светом."}}},
 		 {ESpell::kResfresh, {
@@ -529,7 +527,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kStunning, {
 			 {ESpellMsg::kCastPoly, "да обратит тебя Чернобог в мертвый камень!"},
 			 {ESpellMsg::kCastChrist, "... и проклял его именем Господним."},
-			 {ESpellMsg::kAffExpired, "!SPELL STUNNING!"}}},
+			 {ESpellMsg::kAffExpired, "Каменное проклятие отпустило вас."}}},
 		 {ESpell::kHide, {
 			 {ESpellMsg::kAffExpired, "Вы стали заметны окружающим."}}},
 		 {ESpell::kSneak, {
@@ -577,14 +575,14 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... загорожу путь их тернами."},
 			 {ESpellMsg::kAreaForChar, "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами."},
 			 {ESpellMsg::kAreaForVict, "$n вызвал$g цепкие корни, опутавшие ваши ноги."},
-			 {ESpellMsg::kAffExpired, "!SPELL MASS SLOW!"},
+			 {ESpellMsg::kAffExpired, "Медлительность исчезла."},
 			 {ESpellMsg::kAffImposedForRoom, "Движения $n1 заметно замедлились."},
 			 {ESpellMsg::kAffImposedForVict, "Ваши движения заметно замедлились."}}},
 		 {ESpell::kGroupHaste, {
 			 {ESpellMsg::kCastPoly, "быстры аки ястребов стая"},
 			 {ESpellMsg::kCastChrist, "... и они быстры как серны на горах."},
 			 {ESpellMsg::kAreaForChar, "Разведя руки в стороны, вы ощутили всю мощь стихии ветра.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL MASS HASTE!"},
+			 {ESpellMsg::kAffExpired, "Вы стали более медлительны."},
 			 {ESpellMsg::kAffImposedForVict, "Вы начали двигаться быстрее."},
 			 {ESpellMsg::kAffImposedForRoom, "$n начал$g двигаться заметно быстрее."}}},
 		 {ESpell::kGodsShield, {
@@ -676,7 +674,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kShineFlash, {
 			 {ESpellMsg::kCastPoly, "засти очи им"},
 			 {ESpellMsg::kCastChrist, "... свет пламени из средины огня."},
-			 {ESpellMsg::kAffExpired, "!SHINE LIGHT!"},
+			 {ESpellMsg::kAffExpired, "Вы прозрели."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 ослеп$q!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы ослепли!"}}},
 		 {ESpell::kMadness, {
@@ -687,7 +685,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "гладь воды отразит"},
 			 {ESpellMsg::kCastChrist, "... воздай им по делам их, по злым поступкам их."},
 			 {ESpellMsg::kAreaForChar, "Вы произнесли несколько резких слов, и все вокруг засеребрилось.\r\n"},
-			 {ESpellMsg::kAffExpired, "!GROUP MAGICGLASS!"},
+			 {ESpellMsg::kAffExpired, "Зеркало магии истаяло."},
 			 {ESpellMsg::kAffImposedForVict, "Вас покрыло зеркало магии."},
 			 {ESpellMsg::kAffImposedForRoom, "$n3 покрыла зеркальная пелена."}}},
 		 {ESpell::kCloudOfArrows, {
@@ -756,8 +754,8 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... кто делает или глухим, или слепым."},
 			 {ESpellMsg::kAreaForChar, "Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе."},
 			 {ESpellMsg::kAreaForRoom, "Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе."},
-			 {ESpellMsg::kAffExpired, "!SHOCK!"},
-			 {ESpellMsg::kAffImposedForRoom, "$n1 в шоке."},
+			 {ESpellMsg::kAffExpired, "Ваше сознание прояснилось."},
+			 {ESpellMsg::kAffImposedForRoom, "$n1 в шоке!"},
 			 {ESpellMsg::kAffImposedForVict, "Вас повергло в шок."}}},
 		 {ESpell::kMagicGlass, {
 			 {ESpellMsg::kCastPoly, "Аз воздам!"},
@@ -769,14 +767,14 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "иже во святых, други"},
 			 {ESpellMsg::kCastChrist, "... будьте святы, аки Господь наш свят."},
 			 {ESpellMsg::kAreaForChar, "Вы подняли руки к небу и произнесли священную молитву.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL GROUP SANCTUARY!"},
+			 {ESpellMsg::kAffExpired, "Белая аура вокруг вашего тела угасла."},
 			 {ESpellMsg::kAffImposedForVict, "Белая аура мгновенно окружила вас."},
 			 {ESpellMsg::kAffImposedForRoom, "Белая аура покрыла $n3 с головы до пят."}}},
 		 {ESpell::kGroupPrismaticAura, {
 			 {ESpellMsg::kCastPoly, "други, буде окружены радугой"},
 			 {ESpellMsg::kCastChrist, "... взгляни на радугу, и прославь Сотворившего ее."},
 			 {ESpellMsg::kAreaForChar, "Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.\r\n"},
-			 {ESpellMsg::kAffExpired, "!SPELL GROUP PRISMATICAURA!"},
+			 {ESpellMsg::kAffExpired, "Призматическая аура вокруг вашего тела угасла."},
 			 {ESpellMsg::kAffImposedForVict, "Вас покрыла призматическая аура."},
 			 {ESpellMsg::kAffImposedForRoom, "$n3 покрыла призматическая аура."}}},
 		 {ESpell::kDeafness, {
@@ -788,7 +786,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kPowerDeafness, {
 			 {ESpellMsg::kCastPoly, "да застит уши твои"},
 			 {ESpellMsg::kCastChrist, "... и будь глухим надолго."},
-			 {ESpellMsg::kAffExpired, "!SPELL_POWER_DEAFNESS!"},
+			 {ESpellMsg::kAffExpired, "Вы вновь можете слышать."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 оглох$q!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы оглохли."}}},
 		 {ESpell::kRemoveDeafness, {
@@ -802,7 +800,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... и не будут слышать уши ваши."},
 			 {ESpellMsg::kAreaForChar, "Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух."},
 			 {ESpellMsg::kAreaForRoom, "Как только $n0 склонил$g голову, раздался оглушающий хлопок."},
-			 {ESpellMsg::kAffExpired, "!SPELL_MASS_DEAFNESS!"},
+			 {ESpellMsg::kAffExpired, "Вы вновь можете слышать."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 оглох$q!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы оглохли."}}},
 		 {ESpell::kDustStorm, {
@@ -810,7 +808,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... и пыль поглотит вас."},
 			 {ESpellMsg::kAreaForChar, "Вы взмахнули руками и вызвали огромное пылевое облако, скрывшее все вокруг."},
 			 {ESpellMsg::kAreaForRoom, "Вас поглотила пылевая буря, вызванная $n4."},
-			 {ESpellMsg::kAffExpired, "!SPELL_DUSTSTORM!"},
+			 {ESpellMsg::kAffExpired, "Вы протерли глаза от пыли."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 ослеп$q!"},
 			 {ESpellMsg::kAffImposedForVict, "Вы ослепли!"}}},
 		 {ESpell::kEarthfall, {
@@ -818,7 +816,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... и обрушатся камни с небес."},
 			 {ESpellMsg::kAreaForChar, "Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз."},
 			 {ESpellMsg::kAreaForRoom, "$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз."},
-			 {ESpellMsg::kAffExpired, "!SPELL_EARTHFALL!"},
+			 {ESpellMsg::kAffExpired, "Громкий звон в голове несколько поутих."},
 			 {ESpellMsg::kAffImposedForRoom, "$n3 оглушило."},
 			 {ESpellMsg::kAffImposedForVict, "Вас оглушило."}}},
 		 {ESpell::kSonicWave, {
@@ -850,7 +848,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kComponentMissing, "Батюшки светы! А помаду-то я дома забыл$g.\r\n"},
 			 {ESpellMsg::kComponentExhausted, "$o рассыпался в ваших руках от неловкого движения.\r\n"},
 			 {ESpellMsg::kAffExpired, "Ваша красота куда-то пропала."},
-			 {ESpellMsg::kAffImposedForVict, "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n"},
+			 {ESpellMsg::kAffImposedForVict, "Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n"}}},
 		 {ESpell::kCrying, {
 			 {ESpellMsg::kCastPoly, "Будут слезы твои, аки камень на сердце"},
@@ -861,7 +859,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kOblivion, {
 			 {ESpellMsg::kCastPoly, "будь живот аки буява с шерстнями."},
 			 {ESpellMsg::kCastChrist, "... опадет на тебя чернь страшная."},
-			 {ESpellMsg::kAffExpired, "!SPELL_OBLIVION!"},
+			 {ESpellMsg::kAffExpired, "Тёмная вода забвения схлынула из вашего раузма."},
 			 {ESpellMsg::kAffImposedForRoom, "Облако забвения окружило $n3."},
 			 {ESpellMsg::kAffImposedForVict, "Ваш разум помутился."}}},
 		 {ESpell::kBurdenOfTime, {
@@ -869,7 +867,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastChrist, "... и время не властно над ними."},
 			 {ESpellMsg::kAreaForChar, "Вы скрестили руки на груди, вызвав яркую вспышку синего света."},
 			 {ESpellMsg::kAreaForRoom, "$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света."},
-			 {ESpellMsg::kAffExpired, "!SPELL_BURDEN_OF_TIME!"},
+			 {ESpellMsg::kAffExpired, "Иновременное небытие больше не властно над вами."},
 			 {ESpellMsg::kAffImposedForRoom, "Облако забвения окружило $n3."},
 			 {ESpellMsg::kAffImposedForVict, "Ваш разум помутился."}}},
 		 {ESpell::kGroupRefresh, {
@@ -890,7 +888,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kStoneBones, {
 			 {ESpellMsg::kCastPoly, "Обращу кости их в твердый камень."},
 			 {ESpellMsg::kCastChrist, "...и тот, кто упадет на камень сей, разобьется."},
-			 {ESpellMsg::kAffExpired, "!stone bones!"},
+			 {ESpellMsg::kAffExpired, "Читить вредно!"},
 			 {ESpellMsg::kAffImposedForVict, "Читим-с?! Нехорошо! Инцидент запротоколирован."},
 			 {ESpellMsg::kAffImposedForRoom, "Кости $n1 обрели твердость кремня."}}},
 		 {ESpell::kRoomLight, {
@@ -1060,7 +1058,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kSolobonus, {
 			 {ESpellMsg::kAffExpired, "Одна из наград прекратила действовать."}}},
 		 {ESpell::kVampirism, {
-			 {ESpellMsg::kAffExpired, "!SPELL_VAMPIRE!"},
+			 {ESpellMsg::kAffExpired, "Кровавая жажда оставила вас."},
 			 {ESpellMsg::kAffImposedForRoom, "Зрачки $n3 приобрели красный оттенок."},
 			 {ESpellMsg::kAffImposedForVict, "Ваши зрачки приобрели красный оттенок."}}},
 		 {ESpell::kRestoration, {
@@ -1115,42 +1113,42 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kAffExpired, "!SPELL_CLOD!"}}},
 		 {ESpell::kExpedient, {
 			 {ESpellMsg::kCastPoly, "!Применил боевой прием!"},
-			 {ESpellMsg::kCastChrist, "!use battle expedient!"},
+			 {ESpellMsg::kCastChrist, "!Применил боевой прием!"},
 			 {ESpellMsg::kAffExpired, "Эффект боевого приема завершился."}}},
 		 {ESpell::kSightOfDarkness, {
 			 {ESpellMsg::kCastPoly, "Что свет, что тьма - глазу одинаково."},
 			 {ESpellMsg::kCastChrist, "Станьте зрячи в тьме кромешной!"},
-			 {ESpellMsg::kAffExpired, "!SPELL SIGHT OF DARKNESS!"},
+			 {ESpellMsg::kAffExpired, "Вы больше не можете видеть ночью."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 погрузил$g комнату во мрак."},
 			 {ESpellMsg::kAffImposedForVict, "Вы погрузили комнату в непроглядную тьму."}}},
 		 {ESpell::kGroupSincerity, {
 			 {ESpellMsg::kCastPoly, "...да не скроются намерения."},
 			 {ESpellMsg::kCastChrist, "И узрим братья намерения окружающих."},
-			 {ESpellMsg::kAffExpired, "!SPELL GENERAL SINCERITY!"},
+			 {ESpellMsg::kAffExpired, "Вы не в состоянии больше видеть невидимых."},
 			 {ESpellMsg::kAffImposedForVict, "Ваши глаза приобрели зеленый оттенок."},
 			 {ESpellMsg::kAffImposedForRoom, "Глаза $n1 приобрели зеленый оттенок."}}},
 		 {ESpell::kMagicalGaze, {
 			 {ESpellMsg::kCastPoly, "Узрим же все, что с магией навкруги нас."},
 			 {ESpellMsg::kCastChrist, "Покажи, Спаситель, магические силы братии."},
-			 {ESpellMsg::kAffExpired, "!SPELL MAGICAL GAZE!"},
+			 {ESpellMsg::kAffExpired, "Вы не в состоянии более определять магию."},
 			 {ESpellMsg::kAffImposedForVict, "Ваши глаза приобрели желтый оттенок."},
 			 {ESpellMsg::kAffImposedForRoom, "Глаза $n1 приобрели желтый оттенок."}}},
 		 {ESpell::kAllSeeingEye, {
 			 {ESpellMsg::kCastPoly, "Все тайное станет явным."},
 			 {ESpellMsg::kCastChrist, "Не спрячется, не скроется, ни заяц, ни блоха."},
-			 {ESpellMsg::kAffExpired, "!SPELL ALL SEEING EYE!"},
+			 {ESpellMsg::kAffExpired, "Вы более не можете определять наклонности."},
 			 {ESpellMsg::kAffImposedForVict, "Ваши глаза приобрели золотистый оттенок."},
 			 {ESpellMsg::kAffImposedForRoom, "Глаза $n1 приобрели золотистый оттенок."}}},
 		 {ESpell::kEyeOfGods, {
 			 {ESpellMsg::kCastPoly, "Осязаемое откройся взору!"},
 			 {ESpellMsg::kCastChrist, "Да не скроется от взора вашего, ни одна живая душа."},
-			 {ESpellMsg::kAffExpired, "!SPELL EYE OF GODS!"},
+			 {ESpellMsg::kAffExpired, "Вы больше не можете чувствовать жизнь."},
 			 {ESpellMsg::kAffImposedForVict, "Вы способны разглядеть даже микроба."},
 			 {ESpellMsg::kAffImposedForRoom, "$n0 начал$g замечать любые движения."}}},
 		 {ESpell::kBreathingAtDepth, {
 			 {ESpellMsg::kCastPoly, "Аки стайка рыбок, плывите вместе."},
 			 {ESpellMsg::kCastChrist, "Что в воде, что на земле, воздух свежим будет."},
-			 {ESpellMsg::kAffExpired, "!SPELL BREATHING AT DEPTH!"},
+			 {ESpellMsg::kAffExpired, "Вы более не способны дышать водой."},
 			 {ESpellMsg::kAffImposedForVict, "У вас выросли жабры."},
 			 {ESpellMsg::kAffImposedForRoom, "У $n1 выросли жабры."}}},
 		 {ESpell::kGeneralRecovery, {
@@ -1175,7 +1173,7 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 		 {ESpell::kSnakeEyes, {
 			 {ESpellMsg::kCastPoly, "Что яд, а что мед. Не обманемся!"},
 			 {ESpellMsg::kCastChrist, "...и самый сильный яд станет вам виден."},
-			 {ESpellMsg::kAffExpired, "!SPELL SNAKE EYES!"},
+			 {ESpellMsg::kAffExpired, "Вы не в состоянии более определять яды."},
 			 {ESpellMsg::kAffImposedForVict, "Ваши глаза приобрели карий оттенок."},
 			 {ESpellMsg::kAffImposedForRoom, "Глаза $n1 приобрели карий оттенок."}}},
 		 {ESpell::kEarthAura, {
@@ -1226,21 +1224,21 @@ const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id) {
 			 {ESpellMsg::kCastPoly, "защити нас от железа разящего"},
 			 {ESpellMsg::kCastChrist, "... ни стрела, ни меч не пронзят печень вашу."},
 			 {ESpellMsg::kAreaForChar, "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n"},
-			 {ESpellMsg::kAffExpired, "!NONE"},
+			 {ESpellMsg::kAffExpired, "Вы перестали мигать."},
 			 {ESpellMsg::kAffImposedForRoom, "$n начал$g мигать."},
 			 {ESpellMsg::kAffImposedForVict, "Вы начали мигать."}}},
 		 {ESpell::kGroupCloudly, {
 			 {ESpellMsg::kCastPoly, "огрожу беззакония их туманом"},
 			 {ESpellMsg::kCastChrist, "...да защитит и покроет рассветная пелена тела ваши."},
 			 {ESpellMsg::kAreaForChar, "Пелена тумана окутала вас и окружающих, скрыв очертания.\r\n"},
-			 {ESpellMsg::kAffExpired, "!NONE"},
+			 {ESpellMsg::kAffExpired, "Ваши очертания приобрели отчетливость."},
 			 {ESpellMsg::kAffImposedForVict, "Ваше тело стало прозрачным, как туман."},
 			 {ESpellMsg::kAffImposedForRoom, "Очертания $n1 расплылись и стали менее отчетливыми."}}},
 		 {ESpell::kGroupAwareness, {
 			 {ESpellMsg::kCastPoly, "буде вежды ваши открыты"},
 			 {ESpellMsg::kCastChrist, "... и забота о ближнем отгоняет сон от очей их."},
 			 {ESpellMsg::kAreaForChar, "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n"},
-			 {ESpellMsg::kAffExpired, "!NONE"},
+			 {ESpellMsg::kAffExpired, "Вы стали менее внимательны."},
 			 {ESpellMsg::kAffImposedForVict, "Вы стали более внимательны к окружающему."},
 			 {ESpellMsg::kAffImposedForRoom, "$n начал$g внимательно осматриваться по сторонам."}}},
 		 {ESpell::kWarcryOfExperience, {

@@ -721,15 +721,16 @@ void affect_total(CharData *ch) {
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	bool found = false;
 
-	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_bits == af.affect_bits);
-		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+	for (const auto &present_affect : ch->affected) {
+		const bool same_affect = (af.location == EApply::kNone) && (present_affect->affect_bits == af.affect_bits);
+		const bool same_type = (af.location != EApply::kNone)
+			&& (present_affect->type == af.type) && (present_affect->location == af.location);
 		if (same_affect || same_type) {
-			if (affect->modifier < af.modifier) {
-				affect->modifier = af.modifier;
+			if (present_affect->modifier < af.modifier) {
+				present_affect->modifier = af.modifier;
 			}
-			if (affect->duration < af.duration) {
-				affect->duration = af.duration;
+			if (present_affect->duration < af.duration) {
+				present_affect->duration = af.duration;
 			}
 			affect_total(ch);
 			found = true;

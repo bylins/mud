@@ -10,6 +10,7 @@
 #define BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
 
 #include "game_affects/affect_contants.h"
+#include "game_abilities/abilities_constants.h"
 #include "game_skills/skills.h"
 #include "entities/entities_constants.h"
 #include "utils/parser_wrapper.h"
@@ -19,31 +20,60 @@ class CharData;
 namespace talents_actions {
 
 class Roll {
- private:
+ protected:
+	double resist_weight_{0.0};
 	ESkill base_skill_{ESkill::kUndefined};
 	double low_skill_bonus_{0.0};
 	double hi_skill_bonus_{0.0};
 	EBaseStat base_stat_{EBaseStat::kFirst};
 	int base_stat_threshold_{10};
 	double base_stat_weight_{0.0};
-	int dice_num_{1};
-	int dice_size_{1};
-	int dice_add_{1};
 
-	void ParseDices(parser_wrapper::DataNode &node);
 	void ParseBaseSkill(parser_wrapper::DataNode &node);
 	void ParseBaseStat(parser_wrapper::DataNode &node);
 
  public:
 	explicit Roll() = default;
-	~Roll() = default;
-	void ParseRoll(parser_wrapper::DataNode &node);
-	[[nodiscard]] int RollDices() const;
+	virtual ~Roll() = default;
+	virtual void ParseRoll(parser_wrapper::DataNode &node);
+	[[nodiscard]] double ResistWeight() const { return resist_weight_; };
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
-	void Print(std::ostringstream &buffer) const;
+	virtual void Print(std::ostringstream &buffer) const;
 };
 
+class PowerRoll : public Roll {
+ private:
+	int dice_num_{1};
+	int dice_size_{1};
+	int dice_add_{1};
+
+	void ParseDices(parser_wrapper::DataNode &node);
+
+ public:
+	explicit PowerRoll() = default;
+	~PowerRoll() override = default;
+	void ParseRoll(parser_wrapper::DataNode &node) override;
+	[[nodiscard]] int RollDices() const;
+	int DoRoll(const CharData *ch) const;
+	void Print(std::ostringstream &buffer) const override;
+};
+
+class SuccessRoll : public Roll {
+	int critsuccess_threshold_{abilities::kDefaultCritsuccessThreshold};
+	int critfail_threshold_{abilities::kDefaultCritfailThreshold};
+	int roll_bonus_{abilities::kDefaultDifficulty};
+	int pvp_penalty_{abilities::kDefaultPvPPenalty};
+	int pve_penalty_{abilities::kDefaultPvEPenalty};
+	int evp_penalty_{abilities::kDefaultEvPPenalty};
+
+ public:
+	explicit SuccessRoll() = default;
+	~SuccessRoll() override = default;
+	void ParseRoll(parser_wrapper::DataNode &node) override;
+	void Print(std::ostringstream &buffer) const override;
+};
+/*
 enum class ETalentEffect : Bitvector {
 	kAffect			= 0u,
 	kDamage			= 1u << 0,
@@ -52,40 +82,29 @@ enum class ETalentEffect : Bitvector {
 	kPointsChange	= 1u << 3,
 	kPosChange		= 1u << 4
 };
-
-class TalentEffect {
- private:
-	Roll power_roll_;
-
- protected:
-	TalentEffect() = default;
-	explicit TalentEffect(parser_wrapper::DataNode &node);
-
- public:
-	virtual ~TalentEffect() = default;
-	void ParseBaseFields(parser_wrapper::DataNode &node);
-	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
-	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const { return power_roll_.CalcSkillCoeff(ch); };
-	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const { return power_roll_.CalcBaseStatCoeff(ch); };
-	virtual void Print(CharData *ch, std::ostringstream &buffer) const;
-};
-
-class Damage : public TalentEffect {
+*/
+class Damage {
+	PowerRoll power_roll_;
 	ESaving saving_{ESaving::kReflex};
 
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
+	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
+	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const { return power_roll_.CalcSkillCoeff(ch); };
+	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const { return power_roll_.CalcBaseStatCoeff(ch); };
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
-class Affect : public TalentEffect {
+class Affect {
+	PowerRoll power_roll_;
 	ESaving saving_{ESaving::kReflex};
 	EApply location_{EApply::kNone};
-	EAffect affect_{EAffect::kUndefinded};
 	int mod_{0};
 	int cap_{0};
 	bool accumulate_{false};
 	Bitvector flags_{0u};
+	Bitvector appplies_bits_{0u};
+	std::unordered_set<EAffect> applies_affects_;
 	std::unordered_set<EAffect> removes_affects_;
 	std::unordered_set<EAffect> replaces_affects_;
 	std::unordered_set<EAffect> blocked_by_affects_;
@@ -95,15 +114,23 @@ class Affect : public TalentEffect {
 	explicit Affect(parser_wrapper::DataNode &node);
 	[[nodiscard]] ESaving Saving()			const { return saving_; }
 	[[nodiscard]] EApply Location()			const { return location_; }
-	[[nodiscard]] EAffect AffectBits()		const { return affect_; }
+	[[nodiscard]] Bitvector AffectBits()	const { return appplies_bits_; }
 	[[nodiscard]] int Modifier()			const { return mod_; }
 	[[nodiscard]] int Cap()					const { return cap_; }
-	[[nodiscard]] bool AccumulateEffect()	const { return accumulate_; }
+	[[nodiscard]] bool Accumulate()	const { return accumulate_; }
 	[[nodiscard]] Bitvector Flags()			const { return flags_; }
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
+	[[nodiscard]] const auto &RemovedAffects() const { return removes_affects_; }
+	[[nodiscard]] const auto &ReplacesAffects() const { return replaces_affects_; }
+	[[nodiscard]] const auto &BlockingAffects() const { return blocked_by_affects_; }
+	[[nodiscard]] const auto &BlockingMobFlags() const { return blocked_by_mob_flags_; }
+	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
+	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const { return power_roll_.CalcSkillCoeff(ch); };
+	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const { return power_roll_.CalcBaseStatCoeff(ch); };
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
-class Duration : public TalentEffect {
+class Duration {
+	SuccessRoll success_roll_;
 	int min_{1};
 	int cap_{1};
 	bool accumulate_{false};
@@ -111,10 +138,11 @@ class Duration : public TalentEffect {
  public:
 	Duration() = default;
 	explicit Duration(parser_wrapper::DataNode &node);
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+	[[nodiscard]] bool Accumulate() const { return accumulate_; };
 };
 
-class Area : public TalentEffect {
+class Area {
  public:
 	double cast_decay{0.0};
 	int level_decay{0};
@@ -127,24 +155,37 @@ class Area : public TalentEffect {
 
 	explicit Area(parser_wrapper::DataNode &node);
 	[[nodiscard]] int CalcTargetsQuantity(int skill_level) const;
-	void Print(CharData *ch, std::ostringstream &buffer) const override;
+	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
-//class TalentAction {
-//	Roll success_roll_;
-//	ESaving saving_{ESaving::kReflex};
-//
-// public:
-//	explicit TalentAction(parser_wrapper::DataNode &node);
-//};
+class TalentAction {
+ public:
+	using Affects = std::vector<Affect>;
+
+	explicit TalentAction(parser_wrapper::DataNode &node);
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+	[[nodiscard]] const Damage &GetDmg() const;
+	[[nodiscard]] bool DoesDamage() const { return (damage_ == nullptr); };
+	[[nodiscard]] const Area &GetArea() const;
+	[[nodiscard]] bool DoesAreaEffect() const { return (area_ == nullptr); };
+	[[nodiscard]] const Duration &GetDuration() const;
+	[[nodiscard]] bool DoesDurableEffect() const { return (duration_ == nullptr); };
+	[[nodiscard]] const Affects &GetAffects() const;
+	[[nodiscard]] bool DoesAffects() const { return affects_.empty(); };
+
+ private:
+	Affects affects_;
+	std::unique_ptr<Damage> damage_;
+	std::unique_ptr<Area> area_;
+	std::unique_ptr<Duration> duration_;
+};
 
 class Actions {
-	using EffectPtr = std::shared_ptr<TalentEffect>;
-	using ActionsRoster = std::unordered_multimap<ETalentEffect, EffectPtr>;
+	using ActionsRoster = std::vector<TalentAction>;
 	using ActionsRosterPtr = std::unique_ptr<ActionsRoster>;
 	ActionsRosterPtr actions_;
 
-	static void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
+	static void ParseSingeAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
 
  public:
 	Actions() {
@@ -156,7 +197,8 @@ class Actions {
 
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
-	[[nodiscard]] auto GetAffects() const;
+	[[nodiscard]] const Duration &GetDuration() const;
+	[[nodiscard]] const TalentAction::Affects &GetAffects() const;
 };
 
 }
