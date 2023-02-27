@@ -2535,7 +2535,37 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	return 0;
 }
+/*
+Какие имеются варанты:
 
+1. Флаг блокирует спелл полностью.
+2. Аффект блокирует спелл полностью (ничего не снимаем).
+3. Аффект блокирует спелл, но при этом сам снимается.
+4. Аффект снимается и при этом не блокирует спелл.
+5. Спелл замещает аффект только если он есть.
+6. Спелл накладывается в любом случае, но замещает имеющийся.
+
+Алгоритм:
+1. Флаги. Если флаг есть - выход.
+
+2. Снимаемые аффекты.
+2.1 Если снимаемый аффект есть в списке блокирующих - снимаем и выход.
+2.2 Если снимаемый в списке замещаемых - ставим флаг, что можно заместить.
+
+5. Замещение
+5.1 Если список замещаемых не пуст и флаг замещения отсутствует - выход.
+5.1 Если есть флаг замещения и список замещаемых не пуст - наклаыдваем аффект.
+
+*/
+void ProcessRemovingAffects(const talents_actions::Affect &affect, CharData *victim) {
+	const auto &spells_to_remove = affect.RemovedASpellffects();
+}
+
+void RemoveIncompatibleSpellAffect(const talents_actions::Affect &affect, CharData *victim) {
+	const auto &spells_to_remove = affect.RemovedASpellffects();
+	auto predicate = [victim](ESpell victim_affect) { RemoveAffectFromChar(victim, victim_affect); };
+	std::for_each(spells_to_remove.begin(), spells_to_remove.end(), predicate);
+}
 
 bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim) {
 	const auto &blocking_affects = affect.BlockingAffects();

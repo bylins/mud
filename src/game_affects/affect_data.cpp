@@ -449,7 +449,7 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	}
 	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
 		ch->extract_timer = 5;
-		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
+		ch->mob_specials.hire_price = 0;
 	}
 }
 

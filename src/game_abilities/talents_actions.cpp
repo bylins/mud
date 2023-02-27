@@ -158,11 +158,11 @@ Affect::Affect(parser_wrapper::DataNode &node) {
 		node.GoToParent();
 	}
 	if (node.GoToChild("removes_affects")) {
-		parse::ReadAsConstantsSet<EAffect>(removes_affects_, node.GetValue("val"));
+		parse::ReadAsConstantsSet<ESpell>(removes_spell_affects_, node.GetValue("val"));
 		node.GoToParent();
 	}
 	if (node.GoToChild("replaces_affects")) {
-		parse::ReadAsConstantsSet<EAffect>(replaces_affects_, node.GetValue("val"));
+		parse::ReadAsConstantsSet<ESpell>(replaces_spell_affects_, node.GetValue("val"));
 		node.GoToParent();
 	}
 	if (node.GoToChild("blocked")) {
@@ -177,8 +177,8 @@ void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "  Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
 	buffer << "  Affect flags: " << KGRN << parse::BitvectorToString<EAffectFlag>(flags_) << KNRM << "\r\n";
 	buffer << "  Applies affects: " << KGRN << parse::ConstantsSetToString<EAffect>(applies_affects_) << KNRM << "\r\n";
-	buffer << "  Removes affects: " << KGRN << parse::ConstantsSetToString<EAffect>(removes_affects_) << KNRM << "\r\n";
-	buffer << "  Replaces affects: " << KGRN << parse::ConstantsSetToString<EAffect>(replaces_affects_) << KNRM << "\r\n";
+	buffer << "  Removes spell affects: " << KGRN << parse::ConstantsSetToString<ESpell>(removes_spell_affects_) << KNRM << "\r\n";
+	buffer << "  Replaces spell affects: " << KGRN << parse::ConstantsSetToString<ESpell>(replaces_spell_affects_) << KNRM << "\r\n";
 	buffer << "  Blocked by affects: " << KGRN << parse::ConstantsSetToString<EAffect>(blocked_by_affects_) << KNRM << "\r\n";
 	buffer << "  Blocked by mob flag: " << KGRN << parse::ConstantsSetToString<EMobFlag>(blocked_by_mob_flags_) << KNRM << "\r\n";
 	buffer << "\r\n  Applies:\r\n";
