@@ -672,7 +672,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse) && !vict->IsNpc()) {
 		SendMsgToChar("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
