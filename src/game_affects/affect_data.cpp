@@ -1,8 +1,8 @@
 #include <game_mechanics/glory_const.h>
 
-#include "affect_data.h"
+//#include "affect_data.h"
+
 #include "entities/char_player.h"
-#include "entities/world_characters.h"
 #include "game_fight/fight_hit.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_magic/magic.h"
@@ -10,7 +10,6 @@
 #include "game_skills/death_rage.h"
 #include "structs/global_objects.h"
 #include "handler.h"
-#include "utils/utils_time.h"
 #include "genchar.h"
 
 bool no_bad_affects(ObjData *obj) {
@@ -954,11 +953,14 @@ bool IsAffectedBySpell(CharData *ch, ESpell type) {
 		type = ESpell::kBlindness;
 	}
 
-	for (const auto &affect : ch->affected) {
-		if (affect->type == type) {
-			return true;
-		}
-	}
+	auto predicate = [type](auto &affect) { return affect->type == type; };
+	return std::any_of(ch->affected.begin(), ch->affected.end(), predicate);
+
+//	for (const auto &affect : ch->affected) {
+//		if (affect->type == type) {
+//			return true;
+//		}
+//	}
 
 	return false;
 }
