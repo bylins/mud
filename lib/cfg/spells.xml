@@ -121,7 +121,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -135,7 +135,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="узри огонь!"/>
             <msg id="kCastChrist" val="... простер руку свою к огню."/>
@@ -149,7 +149,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kNpcAffectPc|kMagAffects|kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -163,7 +163,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Разрази тебя Перун!"/>
             <msg id="kCastChrist" val="... и путь для громоносной молнии."/>
@@ -186,7 +186,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kMagAffects|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -196,7 +196,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="хладну персты воскладаше"/>
             <msg id="kCastChrist" val="... которые черны от льда."/>
@@ -219,7 +219,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="90" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -233,7 +233,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="30" dice_size="2" min_targets="1" max_targets="4"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="хлад и мраз исторгнути"/>
             <msg id="kCastChrist" val="... и из воды делается лед."/>
@@ -368,7 +368,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -378,7 +378,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="долой нощи"/>
             <msg id="kCastChrist" val="... грешников преследует зло, а праведникам воздается добром."/>
@@ -390,7 +390,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -404,7 +404,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="земля тутнет"/>
             <msg id="kCastChrist" val="... в тот же час произошло великое землетрясение."/>
@@ -432,7 +432,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="140" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kMagAffects|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -442,7 +442,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="преторгоста"/>
             <msg id="kCastChrist" val="... да иссякнут соки, питающие тело."/>
@@ -454,7 +454,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -464,7 +464,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="огненну солнце"/>
             <msg id="kCastChrist" val="... да ниспадет огонь с неба, и пожрет их."/>
@@ -476,7 +476,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kCritical">
                     <power_roll resist_weight="1">
@@ -486,7 +486,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="згола скверна"/>
             <msg id="kCastChrist" val="... и жестокою болью во всех костях твоих."/>
@@ -520,7 +520,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -534,7 +534,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="грянет гром"/>
             <msg id="kCastChrist" val="... и были громы и молнии."/>
@@ -557,7 +557,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -567,7 +567,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="ворожья стрела"/>
             <msg id="kCastChrist" val="... остры стрелы Твои."/>
@@ -579,14 +579,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="трутизна"/>
             <msg id="kCastChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
@@ -631,7 +631,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -641,7 +641,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="воскладше огненну персты"/>
             <msg id="kCastChrist" val="... и дано буде жечь врагов огнем."/>
@@ -664,7 +664,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <affect saving="kReflex">
                     <power_roll resist_weight="1">
@@ -688,7 +688,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </success_roll>
                 </duration>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="будет силен"/>
             <msg id="kCastChrist" val="... и человек разумный укрепляет силу свою."/>
@@ -766,7 +766,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -776,7 +776,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="свет сгинь"/>
             <msg id="kCastChrist" val="... и тьма свет накроет."/>
@@ -788,14 +788,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="прибежище други"/>
             <msg id="kCastChrist" val="... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"/>
@@ -808,14 +808,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="други, гой еси"/>
             <msg id="kCastChrist" val="... вам говорю, встаньте."/>
@@ -828,14 +828,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="125" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagManual"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="исчезните с глаз моих"/>
             <msg id="kCastChrist" val="... вам говорю, ступайте с миром."/>
@@ -882,14 +882,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="други сильны"/>
             <msg id="kCastChrist" val="... и даст нам Господь силу."/>
@@ -924,14 +924,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="их окалеть"/>
             <msg id="kCastChrist" val="... замрите."/>
@@ -1044,7 +1044,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -1058,7 +1058,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="10" dice_size="3" min_targets="1" max_targets="8"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="глаголят небеса"/>
             <msg id="kCastChrist" val="... понесутся меткие стрелы молний из облаков."/>
@@ -1072,7 +1072,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -1086,7 +1086,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="створисте огненну струя"/>
             <msg id="kCastChrist" val="... и ввергне их в озеро огненное."/>
@@ -1100,7 +1100,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kWill">
                     <power_roll resist_weight="1">
@@ -1110,7 +1110,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="гнев божиа не минути"/>
             <msg id="kCastChrist" val="... и воспламенится гнев Господа, и Он скоро истребит тебя."/>
@@ -1122,14 +1122,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="буде чахнуть"/>
             <msg id="kCastChrist" val="... и силу могучих ослабляет."/>
@@ -1141,14 +1141,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="други, низовати мечетны."/>
             <msg id="kCastChrist" val="... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."/>
@@ -1173,7 +1173,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="90" min="65" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kMagAlterObjs|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -1187,7 +1187,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="жги аки смола горячая"/>
             <msg id="kCastChrist" val="... подобно мучению от скорпиона."/>
@@ -1232,7 +1232,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="75" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kWill">
                     <power_roll resist_weight="1">
@@ -1246,7 +1246,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="да коснется тебя Чернобог"/>
             <msg id="kCastChrist" val="... плоть твоя и тело твое будут истощены."/>
@@ -1298,14 +1298,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="згола застить очеса"/>
             <msg id="kCastChrist" val="... поразит тебя Господь слепотою навечно."/>
@@ -1317,14 +1317,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="их очеса непотребны"/>
             <msg id="kCastChrist" val="... и Он поразил их слепотою."/>
@@ -1394,14 +1394,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="их уста непотребны"/>
             <msg id="kCastChrist" val="... да замкнутся уста ваши."/>
@@ -1426,7 +1426,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kCritical">
                     <power_roll resist_weight="1">
@@ -1436,7 +1436,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="падош"/>
             <msg id="kCastChrist" val="... будет чувствовать боль."/>
@@ -1448,7 +1448,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="55" change="4"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kCritical">
                     <power_roll resist_weight="1">
@@ -1462,7 +1462,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="скверна"/>
             <msg id="kCastChrist" val="... постигнут тебя муки."/>
@@ -1474,7 +1474,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kCritical">
                     <power_roll resist_weight="1">
@@ -1488,7 +1488,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="сильна скверна"/>
             <msg id="kCastChrist" val="... боль и муки схватили."/>
@@ -1500,14 +1500,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="порча их"/>
             <msg id="kCastChrist" val="... прокляты вы пред всеми скотами."/>
@@ -1521,7 +1521,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kWill">
                     <power_roll resist_weight="1">
@@ -1535,7 +1535,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="суд божиа не минути"/>
             <msg id="kCastChrist" val="... какою мерою мерите, такою отмерено будет и вам."/>
@@ -1549,14 +1549,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="крыла им створисте"/>
             <msg id="kCastChrist" val="... и все летающие по роду их."/>
@@ -1569,14 +1569,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="други, наполнися ратнаго духа"/>
             <msg id="kCastChrist" val="... блажены те, слышащие слово Божие."/>
@@ -1600,7 +1600,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -1610,7 +1610,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="да обратит тебя Чернобог в мертвый камень!"/>
             <msg id="kCastChrist" val="... и проклял его именем Господним."/>
@@ -1661,7 +1661,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -1675,7 +1675,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="40" dice_size="2" min_targets="2" max_targets="5"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="веют ветры"/>
             <msg id="kCastChrist" val="... подует северный холодный ветер."/>
@@ -1741,14 +1741,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="тернии им"/>
             <msg id="kCastChrist" val="... загорожу путь их тернами."/>
@@ -1762,14 +1762,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="быстры аки ястребов стая"/>
             <msg id="kCastChrist" val="... и они быстры как серны на горах."/>
@@ -1793,14 +1793,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="нутро снеде"/>
             <msg id="kCastChrist" val="... и сделаются жестокие и кровавые язвы."/>
@@ -1958,7 +1958,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="135" min="100" change="3"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -1972,7 +1972,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="30" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="торже, яко вихор"/>
             <msg id="kCastChrist" val="... и град, величиною в талант, падет с неба."/>
@@ -1997,7 +1997,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -2007,7 +2007,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="засти очи им"/>
             <msg id="kCastChrist" val="... свет пламени из средины огня."/>
@@ -2030,14 +2030,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="гладь воды отразит"/>
             <msg id="kCastChrist" val="... воздай им по делам их, по злым поступкам их."/>
@@ -2061,7 +2061,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2071,7 +2071,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Сдохни!"/>
             <msg id="kCastChrist" val="... и услышав слова сии - пал бездыханен."/>
@@ -2127,14 +2127,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kMagPoints"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="зло творяще"/>
             <msg id="kCastChrist" val="... и ты воздашь им злом."/>
@@ -2148,14 +2148,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Мать-земля, даруй защиту."/>
             <msg id="kCastChrist" val="... поклон тебе матушка земля."/>
@@ -2168,14 +2168,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Сварог, даруй защиту."/>
             <msg id="kCastChrist" val="... и огонь низводит с неба."/>
@@ -2188,14 +2188,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Морена, даруй защиту."/>
             <msg id="kCastChrist" val="... текущие холодные воды."/>
@@ -2208,7 +2208,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2222,7 +2222,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="35" dice_size="2" min_targets="1" max_targets="4"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="будет слеп и глух, аки мертвец"/>
             <msg id="kCastChrist" val="... кто делает или глухим, или слепым."/>
@@ -2247,14 +2247,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="иже во святых, други"/>
             <msg id="kCastChrist" val="... будьте святы, аки Господь наш свят."/>
@@ -2267,14 +2267,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="други, буде окружены радугой"/>
             <msg id="kCastChrist" val="... взгляни на радугу, и прославь Сотворившего ее."/>
@@ -2287,14 +2287,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="оглохни"/>
             <msg id="kCastChrist" val="... и глухота поразит тебя."/>
@@ -2328,14 +2328,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="будьте глухи"/>
             <msg id="kCastChrist" val="... и не будут слышать уши ваши."/>
@@ -2349,7 +2349,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="125" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2363,7 +2363,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="пыль поднимется столбами"/>
             <msg id="kCastChrist" val="... и пыль поглотит вас."/>
@@ -2377,7 +2377,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2391,7 +2391,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="3"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="пусть каменья падут"/>
             <msg id="kCastChrist" val="... и обрушатся камни с небес."/>
@@ -2405,7 +2405,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2419,7 +2419,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="да невзлюбит тебя воздух"/>
             <msg id="kCastChrist" val="... и даже воздух покарает тебя."/>
@@ -2433,7 +2433,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kCritical">
                     <power_roll resist_weight="1">
@@ -2443,7 +2443,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Велес, упокой мертвых"/>
             <msg id="kCastChrist" val="... и предоставь мертвым погребать своих мертвецов."/>
@@ -2466,14 +2466,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagManual|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="3" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Поврещу сташивые души их в скарядие!"/>
             <msg id="kCastChrist" val="... и затмил ужас разум их."/>
@@ -2523,14 +2523,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAreas|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="8" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Яко небытие нещадно к вам, али время вернулось вспять."/>
             <msg id="kCastChrist" val="... и время не властно над ними."/>
@@ -2544,14 +2544,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="160" min="140" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Исполняше други силою!"/>
             <msg id="kCastChrist" val="...да не останется ни обделенного, ни обессиленного."/>
@@ -2640,14 +2640,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="85" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="8" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="1" max_targets="5"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="аще доля зла и удача немилостива"/>
             <msg id="kCastChrist" val=".. и несчастен, и жалок, и нищ."/>
@@ -2668,14 +2668,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="100" change="3"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.05" level="3" free_targets="5"/>
                     <victims skill_divisor="15" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="зрети супостат охабиша"/>
             <msg id="kCastChrist" val="...и бросали пыль на воздух."/>
@@ -2689,7 +2689,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="85" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2703,7 +2703,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="40" dice_size="3" min_targets="1" max_targets="8"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="язвень голки уведати"/>
             <msg id="kCastChrist" val="...но в полночь раздался крик."/>
@@ -2761,14 +2761,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="50" change="1"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagDamage|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
             <msg id="kCastChrist" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
@@ -2781,14 +2781,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="30" min="30" change="40"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Покрошу-изувечу, душу выну и в блины закатаю!"/>
             <msg id="kCastChrist" val="Покрошу-изувечу, душу выну и в блины закатаю!"/>
@@ -2800,7 +2800,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="30" min="30" change="50"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2814,7 +2814,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Не отступим, други, они наше сало сперли!"/>
             <msg id="kCastChrist" val="Не отступим, други, они наше сало сперли!"/>
@@ -2826,14 +2826,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="50" change="91"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Всех убью, а сам$g останусь!"/>
             <msg id="kCastChrist" val="Всех убью, а сам$g останусь!"/>
@@ -2845,7 +2845,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="140" change="141"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -2859,7 +2859,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Шоб вас приподняло, да шлепнуло!!!"/>
             <msg id="kCastChrist" val="Шоб вас приподняло да шлепнуло!!!"/>
@@ -2871,14 +2871,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="В строй други, защитим животами Русь нашу!"/>
             <msg id="kCastChrist" val="В строй други, защитим животами Русь нашу!"/>
@@ -2890,14 +2890,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="20" min="20" change="50"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Дер-ржать строй, волчьи хвосты!"/>
             <msg id="kCastChrist" val="Дер-ржать строй, волчьи хвосты!"/>
@@ -2909,14 +2909,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="25" min="25" change="70"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagPoints|kMagAffects|kNpcDummy|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Сарынь на кичку!"/>
             <msg id="kCastChrist" val="Сарынь на кичку!"/>
@@ -2928,14 +2928,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="15" min="15" change="30"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"/>
             <msg id="kCastChrist" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"/>
@@ -2947,14 +2947,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Орлы! Будем биться как львы!"/>
             <msg id="kCastChrist" val="Орлы! Будем биться как львы!"/>
@@ -3109,14 +3109,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Надели силою своею Навь, дабы собрать урожай тебе."/>
             <msg id="kCastChrist" val="...налякай ворогов наших и покарай их немощью."/>
@@ -3139,14 +3139,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Обрастите плотью сызнова."/>
             <msg id="kCastChrist" val="... прости Господи грехи, верни плоть созданиям."/>
@@ -3191,7 +3191,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kStability">
                     <power_roll resist_weight="1">
@@ -3205,7 +3205,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Вждати бурю обло створити."/>
             <msg id="kCastChrist" val="И поднялась великая буря..."/>
@@ -3217,7 +3217,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3227,7 +3227,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Идеже индрика зубы супостаты изъмати."/>
             <msg id="kCastChrist" val="Есть род, у которого зубы - мечи и челюсти - ножи..."/>
@@ -3239,7 +3239,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="130" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3253,7 +3253,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Варно сожжет струя!"/>
             <msg id="kCastChrist" val="...и на коже его сделаются как бы язвы проказы"/>
@@ -3265,7 +3265,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3279,7 +3279,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="10"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Небесе тутнет!"/>
             <msg id="kCastChrist" val="...и взял оттуда камень, и бросил из пращи."/>
@@ -3291,7 +3291,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="130" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3301,7 +3301,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Онома утес низринется!"/>
             <msg id="kCastChrist" val="...доколе камень не оторвался от горы без содействия рук."/>
@@ -3324,14 +3324,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Что свет, что тьма - глазу одинаково."/>
             <msg id="kCastChrist" val="Станьте зрячи в тьме кромешной!"/>
@@ -3343,14 +3343,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="...да не скроются намерения."/>
             <msg id="kCastChrist" val="И узрим братья намерения окружающих."/>
@@ -3362,14 +3362,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Узрим же все, что с магией навкруги нас."/>
             <msg id="kCastChrist" val="Покажи, Спаситель, магические силы братии."/>
@@ -3381,14 +3381,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Все тайное станет явным."/>
             <msg id="kCastChrist" val="Не спрячется, не скроется, ни заяц, ни блоха."/>
@@ -3400,14 +3400,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Осязаемое откройся взору!"/>
             <msg id="kCastChrist" val="Да не скроется от взора вашего, ни одна живая душа."/>
@@ -3419,14 +3419,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Аки стайка рыбок, плывите вместе."/>
             <msg id="kCastChrist" val="Что в воде, что на земле, воздух свежим будет."/>
@@ -3438,14 +3438,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="...дабы пройти вместе не одну сотню верст"/>
             <msg id="kCastChrist" val="Сохрани Отче от усталости детей своих!"/>
@@ -3457,14 +3457,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Благодарите богов за хлеб и соль!"/>
             <msg id="kCastChrist" val="...дабы не осталось голодающих на свете белом"/>
@@ -3477,14 +3477,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Станем други крепки як николы!"/>
             <msg id="kCastChrist" val="Укрепим тела наши перед битвой!"/>
@@ -3496,14 +3496,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Что яд, а что мед. Не обманемся!"/>
             <msg id="kCastChrist" val="...и самый сильный яд станет вам виден."/>
@@ -3515,14 +3515,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Велес, даруй защиту."/>
             <msg id="kCastChrist" val="... земля благословенна твоя."/>
@@ -3535,14 +3535,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="други, супостат нощи"/>
             <msg id="kCastChrist" val="други, свет который в нас, да убоится тьма."/>
@@ -3555,7 +3555,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3565,7 +3565,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="!магический выстрел!"/>
             <msg id="kCastChrist" val="!use battle expedient!"/>
@@ -3577,7 +3577,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3587,7 +3587,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="!магический выстрел!"/>
             <msg id="kCastChrist" val="!use battle expedient!"/>
@@ -3599,7 +3599,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3609,7 +3609,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="!магический выстрел!"/>
             <msg id="kCastChrist" val="!use battle expedient!"/>
@@ -3621,7 +3621,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3631,7 +3631,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="!магический выстрел!"/>
             <msg id="kCastChrist" val="!use battle expedient!"/>
@@ -3643,7 +3643,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <power_roll resist_weight="1">
@@ -3653,7 +3653,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     </power_roll>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="!магический выстрел!"/>
             <msg id="kCastChrist" val="!use battle expedient!"/>
@@ -3665,14 +3665,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagGroups|kMagAffects"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kAreaForChar" val="Ваш точный удар воодушевил и придал новых сил!"/>
             <msg id="kAreaForRoom" val="Точный удар $n1 воодушевил и придал новых сил!"/>
@@ -3695,14 +3695,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="защити нас от железа разящего"/>
             <msg id="kCastChrist" val="... ни стрела, ни меч не пронзят печень вашу."/>
@@ -3715,14 +3715,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="огрожу беззакония их туманом"/>
             <msg id="kCastChrist" val="...да защитит и покроет рассветная пелена тела ваши."/>
@@ -3735,14 +3735,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="буде вежды ваши открыты"/>
             <msg id="kCastChrist" val="... и забота о ближнем отгоняет сон от очей их."/>
@@ -3755,14 +3755,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="найдем новизну в рутине сражений!"/>
             <msg id="kCastChrist" val="найдем новизну в рутине сражений!"/>
@@ -3775,14 +3775,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="и пусть удача будет нашей спутницей!"/>
             <msg id="kCastChrist" val="и пусть удача будет нашей спутницей!"/>
@@ -3795,14 +3795,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="бей в глаз, не порти шкуру"/>
             <msg id="kCastChrist" val="бей в глаз, не порти шкуру."/>
@@ -3815,14 +3815,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.03" level="6" free_targets="4"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="...отче Велес, очи отвержеши!"/>
             <msg id="kCastChrist" val="...надежда тщетна: не упадешь ли от одного взгляда его?"/>
@@ -3836,14 +3836,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
-        <talent_actions>
+        <actions>
             <action>
                 <area>
                     <decay cast="0.03" level="6" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
             </action>
-        </talent_actions>
+        </actions>
         <messages>
             <msg id="kCastPoly" val="Заклинати поврещение в сети заскопиены!"/>
             <msg id="kCastChrist" val="...будет трапеза их сетью им, и мирное пиршество их - западнею."/>
@@ -3857,7 +3857,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <amount ndice="1" sdice="1" adice="1.0"/>
@@ -3865,7 +3865,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
     </spell>
     <spell id="kGasBreath" element="kEarth" mode="kService">
         <name rus="зловонное дыхание" eng="gas breath"/>
@@ -3873,7 +3873,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <amount ndice="1" sdice="1" adice="1.0"/>
@@ -3881,7 +3881,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
     </spell>
     <spell id="kFrostBreath" element="kAir" mode="kService">
         <name rus="ледяное дыхание" eng="frost breath"/>
@@ -3889,7 +3889,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <amount ndice="1" sdice="1" adice="1.0"/>
@@ -3897,7 +3897,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
     </spell>
     <spell id="kAcidBreath" element="kWater" mode="kService">
         <name rus="кислотное дыхание" eng="acid breath"/>
@@ -3905,7 +3905,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <amount ndice="1" sdice="1" adice="1.0"/>
@@ -3913,7 +3913,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
     </spell>
     <spell id="kLightingBreath" element="kDark" mode="kService">
         <name rus="ослепляющее дыхание" eng="lightning breath"/>
@@ -3921,7 +3921,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagDamage"/>
-        <talent_actions>
+        <actions>
             <action>
                 <damage saving="kReflex">
                     <amount ndice="1" sdice="1" adice="1.0"/>
@@ -3929,7 +3929,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <base_stat id="kWis" threshold="22" weight="0.5"/>
                 </damage>
             </action>
-        </talent_actions>
+        </actions>
     </spell>
     <spell id="kExpedientFail" element="kUndefined" mode="kService">
         <name rus="!неудачный прием!" eng="!expediend fail!"/>

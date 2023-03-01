@@ -159,7 +159,7 @@ void SpellInfoBuilder::ParseFlags(ItemPtr &info, DataNode &node) {
 }
 
 void SpellInfoBuilder::ParseActions(ItemPtr &info, DataNode &node) {
-	if (node.GoToChild("talent_actions")) {
+	if (node.GoToChild("actions")) {
 		info->actions.Build(node);
 		node.GoToParent();
 	}
