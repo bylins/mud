@@ -7,6 +7,7 @@
 #include "entities/entities_constants.h"
 #include "game_abilities/talents_actions.h"
 #include "structs/structs.h"
+#include "structs/messages_data.h"
 #include "structs/info_container.h"
 
 namespace spells {
@@ -39,7 +40,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
 
-	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
+	MessagesData<ESpellMsg> messages_;
 
  public:
 	SpellInfo() = default;
@@ -60,6 +61,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
  	* Имя заклинания скилла в виде C-строки. По возможности используйте std::string
  	*/
 	[[nodiscard]] const char *GetEngCName() const { return name_eng_.c_str(); };
+	[[nodiscard]] const MessagesData<ESpellMsg> &Messages() const { return messages_; }
+	const std::string &GetMsg(ESpellMsg id) const { return messages_.GetMsg(id); }
 
 	[[nodiscard]] bool IsFlagged(Bitvector flag) const;
 	[[nodiscard]] bool AllowTarget(Bitvector target_type) const;
@@ -91,6 +94,7 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static void ParseTargets(ItemPtr &info, DataNode &node);
 	static void ParseFlags(ItemPtr &info, DataNode &node);
 	static void ParseActions(ItemPtr &info, DataNode &node);
+	static void ParseMessages(ItemPtr &info, DataNode &node);
 };
 
 using SpellsInfo = info_container::InfoContainer<ESpell, SpellInfo, SpellInfoBuilder>;

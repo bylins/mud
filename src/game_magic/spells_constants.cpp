@@ -1777,4 +1777,42 @@ ETarget ITEM_BY_NAME(const std::string &name) {
 	return ETarget_value_by_name.at(name);
 }
 
+typedef std::map<ESpellMsg, std::string> ESpellMsg_name_by_value_t;
+typedef std::map<const std::string, ESpellMsg> ESpellMsg_value_by_name_t;
+ESpellMsg_name_by_value_t ESpellMsg_name_by_value;
+ESpellMsg_value_by_name_t ESpellMsg_value_by_name;
+void init_ESpellMsg_ITEM_NAMES() {
+	ESpellMsg_value_by_name.clear();
+	ESpellMsg_name_by_value.clear();
+
+	ESpellMsg_name_by_value[ESpellMsg::kCastPoly] = "kCastPoly";
+	ESpellMsg_name_by_value[ESpellMsg::kCastChrist] = "kCastChrist";
+	ESpellMsg_name_by_value[ESpellMsg::kAreaForChar] = "kAreaForChar";
+	ESpellMsg_name_by_value[ESpellMsg::kAreaForRoom] = "kAreaForRoom";
+	ESpellMsg_name_by_value[ESpellMsg::kAreaForVict] = "kAreaForVict";
+	ESpellMsg_name_by_value[ESpellMsg::kComponentUse] = "kComponentUse";
+	ESpellMsg_name_by_value[ESpellMsg::kComponentMissing] = "kComponentMissing";
+	ESpellMsg_name_by_value[ESpellMsg::kComponentExhausted] = "kComponentExhausted";
+
+	for (const auto &i: ESpellMsg_name_by_value) {
+		ESpellMsg_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
+	if (ESpellMsg_name_by_value.empty()) {
+		init_ESpellMsg_ITEM_NAMES();
+	}
+	return ESpellMsg_name_by_value.at(item);
+}
+
+template<>
+ESpellMsg ITEM_BY_NAME(const std::string &name) {
+	if (ESpellMsg_name_by_value.empty()) {
+		init_ESpellMsg_ITEM_NAMES();
+	}
+	return ESpellMsg_value_by_name.at(name);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

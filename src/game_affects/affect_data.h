@@ -104,9 +104,9 @@ class AffectInfo : public info_container::BaseItem<EAffect> {
 	AffectInfo(EAffect id, EItemMode mode)
 		: BaseItem<EAffect>(id, mode) {};
 
-	const MessagesData<EAffectMsg> &Messages() const { return messages_; };
-	const std::string &GetMsg(EAffectMsg id) const { return messages_.GetMsg(id); };
-	const std::string &Name() { return name_; };
+	const MessagesData<EAffectMsg> &Messages() const { return messages_; }
+	const std::string &GetMsg(EAffectMsg id) const { return messages_.GetMsg(id); }
+	const std::string &Name() { return name_; }
 	void Print(std::ostringstream &buffer) const;
 };
 

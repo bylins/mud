@@ -369,7 +369,7 @@ enum ETarget : Bitvector {
 template<>
 ETarget ITEM_BY_NAME<ETarget>(const std::string &name);
 template<>
-const std::string &NAME_BY_ITEM<ETarget>(const ETarget item);
+const std::string &NAME_BY_ITEM<ETarget>(ETarget item);
 
 enum class ESpellMsg {
 	kCastPoly,
@@ -384,6 +384,11 @@ enum class ESpellMsg {
 	kAffImposedForVict,
 	kAffImposedForRoom
 };
+
+template<>
+ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<ESpellMsg>(ESpellMsg item);
 
 std::string GetAffExpiredText(ESpell spell_id);
 const std::string &GetCastPhrase(ESpell spell_id, int religion);
