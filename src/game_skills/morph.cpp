@@ -336,10 +336,9 @@ void load_morphs() {
 		}
 
 		for (pugi::xml_node aff = affectsList.child("affect"); aff; aff = aff.next_sibling("affect")) {
-			EAffect affNum;
-			const bool found = GetAffectNumByName(aff.child_value(), affNum);
-			if (found) {
-				affs.insert(affNum);
+			auto affect_id = FindAffectId(aff.child_value());
+			if (affect_id != EAffect::kUndefined) {
+				affs.insert(affect_id);
 			} else {
 				snprintf(buf, kMaxStringLength, "...affects read fail for morph %s", name.c_str());
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

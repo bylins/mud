@@ -1912,26 +1912,6 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
-bool GetAffectNumByName(const std::string &affName, EAffect &result) {
-	int base = 0, offset = 0, counter = 0;
-	bool endOfArray = false;
-	while (!endOfArray) {
-		if (affName == std::string(affected_bits[counter])) {
-			result = static_cast<EAffect>((base << 30) | (1 << offset));
-			return true;
-		}
-		offset++;
-		if (*affected_bits[counter] == '\n') {
-			base++;
-			offset = 0;
-			if (*affected_bits[counter + 1] == '\n')
-				endOfArray = true;
-		}
-		counter++;
-	}
-	return false;
-}
-
 /// считает кол-во цветов &R и т.п. в строке
 /// size_t len = 0 - по дефолту считает strlen(str)
 size_t count_colors(const char *str, size_t len) {

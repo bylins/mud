@@ -4,6 +4,9 @@
 #include "affect_contants.h"
 #include "structs/flag_data.h"
 #include "structs/structs.h"
+#include "structs/info_container.h"
+#include "structs/messages_data.h"
+#include "boot/cfg_manager.h"
 
 #include <vector>
 #include <list>
@@ -27,7 +30,13 @@ class Affect {
 	Affect() = default;
 	[[nodiscard]] bool removable() const;
 
-	ESpell type{ESpell::kUndefined};        // The type of spell that caused this      //
+	/*
+	 * Идея в следующем. Аффект однозначно _идентифицируется_ своим id'ом, который один и только один.
+	 * Именно id определяет нахвание аффекта, сообщения, которые появлятся при его наложении и снятии.
+	 * Но одновременно id'ы является битовым флагом в affect_bist и именно эти биты определяют _действие_
+	 * аффекта. Немного извращенно, но зато не требует прямо сейчас переписать пол-движка.
+	 */
+	ESpell type{ESpell::kUndefined}; // The type of spell that caused this      //
 	int duration{0};    // For how long its effects will last      //
 	int modifier{0};        // This is added to appropriate ability     //
 	TLocation location{static_cast<TLocation>(0)};        // Tells which ability to change(APPLY_XXX) //
@@ -77,4 +86,42 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 void reset_affects(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 
+namespace affects {
+
+class AffectsLoader : virtual public cfg_manager::ICfgLoader {
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+};
+
+class AffectInfo : public info_container::BaseItem<EAffect> {
+	friend class AffectInfoBuilder;
+	std::string name_{"!undefined!"};
+	MessagesData<EAffectMsg> messages_;
+
+ public:
+	AffectInfo() = default;
+	AffectInfo(EAffect id, EItemMode mode)
+		: BaseItem<EAffect>(id, mode) {};
+
+	const MessagesData<EAffectMsg> &Messages() const { return messages_; };
+	const std::string &GetMsg(EAffectMsg id) const { return messages_.GetMsg(id); };
+	const std::string &Name() { return name_; };
+	void Print(std::ostringstream &buffer) const;
+};
+
+class AffectInfoBuilder : public info_container::IItemBuilder<AffectInfo> {
+ public:
+	ItemPtr Build(parser_wrapper::DataNode &node) final;
+ private:
+	static ItemPtr ParseObligatoryValues(parser_wrapper::DataNode &node);
+	static void ParseDispensableValues(ItemPtr &item_ptr, parser_wrapper::DataNode &node);
+};
+
+using AffectsInfo = info_container::InfoContainer<EAffect, AffectInfo, AffectInfoBuilder>;
+
+} // namespace affects
+
 #endif //BYLINS_AFFECT_DATA_H
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

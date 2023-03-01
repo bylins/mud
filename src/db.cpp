@@ -1058,9 +1058,11 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		stats_reset::init();
 		Bonus::bonus_log_load();
 		DailyQuest::load_from_file();
-	} else if (!str_cmp(arg, "portals"))
+	} else if (!str_cmp(arg, "portals")) {
 		init_portals();
-	else if (!str_cmp(arg, "abilities")) {
+	} else if (!str_cmp(arg, "affects")) {
+		MUD::CfgManager().ReloadCfg("affects");
+	} else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");
@@ -2239,6 +2241,10 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading currencies cfg.");
 	log("Loading currencies cfg.");
 	MUD::CfgManager().LoadCfg("currencies");
+
+	boot_profiler.next_step("Loading affects definitions");
+	log("Loading affects.");
+	MUD::CfgManager().LoadCfg("affects");
 
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");

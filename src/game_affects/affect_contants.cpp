@@ -8,6 +8,18 @@
 
 #include "game_magic/spells.h"
 
+/*
+ * По-хорошему, этот массив набо убрать, потому что он дублирует название аффекта из массива сообщений для аффектов.
+ * На практике массив используется для поиска аффекта по имени. Чтобы его убрать - нужно реализовать альтернативный
+ * способ искать аффект по названию. Вообще говоря, давно назрела необходимость в соответствующем члене для
+ * класа InfoContainer, потому что по имени приходится искать, в том числе, классы, заклинания, способности и умения.
+ * Код, которые это делает, сейчас дублируется по 3-4 раза (см. команду show skillinfo, например).
+ * Однако быстро и легко реализовать такой поиск не получится: нужно учесть, что имена могут быть введены через.точку,
+ * не.полн или как-то еще, с разными извращениями. При этом искать, понятно, желательно чем быстрей-тем лучше.
+ * В идеале нужно иметь в InfoContainer специальную структуру, а-ля RadixTrie, для оптимизации поиска. Но на коленке
+ * за полчаса такое не написать.
+ * Поэтому пока что этот массив оставлен.
+ */
 const char *affected_bits[] = {"слепота",    // 0
 							   "невидимость",
 							   "определение наклонностей",
@@ -142,7 +154,7 @@ void init_EAffect_ITEM_NAMES() {
 	EAffect_value_by_name.clear();
 	EAffect_name_by_value.clear();
 
-	EAffect_name_by_value[EAffect::kUndefinded] = "kUndefinded";
+	EAffect_name_by_value[EAffect::kUndefined] = "kUndefined";
 	EAffect_name_by_value[EAffect::kBlind] = "kBlind";
 	EAffect_name_by_value[EAffect::kInvisible] = "kInvisible";
 	EAffect_name_by_value[EAffect::kDetectAlign] = "kDetectAlign";
@@ -224,6 +236,7 @@ void init_EAffect_ITEM_NAMES() {
 	EAffect_name_by_value[EAffect::kMemorizeSpells] = "kMemorizeSpells";
 	EAffect_name_by_value[EAffect::kNoobRegen] = "kNoobRegen";
 	EAffect_name_by_value[EAffect::kVampirism] = "kVampirism";
+	EAffect_name_by_value[EAffect::kLacerations] = "kLacerations";
 	EAffect_name_by_value[EAffect::kCommander] = "kCommander";
 	EAffect_name_by_value[EAffect::kEarthAura] = "kEarthAura";
 	for (const auto &i: EAffect_name_by_value) {
@@ -548,387 +561,378 @@ const std::string &NAME_BY_ITEM(const EApply item) {
 	return EApplyLocation_name_by_value.at(item);
 }
 
-enum class EAffectMsg {
-	kName,
-	kDecs,
-	kExpired,
-	kImposedForActor,
-	kImposedForVict,
-	kImposedForRoom
-};
-
 using AffectMsgSet = std::map<EAffectMsg, std::string>;
 
 const std::string &GetAffectMsg(EAffect affect_id, EAffectMsg msg_id) {
 	static const std::unordered_map<EAffect, AffectMsgSet> affects_msg = {
-			{EAffect::kUndefinded, {
+			{EAffect::kUndefined, {
 				{EAffectMsg::kName, "Нечто непонятное, сообщите богам!"},
-				{EAffectMsg::kExpired, ""},
+				{EAffectMsg::kExpiredForVict, ""},
 				{EAffectMsg::kImposedForRoom, ""},
 				{EAffectMsg::kImposedForVict, "Произошло нечто непонятное, сообщите богам!"}}},
 			{EAffect::kBlind, {
 				{EAffectMsg::kName, "слепота"},
-				{EAffectMsg::kDecs, "...слеп$a"},
-				{EAffectMsg::kExpired, "Вы вновь можете видеть."},
+				{EAffectMsg::kDesc, "...слеп$a"},
+				{EAffectMsg::kExpiredForVict, "Вы вновь можете видеть."},
 				{EAffectMsg::kImposedForRoom, "$n0 ослеп$q!"},
 				{EAffectMsg::kImposedForVict, "Вы ослепли!"}}},
 			{EAffect::kInvisible, {
 				{EAffectMsg::kName, "невидимость"},
-				{EAffectMsg::kDecs, "(невидим%s)"},
-				{EAffectMsg::kExpired, "Вы вновь видимы."},
+				{EAffectMsg::kDesc, "(невидим%s)"},
+				{EAffectMsg::kExpiredForVict, "Вы вновь видимы."},
 				{EAffectMsg::kImposedForVict, "Вы стали невидимы для окружающих."},
 				{EAffectMsg::kImposedForRoom, "$n медленно растворил$u в пустоте."}}},
 			{EAffect::kDetectAlign, {
 				{EAffectMsg::kName, "определение наклонностей"},
-				{EAffectMsg::kExpired, "Вы более не можете определять наклонности."},
+				{EAffectMsg::kExpiredForVict, "Вы более не можете определять наклонности."},
 				{EAffectMsg::kImposedForVict, "Ваши глаза приобрели зеленый оттенок."},
 				{EAffectMsg::kImposedForRoom, "Глаза $n1 приобрели зеленый оттенок."}}},
 			{EAffect::kDetectInvisible, {
 				{EAffectMsg::kName, "определение невидимости"},
-				{EAffectMsg::kExpired, "Вы не в состоянии больше видеть невидимых."},
+				{EAffectMsg::kExpiredForVict, "Вы не в состоянии больше видеть невидимых."},
 				{EAffectMsg::kImposedForVict, "Ваши глаза приобрели золотистый оттенок."},
 				{EAffectMsg::kImposedForRoom, "Глаза $n1 приобрели золотистый оттенок."}}},
 			{EAffect::kDetectMagic, {
 				{EAffectMsg::kName, "определение магии"},
-				{EAffectMsg::kExpired, "Вы не в состоянии более определять магию."},
+				{EAffectMsg::kExpiredForVict, "Вы не в состоянии более определять магию."},
 				{EAffectMsg::kImposedForVict, "Ваши глаза приобрели желтый оттенок."},
 				{EAffectMsg::kImposedForRoom, "Глаза $n1 приобрели желтый оттенок."}}},
 			{EAffect::kDetectLife, {
 				{EAffectMsg::kName, "чувствовать жизнь"},
-				{EAffectMsg::kExpired, "Вы больше не можете чувствовать жизнь."},
+				{EAffectMsg::kExpiredForVict, "Вы больше не можете чувствовать жизнь."},
 				{EAffectMsg::kImposedForVict, "Вы способны разглядеть даже микроба."},
 				{EAffectMsg::kImposedForRoom, "$n0 начал$g замечать любые движения."}}},
 			{EAffect::kWaterWalk, {
 				{EAffectMsg::kName, "хождение по воде"},
-				{EAffectMsg::kExpired, "Вы больше не можете ходить по воде."},
+				{EAffectMsg::kExpiredForVict, "Вы больше не можете ходить по воде."},
 				{EAffectMsg::kImposedForVict, "На рыбалку вы можете отправляться без лодки."}}},
 			{EAffect::kSanctuary, {
 				{EAffectMsg::kName, "освящение"},
-				{EAffectMsg::kExpired, "Белая аура вокруг вашего тела угасла."},
+				{EAffectMsg::kExpiredForVict, "Белая аура вокруг вашего тела угасла."},
 				{EAffectMsg::kImposedForVict, "Белая аура мгновенно окружила вас."},
 				{EAffectMsg::kImposedForRoom, "Белая аура покрыла $n3 с головы до пят."}}},
 			{EAffect::kGroup, {
 				{EAffectMsg::kName, "состоит в группе"},
-				{EAffectMsg::kExpired, "Вы больше не состоите в группе."},
+				{EAffectMsg::kExpiredForVict, "Вы больше не состоите в группе."},
 				{EAffectMsg::kImposedForActor, "$N принят$A в члены вашего кружка (тьфу-ты, группы :)."},
 				{EAffectMsg::kImposedForVict, "Вы приняты в группу $n1."},
 				{EAffectMsg::kImposedForRoom, "$N принят$A в группу $n1."}}},
 			{EAffect::kCurse, {
 				{EAffectMsg::kName, "проклятие"},
-				{EAffectMsg::kExpired, "Вы почувствовали себя более уверенно."},
+				{EAffectMsg::kExpiredForVict, "Вы почувствовали себя более уверенно."},
 				{EAffectMsg::kImposedForRoom, "Красное сияние вспыхнуло над $n4 и тут же погасло!"},
 				{EAffectMsg::kImposedForVict, "Боги сурово поглядели на вас."}}},
 			{EAffect::kInfravision, {
 				{EAffectMsg::kName, "инфравидение"},
-				{EAffectMsg::kExpired, "Вы больше не можете видеть ночью."},
+				{EAffectMsg::kExpiredForVict, "Вы больше не можете видеть ночью."},
 				{EAffectMsg::kImposedForVict, "Ваши глаза приобрели красный оттенок."},
 				{EAffectMsg::kImposedForRoom, "Глаза $n1 приобрели красный оттенок."}}},
 			{EAffect::kPoisoned, {
 				{EAffectMsg::kName, "отравление"},
-				{EAffectMsg::kExpired, "В вашей крови не осталось ни капельки яда."},
+				{EAffectMsg::kExpiredForVict, "В вашей крови не осталось ни капельки яда."},
 				{EAffectMsg::kImposedForVict, "Вы почувствовали себя отравленным."},
 				{EAffectMsg::kImposedForRoom, "$n позеленел$g от действия яда."}}},
 			{EAffect::kProtectFromDark, {
 				{EAffectMsg::kName, "защита от света"},
-				{EAffectMsg::kExpired, "Вы вновь ощущаете страх перед тьмой."},
+				{EAffectMsg::kExpiredForVict, "Вы вновь ощущаете страх перед тьмой."},
 				{EAffectMsg::kImposedForVict, "Вы подавили в себе страх к тьме."},
 				{EAffectMsg::kImposedForRoom, "$n подавил$g в себе страх к тьме."}}},
 			{EAffect::kProtectFromMind, { // Похоже, это не используется. Удалить?
 				{EAffectMsg::kName, "безмозглость"},
-				{EAffectMsg::kExpired, "Вы слегка поумнели."},
+				{EAffectMsg::kExpiredForVict, "Вы слегка поумнели."},
 				{EAffectMsg::kImposedForVict, "Ыыг-угуу?"},
 				{EAffectMsg::kImposedForRoom, "$n резко поглупел$g... хотя казалось бы, куда?"}}},
 			{EAffect::kSleep, {
 				{EAffectMsg::kName, "беспробудный сон"},
-				{EAffectMsg::kExpired, "Вы не чувствуете сонливости."},
+				{EAffectMsg::kExpiredForVict, "Вы не чувствуете сонливости."},
 				{EAffectMsg::kImposedForVict, "Вы слишком устали... Спать... Спа..."},
 				{EAffectMsg::kImposedForRoom, "$n прилег$q подремать."}}},
 			{EAffect::kNoTrack, {
 				{EAffectMsg::kName, "нельзя выследить"}}},
 			{EAffect::kTethered, {
 				{EAffectMsg::kName, "привязан"},
-				{EAffectMsg::kExpired, "Привязь распустилась."},
+				{EAffectMsg::kExpiredForVict, "Привязь распустилась."},
 				{EAffectMsg::kImposedForActor, "$N принят$A в члены вашего кружка (тьфу-ты, группы :)."},
 				{EAffectMsg::kImposedForVict, "Вы слишком устали... Спать... Спа..."},
 				{EAffectMsg::kImposedForRoom, "$n прилег$q подремать."}}},
 			{EAffect::kBless, {
 				{EAffectMsg::kName, "доблесть"},
-				{EAffectMsg::kExpired, "Вы почувствовали себя менее доблестно."},
+				{EAffectMsg::kExpiredForVict, "Вы почувствовали себя менее доблестно."},
 				{EAffectMsg::kImposedForActor, "Вы благословили $N1."},
 				{EAffectMsg::kImposedForVict, "Боги одарили вас своей улыбкой."},
 				{EAffectMsg::kImposedForRoom, "$n осветил$u на миг неземным светом."}}},
 			{EAffect::kHide, {
 				{EAffectMsg::kName, "прячется"},
-				{EAffectMsg::kExpired, "Вы стали заметны окружающим."}}},
+				{EAffectMsg::kExpiredForVict, "Вы стали заметны окружающим."}}},
 			{EAffect::kSneak, {
 				{EAffectMsg::kName, "подкрадывается"},
-				{EAffectMsg::kExpired, "Ваши передвижения стали заметны."}}},
+				{EAffectMsg::kExpiredForVict, "Ваши передвижения стали заметны."}}},
 			{EAffect::kCourage, {
 				{EAffectMsg::kName, "ярость"},
-				{EAffectMsg::kExpired, "Вы успокоились."}}},
+				{EAffectMsg::kExpiredForVict, "Вы успокоились."}}},
 			{EAffect::kCharmed, {
 				{EAffectMsg::kName, "зачарован"},
-				{EAffectMsg::kExpired, "Вы подчиняетесь теперь только себе."},
+				{EAffectMsg::kExpiredForVict, "Вы подчиняетесь теперь только себе."},
 				{EAffectMsg::kImposedForRoom, "$n0 как лунатик двинул$u следом за $N4."},
 				{EAffectMsg::kImposedForVict, "Ваша воля склонилась перед $N4."}}},
 			{EAffect::kHold, {
 				{EAffectMsg::kName, "оцепенение"},
-				{EAffectMsg::kExpired, "К вам вернулась способность двигаться."},
+				{EAffectMsg::kExpiredForVict, "К вам вернулась способность двигаться."},
 				{EAffectMsg::kImposedForRoom, "$n0 замер$q на месте!"},
 				{EAffectMsg::kImposedForVict, "Вы замерли на месте, не в силах пошевельнуться."}}},
 			{EAffect::kFly, {
 				{EAffectMsg::kName, "летит"},
-				{EAffectMsg::kExpired, "Вы приземлились на землю."},
+				{EAffectMsg::kExpiredForVict, "Вы приземлились на землю."},
 				{EAffectMsg::kImposedForRoom, "$n0 медленно поднял$u в воздух."},
 				{EAffectMsg::kImposedForVict, "Вы медленно поднялись в воздух."}}},
 			{EAffect::kSilence, {
 				{EAffectMsg::kName, "молчание"},
-				{EAffectMsg::kExpired, "Теперь вы можете болтать, все что думаете."},
+				{EAffectMsg::kExpiredForVict, "Теперь вы можете болтать, все что думаете."},
 				{EAffectMsg::kImposedForRoom, "$n0 прикусил$g язык!"},
 				{EAffectMsg::kImposedForVict, "Вы не в состоянии вымолвить ни слова."}}},
 			{EAffect::kAwarness, {  // Ошибка, переименовать в kAwareness
 				{EAffectMsg::kName, "настороженность"},
-				{EAffectMsg::kExpired, "Вы стали менее внимательны."},
+				{EAffectMsg::kExpiredForVict, "Вы стали менее внимательны."},
 				{EAffectMsg::kImposedForVict, "Вы стали более внимательны к окружающему."},
 				{EAffectMsg::kImposedForRoom, "$n начал$g внимательно осматриваться по сторонам."}}},
 			{EAffect::kBlink, {
 				{EAffectMsg::kName, "мигание"},
-				{EAffectMsg::kExpired, "Вы перестали мигать."},
+				{EAffectMsg::kExpiredForVict, "Вы перестали мигать."},
 				{EAffectMsg::kImposedForRoom, "$n начал$g мигать."},
 				{EAffectMsg::kImposedForVict, "Вы начали мигать."}}},
 			{EAffect::kHorse, {
 				{EAffectMsg::kName, "верхом или под седлом"},
-				{EAffectMsg::kExpired, "Вы успокоились."}}},
+				{EAffectMsg::kExpiredForVict, "Вы успокоились."}}},
 			{EAffect::kNoFlee, {
 				{EAffectMsg::kName, "не сбежать"},
-				{EAffectMsg::kExpired, "Вы опять можете сбежать с поля боя."},
+				{EAffectMsg::kExpiredForVict, "Вы опять можете сбежать с поля боя."},
 				{EAffectMsg::kImposedForRoom, "$n0 теперь прикован$a к $N2."},
 				{EAffectMsg::kImposedForVict, "Вы не сможете покинуть $N3."}}},
 			{EAffect::kSingleLight, { //  Что-то непонятное, разобраться
 				{EAffectMsg::kName, "освещение"},
-				{EAffectMsg::kExpired, "Вы успокоились."}}},
+				{EAffectMsg::kExpiredForVict, "Вы успокоились."}}},
 			{EAffect::kHolyLight, {
 				{EAffectMsg::kName, "свет"},
-				{EAffectMsg::kExpired, "Ваше тело перестало светиться."},
+				{EAffectMsg::kExpiredForVict, "Ваше тело перестало светиться."},
 				{EAffectMsg::kImposedForRoom, "$n0 начал$g светиться ярким светом."},
 				{EAffectMsg::kImposedForVict, "Вы засветились, освещая комнату."}}},
 			{EAffect::kHolyDark, {
 				{EAffectMsg::kName, "затемнение"},
-				{EAffectMsg::kExpired, "Облако тьмы, окружающее вас, спало."},
+				{EAffectMsg::kExpiredForVict, "Облако тьмы, окружающее вас, спало."},
 				{EAffectMsg::kImposedForVict, "Ваши глаза приобрели красный оттенок."},
 				{EAffectMsg::kImposedForRoom, "Глаза $n1 приобрели красный оттенок."}}},
 			{EAffect::kDetectPoison, {
 				{EAffectMsg::kName, "определение яда"},
-				{EAffectMsg::kExpired, "Вы не в состоянии более определять яды."},
+				{EAffectMsg::kExpiredForVict, "Вы не в состоянии более определять яды."},
 				{EAffectMsg::kImposedForVict, "Ваши глаза приобрели карий оттенок."},
 				{EAffectMsg::kImposedForRoom, "Глаза $n1 приобрели карий оттенок."}}},
 			{EAffect::kDrunked, {
 				{EAffectMsg::kName, "под мухой"},
-				{EAffectMsg::kExpired, "Кураж прошел. Мама, лучше бы я умер$q вчера."}}},
+				{EAffectMsg::kExpiredForVict, "Кураж прошел. Мама, лучше бы я умер$q вчера."}}},
 			{EAffect::kAbstinent, {
 				{EAffectMsg::kName, "отходняк"},
-				{EAffectMsg::kExpired, "А головка ваша уже не болит."}}},
+				{EAffectMsg::kExpiredForVict, "А головка ваша уже не болит."}}},
 			{EAffect::kStopRight, {
 				{EAffectMsg::kName, "декстраплегия"},
-				{EAffectMsg::kExpired, "А головка ваша уже не болит."}}},
+				{EAffectMsg::kExpiredForVict, "А головка ваша уже не болит."}}},
 			{EAffect::kStopLeft, {
 				{EAffectMsg::kName, "синистроплегия"},
-				{EAffectMsg::kExpired, "А головка ваша уже не болит."}}},
+				{EAffectMsg::kExpiredForVict, "А головка ваша уже не болит."}}},
 			{EAffect::kStopFight, {
 				{EAffectMsg::kName, "параплегия"},
-				{EAffectMsg::kExpired, "А головка ваша уже не болит."}}},
+				{EAffectMsg::kExpiredForVict, "А головка ваша уже не болит."}}},
 			{EAffect::kHaemorrhage, {
 				{EAffectMsg::kName, "кровотечение"},
-				{EAffectMsg::kExpired, "Ваши кровоточащие раны затянулись."}}},
+				{EAffectMsg::kExpiredForVict, "Ваши кровоточащие раны затянулись."}}},
 			{EAffect::kDisguise, {
 				{EAffectMsg::kName, "маскировка"},
-				{EAffectMsg::kExpired, "Вы прекратили маскироваться."}}},
+				{EAffectMsg::kExpiredForVict, "Вы прекратили маскироваться."}}},
 			{EAffect::kWaterBreath, { // а заклинание Waterbreath... переименовать?
 				{EAffectMsg::kName, "дышать водой"},
-				{EAffectMsg::kExpired, "Вы более не способны дышать водой."},
+				{EAffectMsg::kExpiredForVict, "Вы более не способны дышать водой."},
 				{EAffectMsg::kImposedForVict, "У вас выросли жабры."},
 				{EAffectMsg::kImposedForRoom, "У $n1 выросли жабры."}}},
 			{EAffect::kSlow, {
 				{EAffectMsg::kName, "медлительность"},
-				{EAffectMsg::kExpired, "Медлительность исчезла."},
+				{EAffectMsg::kExpiredForVict, "Медлительность исчезла."},
 				{EAffectMsg::kImposedForRoom, "Движения $n1 заметно замедлились."},
 				{EAffectMsg::kImposedForVict, "Ваши движения заметно замедлились."}}},
 			{EAffect::kHaste, {
 				{EAffectMsg::kName, "ускорение"},
-				{EAffectMsg::kExpired, "Вы стали более медлительны."},
+				{EAffectMsg::kExpiredForVict, "Вы стали более медлительны."},
 				{EAffectMsg::kImposedForVict, "Вы начали двигаться быстрее."},
 				{EAffectMsg::kImposedForRoom, "$n начал$g двигаться заметно быстрее."}}},
 			{EAffect::kGodsShield, {
 				{EAffectMsg::kName, "защита богов"},
-				{EAffectMsg::kExpired, "Голубой кокон вокруг вашего тела угас."},
+				{EAffectMsg::kExpiredForVict, "Голубой кокон вокруг вашего тела угас."},
 				{EAffectMsg::kImposedForVict, "Вас покрыл голубой кокон."},
 				{EAffectMsg::kImposedForRoom, "$n покрыл$u сверкающим коконом."}}},
 			{EAffect::kAirShield, {
 				{EAffectMsg::kName, "воздушный щит"},
-				{EAffectMsg::kExpired, "Ваш воздушный щит исчез."},
+				{EAffectMsg::kExpiredForVict, "Ваш воздушный щит исчез."},
 				{EAffectMsg::kImposedForVict, "Вас окутал воздушный щит."},
 				{EAffectMsg::kImposedForRoom, "$n3 окутал воздушный щит."}}},
 			{EAffect::kFireShield, {
 				{EAffectMsg::kName, "огненный щит"},
-				{EAffectMsg::kExpired, "Огненный щит вокруг вашего тела исчез."},
+				{EAffectMsg::kExpiredForVict, "Огненный щит вокруг вашего тела исчез."},
 				{EAffectMsg::kImposedForVict, "Вас окутал огненный щит."},
 				{EAffectMsg::kImposedForRoom, "$n3 окутал огненный щит."}}},
 			{EAffect::kIceShield, {
 				{EAffectMsg::kName, "ледяной щит"},
-				{EAffectMsg::kExpired, "Ледяной щит вокруг вашего тела исчез."},
+				{EAffectMsg::kExpiredForVict, "Ледяной щит вокруг вашего тела исчез."},
 				{EAffectMsg::kImposedForVict, "Вас окутал ледяной щит."},
 				{EAffectMsg::kImposedForRoom, "$n3 окутал ледяной щит."}}},
 			{EAffect::kMagicGlass, {
 				{EAffectMsg::kName, "зеркало магии"},
-				{EAffectMsg::kExpired, "Вы вновь чувствительны к магическим поражениям."},
+				{EAffectMsg::kExpiredForVict, "Вы вновь чувствительны к магическим поражениям."},
 				{EAffectMsg::kImposedForVict, "Вас покрыло зеркало магии."},
 				{EAffectMsg::kImposedForRoom, "$n3 покрыла зеркальная пелена."}}},
 			{EAffect::kStairs, { // Похоже тоже не используется
 				{EAffectMsg::kName, "звезды"},
-				{EAffectMsg::kExpired, "звезды угасли"}}},
+				{EAffectMsg::kExpiredForVict, "звезды угасли"}}},
 			{EAffect::kStoneHands, {
 				{EAffectMsg::kName, "каменная рука"},
-				{EAffectMsg::kExpired, "Ваши руки вернулись к прежнему состоянию."},
+				{EAffectMsg::kExpiredForVict, "Ваши руки вернулись к прежнему состоянию."},
 				{EAffectMsg::kImposedForVict, "Ваши руки задубели."},
 				{EAffectMsg::kImposedForRoom, "Руки $n1 задубели."}}},
 			{EAffect::kPrismaticAura, {
 				{EAffectMsg::kName, "призматическая.аура"},
-				{EAffectMsg::kExpired, "Призматическая аура вокруг вашего тела угасла."},
+				{EAffectMsg::kExpiredForVict, "Призматическая аура вокруг вашего тела угасла."},
 				{EAffectMsg::kImposedForVict, "Вас покрыла призматическая аура."},
 				{EAffectMsg::kImposedForRoom, "$n3 покрыла призматическая аура."}}},
 			{EAffect::kHelper, {
 				{EAffectMsg::kName, "нанят"},
-				{EAffectMsg::kExpired, "Вы больше не служите нанимателю."}}},
+				{EAffectMsg::kExpiredForVict, "Вы больше не служите нанимателю."}}},
 			{EAffect::kForcesOfEvil, {
 				{EAffectMsg::kName, "силы зла"},
-				{EAffectMsg::kExpired, "Силы зла оставили вас."},
+				{EAffectMsg::kExpiredForVict, "Силы зла оставили вас."},
 				{EAffectMsg::kImposedForVict, "Черное облако покрыло вас."},
 				{EAffectMsg::kImposedForRoom, "Черное облако покрыло $n3 с головы до пят."}}},
 			{EAffect::kAirAura, {
 				{EAffectMsg::kName, "воздушная аура"},
-				{EAffectMsg::kExpired, "Воздушная аура вокруг вас исчезла."},
+				{EAffectMsg::kExpiredForVict, "Воздушная аура вокруг вас исчезла."},
 				{EAffectMsg::kImposedForVict, "Вас окружила воздушная аура."},
 				{EAffectMsg::kImposedForRoom, "$n3 окружила воздушная аура."}}},
 			{EAffect::kFireAura, {
 				{EAffectMsg::kName, "огненная аура"},
-				{EAffectMsg::kExpired, "Огненная аура вокруг вас исчезла."},
+				{EAffectMsg::kExpiredForVict, "Огненная аура вокруг вас исчезла."},
 				{EAffectMsg::kImposedForVict, "Вас окружила огненная аура."},
 				{EAffectMsg::kImposedForRoom, "$n3 окружила огненная аура."}}},
 			{EAffect::kIceAura, {
 				{EAffectMsg::kName, "ледяная аура"},
-				{EAffectMsg::kExpired, "Ледяная аура вокруг вас исчезла."},
+				{EAffectMsg::kExpiredForVict, "Ледяная аура вокруг вас исчезла."},
 				{EAffectMsg::kImposedForVict, "Вас окружила ледяная аура."},
 				{EAffectMsg::kImposedForRoom, "$n3 окружила ледяная аура."}}},
 			{EAffect::kDeafness, {
 				{EAffectMsg::kName, "глухота"},
-				{EAffectMsg::kExpired, "Вы вновь можете слышать."},
+				{EAffectMsg::kExpiredForVict, "Вы вновь можете слышать."},
 				{EAffectMsg::kImposedForRoom, "$n0 оглох$q!"},
 				{EAffectMsg::kImposedForVict, "Вы оглохли."}}},
 			{EAffect::kCrying, {
 				{EAffectMsg::kName, "плач"},
-				{EAffectMsg::kExpired, "Ваша душа успокоилась."},
+				{EAffectMsg::kExpiredForVict, "Ваша душа успокоилась."},
 				{EAffectMsg::kImposedForRoom, "$n0 издал$g протяжный стон."},
 				{EAffectMsg::kImposedForVict, "Вы впали в уныние."}}},
 			{EAffect::kPeaceful, {
 				{EAffectMsg::kName, "смирение"},
-				{EAffectMsg::kExpired, "Смирение в вашей душе вдруг куда-то исчезло."},
+				{EAffectMsg::kExpiredForVict, "Смирение в вашей душе вдруг куда-то исчезло."},
 				{EAffectMsg::kImposedForRoom, "Взгляд $n1 потускнел, а сам он успокоился."},
 				{EAffectMsg::kImposedForVict, "Ваша душа очистилась от зла и странно успокоилась."}}},
 			{EAffect::kMagicStopFight, {
 				{EAffectMsg::kName, "маг параплегия"},
-				{EAffectMsg::kExpired, "Ваши кровоточащие раны затянулись."}}},
+				{EAffectMsg::kExpiredForVict, "Ваши кровоточащие раны затянулись."}}},
 			{EAffect::kBerserk, {
 				{EAffectMsg::kName, "предсмертная ярость"},
-				{EAffectMsg::kExpired, "Неистовство оставило вас."}}},
+				{EAffectMsg::kExpiredForVict, "Неистовство оставило вас."}}},
 			{EAffect::kLightWalk, {
 				{EAffectMsg::kName, "легкая поступь"},
-				{EAffectMsg::kExpired, "Ваши следы вновь стали заметны."}}},
+				{EAffectMsg::kExpiredForVict, "Ваши следы вновь стали заметны."}}},
 			{EAffect::kBrokenChains, {
 				{EAffectMsg::kName, "разбитые оковы"},
-				{EAffectMsg::kExpired, "Вы вновь стали уязвимы для оцепенения."},
+				{EAffectMsg::kExpiredForVict, "Вы вновь стали уязвимы для оцепенения."},
 				{EAffectMsg::kImposedForRoom, "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас."},
 				{EAffectMsg::kImposedForVict, "Волна ярко-синего света омыла вас с головы до ног."}}},
 			{EAffect::kCloudOfArrows, {
 				{EAffectMsg::kName, "облако стрел"},
-				{EAffectMsg::kExpired, "Облако стрел вокруг вас рассеялось."},
+				{EAffectMsg::kExpiredForVict, "Облако стрел вокруг вас рассеялось."},
 				{EAffectMsg::kImposedForVict, "Вас окружило облако летающих огненных стрел."},
 				{EAffectMsg::kImposedForRoom, "$n3 окружило облако летающих огненных стрел."}}},
 			{EAffect::kShadowCloak, {
 				{EAffectMsg::kName, "мантия теней"},
-				{EAffectMsg::kExpired, "Ваша теневая мантия замерцала и растаяла."},
+				{EAffectMsg::kExpiredForVict, "Ваша теневая мантия замерцала и растаяла."},
 				{EAffectMsg::kImposedForVict, "Густые тени окутали вас."},
 				{EAffectMsg::kImposedForRoom, "$n скрыл$u в густой тени."}}},
 			{EAffect::kGlitterDust, {
 				{EAffectMsg::kName, "блестящая пыль"},
-				{EAffectMsg::kExpired, "Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."},
+				{EAffectMsg::kExpiredForVict, "Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."},
 				{EAffectMsg::kImposedForRoom, "Облако ярко блестящей пыли накрыло $n3."},
 				{EAffectMsg::kImposedForVict, "Липкая блестящая пыль покрыла вас с головы до пят."}}},
 			{EAffect::kAffright, {
 				{EAffectMsg::kName, "испуг"},
-				{EAffectMsg::kExpired, "Леденящий душу испуг отпустил вас."},
+				{EAffectMsg::kExpiredForVict, "Леденящий душу испуг отпустил вас."},
 				{EAffectMsg::kImposedForRoom, "$n0 побледнел$g и задрожал$g от страха."},
 				{EAffectMsg::kImposedForVict, "Страх сжал ваше сердце ледяными когтями."}}},
 			{EAffect::kScopolaPoison, {
 				{EAffectMsg::kName, "яд скополии"},
-				{EAffectMsg::kExpired, "В вашей крови не осталось ни капельки яда."},
+				{EAffectMsg::kExpiredForVict, "В вашей крови не осталось ни капельки яда."},
 				{EAffectMsg::kImposedForVict, "Вы почувствовали себя отравленным."},
 				{EAffectMsg::kImposedForRoom, "$n позеленел$g от действия яда."}}},
 			{EAffect::kDaturaPoison, {
 				{EAffectMsg::kName, "яд дурмана"},
-				{EAffectMsg::kExpired, "В вашей крови не осталось ни капельки яда."},
+				{EAffectMsg::kExpiredForVict, "В вашей крови не осталось ни капельки яда."},
 				{EAffectMsg::kImposedForVict, "Вы почувствовали себя отравленным."},
 				{EAffectMsg::kImposedForRoom, "$n позеленел$g от действия яда."}}},
 			{EAffect::kSkillReduce, {
 				{EAffectMsg::kName, "понижение умений"},
-				{EAffectMsg::kExpired, "В вашей крови не осталось ни капельки яда."},
+				{EAffectMsg::kExpiredForVict, "В вашей крови не осталось ни капельки яда."},
 				{EAffectMsg::kImposedForVict, "Вы почувствовали себя отравленным."},
 				{EAffectMsg::kImposedForRoom, "$n позеленел$g от действия яда."}}},
 			{EAffect::kNoBattleSwitch, {
 				{EAffectMsg::kName, "не переключается"},
-				{EAffectMsg::kExpired, "Вы снова можете атаковать кого вздумается."}}},
+				{EAffectMsg::kExpiredForVict, "Вы снова можете атаковать кого вздумается."}}},
 			{EAffect::kBelenaPoison, {
 				{EAffectMsg::kName, "яд белены"},
-				{EAffectMsg::kExpired, "Неистовство оставило вас."}}},
+				{EAffectMsg::kExpiredForVict, "Неистовство оставило вас."}}},
 			{EAffect::kNoTeleport, {
 				{EAffectMsg::kName, "прикован"},
-				{EAffectMsg::kExpired, "Сковавшие вас колдовские путы растаяли."}}},
+				{EAffectMsg::kExpiredForVict, "Сковавшие вас колдовские путы растаяли."}}},
 			{EAffect::kCombatLuck, {
 				{EAffectMsg::kName, "боевое везение"},
 				{EAffectMsg::kImposedForRoom, "$n вдохновенно выпятил$g грудь."},
 				{EAffectMsg::kImposedForVict, "Вы почувствовали вдохновение."}}},
 			{EAffect::kBandage, {
 				{EAffectMsg::kName, "перевязан"},
-				{EAffectMsg::kExpired, "Вы аккуратно перевязали свои раны."}}},
+				{EAffectMsg::kExpiredForVict, "Вы аккуратно перевязали свои раны."}}},
 			{EAffect::kCannotBeBandaged, {
 				{EAffectMsg::kName, "не может перевязываться"},
-				{EAffectMsg::kExpired, "Вы снова можете перевязывать свои раны."}}},
+				{EAffectMsg::kExpiredForVict, "Вы снова можете перевязывать свои раны."}}},
 			{EAffect::kMorphing, { // Тоже что-то недоделанное похоже
 				{EAffectMsg::kName, "превращен"}}},
 			{EAffect::kStrangled, {
 				{EAffectMsg::kName, "удушье"},
-				{EAffectMsg::kExpired, "!SPELL_CombatLuck!"}}},
+				{EAffectMsg::kExpiredForVict, "!SPELL_CombatLuck!"}}},
 			{EAffect::kMemorizeSpells, {
 				{EAffectMsg::kName, "вспоминает заклинания"},
-				{EAffectMsg::kExpired, "!SPELL_CombatLuck!"}}},
+				{EAffectMsg::kExpiredForVict, "!SPELL_CombatLuck!"}}},
 			{EAffect::kNoobRegen, {
 				{EAffectMsg::kName, "регенерация новичка"},
-				{EAffectMsg::kExpired, "!SPELL_CombatLuck!"}}},
+				{EAffectMsg::kExpiredForVict, "!SPELL_CombatLuck!"}}},
 			{EAffect::kVampirism, {
 				{EAffectMsg::kName, "вампиризм"},
 				{EAffectMsg::kImposedForRoom, "Зрачки $n3 приобрели красный оттенок."},
 				{EAffectMsg::kImposedForVict, "Ваши зрачки приобрели красный оттенок."}}},
 			{EAffect::kLacerations, {
 				{EAffectMsg::kName, "рваные раны"},
-				{EAffectMsg::kExpired, "Ваши раны слегка затянулись."}}},
+				{EAffectMsg::kExpiredForVict, "Ваши раны слегка затянулись."}}},
 			{EAffect::kLacerations, {
 				{EAffectMsg::kName, "...да защитит он себя."},
-				{EAffectMsg::kExpired, "!SPELL_CombatLuck!"}}},
+				{EAffectMsg::kExpiredForVict, "!SPELL_CombatLuck!"}}},
 			{EAffect::kCommander, {
 				{EAffectMsg::kName, "полководец"},
-				{EAffectMsg::kExpired, "Вы сняли флажок со своего шлема."}}},
+				{EAffectMsg::kExpiredForVict, "Вы сняли флажок со своего шлема."}}},
 			{EAffect::kEarthAura, {
 				{EAffectMsg::kName, "аура земли"},
-				{EAffectMsg::kExpired, "Аура земли вокруг вас развеялась."},
+				{EAffectMsg::kExpiredForVict, "Аура земли вокруг вас развеялась."},
 				{EAffectMsg::kImposedForVict, "Вас окружила аура земли."},
 				{EAffectMsg::kImposedForRoom, "$n3 окружила аура земли."}}}
 		};
@@ -940,6 +944,49 @@ const std::string &GetAffectMsg(EAffect affect_id, EAffectMsg msg_id) {
 		return empty_str;
 	}
 }
+
+typedef std::map<EAffectMsg, std::string> EAffectMsg_name_by_value_t;
+typedef std::map<const std::string, EAffectMsg> EAffectMsg_value_by_name_t;
+EAffectMsg_name_by_value_t EAffectMsg_name_by_value;
+EAffectMsg_value_by_name_t EAffectMsg_value_by_name;
+
+void init_EAffectMsg_ITEM_NAMES() {
+	EAffectMsg_name_by_value.clear();
+	EAffectMsg_value_by_name.clear();
+
+	EAffectMsg_name_by_value[EAffectMsg::kName] = "kName";
+	EAffectMsg_name_by_value[EAffectMsg::kDesc] = "kDesc";
+	EAffectMsg_name_by_value[EAffectMsg::kExpiredForVict] = "kExpiredForVict";
+	EAffectMsg_name_by_value[EAffectMsg::kExpiredForRoom] = "kExpiredForRoom";
+	EAffectMsg_name_by_value[EAffectMsg::kImposedForActor] = "kImposedForActor";
+	EAffectMsg_name_by_value[EAffectMsg::kImposedForVict] = "kImposedForVict";
+	EAffectMsg_name_by_value[EAffectMsg::kImposedForRoom] = "kImposedForRoom";
+
+	for (const auto &i : EAffectMsg_name_by_value) {
+		EAffectMsg_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EAffectMsg>(const EAffectMsg item) {
+	if (EAffectMsg_name_by_value.empty()) {
+		init_EAffectMsg_ITEM_NAMES();
+	}
+	return EAffectMsg_name_by_value.at(item);
+}
+
+template<>
+EAffectMsg ITEM_BY_NAME<EAffectMsg>(const std::string &name) {
+	if (EAffectMsg_name_by_value.empty()) {
+		init_EAffectMsg_ITEM_NAMES();
+	}
+	return EAffectMsg_value_by_name.at(name);
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EAffectMsg>(EAffectMsg item);
+template<>
+EAffectMsg ITEM_BY_NAME<EAffectMsg>(const std::string &name);
 
 
 // ===============================================================================================

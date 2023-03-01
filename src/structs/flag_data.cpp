@@ -153,9 +153,8 @@ bool FlagData::sprintbits(const char *names[], char *result, const char *div, co
 
 	for (int i = 0; i < 4; i++) {
 		if (sprintbitwd(m_flags[i] | (i << 30), names, buffer, div, print_flag)) {
-			if ('\0'
-				!= *result)    // We don't need to calculate length of result. We just want to know if it is not empty.
-			{
+			// We don't need to calculate length of result. We just want to know if it is not empty.
+			if ('\0' != *result)  {
 				strcat(result, div);
 			}
 			strcat(result, buffer);

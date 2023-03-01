@@ -86,6 +86,25 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 	page_string(ch->desc, out.str());
 }
 
+void ShowAffectInfo(CharData *ch, const std::string &name) {
+	std::ostringstream out;
+	if (name.empty()) {
+		for (const auto &affect : MUD::Affects()) {
+			affect.Print(out);
+			out << "\r\n";
+		}
+	} else {
+		auto name_copy = name;
+		auto id = FixNameAndFindAffectId(name_copy);
+		if (id == EAffect::kUndefined) {
+			SendMsgToChar("Неизвестное название аффекта.", ch);
+			return;
+		}
+		MUD::Affect(id).Print(out);
+	}
+	page_string(ch->desc, out.str());
+}
+
 void ShowFeatInfo(CharData *ch, const std::string &name) {
 	if (name.empty()) {
 		SendMsgToChar("Формат: show featinfo [название способности]", ch);
@@ -366,6 +385,7 @@ struct show_struct show_fields[] = {
 	{"featinfo", kLvlImmortal},
 	{"abilityinfo", kLvlImmortal},
 	{"skillinfo", kLvlImmortal},  //35
+	{"affectinfo", kLvlImmortal},
 	{"account", kLvlGod},
 	{"\n", 0}
 };
@@ -877,7 +897,10 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 35: // skill
 			ShowSkillInfo(ch, value);
 			break;
-		case 36: {// account
+		case 36: // affect
+			ShowAffectInfo(ch, value);
+			break;
+		case 37: {// account
 			if (!*value) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;

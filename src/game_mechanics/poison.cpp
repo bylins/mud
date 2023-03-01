@@ -4,8 +4,6 @@
 
 #include "poison.h"
 
-#include "entities/obj_data.h"
-#include "entities/char_data.h"
 #include "liquid.h"
 #include "color.h"
 #include "game_fight/fight.h"
@@ -109,7 +107,7 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		af[2].modifier = -remove_hp;
 
 		bool was_poisoned = true;
-		for (auto & i : af) {
+		for (auto &i: af) {
 			i.type = ESpell::kBelenaPoison;
 			i.duration = 7;
 			i.affect_bits = to_underlying(EAffect::kPoisoned)
@@ -154,7 +152,7 @@ bool PoisonVictWithWeapon(CharData *ch, CharData *vict, ESpell spell_id) {
 		af[2].modifier = -remove_mem;
 
 		bool was_poisoned = true;
-		for (auto & i : af) {
+		for (auto &i: af) {
 			i.type = ESpell::kDaturaPoison;
 			i.duration = 7;
 			i.affect_bits = to_underlying(EAffect::kPoisoned)
@@ -198,7 +196,8 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 					} else {
 						SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
 									  CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
-						SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
+						SendMsgToChar(vict,
+									  "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 						act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 							true, ch, nullptr, vict, kToNotVict);
 						GET_POS(vict) = EPosition::kSit;
@@ -312,7 +311,7 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	af[3].affect_bits = to_underlying(EAffect::kPoisoned);
 	af[3].flags = kAfSameTime;
 
-	for (auto & i : af) {
+	for (auto &i: af) {
 		ImposeAffect(vict, i, false, false, false, false);
 	}
 	vict->poisoner = GET_ID(ch);

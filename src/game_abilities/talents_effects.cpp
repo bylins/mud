@@ -55,7 +55,7 @@ class Mod {
 class Applies {
 	struct ApplyMod {
 		EApply location{EApply::kNone};
-		EAffect affect{EAffect::kUndefinded};
+		EAffect affect{EAffect::kUndefined};
 		int mod{0};
 		int cap{0};
 		double lvl_bonus{0.0};

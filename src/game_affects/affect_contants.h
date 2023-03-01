@@ -32,7 +32,7 @@ EAffectFlag ITEM_BY_NAME<EAffectFlag>(const std::string &name);
  * Affect bits: used in char_data.char_specials.saved.affected_by //
  */
 enum class EAffect : Bitvector {
-	kUndefinded = 0u,
+	kUndefined = 0u,
 	kBlind = 1u << 0,                    ///< (R) Char is blind
 	kInvisible = 1u << 1,                ///< Char is invisible
 	kDetectAlign = 1u << 2,                ///< Char is sensitive to align
@@ -272,6 +272,21 @@ template<>
 const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
 EApply ITEM_BY_NAME<EApply>(const std::string &name);
+
+enum class EAffectMsg {
+	kName,
+	kDesc,
+	kExpiredForVict,
+	kExpiredForRoom,
+	kImposedForActor,
+	kImposedForVict,
+	kImposedForRoom
+};
+
+template<>
+const std::string &NAME_BY_ITEM<EAffectMsg>(EAffectMsg item);
+template<>
+EAffectMsg ITEM_BY_NAME<EAffectMsg>(const std::string &name);
 
 using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;

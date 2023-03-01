@@ -28,6 +28,7 @@ namespace cfg_manager {
  */
 class ICfgLoader {
  public:
+	virtual ~ICfgLoader() = default;
 	virtual void Load(parser_wrapper::DataNode data) = 0;
 	virtual void Reload(parser_wrapper::DataNode data) = 0;
 };

@@ -240,6 +240,7 @@ set(SOURCES
 		src/game_classes/classes_info.cpp
 		src/utils/objects_filter.cpp
 		src/structs/info_container.cpp
+		src/structs/messages_data.cpp
 		src/utils/parser_wrapper.cpp
 		src/boot/cfg_manager.cpp
 		src/game_affects/affect_contants.cpp
@@ -500,6 +501,7 @@ set(HEADERS
 		src/game_classes/classes_info.h
 		src/utils/objects_filter.h
 		src/structs/info_container.h
+		src/structs/messages_data.h
 		src/utils/parser_wrapper.h
 		src/boot/cfg_manager.h
 		src/structs/iterators.h

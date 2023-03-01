@@ -22,6 +22,7 @@ struct GlobalObjectsStorage {
 	Rooms world;
 	BloodyInfoMap bloody_map;
 
+	affects::AffectsInfo affects_info;
 	abilities::AbilitiesInfo abilities_info;
 	SkillsInfo skills_info;
 	spells::SpellsInfo spells_info;
@@ -57,6 +58,14 @@ GlobalObjectsStorage &global_objects() {
 
 	return storage;
 }
+}
+
+affects::AffectsInfo &GlobalObjects::Affects() {
+	return global_objects().affects_info;
+}
+
+const affects::AffectInfo &GlobalObjects::Affect(EAffect affect_id) {
+	return global_objects().affects_info[affect_id];
 }
 
 abilities::AbilitiesInfo &GlobalObjects::Abilities() {

@@ -70,10 +70,7 @@ class FlagData {
 	void tascii(int num_planes, char *ascii) const;
 	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, const char *div) const {
-		return sprintbits(names,
-						  result,
-						  div,
-						  0);
+		return sprintbits(names, result, div, 0);
 	};
 
 	/// Изменение указанного флага

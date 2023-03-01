@@ -42,6 +42,8 @@ class BanList;    // to avoid inclusion of ban.hpp
 class GlobalObjects {
  public:
 	static cfg_manager::CfgManager &CfgManager();
+	static affects::AffectsInfo &Affects();
+	static const affects::AffectInfo &Affect(EAffect affect_id);
 	static abilities::AbilitiesInfo &Abilities();
 	static const abilities::AbilityInfo &Ability(abilities::EAbility ability_id);
 	static SkillsInfo &Skills();

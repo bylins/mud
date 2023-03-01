@@ -11,6 +11,7 @@
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "genchar.h"
+#include "color.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -964,5 +965,73 @@ bool IsAffectedBySpell(CharData *ch, ESpell type) {
 
 	return false;
 }
+
+namespace affects {
+
+using DataNode = parser_wrapper::DataNode;
+using ItemPtr = AffectInfoBuilder::ItemPtr;
+
+void AffectsLoader::Load(DataNode data) {
+	MUD::Affects().Init(data.Children());
+}
+
+void AffectsLoader::Reload(DataNode data) {
+	MUD::Affects().Reload(data.Children());
+}
+
+ItemPtr AffectInfoBuilder::Build(DataNode &node) {
+	auto affect_info = ParseObligatoryValues(node);
+	if (affect_info) {
+		ParseDispensableValues(affect_info, node);
+	}
+	return affect_info;
+}
+
+void AffectInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node) {
+	try {
+		item_ptr->name_ = parse::ReadAsStr(node.GetValue("name"));
+	} catch (std::exception &e) {
+		err_log("invalid affect description (incorrect value: %s).", e.what());
+	}
+	if (node.GoToChild("messages")) {
+		for (auto &message: node.Children()) {
+			try {
+				auto id =  parse::ReadAsConstant<EAffectMsg>(message.GetValue("id"));
+				auto msg = parse::ReadAsStr(message.GetValue("val"));
+				item_ptr->messages_.AddMsg(id, msg);
+			} catch (std::exception &e) {
+				err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
+			}
+		}
+		node.GoToParent();
+	}
+}
+
+ItemPtr AffectInfoBuilder::ParseObligatoryValues(DataNode &node) {
+	auto id{EAffect::kUndefined};
+	auto mode{EItemMode::kDisabled};
+	try {
+		id = parse::ReadAsConstant<EAffect>(node.GetValue("id"));
+		mode = AffectInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
+	} catch (std::exception &e) {
+		err_log("incorrect affect id (%s). ", e.what());
+		return nullptr;
+	}
+
+	return std::make_shared<AffectInfo>(id, mode);
+}
+
+void AffectInfo::Print(std::ostringstream &buffer) const {
+	buffer << "Print affect:\r\n"
+		   << " Id: " << KGRN << NAME_BY_ITEM<EAffect>(GetId()) << KNRM << "\r\n"
+		   << " Name: " << KGRN << name_ << KNRM << "\r\n"
+		   << " Messages:\r\n";
+
+	for (const auto &msg: messages_.Content()) {
+		buffer << "  " << KGRN << NAME_BY_ITEM<EAffectMsg>(msg.first) << ": " << KNRM << msg.second << "\r\n";
+	}
+}
+
+} // namespace affects
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

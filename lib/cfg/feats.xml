@@ -27,8 +27,8 @@
     <feat id="kImpregnable" name="непробиваемый" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMagicResist" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="1.0" cap="10"/>
-                <apply location="kAffectResist" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="1.0" cap="10"/>
+                <apply location="kMagicResist" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="1.0" cap="10"/>
+                <apply location="kAffectResist" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="1.0" cap="10"/>
             </applies>
         </talent_effects>
     </feat>
@@ -45,10 +45,10 @@
         <talent_effects>
             <applies>
                 <apply location="kSpelledBlink" val="5" affect="kBlink" lvl_bonus="0.2" remort_bonus="0.67" cap="30"/>
-                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
-                <apply location="kSavingReflex" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
-                <apply location="kSavingCritical" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
-                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingWill" affect="kUndefined" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingReflex" affect="kUndefined" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingCritical" affect="kUndefined" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
+                <apply location="kSavingStability" affect="kUndefined" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
             </applies>
         </talent_effects>
     </feat>
@@ -63,23 +63,23 @@
     <feat id="kWoodenSkin" name="деревянная кожа" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kResistFire" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistAir" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistWater" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistEarth" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistDark" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistFire" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistAir" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistWater" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistEarth" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistDark" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kIronSkin" name="железная кожа" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kResistFire" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistAir" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistWater" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistEarth" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kResistDark" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kAbsorbe" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistFire" val="10" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistAir" val="10" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistWater" val="10" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistEarth" val="10" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistDark" val="10" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kAbsorbe" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -114,7 +114,7 @@
     <feat id="kLightingReflex" name="мгновенная реакция" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSavingReflex" val="-10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kSavingReflex" val="-10" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -131,30 +131,30 @@
     <feat id="kPowerMagic" name="мощь колдовства" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMagicDamagePercent" val="50" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMagicDamagePercent" val="50" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kEndurance" name="выносливость" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMove" val="2" affect="kUndefinded" lvl_bonus="2.0" remort_bonus="4.0" cap="200"/>
-                <apply location="kMoveRegen" val="40" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="2.0" cap="100"/>
+                <apply location="kMove" val="2" affect="kUndefined" lvl_bonus="2.0" remort_bonus="4.0" cap="200"/>
+                <apply location="kMoveRegen" val="40" affect="kUndefined" lvl_bonus="0.0" remort_bonus="2.0" cap="100"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kGreatFortitude" name="сила духа" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
-                <apply location="kSavingStability" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
+                <apply location="kSavingWill" affect="kUndefined" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
+                <apply location="kSavingStability" affect="kUndefined" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kFastRegen" name="быстрое заживление" mode="kEnabled">
         <talent_effects>4
             <applies>
-                <apply location="kHpRegen" val="35" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kHpRegen" val="35" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -178,9 +178,9 @@
     <feat id="kSplendidHealth" name="богатырское здоровье" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kHp" val="2" affect="kUndefinded" lvl_bonus="2.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kHpRegen" val="35" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
-                <apply location="kSavingCritical" affect="kUndefinded" val="-5" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kHp" val="2" affect="kUndefined" lvl_bonus="2.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kHpRegen" val="35" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kSavingCritical" affect="kUndefined" val="-5" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -223,7 +223,7 @@
     <feat id="kLuckyGuy" name="счастливчик" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMorale" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMorale" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -232,56 +232,56 @@
     <feat id="kReliableHealth" name="крепкое здоровье" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kHpRegen" val="50" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kHpRegen" val="50" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kExcellentMemory" name="превосходная память" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMamaRegen" val="100" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMamaRegen" val="100" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kAnimalDextery" name="звериная прыть" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kDex" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kDex" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kLegibleWritting" name="чёткий почерк" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMamaRegen" val="25" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMamaRegen" val="25" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kIronMuscles" name="стальные мышцы" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kDamroll" val="2" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kDamroll" val="2" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kMagicSign" name="знак чародея" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kCastSuccess" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kCastSuccess" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kGreatEndurance" name="двужильность" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMoveRegen" val="75" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMoveRegen" val="75" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kBestDestiny" name="лучшая доля" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMorale" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMorale" val="5" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -302,63 +302,63 @@
     <feat id="kStrongImmunity" name="привычка к яду" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kResistImmunity" val="15" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kResistImmunity" val="15" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kMobility" name="подвижность" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kAc" affect="kUndefinded" val="-40" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kAc" affect="kUndefined" val="-40" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kNaturalStr" name="силач" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kStr" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kStr" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kNaturalDex" name="проворство" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kDex" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kDex" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kNaturalInt" name="природный ум" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kInt" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kInt" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kNaturalWis" name="мудрец" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kWis" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kWis" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kNaturalCon" name="здоровяк" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kCon" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kCon" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kNaturalCha" name="природное обаяние" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kCha" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kCha" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kMnemonicEnhancer" name="отличная память" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMamaRegen" val="25" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kMamaRegen" val="25" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -372,14 +372,14 @@
     <feat id="kDamrollBonus" name="тяжел на руку" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kDamroll" val="2" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kDamroll" val="2" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
     <feat id="kHitrollBonus" name="твердая рука" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kHitroll" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kHitroll" val="1" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>

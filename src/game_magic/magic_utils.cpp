@@ -149,6 +149,25 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 // \todo куча дублированного кода... надо подумать, как сделать одинаковый интерфейс
 
+EAffect FindAffectId(const std::string_view &name) {
+	int base = 0, offset = 0, counter = 0;
+	bool end_of_array = false;
+	while (!end_of_array) {
+		if (IsEquivalent(name, affected_bits[counter])) {
+			return static_cast<EAffect>((base << 30) | (1 << offset));
+		}
+		offset++;
+		if (*affected_bits[counter] == '\n') {
+			base++;
+			offset = 0;
+			if (*affected_bits[counter + 1] == '\n')
+				end_of_array = true;
+		}
+		counter++;
+	}
+	return EAffect::kUndefined;
+}
+
 abilities::EAbility FindAbilityId(const char *name) {
 	for (const auto &ability : MUD::Abilities()) {
 		if (ability.IsValid() && IsEquivalent(name, ability.GetName())) {
@@ -211,20 +230,16 @@ ESpell FindSpellIdWithName(const std::string &name) {
 	return ESpell::kUndefined;
 }
 
-bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
-	return IsEquivalent(first_str.c_str(), second_str.c_str());
-};
-
-bool IsEquivalent(const char *first_str, const char *second_str) {
+bool IsEquivalent(const std::string_view &first_str, const std::string_view &second_str) {
 	char const *temp, *temp2;
 	char first[256], first2[256];
 
-	if (utils::IsAbbr(first_str, second_str)) {
+	if (utils::IsAbbr(first_str.data(), second_str.data())) {
 		return true;
 	}
 	auto ok{true};
-	temp = any_one_arg(second_str, first);
-	temp2 = any_one_arg(first_str, first2);
+	temp = any_one_arg(second_str.data(), first);
+	temp2 = any_one_arg(first_str.data(), first2);
 	while (*first && *first2 && ok) {
 		if (!utils::IsAbbr(first2, first))
 			ok = false;
@@ -246,6 +261,11 @@ void FixName(T &name) {
 		}
 		++pos;
 	}
+}
+
+EAffect FixNameAndFindAffectId(std::string &name) {
+	FixName(name);
+	return FindAffectId(name.c_str());
 }
 
 ESkill FixNameAndFindSkillId(char *name) {

@@ -6,7 +6,7 @@
  порядке их загрузки и управлять процессом загрузки данных из файлов по контейнерам.
  */
 
-#include "cfg_manager.h"
+//#include "cfg_manager.h"
 
 //#include  "feats.h"
 #include "game_abilities/abilities_info.h"
@@ -15,6 +15,7 @@
 #include "game_economics/currencies.h"
 #include "game_mechanics/guilds.h"
 #include "game_skills/skills_info.h"
+#include "game_affects/affect_data.h"
 
 namespace cfg_manager {
 
@@ -22,6 +23,8 @@ CfgManager::CfgManager() {
 /* loaders_.emplace("mobraces", "cfg/mob_races.xml");*/
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
+	loaders_.emplace("affects", LoaderInfo("cfg/affects.xml",
+										 std::make_unique<affects::AffectsLoader>(affects::AffectsLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",

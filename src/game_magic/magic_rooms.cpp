@@ -1,14 +1,9 @@
-#include "magic_rooms.h"
+//#include "magic_rooms.h"
 
-#include "spells_info.h"
 #include "modify.h"
-#include "entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
-#include "utils/table_wrapper.h"
 #include "structs/global_objects.h"
 #include "game_skills/townportal.h"
-
-//#include <iomanip>
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
@@ -23,10 +18,6 @@ std::list<RoomData *> affected_rooms;
 void RemoveSingleRoomAffect(long caster_id, ESpell spell_id);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
-void AddRoomToAffected(RoomData *room);
-void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
-void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
-void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void RefreshRoomAffects(RoomData *room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add);
@@ -52,21 +43,15 @@ RoomAffectIt FindAffect(RoomData *room, ESpell type) {
 }
 
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell) {
-	for (auto & affected_room : affected_rooms) {
-		if (affected_room->zone_rn == zone_vnum && IsRoomAffected(affected_room, spell)) {
-			return true;
-		}
-	}
-	return false;
+	auto predicate = [zone_vnum, spell](const auto &affected_room) {
+		return affected_room->zone_rn == zone_vnum && IsRoomAffected(affected_room, spell);
+	};
+	return std::any_of(affected_rooms.begin(), affected_rooms.end(), predicate);
 }
 
 bool IsRoomAffected(RoomData *room, ESpell spell) {
-	for (const auto &af : room->affected) {
-		if (af->type == spell) {
-			return true;
-		}
-	}
-	return false;
+	auto predicate = [spell](const auto &af) { return af->type == spell; };
+	return std::any_of(room->affected.begin(), room->affected.end(), predicate);
 }
 
 void ShowAffectedRooms(CharData *ch) {
@@ -326,9 +311,8 @@ void UpdateRoomsAffects() {
 			}
 
 			if (!(ch && MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay))) {
-				switch (spell_id) {
-					case ESpell::kRuneLabel: affect->duration--;
-					default: break;
+				if (spell_id == ESpell::kRuneLabel) {
+					affect->duration--;
 				}
 			}
 
