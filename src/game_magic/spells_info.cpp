@@ -168,15 +168,7 @@ void SpellInfoBuilder::ParseActions(ItemPtr &info, DataNode &node) {
 
 void SpellInfoBuilder::ParseMessages(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("messages")) {
-		for (auto &message: node.Children()) {
-			try {
-				auto id =  parse::ReadAsConstant<ESpellMsg>(message.GetValue("id"));
-				auto msg = parse::ReadAsStr(message.GetValue("val"));
-				info->messages_.AddMsg(id, msg);
-			} catch (std::exception &e) {
-				err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
-			}
-		}
+		info->messages.ParseMessages(node);
 		node.GoToParent();
 	}
 }
@@ -203,14 +195,9 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Mana max: " << KGRN << max_mana_ << KNRM
 		   << " Mana change: " << KGRN << mana_change_ << KNRM << "\r\n"
 		   << " Flags: " << KGRN << parse::BitvectorToString<EMagic>(flags_) << KNRM << "\r\n"
-		   << " Targets: " << KGRN << parse::BitvectorToString<ETarget>(targets_) << KNRM << "\r\n"
-		   << " Messages:\r\n";
+		   << " Targets: " << KGRN << parse::BitvectorToString<ETarget>(targets_) << KNRM << "\r\n\r\n";
 
-	for (const auto &msg: messages_.Content()) {
-		buffer << "  " << KGRN << NAME_BY_ITEM<ESpellMsg>(msg.first) << ": " << KNRM << msg.second << "\r\n";
-	}
-	buffer << "\r\n";
-
+	messages.Print(buffer);
 	actions.Print(ch, buffer);
 }
 

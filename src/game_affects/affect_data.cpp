@@ -11,7 +11,6 @@
 #include "structs/global_objects.h"
 #include "handler.h"
 #include "genchar.h"
-#include "color.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -994,15 +993,7 @@ void AffectInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node
 		err_log("invalid affect description (incorrect value: %s).", e.what());
 	}
 	if (node.GoToChild("messages")) {
-		for (auto &message: node.Children()) {
-			try {
-				auto id =  parse::ReadAsConstant<EAffectMsg>(message.GetValue("id"));
-				auto msg = parse::ReadAsStr(message.GetValue("val"));
-				item_ptr->messages_.AddMsg(id, msg);
-			} catch (std::exception &e) {
-				err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
-			}
-		}
+		item_ptr->messages_.ParseMessages(node);
 		node.GoToParent();
 	}
 }
@@ -1024,12 +1015,9 @@ ItemPtr AffectInfoBuilder::ParseObligatoryValues(DataNode &node) {
 void AffectInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print affect:\r\n"
 		   << " Id: " << KGRN << NAME_BY_ITEM<EAffect>(GetId()) << KNRM << "\r\n"
-		   << " Name: " << KGRN << name_ << KNRM << "\r\n"
-		   << " Messages:\r\n";
+		   << " Name: " << KGRN << name_ << KNRM << "\r\n\r\n";
 
-	for (const auto &msg: messages_.Content()) {
-		buffer << "  " << KGRN << NAME_BY_ITEM<EAffectMsg>(msg.first) << ": " << KNRM << msg.second << "\r\n";
-	}
+	messages_.Print(buffer);
 }
 
 } // namespace affects

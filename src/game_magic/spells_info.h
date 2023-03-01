@@ -40,8 +40,6 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
 
-	MessagesData<ESpellMsg> messages_;
-
  public:
 	SpellInfo() = default;
 	SpellInfo(ESpell id, EItemMode mode)
@@ -50,6 +48,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	friend class SpellInfoBuilder;
 
 	talents_actions::Actions actions;
+	MessagesData<ESpellMsg> messages;
 
 	[[nodiscard]] const std::string &GetName() const { return name_; };
 	/**
@@ -61,8 +60,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
  	* Имя заклинания скилла в виде C-строки. По возможности используйте std::string
  	*/
 	[[nodiscard]] const char *GetEngCName() const { return name_eng_.c_str(); };
-	[[nodiscard]] const MessagesData<ESpellMsg> &Messages() const { return messages_; }
-	const std::string &GetMsg(ESpellMsg id) const { return messages_.GetMsg(id); }
+
+	const std::string &GetMsg(ESpellMsg id) const { return messages.GetMsg(id); }
 
 	[[nodiscard]] bool IsFlagged(Bitvector flag) const;
 	[[nodiscard]] bool AllowTarget(Bitvector target_type) const;
