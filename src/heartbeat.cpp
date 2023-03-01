@@ -50,7 +50,7 @@ void check_idle_passwords() {
 			d->idle_tics++;
 			continue;
 		} else {
-			SEND_TO_Q("\r\nTimed out... goodbye.\r\n", d);
+			write_to_output("\r\nTimed out... goodbye.\r\n", d);
 			STATE(d) = CON_CLOSE;
 		}
 	}

@@ -1440,10 +1440,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					break;
 
 				case '9': OLC_MODE(d) = OEDIT_ACTDESC;
-					SEND_TO_Q("Введите описание при применении: (/s сохранить /h помощь)\r\n\r\n", d);
+					write_to_output("Введите описание при применении: (/s сохранить /h помощь)\r\n\r\n", d);
 					d->backstr = nullptr;
 					if (!OLC_OBJ(d)->get_action_description().empty()) {
-						SEND_TO_Q(OLC_OBJ(d)->get_action_description().c_str(), d);
+						write_to_output(OLC_OBJ(d)->get_action_description().c_str(), d);
 						d->backstr = str_dup(OLC_OBJ(d)->get_action_description().c_str());
 					}
 					d->writer.reset(new CActionDescriptionWriter(*OLC_OBJ(d)));
@@ -2029,10 +2029,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					return;
 
 				case 2: OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
-					SEND_TO_Q("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
+					write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
 					d->backstr = nullptr;
 					if (OLC_DESC(d)->description) {
-						SEND_TO_Q(OLC_DESC(d)->description, d);
+						write_to_output(OLC_DESC(d)->description, d);
 						d->backstr = str_dup(OLC_DESC(d)->description);
 					}
 					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));

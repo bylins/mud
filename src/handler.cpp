@@ -1830,7 +1830,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		}
 
 		if (ch->desc->snoop_by) {
-			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
+			write_to_output("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
 			ch->desc->snoop_by->snooping = nullptr;
 			ch->desc->snoop_by = nullptr;
 		}
@@ -1930,7 +1930,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	if (!is_npc
 		&& ch->desc != nullptr) {
 		STATE(ch->desc) = CON_MENU;
-		SEND_TO_Q(MENU, ch->desc);
+		write_to_output(MENU, ch->desc);
 		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
 			do_entergame(ch->desc);
 			left_in_game = true;

@@ -55,7 +55,7 @@ int was_agree_name(DescriptorData *d) {
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = get_id_by_name(immname);
 			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
-			SEND_TO_Q(buf, d);
+			write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
 			fclose(fp);
@@ -91,7 +91,7 @@ int was_disagree_name(DescriptorData *d) {
 			// Char found all ok;
 
 			sprintf(buf, "\r\nВаше имя запрещено!\r\n");
-			SEND_TO_Q(buf, d);
+			write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
 

@@ -128,7 +128,7 @@ ESpell RemoveControlledRoomAffect(CharData *ch) {
 void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room) {
 	const std::string &msg = GetAffExpiredText(static_cast<ESpell>(affect_type));
 	if (affect_type >= ESpell::kFirst && affect_type <= ESpell::kLast && !msg.empty()) {
-		SendMsgToRoom(msg.c_str(), room, 0);
+		SendMsgToRoom(msg, room, 0);
 	};
 }
 

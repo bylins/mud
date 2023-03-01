@@ -131,7 +131,7 @@ void print_menu(DescriptorData *d) {
 									 race_price, GetDeclensionInNumber(race_price, EWhat::kMoneyA),
 									 feats_price, GetDeclensionInNumber(feats_price, EWhat::kMoneyA),
 									 religion_price, GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
-	SEND_TO_Q(str.c_str(), d);
+	write_to_output(str.c_str(), d);
 }
 
 ///
@@ -142,8 +142,8 @@ void process(DescriptorData *d, Type type) {
 	const int price = calc_price(ch.get(), type);
 
 	if (ch->get_total_gold() < price) {
-		SEND_TO_Q("\r\nУ вас нет такой суммы!\r\n", d);
-		SEND_TO_Q(MENU, d);
+		write_to_output("\r\nУ вас нет такой суммы!\r\n", d);
+		write_to_output(MENU, d);
 		STATE(d) = CON_MENU;
 	} else {
 		char buf_[kMaxInputLength];
@@ -153,8 +153,8 @@ void process(DescriptorData *d, Type type) {
 			&& ValidateStats(d)) {
 			// если мы попали сюда, значит чара не вывело на переброс статов
 			// после проверки в ValidateStats()
-			SEND_TO_Q("Произошла какая-то ошибка, сообщите богам!\r\n", d);
-			SEND_TO_Q(MENU, d);
+			write_to_output("Произошла какая-то ошибка, сообщите богам!\r\n", d);
+			write_to_output(MENU, d);
 			STATE(d) = CON_MENU;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 					 d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
@@ -177,12 +177,12 @@ void process(DescriptorData *d, Type type) {
 		if (type == Type::FEATS) {
 			const char *message = "\r\nИзменение характеристик выполнено!\r\n";
 			if (!check_dupes_email(d)) {
-				SEND_TO_Q(message, d);
+				write_to_output(message, d);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
 			do_entergame(d);
-			SEND_TO_Q(message, d);
+			write_to_output(message, d);
 		}
 	}
 }
@@ -213,8 +213,8 @@ void parse_menu(DescriptorData *d, const char *arg) {
 	}
 
 	if (!result) {
-		SEND_TO_Q("Изменение параметров персонажа было отменено.\r\n", d);
-		SEND_TO_Q(MENU, d);
+		write_to_output("Изменение параметров персонажа было отменено.\r\n", d);
+		write_to_output(MENU, d);
 		STATE(d) = CON_MENU;
 	}
 }

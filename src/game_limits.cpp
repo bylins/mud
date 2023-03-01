@@ -1075,7 +1075,7 @@ void hour_update() {
 		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
-		SEND_TO_Q(buf, i);
+		write_to_output(buf, i);
 	}
 }
 

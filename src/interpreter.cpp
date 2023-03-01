@@ -1834,7 +1834,7 @@ int perform_dupe_check(DescriptorData *d) {
 				//send_to_gods(buf);
 			}
 
-			SEND_TO_Q("\r\nПопытка второго входа - отключаемся.\r\n", k);
+			write_to_output("\r\nПопытка второго входа - отключаемся.\r\n", k);
 			STATE(k) = CON_CLOSE;
 
 			if (!target) {
@@ -1857,14 +1857,14 @@ int perform_dupe_check(DescriptorData *d) {
 			}
 
 			if (!target && STATE(k) == CON_PLAYING) {
-				SEND_TO_Q("\r\nВаше тело уже кем-то занято!\r\n", k);
+				write_to_output("\r\nВаше тело уже кем-то занято!\r\n", k);
 				target = k->character;
 				mode = USURP;
 			}
 			k->character->desc = nullptr;
 			k->character = nullptr;
 			k->original = nullptr;
-			SEND_TO_Q("\r\nПопытка второго входа - отключаемся.\r\n", k);
+			write_to_output("\r\nПопытка второго входа - отключаемся.\r\n", k);
 			STATE(k) = CON_CLOSE;
 		}
 	}
@@ -1926,7 +1926,7 @@ int perform_dupe_check(DescriptorData *d) {
 	STATE(d) = CON_PLAYING;
 
 	switch (mode) {
-		case RECON: SEND_TO_Q("Пересоединяемся.\r\n", d);
+		case RECON: write_to_output("Пересоединяемся.\r\n", d);
 			CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
@@ -1935,7 +1935,7 @@ int perform_dupe_check(DescriptorData *d) {
 			login_change_invoice(d->character.get());
 			break;
 
-		case USURP: SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
+		case USURP: write_to_output("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
 				"Тело $s было захвачено новым духом!",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
@@ -1943,7 +1943,7 @@ int perform_dupe_check(DescriptorData *d) {
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
-		case UNSWITCH: SEND_TO_Q("Пересоединяемся для перевключения игрока.", d);
+		case UNSWITCH: write_to_output("Пересоединяемся для перевключения игрока.", d);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
@@ -2412,9 +2412,9 @@ bool ValidateStats(DescriptorData *d) {
 
 	//Некорректный номер расы
 	if (PlayerRace::GetKinNameByNum(GET_KIN(d->character), GET_SEX(d->character)) == KIN_NAME_UNDEFINED) {
-		SEND_TO_Q("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
-		SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-		SEND_TO_Q("\r\nВыберите племя: ", d);
+		write_to_output("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
+		write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
+		write_to_output("\r\nВыберите племя: ", d);
 		STATE(d) = CON_RESET_KIN;
 		return false;
 	}
@@ -2422,17 +2422,17 @@ bool ValidateStats(DescriptorData *d) {
 	//Некорректный номер рода
 	if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character), GET_RACE(d->character), GET_SEX(d->character))
 		== RACE_NAME_UNDEFINED) {
-		SEND_TO_Q("\r\nКакого роду-племени вы будете?\r\n", d);
-		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		SEND_TO_Q("\r\nИз чьих вы будете: ", d);
+		write_to_output("\r\nКакого роду-племени вы будете?\r\n", d);
+		write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+		write_to_output("\r\nИз чьих вы будете: ", d);
 		STATE(d) = CON_RESET_RACE;
 		return false;
 	}
 
 	// не корректный номер религии
 	if (GET_RELIGION(d->character) > kReligionMono) {
-		SEND_TO_Q(religion_menu, d);
-		SEND_TO_Q("\n\rРелигия :", d);
+		write_to_output(religion_menu, d);
+		write_to_output("\n\rРелигия :", d);
 		STATE(d) = CON_RESET_RELIGION;
 		return false;
 	}
@@ -2449,21 +2449,21 @@ void DoAfterPassword(DescriptorData *d) {
 	d->bad_pws = 0;
 
 	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, EPlrFlag::kSiteOk)) {
-		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
+		write_to_output("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (GetRealLevel(d->character) < circle_restrict) {
-		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
+		write_to_output("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
-		SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+		write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
 		STATE(d) = CON_RANDOM_NUMBER;
 		return;
 	}
@@ -2487,7 +2487,7 @@ void DoAfterPassword(DescriptorData *d) {
 					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
-				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+				write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
 				STATE(d) = CON_RANDOM_NUMBER;
 				return;
 			}
@@ -2509,20 +2509,20 @@ void DoAfterPassword(DescriptorData *d) {
 					 "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
 				CCRED(d->character, C_SPR), load_result,
 				(load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
-		SEND_TO_Q(buf, d);
+		write_to_output(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
 	time_t tmp_time = LAST_LOGON(d->character);
 	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
-	SEND_TO_Q(buf, d);
+	write_to_output(buf, d);
 
 	//if (!GloryMisc::check_stats(d->character))
 	if (!ValidateStats(d)) {
 		return;
 	}
 
-	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+	write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
 }
 
@@ -2683,8 +2683,8 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	// remove from free names
 	player_table.name_adviser().remove(GET_NAME(d->character));
 
-	SEND_TO_Q(motd, d);
-	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+	write_to_output(motd, d);
+	write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
 	d->character->set_who_mana(0);
 	d->character->set_who_last(time(nullptr));
@@ -2707,22 +2707,21 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 
 static void ShowEncodingPrompt(DescriptorData *d, bool withHints = false) {
 	if (withHints) {
-		SEND_TO_Q(
+		write_to_output(
 			"\r\n"
 			"Using keytable           TECT. CTPOKA\r\n"
 			"  0) Koi-8               " ENC_HINT_KOI8R "\r\n"
-													   "  1) Alt                 " ENC_HINT_ALT "\r\n"
-																								"  2) Windows(JMC,MMC)    " ENC_HINT_WIN "\r\n"
-																																		 "  3) Windows(zMUD)       " ENC_HINT_WIN_ZMUD "\r\n"
-																																													   "  4) Windows(zMUD 'z')   " ENC_HINT_WIN_ZMUD_z "\r\n"
-																																																									   "  5) UTF-8               " ENC_HINT_UTF8 "\r\n"
-																																																																				 "  6) Windows(zMUD <6.39) " ENC_HINT_WIN_ZMUD_old "\r\n"
-																																																																																   //			"Select one : ", d);
-																																																																																   "\r\n"
-																																																																																   "KAKOE HAnuCAHuE ECTb BEPHOE, PA3yMEEMOE HA PyCCKOM? BBEguTE HOMEP : ",
+			"  1) Alt                 " ENC_HINT_ALT "\r\n"
+			"  2) Windows(JMC,MMC)    " ENC_HINT_WIN "\r\n"
+			"  3) Windows(zMUD)       " ENC_HINT_WIN_ZMUD "\r\n"
+			"  4) Windows(zMUD 'z')   " ENC_HINT_WIN_ZMUD_z "\r\n"
+			"  5) UTF-8               " ENC_HINT_UTF8 "\r\n"
+			"  6) Windows(zMUD <6.39) " ENC_HINT_WIN_ZMUD_old "\r\n"
+			"\r\n"
+			"KAKOE HAnuCAHuE ECTb BEPHOE, PA3yMEEMOE HA PyCCKOM? BBEguTE HOMEP : ",
 			d);
 	} else {
-		SEND_TO_Q(
+		write_to_output(
 			"\r\n"
 			"Using keytable\r\n"
 			"  0) Koi-8\r\n"
@@ -2775,7 +2774,7 @@ void nanny(DescriptorData *d, char *arg) {
 			sprintf(buf, "Online: %d\r\n", online_players);
 		}
 
-			SEND_TO_Q(buf, d);
+			write_to_output(buf, d);
 			ShowEncodingPrompt(d, false);
 			STATE(d) = CON_GET_KEYTABLE;
 			break;
@@ -2847,12 +2846,12 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			};
 			if (!*arg || *arg < '0' || *arg >= '0' + kCodePageLast) {
-				SEND_TO_Q("\r\nUnknown key table. Retry, please : ", d);
+				write_to_output("\r\nUnknown key table. Retry, please : ", d);
 				return;
 			};
 			d->keytable = (ubyte) *arg - (ubyte) '0';
 			ip_log(d->host);
-			SEND_TO_Q(GREETINGS, d);
+			write_to_output(GREETINGS, d);
 			STATE(d) = CON_GET_NAME;
 			break;
 
@@ -2864,7 +2863,7 @@ void nanny(DescriptorData *d, char *arg) {
 			if (!*arg) {
 				STATE(d) = CON_CLOSE;
 			} else if (!str_cmp("новый", arg)) {
-				SEND_TO_Q(name_rules, d);
+				write_to_output(name_rules, d);
 
 				std::stringstream ss;
 				ss << "Введите имя";
@@ -2877,20 +2876,20 @@ void nanny(DescriptorData *d, char *arg) {
 
 				ss << ": ";
 
-				SEND_TO_Q(ss.str().c_str(), d);
+				write_to_output(ss.str().c_str(), d);
 				STATE(d) = CON_NEW_CHAR;
 				return;
 			} else {
 				if (sscanf(arg, "%s %s", pwd_name, pwd_pwd) == 2) {
 					if (parse_exist_name(pwd_name, tmp_name)
 						|| (player_i = load_char(tmp_name, d->character.get())) < 0) {
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
 
 					if (PLR_FLAGGED(d->character, EPlrFlag::kDeleted)
 						|| !Password::compare_password(d->character.get(), pwd_pwd)) {
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						if (!PLR_FLAGGED(d->character, EPlrFlag::kDeleted)) {
 							sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 							mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -2913,18 +2912,18 @@ void nanny(DescriptorData *d, char *arg) {
 						strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
 						strlen(tmp_name) > kMaxNameLength ||
 						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					} else if (!Is_Valid_Dc(tmp_name)) {
 						player_i = load_char(tmp_name, d->character.get());
 						d->character->set_pfilepos(player_i);
 						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
-							SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+							write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
-							SEND_TO_Q("Игрок с подобным именем находится в игре.\r\n", d);
+							write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
 						}
-						SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-						SEND_TO_Q("Имя и пароль через пробел : ", d);
+						write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
+						write_to_output("Имя и пароль через пробел : ", d);
 
 						d->character.reset();
 						return;
@@ -2941,13 +2940,13 @@ void nanny(DescriptorData *d, char *arg) {
 
 						// Check for multiple creations...
 						if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
-							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+							write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
 						}
 
 						// дополнительная проверка на длину имени чара
 						if (strlen(tmp_name) < (kMinNameLength)) {
-							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+							write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
 						}
 
@@ -2957,14 +2956,14 @@ void nanny(DescriptorData *d, char *arg) {
 						d->character->set_pfilepos(player_i);
 						sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
 						log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
-						SEND_TO_Q(buf, d);
+						write_to_output(buf, d);
 						STATE(d) = CON_NAME_CNFRM;
 					} else    // undo it just in case they are set
 					{
 						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
-							SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
-							SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
-							SEND_TO_Q("Имя и пароль через пробел : ", d);
+							write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+							write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
+							write_to_output("Имя и пароль через пробел : ", d);
 							d->character.reset();
 
 							return;
@@ -2973,7 +2972,7 @@ void nanny(DescriptorData *d, char *arg) {
 						PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
 						PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
 						PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
-						SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
+						write_to_output("Персонаж с таким именем уже существует. Введите пароль : ", d);
 						d->idle_tics = 0;
 						STATE(d) = CON_PASSWORD;
 					}
@@ -2981,19 +2980,18 @@ void nanny(DescriptorData *d, char *arg) {
 				{
 					// еще одна проверка
 					if (strlen(tmp_name) < (kMinNameLength)) {
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
 
 					// Check for multiple creations of a character.
 					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
-						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+						write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
 
 					if (cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
-						SEND_TO_Q
-						("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
+						write_to_output("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 						 "Имя  : ", d);
 						return;
@@ -3001,10 +2999,10 @@ void nanny(DescriptorData *d, char *arg) {
 
 					d->character->SetCharAliases(CAP(tmp_name));
 					d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
-					SEND_TO_Q(name_rules, d);
+					write_to_output(name_rules, d);
 					sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
 					log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
-					SEND_TO_Q(buf, d);
+					write_to_output(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
 				}
 			}
@@ -3016,13 +3014,13 @@ void nanny(DescriptorData *d, char *arg) {
 					sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 							GET_PC_NAME(d->character), d->host);
 					mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-					SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
+					write_to_output("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
 					STATE(d) = CON_CLOSE;
 					return;
 				}
 
 				if (circle_restrict) {
-					SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+					write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 					sprintf(buf, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 							GET_PC_NAME(d->character), d->host);
 					mudlog(buf, NRM, kLvlGod, SYSLOG, true);
@@ -3035,7 +3033,7 @@ void nanny(DescriptorData *d, char *arg) {
 						sprintf(buf,
 								"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 								GET_PAD(d->character, 1));
-						SEND_TO_Q(buf, d);
+						write_to_output(buf, d);
 						STATE(d) = CON_NEWPASSWD;
 						return;
 
@@ -3045,16 +3043,16 @@ void nanny(DescriptorData *d, char *arg) {
 					default: break;
 				}
 
-				SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
+				write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
 				STATE(d) = CON_QSEX;
 				return;
 
 			} else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н') {
-				SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
+				write_to_output("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
 				d->character->SetCharAliases(nullptr);
 				STATE(d) = CON_GET_NAME;
 			} else {
-				SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
+				write_to_output("Ответьте Yes(Да) or No(Нет) : ", d);
 			}
 			break;
 
@@ -3072,7 +3070,7 @@ void nanny(DescriptorData *d, char *arg) {
 				strlen(tmp_name) < kMinNameLength ||
 				strlen(tmp_name) > kMaxNameLength ||
 				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
-				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			}
 
@@ -3084,7 +3082,7 @@ void nanny(DescriptorData *d, char *arg) {
 					d->character.reset();
 					CreateChar(d);
 				} else {
-					SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
+					write_to_output("Такой персонаж уже существует. Выберите другое имя : ", d);
 					d->character.reset();
 
 					return;
@@ -3092,13 +3090,13 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			if (!Valid_Name(tmp_name)) {
-				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+				write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			}
 
 			// skip name check for deleted players
 			if (!is_player_deleted && cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
-				SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
+				write_to_output("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 						  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 						  "Имя  : ", d);
 				return;
@@ -3113,13 +3111,13 @@ void nanny(DescriptorData *d, char *arg) {
 				sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-				SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
+				write_to_output("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
 
 			if (circle_restrict) {
-				SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+				write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 				sprintf(buf,
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
@@ -3133,18 +3131,18 @@ void nanny(DescriptorData *d, char *arg) {
 					sprintf(buf,
 							"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 							GET_PAD(d->character, 1));
-					SEND_TO_Q(buf, d);
+					write_to_output(buf, d);
 					STATE(d) = CON_NEWPASSWD;
 					return;
 
 				case NewNames::AUTO_BAN: d->character.reset();
-					SEND_TO_Q("Выберите другое имя : ", d);
+					write_to_output("Выберите другое имя : ", d);
 					return;
 
 				default: break;
 			}
 
-			SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
+			write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
 			STATE(d) = CON_QSEX;
 			return;
 
@@ -3159,7 +3157,7 @@ void nanny(DescriptorData *d, char *arg) {
 			 * re-add the code to cut off duplicates when a player quits.  JE 6 Feb 96
 			 */
 
-			SEND_TO_Q("\r\n", d);
+			write_to_output("\r\n", d);
 
 			if (!*arg) {
 				STATE(d) = CON_CLOSE;
@@ -3171,10 +3169,10 @@ void nanny(DescriptorData *d, char *arg) {
 					d->character->save_char();
 					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
 					{
-						SEND_TO_Q("Неверный пароль... Отсоединяемся.\r\n", d);
+						write_to_output("Неверный пароль... Отсоединяемся.\r\n", d);
 						STATE(d) = CON_CLOSE;
 					} else {
-						SEND_TO_Q("Неверный пароль.\r\nПароль : ", d);
+						write_to_output("Неверный пароль.\r\nПароль : ", d);
 					}
 					return;
 				}
@@ -3186,14 +3184,14 @@ void nanny(DescriptorData *d, char *arg) {
 		case CON_CHPWD_GETNEW:
 			if (!Password::check_password(d->character.get(), arg)) {
 				sprintf(buf, "\r\n%s\r\n", Password::BAD_PASSWORD);
-				SEND_TO_Q(buf, d);
-				SEND_TO_Q("Пароль : ", d);
+				write_to_output(buf, d);
+				write_to_output("Пароль : ", d);
 				return;
 			}
 
 			Password::set_password(d->character.get(), arg);
 
-			SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
+			write_to_output("\r\nПовторите пароль, пожалуйста : ", d);
 			if (STATE(d) == CON_NEWPASSWD) {
 				STATE(d) = CON_CNFPASSWD;
 			} else {
@@ -3205,8 +3203,8 @@ void nanny(DescriptorData *d, char *arg) {
 		case CON_CNFPASSWD:
 		case CON_CHPWD_VRFY:
 			if (!Password::compare_password(d->character.get(), arg)) {
-				SEND_TO_Q("\r\nПароли не соответствуют... повторим.\r\n", d);
-				SEND_TO_Q("Пароль: ", d);
+				write_to_output("\r\nПароли не соответствуют... повторим.\r\n", d);
+				write_to_output("Пароль: ", d);
 				if (STATE(d) == CON_CNFPASSWD) {
 					STATE(d) = CON_NEWPASSWD;
 				} else {
@@ -3218,14 +3216,14 @@ void nanny(DescriptorData *d, char *arg) {
 			if (STATE(d) == CON_CNFPASSWD) {
 				GET_KIN(d->character) = 0;
 				DisplaySelectCharClassMenu(d);
-				SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
+				write_to_output("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 				STATE(d) = CON_QCLASS;
 			} else {
 				sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
 				add_karma(d->character.get(), buf, "");
 				d->character->save_char();
-				SEND_TO_Q("\r\nГотово.\r\n", d);
-				SEND_TO_Q(MENU, d);
+				write_to_output("\r\nГотово.\r\n", d);
+				write_to_output(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 
@@ -3233,7 +3231,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_QSEX:        // query sex of new user
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
+				write_to_output("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
 				STATE(d) = CON_QSEX;
 				return;
 			}
@@ -3247,42 +3245,41 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'F': d->character->set_sex(EGender::kFemale);
 					break;
 
-				default: SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
+				default: write_to_output("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
 					return;
 			}
-			SEND_TO_Q("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
+			write_to_output("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
 			sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
-			SEND_TO_Q(buf, d);
+			write_to_output(buf, d);
 			STATE(d) = CON_NAME2;
 			return;
 
 		case CON_QKIN:        // query rass
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
-				SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-				SEND_TO_Q("\r\nПлемя: ", d);
+				write_to_output("\r\nКакой народ вам ближе по духу:\r\n", d);
+				write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
+				write_to_output("\r\nПлемя: ", d);
 				STATE(d) = CON_QKIN;
 				return;
 			}
 
 			load_result = PlayerRace::CheckKin(arg);
 			if (load_result == KIN_UNDEFINED) {
-				SEND_TO_Q("Стыдно не помнить предков.\r\n"
-						  "Какое Племя вам ближе по духу? ", d);
+				write_to_output("Стыдно не помнить предков.\r\nКакое Племя вам ближе по духу? ", d);
 				return;
 			}
 
 			GET_KIN(d->character) = load_result;
 			DisplaySelectCharClassMenu(d);
-			SEND_TO_Q("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
+			write_to_output("\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ", d);
 			STATE(d) = CON_QCLASS;
 			break;
 
 		case CON_RELIGION:    // query religion of new user
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(religion_menu, d);
-				SEND_TO_Q("\n\rРелигия :", d);
+				write_to_output(religion_menu, d);
+				write_to_output("\n\rРелигия :", d);
 				STATE(d) = CON_RELIGION;
 				return;
 			}
@@ -3292,8 +3289,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'З':
 				case 'P':
 					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
-						SEND_TO_Q
-						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
+						write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
@@ -3303,24 +3299,23 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'Х':
 				case 'C':
 					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
-						SEND_TO_Q
-						("Персонажу выбранной вами профессии противно христианство!\r\n"
+						write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
 					GET_RELIGION(d->character) = kReligionMono;
 					break;
 
-				default: SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+				default: write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
 					return;
 			}
 
-			SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
-			SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+			write_to_output("\r\nКакой род вам ближе всего по духу:\r\n", d);
+			write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 			sprintf(buf, "Для вашей профессией больше всего подходит %s",
 					default_race[to_underlying(d->character->GetClass())]);
-			SEND_TO_Q(buf, d);
-			SEND_TO_Q("\r\nИз чьих вы будете : ", d);
+			write_to_output(buf, d);
+			write_to_output("\r\nИз чьих вы будете : ", d);
 			STATE(d) = CON_RACE;
 
 			break;
@@ -3328,7 +3323,7 @@ void nanny(DescriptorData *d, char *arg) {
 		case CON_QCLASS: {
 			if (pre_help(d->character.get(), arg)) {
 				DisplaySelectCharClassMenu(d);
-				SEND_TO_Q("\r\nВаша профессия : ", d);
+				write_to_output("\r\nВаша профессия : ", d);
 				STATE(d) = CON_QCLASS;
 				return;
 			}
@@ -3345,23 +3340,23 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			if (class_id == ECharClass::kUndefined) {
-				SEND_TO_Q("\r\nЭто не профессия.\r\nПрофессия : ", d);
+				write_to_output("\r\nЭто не профессия.\r\nПрофессия : ", d);
 				return;
 			} else {
 				d->character->set_class(class_id);
 			}
 
-			SEND_TO_Q(religion_menu, d);
-			SEND_TO_Q("\n\rРелигия :", d);
+			write_to_output(religion_menu, d);
+			write_to_output("\n\rРелигия :", d);
 			STATE(d) = CON_RELIGION;
 			break;
 		}
 
 		case CON_RACE:        // query race
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
-				SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-				SEND_TO_Q("\r\nРод: ", d);
+				write_to_output("Какой род вам ближе всего по духу:\r\n", d);
+				write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+				write_to_output("\r\nРод: ", d);
 				STATE(d) = CON_RACE;
 				return;
 			}
@@ -3369,24 +3364,24 @@ void nanny(DescriptorData *d, char *arg) {
 			load_result = PlayerRace::CheckRace(GET_KIN(d->character), arg);
 
 			if (load_result == RACE_UNDEFINED) {
-				SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
+				write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 				return;
 			}
 
 			GET_RACE(d->character) = load_result;
-			SEND_TO_Q(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+			write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
 																				  GET_RACE(d->character)))).c_str(), d);
-			SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+			write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 			STATE(d) = CON_BIRTHPLACE;
 
 			break;
 
 		case CON_BIRTHPLACE:
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
+				write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
 																					  GET_RACE(d->character)))).c_str(),
 						  d);
-				SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+				write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 				STATE(d) = CON_BIRTHPLACE;
 				return;
 			}
@@ -3394,13 +3389,12 @@ void nanny(DescriptorData *d, char *arg) {
 			load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), arg);
 
 			if (!Birthplaces::CheckId(load_result)) {
-				SEND_TO_Q("Не уверены? Бывает.\r\n"
-						  "Подумайте еще разок, и выберите:", d);
+				write_to_output("Не уверены? Бывает.\r\nПодумайте еще разок, и выберите:", d);
 				return;
 			}
 			GET_LOADROOM(d->character) = calc_loadroom(d->character.get(), load_result);
-			SEND_TO_Q(genchar_help, d);
-			SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
+			write_to_output(genchar_help, d);
+			write_to_output("\r\n\r\nНажмите любую клавишу.\r\n", d);
 			STATE(d) = CON_ROLL_STATS;
 			SetStartAbils(d->character.get());
 			break;
@@ -3415,7 +3409,7 @@ void nanny(DescriptorData *d, char *arg) {
 			switch (genchar_parse(d->character.get(), arg)) {
 				case kGencharContinue: genchar_disp_menu(d->character.get());
 					break;
-				default: SEND_TO_Q("\r\nВведите ваш E-mail"
+				default: write_to_output("\r\nВведите ваш E-mail"
 								   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
 								   "\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
 					STATE(d) = CON_GET_EMAIL;
@@ -3425,10 +3419,10 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_GET_EMAIL:
 			if (!*arg) {
-				SEND_TO_Q("\r\nВаш E-mail : ", d);
+				write_to_output("\r\nВаш E-mail : ", d);
 				return;
 			} else if (!IsValidEmail(arg)) {
-				SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
+				write_to_output("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 				return;
 			}
 #ifdef TEST_BUILD
@@ -3448,7 +3442,7 @@ void nanny(DescriptorData *d, char *arg) {
 					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
-				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+				write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
 				STATE(d) = CON_RANDOM_NUMBER;
 			}
 			break;
@@ -3468,7 +3462,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 			if (new_char_codes.count(d->character->GetCharAliases()) != 0) {
 				if (new_char_codes[d->character->GetCharAliases()] != code_rand) {
-					SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+					write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
 					break;
 				}
 				new_char_codes.erase(d->character->GetCharAliases());
@@ -3481,7 +3475,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			if (new_loc_codes[GET_EMAIL(d->character)] != code_rand) {
-				SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+				write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
 				STATE(d) = CON_CLOSE;
 				break;
 			}
@@ -3495,7 +3489,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_MENU:        // get selection from main menu
 			switch (*arg) {
-				case '0': SEND_TO_Q("\r\nДо встречи на земле Киевской.\r\n", d);
+				case '0': write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
 
 					if (GetRealRemort(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
@@ -3509,7 +3503,7 @@ void nanny(DescriptorData *d, char *arg) {
 							time_t deltime = time(nullptr) + timeout * 60 * rent_file_timeout * 24;
 							sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
 									rustime(localtime(&deltime)));
-							SEND_TO_Q(buf, d);
+							write_to_output(buf, d);
 						}
 					};
 
@@ -3529,8 +3523,8 @@ void nanny(DescriptorData *d, char *arg) {
 
 				case '2':
 					if (d->character->player_data.description != "") {
-						SEND_TO_Q("Ваше ТЕКУЩЕЕ описание:\r\n", d);
-						SEND_TO_Q(d->character->player_data.description.c_str(), d);
+						write_to_output("Ваше ТЕКУЩЕЕ описание:\r\n", d);
+						write_to_output(d->character->player_data.description.c_str(), d);
 						/*
 						 * Don't free this now... so that the old description gets loaded
 						 * as the current buffer in the editor.  Do setup the ABORT buffer
@@ -3542,8 +3536,8 @@ void nanny(DescriptorData *d, char *arg) {
 						d->backstr = str_dup(d->character->player_data.description.c_str());
 					}
 
-					SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
-					SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
+					write_to_output("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
+					write_to_output("(/s сохранить /h помощь)\r\n", d);
 
 					d->writer.reset(new utils::DelegatedStdStringWriter(d->character->player_data.description));
 					d->max_str = kExdscrLength;
@@ -3555,39 +3549,39 @@ void nanny(DescriptorData *d, char *arg) {
 					STATE(d) = CON_RMOTD;
 					break;
 
-				case '4': SEND_TO_Q("\r\nВведите СТАРЫЙ пароль : ", d);
+				case '4': write_to_output("\r\nВведите СТАРЫЙ пароль : ", d);
 					STATE(d) = CON_CHPWD_GETOLD;
 					break;
 
 				case '5':
 					if (IS_IMMORTAL(d->character)) {
-						SEND_TO_Q("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
-						SEND_TO_Q(MENU, d);
+						write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
+						write_to_output(MENU, d);
 						break;
 					}
 
 					if (PLR_FLAGGED(d->character, EPlrFlag::kHelled)
 						|| PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
-						SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
-						SEND_TO_Q(MENU, d);
+						write_to_output("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
+						write_to_output(MENU, d);
 						break;
 					}
 
 					if (GetRealRemort(d->character) > 5) {
-						SEND_TO_Q("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
-						SEND_TO_Q(MENU, d);
+						write_to_output("\r\nНельзя удалить себя достигнув шестого перевоплощения.\r\n", d);
+						write_to_output(MENU, d);
 						break;
 					}
 
-					SEND_TO_Q("\r\nДля подтверждения введите свой пароль : ", d);
+					write_to_output("\r\nДля подтверждения введите свой пароль : ", d);
 					STATE(d) = CON_DELCNF1;
 
 					break;
 
 				case '6':
 					if (IS_IMMORTAL(d->character)) {
-						SEND_TO_Q("\r\nВам это ни к чему...\r\n", d);
-						SEND_TO_Q(MENU, d);
+						write_to_output("\r\nВам это ни к чему...\r\n", d);
+						write_to_output(MENU, d);
 						STATE(d) = CON_MENU;
 					} else {
 						stats_reset::print_menu(d);
@@ -3598,13 +3592,13 @@ void nanny(DescriptorData *d, char *arg) {
 				case '7':
 					if (!PRF_FLAGGED(d->character, EPrf::kBlindMode)) {
 						PRF_FLAGS(d->character).set(EPrf::kBlindMode);
-						SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
-						SEND_TO_Q(MENU, d);
+						write_to_output("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
+						write_to_output(MENU, d);
 						STATE(d) = CON_MENU;
 					} else {
 						PRF_FLAGS(d->character).unset(EPrf::kBlindMode);
-						SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
-						SEND_TO_Q(MENU, d);
+						write_to_output("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
+						write_to_output(MENU, d);
 						STATE(d) = CON_MENU;
 					}
 
@@ -3612,8 +3606,8 @@ void nanny(DescriptorData *d, char *arg) {
 				case '8': d->character->get_account()->list_players(d);
 					break;
 
-				default: SEND_TO_Q("\r\nЭто не есть правильный ответ!\r\n", d);
-					SEND_TO_Q(MENU, d);
+				default: write_to_output("\r\nЭто не есть правильный ответ!\r\n", d);
+					write_to_output(MENU, d);
 
 					break;
 			}
@@ -3622,11 +3616,11 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_CHPWD_GETOLD:
 			if (!Password::compare_password(d->character.get(), arg)) {
-				SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
-				SEND_TO_Q(MENU, d);
+				write_to_output("\r\nНеверный пароль.\r\n", d);
+				write_to_output(MENU, d);
 				STATE(d) = CON_MENU;
 			} else {
-				SEND_TO_Q("\r\nВведите НОВЫЙ пароль : ", d);
+				write_to_output("\r\nВведите НОВЫЙ пароль : ", d);
 				STATE(d) = CON_CHPWD_GETNEW;
 			}
 
@@ -3634,11 +3628,11 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_DELCNF1:
 			if (!Password::compare_password(d->character.get(), arg)) {
-				SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
-				SEND_TO_Q(MENU, d);
+				write_to_output("\r\nНеверный пароль.\r\n", d);
+				write_to_output(MENU, d);
 				STATE(d) = CON_MENU;
 			} else {
-				SEND_TO_Q("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
+				write_to_output("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
 						  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
 						  "Наберите \"YES / ДА\" для подтверждения: ", d);
 				STATE(d) = CON_DELCNF2;
@@ -3652,8 +3646,8 @@ void nanny(DescriptorData *d, char *arg) {
 				|| !strcmp(arg, "да")
 				|| !strcmp(arg, "ДА")) {
 				if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
-					SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
-					SEND_TO_Q("Персонаж не удален.\r\n", d);
+					write_to_output("Вы решились на суицид, но Боги остановили вас.\r\n", d);
+					write_to_output("Персонаж не удален.\r\n", d);
 					STATE(d) = CON_CLOSE;
 					return;
 				}
@@ -3661,15 +3655,15 @@ void nanny(DescriptorData *d, char *arg) {
 					return;
 				delete_char(GET_NAME(d->character));
 				sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 				STATE(d) = CON_CLOSE;
 				return;
 			} else {
-				SEND_TO_Q("\r\nПерсонаж не удален.\r\n", d);
-				SEND_TO_Q(MENU, d);
+				write_to_output("\r\nПерсонаж не удален.\r\n", d);
+				write_to_output(MENU, d);
 				STATE(d) = CON_MENU;
 			}
 			break;
@@ -3687,13 +3681,13 @@ void nanny(DescriptorData *d, char *arg) {
 				d->character->player_data.PNames[1] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 				sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 				STATE(d) = CON_NAME3;
 			} else {
-				SEND_TO_Q("Некорректно.\r\n", d);
+				write_to_output("Некорректно.\r\n", d);
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
 				sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 			};
 			break;
 
@@ -3712,13 +3706,13 @@ void nanny(DescriptorData *d, char *arg) {
 				d->character->player_data.PNames[2] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 				sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 				STATE(d) = CON_NAME4;
 			} else {
-				SEND_TO_Q("Некорректно.\r\n", d);
+				write_to_output("Некорректно.\r\n", d);
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 				sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 			};
 
 			break;
@@ -3738,13 +3732,13 @@ void nanny(DescriptorData *d, char *arg) {
 				d->character->player_data.PNames[3] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 				sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 				STATE(d) = CON_NAME5;
 			} else {
-				SEND_TO_Q("Некорректно.\n\r", d);
+				write_to_output("Некорректно.\n\r", d);
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 				sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 			};
 
 			break;
@@ -3761,13 +3755,13 @@ void nanny(DescriptorData *d, char *arg) {
 				d->character->player_data.PNames[4] = std::string(CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 				sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 				STATE(d) = CON_NAME6;
 			} else {
-				SEND_TO_Q("Некорректно.\n\r", d);
+				write_to_output("Некорректно.\n\r", d);
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 				sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 			};
 			break;
 		case CON_NAME6: skip_spaces(&arg);
@@ -3783,13 +3777,13 @@ void nanny(DescriptorData *d, char *arg) {
 				sprintf(buf,
 						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 						GET_PAD(d->character, 1));
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 				STATE(d) = CON_NEWPASSWD;
 			} else {
-				SEND_TO_Q("Некорректно.\n\r", d);
+				write_to_output("Некорректно.\n\r", d);
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 				sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
-				SEND_TO_Q(buf, d);
+				write_to_output(buf, d);
 			};
 			break;
 
@@ -3810,7 +3804,7 @@ void nanny(DescriptorData *d, char *arg) {
 					// статы срезетили и новые выбрали
 					sprintf(buf, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n",
 							CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));
-					SEND_TO_Q(buf, d);
+					write_to_output(buf, d);
 
 					// Проверяем корректность статов
 					// Если что-то некорректно, функция проверки сама вернет чара на доработку.
@@ -3818,7 +3812,7 @@ void nanny(DescriptorData *d, char *arg) {
 						return;
 					}
 
-					SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+					write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 					STATE(d) = CON_RMOTD;
 			}
 
@@ -3826,9 +3820,9 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_RESET_KIN:
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
-				SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-				SEND_TO_Q("\r\nПлемя: ", d);
+				write_to_output("\r\nКакой народ вам ближе по духу:\r\n", d);
+				write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
+				write_to_output("\r\nПлемя: ", d);
 				STATE(d) = CON_RESET_KIN;
 				return;
 			}
@@ -3836,7 +3830,7 @@ void nanny(DescriptorData *d, char *arg) {
 			load_result = PlayerRace::CheckKin(arg);
 
 			if (load_result == KIN_UNDEFINED) {
-				SEND_TO_Q("Стыдно не помнить предков.\r\n"
+				write_to_output("Стыдно не помнить предков.\r\n"
 						  "Какое Племя вам ближе по духу? ", d);
 				return;
 			}
@@ -3847,15 +3841,15 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+			write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 			STATE(d) = CON_RMOTD;
 			break;
 
 		case CON_RESET_RACE:
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
-				SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-				SEND_TO_Q("\r\nРод: ", d);
+				write_to_output("Какой род вам ближе всего по духу:\r\n", d);
+				write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+				write_to_output("\r\nРод: ", d);
 				STATE(d) = CON_RESET_RACE;
 				return;
 			}
@@ -3863,7 +3857,7 @@ void nanny(DescriptorData *d, char *arg) {
 			load_result = PlayerRace::CheckRace(GET_KIN(d->character), arg);
 
 			if (load_result == RACE_UNDEFINED) {
-				SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
+				write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 				return;
 			}
 
@@ -3874,7 +3868,7 @@ void nanny(DescriptorData *d, char *arg) {
 			}
 
 			// способности нового рода проставятся дальше в do_entergame
-			SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+			write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 			STATE(d) = CON_RMOTD;
 
 			break;
@@ -3884,8 +3878,8 @@ void nanny(DescriptorData *d, char *arg) {
 
 		case CON_RESET_RELIGION:
 			if (pre_help(d->character.get(), arg)) {
-				SEND_TO_Q(religion_menu, d);
-				SEND_TO_Q("\n\rРелигия :", d);
+				write_to_output(religion_menu, d);
+				write_to_output("\n\rРелигия :", d);
 				return;
 			}
 
@@ -3894,8 +3888,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'З':
 				case 'P':
 					if (class_religion[to_underlying(d->character->GetClass())] == kReligionMono) {
-						SEND_TO_Q
-						("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
+						write_to_output("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
@@ -3905,7 +3898,7 @@ void nanny(DescriptorData *d, char *arg) {
 				case 'Х':
 				case 'C':
 					if (class_religion[to_underlying(d->character->GetClass())] == kReligionPoly) {
-						SEND_TO_Q ("Персонажу выбранной вами профессии противно христианство!\r\n"
+						write_to_output("Персонажу выбранной вами профессии противно христианство!\r\n"
 								   "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
@@ -3914,7 +3907,7 @@ void nanny(DescriptorData *d, char *arg) {
 
 					break;
 
-				default: SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
+				default: write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
 					return;
 			}
 
@@ -3922,7 +3915,7 @@ void nanny(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+			write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 			STATE(d) = CON_RMOTD;
 
 			break;

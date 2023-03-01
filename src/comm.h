@@ -33,7 +33,7 @@ void SendMsgToChar(const char *msg, const CharData *ch);
 void SendMsgToChar(const CharData *ch, const char *msg, ...) __attribute__((format(printf, 2, 3)));
 void SendMsgToChar(const std::string &msg, const CharData *ch);
 void send_stat_char(const CharData *ch);
-void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake);
+void SendMsgToRoom(std::string_view msg, RoomRnum room, int to_awake);
 void SendMsgToOutdoor(const char *msg, int control);
 void SendMsgToGods(const char *msg);
 void perform_to_all(const char *messg, CharData *ch);
@@ -132,15 +132,13 @@ void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_p
 				  size_t len, int mailto, void *data);
 int toggle_compression(DescriptorData *d);
 
-#define SEND_TO_Q(messg, desc)        write_to_output((messg), desc)
-#define SEND_TO_SOCKET(messg, desc)    write_to_descriptor((desc), (messg), strlen(messg))
 
 typedef RETSIGTYPE sigfunc(int);
 
 extern unsigned long cmd_cnt;
 
-#define DEFAULT_REBOOT_UPTIME 60*24*6    //время до ближайшего ребута по умолчанию в минутах
-#define UPTIME_THRESHOLD      120    //минимальный аптайм для ребута в часах
+constexpr int DEFAULT_REBOOT_UPTIME  = 60*24*6;		//время до ближайшего ребута по умолчанию в минутах
+const int UPTIME_THRESHOLD = 120;    				//минимальный аптайм для ребута в часах
 
 void timediff(struct timeval *diff, struct timeval *a, struct timeval *b);
 

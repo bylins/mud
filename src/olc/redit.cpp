@@ -610,12 +610,12 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 				case '2': OLC_MODE(d) = REDIT_DESC;
 #if defined(CLEAR_SCREEN)
-					SEND_TO_Q("\x1B[H\x1B[J", d);
+					write_to_output("\x1B[H\x1B[J", d);
 #endif
-					SEND_TO_Q("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
+					write_to_output("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
 					d->backstr = nullptr;
 					if (OLC_ROOM(d)->temp_description) {
-						SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
+						write_to_output(OLC_ROOM(d)->temp_description, d);
 						d->backstr = str_dup(OLC_ROOM(d)->temp_description);
 					}
 					d->writer.reset(new utils::DelegatedStringWriter(OLC_ROOM(d)->temp_description));
@@ -819,10 +819,10 @@ void redit_parse(DescriptorData *d, char *arg) {
 					return;
 
 				case 2: OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
-					SEND_TO_Q("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
+					write_to_output("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
 					d->backstr = nullptr;
 					if (OLC_DESC(d)->description) {
-						SEND_TO_Q(OLC_DESC(d)->description, d);
+						write_to_output(OLC_DESC(d)->description, d);
 						d->backstr = str_dup(OLC_DESC(d)->description);
 					}
 					d->writer.reset(new utils::DelegatedStringWriter(OLC_DESC(d)->description));

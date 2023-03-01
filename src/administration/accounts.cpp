@@ -4,8 +4,8 @@
 */
 #include "accounts.h"
 #include "password.h"
-#include "entities/zone.h"
-#include <sstream>
+#include "third_party_libs/fmt/include/fmt/format.h"
+
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
 extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
@@ -89,18 +89,17 @@ void Account::show_players(CharData *ch) {
 
 void Account::list_players(DescriptorData *d) {
 	int count = 1;
-	std::stringstream ss;
 	purge_erased();
-	ss << "Данные аккаунта: " << this->email << std::endl;
+	auto out = fmt::memory_buffer();
+	format_to(std::back_inserter(out), "Данные аккаунта: {}\r\n", this->email);
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
-		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
 		name[0] = UPPER(name[0]);
-		SEND_TO_Q(name.c_str(), d);
-		SEND_TO_Q("\r\n", d);
+		format_to(std::back_inserter(out), "{}) {}\r\n", count, name);
 		count++;
 	}
-	SEND_TO_Q(MENU, d);
+	write_to_output(to_string(out).c_str(), d);
+	write_to_output(MENU, d);
 }
 
 void Account::save_to_file() {

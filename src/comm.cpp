@@ -2020,7 +2020,8 @@ int new_descriptor(socket_t s)
 		sockets_connected++;
 
 	if (sockets_connected >= max_players) {
-		SEND_TO_SOCKET("Sorry, RUS MUD is full right now... please try again later!\r\n", desc);
+		const char *msg = "Sorry, RUS MUD is full right now... please try again later!\r\n";
+		write_to_descriptor(desc, msg, strlen(msg));
 		CLOSE_SOCKET(desc);
 		return (-3);
 	}
@@ -2220,9 +2221,9 @@ int process_output(DescriptorData *t) {
 	// Отправляю данные снуперам
 	// handle snooping: prepend "% " and send to snooper
 	if (t->output && t->snoop_by) {
-		SEND_TO_Q("% ", t->snoop_by);
-		SEND_TO_Q(t->output, t->snoop_by);
-		SEND_TO_Q("%%", t->snoop_by);
+		write_to_output("% ", t->snoop_by);
+		write_to_output(t->output, t->snoop_by);
+		write_to_output("%%", t->snoop_by);
 	}
 
 	pi = i;
@@ -2834,13 +2835,13 @@ int process_input(DescriptorData *t) {
 			char buffer[kMaxInputLength + 64];
 
 			sprintf(buffer, "Line too long.  Truncated to:\r\n%s\r\n", tmp);
-			SEND_TO_Q(buffer, t);
+			write_to_output(buffer, t);
 		}
 		if (t->snoop_by) {
-			SEND_TO_Q("<< ", t->snoop_by);
-//			SEND_TO_Q("% ", t->snoop_by); Попытаюсь сделать вменяемый вывод снупаемого трафика в отдельное окно
-			SEND_TO_Q(tmp, t->snoop_by);
-			SEND_TO_Q("\r\n", t->snoop_by);
+			write_to_output("<< ", t->snoop_by);
+//			write_to_output("% ", t->snoop_by); Попытаюсь сделать вменяемый вывод снупаемого трафика в отдельное окно
+			write_to_output(tmp, t->snoop_by);
+			write_to_output("\r\n", t->snoop_by);
 		}
 		failed_subst = 0;
 
@@ -2849,7 +2850,7 @@ int process_input(DescriptorData *t) {
 			int dummy;
 			tilde = 1;
 			while (get_from_q(&t->input, buf2, &dummy));
-			SEND_TO_Q("Очередь очищена.\r\n", t);
+			write_to_output("Очередь очищена.\r\n", t);
 			tmp[0] = 0;
 		} else if (*tmp == '!' && !(*(tmp + 1)))
 			// Redo last command.
@@ -2864,8 +2865,8 @@ int process_input(DescriptorData *t) {
 				if (t->history[cnt] && utils::IsAbbr(commandln, t->history[cnt])) {
 					strcpy(tmp, t->history[cnt]);
 					strcpy(t->last_input, tmp);
-					SEND_TO_Q(tmp, t);
-					SEND_TO_Q("\r\n", t);
+					write_to_output(tmp, t);
+					write_to_output("\r\n", t);
 					break;
 				}
 				if (cnt == 0)    // At top, loop to bottom.
@@ -2923,7 +2924,7 @@ int perform_subst(DescriptorData *t, char *orig, char *subst) {
 
 	// now find the second '^'
 	if (!(second = strchr(first, '^'))) {
-		SEND_TO_Q("Invalid substitution.\r\n", t);
+		write_to_output("Invalid substitution.\r\n", t);
 		return (1);
 	}
 	/* terminate "first" at the position of the '^' and make 'second' point
@@ -2932,7 +2933,7 @@ int perform_subst(DescriptorData *t, char *orig, char *subst) {
 
 	// now, see if the contents of the first string appear in the original
 	if (!(strpos = strstr(orig, first))) {
-		SEND_TO_Q("Invalid substitution.\r\n", t);
+		write_to_output("Invalid substitution.\r\n", t);
 		return (1);
 	}
 	// now, we construct the new string for output.
@@ -3013,7 +3014,7 @@ void close_socket(DescriptorData * d, int direct)
 		d->snooping->snoop_by = nullptr;
 
 	if (d->snoop_by) {
-		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
+		write_to_output("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
 		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
@@ -3291,12 +3292,12 @@ void send_stat_char(const CharData *ch) {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
 			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), ch->get_gold(), GetRealLevel(ch));
-	SEND_TO_Q(fline, ch->desc);
+	write_to_output(fline, ch->desc);
 }
 
 void SendMsgToChar(const char *msg, const CharData *ch) {
 	if (ch->desc && msg)
-		SEND_TO_Q(msg, ch->desc);
+		write_to_output(msg, ch->desc);
 }
 
 // New edition :)
@@ -3322,7 +3323,7 @@ void SendMsgToAll(const char *msg) {
 	}
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING) {
-			SEND_TO_Q(msg, i);
+			write_to_output(msg, i);
 		}
 	}
 }
@@ -3350,7 +3351,7 @@ void SendMsgToOutdoor(const char *msg, int control) {
 				&& SECT(room) != ESector::kUnderwater
 				&& !ROOM_FLAGGED(room, ERoomFlag::kNoWeather)
 				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
-			SEND_TO_Q(msg, i);
+			write_to_output(msg, i);
 		}
 	}
 }
@@ -3366,22 +3367,19 @@ void SendMsgToGods(const char *msg) {
 		if (STATE(i) != CON_PLAYING || i->character == nullptr || !IS_GOD(i->character)) {
 			continue;
 		}
-		SEND_TO_Q(msg, i);
+		write_to_output(msg, i);
 	}
 }
 
-void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake) {
-	if (msg == nullptr) {
+void SendMsgToRoom(const std::string_view msg, RoomRnum room, int to_awake) {
+	if (msg.empty()) {
 		return;
 	}
 
 	for (const auto i : world[room]->people) {
-		if (i->desc &&
-			!i->IsNpc()
-			&& (!to_awake
-				|| AWAKE(i))) {
-			SEND_TO_Q(msg, i->desc);
-			SEND_TO_Q("\r\n", i->desc);
+		if (i->desc && !i->IsNpc() && (!to_awake|| AWAKE(i))) {
+			write_to_output(msg.data(), i->desc);
+			write_to_output("\r\n", i->desc);
 		}
 	}
 }
@@ -3669,7 +3667,7 @@ void perform_act(const char *orig,
 				tmp += 2;
 			CAP(tmp);
 		}
-		SEND_TO_Q(CAP(lbuf), to->desc);
+		write_to_output(CAP(lbuf), to->desc);
 	}
 
 	if ((to->IsNpc() && dg_act_check) && (to != ch))

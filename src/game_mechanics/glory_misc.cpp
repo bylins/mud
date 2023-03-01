@@ -229,7 +229,7 @@ bool check_stats(CharData *ch) {
 				 ch->GetInbornCon() - GetRealRemort(ch),
 				 ch->GetInbornCha() - GetRealRemort(ch),
 				 CCNRM(ch, C_SPR));
-		SEND_TO_Q(buf, ch->desc);
+		write_to_output(buf, ch->desc);
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
