@@ -642,6 +642,15 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 	return out.str();
 }
 
+std::string OutMagesSpellsHelp(ECharClass ch_class) {
+	std::stringstream out, out2, out3, out4;
+	std::string tmpstr;
+	std::vector<std::string> spells_list;
+	std::vector<std::string> spells_list2;
+	std::vector<std::string> spells_list3;
+
+}
+
 std::string OutCasterSpellsHelp(ECharClass ch_class) {
 	std::stringstream out, out2, out3, out4;
 	std::string tmpstr;
@@ -652,7 +661,7 @@ std::string OutCasterSpellsHelp(ECharClass ch_class) {
 
 	out << "Обычные заклинания:\r\n";
 	out2 << "\r\n&GЗаклинания, доступные после одного или нескольких перевоплощений:&n\r\n";
-	out3 << "\r\n&GУникальные для вашего класса, но доступные волхвам:&n\r\n";
+	out3 << "\r\n&RЗаклинания вашего класса, но доступные на рунах:&n\r\n";
 	out4 << "\r\n&WУникальные заклинания:&n\r\n";
 
 	for (auto class_spell : MUD::Class(ch_class).spells) {
@@ -661,11 +670,7 @@ std::string OutCasterSpellsHelp(ECharClass ch_class) {
 		if (class_spell.IsUnavailable()) {
 			continue;
 		}
-//		if (real_object(spell_create.contains[class_spell.GetId()]) {
-//			spells_list3.push_back(MUD::Spell(class_spell.GetId()).GetCName());
-//		}
-
-		if (real_object(spell_create[class_spell.GetId()].runes.rnumber) > 0) {
+		if (spell_create[class_spell.GetId()].runes.rnumber > 0) {
 			spells_list3.push_back(MUD::Spell(class_spell.GetId()).GetCName());
 		}
 		if (class_spell.GetMinRemort() > 0) {
@@ -720,7 +725,7 @@ std::string OutCasterSpellsHelp(ECharClass ch_class) {
 		out3 << "\r\n";
 	if (out4.str().back() == '\t')
 		out4 << "\r\n";
-	out << out2.str() << out3.str() << out4.str();
+	out << out2.str() << out4.str() << out3.str();
 	return out.str();
 }
 
@@ -728,8 +733,36 @@ void CasterSpellslHelp() {
 	std::string out;
 
 	out = OutCasterSpellsHelp(ECharClass::kSorcerer);
-	out += "\r\nСм. также: ЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ";
+	out += "\r\nСм. также: &CЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ";
 	add_static("ЗАКЛИНАНИЯЛЕКАРЯ", out, 0, true);
+
+	out = OutCasterSpellsHelp(ECharClass::kConjurer);
+	out += "\r\nСм. также: &CКОЛДУН, УМЕНИЯКОЛДУНА, СПОСОБНОСТИКОЛДУНА, ОТВАРЫКОЛДУНА&n";
+	add_static("ЗАКЛИНАНИЯКОЛДУНА", out, 0, true);
+
+	out = OutCasterSpellsHelp(ECharClass::kCharmer);
+	out += "\r\nСм. также: &CКУДЕСНИК, УМЕНИЯКУДЕСНИКА, СПОСОБНОСТИКУДЕСНИКА, ОТВАРЫКУДЕСНИКА&n";
+	add_static("ЗАКЛИНАНИЯКУДЕСНИКА", out, 0, true);
+
+	out = OutCasterSpellsHelp(ECharClass::kWizard);
+	out += "\r\nСм. также: &CВОЛШЕБНИК, УМЕНИЯВОЛШЕБНИКА, СПОСОБНОСТИВОЛШЕБНИКА, ОТВАРЫВОЛШЕБНИКА&n";
+	add_static("ЗАКЛИНАНИЯВОЛШЕБНИКА", out, 0, true);
+
+	out = OutCasterSpellsHelp(ECharClass::kNecromancer);
+	out += "\r\nСм. также: &CЧЕРНОКНИЖНИК, УМЕНИЯЧЕРНОКНИЖНИКА, СПОСОБНОСТИЧЕРНОКНИЖНИКА, ОТВАРЫЧЕРНОКНИЖНИКА&n";
+	add_static("ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА", out, 0, true);
+
+	out = OutCasterSpellsHelp(ECharClass::kPaladine);
+	out += "\r\nСм. также: &CВИТЯЗЬ, УМЕНИЯВИТЯЗЯ, СПОСОБНОСТИВИТЯЗЯ, ОТВАРЫВИТЯЗЯ&n";
+	add_static("ЗАКЛИНАНИЯВИТЯЗЯ", out, 0, true);
+
+	out = OutCasterSpellsHelp(ECharClass::kMerchant);
+	out += "\r\nСм. также: &CКУПЕЦ, УМЕНИЯКУПЦА, СПОСОБНОСТИКУПЦА, ОТВАРЫКУПЦА&n";
+	add_static("ЗАКЛИНАНИЯКУПЦА", out, 0, true);
+
+	out = OutMagesSpellsHelp(ECharClass::kMerchant);
+	out += "\r\nСм. также: &CВОЛХВ, УМЕНИЯВОЛХВА, СПОСОБНОСТИВОЛХВА, ОТВАРЫВОЛХВА&n";
+	add_static("ЗАКЛИНАНИЯВОЛХВА", out, 0, true);
 }
 
 std::string OutFeatureHelp(ECharClass ch_class) {
