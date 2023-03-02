@@ -643,26 +643,26 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 }
 
 std::string OutMagesSpellsHelp(ECharClass ch_class) {
-	std::stringstream out, out2, out3, out4;
+	std::string out, out2, out3, out4;
 	std::string tmpstr;
 	std::vector<std::string> spells_list;
 	std::vector<std::string> spells_list2;
 	std::vector<std::string> spells_list3;
-
+	return out;
 }
 
 std::string OutCasterSpellsHelp(ECharClass ch_class) {
-	std::stringstream out, out2, out3, out4;
+	std::string out, out2, out3, out4;
 	std::string tmpstr;
 	std::vector<std::string> spells_list;
 	std::vector<std::string> spells_list2;
 	std::vector<std::string> spells_list3;
 	std::vector<std::string> spells_list4;
 
-	out << "Обычные заклинания:\r\n";
-	out2 << "\r\n&GЗаклинания, доступные после одного или нескольких перевоплощений:&n\r\n";
-	out3 << "\r\n&RЗаклинания вашего класса, но доступные на рунах:&n\r\n";
-	out4 << "\r\n&WУникальные заклинания:&n\r\n";
+	out = "Обычные заклинания:\r\n";
+	out2 = "\r\n&GЗаклинания, доступные после одного или нескольких перевоплощений:&n\r\n";
+	out3 = "\r\n&RЗаклинания вашего класса, записанные рунами:&n\r\n";
+	out4 = "\r\n&WУникальные заклинания:&n\r\n";
 
 	for (auto class_spell : MUD::Class(ch_class).spells) {
 		int num = 0;
@@ -697,36 +697,36 @@ std::string OutCasterSpellsHelp(ECharClass ch_class) {
 	utils::SortKoiString(spells_list);
 	for (auto it : spells_list) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out << "\t" << std::left << std::setw(30) << it << tmpstr;
+		out += fmt::format("\t{:<30} {}", it, tmpstr);
 	}
 	columns = 0;
 	utils::SortKoiString(spells_list2);
 	for (auto it : spells_list2) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out2 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+		out2 += fmt::format("\t{:<30} {}", it, tmpstr);
 	}
 	columns = 0;
 	utils::SortKoiString(spells_list3);
 	for (auto it : spells_list3) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out3 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+		out3 += fmt::format("\t{:<30} {}", it, tmpstr);
 	}
 	columns = 0;
 	utils::SortKoiString(spells_list4);
 	for (auto it : spells_list4) {
 		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
-		out4 <<  "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+		out4 += fmt::format("\t{:<30} {}", it, tmpstr);
 	}
-	if (out.str().back() == '\t')
-		out << "\r\n";
-	if (out2.str().back() == '\t')
-		out2 << "\r\n";
-	if (out3.str().back() == '\t')
-		out3 << "\r\n";
-	if (out4.str().back() == '\t')
-		out4 << "\r\n";
-	out << out2.str() << out4.str() << out3.str();
-	return out.str();
+	if (out.back() == '\t')
+		out += "\r\n";
+	if (out2.back() == '\t')
+		out2 += "\r\n";
+	if (out3.back() == '\t')
+		out3 += "\r\n";
+	if (out4.back() == '\t')
+		out4 += "\r\n";
+	out += out2 + out4 + out3;
+	return out;
 }
 
 void CasterSpellslHelp() {
