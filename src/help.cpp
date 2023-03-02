@@ -552,8 +552,8 @@ void init_zone_all() {
 	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum) {
 		if (zone_table[rnum].location) {
 			out << fmt::format("  {:<2} - {}. Расположена: {}. Группа: {}. Примерный уровень: {}.\r\n",
-							   i, zone_table[rnum].name, zone_table[rnum].location,
-							   zone_table[rnum].group, zone_table[rnum].level);
+					i, zone_table[rnum].name, zone_table[rnum].location,
+					zone_table[rnum].group, zone_table[rnum].level);
 			++i;
 		}
 	}
@@ -601,7 +601,7 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 std::string OutSkillsHelp(ECharClass ch_class) {
 	std::stringstream out, out2;
 	std::string tmpstr;
-	int columns, columns2 = 0;
+	int columns = 0, columns2 = 0;
 	std::vector<std::string> skills_list;
 	std::vector<std::string> skills_list2;
 
@@ -642,10 +642,100 @@ std::string OutSkillsHelp(ECharClass ch_class) {
 	return out.str();
 }
 
+std::string OutCasterSpellsHelp(ECharClass ch_class) {
+	std::stringstream out, out2, out3, out4;
+	std::string tmpstr;
+	std::vector<std::string> spells_list;
+	std::vector<std::string> spells_list2;
+	std::vector<std::string> spells_list3;
+	std::vector<std::string> spells_list4;
+
+	out << "Обычные заклинания:\r\n";
+	out2 << "\r\n&GЗаклинания, доступные после одного или нескольких перевоплощений:&n\r\n";
+	out3 << "\r\n&GУникальные для вашего класса, но доступные волхвам:&n\r\n";
+	out4 << "\r\n&WУникальные заклинания:&n\r\n";
+
+	for (auto class_spell : MUD::Class(ch_class).spells) {
+		int num = 0;
+
+		if (class_spell.IsUnavailable()) {
+			continue;
+		}
+//		if (real_object(spell_create.contains[class_spell.GetId()]) {
+//			spells_list3.push_back(MUD::Spell(class_spell.GetId()).GetCName());
+//		}
+
+		if (real_object(spell_create[class_spell.GetId()].runes.rnumber) > 0) {
+			spells_list3.push_back(MUD::Spell(class_spell.GetId()).GetCName());
+		}
+		if (class_spell.GetMinRemort() > 0) {
+			spells_list2.push_back(MUD::Spell(class_spell.GetId()).GetCName());
+			continue;
+		}
+		for (const auto &char_class: MUD::Classes()) {
+			if (char_class.IsAvailable()) {
+				for (const auto &spell : char_class.spells) {
+					if (spell.GetId() == class_spell.GetId()) {
+						++num;
+					}
+				}
+			}
+		}
+		if (num == 1) {
+			spells_list4.push_back(MUD::Spell(class_spell.GetId()).GetCName());
+			continue;
+		}
+		spells_list.push_back(MUD::Spell(class_spell.GetId()).GetCName());
+	}
+	int columns = 0;
+
+	utils::SortKoiString(spells_list);
+	for (auto it : spells_list) {
+		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+		out << "\t" << std::left << std::setw(30) << it << tmpstr;
+	}
+	columns = 0;
+	utils::SortKoiString(spells_list2);
+	for (auto it : spells_list2) {
+		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+		out2 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+	}
+	columns = 0;
+	utils::SortKoiString(spells_list3);
+	for (auto it : spells_list3) {
+		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+		out3 << "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+	}
+	columns = 0;
+	utils::SortKoiString(spells_list4);
+	for (auto it : spells_list4) {
+		tmpstr = !(++columns % 2) ? "\r\n" : "\t";
+		out4 <<  "\t" << "&C" << std::left << std::setw(30) << it << "&n" << tmpstr;
+	}
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	if (out2.str().back() == '\t')
+		out2 << "\r\n";
+	if (out3.str().back() == '\t')
+		out3 << "\r\n";
+	if (out4.str().back() == '\t')
+		out4 << "\r\n";
+	out << out2.str() << out3.str() << out4.str();
+	return out.str();
+}
+
+void CasterSpellslHelp() {
+	std::string out;
+
+	out = OutCasterSpellsHelp(ECharClass::kSorcerer);
+	out += "\r\nСм. также: ЛЕКАРЬ, УМЕНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ";
+	add_static("ЗАКЛИНАНИЯЛЕКАРЯ", out, 0, true);
+}
+
 std::string OutFeatureHelp(ECharClass ch_class) {
 	std::stringstream out, out2, out3;
 	std::string tmpstr;
-	int columns, columns2, columns3 = 0;
+	int columns = 0, columns2 = 0, columns3 = 0;
 	std::vector<std::string> feat_list;
 	std::vector<std::string> feat_list2;
 	std::vector<std::string> feat_list3;
@@ -965,6 +1055,7 @@ void reload(Flags flag) {
 			ClassRecipiesHelp();
 			ClassSkillHelp();
 			ClassFeatureHelp();
+			CasterSpellslHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей 
