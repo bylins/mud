@@ -13,36 +13,6 @@ std::unordered_map<ESpell, SpellCreate> spell_create;
 
 namespace spells {
 
-void InitSpellCreate(ESpell spell_id) {
-	int i;
-
-	for (i = 0; i < 3; i++) {
-		spell_create[spell_id].wand.items[i] = -1;
-		spell_create[spell_id].scroll.items[i] = -1;
-		spell_create[spell_id].potion.items[i] = -1;
-		spell_create[spell_id].items.items[i] = -1;
-		spell_create[spell_id].runes.items[i] = -1;
-	}
-
-	spell_create[spell_id].wand.rnumber = -1;
-	spell_create[spell_id].scroll.rnumber = -1;
-	spell_create[spell_id].potion.rnumber = -1;
-	spell_create[spell_id].items.rnumber = -1;
-	spell_create[spell_id].runes.rnumber = -1;
-
-	spell_create[spell_id].wand.min_caster_level = kLvlGreatGod;
-	spell_create[spell_id].scroll.min_caster_level = kLvlGreatGod;
-	spell_create[spell_id].potion.min_caster_level = kLvlGreatGod;
-	spell_create[spell_id].items.min_caster_level = kLvlGreatGod;
-	spell_create[spell_id].runes.min_caster_level = kLvlGreatGod;
-}
-
-void InitSpellsCreate() {
-	for (const auto &spell: MUD::Spells()) {
-		InitSpellCreate(spell.GetId());
-	}
-}
-
 using ItemPtr = SpellInfoBuilder::ItemPtr;
 
 void SpellsLoader::Load(DataNode data) {
