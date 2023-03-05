@@ -273,7 +273,7 @@ const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
 EApply ITEM_BY_NAME<EApply>(const std::string &name);
 
-enum class EAffectMsg {
+enum class ECharAffectMsg {
 	kName,
 	kDesc,
 	kExpiredForVict,
@@ -284,9 +284,9 @@ enum class EAffectMsg {
 };
 
 template<>
-const std::string &NAME_BY_ITEM<EAffectMsg>(EAffectMsg item);
+const std::string &NAME_BY_ITEM<ECharAffectMsg>(ECharAffectMsg item);
 template<>
-EAffectMsg ITEM_BY_NAME<EAffectMsg>(const std::string &name);
+ECharAffectMsg ITEM_BY_NAME<ECharAffectMsg>(const std::string &name);
 
 using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;

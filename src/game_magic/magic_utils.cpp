@@ -54,12 +54,17 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			case ENpcRace::kZombie:
 			case ENpcRace::kSpirit: {
 				const int religion = number(kReligionPoly, kReligionMono);
-				const std::string &cast_phrase = GetCastPhrase(spell_id, religion);
+				std::string_view cast_phrase;
+				if (religion == kReligionMono) {
+					cast_phrase = MUD::Spell(spell_id).GetMsg(ESpellMsg::kCastPhraseChrist);
+				} else {
+					cast_phrase = MUD::Spell(spell_id).GetMsg(ESpellMsg::kCastPhrasePoly);
+				}
 				if (cast_phrase.empty()) {
 					sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
 					mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 				} else {
-					strcpy(buf, cast_phrase.c_str());
+					strcpy(buf, cast_phrase.data());
 				}
 				say_to_self = "$n пробормотал$g : '%s'.";
 				say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
@@ -92,9 +97,14 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
 			SendMsgToChar(buf, ch);
 		}
-		const std::string &cast_phrase = GetCastPhrase(spell_id, GET_RELIGION(ch));
+		std::string_view cast_phrase;
+		if (GET_RELIGION(ch) == kReligionMono) {
+			cast_phrase = MUD::Spell(spell_id).GetMsg(ESpellMsg::kCastPhraseChrist);
+		} else {
+			cast_phrase = MUD::Spell(spell_id).GetMsg(ESpellMsg::kCastPhrasePoly);
+		}
 		if (!cast_phrase.empty()) {
-			strcpy(buf, cast_phrase.c_str());
+			strcpy(buf, cast_phrase.data());
 		}
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
 		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";

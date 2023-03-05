@@ -59,8 +59,8 @@ void MessagesData<IdEnum>::AddMsg(IdEnum id, const char *msg) {
 template<typename IdEnum>
 const std::string &MessagesData<IdEnum>::GetMsg(IdEnum id) const {
 	auto messages_count = messages_.count(id);
-	if (messages_count != 0) {
-		auto msg_num = number(0, messages_count);
+	if (messages_count > 0) {
+		auto msg_num = number(0, messages_count - 1);
 		auto range = messages_.equal_range(id);
 		std::advance(range.first, msg_num);
 		return range.first->second;

@@ -22,8 +22,8 @@ void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd *
 	MUD::Affect(EAffect::kBlind).Print(out);
 	auto messages = MUD::Affect(EAffect::kBlind).Messages();
 	out << "Print single msgs for kBlind:\r\n"
-		<< "kExpiredForRoom: " << messages.GetMsg(EAffectMsg::kExpiredForRoom) << "\r\n"
-		<< "kImposedForRoom: " << MUD::Affect(EAffect::kBlind).GetMsg(EAffectMsg::kImposedForRoom) << "\r\n"
+		<< "kExpiredForRoom: " << messages.GetMsg(ECharAffectMsg::kExpiredForRoom) << "\r\n"
+		<< "kImposedForRoom: " << MUD::Affect(EAffect::kBlind).GetMsg(ECharAffectMsg::kImposedForRoom) << "\r\n"
 		<< "\r\n";
 	page_string(ch->desc, out.str());
 }

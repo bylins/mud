@@ -372,27 +372,23 @@ template<>
 const std::string &NAME_BY_ITEM<ETarget>(ETarget item);
 
 enum class ESpellMsg {
-	kCastPoly,
-	kCastChrist,
+	kCastPhrasePoly,
+	kCastPhraseChrist,
 	kAreaForChar,
 	kAreaForRoom,
 	kAreaForVict,
 	kComponentUse,
 	kComponentMissing,
 	kComponentExhausted,
-	kAffExpired,
-	kAffImposedForVict,
-	kAffImposedForRoom
+	kExpired,
+	kImposedForVict,
+	kImposedForRoom
 };
 
 template<>
 ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpellMsg>(ESpellMsg item);
-
-std::string GetAffExpiredText(ESpell spell_id);
-const std::string &GetCastPhrase(ESpell spell_id, int religion);
-const std::string &GetSpellMsg(ESpell spell_id, ESpellMsg msg_id);
 
 #endif //BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 

@@ -23,7 +23,7 @@ CfgManager::CfgManager() {
 /* loaders_.emplace("mobraces", "cfg/mob_races.xml");*/
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
-	loaders_.emplace("affects", LoaderInfo("cfg/affects.xml",
+	loaders_.emplace("affects", LoaderInfo("cfg/affects/character_affects.xml",
 										 std::make_unique<affects::AffectsLoader>(affects::AffectsLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));

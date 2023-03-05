@@ -78,8 +78,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="буде во прибежище"/>
-            <msg id="kCastChrist" val="... Он - помощь наша и защита наша."/>
+            <msg id="kCastPhrasePoly" val="буде во прибежище"/>
+            <msg id="kCastPhraseChrist" val="... Он - помощь наша и защита наша."/>
+            <msg id="kExpired" val="Вы почувствовали себя менее защищенно."/>
+            <msg id="kImposedForVict" val="Вы почувствовали вокруг себя невидимую защиту."/>
+            <msg id="kImposedForRoom" val="Вокруг $n1 вспыхнул белый щит и тут же погас."/>
         </messages>
     </spell>
     <spell id="kTeleport" element="kAir" mode="kEnabled">
@@ -89,8 +92,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagManual|kNpcDamagePc"/>
         <messages>
-            <msg id="kCastPoly" val="несите ветры"/>
-            <msg id="kCastChrist" val="... дух поднял меня и перенес меня."/>
+            <msg id="kCastPhrasePoly" val="несите ветры"/>
+            <msg id="kCastPhraseChrist" val="... дух поднял меня и перенес меня."/>
         </messages>
     </spell>
     <spell id="kBless" element="kLight" mode="kEnabled">
@@ -100,8 +103,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="истягну умь крепостию"/>
-            <msg id="kCastChrist" val="... даст блага просящим у Него."/>
+            <msg id="kCastPhrasePoly" val="истягну умь крепостию"/>
+            <msg id="kCastPhraseChrist" val="... даст блага просящим у Него."/>
+            <msg id="kExpired" val="Вы почувствовали себя менее доблестно."/>
+            <msg id="kImposedForVict" val="Боги одарили вас своей улыбкой."/>
+            <msg id="kImposedForRoom" val="$n осветил$u на миг неземным светом."/>
         </messages>
     </spell>
     <spell id="kBlindness" element="kDark" mode="kEnabled">
@@ -111,8 +117,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="Чтоб твои зенки вылезли!"/>
-            <msg id="kCastChrist" val="... поразит тебя Господь слепотою."/>
+            <msg id="kCastPhrasePoly" val="Чтоб твои зенки вылезли!"/>
+            <msg id="kCastPhraseChrist" val="... поразит тебя Господь слепотою."/>
+            <msg id="kExpired" val="Вы вновь можете видеть."/>
+            <msg id="kImposedForRoom" val="$n0 ослеп$q!"/>
+            <msg id="kImposedForVict" val="Вы ослепли!"/>
         </messages>
     </spell>
     <spell id="kBurningHands" element="kFire" mode="kEnabled">
@@ -137,8 +146,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="узри огонь!"/>
-            <msg id="kCastChrist" val="... простер руку свою к огню."/>
+            <msg id="kCastPhrasePoly" val="узри огонь!"/>
+            <msg id="kCastPhraseChrist" val="... простер руку свою к огню."/>
             <msg id="kAreaForChar" val="С ваших ладоней сорвался поток жаркого пламени."/>
             <msg id="kAreaForRoom" val="$n0 испустил$g поток жаркого багрового пламени!"/>
         </messages>
@@ -165,8 +174,10 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Разрази тебя Перун!"/>
-            <msg id="kCastChrist" val="... и путь для громоносной молнии."/>
+            <msg id="kCastPhrasePoly" val="Разрази тебя Перун!"/>
+            <msg id="kCastPhraseChrist" val="... и путь для громоносной молнии."/>
+            <msg id="kImposedForVict" val="Взрыв шаровой молнии $N1 отдался в вашей голове громким звоном."/>
+            <msg id="kImposedForRoom" val="$n зашатал$u, пытаясь прийти в себя от взрыва шаровой молнии."/>
         </messages>
     </spell>
     <spell id="kCharm" element="kMind" mode="kEnabled">
@@ -176,8 +187,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="умь полонить"/>
-            <msg id="kCastChrist" val="... слушай пастыря сваего, и уразумей."/>
+            <msg id="kCastPhrasePoly" val="умь полонить"/>
+            <msg id="kCastPhraseChrist" val="... слушай пастыря сваего, и уразумей."/>
+            <msg id="kExpired" val="Вы подчиняетесь теперь только себе."/>
+            <msg id="kImposedForVict" val="Ваша воля склонилась перед $N4."/>
         </messages>
     </spell>
     <spell id="kChillTouch" element="kWater" mode="kEnabled">
@@ -198,8 +211,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="хладну персты воскладаше"/>
-            <msg id="kCastChrist" val="... которые черны от льда."/>
+            <msg id="kCastPhrasePoly" val="хладну персты воскладаше"/>
+            <msg id="kCastPhraseChrist" val="... которые черны от льда."/>
+            <msg id="kExpired" val="Вы отметили, что силы вернулись к вам."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя слабее!"/>
+            <msg id="kImposedForRoom" val="Боевой пыл $n1 несколько остыл."/>
         </messages>
     </spell>
     <spell id="kClone" element="kDark" mode="kEnabled">
@@ -209,8 +225,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagSummons"/>
         <messages>
-            <msg id="kCastPoly" val="пусть будет много меня"/>
-            <msg id="kCastChrist" val="... и плодились, и весьма умножились."/>
+            <msg id="kCastPhrasePoly" val="пусть будет много меня"/>
+            <msg id="kCastPhraseChrist" val="... и плодились, и весьма умножились."/>
         </messages>
     </spell>
     <spell id="kIceBolts" element="kWater" mode="kEnabled">
@@ -235,8 +251,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="хлад и мраз исторгнути"/>
-            <msg id="kCastChrist" val="... и из воды делается лед."/>
+            <msg id="kCastPhrasePoly" val="хлад и мраз исторгнути"/>
+            <msg id="kCastPhraseChrist" val="... и из воды делается лед."/>
             <msg id="kAreaForChar" val="Из ваших рук вылетел сноп ледяных стрел."/>
             <msg id="kAreaForRoom" val="$n0 метнул$g во врагов сноп ледяных стрел."/>
         </messages>
@@ -248,8 +264,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="стихия подкоряшися"/>
-            <msg id="kCastChrist" val="... власть затворить небо, чтобы не шел дождь."/>
+            <msg id="kCastPhrasePoly" val="стихия подкоряшися"/>
+            <msg id="kCastPhraseChrist" val="... власть затворить небо, чтобы не шел дождь."/>
         </messages>
     </spell>
     <spell id="kCreateFood" element="kLife" mode="kEnabled">
@@ -259,8 +275,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
         <messages>
-            <msg id="kCastPoly" val="будовати снедь"/>
-            <msg id="kCastChrist" val="... это хлеб, который Господь дал вам в пищу."/>
+            <msg id="kCastPhrasePoly" val="будовати снедь"/>
+            <msg id="kCastPhraseChrist" val="... это хлеб, который Господь дал вам в пищу."/>
         </messages>
     </spell>
     <spell id="kCreateWater" element="kWater" mode="kEnabled">
@@ -270,8 +286,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjInv|kTarObjEquip|kTarCharRoom"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="напоиши влагой"/>
-            <msg id="kCastChrist" val="... и потекло много воды."/>
+            <msg id="kCastPhrasePoly" val="напоиши влагой"/>
+            <msg id="kCastPhraseChrist" val="... и потекло много воды."/>
         </messages>
     </spell>
     <spell id="kCureBlind" element="kLight" mode="kEnabled">
@@ -281,8 +297,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="зряще узрите"/>
-            <msg id="kCastChrist" val="... и прозрят из тьмы и мрака глаза слепых."/>
+            <msg id="kCastPhrasePoly" val="зряще узрите"/>
+            <msg id="kCastPhraseChrist" val="... и прозрят из тьмы и мрака глаза слепых."/>
         </messages>
     </spell>
     <spell id="kCureCritic" element="kLife" mode="kEnabled">
@@ -292,8 +308,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
         <messages>
-            <msg id="kCastPoly" val="гой еси"/>
-            <msg id="kCastChrist" val="... да зарубцуются гноища твои."/>
+            <msg id="kCastPhrasePoly" val="гой еси"/>
+            <msg id="kCastPhraseChrist" val="... да зарубцуются гноища твои."/>
         </messages>
     </spell>
     <spell id="kCureLight" element="kLife" mode="kEnabled">
@@ -303,8 +319,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
         <messages>
-            <msg id="kCastPoly" val="малейше целити раны"/>
-            <msg id="kCastChrist" val="... да затянутся раны твои."/>
+            <msg id="kCastPhrasePoly" val="малейше целити раны"/>
+            <msg id="kCastPhraseChrist" val="... да затянутся раны твои."/>
         </messages>
     </spell>
     <spell id="kCurse" element="kDark" mode="kEnabled">
@@ -314,8 +330,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict|kTarObjInv"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="порча"/>
-            <msg id="kCastChrist" val="... проклят ты пред всеми скотами."/>
+            <msg id="kCastPhrasePoly" val="порча"/>
+            <msg id="kCastPhraseChrist" val="... проклят ты пред всеми скотами."/>
+            <msg id="kExpired" val="Вы почувствовали себя более уверенно."/>
+            <msg id="kImposedForRoom" val="Красное сияние вспыхнуло над $n4 и тут же погасло!"/>
+            <msg id="kImposedForVict" val="Боги сурово поглядели на вас."/>
         </messages>
     </spell>
     <spell id="kDetectAlign" element="kMind" mode="kEnabled">
@@ -325,8 +344,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="узряще норов"/>
-            <msg id="kCastChrist" val="... и отделит одних от других, как пастырь отделяет овец от козлов."/>
+            <msg id="kCastPhrasePoly" val="узряще норов"/>
+            <msg id="kCastPhraseChrist" val="... и отделит одних от других, как пастырь отделяет овец от козлов."/>
+            <msg id="kExpired" val="Вы более не можете определять наклонности."/>
+            <msg id="kImposedForVict" val="Ваши глаза приобрели зеленый оттенок."/>
+            <msg id="kImposedForRoom" val="Глаза $n1 приобрели зеленый оттенок."/>
         </messages>
     </spell>
     <spell id="kDetectInvis" element="kMind" mode="kEnabled">
@@ -336,8 +358,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="взор мечетный"/>
-            <msg id="kCastChrist" val="... ибо нет ничего тайного, что не сделалось бы явным."/>
+            <msg id="kCastPhrasePoly" val="взор мечетный"/>
+            <msg id="kCastPhraseChrist" val="... ибо нет ничего тайного, что не сделалось бы явным."/>
+            <msg id="kExpired" val="Вы не в состоянии больше видеть невидимых."/>
+            <msg id="kImposedForVict" val="Ваши глаза приобрели золотистый оттенок."/>
+            <msg id="kImposedForRoom" val="Глаза $n1 приобрели золотистый оттенок."/>
         </messages>
     </spell>
     <spell id="kDetectMagic" element="kMind" mode="kEnabled">
@@ -347,8 +372,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="зряще ворожбу"/>
-            <msg id="kCastChrist" val="... покажись, ересь богопротивная."/>
+            <msg id="kCastPhrasePoly" val="зряще ворожбу"/>
+            <msg id="kCastPhraseChrist" val="... покажись, ересь богопротивная."/>
+            <msg id="kExpired" val="Вы не в состоянии более определять магию."/>
+            <msg id="kImposedForVict" val="Ваши глаза приобрели желтый оттенок."/>
+            <msg id="kImposedForRoom" val="Глаза $n1 приобрели желтый оттенок."/>
         </messages>
     </spell>
     <spell id="kDetectPoison" element="kMind" mode="kEnabled">
@@ -358,8 +386,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="зряще трутизну"/>
-            <msg id="kCastChrist" val="... по плодам их узнаете их."/>
+            <msg id="kCastPhrasePoly" val="зряще трутизну"/>
+            <msg id="kCastPhraseChrist" val="... по плодам их узнаете их."/>
+            <msg id="kExpired" val="Вы не в состоянии более определять яды."/>
+            <msg id="kImposedForVict" val="Ваши глаза приобрели карий оттенок."/>
+            <msg id="kImposedForRoom" val="Глаза $n1 приобрели карий оттенок."/>
         </messages>
     </spell>
     <spell id="kDispelEvil" element="kLight" mode="kEnabled">
@@ -380,8 +411,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="долой нощи"/>
-            <msg id="kCastChrist" val="... грешников преследует зло, а праведникам воздается добром."/>
+            <msg id="kCastPhrasePoly" val="долой нощи"/>
+            <msg id="kCastPhraseChrist" val="... грешников преследует зло, а праведникам воздается добром."/>
         </messages>
     </spell>
     <spell id="kEarthquake" element="kEarth" mode="kEnabled">
@@ -406,8 +437,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="земля тутнет"/>
-            <msg id="kCastChrist" val="... в тот же час произошло великое землетрясение."/>
+            <msg id="kCastPhrasePoly" val="земля тутнет"/>
+            <msg id="kCastPhraseChrist" val="... в тот же час произошло великое землетрясение."/>
             <msg id="kAreaForChar" val="Вы опустили руки, и земля начала дрожать вокруг вас!"/>
             <msg id="kAreaForRoom" val="$n опустил$g руки, и земля задрожала!"/>
         </messages>
@@ -419,8 +450,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjInv"/>
         <flags val="kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="ницовати стружие"/>
-            <msg id="kCastChrist" val="... укрепи сталь Божьим перстом."/>
+            <msg id="kCastPhrasePoly" val="ницовати стружие"/>
+            <msg id="kCastPhraseChrist" val="... укрепи сталь Божьим перстом."/>
             <msg id="kComponentUse" val="Вы подготовили дополнительные компоненты для зачарования.\r\n"/>
             <msg id="kComponentMissing" val="Вы были уверены что положили его в этот карман...\r\n"/>
             <msg id="kComponentExhausted" val="$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n"/>
@@ -444,8 +475,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="преторгоста"/>
-            <msg id="kCastChrist" val="... да иссякнут соки, питающие тело."/>
+            <msg id="kCastPhrasePoly" val="преторгоста"/>
+            <msg id="kCastPhraseChrist" val="... да иссякнут соки, питающие тело."/>
         </messages>
     </spell>
     <spell id="kFireball" element="kFire" mode="kEnabled">
@@ -466,8 +497,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="огненну солнце"/>
-            <msg id="kCastChrist" val="... да ниспадет огонь с неба, и пожрет их."/>
+            <msg id="kCastPhrasePoly" val="огненну солнце"/>
+            <msg id="kCastPhraseChrist" val="... да ниспадет огонь с неба, и пожрет их."/>
         </messages>
     </spell>
     <spell id="kHarm" element="kDark" mode="kEnabled">
@@ -488,8 +519,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="згола скверна"/>
-            <msg id="kCastChrist" val="... и жестокою болью во всех костях твоих."/>
+            <msg id="kCastPhrasePoly" val="згола скверна"/>
+            <msg id="kCastPhraseChrist" val="... и жестокою болью во всех костях твоих."/>
         </messages>
     </spell>
     <spell id="kHeal" element="kLife" mode="kEnabled">
@@ -499,8 +530,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
         <messages>
-            <msg id="kCastPoly" val="згола гой еси"/>
-            <msg id="kCastChrist" val="... тебе говорю, встань."/>
+            <msg id="kCastPhrasePoly" val="згола гой еси"/>
+            <msg id="kCastPhraseChrist" val="... тебе говорю, встань."/>
         </messages>
     </spell>
     <spell id="kInvisible" element="kMind" mode="kEnabled">
@@ -510,8 +541,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="низовати мечетно"/>
-            <msg id="kCastChrist" val="... ибо видимое временно, а невидимое вечно."/>
+            <msg id="kCastPhrasePoly" val="низовати мечетно"/>
+            <msg id="kCastPhraseChrist" val="... ибо видимое временно, а невидимое вечно."/>
+            <msg id="kExpired" val="Вы вновь видимы."/>
+            <msg id="kImposedForVict" val="Вы стали невидимы для окружающих."/>
+            <msg id="kImposedForRoom" val="$n медленно растворил$u в пустоте."/>
         </messages>
     </spell>
     <spell id="kLightingBolt" element="kAir" mode="kEnabled">
@@ -536,8 +570,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="грянет гром"/>
-            <msg id="kCastChrist" val="... и были громы и молнии."/>
+            <msg id="kCastPhrasePoly" val="грянет гром"/>
+            <msg id="kCastPhraseChrist" val="... и были громы и молнии."/>
         </messages>
     </spell>
     <spell id="kLocateObject" element="kMind" mode="kEnabled">
@@ -547,8 +581,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjWorld"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="рища, летая умом под облакы"/>
-            <msg id="kCastChrist" val="... ибо всякий просящий получает, и ищущий находит."/>
+            <msg id="kCastPhrasePoly" val="рища, летая умом под облакы"/>
+            <msg id="kCastPhraseChrist" val="... ибо всякий просящий получает, и ищущий находит."/>
         </messages>
     </spell>
     <spell id="kMagicMissile" element="kFire" mode="kEnabled">
@@ -569,8 +603,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="ворожья стрела"/>
-            <msg id="kCastChrist" val="... остры стрелы Твои."/>
+            <msg id="kCastPhrasePoly" val="ворожья стрела"/>
+            <msg id="kCastPhraseChrist" val="... остры стрелы Твои."/>
         </messages>
     </spell>
     <spell id="kPoison" element="kLife" mode="kEnabled">
@@ -588,8 +622,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="трутизна"/>
-            <msg id="kCastChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kCastPhrasePoly" val="трутизна"/>
+            <msg id="kCastPhraseChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kExpired" val="В вашей крови не осталось ни капельки яда."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя отравленным."/>
+            <msg id="kImposedForRoom" val="$n позеленел$g от действия яда."/>
         </messages>
     </spell>
     <spell id="kProtectFromEvil" element="kLight" mode="kEnabled">
@@ -599,8 +636,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="супостат нощи"/>
-            <msg id="kCastChrist" val="... свет, который в тебе, да убоится тьма."/>
+            <msg id="kCastPhrasePoly" val="супостат нощи"/>
+            <msg id="kCastPhraseChrist" val="... свет, который в тебе, да убоится тьма."/>
+            <msg id="kExpired" val="Вы вновь ощущаете страх перед тьмой."/>
+            <msg id="kImposedForVict" val="Вы подавили в себе страх к тьме."/>
+            <msg id="kImposedForRoom" val="$n подавил$g в себе страх к тьме."/>
         </messages>
     </spell>
     <spell id="kRemoveCurse" element="kLight" mode="kEnabled">
@@ -610,8 +650,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="изыде порча"/>
-            <msg id="kCastChrist" val="... да простятся тебе прегрешения твои."/>
+            <msg id="kCastPhrasePoly" val="изыде порча"/>
+            <msg id="kCastPhraseChrist" val="... да простятся тебе прегрешения твои."/>
         </messages>
     </spell>
     <spell id="kSanctuary" element="kLight" mode="kEnabled">
@@ -621,8 +661,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="иже во святых"/>
-            <msg id="kCastChrist" val="... буде святым, аки Господь наш свят."/>
+            <msg id="kCastPhrasePoly" val="иже во святых"/>
+            <msg id="kCastPhraseChrist" val="... буде святым, аки Господь наш свят."/>
+            <msg id="kExpired" val="Белая аура вокруг вашего тела угасла."/>
+            <msg id="kImposedForVict" val="Белая аура мгновенно окружила вас."/>
+            <msg id="kImposedForRoom" val="Белая аура покрыла $n3 с головы до пят."/>
         </messages>
     </spell>
     <spell id="kShockingGasp" element="kFire" mode="kEnabled">
@@ -643,8 +686,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="воскладше огненну персты"/>
-            <msg id="kCastChrist" val="... и дано буде жечь врагов огнем."/>
+            <msg id="kCastPhrasePoly" val="воскладше огненну персты"/>
+            <msg id="kCastPhraseChrist" val="... и дано буде жечь врагов огнем."/>
         </messages>
     </spell>
     <spell id="kSleep" element="kMind" mode="kEnabled">
@@ -654,8 +697,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="иже дремлет"/>
-            <msg id="kCastChrist" val="... на веки твои тяжесть покладет."/>
+            <msg id="kCastPhrasePoly" val="иже дремлет"/>
+            <msg id="kCastPhraseChrist" val="... на веки твои тяжесть покладет."/>
         </messages>
     </spell>
     <spell id="kStrength" element="kLife" mode="kEnabled">
@@ -690,8 +733,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="будет силен"/>
-            <msg id="kCastChrist" val="... и человек разумный укрепляет силу свою."/>
+            <msg id="kCastPhrasePoly" val="будет силен"/>
+            <msg id="kCastPhraseChrist" val="... и человек разумный укрепляет силу свою."/>
+            <msg id="kExpired" val="Вы чувствуете себя немного слабее."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя сильнее."/>
+            <msg id="kImposedForRoom" val="Мышцы $n1 налились силой."/>
         </messages>
     </spell>
     <spell id="kSummon" element="kMind" mode="kEnabled">
@@ -701,8 +747,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharWorld|kTarNotSelf"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="кличу-велю"/>
-            <msg id="kCastChrist" val="... и послали за ним и призвали его."/>
+            <msg id="kCastPhrasePoly" val="кличу-велю"/>
+            <msg id="kCastPhraseChrist" val="... и послали за ним и призвали его."/>
         </messages>
     </spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
@@ -712,8 +758,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagPoints|kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="ибо будет угоден Богам"/>
-            <msg id="kCastChrist" val="... ибо спасет людей Своих от грехов их."/>
+            <msg id="kCastPhrasePoly" val="ибо будет угоден Богам"/>
+            <msg id="kCastPhraseChrist" val="... ибо спасет людей Своих от грехов их."/>
+            <msg id="kExpired" val="Вы утратили покровительство высших сил."/>
+            <msg id="kImposedForVict" val="Исходящий с небес свет на мгновение озарил вас."/>
+            <msg id="kImposedForRoom" val="Исходящий с небес свет на мгновение озарил $n3."/>
         </messages>
     </spell>
     <spell id="kWorldOfRecall" element="kMind" mode="kEnabled">
@@ -723,8 +772,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagManual|kNpcDamagePc"/>
         <messages>
-            <msg id="kCastPoly" val="с глаз долой исчезни"/>
-            <msg id="kCastChrist" val="... ступай с миром."/>
+            <msg id="kCastPhrasePoly" val="с глаз долой исчезни"/>
+            <msg id="kCastPhraseChrist" val="... ступай с миром."/>
         </messages>
     </spell>
     <spell id="kRemovePoison" element="kLife" mode="kEnabled">
@@ -734,8 +783,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="изыде трутизна"/>
-            <msg id="kCastChrist" val="... именем Божьим, изгнати сгниенье из тела."/>
+            <msg id="kCastPhrasePoly" val="изыде трутизна"/>
+            <msg id="kCastPhraseChrist" val="... именем Божьим, изгнати сгниенье из тела."/>
         </messages>
     </spell>
     <spell id="kSenseLife" element="kLife" mode="kEnabled">
@@ -745,8 +794,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="зряще живота"/>
-            <msg id="kCastChrist" val="... ибо нет ничего сокровенного, что не обнаружилось бы."/>
+            <msg id="kCastPhrasePoly" val="зряще живота"/>
+            <msg id="kCastPhraseChrist" val="... ибо нет ничего сокровенного, что не обнаружилось бы."/>
+            <msg id="kExpired" val="Вы больше не можете чувствовать жизнь."/>
+            <msg id="kImposedForVict" val="Вы способны разглядеть даже микроба."/>
+            <msg id="kImposedForRoom" val="$n0 начал$g замечать любые движения."/>
         </messages>
     </spell>
     <spell id="kAnimateDead" element="kDark" mode="kEnabled">
@@ -756,8 +808,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjRoom"/>
         <flags val="kMagSummons"/>
         <messages>
-            <msg id="kCastPoly" val="живот изо праха створисте"/>
-            <msg id="kCastChrist" val="... и земля извергнет мертвецов."/>
+            <msg id="kCastPhrasePoly" val="живот изо праха створисте"/>
+            <msg id="kCastPhraseChrist" val="... и земля извергнет мертвецов."/>
         </messages>
     </spell>
     <spell id="kDispelGood" element="kDark" mode="kEnabled">
@@ -778,8 +830,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="свет сгинь"/>
-            <msg id="kCastChrist" val="... и тьма свет накроет."/>
+            <msg id="kCastPhrasePoly" val="свет сгинь"/>
+            <msg id="kCastPhraseChrist" val="... и тьма свет накроет."/>
         </messages>
     </spell>
     <spell id="kGroupArmor" element="kLight" mode="kEnabled">
@@ -797,8 +849,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="прибежище други"/>
-            <msg id="kCastChrist" val="... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"/>
+            <msg id="kCastPhrasePoly" val="прибежище други"/>
+            <msg id="kCastPhraseChrist" val="... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"/>
             <msg id="kAreaForChar" val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n"/>
         </messages>
     </spell>
@@ -817,8 +869,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="други, гой еси"/>
-            <msg id="kCastChrist" val="... вам говорю, встаньте."/>
+            <msg id="kCastPhrasePoly" val="други, гой еси"/>
+            <msg id="kCastPhraseChrist" val="... вам говорю, встаньте."/>
             <msg id="kAreaForChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n"/>
         </messages>
     </spell>
@@ -837,8 +889,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="исчезните с глаз моих"/>
-            <msg id="kCastChrist" val="... вам говорю, ступайте с миром."/>
+            <msg id="kCastPhrasePoly" val="исчезните с глаз моих"/>
+            <msg id="kCastPhraseChrist" val="... вам говорю, ступайте с миром."/>
             <msg id="kAreaForChar" val="Вы выкрикнули заклинание и хлопнули в ладоши.\r\n"/>
             <msg id="kAreaForRoom" val="$n0 выкрикнул$g заклинание."/>
         </messages>
@@ -850,8 +902,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="в нощи зряще"/>
-            <msg id="kCastChrist" val="...ибо ни днем, ни ночью сна не знают очи."/>
+            <msg id="kCastPhrasePoly" val="в нощи зряще"/>
+            <msg id="kCastPhraseChrist" val="...ибо ни днем, ни ночью сна не знают очи."/>
+            <msg id="kExpired" val="Вы больше не можете видеть ночью."/>
+            <msg id="kImposedForVict" val="Ваши глаза приобрели красный оттенок."/>
+            <msg id="kImposedForRoom" val="Глаза $n1 приобрели красный оттенок."/>
         </messages>
     </spell>
     <spell id="kWaterwalk" element="kWater" mode="kEnabled">
@@ -861,8 +916,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="по воде аки по суху"/>
-            <msg id="kCastChrist" val="... поднимись и ввергнись в море."/>
+            <msg id="kCastPhrasePoly" val="по воде аки по суху"/>
+            <msg id="kCastPhraseChrist" val="... поднимись и ввергнись в море."/>
+            <msg id="kExpired" val="Вы больше не можете ходить по воде."/>
+            <msg id="kImposedForVict" val="На рыбалку вы можете отправляться без лодки."/>
         </messages>
     </spell>
     <spell id="kCureSerious" element="kLife" mode="kEnabled">
@@ -872,8 +929,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
         <messages>
-            <msg id="kCastPoly" val="целите раны"/>
-            <msg id="kCastChrist" val="... да уменьшатся раны твои."/>
+            <msg id="kCastPhrasePoly" val="целите раны"/>
+            <msg id="kCastPhraseChrist" val="... да уменьшатся раны твои."/>
         </messages>
     </spell>
     <spell id="kGroupStrength" element="kMind" mode="kEnabled">
@@ -891,8 +948,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="други сильны"/>
-            <msg id="kCastChrist" val="... и даст нам Господь силу."/>
+            <msg id="kCastPhrasePoly" val="други сильны"/>
+            <msg id="kCastPhraseChrist" val="... и даст нам Господь силу."/>
             <msg id="kAreaForChar" val="Вы наделили союзников силой медведя.\r\n"/>
         </messages>
     </spell>
@@ -903,8 +960,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="аки околел"/>
-            <msg id="kCastChrist" val="... замри."/>
+            <msg id="kCastPhrasePoly" val="аки околел"/>
+            <msg id="kCastPhraseChrist" val="... замри."/>
         </messages>
     </spell>
     <spell id="kPowerHold" element="kMind" mode="kEnabled">
@@ -914,8 +971,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="згола аки околел"/>
-            <msg id="kCastChrist" val="... замри надолго."/>
+            <msg id="kCastPhrasePoly" val="згола аки околел"/>
+            <msg id="kCastPhraseChrist" val="... замри надолго."/>
         </messages>
     </spell>
     <spell id="kMassHold" element="kMind" mode="kEnabled">
@@ -933,8 +990,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="их окалеть"/>
-            <msg id="kCastChrist" val="... замрите."/>
+            <msg id="kCastPhrasePoly" val="их окалеть"/>
+            <msg id="kCastPhraseChrist" val="... замрите."/>
             <msg id="kAreaForChar" val="Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей."/>
             <msg id="kAreaForVict" val="В вас попал каменный луч, исходящий от $n1."/>
         </messages>
@@ -946,8 +1003,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="летать зегзицею"/>
-            <msg id="kCastChrist" val="... и полетел, и понесся на крыльях ветра."/>
+            <msg id="kCastPhrasePoly" val="летать зегзицею"/>
+            <msg id="kCastPhraseChrist" val="... и полетел, и понесся на крыльях ветра."/>
+            <msg id="kExpired" val="Вы приземлились на землю."/>
+            <msg id="kImposedForRoom" val="$n0 медленно поднял$u в воздух."/>
+            <msg id="kImposedForVict" val="Вы медленно поднялись в воздух."/>
         </messages>
     </spell>
     <spell id="kBrokenChains" element="kMind" mode="kEnabled">
@@ -957,8 +1017,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="вериги и цепи железные изорву"/>
-            <msg id="kCastChrist" val="... и цепи упали с рук его."/>
+            <msg id="kCastPhrasePoly" val="вериги и цепи железные изорву"/>
+            <msg id="kCastPhraseChrist" val="... и цепи упали с рук его."/>
+            <msg id="kExpired" val="Вы вновь стали уязвимы для оцепенения."/>
+            <msg id="kImposedForRoom" val="Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас."/>
+            <msg id="kImposedForVict" val="Волна ярко-синего света омыла вас с головы до ног."/>
         </messages>
     </spell>
     <spell id="kNoflee" element="kMind" mode="kEnabled">
@@ -968,8 +1031,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="опуташа в путины железны"/>
-            <msg id="kCastChrist" val="... да поищешь уйти, да не возможешь."/>
+            <msg id="kCastPhrasePoly" val="опуташа в путины железны"/>
+            <msg id="kCastPhraseChrist" val="... да поищешь уйти, да не возможешь."/>
+            <msg id="kExpired" val="Вы опять можете сбежать с поля боя."/>
+            <msg id="kImposedForRoom" val="$n0 теперь прикован$a к $N2."/>
+            <msg id="kImposedForVict" val="Вы не сможете покинуть $N3."/>
         </messages>
     </spell>
     <spell id="kCreateLight" element="kLight" mode="kEnabled">
@@ -979,8 +1045,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
         <messages>
-            <msg id="kCastPoly" val="будовати светоч"/>
-            <msg id="kCastChrist" val="... да будет свет."/>
+            <msg id="kCastPhrasePoly" val="будовати светоч"/>
+            <msg id="kCastPhraseChrist" val="... да будет свет."/>
         </messages>
     </spell>
     <spell id="kDarkness" element="kDark" mode="kEnabled">
@@ -990,8 +1056,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="тьмою прикрыты"/>
-            <msg id="kCastChrist" val="... тьма покроет землю."/>
+            <msg id="kCastPhrasePoly" val="тьмою прикрыты"/>
+            <msg id="kCastPhraseChrist" val="... тьма покроет землю."/>
+            <msg id="kExpired" val="Облако тьмы, окружающее вас, спало."/>
+            <msg id="kImposedForVict" val="Ваши глаза приобрели красный оттенок."/>
+            <msg id="kImposedForRoom" val="Глаза $n1 приобрели красный оттенок."/>
         </messages>
     </spell>
     <spell id="kStoneSkin" element="kEarth" mode="kEnabled">
@@ -1001,8 +1070,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="буде тверд аки камень"/>
-            <msg id="kCastChrist" val="... твердость ли камней твердость твоя?"/>
+            <msg id="kCastPhrasePoly" val="буде тверд аки камень"/>
+            <msg id="kCastPhraseChrist" val="... твердость ли камней твердость твоя?"/>
+            <msg id="kExpired" val="Ваша кожа вновь стала мягкой и бархатистой."/>
+            <msg id="kImposedForVict" val="Вы стали менее чувствительны к ударам."/>
+            <msg id="kImposedForRoom" val="Кожа $n1 покрылась каменными пластинами."/>
         </messages>
     </spell>
     <spell id="kCloudly" element="kWater" mode="kEnabled">
@@ -1012,8 +1084,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="мгла покрыла"/>
-            <msg id="kCastChrist" val="... будут как утренний туман."/>
+            <msg id="kCastPhrasePoly" val="мгла покрыла"/>
+            <msg id="kCastPhraseChrist" val="... будут как утренний туман."/>
+            <msg id="kExpired" val="Ваши очертания приобрели отчетливость."/>
+            <msg id="kImposedForVict" val="Ваше тело стало прозрачным, как туман."/>
+            <msg id="kImposedForRoom" val="Очертания $n1 расплылись и стали менее отчетливыми."/>
         </messages>
     </spell>
     <spell id="kSilence" element="kMind" mode="kEnabled">
@@ -1023,8 +1098,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
         <messages>
-            <msg id="kCastPoly" val="типун тебе на язык!"/>
-            <msg id="kCastChrist" val="... да замкнутся уста твои."/>
+            <msg id="kCastPhrasePoly" val="типун тебе на язык!"/>
+            <msg id="kCastPhraseChrist" val="... да замкнутся уста твои."/>
         </messages>
     </spell>
     <spell id="kLight" element="kLight" mode="kEnabled">
@@ -1034,8 +1109,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="буде аки светоч"/>
-            <msg id="kCastChrist" val="... и да воссияет над ним свет!"/>
+            <msg id="kCastPhrasePoly" val="буде аки светоч"/>
+            <msg id="kCastPhraseChrist" val="... и да воссияет над ним свет!"/>
+            <msg id="kExpired" val="Ваше тело перестало светиться."/>
+            <msg id="kImposedForRoom" val="$n0 начал$g светиться ярким светом."/>
+            <msg id="kImposedForVict" val="Вы засветились, освещая комнату."/>
         </messages>
     </spell>
     <spell id="kChainLighting" element="kAir" mode="kEnabled">
@@ -1060,8 +1138,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="глаголят небеса"/>
-            <msg id="kCastChrist" val="... понесутся меткие стрелы молний из облаков."/>
+            <msg id="kCastPhrasePoly" val="глаголят небеса"/>
+            <msg id="kCastPhraseChrist" val="... понесутся меткие стрелы молний из облаков."/>
             <msg id="kAreaForChar" val="Вы подняли руки к небу и оно осветилось яркими вспышками!"/>
             <msg id="kAreaForRoom" val="$n поднял$g руки к небу и оно осветилось яркими вспышками!"/>
         </messages>
@@ -1088,8 +1166,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="створисте огненну струя"/>
-            <msg id="kCastChrist" val="... и ввергне их в озеро огненное."/>
+            <msg id="kCastPhrasePoly" val="створисте огненну струя"/>
+            <msg id="kCastPhraseChrist" val="... и ввергне их в озеро огненное."/>
             <msg id="kAreaForChar" val="Вы вызвали потоки подземного пламени!"/>
             <msg id="kAreaForRoom" val="$n0 вызвал$g потоки пламени из глубин земли!"/>
         </messages>
@@ -1112,8 +1190,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="гнев божиа не минути"/>
-            <msg id="kCastChrist" val="... и воспламенится гнев Господа, и Он скоро истребит тебя."/>
+            <msg id="kCastPhrasePoly" val="гнев божиа не минути"/>
+            <msg id="kCastPhraseChrist" val="... и воспламенится гнев Господа, и Он скоро истребит тебя."/>
         </messages>
     </spell>
     <spell id="kWeaknes" element="kLife" mode="kEnabled">
@@ -1131,8 +1209,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="буде чахнуть"/>
-            <msg id="kCastChrist" val="... и силу могучих ослабляет."/>
+            <msg id="kCastPhrasePoly" val="буде чахнуть"/>
+            <msg id="kCastPhraseChrist" val="... и силу могучих ослабляет."/>
+            <msg id="kExpired" val="Силы вернулись к вам."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя слабее!"/>
+            <msg id="kImposedForRoom" val="$n стал$g немного слабее."/>
         </messages>
     </spell>
     <spell id="kGroupInvisible" element="kMind" mode="kEnabled">
@@ -1150,8 +1231,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="други, низовати мечетны."/>
-            <msg id="kCastChrist" val="... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."/>
+            <msg id="kCastPhrasePoly" val="други, низовати мечетны."/>
+            <msg id="kCastPhraseChrist" val="... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы."/>
             <msg id="kAreaForChar" val="Вы вызвали прозрачный туман, поглотивший все дружественное вам.\r\n"/>
             <msg id="kAreaForRoom" val="$n0 вызвал$g прозрачный туман, поглотивший все.\r\n"/>
         </messages>
@@ -1163,8 +1244,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="будут тени и туман, и мрак ночной"/>
-            <msg id="kCastChrist" val="... распростираются вечерние тени."/>
+            <msg id="kCastPhrasePoly" val="будут тени и туман, и мрак ночной"/>
+            <msg id="kCastPhraseChrist" val="... распростираются вечерние тени."/>
+            <msg id="kExpired" val="Ваша теневая мантия замерцала и растаяла."/>
+            <msg id="kImposedForVict" val="Густые тени окутали вас."/>
+            <msg id="kImposedForRoom" val="$n скрыл$u в густой тени."/>
         </messages>
     </spell>
     <spell id="kAcid" element="kWater" mode="kEnabled">
@@ -1189,8 +1273,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="жги аки смола горячая"/>
-            <msg id="kCastChrist" val="... подобно мучению от скорпиона."/>
+            <msg id="kCastPhrasePoly" val="жги аки смола горячая"/>
+            <msg id="kCastPhraseChrist" val="... подобно мучению от скорпиона."/>
         </messages>
     </spell>
     <spell id="kRepair" element="kLight" mode="kEnabled">
@@ -1200,8 +1284,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="будь целым, аки прежде"/>
-            <msg id="kCastChrist" val="... заделаю трещины в ней и разрушенное восстановлю."/>
+            <msg id="kCastPhrasePoly" val="будь целым, аки прежде"/>
+            <msg id="kCastPhraseChrist" val="... заделаю трещины в ней и разрушенное восстановлю."/>
         </messages>
     </spell>
     <spell id="kEnlarge" element="kLife" mode="kEnabled">
@@ -1211,8 +1295,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="возросши к небу"/>
-            <msg id="kCastChrist" val="... и плоть выросла."/>
+            <msg id="kCastPhrasePoly" val="возросши к небу"/>
+            <msg id="kCastPhraseChrist" val="... и плоть выросла."/>
         </messages>
     </spell>
     <spell id="kFear" element="kDark" mode="kEnabled">
@@ -1222,8 +1306,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kNpcDamagePc"/>
         <messages>
-            <msg id="kCastPoly" val="падоша в тернии"/>
-            <msg id="kCastChrist" val="... убойся того, кто по убиении ввергнет в геенну."/>
+            <msg id="kCastPhrasePoly" val="падоша в тернии"/>
+            <msg id="kCastPhraseChrist" val="... убойся того, кто по убиении ввергнет в геенну."/>
         </messages>
     </spell>
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
@@ -1248,8 +1332,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="да коснется тебя Чернобог"/>
-            <msg id="kCastChrist" val="... плоть твоя и тело твое будут истощены."/>
+            <msg id="kCastPhrasePoly" val="да коснется тебя Чернобог"/>
+            <msg id="kCastPhraseChrist" val="... плоть твоя и тело твое будут истощены."/>
         </messages>
     </spell>
     <spell id="kWeb" element="kMind" mode="kEnabled">
@@ -1259,8 +1343,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="сети ловчи"/>
-            <msg id="kCastChrist" val="... терны и сети на пути коварного."/>
+            <msg id="kCastPhrasePoly" val="сети ловчи"/>
+            <msg id="kCastPhraseChrist" val="... терны и сети на пути коварного."/>
+            <msg id="kExpired" val="Магическая сеть, покрывавшая вас, исчезла."/>
+            <msg id="kImposedForRoom" val="$n3 покрыла невидимая паутина, сковывая $s движения!"/>
+            <msg id="kImposedForVict" val="Вас покрыла невидимая паутина!"/>
         </messages>
     </spell>
     <spell id="kBlink" element="kLight" mode="kEnabled">
@@ -1270,8 +1357,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="от стрел укрытие и от меча оборона"/>
-            <msg id="kCastChrist" val="...да защитит он себя."/>
+            <msg id="kCastPhrasePoly" val="от стрел укрытие и от меча оборона"/>
+            <msg id="kCastPhraseChrist" val="...да защитит он себя."/>
+            <msg id="kExpired" val="Вы перестали мигать."/>
+            <msg id="kImposedForRoom" val="$n начал$g мигать."/>
+            <msg id="kImposedForVict" val="Вы начали мигать."/>
         </messages>
     </spell>
     <spell id="kRemoveHold" element="kLight" mode="kEnabled">
@@ -1281,8 +1371,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="буде быстр аки прежде"/>
-            <msg id="kCastChrist" val="... встань, и ходи."/>
+            <msg id="kCastPhrasePoly" val="буде быстр аки прежде"/>
+            <msg id="kCastPhraseChrist" val="... встань, и ходи."/>
         </messages>
     </spell>
     <spell id="kCamouflage" element="kUndefined" mode="kService">
@@ -1307,8 +1397,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="згола застить очеса"/>
-            <msg id="kCastChrist" val="... поразит тебя Господь слепотою навечно."/>
+            <msg id="kCastPhrasePoly" val="згола застить очеса"/>
+            <msg id="kCastPhraseChrist" val="... поразит тебя Господь слепотою навечно."/>
         </messages>
     </spell>
     <spell id="kMassBlindness" element="kDark" mode="kEnabled">
@@ -1326,8 +1416,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="их очеса непотребны"/>
-            <msg id="kCastChrist" val="... и Он поразил их слепотою."/>
+            <msg id="kCastPhrasePoly" val="их очеса непотребны"/>
+            <msg id="kCastPhraseChrist" val="... и Он поразил их слепотою."/>
             <msg id="kAreaForChar" val="У вас над головой возникла яркая вспышка, которая ослепила все живое."/>
             <msg id="kAreaForRoom" val="Вдруг над головой $n1 возникла яркая вспышка."/>
             <msg id="kAreaForVict" val="Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."/>
@@ -1340,8 +1430,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
         <messages>
-            <msg id="kCastPoly" val="згола не прерчет"/>
-            <msg id="kCastChrist" val="... исходящее из уст твоих, да не осквернит слуха."/>
+            <msg id="kCastPhrasePoly" val="згола не прерчет"/>
+            <msg id="kCastPhraseChrist" val="... исходящее из уст твоих, да не осквернит слуха."/>
         </messages>
     </spell>
     <spell id="kExtraHits" element="kLife" mode="kEnabled">
@@ -1351,8 +1441,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
         <messages>
-            <msg id="kCastPoly" val="буде полон здоровья"/>
-            <msg id="kCastChrist" val="... крепкое тело лучше несметного богатства."/>
+            <msg id="kCastPhrasePoly" val="буде полон здоровья"/>
+            <msg id="kCastPhraseChrist" val="... крепкое тело лучше несметного богатства."/>
         </messages>
     </spell>
     <spell id="kResurrection" element="kDark" mode="kEnabled">
@@ -1362,8 +1452,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjRoom"/>
         <flags val="kMagSummons"/>
         <messages>
-            <msg id="kCastPoly" val="воскресе из мертвых"/>
-            <msg id="kCastChrist" val="... оживут мертвецы Твои, восстанут мертвые тела!"/>
+            <msg id="kCastPhrasePoly" val="воскресе из мертвых"/>
+            <msg id="kCastPhraseChrist" val="... оживут мертвецы Твои, восстанут мертвые тела!"/>
         </messages>
     </spell>
     <spell id="kMagicShield" element="kLight" mode="kEnabled">
@@ -1373,8 +1463,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="и ворога оберегись"/>
-            <msg id="kCastChrist" val="... руками своими да защитит он себя"/>
+            <msg id="kCastPhrasePoly" val="и ворога оберегись"/>
+            <msg id="kCastPhraseChrist" val="... руками своими да защитит он себя"/>
+            <msg id="kExpired" val="Ваш волшебный щит рассеялся."/>
+            <msg id="kImposedForRoom" val="Сверкающий щит вспыхнул вокруг $n1 и угас."/>
+            <msg id="kImposedForVict" val="Сверкающий щит вспыхнул вокруг вас и угас."/>
         </messages>
     </spell>
     <spell id="kForbidden" element="kMind" mode="kEnabled">
@@ -1384,8 +1477,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagRoom"/>
         <messages>
-            <msg id="kCastPoly" val="вороги не войдут"/>
-            <msg id="kCastChrist" val="... ибо положена печать, и никто не возвращается."/>
+            <msg id="kCastPhrasePoly" val="вороги не войдут"/>
+            <msg id="kCastPhraseChrist" val="... ибо положена печать, и никто не возвращается."/>
+            <msg id="kExpired" val="Магия, запечатывающая входы, пропала."/>
         </messages>
     </spell>
     <spell id="kMassSilence" element="kMind" mode="kEnabled">
@@ -1403,8 +1497,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="их уста непотребны"/>
-            <msg id="kCastChrist" val="... да замкнутся уста ваши."/>
+            <msg id="kCastPhrasePoly" val="их уста непотребны"/>
+            <msg id="kCastPhraseChrist" val="... да замкнутся уста ваши."/>
             <msg id="kAreaForChar" val="Поведя вокруг грозным взглядом, вы заставили всех замолчать."/>
             <msg id="kAreaForVict" val="Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."/>
         </messages>
@@ -1416,8 +1510,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
         <messages>
-            <msg id="kCastPoly" val="глаголите"/>
-            <msg id="kCastChrist" val="... слова из уст мудрого - благодать."/>
+            <msg id="kCastPhrasePoly" val="глаголите"/>
+            <msg id="kCastPhraseChrist" val="... слова из уст мудрого - благодать."/>
         </messages>
     </spell>
     <spell id="kDamageLight" element="kDark" mode="kEnabled">
@@ -1438,8 +1532,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="падош"/>
-            <msg id="kCastChrist" val="... будет чувствовать боль."/>
+            <msg id="kCastPhrasePoly" val="падош"/>
+            <msg id="kCastPhraseChrist" val="... будет чувствовать боль."/>
         </messages>
     </spell>
     <spell id="kDamageSerious" element="kDark" mode="kEnabled">
@@ -1464,8 +1558,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="скверна"/>
-            <msg id="kCastChrist" val="... постигнут тебя муки."/>
+            <msg id="kCastPhrasePoly" val="скверна"/>
+            <msg id="kCastPhraseChrist" val="... постигнут тебя муки."/>
         </messages>
     </spell>
     <spell id="kDamageCritic" element="kDark" mode="kEnabled">
@@ -1490,8 +1584,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="сильна скверна"/>
-            <msg id="kCastChrist" val="... боль и муки схватили."/>
+            <msg id="kCastPhrasePoly" val="сильна скверна"/>
+            <msg id="kCastPhraseChrist" val="... боль и муки схватили."/>
         </messages>
     </spell>
     <spell id="kMassCurse" element="kDark" mode="kEnabled">
@@ -1509,8 +1603,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="порча их"/>
-            <msg id="kCastChrist" val="... прокляты вы пред всеми скотами."/>
+            <msg id="kCastPhrasePoly" val="порча их"/>
+            <msg id="kCastPhraseChrist" val="... прокляты вы пред всеми скотами."/>
             <msg id="kAreaForChar" val="Медленно оглянувшись, вы прошептали древние слова."/>
             <msg id="kAreaForVict" val="$n злобно посмотрел$g на вас и начал$g шептать древние слова."/>
         </messages>
@@ -1537,8 +1631,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="суд божиа не минути"/>
-            <msg id="kCastChrist" val="... какою мерою мерите, такою отмерено будет и вам."/>
+            <msg id="kCastPhrasePoly" val="суд божиа не минути"/>
+            <msg id="kCastPhraseChrist" val="... какою мерою мерите, такою отмерено будет и вам."/>
             <msg id="kAreaForChar" val="Вы сплели руки в замысловатом жесте, и все потускнело!"/>
             <msg id="kAreaForRoom" val="$n сплел$g руки в замысловатом жесте, и все потускнело!"/>
         </messages>
@@ -1558,8 +1652,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="крыла им створисте"/>
-            <msg id="kCastChrist" val="... и все летающие по роду их."/>
+            <msg id="kCastPhrasePoly" val="крыла им створисте"/>
+            <msg id="kCastPhraseChrist" val="... и все летающие по роду их."/>
             <msg id="kAreaForChar" val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n"/>
         </messages>
     </spell>
@@ -1578,8 +1672,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="други, наполнися ратнаго духа"/>
-            <msg id="kCastChrist" val="... блажены те, слышащие слово Божие."/>
+            <msg id="kCastPhrasePoly" val="други, наполнися ратнаго духа"/>
+            <msg id="kCastPhraseChrist" val="... блажены те, слышащие слово Божие."/>
             <msg id="kAreaForChar" val="Прикрыв глаза, вы прошептали таинственную молитву.\r\n"/>
         </messages>
     </spell>
@@ -1590,8 +1684,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
         <messages>
-            <msg id="kCastPoly" val="буде свеж"/>
-            <msg id="kCastChrist" val="... не будет у него ни усталого, ни изнемогающего."/>
+            <msg id="kCastPhrasePoly" val="буде свеж"/>
+            <msg id="kCastPhraseChrist" val="... не будет у него ни усталого, ни изнемогающего."/>
         </messages>
     </spell>
     <spell id="kStunning" element="kEarth" mode="kEnabled">
@@ -1612,8 +1706,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="да обратит тебя Чернобог в мертвый камень!"/>
-            <msg id="kCastChrist" val="... и проклял его именем Господним."/>
+            <msg id="kCastPhrasePoly" val="да обратит тебя Чернобог в мертвый камень!"/>
+            <msg id="kCastPhraseChrist" val="... и проклял его именем Господним."/>
         </messages>
     </spell>
     <spell id="kHide" element="kUndefined" mode="kService">
@@ -1651,8 +1745,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
         <messages>
-            <msg id="kCastPoly" val="брюхо полно"/>
-            <msg id="kCastChrist" val="... душа больше пищи, и тело - одежды."/>
+            <msg id="kCastPhrasePoly" val="брюхо полно"/>
+            <msg id="kCastPhraseChrist" val="... душа больше пищи, и тело - одежды."/>
         </messages>
     </spell>
     <spell id="kColdWind" element="kAir" mode="kEnabled">
@@ -1677,8 +1771,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="веют ветры"/>
-            <msg id="kCastChrist" val="... подует северный холодный ветер."/>
+            <msg id="kCastPhrasePoly" val="веют ветры"/>
+            <msg id="kCastPhraseChrist" val="... подует северный холодный ветер."/>
+            <msg id="kExpired" val="Вы согрелись и подвижность вернулась к вам."/>
+            <msg id="kImposedForVict" val="Вы покрылись серебристым инеем."/>
+            <msg id="kImposedForRoom" val="$n покрыл$u красивым серебристым инеем."/>
         </messages>
     </spell>
     <spell id="kBattle" element="kUndefined" mode="kService">
@@ -1709,8 +1806,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="не затвори темне березе"/>
-            <msg id="kCastChrist" val="... дух дышит, где хочет."/>
+            <msg id="kCastPhrasePoly" val="не затвори темне березе"/>
+            <msg id="kCastPhraseChrist" val="... дух дышит, где хочет."/>
+            <msg id="kExpired" val="Вы более не способны дышать водой."/>
+            <msg id="kImposedForVict" val="У вас выросли жабры."/>
+            <msg id="kImposedForRoom" val="У $n1 выросли жабры."/>
         </messages>
     </spell>
     <spell id="kSlowdown" element="kMind" mode="kEnabled">
@@ -1720,8 +1820,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="немочь"/>
-            <msg id="kCastChrist" val="...и помедлил еще семь дней других."/>
+            <msg id="kCastPhrasePoly" val="немочь"/>
+            <msg id="kCastPhraseChrist" val="...и помедлил еще семь дней других."/>
+            <msg id="kExpired" val="Медлительность исчезла."/>
+            <msg id="kImposedForRoom" val="Движения $n1 заметно замедлились."/>
+            <msg id="kImposedForVict" val="Ваши движения заметно замедлились."/>
         </messages>
     </spell>
     <spell id="kHaste" element="kMind" mode="kEnabled">
@@ -1731,8 +1834,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="скор аки ястреб"/>
-            <msg id="kCastChrist" val="... поднимет его ветер и понесет, и он быстро побежит от него."/>
+            <msg id="kCastPhrasePoly" val="скор аки ястреб"/>
+            <msg id="kCastPhraseChrist" val="... поднимет его ветер и понесет, и он быстро побежит от него."/>
+            <msg id="kExpired" val="Вы стали более медлительны."/>
+            <msg id="kImposedForVict" val="Вы начали двигаться быстрее."/>
+            <msg id="kImposedForRoom" val="$n начал$g двигаться заметно быстрее."/>
         </messages>
     </spell>
     <spell id="kMassSlow" element="kMind" mode="kEnabled">
@@ -1750,8 +1856,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="тернии им"/>
-            <msg id="kCastChrist" val="... загорожу путь их тернами."/>
+            <msg id="kCastPhrasePoly" val="тернии им"/>
+            <msg id="kCastPhraseChrist" val="... загорожу путь их тернами."/>
             <msg id="kAreaForChar" val="Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами."/>
             <msg id="kAreaForVict" val="$n вызвал$g цепкие корни, опутавшие ваши ноги."/>
         </messages>
@@ -1771,8 +1877,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="быстры аки ястребов стая"/>
-            <msg id="kCastChrist" val="... и они быстры как серны на горах."/>
+            <msg id="kCastPhrasePoly" val="быстры аки ястребов стая"/>
+            <msg id="kCastPhraseChrist" val="... и они быстры как серны на горах."/>
             <msg id="kAreaForChar" val="Разведя руки в стороны, вы ощутили всю мощь стихии ветра.\r\n"/>
         </messages>
     </spell>
@@ -1783,8 +1889,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Живый в помощи Вышняго"/>
-            <msg id="kCastChrist" val="... благословен буде Грядый во имя Господне."/>
+            <msg id="kCastPhrasePoly" val="Живый в помощи Вышняго"/>
+            <msg id="kCastPhraseChrist" val="... благословен буде Грядый во имя Господне."/>
+            <msg id="kExpired" val="Голубой кокон вокруг вашего тела угас."/>
+            <msg id="kImposedForVict" val="Вас покрыл голубой кокон."/>
+            <msg id="kImposedForRoom" val="$n покрыл$u сверкающим коконом."/>
         </messages>
     </spell>
     <spell id="kFever" element="kLife" mode="kEnabled">
@@ -1802,8 +1911,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="нутро снеде"/>
-            <msg id="kCastChrist" val="... и сделаются жестокие и кровавые язвы."/>
+            <msg id="kCastPhrasePoly" val="нутро снеде"/>
+            <msg id="kCastPhraseChrist" val="... и сделаются жестокие и кровавые язвы."/>
+            <msg id="kExpired" val="Лихорадка прекратилась."/>
+            <msg id="kImposedForVict" val="Вас скрутило в жестокой лихорадке."/>
+            <msg id="kImposedForRoom" val="$n3 скрутило в жестокой лихорадке."/>
         </messages>
     </spell>
     <spell id="kCureFever" element="kLife" mode="kEnabled">
@@ -1813,8 +1925,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Навь, очисти тело"/>
-            <msg id="kCastChrist" val="... хочу, очистись."/>
+            <msg id="kCastPhrasePoly" val="Навь, очисти тело"/>
+            <msg id="kCastPhraseChrist" val="... хочу, очистись."/>
         </messages>
     </spell>
     <spell id="kAwareness" element="kMind" mode="kEnabled">
@@ -1824,8 +1936,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="око недреманно"/>
-            <msg id="kCastChrist" val="... не дам сна очам моим и веждам моим - дремания."/>
+            <msg id="kCastPhrasePoly" val="око недреманно"/>
+            <msg id="kCastPhraseChrist" val="... не дам сна очам моим и веждам моим - дремания."/>
+            <msg id="kExpired" val="Вы стали менее внимательны."/>
+            <msg id="kImposedForVict" val="Вы стали более внимательны к окружающему."/>
+            <msg id="kImposedForRoom" val="$n начал$g внимательно осматриваться по сторонам."/>
         </messages>
     </spell>
     <spell id="kReligion" element="kUndefined" mode="kService">
@@ -1842,8 +1957,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Стрибог, даруй прибежище"/>
-            <msg id="kCastChrist" val="... защита от ветра и покров от непогоды."/>
+            <msg id="kCastPhrasePoly" val="Стрибог, даруй прибежище"/>
+            <msg id="kCastPhraseChrist" val="... защита от ветра и покров от непогоды."/>
+            <msg id="kExpired" val="Ваш воздушный щит исчез."/>
+            <msg id="kImposedForVict" val="Вас окутал воздушный щит."/>
+            <msg id="kImposedForRoom" val="$n3 окутал воздушный щит."/>
         </messages>
     </spell>
     <spell id="kPortal" element="kLight" mode="kEnabled">
@@ -1853,8 +1971,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="буде путь короток"/>
-            <msg id="kCastChrist" val="... входите во врата Его."/>
+            <msg id="kCastPhrasePoly" val="буде путь короток"/>
+            <msg id="kCastPhraseChrist" val="... входите во врата Его."/>
         </messages>
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
@@ -1863,6 +1981,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="200" min="180" change="4"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <messages>
+            <msg id="kExpired" val="Пентаграмма медленно растаяла."/>
+        </messages>
     </spell>
     <spell id="kDispellMagic" element="kLight" mode="kEnabled">
         <name rus="развеять магию" eng="dispel magic"/>
@@ -1871,8 +1992,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects"/>
         <messages>
-            <msg id="kCastPoly" val="изыде ворожба"/>
-            <msg id="kCastChrist" val="... выйди, дух нечистый."/>
+            <msg id="kCastPhrasePoly" val="изыде ворожба"/>
+            <msg id="kCastPhraseChrist" val="... выйди, дух нечистый."/>
         </messages>
     </spell>
     <spell id="kSummonKeeper" element="kLight" mode="kEnabled">
@@ -1882,8 +2003,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
         <messages>
-            <msg id="kCastPoly" val="Сварог, даруй защитника"/>
-            <msg id="kCastChrist" val="... и благословен защитник мой!"/>
+            <msg id="kCastPhrasePoly" val="Сварог, даруй защитника"/>
+            <msg id="kCastPhraseChrist" val="... и благословен защитник мой!"/>
         </messages>
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
@@ -1893,8 +2014,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="заживет, аки на собаке"/>
-            <msg id="kCastChrist" val="... нет богатства лучше телесного здоровья."/>
+            <msg id="kCastPhrasePoly" val="заживет, аки на собаке"/>
+            <msg id="kCastPhraseChrist" val="... нет богатства лучше телесного здоровья."/>
         </messages>
     </spell>
     <spell id="kCreateWeapon" element="kLight" mode="kEnabled">
@@ -1904,8 +2025,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="будовати стружие"/>
-            <msg id="kCastChrist" val="...вооружите из себя людей на войну"/>
+            <msg id="kCastPhrasePoly" val="будовати стружие"/>
+            <msg id="kCastPhraseChrist" val="...вооружите из себя людей на войну"/>
         </messages>
     </spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
@@ -1915,8 +2036,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Хорс, даруй прибежище"/>
-            <msg id="kCastChrist" val="... душа горячая, как пылающий огонь."/>
+            <msg id="kCastPhrasePoly" val="Хорс, даруй прибежище"/>
+            <msg id="kCastPhraseChrist" val="... душа горячая, как пылающий огонь."/>
+            <msg id="kExpired" val="Огненный щит вокруг вашего тела исчез."/>
+            <msg id="kImposedForVict" val="Вас окутал огненный щит."/>
+            <msg id="kImposedForRoom" val="$n3 окутал огненный щит."/>
         </messages>
     </spell>
     <spell id="kRelocate" element="kAir" mode="kEnabled">
@@ -1926,8 +2050,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="Стрибог, укажи путь..."/>
-            <msg id="kCastChrist" val="... указывай им путь, по которому они должны идти."/>
+            <msg id="kCastPhrasePoly" val="Стрибог, укажи путь..."/>
+            <msg id="kCastPhraseChrist" val="... указывай им путь, по которому они должны идти."/>
         </messages>
     </spell>
     <spell id="kSummonFirekeeper" element="kFire" mode="kEnabled">
@@ -1937,8 +2061,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
         <messages>
-            <msg id="kCastPoly" val="Дажьбог, даруй защитника"/>
-            <msg id="kCastChrist" val="... Ангел Мой с вами, и он защитник душ ваших."/>
+            <msg id="kCastPhrasePoly" val="Дажьбог, даруй защитника"/>
+            <msg id="kCastPhraseChrist" val="... Ангел Мой с вами, и он защитник душ ваших."/>
         </messages>
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
@@ -1948,8 +2072,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Морена, даруй прибежище"/>
-            <msg id="kCastChrist" val="... а снег и лед выдерживали огонь и не таяли."/>
+            <msg id="kCastPhrasePoly" val="Морена, даруй прибежище"/>
+            <msg id="kCastPhraseChrist" val="... а снег и лед выдерживали огонь и не таяли."/>
+            <msg id="kExpired" val="Ледяной щит вокруг вашего тела исчез."/>
+            <msg id="kImposedForVict" val="Вас окутал ледяной щит."/>
+            <msg id="kImposedForRoom" val="$n3 окутал ледяной щит."/>
         </messages>
     </spell>
     <spell id="kIceStorm" element="kWater" mode="kEnabled">
@@ -1974,10 +2101,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="торже, яко вихор"/>
-            <msg id="kCastChrist" val="... и град, величиною в талант, падет с неба."/>
+            <msg id="kCastPhrasePoly" val="торже, яко вихор"/>
+            <msg id="kCastPhraseChrist" val="... и град, величиною в талант, падет с неба."/>
             <msg id="kAreaForChar" val="Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!"/>
             <msg id="kAreaForRoom" val="$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!"/>
+            <msg id="kExpired" val="Ваши мышцы оттаяли и вы снова можете двигаться."/>
+            <msg id="kImposedForRoom" val="$n3 оглушило."/>
+            <msg id="kImposedForVict" val="Вас оглушило."/>
         </messages>
     </spell>
     <spell id="kLessening" element="kLife" mode="kEnabled">
@@ -1987,8 +2117,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="буде мал аки мышь"/>
-            <msg id="kCastChrist" val="... плоть на нем пропадает."/>
+            <msg id="kCastPhrasePoly" val="буде мал аки мышь"/>
+            <msg id="kCastPhraseChrist" val="... плоть на нем пропадает."/>
         </messages>
     </spell>
     <spell id="kShineFlash" element="kFire" mode="kEnabled">
@@ -2009,8 +2139,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="засти очи им"/>
-            <msg id="kCastChrist" val="... свет пламени из средины огня."/>
+            <msg id="kCastPhrasePoly" val="засти очи им"/>
+            <msg id="kCastPhraseChrist" val="... свет пламени из средины огня."/>
         </messages>
     </spell>
     <spell id="kMadness" element="kMind" mode="kEnabled">
@@ -2020,8 +2150,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="згола яростен"/>
-            <msg id="kCastChrist" val="... и ярость его загорелась в нем."/>
+            <msg id="kCastPhrasePoly" val="згола яростен"/>
+            <msg id="kCastPhraseChrist" val="... и ярость его загорелась в нем."/>
         </messages>
     </spell>
     <spell id="kGroupMagicGlass" element="kAir" mode="kEnabled">
@@ -2039,8 +2169,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="гладь воды отразит"/>
-            <msg id="kCastChrist" val="... воздай им по делам их, по злым поступкам их."/>
+            <msg id="kCastPhrasePoly" val="гладь воды отразит"/>
+            <msg id="kCastPhraseChrist" val="... воздай им по делам их, по злым поступкам их."/>
             <msg id="kAreaForChar" val="Вы произнесли несколько резких слов, и все вокруг засеребрилось.\r\n"/>
         </messages>
     </spell>
@@ -2051,8 +2181,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="и будут стрелы молний, и зарницы в высях"/>
-            <msg id="kCastChrist" val="... соберу на них бедствия и истощу на них стрелы Мои."/>
+            <msg id="kCastPhrasePoly" val="и будут стрелы молний, и зарницы в высях"/>
+            <msg id="kCastPhraseChrist" val="... соберу на них бедствия и истощу на них стрелы Мои."/>
+            <msg id="kExpired" val="Облако стрел вокруг вас рассеялось."/>
+            <msg id="kImposedForVict" val="Вас окружило облако летающих огненных стрел."/>
+            <msg id="kImposedForRoom" val="$n3 окружило облако летающих огненных стрел."/>
         </messages>
     </spell>
     <spell id="kVacuum" element="kDark" mode="kEnabled">
@@ -2073,8 +2206,9 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Сдохни!"/>
-            <msg id="kCastChrist" val="... и услышав слова сии - пал бездыханен."/>
+            <msg id="kCastPhrasePoly" val="Сдохни!"/>
+            <msg id="kCastPhraseChrist" val="... и услышав слова сии - пал бездыханен."/>
+            <msg id="kExpired" val="Пустота вокруг вас исчезла."/>
         </messages>
     </spell>
     <spell id="kMeteorStorm" element="kEarth" mode="kEnabled">
@@ -2084,8 +2218,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <messages>
-            <msg id="kCastPoly" val="идти дождю стрелами"/>
-            <msg id="kCastChrist" val="... и камни, величиною в талант, падут с неба."/>
+            <msg id="kCastPhrasePoly" val="идти дождю стрелами"/>
+            <msg id="kCastPhraseChrist" val="... и камни, величиною в талант, падут с неба."/>
+            <msg id="kExpired" val="Последний громовой камень грянул в землю и все стихло."/>
         </messages>
     </spell>
     <spell id="kStoneHands" element="kEarth" mode="kEnabled">
@@ -2095,8 +2230,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="сильны велетов руки"/>
-            <msg id="kCastChrist" val="... рука Моя пребудет с ним, и мышца Моя укрепит его."/>
+            <msg id="kCastPhrasePoly" val="сильны велетов руки"/>
+            <msg id="kCastPhraseChrist" val="... рука Моя пребудет с ним, и мышца Моя укрепит его."/>
+            <msg id="kExpired" val="Ваши руки вернулись к прежнему состоянию."/>
+            <msg id="kImposedForVict" val="Ваши руки задубели."/>
+            <msg id="kImposedForRoom" val="Руки $n1 задубели."/>
         </messages>
     </spell>
     <spell id="kMindless" element="kMind" mode="kEnabled">
@@ -2106,8 +2244,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
         <messages>
-            <msg id="kCastPoly" val="разум аки мутный омут"/>
-            <msg id="kCastChrist" val="... и безумие его с ним."/>
+            <msg id="kCastPhrasePoly" val="разум аки мутный омут"/>
+            <msg id="kCastPhraseChrist" val="... и безумие его с ним."/>
+            <msg id="kExpired" val="Ваш разум просветлел."/>
+            <msg id="kImposedForVict" val="Ваш разум помутился!"/>
+            <msg id="kImposedForRoom" val="$n0 стал$g слаб$g на голову!"/>
         </messages>
     </spell>
     <spell id="kPrismaticAura" element="kLight" mode="kEnabled">
@@ -2117,8 +2258,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="окружен радугой"/>
-            <msg id="kCastChrist" val="... явится радуга в облаке."/>
+            <msg id="kCastPhrasePoly" val="окружен радугой"/>
+            <msg id="kCastPhraseChrist" val="... явится радуга в облаке."/>
+            <msg id="kExpired" val="Призматическая аура вокруг вашего тела угасла."/>
+            <msg id="kImposedForVict" val="Вас покрыла призматическая аура."/>
+            <msg id="kImposedForRoom" val="$n3 покрыла призматическая аура."/>
         </messages>
     </spell>
     <spell id="kEviless" element="kDark" mode="kEnabled">
@@ -2136,10 +2280,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="зло творяще"/>
-            <msg id="kCastChrist" val="... и ты воздашь им злом."/>
+            <msg id="kCastPhrasePoly" val="зло творяще"/>
+            <msg id="kCastPhraseChrist" val="... и ты воздашь им злом."/>
             <msg id="kAreaForChar" val="Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше.."/>
             <msg id="kAreaForRoom" val="Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда."/>
+            <msg id="kExpired" val="Силы зла оставили вас."/>
+            <msg id="kImposedForVict" val="Черное облако покрыло вас."/>
+            <msg id="kImposedForRoom" val="Черное облако покрыло $n3 с головы до пят."/>
         </messages>
     </spell>
     <spell id="kAirAura" element="kAir" mode="kEnabled">
@@ -2157,9 +2304,12 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Мать-земля, даруй защиту."/>
-            <msg id="kCastChrist" val="... поклон тебе матушка земля."/>
+            <msg id="kCastPhrasePoly" val="Мать-земля, даруй защиту."/>
+            <msg id="kCastPhraseChrist" val="... поклон тебе матушка земля."/>
             <msg id="kAreaForChar" val="Силы воздуха пришли к вам на помощь и защитили вас.\r\n"/>
+            <msg id="kExpired" val="Воздушная аура вокруг вас исчезла."/>
+            <msg id="kImposedForVict" val="Вас окружила воздушная аура."/>
+            <msg id="kImposedForRoom" val="$n3 окружила воздушная аура."/>
         </messages>
     </spell>
     <spell id="kFireAura" element="kFire" mode="kEnabled">
@@ -2177,9 +2327,12 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Сварог, даруй защиту."/>
-            <msg id="kCastChrist" val="... и огонь низводит с неба."/>
+            <msg id="kCastPhrasePoly" val="Сварог, даруй защиту."/>
+            <msg id="kCastPhraseChrist" val="... и огонь низводит с неба."/>
             <msg id="kAreaForChar" val="Силы огня пришли к вам на помощь и защитили вас.\r\n"/>
+            <msg id="kExpired" val="Огненная аура вокруг вас исчезла."/>
+            <msg id="kImposedForVict" val="Вас окружила огненная аура."/>
+            <msg id="kImposedForRoom" val="$n3 окружила огненная аура."/>
         </messages>
     </spell>
     <spell id="kIceAura" element="kWater" mode="kEnabled">
@@ -2197,9 +2350,12 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Морена, даруй защиту."/>
-            <msg id="kCastChrist" val="... текущие холодные воды."/>
+            <msg id="kCastPhrasePoly" val="Морена, даруй защиту."/>
+            <msg id="kCastPhraseChrist" val="... текущие холодные воды."/>
             <msg id="kAreaForChar" val="Силы холода пришли к вам на помощь и защитили вас.\r\n"/>
+            <msg id="kExpired" val="Ледяная аура вокруг вас исчезла."/>
+            <msg id="kImposedForVict" val="$n3 окружила ледяная аура."/>
+            <msg id="kImposedForRoom" val="Вас окружила ледяная аура."/>
         </messages>
     </spell>
     <spell id="kShock" element="kLight" mode="kEnabled">
@@ -2224,10 +2380,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="будет слеп и глух, аки мертвец"/>
-            <msg id="kCastChrist" val="... кто делает или глухим, или слепым."/>
+            <msg id="kCastPhrasePoly" val="будет слеп и глух, аки мертвец"/>
+            <msg id="kCastPhraseChrist" val="... кто делает или глухим, или слепым."/>
             <msg id="kAreaForChar" val="Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе."/>
             <msg id="kAreaForRoom" val="Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе."/>
+            <msg id="kExpired" val="Ваше сознание прояснилось."/>
+            <msg id="kImposedForRoom" val="$n1 в шоке!"/>
+            <msg id="kImposedForVict" val="Вас повергло в шок."/>
         </messages>
     </spell>
     <spell id="kMagicGlass" element="kLight" mode="kEnabled">
@@ -2237,8 +2396,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Аз воздам!"/>
-            <msg id="kCastChrist" val="... и воздам каждому из вас."/>
+            <msg id="kCastPhrasePoly" val="Аз воздам!"/>
+            <msg id="kCastPhraseChrist" val="... и воздам каждому из вас."/>
+            <msg id="kExpired" val="Вы вновь чувствительны к магическим поражениям."/>
+            <msg id="kImposedForVict" val="Вас покрыло зеркало магии."/>
+            <msg id="kImposedForRoom" val="$n3 покрыла зеркальная пелена."/>
         </messages>
     </spell>
     <spell id="kGroupSanctuary" element="kLight" mode="kEnabled">
@@ -2256,8 +2418,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="иже во святых, други"/>
-            <msg id="kCastChrist" val="... будьте святы, аки Господь наш свят."/>
+            <msg id="kCastPhrasePoly" val="иже во святых, други"/>
+            <msg id="kCastPhraseChrist" val="... будьте святы, аки Господь наш свят."/>
             <msg id="kAreaForChar" val="Вы подняли руки к небу и произнесли священную молитву.\r\n"/>
         </messages>
     </spell>
@@ -2276,8 +2438,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="други, буде окружены радугой"/>
-            <msg id="kCastChrist" val="... взгляни на радугу, и прославь Сотворившего ее."/>
+            <msg id="kCastPhrasePoly" val="други, буде окружены радугой"/>
+            <msg id="kCastPhraseChrist" val="... взгляни на радугу, и прославь Сотворившего ее."/>
             <msg id="kAreaForChar" val="Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.\r\n"/>
         </messages>
     </spell>
@@ -2296,8 +2458,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="оглохни"/>
-            <msg id="kCastChrist" val="... и глухота поразит тебя."/>
+            <msg id="kCastPhrasePoly" val="оглохни"/>
+            <msg id="kCastPhraseChrist" val="... и глухота поразит тебя."/>
+            <msg id="kExpired" val="Вы вновь можете слышать."/>
+            <msg id="kImposedForRoom" val="$n0 оглох$q!"/>
+            <msg id="kImposedForVict" val="Вы оглохли."/>
         </messages>
     </spell>
     <spell id="kPowerDeafness" element="kMind" mode="kEnabled">
@@ -2307,8 +2472,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
         <messages>
-            <msg id="kCastPoly" val="да застит уши твои"/>
-            <msg id="kCastChrist" val="... и будь глухим надолго."/>
+            <msg id="kCastPhrasePoly" val="да застит уши твои"/>
+            <msg id="kCastPhraseChrist" val="... и будь глухим надолго."/>
         </messages>
     </spell>
     <spell id="kRemoveDeafness" element="kLife" mode="kEnabled">
@@ -2318,8 +2483,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
         <messages>
-            <msg id="kCastPoly" val="слушай глас мой"/>
-            <msg id="kCastChrist" val="... услышь слово Его."/>
+            <msg id="kCastPhrasePoly" val="слушай глас мой"/>
+            <msg id="kCastPhraseChrist" val="... услышь слово Его."/>
         </messages>
     </spell>
     <spell id="kMassDeafness" element="kMind" mode="kEnabled">
@@ -2337,8 +2502,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="будьте глухи"/>
-            <msg id="kCastChrist" val="... и не будут слышать уши ваши."/>
+            <msg id="kCastPhrasePoly" val="будьте глухи"/>
+            <msg id="kCastPhraseChrist" val="... и не будут слышать уши ваши."/>
             <msg id="kAreaForChar" val="Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух."/>
             <msg id="kAreaForRoom" val="Как только $n0 склонил$g голову, раздался оглушающий хлопок."/>
         </messages>
@@ -2365,10 +2530,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="пыль поднимется столбами"/>
-            <msg id="kCastChrist" val="... и пыль поглотит вас."/>
+            <msg id="kCastPhrasePoly" val="пыль поднимется столбами"/>
+            <msg id="kCastPhraseChrist" val="... и пыль поглотит вас."/>
             <msg id="kAreaForChar" val="Вы взмахнули руками и вызвали огромное пылевое облако, скрывшее все вокруг."/>
             <msg id="kAreaForRoom" val="Вас поглотила пылевая буря, вызванная $n4."/>
+            <msg id="kExpired" val="Вы протерли глаза от пыли."/>
+            <msg id="kImposedForRoom" val="$n0 ослеп$q!"/>
+            <msg id="kImposedForVict" val="Вы ослепли!"/>
         </messages>
     </spell>
     <spell id="kEarthfall" element="kEarth" mode="kEnabled">
@@ -2393,10 +2561,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="пусть каменья падут"/>
-            <msg id="kCastChrist" val="... и обрушатся камни с небес."/>
+            <msg id="kCastPhrasePoly" val="пусть каменья падут"/>
+            <msg id="kCastPhraseChrist" val="... и обрушатся камни с небес."/>
             <msg id="kAreaForChar" val="Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз."/>
             <msg id="kAreaForRoom" val="$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз."/>
+            <msg id="kExpired" val="Громкий звон в голове несколько поутих."/>
+            <msg id="kImposedForRoom" val="$n3 оглушило."/>
+            <msg id="kImposedForVict" val="Вас оглушило."/>
         </messages>
     </spell>
     <spell id="kSonicWave" element="kAir" mode="kStability">
@@ -2421,8 +2592,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="да невзлюбит тебя воздух"/>
-            <msg id="kCastChrist" val="... и даже воздух покарает тебя."/>
+            <msg id="kCastPhrasePoly" val="да невзлюбит тебя воздух"/>
+            <msg id="kCastPhraseChrist" val="... и даже воздух покарает тебя."/>
             <msg id="kAreaForChar" val="Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!"/>
             <msg id="kAreaForRoom" val="$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!"/>
         </messages>
@@ -2445,8 +2616,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Велес, упокой мертвых"/>
-            <msg id="kCastChrist" val="... и предоставь мертвым погребать своих мертвецов."/>
+            <msg id="kCastPhrasePoly" val="Велес, упокой мертвых"/>
+            <msg id="kCastPhraseChrist" val="... и предоставь мертвым погребать своих мертвецов."/>
         </messages>
     </spell>
     <spell id="kSumonAngel" element="kLight" mode="kEnabled">
@@ -2456,8 +2627,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="Боги, даруйте защитника"/>
-            <msg id="kCastChrist" val="... дабы уберег он меня от зла."/>
+            <msg id="kCastPhrasePoly" val="Боги, даруйте защитника"/>
+            <msg id="kCastPhraseChrist" val="... дабы уберег он меня от зла."/>
         </messages>
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
@@ -2475,8 +2646,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Поврещу сташивые души их в скарядие!"/>
-            <msg id="kCastChrist" val="... и затмил ужас разум их."/>
+            <msg id="kCastPhrasePoly" val="Поврещу сташивые души их в скарядие!"/>
+            <msg id="kCastPhraseChrist" val="... и затмил ужас разум их."/>
             <msg id="kAreaForChar" val="Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться."/>
             <msg id="kAreaForRoom" val="$n0 оглядел$g комнату устрашающим взглядом."/>
         </messages>
@@ -2488,11 +2659,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Да пребудет с тобой вся краса мира!"/>
-            <msg id="kCastChrist" val="... и омолодил он, и украсил их."/>
+            <msg id="kCastPhrasePoly" val="Да пребудет с тобой вся краса мира!"/>
+            <msg id="kCastPhraseChrist" val="... и омолодил он, и украсил их."/>
             <msg id="kComponentUse" val="Вы взяли череп летучей мыши в левую руку.\r\n"/>
             <msg id="kComponentMissing" val="Батюшки светы! А помаду-то я дома забыл$g.\r\n"/>
             <msg id="kComponentExhausted" val="$o рассыпался в ваших руках от неловкого движения.\r\n"/>
+            <msg id="kExpired" val="Ваша красота куда-то пропала."/>
+            <msg id="kImposedForVict" val="Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить."/>
+            <msg id="kImposedForRoom" val="$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос: \r\n\'...так это на ресницы надо, кажется... Эх, только бы не перепутать...'\r\n"/>
         </messages>
     </spell>
     <spell id="kCrying" element="kMind" mode="kEnabled">
@@ -2502,8 +2676,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="Будут слезы твои, аки камень на сердце"/>
-            <msg id="kCastChrist" val="... и постигнет твой дух угнетение вечное."/>
+            <msg id="kCastPhrasePoly" val="Будут слезы твои, аки камень на сердце"/>
+            <msg id="kCastPhraseChrist" val="... и постигнет твой дух угнетение вечное."/>
+            <msg id="kExpired" val="Ваша душа успокоилась."/>
+            <msg id="kImposedForRoom" val="$n0 издал$g протяжный стон."/>
+            <msg id="kImposedForVict" val="Вы впали в уныние."/>
         </messages>
     </spell>
     <spell id="kOblivion" element="kDark" mode="kEnabled">
@@ -2513,8 +2690,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="будь живот аки буява с шерстнями."/>
-            <msg id="kCastChrist" val="... опадет на тебя чернь страшная."/>
+            <msg id="kCastPhrasePoly" val="будь живот аки буява с шерстнями."/>
+            <msg id="kCastPhraseChrist" val="... опадет на тебя чернь страшная."/>
+            <msg id="kExpired" val="Тёмная вода забвения схлынула из вашего раузма."/>
+            <msg id="kImposedForRoom" val="Облако забвения окружило $n3."/>
+            <msg id="kImposedForVict" val="Ваш разум помутился."/>
         </messages>
     </spell>
     <spell id="kBurdenOfTime" element="kDark" mode="kTesting">
@@ -2532,10 +2712,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Яко небытие нещадно к вам, али время вернулось вспять."/>
-            <msg id="kCastChrist" val="... и время не властно над ними."/>
+            <msg id="kCastPhrasePoly" val="Яко небытие нещадно к вам, али время вернулось вспять."/>
+            <msg id="kCastPhraseChrist" val="... и время не властно над ними."/>
             <msg id="kAreaForChar" val="Вы скрестили руки на груди, вызвав яркую вспышку синего света."/>
             <msg id="kAreaForRoom" val="$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света."/>
+            <msg id="kExpired" val="Иновременное небытие больше не властно над вами."/>
+            <msg id="kImposedForRoom" val="Облако забвения окружило $n3."/>
+            <msg id="kImposedForVict" val="Ваш разум помутился."/>
         </messages>
     </spell>
     <spell id="kGroupRefresh" element="kLife" mode="kEnabled">
@@ -2553,8 +2736,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Исполняше други силою!"/>
-            <msg id="kCastChrist" val="...да не останется ни обделенного, ни обессиленного."/>
+            <msg id="kCastPhrasePoly" val="Исполняше други силою!"/>
+            <msg id="kCastPhraseChrist" val="...да не останется ни обделенного, ни обессиленного."/>
             <msg id="kAreaForChar" val="Ваша магия наполнила воздух зеленоватым сиянием.\r\n"/>
         </messages>
     </spell>
@@ -2565,8 +2748,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
         <messages>
-            <msg id="kCastPoly" val="Избавь речь свою от недобрых слов, а ум - от крамольных мыслей."/>
-            <msg id="kCastChrist" val="... любите врагов ваших и благотворите ненавидящим вас."/>
+            <msg id="kCastPhrasePoly" val="Избавь речь свою от недобрых слов, а ум - от крамольных мыслей."/>
+            <msg id="kCastPhraseChrist" val="... любите врагов ваших и благотворите ненавидящим вас."/>
+            <msg id="kExpired" val="Смирение в вашей душе вдруг куда-то исчезло."/>
+            <msg id="kImposedForRoom" val="Взгляд $n1 потускнел, а сам он успокоился."/>
+            <msg id="kImposedForVict" val="Ваша душа очистилась от зла и странно успокоилась."/>
         </messages>
     </spell>
     <spell id="kMagicBattle" element="kUndefined" mode="kService">
@@ -2590,8 +2776,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Обращу кости их в твердый камень."/>
-            <msg id="kCastChrist" val="...и тот, кто упадет на камень сей, разобьется."/>
+            <msg id="kCastPhrasePoly" val="Обращу кости их в твердый камень."/>
+            <msg id="kCastPhraseChrist" val="...и тот, кто упадет на камень сей, разобьется."/>
+            <msg id="kExpired" val="Читить вредно!"/>
+            <msg id="kImposedForVict" val="Читим-с?! Нехорошо! Инцидент запротоколирован."/>
+            <msg id="kImposedForRoom" val="Кости $n1 обрели твердость кремня."/>
         </messages>
     </spell>
     <spell id="kRoomLight" element="kLight" mode="kEnabled">
@@ -2601,8 +2790,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom"/>
         <messages>
-            <msg id="kCastPoly" val="Да буде СВЕТ !!!"/>
-            <msg id="kCastChrist" val="...ибо сказал МОНТЕР !!!"/>
+            <msg id="kCastPhrasePoly" val="Да буде СВЕТ !!!"/>
+            <msg id="kCastPhraseChrist" val="...ибо сказал МОНТЕР !!!"/>
+            <msg id="kExpired" val="Заливавший все вокруг свет угас."/>
         </messages>
     </spell>
     <spell id="kDeadlyFog" element="kDark" mode="kEnabled">
@@ -2612,8 +2802,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <messages>
-            <msg id="kCastPoly" val="Порча великая туманом обернись!"/>
-            <msg id="kCastChrist" val="...и смерть явись в тумане его."/>
+            <msg id="kCastPhrasePoly" val="Порча великая туманом обернись!"/>
+            <msg id="kCastPhraseChrist" val="...и смерть явись в тумане его."/>
+            <msg id="kExpired" val="Порыв ветра развеял туман смерти."/>
         </messages>
     </spell>
     <spell id="kThunderstorm" element="kAir" mode="kEnabled">
@@ -2623,8 +2814,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <messages>
-            <msg id="kCastPoly" val="Абие велий вихрь деяти!"/>
-            <msg id="kCastChrist" val="...творит молнии при дожде, изводит ветер из хранилищ Своих."/>
+            <msg id="kCastPhrasePoly" val="Абие велий вихрь деяти!"/>
+            <msg id="kCastPhraseChrist" val="...творит молнии при дожде, изводит ветер из хранилищ Своих."/>
+            <msg id="kExpired" val="Ветер прогнал грозовые тучи."/>
         </messages>
     </spell>
     <spell id="kLightWalk" element="kUndefined" mode="kService">
@@ -2649,10 +2841,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="аще доля зла и удача немилостива"/>
-            <msg id="kCastChrist" val=".. и несчастен, и жалок, и нищ."/>
+            <msg id="kCastPhrasePoly" val="аще доля зла и удача немилостива"/>
+            <msg id="kCastPhraseChrist" val=".. и несчастен, и жалок, и нищ."/>
             <msg id="kAreaForChar" val="Вы простерли руки над головой, вызвав череду раскатов грома."/>
             <msg id="kAreaForRoom" val="$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться."/>
+            <msg id="kExpired" val="Удача вновь вернулась к вам."/>
+            <msg id="kImposedForRoom" val="Тяжелое бурое облако сгустилось над $n4."/>
+            <msg id="kImposedForVict" val="Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас."/>
         </messages>
     </spell>
     <spell id="kClanPray" element="kUndefined" mode="kService">
@@ -2677,10 +2872,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="зрети супостат охабиша"/>
-            <msg id="kCastChrist" val="...и бросали пыль на воздух."/>
+            <msg id="kCastPhrasePoly" val="зрети супостат охабиша"/>
+            <msg id="kCastPhraseChrist" val="...и бросали пыль на воздух."/>
             <msg id="kAreaForChar" val="Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли."/>
             <msg id="kAreaForRoom" val="$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю."/>
+            <msg id="kExpired" val="Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."/>
+            <msg id="kImposedForRoom" val="Облако ярко блестящей пыли накрыло $n3."/>
+            <msg id="kImposedForVict" val="Липкая блестящая пыль покрыла вас с головы до пят."/>
         </messages>
     </spell>
     <spell id="kScream" element="kAir" mode="kEnabled">
@@ -2705,10 +2903,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="язвень голки уведати"/>
-            <msg id="kCastChrist" val="...но в полночь раздался крик."/>
+            <msg id="kCastPhrasePoly" val="язвень голки уведати"/>
+            <msg id="kCastPhraseChrist" val="...но в полночь раздался крик."/>
             <msg id="kAreaForChar" val="Вы испустили кошмарный вопль, едва не разорвавший вам горло."/>
             <msg id="kAreaForRoom" val="$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом."/>
+            <msg id="kExpired" val="Леденящий душу испуг отпустил вас."/>
+            <msg id="kImposedForRoom" val="$n0 побледнел$g и задрожал$g от страха."/>
+            <msg id="kImposedForVict" val="Страх сжал ваше сердце ледяными когтями."/>
         </messages>
     </spell>
     <spell id="kCatGrace" element="kLife" mode="kEnabled">
@@ -2718,8 +2919,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="ристати споро"/>
-            <msg id="kCastChrist" val="...и не уязвит враг того, кто скор."/>
+            <msg id="kCastPhrasePoly" val="ристати споро"/>
+            <msg id="kCastPhraseChrist" val="...и не уязвит враг того, кто скор."/>
+            <msg id="kExpired" val="Ваши движения утратили прежнюю колдовскую ловкость."/>
+            <msg id="kImposedForVict" val="Ваши движения обрели невиданную ловкость."/>
+            <msg id="kImposedForRoom" val="Движения $n1 обрели невиданную ловкость."/>
         </messages>
     </spell>
     <spell id="kBullBody" element="kLife" mode="kEnabled">
@@ -2729,8 +2933,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="руци яре ворога супротив"/>
-            <msg id="kCastChrist" val="...и мощь звериная жила в теле его."/>
+            <msg id="kCastPhrasePoly" val="руци яре ворога супротив"/>
+            <msg id="kCastPhraseChrist" val="...и мощь звериная жила в теле его."/>
+            <msg id="kExpired" val="Ваше телосложение вновь стало обычным."/>
+            <msg id="kImposedForVict" val="Ваше тело налилось звериной мощью."/>
+            <msg id="kImposedForRoom" val="Плечи $n1 раздались вширь, а тело налилось звериной мощью."/>
         </messages>
     </spell>
     <spell id="kSnakeWisdom" element="kLife" mode="kEnabled">
@@ -2740,8 +2947,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="веси и зрети стези отай"/>
-            <msg id="kCastChrist" val="...и даровал мудрость ему."/>
+            <msg id="kCastPhrasePoly" val="веси и зрети стези отай"/>
+            <msg id="kCastPhraseChrist" val="...и даровал мудрость ему."/>
+            <msg id="kExpired" val="Вы утратили навеянную магией мудрость."/>
+            <msg id="kImposedForVict" val="Шелест змеиной чешуи коснулся вашего сознания, и вы стали мудрее."/>
+            <msg id="kImposedForRoom" val="$n спокойно и мудро посмотрел$g вокруг."/>
         </messages>
     </spell>
     <spell id="kGimmicry" element="kLife" mode="kEnabled">
@@ -2751,8 +2961,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="клюка вящего улучити"/>
-            <msg id="kCastChrist" val="...ибо кто познал ум Господень?"/>
+            <msg id="kCastPhrasePoly" val="клюка вящего улучити"/>
+            <msg id="kCastPhraseChrist" val="...ибо кто познал ум Господень?"/>
+            <msg id="kExpired" val="Навеянная магией хитрость покинула вас."/>
+            <msg id="kImposedForVict" val="Вы почувствовали, что для вашего ума более нет преград."/>
+            <msg id="kImposedForRoom" val="$n хитро прищурил$u и поглядел$g по сторонам."/>
         </messages>
     </spell>
     <spell id="kWarcryOfChallenge" element="kMind" mode="kTesting">
@@ -2770,9 +2983,12 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
-            <msg id="kCastChrist" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
+            <msg id="kCastPhrasePoly" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
+            <msg id="kCastPhraseChrist" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
             <msg id="kAreaForRoom" val="Вы не стерпели насмешки, и бросились на $n1!"/>
+            <msg id="kExpired" val="Похоже, к вам вернулась удача."/>
+            <msg id="kImposedForVict" val="Похоже, сегодня не ваш день."/>
+            <msg id="kImposedForRoom" val="Удача покинула $n3."/>
         </messages>
     </spell>
     <spell id="kWarcryOfMenace" element="kMind" mode="kTesting">
@@ -2790,8 +3006,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Покрошу-изувечу, душу выну и в блины закатаю!"/>
-            <msg id="kCastChrist" val="Покрошу-изувечу, душу выну и в блины закатаю!"/>
+            <msg id="kCastPhrasePoly" val="Покрошу-изувечу, душу выну и в блины закатаю!"/>
+            <msg id="kCastPhraseChrist" val="Покрошу-изувечу, душу выну и в блины закатаю!"/>
+            <msg id="kExpired" val="Рассудок вернулся к вам."/>
+            <msg id="kImposedForRoom" val="$n0 потерял$g рассудок."/>
+            <msg id="kImposedForVict" val="Вас обуяло безумие!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfRage" element="kMind" mode="kTesting">
@@ -2816,8 +3035,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Не отступим, други, они наше сало сперли!"/>
-            <msg id="kCastChrist" val="Не отступим, други, они наше сало сперли!"/>
+            <msg id="kCastPhrasePoly" val="Не отступим, други, они наше сало сперли!"/>
+            <msg id="kCastPhraseChrist" val="Не отступим, други, они наше сало сперли!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfMadness" element="kMind" mode="kTesting">
@@ -2835,8 +3054,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Всех убью, а сам$g останусь!"/>
-            <msg id="kCastChrist" val="Всех убью, а сам$g останусь!"/>
+            <msg id="kCastPhrasePoly" val="Всех убью, а сам$g останусь!"/>
+            <msg id="kCastPhraseChrist" val="Всех убью, а сам$g останусь!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfThunder" element="kMind" mode="kTesting">
@@ -2861,8 +3080,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Шоб вас приподняло, да шлепнуло!!!"/>
-            <msg id="kCastChrist" val="Шоб вас приподняло да шлепнуло!!!"/>
+            <msg id="kCastPhrasePoly" val="Шоб вас приподняло, да шлепнуло!!!"/>
+            <msg id="kCastPhraseChrist" val="Шоб вас приподняло да шлепнуло!!!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfDefence" element="kMind" mode="kEnabled">
@@ -2880,8 +3099,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="В строй други, защитим животами Русь нашу!"/>
-            <msg id="kCastChrist" val="В строй други, защитим животами Русь нашу!"/>
+            <msg id="kCastPhrasePoly" val="В строй други, защитим животами Русь нашу!"/>
+            <msg id="kCastPhraseChrist" val="В строй други, защитим животами Русь нашу!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfBattle" element="kMind" mode="kEnabled">
@@ -2899,8 +3118,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Дер-ржать строй, волчьи хвосты!"/>
-            <msg id="kCastChrist" val="Дер-ржать строй, волчьи хвосты!"/>
+            <msg id="kCastPhrasePoly" val="Дер-ржать строй, волчьи хвосты!"/>
+            <msg id="kCastPhraseChrist" val="Дер-ржать строй, волчьи хвосты!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfPower" element="kMind" mode="kEnabled">
@@ -2918,8 +3137,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Сарынь на кичку!"/>
-            <msg id="kCastChrist" val="Сарынь на кичку!"/>
+            <msg id="kCastPhrasePoly" val="Сарынь на кичку!"/>
+            <msg id="kCastPhraseChrist" val="Сарынь на кичку!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfBless" element="kMind" mode="kEnabled">
@@ -2937,8 +3156,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"/>
-            <msg id="kCastChrist" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"/>
+            <msg id="kCastPhrasePoly" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"/>
+            <msg id="kCastPhraseChrist" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!"/>
         </messages>
     </spell>
     <spell id="kWarcryOfCourage" element="kMind" mode="kEnabled">
@@ -2956,8 +3175,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Орлы! Будем биться как львы!"/>
-            <msg id="kCastChrist" val="Орлы! Будем биться как львы!"/>
+            <msg id="kCastPhrasePoly" val="Орлы! Будем биться как львы!"/>
+            <msg id="kCastPhraseChrist" val="Орлы! Будем биться как львы!"/>
         </messages>
     </spell>
     <spell id="kRuneLabel" element="kLight" mode="kEnabled">
@@ -2967,8 +3186,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInworldDelay"/>
         <messages>
-            <msg id="kCastPoly" val="...пьсати черты и резы."/>
-            <msg id="kCastChrist" val="...и Сам отошел от них на вержение камня."/>
+            <msg id="kCastPhrasePoly" val="...пьсати черты и резы."/>
+            <msg id="kCastPhraseChrist" val="...и Сам отошел от них на вержение камня."/>
+            <msg id="kExpired" val="Магические письмена на земле угасли."/>
         </messages>
     </spell>
     <spell id="kAconitumPoison" element="kLife" mode="kEnabled">
@@ -2978,8 +3198,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="трутизна"/>
-            <msg id="kCastChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kCastPhrasePoly" val="трутизна"/>
+            <msg id="kCastPhraseChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kExpired" val="В вашей крови не осталось ни капельки яда."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя отравленным."/>
+            <msg id="kImposedForRoom" val="$n позеленел$g от действия яда."/>
         </messages>
     </spell>
     <spell id="kScopolaPoison" element="kLife" mode="kEnabled">
@@ -2989,8 +3212,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="трутизна"/>
-            <msg id="kCastChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kCastPhrasePoly" val="трутизна"/>
+            <msg id="kCastPhraseChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kExpired" val="В вашей крови не осталось ни капельки яда."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя отравленным."/>
+            <msg id="kImposedForRoom" val="$n позеленел$g от действия яда."/>
         </messages>
     </spell>
     <spell id="kBelenaPoison" element="kLife" mode="kEnabled">
@@ -3000,8 +3226,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="трутизна"/>
-            <msg id="kCastChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kCastPhrasePoly" val="трутизна"/>
+            <msg id="kCastPhraseChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kExpired" val="В вашей крови не осталось ни капельки яда."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя отравленным."/>
+            <msg id="kImposedForRoom" val="$n позеленел$g от действия яда."/>
         </messages>
     </spell>
     <spell id="kDaturaPoison" element="kLife" mode="kEnabled">
@@ -3011,8 +3240,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
         <messages>
-            <msg id="kCastPoly" val="трутизна"/>
-            <msg id="kCastChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kCastPhrasePoly" val="трутизна"/>
+            <msg id="kCastPhraseChrist" val="... и пошлю на них зубы зверей и яд ползающих по земле."/>
+            <msg id="kExpired" val="В вашей крови не осталось ни капельки яда."/>
+            <msg id="kImposedForVict" val="Вы почувствовали себя отравленным."/>
+            <msg id="kImposedForRoom" val="$n позеленел$g от действия яда."/>
         </messages>
     </spell>
     <spell id="kTimerRestore" element="kLight" mode="kEnabled">
@@ -3071,11 +3303,12 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInroom"/>
         <messages>
-            <msg id="kCastPoly" val="ажбо супостаты блазнити да клюковати"/>
-            <msg id="kCastChrist" val="...и утроба его приготовляет обман."/>
+            <msg id="kCastPhrasePoly" val="ажбо супостаты блазнити да клюковати"/>
+            <msg id="kCastPhraseChrist" val="...и утроба его приготовляет обман."/>
             <msg id="kComponentUse" val="Вы разожгли палочку заморских благовоний.\r\n"/>
             <msg id="kComponentMissing" val="Вы начали суматошно искать свои благовония, но тщетно.\r\n"/>
             <msg id="kComponentExhausted" val="$o дотлели и рассыпались пеплом.\r\n"/>
+            <msg id="kExpired" val="Плывший в воздухе огненный узор потускнел и растаял струйками дыма."/>
         </messages>
     </spell>
     <spell id="kSolobonus" element="kUndefined" mode="kEnabled">
@@ -3091,6 +3324,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
+        <messages>
+            <msg id="kExpired" val="Кровавая жажда оставила вас."/>
+            <msg id="kImposedForRoom" val="Зрачки $n3 приобрели красный оттенок."/>
+            <msg id="kImposedForVict" val="Ваши зрачки приобрели красный оттенок."/>
+        </messages>
     </spell>
     <spell id="kRestoration" element="kLight" mode="kEnabled">
         <name rus="реконструкция" eng="reconstruction"/>
@@ -3099,8 +3337,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
         <messages>
-            <msg id="kCastPoly" val="Да прими вид прежний, якой был."/>
-            <msg id="kCastChrist" val=".. Воззри на предмет сей Отче и верни ему силу прежнюю."/>
+            <msg id="kCastPhrasePoly" val="Да прими вид прежний, якой был."/>
+            <msg id="kCastPhraseChrist" val=".. Воззри на предмет сей Отче и верни ему силу прежнюю."/>
         </messages>
     </spell>
     <spell id="kDeathAura" element="kDark" mode="kEnabled">
@@ -3118,8 +3356,9 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Надели силою своею Навь, дабы собрать урожай тебе."/>
-            <msg id="kCastChrist" val="...налякай ворогов наших и покарай их немощью."/>
+            <msg id="kCastPhrasePoly" val="Надели силою своею Навь, дабы собрать урожай тебе."/>
+            <msg id="kCastPhraseChrist" val="...налякай ворогов наших и покарай их немощью."/>
+            <msg id="kExpired" val="Силы нави покинули вас."/>
         </messages>
     </spell>
     <spell id="kRecovery" element="kDark" mode="kEnabled">
@@ -3129,8 +3368,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="Обрасти плотью сызнова."/>
-            <msg id="kCastChrist" val="... прости Господи грехи, верни плоть созданию."/>
+            <msg id="kCastPhrasePoly" val="Обрасти плотью сызнова."/>
+            <msg id="kCastPhraseChrist" val="... прости Господи грехи, верни плоть созданию."/>
         </messages>
     </spell>
     <spell id="kMassRecovery" element="kDark" mode="kEnabled">
@@ -3148,8 +3387,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Обрастите плотью сызнова."/>
-            <msg id="kCastChrist" val="... прости Господи грехи, верни плоть созданиям."/>
+            <msg id="kCastPhrasePoly" val="Обрастите плотью сызнова."/>
+            <msg id="kCastPhraseChrist" val="... прости Господи грехи, верни плоть созданиям."/>
         </messages>
     </spell>
     <spell id="kAuraOfEvil" element="kDark" mode="kEnabled">
@@ -3159,8 +3398,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="Возьми личину зла для жатвы славной."/>
-            <msg id="kCastChrist" val="Надели силой злою во благо."/>
+            <msg id="kCastPhrasePoly" val="Возьми личину зла для жатвы славной."/>
+            <msg id="kCastPhraseChrist" val="Надели силой злою во благо."/>
         </messages>
     </spell>
     <spell id="kMentalShadow" element="kMind" mode="kEnabled">
@@ -3170,8 +3409,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="Силою мысли защиту будую себе."/>
-            <msg id="kCastChrist" val="Даруй Отче защиту, силой разума воздвигнутую."/>
+            <msg id="kCastPhrasePoly" val="Силою мысли защиту будую себе."/>
+            <msg id="kCastPhraseChrist" val="Даруй Отче защиту, силой разума воздвигнутую."/>
         </messages>
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
@@ -3181,8 +3420,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarRoomThis"/>
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <messages>
-            <msg id="kCastPoly" val="Ато егоже руци попасти."/>
-            <msg id="kCastChrist" val="И он не знает, что мертвецы там и что в глубине..."/>
+            <msg id="kCastPhrasePoly" val="Ато егоже руци попасти."/>
+            <msg id="kCastPhraseChrist" val="И он не знает, что мертвецы там и что в глубине..."/>
+            <msg id="kExpired" val="Жуткие черные руки побледнели и расплылись зловонной дымкой."/>
         </messages>
     </spell>
     <spell id="kWhirlwind" element="kAir" mode="kEnabled">
@@ -3207,8 +3447,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Вждати бурю обло створити."/>
-            <msg id="kCastChrist" val="И поднялась великая буря..."/>
+            <msg id="kCastPhrasePoly" val="Вждати бурю обло створити."/>
+            <msg id="kCastPhraseChrist" val="И поднялась великая буря..."/>
         </messages>
     </spell>
     <spell id="kIndriksTeeth" element="kEarth" mode="kEnabled">
@@ -3229,8 +3469,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Идеже индрика зубы супостаты изъмати."/>
-            <msg id="kCastChrist" val="Есть род, у которого зубы - мечи и челюсти - ножи..."/>
+            <msg id="kCastPhrasePoly" val="Идеже индрика зубы супостаты изъмати."/>
+            <msg id="kCastPhraseChrist" val="Есть род, у которого зубы - мечи и челюсти - ножи..."/>
         </messages>
     </spell>
     <spell id="kAcidArrow" element="kWater" mode="kEnabled">
@@ -3255,8 +3495,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Варно сожжет струя!"/>
-            <msg id="kCastChrist" val="...и на коже его сделаются как бы язвы проказы"/>
+            <msg id="kCastPhrasePoly" val="Варно сожжет струя!"/>
+            <msg id="kCastPhraseChrist" val="...и на коже его сделаются как бы язвы проказы"/>
         </messages>
     </spell>
     <spell id="kThunderStone" element="kEarth" mode="kEnabled">
@@ -3281,8 +3521,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Небесе тутнет!"/>
-            <msg id="kCastChrist" val="...и взял оттуда камень, и бросил из пращи."/>
+            <msg id="kCastPhrasePoly" val="Небесе тутнет!"/>
+            <msg id="kCastPhraseChrist" val="...и взял оттуда камень, и бросил из пращи."/>
         </messages>
     </spell>
     <spell id="kClod" element="kEarth" mode="kEnabled">
@@ -3303,8 +3543,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Онома утес низринется!"/>
-            <msg id="kCastChrist" val="...доколе камень не оторвался от горы без содействия рук."/>
+            <msg id="kCastPhrasePoly" val="Онома утес низринется!"/>
+            <msg id="kCastPhraseChrist" val="...доколе камень не оторвался от горы без содействия рук."/>
         </messages>
     </spell>
     <spell id="kExpedient" element="kUndefined" mode="kService">
@@ -3314,8 +3554,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="!Применил боевой прием!"/>
-            <msg id="kCastChrist" val="!Применил боевой прием!"/>
+            <msg id="kCastPhrasePoly" val="!Применил боевой прием!"/>
+            <msg id="kCastPhraseChrist" val="!Применил боевой прием!"/>
         </messages>
     </spell>
     <spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
@@ -3333,8 +3573,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Что свет, что тьма - глазу одинаково."/>
-            <msg id="kCastChrist" val="Станьте зрячи в тьме кромешной!"/>
+            <msg id="kCastPhrasePoly" val="Что свет, что тьма - глазу одинаково."/>
+            <msg id="kCastPhraseChrist" val="Станьте зрячи в тьме кромешной!"/>
         </messages>
     </spell>
     <spell id="kGroupSincerity" element="kMind" mode="kEnabled">
@@ -3352,8 +3592,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="...да не скроются намерения."/>
-            <msg id="kCastChrist" val="И узрим братья намерения окружающих."/>
+            <msg id="kCastPhrasePoly" val="...да не скроются намерения."/>
+            <msg id="kCastPhraseChrist" val="И узрим братья намерения окружающих."/>
         </messages>
     </spell>
     <spell id="kMagicalGaze" element="kMind" mode="kEnabled">
@@ -3371,8 +3611,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Узрим же все, что с магией навкруги нас."/>
-            <msg id="kCastChrist" val="Покажи, Спаситель, магические силы братии."/>
+            <msg id="kCastPhrasePoly" val="Узрим же все, что с магией навкруги нас."/>
+            <msg id="kCastPhraseChrist" val="Покажи, Спаситель, магические силы братии."/>
         </messages>
     </spell>
     <spell id="kAllSeeingEye" element="kMind" mode="kEnabled">
@@ -3390,8 +3630,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Все тайное станет явным."/>
-            <msg id="kCastChrist" val="Не спрячется, не скроется, ни заяц, ни блоха."/>
+            <msg id="kCastPhrasePoly" val="Все тайное станет явным."/>
+            <msg id="kCastPhraseChrist" val="Не спрячется, не скроется, ни заяц, ни блоха."/>
         </messages>
     </spell>
     <spell id="kEyeOfGods" element="kLife" mode="kEnabled">
@@ -3409,8 +3649,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Осязаемое откройся взору!"/>
-            <msg id="kCastChrist" val="Да не скроется от взора вашего, ни одна живая душа."/>
+            <msg id="kCastPhrasePoly" val="Осязаемое откройся взору!"/>
+            <msg id="kCastPhraseChrist" val="Да не скроется от взора вашего, ни одна живая душа."/>
         </messages>
     </spell>
     <spell id="kBreathingAtDepth" element="kWater" mode="kEnabled">
@@ -3428,8 +3668,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Аки стайка рыбок, плывите вместе."/>
-            <msg id="kCastChrist" val="Что в воде, что на земле, воздух свежим будет."/>
+            <msg id="kCastPhrasePoly" val="Аки стайка рыбок, плывите вместе."/>
+            <msg id="kCastPhraseChrist" val="Что в воде, что на земле, воздух свежим будет."/>
         </messages>
     </spell>
     <spell id="kGeneralRecovery" element="kLife" mode="kEnabled">
@@ -3447,8 +3687,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="...дабы пройти вместе не одну сотню верст"/>
-            <msg id="kCastChrist" val="Сохрани Отче от усталости детей своих!"/>
+            <msg id="kCastPhrasePoly" val="...дабы пройти вместе не одну сотню верст"/>
+            <msg id="kCastPhraseChrist" val="Сохрани Отче от усталости детей своих!"/>
         </messages>
     </spell>
     <spell id="kCommonMeal" element="kLife" mode="kEnabled">
@@ -3466,8 +3706,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Благодарите богов за хлеб и соль!"/>
-            <msg id="kCastChrist" val="...дабы не осталось голодающих на свете белом"/>
+            <msg id="kCastPhrasePoly" val="Благодарите богов за хлеб и соль!"/>
+            <msg id="kCastPhraseChrist" val="...дабы не осталось голодающих на свете белом"/>
             <msg id="kAreaForChar" val="Вы услышали гомон невидимых лакеев, готовящих трапезу.\r\n"/>
         </messages>
     </spell>
@@ -3486,8 +3726,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Станем други крепки як николы!"/>
-            <msg id="kCastChrist" val="Укрепим тела наши перед битвой!"/>
+            <msg id="kCastPhrasePoly" val="Станем други крепки як николы!"/>
+            <msg id="kCastPhraseChrist" val="Укрепим тела наши перед битвой!"/>
         </messages>
     </spell>
     <spell id="kSnakeEyes" element="kMind" mode="kEnabled">
@@ -3505,8 +3745,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Что яд, а что мед. Не обманемся!"/>
-            <msg id="kCastChrist" val="...и самый сильный яд станет вам виден."/>
+            <msg id="kCastPhrasePoly" val="Что яд, а что мед. Не обманемся!"/>
+            <msg id="kCastPhraseChrist" val="...и самый сильный яд станет вам виден."/>
         </messages>
     </spell>
     <spell id="kEarthAura" element="kEarth" mode="kEnabled">
@@ -3524,9 +3764,12 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Велес, даруй защиту."/>
-            <msg id="kCastChrist" val="... земля благословенна твоя."/>
+            <msg id="kCastPhrasePoly" val="Велес, даруй защиту."/>
+            <msg id="kCastPhraseChrist" val="... земля благословенна твоя."/>
             <msg id="kAreaForChar" val="Земля одарила вас своей защитой.\r\n"/>
+            <msg id="kExpiredForVict" val="Аура земли вокруг вас развеялась."/>
+            <msg id="kImposedForVict" val="Вас окружила аура земли."/>
+            <msg id="kImposedForRoom" val="$n3 окружила аура земли."/>
         </messages>
     </spell>
     <spell id="kGroupProtectFromEvil" element="kLight" mode="kEnabled">
@@ -3544,8 +3787,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="други, супостат нощи"/>
-            <msg id="kCastChrist" val="други, свет который в нас, да убоится тьма."/>
+            <msg id="kCastPhrasePoly" val="други, супостат нощи"/>
+            <msg id="kCastPhraseChrist" val="други, свет который в нас, да убоится тьма."/>
             <msg id="kAreaForChar" val="Сила света подавила в вас страх к тьме.\r\n"/>
         </messages>
     </spell>
@@ -3567,8 +3810,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="!магический выстрел!"/>
-            <msg id="kCastChrist" val="!use battle expedient!"/>
+            <msg id="kCastPhrasePoly" val="!магический выстрел!"/>
+            <msg id="kCastPhraseChrist" val="!use battle expedient!"/>
         </messages>
     </spell>
     <spell id="kArrowsWater" element="kWater" mode="kEnabled">
@@ -3589,8 +3832,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="!магический выстрел!"/>
-            <msg id="kCastChrist" val="!use battle expedient!"/>
+            <msg id="kCastPhrasePoly" val="!магический выстрел!"/>
+            <msg id="kCastPhraseChrist" val="!use battle expedient!"/>
         </messages>
     </spell>
     <spell id="kArrowsEarth" element="kEarth" mode="kEnabled">
@@ -3611,8 +3854,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="!магический выстрел!"/>
-            <msg id="kCastChrist" val="!use battle expedient!"/>
+            <msg id="kCastPhrasePoly" val="!магический выстрел!"/>
+            <msg id="kCastPhraseChrist" val="!use battle expedient!"/>
         </messages>
     </spell>
     <spell id="kArrowsAir" element="kAir" mode="kEnabled">
@@ -3633,8 +3876,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="!магический выстрел!"/>
-            <msg id="kCastChrist" val="!use battle expedient!"/>
+            <msg id="kCastPhrasePoly" val="!магический выстрел!"/>
+            <msg id="kCastPhraseChrist" val="!use battle expedient!"/>
         </messages>
     </spell>
     <spell id="kArrowsDeath" element="kDark" mode="kEnabled">
@@ -3655,8 +3898,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="!магический выстрел!"/>
-            <msg id="kCastChrist" val="!use battle expedient!"/>
+            <msg id="kCastPhrasePoly" val="!магический выстрел!"/>
+            <msg id="kCastPhraseChrist" val="!use battle expedient!"/>
         </messages>
     </spell>
     <spell id="kPaladineInspiration" element="kUndefined" mode="kEnabled">
@@ -3676,6 +3919,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kAreaForChar" val="Ваш точный удар воодушевил и придал новых сил!"/>
             <msg id="kAreaForRoom" val="Точный удар $n1 воодушевил и придал новых сил!"/>
+            <msg id="kExpired" val="*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"/>
         </messages>
     </spell>
     <spell id="kDexterity" element="kLife" mode="kEnabled"> <!-- Удалить -->
@@ -3685,8 +3929,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <messages>
-            <msg id="kCastPoly" val="будет ловким"/>
-            <msg id="kCastChrist" val="... и человек разумный укрепляет ловкость свою."/>
+            <msg id="kCastPhrasePoly" val="будет ловким"/>
+            <msg id="kCastPhraseChrist" val="... и человек разумный укрепляет ловкость свою."/>
         </messages>
     </spell>
     <spell id="kGroupBlink" element="kLife" mode="kEnabled">
@@ -3704,8 +3948,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="защити нас от железа разящего"/>
-            <msg id="kCastChrist" val="... ни стрела, ни меч не пронзят печень вашу."/>
+            <msg id="kCastPhrasePoly" val="защити нас от железа разящего"/>
+            <msg id="kCastPhraseChrist" val="... ни стрела, ни меч не пронзят печень вашу."/>
             <msg id="kAreaForChar" val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n"/>
         </messages>
     </spell>
@@ -3724,8 +3968,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="огрожу беззакония их туманом"/>
-            <msg id="kCastChrist" val="...да защитит и покроет рассветная пелена тела ваши."/>
+            <msg id="kCastPhrasePoly" val="огрожу беззакония их туманом"/>
+            <msg id="kCastPhraseChrist" val="...да защитит и покроет рассветная пелена тела ваши."/>
             <msg id="kAreaForChar" val="Пелена тумана окутала вас и окружающих, скрыв очертания.\r\n"/>
         </messages>
     </spell>
@@ -3744,8 +3988,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="буде вежды ваши открыты"/>
-            <msg id="kCastChrist" val="... и забота о ближнем отгоняет сон от очей их."/>
+            <msg id="kCastPhrasePoly" val="буде вежды ваши открыты"/>
+            <msg id="kCastPhraseChrist" val="... и забота о ближнем отгоняет сон от очей их."/>
             <msg id="kAreaForChar" val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n"/>
         </messages>
     </spell>
@@ -3764,9 +4008,10 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="найдем новизну в рутине сражений!"/>
-            <msg id="kCastChrist" val="найдем новизну в рутине сражений!"/>
+            <msg id="kCastPhrasePoly" val="найдем новизну в рутине сражений!"/>
+            <msg id="kCastPhraseChrist" val="найдем новизну в рутине сражений!"/>
             <msg id="kAreaForChar" val="Вы приготовились к обретению нового опыта."/>
+            <msg id="kExpired" val="Действие клича 'обучение' закончилось."/>
         </messages>
     </spell>
     <spell id="kWarcryOfLuck" element="kMind" mode="kEnabled">
@@ -3784,9 +4029,10 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="и пусть удача будет нашей спутницей!"/>
-            <msg id="kCastChrist" val="и пусть удача будет нашей спутницей!"/>
+            <msg id="kCastPhrasePoly" val="и пусть удача будет нашей спутницей!"/>
+            <msg id="kCastPhraseChrist" val="и пусть удача будет нашей спутницей!"/>
             <msg id="kAreaForChar" val="Вы ощутили, что вам улыбнулась удача."/>
+            <msg id="kExpired" val="Действие клича 'везение' закончилось."/>
         </messages>
     </spell>
     <spell id="kWarcryOfPhysdamage" element="kMind" mode="kEnabled">
@@ -3804,9 +4050,10 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="бей в глаз, не порти шкуру"/>
-            <msg id="kCastChrist" val="бей в глаз, не порти шкуру."/>
+            <msg id="kCastPhrasePoly" val="бей в глаз, не порти шкуру"/>
+            <msg id="kCastPhraseChrist" val="бей в глаз, не порти шкуру."/>
             <msg id="kAreaForChar" val="Боевой клич придал вам сил!"/>
+            <msg id="kExpired" val="Действие клича 'точность' закончилось."/>
         </messages>
     </spell>
     <spell id="kMassFailure" element="kDark" mode="kEnabled">
@@ -3824,8 +4071,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="...отче Велес, очи отвержеши!"/>
-            <msg id="kCastChrist" val="...надежда тщетна: не упадешь ли от одного взгляда его?"/>
+            <msg id="kCastPhrasePoly" val="...отче Велес, очи отвержеши!"/>
+            <msg id="kCastPhraseChrist" val="...надежда тщетна: не упадешь ли от одного взгляда его?"/>
             <msg id="kAreaForChar" val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n"/>
             <msg id="kAreaForVict" val="$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги."/>
         </messages>
@@ -3845,10 +4092,13 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
-            <msg id="kCastPoly" val="Заклинати поврещение в сети заскопиены!"/>
-            <msg id="kCastChrist" val="...будет трапеза их сетью им, и мирное пиршество их - западнею."/>
+            <msg id="kCastPhrasePoly" val="Заклинати поврещение в сети заскопиены!"/>
+            <msg id="kCastPhraseChrist" val="...будет трапеза их сетью им, и мирное пиршество их - западнею."/>
             <msg id="kAreaForChar" val="Вы соткали магические тенета, опутавшие ваших врагов.\r\n"/>
             <msg id="kAreaForVict" val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"/>
+            <msg id="kExpired" val="Покрывавшие вас сети колдовской западни растаяли."/>
+            <msg id="kImposedForRoom" val="$n0 теперь прикован$a к $N2."/>
+            <msg id="kImposedForVict" val="Вы не сможете покинуть $N3."/>
         </messages>
     </spell>
     <spell id="kFireBreath" element="kFire" mode="kService">
@@ -3938,8 +4188,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
         <messages>
-            <msg id="kCastPoly" val="!Провалил боевой прием!"/>
-            <msg id="kCastChrist" val="!Провалил боевой прием!"/>
+            <msg id="kCastPhrasePoly" val="!Провалил боевой прием!"/>
+            <msg id="kCastPhraseChrist" val="!Провалил боевой прием!"/>
         </messages>
     </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">

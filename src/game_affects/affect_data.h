@@ -97,15 +97,15 @@ class AffectsLoader : virtual public cfg_manager::ICfgLoader {
 class AffectInfo : public info_container::BaseItem<EAffect> {
 	friend class AffectInfoBuilder;
 	std::string name_{"!undefined!"};
-	MessagesData<EAffectMsg> messages_;
+	MessagesData<ECharAffectMsg> messages_;
 
  public:
 	AffectInfo() = default;
 	AffectInfo(EAffect id, EItemMode mode)
 		: BaseItem<EAffect>(id, mode) {};
 
-	const MessagesData<EAffectMsg> &Messages() const { return messages_; }
-	const std::string &GetMsg(EAffectMsg id) const { return messages_.GetMsg(id); }
+	const MessagesData<ECharAffectMsg> &Messages() const { return messages_; }
+	const std::string &GetMsg(ECharAffectMsg id) const { return messages_.GetMsg(id); }
 	const std::string &Name() { return name_; }
 	void Print(std::ostringstream &buffer) const;
 };

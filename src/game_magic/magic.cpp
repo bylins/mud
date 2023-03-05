@@ -14,6 +14,8 @@
 
 #include "magic.h"
 
+#include "third_party_libs/fmt/include/fmt/format.h"
+
 #include "action_targeting.h"
 #include "cmd/hire.h"
 #include "corpse.h"
@@ -254,10 +256,13 @@ void ShowAffExpiredMsg(ESpell aff_type, CharData *ch) {
 	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kWriting))
 		return;
 
-	const std::string &msg = GetAffExpiredText(aff_type);
+	const auto &msg = MUD::Spell(aff_type).GetMsg(ESpellMsg::kExpired);
 	if (!msg.empty()) {
 		act(msg.c_str(), false, ch, nullptr, nullptr, kToChar | kToSleep);
 		SendMsgToChar("\r\n", ch);
+	} else {
+		auto log_msg = fmt::format("There is no 'expired' message for spell: !{}!", MUD::Spell(aff_type).GetName());
+		err_log("%s", log_msg.c_str());
 	}
 }
 
@@ -854,16 +859,17 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 			return false;
 	}
 	ObjData *tobj = GetObjByVnumInContent(vnum, caster->carrying);
+	const auto &spell = MUD::Spell(spell_id);
 	if (!tobj) {
-		auto msg = GetSpellMsg(spell_id, ESpellMsg::kComponentMissing);
+		auto msg = spell.GetMsg(ESpellMsg::kComponentMissing);
 		act(msg, false, victim, nullptr, caster, kToChar);
 		return (true);
 	}
 	tobj->dec_val(2);
-	auto msg = GetSpellMsg(spell_id, ESpellMsg::kComponentUse);
+	auto msg = spell.GetMsg(ESpellMsg::kComponentUse);
 	act(msg, false, caster, tobj, nullptr, kToChar);
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
-		auto msg_exhausted = GetSpellMsg(spell_id, ESpellMsg::kComponentExhausted);
+		auto msg_exhausted = spell.GetMsg(ESpellMsg::kComponentExhausted);
 		act(msg_exhausted, false, caster, tobj, nullptr, kToChar);
 		RemoveObjFromChar(tobj);
 		ExtractObjFromWorld(tobj);
@@ -872,24 +878,24 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 }
 
 bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
-	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
 	switch (spell_id) {
-		case ESpell::kEnchantWeapon: use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
-			missing = "Вы были уверены что положили его в этот карман.\r\n";
-			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";
+		case ESpell::kEnchantWeapon:
 			break;
-
 		default: log("WARNING: wrong spell_id %d in %s:%d", to_underlying(spell_id), __FILE__, __LINE__);
 			return false;
 	}
 	ObjData *tobj = GET_EQ(caster, EEquipPos::kHold);
+	const auto &spell = MUD::Spell(spell_id);
 	if (!tobj) {
+		auto &missing = spell.GetMsg(ESpellMsg::kComponentMissing);
 		act(missing, false, caster, nullptr, caster, kToChar);
 		return (true);
 	}
 	tobj->dec_val(2);
+	auto &use = spell.GetMsg(ESpellMsg::kComponentUse);
 	act(use, false, caster, tobj, nullptr, kToChar);
 	if (GET_OBJ_VAL(tobj, 2) < 1) {
+		auto &exhausted = spell.GetMsg(ESpellMsg::kComponentExhausted);
 		act(exhausted, false, caster, tobj, nullptr, kToChar);
 		RemoveObjFromChar(tobj);
 		ExtractObjFromWorld(tobj);
@@ -2453,15 +2459,16 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	// ============================================================================================
 
 	if (spell_id == ESpell::kStrength) {
-
-		auto affects = MUD::Spell(spell_id).actions.GetAffects();
-		auto duration = MUD::Spell(spell_id).actions.GetDuration();
+		//MUD::Spell(spell_id).GetMsg(ESpellMsg::kComponentExhausted)
+		const auto &spell = MUD::Spell(spell_id);
+		auto affects = spell.actions.GetAffects();
+		auto duration = spell.actions.GetDuration();
 //		auto duration_time = duration.DoRoll(ch);
 		auto duration_time = 4;
 		duration_time = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration_time);
 		bool failed{true};
 		for (const auto &affect: affects) {
-			if (MUD::Spell(spell_id).IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				continue;
 			}
 			if (IsBlockedByAffect(affect, victim) || IsBlockedByMobFlag(affect, victim)) {
@@ -2487,9 +2494,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 
 			// Send messages
-			auto to_vict = GetSpellMsg(spell_id, ESpellMsg::kAffImposedForVict);
+			auto to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
 			act(to_vict, false, victim, nullptr, ch, kToChar);
-			auto to_room = GetSpellMsg(spell_id, ESpellMsg::kAffImposedForRoom);
+			auto to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
 			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 			failed = false;
 		}
@@ -2523,14 +2530,10 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		if (spell_id == ESpell::kPoison) {
 			victim->poisoner = ch->id;
 		}
-		auto to_vict = GetSpellMsg(spell_id, ESpellMsg::kAffImposedForVict);
-		if (!to_vict.empty()) {
-			act(to_vict, false, victim, nullptr, ch, kToChar);
-		}
-		auto to_room = GetSpellMsg(spell_id, ESpellMsg::kAffImposedForRoom);
-		if (!to_room.empty()) {
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
-		}
+		auto to_vict = MUD::Spell(spell_id).GetMsg(ESpellMsg::kImposedForVict);
+		act(to_vict, false, victim, nullptr, ch, kToChar);
+		auto to_room = MUD::Spell(spell_id).GetMsg(ESpellMsg::kImposedForRoom);
+		act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 		return 1;
 	}
 	return 0;
@@ -3664,14 +3667,11 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
 	if (room && world[ch->in_room] == room) {
 		if (IsAbleToSay(ch)) {
-			auto to_char = GetSpellMsg(spell_id, ESpellMsg::kAreaForChar);
-			if (!to_char.empty()) {
-				act(to_char, false, ch, nullptr, victim, kToChar);
-			}
-			auto to_room = GetSpellMsg(spell_id, ESpellMsg::kAreaForRoom);
-			if (!to_room.empty()) {
-				act(to_room, false, ch, nullptr, victim, kToRoom | kToArenaListen);
-			}
+			const auto &spell = MUD::Spell(spell_id);
+			auto to_char = spell.GetMsg(ESpellMsg::kAreaForChar);
+			act(to_char, false, ch, nullptr, victim, kToChar);
+			auto to_room = spell.GetMsg(ESpellMsg::kAreaForRoom);
+			act(to_room, false, ch, nullptr, victim, kToRoom | kToArenaListen);
 		}
 	}
 };
@@ -3701,11 +3701,9 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 
 		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
-		auto to_vict = GetSpellMsg(spell_id, ESpellMsg::kAreaForVict);
+		auto to_vict = MUD::Spell(spell_id).GetMsg(ESpellMsg::kAreaForVict);
 		for (const auto &target: roster) {
-			if (!to_vict.empty() && target->desc) {
-				act(to_vict, false, ch, nullptr, target, kToVict);
-			}
+			act(to_vict, false, ch, nullptr, target, kToVict);
 			CastToSingleTarget(level, ch, target, nullptr, spell_id);
 			if (ch->purged()) {
 				return 1;
