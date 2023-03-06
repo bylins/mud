@@ -25,7 +25,6 @@
 #include "handler.h"
 #include "magic_utils.h"
 #include "obj_prototypes.h"
-#include "utils/random.h"
 #include "structs/global_objects.h"
 
 extern int what_sky;
@@ -2484,7 +2483,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			new_affect.affect_bits = affect.AffectBits();
 			new_affect.caster_id = ch->get_uid();
 
-
 			if (new_affect.flags & EAffectFlag::kAfUpdate) {
 				ImposeAffect(victim, new_affect);
 			} else {
@@ -2492,16 +2490,15 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				auto accum_affect = affect.Accumulate();
 				ImposeAffect(victim, new_affect, accum_duration, !accum_duration, accum_affect, !accum_affect);
 			}
-
-			// Send messages
-			auto to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
-			act(to_vict, false, victim, nullptr, ch, kToChar);
-			auto to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 			failed = false;
 		}
 		if (failed) {
 			SendMsgToChar(NOEFFECT, ch);
+		} else {
+			auto to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
+			act(to_vict, false, victim, nullptr, ch, kToChar);
+			auto to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
+			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 		}
 		return 1;
 	}
@@ -2561,11 +2558,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 */
 void ProcessRemovingAffects(const talents_actions::Affect &affect, CharData *victim) {
-	const auto &spells_to_remove = affect.RemovedASpellffects();
+	const auto &spells_to_remove = affect.RemovedSpellAffects();
 }
 
 void RemoveIncompatibleSpellAffect(const talents_actions::Affect &affect, CharData *victim) {
-	const auto &spells_to_remove = affect.RemovedASpellffects();
+	const auto &spells_to_remove = affect.RemovedSpellAffects();
 	auto predicate = [victim](ESpell victim_affect) { RemoveAffectFromChar(victim, victim_affect); };
 	std::for_each(spells_to_remove.begin(), spells_to_remove.end(), predicate);
 }

@@ -718,9 +718,9 @@ base_stat id - (например "kWis") какой берем параметр,
                     <flags val="kAfBattledec|kAfCurable|kAfDispelable"/>
                     <apply location="kStr" val="2" cap="10" accumulate="false"/>
                     <applies_affects val="kUndefined"/>
-                    <removes_affects val="kBrokenChains|kSleep"/>
-                    <replaces_affects val="kHold|kGlitterDust"/>
-                    <blocked affects="kBless" flags="kNoBlind"/>
+                    <removes spells="kBrokenChains|kSleep"/>
+                    <replaces spells="kHold|kGlitterDust"/>
+                    <blocked spells="kSlowdown" affects="kBless" flags="kNoBlind"/>
                 </affect>
                 <duration min="1" cap="6" resist_weight="5" accumulate="false">
                     <success_roll resist_weight="1">
@@ -3767,7 +3767,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <msg id="kCastPhrasePoly" val="Велес, даруй защиту."/>
             <msg id="kCastPhraseChrist" val="... земля благословенна твоя."/>
             <msg id="kAreaForChar" val="Земля одарила вас своей защитой.\r\n"/>
-            <msg id="kExpiredForVict" val="Аура земли вокруг вас развеялась."/>
+            <msg id="kExpired" val="Аура земли вокруг вас развеялась."/>
             <msg id="kImposedForVict" val="Вас окружила аура земли."/>
             <msg id="kImposedForRoom" val="$n3 окружила аура земли."/>
         </messages>

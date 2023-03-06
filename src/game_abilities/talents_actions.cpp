@@ -157,15 +157,16 @@ Affect::Affect(parser_wrapper::DataNode &node) {
 		}
 		node.GoToParent();
 	}
-	if (node.GoToChild("removes_affects")) {
-		parse::ReadAsConstantsSet<ESpell>(removes_spell_affects_, node.GetValue("val"));
+	if (node.GoToChild("removes")) {
+		parse::ReadAsConstantsSet<ESpell>(removes_spells_, node.GetValue("spells"));
 		node.GoToParent();
 	}
-	if (node.GoToChild("replaces_affects")) {
-		parse::ReadAsConstantsSet<ESpell>(replaces_spell_affects_, node.GetValue("val"));
+	if (node.GoToChild("replaces")) {
+		parse::ReadAsConstantsSet<ESpell>(replaces_apells_, node.GetValue("spells"));
 		node.GoToParent();
 	}
 	if (node.GoToChild("blocked")) {
+		parse::ReadAsConstantsSet<ESpell>(blocked_by_spells_, node.GetValue("spells"));
 		parse::ReadAsConstantsSet<EAffect>(blocked_by_affects_, node.GetValue("affects"));
 		parse::ReadAsConstantsSet<EMobFlag>(blocked_by_mob_flags_, node.GetValue("flags"));
 		node.GoToParent();
@@ -177,8 +178,9 @@ void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "  Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
 	buffer << "  Affect flags: " << KGRN << parse::BitvectorToString<EAffectFlag>(flags_) << KNRM << "\r\n";
 	buffer << "  Applies affects: " << KGRN << parse::ConstantsSetToString<EAffect>(applies_affects_) << KNRM << "\r\n";
-	buffer << "  Removes spell affects: " << KGRN << parse::ConstantsSetToString<ESpell>(removes_spell_affects_) << KNRM << "\r\n";
-	buffer << "  Replaces spell affects: " << KGRN << parse::ConstantsSetToString<ESpell>(replaces_spell_affects_) << KNRM << "\r\n";
+	buffer << "  Removes spells: " << KGRN << parse::ConstantsSetToString<ESpell>(removes_spells_) << KNRM << "\r\n";
+	buffer << "  Replaces spells: " << KGRN << parse::ConstantsSetToString<ESpell>(replaces_apells_) << KNRM << "\r\n";
+	buffer << "  Blocked by spells: " << KGRN << parse::ConstantsSetToString<ESpell>(blocked_by_spells_) << KNRM << "\r\n";
 	buffer << "  Blocked by affects: " << KGRN << parse::ConstantsSetToString<EAffect>(blocked_by_affects_) << KNRM << "\r\n";
 	buffer << "  Blocked by mob flag: " << KGRN << parse::ConstantsSetToString<EMobFlag>(blocked_by_mob_flags_) << KNRM << "\r\n";
 	buffer << "\r\n  Applies:\r\n";

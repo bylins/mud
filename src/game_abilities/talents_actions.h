@@ -104,9 +104,10 @@ class Affect {
 	bool accumulate_{false};
 	Bitvector flags_{0u};
 	Bitvector appplies_bits_{0u};
-	std::unordered_set<ESpell> removes_spell_affects_;
-	std::unordered_set<ESpell> replaces_spell_affects_;
 	std::unordered_set<EAffect> applies_affects_;
+	std::unordered_set<ESpell> removes_spells_;
+	std::unordered_set<ESpell> replaces_apells_;
+	std::unordered_set<ESpell> blocked_by_spells_;
 	std::unordered_set<EAffect> blocked_by_affects_;
 	std::unordered_set<EMobFlag> blocked_by_mob_flags_;
 
@@ -119,8 +120,8 @@ class Affect {
 	[[nodiscard]] int Cap()					const { return cap_; }
 	[[nodiscard]] bool Accumulate()	const { return accumulate_; }
 	[[nodiscard]] Bitvector Flags()			const { return flags_; }
-	[[nodiscard]] const auto &RemovedASpellffects() const { return removes_spell_affects_; }
-	[[nodiscard]] const auto &ReplacesSpellAffects() const { return replaces_spell_affects_; }
+	[[nodiscard]] const auto &RemovedSpellAffects() const { return removes_spells_; }
+	[[nodiscard]] const auto &ReplacedSpellAffects() const { return replaces_apells_; }
 	[[nodiscard]] const auto &BlockingAffects() const { return blocked_by_affects_; }
 	[[nodiscard]] const auto &BlockingMobFlags() const { return blocked_by_mob_flags_; }
 	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
