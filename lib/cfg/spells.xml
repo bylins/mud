@@ -709,7 +709,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
-                <affect saving="kReflex">
+                <affect type="kBlindness" saving="kReflex" silent="Y">
                     <power_roll resist_weight="1">
                         <dices ndice="1" sdice="1" adice="1"/>
                         <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
@@ -720,7 +720,11 @@ base_stat id - (например "kWis") какой берем параметр,
                     <applies_affects val="kUndefined"/>
                     <removes spells="kBrokenChains|kSleep"/>
                     <replaces spells="kHold|kGlitterDust"/>
-                    <blocked spells="kSlowdown" affects="kBless" flags="kNoBlind"/>
+                    <blocked>
+                        <spells val="kFly"/>
+                        <affects val="kBless"/>
+                        <flags val="kNoBlind"/>
+                    </blocked>
                 </affect>
                 <duration min="1" cap="6" resist_weight="5" accumulate="false">
                     <success_roll resist_weight="1">

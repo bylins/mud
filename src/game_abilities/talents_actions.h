@@ -122,6 +122,7 @@ class Affect {
 	[[nodiscard]] Bitvector Flags()			const { return flags_; }
 	[[nodiscard]] const auto &RemovedSpellAffects() const { return removes_spells_; }
 	[[nodiscard]] const auto &ReplacedSpellAffects() const { return replaces_apells_; }
+	[[nodiscard]] const auto &BlockingSpells() const { return blocked_by_spells_; }
 	[[nodiscard]] const auto &BlockingAffects() const { return blocked_by_affects_; }
 	[[nodiscard]] const auto &BlockingMobFlags() const { return blocked_by_mob_flags_; }
 	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };

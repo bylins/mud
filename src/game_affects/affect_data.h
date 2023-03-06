@@ -80,7 +80,7 @@ void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
-bool IsAffectedBySpell(CharData *ch, ESpell type);
+bool IsAffectedBySpell(const CharData *ch, ESpell type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);

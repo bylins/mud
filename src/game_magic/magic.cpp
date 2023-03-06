@@ -38,8 +38,10 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool ProcessMatComponents(CharData *caster, int, ESpell spell_id);
 
-bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim);
 bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *victim);
+bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim);
+bool IsBlockedBySpell(const talents_actions::Affect &affect, const CharData *victim);
+bool IsAffectBlocked(const talents_actions::Affect &affect, const CharData *victim);
 
 bool is_room_forbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
@@ -2470,7 +2472,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				continue;
 			}
-			if (IsBlockedByAffect(affect, victim) || IsBlockedByMobFlag(affect, victim)) {
+			if (IsAffectBlocked(affect, victim)) {
 				continue;
 			}
 
@@ -2565,6 +2567,19 @@ void RemoveIncompatibleSpellAffect(const talents_actions::Affect &affect, CharDa
 	const auto &spells_to_remove = affect.RemovedSpellAffects();
 	auto predicate = [victim](ESpell victim_affect) { RemoveAffectFromChar(victim, victim_affect); };
 	std::for_each(spells_to_remove.begin(), spells_to_remove.end(), predicate);
+}
+
+bool IsAffectBlocked(const talents_actions::Affect &affect, const CharData *victim) {
+	return (IsBlockedByMobFlag(affect, victim) || IsBlockedByAffect(affect, victim) || IsBlockedBySpell(affect, victim));
+}
+
+bool IsBlockedBySpell(const talents_actions::Affect &affect, const CharData *victim) {
+	const auto &blocking_spells = affect.BlockingSpells();
+	auto predicate = [victim](ESpell spell_id) { return IsAffectedBySpell(victim, spell_id); };
+	if (std::any_of(blocking_spells.begin(), blocking_spells.end(), predicate)) {
+		return true;
+	}
+	return false;
 }
 
 bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim) {

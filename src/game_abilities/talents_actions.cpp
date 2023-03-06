@@ -166,9 +166,18 @@ Affect::Affect(parser_wrapper::DataNode &node) {
 		node.GoToParent();
 	}
 	if (node.GoToChild("blocked")) {
-		parse::ReadAsConstantsSet<ESpell>(blocked_by_spells_, node.GetValue("spells"));
-		parse::ReadAsConstantsSet<EAffect>(blocked_by_affects_, node.GetValue("affects"));
-		parse::ReadAsConstantsSet<EMobFlag>(blocked_by_mob_flags_, node.GetValue("flags"));
+		if (node.GoToChild("spells")) {
+			parse::ReadAsConstantsSet<ESpell>(blocked_by_spells_, node.GetValue("val"));
+			node.GoToParent();
+		}
+		if (node.GoToChild("affects")) {
+			parse::ReadAsConstantsSet<EAffect>(blocked_by_affects_, node.GetValue("val"));
+			node.GoToParent();
+		}
+		if (node.GoToChild("flags")) {
+			parse::ReadAsConstantsSet<EMobFlag>(blocked_by_mob_flags_, node.GetValue("val"));
+			node.GoToParent();
+		}
 		node.GoToParent();
 	}
 }

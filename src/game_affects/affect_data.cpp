@@ -944,7 +944,7 @@ void reset_affects(CharData *ch) {
 	affect_total(ch);
 }
 
-bool IsAffectedBySpell(CharData *ch, ESpell type) {
+bool IsAffectedBySpell(const CharData *ch, ESpell type) {
 	if (type == ESpell::kPowerHold) {
 		type = ESpell::kHold;
 	} else if (type == ESpell::kPowerSilence) {
