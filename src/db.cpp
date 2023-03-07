@@ -2257,7 +2257,6 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
-	spells::InitSpellsCreate();
 
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");

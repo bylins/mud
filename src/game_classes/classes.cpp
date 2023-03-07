@@ -1318,7 +1318,7 @@ void InitSpellLevels() {
 			graceful_exit(1);
 		}
 		size_t c = strlen(line3);
-		if (!strn_cmp(line3, "potion", c)) {
+/*		if (!strn_cmp(line3, "potion", c)) {
 			spell_create[sp_num].potion.items[0] = i[0];
 			spell_create[sp_num].potion.items[1] = i[1];
 			spell_create[sp_num].potion.items[2] = i[2];
@@ -1342,7 +1342,9 @@ void InitSpellLevels() {
 			spell_create[sp_num].items.items[2] = i[2];
 			spell_create[sp_num].items.rnumber = i[3];
 			spell_create[sp_num].items.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "runes", c)) {
+		} else 
+*/
+		if (!strn_cmp(line3, "runes", c)) {
 			spell_create[sp_num].runes.items[0] = i[0];
 			spell_create[sp_num].runes.items[1] = i[1];
 			spell_create[sp_num].runes.items[2] = i[2];

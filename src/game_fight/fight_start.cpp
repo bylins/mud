@@ -82,7 +82,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		return (false);
 	}
-	if (!IS_CHARMICE(ch) || (IS_CHARMICE(ch) && !attack_best(ch, victim, true))) {
+	if (!IS_CHARMICE(ch) || (AFF_FLAGGED(ch, EAffect::kCharmed) && !attack_best(ch, victim, true))) {
 		hit(ch, victim, ESkill::kUndefined,
 			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}

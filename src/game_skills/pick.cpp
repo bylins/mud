@@ -10,12 +10,12 @@ PickProbabilityInformation get_pick_probability(CharData *ch, int lock_complexit
 		(ch->GetSkill(ESkill::kPickLock) + allowed_difference >= lock_complexity);
 
 	// используем сложность скила для дополнительного ограничения шанса прокачки
-	const int skill = CalcCurrentSkill(ch, ESkill::kPickLock, nullptr);
-	const int prob_diff = number(1, MUD::Skill(ESkill::kPickLock).difficulty);
-
+	const int prob = CalcCurrentSkill(ch, ESkill::kPickLock, nullptr);
+	const int percent = number(1, MUD::Skill(ESkill::kPickLock).difficulty);
+	const int skill = ch->GetSkill(ESkill::kPickLock);
 	// высчитываем дополнительный шанс ограничения прокачки (от сложности скила)
 	const int min_chance = 50;
-	const int restriction_percent = std::clamp(skill - prob_diff, min_chance, 100);
+	const int restriction_percent = std::clamp(prob - percent, min_chance, 100);
 	const bool complexity_restriction = number(1, 100) > restriction_percent ? true : false;
 
 	// разница между скилом и сложностью замка
