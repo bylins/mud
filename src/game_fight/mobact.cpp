@@ -139,9 +139,9 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode = false) {
 				go_strangle(ch, victim);
 			return (true);
 		}
-
 		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IS_CHARMICE(ch))
 				|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
+
 			if (do_mode)
 				do_backstab(ch, str_dup(GET_NAME(victim)), 0, 0);
 			else
