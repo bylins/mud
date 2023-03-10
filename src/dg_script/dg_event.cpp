@@ -81,7 +81,7 @@ void process_events(void) {
 	auto start = now_ms.time_since_epoch();
 
 	while (e) {
-		if (--(e->time_remaining) == 0) {
+		if ((e->time_remaining)-- == 0) {
 			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e->info))->trigger);
 			e->func(e->info);
 
