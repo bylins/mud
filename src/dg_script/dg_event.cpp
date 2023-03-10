@@ -81,13 +81,12 @@ void process_events(void) {
 	auto start = now_ms.time_since_epoch();
 
 	while (e) {
-		if ((e->time_remaining)-- == 0) {
+		const auto time_remaining = e->time_remaining;
+		if (time_remaining == 0) {
 			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e->info))->trigger);
 			e->func(e->info);
-
 			del = e;
 			e = e->next;
-
 			remove_event(del);
 			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
@@ -96,16 +95,16 @@ void process_events(void) {
 			now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 			auto end = now_ms.time_since_epoch();
 			long timediff = end.count() - start.count();
-
 			if (timediff > timewarning) {
 				// Выводим номер триггера который переполнил время работы.
-				sprintf(buf, "[TrigVNum: %d]: process_events overflow %ld ms.  warning  > %d ms",
-						trig_vnum, timediff, timewarning);
+				sprintf(buf, "[TrigVNum: %d]: process_events overflow %ld ms.  warning  > %d ms", trig_vnum, timediff, timewarning);
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else
+		} else {
+			e->time_remaining--;
 			e = e->next;
+		}
 	}
 }
 
