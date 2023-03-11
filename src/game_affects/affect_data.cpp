@@ -955,14 +955,6 @@ bool IsAffectedBySpell(const CharData *ch, ESpell type) {
 
 	auto predicate = [type](auto &affect) { return affect->type == type; };
 	return std::any_of(ch->affected.begin(), ch->affected.end(), predicate);
-
-//	for (const auto &affect : ch->affected) {
-//		if (affect->type == type) {
-//			return true;
-//		}
-//	}
-
-	return false;
 }
 
 namespace affects {

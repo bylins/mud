@@ -374,6 +374,8 @@ const std::string &NAME_BY_ITEM<ETarget>(ETarget item);
 enum class ESpellMsg {
 	kCastPhrasePoly,
 	kCastPhraseChrist,
+	kFailedForChar,
+	kFailedForRoom,
 	kAreaForChar,
 	kAreaForRoom,
 	kAreaForVict,

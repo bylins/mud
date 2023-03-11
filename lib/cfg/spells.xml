@@ -718,11 +718,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <flags val="kAfBattledec|kAfCurable|kAfDispelable"/>
                     <apply location="kStr" val="2" cap="10" accumulate="false"/>
                     <applies_affects val="kUndefined"/>
-                    <removes spells="kBrokenChains|kSleep"/>
-                    <replaces spells="kHold|kGlitterDust"/>
+                    <replaces spells="kFly|kBless"/>
                     <blocked>
-                        <spells val="kFly"/>
-                        <affects val="kBless"/>
+<!--                        <spells val="kFly"/>-->
+<!--                        <affects val="kBless"/>-->
                         <flags val="kNoBlind"/>
                     </blocked>
                 </affect>
@@ -737,6 +736,11 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </actions>
         <messages>
+            <msg id="kFailedForChar" val="Обломись!"/>
+            <msg id="kFailedForChar" val="Не подфартило..."/>
+            <msg id="kFailedForChar" val="А ху-ху не хо-хо?"/>
+            <msg id="kFailedForRoom" val="$N обломался!"/>
+            <msg id="kFailedForRoom" val="$N не сумел накастить!"/>
             <msg id="kCastPhrasePoly" val="будет силен"/>
             <msg id="kCastPhraseChrist" val="... и человек разумный укрепляет силу свою."/>
             <msg id="kExpired" val="Вы чувствуете себя немного слабее."/>

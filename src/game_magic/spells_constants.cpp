@@ -488,6 +488,8 @@ void init_ESpellMsg_ITEM_NAMES() {
 	ESpellMsg_value_by_name.clear();
 	ESpellMsg_name_by_value.clear();
 
+	ESpellMsg_name_by_value[ESpellMsg::kFailedForChar] = "kFailedForChar";
+	ESpellMsg_name_by_value[ESpellMsg::kFailedForRoom] = "kFailedForRoom";
 	ESpellMsg_name_by_value[ESpellMsg::kCastPhrasePoly] = "kCastPhrasePoly";
 	ESpellMsg_name_by_value[ESpellMsg::kCastPhraseChrist] = "kCastPhraseChrist";
 	ESpellMsg_name_by_value[ESpellMsg::kAreaForChar] = "kAreaForChar";

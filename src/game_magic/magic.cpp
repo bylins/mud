@@ -38,6 +38,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool ProcessMatComponents(CharData *caster, int, ESpell spell_id);
 
+bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *victim);
 bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *victim);
 bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim);
 bool IsBlockedBySpell(const talents_actions::Affect &affect, const CharData *victim);
@@ -2460,7 +2461,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	// ============================================================================================
 
 	if (spell_id == ESpell::kStrength) {
-		//MUD::Spell(spell_id).GetMsg(ESpellMsg::kComponentExhausted)
 		const auto &spell = MUD::Spell(spell_id);
 		auto affects = spell.actions.GetAffects();
 		auto duration = spell.actions.GetDuration();
@@ -2473,6 +2473,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				continue;
 			}
 			if (IsAffectBlocked(affect, victim)) {
+				continue;
+			}
+			if (IsSpellsReplacingFailed(affect, victim)) {
 				continue;
 			}
 
@@ -2495,11 +2498,18 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			failed = false;
 		}
 		if (failed) {
-			SendMsgToChar(NOEFFECT, ch);
+			auto &to_char = spell.GetMsg(ESpellMsg::kFailedForChar);
+			if (to_char.empty()) {
+				SendMsgToChar(NOEFFECT, ch);
+			} else {
+				SendMsgToChar(to_char, ch);
+			}
+			auto &to_room = spell.GetMsg(ESpellMsg::kFailedForRoom);
+			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 		} else {
-			auto to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
+			auto &to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
 			act(to_vict, false, victim, nullptr, ch, kToChar);
-			auto to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
+			auto &to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
 			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 		}
 		return 1;
@@ -2537,36 +2547,37 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	return 0;
 }
+
+struct CastResult {
+	bool success{true};
+	int replaced_spells{0};
+};
+
 /*
-Какие имеются варанты:
+ 1. Обработка Unaffect.
+ 1.1 Првоеряем блокирующие спеллы. Если есть - файл.
+ 1.2 Вычисляем рейтинг каста.
+ 1.3 Вычисляем суммарный пул очков.
+ 1.4 Пытаемся снять первый аффект и уменьшаем пул на его рейтинг.
+ 1.5 Если есть флаг "только один"... - так. Тут нужна механика count'ов
 
-1. Флаг блокирует спелл полностью.
-2. Аффект блокирует спелл полностью (ничего не снимаем).
-3. Аффект блокирует спелл, но при этом сам снимается.
-4. Аффект снимается и при этом не блокирует спелл.
-5. Спелл замещает аффект только если он есть.
-6. Спелл накладывается в любом случае, но замещает имеющийся.
-
-Алгоритм:
-1. Флаги. Если флаг есть - выход.
-
-2. Снимаемые аффекты.
-2.1 Если снимаемый аффект есть в списке блокирующих - снимаем и выход.
-2.2 Если снимаемый в списке замещаемых - ставим флаг, что можно заместить.
-
-5. Замещение
-5.1 Если список замещаемых не пуст и флаг замещения отсутствует - выход.
-5.1 Если есть флаг замещения и список замещаемых не пуст - наклаыдваем аффект.
+ 2. Обработка Affect
 
 */
-void ProcessRemovingAffects(const talents_actions::Affect &affect, CharData *victim) {
-	const auto &spells_to_remove = affect.RemovedSpellAffects();
-}
 
-void RemoveIncompatibleSpellAffect(const talents_actions::Affect &affect, CharData *victim) {
-	const auto &spells_to_remove = affect.RemovedSpellAffects();
-	auto predicate = [victim](ESpell victim_affect) { RemoveAffectFromChar(victim, victim_affect); };
-	std::for_each(spells_to_remove.begin(), spells_to_remove.end(), predicate);
+bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *victim) {
+	const auto &replaced_spells = affect.ReplacedSpellAffects();
+	if (replaced_spells.empty()) {
+		return false;
+	}
+
+	auto predicate = [replaced_spells](auto &affect) { return replaced_spells.contains(affect->type); };
+	auto it = std::find_if(victim->affected.begin(), victim->affected.end(), predicate);
+	if (it != victim->affected.end()) {
+		RemoveAffectFromChar(victim, (*it)->type);
+		return false;
+	}
+	return true;
 }
 
 bool IsAffectBlocked(const talents_actions::Affect &affect, const CharData *victim) {
@@ -3573,8 +3584,6 @@ int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESp
 	return 1;
 }
 
-//******************************************************************************
-//******************************************************************************
 //******************************************************************************
 
 int CheckMobList(CharData *ch) {
