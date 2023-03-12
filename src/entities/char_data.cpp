@@ -237,6 +237,20 @@ void CharData::set_abstinent() {
 	ImposeAffect(this, af, false, false, false, false);
 }
 
+/*
+
+ 	if (victim->IsNpc() && success) {
+		for (auto i = 0; i < kMaxSpellAffects && success; ++i) {
+			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].affect_bits))) {
+				if (ch->in_room == IN_ROOM(victim)) {
+					SendMsgToChar(NOEFFECT, ch);
+				}
+				success = false;
+			}
+		}
+	}
+
+ */
 void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	int was_lgt = AFF_FLAGGED(this, EAffect::kSingleLight) ? kLightYes : kLightNo;
 	long was_hlgt = AFF_FLAGGED(this, EAffect::kHolyLight) ? kLightYes : kLightNo;
@@ -248,6 +262,10 @@ void CharData::affect_remove(const char_affects_list_t::iterator &affect_i) {
 	}
 
 	const auto af = *affect_i;
+	if (IsNpc() && AFF_FLAGGED(&mob_proto[get_rnum()], static_cast<EAffect>(af->affect_bits))) {
+		return;
+	}
+
 	affect_modify(this, af->location, af->modifier, static_cast<EAffect>(af->affect_bits), false);
 	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {

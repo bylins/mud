@@ -499,6 +499,7 @@ void init_ESpellMsg_ITEM_NAMES() {
 	ESpellMsg_name_by_value[ESpellMsg::kComponentMissing] = "kComponentMissing";
 	ESpellMsg_name_by_value[ESpellMsg::kComponentExhausted] = "kComponentExhausted";
 	ESpellMsg_name_by_value[ESpellMsg::kExpired] = "kExpired";
+	ESpellMsg_name_by_value[ESpellMsg::kImposedForChar] = "kImposedForChar";
 	ESpellMsg_name_by_value[ESpellMsg::kImposedForVict] = "kImposedForVict";
 	ESpellMsg_name_by_value[ESpellMsg::kImposedForRoom] = "kImposedForRoom";
 

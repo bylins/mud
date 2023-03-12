@@ -383,6 +383,7 @@ enum class ESpellMsg {
 	kComponentMissing,
 	kComponentExhausted,
 	kExpired,
+	kImposedForChar,
 	kImposedForVict,
 	kImposedForRoom
 };

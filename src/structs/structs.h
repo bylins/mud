@@ -35,6 +35,8 @@ using sbyte = int8_t;
 using ubyte = uint8_t;
 using sh_int = int16_t ;
 using ush_int = uint16_t;
+using llong = long long;
+using ullong = unsigned long long;
 
 // This structure describe new bitvector structure
 using Bitvector = uint32_t;

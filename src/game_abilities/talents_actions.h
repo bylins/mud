@@ -21,7 +21,6 @@ namespace talents_actions {
 
 class Roll {
  protected:
-	double resist_weight_{0.0};
 	ESkill base_skill_{ESkill::kUndefined};
 	double low_skill_bonus_{0.0};
 	double hi_skill_bonus_{0.0};
@@ -36,7 +35,6 @@ class Roll {
 	explicit Roll() = default;
 	virtual ~Roll() = default;
 	virtual void ParseRoll(parser_wrapper::DataNode &node);
-	[[nodiscard]] double ResistWeight() const { return resist_weight_; };
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
 	virtual void Print(std::ostringstream &buffer) const;
@@ -72,17 +70,11 @@ class SuccessRoll : public Roll {
 	~SuccessRoll() override = default;
 	void ParseRoll(parser_wrapper::DataNode &node) override;
 	void Print(std::ostringstream &buffer) const override;
+	[[nodiscard]] ullong CalcRating(const CharData *ch, const CharData *vict) const;
+	[[nodiscard]] int CritsuccessThreshold() const { return critsuccess_threshold_; };
+	[[nodiscard]] int CritfailThreshold() const { return critfail_threshold_; };
 };
-/*
-enum class ETalentEffect : Bitvector {
-	kAffect			= 0u,
-	kDamage			= 1u << 0,
-	kArea			= 1u << 1,
-	kDuration		= 1u << 2,
-	kPointsChange	= 1u << 3,
-	kPosChange		= 1u << 4
-};
-*/
+
 class Damage {
 	PowerRoll power_roll_;
 	ESaving saving_{ESaving::kReflex};
@@ -123,9 +115,7 @@ class Affect {
 	[[nodiscard]] const auto &BlockingSpells() const { return blocked_by_spells_; }
 	[[nodiscard]] const auto &BlockingAffects() const { return blocked_by_affects_; }
 	[[nodiscard]] const auto &BlockingMobFlags() const { return blocked_by_mob_flags_; }
-	[[nodiscard]] int RollDices() const { return power_roll_.RollDices(); };
-	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const { return power_roll_.CalcSkillCoeff(ch); };
-	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const { return power_roll_.CalcBaseStatCoeff(ch); };
+	[[nodiscard]] int RollBaseModifier(const CharData *ch) const { return power_roll_.DoRoll(ch); };
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
@@ -134,12 +124,19 @@ class Duration {
 	int min_{1};
 	int cap_{1};
 	bool accumulate_{false};
+	double resist_weight_{1.0};
+	double degree_weight_{1.0};
 
  public:
 	Duration() = default;
 	explicit Duration(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const;
+	[[nodiscard]] int Min() const { return min_; };
+	[[nodiscard]] int Cap() const { return cap_; };
 	[[nodiscard]] bool Accumulate() const { return accumulate_; };
+	[[nodiscard]] double ResistWeight() const { return resist_weight_; };
+	[[nodiscard]] double DegreeWeight() const { return degree_weight_; };
+	[[nodiscard]] const SuccessRoll &Roll() const { return success_roll_; };
 };
 
 class Area {

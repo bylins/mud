@@ -43,6 +43,8 @@ bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *v
 bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim);
 bool IsBlockedBySpell(const talents_actions::Affect &affect, const CharData *victim);
 bool IsAffectBlocked(const talents_actions::Affect &affect, const CharData *victim);
+int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const CharData *vict);
+int CalcAffectModifier(const talents_actions::Affect &affect, const CharData *ch);
 
 bool is_room_forbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
@@ -989,7 +991,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	bool accum_affect{false};
 	bool update_spell{false};
 	switch (spell_id) {
-		case ESpell::kChillTouch: savetype = ESaving::kStability;
+		case ESpell::kChillTouch:
+			savetype = ESaving::kStability;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
@@ -2427,25 +2430,18 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		default: break;
 	}
-	ch->send_to_TC(false,
-				   true,
-				   false,
-				   "Кастуем спелл %s по цели %s длительносить %d\r\n",
-				   MUD::Spell(af[0].type).GetCName(),
-				   GET_PAD(victim, 2),
-				   af[0].duration);
-	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
-	//чтобы этот аффект не очистился, при спадении спелла
-	if (victim->IsNpc() && success) {
-		for (auto i = 0; i < kMaxSpellAffects && success; ++i) {
-			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].affect_bits))) {
-				if (ch->in_room == IN_ROOM(victim)) {
-					SendMsgToChar(NOEFFECT, ch);
-				}
-				success = false;
-			}
-		}
-	}
+
+//	if (victim->IsNpc() && success) {
+//		for (auto i = 0; i < kMaxSpellAffects && success; ++i) {
+//			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].affect_bits))) {
+//				if (ch->in_room == IN_ROOM(victim)) {
+//					SendMsgToChar(NOEFFECT, ch);
+//				}
+//				success = false;
+//			}
+//		}
+//	}
+
 	// позитивные аффекты - продлеваем, если они уже на цели
 	if (!MUD::Spell(spell_id).IsViolent() && IsAffectedBySpell(victim, spell_id) && success) {
 		update_spell = true;
@@ -2464,12 +2460,10 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		const auto &spell = MUD::Spell(spell_id);
 		auto affects = spell.actions.GetAffects();
 		auto duration = spell.actions.GetDuration();
-//		auto duration_time = duration.DoRoll(ch);
-		auto duration_time = 4;
-		duration_time = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration_time);
+		auto duration_time = CalcAffectDuration(spell, ch, victim);
 		bool failed{true};
 		for (const auto &affect: affects) {
-			if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, affect.Saving(), modi)) {
 				continue;
 			}
 			if (IsAffectBlocked(affect, victim)) {
@@ -2482,7 +2476,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			Affect<EApply> new_affect;
 			new_affect.type = spell_id;
 			new_affect.duration = duration_time;
-			new_affect.modifier = affect.Modifier();
+			new_affect.modifier = CalcAffectModifier(affect, ch);
 			new_affect.location = affect.Location();
 			new_affect.flags = affect.Flags();
 			new_affect.affect_bits = affect.AffectBits();
@@ -2496,26 +2490,36 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				ImposeAffect(victim, new_affect, accum_duration, !accum_duration, accum_affect, !accum_affect);
 			}
 			failed = false;
+			ch->send_to_TC(true, true, true, "Affect %s, Location: %s, Mod: %d, Duration: %d.\r\n",
+						   NAME_BY_ITEM<ESpell>(new_affect.type).c_str(),
+						   NAME_BY_ITEM<EApply>(new_affect.location).c_str(),
+						   new_affect.modifier,
+						   new_affect.duration);
 		}
 		if (failed) {
 			auto &to_char = spell.GetMsg(ESpellMsg::kFailedForChar);
 			if (to_char.empty()) {
 				SendMsgToChar(NOEFFECT, ch);
 			} else {
-				SendMsgToChar(to_char, ch);
+				act(to_char, false, ch, nullptr, ch, kToChar);
 			}
 			auto &to_room = spell.GetMsg(ESpellMsg::kFailedForRoom);
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
+			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen | kToNotVict);
 		} else {
+			// Этот костыль для ядов надо как-то убирать
+			if (spell_id == ESpell::kPoison) {
+				victim->poisoner = ch->id;
+			}
+			auto &to_char = spell.GetMsg(ESpellMsg::kImposedForChar);
+			act(to_char, false, ch, nullptr, ch, kToChar);
 			auto &to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
 			act(to_vict, false, victim, nullptr, ch, kToChar);
 			auto &to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
+			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen | kToNotVict);
 		}
+
 		return 1;
 	}
-
-	//SendMsgToChar(NOEFFECT, ch);
 
 	// ============================================================================================
 
@@ -2548,11 +2552,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	return 0;
 }
 
-struct CastResult {
-	bool success{true};
-	int replaced_spells{0};
-};
-
 /*
  1. Обработка Unaffect.
  1.1 Првоеряем блокирующие спеллы. Если есть - файл.
@@ -2565,50 +2564,84 @@ struct CastResult {
 
 */
 
-bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *victim) {
+bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *vict) {
 	const auto &replaced_spells = affect.ReplacedSpellAffects();
 	if (replaced_spells.empty()) {
 		return false;
 	}
 
 	auto predicate = [replaced_spells](auto &affect) { return replaced_spells.contains(affect->type); };
-	auto it = std::find_if(victim->affected.begin(), victim->affected.end(), predicate);
-	if (it != victim->affected.end()) {
-		RemoveAffectFromChar(victim, (*it)->type);
+	auto it = std::find_if(vict->affected.begin(), vict->affected.end(), predicate);
+	if (it != vict->affected.end()) {
+		RemoveAffectFromChar(vict, (*it)->type);
 		return false;
 	}
 	return true;
 }
 
-bool IsAffectBlocked(const talents_actions::Affect &affect, const CharData *victim) {
-	return (IsBlockedByMobFlag(affect, victim) || IsBlockedByAffect(affect, victim) || IsBlockedBySpell(affect, victim));
+bool IsAffectBlocked(const talents_actions::Affect &affect, const CharData *vict) {
+	return (IsBlockedByMobFlag(affect, vict) || IsBlockedByAffect(affect, vict) || IsBlockedBySpell(affect, vict));
 }
 
-bool IsBlockedBySpell(const talents_actions::Affect &affect, const CharData *victim) {
+bool IsBlockedBySpell(const talents_actions::Affect &affect, const CharData *vict) {
 	const auto &blocking_spells = affect.BlockingSpells();
-	auto predicate = [victim](ESpell spell_id) { return IsAffectedBySpell(victim, spell_id); };
-	if (std::any_of(blocking_spells.begin(), blocking_spells.end(), predicate)) {
-		return true;
-	}
-	return false;
+	auto predicate = [vict](ESpell spell_id) { return IsAffectedBySpell(vict, spell_id); };
+	return std::any_of(blocking_spells.begin(), blocking_spells.end(), predicate);
 }
 
-bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *victim) {
+bool IsBlockedByAffect(const talents_actions::Affect &affect, const CharData *vict) {
 	const auto &blocking_affects = affect.BlockingAffects();
-	auto predicate = [victim](EAffect victim_affect) { return AFF_FLAGGED(victim, victim_affect); };
-	if (std::any_of(blocking_affects.begin(), blocking_affects.end(), predicate)) {
-		return true;
-	}
-	return false;
+	auto predicate = [vict](EAffect vict_affect) { return AFF_FLAGGED(vict, vict_affect); };
+	return std::any_of(blocking_affects.begin(), blocking_affects.end(), predicate);
 }
 
 bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *victim) {
 	const auto &mob_flags = affect.BlockingMobFlags();
 	auto predicate = [victim](EMobFlag flag) { return MOB_FLAGGED(victim, flag); };
-	if (std::any_of(mob_flags.begin(), mob_flags.end(), predicate)) {
-		return true;
+	return std::any_of(mob_flags.begin(), mob_flags.end(), predicate);
+}
+
+int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const CharData *vict) {
+	const auto &duration = spell.actions.GetDuration();
+	if (!spell.IsViolent()) {
+		auto duration_time = duration.Cap();
+		if (!vict->IsNpc()) {
+			return duration_time*kSecsPerMudHour/kSecsPerPlayerAffect;
+		}
+		return duration_time;
 	}
-	return false;
+
+	const auto &roll = duration.Roll();
+	auto caster_dating = roll.CalcRating(ch, vict);
+	auto resist_type = GetResisTypeWithElement(spell.GetElement());
+	auto vict_rating = static_cast<ullong>(vict->add_abils.apply_resistance[resist_type]*duration.ResistWeight());
+	int difficulty = std::max(0, static_cast<int>(caster_dating-vict_rating));
+	int roll_result = number(1, abilities::kMainDiceSize);
+
+	int duration_time{0};
+	if (roll_result > roll.CritfailThreshold()) {
+		duration_time = duration.Min();
+	} else if (roll_result < roll.CritsuccessThreshold()) {
+		duration_time = duration.Cap();
+	} else {
+		duration_time = duration.Min() + (duration.Cap() - duration.Min())/2;
+		int test_result = difficulty - roll_result;
+		if (test_result >= 0) {
+			duration_time += static_cast<int>(roll_result/abilities::kDegreeDivider*duration.DegreeWeight());
+		} else {
+			duration_time -= static_cast<int>(roll_result/abilities::kDegreeDivider*duration.DegreeWeight());
+		}
+	}
+	duration_time = std::clamp(duration_time, duration.Min(), duration.Cap());
+	if (!vict->IsNpc()) {
+		return duration_time*kSecsPerMudHour/kSecsPerPlayerAffect;
+	}
+	return duration_time;
+}
+
+int CalcAffectModifier(const talents_actions::Affect &affect, const CharData *ch) {
+	auto base_modifier = affect.RollBaseModifier(ch);
+	return std::clamp(base_modifier, affect.Modifier(), affect.Cap());
 }
 
 /*

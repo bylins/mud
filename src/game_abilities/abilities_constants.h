@@ -82,6 +82,7 @@ const double kSkillWeight = 1.0;
 const double kNoviceSkillWeight = 0.75;
 const double kParameterWeight = 3.0;
 const double kSaveWeight = 1.0;
+const double kDegreeDivider = 10.0;
 
 const int kMainDiceSize = 100;
 const int kDmgDiceSize = 5;
@@ -97,7 +98,6 @@ const int kDefaultEvPPenalty = 30;
 const int kDefaultPvPPenalty = 12;
 const int kMaxFailDegree = -10;
 const int kMaxSuccessDegree = 10;
-const int kDegreeDivider = 10;
 const int kSkillRatingDivider = 2;
 const int kStatRatingDivider = 2;
 const int kCircumstanceFactor = 5;

@@ -6,7 +6,6 @@
 namespace talents_actions {
 
 void Roll::ParseRoll(parser_wrapper::DataNode &node) {
-	resist_weight_ = parse::ReadAsInt(node.GetValue("resist_weight"));
 	if (node.GoToChild("base_skill")) {
 		ParseBaseSkill(node);
 		node.GoToParent();
@@ -100,13 +99,25 @@ void SuccessRoll::ParseRoll(parser_wrapper::DataNode &node) {
 }
 
 void SuccessRoll::Print(std::ostringstream &buffer) const {
-	buffer << "   Bonuses:  Roll: " << KGRN << roll_bonus_ << KNRM
+	buffer << "   Bonuses.  Roll: " << KGRN << roll_bonus_ << KNRM
 		   << " PvP: " << KGRN << pvp_penalty_ << KNRM
 		   << " PvE: " << KGRN << pve_penalty_ << KNRM
 		   << " EvP: " << KGRN << evp_penalty_ << KNRM << "\r\n"
-		   << "   Thresholds:  Critsuccess: " << KGRN << critsuccess_threshold_ << KNRM
+		   << "   Thresholds.  Critsuccess: " << KGRN << critsuccess_threshold_ << KNRM
 		   << " Critfail: " << KGRN << critfail_threshold_ << KNRM << "\r\n";
 	Roll::Print(buffer);
+}
+
+ullong SuccessRoll::CalcRating(const CharData *ch, const CharData *vict) const {
+	auto rating = static_cast<ullong>(CalcSkillCoeff(ch) + CalcBaseStatCoeff(ch) + roll_bonus_);
+	if (vict == nullptr || (!ch->IsNpc() && vict->IsNpc())) {
+		rating += pve_penalty_;
+	} else if (ch->IsNpc() && !vict->IsNpc()) {
+		rating += evp_penalty_;
+	} else if (!ch->IsNpc() && !vict->IsNpc()) {
+		rating += pvp_penalty_;
+	}
+	return rating;
 }
 
 // =====================================================================================================================
@@ -115,6 +126,8 @@ Duration::Duration(parser_wrapper::DataNode &node) {
 	min_ = std::max(0, parse::ReadAsInt(node.GetValue("min")));
 	cap_ = parse::ReadAsInt(node.GetValue("cap"));
 	accumulate_ = parse::ReadAsBool(node.GetValue("accumulate"));
+	resist_weight_ = parse::ReadAsDouble(node.GetValue("resist_weight"));
+	degree_weight_ = parse::ReadAsDouble(node.GetValue("degree_weight"));
 	if (node.GoToChild("success_roll")) {
 		success_roll_.ParseRoll(node);
 		node.GoToParent();
@@ -125,7 +138,8 @@ void Duration::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << "\r\n Duration:\r\n";
 	buffer << "  Min: " << KGRN << min_ << KNRM
 		   << " Cap: " << KGRN << cap_ << KNRM
-		   << " Accumulate: " << KGRN << (accumulate_ ? "Yes" : "No") << KNRM << "\r\n";
+		   << " Accumulate: " << KGRN << (accumulate_ ? "Yes" : "No") << KNRM << "\r\n"
+		   << "  Resist weight: " << resist_weight_ << " Degree weight: " << degree_weight_ << "\r\n";
 	success_roll_.Print(buffer);
 }
 
@@ -143,7 +157,7 @@ Affect::Affect(parser_wrapper::DataNode &node) {
 	}
 	if (node.GoToChild("apply")) {
 		location_ = parse::ReadAsConstant<EApply>(node.GetValue("location"));
-		mod_ = parse::ReadAsInt(node.GetValue("val"));
+		mod_ = parse::ReadAsInt(node.GetValue("min"));
 		cap_ = parse::ReadAsInt(node.GetValue("cap"));
 		accumulate_ = parse::ReadAsBool(node.GetValue("accumulate"));
 		node.GoToParent();
