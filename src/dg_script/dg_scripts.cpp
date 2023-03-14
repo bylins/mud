@@ -43,6 +43,7 @@ extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 const char *attach_name[] = {"mob", "obj", "room", "unknown!!!"};
 
 int last_trig_vnum = 0;
+int curr_trig_vnum = 0;
 
 // other external vars
 
@@ -426,7 +427,7 @@ int find_room_uid(long n) {
  ************************************************************/
 
 // search the entire world for a char, and return a pointer
-CharData *get_char(char *name, bool pc) {
+CharData *get_char(char *name) {
 	CharData *i;
 
 	// Отсекаем поиск левых UID-ов.
@@ -434,9 +435,6 @@ CharData *get_char(char *name, bool pc) {
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
-		if (pc)
-			i = find_pc(atoi(name + 1));
-		else
 			i = find_char(atoi(name + 1));
 		if (i && (i->IsNpc() || !GET_INVIS_LEV(i))) {
 			return i;
@@ -5171,7 +5169,7 @@ void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/*
 
 	value = atoi(value_c);
 	// locate the target
-	ch = get_char(charname, true);
+	ch = get_char(charname);
 	if (!ch) {
 		sprintf(buf2, "dg_addicecurrency: cannot locate target!");
 		trig_log(trig, buf2);
@@ -5188,6 +5186,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	unsigned long loops = 0;
 	Trigger *prev_trig;
 
+	curr_trig_vnum = GET_TRIG_VNUM(trig);
 	void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 	void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig);
 	void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig);
