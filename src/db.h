@@ -229,6 +229,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 extern RoomRnum top_of_world;
 extern std::unordered_map<MobVnum, std::vector<long>> mob_id_by_vnum;
+extern std::unordered_map<long, CharData *> mob_by_uid;
 
 void add_trig_index_entry(int nr, Trigger *proto);
 extern IndexData **trig_index;

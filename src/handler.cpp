@@ -1924,6 +1924,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 					++it;
 			}
 			mob_id_by_vnum[GET_MOB_VNUM(ch)] = list_idnum;
+			mob_by_uid.erase(ch->id);
 		}
 	}
 	bool left_in_game = false;

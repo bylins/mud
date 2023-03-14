@@ -302,7 +302,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	}
 
 	if (*arg == UID_CHAR) {
-		if (!(victim = get_char(arg, true))) {
+		if (!(victim = get_char(arg))) {
 // Надоел спам чармисов
 //			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
 //			mob_log(ch, buf, LGH);
@@ -1058,7 +1058,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	}
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name, true))) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mfeatturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1110,7 +1110,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	}
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name, true))) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mskillturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1162,7 +1162,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	skilldiff = atoi(amount);
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name, true))) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mskilladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1216,7 +1216,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		return;
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name, true))) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspellturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1260,7 +1260,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name, true))) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspellturntemp: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1294,7 +1294,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	CharData *victim;
 	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name, true))) {
+		if (!(victim = get_char(name))) {
 			sprintf(buf, "mspelladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
@@ -1478,6 +1478,32 @@ const struct mob_command_info mob_cmd_info[] =
 		{"mspellitem", EPosition::kDead, do_mspellitem, -1, false},
 		{"mportal", EPosition::kDead, do_mportal, -1, false},
 		{"mzoneecho", EPosition::kDead, do_mzoneecho, -1, false},
+		{"asound", EPosition::kDead, do_masound, -1, false},
+		{"kill", EPosition::kStand, do_mkill, -1, false},
+		{"junk", EPosition::kSit, do_mjunk, -1, true},
+		{"damage", EPosition::kDead, do_mdamage, -1, false},
+		{"door", EPosition::kDead, do_mdoor, -1, false},
+		{"echo", EPosition::kDead, do_mecho, -1, false},
+		{"echoaround", EPosition::kDead, do_mechoaround, -1, false},
+		{"send", EPosition::kDead, do_msend, -1, false},
+		{"load", EPosition::kDead, do_mload, -1, false},
+		{"purge", EPosition::kDead, do_mpurge, -1, true},
+		{"goto", EPosition::kDead, do_mgoto, -1, false},
+		{"at", EPosition::kDead, do_mat, -1, false},
+		{"teleport", EPosition::kDead, do_mteleport, -1, false},
+		{"force", EPosition::kDead, do_mforce, -1, false},
+		{"exp", EPosition::kDead, do_mexp, -1, false},
+		{"gold", EPosition::kDead, do_mgold, -1, false},
+		{"transform", EPosition::kDead, do_mtransform, -1, false},
+		{"featturn", EPosition::kDead, do_mfeatturn, -1, false},
+		{"skillturn", EPosition::kDead, do_mskillturn, -1, false},
+		{"skilladd", EPosition::kDead, do_mskilladd, -1, false},
+		{"spellturn", EPosition::kDead, do_mspellturn, -1, false},
+		{"spellturntemp", EPosition::kDead, do_mspellturntemp, -1, false},
+		{"spelladd", EPosition::kDead, do_mspelladd, -1, false},
+		{"spellitem", EPosition::kDead, do_mspellitem, -1, false},
+		{"portal", EPosition::kDead, do_mportal, -1, false},
+		{"zoneecho", EPosition::kDead, do_mzoneecho, -1, false},
 		{"dgcast", EPosition::kDead, MobDgCast, -1, false},
 		{"\n", EPosition::kDead, nullptr, 0, false}
 		// this must be last

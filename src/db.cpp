@@ -102,6 +102,7 @@ int top_of_trigt = 0;        // top of trigger index table
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
 std::unordered_map<MobVnum, std::vector<long>> mob_id_by_vnum;
+std::unordered_map<long, CharData *> mob_by_uid;
 
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
@@ -3585,7 +3586,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	} else {
 		MOB_FLAGS(mob).set(EMobFlag::kSummoned);
 	}
-
+	mob_by_uid[mob->id] = mob;
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction) {
 		// mobile принадлежит тестовой зоне
