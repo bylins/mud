@@ -86,7 +86,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog = true);
 // ******* characters ********* //
 
 CharData *SearchCharInRoomByName(char *name, RoomRnum room);
-CharData *get_char(char *name, bool pc = false);
+//CharData *get_char(char *name);
 
 void RemoveCharFromRoom(CharData *ch);
 inline void char_from_room(const CharData::shared_ptr &ch) { RemoveCharFromRoom(ch.get()); }

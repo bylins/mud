@@ -451,7 +451,6 @@ int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //
 const int kRoomToBase = 150000;
-
 #define SCRIPT_TYPES(s)          ((s)->types)
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
@@ -484,11 +483,11 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spell_type);
-
+CharData *get_char(char *name);
 // external vars from db.cpp //
 extern int top_of_trigt;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка
-
+extern int curr_trig_vnum;
 const int MAX_TRIG_USEC = 30000;
 
 void save_char_vars(CharData *ch);

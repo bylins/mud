@@ -99,14 +99,19 @@ const char *ACTNULL = "<NULL>";
 
 // return char with UID n
 CharData *find_char(long n) {
-	for (const auto &ch : character_list) {
-		if (GET_ID(ch) == n) {
-			return ch.get();
+	CharData *i = mob_by_uid[n];
+	if (i) {
+		return i;
+	}
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) == CON_PLAYING && GET_ID(d->character) == n) {
+			return d->character.get();
 		}
 	}
+	log("char not found, curr trig %d", curr_trig_vnum);
 	return nullptr;
-
 }
+
 // return pc online with UID n
 CharData *find_pc(long n) {
 	for (auto d = descriptor_list; d; d = d->next) {
