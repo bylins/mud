@@ -911,6 +911,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
 		ExtractCharFromWorld(m, false);
+		mob_by_uid[ch->id] = ch;
+
 	}
 }
 

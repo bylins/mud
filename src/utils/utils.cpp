@@ -103,13 +103,7 @@ CharData *find_char(long n) {
 	if (i) {
 		return i;
 	}
-	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && GET_ID(d->character) == n) {
-			return d->character.get();
-		}
-	}
-	log("char not found, curr trig %d", curr_trig_vnum);
-	return nullptr;
+	return find_pc(n);
 }
 
 // return pc online with UID n
