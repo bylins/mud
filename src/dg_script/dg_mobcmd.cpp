@@ -1524,10 +1524,9 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 
 	// find the command
 	int cmd = 0;
-	const size_t length = strlen(arg);
 
 	while (*mob_cmd_info[cmd].command != '\n') {
-		if (!strncmp(mob_cmd_info[cmd].command, arg, length)) {
+		if (!strcmp(mob_cmd_info[cmd].command, arg)) {
 			break;
 		}
 		cmd++;
