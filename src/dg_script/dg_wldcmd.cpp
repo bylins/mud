@@ -976,9 +976,8 @@ void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig) {
 
 	// find the command
 	int cmd = 0;
-	size_t length = strlen(arg);
 	while (*wld_cmd_info[cmd].command != '\n') {
-		if (!strn_cmp(wld_cmd_info[cmd].command, arg, length)) {
+		if (!str_cmp(wld_cmd_info[cmd].command, arg)) {
 			break;
 		}
 		cmd++;

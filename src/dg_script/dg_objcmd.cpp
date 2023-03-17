@@ -1101,9 +1101,8 @@ void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig) {
 
 	// find the command
 	int cmd = 0;
-	const size_t length = strlen(arg);
 	while (*obj_cmd_info[cmd].command != '\n') {
-		if (!strncmp(obj_cmd_info[cmd].command, arg, length)) {
+		if (!strcmp(obj_cmd_info[cmd].command, arg)) {
 			break;
 		}
 		cmd++;
