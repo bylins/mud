@@ -1877,6 +1877,8 @@ void find_replacement(void *go,
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
 				strftime(str, kMaxInputLength, "%w", localtime(&now_time));
+			} else if (!str_cmp(field, "second")) {
+				strftime(str, kMaxInputLength, "%S", localtime(&now_time));
 			} else if (!str_cmp(field, "minute")) {
 				strftime(str, kMaxInputLength, "%M", localtime(&now_time));
 			} else if (!str_cmp(field, "hour")) {
