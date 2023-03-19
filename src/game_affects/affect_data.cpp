@@ -142,7 +142,7 @@ bool Affect<EApply>::removable() const {
 		|| type == ESpell::kPowerDeafness
 		|| type == ESpell::kBattle;
 }
-// 
+
 // для мобов раз в 10 пульсов
 void UpdateAffectOnPulse(CharData *ch, int count) {
 	bool pulse_aff = false;
@@ -434,22 +434,29 @@ void mobile_affect_update() {
 	});
 	log("mobile affect update: timer %f, num mobs %d, count update %d, affected mobs: %d", timer.delta().count(), count, count2, count3);
 }
-
-// Call affect_remove with every spell of spelltype "skill"
-void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
+/**
+ * Call affect_remove with every spell of spelltype "skill"
+ * @param ch - target.
+ * @param spell_id - affect type.
+ * @return - true, if at least one affect has been removed.
+ */
+bool RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	auto next_affect_i = ch->affected.begin();
 
+	bool affect_removed{false};
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
 		++next_affect_i;
 		const auto affect = *affect_i;
 		if (affect->type == spell_id) {
 			ch->affect_remove(affect_i);
+			affect_removed = true;
 		}
 	}
-	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
+	if (affect_removed && spell_id == ESpell::kCharm && ch->IsNpc()) {
 		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;
 	}
+	return affect_removed;
 }
 
 std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {
@@ -457,27 +464,13 @@ std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *
 	if (ch) //чтоб не было варнинга, ch передаю на будущее
 		value = 2;
 	switch (element) {
-		case EWeaponAffect::kFireAura:
-			return std::pair<EApply, int>(EApply::kResistFire, value);
-			break;
-		case EWeaponAffect::kAirAura:
-			return std::pair<EApply, int>(EApply::kResistAir, value);
-			break;
-		case EWeaponAffect::kIceAura:
-			return std::pair<EApply, int>(EApply::kResistWater, value);
-			break;
-		case EWeaponAffect::kEarthAura:
-			return std::pair<EApply, int>(EApply::kResistEarth, value);
-			break;
-		case EWeaponAffect::kProtectFromDark:
-			return std::pair<EApply, int>(EApply::kResistDark, value);
-			break;
-		case EWeaponAffect::kProtectFromMind:
-			return std::pair<EApply, int>(EApply::kResistMind, value);
-			break;
-		default: 
-			return std::pair<EApply, int>(EApply::kNone, 0);
-			break;
+		case EWeaponAffect::kFireAura:			return {EApply::kResistFire, value};
+		case EWeaponAffect::kAirAura: 			return {EApply::kResistAir, value};
+		case EWeaponAffect::kIceAura:			return {EApply::kResistWater, value};
+		case EWeaponAffect::kEarthAura:			return {EApply::kResistEarth, value};
+		case EWeaponAffect::kProtectFromDark:	return {EApply::kResistDark, value};
+		case EWeaponAffect::kProtectFromMind:	return {EApply::kResistMind, value};
+		default:								return {EApply::kNone, 0};
 	}
 }
 
@@ -715,6 +708,42 @@ void affect_total(CharData *ch) {
 		AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	}
 	update_pos(ch);
+}
+
+void UpdateAffect(CharData *ch, const Affect<EApply> &af,
+				  bool accumulate_duration, int duration_cap, bool accumulate_mod, int mod_cap) {
+	for (const auto &present_affect : ch->affected) {
+		if (present_affect->type != af.type) {
+			continue;
+		}
+
+		const bool same_bits = (present_affect->affect_bits == af.affect_bits);
+		const bool same_apply = (af.location != EApply::kNone) && (present_affect->location == af.location);
+		if (!same_bits && !same_apply) {
+			continue;
+		}
+
+		if (accumulate_duration) {
+			present_affect->duration += af.duration;
+		} else if (present_affect->duration < af.duration) {
+			present_affect->duration = std::min(present_affect->duration + af.duration, duration_cap);
+		}
+
+		if (af.modifier * present_affect->modifier >= 0) {
+			if (accumulate_mod) {
+				if (af.modifier >=  0) {
+					present_affect->modifier += std::min(present_affect->modifier + af.modifier, mod_cap);;
+				} else {
+					present_affect->modifier += std::max(present_affect->modifier + af.modifier, mod_cap);;
+				}
+			} else if (std::abs(present_affect->modifier) < std::abs(af.modifier)) {
+				present_affect->modifier = af.modifier;
+			}
+		} else {
+			err_log("Trying to update an affect '%s' with different signs in present and new affect",
+					NAME_BY_ITEM(af.type).c_str());
+		}
+	}
 }
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {

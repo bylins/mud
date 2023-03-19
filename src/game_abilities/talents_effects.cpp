@@ -205,7 +205,7 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << std::endl << " Applies:" << std::endl;
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
-		  << "Location" << "Affect" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
+		  << "Location" << "Affect" << "Mod" << "Level bonus" << "Remort bonus" << "ModCap" << table_wrapper::kEndRow;
 	for (const auto &apply: applies_) {
 		table << NAME_BY_ITEM<EApply>(apply.location)
 			  << NAME_BY_ITEM<EAffect>(apply.affect)

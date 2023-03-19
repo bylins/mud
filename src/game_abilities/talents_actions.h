@@ -45,6 +45,7 @@ class PowerRoll : public Roll {
 	int dice_num_{1};
 	int dice_size_{1};
 	int dice_add_{1};
+	double roll_weight_{1.0};
 
 	void ParseDices(parser_wrapper::DataNode &node);
 
@@ -89,11 +90,13 @@ class Damage {
 
 class Affect {
 	PowerRoll power_roll_;
+	ESpell type_;
 	ESaving saving_{ESaving::kReflex};
 	EApply location_{EApply::kNone};
 	int mod_{0};
 	int cap_{0};
-	bool accumulate_{false};
+	bool accumulate_mod_{false};
+	bool replaces_all_{true};
 	Bitvector flags_{0u};
 	Bitvector appplies_bits_{0u};
 	std::unordered_set<EAffect> applies_affects_;
@@ -104,19 +107,22 @@ class Affect {
 
  public:
 	explicit Affect(parser_wrapper::DataNode &node);
-	[[nodiscard]] ESaving Saving()			const { return saving_; }
-	[[nodiscard]] EApply Location()			const { return location_; }
-	[[nodiscard]] Bitvector AffectBits()	const { return appplies_bits_; }
-	[[nodiscard]] int Modifier()			const { return mod_; }
-	[[nodiscard]] int Cap()					const { return cap_; }
-	[[nodiscard]] bool Accumulate()	const { return accumulate_; }
-	[[nodiscard]] Bitvector Flags()			const { return flags_; }
-	[[nodiscard]] const auto &ReplacedSpellAffects() const { return replaces_apells_; }
-	[[nodiscard]] const auto &BlockingSpells() const { return blocked_by_spells_; }
-	[[nodiscard]] const auto &BlockingAffects() const { return blocked_by_affects_; }
-	[[nodiscard]] const auto &BlockingMobFlags() const { return blocked_by_mob_flags_; }
-	[[nodiscard]] int RollBaseModifier(const CharData *ch) const { return power_roll_.DoRoll(ch); };
-	void Print(CharData *ch, std::ostringstream &buffer) const;
+	[[nodiscard]] ESpell Type()								const { return type_; }
+	[[nodiscard]] ESaving Saving()							const { return saving_; }
+	[[nodiscard]] EApply Location()							const { return location_; }
+	[[nodiscard]] Bitvector AffectBits()					const { return appplies_bits_; }
+	[[nodiscard]] int BaseModifier()						const { return mod_; }
+	[[nodiscard]] int ModCap()									const { return cap_; }
+	[[nodiscard]] bool AccumulateMod()							const { return accumulate_mod_; }
+	[[nodiscard]] bool IsFlagged(EAffectFlag flag)			const { return (flags_ & flag); };
+	[[nodiscard]] bool IsObligatoryReplacing()				const { return replaces_all_; }
+	[[nodiscard]] Bitvector Flags()							const { return flags_; }
+	[[nodiscard]] const auto &ReplacedSpellAffects()		const { return replaces_apells_; }
+	[[nodiscard]] const auto &BlockingSpells()				const { return blocked_by_spells_; }
+	[[nodiscard]] const auto &BlockingAffects()				const { return blocked_by_affects_; }
+	[[nodiscard]] const auto &BlockingMobFlags()			const { return blocked_by_mob_flags_; }
+	[[nodiscard]] int RollBaseModifier(const CharData *ch)	const { return power_roll_.DoRoll(ch); };
+	void Print(CharData *ch, std::ostringstream &buffer)	const;
 };
 
 class Duration {
@@ -195,7 +201,7 @@ class Actions {
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
 	[[nodiscard]] const Duration &GetDuration() const;
-	[[nodiscard]] const TalentAction::Affects &GetAffects() const;
+	[[nodiscard]] const TalentAction::Affects &GetImposedAffects() const;
 };
 
 }

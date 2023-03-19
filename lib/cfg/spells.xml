@@ -116,6 +116,26 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <actions>
+            <action>
+                <affect type="kBlindness" saving="kStability">
+                    <flags val="kAfBattledec"/>
+                    <apply location="kNone" min="0" cap="0" accumulate="N"/>
+                    <applies_affects val="kBlind"/>
+                    <blocked>
+                        <flags val="kNoBlind"/>
+                    </blocked>
+                </affect>
+                <duration min="2" cap="6" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="Чтоб твои зенки вылезли!"/>
             <msg id="kCastPhraseChrist" val="... поразит тебя Господь слепотою."/>
@@ -208,6 +228,24 @@ base_stat id - (например "kWis") какой берем параметр,
                         <base_stat id="kWis" threshold="32" weight="5"/>
                     </power_roll>
                 </damage>
+                <affect type="kChillTouch" saving="kStability">
+                    <power_roll>
+                        <dices ndice="2" sdice="5" adice="10" roll_weight="-0.1"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="0.07" hi_skill_bonus="0.1"/>
+                        <base_stat id="kWis" threshold="22" weight="0.02"/>
+                    </power_roll>
+                    <apply location="kStr" min="-1" cap="0" accumulate="N"/>
+                    <applies_affects val="kUndefined"/>
+                    <flags val="kAfBattledec|kAfUpdate"/>
+                </affect>
+                <duration min="4" cap="12" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </success_roll>
+                </duration>
             </action>
         </actions>
         <messages>
@@ -472,6 +510,24 @@ base_stat id - (например "kWis") какой берем параметр,
                         <base_stat id="kWis" threshold="22" weight="0.5"/>
                     </power_roll>
                 </damage>
+                <affect type="kWeaknes" saving="kWill">
+                    <power_roll>
+                        <dices ndice="2" sdice="5" adice="10" roll_weight="-0.1"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="0.09" hi_skill_bonus="0.2"/>
+                        <base_stat id="kWis" threshold="22" weight="0.02"/>
+                    </power_roll>
+                    <apply location="kStr" min="-2" cap="0" accumulate="N"/>
+                    <applies_affects val="kUndefined"/>
+                    <flags val="kAfBattledec"/>
+                </affect>
+                <duration min="4" cap="12" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </success_roll>
+                </duration>
             </action>
         </actions>
         <messages>
@@ -716,16 +772,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <base_stat id="kWis" threshold="22" weight="5"/>
                     </power_roll>
                     <flags val="kAfBattledec|kAfCurable|kAfDispelable"/>
-                    <apply location="kStr" min="2" cap="10" accumulate="false"/>
+                    <apply location="kStr" min="2" cap="10" accumulate="N"/>
                     <applies_affects val="kUndefined"/>
-<!--                    <replaces spells="kFly|kBless"/>  kAfUpdate-->
-                    <blocked>
-<!--                        <spells val="kFly"/>-->
-<!--                        <affects val="kBless"/>-->
-                        <flags val="kNoBlind"/>
-                    </blocked>
                 </affect>
-                <duration min="1" cap="6" accumulate="false" resist_weight="1.0" degree_weight="1.0">
+                <duration min="1" cap="6" accumulate="N" resist_weight="1.0" degree_weight="1.0">
                     <success_roll>
                         <thresholds critsuccess="6" critfail="95"/>
                         <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
@@ -860,7 +910,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="прибежище други"/>
             <msg id="kCastPhraseChrist" val="... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?"/>
-            <msg id="kAreaForChar" val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n"/>
+            <msg id="kAreaForChar"
+                 val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n"/>
         </messages>
     </spell>
     <spell id="kGroupHeal" element="kLife" mode="kEnabled">
@@ -880,7 +931,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="други, гой еси"/>
             <msg id="kCastPhraseChrist" val="... вам говорю, встаньте."/>
-            <msg id="kAreaForChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n"/>
+            <msg id="kAreaForChar"
+                 val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n"/>
         </messages>
     </spell>
     <spell id="kGroupRecall" element="kMind" mode="kEnabled">
@@ -1001,7 +1053,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="их окалеть"/>
             <msg id="kCastPhraseChrist" val="... замрите."/>
-            <msg id="kAreaForChar" val="Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей."/>
+            <msg id="kAreaForChar"
+                 val="Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей."/>
             <msg id="kAreaForVict" val="В вас попал каменный луч, исходящий от $n1."/>
         </messages>
     </spell>
@@ -1078,6 +1131,26 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <actions>
+            <action>
+                <affect type="kStoneSkin" saving="kWill">
+                    <power_roll>
+                        <dices ndice="2" sdice="5" adice="10" roll_weight="0.1"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="2" hi_skill_bonus="0.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.02"/>
+                    </power_roll>
+                    <apply location="kAbsorbe" min="5" cap="0" accumulate="N"/>
+                </affect>
+                <duration min="10" cap="60" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="буде тверд аки камень"/>
             <msg id="kCastPhraseChrist" val="... твердость ли камней твердость твоя?"/>
@@ -1211,10 +1284,24 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <actions>
             <action>
-                <area>
-                    <decay cast="0.05" level="7" free_targets="3"/>
-                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
-                </area>
+                <affect type="kWeaknes" saving="kWill">
+                    <power_roll>
+                        <dices ndice="2" sdice="5" adice="10" roll_weight="-0.1"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="0.07" hi_skill_bonus="0.1"/>
+                        <base_stat id="kWis" threshold="22" weight="0.02"/>
+                    </power_roll>
+                    <apply location="kStr" min="-1" cap="0" accumulate="N"/>
+                    <applies_affects val="kUndefined"/>
+                    <flags val="kAfBattledec"/>
+                </affect>
+                <duration min="4" cap="12" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </success_roll>
+                </duration>
             </action>
         </actions>
         <messages>
@@ -1429,7 +1516,8 @@ base_stat id - (например "kWis") какой берем параметр,
             <msg id="kCastPhraseChrist" val="... и Он поразил их слепотою."/>
             <msg id="kAreaForChar" val="У вас над головой возникла яркая вспышка, которая ослепила все живое."/>
             <msg id="kAreaForRoom" val="Вдруг над головой $n1 возникла яркая вспышка."/>
-            <msg id="kAreaForVict" val="Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."/>
+            <msg id="kAreaForVict"
+                 val="Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."/>
         </messages>
     </spell>
     <spell id="kPowerSilence" element="kMind" mode="kEnabled">
@@ -1509,7 +1597,8 @@ base_stat id - (например "kWis") какой берем параметр,
             <msg id="kCastPhrasePoly" val="их уста непотребны"/>
             <msg id="kCastPhraseChrist" val="... да замкнутся уста ваши."/>
             <msg id="kAreaForChar" val="Поведя вокруг грозным взглядом, вы заставили всех замолчать."/>
-            <msg id="kAreaForVict" val="Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."/>
+            <msg id="kAreaForVict"
+                 val="Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."/>
         </messages>
     </spell>
     <spell id="kRemoveSilence" element="kLight" mode="kEnabled">
@@ -1663,7 +1752,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="крыла им створисте"/>
             <msg id="kCastPhraseChrist" val="... и все летающие по роду их."/>
-            <msg id="kAreaForChar" val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n"/>
+            <msg id="kAreaForChar"
+                 val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n"/>
         </messages>
     </spell>
     <spell id="kGroupBless" element="kLight" mode="kEnabled">
@@ -1867,7 +1957,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="тернии им"/>
             <msg id="kCastPhraseChrist" val="... загорожу путь их тернами."/>
-            <msg id="kAreaForChar" val="Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами."/>
+            <msg id="kAreaForChar"
+                 val="Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами."/>
             <msg id="kAreaForVict" val="$n вызвал$g цепкие корни, опутавшие ваши ноги."/>
         </messages>
     </spell>
@@ -1965,6 +2056,23 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <actions>
+            <action>
+                <affect type="kAirShield" saving="kReflex">
+                    <apply location="kNone" min="1" cap="0" accumulate="N"/>
+                    <flags val="kAfBattledec"/>
+                    <replaces spells="kIceShield|kFireShield" obligatory="N"/>
+                </affect>
+                <duration min="4" cap="30" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="0.06" hi_skill_bonus="0.4"/>
+                        <base_stat id="kWis" threshold="22" weight="0.7"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="Стрибог, даруй прибежище"/>
             <msg id="kCastPhraseChrist" val="... защита от ветра и покров от непогоды."/>
@@ -2022,6 +2130,36 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <actions>
+            <action>
+                <affect type="kFastRegeneration" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="1" sdice="1" adice="1"/>
+                        <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kHpRegen" min="50" cap="200" accumulate="N"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <affect type="kFastRegeneration" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="1" sdice="1" adice="1"/>
+                        <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kMoveRegen" min="50" cap="200" accumulate="N"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <duration min="10" cap="60" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="0.25" hi_skill_bonus="0.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.7"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="заживет, аки на собаке"/>
             <msg id="kCastPhraseChrist" val="... нет богатства лучше телесного здоровья."/>
@@ -2080,6 +2218,23 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <actions>
+            <action>
+                <affect type="kIceShield" saving="kReflex">
+                    <apply location="kNone" min="1" cap="0" accumulate="N"/>
+                    <flags val="kAfBattledec"/>
+                    <replaces spells="kAirShield|kFireShield" obligatory="N"/>
+                </affect>
+                <duration min="4" cap="30" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="0.054" hi_skill_bonus="0.4"/>
+                        <base_stat id="kWis" threshold="22" weight="0.7"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="Морена, даруй прибежище"/>
             <msg id="kCastPhraseChrist" val="... а снег и лед выдерживали огонь и не таяли."/>
@@ -2291,7 +2446,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="зло творяще"/>
             <msg id="kCastPhraseChrist" val="... и ты воздашь им злом."/>
-            <msg id="kAreaForChar" val="Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше.."/>
+            <msg id="kAreaForChar"
+                 val="Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше.."/>
             <msg id="kAreaForRoom" val="Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда."/>
             <msg id="kExpired" val="Силы зла оставили вас."/>
             <msg id="kImposedForVict" val="Черное облако покрыло вас."/>
@@ -2391,7 +2547,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="будет слеп и глух, аки мертвец"/>
             <msg id="kCastPhraseChrist" val="... кто делает или глухим, или слепым."/>
-            <msg id="kAreaForChar" val="Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе."/>
+            <msg id="kAreaForChar"
+                 val="Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе."/>
             <msg id="kAreaForRoom" val="Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе."/>
             <msg id="kExpired" val="Ваше сознание прояснилось."/>
             <msg id="kImposedForRoom" val="$n1 в шоке!"/>
@@ -2572,8 +2729,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="пусть каменья падут"/>
             <msg id="kCastPhraseChrist" val="... и обрушатся камни с небес."/>
-            <msg id="kAreaForChar" val="Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз."/>
-            <msg id="kAreaForRoom" val="$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз."/>
+            <msg id="kAreaForChar"
+                 val="Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз."/>
+            <msg id="kAreaForRoom"
+                 val="$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз."/>
             <msg id="kExpired" val="Громкий звон в голове несколько поутих."/>
             <msg id="kImposedForRoom" val="$n3 оглушило."/>
             <msg id="kImposedForVict" val="Вас оглушило."/>
@@ -2603,8 +2762,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="да невзлюбит тебя воздух"/>
             <msg id="kCastPhraseChrist" val="... и даже воздух покарает тебя."/>
-            <msg id="kAreaForChar" val="Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!"/>
-            <msg id="kAreaForRoom" val="$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!"/>
+            <msg id="kAreaForChar"
+                 val="Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!"/>
+            <msg id="kAreaForRoom"
+                 val="$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!"/>
         </messages>
     </spell>
     <spell id="kHolystrike" element="kLight" mode="kEnabled">
@@ -2674,8 +2835,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <msg id="kComponentMissing" val="Батюшки светы! А помаду-то я дома забыл$g.\r\n"/>
             <msg id="kComponentExhausted" val="$o рассыпался в ваших руках от неловкого движения.\r\n"/>
             <msg id="kExpired" val="Ваша красота куда-то пропала."/>
-            <msg id="kImposedForVict" val="Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить."/>
-            <msg id="kImposedForRoom" val="$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос: \r\n\'...так это на ресницы надо, кажется... Эх, только бы не перепутать...'\r\n"/>
+            <msg id="kImposedForVict"
+                 val="Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить."/>
+            <msg id="kImposedForRoom"
+                 val="$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос: \r\n\'...так это на ресницы надо, кажется... Эх, только бы не перепутать...'\r\n"/>
         </messages>
     </spell>
     <spell id="kCrying" element="kMind" mode="kEnabled">
@@ -2856,7 +3019,8 @@ base_stat id - (например "kWis") какой берем параметр,
             <msg id="kAreaForRoom" val="$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться."/>
             <msg id="kExpired" val="Удача вновь вернулась к вам."/>
             <msg id="kImposedForRoom" val="Тяжелое бурое облако сгустилось над $n4."/>
-            <msg id="kImposedForVict" val="Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас."/>
+            <msg id="kImposedForVict"
+                 val="Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас."/>
         </messages>
     </spell>
     <spell id="kClanPray" element="kUndefined" mode="kService">
@@ -2993,7 +3157,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
-            <msg id="kCastPhraseChrist" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
+            <msg id="kCastPhraseChrist"
+                 val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!"/>
             <msg id="kAreaForRoom" val="Вы не стерпели насмешки, и бросились на $n1!"/>
             <msg id="kExpired" val="Похоже, к вам вернулась удача."/>
             <msg id="kImposedForVict" val="Похоже, сегодня не ваш день."/>
@@ -3689,6 +3854,32 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kFastRegeneration" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="1" sdice="1" adice="1"/>
+                        <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kHpRegen" min="50" cap="200" accumulate="N"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <affect type="kFastRegeneration" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="2" sdice="3" adice="1"/>
+                        <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kMoveRegen" min="50" cap="200" accumulate="N"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <duration min="10" cap="60" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="0.25" hi_skill_bonus="0.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.7"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3728,6 +3919,22 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kStoneSkin" saving="kWill">
+                    <power_roll>
+                        <dices ndice="2" sdice="5" adice="10" roll_weight="0.1"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="2" hi_skill_bonus="0.5"/>
+                        <base_stat id="kWis" threshold="22" weight="0.02"/>
+                    </power_roll>
+                    <apply location="kAbsorbe" min="5" cap="0" accumulate="N"/>
+                </affect>
+                <duration min="10" cap="60" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3959,7 +4166,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="защити нас от железа разящего"/>
             <msg id="kCastPhraseChrist" val="... ни стрела, ни меч не пронзят печень вашу."/>
-            <msg id="kAreaForChar" val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n"/>
+            <msg id="kAreaForChar"
+                 val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n"/>
         </messages>
     </spell>
     <spell id="kGroupCloudly" element="kWater" mode="kEnabled">
@@ -3999,7 +4207,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="буде вежды ваши открыты"/>
             <msg id="kCastPhraseChrist" val="... и забота о ближнем отгоняет сон от очей их."/>
-            <msg id="kAreaForChar" val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n"/>
+            <msg id="kAreaForChar"
+                 val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n"/>
         </messages>
     </spell>
     <spell id="kWarcryOfExperience" element="kMind" mode="kEnabled">
@@ -4082,8 +4291,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <messages>
             <msg id="kCastPhrasePoly" val="...отче Велес, очи отвержеши!"/>
             <msg id="kCastPhraseChrist" val="...надежда тщетна: не упадешь ли от одного взгляда его?"/>
-            <msg id="kAreaForChar" val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n"/>
-            <msg id="kAreaForVict" val="$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги."/>
+            <msg id="kAreaForChar"
+                 val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n"/>
+            <msg id="kAreaForVict"
+                 val="$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги."/>
         </messages>
     </spell>
     <spell id="kSnare" element="kMind" mode="kEnabled">
@@ -4104,7 +4315,8 @@ base_stat id - (например "kWis") какой берем параметр,
             <msg id="kCastPhrasePoly" val="Заклинати поврещение в сети заскопиены!"/>
             <msg id="kCastPhraseChrist" val="...будет трапеза их сетью им, и мирное пиршество их - западнею."/>
             <msg id="kAreaForChar" val="Вы соткали магические тенета, опутавшие ваших врагов.\r\n"/>
-            <msg id="kAreaForVict" val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"/>
+            <msg id="kAreaForVict"
+                 val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас"/>
             <msg id="kExpired" val="Покрывавшие вас сети колдовской западни растаяли."/>
             <msg id="kImposedForRoom" val="$n0 теперь прикован$a к $N2."/>
             <msg id="kImposedForVict" val="Вы не сможете покинуть $N3."/>

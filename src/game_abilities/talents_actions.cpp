@@ -66,17 +66,24 @@ void PowerRoll::ParseDices(parser_wrapper::DataNode &node) {
 	dice_num_ = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
 	dice_size_ = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
 	dice_add_ = parse::ReadAsInt(node.GetValue("adice"));
+	try {
+		roll_weight_ = parse::ReadAsDouble(node.GetValue("roll_weight"));
+	} catch (std::exception &) {
+		roll_weight_ = 1.0;
+	}
 }
 
 int PowerRoll::DoRoll(const CharData *ch) const {
 	auto roll = RollDices();
 	auto skill_coeff = CalcSkillCoeff(ch);
 	auto base_stat_coeff = CalcBaseStatCoeff(ch);
-	return static_cast<int>((1.0 + skill_coeff + base_stat_coeff)*roll);
+	return static_cast<int>((1.0 + skill_coeff + base_stat_coeff)*roll*roll_weight_);
 }
 
 void PowerRoll::Print(std::ostringstream &buffer) const {
-	buffer << "  Roll: " << KGRN << dice_num_ << "d" << dice_size_ << "+" << dice_add_ << KNRM << "\r\n";
+	buffer << "  Roll: "
+		<< KGRN << dice_num_ << "d" << dice_size_ << "+" << dice_add_ << KNRM
+		<< "  Weight: " << KGRN << roll_weight_  << KNRM << "\r\n";
 	Roll::Print(buffer);
 }
 
@@ -137,8 +144,8 @@ Duration::Duration(parser_wrapper::DataNode &node) {
 void Duration::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << "\r\n Duration:\r\n";
 	buffer << "  Min: " << KGRN << min_ << KNRM
-		   << " Cap: " << KGRN << cap_ << KNRM
-		   << " Accumulate: " << KGRN << (accumulate_ ? "Yes" : "No") << KNRM << "\r\n"
+		   << " ModCap: " << KGRN << cap_ << KNRM
+		   << " AccumulateMod: " << KGRN << (accumulate_ ? "Yes" : "No") << KNRM << "\r\n"
 		   << "  Resist weight: " << resist_weight_ << " Degree weight: " << degree_weight_ << "\r\n";
 	success_roll_.Print(buffer);
 }
@@ -147,6 +154,7 @@ void Duration::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 
 Affect::Affect(parser_wrapper::DataNode &node) {
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+	type_ = parse::ReadAsConstant<ESpell>(node.GetValue("type"));
 	if (node.GoToChild("power_roll")) {
 		power_roll_.ParseRoll(node);
 		node.GoToParent();
@@ -159,7 +167,7 @@ Affect::Affect(parser_wrapper::DataNode &node) {
 		location_ = parse::ReadAsConstant<EApply>(node.GetValue("location"));
 		mod_ = parse::ReadAsInt(node.GetValue("min"));
 		cap_ = parse::ReadAsInt(node.GetValue("cap"));
-		accumulate_ = parse::ReadAsBool(node.GetValue("accumulate"));
+		accumulate_mod_ = parse::ReadAsBool(node.GetValue("accumulate"));
 		node.GoToParent();
 	}
 	if (node.GoToChild("applies_affects")) {
@@ -171,6 +179,7 @@ Affect::Affect(parser_wrapper::DataNode &node) {
 	}
 	if (node.GoToChild("replaces")) {
 		parse::ReadAsConstantsSet<ESpell>(replaces_apells_, node.GetValue("spells"));
+		replaces_all_ = parse::ReadAsBool(node.GetValue("obligatory"));
 		node.GoToParent();
 	}
 	if (node.GoToChild("blocked")) {
@@ -202,8 +211,8 @@ void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "\r\n  Applies:\r\n";
 	table_wrapper::Table table;
 	table.set_left_margin(3);
-	table << table_wrapper::kHeader << "Location" << "Mod" << "Cap" << "Accumulate" << table_wrapper::kEndRow;
-	table << NAME_BY_ITEM<EApply>(location_) << mod_ << cap_ << (accumulate_ ? "Yes" : "No") << table_wrapper::kEndRow;
+	table << table_wrapper::kHeader << "Location" << "Mod" << "ModCap" << "AccumulateMod" << table_wrapper::kEndRow;
+	table << NAME_BY_ITEM<EApply>(location_) << mod_ << cap_ << (accumulate_mod_ ? "Yes" : "No") << table_wrapper::kEndRow;
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
 	buffer << "\r\n";
@@ -364,7 +373,7 @@ const Duration &Actions::GetDuration() const {
 	return actions_->at(0).GetDuration();
 }
 
-const TalentAction::Affects &Actions::GetAffects() const {
+const TalentAction::Affects &Actions::GetImposedAffects() const {
 	return actions_->at(0).GetAffects();
 }
 

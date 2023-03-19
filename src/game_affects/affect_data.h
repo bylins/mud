@@ -29,6 +29,7 @@ class Affect {
 
 	Affect() = default;
 	[[nodiscard]] bool removable() const;
+	[[nodiscard]] bool IsFlagged(EAffectFlag flag) const { return (flags & flag); };
 
 	/*
 	 * Идея в следующем. Аффект однозначно _идентифицируется_ своим id'ом, который один и только один.
@@ -79,8 +80,10 @@ void mobile_affect_update();
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
-void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
+bool RemoveAffectFromChar(CharData *ch, ESpell spell_id);
 bool IsAffectedBySpell(const CharData *ch, ESpell type);
+void UpdateAffect(CharData *ch, const Affect<EApply> &af,
+				  bool accumulate_duration, int duration_cap, bool accumulate_mod, int mod_cap);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);

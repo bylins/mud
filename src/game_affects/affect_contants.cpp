@@ -123,6 +123,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffectFlag::kAfDeadkeep] = "kAfDeadkeep";
 	EAffectFlag_name_by_value[EAffectFlag::kAfPulsedec] = "kAfPulsedec";
 	EAffectFlag_name_by_value[EAffectFlag::kAfSameTime] = "kAfSameTime";
+	EAffectFlag_name_by_value[EAffectFlag::kAfUpdate] = "kAfUpdate";
 	EAffectFlag_name_by_value[EAffectFlag::kAfCurable] = "kAfCurable";
 	EAffectFlag_name_by_value[EAffectFlag::kAfDispelable] = "kAfDispelable";
 	for (const auto &i: EAffectFlag_name_by_value) {

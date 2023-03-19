@@ -883,8 +883,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 
 bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 	switch (spell_id) {
-		case ESpell::kEnchantWeapon:
-			break;
+		case ESpell::kEnchantWeapon: break;
 		default: log("WARNING: wrong spell_id %d in %s:%d", to_underlying(spell_id), __FILE__, __LINE__);
 			return false;
 	}
@@ -989,30 +988,31 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	bool success{true};
 	bool accum_duration{false};
 	bool accum_affect{false};
-	bool update_spell{false};
+//	bool update_spell{false};
 	switch (spell_id) {
-		case ESpell::kChillTouch:
-			savetype = ESaving::kStability;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
-				success = false;
-				break;
-			}
-			af[0].location = EApply::kStr;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
-			af[0].modifier = -1 - GetRealRemort(ch) / 2;
-			af[0].flags = kAfBattledec;
-			accum_duration = true;
-			break;
+//		case ESpell::kChillTouch:
+//			savetype = ESaving::kStability;
+//			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+//				SendMsgToChar(NOEFFECT, ch);
+//				success = false;
+//				break;
+//			}
+//			af[0].location = EApply::kStr;
+//			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
+//										 CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
+//			af[0].modifier = -1 - GetRealRemort(ch) / 2;
+//			af[0].flags = kAfBattledec;
+//			accum_duration = true;
+//			break;
 
 		case ESpell::kEnergyDrain:
-		case ESpell::kWeaknes: savetype = ESaving::kWill;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
-				success = false;
-				break;
-			}
+		case ESpell::kWeaknes:
+//			savetype = ESaving::kWill;
+//			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+//				SendMsgToChar(NOEFFECT, ch);
+//				success = false;
+//				break;
+//			}
 			if (IsAffectedBySpell(victim, ESpell::kStrength)) {
 				RemoveAffectFromChar(victim, ESpell::kStrength);
 				success = false;
@@ -1023,40 +1023,43 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 4, level, 5, 4, 0)) * koef_duration;
-			af[0].location = EApply::kStr;
-			if (spell_id == ESpell::kWeaknes)
-				af[0].modifier = -1 * ((level / 6 + GetRealRemort(ch) / 2));
-			else
-				af[0].modifier = -2 * ((level / 6 + GetRealRemort(ch) / 2));
-			if (ch->IsNpc() && level >= (kLvlImmortal))
-				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
-			af[0].flags = kAfBattledec;
-			accum_duration = true;
-			spell_id = ESpell::kWeaknes;
-			break;
-		case ESpell::kStoneWall:
-		case ESpell::kStoneSkin: af[0].location = EApply::kAbsorbe;
-			af[0].modifier = (level * 2 + 1) / 3;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch),
-							 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			spell_id = ESpell::kStoneSkin;
+//			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
+//										 CalcDuration(victim, 4, level, 5, 4, 0)) * koef_duration;
+//			af[0].location = EApply::kStr;
+//			if (spell_id == ESpell::kWeaknes)
+//				af[0].modifier = -1 * ((level / 6 + GetRealRemort(ch) / 2));
+//			else
+//				af[0].modifier = -2 * ((level / 6 + GetRealRemort(ch) / 2));
+//			if (ch->IsNpc() && level >= (kLvlImmortal))
+//				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
+//			af[0].flags = kAfBattledec;
+//			accum_duration = true;
+//			spell_id = ESpell::kWeaknes;
 			break;
 
-		case ESpell::kGeneralRecovery:
-		case ESpell::kFastRegeneration: af[0].location = EApply::kHpRegen;
-			af[0].modifier = 50 + GetRealRemort(ch);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[1].location = EApply::kMoveRegen;
-			af[1].modifier = 50 + GetRealRemort(ch);
-			af[1].duration = af[0].duration;
-			accum_duration = true;
-			spell_id = ESpell::kFastRegeneration;
-			break;
+//		case ESpell::kStoneWall:
+//		case ESpell::kStoneSkin:
+//			af[0].location = EApply::kAbsorbe;
+//			af[0].modifier = (level * 2 + 1) / 3;
+//			af[0].duration =
+//				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch),
+//							 1, 0, 0) * koef_duration;
+//			accum_duration = true;
+//			spell_id = ESpell::kStoneSkin;
+//			break;
+
+//		case ESpell::kGeneralRecovery:
+//		case ESpell::kFastRegeneration:
+//			af[0].location = EApply::kHpRegen;
+//			af[0].modifier = 50 + GetRealRemort(ch);
+//			af[0].duration =
+//				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+//			af[1].location = EApply::kMoveRegen;
+//			af[1].modifier = 50 + GetRealRemort(ch);
+//			af[1].duration = af[0].duration;
+//			accum_duration = true;
+//			spell_id = ESpell::kFastRegeneration;
+//			break;
 
 		case ESpell::kAirShield:
 			if (IsAffectedBySpell(victim, ESpell::kIceShield)) {
@@ -1356,7 +1359,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kShineFlash:
 		case ESpell::kMassBlindness:
 		case ESpell::kPowerBlindness:
-		case ESpell::kBlindness: savetype = ESaving::kStability;
+		case ESpell::kBlindness:
+			savetype = ESaving::kStability;
 			if (MOB_FLAGGED(victim, EMobFlag::kNoBlind) ||
 				IS_IMMORTAL(victim) ||
 				((ch != victim) &&
@@ -1677,7 +1681,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kGroupStrength:
-		//case ESpell::kStrength:
+			//case ESpell::kStrength:
 			if (IsAffectedBySpell(victim, ESpell::kWeaknes)) {
 				RemoveAffectFromChar(victim, ESpell::kWeaknes);
 				success = false;
@@ -2271,7 +2275,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					success = false;
 				}
 			}
-			update_spell = true;
+	//		update_spell = true;
 			break;
 		}
 
@@ -2443,113 +2447,121 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //	}
 
 	// позитивные аффекты - продлеваем, если они уже на цели
-	if (!MUD::Spell(spell_id).IsViolent() && IsAffectedBySpell(victim, spell_id) && success) {
-		update_spell = true;
-	}
+//	if (!MUD::Spell(spell_id).IsViolent() && IsAffectedBySpell(victim, spell_id) && success) {
+//		update_spell = true;
+//	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
-	if ((ch != victim) && IsAffectedBySpell(victim, spell_id) && success && (!update_spell)) {
-		if (ch->in_room == IN_ROOM(victim)) {
-			SendMsgToChar(NOEFFECT, ch);
-		}
-		success = false;
-	}
+//	if ((ch != victim) && IsAffectedBySpell(victim, spell_id) && success && (!update_spell)) {
+//		if (ch->in_room == IN_ROOM(victim)) {
+//			SendMsgToChar(NOEFFECT, ch);
+//		}
+//		success = false;
+//	}
 
 	// ============================================================================================
 
-	if (spell_id == ESpell::kStrength) {
-		const auto &spell = MUD::Spell(spell_id);
-		auto affects = spell.actions.GetAffects();
-		auto duration = spell.actions.GetDuration();
-		auto duration_time = CalcAffectDuration(spell, ch, victim);
-		bool failed{true};
-		for (const auto &affect: affects) {
-			if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, affect.Saving(), modi)) {
-				continue;
-			}
-			if (IsAffectBlocked(affect, victim)) {
-				continue;
-			}
-			if (IsSpellsReplacingFailed(affect, victim)) {
-				continue;
-			}
-
-			Affect<EApply> new_affect;
-			new_affect.type = spell_id;
-			new_affect.duration = duration_time;
-			new_affect.modifier = CalcAffectModifier(affect, ch);
-			new_affect.location = affect.Location();
-			new_affect.flags = affect.Flags();
-			new_affect.affect_bits = affect.AffectBits();
-			new_affect.caster_id = ch->get_uid();
-
-			if (new_affect.flags & EAffectFlag::kAfUpdate) {
-				ImposeAffect(victim, new_affect);
-			} else {
-				auto accum_duration = duration.Accumulate();
-				auto accum_affect = affect.Accumulate();
-				ImposeAffect(victim, new_affect, accum_duration, !accum_duration, accum_affect, !accum_affect);
-			}
-			failed = false;
-			ch->send_to_TC(true, true, true, "Affect %s, Location: %s, Mod: %d, Duration: %d.\r\n",
-						   NAME_BY_ITEM<ESpell>(new_affect.type).c_str(),
-						   NAME_BY_ITEM<EApply>(new_affect.location).c_str(),
-						   new_affect.modifier,
-						   new_affect.duration);
+//	if (spell_id == ESpell::kStrength) {
+	const auto &spell = MUD::Spell(spell_id);
+	const auto &affects = spell.actions.GetImposedAffects();
+	auto duration = spell.actions.GetDuration();
+	auto duration_time = CalcAffectDuration(spell, ch, victim);
+	bool failed{true};
+	for (const auto &affect_desc: affects) {
+		if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, affect_desc.Saving(), modi)) {
+			continue;
 		}
-		if (failed) {
-			auto &to_char = spell.GetMsg(ESpellMsg::kFailedForChar);
-			if (to_char.empty()) {
-				SendMsgToChar(NOEFFECT, ch);
-			} else {
-				act(to_char, false, ch, nullptr, ch, kToChar);
-			}
-			auto &to_room = spell.GetMsg(ESpellMsg::kFailedForRoom);
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen | kToNotVict);
+		if (IsAffectedBySpell(victim, affect_desc.Type())
+		&& !affect_desc.IsFlagged(EAffectFlag::kAfStackable)
+		&& !affect_desc.IsFlagged(EAffectFlag::kAfUpdate)) {
+			continue;
+		}
+		if (IsAffectBlocked(affect_desc, victim)) {
+			continue;
+		}
+		if (IsSpellsReplacingFailed(affect_desc, victim)) {
+			continue;
+		}
+
+		Affect<EApply> affect;
+		affect.type = affect_desc.Type();
+		affect.duration = duration_time;
+		affect.modifier = CalcAffectModifier(affect_desc, ch);
+		affect.location = affect_desc.Location();
+		affect.flags = affect_desc.Flags();
+		affect.affect_bits = affect_desc.AffectBits();
+		affect.caster_id = ch->get_uid();
+
+		if (affect.IsFlagged(EAffectFlag::kAfUpdate)) {
+			UpdateAffect(victim, affect,
+						 duration.Accumulate(), duration.Cap(), affect_desc.AccumulateMod(), affect_desc.ModCap());
 		} else {
-			// Этот костыль для ядов надо как-то убирать
-			if (spell_id == ESpell::kPoison) {
-				victim->poisoner = ch->id;
-			}
-			auto &to_char = spell.GetMsg(ESpellMsg::kImposedForChar);
+			affect_to_char(victim, affect);
+		}
+		failed = false;
+		ch->send_to_TC(true, true, true, "%sAffect %s, Location: %s, Mod: %d, Duration: %d.%s\r\n",
+					   KICYN,
+					   NAME_BY_ITEM<ESpell>(affect.type).c_str(),
+					   NAME_BY_ITEM<EApply>(affect.location).c_str(),
+					   affect.modifier,
+					   affect.duration,
+					   KNRM);
+	}
+
+	if (failed) {
+		auto &to_char = spell.GetMsg(ESpellMsg::kFailedForChar);
+		if (to_char.empty()) {
+			SendMsgToChar(NOEFFECT, ch);
+		} else {
 			act(to_char, false, ch, nullptr, ch, kToChar);
-			auto &to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
-			act(to_vict, false, victim, nullptr, ch, kToChar);
-			auto &to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen | kToNotVict);
 		}
-
-		return 1;
-	}
-
-	// ============================================================================================
-
-	for (auto i = 0; success && i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
-		if (af[i].affect_bits || af[i].location != EApply::kNone) {
-			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
-
-			if (update_spell) {
-				ImposeAffect(victim, af[i]);
-			} else {
-				ImposeAffect(victim, af[i], accum_duration, false, accum_affect, false);
-			}
-		}
-		// тут мы ездим по циклу 16 раз, хотя аффектов 1-3...
-//		ch->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
-	}
-
-	if (success) {
-		// вот некрасиво же тут это делать...
+		auto &to_room = spell.GetMsg(ESpellMsg::kFailedForRoom);
+		act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen | kToNotVict);
+	} else {
+		// Этот костыль для ядов надо как-то убирать
 		if (spell_id == ESpell::kPoison) {
 			victim->poisoner = ch->id;
 		}
-		auto to_vict = MUD::Spell(spell_id).GetMsg(ESpellMsg::kImposedForVict);
+		auto &to_char = spell.GetMsg(ESpellMsg::kImposedForChar);
+		act(to_char, false, ch, nullptr, ch, kToChar);
+		auto &to_vict = spell.GetMsg(ESpellMsg::kImposedForVict);
 		act(to_vict, false, victim, nullptr, ch, kToChar);
-		auto to_room = MUD::Spell(spell_id).GetMsg(ESpellMsg::kImposedForRoom);
-		act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
-		return 1;
+		auto &to_room = spell.GetMsg(ESpellMsg::kImposedForRoom);
+		act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen | kToNotVict);
 	}
-	return 0;
+
+	return !failed;
+
+//		return 1;
+//	}
+
+	// ============================================================================================
+
+//	for (auto i = 0; success && i < kMaxSpellAffects; i++) {
+//		af[i].type = spell_id;
+//		if (af[i].affect_bits || af[i].location != EApply::kNone) {
+//			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
+//
+//			if (update_spell) {
+//				ImposeAffect(victim, af[i]);
+//			} else {
+//				ImposeAffect(victim, af[i], accum_duration, false, accum_affect, false);
+//			}
+//		}
+//	}
+
+//	if (success) {
+//		if (spell_id == ESpell::kPoison) {
+//			victim->poisoner = ch->id;
+//		}
+//		auto to_vict = MUD::Spell(spell_id).GetMsg(ESpellMsg::kImposedForVict);
+//		act(to_vict, false, victim, nullptr, ch, kToChar);
+//		auto to_room = MUD::Spell(spell_id).GetMsg(ESpellMsg::kImposedForRoom);
+//		act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
+//		return 1;
+//	}
+//	return 0;
+
+
 }
 
 /*
@@ -2570,10 +2582,13 @@ bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *vi
 		return false;
 	}
 
-	auto predicate = [replaced_spells](auto &affect) { return replaced_spells.contains(affect->type); };
-	auto it = std::find_if(vict->affected.begin(), vict->affected.end(), predicate);
-	if (it != vict->affected.end()) {
-		RemoveAffectFromChar(vict, (*it)->type);
+	int count {0};
+	auto predicate = [vict, &count](auto &spell_id) {
+		count += RemoveAffectFromChar(vict, spell_id);
+	};
+	std::for_each(replaced_spells.begin(), replaced_spells.end(), predicate);
+
+	if (!affect.IsObligatoryReplacing() || ((count != 0) && affect.IsObligatoryReplacing())) {
 		return false;
 	}
 	return true;
@@ -2603,19 +2618,21 @@ bool IsBlockedByMobFlag(const talents_actions::Affect &affect, const CharData *v
 
 int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const CharData *vict) {
 	const auto &duration = spell.actions.GetDuration();
+	const auto &roll = duration.Roll();
+	auto caster_rating = roll.CalcRating(ch, vict);
+
 	if (!spell.IsViolent()) {
-		auto duration_time = duration.Cap();
+		err_log("Rating: %llu, Min: %d\r\n", caster_rating, duration.Min());
+		auto duration_time = static_cast<int>(duration.Min() + caster_rating);
 		if (!vict->IsNpc()) {
-			return duration_time*kSecsPerMudHour/kSecsPerPlayerAffect;
+			return duration_time / kSecsPerPlayerAffect * kSecsPerMudHour;
 		}
 		return duration_time;
 	}
 
-	const auto &roll = duration.Roll();
-	auto caster_dating = roll.CalcRating(ch, vict);
 	auto resist_type = GetResisTypeWithElement(spell.GetElement());
-	auto vict_rating = static_cast<ullong>(vict->add_abils.apply_resistance[resist_type]*duration.ResistWeight());
-	int difficulty = std::max(0, static_cast<int>(caster_dating-vict_rating));
+	auto vict_rating = static_cast<ullong>(vict->add_abils.apply_resistance[resist_type] * duration.ResistWeight());
+	int difficulty = std::max(0, static_cast<int>(caster_rating - vict_rating));
 	int roll_result = number(1, abilities::kMainDiceSize);
 
 	int duration_time{0};
@@ -2624,24 +2641,32 @@ int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const
 	} else if (roll_result < roll.CritsuccessThreshold()) {
 		duration_time = duration.Cap();
 	} else {
-		duration_time = duration.Min() + (duration.Cap() - duration.Min())/2;
+		duration_time = duration.Min() + (duration.Cap() - duration.Min()) / 2;
 		int test_result = difficulty - roll_result;
 		if (test_result >= 0) {
-			duration_time += static_cast<int>(roll_result/abilities::kDegreeDivider*duration.DegreeWeight());
+			duration_time += static_cast<int>(roll_result / abilities::kDegreeDivider * duration.DegreeWeight());
 		} else {
-			duration_time -= static_cast<int>(roll_result/abilities::kDegreeDivider*duration.DegreeWeight());
+			duration_time -= static_cast<int>(roll_result / abilities::kDegreeDivider * duration.DegreeWeight());
 		}
 	}
 	duration_time = std::clamp(duration_time, duration.Min(), duration.Cap());
 	if (!vict->IsNpc()) {
-		return duration_time*kSecsPerMudHour/kSecsPerPlayerAffect;
+		return duration_time * kSecsPerMudHour / kSecsPerPlayerAffect;
 	}
 	return duration_time;
 }
 
 int CalcAffectModifier(const talents_actions::Affect &affect, const CharData *ch) {
-	auto base_modifier = affect.RollBaseModifier(ch);
-	return std::clamp(base_modifier, affect.Modifier(), affect.Cap());
+	auto base_modifier = affect.BaseModifier() + affect.RollBaseModifier(ch);
+	auto cap = affect.ModCap();
+	if (cap) {
+		if (cap > 0) {
+			base_modifier = std::min(base_modifier, cap);
+		} else {
+			base_modifier = std::max(base_modifier, cap);
+		}
+	}
+	return base_modifier;
 }
 
 /*

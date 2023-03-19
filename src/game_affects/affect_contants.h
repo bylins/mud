@@ -12,6 +12,7 @@
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerPlayerAffect = 2;
 
+// Не определяете более 32 флагов для аффектов, либо заменяйте простой битвактор на класс флагов.
 enum EAffectFlag : Bitvector {
 	kAfNone			= 0u,
 	kAfBattledec	= 1u << 0,
@@ -19,8 +20,9 @@ enum EAffectFlag : Bitvector {
 	kAfPulsedec		= 1u << 2,
 	kAfSameTime		= 1u << 3,	// тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
 	kAfUpdate		= 1u << 4,	// аффект перенакладывается полностью, обновляя таймер и модификатор
-	kAfCurable		= 1u << 5,
-	kAfDispelable	= 1u << 6
+	kAfStackable	= 1u << 5,  // аффект может накладываться много раз. Игнорирует kAdUpdate
+	kAfCurable		= 1u << 6,
+	kAfDispelable	= 1u << 7
 };
 
 template<>
@@ -192,7 +194,7 @@ struct WeaponAffect {
 // Applies используются как в предметах, так и в аффектах. Разумней разместить их тут, т.к. по сути
 // applies на предметах - это урезанные аффекты.
 /**
- * Modifier constants used with obj affects ('A' fields) and character affects
+ * BaseModifier constants used with obj affects ('A' fields) and character affects
  */
 
 enum EApply {
