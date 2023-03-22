@@ -794,7 +794,7 @@ class CharData : public ProtectedCharData {
 	CharData *next_fighting;    // For fighting list
 
 	//отладочные сообщения имморталу/тестеру/кодеру
-	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
+	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) const;
 
 	// очередь изучаемых заклинаний
 	SpellMemQueue mem_queue;

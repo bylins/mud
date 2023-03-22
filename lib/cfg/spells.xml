@@ -1165,6 +1165,22 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <actions>
+            <action>
+                <affect type="kCloudly" saving="kReflex">
+                    <apply location="kAc" min="-20" cap="-20" accumulate="N"/>
+                    <applies_affects val="kFireAura"/>
+                </affect>
+                <duration min="20" cap="60" accumulate="Y" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="20"/>
+                        <base_stat id="kWis" threshold="20" weight="30"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="мгла покрыла"/>
             <msg id="kCastPhraseChrist" val="... будут как утренний туман."/>
@@ -2067,8 +2083,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <success_roll>
                         <thresholds critsuccess="6" critfail="95"/>
                         <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
-                        <base_skill id="kAirMagic" low_skill_bonus="0.06" hi_skill_bonus="0.4"/>
-                        <base_stat id="kWis" threshold="22" weight="0.7"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="6" hi_skill_bonus="40"/>
+                        <base_stat id="kWis" threshold="22" weight="70"/>
                     </success_roll>
                 </duration>
             </action>
@@ -2182,6 +2198,23 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <actions>
+            <action>
+                <affect type="kFireShield" saving="kReflex">
+                    <apply location="kNone" min="1" cap="0" accumulate="N"/>
+                    <flags val="kAfBattledec"/>
+                    <replaces spells="kAirShield|kIceShield" obligatory="N"/>
+                </affect>
+                <duration min="4" cap="30" accumulate="N" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="5.4" hi_skill_bonus="40"/>
+                        <base_stat id="kWis" threshold="22" weight="70"/>
+                    </success_roll>
+                </duration>
+            </action>
+        </actions>
         <messages>
             <msg id="kCastPhrasePoly" val="Хорс, даруй прибежище"/>
             <msg id="kCastPhraseChrist" val="... душа горячая, как пылающий огонь."/>
@@ -2229,8 +2262,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <success_roll>
                         <thresholds critsuccess="6" critfail="95"/>
                         <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
-                        <base_skill id="kWaterMagic" low_skill_bonus="0.054" hi_skill_bonus="0.4"/>
-                        <base_stat id="kWis" threshold="22" weight="0.7"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="5.4" hi_skill_bonus="40"/>
+                        <base_stat id="kWis" threshold="22" weight="70"/>
                     </success_roll>
                 </duration>
             </action>
@@ -2462,6 +2495,24 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kAirAura" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="3" sdice="2" adice="1" roll_weight="0.5"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kResistAir" min="1" cap="30" accumulate="N"/>
+                    <applies_affects val="kAirAura"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <duration min="5" cap="60" accumulate="Y" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="20"/>
+                        <base_stat id="kWis" threshold="20" weight="30"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2485,6 +2536,24 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kFireAura" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="3" sdice="2" adice="1" roll_weight="0.5"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kResistWater" min="1" cap="30" accumulate="N"/>
+                    <applies_affects val="kFireAura"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <duration min="5" cap="60" accumulate="Y" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="20"/>
+                        <base_stat id="kWis" threshold="20" weight="30"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2508,6 +2577,24 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kIceAura" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="3" sdice="2" adice="1" roll_weight="0.5"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kResistFire" min="1" cap="30" accumulate="N"/>
+                    <applies_affects val="kIceAura"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <duration min="5" cap="60" accumulate="Y" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="20"/>
+                        <base_stat id="kWis" threshold="20" weight="30"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3973,6 +4060,24 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kEarthAura" saving="kReflex">
+                    <power_roll>
+                        <dices ndice="3" sdice="2" adice="1" roll_weight="0.5"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+                        <base_stat id="kWis" threshold="22" weight="5"/>
+                    </power_roll>
+                    <apply location="kResistEarth" min="1" cap="30" accumulate="N"/>
+                    <applies_affects val="kEarthAura"/>
+                    <flags val="kAfUpdate"/>
+                </affect>
+                <duration min="5" cap="60" accumulate="Y" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="20"/>
+                        <base_stat id="kWis" threshold="20" weight="30"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4178,6 +4283,18 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <actions>
             <action>
+                <affect type="kCloudly" saving="kReflex">
+                    <apply location="kAc" min="-20" cap="-20" accumulate="N"/>
+                    <applies_affects val="kFireAura"/>
+                </affect>
+                <duration min="20" cap="60" accumulate="Y" resist_weight="1.0" degree_weight="1.0">
+                    <success_roll>
+                        <thresholds critsuccess="6" critfail="95"/>
+                        <roll_mods bonus="0" pvp="0" pve="0" evp="0"/>
+                        <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="20"/>
+                        <base_stat id="kWis" threshold="20" weight="30"/>
+                    </success_roll>
+                </duration>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>

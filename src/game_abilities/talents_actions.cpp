@@ -116,15 +116,21 @@ void SuccessRoll::Print(std::ostringstream &buffer) const {
 }
 
 ullong SuccessRoll::CalcRating(const CharData *ch, const CharData *vict) const {
-	auto rating = static_cast<ullong>(CalcSkillCoeff(ch) + CalcBaseStatCoeff(ch) + roll_bonus_);
+	auto skill_coeff = CalcSkillCoeff(ch);
+	auto stat_coeff = CalcBaseStatCoeff(ch);
+
+	int penalty{0};
 	if (vict == nullptr || (!ch->IsNpc() && vict->IsNpc())) {
-		rating += pve_penalty_;
+		penalty = pve_penalty_;
 	} else if (ch->IsNpc() && !vict->IsNpc()) {
-		rating += evp_penalty_;
+		penalty = evp_penalty_;
 	} else if (!ch->IsNpc() && !vict->IsNpc()) {
-		rating += pvp_penalty_;
+		penalty = pvp_penalty_;
 	}
-	return rating;
+
+	ch->send_to_TC(true, true, true, "Success roll. Bonus: %d, Penalty: %d, Skill %f, Stat: %f.\r\n",
+												 roll_bonus_, penalty, skill_coeff, stat_coeff);
+	return static_cast<ullong>(CalcSkillCoeff(ch) + CalcBaseStatCoeff(ch) + roll_bonus_ + penalty);
 }
 
 // =====================================================================================================================

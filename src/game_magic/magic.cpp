@@ -988,31 +988,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	bool success{true};
 	bool accum_duration{false};
 	bool accum_affect{false};
-//	bool update_spell{false};
 	switch (spell_id) {
-//		case ESpell::kChillTouch:
-//			savetype = ESaving::kStability;
-//			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-//				SendMsgToChar(NOEFFECT, ch);
-//				success = false;
-//				break;
-//			}
-//			af[0].location = EApply::kStr;
-//			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-//										 CalcDuration(victim, 2, level, 4, 6, 0)) * koef_duration;
-//			af[0].modifier = -1 - GetRealRemort(ch) / 2;
-//			af[0].flags = kAfBattledec;
-//			accum_duration = true;
-//			break;
-
 		case ESpell::kEnergyDrain:
 		case ESpell::kWeaknes:
-//			savetype = ESaving::kWill;
-//			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-//				SendMsgToChar(NOEFFECT, ch);
-//				success = false;
-//				break;
-//			}
 			if (IsAffectedBySpell(victim, ESpell::kStrength)) {
 				RemoveAffectFromChar(victim, ESpell::kStrength);
 				success = false;
@@ -1023,124 +1001,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-//			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-//										 CalcDuration(victim, 4, level, 5, 4, 0)) * koef_duration;
-//			af[0].location = EApply::kStr;
-//			if (spell_id == ESpell::kWeaknes)
-//				af[0].modifier = -1 * ((level / 6 + GetRealRemort(ch) / 2));
-//			else
-//				af[0].modifier = -2 * ((level / 6 + GetRealRemort(ch) / 2));
-//			if (ch->IsNpc() && level >= (kLvlImmortal))
-//				af[0].modifier += (kLvlImmortal - level - 1);    //1 str per mob level above 30
-//			af[0].flags = kAfBattledec;
-//			accum_duration = true;
-//			spell_id = ESpell::kWeaknes;
-			break;
-
-//		case ESpell::kStoneWall:
-//		case ESpell::kStoneSkin:
-//			af[0].location = EApply::kAbsorbe;
-//			af[0].modifier = (level * 2 + 1) / 3;
-//			af[0].duration =
-//				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch),
-//							 1, 0, 0) * koef_duration;
-//			accum_duration = true;
-//			spell_id = ESpell::kStoneSkin;
-//			break;
-
-//		case ESpell::kGeneralRecovery:
-//		case ESpell::kFastRegeneration:
-//			af[0].location = EApply::kHpRegen;
-//			af[0].modifier = 50 + GetRealRemort(ch);
-//			af[0].duration =
-//				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-//			af[1].location = EApply::kMoveRegen;
-//			af[1].modifier = 50 + GetRealRemort(ch);
-//			af[1].duration = af[0].duration;
-//			accum_duration = true;
-//			spell_id = ESpell::kFastRegeneration;
-//			break;
-
-		case ESpell::kAirShield:
-			if (IsAffectedBySpell(victim, ESpell::kIceShield)) {
-				RemoveAffectFromChar(victim, ESpell::kIceShield);
-			}
-			if (IsAffectedBySpell(victim, ESpell::kFireShield)) {
-				RemoveAffectFromChar(victim, ESpell::kFireShield);
-			}
-			af[0].affect_bits = to_underlying(EAffect::kAirShield);
-			af[0].flags = kAfBattledec;
-			if (victim->IsNpc() || victim == ch)
-				af[0].duration = CalcDuration(victim, 10 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
-			else
-				af[0].duration = CalcDuration(victim, 4 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
-			break;
-
-		case ESpell::kFireShield:
-			if (IsAffectedBySpell(victim, ESpell::kIceShield))
-				RemoveAffectFromChar(victim, ESpell::kIceShield);
-			if (IsAffectedBySpell(victim, ESpell::kAirShield))
-				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			af[0].affect_bits = to_underlying(EAffect::kFireShield);
-			af[0].flags = kAfBattledec;
-			if (victim->IsNpc() || victim == ch)
-				af[0].duration = CalcDuration(victim, 10 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
-			else
-				af[0].duration = CalcDuration(victim, 4 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
-			break;
-
-		case ESpell::kIceShield:
-			if (IsAffectedBySpell(victim, ESpell::kFireShield))
-				RemoveAffectFromChar(victim, ESpell::kFireShield);
-			if (IsAffectedBySpell(victim, ESpell::kAirShield))
-				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			af[0].affect_bits = to_underlying(EAffect::kIceShield);
-			af[0].flags = kAfBattledec;
-			if (victim->IsNpc() || victim == ch)
-				af[0].duration = CalcDuration(victim, 10 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
-			else
-				af[0].duration = CalcDuration(victim, 4 + GetRealRemort(ch), 0, 0, 0, 0) * koef_duration;
-			break;
-
-		case ESpell::kAirAura: af[0].location = EApply::kResistAir;
-			af[0].modifier = level;
-			af[0].affect_bits = to_underlying(EAffect::kAirAura);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
-
-		case ESpell::kEarthAura: af[0].location = EApply::kResistEarth;
-			af[0].modifier = level;
-			af[0].affect_bits = to_underlying(EAffect::kEarthAura);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
-
-		case ESpell::kFireAura: af[0].location = EApply::kResistWater;
-			af[0].modifier = level;
-			af[0].affect_bits = to_underlying(EAffect::kFireAura);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
-
-		case ESpell::kIceAura: af[0].location = EApply::kResistFire;
-			af[0].modifier = level;
-			af[0].affect_bits = to_underlying(EAffect::kIceAura);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
-
-		case ESpell::kGroupCloudly:
-		case ESpell::kCloudly: af[0].location = EApply::kAc;
-			af[0].modifier = -20;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			spell_id = ESpell::kCloudly;
 			break;
 
 		case ESpell::kGroupArmor:
@@ -2459,8 +2319,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //	}
 
 	// ============================================================================================
-
-//	if (spell_id == ESpell::kStrength) {
 	const auto &spell = MUD::Spell(spell_id);
 	const auto &affects = spell.actions.GetImposedAffects();
 	auto duration = spell.actions.GetDuration();
@@ -2498,7 +2356,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			affect_to_char(victim, affect);
 		}
 		failed = false;
-		ch->send_to_TC(true, true, true, "%sAffect %s, Location: %s, Mod: %d, Duration: %d.%s\r\n",
+		ch->send_to_TC(true, true, true, "%sImpose affect '%s'. Location: %s, Mod: %d, Duration: %d.%s\r\n",
 					   KICYN,
 					   NAME_BY_ITEM<ESpell>(affect.type).c_str(),
 					   NAME_BY_ITEM<EApply>(affect.location).c_str(),
@@ -2531,9 +2389,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	return !failed;
 
-//		return 1;
-//	}
-
 	// ============================================================================================
 
 //	for (auto i = 0; success && i < kMaxSpellAffects; i++) {
@@ -2564,17 +2419,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 }
 
-/*
- 1. Обработка Unaffect.
- 1.1 Првоеряем блокирующие спеллы. Если есть - файл.
- 1.2 Вычисляем рейтинг каста.
- 1.3 Вычисляем суммарный пул очков.
- 1.4 Пытаемся снять первый аффект и уменьшаем пул на его рейтинг.
- 1.5 Если есть флаг "только один"... - так. Тут нужна механика count'ов
-
- 2. Обработка Affect
-
-*/
 
 bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *vict) {
 	const auto &replaced_spells = affect.ReplacedSpellAffects();
@@ -2622,7 +2466,6 @@ int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const
 	auto caster_rating = roll.CalcRating(ch, vict);
 
 	if (!spell.IsViolent()) {
-		err_log("Rating: %llu, Min: %d\r\n", caster_rating, duration.Min());
 		auto duration_time = static_cast<int>(duration.Min() + caster_rating);
 		if (!vict->IsNpc()) {
 			return duration_time / kSecsPerPlayerAffect * kSecsPerMudHour;

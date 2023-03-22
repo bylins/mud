@@ -2088,7 +2088,7 @@ void CharData::inc_restore_timer(int num) {
 //метод передачи отладочного сообщения:
 //имморталу, тестеру или кодеру
 //остальные параметры - функция printf
-void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) {
+void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) const {
 	bool needSend = false;
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
 	if (IS_CHARMICE(this) && !this->has_master()) {
