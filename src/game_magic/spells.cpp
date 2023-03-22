@@ -2625,6 +2625,8 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 	if (spell_id <= ESpell::kUndefined) {
 		return false;
 	}
+	if (!spell_create.contains(spell_id))
+		return false;
 	if (spell_type == ESpellType::kItemCast) {
 		items = &spell_create[spell_id].items;
 	} else if (spell_type == ESpellType::kPotionCast) {
@@ -2644,21 +2646,10 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 	} else {
 		return (false);
 	}
-
-	if (((spell_type == ESpellType::kRunes || spell_type == ESpellType::kItemCast) &&
-		(item3 = items->rnumber) +
-			(item0 = items->items[0]) +
-			(item1 = items->items[1]) +
-			(item2 = items->items[2]) < -3)
-		|| ((spell_type == ESpellType::kScrollCast
-			|| spell_type == ESpellType::kWandCast
-			|| spell_type == ESpellType::kPotionCast)
-			&& ((obj_num = items->rnumber) < 0
-				|| (item0 = items->items[0]) + (item1 = items->items[1])
-					+ (item2 = items->items[2]) < -2))) {
-		return (false);
-	}
-
+	item3 = items->rnumber;
+	item0 = items->items[0];
+	item1 = items->items[1];
+	item2 = items->items[2];
 	const int item0_rnum = item0 >= 0 ? real_object(item0) : -1;
 	const int item1_rnum = item1 >= 0 ? real_object(item1) : -1;
 	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
