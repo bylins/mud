@@ -122,14 +122,14 @@ void trigedit_disp_menu(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-			"Trigger Editor [%s%d%s]\r\n\r\n"
-			"%s1)%s Name         : %s%s\r\n"
-			"%s2)%s Intended for : %s%s\r\n"
-			"%s3)%s Trigger types: %s%s\r\n"
-			"%s4)%s Numberic Arg : %s%d\r\n"
-			"%s5)%s Arguments    : %s%s\r\n"
-			"%s6)%s Commands:\r\n%s&S%s&s\r\n"
-			"%sQ)%s Quit\r\n" "Enter Choice :",
+			"Редактирование триггера [%s%d%s]\r\n\r\n"
+			"%s1)%s Название         : %s%s\r\n"
+			"%s2)%s Тип: %s%s\r\n"
+			"%s3)%s События: %s%s\r\n"
+			"%s4)%s Числовой Аргумент : %s%d\r\n"
+			"%s5)%s Аргументы    : %s%s\r\n"
+			"%s6)%s Команды:\r\n%s&S%s&s\r\n"
+			"%sQ)%s Завершить редактирование\r\n" "Введите Выбранное :",
 			grn, OLC_NUM(d), nrm,    // vnum on the title line
 			grn, nrm, yel, GET_TRIG_NAME(trig),    // name
 			grn, nrm, yel, attach_type,    // attach type
@@ -185,7 +185,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 						if (!GET_TRIG_TYPE(OLC_TRIG(d))) {
 							SendMsgToChar("Invalid Trigger Type! Answer a to abort quit!\r\n", d->character.get());
 						}
-						SendMsgToChar("Do you wish to save the changes to the trigger? (y/n): ", d->character.get());
+						SendMsgToChar("Желаете ли вы сохранить изменения в триггере? (y/n): ", d->character.get());
 						OLC_MODE(d) = TRIGEDIT_CONFIRM_SAVESTRING;
 					} else {
 						cleanup_olc(d, CLEANUP_ALL);
@@ -193,26 +193,26 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					return;
 
 				case '1': OLC_MODE(d) = TRIGEDIT_NAME;
-					SendMsgToChar("Name: ", d->character.get());
+		 			SendMsgToChar("Название: ", d->character.get());
 					break;
 
 				case '2': OLC_MODE(d) = TRIGEDIT_INTENDED;
-					SendMsgToChar("0: Mobiles, 1: Objects, 2: Rooms: ", d->character.get());
+					SendMsgToChar("0: Мобы, 1: Объекты, 2: Комнаты: ", d->character.get());
 					break;
 
 				case '3': OLC_MODE(d) = TRIGEDIT_TYPES;
 					trigedit_disp_types(d);
 					break;
 				case '4': OLC_MODE(d) = TRIGEDIT_NARG;
-					SendMsgToChar("Numeric argument: ", d->character.get());
+					SendMsgToChar("Числовой аргумент: ", d->character.get());
 					break;
 
 				case '5': OLC_MODE(d) = TRIGEDIT_ARGUMENT;
-					SendMsgToChar("Argument: ", d->character.get());
+					SendMsgToChar("Аргументы: ", d->character.get());
 					break;
 
 				case '6': OLC_MODE(d) = TRIGEDIT_COMMANDS;
-					SendMsgToChar("Enter trigger commands: (/s saves /h for help)\r\n\r\n", d->character.get());
+					SendMsgToChar("Введите команды триггера: (/s saves /h for help)\r\n\r\n", d->character.get());
 					d->backstr = nullptr;
 					if (OLC_STORAGE(d)) {
 						SendMsgToChar(d->character.get(), "&S%s&s", OLC_STORAGE(d));
@@ -243,8 +243,8 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				case 'a':    // abort quitting
 					break;
 
-				default: SendMsgToChar("Invalid choice!\r\n", d->character.get());
-					SendMsgToChar("Do you wish to save the trigger? : ", d->character.get());
+				default: SendMsgToChar("Неверный выбор!\r\n", d->character.get());
+					SendMsgToChar("Желаете ли вы сохранить изменения в триггере? : ", d->character.get());
 					return;
 			}
 			break;
@@ -501,7 +501,7 @@ void trigedit_save(DescriptorData *d) {
 		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
-	SendMsgToChar("Saving Index file\r\n", d->character.get());
+	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");
 }
 
@@ -615,11 +615,11 @@ void dg_script_menu(DescriptorData *d) {
 	}
 
 	sprintf(buf, "\r\n"
-				 " %sN%s)  New trigger for this script\r\n"
-				 " %sD%s)  Delete a trigger in this script\r\n"
-				 " %sX%s)  Exit Script Editor\r\n"
-				 " %sQ%s)  Quit Script Editor (no save) \r\n\r\n"
-				 "     Enter choice :", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+				 " %sN%s)  Новый триггер для этого скрипта\r\n"
+				 " %sD%s)  Удалить триггер в этом скрипте\r\n"
+				 " %sX%s)  Выйти из редактора скрипта\r\n"
+				 " %sQ%s)  Выйти из редактора скрипта (без сохранения) \r\n\r\n"
+				 "     Введите выбранное :", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
@@ -672,8 +672,8 @@ int dg_script_edit_parse(DescriptorData *d, char *arg) {
 			}
 
 			if (real_trigger(vnum) < 0) {
-				SendMsgToChar("Invalid Trigger VNUM!\r\n"
-							 "Please enter position, vnum   (ex: 1, 200):", d->character.get());
+				SendMsgToChar("Неверный VNUM триггера!\r\n"
+							 "Пожалуйста, выберите позицию, vnum   (ex: 1, 200):", d->character.get());
 				return 1;
 			}
 

@@ -64,8 +64,9 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			all && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
 		}
-
 		if (MUD::Spell(spell_id).IsInvalid())
+			continue;
+		if (IS_MANA_CASTER(ch) && !spell_create.contains(spell_id))
 			continue;
 
 		if ((GET_SPELL_TYPE(ch, spell_id) & 0xFF) == ESpellType::kRunes &&

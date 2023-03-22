@@ -43,6 +43,7 @@ extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 const char *attach_name[] = {"mob", "obj", "room", "unknown!!!"};
 
 int last_trig_vnum = 0;
+int curr_trig_vnum = 0;
 
 // other external vars
 
@@ -426,7 +427,7 @@ int find_room_uid(long n) {
  ************************************************************/
 
 // search the entire world for a char, and return a pointer
-CharData *get_char(char *name, bool pc) {
+CharData *get_char(char *name) {
 	CharData *i;
 
 	// Отсекаем поиск левых UID-ов.
@@ -434,9 +435,6 @@ CharData *get_char(char *name, bool pc) {
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
-		if (pc)
-			i = find_pc(atoi(name + 1));
-		else
 			i = find_char(atoi(name + 1));
 		if (i && (i->IsNpc() || !GET_INVIS_LEV(i))) {
 			return i;
@@ -1879,6 +1877,8 @@ void find_replacement(void *go,
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
 				strftime(str, kMaxInputLength, "%w", localtime(&now_time));
+			} else if (!str_cmp(field, "second")) {
+				strftime(str, kMaxInputLength, "%S", localtime(&now_time));
 			} else if (!str_cmp(field, "minute")) {
 				strftime(str, kMaxInputLength, "%M", localtime(&now_time));
 			} else if (!str_cmp(field, "hour")) {
@@ -4107,8 +4107,8 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 				time *= kPassesPerSec;
 		}
 	}
-	if (time < 2)	//костыль пока не разберемся почему корректно не работает wait 1
-		time = 2;
+//	if (time < 2)	//костыль пока не разберемся почему корректно не работает wait 1
+//		time = 2;
 	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
@@ -5171,7 +5171,7 @@ void do_dg_add_ice_currency(void * /*go*/, Script * /*sc*/, Trigger *trig, int/*
 
 	value = atoi(value_c);
 	// locate the target
-	ch = get_char(charname, true);
+	ch = get_char(charname);
 	if (!ch) {
 		sprintf(buf2, "dg_addicecurrency: cannot locate target!");
 		trig_log(trig, buf2);
@@ -5188,6 +5188,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	unsigned long loops = 0;
 	Trigger *prev_trig;
 
+	curr_trig_vnum = GET_TRIG_VNUM(trig);
 	void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 	void obj_command_interpreter(ObjData *obj, char *argument, Trigger *trig);
 	void wld_command_interpreter(RoomData *room, char *argument, Trigger *trig);
@@ -5388,6 +5389,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				process_unset(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "log ", 4)) {
 				trig_log(trig, cmd + 4);
+			} else if (!strn_cmp(cmd, "syslog ", 7)) {
+				log("SCRIPT LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
 			} else if (!strn_cmp(cmd, "wait ", 5)) {
 				process_wait(go, trig, type, cmd, cl);
 				depth--;

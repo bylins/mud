@@ -239,7 +239,7 @@
     <feat id="kExcellentMemory" name="превосходная память" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMamaRegen" val="100" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kManaRegen" val="100" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
@@ -358,7 +358,7 @@
     <feat id="kMnemonicEnhancer" name="отличная память" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMamaRegen" val="25" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kManaRegen" val="25" affect="kUndefined" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>

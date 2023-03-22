@@ -467,7 +467,7 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		// One object was found.. now for the other one.
 		if (!GET_EQ(ch, kHold)) {
-			sprintf(buf, "Вы нечем писать!\r\n");
+			sprintf(buf, "Вам нечем писать!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
 		}
