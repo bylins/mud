@@ -41,7 +41,6 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
 	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num, gcount = 0;
-	auto can_cast{true};
 	auto have_spells{false};
 	max_slot = 0;
 	for (i = 0; i < kMaxMemoryCircle; i++) {
@@ -77,27 +76,18 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		if (IS_MANA_CASTER(ch)) {
 			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
 				continue;
-
-			if (!CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
-				if (all) {
-					can_cast = false;
-				} else {
-					continue;
-				}
-			} else {
-				can_cast = true;
-			}
-			if (can_cast) {
+			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%s|<...%4d.> %s%-38s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
 										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
 			} else {
-				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %s%-38s&n|",
-										   slots[slot_num] % 114 <
-											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+				if (all) {
+					slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
+							"%s|+--------+ %s%-38s&n|", slots[slot_num] % 114 < 10 ? "\r\n" 
+							: "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+				}
 			}
 		} else {
 			time_str.clear();
