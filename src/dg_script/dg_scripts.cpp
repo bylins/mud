@@ -5390,7 +5390,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "log ", 4)) {
 				trig_log(trig, cmd + 4);
 			} else if (!strn_cmp(cmd, "syslog ", 7)) {
-				log("SCRIPT LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
+				log("TRIGGER LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
 			} else if (!strn_cmp(cmd, "wait ", 5)) {
 				process_wait(go, trig, type, cmd, cl);
 				depth--;
