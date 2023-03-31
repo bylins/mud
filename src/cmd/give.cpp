@@ -17,8 +17,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	if (NPC_FLAGGED(vict, ENpcFlag::kNoTakeItems) 
-			|| mob_index[GET_MOB_RNUM(vict)].func) {
+	if (vict->IsNpc() && (NPC_FLAGGED(vict, ENpcFlag::kNoTakeItems) || mob_index[GET_MOB_RNUM(vict)].func)) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.",
 			false, ch, nullptr, vict, kToChar);
 		return;
