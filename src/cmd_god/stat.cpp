@@ -483,8 +483,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	if (IS_MOB(k)) {
-		sprintf(buf, "Mob СпецПроц: %s, NPC сила удара: %dd%d\r\n",
-				(mob_index[GET_MOB_RNUM(k)].func ? "Есть" : "Нет"),
+
+		sprintf(buf, "Mob СпецПроц: &R%s&n, NPC сила удара: %dd%d\r\n",
+				print_special(k).c_str(),
 				k->mob_specials.damnodice, k->mob_specials.damsizedice);
 		SendMsgToChar(buf, ch);
 	}

@@ -13,9 +13,6 @@
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/guilds.h"
 
-int exchange(CharData *ch, void *me, int cmd, char *argument);
-int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int torc(CharData *ch, void *me, int cmd, char *argument);
 extern std::vector<City> cities;
 
 namespace Noob {
