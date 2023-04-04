@@ -3,8 +3,6 @@
 
 class CharData;
 
-int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
-
 struct MERCDATA {
 	int CharmedCount; // кол-во раз почармлено
 	int spentGold; // если купец - сколько потрачено кун
