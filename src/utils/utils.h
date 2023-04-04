@@ -126,11 +126,13 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
+//спецпроцедуры
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
 int torc(CharData *ch, void *me, int cmd, char *argument);
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
 int shop_ext(CharData *ch, void *me, int cmd, char *argument);
+
 int number(int from, int to);
 int RollDices(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
