@@ -19,7 +19,6 @@ void update_timers();
 
 } // namespace ShopExt
 
-int shop_ext(CharData *ch, void *me, int cmd, char *argument);
 void town_shop_keepers();
 void fill_shop_dictionary(DictionaryType &dic);
 
