@@ -217,7 +217,7 @@ void Affect::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "\r\n  Applies:\r\n";
 	table_wrapper::Table table;
 	table.set_left_margin(3);
-	table << table_wrapper::kHeader << "Location" << "Mod" << "ModCap" << "AccumulateMod" << table_wrapper::kEndRow;
+	table << table_wrapper::kHeader << "Location" << "Mod" << "ModCap" << "Accumulate Mod" << table_wrapper::kEndRow;
 	table << NAME_BY_ITEM<EApply>(location_) << mod_ << cap_ << (accumulate_mod_ ? "Yes" : "No") << table_wrapper::kEndRow;
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);

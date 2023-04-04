@@ -717,9 +717,10 @@ void UpdateAffect(CharData *ch, const Affect<EApply> &af,
 			continue;
 		}
 
-		const bool same_bits = (present_affect->affect_bits == af.affect_bits);
-		const bool same_apply = (af.location != EApply::kNone) && (present_affect->location == af.location);
-		if (!same_bits && !same_apply) {
+//		const bool same_bits = (present_affect->affect_bits == af.affect_bits);
+//		const bool same_apply = (af.location != EApply::kNone) && (present_affect->location == af.location);
+
+		if ((present_affect->location != af.location) || (present_affect->affect_bits != af.affect_bits)) {
 			continue;
 		}
 
@@ -743,7 +744,10 @@ void UpdateAffect(CharData *ch, const Affect<EApply> &af,
 			err_log("Trying to update an affect '%s' with different signs in present and new affect",
 					NAME_BY_ITEM(af.type).c_str());
 		}
+		return;
 	}
+
+	affect_to_char(ch, af);
 }
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {

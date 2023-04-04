@@ -1003,126 +1003,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			break;
 
-		case ESpell::kGroupArmor:
-		case ESpell::kArmor: af[0].location = EApply::kAc;
-			af[0].modifier = -20;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[1].location = EApply::kSavingReflex;
-			af[1].modifier = -5;
-			af[1].duration = af[0].duration;
-			af[2].location = EApply::kSavingStability;
-			af[2].modifier = -5;
-			af[2].duration = af[0].duration;
-			accum_duration = true;
-			spell_id = ESpell::kArmor;
-			break;
-
 		case ESpell::kFascination:
 			if (ProcessMatComponents(ch, victim, spell_id)) {
 				success = false;
 				break;
 			}
-			af[0].location = EApply::kCha;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + 0.7 * koef_modifier;
-			else
-				af[0].modifier = (level + 14) / 15 + 0.7 * koef_modifier;
-			accum_duration = true;
-			accum_affect = true;
-			spell_id = ESpell::kFascination;
-			break;
-
-		case ESpell::kGroupBless:
-		case ESpell::kBless: af[0].location = EApply::kSavingStability;
-			af[0].modifier = -5 - GetRealRemort(ch) / 3;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].affect_bits = to_underlying(EAffect::kBless);
-			af[1].location = EApply::kSavingWill;
-			af[1].modifier = -5 - GetRealRemort(ch) / 4;
-			af[1].duration = af[0].duration;
-			af[1].affect_bits = to_underlying(EAffect::kBless);
-			spell_id = ESpell::kBless;
-			break;
-
-		case ESpell::kCallLighting:
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
-				success = false;
-			}
-			af[0].location = EApply::kHitroll;
-			af[0].modifier = -RollDices(1 + level / 8 + GetRealRemort(ch) / 4, 4);
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 2, level + 7, 8, 0, 0)) * koef_duration;
-			af[1].location = EApply::kCastSuccess;
-			af[1].modifier = -RollDices(1 + level / 4 + GetRealRemort(ch) / 2, 4);
-			af[1].duration = af[0].duration;
-			spell_id = ESpell::kMagicBattle;
-			break;
-
-		case ESpell::kColdWind:
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
-				success = false;
-			}
-			af[0].location = EApply::kDex;
-			af[0].modifier = -RollDices(int(std::max(1, ((level - 14) / 7))), 3);
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 9, 0, 0, 0, 0)) * koef_duration;
-			break;
-		case ESpell::kGroupAwareness:
-		case ESpell::kAwareness:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].affect_bits = to_underlying(EAffect::kAwarness);
-			af[1].location = EApply::kSavingReflex;
-			af[1].modifier = -1 - GetRealRemort(ch) / 4;
-			af[1].duration = af[0].duration;
-			af[1].affect_bits = to_underlying(EAffect::kAwarness);
-			spell_id = ESpell::kAwareness;
-			break;
-
-		case ESpell::kGodsShield: af[0].duration = CalcDuration(victim, 4, 0, 0, 0, 0) * koef_duration;
-			af[0].affect_bits = to_underlying(EAffect::kGodsShield);
-			af[0].location = EApply::kSavingStability;
-			af[0].modifier = -10;
-			af[0].flags = kAfBattledec;
-			af[1].duration = af[0].duration;
-			af[1].affect_bits = to_underlying(EAffect::kGodsShield);
-			af[1].location = EApply::kSavingWill;
-			af[1].modifier = -10;
-			af[1].flags = kAfBattledec;
-			af[2].duration = af[0].duration;
-			af[2].affect_bits = to_underlying(EAffect::kGodsShield);
-			af[2].location = EApply::kSavingReflex;
-			af[2].modifier = -10;
-			af[2].flags = kAfBattledec;
-			break;
-
-		case ESpell::kGroupHaste:
-		case ESpell::kHaste:
-			if (IsAffectedBySpell(victim, ESpell::kSlowdown)) {
-				RemoveAffectFromChar(victim, ESpell::kSlowdown);
-				success = false;
-				break;
-			}
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].affect_bits = to_underlying(EAffect::kHaste);
-			af[0].location = EApply::kSavingReflex;
-			af[0].modifier = -1 - GetRealRemort(ch) / 5;
-			spell_id = ESpell::kHaste;
-			break;
-
-		case ESpell::kShadowCloak: af[0].affect_bits = to_underlying(EAffect::kShadowCloak);
-			af[0].location = EApply::kSavingStability;
-			af[0].modifier = -(GetRealLevel(ch) / 3 + GetRealRemort(ch)) / 4;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
 			break;
 
 		case ESpell::kEnlarge:
@@ -1131,12 +1016,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-			af[0].location = EApply::kSize;
-			af[0].modifier = 5 + level / 2 + GetRealRemort(ch) / 3;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
 
 		case ESpell::kLessening:
 			if (IsAffectedBySpell(victim, ESpell::kEnlarge)) {
@@ -1144,34 +1023,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				success = false;
 				break;
 			}
-			af[0].location = EApply::kSize;
-			af[0].modifier = -(5 + level / 3);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
-
-		case ESpell::kMagicGlass:
-		case ESpell::kGroupMagicGlass: af[0].affect_bits = to_underlying(EAffect::kMagicGlass);
-			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			spell_id = ESpell::kMagicGlass;
-			break;
-
-		case ESpell::kCloudOfArrows:
-			af[0].duration =
-				CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			af[0].affect_bits = to_underlying(EAffect::kCloudOfArrows);
-			af[0].location = EApply::kHitroll;
-			af[0].modifier = level / 6;
-			accum_duration = true;
-			break;
-
-		case ESpell::kStoneHands: af[0].affect_bits = to_underlying(EAffect::kStoneHands);
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
-			accum_duration = true;
-			break;
 
 		case ESpell::kGroupPrismaticAura:
 		case ESpell::kPrismaticAura:
@@ -2325,18 +2176,16 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	auto duration_time = CalcAffectDuration(spell, ch, victim);
 	bool failed{true};
 	for (const auto &affect_desc: affects) {
-		if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, affect_desc.Saving(), modi)) {
-			continue;
-		}
-		if (IsAffectedBySpell(victim, affect_desc.Type())
-		&& !affect_desc.IsFlagged(EAffectFlag::kAfStackable)
-		&& !affect_desc.IsFlagged(EAffectFlag::kAfUpdate)) {
+		if (IsAffectedBySpell(victim, affect_desc.Type()) && !affect_desc.IsFlagged(EAffectFlag::kAfUpdate)) {
 			continue;
 		}
 		if (IsAffectBlocked(affect_desc, victim)) {
 			continue;
 		}
 		if (IsSpellsReplacingFailed(affect_desc, victim)) {
+			continue;
+		}
+		if (spell.IsViolent() && ch != victim && CalcGeneralSaving(ch, victim, affect_desc.Saving(), modi)) {
 			continue;
 		}
 
@@ -2419,7 +2268,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 }
 
-
 bool IsSpellsReplacingFailed(const talents_actions::Affect &affect, CharData *vict) {
 	const auto &replaced_spells = affect.ReplacedSpellAffects();
 	if (replaced_spells.empty()) {
@@ -2464,9 +2312,10 @@ int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const
 	const auto &duration = spell.actions.GetDuration();
 	const auto &roll = duration.Roll();
 	auto caster_rating = roll.CalcRating(ch, vict);
+	auto cap = duration.Cap();
 
 	if (!spell.IsViolent()) {
-		auto duration_time = static_cast<int>(duration.Min() + caster_rating);
+		auto duration_time = std::max(static_cast<int>(duration.Min() + caster_rating), cap);
 		if (!vict->IsNpc()) {
 			return duration_time / kSecsPerPlayerAffect * kSecsPerMudHour;
 		}
@@ -2482,9 +2331,9 @@ int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const
 	if (roll_result > roll.CritfailThreshold()) {
 		duration_time = duration.Min();
 	} else if (roll_result < roll.CritsuccessThreshold()) {
-		duration_time = duration.Cap();
+		duration_time = cap;
 	} else {
-		duration_time = duration.Min() + (duration.Cap() - duration.Min()) / 2;
+		duration_time = duration.Min() + (cap - duration.Min()) / 2;
 		int test_result = difficulty - roll_result;
 		if (test_result >= 0) {
 			duration_time += static_cast<int>(roll_result / abilities::kDegreeDivider * duration.DegreeWeight());
@@ -2492,7 +2341,7 @@ int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const
 			duration_time -= static_cast<int>(roll_result / abilities::kDegreeDivider * duration.DegreeWeight());
 		}
 	}
-	duration_time = std::clamp(duration_time, duration.Min(), duration.Cap());
+	duration_time = std::clamp(duration_time, duration.Min(), cap);
 	if (!vict->IsNpc()) {
 		return duration_time * kSecsPerMudHour / kSecsPerPlayerAffect;
 	}
@@ -2500,8 +2349,13 @@ int CalcAffectDuration(const spells::SpellInfo &spell, const CharData *ch, const
 }
 
 int CalcAffectModifier(const talents_actions::Affect &affect, const CharData *ch) {
-	auto base_modifier = affect.BaseModifier() + affect.RollBaseModifier(ch);
 	auto cap = affect.ModCap();
+	auto base_modifier = affect.BaseModifier();
+	if (base_modifier == cap) {
+		return cap;
+	}
+
+	base_modifier += affect.RollBaseModifier(ch);
 	if (cap) {
 		if (cap > 0) {
 			base_modifier = std::min(base_modifier, cap);
