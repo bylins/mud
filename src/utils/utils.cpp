@@ -47,7 +47,8 @@
 #include "conf.h"
 #include "game_mechanics/obj_sets.h"
 #include "utils_string.h"
-
+#include "noob.h"
+#include "game_mechanics/guilds.h"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -128,6 +129,40 @@ int MIN(int a, int b) {
 
 int MAX(int a, int b) {
 	return (a > b ? a : b);
+}
+
+int exchange(CharData *ch, void *me, int cmd, char *argument);
+int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
+int torc(CharData *ch, void *me, int cmd, char *argument);
+
+
+std::string print_special(CharData *mob) {
+	std::string out;
+
+	if (mob_index[GET_MOB_RNUM(mob)].func) {
+		auto func = mob_index[GET_MOB_RNUM(mob)].func;
+		if (func == shop_ext)
+			out += "торгаш";
+		else if (func == receptionist)
+			out += "рентер";
+		else if (func == postmaster)
+			out += "почтальон";
+		else if (func == bank)
+			out += "банкир";
+		else if (func == exchange)
+			out += "глашатай";
+		else if (func == horse_keeper)
+			out += "конюх";
+		else if (func == guilds::GuildInfo::DoGuildLearn)
+			out += "учитель";
+		else if (func == torc)
+			out += "меняла";
+		else if (func == Noob::outfit)
+			out += "нубхелпер";
+	} else {
+		out += "нет";
+	}
+	return out;
 }
 
 const char *first_letter(const char *txt) {

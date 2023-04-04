@@ -28,9 +28,6 @@ extern IndexData *mob_index;
 
 int dump(CharData *ch, void *me, int cmd, char *argument);
 int puff(CharData *ch, void *me, int cmd, char *argument);
-int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int exchange(CharData *ch, void *me, int cmd, char *argument);
-int torc(CharData *ch, void *me, int cmd, char *argument);
 
 void assign_kings_castle(void);
 
