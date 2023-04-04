@@ -1330,7 +1330,7 @@ private:
 char buf[kMaxStringLength];
 char buf1[kMaxStringLength];
 char buf2[kMaxStringLength];
-char arg[kMaxStringLength];
+char arg[kMaxInputLength];
 char smallBuf[kMaxRawInputLength];
 #else
 extern char buf[kMaxStringLength];

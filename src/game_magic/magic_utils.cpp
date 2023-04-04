@@ -463,6 +463,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	*tch = nullptr;
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
+
 	if (spell_id == ESpell::kControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
 			SendMsgToChar("Не указан тип погоды.\r\n", ch);
@@ -470,7 +471,6 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		} else
 			what_sky >>= 1;
 	}
-
 	if (spell_id == ESpell::kCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
 			SendMsgToChar("Не указан тип оружия.\r\n", ch);
@@ -478,9 +478,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		} else
 			what_sky = 5 + (what_sky >> 1);
 	}
-
 	strcpy(cast_argument, t);
-
 	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;
 	if (MUD::Spell(spell_id).AllowTarget(kTarIgnore))
@@ -493,50 +491,45 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 				return true;
 			}
 		}
-
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
-				// чтобы мобов не чекали
-				if (ch->IsNpc() || !(*tch)->IsNpc()) {
-					if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t)) {
-						return false;
-					}
-					return true;
-				}
-				if (!ch->IsNpc()) {
-					struct FollowerType *k, *k_next;
-					char tmpname[kMaxInputLength];
-					char *tmp = tmpname;
-					strcpy(tmp, t);
-					int fnum = 0; // ищем одноимённые цели
-					int tnum = get_number(&tmp); // возвращает 1, если первая цель
-					for (k = ch->followers; k; k = k_next) {
-						k_next = k->next;
-						if (isname(tmp, k->follower->GetCharAliases())) {
-							if (++fnum == tnum) {// нашли!!
-								*tch = k->follower;
-								return true;
-							}
+			if (!ch->IsNpc()) {
+				struct FollowerType *k, *k_next;
+				char tmpname[kMaxInputLength];
+				char *tmp = tmpname;
+				strcpy(tmp, t);
+				int fnum = 0;
+				int tnum = get_number(&tmp);
+				for (k = ch->followers; k; k = k_next) {
+					k_next = k->next;
+					if (isname(tmp, k->follower->GetCharAliases())) {
+						if (++fnum == tnum) {// нашли!!
+							*tch = k->follower;
+							return true;
 						}
 					}
 				}
 			}
+			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
+				// чтобы мобов не чекали
+				if (ch->IsNpc() || !(*tch)->IsNpc()) {
+					if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t))
+						return false;
+					else
+						return true;
+				}
+			}
 		}
-
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjInv))
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != nullptr)
 				return true;
-
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjEquip)) {
 			int tmp;
 			if ((*tobj = get_object_in_equip_vis(ch, t, ch->equipment, &tmp)) != nullptr)
 				return true;
 		}
-
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjRoom))
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
-
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
 //			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 //				return true;

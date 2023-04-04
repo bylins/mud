@@ -4716,28 +4716,28 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 
 
 // * Поиск мобов для calcuidall_var.
-bool find_all_char_vnum(long n, char *str) {
+bool find_all_char_vnum(MobVnum vnum, char *str) {
 	int count = 0;
-	for (const auto &ch : character_list) {
-		if (n == GET_MOB_VNUM(ch) && ch->in_room != kNowhere && (strlen(str + strlen(str)) < kMaxTrglineLength)) {
-			snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(ch));
-			++count;
-		}
-	}
+	Characters::list_t mobs;
 
-	return count ? true : false;
+	character_list.get_mobs_by_rnum(real_mobile(vnum), mobs);
+	for (const auto &mob : mobs) {
+		snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(mob));
+		++count;
+	}
+	return count == 0? true : false;
 }
 
 // * Поиск предметов для calcuidall_var.
 bool find_all_obj_vnum(long n, char *str) {
 	int count = 0;
+
 	world_objects.foreach_with_vnum(n, [&](const ObjData::shared_ptr &i) {
 		if (strlen(str + strlen(str)) < kMaxTrglineLength) {
 			snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_OBJ, i->get_id());
 			count++;
 		}
 	});
-
 	return count ? true : false;
 }
 
@@ -5390,7 +5390,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "log ", 4)) {
 				trig_log(trig, cmd + 4);
 			} else if (!strn_cmp(cmd, "syslog ", 7)) {
-				log("SCRIPT LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
+				log("TRIGGER LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
 			} else if (!strn_cmp(cmd, "wait ", 5)) {
 				process_wait(go, trig, type, cmd, cl);
 				depth--;

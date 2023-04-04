@@ -10,6 +10,7 @@ namespace do_learn {
 class LearningError : public std::exception {};
 class LowRemortOrLvl : public std::exception {};
 class LearningFail : public std::exception {};
+class NotAvailable : public std::exception {};
 class AlreadyKnown : public std::runtime_error {
  public:
 	AlreadyKnown() = delete;
@@ -134,32 +135,32 @@ void LearnSkillUpgradeBook(CharData *ch, ObjData *obj) {
 	}
 }
 
+void ProcessLearningNotAvailable(CharData *ch, ObjData *book);
 void LearnReceiptBook(CharData *ch, ObjData *obj) {
 	auto receipt_id = im_get_recipe(GET_OBJ_VAL(obj, 1));
+	auto receipt_name = imrecipes[receipt_id].name;
+
 	if (receipt_id < 0) {
 		SendMsgToChar("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		throw LearningError();
 	}
-
+	if (imrecipes[receipt_id].classknow[(int) ch->GetClass()] != kKnownRecipe) {
+		throw NotAvailable();
+	}
 	im_rskill *receipt_skill = im_get_char_rskill(ch, receipt_id);
-	auto receipt_name = imrecipes[receipt_id].name;
 	if (receipt_skill) {
 		throw AlreadyKnown(receipt_name);
 	}
-
-	if (imrecipes[receipt_id].classknow[(int) ch->GetClass()] == kKnownRecipe &&
-		MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
+	if (MAX(GET_OBJ_VAL(obj, 2), imrecipes[receipt_id].level) <= GetRealLevel(ch) &&
 		imrecipes[receipt_id].remort <= GetRealRemort(ch)) {
 		if (imrecipes[receipt_id].level == -1 || imrecipes[receipt_id].remort == -1) {
 			SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 			throw LowRemortOrLvl();
 		}
 	}
-
 	if (IsLearningFailed(ch, obj)) {
 		throw LearningFail();
 	}
-
 	SendSuccessLearningMessage(ch, obj, receipt_name);
 	CREATE(receipt_skill, 1);
 	receipt_skill->rid = receipt_id;
@@ -279,10 +280,19 @@ void ProcessLearningFailException(CharData *ch, ObjData *book) {
 				 "Промучившись несколько минут, вы бросили это унылое занятие, с удивлением отметив исчезновение %s.\r\n",
 			book->get_PName(3).c_str(), book->get_PName(1).c_str());
 	SendMsgToChar(buf, ch);
-	act("$n взял$g в руки $o3 и принял$u изучать, но, промучившись несколько минут, бросил$g это занятие.\r\n"
+	act("$n взял$g в руки $o3 и принял$u изучать, но промучившись несколько минут, бросил$g это занятие.\r\n"
 		"Вы с удивлением увидели, как $o замерцал$G и растаял$G.",
 		false, ch, book, nullptr, kToRoom);
 	ExtractObjFromWorld(book);
+}
+
+void ProcessLearningNotAvailable(CharData *ch, ObjData *book) {
+	sprintf(buf, "Вы взяли в руки %s и начали изучать.\r\n"
+			"Какая-то бормотуха получится, решили вы.\r\n",
+			book->get_PName(3).c_str());
+	SendMsgToChar(buf, ch);
+	act("$n взял$g в руки $o3 и принял$u изучать, но почесав макушку, бросил$g это занятие.\r\n",
+			false, ch, book, nullptr, kToRoom);
 }
 
 void ProcessAlreadyKnownException(CharData *ch, ObjData *book, const AlreadyKnown &exception) {
@@ -316,6 +326,8 @@ void ProcessExceptions(CharData *ch, ObjData *book) {
 		ProcessLearningFailException(ch, book);
 	} catch (const AlreadyKnown &e) {
 		ProcessAlreadyKnownException(ch, book, e);
+	} catch (const NotAvailable &e) {
+		ProcessLearningNotAvailable(ch, book);
 	} catch (const LearningError &e) {
 		// We don't need to do something in this case.
 	} catch (...) {

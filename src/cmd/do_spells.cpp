@@ -41,8 +41,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	char names[kMaxMemoryCircle][kMaxStringLength];
 	std::string time_str;
 	int slots[kMaxMemoryCircle], i, max_slot = 0, slot_num, gcount = 0;
-	auto can_cast{true};
-	auto is_full{false};
+	auto have_spells{false};
 	max_slot = 0;
 	for (i = 0; i < kMaxMemoryCircle; i++) {
 		*names[i] = '\0';
@@ -54,6 +53,10 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		const auto &class_spell = MUD::Class(ch->GetClass()).spells[spell_id];
 		if (!GET_SPELL_TYPE(ch, spell_id) && !all)
 			continue;
+		if (MUD::Spell(spell_id).IsInvalid())
+			continue;
+		if (IS_MANA_CASTER(ch) && !spell_create.contains(spell_id))
+			continue;
 		if (!IS_MANA_CASTER(ch) && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && !all)
 				continue;
@@ -64,22 +67,6 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			all && !GET_SPELL_TYPE(ch, spell_id)) {
 			continue;
 		}
-		if (MUD::Spell(spell_id).IsInvalid())
-			continue;
-		if (IS_MANA_CASTER(ch) && !spell_create.contains(spell_id))
-			continue;
-
-		if ((GET_SPELL_TYPE(ch, spell_id) & 0xFF) == ESpellType::kRunes &&
-			!CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
-			if (all) {
-				can_cast = false;
-			} else {
-				continue;
-			}
-		} else {
-			can_cast = true;
-		}
-
 		if (class_spell.GetMinRemort() > GetRealRemort(ch)) {
 			slot_num = kMaxMemoryCircle - 1;
 		} else {
@@ -89,17 +76,18 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		if (IS_MANA_CASTER(ch)) {
 			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
 				continue;
-			if (can_cast) {
+			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 										   "%s|<...%4d.> %s%-38s&n|",
 										   slots[slot_num] % 114 <
 											   10 ? "\r\n" : "  ",
 										   CalcSpellManacost(ch, spell_id), GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
 			} else {
-				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %s%-38s&n|",
-										   slots[slot_num] % 114 <
-											   10 ? "\r\n" : "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+				if (all) {
+					slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
+							"%s|+--------+ %s%-38s&n|", slots[slot_num] % 114 < 10 ? "\r\n" 
+							: "  ", GetSpellColor(spell_id), MUD::Spell(spell_id).GetCName());
+				}
 			}
 		} else {
 			time_str.clear();
@@ -132,10 +120,10 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 					MUD::Spell(spell_id).GetCName(),
 					time_str.c_str());
 		}
-		is_full = true;
+		have_spells = true;
 	};
 	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-	if (is_full) {
+	if (have_spells) {
 		for (i = 0; i < max_slot; i++) {
 			if (slots[i] != 0) {
 				if (!IS_MANA_CASTER(ch))

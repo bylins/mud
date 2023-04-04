@@ -1294,7 +1294,6 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 int get_number(char **name) {
 	int i, res;
 	char *ppos;
-	char tmpname[kMaxInputLength];
 
 	if ((ppos = strchr(*name, '.')) != nullptr) {
 		for (i = 0; *name + i != ppos; i++) {
@@ -1302,13 +1301,10 @@ int get_number(char **name) {
 				return 1;
 			}
 		}
-		*ppos = '\0';
 		res = atoi(*name);
-		strl_cpy(tmpname, ppos + 1, kMaxInputLength);
-		strl_cpy(*name, tmpname, kMaxInputLength);
+		memmove(*name, ppos + 1, strlen(ppos));
 		return res;
 	}
-
 	return 1;
 }
 
@@ -1965,19 +1961,21 @@ CharData *get_player_of_name(const char *name) {
 }
 
 CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
-	for (const auto &i : character_list) {
-		if (i->IsNpc())
-			continue;
-		if (!HERE(i))
-			continue;
-		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
-			continue;
-		if (!CAN_SEE_CHAR(ch, i))
-			continue;
-		if (!isname(name, i->GetCharAliases())) {
+	DescriptorData *d;
+	for (d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING) {
 			continue;
 		}
-		return i.get();
+		if (!HERE(d->character))
+			continue;
+		if ((inroom & EFind::kCharInRoom) && d->character->in_room != ch->in_room)
+			continue;
+		if (!CAN_SEE_CHAR(ch, d->character))
+			continue;
+		if (!isname(name, d->character->GetCharAliases())) {
+			continue;
+		}
+		return d->character.get();
 	}
 	return nullptr;
 }
@@ -2041,9 +2039,14 @@ CharData *get_char_vis(CharData *ch, const char *name, int where) {
 		strcpy(tmp, name);
 		const int number = get_number(&tmp);
 		if (0 == number) {
-			return get_player_vis(ch, tmp, 0);
+			return get_player_vis(ch, tmp, EFind::kCharInRoom);
 		}
-
+		if (number == 1) {
+			CharData *tmp_ch = get_player_vis(ch, tmp, EFind::kCharInWorld);
+			if (tmp_ch != nullptr) {
+				return tmp_ch;
+			}
+		}
 		int j = 0;
 		for (const auto &target : character_list) {
 			if (HERE(target) && CAN_SEE(ch, target)
@@ -2054,7 +2057,6 @@ CharData *get_char_vis(CharData *ch, const char *name, int where) {
 			}
 		}
 	}
-
 	return nullptr;
 }
 
