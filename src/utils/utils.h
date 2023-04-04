@@ -129,7 +129,7 @@ int touch(const char *path);
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
 int torc(CharData *ch, void *me, int cmd, char *argument);
-
+int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
 int number(int from, int to);
 int RollDices(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
