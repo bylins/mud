@@ -130,11 +130,12 @@ int MIN(int a, int b) {
 int MAX(int a, int b) {
 	return (a > b ? a : b);
 }
-
+// спецпроцедуры
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
 int torc(CharData *ch, void *me, int cmd, char *argument);
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
+int shop_ext(CharData *ch, void *me, int cmd, char *argument);
 
 std::string print_special(CharData *mob) {
 	std::string out;

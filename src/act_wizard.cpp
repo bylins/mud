@@ -70,7 +70,6 @@
 #include "entities/room_data.h"
 #include "color.h"
 #include "game_mechanics/sets_drop.h"
-#include "game_economics/shop_ext.h"
 #include "game_skills/skills.h"
 #include "game_magic/spells.h"
 #include "structs/descriptor_data.h"
