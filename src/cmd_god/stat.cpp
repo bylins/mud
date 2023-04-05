@@ -1,5 +1,4 @@
 #include "stat.h"
-
 #include "ban.h"
 #include "entities/char_player.h"
 #include "entities/player_races.h"
@@ -19,8 +18,41 @@
 #include "structs/global_objects.h"
 #include "depot.h"
 #include "game_magic/magic.h"
+#include "noob.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
+
+std::string print_special(CharData *mob) {
+	std::string out;
+
+	if (mob_index[GET_MOB_RNUM(mob)].func) {
+		auto func = mob_index[GET_MOB_RNUM(mob)].func;
+		if (func == shop_ext)
+			out += "торгаш";
+		else if (func == receptionist)
+			out += "рентер";
+		else if (func == postmaster)
+			out += "почтальон";
+		else if (func == bank)
+			out += "банкир";
+		else if (func == exchange)
+			out += "глашатай";
+		else if (func == horse_keeper)
+			out += "конюх";
+		else if (func == guilds::GuildInfo::DoGuildLearn)
+			out += "учитель";
+		else if (func == torc)
+			out += "меняла";
+		else if (func == Noob::outfit)
+			out += "нубхелпер";
+		else if (func == mercenary)
+			out += "ватажник";
+	} else {
+		out += "нет";
+	}
+	return out;
+}
+
 
 void do_statip(CharData *ch, CharData *k) {
 	log("Start logon list stat");
