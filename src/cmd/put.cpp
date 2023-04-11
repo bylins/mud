@@ -19,13 +19,13 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 
 	// если кладем в клановый сундук
 	if (Clan::is_clan_chest(cont)) {
-		if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
-			return 2;
-		}
-		if (!put_otrigger(obj.get(), ch, cont)) {
-			return 2;
-		}
 		if (!Clan::PutChest(ch, obj.get(), cont)) {
+			if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+				return 2;
+			}
+			if (!put_otrigger(obj.get(), ch, cont)) {
+				return 2;
+			}
 			return 1;
 		}
 		return 0;
@@ -33,13 +33,13 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 
 	// клан-хранилище под ингры
 	if (ClanSystem::is_ingr_chest(cont)) {
-		if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
-			return 2;
-		}
-		if (!put_otrigger(obj.get(), ch, cont)) {
-			return 2;
-		}
 		if (!Clan::put_ingr_chest(ch, obj.get(), cont)) {
+			if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+				return 2;
+			}
+			if (!put_otrigger(obj.get(), ch, cont)) {
+				return 2;
+			}
 			return 1;
 		}
 		return 0;
@@ -47,13 +47,13 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 
 	// персональный сундук
 	if (Depot::is_depot(cont)) {
-		if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
-			return 2;
-		}
-		if (!put_otrigger(obj.get(), ch, cont)) {
-			return 2;
-		}
 		if (!Depot::put_depot(ch, obj)) {
+			if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+				return 2;
+			}
+			if (!put_otrigger(obj.get(), ch, cont)) {
+				return 2;
+			}
 			return 1;
 		}
 		return 0;
