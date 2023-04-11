@@ -1748,7 +1748,7 @@ void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 			msgShown = true;
 		}
 
-		drop_otrigger(obj, ch);
+		drop_otrigger(obj, ch, kOtrigDropInroom);
 
 		drop_wtrigger(obj, ch);
 

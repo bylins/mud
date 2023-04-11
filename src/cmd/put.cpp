@@ -17,7 +17,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		return 2;
 	}
 
-	if (!drop_otrigger(obj.get(), ch)) {
+	if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
 		return 2;
 	}
 

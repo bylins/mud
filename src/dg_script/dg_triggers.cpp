@@ -1036,7 +1036,7 @@ int remove_otrigger(ObjData *obj, CharData *actor) {
 	return 1;
 }
 
-int drop_otrigger(ObjData *obj, CharData *actor) {
+int drop_otrigger(ObjData *obj, CharData *actor, const Bitvector  argument) {
 	char buf[kMaxInputLength];
 
 	if (!CheckSript(obj, OTRIG_DROP)) {
@@ -1046,8 +1046,11 @@ int drop_otrigger(ObjData *obj, CharData *actor) {
 	for (auto t : obj->get_script()->trig_list) {
 		if (TRIGGER_CHECK(t, OTRIG_DROP)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {
-			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			int tmpvar = atoi(t->arglist.c_str());
+			if (tmpvar == 0 || IS_SET(tmpvar, argument)) {
+				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+				return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			}
 		}
 	}
 
