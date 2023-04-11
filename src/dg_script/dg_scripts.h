@@ -111,6 +111,10 @@ const Bitvector kNoExtraAttack = 1 << 1;
 const Bitvector kNoLeftHandAttack = 1 << 2;
 const Bitvector kNoRightHandAttack = 1 << 3;
 
+const Bitvector kOtrigDropDefault = 0;
+const Bitvector kOtrigDropInroom = 1 << 0;
+const Bitvector kOtrigPutContainer = 1 << 1;
+
 /*
  * These are slightly off of kPulseMobile so
  * everything isnt happening at the same time
@@ -334,7 +338,7 @@ void greet_mtrigger(CharData *actor, int dir);
 int entry_mtrigger(CharData *ch);
 void income_mtrigger(CharData *actor, int dir);
 int enter_wtrigger(RoomData *room, CharData *actor, int dir);
-int drop_otrigger(ObjData *obj, CharData *actor);
+int drop_otrigger(ObjData *obj, CharData *actor, const Bitvector argument);
 void timer_otrigger(ObjData *obj);
 int get_otrigger(ObjData *obj, CharData *actor);
 int drop_wtrigger(ObjData *obj, CharData *actor);

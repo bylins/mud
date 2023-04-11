@@ -68,7 +68,7 @@ const char *drop_op[3] =
 	};
 
 void PerformDrop(CharData *ch, ObjData *obj) {
-	if (!drop_otrigger(obj, ch))
+	if (!drop_otrigger(obj, ch, kOtrigDropInroom))
 		return;
 	if (!bloody::handle_transfer(ch, nullptr, obj))
 		return;
