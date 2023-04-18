@@ -43,8 +43,7 @@ extern RoomRnum r_unreg_start_room;
 
 // Extern functions
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
-int receptionist(CharData *ch, void *me, int cmd, char *argument);
-int cryogenicist(CharData *ch, void *me, int cmd, char *argument);
+//int receptionist(CharData *ch, void *me, int cmd, char *argument);
 int invalid_no_class(CharData *ch, const ObjData *obj);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 int invalid_unique(CharData *ch, const ObjData *obj);
@@ -2594,10 +2593,6 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 
 int receptionist(CharData *ch, void *me, int cmd, char *argument) {
 	return (gen_receptionist(ch, (CharData *) me, cmd, argument, RENT_FACTOR));
-}
-
-int cryogenicist(CharData *ch, void *me, int cmd, char *argument) {
-	return (gen_receptionist(ch, (CharData *) me, cmd, argument, CRYO_FACTOR));
 }
 
 void Crash_frac_save_all(int frac_part) {

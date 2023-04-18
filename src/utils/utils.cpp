@@ -47,7 +47,8 @@
 #include "conf.h"
 #include "game_mechanics/obj_sets.h"
 #include "utils_string.h"
-
+//#include "noob.h"
+//#include "game_mechanics/guilds.h"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>

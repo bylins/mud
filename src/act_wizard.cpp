@@ -60,7 +60,6 @@
 #include "statistics/mob_stat.h"
 #include "modify.h"
 #include "administration/names.h"
-#include "noob.h"
 #include "entities/obj_data.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
@@ -71,7 +70,6 @@
 #include "entities/room_data.h"
 #include "color.h"
 #include "game_mechanics/sets_drop.h"
-#include "game_economics/shop_ext.h"
 #include "game_skills/skills.h"
 #include "game_magic/spells.h"
 #include "structs/descriptor_data.h"
@@ -3754,9 +3752,6 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imm_log("%s try to set: %s", GET_NAME(ch), argument);
 }
 
-int exchange(CharData *ch, void *me, int cmd, char *argument);
-int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-
 namespace Mlist {
 
 std::string print_race(CharData *mob) {
@@ -3779,67 +3774,6 @@ std::string print_role(CharData *mob) {
 	return out;
 }
 
-std::string print_script(CharData *mob, const std::string &key) {
-	bool print_name = false;
-	if (key == "scriptname" || key == "triggername") {
-		print_name = true;
-	}
-
-	auto out = fmt::memory_buffer();
-	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script->empty()) {
-		bool first = true;
-		for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script) {
-			const int trg_rnum = real_trigger(trigger_vnum);
-			if (trg_rnum >= 0) {
-				if (!first) {
-					format_to(std::back_inserter(out), ", ");
-				} else {
-					first = false;
-				}
-				format_to(std::back_inserter(out), "{}", trig_index[trg_rnum]->vnum);
-				if (print_name) {
-					const auto &trigger_name = trig_index[trg_rnum]->proto->get_name();
-					format_to(std::back_inserter(out), "({})", (trigger_name.empty() ? "null" : trigger_name.c_str()));
-				}
-			}
-		}
-	} else {
-		format_to(std::back_inserter(out), "---");
-	}
-
-	return to_string(out);
-}
-
-std::string print_special(CharData *mob) {
-	std::string out;
-
-	if (mob_index[GET_MOB_RNUM(mob)].func) {
-		auto func = mob_index[GET_MOB_RNUM(mob)].func;
-		if (func == shop_ext)
-			out += "shop";
-		else if (func == receptionist)
-			out += "rent";
-		else if (func == postmaster)
-			out += "mail";
-		else if (func == bank)
-			out += "bank";
-		else if (func == exchange)
-			out += "exchange";
-		else if (func == horse_keeper)
-			out += "horse";
-		else if (func == guilds::GuildInfo::DoGuildLearn)
-			out += "guild trainer";
-		else if (func == torc)
-			out += "torc";
-		else if (func == Noob::outfit)
-			out += "outfit";
-	} else {
-		out += "---";
-	}
-
-	return out;
-}
-
 std::string print_flag(CharData *ch, CharData *mob, const std::string &options) {
 	std::vector<std::string> option_list;
 	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
@@ -3848,19 +3782,14 @@ std::string print_flag(CharData *ch, CharData *mob, const std::string &options) 
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
 			format_to(std::back_inserter(out), " [раса: {}{}{} ]",
-					  CCCYN(ch, C_NRM), print_race(mob), CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), print_race(mob), CCNRM(ch, C_NRM));
 		} else if (isname(i, "role")) {
 			format_to(std::back_inserter(out), " [роли: {}{}{} ]",
-					  CCCYN(ch, C_NRM), print_role(mob), CCNRM(ch, C_NRM));
-		} else if (isname(i, "script trigger scriptname triggername")) {
-			format_to(std::back_inserter(out), " [скрипты: %s%s%s ]",
-				CCCYN(ch, C_NRM), print_script(mob, i), CCNRM(ch, C_NRM));
-		} else if (isname(i, "special")) {
-			format_to(std::back_inserter(out), " [спец-проц: %s%s%s ]",
-					  CCCYN(ch, C_NRM), print_special(mob), CCNRM(ch, C_NRM));
-		}
+					CCCYN(ch, C_NRM), print_role(mob), CCNRM(ch, C_NRM));
+		} 
+		format_to(std::back_inserter(out), " [спец-проц: {}{}{} ]",
+				CCCYN(ch, C_NRM), print_special(mob), CCNRM(ch, C_NRM));
 	}
-
 	return to_string(out);
 }
 

@@ -107,7 +107,9 @@ void show_wizdom(CharData *ch, int bitset) {
 
 		if (!ch->mem_queue.Empty()) {
 			ESpell cnt [to_underlying(ESpell::kLast) + 1];
-			memset(cnt, 0, to_underlying(ESpell::kLast) + 1);
+			for (int i = 0; i < to_underlying(ESpell::kLast) + 1; i++)
+				cnt[i] = ESpell::kUndefined;
+//			memset(cnt, 0, to_underlying(ESpell::kLast) + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;

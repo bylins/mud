@@ -125,7 +125,6 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
-
 int number(int from, int to);
 int RollDices(int number, int size);
 void sprinttype(int type, const char *names[], char *result);

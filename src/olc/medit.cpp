@@ -60,7 +60,6 @@ extern const char *mobprog_types[];
 
 int planebit(const char *str, int *plane, int *bit);
 
-int receptionist(CharData *ch, void *me, int cmd, char *argument);
 void clear_mob_charm(CharData *mob);
 
 //-------------------------------------------------------------------

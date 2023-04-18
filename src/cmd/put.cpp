@@ -17,17 +17,15 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		return 2;
 	}
 
-	if (!drop_otrigger(obj.get(), ch)) {
-		return 2;
-	}
-
-	if (!put_otrigger(obj.get(), ch, cont)) {
-		return 2;
-	}
-
 	// если кладем в клановый сундук
 	if (Clan::is_clan_chest(cont)) {
 		if (!Clan::PutChest(ch, obj.get(), cont)) {
+			if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+				return 2;
+			}
+			if (!put_otrigger(obj.get(), ch, cont)) {
+				return 2;
+			}
 			return 1;
 		}
 		return 0;
@@ -36,6 +34,12 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	// клан-хранилище под ингры
 	if (ClanSystem::is_ingr_chest(cont)) {
 		if (!Clan::put_ingr_chest(ch, obj.get(), cont)) {
+			if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+				return 2;
+			}
+			if (!put_otrigger(obj.get(), ch, cont)) {
+				return 2;
+			}
 			return 1;
 		}
 		return 0;
@@ -44,6 +48,12 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	// персональный сундук
 	if (Depot::is_depot(cont)) {
 		if (!Depot::put_depot(ch, obj)) {
+			if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+				return 2;
+			}
+			if (!put_otrigger(obj.get(), ch, cont)) {
+				return 2;
+			}
 			return 1;
 		}
 		return 0;
@@ -62,6 +72,12 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
 	else {
+		if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
+			return 2;
+		}
+		if (!put_otrigger(obj.get(), ch, cont)) {
+			return 2;
+		}
 		RemoveObjFromChar(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
 		if (obj->get_type() == EObjType::kMoney && obj->get_rnum() == 0) {
