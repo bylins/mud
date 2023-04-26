@@ -1586,6 +1586,8 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", uid_type, uid);
 			} else if (!str_cmp(var, "door"))
 				strcpy(str, door[type]);
+			else if (!str_cmp(var, "contextval"))
+				sprintf(str, "%ld", sc->context);
 			else if (!str_cmp(var, "force"))
 				strcpy(str, force[type]);
 			else if (!str_cmp(var, "load"))
