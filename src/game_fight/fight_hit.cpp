@@ -3006,14 +3006,7 @@ void HitData::calc_base_hr(CharData *ch) {
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 
 	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
-
-
-	// Использование ловкости вместо силы для попадания
-	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
-		calc_thaco -= str_bonus(GetRealDex(ch), STR_TO_HIT) * p_hitroll;
-	} else {
-		calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
-	}
+	calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
 	if ((skill_num == ESkill::kThrow
 		|| skill_num == ESkill::kBackstab)
 		&& wielded
@@ -3382,7 +3375,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		if (PRF_FLAGGED(ch, EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага +дамролы скилла== %d&n\r\n", dam);
 	}
-	if (CanUseFeat(ch, EFeat::kFInesseShot)) {
+	if (CanUseFeat(ch, EFeat::kFInesseShot) || CanUseFeat(ch, EFeat::kWeaponFinesse)) {
 		dam += str_bonus(GetRealDex(ch), STR_TO_DAM);
 	} else {
 		dam += str_bonus(GetRealStr(ch), STR_TO_DAM);
