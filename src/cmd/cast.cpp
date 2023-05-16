@@ -153,8 +153,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {
 			if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0))
 				SetWaitState(ch, kBattleRound);
-		}
-		if (ch->get_wait() == 0)
+		} else if (ch->get_wait() == 0)
 			SetWaitState(ch, 1);
 	}
 }
