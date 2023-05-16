@@ -154,6 +154,8 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0))
 				SetWaitState(ch, kBattleRound);
 		}
+		if (ch->get_wait() == 0)
+			SetWaitState(ch, 1);
 	}
 }
 
