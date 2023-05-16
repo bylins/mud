@@ -86,7 +86,6 @@
         <feat id="kConnoiseur"			level="1"	remort="0"	slot="3"	inborn="0"/>
 	<feat id="kScirmisher"			level="1"	remort="0"	slot="3"	inborn="0"/>
 	<feat id="kTactician"			level="1"	remort="0"	slot="3"	inborn="0"/>
-        <feat id="kWeaponFinesse"		level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kPunchMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kClubsMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kAxesMaster"			level="1"	remort="0"	slot="4"	inborn="0"/>
