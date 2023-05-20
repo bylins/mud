@@ -853,28 +853,28 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 	}
 }
 
-void addshot_damage(CharData *ch, ESkill type, fight::AttackType weapon) {
+void addshot_damage(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
 	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->GetEnemy());
 	int dex_mod = std::max(GetRealDex(ch) - 25, 0) * 10;
 	int pc_mod =IS_CHARMICE(ch) ? 0 : 1;
 	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty * 5;
 	int percent = number(1, difficulty);
-	
+
 	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
 	if (percent <= prob * 9 + dex_mod) {
-		hit(ch, ch->GetEnemy(), type, weapon);
+		hit(ch, victim, type, weapon);
 	}
 	percent = number(1, difficulty);
 	if (percent <= (prob * 6 + dex_mod) && ch->GetEnemy()) {
-		hit(ch, ch->GetEnemy(), type, weapon);
+		hit(ch, victim, type, weapon);
 	}
 	percent = number(1, difficulty);
 	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
-		hit(ch, ch->GetEnemy(), type, weapon);
+		hit(ch, victim, type, weapon);
 	}
 	percent = number(1, difficulty);
 	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
-		hit(ch, ch->GetEnemy(), type, weapon);
+		hit(ch, victim, type, weapon);
 	}
 }
 
@@ -3006,14 +3006,7 @@ void HitData::calc_base_hr(CharData *ch) {
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 
 	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
-
-
-	// Использование ловкости вместо силы для попадания
-	if (CanUseFeat(ch, EFeat::kWeaponFinesse)) {
-		calc_thaco -= str_bonus(GetRealDex(ch), STR_TO_HIT) * p_hitroll;
-	} else {
-		calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
-	}
+	calc_thaco -= str_bonus(GetRealStr(ch), STR_TO_HIT) * p_hitroll;
 	if ((skill_num == ESkill::kThrow
 		|| skill_num == ESkill::kBackstab)
 		&& wielded
@@ -3382,7 +3375,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		if (PRF_FLAGGED(ch, EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага +дамролы скилла== %d&n\r\n", dam);
 	}
-	if (CanUseFeat(ch, EFeat::kFInesseShot)) {
+	if (CanUseFeat(ch, EFeat::kFInesseShot) || CanUseFeat(ch, EFeat::kWeaponFinesse)) {
 		dam += str_bonus(GetRealDex(ch), STR_TO_DAM);
 	} else {
 		dam += str_bonus(GetRealStr(ch), STR_TO_DAM);
@@ -3819,7 +3812,7 @@ void performIronWindAttacks(CharData *ch, fight::AttackType weapon) {
 }
 
 // Обработка доп.атак
-void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
+void exthit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
@@ -3828,7 +3821,6 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 	performIronWindAttacks(ch, weapon);
 
 	ObjData *wielded = nullptr;
-
 	wielded = GetUsedWeapon(ch, weapon);
 	if (wielded
 		&& !GET_EQ(ch, EEquipPos::kShield)
@@ -3839,11 +3831,10 @@ void exthit(CharData *ch, ESkill type, fight::AttackType weapon) {
 			&& MIN(850, 200 + ch->GetSkill(ESkill::kBows) * 4 + GetRealDex(ch) * 5) >= number(1, 1000)) {
 			hit(ch, ch->GetEnemy(), type, weapon);
 		} else if (ch->GetSkill(ESkill::kAddshot) > 0) {
-			addshot_damage(ch, type, weapon);
+			addshot_damage(ch, victim, type, weapon);
 		}
 	}
-
-	hit(ch, ch->GetEnemy(), type, weapon);
+	hit(ch, victim, type, weapon);
 }
 
 int CalcPcDamrollBonus(CharData *ch) {

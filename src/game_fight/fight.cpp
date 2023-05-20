@@ -1829,7 +1829,7 @@ void process_npc_attack(CharData *ch) {
 
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffect::kStopRight) && !IS_SET(trigger_code, kNoRightHandAttack)) {
-		exthit(ch, ESkill::kUndefined, fight::AttackType::kMainHand);
+		exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 	}
 
 	//**** экстраатаки мобов. Первая - оффхэнд
@@ -1843,7 +1843,7 @@ void process_npc_attack(CharData *ch) {
 				return;
 			}
 		}
-		exthit(ch, ESkill::kUndefined, fight::AttackType::kMobAdd);
+		exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
 	}
 }
 
@@ -1912,7 +1912,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			else if (GET_AF_BATTLE(ch, kEafHammer))
 				tmpSkilltype = ESkill::kHammer;
 			else tmpSkilltype = ESkill::kUndefined;
-			exthit(ch, tmpSkilltype, fight::AttackType::kMainHand);
+			exthit(ch, ch->GetEnemy(), tmpSkilltype, fight::AttackType::kMainHand);
 		}
 		round_profiler.next_step("hit add boths weapon");
 // допатака двуручем
@@ -1942,7 +1942,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		if (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| !GET_AF_BATTLE(ch, kEafUsedleft)) {
-			exthit(ch, ESkill::kUndefined, fight::AttackType::kOffHand);
+			exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}
@@ -1952,7 +1952,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && GET_AF_BATTLE(ch, kEafSecond)
 		&& ch->GetSkill(ESkill::kLeftHit)) {
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, kEafUsedleft)) {
-			exthit(ch, ESkill::kUndefined, fight::AttackType::kOffHand);
+			exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}

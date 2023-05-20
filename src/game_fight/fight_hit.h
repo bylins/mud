@@ -100,7 +100,7 @@ void group_gain(CharData *ch, CharData *victim);
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line);
 
-void exthit(CharData *ch, ESkill type, fight::AttackType weapon);
+void exthit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 
 void appear(CharData *ch);
