@@ -748,7 +748,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kWill">
-                    <dices ndice="25" sdice="30" adice="180"/>
+                    <dices ndice="16" sdice="36" adice="75"/>
                     <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
                     <base_stat id="kWis" threshold="22" weight="3.5"/>
                 </damage>
@@ -2265,7 +2265,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kStability">
-                    <dices ndice="18" sdice="14" adice="25"/>
+                    <dices ndice="14" sdice="10" adice="25"/>
                     <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
                     <base_stat id="kWis" threshold="32" weight="3.5"/>
                 </damage>
@@ -2341,7 +2341,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <dices ndice="22" sdice="20" adice="60"/>
+                    <dices ndice="9" sdice="20" adice="50"/>
                     <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
                     <base_stat id="kWis" threshold="22" weight="2.5"/>
                 </damage>
