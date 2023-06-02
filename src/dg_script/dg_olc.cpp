@@ -324,7 +324,7 @@ void trigedit_save(DescriptorData *d) {
 	trig->cmdlist->reset(new cmdlist_element());
 	const auto &cmdlist = *trig->cmdlist;
 	const auto cmd_token = strtok(s, "\n\r");
-	if (cmd_token) {
+	if (cmd_token) { //тут штатная ошибка циркуля, если strok не нашел подстроку то он возвращает не nullptr а строку полностью т.е. надо str_cmp(cmd_token, s)
 		cmdlist->cmd = cmd_token;
 		cmdlist->line_num = 1;
 	} else {
