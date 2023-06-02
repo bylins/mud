@@ -50,7 +50,7 @@ struct wld_command_info {
 void wld_log(RoomData *room, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
-	sprintf(buf, "(Room: %d, trig: %d): %s", room->room_vn, last_trig_vnum, msg);
+	sprintf(buf, "(Room: %d, trig: %d): %s [строка: %d]", room->room_vn, last_trig_vnum, msg, last_trig_line_num);
 	script_log(buf, type);
 }
 

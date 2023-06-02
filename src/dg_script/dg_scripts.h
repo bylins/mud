@@ -134,6 +134,7 @@ class cmdlist_element {
 	using shared_ptr = std::shared_ptr<cmdlist_element>;
 
 	std::string cmd;        // one line of a trigger //
+	int line_num;
 	shared_ptr original;
 	shared_ptr next;
 };
@@ -492,6 +493,7 @@ CharData *get_char(char *name);
 extern int top_of_trigt;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка
 extern int curr_trig_vnum;
+extern int last_trig_line_num;
 const int MAX_TRIG_USEC = 30000;
 
 void save_char_vars(CharData *ch);

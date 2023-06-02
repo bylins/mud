@@ -44,6 +44,7 @@ const char *attach_name[] = {"mob", "obj", "room", "unknown!!!"};
 
 int last_trig_vnum = 0;
 int curr_trig_vnum = 0;
+int last_trig_line_num = 0;
 
 // other external vars
 
@@ -145,8 +146,8 @@ void script_log(const char *msg, LogMode type) {
  */
 void trig_log(Trigger *trig, const char *msg, LogMode type) {
 	char tmpbuf[kMaxStringLength];
-	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), 
-			GET_TRIG_VNUM(trig), msg);
+	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s [строка: %d]", GET_TRIG_NAME(trig), 
+			GET_TRIG_VNUM(trig), msg, last_trig_line_num);
 	script_log(tmpbuf, type);
 }
 
@@ -820,8 +821,9 @@ EVENT(trig_wait_event) {
 	free(wait_event_obj);
 }
 
-void do_stat_trigger(CharData *ch, Trigger *trig) {
+void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 	char sb[kMaxExtendLength];
+	char smallbuf[10];
 
 	if (!trig) {
 		log("SYSERR: NULL trigger passed to do_stat_trigger.");
@@ -850,13 +852,17 @@ void do_stat_trigger(CharData *ch, Trigger *trig) {
 	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
 			buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
 
-	strcat(sb, "Commands:\r\n   ");
+	strcat(sb, "Commands:\r\n");
 
 	auto cmd_list = *trig->cmdlist;
 	while (cmd_list) {
 		if (!cmd_list->cmd.empty()) {
+			if (need_num) {
+				sprintf(smallbuf,"%4d:  ", cmd_list->line_num);
+				strcat(sb, smallbuf);
+			}
 			strcat(sb, cmd_list->cmd.c_str());
-			strcat(sb, "\r\n   ");
+			strcat(sb, "\r\n");
 		}
 
 		cmd_list = cmd_list->next;
@@ -5237,7 +5243,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		}
 		const char *p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
-
+		last_trig_line_num = cl->line_num;
 		if (*p == '*' || *p == '/')    // comment
 		{
 			continue;
@@ -5580,6 +5586,7 @@ int real_trigger(int vnum) {
 void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	int vnum, rnum;
 	char str[kMaxInputLength];
+	bool need_number = false;
 
 	half_chop(argument, str, argument);
 
@@ -5588,7 +5595,10 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
-
+	if (!str_cmp(str, "-n")) {
+		need_number = true;
+		strcpy(str, argument);
+	}
 	if (*str) {
 		vnum = atoi(str);
 		rnum = real_trigger(vnum);
@@ -5597,7 +5607,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 
-		do_stat_trigger(ch, trig_index[rnum]->proto);
+		do_stat_trigger(ch, trig_index[rnum]->proto, need_number);
 	} else
 		SendMsgToChar("Usage: tstat <vnum>\r\n", ch);
 }
