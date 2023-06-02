@@ -324,13 +324,20 @@ void trigedit_save(DescriptorData *d) {
 	trig->cmdlist->reset(new cmdlist_element());
 	const auto &cmdlist = *trig->cmdlist;
 	const auto cmd_token = strtok(s, "\n\r");
-	cmdlist->cmd = cmd_token ? cmd_token : "";
+	if (cmd_token) {
+		cmdlist->cmd = cmd_token;
+		cmdlist->line_num = 1;
+	} else {
+		cmdlist->cmd = "";
+		cmdlist->line_num = 0;
+	}
 	auto cmd = cmdlist;
-
+	int line_num = 2;
 	while ((s = strtok(nullptr, "\n\r"))) {
 		cmd->next.reset(new cmdlist_element());
 		cmd = cmd->next;
 		cmd->cmd = s;
+		cmd->line_num = line_num++;
 	}
 	cmd->next.reset();
 

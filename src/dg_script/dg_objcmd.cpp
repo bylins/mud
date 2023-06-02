@@ -52,11 +52,8 @@ void obj_log(ObjData *obj, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
 	sprintf(buf,
-			"(Obj: '%s', VNum: %d, trig: %d): %s",
-			obj->get_short_description().c_str(),
-			GET_OBJ_VNUM(obj),
-			last_trig_vnum,
-			msg);
+			"(Obj: '%s', VNum: %d, trig: %d): %s [строка: %d]", obj->get_short_description().c_str(), GET_OBJ_VNUM(obj),
+			last_trig_vnum, msg, last_trig_line_num);
 	script_log(buf, type);
 }
 

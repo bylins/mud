@@ -60,7 +60,7 @@ void send_to_zone(char *messg, int zone_rnum);
 void mob_log(CharData *mob, const char *msg, LogMode type = LogMode::OFF) {
 	char buf[kMaxInputLength + 100];
 
-	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg);
+	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s [строка: %d]", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg, last_trig_line_num);
 	script_log(buf, type);
 }
 
