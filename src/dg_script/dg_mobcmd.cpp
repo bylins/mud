@@ -205,45 +205,21 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
  * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
-void do_mjunk(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
+void do_mjunk(CharData *ch, char */*argument*/, int/* cmd*/, int/* subcmd*/, Trigger *) {
 	char arg[kMaxInputLength];
-	int pos, junk_all = 0;
+	int pos;
 	ObjData *obj;
 	ObjData *obj_next;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg) {
-		mob_log(ch, "mjunk called with no argument");
-		return;
+	for (obj = ch->carrying; obj != nullptr; obj = obj_next) {
+		obj_next = obj->get_next_content();
+		ExtractObjFromWorld(obj, false);
 	}
-
-	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
-		junk_all = 1;
-
-	if ((find_all_dots(arg) == kFindIndiv) && !junk_all) {
-		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != nullptr) {
-			UnequipChar(ch, pos, CharEquipFlags());
-			ExtractObjFromWorld(obj, false);
-			return;
-		}
-		if ((obj = get_obj_in_list_vis(ch, arg, ch->carrying)) != nullptr)
-			ExtractObjFromWorld(obj, false);
-		return;
-	} else {
-		for (obj = ch->carrying; obj != nullptr; obj = obj_next) {
-			obj_next = obj->get_next_content();
-			if (arg[3] == '\0' || isname(arg + 4, obj->get_aliases())) {
-				ExtractObjFromWorld(obj, false);
-			}
-		}
-		while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
-			UnequipChar(ch, pos, CharEquipFlags());
-			ExtractObjFromWorld(obj, false);
-		}
+	while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
+		UnequipChar(ch, pos, CharEquipFlags());
+		ExtractObjFromWorld(obj, false);
 	}
 }
 
