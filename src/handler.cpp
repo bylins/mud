@@ -1840,10 +1840,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			if (!obj_eq) {
 				continue;
 			}
-			if (zone_table[ch->in_room].vnum * 100 + 99 == ch->in_room) {
-				ExtractObjFromWorld(obj_eq, false);
-				continue;
-			}
 			remove_otrigger(obj_eq, ch);
 			DropObjOnZoneReset(ch, obj_eq, false, zone_reset);
 		}
@@ -1853,10 +1849,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //	log("[Extract char] Drop objects");
 	while (ch->carrying) {
 		ObjData *obj = ch->carrying;
-		if (zone_table[ch->in_room].vnum * 100 + 99 == ch->in_room) {
-			ExtractObjFromWorld(obj, false);
-			continue;
-		}
 		RemoveObjFromChar(obj);
 		DropObjOnZoneReset(ch, obj, true, zone_reset);
 	}

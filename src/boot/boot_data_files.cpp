@@ -314,8 +314,9 @@ void TriggersFile::parse_trigger(int vnum) {
 
 	std::string cmds(fread_string());
 	std::size_t pos = 0;
-	int indlev = 0;
+	int indlev = 0, num = 1;
 	auto ptr = trig->cmdlist.get();
+
 	do {
 		std::size_t pos_end = cmds.find_first_of("\r\n", pos);
 		std::string line = cmds.substr(pos, (pos_end == std::string::npos) ? pos_end : pos_end - pos);
@@ -325,6 +326,7 @@ void TriggersFile::parse_trigger(int vnum) {
 			ptr->reset(new cmdlist_element());
 			indent_trigger(line, &indlev);
 			(*ptr)->cmd = line;
+			(*ptr)->line_num = num++;
 			ptr = &(*ptr)->next;
 
 			std::smatch match;
