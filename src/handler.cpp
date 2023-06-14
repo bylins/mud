@@ -1403,6 +1403,10 @@ const int kScriptDestroyTimer = 10; // * !!! Never set less than ONE * //
 */
 bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 //	int sect = 0;
+	if (world[room]->room_vn == 7699) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		log("SYSERR: какая то хрень опять лоад в виртуалке");
+	}
 	if (!object || room < kFirstRoom || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to PlaceObjToRoom. (Room #%d/%d, obj %p)",
