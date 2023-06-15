@@ -1792,7 +1792,7 @@ void find_replacement(void *go,
 						sprintf(str, "1");
 						return;
 					}
-					const auto count = count_obj_vnum(rnum);
+					const auto count = obj_proto.actual_count(rnum);
 					if (count < GET_OBJ_MIW(obj_proto[rnum])) {
 						sprintf(str, "1");
 						return;
