@@ -572,11 +572,6 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 			SendMsgToChar(SUMMON_FAIL, ch);
 			return;
 		}
-		if (!ch->IsNpc() && !victim->IsNpc() && GetRealLevel(victim) <= 10) {
-			ch->send_to_TC(true, true, true, "У чармиса резко понизился уровень!\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
-			return;
-		}
 
 		if (ROOM_FLAGGED(ch_room, ERoomFlag::kNoSummonOut)
 			|| ROOM_FLAGGED(ch_room, ERoomFlag::kDeathTrap)
