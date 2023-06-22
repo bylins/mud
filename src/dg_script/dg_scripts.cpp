@@ -752,7 +752,7 @@ void script_trigger_check() {
 				where = room;
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM_GLOBAL)) {
 				utils::CExecutionTimer timer;
-				random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
+				random_wtrigger(room, sc->trig_list);
 				amount = timer.delta().count();
 				sum += amount;
 				if (amount > alarge_amount) {

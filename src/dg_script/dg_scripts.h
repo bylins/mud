@@ -361,7 +361,7 @@ int damage_mtrigger(CharData *damager, CharData *victim, int amount, const char*
 void random_mtrigger(CharData *ch);
 void random_otrigger(ObjData *obj);
 Bitvector fight_otrigger(CharData *actor);
-void random_wtrigger(RoomData *room, int num, void *s, int types, const TriggersList &list);
+void random_wtrigger(RoomData *room, const TriggersList &list);
 void reset_wtrigger(RoomData *ch);
 void load_mtrigger(CharData *ch);
 void load_otrigger(ObjData *obj);
