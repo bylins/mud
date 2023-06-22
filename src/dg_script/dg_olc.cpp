@@ -278,33 +278,6 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				auto trigger_type = OLC_TRIG(d)->get_trigger_type();
 				TOGGLE_BIT(trigger_type, 1 << (i - 1));
 				OLC_TRIG(d)->set_trigger_type(trigger_type);
-/*				switch (OLC_TRIG(d)->get_attach_type()) {
-					case WLD_TRIGGER: {
-						for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
-							if (!SCRIPT(world[nr])->has_triggers())
-								continue;
-							auto sc = SCRIPT(world[nr]);
-							for (auto t : sc->trig_list) {
-								if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-									char smallbuf[32];
-									sprintf(smallbuf, "%d", OLC_NUM(d));
-									sc->remove_trigger(smallbuf);
-									add_trigger(world[nr]->script.get(), OLC_TRIG(d), -1);
-//									SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(OLC_TRIG(d));
-								}
-							}
-						}
-					}
-					break;
-					case OBJ_TRIGGER: {
-					}
-					break;
-					case MOB_TRIGGER: {
-					}
-					default:
-					break;
-				}
-*/
 			}
 			OLC_VAL(d)++;
 			trigedit_disp_types(d);
@@ -329,6 +302,67 @@ void sprintbyts(int data, char *dest) {
 		}
 	}
 	*p = '\0';
+}
+void TriggerDidistribution(DescriptorData *d) {
+
+	switch (OLC_TRIG(d)->get_attach_type()) {
+		case WLD_TRIGGER: 
+			for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
+				if (!SCRIPT(world[nr])->has_triggers())
+					continue;
+				auto sc = SCRIPT(world[nr]);
+				for (auto t : sc->trig_list) {
+					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
+						char smallbuf[32];
+						sprintf(smallbuf, "%d", OLC_NUM(d));
+						sc->remove_trigger(smallbuf);
+						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
+						if (!add_trigger(world[nr]->script.get(), trig, -1)) {
+							extract_trigger(trig);
+						}
+					}
+				}
+			}
+		break;
+		case MOB_TRIGGER:
+			for (auto &ch : character_list) {
+				if (!SCRIPT(ch)->has_triggers())
+					continue;
+				auto sc = SCRIPT(ch);
+				for (auto t : sc->trig_list) {
+					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
+						char smallbuf[32];
+						sprintf(smallbuf, "%d", OLC_NUM(d));
+						sc->remove_trigger(smallbuf);
+						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
+						if (!add_trigger(ch->script.get(), trig, -1)) {
+							extract_trigger(trig);
+						}
+					}
+				}
+			}
+		break;
+		case OBJ_TRIGGER:
+			world_objects.foreach_on_copy([&d](const ObjData::shared_ptr &obj_ptr) {
+				if (!obj_ptr->get_script()->has_triggers())
+					return;
+				auto sc = obj_ptr->get_script().get();
+				for (auto t : sc->trig_list) {
+					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
+						char smallbuf[32];
+						sprintf(smallbuf, "%d", OLC_NUM(d));
+						sc->remove_trigger(smallbuf);
+						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
+						if (!add_trigger(obj_ptr->get_script().get(), trig, -1)) {
+							extract_trigger(trig);
+						}
+					}
+				}
+			});
+		break;
+		default:
+		break;
+	}
 }
 
 // save the zone's triggers to internal memory and to disk
@@ -456,73 +490,13 @@ void trigedit_save(DescriptorData *d) {
 			}
 		}
 	}
-	switch (OLC_TRIG(d)->get_attach_type()) {
-		case WLD_TRIGGER: 
-			for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
-				if (!SCRIPT(world[nr])->has_triggers())
-					continue;
-				auto sc = SCRIPT(world[nr]);
-				for (auto t : sc->trig_list) {
-					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-						char smallbuf[32];
-						sprintf(smallbuf, "%d", OLC_NUM(d));
-						sc->remove_trigger(smallbuf);
-						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
-						if (!add_trigger(world[nr]->script.get(), trig, -1)) {
-							extract_trigger(trig);
-						}
-					}
-				}
-			}
-		break;
-		case MOB_TRIGGER:
-			for (auto &ch : character_list) {
-				if (!SCRIPT(ch)->has_triggers())
-					continue;
-				auto sc = SCRIPT(ch);
-				for (auto t : sc->trig_list) {
-					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-						char smallbuf[32];
-						sprintf(smallbuf, "%d", OLC_NUM(d));
-						sc->remove_trigger(smallbuf);
-						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
-						if (!add_trigger(ch->script.get(), trig, -1)) {
-							extract_trigger(trig);
-						}
-					}
-				}
-			}
-		break;
-		case OBJ_TRIGGER:
-			world_objects.foreach_on_copy([&d](const ObjData::shared_ptr &obj_ptr) {
-				auto obj = obj_ptr.get();
-				if (!obj->get_script()->has_triggers())
-					return;
-				auto sc = obj_ptr->get_script().get();
-				for (auto t : sc->trig_list) {
-					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-						char smallbuf[32];
-						sprintf(smallbuf, "%d", OLC_NUM(d));
-						sc->remove_trigger(smallbuf);
-						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
-						if (!add_trigger(obj->get_script().get(), trig, -1)) {
-							extract_trigger(trig);
-						}
-					}
-				}
-			});
-		break;
-		default:
-		break;
-	}
-
 	// now write the trigger out to disk, along with the rest of the  //
 	// triggers for this zone, of course                              //
 	// note: we write this to disk NOW instead of letting the builder //
 	// have control because if we lose this after having assigned a   //
 	// new trigger to an item, we will get SYSERR's upton reboot that //
 	// could make things hard to debug.                               //
-
+	TriggerDidistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
 
