@@ -303,23 +303,16 @@ void sprintbyts(int data, char *dest) {
 	}
 	*p = '\0';
 }
-void TriggerDidistribution(DescriptorData *d) {
-
+void TriggerDistribution(DescriptorData *d) {
 	switch (OLC_TRIG(d)->get_attach_type()) {
-		case WLD_TRIGGER: 
+		case WLD_TRIGGER: // в комнатах ссылка на прототип
 			for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
 				if (!SCRIPT(world[nr])->has_triggers())
 					continue;
-				auto sc = SCRIPT(world[nr]);
+				auto sc = SCRIPT(world[nr]); 
 				for (auto t : sc->trig_list) {
 					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-						char smallbuf[32];
-						sprintf(smallbuf, "%d", OLC_NUM(d));
-						sc->remove_trigger(smallbuf);
-						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
-						if (!add_trigger(world[nr]->script.get(), trig, -1)) {
-							extract_trigger(trig);
-						}
+						SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 					}
 				}
 			}
@@ -496,7 +489,7 @@ void trigedit_save(DescriptorData *d) {
 	// have control because if we lose this after having assigned a   //
 	// new trigger to an item, we will get SYSERR's upton reboot that //
 	// could make things hard to debug.                               //
-	TriggerDidistribution(d);
+	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
 
