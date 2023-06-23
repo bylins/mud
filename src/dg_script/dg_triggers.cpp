@@ -1224,7 +1224,7 @@ void reset_wtrigger(RoomData *room) {
 	}
 }
 
-void random_wtrigger(RoomData *room, int/* num*/, void * /*s*/, int/* types*/, const TriggersList & /*list*/) {
+void random_wtrigger(RoomData *room, const TriggersList &) {
 	if (!(CheckSript(room, WTRIG_RANDOM) || CheckSript(room, WTRIG_RANDOM_GLOBAL)))
 		return;
 

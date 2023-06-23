@@ -21,10 +21,13 @@
 #include "entities/char_data.h"
 #include "entities/zone.h"
 #include <sys/stat.h>
+#include "entities/world_characters.h"
+#include "structs/global_objects.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DescriptorData *descriptor_list;
 extern int top_of_trigt;
+extern void extract_trigger(Trigger *trig);
 
 // prototype externally defined functions
 void free_varlist(struct TriggerVar *vd);
@@ -300,6 +303,60 @@ void sprintbyts(int data, char *dest) {
 	}
 	*p = '\0';
 }
+void TriggerDistribution(DescriptorData *d) {
+	switch (OLC_TRIG(d)->get_attach_type()) {
+		case WLD_TRIGGER: // в комнатах ссылка на прототип
+			for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
+				if (!SCRIPT(world[nr])->has_triggers())
+					continue;
+				auto sc = SCRIPT(world[nr]); 
+				for (auto t : sc->trig_list) {
+					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
+						SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
+					}
+				}
+			}
+		break;
+		case MOB_TRIGGER:
+			for (auto &ch : character_list) {
+				if (!SCRIPT(ch)->has_triggers())
+					continue;
+				auto sc = SCRIPT(ch);
+				for (auto t : sc->trig_list) {
+					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
+						char smallbuf[32];
+						sprintf(smallbuf, "%d", OLC_NUM(d));
+						sc->remove_trigger(smallbuf);
+						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
+						if (!add_trigger(ch->script.get(), trig, -1)) {
+							extract_trigger(trig);
+						}
+					}
+				}
+			}
+		break;
+		case OBJ_TRIGGER:
+			world_objects.foreach_on_copy([&d](const ObjData::shared_ptr &obj_ptr) {
+				if (!obj_ptr->get_script()->has_triggers())
+					return;
+				auto sc = obj_ptr->get_script().get();
+				for (auto t : sc->trig_list) {
+					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
+						char smallbuf[32];
+						sprintf(smallbuf, "%d", OLC_NUM(d));
+						sc->remove_trigger(smallbuf);
+						auto trig = read_trigger(real_trigger(OLC_NUM(d)));
+						if (!add_trigger(obj_ptr->get_script().get(), trig, -1)) {
+							extract_trigger(trig);
+						}
+					}
+				}
+			});
+		break;
+		default:
+		break;
+	}
+}
 
 // save the zone's triggers to internal memory and to disk
 void trigedit_save(DescriptorData *d) {
@@ -426,14 +483,13 @@ void trigedit_save(DescriptorData *d) {
 			}
 		}
 	}
-
 	// now write the trigger out to disk, along with the rest of the  //
 	// triggers for this zone, of course                              //
 	// note: we write this to disk NOW instead of letting the builder //
 	// have control because if we lose this after having assigned a   //
 	// new trigger to an item, we will get SYSERR's upton reboot that //
 	// could make things hard to debug.                               //
-
+	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
 
