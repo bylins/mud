@@ -115,17 +115,14 @@ void go_bash(CharData *ch, CharData *vict) {
 		}
 
 		prob = 0; // если башем убил - лага не будет
+		vict->drop_from_horse();
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
-
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kGodsShield))) {
 			prob = 2;
-			if (!vict->drop_from_horse()) {
-				GET_POS(vict) = EPosition::kSit;
-				SetWait(vict, 3, false);
-				return;
-			}
+			GET_POS(vict) = EPosition::kSit;
+			SetWait(vict, 3, false);
 		}
 	}
 	SetWait(ch, prob, true);
