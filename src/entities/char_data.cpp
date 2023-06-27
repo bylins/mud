@@ -2148,7 +2148,7 @@ bool CharData::DropFromHorse() {
 	CharData *plr;
 
 	// вызвали для лошади
-	if (IS_HORSE(this) && this->get_master()->IsOnHorse())
+	if (IS_HORSE(this) && this->get_master()->IsOnHorse()) {
 		plr = this->get_master();
 		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
 	} else	if (this->IsOnHorse()) {// вызвали для седока
