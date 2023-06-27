@@ -115,7 +115,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		}
 
 		prob = 0; // если башем убил - лага не будет
-		vict->drop_from_horse();
+		vict->DropFromHorse();
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);

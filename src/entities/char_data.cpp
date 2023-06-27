@@ -2144,7 +2144,7 @@ bool CharData::IsHorsePrevents() {
 	return false;
 }
 
-bool CharData::drop_from_horse() {
+bool CharData::DropFromHorse() {
 	CharData *plr;
 
 	// вызвали для лошади

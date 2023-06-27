@@ -540,7 +540,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(victim))
-					victim->drop_from_horse();
+					victim->DropFromHorse();
 				act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Огромная глыба камня свалила вас на землю!", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -592,14 +592,14 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::kRiding, nullptr) * number(1, 6))
 					< GET_SKILL(ch, ESkill::kEarthMagic) * number(1, 6)) {//фейл
-					ch->drop_from_horse();
+					ch->DropFromHorse();
 					break;
 				}
 			}
 			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(ch))
-					ch->drop_from_horse();
+					ch->DropFromHorse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
 				GET_POS(victim) = EPosition::kSit;
@@ -1759,7 +1759,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].battleflag = kAfBattledec;
 			if (GET_POS(victim) > EPosition::kSleep && success) {
 				if (victim->IsOnHorse()) {
-					victim->drop_from_horse();
+					victim->DropFromHorse();
 				}
 				SendMsgToChar("Вы слишком устали... Спать... Спа...\r\n", victim);
 				act("$n прилег$q подремать.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);

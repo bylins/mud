@@ -834,7 +834,7 @@ class CharData : public ProtectedCharData {
 	bool IsOnHorse() const;
 	bool has_horse(bool same_room) const;
 	CharData *get_horse();
-	bool drop_from_horse();
+	bool DropFromHorse();
 	bool IsHorsePrevents();
 	void dismount();
 };
