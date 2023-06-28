@@ -30,7 +30,7 @@ bool stop_follower(CharData *ch, int mode) {
 
 	//log("[Stop ch] Stop horse");
 	if (ch->get_master()->get_horse() == ch && ch->get_master()->IsOnHorse()) {
-		ch->drop_from_horse();
+		ch->DropFromHorse();
 	} else {
 		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
 	}
