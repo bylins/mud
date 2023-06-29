@@ -366,7 +366,7 @@ class CharData : public ProtectedCharData {
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(const ESkill skill_id, int percent);
-	void set_skill(short remort);
+	void SetSkillAfterRemort(short remort);
 	void clear_skills();
 	int GetSkill(const ESkill skill_id) const;
 	int GetSkillWithoutEquip(const ESkill skill_id) const;
