@@ -996,6 +996,7 @@ void do_start(CharData *ch, int newbie) {
 	}
 
 	if (newbie) {
+		log("Create new player %s", GET_NAME(ch));
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (int & i : outfit_list) {
 			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(i);
