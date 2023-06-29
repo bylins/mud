@@ -627,13 +627,12 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 	}
 }
 
-void CharData::set_skill(short remort) {
-	int skill;
-	int maxSkillLevel = kZeroRemortSkillCap + remort * kSkillCapBonusPerRemort;
+void CharData::SetSkillAfterRemort(short remort) {
 	for (auto & it : skills) {
-		skill = GetMorphSkill(it.first) + GetEquippedSkill(it.first);
-		if (skill > maxSkillLevel) {
-			it.second.skillLevel = maxSkillLevel;
+		int maxSkillLevel = CalcSkillHardCap(this, it.first);
+
+		if (GetMorphSkill(it.first) > maxSkillLevel) {
+			set_skill(it.first, maxSkillLevel);
 		};
 	}
 }

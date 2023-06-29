@@ -5182,7 +5182,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
-		ch->set_skill(ch->get_remort());
+		ch->SetSkillAfterRemort(ch->get_remort());
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
