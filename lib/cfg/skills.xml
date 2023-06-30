@@ -107,4 +107,5 @@ mode - режим умения.
     <skill id="kCreateWand"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kMakeStaff"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kMakePotion"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
+    <skill id="kShieldBash"			name="удар щитом"			abbr="Ущ"	saving="kStability"	difficulty="200"	cap="1000"/>
 </skills>
