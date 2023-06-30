@@ -627,13 +627,12 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 	}
 }
 
-void CharData::set_skill(short remort) {
-	int skill;
-	int maxSkillLevel = kZeroRemortSkillCap + remort * kSkillCapBonusPerRemort;
+void CharData::SetSkillAfterRemort(short remort) {
 	for (auto & it : skills) {
-		skill = GetMorphSkill(it.first) + GetEquippedSkill(it.first);
-		if (skill > maxSkillLevel) {
-			it.second.skillLevel = maxSkillLevel;
+		int maxSkillLevel = CalcSkillHardCap(this, it.first);
+
+		if (GetMorphSkill(it.first) > maxSkillLevel) {
+			set_skill(it.first, maxSkillLevel);
 		};
 	}
 }
@@ -2142,30 +2141,29 @@ bool CharData::IsHorsePrevents() {
 		return true;
 	}
 	return false;
-};
+}
 
-bool CharData::drop_from_horse() {
-	CharData *plr = nullptr;
+bool CharData::DropFromHorse() {
+	CharData *plr;
+
 	// вызвали для лошади
 	if (IS_HORSE(this) && this->get_master()->IsOnHorse()) {
 		plr = this->get_master();
 		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
-	}
-	// вызвали для седока
-	if (this->IsOnHorse()) {
+	} else	if (this->IsOnHorse()) {// вызвали для седока
 		plr = this;
 		act("Вы упали с $N1.", false, plr, 0, this->get_horse(), kToChar);
-	}
-	if (plr == nullptr || !plr->IsOnHorse())
+	} else //не лошадь и не всадник
 		return false;
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	SetWaitState(plr, 3 * kBattleRound);
-	if (GET_POS(plr) > EPosition::kSit)
+	if (GET_POS(plr) > EPosition::kSit) {
 		GET_POS(plr) = EPosition::kSit;
+	}
 	return true;
-};
+}
 
 void CharData::dismount() {
 	if (!this->IsOnHorse() || this->get_horse() == nullptr)

@@ -194,7 +194,7 @@ void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/)
 									  GET_PAD(vict->get_horse(), 5));
 						act("$n0 зашатал$u и не смог$q усидеть на $N5.",
 							true, vict, nullptr, vict->get_horse(), kToNotVict);
-						vict->drop_from_horse();
+						vict->DropFromHorse();
 					} else {
 						SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
 									  CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
