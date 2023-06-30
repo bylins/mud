@@ -329,7 +329,8 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->GetMorphSkill(skillnum);
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
-
+	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
+			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
 	if (skill > ch->GetMorphSkill(skillnum)) {
 		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
