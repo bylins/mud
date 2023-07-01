@@ -26,6 +26,7 @@ mode - режим умения.
     <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPickLock"		name="взломать"			abbr="Вз"	saving="kReflex"	difficulty="120"	cap="200"/>
+    <skill id="kShieldBash"		name="удар щитом"		abbr="Ущ"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPunch"			name="кулачный бой"		abbr="Кб"	saving="kStability"	difficulty="100"	cap="1000"/>
     <skill id="kRescue"			name="спасти"			abbr="Спс"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kSneak"			name="подкрасться"		abbr="Пд"	saving="kWill"		difficulty="100"	cap="200"/>
@@ -107,5 +108,5 @@ mode - режим умения.
     <skill id="kCreateWand"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kMakeStaff"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
     <skill id="kMakePotion"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>
-    <skill id="kShieldBash"		name="удар щитом"		abbr="Ущ"	    saving="kStability"	difficulty="200"	cap="1000"/>
+
 </skills>
