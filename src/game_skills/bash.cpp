@@ -50,28 +50,28 @@ void go_bash(CharData *ch, CharData *vict) {
 	}
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kBash, success, vict);
-  //Удар щитом тренируется только, если держим щит.
-  if (GET_EQ(ch, kShield)) {
-    TrainSkill(ch, ESkill::kShieldBash, success, vict);
-  }
+	//Удар щитом тренируется только, если держим щит.
+	if (GET_EQ(ch, kShield)) {
+		TrainSkill(ch, ESkill::kShieldBash, success, vict);
+	}
 
 	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kBash).name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
-        //рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
-      if ((GET_SKILL(ch, ESkill::kShieldBash) >= (percent)) && GET_EQ(ch, kShield)) {
-        prob = 2;
-		act("Вам удалось удержаться на ногах.",
-			false, ch, nullptr, vict, kToChar);
-		act("$N0 смог$Q удержаться на ногах.",
-			false, vict, nullptr, ch, kToChar);
-		act("$N0 смог$Q удержаться на ногах.",
-			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-	  } else {
-		GET_POS(ch) = EPosition::kSit;
-		prob = 3;
-      }
+		//рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
+		if ((GET_SKILL(ch, ESkill::kShieldBash) >= (percent)) && GET_EQ(ch, kShield)) {
+			prob = 2;
+			act("Вам удалось удержаться на ногах.",
+				false, ch, nullptr, vict, kToChar);
+			act("$N0 смог$Q удержаться на ногах.",
+				false, vict, nullptr, ch, kToChar);
+			act("$N0 смог$Q удержаться на ногах.",
+				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+		} else {
+			GET_POS(ch) = EPosition::kSit;
+			prob = 3;
+		}
 	} else {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
 		if (GET_POS(vict) <= EPosition::kStun && vict->get_wait() > 0) {
