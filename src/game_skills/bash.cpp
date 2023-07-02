@@ -82,8 +82,8 @@ void go_bash(CharData *ch, CharData *vict) {
 
 		int dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
 			std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5 * GET_SKILL(ch, ESkill::kShieldBash) * 30;
-
-        //Если в соперник в холде, но у чара нет щита - дамаг от удара щитом не насчитывается, тоже самое если чар в осторожке:
+		
+		//Если в соперник в холде, но у чара нет щита - дамаг от удара щитом не насчитывается, тоже самое если чар в осторожке:
 		if ((AFF_FLAGGED(vict, EAffect::kHold) && (!GET_EQ(ch, kShield)))
 			|| PRF_FLAGGED(ch,kAwake)) {
 			dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
