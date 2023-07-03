@@ -17,7 +17,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
-	};
+	}
 
 	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
@@ -50,28 +50,28 @@ void go_bash(CharData *ch, CharData *vict) {
 	}
 	bool success = percent <= prob;
 	TrainSkill(ch, ESkill::kBash, success, vict);
-  //Удар щитом тренируется только, если держим щит.
-  if (GET_EQ(ch, kShield)) {
-    TrainSkill(ch, ESkill::kShieldBash, success, vict);
-  }
+	//Удар щитом тренируется только, если держим щит.
+	if (GET_EQ(ch, kShield)) {
+		TrainSkill(ch, ESkill::kShieldBash, success, vict);
+	}
 
 	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kBash).name, percent, prob, success);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
-        //рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
-      if ((GET_SKILL(ch, ESkill::kShieldBash) >= (percent)) && GET_EQ(ch, kShield)) {
-        prob = 2;
-        act("Вам удалось удержаться на ногах.",
-            false, ch, nullptr, vict, kToChar);
-        act("$N0 смог$Q удержаться на ногах.",
-            false, vict, nullptr, ch, kToChar);
-        act("$N0 смог$Q удержаться на ногах.",
-            false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-      } else {
-		GET_POS(ch) = EPosition::kSit;
-		prob = 3;
-      }
+		//рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
+		if ((GET_SKILL(ch, ESkill::kShieldBash) >= (percent)) && GET_EQ(ch, kShield)) {
+			prob = 2;
+			act("Вам удалось удержаться на ногах.",
+				false, ch, nullptr, vict, kToChar);
+			act("$N0 смог$Q удержаться на ногах.",
+				false, vict, nullptr, ch, kToChar);
+			act("$N0 смог$Q удержаться на ногах.",
+				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+		} else {
+			GET_POS(ch) = EPosition::kSit;
+			prob = 3;
+		}
 	} else {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
 		if (GET_POS(vict) <= EPosition::kStun && vict->get_wait() > 0) {
@@ -79,15 +79,16 @@ void go_bash(CharData *ch, CharData *vict) {
 			ch->setSkillCooldown(ESkill::kGlobalCooldown, kBattleRound);
 			return;
 		}
-
-		int dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
-			std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5 * GET_SKILL(ch, ESkill::kShieldBash) * 30;
-      //Если в соперник в холде, но у чара нет щита - дамаг от удара щитом не насчитывается, тоже самое если чар в осторожке:
-      if ((AFF_FLAGGED(vict, EAffect::kHold) && (!GET_EQ(ch, kShield)))
-          || PRF_FLAGGED(ch,kAwake)) {
-        dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
-              std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5;
-      }
+		//Дамаг от баша+удара щитом
+		//Удар щитом не будет работать, если персонаж в осторожке, если нет щита, или если нет умения.
+		int dam;
+		if ((!ch->GetSkill(ESkill::kShieldBash)) || (!GET_EQ(ch, kShield)) || (PRF_FLAGGED(ch,kAwake))) {
+			dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
+					std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5;
+		} else {
+			dam = number(ceil(((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) + (GET_SKILL(ch,ESkill::kShieldBash) * 10)) / 1.25),
+						 ceil(((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) + (GET_SKILL(ch,ESkill::kShieldBash) * 10)) * 1.25));
+		}
 
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
@@ -157,7 +158,7 @@ void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->HasCooldown(ESkill::kBash)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
-	};
+	}
 
 	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
