@@ -1834,6 +1834,7 @@ const char *godslike_bits[] =
 		"DEMIGOD",
 		"PERSLOG",
 		"TESTER",
+		"SKILLTESTER",
 		"\n"
 	};
 
