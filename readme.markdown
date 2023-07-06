@@ -9,7 +9,7 @@ git clone --recurse-submodules https://github.com/bylins/mud
 
 cd mud
 
-mv -n lib.template/* lib
+cp -n -r lib.template/* lib
 
 mkdir build
 
