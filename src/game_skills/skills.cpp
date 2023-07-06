@@ -1270,13 +1270,13 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 		   << " Saving: " << save
 		   << KNRM << std::endl;
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
-	if (GET_GOD_FLAG(ch, EGf::kSkillTester)) {
+	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
 		buffer << "SKILLTEST:;" << GET_NAME(ch)
 			   << ";Skill;" << MUD::Skill(skill_id).name
 			   << ";Total_Percent;" << result.SkillRate
 			   << ";ActorRate;" << actor_rate
-			   << ";Victim;" << victim->get_name()
+			   << ";Victim " << victim->get_name() << "(" << GET_MOB_VNUM(victim) << ");"
 			   << ";V.Rate;" << victim_rate
 			   << ";Difficulty;" << MUD::Skill(skill_id).difficulty
 			   << ";Percent;"<< roll
@@ -1828,10 +1828,11 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 	} else if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		total_percent = 0;
 	}
-	if (GET_GOD_FLAG(ch, EGf::kSkillTester)) {
-		log("SKILLTEST:;%s;Target;%s;skill;%s;base_percent;%d;bonus;%d;victim_save;%d;victim_modi;%d;total_percent;%d;удача;%s",
+	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
+		log("SKILLTEST:;%s;Target %s (%d);skill;%s;base_percent;%d;bonus;%d;victim_save;%d;victim_modi;%d;total_percent;%d;удача;%s",
 			GET_NAME(ch),
 			vict ? GET_NAME(vict) : "NULL",
+			vict ? GET_MOB_VNUM(vict) : -1,
 			MUD::Skill(skill_id).GetName(),
 			base_percent,
 			bonus,
