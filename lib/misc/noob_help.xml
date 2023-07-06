@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<noob_help>
+	<!-- кого мы в коде (и тригах через %actor.is_noob%)
+		считаем нубом (0 мортов подразумевается), уровень включительно -->
+	<noob max_lvl="15" />
+	<!-- стаф для всех проф -->
+	<all_classes>
+		<!-- холщовый мешок -->
+		<obj vnum="2189" />
+		<!-- фляга -->
+		<obj vnum="2182" />
+		<!-- свечка -->
+		<obj vnum="2186" />
+		<!-- каравай -->
+		<obj vnum="2005" />
+		<!-- луковица -->
+		<obj vnum="2049" />
+	</all_classes>
+	<!-- волхв -->
+	<class id="kMagus">
+		<!-- руны -->
+		<obj vnum="222" />
+		<obj vnum="223" />
+		<obj vnum="224" />
+		<obj vnum="225" />
+		<!-- дубина/портки -->
+		<obj vnum="2212" />
+		<obj vnum="2102" />
+	</class>
+	<!-- лекарь -->
+	<class id="kSorcerer">
+		<!-- дубина/портки -->
+		<obj vnum="2212" />
+		<obj vnum="2102" />
+	</class>
+	<!-- чернокнижник -->
+	<class id="kNecromancer">
+		<!-- дубина/портки -->
+		<obj vnum="2212" />
+		<obj vnum="2102" />
+	</class>
+	<!-- тать -->
+	<class id="kThief">
+		<!-- кинжал(проник)/портки -->
+		<obj vnum="2214" />
+		<obj vnum="2102" />
+	</class>
+	<!-- наемник -->
+	<class id="kAssasine">
+		<!-- кинжал(проник)/портки -->
+		<obj vnum="2214" />
+		<obj vnum="2102" />
+	</class>
+	<!-- купец -->
+	<class id="kMerchant">
+		<!-- кинжал(проник)/портки -->
+		<obj vnum="2214" />
+		<obj vnum="2102" />
+	</class>
+	<!-- кудесник -->
+	<class id="kCharmer">
+		<!-- нож(короткое)/портки -->
+		<obj vnum="2208" />
+		<obj vnum="2102" />
+	</class>
+	<!-- волшебник -->
+	<class id="kWizard">
+		<!-- нож(короткое)/портки -->
+		<obj vnum="2208" />
+		<obj vnum="2102" />
+	</class>
+	<!-- колдун -->
+	<class id="kConjurer">
+		<!-- нож(короткое)/портки -->
+		<obj vnum="2208" />
+		<obj vnum="2102" />
+	</class>
+	<!-- богатырь -->
+	<class id="kWarrior">
+		<!-- доспех/перчи/поножи -->
+		<obj vnum="2116" />
+		<obj vnum="2120" />
+		<obj vnum="2118" />
+	</class>
+	<!-- дружинник -->
+	<class id="kGuard">
+		<!-- шлем/доспех/меч/поножи -->
+		<obj vnum="2117" />
+		<obj vnum="2116" />
+		<obj vnum="2202" />
+		<obj vnum="2118" />
+	</class>
+	<!-- витязь -->
+	<class id="kPaladine">
+		<!-- доспех/меч/поножи -->
+		<obj vnum="2116" />
+		<obj vnum="2202" />
+		<obj vnum="2118" />
+	</class>
+	<!-- охотник -->
+	<class id="kRanger">
+		<!-- куртка/лук/портки -->
+		<obj vnum="2100" />
+		<obj vnum="2210" />
+		<obj vnum="2102" />
+	</class>
+	<!-- кузнец -->
+	<class id="kVigilant">
+		<!-- доспех/секира/поножи -->
+		<obj vnum="2116" />
+		<obj vnum="2216" />
+		<obj vnum="2118" />
+	</class>
+</noob_help>
