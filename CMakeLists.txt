@@ -542,7 +542,7 @@ set(HEADERS
 		src/feats_constants.h
 		src/game_abilities/talents_actions.h)
 
-set(CONFIGURATION_FILES lib/misc/configuration.xml)
+#set(CONFIGURATION_FILES lib/misc/configuration.xml)
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 if (NOT MSVC)

@@ -253,7 +253,7 @@
     <feat id="kLegibleWritting" name="чёткий почерк" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kMamaRegen" val="25" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
+                <apply location="kManaRegen" val="25" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>

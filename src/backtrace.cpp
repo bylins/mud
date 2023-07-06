@@ -30,6 +30,8 @@ void win32_backtrace(FILE* file)
 		SymFromAddr(process, reinterpret_cast<DWORD64>(stack[i]), 0, symbol);
 		fprintf(file, "%02d: %s at 0x%08llx\n",
 			frames - i - 1, symbol->Name, static_cast<unsigned long long>(symbol->Address));
+		printf("%02d: %s at 0x%08llx\n",
+			frames - i - 1, symbol->Name, static_cast<unsigned long long>(symbol->Address));
 	}
 	free(symbol);
 }
