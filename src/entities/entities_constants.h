@@ -305,7 +305,8 @@ enum EGf : Bitvector {
 	kRemort = 1 << 3,
 	kDemigod = 1 << 4,    // Морталы с привилегиями богов //
 	kPerslog = 1 << 5,
-	kAllowTesterMode = 1 << 6
+	kAllowTesterMode = 1 << 6,
+	kSkillTester = 1 << 7
 };
 
 /**

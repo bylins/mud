@@ -391,12 +391,12 @@ struct show_struct show_fields[] = {
 };
 
 std::pair<int, int> TotalMemUse(){
+#ifdef __linux__
 	FILE *fl;
 	char name[256], line[1024];
 	int mem = 0, vmem = 0, pmem = 0;
 	pid_t pid = getpid();
 
-// если не linux будет -1, кому надо под виндой переделайте
 	sprintf(name, "/proc/%d/status", pid);
 	if (!(fl = fopen(name,"r"))) {
 		log("Cann't open process files...");
@@ -415,6 +415,9 @@ std::pair<int, int> TotalMemUse(){
 	}
 	fclose(fl);
 	return std::make_pair(vmem, pmem);
+#else
+	return std::make_pair(-1, -1);
+#endif
 }
 
 void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

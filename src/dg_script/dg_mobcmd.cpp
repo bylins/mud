@@ -206,7 +206,6 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
  * items using all.xxxxx or just plain all of them
  */
 void do_mjunk(CharData *ch, char */*argument*/, int/* cmd*/, int/* subcmd*/, Trigger *) {
-	char arg[kMaxInputLength];
 	int pos;
 	ObjData *obj;
 	ObjData *obj_next;
@@ -217,9 +216,12 @@ void do_mjunk(CharData *ch, char */*argument*/, int/* cmd*/, int/* subcmd*/, Tri
 		obj_next = obj->get_next_content();
 		ExtractObjFromWorld(obj, false);
 	}
-	while ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos))) {
-		UnequipChar(ch, pos, CharEquipFlags());
-		ExtractObjFromWorld(obj, false);
+	for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
+		obj = GET_EQ(ch, pos);
+		if (obj) {
+			UnequipChar(ch, pos, CharEquipFlags());
+			ExtractObjFromWorld(obj, false);
+		}
 	}
 }
 

@@ -5105,10 +5105,15 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}
-	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
+/*	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
 		SendMsgToChar(ch,
 					  "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
 					  "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
+		return;
+	}
+*/
+	if (ch->get_remort() > kMaxRemort) {
+		SendMsgToChar("Достигнуто максимальное количество перевоплощений.\r\n", ch);
 		return;
 	}
 	if (NORENTABLE(ch)) {
@@ -5188,7 +5193,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			GET_SPELL_MEM(ch, spell_id) = 0;
 		}
 	} else {
-		ch->set_skill(ch->get_remort());
+		ch->SetSkillAfterRemort(ch->get_remort());
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (IS_MANA_CASTER(ch)) {
 				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;

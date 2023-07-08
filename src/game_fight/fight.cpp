@@ -114,9 +114,9 @@ void update_pos(CharData *victim) {
 
 	// поплохело седоку или лошади - сбрасываем седока
 	if (victim->IsOnHorse() && GET_POS(victim) < EPosition::kFight)
-		victim->drop_from_horse();
+		victim->DropFromHorse();
 	if (IS_HORSE(victim) && GET_POS(victim) < EPosition::kFight && victim->get_master()->IsOnHorse())
-		victim->drop_from_horse();
+		victim->DropFromHorse();
 }
 
 void set_battle_pos(CharData *ch) {
@@ -1643,7 +1643,7 @@ void using_mob_skills(CharData *ch) {
 					if (damager->IsOnHorse()) {
 						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.
 						if (damager->get_horse() == ch) {
-							ch->drop_from_horse();
+							ch->DropFromHorse();
 						} else {
 							sk_use = 0;
 							go_bash(ch, damager->get_horse());

@@ -752,7 +752,7 @@ void script_trigger_check() {
 				where = room;
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM_GLOBAL)) {
 				utils::CExecutionTimer timer;
-				random_wtrigger(room, room->room_vn, sc, sc->types, sc->trig_list);
+				random_wtrigger(room, sc->trig_list);
 				amount = timer.delta().count();
 				sum += amount;
 				if (amount > alarge_amount) {
@@ -1792,7 +1792,7 @@ void find_replacement(void *go,
 						sprintf(str, "1");
 						return;
 					}
-					const auto count = count_obj_vnum(rnum);
+					const auto count = obj_proto.actual_count(rnum);
 					if (count < GET_OBJ_MIW(obj_proto[rnum])) {
 						sprintf(str, "1");
 						return;

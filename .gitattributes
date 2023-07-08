@@ -3,6 +3,7 @@
 /lib.template/**  working-tree-encoding=KOI8-R
 /lib/text/help/** working-tree-encoding=KOI8-R
 /lib/etc/board/** working-tree-encoding=KOI8-R
+/lib/misc/** working-tree-encoding=KOI8-R
 /lib/cfg/** working-tree-encoding=KOI8-R
 /bin.win/**       working-tree-encoding=windows-1251
 *.dll             -diff -working-tree-encoding

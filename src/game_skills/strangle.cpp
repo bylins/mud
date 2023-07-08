@@ -70,7 +70,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 					false, vict, nullptr, ch, kToVict);
 				act("Рванув на себя, $N стащил$G $n3 на землю.",
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-				vict->drop_from_horse();
+				vict->DropFromHorse();
 			}
 			if (ch->GetSkill(ESkill::kChopoff) && ch->isInSameRoom(vict)) {
 				go_chopoff(ch, vict);

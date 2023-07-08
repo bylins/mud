@@ -89,7 +89,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			if (percent < prob) {
 				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
 			} else {
-				vict->drop_from_horse();
+				vict->DropFromHorse();
 				SetWait(vict, 1, false); //лошади тоже немнога лагу
 			}
 		} else {

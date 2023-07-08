@@ -59,7 +59,7 @@ enum class ESkill : int {
 	kSkinning = 11,
 	kMultiparry = 12,
 	kReforging = 13,
-						/* Просвет почему-то */
+	kShieldBash = 14,
 	kLeadership = 20,
 	kPunctual = 21,
 	kAwake = 22,

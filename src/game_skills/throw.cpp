@@ -37,7 +37,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			to_room = "Копье $N1 сбило $n3 наземь!";
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
-					technique.GetRival()->drop_from_horse();
+					technique.GetRival()->DropFromHorse();
 				} else { // иначе просто садится на попу с лагом 2
 					GET_POS(technique.GetRival()) = std::min(GET_POS(technique.GetRival()), EPosition::kSit);
 					SetWait(technique.GetRival(), 2, false);

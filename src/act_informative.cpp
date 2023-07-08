@@ -3194,8 +3194,10 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
-			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode) || PRF_FLAGGED(tch, EPrf::kTester)))
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kSkillTester)))
+				sprintf(buf + strlen(buf), " &G(СКИЛЛТЕСТЕР!)&n");
 			if (IS_GOD(ch) && (PLR_FLAGGED(tch, EPlrFlag::kAutobot)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))

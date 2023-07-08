@@ -39,6 +39,7 @@
         <skill id="kParry"			level="10"	remort="0"	improve="4000"/>
         <skill id="kFirstAid"		level="10"	remort="0"	improve="53500"/>
         <skill id="kBash"			level="10"	remort="0"	improve="3500"/>
+        <skill id="kShieldBash"			level="10"	remort="0"	improve="3500"/>
         <skill id="kShieldBlock"	level="10"	remort="0"	improve="400"/>
         <skill id="kWarcry"			level="10"	remort="6"	improve="14000"/>
         <skill id="kStun"			level="28"	remort="0"	improve="38199"/>

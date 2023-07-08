@@ -1,5 +1,6 @@
 #include "structs/global_objects.h"
 #include "color.h"
+#include "backtrace.h"
 
 #include <iostream>
 
@@ -84,6 +85,7 @@ void vlog(const char *format, va_list args, FILE *logfile) {
 	}
 
 	if (logfile == nullptr) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		puts("SYSERR: Using log() before stream was initialized!");
 		return;
 	}
