@@ -18,8 +18,8 @@ extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
 
 const std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	const auto search_element = accounts.find(email);
-	if (search_element != accounts.end()) {
-		return search_element->second;
+	if (accounts.contains(email)) {
+		return accounts[email];
 	}
 	return nullptr;
 }
@@ -92,6 +92,7 @@ void Account::list_players(DescriptorData *d) {
 	std::stringstream ss;
 	purge_erased();
 	ss << "Данные аккаунта: " << this->email << std::endl;
+	SEND_TO_Q(ss.str().c_str(), d);
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
 		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);

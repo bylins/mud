@@ -1108,11 +1108,14 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 	this->account = Account::get_account(GET_EMAIL(this));
 	if (this->account == nullptr) {
+		log("Create account %s for player name %s", GET_EMAIL(this), name);
 		const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
 		accounts.emplace(GET_EMAIL(this), temp_account);
 		this->account = temp_account;
 	}
+	log("Add account %s player id %d  name %s", GET_EMAIL(this), this->get_uid(), name);
 	this->account->add_player(this->get_uid());
+
 
 	if (reboot) {
 		fbclose(fl);

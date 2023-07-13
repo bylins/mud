@@ -2057,7 +2057,6 @@ int check_dupes_email(DescriptorData *d) {
 }
 
 void add_logon_record(DescriptorData *d) {
-	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
 	d->character->get_account()->add_login(std::string(d->host));
 
@@ -2074,14 +2073,13 @@ void add_logon_record(DescriptorData *d) {
 		logon->lasttime = time(nullptr);
 	}
 
-	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
+	int pos = d->character->get_pfilepos();
 	if (pos >= 0) {
 		if (player_table[pos].last_ip)
 			free(player_table[pos].last_ip);
 		player_table[pos].last_ip = str_dup(d->host);
 		player_table[pos].last_logon = LAST_LOGON(d->character);
 	}
-	log("Exit logon list");
 }
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
@@ -2666,7 +2664,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	}
 	d->character->save_char();
 	d->character->get_account()->set_last_login();
-	d->character->get_account()->add_player(GetUniqueByName(d->character->get_name()));
+	d->character->get_account()->add_player(d->character->get_uid());
 
 	// добавляем в список ждущих одобрения
 	if (!(int) NAME_FINE(d->character)) {
@@ -3664,7 +3662,7 @@ void nanny(DescriptorData *d, char *arg) {
 				SEND_TO_Q(buf, d);
 				sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-				d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
+				d->character->get_account()->remove_player(d->character->get_uid());
 				STATE(d) = CON_CLOSE;
 				return;
 			} else {
