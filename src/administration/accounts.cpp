@@ -135,18 +135,13 @@ void Account::read_from_file2() {
 	std::string line;
 	std::ifstream in(LIB_ACCOUNTS + this->email);
 	std::vector<std::string> tmp;
+
 	if (in.is_open()) {
 		while (getline(in, line)) {
 			sprintf(buf, "Читаем строку %s", line.c_str());
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			tmp = utils::Split(line);
 			if (line.starts_with("DaiQ: ")) {
-				utils::Split(tmp, line);
-				for (auto x : tmp) {
-					sprintf(buf, "пишем tmp %s", x.c_str());
-					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				}
-					sprintf(buf, "пишем tmp через строку %s %s %s %s", tmp[0].c_str(),tmp[1].c_str(),tmp[2].c_str(),tmp[3].c_str());
-					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				DQuest tmp_quest;
 				tmp_quest.id = atoi(tmp[1].c_str());
 				tmp_quest.count = atoi(tmp[2].c_str());

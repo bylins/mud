@@ -587,7 +587,7 @@ void load() {
 		int to_uid = -1;
 		// вытаскиваем дату, отправителя и получателя
 		std::vector<std::string> param_list;
-		utils::Split(param_list, header);
+		param_list = utils::Split(header);
 		if (param_list.size() == 3) {
 			message.date = coder::from_iso8601(param_list[0]);
 			try {
