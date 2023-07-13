@@ -130,6 +130,8 @@ class PlayerI {
 	virtual void add_nogata(int /* value */) {};
 
 	virtual void dquest(int /*id */) {};
+	virtual void complete_quest(int /*id */) {};
+	virtual void read_account() {};
 	int get_count_daily_quest(int /*id*/) { return 0; };
 	void add_daily_quest(int /*id*/, int /*count*/) {};
 	void spent_hryvn_sub(int /*value*/) {};

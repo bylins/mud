@@ -2225,7 +2225,7 @@ void do_entergame(DescriptorData *d) {
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
 	char_to_room(d->character, load_room);
-
+	d->character->read_account();
 	// а потом уже вычитаем за ренту
 	if (GetRealLevel(d->character) != 0) {
 		Crash_load(d->character.get());

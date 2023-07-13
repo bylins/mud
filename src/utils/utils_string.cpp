@@ -133,6 +133,8 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 void Split(std::vector<std::string> &tokens, const std::string &s, char delimiter) {
 	std::string token;
 	std::istringstream tokens_stream(s);
+
+	tokens.clear();
 	while (std::getline(tokens_stream, token, delimiter)) {
 		utils::Trim(token);
 		tokens.push_back(token);
