@@ -755,12 +755,6 @@ int main_function(int argc, char **argv) {
 	 */
 	printf("%s\r\n", circlemud_version);
 	printf("%s\r\n", DG_SCRIPT_VERSION);
-	getcwd(cwd, sizeof(cwd));
-	if (chdir(dir) < 0) {
-		printf("Current directory '%s', data directory '%s'.\r\n", cwd, dir);
-		perror("\r\nSYSERR: Fatal error changing to data directory");
-		exit(1);
-	}
 	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
 	runtime_config.load();
 	if (runtime_config.msdp_debug()) {
@@ -770,6 +764,11 @@ int main_function(int argc, char **argv) {
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();
 	log_code_date();
+	getcwd(cwd, sizeof(cwd));
+	if (chdir(dir) < 0) {
+		perror("\r\nSYSERR: Fatal error changing to data directory");
+		exit(1);
+	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
 		world_loader.boot_world();
