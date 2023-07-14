@@ -18,8 +18,8 @@ extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
 
 const std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	const auto search_element = accounts.find(email);
-	if (search_element != accounts.end()) {
-		return search_element->second;
+	if (accounts.contains(email)) {
+		return accounts[email];
 	}
 	return nullptr;
 }
@@ -92,6 +92,7 @@ void Account::list_players(DescriptorData *d) {
 	std::stringstream ss;
 	purge_erased();
 	ss << "Данные аккаунта: " << this->email << std::endl;
+	SEND_TO_Q(ss.str().c_str(), d);
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
 		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
@@ -126,17 +127,18 @@ void Account::read_from_file() {
 	std::string line;
 	std::ifstream in(LIB_ACCOUNTS + this->email);
 	std::vector<std::string> tmp;
+
 	if (in.is_open()) {
 		while (getline(in, line)) {
+			tmp = utils::Split(line);
 			if (line.starts_with("DaiQ: ")) {
-				utils::Split(tmp, line);
 				DQuest tmp_quest;
 				tmp_quest.id = atoi(tmp[1].c_str());
 				tmp_quest.count = atoi(tmp[2].c_str());
 				tmp_quest.time = atoi(tmp[3].c_str());
 				this->dquests.push_back(tmp_quest);
 			}
-			if (line.starts_with("hl: ")) {
+/*			if (line.starts_with("hl: ")) {
 				utils::Split(tmp, line);
 				login_index tmp_li;
 				tmp_li.count = atoi(tmp[2].c_str());
@@ -155,6 +157,7 @@ void Account::read_from_file() {
 				utils::Split(tmp, line);
 				this->last_login = atoi(tmp[1].c_str());
 			}
+*/
 		}
 		in.close();
 	}

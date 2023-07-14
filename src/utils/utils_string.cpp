@@ -130,13 +130,16 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 	}
 }
 
-void Split(std::vector<std::string> &tokens, const std::string &s, char delimiter) {
+std::vector<std::string> Split(const std::string s, char delimiter) {
 	std::string token;
 	std::istringstream tokens_stream(s);
+	std::vector<std::string> tokens;
+
 	while (std::getline(tokens_stream, token, delimiter)) {
 		utils::Trim(token);
 		tokens.push_back(token);
 	}
+	return tokens;
 }
 
 std::string SubstToLow(std::string s) {
