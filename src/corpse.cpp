@@ -153,7 +153,7 @@ void init() {
 		}
 		std::string tmp_str = parse::ReadAattrAsStr(node, "sects");
 		std::vector<std::string> strs;
-		utils::Split(strs, tmp_str);
+		strs = utils::Split(tmp_str);
 		for (const auto &i : strs) {
 			tmp.sects.push_back(std::stoi(i));
 		}

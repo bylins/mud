@@ -118,7 +118,7 @@ void ConvertToLow(char *text);
  * @param s - разделяемая строка.
  * @param delimiter - символ-разделитель, по умолчаниб - пробел.
  */
-void Split(std::vector<std::string> &tokens, const std::string &s, char delimiter = ' ');
+std::vector<std::string> Split(const std::string s, char delimiter = ' ');
 
 /**
  * Обрезать пробелы слева.

@@ -1246,7 +1246,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("Resistances") {
 		std::vector<std::string> array_string;
-		utils::Split(array_string, value);
+		array_string = utils::Split(value);
 		if (array_string.size() < 7 || array_string.size() > EResist::kLastResist + 1) {
 			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;

@@ -253,9 +253,7 @@ void ReadAsIntSet(std::unordered_set<int> &num_set, const char *value) {
 		throw std::runtime_error("string is empty");
 	}
 
-	std::vector<std::string> str_array;
-	utils::Split(str_array, value, '|');
-	for (const auto &str : str_array) {
+	for (const auto &str : utils::Split(value, '|')) {
 		try {
 			num_set.emplace(std::stoi(str, nullptr));
 		} catch (...) {
