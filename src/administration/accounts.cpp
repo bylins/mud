@@ -17,7 +17,6 @@ extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
 #endif
 
 const std::shared_ptr<Account> Account::get_account(const std::string &email) {
-	const auto search_element = accounts.find(email);
 	if (accounts.contains(email)) {
 		return accounts[email];
 	}
