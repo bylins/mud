@@ -52,9 +52,6 @@ void Account::complete_quest(int id) {
 		if (x.id == id) {
 			x.count += 1;
 			x.time = time(0);
-			sprintf(buf, "Найден квест id %d всего %d", id, x.count);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 			return;
 		}
 	}
@@ -62,8 +59,6 @@ void Account::complete_quest(int id) {
 	dq_tmp.id = id;
 	dq_tmp.count = 1;
 	dq_tmp.time = time(0);
-	sprintf(buf, "Добавляем новый квест id %d", dq_tmp.id);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	this->dquests.push_back(dq_tmp);
 }
 
@@ -115,9 +110,6 @@ void Account::save_to_file() {
 	if (out.is_open()) {
 		for (const auto &x : this->dquests) {
 			out << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
-			sprintf(buf, "Пишем квест id %d  count %d", x.id, x.count);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 		}
 		for (const auto &x : this->history_logins) {
 			out << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
@@ -131,15 +123,13 @@ void Account::save_to_file() {
 	out.close();
 }
 
-void Account::read_from_file2() {
+void Account::read_from_file() {
 	std::string line;
 	std::ifstream in(LIB_ACCOUNTS + this->email);
 	std::vector<std::string> tmp;
 
 	if (in.is_open()) {
 		while (getline(in, line)) {
-			sprintf(buf, "Читаем строку %s", line.c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			tmp = utils::Split(line);
 			if (line.starts_with("DaiQ: ")) {
 				DQuest tmp_quest;
@@ -147,9 +137,6 @@ void Account::read_from_file2() {
 				tmp_quest.count = atoi(tmp[2].c_str());
 				tmp_quest.time = atoi(tmp[3].c_str());
 				this->dquests.push_back(tmp_quest);
-			sprintf(buf, "Читаем квест id %d  count %d", tmp_quest.id, tmp_quest.count);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 			}
 /*			if (line.starts_with("hl: ")) {
 				utils::Split(tmp, line);
@@ -210,7 +197,7 @@ void Account::set_last_login() {
 
 Account::Account(const std::string &email) {
 	this->email = email;
-//	this->read_from_file();
+	this->read_from_file();
 	this->hash_password = "";
 	this->last_login = 0;
 }

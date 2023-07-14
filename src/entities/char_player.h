@@ -156,7 +156,6 @@ class Player : public CharData {
 	void add_hryvn(int value);
 	void dquest(int id);
 	void complete_quest(int id);
-	void read_account();
 	int get_nogata();
 	void set_nogata(int value);
 	void sub_nogata(int value);

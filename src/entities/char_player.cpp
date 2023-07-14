@@ -237,10 +237,6 @@ void Player::complete_quest(const int id) {
 	this->account->complete_quest(id);
 }
 
-void Player::read_account() {
-	this->account->read_from_file2();
-}
-
 void Player::dquest(const int id) {
 	const auto quest = MUD::daily_quests().find(id);
 

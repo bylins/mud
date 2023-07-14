@@ -48,7 +48,7 @@ class Account {
 	void purge_erased();
 	Account(const std::string &name);
 	void save_to_file();
-	void read_from_file2();
+	void read_from_file();
 	std::string get_email();
 	bool quest_is_available(int id);
 	int zero_hryvn(CharData *ch, int val);
