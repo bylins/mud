@@ -64,7 +64,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		//рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
 		percent = number(1, MUD::Skill(ESkill::kShieldBash).difficulty);
 		prob = CalcCurrentSkill(ch, ESkill::kShieldBash, vict);
-		if (prob >= percent) && GET_EQ(ch, kShield)) {
+		if (prob >= percent && GET_EQ(ch, kShield)) {
             lag = 2;
 			act("Вам удалось удержаться на ногах.",
 				false, ch, nullptr, vict, kToChar);
