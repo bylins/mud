@@ -41,6 +41,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	int percent = number(1, MUD::Skill(ESkill::kBash).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
+	int lag;
 
 	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		prob = percent;
@@ -59,9 +60,12 @@ void go_bash(CharData *ch, CharData *vict) {
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 		dmg.Process(ch, vict);
+
 		//рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
-		if ((GET_SKILL(ch, ESkill::kShieldBash) >= (percent)) && GET_EQ(ch, kShield)) {
-			prob = 2;
+		percent = number(1, MUD::Skill(ESkill::kShieldBash).difficulty);
+		prob = CalcCurrentSkill(ch, ESkill::kShieldBash, vict);
+		if (prob >= percent) && GET_EQ(ch, kShield)) {
+            lag = 2;
 			act("Вам удалось удержаться на ногах.",
 				false, ch, nullptr, vict, kToChar);
 			act("$N0 смог$Q удержаться на ногах.",
@@ -70,7 +74,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 		} else {
 			GET_POS(ch) = EPosition::kSit;
-			prob = 3;
+            lag = 3;
 		}
 	} else {
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
@@ -136,18 +140,18 @@ void go_bash(CharData *ch, CharData *vict) {
 			}
 		}
 
-		prob = 0; // если башем убил - лага не будет
+        lag = 0; // если башем убил - лага не будет
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 		vict->DropFromHorse();
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kGodsShield))) {
-			prob = 2;
+            lag = 2;
 			GET_POS(vict) = EPosition::kSit;
 			SetWait(vict, 3, false);
 		}
 	}
-	SetWait(ch, prob, true);
+	SetWait(ch, lag, true);
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
