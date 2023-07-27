@@ -1218,15 +1218,19 @@ int backstab_mult(int level) {
 }
 
 /**
-* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
-* Влияение по 50% от скилла и дексы, максимум 36,18%.
+* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30) для вовровского удара,
+* для остального в учет только ловку
 */
 int calculate_crit_backstab_percent(CharData *ch) {
-	return static_cast<int>(ch->GetSkill(ESkill::kBackstab) / 11.0 + (GetRealDex(ch) - 20) / (GetRealDex(ch) / 30.0));
+	float percent = ((GetRealDex(ch) -20) / (GetRealDex(ch) / 30.0));
+	if (CanUseFeat(ch, EFeat::kThieveStrike))
+		percent += (ch->GetSkill(ESkill::kBackstab) / 11.0);
+	return (int)percent;
 }
 
 /*
  *  Расчет множителя критстаба.
+* против игроков только у воров.
  */
 double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
@@ -1240,14 +1244,11 @@ double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.00125));
 		}
 	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-		if (victim->GetEnemy())
-		{
+		if (victim->GetEnemy()) {
 			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00225));
 		} else {
 			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00350));
 		}
-		set_flag(fight::kIgnoreSanct);
-		set_flag(fight::kIgnorePrism);
 	}
 
 	return std::max(1.0, bs_coeff);
@@ -1866,7 +1867,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
 			true, ch, 0, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 
-		flags[fight::kCritHit] = false; //вот это место очень тщательно проверить
+		flags.reset[fight::kCritHit]; //вот это место очень тщательно проверить
 		if (dam > 0) dam -= (dam * number(30, 50) / 100);
 	}
 		//шоб небуло спама модернизировал условие
@@ -1910,7 +1911,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
-			int tmp_dam = dam * MAX(0, MIN(max_armour, GET_ARMOUR(victim))) / 100;
+			int tmp_dam = dam * std::max(0, std::min(max_armour, GET_ARMOUR(victim))) / 100;
 			// ополовинивание брони по флагу скила
 			if (tmp_dam >= 2 && flags[fight::kHalfIgnoreArmor]) {
 				tmp_dam /= 2;
@@ -2261,16 +2262,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// санка/призма для физ и маг урона
 	if (dam >= 2) {
-		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) &&
-			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
+		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) && !flags[fight::kIgnorePrism]
 			if (dmg_type == fight::kPhysDmg) {
 				dam *= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
 				dam /= 2;
 			}
 		}
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct] &&
-			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
+		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct]) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam /= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
@@ -2368,7 +2367,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			&& !flags[fight::kVictimIceShield]) {
 			int tmpdam = std::min(GET_REAL_MAX_HIT(victim) / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
-			dam = MAX(dam, tmpdam); //крит
+			dam = std::max(dam, tmpdam); //крит
 //			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
 		}
 		// полное поглощение
@@ -3614,7 +3613,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	// даже в случае попадания можно уклониться мигалкой
 	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
-			&& (!(hit_params.skill_num == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike)))
+			&& (!hit_params.get_flags()[fight::kIgnoreBlink]
 			&& !hit_params.get_flags()[fight::kCritLuck]) {
 			ubyte blink;
 			if (victim->IsNpc()) {
@@ -3650,12 +3649,16 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (hit_params.skill_num == ESkill::kBackstab) {
 		hit_params.reset_flag(fight::kCritHit);
 		hit_params.set_flag(fight::kIgnoreFireShield);
-		if (CanUseFeat(ch, EFeat::kThieveStrike) || CanUseFeat(ch, EFeat::kShadowStrike)) {
+		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
+			hit_params.set_flag(fight::kIgnoreSanct);
+			hit_params.set_flag(fight::kIgnoreBlink);
+			hit_params.set_flag(fight::kIgnoreArmor);
+		} else if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 			hit_params.set_flag(fight::kIgnoreArmor);
 		} else {
 			hit_params.set_flag(fight::kHalfIgnoreArmor);
 		}
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
 		} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 			if (victim->GetEnemy()) {
@@ -3667,9 +3670,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam *= backstab_mult(GetRealLevel(ch));
 		}
 
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-			&& victim->IsNpc()
-			&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
@@ -3679,8 +3680,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			return;
 		}
 
-		if (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL)
-			&& !CalcGeneralSaving(ch, victim, ESaving::kReflex, dex_bonus(GetRealDex(ch)))) {
+		if ((number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
+		&& (!CalcGeneralSaving(ch, vict, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, vict)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
