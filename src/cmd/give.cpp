@@ -17,11 +17,17 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	if (vict->IsNpc() && (NPC_FLAGGED(vict, ENpcFlag::kNoTakeItems)
-			|| mob_index[GET_MOB_RNUM(vict)].func == shop_ext
-			|| mob_index[GET_MOB_RNUM(vict)].func == receptionist)) {
+	if (vict->IsNpc() && NPC_FLAGGED(vict, ENpcFlag::kNoTakeItems)) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.",
 			false, ch, nullptr, vict, kToChar);
+		return;
+	}
+	if (vict->IsNpc() && mob_index[GET_MOB_RNUM(vict)].func && mob_index[GET_MOB_RNUM(vict)].func != guilds::GuildInfo::DoGuildLearn) {
+		act("$N не нуждается в ваших подачках, своего барахла навалом.",
+			false, ch, nullptr, vict, kToChar);
+		sprintf(buf, "Попытка мобу с спецпроцедурой дать предмет: Моб %s (%d) в комнате #%d, игрок: %s", 
+			GET_NAME(vict), GET_MOB_VNUM(vict), GET_ROOM_VNUM(vict->in_room), GET_NAME(ch));
+		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (obj->has_flag(EObjFlag::kNodrop)) {
