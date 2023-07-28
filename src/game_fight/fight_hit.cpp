@@ -2081,6 +2081,39 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 	}
 }
 
+void Damage::Blink(CharData *ch, CharData *victim) {
+	if (dmg_type != fight::kPhysDmg)
+		return;
+	// даже в случае попадания можно уклониться мигалкой
+	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
+		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
+			&& !flags[fight::kIgnoreBlink] && !flags[fight::kCritLuck]) {
+			ubyte blink;
+			if (victim->IsNpc()) {
+				blink = 25 + GetRealRemort(victim);
+			} else if (victim->add_abils.percent_spell_blink > 0) {
+				blink = victim->add_abils.percent_spell_blink;
+			} else  {
+				blink = 10;
+			}
+//			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+			int bottom = 1;
+			if (ch->calc_morale() > number(1, 100)) // удача
+				bottom = 10;
+			if (number(bottom, blink) >= number(1, 100)) {
+				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
+						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+				SendMsgToChar(buf, victim);
+				act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
+				act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
+				dam = 0;
+				return;
+			}
+		}
+	}
+}
+
 void Damage::process_death(CharData *ch, CharData *victim) {
 	CharData *killer = nullptr;
 
@@ -2180,11 +2213,99 @@ ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
 	return UsedWeapon;
 }
 
+void Damage::zero_init() {
+	dam = 0;
+	dam_critic = 0;
+	fs_damage = 0;
+	element = EElement::kUndefined;
+	dmg_type = -1;
+	skill_id = ESkill::kUndefined;
+	spell_id = ESpell::kUndefined;
+	hit_type = -1;
+	msg_num = -1;
+	ch_start_pos = EPosition::kUndefined;
+	victim_start_pos = EPosition::kUndefined;
+	wielded = nullptr;
+}
+
+/**
+ * Разный инит щитов у мобов и чаров.
+ * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
+ */
+void Damage::post_init_shields(CharData *victim) {
+	if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
+			flags.set(fight::kVictimFireShield);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
+			flags.set(fight::kVictimIceShield);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
+			flags.set(fight::kVictimAirShield);
+		}
+	} else {
+		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
+		std::vector<int> shields;
+
+		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
+			shields.push_back(FIRESHIELD);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
+			shields.push_back(AIRSHIELD);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
+			shields.push_back(ICESHIELD);
+		}
+
+		if (shields.empty()) {
+			return;
+		}
+
+		int shield_num = number(0, static_cast<int>(shields.size() - 1));
+
+		if (shields[shield_num] == FIRESHIELD) {
+			flags.set(fight::kVictimFireShield);
+		} else if (shields[shield_num] == AIRSHIELD) {
+			flags.set(fight::kVictimAirShield);
+		} else if (shields[shield_num] == ICESHIELD) {
+			flags.set(fight::kVictimIceShield);
+		}
+	}
+}
+
+void Damage::post_init(CharData *ch, CharData *victim) {
+	if (msg_num == -1) {
+		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
+		if (MUD::Skills().IsValid(skill_id)) {
+			msg_num = to_underlying(skill_id) + kTypeHit;
+		} else if (spell_id > ESpell::kUndefined) {
+			msg_num = to_underlying(spell_id);
+		} else if (hit_type >= 0) {
+			msg_num = hit_type + kTypeHit;
+		} else {
+			msg_num = kTypeHit;
+		}
+	}
+
+	if (ch_start_pos == EPosition::kUndefined) {
+		ch_start_pos = GET_POS(ch);
+	}
+
+	if (victim_start_pos == EPosition::kUndefined) {
+		victim_start_pos = GET_POS(victim);
+	}
+
+	post_init_shields(victim);
+}
+
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
 	post_init(ch, victim);
-
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
 		return 0;
 	}
@@ -2206,7 +2327,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		|| (victim->IsNpc() && MOB_FLAGGED(victim, EMobFlag::kNoFight))) {
 		return 0;
 	}
-
 	if (dam > 0) {
 		if (IS_GOD(victim)) {
 			dam = 0;
@@ -2369,12 +2489,12 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			int tmpdam = std::min(GET_REAL_MAX_HIT(victim) / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
 			dam = std::max(dam, tmpdam); //крит
-//			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
 		}
 		// полное поглощение
 		if (shield_full_absorb || armor_full_absorb) {
 			return 0;
 		}
+		Blink(ch, victim);
 	}
 
 	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
@@ -3609,36 +3729,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.extdamage(ch, victim);
 			hitprcnt_mtrigger(victim);
 			return;
-		}
-	}
-	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
-		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
-			&& (!hit_params.get_flags()[fight::kIgnoreBlink]
-			&& !hit_params.get_flags()[fight::kCritLuck])) {
-			ubyte blink;
-			if (victim->IsNpc()) {
-				blink = 25 + GetRealRemort(victim);
-			} else if (victim->add_abils.percent_spell_blink > 0) {
-				blink = victim->add_abils.percent_spell_blink;
-			} else  {
-				blink = 10;
-			}
-//			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-//			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-			int bottom = 1;
-			if (ch->calc_morale() > number(1, 100)) // удача
-				bottom = 10;
-			if (number(bottom, blink) >= number(1, 100)) {
-				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
-				SendMsgToChar(buf, victim);
-				act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
-				act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
-				hit_params.dam = 0;
-				hit_params.extdamage(ch, victim);
-				return;
-			}
 		}
 	}
 	// расчет критических ударов
