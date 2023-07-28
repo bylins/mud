@@ -22,6 +22,7 @@ int GetThac0(ECharClass class_id, int level);
 void npc_groupbattle(CharData *ch);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 void go_autoassist(CharData *ch);
+int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 
 int armor_class_limit(CharData *ch) {
 	if (IS_CHARMICE(ch)) {
@@ -1867,7 +1868,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
 			true, ch, 0, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 
-		flags.reset[fight::kCritHit]; //вот это место очень тщательно проверить
+		flags.reset(fight::kCritHit);
 		if (dam > 0) dam -= (dam * number(30, 50) / 100);
 	}
 		//шоб небуло спама модернизировал условие
@@ -2262,7 +2263,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// санка/призма для физ и маг урона
 	if (dam >= 2) {
-		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) && !flags[fight::kIgnorePrism]
+		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) && !flags[fight::kIgnorePrism]) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam *= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
@@ -3614,7 +3615,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
 		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
 			&& (!hit_params.get_flags()[fight::kIgnoreBlink]
-			&& !hit_params.get_flags()[fight::kCritLuck]) {
+			&& !hit_params.get_flags()[fight::kCritLuck])) {
 			ubyte blink;
 			if (victim->IsNpc()) {
 				blink = 25 + GetRealRemort(victim);
@@ -3681,7 +3682,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		}
 
 		if ((number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
-		&& (!CalcGeneralSaving(ch, vict, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, vict)))) {
+		&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
