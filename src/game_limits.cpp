@@ -1331,13 +1331,16 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 void obj_point_update() {
 	int count;
 
-	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
+	world_objects.foreach_on_copy([&count](const ObjData::shared_ptr &j) {
+		// Тонущие, падающие, и сыпящиеся обьекты.
+		if (CheckObjDecay(j.get())) {
+			return;
+		}
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_point_update(j.get());
 			return;
 		}
-
 		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
 		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
 		// не лезет, да и не так уж и много на самом деле таких предметов будет, условий порядочно
@@ -1550,11 +1553,6 @@ void obj_point_update() {
 				}
 			}
 		}
-	});
-
-	// Тонущие, падающие, и сыпящиеся обьекты.
-	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
-		CheckObjDecay(j.get());
 	});
 }
 
