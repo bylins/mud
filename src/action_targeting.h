@@ -14,6 +14,8 @@
 
 #include <functional>
 
+#include <random>
+
 class CharData;
 
 namespace ActionTargeting {

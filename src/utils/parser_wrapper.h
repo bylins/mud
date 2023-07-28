@@ -17,7 +17,7 @@
 
 #ifndef PARSER_WRAPPER
 #define PARSER_WRAPPER
-
+#include <sstream>
 #include <filesystem>
 #include <memory>
 
