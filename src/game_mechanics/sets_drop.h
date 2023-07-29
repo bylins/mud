@@ -8,6 +8,7 @@
 #include "sysdep.h"
 #include "structs/structs.h"
 #include <map>
+#include <random>
 namespace SetsDrop {
 
 // период сохранения списков мобов и таблицы дропа (минуты)

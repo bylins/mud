@@ -784,7 +784,7 @@ std::string print_solo_list(const std::set<int> &node) {
 	}
 
 	std::srand(std::time(0));
-	std::random_shuffle(solo_mob_list.begin(), solo_mob_list.end());
+	std::shuffle(solo_mob_list.begin(), solo_mob_list.end(), std::mt19937(std::random_device()()));
 	out << solo_obj_names.str() << "\r\n";
 	for (std::vector<std::string>::const_iterator i = solo_mob_list.begin(),
 			 iend = solo_mob_list.end(); i != iend; ++i) {
