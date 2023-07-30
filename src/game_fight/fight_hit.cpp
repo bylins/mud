@@ -2305,6 +2305,7 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
+	attaker = ch;
 	post_init(ch, victim);
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
 		return 0;
@@ -2680,6 +2681,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	return dam;
 }
 
+Damage::~Damage() {
+	CLR_AF_BATTLE(attaker, kEafOverwhelm);
+	CLR_AF_BATTLE(attaker, kEafHammer);
+}
+
 void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
 	int percent = number(1, MUD::Skill(ESkill::kHammer).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kHammer, victim);
@@ -2855,7 +2861,6 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 	// в эти условия ничего добавлять не надо, иначе EAF_MIGHTHIT не снимется
 	// с моба по ходу боя, если он не может по каким-то причинам смолотить
 	if (GET_AF_BATTLE(ch, kEafHammer) && ch->get_wait() <= 0) {
-		CLR_AF_BATTLE(ch, kEafHammer);
 		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, kEafTouch)) {
 			try_mighthit_dam(ch, victim);
 		}
@@ -2863,7 +2868,6 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		//* оглушить //
 		// аналогично молоту, все доп условия добавляются внутри
 	else if (GET_AF_BATTLE(ch, kEafOverwhelm) && ch->get_wait() <= 0) {
-		CLR_AF_BATTLE(ch, kEafOverwhelm);
 		const int minimum_weapon_weigth = 19;
 		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
@@ -3828,17 +3832,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			}
 		}
 	}
-
-	// обнуляем флаги, если у нападающего есть лаг
-	if ((GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->get_wait() > 0) {
-		CLR_AF_BATTLE(ch, kEafOverwhelm);
-		CLR_AF_BATTLE(ch, kEafHammer);
-	}
-
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.check_defense_skills(ch, victim);
-
-
 	// итоговый дамаг
 	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	victim->send_to_TC(false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
