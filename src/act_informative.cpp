@@ -460,7 +460,7 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how) {
 	*buf = '\0';
-	if ((mode < 5) && PRF_FLAGGED(ch, EPrf::kRoomFlags))
+	if ((mode < 5) && (PRF_FLAGGED(ch, EPrf::kRoomFlags) || InTestZone(ch)))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
 
 	if (mode == 0
@@ -1046,7 +1046,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
 		&& !IS_HORSE(i)) {
 		*buf = '\0';
-		if (PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
+		if (PRF_FLAGGED(ch, EPrf::kRoomFlags) || InTestZone(ch)) {
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
 		}
 
