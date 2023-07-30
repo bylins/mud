@@ -23,6 +23,7 @@
 #include "game_magic/magic_utils.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
+#include "utils/utils_char_obj.inl"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -293,10 +294,9 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 
 bool check_tester_death(CharData *ch, CharData *killer) {
 	const bool player_died = !ch->IsNpc();
-	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone_rn].under_construction;
+	const bool zone_is_under_construction = InTestZone(ch);
 
-	if (!player_died
-		|| !zone_is_under_construction) {
+	if (!player_died || !zone_is_under_construction) {
 		return false;
 	}
 
@@ -874,21 +874,22 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
-	EndowExpToChar(ch, exp);
-	change_alignment(ch, victim);
-	TopPlayer::Refresh(ch);
-
-	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
-		&& !ch->IsNpc()
-		&& !IS_IMMORTAL(ch)
-		&& victim->IsNpc()
-		&& !IS_CHARMICE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
-		mob_stat::AddMob(victim, members);
-		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
-	} else if (ch->IsNpc() && !victim->IsNpc()
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
-		mob_stat::AddMob(ch, 0);
+	if (!InTestZone(ch)) {
+		EndowExpToChar(ch, exp);
+		change_alignment(ch, victim);
+		TopPlayer::Refresh(ch);
+		if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
+				&& !ch->IsNpc()
+				&& !IS_IMMORTAL(ch)
+				&& victim->IsNpc()
+				&& !IS_CHARMICE(victim)
+				&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+				mob_stat::AddMob(victim, members);
+				EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
+		} else if (ch->IsNpc() && !victim->IsNpc()
+			&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+			mob_stat::AddMob(ch, 0);
+		}
 	}
 }
 
@@ -1004,14 +1005,19 @@ void group_gain(CharData *killer, CharData *victim) {
 
 void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// не даем получать батлу с себя по зеркалу?
-	if (ch == victim) { return; }
-	// не даем получать экспу с !эксп мобов
-	if (MOB_FLAGGED(victim, EMobFlag::kNoBattleExp)) { return; }
-	// если цель не нпс то тоже не даем экспы
+	if (ch == victim) { 
+		return;
+	}
 	if (!victim->IsNpc()) { return; }
+	// не даем получать экспу с !эксп мобов
+	if (MOB_FLAGGED(victim, EMobFlag::kNoBattleExp) || InTestZone(ch)) { 
+		return;
+	}
+	// если цель не нпс то тоже не даем экспы
 	// если цель под чармом не даем экспу
-	if (AFF_FLAGGED(victim, EAffect::kCharmed)) { return; }
-
+	if (AFF_FLAGGED(victim, EAffect::kCharmed)) { 
+		return; 
+	}
 	// получение игроками экспы
 	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
 		int max_exp = MIN(max_exp_gain_pc(ch), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /

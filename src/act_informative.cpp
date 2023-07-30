@@ -1808,7 +1808,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	SendMsgToChar(CCICYN(ch, C_NRM), ch);
 
-	if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kRoomFlags)) {
+	if (!ch->IsNpc() && (PRF_FLAGGED(ch, EPrf::kRoomFlags) || InTestZone(ch))) {
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ERoomFlag::kBfsMark) ? true : false;
 		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
