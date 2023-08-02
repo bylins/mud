@@ -52,7 +52,6 @@ class Damage {
  public:
 	// полностью ручное создание объекта
 	Damage() { zero_init(); };
-	~Damage();
 
 	// скилы
 	Damage(SkillDmg obj, int in_dam, fight::DmgType in_dmg_type, ObjData *wielded_obj) {
@@ -128,7 +127,6 @@ class Damage {
 
 	// обратный дамаг от огненного щита
 	int fs_damage;
-	CharData *attaker;
 	// строка для краткого режима щитов, дописывается после ударов и прочего
 	// если во flags были соответствующие флаги
 	std::string brief_shields_;
