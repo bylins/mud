@@ -835,16 +835,6 @@ void set_obj_eff(ObjData *itemobj, const EApply type, int mod) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-
-const float SQRT_MOD = 1.7095f;
-const int AFF_SHIELD_MOD = 30;
-const int AFF_BLINK_MOD = 10;
-
-} // namespace
-
-////////////////////////////////////////////////////////////////////////////////
-
 namespace ObjSystem {
 
 float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
