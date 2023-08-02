@@ -2597,19 +2597,24 @@ int receptionist(CharData *ch, void *me, int cmd, char *argument) {
 
 void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
-	utils::CExecutionTimer timer;
 	int count = 0;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
+
+			utils::CExecutionTimer timer;
 			Crash_crashsave(d->character.get());
+			if (timer.delta().count() > 0.1)
+				log("Crash_frac_save_all: Crash_crashsave, timer %f, save player: %d", timer.delta().count(), count);
+
+			utils::CExecutionTimer timer1;
 			d->character->save_char();
+			if (timer1.delta().count() > 0.1)
+				log("Crash_frac_save_all: save_char, timer %f, save player: %d", timer1.delta().count(), count);
 			count++;
 			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
 		}
 	}
-	if (timer.delta().count() > 0.01)
-		log("Crash_frac_save_all: timer %f, save player: %d", timer.delta().count(), count);
 }
 
 void Crash_save_all(void) {
