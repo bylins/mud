@@ -2082,35 +2082,46 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 }
 
 void Damage::Blink(CharData *ch, CharData *victim) {
-	if (dmg_type != fight::kPhysDmg)
+	if (flags[fight::kIgnoreBlink] || flags[fight::kCritLuck])
 		return;
+	ubyte blink;
 	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
-		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
-			&& !flags[fight::kIgnoreBlink] && !flags[fight::kCritLuck]) {
-			ubyte blink;
+	if (dmg_type == fight::kMagicDmg) {
+		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
 			if (victim->IsNpc()) {
-				blink = 25 + GetRealRemort(victim);
-			} else if (victim->add_abils.percent_spell_blink > 0) {
-				blink = victim->add_abils.percent_spell_blink;
-			} else  {
+				blink = GetRealLevel(victim) + GetRealRemort(victim);
+			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
+				blink = victim->add_abils.percent_spell_blink_mag;
+			} else {
 				blink = 10;
 			}
-//			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-//			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-			int bottom = 1;
-			if (ch->calc_morale() > number(1, 100)) // удача
-				bottom = 10;
-			if (number(bottom, blink) >= number(1, 100)) {
-				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
-				SendMsgToChar(buf, victim);
-				act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
-				act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
-				dam = 0;
-				return;
+		}
+	} else if(dmg_type == fight::kPhysDmg) {
+		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
+			if (victim->IsNpc()) {
+				blink = GetRealLevel(victim) + GetRealRemort(victim);
+			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
+				blink = victim->add_abils.percent_spell_blink_phys;
+			} else {
+				blink = 10;
 			}
 		}
+	}
+	if(blink < 1)
+		return;
+//	ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//	victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+	int bottom = 1;
+	if (ch->calc_morale() > number(1, 100)) // удача
+		bottom = 10;
+	if (number(bottom, blink) >= number(1, 100)) {
+		sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
+		CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+		SendMsgToChar(buf, victim);
+		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
+		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
+		dam = 0;
+		return;
 	}
 }
 

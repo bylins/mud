@@ -1348,6 +1348,7 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 	const int AFF_SHIELD_MOD = 30;
 	const int AFF_MAGICGLASS_MOD = 10;
 	const int AFF_BLINK_MOD = 10;
+	const int AFF_CLOUDLY_MOD = 10;
 
 	result = 0.0;
 
@@ -1419,6 +1420,8 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
 			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kBlink) {
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kCloudly) {
+				total_weight += pow(AFF_CLOUDLY_MOD, SQRT_MOD);
 			}
 		}
 	}

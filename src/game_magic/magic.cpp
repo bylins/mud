@@ -1150,8 +1150,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kGroupCloudly:
-		case ESpell::kCloudly: af[0].location = EApply::kAc;
-			af[0].modifier = -20;
+		case ESpell::kCloudly:
+			af[0].location = EApply::kSpelledBlinkMag;
+			af[0].modifier = 10;
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			accum_duration = true;
@@ -1963,7 +1964,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
 			break;
 		case ESpell::kGroupBlink:
-		case ESpell::kBlink: af[0].location = EApply::kSpelledBlink;
+		case ESpell::kBlink: af[0].location = EApply::kSpelledBlinkPhys;
 			af[0].modifier = 10 + GetRealRemort(ch);
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
