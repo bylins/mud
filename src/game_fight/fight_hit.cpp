@@ -2856,6 +2856,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 	// с моба по ходу боя, если он не может по каким-то причинам смолотить
 	if (GET_AF_BATTLE(ch, kEafHammer) && ch->get_wait() <= 0) {
 		CLR_AF_BATTLE(ch, kEafHammer);
+		set_flag(fight::kIgnoreBlink);
 		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, kEafTouch)) {
 			try_mighthit_dam(ch, victim);
 		}
@@ -2864,6 +2865,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		// аналогично молоту, все доп условия добавляются внутри
 	else if (GET_AF_BATTLE(ch, kEafOverwhelm) && ch->get_wait() <= 0) {
 		CLR_AF_BATTLE(ch, kEafOverwhelm);
+		set_flag(fight::kIgnoreBlink);
 		const int minimum_weapon_weigth = 19;
 		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
