@@ -2226,7 +2226,6 @@ void Damage::zero_init() {
 	ch_start_pos = EPosition::kUndefined;
 	victim_start_pos = EPosition::kUndefined;
 	wielded = nullptr;
-	attaker = nullptr;
 }
 
 /**
@@ -2683,10 +2682,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 }
 
 Damage::~Damage() {
-	if (attaker) {
-		CLR_AF_BATTLE(attaker, kEafOverwhelm);
-		CLR_AF_BATTLE(attaker, kEafHammer);
-	}
+	CLR_AF_BATTLE(attaker, kEafOverwhelm);
+	CLR_AF_BATTLE(attaker, kEafHammer);
 }
 
 void HitData::try_mighthit_dam(CharData *ch, CharData *victim) {
