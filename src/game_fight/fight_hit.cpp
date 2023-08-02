@@ -2121,6 +2121,7 @@ void Damage::Blink(CharData *ch, CharData *victim) {
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
 		dam = 0;
+		fs_damage = 0;
 		return;
 	}
 }
