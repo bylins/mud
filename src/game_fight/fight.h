@@ -124,6 +124,7 @@ class Damage {
 	void send_critical_message(CharData *ch, CharData *victim);
 	void dam_message(CharData *ch, CharData *victim) const;
 	void Blink(CharData *ch, CharData *victim);
+	void Backstab(CharData *ch, CharData *victim);
 
 	// обратный дамаг от огненного щита
 	int fs_damage;

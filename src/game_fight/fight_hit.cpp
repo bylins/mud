@@ -1233,7 +1233,7 @@ int calculate_crit_backstab_percent(CharData *ch) {
  *  Расчет множителя критстаба.
 * против игроков только у воров.
  */
-double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
+double crit_backstab_multiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
 	if (victim->IsNpc()) {
 		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
@@ -2125,6 +2125,39 @@ void Damage::Blink(CharData *ch, CharData *victim) {
 		return;
 	}
 }
+void Damage::Backstab(CharData *ch, CharData *victim) {
+	if (dam < 1)
+		return;
+	if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
+		&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
+		&& !victim->get_role(MOB_ROLE_BOSS)) {
+		GET_HIT(victim) = 1;
+		dam = victim->points.hit + fight::kLethalDmg;
+		SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
+		return;
+	}
+
+	if ((number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
+	&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
+		dam = static_cast<int>(dam * crit_backstab_multiplier(ch, victim));
+		if ((dam > 0)
+			&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
+			&& !(MOB_FLAGGED(victim, EMobFlag::kProtect))) {
+			SendMsgToChar("&GПрямо в сердце!&n\r\n", ch);
+		}
+	}
+
+	dam = ApplyResist(victim, EResist::kVitality, dam);
+	// режем стаб
+	if (CanUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
+		dam = std::min(8000 + GetRealRemort(ch) * 20 * GetRealLevel(ch), dam);
+	}
+
+	ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", dam);
+	victim->send_to_TC(false, true, false, "&RДамага стаба  равна = %d&n\r\n", dam);
+	hitprcnt_mtrigger(victim);
+	return;
+}
 
 void Damage::process_death(CharData *ch, CharData *victim) {
 	CharData *killer = nullptr;
@@ -2507,6 +2540,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			return 0;
 		}
 		Blink(ch, victim);
+		if(skill_id == ESkill::kBackstab)
+		Backstab(ch, victim);
 	}
 
 	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
@@ -3750,61 +3785,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
 	if (hit_params.weapon_pos) {
 		alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
-	}
-	if (hit_params.skill_num == ESkill::kBackstab) {
-		hit_params.reset_flag(fight::kCritHit);
-		hit_params.set_flag(fight::kIgnoreFireShield);
-		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			hit_params.set_flag(fight::kIgnoreSanct);
-			hit_params.set_flag(fight::kIgnoreBlink);
-			hit_params.set_flag(fight::kIgnoreArmor);
-		} else if (CanUseFeat(ch, EFeat::kShadowStrike)) {
-			hit_params.set_flag(fight::kIgnoreArmor);
-		} else {
-			hit_params.set_flag(fight::kHalfIgnoreArmor);
-		}
-		if (CanUseFeat(ch, EFeat::kShadowStrike)) {
-			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
-		} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			if (victim->GetEnemy()) {
-				hit_params.dam *= backstab_mult(GetRealLevel(ch));
-			} else {
-				hit_params.dam *= backstab_mult(GetRealLevel(ch)) * 1.3;
-			}
-		} else {
-			hit_params.dam *= backstab_mult(GetRealLevel(ch));
-		}
-
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
-			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
-			&& !victim->get_role(MOB_ROLE_BOSS)) {
-			GET_HIT(victim) = 1;
-			hit_params.dam = victim->points.hit + fight::kLethalDmg;
-			SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
-			hit_params.extdamage(ch, victim);
-			return;
-		}
-
-		if ((number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
-		&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
-			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
-			if ((hit_params.dam > 0)
-				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
-				&& !(MOB_FLAGGED(victim, EMobFlag::kProtect))) {
-				SendMsgToChar("&GПрямо в сердце!&n\r\n", ch);
-			}
-		}
-
-		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
-		// режем стаб
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
-			hit_params.dam = std::min(8000 + GetRealRemort(ch) * 20 * GetRealLevel(ch), hit_params.dam);
-		}
-
-		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
-		victim->send_to_TC(false, true, false, "&RДамага стаба  равна = %d&n\r\n", hit_params.dam);
-		hit_params.extdamage(ch, victim);
-		return;
 	}
 
 	if (hit_params.skill_num == ESkill::kThrow) {
