@@ -130,13 +130,13 @@ void go_backstab(CharData *ch, CharData *vict) {
 		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
 		dmg.Process(ch, vict);
 	} else {
-		CalcBackstabDamage(ch, vict);
+		CreateBackstabDamage(ch, vict).Process(ch, vict);
 	}
 	SetWait(ch, 1, true);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	SetSkillCooldownInFight(ch, ESkill::kBackstab, 2);
 }
-void CalcBackstabDamage(CharData *ch, CharData *vict) {
+Damage CreateBackstabDamage(CharData *ch, CharData *vict) {
 	HitData hit_params;
 	hit_params.skill_num = ESkill::kBackstab;
 	hit_params.weapon = fight::kMainHand;
@@ -166,9 +166,8 @@ void CalcBackstabDamage(CharData *ch, CharData *vict) {
 	}
 	Damage dmg(SkillDmg(ESkill::kBackstab), hit_params.dam, fight::kPhysDmg, hit_params.wielded);
 	dmg.flags = hit_params.get_flags();
-	dmg.Process(ch, vict);
 	alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
-	return;
+	return dmg;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
