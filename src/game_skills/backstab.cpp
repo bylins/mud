@@ -130,11 +130,45 @@ void go_backstab(CharData *ch, CharData *vict) {
 		Damage dmg(SkillDmg(ESkill::kBackstab), fight::kZeroDmg, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
 		dmg.Process(ch, vict);
 	} else {
-		hit(ch, vict, ESkill::kBackstab, fight::kMainHand);
+		CalcBackstabDamage(ch, vict);
 	}
 	SetWait(ch, 1, true);
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 	SetSkillCooldownInFight(ch, ESkill::kBackstab, 2);
+}
+void CalcBackstabDamage(CharData *ch, CharData *vict) {
+	HitData hit_params;
+	hit_params.skill_num = ESkill::kBackstab;
+	hit_params.weapon = fight::kMainHand;
+	hit_params.init(ch, vict);
+	hit_params.reset_flag(fight::kCritHit);
+	hit_params.set_flag(fight::kIgnoreFireShield);
+	if (CanUseFeat(ch, EFeat::kThieveStrike)) {
+		hit_params.set_flag(fight::kIgnoreSanct);
+		hit_params.set_flag(fight::kIgnoreBlink);
+		hit_params.set_flag(fight::kIgnoreArmor);
+	} else if (CanUseFeat(ch, EFeat::kShadowStrike)) {
+		hit_params.set_flag(fight::kIgnoreArmor);
+	} else {
+		hit_params.set_flag(fight::kHalfIgnoreArmor);
+	}
+	hit_params.calc_damage(ch);
+	if (CanUseFeat(ch, EFeat::kShadowStrike)) {
+		hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
+	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
+		if (vict->GetEnemy()) {
+			hit_params.dam *= backstab_mult(GetRealLevel(ch));
+		} else {
+			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * 1.3;
+		}
+	} else {
+		hit_params.dam *= backstab_mult(GetRealLevel(ch));
+	}
+	Damage dmg(SkillDmg(ESkill::kBackstab), hit_params.dam, fight::kPhysDmg, hit_params.wielded);
+	dmg.flags = hit_params.get_flags();
+	dmg.Process(ch, vict);
+	alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
+	return;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

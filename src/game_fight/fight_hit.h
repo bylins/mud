@@ -29,7 +29,6 @@ struct HitData {
 	void check_defense_skills(CharData *ch, CharData *victim);
 	void calc_crit_chance(CharData *ch);
 	int calc_damage(CharData *ch, bool need_dice = true);
-	double crit_backstab_multiplier(CharData *ch, CharData *victim);
 
 	// extdamage
 	int extdamage(CharData *ch, CharData *victim);
@@ -92,6 +91,8 @@ int compute_armor_class(CharData *ch);
 
 int check_agro_follower(CharData *ch, CharData *victim);
 void set_battle_pos(CharData *ch);
+int backstab_mult(int level);
+double crit_backstab_multiplier(CharData *ch, CharData *victim);
 
 void gain_battle_exp(CharData *ch, CharData *victim, int dam);
 void perform_group_gain(CharData *ch, CharData *victim, int members, int koef);
