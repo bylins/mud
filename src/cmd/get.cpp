@@ -72,7 +72,10 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 */
 	sprintf(buf, "Это составило %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kMoneyU));
 	SendMsgToChar(buf, ch);
-
+	if (InTestZone(ch)) {
+		ExtractObjFromWorld(obj);
+		return;
+	}
 	// все, что делится на группу - идет через налог (из кошельков не делится)
 	if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0 &&
 		PRF_FLAGGED(ch, EPrf::kAutosplit) && (!cont || !system_obj::is_purse(cont))) {
@@ -114,7 +117,6 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		ch->add_gold(value);
 	}
-
 	RemoveObjFromChar(obj);
 	ExtractObjFromWorld(obj);
 }

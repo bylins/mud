@@ -112,7 +112,7 @@ void TargetsRosterType::makeRosterOfFriends(CharData *priorityTarget,
 };
 
 void TargetsRosterType::shuffle() {
-	std::random_shuffle(_roster.begin(), _roster.end());
+	std::shuffle(_roster.begin(), _roster.end(), std::mt19937(std::random_device()()));
 };
 
 void TargetsRosterType::flip() {
