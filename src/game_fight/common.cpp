@@ -20,6 +20,8 @@ int IsHaveNoExtraAttack(CharData *ch) {
 				break;
 			case kExtraAttackCut: message = "Невозможно. Вы пытаетесь провести боевой прием против $N1.";
 				break;
+			case kExtraAttackSlay: message = "Невозможно. Вы пытаетесь сразить $N3.";
+				break;
 			default: return false;
 		}
 	} else {

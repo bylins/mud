@@ -34,6 +34,7 @@
 #include "msdp/msdp_constants.h"
 #include "game_magic/magic_items.h"
 #include "structs/global_objects.h"
+#include "game_skills/slay.h"
 
 // Structures
 CharData *combat_list = nullptr;    // head of l-list of fighting entities
@@ -1744,6 +1745,9 @@ bool using_extra_attack(CharData *ch) {
 			used = true;
 			break;
 		case kExtraAttackCut: GoExpedientCut(ch, ch->GetExtraVictim());
+			used = true;
+			break;
+		case kExtraAttackSlay: go_slay(ch, ch->GetExtraVictim());
 			used = true;
 			break;
 		default:used = false;

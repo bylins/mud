@@ -107,6 +107,7 @@ enum class EAffect : Bitvector {
 	kLacerations = kIntTwo | (1u << 21),
 	kCommander = kIntTwo | (1u << 22),
 	kEarthAura = kIntTwo | (1u << 23),
+	kConfused = kIntTwo | (1u << 24),
 };
 
 template<>

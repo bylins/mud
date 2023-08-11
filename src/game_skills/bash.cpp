@@ -39,60 +39,96 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	vict = TryToFindProtector(vict, ch);
 
-	int percent = number(1, MUD::Skill(ESkill::kBash).difficulty);
-	int prob = CalcCurrentSkill(ch, ESkill::kBash, vict);
 	int lag;
+	int dam;
+	SkillRollResult result = MakeSkillTest(ch, ESkill::kBash, vict);
+	bool success = result.success;
+
+	//Описание аффекта "ошарашен" для умения "удар щитом":
+	Affect<EApply> af;
+	af.type = ESpell::kUndefined;
+	af.duration = 2;
+	af.modifier = 0;
+	af.location = EApply::kNone;
+	af.battleflag = kAfSameTime;
+	af.bitvector = to_underlying(EAffect::kConfused);
 
 	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
-		prob = percent;
+		success = result.success;
 	}
 	if (MOB_FLAGGED(vict, EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
-		prob = 0;
+		success = !result.success;
 	}
-	bool success = percent <= prob;
+
 	TrainSkill(ch, ESkill::kBash, success, vict);
-	//Удар щитом тренируется только, если держим щит.
-	if (GET_EQ(ch, kShield)) {
-		TrainSkill(ch, ESkill::kShieldBash, success, vict);
-	}
 
-	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kBash).name, percent, prob, success);
+	// Если баш - фейл, смотрим сработает ли "удар щитом", если он вообще есть:
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.Process(ch, vict);
+		if (ch->GetSkill(ESkill::kShieldBash)) {
+			SkillRollResult result_ShB = MakeSkillTest(ch, ESkill::kShieldBash, vict);
+			bool successShB = result_ShB.success;
 
-		//рассчёт удара щитом - шанс остаться на ногах при фейле баша, но успеха удара щитом.
-		percent = number(1, MUD::Skill(ESkill::kShieldBash).difficulty);
-		prob = CalcCurrentSkill(ch, ESkill::kShieldBash, vict);
-		if (prob >= percent && GET_EQ(ch, kShield)) {
-            lag = 2;
-			act("Вам удалось удержаться на ногах.",
-				false, ch, nullptr, vict, kToChar);
-			act("$N0 смог$Q удержаться на ногах.",
-				false, vict, nullptr, ch, kToChar);
-			act("$N0 смог$Q удержаться на ногах.",
-				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+			//Успех "удара щитом":
+			if (successShB && GET_EQ(ch, kShield)) {
+				affect_to_char(vict, af);
+				act("Вы ошарашили $N3 сильнейшим ударом щита!",
+					false, ch, nullptr, vict, kToChar);
+				act("$N0 ошарашил$g Вас сильнейшим ударом щита!",
+					false, vict, nullptr, ch, kToChar);
+				act("$N0 ошарашил$g $n3 сильнейшим ударом щита!",
+					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+
+				dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) / 1.25),
+							 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
+
+				Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
+				dmg.flags.set(fight::kNoFleeDmg);
+				dmg.Process(ch, vict);
+				vict->DropFromHorse();
+				lag = 1;
+
+				// Фейл и баша и "удара щитом":
+			} else {
+				Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+				dmg.Process(ch, vict);
+				GET_POS(ch) = EPosition::kSit;
+				lag = 3;
+			}
+
+			// Фейл баша при отсутствии "удара щитом":
 		} else {
+			Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+			dmg.Process(ch, vict);
 			GET_POS(ch) = EPosition::kSit;
-            lag = 3;
+			lag = 3;
 		}
+
 	} else {
-		//не дадим башить мобов в лаге которые спят, оглушены и прочее
-		if (GET_POS(vict) <= EPosition::kStun && vict->get_wait() > 0) {
-			SendMsgToChar("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
-			ch->setSkillCooldown(ESkill::kGlobalCooldown, kBattleRound);
-			return;
-		}
-		//Дамаг от баша+удара щитом
-		//Удар щитом не будет работать, если персонаж в осторожке, если нет щита, или если нет умения.
-		int dam;
-		if ((!ch->GetSkill(ESkill::kShieldBash)) || (!GET_EQ(ch, kShield)) || (PRF_FLAGGED(ch,kAwake))) {
-			dam = str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch) +
-					std::max(0, ch->GetSkill(ESkill::kBash) / 10 - 5) + GetRealLevel(ch) / 5;
+		// Удар щитом не будет работать, если персонаж в осторожке, если нет щита, или если нет умения:
+		if ((!ch->GetSkill(ESkill::kShieldBash))
+		|| (!GET_EQ(ch, kShield))
+		|| (PRF_FLAGGED(ch,kAwake))) {
+			dam = number(ceil(ch->GetSkill(ESkill::kBash) * 1.25), ceil(ch->GetSkill(ESkill::kBash) / 1.25));
+
+		// Успех баша и, соответственно "удара щитом":
 		} else {
-			dam = number(ceil(((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) + (GET_SKILL(ch,ESkill::kShieldBash) * 10)) / 1.25),
-						 ceil(((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) + (GET_SKILL(ch,ESkill::kShieldBash) * 10)) * 1.25));
+			MakeSkillTest(ch, ESkill::kShieldBash, vict);
+			TrainSkill(ch, ESkill::kShieldBash, success, vict);
+			affect_to_char(vict, af);
+			act("Вы ошарашили $N3 сильнейшим ударом щита!",
+				false, ch, nullptr, vict, kToChar);
+			act("$N0 ошарашил$g Вас сильнейшим ударом щита!",
+				false, vict, nullptr, ch, kToChar);
+			act("$N0 ошарашил$g $n3 сильнейшим ударом щита!",
+				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
+			dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) / 1.25),
+						 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
 		}
+
+		// Сам баш:
+		GET_POS(vict) = EPosition::kSit;
+		SetWait(vict, 3, true);
+		lag = 1;
 
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
@@ -139,19 +175,39 @@ void go_bash(CharData *ch, CharData *vict) {
 				}
 			}
 		}
-
-        lag = 0; // если башем убил - лага не будет
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 		vict->DropFromHorse();
-		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffect::kGodsShield))) {
-            lag = 2;
-			GET_POS(vict) = EPosition::kSit;
-			SetWait(vict, 3, false);
+
+		// Если убил - то лага не будет:
+		if (dam < 0) {
+			lag = 0;
+		}
+
+		//Лаг на тот случай, если нет умения "удар щитом" или на жертве висит "Защита Богов":
+		if (AFF_FLAGGED(vict, EAffect::kGodsShield)
+		|| (!GET_SKILL(ch, ESkill::kShieldBash))) {
+			lag = 2;
 		}
 	}
-	SetWait(ch, lag, true);
+
+	//разные типы лагов в зависимости от того, есть ли "удар щитом", а так же при фейле/успехе и т.д.
+	switch (lag) {
+		case 0:
+			SetWait(ch, 0, true);
+			break;
+		case 1:
+			SetSkillCooldownInFight(ch, ESkill::kBash, 1);
+			break;
+		case 2:
+			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+			break;
+		case 3:
+			SetWait(ch, 2, true);
+			break;
+	}
+
 }
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

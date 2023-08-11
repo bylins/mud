@@ -94,6 +94,7 @@ const char *affected_bits[] = {"слепота",    // 0
 							   "рваные раны",
 							   "полководец",
 							   "земной поклон",
+							   "ошарашен",
 							   "\n",
 							   "\n",
 };
@@ -190,6 +191,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kVampirism] = "kVampirism";
 	EAffectFlag_name_by_value[EAffect::kCommander] = "kCommander";
 	EAffectFlag_name_by_value[EAffect::kEarthAura] = "kEarthAura";
+	EAffectFlag_name_by_value[EAffect::kConfused] = "kConfused";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}
