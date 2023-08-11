@@ -28,6 +28,7 @@
 #include "utils/random.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
+#include "utils/utils_char_obj.inl"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
@@ -502,12 +503,14 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 				&& GET_POS(tch) > EPosition::kSleep
 				&& CAN_SEE(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffect::kCharmed)
-				&& !AFF_FLAGGED(tch, EAffect::kHold)
-				&& !IS_GRGOD(ch)) {
+				&& !AFF_FLAGGED(tch, EAffect::kHold)) {
 				if (show_msg) {
 					act("$N преградил$G вам путь.", false, ch, nullptr, tch, kToChar);
 				}
-
+				if (IS_GRGOD(ch) || InTestZone(ch)) {
+					act("Но уважительно пропустил$G дальше.", false, ch, nullptr, tch, kToChar);
+					return true;
+				}
 				return false;
 			}
 		}

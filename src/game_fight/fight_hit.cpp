@@ -22,6 +22,7 @@ int GetThac0(ECharClass class_id, int level);
 void npc_groupbattle(CharData *ch);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 void go_autoassist(CharData *ch);
+int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 
 int armor_class_limit(CharData *ch) {
 	if (IS_CHARMICE(ch)) {
@@ -1218,15 +1219,19 @@ int backstab_mult(int level) {
 }
 
 /**
-* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
-* Влияение по 50% от скилла и дексы, максимум 36,18%.
+* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30) для вовровского удара,
+* для остального в учет только ловку
 */
 int calculate_crit_backstab_percent(CharData *ch) {
-	return static_cast<int>(ch->GetSkill(ESkill::kBackstab) / 11.0 + (GetRealDex(ch) - 20) / (GetRealDex(ch) / 30.0));
+	float percent = ((GetRealDex(ch) -20) / (GetRealDex(ch) / 30.0));
+	if (CanUseFeat(ch, EFeat::kThieveStrike))
+		percent += (ch->GetSkill(ESkill::kBackstab) / 11.0);
+	return (int)percent;
 }
 
 /*
  *  Расчет множителя критстаба.
+* против игроков только у воров.
  */
 double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
@@ -1240,14 +1245,11 @@ double HitData::crit_backstab_multiplier(CharData *ch, CharData *victim) {
 			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.00125));
 		}
 	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-		if (victim->GetEnemy())
-		{
+		if (victim->GetEnemy()) {
 			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00225));
 		} else {
 			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00350));
 		}
-		set_flag(fight::kIgnoreSanct);
-		set_flag(fight::kIgnorePrism);
 	}
 
 	return std::max(1.0, bs_coeff);
@@ -1866,7 +1868,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
 			true, ch, 0, victim, kToNotVict | kToArenaListen | kToNoBriefShields);
 
-		flags[fight::kCritHit] = false; //вот это место очень тщательно проверить
+		flags.reset(fight::kCritHit);
 		if (dam > 0) dam -= (dam * number(30, 50) / 100);
 	}
 		//шоб небуло спама модернизировал условие
@@ -1910,7 +1912,7 @@ void Damage::armor_dam_reduce(CharData *victim) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
-			int tmp_dam = dam * MAX(0, MIN(max_armour, GET_ARMOUR(victim))) / 100;
+			int tmp_dam = dam * std::max(0, std::min(max_armour, GET_ARMOUR(victim))) / 100;
 			// ополовинивание брони по флагу скила
 			if (tmp_dam >= 2 && flags[fight::kHalfIgnoreArmor]) {
 				tmp_dam /= 2;
@@ -2079,6 +2081,51 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 	}
 }
 
+void Damage::Blink(CharData *ch, CharData *victim) {
+	if (flags[fight::kIgnoreBlink] || flags[fight::kCritLuck])
+		return;
+	ubyte blink;
+	// даже в случае попадания можно уклониться мигалкой
+	if (dmg_type == fight::kMagicDmg) {
+		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
+			if (victim->IsNpc()) {
+				blink = GetRealLevel(victim) + GetRealRemort(victim);
+			} else if(victim->add_abils.percent_spell_blink_mag > 0) {
+				blink = victim->add_abils.percent_spell_blink_mag;
+			} else {
+				blink = 10;
+			}
+		}
+	} else if(dmg_type == fight::kPhysDmg) {
+		if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink_phys > 0) {
+			if (victim->IsNpc()) {
+				blink = GetRealLevel(victim) + GetRealRemort(victim);
+			} else if (victim->add_abils.percent_spell_blink_phys > 0) {
+				blink = victim->add_abils.percent_spell_blink_phys;
+			} else {
+				blink = 10;
+			}
+		}
+	}
+	if(blink < 1)
+		return;
+//	ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+//	victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+	int bottom = 1;
+	if (ch->calc_morale() > number(1, 100)) // удача
+		bottom = 10;
+	if (number(bottom, blink) >= number(1, 100)) {
+		sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
+		CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+		SendMsgToChar(buf, victim);
+		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
+		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
+		dam = 0;
+		fs_damage = 0;
+		return;
+	}
+}
+
 void Damage::process_death(CharData *ch, CharData *victim) {
 	CharData *killer = nullptr;
 
@@ -2178,11 +2225,99 @@ ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
 	return UsedWeapon;
 }
 
+void Damage::zero_init() {
+	dam = 0;
+	dam_critic = 0;
+	fs_damage = 0;
+	element = EElement::kUndefined;
+	dmg_type = -1;
+	skill_id = ESkill::kUndefined;
+	spell_id = ESpell::kUndefined;
+	hit_type = -1;
+	msg_num = -1;
+	ch_start_pos = EPosition::kUndefined;
+	victim_start_pos = EPosition::kUndefined;
+	wielded = nullptr;
+}
+
+/**
+ * Разный инит щитов у мобов и чаров.
+ * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
+ */
+void Damage::post_init_shields(CharData *victim) {
+	if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
+			flags.set(fight::kVictimFireShield);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
+			flags.set(fight::kVictimIceShield);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
+			flags.set(fight::kVictimAirShield);
+		}
+	} else {
+		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
+		std::vector<int> shields;
+
+		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
+			shields.push_back(FIRESHIELD);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
+			shields.push_back(AIRSHIELD);
+		}
+
+		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
+			shields.push_back(ICESHIELD);
+		}
+
+		if (shields.empty()) {
+			return;
+		}
+
+		int shield_num = number(0, static_cast<int>(shields.size() - 1));
+
+		if (shields[shield_num] == FIRESHIELD) {
+			flags.set(fight::kVictimFireShield);
+		} else if (shields[shield_num] == AIRSHIELD) {
+			flags.set(fight::kVictimAirShield);
+		} else if (shields[shield_num] == ICESHIELD) {
+			flags.set(fight::kVictimIceShield);
+		}
+	}
+}
+
+void Damage::post_init(CharData *ch, CharData *victim) {
+	if (msg_num == -1) {
+		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
+		if (MUD::Skills().IsValid(skill_id)) {
+			msg_num = to_underlying(skill_id) + kTypeHit;
+		} else if (spell_id > ESpell::kUndefined) {
+			msg_num = to_underlying(spell_id);
+		} else if (hit_type >= 0) {
+			msg_num = hit_type + kTypeHit;
+		} else {
+			msg_num = kTypeHit;
+		}
+	}
+
+	if (ch_start_pos == EPosition::kUndefined) {
+		ch_start_pos = GET_POS(ch);
+	}
+
+	if (victim_start_pos == EPosition::kUndefined) {
+		victim_start_pos = GET_POS(victim);
+	}
+
+	post_init_shields(victim);
+}
+
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
 	post_init(ch, victim);
-
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
 		return 0;
 	}
@@ -2204,7 +2339,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		|| (victim->IsNpc() && MOB_FLAGGED(victim, EMobFlag::kNoFight))) {
 		return 0;
 	}
-
 	if (dam > 0) {
 		if (IS_GOD(victim)) {
 			dam = 0;
@@ -2261,16 +2395,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	// санка/призма для физ и маг урона
 	if (dam >= 2) {
-		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) &&
-			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
+		if (AFF_FLAGGED(victim, EAffect::kPrismaticAura) && !flags[fight::kIgnorePrism]) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam *= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
 				dam /= 2;
 			}
 		}
-		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct] &&
-			!(skill_id == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike))) {
+		if (AFF_FLAGGED(victim, EAffect::kSanctuary) && !flags[fight::kIgnoreSanct]) {
 			if (dmg_type == fight::kPhysDmg) {
 				dam /= 2;
 			} else if (dmg_type == fight::kMagicDmg) {
@@ -2368,13 +2500,13 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			&& !flags[fight::kVictimIceShield]) {
 			int tmpdam = std::min(GET_REAL_MAX_HIT(victim) / 8, dam * 2);
 			tmpdam = ApplyResist(victim, EResist::kVitality, dam);
-			dam = MAX(dam, tmpdam); //крит
-//			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
+			dam = std::max(dam, tmpdam); //крит
 		}
 		// полное поглощение
 		if (shield_full_absorb || armor_full_absorb) {
 			return 0;
 		}
+		Blink(ch, victim);
 	}
 
 	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
@@ -2736,6 +2868,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 	// с моба по ходу боя, если он не может по каким-то причинам смолотить
 	if (GET_AF_BATTLE(ch, kEafHammer) && ch->get_wait() <= 0) {
 		CLR_AF_BATTLE(ch, kEafHammer);
+		set_flag(fight::kIgnoreBlink);
 		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, kEafTouch)) {
 			try_mighthit_dam(ch, victim);
 		}
@@ -2744,6 +2877,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		// аналогично молоту, все доп условия добавляются внутри
 	else if (GET_AF_BATTLE(ch, kEafOverwhelm) && ch->get_wait() <= 0) {
 		CLR_AF_BATTLE(ch, kEafOverwhelm);
+		set_flag(fight::kIgnoreBlink);
 		const int minimum_weapon_weigth = 19;
 		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
@@ -3611,36 +3745,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			return;
 		}
 	}
-	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffect::kBlink) || victim->add_abils.percent_spell_blink > 0) {
-		if (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)
-			&& (!(hit_params.skill_num == ESkill::kBackstab && CanUseFeat(ch, EFeat::kThieveStrike)))
-			&& !hit_params.get_flags()[fight::kCritLuck]) {
-			ubyte blink;
-			if (victim->IsNpc()) {
-				blink = 25 + GetRealRemort(victim);
-			} else if (victim->add_abils.percent_spell_blink > 0) {
-				blink = victim->add_abils.percent_spell_blink;
-			} else  {
-				blink = 10;
-			}
-//			ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-//			victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
-			int bottom = 1;
-			if (ch->calc_morale() > number(1, 100)) // удача
-				bottom = 10;
-			if (number(bottom, blink) >= number(1, 100)) {
-				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-						CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
-				SendMsgToChar(buf, victim);
-				act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
-				act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
-				hit_params.dam = 0;
-				hit_params.extdamage(ch, victim);
-				return;
-			}
-		}
-	}
 	// расчет критических ударов
 	hit_params.calc_crit_chance(ch);
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
@@ -3650,12 +3754,16 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (hit_params.skill_num == ESkill::kBackstab) {
 		hit_params.reset_flag(fight::kCritHit);
 		hit_params.set_flag(fight::kIgnoreFireShield);
-		if (CanUseFeat(ch, EFeat::kThieveStrike) || CanUseFeat(ch, EFeat::kShadowStrike)) {
+		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
+			hit_params.set_flag(fight::kIgnoreSanct);
+			hit_params.set_flag(fight::kIgnoreBlink);
+			hit_params.set_flag(fight::kIgnoreArmor);
+		} else if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 			hit_params.set_flag(fight::kIgnoreArmor);
 		} else {
 			hit_params.set_flag(fight::kHalfIgnoreArmor);
 		}
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && victim->IsNpc()) {
+		if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 			hit_params.dam *= backstab_mult(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
 		} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 			if (victim->GetEnemy()) {
@@ -3667,9 +3775,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam *= backstab_mult(GetRealLevel(ch));
 		}
 
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-			&& victim->IsNpc()
-			&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
+		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
 			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
 			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
@@ -3679,8 +3785,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			return;
 		}
 
-		if (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL)
-			&& !CalcGeneralSaving(ch, victim, ESaving::kReflex, dex_bonus(GetRealDex(ch)))) {
+		if ((number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
+		&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)

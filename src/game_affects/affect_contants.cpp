@@ -94,9 +94,9 @@ const char *affected_bits[] = {"слепота",    // 0
 							   "рваные раны",
 							   "полководец",
 							   "земной поклон",
+							   "затуманивание",
 							   "ошарашен",
-							   "\n",
-							   "\n",
+							   "\n"
 };
 
 typedef std::map<EAffect, std::string> EAffectFlag_name_by_value_t;
@@ -191,6 +191,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kVampirism] = "kVampirism";
 	EAffectFlag_name_by_value[EAffect::kCommander] = "kCommander";
 	EAffectFlag_name_by_value[EAffect::kEarthAura] = "kEarthAura";
+	EAffectFlag_name_by_value[EAffect::kCloudly] = "kCloudly";
 	EAffectFlag_name_by_value[EAffect::kConfused] = "kConfused";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
@@ -268,6 +269,7 @@ void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kDeafness] = "kDeafness";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kComamnder] = "kComamnder";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kEarthAura] = "kEarthAura";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kCloudly] = "kCloudly";
 	for (const auto &i : EWeaponAffectFlag_name_by_value) {
 		EWeaponAffectFlag_value_by_name[i.second] = i.first;
 	}
@@ -335,9 +337,9 @@ WeaponAffectArray weapon_affect = {
 	WeaponAffect{EWeaponAffect::kIceAura, to_underlying(EAffect::kIceAura), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kDeafness, to_underlying(EAffect::kDeafness), ESpell::kUndefined},
 	WeaponAffect{EWeaponAffect::kComamnder, to_underlying(EAffect::kCommander), ESpell::kUndefined},
-	WeaponAffect{EWeaponAffect::kEarthAura, to_underlying(EAffect::kEarthAura), ESpell::kUndefined}
+	WeaponAffect{EWeaponAffect::kEarthAura, to_underlying(EAffect::kEarthAura), ESpell::kUndefined},
+	WeaponAffect{EWeaponAffect::kCloudly, to_underlying(EAffect::kCloudly), ESpell::kUndefined}
 };
-
 
 // APPLY_x - к чему применяется аффект или бонусы предмета (по сути, урезанные аффекты)
 
@@ -408,8 +410,9 @@ const char *apply_types[] = {"ничего",
 							 "роковое предчувствие",
 							 "*дополнительный бонус опыта",
 							 "бонус физ. повреждений %",
-							 "заклинание \"волшебное уклонение\"",
+							 "волшебное уклонение от физ. урона",
 							 "бонус маг. повреждений %",
+							 "волшебное уклонение от маг. урона",
 							 "\n"
 };
 
@@ -490,9 +493,10 @@ void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value[EApply::kViewDeathTraps] = "kViewDeathTraps";
 	EApplyLocation_name_by_value[EApply::kExpPercent] = "kExpPercent";
 	EApplyLocation_name_by_value[EApply::kPhysicDamagePercent] = "kPhysicDamagePercent";
-	EApplyLocation_name_by_value[EApply::kSpelledBlink] =  "kSpelledBlink";
-	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
+	EApplyLocation_name_by_value[EApply::kSpelledBlinkPhys] =  "kSpelledBlinkPhys";
 	EApplyLocation_name_by_value[EApply::kMagicDamagePercent] = "kMagicDamagePercent";
+	EApplyLocation_name_by_value[EApply::kSpelledBlinkMag] =  "kSpelledBlinkMag";
+	EApplyLocation_name_by_value[EApply::kNumberApplies] = "kNumberApplies";
 	for (const auto &i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;
 	}

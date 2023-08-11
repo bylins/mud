@@ -914,12 +914,14 @@ if (CMAKE_HOST_UNIX)
 		if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 			add_definitions("-Wno-invalid-source-encoding")
 		endif ()
-		target_link_libraries(circle.library crypt)
+		if(NOT NOCRYPT)
+			target_link_libraries(circle.library crypt)
+		endif()
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 	endif()
 
 	# Suppose that UNIX hosts support epoll by default EPOLL>>>
-	if (NOT CYGWIN)
+	if (NOT CYGWIN AND NOT APPLE)
 		option(HAS_EPOLL "Does system support epoll call?" ON)
 	else ()
 		# EPOLL>>> ... if it is not Cygwin ... EPOLL>>>

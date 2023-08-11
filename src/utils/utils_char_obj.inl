@@ -98,6 +98,13 @@ inline void weight_change_object(ObjData *obj, int weight) {
 	}
 }
 
+inline bool InTestZone(CharData *ch) {
+	Rnum zrn = world[ch->in_room]->zone_rn;
+	if ((ch->player_specials->saved.olc_zone == zone_table[zrn].vnum) || zone_table[zrn].under_construction)
+		return true;
+	return false;
+}
+
 #endif // __CHAR_OBJ_UTILS_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

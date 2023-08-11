@@ -57,6 +57,7 @@ enum {
 	kDrawBriefAirShield,	// было отражение от воздушного щита в кратком режиме
 	kDrawBriefIceShield,	// было отражение от ледяного щита в кратком режиме
 	kDrawBriefMagMirror,	// была обратка от маг. зеркала
+	kIgnoreBlink,			// игнор мигания
 
 	kHitFlagsNum			// кол-во флагов
 };

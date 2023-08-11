@@ -107,7 +107,8 @@ enum class EAffect : Bitvector {
 	kLacerations = kIntTwo | (1u << 21),
 	kCommander = kIntTwo | (1u << 22),
 	kEarthAura = kIntTwo | (1u << 23),
-	kConfused = kIntTwo | (1u << 24),
+	kCloudly = kIntTwo | (1u << 24),
+	kConfused = kIntTwo | (1u << 25),
 };
 
 template<>
@@ -164,10 +165,11 @@ enum class EWeaponAffect : Bitvector {
 	kDeafness = kIntOne | (1 << 13),
 	kComamnder = kIntOne | (1 << 14),
 	kEarthAura = kIntOne | (1 << 15),	//45
+	kCloudly = kIntOne | (1 << 16)
 // не забудьте поправить kWeaponAffectCount
 };
 
-constexpr size_t kWeaponAffectCount = 46;
+constexpr size_t kWeaponAffectCount = 47;
 
 template<>
 EWeaponAffect ITEM_BY_NAME<EWeaponAffect>(const std::string &name);
@@ -254,8 +256,9 @@ enum EApply {
 	kViewDeathTraps = 64,
 	kExpPercent = 65, //бонус +экспа
 	kPhysicDamagePercent = 66, // бонус + физповреждение
-	kSpelledBlink = 67, // мигание заклом
-	kMagicDamagePercent = 68,
+	kSpelledBlinkPhys = 67, // мигание от физурона
+	kMagicDamagePercent = 68, //бонус + маг повреждение
+	kSpelledBlinkMag = 69, //мигание от магурона
 	kNumberApplies
 };
 

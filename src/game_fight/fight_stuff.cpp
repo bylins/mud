@@ -23,6 +23,7 @@
 #include "game_magic/magic_utils.h"
 #include "entities/char_player.h"
 #include "structs/global_objects.h"
+#include "utils/utils_char_obj.inl"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -293,10 +294,9 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 
 bool check_tester_death(CharData *ch, CharData *killer) {
 	const bool player_died = !ch->IsNpc();
-	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone_rn].under_construction;
+	const bool zone_is_under_construction = InTestZone(ch);
 
-	if (!player_died
-		|| !zone_is_under_construction) {
+	if (!player_died || !zone_is_under_construction) {
 		return false;
 	}
 
@@ -874,21 +874,22 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
-	EndowExpToChar(ch, exp);
-	change_alignment(ch, victim);
-	TopPlayer::Refresh(ch);
-
-	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
-		&& !ch->IsNpc()
-		&& !IS_IMMORTAL(ch)
-		&& victim->IsNpc()
-		&& !IS_CHARMICE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
-		mob_stat::AddMob(victim, members);
-		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
-	} else if (ch->IsNpc() && !victim->IsNpc()
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
-		mob_stat::AddMob(ch, 0);
+	if (!InTestZone(ch)) {
+		EndowExpToChar(ch, exp);
+		change_alignment(ch, victim);
+		TopPlayer::Refresh(ch);
+		if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
+				&& !ch->IsNpc()
+				&& !IS_IMMORTAL(ch)
+				&& victim->IsNpc()
+				&& !IS_CHARMICE(victim)
+				&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+				mob_stat::AddMob(victim, members);
+				EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
+		} else if (ch->IsNpc() && !victim->IsNpc()
+			&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+			mob_stat::AddMob(ch, 0);
+		}
 	}
 }
 
@@ -1004,14 +1005,19 @@ void group_gain(CharData *killer, CharData *victim) {
 
 void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	// не даем получать батлу с себя по зеркалу?
-	if (ch == victim) { return; }
-	// не даем получать экспу с !эксп мобов
-	if (MOB_FLAGGED(victim, EMobFlag::kNoBattleExp)) { return; }
-	// если цель не нпс то тоже не даем экспы
+	if (ch == victim) { 
+		return;
+	}
 	if (!victim->IsNpc()) { return; }
+	// не даем получать экспу с !эксп мобов
+	if (MOB_FLAGGED(victim, EMobFlag::kNoBattleExp) || InTestZone(ch)) { 
+		return;
+	}
+	// если цель не нпс то тоже не даем экспы
 	// если цель под чармом не даем экспу
-	if (AFF_FLAGGED(victim, EAffect::kCharmed)) { return; }
-
+	if (AFF_FLAGGED(victim, EAffect::kCharmed)) { 
+		return; 
+	}
 	// получение игроками экспы
 	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
 		int max_exp = MIN(max_exp_gain_pc(ch), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
@@ -1241,80 +1247,6 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 	}
 }
 
-/**
- * Разный инит щитов у мобов и чаров.
- * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
- */
-void Damage::post_init_shields(CharData *victim) {
-	if (victim->IsNpc() && !IS_CHARMICE(victim)) {
-		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-			flags.set(fight::kVictimFireShield);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-			flags.set(fight::kVictimIceShield);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-			flags.set(fight::kVictimAirShield);
-		}
-	} else {
-		enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
-		std::vector<int> shields;
-
-		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
-			shields.push_back(FIRESHIELD);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kAirShield)) {
-			shields.push_back(AIRSHIELD);
-		}
-
-		if (AFF_FLAGGED(victim, EAffect::kIceShield)) {
-			shields.push_back(ICESHIELD);
-		}
-
-		if (shields.empty()) {
-			return;
-		}
-
-		int shield_num = number(0, static_cast<int>(shields.size() - 1));
-
-		if (shields[shield_num] == FIRESHIELD) {
-			flags.set(fight::kVictimFireShield);
-		} else if (shields[shield_num] == AIRSHIELD) {
-			flags.set(fight::kVictimAirShield);
-		} else if (shields[shield_num] == ICESHIELD) {
-			flags.set(fight::kVictimIceShield);
-		}
-	}
-}
-
-void Damage::post_init(CharData *ch, CharData *victim) {
-	if (msg_num == -1) {
-		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
-		if (MUD::Skills().IsValid(skill_id)) {
-			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_id > ESpell::kUndefined) {
-			msg_num = to_underlying(spell_id);
-		} else if (hit_type >= 0) {
-			msg_num = hit_type + kTypeHit;
-		} else {
-			msg_num = kTypeHit;
-		}
-	}
-
-	if (ch_start_pos == EPosition::kUndefined) {
-		ch_start_pos = GET_POS(ch);
-	}
-
-	if (victim_start_pos == EPosition::kUndefined) {
-		victim_start_pos = GET_POS(victim);
-	}
-
-	post_init_shields(victim);
-}
-
 void do_show_mobmax(CharData *ch, char *, int, int) {
 	const auto player = dynamic_cast<Player *>(ch);
 	if (nullptr == player) {
@@ -1324,20 +1256,4 @@ void do_show_mobmax(CharData *ch, char *, int, int) {
 	SendMsgToChar(ch, "&BВ стадии тестирования!!!&n\n");
 	player->show_mobmax();
 }
-
-void Damage::zero_init() {
-	dam = 0;
-	dam_critic = 0;
-	fs_damage = 0;
-	element = EElement::kUndefined;
-	dmg_type = -1;
-	skill_id = ESkill::kUndefined;
-	spell_id = ESpell::kUndefined;
-	hit_type = -1;
-	msg_num = -1;
-	ch_start_pos = EPosition::kUndefined;
-	victim_start_pos = EPosition::kUndefined;
-	wielded = nullptr;
-}
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
