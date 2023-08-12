@@ -513,6 +513,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kLifeMagic] = "kLifeMagic";
 	ESkill_name_by_value[ESkill::kMakeAmulet] = "kMakeAmulet";
 	ESkill_name_by_value[ESkill::kStun] = "kStun";
+	ESkill_name_by_value[ESkill::kSlay] = "kSlay";
 
 	for (const auto &i: ESkill_name_by_value) {
 		ESkill_value_by_name[i.second] = i.first;
@@ -668,6 +669,19 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) >= EPosition::kSleep) {
 				rate -= 20;
 			}
+			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			}
+			break;
+		}
+
+		case ESkill::kShieldBash: {
+			rate -= GetBasicSave(vict, ESaving::kStability, false);
+			break;
+		}
+
+		case ESkill::kSlay: {
+			rate -= GetBasicSave(vict, ESaving::kReflex, false);
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
@@ -868,6 +882,16 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (PRF_FLAGGED(ch, EPrf::kAwake)) {
 				bonus = -50;
 			}
+			break;
+		}
+
+		case ESkill::kShieldBash: {
+			parameter_bonus += GetRealStr(ch);
+			break;
+		}
+
+		case ESkill::kSlay: {
+			parameter_bonus += dex_bonus(GetRealDex(ch));
 			break;
 		}
 

@@ -148,6 +148,7 @@
 #include "structs/global_objects.h"
 #include "administration/accounts.h"
 #include "game_fight/pk.h"
+#include "game_skills/Slay.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -761,6 +762,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
 		{"спрятаться", EPosition::kStand, do_hide, 1, 0, 500},
 		{"сравнить", EPosition::kRest, do_consider, 0, 0, 500},
+		{"сразить", EPosition::kFight, do_slay, 1, 0, -1},
 		{"ставка", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"статус", EPosition::kDead, do_display, 0, 0, 0},
 		{"статистика", EPosition::kDead, do_statistic, 0, 0, 0},
@@ -977,6 +979,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"sit", EPosition::kRest, do_sit, 0, 0, -1},
 		{"skills", EPosition::kRest, DoSkills, 0, 0, 0},
 		{"skillset", EPosition::kSleep, do_skillset, kLvlImplementator, 0, 0},
+		{"slay", EPosition::kFight, do_slay, 1, 0, -1},
 		{"morphset", EPosition::kSleep, do_morphset, kLvlImplementator, 0, 0},
 		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},
 		{"sleep", EPosition::kSleep, do_sleep, 0, 0, -1},
