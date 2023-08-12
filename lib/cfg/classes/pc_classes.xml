@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<classes>
+    <!-- Лекарь -->
+    <class file="cfg/classes/pc_sorcerer.xml" id="kSorcerer">
+    </class>
+    <!-- Колдун -->
+    <class file="cfg/classes/pc_conjurer.xml" id="kConjurer">
+    </class>
+    <!-- Тать -->
+    <class file="cfg/classes/pc_thief.xml" id="kThief">
+    </class>
+    <!-- Богатырь -->
+    <class file="cfg/classes/pc_warrior.xml" id="kWarrior">
+    </class>
+    <!-- Наемник -->
+    <class file="cfg/classes/pc_assasine.xml" id="kAssasine">
+    </class>
+    <!-- Дружинник -->
+    <class file="cfg/classes/pc_guard.xml" id="kGuard">
+    </class>
+    <!-- Кудесник -->
+    <class file="cfg/classes/pc_charmer.xml" id="kCharmer">
+    </class>
+    <!-- Волшебник -->
+    <class file="cfg/classes/pc_wizard.xml" id="kWizard">
+    </class>
+    <!-- Чернокнижник -->
+    <class file="cfg/classes/pc_necromancer.xml" id="kNecromancer">
+    </class>
+    <!-- Витязь -->
+    <class file="cfg/classes/pc_paladine.xml" id="kPaladine">
+    </class>
+    <!-- Охотник -->
+    <class file="cfg/classes/pc_ranger.xml" id="kRanger">
+    </class>
+    <!-- Кузнец -->
+    <class file="cfg/classes/pc_vigilant.xml" id="kVigilant">
+    </class>
+    <!-- Купец -->
+    <class file="cfg/classes/pc_merchant.xml" id="kMerchant">
+    </class>
+    <!-- Волхв -->
+    <class file="cfg/classes/pc_magus.xml" id="kMagus">
+    </class>
+    <!--
+        Этому тут не место, но кто-то сунул классы мобов в то же поле,
+        что и классы игрока, а все корректные значения enum надо проинициализировать.
+        Если у меня не дойдут руки, нужно иметь в виду, что в идеале нужно иметь какой-то
+        общий интерфейс для параметра класса у мобов с игроками, но не помещать, разумеется, классы
+        плееров с мобами в один неймспейс.
+     -->
+    <class id="kUndefined" mode="kService">
+        <name abbr="--">
+            <singular nom="undefined" gen="undefined" dat="undefined" acc="undefined" ins="undefined" pre="undefined"/>
+            <plural nom="undefined" gen="undefined" dat="undefined" acc="undefined" ins="undefined" pre="undefined"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
+        <spells level_decrement="3">
+        </spells>
+        <feats remorts_for_slot="4">
+        </feats>
+    </class>
+    <class id="kMob" mode="kService">
+        <name abbr="--">
+            <singular nom="моб" gen="моба" dat="мобу" acc="моба" ins="мобом" pre="мобе"/>
+            <plural nom="мобы" gen="мобов" dat="мобам" acc="мобов" ins="мобами" pre="мобах"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
+        <spells level_decrement="3">
+        </spells>
+        <feats remorts_for_slot="4">
+        </feats>
+    </class>
+    <class id="kNpcBase" mode="kService">
+        <name abbr="--">
+            <singular nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" ins="base_npc" pre="base_npc"/>
+            <plural nom="base_npc" gen="base_npc" dat="base_npc" acc="base_npc" ins="base_npc" pre="base_npc"/>
+        </name>
+        <skills level_decrement="5">
+        </skills>>
+        <spells level_decrement="3">
+        </spells>
+        <feats remorts_for_slot="4">
+        </feats>
+    </class>
+</classes>

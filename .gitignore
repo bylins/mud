@@ -16,5 +16,3 @@ libcircle.library.a
 lib/
 tests/CTestTestfile.cmake
 cmake-build-release/
-log/
-syslog
