@@ -148,7 +148,7 @@
 #include "structs/global_objects.h"
 #include "administration/accounts.h"
 #include "game_fight/pk.h"
-#include "game_skills/Slay.h"
+#include "game_skills/slay.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 

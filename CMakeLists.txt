@@ -268,7 +268,7 @@ set(SOURCES
 		src/cmd_god/mark.cpp
 		src/game_crafts/fry.cpp
 		src/cmd/refill.cpp
-        src/game_mechanics/guilds.cpp
+		src/game_mechanics/guilds.cpp
 		src/cmd/do_features.cpp
 		src/cmd/do_spells.cpp
 		src/cmd/do_skills.cpp
@@ -280,7 +280,8 @@ set(SOURCES
 		src/game_abilities/talents_effects.cpp
 		src/feats_constants.cpp
 		src/game_abilities/abilities_items_set.cpp
-		src/game_abilities/talents_actions.cpp)
+		src/game_abilities/talents_actions.cpp
+		src/game_skills/slay.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -540,7 +541,8 @@ set(HEADERS
 		src/game_skills/fit.h
 		src/game_abilities/talents_effects.h
 		src/feats_constants.h
-		src/game_abilities/talents_actions.h)
+		src/game_abilities/talents_actions.h
+		src/game_skills/slay.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
