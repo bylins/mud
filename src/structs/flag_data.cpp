@@ -6,7 +6,7 @@
 */
 
 #include "flag_data.h"
-
+#include "utils/logger.h"
 #include "utils/utils.h"
 
 int ext_search_block(const char *arg, const char *const *const list, int exact) {
@@ -38,7 +38,7 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 		if (!l) {
 			l = 1;    // Avoid "" to match the first available string
 		}
-		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)    // shapirus: попытка в лоб убрать креш
+		for (i = j = 0, o = 1; j != 1 && **(list + i) != '\0'; i++)    // shapirus: попытка в лоб убрать креш
 		{
 			if (**(list + i) == '\n') {
 				o = 1;
@@ -52,10 +52,12 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 					default: j = 1;
 						break;
 				}
-			} else if (!strn_cmp(arg, *(list + i), l)) {
-				return j | o;
 			} else {
-				o <<= 1;
+				if (!strn_cmp(arg, *(list + i), l)) {
+					return j | o;
+				} else {
+					o <<= 1;
+				}
 			}
 		}
 	}
