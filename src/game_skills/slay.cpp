@@ -93,49 +93,38 @@ void go_slay(CharData *ch, CharData *vict) {
 void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = FindVictim(ch, argument);
 
-
 	if (!ch->GetSkill(ESkill::kSlay)) {
 		SendMsgToChar("Вы не умеете сражать, только сра... В общем, не умеете.\r\n", ch);
 		return;
 	}
-
-	if (ch == vict) {
-		SendMsgToChar("Сразить себя?! Вы же дружинник, а не самурай!\r\n", ch);
-		return;
-	}
-
-	if (PRF_FLAGGED(ch, EPrf::kAwake)) {
-		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
-		return;
-	}
-
-	if (!(GET_EQ(ch, EEquipPos::kWield) || (GET_EQ(ch, EEquipPos::kBoths) && (!ch->IsNpc() || IS_CHARMICE(ch))))) {
-		SendMsgToChar("Для этого Вам потребуется оружие!\r\n", ch);
-		return;
-	}
-
-	if (!AFF_FLAGGED(vict, EAffect::kConfused)) {
-		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
-		return;
-	}
-
-
 	if (!vict) {
 		SendMsgToChar("Кого же вы хотите сразить?\r\n", ch);
 		return;
 	}
-
-
+	if (ch == vict) {
+		SendMsgToChar("Сразить себя?! Вы же дружинник, а не самурай!\r\n", ch);
+		return;
+	}
+	if (PRF_FLAGGED(ch, EPrf::kAwake)) {
+		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
+		return;
+	}
+	if (!(GET_EQ(ch, EEquipPos::kWield) || (GET_EQ(ch, EEquipPos::kBoths) && (!ch->IsNpc() || IS_CHARMICE(ch))))) {
+		SendMsgToChar("Для этого Вам потребуется оружие!\r\n", ch);
+		return;
+	}
+	if (!AFF_FLAGGED(vict, EAffect::kConfused)) {
+		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
+		return;
+	}
 	if (ch->HasCooldown(ESkill::kSlay)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
-
 	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-
 	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_slay(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
