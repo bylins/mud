@@ -775,7 +775,7 @@ enum class EObjFlag : Bitvector {
 	kNopour = kIntOne | (1 << 13),						//< нельзя перелить
 	kUnique = kIntOne | (1 << 14),						// объект уникальный, т.е. только один в экипировке
 	kTransformed = kIntOne | (1 << 15),					// Наложено заклинание заколдовать оружие
-	kFreeForUse = kIntOne | (1 << 16),					// пока свободно, можно использовать
+	kNoRentTimer = kIntOne | (1 << 16),					// пока свободно, можно использовать
 	KLimitedTimer = kIntOne | (1 << 17),				// Не может быть нерушимой
 	kBindOnPurchase = kIntOne | (1 << 18),				// станет именной при покупке в магазе
 	kNotOneInClanChest = kIntOne | (1 << 19)			//1 штука из набора не лезет в хран

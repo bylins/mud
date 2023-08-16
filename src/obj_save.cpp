@@ -1377,7 +1377,12 @@ void Crash_timer_obj(const std::size_t index, long time) {
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = real_object(player_table[index].timer->time[i].vnum);
-			if (!check_unlimited_timer(obj_proto[rnum].get())) {
+			sprintf(buf, "зашли в процедуру расчета таймера прототип предмета %s (%d)",
+					GET_OBJ_PNAME(obj_proto[rnum], 0).c_str(), GET_OBJ_VNUM(obj_proto[rnum].get()));
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			sprintf(buf, "зашли в процедуру расчета таймера битвектор %s", obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer) ? "есть норент" : "нет норент");
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			if ((!check_unlimited_timer(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
 				timer = player_table[index].timer->time[i].timer;
 				if (timer < timer_dec) {
 					player_table[index].timer->time[i].timer = -1;

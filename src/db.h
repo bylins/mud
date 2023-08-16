@@ -178,8 +178,8 @@ struct reset_q_type {
 	struct reset_q_element *tail;
 };
 
-const int OBJECT_SAVE_ACTIVITY = 300;
-const int PLAYER_SAVE_ACTIVITY = 310;
+const int OBJECT_SAVE_ACTIVITY = 20;
+const int PLAYER_SAVE_ACTIVITY = 20;
 const int MAX_SAVED_ITEMS = 1000;
 
 class PlayerIndexElement {
