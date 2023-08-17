@@ -1370,8 +1370,8 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	nitems = player_table[index].timer->rent.nitems;
 //  log("[TO] Checking items for %s (%d items, rented time %dmin):",
 //      name, nitems, timer_dec);
-	//sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
-	//mudlog(buf, BRF, kLevelImmortal, SYSLOG, true);
+	sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
+	mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 	for (i = 0; i < nitems; i++) {
 		if (player_table[index].timer->time[i].vnum < 0) //для шмоток без прототипа идем мимо
 			continue;
@@ -1387,10 +1387,17 @@ void Crash_timer_obj(const std::size_t index, long time) {
 				if (timer < timer_dec) {
 					player_table[index].timer->time[i].timer = -1;
 					idelete++;
+			sprintf(buf, "удаляем предмет %s", GET_OBJ_PNAME(obj_proto[rnum], 0).c_str());
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
 						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(0).c_str());
 					}
+				} else {
+			sprintf(buf, "НЕ !!!!!!!!!!!!удаляем предмет %s", GET_OBJ_PNAME(obj_proto[rnum], 0).c_str());
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
 				}
 			}
 		} else {
@@ -1688,7 +1695,8 @@ int Crash_load(CharData *ch) {
 			obj_proto.dec_stored(rnum);
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
-		if (!check_unlimited_timer(obj.get())) {
+		if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
+//		if (!check_unlimited_timer(obj.get())) {
 			const SaveInfo *si = SAVEINFO(index);
 			obj->set_timer(si->time[fsize].timer);
 			obj->dec_timer(timer_dec);
