@@ -109,11 +109,11 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
 		return;
 	}
-	if (!(GET_EQ(ch, EEquipPos::kWield) || (GET_EQ(ch, EEquipPos::kBoths) && (!ch->IsNpc() || IS_CHARMICE(ch))))) {
+	if (!(GET_EQ(ch, EEquipPos::kWield) || (GET_EQ(ch, EEquipPos::kBoths) || ((IS_IMMORTAL(ch)) && (!ch->IsNpc() || IS_CHARMICE(ch)))))) {
 		SendMsgToChar("Для этого Вам потребуется оружие!\r\n", ch);
 		return;
 	}
-	if (!AFF_FLAGGED(vict, EAffect::kConfused)) {
+	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || IS_IMMORTAL(ch))) {
 		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
 		return;
 	}
