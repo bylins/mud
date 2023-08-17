@@ -174,6 +174,7 @@ void init_EObjFlag_ITEM_NAMES() {
 	EObjFlag_name_by_value[EObjFlag::kNopour] = "kNopour";
 	EObjFlag_name_by_value[EObjFlag::kUnique] = "kUnique";
 	EObjFlag_name_by_value[EObjFlag::kTransformed] = "kTransformed";
+	EObjFlag_name_by_value[EObjFlag::kNoRentTimer] = "kNoRentTimer";
 	EObjFlag_name_by_value[EObjFlag::KLimitedTimer] = "KLimitedTimer";
 	EObjFlag_name_by_value[EObjFlag::kBindOnPurchase] = "kBindOnPurchase";
 	EObjFlag_name_by_value[EObjFlag::kNotOneInClanChest] = "kNotOneInClanChest";
