@@ -1370,34 +1370,22 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	nitems = player_table[index].timer->rent.nitems;
 //  log("[TO] Checking items for %s (%d items, rented time %dmin):",
 //      name, nitems, timer_dec);
-	sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
-	mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
+//	sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
+//	mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 	for (i = 0; i < nitems; i++) {
 		if (player_table[index].timer->time[i].vnum < 0) //для шмоток без прототипа идем мимо
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = real_object(player_table[index].timer->time[i].vnum);
-			sprintf(buf, "зашли в процедуру расчета таймера прототип предмета %s (%d)",
-					GET_OBJ_PNAME(obj_proto[rnum], 0).c_str(), GET_OBJ_VNUM(obj_proto[rnum].get()));
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			sprintf(buf, "зашли в процедуру расчета таймера битвектор %s", obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer) ? "есть норент" : "нет норент");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			if ((!check_unlimited_timer(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
 				timer = player_table[index].timer->time[i].timer;
 				if (timer < timer_dec) {
 					player_table[index].timer->time[i].timer = -1;
 					idelete++;
-			sprintf(buf, "удаляем предмет %s", GET_OBJ_PNAME(obj_proto[rnum], 0).c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
 						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(0).c_str());
 					}
-				} else {
-			sprintf(buf, "НЕ !!!!!!!!!!!!удаляем предмет %s", GET_OBJ_PNAME(obj_proto[rnum], 0).c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 				}
 			}
 		} else {
@@ -1448,9 +1436,14 @@ void Crash_list_objects(CharData *ch, int index) {
 	for (; i < SAVEINFO(index)->rent.nitems; i++) {
 		data = SAVEINFO(index)->time[i];
 		if (((rnum = real_object(data.vnum)) > -1) && ((data.vnum > 799) || (data.vnum < 700))) {
+			int tmr = data.timer;
+			auto obj = obj_proto[rnum];
+			if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
+				tmr = MAX(-1, data.timer - timer_dec);
+			}
 			sprintf(buf + strlen(buf), " [%5d] (%5dau) <%6d> %-20s\r\n",
 					data.vnum, GET_OBJ_RENT(obj_proto[rnum]),
-					MAX(-1, data.timer - timer_dec), obj_proto[rnum]->get_short_description().c_str());
+					tmr, obj_proto[rnum]->get_short_description().c_str());
 		} else if ((data.vnum > 799) || (data.vnum < 700)) {
 			sprintf(buf + strlen(buf), " [%5d] (?????au) <%2d> %-20s\r\n",
 					data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");
@@ -1694,9 +1687,8 @@ int Crash_load(CharData *ch) {
 			&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0) {
 			obj_proto.dec_stored(rnum);
 		}
-		// в два действия, чтобы заодно снять и таймер обкаста
+		// вычтем таймер оффлайна
 		if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
-//		if (!check_unlimited_timer(obj.get())) {
 			const SaveInfo *si = SAVEINFO(index);
 			obj->set_timer(si->time[fsize].timer);
 			obj->dec_timer(timer_dec);
