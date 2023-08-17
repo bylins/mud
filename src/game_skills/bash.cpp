@@ -71,11 +71,11 @@ void go_bash(CharData *ch, CharData *vict) {
 			//Успех "удара щитом":
 			if (successShB && GET_EQ(ch, kShield)) {
 				affect_to_char(vict, af);
-				act("Вы ошарашили $N3 сильнейшим ударом щита!",
+				act("Вы ошарашили $N3 ударом щита!",
 					false, ch, nullptr, vict, kToChar);
-				act("$N0 ошарашил$g Вас сильнейшим ударом щита!",
+				act("$N0 ошарашил$G Вас ударом щита!",
 					false, vict, nullptr, ch, kToChar);
-				act("$N0 ошарашил$g $n3 сильнейшим ударом щита!",
+				act("$N0 ошарашил$G $n3 ударом щита!",
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 
 				dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) / 1.25),
@@ -115,11 +115,11 @@ void go_bash(CharData *ch, CharData *vict) {
 			MakeSkillTest(ch, ESkill::kShieldBash, vict);
 			TrainSkill(ch, ESkill::kShieldBash, success, vict);
 			affect_to_char(vict, af);
-			act("Вы ошарашили $N3 сильнейшим ударом щита!",
+			act("Вы ошарашили $N3 ударом щита!",
 				false, ch, nullptr, vict, kToChar);
-			act("$N0 ошарашил$g Вас сильнейшим ударом щита!",
+			act("$N0 ошарашил$G Вас ударом щита!",
 				false, vict, nullptr, ch, kToChar);
-			act("$N0 ошарашил$g $n3 сильнейшим ударом щита!",
+			act("$N0 ошарашил$G $n3 ударом щита!",
 				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 			dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) / 1.25),
 						 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
