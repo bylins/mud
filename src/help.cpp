@@ -15,6 +15,7 @@
 #include "color.h"
 #include "structs/global_objects.h"
 #include "game_magic/magic_utils.h"
+#include "game_mechanics/obj_sets_stuff.h"
 
 extern char *help;
 extern int top_imrecipes;
@@ -1115,6 +1116,54 @@ void ClassRecipiesHelp() {
 	add_static("ОТВАРЫВОЛХВА", out.str(), 0, true);
 }
 
+void SetsHelp() {
+	std::ostringstream out;
+	table_wrapper::Table table;
+	std::stringstream str_out, str_out2;
+	std::string tmps;
+	int count = 0;
+
+/*	str_out <<  "Много в мире различных вещей, но сколько бы их не одел смертный - никогда ему не бывать богом...\n" <<
+				"Правда можно приблизиться к могуществу древнейших - собирая комплекты(сеты) - чем больше частей\n" <<
+				"   комплекта соберешь, тем ближе будешь!\n" <<
+				"Комплекты можно выбить с различных мобов, либо купить(за куны или гривны)\n" <<
+				"Комплекты, которые выпадают с мобов делятся на табличные и случайные(фридроп)\n" <<
+				"Комплекты, которые выпадают с различных мобов (табличные и случайные):\n";
+*/
+//	table[0][0] =  str_out.str();
+	for (auto &it : obj_sets::sets_list) {
+		if (!it->enabled)
+			continue;
+		tmps = it->alias;
+		for (long unsigned int i = 0; i < tmps.size(); i++) {
+			if (!a_isalpha(tmps[i])) {
+				tmps.erase(i);
+				break;
+			}
+		}
+		std::string prof_str = "";
+		for (auto & k : it->activ_list) {
+			if (!k.second.prof.all()) {
+				obj_sets::PrinSetClasses(k.second.prof, prof_str);
+				long unsigned int j = 30;
+				long unsigned int j_size = prof_str.size();
+				while (j < j_size) {
+					prof_str.insert(j, "\n");
+					j += 30;
+				}
+				table[count][2] = prof_str;
+			} else {
+				table[count][2] = "все";
+			}
+		}
+		table[count][0] = tmps;
+		table[count][1] = it->name;
+		count++;
+	}
+	table_wrapper::PrintTableToStream(out, table);
+	add_static("СЕТЫ1", out.str(), 0, true);
+}
+
 void init_group_zones() {
 	std::stringstream out;
 
@@ -1145,6 +1194,7 @@ void reload(Flags flag) {
 			ClassSkillHelp();
 			ClassFeatureHelp();
 			CasterSpellslHelp();
+			SetsHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей 
