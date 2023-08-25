@@ -81,6 +81,16 @@
                 <price currency="kKuna" start="3" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="50"/>
             </skill>
+            <skill id="kShieldBash" fail="0">
+                <class val="kGuard|kPaladine|kVigilant"/>
+                <price currency="kKuna" start="10" remort_percent="400"/>
+                <upgrade practices="10" min="0" max="50"/>
+            </skill>
+            <skill id="kSlay" fail="0">
+                <class val="kGuard|kPaladine"/>
+                <price currency="kKuna" start="12" remort_percent="400"/>
+                <upgrade practices="10" min="0" max="50"/>
+            </skill>
             <skill id="kShieldBlock" fail="0">
                 <class val="kGuard|kPaladine"/>
                 <price currency="kKuna" start="4" remort_percent="400"/>

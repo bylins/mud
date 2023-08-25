@@ -1120,7 +1120,6 @@ void SetsHelp() {
 	std::ostringstream out;
 	table_wrapper::Table table;
 	std::stringstream str_out, str_out2;
-	std::string tmps;
 	int count = 0;
 
 /*	str_out <<  "Много в мире различных вещей, но сколько бы их не одел смертный - никогда ему не бывать богом...\n" <<
@@ -1134,13 +1133,7 @@ void SetsHelp() {
 	for (auto &it : obj_sets::sets_list) {
 		if (!it->enabled)
 			continue;
-		tmps = it->alias;
-		for (long unsigned int i = 0; i < tmps.size(); i++) {
-			if (!a_isalpha(tmps[i])) {
-				tmps.erase(i);
-				break;
-			}
-		}
+/*
 		std::string prof_str = "";
 		for (auto & k : it->activ_list) {
 			if (!k.second.prof.all()) {
@@ -1156,7 +1149,8 @@ void SetsHelp() {
 				table[count][2] = "все";
 			}
 		}
-		table[count][0] = tmps;
+*/
+		table[count][0] = utils::FirstWordOnString(it->alias, " ,;");
 		table[count][1] = it->name;
 		count++;
 	}
