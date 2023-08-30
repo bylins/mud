@@ -2084,7 +2084,7 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 void Damage::Blink(CharData *ch, CharData *victim) {
 	if (flags[fight::kIgnoreBlink] || flags[fight::kCritLuck])
 		return;
-	ubyte blink;
+	ubyte blink = 0;
 	// даже в случае попадания можно уклониться мигалкой
 	if (dmg_type == fight::kMagicDmg) {
 		if (AFF_FLAGGED(victim, EAffect::kCloudly) || victim->add_abils.percent_spell_blink_mag > 0) {
