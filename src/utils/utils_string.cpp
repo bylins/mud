@@ -142,6 +142,14 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 	return tokens;
 }
 
+// первое слово разделенное маской
+std::string FirstWordOnString(std::string s, std::string mask) {
+	int pos = s.find_first_of(mask);
+	if (pos > 0)
+		s.erase(pos);
+	return s;
+}
+
 std::string SubstToLow(std::string s) {
 	for (char &it: s) {
 		it = LOWER(it);

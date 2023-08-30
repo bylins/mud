@@ -120,6 +120,9 @@ void ConvertToLow(char *text);
  */
 std::vector<std::string> Split(const std::string s, char delimiter = ' ');
 
+// первое слово разделенное маской
+std::string FirstWordOnString(std::string s, std::string mask);
+
 /**
  * Обрезать пробелы слева.
  */

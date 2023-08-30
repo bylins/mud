@@ -15,6 +15,7 @@
 #include "color.h"
 #include "structs/global_objects.h"
 #include "game_magic/magic_utils.h"
+#include "game_mechanics/obj_sets_stuff.h"
 
 extern char *help;
 extern int top_imrecipes;
@@ -71,15 +72,19 @@ bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const i
 }
 
 std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, bool activ) {
-	std::string out;
 	if (skill.second != 0) {
-		out += fmt::format("%s%s%s%s%s%s%d%%%s\r\n",
-							  (activ ? " +    " : "   "), KCYN,
-							  MUD::Skill(skill.first).GetName(), KNRM,
-							  KCYN, (skill.second < 0 ? " ухудшает на " : " улучшает на "),
-							  abs(skill.second), KNRM);
+		char buf[128];
+
+		sprintf(buf, "%s%s%s%s%d%s\r\n",
+				(activ ? " +    " : "   "),
+				KCYN,
+				MUD::Skill(skill.first).GetName(),
+				(skill.second < 0 ? " ухудшает на " : " улучшает на "),
+				abs(skill.second),
+				KNRM);
+		return buf;
 	}
-	return out;
+	return "";
 }
 
 /// распечатка массива скилов с " + " перед активаторами
@@ -1115,6 +1120,51 @@ void ClassRecipiesHelp() {
 	add_static("ОТВАРЫВОЛХВА", out.str(), 0, true);
 }
 
+void SetsHelp() {
+	std::ostringstream out;
+	std::string str_out;
+	int count = 1;
+	bool class_num[kNumPlayerClasses];
+
+	out <<  "Много в мире различных вещей, но сколько бы их не одел смертный - никогда ему не бывать богом...\r\n" <<
+			"Правда можно приблизиться к могуществу древнейших - собирая комплекты(сеты) - чем больше частей\r\n" <<
+			"комплекта соберешь, тем ближе будешь!\r\n";
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader << "#" << "Сокращение" << "Название" << "Профессии" << table_wrapper::kEndRow;
+	for (auto &it : obj_sets::sets_list) {
+		int count_class = 0;
+
+		if (!it->enabled)
+			continue;
+		for (auto &k : it->activ_list) {
+			for (unsigned i = 0; i < kNumPlayerClasses; ++i) {
+				if (k.second.prof.test(i) == true) {
+					class_num[i] = true;
+				} else
+					class_num[i] = false;
+			}
+		}
+		table << count++ << utils::FirstWordOnString(it->alias, " ,;") << utils::RemoveColors(it->name);
+		str_out.clear();
+		for (unsigned i = 0; i < kNumPlayerClasses; i++) {
+			if (class_num[i]) {
+				count_class++;
+				str_out += MUD::Classes().FindAvailableItem(static_cast<int>(i)).GetName() + (!(count_class % 4) ? "\n" : " ");
+			}
+		}
+		if (count_class ==  kNumPlayerClasses)
+			str_out = "все";
+		else if (count_class == 0)
+			str_out = "никто";
+		if (str_out.back() == '\n')
+			str_out.back() = '\0';
+		table << str_out << table_wrapper::kSeparator << table_wrapper::kEndRow;
+	}
+	table.SetColumnAlign(0, table_wrapper::align::kRight);
+	table_wrapper::PrintTableToStream(out, table);
+	add_static("СЕТЫ", out.str(), 0, true);
+}
+
 void init_group_zones() {
 	std::stringstream out;
 
@@ -1145,6 +1195,7 @@ void reload(Flags flag) {
 			ClassSkillHelp();
 			ClassFeatureHelp();
 			CasterSpellslHelp();
+			SetsHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей 
