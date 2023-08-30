@@ -1118,21 +1118,34 @@ void ClassRecipiesHelp() {
 
 void SetsHelp() {
 	std::ostringstream out;
-	table_wrapper::Table table;
-	std::stringstream str_out, str_out2;
-	int count = 0;
+	std::stringstream str_out;
+	std::string column;
+	int count = 1;
 
-/*	str_out <<  "Много в мире различных вещей, но сколько бы их не одел смертный - никогда ему не бывать богом...\n" <<
+	out <<  "Много в мире различных вещей, но сколько бы их не одел смертный - никогда ему не бывать богом...\n" <<
 				"Правда можно приблизиться к могуществу древнейших - собирая комплекты(сеты) - чем больше частей\n" <<
-				"   комплекта соберешь, тем ближе будешь!\n" <<
-				"Комплекты можно выбить с различных мобов, либо купить(за куны или гривны)\n" <<
-				"Комплекты, которые выпадают с мобов делятся на табличные и случайные(фридроп)\n" <<
-				"Комплекты, которые выпадают с различных мобов (табличные и случайные):\n";
-*/
+				"комплекта соберешь, тем ближе будешь!\n";
+//				"Комплекты можно выбить с различных мобов, либо купить(за куны или гривны)\n" <<
+//				"Комплекты, которые выпадают с мобов делятся на табличные и случайные(фридроп)\n" <<
+//				"Комплекты, которые выпадают с различных мобов (табличные и случайные):\n";
+
 //	table[0][0] =  str_out.str();
+	bool class_num[kNumPlayerClasses] {false};
+
+	table_wrapper::Table table;
+	table << table_wrapper::kHeader << "#" << "Сокращение" << "Название" << "Профессии" << table_wrapper::kEndRow;
 	for (auto &it : obj_sets::sets_list) {
 		if (!it->enabled)
 			continue;
+
+		for (auto & k : it->activ_list) {
+			for (unsigned i = 0; i < kNumPlayerClasses; ++i) {
+				if (k.second.prof.test(i) == true) {
+					class_num[i] =true;
+				} else
+					class_num[i] = false;
+			}
+		}
 /*
 		std::string prof_str = "";
 		for (auto & k : it->activ_list) {
@@ -1150,10 +1163,36 @@ void SetsHelp() {
 			}
 		}
 */
-		table[count][0] = utils::FirstWordOnString(it->alias, " ,;");
-		table[count][1] = it->name;
+//		sprintf(buf, "%d", count);
+//		table[count][0] = buf;
+//		table[count][1] = utils::FirstWordOnString(it->alias, " ,;");
+//		table[count][2] = utils::RemoveColors(it->name);
+		table << count <<
+				utils::FirstWordOnString(it->alias, " ,;") << utils::RemoveColors(it->name);
+		str_out.str("");
+		int count_class = 0;
+		for (unsigned i = 0; i < kNumPlayerClasses; i++) {
+			if (class_num[i]) {
+				count_class++;
+				column = !(count_class % 4) ? "\n" : " ";
+				str_out << MUD::Classes().FindAvailableItem(static_cast<int>(i)).GetName() << column;
+			}
+		}
+		if (count_class ==  kNumPlayerClasses)
+			str_out.str("все");
+		else if (count_class == 0)
+			str_out.str("никто");
+		if (str_out.str().back() == '\n')
+			str_out.str().back() = ' ';
+		table << str_out.str() << table_wrapper::kSeparator << table_wrapper::kEndRow;
 		count++;
 	}
+//	table.SetColumnAlign(4, table_wrapper::align::kCenter);
+//		table[count][0] = "Сокращение";
+//		table[count][1] = "Название";
+//		table[count][2] = "Профессии";
+
+	table.SetColumnAlign(0, table_wrapper::align::kRight);
 	table_wrapper::PrintTableToStream(out, table);
 	add_static("СЕТЫ1", out.str(), 0, true);
 }

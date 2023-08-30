@@ -1177,13 +1177,13 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			SetsDrop::reload();
 		}
-	} else if (!str_cmp(arg, "remort.xml")) {
+	} else if (!str_cmp(arg, "remort")) {
 		Remort::init();
-	} else if (!str_cmp(arg, "noob_help.xml")) {
+	} else if (!str_cmp(arg, "noobhelp")) {
 		Noob::init();
-	} else if (!str_cmp(arg, "reset_stats.xml")) {
+	} else if (!str_cmp(arg, "resetstats")) {
 		stats_reset::init();
-	} else if (!str_cmp(arg, "obj_sets.xml")) {
+	} else if (!str_cmp(arg, "objsets")) {
 		obj_sets::load();
 	} else if (!str_cmp(arg, "daily")) {
 		DailyQuest::load_from_file(ch);
