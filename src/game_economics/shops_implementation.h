@@ -135,6 +135,7 @@ class shop_node : public DictionaryItem {
 						 price,
 						 uid);
 	}
+	ObjData *GetObjFromShop(uid_t uid) const;
 
 	const auto &items_list() const { return m_items_list; }
 
@@ -152,12 +153,12 @@ class shop_node : public DictionaryItem {
 					   const std::string &cmd);    // it should be const
 	void clear_store();
 	bool empty() const { return m_items_list.empty(); }
+	
 
  private:
 	void put_to_storage(ObjData *object) { m_storage.add(object); }
-
-	void remove_from_storage(ObjData *obj);
 	ObjData *get_from_shelve(const size_t index) const;
+	void remove_from_storage(ObjData *obj);
 	unsigned get_item_num(std::string &item_name, int keeper_vnum) const;
 	int can_sell_count(const int item_index) const;
 	void put_item_to_shop(ObjData *obj);

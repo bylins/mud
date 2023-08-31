@@ -274,6 +274,7 @@ void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void do_info(CharData *ch, char *argument, int cmd, int subcmd);
 void DoInspect(CharData *ch, char *argument, int, int);
+void DoStoreShop(CharData *ch, char *argument, int, int);
 //void do_insult(CharData *ch, char *argument, int cmd, int subcmd);
 void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
@@ -396,7 +397,6 @@ void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_console(CharData *ch, char *argument, int cmd, int subcmd);
-void do_shops_list(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
 //void Bonus::do_bonus_by_character(CharData *, char *, int, int);
 void do_summon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -599,7 +599,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"лучшие", EPosition::kDead, DoBest, 0, 0, 0},
 
 		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
-		{"магазины", EPosition::kDead, do_shops_list, kLvlImmortal, 0, 0},
+		{"магазины", EPosition::kDead, DoStoreShop, 0, 0, 0},
 		{"метнуть", EPosition::kFight, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
 		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"месть", EPosition::kRest, do_revenge, 0, 0, 0},

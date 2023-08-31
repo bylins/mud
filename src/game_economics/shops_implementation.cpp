@@ -952,6 +952,10 @@ void shop_node::remove_from_storage(ObjData *object) {
 	m_storage.remove(object);
 }
 
+ObjData *shop_node::GetObjFromShop(uid_t uid) const {
+	return m_storage.get_by_uid(uid);
+}
+
 ObjData *shop_node::get_from_shelve(const size_t index) const {
 	const auto node = m_items_list.node(index);
 	const auto uid = node->uid();

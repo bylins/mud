@@ -12,7 +12,8 @@
 
 namespace ShopExt {
 
-void do_shops_list(CharData *ch, char *argument, int cmd, int subcmd);
+void do_shops_list(CharData *ch);
+void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void load(bool reload);
 int get_spent_today();
 void update_timers();
