@@ -599,7 +599,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"лучшие", EPosition::kDead, DoBest, 0, 0, 0},
 
 		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
-		{"магазины", EPosition::kDead, DoStoreShop, 0, 0, 0},
+		{"магазины", EPosition::kDead, DoStoreShop, kLvlImmortal, 0, 0},
 		{"метнуть", EPosition::kFight, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
 		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"месть", EPosition::kRest, do_revenge, 0, 0, 0},

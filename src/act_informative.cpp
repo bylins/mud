@@ -3562,7 +3562,6 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		for (const auto &shop : GlobalObjects::Shops()) {
 			const auto &item_list = shop->items_list();
 			for (size_t i = 0; i < item_list.size(); i++) {
-SendMsgToChar(ch, "уид %d; " , item_list.node(i)->uid());
 				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
 					continue;
 				}
