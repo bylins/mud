@@ -8,10 +8,13 @@
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "house.h"
+#include "game_economics/shops_implementation.h"
 
 #include <boost/algorithm/string.hpp>
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
+extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
+
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
 //std::map<int, int> items_list_for_checks;
 namespace ShopExt {
@@ -422,9 +425,7 @@ int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 
 	if (CMD_IS("фильтровать")
 		|| CMD_IS("filter")) {
-		std::string buffer = argument, buffer2;
-		GetOneParam(buffer, buffer2);
-		shop->filter_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
+		shop->filter_shop_list(ch, argument, GET_MOB_VNUM(keeper));
 		return 1;
 	}
 
@@ -483,7 +484,50 @@ void town_shop_keepers() {
 	}
 }
 
-void do_shops_list(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+// оставил как пример поиска obj в магазинах, может пригодится
+void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->IsNpc()) {
+		SendMsgToChar("Чаво?\r\n", ch);
+		return;
+	}
+	if (!*argument) {
+		SendMsgToChar("Чего хотим? Могу пока только характерстики.\r\n", ch);
+		return;
+	}
+	char *stufina = one_argument(argument, arg);
+
+	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
+		if ((ch->get_bank() < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
+			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
+			return;
+		}
+		SendMsgToChar(ch, "Лорим предмет %s\r\n", stufina);
+		for (const auto &shop : GlobalObjects::Shops()) {
+			const auto &item_list = shop->items_list();
+			for (size_t i = 0; i < item_list.size(); i++) {
+				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
+					continue;
+				}
+				const auto obj = shop->GetObjFromShop(item_list.node(i)->uid());
+				if (isname(stufina, GET_OBJ_PNAME(obj, 0))) {
+					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
+					bool full = false;
+					mort_show_obj_values(obj, ch, 200, full);
+					ch->remove_bank(kChestIdentPay);
+					SendMsgToChar(ch,
+								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",
+								  kChestIdentPay,
+								  GetDeclensionInNumber(kChestIdentPay, EWhat::kMoneyU));
+					return;
+				}
+			}
+		}
+		SendMsgToChar("Ничего не найдено.\r\n", ch);
+	} else
+		SendMsgToChar("Чего хотим? Могу пока только характерстики.\r\n", ch);
+}
+
+void do_shops_list(CharData *ch) {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
 	std::ostringstream out;
@@ -497,6 +541,6 @@ void fill_shop_dictionary(DictionaryType &dic) {
 	ShopExt::ShopListType::const_iterator it = ShopExt::shop_list.begin();
 	for (; it != ShopExt::shop_list.end(); ++it)
 		dic.push_back((*it)->GetDictionaryItem());
-};
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

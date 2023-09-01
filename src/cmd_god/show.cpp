@@ -36,6 +36,7 @@ extern const char *Dirs[];
 
 extern void show_apply(CharData *ch, CharData *vict);
 extern void print_rune_stats(CharData *ch);
+void do_shops_list(CharData *ch);
 
 void ShowClassInfo(CharData *ch, const std::string &class_name, const std::string &params) {
 	if (class_name.empty()) {
@@ -347,6 +348,7 @@ struct show_struct show_fields[] = {
 	{"featinfo", kLvlImmortal},
 	{"abilityinfo", kLvlImmortal},
 	{"account", kLvlGod}, //35
+	{"shops", kLvlGod},
 	{"\n", 0}
 };
 
@@ -872,6 +874,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			chdata->get_account()->show_history_logins(ch);
 			break;
 		}
+		case 36: // shops
+			do_shops_list(ch);
+			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;
 	}
