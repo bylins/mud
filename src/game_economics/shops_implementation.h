@@ -145,7 +145,7 @@ class shop_node : public DictionaryItem {
 
 	void process_buy(CharData *ch, CharData *keeper, char *argument);
 	void print_shop_list(CharData *ch, const std::string &arg, int keeper_vnum) const;
-	void filter_shop_list(CharData *ch, const std::string &arg, int keeper_vnum);
+	void filter_shop_list(CharData *ch, char *argument, int keeper_vnum);
 	void process_cmd(CharData *ch, CharData *keeper, char *argument, const std::string &cmd);
 	void process_ident(CharData *ch,
 					   CharData *keeper,

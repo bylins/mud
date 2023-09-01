@@ -425,9 +425,7 @@ int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 
 	if (CMD_IS("фильтровать")
 		|| CMD_IS("filter")) {
-		std::string buffer = argument, buffer2;
-		GetOneParam(buffer, buffer2);
-		shop->filter_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
+		shop->filter_shop_list(ch, argument, GET_MOB_VNUM(keeper));
 		return 1;
 	}
 
@@ -486,6 +484,7 @@ void town_shop_keepers() {
 	}
 }
 
+// оставил как пример поиска obj в магазинах, может пригодится
 void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		SendMsgToChar("Чаво?\r\n", ch);
@@ -502,7 +501,7 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
-		SendMsgToChar(ch, "Лорим предмет\r\n");
+		SendMsgToChar(ch, "Лорим предмет %s\r\n", stufina);
 		for (const auto &shop : GlobalObjects::Shops()) {
 			const auto &item_list = shop->items_list();
 			for (size_t i = 0; i < item_list.size(); i++) {
