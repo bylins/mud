@@ -149,6 +149,7 @@
 #include "administration/accounts.h"
 #include "game_fight/pk.h"
 #include "game_skills/slay.h"
+#include "game_skills/charge.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -728,6 +729,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ремонт", EPosition::kRest, DoRepair, 0, 0, -1},
 		{"рецепты", EPosition::kRest, do_recipes, 0, 0, 0},
 		{"рекорды", EPosition::kDead, DoBest, 0, 0, 0},
+		{"ринуться", EPosition::kStand, do_charge, 0, 0, 0},
 		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
 
 		{"сбить", EPosition::kFight, do_bash, 1, 0, -1},
@@ -824,6 +826,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"best", EPosition::kDead, DoBest, 0, 0, 0},
 		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
+		{"charge", EPosition::kStand, do_charge, 0, 0, 0},
 		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
