@@ -20,14 +20,15 @@ class CharData;
 struct ExchangeItem;
 class ObjData;
 
+
 // для парса строки с фильтрами в клан-хранах и базаре
 struct ParseFilter {
 	enum { CLAN, EXCHANGE };
 
 	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::kUndefined), wear_message(-1),
-							weap_class{}, weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
-							new_timesign('\0'), new_timedown(time(nullptr)), new_timeup(time(nullptr)),
-							filter_type(type) {};
+			weap_class{}, weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
+			new_timesign('\0'), new_timedown(time(nullptr)), new_timeup(time(nullptr)),
+			filter_type(type), skill_id{ESkill::kUndefined} {};
 
 	bool init_type(const char *str);
 	bool init_state(const char *str);
@@ -41,10 +42,18 @@ struct ParseFilter {
 	size_t affects_cnt() const;
 	bool check(ObjData *obj, CharData *ch);
 	bool check(ExchangeItem *exch_obj);
-	std::string print() const;
+	bool parse_filter(CharData *ch, ParseFilter &filter, char *argument);
+	bool init_skill(const char*);
 
+	std::string print() const;
 	std::string name;      // имя предмета
 	std::string owner;     // имя продавца (базар)
+	std::string show_obj_aff(ObjData *obj);
+
+ private:
+	std::vector<int> affect_apply; // аффекты apply_types
+	std::vector<int> affect_weap;  // аффекты weapon_affects
+	std::vector<int> affect_extra; // аффекты extra_bits
 	int type;              // тип оружия
 	int state;             // состояние
 	EWearFlag wear;              // куда одевается
@@ -62,14 +71,7 @@ struct ParseFilter {
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;       // верхняя граница времени
 	int filter_type;       // CLAN/EXCHANGE
-
-	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
-	std::vector<int> affect_extra; // аффекты extra_bits
-
-	std::string show_obj_aff(ObjData *obj);
-
- private:
+	ESkill skill_id;
 	bool check_name(ObjData *obj, CharData *ch = nullptr) const;
 	bool check_type(ObjData *obj) const;
 	bool check_state(ObjData *obj) const;
@@ -83,6 +85,7 @@ struct ParseFilter {
 	bool check_affect_extra(ObjData *obj) const;
 	bool check_owner(ExchangeItem *exch_obj) const;
 	bool check_realtime(ExchangeItem *exch_obj) const;
+	bool check_skill(ObjData *obj) const;
 };
 
 #endif //BYLINS_SRC_UTILS_OBJECTS_FILTER_H_
