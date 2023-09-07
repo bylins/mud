@@ -24,8 +24,8 @@ class ObjData;
 // для парса строки с фильтрами в клан-хранах и базаре
 struct ParseFilter {
 	enum { CLAN, EXCHANGE };
-
-	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::kUndefined), wear_message(-1),
+  
+	ParseFilter(int type) : remorts(-1),remorts_sign('\0'), type(-1), state(-1), wear(EWearFlag::kUndefined), wear_message(-1),
 			weap_class{}, weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
 			new_timesign('\0'), new_timedown(time(nullptr)), new_timeup(time(nullptr)),
 			filter_type(type), skill_id{ESkill::kUndefined} {};
@@ -54,6 +54,9 @@ struct ParseFilter {
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
+  
+	int remorts; //для количества ремортов
+	char remorts_sign; // знак ремортов
 	int type;              // тип оружия
 	int state;             // состояние
 	EWearFlag wear;              // куда одевается
@@ -64,9 +67,6 @@ struct ParseFilter {
 	char cost_sign;        // знак цены +/-
 	int rent;             // для стоимости ренты
 	char rent_sign;        // знак ренты +/-
-	int filter_remorts_count = -1;
-	int remorts[2] = {-1,-1}; //для количества ремортов
-	char remorts_sign[2] = "\0"; // знак ремортов
 	char new_timesign;       // знак времени < > =
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;       // верхняя граница времени
