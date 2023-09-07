@@ -862,15 +862,16 @@ int exchange_offers(CharData *ch, char *arg) {
 
 int exchange_setfilter(CharData *ch, char *arg) {
 	if (!*arg) {
+		ParseFilter params(ParseFilter::EXCHANGE);
 		if (!EXCHANGE_FILTER(ch)) {
 			SendMsgToChar("Ваш фильтр базара пуст.\r\n", ch);
+			params.parse_filter(ch, params, arg);
 			return true;
 		}
-		ParseFilter params(ParseFilter::EXCHANGE);
-		if (!parse_exch_filter(params, EXCHANGE_FILTER(ch), false)) {
+		if (!params.parse_filter(ch, params, EXCHANGE_FILTER(ch))) {
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = nullptr;
-			SendMsgToChar("Ваш фильтр базара пуст\r\n", ch);
+			SendMsgToChar("2Ваш фильтр базара пуст = хрень какаято сообщите как вы это получили\r\n", ch);
 		} else {
 			SendMsgToChar(ch, "Ваш текущий фильтр базара: %s.\r\n",
 						  EXCHANGE_FILTER(ch));
@@ -878,43 +879,30 @@ int exchange_setfilter(CharData *ch, char *arg) {
 		return true;
 	}
 
-	char tmpbuf[kMaxInputLength];
 	char filter[kMaxInputLength];
 
-	skip_spaces(&arg);
 	strcpy(filter, arg);
 	if (!correct_filter_length(ch, filter)) {
 		return false;
 	}
 	if (!strncmp(filter, "нет", 3)) {
 		if (EXCHANGE_FILTER(ch)) {
-			snprintf(tmpbuf, sizeof(tmpbuf),
-					 "Ваш старый фильтр: %s. Новый фильтр пуст.\r\n",
-					 EXCHANGE_FILTER(ch));
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = nullptr;
-		} else {
-			sprintf(tmpbuf, "Новый фильтр пуст.\r\n");
 		}
-		SendMsgToChar(tmpbuf, ch);
+		SendMsgToChar("Фильтр базара очищен.\r\n", ch);
 		return true;
 	}
 
 	ParseFilter params(ParseFilter::EXCHANGE);
-	if (!parse_exch_filter(params, filter, false)) {
+	if (!params.parse_filter(ch, params, filter)) {
 		SendMsgToChar("Неверный формат фильтра. Прочтите справку.\r\n", ch);
 		free(EXCHANGE_FILTER(ch));
 		EXCHANGE_FILTER(ch) = nullptr;
 		return false;
 	}
 
-	if (EXCHANGE_FILTER(ch)) {
-		snprintf(tmpbuf, kMaxInputLength, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
-				 EXCHANGE_FILTER(ch), filter);
-	} else {
-		snprintf(tmpbuf, kMaxInputLength, "Ваш новый фильтр: %s.\r\n", filter);
-	}
-	SendMsgToChar(tmpbuf, ch);
+	SendMsgToChar(ch, "Ваш фильтр: %s", params.print().c_str());
 
 	if (EXCHANGE_FILTER(ch))
 		free(EXCHANGE_FILTER(ch));
@@ -1281,7 +1269,7 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);
 			if (!EXCHANGE_FILTER(i->character)
-				|| (parse_exch_filter(params, EXCHANGE_FILTER(i->character), false)
+				|| (params.parse_filter(ch, params, EXCHANGE_FILTER(i->character))
 					&& params.check(j))) {
 				if (COLOR_LEV(i->character) >= C_NRM) {
 					SendMsgToChar("&Y&q", i->character.get());
@@ -1317,17 +1305,15 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 	bool any_item = 0;
 
 	ParseFilter params(ParseFilter::EXCHANGE);
-	if (!parse_exch_filter(params, filter, true)) {
+	if (!params.parse_filter(ch, params, filter)) {
 		SendMsgToChar("Неверная строка фильтрации!\r\n", ch);
 		log("Exchange: Player uses wrong filter '%s'", filter);
 		return;
 	}
 
 	std::string buffer;
-	if (show_type == 11) {
-		buffer += params.print();
-	}
-	buffer +=
+	SendMsgToChar(ch, "Ваш фильтр: %s\r\n", params.print().c_str());
+	buffer =
 		" Лот     Предмет                                                     Цена  Состояние\r\n"
 		"--------------------------------------------------------------------------------------------\r\n";
 
@@ -1451,65 +1437,6 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 					  CCIGRN(ch, C_NRM), price, GetDeclensionInNumber(price, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);
-}
-
-int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects) {
-	char tmpbuf[FILTER_LENGTH];
-
-	while (*buf && (*buf != '\r') && (*buf != '\n')) {
-		switch (*buf) {
-			case ' ': buf++;
-				break;
-			case 'И': buf = one_argument(++buf, tmpbuf);
-				filter.name = tmpbuf;
-				break;
-			case 'В': buf = one_argument(++buf, tmpbuf);
-				filter.owner = tmpbuf;
-				//filter.owner_id = get_id_by_name(tmpbuf);
-				break;
-			case 'Т': buf = one_argument(++buf, tmpbuf);
-				if (!filter.init_type(tmpbuf))
-					return 0;
-				break;
-			case 'Ц': buf = one_argument(++buf, tmpbuf);
-				if (!filter.init_cost(tmpbuf))
-					return 0;
-				break;
-			case 'С': buf = one_argument(++buf, tmpbuf);
-				if (!filter.init_state(tmpbuf))
-					return 0;
-				break;
-			case 'О': buf = one_argument(++buf, tmpbuf);
-				if (!filter.init_wear(tmpbuf))
-					return 0;
-				break;
-			case 'К': buf = one_argument(++buf, tmpbuf);
-				if (!filter.init_weap_class(tmpbuf))
-					return 0;
-				break;
-			case 'А':
-				if (!parse_affects)
-					return 0;
-				buf = one_argument(++buf, tmpbuf);
-				if (filter.affects_cnt() >= 1)
-					break;
-				else if (!filter.init_affect(tmpbuf, strlen(tmpbuf)))
-					return 0;
-				break;
-			case 'Р': buf = one_argument(++buf, tmpbuf);
-				if (!filter.init_realtime(tmpbuf))
-					return 0;
-				break;
-            case 'М': buf = one_argument(++buf, tmpbuf);
-                if (!filter.init_remorts(tmpbuf))
-                    return 0;
-                break;
-			default: return 0;
-		}
-	}
-
-	return 1;
-
 }
 
 void clear_exchange_lot(ExchangeItem *lot) {

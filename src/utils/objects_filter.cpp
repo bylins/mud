@@ -780,7 +780,8 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 }
 
 std::string ParseFilter::print() const {
-	std::string buffer = "Выборка: ";
+	std::string buffer;
+
 	if (!name.empty()) {
 		buffer += name + " ";
 	}
@@ -848,8 +849,6 @@ std::string ParseFilter::print() const {
 			buffer += " ";
 		}
 	}
-	buffer += "\r\n";
-
 	return buffer;
 }
 

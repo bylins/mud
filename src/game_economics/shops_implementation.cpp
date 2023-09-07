@@ -525,7 +525,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 			return;
 	}
 
-	SendMsgToChar(filter.print(), ch);
+	SendMsgToChar(ch, "Выборка: %s\r\n", filter.print().c_str());
 	SendMsgToChar(ch,
 				  " ##      Доступно  Предмет                                       Цена (%s)\r\n"
 				  "---------------------------------------------------------------------------\r\n", currency.c_str());

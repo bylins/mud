@@ -4321,7 +4321,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!filter.parse_filter(ch, filter, argument)) {
 			return;
 	}
-	SendMsgToChar(filter.print(), ch);
+	SendMsgToChar(ch, "Выборка: %s\r\n", filter.print().c_str());
 	SetWait(ch, 1, false);
 
 	std::string out;
