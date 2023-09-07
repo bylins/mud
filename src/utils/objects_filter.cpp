@@ -160,6 +160,7 @@ bool ParseFilter::init_cost(const char *str) {
 	return true;
 }
 
+
 bool ParseFilter::init_rent(const char *str) {
 	if (sscanf(str, "%d%[-+]", &rent, &rent_sign) != 2) {
 		return false;
@@ -186,6 +187,14 @@ bool ParseFilter::init_remorts(const char *str) {
 	return true;
 }
 
+bool ParseFilter::init_skill(const char *str) {
+	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
+		if (utils::IsAbbr(str, MUD::Skill(skill_id).GetName())) {
+			return true;
+		}
+	}
+	return false;
+}
 
 bool ParseFilter::init_weap_class(const char *str) {
 	if (utils::IsAbbr(str, "луки")) {
@@ -454,6 +463,18 @@ bool ParseFilter::check_state(ObjData *obj) const {
 	return result;
 }
 
+bool ParseFilter::check_skill(ObjData *obj) const {
+	if (skill_id == ESkill::kUndefined)
+		return true;
+	if (obj->has_skills()) {
+		auto it = obj->get_skills().find(skill_id);
+		if (it != obj->get_skills().end()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool ParseFilter::check_wear(ObjData *obj) const {
 	if (wear == EWearFlag::kUndefined
 		|| CAN_WEAR(obj, wear)) {
@@ -613,6 +634,7 @@ bool ParseFilter::check(ObjData *obj, CharData *ch) {
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj)
+		&& check_skill(obj)
 		&& check_remorts(obj)) {
 		return true;
 	}
@@ -627,16 +649,134 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 		&& check_type(obj)
 		&& check_state(obj)
 		&& check_wear(obj)
-		&& check_remorts(obj)
 		&& check_weap_class(obj)
 		&& check_cost(GET_EXCHANGE_ITEM_COST(exch_obj))
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj)
-		&& check_realtime(exch_obj)) {
+		&& check_realtime(exch_obj)
+		&& check_skill(obj)
+		&& check_remorts(obj)) {
 		return true;
 	}
 	return false;
+}
+
+bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument) {
+	char buf_tmp[kMaxInputLength];
+
+	if (!*argument) {
+		std::stringstream ss;
+		ss << "Фильтры аналогичны командам базара + аффекты предмета:\r\n" <<
+			  "   И - Имя (название) предмета\r\n" <<
+			  "   Т - Тип предмета (свет,свиток,палочка,посох,оружие,броня,напиток,прочее,\r\n" <<
+			  "       контейнер,книга,руна,ингредиент)\r\n" <<
+			  "   C - Состояние предмета (ужасно,скоро исп,плоховато,средне,идеально)\r\n" <<
+			  "   О - Куда можно одеть предмет (палец,шея,тело,голова,ноги,ступни,кисти,руки,\r\n" <<
+			  "       щит,плечи,пояс,запястья,левая,правая,обе)\r\n" <<
+			  "   К - Класс оружия (луки,короткие,длинные,секиры,палицы,иное,двуручники,\r\n" <<
+			  "       проникающее,копья)\r\n" <<
+			  "   А - название аффекта (длинное.имя.аффекта), до трех Аххх за один запрос,\r\n" <<
+			  "       для слотов под камни доступны короткие алиасы А1, А2, А3 - 1..3 слота.\r\n" <<
+			  "       допускается несколько слов через . и строгий поиск (! на конце слова)\r\n" <<
+			  "   Ц - цена предмета, знак '+' в конце указанной цены выведeт предметы,\r\n" <<
+			  "       которые равны или дороже указанной цены. Знак '-' выведет предметы,\r\n" <<
+			  "       которые равны или дешевле указанной цены.\r\n" <<
+			  "   Р - стоимость ренты предмета, знак '+' в конце указанной стоимости выведeт\r\n" <<
+			  "       предметы, содержание которых равно или дороже указанной цифры. Знак\r\n" <<
+			  "       '-' выведет  предметы, содержание которых равно или дешевле указанной\r\n" <<
+			  "       цифры.                                                                 \r\n" <<
+			  "   М - количество перевоплощений, знак '+' в конце указанного количества\r\n" <<
+			  "       выведет предметы, которые требует больше или равное количество        \r\n" <<
+			  "       перевоплощений. Знак '-' выведет предметы, которое требует меньше или\r\n" <<
+			  "       равное количество перевоплощений.                                  \r\n" <<
+			  "   У - Добавляемое умение\r\n" <<
+			  " Можно указать несколько фильтров, разделив их пробелом\r\n";
+		SendMsgToChar(ss.str(), ch);
+		return false;
+	}
+	while (*argument) {
+		switch (*argument) {
+			case 'И': argument = one_argument(++argument, buf_tmp);
+				if (strlen(buf_tmp) == 0) {
+					SendMsgToChar("Укажите имя предмета.\r\n", ch);
+					return false;
+				}
+				filter.name = buf_tmp;
+				break;
+			case 'Т': argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_type(buf_tmp)) {
+					SendMsgToChar("Неверный тип предмета.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'С': argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_state(buf_tmp)) {
+					SendMsgToChar("Неверное состояние предмета.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'О': argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_wear(buf_tmp)) {
+					SendMsgToChar("Неверное место одевания предмета.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'Ц': argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_cost(buf_tmp)) {
+					SendMsgToChar("Неверный формат в фильтре: Ц<цена><+->.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'К': argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_weap_class(buf_tmp)) {
+					SendMsgToChar("Неверный класс оружия.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'А': {
+				argument = one_argument(++argument, buf_tmp);
+				size_t len = strlen(buf_tmp);
+				if (len == 0) {
+					SendMsgToChar("Укажите аффект предмета.\r\n", ch);
+					return false;
+				}
+				if (filter.affects_cnt() >= 3) {
+					break;
+				}
+				if (!filter.init_affect(buf_tmp, len)) {
+					SendMsgToChar(ch, "Неверный аффект предмета: '%s'.\r\n", buf_tmp);
+					return false;
+				}
+				break;
+			} // case 'А'
+			case 'Р':// стоимость ренты
+				argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_rent(buf_tmp)) {
+					SendMsgToChar("Неверный формат в фильтре: Р<стоимость><+->.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'М':// количество мортов
+				argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_remorts(buf_tmp)) {
+					SendMsgToChar("Неверный формат в фильтре: М<количество мортов><+->.\r\n", ch);
+					return false;
+				}
+				break;
+			case 'У':// умения
+				argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_skill(buf_tmp)) {
+					SendMsgToChar("Неверное умение.\r\n", ch);
+					return false;
+				}
+				break;
+			default: 
+				++argument;
+				break;
+		}
+	}
+	return true;
 }
 
 std::string ParseFilter::print() const {
@@ -680,6 +820,10 @@ std::string ParseFilter::print() const {
 	}
 	if (rent >= 0) {
 		sprintf(buf, "%d%c ", rent, rent_sign);
+		buffer += buf;
+	}
+	if (skill_id != ESkill::kUndefined) {
+		sprintf(buf, "%s ", MUD::Skill(skill_id).GetName());
 		buffer += buf;
 	}
 	/*if (remorts >= 0) {
