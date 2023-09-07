@@ -665,6 +665,7 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 
 	if (!*argument) {
 		std::stringstream ss;
+    
 		ss << "Возможные фильтры:\r\n" <<
 			  "   И - Имя (название) предмета\r\n" <<
 			  "   Т - Тип предмета (свет,свиток,палочка,посох,оружие,броня,напиток,прочее,\r\n" <<
@@ -772,7 +773,6 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 			default: 
 					SendMsgToChar("Ошибка в фильтре.\r\n", ch);
 					return false;
-//				++argument;
 				break;
 		}
 	}
