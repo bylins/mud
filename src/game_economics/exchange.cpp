@@ -63,7 +63,7 @@ int exchange_information(CharData *ch, char *arg);
 int exchange_identify(CharData *ch, char *arg);
 int exchange_purchase(CharData *ch, char *arg);
 int exchange_offers(CharData *ch, char *arg);
-int exchange_setfilter(CharData *ch, char *arg);
+bool exchange_setfilter(CharData *ch, char *argument);
 
 int exchange_database_load();
 int exchange_database_reload(bool loadbackup);
@@ -860,32 +860,24 @@ int exchange_offers(CharData *ch, char *arg) {
 	return 1;
 }
 
-int exchange_setfilter(CharData *ch, char *arg) {
-	if (!*arg) {
+bool exchange_setfilter(CharData *ch, char *argument) {
+	if (!*argument) {
 		ParseFilter params(ParseFilter::EXCHANGE);
 		if (!EXCHANGE_FILTER(ch)) {
 			SendMsgToChar("Ваш фильтр базара пуст.\r\n", ch);
-			params.parse_filter(ch, params, arg);
+			params.parse_filter(ch, params, argument);
 			return true;
 		}
-		if (!params.parse_filter(ch, params, EXCHANGE_FILTER(ch))) {
-			free(EXCHANGE_FILTER(ch));
-			EXCHANGE_FILTER(ch) = nullptr;
-			SendMsgToChar("2Ваш фильтр базара пуст = хрень какаято сообщите как вы это получили\r\n", ch);
-		} else {
-			SendMsgToChar(ch, "Ваш текущий фильтр базара: %s.\r\n",
-						  EXCHANGE_FILTER(ch));
-		}
+		SendMsgToChar(ch, "Ваш текущий фильтр базара: %s\r\n", EXCHANGE_FILTER(ch));
 		return true;
 	}
-
 	char filter[kMaxInputLength];
-
-	strcpy(filter, arg);
-	if (!correct_filter_length(ch, filter)) {
+	strcpy(filter, argument);
+	one_argument(argument, arg);
+	if (!correct_filter_length(ch, argument)) {
 		return false;
 	}
-	if (!strncmp(filter, "нет", 3)) {
+	if (!strncmp(argument, "нет", 3)) {
 		if (EXCHANGE_FILTER(ch)) {
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = nullptr;
@@ -893,21 +885,21 @@ int exchange_setfilter(CharData *ch, char *arg) {
 		SendMsgToChar("Фильтр базара очищен.\r\n", ch);
 		return true;
 	}
-
 	ParseFilter params(ParseFilter::EXCHANGE);
-	if (!params.parse_filter(ch, params, filter)) {
-		SendMsgToChar("Неверный формат фильтра. Прочтите справку.\r\n", ch);
+	if (!params.parse_filter(ch, params, argument)) {
+		SendMsgToChar("Неверный формат фильтра, прочтите справку:\r\n", ch);
+		sprintf(buf, "Текущий фильтр: %s\r\n", params.print().c_str());
+		char tmps[1] = ""; //обход варнинга
+		params.parse_filter(ch, params, tmps);
+		SendMsgToChar(buf, ch);
 		free(EXCHANGE_FILTER(ch));
 		EXCHANGE_FILTER(ch) = nullptr;
 		return false;
 	}
-
-	SendMsgToChar(ch, "Ваш фильтр: %s", params.print().c_str());
-
+	SendMsgToChar(ch, "Ваш фильтр: %s\r\n", params.print().c_str());
 	if (EXCHANGE_FILTER(ch))
 		free(EXCHANGE_FILTER(ch));
 	EXCHANGE_FILTER(ch) = str_dup(filter);
-
 	return true;
 }
 
