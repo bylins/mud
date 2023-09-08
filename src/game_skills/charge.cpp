@@ -16,14 +16,6 @@
 
 // ********************* CHARGE PROCEDURE
 
-const char *charge_dirs[] = {"север",
-							 "восток",
-							 "юг",
-							 "запад",
-							 "вверх",
-							 "вниз",
-							 "\n"};
-
 void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;
 
@@ -41,13 +33,16 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	one_argument(argument, arg);
 	if ((direction = search_block(arg, dirs, false)) >= 0 ||
-		(direction = search_block(arg, charge_dirs, false)) >= 0) {
+		(direction = search_block(arg, dirs_rus, false)) >= 0) {
 		go_charge(ch, direction);
 		return;
 	}
 }
 
 void go_charge(CharData *ch, int direction) {
+	int dam;
+	int victims_amount;
+
 	if (IsCorrectDirection(ch, direction, true, false)
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
 		act("$n истошно завопил$g и ринул$u в бой, лихо размахивая своим оружием.",
@@ -61,10 +56,9 @@ void go_charge(CharData *ch, int direction) {
 		SendMsgToChar("Вы желаете убиться об стенку?!\r\n", ch);
 		return;
 	}
-	int dam = (number(ceil((ceil GET_SKILL(ch,ESkill::kCharge) * 3) / 1.25),
+	dam = (number(ceil((ceil GET_SKILL(ch,ESkill::kCharge) * 3) / 1.25),
 					  ceil(((ceil GET_SKILL(ch,ESkill::kCharge) * 3) * 1.25))) *
 			   GetRealLevel(ch)) / 30;
-	int victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
 
 	if (PRF_FLAGGED(ch, EPrf::kAwake)) {
 		dam /= 2;
@@ -86,8 +80,9 @@ void go_charge(CharData *ch, int direction) {
 
 	Damage dmg(SkillDmg(ESkill::kCharge), dam, fight::kPhysDmg, nullptr);
 //Ищем цели, потом проверяем можем ли теоретически атаковать, потом проверяем на успех умения, потом на !чардж, потом на возможность удара щитом
-
+	victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
 	ActionTargeting::FoesRosterType roster0{ch};
+
 	for (const auto target: roster0) {
 		if (MOB_FLAGGED(target, EMobFlag::kProtect) || (!may_kill_here(ch, target, arg)) || target == ch || !CAN_SEE(ch, target)) {
 			--victims_amount;

@@ -32,7 +32,6 @@
 extern int buf_switches, buf_largecount, buf_overflows;
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
-extern const char *Dirs[];
 
 extern void show_apply(CharData *ch, CharData *vict);
 extern void print_rune_stats(CharData *ch);
@@ -228,7 +227,7 @@ std::string print_zone_enters(ZoneRnum zone) {
 					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
 					snprintf(tmp, sizeof(tmp),
 							 "  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
-							 world[n]->room_vn, Dirs[dir],
+							 world[n]->room_vn, dirs_rus[dir],
 							 world[world[n]->dir_option[dir]->to_room()]->room_vn);
 					out += tmp;
 					found = true;
@@ -258,7 +257,7 @@ std::string print_zone_exits(ZoneRnum zone) {
 					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
 					snprintf(tmp, sizeof(tmp),
 							 "  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
-							 world[n]->room_vn, Dirs[dir],
+							 world[n]->room_vn, dirs_rus[dir],
 							 world[world[n]->dir_option[dir]->to_room()]->room_vn);
 					out += tmp;
 					found = true;

@@ -104,7 +104,6 @@ extern time_t zones_stat_date;
 extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 
 void medit_save_to_disk(int zone_num);
-//extern const char *Dirs[];
 // for entities
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
