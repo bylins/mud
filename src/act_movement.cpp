@@ -37,16 +37,6 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 void check_ice(int room);
 
 const int Reverse[EDirection::kMaxDirNum] = {2, 3, 0, 1, 5, 4};
-const char *DirIs[] =
-	{
-		"север",
-		"восток",
-		"юг",
-		"запад",
-		"вверх",
-		"вниз",
-		"\n"
-	};
 
 // check ice in room
 int check_death_ice(int room, CharData * /*ch*/) {
@@ -991,7 +981,7 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((dir = search_block(argument, dirs, false)) < 0 && (dir = search_block(argument, DirIs, false)) < 0) {
+	if ((dir = search_block(argument, dirs, false)) < 0 && (dir = search_block(argument, dirs_rus, false)) < 0) {
 		SendMsgToChar("Неизвестное направление.\r\n", ch);
 		return;
 	}
@@ -1054,7 +1044,7 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 	{
 		//Проверяем соответствует ли аргумент английским или русским направлениям
 		if ((door = search_block(dir, dirs, false)) == -1
-			&& (door = search_block(dir, DirIs, false)) == -1)    // Partial Match
+			&& (door = search_block(dir, dirs_rus, false)) == -1)    // Partial Match
 		{
 			//strcpy(doorbuf,"Уточните направление.\r\n");
 			return (FD_WRONG_DIR); //НЕВЕРНОЕ НАПРАВЛЕНИЕ
