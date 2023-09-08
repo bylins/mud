@@ -12,6 +12,8 @@
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
 
+extern ESkill FixNameAndFindSkillId(char *name);
+
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbr(str, "свет")
 		|| utils::IsAbbr(str, "light")) {
@@ -179,9 +181,9 @@ bool ParseFilter::init_remorts(const char *str) {
 	return true;
 }
 
-bool ParseFilter::init_skill(const char *str) {
+bool ParseFilter::init_skill(char *str) {
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbr(str, MUD::Skill(skill_id).GetName())) {
+		if (FixNameAndFindSkillId(str) == skill_id) {
 			return true;
 		}
 	}
