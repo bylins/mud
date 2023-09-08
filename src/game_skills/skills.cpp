@@ -476,6 +476,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kSideAttack] = "kSideAttack";
 	ESkill_name_by_value[ESkill::kDisarm] = "kDisarm";
 	ESkill_name_by_value[ESkill::kParry] = "kParry";
+	ESkill_name_by_value[ESkill::kCharge] = "kCharge";
 	ESkill_name_by_value[ESkill::kMorph] = "kMorph";
 	ESkill_name_by_value[ESkill::kBows] = "kBows";
 	ESkill_name_by_value[ESkill::kAddshot] = "kAddshot";
@@ -662,6 +663,14 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			}
 			rate += dex_bonus(GetRealDex(vict));
 			//rate -= size_app[GET_POS_SIZE(vict)].ac;
+			break;
+		}
+
+		case ESkill::kCharge: {
+			rate -= GetBasicSave(vict, ESaving::kReflex, false);
+			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+				rate -= CalculateSkillAwakeModifier(ch, vict);
+			}
 			break;
 		}
 

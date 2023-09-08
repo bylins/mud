@@ -266,8 +266,9 @@ enum class ESpell {
 	kFullIdentify = 352,
 	kQUest = 353,
 	kPortalTimer = 354,
+	kNoCharge = 355,
 	kFirst = kArmor,
-	kLast = 354	// Не забываем менять
+	kLast = 355	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);
