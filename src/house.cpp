@@ -4275,10 +4275,9 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Ваш воевода зажал денег и отключил эту возможность! :(\r\n", ch);
 		return;
 	}
-
 	char *stufina = one_argument(argument, arg);
 
-/*	if (!str_cmp(arg, "все") || !str_cmp(arg, "all")) {
+	if (!str_cmp(arg, "все") || !str_cmp(arg, "all")) {
 		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->get_next_content()) {
 			if (Clan::is_clan_chest(chest)) {
 				Clan::ChestShow(chest, ch);
@@ -4286,7 +4285,6 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	}
-*/
 	if (utils::IsAbbr(arg, "характеристики") || utils::IsAbbr(arg, "identify") || utils::IsAbbr(arg, "опознать")) {
 		if ((ch->get_bank() < kChestIdentPay) && (GetRealLevel(ch) < kLvlImplementator)) {
 			SendMsgToChar("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
@@ -4315,6 +4313,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(buf1, ch);
 		return;
 	}
+
 
 	ParseFilter filter(ParseFilter::CLAN);
 
