@@ -91,20 +91,11 @@ char info_message[] = ("базар выставить <предмет> <цена
 					   "базар информация <#лот>                 - информация о лоте\r\n"
 					   "базар характеристики <#лот>             - характеристики лота (цена услуги 110 кун)\r\n"
 					   "базар купить <#лот>                     - купить лот\r\n"
-					   "базар предложения все <предмет>         - все предложения\r\n"
-					   "базар предложения последние             - последние\r\n"
-					   "базар предложения мои <предмет>         - мои предложения\r\n"
-					   "базар предложения руны <предмет>        - предложения рун\r\n"
-					   "базар предложения броня <предмет>       - предложения одежды и брони\r\n"
-					   //					   "базар предложения легкие <предмет>      - предложения легких доспехов\r\n"
-					   //					   "базар предложения средние <предмет>     - предложения средних доспехов\r\n"
-					   //					   "базар предложения тяжелые <предмет>     - предложения тяжелых доспехов\r\n"
-					   "базар предложения оружие <предмет>      - предложения оружия\r\n"
-					   "базар предложения книги <предмет>       - предложения книг\r\n"
-					   "базар предложения ингредиенты <предмет> - предложения ингредиентов\r\n"
-					   "базар предложения прочие <предмет>      - прочие предложения\r\n"
-					   "базар предложения аффект имя.аффекта    - поиск по аффекту (цена услуги 55 кун)\r\n"
-					   "базар фильтрация <фильтр>               - фильтрация товара на базаре\r\n");
+					   "базар предложения <временный фильр>     - все предложения согласно указанного фильтра плюс фильтрация\r\n"
+					   "базар предложения мои                   - мои предложения\r\n"
+					   "базар предложения все                   - все предложения\r\n"
+					   "базар фильтрация <фильтр>               - фильтрация товара на базаре (запоминается)\r\n"
+					   "базар фильтрация нет                    - стереть фильтр\r\n");
 
 int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("exchange") || CMD_IS("базар")) {
@@ -693,170 +684,36 @@ bool correct_filter_length(CharData *ch, const char *str) {
 
 int exchange_offers(CharData *ch, char *arg) {
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
-	char filter[kMaxInputLength];
-	char multifilter[kMaxStringLength];
-	short int show_type;
-	bool ignore_filter;
-	char arg3[kMaxInputLength], arg4[kMaxInputLength];
+	char filter[kMaxInputLength] = "";
+	short int show_type = 0;
 
-	/*
-	show_type
-	0 - все
-	1 - мои
-	2 - руны
-	3 - одежда
-	4 - оружие
-	5 - книги
-	6 - ингры
-	7 - прочее
-	8 - последние
-	*/
-
-	memset(filter, 0, FILTER_LENGTH);
-	memset(multifilter, 0, FILTER_LENGTH);
-
-	(arg = one_argument(arg, arg1));
-	(arg = one_argument(arg, arg2));
-	(arg = one_argument(arg, arg3));
-	(arg = one_argument(arg, arg4));
-
-	ignore_filter = ((*arg2 == '*') || (*arg3 == '*') || (*arg4 == '*'));
-
-	if (*arg2 == '!') {
-		strcpy(multifilter, arg2 + 1);
-	}
-	if (*arg3 == '!') {
-		strcpy(multifilter, arg3 + 1);
-	}
-	if (*arg4 == '!') {
-		strcpy(multifilter, arg4 + 1);
-	}
-
+	arg = one_argument(arg, arg1);
 	if (utils::IsAbbr(arg1, "все") || utils::IsAbbr(arg1, "all")) {
-		show_type = 0;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
-			snprintf(filter, FILTER_LENGTH, "И%s", arg2);
-		}
-		if (*multifilter) {
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
+		show_type = 2;
+		strcpy(filter, "М0+");
 	} else if (utils::IsAbbr(arg1, "мои") || utils::IsAbbr(arg1, "mine")) {
 		show_type = 1;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-		if (*multifilter) {
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
-	} else if (utils::IsAbbr(arg1, "руны") || utils::IsAbbr(arg1, "runes")) {
-		show_type = 2;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-		if (*multifilter) {
-			strcat(filter, " С");
-			strcat(filter, multifilter);
-		}
-	} else if (utils::IsAbbr(arg1, "броня") || utils::IsAbbr(arg1, "armor")) {
-		show_type = 3;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-		if (*multifilter) {
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
-	} else if (utils::IsAbbr(arg1, "оружие") || utils::IsAbbr(arg1, "weapons")) {
-		show_type = 4;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-		if (*multifilter) {
-			strcat(filter, " К");
-			strcat(filter, multifilter);
-		}
-	} else if (utils::IsAbbr(arg1, "книги") || utils::IsAbbr(arg1, "books")) {
-		show_type = 5;
-		if ((*arg2) && (*arg2 != '*')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-	} else if (utils::IsAbbr(arg1, "ингредиенты") || utils::IsAbbr(arg1, "ingradients")) {
-		show_type = 6;
-		if ((*arg2) && (*arg2 != '*')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-	} else if (utils::IsAbbr(arg1, "прочие") || utils::IsAbbr(arg1, "other")) {
-		show_type = 7;
-		if ((*arg2) && (*arg2 != '*')) {
-			sprintf(buf, "%s", filter);
-			snprintf(filter, FILTER_LENGTH, "%s И%s", buf, arg2);
-		}
-	} else if (utils::IsAbbr(arg1, "последние") || utils::IsAbbr(arg1, "last")) {
-		show_type = 8;
-		// я х3 как тут писать сравнение времен
-	}
-/*	else if (utils::is_abbrev(arg1, "средние") || utils::is_abbrev(arg1, "средняя"))
-	{
-		show_type = 9;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
-		}
-		if (*multifilter)
-		{
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
-	}
-	else if (utils::is_abbrev(arg1, "тяжелые") || utils::is_abbrev(arg1, "тяжелая"))
-	{
-		show_type = 10;
-		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
-		{
-			sprintf(filter, "%s И%s", filter, arg2);
-		}
-		if (*multifilter)
-		{
-			strcat(filter, " О");
-			strcat(filter, multifilter);
-		}
-	}
-*/
-	else if (utils::IsAbbr(arg1, "аффект") || utils::IsAbbr(arg1, "affect")) {
-		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2 && GetRealLevel(ch) < kLvlImplementator) {
-			SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
-			return 0;
-		}
-		if (*arg2 == '\0') {
-			SendMsgToChar("Пустое имя аффекта!\r\n", ch);
-			return 0;
-		}
-		show_type = 11;
-		sprintf(buf, "%s", filter);
-		snprintf(filter, FILTER_LENGTH, "%s А%s", buf, arg2);
 	} else {
-		SendMsgToChar(info_message, ch);
+		while (*arg1) {
+			arg1[0] = UPPER(arg1[0]);
+			sprintf(buf, "%s ", arg1);
+			strcat(filter, buf);
+			arg = one_argument(arg, arg1);
+		}
+	}
+	if (show_type !=2 && EXCHANGE_FILTER(ch)) {
+		sprintf(buf, "filter  arg=%s", EXCHANGE_FILTER(ch));
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		snprintf(buf, kMaxInputLength, "%s %s", EXCHANGE_FILTER(ch), filter);
+		strcpy(filter, buf);
+	}
+	if (!correct_filter_length(ch, filter)) {
 		return 0;
 	}
-
-	if (!ignore_filter && EXCHANGE_FILTER(ch))
-		snprintf(multifilter, kMaxStringLength, "%s %s", EXCHANGE_FILTER(ch), filter);
-	else
-		strcpy(multifilter, filter);
-
-	if (!correct_filter_length(ch, multifilter)) {
-		return 0;
-	}
-
-	show_lots(multifilter, show_type, ch);
+//	sprintf(buf, "arg=%s, type=%d", filter, show_type);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+					
+	show_lots(filter, show_type, ch);
 	return 1;
 }
 
@@ -1278,21 +1135,6 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 }
 
 void show_lots(char *filter, short int show_type, CharData *ch) {
-	/*
-	show_type
-	0 - все
-	1 - мои
-	2 - руны
-	3 - одежда
-	4 - оружие
-	5 - книги
-	6 - ингры
-	7 - прочие
-	8 - легкие доспехи
-	9 - средние доспехи
-	10 - тяжелые доспехи
-	11 - аффект
-	*/
 	char tmpbuf[kMaxInputLength];
 	bool any_item = 0;
 
@@ -1310,41 +1152,8 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		"--------------------------------------------------------------------------------------------\r\n";
 
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-		if (!params.check(j)
-			|| ((show_type == 1)
-				&& (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
-			|| ((show_type == 2)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient)
-					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
-					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
-			|| ((show_type == 3)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kArmor)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kLightArmor)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMediumArmor)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kHeavyArmor))
-			|| ((show_type == 4)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kWeapon))
-			|| ((show_type == 5)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kBook))
-			|| (show_type == 6
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient
-					|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200
-						&& GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
-			|| ((show_type == 7)
-				&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient)
-					|| ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kWeapon)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kBook)
-					|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)))
-			|| ((show_type == 8)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kLightArmor))
-			|| ((show_type == 9)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMediumArmor))
-			|| ((show_type == 10)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kHeavyArmor))) {
+		if (show_type == 1 && !isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
-		}
 		// ну идиотизм сидеть статить 5-10 страниц резных
 		if (utils::IsAbbr("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
 			|| utils::IsAbbr("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
@@ -1402,31 +1211,29 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&(j->time)));
-		if (IS_GOD(ch)) //asctime добавляет перевод строки лишний
+		if (IS_GOD(ch)) {//asctime добавляет перевод строки лишний
 			sprintf(tmpbuf,
 					"%s %9d  %-s %s",
 					colored_name(tmpbuf, 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
 					diag_obj_timer(GET_EXCHANGE_ITEM(j)),
 					tmstr);
-		else
+		} else {
 			sprintf(tmpbuf,
 					"%s %9d  %-s\r\n",
 					colored_name(tmpbuf, 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
 					diag_obj_timer(GET_EXCHANGE_ITEM(j)));
+			}
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
-		buffer += tmpbuf;
+		if (params.check(j)) {
+			buffer += tmpbuf;
+		}
 		any_item = 1;
 	}
 
 	if (!any_item) {
 		buffer = "Базар пуст!\r\n";
-	} else if (show_type == 11) {
-		const int price = EXCHANGE_IDENT_PAY / 2;
-		ch->remove_both_gold(price);
-		SendMsgToChar(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
-					  CCIGRN(ch, C_NRM), price, GetDeclensionInNumber(price, EWhat::kMoneyU), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);
 }
