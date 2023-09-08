@@ -512,8 +512,16 @@ bool ParseFilter::check_rent(int obj_price) const {
 }
 
 bool ParseFilter::check_remorts(ObjData *obj) const {
-	int obj_remorts = obj->get_auto_mort_req();
+	int obj_remorts = 0;
 
+	if (obj->get_minimum_remorts() != 0) {
+		obj_remorts = obj->get_minimum_remorts();
+	} else if (obj->get_auto_mort_req() > 0) {
+		obj_remorts = obj->get_auto_mort_req();
+	}
+	if (obj_remorts == -1) {
+		obj_remorts = 0;
+	}
 	if (remorts_sign == '\0')
 			return true;
 	if (remorts_sign == '=') {
@@ -667,7 +675,6 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 
 	if (!*argument) {
 		std::stringstream ss;
-    
 		ss << "Возможные фильтры:\r\n" <<
 			  "   И - Имя (название) предмета\r\n" <<
 			  "   Т - Тип предмета (свет,свиток,палочка,посох,оружие,броня,напиток,прочее,\r\n" <<
@@ -772,6 +779,9 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 					return false;
 				}
 				break;
+//			case '#':
+//				return true;
+//				break;
 			default: 
 					SendMsgToChar("Ошибка в фильтре.\r\n", ch);
 					return false;
