@@ -99,7 +99,7 @@ enum class ESkill : int {
 	kSideAttack = 149,
 	kDisarm = 150,
 	kParry = 151,
-					/* Очередной просвет */
+	kCharge = 152,
 	kMorph = 153,
 	kBows = 154,
 	kAddshot = 155,
