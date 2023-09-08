@@ -71,7 +71,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 	}
 
 	appear(ch);
-	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind()) {
+	if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && CLEAR_MIND(vict)) {
 		hit(vict, ch, ESkill::kUndefined,
 				AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}

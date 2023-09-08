@@ -841,6 +841,10 @@ bool AWAKE(const CharData *ch) {
 		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
+bool CLEAR_MIND(const CharData *ch) {
+	return (!GET_AF_BATTLE(ch, kEafOverwhelm) && !GET_AF_BATTLE(ch, kEafHammer));
+}
+
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 	return !NAME_BAD(ch)
