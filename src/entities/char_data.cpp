@@ -842,7 +842,7 @@ bool AWAKE(const CharData *ch) {
 }
 
 bool CLEAR_MIND(const CharData *ch) {
-	return (!GET_AF_BATTLE(ch, kEafOverwhelm) && !GET_AF_BATTLE(ch, kEafHammer))
+	return (!GET_AF_BATTLE(ch, kEafOverwhelm) && !GET_AF_BATTLE(ch, kEafHammer));
 }
 
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
