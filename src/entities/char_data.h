@@ -943,6 +943,9 @@ inline bool MAY_ATTACK(const CharData::shared_ptr &sub) { return MAY_ATTACK(sub.
 bool AWAKE(const CharData *ch);
 inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 
+bool CLEAR_MIND(const CharData *ch);
+inline bool CLEAR_MIND(const CharData::shared_ptr &ch) { return CLEAR_MIND(ch.get()); }
+
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
 inline bool CAN_START_MTRIG(const CharData *ch) {
