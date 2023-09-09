@@ -672,7 +672,7 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument) {
 	char buf_tmp[kMaxInputLength];
 
-	if (!*argument) {
+	if (!*argument && ch) {
 		std::stringstream ss;
 		ss << "Возможные фильтры:\r\n" <<
 			  "   И - Имя (название) предмета\r\n" <<
@@ -800,7 +800,7 @@ std::string ParseFilter::print() const {
 	std::string buffer;
 
 	if (!name.empty()) {
-		buffer = name + ", ";
+		buffer = "И" + name + ", ";
 	}
 	/*
 	if (owner_id >= 0)
@@ -814,21 +814,25 @@ std::string ParseFilter::print() const {
 	}
 	*/
 	if (!owner.empty()) {
-		buffer += owner + ", ";
+		buffer += "В" + owner + ", ";
 	}
 	if (type >= 0) {
+		buffer += "Т";
 		buffer += item_types[type];
 		buffer += ", ";
 	}
 	if (state >= 0) {
+		buffer += "С";
 		buffer += print_obj_state(state);
 		buffer += ", ";
 	}
 	if (wear != EWearFlag::kUndefined) {
+		buffer += "О";
 		buffer += wear_bits[wear_message];
 		buffer += ", ";
 	}
 	if (MUD::Skills().IsValid(weap_class)) {
+		buffer += "К";
 		buffer += weapon_class[weap_message];
 		buffer += ", ";
 	}
@@ -843,7 +847,7 @@ std::string ParseFilter::print() const {
 		buffer += ", ";
 	}
 	if (skill_id != ESkill::kUndefined) {
-		sprintf(buf, "%s", MUD::Skill(skill_id).GetName());
+		sprintf(buf, "К%s", MUD::Skill(skill_id).GetName());
 		buffer += buf;
 		buffer += ", ";
 	}
@@ -854,18 +858,21 @@ std::string ParseFilter::print() const {
 	}
 	if (!affect_weap.empty()) {
 		for (int it : affect_weap) {
+			buffer += "А";
 			buffer += weapon_affects[it];
 			buffer += ", ";
 		}
 	}
 	if (!affect_apply.empty()) {
 		for (int it : affect_apply) {
+			buffer += "А";
 			buffer += apply_types[it];
 			buffer += ", ";
 		}
 	}
 	if (!affect_extra.empty()) {
 		for (int it : affect_extra) {
+			buffer += "А";
 			buffer += extra_bits[it];
 			buffer += ", ";
 		}
