@@ -226,6 +226,7 @@ extern void LoadProxyList();
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
 extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern void extract_trigger(Trigger *trig);
+extern ESkill FixNameAndFindSkillId(char *name);
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -3401,7 +3402,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 	f = false;
 	ESkill skill_id;
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbr(searchname, MUD::Skill(skill_id).GetName())) {
+		if (FixNameAndFindSkillId(searchname) == skill_id) {
 			f = true;
 			break;
 		}
