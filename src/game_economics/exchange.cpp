@@ -709,8 +709,8 @@ int exchange_offers(CharData *ch, char *arg) {
 	if (!correct_filter_length(ch, filter)) {
 		return 0;
 	}
-	sprintf(buf, "arg=%s, type=%d", filter, show_type);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//	sprintf(buf, "arg=%s, type=%d", filter, show_type);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 					
 	show_lots(filter, show_type, ch);
 	return 1;
