@@ -12,6 +12,8 @@
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
 
+extern ESkill FixNameAndFindSkillId(char *name);
+
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbr(str, "свет")
 		|| utils::IsAbbr(str, "light")) {
@@ -179,9 +181,9 @@ bool ParseFilter::init_remorts(const char *str) {
 	return true;
 }
 
-bool ParseFilter::init_skill(const char *str) {
+bool ParseFilter::init_skill(char *str) {
 	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (utils::IsAbbr(str, MUD::Skill(skill_id).GetName())) {
+		if (FixNameAndFindSkillId(str) == skill_id) {
 			return true;
 		}
 	}
@@ -510,8 +512,16 @@ bool ParseFilter::check_rent(int obj_price) const {
 }
 
 bool ParseFilter::check_remorts(ObjData *obj) const {
-	int obj_remorts = obj->get_auto_mort_req();
+	int obj_remorts = 0;
 
+	if (obj->get_minimum_remorts() != 0) {
+		obj_remorts = obj->get_minimum_remorts();
+	} else if (obj->get_auto_mort_req() > 0) {
+		obj_remorts = obj->get_auto_mort_req();
+	}
+	if (obj_remorts == -1) {
+		obj_remorts = 0;
+	}
 	if (remorts_sign == '\0')
 			return true;
 	if (remorts_sign == '=') {
@@ -643,7 +653,6 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 	ObjData *obj = GET_EXCHANGE_ITEM(exch_obj);
 	if (check_name(obj)
 		&& check_owner(exch_obj)
-			//&& (owner_id == -1 || owner_id == GET_EXCHANGE_ITEM_SELLERID(exch_obj))
 		&& check_type(obj)
 		&& check_state(obj)
 		&& check_wear(obj)
@@ -665,7 +674,6 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 
 	if (!*argument) {
 		std::stringstream ss;
-    
 		ss << "Возможные фильтры:\r\n" <<
 			  "   И - Имя (название) предмета\r\n" <<
 			  "   Т - Тип предмета (свет,свиток,палочка,посох,оружие,броня,напиток,прочее,\r\n" <<
@@ -690,6 +698,7 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 			  "       перевоплощений. Знак '-' выведет предметы, которое требует меньше или\r\n" <<
 			  "       равное количество перевоплощений.  Знак '=' выведет предметы конкретного перевоплощения\r\n" <<
 			  "   У - Добавляемое умение\r\n" <<
+			  "   В - Продавец предмета на базаре.\r\n" <<
 			  " Можно указать несколько фильтров, разделив их пробелом.\r\n";
 		SendMsgToChar(ss.str(), ch);
 		return false;
@@ -769,6 +778,14 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 					SendMsgToChar("Неверное умение.\r\n", ch);
 					return false;
 				}
+				break;
+			case 'В':// имя выставившего на базаре
+				argument = one_argument(++argument, buf_tmp);
+				if (filter_type != EXCHANGE) {
+					SendMsgToChar("Только для базара.\r\n", ch);
+					return false;
+				}
+				owner = buf_tmp;
 				break;
 			default: 
 					SendMsgToChar("Ошибка в фильтре.\r\n", ch);

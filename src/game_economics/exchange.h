@@ -39,7 +39,7 @@ extern std::vector<bool> lot_usage;
 #define EXCHANGE_DATABASE_BACKUPFILE LIB_PLRSTUFF"exchange.backup"
 #define EX_NEW_ITEM_CHAR '#'
 #define EX_END_CHAR '$'
-#define FILTER_LENGTH 25
+#define FILTER_LENGTH 250
 #define EXCHANGE_EXHIBIT_PAY 100    // Плата за выставление на базар
 #define EXCHANGE_EXHIBIT_PAY_COEFF 0.05    // Коэффициент оплаты в зависимости от цены товара
 #define EXCHANGE_IDENT_PAY 110    //куны за опознание
