@@ -693,6 +693,7 @@ int exchange_offers(CharData *ch, char *arg) {
 		strcpy(filter, "М0+");
 	} else if (utils::IsAbbr(arg1, "мои") || utils::IsAbbr(arg1, "mine")) {
 		show_type = 1;
+		sprintf(filter, "В%s", GET_NAME(ch));
 	} else {
 		while (*arg1) {
 			arg1[0] = UPPER(arg1[0]);
@@ -708,8 +709,8 @@ int exchange_offers(CharData *ch, char *arg) {
 	if (!correct_filter_length(ch, filter)) {
 		return 0;
 	}
-//	sprintf(buf, "arg=%s, type=%d", filter, show_type);
-//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	sprintf(buf, "arg=%s, type=%d", filter, show_type);
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 					
 	show_lots(filter, show_type, ch);
 	return 1;
