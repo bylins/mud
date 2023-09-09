@@ -310,7 +310,7 @@ void CharData::zero_init() {
 	protecting_ = nullptr;
 	touching_ = nullptr;
 	enemy_ = nullptr;
-	ChargeApplyTime = 0;
+	charge_apply_time = 0;
 	serial_num_ = 0;
 	purged_ = false;
 	// на плеер-таблицу
@@ -2198,11 +2198,6 @@ CharData *CharData::get_horse() {
 
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
-}
-
-void CharData::set_charge_apply_time() {
-	ChargeApplyTime = time(0);
-
 }
 
 player_special_data::player_special_data() :

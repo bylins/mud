@@ -79,47 +79,36 @@ void go_charge(CharData *ch, int direction) {
 	af2.bitvector = to_underlying(EAffect::kConfused);
 
 	Damage dmg(SkillDmg(ESkill::kCharge), dam, fight::kPhysDmg, nullptr);
-//Ищем цели, потом проверяем можем ли теоретически атаковать, потом проверяем на успех умения, потом на !чардж, потом на возможность удара щитом
 	victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
-	ActionTargeting::FoesRosterType roster0{ch};
-
-	for (const auto target: roster0) {
-		if (MOB_FLAGGED(target, EMobFlag::kProtect) || (!may_kill_here(ch, target, arg)) || target == ch || !CAN_SEE(ch, target)) {
-			--victims_amount;
-		} else {
-			if (!AFF_FLAGGED(target, EAffect::kNoCharge)) {
-				affect_to_char(target, af);
-				target->set_charge_apply_time();
-			}
-			--victims_amount;
-		}
-		if (victims_amount <= 0) {
-			break;
-		}
-	}
 
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
 		if (MOB_FLAGGED(target, EMobFlag::kProtect) || (!may_kill_here(ch, target, arg)) || target == ch || !CAN_SEE(ch, target)) {
 			--victims_amount;
 		} else {
-			SkillRollResult result = MakeSkillTest(ch, ESkill::kCharge, target);
-			bool success = result.success;
-
-			TrainSkill(ch, ESkill::kCharge, success, target);
-			TryToFindProtector(target, ch);
-			if (!success) {
-				act("Вам не удалось обескуражить $N3 своим бешенным натиском!",
+			if (AFF_FLAGGED(target, EAffect::kNoCharge) && (time(0) >= target->charge_apply_time + 4)) {
+				act("$N0 уже на страже - вы не сможете повторно испугать $S своим натиском!",
 					false, ch, nullptr, target, kToChar);
-				act("$N попытал$u неожиданно напасть на Вас, но Вы вовремя спохватились и приняли бой!",
-					false, target, nullptr, ch, kToChar);
-				act("$n попытал$u обескуражить $N3 яростным натиском, но только рассмешил$g всех в округе.",
-					false, target, nullptr, ch, kToNotVict | kToArenaListen);
 				hit(target, ch, ESkill::kUndefined, fight::kMainHand);
 			} else {
-//Если есть !чардж, но еще не прошло 3 секунды со времени его применения
-				if (AFF_FLAGGED(target, EAffect::kNoCharge) && (time(0) <= target->ChargeApplyTime + 6)) {
-//Сможем ли использовать "удар щитом" или просто ударим?
+				if (!AFF_FLAGGED(target, EAffect::kNoCharge)) {
+					affect_to_char(target, af);
+					target->charge_apply_time = time(0);
+				}
+				SkillRollResult result = MakeSkillTest(ch, ESkill::kCharge, target);
+				bool success = result.success;
+
+				TrainSkill(ch, ESkill::kCharge, success, target);
+				TryToFindProtector(target, ch);
+				if (!success) {
+					act("Вам не удалось привести $N3 в замешательство своим бешенным натиском!",
+						false, ch, nullptr, target, kToChar);
+					act("$N попытал$U неожиданно напасть на Вас, но Вы вовремя спохватились и приняли бой!",
+						false, target, nullptr, ch, kToChar);
+					act("$n попытал$u обескуражить $N3 яростным натиском, но только рассмешил$g всех в округе.",
+						false, target, nullptr, ch, kToNotVict | kToArenaListen);
+					hit(target, ch, ESkill::kUndefined, fight::kMainHand);
+				} else {
 					if (ch->GetSkill(ESkill::kShieldBash) && (ch->GetSkill(ESkill::kBash)) && (GET_EQ(ch, kShield)) && (!PRF_FLAGGED(ch, EPrf::kAwake))) {
 						go_bash(ch, target);
 					} else {
@@ -127,23 +116,18 @@ void go_charge(CharData *ch, int direction) {
 							false, ch, nullptr, target, kToChar);
 						act("А вот вам и гостинец - $N одарил$G Вас смачной оплеухой!",
 							false, target, nullptr, ch, kToChar);
-						act("$n разогнал$u и отвесил$g $N2 внушительного тумака!",
+						act("$N разогнал$U и отвесил$G $n2 внушительного тумака!",
 							false, target, nullptr, ch, kToNotVict | kToArenaListen);
 						dmg.Process(ch, target);
-//При успехе вешаем и "ошарашен"
 						affect_to_char(target, af2);
 					}
-				} else {
-					act("Вам не удалось привести $N3 в замешательство своим натиском!",
-						false, ch, nullptr, target, kToChar);
-					hit(target, ch, ESkill::kUndefined, fight::kMainHand);
 				}
 			}
-				--victims_amount;
-		}
+			--victims_amount;
 			if (victims_amount <= 0) {
-				SetWait(ch, 3, true);
 				break;
 			}
+		}
+		SetWait(ch, 2, true);
 	}
 }
