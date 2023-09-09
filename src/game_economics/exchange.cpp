@@ -401,7 +401,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
-	act("Вы сняли $O3 с базара.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
+	act("Вы сняли $O3 с базара.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
@@ -593,7 +593,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			//edited by WorM 2011.05.21
-			act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
+			act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 					GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
@@ -625,7 +625,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 //-Polud
 		seller->save_char();
 
-		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
+		act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
@@ -645,7 +645,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		seller->add_bank(GET_EXCHANGE_ITEM_COST(item), true);
 		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item), true);
 
-		act("Вы купили $O3 на базаре.\r\n", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
+		act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
@@ -1116,18 +1116,10 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);
-			if (!EXCHANGE_FILTER(i->character)
-				|| (params.parse_filter(ch, params, EXCHANGE_FILTER(i->character))
+			if (!EXCHANGE_FILTER(i->character) 
+					|| (EXCHANGE_FILTER(i->character) && params.parse_filter(nullptr, params, EXCHANGE_FILTER(i->character))
 					&& params.check(j))) {
-				if (COLOR_LEV(i->character) >= C_NRM) {
-					SendMsgToChar("&Y&q", i->character.get());
-				}
-
-				act(message, false, i->character.get(), 0, 0, kToChar | kToSleep);
-
-				if (COLOR_LEV(i->character) >= C_NRM) {
-					SendMsgToChar("&Q&n", i->character.get());
-				}
+				SendMsgToChar(i->character.get(), "&Y%s&n", message);
 			}
 		}
 	}
