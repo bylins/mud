@@ -653,7 +653,6 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 	ObjData *obj = GET_EXCHANGE_ITEM(exch_obj);
 	if (check_name(obj)
 		&& check_owner(exch_obj)
-			//&& (owner_id == -1 || owner_id == GET_EXCHANGE_ITEM_SELLERID(exch_obj))
 		&& check_type(obj)
 		&& check_state(obj)
 		&& check_wear(obj)
@@ -699,6 +698,7 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 			  "       перевоплощений. Знак '-' выведет предметы, которое требует меньше или\r\n" <<
 			  "       равное количество перевоплощений.  Знак '=' выведет предметы конкретного перевоплощения\r\n" <<
 			  "   У - Добавляемое умение\r\n" <<
+			  "   В - Продавец предмета на базаре.\r\n" <<
 			  " Можно указать несколько фильтров, разделив их пробелом.\r\n";
 		SendMsgToChar(ss.str(), ch);
 		return false;
@@ -778,6 +778,14 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 					SendMsgToChar("Неверное умение.\r\n", ch);
 					return false;
 				}
+				break;
+			case 'В':// имя выставившего на базаре
+				argument = one_argument(++argument, buf_tmp);
+				if (filter_type != EXCHANGE) {
+					SendMsgToChar("Только для базара.\r\n", ch);
+					return false;
+				}
+				owner = buf_tmp;
 				break;
 			default: 
 					SendMsgToChar("Ошибка в фильтре.\r\n", ch);

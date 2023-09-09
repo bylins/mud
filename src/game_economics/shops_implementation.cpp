@@ -519,7 +519,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 	std::string name_value;
 
 	one_argument(argument, arg);
-	ParseFilter filter(ParseFilter::EXCHANGE);
+	ParseFilter filter(ParseFilter::CLAN);
 
 	if (!filter.parse_filter(ch, filter, argument)) {
 			return;
