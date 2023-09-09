@@ -701,9 +701,7 @@ int exchange_offers(CharData *ch, char *arg) {
 			arg = one_argument(arg, arg1);
 		}
 	}
-	if (show_type !=2 && EXCHANGE_FILTER(ch)) {
-		sprintf(buf, "filter  arg=%s", EXCHANGE_FILTER(ch));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	if (show_type == 0 && EXCHANGE_FILTER(ch)) {
 		snprintf(buf, kMaxInputLength, "%s %s", EXCHANGE_FILTER(ch), filter);
 		strcpy(filter, buf);
 	}

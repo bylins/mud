@@ -779,9 +779,6 @@ bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument
 					return false;
 				}
 				break;
-//			case '#':
-//				return true;
-//				break;
 			default: 
 					SendMsgToChar("Ошибка в фильтре.\r\n", ch);
 					return false;
