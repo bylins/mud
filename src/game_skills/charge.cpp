@@ -133,9 +133,9 @@ void go_charge(CharData *ch, int direction) {
 				}
 			}
 			--victims_amount;
-			if (victims_amount <= 0) {
-				break;
-			}
+		}
+		if (victims_amount <= 0) {
+			break;
 		}
 	}
 }
