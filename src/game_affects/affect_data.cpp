@@ -195,12 +195,15 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 void player_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
-	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
+//	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING)
+			continue;
+		const auto i = d->get_character();
+					
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
-		if (i->IsNpc())
-			return;
 		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
@@ -266,7 +269,7 @@ void player_affect_update() {
 			MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
 			affect_total(i.get());
 		}
-	});
+	}
 	log("player affect update: timer %f, num players %d", timer.delta().count(), count);
 }
 
