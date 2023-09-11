@@ -513,17 +513,14 @@ int get_line(FILE *fl, char *buf) {
 	auto lines = 0;
 
 	do {
-		fgets(temp, 256, fl);
-
+	if (fgets(temp, 256, fl)) {}
 		if (feof(fl)) {
 			return 0;
 		}
 		lines++;
-	} while (*temp == '*' || *temp == '\n');
-
+	} while (*temp == '*' || *temp == '\n' || *temp == '\r');
 	temp[strlen(temp) - 1] = '\0';
 	strcpy(buf, temp);
-
 	return lines;
 }
 
