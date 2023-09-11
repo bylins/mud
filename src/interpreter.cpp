@@ -149,6 +149,7 @@
 #include "administration/accounts.h"
 #include "game_fight/pk.h"
 #include "game_skills/slay.h"
+#include "game_skills/charge.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -613,6 +614,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"наказания", EPosition::kDead, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
 		{"налить", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
 		{"наполнить", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
+		{"натиск", EPosition::kStand, do_charge, 0, 0, 0},
 		{"найти", EPosition::kStand, do_sense, 0, 0, 500},
 		{"нанять", EPosition::kStand, do_findhelpee, 0, 0, -1},
 		{"новичок", EPosition::kSleep, do_gen_ps, 0, SCMD_INFO, 0},
@@ -824,6 +826,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"best", EPosition::kDead, DoBest, 0, 0, 0},
 		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
+		{"charge", EPosition::kStand, do_charge, 0, 0, 0},
 		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},

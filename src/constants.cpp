@@ -51,8 +51,18 @@ double exp_coefficients[] =
 
 
 // cardinal directions
-const char *dirs[] =
-	{
+
+const char *dirs_rus[] = {
+		"север",
+		"восток",
+		"юг",
+		"запад",
+		"вверх",
+		"вниз",
+		"\n"
+	};
+
+const char *dirs[] = {
 		"north",
 		"east",
 		"south",
@@ -62,8 +72,7 @@ const char *dirs[] =
 		"\n"
 	};
 
-const char *DirsTo[] =
-	{
+const char *DirsTo[] = {
 		"на север",
 		"на восток",
 		"на юг",
@@ -73,8 +82,7 @@ const char *DirsTo[] =
 		"\n"
 	};
 
-const char *DirsFrom[] =
-	{
+const char *DirsFrom[] = {
 		"с юга",
 		"с запада",
 		"с севера",
@@ -85,8 +93,7 @@ const char *DirsFrom[] =
 	};
 
 // ROOM_x
-const char *room_bits[] =
-	{
+const char *room_bits[] = {
 		"темная",
 		"ДТ",
 		"не для мобов",
@@ -139,8 +146,7 @@ const char *room_bits[] =
 	};
 
 // EX_x
-const char *exit_bits[] =
-	{
+const char *exit_bits[] = {
 		"есть дверь",
 		"закрыта",
 		"заперта",
@@ -152,8 +158,7 @@ const char *exit_bits[] =
 	};
 
 // SECT_
-const char *sector_types[] =
-	{
+const char *sector_types[] = {
 		"Гладкий пол",
 		"Улица",
 		"Поле",

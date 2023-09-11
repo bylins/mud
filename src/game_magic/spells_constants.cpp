@@ -820,6 +820,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kFullIdentify] = "kFullIdentify";
 	ESpell_name_by_value[ESpell::kQUest] = "kQUest";
 	ESpell_name_by_value[ESpell::kPortalTimer] = "kPortalTimer";
+	ESpell_name_by_value[ESpell::kNoCharge] = "kNoCharge";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

@@ -393,6 +393,8 @@ class CharData : public ProtectedCharData {
 	void set_protecting(CharData *vict);
 	void remove_protecting();
 
+	long charge_apply_time;
+
 	EExtraAttack get_extra_attack_mode() const;
 	CharData *GetExtraVictim() const;
 	void SetExtraAttack(EExtraAttack Attack, CharData *vict);

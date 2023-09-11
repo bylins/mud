@@ -110,14 +110,6 @@ void GoDirectFlee(CharData *ch, int direction) {
 	GoFlee(ch);
 }
 
-const char *flee_dirs[] = {"север",
-						   "восток",
-						   "юг",
-						   "запад",
-						   "вверх",
-						   "вниз",
-						   "\n"};
-
 void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction = -1;
 	if (!ch->GetEnemy()) {
@@ -127,7 +119,7 @@ void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (CanUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
-			(direction = search_block(arg, flee_dirs, false)) >= 0) {
+			(direction = search_block(arg, dirs_rus, false)) >= 0) {
 			GoDirectFlee(ch, direction);
 			return;
 		}

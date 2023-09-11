@@ -16,6 +16,8 @@
 #include "backtrace.h"
 #include "structs/global_objects.h"
 #include "liquid.h"
+#include "char_data.h"
+
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
@@ -308,6 +310,7 @@ void CharData::zero_init() {
 	protecting_ = nullptr;
 	touching_ = nullptr;
 	enemy_ = nullptr;
+	charge_apply_time = 0;
 	serial_num_ = 0;
 	purged_ = false;
 	// на плеер-таблицу

@@ -67,6 +67,7 @@ struct ApplyNegative {
 };
 
 extern const char *circlemud_version;
+extern const char *dirs_rus[];
 extern const char *dirs[];
 extern const char *DirsFrom[];
 extern const char *DirsTo[];

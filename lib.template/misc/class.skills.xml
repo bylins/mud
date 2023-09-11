@@ -125,6 +125,9 @@
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
       <skill name="лечить" remort="0" level="10" improve="23500"/>
       <skill name="сбить" remort="0" level="10" improve="3500"/>
+      <skill name="удар щитом" remort="0" level="10" improve="3500"/>
+      <skill name="сразить" remort="0" level="10" improve="3500"/>
+      <skill name="натиск" remort="0" level="20" improve="3500"/>
       <skill name="сражение верхом" remort="0" level="1" improve="100"/>
       <skill name="ошеломить" remort="0" level="28" improve="38199"/>
       <skill name="веерная защита" remort="0" level="1" improve="150"/>
@@ -214,6 +217,7 @@
       <skill name="опохмелиться" remort="0" level="3" improve="94000"/>
       <skill name="лечить" remort="0" level="5" improve="30000"/>
       <skill name="сбить" remort="0" level="12" improve="3500"/>
+      <skill name="удар щитом" remort="0" level="10" improve="3500"/>
       <skill name="палицы и дубины" remort="0" level="1" improve="100"/>
       <skill name="блокировать щитом" remort="0" level="10" improve="1500"/>
       <skill name="пнуть" remort="0" level="7" improve="1500"/>
