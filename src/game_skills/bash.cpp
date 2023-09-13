@@ -125,11 +125,6 @@ void go_bash(CharData *ch, CharData *vict) {
 						 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
 		}
 
-		// Сам баш:
-		GET_POS(vict) = EPosition::kSit;
-		SetWait(vict, 3, true);
-		lag = 1;
-
 //делаем блокирование баша
 		if ((GET_AF_BATTLE(vict, kEafBlock)
 			|| (CanUseFeat(vict, EFeat::kDefender)
@@ -179,6 +174,10 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		dam = dmg.Process(ch, vict);
 		vict->DropFromHorse();
+		// Сам баш:
+		GET_POS(vict) = EPosition::kSit;
+		SetWait(vict, 3, false);
+		lag = 1;
 
 		// Если убил - то лага не будет:
 		if (dam < 0) {
