@@ -1184,7 +1184,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 }
 
 ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
-	char name[kMaxStringLength], buf[128];
+	char name[kMaxInputLength], buf[kMaxInputLength];
 	ObjData **array = nullptr;
 	ObjData *o;
 	int i, n = 0;
@@ -1200,7 +1200,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 		}
 		o = get_obj_in_list_vis(ch, name, ch->carrying);
 		if (!o) {
-			snprintf(buf, kMaxStringLength, "У вас нет %s.\r\n", name);
+			snprintf(buf, kMaxInputLength, "У вас нет %s.\r\n", name);
 			break;
 		}
 		if (GET_OBJ_TYPE(o) != EObjType::kMagicIngredient) {
