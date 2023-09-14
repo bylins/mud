@@ -407,7 +407,7 @@ int find_char_vnum(int vnum, int num = 0) {
 			}
 		}
 	}
-	return 0;
+	return -1;
 }
 
 // return room with VNUM n
@@ -419,7 +419,8 @@ int find_room_vnum(long n) {
 }
 
 int find_room_uid(long n) {
-	return (real_room(n) != kNowhere) ? kRoomToBase + n : -0;
+	return (real_room(n) != kNowhere) ? kRoomToBase + n : -1;
+	//return (real_room (n) != kNowhere) ? n : -1;
 }
 
 /************************************************************
