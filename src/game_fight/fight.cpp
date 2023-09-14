@@ -325,7 +325,6 @@ int GET_MAXDAMAGE(CharData *ch) {
 
 int GET_MAXCASTER(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kSilence)
-		|| AFF_FLAGGED(ch, EAffect::kStrangled)
 		|| ch->get_wait() > 0)
 		return 0;
 	else
@@ -761,7 +760,6 @@ CharData *find_opp_caster(CharData *caster) {
 			&& (GetRealInt(caster) < number(15, 25)
 				|| !in_same_battle(caster, vict, true)))
 			|| AFF_FLAGGED(vict, EAffect::kHold) || AFF_FLAGGED(vict, EAffect::kSilence)
-			|| AFF_FLAGGED(vict, EAffect::kStrangled)
 			|| (!CAN_SEE(caster, vict) && caster->GetEnemy() != vict))
 			continue;
 		if (vict_val < GET_MAXCASTER(vict)) {
@@ -991,7 +989,6 @@ void mob_casting(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kSilence)
-		|| AFF_FLAGGED(ch, EAffect::kStrangled)
 		|| ch->get_wait() > 0)
 		return;
 
@@ -1218,7 +1215,6 @@ void check_mob_helpers() {
 			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
 			|| AFF_FLAGGED(ch, EAffect::kStopFight)
 			|| AFF_FLAGGED(ch, EAffect::kSilence)
-			|| AFF_FLAGGED(ch, EAffect::kStrangled)
 			|| PRF_FLAGGED(ch->GetEnemy(), EPrf::kNohassle)) {
 			continue;
 		}
@@ -1594,7 +1590,6 @@ void using_mob_skills(CharData *ch) {
 						|| (IsCaster(vict)
 							&& (AFF_FLAGGED(vict, EAffect::kHold)
 								|| AFF_FLAGGED(vict, EAffect::kSilence)
-								|| AFF_FLAGGED(vict, EAffect::kStrangled)
 								|| vict->get_wait() > 0))) {
 						continue;
 					}
@@ -1867,7 +1862,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	//* каст заклинания
 	round_profiler.next_step("Cast spell");
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
-		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {

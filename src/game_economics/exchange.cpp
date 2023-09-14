@@ -101,7 +101,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("exchange") || CMD_IS("базар")) {
 		if (ch->IsNpc())
 			return 0;
-		if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 			SendMsgToChar("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}

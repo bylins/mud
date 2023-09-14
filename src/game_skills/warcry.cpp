@@ -15,7 +15,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}

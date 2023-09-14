@@ -53,7 +53,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 //	create_charmice_stuff(ch, static_cast<ESkill>(atoi(argument)), 100);// г номер тестировал чармстаф
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
@@ -93,8 +93,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
 	struct FollowerType *f;
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence)
-		|| AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
@@ -276,7 +275,7 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
@@ -308,7 +307,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
@@ -362,7 +361,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[kMaxInputLength];
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}
@@ -630,7 +629,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}

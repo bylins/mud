@@ -40,7 +40,7 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
