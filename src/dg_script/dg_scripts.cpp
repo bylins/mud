@@ -407,7 +407,7 @@ int find_char_vnum(int vnum, int num = 0) {
 			}
 		}
 	}
-	return 0;
+	return -1;
 }
 
 // return room with VNUM n
@@ -419,7 +419,7 @@ int find_room_vnum(long n) {
 }
 
 int find_room_uid(long n) {
-	return (real_room(n) != kNowhere) ? kRoomToBase + n : -0;
+	return (real_room(n) != kNowhere) ? kRoomToBase + n : 0;
 }
 
 /************************************************************
@@ -1768,17 +1768,24 @@ void find_replacement(void *go,
 				reset_zone(zrn);
 			} else if (!str_cmp(field, "mob") && num > 0) {
 				num = find_char_vnum(num);
+
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_CHAR, num);
+				else
+					sprintf(str, "0");
 			} else if (!str_cmp(field, "obj") && num > 0) {
 				num = find_obj_by_id_vnum__find_replacement(num);
 
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
+				else
+					sprintf(str, "0");
 			} else if (!str_cmp(field, "room") && num > 0) {
 				num = find_room_uid(num);
-				if (num >= 0)
+				if (num > 0)
 					sprintf(str, "%c%d", UID_ROOM, num);
+				else
+					sprintf(str, "0");
 			}
 				//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 				//которое прописано в самом предмете с указанным vnum
@@ -3899,11 +3906,9 @@ int process_if(const char *cond, void *go, Script *sc, Trigger *trig, int type) 
 	char result[kMaxInputLength], *p;
 
 	eval_expr(cond, result, go, sc, trig, type);
-
 	p = result;
-	skip_spaces(&p);
-
-	if (!*p || *p == '0') {
+//	skip_spaces(&p);
+	if (!*p || *p == '0') {// || (IsUID(p) && *++p == '0')) {
 		return 0;
 	} else {
 		return 1;

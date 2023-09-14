@@ -10,7 +10,7 @@ struct RoomData;    // to avoid inclusion of "room.hpp"
 
 class FindObjIDByVNUM {
  public:
-	static constexpr object_id_t NOT_FOUND = 0;
+	static constexpr object_id_t NOT_FOUND = -1;
 
 	FindObjIDByVNUM(const ObjVnum vnum, const unsigned number) : m_vnum(vnum), m_number(number), m_result(NOT_FOUND) {}
 
