@@ -17,7 +17,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar("Вы не в состоянии приказывать сейчас.\r\n", ch);
 		return;
 	}

@@ -125,7 +125,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			break;
 
 		case EObjType::kScroll:
-			if (AFF_FLAGGED(ch, EAffect::kSilence) || AFF_FLAGGED(ch, EAffect::kStrangled)) {
+			if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 				SendMsgToChar("Вы немы, как рыба.\r\n", ch);
 				return;
 			}
@@ -168,7 +168,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			break;
 
 		case EObjType::kPotion:
-			if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
+			if (AFF_FLAGGED(ch, EAffect::kStrangled) && AFF_FLAGGED(ch, EAffect::kSilence)) {
 				SendMsgToChar("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 				return;
 			}

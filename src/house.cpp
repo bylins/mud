@@ -1518,8 +1518,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kSilence)
-		|| AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
 		return;
 	}

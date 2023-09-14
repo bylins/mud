@@ -318,7 +318,7 @@ int do_drink_check(CharData *ch, ObjData *jar) {
 	}
 
 	// Если удушение - пить нельзя
-	if (AFF_FLAGGED(ch, EAffect::kStrangled)) {
+	if (AFF_FLAGGED(ch, EAffect::kStrangled) && AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
 		return 0;
 	}
