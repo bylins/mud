@@ -104,7 +104,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 		} else {
 			dam = number(ceil((flat_damage * 1.25)), ceil((flat_damage / 1.25)));
 		}
-		int silence_duration = (GET_SKILL(ch, ESkill::kStrangle) / 25);
+		int silence_duration = 2 + (GET_SKILL(ch, ESkill::kStrangle) / 25);
+
 		if (!vict->IsNpc()) {
 			silence_duration *= 30;
 		}
@@ -112,7 +113,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		Affect<EApply> af2;
 		af2.type = ESpell::kSilence;
 		af2.duration = silence_duration;
-		af2.modifier = -100;
+		af2.modifier = GET_SKILL(ch, ESkill::kStrangle) / 3;
 		af2.location = EApply::kMagicDamagePercent;
 		af2.battleflag = kAfBattledec;
 		af2.bitvector = to_underlying(EAffect::kSilence);
