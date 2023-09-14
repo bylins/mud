@@ -113,7 +113,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		Affect<EApply> af2;
 		af2.type = ESpell::kSilence;
 		af2.duration = silence_duration;
-		af2.modifier = GET_SKILL(ch, ESkill::kStrangle) / 3;
+		af2.modifier = -GET_SKILL(ch, ESkill::kStrangle) / 3;
 		af2.location = EApply::kMagicDamagePercent;
 		af2.battleflag = kAfBattledec;
 		af2.bitvector = to_underlying(EAffect::kSilence);
