@@ -46,7 +46,6 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	//Описание аффекта "ошарашен" для умения "удар щитом":
 	Affect<EApply> af;
-	af.type = ESpell::kUndefined;
 	af.duration = 2;
 	af.modifier = 0;
 	af.location = EApply::kNone;
