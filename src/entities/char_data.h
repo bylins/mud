@@ -394,6 +394,7 @@ class CharData : public ProtectedCharData {
 	void remove_protecting();
 
 	long charge_apply_time;
+	std::vector<long> strangle_id;
 
 	EExtraAttack get_extra_attack_mode() const;
 	CharData *GetExtraVictim() const;
