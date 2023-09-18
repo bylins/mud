@@ -53,10 +53,10 @@ void go_bash(CharData *ch, CharData *vict) {
 	af.bitvector = to_underlying(EAffect::kConfused);
 
 	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
-		success = result.success;
+		success = true;
 	}
 	if (MOB_FLAGGED(vict, EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
-		success = !result.success;
+		success = false;
 	}
 
 	TrainSkill(ch, ESkill::kBash, success, vict);
