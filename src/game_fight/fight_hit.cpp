@@ -2506,7 +2506,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		if (shield_full_absorb || armor_full_absorb) {
 			return 0;
 		}
-		Blink(ch, victim);
+		if (dam > 0)
+			Blink(ch, victim);
 	}
 
 	// Внутри magic_shields_dam вызывается dmg::proccess, если чар там умрет, то будет креш
