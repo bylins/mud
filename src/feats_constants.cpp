@@ -78,6 +78,7 @@ void init_EFeat_ITEM_NAMES() {
 	EFeat_name_by_value[EFeat::kMagneticPersonality] = "kMagneticPersonality";
 	EFeat_name_by_value[EFeat::kDamrollBonus] = "kDamrollBonus";
 	EFeat_name_by_value[EFeat::kHitrollBonus] = "kHitrollBonus";
+	EFeat_name_by_value[EFeat::kInjure] = "kInjure";
 	EFeat_name_by_value[EFeat::kPunchFocus] = "kPunchFocus";
 	EFeat_name_by_value[EFeat::kClubsFocus] = "kClubsFocus";
 	EFeat_name_by_value[EFeat::kAxesFocus] = "kAxesFocus";

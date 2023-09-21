@@ -110,6 +110,7 @@ enum class EAffect : Bitvector {
 	kCloudly = kIntTwo | (1u << 24),
 	kConfused = kIntTwo | (1u << 25),
 	kNoCharge = kIntTwo | (1u << 26),
+	kInjured = kIntTwo | (1u << 27),
 };
 
 template<>

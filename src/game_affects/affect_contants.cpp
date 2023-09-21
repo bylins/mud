@@ -97,6 +97,7 @@ const char *affected_bits[] = {"слепота",    // 0
 							   "затуманивание",
 							   "ошарашен",
 							   "!натиск",
+							   "ранен",
 							   "\n",
 							   "\n"
 };
@@ -196,6 +197,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCloudly] = "kCloudly";
 	EAffectFlag_name_by_value[EAffect::kConfused] = "kConfused";
 	EAffectFlag_name_by_value[EAffect::kNoCharge] = "kNoCharge";
+	EAffectFlag_name_by_value[EAffect::kInjured] = "kInjured";
 	for (const auto &i : EAffectFlag_name_by_value) {
 		EAffectFlag_value_by_name[i.second] = i.first;
 	}

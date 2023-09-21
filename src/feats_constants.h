@@ -77,9 +77,7 @@ enum class EFeat {
 	kMagneticPersonality = 64,	//предводитель
 	kDamrollBonus = 65,			//тяжел на руку
 	kHitrollBonus = 66,			//твердая рука
-
-	// UNUSED = 67,				// удалено
-
+	kInjure = 67,				//ранить
 	kPunchFocus = 68,			//любимое оружие: голые руки
 	kClubsFocus = 69,			//любимое оружие: палица
 	kAxesFocus = 70,			//любимое оружие: секира
