@@ -8,7 +8,6 @@
 #include "entities/char_data.h"
 #include "game_fight/pk.h"
 #include "game_fight/fight.h"
-#include "game_fight/fight_hit.h"
 #include "protect.h"
 #include "bash.h"
 #include "action_targeting.h"
