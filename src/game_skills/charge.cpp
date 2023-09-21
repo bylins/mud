@@ -98,7 +98,8 @@ void go_charge(CharData *ch, int direction) {
 			if (AFF_FLAGGED(target, EAffect::kNoCharge) && (time(0) >=target->charge_apply_time + 4)) {
 				act("$N0 уже на страже - вы не сможете повторно испугать $S своим натиском!",
 					false, ch, nullptr,target, kToChar);
-				hit(target, ch, ESkill::kUndefined, fight::kMainHand);
+				dmg.dam = 0;
+				hit(ch, target, ESkill::kUndefined, fight::kMainHand);
 			} else {
 				if (!AFF_FLAGGED(target, EAffect::kNoCharge)) {
 					affect_to_char(target, af);
@@ -116,7 +117,8 @@ void go_charge(CharData *ch, int direction) {
 						false,target, nullptr, ch, kToChar);
 					act("$n попытал$u обескуражить $N3 яростным натиском, но только рассмешил$g всех в округе.",
 						false,target, nullptr, ch, kToNotVict | kToArenaListen);
-					hit(target, ch, ESkill::kUndefined, fight::kMainHand);
+					dmg.dam = 0;
+					dmg.Process(target, ch);
 				} else {
 					if (ch->GetSkill(ESkill::kShieldBash) && (ch->GetSkill(ESkill::kBash)) && (GET_EQ(ch, kShield)) && (!PRF_FLAGGED(ch, EPrf::kAwake))) {
 						go_bash(ch,target);
