@@ -267,16 +267,13 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 			for (ObjData *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
-//					enter_wtrigger(world[rnum_start], ch, -1);
 					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
 					ch->dismount();
 					GET_HIT(ch) = 1;
 					update_pos(ch);
-					if (!ch->affected.empty()) {
-						while (!ch->affected.empty()) {
-							ch->AffectRemove(ch->affected.begin());
-						}
+					while (!ch->affected.empty()) {
+						ch->AffectRemove(ch->affected.begin());
 					}
 					affect_total(ch);
 					GET_POS(ch) = EPosition::kStand;
@@ -323,10 +320,8 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	GET_HIT(ch) = 1;
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-	if (!ch->affected.empty()) {
-		while (!ch->affected.empty()) {
-			ch->AffectRemove(ch->affected.begin());
-		}
+	while (!ch->affected.empty()) {
+		ch->AffectRemove(ch->affected.begin());
 	}
 	affect_total(ch);
 	GET_POS(ch) = EPosition::kStand;
@@ -355,9 +350,6 @@ void die(CharData *ch, CharData *killer) {
 		&& (GetRealLevel(ch) < 15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);
-//		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
-//		SendMsgToChar(buf, ch);  // все мессаги писать в грит триггере
-//		enter_wtrigger(world[real_room(75989)], ch, -1);
 		RemoveCharFromRoom(ch);
 		PlaceCharToRoom(ch, real_room(75989));
 		ch->dismount();

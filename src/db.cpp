@@ -5277,6 +5277,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	act("$n вступил$g в игру.", true, ch, 0, 0, kToRoom);
 	act("Вы перевоплотились! Желаем удачи!", false, ch, 0, 0, kToChar);
+	affect_total(ch);
 }
 
 // returns the real number of the room with given virtual number

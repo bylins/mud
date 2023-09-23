@@ -2,7 +2,6 @@
 
 #include "affect_data.h"
 #include "entities/char_player.h"
-#include "entities/char_data.h"
 #include "entities/world_characters.h"
 #include "game_fight/fight_hit.h"
 #include "game_mechanics/deathtrap.h"
