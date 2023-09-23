@@ -5157,15 +5157,10 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ch->inc_wis(1);
 	ch->inc_int(1);
 	ch->inc_cha(1);
-
 	if (ch->GetEnemy())
 		stop_fighting(ch, true);
-
 	die_follower(ch);
-	while (!ch->affected.empty()) {
-		ch->affect_remove(ch->affected.begin());
-	}
-
+	ch->affected.clear();
 // Снимаем весь стафф
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(ch, i)) {

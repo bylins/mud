@@ -275,9 +275,10 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					update_pos(ch);
 					if (!ch->affected.empty()) {
 						while (!ch->affected.empty()) {
-							ch->affect_remove(ch->affected.begin());
+							ch->AffectRemove(ch->affected.begin());
 						}
 					}
+					affect_total(ch);
 					GET_POS(ch) = EPosition::kStand;
 					look_at_room(ch, 0);
 					greet_mtrigger(ch, -1);
@@ -324,14 +325,14 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 	if (!ch->affected.empty()) {
 		while (!ch->affected.empty()) {
-			ch->affect_remove(ch->affected.begin());
+			ch->AffectRemove(ch->affected.begin());
 		}
 	}
+	affect_total(ch);
 	GET_POS(ch) = EPosition::kStand;
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-
 	return true;
 }
 

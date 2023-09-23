@@ -2788,9 +2788,8 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 			case SCMD_UNAFFECT:
 				if (!vict->affected.empty()) {
-					while (!vict->affected.empty()) {
-						vict->affect_remove(vict->affected.begin());
-					}
+					vict->affected.clear();
+					affect_total(vict);
 					SendMsgToChar("Яркая вспышка осветила вас!\r\n"
 								  "Вы почувствовали себя немного иначе.\r\n", vict);
 					SendMsgToChar("Все афекты сняты.\r\n", ch);

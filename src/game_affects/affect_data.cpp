@@ -2,6 +2,7 @@
 
 #include "affect_data.h"
 #include "entities/char_player.h"
+#include "entities/char_data.h"
 #include "entities/world_characters.h"
 #include "game_fight/fight_hit.h"
 #include "game_mechanics/deathtrap.h"
@@ -184,7 +185,7 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 					ShowAffExpiredMsg(affect->type, ch);
 				}
 			}
-			ch->affect_remove(affect_i);
+			ch->AffectRemove(affect_i);
 		}
 	}
 	if (pulse_aff) {
@@ -262,7 +263,10 @@ void player_affect_update() {
 						}
 					}
 				}
-				i->affect_remove(affect_i);
+				i->AffectRemove(affect_i);
+				if (affect->type == ESpell::kDrunked && affect->duration == 0) {
+					i->set_abstinent();
+				}
 			}
 		}
 		if (!was_purged) {
@@ -341,7 +345,7 @@ void battle_affect_update(CharData *ch) {
 					log("АНГЕЛ снимается спелл %s", buf2);
 				}
 			}
-			ch->affect_remove(affect_i);
+			ch->AffectRemove(affect_i);
 		}
 	}
 	affect_total(ch);
@@ -403,7 +407,7 @@ void mobile_affect_update() {
 							}
 						}
 					}
-					i->affect_remove(affect_i);
+					i->AffectRemove(affect_i);
 				}
 			}
 		}
@@ -441,15 +445,18 @@ void mobile_affect_update() {
 
 // Call affect_remove with every spell of spelltype "skill"
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
-	auto next_affect_i = ch->affected.begin();
+	std::list<std::shared_ptr<Affect<EApply>>>::iterator it  = ch->affected.begin();
 
-	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
-		++next_affect_i;
-		const auto affect = *affect_i;
+	while (it != ch->affected.end()) {
+		Affect<EApply>::shared_ptr affect = *it;
 		if (affect->type == spell_id) {
-			ch->affect_remove(affect_i);
+			it = ch->AffectRemove(it);
+		}
+		else {
+			++it;
 		}
 	}
+	affect_total(ch);
 	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
 		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
@@ -719,6 +726,11 @@ void affect_total(CharData *ch) {
 		AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	}
 	update_pos(ch);
+	int was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? kLightYes : kLightNo;
+	long was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? kLightYes : kLightNo;
+	long was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? kLightYes : kLightNo;
+
+	CheckLight(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
@@ -757,25 +769,22 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 				} else if (max_dur) {
 					af.duration = std::max(af.duration, affect->duration);
 				}
-
 				if (add_mod) {
 					af.modifier += affect->modifier;
 				} else if (max_mod) {
 					af.modifier = std::max(af.modifier, affect->modifier);
 				}
-
-				ch->affect_remove(affect_i);
+				ch->AffectRemove(affect_i);
 				affect_to_char(ch, af);
-
 				found = true;
 				break;
 			}
 		}
 	}
-
 	if (!found) {
 		affect_to_char(ch, af);
 	}
+	affect_total(ch);
 }
 
 /* Insert an affect_type in a char_data structure
@@ -932,19 +941,19 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 
 // * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CharData *ch) {
-	auto naf = ch->affected.begin();
+	auto af = ch->affected.begin();
 
-	for (auto af = naf; af != ch->affected.end(); af = naf) {
-		++naf;
+	while (af != ch->affected.end()) {
 		if (AFF_FLAGGED(ch, EAffect::kCharmed)
 			|| AFF_FLAGGED(ch, EAffect::kHelper))
 			continue;
 		const auto &affect = *af;
 		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
-			ch->affect_remove(af);
+			af = ch->AffectRemove(af);
+		} else {
+			++af;
 		}
 	}
-
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
 	affect_total(ch);
 }

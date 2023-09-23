@@ -456,9 +456,7 @@ void Player::save_char() {
 		 * remove the affections so that the raw values are stored; otherwise the
 		 * effects are doubled when the char logs back in.
 		 */
-		while (!affected.empty()) {
-			affect_remove(affected.begin());
-		}
+		affected.clear();
 	}
 
 	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
