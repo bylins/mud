@@ -2323,10 +2323,8 @@ void find_replacement(void *go,
 			if (!c->affected.empty()) {
 				SendMsgToChar("Вы словно заново родились!\r\n", c);
 			}
-
-			while (!c->affected.empty()) {
-				c->affect_remove(c->affected.begin());
-			}
+			c->affected.clear();
+			affect_total(c);
 		} else {
 			done = false;
 		}
