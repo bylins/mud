@@ -150,7 +150,7 @@ void go_kick(CharData *ch, CharData *vict) {
 				if (GET_POS(vict) > EPosition::kSit) {
 					GET_POS(vict) = EPosition::kSit;
 					SetWaitState(vict, 2 * kBattleRound);
-					to_char = "$N упал на землю!";
+					to_char = "$N упал$A на землю!";
 					to_vict = "Мощный удар $n1 свалил вас с ног.";
 					to_room = "Мощный пинок $n1 усадил $N1 на землю!";
 					if (!ch->IsNpc()) {
