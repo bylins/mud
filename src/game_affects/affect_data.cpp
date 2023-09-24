@@ -943,10 +943,8 @@ void reset_affects(CharData *ch) {
 	auto af = ch->affected.begin();
 
 	while (af != ch->affected.end()) {
-		if (AFF_FLAGGED(ch, EAffect::kCharmed)
-			|| AFF_FLAGGED(ch, EAffect::kHelper))
-			continue;
 		const auto &affect = *af;
+
 		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
 			af = ch->AffectRemove(af);
 		} else {

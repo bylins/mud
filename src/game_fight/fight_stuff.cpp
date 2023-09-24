@@ -665,7 +665,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 			   true);
 		return;
 	}
-	if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+	if (!ch->IsNpc() && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		reset_affects(ch);
 	}
 	// для начала проверяем, активны ли евенты
