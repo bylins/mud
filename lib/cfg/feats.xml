@@ -383,7 +383,7 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kInjure" name="Поранить" mode="kEnabled">
+    <feat id="kInjure" name="ранить" mode="kEnabled">
     </feat>
     <feat id="kPunchFocus" name="любимое оружие: голые руки" mode="kEnabled">
     </feat>
