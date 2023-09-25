@@ -257,6 +257,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kExpedientFail, "Вы восстановили равновесие."},
 		{ESpell::kLowerEffectiveness, ""},
 		{ESpell::kNoInjure, ""},
+		{ESpell::kNoCharge, ""},
 		{ESpell::kPortalTimer, "Пентаграмма медленно растаяла."}
 	};
 
