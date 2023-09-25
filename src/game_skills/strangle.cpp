@@ -40,13 +40,10 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg)) {
 		return;
 	}
-
-	for (long & ids : vict->strangle_id) {
-		if (ids == GET_ID(ch) && AFF_FLAGGED(vict, EAffect::kStrangled)) {
-			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
-				false, ch, nullptr, vict, kToChar);
-			return;
-		}
+	if (IsAffectedBySpellByCaster(ch, vict, ESpell::kStrangle)) {
+		act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
+			false, ch, nullptr, vict, kToChar);
+		return;
 	}
 	go_strangle(ch, vict);
 }
@@ -86,10 +83,9 @@ void go_strangle(CharData *ch, CharData *vict) {
 	Affect<EApply> af;
 	af.type = ESpell::kStrangle;
 	af.duration = strangle_duration;
-	af.modifier = 0;
-	af.location = EApply::kNone;
 	af.battleflag = kNone;
 	af.bitvector = to_underlying(EAffect::kStrangled);
+	af.caster_id = GET_ID(ch);
 
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	if (!success) {
@@ -97,11 +93,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
-		affect_to_char(vict, af);
 	} else {
-		if (!AFF_FLAGGED(vict, EAffect::kStrangled)) {
-			affect_to_char(vict, af);
-		} else {
+		if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 			dam = number(ceil((flat_damage * 1.25)), ceil((flat_damage / 1.25)));
 		}
 		int silence_duration = 2 + (GET_SKILL(ch, ESkill::kStrangle) / 25);
@@ -136,7 +129,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			}
 		}
-	vict->strangle_id.push_back(GET_ID(ch));
+	affect_to_char(vict, af);
 	}
 
 
