@@ -69,6 +69,9 @@ void go_bash(CharData *ch, CharData *vict) {
 
 			//Успех "удара щитом":
 			if (successShB && GET_EQ(ch, kShield)) {
+				if (!vict->IsNpc()) {
+					af.duration *= 30;
+				}
 				affect_to_char(vict, af);
 				act("Вы ошарашили $N3 ударом щита!",
 					false, ch, nullptr, vict, kToChar);
@@ -81,7 +84,7 @@ void go_bash(CharData *ch, CharData *vict) {
 							 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
 
 				Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
-				dmg.flags.set(fight::kNoFleeDmg);
+				dmg.flags.set(fight::kIgnoreBlink);
 				dmg.Process(ch, vict);
 				vict->DropFromHorse();
 				lag = 1;
@@ -89,6 +92,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				// Фейл и баша и "удара щитом":
 			} else {
 				Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+				dmg.flags.set(fight::kIgnoreBlink);
 				dmg.Process(ch, vict);
 				GET_POS(ch) = EPosition::kSit;
 				lag = 3;
@@ -97,6 +101,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			// Фейл баша при отсутствии "удара щитом":
 		} else {
 			Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+			dmg.flags.set(fight::kIgnoreBlink);
 			dmg.Process(ch, vict);
 			GET_POS(ch) = EPosition::kSit;
 			lag = 3;
@@ -113,6 +118,9 @@ void go_bash(CharData *ch, CharData *vict) {
 		} else {
 			MakeSkillTest(ch, ESkill::kShieldBash, vict);
 			TrainSkill(ch, ESkill::kShieldBash, success, vict);
+			if (!vict->IsNpc()) {
+				af.duration *= 30;
+			}
 			affect_to_char(vict, af);
 			act("Вы ошарашили $N3 ударом щита!",
 				false, ch, nullptr, vict, kToChar);
@@ -170,7 +178,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			}
 		}
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.flags.set(fight::kIgnoreBlink);
 		dam = dmg.Process(ch, vict);
 		vict->DropFromHorse();
 		// Сам баш:
