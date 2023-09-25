@@ -37,87 +37,110 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		SendMsgToChar("Пробуем ранить\r\n", ch);
-		if (IS_IMPL(ch) || !ch->GetEnemy()) {
-			go_injure(ch, vict);
-		} else if (IsHaveNoExtraAttack(ch)) {
-			act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
-			ch->SetExtraAttack(kExtraAttackInjure, vict);
+		if (IsAffectedBySpellByCaster(ch, vict, ESpell::kNoInjure)) {
+			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
+				false, ch, nullptr, vict, kToChar);
+		} else {
+			if (IS_IMPL(ch) || !ch->GetEnemy()) {
+				go_injure(ch, vict);
+			} else if (IsHaveNoExtraAttack(ch)) {
+				act("Хорошо. Вы попытаетесь ранить $N3.", false, ch, nullptr, vict, kToChar);
+				ch->SetExtraAttack(kExtraAttackInjure, vict);
+			}
 		}
 	} else {
-		SendMsgToChar("Сразу пытаемся обезоружить.\r\n", ch);
-		if (IS_IMPL(ch) || !ch->GetEnemy()) {
-			go_disarm(ch, vict);
-		} else if (IsHaveNoExtraAttack(ch)) {
-			act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
-			ch->SetExtraAttack(kExtraAttackDisarm, vict);
+		if (!((GET_EQ(vict, EEquipPos::kWield)
+			   && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
+			  || (GET_EQ(vict, EEquipPos::kHold)
+				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
+			  || (GET_EQ(vict, EEquipPos::kBoths)
+				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
+			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
+			return;
+		} else {
+			if (IS_IMPL(ch) || !ch->GetEnemy()) {
+				go_disarm(ch, vict);
+			} else if (IsHaveNoExtraAttack(ch)) {
+				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
+				ch->SetExtraAttack(kExtraAttackDisarm, vict);
+			}
 		}
 	}
 }
 
 void go_injure(CharData *ch, CharData *vict) {
-	bool can_injure = true;
-	SendMsgToChar("Начинаем цикл!\r\n", ch);
-	for (long & ids : vict->injure_id) {
-		if (ids == GET_ID(ch) && AFF_FLAGGED(vict, EAffect::kInjured)) {
-			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
-				false, ch, nullptr, vict, kToChar);
-			can_injure = false;
-			break;
-		}
-	}
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kDisarm,vict);
 	bool success = result.success;
 
-	if (can_injure) {
-		if (success) {
-			SendMsgToChar("Вешаем аффект!\r\n", ch);
-			int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 10);
+	if (success) {
+		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 10);
 
-			if (!vict->IsNpc()) {
-				injure_duration *= 30;
-			}
-			Affect<EApply> af;
-			af.type = ESpell::kLowerEffectiveness;
-			af.duration = injure_duration;
-			af.modifier = -std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 40);
-			af.location = EApply::kPhysicDamagePercent;
-			af.battleflag = kAfBattledec;
-			af.bitvector = to_underlying(EAffect::kInjured);
-			affect_to_char(vict, af);
-			act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",
-				false, ch, nullptr,vict, kToChar);
-			act("$N ранил$G Вас в руку! Надо немедленно дать сдачи! Может быть даже ногами...",
-				false,vict, nullptr, ch, kToChar);
-			act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
-				false,vict, nullptr, ch, kToNotVict | kToArenaListen);
-		} else {
-			act("Вам не удалось ранить $N3 и $e продолжил$g весело бить Вас!",
-				false, ch, nullptr,vict, kToChar);
-			act("$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!",
-				false,vict, nullptr, ch, kToChar);
-			act("$N безуспешно попытал$U поранить $n3. Как нелепо...",
-				false,vict, nullptr, ch, kToNotVict | kToArenaListen);
+		if (!vict->IsNpc()) {
+			injure_duration *= 30;
 		}
-		vict->injure_id.push_back(GET_ID(ch));
-		Damage dmg(SkillDmg(ESkill::kDisarm), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+
+//Ввожу ДВА аффекта: 1. Короткий - собственно сам дебафф. 2. Долгий, для запрета повторного наложения.
+//af.bitvector = to_underlying(EAffect::kInjured); - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
+		Affect<EApply> af;
+		af.type = ESpell::kLowerEffectiveness;
+		af.duration = injure_duration;
+		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 30));
+		af.location = EApply::kPhysicDamagePercent;
+		af.battleflag = kAfBattledec;
+		af.bitvector = to_underlying(EAffect::kInjured);
+		affect_to_char(vict, af);
+
+		act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",
+			false, ch, nullptr,vict, kToChar);
+		act("$N ранил$G Вас в руку! Надо бы дать сдачи...",
+			false,vict, nullptr, ch, kToChar);
+		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
+			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
+
+		int dam = number(ceil(GET_SKILL(ch, ESkill::kDisarm) / 1.25), ceil(GET_SKILL(ch, ESkill::kDisarm) * 1.25));
+		Damage dmg(SkillDmg(ESkill::kDisarm), dam, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
+	} else {
+		Damage dmg(SkillDmg(ESkill::kDisarm), fight::kZeroDmg, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::kIgnoreBlink);
+		dmg.Process(ch, vict);
+
+		act("Вам не удалось ранить $N3 и $e продолжил$g весело бить Вас!",
+			false, ch, nullptr,vict, kToChar);
+		act("$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!",
+			false,vict, nullptr, ch, kToChar);
+		act("$N безуспешно попытал$U поранить $n3. Как нелепо...",
+			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
+	}
+	if (GET_POS(vict) != EPosition::kDead) {
+		int no_injure_duration = 4;
+
+		if (!vict->IsNpc()) {
+			no_injure_duration *= 30;
+		}
+//Этот аффект ничего не дает, просто предотвращает повторное наложение дебаффа тем же персонажем.
+		Affect<EApply> af2;
+		af2.type = ESpell::kNoInjure;
+		af2.duration = no_injure_duration;
+		af2.battleflag = kNone;
+		af2.caster_id = GET_ID(ch);
+		affect_to_char(vict, af2);
+
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 		}
-
-	}
-	if (!((GET_EQ(vict, EEquipPos::kWield)
-		   && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
-		  || (GET_EQ(vict, EEquipPos::kHold)
-			  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
-		  || (GET_EQ(vict, EEquipPos::kBoths)
-			  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
-		TrainSkill(ch, ESkill::kDisarm, success, vict);
-		SendMsgToChar("Вы ТОЧНО не сможете обезоружить безоружного.\r\n", ch);
-		return;
-	} else {
-		go_disarm(ch, vict);
+		if (!((GET_EQ(vict, EEquipPos::kWield)
+			   && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
+			  || (GET_EQ(vict, EEquipPos::kHold)
+				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
+			  || (GET_EQ(vict, EEquipPos::kBoths)
+				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
+			TrainSkill(ch, ESkill::kDisarm, success, vict);
+			return;
+		} else {
+			go_disarm(ch, vict);
+		}
 	}
 }
 

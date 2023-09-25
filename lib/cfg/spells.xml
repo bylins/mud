@@ -2851,6 +2851,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
+    <spell id="kNoInjure" element="kUndefined" mode="kService">
+        <name rus="ранение" eng="injured"/>
+        <misc pos="kStand" violent="Y" danger="0"/>
+        <mana max="0" min="0" change="0"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">
         <name rus="идентификация" eng="identify"/>
         <misc pos="kSit" violent="N" danger="0"/>

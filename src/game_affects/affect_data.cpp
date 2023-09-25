@@ -973,4 +973,23 @@ bool IsAffectedBySpell(CharData *ch, ESpell type) {
 	return false;
 }
 
+bool IsAffectedBySpellByCaster(CharData *ch, CharData *vict, ESpell type) {
+	if (type == ESpell::kPowerHold) {
+		type = ESpell::kHold;
+	} else if (type == ESpell::kPowerSilence) {
+		type = ESpell::kSilence;
+	} else if (type == ESpell::kPowerBlindness) {
+		type = ESpell::kBlindness;
+	}
+
+	for (const auto &affect : vict->affected) {
+		if (affect->type == type && affect->caster_id == GET_ID(ch)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
