@@ -36,7 +36,7 @@ bool poison_affect_join(CharData *ch, Affect<EApply> &af) {
 				af.modifier = affect->modifier;
 			}
 
-			ch->affect_remove(affect_i);
+			ch->AffectRemove(affect_i);
 			affect_to_char(ch, *affect);
 			found = true;
 			break;
@@ -46,7 +46,7 @@ bool poison_affect_join(CharData *ch, Affect<EApply> &af) {
 	if (!found) {
 		affect_to_char(ch, af);
 	}
-
+	affect_total(ch);
 	return true;
 }
 
