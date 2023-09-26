@@ -5,7 +5,6 @@
 
 #include "game_fight/pk.h"
 #include "game_fight/fight.h"
-#include "game_fight/fight_hit.h"
 #include "game_fight/common.h"
 #include "utils/random.h"
 #include "protect.h"
@@ -40,7 +39,7 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg)) {
 		return;
 	}
-	if (IsAffectedBySpellByCaster(ch, vict, ESpell::kStrangle)) {
+	if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kStrangle)) {
 		act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 			false, ch, nullptr, vict, kToChar);
 		return;
@@ -90,7 +89,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kIgnoreArmor|fight::kIgnoreBlink);
+		dmg.flags.set(fight::kIgnoreArmor, fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
@@ -113,7 +112,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		affect_to_char(vict, af2);
 
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kIgnoreArmor|fight::kIgnoreBlink);
+		dmg.flags.set(fight::kIgnoreArmor, fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);
