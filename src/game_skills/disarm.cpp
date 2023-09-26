@@ -37,7 +37,7 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		if (IsAffectedBySpellByCaster(ch, vict, ESpell::kNoInjure)) {
+		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure)) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
 		} else {
@@ -49,12 +49,7 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	} else {
-		if (!((GET_EQ(vict, EEquipPos::kWield)
-			   && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
-			  || (GET_EQ(vict, EEquipPos::kHold)
-				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
-			  || (GET_EQ(vict, EEquipPos::kBoths)
-				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
+		if (!vict->HasWeapon()) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
@@ -130,12 +125,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 		}
-		if (!((GET_EQ(vict, EEquipPos::kWield)
-			   && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kWield)) != EObjType::kLightSource)
-			  || (GET_EQ(vict, EEquipPos::kHold)
-				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kHold)) != EObjType::kLightSource)
-			  || (GET_EQ(vict, EEquipPos::kBoths)
-				  && GET_OBJ_TYPE(GET_EQ(vict, EEquipPos::kBoths)) != EObjType::kLightSource))) {
+		if (!vict->HasWeapon()) {
 			TrainSkill(ch, ESkill::kDisarm, success, vict);
 			return;
 		} else {
@@ -145,20 +135,20 @@ void go_injure(CharData *ch, CharData *vict) {
 }
 
 void go_disarm(CharData *ch, CharData *vict) {
-	ObjData *wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) :
-					   GET_EQ(vict, EEquipPos::kBoths), *helded = GET_EQ(vict, EEquipPos::kHold);
+	ObjData *wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) : GET_EQ(vict, EEquipPos::kBoths),
+			*helded = GET_EQ(vict, EEquipPos::kHold);
 
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!((wielded && GET_OBJ_TYPE(wielded) != EObjType::kLightSource)
-		|| (helded && GET_OBJ_TYPE(helded) != EObjType::kLightSource))) {
+	if (!vict->HasWeapon()) {
 		SendMsgToChar("Вы не можете обезоружить безоружного.\r\n", ch);
 		return;
 	}
 	int pos = 0;
+
 	if (number(1, 100) > 30) {
 		pos = wielded ? (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield) : EEquipPos::kHold;
 	} else {

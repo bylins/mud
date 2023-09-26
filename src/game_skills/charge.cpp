@@ -96,7 +96,7 @@ void go_charge(CharData *ch, int direction) {
 		if (MOB_FLAGGED(target, EMobFlag::kProtect) || (!may_kill_here(ch,target, arg)) ||target == ch || !CAN_SEE(ch,target)) {
 			--victims_amount;
 		} else {
-			if (IsAffectedBySpellByCaster(ch, target, ESpell::kNoCharge)) {
+			if (IsAffectedBySpellWithCasterId(ch, target, ESpell::kNoCharge)) {
 				act("$N0 уже на страже - вы не сможете повторно испугать $S своим натиском!",
 					false, ch, nullptr,target, kToChar);
 				dmg.dam = 0;

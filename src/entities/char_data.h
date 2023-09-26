@@ -658,6 +658,7 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
 	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
+	bool HasWeapon();
  private:
 	const auto &get_player_specials() const { return player_specials; }
 	auto &get_player_specials() { return player_specials; }

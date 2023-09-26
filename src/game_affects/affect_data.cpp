@@ -959,7 +959,7 @@ bool IsAffectedBySpell(CharData *ch, ESpell type) {
 	return false;
 }
 
-bool IsAffectedBySpellByCaster(CharData *ch, CharData *vict, ESpell type) {
+bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
 	if (type == ESpell::kPowerHold) {
 		type = ESpell::kHold;
 	} else if (type == ESpell::kPowerSilence) {

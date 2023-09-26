@@ -2182,6 +2182,18 @@ obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
 }
 
+bool CharData::HasWeapon() {
+	if (!((GET_EQ(this, EEquipPos::kWield)
+	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kWield)) != EObjType::kLightSource)
+	  || (GET_EQ(this, EEquipPos::kHold)
+	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kHold)) != EObjType::kLightSource)
+	  || (GET_EQ(this, EEquipPos::kBoths)
+	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kBoths)) != EObjType::kLightSource))) {
+		return false;
+	}
+	return true;
+}
+
 player_special_data::player_special_data() :
 	poofin(nullptr),
 	poofout(nullptr),
