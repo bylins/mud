@@ -436,7 +436,6 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 			++it;
 		}
 	}
-	affect_total(ch);
 	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
 		ch->extract_timer = 5;
 		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
@@ -757,8 +756,6 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 				} else if (max_mod) {
 					af.modifier = std::max(af.modifier, affect->modifier);
 				}
-				it = ch->AffectRemove(it);
-				affect_to_char(ch, af);
 				found = true;
 				break;
 			} else {
@@ -769,16 +766,11 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 	if (!found) {
 		affect_to_char(ch, af);
 	}
-	affect_total(ch);
 }
 
 /* Insert an affect_type in a char_data structure
    Automatically sets appropriate bits and apply's */
 void affect_to_char(CharData *ch, const Affect<EApply> &af) {
-	long was_lgt = AFF_FLAGGED(ch, EAffect::kSingleLight) ? kLightYes : kLightNo;
-	long was_hlgt = AFF_FLAGGED(ch, EAffect::kHolyLight) ? kLightYes : kLightNo;
-	long was_hdrk = AFF_FLAGGED(ch, EAffect::kHolyDark) ? kLightYes : kLightNo;
-
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 
 	ch->affected.push_front(affected_alloc);
@@ -788,7 +780,6 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
-	CheckLight(ch, kLightUndef, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
 void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool add) {
