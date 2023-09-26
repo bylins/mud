@@ -2322,14 +2322,9 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "dispel")) {
 			if (!c->affected.empty()) {
 				SendMsgToChar("Вы словно заново родились!\r\n", c);
+				c->affected.clear();
+				affect_total(c);
 			}
-			c->affected.clear();
-			affect_total(c);
-		} else {
-			done = false;
-		}
-
-		if (done) {
 		} else if (!str_cmp(field, "hryvn")) {
 			if (*subfield) {
 				const long before = c->get_hryvn();
