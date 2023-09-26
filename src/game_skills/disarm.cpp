@@ -194,7 +194,6 @@ void go_disarm(CharData *ch, CharData *vict) {
 			CheckObjDecay(wielded);
 		};
 	}
-	appear(ch);
 	Damage dmg(SkillDmg(ESkill::kDisarm), fight::kZeroDmg, fight::kPhysDmg, nullptr);
 	dmg.Process(ch, vict);
 	SetSkillCooldown(ch, ESkill::kDisarm, lag);
