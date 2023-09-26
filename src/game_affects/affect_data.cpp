@@ -156,35 +156,24 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		return;
 	}
 
-	auto next_affect_i = ch->affected.begin();
-	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
-		++next_affect_i;
+	auto affect_i = ch->affected.begin();
+	while (affect_i != ch->affected.end()) {
 		const auto &affect = *affect_i;
 
 		if (!IS_SET(affect->battleflag, kAfPulsedec)) {
+			++affect_i;
 			continue;
 		}
-/*
-		if ((*affect_i)->type == ESpell::kVacuum) {
-			sprintf(buf, "MagicStop pulse dec time == %d", (*affect_i)->duration);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		}
-*/
 		pulse_aff = true;
-		if (affect->duration > 1) {
-			affect->duration -= count;
-			affect->duration = std::max(0, affect->duration);
-		} else if (affect->duration == -1)    // No action //
-			continue;
-		else {
-			if ((affect->type >= ESpell::kFirst) && (affect->type <= ESpell::kLast)) {
-				if (next_affect_i == ch->affected.end()
-						|| (*next_affect_i)->type != affect->type
-						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg(affect->type, ch);
-				}
+
+		if (affect->duration == 0) { //-1 вечный таймер по задумке
+			affect_i = ch->AffectRemove(affect_i);
+		} else {
+			if (affect->duration > 0) {
+				affect->duration -= count;
+				affect->duration = std::max(0, affect->duration);
 			}
-			ch->AffectRemove(affect_i);
+			++affect_i;
 		}
 	}
 	if (pulse_aff) {
@@ -208,47 +197,24 @@ void player_affect_update() {
 			return;
 		}
 		count++;
-//		UpdateAffectOnPulse(i.get()); //перенес аффект на пульс ниже
 		bool was_purged = false;
-		auto next_affect_i = i->affected.begin();
-		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
-			++next_affect_i;
+		bool set_abstinent = false;
+		auto affect_i = i->affected.begin();
+
+		while (affect_i != i->affected.end()) {
 			const auto &affect = *affect_i;
+
 			// нечего тикать аффектам вне раунда боя
 			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
+				++affect_i;
 				continue;
 			}
-			if (affect->duration >= 1) {
-				if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
-					// здесь плеера могут спуржить
-					if (ProcessPoisonDmg(i.get(), affect) == -1) {
-						was_purged = true;
-						break;
-					}
-				}
-//				sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
-//				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-				if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
-					for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
-						if (affect->type == GetRemovableSpellId(count)) {
-							affect->duration -= 15;
-							break;
-						}
-					}
-					if (IS_SET(affect->battleflag, kAfPulsedec))
-						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
-					else
-						affect->duration--;
-					affect->duration = std::max(0, affect->duration);
-				} else {
-					if (IS_SET(affect->battleflag, kAfPulsedec))
-						affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
-					else
-						affect->duration--;
-				}
-			} else if (affect->duration != -1) {
+			if (affect->duration == 0) {
 				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-					if (next_affect_i == i->affected.end()
+					auto next_affect_i = affect_i;
+
+					++next_affect_i;
+					if (next_affect_i == i->affected.end()	//костыль на спадение 1 закла накладывающего несколько аффектов
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
 						//чтобы не выдавалось, "что теперь вы можете сражаться",
@@ -262,11 +228,45 @@ void player_affect_update() {
 						}
 					}
 				}
-				i->AffectRemove(affect_i);
-				if (affect->type == ESpell::kDrunked && affect->duration == 0) {
-					i->set_abstinent();
+				if (affect->type == ESpell::kDrunked) {
+					set_abstinent = true;
 				}
+				affect_i = i->AffectRemove(affect_i);
+			} else {
+				if (affect->duration > 0) {
+					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
+						// здесь плеера могут спуржить
+						if (ProcessPoisonDmg(i.get(), affect) == -1) {
+							was_purged = true;
+							break;
+						}
+					}
+//					sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
+//					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
+						for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
+							if (affect->type == GetRemovableSpellId(count)) {
+								affect->duration -= 15;
+								break;
+							}
+						}
+						if (IS_SET(affect->battleflag, kAfPulsedec))
+							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+						else
+							affect->duration--;
+					} else {
+						if (IS_SET(affect->battleflag, kAfPulsedec))
+							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+						else
+							affect->duration--;
+					}
+					affect->duration = std::max(0, affect->duration);
+				}
+				++affect_i;
 			}
+		}
+		if (set_abstinent) {
+			i->set_abstinent();
 		}
 		if (!was_purged) {
 			MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
@@ -280,71 +280,56 @@ void player_affect_update() {
 void battle_affect_update(CharData *ch) {
 	if (ch->purged()) {
 		char tmpbuf[256];
-		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", 
-				GET_NAME(ch),
-				GET_MOB_VNUM(ch));
+		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 		return;
-	}
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
-		if (ch->get_master()) {
-			log("АНГЕЛ хозяин %s batle affect update start", GET_NAME(ch->get_master()));
-		}
-		else
-			log("АНГЕЛ без хозяина batle affect update start");
 	}
 	if (ch->affected.empty()) {
 		return;
 	}
-	auto next_affect_i = ch->affected.begin();
-	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i) {
-		++next_affect_i;
+	auto affect_i = ch->affected.begin();
+	while (affect_i != ch->affected.end()) {
+		const auto &affect = *affect_i;
 
 		if (!IS_SET((*affect_i)->battleflag, kAfBattledec) && !IS_SET((*affect_i)->battleflag, kAfSameTime)) {
+			++affect_i;
 			continue;
 		}
 		if (ch->IsNpc() && (*affect_i)->location == EApply::kPoison) {
+			++affect_i;
 			continue;
 		}
-/*		if ((*affect_i)->type == ESpell::kVacuum) {
-			sprintf(buf, "MagicSop BATTLE DEC time == %d", (*affect_i)->duration);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		}
-*/
-		if ((*affect_i)->duration >= 1) {
-			if (IS_SET((*affect_i)->battleflag, kAfSameTime)) {
-				if (ProcessPoisonDmg(ch, (*affect_i)) == -1) {// жертва умерла
-					return;
-				}
-				if (ch->purged()) {
-					mudlog("Некому обновлять аффект, чар уже спуржен.",
-						   BRF, kLvlImplementator, SYSLOG, true);
-					return;
-				}
-			}
-			if (ch->IsNpc())
-				--((*affect_i)->duration);
-			else
-				(*affect_i)->duration -= std::min((*affect_i)->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
-		} else if ((*affect_i)->duration != -1) {
-			if ((*affect_i)->type >= ESpell::kFirst && (*affect_i)->type <= ESpell::kLast) {
-				if (next_affect_i == ch->affected.end() 
+		if (affect->duration == 0) {
+			if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+				auto next_affect_i = affect_i;
+
+				++next_affect_i;
+				if (next_affect_i == ch->affected.end()
 						|| (*next_affect_i)->type != (*affect_i)->type
 						|| (*next_affect_i)->duration > 0) {
-					ShowAffExpiredMsg((*affect_i)->type, ch);
+					ShowAffExpiredMsg(affect->type, ch);
 				}
 			}
-			if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kTutelar)) {
-				if ((*affect_i)->modifier) {
-					log("АНГЕЛ снимается модификатор %d, апплай %s",
-						(*affect_i)->modifier, apply_types[(int) (*affect_i)->location]);
+			affect_i = ch->AffectRemove(affect_i);
+		} else {
+			if (affect->duration > 0) {
+				if (IS_SET(affect->battleflag, kAfSameTime)) {
+					if (ProcessPoisonDmg(ch, affect) == -1) {// жертва умерла
+						return;
+					}
+					if (ch->purged()) {
+						mudlog("Некому обновлять аффект, чар уже спуржен.",   BRF, kLvlImplementator, SYSLOG, true);
+						return;
+					}
 				}
-				if ((*affect_i)->bitvector) {
-					sprintbit((*affect_i)->bitvector, affected_bits, buf2);
-					log("АНГЕЛ снимается спелл %s", buf2);
+				if (ch->IsNpc())
+					--affect->duration;
+				else {
+					affect->duration -= std::min(affect->duration, kSecsPerMudHour / kSecsPerPlayerAffect);
 				}
+				affect->duration = std::max(0, affect->duration);
 			}
-			ch->AffectRemove(affect_i);
+			++affect_i;
 		}
 	}
 	affect_total(ch);
@@ -364,49 +349,45 @@ void mobile_affect_update() {
 				return;
 			}
 			count2++;
-			auto next_affect_i = i->affected.begin();
+			auto affect_i = i->affected.begin();
 			if (i->affected.size() > 0)
 				count3++;
-			for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i) {
-				++next_affect_i;
+			while (affect_i != i->affected.end()) {
 				const auto &affect = *affect_i;
 
-				if (affect->duration >= 1) {
-					if (IS_SET(affect->battleflag, kAfSameTime)
-						&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
-						// здесь плеера могут спуржить
-						if (ProcessPoisonDmg(i.get(), affect) == -1) {
-							was_purged = true;
-							break;
+				if (affect->duration == 0) {
+					if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+						if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
+							was_charmed = true;
+						}
+						auto next_affect_i = affect_i;
+
+						++next_affect_i;
+						if (next_affect_i == i->affected.end()
+								|| (*next_affect_i)->type != affect->type
+								|| (*next_affect_i)->duration > 0) {
+							ShowAffExpiredMsg(affect->type, i.get());
 						}
 					}
-					affect->duration--;
-					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
-						act("$n начал$g растерянно оглядываться по сторонам.",
-							false,
-							i.get(),
-							nullptr,
-							nullptr,
-							kToRoom | kToArenaListen);
-						charmed_msg = true;
-					}
-				} else if (affect->duration == -1) {
-					affect->duration = -1;    // GODS - unlimited
+					affect_i = i->AffectRemove(affect_i);
 				} else {
-					if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-						if (next_affect_i == i->affected.end()
-							|| (*next_affect_i)->type != affect->type
-							|| (*next_affect_i)->duration > 0) {
-							if (affect->type > ESpell::kFirst && affect->type <= ESpell::kLast) {
-								ShowAffExpiredMsg(affect->type, i.get());
-								if (affect->type == ESpell::kCharm
-									|| affect->bitvector == to_underlying(EAffect::kCharmed)) {
-									was_charmed = true;
-								}
+					if (affect->duration > 0) {
+						if (IS_SET(affect->battleflag, kAfSameTime)
+							&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
+							// здесь плеера могут спуржить
+							if (ProcessPoisonDmg(i.get(), affect) == -1) {
+								was_purged = true;
+								break;
 							}
 						}
+						affect->duration--;
+						if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
+							act("$n начал$g растерянно оглядываться по сторонам.",
+									false, i.get(), nullptr, nullptr, kToRoom | kToArenaListen);
+						charmed_msg = true;
+						}
 					}
-					i->AffectRemove(affect_i);
+					++affect_i;
 				}
 			}
 		}
@@ -759,8 +740,11 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 	bool found = false;
 
 	if (af.location) {
-		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i) {
-			const auto &affect = *affect_i;
+		auto it = ch->affected.begin();
+
+		while (it != ch->affected.end()) {
+			const auto &affect = *it;
+
 			if (affect->type == af.type
 				&& affect->location == af.location) {
 				if (add_dur) {
@@ -773,10 +757,12 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 				} else if (max_mod) {
 					af.modifier = std::max(af.modifier, affect->modifier);
 				}
-				ch->AffectRemove(affect_i);
+				it = ch->AffectRemove(it);
 				affect_to_char(ch, af);
 				found = true;
 				break;
+			} else {
+				++it;
 			}
 		}
 	}

@@ -426,40 +426,10 @@ void Player::save_char() {
 		} else
 			char_eq[i] = nullptr;
 	}
+	// очистим аффекты, сохраним, потом восстановим
+	auto tmp_aff = this->affected;
+	affected.clear();
 
-	Affect<EApply> tmp_aff[kMaxAffect];
-	{
-		auto aff_i = affected.begin();
-		for (i = 0; i < kMaxAffect; i++) {
-			if (aff_i != affected.end()) {
-				const auto &aff = *aff_i;
-				if (aff->type == ESpell::kArmageddon || aff->type < ESpell::kFirst || aff->type > ESpell::kLast) {
-					i--;
-				} else {
-					tmp_aff[i] = *aff;
-				}
-				++aff_i;
-			} else {
-				tmp_aff[i].type = ESpell::kUndefined;
-				tmp_aff[i].duration = 0;
-				tmp_aff[i].modifier = 0;
-				tmp_aff[i].location = EApply::kNone;
-				tmp_aff[i].bitvector = 0;
-			}
-		}
-
-		if ((i >= kMaxAffect) && aff_i != affected.end()) {
-			log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
-		}
-
-		/*
-		 * remove the affections so that the raw values are stored; otherwise the
-		 * effects are doubled when the char logs back in.
-		 */
-		affected.clear();
-	}
-
-	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
 	if (!get_name().empty()) {
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
 	}
@@ -770,10 +740,9 @@ void Player::save_char() {
 	}
 
 	// affected_type
-	if (tmp_aff[0].type > ESpell::kFirst) {
+	if (!tmp_aff.empty()) {
 		fprintf(saved, "Affs:\n");
-		for (i = 0; i < kMaxAffect; i++) {
-			const auto &aff = &tmp_aff[i];
+		for (auto &aff : tmp_aff) {
 			if (aff->type >= ESpell::kFirst) {
 				fprintf(saved, "%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
 						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
@@ -917,12 +886,7 @@ void Player::save_char() {
 
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
-	for (i = 0; i < kMaxAffect; i++) {
-		if (tmp_aff[i].type > ESpell::kUndefined) {
-			affect_to_char(this, tmp_aff[i]);
-		}
-	}
-
+	this->affected = tmp_aff;
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (char_eq[i]) {
 #ifndef NO_EXTRANEOUS_TRIGGERS
@@ -1299,6 +1263,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							i++;
 						}
 					} while (num != 0);
+					std::reverse(affected.begin(), affected.end());
 					/* do not load affects */
 				} else if (!strcmp(tag, "Alin")) {
 					GET_ALIGNMENT(this) = num;
