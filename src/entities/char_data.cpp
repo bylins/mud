@@ -297,8 +297,6 @@ void CharData::zero_init() {
 	protecting_ = nullptr;
 	touching_ = nullptr;
 	enemy_ = nullptr;
-	charge_apply_time = 0;
-	strangle_id.clear();
 	serial_num_ = 0;
 	purged_ = false;
 	// на плеер-таблицу
@@ -2182,6 +2180,18 @@ CharData *CharData::get_horse() {
 
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;
+}
+
+bool CharData::HasWeapon() {
+	if ((GET_EQ(this, EEquipPos::kWield)
+	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kWield)) != EObjType::kLightSource)
+	  || (GET_EQ(this, EEquipPos::kHold)
+	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kHold)) != EObjType::kLightSource)
+	  || (GET_EQ(this, EEquipPos::kBoths)
+	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kBoths)) != EObjType::kLightSource)) {
+		return true;
+	}
+	return false;
 }
 
 player_special_data::player_special_data() :

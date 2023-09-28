@@ -255,6 +255,9 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kSnare, "Покрывавшие вас сети колдовской западни растаяли."},
 		{ESpell::kQUest, "Наложенные на вас чары рассеялись."},
 		{ESpell::kExpedientFail, "Вы восстановили равновесие."},
+		{ESpell::kLowerEffectiveness, ""},
+		{ESpell::kNoInjure, ""},
+		{ESpell::kNoCharge, ""},
 		{ESpell::kPortalTimer, "Пентаграмма медленно растаяла."}
 	};
 
@@ -811,6 +814,8 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kMassFailure] = "kMassFailure";
 	ESpell_name_by_value[ESpell::kSnare] = "kSnare";
 	ESpell_name_by_value[ESpell::kExpedientFail] = "kExpedientFail";
+	ESpell_name_by_value[ESpell::kLowerEffectiveness] = "kLowerEffectiveness";
+	ESpell_name_by_value[ESpell::kNoInjure] = "kNoInjure";
 	ESpell_name_by_value[ESpell::kFireBreath] = "kFireBreath";
 	ESpell_name_by_value[ESpell::kGasBreath] = "kGasBreath";
 	ESpell_name_by_value[ESpell::kFrostBreath] = "kFrostBreath";

@@ -3,8 +3,10 @@
 
 class CharData;
 
-void go_disarm(CharData *ch, CharData *vict);
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_injure(CharData *ch, CharData *vict);
+void go_disarm(CharData *ch, CharData *vict);
+
 
 #endif //BYLINS_DISARM_H
 

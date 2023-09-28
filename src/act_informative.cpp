@@ -1162,7 +1162,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(aura_txt, "...слеп$a");
 		if (AFF_FLAGGED(i, EAffect::kDeafness))
 			strcat(aura_txt, "...глух$a");
-		if (AFF_FLAGGED(i, EAffect::kStrangled))
+		if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence))
 			strcat(aura_txt, "...задыхается.");
 
 		if (*aura_txt)
@@ -1354,7 +1354,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " ...слеп$a");
 	if (AFF_FLAGGED(i, EAffect::kDeafness))
 		strcat(aura_txt, " ...глух$a");
-	if (AFF_FLAGGED(i, EAffect::kStrangled))
+	if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence))
 		strcat(aura_txt, " ...задыхается");
 	if (AFF_FLAGGED(i, EAffect::kCommander))
 		strcat(aura_txt, " ...реет стяг над головой");

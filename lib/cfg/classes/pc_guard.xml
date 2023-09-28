@@ -54,9 +54,10 @@
         <feat id="kMagicUser"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kImpregnable"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kGreatFortitude"		level="1"	remort="0"	slot="0"	inborn="1"/>
+        <feat id="kInjure"		        level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kNaturalDex"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kHitrollBonus"		level="1"	remort="0"	slot="0"	inborn="1"/>
-	<feat id="kScirmisher"			level="1"	remort="0"	slot="0"	inborn="1"/>
+	    <feat id="kScirmisher"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kDrunkard"			level="1"	remort="0"	slot="0"	inborn="0"/>
         <feat id="kStrongImmunity"		level="1"	remort="0"	slot="0"	inborn="0"/>
         <feat id="kForestPath"			level="1"	remort="0"	slot="0"	inborn="0"/>

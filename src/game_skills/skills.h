@@ -36,6 +36,7 @@ enum EExtraAttack {
 	kExtraAttackDisarm,
 	kExtraAttackCut,
 	kExtraAttackSlay,
+	kExtraAttackInjure,
 };
 
 /*

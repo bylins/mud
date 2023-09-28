@@ -262,6 +262,8 @@ enum class ESpell {
 	kAcidBreath = 246,
 	kLightingBreath = 247,
 	kExpedientFail = 248,
+	kLowerEffectiveness = 249,
+	kNoInjure = 250,
 	kIdentify = 351,
 	kFullIdentify = 352,
 	kQUest = 353,

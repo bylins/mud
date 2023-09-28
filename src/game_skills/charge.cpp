@@ -8,7 +8,6 @@
 #include "entities/char_data.h"
 #include "game_fight/pk.h"
 #include "game_fight/fight.h"
-#include "game_fight/fight_hit.h"
 #include "protect.h"
 #include "bash.h"
 #include "action_targeting.h"
@@ -71,12 +70,14 @@ void go_charge(CharData *ch, int direction) {
 	if (PRF_FLAGGED(ch, EPrf::kAwake)) {
 		dam /= 2;
 	}
+
 	Affect<EApply> af;
 	af.type = ESpell::kNoCharge;
-	af.duration = -1;
+	af.duration = 4;
 	af.location = EApply::kNone;
-	af.battleflag = kAfSameTime;
+	af.battleflag = kNone;
 	af.bitvector = to_underlying(EAffect::kNoCharge);
+	af.caster_id = GET_ID(ch);
 
 	Affect<EApply> af2;
 	af2.type = ESpell::kUndefined;
@@ -95,15 +96,17 @@ void go_charge(CharData *ch, int direction) {
 		if (MOB_FLAGGED(target, EMobFlag::kProtect) || (!may_kill_here(ch,target, arg)) ||target == ch || !CAN_SEE(ch,target)) {
 			--victims_amount;
 		} else {
-			if (AFF_FLAGGED(target, EAffect::kNoCharge) && (time(0) >=target->charge_apply_time + 4)) {
+			if (IsAffectedBySpellWithCasterId(ch, target, ESpell::kNoCharge)) {
 				act("$N0 уже на страже - вы не сможете повторно испугать $S своим натиском!",
 					false, ch, nullptr,target, kToChar);
-				hit(target, ch, ESkill::kUndefined, fight::kMainHand);
+				dmg.dam = 0;
+				dmg.Process(ch, target);
 			} else {
-				if (!AFF_FLAGGED(target, EAffect::kNoCharge)) {
-					affect_to_char(target, af);
-					target->charge_apply_time = time(0);
+				if (!target->IsNpc()) {
+					af.duration *= 30;
 				}
+				affect_to_char(target, af);
+
 				SkillRollResult result = MakeSkillTest(ch, ESkill::kCharge,target);
 				bool success = result.success;
 
@@ -116,7 +119,8 @@ void go_charge(CharData *ch, int direction) {
 						false,target, nullptr, ch, kToChar);
 					act("$n попытал$u обескуражить $N3 яростным натиском, но только рассмешил$g всех в округе.",
 						false,target, nullptr, ch, kToNotVict | kToArenaListen);
-					hit(target, ch, ESkill::kUndefined, fight::kMainHand);
+					dmg.dam = 0;
+					dmg.Process(target, ch);
 				} else {
 					if (ch->GetSkill(ESkill::kShieldBash) && (ch->GetSkill(ESkill::kBash)) && (GET_EQ(ch, kShield)) && (!PRF_FLAGGED(ch, EPrf::kAwake))) {
 						go_bash(ch,target);
@@ -128,7 +132,6 @@ void go_charge(CharData *ch, int direction) {
 						act("$N разогнал$U и отвесил$G $n2 внушительного тумака!",
 							false,target, nullptr, ch, kToNotVict | kToArenaListen);
 						dmg.Process(ch,target);
-						affect_to_char(target, af2);
 					}
 				}
 			}

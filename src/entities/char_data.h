@@ -393,9 +393,6 @@ class CharData : public ProtectedCharData {
 	void set_protecting(CharData *vict);
 	void remove_protecting();
 
-	long charge_apply_time;
-	std::vector<long> strangle_id;
-
 	EExtraAttack get_extra_attack_mode() const;
 	CharData *GetExtraVictim() const;
 	void SetExtraAttack(EExtraAttack Attack, CharData *vict);
@@ -661,6 +658,7 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
 	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
+	bool HasWeapon();
  private:
 	const auto &get_player_specials() const { return player_specials; }
 	auto &get_player_specials() { return player_specials; }
