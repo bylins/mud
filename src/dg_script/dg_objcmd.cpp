@@ -569,7 +569,8 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	char name[kMaxInputLength], amount[kMaxInputLength], damage_type[kMaxInputLength];
 	three_arguments(argument, name, amount, damage_type);
 	if (!*name || !*amount || !a_isdigit(*amount)) {
-		obj_log(obj, "odamage: bad syntax");
+		sprintf(buf, "odamage: bad syntax, команда: %s", argument);
+		obj_log(obj, buf);
 		return;
 	}
 
@@ -577,7 +578,8 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 
 	CharData *ch = get_char_by_obj(obj, name);
 	if (!ch) {
-		obj_log(obj, "odamage: target not found");
+		sprintf(buf, "odamage: target not found, команда: %s", argument);
+		obj_log(obj, buf);
 		return;
 	}
 	if (world[ch->in_room]->zone_rn != world[up_obj_where(obj)]->zone_rn) {
@@ -620,7 +622,6 @@ void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	char field[kMaxInputLength], *value;
 	RoomData *rm;
 	int dir, fd, to_room, lock;
-	char error[kMaxInputLength];
 	const char *door_field[] = {
 			"purge",
 			"description",
@@ -634,32 +635,27 @@ void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 	argument = two_arguments(argument, target, direction);
 	value = one_argument(argument, field);
-	skip_spaces(&value);
 
 	if (!*target || !*direction || !*field) {
-		obj_log(obj, "odoor called with too few args");
-		sprintf(buf, "odoor argument: %s", error);
+		sprintf(buf, "odoor called with too few args, команда: %s", argument);
 		obj_log(obj, buf);
 		return;
 	}
 
 	if ((rm = get_room(target)) == nullptr) {
-		obj_log(obj, "odoor: invalid target");
-		sprintf(buf, "odoor argument: %s", error);
+		sprintf(buf, "odoor: invalid target, команда: %s", argument);
 		obj_log(obj, buf);
 		return;
 	}
 
 	if ((dir = search_block(direction, dirs, false)) == -1) {
-		obj_log(obj, "odoor: invalid direction");
-		sprintf(buf, "odoor argument: %s", error);
+		sprintf(buf, "odoor: invalid direction, команда: %s", argument);
 		obj_log(obj, buf);
 		return;
 	}
 
 	if ((fd = search_block(field, door_field, false)) == -1) {
-		obj_log(obj, "odoor: invalid field");
-		sprintf(buf, "odoor argument: %s", error);
+		sprintf(buf, "odoor: invalid field, команда: %s", argument);
 		obj_log(obj, buf);
 		return;
 	}

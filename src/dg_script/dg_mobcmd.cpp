@@ -240,7 +240,6 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 		mob_log(ch, "mechoaround called with no argument");
 		return;
 	}
-
 	if (*arg == UID_CHAR) {
 		if (!(victim = get_char(arg))) {
 			sprintf(buf, "mechoaround: victim (%s) UID does not exist, команда: %s", arg + 1, argument);
@@ -1515,6 +1514,10 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 				(AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
+		if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
+			sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
+			mob_log(ch, buf);
+		}
 		return false;
 		}
 	}
