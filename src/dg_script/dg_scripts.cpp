@@ -2058,8 +2058,6 @@ void find_replacement(void *go,
 		} else {
 			uid_type = UID_CHAR;
 		}
-
-		auto done = true;
 		if (text_processed(field, subfield, vd, str)) {
 			return;
 		} else if (!str_cmp(field, "global"))    // get global of something else
