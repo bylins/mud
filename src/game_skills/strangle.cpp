@@ -21,6 +21,11 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	}
+
 	if (IS_UNDEAD(vict) || GET_RACE(vict) == ENpcRace::kFish ||
 		GET_RACE(vict) == ENpcRace::kPlant || GET_RACE(vict) == ENpcRace::kConstruct) {
 		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
@@ -127,11 +132,11 @@ void go_strangle(CharData *ch, CharData *vict) {
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 				vict->DropFromHorse();
 			}
-			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
-			}
 		}
-	affect_to_char(vict, af);
+		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 	}
+	affect_to_char(vict, af);
+}
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

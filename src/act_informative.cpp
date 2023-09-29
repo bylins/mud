@@ -1155,7 +1155,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 			if (AFF_FLAGGED(i, EAffect::kHold))
 				strcat(aura_txt, "...парализован$a");
-			if (AFF_FLAGGED(i, EAffect::kSilence))
+			if (AFF_FLAGGED(i, EAffect::kSilence) && (!AFF_FLAGGED(i, EAffect::kStrangled)))
 				strcat(aura_txt, "...нем$a");
 		}
 		if (AFF_FLAGGED(i, EAffect::kBlind))
@@ -1347,7 +1347,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		if (AFF_FLAGGED(i, EAffect::kHold))
 			strcat(aura_txt, " ...парализован$a");
-		if (AFF_FLAGGED(i, EAffect::kSilence))
+		if (AFF_FLAGGED(i, EAffect::kSilence) && (!AFF_FLAGGED(i, EAffect::kStrangled)))
 			strcat(aura_txt, " ...нем$a");
 	}
 	if (AFF_FLAGGED(i, EAffect::kBlind))
