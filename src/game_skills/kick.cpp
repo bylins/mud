@@ -167,6 +167,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			}
 		}
 		Damage dmg(SkillDmg(ESkill::kKick), dam, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		cooldown = 2;
 	}

@@ -104,6 +104,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 			SendMsgToChar("&GВ яблочко!&n\r\n", technique.GetActor());
 			damage.flags.set(fight::kIgnoreArmor);
 			damage.flags.set(fight::kCritHit);
+			damage.flags.set(fight::kIgnoreBlink);
 		};
 		if (IsTimedByFeat(technique.GetActor(), EFeat::kShadowThrower)) {
 			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);

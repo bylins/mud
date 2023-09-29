@@ -89,7 +89,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kIgnoreArmor, fight::kIgnoreBlink);
+		dmg.flags.set(fight::kIgnoreArmor);
+		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
 	} else {
@@ -112,7 +113,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 		affect_to_char(vict, af2);
 
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kIgnoreArmor, fight::kIgnoreBlink);
+		dmg.flags.set(fight::kIgnoreArmor);
+		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		if (GET_POS(vict) > EPosition::kDead) {
 			SetWait(vict, 2, true);

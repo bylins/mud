@@ -68,6 +68,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->mem_queue.stored = std::min(GET_MAX_MANA(ch), ch->mem_queue.stored + drained_mana);
 		manadrainDamage.dam = 10;
 	}
+	manadrainDamage.flags.set(fight::kIgnoreBlink);
 	manadrainDamage.Process(ch, vict);
 
 	if (!IS_IMMORTAL(ch)) {
