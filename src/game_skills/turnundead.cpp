@@ -83,6 +83,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			ImposeAffect(target, af1, true, false, true, false);
 			ImposeAffect(target, af2, true, false, true, false);
 		};
+		damage.flags.set(fight::kIgnoreBlink);
 		damage.Process(ch, target);
 		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, EMobFlag::kNoFear)
 			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GetRealWis(ch) + GetRealInt(ch))) {

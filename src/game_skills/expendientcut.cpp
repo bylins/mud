@@ -99,6 +99,7 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		no_flee_duration = 3;
 	};
 	damage.dam = dmg;
+	damage.flags.set(fight::kIgnoreBlink);
 	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
 	damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
 	damage.Process(roll.GetActor(), roll.GetRival());

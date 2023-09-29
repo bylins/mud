@@ -131,6 +131,7 @@ void go_charge(CharData *ch, int direction) {
 							false,target, nullptr, ch, kToChar);
 						act("$N разогнал$U и отвесил$G $n2 внушительного тумака!",
 							false,target, nullptr, ch, kToNotVict | kToArenaListen);
+						dmg.flags.set(fight::kIgnoreBlink);
 						dmg.Process(ch,target);
 					}
 				}
