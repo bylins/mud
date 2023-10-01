@@ -65,7 +65,6 @@ void go_slay(CharData *ch, CharData *vict) {
 		}
 
 		Damage dmg(SkillDmg(ESkill::kSlay), dam, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
-		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		lag = 1;
