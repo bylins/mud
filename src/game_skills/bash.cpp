@@ -210,7 +210,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 			break;
 		case 3:
-			SetWait(ch, 2, true);
+			SetWait(ch, 3, true);
 			break;
 	}
 
