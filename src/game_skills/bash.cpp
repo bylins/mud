@@ -80,8 +80,9 @@ void go_bash(CharData *ch, CharData *vict) {
 				act("$N0 ошарашил$G $n3 ударом щита!",
 					false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 
-				dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) / 1.25),
-							 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
+				dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 10) + (GET_SKILL(ch,ESkill::kShieldBash) * 4)) / 1.25),
+							 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 10) + (GET_SKILL(ch,ESkill::kShieldBash) * 4)) * 1.25)) *
+					  GetRealLevel(ch) / 30;
 
 				Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
 				dmg.flags.set(fight::kIgnoreBlink);
@@ -128,8 +129,9 @@ void go_bash(CharData *ch, CharData *vict) {
 				false, vict, nullptr, ch, kToChar);
 			act("$N0 ошарашил$G $n3 ударом щита!",
 				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-			dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) / 1.25),
-						 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 6) + (GET_SKILL(ch,ESkill::kShieldBash) * 5)) * 1.25));
+			dam = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 8) + (GET_SKILL(ch,ESkill::kShieldBash) * 4)) / 1.25),
+						 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 8) + (GET_SKILL(ch,ESkill::kShieldBash) * 4)) * 1.25)) *
+								 GetRealLevel(ch) / 30;
 		}
 
 //делаем блокирование баша
@@ -178,6 +180,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			}
 		}
 		Damage dmg(SkillDmg(ESkill::kBash), dam, fight::kPhysDmg, nullptr);
+		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dam = dmg.Process(ch, vict);
 		vict->DropFromHorse();
