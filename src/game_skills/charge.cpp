@@ -38,10 +38,14 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете ринуться в бой из этого положения!\r\n", ch);
 		return;
 	}
+
 	one_argument(argument, arg);
 	if ((direction = search_block(arg, dirs, false)) >= 0 ||
 		(direction = search_block(arg, dirs_rus, false)) >= 0) {
 		go_charge(ch, direction);
+		return;
+	} else {
+		SendMsgToChar("В каком направлении Вы желаете ринуться в бой?\r\n", ch);
 		return;
 	}
 }
