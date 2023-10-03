@@ -55,17 +55,16 @@ void go_slay(CharData *ch, CharData *vict) {
 
 	} else {
 		if (GetRealStr(ch) < 50) {
-		dam = (number(ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 5) / 1.25),
-					 ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 5) * 1.25)) *
+		dam = (number(ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 8) / 1.25),
+					 ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 8) * 1.25)) *
 						GetRealLevel(ch)) / 30;
 		} else {
-			dam = (number(ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 2.5) / 1.25),
-						 ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 2.5) * 1.25)) *
+			dam = (number(ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 4) / 1.25),
+						 ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 4) * 1.25)) *
 					GetRealLevel(ch)) / 30;
 		}
 
 		Damage dmg(SkillDmg(ESkill::kSlay), dam, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
-		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		lag = 1;
