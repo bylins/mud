@@ -92,7 +92,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
 			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
 
-		int dam = number(ceil(GET_SKILL(ch, ESkill::kDisarm) / 1.25), ceil(GET_SKILL(ch, ESkill::kDisarm) * 1.25));
+		int dam = number(ceil(GET_SKILL(ch, ESkill::kDisarm) / 1.25), ceil(GET_SKILL(ch, ESkill::kDisarm) * 1.25)) * GetRealLevel(ch) / 30;
 		Damage dmg(SkillDmg(ESkill::kDisarm), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
