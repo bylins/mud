@@ -120,29 +120,24 @@ void trigedit_disp_menu(DescriptorData *d) {
 		attach_type = "undefined";
 		trgtypes[0] = '\0';
 	}
-
-	sprintf(buf,
-#if defined(CLEAR_SCREEN)
-		"[H[J"
-#endif
-			"Редактирование триггера [%s%d%s]\r\n\r\n"
-			"%s1)%s Название         : %s%s\r\n"
-			"%s2)%s Тип: %s%s\r\n"
-			"%s3)%s События: %s%s\r\n"
-			"%s4)%s Числовой Аргумент : %s%d\r\n"
-			"%s5)%s Аргументы    : %s%s\r\n"
-			"%s6)%s Команды:\r\n%s&S%s&s\r\n"
-			"%sQ)%s Завершить редактирование\r\n" "Введите Выбранное :",
-			grn, OLC_NUM(d), nrm,    // vnum on the title line
-			grn, nrm, yel, GET_TRIG_NAME(trig),    // name
-			grn, nrm, yel, attach_type,    // attach type
-			grn, nrm, yel, trgtypes,    // greet/drop/etc
-			grn, nrm, yel, trig->narg,    // numeric arg
-			grn, nrm, yel, trig->arglist.c_str(),    // strict arg
-			grn, nrm, cyn, OLC_STORAGE(d),    // the command list
-			grn, nrm);    // quit colors
-
-	SendMsgToChar(buf, d->character.get());
+	std::stringstream out;
+	out << "Редактирование триггера " << "[&y" << OLC_NUM(d) << "&n]\r\n\r\n"
+			<< "&g1)&n Название         : " << "&y" <<GET_TRIG_NAME(trig) << "\r\n"
+			<< "&g2)&n Тип: " << "&y" << attach_type << "\r\n"
+			<< "&g3)&n События: " << "&y" << trgtypes << "\r\n"
+			<< "&g4)&n Числовой Аргумент : " << "&y" << trig->narg << "\r\n"
+			<< "&g5)&n Аргументы    : " << "&y" << trig->arglist.c_str() << "\r\n"
+			<< "&g6)&n Команды:\r\n"
+			<< "&c" << OLC_STORAGE(d);
+	if (trig->get_attach_type() == MOB_TRIGGER) {
+		out << "&g7)&n Обрабатывать команды моба в стане? : " << "&y";
+		if  (trig->add_flag)
+			out << "ДА\r\n";
+		else
+			out << "НЕТ\r\n";
+	}
+	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
+	SendMsgToChar(out.str(), d->character.get());
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
 }
 
@@ -226,6 +221,12 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 					d->mail_to = 0;
 					OLC_VAL(d) = 1;
 					break;
+				case '7': 
+					if (OLC_TRIG(d)->get_attach_type() == MOB_TRIGGER) {
+						OLC_MODE(d) = TRIGEDIT_ADDFLAG;
+						SendMsgToChar("Флаг (1-ДА): ", d->character.get());
+					} else trigedit_disp_menu(d);
+					break;
 
 				default: trigedit_disp_menu(d);
 					return;
@@ -268,6 +269,10 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 			break;
 
 		case TRIGEDIT_ARGUMENT: OLC_TRIG(d)->arglist = (arg && *arg) ? arg : "";
+			OLC_VAL(d)++;
+			break;
+
+		case TRIGEDIT_ADDFLAG: OLC_TRIG(d)->add_flag = atoi(arg) == 1 ? 1 : 0;
 			OLC_VAL(d)++;
 			break;
 
@@ -517,11 +522,11 @@ void trigedit_save(DescriptorData *d) {
 			}
 			sprintbyts(GET_TRIG_TYPE(trig), bitBuf);
 			fprintf(trig_file, "%s~\n"
-							   "%d %s %d\n"
+							   "%d %s %d %d\n"
 							   "%s~\n",
 					(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
 					"unknown trigger", trig->get_attach_type(), bitBuf,
-					GET_TRIG_NARG(trig), trig->arglist.c_str());
+					GET_TRIG_NARG(trig), trig->add_flag, trig->arglist.c_str());
 
 			// Build the text for the script
 			int lev = 0;

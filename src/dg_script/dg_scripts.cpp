@@ -6039,6 +6039,7 @@ const char *Trigger::DEFAULT_TRIGGER_NAME = "no name";
 Trigger::Trigger() :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
+	add_flag{false},
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
@@ -6052,6 +6053,7 @@ Trigger::Trigger() :
 Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
+	add_flag{false},
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
@@ -6065,6 +6067,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, co
 Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
+	add_flag{false},
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
@@ -6084,6 +6087,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) :
 Trigger::Trigger(const Trigger &from) :
 	cmdlist(from.cmdlist),
 	narg(from.narg),
+	add_flag(from.add_flag),
 	arglist(from.arglist),
 	depth(from.depth),
 	loops(from.loops),
@@ -6103,6 +6107,7 @@ void Trigger::reset() {
 	cmdlist.reset();
 	curr_state.reset();
 	narg = 0;
+	add_flag = false;
 	arglist.clear();
 	depth = 0;
 	loops = -1;
@@ -6119,6 +6124,7 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	trigger_type = right.trigger_type;
 	cmdlist = right.cmdlist;
 	narg = right.narg;
+	add_flag = right.add_flag;
 	arglist = right.arglist;
 
 	return *this;
