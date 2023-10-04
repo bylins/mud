@@ -1509,7 +1509,7 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
-	if (!CheckScript(ch, MTRIG_DAMAGE)) {
+	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_HITPRCNT))) {
 		if (!mob_cmd_info[cmd].use_in_lag && 
 				(AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kStopFight)
