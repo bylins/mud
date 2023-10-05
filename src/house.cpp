@@ -1672,8 +1672,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// сортировка кланов по экспе
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
 		for (const auto &clan : Clan::ClanList) {
-			sort_clan.insert(std::make_pair(-clan->exp, clan)); //- это большее в начало
-
+			sort_clan.insert(std::make_pair(clan->exp, clan));
 		}
 		std::ostringstream out;
 		// \todo Тут нужно использовать table_wrapper::Table а не формат.
@@ -1681,7 +1680,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		out << "В игре зарегистрированы следующие дружины:\r\n"
 			<< "     #           Название                       Всего опыта   За 30 дней         Человек\r\n\r\n";
 		int count = 1;
-		for (const auto& it : sort_clan) {
+		for (const auto &it : reverse(sort_clan)) {
 			if (it.second->m_members.size() == 0) {
 				continue;
 			}
