@@ -1509,11 +1509,12 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
-	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_HITPRCNT))) {
-		if (!mob_cmd_info[cmd].use_in_lag && 
-				(AFF_FLAGGED(ch, EAffect::kHold)
-				|| AFF_FLAGGED(ch, EAffect::kStopFight)
-				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))) {
+	if (!(CheckScript(ch, MTRIG_DAMAGE))) {
+		if (!mob_cmd_info[cmd].use_in_lag
+				&& (AFF_FLAGGED(ch, EAffect::kHold)
+						|| AFF_FLAGGED(ch, EAffect::kStopFight)
+						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
+				&& !trig->add_flag) {
 		if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
 			sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
 			mob_log(ch, buf);

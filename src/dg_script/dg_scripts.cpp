@@ -848,9 +848,13 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 					  static_cast<int>(trig->get_attach_type()));
 	}
 
-	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-			buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
-
+	if (trig->get_attach_type() == MOB_TRIGGER) {
+		sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Execute mob command: %s, Arg list: %s\r\n",
+				buf, GET_TRIG_NARG(trig), trig->add_flag ? "ДА" : "НЕТ", !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+	} else {
+		sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
+				buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+	}
 	strcat(sb, "Commands:\r\n");
 
 	auto cmd_list = *trig->cmdlist;
@@ -960,10 +964,14 @@ void script_stat(CharData *ch, Script *sc) {
 						  static_cast<int>(t->get_attach_type()));
 		}
 		std::stringstream buffer;
-		buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
-			   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
-//		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-//			buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
+		if (t->get_attach_type() == MOB_TRIGGER) {
+			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
+				   << " , Execute mob command: " << (t->add_flag ? "ДА" : "НЕТ")
+				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+		} else {
+			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
+				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+		}
 		SendMsgToChar(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t)) {
@@ -6039,6 +6047,7 @@ const char *Trigger::DEFAULT_TRIGGER_NAME = "no name";
 Trigger::Trigger() :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
+	add_flag{false},
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
@@ -6052,6 +6061,7 @@ Trigger::Trigger() :
 Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
+	add_flag{false},
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
@@ -6065,6 +6075,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, co
 Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
+	add_flag{false},
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
@@ -6084,6 +6095,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) :
 Trigger::Trigger(const Trigger &from) :
 	cmdlist(from.cmdlist),
 	narg(from.narg),
+	add_flag(from.add_flag),
 	arglist(from.arglist),
 	depth(from.depth),
 	loops(from.loops),
@@ -6103,6 +6115,7 @@ void Trigger::reset() {
 	cmdlist.reset();
 	curr_state.reset();
 	narg = 0;
+	add_flag = false;
 	arglist.clear();
 	depth = 0;
 	loops = -1;
@@ -6119,6 +6132,7 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	trigger_type = right.trigger_type;
 	cmdlist = right.cmdlist;
 	narg = right.narg;
+	add_flag = right.add_flag;
 	arglist = right.arglist;
 
 	return *this;

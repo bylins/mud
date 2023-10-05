@@ -1672,19 +1672,15 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// сортировка кланов по экспе
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
 		for (const auto &clan : Clan::ClanList) {
-			//if (clan->test_clan)
-			//sort_clan.insert(std::make_pair(0, clan));
-			sort_clan.insert(std::make_pair(clan->last_exp.get_exp(), clan));
-
+			sort_clan.insert(std::make_pair(clan->exp, clan));
 		}
-
 		std::ostringstream out;
 		// \todo Тут нужно использовать table_wrapper::Table а не формат.
-		std::string_view clanTopFormat{" {:5}  {:6}   {:>30} {:14}{:14} {:9}\r\n"};
+		std::string_view clanTopFormat{" {:5}  {:6}   {:<30} {:14}{:14} {:9}\r\n"};
 		out << "В игре зарегистрированы следующие дружины:\r\n"
-			<< "     #           Название                          Всего опыта    За 30 дней   Человек\r\n\r\n";
+			<< "     #           Название                       Всего опыта   За 30 дней         Человек\r\n\r\n";
 		int count = 1;
-		for (const auto& it : sort_clan) {
+		for (const auto &it : reverse(sort_clan)) {
 			if (it.second->m_members.size() == 0) {
 				continue;
 			}
