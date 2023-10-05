@@ -3334,7 +3334,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 		RemoveAffectFromChar(victim, ESpell::kBelenaPoison);
 	}
 	RemoveAffectFromChar(victim, spell);
-	affect_total(ch);
+	affect_total(vict);
 	if (to_vict != nullptr)
 		act(to_vict, false, victim, nullptr, ch, kToChar);
 	if (to_room != nullptr)
