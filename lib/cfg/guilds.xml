@@ -525,11 +525,6 @@
                 <price currency="kKuna" start="3" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
-            <skill id="kSlay" fail="0">
-                <class val="kThief|kAssasine"/>
-                <price currency="kKuna" start="3" remort_percent="400"/>
-                <upgrade practices="10" min="0" max="10"/>
-            </skill>
             <feat id="kTracker" fail="0">
                 <price currency="kKuna" start="50" remort_percent="200"/>
             </feat>
