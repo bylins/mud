@@ -45,6 +45,7 @@ void indent_trigger(std::string &cmd, int *level);
 #define TRIGEDIT_COMMANDS        6
 #define TRIGEDIT_NARG            7
 #define TRIGEDIT_ARGUMENT        8
+#define TRIGEDIT_ADDFLAG        9
 
 #define OLC_SCRIPT_EDIT            82766
 #define SCRIPT_MAIN_MENU        0
