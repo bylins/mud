@@ -130,11 +130,7 @@ void trigedit_disp_menu(DescriptorData *d) {
 			<< "&g6)&n Команды:\r\n"
 			<< "&c" << OLC_STORAGE(d);
 	if (trig->get_attach_type() == MOB_TRIGGER) {
-		out << "&g7)&n Обрабатывать команды моба в стане? : " << "&y";
-		if  (trig->add_flag)
-			out << "ДА\r\n";
-		else
-			out << "НЕТ\r\n";
+		out << "&g7)&n Обрабатывать команды моба в стане? : &y" << (trig->add_flag ? "ДА" : "НЕТ") << "&n\r\n";
 	}
 	out << "&gQ)&n Завершить редактирование\r\n" "Введите Выбранное :";
 	SendMsgToChar(out.str(), d->character.get());

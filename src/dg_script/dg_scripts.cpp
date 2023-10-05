@@ -848,9 +848,13 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 					  static_cast<int>(trig->get_attach_type()));
 	}
 
-	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-			buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
-
+	if (trig->get_attach_type() == MOB_TRIGGER) {
+		sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Execute mob command: %s, Arg list: %s\r\n",
+				buf, GET_TRIG_NARG(trig), trig->add_flag ? "ДА" : "НЕТ", !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+	} else {
+		sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
+				buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+	}
 	strcat(sb, "Commands:\r\n");
 
 	auto cmd_list = *trig->cmdlist;
@@ -960,10 +964,14 @@ void script_stat(CharData *ch, Script *sc) {
 						  static_cast<int>(t->get_attach_type()));
 		}
 		std::stringstream buffer;
-		buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
-			   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
-//		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-//			buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
+		if (t->get_attach_type() == MOB_TRIGGER) {
+			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
+				   << " , Execute mob command: " << (t->add_flag ? "ДА" : "НЕТ")
+				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+		} else {
+			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
+				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+		}
 		SendMsgToChar(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t)) {
