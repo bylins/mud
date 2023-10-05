@@ -123,7 +123,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		affect_to_char(vict, af2);
 
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
-			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
+			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 		}
 		if (!vict->HasWeapon()) {
 			TrainSkill(ch, ESkill::kDisarm, success, vict);
