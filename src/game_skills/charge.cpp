@@ -78,7 +78,6 @@ void go_charge(CharData *ch, int direction) {
 	Affect<EApply> af;
 	af.type = ESpell::kNoCharge;
 	af.duration = 4;
-	af.location = EApply::kNone;
 	af.battleflag = kNone;
 	af.bitvector = to_underlying(EAffect::kNoCharge);
 	af.caster_id = GET_ID(ch);
@@ -86,11 +85,9 @@ void go_charge(CharData *ch, int direction) {
 	Affect<EApply> af2;
 	af2.type = ESpell::kUndefined;
 	af2.duration = 3;
-	af2.modifier = 0;
-	af2.location = EApply::kNone;
 	af2.battleflag = kAfSameTime;
 	af2.bitvector = to_underlying(EAffect::kConfused);
-	SetWait(ch, 2, false);
+	SetWait(ch, 1, false);
 
 	Damage dmg(SkillDmg(ESkill::kCharge), dam, fight::kPhysDmg, nullptr);
 	victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
