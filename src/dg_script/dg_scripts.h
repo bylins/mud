@@ -177,6 +177,7 @@ class Trigger {
 	cmdlist_element::shared_ptr curr_state;    // ptr to current line of trigger  //
 
 	int narg;        // numerical argument              //
+	bool add_flag;		//пока только мобам
 	std::string arglist;        // argument list                   //
 	int depth;        // depth into nest ifs/whiles/etc  //
 	int loops;        // loop iteration counter          //

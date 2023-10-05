@@ -287,7 +287,7 @@ void TriggersFile::read_entry(const int nr) {
 }
 
 void TriggersFile::parse_trigger(int vnum) {
-	int t[2], k;
+	int t, add_flag, k;
 
 	char line[256], flags[256];
 
@@ -296,7 +296,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	get_line(file(), line);
 
 	int attach_type = 0;
-	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
+	k = sscanf(line, "%d %s %d %d", &attach_type, flags, &t, &add_flag);
 
 	if (0 > attach_type
 		|| 2 < attach_type) {
@@ -309,9 +309,12 @@ void TriggersFile::parse_trigger(int vnum) {
 	const auto rnum = top_of_trigt;
 	Trigger *trig = new Trigger(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
 
-	trig->narg = (k == 3) ? t[0] : 0;
+	trig->narg = t;
+	if (k == 4)
+		trig->add_flag = add_flag;
+	else 
+		trig->add_flag = false;
 	trig->arglist = fread_string();
-
 	std::string cmds(fread_string());
 	std::size_t pos = 0;
 	int indlev = 0, num = 1;
