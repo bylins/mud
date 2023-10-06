@@ -1123,7 +1123,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		}
 
 		if (remove_hide) {
-			RemoveAffectFromChar(ch, ESpell::kHide);
+			RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
 			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
 				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);

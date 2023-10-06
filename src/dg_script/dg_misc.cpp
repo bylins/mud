@@ -349,9 +349,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		ImposeAffect(ch, af); // перекастим аффект
 	} else {
 		// remove affect
-		RemoveAffectFromChar(ch, index_s);
-		// trig_log(trig, "dg_affect: affect removed from char");
-		//Вроде не критично уже видеть все снятия аффектов
+		RemoveAffectFromCharAndRecalculate(ch, index_s);
 	}
 }
 

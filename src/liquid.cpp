@@ -739,7 +739,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, false, ch, obj, 0, kToChar);
 		act("$n похмелил$u и расцвел$g прям на глазах.", false, ch, 0, 0, kToRoom);
-		RemoveAffectFromChar(ch, ESpell::kAbstinent);
+		RemoveAffectFromCharAndRecalculate(ch, ESpell::kAbstinent);
 	}
 }
 

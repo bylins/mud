@@ -383,7 +383,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 	}
 
 	act("Вы рассчитали $N3.", false, ch, 0, k->follower, kToChar);
-	RemoveAffectFromChar(k->follower, ESpell::kCharm);
+	RemoveAffectFromCharAndRecalculate(k->follower, ESpell::kCharm);
 	stop_follower(k->follower, kSfCharmlost);
 }
 

@@ -3161,7 +3161,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			//при рекасте - не лечим
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
 				hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
-				RemoveAffectFromChar(ch, ESpell::kEviless); //сбрасываем аффект с хозяина
+				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless); //сбрасываем аффект с хозяина
 			}
 			break;
 		case ESpell::kResfresh:
@@ -3333,8 +3333,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 		RemoveAffectFromChar(victim, ESpell::kScopolaPoison);
 		RemoveAffectFromChar(victim, ESpell::kBelenaPoison);
 	}
-	RemoveAffectFromChar(victim, spell);
-	affect_total(victim);
+	RemoveAffectFromCharAndRecalculate(victim, spell);
 	if (to_vict != nullptr)
 		act(to_vict, false, victim, nullptr, ch, kToChar);
 	if (to_room != nullptr)
