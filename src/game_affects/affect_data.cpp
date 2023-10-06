@@ -423,6 +423,11 @@ void mobile_affect_update() {
 	log("mobile affect update: timer %f, num mobs %d, count update %d, affected mobs: %d", timer.delta().count(), count, count2, count3);
 }
 
+void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
+	RemoveAffectFromChar(ch, spell_id);
+	affect_total(ch);
+}
+
 // Call affect_remove with every spell of spelltype "skill"
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	std::list<std::shared_ptr<Affect<EApply>>>::iterator it  = ch->affected.begin();
