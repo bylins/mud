@@ -58,9 +58,9 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$Z $N взбрыкнул$G и отказал$U вас слушаться.", false, ch, 0, horse, kToChar);
 	else {
 		if (IsAffectedBySpell(ch, ESpell::kSneak))
-			RemoveAffectFromChar(ch, ESpell::kSneak);
+			RemoveAffectFromCharAndRecalculate(ch, ESpell::kSneak);
 		if (IsAffectedBySpell(ch, ESpell::kCamouflage))
-			RemoveAffectFromChar(ch, ESpell::kCamouflage);
+			RemoveAffectFromCharAndRecalculate(ch, ESpell::kCamouflage);
 		act("Вы взобрались на спину $N1.", false, ch, 0, horse, kToChar);
 		act("$n вскочил$g на $N3.", false, ch, 0, horse, kToRoom | kToArenaListen);
 		AFF_FLAGS(ch).set(EAffect::kHorse);

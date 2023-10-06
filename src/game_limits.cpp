@@ -74,6 +74,7 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6) {
 
 void handle_recall_spells(CharData *ch) {
 	Affect<EApply>::shared_ptr aff;
+
 	for (const auto &af : ch->affected) {
 		if (af->type == ESpell::kRecallSpells) {
 			aff = af;
@@ -84,7 +85,6 @@ void handle_recall_spells(CharData *ch) {
 	if (!aff) {
 		return;
 	}
-
 	//максимальный доступный чару круг
 	auto max_circle = MUD::Class(ch->GetClass()).GetMaxCircle();
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
