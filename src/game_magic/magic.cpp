@@ -1012,12 +1012,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			if (IsAffectedBySpell(victim, ESpell::kStrength)) {
-				RemoveAffectFromChar(victim, ESpell::kStrength);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kStrength);
 				success = false;
 				break;
 			}
 			if (IsAffectedBySpell(victim, ESpell::kDexterity)) {
-				RemoveAffectFromChar(victim, ESpell::kDexterity);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kDexterity);
 				success = false;
 				break;
 			}
@@ -1284,7 +1284,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kGroupHaste:
 		case ESpell::kHaste:
 			if (IsAffectedBySpell(victim, ESpell::kSlowdown)) {
-				RemoveAffectFromChar(victim, ESpell::kSlowdown);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSlowdown);
 				success = false;
 				break;
 			}
@@ -1310,7 +1310,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kEnlarge:
 			if (IsAffectedBySpell(victim, ESpell::kLessening)) {
-				RemoveAffectFromChar(victim, ESpell::kLessening);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kLessening);
 				success = false;
 				break;
 			}
@@ -1325,7 +1325,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kLessening:
 			if (IsAffectedBySpell(victim, ESpell::kEnlarge)) {
-				RemoveAffectFromChar(victim, ESpell::kEnlarge);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kEnlarge);
 				success = false;
 				break;
 			}
@@ -1373,7 +1373,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				return 0;
 			}
 			if (IsAffectedBySpell(victim, ESpell::kSanctuary)) {
-				RemoveAffectFromChar(victim, ESpell::kSanctuary);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSanctuary);
 				success = false;
 				break;
 			}
@@ -1546,7 +1546,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 
 			if (IsAffectedBySpell(victim, ESpell::kHaste)) {
-				RemoveAffectFromChar(victim, ESpell::kHaste);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kHaste);
 				success = false;
 				break;
 			}
@@ -1731,7 +1731,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				return 0;
 			}
 			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
-				RemoveAffectFromChar(victim, ESpell::kPrismaticAura);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kPrismaticAura);
 				success = false;
 				break;
 			}
@@ -1776,7 +1776,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kGroupStrength:
 		case ESpell::kStrength:
 			if (IsAffectedBySpell(victim, ESpell::kWeaknes)) {
-				RemoveAffectFromChar(victim, ESpell::kWeaknes);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kWeaknes);
 				success = false;
 				break;
 			}
@@ -1796,7 +1796,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kDexterity:
 			if (IsAffectedBySpell(victim, ESpell::kWeaknes)) {
-				RemoveAffectFromChar(victim, ESpell::kWeaknes);
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kWeaknes);
 				success = false;
 				break;
 			}
