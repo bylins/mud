@@ -1490,6 +1490,7 @@ const struct mob_command_info mob_cmd_info[] =
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
 	char *line, arg[kMaxInputLength];
+	bool use_in_lag = false;
 
 	// just drop to next line for hitting CR
 	skip_spaces(&argument);
@@ -1503,23 +1504,30 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	int cmd = 0;
 
 	while (*mob_cmd_info[cmd].command != '\n') {
-		if (!strcmp(mob_cmd_info[cmd].command, arg)) {
-			break;
+		if (arg[0] == '!') {
+			if (!strcmp(mob_cmd_info[cmd].command, arg + 1)) {
+				use_in_lag =  true;
+				break;
+			}
+		}
+		else {
+			if (!strcmp(mob_cmd_info[cmd].command, arg))
+				break;
 		}
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE))) {
-		if (!mob_cmd_info[cmd].use_in_lag
+		if (!use_in_lag && !mob_cmd_info[cmd].use_in_lag
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
 						|| AFF_FLAGGED(ch, EAffect::kStopFight)
 						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 				&& !trig->add_flag) {
-		if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
-			sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
-			mob_log(ch, buf);
-		}
-		return false;
+			if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
+				sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
+				mob_log(ch, buf);
+			}
+			return false;
 		}
 	}
 	if (*mob_cmd_info[cmd].command == '\n') {
