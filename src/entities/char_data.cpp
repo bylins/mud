@@ -281,7 +281,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 	std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
 	for (auto counter = 0u; counter < to_remove; ++counter) {
 		const auto affect_i = removable_affects[counter];
-		RemoveAffectFromChar(this, affect_i->get()->type);
+		RemoveAffectFromCharAndRecalculate(this, affect_i->get()->type);    //count тут не сработает, удаляются все аффекты а не первый
 	}
 
 	return to_remove;

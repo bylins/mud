@@ -474,7 +474,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	RemoveAffectFromChar(ch, ESpell::kDaturaPoison);
 	RemoveAffectFromChar(ch, ESpell::kScopolaPoison);
 	RemoveAffectFromChar(ch, ESpell::kBelenaPoison);
-
+	affect_total(ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
 	look_at_room(ch, to_room);
