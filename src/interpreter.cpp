@@ -1115,19 +1115,16 @@ void check_hiding_cmd(CharData *ch, int percent) {
 				percent = 500;
 			}
 		}
-
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
 			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 		}
-
 		if (remove_hide) {
-			RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
-			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
-				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
-			}
+			RemoveAffectFromChar(ch, ESpell::kHide);
+			AFF_FLAGS(ch).unset(EAffect::kHide);
+			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
+			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 		}
 	}
 }

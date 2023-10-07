@@ -1568,14 +1568,10 @@ void appear(CharData *ch) {
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide);
 
-	if (IsAffectedBySpell(ch, ESpell::kInvisible))
-		RemoveAffectFromChar(ch, ESpell::kInvisible);
-	if (IsAffectedBySpell(ch, ESpell::kHide))
-		RemoveAffectFromChar(ch, ESpell::kHide);
-	if (IsAffectedBySpell(ch, ESpell::kSneak))
-		RemoveAffectFromChar(ch, ESpell::kSneak);
-	if (IsAffectedBySpell(ch, ESpell::kCamouflage))
-		RemoveAffectFromChar(ch, ESpell::kCamouflage);
+	RemoveAffectFromChar(ch, ESpell::kInvisible);
+	RemoveAffectFromChar(ch, ESpell::kHide);
+	RemoveAffectFromChar(ch, ESpell::kSneak);
+	RemoveAffectFromChar(ch, ESpell::kCamouflage);
 
 	AFF_FLAGS(ch).unset(EAffect::kInvisible);
 	AFF_FLAGS(ch).unset(EAffect::kHide);

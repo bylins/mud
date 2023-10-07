@@ -132,7 +132,7 @@ void make_visible(CharData *ch, const EAffect affect) {
 int skip_hiding(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kHide) || IsAffectedBySpell(ch, ESpell::kHide))) {
+	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (awake_hide(ch)) {
 			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kHide);
@@ -142,11 +142,9 @@ int skip_hiding(CharData *ch, CharData *vict) {
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
 			if (percent > prob) {
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
-				if (!AFF_FLAGGED(ch, EAffect::kHide)) {
-					ImproveSkill(ch, ESkill::kHide, false, vict);
-					act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, kToChar);
-				}
+				RemoveAffectFromChar(ch, ESpell::kHide);
+				AFF_FLAGS(ch).unset(EAffect::kHide);
+				act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kHide, true, vict);
 				act("Вам удалось остаться незаметным.\r\n", false, ch, nullptr, vict, kToChar);
@@ -160,9 +158,7 @@ int skip_hiding(CharData *ch, CharData *vict) {
 int skip_camouflage(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (MAY_SEE(ch, vict, ch)
-		&& (AFF_FLAGGED(ch, EAffect::kDisguise)
-			|| IsAffectedBySpell(ch, ESpell::kCamouflage))) {
+	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
 		if (awake_camouflage(ch))    //if (affected_by_spell(ch,SPELL_CAMOUFLAGE))
 		{
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
@@ -173,11 +169,10 @@ int skip_camouflage(CharData *ch, CharData *vict) {
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kDisguise, vict);
 			if (percent > prob) {
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kCamouflage);
-				if (!AFF_FLAGGED(ch, EAffect::kDisguise)) {
-					ImproveSkill(ch, ESkill::kDisguise, false, vict);
-					act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, kToChar);
-				}
+				RemoveAffectFromChar(ch, ESpell::kCamouflage);
+				AFF_FLAGS(ch).unset(EAffect::kDisguise);
+				ImproveSkill(ch, ESkill::kDisguise, false, vict);
+				act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kDisguise, true, vict);
 				act("Ваша маскировка оказалась на высоте.\r\n", false, ch, nullptr, vict, kToChar);
@@ -192,16 +187,15 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
-	if (MAY_SEE(ch, vict, ch) && (AFF_FLAGGED(ch, EAffect::kSneak) || IsAffectedBySpell(ch, ESpell::kSneak))) {
+	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
 		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
 		{
 			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kSneak);
 			make_visible(ch, EAffect::kSneak);
-			if (IsAffectedBySpell(ch, ESpell::kHide)) {
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
-			}
-			EXTRA_FLAGS(ch).get(EXTRA_FAILSNEAK);
+			RemoveAffectFromChar(ch, ESpell::kHide);
+			AFF_FLAGS(ch).unset(EAffect::kHide);
+			AFF_FLAGS(ch).unset(EAffect::kSneak);
 		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
 			percent = number(1, 112 + (GetRealInt(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
 				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
@@ -216,13 +210,12 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 				try_fail = false;
 
 			if ((percent > prob) || try_fail) {
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kSneak);
-				if (IsAffectedBySpell(ch, ESpell::kHide))
-					RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
-				if (!AFF_FLAGGED(ch, EAffect::kSneak)) {
-					ImproveSkill(ch, ESkill::kSneak, false, vict);
-					act("Вы не сумели пробраться незаметно.", false, ch, nullptr, vict, kToChar);
-				}
+				RemoveAffectFromChar(ch, ESpell::kSneak);
+				RemoveAffectFromChar(ch, ESpell::kHide);
+				AFF_FLAGS(ch).unset(EAffect::kHide);
+				AFF_FLAGS(ch).unset(EAffect::kSneak);
+				ImproveSkill(ch, ESkill::kSneak, false, vict);
+				act("Вы не сумели пробраться незаметно.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kSneak, true, vict);
 				act("Вам удалось прокрасться незаметно.\r\n", false, ch, nullptr, vict, kToChar);
@@ -535,9 +528,12 @@ void PerformDunkSong(CharData *ch) {
 		SendMsgToChar("\r\n", ch);
 		strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
 		act(buf, false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
-		RemoveAffectFromChar(ch, ESpell::kSneak);
 		RemoveAffectFromChar(ch, ESpell::kHide);
-		RemoveAffectFromCharAndRecalculate(ch, ESpell::kCamouflage);
+		RemoveAffectFromChar(ch, ESpell::kSneak);
+		RemoveAffectFromChar(ch, ESpell::kCamouflage);
+		AFF_FLAGS(ch).unset(EAffect::kHide);
+		AFF_FLAGS(ch).unset(EAffect::kSneak);
+		AFF_FLAGS(ch).unset(EAffect::kDisguise);
 	}
 }
 
@@ -610,7 +606,8 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_sneak(ch)) {
-			RemoveAffectFromCharAndRecalculate(ch, ESpell::kSneak);
+			RemoveAffectFromChar(ch, ESpell::kSneak);
+			AFF_FLAGS(ch).unset(EAffect::kSneak);
 		} else if (!IsAffectedBySpell(ch, ESpell::kSneak) || CalcCurrentSkill(ch, ESkill::kSneak, nullptr) >= number(1, i))
 			invis = 1;
 	}
@@ -620,9 +617,9 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_camouflage(ch)) {
-			RemoveAffectFromCharAndRecalculate(ch, ESpell::kCamouflage);
-		} else if (!IsAffectedBySpell(ch, ESpell::kCamouflage) ||
-			CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
+			RemoveAffectFromChar(ch, ESpell::kCamouflage);
+			AFF_FLAGS(ch).unset(EAffect::kDisguise);
+		} else if (!IsAffectedBySpell(ch, ESpell::kCamouflage) || CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
@@ -1005,7 +1002,8 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	perform_move(ch, dir, 0, true, nullptr);
 	if (!sneaking || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
-		RemoveAffectFromCharAndRecalculate(ch, ESpell::kSneak);
+		RemoveAffectFromChar(ch, ESpell::kSneak);
+		AFF_FLAGS(ch).unset(EAffect::kSneak);
 	}
 }
 

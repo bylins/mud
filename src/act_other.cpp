@@ -110,8 +110,9 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
-		if (IsAffectedBySpell(ch, ESpell::kGodsShield))
+		if (IsAffectedBySpell(ch, ESpell::kGodsShield)) {
 			RemoveAffectFromChar(ch, ESpell::kGodsShield);
+		}
 		AFF_FLAGS(ch).unset(EAffect::kGodsShield);
 		SendMsgToChar("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -552,7 +553,8 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			if (percent > prob && !success) {
 				ohoh = true;
 				if (AFF_FLAGGED(ch, EAffect::kHide)) {
-					RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
+					RemoveAffectFromChar(ch, ESpell::kHide);
+					AFF_FLAGS(ch).unset(EAffect::kHide);
 					SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 					act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 				};
@@ -585,7 +587,8 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		if (percent > prob && !success) {
 			ohoh = true;
 			if (AFF_FLAGGED(ch, EAffect::kHide)) {
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kHide);
+				RemoveAffectFromChar(ch, ESpell::kHide);
+				AFF_FLAGS(ch).unset(EAffect::kHide);
 				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			};
