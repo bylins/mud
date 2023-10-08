@@ -58,10 +58,10 @@ void send_to_zone(char *messg, int zone_rnum);
 
 // attaches mob's name and vnum to msg_set and sends it to script_log
 void mob_log(CharData *mob, const char *msg, LogMode type = LogMode::OFF) {
-	char buf[kMaxInputLength + 100];
+	char small_buf[kMaxInputLength + 100];
 
-	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s [строка: %d]", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg, last_trig_line_num);
-	script_log(buf, type);
+	snprintf(small_buf,kMaxInputLength + 100, "(Mob: '%s', VNum: %d, trig: %d): %s [строка: %d]", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg, last_trig_line_num);
+	script_log(small_buf, type);
 }
 
 //returns the real room number, or kNowhere if not found or invalid

@@ -48,10 +48,10 @@ struct wld_command_info {
 
 // attaches room vnum to msg_set and sends it to script_log
 void wld_log(RoomData *room, const char *msg, LogMode type = LogMode::OFF) {
-	char buf[kMaxInputLength + 100];
+	char small_buf[kMaxInputLength + 100];
 
-	sprintf(buf, "(Room: %d, trig: %d): %s [строка: %d]", room->room_vn, last_trig_vnum, msg, last_trig_line_num);
-	script_log(buf, type);
+	snprintf(small_buf, kMaxInputLength + 100, "(Room: %d, trig: %d): %s [строка: %d]", room->room_vn, last_trig_vnum, msg, last_trig_line_num);
+	script_log(small_buf, type);
 }
 
 // sends str to room

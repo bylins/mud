@@ -697,6 +697,7 @@ void affect_total(CharData *ch) {
 		for (const auto &i : char_stealth_aff) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
+				SendMsgToChar(ch, "&R!!!!!!!!!!!!!!!!!!check_aggressive TRUE&n");
 				ch->check_aggressive = true;
 			}
 		}
