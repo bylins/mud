@@ -140,7 +140,7 @@ int skip_hiding(CharData *ch, CharData *vict) {
 			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
 			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
-				act("$N почувствовал ваше присутствие.", false, ch, nullptr, vict, kToChar);
+				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
 				return false;
 			}
 			percent = number(1, 82 + GetRealInt(vict));
@@ -170,7 +170,7 @@ int skip_camouflage(CharData *ch, CharData *vict) {
 			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
 		} else if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
 			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
-				act("$N почувствовал ваше присутствие.", false, ch, nullptr, vict, kToChar);
+				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
 				return false;
 			}
 			percent = number(1, 82 + GetRealInt(vict));
