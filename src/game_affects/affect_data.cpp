@@ -697,7 +697,9 @@ void affect_total(CharData *ch) {
 		for (const auto &i : char_stealth_aff) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
-				SendMsgToChar(ch, "&R!!!!!!!!!!!!!!!!!!check_aggressive TRUE&n");
+				char small_buf [128];
+				sprintf(small_buf, "Установка check_aggressive, зачем не знаю, если не появляется убрать все это 8.09.2023");
+				mudlog(buf, CMP, kLvlImplementator, SYSLOG, true);
 				ch->check_aggressive = true;
 			}
 		}

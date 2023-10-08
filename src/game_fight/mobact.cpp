@@ -133,10 +133,6 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode = false) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "attack_best ch=%s, vict=%s", GET_NAME(ch), GET_NAME(victim));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
 		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			if (do_mode)
 				do_strangle(ch, str_dup(GET_NAME(victim)), 0, 0);
@@ -384,8 +380,12 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-
-		if (!CAN_SEE(ch, vict))
+		if (CAN_SEE(ch, vict)) {
+			if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
+				act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
+			}
+		}
+		else
 			continue;
 
 		// Mobile aggresive
@@ -496,10 +496,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			return currentVictim;
 		}
 	}
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "find_best_mob_victim enter ch=%s", GET_NAME(ch));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people) {
 		if ((vict->IsNpc() && !IS_CHARMICE(vict))
@@ -535,10 +531,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			}
 		}
 		if (IS_SET(extmode, SKIP_SNEAKING)) {
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "find_best_mob_victim sneak ch=%s, vict=%s", GET_NAME(ch), GET_NAME(vict));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
 			skip_sneaking(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
 				AFF_FLAGS(vict).unset(EAffect::kSneak);
@@ -549,10 +541,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			}
 		}
 		if (IS_SET(extmode, SKIP_HIDING)) {
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "find_best_mob_victim hiding ch=%s, vict=%s", GET_NAME(ch), GET_NAME(vict));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
 				AFF_FLAGS(vict).unset(EAffect::kHide);
@@ -565,17 +553,13 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-		if (!CAN_SEE(ch, vict)) {
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "find_best_mob_victim моб не видит ch=%s", GET_NAME(ch));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-			continue;
+		if (CAN_SEE(ch, vict)) {
+			if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
+				act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
+			}
 		}
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "find_best_mob_victim моб увидел ch=%s", GET_NAME(ch));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
+		else
+			continue;
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)
 				&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
@@ -618,11 +602,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	if (!best) {
 		best = currentVictim;
 	}
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "find_best_mob_victim select best ch=%s, vict=%s", GET_NAME(ch), best == nullptr ? "нету" : GET_NAME(best));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-
 	if (mobINT < kMiddleAI) {
 		int rand = number(0, 2);
 		if (caster) {
@@ -722,12 +701,6 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 			return false;
 		}
 		if (!attack_best(ch, best) && !ch->GetEnemy()) {
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "perform_best_mob_attack hit ch=%s, vict=%s", GET_NAME(ch), GET_NAME(best));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-
-
 			hit(ch, best, ESkill::kUndefined, fight::kMainHand);
 		}
 		return (true);
@@ -744,7 +717,6 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 		if (!vict->IsNpc() || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
 			continue;
 		}
-
 		if (!SAME_ALIGN(ch, vict)) {
 			if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
@@ -815,10 +787,6 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 				break;
 			}
 		}
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "do_aggressive_mob ch=%s, check_sneak=%d", GET_NAME(ch), mode);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
 		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
 		return;
 	}
@@ -862,6 +830,9 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 						AFF_FLAGS(vict).unset(EAffect::kDisguise);
 					}
 					if (CAN_SEE(ch, vict)) {
+						if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
+							act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
+						}
 						victim = vict;
 					}
 				}
@@ -892,11 +863,6 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 
 	// ****************  Helper Mobs
 	if (MOB_FLAGGED(ch, EMobFlag::kHelper)) {
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "do_aggressive_mob helpers ch=%s", GET_NAME(ch));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-
 		perform_best_mob_attack(ch, mode | KILL_FIGHTING | CHECK_HITS);
 		return;
 	}
@@ -1164,11 +1130,6 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		// look at room before moving
-	if (GET_ROOM_VNUM(ch->in_room) == 100) {
-		sprintf(buf, "mob_act aggro");
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-
 		do_aggressive_mob(ch.get(), false);
 
 		// if mob attack something

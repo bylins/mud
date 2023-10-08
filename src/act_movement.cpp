@@ -139,10 +139,6 @@ int skip_hiding(CharData *ch, CharData *vict) {
 			make_visible(ch, EAffect::kHide);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
-			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
-				act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
-				return false;
-			}
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
 			if (percent > prob) {

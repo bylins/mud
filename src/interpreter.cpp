@@ -676,7 +676,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"пклист", EPosition::kSleep, DoClanPkList, 0, 0, 0},
 		{"пнуть", EPosition::kFight, do_kick, 1, 0, -1},
 		{"погода", EPosition::kRest, do_weather, 0, 0, 0},
-		{"подкрасться", EPosition::kStand, do_sneak, 1, 0, 1},
+		{"подкрасться", EPosition::kStand, do_sneak, 1, 0, 100},
 		{"подножка", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"подняться", EPosition::kRest, do_stand, 0, 0, -1},
 		{"поджарить", EPosition::kRest, do_fry, 0, 0, -1},
@@ -1120,10 +1120,6 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		} else if (percent > 0) {
 			int tmp = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
 			remove_hide = number(1, percent) > tmp;
-			if (GET_ROOM_VNUM(ch->in_room) == 100) {
-			sprintf(buf, "check_hiding_cmd ch=%s, remove_hide=%d, percent=%d tmp=%d", GET_NAME(ch), remove_hide, percent, tmp);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
 		}
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
