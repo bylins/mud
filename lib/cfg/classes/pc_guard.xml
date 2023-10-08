@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
+<!-- improove чем выше тем быстрее качается -->
 <class id="kGuard">
     <name abbr="Др">
         <singular nom="дружинник" gen="дружинника" dat="дружиннику" acc="дружинника" ins="дружинником" pre="дружиннике"/>

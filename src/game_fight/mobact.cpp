@@ -1,3 +1,4 @@
+//ветка с логами хайдосника
 /* ************************************************************************
 *   File: mobact.cpp                                    Part of Bylins    *
 *  Usage: Functions for generating intelligent (?) behavior in mobiles    *
