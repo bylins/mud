@@ -382,7 +382,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		}
 		if (CAN_SEE(ch, vict)) {
 			if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
-				act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
+				act("$n почувствовал$g ваше присутствие!", false, ch, nullptr, vict, kToVict);
 			}
 		}
 		else
@@ -555,7 +555,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		}
 		if (CAN_SEE(ch, vict)) {
 			if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
-				act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
+				act("$n почувствовал$g ваше присутствие!", false, ch, nullptr, vict, kToVict);
 			}
 		}
 		else
@@ -831,7 +831,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 					}
 					if (CAN_SEE(ch, vict)) {
 						if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
-							act("$N почувствовал ваше присутствие.\r\n", false, ch, nullptr, vict, kToChar);
+							act("$n почувствовал$g ваше присутствие!", false, ch, nullptr, vict, kToVict);
 						}
 						victim = vict;
 					}
