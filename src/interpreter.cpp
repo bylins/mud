@@ -1110,7 +1110,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
-					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
+					ch->GetSkill(ESkill::kHide);
 			} else {
 				percent = 500;
 			}
@@ -1118,8 +1118,7 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			int tmp = CalcCurrentSkill(ch, ESkill::kHide, nullptr);
-			remove_hide = number(1, percent) > tmp;
+			remove_hide = number(1, percent) > ch->GetSkill(ESkill::kHide);
 		}
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);

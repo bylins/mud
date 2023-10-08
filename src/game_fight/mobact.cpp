@@ -380,14 +380,9 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-		if (CAN_SEE(ch, vict)) {
-			if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
-				act("$n почувствовал$g ваше присутствие!", false, ch, nullptr, vict, kToVict);
-			}
-		}
-		else
+		if (!CAN_SEE(ch, vict)) {
 			continue;
-
+		}
 		// Mobile aggresive
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)) {
@@ -553,13 +548,9 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-		if (CAN_SEE(ch, vict)) {
-			if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
-				act("$n почувствовал$g ваше присутствие!", false, ch, nullptr, vict, kToVict);
-			}
-		}
-		else
+		if (!CAN_SEE(ch, vict)) {
 			continue;
+		}
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)
 				&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
@@ -830,9 +821,6 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 						AFF_FLAGS(vict).unset(EAffect::kDisguise);
 					}
 					if (CAN_SEE(ch, vict)) {
-						if (AFF_FLAGGED(ch, EAffect::kDetectLife) && (AFF_FLAGGED(vict, EAffect::kHide) || AFF_FLAGGED(vict, EAffect::kDisguise))) {
-							act("$n почувствовал$g ваше присутствие!", false, ch, nullptr, vict, kToVict);
-						}
 						victim = vict;
 					}
 				}

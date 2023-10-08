@@ -112,11 +112,11 @@ void make_visible(CharData *ch, const EAffect affect) {
 
 	switch (affect) {
 		case EAffect::kHide: strcpy(to_char, "Вы прекратили прятаться.\r\n");
-			strcpy(to_room, "$n прекратил$g прятаться.\r\n");
+			strcpy(to_room, "$n прекратил$g прятаться.");
 			break;
 
 		case EAffect::kDisguise: strcpy(to_char, "Вы прекратили маскироваться.\r\n");
-			strcpy(to_room, "$n прекратил$g маскироваться.\r\n");
+			strcpy(to_room, "$n прекратил$g маскироваться.");
 			break;
 
 		default: break;
@@ -132,13 +132,17 @@ void make_visible(CharData *ch, const EAffect affect) {
 int skip_hiding(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (!AFF_FLAGGED(vict, EAffect::kDetectLife) && MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
+	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
 		if (awake_hide(ch)) {
 			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kHide);
 			make_visible(ch, EAffect::kHide);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
 		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
+			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
+				act("$N почувствовал ваше присутствие.", false, ch, nullptr, vict, kToChar);
+				return false;
+			}
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
 			if (percent > prob) {
@@ -147,7 +151,7 @@ int skip_hiding(CharData *ch, CharData *vict) {
 				act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kHide, true, vict);
-				act("Вам удалось остаться незаметным.\r\n", false, ch, nullptr, vict, kToChar);
+				act("Вам удалось остаться незаметным.", false, ch, nullptr, vict, kToChar);
 				return true;
 			}
 		}
@@ -158,13 +162,17 @@ int skip_hiding(CharData *ch, CharData *vict) {
 int skip_camouflage(CharData *ch, CharData *vict) {
 	int percent, prob;
 
-	if (!AFF_FLAGGED(vict, EAffect::kDetectLife) && MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
 		if (awake_camouflage(ch)) {
 			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
 			make_visible(ch, EAffect::kDisguise);
 			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
 		} else if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
+			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
+				act("$N почувствовал ваше присутствие.", false, ch, nullptr, vict, kToChar);
+				return false;
+			}
 			percent = number(1, 82 + GetRealInt(vict));
 			prob = CalcCurrentSkill(ch, ESkill::kDisguise, vict);
 			if (percent > prob) {
@@ -174,7 +182,7 @@ int skip_camouflage(CharData *ch, CharData *vict) {
 				act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kDisguise, true, vict);
-				act("Ваша маскировка оказалась на высоте.\r\n", false, ch, nullptr, vict, kToChar);
+				act("Ваша маскировка оказалась на высоте.", false, ch, nullptr, vict, kToChar);
 				return true;
 			}
 		}
@@ -186,7 +194,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 	int percent, prob, absolute_fail;
 	bool try_fail;
 
-	if (!AFF_FLAGGED(vict, EAffect::kDetectLife) && MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
+	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
 		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
 		{
 			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
@@ -217,7 +225,7 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 				act("Вы не сумели пробраться незаметно.", false, ch, nullptr, vict, kToChar);
 			} else {
 				ImproveSkill(ch, ESkill::kSneak, true, vict);
-				act("Вам удалось прокрасться незаметно.\r\n", false, ch, nullptr, vict, kToChar);
+				act("Вам удалось прокрасться незаметно.", false, ch, nullptr, vict, kToChar);
 				return true;
 			}
 		}
