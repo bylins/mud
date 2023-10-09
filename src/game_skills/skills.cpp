@@ -14,6 +14,7 @@
 #include "utils/random.h"
 #include "game_magic/magic.h"
 #include "game_mechanics/bonus.h"
+#include "game_fight/fight.h"
 
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
@@ -681,6 +682,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
+			rate -= GetBasicSave(vict, ESaving::kReflex, false);
 			break;
 		}
 
@@ -750,7 +752,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kDisarm: {
-			rate -= dex_bonus(GetRealStr(ch));
+			rate += dex_bonus(GetRealStr(ch));
 			if (GET_EQ(vict, EEquipPos::kBoths))
 				rate -= 10;
 			if (PRF_FLAGGED(vict, EPrf::kAwake))
@@ -886,11 +888,19 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kBash: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
-			bonus = size + (GET_EQ(ch, EEquipPos::kShield) ?
+			bonus = (GET_REAL_SIZE(ch) - 50) + (GET_EQ(ch, EEquipPos::kShield) ?
 							weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 35)].bashing : 0);
 			if (PRF_FLAGGED(ch, EPrf::kAwake)) {
 				bonus = -50;
 			}
+			if (ch->IsNpc()) {
+				bonus += GetRealLevel(ch);
+			}
+			break;
+		}
+
+		case ESkill::kCharge: {
+			bonus += calc_initiative(ch, false);
 			break;
 		}
 
