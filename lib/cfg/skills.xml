@@ -23,13 +23,13 @@ mode - режим умения.
     <skill id="kGlobalCooldown"		name="!cooldown"		abbr="ОЗ"	saving="kWill"		difficulty="1"		cap="1"		mode="kService"/>
     <skill id="kBackstab"		name="заколоть"			abbr="Зк"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kBash"			name="сбить"			abbr="Сб"	saving="kStability"	difficulty="200"	cap="1000"/>
-    <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="1000"/>
+    <skill id="kHide"			name="спрятаться"		abbr="Сп"	saving="kWill"		difficulty="100"	cap="5000"/>
     <skill id="kKick"			name="пнуть"			abbr="Пн"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPickLock"		name="взломать"			abbr="Вз"	saving="kReflex"	difficulty="120"	cap="200"/>
     <skill id="kShieldBash"		name="удар щитом"		abbr="Ущ"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPunch"			name="кулачный бой"		abbr="Кб"	saving="kStability"	difficulty="100"	cap="1000"/>
     <skill id="kRescue"			name="спасти"			abbr="Спс"	saving="kReflex"	difficulty="200"	cap="1000"/>
-    <skill id="kSneak"			name="подкрасться"		abbr="Пд"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kSneak"			name="подкрасться"		abbr="Пд"	saving="kWill"		difficulty="100"	cap="600"/>
     <skill id="kSteal"			name="украсть"			abbr="Ук"	saving="kWill"		difficulty="100"	cap="200"/>
     <skill id="kTrack"			name="выследить"		abbr="Выс"	saving="kReflex"	difficulty="100"	cap="1000"/>
     <skill id="kParry"			name="парировать"		abbr="Пр"	saving="kStability"	difficulty="120"	cap="1000"/>
@@ -51,7 +51,7 @@ mode - режим умения.
     <skill id="kDisarm"			name="обезоружить"		abbr="Об"	saving="kStability"	difficulty="100"	cap="200"/>
     <skill id="kMorph"			name="оборотничество"		abbr="Обр"	saving="kReflex"	difficulty="150"	cap="200"	mode="kTesting"/>
     <skill id="kAddshot"		name="дополнительный выстрел"	abbr="Доп"	saving="kReflex"	difficulty="200"	cap="200"/>
-    <skill id="kDisguise"		name="маскировка"		abbr="Мск"	saving="kWill"		difficulty="100"	cap="200"/>
+    <skill id="kDisguise"		name="маскировка"		abbr="Мск"	saving="kWill"		difficulty="100"	cap="2000"/>
     <skill id="kDodge"			name="уклониться"		abbr="Укл"	saving="kReflex"	difficulty="100"	cap="200"/>
     <skill id="kChopoff"		name="подножка"			abbr="Пд"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kRepair"			name="ремонт"			abbr="Рм"	saving="kReflex"	difficulty="180"	cap="200"/>
