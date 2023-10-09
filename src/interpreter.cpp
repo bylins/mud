@@ -676,7 +676,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"пклист", EPosition::kSleep, DoClanPkList, 0, 0, 0},
 		{"пнуть", EPosition::kFight, do_kick, 1, 0, -1},
 		{"погода", EPosition::kRest, do_weather, 0, 0, 0},
-		{"подкрасться", EPosition::kStand, do_sneak, 1, 0, 500},
+		{"подкрасться", EPosition::kStand, do_sneak, 1, 0, 100},
 		{"подножка", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"подняться", EPosition::kRest, do_stand, 0, 0, -1},
 		{"поджарить", EPosition::kRest, do_fry, 0, 0, -1},
@@ -1110,24 +1110,21 @@ void check_hiding_cmd(CharData *ch, int percent) {
 		if (percent == -2) {
 			if (AFF_FLAGGED(ch, EAffect::kSneak)) {
 				remove_hide = number(1, MUD::Skill(ESkill::kSneak).difficulty) >
-					CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
+					ch->GetSkill(ESkill::kHide);
 			} else {
 				percent = 500;
 			}
 		}
-
 		if (percent == -1) {
 			remove_hide = true;
 		} else if (percent > 0) {
-			remove_hide = number(1, percent) > CalcCurrentSkill(ch, ESkill::kHide, nullptr);
+			remove_hide = number(1, percent) > ch->GetSkill(ESkill::kHide);
 		}
-
 		if (remove_hide) {
 			RemoveAffectFromChar(ch, ESpell::kHide);
-			if (!AFF_FLAGGED(ch, EAffect::kHide)) {
-				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
-			}
+			AFF_FLAGS(ch).unset(EAffect::kHide);
+			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
+			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 		}
 	}
 }

@@ -49,12 +49,12 @@ struct obj_command_info {
 
 // attaches object name and vnum to msg_set and sends it to script_log
 void obj_log(ObjData *obj, const char *msg, LogMode type = LogMode::OFF) {
-	char buf[kMaxInputLength + 100];
+	char small_buf[kMaxInputLength + 100];
 
-	sprintf(buf,
+	snprintf(small_buf, kMaxInputLength + 100,
 			"(Obj: '%s', VNum: %d, trig: %d): %s [строка: %d]", obj->get_short_description().c_str(), GET_OBJ_VNUM(obj),
 			last_trig_vnum, msg, last_trig_line_num);
-	script_log(buf, type);
+	script_log(small_buf, type);
 }
 
 // returns the real room number that the object or object's carrier is in

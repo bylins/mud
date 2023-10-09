@@ -58,10 +58,10 @@ void send_to_zone(char *messg, int zone_rnum);
 
 // attaches mob's name and vnum to msg_set and sends it to script_log
 void mob_log(CharData *mob, const char *msg, LogMode type = LogMode::OFF) {
-	char buf[kMaxInputLength + 100];
+	char small_buf[kMaxInputLength + 100];
 
-	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s [строка: %d]", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg, last_trig_line_num);
-	script_log(buf, type);
+	snprintf(small_buf,kMaxInputLength + 100, "(Mob: '%s', VNum: %d, trig: %d): %s [строка: %d]", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg, last_trig_line_num);
+	script_log(small_buf, type);
 }
 
 //returns the real room number, or kNowhere if not found or invalid
@@ -1490,6 +1490,7 @@ const struct mob_command_info mob_cmd_info[] =
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
 	char *line, arg[kMaxInputLength];
+	bool use_in_lag = false;
 
 	// just drop to next line for hitting CR
 	skip_spaces(&argument);
@@ -1503,23 +1504,30 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	int cmd = 0;
 
 	while (*mob_cmd_info[cmd].command != '\n') {
-		if (!strcmp(mob_cmd_info[cmd].command, arg)) {
-			break;
+		if (arg[0] == '!') {
+			if (!strcmp(mob_cmd_info[cmd].command, arg + 1)) {
+				use_in_lag =  true;
+				break;
+			}
+		}
+		else {
+			if (!strcmp(mob_cmd_info[cmd].command, arg))
+				break;
 		}
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
 	if (!(CheckScript(ch, MTRIG_DAMAGE))) {
-		if (!mob_cmd_info[cmd].use_in_lag
+		if (!use_in_lag && !mob_cmd_info[cmd].use_in_lag
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
 						|| AFF_FLAGGED(ch, EAffect::kStopFight)
 						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
 				&& !trig->add_flag) {
-		if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
-			sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
-			mob_log(ch, buf);
-		}
-		return false;
+			if (!strcmp(mob_cmd_info[cmd].command, "mload") || (!strcmp(mob_cmd_info[cmd].command, "load"))) {
+				sprintf(buf, "command_interpreter: моб в стане, mload пропущен, команда: %s", argument);
+				mob_log(ch, buf);
+			}
+			return false;
 		}
 	}
 	if (*mob_cmd_info[cmd].command == '\n') {

@@ -423,6 +423,11 @@ void mobile_affect_update() {
 	log("mobile affect update: timer %f, num mobs %d, count update %d, affected mobs: %d", timer.delta().count(), count, count2, count3);
 }
 
+void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
+	RemoveAffectFromChar(ch, spell_id);
+	affect_total(ch);
+}
+
 // Call affect_remove with every spell of spelltype "skill"
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	std::list<std::shared_ptr<Affect<EApply>>>::iterator it  = ch->affected.begin();
@@ -692,6 +697,9 @@ void affect_total(CharData *ch) {
 		for (const auto &i : char_stealth_aff) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
+				char small_buf [128];
+				sprintf(small_buf, "Установка check_aggressive, зачем не знаю, если не появляется убрать все это 8.09.2023");
+				mudlog(buf, CMP, kLvlImplementator, SYSLOG, true);
 				ch->check_aggressive = true;
 			}
 		}

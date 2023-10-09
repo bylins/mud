@@ -73,6 +73,7 @@ void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
+void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
 bool IsAffectedBySpell(CharData *ch, ESpell type);
 bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);

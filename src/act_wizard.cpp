@@ -2184,6 +2184,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			act("Вы были полностью восстановлены $N4!",
 				false, vict, nullptr, ch, kToChar);
 		}
+		affect_total(vict);
 	}
 }
 

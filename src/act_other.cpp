@@ -110,8 +110,9 @@ void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
-		if (IsAffectedBySpell(ch, ESpell::kGodsShield))
+		if (IsAffectedBySpell(ch, ESpell::kGodsShield)) {
 			RemoveAffectFromChar(ch, ESpell::kGodsShield);
+		}
 		AFF_FLAGS(ch).unset(EAffect::kGodsShield);
 		SendMsgToChar("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -324,24 +325,15 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-
 	if (ch->IsOnHorse()) {
 		act("Вам стоит подумать о мягкой обуви для $N1", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-
 	if (IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
 		SendMsgToChar("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
 		return;
 	}
-
 	RemoveAffectFromChar(ch, ESpell::kSneak);
-
-	if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-		SendMsgToChar("Вы уже пытаетесь красться.\r\n", ch);
-		return;
-	}
-
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	percent = number(1, MUD::Skill(ESkill::kSneak).difficulty);
@@ -358,7 +350,6 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		af.bitvector = to_underlying(EAffect::kSneak);
 	}
-
 	affect_to_char(ch, af);
 }
 
@@ -563,6 +554,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				ohoh = true;
 				if (AFF_FLAGGED(ch, EAffect::kHide)) {
 					RemoveAffectFromChar(ch, ESpell::kHide);
+					AFF_FLAGS(ch).unset(EAffect::kHide);
 					SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 					act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 				};
@@ -596,6 +588,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			ohoh = true;
 			if (AFF_FLAGGED(ch, EAffect::kHide)) {
 				RemoveAffectFromChar(ch, ESpell::kHide);
+				AFF_FLAGS(ch).unset(EAffect::kHide);
 				SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 			};

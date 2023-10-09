@@ -110,9 +110,10 @@ void update_pos(CharData *victim) {
 	else
 		GET_POS(victim) = EPosition::kStun;
 
-	if (AFF_FLAGGED(victim, EAffect::kSleep) && GET_POS(victim) != EPosition::kSleep)
+	if (AFF_FLAGGED(victim, EAffect::kSleep) && GET_POS(victim) != EPosition::kSleep) {
 		RemoveAffectFromChar(victim, ESpell::kSleep);
-
+		AFF_FLAGS(victim).unset(EAffect::kSleep);
+	}
 	// поплохело седоку или лошади - сбрасываем седока
 	if (victim->IsOnHorse() && GET_POS(victim) < EPosition::kFight)
 		victim->DropFromHorse();
@@ -193,6 +194,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
 		RemoveAffectFromChar(ch, ESpell::kBandage);
+		AFF_FLAGS(ch).unset(EAffect::kBandage);
 	}
 	if (AFF_FLAGGED(ch, EAffect::kMemorizeSpells)) {
 		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
@@ -202,9 +204,10 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->next_fighting = combat_list;
 	combat_list = ch;
 
-	if (AFF_FLAGGED(ch, EAffect::kSleep))
+	if (AFF_FLAGGED(ch, EAffect::kSleep)) {
 		RemoveAffectFromChar(ch, ESpell::kSleep);
-
+		AFF_FLAGS(ch).unset(EAffect::kSleep);
+	}
 	ch->SetEnemy(vict);
 
 	NUL_AF_BATTLE(ch);
@@ -1699,9 +1702,10 @@ void update_round_affs() {
 		if (ch->get_touching())
 			ch->set_touching(0);
 
-		if (GET_AF_BATTLE(ch, kEafSleep))
+		if (GET_AF_BATTLE(ch, kEafSleep)) {
 			RemoveAffectFromChar(ch, ESpell::kSleep);
-
+			AFF_FLAGS(ch).unset(EAffect::kSleep);
+		}
 		if (GET_AF_BATTLE(ch, kEafBlock)) {
 			CLR_AF_BATTLE(ch, kEafBlock);
 			if (!IS_IMMORTAL(ch) && ch->get_wait() < kBattleRound)

@@ -2469,10 +2469,9 @@ void skip_hide_on_look(CharData *ch) {
 			((number(1, 100) -
 				CalcCurrentSkill(ch, ESkill::kPry, nullptr) - 2 * (ch->get_wis() - 9)) > 0)))) {
 		RemoveAffectFromChar(ch, ESpell::kHide);
-		if (!AFF_FLAGGED(ch, EAffect::kHide)) {
-			SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
-			act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
-		}
+		AFF_FLAGS(ch).unset(EAffect::kHide);
+		SendMsgToChar("Вы прекратили прятаться.\r\n", ch);
+		act("$n прекратил$g прятаться.", false, ch, nullptr, nullptr, kToRoom);
 	}
 }
 

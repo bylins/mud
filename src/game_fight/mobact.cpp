@@ -131,6 +131,7 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 
 int attack_best(CharData *ch, CharData *victim, bool do_mode = false) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
+
 	if (victim) {
 		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			if (do_mode)
@@ -379,10 +380,9 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-
-		if (!CAN_SEE(ch, vict))
+		if (!CAN_SEE(ch, vict)) {
 			continue;
-
+		}
 		// Mobile aggresive
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)) {
@@ -491,7 +491,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			return currentVictim;
 		}
 	}
-
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people) {
 		if ((vict->IsNpc() && !IS_CHARMICE(vict))
@@ -536,7 +535,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 				continue;
 			}
 		}
-
 		if (IS_SET(extmode, SKIP_HIDING)) {
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
@@ -550,9 +548,9 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
 		}
-		if (!CAN_SEE(ch, vict))
+		if (!CAN_SEE(ch, vict)) {
 			continue;
-
+		}
 		if (!kill_this && extra_aggr) {
 			if (CanUseFeat(vict, EFeat::kSilverTongue)
 				&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
@@ -595,7 +593,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	if (!best) {
 		best = currentVictim;
 	}
-
 	if (mobINT < kMiddleAI) {
 		int rand = number(0, 2);
 		if (caster) {
@@ -694,8 +691,9 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 		if (!start_fight_mtrigger(ch, best)) {
 			return false;
 		}
-		if (!attack_best(ch, best) && !ch->GetEnemy())
+		if (!attack_best(ch, best) && !ch->GetEnemy()) {
 			hit(ch, best, ESkill::kUndefined, fight::kMainHand);
+		}
 		return (true);
 	}
 	return (false);
@@ -710,7 +708,6 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 		if (!vict->IsNpc() || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, EMobFlag::kProtect)) {
 			continue;
 		}
-
 		if (!SAME_ALIGN(ch, vict)) {
 			if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
@@ -760,7 +757,6 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 	}
 
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
-
 	// ****************  Horde
 	if (MOB_FLAGGED(ch, EMobFlag::kHorde)) {
 		perform_best_horde_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE);

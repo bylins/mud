@@ -2392,30 +2392,13 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	// Начало изменений. (с) Дмитрий ака dzMUDiST ака
 
 // Переписан код, обрабатывающий параметры EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom
-// В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно
+// В итоге поиск объекта просиходит в " инветаре - комнате - экипировке" согласно
 // общему количеству имеющихся "созвучных" предметов.
 // Старый код закомментирован и подан в конце изменений.
 
 	strcpy(tmp, name);
 	if (!(number = get_number(&tmp)))
 		return 0;
-
-	if (IS_SET(bitvector, EFind::kObjEquip)) {
-		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
-			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
-				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
-					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
-					|| (IS_SET(bitvector, EFind::kObjExtraDesc)
-						&& find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
-					if (++j == number) {
-						*tar_obj = GET_EQ(ch, l);
-						return (EFind::kObjEquip);
-					}
-				}
-			}
-		}
-	}
-
 	if (IS_SET(bitvector, EFind::kObjInventory)) {
 		for (i = ch->carrying; i && (j <= number); i = i->get_next_content()) {
 			if (isname(tmp, i->get_aliases())
@@ -2431,7 +2414,6 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 			}
 		}
 	}
-
 	if (IS_SET(bitvector, EFind::kObjRoom)) {
 		for (i = world[ch->in_room]->contents;
 			 i && (j <= number); i = i->get_next_content()) {
@@ -2448,7 +2430,21 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 			}
 		}
 	}
-
+	if (IS_SET(bitvector, EFind::kObjEquip)) {
+		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
+			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
+				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
+					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
+					|| (IS_SET(bitvector, EFind::kObjExtraDesc)
+						&& find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
+					if (++j == number) {
+						*tar_obj = GET_EQ(ch, l);
+						return (EFind::kObjEquip);
+					}
+				}
+			}
+		}
+	}
 	return (0);
 }
 

@@ -474,7 +474,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	RemoveAffectFromChar(ch, ESpell::kDaturaPoison);
 	RemoveAffectFromChar(ch, ESpell::kScopolaPoison);
 	RemoveAffectFromChar(ch, ESpell::kBelenaPoison);
-
+	affect_total(ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, to_room);
 	look_at_room(ch, to_room);
@@ -544,7 +544,7 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 		&& MOB_FLAGGED(ch, EMobFlag::kClone)
 		&& ch->has_master()
 		&& IsAffectedBySpell(ch, ESpell::kCapable)) {
-		RemoveAffectFromChar(ch, ESpell::kCapable);
+		RemoveAffectFromCharAndRecalculate(ch, ESpell::kCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, nullptr, killer, kToRoom | kToArenaListen);
 		auto pos = GET_POS(ch);

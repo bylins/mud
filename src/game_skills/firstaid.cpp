@@ -86,7 +86,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("$n оказал$g первую помощь $N2.",
 					true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 				if (spell_id != ESpell::kUndefined) {
-					RemoveAffectFromChar(vict, spell_id);
+					RemoveAffectFromCharAndRecalculate(vict, spell_id);
 				}
 				if (GET_SEX(ch) == EGender::kMale)
 					sprintf(buf, "%s оказал вам первую помощь.\r\n", ch->get_name().c_str());
@@ -111,7 +111,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act("$n оказал$g себе первую помощь.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 				if (spell_id != ESpell::kUndefined) {
-					RemoveAffectFromChar(vict, spell_id);
+					RemoveAffectFromCharAndRecalculate(vict, spell_id);
 				}
 			} else {
 				act("Вы безрезультатно попытались оказать себе первую помощь.",
