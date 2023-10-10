@@ -80,6 +80,8 @@ void go_bash(CharData *ch, CharData *vict) {
 	if (can_shield_bash) {
 		SkillRollResult result_shield_bash = MakeSkillTest(ch, ESkill::kShieldBash, vict);
 		shield_bash_success = result_shield_bash.success;
+
+		TrainSkill(ch, ESkill::kShieldBash, shield_bash_success, vict);
 		if (shield_bash_success) {
 			//Описание аффекта "ошарашен" для умения "удар щитом":
 			Affect<EApply> af;
@@ -97,8 +99,8 @@ void go_bash(CharData *ch, CharData *vict) {
 				false, vict, nullptr, ch, kToChar);
 			act("$N0 ошарашил$G $n3 ударом щита!",
 				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
-			damage = number(ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 5) + (GET_SKILL(ch,ESkill::kShieldBash) * 3)) / 1.25),
-						 ceil((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 5) + (GET_SKILL(ch,ESkill::kShieldBash) * 3)) * 1.25)) *
+			damage = number(ceil(((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 5) + (GET_SKILL(ch,ESkill::kShieldBash) * 3)) + (GET_SKILL(ch, ESkill::kBash) * 2)) / 1.25),
+						 ceil(((((GET_REAL_SIZE(ch) * ((GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield))) * 1.5)) / 5) + (GET_SKILL(ch,ESkill::kShieldBash) * 3)) + (GET_SKILL(ch, ESkill::kBash) * 2)) * 1.25)) *
 				  GetRealLevel(ch) / 30;
 
 			if (GetRealStr(ch) < 55) {

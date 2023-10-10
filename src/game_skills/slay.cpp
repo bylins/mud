@@ -59,8 +59,8 @@ void go_slay(CharData *ch, CharData *vict) {
 					 ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 8) * 1.25)) *
 						GetRealLevel(ch)) / 30;
 		} else {
-			dam = (number(ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 4) / 1.25),
-						 ceil(((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 4) * 1.25)) *
+			dam = (number(ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 4) + ((GetRealDamroll(ch)) * 3)) / 1.25),
+						 ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 4) + ((GetRealDamroll(ch)) * 3)) * 1.25)) *
 					GetRealLevel(ch)) / 30;
 		}
 

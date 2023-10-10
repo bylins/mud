@@ -118,7 +118,7 @@ void go_charge(CharData *ch, int direction) {
 						false, ch, nullptr,target, kToChar);
 					act("$N попытал$U неожиданно напасть на Вас, но Вы вовремя спохватились и приняли бой!",
 						false,target, nullptr, ch, kToChar);
-					act("$n попытал$u обескуражить $N3 яростным натиском, но только рассмешил$g всех в округе.",
+					act("$N попытал$U обескуражить $n3 яростным натиском, но только рассмешил$G всех в округе.",
 						false,target, nullptr, ch, kToNotVict | kToArenaListen);
 					dmg.dam = 0;
 					dmg.Process(target, ch);
