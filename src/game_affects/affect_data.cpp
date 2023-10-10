@@ -698,8 +698,8 @@ void affect_total(CharData *ch) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
 				char small_buf [128];
-				sprintf(small_buf, "Установка check_aggressive, зачем не знаю, если не появляется убрать все это 8.09.2023");
-				mudlog(buf, CMP, kLvlImplementator, SYSLOG, true);
+				sprintf(small_buf, "Установка check_aggressive ch=%s room%d", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+				mudlog(small_buf, LGH, kLvlImplementator, SYSLOG, true);
 				ch->check_aggressive = true;
 			}
 		}
