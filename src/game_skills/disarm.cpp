@@ -76,7 +76,7 @@ void go_injure(CharData *ch, CharData *vict) {
 	bool injure_success = result.success;
 
 	if (injure_success) {
-		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 12);
+		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 10);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
