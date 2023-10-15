@@ -76,7 +76,7 @@ void go_injure(CharData *ch, CharData *vict) {
 	bool injure_success = result.success;
 
 	if (injure_success) {
-		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 12);
+		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 8);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
@@ -87,7 +87,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
-		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 15));
+		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 10));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
 		af.bitvector = to_underlying(EAffect::kInjured);
