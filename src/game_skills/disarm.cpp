@@ -87,7 +87,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
-		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 30));
+		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
 		af.bitvector = to_underlying(EAffect::kInjured);
