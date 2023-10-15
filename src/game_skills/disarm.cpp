@@ -8,7 +8,6 @@
 #include "color.h"
 #include "structs/global_objects.h"
 #include "game_fight/fight.h"
-#include "bash.h"
 
 // ************* DISARM PROCEDURES
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -76,7 +75,7 @@ void go_injure(CharData *ch, CharData *vict) {
 	bool injure_success = result.success;
 
 	if (injure_success) {
-		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 8);
+		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 10);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
@@ -87,7 +86,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
-		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 10));
+		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
 		af.bitvector = to_underlying(EAffect::kInjured);
@@ -132,19 +131,7 @@ void go_injure(CharData *ch, CharData *vict) {
 
 		if (!vict->HasWeapon()) {
 			TrainSkill(ch, ESkill::kDisarm, injure_success, vict);
-			if (injure_success && ch->GetSkill(ESkill::kBash)
-				&& !ch->HasCooldown(ESkill::kBash)
-				&& ch->GetSkill(ESkill::kShieldBash)
-				&& GET_EQ(ch, kShield)
-				&& (!PRF_FLAGGED(ch,kAwake))
-				&& (!ch->IsOnHorse())) {
-				go_bash(ch, vict);
-				SetSkillCooldown(ch, ESkill::kDisarm, 2);
-			} else {
-				if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
-					SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
-				}
-			}
+			SetSkillCooldown(ch, ESkill::kDisarm, 1);
 			return;
 		} else {
 			go_disarm(ch, vict);
