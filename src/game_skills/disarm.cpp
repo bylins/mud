@@ -8,6 +8,7 @@
 #include "color.h"
 #include "structs/global_objects.h"
 #include "game_fight/fight.h"
+#include "bash.h"
 
 // ************* DISARM PROCEDURES
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -37,9 +38,16 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
-		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure)) {
+		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!vict->HasWeapon())) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
+		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
+			if (IS_IMPL(ch) || !ch->GetEnemy()) {
+				go_disarm(ch, vict);
+			} else if (IsHaveNoExtraAttack(ch)) {
+				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
+				ch->SetExtraAttack(kExtraAttackDisarm, vict);
+			}
 		} else {
 			if (IS_IMPL(ch) || !ch->GetEnemy()) {
 				go_injure(ch, vict);
@@ -65,10 +73,10 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void go_injure(CharData *ch, CharData *vict) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kDisarm,vict);
-	bool success = result.success;
+	bool injure_success = result.success;
 
-	if (success) {
-		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 10);
+	if (injure_success) {
+		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 12);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
@@ -122,11 +130,15 @@ void go_injure(CharData *ch, CharData *vict) {
 		af2.caster_id = GET_ID(ch);
 		affect_to_char(vict, af2);
 
-		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
-			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
-		}
 		if (!vict->HasWeapon()) {
-			TrainSkill(ch, ESkill::kDisarm, success, vict);
+			TrainSkill(ch, ESkill::kDisarm, injure_success, vict);
+			if (injure_success && ch->GetSkill(ESkill::kBash) && ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && (!PRF_FLAGGED(ch,kAwake)) && (!ch->IsOnHorse())) {
+				go_bash(ch, vict);
+			} else {
+				if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
+					SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
+				}
+			}
 			return;
 		} else {
 			go_disarm(ch, vict);
