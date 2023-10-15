@@ -141,7 +141,7 @@ void go_injure(CharData *ch, CharData *vict) {
 				go_bash(ch, vict);
 			} else {
 				if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
-					SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
+					SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 				}
 			}
 			return;
