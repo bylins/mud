@@ -139,6 +139,7 @@ void go_injure(CharData *ch, CharData *vict) {
 				&& (!PRF_FLAGGED(ch,kAwake))
 				&& (!ch->IsOnHorse())) {
 				go_bash(ch, vict);
+				SetSkillCooldown(ch, ESkill::kDisarm, 2);
 			} else {
 				if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 					SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
