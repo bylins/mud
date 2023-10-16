@@ -900,7 +900,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kCharge: {
-			bonus += calc_initiative(ch, false);
+			bonus += calc_initiative(ch, false) + (GET_REAL_MAX_MOVE(ch) / 15);
 			break;
 		}
 
@@ -1064,7 +1064,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kDisarm: {
-			parameter_bonus += dex_bonus(GetRealDex(ch)) + dex_bonus(GetRealStr(ch));
+			parameter_bonus += (dex_bonus(GetRealDex(ch)) + dex_bonus(GetRealStr(ch))) / 2;
 			break;
 		}
 
