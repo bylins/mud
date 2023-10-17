@@ -2933,6 +2933,8 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		//* точный стиль //
 	else if (dam && get_flags()[fight::kCritHit] && dam_critic) {
 		compute_critical(ch, victim);
+		set_flag(fight::kIgnoreBlink);
+
 	}
 
 	// Если удар парирован, необходимо все равно ввязаться в драку.
