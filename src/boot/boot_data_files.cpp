@@ -758,7 +758,7 @@ void ObjectFile::parse_object(const int nr) {
 			tobj->set_weight(tobj->get_val(1) + 5);
 		}
 	}
-
+	tobj->unset_extraflag(EObjFlag::kTransformed); //от шаловливых ручек
 	// *** extra descriptions and affect fields ***
 	strcat(m_buffer, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
 	j = 0;
