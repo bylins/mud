@@ -3643,8 +3643,9 @@ void perform_immort_where(CharData *ch, char *arg) {
 				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
 				found = 1;
 				sprintf(buf,
-						"%s%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n",
+						"%s(%6d)%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n",
 						i->IsNpc() ? "Моб:  " : "Игрок:",
+						GET_MOB_VNUM(i),
 						num++,
 						GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)),
