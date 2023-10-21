@@ -71,7 +71,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	int lag;
 	int damage = number(GET_SKILL(ch, ESkill::kBash) / 1.25, GET_SKILL(ch, ESkill::kBash) * 1.25);
-	bool can_shield_bash;
+	bool can_shield_bash = false;
 	if (ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && (!PRF_FLAGGED(ch,kAwake))) {
 		can_shield_bash = true;
 		}
