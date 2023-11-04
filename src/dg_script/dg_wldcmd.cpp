@@ -188,19 +188,19 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	}
 	if ((rm = get_room(target)) == nullptr) {
 		wld_log(room, "wdoor: invalid target");
-		sprintf(buf, "wdoor argument: %s", error);
+		sprintf(buf, "wdoor target %s, argument: %s", target, error);
 		wld_log(room, buf);
 		return;
 	}
 	if ((dir = search_block(direction, dirs, false)) == -1) {
 		wld_log(room, "wdoor: invalid direction");
-		sprintf(buf, "wdoor argument: %s", error);
+		sprintf(buf, "wdoor direction %s, argument: %s", direction, error);
 		wld_log(room, buf);
 		return;
 	}
 	if ((fd = search_block(field, door_field, false)) == -1) {
 		wld_log(room, "wdoor: invalid field");
-		sprintf(buf, "wdoor argument: %s", error);
+		sprintf(buf, "wdoor field %s, argument: %s", field, error);
 		wld_log(room, buf);
 		return;
 	}
