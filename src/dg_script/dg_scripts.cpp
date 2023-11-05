@@ -5550,14 +5550,11 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 						sprintf(buf, " %d", trigger_vnum);
 						out_tmp += buf;
 					}
-
 					if (it->first != -1) {
 						out += std::to_string(it->first) + " : ";
 					}
-
 					out += out_tmp + "]";
 				}
-
 				out += "\r\n";
 			} else {
 				out += "Отсутствуют\r\n";
