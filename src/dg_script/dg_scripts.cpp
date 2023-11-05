@@ -4308,19 +4308,19 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 
 	if (c && SCRIPT(c)->has_triggers()) {
 		SCRIPT(c)->remove_trigger(trignum_s, retval);
-
+		owner_trig[atoi(trignum_s)].erase(GET_MOB_VNUM(c));
 		return retval;
 	}
 
 	if (o && o->get_script()->has_triggers()) {
 		o->get_script()->remove_trigger(trignum_s, retval);
-
+		owner_trig[atoi(trignum_s)].erase(GET_OBJ_VNUM(o));
 		return retval;
 	}
 
 	if (r && SCRIPT(r)->has_triggers()) {
 		SCRIPT(r)->remove_trigger(trignum_s, retval);
-
+		owner_trig[atoi(trignum_s)].erase(r->room_vn);
 		return retval;
 	}
 
@@ -5551,7 +5551,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 						out_tmp += buf;
 					}
 					if (it->first != -1) {
-						out += std::to_string(it->first) + " : ";
+						out += "Прикреплен из (" + std::to_string(it->first) + ") ";
 					}
 					out += out_tmp + "]";
 				}

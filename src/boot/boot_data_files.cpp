@@ -216,24 +216,13 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 	switch (type) {
 		case MOB_TRIGGER: mob = (CharData *) proto;
 			mob->proto_script->push_back(vnum);
-			if (owner_trig.find(vnum) == owner_trig.end()) {
-				owner_to_triggers_map_t tmp_map;
-				owner_trig.emplace(vnum, tmp_map);
-			}
 			add_trig_to_owner(-1, vnum, GET_MOB_VNUM(mob));
 			break;
-
 		case WLD_TRIGGER: room = (RoomData *) proto;
 			room->proto_script->push_back(vnum);
-
 			if (rnum >= 0) {
 				const auto trigger_instance = read_trigger(rnum);
 				if (add_trigger(SCRIPT(room).get(), trigger_instance, -1)) {
-					// для начала определяем, есть ли такой внум у нас в контейнере
-					if (owner_trig.find(vnum) == owner_trig.end()) {
-						owner_to_triggers_map_t tmp_map;
-						owner_trig.emplace(vnum, tmp_map);
-					}
 					add_trig_to_owner(-1, vnum, room->room_vn);
 				} else {
 					extract_trigger(trigger_instance);
@@ -243,9 +232,9 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 				log("%s", line);
 			}
 			break;
-
 		default: sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
 			log("%s", line);
+			break;
 	}
 }
 
