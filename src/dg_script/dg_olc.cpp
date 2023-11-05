@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include "entities/world_characters.h"
 #include "structs/global_objects.h"
+#include "dg_script/dg_db_scripts.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DescriptorData *descriptor_list;
@@ -747,6 +748,7 @@ int dg_script_edit_parse(DescriptorData *d, char *arg) {
 				while (--pos && t != OLC_SCRIPT(d).end()) {
 					++t;
 				}
+				owner_trig[*t][-1].insert(OLC_NUM(d));
 				OLC_SCRIPT(d).insert(t, vnum);
 				OLC_VAL(d)++;
 			}
@@ -762,8 +764,11 @@ int dg_script_edit_parse(DescriptorData *d, char *arg) {
 				while (--pos && t != OLC_SCRIPT(d).end()) {
 					++t;
 				}
-
 				if (t != OLC_SCRIPT(d).end()) {
+					owner_trig[*t][-1].erase(OLC_NUM(d));
+					if (owner_trig[*t][-1].empty()) {
+						owner_trig[*t].erase(-1);
+					}
 					OLC_SCRIPT(d).erase(t);
 				}
 			}
