@@ -141,17 +141,11 @@ Trigger *read_trigger(int nr) {
 // vnum_trig - внум приатаченного трига
 // vnum - к кому приатачился триг
 void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum) {
-	if (owner_trig[vnum_trig].find(vnum_owner) != owner_trig[vnum_trig].end()) {
-		const auto &triggers_set = owner_trig[vnum_trig][vnum_owner];
-		const bool flag_trig = triggers_set.find(vnum) != triggers_set.end();
+		const auto &vnum_list = owner_trig[vnum_trig][vnum_owner];
 
-		if (!flag_trig) {
+		if (vnum_list.find(vnum) == vnum_list.end()) {
 			owner_trig[vnum_trig][vnum_owner].insert(vnum);
 		}
-	} else {
-		triggers_set_t tmp_vector = {vnum};
-		owner_trig[vnum_trig].emplace(-1, tmp_vector);
-	}
 }
 
 void dg_obj_trigger(char *line, ObjData *obj) {
