@@ -813,6 +813,10 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	} else
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	// 4. Последняя проверка
+	if (exp <= 1 && ch->IsNpc()) {
+		log("EXPLOG: exp=%lld, members=%d,  ch=%s, vict=%s (%d), long_live=%dm, max_exp_gain_pc= %d, get_extend_exp=%d", exp, members, GET_NAME(ch), GET_NAME(victim), GET_MOB_VNUM(victim), 
+		long_live_exp_bounus_miltiplier, max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
+	}
 	exp = MAX(1, exp);
 	if (exp > 1) {
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_EXP) && Bonus::can_get_bonus_exp(ch)) {
