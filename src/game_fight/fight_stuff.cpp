@@ -814,7 +814,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	// 4. Последняя проверка
 	if (exp <= 1 && ch->IsNpc()) {
-		log("EXPLOG: exp=%lld, members=%d,  ch=%s, vict=%s (%d), long_live=%dm, max_exp_gain_pc= %d, get_extend_exp=%d", exp, members, GET_NAME(ch), GET_NAME(victim), GET_MOB_VNUM(victim), 
+		log("EXPLOG: exp=%lld, members=%d, koef %d, ch=%s, vict=%s (%d), long_live=%dm, max_exp_gain_pc= %d, get_extend_exp=%d", exp, members, koef, GET_NAME(ch), GET_NAME(victim), GET_MOB_VNUM(victim), 
 		long_live_exp_bounus_miltiplier, max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	}
 	exp = MAX(1, exp);
