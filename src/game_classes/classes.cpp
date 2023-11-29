@@ -1516,9 +1516,9 @@ long GetExpUntilNextLvl(CharData *ch, int level) {
 	 * Gods have exp close to EXP_MAX.  This statement should never have to
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
-//	if (level > kLvlImmortal) {
-//		return kExpImpl - ((kLvlImplementator - level) * 1000);
-//	}
+	if (level > kLvlImmortal) {
+		return kExpImpl - ((kLvlImplementator - level) * 1000);
+	}
 
 	// Exp required for normal mortals is below
 	float exp_modifier;

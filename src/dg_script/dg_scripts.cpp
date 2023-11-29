@@ -5369,6 +5369,10 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					if (GET_TRIG_LOOPS(trig) == 1000) {
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
+					if (GET_TRIG_LOOPS(trig) == 10000) {
+						trig_log(trig, "looping 10000 times, cancelled", DEF);
+						cl = find_done(trig, cl);
+					}
 				}
 			}
 		} else if (!strn_cmp("break", p, 5)) {

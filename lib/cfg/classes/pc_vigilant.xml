@@ -33,10 +33,10 @@
         <skill id="kDigging"		level="5"	remort="0"	improve="1000"/>
         <skill id="kJewelry"		level="1"	remort="0"	improve="600"/>
         <skill id="kDisarm"			level="1"	remort="0"	improve="3000"/>
-        <skill id="kCourage"		level="1"	remort="0"	improve="200"/>
+        <skill id="kCourage"		level="1"	remort="0"	improve="300"/>
         <skill id="kIronwind"		level="1"	remort="0"	improve="4500"/>
         <skill id="kHangovering"	level="3"	remort="0"	improve="95000"/>
-        <skill id="kKick"			level="7"	remort="0"	improve="1500"/>
+        <skill id="kKick"			level="7"	remort="0"	improve="3500"/>
         <skill id="kRepair"			level="10"	remort="0"	improve="4500"/>
         <skill id="kSharpening"		level="10"	remort="0"	improve="1000"/>
         <skill id="kArmoring"		level="10"	remort="0"	improve="1000"/>
