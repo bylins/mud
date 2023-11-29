@@ -554,7 +554,14 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, con
 			for (j = 1, msg = fight_messages[i].msg_set; (j < nr) && msg; j++) {
 				msg = msg->next;
 			}
-
+			if (msg == nullptr) {
+				char small_buf[128];
+				if (attacktype != kTypeTriggerdeath) {
+					sprintf(small_buf, "MESSAGES ERROR: Отсутствует сообщение номер %d в умении %d", j, attacktype);
+					mudlog(small_buf, CMP, kLvlGod, SYSLOG, true);
+				}
+				return 1;
+			}
 			const auto weap = init_weap(ch, dam, attacktype);
 			brief_shields brief(ch, vict, weap, add);
 			if (attacktype == to_underlying(ESpell::kFireShield) || attacktype == to_underlying(ESpell::kMagicGlass)) {
