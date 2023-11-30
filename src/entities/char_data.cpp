@@ -407,6 +407,10 @@ void CharData::purge() {
 		if (this == this->who_protecting()->get_protecting()) {
 //			ss << "Совпал прикрывающий и упавший в лд снимаю флаг прикрышки" << std::endl;
 			this->who_protecting()->remove_protecting();
+		} else {
+			std::stringstream ss;
+			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " выходит из игры его прикрывал " << GET_PAD(this->who_protecting(), 0) << "\r\n"; 
+			mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 		}
 //		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 	}
@@ -713,11 +717,29 @@ CharData *CharData::get_touching() const {
 }
 
 void CharData::set_protecting(CharData *vict) {
+	std::stringstream ss;
+
 	protecting_ = vict;
+	if (protecting_) {
+		ss << "PROTECTING: устанавливаем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(vict, 0); 
+		log("%s", ss.str().c_str());
+	} else {
+		ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " vict == nullptr "; 
+		log("%s", ss.str().c_str());
+	}
 	vict->who_protecting_ = this;
 }
 
 void CharData::remove_protecting() {
+	std::stringstream ss;
+
+	if (protecting_) {
+		ss << "PROTECTING: убираем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(get_protecting(), 0);
+		log("%s", ss.str().c_str());
+	} else {
+		ss << "PROTECTING: что-то пошло не так, некого было прикрывать и так! Чар " << GET_PAD(this ,0);
+		log("%s", ss.str().c_str());
+	}
 	protecting_ = nullptr;
 }
 
