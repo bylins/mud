@@ -742,7 +742,7 @@ int get_npc_long_live_exp_bounus(CharData *victim) {
 	return exp_multiplier;
 }
 
-int get_extend_exp(int exp, CharData *ch, CharData *victim) {
+long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 	int base, diff;
 	int koef;
 
@@ -760,7 +760,7 @@ int get_extend_exp(int exp, CharData *ch, CharData *victim) {
 		ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor;
 		 base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
 	// минимальный опыт при замаксе 15% от полного опыта
-	exp = exp * MAX(15, koef) / 100;
+	exp = exp * std::max(15, koef) / 100;
 
 	// делим на реморты
 	exp /= std::max(1.0, 0.5 * (GetRealRemort(ch) - kMaxExpCoefficientsUsed));
@@ -799,25 +799,27 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
 		exp = GET_EXP(victim) / victim->get_zone_group();
 	}
+	log("EXPLOG0: exp=%lld", exp);
 
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
 	//    хотя в большинстве случаев это все равно
 	exp = exp * koef / 100;
-
+	log("EXPLOG1: exp=%lld", exp);
 	// 3. Вычисление опыта для PC и NPC
 	const int long_live_exp_bounus_miltiplier = get_npc_long_live_exp_bounus(victim);
 	if (ch->IsNpc()) {
-		exp = MIN(max_exp_gain_npc, exp);
-		exp += MAX(0, (exp * MIN(4, (GetRealLevel(victim) - GetRealLevel(ch)))) / 8);
+		exp = std::min(static_cast<long long>(max_exp_gain_npc), exp);
+		exp += std::max(static_cast<long long>(0), (exp * std::min(0, (GetRealLevel(victim) - GetRealLevel(ch)))) / 8);
 	} else
-		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
+		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	// 4. Последняя проверка
+	log("EXPLOG2: exp=%lld", exp);
 	if (exp <= 1 && !ch->IsNpc()) {
-		log("EXPLOG: exp=%lld, members=%d, koef %d, ch=%s, vict=%s (%d), long_live=%dm, max_exp_gain_pc= %d, get_extend_exp=%d", exp, members, koef, GET_NAME(ch), GET_NAME(victim), GET_MOB_VNUM(victim), 
+		log("EXPLOG3: exp=%lld, members=%d, koef %d, ch=%s, vict=%s (%d), long_live=%dm, max_exp_gain_pc= %d, get_extend_exp=%lld", exp, members, koef, GET_NAME(ch), GET_NAME(victim), GET_MOB_VNUM(victim), 
 		long_live_exp_bounus_miltiplier, max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	}
-	exp = MAX(1, exp);
+	exp = std::max(static_cast<long long>(0), exp);
 	if (exp > 1) {
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			exp *= Bonus::get_mult_bonus();
@@ -827,7 +829,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 			for (const auto &aff : ch->affected) {
 				if (aff->location == EApply::kExpBonus) // скушал свиток с эксп бонусом
 				{
-					exp *= MIN(3, aff->modifier); // бонус макс тройной
+					exp *= std::min(3, aff->modifier); // бонус макс тройной
 				}
 			}
 		}
@@ -866,7 +868,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 			}
 		}
 
-		exp = MIN(max_exp_gain_pc(ch), exp);
+		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), exp);
 		SendMsgToChar(ch, "Ваш опыт повысился на %lld %s.\r\n", exp, GetDeclensionInNumber(exp, EWhat::kPoint));
 	} else if (exp == 1) {
 		SendMsgToChar("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
