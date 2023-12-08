@@ -2460,10 +2460,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dam = dam * 8 / 10;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kBelenaPoison) && dmg_type == fight::kPhysDmg) {
-		dam -= dam * GET_POISON(ch) / 100;
-	}
-
 	if (GET_PR(victim) && dmg_type == fight::kPhysDmg) {
 		int ResultDam = dam - (dam * GET_PR(victim) / 100);
 		ch->send_to_TC(false, true, false,
@@ -2517,10 +2513,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			act("$n находится под защитой Богов.", false, victim, 0, 0, kToRoom);
 		}
 		return 0;
-	}
-
-	if (skill_id != ESkill::kBackstab && AFF_FLAGGED(victim, EAffect::kScopolaPoison)) {
-		dam += dam * GET_POISON(victim) / 100;
 	}
 
 	// внутри есть !боевое везение!, для какого типа дамага - не знаю

@@ -682,6 +682,11 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			break;
 		}
 
+		case ESkill::kPoisoning: {
+			rate -= GetBasicSave(vict, ESaving::kCritical, false);
+			break;
+		}
+
 		case ESkill::kBash: {
 			if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) >= EPosition::kSleep) {
 				rate -= 20;
