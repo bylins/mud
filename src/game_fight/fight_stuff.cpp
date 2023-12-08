@@ -799,13 +799,10 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
 		exp = GET_EXP(victim) / victim->get_zone_group();
 	}
-	log("EXPLOG0: exp=%lld", exp);
-
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
 	//    хотя в большинстве случаев это все равно
 	exp = exp * koef / 100;
-	log("EXPLOG1: exp=%lld", exp);
 	// 3. Вычисление опыта для PC и NPC
 	const int long_live_exp_bounus_miltiplier = get_npc_long_live_exp_bounus(victim);
 	if (ch->IsNpc()) {
@@ -814,12 +811,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	} else
 		exp = std::min(static_cast<long long>(max_exp_gain_pc(ch)), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
 	// 4. Последняя проверка
-	log("EXPLOG2: exp=%lld", exp);
-	if (exp <= 1 && !ch->IsNpc()) {
-		log("EXPLOG3: exp=%lld, members=%d, koef %d, ch=%s, vict=%s (%d), long_live=%dm, max_exp_gain_pc= %d, get_extend_exp=%lld", exp, members, koef, GET_NAME(ch), GET_NAME(victim), GET_MOB_VNUM(victim), 
-		long_live_exp_bounus_miltiplier, max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim) * long_live_exp_bounus_miltiplier);
-	}
-	exp = std::max(static_cast<long long>(0), exp);
+	exp = std::max(static_cast<long long>(1), exp);
 	if (exp > 1) {
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			exp *= Bonus::get_mult_bonus();
