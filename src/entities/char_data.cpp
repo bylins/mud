@@ -741,6 +741,7 @@ void CharData::remove_protecting() {
 		log("%s", ss.str().c_str());
 	}
 	protecting_ = nullptr;
+	get_protecting()->who_protecting_ = nullptr;
 }
 
 CharData *CharData::get_protecting() const {
