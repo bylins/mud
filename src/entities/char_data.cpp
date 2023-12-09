@@ -736,12 +736,12 @@ void CharData::remove_protecting() {
 	if (protecting_) {
 		ss << "PROTECTING: убираем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(get_protecting(), 0);
 		log("%s", ss.str().c_str());
+		get_protecting()->who_protecting_ = nullptr;
 	} else {
 		ss << "PROTECTING: что-то пошло не так, некого было прикрывать и так! Чар " << GET_PAD(this ,0);
 		log("%s", ss.str().c_str());
 	}
 	protecting_ = nullptr;
-	get_protecting()->who_protecting_ = nullptr;
 }
 
 CharData *CharData::get_protecting() const {
