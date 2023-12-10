@@ -51,9 +51,6 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void go_charge(CharData *ch, int direction) {
-	int dam;
-	int victims_amount;
-
 	if (IsCorrectDirection(ch, direction, true, false)
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
 		act("$n истошно завопил$g и ринул$u в бой, лихо размахивая своим оружием.",
@@ -67,12 +64,23 @@ void go_charge(CharData *ch, int direction) {
 		SendMsgToChar("Вы желаете убиться об стенку?!\r\n", ch);
 		return;
 	}
-	dam = (number(ceil((ceil GET_SKILL(ch,ESkill::kCharge) * 3) / 1.25),
+
+	bool is_awake = false;
+	if PRF_FLAGGED(ch, EPrf::kAwake) {
+		is_awake = true;
+	}
+
+	int dam = (number(ceil((ceil GET_SKILL(ch,ESkill::kCharge) * 3) / 1.25),
 					  ceil(((ceil GET_SKILL(ch,ESkill::kCharge) * 3) * 1.25))) *
 			   GetRealLevel(ch)) / 30;
 
-	if (PRF_FLAGGED(ch, EPrf::kAwake)) {
+	if (is_awake) {
 		dam /= 2;
+	}
+
+	int victims_amount = 2;
+	if (is_awake) {
+		victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
 	}
 
 	Affect<EApply> af;
@@ -90,7 +98,6 @@ void go_charge(CharData *ch, int direction) {
 	SetWait(ch, 1, false);
 
 	Damage dmg(SkillDmg(ESkill::kCharge), dam, fight::kPhysDmg, nullptr);
-	victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
 
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
@@ -123,7 +130,7 @@ void go_charge(CharData *ch, int direction) {
 					dmg.dam = 0;
 					dmg.Process(target, ch);
 				} else {
-					if (ch->GetSkill(ESkill::kShieldBash) && (ch->GetSkill(ESkill::kBash)) && (GET_EQ(ch, kShield)) && (!PRF_FLAGGED(ch, EPrf::kAwake))) {
+					if (ch->GetSkill(ESkill::kShieldBash) && (ch->GetSkill(ESkill::kBash)) && (GET_EQ(ch, kShield)) && (!is_awake)) {
 						go_bash(ch,target);
 					} else {
 						act("Хорошенько разогнавшись Вы прописали $N2 роскошного тумака!",

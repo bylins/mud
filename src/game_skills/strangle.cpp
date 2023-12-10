@@ -26,6 +26,11 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
+	if (ch == vict->GetEnemy()) {
+		act("Не получится сделать это незаметно - $N уже сражается с вами.", false, ch, nullptr, vict, kToChar);
+		return;
+	}
+
 	if (IS_UNDEAD(vict) || GET_RACE(vict) == ENpcRace::kFish ||
 		GET_RACE(vict) == ENpcRace::kPlant || GET_RACE(vict) == ENpcRace::kConstruct) {
 		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
@@ -72,10 +77,10 @@ void go_strangle(CharData *ch, CharData *vict) {
 
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kStrangle,vict);
 	bool success = result.success;
-//Формула дамага - (удавить/10)% от хп моба (максимум 20%) + удавить*4. Рандом - +/- 25%. Сделал отдельными переменными для удобочитаемости, иначе фиг разберёшь формулу.
-	int hp_percent_dam = ceil(GET_HIT(vict) * 0.2);
+//Формула дамага - (удавить/10)% от хп моба (максимум 10%) + удавить*2. Рандом - +/- 25%. Сделал отдельными переменными для удобочитаемости, иначе фиг разберёшь формулу.
+	int hp_percent_dam = ceil(GET_HIT(vict) * 0.1);
 	int hp_percent_dam2 = (GET_HIT(vict) / 100) * (GET_SKILL(ch, ESkill::kStrangle) / 10);
-	int flat_damage = GET_SKILL(ch, ESkill::kStrangle) * 4;
+	int flat_damage = GET_SKILL(ch, ESkill::kStrangle) * 2;
 	int dam= number(ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) * 1.25,
 					ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) / 1.25);
 	int strangle_duration = 5;
@@ -102,7 +107,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 			dam = number(ceil((flat_damage * 1.25)), ceil((flat_damage / 1.25)));
 		}
-		int silence_duration = 2 + (GET_SKILL(ch, ESkill::kStrangle) / 25);
+		int silence_duration = 2 + std::min(GET_SKILL(ch, ESkill::kStrangle) / 25, 10);
 
 		if (!vict->IsNpc()) {
 			silence_duration *= 30;

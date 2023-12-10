@@ -66,7 +66,7 @@ mode - режим умения.
     <skill id="kLeftHit"		name="удар левой рукой"		abbr="Улр"	saving="kReflex"	difficulty="100"	cap="200"/>
     <skill id="kHammer"			name="богатырский молот"	abbr="Бм"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kOverwhelm"		name="оглушить"			abbr="Ог"	saving="kStability"	difficulty="200"	cap="1000"/>
-    <skill id="kPoisoning"		name="отравить"			abbr="Отр"	saving="kStability"	difficulty="200"	cap="200"/>
+    <skill id="kPoisoning"		name="отравить"			abbr="Отр"	saving="kCritical"	difficulty="200"	cap="1000"/>
     <skill id="kLeadership"		name="лидерство"		abbr="Лд"	saving="kReflex"	difficulty="100"	cap="1000"/>
     <skill id="kPunctual"		name="точный стиль"		abbr="Тс"	saving="kCritical"	difficulty="110"	cap="200"/>
     <skill id="kAwake"			name="осторожный стиль"		abbr="Ос"	saving="kReflex"	difficulty="100"	cap="200"/>

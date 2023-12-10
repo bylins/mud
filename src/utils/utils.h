@@ -557,6 +557,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_MORALE(ch)       ((ch)->add_abils.morale)
 #define GET_INITIATIVE(ch)   ((ch)->add_abils.initiative_add)
 #define GET_POISON(ch)      ((ch)->add_abils.poison_add)
+#define GET_SKILL_REDUCE(ch)      ((ch)->add_abils.skill_reduce_add)
 #define GET_CAST_SUCCESS(ch) ((ch)->add_abils.cast_success)
 #define GET_PRAY(ch)         ((ch)->add_abils.pray_add)
 

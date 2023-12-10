@@ -527,7 +527,7 @@ int CharData::GetSkill(const ESkill skill_id) const {
 	}
 
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
-		skill -= skill * GET_POISON(this) / 100;
+		skill -= skill * GET_SKILL_REDUCE(this) / 100;
 	}
 
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {

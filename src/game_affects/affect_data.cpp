@@ -890,10 +890,11 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kMagicResist: GET_MR(ch) += mod;
 			break;
-		case EApply::kAconitumPoison:
-		case EApply::kScopolaPoison:
-		case EApply::kBelenaPoison:
-		case EApply::kDaturaPoison: GET_POISON(ch) += mod;
+		case EApply::kAconitumPoison: GET_POISON(ch) += mod;
+			break;
+		case EApply::kBelenaPoison: GET_SKILL_REDUCE(ch) += mod;
+			break;
+		case EApply::kDaturaPoison: GET_SKILL_REDUCE(ch) += mod;
 			break;
 		case EApply::kPhysicResist: GET_PR(ch) += mod; //скиллрезист
 			break;

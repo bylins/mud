@@ -79,6 +79,7 @@ struct char_played_ability_data {
 	int cast_success;
 	int initiative_add;
 	int poison_add;
+	int skill_reduce_add;
 	int pray_add;
 	int percent_exp_add;
 	int percent_physdam_add;
