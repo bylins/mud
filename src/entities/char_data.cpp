@@ -401,6 +401,9 @@ void CharData::purge() {
 	if (!get_name().empty()) {
 		log("[FREE CHAR] (%s)", GET_NAME(this));
 	}
+	if (this->get_protecting()) {
+		this->remove_protecting();
+	}
 	if (this->who_protecting()) {
 //		std::stringstream ss;
 //		ss << "Чар " << GET_PAD(this ,0) <<  " выходит из игры его прикрывал " << GET_PAD(this->who_protecting(), 0) << std::endl; 
@@ -409,7 +412,7 @@ void CharData::purge() {
 			this->who_protecting()->remove_protecting();
 		} else {
 			std::stringstream ss;
-			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " выходит из игры его прикрывал " << GET_PAD(this->who_protecting(), 0) << "\r\n"; 
+			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " пуржится, его прикрывал " << GET_PAD(this->who_protecting(), 0) << "\r\n"; 
 			mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 		}
 //		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
