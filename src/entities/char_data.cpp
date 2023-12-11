@@ -719,6 +719,9 @@ CharData *CharData::get_touching() const {
 void CharData::set_protecting(CharData *vict) {
 	std::stringstream ss;
 
+	if (protecting_) {
+		remove_protecting();
+	}
 	protecting_ = vict;
 	if (protecting_) {
 		ss << "PROTECTING: устанавливаем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(vict, 0); 
