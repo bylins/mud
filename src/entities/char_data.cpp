@@ -191,7 +191,9 @@ void CharData::reset() {
 	in_room = kNowhere;
 	carrying = nullptr;
 	next_fighting = nullptr;
-	remove_protecting();
+	if (get_protecting()) {
+		remove_protecting();
+	}
 	set_touching(nullptr);
 	battle_affects = clear_flags;
 	poisoner = 0;
@@ -748,6 +750,7 @@ void CharData::remove_protecting() {
 		log("%s", ss.str().c_str());
 	}
 	protecting_ = nullptr;
+	battle_affects.unset(kEafProtect);
 }
 
 CharData *CharData::get_protecting() const {
@@ -1981,7 +1984,9 @@ void CharData::restore_npc() {
 	//флаги
 	MOB_FLAGS(this) = MOB_FLAGS(proto);
 	this->set_touching(nullptr);
-	this->remove_protecting();
+	if (this->get_protecting()) {
+		this->remove_protecting();
+	}
 	// ресторим статы
 	proto->set_normal_morph();
 	this->set_str(GetRealStr(proto));
