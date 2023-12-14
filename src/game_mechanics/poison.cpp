@@ -209,7 +209,7 @@ namespace {
 // * Крит при отравлении с пушек.
 	void ProcessCritWeaponPoison(CharData *ch, CharData *vict, ESpell/* spell_num*/) {
 		Affect<EApply> af;
-		if (number(1, 100) <= 33) {
+		if (number(1, 100) <= 15) {
 			switch (number(1, 3)) {
 				case 1:
 					// аналог баша с лагом
