@@ -228,6 +228,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 //-Polud
 
 extern RoomRnum top_of_world;
+extern RoomRnum top_of_real_world;
 extern std::unordered_map<MobVnum, std::vector<long>> mob_id_by_vnum;
 extern std::unordered_map<long, CharData *> mob_by_uid;
 

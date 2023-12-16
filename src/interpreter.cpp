@@ -405,6 +405,7 @@ void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 //void Bonus::do_bonus_info(CharData *, char *, int, int);
+void DoZoneCopy(CharData *, char *, int, int);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_cities(CharData *ch, char *, int, int);
@@ -587,6 +588,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
 		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
+		{"копировать", EPosition::kStand, DoZoneCopy, kLvlImmortal, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"кто", EPosition::kRest, do_who, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, DoWhoClan, 0, 0, 0},

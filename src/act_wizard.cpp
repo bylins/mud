@@ -369,6 +369,50 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
 
+void DoZoneCopy(CharData *ch, char *argument, int, int) {
+	ZoneRnum first_room_dungeon = top_of_real_world+1;
+	ZoneVnum first_vnum = 30000;
+	int next = 0;
+	ZoneVnum zone_from = atoi(argument);
+	int rnum_start, rnum_stop;
+	ZoneRnum rzone_from = ZoneRnumFromVnum(zone_from);
+
+	if (!GetZoneRooms(rzone_from, &rnum_start, &rnum_stop)) {
+		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_from));
+		SendMsgToChar(buf2, ch);
+		return;
+	}
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		world.push_back(new RoomData);
+		*world[first_room_dungeon] =  *world[i];
+		world[first_room_dungeon]->room_vn = first_vnum + (world[i]->room_vn - world[i]->room_vn / 100 * 100);
+		sprintf(buf, "Zone %d, room %s (%d) lastroom %s (%d)", rzone_from, world[i]->name, world[i]->room_vn,  world[top_of_world +1]->name, world[top_of_world+1]->room_vn);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		sprintf(buf, "FROOM %s (%d)", world[first_room_dungeon]->name, world[first_room_dungeon]->room_vn);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//		world[first_room_dungeon + next]->room_vn = first_vnum + (world[i]->room_vn - world[i]->room_vn / 100 * 100);
+
+		first_room_dungeon++;
+		top_of_world++;
+	}
+/*
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		auto src = world[i];
+		first_room_dungeon = top_of_real_world+1;
+		// Выходы и входы
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			const auto &rdd = world[i]->dir_option[dir];
+			if (rdd) {
+//				int room = i;
+				world[first_room_dungeon]->dir_option[dir]->to_room(world[i]->dir_option[dir]->to_room());
+			}
+		}
+		first_room_dungeon++;
+	}
+*/
+}
+
+
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 

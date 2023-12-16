@@ -84,6 +84,7 @@ long beginning_of_time = 650336715;
 Rooms &world = GlobalObjects::world();
 
 RoomRnum top_of_world = 0;    // ref to top element of world
+RoomRnum top_of_real_world = 0;    // мир загруженный из lib
 
 void add_trig_index_entry(int nr, Trigger *trig) {
 	IndexData *index;
@@ -5283,6 +5284,13 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // returns the real number of the room with given virtual number
 RoomRnum real_room(RoomVnum vnum) {
 	RoomRnum bot, top, mid;
+
+	if (vnum >= 30000 && vnum <= 30099) {
+		for (mid = top_of_real_world; mid <= top_of_world; mid++) {
+		if (world[mid]->room_vn == vnum)
+			return (mid);
+		}
+	}
 
 	bot = 1;        // 0 - room is kNowhere
 	top = top_of_world;

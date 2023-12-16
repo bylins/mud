@@ -494,6 +494,7 @@ void WorldFile::parse_room(int virtual_nr) {
 					}
 				} while (letter != 0);
 				top_of_world = room_realnum++;
+				top_of_real_world = top_of_world;
 				return;
 
 			default: log("%s", buf);
