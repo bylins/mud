@@ -102,7 +102,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
-		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
+		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 	} else {
 		if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 			dam = number(ceil((flat_damage * 1.25)), ceil((flat_damage / 1.25)));
