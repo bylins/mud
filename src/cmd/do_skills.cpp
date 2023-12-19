@@ -65,7 +65,6 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 				case ESkill::kCourage:
 				case ESkill::kJinx:
 				case ESkill::kTownportal:
-				case ESkill::kStrangle:
 				case ESkill::kStun:
 				case ESkill::kRepair:
 					if (IsTimedBySkill(ch, skill_id))

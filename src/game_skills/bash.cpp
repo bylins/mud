@@ -131,11 +131,12 @@ void go_bash(CharData *ch, CharData *vict) {
 //Полный фейл, падаем на жопу:
 		if (!can_shield_bash || (!shield_bash_success && !still_stands)) {
 			SetFighting(ch, vict);
+			SetFighting(vict, ch);
 			GET_POS(ch) = EPosition::kSit;
 			SetWait(ch, 2, true);
 			act("&WВы попытались сбить $N3, но упали сами. Учитесь.&n",
 				false, ch, nullptr,vict, kToChar);
-			act("$N хотел$G завалить вас, но, не рассчитав сил, упал$G сам$G.",
+			act("&r$N хотел$G завалить вас, но, не рассчитав сил, упал$G сам$G.&n",
 				false,vict, nullptr, ch, kToChar);
 			act("$n избежал$G попытки $N1 завалить $s.",
 				false,vict, nullptr, ch, kToNotVict | kToArenaListen);
@@ -148,6 +149,7 @@ void go_bash(CharData *ch, CharData *vict) {
 //Фейл баша, фейл удара щитом, но удержались на ногах:
 		} else if (can_shield_bash && !shield_bash_success && still_stands) {
 			SetFighting(ch, vict);
+			SetSkillCooldownInFight(ch, ESkill::kBash, 1);
 			act("&WНеуклюже попытавшись ударить $N3 щитом, Вы сами еле удержались на ногах!&n",
 				false, ch, nullptr,vict, kToChar);
 			act("$N хотел$G сбить Вас, но в итоге сам$G еле удержал$U на ногах.",
