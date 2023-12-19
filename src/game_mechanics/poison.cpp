@@ -341,8 +341,6 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 			if (spell_id == ESpell::kAconitumPoison) {
 				SendMsgToChar(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
 							  PERS(vict, ch, 1));
-				SendMsgToChar(ch, "Отравление: %d.\r\n", GET_POISON(vict));
-				SendMsgToChar(vict, "Отравление: %d.\r\n", GET_POISON(vict));
 			} else if (spell_id == ESpell::kScopolaPoison) {
 				strcpy(buf1, PERS(vict, ch, 0));
 				CAP(buf1);
