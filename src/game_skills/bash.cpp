@@ -136,7 +136,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			SetWait(ch, 2, true);
 			act("&WВы попытались сбить $N3, но упали сами. Учитесь.&n",
 				false, ch, nullptr,vict, kToChar);
-			act("&g$N хотел$G завалить вас, но, не рассчитав сил, упал$G сам$G.&n",
+			act("&r$N хотел$G завалить вас, но, не рассчитав сил, упал$G сам$G.&n",
 				false,vict, nullptr, ch, kToChar);
 			act("$n избежал$G попытки $N1 завалить $s.",
 				false,vict, nullptr, ch, kToNotVict | kToArenaListen);
