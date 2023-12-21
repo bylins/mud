@@ -2833,6 +2833,7 @@ void add_vrooms_to_all_zones() {
 		auto insert_position = (insert_reverse_position == world.rend()) ? world.begin() : insert_reverse_position.base();
 
 		top_of_world++;
+		top_of_real_world++;
 		RoomData *new_room = new RoomData;
 		world.insert(insert_position, new_room);
 		new_room->zone_rn = rnum;

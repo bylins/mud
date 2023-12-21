@@ -368,6 +368,9 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
+void dublicate_room(RoomData *dst, RoomData *src) {
+//	memcpy(src, dst, sizeof(RoomData));;
+}
 
 void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	ZoneRnum first_room_dungeon = top_of_real_world+1;
@@ -382,11 +385,19 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(buf2, ch);
 		return;
 	}
+		sprintf(buf2, "%d %d %d \r\n.", first_room_dungeon , top_of_world+1, top_of_real_world);
+		SendMsgToChar(buf2, ch);
 	for(int i = rnum_start; i <= rnum_stop; i++) {
-		world.push_back(new RoomData);
+		RoomData *new_room = new RoomData;
+
+		world.push_back(new_room);
+//		*new_room =  *world[i];
 		*world[first_room_dungeon] =  *world[i];
+//		dublicate_room(world[first_room_dungeon], world[i]);
+		new_room->zone_rn = ZoneRnumFromVnum(300); //zone_table.size()+1;
 		world[first_room_dungeon]->room_vn = first_vnum + (world[i]->room_vn - world[i]->room_vn / 100 * 100);
-		sprintf(buf, "Zone %d, room %s (%d) lastroom %s (%d)", rzone_from, world[i]->name, world[i]->room_vn,  world[top_of_world +1]->name, world[top_of_world+1]->room_vn);
+		sprintf(buf, "Zone %d, room %s (%d) lastroom %s (%d) to room %d (%d) ", rzone_from, world[i]->name, world[i]->room_vn,  world[first_room_dungeon]->name, world[first_room_dungeon]->room_vn,
+first_room_dungeon , top_of_world+1);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		sprintf(buf, "FROOM %s (%d)", world[first_room_dungeon]->name, world[first_room_dungeon]->room_vn);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -395,21 +406,29 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		first_room_dungeon++;
 		top_of_world++;
 	}
-/*
+		first_room_dungeon = top_of_real_world+1;
+
 	for(int i = rnum_start; i <= rnum_stop; i++) {
 		auto src = world[i];
-		first_room_dungeon = top_of_real_world+1;
 		// Выходы и входы
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &rdd = world[i]->dir_option[dir];
 			if (rdd) {
 //				int room = i;
-				world[first_room_dungeon]->dir_option[dir]->to_room(world[i]->dir_option[dir]->to_room());
+				int room = world[i]->dir_option[dir]->to_room();// - rnum_start + first_room_dungeon;
+				sprintf(buf, "room %s (%d) exit  %s (%d)", world[i]->name, world[i]->room_vn, world[room]->name, world[room]->room_vn);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				if (room >= rnum_start  && room <= rnum_stop) {
+					int room = world[i]->dir_option[dir]->to_room() - rnum_start + first_room_dungeon;
+					world[first_room_dungeon]->dir_option[dir].reset(new ExitData());
+					world[first_room_dungeon]->dir_option[dir]->to_room(world[i]->dir_option[dir]->to_room() - rnum_start + first_room_dungeon);
+					sprintf(buf, "!!!!!!!!!room %s (%d) exit  %s (%d)", world[i]->name, world[i]->room_vn, world[room]->name, world[room]->room_vn);
+					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				}
 			}
 		}
 		first_room_dungeon++;
 	}
-*/
 }
 
 
