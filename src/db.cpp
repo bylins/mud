@@ -5216,11 +5216,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
 	// Убираем все заученные порталы
 	check_portals(ch);
-	if (ch->get_protecting()) {
-		ch->remove_protecting();
-		ch->battle_affects.unset(kEafProtect);
-	}
-
+	ch->remove_protecting();
 	//Обновляем статистику рипов для текущего перевоплощения
 	GET_RIP_DTTHIS(ch) = 0;
 	GET_EXP_DTTHIS(ch) = 0;
