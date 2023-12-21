@@ -191,9 +191,7 @@ void CharData::reset() {
 	in_room = kNowhere;
 	carrying = nullptr;
 	next_fighting = nullptr;
-	if (get_protecting()) {
-		remove_protecting();
-	}
+	remove_protecting();
 	set_touching(nullptr);
 	battle_affects = clear_flags;
 	poisoner = 0;
@@ -403,25 +401,10 @@ void CharData::purge() {
 	if (!get_name().empty()) {
 		log("[FREE CHAR] (%s)", GET_NAME(this));
 	}
-	if (this->get_protecting()) {
-		this->remove_protecting();
-	}
-	if (this->who_protecting()) {
-//		std::stringstream ss;
-//		ss << "Чар " << GET_PAD(this ,0) <<  " выходит из игры его прикрывал " << GET_PAD(this->who_protecting(), 0) << std::endl; 
-		if (this == this->who_protecting()->get_protecting()) {
-//			ss << "Совпал прикрывающий и упавший в лд снимаю флаг прикрышки" << std::endl;
-			this->who_protecting()->remove_protecting();
-		} else {
-			std::stringstream ss;
-			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " пуржится, его прикрывал " << GET_PAD(this->who_protecting(), 0) << "\r\n"; 
-			mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
-		}
-//		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
-	}
 	int i, id = -1;
 	struct alias_data *a;
 
+	this->remove_protecting();
 	if (!this->IsNpc() && !get_name().empty()) {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
@@ -722,43 +705,17 @@ CharData *CharData::get_touching() const {
 }
 
 void CharData::set_protecting(CharData *vict) {
-	std::stringstream ss;
-
-	if (protecting_) {
-		remove_protecting();
+	if (vict) {
+		protecting_ = vict;
 	}
-	protecting_ = vict;
-	if (protecting_) {
-		ss << "PROTECTING: устанавливаем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(vict, 0); 
-		log("%s", ss.str().c_str());
-	} else {
-		ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " vict == nullptr "; 
-		log("%s", ss.str().c_str());
-	}
-	vict->who_protecting_ = this;
 }
 
-void CharData::remove_protecting() {
-	std::stringstream ss;
-
-	if (protecting_) {
-		ss << "PROTECTING: убираем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(get_protecting(), 0);
-		log("%s", ss.str().c_str());
-		get_protecting()->who_protecting_ = nullptr;
-	} else {
-		ss << "PROTECTING: что-то пошло не так, некого было прикрывать и так! Чар " << GET_PAD(this ,0);
-		log("%s", ss.str().c_str());
-	}
+void CharData::remove_protecting(){
 	protecting_ = nullptr;
-	battle_affects.unset(kEafProtect);
 }
 
 CharData *CharData::get_protecting() const {
 	return protecting_;
-}
-
-CharData *CharData::who_protecting() const {
-	return who_protecting_;
 }
 
 void CharData::SetEnemy(CharData *enemy) {
@@ -915,12 +872,10 @@ void change_fighting(CharData *ch, int need_stop) {
 
 		if (k->get_protecting() == ch) {
 			k->remove_protecting();
-			CLR_AF_BATTLE(k, kEafProtect);
 		}
 //		log("change_fighting protecting %f", time.delta().count());
 		if (k->get_touching() == ch) {
 			k->set_touching(0);
-			CLR_AF_BATTLE(k, kEafProtect);
 		}
 //		log("change_fighting touching %f", time.delta().count());
 		if (k->GetExtraVictim() == ch) {

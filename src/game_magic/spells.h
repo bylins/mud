@@ -27,7 +27,7 @@ struct RoomData;    // forward declaration to avoid inclusion of room.hpp and an
 constexpr Bitvector kEafParry = 1 << 0;
 constexpr Bitvector kEafBlock = 1 << 1;
 constexpr Bitvector kEafTouch = 1 << 2;
-constexpr Bitvector kEafProtect = 1 << 3;
+//constexpr Bitvector kEafProtect = 1 << 3;
 constexpr Bitvector kEafDodge = 1 << 4;
 constexpr Bitvector kEafHammer = 1 << 5;
 constexpr Bitvector kEafOverwhelm = 1 << 6;
