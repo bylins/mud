@@ -393,6 +393,7 @@ class CharData : public ProtectedCharData {
 	CharData *who_protecting() const;
 	void set_protecting(CharData *vict);
 	void remove_protecting();
+	void remove_who_protecting();
 
 	EExtraAttack get_extra_attack_mode() const;
 	CharData *GetExtraVictim() const;

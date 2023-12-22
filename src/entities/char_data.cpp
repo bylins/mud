@@ -414,8 +414,9 @@ void CharData::purge() {
 			this->who_protecting()->remove_protecting();
 		} else {
 			std::stringstream ss;
-			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " пуржится, его прикрывал " << GET_PAD(this->who_protecting(), 0) << "\r\n"; 
+			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " пуржится, его непонятно кто прикрывал " << "\r\n"; 
 			mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
+			this->remove_who_protecting();
 		}
 //		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 	}
@@ -736,6 +737,10 @@ void CharData::set_protecting(CharData *vict) {
 		log("%s", ss.str().c_str());
 	}
 	vict->who_protecting_ = this;
+}
+
+void CharData::remove_who_protecting() {
+	who_protecting_ = nullptr;
 }
 
 void CharData::remove_protecting() {

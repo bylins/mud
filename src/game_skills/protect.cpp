@@ -57,7 +57,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CharData *tch = nullptr;
-/*	for (const auto i : world[ch->in_room]->people) {
+	for (const auto i : world[ch->in_room]->people) {
 		if (i->GetEnemy() == vict) {
 			tch = i;
 			break;
@@ -82,7 +82,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	}
-*/
+
 	go_protect(ch, vict);
 }
 
