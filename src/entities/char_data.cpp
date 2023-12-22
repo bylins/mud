@@ -405,6 +405,14 @@ void CharData::purge() {
 	struct alias_data *a;
 
 	this->remove_protecting();
+	for (auto d = descriptor_list; d; d = d->next) {
+		// Чар должен быть в игре
+		if (STATE(d) == CON_PLAYING) {
+			if (d->character->get_protecting() == this) {
+				d->character->remove_protecting();
+			}
+		}
+	}
 	if (!this->IsNpc() && !get_name().empty()) {
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0) {
