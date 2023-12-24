@@ -191,7 +191,7 @@ void CharData::reset() {
 	in_room = kNowhere;
 	carrying = nullptr;
 	next_fighting = nullptr;
-	if (get_protecting()) {
+	if (this->get_protecting()) {
 		remove_protecting();
 	}
 	set_touching(nullptr);
@@ -406,19 +406,14 @@ void CharData::purge() {
 	if (this->get_protecting()) {
 		this->remove_protecting();
 	}
-	if (this->who_protecting()) {
-//		std::stringstream ss;
-//		ss << "Чар " << GET_PAD(this ,0) <<  " выходит из игры его прикрывал " << GET_PAD(this->who_protecting(), 0) << std::endl; 
-		if (this == this->who_protecting()->get_protecting()) {
-//			ss << "Совпал прикрывающий и упавший в лд снимаю флаг прикрышки" << std::endl;
-			this->who_protecting()->remove_protecting();
-		} else {
+	if (!this->who_protecting.empty()) {
+		for (auto it : this->who_protecting) {
 			std::stringstream ss;
-			ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " пуржится, его непонятно кто прикрывал " << "\r\n"; 
+
+			it->remove_protecting();
+			ss << "PROTECTING: Чар " << GET_PAD(this ,0) <<  " пуржится, его прикрывал " << GET_PAD(it, 0);
 			mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
-			this->remove_who_protecting();
 		}
-//		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 	}
 	int i, id = -1;
 	struct alias_data *a;
@@ -736,11 +731,7 @@ void CharData::set_protecting(CharData *vict) {
 		ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " vict == nullptr "; 
 		log("%s", ss.str().c_str());
 	}
-	vict->who_protecting_ = this;
-}
-
-void CharData::remove_who_protecting() {
-	who_protecting_ = nullptr;
+	vict->who_protecting.push_back(this);
 }
 
 void CharData::remove_protecting() {
@@ -749,21 +740,28 @@ void CharData::remove_protecting() {
 	if (protecting_) {
 		ss << "PROTECTING: убираем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(get_protecting(), 0);
 		log("%s", ss.str().c_str());
-		get_protecting()->who_protecting_ = nullptr;
-	} else {
-		ss << "PROTECTING: что-то пошло не так, некого было прикрывать и так! Чар " << GET_PAD(this ,0);
-		log("%s", ss.str().c_str());
+		auto predicate = [this](auto p) { return (this  ==  p); };
+		for (auto it : get_protecting()->who_protecting) {
+			std::stringstream ss;
+
+			ss << "PROTECTING: в списке " << GET_PAD(it ,0);
+			log("%s", ss.str().c_str());
+		}
+//		std::remove_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
+		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
+		get_protecting()->who_protecting.erase(it);
+		for (auto it : get_protecting()->who_protecting) {
+			std::stringstream ss;
+
+			ss << "PROTECTING2: в списке " << GET_PAD(it ,0);
+			log("%s", ss.str().c_str());
+		}
 	}
 	protecting_ = nullptr;
-	battle_affects.unset(kEafProtect);
 }
 
 CharData *CharData::get_protecting() const {
 	return protecting_;
-}
-
-CharData *CharData::who_protecting() const {
-	return who_protecting_;
 }
 
 void CharData::SetEnemy(CharData *enemy) {
@@ -920,12 +918,10 @@ void change_fighting(CharData *ch, int need_stop) {
 
 		if (k->get_protecting() == ch) {
 			k->remove_protecting();
-			CLR_AF_BATTLE(k, kEafProtect);
 		}
 //		log("change_fighting protecting %f", time.delta().count());
 		if (k->get_touching() == ch) {
 			k->set_touching(0);
-			CLR_AF_BATTLE(k, kEafProtect);
 		}
 //		log("change_fighting touching %f", time.delta().count());
 		if (k->GetExtraVictim() == ch) {

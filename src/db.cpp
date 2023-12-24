@@ -5218,7 +5218,6 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	check_portals(ch);
 	if (ch->get_protecting()) {
 		ch->remove_protecting();
-		ch->battle_affects.unset(kEafProtect);
 	}
 
 	//Обновляем статистику рипов для текущего перевоплощения

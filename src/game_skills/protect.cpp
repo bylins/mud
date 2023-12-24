@@ -15,14 +15,12 @@ void go_protect(CharData *ch, CharData *vict) {
 	}
 	ch->set_protecting(vict);
 	act("Вы попытаетесь прикрыть $N3 от нападения.", false, ch, 0, vict, kToChar);
-	SET_AF_BATTLE(ch, kEafProtect);
 }
 
 void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		if (ch->get_protecting()) {
-			CLR_AF_BATTLE(ch, kEafProtect);
 			ch->remove_protecting();
 			SendMsgToChar("Вы перестали прикрывать своего товарища.\r\n", ch);
 		} else {
@@ -106,7 +104,6 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					false, vict, 0, victim, kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->remove_protecting();
-				vict->battle_affects.unset(kEafProtect);
 				SetWaitState(vict, kBattleRound);
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
