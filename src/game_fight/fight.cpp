@@ -211,9 +211,6 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->SetEnemy(vict);
 
 	NUL_AF_BATTLE(ch);
-	//Polud вступление в битву не мешает прикрывать
-	if (ch->get_protecting())
-		SET_AF_BATTLE(ch, kEafProtect);
 	ch->set_touching(0);
 	ch->initiative = 0;
 	ch->battle_counter = 0;

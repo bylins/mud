@@ -369,7 +369,14 @@ void PrintPostInfo(CharData *ch, std::ostringstream &out) {
 void PrintProtectInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->get_protecting()) {
 		out << InfoStrPrefix(ch) << "Вы прикрываете " << GET_PAD(ch->get_protecting(), 3)
-			<< " от нападения." << std::endl;
+			<< " от нападения.\r\n";
+	}
+	if (!ch->who_protecting.empty()) {
+		out << InfoStrPrefix(ch) << "Вас прикрывает: ";
+		for (auto it : ch->who_protecting) {
+			out << it->get_name() << " ";
+		}
+		out << "от нападения.\r\n";
 	}
 }
 
