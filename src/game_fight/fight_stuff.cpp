@@ -794,6 +794,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 
 	// 1. Опыт делится поровну на всех
 	long long exp = GET_EXP(victim) / MAX(members, 1);
+	int long_live_exp_bounus_miltiplier = 1;
 
 	if (victim->get_zone_group() > 1 && members < victim->get_zone_group()) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
@@ -804,7 +805,9 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	//    хотя в большинстве случаев это все равно
 	exp = exp * koef / 100;
 	// 3. Вычисление опыта для PC и NPC
-	const int long_live_exp_bounus_miltiplier = get_npc_long_live_exp_bounus(victim);
+	if (!NPC_FLAGGED(victim, ENpcFlag::kIgnoreRareKill)) {
+		long_live_exp_bounus_miltiplier = get_npc_long_live_exp_bounus(victim);
+	}
 	if (ch->IsNpc()) {
 		exp = std::min(static_cast<long long>(max_exp_gain_npc), exp);
 		exp += std::max(static_cast<long long>(0), (exp * std::min(0, (GetRealLevel(victim) - GetRealLevel(ch)))) / 8);
