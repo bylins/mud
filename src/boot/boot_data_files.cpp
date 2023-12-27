@@ -216,7 +216,6 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 	switch (type) {
 		case MOB_TRIGGER: mob = (CharData *) proto;
 			mob->proto_script->push_back(vnum);
-			add_trig_to_owner(-1, vnum, GET_MOB_VNUM(mob));
 			break;
 		case WLD_TRIGGER: room = (RoomData *) proto;
 			room->proto_script->push_back(vnum);
