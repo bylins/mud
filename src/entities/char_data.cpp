@@ -408,11 +408,7 @@ void CharData::purge() {
 	}
 	if (!this->who_protecting.empty()) {
 		for (auto it : this->who_protecting) {
-			std::stringstream ss;
-
 			it->remove_protecting();
-			ss << "PROTECTING: Чар " << GET_PAD(this ,0) <<  " пуржится, его прикрывал " << GET_PAD(it, 0);
-			mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
 		}
 	}
 	int i, id = -1;
@@ -718,44 +714,19 @@ CharData *CharData::get_touching() const {
 }
 
 void CharData::set_protecting(CharData *vict) {
-	std::stringstream ss;
-
 	if (protecting_) {
 		remove_protecting();
 	}
 	protecting_ = vict;
-	if (protecting_) {
-		ss << "PROTECTING: устанавливаем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(vict, 0); 
-		log("%s", ss.str().c_str());
-	} else {
-		ss << "PROTECTING: что-то пошло не так! Чар " << GET_PAD(this ,0) <<  " vict == nullptr "; 
-		log("%s", ss.str().c_str());
-	}
 	vict->who_protecting.push_back(this);
 }
 
 void CharData::remove_protecting() {
-	std::stringstream ss;
 
 	if (protecting_) {
-		ss << "PROTECTING: убираем прикрыть! Чар " << GET_PAD(this ,0) <<  " прикрываем " << GET_PAD(get_protecting(), 0);
-		log("%s", ss.str().c_str());
 		auto predicate = [this](auto p) { return (this  ==  p); };
-		for (auto it : get_protecting()->who_protecting) {
-			std::stringstream ss;
-
-			ss << "PROTECTING: в списке " << GET_PAD(it ,0);
-			log("%s", ss.str().c_str());
-		}
-//		std::remove_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
 		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
 		get_protecting()->who_protecting.erase(it);
-		for (auto it : get_protecting()->who_protecting) {
-			std::stringstream ss;
-
-			ss << "PROTECTING2: в списке " << GET_PAD(it ,0);
-			log("%s", ss.str().c_str());
-		}
 	}
 	protecting_ = nullptr;
 }
