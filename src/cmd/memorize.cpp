@@ -88,7 +88,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			for (i = 0; i < max_slot + 1; i++) {
 				if (slots[i]) {
 					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
-					gcount += sprintf(buf2 + gcount, "%s", names[i]);
+					gcount += snprintf(buf2 + gcount, kMaxStringLength, "%s", names[i]);
 				}
 			}
 		} else {

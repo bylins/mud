@@ -72,7 +72,7 @@ class DiscreteFile : public DataFile {
 	char fread_letter(FILE *fp);
 
 	/// for mobs and rooms
-	void dg_read_trigger(void *proto, int type);
+	void dg_read_trigger(void *proto, int type, int proto_vnum);
 
 	char m_line[256];
 
@@ -190,7 +190,7 @@ char DiscreteFile::fread_letter(FILE *fp) {
 	return c;
 }
 
-void DiscreteFile::dg_read_trigger(void *proto, int type) {
+void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 	char line[kMaxTrglineLength];
 	char junk[8];
 	int vnum, rnum, count;
@@ -216,6 +216,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type) {
 	switch (type) {
 		case MOB_TRIGGER: mob = (CharData *) proto;
 			mob->proto_script->push_back(vnum);
+			add_trig_to_owner(-1, vnum, proto_vnum);
 			break;
 		case WLD_TRIGGER: room = (RoomData *) proto;
 			room->proto_script->push_back(vnum);
@@ -486,7 +487,7 @@ void WorldFile::parse_room(int virtual_nr) {
 									 line); //оставлено для совместимости, удалить после пересохранения комнат
 							break;
 
-						case 'T': dg_read_trigger(world[room_realnum], WLD_TRIGGER);
+						case 'T': dg_read_trigger(world[room_realnum], WLD_TRIGGER, virtual_nr);
 							break;
 						default: letter = 0;
 							break;
@@ -1066,7 +1067,7 @@ void MobileFile::parse_mobile(const int nr) {
 				dl_parse(&mob_proto[i].dl_list, line + 1);
 				break;
 
-			case 'T': dg_read_trigger(&mob_proto[i], MOB_TRIGGER);
+			case 'T': dg_read_trigger(&mob_proto[i], MOB_TRIGGER, nr);
 				break;
 /*		case 'R':
 			get_line(file(), line);
