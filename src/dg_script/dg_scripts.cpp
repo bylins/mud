@@ -5560,7 +5560,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		if (trig_index[nr]->vnum >= first) {
 			std::string out = "";
-			sprintf(buf,"%2d) [%5d] [%-50s] ", ++found,
+			sprintf(buf,"%2d) [%5d] %-50s ", ++found,
 					trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
 			out += buf;
 			if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
@@ -5582,20 +5582,20 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!owner_trig[trig_index[nr]->vnum].empty()) {
 				for (auto it = owner_trig[trig_index[nr]->vnum].begin(); it != owner_trig[trig_index[nr]->vnum].end();
 					 ++it) {
-					out += "[";
+//					out += "[";
 					std::string out_tmp = "";
 					for (const auto trigger_vnum : it->second) {
-						sprintf(buf, " %d", trigger_vnum);
+						sprintf(buf, "%d ", trigger_vnum);
 						out_tmp += buf;
 					}
 					if (it->first != -1) {
-						out += "attach из " + std::to_string(it->first) + " к";
+						out += "attach из " + std::to_string(it->first) + " к: ";
 					}
-					out += out_tmp + "]";
+					out += out_tmp;// + "]";
 				}
 				out += "\r\n";
 			} else {
-				out += "Отсутствуют\r\n";
+				out += "-\r\n";
 			}
 			strcat(pagebuf, out.c_str());
 		}
