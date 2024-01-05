@@ -922,7 +922,7 @@ void DoHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// если игрок неклановый, то есть вариант с приглашением
 	if (!CLAN(ch)) {
 		if (CompareParam(buffer2, "согласен") && ch->desc->clan_invite)
-			ch->desc->clan_invite->clan->ClanAddMember(ch, ch->desc->clan_invite->rank);
+			ch->desc->clan_invite->clan->ClanAddMember(ch, ch->desc->clan_invite->rank, ch->desc->clan_invite->invite_name);
 		else if (CompareParam(buffer2, "отказать") && ch->desc->clan_invite) {
 			ch->desc->clan_invite.reset();
 			SendMsgToChar("Приглашение дружины отклонено.\r\n", ch);
@@ -1187,6 +1187,8 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 								  CCWHT(d->character, C_NRM),
 								  (*it).c_str(),
 								  CCNRM(d->character, C_NRM));
+					sprintf(buf, "Звание в дружине изменено на %s", (*it).c_str());
+					add_karma(d->character.get(), buf, ch->get_name().c_str());
 				}
 
 				// оповещение соклановцев о изменении звания
@@ -1271,6 +1273,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 			std::shared_ptr<struct ClanInvite> temp_invite(new ClanInvite);
 			temp_invite->clan = CLAN(ch);
 			temp_invite->rank = temp_rank;
+			temp_invite->invite_name = "Игроком " + ch->get_name();
 			d->clan_invite = temp_invite;
 			buffer = CCWHT(d->character, C_NRM);
 			buffer += "$N приглашен$G в вашу дружину, статус - " + *it + ".";
@@ -4066,7 +4069,7 @@ void Clan::add_offline_member(const std::string &name, int uid, int rank) {
 }
 
 // игрок ранг
-void Clan::ClanAddMember(CharData *ch, int rank) {
+void Clan::ClanAddMember(CharData *ch, int rank, std::string invite_name) {
 	if (ch->get_name_str().empty()) {
 		log("SYSERROR: zero player name (uid = %d) (%s:%d %s)", GET_UNIQUE(ch),
 			__FILE__, __LINE__, __func__);
@@ -4096,7 +4099,7 @@ void Clan::ClanAddMember(CharData *ch, int rank) {
 	SendMsgToChar(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n",
 			CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
 	sprintf(buf, "Принят в дружину '%s', статус - '%s'",  this->name.c_str(), (this->ranks[rank]).c_str());
-	add_karma(ch, buf, "");
+	add_karma(ch, buf, invite_name.c_str());
 	return;
 }
 
@@ -4127,7 +4130,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 			this->m_members.set_rank(GET_UNIQUE(d->character), 0);
 			Clan::SetClanData(d->character.get());
 		} else {
-			this->ClanAddMember(d->character.get(), 0);
+			this->ClanAddMember(d->character.get(), 0, ch->get_name());
 		}
 		this->owner = buffer2;
 		SendMsgToChar(ch, "Поздравляем, вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
