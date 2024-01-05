@@ -23,9 +23,9 @@ namespace {
 				 || affect->type == ESpell::kScopolaPoison
 				 || affect->type == ESpell::kBelenaPoison
 				 || affect->type == ESpell::kDaturaPoison)
-				 && affect->caster_id == GET_ID(ch)
-				 && af.type != affect->type) {
-				// если уже есть другой мой яд - борода
+				 && af.type == affect->type
+				 && affect->caster_id != GET_ID(ch)) {
+				// если уже есть другой яд - борода
 				return false;
 			}
 
@@ -56,14 +56,14 @@ namespace {
 			// урон 5 + левел/2, от 5 до 20 за стак
 			Affect<EApply> af[3];
 			af[0].location = EApply::kAconitumPoison;
-			af[0].modifier = 5;
+			af[0].modifier = 4;
 			af[0].bitvector = to_underlying(EAffect::kNoBattleSwitch);
 
 			af[1].location = EApply::kPhysicResist;
-			af[1].modifier = -5;
+			af[1].modifier = -4;
 
 			af[2].location = EApply::kMagicResist;
-			af[2].modifier = -5;
+			af[2].modifier = -4;
 
 			bool was_poisoned = true;
 
@@ -81,6 +81,7 @@ namespace {
 				}
 			}
 			if (was_poisoned) {
+				vict->poisoner = GET_ID(ch);
 				return true;
 			}
 
@@ -94,7 +95,7 @@ namespace {
 			af[3].bitvector = to_underlying(EAffect::kScopolaPoison)
 							  | to_underlying(EAffect::kNoBattleSwitch);
 
-			int affect_modifier = 15;
+			int affect_modifier = 10 + std::min((GET_SKILL(ch, ESkill::kPoisoning) / 20), 10);
 			bool was_poisoned = true;
 
 			for (auto & i : af) {
@@ -434,8 +435,14 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);
 	} else if (af->location == EApply::kAconitumPoison) {
-		Damage dmg(SpellDmg(ESpell::kPoison), GET_POISON(ch), fight::kUndefDmg);
+		int aconitum_dmg = GET_POISON(ch) * 8;
+
+		if (ch->IsNpc()) {
+			aconitum_dmg *= 30;
+		}
+		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kUndefDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
+		dmg.flags.set(fight::kIgnoreBlink);
 		result = dmg.Process(ch, ch);
 	}
 	return result;

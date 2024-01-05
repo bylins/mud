@@ -99,8 +99,6 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kIgnoreArmor);
-		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
 		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 	} else {

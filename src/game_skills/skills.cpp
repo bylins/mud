@@ -822,7 +822,8 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kStrangle: {
-			if (CAN_SEE(ch, vict) && PRF_FLAGGED(vict, EPrf::kAwake)) {
+			rate -= GetBasicSave(vict, ESaving::kReflex, false);
+			if (CAN_SEE(ch, vict) && (PRF_FLAGGED(vict, EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
