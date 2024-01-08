@@ -3138,6 +3138,12 @@ void find_replacement(void *go,
 			} else {
 				sprintf(str, "%d", GET_OBJ_VAL(o, 3));
 			}
+		} else if (!str_cmp(field, "SavedInfo")) {
+			if (*subfield) {
+				o->set_dgscript_field(subfield);
+			} else {
+				sprintf(str, "%s", o->get_dgscript_field().c_str());
+			}
 		} else if (!str_cmp(field, "maker")) {
 			sprintf(str, "%d", GET_OBJ_MAKER(o));
 		} else if (!str_cmp(field, "effect")) {

@@ -364,6 +364,9 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			} else if (!strcmp(read_line, "Mort")) {
 				*error = 51;
 				object->set_minimum_remorts(atoi(buffer));
+			} else if (!strcmp(read_line, "DGsc")) {
+				*error = 67;
+				object->set_dgscript_field(buffer);
 			} else if (!strcmp(read_line, "Ench")) {
 				ObjectEnchant::enchant tmp_aff;
 				std::stringstream text(buffer);
@@ -778,6 +781,10 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 //			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
 		{
 			out << "Mort: " << object->get_auto_mort_req() << "~\n";
+		}
+		if (!object->get_dgscript_field().empty())
+		{
+			out << "DGsc: " << object->get_dgscript_field() << "~\n";
 		}
 
 		// ObjectValue предмета, если есть что сохранять

@@ -317,6 +317,7 @@ class CObjectPrototype {
 	int get_timer() const;
 	void set_skills(const skills_t &_) { m_skills = _; }
 	auto get_minimum_remorts() const { return m_minimum_remorts; }
+	auto get_dgscript_field() const { return m_dgscript_field; }
 	auto get_cost() const { return m_cost; }
 	void set_cost(int x);
 	auto get_rent_off() const { return m_rent_off; }
@@ -325,6 +326,7 @@ class CObjectPrototype {
 	void set_rent_on(int x);
 	void set_ex_description(const char *keyword, const char *description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
+	void set_dgscript_field(const std::string _) { m_dgscript_field = _; }
 	int get_auto_mort_req() const;
 	float show_mort_req();
 	float show_koef_obj();
@@ -401,7 +403,7 @@ class CObjectPrototype {
 		m_skills;    ///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 
 	int m_minimum_remorts;    ///< если > 0 - требование по минимальным мортам, проставленное в олц
-
+	std::string m_dgscript_field;
 	int m_cost;    ///< цена шмотки при продаже
 	int m_rent_on;    ///< стоимость ренты, если надета
 	int m_rent_off;    ///< стоимость ренты, если в инве
