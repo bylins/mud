@@ -1061,9 +1061,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	} else if (j->get_auto_mort_req() > 0) {
 		SendMsgToChar(ch, "Вычислено поле минимальных перевоплощений: %d\r\n", j->get_auto_mort_req());
 	}
-//	if (!j->get_dgscript_field().empty()) {
-		SendMsgToChar(ch, "Сохраненные переменные из DGScript: %s\r\n", j->get_dgscript_field().c_str());
-//	}
+	SendMsgToChar(ch, "Сохраненные переменные из DGScript: %s\r\n", j->get_dgscript_field().empty() ? "ничего" : j->get_dgscript_field().c_str());
 	if (is_grgod) {
 		sprintf(buf,
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
