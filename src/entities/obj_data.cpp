@@ -304,6 +304,7 @@ void CObjectPrototype::zero_init() {
 	m_action_description.clear();
 	m_ex_description.reset();
 	m_proto_script->clear();
+	m_dgscript_field.clear();
 	m_max_in_world = 0;
 	m_skills.clear();
 	m_timer = 0;
@@ -364,6 +365,7 @@ CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
 		m_timer = from.m_timer;
 		m_skills = from.m_skills;
 		m_minimum_remorts = from.m_minimum_remorts;
+		m_dgscript_field = from.m_dgscript_field;
 		m_cost = from.m_cost;
 		m_rent_on = from.m_rent_on;
 		m_rent_off = from.m_rent_off;
