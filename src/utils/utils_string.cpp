@@ -139,7 +139,7 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 		utils::Trim(token);
 		tokens.push_back(token);
 	}
-	return tokens;
+	return tokens; //если разделитель не найден вернется 1 элемент содержащий полную строку
 }
 
 // первое слово разделенное маской

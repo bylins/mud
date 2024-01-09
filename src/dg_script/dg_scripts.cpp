@@ -3145,7 +3145,7 @@ void find_replacement(void *go,
 			} else {
 				sprintf(str, "%s", o->get_dgscript_field().c_str());
 			}
-		} else if (!str_cmp(field, "load")) {
+		} else if (!str_cmp(field, "loadvar")) {
 			if (*subfield) {
 				std::vector<std::string> saved_info;
 				std::string value;
@@ -3173,10 +3173,10 @@ void find_replacement(void *go,
 					}
 				}
 			} else {
-				sprintf(buf, "Нет аргумента в команде load");
+				sprintf(buf, "Нет аргумента в команде LoadVar");
 				trig_log(trig, buf);
 			}
-		} else if (!str_cmp(field, "save")) {
+		} else if (!str_cmp(field, "savevar")) {
 			if (*subfield) {
 				struct TriggerVar *vd_tmp = nullptr;
 				std::vector<std::string> saved_info;
@@ -3185,6 +3185,10 @@ void find_replacement(void *go,
 
 				if (trig) {
 					vd_tmp = find_var_cntx(&GET_TRIG_VARS(trig), subfield, 0);
+					if (!vd_tmp)
+						vd_tmp = find_var_cntx(&(sc->global_vars), subfield, sc->context);
+					if (!vd_tmp)
+						vd = find_var_cntx(&worlds_vars, subfield, sc->context);
 				}
 				if (!vd_tmp) {
 					sprintf(buf, "Не найдена переменная %s", subfield);
@@ -3221,7 +3225,7 @@ void find_replacement(void *go,
 				} else
 					o->set_dgscript_field(out.str());
 			} else {
-				sprintf(buf, "Нет аргумента в команде save");
+				sprintf(buf, "Нет аргумента в команде SaveVar");
 				trig_log(trig, buf);
 			}
 		} else if (!str_cmp(field, "maker")) {
