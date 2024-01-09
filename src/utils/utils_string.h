@@ -120,6 +120,11 @@ void ConvertToLow(char *text);
  */
 std::vector<std::string> Split(const std::string s, char delimiter = ' ');
 
+// аналог one_argument для string
+// s - разделяемая строка
+// возвращает первое слово, в remains остаток, если нет пробелов то строки пустые
+std::string ExtractFirstArgument(const std::string &s, std::string &remains);
+
 // первое слово разделенное маской
 std::string FirstWordOnString(std::string s, std::string mask);
 
