@@ -3140,9 +3140,89 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "SavedInfo")) {
 			if (*subfield) {
+				skip_spaces(&subfield);
 				o->set_dgscript_field(subfield);
 			} else {
 				sprintf(str, "%s", o->get_dgscript_field().c_str());
+			}
+		} else if (!str_cmp(field, "load")) {
+			if (*subfield) {
+				std::vector<std::string> saved_info;
+				std::string value;
+				std::string word;
+
+				if (!o->get_dgscript_field().empty()) {
+					saved_info = utils::Split(o->get_dgscript_field(), '#');
+				} else {
+					sprintf(buf, "Нет сохраненных переменных");
+					trig_log(trig, buf);
+				}
+				for (auto &it : saved_info) {
+					size_t space_pos = it.find(" ");
+					if (space_pos != std::string::npos) {
+						word = it.substr(0, space_pos);
+						value = it.substr(space_pos + 1);
+					} else {
+						sprintf(buf, "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
+						trig_log(trig, buf);
+						continue;
+					}
+					if (!str_cmp(subfield, word)) {
+						add_var_cntx(&GET_TRIG_VARS(trig), word.c_str(), value.c_str(), 0);
+						break;
+					}
+				}
+			} else {
+				sprintf(buf, "Нет аргумента в команде load");
+				trig_log(trig, buf);
+			}
+		} else if (!str_cmp(field, "save")) {
+			if (*subfield) {
+				struct TriggerVar *vd_tmp = nullptr;
+				std::vector<std::string> saved_info;
+				std::stringstream out;
+				std::string word;
+
+				if (trig) {
+					vd_tmp = find_var_cntx(&GET_TRIG_VARS(trig), subfield, 0);
+				}
+				if (!vd_tmp) {
+					sprintf(buf, "Не найдена переменная %s", subfield);
+					trig_log(trig, buf);
+					return;
+				}
+				if (!o->get_dgscript_field().empty()) {
+					saved_info = utils::Split(o->get_dgscript_field(), '#');
+				}
+				bool found = false;
+				for (auto &it : saved_info) {
+					size_t space_pos = it.find(" ");
+					if (space_pos != std::string::npos) {
+						word = it.substr(0, space_pos);
+					} else {
+						sprintf(buf, "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
+						trig_log(trig, buf);
+						continue;
+					}
+					if (!str_cmp(vd_tmp->name, word)) {
+						it = std::string(vd_tmp->name) + " " + std::string(vd_tmp->value);
+						found = true;
+					}
+				}
+				if (!found) {
+					out << vd_tmp->name  << " " << vd_tmp->value << "#";
+				}
+				for (auto it : saved_info) {
+					out << it << "#";
+				}
+				if (out.str().size() > kMaxInputLength) {
+					sprintf(buf, "Список переменных переполнен, сократите на %ld символов", out.str().size() - kMaxInputLength);
+					trig_log(trig, buf);
+				} else
+					o->set_dgscript_field(out.str());
+			} else {
+				sprintf(buf, "Нет аргумента в команде save");
+				trig_log(trig, buf);
 			}
 		} else if (!str_cmp(field, "maker")) {
 			sprintf(str, "%d", GET_OBJ_MAKER(o));
