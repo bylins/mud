@@ -3149,7 +3149,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				std::vector<std::string> saved_info;
 				std::string value;
-				std::string word;
+				std::string name;
 
 				if (!o->get_dgscript_field().empty()) {
 					saved_info = utils::Split(o->get_dgscript_field(), '#');
@@ -3158,17 +3158,14 @@ void find_replacement(void *go,
 					trig_log(trig, buf);
 				}
 				for (auto &it : saved_info) {
-					size_t space_pos = it.find(" ");
-					if (space_pos != std::string::npos) {
-						word = it.substr(0, space_pos);
-						value = it.substr(space_pos + 1);
-					} else {
+					name = utils::ExtractFirstArgument(it, value);
+					if (name.empty() || value.empty()) {
 						sprintf(buf, "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
 						trig_log(trig, buf);
 						continue;
 					}
-					if (!str_cmp(subfield, word)) {
-						add_var_cntx(&GET_TRIG_VARS(trig), word.c_str(), value.c_str(), 0);
+					if (!str_cmp(subfield, name)) {
+						add_var_cntx(&GET_TRIG_VARS(trig), name.c_str(), value.c_str(), 0);
 						break;
 					}
 				}
@@ -3181,7 +3178,8 @@ void find_replacement(void *go,
 				struct TriggerVar *vd_tmp = nullptr;
 				std::vector<std::string> saved_info;
 				std::stringstream out;
-				std::string word;
+				std::string name;
+				std::string value;
 
 				if (trig) {
 					vd_tmp = find_var_cntx(&GET_TRIG_VARS(trig), subfield, 0);
@@ -3200,15 +3198,13 @@ void find_replacement(void *go,
 				}
 				bool found = false;
 				for (auto &it : saved_info) {
-					size_t space_pos = it.find(" ");
-					if (space_pos != std::string::npos) {
-						word = it.substr(0, space_pos);
-					} else {
+					name = utils::ExtractFirstArgument(it, value);
+					if (name.empty() || value.empty()) {
 						sprintf(buf, "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
 						trig_log(trig, buf);
 						continue;
 					}
-					if (!str_cmp(vd_tmp->name, word)) {
+					if (!str_cmp(vd_tmp->name, name)) {
 						it = std::string(vd_tmp->name) + " " + std::string(vd_tmp->value);
 						found = true;
 					}
