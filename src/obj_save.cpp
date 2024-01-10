@@ -1439,7 +1439,7 @@ void Crash_list_objects(CharData *ch, int index) {
 		default: strcat(buf, "UNDEF!\r\n");
 			break;
 	}
-
+	std::stringstream ss;
 	for (; i < SAVEINFO(index)->rent.nitems; i++) {
 		data = SAVEINFO(index)->time[i];
 		if (((rnum = real_object(data.vnum)) > -1) && ((data.vnum > 799) || (data.vnum < 700))) {
@@ -1448,21 +1448,17 @@ void Crash_list_objects(CharData *ch, int index) {
 			if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 				tmr = MAX(-1, data.timer - timer_dec);
 			}
-			sprintf(buf + strlen(buf), " [%5d] (%5dau) <%6d> %-20s\r\n",
+			sprintf(buf, " [%5d] (%5dau) <%6d> %-20s\r\n",
 					data.vnum, GET_OBJ_RENT(obj_proto[rnum]),
 					tmr, obj_proto[rnum]->get_short_description().c_str());
+			ss << buf;
 		} else if ((data.vnum > 799) || (data.vnum < 700)) {
-			sprintf(buf + strlen(buf), " [%5d] (?????au) <%2d> %-20s\r\n",
+			sprintf(buf, " [%5d] (?????au) <%2d> %-20s\r\n",
 					data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");
-		}
-
-		if (strlen(buf) > kMaxStringLength - 80) {
-			strcat(buf, "** Excessive rent listing. **\r\n");
-			break;
+			ss << buf;
 		}
 	}
-
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(ss.str().c_str(), ch);
 	sprintf(buf, "Время в ренте: %ld тиков.\r\n", timer_dec);
 	SendMsgToChar(buf, ch);
 	sprintf(buf, "Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d. ИНГРИДИЕНТЫ НЕ ВЫВОДЯТСЯ.\r\n",
