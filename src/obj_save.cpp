@@ -22,6 +22,7 @@
 #include "game_mechanics/named_stuff.h"
 #include "utils/utils_char_obj.inl"
 #include <sys/stat.h>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;
@@ -1412,7 +1413,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 }
 
 void Crash_list_objects(CharData *ch, int index) {
-	int i = 0, rnum;
+	ObjRnum rnum;
 	struct SaveTimeInfo data;
 	long timer_dec;
 	float num_of_days;
@@ -1440,22 +1441,17 @@ void Crash_list_objects(CharData *ch, int index) {
 			break;
 	}
 	std::stringstream ss;
-	for (; i < SAVEINFO(index)->rent.nitems; i++) {
+	for (int i = 0; i < SAVEINFO(index)->rent.nitems; i++) {
 		data = SAVEINFO(index)->time[i];
-		if (((rnum = real_object(data.vnum)) > -1) && ((data.vnum > 799) || (data.vnum < 700))) {
+		rnum = real_object(data.vnum);
+		if (data.vnum > 799 || data.vnum < 700) {
 			int tmr = data.timer;
 			auto obj = obj_proto[rnum];
 			if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 				tmr = MAX(-1, data.timer - timer_dec);
 			}
-			sprintf(buf, " [%5d] (%5dau) <%6d> %-20s\r\n",
-					data.vnum, GET_OBJ_RENT(obj_proto[rnum]),
-					tmr, obj_proto[rnum]->get_short_description().c_str());
-			ss << buf;
-		} else if ((data.vnum > 799) || (data.vnum < 700)) {
-			sprintf(buf, " [%5d] (?????au) <%2d> %-20s\r\n",
-					data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");
-			ss << buf;
+			ss << fmt::format(" [{:>7}] ({:>5}au) <{:>6}> {:<20}\r\n",
+					data.vnum, GET_OBJ_RENT(obj), tmr, obj->get_short_description().c_str());
 		}
 	}
 	SendMsgToChar(ss.str().c_str(), ch);
