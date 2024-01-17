@@ -581,6 +581,11 @@
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>
+            <skill id="kDazzle" fail="0">
+                <class val="kAssasine"/>
+                <price currency="kKuna" start="2" remort_percent="400"/>
+                <upgrade practices="10" min="0" max="10"/>
+            </skill>
             <skill id="kHide" fail="0">
                 <class val="kThief|kAssasine|kMerchant"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>

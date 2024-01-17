@@ -1912,7 +1912,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case EObjType::kWand:
 				case EObjType::kStaff: min_val = 0;
-					max_val = 20;
+					max_val = 200;
 					break;
 
 				case EObjType::kLiquidContainer:
