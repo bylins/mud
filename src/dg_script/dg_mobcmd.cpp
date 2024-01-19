@@ -863,6 +863,13 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
 		m->set_wait(tmpmob.get_wait());
 		ch->set_master(m->get_master());
+		if (m->get_master()) {
+			for (auto f = m->get_master()->followers; f; f = f->next) {
+				if (f->follower == m) {
+					f->follower = ch;
+				}
+			}
+		}
 		m->set_master(tmpmob.get_master());
 
 		if (keep_hp) {
