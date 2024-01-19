@@ -545,7 +545,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->follower, ch, 0));
+			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol->follower, ch, 0), GET_MOB_VNUM(fol->follower));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
 				if (fol->next)
