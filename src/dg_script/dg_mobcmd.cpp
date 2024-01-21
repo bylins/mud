@@ -784,7 +784,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 	ObjData *obj[EEquipPos::kNumEquipPos];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
-		char buf[600];
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -837,70 +836,50 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			}
 			mob_id_by_vnum[GET_MOB_VNUM(m)] = list_idnum;
 		}
+		m->id = ch->id;
 
-// Обмен содержимым
-//		CharData tmpmob(*m);
-//		*m = *ch;
-//		*ch = tmpmob;
 		std::swap(ch, m);
-		ch->set_normal_morph();
-// Имею:
-//  ch -> старый указатель, новое наполнение из моба m
-//  m -> новый указатель, старое наполнение из моба ch
-//  tmpmob -> врем. переменная, наполнение из оригинального моба m
-
-// Копирование игровой информации (для m сохраняются оригинальные значения)
-		ch->id = m->id;
-//		m->id = tmpmob.id; //пусть пуржится со старым ид для правильной чистке контейнера mob_id_by_vnum
-		ch->affected = m->affected;
-		ch->carrying = m->carrying;
-		Trigger *n_t = new Trigger();
-
+		Trigger *new_t = new Trigger();
+//перенесем триггера
 		ch->script->trig_list.clear();
 	 	for (auto t_tmp : m->script->trig_list) {
-			sprintf(buf, "Trigger: %s, VNum: [%5d], RNum: [%5d]\r\n",
-				GET_TRIG_NAME(t_tmp), GET_TRIG_VNUM(t_tmp), GET_TRIG_RNUM(t_tmp));
-			if (GET_MOB_VNUM(ch) / 100 == 900)
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			Trigger *t = new Trigger();
 			*t = *t_tmp;
-//			*t->var_list = *trig->var_list;
 			ch->script->trig_list.add(t);
 			if (t_tmp == trig) {
-				*n_t = *trig;
+				*new_t = *trig;
 			}
 		}
-
-//	 	for (auto t_tmp : ch->script->trig_list) {
-//		}
-			snprintf(buf, 600, "1Trigger: %s, VNum: [%5d], RNum: [%5d] %p %p\r\n",
-				GET_TRIG_NAME(n_t), GET_TRIG_VNUM(n_t), GET_TRIG_RNUM(n_t), trig, n_t);
-			if (GET_MOB_VNUM(ch) / 100 == 900)
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//найдем текущую выполняемую строку в старом триггере
 		auto c = *trig->cmdlist;
-		auto c_new = *n_t->cmdlist;
+		auto c_new = *new_t->cmdlist;
+
 		while (c) {
 			if (c->cmd == trig->curr_line->next->cmd) {
-				sprintf(buf, "новый %s", c->cmd.c_str());
-				if (GET_MOB_VNUM(ch) / 100 == 900)
-					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			break;
+				break;
 			}
 			c = c->next;
 			c_new = c_new->next;
 		}
-/*		if (c_new) {
-			n_t->curr_state = c_new;
-			snprintf(buf, 600, "строка %s", n_t->curr_state->cmd.c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			script_driver(ch, n_t, MOB_TRIGGER, 1);
+// скопируем переменные в новый триггер
+		new_t->var_list = trig->var_list;
+		trig->var_list = nullptr;
+		ch->script->global_vars = m->script->global_vars;
+		m->script->global_vars = nullptr;
+		ch->script->context = m->script->context;
+		m->script->remove_trigger(str_dup(to_string(trig_index[trig->get_rnum()]->vnum).c_str()));
+// заменим в комбатлисте
+		for (CharData *temp = combat_list; temp; temp = temp->next_fighting) {
+			if (temp == m) {
+				temp = ch;
+			}
 		}
-*/
-
-//		t->owner = ch;
-
 		ch->next_fighting = m->next_fighting;
 		ch->followers = m->followers;
+		m->followers = nullptr;
+		ch->set_normal_morph();
+		ch->affected = m->affected;
+		ch->carrying = m->carrying;
 		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
 		ch->set_master(m->get_master());
 		if (ch->get_master()) {
@@ -914,18 +893,15 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 				}
 			}
 		}
-
 		if (ch->get_master()) {
 			for (auto f = ch->get_master()->followers; f; f = f->next) {
 			}
 		}
-
 		if (keep_hp) {
 			GET_HIT(ch) = GET_HIT(m);
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
 			ch->set_exp(m->get_exp());
 		}
-
 		ch->set_gold(m->get_gold());
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
@@ -942,11 +918,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ExtractCharFromWorld(m, false);
 		mob_by_uid[ch->id] = ch;
 		if (c_new) {
-			n_t->curr_state = c_new;
-			snprintf(buf, 600, "строка2 %s", n_t->curr_state->cmd.c_str());
-			if (GET_MOB_VNUM(ch) / 100 == 900)
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			script_driver(ch, n_t, MOB_TRIGGER, 1);
+			new_t->curr_line = c_new;
+			GET_TRIG_DEPTH(new_t) = 1;
+			script_driver(ch, new_t, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
 }
