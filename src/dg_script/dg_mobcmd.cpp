@@ -781,9 +781,7 @@ int script_driver(void *go, Trigger *trig, int type, int mode);
 void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg[kMaxInputLength];
 	CharData *m;
-	ObjData *obj[EEquipPos::kNumEquipPos];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
-	int pos;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -809,21 +807,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		if (m == nullptr) {
 			mob_log(ch, "mtransform: bad mobile vnum");
 			return;
-		}
-// Тактика:
-// 1. Прочитан новый моб (m), увеличено количество в mob_index
-// 2. Чтобы уменьшить кол-во мобов ch, нужно экстрактить ch,
-//    но этого делать НЕЛЬЗЯ, т.к. на него очень много ссылок.
-// 3. Вывод - a) обмениваю содержимое m и ch.
-//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch)
-//            c) удаляю m (на самом деле это данные ch в другой оболочке)
-
-
-		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
-			if (GET_EQ(ch, pos))
-				obj[pos] = UnequipChar(ch, pos, CharEquipFlags());
-			else
-				obj[pos] = nullptr;
 		}
 		PlaceCharToRoom(m, ch->in_room);
 // впихнем в таблицу загруженных мобов для калкуид ид прошлого моба до трансформа
@@ -878,23 +861,23 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->followers = m->followers;
 		m->followers = nullptr;
 		ch->set_normal_morph();
-		ch->affected = m->affected;
-		ch->carrying = m->carrying;
-		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
-		ch->set_master(m->get_master());
-		if (ch->get_master()) {
-			for (auto f = ch->get_master()->followers; f; f = f->next) {
-				}
+		for (const auto &af : m->affected) {
+			const auto &affect = *af;
+
+			affect_to_char(ch, affect);
 		}
+		if (AFF_FLAGGED(m, EAffect::kGroup)) {
+			AFF_FLAGS(ch).set(EAffect::kGroup);
+		}
+		ch->carrying = m->carrying;
+		m->carrying = nullptr;
+		ch->set_wait(m->get_wait());  
+		ch->set_master(m->get_master());
 		if (m->get_master()) {
 			for (auto f = m->get_master()->followers; f; f = f->next) {
 				if (f->follower == m) {
 					f->follower = ch;
 				}
-			}
-		}
-		if (ch->get_master()) {
-			for (auto f = ch->get_master()->followers; f; f = f->next) {
 			}
 		}
 		if (keep_hp) {
@@ -909,11 +892,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->SetEnemy(m->GetEnemy());
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
-
-		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
-			if (obj[pos])
-				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
-		}
 		m->set_master(nullptr);
 		ExtractCharFromWorld(m, false);
 		mob_by_uid[ch->id] = ch;
