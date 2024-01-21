@@ -172,10 +172,11 @@ class Trigger {
 	auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
 	void clear_var_list();
-
 	cmdlist_ptr cmdlist;    // top of command list             //
-	cmdlist_element::shared_ptr curr_state;    // ptr to current line of trigger  //
+	cmdlist_element::shared_ptr curr_state;    // ptr to current line of trigger after wait  //
+	cmdlist_element::shared_ptr curr_line;    // ptr to current line of trigger after wait  //
 
+	CharData *owner;
 	int narg;        // numerical argument              //
 	bool add_flag;		//пока только мобам
 	std::string arglist;        // argument list                   //

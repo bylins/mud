@@ -5261,6 +5261,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode);
 
 int script_driver(void *go, Trigger *trig, int type, int mode) {
 	int timewarning = 50; //  в текущий момент миллисекунды
+	int return_code;
 
 	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
@@ -5268,8 +5269,11 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 	auto now = std::chrono::system_clock::now();
 	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	auto start = now_ms.time_since_epoch();
-
-	const auto return_code = timed_script_driver(go, trig, type, mode);
+	if (type == MOB_TRIGGER) {
+			trig->owner = (CharData *) go;
+			return_code = timed_script_driver(trig->owner, trig, type, mode);
+		} else
+			return_code = timed_script_driver(go, trig, type, mode);
 
 	now = std::chrono::system_clock::now();
 	now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
@@ -5318,6 +5322,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	Script *sc = 0;
 	unsigned long loops = 0;
 	Trigger *prev_trig;
+	bool show_log = false;
 
 	curr_trig_vnum = GET_TRIG_VNUM(trig);
 	void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
@@ -5330,7 +5335,12 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 
 	switch (type) {
-		case MOB_TRIGGER: sc = SCRIPT((CharData *) go).get();
+		case MOB_TRIGGER: {
+				sc = SCRIPT((CharData *) go).get();
+				GET_TRIG_DEPTH(trig) = 1;
+				if (GET_MOB_VNUM((CharData *) go) / 100 == 900)
+					show_log = true;
+			}
 			break;
 
 		case OBJ_TRIGGER: sc = ((ObjData *) go)->get_script().get();
@@ -5355,10 +5365,31 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		GET_TRIG_LOOPS(trig) = 0;
 		sc->context = 0;
 	}
+	
+	auto cl = *trig->cmdlist;
+	switch  (mode) {
+		case TRIG_NEW: cl = *trig->cmdlist;
+		break;
+		case TRIG_RESTART: cl =  trig->curr_state;
+		break;
+		case 2: cl = trig->curr_line;
+		break;
+		
+	}
+		if (show_log) {
+			sprintf(buf, "Запускаем со  строки %s моб %d", cl->cmd.c_str(), GET_MOB_VNUM((CharData *) go));
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
 
-	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig);
+	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig);
 		 cl = cl ? cl->next : cl)    //log("Drive go <%s>",cl->cmd);
 	{
+		if (show_log) {
+			sprintf(buf, "Скрипт строка %s моб %d", cl->cmd.c_str(), GET_MOB_VNUM((CharData *) go));
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+		last_trig_line_num = cl->line_num;
+		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
 			sprintf(buf, "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
 			mudlog(buf, BRF, -1, ERRLOG, true);
@@ -5366,7 +5397,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		}
 		const char *p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
-		last_trig_line_num = cl->line_num;
 		if (*p == '*' || *p == '/')    // comment
 		{
 			continue;
@@ -6097,8 +6127,8 @@ Script::Script(const Script &) :
 }
 
 Script::~Script() {
-	trig_list.clear();
-	clear_global_vars();
+		trig_list.clear();
+		clear_global_vars();
 }
 
 int Script::remove_trigger(char *name, Trigger *&trig_addr) {
@@ -6167,6 +6197,7 @@ const char *Trigger::DEFAULT_TRIGGER_NAME = "no name";
 
 Trigger::Trigger() :
 	cmdlist(new cmdlist_element::shared_ptr()),
+	owner(nullptr),
 	narg(0),
 	add_flag{false},
 	depth(0),
@@ -6181,6 +6212,7 @@ Trigger::Trigger() :
 
 Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
+	owner(nullptr),
 	narg(0),
 	add_flag{false},
 	depth(0),
@@ -6195,6 +6227,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, co
 
 Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
+	owner(nullptr),
 	narg(0),
 	add_flag{false},
 	depth(0),
@@ -6207,14 +6240,12 @@ Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, 
 	trigger_type(trigger_type) {
 }
 
-Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum,
-																						 name,
-																						 0,
-																						 trigger_type) {
+Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum, name, 0, trigger_type) {
 }
 
 Trigger::Trigger(const Trigger &from) :
 	cmdlist(from.cmdlist),
+	owner(from.owner),
 	narg(from.narg),
 	add_flag(from.add_flag),
 	arglist(from.arglist),
@@ -6235,11 +6266,13 @@ void Trigger::reset() {
 	trigger_type = 0;
 	cmdlist.reset();
 	curr_state.reset();
+	curr_line.reset();
 	narg = 0;
 	add_flag = false;
 	arglist.clear();
 	depth = 0;
 	loops = -1;
+	owner = nullptr;
 	wait_event = nullptr;
 	var_list = nullptr;
 }

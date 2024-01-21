@@ -775,13 +775,16 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	}
 }
 
+int script_driver(void *go, Trigger *trig, int type, int mode);
+
 // transform into a different mobile
-void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
+void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg[kMaxInputLength];
 	CharData *m;
 	ObjData *obj[EEquipPos::kNumEquipPos];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
 	int pos;
+		char buf[600];
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -836,11 +839,11 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 
 // Обмен содержимым
-		CharData tmpmob(*m);
-		*m = *ch;
-		*ch = tmpmob;
+//		CharData tmpmob(*m);
+//		*m = *ch;
+//		*ch = tmpmob;
+		std::swap(ch, m);
 		ch->set_normal_morph();
-
 // Имею:
 //  ch -> старый указатель, новое наполнение из моба m
 //  m -> новый указатель, старое наполнение из моба ch
@@ -850,19 +853,60 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->id = m->id;
 //		m->id = tmpmob.id; //пусть пуржится со старым ид для правильной чистке контейнера mob_id_by_vnum
 		ch->affected = m->affected;
-		m->affected = tmpmob.affected;
 		ch->carrying = m->carrying;
-		m->carrying = tmpmob.carrying;
-		ch->script = m->script;
-		m->script = tmpmob.script;
+		Trigger *n_t = new Trigger();
+
+		ch->script->trig_list.clear();
+	 	for (auto t_tmp : m->script->trig_list) {
+			sprintf(buf, "Trigger: %s, VNum: [%5d], RNum: [%5d]\r\n",
+				GET_TRIG_NAME(t_tmp), GET_TRIG_VNUM(t_tmp), GET_TRIG_RNUM(t_tmp));
+			if (GET_MOB_VNUM(ch) / 100 == 900)
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			Trigger *t = new Trigger();
+			*t = *t_tmp;
+//			*t->var_list = *trig->var_list;
+			ch->script->trig_list.add(t);
+			if (t_tmp == trig) {
+				*n_t = *trig;
+			}
+		}
+
+//	 	for (auto t_tmp : ch->script->trig_list) {
+//		}
+			snprintf(buf, 600, "1Trigger: %s, VNum: [%5d], RNum: [%5d] %p %p\r\n",
+				GET_TRIG_NAME(n_t), GET_TRIG_VNUM(n_t), GET_TRIG_RNUM(n_t), trig, n_t);
+			if (GET_MOB_VNUM(ch) / 100 == 900)
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		auto c = *trig->cmdlist;
+		auto c_new = *n_t->cmdlist;
+		while (c) {
+			if (c->cmd == trig->curr_line->next->cmd) {
+				sprintf(buf, "новый %s", c->cmd.c_str());
+				if (GET_MOB_VNUM(ch) / 100 == 900)
+					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			break;
+			}
+			c = c->next;
+			c_new = c_new->next;
+		}
+/*		if (c_new) {
+			n_t->curr_state = c_new;
+			snprintf(buf, 600, "строка %s", n_t->curr_state->cmd.c_str());
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			script_driver(ch, n_t, MOB_TRIGGER, 1);
+		}
+*/
+
+//		t->owner = ch;
 
 		ch->next_fighting = m->next_fighting;
-		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;
-		m->followers = tmpmob.followers;
 		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
-		m->set_wait(tmpmob.get_wait());
 		ch->set_master(m->get_master());
+		if (ch->get_master()) {
+			for (auto f = ch->get_master()->followers; f; f = f->next) {
+				}
+		}
 		if (m->get_master()) {
 			for (auto f = m->get_master()->followers; f; f = f->next) {
 				if (f->follower == m) {
@@ -870,7 +914,11 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 				}
 			}
 		}
-		m->set_master(tmpmob.get_master());
+
+		if (ch->get_master()) {
+			for (auto f = ch->get_master()->followers; f; f = f->next) {
+			}
+		}
 
 		if (keep_hp) {
 			GET_HIT(ch) = GET_HIT(m);
@@ -881,22 +929,25 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_gold(m->get_gold());
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
-		IS_CARRYING_W(m) = IS_CARRYING_W(&tmpmob);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
-		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
 		ch->SetEnemy(m->GetEnemy());
-		m->SetEnemy(tmpmob.GetEnemy());
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
-		m->set_serial_num(tmpmob.get_serial_num());
 
 		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
 			if (obj[pos])
 				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
 		}
+		m->set_master(nullptr);
 		ExtractCharFromWorld(m, false);
 		mob_by_uid[ch->id] = ch;
-
+		if (c_new) {
+			n_t->curr_state = c_new;
+			snprintf(buf, 600, "строка2 %s", n_t->curr_state->cmd.c_str());
+			if (GET_MOB_VNUM(ch) / 100 == 900)
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			script_driver(ch, n_t, MOB_TRIGGER, 1);
+		}
 	}
 }
 
