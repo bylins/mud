@@ -850,7 +850,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->script->global_vars = m->script->global_vars;
 		m->script->global_vars = nullptr;
 		ch->script->context = m->script->context;
-		m->script->remove_trigger(str_dup(to_string(trig_index[trig->get_rnum()]->vnum).c_str()));
 // заменим в комбатлисте
 		for (CharData *temp = combat_list; temp; temp = temp->next_fighting) {
 			if (temp == m) {
@@ -869,8 +868,14 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		if (AFF_FLAGGED(m, EAffect::kGroup)) {
 			AFF_FLAGS(ch).set(EAffect::kGroup);
 		}
-		ch->carrying = m->carrying;
-		m->carrying = nullptr;
+		ObjData *obj, *next_obj;
+
+		for (obj = m->carrying; obj; obj = next_obj) {
+			next_obj = obj->get_next_content();
+
+			RemoveObjFromChar(obj);
+			PlaceObjToInventory(obj, ch);
+		}
 		ch->set_wait(m->get_wait());  
 		ch->set_master(m->get_master());
 		if (m->get_master()) {
@@ -893,7 +898,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_master(nullptr);
-		ExtractCharFromWorld(m, false);
+		ExtractCharFromWorld(m, true);
 		mob_by_uid[ch->id] = ch;
 		if (c_new) {
 			new_t->curr_line = c_new;
