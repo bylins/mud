@@ -816,7 +816,7 @@ EVENT(trig_wait_event) {
 
 	GET_TRIG_WAIT(trig) = nullptr;
 
-	script_driver(go, trig, type, TRIG_RESTART);
+	script_driver(go, trig, type, TRIG_CONTINUE);
 	free(wait_event_obj);
 }
 
@@ -975,9 +975,9 @@ void script_stat(CharData *ch, Script *sc) {
 		SendMsgToChar(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t)) {
-			if (t->curr_state != nullptr) {
+			if (t->wait_line != nullptr) {
 				sprintf(buf, "    Wait: %d, Current line: %s\r\n",
-						GET_TRIG_WAIT(t)->time_remaining, t->curr_state->cmd.c_str());
+						GET_TRIG_WAIT(t)->time_remaining, t->wait_line->cmd.c_str());
 				SendMsgToChar(buf, ch);
 			} else {
 				sprintf(buf, "    Wait: %d\r\n", GET_TRIG_WAIT(t)->time_remaining);
@@ -4222,7 +4222,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	}
 
 	GET_TRIG_WAIT(trig) = add_event(time, trig_wait_event, wait_event_obj);
-	trig->curr_state = cl->next;
+	trig->wait_line = cl->next;
 }
 
 // processes a script set command
@@ -5261,6 +5261,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode);
 
 int script_driver(void *go, Trigger *trig, int type, int mode) {
 	int timewarning = 50; //  в текущий момент миллисекунды
+	int return_code;
 
 	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
@@ -5269,8 +5270,7 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	auto start = now_ms.time_since_epoch();
 
-	const auto return_code = timed_script_driver(go, trig, type, mode);
-
+	return_code = timed_script_driver(go, trig, type, mode);
 	now = std::chrono::system_clock::now();
 	now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	auto end = now_ms.time_since_epoch();
@@ -5355,10 +5355,23 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		GET_TRIG_LOOPS(trig) = 0;
 		sc->context = 0;
 	}
+	
+	cmdlist_element::shared_ptr cl;
 
-	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig);
+	switch  (mode) {
+		case TRIG_NEW: cl = *trig->cmdlist;
+		break;
+		case TRIG_CONTINUE: cl =  trig->wait_line;
+		break;
+		case TRIG_FROM_LINE: cl = trig->curr_line;
+		break;
+		
+	}
+	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig);
 		 cl = cl ? cl->next : cl)    //log("Drive go <%s>",cl->cmd);
 	{
+		last_trig_line_num = cl->line_num;
+		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
 			sprintf(buf, "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
 			mudlog(buf, BRF, -1, ERRLOG, true);
@@ -5366,7 +5379,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		}
 		const char *p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
-		last_trig_line_num = cl->line_num;
 		if (*p == '*' || *p == '/')    // comment
 		{
 			continue;
@@ -6097,8 +6109,8 @@ Script::Script(const Script &) :
 }
 
 Script::~Script() {
-	trig_list.clear();
-	clear_global_vars();
+		trig_list.clear();
+		clear_global_vars();
 }
 
 int Script::remove_trigger(char *name, Trigger *&trig_addr) {
@@ -6207,10 +6219,7 @@ Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, 
 	trigger_type(trigger_type) {
 }
 
-Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum,
-																						 name,
-																						 0,
-																						 trigger_type) {
+Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum, name, 0, trigger_type) {
 }
 
 Trigger::Trigger(const Trigger &from) :
@@ -6234,7 +6243,8 @@ void Trigger::reset() {
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
 	cmdlist.reset();
-	curr_state.reset();
+	wait_line.reset();
+	curr_line.reset();
 	narg = 0;
 	add_flag = false;
 	arglist.clear();

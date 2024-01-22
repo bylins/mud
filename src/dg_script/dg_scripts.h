@@ -20,7 +20,7 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-#define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
+#define DG_SCRIPT_VERSION "DG Scripts Version 0.6  01/2024"
 
 const int MOB_TRIGGER = 0;
 const int OBJ_TRIGGER = 1;
@@ -103,7 +103,8 @@ const int DG_NO_TRIG = 256;    // don't check act trigger   //
 #define OCMD_ROOM              (1 << 2)    // obj must be in char's room  //
 
 #define TRIG_NEW                0    // trigger starts from top  //
-#define TRIG_RESTART            1    // trigger restarting       //
+#define TRIG_CONTINUE            1    // trigger continue after wait       //
+#define TRIG_FROM_LINE            2    // trigger restarting       //
 
 const Bitvector kNormalRound = 0;
 const Bitvector kNoCastMagic = 1 << 0;
@@ -172,9 +173,9 @@ class Trigger {
 	auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
 	void clear_var_list();
-
 	cmdlist_ptr cmdlist;    // top of command list             //
-	cmdlist_element::shared_ptr curr_state;    // ptr to current line of trigger  //
+	cmdlist_element::shared_ptr wait_line;    // ptr to current line of trigger after wait  //
+	cmdlist_element::shared_ptr curr_line;    // ptr to current line of trigger //
 
 	int narg;        // numerical argument              //
 	bool add_flag;		//пока только мобам

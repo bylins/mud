@@ -775,13 +775,13 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	}
 }
 
+int script_driver(void *go, Trigger *trig, int type, int mode);
+
 // transform into a different mobile
-void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
+void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg[kMaxInputLength];
 	CharData *m;
-	ObjData *obj[EEquipPos::kNumEquipPos];
 	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
-	int pos;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -808,21 +808,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, "mtransform: bad mobile vnum");
 			return;
 		}
-// Тактика:
-// 1. Прочитан новый моб (m), увеличено количество в mob_index
-// 2. Чтобы уменьшить кол-во мобов ch, нужно экстрактить ch,
-//    но этого делать НЕЛЬЗЯ, т.к. на него очень много ссылок.
-// 3. Вывод - a) обмениваю содержимое m и ch.
-//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch)
-//            c) удаляю m (на самом деле это данные ch в другой оболочке)
-
-
-		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
-			if (GET_EQ(ch, pos))
-				obj[pos] = UnequipChar(ch, pos, CharEquipFlags());
-			else
-				obj[pos] = nullptr;
-		}
 		PlaceCharToRoom(m, ch->in_room);
 // впихнем в таблицу загруженных мобов для калкуид ид прошлого моба до трансформа
 		if (mob_id_by_vnum.contains(GET_MOB_VNUM(m))) {
@@ -834,34 +819,59 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			}
 			mob_id_by_vnum[GET_MOB_VNUM(m)] = list_idnum;
 		}
+		m->id = ch->id;
 
-// Обмен содержимым
-		CharData tmpmob(*m);
-		*m = *ch;
-		*ch = tmpmob;
-		ch->set_normal_morph();
+		std::swap(ch, m);
+		Trigger *new_t = new Trigger();
+//перенесем триггера
+		ch->script->trig_list.clear();
+	 	for (auto t_tmp : m->script->trig_list) {
+			Trigger *t = new Trigger();
+			*t = *t_tmp;
+			ch->script->trig_list.add(t);
+			if (t_tmp == trig) {
+				*new_t = *trig;
+			}
+		}
+//найдем текущую выполняемую строку в старом триггере
+		auto c = *trig->cmdlist;
+		auto c_new = *new_t->cmdlist;
 
-// Имею:
-//  ch -> старый указатель, новое наполнение из моба m
-//  m -> новый указатель, старое наполнение из моба ch
-//  tmpmob -> врем. переменная, наполнение из оригинального моба m
-
-// Копирование игровой информации (для m сохраняются оригинальные значения)
-		ch->id = m->id;
-//		m->id = tmpmob.id; //пусть пуржится со старым ид для правильной чистке контейнера mob_id_by_vnum
-		ch->affected = m->affected;
-		m->affected = tmpmob.affected;
-		ch->carrying = m->carrying;
-		m->carrying = tmpmob.carrying;
-		ch->script = m->script;
-		m->script = tmpmob.script;
-
+		while (c) {
+			if (c->cmd == trig->curr_line->next->cmd) {
+				break;
+			}
+			c = c->next;
+			c_new = c_new->next;
+		}
+// скопируем переменные в новый триггер
+		new_t->var_list = trig->var_list;
+		trig->var_list = nullptr;
+		ch->script->global_vars = m->script->global_vars;
+		m->script->global_vars = nullptr;
+		ch->script->context = m->script->context;
+		m->script->remove_trigger(str_dup(to_string(trig_index[trig->get_rnum()]->vnum).c_str()));
+// заменим в комбатлисте
+		for (CharData *temp = combat_list; temp; temp = temp->next_fighting) {
+			if (temp == m) {
+				temp = ch;
+			}
+		}
 		ch->next_fighting = m->next_fighting;
-		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;
-		m->followers = tmpmob.followers;
-		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
-		m->set_wait(tmpmob.get_wait());
+		m->followers = nullptr;
+		ch->set_normal_morph();
+		for (const auto &af : m->affected) {
+			const auto &affect = *af;
+
+			affect_to_char(ch, affect);
+		}
+		if (AFF_FLAGGED(m, EAffect::kGroup)) {
+			AFF_FLAGS(ch).set(EAffect::kGroup);
+		}
+		ch->carrying = m->carrying;
+		m->carrying = nullptr;
+		ch->set_wait(m->get_wait());  
 		ch->set_master(m->get_master());
 		if (m->get_master()) {
 			for (auto f = m->get_master()->followers; f; f = f->next) {
@@ -870,33 +880,26 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 				}
 			}
 		}
-		m->set_master(tmpmob.get_master());
-
 		if (keep_hp) {
 			GET_HIT(ch) = GET_HIT(m);
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
 			ch->set_exp(m->get_exp());
 		}
-
 		ch->set_gold(m->get_gold());
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
-		IS_CARRYING_W(m) = IS_CARRYING_W(&tmpmob);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
-		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
 		ch->SetEnemy(m->GetEnemy());
-		m->SetEnemy(tmpmob.GetEnemy());
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
-		m->set_serial_num(tmpmob.get_serial_num());
-
-		for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
-			if (obj[pos])
-				EquipObj(ch, obj[pos], pos, CharEquipFlag::no_cast);
-		}
+		m->set_master(nullptr);
 		ExtractCharFromWorld(m, false);
 		mob_by_uid[ch->id] = ch;
-
+		if (c_new) {
+			new_t->curr_line = c_new;
+			GET_TRIG_DEPTH(new_t) = 1;
+			script_driver(ch, new_t, MOB_TRIGGER, TRIG_FROM_LINE);
+		}
 	}
 }
 

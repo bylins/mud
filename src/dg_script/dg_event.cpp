@@ -122,8 +122,8 @@ void print_event_list(CharData *ch)
 			continue;
 		}
 		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
-		if (GET_TRIG_WAIT(wed->trigger) && wed->trigger->curr_state != nullptr) {
-			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger)->time_remaining, wed->trigger->curr_state->cmd.c_str());
+		if (GET_TRIG_WAIT(wed->trigger) && wed->trigger->wait_line != nullptr) {
+			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger)->time_remaining, wed->trigger->wait_line->cmd.c_str());
 		}
 		SendMsgToChar(buf, ch);
 
