@@ -819,9 +819,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			}
 			mob_id_by_vnum[GET_MOB_VNUM(m)] = list_idnum;
 		}
-		m->id = ch->id;
 
 		std::swap(ch, m);
+		std::swap(ch->id, m->id); //UID надо осталять старые
 		Trigger *new_t = new Trigger();
 //перенесем триггера
 		ch->script->trig_list.clear();
