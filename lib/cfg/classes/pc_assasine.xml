@@ -39,6 +39,7 @@
         <skill id="kHideTrack"		level="10"	remort="0"	improve="2500"/>
         <skill id="kHearing"		level="10"	remort="0"	improve="90"/>
         <skill id="kStrangle"		level="20"	remort="0"	improve="35000"/>
+        <skill id="kDazzle"			level="20"	remort="0"	improve="6500"/>
     </skills>
     <spells level_decrement="3">
         <!-- This class has no spells. -->
