@@ -1304,7 +1304,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagManual"/>
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
-        <name rus="Портал" eng="portal"/>
+        <name rus="врата" eng="portal"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarNone"/>

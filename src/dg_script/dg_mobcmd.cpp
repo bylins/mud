@@ -811,10 +811,12 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, "mtransform: bad mobile vnum");
 			return;
 		}
+/* Чет у нас есть такие триггера
 		if (GET_MOB_VNUM(ch) == GET_MOB_VNUM(m)) {
 			mob_log(ch, "mtransform: попытка в того же моба");
 			return;
 		}
+*/
 		PlaceCharToRoom(m, ch->in_room);
 // впихнем в таблицу загруженных мобов для калкуид ид прошлого моба до трансформа
 		if (mob_id_by_vnum.contains(GET_MOB_VNUM(m))) {
