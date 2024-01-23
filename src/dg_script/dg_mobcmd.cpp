@@ -781,7 +781,8 @@ int script_driver(void *go, Trigger *trig, int type, int mode);
 void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg[kMaxInputLength];
 	CharData *m;
-	int keep_hp = 1;    // new mob keeps the old mob's hp/max hp/exp
+	bool keep_hp = true;    // new mob keeps the old mob's hp/max hp/exp
+	char buf[500];
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
@@ -793,19 +794,25 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-		mob_log(ch, "mtransform: missing argument");
-	else if (!a_isdigit(*arg) && *arg != '-')
-		mob_log(ch, "mtransform: bad argument");
-	else {
+	if (!*arg) {
+		sprintf(buf, "mtransform: missing argument: %s", argument);
+		mob_log(ch, buf);
+	} else if (!a_isdigit(*arg) && *arg != '-') {
+		sprintf(buf, "mtransform: bad argument: %s", argument);
+		mob_log(ch, buf);
+	} else {
 		if (a_isdigit(*arg))
 			m = read_mobile(atoi(arg), VIRTUAL);
 		else {
-			keep_hp = 0;
+			keep_hp = false;
 			m = read_mobile(atoi(arg + 1), VIRTUAL);
 		}
 		if (m == nullptr) {
 			mob_log(ch, "mtransform: bad mobile vnum");
+			return;
+		}
+		if (GET_MOB_VNUM(ch) == GET_MOB_VNUM(m)) {
+			mob_log(ch, "mtransform: попытка в того же моба");
 			return;
 		}
 		PlaceCharToRoom(m, ch->in_room);
