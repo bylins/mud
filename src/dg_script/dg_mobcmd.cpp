@@ -868,6 +868,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->next_fighting = m->next_fighting;
 		ch->followers = m->followers;
 		m->followers = nullptr;
+		for (struct FollowerType *l = ch->followers; l; l = l->next) {
+			l->follower->set_master(ch);
+		}
 		ch->set_normal_morph();
 		for (const auto &af : m->affected) {
 			const auto &affect = *af;
@@ -894,6 +897,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 				}
 			}
 		}
+		m->set_master(nullptr);
 		if (keep_hp) {
 			GET_HIT(ch) = GET_HIT(m);
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
