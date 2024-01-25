@@ -847,7 +847,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		auto c_new = *new_t->cmdlist;
 
 		while (c) {
-			if (c->cmd == trig->curr_line->next->cmd) {
+			if (&c->cmd == &trig->curr_line->next->cmd) {
 				break;
 			}
 			c = c->next;
