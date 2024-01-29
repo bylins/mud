@@ -836,15 +836,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		PlaceCharToRoom(m, ch->in_room);
 		ReplaceUID(ch, m->id);
 		ReplaceUID(m, ch->id);
-		sprintf(buf, "UID ch = %ld, m = %ld", ch->id, m->id);
-		mob_log(ch, buf);
 		std::swap(ch, m);
 		std::swap(ch->id, m->id); //UID надо осталять старые
-//		auto tmp_id = ch->id;
-//		ch->id = m->id;
-//		m->id = tmp_id;
-		sprintf(buf, "UID2 afte swap ch = %ld, m = %ld", ch->id, m->id);
-		mob_log(ch, buf);
 		Trigger *new_t = new Trigger();
 //перенесем триггера
 		ch->script->trig_list.clear();
@@ -926,9 +919,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_serial_num(m->get_serial_num());
 		m->set_master(nullptr);
 		ExtractCharFromWorld(m, true);
-		sprintf(buf, "UID3 ch = %ld, m = %ld", ch->id, m->id);
-		mob_log(ch, buf);
-
 		mob_by_uid[ch->id] = ch;
 		if (c_new) {
 			new_t->curr_line = c_new;
