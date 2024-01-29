@@ -777,6 +777,22 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 int script_driver(void *go, Trigger *trig, int type, int mode);
 
+void ReplaceUID(CharData *ch, long uid) {
+		if (mob_id_by_vnum.contains(GET_MOB_VNUM(ch))) {
+			std::vector<long> list_idnum;
+			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(ch)];
+			for (auto &it : list_idnum) {
+				if (it == ch->id)
+					it = uid;
+			}
+			mob_id_by_vnum[GET_MOB_VNUM(ch)] = list_idnum;
+		} else {
+			sprintf(buf, "Ошибка в таблице UID у моба %s (%d)", GET_NAME(ch), GET_MOB_VNUM(ch));
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+
+}
+
 // transform into a different mobile
 void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg[kMaxInputLength];
@@ -818,19 +834,17 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 */
 		PlaceCharToRoom(m, ch->in_room);
-// впихнем в таблицу загруженных мобов для калкуид ид прошлого моба до трансформа
-		if (mob_id_by_vnum.contains(GET_MOB_VNUM(m))) {
-			std::vector<long> list_idnum;
-			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(m)];
-			for (auto &it : list_idnum) {
-				if (it == m->id)
-					it = ch->id;
-			}
-			mob_id_by_vnum[GET_MOB_VNUM(m)] = list_idnum;
-		}
-
+		ReplaceUID(ch, m->id);
+		ReplaceUID(m, ch->id);
+		sprintf(buf, "UID ch = %ld, m = %ld", ch->id, m->id);
+		mob_log(ch, buf);
 		std::swap(ch, m);
 		std::swap(ch->id, m->id); //UID надо осталять старые
+//		auto tmp_id = ch->id;
+//		ch->id = m->id;
+//		m->id = tmp_id;
+		sprintf(buf, "UID2 afte swap ch = %ld, m = %ld", ch->id, m->id);
+		mob_log(ch, buf);
 		Trigger *new_t = new Trigger();
 //перенесем триггера
 		ch->script->trig_list.clear();
@@ -912,6 +926,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_serial_num(m->get_serial_num());
 		m->set_master(nullptr);
 		ExtractCharFromWorld(m, true);
+		sprintf(buf, "UID3 ch = %ld, m = %ld", ch->id, m->id);
+		mob_log(ch, buf);
+
 		mob_by_uid[ch->id] = ch;
 		if (c_new) {
 			new_t->curr_line = c_new;
