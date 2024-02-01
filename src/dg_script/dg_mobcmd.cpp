@@ -777,22 +777,6 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 
 int script_driver(void *go, Trigger *trig, int type, int mode);
 
-void ReplaceUID(CharData *ch, long uid) {
-		if (mob_id_by_vnum.contains(GET_MOB_VNUM(ch))) {
-			std::vector<long> list_idnum;
-			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(ch)];
-			for (auto &it : list_idnum) {
-				if (it == ch->id)
-					it = uid;
-			}
-			mob_id_by_vnum[GET_MOB_VNUM(ch)] = list_idnum;
-		} else {
-			sprintf(buf, "Ошибка в таблице UID у моба %s (%d)", GET_NAME(ch), GET_MOB_VNUM(ch));
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		}
-
-}
-
 // transform into a different mobile
 void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg[kMaxInputLength];
@@ -834,8 +818,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 */
 		PlaceCharToRoom(m, ch->in_room);
-		ReplaceUID(ch, m->id);
-		ReplaceUID(m, ch->id);
 		std::swap(ch, m);
 		std::swap(ch->id, m->id); //UID надо осталять старые
 		Trigger *new_t = new Trigger();

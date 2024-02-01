@@ -397,13 +397,13 @@ RoomData *find_room(long n) {
  */
 int find_char_vnum(int vnum, int num = 0) {
 	int count = 0;
+	Characters::list_t mobs;
+	character_list.get_mobs_by_vnum(vnum, mobs);
 
-	if (mob_id_by_vnum.contains(vnum)) {
-		std::vector<long> list_idnum;
-		list_idnum = mob_id_by_vnum[vnum];
-		for (auto it : list_idnum) {
+	if (!mobs.empty()) {
+		for (auto it : mobs) {
 			if (count++ == num) {
-				return it;
+				return it->id;
 			}
 		}
 	}
@@ -4851,7 +4851,7 @@ bool find_all_char_vnum(MobVnum vnum, char *str) {
 	int count = 0;
 	Characters::list_t mobs;
 
-	character_list.get_mobs_by_rnum(real_mobile(vnum), mobs);
+	character_list.get_mobs_by_vnum(vnum, mobs);
 	for (const auto &mob : mobs) {
 		snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(mob));
 		++count;

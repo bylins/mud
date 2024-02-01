@@ -1164,7 +1164,7 @@ void summon_mob_helpers(CharData *ch) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
 		Characters::list_t mobs;
-		character_list.get_mobs_by_rnum(real_mobile(helpee), mobs);
+		character_list.get_mobs_by_vnum(helpee, mobs);
 		for (const auto &vict : mobs) {
 			if (AFF_FLAGGED(ch, EAffect::kCharmed)
 				|| AFF_FLAGGED(vict, EAffect::kHold)
