@@ -820,16 +820,12 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		PlaceCharToRoom(m, ch->in_room);
 		std::swap(ch, m);
 		std::swap(ch->id, m->id); //UID надо осталять старые
-		Trigger *new_t = new Trigger();
+		Trigger *new_t = new Trigger(*trig_index[trig->get_rnum()]->proto);
 //перенесем триггера
 		ch->script->trig_list.clear();
 	 	for (auto t_tmp : m->script->trig_list) {
-			Trigger *t = new Trigger();
-			*t = *t_tmp;
+			Trigger *t = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
 			ch->script->trig_list.add(t);
-			if (t_tmp == trig) {
-				*new_t = *trig;
-			}
 		}
 //найдем текущую выполняемую строку в старом триггере
 		auto c = *trig->cmdlist;
