@@ -606,6 +606,7 @@ std::string OutAllSkillsHelp() {
 	std::string tmpstr;
 	int columns = 0;
 
+	out << "Список возможных умений:\r\n";
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsInvalid())
 			continue;
@@ -621,12 +622,56 @@ std::string OutAllSkillsHelp() {
 	return out.str();
 }
 
+std::string OutAllRecipiesHelp() {
+	std::stringstream out;
+	std::vector<std::string> recipies_list;
+	std::string tmpstr;
+	int columns = 0;
+
+	out << "Список возможных рецептов:\r\n";
+	for (int sortpos = 0; sortpos <= top_imrecipes; sortpos++) {
+		recipies_list.push_back(imrecipes[sortpos].name);
+	}
+	utils::SortKoiString(recipies_list);
+	for (auto it : recipies_list) {
+		tmpstr = !(++columns % 3) ? "\r\n" : "\t";
+		out << fmt::format("\t{:<30} {}", it, tmpstr);
+	}
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	return out.str();
+}
+
+std::string OutAllFeaturesHelp() {
+	std::stringstream out;
+	std::vector<std::string> feats_list;
+	std::string tmpstr;
+	int columns = 0;
+
+	out << "Список возможных способносей:\r\n";
+	for (const auto &feat : MUD::Feats()) {
+		if (feat.IsUnavailable()) {
+			continue;
+		}
+		feats_list.push_back(MUD::Feat(feat.GetId()).GetCName());
+	}
+	utils::SortKoiString(feats_list);
+	for (auto it : feats_list) {
+		tmpstr = !(++columns % 3) ? "\r\n" : "\t";
+		out << fmt::format("\t{:<30} {}", it, tmpstr);
+	}
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	return out.str();
+}
+
 std::string OutAllSpellsHelp() {
 	std::stringstream out;
 	std::vector<std::string> spells_list;
 	std::string tmpstr;
 	int columns = 0;
 
+	out << "Список возможных заклинаний:\r\n";
 	for (auto &it : MUD::Spells()) {
 		auto spell_id = it.GetId();
 
@@ -1003,17 +1048,27 @@ void ClassFeatureHelp() {
 	add_static("СПОСОБНОСТИВОЛХВА", out.str(), 0, true);
 }
 
-void AllSkillSpellHelp() {
+void AllHelp() {
 	std::stringstream out;
 
 	out << OutAllSkillsHelp();
-	out << "\r\nСм. также: &CЗАКЛИНАНИЯВСЕ&n";
+	out << "\r\nСм. также: &CЗАКЛИНАНИЯВСЕ&n, &CОТВАРЫВСЕ&n, &CСПОСОБНОСТИВСЕ&n";
 	add_static("УМЕНИЯВСЕ", out.str(), 0, true);
 
 	out.str("");
 	out << OutAllSpellsHelp();
-	out << "\r\nСм. также: &CУМЕНИЯВСЕ&n";
+	out << "\r\nСм. также: &CУМЕНИЯВСЕ&n, &CОТВАРЫВСЕ&n, &CСПОСОБНОСТИВСЕ&n";
 	add_static("ЗАКЛИНАНИЯВСЕ", out.str(), 0, true);
+
+	out.str("");
+	out << OutAllFeaturesHelp();
+	out << "\r\nСм. также: &CУМЕНИЯВСЕ&n, &CЗАКЛИНАНИЯВСЕ&n, &CОТВАРЫВСЕ&n";
+	add_static("СПОСОБНОСТИВСЕ", out.str(), 0, true);
+
+	out.str("");
+	out << OutAllRecipiesHelp();
+	out << "\r\nСм. также: &CУМЕНИЯВСЕ&n, &CЗАКЛИНАНИЯВСЕ&n, &CСПОСОБНОСТИВСЕ&n";
+	add_static("ОТВАРЫВСЕ", out.str(), 0, true);
 }
 
 
@@ -1253,7 +1308,7 @@ void reload(Flags flag) {
 			ClassFeatureHelp();
 			CasterSpellslHelp();
 			SetsHelp();
-			AllSkillSpellHelp();
+			AllHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей 
