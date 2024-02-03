@@ -2557,7 +2557,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
-		log("SKILLTEST:;%s;skill;%s;damage;%d", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam);
+		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
 	}
 	// если на чармисе вампир
 	if (AFF_FLAGGED(ch, EAffect::kVampirism)) {
