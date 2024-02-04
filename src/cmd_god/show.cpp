@@ -219,7 +219,7 @@ std::string print_zone_enters(ZoneRnum zone) {
 			 "\r\nВходы в зону %3d:\r\n", zone_table[zone].vnum);
 	std::string out(tmp);
 
-	for (int n = kFirstRoom; n <= top_of_world; n++) {
+	for (int n = kFirstRoom; n <= top_of_real_world; n++) {
 		if (world[n]->zone_rn != zone) {
 			for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 				if (world[n]->dir_option[dir]
@@ -249,7 +249,7 @@ std::string print_zone_exits(ZoneRnum zone) {
 			 "\r\nВыходы из зоны %3d:\r\n", zone_table[zone].vnum);
 	std::string out(tmp);
 
-	for (int n = kFirstRoom; n <= top_of_world; n++) {
+	for (int n = kFirstRoom; n <= top_of_real_world; n++) {
 		if (world[n]->zone_rn == zone) {
 			for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 				if (world[n]->dir_option[dir]
@@ -570,7 +570,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
 			sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
 					world_objects.size(), obj_proto.size());
-			sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd\r\n", top_of_world + 1, zone_table.size());
+			sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd\r\n", top_of_real_world + 1, zone_table.size());
 			sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 			sprintf(buf + strlen(buf),
 					"  Переключенных буферов - %5d, переполненных - %5d\r\n",
@@ -597,7 +597,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 5: {
 			int k = 0;
 			strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
-			for (i = kFirstRoom; i <= top_of_world; i++) {
+			for (i = kFirstRoom; i <= top_of_real_world; i++) {
 				for (j = 0; j < EDirection::kMaxDirNum; j++) {
 					if (world[i]->dir_option[j]
 						&& world[i]->dir_option[j]->to_room() == 0) {
@@ -611,13 +611,13 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 
 		case 6: strcpy(buf, "Смертельных выходов\r\n" "-------------------\r\n");
-			for (i = kFirstRoom, j = 0; i <= top_of_world; i++)
+			for (i = kFirstRoom, j = 0; i <= top_of_real_world; i++)
 				if (ROOM_FLAGGED(i, ERoomFlag::kDeathTrap))
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
 			page_string(ch->desc, buf, true);
 			break;
 		case 7: strcpy(buf, "Комнаты для богов\r\n" "-----------------\r\n");
-			for (i = kFirstRoom, j = 0; i <= top_of_world; i++)
+			for (i = kFirstRoom, j = 0; i <= top_of_real_world; i++)
 				if (ROOM_FLAGGED(i, ERoomFlag::kGodsRoom))
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++j, GET_ROOM_VNUM(i), world[i]->name);
 			page_string(ch->desc, buf, true);

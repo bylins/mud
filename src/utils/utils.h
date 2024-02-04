@@ -454,7 +454,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
                                ( weather_info.sunlight == kSunSet || \
                                  weather_info.sunlight == kSunDark )) )
 
-#define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
+#define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_real_world)
 #define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
@@ -936,7 +936,7 @@ const int kNameLevel = 5;
                            (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
                            : GET_PAD_OBJ(pad))
 
-#define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_world) ? \
+#define EXITDATA(room, door) (((room) >= 0 && (room) <= top_of_real_world) ? \
                              world[(room)]->dir_option[(door)] : nullptr)
 
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])

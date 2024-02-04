@@ -2018,7 +2018,7 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 	if (sky_info) {
 		duration = std::max(GetRealLevel(ch) / 8, 2);
 		zone = world[ch->in_room]->zone_rn;
-		for (i = kFirstRoom; i <= top_of_world; i++)
+		for (i = kFirstRoom; i <= top_of_real_world; i++)
 			if (world[i]->zone_rn == zone && SECT(i) != ESector::kInside && SECT(i) != ESector::kCity) {
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;

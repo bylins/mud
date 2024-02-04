@@ -83,8 +83,9 @@ long beginning_of_time = 650336715;
 
 Rooms &world = GlobalObjects::world();
 
-RoomRnum top_of_world = 0;    // ref to top element of world
-RoomRnum top_of_real_world = 0;    // мир загруженный из lib
+RoomRnum top_of_proto_world = 0;    // ref to top element of world
+RoomRnum top_of_real_world = 0;    // текущий мир
+ZoneVnum first_zone_dungeon = 30000;
 
 void add_trig_index_entry(int nr, Trigger *trig) {
 	IndexData *index;
@@ -2719,7 +2720,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 		case DB_BOOT_WLD: {
 			// Creating empty world with kNowhere room.
 			world.push_back(new RoomData);
-			top_of_world = kFirstRoom;
+			top_of_proto_world = kNowhere;
 			const size_t rooms_bytes = sizeof(RoomData) * rec_count;
 			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
 		}
@@ -2832,7 +2833,7 @@ void add_vrooms_to_all_zones() {
 		});
 		auto insert_position = (insert_reverse_position == world.rend()) ? world.begin() : insert_reverse_position.base();
 
-		top_of_world++;
+		top_of_proto_world++;
 		top_of_real_world++;
 		RoomData *new_room = new RoomData;
 		world.insert(insert_position, new_room);
@@ -2860,8 +2861,7 @@ void add_vrooms_to_all_zones() {
 // resolve all vnums into rnums in the world
 void renum_world(void) {
 	int room, door;
-
-	for (room = kFirstRoom; room <= top_of_world; room++) {
+	for (room = kFirstRoom; room <= top_of_proto_world; room++) {
 		for (door = 0; door < EDirection::kMaxDirNum; door++) {
 			if (world[room]->dir_option[door]) {
 				if (world[room]->dir_option[door]->to_room() != kNowhere) {
@@ -3432,7 +3432,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 int vnum_room(char *searchname, CharData *ch) {
 	int nr, found = 0;
 
-	for (nr = 0; nr <= top_of_world; nr++) {
+	for (nr = 0; nr <= top_of_proto_world; nr++) {
 		if (isname(searchname, world[nr]->name)) {
 			sprintf(buf, "%3d. [%7d] %s\r\n", ++found, world[nr]->room_vn, world[nr]->name);
 			SendMsgToChar(buf, ch);
@@ -4337,7 +4337,7 @@ void ZoneReset::reset_zone_essential() {
 					// Follow mobiles
 					// 'F' <flag> <RoomVnum> <leader_vnum> <MobVnum>
 					leader = nullptr;
-					if (ZCMD.arg1 >= kFirstRoom && ZCMD.arg1 <= top_of_world) {
+					if (ZCMD.arg1 >= kFirstRoom && ZCMD.arg1 <= top_of_proto_world) {
 						for (const auto ch : world[ZCMD.arg1]->people) {
 							if (ch->IsNpc() && GET_MOB_RNUM(ch) == ZCMD.arg2) {
 								leader = ch;
@@ -4639,7 +4639,7 @@ void ZoneReset::reset_zone_essential() {
 							curr_state = 1;
 						}
 					} else if (ZCMD.arg1 == WLD_TRIGGER) {
-						if (ZCMD.arg2 < kFirstRoom || ZCMD.arg2 > top_of_world) {
+						if (ZCMD.arg2 < kFirstRoom || ZCMD.arg2 > top_of_proto_world) {
 							ZONE_ERROR("Invalid room number in variable assignment");
 						} else {
 							if (!SCRIPT(world[ZCMD.arg2])->has_triggers()) {
@@ -4737,7 +4737,7 @@ int GetZoneRooms(ZoneRnum zone_nr, int *first, int *last) {
 	if (*first == kNowhere)
 		return 0;
 /*
-	for (int nr = kFirstRoom; nr <= top_of_world; nr++) {
+	for (int nr = kFirstRoom; nr <= top_of_proto_world; nr++) {
 		if (world[nr]->room_vn >= numzone && *first == 0) {
 			*first = world[nr]->room_vn;
 		}
@@ -5285,16 +5285,21 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 // returns the real number of the room with given virtual number
 RoomRnum real_room(RoomVnum vnum) {
 	RoomRnum bot, top, mid;
-
-	if (vnum >= 30000 && vnum <= 30099) {
-		for (mid = top_of_real_world; mid <= top_of_world; mid++) {
-		if (world[mid]->room_vn == vnum)
-			return (mid);
+	if (vnum >= 3000000) {
+		for (RoomVnum fnd  = top_of_proto_world + 1; fnd <= top_of_real_world; fnd++) {
+//			sprintf(buf, "запрос vnum %d, Найден внум %d, proto %d real %d", vnum, world[fnd]->room_vn, top_of_proto_world, top_of_real_world);
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			if (world[fnd]->room_vn == vnum) {
+				sprintf(buf, "нашли rnum %d имя %s", fnd, world[fnd]->name);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				return (fnd);
+			}
 		}
+		return kNowhere;
 	}
 
-	bot = 1;        // 0 - room is kNowhere
-	top = top_of_world;
+	bot = 0;        // 0 - room is kNowhere
+	top = top_of_proto_world;
 	// perform binary search on world-table
 	for (;;) {
 		mid = (bot + top) / 2;

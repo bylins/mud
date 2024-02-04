@@ -79,9 +79,9 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	bool through_locked_doors = false;
 	bool through_closed_doors = false;
 	bool through_notrack = false;
-	RoomRnum curr_room, rnum_start = kFirstRoom, rnum_stop = top_of_world;
+	RoomRnum curr_room, rnum_start = kFirstRoom, rnum_stop = top_of_real_world;
 
-	if (src < kFirstRoom || src > top_of_world || target < kFirstRoom || target > top_of_world) {
+	if (src < kFirstRoom || src > top_of_real_world || target < kFirstRoom || target > top_of_real_world) {
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);
 		return (kBfsError);
 	}

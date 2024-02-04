@@ -501,7 +501,7 @@ void medit_save_internally(DescriptorData *d) {
 		}
 
 		// 5. Информация о выслеживании
-		for (j = kFirstRoom; j <= top_of_world; j++) {
+		for (j = kFirstRoom; j <= top_of_real_world; j++) {
 			struct TrackData *track;
 
 			for (track = world[j]->track; track; track = track->next) {

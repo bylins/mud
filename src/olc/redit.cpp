@@ -136,7 +136,7 @@ void redit_save_internally(DescriptorData *d) {
 		if (it != world.cend()) {
 			world.insert(it, new_room);
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
-			for (i = room_num; i <= top_of_world; i++) {
+			for (i = room_num; i <= top_of_real_world; i++) {
 				for (const auto temp_ch : world[i]->people) {
 					if (temp_ch->in_room != kNowhere) {
 						temp_ch->in_room = i;
@@ -156,7 +156,7 @@ void redit_save_internally(DescriptorData *d) {
 		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
-		top_of_world++;
+		top_of_real_world++;
 
 // ПЕРЕИНДЕКСАЦИЯ
 
@@ -214,7 +214,7 @@ void redit_save_internally(DescriptorData *d) {
 		}
 
 		// Порталы, выходы
-		for (i = kFirstRoom; i < top_of_world + 1; i++) {
+		for (i = kFirstRoom; i < top_of_real_world + 1; i++) {
 			if (world[i]->portal_room >= room_num) {
 				world[i]->portal_room++;
 			}

@@ -381,7 +381,7 @@ ObjData *find_obj_by_id(const object_id_t id) {
 RoomData *find_room(long n) {
 	n = real_room(n - kRoomToBase);
 
-	if ((n >= kFirstRoom) && (n <= top_of_world))
+	if ((n >= kFirstRoom) && (n <= top_of_real_world))
 		return world[n];
 
 	return nullptr;
@@ -743,7 +743,7 @@ void script_trigger_check() {
 	alarge_amount = 0;
 	sum = 0;
 	RoomData *where = nullptr;
-	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
+	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_real_world); nr++) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
@@ -790,7 +790,7 @@ void script_timechange_trigger_check(const int time, const int time_day) {
 		}
 	});
 
-	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
+	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_real_world); nr++) {
 		if (SCRIPT(world[nr])->has_triggers()) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
@@ -815,7 +815,6 @@ EVENT(trig_wait_event) {
 	type = wait_event_obj->type;
 
 	GET_TRIG_WAIT(trig) = nullptr;
-
 	script_driver(go, trig, type, TRIG_RESTART);
 	free(wait_event_obj);
 }

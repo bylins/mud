@@ -308,7 +308,7 @@ void sprintbyts(int data, char *dest) {
 void TriggerDistribution(DescriptorData *d) {
 	switch (OLC_TRIG(d)->get_attach_type()) {
 		case WLD_TRIGGER: // в комнатах ссылка на прототип
-			for (RoomRnum nr = kFirstRoom; nr <= top_of_world; nr++) {
+			for (RoomRnum nr = kFirstRoom; nr <= top_of_real_world; nr++) {
 				if (!SCRIPT(world[nr])->has_triggers())
 					continue;
 				auto sc = SCRIPT(world[nr]); 

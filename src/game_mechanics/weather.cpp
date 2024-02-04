@@ -354,7 +354,7 @@ void weather_change(void) {
 
 
 	// Change some values for world
-	for (i = kFirstRoom; i <= top_of_world; i++) {
+	for (i = kFirstRoom; i <= top_of_real_world; i++) {
 		raincast = snowcast = 0;
 		if (ROOM_FLAGGED(i, ERoomFlag::kNoWeather))
 			continue;

@@ -30,7 +30,7 @@ void deathtrap::load() {
 	// на случай релоада, свапать смысла нету
 	room_list.clear();
 
-	for (int i = kFirstRoom; i <= top_of_world; ++i)
+	for (int i = kFirstRoom; i <= top_of_real_world; ++i)
 		if (ROOM_FLAGGED(i, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(i, ERoomFlag::kIceTrap))
 			room_list.push_back(world[i]);
 }

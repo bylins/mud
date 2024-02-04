@@ -368,13 +368,41 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
-void dublicate_room(RoomData *dst, RoomData *src) {
+//void dublicate_room(RoomData *dst, RoomData *src) {
 //	memcpy(src, dst, sizeof(RoomData));;
+//}
+
+void ClearDungeon() {
+	for(auto room = top_of_proto_world + 1; top_of_proto_world != top_of_real_world; room++) {
+		log("free room %d %p", room, world[room]);
+		room_free(world[room]);
+		delete world[room];
+//		free(world[room]);
+		log("after free");
+		top_of_real_world--;
+	}
+/*
+for (std::vector<int>::iterator it = c.begin(); it != c.end();)
+    {
+        if (*it % 2 == 0)
+            it = c.erase(it);
+        else
+            ++it;
+    }
+*/
+	log("TOP proto %d real %d vnum %d name %s", top_of_proto_world, top_of_real_world, world[top_of_proto_world]->room_vn, world[top_of_proto_world]->name);
+	
+	world.erase(world.begin() + top_of_proto_world + 1, world.end());
+//	for (auto it : world) {
+//		log("world name %s vnum %d", it->name, it->room_vn);
+//	}
+	log("after erase TOP proto %d real %d vnum %d name %s", top_of_proto_world, top_of_real_world, world[top_of_proto_world]->room_vn, world[top_of_proto_world]->name);
 }
 
 void DoZoneCopy(CharData *ch, char *argument, int, int) {
-	ZoneRnum first_room_dungeon = top_of_real_world+1;
-	ZoneVnum first_vnum = 30000;
+	ZoneRnum room_dungeon = top_of_proto_world + 1;
+	ZoneVnum z_vnum = first_zone_dungeon;
+	RoomVnum first_vnum = z_vnum * 100;
 	int next = 0;
 	ZoneVnum zone_from = atoi(argument);
 	int rnum_start, rnum_stop;
@@ -385,26 +413,97 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		SendMsgToChar(buf2, ch);
 		return;
 	}
-		sprintf(buf2, "%d %d %d \r\n.", first_room_dungeon , top_of_world+1, top_of_real_world);
+	if (real_room(first_vnum) != kNowhere) {
+		sprintf(buf2, "Чистим прошлый данж\r\n");
 		SendMsgToChar(buf2, ch);
+		ClearDungeon();
+	}
+	sprintf(buf2, "Создаем новый данж\r\n");
+	SendMsgToChar(buf2, ch);
 	for(int i = rnum_start; i <= rnum_stop; i++) {
 		RoomData *new_room = new RoomData;
 
+		top_of_real_world++;
 		world.push_back(new_room);
+		new_room->zone_rn = ZoneRnumFromVnum(z_vnum);
+		new_room->room_vn = first_vnum + (world[i]->room_vn - world[i]->room_vn / 100 * 100);
+		new_room->name = str_dup(world[i]->name);
+		log("vnum room %d %p", world[top_of_real_world]->room_vn, world[top_of_real_world]);
+		log("rnum room %d %p", real_room(new_room->room_vn), new_room);
+		log("----------------");
+		new_room->description_num = world[i]->description_num;
+		new_room->write_flag(world[i]->read_flag());
+		new_room->sector_type = world[i]->sector_type;
+		new_room->affected_by.clear();
+		memset(&new_room->base_property, 0, sizeof(RoomState));
+		memset(&new_room->add_property, 0, sizeof(RoomState));
+		new_room->people.clear();
+		new_room->func = nullptr;
+		new_room->contents = nullptr;
+		new_room->track = nullptr;
+		new_room->light = 0;
+		new_room->fires = 0;
+		new_room->gdark = 0;
+		new_room->glight = 0;
+//		new_room->proto_script.reset(new ObjData::triggers_list_t());
+		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
+			new_room->dir_option[dir] = nullptr;
+		}
+		sprintf(buf2, "vnum %d rnum %d ", new_room->room_vn, room_dungeon);
+		SendMsgToChar(buf2, ch);
+		sprintf(buf2, "Имя %s старый топ %d, новый топ %d\r\n", new_room->name, top_of_proto_world, top_of_real_world);
+		SendMsgToChar(buf2, ch);
+		new_room->ex_description = nullptr;
+	}
+/*  правильно перенести
+		const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
+		new_descr->set_keyword(world[i]->desc->keyword);
+		new_descr->set_description(world[i]->desc->description);
+		new_room->ex_description = new_descr; //сделать чтоб копировались все а не 1шт
+*/		
+	int shift = 0;
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		RoomData *new_room = world[room_dungeon + shift];
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			const auto &from = world[i]->dir_option[dir];
+			if (from) {
+				int to_room = world[i]->dir_option[dir]->to_room();// - rnum_start + first_room_dungeon;
+//				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[i]->name, world[i]->room_vn, world[to_room]->name, world[to_room]->room_vn);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				if (to_room >= rnum_start  && to_room <= rnum_stop) {
+					int room = world[i]->dir_option[dir]->to_room() - rnum_start + room_dungeon;
+					new_room->dir_option[dir].reset(new ExitData());
+						new_room->dir_option[dir]->to_room(world[i]->dir_option[dir]->to_room() - rnum_start + room_dungeon);
+//					sprintf(buf, "to  room %s (%d) exit  %s (%d)", new_room->name, new_room->room_vn, 
+//						world[room]->name, world[room]->room_vn);
+//					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				}
+			}
+		}
+		shift++;
+	}
+
+
+
+
+
+
+
+/*
 //		*new_room =  *world[i];
 		*world[first_room_dungeon] =  *world[i];
 //		dublicate_room(world[first_room_dungeon], world[i]);
 		new_room->zone_rn = ZoneRnumFromVnum(300); //zone_table.size()+1;
 		world[first_room_dungeon]->room_vn = first_vnum + (world[i]->room_vn - world[i]->room_vn / 100 * 100);
 		sprintf(buf, "Zone %d, room %s (%d) lastroom %s (%d) to room %d (%d) ", rzone_from, world[i]->name, world[i]->room_vn,  world[first_room_dungeon]->name, world[first_room_dungeon]->room_vn,
-first_room_dungeon , top_of_world+1);
+first_room_dungeon , top_of_proto_world+1);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		sprintf(buf, "FROOM %s (%d)", world[first_room_dungeon]->name, world[first_room_dungeon]->room_vn);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 //		world[first_room_dungeon + next]->room_vn = first_vnum + (world[i]->room_vn - world[i]->room_vn / 100 * 100);
 
 		first_room_dungeon++;
-		top_of_world++;
+		top_of_real_world++;
 	}
 		first_room_dungeon = top_of_real_world+1;
 
@@ -429,6 +528,7 @@ first_room_dungeon , top_of_world+1);
 		}
 		first_room_dungeon++;
 	}
+*/
 }
 
 
@@ -1651,7 +1751,7 @@ void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if ((location = find_target_room(ch, argument, 0)) == kNowhere)
 		return;
-
+	SendMsgToChar(ch, "goto %d\r\n", location);
 	if (POOFOUT(ch))
 		sprintf(buf, "$n %s", POOFOUT(ch));
 	else
@@ -4015,7 +4115,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			snprintf(buf_, sizeof(buf_),
 					 "Список комнат от Vnum %d до %d\r\n", first, last);
 			out += buf_;
-			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->room_vn <= last); nr++) {
+			for (nr = kFirstRoom; nr <= top_of_proto_world && (world[nr]->room_vn <= last); nr++) {
 				if (world[nr]->room_vn >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
 							 ++found, world[nr]->room_vn, world[nr]->zone_rn, world[nr]->name);

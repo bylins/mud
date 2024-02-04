@@ -242,8 +242,10 @@ void RemoveCharFromRoom(CharData *ch) {
 	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, -1);
 
 	auto &people = world[ch->in_room]->people;
-	people.erase(std::find(people.begin(), people.end(), ch));
 
+	if (!people.empty()) {
+		people.erase(std::find(people.begin(), people.end(), ch));
+	}
 	ch->in_room = kNowhere;
 	ch->track_dirs = 0;
 }
@@ -283,9 +285,9 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 }
 
 void PlaceCharToRoom(CharData *ch, RoomRnum room) {
-	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
+	if (ch == nullptr || room < kNowhere + 1 || room > top_of_real_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_real_world, ch);
 		return;
 	}
 
@@ -342,9 +344,9 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 }
 // place a character in a room
 void FleeToRoom(CharData *ch, RoomRnum room) {
-	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
+	if (ch == nullptr || room < kNowhere + 1 || room > top_of_real_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_real_world, ch);
 		return;
 	}
 
@@ -1407,10 +1409,10 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		log("SYSERR: какая то хрень опять лоад в виртуалке");
 	}
-	if (!object || room < kFirstRoom || room > top_of_world) {
+	if (!object || room < kFirstRoom || room > top_of_real_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to PlaceObjToRoom. (Room #%d/%d, obj %p)",
-			room, top_of_world, object);
+			room, top_of_real_world, object);
 		return false;
 	} 
 	RestoreObject(object, nullptr);

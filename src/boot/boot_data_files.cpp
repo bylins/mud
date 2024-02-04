@@ -377,13 +377,14 @@ void WorldFile::read_entry(const int nr) {
 }
 
 void WorldFile::parse_room(int virtual_nr) {
-	static int room_realnum = kFirstRoom;
+	int room_realnum = ++top_of_proto_world;
 	static ZoneRnum zone = 0;
 
 	int t[10], i;
 	char line[256], flags[128];
 	char letter;
 
+	log("Room %d", room_realnum);
 	if (virtual_nr <= (zone ? zone_table[zone - 1].top : -1)) {
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
 		exit(1);
@@ -493,8 +494,7 @@ void WorldFile::parse_room(int virtual_nr) {
 							break;
 					}
 				} while (letter != 0);
-				top_of_world = room_realnum++;
-				top_of_real_world = top_of_world;
+				top_of_real_world = top_of_proto_world;
 				return;
 
 			default: log("%s", buf);

@@ -1081,7 +1081,7 @@ void hour_update() {
 
 void room_point_update() {
 	int mana;
-	for (int count = kFirstRoom; count <= top_of_world; count++) {
+	for (int count = kFirstRoom; count <= top_of_real_world; count++) {
 		if (world[count]->fires) {
 			switch (get_room_sky(count)) {
 				case kSkyCloudy:
