@@ -1576,25 +1576,25 @@ bool ZoneFile::load_regular_zone() {
 		}
 
 		if (*buf == '^') {
-			std::string comment(buf);
+			std::string comment = buf;
 			utils::TrimIf(comment, "^~");
 			zone.comment = comment;
 		}
 
 		if (*buf == '&') {
-			std::string location(buf);
+			std::string location = buf;
 			utils::TrimIf(location, "&~");
 			zone.location = location;
 		}
 
 		if (*buf == '!') {
-			std::string autor(buf);
+			std::string autor = buf;
 			utils::TrimIf(autor, "!~");
 			zone.author = autor;
 		}
 
 		if (*buf == '$') {
-			std::string description(buf);
+			std::string description = buf ;
 			utils::TrimIf(description, "$~");
 			zone.description = description;
 		}

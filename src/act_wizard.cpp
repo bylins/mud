@@ -366,8 +366,48 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
+void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
+	auto &zone_from = zone_table[rzone_from];
+	auto &zone_to = zone_table[rzone_to];
+
+		zone_to.copy_from_zone = zone_from.vnum;
+		zone_to.name = zone_from.name;
+		zone_to.comment = zone_from.comment;
+		zone_to.location = zone_from.location;
+		zone_to.author = zone_from.author;
+		zone_to.description = zone_from.description;
+
+		zone_to.under_construction = zone_from.under_construction;
+		zone_to.top = zone_to.vnum * 100 + 99;
+		zone_to.FirstRoomVnum = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
+		zone_to.LastRoomVnum = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
+		zone_to.reset_mode = zone_from.reset_mode;
+//		free(zone_to.cmd);
+}
 
 void DoZoneCopy(CharData *ch, char *argument, int, int) {
+	ZoneVnum zvn, zone_from = atoi(argument);
+	RoomRnum rnum_start, rnum_stop;
+	ZoneRnum rzone_from = real_zone(zone_from);
+
+	if (!GetZoneRooms(rzone_from, &rnum_start, &rnum_stop)) {
+		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_from));
+		SendMsgToChar(buf2, ch);
+		return;
+	}
+	for (zvn = ZoneStartDungeons; zvn < ZoneStartDungeons + NumberOfZoneDungeons; zvn++) {
+		if (zone_table[real_zone(zvn)].copy_from_zone == 0) {
+			sprintf(buf, "Клонирую зону %d в %d, осталось места %d", zone_from, zvn, ZoneStartDungeons + NumberOfZoneDungeons - zvn - 1);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			break;
+		}
+	}
+	if (zvn == ZoneStartDungeons + NumberOfZoneDungeons) {
+			sprintf(buf, "Нет места для клонирования зон, МАКС %d", NumberOfZoneDungeons);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
+	ZoneDataCopy(rzone_from, real_zone(zvn));
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

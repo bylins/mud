@@ -2822,21 +2822,32 @@ void CreateBlankRoomDungeon() {
 	ZoneVnum zone_vnum = ZoneStartDungeons;
 	ZoneRnum zone_rnum = zone_table.size() - NumberOfZoneDungeons;
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-//		log("1Zone %d name %s zrn %d zone_rnum %d", zone_table[zrn].vnum, zone_table[zrn].name, zrn, zone_rnum);
+//		log("1Zone %d name %s zrn %d zone_rnum %d", zone_table[zrn].vnum, zone_table[zrn].name.c_str(), zrn, zone_rnum);
 //	}
-	ZoneData new_zone;
-
-	zone_table.push_back(std::move(new_zone));
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
 		zone_table[zone_rnum].vnum = zone_vnum;
-		zone_table[zone_rnum].name = "Зона для данжей";
+		zone_table[zone_rnum].name = str_dup("Зона для данжей");
 		zone_table[zone_rnum].under_construction = true;
-		zone_table[zone_rnum].top = zone_vnum * 100 + 99;
-		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100 + 99;
+		zone_table[zone_rnum].top = zone_vnum * 100;
+		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100;
 		zone_table[zone_rnum].LastRoomVnum = zone_vnum * 100 + 98;
 		zone_table[zone_rnum].reset_mode = 0; //не очищается
 		CREATE(zone_table[zone_rnum].cmd, 1);
 		zone_table[zone_rnum].cmd[0].command = 'S'; //пустой список команд
+/*
+		ZoneData new_zone;
+
+		new_zone.vnum = zone_vnum;
+		new_zone.name = "Зона для данжей";
+		new_zone.under_construction = true;
+		new_zone.top = zone_vnum * 100 + 99;
+		new_zone.FirstRoomVnum = zone_vnum * 100;
+		new_zone.LastRoomVnum = zone_vnum * 100 + 98;
+		new_zone.reset_mode = 0; //не очищается
+		CREATE(new_zone.cmd, 1);
+		new_zone.cmd[0].command = 'S'; //пустой список команд
+		zone_table.push_back(std::move(new_zone));
+*/
 		for (RoomVnum room = 0; room <= 99; room++) {
 			RoomData *new_room = new RoomData;
 
@@ -2854,7 +2865,7 @@ void CreateBlankRoomDungeon() {
 	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
 	}
-	exit(0);
+//	exit(0);
 }
 
 void add_vrooms_to_all_zones() {

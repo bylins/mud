@@ -33,7 +33,7 @@ ZoneData::ZoneData() : traffic(0),
 }
 
 ZoneData::~ZoneData() {
-	log("~ZoneData zone %d", vnum);
+//	log("~ZoneData zone %d", vnum);
 	if (!name.empty())
 		name.clear();;
 	if (!comment.empty())
