@@ -552,7 +552,7 @@ void init_zone_all() {
 	std::stringstream out;
 
 	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum) {
-		if (zone_table[rnum].location) {
+		if (!zone_table[rnum].location.empty()) {
 			out << fmt::format("  {:<2} - {}. Расположена: {}. Группа: {}. Примерный уровень: {}.\r\n",
 					i, zone_table[rnum].name, zone_table[rnum].location,
 					zone_table[rnum].group, zone_table[rnum].level);

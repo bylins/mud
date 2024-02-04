@@ -2711,11 +2711,11 @@ void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		zone_repop_list.push_back(i);
 		RepopDecay(zone_repop_list);
 		reset_zone(i);
-		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name);
+		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name.c_str());
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
+		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
+		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 	} else {
 		SendMsgToChar("Нет такой зоны.\r\n", ch);
 	}
@@ -4002,7 +4002,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 							 zone_table[nr].level,
 							 zone_table[nr].mob_level,
 							 zone_table[nr].group,
-							 zone_table[nr].name);
+							 zone_table[nr].name.c_str());
 					out += buf_;
 				}
 			}

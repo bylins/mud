@@ -195,7 +195,7 @@ void print_mob_bosses(CharData *ch, bool lvl_sort) {
 		"--------------------------------------------------------------------------------\r\n");
 
 	for (int mob_rnum : tmp_list) {
-		std::string zone_name_str = zone_table[mob_index[mob_rnum].zone].name ?
+		std::string zone_name_str = !zone_table[mob_index[mob_rnum].zone].name.empty() ?
 									zone_table[mob_index[mob_rnum].zone].name : "EMPTY";
 
 		const auto mob = mob_proto + mob_rnum;
@@ -285,7 +285,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 "First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
 			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d\r\n",
 			 zone_table[zone].vnum,
-			 zone_table[zone].name,
+			 zone_table[zone].name.c_str(),
 			 zone_table[zone].mob_level,
 			 zone_types[zone_table[zone].type].name,
 			 zone_table[zone].age, zone_table[zone].lifespan,
@@ -299,7 +299,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].used ? "Y" : "N",
 			 (double) zone_table[zone].activity / 1000,
 			 zone_table[zone].group,
-			 zone_table[zone].author ? zone_table[zone].author : "неизвестен",
+			 !zone_table[zone].author.empty() ? zone_table[zone].author.c_str() : "неизвестен",
 			 zone_table[zone].count_reset,
 			 zone_table[zone].traffic);
 	*bufptr = str_add(*bufptr, tmpstr);

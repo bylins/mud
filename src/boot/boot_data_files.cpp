@@ -1479,10 +1479,6 @@ bool ZoneFile::load_zone() {
 	zone.reset_idle = false;
 	zone.used = false;
 	zone.activity = 0;
-	zone.comment = nullptr;
-	zone.location = nullptr;
-	zone.description = nullptr;
-	zone.author = nullptr;
 	zone.group = false;
 	zone.count_reset = 0;
 	zone.traffic = 0;
@@ -1569,7 +1565,7 @@ bool ZoneFile::load_regular_zone() {
 	{
 		*ptr = '\0';
 	}
-	zone.name = str_dup(buf);
+	zone.name = buf;
 
 	log("Читаем zon файл: %s", full_file_name().c_str());
 	while (*buf != 'S' && !feof(file())) {
@@ -1582,25 +1578,25 @@ bool ZoneFile::load_regular_zone() {
 		if (*buf == '^') {
 			std::string comment(buf);
 			utils::TrimIf(comment, "^~");
-			zone.comment = str_dup(comment.c_str());
+			zone.comment = comment;
 		}
 
 		if (*buf == '&') {
 			std::string location(buf);
 			utils::TrimIf(location, "&~");
-			zone.location = str_dup(location.c_str());
+			zone.location = location;
 		}
 
 		if (*buf == '!') {
 			std::string autor(buf);
 			utils::TrimIf(autor, "!~");
-			zone.author = str_dup(autor.c_str());
+			zone.author = autor;
 		}
 
 		if (*buf == '$') {
 			std::string description(buf);
 			utils::TrimIf(description, "$~");
-			zone.description = str_dup(description.c_str());
+			zone.description = description;
 		}
 	}
 

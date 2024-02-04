@@ -52,9 +52,9 @@ class ZoneData {
 	ZoneVnum vnum;    // virtual number of this zone
 	ZoneVnum copy_from_zone;
 	// Местоположение зоны
-	char *location;
+	std::string location;
 	// Описание зоны
-	char *description;
+	std::string description;
 	struct reset_com *cmd;    // command table for reset
 
 	int typeA_count;

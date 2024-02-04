@@ -493,7 +493,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 
 		// Освободить зону
 		if (OLC_ZONE(d)) {
-			free(OLC_ZONE(d)->name);
+			OLC_ZONE(d)->name.clear();
 			zedit_delete_cmdlist((pzcmd) OLC_ZONE(d)->cmd);
 			free(OLC_ZONE(d));
 		}

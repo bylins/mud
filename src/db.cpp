@@ -2500,7 +2500,7 @@ void boot_db(void) {
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
+		log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
 		reset_zone(i);
 	}
@@ -2826,10 +2826,10 @@ void CreateBlankRoomDungeon() {
 //	}
 	ZoneData new_zone;
 
-	zone_table.push_back(new_zone);
+	zone_table.push_back(std::move(new_zone));
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
 		zone_table[zone_rnum].vnum = zone_vnum;
-		zone_table[zone_rnum].name = str_dup("Зона для данжей");
+		zone_table[zone_rnum].name = "Зона для данжей";
 		zone_table[zone_rnum].under_construction = true;
 		zone_table[zone_rnum].top = zone_vnum * 100 + 99;
 		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100 + 99;
@@ -2851,10 +2851,10 @@ void CreateBlankRoomDungeon() {
 		zone_vnum++;
 		zone_rnum++;
 	}
-//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
-//	}
-//	exit(0);
+	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
+	}
+	exit(0);
 }
 
 void add_vrooms_to_all_zones() {
@@ -4323,7 +4323,7 @@ void ZoneReset::reset_zone_essential() {
 	const auto zone = m_zone_rnum;    // for ZCMD macro
 	int last_state, curr_state;    // статус завершения последней и текущей команды
 
-	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
+	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name.c_str());
 //	if (!zone_table[m_zone_rnum].cmd) {
 //		log("No cmd, skiped");
 //		return;
@@ -4757,7 +4757,7 @@ void ZoneReset::reset_zone_essential() {
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = false;
-	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name);
+	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name.c_str());
 	after_reset_zone(m_zone_rnum);
 }
 
@@ -4770,44 +4770,11 @@ void reset_zone(ZoneRnum zone) {
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int GetZoneRooms(ZoneRnum zone_nr, int *first, int *last) {
-//31.27.2022 месяц пройдет комменты можно стереть
-//	*first = 0;
-//	*last = 0;
-//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-//	auto numzone = zone_table[zone_nr].vnum * 100;
-//	sprintf(buf, "По новому ! Зона %d: первая клетка зоны %d, последняя %d", zone_table[zone_nr].vnum, zone_table[zone_nr].FirstRoom, zone_table[zone_nr].LastRoom);
-//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	*first = real_room(zone_table[zone_nr].FirstRoomVnum);
 	*last = real_room(zone_table[zone_nr].LastRoomVnum);
+
 	if (*first == kNowhere)
 		return 0;
-/*
-	for (int nr = kFirstRoom; nr <= top_of_world; nr++) {
-		if (world[nr]->room_vn >= numzone && *first == 0) {
-			*first = world[nr]->room_vn;
-		}
-		if (world[nr]->room_vn == numzone + 99) {
-			// если первая комната виртуальная (99), то последняя тоже будет виртуальной
-			if (*first == numzone + 99) {
-				*last = *first;
-				break;
-			}
-			// если в зоне есть комнаты, то берем последнюю комнату перед виртуальной
-			if (nr > 1 && *first && world[nr - 1]->room_vn >= *first) {
-				*last = world[nr - 1]->room_vn;
-				break;
-			}
-		}
-	}
-	sprintf(buf, "По старому! Зона %d: первая клетка зоны %d, последняя %d", zone_table[zone_nr].vnum, *first, *last);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
-	*first = real_room(*first);
-	*last = real_room(*last);
-	if (*first == kNowhere || *last == kNowhere)
-		return 0;
-*/
-	
 	return 1;
 }
 

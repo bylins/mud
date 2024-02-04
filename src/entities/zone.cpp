@@ -15,8 +15,6 @@ ZoneData::ZoneData() : traffic(0),
 					   reset_mode(0),
 					   vnum(0),
 					   copy_from_zone(0),
-					   location(nullptr),
-					   description(nullptr),
 					   cmd(nullptr),
 					   typeA_count(0),
 					   typeA_list(nullptr),
@@ -35,17 +33,17 @@ ZoneData::ZoneData() : traffic(0),
 }
 
 ZoneData::~ZoneData() {
-	log("~ZoneData zone %d", number);
+	log("~ZoneData zone %d", vnum);
 	if (!name.empty())
 		name.clear();;
 	if (!comment.empty())
 		comment.clear();
 	if (!author.empty())
 		author.clear();
-	if (location)
-		free(location);
-	if (description)
-		free(description);
+	if (!location.empty())
+		location.clear();
+	if (!description.empty())
+		 description.clear();
 
 	if (cmd)
 		free(cmd);
