@@ -281,7 +281,7 @@ set(SOURCES
 		src/feats_constants.cpp
 		src/game_abilities/abilities_items_set.cpp
 		src/game_abilities/talents_actions.cpp
-		src/game_skills/slay.cpp src/game_skills/charge.cpp)
+		src/game_skills/slay.cpp src/game_skills/charge.cpp src/game_skills/dazzle.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -542,7 +542,7 @@ set(HEADERS
 		src/game_abilities/talents_effects.h
 		src/feats_constants.h
 		src/game_abilities/talents_actions.h
-		src/game_skills/slay.h src/game_skills/charge.h)
+		src/game_skills/slay.h src/game_skills/charge.h src/game_skills/dazzle.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
@@ -719,7 +719,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/game_skills/dazzle.cpp src/game_skills/dazzle.h)
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)

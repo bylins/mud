@@ -150,6 +150,7 @@
 #include "game_fight/pk.h"
 #include "game_skills/slay.h"
 #include "game_skills/charge.h"
+#include "game_skills/dazzle.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -641,6 +642,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"осмотреть", EPosition::kRest, do_examine, 0, 0, 0},
 		{"оседлать", EPosition::kStand, do_horsetake, 1, 0, -1},
 		{"оскорбить", EPosition::kRest, do_insult, 0, 0, -1},
+		{"ослепить", EPosition::kFight, DoDazzle, 1, 0, -1},
 		{"осушить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 300},
 		{"освежевать", EPosition::kStand, DoSkinning, 0, 0, -1},
 		{"ответить", EPosition::kRest, do_reply, 0, 0, -1},
@@ -838,6 +840,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"consider", EPosition::kRest, do_consider, 0, 0, 500},
 		{"credits", EPosition::kDead, do_gen_ps, 0, SCMD_CREDITS, 0},
 		{"date", EPosition::kDead, do_date, kLvlImmortal, SCMD_DATE, 0},
+		{"dazzle", EPosition::kFight, DoDazzle, 1, 0, -1},
 		{"dc", EPosition::kDead, do_dc, kLvlGreatGod, 0, 0},
 		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
 		{"deviate", EPosition::kFight, do_deviate, 0, 0, -1},

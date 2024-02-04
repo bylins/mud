@@ -100,14 +100,8 @@ const char *ACTNULL = "<NULL>";
 
 // return char with UID n
 CharData *find_char(long n) {
-	static long last_uid{0};
-	static CharData *last_ch{nullptr};
-	if (n == last_uid)
-		return last_ch;
 	CharData *mob = mob_by_uid[n];
 	if (mob) {
-		last_uid = n;
-		last_ch = mob;
 		return mob;
 	}
 	return find_pc(n);

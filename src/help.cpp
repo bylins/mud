@@ -600,6 +600,50 @@ std::string OutRecipiesHelp(ECharClass ch_class) {
 	return out.str();
 }
 
+std::string OutAllSkillsHelp() {
+	std::stringstream out;
+	std::vector<std::string> skills_list;
+	std::string tmpstr;
+	int columns = 0;
+
+	for (const auto &skill : MUD::Skills()) {
+		if (skill.IsInvalid())
+			continue;
+		skills_list.push_back(skill.GetName());
+	}
+	utils::SortKoiString(skills_list);
+	for (auto it : skills_list) {
+		tmpstr = !(++columns % 3) ? "\r\n" : "\t";
+		out << fmt::format("\t{:<30} {}", it, tmpstr);
+	}
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	return out.str();
+}
+
+std::string OutAllSpellsHelp() {
+	std::stringstream out;
+	std::vector<std::string> spells_list;
+	std::string tmpstr;
+	int columns = 0;
+
+	for (auto &it : MUD::Spells()) {
+		auto spell_id = it.GetId();
+
+		if (MUD::Spell(spell_id).IsInvalid())
+			continue;
+		spells_list.push_back(it.GetName());
+	}
+	utils::SortKoiString(spells_list);
+	for (auto it : spells_list) {
+		tmpstr = !(++columns % 3) ? "\r\n" : "\t";
+		out << fmt::format("\t{:<30} {}", it, tmpstr);
+	}
+	if (out.str().back() == '\t')
+		out << "\r\n";
+	return out.str();
+}
+
 std::string OutSkillsHelp(ECharClass ch_class) {
 	std::stringstream out, out2;
 	std::string tmpstr;
@@ -702,7 +746,6 @@ std::string OutMagusSpellsHelp() {
 		tmpstr = !(++columns % 3) ? "\r\n" : "\t";
 		out3 += fmt::format("\t{:<30} {}", it, tmpstr);
 	}
-	columns = 0;
 	if (out.back() == '\t')
 		out += "\r\n";
 	if (out2.back() == '\t')
@@ -960,6 +1003,20 @@ void ClassFeatureHelp() {
 	add_static("СПОСОБНОСТИВОЛХВА", out.str(), 0, true);
 }
 
+void AllSkillSpellHelp() {
+	std::stringstream out;
+
+	out << OutAllSkillsHelp();
+	out << "\r\nСм. также: &CЗАКЛИНАНИЯВСЕ&n";
+	add_static("УМЕНИЯВСЕ", out.str(), 0, true);
+
+	out.str("");
+	out << OutAllSpellsHelp();
+	out << "\r\nСм. также: &CУМЕНИЯВСЕ&n";
+	add_static("ЗАКЛИНАНИЯВСЕ", out.str(), 0, true);
+}
+
+
 void ClassSkillHelp() {
 	std::stringstream out;
 
@@ -1196,6 +1253,7 @@ void reload(Flags flag) {
 			ClassFeatureHelp();
 			CasterSpellslHelp();
 			SetsHelp();
+			AllSkillSpellHelp();
 			PrintActivators::process();
 			obj_sets::init_xhelp();
 			// итоговая сортировка массива через дефолтное < для строковых ключей 

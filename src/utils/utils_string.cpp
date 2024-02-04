@@ -139,7 +139,7 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 		utils::Trim(token);
 		tokens.push_back(token);
 	}
-	return tokens;
+	return tokens; //если разделитель не найден вернется 1 элемент содержащий полную строку
 }
 
 // первое слово разделенное маской
@@ -148,6 +148,18 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 	if (pos > 0)
 		s.erase(pos);
 	return s;
+}
+
+// аналог one_argument для string
+std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
+	std::string word;
+
+	size_t space_pos = s.find(" ");
+		if (space_pos != std::string::npos) {
+			word = s.substr(0, space_pos);
+			remains = s.substr(space_pos + 1);
+		}
+	return word;
 }
 
 std::string SubstToLow(std::string s) {

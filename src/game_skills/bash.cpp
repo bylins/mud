@@ -93,9 +93,9 @@ void go_bash(CharData *ch, CharData *vict) {
 				af.duration *= 30;
 			}
 			affect_to_char(vict, af);
-			act("Вы ошарашили $N3 ударом щита!",
+			act("&YВы ошарашили $N3 ударом щита!&n",
 				false, ch, nullptr, vict, kToChar);
-			act("$N0 ошарашил$G Вас ударом щита!",
+			act("&R$N0 ошарашил$G Вас ударом щита!!&n",
 				false, vict, nullptr, ch, kToChar);
 			act("$N0 ошарашил$G $n3 ударом щита!",
 				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
@@ -122,30 +122,40 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	vict = TryToFindProtector(vict, ch);
 
-// Если баш - фейл. Немного нахуевертил. Смысл в том чтобы оставаться на ногах даже при фейле баша и удара щитом, если удар щитом прокачан 200+.
+// Если баш - фейл. Немного нахуевертил. Смысл в том, чтобы оставаться на ногах даже при фейле баша и удара щитом, если удар щитом прокачан 200+.
 	if (!success) {
-		Damage dmg(SkillDmg(ESkill::kBash), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.Process(ch, vict);
-		bool still_stands;
+		bool still_stands = true;
 		if (number(1, 100) > (GET_SKILL(ch, ESkill::kShieldBash) / 2)) {
 			still_stands = false;
 		}
+//Полный фейл, падаем на жопу:
 		if (!can_shield_bash || (!shield_bash_success && !still_stands)) {
+			SetFighting(ch, vict);
+			SetFighting(vict, ch);
 			GET_POS(ch) = EPosition::kSit;
 			SetWait(ch, 2, true);
-			act("Попытавшись завалить $N3, Вы сами упали на землю! Поднимайтесь!",
+			act("&WВы попытались сбить $N3, но упали сами. Учитесь.&n",
 				false, ch, nullptr,vict, kToChar);
-			act("$N хотел$G повалить Вас на землю, но сам$G неуклюже распластал$U.",
+			act("&r$N хотел$G завалить вас, но, не рассчитав сил, упал$G сам$G.&n",
 				false,vict, nullptr, ch, kToChar);
-			act("Попытавшись завалить $n3, $N0 сам$G упал$G на землю!",
+			act("$n избежал$G попытки $N1 завалить $s.",
 				false,vict, nullptr, ch, kToNotVict | kToArenaListen);
-
-		} else if ((can_shield_bash && shield_bash_success) || (can_shield_bash && !shield_bash_success && still_stands)) {
-//Ввожу второй тип дамага - первый был для вывода правильного сообщения в игре о фейле баша. Второй - для нанесения нужного урона.
-			Damage dmg2(SkillDmg(ESkill::kShieldBash), damage, fight::kPhysDmg, nullptr);
-			dmg2.flags.set(fight::kIgnoreBlink);
-			dmg2.Process(ch, vict);
+//Фейл баша, но успех удара щитом, наносим урон (сообщения про "ошарашил" уже прописаны выше):
+		} else if ((can_shield_bash && shield_bash_success)) {
+			Damage dmg(SkillDmg(ESkill::kShieldBash), damage, fight::kPhysDmg, nullptr);
+			dmg.flags.set(fight::kIgnoreBlink);
+			dmg.Process(ch, vict);
 			SetSkillCooldownInFight(ch, ESkill::kBash, 1);
+//Фейл баша, фейл удара щитом, но удержались на ногах:
+		} else if (can_shield_bash && !shield_bash_success && still_stands) {
+			SetFighting(ch, vict);
+			SetSkillCooldownInFight(ch, ESkill::kBash, 1);
+			act("&WНеуклюже попытавшись ударить $N3 щитом, Вы сами еле удержались на ногах!&n",
+				false, ch, nullptr,vict, kToChar);
+			act("$N хотел$G сбить Вас, но в итоге сам$G еле удержал$U на ногах.",
+				false,vict, nullptr, ch, kToChar);
+			act("Неуклюже попытавшись сбить $n3, $N0 сам$G еле удержал$U на ногах.",
+				false,vict, nullptr, ch, kToNotVict | kToArenaListen);
 		}
 		return;
 	} else {

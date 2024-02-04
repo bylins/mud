@@ -24,15 +24,15 @@ void Characters::CL_RNumChangeObserver::notify(ProtectedCharData &character, con
 
 		return;
 	}
-
-	m_parent.m_rnum_to_characters_set[old_rnum].erase(character_ptr);
-	if (m_parent.m_rnum_to_characters_set[old_rnum].empty()) {
-		m_parent.m_rnum_to_characters_set.erase(old_rnum);
+	
+	m_parent.m_vnum_to_characters_set[mob_index[old_rnum].vnum].erase(character_ptr);
+	if (m_parent.m_vnum_to_characters_set[mob_index[old_rnum].vnum].empty()) {
+		m_parent.m_vnum_to_characters_set.erase(mob_index[old_rnum].vnum);
 	}
 
 	const auto new_rnum = character.get_rnum();
 	if (new_rnum != kNobody) {
-		m_parent.m_rnum_to_characters_set[new_rnum].insert(character_ptr);
+		m_parent.m_vnum_to_characters_set[mob_index[new_rnum].vnum].insert(character_ptr);
 	}
 }
 
@@ -46,7 +46,7 @@ void Characters::push_front(const CharData::shared_ptr &character) {
 
 	const auto rnum = character->get_rnum();
 	if (kNobody != rnum) {
-		m_rnum_to_characters_set[rnum].insert(character.get());
+		m_vnum_to_characters_set[mob_index[rnum].vnum].insert(character.get());
 	}
 	character->subscribe_for_rnum_changes(m_rnum_change_observer);
 
@@ -63,11 +63,11 @@ void Characters::push_front(const CharData::shared_ptr &character) {
 	}
 }
 
-void Characters::get_mobs_by_rnum(const MobRnum rnum, list_t &result) {
+void Characters::get_mobs_by_vnum(const MobVnum vnum, list_t &result) {
 	result.clear();
 
-	const auto i = m_rnum_to_characters_set.find(rnum);
-	if (i == m_rnum_to_characters_set.end()) {
+	const auto i = m_vnum_to_characters_set.find(vnum);
+	if (i == m_vnum_to_characters_set.end()) {
 		return;
 	}
 
@@ -102,11 +102,12 @@ void Characters::remove(CharData *character) {
 	m_purge_set.insert(index_i->second->get());
 
 	character->unsubscribe_from_rnum_changes(m_rnum_change_observer);
-	const auto rnum = character->get_rnum();
-	if (kNobody != rnum) {
-		m_rnum_to_characters_set[rnum].erase(character);
-		if (m_rnum_to_characters_set[rnum].empty()) {
-			m_rnum_to_characters_set.erase(rnum);
+	if (kNobody != character->get_rnum()) {
+		const auto vnum = mob_index[character->get_rnum()].vnum;
+
+		m_vnum_to_characters_set[vnum].erase(character);
+		if (m_vnum_to_characters_set[vnum].empty()) {
+			m_vnum_to_characters_set.erase(vnum);
 		}
 	}
 

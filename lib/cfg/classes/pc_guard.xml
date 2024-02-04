@@ -7,44 +7,44 @@
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="75"/>
-            <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="75"/>
+            <stat id="kDex"	gen_min="14"	gen_max="17"	auto="17"	cap="90"/>
             <stat id="kCon"	gen_min="17"	gen_max="23"	auto="23"	cap="90"/>
-            <stat id="kWis"	gen_min="9"		gen_max="12"	auto="11"	cap="100"/>
+            <stat id="kWis"	gen_min="9"	gen_max="14"	auto="11"	cap="100"/>
             <stat id="kInt"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>
-            <stat id="kCha"	gen_min="11"	gen_max="14"	auto="11"	cap="50"/>
+            <stat id="kCha"	gen_min="8"	gen_max="14"	auto="11"	cap="50"/>
         </base_stats>
     </stats>
     <skills level_decrement="4">
         <skill id="kSideAttack"		level="1"	remort="0"	improve="0"/>
-        <skill id="kRiding"			level="1"	remort="0"	improve="100"/>
-        <skill id="kMultiparry"		level="1"	remort="0"	improve="150"/>
+        <skill id="kRiding"		level="1"	remort="0"	improve="1000"/>
+        <skill id="kMultiparry"		level="1"	remort="0"	improve="1500"/>
         <skill id="kLeadership"		level="1"	remort="0"	improve="950"/>
-        <skill id="kAwake"			level="1"	remort="0"	improve="100"/>
-        <skill id="kPunch"			level="1"	remort="0"	improve="100"/>
-        <skill id="kTrack"			level="1"	remort="0"	improve="3500"/>
-        <skill id="kClubs"			level="1"	remort="0"	improve="200"/>
-        <skill id="kAxes"			level="1"	remort="0"	improve="200"/>
-        <skill id="kLongBlades"		level="1"	remort="0"	improve="200"/>
-        <skill id="kShortBlades"	level="1"	remort="0"	improve="100"/>
-        <skill id="kNonstandart"	level="1"	remort="0"	improve="200"/>
-        <skill id="kTwohands"		level="1"	remort="0"	improve="200"/>
-        <skill id="kPicks"			level="1"	remort="0"	improve="100"/>
-        <skill id="kSpades"			level="1"	remort="0"	improve="300"/>
-        <skill id="kDisarm"			level="1"	remort="0"	improve="3500"/>
-        <skill id="kBows"			level="1"	remort="0"	improve="100"/>
+        <skill id="kAwake"		level="1"	remort="0"	improve="400"/>
+        <skill id="kPunch"		level="1"	remort="0"	improve="100"/>
+        <skill id="kTrack"		level="1"	remort="0"	improve="3500"/>
+        <skill id="kClubs"		level="1"	remort="0"	improve="300"/>
+        <skill id="kAxes"		level="1"	remort="0"	improve="300"/>
+        <skill id="kLongBlades"		level="1"	remort="0"	improve="400"/>
+        <skill id="kShortBlades"	level="1"	remort="0"	improve="400"/>
+        <skill id="kNonstandart"	level="1"	remort="0"	improve="300"/>
+        <skill id="kTwohands"		level="1"	remort="0"	improve="400"/>
+        <skill id="kPicks"		level="1"	remort="0"	improve="300"/>
+        <skill id="kSpades"		level="1"	remort="0"	improve="300"/>
+        <skill id="kDisarm"		level="1"	remort="0"	improve="5000"/>
+        <skill id="kBows"		level="1"	remort="0"	improve="400"/>
         <skill id="kHangovering"	level="3"	remort="0"	improve="94000"/>
         <skill id="kDigging"		level="5"	remort="0"	improve="600"/>
-        <skill id="kRescue"			level="10"	remort="0"	improve="3500"/>
-        <skill id="kKick"			level="10"	remort="0"	improve="1500"/>
-        <skill id="kParry"			level="10"	remort="0"	improve="4000"/>
-        <skill id="kFirstAid"		level="10"	remort="0"	improve="53500"/>
-        <skill id="kBash"			level="10"	remort="0"	improve="3500"/>
-        <skill id="kShieldBash"		level="10"	remort="0"	improve="3500"/>
-        <skill id="kSlay"			level="12"	remort="0"	improve="3500"/>
-        <skill id="kShieldBlock"	level="10"	remort="0"	improve="400"/>
-        <skill id="kCharge"			level="20"	remort="0"	improve="4000"/>
-        <skill id="kWarcry"			level="10"	remort="6"	improve="14000"/>
-        <skill id="kStun"			level="28"	remort="0"	improve="38199"/>
+        <skill id="kRescue"		level="4"	remort="0"	improve="3500"/>
+        <skill id="kKick"		level="4"	remort="0"	improve="3500"/>
+        <skill id="kParry"		level="4"	remort="0"	improve="4000"/>
+        <skill id="kFirstAid"		level="10"	remort="0"	improve="94000"/>
+        <skill id="kBash"		level="4"	remort="0"	improve="3500"/>
+        <skill id="kShieldBash"		level="4"	remort="0"	improve="3500"/>
+        <skill id="kSlay"		level="4"	remort="0"	improve="5000"/>
+        <skill id="kShieldBlock"	level="4"	remort="0"	improve="1500"/>
+        <skill id="kCharge"		level="20"	remort="0"	improve="4000"/>
+        <skill id="kWarcry"		level="10"	remort="6"	improve="14000"/>
+        <skill id="kStun"		level="28"	remort="0"	improve="40000"/>
     </skills>
     <spells level_decrement="3">
         <!-- This class has no spells. -->
@@ -57,7 +57,7 @@
         <feat id="kInjure"		        level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kNaturalDex"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kHitrollBonus"		level="1"	remort="0"	slot="0"	inborn="1"/>
-	    <feat id="kScirmisher"			level="1"	remort="0"	slot="0"	inborn="1"/>
+	<feat id="kScirmisher"			level="1"	remort="0"	slot="0"	inborn="1"/>
         <feat id="kDrunkard"			level="1"	remort="0"	slot="0"	inborn="0"/>
         <feat id="kStrongImmunity"		level="1"	remort="0"	slot="0"	inborn="0"/>
         <feat id="kForestPath"			level="1"	remort="0"	slot="0"	inborn="0"/>

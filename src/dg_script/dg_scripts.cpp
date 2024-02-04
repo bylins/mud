@@ -397,13 +397,13 @@ RoomData *find_room(long n) {
  */
 int find_char_vnum(int vnum, int num = 0) {
 	int count = 0;
+	Characters::list_t mobs;
+	character_list.get_mobs_by_vnum(vnum, mobs);
 
-	if (mob_id_by_vnum.contains(vnum)) {
-		std::vector<long> list_idnum;
-		list_idnum = mob_id_by_vnum[vnum];
-		for (auto it : list_idnum) {
+	if (!mobs.empty()) {
+		for (auto it : mobs) {
 			if (count++ == num) {
-				return it;
+				return it->id;
 			}
 		}
 	}
@@ -815,7 +815,7 @@ EVENT(trig_wait_event) {
 	type = wait_event_obj->type;
 
 	GET_TRIG_WAIT(trig) = nullptr;
-	script_driver(go, trig, type, TRIG_RESTART);
+	script_driver(go, trig, type, TRIG_CONTINUE);
 	free(wait_event_obj);
 }
 
@@ -974,9 +974,9 @@ void script_stat(CharData *ch, Script *sc) {
 		SendMsgToChar(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t)) {
-			if (t->curr_state != nullptr) {
+			if (t->wait_line != nullptr) {
 				sprintf(buf, "    Wait: %d, Current line: %s\r\n",
-						GET_TRIG_WAIT(t)->time_remaining, t->curr_state->cmd.c_str());
+						GET_TRIG_WAIT(t)->time_remaining, t->wait_line->cmd.c_str());
 				SendMsgToChar(buf, ch);
 			} else {
 				sprintf(buf, "    Wait: %d\r\n", GET_TRIG_WAIT(t)->time_remaining);
@@ -3137,6 +3137,92 @@ void find_replacement(void *go,
 			} else {
 				sprintf(str, "%d", GET_OBJ_VAL(o, 3));
 			}
+		} else if (!str_cmp(field, "SavedInfo")) {
+			if (*subfield) {
+				skip_spaces(&subfield);
+				o->set_dgscript_field(subfield);
+			} else {
+				sprintf(str, "%s", o->get_dgscript_field().c_str());
+			}
+		} else if (!str_cmp(field, "loadvar")) {
+			if (*subfield) {
+				std::vector<std::string> saved_info;
+				std::string value;
+				std::string name;
+
+				if (!o->get_dgscript_field().empty()) {
+					saved_info = utils::Split(o->get_dgscript_field(), '#');
+				} else {
+					sprintf(buf, "Нет сохраненных переменных");
+					trig_log(trig, buf);
+				}
+				for (auto &it : saved_info) {
+					name = utils::ExtractFirstArgument(it, value);
+					if (name.empty() || value.empty()) {
+						sprintf(buf, "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
+						trig_log(trig, buf);
+						continue;
+					}
+					if (!str_cmp(subfield, name)) {
+						add_var_cntx(&GET_TRIG_VARS(trig), name.c_str(), value.c_str(), 0);
+						break;
+					}
+				}
+			} else {
+				sprintf(buf, "Нет аргумента в команде LoadVar");
+				trig_log(trig, buf);
+			}
+		} else if (!str_cmp(field, "savevar")) {
+			if (*subfield) {
+				struct TriggerVar *vd_tmp = nullptr;
+				std::vector<std::string> saved_info;
+				std::stringstream out;
+				std::string name;
+				std::string value;
+
+				if (trig) {
+					vd_tmp = find_var_cntx(&GET_TRIG_VARS(trig), subfield, 0);
+					if (!vd_tmp)
+						vd_tmp = find_var_cntx(&(sc->global_vars), subfield, sc->context);
+					if (!vd_tmp)
+						vd = find_var_cntx(&worlds_vars, subfield, sc->context);
+				}
+				if (!vd_tmp) {
+					sprintf(buf, "Не найдена переменная %s", subfield);
+					trig_log(trig, buf);
+					return;
+				}
+				if (!o->get_dgscript_field().empty()) {
+					saved_info = utils::Split(o->get_dgscript_field(), '#');
+				}
+				bool found = false;
+				for (auto &it : saved_info) {
+					name = utils::ExtractFirstArgument(it, value);
+					if (name.empty() || value.empty()) {
+						sprintf(buf, "Кривая переменная (нужно 'value text') сейчас '%s'", it.c_str());
+						trig_log(trig, buf);
+						continue;
+					}
+					if (!str_cmp(vd_tmp->name, name)) {
+						it = std::string(vd_tmp->name) + " " + std::string(vd_tmp->value);
+						found = true;
+					}
+				}
+				if (!found) {
+					out << vd_tmp->name  << " " << vd_tmp->value << "#";
+				}
+				for (auto it : saved_info) {
+					out << it << "#";
+				}
+				if (out.str().size() > kMaxInputLength) {
+					sprintf(buf, "Список переменных переполнен, сократите на %ld символов", out.str().size() - kMaxInputLength);
+					trig_log(trig, buf);
+				} else
+					o->set_dgscript_field(out.str());
+			} else {
+				sprintf(buf, "Нет аргумента в команде SaveVar");
+				trig_log(trig, buf);
+			}
 		} else if (!str_cmp(field, "maker")) {
 			sprintf(str, "%d", GET_OBJ_MAKER(o));
 		} else if (!str_cmp(field, "effect")) {
@@ -4135,7 +4221,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	}
 
 	GET_TRIG_WAIT(trig) = add_event(time, trig_wait_event, wait_event_obj);
-	trig->curr_state = cl->next;
+	trig->wait_line = cl->next;
 }
 
 // processes a script set command
@@ -4764,7 +4850,7 @@ bool find_all_char_vnum(MobVnum vnum, char *str) {
 	int count = 0;
 	Characters::list_t mobs;
 
-	character_list.get_mobs_by_rnum(real_mobile(vnum), mobs);
+	character_list.get_mobs_by_vnum(vnum, mobs);
 	for (const auto &mob : mobs) {
 		snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(mob));
 		++count;
@@ -5174,6 +5260,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode);
 
 int script_driver(void *go, Trigger *trig, int type, int mode) {
 	int timewarning = 50; //  в текущий момент миллисекунды
+	int return_code;
 
 	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
@@ -5182,8 +5269,7 @@ int script_driver(void *go, Trigger *trig, int type, int mode) {
 	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	auto start = now_ms.time_since_epoch();
 
-	const auto return_code = timed_script_driver(go, trig, type, mode);
-
+	return_code = timed_script_driver(go, trig, type, mode);
 	now = std::chrono::system_clock::now();
 	now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	auto end = now_ms.time_since_epoch();
@@ -5268,10 +5354,23 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		GET_TRIG_LOOPS(trig) = 0;
 		sc->context = 0;
 	}
+	
+	cmdlist_element::shared_ptr cl;
 
-	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig);
+	switch  (mode) {
+		case TRIG_NEW: cl = *trig->cmdlist;
+		break;
+		case TRIG_CONTINUE: cl =  trig->wait_line;
+		break;
+		case TRIG_FROM_LINE: cl = trig->curr_line;
+		break;
+		
+	}
+	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig);
 		 cl = cl ? cl->next : cl)    //log("Drive go <%s>",cl->cmd);
 	{
+		last_trig_line_num = cl->line_num;
+		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
 			sprintf(buf, "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
 			mudlog(buf, BRF, -1, ERRLOG, true);
@@ -5279,7 +5378,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		}
 		const char *p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && isspace(*p); p++);
-		last_trig_line_num = cl->line_num;
 		if (*p == '*' || *p == '/')    // comment
 		{
 			continue;
@@ -5559,7 +5657,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		if (trig_index[nr]->vnum >= first) {
 			std::string out = "";
-			sprintf(buf,"%2d) [%5d] [%-50s] ", ++found,
+			sprintf(buf,"%2d) [%5d] %-50s ", ++found,
 					trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
 			out += buf;
 			if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
@@ -5581,20 +5679,20 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!owner_trig[trig_index[nr]->vnum].empty()) {
 				for (auto it = owner_trig[trig_index[nr]->vnum].begin(); it != owner_trig[trig_index[nr]->vnum].end();
 					 ++it) {
-					out += "[";
+//					out += "[";
 					std::string out_tmp = "";
 					for (const auto trigger_vnum : it->second) {
-						sprintf(buf, " %d", trigger_vnum);
+						sprintf(buf, "%d ", trigger_vnum);
 						out_tmp += buf;
 					}
 					if (it->first != -1) {
-						out += "attach из " + std::to_string(it->first) + " к";
+						out += "attach из " + std::to_string(it->first) + " к: ";
 					}
-					out += out_tmp + "]";
+					out += out_tmp;// + "]";
 				}
 				out += "\r\n";
 			} else {
-				out += "Отсутствуют\r\n";
+				out += "-\r\n";
 			}
 			strcat(pagebuf, out.c_str());
 		}
@@ -6010,8 +6108,8 @@ Script::Script(const Script &) :
 }
 
 Script::~Script() {
-	trig_list.clear();
-	clear_global_vars();
+		trig_list.clear();
+		clear_global_vars();
 }
 
 int Script::remove_trigger(char *name, Trigger *&trig_addr) {
@@ -6120,10 +6218,7 @@ Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, 
 	trigger_type(trigger_type) {
 }
 
-Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum,
-																						 name,
-																						 0,
-																						 trigger_type) {
+Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum, name, 0, trigger_type) {
 }
 
 Trigger::Trigger(const Trigger &from) :
@@ -6147,7 +6242,8 @@ void Trigger::reset() {
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
 	cmdlist.reset();
-	curr_state.reset();
+	wait_line.reset();
+	curr_line.reset();
 	narg = 0;
 	add_flag = false;
 	arglist.clear();

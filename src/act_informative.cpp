@@ -1271,7 +1271,11 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		}
 	}
 	if (AFF_FLAGGED(ch, EAffect::kDetectPoison))
-		if (AFF_FLAGGED(i, EAffect::kPoisoned))
+		if (AFF_FLAGGED(i, EAffect::kPoisoned)
+			|| IsAffectedBySpell(i, ESpell::kDaturaPoison)
+			|| IsAffectedBySpell(i, ESpell::kAconitumPoison)
+			|| IsAffectedBySpell(i, ESpell::kScopolaPoison)
+			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
 			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
 
 	strcat(buf, "\r\n");

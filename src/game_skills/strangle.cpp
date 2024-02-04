@@ -78,10 +78,10 @@ void go_strangle(CharData *ch, CharData *vict) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kStrangle,vict);
 	bool success = result.success;
 //Формула дамага - (удавить/10)% от хп моба (максимум 10%) + удавить*2. Рандом - +/- 25%. Сделал отдельными переменными для удобочитаемости, иначе фиг разберёшь формулу.
-	int hp_percent_dam = ceil(GET_HIT(vict) * 0.1);
-	int hp_percent_dam2 = (GET_HIT(vict) / 100) * (GET_SKILL(ch, ESkill::kStrangle) / 10);
+	int hp_percent_dam = ceil(GET_MAX_HIT(vict) * 0.1);
+	int hp_percent_dam2 = (GET_MAX_HIT(vict) / 100) * (GET_SKILL(ch, ESkill::kStrangle) / 10);
 	int flat_damage = GET_SKILL(ch, ESkill::kStrangle) * 2;
-	int dam= number(ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) * 1.25,
+	int dam = number(ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) * 1.25,
 					ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) / 1.25);
 	int strangle_duration = 5;
 
@@ -99,10 +99,8 @@ void go_strangle(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	if (!success) {
 		Damage dmg(SkillDmg(ESkill::kStrangle), fight::kZeroDmg, fight::kPhysDmg, nullptr);
-		dmg.flags.set(fight::kIgnoreArmor);
-		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
-		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 3);
+		SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 	} else {
 		if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 			dam = number(ceil((flat_damage * 1.25)), ceil((flat_damage / 1.25)));

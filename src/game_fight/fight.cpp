@@ -211,9 +211,6 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->SetEnemy(vict);
 
 	NUL_AF_BATTLE(ch);
-	//Polud вступление в битву не мешает прикрывать
-	if (ch->get_protecting())
-		SET_AF_BATTLE(ch, kEafProtect);
 	ch->set_touching(0);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
@@ -1167,7 +1164,7 @@ void summon_mob_helpers(CharData *ch) {
 		// Start_fight_mtrigger using inside this loop
 		// So we have to iterate on copy list
 		Characters::list_t mobs;
-		character_list.get_mobs_by_rnum(real_mobile(helpee), mobs);
+		character_list.get_mobs_by_vnum(helpee, mobs);
 		for (const auto &vict : mobs) {
 			if (AFF_FLAGGED(ch, EAffect::kCharmed)
 				|| AFF_FLAGGED(vict, EAffect::kHold)

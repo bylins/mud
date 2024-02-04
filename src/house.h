@@ -322,7 +322,7 @@ class Clan {
 	void HouseInfo(CharData *ch);
 	void HouseAdd(CharData *ch, std::string &buffer);
 	void HouseRemove(CharData *ch, std::string &buffer);
-	void ClanAddMember(CharData *ch, int rank);
+	void ClanAddMember(CharData *ch, int rank, std::string invite_name);
 	void HouseOwner(CharData *ch, std::string &buffer);
 	void HouseLeave(CharData *ch);
 	void HouseStat(CharData *ch, std::string &buffer);
@@ -369,6 +369,7 @@ struct ClanOLC {
 struct ClanInvite {
 	Clan::shared_ptr clan; // приглашающий клан
 	int rank;     // номер приписываемого ранга
+	std::string invite_name; //кто принимал в дружину
 };
 
 void SetChestMode(CharData *ch, std::string &buffer);

@@ -1204,7 +1204,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->SetFeat(EFeat::kPunchMaster);
 					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
 					victim->SetFeat(EFeat::kPunchFocus);
-					victim->set_skill(ESkill::kStrangle, k_skills);
 					victim->SetFeat(EFeat::kBerserker);
 					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n",
 						false, ch, nullptr, victim, kToChar);
@@ -1240,7 +1239,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->set_skill(ESkill::kBackstab, k_skills);
 				victim->set_skill(ESkill::kRescue, k_skills*0.6);
 				victim->set_skill(ESkill::kPicks, k_skills*0.75);
-				victim->set_skill(ESkill::kPoisoning, k_skills*0.7);
 				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
 				victim->SetFeat(EFeat::kPicksMaster);
 				victim->SetFeat(EFeat::kThieveStrike);

@@ -545,7 +545,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s", found++ ? "," : "", PERS(fol->follower, ch, 0));
+			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol->follower, ch, 0), GET_MOB_VNUM(fol->follower));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
 				if (fol->next)
@@ -1061,7 +1061,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	} else if (j->get_auto_mort_req() > 0) {
 		SendMsgToChar(ch, "Вычислено поле минимальных перевоплощений: %d\r\n", j->get_auto_mort_req());
 	}
-
+	SendMsgToChar(ch, "Сохраненные переменные из DGScript: %s\r\n", j->get_dgscript_field().empty() ? "ничего" : j->get_dgscript_field().c_str());
 	if (is_grgod) {
 		sprintf(buf,
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",

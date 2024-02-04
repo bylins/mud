@@ -87,6 +87,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
+    <spell id="kDazzle" element="kDark" mode="kEnabled">
+        <name rus="ослепить" eng="dazzle"/>
+        <misc pos="kFight" violent="Y" danger="1"/>
+        <mana max="70" min="40" change="2"/>
+        <targets val="kTarCharRoom|kTarFightVict"/>
+        <flags val="kMagAffects|kNpcAffectPc"/>
+    </spell>
     <spell id="kBurningHands" element="kFire" mode="kEnabled">
         <name rus="горящие руки" eng="burning hands"/>
         <misc pos="kFight" violent="Y" danger="1"/>
@@ -1297,7 +1304,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagManual"/>
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
-        <name rus="Портал" eng="portal"/>
+        <name rus="врата" eng="portal"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarNone"/>

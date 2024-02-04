@@ -1,0 +1,49 @@
+#!/bin/bash
+PORT=4000
+ulimit -c unlimited
+umask u=rwx,g=rwx,o=
+export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log
+# Default flags to pass to the MUD server (see admin.txt for a description
+# of all flags).
+FLAGS=''
+#############################################################################
+while ( : ) do
+  DATE=`date`
+  echo "autorun starting game $DATE" >> syslog
+  echo "running bin/circle $FLAGS $PORT" >> syslog
+  chmod 660 /home/mud/mud/lib/etc/board/*
+  build/circle $FLAGS $PORT >>sd.out
+  mv syslog.CRASH.1 syslog.CRASH.2
+  mv syslog.CRASH syslog.CRASH.1
+  tail -1000 syslog > syslog.CRASH
+
+  fgrep "self-delete" syslog >> log/delete
+  fgrep "killed" syslog >> log/rip
+  fgrep "Running" syslog >> log/restarts
+  fgrep "advanced" syslog >> log/levels
+  fgrep "equipment lost" syslog >> log/rentgone
+  fgrep "Create new player" syslog >> log/newplayers
+  fgrep "SYSERR" syslog >> log/errors
+  fgrep "(GC)" syslog >> log/godcmds
+  fgrep "Bad PW" syslog >> log/badpws
+
+  gzip syslog
+  mv syslog.gz archive/syslog.$(date +%d%m%y-%H%M%S).gz
+  mv core.2 core.3
+  mv core.1 core.2
+  mv lib/core* core.1
+  chmod 660 core.1
+
+  if [ -r .killscript ]; then
+    DATE=`date`;
+    echo "autoscript killed $DATE"  >>syslog
+    rm .killscript
+    exit
+  fi
+  if [ ! -r .fastboot ]; then
+    sleep 60
+  else
+    rm .fastboot
+    sleep 5
+  fi
+done

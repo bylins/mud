@@ -110,7 +110,7 @@ enum class ESkill : int {
 	kLooking = 159,
 	kChopoff = 160,
 	kRepair = 161,
-					/* Снова просвет */
+	kDazzle = 162,				/* Снова просвет */
 	kSharpening = 164,
 	kCourage = 165,
 	kJinx = 166,

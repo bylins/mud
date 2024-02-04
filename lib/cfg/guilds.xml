@@ -84,7 +84,7 @@
             <skill id="kCharge" fail="0">
                 <class val="kGuard"/>
                 <price currency="kKuna" start="30" remort_percent="400"/>
-                <upgrade practices="10" min="0" max="30"/>
+                <upgrade practices="10" min="0" max="50"/>
             </skill>
             <skill id="kShieldBash" fail="0">
                 <class val="kGuard|kPaladine|kVigilant"/>
@@ -99,7 +99,7 @@
             <skill id="kShieldBlock" fail="0">
                 <class val="kGuard|kPaladine"/>
                 <price currency="kKuna" start="4" remort_percent="400"/>
-                <upgrade practices="10" min="0" max="10"/>
+                <upgrade practices="10" min="0" max="50"/>
             </skill>
             <skill id="kParry" fail="0">
                 <class val="kGuard|kPaladine|kRanger|kVigilant"/>
@@ -578,6 +578,11 @@
             </skill>
             <skill id="kBackstab" fail="0">
                 <class val="kThief|kAssasine"/>
+                <price currency="kKuna" start="2" remort_percent="400"/>
+                <upgrade practices="10" min="0" max="10"/>
+            </skill>
+            <skill id="kDazzle" fail="0">
+                <class val="kAssasine"/>
                 <price currency="kKuna" start="2" remort_percent="400"/>
                 <upgrade practices="10" min="0" max="10"/>
             </skill>

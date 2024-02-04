@@ -476,7 +476,8 @@ enum ENpcFlag : Bitvector {
 	kWielding = kIntOne | (1 << 1),
 	kArmoring = kIntOne | (1 << 2),
 	kUsingLight = kIntOne | (1 << 3),
-	kNoTakeItems = kIntOne | (1 << 4)
+	kNoTakeItems = kIntOne | (1 << 4),
+	kIgnoreRareKill = kIntOne | (1 << 5)
 };
 
 /*

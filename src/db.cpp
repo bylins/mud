@@ -103,7 +103,6 @@ int top_of_trigt = 0;        // top of trigger index table
 
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
-std::unordered_map<MobVnum, std::vector<long>> mob_id_by_vnum;
 std::unordered_map<long, CharData *> mob_by_uid;
 
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
@@ -3582,11 +3581,6 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	mob->id = max_id.allocate();
 
 	if (!is_corpse) {
-		std::vector<long> list_idnum;
-		if (mob_id_by_vnum.contains(GET_MOB_VNUM(mob)))
-			list_idnum = mob_id_by_vnum[GET_MOB_VNUM(mob)];
-		list_idnum.push_back(mob->id);
-		mob_id_by_vnum[GET_MOB_VNUM(mob)] = list_idnum;
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
@@ -4242,7 +4236,7 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) {
 
 	utils::CExecutionTimer get_mobs_timer;
 	Characters::list_t mobs;
-	character_list.get_mobs_by_rnum(rnum, mobs);
+	character_list.get_mobs_by_vnum(mob_index[rnum].vnum, mobs);
 	const auto get_mobs_time = get_mobs_timer.delta();
 
 	utils::CExecutionTimer extract_timer;
@@ -5220,7 +5214,6 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	check_portals(ch);
 	if (ch->get_protecting()) {
 		ch->remove_protecting();
-		ch->battle_affects.unset(kEafProtect);
 	}
 
 	//Обновляем статистику рипов для текущего перевоплощения

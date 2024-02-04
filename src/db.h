@@ -230,7 +230,6 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 extern RoomRnum top_of_proto_world;
 extern RoomRnum top_of_real_world;
 extern ZoneVnum first_zone_dungeon;
-extern std::unordered_map<MobVnum, std::vector<long>> mob_id_by_vnum;
 extern std::unordered_map<long, CharData *> mob_by_uid;
 
 void add_trig_index_entry(int nr, Trigger *proto);
