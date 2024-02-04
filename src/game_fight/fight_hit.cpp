@@ -1221,11 +1221,14 @@ int backstab_mult(int level) {
 /**
 * Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30) для вовровского удара,
 * для остального в учет только ловку
+* при 74х мортах максимальный скилл заколоть будет около 500. декса 90 ессно - получается 75% критстабов.
+* попробуем скилл/15 + (декса - 20) / (декса/20) - получается около 50% критстабов.
+* TO DO.. еще удачу есть план добавить в расчет шанса критстаба
 */
 int calculate_crit_backstab_percent(CharData *ch) {
-	float percent = ((GetRealDex(ch) -20) / (GetRealDex(ch) / 30.0));
+	float percent = ((GetRealDex(ch) -20) / (GetRealDex(ch) / 20.0));
 	if (CanUseFeat(ch, EFeat::kThieveStrike))
-		percent += (ch->GetSkill(ESkill::kBackstab) / 11.0);
+		percent += (ch->GetSkill(ESkill::kBackstab) / 15.0);
 	return (int)percent;
 }
 
