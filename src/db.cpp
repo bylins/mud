@@ -2750,7 +2750,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 			break;
 
 		case DB_BOOT_ZON: {
-			zone_table.resize(rec_count);
+			zone_table.resize(rec_count + NumberOfZoneDungeons);
 			const size_t zones_size = sizeof(ZoneData) * rec_count;
 			log("   %d zones, %zd bytes.", rec_count, zones_size);
 		}
@@ -2820,16 +2820,10 @@ void check_start_rooms(void) {
 
 void CreateBlankRoomDungeon() {
 	ZoneVnum zone_vnum = ZoneStartDungeons;
-	ZoneRnum zone_rnum = zone_table.size();
-	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		log("1Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
-	}
-
-//	zone_table.resize(zone_rnum + NumberOfZoneDungeons);
+	ZoneRnum zone_rnum = zone_table.size() - NumberOfZoneDungeons;
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
+//		log("1Zone %d name %s zrn %d zone_rnum %d", zone_table[zrn].vnum, zone_table[zrn].name, zrn, zone_rnum);
 //	}
-	exit(0);
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
 		zone_table[zone_rnum].vnum = zone_vnum;
 		zone_table[zone_rnum].name = str_dup("Зона для данжей");
@@ -2837,7 +2831,9 @@ void CreateBlankRoomDungeon() {
 		zone_table[zone_rnum].top = zone_vnum * 100 + 99;
 		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100 + 99;
 		zone_table[zone_rnum].LastRoomVnum = zone_vnum * 100 + 98;
-		zone_table[zone_rnum].cmd = nullptr;
+		zone_table[zone_rnum].reset_mode = 0; //не очищается
+		CREATE(zone_table[zone_rnum].cmd, 1);
+		zone_table[zone_rnum].cmd[0].command = 'S'; //пустой список команд
 		for (RoomVnum room = 0; room <= 99; room++) {
 			RoomData *new_room = new RoomData;
 
@@ -2852,10 +2848,10 @@ void CreateBlankRoomDungeon() {
 		zone_vnum++;
 		zone_rnum++;
 	}
-	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
-	}
-	exit(0);
+//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
+//	}
+//	exit(0);
 }
 
 void add_vrooms_to_all_zones() {
@@ -4325,6 +4321,10 @@ void ZoneReset::reset_zone_essential() {
 	int last_state, curr_state;    // статус завершения последней и текущей команды
 
 	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
+//	if (!zone_table[m_zone_rnum].cmd) {
+//		log("No cmd, skiped");
+//		return;
+//	}
 	//----------------------------------------------------------------------------
 	last_state = 1;        // для первой команды считаем, что все ок
 
@@ -5327,12 +5327,22 @@ ObjRnum real_object(ObjVnum vnum) {
 	return obj_proto.rnum(vnum);
 }
 
-ZoneRnum real_zone(ZoneVnum zvn) {
-	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		if (zone_table[zrn].vnum == zvn)
-			return zrn;
+ZoneRnum real_zone(ZoneVnum vnum) {
+	ZoneRnum bot, top, mid;
+
+	bot = 0;
+	top = static_cast<ZoneRnum>(zone_table.size());
+	for (;;) {
+		mid = (bot + top) / 2;
+		if (zone_table[mid].vnum == vnum)
+			return (mid);
+		if (bot >= top)
+			return (kNowhere);
+		if (zone_table[mid].vnum > vnum)
+			top = mid - 1;
+		else
+			bot = mid + 1;
 	}
-	return 0;
 }
 
 // returns the real number of the room with given virtual number
@@ -5344,7 +5354,6 @@ RoomRnum real_room(RoomVnum vnum) {
 	// perform binary search on world-table
 	for (;;) {
 		mid = (bot + top) / 2;
-
 		if (world[mid]->room_vn == vnum)
 			return (mid);
 		if (bot >= top)
@@ -5362,11 +5371,9 @@ MobRnum real_mobile(MobVnum vnum) {
 
 	bot = 0;
 	top = top_of_mobt;
-
 	// perform binary search on mob-table
 	for (;;) {
 		mid = (bot + top) / 2;
-
 		if ((mob_index + mid)->vnum == vnum)
 			return (mid);
 		if (bot >= top)
