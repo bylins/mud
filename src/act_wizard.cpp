@@ -102,10 +102,13 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern time_t zones_stat_date;
 extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
+extern int NumberOfZoneDungeons;
+extern ZoneVnum ZoneStartDungeons;
+extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
+extern bool is_empty(ZoneRnum zone_nr);
 
 void medit_save_to_disk(int zone_num);
 // for entities
-extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void log_zone_count_reset();
 // extern functions
@@ -116,7 +119,6 @@ void rename_char(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
-extern bool is_empty(ZoneRnum zone_nr);
 // local functions
 int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg);
 void perform_immort_invis(CharData *ch, int level);
@@ -313,13 +315,9 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 	std::vector<std::pair<int, int>> zone;
 	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
 		zone.push_back(std::make_pair(i, zone_table[i].traffic));
-//		ss << "Zone: " << zone_table[i].vnum << " count_reset с ребута: " << zone_table[i].count_reset 
-//					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< std::endl;
 	}
 	if (sort) {
-//		std::sort(zone.begin(), zone.end());
 		std::sort(zone.begin(), zone.end(), comp);
-//		std::reverse(zone.begin(), zone.end());
 	}
 	for (auto it : zone) {
 		ss << "Zone: " << zone_table[it.first].vnum << " count_reset с ребута: " << zone_table[it.first].count_reset 
@@ -356,17 +354,20 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		PrintZoneStat(ch, 0, 999999, sort);
 		return;
 	}
-	int tmp1 = RealZoneNum(atoi(arg1));
-	int tmp2 = RealZoneNum(atoi(arg2));
+	int tmp1 = real_zone(atoi(arg1));
+	int tmp2 = real_zone(atoi(arg2));
 	if (tmp1 >= 0 && !*arg2) {
 		PrintZoneStat(ch, tmp1, tmp1, sort);
 		return;
 	}
-	if (tmp1 >= 0 && tmp2 > 0) {
+	if (tmp1 > 0 && tmp2 > 0) {
 		PrintZoneStat(ch, tmp1, tmp2, sort);
 		return;
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
+}
+
+void DoZoneCopy(CharData *ch, char *argument, int, int) {
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

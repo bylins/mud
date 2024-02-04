@@ -377,7 +377,7 @@ void WorldFile::read_entry(const int nr) {
 }
 
 void WorldFile::parse_room(int virtual_nr) {
-	static int room_realnum = kFirstRoom;
+	int room_realnum = ++top_of_world;
 	static ZoneRnum zone = 0;
 
 	int t[10], i;
@@ -493,7 +493,6 @@ void WorldFile::parse_room(int virtual_nr) {
 							break;
 					}
 				} while (letter != 0);
-				top_of_world = room_realnum++;
 				return;
 
 			default: log("%s", buf);

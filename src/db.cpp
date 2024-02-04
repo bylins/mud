@@ -171,6 +171,7 @@ int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms();
+void CreateBlankRoomDungeon();
 void add_vrooms_to_all_zones();
 void renum_world();
 void renum_zone_table();
@@ -226,6 +227,8 @@ extern void add_karma(CharData *ch, const char *punish, const char *reason);
 extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern void extract_trigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
+extern int NumberOfZoneDungeons;
+extern ZoneVnum ZoneStartDungeons;
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -1324,6 +1327,7 @@ void GameLoader::boot_world() {
 	log("Adding virtual rooms to all zones.");
 	add_vrooms_to_all_zones();
 
+
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
 	renum_world();
@@ -1348,6 +1352,10 @@ void GameLoader::boot_world() {
 	log("Converting deprecated obj values.");
 	convert_obj_values();
 
+	boot_profiler.next_step("Create blank rooms for dungeons");
+	log("Create blank rooms for dungeons.");
+	CreateBlankRoomDungeon();
+
 	boot_profiler.next_step("enumbering zone table");
 	log("Renumbering zone table.");
 	renum_zone_table();
@@ -1363,6 +1371,7 @@ void GameLoader::boot_world() {
 	boot_profiler.next_step("Initialization of object rnums");
 	log("Init system_obj rnums.");
 	system_obj::init();
+
 	log("Init global_drop_obj.");
 }
 
@@ -2598,6 +2607,7 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
 	load_cities();
+
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 
@@ -2717,7 +2727,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 		case DB_BOOT_WLD: {
 			// Creating empty world with kNowhere room.
 			world.push_back(new RoomData);
-			top_of_world = kFirstRoom;
+			top_of_world = kNowhere;
 			const size_t rooms_bytes = sizeof(RoomData) * rec_count;
 			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
 		}
@@ -2806,6 +2816,46 @@ void check_start_rooms(void) {
 		log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
 		r_unreg_start_room = r_mortal_start_room;
 	}
+}
+
+void CreateBlankRoomDungeon() {
+	ZoneVnum zone_vnum = ZoneStartDungeons;
+	ZoneRnum zone_rnum = zone_table.size();
+	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		log("1Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
+	}
+
+//	zone_table.resize(zone_rnum + NumberOfZoneDungeons);
+//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
+//	}
+	exit(0);
+	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
+		zone_table[zone_rnum].vnum = zone_vnum;
+		zone_table[zone_rnum].name = str_dup("Зона для данжей");
+		zone_table[zone_rnum].under_construction = true;
+		zone_table[zone_rnum].top = zone_vnum * 100 + 99;
+		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100 + 99;
+		zone_table[zone_rnum].LastRoomVnum = zone_vnum * 100 + 98;
+		zone_table[zone_rnum].cmd = nullptr;
+		for (RoomVnum room = 0; room <= 99; room++) {
+			RoomData *new_room = new RoomData;
+
+			top_of_world++;
+			world.push_back(new_room);
+			new_room->zone_rn = zone_rnum;
+			new_room->room_vn = zone_vnum * 100 + room;
+			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
+			new_room->sector_type = ESector::kSecret;
+			new_room->name = str_dup("ДАНЖ");
+		}
+		zone_vnum++;
+		zone_rnum++;
+	}
+	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name);
+	}
+	exit(0);
 }
 
 void add_vrooms_to_all_zones() {
@@ -5271,6 +5321,18 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	act("$n вступил$g в игру.", true, ch, 0, 0, kToRoom);
 	act("Вы перевоплотились! Желаем удачи!", false, ch, 0, 0, kToChar);
 	affect_total(ch);
+}
+
+ObjRnum real_object(ObjVnum vnum) {
+	return obj_proto.rnum(vnum);
+}
+
+ZoneRnum real_zone(ZoneVnum zvn) {
+	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		if (zone_table[zrn].vnum == zvn)
+			return zrn;
+	}
+	return 0;
 }
 
 // returns the real number of the room with given virtual number

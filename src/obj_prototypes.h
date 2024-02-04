@@ -108,9 +108,6 @@ inline bool CObjectPrototypes::is_index_safe(const size_t index) const {
 
 extern CObjectPrototypes obj_proto;
 
-// returns the real number of the object with given virtual number
-inline ObjRnum real_object(ObjVnum vnum) { return obj_proto.rnum(vnum); }
-
 inline auto GET_OBJ_SPEC(const CObjectPrototype *obj) {
 	return obj_proto.spec(obj->get_rnum());
 }

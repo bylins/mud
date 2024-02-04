@@ -86,17 +86,6 @@ struct DescriptorData;
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
 }
-// поиск рнума зоны по внум, если не  найдено будет 0
-inline int ZoneRnumFromVnum(int zvn) {
-	ZoneRnum zrn;
-	for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		if (zone_table[zrn].vnum == zvn)
-			break;
-	}
-	if (zrn == static_cast<ZoneRnum>(zone_table.size()))
-		zrn = 0;
-	return zrn;
-}
 
 inline const char *not_empty(const std::string &s, const char *subst) {
 	return s.empty() ? (subst ? subst : "undefined") : s.c_str();
@@ -154,7 +143,6 @@ char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int RealZoneNum(ZoneVnum zvn);
 
 extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);

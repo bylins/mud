@@ -1373,14 +1373,6 @@ void skip_dots(char **string) {
 	for (; **string && (strchr(" .", **string) != nullptr); (*string)++);
 }
 
-int RealZoneNum(ZoneVnum zvn) {
-	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		if (zone_table[zrn].vnum == zvn)
-			return zrn;
-	}
-	return -1;
-}
-
 // Return pointer to first occurrence in string ct in
 // cs, or nullptr if not present.  Case insensitive
 char *str_str(const char *cs, const char *ct) {
