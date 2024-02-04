@@ -2824,6 +2824,9 @@ void CreateBlankRoomDungeon() {
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 //		log("1Zone %d name %s zrn %d zone_rnum %d", zone_table[zrn].vnum, zone_table[zrn].name, zrn, zone_rnum);
 //	}
+	ZoneData new_zone;
+
+	zone_table.push_back(new_zone);
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
 		zone_table[zone_rnum].vnum = zone_vnum;
 		zone_table[zone_rnum].name = str_dup("Зона для данжей");

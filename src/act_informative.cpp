@@ -3654,7 +3654,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 						GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)),
 						world[IN_ROOM(i)]->name,
-						zone->name);
+						zone->name.c_str());
 				SendMsgToChar(buf, ch);
 			}
 		}
