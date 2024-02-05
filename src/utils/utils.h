@@ -20,7 +20,7 @@
 #include <vector>
 #include <sstream>
 
-#include <boost/dynamic_bitset.hpp>
+//#include <boost/dynamic_bitset.hpp>
 
 #include "game_classes/classes_constants.h"
 #include "game_classes/classes.h"

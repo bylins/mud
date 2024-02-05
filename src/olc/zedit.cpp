@@ -296,6 +296,7 @@ void zedit_setup(DescriptorData *d, int/* room_num*/) {
 
 	// Allocate one scratch zone structure. //
 	CREATE(zone, 1);
+	new (zone) ZoneData();
 	if (zone_table[OLC_ZNUM(d)].typeA_count) {
 		CREATE(zone->typeA_list, zone_table[OLC_ZNUM(d)].typeA_count);
 	}
@@ -304,11 +305,15 @@ void zedit_setup(DescriptorData *d, int/* room_num*/) {
 	}
 
 	// Copy all the zone header information over. //
-	zone->name = zone_table[OLC_ZNUM(d)].name;
-	zone->comment = zone_table[OLC_ZNUM(d)].comment.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].comment.c_str());
-	zone->location = zone_table[OLC_ZNUM(d)].location.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].location.c_str());
-	zone->author = zone_table[OLC_ZNUM(d)].author.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].author.c_str());
-	zone->description = zone_table[OLC_ZNUM(d)].description.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].description.c_str());
+//	zone->name = zone_table[OLC_ZNUM(d)].name;
+//	zone->comment = zone_table[OLC_ZNUM(d)].comment.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].comment.c_str());
+//	zone->location = zone_table[OLC_ZNUM(d)].location.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].location.c_str());
+//	zone->author = zone_table[OLC_ZNUM(d)].author.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].author.c_str());
+//	zone->description = zone_table[OLC_ZNUM(d)].description.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].description.c_str());
+	zone->comment = zone_table[OLC_ZNUM(d)].comment;
+	zone->location = zone_table[OLC_ZNUM(d)].location;
+	zone->author = zone_table[OLC_ZNUM(d)].author;
+	zone->description = zone_table[OLC_ZNUM(d)].description;
 //MZ.load
 	zone->level = zone_table[OLC_ZNUM(d)].level;
 	zone->type = zone_table[OLC_ZNUM(d)].type;
