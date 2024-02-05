@@ -366,6 +366,7 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
+
 void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	int i, count, subcmd;
 	auto &zone_from = zone_table[rzone_from];
@@ -405,7 +406,7 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	}
 	for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
 	log("Create CMD count %d", count);
-	CREATE(zone_to.cmd, count); //почистить
+	CREATE(zone_to.cmd, count + 1); //почистить
 
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
 		zone_to.cmd[subcmd].command = zone_from.cmd[subcmd].command;
@@ -422,7 +423,7 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		}
 	}
 	zone_to.cmd[subcmd].command = 'S';
-*/
+/*
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
 		log("CMD %d %d %d %d %d %d", 
 		zone_from.cmd[subcmd].command, zone_to.cmd[subcmd].if_flag,

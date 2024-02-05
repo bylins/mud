@@ -4257,6 +4257,28 @@ void process_celebrates(int vnum) {
 // Команда не должна изменить флаг
 #define        FLAG_PERSIST        2
 
+void ZoneDataFree(ZoneRnum zrn) {
+	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
+		if (zone_table[zrn].cmd[subcmd].command == 'V') {
+			free(zone_table[zrn].cmd[subcmd].sarg1);
+			free(zone_table[zrn].cmd[subcmd].sarg2);
+		}
+	}
+	free(zone_table[zrn].cmd);
+	if (zone_table[zrn].typeA_list)
+		free(zone_table[zrn].typeA_list);
+	if (zone_table[zrn].typeB_list)
+		free(zone_table[zrn].typeB_list);
+	if (zone_table[zrn].typeB_flag)
+		free(zone_table[zrn].typeB_flag);
+	zone_table[zrn].name = "Зона для данжей";
+	zone_table[zrn].reset_mode = 0;
+	zone_table[zrn].top = zone_table[zrn].vnum * 100 + 99;
+	zone_table[zrn].FirstRoomVnum = zone_table[zrn].vnum * 100;
+	zone_table[zrn].LastRoomVnum = zone_table[zrn].vnum * 100 + 98;
+	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
+}
+
 class ZoneReset {
  public:
 	ZoneReset(const ZoneRnum zone) : m_zone_rnum(zone) {}
@@ -4273,6 +4295,10 @@ class ZoneReset {
 };
 
 void ZoneReset::reset() {
+	if (zone_table[m_zone_rnum].copy_from_zone > 0) {
+		ZoneDataFree(m_zone_rnum);
+		return;
+	}
 	if (GlobalObjects::stats_sender().ready()) {
 		utils::CExecutionTimer timer;
 
@@ -4343,7 +4369,7 @@ void ZoneReset::reset_zone_essential() {
 	//----------------------------------------------------------------------------
 	last_state = 1;        // для первой команды считаем, что все ок
 
-	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
+	for (cmd_no = 0; zone_table[m_zone_rnum].cmd != nullptr && ZCMD.command != 'S'; cmd_no++) {
 		if (ZCMD.command == '*') {
 			// комментарий - ни на что не влияет
 			continue;
