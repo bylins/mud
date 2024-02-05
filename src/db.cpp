@@ -2750,7 +2750,8 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 			break;
 
 		case DB_BOOT_ZON: {
-			zone_table.resize(rec_count + NumberOfZoneDungeons);
+			zone_table.reserve(rec_count + NumberOfZoneDungeons*2);
+			zone_table.resize(rec_count);
 			const size_t zones_size = sizeof(ZoneData) * rec_count;
 			log("   %d zones, %zd bytes.", rec_count, zones_size);
 		}
@@ -2820,21 +2821,21 @@ void check_start_rooms(void) {
 
 void CreateBlankRoomDungeon() {
 	ZoneVnum zone_vnum = ZoneStartDungeons;
-	ZoneRnum zone_rnum = zone_table.size() - NumberOfZoneDungeons;
+	ZoneRnum zone_rnum = zone_table.size();
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 //		log("1Zone %d name %s zrn %d zone_rnum %d", zone_table[zrn].vnum, zone_table[zrn].name.c_str(), zrn, zone_rnum);
 //	}
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
-		zone_table[zone_rnum].vnum = zone_vnum;
-		zone_table[zone_rnum].name = str_dup("Зона для данжей");
+/*		zone_table[zone_rnum].vnum = zone_vnum;
+		zone_table[zone_rnum].name = "Зона для данжей";
 		zone_table[zone_rnum].under_construction = true;
-		zone_table[zone_rnum].top = zone_vnum * 100;
+		zone_table[zone_rnum].top = zone_vnum * 100 + 99;
 		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100;
 		zone_table[zone_rnum].LastRoomVnum = zone_vnum * 100 + 98;
 		zone_table[zone_rnum].reset_mode = 0; //не очищается
 		CREATE(zone_table[zone_rnum].cmd, 1);
 		zone_table[zone_rnum].cmd[0].command = 'S'; //пустой список команд
-/*
+*/
 		ZoneData new_zone;
 
 		new_zone.vnum = zone_vnum;
@@ -2843,11 +2844,9 @@ void CreateBlankRoomDungeon() {
 		new_zone.top = zone_vnum * 100 + 99;
 		new_zone.FirstRoomVnum = zone_vnum * 100;
 		new_zone.LastRoomVnum = zone_vnum * 100 + 98;
-		new_zone.reset_mode = 0; //не очищается
-		CREATE(new_zone.cmd, 1);
-		new_zone.cmd[0].command = 'S'; //пустой список команд
+//		CREATE(new_zone.cmd, 6);
+		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
 		zone_table.push_back(std::move(new_zone));
-*/
 		for (RoomVnum room = 0; room <= 99; room++) {
 			RoomData *new_room = new RoomData;
 
@@ -2952,6 +2951,8 @@ void renum_mob_zone(void) {
 void renum_single_table(int zone) {
 	int cmd_no, a, b, c, olda, oldb, oldc;
 	char buf[128];
+	if (!zone_table[zone].cmd)
+		return;
 
 	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
 		a = b = c = 0;
@@ -4335,10 +4336,10 @@ void ZoneReset::reset_zone_essential() {
 	int last_state, curr_state;    // статус завершения последней и текущей команды
 
 	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name.c_str());
-//	if (!zone_table[m_zone_rnum].cmd) {
-//		log("No cmd, skiped");
-//		return;
-//	}
+	if (!zone_table[m_zone_rnum].cmd) {
+		log("No cmd, skiped");
+		return;
+	}
 	//----------------------------------------------------------------------------
 	last_state = 1;        // для первой команды считаем, что все ок
 

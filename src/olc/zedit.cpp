@@ -48,7 +48,6 @@ void zedit_disp_arg4(DescriptorData *d);
 void zedit_save_internally(DescriptorData *d);
 void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
-void zedit_new_zone(CharData *ch, int vzone_num);
 
 void renum_single_table(int zone);
 int is_number(const char *str);
@@ -100,7 +99,8 @@ pzcmd zedit_build_cmdlist(DescriptorData *d) {
 	CREATE(head, 1);
 	head->next = head->prev = head;
 	head->cmd.command = 'S';
-
+	if (!zone_table[OLC_ZNUM(d)].cmd)
+		return head;
 	for (subcmd = 0; ZCMD.command != 'S'; ++subcmd) {
 		if (ZCMD.command == '*')
 			continue;
@@ -305,11 +305,7 @@ void zedit_setup(DescriptorData *d, int/* room_num*/) {
 	}
 
 	// Copy all the zone header information over. //
-//	zone->name = zone_table[OLC_ZNUM(d)].name;
-//	zone->comment = zone_table[OLC_ZNUM(d)].comment.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].comment.c_str());
-//	zone->location = zone_table[OLC_ZNUM(d)].location.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].location.c_str());
-//	zone->author = zone_table[OLC_ZNUM(d)].author.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].author.c_str());
-//	zone->description = zone_table[OLC_ZNUM(d)].description.empty() ? str_dup("НЕТ") : str_dup(zone_table[OLC_ZNUM(d)].description.c_str());
+	zone->name = zone_table[OLC_ZNUM(d)].name;
 	zone->comment = zone_table[OLC_ZNUM(d)].comment;
 	zone->location = zone_table[OLC_ZNUM(d)].location;
 	zone->author = zone_table[OLC_ZNUM(d)].author;
@@ -354,14 +350,16 @@ void zedit_save_internally(DescriptorData *d) {
 	int count, i;
 	pzcmd head, item;
 
-	// Удалить старую таблицу команд
-	for (subcmd = 0; ZCMD.command != 'S'; ++subcmd) {
-		if (ZCMD.command == 'V') {
-			free(ZCMD.sarg1);
-			free(ZCMD.sarg2);
+	if (zone_table[OLC_ZNUM(d)].cmd) {
+		// Удалить старую таблицу команд
+		for (subcmd = 0; ZCMD.command != 'S'; ++subcmd) {
+			if (ZCMD.command == 'V') {
+				free(ZCMD.sarg1);
+				free(ZCMD.sarg2);
+			}
 		}
+		free(zone_table[OLC_ZNUM(d)].cmd);
 	}
-	free(zone_table[OLC_ZNUM(d)].cmd);
 
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 	count = zedit_count_cmdlist(head);
@@ -675,7 +673,7 @@ void zedit_disp_commands(DescriptorData *d) {
 	int rnum = 0;
 	int show_all = d->olc->bitmask & OLC_BM_SHOWALLCMD;
 	int start = d->olc->bitmask & ~OLC_BM_SHOWALLCMD, stop;
-
+	
 	room = OLC_NUM(d);
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 
