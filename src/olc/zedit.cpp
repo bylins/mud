@@ -107,7 +107,6 @@ pzcmd zedit_build_cmdlist(DescriptorData *d) {
 
 		CREATE(item, 1);
 		item->cmd = ZCMD;    // копирование команды
-
 		switch (ZCMD.command) {
 			case 'M': TRANS_MOB(arg1);
 				TRANS_ROOM(arg3);
@@ -156,18 +155,14 @@ pzcmd zedit_build_cmdlist(DescriptorData *d) {
 				item->cmd.sarg1 = str_dup(item->cmd.sarg1);
 				item->cmd.sarg2 = str_dup(item->cmd.sarg2);
 				break;
-
 			default: free(item);
 				continue;
 		}
-
 		// Добавить item в конец буфера
 		item->next = head;
 		item->prev = head->prev;
 		item->next->prev = item->prev->next = item;
-
 	}
-
 	return head;
 }
 
