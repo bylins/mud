@@ -466,7 +466,7 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		if (strstr(buf_temp1, it->first.c_str()) != nullptr) {
 			sum_aff += it->second;
 		}
-		//std::cout << it->first << " " << it->second << std::endl;
+		//std::cout << it->first << " " << it->second << "\r\n";
 	}
 
 	// если сумма больше или равна единице
@@ -503,7 +503,7 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 					}
 				}
 
-				//std::cout << it->first << " " << it->second << std::endl;
+				//std::cout << it->first << " " << it->second << "\r\n";
 			}
 		}
 	}
@@ -516,7 +516,7 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 		if (strstr(buf_temp1, it->first.c_str()) != nullptr) {
 			sum_aff += it->second;
 		}
-		//std::cout << it->first << " " << it->second << std::endl;
+		//std::cout << it->first << " " << it->second << "\r\n";
 	}
 	sum += sum_aff;
 	return sum;

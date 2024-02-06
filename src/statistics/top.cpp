@@ -79,7 +79,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
-	out << KWHT << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << KNRM << std::endl;
+	out << KWHT << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << KNRM << "\r\n";
 
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
@@ -100,7 +100,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	for (const auto &it: TopPlayer::chart_[id]) {
 		if (it.unique_ == ch->get_uid()) {
 			out.clear();
-			out << std::endl << "  Ваш текущий рейтинг: " << count << std::endl;
+			out << "\r\n" << "  Ваш текущий рейтинг: " << count << "\r\n";
 			break;
 		}
 		++count;

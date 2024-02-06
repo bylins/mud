@@ -235,18 +235,18 @@ int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 };
 
 void AbilityInfo::Print(CharData * /*ch*/, std::ostringstream &buffer) const {
-	buffer << "Print ability:" << std::endl
-		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << std::endl
-		   << " Name: " << KGRN << GetName() << KNRM << std::endl
-		   << " Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
-		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(base_skill_) << KNRM << std::endl
-		   << " Base stat: " << KGRN << NAME_BY_ITEM<EBaseStat>(base_stat_) << KNRM << std::endl
-		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << std::endl
-		   << " Roll bonus: " << KGRN << roll_bonus_ << KNRM << std::endl
+	buffer << "Print ability:" << "\r\n"
+		   << " Id: " << KGRN << NAME_BY_ITEM<EAbility>(GetId()) << KNRM << "\r\n"
+		   << " Name: " << KGRN << GetName() << KNRM << "\r\n"
+		   << " Abbr: " << KGRN << GetAbbr() << KNRM << "\r\n"
+		   << " Base skill: " << KGRN << NAME_BY_ITEM<ESkill>(base_skill_) << KNRM << "\r\n"
+		   << " Base stat: " << KGRN << NAME_BY_ITEM<EBaseStat>(base_stat_) << KNRM << "\r\n"
+		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n"
+		   << " Roll bonus: " << KGRN << roll_bonus_ << KNRM << "\r\n"
 		   << " Penalties [PvP/PvE/EvP]: "
-		   << KGRN << pvp_penalty << "/" << pve_penalty << "/" << evp_penalty << KNRM << std::endl
+		   << KGRN << pvp_penalty << "/" << pve_penalty << "/" << evp_penalty << KNRM << "\r\n"
 		   << " Critical thresholds [success/fail]: "
-		   << KGRN << "critsuccess - " << critsuccess_threshold_ << "/" << critfail_threshold_ << KNRM << std::endl;
+		   << KGRN << "critsuccess - " << critsuccess_threshold_ << "/" << critfail_threshold_ << KNRM << "\r\n";
 
 /*		   << "\n"
 		   << " Circumstance modificators:\n";*/
@@ -257,7 +257,7 @@ void AbilityInfo::Print(CharData * /*ch*/, std::ostringstream &buffer) const {
 //	for (auto &it : messages_) {
 //		buffer << "   " << NAME_BY_ITEM<EAbilityMsg>(it.first) << ": " << KGRN << it.second << KNRM << "\n";
 //	}
-	buffer << std::endl;
+	buffer << "\r\n";
 }
 
 int AbilityInfo::GetBaseParameter(const CharData *ch) const {

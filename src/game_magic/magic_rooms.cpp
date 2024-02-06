@@ -71,7 +71,7 @@ bool IsRoomAffected(RoomData *room, ESpell spell) {
 
 void ShowAffectedRooms(CharData *ch) {
 	std::stringstream out;
-	out << " Список комнат под аффектами:" << std::endl;
+	out << " Список комнат под аффектами:" << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader <<
@@ -85,7 +85,7 @@ void ShowAffectedRooms(CharData *ch) {
 		}
 	}
 	table_wrapper::DecorateServiceTable(ch, table);
-	out << table.to_string() << std::endl;
+	out << table.to_string() << "\r\n";
 
 	page_string(ch->desc, out.str());
 }

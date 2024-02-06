@@ -71,9 +71,9 @@ void print_undelivered(CharData *ch) {
 	auto i = undelivered_list.find(ch->get_uid());
 	if (i != undelivered_list.end()) {
 		std::ostringstream out;
-		out << "Информация по недоставленным (на момент перезагрузки) письмам." << std::endl
-			<< "Количество писем: " << i->second.total_num << "." << std::endl
-			<< "Адресаты: " << i->second.names << "." << std::endl;
+		out << "Информация по недоставленным (на момент перезагрузки) письмам." << "\r\n"
+			<< "Количество писем: " << i->second.total_num << "." << "\r\n"
+			<< "Адресаты: " << i->second.names << "." << "\r\n";
 		SendMsgToChar(out.str(), ch);
 	}
 }

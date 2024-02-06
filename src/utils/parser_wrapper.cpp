@@ -9,7 +9,7 @@ DataNode::DataNode(const std::filesystem::path &file_name) :
 {
 	if (auto result = xml_doc_->load_file(file_name.c_str()); !result) {
 		std::ostringstream buffer;
-		buffer << "..." << result.description() << std::endl << " (file: " << file_name << ")" << std::endl;
+		buffer << "..." << result.description() << "\r\n" << " (file: " << file_name << ")" << "\r\n";
 		err_log("%s", buffer.str().c_str());
 	}
 	curren_xml_node_ = xml_doc_->document_element();

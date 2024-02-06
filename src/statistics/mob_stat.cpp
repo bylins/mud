@@ -78,7 +78,7 @@ void PrintClassesExpStat(std::ostringstream &out) {
 	auto tmp_array = BuildExpStatArray();
 	const unsigned long long top_exp = (*tmp_array)[0].second;
 
-	out << " Соотношения набранного с перезагрузки опыта:" << std::endl << std::endl;
+	out << " Соотношения набранного с перезагрузки опыта:" << "\r\n" << "\r\n";
 	/*
 	 * При более чем 2 столбцах будет работать неправильно.
 	 * Но возиться сейчас с написанием универсальной функции не вижу смысла:
@@ -97,9 +97,9 @@ void PrintClassesExpStat(std::ostringstream &out) {
 			out << "  " << PrintClassExpStat(second_col->first, top_exp);
 			++second_col;
 		}
-		out << std::endl;
+		out << "\r\n";
 	}
-	out << std::endl;
+	out << "\r\n";
 }
 
 void LogClassesExpStat() {
@@ -250,7 +250,7 @@ void ClearZoneStat(ZoneVnum zone_vnum) {
 void ShowStats(CharData *ch) {
 	std::stringstream out;
 	out << "  Всего уникальных мобов в статистике убийств: "
-		<< mob_stat_register.size() << std::endl
+		<< mob_stat_register.size() << "\r\n"
 		<< "  Количество уникальных мобов по месяцам:";
 	for (auto & count_stat : count_stats) {
 		out << " " << std::setw(2) << std::setfill('0') << count_stat.first << ":" << count_stat.second;
@@ -261,7 +261,7 @@ void ShowStats(CharData *ch) {
 		out << " " << std::setw(2) << std::setfill('0') << kill_stat.first << ":" << kill_stat.second;
 	}
 
-	out << std::endl;
+	out << "\r\n";
 	SendMsgToChar(out.str(), ch);
 }
 
@@ -387,7 +387,7 @@ void ShowZoneMobKillsStat(CharData *ch, ZoneVnum zone_vnum, int months) {
 				out << " n" << g << "=" << i.second.kills.at(g);
 			}
 		}
-		out << std::endl;
+		out << "\r\n";
 	}
 
 	SendMsgToChar(out.str().c_str(), ch);

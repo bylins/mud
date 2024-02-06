@@ -226,13 +226,13 @@ void CommandEmbranchmentImplementation::reply(const CommandContext::shared_ptr &
 }
 
 void CommandEmbranchmentImplementation::print_branches_list(std::stringstream &ss) const {
-	ss << std::endl;
+	ss << "\r\n";
 	for (const auto &branch : m_branches.trie()) {
 		const std::string &prefix = branch.prefix();
 		ss << "    " << std::setw(m_branches.max_length()) << prefix
-		   << " - " << m_branches.handlers().at(prefix)->get_help_line() << std::endl;
+		   << " - " << m_branches.handlers().at(prefix)->get_help_line() << "\r\n";
 	}
-	ss << std::endl;
+	ss << "\r\n";
 }
 
 CommandEmbranchment::shared_ptr CommandEmbranchment::create(const std::string &help_line/* = ""*/) {

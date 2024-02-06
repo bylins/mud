@@ -1338,7 +1338,7 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 		   << " CritLuck: " << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
 //		   << " Degree: " << result.degree
 		   << " Saving: " << save
-		   << KNRM << std::endl;
+		   << KNRM << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
@@ -1365,7 +1365,7 @@ void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percen
 		   << " Percent: " << percent
 		   << " Prob: " << prob
 		   << " Success: " << (success ? "yes" : "no")
-		   << KNRM << std::endl;
+		   << KNRM << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 

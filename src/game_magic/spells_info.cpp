@@ -145,20 +145,20 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 }
 
 void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "Print spell:" << std::endl
+	buffer << "Print spell:" << "\r\n"
 		   << " Id: " << KGRN << NAME_BY_ITEM<ESpell>(GetId()) << KNRM
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl
-		   << " Name (rus): " << KGRN << name_ << KNRM << std::endl
-		   << " Name (eng): " << KGRN << name_eng_ << KNRM << std::endl
-		   << " Element: " << KGRN << NAME_BY_ITEM<EElement>(element_) << KNRM << std::endl
-		   << " Min position: " << KGRN << NAME_BY_ITEM<EPosition>(min_position_) << KNRM << std::endl
-		   << " Violent: " << KGRN << (violent_ ? "Yes" : "No") << KNRM << std::endl
-		   << " Danger: " << KGRN << danger_ << KNRM << std::endl
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n"
+		   << " Name (rus): " << KGRN << name_ << KNRM << "\r\n"
+		   << " Name (eng): " << KGRN << name_eng_ << KNRM << "\r\n"
+		   << " Element: " << KGRN << NAME_BY_ITEM<EElement>(element_) << KNRM << "\r\n"
+		   << " Min position: " << KGRN << NAME_BY_ITEM<EPosition>(min_position_) << KNRM << "\r\n"
+		   << " Violent: " << KGRN << (violent_ ? "Yes" : "No") << KNRM << "\r\n"
+		   << " Danger: " << KGRN << danger_ << KNRM << "\r\n"
 		   << " Mana min: " << KGRN << min_mana_ << KNRM
 		   << " Mana max: " << KGRN << max_mana_ << KNRM
-		   << " Mana change: " << KGRN << mana_change_ << KNRM << std::endl
-		   << " Flags: " << KGRN << flags_ << KNRM << std::endl
-		   << " Targets: " << KGRN << targets_ << KNRM << std::endl;
+		   << " Mana change: " << KGRN << mana_change_ << KNRM << "\r\n"
+		   << " Flags: " << KGRN << flags_ << KNRM << "\r\n"
+		   << " Targets: " << KGRN << targets_ << KNRM << "\r\n";
 
 	actions.Print(ch, buffer);
 }

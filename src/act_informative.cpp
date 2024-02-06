@@ -3271,16 +3271,16 @@ void PrintUptime(std::ostringstream &out) {
 	auto m = (uptime / 60) % 60;
 	auto s = uptime % 60;
 
-	out << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << std::endl;
+	out << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << "\r\n";
 }
 
 void PrintPair(std::ostringstream &out, int column_width, int val1, int val2) {
 		out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val1
-		<< KIRED << "|" << KICYN << std::setw(column_width) << val2 << KIRED << "]" << KNRM << std::endl;
+		<< KIRED << "|" << KICYN << std::setw(column_width) << val2 << KIRED << "]" << KNRM << "\r\n";
 }
 
 void PrintValue(std::ostringstream &out, int column_width, int val) {
-	out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val << KIRED << "]" << KNRM << std::endl;
+	out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val << KIRED << "]" << KNRM << "\r\n";
 }
 
 void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -3322,7 +3322,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	 */
 	std::ostringstream out;
 	out << KICYN << " Статистика по персонажам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
-	<< KNRM << std::endl << std::endl << " ";
+	<< KNRM << "\r\n" << "\r\n" << " ";
 	int count{1};
 	const int columns{2};
 	const int class_name_col_width{15};
@@ -3337,13 +3337,13 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			<< std::setw(number_col_width) << std::right << it.second.second
 			<< KIRED << "]" << KNRM;
 		if (count % columns == 0) {
-			out << std::endl << " ";
+			out << "\r\n" << " ";
 		} else {
 			out << "  ";
 		}
 		++count;
 	}
-	out << std::endl;
+	out << "\r\n";
 
 	const int headline_width{33};
 
@@ -3365,7 +3365,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	out << std::left << std::setw(headline_width) << " Героев (без ПК) | Тварей убито:";
 	const int kills_col_width{5};
 	PrintPair(out, kills_col_width, char_stat::players_killed, char_stat::mobs_killed);
-	out << std::endl;
+	out << "\r\n";
 
 	char_stat::PrintClassesExpStat(out);
 

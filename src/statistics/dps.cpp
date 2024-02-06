@@ -177,7 +177,7 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
 
 	std::ostringstream out;
 	PrintPersonalDpsStat(ch, out);
-	out << std::endl;
+	out << "\r\n";
 	PrintPersonalExpStat(out);
 
 	SendMsgToChar(out.str(), coder);
@@ -189,7 +189,7 @@ void Dps::PrintStats(CharData *ch, CharData *coder) {
  * @param out - поток для вывода.
  */
 void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out) {
-	out << " Персональная статистика урона:" << std::endl;
+	out << " Персональная статистика урона:" << "\r\n";
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader	<<
 		"Имя" << "Урон" << "В раунд" << "Макс." << "Лишний урон" << table_wrapper::kEndRow;
@@ -209,18 +209,18 @@ void Dps::PrintPersonalDpsStat(CharData *ch, std::ostringstream &out) {
  * @param out - выводной поток.
  */
 void Dps::PrintPersonalExpStat(std::ostringstream &out) const {
-	out << " Персональная статистика по опыту:" << std::endl;
+	out << " Персональная статистика по опыту:" << "\r\n";
 
 	double percent = exp_ ? battle_exp_ * 100.0 / exp_ : 0.0;
 	int balance = exp_ + lost_exp_;
 
 	out << KIBLU << " *" << KNRM << " Всего получено опыта: " << PrintNumberByDigits(exp_)
 		<< " Из него за удары: " << PrintNumberByDigits(battle_exp_)
-		<< " (" << std::setprecision(2) << percent << "%)" << std::endl
+		<< " (" << std::setprecision(2) << percent << "%)" << "\r\n"
 		<< KIBLU << " *" << KNRM << " Потеряно опыта: " << PrintNumberByDigits(abs(lost_exp_));
 
 	if (balance != 0) {
-		out << " Баланс: " << (balance > 0 ? "+" : "-") << PrintNumberByDigits(abs(balance)) << std::endl;
+		out << " Баланс: " << (balance > 0 ? "+" : "-") << PrintNumberByDigits(abs(balance)) << "\r\n";
 	}
 }
 
@@ -249,7 +249,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	}
 
 	std::ostringstream out;
-	out << " Статистика урона вашей группы:" << std::endl;
+	out << " Статистика урона вашей группы:" << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader <<
@@ -266,7 +266,7 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 	tmp_group_list.clear();
 
 	table_wrapper::DecorateZebraTable(ch, table, table_wrapper::color::kBlue);
-	out << table.to_string() << std::endl;
+	out << table.to_string() << "\r\n";
 	SendMsgToChar(out.str(), coder);
 }
 

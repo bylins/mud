@@ -34,11 +34,11 @@ void SendSuccessLearningMessage(CharData *ch, ObjData *book, const std::string &
 	static const std::string stype2[] = {"заклинания", "умения", "умения", "рецепта", "способности"};
 
 	std::ostringstream out;
-	out << "Вы взяли в руки " << book->get_PName(3) << " и начали изучать." << std::endl <<
-		"Постепенно, незнакомые доселе, буквы стали складываться в понятные слова и фразы." << std::endl <<
+	out << "Вы взяли в руки " << book->get_PName(3) << " и начали изучать." << "\r\n" <<
+		"Постепенно, незнакомые доселе, буквы стали складываться в понятные слова и фразы." << "\r\n" <<
 		"Буквально через несколько минут вы узнали " <<
 		((GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) ? stype0[0] : stype0[1]) <<
-		" " << stype2[GET_OBJ_VAL(book, 0)] << " \"" << talent_name << "\"." << std::endl;
+		" " << stype2[GET_OBJ_VAL(book, 0)] << " \"" << talent_name << "\"." << "\r\n";
 	SendMsgToChar(out.str(), ch);
 	out.str(std::string());
 
@@ -299,17 +299,17 @@ void ProcessAlreadyKnownException(CharData *ch, ObjData *book, const AlreadyKnow
 	static const std::string talent_type[] = {"заклинание", "умение", "умение", "рецепт", "рецепт", "способность"};
 
 	std::ostringstream out;
-	out << "Вы открыли " << book->get_PName(3) << " и принялись с интересом изучать." << std::endl <<
+	out << "Вы открыли " << book->get_PName(3) << " и принялись с интересом изучать." << "\r\n" <<
 		"Каким же было разочарование, когда ";
 	if (GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) {
 		out << "изучив " << book->get_PName(3).c_str() << " от корки до корки вы так и не узнали ничего нового.";
 	} else {
 		out << "прочитав " <<
 			(number(0, 1) ? "несколько страниц, " : number(0, 1) ? "пару строк," : "почти до конца,") <<
-			std::endl << "вы поняли, что это " << talent_type[GET_OBJ_VAL(book, 0)] <<
+			"\r\n" << "вы поняли, что это " << talent_type[GET_OBJ_VAL(book, 0)] <<
 			" \"" << exception.what() << "\".";
 	}
-	out << std::endl;
+	out << "\r\n";
 	SendMsgToChar(out.str(), ch);
 
 	act("$n с интересом принял$u читать $o3.\r\n"
