@@ -479,21 +479,8 @@ void init_mob_type() {
 	}
 }
 
-/**
- * Расчет макс.в.мире на основе поля резета зоны.
- * Если мест лоада несколько - берется максимальное значение.
- */
 int calc_max_in_world(int mob_rnum) {
-	int max_in_world = 0;
-	for (std::size_t i = 0; i < zone_table.size(); ++i) {
-		for (int cmd_no = 0; zone_table[i].cmd[cmd_no].command != 'S'; ++cmd_no) {
-			if (zone_table[i].cmd[cmd_no].command == 'M'
-				&& zone_table[i].cmd[cmd_no].arg1 == mob_rnum) {
-				max_in_world = std::max(max_in_world, zone_table[i].cmd[cmd_no].arg2);
-			}
-		}
-	}
-	return max_in_world;
+	return mob_index[mob_rnum].stored + mob_index[mob_rnum].total_online;
 }
 
 /**
