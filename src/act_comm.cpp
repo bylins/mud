@@ -412,7 +412,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(OK, ch);
 		else {
 			std::stringstream buffer;
-			buffer << "Вы " << action_plur << "и " << vict3 << " : '" << buf2 << "'" << std::endl;
+			buffer << "Вы " << action_plur << "и " << vict3 << " : '" << buf2 << "'" << "\r\n";
 //			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
 			SendMsgToChar(buffer.str(), ch);
 		}

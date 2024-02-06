@@ -2431,7 +2431,7 @@ void build_char_table(int(*func)(int c)) {
 	for (int c = 0; c < 256; c++) {
 		std::cout << (func(c) ? " true" : "false") << (255 > c ? ", " : "");
 		if (0 < c && 0 == (1 + c) % 16) {
-			std::cout << std::endl;
+			std::cout << "\r\n";
 		}
 	}
 }
@@ -2493,10 +2493,10 @@ double CCheckTable::test_time() const
 
 void CCheckTable::check() const
 {
-	std::cout << "Validity... " << std::endl;
-	std::cout << (test_values() ? "passed" : "failed") << std::endl;
-	std::cout << "Performance... " << std::endl;
-	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << std::endl;
+	std::cout << "Validity... " << "\r\n";
+	std::cout << (test_values() ? "passed" : "failed") << "\r\n";
+	std::cout << "Performance... " << "\r\n";
+	std::cout << std::setprecision(2) << std::fixed << test_time() * 100 << "%" << "\r\n";
 }
 #endif    // WIN32
 

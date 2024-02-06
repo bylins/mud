@@ -314,7 +314,7 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
 		zone.push_back(std::make_pair(i, zone_table[i].traffic));
 //		ss << "Zone: " << zone_table[i].vnum << " count_reset с ребута: " << zone_table[i].count_reset 
-//					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< std::endl;
+//					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< "\r\n";
 	}
 	if (sort) {
 //		std::sort(zone.begin(), zone.end());
@@ -323,7 +323,7 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 	}
 	for (auto it : zone) {
 		ss << "Zone: " << zone_table[it.first].vnum << " count_reset с ребута: " << zone_table[it.first].count_reset 
-					<< ", посещено: " << zone_table[it.first].traffic << ", название зоны: " << zone_table[it.first].name<< std::endl;
+					<< ", посещено: " << zone_table[it.first].traffic << ", название зоны: " << zone_table[it.first].name<< "\r\n";
 	}
 	page_string(ch->desc, ss.str());
 }
@@ -2405,7 +2405,7 @@ void do_date(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 
 	if (subcmd == SCMD_DATE) {
 		mytime = time(nullptr);
-		out << "Текущее время сервера: " << asctime(localtime(&mytime)) << std::endl;
+		out << "Текущее время сервера: " << asctime(localtime(&mytime)) << "\r\n";
 	} else {
 		mytime = shutdown_parameters.get_boot_time();
 		out << " Up since: " << asctime(localtime(&mytime));
@@ -3825,9 +3825,10 @@ void print(CharData *ch, int first, int last, const std::string &options) {
 					format_to(std::back_inserter(out), " {}", trigger_vnum);
 				}
 			} else {
-				format_to(std::back_inserter(out), " - нет скриптов");
+				format_to(std::back_inserter(out), " - нет скриптов -");
 			}
-			format_to(std::back_inserter(out), " Всего в мире: {}\r\n", mob_index[i].total_online);
+			format_to(std::back_inserter(out), " Всего в мире: {},", mob_index[i].total_online);
+			format_to(std::back_inserter(out), " максимально: {}\r\n", mob_index[i].stored + mob_index[i].total_online);
 		}
 	}
 
@@ -4097,9 +4098,9 @@ std::string statToPrint() {
 	char *end_time = str_dup(rustime(localtime(&now)));
 	out << rustime(localtime(&SpellUsage::start)) << " - " << end_time << "\n";
 	for (auto & it : SpellUsage::usage) {
-		out << std::setw(35) << MUD::Class(it.first).GetName() << std::endl;
+		out << std::setw(35) << MUD::Class(it.first).GetName() << "\r\n";
 		for (auto & itt : it.second) {
-			out << std::setw(25) << MUD::Spell(itt.first).GetName() << " : " << itt.second << std::endl;
+			out << std::setw(25) << MUD::Spell(itt.first).GetName() << " : " << itt.second << "\r\n";
 		}
 	}
 	return out.str();

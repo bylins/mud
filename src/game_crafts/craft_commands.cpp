@@ -82,14 +82,14 @@ class ListSkills : public CommonCommand {
 void ListSkills::execute(const CommandContext::shared_ptr &context, const arguments_t &, const arguments_t &arguments) {
 	std::stringstream ss;
 
-	ss << "Listing crafts skills..." << std::endl
-	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << std::endl
-	   << "Count: " << model.skills().size() << std::endl;
+	ss << "Listing crafts skills..." << "\r\n"
+	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << "\r\n"
+	   << "Count: " << model.skills().size() << "\r\n";
 
 	size_t counter = 0;
 	for (const auto &s : model.skills()) {
 		++counter;
-		ss << std::setw(2) << counter << ". " << s.id() << std::endl;
+		ss << std::setw(2) << counter << ". " << s.id() << "\r\n";
 	}
 
 	send(context, ss.str());
@@ -112,25 +112,25 @@ void ListMaterials::execute(const CommandContext::shared_ptr &context,
 							const arguments_t &arguments) {
 	std::stringstream ss;
 
-	ss << "Craft materials..." << std::endl
-	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << "'" << std::endl;
+	ss << "Craft materials..." << "\r\n"
+	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << "'" << "\r\n";
 	size_t number = 0;
 	const size_t size = model.materials().size();
 
 	if (0 == size) {
-		ss << "No materials loaded." << std::endl;
+		ss << "No materials loaded." << "\r\n";
 	}
 
 	for (const auto &material : model.materials()) {
 		++number;
 		const size_t classes_count = material->classes().size();
 		ss << " &W" << number << ". " << material->get_name() << "&n (&Y" << material->id() << "&n)"
-		   << (0 == classes_count ? " <&Rmaterial does not have classes&n>" : ":") << std::endl;
+		   << (0 == classes_count ? " <&Rmaterial does not have classes&n>" : ":") << "\r\n";
 		size_t class_number = 0;
 		for (const auto &material_class : material->classes()) {
 			++class_number;
 			ss << "   &g" << class_number << ". " << material_class.name() << "&n (&B"
-			   << material_class.id() << "&n)" << std::endl;
+			   << material_class.id() << "&n)" << "\r\n";
 		}
 	}
 
@@ -154,14 +154,14 @@ void ListRecipes::execute(const CommandContext::shared_ptr &context,
 						  const arguments_t &arguments) {
 	std::stringstream ss;
 
-	ss << "Listing crafts recipes..." << std::endl
-	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << std::endl
-	   << "Count: " << model.recipes().size() << std::endl;
+	ss << "Listing crafts recipes..." << "\r\n"
+	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << "\r\n"
+	   << "Count: " << model.recipes().size() << "\r\n";
 
 	size_t counter = 0;
 	for (const auto &r : model.recipes()) {
 		++counter;
-		ss << std::setw(2) << counter << ". " << r->id() << std::endl;
+		ss << std::setw(2) << counter << ". " << r->id() << "\r\n";
 	}
 
 	send(context, ss.str());
@@ -183,14 +183,14 @@ void ListPrototypes::execute(const CommandContext::shared_ptr &context,
 							 const arguments_t &,
 							 const arguments_t &arguments) {
 	std::stringstream ss;
-	ss << "Listing crafts prototypes..." << std::endl
-	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << std::endl
-	   << "Count: " << model.prototypes().size() << std::endl;
+	ss << "Listing crafts prototypes..." << "\r\n"
+	   << "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << "\r\n"
+	   << "Count: " << model.prototypes().size() << "\r\n";
 
 	size_t counter = 0;
 	for (const auto &p : model.prototypes()) {
 		++counter;
-		ss << std::setw(2) << counter << ". " << p->get_short_description() << std::endl;
+		ss << std::setw(2) << counter << ". " << p->get_short_description() << "\r\n";
 	}
 
 	send(context, ss.str());

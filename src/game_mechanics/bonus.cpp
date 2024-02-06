@@ -59,7 +59,7 @@ void bonus_log_add(const std::string &name) {
 	bonus_log.push_back(buf);
 
 	std::ofstream fout("../log/bonus.log", std::ios_base::app);
-	fout << buf << std::endl;
+	fout << buf << "\r\n";
 	fout.close();
 }
 

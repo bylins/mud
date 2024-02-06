@@ -246,9 +246,9 @@ const std::string &InfoStrPrefix(CharData *ch) {
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->has_horse(false)) {
 		if (ch->IsOnHorse()) {
-			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << std::endl;
+			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << "\r\n";
 		} else {
-			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << std::endl;
+			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << "\r\n";
 		}
 	}
 }
@@ -263,12 +263,12 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 			out << "[продержится еще ";
 			timer_room_label = (timer_room_label + 1) / kSecsPerMudHour + 1;
 			if (timer_room_label > 0) {
-				out << timer_room_label << " " << GetDeclensionInNumber(timer_room_label, EWhat::kHour) << "]." << std::endl;
+				out << timer_room_label << " " << GetDeclensionInNumber(timer_room_label, EWhat::kHour) << "]." << "\r\n";
 			} else {
-				out << "менее часа]." << std::endl;
+				out << "менее часа]." << "\r\n";
 			}
 		}
-		out << std::endl;
+		out << "\r\n";
 	}
 }
 
@@ -276,46 +276,46 @@ void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
 	auto glory = GloryConst::get_glory(GET_UNIQUE(ch));
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
-			<< glory << " " << GetDeclensionInNumber(glory, EWhat::kPoint) << " постоянной славы." << std::endl;
+			<< glory << " " << GetDeclensionInNumber(glory, EWhat::kPoint) << " постоянной славы." << "\r\n";
 	}
 }
 
 void PrintNameStatusInfo(CharData *ch, std::ostringstream &out) {
 	if (!NAME_GOD(ch) && GetRealLevel(ch) <= kNameLevel) {
 		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
-			<< "ваше имя не одобрил никто из богов!" << std::endl;
+			<< "ваше имя не одобрил никто из богов!" << "\r\n";
 		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
-			<< "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени." << std::endl;
+			<< "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени." << "\r\n";
 	} else if (NAME_BAD(ch)) {
 		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
-			<< "Ваше имя запрещено богами. Вы не можете получать опыт." << std::endl;
+			<< "Ваше имя запрещено богами. Вы не можете получать опыт." << "\r\n";
 	}
 }
 
 void PrintSummonableInfo(CharData *ch, std::ostringstream &out) {
 	if (PRF_FLAGGED(ch, EPrf::KSummonable)) {
-		out << InfoStrPrefix(ch) << KIYEL << "Вы можете быть призваны." << KNRM << std::endl;
+		out << InfoStrPrefix(ch) << KIYEL << "Вы можете быть призваны." << KNRM << "\r\n";
 	} else {
-		out << InfoStrPrefix(ch) << "Вы защищены от призыва." << std::endl;
+		out << InfoStrPrefix(ch) << "Вы защищены от призыва." << "\r\n";
 	}
 }
 
 void PrintBonusStateInfo(CharData *ch, std::ostringstream &out) {
 	if (Bonus::is_bonus_active()) {
 		out << InfoStrPrefix(ch) << Bonus::active_bonus_as_string() << " "
-			<< Bonus::time_to_bonus_end_as_string() << std::endl;
+			<< Bonus::time_to_bonus_end_as_string() << "\r\n";
 	}
 }
 
 void PrintExpTaxInfo(CharData *ch, std::ostringstream &out) {
 	if (GET_GOD_FLAG(ch, EGf::kRemort) && CLAN(ch)) {
-		out << InfoStrPrefix(ch) << "Вы самоотверженно отдаете весь получаемый опыт своей дружине." << std::endl;
+		out << InfoStrPrefix(ch) << "Вы самоотверженно отдаете весь получаемый опыт своей дружине." << "\r\n";
 	}
 }
 
 void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
 	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
-		out << InfoStrPrefix(ch) << "Режим слепого игрока включен." << std::endl;
+		out << InfoStrPrefix(ch) << "Режим слепого игрока включен." << "\r\n";
 	}
 }
 
@@ -325,10 +325,10 @@ void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 			<< grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))] << " "
 			<< GetDeclensionInNumber(grouping[ch->GetClass()][static_cast<int>(GetRealRemort(ch))],
 									 EWhat::kLvl)
-			<< " без потерь для опыта." << std::endl;
+			<< " без потерь для опыта." << "\r\n";
 
 		out << InfoStrPrefix(ch) << "Вы можете принять в группу максимум "
-			<< max_group_size(ch) << " соратников." << std::endl;
+			<< max_group_size(ch) << " соратников." << "\r\n";
 	}
 }
 
@@ -338,12 +338,12 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 		const auto minutes = rent_time > 60 ? rent_time / 60 : 0;
 		out << InfoStrPrefix(ch) << KIRED << "В связи с боевыми действиями вы не можете уйти на постой еще ";
 		if (minutes) {
-			out << minutes << " " << GetDeclensionInNumber(minutes, EWhat::kMinU) << "." << KNRM << std::endl;
+			out << minutes << " " << GetDeclensionInNumber(minutes, EWhat::kMinU) << "." << KNRM << "\r\n";
 		} else {
-			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << KNRM << std::endl;
+			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << KNRM << "\r\n";
 		}
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
-		out << InfoStrPrefix(ch) << KIGRN << "Тут вы чувствуете себя в безопасности." << KNRM << std::endl;
+		out << InfoStrPrefix(ch) << KIGRN << "Тут вы чувствуете себя в безопасности." << KNRM << "\r\n";
 	}
 }
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
@@ -353,16 +353,16 @@ void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 		|| ch->GetSkill(ESkill::kRepair)
 		|| ch->GetSkill(ESkill::kReforging))) {
 		out << InfoStrPrefix(ch) << KIYEL << "Это место отлично подходит для занятий кузнечным делом."
-			<< KNRM << std::endl;
+			<< KNRM << "\r\n";
 	}
 }
 
 void PrintPostInfo(CharData *ch, std::ostringstream &out) {
 	if (mail::has_mail(ch->get_uid())) {
-		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает новое письмо, зайдите на почту." << KNRM << std::endl;
+		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает новое письмо, зайдите на почту." << KNRM << "\r\n";
 	}
 	if (Parcel::has_parcel(ch)) {
-		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает посылка, зайдите на почту." << KNRM << std::endl;
+		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает посылка, зайдите на почту." << KNRM << "\r\n";
 	}
 }
 
@@ -412,7 +412,7 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 			out << " [" << info.punish->reason << "]";
 		}
 	}
-	out << "." << KNRM  << std::endl;
+	out << "." << KNRM  << "\r\n";
 }
 
 // \todo Место этого - в структурах, которые работают с наказаниями персонажа. Куда их и следует перенести.
@@ -481,7 +481,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 void PrintMorphInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->is_morphed()) {
 		out << InfoStrPrefix(ch) << KIYEL << "Вы находитесь в звериной форме - "
-		<< ch->get_morph_desc() << "." << KNRM << std::endl;
+		<< ch->get_morph_desc() << "." << KNRM << "\r\n";
 	}
 }
 
@@ -630,12 +630,12 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 	out << InfoStrPrefix(ch) << KICYN
 		<< "RIGHT_WEAPON: hitroll=" << -hit.calc_thaco
 		<< ", LEFT_WEAPON: hitroll=" << hit2.calc_thaco
-		<< ", AC=" << hit.victim_ac << "." << KNRM << std::endl;
+		<< ", AC=" << hit.victim_ac << "." << KNRM << "\r\n";
 }
 
 void PrintTesterModeInfo(CharData *ch, std::ostringstream &out) {
 	if (PRF_FLAGGED(ch, EPrf::kTester)) {
-		out << InfoStrPrefix(ch) << KICYN << "Включен режим тестирования." << KNRM << std::endl;
+		out << InfoStrPrefix(ch) << KICYN << "Включен режим тестирования." << KNRM << "\r\n";
 		PrintSelfHitrollInfo(ch, out);
 	}
 }
@@ -671,7 +671,7 @@ void PrintAdditionalInfo(CharData *ch, std::ostringstream &out) {
 void PrintScoreAll(CharData *ch) {
 	// Пишем заголовок таблицы (увы, библиоетка таблиц их не поддерживает)
 	std::ostringstream out;
-	out << "  Вы " << ch->get_name() << ", " << MUD::Class(ch->GetClass()).GetName() << ". Ваши показатели:" << std::endl;
+	out << "  Вы " << ch->get_name() << ", " << MUD::Class(ch->GetClass()).GetName() << ". Ваши показатели:" << "\r\n";
 
 	// Заполняем основную таблицу и выводим в поток
 	table_wrapper::Table table;
@@ -697,7 +697,7 @@ void PrintScoreBase(CharData *ch) {
 		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
 		<< MUD::Class(ch->GetClass()).GetCName() << " "
-		<< GetRealLevel(ch) << " уровня)." << std::endl;
+		<< GetRealLevel(ch) << " уровня)." << "\r\n";
 
 	PrintNameStatusInfo(ch, out);
 
@@ -705,7 +705,7 @@ void PrintScoreBase(CharData *ch) {
 	if (age(ch)->month == 0 && age(ch)->day == 0) {
 		out << KIRED << " У вас сегодня День Варенья!" << KNRM;
 	}
-	out << std::endl;
+	out << "\r\n";
 
 	SendMsgToChar(out.str(), ch);
 	// Продолжить с этого места

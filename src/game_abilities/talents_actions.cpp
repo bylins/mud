@@ -7,13 +7,13 @@
 namespace talents_actions {
 
 void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " Damage: " << std::endl
+	buffer << " Damage: " << "\r\n"
 		   << KGRN << "  " << dice_num_
 		   << "d" << dice_size_
 		   << "+" << dice_add_ << KNRM
 		   << " Low skill bonus: " << KGRN << low_skill_bonus_ << KNRM
 		   << " Hi skill bonus: " << KGRN << hi_skill_bonus_ << KNRM
-		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << std::endl;
+		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
 }
 
 int Damage::RollDmgDices() const {
@@ -57,14 +57,14 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 }
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " Area:" << std::endl
+	buffer << " Area:" << "\r\n"
 		   << "  Cast decay: " << KGRN << cast_decay << KNRM
 		   << " Level decay: " << KGRN << level_decay << KNRM
-		   << " Free targets: " << KGRN << free_targets << KNRM << std::endl
+		   << " Free targets: " << KGRN << free_targets << KNRM << "\r\n"
 		   << "  Skill divisor: " << KGRN << skill_divisor << KNRM
 		   << " Targets dice: " << KGRN << targets_dice_size << KNRM
 		   << " Min targets: " << KGRN << min_targets << KNRM
-		   << " Max targets: " << KGRN << max_targets << KNRM << std::endl;
+		   << " Max targets: " << KGRN << max_targets << KNRM << "\r\n";
 }
 
 int Area::CalcTargetsQuantity(const int skill_level) const {

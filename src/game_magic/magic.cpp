@@ -141,7 +141,7 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 		default:
 		break;
 	}
-//	ss << " с учетом статов: " << save << std::endl;
+//	ss << " с учетом статов: " << save << "\r\n";
 	if (log) {
 //		ch->send_to_TC(false, true, true, "%s", ss.str().c_str());
 //		mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);

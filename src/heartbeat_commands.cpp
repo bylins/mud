@@ -63,31 +63,31 @@ class ShowStepStats : public commands::utils::CommonCommand {
 		const auto &stats = step.stats();
 
 		os << DefaultFloatsFormat();
-		os << "Step: &W" << step.name() << "&n; Number: &W" << (1 + index) << "&n" << std::endl;
-		os << "\tModulo: &W" << step.modulo() << "&n; offset: &W" << step.offset() << "&n" << std::endl;
-		os << "\tCurrently &Y" << (step.on() ? "on" : "off") << "&n" << std::endl;
+		os << "Step: &W" << step.name() << "&n; Number: &W" << (1 + index) << "&n" << "\r\n";
+		os << "\tModulo: &W" << step.modulo() << "&n; offset: &W" << step.offset() << "&n" << "\r\n";
+		os << "\tCurrently &Y" << (step.on() ? "on" : "off") << "&n" << "\r\n";
 
 		os << "\tExecuted &Y" << stats.global_count() << "&n times.";
 		if (0 < stats.global_count()) {
 			os << " Average execution time is &Y" << (stats.global_sum() / stats.global_count()) << "&n seconds.";
 		}
-		os << std::endl;
+		os << "\r\n";
 
-		os << "\tWindow size is &W" << stats.window_size() << "&n" << std::endl;
+		os << "\tWindow size is &W" << stats.window_size() << "&n" << "\r\n";
 
 		if (stats.global_count() > stats.window_size()) {
 			os << "\tAverage in window: &Y" << (stats.window_sum() / stats.current_window_size()) << "&n seconds."
-			   << std::endl;
+			   << "\r\n";
 		}
 
 		if (stats.global_max().second != BasePulseMeasurements::NO_VALUE) {
 			os << "\tLongest execution time was on pulse &Y" << stats.global_max().second.first << "&n: "
-			   << "&Y" << stats.global_max().second.second.first << "&n seconds." << std::endl;
+			   << "&Y" << stats.global_max().second.second.first << "&n seconds." << "\r\n";
 		}
 
 		if (stats.global_min().second != BasePulseMeasurements::NO_VALUE) {
 			os << "\tFastest execution time was on pulse &Y" << stats.global_min().second.first << "&n: "
-			   << "&Y" << stats.global_min().second.second.first << "&n seconds." << std::endl;
+			   << "&Y" << stats.global_min().second.second.first << "&n seconds." << "\r\n";
 		}
 
 		return os;
@@ -106,7 +106,7 @@ void ShowStepStats::execute(const CommandContext::shared_ptr &context,
 
 	if (1 != arguments.size()) {
 		std::stringstream ss;
-		ss << "Error: not enough or too much arguments. Must be exactly one." << std::endl;
+		ss << "Error: not enough or too much arguments. Must be exactly one." << "\r\n";
 		send(context, ss.str());
 
 		usage(context);
@@ -118,7 +118,7 @@ void ShowStepStats::execute(const CommandContext::shared_ptr &context,
 	if (0 == number) {
 		std::stringstream ss;
 		ss << "Error: &R" << arguments.front() << "&n is not a valid natural number (1, 2, 3, ...)."
-		   << std::endl;
+		   << "\r\n";
 		send(context, ss.str());
 
 		usage(context);
@@ -132,7 +132,7 @@ void ShowStepStats::execute(const CommandContext::shared_ptr &context,
 	if (number > steps.size()) {
 		std::stringstream ss;
 		ss << "Error: number &R" << arguments.front() << "&n of the step is too big. Maximal is &W"
-		   << steps.size() << "&n." << std::endl;
+		   << steps.size() << "&n." << "\r\n";
 		send(context, ss.str());
 
 		usage(context);
@@ -186,22 +186,22 @@ void ShowHeartbeatStats::execute(const CommandContext::shared_ptr &context,
 	const auto &stats = heartbeat.stats();
 	std::stringstream ss;
 	ss << DefaultFloatsFormat();
-	ss << "Heartbeat stats:" << std::endl
+	ss << "Heartbeat stats:" << "\r\n"
 	   << "\tCurrent pulse number &Y" << heartbeat.pulse_number() << "&n"
-	   << ", rolls over after &W" << Heartbeat::ROLL_OVER_AFTER << "&n pulses" << std::endl
-	   << "\tCurrent global pulse number: &Y" << heartbeat.global_pulse_number() << "&n" << std::endl
-	   << "\tNumber of different steps: &W" << heartbeat.steps().size() << "&n" << std::endl
-	   << "\tNumber of different steps executed ever: &Y" << heartbeat.executed_steps().size() << "&n" << std::endl
-	   << "\tSteps period: &Y" << heartbeat.period() << "&n pulses." << std::endl;
+	   << ", rolls over after &W" << Heartbeat::ROLL_OVER_AFTER << "&n pulses" << "\r\n"
+	   << "\tCurrent global pulse number: &Y" << heartbeat.global_pulse_number() << "&n" << "\r\n"
+	   << "\tNumber of different steps: &W" << heartbeat.steps().size() << "&n" << "\r\n"
+	   << "\tNumber of different steps executed ever: &Y" << heartbeat.executed_steps().size() << "&n" << "\r\n"
+	   << "\tSteps period: &Y" << heartbeat.period() << "&n pulses." << "\r\n";
 
 	if (0 < stats.global_count()) {
-		ss << "\tAverage: &Y" << (stats.global_sum() / stats.global_count()) << "&n seconds." << std::endl;
+		ss << "\tAverage: &Y" << (stats.global_sum() / stats.global_count()) << "&n seconds." << "\r\n";
 	}
 
-	ss << "\tWindow size is &W" << stats.window_size() << "&n." << std::endl;
+	ss << "\tWindow size is &W" << stats.window_size() << "&n." << "\r\n";
 	if (stats.global_count() > stats.current_window_size()) {
 		ss << "\tAverage in window: &Y" << (stats.window_sum() / stats.current_window_size()) << "&n seconds."
-		   << std::endl;
+		   << "\r\n";
 	}
 
 	{
@@ -212,10 +212,10 @@ void ShowHeartbeatStats::execute(const CommandContext::shared_ptr &context,
 			   << "&n; duration: &Y" << longest_pulse.second.second.first
 			   << "&n seconds, time &Y" << asctime(localtime(&longest_pulse.second.second.second));
 			ss.seekp(-1, std::ios_base::end);
-			ss << "&n; steps:" << std::endl;
+			ss << "&n; steps:" << "\r\n";
 			print_steps(ss, heartbeat, longest_pulse.first);
 		} else {
-			ss << "&W<no value>&n" << std::endl;
+			ss << "&W<no value>&n" << "\r\n";
 		}
 	}
 
@@ -227,10 +227,10 @@ void ShowHeartbeatStats::execute(const CommandContext::shared_ptr &context,
 			   << "&n; duration: &Y" << shortest_pulse.second.second.first
 			   << "&n seconds, time &Y" << asctime(localtime(&shortest_pulse.second.second.second));
 			ss.seekp(-1, std::ios_base::end);
-			ss << "&n; steps:" << std::endl;
+			ss << "&n; steps:" << "\r\n";
 			print_steps(ss, heartbeat, shortest_pulse.first);
 		} else {
-			ss << "&W<no value>&n" << std::endl;
+			ss << "&W<no value>&n" << "\r\n";
 		}
 	}
 
@@ -262,7 +262,7 @@ void ShowHeartbeatStats::print_steps(std::ostream &os,
 		   << name << "&n"
 		   << utils::SpacedPadding(name, max_width, (0 == ++counter % 2 ? '.' : ' '))
 		   << "&Y" << step.first << "&n seconds."
-		   << std::endl;
+		   << "\r\n";
 	}
 }
 

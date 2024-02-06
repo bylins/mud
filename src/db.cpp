@@ -466,7 +466,7 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		if (strstr(buf_temp1, it->first.c_str()) != nullptr) {
 			sum_aff += it->second;
 		}
-		//std::cout << it->first << " " << it->second << std::endl;
+		//std::cout << it->first << " " << it->second << "\r\n";
 	}
 
 	// если сумма больше или равна единице
@@ -503,7 +503,7 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 					}
 				}
 
-				//std::cout << it->first << " " << it->second << std::endl;
+				//std::cout << it->first << " " << it->second << "\r\n";
 			}
 		}
 	}
@@ -516,7 +516,7 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 		if (strstr(buf_temp1, it->first.c_str()) != nullptr) {
 			sum_aff += it->second;
 		}
-		//std::cout << it->first << " " << it->second << std::endl;
+		//std::cout << it->first << " " << it->second << "\r\n";
 	}
 	sum += sum_aff;
 	return sum;
@@ -2891,7 +2891,7 @@ void renum_mob_zone(void) {
 
 void renum_single_table(int zone) {
 	int cmd_no, a, b, c, olda, oldb, oldc;
-	char buf[128];
+	char buf[256];
 
 	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
 		a = b = c = 0;
@@ -2900,6 +2900,12 @@ void renum_single_table(int zone) {
 		oldc = ZCMD.arg3;
 		switch (ZCMD.command) {
 			case 'M': a = ZCMD.arg1 = real_mobile(ZCMD.arg1);
+				mob_index[ZCMD.arg1].stored = ZCMD.arg2;
+				if (ZCMD.arg2 < 0) {
+					sprintf(buf, "SYSERROR: отрицательное значение 'макс в мире': zone %d vnum %d, stored %d room %d",
+							zone_table[zone].vnum, mob_index[ZCMD.arg1].vnum, ZCMD.arg2, ZCMD.arg3);
+					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				}
 				c = ZCMD.arg3 = real_room(ZCMD.arg3);
 				break;
 			case 'F': a = ZCMD.arg1 = real_room(ZCMD.arg1);
@@ -3580,6 +3586,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 
 	if (!is_corpse) {
 		mob_index[i].total_online++;
+		mob_index[i].stored--;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
 		MOB_FLAGS(mob).set(EMobFlag::kSummoned);

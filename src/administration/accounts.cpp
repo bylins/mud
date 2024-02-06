@@ -76,11 +76,11 @@ void Account::show_players(CharData *ch) {
 	int count = 1;
 	std::stringstream ss;
 	purge_erased();
-	ss << "Данные аккаунта: " << this->email << std::endl;
+	ss << "Данные аккаунта: " << this->email << "\r\n";
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
 		name[0] = UPPER(name[0]);
-		ss << count << ") " << name << std::endl;
+		ss << count << ") " << name << "\r\n";
 		count++;
 	}
 	SendMsgToChar(ss.str(), ch);
@@ -90,7 +90,7 @@ void Account::list_players(DescriptorData *d) {
 	int count = 1;
 	std::stringstream ss;
 	purge_erased();
-	ss << "Данные аккаунта: " << this->email << std::endl;
+	ss << "Данные аккаунта: " << this->email << "\r\n";
 	SEND_TO_Q(ss.str().c_str(), d);
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
@@ -219,7 +219,7 @@ void Account::show_history_logins(CharData *ch) {
 		ss << "IP: " << x.first
 				<< " count: " << x.second.count 
 				<< " time: " << rustime(localtime(&x.second.last_login)) 
-				<< std::endl;
+				<< "\r\n";
 	}
 	SendMsgToChar(ss.str(), ch);
 }

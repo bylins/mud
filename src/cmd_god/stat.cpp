@@ -284,13 +284,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else {
-		sprintf(buf,
-				"Сейчас в мире : %d. ",
-				GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0) : -1);
+		int mob_online = mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0);
+		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[GET_MOB_RNUM(k)].stored + mob_online);
 		SendMsgToChar(buf, ch);
 		std::string stats;
 		mob_stat::GetLastMobKill(k, stats);
-		sprintf(buf, "Последний раз убит: %s", stats.c_str());
+		sprintf(buf, "Последний раз убит: &r%s&n", stats.c_str());
 		SendMsgToChar(buf, ch);
 	}
 	sprintf(buf,
