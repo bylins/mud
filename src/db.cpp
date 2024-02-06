@@ -1,4 +1,3 @@
-
 /************************************************************************
 *   File: db.cpp                                        Part of Bylins    *
 *  Usage: Loading/saving entities, booting/resetting world, internal funcs   *
@@ -188,7 +187,6 @@ void init_portals();
 void init_im();
 void init_zone_types();
 void LoadGuardians();
-
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
@@ -1323,6 +1321,10 @@ void GameLoader::boot_world() {
 	log("Loading rooms.");
 	world_loader.index_boot(DB_BOOT_WLD);
 
+	boot_profiler.next_step("Create blank rooms for dungeons");
+	log("Create blank rooms for dungeons.");
+	CreateBlankRoomDungeon();
+
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
 	add_vrooms_to_all_zones();
@@ -1352,9 +1354,6 @@ void GameLoader::boot_world() {
 	log("Converting deprecated obj values.");
 	convert_obj_values();
 
-	boot_profiler.next_step("Create blank rooms for dungeons");
-	log("Create blank rooms for dungeons.");
-	CreateBlankRoomDungeon();
 
 	boot_profiler.next_step("enumbering zone table");
 	log("Renumbering zone table.");
@@ -2822,20 +2821,8 @@ void check_start_rooms(void) {
 void CreateBlankRoomDungeon() {
 	ZoneVnum zone_vnum = ZoneStartDungeons;
 	ZoneRnum zone_rnum = zone_table.size();
-//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-//		log("1Zone %d name %s zrn %d zone_rnum %d", zone_table[zrn].vnum, zone_table[zrn].name.c_str(), zrn, zone_rnum);
-//	}
+
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
-/*		zone_table[zone_rnum].vnum = zone_vnum;
-		zone_table[zone_rnum].name = "Зона для данжей";
-		zone_table[zone_rnum].under_construction = true;
-		zone_table[zone_rnum].top = zone_vnum * 100 + 99;
-		zone_table[zone_rnum].FirstRoomVnum = zone_vnum * 100;
-		zone_table[zone_rnum].LastRoomVnum = zone_vnum * 100 + 98;
-		zone_table[zone_rnum].reset_mode = 0; //не очищается
-		CREATE(zone_table[zone_rnum].cmd, 1);
-		zone_table[zone_rnum].cmd[0].command = 'S'; //пустой список команд
-*/
 		ZoneData new_zone;
 
 		new_zone.vnum = zone_vnum;
@@ -2847,24 +2834,23 @@ void CreateBlankRoomDungeon() {
 //		CREATE(new_zone.cmd, 6);
 		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
 		zone_table.push_back(std::move(new_zone));
-		for (RoomVnum room = 0; room <= 99; room++) {
+		for (RoomVnum room = 0; room <= 98; room++) {
 			RoomData *new_room = new RoomData;
 
 			top_of_world++;
 			world.push_back(new_room);
 			new_room->zone_rn = zone_rnum;
 			new_room->room_vn = zone_vnum * 100 + room;
-			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
+//			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
 			new_room->sector_type = ESector::kSecret;
 			new_room->name = str_dup("ДАНЖ");
 		}
 		zone_vnum++;
 		zone_rnum++;
 	}
-	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
-	}
-//	exit(0);
+//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
+//	}
 }
 
 void add_vrooms_to_all_zones() {
@@ -4256,6 +4242,92 @@ void process_celebrates(int vnum) {
 #define        CHECK_SUCCESS        1
 // Команда не должна изменить флаг
 #define        FLAG_PERSIST        2
+void RoomDataFree(ZoneRnum zrn) {
+	RoomRnum rnum_start, rnum_stop;
+
+	GetZoneRooms(zrn, &rnum_start, &rnum_stop);
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		auto &room = world[i];
+		free(room->name);
+		room->name = str_dup("ДАНЖ!");
+		room->affected_by.clear();
+		room->people.clear();
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			const auto &from = room->dir_option[dir];
+			if (from) {
+				room->dir_option[dir].reset();
+			}
+		}
+		ExtraDescription::shared_ptr sdd = room->ex_description;
+		if (sdd) {
+			while (sdd) {
+				free(sdd->keyword);
+				free(sdd->description);
+				sdd = sdd->next;
+			}
+			sdd.reset();
+		}
+	}
+}
+
+void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
+	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
+	int shift = 0;
+
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		auto &new_room = world[rroom_to + shift++];
+		free(new_room->name);
+		new_room->name = str_dup(world[i]->name); //почистить
+		new_room->description_num = world[i]->description_num;
+		new_room->write_flags(world[i]->read_flags());
+		new_room->sector_type = world[i]->sector_type;
+		new_room->affected_by.clear();
+		memset(&new_room->base_property, 0, sizeof(RoomState));
+		memset(&new_room->add_property, 0, sizeof(RoomState));
+		new_room->people.clear();
+		new_room->func = nullptr;
+		new_room->contents = nullptr;
+		new_room->track = nullptr;
+		new_room->light = 0;
+		new_room->fires = 0;
+		new_room->gdark = 0;
+		new_room->glight = 0;
+//		new_room->proto_script.reset(new ObjData::triggers_list_t());
+		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
+			new_room->dir_option[dir] = nullptr;
+		}
+		new_room->ex_description = nullptr;
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			const auto &from = world[i]->dir_option[dir];
+			if (from) {
+				int to_room = from->to_room();// - rnum_start + first_room_dungeon;
+//				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[i]->name, world[i]->room_vn, world[to_room]->name, world[to_room]->room_vn);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				if (to_room >= rnum_start && to_room <= rnum_stop) {
+					int room = from->to_room() - rnum_start + rroom_to;
+					new_room->dir_option[dir].reset(new ExitData());
+					new_room->dir_option[dir]->to_room(room);
+//					sprintf(buf, "to  room %s (%d) exit  %s (%d)", new_room->name, new_room->room_vn, 
+//						world[room]->name, world[room]->room_vn);
+//					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				}
+			}
+		}
+		ExtraDescription::shared_ptr *pddd = &new_room->ex_description;
+		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
+		*pddd = nullptr;
+
+		while (sdd) {
+			pddd->reset(new ExtraDescription());
+			(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
+			(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
+			pddd = &((*pddd)->next);
+			sdd = sdd->next;
+		}
+
+	}
+}
+
 
 void ZoneDataFree(ZoneRnum zrn) {
 	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
@@ -4265,18 +4337,88 @@ void ZoneDataFree(ZoneRnum zrn) {
 		}
 	}
 	free(zone_table[zrn].cmd);
-	if (zone_table[zrn].typeA_list)
+	zone_table[zrn].cmd = nullptr;
+	if (zone_table[zrn].typeA_count) {
+		zone_table[zrn].typeA_count = 0;
 		free(zone_table[zrn].typeA_list);
-	if (zone_table[zrn].typeB_list)
+	}
+	if (zone_table[zrn].typeB_count) {
+		zone_table[zrn].typeB_count = 0;
 		free(zone_table[zrn].typeB_list);
-	if (zone_table[zrn].typeB_flag)
 		free(zone_table[zrn].typeB_flag);
+	}
 	zone_table[zrn].name = "Зона для данжей";
 	zone_table[zrn].reset_mode = 0;
 	zone_table[zrn].top = zone_table[zrn].vnum * 100 + 99;
 	zone_table[zrn].FirstRoomVnum = zone_table[zrn].vnum * 100;
 	zone_table[zrn].LastRoomVnum = zone_table[zrn].vnum * 100 + 98;
 	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
+}
+
+void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
+	int i, count, subcmd;
+	auto &zone_from = zone_table[rzone_from];
+	auto &zone_to = zone_table[rzone_to];
+
+	zone_to.copy_from_zone = zone_from.vnum;
+	zone_to.name = zone_from.name;
+	zone_to.comment = zone_from.comment;
+	zone_to.location = zone_from.location;
+	zone_to.author = zone_from.author;
+	zone_to.description = zone_from.description;
+	zone_to.level = zone_from.level;
+	zone_to.type = zone_from.type;
+	zone_to.top = zone_to.vnum * 100 + 99;
+	zone_to.reset_mode = zone_from.reset_mode;
+	zone_to.lifespan = zone_from.lifespan;
+	zone_to.reset_idle = zone_from.reset_idle;
+	zone_to.typeA_count = zone_from.typeA_count;
+	zone_to.typeB_count = zone_from.typeB_count;
+	zone_to.under_construction = zone_from.under_construction;
+	zone_to.locked = zone_from.locked;
+	zone_to.group = zone_from.group;
+	zone_to.FirstRoomVnum = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
+	zone_to.LastRoomVnum = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
+	if (zone_to.typeA_count) {
+		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
+	}
+	for (i = 0; i < zone_to.typeA_count; i++) {
+		zone_to.typeA_list[i] = zone_from.typeA_list[i];
+	}
+	if (zone_to.typeB_count) {
+		CREATE(zone_to.typeB_list, zone_to.typeB_count); //почистить
+		CREATE(zone_to.typeB_flag, zone_to.typeB_count); //почистить
+	}
+	for (i = 0; i < zone_to.typeB_count; i++) {
+		zone_to.typeB_list[i] = zone_from.typeB_list[i];
+	}
+	for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
+	log("Create CMD count %d", count);
+	CREATE(zone_to.cmd, count + 1); //почистить
+
+	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
+		zone_to.cmd[subcmd].command = zone_from.cmd[subcmd].command;
+		zone_to.cmd[subcmd].if_flag = zone_from.cmd[subcmd].if_flag;
+		zone_to.cmd[subcmd].arg1 = zone_from.cmd[subcmd].arg1;
+		zone_to.cmd[subcmd].arg2 = zone_from.cmd[subcmd].arg2;
+		zone_to.cmd[subcmd].arg3 = zone_from.cmd[subcmd].arg3;
+		zone_to.cmd[subcmd].arg4 = zone_from.cmd[subcmd].arg4;
+		if (zone_from.cmd[subcmd].sarg1) {
+			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg1); //почистить
+		}
+		if (zone_from.cmd[subcmd].sarg2) {
+			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg2); //почистить
+		}
+	}
+	zone_to.cmd[subcmd].command = 'S';
+/*
+	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
+		log("CMD %d %d %d %d %d %d", 
+		zone_from.cmd[subcmd].command, zone_to.cmd[subcmd].if_flag,
+		zone_to.cmd[subcmd].arg1, zone_to.cmd[subcmd].arg2,
+		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
+	}
+*/
 }
 
 class ZoneReset {
@@ -4297,6 +4439,7 @@ class ZoneReset {
 void ZoneReset::reset() {
 	if (zone_table[m_zone_rnum].copy_from_zone > 0) {
 		ZoneDataFree(m_zone_rnum);
+		RoomDataFree(m_zone_rnum);
 		return;
 	}
 	if (GlobalObjects::stats_sender().ready()) {

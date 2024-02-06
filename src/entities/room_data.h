@@ -114,6 +114,8 @@ struct RoomData {
 
 	bool get_flag(const Bitvector flag) const { return m_room_flags.get(flag); }
 	void set_flag(const Bitvector flag) { m_room_flags.set(flag); }
+	FlagData read_flags() {return m_room_flags; }
+	void write_flags(FlagData fl) {m_room_flags = fl; }
 	void unset_flag(const Bitvector flag) { m_room_flags.unset(flag); }
 	bool toggle_flag(const size_t plane, const Bitvector flag) { return m_room_flags.toggle_flag(plane, flag); }
 	void clear_flags() { m_room_flags.clear(); }

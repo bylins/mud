@@ -367,72 +367,6 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
 
-void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
-	int i, count, subcmd;
-	auto &zone_from = zone_table[rzone_from];
-	auto &zone_to = zone_table[rzone_to];
-
-	zone_to.copy_from_zone = zone_from.vnum;
-	zone_to.name = zone_from.name;
-	zone_to.comment = zone_from.comment;
-	zone_to.location = zone_from.location;
-	zone_to.author = zone_from.author;
-	zone_to.description = zone_from.description;
-	zone_to.level = zone_from.level;
-	zone_to.type = zone_from.type;
-	zone_to.top = zone_to.vnum * 100 + 99;
-	zone_to.reset_mode = zone_from.reset_mode;
-	zone_to.lifespan = zone_from.lifespan;
-	zone_to.reset_idle = zone_from.reset_idle;
-	zone_to.typeA_count = zone_from.typeA_count;
-	zone_to.typeB_count = zone_from.typeB_count;
-	zone_to.under_construction = zone_from.under_construction;
-	zone_to.locked = zone_from.locked;
-	zone_to.group = zone_from.group;
-	zone_to.FirstRoomVnum = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
-	zone_to.LastRoomVnum = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
-	if (zone_to.typeA_count) {
-		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
-	}
-	for (i = 0; i < zone_to.typeA_count; i++) {
-		zone_to.typeA_list[i] = zone_from.typeA_list[i];
-	}
-	if (zone_to.typeB_count) {
-		CREATE(zone_to.typeB_list, zone_to.typeB_count); //почистить
-		CREATE(zone_to.typeB_flag, zone_to.typeB_count); //почистить
-	}
-	for (i = 0; i < zone_to.typeB_count; i++) {
-		zone_to.typeB_list[i] = zone_from.typeB_list[i];
-	}
-	for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
-	log("Create CMD count %d", count);
-	CREATE(zone_to.cmd, count + 1); //почистить
-
-	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
-		zone_to.cmd[subcmd].command = zone_from.cmd[subcmd].command;
-		zone_to.cmd[subcmd].if_flag = zone_from.cmd[subcmd].if_flag;
-		zone_to.cmd[subcmd].arg1 = zone_from.cmd[subcmd].arg1;
-		zone_to.cmd[subcmd].arg2 = zone_from.cmd[subcmd].arg2;
-		zone_to.cmd[subcmd].arg3 = zone_from.cmd[subcmd].arg3;
-		zone_to.cmd[subcmd].arg4 = zone_from.cmd[subcmd].arg4;
-		if (zone_from.cmd[subcmd].sarg1) {
-			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg1); //почистить
-		}
-		if (zone_from.cmd[subcmd].sarg2) {
-			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg2); //почистить
-		}
-	}
-	zone_to.cmd[subcmd].command = 'S';
-/*
-	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
-		log("CMD %d %d %d %d %d %d", 
-		zone_from.cmd[subcmd].command, zone_to.cmd[subcmd].if_flag,
-		zone_to.cmd[subcmd].arg1, zone_to.cmd[subcmd].arg2,
-		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
-	}
-*/
-}
-
 void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	ZoneVnum zvn, zone_from = atoi(argument);
 	RoomRnum rnum_start, rnum_stop;
@@ -445,7 +379,7 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	}
 	for (zvn = ZoneStartDungeons; zvn < ZoneStartDungeons + NumberOfZoneDungeons; zvn++) {
 		if (zone_table[real_zone(zvn)].copy_from_zone == 0) {
-			sprintf(buf, "Клонирую зону %d в %d, осталось места %d", zone_from, zvn, ZoneStartDungeons + NumberOfZoneDungeons - zvn - 1);
+			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zone_from, zvn, ZoneStartDungeons + NumberOfZoneDungeons - zvn - 1);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
@@ -456,6 +390,7 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 			return;
 	}
 	ZoneDataCopy(rzone_from, real_zone(zvn));
+	RoomDataCopy(rnum_start, rnum_stop, real_zone(zvn));
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
