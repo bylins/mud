@@ -45,7 +45,7 @@ class Mod {
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToStream(buffer, table);
-		buffer << std::endl;
+		buffer << "\r\n";
 	};
 
  private:
@@ -168,15 +168,15 @@ int Effects::PassiveEffectsImpl::GetTimerMod(EFeat feat_id) const {
 void Effects::PassiveEffectsImpl::Print(CharData *ch, std::ostringstream &buffer) const {
 	applies_.Print(ch, buffer);
 	if (!skill_mods_.Empty()) {
-		buffer << " Skill mods:" << std::endl;
+		buffer << " Skill mods:" << "\r\n";
 		skill_mods_.Print(ch, buffer);
 	}
 	if (!skill_timer_mods_.Empty()) {
-		buffer << " Skills timer mods:" << std::endl;
+		buffer << " Skills timer mods:" << "\r\n";
 		skill_timer_mods_.Print(ch, buffer);
 	}
 	if (!feat_timer_mods_.Empty()) {
-		buffer << " Feats timer mods:" << std::endl;
+		buffer << " Feats timer mods:" << "\r\n";
 		feat_timer_mods_.Print(ch, buffer);
 	}
 }
@@ -202,7 +202,7 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 		return;
 	}
 
-	buffer << std::endl << " Applies:" << std::endl;
+	buffer << "\r\n" << " Applies:" << "\r\n";
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
 		  << "Location" << "Affect" << "Mod" << "Level bonus" << "Remort bonus" << "Cap" << table_wrapper::kEndRow;
@@ -217,7 +217,7 @@ void Applies::Print(CharData *ch, std::ostringstream &buffer) const {
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(buffer, table);
-	buffer << std::endl;
+	buffer << "\r\n";
 }
 
 void Applies::Impose(CharData *ch) const {

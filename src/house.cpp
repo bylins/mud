@@ -4434,7 +4434,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			// этого быть не должно
 		default: out << "чему БОГ пошлет";
 	}
-	out << "):" << std::endl;
+	out << "):" << "\r\n";
 
 	// multimap ибо могут быть совпадения
 	std::multimap<long long, std::pair<std::string, ClanMember::shared_ptr> > temp_list;

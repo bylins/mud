@@ -761,7 +761,7 @@ void script_trigger_check() {
 			}
 		}
 	}
-	buffer << "WLD random trigger: самый долгий у комнаты [" << where->room_vn << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms." << std::endl;
+	buffer << "WLD random trigger: самый долгий у комнаты [" << where->room_vn << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms." << "\r\n";
 	buffer << "script_trigger_check() всего: " << timercheck.delta().count() <<" ms.";
 	log("%s", buffer.str().c_str());
 }

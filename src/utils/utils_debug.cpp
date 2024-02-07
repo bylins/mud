@@ -13,7 +13,7 @@ void LogQueue::push(const std::string &s) {
 std::ostream &LogQueue::print(std::ostream &os) const {
 	int number = 0;
 	for (const auto &line : m_queue) {
-		os << ++number << ". " << line << std::endl;
+		os << ++number << ". " << line << "\r\n";
 	}
 
 	return os;
@@ -24,7 +24,7 @@ void LogQueue::print_queue(std::ostream &os, const std::string &key) const {
 	if (0 == size()) {
 		os << " <empty>";
 	}
-	os << std::endl;
+	os << "\r\n";
 	os << *this;
 }
 

@@ -84,19 +84,19 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 
 void CurrencyInfo::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << "Print currency:" << "\n"
-		<< " Vnum: " << KGRN << GetId() << KNRM << std::endl
-		<< " TextId: " << KGRN << GetTextId() << KNRM << std::endl
-		<< " Name: " << KGRN << name_ << KNRM << std::endl
-		<< " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl
-		<< " Can be given: " << KGRN << (giveable_ ? "Y" : "N") << KNRM << std::endl
-		<< " Can be objected: " << KGRN << (objectable_ ? "Y" : "N") << KNRM << std::endl
-		<< " Can be stored in bank: " << KGRN << (bankable_ ? "Y" : "N") << KNRM << std::endl
-		<< " Can be transfered: " << KGRN << (transferable_ ? "Y" : "N") << KNRM << std::endl
-		<< " Can be transfered to other account: " << KGRN << (transferable_to_other_ ? "Y" : "N") << KNRM << std::endl
-		<< " Transfer tax: " << KGRN << transfer_tax_ << KNRM << std::endl
-		<< " Drop on death: " << KGRN << drop_on_death_ << KNRM << std::endl
-		<< " Max clan tax: " << KGRN << max_clan_tax_ << KNRM << std::endl
-		<< std::endl;
+		<< " Vnum: " << KGRN << GetId() << KNRM << "\r\n"
+		<< " TextId: " << KGRN << GetTextId() << KNRM << "\r\n"
+		<< " Name: " << KGRN << name_ << KNRM << "\r\n"
+		<< " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n"
+		<< " Can be given: " << KGRN << (giveable_ ? "Y" : "N") << KNRM << "\r\n"
+		<< " Can be objected: " << KGRN << (objectable_ ? "Y" : "N") << KNRM << "\r\n"
+		<< " Can be stored in bank: " << KGRN << (bankable_ ? "Y" : "N") << KNRM << "\r\n"
+		<< " Can be transfered: " << KGRN << (transferable_ ? "Y" : "N") << KNRM << "\r\n"
+		<< " Can be transfered to other account: " << KGRN << (transferable_to_other_ ? "Y" : "N") << KNRM << "\r\n"
+		<< " Transfer tax: " << KGRN << transfer_tax_ << KNRM << "\r\n"
+		<< " Drop on death: " << KGRN << drop_on_death_ << KNRM << "\r\n"
+		<< " Max clan tax: " << KGRN << max_clan_tax_ << KNRM << "\r\n"
+		<< "\r\n";
 }
 
 const std::string &CurrencyInfo::GetName(ECase name_case) const {

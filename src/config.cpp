@@ -349,7 +349,7 @@ void StreamConfigLoader::load_buffered() {
 		}
 		catch (...) {
 			std::cerr << "Could not set value \"" << buffered.child_value()
-					  << "\" as buffered option. Using default value " << NAME_BY_ITEM(m_log.buffered()) << std::endl;
+					  << "\" as buffered option. Using default value " << NAME_BY_ITEM(m_log.buffered()) << "\r\n";
 		}
 	}
 }
@@ -362,7 +362,7 @@ void StreamConfigLoader::load_mode() {
 		}
 		catch (...) {
 			std::cerr << "Could not set value \"" << mode.child_value() << "\" as opening mode. Using default value "
-					  << NAME_BY_ITEM(m_log.mode()) << std::endl;
+					  << NAME_BY_ITEM(m_log.mode()) << "\r\n";
 		}
 	}
 }
@@ -376,7 +376,7 @@ void StreamConfigLoader::load_umask() {
 		}
 		catch (...) {
 			std::cerr << "Could not set value \"" << umask.child_value()
-					  << "\" as umask value. Using default value " << std::endl;
+					  << "\" as umask value. Using default value " << "\r\n";
 		}
 	}
 }
@@ -446,7 +446,7 @@ void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node *root
 			m_output_queue_size = queue_size;
 		} else {
 			std::cerr << "Couldn't set queue size to value '" << queue_size_string
-					  << "'. Leaving default value " << m_output_queue_size << "." << std::endl;
+					  << "'. Leaving default value " << m_output_queue_size << "." << "\r\n";
 		}
 	}
 }
@@ -714,10 +714,10 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_statistics_configuration(&root);
 	}
 	catch (const std::exception &e) {
-		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << std::endl;
+		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << "\r\n";
 	}
 	catch (...) {
-		std::cerr << "Unexpected error when loading configuration file " << filename << std::endl;
+		std::cerr << "Unexpected error when loading configuration file " << filename << "\r\n";
 	}
 }
 

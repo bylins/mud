@@ -34,7 +34,7 @@ void CSteppedProfiler::report() const {
 		if (0 == m_steps.size()) {
 			ss << ": it took ";
 		} else {
-			ss << ":" << std::endl;
+			ss << ":" << "\r\n";
 
 			size_t number = 0;
 			auto steps = m_steps;
@@ -45,7 +45,7 @@ void CSteppedProfiler::report() const {
 				   << std::fixed << std::setprecision(6) << step->duration().count() << " second(s) ("
 				   << std::fixed << std::setprecision(6) << (100 * step->duration().count() / m_timer.delta().count())
 				   << "%)"
-				   << ";" << std::endl;
+				   << ";" << "\r\n";
 			}
 
 			ss << "Whole scope took ";

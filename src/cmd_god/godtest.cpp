@@ -16,8 +16,8 @@
 // It is test command for different testings
 void do_godtest(CharData *ch, char */*argument*/, int /* cmd */, int /* subcmd */) {
 	std:: ostringstream out;
-	out << "В настоящий момент процiдурка пуста." << std::endl
-		<< "Если вам хочется что-то godtest - придется ее реализовать." << std::endl;
+	out << "В настоящий момент процiдурка пуста." << "\r\n"
+		<< "Если вам хочется что-то godtest - придется ее реализовать." << "\r\n";
 	page_string(ch->desc, out.str());
 }
 

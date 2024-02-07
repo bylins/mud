@@ -522,10 +522,10 @@ void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 }
 
 void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "Print feat:" << std::endl
-		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << std::endl
-		   << " Name: " << KGRN << GetName() << KNRM << std::endl
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl;
+	buffer << "Print feat:" << "\r\n"
+		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << "\r\n"
+		   << " Name: " << KGRN << GetName() << KNRM << "\r\n"
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n";
 
 	effects.Print(ch, buffer);
 }

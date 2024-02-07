@@ -175,11 +175,11 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 			}
 		}
 	}*/
-	out << std::endl;
+	out << "\r\n";
 
 	FlagData affects = activ->second.get_affects();
 	if (affects.sprintbits(weapon_affects, buf2, ",")) {
-		out << " + Аффекты : " << buf2 << std::endl;
+		out << " + Аффекты : " << buf2 << "\r\n";
 	}
 
 	std::array<obj_affected_type, kMaxObjAffect> affected = activ->second.get_affected();

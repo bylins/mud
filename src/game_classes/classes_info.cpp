@@ -120,7 +120,7 @@ void CharClassInfoBuilder::ParseBaseStats(ItemPtr &info, DataNode &node) {
 }
 
 void CharClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl << KGRN << " Base stats limits:" << KNRM << std::endl;
+	buffer << "\r\n" << KGRN << " Base stats limits:" << KNRM << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -179,15 +179,15 @@ void CharClassInfoBuilder::ParseFeats(ItemPtr &info, DataNode &node) {
 
 void CharClassInfo::PrintHeader(std::ostringstream &buffer) const {
 	buffer << "Print class:" << "\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(GetId()) << KNRM << std::endl
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << std::endl
-		   << " Abbr: " << KGRN << GetAbbr() << KNRM << std::endl
+		   << " Id: " << KGRN << NAME_BY_ITEM<ECharClass>(GetId()) << KNRM << "\r\n"
+		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n"
+		   << " Abbr: " << KGRN << GetAbbr() << KNRM << "\r\n"
 		   << " Name: " << KGRN << GetName()
 		   << "/" << names->GetSingular(ECase::kGen)
 		   << "/" << names->GetSingular(ECase::kDat)
 		   << "/" << names->GetSingular(ECase::kAcc)
 		   << "/" << names->GetSingular(ECase::kIns)
-		   << "/" << names->GetSingular(ECase::kPre) << KNRM << std::endl;
+		   << "/" << names->GetSingular(ECase::kPre) << KNRM << "\r\n";
 }
 
 void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
@@ -196,7 +196,7 @@ void CharClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	PrintSkillsTable(ch, buffer);
 	PrintSpellsTable(ch, buffer);
 	PrintFeatsTable(ch, buffer);
-	buffer << std::endl;
+	buffer << "\r\n";
 }
 
 const std::string &CharClassInfo::GetAbbr() const {
@@ -238,8 +238,8 @@ int CharClassInfo::GetMaxCircle() const {
 }
 
 void CharClassInfo::PrintSkillsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl
-		<< KGRN << " Available skills (level decrement " << GetSkillLvlDecrement() << "):" << KNRM << std::endl;
+	buffer << "\r\n"
+		<< KGRN << " Available skills (level decrement " << GetSkillLvlDecrement() << "):" << KNRM << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -279,8 +279,8 @@ CharClassInfo::SkillInfoBuilder::ItemPtr CharClassInfo::SkillInfoBuilder::Build(
 }
 
 void CharClassInfo::PrintSpellsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl
-		   << KGRN << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << KNRM << std::endl;
+	buffer << "\r\n"
+		   << KGRN << " Available spells (level decrement " << GetSpellLvlDecrement() << "):" << KNRM << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader
@@ -324,8 +324,8 @@ CharClassInfo::SpellInfoBuilder::ItemPtr CharClassInfo::SpellInfoBuilder::Build(
 }
 
 void CharClassInfo::PrintFeatsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << std::endl << KGRN << " Available feats (new slot every "
-		   << GetRemortsNumForFeatSlot() << " remort(s)):" << KNRM << std::endl;
+	buffer << "\r\n" << KGRN << " Available feats (new slot every "
+		   << GetRemortsNumForFeatSlot() << " remort(s)):" << KNRM << "\r\n";
 
 	table_wrapper::Table table;
 	table << table_wrapper::kHeader

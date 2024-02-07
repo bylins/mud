@@ -2744,7 +2744,7 @@ static void ShowEncodingPrompt(DescriptorData *d, bool withHints = false) {
 
 void DisplaySelectCharClassMenu(DescriptorData *d) {
 	std::ostringstream out;
-	out << std::endl << "Выберите профессию:" << std::endl;
+	out << "\r\n" << "Выберите профессию:" << "\r\n";
 	std::vector<ECharClass> char_classes;
 	char_classes.reserve(kNumPlayerClasses);
 	for (const auto &it : MUD::Classes()) {
@@ -2755,7 +2755,7 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 	std::sort(char_classes.begin(), char_classes.end());
 	for (const auto &it : char_classes) {
 		out << "  " << KCYN << std::right << std::setw(3) << to_underlying(it) + 1 << KNRM << ") "
-			<< KGRN << std::left << MUD::Class(it).GetName() << std::endl << KNRM;
+			<< KGRN << std::left << MUD::Class(it).GetName() << "\r\n" << KNRM;
 	}
 	write_to_output(out.str().c_str(), d);
 }
