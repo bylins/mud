@@ -400,9 +400,9 @@ void CharData::zero_init() {
 void CharData::purge() {
 	caching::character_cache.Remove(this);
 
-	if (!get_name().empty()) {
-		log("[FREE CHAR] (%s)", GET_NAME(this));
-	}
+//	if (!get_name().empty()) {
+//		log("[FREE CHAR] (%s)", GET_NAME(this));
+//	}
 	if (this->get_protecting()) {
 		this->remove_protecting();
 	}

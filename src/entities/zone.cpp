@@ -30,7 +30,7 @@ ZoneData::ZoneData() : traffic(0),
 					   mob_level(0),
 					   is_town(false),
 					   count_reset(0),
-					   RnumMobsLocation(0, 0) {
+					   RnumMobsLocation(-1, 0) {
 }
 
 ZoneData::~ZoneData() {

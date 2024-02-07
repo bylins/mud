@@ -997,7 +997,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_index[i].vnum = nr;
 	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
-	if (zone_table[real_zone(nr / 100)].RnumMobsLocation.first == 0) {
+	if (zone_table[real_zone(nr / 100)].RnumMobsLocation.first == -1) {
 		zone_table[real_zone(nr / 100)].RnumMobsLocation.first = i;
 	}
 	zone_table[real_zone(nr / 100)].RnumMobsLocation.second = i;
@@ -1481,6 +1481,8 @@ bool ZoneFile::load_zone() {
 	zone.group = false;
 	zone.count_reset = 0;
 	zone.traffic = 0;
+	zone.RnumMobsLocation.first = -1;
+	zone.RnumMobsLocation.second = -1;
 	get_line(file(), buf);
 
 	auto result = false;

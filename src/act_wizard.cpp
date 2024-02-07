@@ -389,8 +389,9 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	ZoneDataCopy(rzone_from, real_zone(zvn));
+	MobDataCopy(rzone_from, real_zone(zvn));
 	RoomDataCopy(rnum_start, rnum_stop, real_zone(zvn));
+	ZoneDataCopy(rzone_from, real_zone(zvn));
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1864,6 +1865,8 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		mob = read_mobile(r_num, REAL);
+		sprintf(buf, "лоад моба  rnum %d vnum %d (rnum %d  vnum %d)", r_num, number, GET_MOB_RNUM(mob), GET_MOB_VNUM(mob));
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		PlaceCharToRoom(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
@@ -3851,7 +3854,7 @@ void print(CharData *ch, int first, int last, const std::string &options) {
 			} else {
 				format_to(std::back_inserter(out), " - нет скриптов -");
 			}
-			format_to(std::back_inserter(out), " Загружено в мир: {}, максимально: {}.\r\n", mob_index[i].total_online), mob_index[i].stored + mob_index[i].total_online);
+			format_to(std::back_inserter(out), " Загружено в мир: {}, максимально: {}.\r\n", mob_index[i].total_online, mob_index[i].stored + mob_index[i].total_online);
 		}
 	}
 
@@ -3979,7 +3982,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->room_vn <= last); nr++) {
 				if (world[nr]->room_vn >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
-							 ++found, world[nr]->room_vn, world[nr]->zone_rn, world[nr]->name);
+							 ++found, world[nr]->room_vn, real_room(world[nr]->room_vn), world[nr]->name);
 					out += buf_;
 					if (!world[nr]->proto_script->empty()) {
 						out += " - есть скрипты -";
