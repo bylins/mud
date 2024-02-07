@@ -1,4 +1,3 @@
-
 /************************************************************************
 *   File: db.cpp                                        Part of Bylins    *
 *  Usage: Loading/saving entities, booting/resetting world, internal funcs   *
@@ -171,6 +170,7 @@ int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms();
+void CreateBlankRoomDungeon();
 void add_vrooms_to_all_zones();
 void renum_world();
 void renum_zone_table();
@@ -187,7 +187,6 @@ void init_portals();
 void init_im();
 void init_zone_types();
 void LoadGuardians();
-
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages();
@@ -226,6 +225,8 @@ extern void add_karma(CharData *ch, const char *punish, const char *reason);
 extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern void extract_trigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
+extern int NumberOfZoneDungeons;
+extern ZoneVnum ZoneStartDungeons;
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -1320,9 +1321,14 @@ void GameLoader::boot_world() {
 	log("Loading rooms.");
 	world_loader.index_boot(DB_BOOT_WLD);
 
+	boot_profiler.next_step("Create blank rooms for dungeons");
+	log("Create blank rooms for dungeons.");
+	CreateBlankRoomDungeon();
+
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
 	add_vrooms_to_all_zones();
+
 
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
@@ -1348,6 +1354,7 @@ void GameLoader::boot_world() {
 	log("Converting deprecated obj values.");
 	convert_obj_values();
 
+
 	boot_profiler.next_step("enumbering zone table");
 	log("Renumbering zone table.");
 	renum_zone_table();
@@ -1363,6 +1370,7 @@ void GameLoader::boot_world() {
 	boot_profiler.next_step("Initialization of object rnums");
 	log("Init system_obj rnums.");
 	system_obj::init();
+
 	log("Init global_drop_obj.");
 }
 
@@ -2491,7 +2499,7 @@ void boot_db(void) {
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
+		log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
 		reset_zone(i);
 	}
@@ -2598,6 +2606,7 @@ void boot_db(void) {
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
 	load_cities();
+
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 
@@ -2717,7 +2726,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 		case DB_BOOT_WLD: {
 			// Creating empty world with kNowhere room.
 			world.push_back(new RoomData);
-			top_of_world = kFirstRoom;
+			top_of_world = kNowhere;
 			const size_t rooms_bytes = sizeof(RoomData) * rec_count;
 			log("   %d rooms, %zd bytes.", rec_count, rooms_bytes);
 		}
@@ -2740,6 +2749,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 			break;
 
 		case DB_BOOT_ZON: {
+			zone_table.reserve(rec_count + NumberOfZoneDungeons*2);
 			zone_table.resize(rec_count);
 			const size_t zones_size = sizeof(ZoneData) * rec_count;
 			log("   %d zones, %zd bytes.", rec_count, zones_size);
@@ -2806,6 +2816,41 @@ void check_start_rooms(void) {
 		log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
 		r_unreg_start_room = r_mortal_start_room;
 	}
+}
+
+void CreateBlankRoomDungeon() {
+	ZoneVnum zone_vnum = ZoneStartDungeons;
+	ZoneRnum zone_rnum = zone_table.size();
+
+	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
+		ZoneData new_zone;
+
+		new_zone.vnum = zone_vnum;
+		new_zone.name = "Зона для данжей";
+		new_zone.under_construction = true;
+		new_zone.top = zone_vnum * 100 + 99;
+		new_zone.FirstRoomVnum = zone_vnum * 100;
+		new_zone.LastRoomVnum = zone_vnum * 100 + 98;
+//		CREATE(new_zone.cmd, 6);
+		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
+		zone_table.push_back(std::move(new_zone));
+		for (RoomVnum room = 0; room <= 98; room++) {
+			RoomData *new_room = new RoomData;
+
+			top_of_world++;
+			world.push_back(new_room);
+			new_room->zone_rn = zone_rnum;
+			new_room->room_vn = zone_vnum * 100 + room;
+//			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
+			new_room->sector_type = ESector::kSecret;
+			new_room->name = str_dup("ДАНЖ");
+		}
+		zone_vnum++;
+		zone_rnum++;
+	}
+//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
+//	}
 }
 
 void add_vrooms_to_all_zones() {
@@ -2891,8 +2936,10 @@ void renum_mob_zone(void) {
 
 void renum_single_table(int zone) {
 	int cmd_no, a, b, c, olda, oldb, oldc;
-	char buf[256];
+	char buf[128];
 
+	if (!zone_table[zone].cmd)
+		return;
 	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
 		a = b = c = 0;
 		olda = ZCMD.arg1;
@@ -4202,6 +4249,184 @@ void process_celebrates(int vnum) {
 #define        CHECK_SUCCESS        1
 // Команда не должна изменить флаг
 #define        FLAG_PERSIST        2
+void RoomDataFree(ZoneRnum zrn) {
+	RoomRnum rnum_start, rnum_stop;
+
+	GetZoneRooms(zrn, &rnum_start, &rnum_stop);
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		auto &room = world[i];
+		free(room->name);
+		room->name = str_dup("ДАНЖ!");
+		room->affected_by.clear();
+		room->people.clear();
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			const auto &from = room->dir_option[dir];
+			if (from) {
+				room->dir_option[dir].reset();
+			}
+		}
+		ExtraDescription::shared_ptr sdd = room->ex_description;
+		if (sdd) {
+			while (sdd) {
+				free(sdd->keyword);
+				free(sdd->description);
+				sdd = sdd->next;
+			}
+			sdd.reset();
+		}
+	}
+}
+
+void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
+	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
+	int shift = 0;
+
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		auto &new_room = world[rroom_to + shift++];
+		free(new_room->name);
+		new_room->name = str_dup(world[i]->name); //почистить
+		new_room->description_num = world[i]->description_num;
+		new_room->write_flags(world[i]->read_flags());
+		new_room->sector_type = world[i]->sector_type;
+		new_room->affected_by.clear();
+		memset(&new_room->base_property, 0, sizeof(RoomState));
+		memset(&new_room->add_property, 0, sizeof(RoomState));
+		new_room->people.clear();
+		new_room->func = nullptr;
+		new_room->contents = nullptr;
+		new_room->track = nullptr;
+		new_room->light = 0;
+		new_room->fires = 0;
+		new_room->gdark = 0;
+		new_room->glight = 0;
+//		new_room->proto_script.reset(new ObjData::triggers_list_t());
+		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
+			new_room->dir_option[dir] = nullptr;
+		}
+		new_room->ex_description = nullptr;
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+			const auto &from = world[i]->dir_option[dir];
+			if (from) {
+				int to_room = from->to_room();// - rnum_start + first_room_dungeon;
+//				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[i]->name, world[i]->room_vn, world[to_room]->name, world[to_room]->room_vn);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				if (to_room >= rnum_start && to_room <= rnum_stop) {
+					int room = from->to_room() - rnum_start + rroom_to;
+					new_room->dir_option[dir].reset(new ExitData());
+					new_room->dir_option[dir]->to_room(room);
+//					sprintf(buf, "to  room %s (%d) exit  %s (%d)", new_room->name, new_room->room_vn, 
+//						world[room]->name, world[room]->room_vn);
+//					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				}
+			}
+		}
+		ExtraDescription::shared_ptr *pddd = &new_room->ex_description;
+		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
+		*pddd = nullptr;
+
+		while (sdd) {
+			pddd->reset(new ExtraDescription());
+			(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
+			(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
+			pddd = &((*pddd)->next);
+			sdd = sdd->next;
+		}
+
+	}
+}
+
+
+void ZoneDataFree(ZoneRnum zrn) {
+	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
+		if (zone_table[zrn].cmd[subcmd].command == 'V') {
+			free(zone_table[zrn].cmd[subcmd].sarg1);
+			free(zone_table[zrn].cmd[subcmd].sarg2);
+		}
+	}
+	free(zone_table[zrn].cmd);
+	zone_table[zrn].cmd = nullptr;
+	if (zone_table[zrn].typeA_count) {
+		zone_table[zrn].typeA_count = 0;
+		free(zone_table[zrn].typeA_list);
+	}
+	if (zone_table[zrn].typeB_count) {
+		zone_table[zrn].typeB_count = 0;
+		free(zone_table[zrn].typeB_list);
+		free(zone_table[zrn].typeB_flag);
+	}
+	zone_table[zrn].name = "Зона для данжей";
+	zone_table[zrn].reset_mode = 0;
+	zone_table[zrn].top = zone_table[zrn].vnum * 100 + 99;
+	zone_table[zrn].FirstRoomVnum = zone_table[zrn].vnum * 100;
+	zone_table[zrn].LastRoomVnum = zone_table[zrn].vnum * 100 + 98;
+	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
+}
+
+void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
+	int i, count, subcmd;
+	auto &zone_from = zone_table[rzone_from];
+	auto &zone_to = zone_table[rzone_to];
+
+	zone_to.copy_from_zone = zone_from.vnum;
+	zone_to.name = zone_from.name;
+	zone_to.comment = zone_from.comment;
+	zone_to.location = zone_from.location;
+	zone_to.author = zone_from.author;
+	zone_to.description = zone_from.description;
+	zone_to.level = zone_from.level;
+	zone_to.type = zone_from.type;
+	zone_to.top = zone_to.vnum * 100 + 99;
+	zone_to.reset_mode = zone_from.reset_mode;
+	zone_to.lifespan = zone_from.lifespan;
+	zone_to.reset_idle = zone_from.reset_idle;
+	zone_to.typeA_count = zone_from.typeA_count;
+	zone_to.typeB_count = zone_from.typeB_count;
+	zone_to.under_construction = zone_from.under_construction;
+	zone_to.locked = zone_from.locked;
+	zone_to.group = zone_from.group;
+	zone_to.FirstRoomVnum = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
+	zone_to.LastRoomVnum = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
+	if (zone_to.typeA_count) {
+		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
+	}
+	for (i = 0; i < zone_to.typeA_count; i++) {
+		zone_to.typeA_list[i] = zone_from.typeA_list[i];
+	}
+	if (zone_to.typeB_count) {
+		CREATE(zone_to.typeB_list, zone_to.typeB_count); //почистить
+		CREATE(zone_to.typeB_flag, zone_to.typeB_count); //почистить
+	}
+	for (i = 0; i < zone_to.typeB_count; i++) {
+		zone_to.typeB_list[i] = zone_from.typeB_list[i];
+	}
+	for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
+	log("Create CMD count %d", count);
+	CREATE(zone_to.cmd, count + 1); //почистить
+
+	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
+		zone_to.cmd[subcmd].command = zone_from.cmd[subcmd].command;
+		zone_to.cmd[subcmd].if_flag = zone_from.cmd[subcmd].if_flag;
+		zone_to.cmd[subcmd].arg1 = zone_from.cmd[subcmd].arg1;
+		zone_to.cmd[subcmd].arg2 = zone_from.cmd[subcmd].arg2;
+		zone_to.cmd[subcmd].arg3 = zone_from.cmd[subcmd].arg3;
+		zone_to.cmd[subcmd].arg4 = zone_from.cmd[subcmd].arg4;
+		if (zone_from.cmd[subcmd].sarg1) {
+			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg1); //почистить
+		}
+		if (zone_from.cmd[subcmd].sarg2) {
+			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg2); //почистить
+		}
+	}
+	zone_to.cmd[subcmd].command = 'S';
+/*
+	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
+		log("CMD %d %d %d %d %d %d", 
+		zone_from.cmd[subcmd].command, zone_to.cmd[subcmd].if_flag,
+		zone_to.cmd[subcmd].arg1, zone_to.cmd[subcmd].arg2,
+		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
+	}
+*/
+}
 
 class ZoneReset {
  public:
@@ -4219,6 +4444,11 @@ class ZoneReset {
 };
 
 void ZoneReset::reset() {
+	if (zone_table[m_zone_rnum].copy_from_zone > 0) {
+		ZoneDataFree(m_zone_rnum);
+		RoomDataFree(m_zone_rnum);
+		return;
+	}
 	if (GlobalObjects::stats_sender().ready()) {
 		utils::CExecutionTimer timer;
 
@@ -4281,11 +4511,15 @@ void ZoneReset::reset_zone_essential() {
 	const auto zone = m_zone_rnum;    // for ZCMD macro
 	int last_state, curr_state;    // статус завершения последней и текущей команды
 
-	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
+	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name.c_str());
+	if (!zone_table[m_zone_rnum].cmd) {
+		log("No cmd, skiped");
+		return;
+	}
 	//----------------------------------------------------------------------------
 	last_state = 1;        // для первой команды считаем, что все ок
 
-	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
+	for (cmd_no = 0; zone_table[m_zone_rnum].cmd != nullptr && ZCMD.command != 'S'; cmd_no++) {
 		if (ZCMD.command == '*') {
 			// комментарий - ни на что не влияет
 			continue;
@@ -4711,7 +4945,7 @@ void ZoneReset::reset_zone_essential() {
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = false;
-	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name);
+	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name.c_str());
 	after_reset_zone(m_zone_rnum);
 }
 
@@ -4724,44 +4958,11 @@ void reset_zone(ZoneRnum zone) {
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int GetZoneRooms(ZoneRnum zone_nr, int *first, int *last) {
-//31.27.2022 месяц пройдет комменты можно стереть
-//	*first = 0;
-//	*last = 0;
-//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-//	auto numzone = zone_table[zone_nr].vnum * 100;
-//	sprintf(buf, "По новому ! Зона %d: первая клетка зоны %d, последняя %d", zone_table[zone_nr].vnum, zone_table[zone_nr].FirstRoom, zone_table[zone_nr].LastRoom);
-//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	*first = real_room(zone_table[zone_nr].FirstRoomVnum);
 	*last = real_room(zone_table[zone_nr].LastRoomVnum);
+
 	if (*first == kNowhere)
 		return 0;
-/*
-	for (int nr = kFirstRoom; nr <= top_of_world; nr++) {
-		if (world[nr]->room_vn >= numzone && *first == 0) {
-			*first = world[nr]->room_vn;
-		}
-		if (world[nr]->room_vn == numzone + 99) {
-			// если первая комната виртуальная (99), то последняя тоже будет виртуальной
-			if (*first == numzone + 99) {
-				*last = *first;
-				break;
-			}
-			// если в зоне есть комнаты, то берем последнюю комнату перед виртуальной
-			if (nr > 1 && *first && world[nr - 1]->room_vn >= *first) {
-				*last = world[nr - 1]->room_vn;
-				break;
-			}
-		}
-	}
-	sprintf(buf, "По старому! Зона %d: первая клетка зоны %d, последняя %d", zone_table[zone_nr].vnum, *first, *last);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
-	*first = real_room(*first);
-	*last = real_room(*last);
-	if (*first == kNowhere || *last == kNowhere)
-		return 0;
-*/
-	
 	return 1;
 }
 
@@ -5280,6 +5481,28 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	affect_total(ch);
 }
 
+ObjRnum real_object(ObjVnum vnum) {
+	return obj_proto.rnum(vnum);
+}
+
+ZoneRnum real_zone(ZoneVnum vnum) {
+	ZoneRnum bot, top, mid;
+
+	bot = 0;
+	top = static_cast<ZoneRnum>(zone_table.size());
+	for (;;) {
+		mid = (bot + top) / 2;
+		if (zone_table[mid].vnum == vnum)
+			return (mid);
+		if (bot >= top)
+			return (kNowhere);
+		if (zone_table[mid].vnum > vnum)
+			top = mid - 1;
+		else
+			bot = mid + 1;
+	}
+}
+
 // returns the real number of the room with given virtual number
 RoomRnum real_room(RoomVnum vnum) {
 	RoomRnum bot, top, mid;
@@ -5289,7 +5512,6 @@ RoomRnum real_room(RoomVnum vnum) {
 	// perform binary search on world-table
 	for (;;) {
 		mid = (bot + top) / 2;
-
 		if (world[mid]->room_vn == vnum)
 			return (mid);
 		if (bot >= top)
@@ -5307,11 +5529,9 @@ MobRnum real_mobile(MobVnum vnum) {
 
 	bot = 0;
 	top = top_of_mobt;
-
 	// perform binary search on mob-table
 	for (;;) {
 		mid = (bot + top) / 2;
-
 		if ((mob_index + mid)->vnum == vnum)
 			return (mid);
 		if (bot >= top)

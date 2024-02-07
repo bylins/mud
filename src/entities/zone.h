@@ -26,9 +26,9 @@ class ZoneData {
 
 	~ZoneData();
 
-	char *name;        // название зоны
-	char *comment;
-	char *author;
+	std::string name;        // название зоны
+	std::string comment;
+	std::string author;
 	int traffic;
 	int level;    // level of this zone (is used in ingredient loading)
 	int type;    // the surface type of this zone (is used in ingredient loading)
@@ -50,10 +50,11 @@ class ZoneData {
 	int reset_mode;
 
 	ZoneVnum vnum;    // virtual number of this zone
+	ZoneVnum copy_from_zone;
 	// Местоположение зоны
-	char *location;
+	std::string location;
 	// Описание зоны
-	char *description;
+	std::string description;
 	struct reset_com *cmd;    // command table for reset
 
 	int typeA_count;
@@ -75,6 +76,7 @@ class ZoneData {
 	bool is_town;
 	// показывает количество репопов зоны, при условии, что в зону ходят
 	int count_reset;
+	std::pair<MobRnum, MobRnum> RnumMobsLocation;
 };
 
 using ZoneTable = std::vector<ZoneData>;

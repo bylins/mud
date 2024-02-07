@@ -3654,7 +3654,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 						GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)),
 						world[IN_ROOM(i)]->name,
-						zone->name);
+						zone->name.c_str());
 				SendMsgToChar(buf, ch);
 			}
 		}
@@ -3908,9 +3908,9 @@ void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	print_zone_info(ch);
 
 	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
-		&& zone_table[world[ch->in_room]->zone_rn].comment) {
+		&& !zone_table[world[ch->in_room]->zone_rn].comment.empty()) {
 		SendMsgToChar(ch, "Комментарий: %s.\r\n",
-					  zone_table[world[ch->in_room]->zone_rn].comment);
+					  zone_table[world[ch->in_room]->zone_rn].comment.c_str());
 	}
 }
 

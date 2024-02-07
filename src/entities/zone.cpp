@@ -4,10 +4,7 @@
 
 struct ZoneCategory *zone_types = nullptr;
 
-ZoneData::ZoneData() : name(nullptr),
-					   comment(nullptr),
-					   author(nullptr),
-					   traffic(0),
+ZoneData::ZoneData() : traffic(0),
 					   level(0),
 					   type(0),
 					   lifespan(0),
@@ -17,8 +14,7 @@ ZoneData::ZoneData() : name(nullptr),
 					   LastRoomVnum(0),
 					   reset_mode(0),
 					   vnum(0),
-					   location(nullptr),
-					   description(nullptr),
+					   copy_from_zone(0),
 					   cmd(nullptr),
 					   typeA_count(0),
 					   typeA_list(nullptr),
@@ -33,21 +29,22 @@ ZoneData::ZoneData() : name(nullptr),
 					   group(0),
 					   mob_level(0),
 					   is_town(false),
-					   count_reset(0) {
+					   count_reset(0),
+					   RnumMobsLocation(0, 0) {
 }
 
 ZoneData::~ZoneData() {
-	//log("~ZoneData zone %d", number);
-	if (name)
-		free(name);
-	if (comment)
-		free(comment);
-	if (author)
-		free(author);
-	if (location)
-		free(location);
-	if (description)
-		free(description);
+//	log("~ZoneData zone %d", vnum);
+	if (!name.empty())
+		name.clear();;
+	if (!comment.empty())
+		comment.clear();
+	if (!author.empty())
+		author.clear();
+	if (!location.empty())
+		location.clear();
+	if (!description.empty())
+		 description.clear();
 
 	if (cmd)
 		free(cmd);
