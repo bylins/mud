@@ -4287,20 +4287,15 @@ void RoomDataFree(ZoneRnum zrn) {
 void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
 	int shift = 0;
-	RoomRnum current = rnum_start;
-	std::vector<RoomVnum> vnum_list;
+
 	for(int i = rnum_start; i <= rnum_stop; i++) {
-		vnum_list.push_back(world[i]->room_vn);
-		log("room start vnum %d", world[rnum_start]->room_vn);
-	}
-	for(auto i : vnum_list) {
 		auto &new_room = world[rroom_to + shift++];
 		free(new_room->name);
-		new_room->room_vn = zone_table[zrn].vnum * 100 + i % 100;
-		new_room->name = str_dup(world[current]->name); //почистить
-		new_room->description_num = world[current]->description_num;
-		new_room->write_flags(world[current]->read_flags());
-		new_room->sector_type = world[current]->sector_type;
+		new_room->room_vn = zone_table[zrn].vnum * 100 + world[i]->room_vn % 100;
+		new_room->name = str_dup(world[i]->name); //почистить
+		new_room->description_num = world[i]->description_num;
+		new_room->write_flags(world[i]->read_flags());
+		new_room->sector_type = world[i]->sector_type;
 		new_room->affected_by.clear();
 		memset(&new_room->base_property, 0, sizeof(RoomState));
 		memset(&new_room->add_property, 0, sizeof(RoomState));
@@ -4312,11 +4307,10 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-		log("roomcopy i %d vnum %d (calc_rnum %d) rnum %d new vnum %d calc new rnum %d real_new_rnum %d", 
+		log("roomcopy i %d vnum %d (calc_rnum %d) new vnum %d calc new rnum %d real_new_rnum %d", 
 			i, 
-			world[current]->room_vn, 
+			world[i]->room_vn, 
 			real_room(i), 
-			current, 
 			new_room->room_vn, 
 			real_room(new_room->room_vn), 
 			rroom_to + shift -1);
@@ -4326,7 +4320,7 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 		}
 		new_room->ex_description = nullptr;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			const auto &from = world[current]->dir_option[dir];
+			const auto &from = world[i]->dir_option[dir];
 			if (from) {
 				int to_room = from->to_room();// - rnum_start + first_room_dungeon;
 //				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[current]->name, world[current]->room_vn, world[to_room]->name, world[to_room]->room_vn);
@@ -4342,7 +4336,7 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 			}
 		}
 		ExtraDescription::shared_ptr *pddd = &new_room->ex_description;
-		ExtraDescription::shared_ptr sdd = world[current]->ex_description;
+		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
 		*pddd = nullptr;
 
 		while (sdd) {
@@ -4352,8 +4346,6 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 			pddd = &((*pddd)->next);
 			sdd = sdd->next;
 		}
-		current++;
-
 	}
 }
 void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
