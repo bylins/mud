@@ -2844,7 +2844,7 @@ void CreateBlankRoomDungeon() {
 			if (room == 0) 
 				new_room->room_vn = zone_vnum * 100; // первая комната для поиска начала
 			else
-				new_room->room_vn = zone_vnum * 100 + 99; //фейковые комнаты
+				new_room->room_vn = zone_vnum * 100 + room; //фейковые комнаты
 //			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
 			new_room->sector_type = ESector::kSecret;
 			new_room->name = str_dup("ДАНЖ");
@@ -3598,7 +3598,10 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	} else {
 		i = nr;
 	}
-
+	if (i > top_of_mobt) {
+		log("WARNING: Mobile rnum %d is above the list 'top of mobt' (%s %s %d)", i, __FILE__, __func__, __LINE__);
+		return (nullptr);
+	}
 	auto *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new ObjData::triggers_list_t());
@@ -4284,15 +4287,16 @@ void RoomDataFree(ZoneRnum zrn) {
 void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
 	int shift = 0;
-
-	for(int i = rnum_start; i <= rnum_stop; i++) {
+	RoomRnum current = rnum_start;
+	std::
+	for(int i = world[rnum_start]->room_vn; i <= world[rnum_stop]->room_vn; i++) {
 		auto &new_room = world[rroom_to + shift++];
 		free(new_room->name);
-		new_room->room_vn = zone_table[zrn].vnum * 100 + world[i]->room_vn % 100;
-		new_room->name = str_dup(world[i]->name); //почистить
-		new_room->description_num = world[i]->description_num;
-		new_room->write_flags(world[i]->read_flags());
-		new_room->sector_type = world[i]->sector_type;
+		new_room->room_vn = zone_table[zrn].vnum * 100 + i % 100;
+		new_room->name = str_dup(world[current]->name); //почистить
+		new_room->description_num = world[current]->description_num;
+		new_room->write_flags(world[current]->read_flags());
+		new_room->sector_type = world[current]->sector_type;
 		new_room->affected_by.clear();
 		memset(&new_room->base_property, 0, sizeof(RoomState));
 		memset(&new_room->add_property, 0, sizeof(RoomState));
@@ -4304,16 +4308,24 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
+		log("roomcopy i %d vnum %d (calc_rnum %d) rnum %d new vnum %d calc new rnum %d real_new_rnum %d", 
+			i, 
+			world[current]->room_vn, 
+			real_room(i), 
+			current, 
+			new_room->room_vn, 
+			real_room(new_room->room_vn), 
+			rroom_to + shift -1);
 //		new_room->proto_script.reset(new ObjData::triggers_list_t());
 		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 			new_room->dir_option[dir] = nullptr;
 		}
 		new_room->ex_description = nullptr;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			const auto &from = world[i]->dir_option[dir];
+			const auto &from = world[current]->dir_option[dir];
 			if (from) {
 				int to_room = from->to_room();// - rnum_start + first_room_dungeon;
-//				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[i]->name, world[i]->room_vn, world[to_room]->name, world[to_room]->room_vn);
+//				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[current]->name, world[current]->room_vn, world[to_room]->name, world[to_room]->room_vn);
 //				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				if (to_room >= rnum_start && to_room <= rnum_stop) {
 					int room = from->to_room() - rnum_start + rroom_to;
@@ -4326,7 +4338,7 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 			}
 		}
 		ExtraDescription::shared_ptr *pddd = &new_room->ex_description;
-		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
+		ExtraDescription::shared_ptr sdd = world[current]->ex_description;
 		*pddd = nullptr;
 
 		while (sdd) {
@@ -4336,6 +4348,7 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 			pddd = &((*pddd)->next);
 			sdd = sdd->next;
 		}
+		current++;
 
 	}
 }
@@ -4622,6 +4635,10 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) {
 
 	utils::CExecutionTimer get_mobs_timer;
 	Characters::list_t mobs;
+	if (rnum > top_of_mobt) {
+		log("WARNING: Mobile rnum %d is above the list 'top of mobt' (%s %s %d)", rnum, __FILE__, __func__, __LINE__);
+		return extracted;
+	}
 	character_list.get_mobs_by_vnum(mob_index[rnum].vnum, mobs);
 	const auto get_mobs_time = get_mobs_timer.delta();
 

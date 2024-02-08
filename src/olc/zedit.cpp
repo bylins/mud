@@ -152,8 +152,6 @@ pzcmd zedit_build_cmdlist(DescriptorData *d) {
 				if (item->cmd.arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg2);
 				}
-				item->cmd.sarg1 = str_dup(item->cmd.sarg1);
-				item->cmd.sarg2 = str_dup(item->cmd.sarg2);
 				break;
 			default: free(item);
 				continue;
