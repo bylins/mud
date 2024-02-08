@@ -374,8 +374,12 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 
 	if (!GetZoneRooms(rzone_from, &rnum_start, &rnum_stop)) {
 		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_from));
-		SendMsgToChar(buf2, ch);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
+	}
+	if (world[rnum_start]->room_vn % 100 != 0) {
+		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	for (zvn = ZoneStartDungeons; zvn < ZoneStartDungeons + NumberOfZoneDungeons; zvn++) {
 		if (zone_table[real_zone(zvn)].copy_from_zone == 0) {
@@ -385,8 +389,6 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		}
 	}
 	if (zvn == ZoneStartDungeons + NumberOfZoneDungeons) {
-			sprintf(buf, "Нет места для клонирования зон, МАКС %d", NumberOfZoneDungeons);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
 	MobDataCopy(rzone_from, real_zone(zvn));
@@ -3982,7 +3984,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->room_vn <= last); nr++) {
 				if (world[nr]->room_vn >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
-							 ++found, world[nr]->room_vn, real_room(world[nr]->room_vn), world[nr]->name);
+							 ++found, world[nr]->room_vn, nr, world[nr]->name);
 					out += buf_;
 					if (!world[nr]->proto_script->empty()) {
 						out += " - есть скрипты -";

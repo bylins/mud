@@ -2844,7 +2844,7 @@ void CreateBlankRoomDungeon() {
 			if (room == 0) 
 				new_room->room_vn = zone_vnum * 100; // первая комната для поиска начала
 			else
-				new_room->room_vn = zone_vnum * 100 + room; //фейковые комнаты
+				new_room->room_vn = zone_vnum * 100 + 99; //фейковые комнаты
 //			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
 			new_room->sector_type = ESector::kSecret;
 			new_room->name = str_dup("ДАНЖ");
@@ -4288,8 +4288,12 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
 	int shift = 0;
 	RoomRnum current = rnum_start;
-	std::
-	for(int i = world[rnum_start]->room_vn; i <= world[rnum_stop]->room_vn; i++) {
+	std::vector<RoomVnum> vnum_list;
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		vnum_list.push_back(world[i]->room_vn);
+		log("room start vnum %d", world[rnum_start]->room_vn);
+	}
+	for(auto i : vnum_list) {
 		auto &new_room = world[rroom_to + shift++];
 		free(new_room->name);
 		new_room->room_vn = zone_table[zrn].vnum * 100 + i % 100;
