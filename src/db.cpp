@@ -1306,6 +1306,12 @@ void convert_obj_values() {
 		}
 	}
 }
+void RenumberFirstLastRoomOnZone() {
+	for (ZoneRnum zone = 0; zone < static_cast<ZoneRnum>(zone_table.size()); zone++) {
+		zone_table[zone].RnumRoomsLocation.first = real_room(zone_table[zone].RnumRoomsLocation.first); //в зонфайле считаны были внумы
+		zone_table[zone].RnumRoomsLocation.second = real_room(zone_table[zone].RnumRoomsLocation.second);
+	}
+}
 
 void GameLoader::boot_world() {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
@@ -1330,6 +1336,9 @@ void GameLoader::boot_world() {
 	log("Adding virtual rooms to all zones.");
 	add_vrooms_to_all_zones();
 
+	boot_profiler.next_step("Recalc first and last zone room after adding virtual roomss");
+	log("Recalc first and last zone room.");
+	RenumberFirstLastRoomOnZone();
 
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
@@ -2830,8 +2839,8 @@ void CreateBlankRoomDungeon() {
 		new_zone.name = "Зона для данжей";
 		new_zone.under_construction = true;
 		new_zone.top = zone_vnum * 100 + 99;
-		new_zone.FirstRoomVnum = zone_vnum * 100;
-		new_zone.LastRoomVnum = zone_vnum * 100 + 98;
+//		new_zone.FirstRoomVnum = zone_vnum * 100;
+//		new_zone.LastRoomVnum = zone_vnum * 100 + 98;
 //		CREATE(new_zone.cmd, 6);
 		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
 		zone_table.push_back(std::move(new_zone));
@@ -4266,6 +4275,10 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->name = str_dup("ДАНЖ!");
 		room->affected_by.clear();
 		room->people.clear();
+// а землю чистить?????
+		if (i != rnum_start) { //первую клетку не трогаем
+			room->room_vn = zrn * 100 + 99;
+		}
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = room->dir_option[dir];
 			if (from) {
@@ -4287,7 +4300,6 @@ void RoomDataFree(ZoneRnum zrn) {
 void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
 	int shift = 0;
-
 	for(int i = rnum_start; i <= rnum_stop; i++) {
 		auto &new_room = world[rroom_to + shift++];
 		free(new_room->name);
@@ -4307,13 +4319,6 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-		log("roomcopy i %d vnum %d (calc_rnum %d) new vnum %d calc new rnum %d real_new_rnum %d", 
-			i, 
-			world[i]->room_vn, 
-			real_room(i), 
-			new_room->room_vn, 
-			real_room(new_room->room_vn), 
-			rroom_to + shift -1);
 //		new_room->proto_script.reset(new ObjData::triggers_list_t());
 		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 			new_room->dir_option[dir] = nullptr;
@@ -4335,6 +4340,9 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 				}
 			}
 		}
+		zone_table[zrn].RnumRoomsLocation.first = rroom_to;
+		zone_table[zrn].RnumRoomsLocation.second = rroom_to + shift;
+
 		ExtraDescription::shared_ptr *pddd = &new_room->ex_description;
 		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
 		*pddd = nullptr;
@@ -4411,8 +4419,8 @@ void ZoneDataFree(ZoneRnum zrn) {
 	zone_table[zrn].name = "Зона для данжей";
 	zone_table[zrn].reset_mode = 0;
 	zone_table[zrn].top = zone_table[zrn].vnum * 100 + 99;
-	zone_table[zrn].FirstRoomVnum = zone_table[zrn].vnum * 100;
-	zone_table[zrn].LastRoomVnum = zone_table[zrn].vnum * 100 + 98;
+	zone_table[zrn].RnumRoomsLocation.first = -1;
+	zone_table[zrn].RnumRoomsLocation.second = -1;
 	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
 }
 
@@ -4420,18 +4428,17 @@ void ZoneDataFree(ZoneRnum zrn) {
 #define TRANS_OBJ(field)  zone_table[zrn].cmd[subcmd].field = obj_proto[zone_table[zrn].cmd[subcmd].field]->get_vnum()
 #define TRANS_ROOM(field) zone_table[zrn].cmd[subcmd].field = world[zone_table[zrn].cmd[subcmd].field]->room_vn
 
-void ZoneTransformCMDToVnum(ZoneRnum zrn, ZoneRnum zone_from) {
+void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 	ZoneVnum zvn = zone_table[zrn].vnum;
 	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
 		if (zone_table[zrn].cmd[subcmd].command == '*')
 			continue;
 
-		switch (zone_table[zrn].cmd[subcmd].command) {
-
-		log("CMD %d %d %d %d %d %d", 
+		log("CMD %d %d %d %d %d %d",
 		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
 		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
 		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
+		switch (zone_table[zrn].cmd[subcmd].command) {
 			case 'M': 
 				if (mob_index[zone_table[zrn].cmd[subcmd].arg1].vnum / 100 != zone_table[zone_from].vnum) {
 //					TRANS_MOB(arg1);
@@ -4541,8 +4548,8 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
 	zone_to.group = zone_from.group;
-	zone_to.FirstRoomVnum = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
-	zone_to.LastRoomVnum = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
+//	zone_to.RnumRoomsLocation.first = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
+//	zone_to.RnumRoomsLocation.first = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
 	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
 	}
@@ -4575,7 +4582,7 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		}
 	}
 	zone_to.cmd[subcmd].command = 'S';
-	ZoneTransformCMDToVnum(rzone_to, rzone_from);
+	ZoneTransformCMD(rzone_to, rzone_from);
 
 
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
@@ -5122,8 +5129,8 @@ void reset_zone(ZoneRnum zone) {
 // Ищет RNUM первой и последней комнаты зоны
 // Еси возвращает 0 - комнат в зоне нету
 int GetZoneRooms(ZoneRnum zone_nr, int *first, int *last) {
-	*first = real_room(zone_table[zone_nr].FirstRoomVnum);
-	*last = real_room(zone_table[zone_nr].LastRoomVnum);
+	*first = zone_table[zone_nr].RnumRoomsLocation.first;
+	*last = zone_table[zone_nr].RnumRoomsLocation.second;
 
 	if (*first == kNowhere)
 		return 0;

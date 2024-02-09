@@ -10,8 +10,6 @@ ZoneData::ZoneData() : traffic(0),
 					   lifespan(0),
 					   age(0),
 					   top(0),
-					   FirstRoomVnum(0),
-					   LastRoomVnum(0),
 					   reset_mode(0),
 					   vnum(0),
 					   copy_from_zone(0),
@@ -30,7 +28,8 @@ ZoneData::ZoneData() : traffic(0),
 					   mob_level(0),
 					   is_town(false),
 					   count_reset(0),
-					   RnumMobsLocation(-1, 0) {
+					   RnumRoomsLocation(-1, -1),
+					   RnumMobsLocation(-1, 1) {
 }
 
 ZoneData::~ZoneData() {

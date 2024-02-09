@@ -388,18 +388,17 @@ void WorldFile::parse_room(int virtual_nr) {
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
 		exit(1);
 	}
-	if (zone == 0 && zone_table[zone].FirstRoomVnum == 0)
-		zone_table[zone].FirstRoomVnum = 100;
+	if (zone == 0 && zone_table[zone].RnumRoomsLocation.first == -1)
+		zone_table[zone].RnumRoomsLocation.first = 100;
 	while (virtual_nr > zone_table[zone].top) {
 		if (++zone >= static_cast<ZoneRnum>(zone_table.size())) {
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
 	}
-	if (zone_table[zone].FirstRoomVnum == 0)
-		zone_table[zone].FirstRoomVnum = virtual_nr;
-	zone_table[zone].LastRoomVnum = virtual_nr;
-
+	if (zone_table[zone].RnumRoomsLocation.first == -1)
+		zone_table[zone].RnumRoomsLocation.first = virtual_nr;
+	zone_table[zone].RnumRoomsLocation.second = virtual_nr;
 	// Создаем новую комнату
 	world.push_back(new RoomData);
 	world[room_realnum]->zone_rn = zone;
@@ -1483,6 +1482,8 @@ bool ZoneFile::load_zone() {
 	zone.traffic = 0;
 	zone.RnumMobsLocation.first = -1;
 	zone.RnumMobsLocation.second = -1;
+	zone.RnumRoomsLocation.first = -1;
+	zone.RnumRoomsLocation.second = -1;
 	get_line(file(), buf);
 
 	auto result = false;

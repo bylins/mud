@@ -36,8 +36,6 @@ class ZoneData {
 	int lifespan;        // how long between resets (minutes)
 	int age;        // current age of this zone (minutes)
 	RoomVnum top;        // upper limit for rooms in this zone
-	RoomRnum FirstRoomVnum;
-	RoomRnum LastRoomVnum;
 	/**
 	 * Conditions for reset.
 	 *
@@ -76,6 +74,7 @@ class ZoneData {
 	bool is_town;
 	// показывает количество репопов зоны, при условии, что в зону ходят
 	int count_reset;
+	std::pair<RoomRnum, RoomRnum> RnumRoomsLocation;
 	std::pair<MobRnum, MobRnum> RnumMobsLocation;
 };
 

@@ -378,7 +378,7 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		return;
 	}
 	if (world[rnum_start]->room_vn % 100 != 0) {
-		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn);
+		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zone_from);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	for (zvn = ZoneStartDungeons; zvn < ZoneStartDungeons + NumberOfZoneDungeons; zvn++) {
