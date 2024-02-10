@@ -391,9 +391,13 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	if (zvn == ZoneStartDungeons + NumberOfZoneDungeons) {
 			return;
 	}
-	MobDataCopy(rzone_from, real_zone(zvn));
-	RoomDataCopy(rnum_start, rnum_stop, real_zone(zvn));
-	ZoneDataCopy(rzone_from, real_zone(zvn));
+	utils::CExecutionTimer timer;
+	ZoneRnum zrn = real_zone(zvn);
+	MobDataCopy(rzone_from, zrn);
+	RoomDataCopy(rnum_start, rnum_stop, zrn);
+	ZoneDataCopy(rzone_from, zrn);
+	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer.delta().count());
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
