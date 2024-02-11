@@ -3826,8 +3826,8 @@ std::string print_role(CharData *mob) {
 std::string print_flag(CharData *ch, CharData *mob, const std::string &options) {
 	std::vector<std::string> option_list;
 	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
-
 	auto out = fmt::memory_buffer();
+
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
 			format_to(std::back_inserter(out), " [раса: {}{}{} ]",

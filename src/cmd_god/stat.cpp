@@ -25,6 +25,24 @@ extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 std::string print_special(CharData *mob) {
 	std::string out;
 
+	for (int i = 0; i <= top_of_mobt; i++) {
+		sprintf(buf, "string print_special top %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
+				top_of_mobt,  i, (mob_proto + i)->get_rnum(), (mob_proto + i)->get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum);//, 
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	}
+
+	log("print_special 13735 name %s", (mob_proto + 13735)->get_name().c_str());
+	log("print_special1 13735 rnum %d top_of_mobt %d", (mob_proto + 13735)->get_rnum(), top_of_mobt);
+	log("print_special 13737 name %s", (mob_proto + 13737)->get_name().c_str());
+	log("print_special1 13737 rnum %d top_of_mobt %d", (mob_proto + 13737)->get_rnum(), top_of_mobt);
+	log("print_special 13736 name %s", (mob_proto + 13736)->get_name().c_str());
+	log("print_special1 13736 rnum %d top_of_mobt %d", (mob_proto + 13736)->get_rnum(), top_of_mobt);
+	log("print_special2 rnum %d top_of_mobt %d", GET_MOB_RNUM(mob), top_of_mobt);
+	for (int i = top_of_mobt -(mob_proto + 13730)->get_rnum(); i <=top_of_mobt; i++) {
+		log("print_special in for rnum %d, vnum %d top_of_mobt %d", i, mob_index[i].vnum, top_of_mobt);
+	}
+	log("print_special3 vnum %d top_of_mobt %d", mob_index[GET_MOB_RNUM(mob)].vnum, top_of_mobt);
+
 	if (mob_index[GET_MOB_RNUM(mob)].func) {
 		auto func = mob_index[GET_MOB_RNUM(mob)].func;
 		if (func == shop_ext)
@@ -47,6 +65,8 @@ std::string print_special(CharData *mob) {
 			out += "нубхелпер";
 		else if (func == mercenary)
 			out += "ватажник";
+		else
+			out += "глюк";
 	} else {
 		out += "нет";
 	}

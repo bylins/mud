@@ -691,6 +691,8 @@ void script_trigger_check() {
 	bool IsEmpty;
 
 	character_list.foreach_on_copy([&last_zone, &IsEmpty, &amount, &alarge_amount, &sum, &who](const CharData::shared_ptr &ch) {
+		if (ch->purged())
+			return;
 		if (!who)
 			who = ch.get();
 		if (SCRIPT(ch)->has_triggers()) {
@@ -707,6 +709,7 @@ void script_trigger_check() {
 			}
 		}
 	});
+	log("trigger check rnum %d top %d", who->get_rnum(), top_of_trigt);
 	buffer << "MOB random trigger: самый долгий у моба [" << GET_MOB_VNUM(who) << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
 	log("%s", buffer.str().c_str());
 	buffer.str("");

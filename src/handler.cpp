@@ -1810,8 +1810,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 
 	std::string name = GET_NAME(ch);
 	log("[Extract char] Start function for char %s", name.c_str());
+	log("[Extract char] Start function for rnum %d", ch->get_rnum());
 	DescriptorData *t_desc;
-	log("[Extract char] Start function for char VNUM: %d",  GET_MOB_VNUM(ch));
+//	log("[Extract char] Start function for char VNUM: %d",  GET_MOB_VNUM(ch));
+	log("[Extract char] Start function for char VNUM: %d",  mob_index[(ch)->get_rnum()].vnum);
 	utils::CExecutionTimer timer;
 	if (!ch->IsNpc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
