@@ -4417,38 +4417,56 @@ void MobDataFree(ZoneRnum zrn) {
 //      3       7
 //0 1 2 3 4 5 6 7 8 9
 //0 1 2 8 9
-	new_proto = new CharData[top_of_mobt - count + 1];
-	CREATE(new_index, top_of_mobt - count + 1);
+	int size = top_of_mobt - count + 1;
+	new_proto = new CharData[size];
+	CREATE(new_index, size);
 	int idx = 0;
-	for (int i = 0; i <= top_of_mobt; i++) {
-	    log("FOR top_of_mobt %d i %d, idx %d, rmob_from %d, rmob_last %d", top_of_mobt, i, idx,rmob_from, rmob_last);
-		if (i < rmob_from || i > rmob_last) {
+	if (rmob_last != top_of_mobt) {
+		for (int i = 0; i <= top_of_mobt; i++) {
+		    log("FOR delete top_of_mobt %d i %d, idx %d, rnum %d name %s, rmob_from %d, rmob_last %d", 
+				top_of_mobt, i, idx,  new_index[idx].vnum, new_proto[idx].get_name().c_str(), rmob_from, rmob_last);
+			if (i < rmob_from || i > rmob_last) {
+				new_proto[idx] = mob_proto[i];
+				new_index[idx] = mob_index[i];
+	//			log("copy top_of_mobt %d i %d, idx %d rnum new %d rnum old %d ", top_of_mobt, i, idx, new_proto[idx].get_rnum(), new_proto[i].get_rnum());
+				if (i > rmob_last) {
+					Characters::list_t mobs;
+					character_list.get_mobs_by_vnum(new_index[idx].vnum, mobs);
+					for (const auto &mob : mobs) {
+						mob->set_rnum(idx);
+					}
+					new_proto[idx].set_rnum(idx);
+				}
+				idx++;
+			}
+	//		log("MOB1 vnum %d, name %s, rnum %d", new_index[i].vnum, new_proto[i].get_name().c_str(), i);
+		}
+	} else {
+		for (int i = 0; i <= size - 1; i++) {
+		    log("FOR truncate top_of_mobt %d i %d, idx %d, rnum %d name %s, rmob_from %d, rmob_last %d", 
+					top_of_mobt, i, idx,  new_index[idx].vnum, new_proto[idx].get_name().c_str(), rmob_from, rmob_last);
 			new_proto[idx] = mob_proto[i];
 			new_index[idx] = mob_index[i];
-			if (i > rmob_last) {
-				new_proto[idx].set_rnum(idx);
-			}
-			log("copy top_of_mobt %d i %d, idx %d rnum %d, rmob_from %d, rmob_last %d", top_of_mobt, i, idx, new_proto[idx].get_rnum(), rmob_from, rmob_last);
 			idx++;
 		}
-//		log("MOB1 vnum %d, name %s, rnum %d", new_index[i].vnum, new_proto[i].get_name().c_str(), i);
 	}
 	delete[] mob_proto;
 	free(mob_index);
 	sprintf(buf, "Free rmob_from %d rmob_last %d top_of_mobt %d count %d", rmob_from, rmob_last,top_of_mobt, count);
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	log("%s", buf);
-	top_of_mobt = top_of_mobt - count;
+	top_of_mobt = size - 1;
 	mob_proto = new_proto;
 	mob_index = new_index;
 //free rmob from 13736 rmob last 13779 top of mobt 13735 count 13737
 	sprintf(buf, "Free2 rmob_from %d rmob_last %d top_of_mobt %d count %d", rmob_from, rmob_last,top_of_mobt, count);
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	log("%s", buf);
-	for (int i = top_of_mobt; i > top_of_mobt -60; i--) {
-		sprintf(buf, "Mobs free top %d count %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d specs %s", 
-				top_of_mobt, count, i, (mob_proto + i)->get_rnum(), mob_proto[i].get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum, print_special(mob_proto + i).c_str());
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	for (int i = top_of_mobt -50; i <=top_of_mobt;  i++) {
+		sprintf(buf, "Mobs free top %d count %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
+				top_of_mobt, count, i, (mob_proto + i)->get_rnum(), mob_proto[i].get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum);
+		log("%s", buf);
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	zone_table[zrn].RnumMobsLocation.first = -1;
 	zone_table[zrn].RnumMobsLocation.second = -1;
@@ -4478,7 +4496,6 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	new_index[i] = mob_index[i];
 //		log("MOB1 vnum %d, name %s, rnum %d", new_index[i].vnum, new_proto[i].get_name().c_str(), i);
 	}
-	log("1last vmum %d", mob_index[(mob_proto+top_of_mobt)->get_rnum()].vnum);
 	for (auto i = rmob_from; i <= rmob_last; i++) {
 
 		new_index[rmob_to].vnum = zone_table[rzone_to].vnum * 100 +  mob_index[i].vnum % 100;//(mob_index[i].vnum - zone_table[rzone_from].vnum * 100);
@@ -4486,9 +4503,9 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		new_index[rmob_to].stored = 0;
 		new_index[rmob_to].func = nullptr;
 		// Копирую все поверх
-//		new_proto[rmob_to].set_rnum(rmob_to);
-//		CharData *dst = &new_proto[rmob_to], *src = &mob_proto[i];
-//		*dst = *src;
+		new_proto[rmob_to].set_rnum(rmob_to);
+		CharData *dst = &new_proto[rmob_to], *src = &mob_proto[i];
+		*dst = *src;
 		new_proto[rmob_to].set_rnum(rmob_to);
 		medit_mobile_copy(&new_proto[rmob_to], &mob_proto[i], false);
 		new_proto[rmob_to].set_rnum(rmob_to);
@@ -4500,23 +4517,12 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		top_of_mobt++;
 		rmob_to++;
 	}
-	for (int i = top_of_mobt; i > top_of_mobt -60; i--) {
-		sprintf(buf, "Mobs copy top %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
-				top_of_mobt,  i, (new_proto + i)->get_rnum(), (new_proto + i)->get_rnum(), (new_proto +i)->get_name().c_str(), new_index[i].vnum);//, 
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//		std::string tmp = print_special(new_proto + top_of_mobt);
-	}
-		std::string tmp = print_special(new_proto + top_of_mobt);
-//	for (int i = 0; i <= top_of_mobt; i++) {
-//		log("MOB2 vnum %d, name %s, rnum %d", new_index[i].vnum, new_proto[i].get_name().c_str(), i);
-//	}
-
-//	for (int i = 0; i <= top_of_mobt; i++) {
-//		log("MOB vnum %d, name %s, rnum %d", mob_index[i].vnum, mob_proto[i].get_name().c_str(), i);
+//	for (int i = top_of_mobt; i > top_of_mobt -60; i--) {
+//		sprintf(buf, "Mobs copy top %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
+//				top_of_mobt,  i, (new_proto + i)->get_rnum(), (new_proto + i)->get_rnum(), (new_proto +i)->get_name().c_str(), new_index[i].vnum);//, 
+//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 //	}
 	zone_table[rzone_to].RnumMobsLocation.second = rmob_to -1;
-//	log("3last vmum %d", new_index[(new_proto+top_of_mobt)->get_rnum()].vnum);
-//	std::string tmp1 = print_special(new_proto+top_of_mobt);
 	delete[] mob_proto;
 	free(mob_index);
 	sprintf(buf, "Copy rmob_to %d rmob_last_to %d top_of_mobt %d", zone_table[rzone_to].RnumMobsLocation.first, zone_table[rzone_to].RnumMobsLocation.second, top_of_mobt);
@@ -4525,12 +4531,7 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 
 	mob_proto = new_proto;
 	mob_index = new_index;
-	for (int i = top_of_mobt; i > top_of_mobt -60; i--) {
-		sprintf(buf, "Mobs2!!!!! copy top %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
-				top_of_mobt,  i, (mob_proto + i)->get_rnum(), (mob_proto + i)->get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum);//, 
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-	std::string tmp1 = print_special(mob_proto+top_of_mobt);
+//	std::string tmp1 = print_special(new_proto+top_of_mobt);
 }
 
 void ZoneDataFree(ZoneRnum zrn) {
@@ -5842,7 +5843,7 @@ RoomRnum real_room(RoomVnum vnum) {
 
 // returns the real number of the monster with given virtual number
 MobRnum real_mobile(MobVnum vnum) {
-	log("real mobile vnum %d top %d", vnum, top_of_mobt);
+//	log("real mobile vnum %d top %d", vnum, top_of_mobt);
 	MobRnum bot, top, mid;
 
 	bot = 0;
