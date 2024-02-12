@@ -693,8 +693,6 @@ void script_trigger_check() {
 	character_list.foreach_on_copy([&last_zone, &IsEmpty, &amount, &alarge_amount, &sum, &who](const CharData::shared_ptr &ch) {
 		if (ch->purged())
 			return;
-		if (!ch->IsNpc())
-			return;
 		if (!who)
 			who = ch.get();
 		if (SCRIPT(ch)->has_triggers()) {
@@ -711,30 +709,6 @@ void script_trigger_check() {
 			}
 		}
 	});
-//trigger check rnum 13818 top 11742
-	if (who->get_rnum() == 13818) {
-		for (int i = top_of_mobt -50; i <=top_of_mobt;  i++) {
-			sprintf(buf, "Mobs free top %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
-					top_of_mobt, i, (mob_proto + i)->get_rnum(), mob_proto[i].get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum);
-			log("%s", buf);
-		//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		}
-		int ii = 0;
-		for (const auto &i : character_list) {
-			log("character trigger check rnum %d top %d", i->get_rnum(), top_of_mobt);
-			log("character trigger check name %s top %d", i->get_name().c_str(), top_of_mobt);
-			log("character trigger check vnum %d top %d", mob_index[i->get_rnum()].vnum, top_of_mobt);
-			if (ii == 50) {
-				break;
-				ii++;
-			}
-		}
-	}
-	if (who->IsNpc()) {
-		log("trigger check rnum %d top %d", who->get_rnum(), top_of_mobt);
-		log("trigger check name %s top %d", who->get_name().c_str(), top_of_mobt);
-		log("trigger check vnum %d top %d", mob_index[who->get_rnum()].vnum, top_of_mobt);
-	}
 	buffer << "MOB random trigger: самый долгий у моба [" << GET_MOB_VNUM(who) << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
 	log("%s", buffer.str().c_str());
 	buffer.str("");

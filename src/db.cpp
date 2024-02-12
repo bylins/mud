@@ -4414,21 +4414,17 @@ void MobDataFree(ZoneRnum zrn) {
 		}
 	}
 */
-//      3       7
-//0 1 2 3 4 5 6 7 8 9
-//0 1 2 8 9
 	int size = top_of_mobt - count + 1;
 	new_proto = new CharData[size];
 	CREATE(new_index, size);
 	int idx = 0;
-	if (rmob_last != top_of_mobt) {
+
 		for (int i = 0; i <= top_of_mobt; i++) {
-		    log("FOR delete top_of_mobt %d i %d, idx %d, rnum %d name %s, rmob_from %d, rmob_last %d", 
-				top_of_mobt, i, idx,  new_index[idx].vnum, new_proto[idx].get_name().c_str(), rmob_from, rmob_last);
+//		    log("FOR delete top_of_mobt %d i %d, idx %d, rnum %d name %s, rmob_from %d, rmob_last %d", 
+//				top_of_mobt, i, idx,  new_index[idx].vnum, new_proto[idx].get_name().c_str(), rmob_from, rmob_last);
 			if (i < rmob_from || i > rmob_last) {
 				new_proto[idx] = mob_proto[i];
 				new_index[idx] = mob_index[i];
-	//			log("copy top_of_mobt %d i %d, idx %d rnum new %d rnum old %d ", top_of_mobt, i, idx, new_proto[idx].get_rnum(), new_proto[i].get_rnum());
 				if (i > rmob_last) {
 					Characters::list_t mobs;
 					character_list.get_mobs_by_vnum(new_index[idx].vnum, mobs);
@@ -4441,33 +4437,28 @@ void MobDataFree(ZoneRnum zrn) {
 			}
 	//		log("MOB1 vnum %d, name %s, rnum %d", new_index[i].vnum, new_proto[i].get_name().c_str(), i);
 		}
-	} else {
-		for (int i = 0; i <= size - 1; i++) {
-		    log("FOR truncate top_of_mobt %d i %d, idx %d, rnum %d name %s, rmob_from %d, rmob_last %d", 
-					top_of_mobt, i, idx,  new_index[idx].vnum, new_proto[idx].get_name().c_str(), rmob_from, rmob_last);
-			new_proto[idx] = mob_proto[i];
-			new_index[idx] = mob_index[i];
-			idx++;
-		}
-	}
+
+
+
+
 	delete[] mob_proto;
 	free(mob_index);
-	sprintf(buf, "Free rmob_from %d rmob_last %d top_of_mobt %d count %d", rmob_from, rmob_last,top_of_mobt, count);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	log("%s", buf);
+//	sprintf(buf, "Free rmob_from %d rmob_last %d top_of_mobt %d count %d", rmob_from, rmob_last,top_of_mobt, count);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//	log("%s", buf);
 	top_of_mobt = size - 1;
 	mob_proto = new_proto;
 	mob_index = new_index;
 //free rmob from 13736 rmob last 13779 top of mobt 13735 count 13737
-	sprintf(buf, "Free2 rmob_from %d rmob_last %d top_of_mobt %d count %d", rmob_from, rmob_last,top_of_mobt, count);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	log("%s", buf);
-	for (int i = top_of_mobt -50; i <=top_of_mobt;  i++) {
-		sprintf(buf, "Mobs free top %d count %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
-				top_of_mobt, count, i, (mob_proto + i)->get_rnum(), mob_proto[i].get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum);
-		log("%s", buf);
+//	sprintf(buf, "Free2 rmob_from %d rmob_last %d top_of_mobt %d count %d", rmob_from, rmob_last,top_of_mobt, count);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//	log("%s", buf);
+//	for (int i = top_of_mobt -50; i <=top_of_mobt;  i++) {
+//		sprintf(buf, "Mobs free top %d count %d i(rn) %d index get_rn() %d proto get_rn() %d mob %s %d", 
+//				top_of_mobt, count, i, (mob_proto + i)->get_rnum(), mob_proto[i].get_rnum(), (mob_proto +i)->get_name().c_str(), mob_index[i].vnum);
+//		log("%s", buf);
 //		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
+//	}
 	zone_table[zrn].RnumMobsLocation.first = -1;
 	zone_table[zrn].RnumMobsLocation.second = -1;
 	zone_table[zrn+1].RnumMobsLocation.first = zone_table[zrn+1].RnumMobsLocation.first - count;
@@ -4751,10 +4742,19 @@ void ZoneReset::reset() {
 		utils::CExecutionTimer timer;
 
 	if (zone_table[m_zone_rnum].copy_from_zone > 0) {
+		utils::CExecutionTimer timer1;
 		RoomDataFree(m_zone_rnum);
+		sprintf(buf, "Free rooms. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer1.delta().count());
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		utils::CExecutionTimer timer2;
 		MobDataFree(m_zone_rnum);
+		sprintf(buf, "Free mobs. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer2.delta().count());
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		utils::CExecutionTimer timer3;
 		ZoneDataFree(m_zone_rnum);
-		sprintf(buf, "Free dungeons zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer.delta().count());
+		sprintf(buf, "Free zone data. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer3.delta().count());
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		sprintf(buf, "Free all dungeons %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
