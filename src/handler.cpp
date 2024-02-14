@@ -1917,7 +1917,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			&& !MOB_FLAGGED(ch, EMobFlag::kSummoned))    // if mobile и не умертвие
 		{
 			mob_index[GET_MOB_RNUM(ch)].total_online--;
-			mob_index[GET_MOB_RNUM(ch)].stored++;
 			mob_by_uid.erase(ch->id);
 		}
 	}

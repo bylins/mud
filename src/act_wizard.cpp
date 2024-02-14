@@ -3938,7 +3938,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 							  ch);
 				break;
 			case SCMD_MLIST:
-				SendMsgToChar("Использование: мсписок <начальный номер или номер зоны> [<конечный номер>]\r\n",
+				SendMsgToChar("Использование: мсписок <начальный номер или номер зоны> [<конечный номер>] [role race]\r\n",
 							  ch);
 				break;
 			case SCMD_ZLIST: SendMsgToChar("Использование: зсписок <начальный номер> <конечный номер>\r\n", ch);

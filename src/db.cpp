@@ -2961,7 +2961,9 @@ void renum_single_table(int zone) {
 		oldc = ZCMD.arg3;
 		switch (ZCMD.command) {
 			case 'M': a = ZCMD.arg1 = real_mobile(ZCMD.arg1);
-				mob_index[ZCMD.arg1].stored = ZCMD.arg2;
+				if (mob_index[ZCMD.arg1].stored < ZCMD.arg2) {
+					mob_index[ZCMD.arg1].stored = ZCMD.arg2;
+				}
 				if (ZCMD.arg2 < 0) {
 					sprintf(buf, "SYSERROR: отрицательное значение 'макс в мире': zone %d vnum %d, stored %d room %d",
 							zone_table[zone].vnum, mob_index[ZCMD.arg1].vnum, ZCMD.arg2, ZCMD.arg3);
@@ -3650,7 +3652,6 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 
 	if (!is_corpse) {
 		mob_index[i].total_online++;
-		mob_index[i].stored--;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
 		MOB_FLAGS(mob).set(EMobFlag::kSummoned);
