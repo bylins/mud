@@ -3827,11 +3827,9 @@ void print(CharData *ch, int first, int last, const std::string &options) {
 			} else {
 				format_to(std::back_inserter(out), " - нет скриптов -");
 			}
-			format_to(std::back_inserter(out), " Всего в мире: {},", mob_index[i].total_online);
-			format_to(std::back_inserter(out), " максимально: {}\r\n", mob_index[i].stored);
+			format_to(std::back_inserter(out), " Загружено в мир: {}, максимально: {}.\r\n", mob_index[i].total_online, mob_index[i].total_online);
 		}
 	}
-
 	if (cnt == 0) {
 		SendMsgToChar("Нет мобов в этом промежутке.\r\n", ch);
 	} else {
