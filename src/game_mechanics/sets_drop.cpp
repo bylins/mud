@@ -480,7 +480,7 @@ void init_mob_type() {
 }
 
 int calc_max_in_world(int mob_rnum) {
-	return mob_index[mob_rnum].stored + mob_index[mob_rnum].total_online;
+	return mob_index[mob_rnum].stored;
 }
 
 /**
