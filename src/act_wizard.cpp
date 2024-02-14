@@ -3828,7 +3828,7 @@ void print(CharData *ch, int first, int last, const std::string &options) {
 				format_to(std::back_inserter(out), " - нет скриптов -");
 			}
 			format_to(std::back_inserter(out), " Всего в мире: {},", mob_index[i].total_online);
-			format_to(std::back_inserter(out), " максимально: {}\r\n", mob_index[i].stored + mob_index[i].total_online);
+			format_to(std::back_inserter(out), " максимально: {}\r\n", mob_index[i].stored);
 		}
 	}
 
