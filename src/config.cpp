@@ -112,7 +112,7 @@ int min_rent_cost(CharData *ch) {
 }
 
 // Lifetime of crashfiles, forced-rent and idlesave files in days
-int crash_file_timeout = 30;
+int crash_file_timeout = 60;
 
 // Lifetime of normal rent files in days
 int rent_file_timeout = 60;
