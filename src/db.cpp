@@ -1334,9 +1334,6 @@ void GameLoader::boot_world() {
 	log("Create blank rooms for dungeons.");
 	CreateBlankRoomDungeon();
 
-	boot_profiler.next_step("Create blank mob for dungeons");
-	log("Create blank mob for dungeons.");
-	CreateBlankMobsDungeon();
 
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
@@ -1361,6 +1358,10 @@ void GameLoader::boot_world() {
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
 	MobMax::init();
+
+	boot_profiler.next_step("Create blank mob for dungeons");
+	log("Create blank mob for dungeons.");
+	CreateBlankMobsDungeon();
 
 	boot_profiler.next_step("Loading objects");
 	log("Loading objs and generating index.");
@@ -2875,25 +2876,24 @@ void CreateBlankRoomDungeon() {
 void CreateBlankMobsDungeon() {
 	CharData *new_proto;
 	IndexData *new_index;
-//	size_t size_new_mob_table = top_of_mobt + 100 * NumberOfZoneDungeons;
-//	new_proto = new CharData[size_new_mob_table + 1];
-//	CREATE(new_index, size_new_mob_table + 1);
-
-	new_proto = new CharData[top_of_mobt + 500];
-	CREATE(new_index, top_of_mobt + 500);
+	size_t size_new_mob_table = top_of_mobt + 100 * NumberOfZoneDungeons;
+	new_proto = new CharData[size_new_mob_table + 1];
+	CREATE(new_index, size_new_mob_table + 1);
 
 	for (int i = 0; i <= top_of_mobt; i++) {
+		log("copyng mobs top %d i %d size %ld",top_of_mobt, i, size_new_mob_table );
 		new_proto[i] = mob_proto[i];
 		new_index[i] = mob_index[i];
 	}
 	MobRnum rnum = top_of_mobt + 1;
 
-	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons * NumberOfZoneDungeons; zvn++) {
+	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
 		for (MobVnum mob_vnum = 0; mob_vnum <= 99; mob_vnum++) {
 		//создание бланк мобов
+			log("create mobs top %d rnum %d size %ld zvn %d", top_of_mobt, rnum, size_new_mob_table, zvn );
 			new_proto[rnum].set_rnum(rnum);
 			new_index[rnum].vnum = mob_vnum * 100 + zvn;
-			mob_proto[rnum].set_npc_name("Пустой моб");
+			new_proto[rnum].set_npc_name("Пустой моб");
 			new_index[rnum].total_online = 0;
 			new_index[rnum].stored = 0;
 			new_index[rnum].func = nullptr;
