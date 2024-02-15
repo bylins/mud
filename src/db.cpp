@@ -172,6 +172,7 @@ int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms();
 void CreateBlankRoomDungeon();
+void CreateBlankMobsDungeon();
 void add_vrooms_to_all_zones();
 void renum_world();
 void renum_zone_table();
@@ -1332,6 +1333,10 @@ void GameLoader::boot_world() {
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
 	CreateBlankRoomDungeon();
+
+	boot_profiler.next_step("Create blank mob for dungeons");
+	log("Create blank mob for dungeons.");
+	CreateBlankMobsDungeon();
 
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
@@ -2865,6 +2870,47 @@ void CreateBlankRoomDungeon() {
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 //		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
 //	}
+}
+
+void CreateBlankMobsDungeon() {
+	CharData *new_proto;
+	IndexData *new_index;
+//	size_t size_new_mob_table = top_of_mobt + 100 * NumberOfZoneDungeons;
+//	new_proto = new CharData[size_new_mob_table + 1];
+//	CREATE(new_index, size_new_mob_table + 1);
+
+	new_proto = new CharData[top_of_mobt + 500];
+	CREATE(new_index, top_of_mobt + 500);
+
+	for (int i = 0; i <= top_of_mobt; i++) {
+		new_proto[i] = mob_proto[i];
+		new_index[i] = mob_index[i];
+	}
+	MobRnum rnum = top_of_mobt + 1;
+
+	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons * NumberOfZoneDungeons; zvn++) {
+		for (MobVnum mob_vnum = 0; mob_vnum <= 99; mob_vnum++) {
+		//создание бланк мобов
+			new_proto[rnum].set_rnum(rnum);
+			new_index[rnum].vnum = mob_vnum * 100 + zvn;
+			mob_proto[rnum].set_npc_name("Пустой моб");
+			new_index[rnum].total_online = 0;
+			new_index[rnum].stored = 0;
+			new_index[rnum].func = nullptr;
+			new_proto[rnum].script->cleanup();
+			new_proto[rnum].proto_script = nullptr;
+			new_index[rnum].zone = zvn;
+			new_index[rnum].set_idx = -1;
+			rnum++;
+			top_of_mobt++;
+		}
+	}
+
+	delete[] mob_proto;
+	free(mob_index);
+	mob_proto = new_proto;
+	mob_index = new_index;
+
 }
 
 void add_vrooms_to_all_zones() {
