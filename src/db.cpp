@@ -2900,13 +2900,14 @@ void renum_single_table(int zone) {
 		oldc = ZCMD.arg3;
 		switch (ZCMD.command) {
 			case 'M': a = ZCMD.arg1 = real_mobile(ZCMD.arg1);
-				if (mob_index[ZCMD.arg1].stored < ZCMD.arg2) {
-					mob_index[ZCMD.arg1].stored = ZCMD.arg2;
-				}
-				if (ZCMD.arg2 < 0) {
-					sprintf(buf, "SYSERROR: отрицательное значение 'макс в мире': zone %d vnum %d, stored %d room %d",
+				if (ZCMD.arg2 <= 0) {
+					sprintf(buf, "SYSERROR: некорректное значение 'макс в мире': zone %d vnum %d, stored %d room %d",
 							zone_table[zone].vnum, mob_index[ZCMD.arg1].vnum, ZCMD.arg2, ZCMD.arg3);
 					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+					break;
+				}
+				if (mob_index[ZCMD.arg1].stored < ZCMD.arg2) {
+					mob_index[ZCMD.arg1].stored = ZCMD.arg2;
 				}
 				c = ZCMD.arg3 = real_room(ZCMD.arg3);
 				break;
