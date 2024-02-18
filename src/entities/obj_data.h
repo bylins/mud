@@ -163,6 +163,7 @@ class CObjectPrototype {
 	CObjectPrototype(const ObjVnum vnum) : m_vnum(vnum),
 										   m_type(DEFAULT_TYPE),
 										   m_weight(DEFAULT_WEIGHT),
+										   first_last_rnum(-1, -1),
 										   m_proto_script(new triggers_list_t()),
 										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
 										   m_vals({0, 0, 0, 0}),
@@ -183,7 +184,10 @@ class CObjectPrototype {
 										   m_ilevel(0),
 										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
-
+	ObjRnum GetFirstObjRnumInZone() const {return first_last_rnum.first;}
+	ObjRnum GetLastObjRnumInZone() const {return first_last_rnum.second;}
+	void SetFirstObjRnumInZone(ObjRnum _) {first_last_rnum.first = _;}
+	void SetLastObjRnumInZone(ObjRnum _) {first_last_rnum.second = _;}
 	auto &get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
 	auto get_current_durability() const { return m_current_durability; }
@@ -364,7 +368,7 @@ class CObjectPrototype {
 	int m_weight;
 
 	affected_t m_affected;    // affects //
-
+	std::pair<ObjRnum, ObjRnum> first_last_rnum;
 	std::string m_aliases;        // Title of object :get etc.        //
 	std::string m_description;    // When in room                     //
 
