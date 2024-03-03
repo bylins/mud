@@ -1,7 +1,5 @@
 //#include "heartbeat.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "game_economics/auction.h"
 #include "game_mechanics/deathtrap.h"
 #include "communication/parcel.h"
@@ -88,17 +86,17 @@ void process_speedwalks() {
 				if (ch && !ch->purged()) {
 					std::string direction = sw.route[sw.cur_state].direction;
 					int dir = 1;
-					if (boost::starts_with(direction, "север"))
+					if (direction.starts_with(direction, "север"))
 						dir = SCMD_NORTH;
-					if (boost::starts_with(direction, "восток"))
+					if (direction.starts_with(direction, "восток"))
 						dir = SCMD_EAST;
-					if (boost::starts_with(direction, "юг"))
+					if (direction.starts_with(direction, "юг"))
 						dir = SCMD_SOUTH;
-					if (boost::starts_with(direction, "запад"))
+					if (direction.starts_with(direction, "запад"))
 						dir = SCMD_WEST;
-					if (boost::starts_with(direction, "вверх"))
+					if (direction.starts_with(direction, "вверх"))
 						dir = SCMD_UP;
-					if (boost::starts_with(direction, "вниз"))
+					if (direction.starts_with(direction, "вниз"))
 						dir = SCMD_DOWN;
 					perform_move(ch, dir - 1, 0, true, nullptr);
 				}
