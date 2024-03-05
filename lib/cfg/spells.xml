@@ -393,7 +393,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarObjWorld"/>
         <flags val="kMagManual"/>
     </spell>
-    <spell id="kMagicMissile" element="kFire" mode="kEnabled">
+    <spell id="kMagicMissile" element="kAir" mode="kEnabled">
         <name rus="магическая стрела" eng="magic missle"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>

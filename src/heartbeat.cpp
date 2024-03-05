@@ -86,17 +86,17 @@ void process_speedwalks() {
 				if (ch && !ch->purged()) {
 					std::string direction = sw.route[sw.cur_state].direction;
 					int dir = 1;
-					if (direction.starts_with(direction, "север"))
+					if (direction.starts_with("север"))
 						dir = SCMD_NORTH;
-					if (direction.starts_with(direction, "восток"))
+					if (direction.starts_with("восток"))
 						dir = SCMD_EAST;
-					if (direction.starts_with(direction, "юг"))
+					if (direction.starts_with("юг"))
 						dir = SCMD_SOUTH;
-					if (direction.starts_with(direction, "запад"))
+					if (direction.starts_with("запад"))
 						dir = SCMD_WEST;
-					if (direction.starts_with(direction, "вверх"))
+					if (direction.starts_with("вверх"))
 						dir = SCMD_UP;
-					if (direction.starts_with(direction, "вниз"))
+					if (direction.starts_with("вниз"))
 						dir = SCMD_DOWN;
 					perform_move(ch, dir - 1, 0, true, nullptr);
 				}
