@@ -159,11 +159,11 @@ void CheckScheduledRebootCall::perform(int, int) {
 	const auto boot_time = GlobalObjects::shutdown_parameters().get_boot_time();
 	const auto uptime_minutes = ((time(nullptr) - boot_time) / 60);
 
-	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
+	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 60)
 		&& shutdown_parameters.get_shutdown_timeout() == 0) {
-		//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
-		SendMsgToAll("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
-		shutdown_parameters.reboot(1800);
+		//reboot after 60 minutes minimum. Auto reboot cannot run earlier.
+		SendMsgToAll("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 60 МИНУТ.\r\n");
+		shutdown_parameters.reboot(3600);
 	}
 }
 
