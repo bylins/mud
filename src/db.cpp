@@ -173,6 +173,7 @@ void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms();
 void CreateBlankRoomDungeon();
 void CreateBlankMobsDungeon();
+void CreateBlankObjsDungeon();
 void add_vrooms_to_all_zones();
 void renum_world();
 void renum_zone_table();
@@ -1363,9 +1364,14 @@ void GameLoader::boot_world() {
 	log("Create blank mob for dungeons.");
 	CreateBlankMobsDungeon();
 
+
 	boot_profiler.next_step("Loading objects");
 	log("Loading objs and generating index.");
 	world_loader.index_boot(DB_BOOT_OBJ);
+
+	boot_profiler.next_step("Create blank obj for dungeons");
+	log("Create blank obj for dungeons.");
+	CreateBlankObjsDungeon();
 
 	boot_profiler.next_step("Converting deprecated obj values");
 	log("Converting deprecated obj values.");
@@ -2872,6 +2878,33 @@ void CreateBlankRoomDungeon() {
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 //		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
 //	}
+}
+
+void CreateBlankObjsDungeon() {
+	ObjVnum obj_vnum;
+
+	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
+		for (ObjVnum vnum = 0; vnum <= 99; vnum++) {
+//			if (vnum == 0) 
+				obj_vnum = vnum + zvn * 100;
+//			else 
+//				obj_vnum = 99 + zvn * 100;
+			ObjData *obj;// = new ObjData(obj_vnum);
+			NEWCREATE(obj, obj_vnum);
+
+			obj->set_aliases("1новый предмет");
+			obj->set_description("что-то новое лежит здесь");
+			obj->set_short_description("новый предмет");
+			obj->set_PName(0, "это что");
+			obj->set_PName(1, "нету чего");
+			obj->set_PName(2, "привязать к чему");
+			obj->set_PName(3, "взять что");
+			obj->set_PName(4, "вооружиться чем");
+			obj->set_PName(5, "говорить о чем");
+			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+			obj_proto.add(obj, obj_vnum);
+		}
+	}
 }
 
 void CreateBlankMobsDungeon() {
@@ -4476,6 +4509,28 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	zone_table[rzone_to].RnumMobsLocation.second = mob_to - 1;
 }
 
+void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
+	ObjRnum robj_from = zone_table[rzone_from].RnumObjsLocation.first;
+	ObjRnum robj_last = zone_table[rzone_from].RnumObjsLocation.second;
+
+	ObjRnum robj_to = real_object(zone_table[rzone_to].vnum * 100);
+	zone_table[rzone_to].RnumObjsLocation.first = robj_to;
+	for (int i = robj_from; i <= robj_last; i++) {
+		auto obj_original = world_objects.create_raw_from_prototype_by_rnum(i);
+		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + GET_OBJ_VNUM(obj_original.get()) % 100;
+		obj_original->set_vnum(new_vnum);
+		obj_original->set_rnum(robj_to);
+
+		log("robj_to %d item %s", robj_to, GET_OBJ_PNAME(obj_original, 0).c_str());
+		obj_proto.zone(robj_to, rzone_to);
+
+		obj_proto.set(robj_to, obj_original.get());
+		ExtractObjFromWorld(obj_original.get());
+		robj_to++;
+	}
+	zone_table[rzone_to].RnumObjsLocation.second = robj_to - 1;
+}
+
 void ZoneDataFree(ZoneRnum zrn) {
 	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
 		if (zone_table[zrn].cmd[subcmd].command == 'V') {
@@ -4502,16 +4557,21 @@ void ZoneDataFree(ZoneRnum zrn) {
 	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
 }
 
-#define TRANS_MOB(arg) if (mob_index[zone_table[zrn].cmd[subcmd].arg].vnum / 100 == zone_table[zone_from].vnum) { \
-			zone_table[zrn].cmd[subcmd].arg = zone_table[zone_from].cmd[subcmd].arg - \
-					zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first; \
+#define TRANS_MOB(arg) \
+	if (mob_index[zone_table[zrn].cmd[subcmd].arg].vnum / 100 == zone_table[zone_from].vnum) { \
+		zone_table[zrn].cmd[subcmd].arg = zone_table[zone_from].cmd[subcmd].arg - \
+		zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first; \
 	}
-
-
-
-//zone_table[zrn].cmd[subcmd].field = mob_index[zone_table[zrn].cmd[subcmd].field].vnum
-#define TRANS_OBJ(field)  zone_table[zrn].cmd[subcmd].field = obj_proto[zone_table[zrn].cmd[subcmd].field]->get_vnum()
-#define TRANS_ROOM(field) zone_table[zrn].cmd[subcmd].field = world[zone_table[zrn].cmd[subcmd].field]->room_vn
+#define TRANS_OBJ(arg) \
+	if (obj_proto[zone_table[zrn].cmd[subcmd].arg]->get_vnum() / 100 == zone_table[zone_from].vnum) { \
+		zone_table[zrn].cmd[subcmd].arg =  zone_table[zone_from].cmd[subcmd].arg - \
+		zone_table[zone_from].RnumObjsLocation.first + zone_table[zrn].RnumObjsLocation.first; \
+	}
+#define TRANS_ROOM(arg) \
+	if (world[zone_table[zrn].cmd[subcmd].arg]->room_vn / 100 == zone_table[zone_from].vnum) { \
+		zone_table[zrn].cmd[subcmd].arg =  zone_table[zone_from].cmd[subcmd].arg - \
+		zone_table[zone_from].RnumRoomsLocation.first + zone_table[zrn].RnumRoomsLocation.first; \
+	}
 
 void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 //	ZoneVnum zvn = zone_table[zrn].vnum;
@@ -4530,11 +4590,11 @@ void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 //					zone_table[zrn].cmd[subcmd].arg1 = zone_table[zone_from].cmd[subcmd].arg1 -
 //							zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first;
 //				}
-//				TRANS_ROOM(arg3);
-				if (world[zone_table[zrn].cmd[subcmd].arg1]->room_vn / 100 == zone_table[zone_from].vnum) {
-					zone_table[zrn].cmd[subcmd].arg3 =  zone_table[zone_from].cmd[subcmd].arg3 -
-							zone_table[zone_from].RnumRoomsLocation.first + zone_table[zrn].RnumRoomsLocation.first;
-				}
+				TRANS_ROOM(arg3);
+//				if (world[zone_table[zrn].cmd[subcmd].arg1]->room_vn / 100 == zone_table[zone_from].vnum) {
+//					zone_table[zrn].cmd[subcmd].arg3 =  zone_table[zone_from].cmd[subcmd].arg3 -
+//							zone_table[zone_from].RnumRoomsLocation.first + zone_table[zrn].RnumRoomsLocation.first;
+//				}
 				break;
 
 			case 'F': 
@@ -4547,60 +4607,62 @@ void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 				break;
 
 			case 'Q':
-//				TRANS_MOB(arg1);
-				if (mob_index[zone_table[zrn].cmd[subcmd].arg1].vnum / 100 == zone_table[zone_from].vnum) {
-					zone_table[zrn].cmd[subcmd].arg1 = zone_table[zone_from].cmd[subcmd].arg1 -
-							zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first;
-				}
+				TRANS_MOB(arg1);
+//				if (mob_index[zone_table[zrn].cmd[subcmd].arg1].vnum / 100 == zone_table[zone_from].vnum) {
+//					zone_table[zrn].cmd[subcmd].arg1 = zone_table[zone_from].cmd[subcmd].arg1 -
+//							zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first;
+//				}
 				break;
 			case 'O': 
-//				TRANS_OBJ(arg1);
-				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
-//				TRANS_ROOM(arg3);
-				zone_table[zrn].cmd[subcmd].arg3 = world[zone_table[zrn].cmd[subcmd].arg3]->room_vn;
+//				log("from obj %d room %d", obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum(), world[zone_table[zrn].cmd[subcmd].arg3]->room_vn);
+				TRANS_OBJ(arg1);
+//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
+				TRANS_ROOM(arg3);
+//				log("to obj %d room %d", obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum(), world[zone_table[zrn].cmd[subcmd].arg3]->room_vn);
+//				zone_table[zrn].cmd[subcmd].arg3 = world[zone_table[zrn].cmd[subcmd].arg3]->room_vn;
 				break;
 
 			case 'P': 
-//				TRANS_OBJ(arg1);
-				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
-//				TRANS_OBJ(arg3);
-				zone_table[zrn].cmd[subcmd].arg3 = obj_proto[zone_table[zrn].cmd[subcmd].arg3]->get_vnum();
+				TRANS_OBJ(arg1);
+//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
+				TRANS_OBJ(arg3);
+//				zone_table[zrn].cmd[subcmd].arg3 = obj_proto[zone_table[zrn].cmd[subcmd].arg3]->get_vnum();
 				break;
 
 			case 'G': 
-//				TRANS_OBJ(arg1);
-				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
+				TRANS_OBJ(arg1);
+//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
 				break;
 
 			case 'E': 
-//				TRANS_OBJ(arg1);
-				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
+				TRANS_OBJ(arg1);
+//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
 				break;
 
 			case 'R': 
-//				TRANS_ROOM(arg1);
-				zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
-//				TRANS_OBJ(arg2);
-				zone_table[zrn].cmd[subcmd].arg2 = obj_proto[zone_table[zrn].cmd[subcmd].arg2]->get_vnum();
+				TRANS_ROOM(arg1);
+//				zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
+				TRANS_OBJ(arg2);
+//				zone_table[zrn].cmd[subcmd].arg2 = obj_proto[zone_table[zrn].cmd[subcmd].arg2]->get_vnum();
 				break;
 
 			case 'D': 
-//					TRANS_ROOM(arg1);
-					zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
+				TRANS_ROOM(arg1);
+//					zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
 				break;
 
 			case 'T':
 				// arg2 не преобразовываю, хотя может надо :)
 				if (zone_table[zrn].cmd[subcmd].arg1 == WLD_TRIGGER) {
-//					TRANS_ROOM(arg3);
-					zone_table[zrn].cmd[subcmd].arg3 = world[zone_table[zrn].cmd[subcmd].arg3]->room_vn;
+					TRANS_ROOM(arg3);
+//					zone_table[zrn].cmd[subcmd].arg3 = world[zone_table[zrn].cmd[subcmd].arg3]->room_vn;
 				}
 				break;
 
 			case 'V':
 				if (zone_table[zrn].cmd[subcmd].arg1 == WLD_TRIGGER) {
-//					TRANS_ROOM(arg2);
-					zone_table[zrn].cmd[subcmd].arg2 = world[zone_table[zrn].cmd[subcmd].arg2]->room_vn;
+					TRANS_ROOM(arg2);
+//					zone_table[zrn].cmd[subcmd].arg2 = world[zone_table[zrn].cmd[subcmd].arg2]->room_vn;
 				}
 				break;
 			default: 

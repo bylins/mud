@@ -29,7 +29,8 @@ ZoneData::ZoneData() : traffic(0),
 					   is_town(false),
 					   count_reset(0),
 					   RnumRoomsLocation(-1, -1),
-					   RnumMobsLocation(-1, 1) {
+					   RnumMobsLocation(-1, -1),
+					   RnumObjsLocation(-1, 1) {
 }
 
 ZoneData::~ZoneData() {

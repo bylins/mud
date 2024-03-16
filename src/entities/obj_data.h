@@ -163,7 +163,7 @@ class CObjectPrototype {
 	CObjectPrototype(const ObjVnum vnum) : m_vnum(vnum),
 										   m_type(DEFAULT_TYPE),
 										   m_weight(DEFAULT_WEIGHT),
-										   first_last_rnum(-1, -1),
+										   parent_obj(-1),
 										   m_proto_script(new triggers_list_t()),
 										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
 										   m_vals({0, 0, 0, 0}),
@@ -184,10 +184,8 @@ class CObjectPrototype {
 										   m_ilevel(0),
 										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
-	ObjRnum GetFirstObjRnumInZone() const {return first_last_rnum.first;}
-	ObjRnum GetLastObjRnumInZone() const {return first_last_rnum.second;}
-	void SetFirstObjRnumInZone(ObjRnum _) {first_last_rnum.first = _;}
-	void SetLastObjRnumInZone(ObjRnum _) {first_last_rnum.second = _;}
+	ObjVnum GetParent() const {return parent_obj;}
+	void SetParent(ObjVnum _) {parent_obj = _;}
 	auto &get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
 	auto get_current_durability() const { return m_current_durability; }
@@ -339,6 +337,7 @@ class CObjectPrototype {
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
+	void set_vnum(const ObjVnum vnum); 
 
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
 		m_vnum_change_observers.insert(observer);
@@ -358,7 +357,7 @@ class CObjectPrototype {
  protected:
 	void zero_init();
 	CObjectPrototype &operator=(const CObjectPrototype &from);    ///< makes shallow copy of all fields except VNUM
-	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
+//	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
 	void tag_ex_description(const char *tag);
 
  private:
@@ -368,7 +367,7 @@ class CObjectPrototype {
 	int m_weight;
 
 	affected_t m_affected;    // affects //
-	std::pair<ObjRnum, ObjRnum> first_last_rnum;
+	ObjVnum parent_obj;
 	std::string m_aliases;        // Title of object :get etc.        //
 	std::string m_description;    // When in room                     //
 

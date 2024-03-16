@@ -399,7 +399,8 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	RoomDataCopy(rnum_start, rnum_stop, zrn); //тут создается пустая зона
 	MobDataCopy(rzone_from, zrn);
-	ZoneDataCopy(rzone_from, zrn);
+	ObjDataCopy(rzone_from, zrn);
+	ZoneDataCopy(rzone_from, zrn); //последним
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }

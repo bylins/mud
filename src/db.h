@@ -67,6 +67,7 @@ bool is_empty(ZoneRnum zone_nr, bool debug = false);
 void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn);
 void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
+void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 

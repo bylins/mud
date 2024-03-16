@@ -76,6 +76,7 @@ class ZoneData {
 	int count_reset;
 	std::pair<RoomRnum, RoomRnum> RnumRoomsLocation;
 	std::pair<MobRnum, MobRnum> RnumMobsLocation;
+	std::pair<ObjRnum, ObjRnum> RnumObjsLocation;
 };
 
 using ZoneTable = std::vector<ZoneData>;
