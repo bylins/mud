@@ -752,9 +752,6 @@ const int kNameLevel = 5;
 #define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
 #define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
 #define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
-
-#define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
-
 #define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")

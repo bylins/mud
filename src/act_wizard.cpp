@@ -21,6 +21,7 @@
 #include "game_mechanics/guilds.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
+#include "entities/obj_data.h"
 #include "entities/char_player.h"
 #include "entities/player_races.h"
 #include "entities/entities_constants.h"

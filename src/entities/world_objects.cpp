@@ -44,9 +44,8 @@ void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype &object, const
 		ObjData::shared_ptr object_ptr = *i->second;
 
 		// remove old index entry
-		auto rnum_to_object_ptr_i = m_parent.m_rnum_to_object_ptr.find(old_rnum);
-		if (rnum_to_object_ptr_i != m_parent.m_vnum_to_object_ptr.end()) {
-			rnum_to_object_ptr_i->second.erase(object_ptr);
+		if (m_parent.m_rnum_to_object_ptr.contains(old_rnum)) {
+			m_parent.m_rnum_to_object_ptr[old_rnum].erase(object_ptr);
 		}
 
 		// insert new entry to the index

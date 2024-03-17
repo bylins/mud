@@ -824,6 +824,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype *obj,
 inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
 	return OBJ_AFFECT(obj, static_cast<Bitvector>(weapon_affect));
 }
+int GET_OBJ_MIW(const std::shared_ptr<CObjectPrototype> obj);
 
 class CActionDescriptionWriter : public utils::AbstractStringWriter {
  public:

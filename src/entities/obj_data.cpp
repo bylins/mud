@@ -6,7 +6,6 @@
 
 #include "obj_save.h"
 #include "entities/world_objects.h"
-#include "obj_prototypes.h"
 #include "utils/parse.h"
 #include "handler.h"
 #include "color.h"
@@ -15,6 +14,8 @@
 #include "cache.h"
 #include "depot.h"
 #include "house.h"
+#include "obj_prototypes.h"
+
 //#include <sstream>
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
@@ -1505,6 +1506,13 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 		}
 	}
 	return true;
+}
+
+int GET_OBJ_MIW(const std::shared_ptr<CObjectPrototype> obj) {
+	if (obj->GetParent() < 0)
+		return obj->get_max_in_world();
+	else 
+		return obj_proto[obj->GetParent()]->get_max_in_world();
 }
 
 } // namespace SetSystem

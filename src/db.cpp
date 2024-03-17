@@ -4520,10 +4520,8 @@ void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + GET_OBJ_VNUM(obj_original.get()) % 100;
 		obj_original->set_vnum(new_vnum);
 		obj_original->set_rnum(robj_to);
-
-		log("robj_to %d item %s", robj_to, GET_OBJ_PNAME(obj_original, 0).c_str());
 		obj_proto.zone(robj_to, rzone_to);
-
+		obj_original->set_parent(robj_to);
 		obj_proto.set(robj_to, obj_original.get());
 		ExtractObjFromWorld(obj_original.get());
 		robj_to++;
