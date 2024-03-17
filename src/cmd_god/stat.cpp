@@ -1068,7 +1068,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
 				rnum >= 0 ? obj_proto.CountInWorld(rnum) - (virt ? 1 : 0) : -1,
 				rnum >= 0 ? obj_proto.stored(rnum) : -1,
-				GET_OBJ_MIW(obj_proto[j->get_rnum()]));
+				GetObjMIW(j->get_rnum()));
 		SendMsgToChar(buf, ch);
 		// check the object for a script
 		do_sstat_object(ch, j);

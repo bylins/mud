@@ -1810,12 +1810,12 @@ void find_replacement(void *go,
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[rnum].get()) || (GET_OBJ_MIW(obj_proto[rnum]) < 0)) {
+					if (check_unlimited_timer(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
 						sprintf(str, "1");
 						return;
 					}
 					const auto count = obj_proto.actual_count(rnum);
-					if (count < GET_OBJ_MIW(obj_proto[rnum])) {
+					if (count < GetObjMIW(rnum)) {
 						sprintf(str, "1");
 						return;
 					}
@@ -1828,10 +1828,10 @@ void find_replacement(void *go,
 				if (num >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0))
+					if (check_unlimited_timer(obj_proto[num].get()) || (GetObjMIW(num) < 0))
 						sprintf(str, "9999999");
 					else
-						sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
+						sprintf(str, "%d", GetObjMIW(num));
 				}
 			}
 			//-Polud

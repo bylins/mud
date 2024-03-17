@@ -3185,8 +3185,8 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 			} else {
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj->get_rnum())
-					|| GET_OBJ_MIW(tobj) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
+				if (GetObjMIW(tobj->get_rnum()) >= obj_proto.actual_count(tobj->get_rnum())
+					|| GetObjMIW(tobj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(tobj.get())) {
 					miw = true;
 				} else {
@@ -4381,6 +4381,12 @@ void RoomDataFree(ZoneRnum zrn) {
 				look_at_room(vict, 1); //GET_LOADROOM(vict));
 			}
 		}
+		ObjData *obj, *next_o;
+
+		for (obj = room->contents; obj; obj = next_o) {
+			next_o = obj->get_next_content();
+			ExtractObjFromWorld(obj);
+		}
 		room->people.clear();
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
@@ -4388,7 +4394,6 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->cleanup_script();
 		room->affected.clear();
 
-// а землю чистить?????
 		if (i == rnum_start) { //первую клетку не трогаем
 			room->room_vn = zone_table[zrn].vnum * 100;
 		} else {
@@ -4467,19 +4472,6 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 			new_descr->next = new_room->ex_description;
 			sdd = sdd->next;
 		}
-/*
-		ExtraDescription::shared_ptr *pddd = &new_room->ex_description;
-		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
-		*pddd = nullptr;
-
-		while (sdd) {
-			pddd->reset(new ExtraDescription());
-			(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
-			(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
-			pddd = &((*pddd)->next);
-			sdd = sdd->next;
-		}
-*/
 	}
 }
 
@@ -4509,6 +4501,10 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	zone_table[rzone_to].RnumMobsLocation.second = mob_to - 1;
 }
 
+void ObjDataFree(ZoneRnum zrn) {
+// удаляются в RoomDataFree
+}
+
 void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	ObjRnum robj_from = zone_table[rzone_from].RnumObjsLocation.first;
 	ObjRnum robj_last = zone_table[rzone_from].RnumObjsLocation.second;
@@ -4521,7 +4517,7 @@ void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		obj_original->set_vnum(new_vnum);
 		obj_original->set_rnum(robj_to);
 		obj_proto.zone(robj_to, rzone_to);
-		obj_original->set_parent(robj_to);
+		obj_original->SetParent(robj_to);
 		obj_proto.set(robj_to, obj_original.get());
 		ExtractObjFromWorld(obj_original.get());
 		robj_to++;
@@ -4769,6 +4765,10 @@ void ZoneReset::reset() {
 		MobDataFree(m_zone_rnum);
 		sprintf(buf, "Free mobs. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer2.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		utils::CExecutionTimer timer4;
+		ObjDataFree(m_zone_rnum);
+		sprintf(buf, "Free objs. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer4.delta().count());
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		utils::CExecutionTimer timer3;
 		ZoneDataFree(m_zone_rnum);
 		sprintf(buf, "Free zone data. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer3.delta().count());
@@ -4962,8 +4962,8 @@ void ZoneReset::reset_zone_essential() {
 						}
 					}
 					// Теперь грузим обьект если надо
-					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
+					if ((obj_proto.actual_count(ZCMD.arg1) < GetObjMIW(ZCMD.arg1)
+						|| GetObjMIW(ZCMD.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)
@@ -4992,8 +4992,8 @@ void ZoneReset::reset_zone_essential() {
 				case 'P':
 					// object to object
 					// 'P' <flag> <ObjVnum> <room or 0> <target_vnum> <load%|-1>
-					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
+					if ((obj_proto.actual_count(ZCMD.arg1) < GetObjMIW(ZCMD.arg1)
+						|| GetObjMIW(ZCMD.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
@@ -5043,8 +5043,8 @@ void ZoneReset::reset_zone_essential() {
 						// ZCMD.command = '*';
 						break;
 					}
-					if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
+					if ((obj_proto.actual_count(ZCMD.arg1) < GetObjMIW(ZCMD.arg1)
+						|| GetObjMIW(ZCMD.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {
@@ -5068,7 +5068,7 @@ void ZoneReset::reset_zone_essential() {
 						break;
 					}
 					if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->get_max_in_world()
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
+						|| GetObjMIW(ZCMD.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 						&& (ZCMD.arg4 <= 0
 							|| number(1, 100) <= ZCMD.arg4)) {

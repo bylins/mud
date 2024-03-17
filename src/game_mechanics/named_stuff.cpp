@@ -497,13 +497,13 @@ void receive_items(CharData *ch, CharData *mailman) {
 				snprintf(buf1, kMaxStringLength, "объект не существует!!!");
 				continue;
 			}
-			if ((GET_OBJ_MIW(obj_proto[r_num]) > obj_proto.actual_count(r_num))    //Проверка на макс в мире
+			if ((GetObjMIW(r_num) > obj_proto.actual_count(r_num))    //Проверка на макс в мире
 				|| (obj_proto.actual_count(r_num) < 1))//Пока что если в мире нету то тоже загрузить
 			{
 				found++;
 				snprintf(buf1, kMaxStringLength, "выдаем именной предмет %s Max:%d > Current:%d",
 						 obj_proto[r_num]->get_short_description().c_str(),
-						 GET_OBJ_MIW(obj_proto[r_num]),
+						 GetObjMIW(r_num),
 						 obj_proto.actual_count(r_num));
 				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 				obj->set_extra_flag(EObjFlag::kNamed);
@@ -516,7 +516,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 			} else {
 				snprintf(buf1, kMaxStringLength, "не выдаем именной предмет %s Max:%d <= Current:%d",
 						 obj_proto[r_num]->get_short_description().c_str(),
-						 GET_OBJ_MIW(obj_proto[r_num]),
+						 GetObjMIW(r_num),
 						 obj_proto.actual_count(r_num));
 				in_world++;
 			}

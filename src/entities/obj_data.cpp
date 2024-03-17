@@ -1508,13 +1508,14 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	return true;
 }
 
-int GET_OBJ_MIW(const std::shared_ptr<CObjectPrototype> obj) {
-	if (obj->GetParent() < 0)
-		return obj->get_max_in_world();
-	else 
-		return obj_proto[obj->GetParent()]->get_max_in_world();
-}
-
 } // namespace SetSystem
+
+int GetObjMIW(ObjRnum rnum) {
+	ObjRnum val = obj_proto[rnum]->GetParent();
+	if (val < 0)
+		return obj_proto[rnum]->get_max_in_world();
+	else 
+		return obj_proto[val]->get_max_in_world();
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

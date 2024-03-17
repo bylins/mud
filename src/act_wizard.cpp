@@ -3901,7 +3901,7 @@ int print_olist(const CharData *ch, const int first, const int last, std::string
 			|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
 					 obj_proto.CountInWorld(rnum),
-					 obj_proto.stored(rnum), GET_OBJ_MIW(obj_proto[rnum]));
+					 obj_proto.stored(rnum), GetObjMIW(rnum));
 			ss << buf_;
 
 			const auto &script = prototype->get_proto_script();
