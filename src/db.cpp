@@ -4415,6 +4415,7 @@ void RoomDataFree(ZoneRnum zrn) {
 		}
 	}
 }
+void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 
 void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
@@ -4438,7 +4439,62 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-//		new_room->proto_script.reset();//(new ObjData::triggers_list_t());
+		new_room->proto_script.reset();
+
+	if (! world[i]->proto_script->empty()) {
+
+	 	for (auto t_vnum : *world[i]->proto_script) {
+//			new_room->proto_script.reset(new ObjData::triggers_list_t());
+//			new_room->proto_script->push_back(t_vnum);
+//			sprintf(buf, "room %s (%d) add trigger %d", new_room->name,  new_room->room_vn, t_vnum);
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			TrgRnum rnum = real_trigger(t_vnum);
+			TrgVnum new_vnum = zone_table[zrn].vnum * 100 + t_vnum % 100;
+
+			Trigger *trig = new Trigger(*trig_index[rnum]->proto);//read_trigger(top_of_trigt - 1);
+			trig->set_rnum(top_of_trigt);
+			add_trig_index_entry(new_vnum, trig);
+			sprintf(buf, "room %s (%d) add trigger %s (%d) rnum %d  index %d vnum %d", new_room->name,  new_room->room_vn, trig->get_name().c_str(), trig_index[trig->get_rnum()]->vnum,
+trig->get_rnum(), top_of_trigt - 1, trig_index[top_of_trigt - 1]->vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			if (add_trigger(new_room->script.get(), trig, -1)) {
+					add_trig_to_owner(-1, new_vnum, new_room->room_vn);
+			} else {
+					extract_trigger(trig);
+			}
+
+//			add_trig_to_owner(-1, t_vnum, mob_index[mob_to].vnum);
+/*			Trigger *trig = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
+			auto c = *trig->cmdlist;
+
+			while (c) {
+				utils::ReplaceAll(c->cmd, search, replacer);
+				c = c->next;
+			}
+			sprintf(buf, "mob %s (%d) add trigger %d", mob_proto[mob_to].get_name().c_str(), mob_index[mob_to].vnum, trig_index[t_tmp->get_rnum()]->vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			mob_proto[mob_to].script->trig_list.add(trig);
+*/
+
+		}
+	} else {
+			sprintf(buf, "room %s (%d) скриптов нет",  new_room->name,  new_room->room_vn);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 			new_room->dir_option[dir] = nullptr;
 		}
@@ -4491,8 +4547,36 @@ void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		mob_index[mob_to] = mob_index[i];
 		mob_index[mob_to].vnum = zone_table[rzone_to].vnum * 100 + mob_index[i].vnum % 100;
 		mob_proto[mob_to].set_rnum(mob_to);
-		mob_proto[mob_to].script->cleanup();
-		mob_proto[mob_to].proto_script->clear();
+//		mob_proto[mob_to].script->cleanup();
+//		mob_proto[mob_to].proto_script->clear();
+		std::string replacer = to_string(zone_table[rzone_to].vnum);
+		std::string search = to_string(zone_table[rzone_to].vnum);
+
+	if (!mob_proto[i].proto_script->empty()) {
+
+	 	for (auto t_vnum : *mob_proto[i].proto_script) {
+//			mob_proto[mob_to].proto_script->push_back(t_vnum);
+//			sprintf(buf, "mob %s (%d) add trigger %d", mob_proto[mob_to].get_name().c_str(), mob_index[mob_to].vnum, t_vnum);
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//			add_trig_to_owner(-1, t_vnum, mob_index[mob_to].vnum);
+/*			Trigger *trig = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
+			auto c = *trig->cmdlist;
+
+			while (c) {
+				utils::ReplaceAll(c->cmd, search, replacer);
+				c = c->next;
+			}
+			sprintf(buf, "mob %s (%d) add trigger %d", mob_proto[mob_to].get_name().c_str(), mob_index[mob_to].vnum, trig_index[t_tmp->get_rnum()]->vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			mob_proto[mob_to].script->trig_list.add(trig);
+*/
+
+		}
+	} else {
+//			sprintf(buf, "mob %s (%d) скриптов нет", mob_proto[i].get_name().c_str(), mob_index[i].vnum);
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	}
+
 		mob_index[mob_to].total_online = 0;
 		mob_index[mob_to].stored = 0;
 //		log("MOB1 vnum %d, name %s, rnum %d", mob_index[mob_to].vnum, mob_proto[mob_to].get_name().c_str(), mob_to);
@@ -4517,7 +4601,7 @@ void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		obj_original->set_vnum(new_vnum);
 		obj_original->set_rnum(robj_to);
 		obj_proto.zone(robj_to, rzone_to);
-		obj_original->SetParent(robj_to);
+		obj_original->SetParent(i);
 		obj_proto.set(robj_to, obj_original.get());
 		ExtractObjFromWorld(obj_original.get());
 		robj_to++;
