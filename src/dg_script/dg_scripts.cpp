@@ -5708,19 +5708,6 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 }
 
-int real_trigger(int vnum) {
-	int rnum;
-
-	for (rnum = 0; rnum < top_of_trigt; rnum++) {
-		if (trig_index[rnum]->vnum == vnum)
-			break;
-	}
-
-	if (rnum == top_of_trigt)
-		rnum = -1;
-	return (rnum);
-}
-
 void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	int vnum, rnum;
 	char str[kMaxInputLength];

@@ -2887,10 +2887,10 @@ void CreateBlankRoomDungeon() {
 
 void CreateBlankTrigsDungeon() {
 	IndexData **new_index;
-	size_t size_new_trig_table = top_of_trigt + 100 * NumberOfZoneDungeons;
+	size_t size_new_trig_table = (top_of_trigt - 1) + 100 * NumberOfZoneDungeons;
 
-,	CREATE(new_index, size_new_trig_table + 1);
-	for (int i = 0; i <= top_of_trigt; i++) {
+	CREATE(new_index, size_new_trig_table + 1);
+	for (int i = 0; i < top_of_trigt; i++) {
 		new_index[i] = trig_index[i];
 	}
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
@@ -5968,6 +5968,35 @@ RoomRnum real_room(RoomVnum vnum) {
 		if (bot >= top)
 			return (kNowhere);
 		if (world[mid]->room_vn > vnum)
+			top = mid - 1;
+		else
+			bot = mid + 1;
+	}
+}
+
+TrgRnum real_trigger(TrgVnum vnum) {
+/*	int rnum;
+
+	for (rnum = 0; rnum <= top_of_trigt; rnum++) {
+		if (trig_index[rnum]->vnum == vnum)
+			break;
+	}
+
+	if (rnum > top_of_trigt)
+		rnum = -1;
+	return (rnum);
+*/
+	TrgRnum bot, top, mid;
+	bot = 0;       
+	top = top_of_trigt - 1;
+	// perform binary search on world-table
+	for (;;) {
+		mid = (bot + top) / 2;
+		if (trig_index[mid]->vnum == vnum)
+			return (mid);
+		if (bot >= top)
+			return (-1);
+		if (trig_index[mid]->vnum > vnum)
 			top = mid - 1;
 		else
 			bot = mid + 1;
