@@ -171,6 +171,7 @@ int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
 void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
 void check_start_rooms();
+void CreateBlankTrigsDungeon();
 void CreateBlankRoomDungeon();
 void CreateBlankMobsDungeon();
 void CreateBlankObjsDungeon();
@@ -1330,6 +1331,10 @@ void GameLoader::boot_world() {
 	boot_profiler.next_step("Loading rooms");
 	log("Loading rooms.");
 	world_loader.index_boot(DB_BOOT_WLD);
+
+	boot_profiler.next_step("Create blank triggers for dungeons");
+	log("Create triggers for dungeons.");
+	CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -2878,6 +2883,31 @@ void CreateBlankRoomDungeon() {
 //	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 //		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
 //	}
+}
+
+void CreateBlankTrigsDungeon() {
+	IndexData **new_index;
+	size_t size_new_trig_table = top_of_trigt + 100 * NumberOfZoneDungeons;
+
+,	CREATE(new_index, size_new_trig_table + 1);
+	for (int i = 0; i <= top_of_trigt; i++) {
+		new_index[i] = trig_index[i];
+	}
+	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
+		for (TrgVnum trig_vnum = 0; trig_vnum <= 99; trig_vnum++) {
+			Trigger *trig = new Trigger(-1, "Blank trigger", MTRIG_GREET);
+			IndexData *index;
+			CREATE(index, 1);
+			index->vnum = trig_vnum  + zvn * 100;
+			index->total_online = 0;
+			index->func = nullptr;
+			index->proto = trig;
+			new_index[top_of_trigt++] = index;
+		}
+	}
+//	new_index[top_of_trigt]->vnum = 100;
+	free(trig_index);
+	trig_index = new_index;
 }
 
 void CreateBlankObjsDungeon() {
