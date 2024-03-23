@@ -374,7 +374,7 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	ZoneRnum rzone_from = real_zone(zone_from);
 
 	if (!GetZoneRooms(rzone_from, &rnum_start, &rnum_stop)) {
-		sprintf(buf2, "Нет комнат в зоне %d.", static_cast<int>(zone_from));
+		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zone_from));
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
@@ -394,6 +394,7 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
+	SendMsgToChar(ch, "Копирую данные.\r\n");
 	utils::CExecutionTimer timer;
 	ZoneRnum zrn = real_zone(zvn);
 	sprintf(buf, "Попытка создать  dungeon, zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer.delta().count());
@@ -1634,7 +1635,6 @@ void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	act(buf, true, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
-
 	PlaceCharToRoom(ch, location);
 	ch->dismount();
 

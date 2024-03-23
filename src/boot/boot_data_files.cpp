@@ -397,17 +397,15 @@ void WorldFile::parse_room(int virtual_nr) {
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
 		exit(1);
 	}
-	if (zone == 0 && zone_table[zone].RnumRoomsLocation.first == -1)
-		zone_table[zone].RnumRoomsLocation.first = 100;
+//	if (zone == 0 && zone_table[zone].RnumRoomsLocation.first == -1) {
+//		zone_table[zone].RnumRoomsLocation.first = 1;
+//	}
 	while (virtual_nr > zone_table[zone].top) {
 		if (++zone >= static_cast<ZoneRnum>(zone_table.size())) {
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
 	}
-	if (zone_table[zone].RnumRoomsLocation.first == -1)
-		zone_table[zone].RnumRoomsLocation.first = virtual_nr;
-	zone_table[zone].RnumRoomsLocation.second = virtual_nr;
 	// Создаем новую комнату
 	world.push_back(new RoomData);
 	world[room_realnum]->zone_rn = zone;
@@ -415,7 +413,11 @@ void WorldFile::parse_room(int virtual_nr) {
 	std::string tmpstr = fread_string();
 	tmpstr[0] = UPPER(tmpstr[0]);
 	world[room_realnum]->set_name(tmpstr);
-
+//	if (zone_table[zone].RnumRoomsLocation.first == -1) {
+//		zone_table[zone].RnumRoomsLocation.first = room_realnum;
+//	}
+//	zone_table[zone].RnumRoomsLocation.second = room_realnum;
+	
 	std::string desc = fread_string();
 	utils::TrimRightIf(desc, " _");
 	desc.shrink_to_fit();
