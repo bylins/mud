@@ -2854,6 +2854,7 @@ void CreateBlankRoomDungeon() {
 	for (ZoneVnum zone = 0; zone < NumberOfZoneDungeons; zone++) {
 		ZoneData new_zone;
 
+		zone_table[zone_rnum].RnumRoomsLocation.first = top_of_world + 1;
 		new_zone.vnum = zone_vnum;
 		new_zone.name = "Зона для данжей";
 		new_zone.under_construction = true;
@@ -2888,12 +2889,14 @@ void CreateBlankRoomDungeon() {
 void CreateBlankTrigsDungeon() {
 	IndexData **new_index;
 	size_t size_new_trig_table = (top_of_trigt - 1) + 100 * NumberOfZoneDungeons;
+	ZoneRnum zone_rnum = zone_table.size();
 
 	CREATE(new_index, size_new_trig_table + 1);
 	for (int i = 0; i < top_of_trigt; i++) {
 		new_index[i] = trig_index[i];
 	}
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
+		zone_table[zone_rnum++].RnumTrigsLocation.first = top_of_trigt;
 		for (TrgVnum trig_vnum = 0; trig_vnum <= 99; trig_vnum++) {
 			Trigger *trig = new Trigger(-1, "Blank trigger", MTRIG_GREET);
 			IndexData *index;
@@ -4445,13 +4448,46 @@ void RoomDataFree(ZoneRnum zrn) {
 		}
 	}
 }
-void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
+//void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
+
+void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
+	TrgRnum rnum_start = zone_table[rzone_from].RnumTrigsLocation.first;
+	TrgRnum rnum_stop = zone_table[rzone_from].RnumTrigsLocation.second;
+	TrgRnum rtrig_to1 = zone_table[rzone_to].RnumTrigsLocation.first;
+	TrgRnum rtrig_to = real_trigger(top_of_trigt-5000);
+		sprintf(buf, "просматриваем trig от %d (rnum %d) до trig %d (rnum %d)", trig_index[rnum_start]->vnum, rnum_start, trig_index[rnum_stop]->vnum, rnum_stop);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
+		sprintf(buf, " trig_to %d trig_to1 %d)", rtrig_to, rtrig_to1);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
+	int shift = 0;
+	for(int i = rnum_start; i <= rnum_stop; i++) {
+		sprintf(buf, "trig from %s (%d) rnum %d ", trig_index[i]->proto->get_name().c_str(), trig_index[i]->vnum, trig_index[i]->proto->get_rnum());
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		Trigger *trig = new Trigger(*trig_index[i]->proto);
+		free(trig_index[rtrig_to + shift]->proto);
+		trig->set_rnum(rtrig_to + shift);
+		trig_index[rtrig_to + shift]->proto = trig;
+		trig_index[rtrig_to + shift]->vnum = zone_table[rzone_to].vnum * 100 + trig_index[i]->vnum % 100;
+		sprintf(buf, "trig to %s (%d) rnum %d ", trig_index[rtrig_to + shift]->proto->get_name().c_str(), trig_index[rtrig_to + shift]->vnum, trig_index[rtrig_to + shift]->proto->get_rnum());
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		shift++;
+	}
+}
 
 void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
-	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
+	RoomRnum rroom_to = zone_table[zrn].RnumRoomsLocation.first;
+//	TrgRnum rtrig_to = real_trigger(zone_table[zrn].vnum * 100);
+
+//	sprintf(buf, "from room %s (%d) exit  %s (%d)", world[current]->name, world[current]->room_vn, world[to_room]->name, world[to_room]->room_vn);
+//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+
 	int shift = 0;
 	for(int i = rnum_start; i <= rnum_stop; i++) {
 		auto &new_room = world[rroom_to + shift++];
+	sprintf(buf, "from room %s (%d)to room  %s (%d)", world[i]->name, world[i]->room_vn, new_room->name, new_room->room_vn);
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		free(new_room->name);
 		new_room->room_vn = zone_table[zrn].vnum * 100 + world[i]->room_vn % 100;
 		new_room->name = str_dup(world[i]->name); //почистить
@@ -4469,61 +4505,19 @@ void RoomDataCopy(RoomRnum rnum_start, RoomRnum rnum_stop, ZoneRnum zrn) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-		new_room->proto_script.reset();
+		new_room->script->trig_list.clear();
 
-	if (! world[i]->proto_script->empty()) {
+//	 	for (auto t_tmp : world[i]->script->trig_list) {
+//			Trigger *trig = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
+//			trig->set_rnum(rtrig_to);
+//			trig->set_vnum( = zone_table[zrn].vnum * 100 + trig_index[trig->get_rnum()]->vnum % 100;
+//			new_room->script->trig_list.add(trig);
+//		}
 
-	 	for (auto t_vnum : *world[i]->proto_script) {
-//			new_room->proto_script.reset(new ObjData::triggers_list_t());
-//			new_room->proto_script->push_back(t_vnum);
-//			sprintf(buf, "room %s (%d) add trigger %d", new_room->name,  new_room->room_vn, t_vnum);
+
+//			sprintf(buf, "room %s (%d) add trigger %s (%d) rnum %d  index %d vnum %d", new_room->name,  new_room->room_vn, trig->get_name().c_str(), trig_index[trig->get_rnum()]->vnum,
+//trig->get_rnum(), top_of_trigt - 1, trig_index[top_of_trigt - 1]->vnum);
 //			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			TrgRnum rnum = real_trigger(t_vnum);
-			TrgVnum new_vnum = zone_table[zrn].vnum * 100 + t_vnum % 100;
-
-			Trigger *trig = new Trigger(*trig_index[rnum]->proto);//read_trigger(top_of_trigt - 1);
-			trig->set_rnum(top_of_trigt);
-			add_trig_index_entry(new_vnum, trig);
-			sprintf(buf, "room %s (%d) add trigger %s (%d) rnum %d  index %d vnum %d", new_room->name,  new_room->room_vn, trig->get_name().c_str(), trig_index[trig->get_rnum()]->vnum,
-trig->get_rnum(), top_of_trigt - 1, trig_index[top_of_trigt - 1]->vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			if (add_trigger(new_room->script.get(), trig, -1)) {
-					add_trig_to_owner(-1, new_vnum, new_room->room_vn);
-			} else {
-					extract_trigger(trig);
-			}
-
-//			add_trig_to_owner(-1, t_vnum, mob_index[mob_to].vnum);
-/*			Trigger *trig = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
-			auto c = *trig->cmdlist;
-
-			while (c) {
-				utils::ReplaceAll(c->cmd, search, replacer);
-				c = c->next;
-			}
-			sprintf(buf, "mob %s (%d) add trigger %d", mob_proto[mob_to].get_name().c_str(), mob_index[mob_to].vnum, trig_index[t_tmp->get_rnum()]->vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			mob_proto[mob_to].script->trig_list.add(trig);
-*/
-
-		}
-	} else {
-			sprintf(buf, "room %s (%d) скриптов нет",  new_room->name,  new_room->room_vn);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 			new_room->dir_option[dir] = nullptr;

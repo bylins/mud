@@ -277,8 +277,16 @@ void TriggersFile::read_entry(const int nr) {
 
 void TriggersFile::parse_trigger(int vnum) {
 	int t, add_flag, k;
+	static int count = 0;
 
 	char line[256], flags[256];
+
+	ZoneRnum zrn = real_zone(vnum / 100);
+
+	if (zone_table[zrn].RnumTrigsLocation.first == -1) {
+		zone_table[zrn].RnumTrigsLocation.first = count;
+	}
+	zone_table[zrn].RnumTrigsLocation.second = count;
 
 	sprintf(buf2, "trig vnum %d", vnum);
 	std::string name(fread_string());
@@ -351,6 +359,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	}
 
 	add_trig_index_entry(vnum, trig);
+	count++;
 }
 
 class WorldFile : public DiscreteFile {
@@ -1486,8 +1495,12 @@ bool ZoneFile::load_zone() {
 	zone.group = false;
 	zone.count_reset = 0;
 	zone.traffic = 0;
+	zone.RnumTrigsLocation.first = -1;
+	zone.RnumTrigsLocation.second = -1;
 	zone.RnumMobsLocation.first = -1;
 	zone.RnumMobsLocation.second = -1;
+	zone.RnumObjsLocation.first = -1;
+	zone.RnumObjsLocation.second = -1;
 	zone.RnumRoomsLocation.first = -1;
 	zone.RnumRoomsLocation.second = -1;
 	get_line(file(), buf);

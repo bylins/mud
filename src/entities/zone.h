@@ -74,6 +74,7 @@ class ZoneData {
 	bool is_town;
 	// показывает количество репопов зоны, при условии, что в зону ходят
 	int count_reset;
+	std::pair<TrgRnum, TrgRnum> RnumTrigsLocation;
 	std::pair<RoomRnum, RoomRnum> RnumRoomsLocation;
 	std::pair<MobRnum, MobRnum> RnumMobsLocation;
 	std::pair<ObjRnum, ObjRnum> RnumObjsLocation;
