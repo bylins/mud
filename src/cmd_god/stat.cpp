@@ -548,7 +548,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		for (fol = k->followers; fol; fol = fol->next) {
 			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol->follower, ch, 0), GET_MOB_VNUM(fol->follower));
 			strcat(buf, buf2);
-			if (strlen(buf) >= 62) {
+			if (strlen(buf) >= 162) {
 				if (fol->next)
 					SendMsgToChar(strcat(buf, ",\r\n"), ch);
 				else
@@ -559,6 +559,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		if (*buf)
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
+
+		SendMsgToChar(ch, "Помогают: ");
+		if (!k->summon_helpers.empty()) {
+			for (auto helper : k->summon_helpers) {
+				SendMsgToChar(ch, "%d ", helper);
+			}
+			SendMsgToChar(ch, "\r\n");
+		} else {
+			SendMsgToChar(ch, "нет.\r\n");
+		}
 	}
 	// Showing the bitvector
 	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
