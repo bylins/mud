@@ -349,8 +349,8 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 
 			script_save_to_disk(fp, obj.get(), OBJ_TRIGGER);
 
-			if (GET_OBJ_MIW(obj)) {
-				fprintf(fp, "M %d\n", GET_OBJ_MIW(obj));
+			if (GetObjMIW(obj->get_rnum())) {
+				fprintf(fp, "M %d\n", GetObjMIW(obj->get_rnum()));
 			}
 
 			if (obj->get_minimum_remorts() != 0) {
@@ -1232,7 +1232,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			 nrm, cyn, !obj->get_proto_script().empty() ? "Присутствуют" : "Отсутствуют",
 			 grn, nrm, cyn, genders[gender],
-			 grn, nrm, cyn, GET_OBJ_MIW(obj),
+			 grn, nrm, cyn, GetObjMIW(obj->get_rnum()),
 			 grn, nrm,
 			 grn, nrm, cyn, obj->get_minimum_remorts(),
 			 grn, nrm,

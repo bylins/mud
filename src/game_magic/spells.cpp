@@ -1525,10 +1525,10 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 		else
 			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
 		char miw[128];
-		if (GET_OBJ_MIW(obj) < 0) {
+		if (GetObjMIW(obj->get_rnum()) < 0) {
 			sprintf(miw, "%s", "бесконечно");
 		} else {
-			sprintf(miw, "%d", GET_OBJ_MIW(obj));
+			sprintf(miw, "%d", GetObjMIW(obj->get_rnum()));
 		}
 		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
 				 obj_proto.CountInWorld(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);

@@ -163,6 +163,7 @@ class CObjectPrototype {
 	CObjectPrototype(const ObjVnum vnum) : m_vnum(vnum),
 										   m_type(DEFAULT_TYPE),
 										   m_weight(DEFAULT_WEIGHT),
+										   m_parent_obj(-1),
 										   m_proto_script(new triggers_list_t()),
 										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
 										   m_vals({0, 0, 0, 0}),
@@ -183,7 +184,8 @@ class CObjectPrototype {
 										   m_ilevel(0),
 										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
-
+	ObjRnum GetParent() const {return m_parent_obj;}
+	void SetParent(ObjRnum _) {m_parent_obj = _;}
 	auto &get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
 	auto get_current_durability() const { return m_current_durability; }
@@ -335,6 +337,7 @@ class CObjectPrototype {
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
+	void set_vnum(const ObjVnum vnum); 
 
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
 		m_vnum_change_observers.insert(observer);
@@ -354,7 +357,7 @@ class CObjectPrototype {
  protected:
 	void zero_init();
 	CObjectPrototype &operator=(const CObjectPrototype &from);    ///< makes shallow copy of all fields except VNUM
-	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
+//	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
 	void tag_ex_description(const char *tag);
 
  private:
@@ -364,7 +367,7 @@ class CObjectPrototype {
 	int m_weight;
 
 	affected_t m_affected;    // affects //
-
+	ObjRnum m_parent_obj;
 	std::string m_aliases;        // Title of object :get etc.        //
 	std::string m_description;    // When in room                     //
 
@@ -821,6 +824,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype *obj,
 inline bool OBJ_AFFECT(const CObjectPrototype *obj, const EWeaponAffect weapon_affect) {
 	return OBJ_AFFECT(obj, static_cast<Bitvector>(weapon_affect));
 }
+int GetObjMIW(ObjRnum rnum);
 
 class CActionDescriptionWriter : public utils::AbstractStringWriter {
  public:

@@ -20,7 +20,7 @@
 #include <vector>
 #include <sstream>
 
-#include <boost/dynamic_bitset.hpp>
+//#include <boost/dynamic_bitset.hpp>
 
 #include "game_classes/classes_constants.h"
 #include "game_classes/classes.h"
@@ -86,17 +86,6 @@ struct DescriptorData;
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
 }
-// поиск рнума зоны по внум, если не  найдено будет 0
-inline int ZoneRnumFromVnum(int zvn) {
-	ZoneRnum zrn;
-	for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		if (zone_table[zrn].vnum == zvn)
-			break;
-	}
-	if (zrn == static_cast<ZoneRnum>(zone_table.size()))
-		zrn = 0;
-	return zrn;
-}
 
 inline const char *not_empty(const std::string &s, const char *subst) {
 	return s.empty() ? (subst ? subst : "undefined") : s.c_str();
@@ -154,7 +143,6 @@ char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-int RealZoneNum(ZoneVnum zvn);
 
 extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
@@ -764,9 +752,6 @@ const int kNameLevel = 5;
 #define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
 #define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
 #define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
-
-#define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
-
 #define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")

@@ -277,8 +277,16 @@ void TriggersFile::read_entry(const int nr) {
 
 void TriggersFile::parse_trigger(int vnum) {
 	int t, add_flag, k;
+	static int count = 0;
 
 	char line[256], flags[256];
+
+	ZoneRnum zrn = real_zone(vnum / 100);
+
+	if (zone_table[zrn].RnumTrigsLocation.first == -1) {
+		zone_table[zrn].RnumTrigsLocation.first = count;
+	}
+	zone_table[zrn].RnumTrigsLocation.second = count;
 
 	sprintf(buf2, "trig vnum %d", vnum);
 	std::string name(fread_string());
@@ -351,6 +359,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	}
 
 	add_trig_index_entry(vnum, trig);
+	count++;
 }
 
 class WorldFile : public DiscreteFile {
@@ -377,7 +386,7 @@ void WorldFile::read_entry(const int nr) {
 }
 
 void WorldFile::parse_room(int virtual_nr) {
-	static int room_realnum = kFirstRoom;
+	int room_realnum = ++top_of_world;
 	static ZoneRnum zone = 0;
 
 	int t[10], i;
@@ -388,18 +397,15 @@ void WorldFile::parse_room(int virtual_nr) {
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
 		exit(1);
 	}
-	if (zone == 0 && zone_table[zone].FirstRoomVnum == 0)
-		zone_table[zone].FirstRoomVnum = 100;
+//	if (zone == 0 && zone_table[zone].RnumRoomsLocation.first == -1) {
+//		zone_table[zone].RnumRoomsLocation.first = 1;
+//	}
 	while (virtual_nr > zone_table[zone].top) {
 		if (++zone >= static_cast<ZoneRnum>(zone_table.size())) {
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
 	}
-	if (zone_table[zone].FirstRoomVnum == 0)
-		zone_table[zone].FirstRoomVnum = virtual_nr;
-	zone_table[zone].LastRoomVnum = virtual_nr;
-
 	// Создаем новую комнату
 	world.push_back(new RoomData);
 	world[room_realnum]->zone_rn = zone;
@@ -407,7 +413,11 @@ void WorldFile::parse_room(int virtual_nr) {
 	std::string tmpstr = fread_string();
 	tmpstr[0] = UPPER(tmpstr[0]);
 	world[room_realnum]->set_name(tmpstr);
-
+//	if (zone_table[zone].RnumRoomsLocation.first == -1) {
+//		zone_table[zone].RnumRoomsLocation.first = room_realnum;
+//	}
+//	zone_table[zone].RnumRoomsLocation.second = room_realnum;
+	
 	std::string desc = fread_string();
 	utils::TrimRightIf(desc, " _");
 	desc.shrink_to_fit();
@@ -493,7 +503,6 @@ void WorldFile::parse_room(int virtual_nr) {
 							break;
 					}
 				} while (letter != 0);
-				top_of_world = room_realnum++;
 				return;
 
 			default: log("%s", buf);
@@ -591,10 +600,16 @@ void ObjectFile::read_entry(const int nr) {
 }
 
 void ObjectFile::parse_object(const int nr) {
+	static int i = 0;
 	int t[10], j = 0;
 	char f0[256], f1[256], f2[256];
 
 	ObjData *tobj = new ObjData(nr);
+	if (zone_table[real_zone(nr / 100)].RnumObjsLocation.first == -1) {
+		zone_table[real_zone(nr / 100)].RnumObjsLocation.first = i;
+	}
+	zone_table[real_zone(nr / 100)].RnumObjsLocation.second = i;
+	i++;
 
 	// *** Add some initialization fields
 	tobj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
@@ -996,16 +1011,14 @@ void MobileFile::parse_mobile(const int nr) {
 	char line[256], letter;
 	char f1[128], f2[128];
 	mob_index[i].vnum = nr;
-//	mob_online_by_vnum[nr] = 0; все равно конструктор 0 сделает
-//	mob_index[i].total_online = 0;
-//	mob_index[i].stored = 0;
 	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
-
-	sprintf(buf2, "mob vnum %d", nr);
-
+	if (zone_table[real_zone(nr / 100)].RnumMobsLocation.first == -1) {
+		zone_table[real_zone(nr / 100)].RnumMobsLocation.first = i;
+	}
+	zone_table[real_zone(nr / 100)].RnumMobsLocation.second = i;
+//snprintf(tmpstr, BUFFER_SIZE, "ZONE_MOB zone %d first %d last %d", zone_table[zone].vnum, zone_table[zone].RnumMobsLocation.first, zone_table[zone].RnumMobsLocation.second);
 	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
-
 	// **** String data
 	mob_proto[i].SetCharAliases(fread_string());
 	mob_proto[i].set_npc_name(fread_string());
@@ -1481,13 +1494,17 @@ bool ZoneFile::load_zone() {
 	zone.reset_idle = false;
 	zone.used = false;
 	zone.activity = 0;
-	zone.comment = nullptr;
-	zone.location = nullptr;
-	zone.description = nullptr;
-	zone.author = nullptr;
 	zone.group = false;
 	zone.count_reset = 0;
 	zone.traffic = 0;
+	zone.RnumTrigsLocation.first = -1;
+	zone.RnumTrigsLocation.second = -1;
+	zone.RnumMobsLocation.first = -1;
+	zone.RnumMobsLocation.second = -1;
+	zone.RnumObjsLocation.first = -1;
+	zone.RnumObjsLocation.second = -1;
+	zone.RnumRoomsLocation.first = -1;
+	zone.RnumRoomsLocation.second = -1;
 	get_line(file(), buf);
 
 	auto result = false;
@@ -1571,7 +1588,7 @@ bool ZoneFile::load_regular_zone() {
 	{
 		*ptr = '\0';
 	}
-	zone.name = str_dup(buf);
+	zone.name = buf;
 
 	log("Читаем zon файл: %s", full_file_name().c_str());
 	while (*buf != 'S' && !feof(file())) {
@@ -1582,27 +1599,27 @@ bool ZoneFile::load_regular_zone() {
 		}
 
 		if (*buf == '^') {
-			std::string comment(buf);
+			std::string comment = buf;
 			utils::TrimIf(comment, "^~");
-			zone.comment = str_dup(comment.c_str());
+			zone.comment = comment;
 		}
 
 		if (*buf == '&') {
-			std::string location(buf);
+			std::string location = buf;
 			utils::TrimIf(location, "&~");
-			zone.location = str_dup(location.c_str());
+			zone.location = location;
 		}
 
 		if (*buf == '!') {
-			std::string autor(buf);
+			std::string autor = buf;
 			utils::TrimIf(autor, "!~");
-			zone.author = str_dup(autor.c_str());
+			zone.author = autor;
 		}
 
 		if (*buf == '$') {
-			std::string description(buf);
+			std::string description = buf ;
 			utils::TrimIf(description, "$~");
-			zone.description = str_dup(description.c_str());
+			zone.description = description;
 		}
 	}
 

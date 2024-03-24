@@ -40,7 +40,6 @@ extern DescriptorData *descriptor_list;
 // * External functions.
 void zedit_setup(DescriptorData *d, int room_num);
 void zedit_save_to_disk(int zone);
-int zedit_new_zone(CharData *ch, int new_zone);
 void medit_setup(DescriptorData *d, int rmob_num);
 void medit_save_to_disk(int zone);
 void redit_setup(DescriptorData *d, int rroom_num);
@@ -160,13 +159,6 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
 			SendMsgToChar("Создание новых зон отключено.\r\n", ch);
 			return;
-			/*
-			          if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
-			 	         zedit_new_zone(ch, atoi(buf2));
-			          else
-			 	         SendMsgToChar("Укажите номер новой зоны.\r\n", ch);
-			          return;
-			*/
 		} else {
 			SendMsgToChar("Уточните, что вы хотите делать!\r\n", ch);
 			return;
@@ -493,7 +485,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 
 		// Освободить зону
 		if (OLC_ZONE(d)) {
-			free(OLC_ZONE(d)->name);
+			OLC_ZONE(d)->name.clear();
 			zedit_delete_cmdlist((pzcmd) OLC_ZONE(d)->cmd);
 			free(OLC_ZONE(d));
 		}

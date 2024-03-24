@@ -363,8 +363,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, "mload: bad object vnum");
 			return;
 		}
-		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
-			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()])) {
+		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				mob_log(ch, buf);

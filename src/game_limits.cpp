@@ -1673,20 +1673,17 @@ void point_update() {
 				}
 				// Remember some spells
 				if (i->mob_specials.have_spell) {
-					const auto mob_num = GET_MOB_RNUM(i);
-					if (mob_num >= 0) {
-						auto mana{0};
-						auto count{0};
-						const auto max_mana = GetRealInt(i) * 10;
-						while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
-							const auto spell_id = real_spell[count];
-							if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
-								GET_SPELL_MEM(i, spell_id)++;
-								mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
-								i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
-							}
-							++count;
+					auto mana{0};
+					auto count{0};
+					const auto max_mana = GetRealInt(i) * 10;
+					while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
+						const auto spell_id = real_spell[count];
+						if (GET_SPELL_MEM(i, spell_id) > GET_SPELL_MEM(i, spell_id)) {
+							GET_SPELL_MEM(i, spell_id)++;
+							mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
+							i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
 						}
+						++count;
 					}
 				}
 			}

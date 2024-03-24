@@ -528,8 +528,8 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
-		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
-			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()])) {
+		if (GetObjMIW(object->get_rnum()) >= 0
+			&& obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				obj_log(obj, buf);
