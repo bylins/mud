@@ -4573,13 +4573,8 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	RoomRnum rnum_start = zone_table[zrn_from].RnumRoomsLocation.first;
 	RoomRnum rnum_stop = zone_table[zrn_from].RnumRoomsLocation.second;
 	RoomRnum rroom_to = zone_table[zrn_to].RnumRoomsLocation.first;
-//	RoomRnum rroom_to = real_room(zone_table[zrn].vnum * 100);
-
-//		sprintf(buf, "rroom_to %d (%d)  loc.first %d (%d)", rroom_to, world[rroom_to]->room_vn, 
-//			zone_table[zrn].RnumRoomsLocation.first, world[zone_table[zrn].RnumRoomsLocation.first]->room_vn);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 	int shift = 0;
+
 	for(int i = rnum_start; i <= rnum_stop; i++) {
 		auto &new_room = world[rroom_to + shift++];
 		free(new_room->name);
@@ -4600,26 +4595,17 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		new_room->gdark = 0;
 		new_room->glight = 0;
 		new_room->script->trig_list.clear();
-//	sprintf(buf, "from room %s (%d)to room  %s (%d)", world[i]->name, world[i]->room_vn, new_room->name, new_room->room_vn);
-//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 			new_room->dir_option[dir] = nullptr;
 		}
-//		new_room->ex_description = nullptr;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = world[i]->dir_option[dir];
 			if (from) {
 				int to_room = from->to_room();// - rnum_start + first_room_dungeon;
-//				sprintf(buf, "from room %s (%d) exit  %s (%d)", world[current]->name, world[current]->room_vn, world[to_room]->name, world[to_room]->room_vn);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				if (to_room >= rnum_start && to_room <= rnum_stop) {
 					int room = from->to_room() - rnum_start + rroom_to;
 					new_room->dir_option[dir].reset(new ExitData());
 					new_room->dir_option[dir]->to_room(room);
-//					sprintf(buf, "to  room %s (%d) exit  %s (%d)", new_room->name, new_room->room_vn, 
-//						world[room]->name, world[room]->room_vn);
-//					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				}
 			}
 		}
@@ -4638,39 +4624,23 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		new_room->script->types = world[i]->script->types;
 	 	for (auto t_tmp : world[i]->script->trig_list) {
 			TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
-//			sprintf(buf, "имя копируемого триггера %s", t_tmp->get_name().c_str());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//			sprintf(buf, "RnumTrigsLocation.first %d rnum %d", zone_table[zrn_to].RnumTrigsLocation.first, trig_index[t_tmp->get_rnum()]->vnum);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//			zone_table[zrn_to].RnumTrigsLocation.first + trig_index[t_tmp->get_rnum()]->vnum % 100;
-//			sprintf(buf, "calculate Rnum new trig %d", zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			Trigger *trig = read_trigger(new_rnum); //new Trigger(*trig_index[new_rnum]->proto);
+			Trigger *trig = read_trigger(new_rnum); 
 			auto c = *trig->cmdlist;
 			std::string replacer = to_string(zone_table[zrn_to].vnum);
 			std::string search = to_string(zone_table[zrn_from].vnum);
 
 			while (c) {
-//				sprintf(buf, "Строка1 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				utils::ReplaceAll(c->cmd, search, replacer);
-//				sprintf(buf, "Строка2 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				c = c->next;
 			}
 			new_room->script->trig_list.add(trig);
 		}
-
-
-
-		zone_table[zrn_to].RnumRoomsLocation.first = rroom_to;
 		zone_table[zrn_to].RnumRoomsLocation.second = rroom_to + shift;
 
 		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
 
 		while (sdd) {
 			const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
-
 			new_descr->set_keyword(sdd->keyword);
 			new_descr->set_description(sdd->description);
 			new_descr->next = new_room->ex_description;
@@ -4687,63 +4657,26 @@ extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	MobRnum rmob_from = zone_table[zrn_from].RnumMobsLocation.first;
 	MobRnum rmob_last = zone_table[zrn_from].RnumMobsLocation.second;
-//	MobRnum mob_to = zone_table[zrn_to].RnumMobsLocation.first;
-	MobRnum mob_to = real_mobile(zone_table[zrn_to].vnum * 100);
-	zone_table[zrn_to].RnumMobsLocation.first = mob_to;
-	
+	MobRnum mob_to = zone_table[zrn_to].RnumMobsLocation.first;
 	for (int i = rmob_from; i <= rmob_last; i++) {
 		mob_proto[mob_to] = mob_proto[i];
 		mob_index[mob_to] = mob_index[i];
 		mob_index[mob_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
 		mob_proto[mob_to].set_rnum(mob_to);
 		mob_proto[mob_to].script->cleanup();
-//		mob_proto[mob_to].script->types = mob_proto[i].script->types;
 		mob_proto[mob_to].proto_script.reset(new ObjData::triggers_list_t());
-//		mob_proto[mob_to].script.reset(new Script());
-//		mob_proto[mob_to].proto_script->clear();
-
-
-			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			for (const auto trigger_vnum : *mob_proto[i].proto_script) {
-				mob_proto[mob_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
-
-				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-				sprintf(buf, "Метод 2 имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
-			
-/*	if (!mob_proto[i].proto_script->empty()) {
-	 	for (auto t_tmp : mob_proto[i].script->trig_list) {
-			TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
-			sprintf(buf, "имя копируемого триггера %s", t_tmp->get_name().c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//			sprintf(buf, "RnumTrigsLocation.first %d rnum %d", zone_table[zrn_to].RnumTrigsLocation.first, trig_index[t_tmp->get_rnum()]->vnum);
+//			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
 //			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//			zone_table[zrn_to].RnumTrigsLocation.first + trig_index[t_tmp->get_rnum()]->vnum % 100;
-//			sprintf(buf, "calculate Rnum new trig %d", zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first);
+		for (const auto trigger_vnum : *mob_proto[i].proto_script) {
+			mob_proto[mob_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+			add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
+//			auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//			sprintf(buf, "Метод 2 имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
 //			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			Trigger *trig = read_trigger(new_rnum); //new Trigger(*trig_index[new_rnum]->proto);
-			auto c = *trig->cmdlist;
-			std::string replacer = to_string(zone_table[zrn_to].vnum);
-			std::string search = to_string(zone_table[zrn_from].vnum);
-
-			while (c) {
-				sprintf(buf, "Строка1 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				utils::ReplaceAll(c->cmd, search, replacer);
-				sprintf(buf, "Строка2 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				c = c->next;
-			}
-			mob_proto[mob_to].script->trig_list.add(trig);
 		}
-//	} 
-*/
+			
 		mob_index[mob_to].total_online = 0;
 		mob_index[mob_to].stored = 0;
-//		log("MOB1 vnum %d, name %s, rnum %d", mob_index[mob_to].vnum, mob_proto[mob_to].get_name().c_str(), mob_to);
 		mob_to++;
 	}
 	zone_table[zrn_to].RnumMobsLocation.second = mob_to - 1;
@@ -4756,9 +4689,9 @@ void ObjDataFree(ZoneRnum zrn) {
 void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	ObjRnum robj_from = zone_table[rzone_from].RnumObjsLocation.first;
 	ObjRnum robj_last = zone_table[rzone_from].RnumObjsLocation.second;
-
 	ObjRnum robj_to = real_object(zone_table[rzone_to].vnum * 100);
 	zone_table[rzone_to].RnumObjsLocation.first = robj_to;
+
 	for (int i = robj_from; i <= robj_last; i++) {
 		auto obj_original = world_objects.create_raw_from_prototype_by_rnum(i);
 		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + GET_OBJ_VNUM(obj_original.get()) % 100;
@@ -4816,104 +4749,75 @@ void ZoneDataFree(ZoneRnum zrn) {
 	}
 
 void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
-//	ZoneVnum zvn = zone_table[zrn].vnum;
 	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
 		if (zone_table[zrn].cmd[subcmd].command == '*')
 			continue;
 
-		log("CMD from %d %d %d %d %d %d",
-		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
-		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
-		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
+//		log("CMD from %d %d %d %d %d %d",
+//		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
+//		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
+//		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
 		switch (zone_table[zrn].cmd[subcmd].command) {
 			case 'M': 
 				TRANS_MOB(arg1);
-//				if (mob_index[zone_table[zrn].cmd[subcmd].arg1].vnum / 100 == zone_table[zone_from].vnum) {
-//					zone_table[zrn].cmd[subcmd].arg1 = zone_table[zone_from].cmd[subcmd].arg1 -
-//							zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first;
-//				}
 				TRANS_ROOM(arg3);
-//				if (world[zone_table[zrn].cmd[subcmd].arg1]->room_vn / 100 == zone_table[zone_from].vnum) {
-//					zone_table[zrn].cmd[subcmd].arg3 =  zone_table[zone_from].cmd[subcmd].arg3 -
-//							zone_table[zone_from].RnumRoomsLocation.first + zone_table[zrn].RnumRoomsLocation.first;
-//				}
 				break;
 
 			case 'F': 
 				TRANS_ROOM(arg1);
-//				zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
 				TRANS_MOB(arg2);
-//				zone_table[zrn].cmd[subcmd].arg2 = mob_index[zone_table[zrn].cmd[subcmd].arg2].vnum;
 				TRANS_MOB(arg3);
-//				zone_table[zrn].cmd[subcmd].arg3 = mob_index[zone_table[zrn].cmd[subcmd].arg3].vnum;
 				break;
 
 			case 'Q':
 				TRANS_MOB(arg1);
-//				if (mob_index[zone_table[zrn].cmd[subcmd].arg1].vnum / 100 == zone_table[zone_from].vnum) {
-//					zone_table[zrn].cmd[subcmd].arg1 = zone_table[zone_from].cmd[subcmd].arg1 -
-//							zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first;
-//				}
 				break;
 			case 'O': 
-//				log("from obj %d room %d", obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum(), world[zone_table[zrn].cmd[subcmd].arg3]->room_vn);
 				TRANS_OBJ(arg1);
-//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
 				TRANS_ROOM(arg3);
-//				log("to obj %d room %d", obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum(), world[zone_table[zrn].cmd[subcmd].arg3]->room_vn);
-//				zone_table[zrn].cmd[subcmd].arg3 = world[zone_table[zrn].cmd[subcmd].arg3]->room_vn;
 				break;
 
 			case 'P': 
 				TRANS_OBJ(arg1);
-//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
 				TRANS_OBJ(arg3);
-//				zone_table[zrn].cmd[subcmd].arg3 = obj_proto[zone_table[zrn].cmd[subcmd].arg3]->get_vnum();
 				break;
 
 			case 'G': 
 				TRANS_OBJ(arg1);
-//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
 				break;
 
 			case 'E': 
 				TRANS_OBJ(arg1);
-//				zone_table[zrn].cmd[subcmd].arg1 = obj_proto[zone_table[zrn].cmd[subcmd].arg1]->get_vnum();
 				break;
 
 			case 'R': 
 				TRANS_ROOM(arg1);
-//				zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
 				TRANS_OBJ(arg2);
-//				zone_table[zrn].cmd[subcmd].arg2 = obj_proto[zone_table[zrn].cmd[subcmd].arg2]->get_vnum();
 				break;
 
 			case 'D': 
 				TRANS_ROOM(arg1);
-//					zone_table[zrn].cmd[subcmd].arg1 = world[zone_table[zrn].cmd[subcmd].arg1]->room_vn;
 				break;
 
 			case 'T':
 				// arg2 не преобразовываю, хотя может надо :)
 				if (zone_table[zrn].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg3);
-//					zone_table[zrn].cmd[subcmd].arg3 = world[zone_table[zrn].cmd[subcmd].arg3]->room_vn;
 				}
 				break;
 
 			case 'V':
 				if (zone_table[zrn].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg2);
-//					zone_table[zrn].cmd[subcmd].arg2 = world[zone_table[zrn].cmd[subcmd].arg2]->room_vn;
 				}
 				break;
 			default: 
 				break;;
 		}
-		log("CMD to %d %d %d %d %d %d",
-		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
-		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
-		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
+//		log("CMD to %d %d %d %d %d %d",
+//		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
+//		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
+//		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
 	}
 }
 
@@ -4974,13 +4878,14 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	zone_to.cmd[subcmd].command = 'S';
 	ZoneTransformCMD(rzone_to, rzone_from);
 
-
+/*
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
 		log("CMD %d %d %d %d %d %d", 
 		zone_from.cmd[subcmd].command, zone_to.cmd[subcmd].if_flag,
 		zone_to.cmd[subcmd].arg1, zone_to.cmd[subcmd].arg2,
 		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
 	}
+*/
 	reset_zone(rzone_to);
 	zone_to.copy_from_zone = zone_from.vnum;
 
