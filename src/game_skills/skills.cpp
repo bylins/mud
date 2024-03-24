@@ -676,15 +676,9 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kCharge: {
-			rate -= GetBasicSave(vict, ESaving::kReflex, false);
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
-			break;
-		}
-
-		case ESkill::kPoisoning: {
-			rate -= GetBasicSave(vict, ESaving::kCritical, false);
 			break;
 		}
 
@@ -695,17 +689,10 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
-			rate -= GetBasicSave(vict, ESaving::kReflex, false);
-			break;
 		}
 
-		case ESkill::kShieldBash: {
-			rate -= GetBasicSave(vict, ESaving::kStability, false);
-			break;
-		}
 
 		case ESkill::kSlay: {
-			rate -= GetBasicSave(vict, ESaving::kReflex, false);
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
@@ -823,7 +810,6 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kStrangle: {
-			rate -= GetBasicSave(vict, ESaving::kReflex, false);
 			if (CAN_SEE(ch, vict) && (PRF_FLAGGED(vict, EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
@@ -831,7 +817,6 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kDazzle: {
-			rate -= GetBasicSave(vict, ESaving::kReflex, false);
 			if (CAN_SEE(ch, vict) && (PRF_FLAGGED(vict, EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
