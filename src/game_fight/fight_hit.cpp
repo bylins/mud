@@ -752,7 +752,9 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 	}
 	dam = ApplyResist(victim, EResist::kVitality, dam);
 	for (int i = 0; i < 4; i++) {
+		if (af[i].type > ESpell::kUndefined) {
 			ImposeAffect(victim, af[i], true, false, true, false);
+		}
 	}
 }
 
