@@ -689,9 +689,8 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
+			break;
 		}
-
-
 		case ESkill::kSlay: {
 			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
