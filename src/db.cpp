@@ -2939,11 +2939,9 @@ void CreateBlankObjsDungeon() {
 
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
 		for (ObjVnum vnum = 0; vnum <= 99; vnum++) {
-//			if (vnum == 0) 
-				obj_vnum = vnum + zvn * 100;
-//			else 
-//				obj_vnum = 99 + zvn * 100;
-			ObjData *obj;// = new ObjData(obj_vnum);
+			ObjData *obj;
+
+			obj_vnum = vnum + zvn * 100;
 			NEWCREATE(obj, obj_vnum);
 
 			obj->set_aliases("1новый предмет");
@@ -2956,7 +2954,9 @@ void CreateBlankObjsDungeon() {
 			obj->set_PName(4, "вооружиться чем");
 			obj->set_PName(5, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
-			obj_proto.add(obj, obj_vnum);
+			const size_t index = obj_proto.add(obj, obj_vnum);
+			obj_proto.zone(index, get_zone_rnum_by_obj_vnum(obj_vnum));
+
 		}
 	}
 }
@@ -4697,7 +4697,7 @@ void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + GET_OBJ_VNUM(obj_original.get()) % 100;
 		obj_original->set_vnum(new_vnum);
 		obj_original->set_rnum(robj_to);
-		obj_proto.zone(robj_to, rzone_to);
+		ObjSystem::init_ilvl(obj_original.get());
 		obj_original->SetParent(i);
 		obj_proto.set(robj_to, obj_original.get());
 		ExtractObjFromWorld(obj_original.get());

@@ -3893,30 +3893,24 @@ int print_olist(const CharData *ch, const int first, const int last, std::string
 		const auto vnum = i->first;
 		const auto rnum = i->second;
 		const auto prototype = obj_proto[rnum];
-		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%f : mort =%d]", ++result,
-				 colored_name(prototype->get_short_description().c_str(), 45),
-				 vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
-		ss << buf_;
+
+		ss << fmt::format("{:>5}. {} [{:>5}] [ilvl ={} : mort ={}]", ++result,
+				colored_name(prototype->get_short_description().c_str(), 45), vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
 
 		if (GetRealLevel(ch) >= kLvlGreatGod
 			|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
-					 obj_proto.CountInWorld(rnum),
-					 obj_proto.stored(rnum), GetObjMIW(rnum));
-			ss << buf_;
-
+			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", obj_proto.CountInWorld(rnum), obj_proto.stored(rnum), GetObjMIW(rnum));
 			const auto &script = prototype->get_proto_script();
+
 			if (!script.empty()) {
 				ss << " - есть скрипты -";
 				for (const auto trigger_vnum : script) {
-					sprintf(buf1, " [%d]", trigger_vnum);
-					ss << buf1;
+					ss << fmt::format(" [{}]", trigger_vnum);
 				}
 			} else {
 				ss << " - нет скриптов";
 			}
 		}
-
 		ss << "\r\n";
 	}
 
