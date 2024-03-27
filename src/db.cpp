@@ -4691,18 +4691,24 @@ void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 	ObjRnum robj_last = zone_table[rzone_from].RnumObjsLocation.second;
 	ObjRnum robj_to = real_object(zone_table[rzone_to].vnum * 100);
 	zone_table[rzone_to].RnumObjsLocation.first = robj_to;
+	ObjData *obj;
 
 	for (int i = robj_from; i <= robj_last; i++) {
-		auto obj_original = world_objects.create_raw_from_prototype_by_rnum(i);
-		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + GET_OBJ_VNUM(obj_original.get()) % 100;
-		obj_original->set_vnum(new_vnum);
-		obj_original->set_rnum(robj_to);
-		ObjSystem::init_ilvl(obj_original.get());
-		obj_original->SetParent(i);
-		obj_proto.set(robj_to, obj_original.get());
-		ExtractObjFromWorld(obj_original.get());
+		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
+
+		NEWCREATE(obj, new_vnum);
+
+			obj->clone_olc_object_from_prototype(obj_proto[i]->get_vnum());
+//			sprintf(buf, "копируем %s %d newvnum %d", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj), new_vnum);
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			obj->set_rnum(robj_to);
+			if (obj->get_type() == EObjType::kLiquidContainer) {
+				name_from_drinkcon(obj);
+		}
+		obj_proto.set(robj_to, obj);    // old prototype will be deleted automatically
 		robj_to++;
 	}
+
 	zone_table[rzone_to].RnumObjsLocation.second = robj_to - 1;
 }
 

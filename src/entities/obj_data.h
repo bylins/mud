@@ -337,7 +337,6 @@ class CObjectPrototype {
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
-	void set_vnum(const ObjVnum vnum); 
 
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
 		m_vnum_change_observers.insert(observer);
@@ -357,7 +356,7 @@ class CObjectPrototype {
  protected:
 	void zero_init();
 	CObjectPrototype &operator=(const CObjectPrototype &from);    ///< makes shallow copy of all fields except VNUM
-//	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
+	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
 	void tag_ex_description(const char *tag);
 
  private:
