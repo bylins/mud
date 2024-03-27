@@ -4526,10 +4526,16 @@ void RoomDataFree(ZoneRnum zrn) {
 }
 //void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 
-void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
-	TrgRnum rnum_start = zone_table[rzone_from].RnumTrigsLocation.first;
-	TrgRnum rnum_stop = zone_table[rzone_from].RnumTrigsLocation.second;
-	TrgRnum rtrig_to = zone_table[rzone_to].RnumTrigsLocation.first;
+void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
+	TrgRnum rnum_start = zone_table[zrn_from].RnumTrigsLocation.first;
+	TrgRnum rnum_stop = zone_table[zrn_from].RnumTrigsLocation.second;
+	TrgRnum rtrig_to = zone_table[zrn_to].RnumTrigsLocation.first;
+	bool renum = true;
+
+	if (zone_table[zrn_from].vnum < 100) {
+		mudlog("Номер зоны меньше 100, текст триггера не изменяется!", CMP, kLvlGreatGod, SYSLOG, true);
+		renum = false;
+	}
 
 
 //	for (int i =0; i < top_of_trigt; i++) {
@@ -4549,10 +4555,11 @@ void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		Trigger *trig = new Trigger(*trig_index[i]->proto);
 //		free(trig_index[rtrig_to + shift]->proto); крешает
 		trig->set_rnum(rtrig_to + shift);
-		trig_index[rtrig_to + shift]->vnum = zone_table[rzone_to].vnum * 100 + trig_index[i]->vnum % 100;
+		trig_index[rtrig_to + shift]->vnum = zone_table[zrn_to].vnum * 100 + trig_index[i]->vnum % 100;
+		if (renum) {
 			auto c = *trig->cmdlist;
-			std::string replacer = to_string(zone_table[rzone_to].vnum);
-			std::string search = to_string(zone_table[rzone_from].vnum);
+			std::string replacer = to_string(zone_table[zrn_to].vnum);
+			std::string search = to_string(zone_table[zrn_from].vnum);
 
 			while (c) {
 //				sprintf(buf, "Строка1 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
@@ -4562,6 +4569,7 @@ void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 //			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				c = c->next;
 			}
+		}
 		trig_index[rtrig_to + shift]->proto = trig;
 //		sprintf(buf, "trig to %s (%d) rnum %d ", trig_index[rtrig_to + shift]->proto->get_name().c_str(), trig_index[rtrig_to + shift]->vnum, trig_index[rtrig_to + shift]->proto->get_rnum());
 //			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -4574,7 +4582,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	RoomRnum rnum_stop = zone_table[zrn_from].RnumRoomsLocation.second;
 	RoomRnum rroom_to = zone_table[zrn_to].RnumRoomsLocation.first;
 	int shift = 0;
-
+	
 	for(int i = rnum_start; i <= rnum_stop; i++) {
 		auto &new_room = world[rroom_to + shift++];
 		free(new_room->name);
@@ -4623,17 +4631,14 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 */			
 		new_room->script->types = world[i]->script->types;
 	 	for (auto t_tmp : world[i]->script->trig_list) {
-			TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
-			Trigger *trig = read_trigger(new_rnum); 
-			auto c = *trig->cmdlist;
-			std::string replacer = to_string(zone_table[zrn_to].vnum);
-			std::string search = to_string(zone_table[zrn_from].vnum);
+			if (trig_index[t_tmp->get_rnum()]->vnum % 100 == zone_table[zrn_from].vnum) {
+				TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
+				Trigger *trig = read_trigger(new_rnum); 
 
-			while (c) {
-				utils::ReplaceAll(c->cmd, search, replacer);
-				c = c->next;
+				new_room->script->trig_list.add(trig);
+			} else {
+				new_room->script->trig_list.add(t_tmp);
 			}
-			new_room->script->trig_list.add(trig);
 		}
 		zone_table[zrn_to].RnumRoomsLocation.second = rroom_to + shift;
 
@@ -4665,14 +4670,23 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_proto[mob_to].set_rnum(mob_to);
 		mob_proto[mob_to].script->cleanup();
 		mob_proto[mob_to].proto_script.reset(new ObjData::triggers_list_t());
-//			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		for (const auto trigger_vnum : *mob_proto[i].proto_script) {
-			mob_proto[mob_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-			add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
-//			auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//			sprintf(buf, "Метод 2 имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//				sprintf(buf, "trigger_vnum %d zone_table[zrn_from].vnum %d", trigger_vnum, zone_table[zrn_from].vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
+				mob_proto[mob_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
+				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			} else {
+				mob_proto[mob_to].proto_script->push_back(trigger_vnum);
+				add_trig_to_owner(-1, trigger_vnum, mob_index[mob_to].vnum);
+			}
 		}
 			
 		mob_index[mob_to].total_online = 0;
@@ -4686,22 +4700,22 @@ void ObjDataFree(ZoneRnum zrn) {
 // удаляются в RoomDataFree
 }
 
-void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
-	ObjRnum robj_from = zone_table[rzone_from].RnumObjsLocation.first;
-	ObjRnum robj_last = zone_table[rzone_from].RnumObjsLocation.second;
-	ObjRnum robj_to = real_object(zone_table[rzone_to].vnum * 100);
-	zone_table[rzone_to].RnumObjsLocation.first = robj_to;
+void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
+	ObjRnum robj_from = zone_table[zrn_from].RnumObjsLocation.first;
+	ObjRnum robj_last = zone_table[zrn_from].RnumObjsLocation.second;
+	ObjRnum robj_to = real_object(zone_table[zrn_to].vnum * 100);
+	zone_table[zrn_to].RnumObjsLocation.first = robj_to;
 	ObjData *obj;
 
 	for (int i = robj_from; i <= robj_last; i++) {
-		ObjVnum new_vnum = zone_table[rzone_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
+		ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
 
 		NEWCREATE(obj, new_vnum);
+		const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
 
-			obj->clone_olc_object_from_prototype(obj_proto[i]->get_vnum());
-//			sprintf(buf, "копируем %s %d newvnum %d", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj), new_vnum);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			obj->set_rnum(robj_to);
+		obj->copy_from(obj_original.get());
+		ExtractObjFromWorld(obj_original.get());
+		obj->set_rnum(robj_to);
 			if (obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(obj);
 		}
@@ -4709,7 +4723,7 @@ void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		robj_to++;
 	}
 
-	zone_table[rzone_to].RnumObjsLocation.second = robj_to - 1;
+	zone_table[zrn_to].RnumObjsLocation.second = robj_to - 1;
 }
 
 void ZoneDataFree(ZoneRnum zrn) {
@@ -4827,10 +4841,10 @@ void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 	}
 }
 
-void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
+void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	int i, count, subcmd;
-	auto &zone_from = zone_table[rzone_from];
-	auto &zone_to = zone_table[rzone_to];
+	auto &zone_from = zone_table[zrn_from];
+	auto &zone_to = zone_table[zrn_to];
 
 	zone_to.name = zone_from.name;
 	zone_to.comment = zone_from.comment;
@@ -4882,7 +4896,7 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		}
 	}
 	zone_to.cmd[subcmd].command = 'S';
-	ZoneTransformCMD(rzone_to, rzone_from);
+	ZoneTransformCMD(zrn_to, zrn_from);
 
 /*
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
@@ -4892,7 +4906,7 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to) {
 		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
 	}
 */
-	reset_zone(rzone_to);
+	reset_zone(zrn_to);
 	zone_to.copy_from_zone = zone_from.vnum;
 
 }
