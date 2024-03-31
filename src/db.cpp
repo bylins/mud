@@ -4702,26 +4702,26 @@ void MobDataFree(ZoneRnum zrn) {
 }
 
 void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-	MobRnum rmob_from = zone_table[zrn_from].RnumMobsLocation.first;
-	MobRnum rmob_last = zone_table[zrn_from].RnumMobsLocation.second;
-	MobRnum mob_to = zone_table[zrn_to].RnumMobsLocation.first;
-	for (int i = rmob_from; i <= rmob_last; i++) {
-		mob_proto[mob_to] = mob_proto[i];
-		mob_index[mob_to] = mob_index[i];
-		mob_index[mob_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
-		mob_proto[mob_to].set_rnum(mob_to);
-		mob_proto[mob_to].script->cleanup();
-		mob_proto[mob_to].proto_script.reset(new ObjData::triggers_list_t());
+	MobRnum mrn_from = zone_table[zrn_from].RnumMobsLocation.first;
+	MobRnum mrn_last = zone_table[zrn_from].RnumMobsLocation.second;
+	MobRnum mrn_to = zone_table[zrn_to].RnumMobsLocation.first;
+	for (int i = mrn_from; i <= mrn_last; i++) {
+		mob_proto[mrn_to] = mob_proto[i];
+		mob_index[mrn_to] = mob_index[i];
+		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
+		mob_proto[mrn_to].set_rnum(mrn_to);
+		mob_proto[mrn_to].script->cleanup();
+		mob_proto[mrn_to].proto_script.reset(new ObjData::triggers_list_t());
 //			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
 //			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		for (const auto trigger_vnum : *mob_proto[i].proto_script) {
 //				sprintf(buf, "&Wtrigger_vnum %d zone_table[zrn_from].vnum %d&n", trigger_vnum, zone_table[zrn_from].vnum);
 //				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
-				mob_proto[mob_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
-				sprintf(buf, "add_trig_to_owner trgvnum %d, mob_vnum %d" ,  zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				mob_proto[mrn_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mrn_to].vnum);
+//				sprintf(buf, "add_trig_to_owner trgvnum %d, mob_vnum %d" ,  zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mrn_to].vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 //				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
 //				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
 //				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -4731,16 +4731,16 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				auto trn = real_trigger(trigger_vnum);
 				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
 				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				mob_proto[mob_to].proto_script->push_back(trigger_vnum);
-				add_trig_to_owner(-1, trigger_vnum, mob_index[mob_to].vnum);
+				mob_proto[mrn_to].proto_script->push_back(trigger_vnum);
+				add_trig_to_owner(-1, trigger_vnum, mob_index[mrn_to].vnum);
 			}
 		}
 			
-		mob_index[mob_to].total_online = 0;
-		mob_index[mob_to].stored = 0;
-		mob_to++;
+		mob_index[mrn_to].total_online = 0;
+		mob_index[mrn_to].stored = 0;
+		mrn_to++;
 	}
-	zone_table[zrn_to].RnumMobsLocation.second = mob_to - 1;
+	zone_table[zrn_to].RnumMobsLocation.second = mrn_to - 1;
 }
 
 void ObjDataFree(ZoneRnum zrn) {
@@ -4748,29 +4748,57 @@ void ObjDataFree(ZoneRnum zrn) {
 }
 
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-	ObjRnum robj_from = zone_table[zrn_from].RnumObjsLocation.first;
-	ObjRnum robj_last = zone_table[zrn_from].RnumObjsLocation.second;
-	ObjRnum robj_to = real_object(zone_table[zrn_to].vnum * 100);
-	zone_table[zrn_to].RnumObjsLocation.first = robj_to;
+	ObjRnum orn_from = zone_table[zrn_from].RnumObjsLocation.first;
+	ObjRnum orn_last = zone_table[zrn_from].RnumObjsLocation.second;
+	ObjRnum orn_to = real_object(zone_table[zrn_to].vnum * 100);
+	zone_table[zrn_to].RnumObjsLocation.first = orn_to;
 	ObjData *obj;
 
-	for (int i = robj_from; i <= robj_last; i++) {
+	for (int i = orn_from; i <= orn_last; i++) {
 		ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
 
 		NEWCREATE(obj, new_vnum);
 		const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
 
 		obj->copy_from(obj_original.get());
-		ExtractObjFromWorld(obj_original.get());
-		obj->set_rnum(robj_to);
+		obj->set_rnum(orn_to);
 			if (obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(obj);
 		}
-		obj_proto.set(robj_to, obj);    // old prototype will be deleted automatically
-		robj_to++;
-	}
+		obj_proto.set(orn_to, obj);    // old prototype will be deleted automatically
 
-	zone_table[zrn_to].RnumObjsLocation.second = robj_to - 1;
+		const auto &script = obj_proto[i]->get_proto_script();
+		for (const auto tvn : script) {
+				sprintf(buf, "&Wtrigger_vnum %d zone_table[zrn_from].vnum %d&n", tvn, zone_table[zrn_from].vnum);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			if (zone_table[zrn_from].vnum == tvn / 100) {
+				obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
+				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
+				sprintf(buf, "add_trig_to_owner trgvnum %d, obj_vnum %d" ,  zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			} else {
+				auto trn = real_trigger(tvn);
+				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				obj->add_proto_script(tvn);
+				add_trig_to_owner(-1, tvn, obj->get_vnum());
+			}
+		}
+
+
+
+
+
+
+		ExtractObjFromWorld(obj_original.get());
+		orn_to++;
+	}
+	zone_table[zrn_to].RnumObjsLocation.second = orn_to - 1;
 }
 
 void ZoneDataFree(ZoneRnum zrn) {
