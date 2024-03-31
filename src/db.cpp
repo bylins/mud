@@ -235,6 +235,7 @@ extern ESkill FixNameAndFindSkillId(char *name);
 extern int NumberOfZoneDungeons;
 extern ZoneVnum ZoneStartDungeons;
 extern void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
+extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -2917,6 +2918,10 @@ void CreateBlankTrigsDungeon() {
 			IndexData *index;
 			CREATE(index, 1);
 			index->vnum = trig_vnum  + zvn * 100;
+			if (trig_vnum == 0) 
+				index->vnum = zvn * 100;
+			else
+				index->vnum = zvn * 100 + 99;
 			index->total_online = 0;
 			index->func = nullptr;
 			index->proto = trig;
@@ -2981,21 +2986,22 @@ void CreateBlankMobsDungeon() {
 //			log("create mobs top %d rnum %d size %ld zvn %d", top_of_mobt, rnum, size_new_mob_table, zvn );
 //			medit_mobile_copy(&new_proto[rnum], &mob_proto[0], false);
 			new_proto[rnum].set_rnum(rnum);
-//			if (mob_vnum == 0) {
+			if (mob_vnum == 0) {
 				new_index[rnum].vnum = mob_vnum  + zvn * 100;
-//			} else {
-//				new_index[rnum].vnum = 99 + zvn * 100;
-//			}
+			} else {
+				new_index[rnum].vnum = 99 + zvn * 100;
+			}
 			new_proto[rnum].set_npc_name("пустой моб");
 			new_proto[rnum].SetCharAliases("моб");
 			new_proto[rnum].player_data.PNames[0] = "пустой моб";
 			new_index[rnum].total_online = 0;
 			new_index[rnum].stored = 0;
-			
 			new_index[rnum].func = nullptr;
 			new_proto[rnum].script->cleanup();
 			new_proto[rnum].proto_script->clear();
 			new_index[rnum].zone = zvn;
+			MOB_FLAGS(&new_proto[rnum]).set(EMobFlag::kNpc);
+			new_proto[rnum].player_specials = player_special_data::s_for_mobiles;
 			new_index[rnum].set_idx = -1;
 			rnum++;
 			top_of_mobt++;
@@ -4602,10 +4608,10 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-		new_room->script->trig_list.clear();
-		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
-			new_room->dir_option[dir] = nullptr;
-		}
+//		new_room->script->trig_list.clear();
+//		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
+//			new_room->dir_option[dir] = nullptr;
+//		}
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = world[i]->dir_option[dir];
 			if (from) {
@@ -4628,18 +4634,55 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				sprintf(buf, "Метод 2 имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
 				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			}
-*/			
-		new_room->script->types = world[i]->script->types;
-	 	for (auto t_tmp : world[i]->script->trig_list) {
-			if (trig_index[t_tmp->get_rnum()]->vnum % 100 == zone_table[zrn_from].vnum) {
-				TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
-				Trigger *trig = read_trigger(new_rnum); 
-
-				new_room->script->trig_list.add(trig);
+			
+*/
+// вообще-то прототипы можно и не копировать комнатам, мы в олц их править не будем
+		new_room->proto_script.reset(new ObjData::triggers_list_t());
+		for (const auto trigger_vnum : *world[i]->proto_script) {
+//				sprintf(buf, "Беру trigger_vnum %d zone_table[zrn_from].vnum %d", trigger_vnum, zone_table[zrn_from].vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
+				new_room->proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, new_room->room_vn);
+//				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//				sprintf(buf, "Добавляю триггер к room vnum %d trigvnum %d", new_room->room_vn, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
-				new_room->script->trig_list.add(t_tmp);
+//				auto trn = real_trigger(trigger_vnum);
+//				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				new_room->proto_script->push_back(trigger_vnum);
+				add_trig_to_owner(-1, trigger_vnum, new_room->room_vn);
 			}
 		}
+//сами триггера
+//		new_room->script->types = world[i]->script->types;
+	 	for (auto t_tmp : world[i]->script->trig_list) {
+			if (trig_index[t_tmp->get_rnum()]->vnum / 100 == zone_table[zrn_from].vnum) {
+				TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
+				Trigger *trig = read_trigger(new_rnum); 
+				if (add_trigger(SCRIPT(new_room).get(), trig, -1)) {
+					add_trig_to_owner(-1, trig_index[new_rnum]->vnum, new_room->room_vn);
+				} else {
+					extract_trigger(trig);
+				}
+
+//				new_room->script->trig_list.add(trig);
+			} else {
+				Trigger *trig = read_trigger(t_tmp->get_rnum()); 
+				if (add_trigger(SCRIPT(new_room).get(), trig, -1)) {
+					add_trig_to_owner(-1, trig_index[t_tmp->get_rnum()]->vnum, new_room->room_vn);
+				} else {
+					extract_trigger(trig);
+				}
+//				new_room->script->trig_list.add(t_tmp);
+			}
+		}
+
+
+
 		zone_table[zrn_to].RnumRoomsLocation.second = rroom_to + shift;
 
 		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
@@ -4657,7 +4700,6 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 void MobDataFree(ZoneRnum zrn) {
 // мобы удаляются в RoomDataFree
 }
-extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 
 void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	MobRnum rmob_from = zone_table[zrn_from].RnumMobsLocation.first;
@@ -4670,20 +4712,25 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_proto[mob_to].set_rnum(mob_to);
 		mob_proto[mob_to].script->cleanup();
 		mob_proto[mob_to].proto_script.reset(new ObjData::triggers_list_t());
-			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		for (const auto trigger_vnum : *mob_proto[i].proto_script) {
-//				sprintf(buf, "trigger_vnum %d zone_table[zrn_from].vnum %d", trigger_vnum, zone_table[zrn_from].vnum);
+//				sprintf(buf, "&Wtrigger_vnum %d zone_table[zrn_from].vnum %d&n", trigger_vnum, zone_table[zrn_from].vnum);
 //				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
 				mob_proto[mob_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
 				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
-				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+				sprintf(buf, "add_trig_to_owner trgvnum %d, mob_vnum %d" ,  zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mob_to].vnum);
 				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
+				auto trn = real_trigger(trigger_vnum);
+				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				mob_proto[mob_to].proto_script->push_back(trigger_vnum);
 				add_trig_to_owner(-1, trigger_vnum, mob_index[mob_to].vnum);
 			}

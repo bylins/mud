@@ -540,7 +540,8 @@ void trigedit_save(DescriptorData *d) {
 			}
 
 			if (!buf[0]) {
-				strcpy(buf, "* Empty script");
+				strcpy(buf, "* Empty script~\n");
+				fprintf(trig_file, "%s", buf);
 			} else {
 				char *p;
 				// замена одиночного '~' на '~~'

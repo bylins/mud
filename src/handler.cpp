@@ -293,7 +293,10 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+	if (!ch->IsNpc() 
+			&& NORENTABLE(ch) 
+			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
+			&& !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
