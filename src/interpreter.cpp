@@ -589,7 +589,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
 		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
-		{"копировать", EPosition::kStand, DoZoneCopy, kLvlImmortal, 0, 0},
+		{"копироватьзону", EPosition::kStand, DoZoneCopy, kLvlImplementator, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"кто", EPosition::kRest, do_who, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, DoWhoClan, 0, 0, 0},

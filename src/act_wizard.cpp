@@ -390,11 +390,21 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		}
 	}
 	if (zvn == ZoneStartDungeons + NumberOfZoneDungeons) {
-			sprintf(buf, "Нет свободного места");
+			sprintf(buf, "Нет свободного места.");
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
+	if (zvn < 100) {
+			sprintf(buf, "Попытка склонировать двухзначную зону.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
 	ZoneRnum zrn_to = real_zone(zvn);
+	if (zrn_to == 0) {
+			sprintf(buf, "Нет такой зоны.");
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
 	SendMsgToChar(ch, "Копирую данные.\r\n");
 	utils::CExecutionTimer timer;
 	sprintf(buf, "Попытка создать  dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());

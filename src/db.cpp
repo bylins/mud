@@ -4718,13 +4718,39 @@ void ObjDataFree(ZoneRnum zrn) {
 // на земле удаляются в RoomDataFree
 	ObjRnum orn_from = zone_table[zrn].RnumObjsLocation.first;
 	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
+	CharData *wearer = nullptr;
+	ObjData *in_obj = nullptr;
+	int pos = -1;
 
 	for (ObjRnum orn = orn_from; orn <= orn_last; orn++) {
 		world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
-			const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->get_parent());
-
+			const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParent());
+			if (obj->get_worn_by()) {
+				pos = obj->get_worn_on();
+				wearer = obj->get_worn_by();
+				UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
+			}
+			if (obj->get_in_obj()) {
+				in_obj = obj->get_in_obj();
+				RemoveObjFromObj(obj.get());
+			}
 			obj->swap(*obj_original.get());
+			if (obj_original->has_flag(EObjFlag::kTicktimer)) {
+				obj->set_extra_flag(EObjFlag::kTicktimer);
+			}
+			if (in_obj) {
+				PlaceObjIntoObj(obj.get(), in_obj);
+			}
+			if (wearer) {
+				EquipObj(wearer, obj.get(), pos, CharEquipFlags());
+			}
 			ExtractObjFromWorld(obj_original.get());
+
+//				sprintf(buf, "original %d obj %d",obj_original->get_vnum(), obj->get_vnum());
+//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+//			PlaceObjToInventory(obj_original.get(), obj->get_carried_by()); //пока тока у игроков
+//			RemoveObjFromChar(obj.get());
+//			ExtractObjFromWorld(obj.get());
 		});
 	}
 }
@@ -4746,9 +4772,9 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			if (obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(obj);
 		}
-		obj->set_parent(obj_original->get_rnum());
+		obj->SetParent(obj_original->get_rnum());
 		obj->set_extra_flag(EObjFlag::kNolocate);
-		obj->set_extra_flag(EObjFlag::kRepopDecay);
+//		obj->set_extra_flag(EObjFlag::kRepopDecay);
 
 		obj_proto.set(orn_to, obj);    // old prototype will be deleted automatically
 
