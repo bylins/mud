@@ -280,9 +280,9 @@ void save() {
 int get_obj_to_drop(DropListType::iterator &i) {
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k) {
-		if ((GET_OBJ_MIW(obj_proto[k->second]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM)
+		if ((GetObjMIW(k->second) == ObjData::UNLIMITED_GLOBAL_MAXIMUM)
 			|| (k->second >= 0
-				&& obj_proto.actual_count(k->second) < GET_OBJ_MIW(obj_proto[k->second])))
+				&& obj_proto.actual_count(k->second) < GetObjMIW(k->second)))
 			tmp_list.push_back(k->second);
 	}
 	if (!tmp_list.empty()) {
@@ -336,9 +336,9 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 					continue;
 				}
 				if (number(1, 1000) <= i->chance
-					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == ObjData::UNLIMITED_GLOBAL_MAXIMUM)
+					&& ((GetObjMIW(obj_rnum) == ObjData::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0
-							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum])))) {
+							&& obj_proto.actual_count(obj_rnum) < GetObjMIW(obj_rnum)))) {
 					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", false, mob, 0, 0, kToRoom);
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d (%d lvl)",
 							obj_proto[obj_rnum]->get_short_description().c_str(),

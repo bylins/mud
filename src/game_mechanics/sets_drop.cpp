@@ -148,11 +148,11 @@ bool Linked::need_reset() const {
 		std::map<int, DropNode>::iterator k = drop_list.find(*i);
 		if (k != drop_list.end()) {
 			const int num = obj_proto.actual_count(k->second.obj_rnum);
-			if (num < GET_OBJ_MIW(obj_proto[k->second.obj_rnum]) && !k->second.can_drop) {
+			if (num < GetObjMIW(k->second.obj_rnum) && !k->second.can_drop) {
 				flag = true;
 				k->second.can_drop = true;
 			}
-			if (num >= GET_OBJ_MIW(obj_proto[k->second.obj_rnum]) && k->second.can_drop) {
+			if (num >= GetObjMIW(k->second.obj_rnum) && k->second.can_drop) {
 				k->second.can_drop = false;
 			}
 		}
@@ -1080,7 +1080,7 @@ int check_mob(int mob_rnum) {
 		const int num = obj_proto.actual_count(it->second.obj_rnum);
 		// груп сетины по старой системе
 		if (!it->second.solo) {
-			if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])
+			if (num < GetObjMIW(it->second.obj_rnum)
 				&& number(0, 1000) <= it->second.chance) {
 				rnum = it->second.obj_rnum;
 			}
@@ -1101,8 +1101,8 @@ int check_mob(int mob_rnum) {
 		const int drop_count = it->second.linked_mobs.drop_count();
 		const int drop_mod = mobs_count - drop_count;
 //		log("list_size=%d, drop_count=%d, drop_mod=%d", mobs_count, drop_count, drop_mod);
-//		log("num=%d, miw=%d", num, GET_OBJ_MIW(obj_proto[it->second.ObjRnum]));
-		if (num < GET_OBJ_MIW(obj_proto[it->second.obj_rnum])) {
+//		log("num=%d, miw=%d", num, GetObjMIW(obj_proto[it->second.ObjRnum]));
+		if (num < GetObjMIW(it->second.obj_rnum)) {
 //			log("chance1=%d", it->second.drop_chance);
 			it->second.chance += std::max(0, drop_mod);
 //			log("chance2=%d", it->second.drop_chance);

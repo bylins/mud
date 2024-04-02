@@ -47,6 +47,8 @@ std::string print_special(CharData *mob) {
 			out += "нубхелпер";
 		else if (func == mercenary)
 			out += "ватажник";
+		else
+			out += "глюк";
 	} else {
 		out += "нет";
 	}
@@ -546,7 +548,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		for (fol = k->followers; fol; fol = fol->next) {
 			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol->follower, ch, 0), GET_MOB_VNUM(fol->follower));
 			strcat(buf, buf2);
-			if (strlen(buf) >= 62) {
+			if (strlen(buf) >= 162) {
 				if (fol->next)
 					SendMsgToChar(strcat(buf, ",\r\n"), ch);
 				else
@@ -557,6 +559,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		if (*buf)
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
+
+		SendMsgToChar(ch, "Помогают: ");
+		if (!k->summon_helpers.empty()) {
+			for (auto helper : k->summon_helpers) {
+				SendMsgToChar(ch, "%d ", helper);
+			}
+			SendMsgToChar(ch, "\r\n");
+		} else {
+			SendMsgToChar(ch, "нет.\r\n");
+		}
 	}
 	// Showing the bitvector
 	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
@@ -1066,7 +1078,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
 				rnum >= 0 ? obj_proto.CountInWorld(rnum) - (virt ? 1 : 0) : -1,
 				rnum >= 0 ? obj_proto.stored(rnum) : -1,
-				GET_OBJ_MIW(j));
+				GetObjMIW(j->get_rnum()));
 		SendMsgToChar(buf, ch);
 		// check the object for a script
 		do_sstat_object(ch, j);

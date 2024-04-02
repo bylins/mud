@@ -152,7 +152,7 @@ void redit_save_internally(DescriptorData *d) {
 		} else {
 			world.push_back(new_room);
 		}
-
+		zone_table[OLC_ZNUM(d)].RnumRoomsLocation.second++;
 		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
@@ -260,8 +260,6 @@ void redit_save_internally(DescriptorData *d) {
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num])->cleanup();
 	assign_triggers(world[room_num], WLD_TRIGGER);
-	if (zone_table[OLC_ZNUM(d)].LastRoomVnum < OLC_NUM(d))
-		zone_table[OLC_ZNUM(d)].LastRoomVnum = OLC_NUM(d);
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
 	redit_save_to_disk(OLC_ZNUM(d));
 }

@@ -35,11 +35,14 @@ void room_copy(RoomData *dst, RoomData *src);
 void room_free(RoomData *room);
 
 // public procedures in db.cpp
+RoomRnum real_room(RoomVnum vnum);
+ZoneRnum real_zone(ZoneVnum zvn);
+MobRnum real_mobile(MobVnum vnum);
+ObjRnum real_object(ObjVnum vnum);
 void tag_argument(char *argument, char *tag);
 void boot_db();
 void zone_update();
 bool can_be_reset(ZoneRnum zone);
-RoomRnum real_room(RoomVnum vnum);
 long get_id_by_name(char *name);
 //long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
@@ -54,7 +57,6 @@ void ZoneTrafficSave();
 
 int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
 CharData *read_mobile(MobVnum nr, int type);
-MobRnum real_mobile(MobVnum vnum);
 int vnum_mobile(char *searchname, CharData *ch);
 void ClearCharTalents(CharData *ch);
 int correct_unique(int unique);
@@ -62,7 +64,11 @@ bool check_unlimited_timer(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void flush_player_index();
 bool is_empty(ZoneRnum zone_nr, bool debug = false);
-
+void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
+void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
+void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
+void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
+void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 

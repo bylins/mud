@@ -21,6 +21,7 @@
 #include "game_mechanics/guilds.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
+#include "entities/obj_data.h"
 #include "entities/char_player.h"
 #include "entities/player_races.h"
 #include "entities/entities_constants.h"
@@ -84,7 +85,7 @@
 #include "game_classes/classes_constants.h"
 #include "game_magic/spells_info.h"
 #include "game_magic/magic_rooms.h"
-
+#include "olc/olc.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <boost/algorithm/string.hpp>
 #include <sstream>
@@ -102,10 +103,13 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern time_t zones_stat_date;
 extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
+extern int NumberOfZoneDungeons;
+extern ZoneVnum ZoneStartDungeons;
+extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
+extern bool is_empty(ZoneRnum zone_nr);
 
 void medit_save_to_disk(int zone_num);
 // for entities
-extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void log_zone_count_reset();
 // extern functions
@@ -116,7 +120,6 @@ void rename_char(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
-extern bool is_empty(ZoneRnum zone_nr);
 // local functions
 int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg);
 void perform_immort_invis(CharData *ch, int level);
@@ -313,13 +316,9 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 	std::vector<std::pair<int, int>> zone;
 	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
 		zone.push_back(std::make_pair(i, zone_table[i].traffic));
-//		ss << "Zone: " << zone_table[i].vnum << " count_reset с ребута: " << zone_table[i].count_reset 
-//					<< ", посещено: " << zone_table[i].traffic << ", название зоны: " << zone_table[i].name<< "\r\n";
 	}
 	if (sort) {
-//		std::sort(zone.begin(), zone.end());
 		std::sort(zone.begin(), zone.end(), comp);
-//		std::reverse(zone.begin(), zone.end());
 	}
 	for (auto it : zone) {
 		ss << "Zone: " << zone_table[it.first].vnum << " count_reset с ребута: " << zone_table[it.first].count_reset 
@@ -356,17 +355,67 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		PrintZoneStat(ch, 0, 999999, sort);
 		return;
 	}
-	int tmp1 = RealZoneNum(atoi(arg1));
-	int tmp2 = RealZoneNum(atoi(arg2));
+	int tmp1 = real_zone(atoi(arg1));
+	int tmp2 = real_zone(atoi(arg2));
 	if (tmp1 >= 0 && !*arg2) {
 		PrintZoneStat(ch, tmp1, tmp1, sort);
 		return;
 	}
-	if (tmp1 >= 0 && tmp2 > 0) {
+	if (tmp1 > 0 && tmp2 > 0) {
 		PrintZoneStat(ch, tmp1, tmp2, sort);
 		return;
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
+}
+
+void DoZoneCopy(CharData *ch, char *argument, int, int) {
+	ZoneVnum zvn, zvn_from = atoi(argument);
+	RoomRnum rnum_start, rnum_stop;
+	ZoneRnum rzone_from = real_zone(zvn_from);
+
+	if (!GetZoneRooms(rzone_from, &rnum_start, &rnum_stop)) {
+		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
+	if (world[rnum_start]->room_vn % 100 != 0) {
+		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	}
+	for (zvn = ZoneStartDungeons; zvn < ZoneStartDungeons + NumberOfZoneDungeons; zvn++) {
+		if (zone_table[real_zone(zvn)].copy_from_zone == 0) {
+			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn, ZoneStartDungeons + NumberOfZoneDungeons - zvn - 1);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			break;
+		}
+	}
+	if (zvn == ZoneStartDungeons + NumberOfZoneDungeons) {
+			sprintf(buf, "Нет свободного места.");
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
+	if (zvn < 100) {
+			sprintf(buf, "Попытка склонировать двухзначную зону.");
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
+	ZoneRnum zrn_to = real_zone(zvn);
+	if (zrn_to == 0) {
+			sprintf(buf, "Нет такой зоны.");
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
+	SendMsgToChar(ch, "Копирую данные.\r\n");
+	utils::CExecutionTimer timer;
+	sprintf(buf, "Попытка создать  dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	TrigDataCopy(rzone_from, zrn_to);
+	RoomDataCopy(rzone_from, zrn_to);
+	MobDataCopy(rzone_from, zrn_to);
+	ObjDataCopy(rzone_from, zrn_to);
+	ZoneDataCopy(rzone_from, zrn_to); //последним
+	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
+	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1596,7 +1645,6 @@ void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	act(buf, true, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
-
 	PlaceCharToRoom(ch, location);
 	ch->dismount();
 
@@ -1840,6 +1888,8 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		mob = read_mobile(r_num, REAL);
+		sprintf(buf, "лоад моба  rnum %d vnum %d (rnum %d  vnum %d)", r_num, number, GET_MOB_RNUM(mob), GET_MOB_VNUM(mob));
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		PlaceCharToRoom(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
@@ -2710,11 +2760,11 @@ void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		zone_repop_list.push_back(i);
 		RepopDecay(zone_repop_list);
 		reset_zone(i);
-		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name);
+		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name.c_str());
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
+		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
+		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 	} else {
 		SendMsgToChar("Нет такой зоны.\r\n", ch);
 	}
@@ -3793,8 +3843,8 @@ std::string print_role(CharData *mob) {
 std::string print_flag(CharData *ch, CharData *mob, const std::string &options) {
 	std::vector<std::string> option_list;
 	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
-
 	auto out = fmt::memory_buffer();
+
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
 			format_to(std::back_inserter(out), " [раса: {}{}{} ]",
@@ -3853,30 +3903,24 @@ int print_olist(const CharData *ch, const int first, const int last, std::string
 		const auto vnum = i->first;
 		const auto rnum = i->second;
 		const auto prototype = obj_proto[rnum];
-		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%f : mort =%d]", ++result,
-				 colored_name(prototype->get_short_description().c_str(), 45),
-				 vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
-		ss << buf_;
+
+		ss << fmt::format("{:>5}. {} [{:>5}] [ilvl ={} : mort ={}]", ++result,
+				colored_name(prototype->get_short_description().c_str(), 45), vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
 
 		if (GetRealLevel(ch) >= kLvlGreatGod
 			|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
-					 obj_proto.CountInWorld(rnum),
-					 obj_proto.stored(rnum), GET_OBJ_MIW(obj_proto[rnum]));
-			ss << buf_;
-
+			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", obj_proto.CountInWorld(rnum), obj_proto.stored(rnum), GetObjMIW(rnum));
 			const auto &script = prototype->get_proto_script();
+
 			if (!script.empty()) {
 				ss << " - есть скрипты -";
 				for (const auto trigger_vnum : script) {
-					sprintf(buf1, " [%d]", trigger_vnum);
-					ss << buf1;
+					ss << fmt::format(" [{}]", trigger_vnum);
 				}
 			} else {
 				ss << " - нет скриптов";
 			}
 		}
-
 		ss << "\r\n";
 	}
 
@@ -3954,7 +3998,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->room_vn <= last); nr++) {
 				if (world[nr]->room_vn >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
-							 ++found, world[nr]->room_vn, world[nr]->zone_rn, world[nr]->name);
+							 ++found, world[nr]->room_vn, nr, world[nr]->name);
 					out += buf_;
 					if (!world[nr]->proto_script->empty()) {
 						out += " - есть скрипты -";
@@ -4000,7 +4044,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 							 zone_table[nr].level,
 							 zone_table[nr].mob_level,
 							 zone_table[nr].group,
-							 zone_table[nr].name);
+							 zone_table[nr].name.c_str());
 					out += buf_;
 				}
 			}

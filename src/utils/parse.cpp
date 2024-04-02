@@ -4,7 +4,9 @@
 #include "parse.h"
 
 #include "obj_prototypes.h"
-#include "utils/utils.h"
+#include "db.h"
+
+//extern ObjRnum real_object(ObjVnum vnum) { return obj_proto.rnum(vnum);
 
 namespace text_id {
 
@@ -105,7 +107,7 @@ int TextIdNode::ToNum(const std::string &str) const {
 } // namespace text_id
 
 namespace parse {
-
+	char buf[kMaxStringLength];
 ///
 /// Попытка конвертирования \param text в <int> с перехватом исключения
 /// \return число или -1, в случае неудачи

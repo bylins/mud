@@ -110,8 +110,8 @@ int check_for_dig(CharData *ch) {
 void dig_obj(CharData *ch, ObjData *obj) {
 	char textbuf[300];
 
-	if (GET_OBJ_MIW(obj) >= obj_proto.actual_count(obj->get_rnum())
-		|| GET_OBJ_MIW(obj) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
+	if (GetObjMIW(obj->get_rnum()) >= obj_proto.actual_count(obj->get_rnum())
+		|| GetObjMIW(obj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
 		SendMsgToChar(textbuf, ch);
 		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());

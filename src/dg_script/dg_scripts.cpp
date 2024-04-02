@@ -691,6 +691,8 @@ void script_trigger_check() {
 	bool IsEmpty;
 
 	character_list.foreach_on_copy([&last_zone, &IsEmpty, &amount, &alarge_amount, &sum, &who](const CharData::shared_ptr &ch) {
+		if (ch->purged())
+			return;
 		if (!who)
 			who = ch.get();
 		if (SCRIPT(ch)->has_triggers()) {
@@ -1734,7 +1736,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(real_zone(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
@@ -1742,7 +1744,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(real_zone(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1752,7 +1754,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(real_zone(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (STATE(d) != CON_PLAYING) 
 						continue;
@@ -1762,7 +1764,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				GetZoneRooms(ZoneRnumFromVnum(num), &from , &to);
+				GetZoneRooms(real_zone(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1808,12 +1810,12 @@ void find_replacement(void *go,
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[rnum].get()) || (GET_OBJ_MIW(obj_proto[rnum]) < 0)) {
+					if (check_unlimited_timer(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
 						sprintf(str, "1");
 						return;
 					}
 					const auto count = obj_proto.actual_count(rnum);
-					if (count < GET_OBJ_MIW(obj_proto[rnum])) {
+					if (count < GetObjMIW(rnum)) {
 						sprintf(str, "1");
 						return;
 					}
@@ -1826,10 +1828,10 @@ void find_replacement(void *go,
 				if (num >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0))
+					if (check_unlimited_timer(obj_proto[num].get()) || (GetObjMIW(num) < 0))
 						sprintf(str, "9999999");
 					else
-						sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
+						sprintf(str, "%d", GetObjMIW(num));
 				}
 			}
 			//-Polud
@@ -5704,19 +5706,6 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else {
 		page_string(ch->desc, pagebuf, true);
 	}
-}
-
-int real_trigger(int vnum) {
-	int rnum;
-
-	for (rnum = 0; rnum < top_of_trigt; rnum++) {
-		if (trig_index[rnum]->vnum == vnum)
-			break;
-	}
-
-	if (rnum == top_of_trigt)
-		rnum = -1;
-	return (rnum);
 }
 
 void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
