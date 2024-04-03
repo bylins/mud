@@ -369,11 +369,11 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 }
 
 void DoZoneCopy(CharData *ch, char *argument, int, int) {
-	ZoneVnum zvn, zvn_from = atoi(argument);
+	ZoneVnum zvn_to, zvn_from = atoi(argument);
 	RoomRnum rnum_start, rnum_stop;
-	ZoneRnum rzone_from = real_zone(zvn_from);
+	ZoneRnum zrn_from = real_zone(zvn_from);
 
-	if (!GetZoneRooms(rzone_from, &rnum_start, &rnum_stop)) {
+	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
 		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
@@ -382,24 +382,24 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
-	for (zvn = ZoneStartDungeons; zvn < ZoneStartDungeons + NumberOfZoneDungeons; zvn++) {
-		if (zone_table[real_zone(zvn)].copy_from_zone == 0) {
-			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn, ZoneStartDungeons + NumberOfZoneDungeons - zvn - 1);
+	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
+		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
+			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn_to, ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
 	}
-	if (zvn == ZoneStartDungeons + NumberOfZoneDungeons) {
+	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
 			sprintf(buf, "Нет свободного места.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	if (zvn < 100) {
+	if (zvn_from < 100) {
 			sprintf(buf, "Попытка склонировать двухзначную зону.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	ZoneRnum zrn_to = real_zone(zvn);
+	ZoneRnum zrn_to = real_zone(zvn_to);
 	if (zrn_to == 0) {
 			sprintf(buf, "Нет такой зоны.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -409,11 +409,11 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	utils::CExecutionTimer timer;
 	sprintf(buf, "Попытка создать  dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	TrigDataCopy(rzone_from, zrn_to);
-	RoomDataCopy(rzone_from, zrn_to);
-	MobDataCopy(rzone_from, zrn_to);
-	ObjDataCopy(rzone_from, zrn_to);
-	ZoneDataCopy(rzone_from, zrn_to); //последним
+	TrigDataCopy(zrn_from, zrn_to);
+	RoomDataCopy(zrn_from, zrn_to);
+	MobDataCopy(zrn_from, zrn_to);
+	ObjDataCopy(zrn_from, zrn_to);
+	ZoneDataCopy(zrn_from, zrn_to); //последним
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }

@@ -1812,12 +1812,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	}
 
 	std::string name = GET_NAME(ch);
-	log("[Extract char] Start function for char %s", name.c_str());
-	log("[Extract char] Start function for rnum %d", ch->get_rnum());
 	DescriptorData *t_desc;
-//	log("[Extract char] Start function for char VNUM: %d",  GET_MOB_VNUM(ch));
-	log("[Extract char] Start function for char VNUM: %d",  mob_index[(ch)->get_rnum()].vnum);
 	utils::CExecutionTimer timer;
+
+	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
 	if (!ch->IsNpc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
@@ -1888,12 +1886,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}
-// дублируется в RemoveCharFromRoom
-//	log("[Extract char] Stop fighting self");
-//	if (ch->GetEnemy()) {
-//		stop_fighting(ch, true);
-//	}
-
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);
 
