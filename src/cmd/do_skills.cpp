@@ -78,11 +78,10 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 			sprintf(buf + strlen(buf), "%-23s %s (%d)%s \r\n",
 					skill.GetName(),
 					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
-					CalcSkillMinCap(ch, skill_id),
+					ch->GetTrainedSkill(skill_id) == 0 ? ch->GetEquippedSkill(skill_id) : 
+					std::min(CalcSkillMinCap(ch, skill_id) + ch->GetEquippedSkill(skill_id), MUD::Skill(skill_id).cap),
 					CCNRM(ch, C_NRM));
-
 			skills_names.emplace_back(buf);
-
 			i++;
 		}
 	}
