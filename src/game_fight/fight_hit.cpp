@@ -216,7 +216,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "раздробило вам бедро";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -232,7 +232,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "изуродовало вам ногу";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -299,7 +299,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "повредило вам живот";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -307,12 +307,12 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					SET_AF_BATTLE(victim, kEafSlow);
 					break;
 				case 11:    // abdomin damaged, no speed, no attack
-					dam *= (ch->GetSkill(ESkill::kPunctual) / 4);
+					dam *= (ch->GetSkill(ESkill::kPunctual) / 3);
 					to_char = "разорвало $N2 живот";
 					to_vict = "разорвало вам живот";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -320,7 +320,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					SET_AF_BATTLE(victim, kEafSlow);
 					break;
 				default:    // abdomin damaged, hits = 0
-					dam *= ch->GetSkill(ESkill::kPunctual) / 4;
+					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					to_char = "размозжило $N2 живот";
 					to_vict = "размозжило вам живот";
 					haemorragia(victim, 60);
@@ -378,7 +378,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -403,7 +403,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					to_vict = "сломало вам ребра";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
@@ -413,9 +413,9 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 11:    // chest crushed, hits 0
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
-					dam *= ch->GetSkill(ESkill::kPunctual) / 4;
+					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					haemorragia(victim, 50);
 					to_char = "вывело $N3 из строя";
 					to_vict = "разорвало вам грудь";
@@ -423,9 +423,9 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				default:    // chest crushed, killing
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
-					dam *= ch->GetSkill(ESkill::kPunctual) / 4;
+					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					haemorragia(victim, 60);
 					to_char = "вывело $N3 из строя";
 					to_vict = "размозжило вам грудь";
@@ -521,7 +521,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 						to_vict = "вывело вас из строя";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopFight);
-						af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+						af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					}
 					haemorragia(victim, 20);
@@ -546,7 +546,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 						to_vict = "вывело вас из строя";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kStopFight);
-						af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+						af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 						af[0].battleflag = kAfBattledec | kAfPulsedec;
 					}
 					af[1].type = ESpell::kBattle;
@@ -606,7 +606,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					SetWaitState(victim, 4 * kBattleRound);
 					alt_equip(victim, EEquipPos::kHead, 100, 100);
 					//dam = GET_HIT(victim);
-					dam *= ch->GetSkill(ESkill::kPunctual) / 4;
+					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					to_char = "отбило у $N1 сознание";
 					to_vict = "отбило у вас сознание";
 					haemorragia(victim, 20);
@@ -614,15 +614,15 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 9:    // head damaged, no speed, no attack
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kStopFight);
-					af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[0].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					haemorragia(victim, 30);
-					dam *= (ch->GetSkill(ESkill::kPunctual) / 4);
+					dam *= (ch->GetSkill(ESkill::kPunctual) / 3);
 					to_char = "повергло $N3 в оцепенение";
 					to_vict = "повергло вас в оцепенение";
 					break;
 				case 10:    // head damaged, -1 INT/WIS/CHA
-					dam *= (ch->GetSkill(ESkill::kPunctual) / 4);
+					dam *= (ch->GetSkill(ESkill::kPunctual) / 2);
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kInt;
 					af[0].modifier = -1;
@@ -640,14 +640,14 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[2].battleflag = kAfDeadkeep;
 					af[3].type = ESpell::kBattle;
 					af[3].bitvector = to_underlying(EAffect::kStopFight);
-					af[3].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+					af[3].duration = CalcDuration(victim, 8, 0, 0, 0, 0);
 					af[3].battleflag = kAfBattledec | kAfPulsedec;
 					haemorragia(victim, 50);
 					to_char = "сорвало у $N1 крышу";
 					to_vict = "сорвало у вас крышу";
 					break;
 				case 11:    // hits 0, WIS/2, INT/2, CHA/2
-					dam *= ch->GetSkill(ESkill::kPunctual) / 4;
+					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kInt;
 					af[0].modifier = -victim->get_int() / 2;
@@ -683,7 +683,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					af[2].modifier = -victim->get_cha() / 2;
 					af[2].duration = CalcDuration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 					af[2].battleflag = kAfDeadkeep;
-					dam *= ch->GetSkill(ESkill::kPunctual) / 4;
+					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					to_char = "размозжило $N2 голову";
 					to_vict = "размозжило вам голову";
 					haemorragia(victim, 90);
@@ -748,7 +748,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 		dam /= 5;
 	}
 	if (MOB_FLAGGED(victim, EMobFlag::kNotKillPunctual)) {
-		dam /= 2;
+		dam /= 1.5;
 	}
 	dam = ApplyResist(victim, EResist::kVitality, dam);
 	for (int i = 0; i < 4; i++) {
