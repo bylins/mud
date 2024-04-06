@@ -2213,16 +2213,12 @@ void zone_traffic_load() {
 	for (pugi::xml_node node = node_list.child("zone"); node; node = node.next_sibling("zone")) {
 		const int zone_vnum = atoi(node.attribute("vnum").value());
 		ZoneRnum zrn;
-		for (zrn = 0; zone_table[zrn].vnum != zone_vnum && zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-			/* empty loop */
-		}
+		zrn = real_zone(zone_vnum);
 		int num = atoi(node.attribute("traffic").value());
-		if (zrn >= static_cast<ZoneRnum>(zone_table.size())) {
-			snprintf(buf,
-					 kMaxStringLength,
+		if (zrn == 0 && zone_vnum != 1) {
+			snprintf(buf, kMaxStringLength,
 					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
-					 zone_vnum,
-					 num);
+					 zone_vnum, num);
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
@@ -2866,16 +2862,10 @@ void CreateBlankZoneDungeon() {
 		new_zone.name = "Зона для данжей";
 		new_zone.under_construction = true;
 		new_zone.top = zone_vnum * 100 + 99;
-//		new_zone.FirstRoomVnum = zone_vnum * 100;
-//		new_zone.LastRoomVnum = zone_vnum * 100 + 98;
-//		CREATE(new_zone.cmd, 6);
 		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
 		zone_table.push_back(std::move(new_zone));
 		zone_vnum++;
 	}
-//	for (int zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-//		log("Zone %d name %s", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
-//	}
 }
 
 void CreateBlankRoomDungeon() {
@@ -4503,65 +4493,66 @@ void RoomDataFree(ZoneRnum zrn) {
 	}
 }
 
+void TrigDataFree(ZoneRnum zrn) {
+	TrgRnum rrn_start = zone_table[zrn].RnumTrigsLocation.first;
+	ZoneVnum zvn = zone_table[zrn].vnum;
+
+	for (TrgRnum trn = 0; trn <= 99; trn++) {
+		trig_index[rrn_start + trn]->proto->set_name("Blank trigger");
+		trig_index[rrn_start + trn]->proto->cmdlist->reset();
+		if (trn == 0) 
+			trig_index[rrn_start + trn]->vnum = zvn * 100;
+		else
+			trig_index[rrn_start + trn]->vnum = zvn * 100 + 99;
+	}
+}
+
 void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-	TrgRnum rnum_start = zone_table[zrn_from].RnumTrigsLocation.first;
-	TrgRnum rnum_stop = zone_table[zrn_from].RnumTrigsLocation.second;
-	TrgRnum rtrig_to = zone_table[zrn_to].RnumTrigsLocation.first;
+	TrgRnum trn_start = zone_table[zrn_from].RnumTrigsLocation.first;
+	TrgRnum trn_stop = zone_table[zrn_from].RnumTrigsLocation.second;
+	TrgRnum trn_to = zone_table[zrn_to].RnumTrigsLocation.first;
+	std::string replacer = to_string(zone_table[zrn_to].vnum);
+	std::string search = to_string(zone_table[zrn_from].vnum);
 	bool renum = true;
 
 	if (zone_table[zrn_from].vnum < 100) {
 		mudlog("Номер зоны меньше 100, текст триггера не изменяется!", CMP, kLvlGreatGod, SYSLOG, true);
 		renum = false;
 	}
-
-
-//	for (int i =0; i < top_of_trigt; i++) {
-//		log("i %d (vnum %d) name %s, calc_real %d", i, trig_index[i]->vnum, trig_index[i]->proto->get_name().c_str(), real_trigger(trig_index[i]->vnum));
-//	}
-//	log("rtrig_to %d", rtrig_to);
-	sprintf(buf, "просматриваем trig от %d (rnum %d) до trig %d (rnum %d)", trig_index[rnum_start]->vnum, rnum_start, trig_index[rnum_stop]->vnum, rnum_stop);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
-//		sprintf(buf, " trig_to %d trig_to1 %d)", rtrig_to, rtrig_to1);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 	int shift = 0;
-	for(int i = rnum_start; i <= rnum_stop; i++) {
-//		sprintf(buf, "trig from %s (%d) rnum %d ", trig_index[i]->proto->get_name().c_str(), trig_index[i]->vnum, trig_index[i]->proto->get_rnum());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+	for(int i = trn_start; i <= trn_stop; i++) {
 		Trigger *trig = new Trigger(*trig_index[i]->proto);
-//		free(trig_index[rtrig_to + shift]->proto); крешает
-		trig->set_rnum(rtrig_to + shift);
-		trig_index[rtrig_to + shift]->vnum = zone_table[zrn_to].vnum * 100 + trig_index[i]->vnum % 100;
-		if (renum) {
-			auto c = *trig->cmdlist;
-			std::string replacer = to_string(zone_table[zrn_to].vnum);
-			std::string search = to_string(zone_table[zrn_from].vnum);
+		trig->set_rnum(trn_to + shift);
+		trig_index[trn_to + shift]->vnum = zone_table[zrn_to].vnum * 100 + trig_index[i]->vnum % 100;
+		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
+		trig->cmdlist->reset(new cmdlist_element());
+		auto c_copy = *trig->cmdlist;
+		auto c = *trig_index[i]->proto->cmdlist;
 
-			while (c) {
-//				sprintf(buf, "Строка1 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				utils::ReplaceAll(c->cmd, search, replacer);
-//				sprintf(buf, "Строка2 %s search %s replacer %s", c->cmd.c_str(), search.c_str(), replacer.c_str());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				c = c->next;
+		while (c) {
+			c_copy->cmd = c->cmd;
+			if (renum) {
+				utils::ReplaceAll(c_copy->cmd, search, replacer);
 			}
+			c_copy->line_num = c->line_num;
+			c_copy->next.reset(new cmdlist_element());
+			c = c->next;
+			c_copy = c_copy->next;
 		}
-		trig_index[rtrig_to + shift]->proto = trig;
-//		sprintf(buf, "trig to %s (%d) rnum %d ", trig_index[rtrig_to + shift]->proto->get_name().c_str(), trig_index[rtrig_to + shift]->vnum, trig_index[rtrig_to + shift]->proto->get_rnum());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		c_copy->next.reset();
+		trig_index[trn_to + shift]->proto = trig;
 		shift++;
 	}
 }
 
 void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-	RoomRnum rnum_start = zone_table[zrn_from].RnumRoomsLocation.first;
-	RoomRnum rnum_stop = zone_table[zrn_from].RnumRoomsLocation.second;
-	RoomRnum rroom_to = zone_table[zrn_to].RnumRoomsLocation.first;
+	RoomRnum rrn_start = zone_table[zrn_from].RnumRoomsLocation.first;
+	RoomRnum rrn_stop = zone_table[zrn_from].RnumRoomsLocation.second;
+	RoomRnum rrn_to = zone_table[zrn_to].RnumRoomsLocation.first;
 
 	int shift = 0;
-	for(int i = rnum_start; i <= rnum_stop; i++) {
-		auto &new_room = world[rroom_to + shift++];
+	for(int i = rrn_start; i <= rrn_stop; i++) {
+		auto &new_room = world[rrn_to + shift++];
 		free(new_room->name);
 		new_room->room_vn = zone_table[zrn_to].vnum * 100 + world[i]->room_vn % 100;
 		new_room->name = str_dup(world[i]->name); //почистить
@@ -4586,9 +4577,9 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = world[i]->dir_option[dir];
 			if (from) {
-				int to_room = from->to_room();// - rnum_start + first_room_dungeon;
-				if (to_room >= rnum_start && to_room <= rnum_stop) {
-					int room = from->to_room() - rnum_start + rroom_to;
+				int to_room = from->to_room();// - rrn_start + first_room_dungeon;
+				if (to_room >= rrn_start && to_room <= rrn_stop) {
+					int room = from->to_room() - rrn_start + rrn_to;
 					new_room->dir_option[dir].reset(new ExitData());
 					new_room->dir_option[dir]->to_room(room);
 				}
@@ -4654,7 +4645,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 
 
-		zone_table[zrn_to].RnumRoomsLocation.second = rroom_to + shift;
+		zone_table[zrn_to].RnumRoomsLocation.second = rrn_to + shift;
 
 		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
 
@@ -4669,6 +4660,17 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 }
 
 void MobDataFree(ZoneRnum zrn) {
+	MobRnum mrn_start = zone_table[zrn].RnumMobsLocation.first;
+	ZoneVnum zvn = zone_table[zrn].vnum;
+
+	for (MobRnum mrn = 0; mrn <= 99; mrn++) {
+		mob_proto[mrn_start + mrn].proto_script->clear();
+		mob_proto[mrn_start + mrn].set_npc_name("пустой моб");
+		if (mrn == 0) 
+			mob_index[mrn_start + mrn].vnum = zvn * 100;
+		else
+			mob_index[mrn_start + mrn].vnum = zvn * 100 + 99;
+	}
 // мобы удаляются в RoomDataFree
 }
 
@@ -5030,6 +5032,7 @@ void ZoneReset::reset() {
 		ZoneDataFree(m_zone_rnum);
 		sprintf(buf, "Free zone data. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer3.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		TrigDataFree(m_zone_rnum);
 		sprintf(buf, "Free all dungeons %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
