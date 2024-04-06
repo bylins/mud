@@ -78,9 +78,9 @@ void go_strangle(CharData *ch, CharData *vict) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kStrangle,vict);
 	bool success = result.success;
 //Формула дамага - (удавить/10)% от хп моба (максимум 10%) + удавить*2. Рандом - +/- 25%. Сделал отдельными переменными для удобочитаемости, иначе фиг разберёшь формулу.
-	int hp_percent_dam = ceil(GET_MAX_HIT(vict) * 0.1);
+	int hp_percent_dam = ceil(GET_MAX_HIT(vict) * 0.03);
 	int hp_percent_dam2 = (GET_MAX_HIT(vict) / 100) * (GET_SKILL(ch, ESkill::kStrangle) / 10);
-	int flat_damage = GET_SKILL(ch, ESkill::kStrangle) * 2;
+	int flat_damage = GET_SKILL(ch, ESkill::kStrangle) * 1.5;
 	int dam = number(ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) * 1.25,
 					ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) / 1.25);
 	int strangle_duration = 5;

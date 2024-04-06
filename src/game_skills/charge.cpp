@@ -121,7 +121,7 @@ void go_charge(CharData *ch, int direction) {
 				TrainSkill(ch, ESkill::kCharge, success,target);
 				TryToFindProtector(target, ch);
 				if (!success) {
-					act("Вам не удалось привести $N3 в замешательство своим бешенным натиском!",
+					act("Вам не удалось привести $N3 в замешательство своим натиском!",
 						false, ch, nullptr,target, kToChar);
 					act("$N попытал$U неожиданно напасть на Вас, но Вы вовремя спохватились и приняли бой!",
 						false,target, nullptr, ch, kToChar);
