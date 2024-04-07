@@ -5659,8 +5659,8 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 	char trgtypes[256];
-	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
-		if (trig_index[nr]->vnum >= first) {
+	for (nr = real_trigger(first); nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
+		if (true) {
 			std::string out = "";
 			sprintf(buf,"%2d) [%5d] %-50s ", ++found,
 					trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());

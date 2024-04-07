@@ -60,6 +60,7 @@
 #include "title.h"
 #include "statistics/top.h"
 #include "backtrace.h"
+#include "dg_script/dg_db_scripts.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -2906,11 +2907,7 @@ void CreateBlankTrigsDungeon() {
 			Trigger *trig = new Trigger(-1, "Blank trigger", MTRIG_GREET);
 			IndexData *index;
 			CREATE(index, 1);
-			index->vnum = trig_vnum  + zvn * 100;
-			if (trig_vnum == 0) 
-				index->vnum = zvn * 100;
-			else
-				index->vnum = zvn * 100 + 99;
+			index->vnum = zvn * 100 + trig_vnum;
 			index->total_online = 0;
 			index->func = nullptr;
 			index->proto = trig;
@@ -2919,12 +2916,6 @@ void CreateBlankTrigsDungeon() {
 	}
 	free(trig_index);
 	trig_index = new_index;
-/*	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		log("Calculate zrn %d, first %d last %d", zrn,
-		zone_table[zrn].RnumTrigsLocation.first,
-		zone_table[zrn].RnumTrigsLocation.second);
-	}
-*/
 }
 
 void CreateBlankObjsDungeon() {
@@ -4500,10 +4491,8 @@ void TrigDataFree(ZoneRnum zrn) {
 	for (TrgRnum trn = 0; trn <= 99; trn++) {
 		trig_index[rrn_start + trn]->proto->set_name("Blank trigger");
 		trig_index[rrn_start + trn]->proto->cmdlist->reset();
-		if (trn == 0) 
-			trig_index[rrn_start + trn]->vnum = zvn * 100;
-		else
-			trig_index[rrn_start + trn]->vnum = zvn * 100 + 99;
+		trig_index[rrn_start + trn]->vnum = zvn * 100 + trn;
+		owner_trig[trig_index[rrn_start + trn]->vnum].clear();
 	}
 }
 
@@ -4520,11 +4509,10 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		renum = false;
 	}
-	int shift = 0;
 	for(int i = trn_start; i <= trn_stop; i++) {
 		Trigger *trig = new Trigger(*trig_index[i]->proto);
-		trig->set_rnum(trn_to + shift);
-		trig_index[trn_to + shift]->vnum = zone_table[zrn_to].vnum * 100 + trig_index[i]->vnum % 100;
+		TrgRnum new_rnum = trig_index[i]->vnum % 100 + trn_to;
+		trig->set_rnum(new_rnum);
 		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
 		trig->cmdlist->reset(new cmdlist_element());
 		auto c_copy = *trig->cmdlist;
@@ -4541,8 +4529,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			c_copy = c_copy->next;
 		}
 		c_copy->next.reset();
-		trig_index[trn_to + shift]->proto = trig;
-		shift++;
+		trig_index[new_rnum]->proto = trig;
 	}
 }
 
@@ -4719,60 +4706,28 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	ObjRnum orn_to = zone_table[zrn_to].RnumObjsLocation.first;
 	ObjData *obj;
 
-//	sprintf(buf, "orn %d, zrn %d zvn %d", orn_to, zrn_to, zone_table[zrn_to].vnum);
-//		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 	for (int i = orn_from; i <= orn_last; i++) {
 		ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
 
 		NEWCREATE(obj, new_vnum);
 		const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
-		if (i == orn_from) {
-//			sprintf(buf, "1Obj %s (%d) i %d", obj->get_PName(0).c_str(), obj->get_vnum(), orn_from);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		}
 		obj->copy_from(obj_original.get());
-		obj->set_rnum(orn_to);
 			if (obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(obj);
 		}
-//		if (i == orn_last) {
-//			sprintf(buf, "2Obj %s (%d) rnum 1 %d 2 %d, rnumvnum %d", obj->get_PName(0).c_str(), obj->get_vnum(), obj->get_rnum(), orn_to, obj_proto[orn_to]->get_vnum());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//		}
 		obj->SetParent(obj_original->get_rnum());
 		obj->set_extra_flag(EObjFlag::kNolocate);
 		obj->set_extra_flag(EObjFlag::kNorent);
-//		obj_proto.set_rnum(orn_to, obj);
 		obj_proto.replace(obj, orn_to, new_vnum);
-//		if (i == orn_last) {
-//			sprintf(buf, "3Obj %s (%d) rnum %d rnumvnum %d real_object %d", obj->get_PName(0).c_str(), obj->get_vnum(), obj->get_rnum(),  
-//					obj_proto[orn_to]->get_vnum(), real_object(obj_proto[orn_to]->get_vnum()));
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//		}
 		for (const auto tvn : obj_proto[i]->get_proto_script()) {
-//		if (i == orn_last) {
-				sprintf(buf1, "&YТриггер  %s (%d) TVN %d&n", trig_index[real_trigger(tvn)]->proto->get_name().c_str(), trig_index[real_trigger(tvn)]->vnum, tvn);
-				mudlog(buf1, CMP, kLvlGreatGod, SYSLOG, true);
-//		}
 			if (zone_table[zrn_from].vnum == tvn / 100) {
-				sprintf(buf2, "1Obvj vnum %d добавляем Триггер %d", GET_OBJ_VNUM(obj), zone_table[zrn_to].vnum * 100 + tvn % 100);
-				mudlog(buf2, CMP, kLvlGreatGod, SYSLOG, true);
 				obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
 				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
 			} else {
-				sprintf(buf2, "2Obvj vnum %d добавляем Триггер %d", GET_OBJ_VNUM(obj), zone_table[zrn_to].vnum * 100 + tvn % 100);
-				mudlog(buf2, CMP, kLvlGreatGod, SYSLOG, true);
-//				auto trn = real_trigger(tvn);
-//				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				obj->add_proto_script(tvn);
 				add_trig_to_owner(-1, tvn, obj->get_vnum());
 			}
 		}
-//				sprintf(buf, "Objlog2 %s (%d), real_object %d vnum %d orn_to %d", 
-//				obj_proto[orn_to]->get_PName(0).c_str(), orn_to,  real_object(obj_proto[orn_to]->get_vnum()), obj_proto[orn_to]->get_vnum(), orn_to);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		ExtractObjFromWorld(obj_original.get());
 		orn_to++;
 	}
@@ -4957,7 +4912,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
 	}
 */
-//	reset_zone(zrn_to);
+	reset_zone(zrn_to);
 	zone_to.copy_from_zone = zone_from.vnum;
 
 }

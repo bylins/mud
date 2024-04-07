@@ -409,15 +409,13 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	}
 	SendMsgToChar(ch, "Копирую данные.\r\n");
 	utils::CExecutionTimer timer;
-	sprintf(buf, "Попытка создать  dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
+	sprintf(buf, "Попытка создать  dungeon, zone %s %d", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum);
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	TrigDataCopy(zrn_from, zrn_to);
 	RoomDataCopy(zrn_from, zrn_to);
 	MobDataCopy(zrn_from, zrn_to);
 	ObjDataCopy(zrn_from, zrn_to);
 	ZoneDataCopy(zrn_from, zrn_to); //последним
-	SendMsgToChar(ch, "Сбрасываю зону %d.\r\n", zvn_to);
-	reset_zone(zrn_to);
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }
