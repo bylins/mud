@@ -269,7 +269,7 @@ void oedit_save_internally(DescriptorData *d) {
 		// Копирую новый прототип в массив
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
-		obj_proto.set(robj_num, OLC_OBJ(d));    // old prototype will be deleted automatically
+		obj_proto.set_rnum(robj_num, OLC_OBJ(d));    // old prototype will be deleted automatically
 		// OLC_OBJ(d) удалять не нужно, т.к. он перенесен в массив
 		// прототипов
 	} else {

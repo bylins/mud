@@ -149,7 +149,7 @@ const std::string &ItemNode::get_item_name(int keeper_vnum, int pad /*= 0*/) con
 	if (desc_i != m_descs.end()) {
 		return desc_i->second.PNames[pad];
 	} else {
-		const auto rnum = obj_proto.rnum(m_vnum);
+		const auto rnum = obj_proto.get_rnum(m_vnum);
 		const static std::string wrong_vnum = "<unknown VNUM>";
 		if (-1 == rnum) {
 			return wrong_vnum;
@@ -480,7 +480,7 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 		// чтобы не было в списках всяких "гриб @n1"
 		if (item->empty()) {
 			print_value = item->get_item_name(keeper_vnum);
-			const auto rnum = obj_proto.rnum(item->vnum());
+			const auto rnum = obj_proto.get_rnum(item->vnum());
 			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
@@ -544,7 +544,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 		// чтобы не было в списках всяких "гриб @n1"
 		if (item->empty()) {
 			print_value = item->get_item_name(keeper_vnum);
-			const auto rnum = obj_proto.rnum(item->vnum());
+			const auto rnum = obj_proto.get_rnum(item->vnum());
 			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
@@ -715,7 +715,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			item->replace_descs(tmp_obj, vnum);
 			ident_obj = tmp_obj;
 		} else {
-			const auto rnum = obj_proto.rnum(item->vnum());
+			const auto rnum = obj_proto.get_rnum(item->vnum());
 			const auto object = world_objects.create_raw_from_prototype_by_rnum(rnum);
 			ident_obj = tmp_obj = object.get();
 		}
@@ -858,7 +858,7 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum) const 
 		const auto &item = m_items_list.node(i);
 		if (item->empty()) {
 			name_value = utils::RemoveColors(item->get_item_name(keeper_vnum));
-			const auto rnum = obj_proto.rnum(item->vnum());
+			const auto rnum = obj_proto.get_rnum(item->vnum());
 			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
@@ -887,7 +887,7 @@ int shop_node::can_sell_count(const int item_index) const {
 	if (!item->empty()) {
 		return static_cast<int>(item->size());
 	} else {
-		const auto rnum = obj_proto.rnum(item->vnum());
+		const auto rnum = obj_proto.get_rnum(item->vnum());
 		int numToSell = obj_proto[rnum]->get_max_in_world();
 		if (numToSell == 0) {
 			return numToSell;

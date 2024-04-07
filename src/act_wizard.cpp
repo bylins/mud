@@ -394,11 +394,13 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
+/*
 	if (zvn_from < 100) {
 			sprintf(buf, "Попытка склонировать двухзначную зону.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
+*/
 	ZoneRnum zrn_to = real_zone(zvn_to);
 	if (zrn_to == 0) {
 			sprintf(buf, "Нет такой зоны.");
@@ -414,6 +416,8 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	MobDataCopy(zrn_from, zrn_to);
 	ObjDataCopy(zrn_from, zrn_to);
 	ZoneDataCopy(zrn_from, zrn_to); //последним
+	SendMsgToChar(ch, "Сбрасываю зону %d.\r\n", zvn_to);
+	reset_zone(zrn_to);
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }

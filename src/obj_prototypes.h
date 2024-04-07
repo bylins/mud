@@ -55,6 +55,7 @@ class CObjectPrototypes {
 
 	size_t add(CObjectPrototype *prototype, const ObjVnum vnum);
 	size_t add(const CObjectPrototype::shared_ptr &prototype, const ObjVnum vnum);
+	void replace(CObjectPrototype *prototype, const ObjRnum orn, const ObjVnum ovn);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
@@ -80,9 +81,8 @@ class CObjectPrototypes {
 	auto set_idx(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].set_idx : ~0; }
 	void set_idx(const size_t rnum, const decltype(SPrototypeIndex::set_idx) value) { m_index[rnum].set_idx = value; }
 
-	int rnum(const ObjVnum vnum) const;
-
-	void set(const size_t index, CObjectPrototype *new_value);
+	int get_rnum(const ObjVnum vnum) const;
+	void set_rnum(const size_t index, CObjectPrototype *new_value);
 
 	auto index_size() const {
 		return m_index.size() * (sizeof(index_t::value_type) + sizeof(vnum2index_t::value_type));
