@@ -4912,9 +4912,6 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
 	}
 */
-	reset_zone(zrn_to);
-	zone_to.copy_from_zone = zone_from.vnum;
-
 }
 
 class ZoneReset {

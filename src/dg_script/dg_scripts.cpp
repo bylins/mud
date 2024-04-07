@@ -4524,7 +4524,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	};
 
 	if (!runtrig) {
-		sprintf(buf2, "Не найдено у кого запускать триггер, команда: '%s'", cmd);
+		sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
 		trig_log(*trig, buf2);
 		return (false);
 	}

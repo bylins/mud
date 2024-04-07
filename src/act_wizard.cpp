@@ -416,6 +416,10 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	MobDataCopy(zrn_from, zrn_to);
 	ObjDataCopy(zrn_from, zrn_to);
 	ZoneDataCopy(zrn_from, zrn_to); //последним
+	SendMsgToChar(ch, "Сбрасываю зону %d, delta %f\r\n", zone_table[zrn_to].vnum, timer.delta().count());
+	reset_zone(zrn_to);
+	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
+
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }
@@ -2761,8 +2765,9 @@ void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (i >= 0 && i < static_cast<ZoneRnum>(zone_table.size())) {
 		zone_repop_list.push_back(i);
 		RepopDecay(zone_repop_list);
+		utils::CExecutionTimer timer;
 		reset_zone(i);
-		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].vnum, zone_table[i].name.c_str());
+		sprintf(buf, "Перегружаю зону %d (#%d): %s, delta %f\r\n", i, zone_table[i].vnum, zone_table[i].name.c_str(), timer.delta().count());
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
