@@ -1525,7 +1525,7 @@ void CCraftModel::report_vnum_error(const ObjVnum vnum, const EAddVNumResult add
 }
 
 bool CCraftModel::export_object(const ObjVnum vnum, const char *filename) {
-	const auto rnum = obj_proto.rnum(vnum);
+	const auto rnum = obj_proto.get_rnum(vnum);
 	if (-1 == rnum) {
 		logger("WARNING: Failed to export prototype with VNUM %d", vnum);
 		return false;

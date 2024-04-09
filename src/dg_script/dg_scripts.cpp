@@ -4475,8 +4475,8 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		return (false);
 	}
 
-	if (!id_p || !*id_p || atoi(id_p + 1) == 0) {
-		sprintf(buf2, "run invalid id arg(1), команда: '%s'", cmd);
+	if (!id_p || !*id_p) {
+		sprintf(buf2, "run invalid id arg(2), команда: '%s'", cmd);
 		trig_log(*trig, buf2);
 		return (false);
 	}
@@ -4490,7 +4490,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		if (!o) {
 			r = get_room(id_p);
 			if (!r) {
-				sprintf(buf2, "run invalid id arg(3), команда: '%s'", cmd);
+				sprintf(buf2, "id not found - arg(2), команда: '%s'", cmd);
 				trig_log(*trig, buf2);
 				return (false);
 			}
@@ -4524,6 +4524,8 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	};
 
 	if (!runtrig) {
+		sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+		trig_log(*trig, buf2);
 		return (false);
 	}
 
@@ -5657,8 +5659,8 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 	char trgtypes[256];
-	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
-		if (trig_index[nr]->vnum >= first) {
+	for (nr = real_trigger(first); nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
+		if (true) {
 			std::string out = "";
 			sprintf(buf,"%2d) [%5d] %-50s ", ++found,
 					trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());

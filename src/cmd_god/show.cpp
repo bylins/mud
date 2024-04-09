@@ -304,10 +304,10 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].traffic);
 	*bufptr = str_add(*bufptr, tmpstr);
 	if (zone_table[zone].copy_from_zone > 0) {
-		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s ", zone_table[zone].copy_from_zone, zone_table[real_zone(zone_table[zone].copy_from_zone)].name.c_str());
+		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s\r\n", zone_table[zone].copy_from_zone, zone_table[real_zone(zone_table[zone].copy_from_zone)].name.c_str());
 		*bufptr = str_add(*bufptr, tmpstr);
 	}
-	snprintf(tmpstr, BUFFER_SIZE, ", номер зоны: %d, комнаты: first %d last %d", zone_table[zone].vnum,
+	snprintf(tmpstr, BUFFER_SIZE, "Номер зоны: %d, комнаты: first %d last %d", zone_table[zone].vnum,
 			world[zone_table[zone].RnumRoomsLocation.first]->room_vn,
 			world[zone_table[zone].RnumRoomsLocation.second]->room_vn);
 	*bufptr = str_add(*bufptr, tmpstr);

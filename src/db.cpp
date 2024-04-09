@@ -60,6 +60,7 @@
 #include "title.h"
 #include "statistics/top.h"
 #include "backtrace.h"
+#include "dg_script/dg_db_scripts.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -2873,16 +2874,13 @@ void CreateBlankRoomDungeon() {
 	ZoneRnum zone_rnum = real_zone(ZoneStartDungeons);
 
 	for (ZoneVnum zvn = 0; zvn < NumberOfZoneDungeons; zvn++) {
-		for (RoomVnum room = 0; room <= 98; room++) {
+		for (RoomVnum rvn = 0; rvn <= 98; rvn++) {
 			RoomData *new_room = new RoomData;
 
 			top_of_world++;
 			world.push_back(new_room);
 			new_room->zone_rn = zone_rnum;
-			if (room == 0) 
-				new_room->room_vn = zone_vnum * 100; // первая комната для поиска начала
-			else
-				new_room->room_vn = zone_vnum * 100 + 98; //фейковые комнаты
+			new_room->room_vn = zone_vnum * 100 + rvn;
 //			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
 			new_room->sector_type = ESector::kSecret;
 			new_room->name = str_dup("ДАНЖ");
@@ -2902,15 +2900,11 @@ void CreateBlankTrigsDungeon() {
 	}
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
 		zone_table[real_zone(zvn)].RnumTrigsLocation.first = top_of_trigt;
-		for (TrgVnum trig_vnum = 0; trig_vnum <= 99; trig_vnum++) {
+		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
 			Trigger *trig = new Trigger(-1, "Blank trigger", MTRIG_GREET);
 			IndexData *index;
 			CREATE(index, 1);
-			index->vnum = trig_vnum  + zvn * 100;
-			if (trig_vnum == 0) 
-				index->vnum = zvn * 100;
-			else
-				index->vnum = zvn * 100 + 99;
+			index->vnum = zvn * 100 + tvn;
 			index->total_online = 0;
 			index->func = nullptr;
 			index->proto = trig;
@@ -2919,12 +2913,6 @@ void CreateBlankTrigsDungeon() {
 	}
 	free(trig_index);
 	trig_index = new_index;
-/*	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		log("Calculate zrn %d, first %d last %d", zrn,
-		zone_table[zrn].RnumTrigsLocation.first,
-		zone_table[zrn].RnumTrigsLocation.second);
-	}
-*/
 }
 
 void CreateBlankObjsDungeon() {
@@ -2970,16 +2958,9 @@ void CreateBlankMobsDungeon() {
 
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
 		zone_table[real_zone(zvn)].RnumMobsLocation.first = rnum;
-		for (MobVnum mob_vnum = 0; mob_vnum <= 99; mob_vnum++) {
-		//создание бланк мобов
-//			log("create mobs top %d rnum %d size %ld zvn %d", top_of_mobt, rnum, size_new_mob_table, zvn );
-//			medit_mobile_copy(&new_proto[rnum], &mob_proto[0], false);
+		for (MobVnum mvn = 0; mvn <= 99; mvn++) {
 			new_proto[rnum].set_rnum(rnum);
-			if (mob_vnum == 0) {
-				new_index[rnum].vnum = mob_vnum  + zvn * 100;
-			} else {
-				new_index[rnum].vnum = 99 + zvn * 100;
-			}
+			new_index[rnum].vnum = mvn  + zvn * 100;
 			new_proto[rnum].set_npc_name("пустой моб");
 			new_proto[rnum].SetCharAliases("моб");
 			new_proto[rnum].player_data.PNames[0] = "пустой моб";
@@ -3025,11 +3006,9 @@ void CalculateFirstAndLastRooms() {
 	}
 	zone_table[zrn].RnumRoomsLocation.first = zone_table[zrn - 1].RnumRoomsLocation.second + 1;
 	zone_table[zrn].RnumRoomsLocation.second = rn - 1;
-//	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-//		log("Calculate zrn %d (%d), first %d last %d", zrn, zone_table[zrn].vnum,
-//		zone_table[zrn].RnumRoomsLocation.first,
-//		zone_table[zrn].RnumRoomsLocation.second);
-//	}
+	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		zone_table[zrn].RnumRoomsLocation.second--; //уберем виртуалки
+	}
 }
 
 void add_vrooms_to_all_zones() {
@@ -4436,11 +4415,10 @@ void process_celebrates(int vnum) {
 // Команда не должна изменить флаг
 #define        FLAG_PERSIST        2
 void RoomDataFree(ZoneRnum zrn) {
-	RoomRnum rnum_start, rnum_stop;
+	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 
-	GetZoneRooms(zrn, &rnum_start, &rnum_stop);
-	for(int i = rnum_start; i <= rnum_stop; i++) {
-		auto &room = world[i];
+	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
+		auto &room = world[rrn_start + rvn];
 		auto people_copy = room->people;
 
 		for (const auto vict : people_copy) {
@@ -4454,8 +4432,8 @@ void RoomDataFree(ZoneRnum zrn) {
 				}
 			} else {
 				RemoveCharFromRoom(vict);
-				PlaceCharToRoom(vict,1); //GET_LOADROOM(vict));
-				look_at_room(vict, 1); //GET_LOADROOM(vict));
+				PlaceCharToRoom(vict, real_room(calc_loadroom(vict)));
+				look_at_room(vict, real_room(calc_loadroom(vict))); 
 			}
 		}
 		ObjData *obj, *next_o;
@@ -4470,12 +4448,7 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->affected_by.clear();
 		room->cleanup_script();
 		room->affected.clear();
-
-		if (i == rnum_start) { //первую клетку не трогаем
-			room->room_vn = zone_table[zrn].vnum * 100;
-		} else {
-			room->room_vn = zone_table[zrn].vnum * 100 + 99;
-		}
+		room->room_vn = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			if (room->dir_option[dir]) {
 				room->dir_option[dir].reset();
@@ -4500,10 +4473,8 @@ void TrigDataFree(ZoneRnum zrn) {
 	for (TrgRnum trn = 0; trn <= 99; trn++) {
 		trig_index[rrn_start + trn]->proto->set_name("Blank trigger");
 		trig_index[rrn_start + trn]->proto->cmdlist->reset();
-		if (trn == 0) 
-			trig_index[rrn_start + trn]->vnum = zvn * 100;
-		else
-			trig_index[rrn_start + trn]->vnum = zvn * 100 + 99;
+		trig_index[rrn_start + trn]->vnum = zvn * 100 + trn;
+		owner_trig[trig_index[rrn_start + trn]->vnum].clear();
 	}
 }
 
@@ -4516,14 +4487,15 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	bool renum = true;
 
 	if (zone_table[zrn_from].vnum < 100) {
-		mudlog("Номер зоны меньше 100, текст триггера не изменяется!", CMP, kLvlGreatGod, SYSLOG, true);
+		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		renum = false;
 	}
-	int shift = 0;
 	for(int i = trn_start; i <= trn_stop; i++) {
 		Trigger *trig = new Trigger(*trig_index[i]->proto);
-		trig->set_rnum(trn_to + shift);
-		trig_index[trn_to + shift]->vnum = zone_table[zrn_to].vnum * 100 + trig_index[i]->vnum % 100;
+		TrgRnum new_rnum = trig_index[i]->vnum % 100 + trn_to;
+
+		trig->set_rnum(new_rnum);
 		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
 		trig->cmdlist->reset(new cmdlist_element());
 		auto c_copy = *trig->cmdlist;
@@ -4540,8 +4512,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			c_copy = c_copy->next;
 		}
 		c_copy->next.reset();
-		trig_index[trn_to + shift]->proto = trig;
-		shift++;
+		trig_index[new_rnum]->proto = trig;
 	}
 }
 
@@ -4550,9 +4521,35 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	RoomRnum rrn_stop = zone_table[zrn_from].RnumRoomsLocation.second;
 	RoomRnum rrn_to = zone_table[zrn_to].RnumRoomsLocation.first;
 
-	int shift = 0;
+	for (auto room = rrn_to; room <= rrn_to + 98; room++) {
+		auto people_copy = world[room]->people;
+
+		for (const auto vict : people_copy) {
+			if (vict->IsNpc()) {
+				if (vict->followers
+					|| vict->has_master()) {
+					die_follower(vict);
+				}
+				if (!vict->purged()) {
+					ExtractCharFromWorld(vict, false);
+				}
+			} else {
+				RemoveCharFromRoom(vict);
+				PlaceCharToRoom(vict, real_room(calc_loadroom(vict)));
+				look_at_room(vict, real_room(calc_loadroom(vict))); 
+			}
+		}
+		ObjData *obj, *next_o;
+
+		for ( obj = world[room]->contents; obj; obj = next_o) {
+			next_o = obj->get_next_content();
+			ExtractObjFromWorld(obj);
+		}
+	}
 	for(int i = rrn_start; i <= rrn_stop; i++) {
-		auto &new_room = world[rrn_to + shift++];
+		RoomRnum new_rnum = world[i]->room_vn % 100 + rrn_to;
+		auto &new_room = world[new_rnum];
+
 		free(new_room->name);
 		new_room->room_vn = zone_table[zrn_to].vnum * 100 + world[i]->room_vn % 100;
 		new_room->name = str_dup(world[i]->name); //почистить
@@ -4570,85 +4567,33 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-//		new_room->script->trig_list.clear();
-//		for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
-//			new_room->dir_option[dir] = nullptr;
-//		}
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = world[i]->dir_option[dir];
 			if (from) {
 				int to_room = from->to_room();// - rrn_start + first_room_dungeon;
 				if (to_room >= rrn_start && to_room <= rrn_stop) {
-					int room = from->to_room() - rrn_start + rrn_to;
+					RoomVnum rvn = zone_table[zrn_to].vnum * 100 + world[from->to_room()]->room_vn % 100;
 					new_room->dir_option[dir].reset(new ExitData());
-					new_room->dir_option[dir]->to_room(room);
+					new_room->dir_option[dir]->to_room(real_room(rvn));
 				}
 			}
 		}
-/*			sprintf(buf, "Начинаю копировать тригги комната %d",  world[i]->room_vn);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			for (auto t_tmp : world[i]->script->trig_list) {
-				sprintf(buf, "Метод 1 имя копируемого триггера %s (%d)", t_tmp->get_name().c_str(), trig_index[t_tmp->get_rnum()]->vnum);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
-			for (const auto trigger_vnum : *world[i]->proto_script) {
-				auto trn = real_trigger(trigger_vnum);
-				sprintf(buf, "Метод 2 имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
-			
-*/
-// вообще-то прототипы можно и не копировать комнатам, мы в олц их править не будем
 		new_room->proto_script.reset(new ObjData::triggers_list_t());
 		for (const auto trigger_vnum : *world[i]->proto_script) {
-//				sprintf(buf, "Беру trigger_vnum %d zone_table[zrn_from].vnum %d", trigger_vnum, zone_table[zrn_from].vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
-				new_room->proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, new_room->room_vn);
-//				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//				sprintf(buf, "Добавляю триггер к room vnum %d trigvnum %d", new_room->room_vn, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+				TrgVnum tvn = zone_table[zrn_to].vnum * 100 + trigger_vnum % 100;
+				Trigger *trig = read_trigger(real_trigger(tvn)); 
+
+				add_trigger(SCRIPT(new_room).get(), trig, -1);
+				add_trig_to_owner(-1, tvn, new_room->room_vn);
 			} else {
-//				auto trn = real_trigger(trigger_vnum);
-//				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-				new_room->proto_script->push_back(trigger_vnum);
+				Trigger *trig = read_trigger(real_trigger(trigger_vnum)); 
+
+				add_trigger(SCRIPT(new_room).get(), trig, -1);
 				add_trig_to_owner(-1, trigger_vnum, new_room->room_vn);
 			}
 		}
-//сами триггера
-//		new_room->script->types = world[i]->script->types;
-	 	for (auto t_tmp : world[i]->script->trig_list) {
-			if (trig_index[t_tmp->get_rnum()]->vnum / 100 == zone_table[zrn_from].vnum) {
-				TrgRnum new_rnum = zone_table[zrn_to].RnumTrigsLocation.first + t_tmp->get_rnum() - zone_table[zrn_from].RnumTrigsLocation.first;
-				Trigger *trig = read_trigger(new_rnum); 
-				if (add_trigger(SCRIPT(new_room).get(), trig, -1)) {
-					add_trig_to_owner(-1, trig_index[new_rnum]->vnum, new_room->room_vn);
-				} else {
-					extract_trigger(trig);
-				}
-
-//				new_room->script->trig_list.add(trig);
-			} else {
-				Trigger *trig = read_trigger(t_tmp->get_rnum()); 
-				if (add_trigger(SCRIPT(new_room).get(), trig, -1)) {
-					add_trig_to_owner(-1, trig_index[t_tmp->get_rnum()]->vnum, new_room->room_vn);
-				} else {
-					extract_trigger(trig);
-				}
-//				new_room->script->trig_list.add(t_tmp);
-			}
-		}
-
-
-
-		zone_table[zrn_to].RnumRoomsLocation.second = rrn_to + shift;
-
 		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
-
 		while (sdd) {
 			const ExtraDescription::shared_ptr new_descr(new ExtraDescription);
 			new_descr->set_keyword(sdd->keyword);
@@ -4666,10 +4611,7 @@ void MobDataFree(ZoneRnum zrn) {
 	for (MobRnum mrn = 0; mrn <= 99; mrn++) {
 		mob_proto[mrn_start + mrn].proto_script->clear();
 		mob_proto[mrn_start + mrn].set_npc_name("пустой моб");
-		if (mrn == 0) 
-			mob_index[mrn_start + mrn].vnum = zvn * 100;
-		else
-			mob_index[mrn_start + mrn].vnum = zvn * 100 + 99;
+		mob_index[mrn_start + mrn].vnum = mrn + zvn * 100;
 	}
 // мобы удаляются в RoomDataFree
 }
@@ -4677,43 +4619,37 @@ void MobDataFree(ZoneRnum zrn) {
 void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	MobRnum mrn_from = zone_table[zrn_from].RnumMobsLocation.first;
 	MobRnum mrn_last = zone_table[zrn_from].RnumMobsLocation.second;
-	MobRnum mrn_to = zone_table[zrn_to].RnumMobsLocation.first;
+	MobRnum rrn_first = zone_table[zrn_to].RnumMobsLocation.first;
 	for (int i = mrn_from; i <= mrn_last; i++) {
+		MobRnum mrn_to = rrn_first + mob_index[i].vnum % 100;
 		mob_proto[mrn_to] = mob_proto[i];
 		mob_index[mrn_to] = mob_index[i];
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
-		mob_proto[mrn_to].set_rnum(mrn_to);
+		mob_proto[mrn_to].set_rnum(rrn_first + mob_index[i].vnum % 100);
 		mob_proto[mrn_to].script->cleanup();
 		mob_proto[mrn_to].proto_script.reset(new ObjData::triggers_list_t());
-//			sprintf(buf, "Начинаю копировать тригги моб %d",  mob_index[i].vnum);
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		if (!mob_proto[i].summon_helpers.empty()) {
+			mob_proto[mrn_to].summon_helpers.clear();
+			for (const auto helper : mob_proto[i].summon_helpers) {
+				if (zone_table[zrn_from].vnum == helper / 100) {
+					mob_proto[mrn_to].summon_helpers.push_back(zone_table[zrn_to].vnum * 100 + helper % 100);
+				} else {
+					mob_proto[mrn_to].summon_helpers.push_back(helper);
+				}
+			}
+		}
 		for (const auto trigger_vnum : *mob_proto[i].proto_script) {
-//				sprintf(buf, "&Wtrigger_vnum %d zone_table[zrn_from].vnum %d&n", trigger_vnum, zone_table[zrn_from].vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
 				mob_proto[mrn_to].proto_script->push_back(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
 				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mrn_to].vnum);
-//				sprintf(buf, "add_trig_to_owner trgvnum %d, mob_vnum %d" ,  zone_table[zrn_to].vnum * 100 + trigger_vnum % 100, mob_index[mrn_to].vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
-				auto trn = real_trigger(trigger_vnum);
-				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				mob_proto[mrn_to].proto_script->push_back(trigger_vnum);
 				add_trig_to_owner(-1, trigger_vnum, mob_index[mrn_to].vnum);
 			}
 		}
-			
 		mob_index[mrn_to].total_online = 0;
 		mob_index[mrn_to].stored = 0;
-		mrn_to++;
 	}
-	zone_table[zrn_to].RnumMobsLocation.second = mrn_to - 1;
 }
 
 void ObjDataFree(ZoneRnum zrn) {
@@ -4725,6 +4661,7 @@ void ObjDataFree(ZoneRnum zrn) {
 	int pos = -1;
 
 	for (ObjRnum orn = orn_from; orn <= orn_last; orn++) {
+		obj_proto[orn]->clear_proto_script();
 		world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
 			const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParent());
 			if (obj->get_worn_by()) {
@@ -4747,12 +4684,6 @@ void ObjDataFree(ZoneRnum zrn) {
 				EquipObj(wearer, obj.get(), pos, CharEquipFlags());
 			}
 			ExtractObjFromWorld(obj_original.get());
-
-//				sprintf(buf, "original %d obj %d",obj_original->get_vnum(), obj->get_vnum());
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//			PlaceObjToInventory(obj_original.get(), obj->get_carried_by()); //пока тока у игроков
-//			RemoveObjFromChar(obj.get());
-//			ExtractObjFromWorld(obj.get());
 		});
 	}
 }
@@ -4768,45 +4699,23 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 		NEWCREATE(obj, new_vnum);
 		const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
-
 		obj->copy_from(obj_original.get());
-		obj->set_rnum(orn_to);
 			if (obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(obj);
 		}
 		obj->SetParent(obj_original->get_rnum());
 		obj->set_extra_flag(EObjFlag::kNolocate);
-//		obj->set_extra_flag(EObjFlag::kRepopDecay);
-
-		obj_proto.set(orn_to, obj);    // old prototype will be deleted automatically
-
+		obj->set_extra_flag(EObjFlag::kNorent);
+		obj_proto.replace(obj, orn_to, new_vnum);
 		for (const auto tvn : obj_proto[i]->get_proto_script()) {
-//				sprintf(buf, "&Wtrigger_vnum %d zone_table[zrn_from].vnum %d&n", tvn, zone_table[zrn_from].vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			if (zone_table[zrn_from].vnum == tvn / 100) {
 				obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
 				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
-//				sprintf(buf, "add_trig_to_owner trgvnum %d, obj_vnum %d" ,  zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//				auto trn = real_trigger(zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//				sprintf(buf, "mob vnum %d trigvnum %d", mob_index[i].vnum, zone_table[zrn_to].vnum * 100 + trigger_vnum % 100);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-//				sprintf(buf, "Имя копируемого триггера %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
-//				auto trn = real_trigger(tvn);
-//				sprintf(buf, "Триггер из другой зоны %s (%d)", trig_index[trn]->proto->get_name().c_str(), trig_index[trn]->vnum);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 				obj->add_proto_script(tvn);
 				add_trig_to_owner(-1, tvn, obj->get_vnum());
 			}
 		}
-
-
-
-
-
-
 		ExtractObjFromWorld(obj_original.get());
 		orn_to++;
 	}
@@ -4834,36 +4743,31 @@ void ZoneDataFree(ZoneRnum zrn) {
 	zone_table[zrn].name = "Зона для данжей";
 	zone_table[zrn].reset_mode = 0;
 	zone_table[zrn].top = zone_table[zrn].vnum * 100 + 99;
-	zone_table[zrn].RnumRoomsLocation.second = -1;
 	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
 }
 
 #define TRANS_MOB(arg) \
-	if (mob_index[zone_table[zrn].cmd[subcmd].arg].vnum / 100 == zone_table[zone_from].vnum) { \
-		zone_table[zrn].cmd[subcmd].arg = zone_table[zone_from].cmd[subcmd].arg - \
-		zone_table[zone_from].RnumMobsLocation.first + zone_table[zrn].RnumMobsLocation.first; \
-	}
+	if (mob_index[zone_table[zrn_to].cmd[subcmd].arg].vnum / 100 == zone_table[zrn_from].vnum) { \
+		zone_table[zrn_to].cmd[subcmd].arg = real_mobile(mob_index[zone_table[zrn_from].cmd[subcmd].arg].vnum % 100 + zone_table[zrn_to].vnum * 100); }
 #define TRANS_OBJ(arg) \
-	if (obj_proto[zone_table[zrn].cmd[subcmd].arg]->get_vnum() / 100 == zone_table[zone_from].vnum) { \
-		zone_table[zrn].cmd[subcmd].arg =  zone_table[zone_from].cmd[subcmd].arg - \
-		zone_table[zone_from].RnumObjsLocation.first + zone_table[zrn].RnumObjsLocation.first; \
+	if (obj_proto[zone_table[zrn_to].cmd[subcmd].arg]->get_vnum() / 100 == zone_table[zrn_from].vnum) { \
+		zone_table[zrn_to].cmd[subcmd].arg =  zone_table[zrn_from].cmd[subcmd].arg - \
+		zone_table[zrn_from].RnumObjsLocation.first + zone_table[zrn_to].RnumObjsLocation.first; \
 	}
 #define TRANS_ROOM(arg) \
-	if (world[zone_table[zrn].cmd[subcmd].arg]->room_vn / 100 == zone_table[zone_from].vnum) { \
-		zone_table[zrn].cmd[subcmd].arg =  zone_table[zone_from].cmd[subcmd].arg - \
-		zone_table[zone_from].RnumRoomsLocation.first + zone_table[zrn].RnumRoomsLocation.first; \
-	}
+	if (world[zone_table[zrn_to].cmd[subcmd].arg]->room_vn / 100 == zone_table[zrn_from].vnum) { \
+		zone_table[zrn_to].cmd[subcmd].arg = real_room(world[zone_table[zrn_from].cmd[subcmd].arg]->room_vn % 100 + zone_table[zrn_to].vnum * 100); }
 
-void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
-	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
-		if (zone_table[zrn].cmd[subcmd].command == '*')
+void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
+	for (int subcmd = 0; zone_table[zrn_to].cmd[subcmd].command != 'S'; ++subcmd) {
+		if (zone_table[zrn_to].cmd[subcmd].command == '*')
 			continue;
 
 //		log("CMD from %d %d %d %d %d %d",
-//		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
-//		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
-//		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
-		switch (zone_table[zrn].cmd[subcmd].command) {
+//		zone_table[zrn_to].cmd[subcmd].command, zone_table[zrn_to].cmd[subcmd].if_flag,
+//		zone_table[zrn_to].cmd[subcmd].arg1, zone_table[zrn_to].cmd[subcmd].arg2,
+//		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
+		switch (zone_table[zrn_to].cmd[subcmd].command) {
 			case 'M': 
 				TRANS_MOB(arg1);
 				TRANS_ROOM(arg3);
@@ -4907,13 +4811,13 @@ void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 
 			case 'T':
 				// arg2 не преобразовываю, хотя может надо :)
-				if (zone_table[zrn].cmd[subcmd].arg1 == WLD_TRIGGER) {
+				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg3);
 				}
 				break;
 
 			case 'V':
-				if (zone_table[zrn].cmd[subcmd].arg1 == WLD_TRIGGER) {
+				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg2);
 				}
 				break;
@@ -4921,10 +4825,11 @@ void ZoneTransformCMD(ZoneRnum zrn, ZoneRnum zone_from) {
 				break;;
 		}
 //		log("CMD to %d %d %d %d %d %d",
-//		zone_table[zrn].cmd[subcmd].command, zone_table[zrn].cmd[subcmd].if_flag,
-//		zone_table[zrn].cmd[subcmd].arg1, zone_table[zrn].cmd[subcmd].arg2,
-//		zone_table[zrn].cmd[subcmd].arg3, zone_table[zrn].cmd[subcmd].arg4);
+//		zone_table[zrn_to].cmd[subcmd].command, zone_table[zrn_to].cmd[subcmd].if_flag,
+//		zone_table[zrn_to].cmd[subcmd].arg1, zone_table[zrn_to].cmd[subcmd].arg2,
+//		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
 	}
+
 }
 
 void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
@@ -4964,7 +4869,6 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		zone_to.typeB_list[i] = zone_from.typeB_list[i];
 	}
 	for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
-	log("Create CMD count %d", count);
 	CREATE(zone_to.cmd, count + 1); //почистить
 
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
@@ -4992,9 +4896,6 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		zone_to.cmd[subcmd].arg3, zone_to.cmd[subcmd].arg4);
 	}
 */
-	reset_zone(zrn_to);
-	zone_to.copy_from_zone = zone_from.vnum;
-
 }
 
 class ZoneReset {
@@ -6074,7 +5975,7 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 ObjRnum real_object(ObjVnum vnum) {
-	return obj_proto.rnum(vnum);
+	return obj_proto.get_rnum(vnum);
 }
 
 ZoneRnum real_zone(ZoneVnum vnum) {
