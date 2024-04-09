@@ -419,7 +419,6 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 	SendMsgToChar(ch, "Сбрасываю зону %d, delta %f\r\n", zone_table[zrn_to].vnum, timer.delta().count());
 	reset_zone(zrn_to);
 	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
-
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 }
@@ -1894,8 +1893,6 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		mob = read_mobile(r_num, REAL);
-		sprintf(buf, "лоад моба  rnum %d vnum %d (rnum %d  vnum %d)", r_num, number, GET_MOB_RNUM(mob), GET_MOB_VNUM(mob));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		PlaceCharToRoom(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
@@ -2723,7 +2720,6 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	}
-
 	if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
 		SendMsgToChar(OK, ch);
 	}
