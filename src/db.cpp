@@ -4845,7 +4845,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	zone_to.level = zone_from.level;
 	zone_to.type = zone_from.type;
 	zone_to.top = zone_to.vnum * 100 + 99;
-	zone_to.reset_mode = zone_from.reset_mode;
+	zone_to.reset_mode = 0; //самостоятельно не ресетится
 	zone_to.lifespan = zone_from.lifespan;
 	zone_to.reset_idle = zone_from.reset_idle;
 	zone_to.typeA_count = zone_from.typeA_count;
