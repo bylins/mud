@@ -234,7 +234,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 //-Polud
 
 extern RoomRnum top_of_world;
-extern std::unordered_map<long, CharData *> mob_by_uid;
+extern std::unordered_map<long, CharData *> chardata_by_uid;
 
 void add_trig_index_entry(int nr, Trigger *proto);
 extern IndexData **trig_index;

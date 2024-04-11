@@ -1908,13 +1908,11 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) > -1)
-			&& !MOB_FLAGGED(ch, EMobFlag::kSummoned))    // if mobile и не умертвие
-		{
+		if ((GET_MOB_RNUM(ch) >= 0) && !MOB_FLAGGED(ch, EMobFlag::kSummoned)) {
 			mob_index[GET_MOB_RNUM(ch)].total_online--;
-			mob_by_uid.erase(ch->id);
 		}
 	}
+	chardata_by_uid.erase(ch->id);
 	bool left_in_game = false;
 	if (!is_npc
 		&& ch->desc != nullptr) {
