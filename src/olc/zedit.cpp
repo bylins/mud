@@ -429,6 +429,11 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	std::string comment;
 	FILE *zfile;
 
+	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
 	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].vnum);
 	if (!(zfile = fopen(fname, "w"))) {
 		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].vnum);

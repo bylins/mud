@@ -289,6 +289,12 @@ void oedit_save_internally(DescriptorData *d) {
 void oedit_save_to_disk(ZoneRnum zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
+
+	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open objects file!", BRF, kLvlBuilder, SYSLOG, true);

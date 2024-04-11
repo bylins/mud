@@ -546,6 +546,11 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 
 	zone = zone_table[zone_num].vnum;
 	top = zone_table[zone_num].top;
+	if (zone >= ZoneStartDungeons) {
+			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
 
 	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
 	if (!(mob_file = fopen(fname, "w"))) {

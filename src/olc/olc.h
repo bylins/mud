@@ -62,6 +62,8 @@ void get_char_cols(CharData *ch);
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
+extern ZoneVnum ZoneStartDungeons;
+
 // * OLC structures.
 
 typedef struct t_zcmd {

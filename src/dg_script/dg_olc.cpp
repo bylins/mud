@@ -494,13 +494,12 @@ void trigedit_save(DescriptorData *d) {
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
-
-#ifdef CIRCLE_MAC
-	sprintf(fname, "%s:%i.new", TRG_PREFIX, zone);
-#else
+	if (zone_table[zone].vnum >= ZoneStartDungeons) {
+			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
 	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
-#endif
-
 	if (!(trig_file = fopen(fname, "w"))) {
 		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
 		mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
