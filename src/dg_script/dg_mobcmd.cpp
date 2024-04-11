@@ -818,6 +818,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 */
 		PlaceCharToRoom(m, ch->in_room);
 		std::swap(ch, m);
+		ch->script->types = m->script->types;
 		std::swap(ch->id, m->id); //UID надо осталять старые
 		Trigger *new_t = new Trigger(*trig_index[trig->get_rnum()]->proto);
 //перенесем триггера

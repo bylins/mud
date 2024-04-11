@@ -644,7 +644,6 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 	}
 
 	char buf[kMaxInputLength];
-
 	if (!CheckScript(ch, MTRIG_DEATH)
 		|| AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return 1;
