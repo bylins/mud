@@ -271,6 +271,11 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	FILE *fp;
 	RoomData *room;
 
+	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+	}
 	if (zone_num < 0 || zone_num >= static_cast<int>(zone_table.size())) {
 		log("SYSERR: redit_save_to_disk: Invalid real zone passed!");
 		return;

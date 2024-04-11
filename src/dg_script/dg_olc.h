@@ -29,6 +29,7 @@ void dg_olc_script_copy(DescriptorData *d);
 void dg_script_menu(DescriptorData *d);
 int dg_script_edit_parse(DescriptorData *d, char *arg);
 void indent_trigger(std::string &cmd, int *level);
+extern ZoneVnum ZoneStartDungeons;
 
 // define the largest set of commands for as trigger
 #define MAX_CMD_LENGTH 32768    // 16k should be plenty and then some
