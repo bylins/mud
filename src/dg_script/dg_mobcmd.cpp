@@ -896,7 +896,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_serial_num(m->get_serial_num());
 		m->set_master(nullptr);
 		ExtractCharFromWorld(m, true);
-		mob_by_uid[ch->id] = ch;
+		chardata_by_uid[ch->id] = ch;
 		if (c_new) {
 			new_t->curr_line = c_new;
 			GET_TRIG_DEPTH(new_t) = 1;

@@ -100,11 +100,11 @@ const char *ACTNULL = "<NULL>";
 
 // return char with UID n
 CharData *find_char(long n) {
-	CharData *mob = mob_by_uid[n];
-	if (mob) {
-		return mob;
+	CharData *ch = chardata_by_uid[n];
+	if (ch) {
+		return ch;
 	}
-	return find_pc(n);
+	return nullptr;
 }
 
 // return pc online with UID n
