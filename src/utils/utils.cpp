@@ -104,7 +104,7 @@ CharData *find_char(long n) {
 	if (ch) {
 		return ch;
 	}
-	return nullptr;
+	return find_pc(n);//nullptr;
 }
 
 // return pc online with UID n
