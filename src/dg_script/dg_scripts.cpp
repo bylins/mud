@@ -817,6 +817,7 @@ EVENT(trig_wait_event) {
 	type = wait_event_obj->type;
 
 	GET_TRIG_WAIT(trig) = nullptr;
+	log("trigger wait event: start trigger %d", GET_TRIG_VNUM(trig));
 
 	script_driver(go, trig, type, TRIG_CONTINUE);
 	free(wait_event_obj);

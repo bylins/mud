@@ -2323,7 +2323,8 @@ void do_entergame(DescriptorData *d) {
 	check_portals(d->character.get());
 
 	// with the copyover patch, this next line goes in enter_player_game()
-	GET_ID(d->character) = GET_IDNUM(d->character);
+	d->character->id = GET_IDNUM(d->character);
+	chardata_by_uid[d->character->id] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
 	d->character->set_last_logon(time(nullptr));
 //	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
