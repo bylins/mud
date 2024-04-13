@@ -5647,6 +5647,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	if ((first < 0) || (first > kMaxProtoNumber) || (last < 0) || (last > kMaxProtoNumber)) {
 		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", kMaxProtoNumber);
 		SendMsgToChar(buf, ch);
+		return;
 	}
 
 	if (first >= last) {
@@ -5658,8 +5659,13 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Максимальный показываемый промежуток - 200.\n\r", ch);
 		return;
 	}
+	nr = real_trigger(first);
+	if (nr < 0) {
+		SendMsgToChar("Кривое первое число.\n\r", ch);
+		return;
+	}
 	char trgtypes[256];
-	for (nr = real_trigger(first); nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
+	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		if (true) {
 			std::string out = "";
 			sprintf(buf,"%2d) [%5d] %-50s ", ++found,
