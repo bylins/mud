@@ -13,6 +13,7 @@ ExitData::ExitData() : keyword(nullptr),
 }
 
 ExitData::~ExitData() {
+	general_description.clear();
 	if (keyword != nullptr)
 		free(keyword);
 	if (vkeyword != nullptr)
