@@ -4451,7 +4451,10 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->room_vn = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			if (room->dir_option[dir]) {
-				room->dir_option[dir].reset();
+				room->dir_option[dir]->general_description.clear();
+				room->dir_option[dir]->set_keyword("");
+				room->dir_option[dir]->set_vkeyword("");
+//				room->dir_option[dir].reset();
 			}
 		}
 		ExtraDescription::shared_ptr sdd = room->ex_description;
@@ -4486,6 +4489,11 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	std::string search = to_string(zone_table[zrn_from].vnum);
 	bool renum = true;
 
+	if (trn_start == -1) {
+		sprintf(buf, "В зоне нет триггеров, копируем остальное");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
 	if (zone_table[zrn_from].vnum < 100) {
 		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -4521,6 +4529,11 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	RoomRnum rrn_stop = zone_table[zrn_from].RnumRoomsLocation.second;
 	RoomRnum rrn_to = zone_table[zrn_to].RnumRoomsLocation.first;
 
+	if (rrn_start == -1) {
+		sprintf(buf, "В зоне нет комнат, копируем остальное");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
 	for (auto room = rrn_to; room <= rrn_to + 98; room++) {
 		auto people_copy = world[room]->people;
 
@@ -4575,6 +4588,17 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 					RoomVnum rvn = zone_table[zrn_to].vnum * 100 + world[from->to_room()]->room_vn % 100;
 					new_room->dir_option[dir].reset(new ExitData());
 					new_room->dir_option[dir]->to_room(real_room(rvn));
+					if (!from->general_description.empty()) {
+						new_room->dir_option[dir]->general_description = from->general_description; //чиcтить
+					}
+					if (from->keyword) {
+						new_room->dir_option[dir]->set_keyword(from->keyword); //чистить
+					}
+					if (from->vkeyword) {
+						new_room->dir_option[dir]->set_vkeyword(from->vkeyword); //чистить
+					}
+					new_room->dir_option[dir]->exit_info = from->exit_info;
+					new_room->dir_option[dir]->key = from->key;
 				}
 			}
 		}
@@ -4620,6 +4644,12 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	MobRnum mrn_from = zone_table[zrn_from].RnumMobsLocation.first;
 	MobRnum mrn_last = zone_table[zrn_from].RnumMobsLocation.second;
 	MobRnum rrn_first = zone_table[zrn_to].RnumMobsLocation.first;
+
+	if (mrn_from == -1) {
+		sprintf(buf, "В зоне нет мобов, копируем остальное");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
 	for (int i = mrn_from; i <= mrn_last; i++) {
 		MobRnum mrn_to = rrn_first + mob_index[i].vnum % 100;
 		mob_proto[mrn_to] = mob_proto[i];
@@ -4694,9 +4724,13 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	ObjRnum orn_to = zone_table[zrn_to].RnumObjsLocation.first;
 	ObjData *obj;
 
+	if (orn_from == -1) {
+		sprintf(buf, "В зоне нет объектов, копируем остальное");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
 	for (int i = orn_from; i <= orn_last; i++) {
 		ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
-
 		NEWCREATE(obj, new_vnum);
 		const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
 		obj->copy_from(obj_original.get());
