@@ -5651,7 +5651,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 
-	if (first >= last) {
+	if (first > last) {
 		SendMsgToChar("Второе значение должно быть больше первого.\n\r", ch);
 		return;
 	}
