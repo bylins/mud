@@ -4451,10 +4451,10 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->room_vn = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			if (room->dir_option[dir]) {
-				room->dir_option[dir]->general_description.clear();
-				room->dir_option[dir]->set_keyword("");
-				room->dir_option[dir]->set_vkeyword("");
-//				room->dir_option[dir].reset();
+//				room->dir_option[dir]->general_description.clear();
+//				room->dir_option[dir]->set_keyword("");
+//				room->dir_option[dir]->set_vkeyword("");
+				room->dir_option[dir].reset();
 			}
 		}
 		ExtraDescription::shared_ptr sdd = room->ex_description;
@@ -4598,7 +4598,8 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 						new_room->dir_option[dir]->set_vkeyword(from->vkeyword); //чистить
 					}
 					new_room->dir_option[dir]->exit_info = from->exit_info;
-					new_room->dir_option[dir]->key = from->key;
+					new_room->dir_option[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
+					new_room->dir_option[dir]->lock_complexity = from->lock_complexity;
 				}
 			}
 		}
