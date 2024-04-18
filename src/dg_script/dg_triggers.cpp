@@ -543,10 +543,8 @@ int fight_mtrigger(CharData *ch) {
 	if (!ch || ch->purged()) {
 		return 1;
 	}
-
 	if (!CheckScript(ch, MTRIG_FIGHT) || !ch->GetEnemy() || !CAN_START_MTRIG(ch))
 		return 1;
-
 	for (auto t : SCRIPT(ch)->trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_FIGHT) && (number(1, 100) <= GET_TRIG_NARG(t))) {
 			snprintf(buf, kMaxInputLength, "%d", ch->round_counter);
@@ -556,7 +554,6 @@ int fight_mtrigger(CharData *ch) {
 			break;
 		}
 	}
-
 	return 1;
 }
 

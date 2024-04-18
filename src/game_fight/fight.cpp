@@ -1761,7 +1761,6 @@ void process_npc_attack(CharData *ch) {
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
-
 	if (!fight_mtrigger(ch)) {
 		return;
 	}
@@ -2090,7 +2089,6 @@ void perform_violence() {
 			if (ch->initiative != initiative || ch->in_room == kNowhere) {
 				continue;
 			}
-
 			// If mob cast 'hold' when initiative setted
 			if (AFF_FLAGGED(ch, EAffect::kHold)
 				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)
