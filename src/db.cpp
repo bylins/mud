@@ -4741,6 +4741,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		obj->SetParent(obj_original->get_rnum());
 		obj->set_extra_flag(EObjFlag::kNolocate);
 		obj->set_extra_flag(EObjFlag::kNorent);
+		obj->set_extra_flag(EObjFlag::kNosell);
 		obj_proto.replace(obj, orn_to, new_vnum);
 		for (const auto tvn : obj_proto[i]->get_proto_script()) {
 			if (zone_table[zrn_from].vnum == tvn / 100) {
