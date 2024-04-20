@@ -181,6 +181,7 @@ void add_vrooms_to_all_zones();
 void CalculateFirstAndLastRooms();
 void CalculateFirstAndLastMobs();
 void renum_world();
+void PasteDirs();
 void renum_zone_table();
 void log_zone_error(ZoneRnum zone, int cmd_no, const char *message);
 void reset_time();
@@ -1346,6 +1347,10 @@ void GameLoader::boot_world() {
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
 	add_vrooms_to_all_zones();
+
+	boot_profiler.next_step("Adding dirs to  room.");
+	log("Adding dirs to room.");
+	PasteDirs();
 
 	boot_profiler.next_step("Calculate first end last room into zones");
 	log("Calculate first and last room into zones.");
@@ -2853,6 +2858,39 @@ void check_start_rooms(void) {
 	}
 }
 
+void RestoreRoomExitData(RoomRnum rrn) {
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+		const auto &from = world[rrn]->dir_option_proto[dir];
+
+//		if (world[rrn]->dir_option[dir]) {
+//			world[rrn]->dir_option[dir]->to_room(kNowhere);
+//			world[rrn]->dir_option[dir].reset();
+//		}
+		if (from) {
+			world[rrn]->dir_option[dir].reset(new ExitData());
+			world[rrn]->dir_option[dir]->to_room(from->to_room());
+			if (!from->general_description.empty()) {
+				world[rrn]->dir_option[dir]->general_description = from->general_description;
+			}
+			if (from->keyword) {
+				world[rrn]->dir_option[dir]->set_keyword(from->keyword);
+			}
+			if (from->vkeyword) {
+				world[rrn]->dir_option[dir]->set_vkeyword(from->vkeyword);
+			}
+			world[rrn]->dir_option[dir]->exit_info = from->exit_info;
+			world[rrn]->dir_option[dir]->key = from->key;
+			world[rrn]->dir_option[dir]->lock_complexity = from->lock_complexity;
+		}
+	}
+}
+
+void PasteDirs() {
+	for(int i = kFirstRoom; i <= top_of_world; i++) {
+		RestoreRoomExitData(i);
+	}
+}
+
 void CreateBlankZoneDungeon() {
 	ZoneVnum zone_vnum = ZoneStartDungeons;
 
@@ -3062,10 +3100,11 @@ void renum_world(void) {
 
 	for (room = kFirstRoom; room <= top_of_world; room++) {
 		for (door = 0; door < EDirection::kMaxDirNum; door++) {
-			if (world[room]->dir_option[door]) {
-				if (world[room]->dir_option[door]->to_room() != kNowhere) {
-					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
+			if (world[room]->dir_option_proto[door]) {
+				if (world[room]->dir_option_proto[door]->to_room() != kNowhere) {
+					const auto to_room = real_room(world[room]->dir_option_proto[door]->to_room());
 
+					world[room]->dir_option_proto[door]->to_room(to_room);
 					world[room]->dir_option[door]->to_room(to_room);
 				}
 			}
@@ -5324,12 +5363,12 @@ void ZoneReset::reset_zone_essential() {
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
-
 					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= EDirection::kMaxDirNum ||
 						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == nullptr)) {
 						ZONE_ERROR("door does not exist, command disabled");
 						ZCMD.command = '*';
 					} else {
+						RestoreRoomExitData(ZCMD.arg1);
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kBrokenLock);
 						switch (ZCMD.arg3) {
 							case 0:
@@ -6378,15 +6417,15 @@ void room_copy(RoomData *dst, RoomData *src)
 
 	// Выходы и входы
 	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
-		const auto &rdd = src->dir_option[i];
+		const auto &rdd = src->dir_option_proto[i];
 		if (rdd) {
 			dst->dir_option[i].reset(new ExitData());
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
-			dst->dir_option[i]->general_description = rdd->general_description;
-			dst->dir_option[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : nullptr);
-			dst->dir_option[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : nullptr);
+			dst->dir_option_proto[i]->general_description = rdd->general_description;
+			dst->dir_option_proto[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : nullptr);
+			dst->dir_option_proto[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : nullptr);
 		}
 	}
 
