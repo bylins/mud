@@ -512,7 +512,7 @@ void WorldFile::parse_room(int virtual_nr) {
 }
 
 void WorldFile::setup_dir(int room, unsigned dir) {
-	if (dir >= world[room]->dir_option.size()) {
+	if (dir >= world[room]->dir_option_proto.size()) {
 		log("SYSERROR : dir=%d (%s:%d)", dir, __FILE__, __LINE__);
 		return;
 	}
@@ -522,11 +522,11 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
-	world[room]->dir_option[dir].reset(new ExitData());
-	world[room]->dir_option[dir]->general_description = fread_string();
+	world[room]->dir_option_proto[dir].reset(new ExitData());
+	world[room]->dir_option_proto[dir]->general_description = fread_string();
 
 	// парс строки алиаса двери на имя; вининельный падеж, если он есть
-	world[room]->dir_option[dir]->set_keywords(fread_string());
+	world[room]->dir_option_proto[dir]->set_keywords(fread_string());
 
 	if (!get_line(file(), line)) {
 		log("SYSERR: Format error, %s", line);
@@ -536,25 +536,25 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	if (result == 3)//Polud видимо "старый" формат (20.10.2010), прочитаем в старом
 	{
 		if (t[0] & 1)
-			world[room]->dir_option[dir]->exit_info = EExitFlag::kHasDoor;
+			world[room]->dir_option_proto[dir]->exit_info = EExitFlag::kHasDoor;
 		else if (t[0] & 2)
-			world[room]->dir_option[dir]->exit_info = EExitFlag::kHasDoor | EExitFlag::kPickroof;
+			world[room]->dir_option_proto[dir]->exit_info = EExitFlag::kHasDoor | EExitFlag::kPickroof;
 		else
-			world[room]->dir_option[dir]->exit_info = 0;
+			world[room]->dir_option_proto[dir]->exit_info = 0;
 		if (t[0] & 4)
-			world[room]->dir_option[dir]->exit_info |= EExitFlag::kHidden;
+			world[room]->dir_option_proto[dir]->exit_info |= EExitFlag::kHidden;
 
-		world[room]->dir_option[dir]->lock_complexity = 0;
+		world[room]->dir_option_proto[dir]->lock_complexity = 0;
 	} else if (result == 4) {
-		world[room]->dir_option[dir]->exit_info = t[0];
-		world[room]->dir_option[dir]->lock_complexity = t[3];
+		world[room]->dir_option_proto[dir]->exit_info = t[0];
+		world[room]->dir_option_proto[dir]->lock_complexity = t[3];
 	} else {
 		log("SYSERR: Format error, %s", buf2);
 		exit(1);
 	}
 
-	world[room]->dir_option[dir]->key = t[1];
-	world[room]->dir_option[dir]->to_room(t[2]);
+	world[room]->dir_option_proto[dir]->key = t[1];
+	world[room]->dir_option_proto[dir]->to_room(t[2]);
 }
 
 bool WorldFile::load() {

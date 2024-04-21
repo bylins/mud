@@ -63,11 +63,6 @@ void redit_disp_exit_flag_menu(DescriptorData *d);
 void redit_disp_flag_menu(DescriptorData *d);
 void redit_disp_sector_menu(DescriptorData *d);
 void redit_disp_menu(DescriptorData *d);
-
-//***************************************************************************
-#define  W_EXIT(room, num) (world[(room)]->dir_option[(num)])
-//***************************************************************************
-
 void redit_setup(DescriptorData *d, int real_num)
 /*++
    Подготовка данных для редактирования комнаты.
@@ -95,22 +90,22 @@ void redit_setup(DescriptorData *d, int real_num)
 //------------------------------------------------------------------------
 
 #define ZCMD (zone_table[zone].cmd[cmd_no])
-
+extern void RestoreRoomExitData(RoomRnum rrn);
 // * Сохранить новую комнату в памяти
 void redit_save_internally(DescriptorData *d) {
-	int j, room_num, cmd_no;
+	int j, rrn, cmd_no;
 	ObjData *temp_obj;
 
-	room_num = real_room(OLC_ROOM(d)->room_vn);
+	rrn = real_room(OLC_ROOM(d)->room_vn);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
 	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
 	// * Room exists: move contents over then free and replace it.
-	if (room_num != kNowhere) {
-		log("[REdit] Save room to mem %d", room_num);
+	if (rrn != kNowhere) {
+		log("[REdit] Save room to mem %d", rrn);
 		// Удаляю устаревшие данные
-		room_free(world[room_num]);
+		room_free(world[rrn]);
 		// Текущее состояние комнаты не изменилось, обновляю редактированные данные
-		room_copy(world[room_num], OLC_ROOM(d));
+		room_copy(world[rrn], OLC_ROOM(d));
 		// Теперь просто удалить OLC_ROOM(d) и все будет хорошо
 		room_free(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
@@ -131,12 +126,12 @@ void redit_save_internally(DescriptorData *d) {
 		new_room->room_vn = OLC_NUM(d);
 		new_room->zone_rn = OLC_ZNUM(d);
 		new_room->func = nullptr;
-		room_num = i; // рнум новой комнаты
+		rrn = i; // рнум новой комнаты
 
 		if (it != world.cend()) {
 			world.insert(it, new_room);
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
-			for (i = room_num; i <= top_of_world; i++) {
+			for (i = rrn; i <= top_of_world; i++) {
 				for (const auto temp_ch : world[i]->people) {
 					if (temp_ch->in_room != kNowhere) {
 						temp_ch->in_room = i;
@@ -153,7 +148,7 @@ void redit_save_internally(DescriptorData *d) {
 			world.push_back(new_room);
 		}
 		zone_table[OLC_ZNUM(d)].RnumRoomsLocation.second++;
-		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
+		fix_ingr_chest_rnum(rrn);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
 		top_of_world++;
@@ -166,24 +161,24 @@ void redit_save_internally(DescriptorData *d) {
 				switch (ZCMD.command) {
 					case 'M':
 					case 'O':
-						if (ZCMD.arg3 >= room_num)
+						if (ZCMD.arg3 >= rrn)
 							ZCMD.arg3++;
 						break;
 
 					case 'F':
 					case 'R':
 					case 'D':
-						if (ZCMD.arg1 >= room_num)
+						if (ZCMD.arg1 >= rrn)
 							ZCMD.arg1++;
 						break;
 
 					case 'T':
-						if (ZCMD.arg1 == WLD_TRIGGER && ZCMD.arg3 >= room_num)
+						if (ZCMD.arg1 == WLD_TRIGGER && ZCMD.arg3 >= rrn)
 							ZCMD.arg3++;
 						break;
 
 					case 'V':
-						if (ZCMD.arg2 >= room_num)
+						if (ZCMD.arg2 >= rrn)
 							ZCMD.arg2++;
 						break;
 				}
@@ -191,40 +186,40 @@ void redit_save_internally(DescriptorData *d) {
 		}
 
 		// * Update load rooms, to fix creeping load room problem.
-		if (room_num <= r_mortal_start_room)
+		if (rrn <= r_mortal_start_room)
 			r_mortal_start_room++;
-		if (room_num <= r_immort_start_room)
+		if (rrn <= r_immort_start_room)
 			r_immort_start_room++;
-		if (room_num <= r_frozen_start_room)
+		if (rrn <= r_frozen_start_room)
 			r_frozen_start_room++;
-		if (room_num <= r_helled_start_room)
+		if (rrn <= r_helled_start_room)
 			r_helled_start_room++;
-		if (room_num <= r_named_start_room)
+		if (rrn <= r_named_start_room)
 			r_named_start_room++;
-		if (room_num <= r_unreg_start_room)
+		if (rrn <= r_unreg_start_room)
 			r_unreg_start_room++;
 
 
 		// поля in_room для объектов и персонажей уже изменены
 		for (const auto &temp_ch : character_list) {
 			RoomRnum temp_room = temp_ch->get_was_in_room();
-			if (temp_room >= room_num) {
+			if (temp_room >= rrn) {
 				temp_ch->set_was_in_room(++temp_room);
 			}
 		}
 
 		// Порталы, выходы
 		for (i = kFirstRoom; i < top_of_world + 1; i++) {
-			if (world[i]->portal_room >= room_num) {
+			if (world[i]->portal_room >= rrn) {
 				world[i]->portal_room++;
 			}
 
 			for (j = 0; j < EDirection::kMaxDirNum; j++) {
-				if (W_EXIT(i, j)) {
-					const auto to_room = W_EXIT(i, j)->to_room();
+				if (world[i]->dir_option[j]) {
+					const auto to_room = world[i]->dir_option[j]->to_room();
 
-					if (to_room >= room_num) {
-						W_EXIT(i, j)->to_room(1 + to_room);
+					if (to_room >= rrn) {
+						world[i]->dir_option[j]->to_room(1 + to_room);
 					}
 				}
 			}
@@ -237,7 +232,7 @@ void redit_save_internally(DescriptorData *d) {
 					if (OLC_ROOM(dsc)->dir_option[j]) {
 						const auto to_room = OLC_ROOM(dsc)->dir_option[j]->to_room();
 
-						if (to_room >= room_num) {
+						if (to_room >= rrn) {
 							OLC_ROOM(dsc)->dir_option[j]->to_room(1 + to_room);
 						}
 					}
@@ -246,21 +241,22 @@ void redit_save_internally(DescriptorData *d) {
 		}
 	}
 
-	check_room_flags(room_num);
+	check_room_flags(rrn);
 
 	// пока мы не удаляем комнаты через олц - проблем нету
 	// а вот в случае удаления надо будет обновлять указатели для списка слоу-дт и врат
-	if (ROOM_FLAGGED(room_num, ERoomFlag::kSlowDeathTrap)
-		|| ROOM_FLAGGED(room_num, ERoomFlag::kIceTrap)) {
-		deathtrap::add(world[room_num]);
+	if (ROOM_FLAGGED(rrn, ERoomFlag::kSlowDeathTrap)
+		|| ROOM_FLAGGED(rrn, ERoomFlag::kIceTrap)) {
+		deathtrap::add(world[rrn]);
 	} else {
-		deathtrap::remove(world[room_num]);
+		deathtrap::remove(world[rrn]);
 	}
 
 	// Настало время добавить триггеры
-	SCRIPT(world[room_num])->cleanup();
-	assign_triggers(world[room_num], WLD_TRIGGER);
+	SCRIPT(world[rrn])->cleanup();
+	assign_triggers(world[rrn], WLD_TRIGGER);
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
+	RestoreRoomExitData(rrn);
 	redit_save_to_disk(OLC_ZNUM(d));
 }
 
@@ -310,10 +306,10 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 
 			// * Handle exits.
 			for (counter2 = 0; counter2 < EDirection::kMaxDirNum; counter2++) {
-				if (room->dir_option[counter2]) {
+				if (room->dir_option_proto[counter2]) {
 					// * Again, strip out the garbage.
-					if (!room->dir_option[counter2]->general_description.empty()) {
-						const std::string &description = room->dir_option[counter2]->general_description;
+					if (!room->dir_option_proto[counter2]->general_description.empty()) {
+						const std::string &description = room->dir_option_proto[counter2]->general_description;
 						strcpy(buf1, description.c_str());
 						strip_string(buf1);
 					} else {
@@ -321,34 +317,23 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 					}
 
 					// * Check for keywords.
-					if (room->dir_option[counter2]->keyword) {
-						strcpy(buf2, room->dir_option[counter2]->keyword);
+					if (room->dir_option_proto[counter2]->keyword) {
+						strcpy(buf2, room->dir_option_proto[counter2]->keyword);
 					}
 
 					// алиас в винительном падеже пишется сюда же через ;
-					if (room->dir_option[counter2]->vkeyword) {
+					if (room->dir_option_proto[counter2]->vkeyword) {
 						strcpy(buf2 + strlen(buf2), "|");
-						strcpy(buf2 + strlen(buf2), room->dir_option[counter2]->vkeyword);
+						strcpy(buf2 + strlen(buf2), room->dir_option_proto[counter2]->vkeyword);
 					} else
 						*buf2 = '\0';
-
-					//Флаги направления перед записью по какой-то причине ресетятся
-					//Сохраним их, чтобы не поломать загруженную зону
-					byte old_exit_info = room->dir_option[counter2]->exit_info;
-
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kClosed);
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kLocked);
-					REMOVE_BIT(room->dir_option[counter2]->exit_info, EExitFlag::kBrokenLock);
-					// * Ok, now wrote output to file.
+					REMOVE_BIT(room->dir_option_proto[counter2]->exit_info, EExitFlag::kBrokenLock);
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 							counter2, buf1, buf2,
-							room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
-							room->dir_option[counter2]->to_room() != kNowhere ?
-							world[room->dir_option[counter2]->to_room()]->room_vn : kNowhere,
-							room->dir_option[counter2]->lock_complexity);
-
-					//Восстановим флаги направления в памяти
-					room->dir_option[counter2]->exit_info = old_exit_info;
+							room->dir_option_proto[counter2]->exit_info, room->dir_option_proto[counter2]->key,
+							room->dir_option_proto[counter2]->to_room() != kNowhere ?
+							world[room->dir_option_proto[counter2]->to_room()]->room_vn : kNowhere,
+							room->dir_option_proto[counter2]->lock_complexity);
 				}
 			}
 			// * Home straight, just deal with extra descriptions.
@@ -456,16 +441,18 @@ void redit_disp_exit_menu(DescriptorData *d) {
 void redit_disp_exit_flag_menu(DescriptorData *d) {
 	get_char_cols(d->character.get());
 	sprintf(buf,
-			"ВНИМАНИЕ! Созданная здесь дверь будет всегда отперта и открыта.\r\n"
-			"Изменить состояние двери по умолчанию можно только командами зоны (zedit).\r\n\r\n"
 			"%s1%s) [%c]Дверь\r\n"
 			"%s2%s) [%c]Невзламываемая\r\n"
 			"%s3%s) [%c]Скрытый выход\r\n"
-			"%s4%s) [%d]Сложность замка\r\n"
+			"%s4%s) [%c]Закрыто\r\n"
+			"%s5%s) [%c]Заперто\r\n"
+			"%s6%s) [%d]Сложность замка\r\n"
 			"Ваш выбор (0 - выход): ",
 			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor) ? 'x' : ' ',
 			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof) ? 'x' : ' ',
 			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHidden) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kClosed) ? 'x' : ' ',
+			grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kLocked) ? 'x' : ' ',
 			grn, nrm, OLC_EXIT(d)->lock_complexity);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -534,23 +521,23 @@ void redit_disp_menu(DescriptorData *d) {
 			 grn, nrm, room->name,
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
-			 room->dir_option[EDirection::kNorth] && room->dir_option[EDirection::kNorth]->to_room() != kNowhere
-			 ? world[room->dir_option[EDirection::kNorth]->to_room()]->room_vn : kNowhere,
+			 room->dir_option_proto[EDirection::kNorth] && room->dir_option_proto[EDirection::kNorth]->to_room() != kNowhere
+			 ? world[room->dir_option_proto[EDirection::kNorth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EDirection::kEast] && room->dir_option[EDirection::kEast]->to_room() != kNowhere
-			 ? world[room->dir_option[EDirection::kEast]->to_room()]->room_vn : kNowhere,
+			 room->dir_option_proto[EDirection::kEast] && room->dir_option_proto[EDirection::kEast]->to_room() != kNowhere
+			 ? world[room->dir_option_proto[EDirection::kEast]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EDirection::kSouth] && room->dir_option[EDirection::kSouth]->to_room() != kNowhere
-			 ? world[room->dir_option[EDirection::kSouth]->to_room()]->room_vn : kNowhere,
+			 room->dir_option_proto[EDirection::kSouth] && room->dir_option_proto[EDirection::kSouth]->to_room() != kNowhere
+			 ? world[room->dir_option_proto[EDirection::kSouth]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EDirection::kWest] && room->dir_option[EDirection::kWest]->to_room() != kNowhere
-			 ? world[room->dir_option[EDirection::kWest]->to_room()]->room_vn : kNowhere,
+			 room->dir_option_proto[EDirection::kWest] && room->dir_option_proto[EDirection::kWest]->to_room() != kNowhere
+			 ? world[room->dir_option_proto[EDirection::kWest]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EDirection::kUp] && room->dir_option[EDirection::kUp]->to_room() != kNowhere
-			 ? world[room->dir_option[EDirection::kUp]->to_room()]->room_vn : kNowhere,
+			 room->dir_option_proto[EDirection::kUp] && room->dir_option_proto[EDirection::kUp]->to_room() != kNowhere
+			 ? world[room->dir_option_proto[EDirection::kUp]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, cyn,
-			 room->dir_option[EDirection::kDown] && room->dir_option[EDirection::kDown]->to_room() != kNowhere
-			 ? world[room->dir_option[EDirection::kDown]->to_room()]->room_vn : kNowhere,
+			 room->dir_option_proto[EDirection::kDown] && room->dir_option_proto[EDirection::kDown]->to_room() != kNowhere
+			 ? world[room->dir_option_proto[EDirection::kDown]->to_room()]->room_vn : kNowhere,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);
@@ -791,6 +778,10 @@ void redit_parse(DescriptorData *d, char *arg) {
 				} else if (number == 3) {
 					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kHidden);
 				} else if (number == 4) {
+					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kClosed);
+				} else if (number == 5) {
+					TOGGLE_BIT(OLC_EXIT(d)->exit_info, EExitFlag::kLocked);
+				} else if (number == 6) {
 					OLC_MODE(d) = REDIT_LOCK_COMPLEXITY;
 					SendMsgToChar("Введите сложность замка, (0-255): ", d->character.get());
 					return;
