@@ -124,7 +124,6 @@
 #endif
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
 #include <sys/stat.h>
 
 #include <string>
@@ -3738,9 +3737,9 @@ void act(const char *str,
 			if (type == kToRoomSensors && PRF_FLAGGED(to, EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
-					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));
+					utils::ReplaceFirst(buffer, "ся", GET_CH_SUF_2(ch));
 				}
-				boost::replace_first(buffer, "Кто-то", ch->get_name());
+				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			} else {
 				perform_act(str, ch, obj, vict_obj, to, kick_type);

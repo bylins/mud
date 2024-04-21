@@ -299,6 +299,13 @@ void SortKoiStringReverse(std::vector<std::string> &str) {
 	}
 }
 
+void ReplaceFirst(std::string &s, const std::string &toSearch, const std::string &replacer) {
+	size_t pos = s.find(toSearch);
+	if (pos != std::string::npos) {
+		s.replace(pos, toSearch.size(), replacer);
+	}
+}
+
 void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &replacer) {
 	size_t pos = s.find(toSearch);
 	while (pos != std::string::npos) {
