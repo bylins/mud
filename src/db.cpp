@@ -3127,7 +3127,7 @@ void renum_mob_zone(void) {
 	}
 }
 
-#define ZCMD_CMD(cmd_nom) zone_table[zone].cmd[cmd_nom]
+#define ZCMD_CMD(cmd_no) zone_table[zone].cmd[cmd_no]
 #define ZCMD zone_table[zone].cmd[cmd_no]
 
 void renum_single_table(int zone) {
@@ -3143,15 +3143,12 @@ void renum_single_table(int zone) {
 		oldc = ZCMD.arg3;
 		switch (ZCMD.command) {
 			case 'M': 
-				log("zone %d vnum ZCMD.arg1 %d top %d", zone_table[zone].vnum, ZCMD.arg1, top_of_mobt);
 				a = ZCMD.arg1 = real_mobile(ZCMD.arg1);
 				if (ZCMD.arg2 <= 0) {
 					sprintf(buf, "SYSERROR: некорректное значение 'макс в мире': zone %d vnum %d, stored %d room %d",
 							zone_table[zone].vnum, mob_index[ZCMD.arg1].vnum, ZCMD.arg2, ZCMD.arg3);
 					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-					break;
 				}
-				log("real ZCMD.arg1 %d top %d", ZCMD.arg1, top_of_mobt);
 				if (mob_index[ZCMD.arg1].stored < ZCMD.arg2) {
 					mob_index[ZCMD.arg1].stored = ZCMD.arg2;
 				}
@@ -3202,8 +3199,8 @@ void renum_single_table(int zone) {
 
 // resove vnums into rnums in the zone reset tables
 void renum_zone_table(void) {
-	for (ZoneRnum zone = 0; zone < static_cast<ZoneRnum>(zone_table.size()); zone++) {
-		renum_single_table(zone);
+	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+		renum_single_table(zrn);
 	}
 }
 
@@ -5083,6 +5080,9 @@ void ZoneReset::reset_zone_essential() {
 		log("No cmd, skiped");
 		return;
 	}
+	for (auto rrn = zone_table[m_zone_rnum].RnumRoomsLocation.first; rrn <= zone_table[m_zone_rnum].RnumRoomsLocation.second; rrn++) {
+		RestoreRoomExitData(rrn);
+	}
 	//----------------------------------------------------------------------------
 	last_state = 1;        // для первой команды считаем, что все ок
 
@@ -5368,7 +5368,6 @@ void ZoneReset::reset_zone_essential() {
 						ZONE_ERROR("door does not exist, command disabled");
 						ZCMD.command = '*';
 					} else {
-						RestoreRoomExitData(ZCMD.arg1);
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kBrokenLock);
 						switch (ZCMD.arg3) {
 							case 0:
