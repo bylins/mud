@@ -227,6 +227,15 @@ std::string SubstStrToLow(std::string s);
  */
 std::string SubstStrToUpper(std::string s);
 
+
+/**
+ * Заменить первое вхождения указанной подстроки на другую строку.
+ * @param s - исходная строка.
+ * @param toSearch - искомая подстрока.
+ * @param replacer - строка-заменитель.
+ */
+void ReplaceFirst(std::string &s, const std::string &toSearch, const std::string &replacer);
+
 /**
  * Заменить вхождения указанной подстроки на другую строку.
  * @param s - исходная строка.
