@@ -411,6 +411,7 @@ void medit_save_internally(DescriptorData *d) {
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
+					zone_table[new_index[rmob_num].zone].RnumMobsLocation.second++;
 					new_index[rmob_num].set_idx = -1;
 					--rmob_num;
 					continue;
@@ -445,6 +446,7 @@ void medit_save_internally(DescriptorData *d) {
 			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
 
 			new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
+			zone_table[new_index[rmob_num].zone].RnumMobsLocation.second++;
 			new_index[rmob_num].set_idx = -1;
 		}
 
@@ -536,7 +538,7 @@ void medit_save_internally(DescriptorData *d) {
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
 void medit_save_to_disk(ZoneRnum zone_num) {
-	int i, j, c, rmob_num, zone, top, sum;
+	int i, j, c, rmob_num, sum;
 	FILE *mob_file;
 	char fname[64];
 	CharData *mob;
@@ -544,8 +546,9 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	MPROG_DATA *mob_prog = nullptr;
 #endif
 
-	zone = zone_table[zone_num].vnum;
-	top = zone_table[zone_num].top;
+	ZoneVnum zone = zone_table[zone_num].vnum;
+	MobRnum first = zone_table[zone_num].RnumMobsLocation.first;
+	MobRnum top = zone_table[zone_num].RnumMobsLocation.second;
 	if (zone >= ZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -559,7 +562,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	}
 
 	// * Seach the database for mobs in this zone and save them.
-	for (i = zone * 100; i <= top; i++) {
+	for (i = first; i <= top; i++) {
 		if ((rmob_num = real_mobile(i)) != -1) {
 			if (fprintf(mob_file, "#%d\n", i) < 0) {
 				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);

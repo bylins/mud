@@ -277,7 +277,10 @@ void oedit_save_internally(DescriptorData *d) {
 		log("[OEdit] Save mem an disk new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(ObjData));
 
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
-		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
+		const ZoneRnum zrn = get_zone_rnum_by_obj_vnum(OLC_NUM(d));
+		obj_proto.zone(index, zrn);
+		zone_table[zrn].RnumObjsLocation.second++;
+
 	}
 
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_OBJ);
@@ -301,7 +304,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 		return;
 	}
 	// * Start running through all objects in this zone.
-	for (counter = zone_table[zone_num].vnum * 100; counter <= zone_table[zone_num].top; counter++) {
+	for (counter = zone_table[zone_num].RnumObjsLocation.first; counter <= zone_table[zone_num].RnumObjsLocation.second; counter++) {
 		if ((realcounter = real_object(counter)) >= 0) {
 			const auto &obj = obj_proto[realcounter];
 			if (!obj->get_action_description().empty()) {
