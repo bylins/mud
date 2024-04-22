@@ -844,13 +844,11 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->script->global_vars = m->script->global_vars;
 		m->script->global_vars = nullptr;
 		ch->script->context = m->script->context;
-// заменим в комбатлисте
-		for (CharData *temp = combat_list; temp; temp = temp->next_fighting) {
-			if (temp == m) {
-				temp = ch;
-			}
+		if (m->GetEnemy()) {
+			m->GetEnemy()->SetEnemy(ch);
+			SetFighting(ch, m->GetEnemy());
+			m->SetEnemy(nullptr);
 		}
-		ch->next_fighting = m->next_fighting;
 		ch->followers = m->followers;
 		m->followers = nullptr;
 		for (struct FollowerType *l = ch->followers; l; l = l->next) {
@@ -892,7 +890,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
-		ch->SetEnemy(m->GetEnemy());
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_master(nullptr);

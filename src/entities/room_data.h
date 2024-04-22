@@ -77,6 +77,7 @@ struct RoomData {
 	char *temp_description; // для олц, пока редактора не будет нормального
 	ExtraDescription::shared_ptr ex_description;    // for examine/look       //
 	std::array<exit_data_ptr, EDirection::kMaxDirNum> dir_option;    // Directions //
+	std::array<exit_data_ptr, EDirection::kMaxDirNum> dir_option_proto;
 
 	byte light;        // Number of lightsources in room //
 	byte glight;        // Number of lightness person     //

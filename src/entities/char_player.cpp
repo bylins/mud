@@ -1020,7 +1020,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			case 'I':
 				if (!strcmp(tag, "Id  ")) {
 					set_idnum(lnum);
-					chardata_by_uid[lnum] = this;
 				}
 				break;
 			case 'L':
