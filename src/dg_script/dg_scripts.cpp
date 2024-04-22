@@ -817,6 +817,7 @@ EVENT(trig_wait_event) {
 	type = wait_event_obj->type;
 
 	GET_TRIG_WAIT(trig) = nullptr;
+	log("trigger wait event: start trigger %d", GET_TRIG_VNUM(trig));
 
 	script_driver(go, trig, type, TRIG_CONTINUE);
 	free(wait_event_obj);
@@ -5650,7 +5651,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 
-	if (first >= last) {
+	if (first > last) {
 		SendMsgToChar("Второе значение должно быть больше первого.\n\r", ch);
 		return;
 	}

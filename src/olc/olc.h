@@ -139,7 +139,7 @@ extern struct olc_save_info *olc_save_list;
 #define OLC_STORAGE(d)  ((d)->olc->storage)    // For command storage  //
 
 // * Other macros.
-#define OLC_EXIT(d)    (OLC_ROOM(d)->dir_option[OLC_VAL(d)])
+#define OLC_EXIT(d)    (OLC_ROOM(d)->dir_option_proto[OLC_VAL(d)])
 #define GET_OLC_ZONE(c)    ((c)->player_specials->saved.olc_zone)
 
 // * Cleanup types.
