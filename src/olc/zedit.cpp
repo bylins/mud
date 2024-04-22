@@ -319,7 +319,7 @@ void zedit_setup(DescriptorData *d, int/* room_num*/) {
 		zone->typeB_list[i] = zone_table[OLC_ZNUM(d)].typeB_list[i];
 	zone->under_construction = zone_table[OLC_ZNUM(d)].under_construction;
 	zone->group = zone_table[OLC_ZNUM(d)].group;
-	zone->group = zone_table[OLC_ZNUM(d)].entrance;
+	zone->entrance = zone_table[OLC_ZNUM(d)].entrance;
 
 	// The remaining fields are used as a 'has been modified' flag //
 	zone->vnum = 0;    // Header information has changed.      //
