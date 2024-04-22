@@ -3199,8 +3199,11 @@ void renum_single_table(int zone) {
 
 // resove vnums into rnums in the zone reset tables
 void renum_zone_table(void) {
-	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		renum_single_table(zrn);
+	for (ZoneRnum zone = 0; zone < static_cast<ZoneRnum>(zone_table.size()); zone++) {
+		renum_single_table(zone);
+		log("1zone %d entrance %d", zone, zone_table[zone].entrance);
+		zone_table[zone].entrance = real_room(zone_table[zone].entrance);
+		log("2zone %d entrance %d", zone, zone_table[zone].entrance);
 	}
 }
 
