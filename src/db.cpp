@@ -3199,8 +3199,9 @@ void renum_single_table(int zone) {
 
 // resove vnums into rnums in the zone reset tables
 void renum_zone_table(void) {
-	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		renum_single_table(zrn);
+	for (ZoneRnum zone = 0; zone < static_cast<ZoneRnum>(zone_table.size()); zone++) {
+		renum_single_table(zone);
+		zone_table[zone].entrance = real_room(zone_table[zone].entrance);
 	}
 }
 
@@ -6420,7 +6421,7 @@ void room_copy(RoomData *dst, RoomData *src)
 		if (rdd) {
 			dst->dir_option[i].reset(new ExitData());
 			// Копируем числа
-			*dst->dir_option[i] = *rdd;
+			*dst->dir_option_proto[i] = *rdd;
 			// Выделяем память
 			dst->dir_option_proto[i]->general_description = rdd->general_description;
 			dst->dir_option_proto[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : nullptr);

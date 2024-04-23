@@ -1627,17 +1627,13 @@ bool ZoneFile::load_regular_zone() {
 		log("SYSERR: ERROR!!! not # in file %s", full_file_name().c_str());
 		exit(1);
 	}
-
-	{
-		auto group = 0;
-		const auto count = sscanf(buf, "#%d %d %d", &zone.level, &zone.type, &group);
-		if (count < 2) {
-			log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
-			exit(1);
-		}
-		zone.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	auto group = 0;
+	const auto count = sscanf(buf, "#%d %d %d %d", &zone.level, &zone.type, &group, &zone.entrance);
+	if (count < 3) {
+		log("SYSERR: ошибка чтения z.level, z.type, z.group, z.entrance: %s", buf);
+		exit(1);
 	}
-
+	zone.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
 	line_num += get_line(file(), buf);
 
 	char t1[80];

@@ -319,6 +319,7 @@ void zedit_setup(DescriptorData *d, int/* room_num*/) {
 		zone->typeB_list[i] = zone_table[OLC_ZNUM(d)].typeB_list[i];
 	zone->under_construction = zone_table[OLC_ZNUM(d)].under_construction;
 	zone->group = zone_table[OLC_ZNUM(d)].group;
+	zone->entrance = zone_table[OLC_ZNUM(d)].entrance;
 
 	// The remaining fields are used as a 'has been modified' flag //
 	zone->vnum = 0;    // Header information has changed.      //
@@ -409,6 +410,7 @@ void zedit_save_internally(DescriptorData *d) {
 			zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
 			HelpSystem::reload(HelpSystem::STATIC);
 		}
+		zone_table[OLC_ZNUM(d)].entrance = OLC_ZONE(d)->entrance;
 	}
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ZONE);
 	zedit_save_to_disk(OLC_ZNUM(d));
@@ -458,10 +460,11 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 		fprintf(zfile, "$%s~\n", zone_table[zone_num].description.c_str());
 	}
 
-	fprintf(zfile, "#%d %d %d\n" "%d %d %d %d %s %s\n",
+	fprintf(zfile, "#%d %d %d %d\n" "%d %d %d %d %s %s\n",
 			zone_table[zone_num].level,
 			zone_table[zone_num].type,
 			zone_table[zone_num].group,
+			world[zone_table[zone_num].entrance]->room_vn,
 			zone_table[zone_num].top,
 			zone_table[zone_num].lifespan,
 			zone_table[zone_num].reset_mode,
@@ -939,6 +942,9 @@ void zedit_disp_menu(DescriptorData *d) {
 	SendMsgToChar(buf, d->character.get());
 	snprintf(buf, kMaxStringLength, "%sG%s) Оптимальное число игроков  : %s%d%s\r\n",
 			 grn, nrm, yel, OLC_ZONE(d)->group, nrm);
+	SendMsgToChar(buf, d->character.get());
+	snprintf(buf, kMaxStringLength, "%sV%s) Стартовая комната зоны     : %s%d%s\r\n",
+			 grn, nrm, yel, world[OLC_ZONE(d)->entrance]->room_vn, nrm);
 	SendMsgToChar(buf, d->character.get());
 	
 	// Print the commands into display buffer.
@@ -1484,6 +1490,10 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'g':
 				case 'G': SendMsgToChar(d->character.get(), "Оптимальное число игроков (1 - 20): ");
 					OLC_MODE(d) = ZEDIT_ZONE_GROUP;
+					break;
+				case 'v':
+				case 'V': SendMsgToChar(d->character.get(), "Укажите vnum основного входа в зону: ");
+					OLC_MODE(d) = ZEDIT_ZONE_ENTRANCE;
 					break;
 				case 'p':
 				case 'P':
@@ -2063,6 +2073,19 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				SendMsgToChar("Повторите ввод (от 1 до 20) :", d->character.get());
 			} else {
 				OLC_ZONE(d)->group = num;
+				OLC_ZONE(d)->vnum = 1;
+				zedit_disp_menu(d);
+			}
+			break;
+		}
+
+		case ZEDIT_ZONE_ENTRANCE: {
+			int num = real_room(atoi(arg));
+			
+			if (num == kNowhere) {
+				SendMsgToChar("Такая комната не найдена, повторите ввод:", d->character.get());
+			} else {
+				OLC_ZONE(d)->entrance = num;
 				OLC_ZONE(d)->vnum = 1;
 				zedit_disp_menu(d);
 			}

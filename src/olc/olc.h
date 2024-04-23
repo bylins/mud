@@ -255,6 +255,7 @@ extern struct olc_save_info *olc_save_list;
 #define ZEDIT_ZONE_TYPE          26
 #define ZEDIT_ZONE_COMMENT       27
 #define ZEDIT_ZONE_GROUP         28
+#define ZEDIT_ZONE_ENTRANCE      29
 
 // * Submodes of MEDIT connectedness.
 #define MEDIT_MAIN_MENU        0
