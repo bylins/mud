@@ -283,7 +283,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 "%3d %s\r\n"
 			 "Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
 			 "First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
-			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d\r\n",
+			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d, вход в зону: %d\r\n",
 			 zone_table[zone].vnum,
 			 zone_table[zone].name.c_str(),
 			 zone_table[zone].mob_level,
@@ -301,15 +301,28 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].group,
 			 !zone_table[zone].author.empty() ? zone_table[zone].author.c_str() : "неизвестен",
 			 zone_table[zone].count_reset,
-			 zone_table[zone].traffic);
+			 zone_table[zone].traffic,
+			 zone_table[zone].entrance);
 	*bufptr = str_add(*bufptr, tmpstr);
 	if (zone_table[zone].copy_from_zone > 0) {
 		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s\r\n", zone_table[zone].copy_from_zone, zone_table[real_zone(zone_table[zone].copy_from_zone)].name.c_str());
 		*bufptr = str_add(*bufptr, tmpstr);
 	}
-	snprintf(tmpstr, BUFFER_SIZE, "Номер зоны: %d, комнаты: first %d last %d", zone_table[zone].vnum,
+	snprintf(tmpstr, BUFFER_SIZE, "Комнаты: first %d last %d\r\n",
 			world[zone_table[zone].RnumRoomsLocation.first]->room_vn,
 			world[zone_table[zone].RnumRoomsLocation.second]->room_vn);
+	*bufptr = str_add(*bufptr, tmpstr);
+	snprintf(tmpstr, BUFFER_SIZE, "Мобы: first %d last %d\r\n",
+			mob_index[zone_table[zone].RnumMobsLocation.first].vnum,
+			mob_index[zone_table[zone].RnumMobsLocation.second].vnum);
+	*bufptr = str_add(*bufptr, tmpstr);
+	snprintf(tmpstr, BUFFER_SIZE, "Объекты: first %d last %d\r\n",
+			obj_proto[zone_table[zone].RnumObjsLocation.first]->get_vnum(),
+			obj_proto[zone_table[zone].RnumObjsLocation.second]->get_vnum());
+	*bufptr = str_add(*bufptr, tmpstr);
+	snprintf(tmpstr, BUFFER_SIZE, "Триггера: first %d last %d",
+			trig_index[zone_table[zone].RnumTrigsLocation.first]->vnum,
+			trig_index[zone_table[zone].RnumTrigsLocation.second]->vnum);
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 

@@ -494,7 +494,7 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	for (i = 0; i < zone_table[zone_num].typeB_count; i++)
 		fprintf(zfile, "B %d\n", zone_table[zone_num].typeB_list[i]);
 
-	for (subcmd = 0; ZCMD.command != 'S'; subcmd++) {
+	for (subcmd = 0; zone_table[zone_num].cmd != nullptr && ZCMD.command != 'S'; subcmd++) {
 		arg1 = arg2 = arg3 = arg4 = -1;
 		switch (ZCMD.command) {
 			case 'M': arg1 = mob_index[ZCMD.arg1].vnum;

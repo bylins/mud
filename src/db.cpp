@@ -4722,77 +4722,87 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 void ObjDataFree(ZoneRnum zrn) {
 // на земле удаляются в RoomDataFree
-	ObjRnum orn_from = zone_table[zrn].RnumObjsLocation.first;
-	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
+//	ObjRnum orn_from = zone_table[zrn].RnumObjsLocation.first;
+//	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
+	ObjRnum orn;
 	CharData *wearer = nullptr;
 	ObjData *in_obj = nullptr;
 	int pos = -1;
 
-	for (ObjRnum orn = orn_from; orn <= orn_last; orn++) {
-		obj_proto[orn]->clear_proto_script();
-		world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
-			const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParent());
-			if (obj->get_worn_by()) {
-				pos = obj->get_worn_on();
-				wearer = obj->get_worn_by();
-				UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
-			}
-			if (obj->get_in_obj()) {
-				in_obj = obj->get_in_obj();
-				RemoveObjFromObj(obj.get());
-			}
-			obj->swap(*obj_original.get());
-			if (obj_original->has_flag(EObjFlag::kTicktimer)) {
-				obj->set_extra_flag(EObjFlag::kTicktimer);
-			}
-			if (in_obj) {
-				PlaceObjIntoObj(obj.get(), in_obj);
-			}
-			if (wearer) {
-				EquipObj(wearer, obj.get(), pos, CharEquipFlags());
-			}
-			ExtractObjFromWorld(obj_original.get());
-		});
+	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
+		if ((orn = real_object(counter)) >= 0) {
+			obj_proto[orn]->clear_proto_script();
+			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
+				const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParent());
+				if (obj->get_worn_by()) {
+					pos = obj->get_worn_on();
+					wearer = obj->get_worn_by();
+					UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
+				}
+				if (obj->get_in_obj()) {
+					in_obj = obj->get_in_obj();
+					RemoveObjFromObj(obj.get());
+				}
+				obj->swap(*obj_original.get());
+				if (obj_original->has_flag(EObjFlag::kTicktimer)) {
+					obj->set_extra_flag(EObjFlag::kTicktimer);
+				}
+				if (in_obj) {
+					PlaceObjIntoObj(obj.get(), in_obj);
+				}
+				if (wearer) {
+					EquipObj(wearer, obj.get(), pos, CharEquipFlags());
+				}
+				ExtractObjFromWorld(obj_original.get());
+			});
+		}
 	}
 }
 
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-	ObjRnum orn_from = zone_table[zrn_from].RnumObjsLocation.first;
-	ObjRnum orn_last = zone_table[zrn_from].RnumObjsLocation.second;
-	ObjRnum orn_to = zone_table[zrn_to].RnumObjsLocation.first;
+//	ObjRnum orn_from = zone_table[zrn_from].RnumObjsLocation.first;
+//	ObjRnum orn_last = zone_table[zrn_from].RnumObjsLocation.second;
+	ObjRnum orn_to = zone_table[zrn_to].RnumObjsLocation.first, i;
 	ObjData *obj;
 
-	if (orn_from == -1) {
+	if (zone_table[zrn_from].RnumObjsLocation.first == -1) {
 		sprintf(buf, "В зоне нет объектов, копируем остальное");
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
-	for (int i = orn_from; i <= orn_last; i++) {
-		ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
-		NEWCREATE(obj, new_vnum);
-		const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
-		obj->copy_from(obj_original.get());
-			if (obj->get_type() == EObjType::kLiquidContainer) {
-				name_from_drinkcon(obj);
-		}
-		obj->SetParent(obj_original->get_rnum());
-		obj->set_extra_flag(EObjFlag::kNolocate);
-		obj->set_extra_flag(EObjFlag::kNorent);
-		obj->set_extra_flag(EObjFlag::kNosell);
-		obj_proto.replace(obj, orn_to, new_vnum);
-		for (const auto tvn : obj_proto[i]->get_proto_script()) {
-			if (zone_table[zrn_from].vnum == tvn / 100) {
-				obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
-				add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
-			} else {
-				obj->add_proto_script(tvn);
-				add_trig_to_owner(-1, tvn, obj->get_vnum());
+	for (int counter = zone_table[zrn_from].vnum * 100; counter <= zone_table[zrn_from].top; counter++) {
+		if ((i = real_object(counter)) >= 0) {
+//			sprintf(buf, "proto from rnum %d vnum %d", i, obj_proto[i]->get_vnum());
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
+
+			NEWCREATE(obj, new_vnum);
+			const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
+			obj->copy_from(obj_original.get());
+				if (obj->get_type() == EObjType::kLiquidContainer) {
+					name_from_drinkcon(obj);
 			}
+			obj->SetParent(obj_original->get_rnum());
+			obj->set_extra_flag(EObjFlag::kNolocate);
+			obj->set_extra_flag(EObjFlag::kNorent);
+			obj->set_extra_flag(EObjFlag::kNosell);
+//			sprintf(buf, "имя %s", GET_OBJ_PNAME(obj, 0));
+//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			obj_proto.replace(obj, orn_to, new_vnum);
+			for (const auto tvn : obj_proto[i]->get_proto_script()) {
+				if (zone_table[zrn_from].vnum == tvn / 100) {
+					obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
+					add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
+				} else {
+					obj->add_proto_script(tvn);
+					add_trig_to_owner(-1, tvn, obj->get_vnum());
+				}
+			}
+			ExtractObjFromWorld(obj_original.get());
+			zone_table[zrn_to].RnumObjsLocation.second = i;
+			orn_to++;
 		}
-		ExtractObjFromWorld(obj_original.get());
-		orn_to++;
 	}
-	zone_table[zrn_to].RnumObjsLocation.second = orn_to - 1;
 }
 
 void ZoneDataFree(ZoneRnum zrn) {

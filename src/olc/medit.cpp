@@ -411,7 +411,6 @@ void medit_save_internally(DescriptorData *d) {
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
-					zone_table[new_index[rmob_num].zone].RnumMobsLocation.second++;
 					new_index[rmob_num].set_idx = -1;
 					--rmob_num;
 					continue;
@@ -427,16 +426,8 @@ void medit_save_internally(DescriptorData *d) {
 				new_proto[rmob_num + 1].set_rnum(rmob_num + 1);
 			}
 		}
-#if defined(DEBUG)
-		fprintf(stderr,
-			"rmob_num: %d, top_of_mobt: %d, array size: 0-%d (%d)\n",
-			rmob_num, top_of_mobt, top_of_mobt + 1, top_of_mobt + 2);
-#endif
 		if (!found)    // Still not found, must add it to the top of the table.
 		{
-#if defined(DEBUG)
-			fprintf(stderr, "Append.\n");
-#endif
 			new_index[rmob_num].vnum = OLC_NUM(d);
 			new_index[rmob_num].total_online = 0;
 			new_index[rmob_num].func = nullptr;
@@ -446,21 +437,17 @@ void medit_save_internally(DescriptorData *d) {
 			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
 
 			new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
-			zone_table[new_index[rmob_num].zone].RnumMobsLocation.second++;
 			new_index[rmob_num].set_idx = -1;
 		}
 
 		// Replace tables.
-#if defined(DEBUG)
-		fprintf(stderr, "Attempted free.\n");
-#endif
-
 		delete[] mob_proto;
 		free(mob_index);
 
 		mob_index = new_index;
 		mob_proto = new_proto;
 		top_of_mobt++;
+		zone_table[OLC_ZNUM(d)].RnumMobsLocation.second++;
 
 #if defined(DEBUG)
 		fprintf(stderr, "Free ok.\n");
@@ -480,7 +467,9 @@ void medit_save_internally(DescriptorData *d) {
 
 		// 2. Изменение параметров команд zon-файлов
 		// Update zone table. //
-		for (auto zone = 0u; zone < zone_table.size(); zone++)
+		for (auto zone = 0u; zone < zone_table.size(); zone++) {
+			if (!zone_table[zone].cmd)
+				continue;
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 				if (ZCMD.command == 'M' || ZCMD.command == 'Q') {
 					if (ZCMD.arg1 >= new_mob_num)
@@ -491,7 +480,7 @@ void medit_save_internally(DescriptorData *d) {
 					if (ZCMD.arg3 >= new_mob_num)
 						ZCMD.arg3++;
 				}
-
+		}
 		// 4. Другие редактируемые мобы
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
@@ -538,13 +527,13 @@ void medit_save_internally(DescriptorData *d) {
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
 void medit_save_to_disk(ZoneRnum zone_num) {
-	int i, j, c, rmob_num, sum;
+	int j, c, rmob_num, sum;
 	FILE *mob_file;
 	char fname[64];
 	CharData *mob;
-#if defined(OASIS_MPROG)
-	MPROG_DATA *mob_prog = nullptr;
-#endif
+
+			sprintf(buf, "сохраняем зон %d на диск.", zone_table[zone_num].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 
 	ZoneVnum zone = zone_table[zone_num].vnum;
 	MobRnum first = zone_table[zone_num].RnumMobsLocation.first;
@@ -562,176 +551,149 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	}
 
 	// * Seach the database for mobs in this zone and save them.
-	for (i = first; i <= top; i++) {
-		if ((rmob_num = real_mobile(i)) != -1) {
-			if (fprintf(mob_file, "#%d\n", i) < 0) {
-				mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);
-				fclose(mob_file);
-				return;
-			}
-			mob = (mob_proto + rmob_num);
-			mob->set_normal_morph();
-
+	for (rmob_num = first; rmob_num <= top; rmob_num++) {
+		if (fprintf(mob_file, "#%d\n", mob_index[rmob_num].vnum) < 0) {
+			mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);
+			fclose(mob_file);
+			return;
+		}
+		mob = (mob_proto + rmob_num);
+		mob->set_normal_morph();
 			// * Clean up strings.
-			if (mob->player_data.long_descr.empty())
-				mob->player_data.long_descr = "неопределен";
-			strcpy(buf1, mob->player_data.long_descr.c_str());
-			strip_string(buf1);
-			if (mob->player_data.description.empty())
-				mob->player_data.description = "неопределен";
-			strcpy(buf2, mob->player_data.description.c_str());
-			strip_string(buf2);
-
-			fprintf(mob_file,
-					"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
-					not_null(GET_ALIAS(mob), "неопределен"),
-					not_null(GET_PAD(mob, 0), "кто"),
-					not_null(GET_PAD(mob, 1), "кого"),
-					not_null(GET_PAD(mob, 2), "кому"),
-					not_null(GET_PAD(mob, 3), "кого"),
-					not_null(GET_PAD(mob, 4), "кем"),
-					not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
-			if (mob->mob_specials.Questor)
-				strcpy(buf1, mob->mob_specials.Questor);
-			else
-				strcpy(buf1, "");
-			strip_string(buf1);
-			*buf2 = 0;
-			MOB_FLAGS(mob).tascii(4, buf2);
-			AFF_FLAGS(mob).tascii(4, buf2);
-
-			fprintf(mob_file,
-					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
-					buf2, GET_ALIGNMENT(mob),
-					GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
-					mob->mem_queue.stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
-					static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
-
-			// * Deal with Extra stats in case they are there.
-			sum = 0;
-			for (ESaving save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
-				sum += GetSave(mob, save);
+		if (mob->player_data.long_descr.empty())
+			mob->player_data.long_descr = "неопределен";
+		strcpy(buf1, mob->player_data.long_descr.c_str());
+		strip_string(buf1);
+		if (mob->player_data.description.empty())
+			mob->player_data.description = "неопределен";
+		strcpy(buf2, mob->player_data.description.c_str());
+		strip_string(buf2);
+		fprintf(mob_file, "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
+				not_null(GET_ALIAS(mob), "неопределен"),
+				not_null(GET_PAD(mob, 0), "кто"),
+				not_null(GET_PAD(mob, 1), "кого"),
+				not_null(GET_PAD(mob, 2), "кому"),
+				not_null(GET_PAD(mob, 3), "кого"),
+				not_null(GET_PAD(mob, 4), "кем"),
+				not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
+		if (mob->mob_specials.Questor)
+			strcpy(buf1, mob->mob_specials.Questor);
+		else
+			strcpy(buf1, "");
+		strip_string(buf1);
+		*buf2 = 0;
+		MOB_FLAGS(mob).tascii(4, buf2);
+		AFF_FLAGS(mob).tascii(4, buf2);
+		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
+				buf2, GET_ALIGNMENT(mob),
+				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
+				mob->mem_queue.stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
+				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
+		// * Deal with Extra stats in case they are there.
+		sum = 0;
+		for (ESaving save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
+			sum += GetSave(mob, save);
+		}
+		if (sum != 0)
+			fprintf(mob_file, "Saves: %d %d %d %d\n",
+					GetSave(mob, ESaving::kWill), GetSave(mob, ESaving::kCritical),
+					GetSave(mob, ESaving::kStability), GetSave(mob, ESaving::kReflex));
+		sum = 0;
+		fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
+				GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
+				GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6), GET_RESIST(mob, 7));
+		if (GET_HITREG(mob) != 0)
+			fprintf(mob_file, "HPreg: %d\n", GET_HITREG(mob));
+		if (GET_ARMOUR(mob) != 0)
+			fprintf(mob_file, "Armour: %d\n", GET_ARMOUR(mob));
+		if (GET_MANAREG(mob) != 0)
+			fprintf(mob_file, "PlusMem: %d\n", GET_MANAREG(mob));
+		if (GET_CAST_SUCCESS(mob) != 0)
+			fprintf(mob_file, "CastSuccess: %d\n", GET_CAST_SUCCESS(mob));
+		if (GET_MORALE(mob) != 0)
+			fprintf(mob_file, "Success: %d\n", GET_MORALE(mob));
+		if (GET_INITIATIVE(mob) != 0)
+			fprintf(mob_file, "Initiative: %d\n", GET_INITIATIVE(mob));
+		if (GET_ABSORBE(mob) != 0)
+			fprintf(mob_file, "Absorbe: %d\n", GET_ABSORBE(mob));
+		if (GET_AR(mob) != 0)
+			fprintf(mob_file, "AResist: %d\n", GET_AR(mob));
+		if (GET_MR(mob) != 0)
+			fprintf(mob_file, "MResist: %d\n", GET_MR(mob));
+		// added by WorM (Видолюб) поглощение физ.урона в %
+		if (GET_PR(mob) != 0)
+			fprintf(mob_file, "PResist: %d\n", GET_PR(mob));
+		// end by WorM
+		if (GET_ATTACK(mob) != 0)
+			fprintf(mob_file, "BareHandAttack: %d\n", GET_ATTACK(mob));
+		for (c = 0; c < mob->mob_specials.dest_count; c++)
+			fprintf(mob_file, "Destination: %d\n", mob->mob_specials.dest[c]);
+		if (mob->get_str() != 11)
+			fprintf(mob_file, "Str: %d\n", mob->get_str());
+		if (mob->get_dex() != 11)
+			fprintf(mob_file, "Dex: %d\n", mob->get_dex());
+		if (mob->get_int() != 11)
+			fprintf(mob_file, "Int: %d\n", mob->get_int());
+		if (mob->get_wis() != 11)
+			fprintf(mob_file, "Wis: %d\n", mob->get_wis());
+		if (mob->get_con() != 11)
+			fprintf(mob_file, "Con: %d\n", mob->get_con());
+		if (mob->get_cha() != 11)
+			fprintf(mob_file, "Cha: %d\n", mob->get_cha());
+		if (GET_SIZE(mob))
+			fprintf(mob_file, "Size: %d\n", GET_SIZE(mob));
+		if (mob->mob_specials.like_work)
+			fprintf(mob_file, "LikeWork: %d\n", mob->mob_specials.like_work);
+		if (mob->mob_specials.MaxFactor)
+			fprintf(mob_file, "MaxFactor: %d\n", mob->mob_specials.MaxFactor);
+		if (mob->mob_specials.extra_attack)
+			fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.extra_attack);
+		if (mob->get_remort())
+			fprintf(mob_file, "MobRemort: %d\n", mob->get_remort());
+		if (GET_RACE(mob))
+			fprintf(mob_file, "Race: %d\n", GET_RACE(mob));
+		if (GET_HEIGHT(mob))
+			fprintf(mob_file, "Height: %d\n", GET_HEIGHT(mob));
+		if (GET_WEIGHT(mob))
+			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
+		strcpy(buf1, "Special_Bitvector: ");
+		NPC_FLAGS(mob).tascii(4, buf1);
+		fprintf(mob_file, "%s\n", buf1);
+		for (const auto &feat : MUD::Feats()) {
+			if (mob->HaveFeat(feat.GetId())) {
+				fprintf(mob_file, "Feat: %d\n", to_underlying(feat.GetId()));
 			}
-			if (sum != 0)
-				fprintf(mob_file, "Saves: %d %d %d %d\n",
-						GetSave(mob, ESaving::kWill), GetSave(mob, ESaving::kCritical),
-						GetSave(mob, ESaving::kStability), GetSave(mob, ESaving::kReflex));
-			sum = 0;
-			fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
-					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
-					GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6), GET_RESIST(mob, 7));
-			if (GET_HITREG(mob) != 0)
-				fprintf(mob_file, "HPreg: %d\n", GET_HITREG(mob));
-			if (GET_ARMOUR(mob) != 0)
-				fprintf(mob_file, "Armour: %d\n", GET_ARMOUR(mob));
-			if (GET_MANAREG(mob) != 0)
-				fprintf(mob_file, "PlusMem: %d\n", GET_MANAREG(mob));
-			if (GET_CAST_SUCCESS(mob) != 0)
-				fprintf(mob_file, "CastSuccess: %d\n", GET_CAST_SUCCESS(mob));
-			if (GET_MORALE(mob) != 0)
-				fprintf(mob_file, "Success: %d\n", GET_MORALE(mob));
-			if (GET_INITIATIVE(mob) != 0)
-				fprintf(mob_file, "Initiative: %d\n", GET_INITIATIVE(mob));
-			if (GET_ABSORBE(mob) != 0)
-				fprintf(mob_file, "Absorbe: %d\n", GET_ABSORBE(mob));
-			if (GET_AR(mob) != 0)
-				fprintf(mob_file, "AResist: %d\n", GET_AR(mob));
-			if (GET_MR(mob) != 0)
-				fprintf(mob_file, "MResist: %d\n", GET_MR(mob));
-			// added by WorM (Видолюб) поглощение физ.урона в %
-			if (GET_PR(mob) != 0)
-				fprintf(mob_file, "PResist: %d\n", GET_PR(mob));
-			// end by WorM
-			if (GET_ATTACK(mob) != 0)
-				fprintf(mob_file, "BareHandAttack: %d\n", GET_ATTACK(mob));
-			for (c = 0; c < mob->mob_specials.dest_count; c++)
-				fprintf(mob_file, "Destination: %d\n", mob->mob_specials.dest[c]);
-			if (mob->get_str() != 11)
-				fprintf(mob_file, "Str: %d\n", mob->get_str());
-			if (mob->get_dex() != 11)
-				fprintf(mob_file, "Dex: %d\n", mob->get_dex());
-			if (mob->get_int() != 11)
-				fprintf(mob_file, "Int: %d\n", mob->get_int());
-			if (mob->get_wis() != 11)
-				fprintf(mob_file, "Wis: %d\n", mob->get_wis());
-			if (mob->get_con() != 11)
-				fprintf(mob_file, "Con: %d\n", mob->get_con());
-			if (mob->get_cha() != 11)
-				fprintf(mob_file, "Cha: %d\n", mob->get_cha());
-			if (GET_SIZE(mob))
-				fprintf(mob_file, "Size: %d\n", GET_SIZE(mob));
-
-			if (mob->mob_specials.like_work)
-				fprintf(mob_file, "LikeWork: %d\n", mob->mob_specials.like_work);
-			if (mob->mob_specials.MaxFactor)
-				fprintf(mob_file, "MaxFactor: %d\n", mob->mob_specials.MaxFactor);
-			if (mob->mob_specials.extra_attack)
-				fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.extra_attack);
-			if (mob->get_remort())
-				fprintf(mob_file, "MobRemort: %d\n", mob->get_remort());
-			if (GET_RACE(mob))
-				fprintf(mob_file, "Race: %d\n", GET_RACE(mob));
-			if (GET_HEIGHT(mob))
-				fprintf(mob_file, "Height: %d\n", GET_HEIGHT(mob));
-			if (GET_WEIGHT(mob))
-				fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
-			strcpy(buf1, "Special_Bitvector: ");
-			NPC_FLAGS(mob).tascii(4, buf1);
-			fprintf(mob_file, "%s\n", buf1);
-			for (const auto &feat : MUD::Feats()) {
-				if (mob->HaveFeat(feat.GetId())) {
-					fprintf(mob_file, "Feat: %d\n", to_underlying(feat.GetId()));
-				}
+		}
+		for (const auto &skill : MUD::Skills()) {
+			if (mob->GetSkill(skill.GetId()) && skill.IsValid()) {
+				fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->GetSkill(skill.GetId()));
 			}
-			for (const auto &skill : MUD::Skills()) {
-				if (mob->GetSkill(skill.GetId()) && skill.IsValid()) {
-					fprintf(mob_file, "Skill: %d %d\n", to_underlying(skill.GetId()), mob->GetSkill(skill.GetId()));
-				}
+		}
+		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+			for (j = 1; j <= GET_SPELL_MEM(mob, spell_id); j++) {
+				fprintf(mob_file, "Spell: %d\n", to_underlying(spell_id));
 			}
-			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-				for (j = 1; j <= GET_SPELL_MEM(mob, spell_id); j++) {
-					fprintf(mob_file, "Spell: %d\n", to_underlying(spell_id));
-				}
+		}
+		for (auto helper : mob->summon_helpers) {
+			fprintf(mob_file, "Helper: %d\n", helper);
+		}
+		if (mob->get_role_bits().any()) {
+			std::string tmp;
+			boost::to_string(mob->get_role_bits(), tmp);
+			fprintf(mob_file, "Role: %s\n", tmp.c_str());
+		}
+		// * XXX: Add E-mob handlers here.
+		fprintf(mob_file, "E\n");
+		script_save_to_disk(mob_file, mob, MOB_TRIGGER);
+		// Сохраняем список в файл
+		if (mob->dl_list) {
+			OnDeadLoadList::iterator p = mob->dl_list->begin();
+			while (p != mob->dl_list->end()) {
+				fprintf(mob_file, "L %d %d %d %d\n",
+						(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
+				p++;
 			}
-			for (auto helper : mob->summon_helpers) {
-				fprintf(mob_file, "Helper: %d\n", helper);
-			}
-			if (mob->get_role_bits().any()) {
-				std::string tmp;
-				boost::to_string(mob->get_role_bits(), tmp);
-				fprintf(mob_file, "Role: %s\n", tmp.c_str());
-			}
-
-			// * XXX: Add E-mob handlers here.
-
-			fprintf(mob_file, "E\n");
-
-			script_save_to_disk(mob_file, mob, MOB_TRIGGER);
-
-			// Сохраняем список в файл
-			if (mob->dl_list) {
-				OnDeadLoadList::iterator p = mob->dl_list->begin();
-				while (p != mob->dl_list->end()) {
-					fprintf(mob_file, "L %d %d %d %d\n",
-							(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
-					p++;
-				}
-			}
-#if defined(OASIS_MPROG)
-			// * Write out the MobProgs.
-			mob_prog = GET_MPROG(mob);
-			while (mob_prog)
-			{
-				strcpy(buf1, mob_prog->arglist);
-				strip_string(buf1);
-				strcpy(buf2, mob_prog->comlist);
-				strip_string(buf2);
-				fprintf(mob_file, "%s %s~\n%s", medit_get_mprog_type(mob_prog), buf1, buf2);
-				mob_prog = mob_prog->next;
-				fprintf(mob_file, "~\n%s", (!mob_prog ? "|\n" : ""));
-			}
-#endif
 		}
 	}
 	fprintf(mob_file, "$\n");

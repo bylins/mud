@@ -157,6 +157,8 @@ void redit_save_internally(DescriptorData *d) {
 
 		// Update zone table.
 		for (std::size_t zone = 0; zone < zone_table.size(); zone++) {
+			if (!zone_table[zone].cmd)
+				continue;
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
 				switch (ZCMD.command) {
 					case 'M':
