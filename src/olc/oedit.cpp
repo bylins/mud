@@ -275,9 +275,9 @@ void oedit_save_internally(DescriptorData *d) {
 	} else {
 		// It's a new object, we must build new tables to contain it.
 		log("[OEdit] Save mem an disk new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(ObjData));
-
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
-		obj_proto.zone(index, get_zone_rnum_by_obj_vnum(OLC_NUM(d)));
+		const ZoneRnum zrn = get_zone_rnum_by_obj_vnum(OLC_NUM(d));
+		obj_proto.zone(index, zrn);
 	}
 
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_OBJ);
@@ -1817,6 +1817,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: {
+					if (number == 0)
+						return;
 					auto spell_id = static_cast<ESpell>(number);
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						oedit_disp_val2_menu(d);
@@ -1905,10 +1907,13 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case OEDIT_VALUE_3: number = atoi(arg);
-			// * Quick'n'easy error checking.
+						// * Quick'n'easy error checking.
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPotion: min_val = -1;
+				case EObjType::kPotion: 
+					if (number == 0)
+						return;
+					min_val = -1;
 					max_val = to_underlying(ESpell::kLast);
 					break;
 
@@ -1941,7 +1946,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_VALUE_4: number = atoi(arg);
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPotion: min_val = -1;
+				case EObjType::kPotion: 
+					if (number == 0)
+						return;
+					min_val = -1;
 					max_val = to_underlying(ESpell::kLast);
 					break;
 

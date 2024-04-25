@@ -399,6 +399,7 @@ void trigedit_save(DescriptorData *d) {
 		cmd->line_num = line_num++;
 	}
 	cmd->next.reset();
+//	log("Триггер зона1 %d внум %d ласт %d", OLC_ZNUM(d), zone_table[OLC_ZNUM(d)].vnum, trig_index[zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second]->vnum);
 
 	if ((trig_rnum = real_trigger(OLC_NUM(d))) != -1) {
 		// Этот триггер уже есть.
@@ -459,7 +460,6 @@ void trigedit_save(DescriptorData *d) {
 				proto->set_rnum(i + 1);
 			}
 		}
-
 		if (!found) {
 			trig_rnum = i;
 			CREATE(new_index[trig_rnum], 1);
@@ -472,6 +472,7 @@ void trigedit_save(DescriptorData *d) {
 		free(trig_index);
 		trig_index = new_index;
 		top_of_trigt++;
+		zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second++;
 
 		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
 		trigger_list.shift_rnums_from(trig_rnum);

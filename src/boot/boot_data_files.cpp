@@ -600,16 +600,10 @@ void ObjectFile::read_entry(const int nr) {
 }
 
 void ObjectFile::parse_object(const int nr) {
-	static int i = 0;
 	int t[10], j = 0;
 	char f0[256], f1[256], f2[256];
 
 	ObjData *tobj = new ObjData(nr);
-	if (zone_table[real_zone(nr / 100)].RnumObjsLocation.first == -1) {
-		zone_table[real_zone(nr / 100)].RnumObjsLocation.first = i;
-	}
-	zone_table[real_zone(nr / 100)].RnumObjsLocation.second = i;
-	i++;
 
 	// *** Add some initialization fields
 	tobj->set_maximum_durability(ObjData::DEFAULT_MAXIMUM_DURABILITY);
@@ -1501,8 +1495,6 @@ bool ZoneFile::load_zone() {
 	zone.RnumTrigsLocation.second = -1;
 	zone.RnumMobsLocation.first = -1;
 	zone.RnumMobsLocation.second = -1;
-	zone.RnumObjsLocation.first = -1;
-	zone.RnumObjsLocation.second = -1;
 	zone.RnumRoomsLocation.first = -1;
 	zone.RnumRoomsLocation.second = -1;
 	get_line(file(), buf);

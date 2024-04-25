@@ -31,8 +31,7 @@ ZoneData::ZoneData() : traffic(0),
 					   entrance(0),
 					   RnumTrigsLocation(-1, -1),
 					   RnumRoomsLocation(-1, -1),
-					   RnumMobsLocation(-1, -1),
-					   RnumObjsLocation(-1, 1) {
+					   RnumMobsLocation(-1, -1) {
 }
 
 ZoneData::~ZoneData() {
