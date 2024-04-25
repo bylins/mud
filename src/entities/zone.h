@@ -78,7 +78,6 @@ class ZoneData {
 	std::pair<TrgRnum, TrgRnum> RnumTrigsLocation;
 	std::pair<RoomRnum, RoomRnum> RnumRoomsLocation;
 	std::pair<MobRnum, MobRnum> RnumMobsLocation;
-	std::pair<ObjRnum, ObjRnum> RnumObjsLocation;
 };
 
 using ZoneTable = std::vector<ZoneData>;

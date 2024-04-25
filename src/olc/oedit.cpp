@@ -276,9 +276,6 @@ void oedit_save_internally(DescriptorData *d) {
 		// It's a new object, we must build new tables to contain it.
 		log("[OEdit] Save mem an disk new %d(%zd/%zd)", OLC_NUM(d), 1 + obj_proto.size(), sizeof(ObjData));
 		const size_t index = obj_proto.add(OLC_OBJ(d), OLC_NUM(d));
-		if (obj_proto[zone_table[OLC_ZNUM(d)].RnumObjsLocation.second]->get_vnum() < obj_proto[index]->get_vnum()) { //вот такой костыль так как рнумы и внумы не линейно
-			zone_table[OLC_ZNUM(d)].RnumObjsLocation.second = index;
-		}
 		const ZoneRnum zrn = get_zone_rnum_by_obj_vnum(OLC_NUM(d));
 		obj_proto.zone(index, zrn);
 	}

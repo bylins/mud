@@ -2958,7 +2958,6 @@ void CreateBlankObjsDungeon() {
 	ObjRnum rnum = obj_proto.size();
 
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
-		zone_table[real_zone(zvn)].RnumObjsLocation.first = rnum;
 		for (ObjVnum vnum = 0; vnum <= 99; vnum++) {
 			ObjData *obj;
 
@@ -4755,27 +4754,32 @@ void ObjDataFree(ZoneRnum zrn) {
 				}
 				ExtractObjFromWorld(obj_original.get());
 			});
+			auto &obj = obj_proto[orn];
+			obj->set_aliases("новый предмет");
+			obj->set_description("что-то новое лежит здесь");
+			obj->set_short_description("новый предмет");
+			obj->set_PName(0, "это что");
+			obj->set_PName(1, "нету чего");
+			obj->set_PName(2, "привязать к чему");
+			obj->set_PName(3, "взять что");
+			obj->set_PName(4, "вооружиться чем");
+			obj->set_PName(5, "говорить о чем");
+			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+			obj->clear_proto_script();
+
 		}
 	}
 }
 
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-//	ObjRnum orn_from = zone_table[zrn_from].RnumObjsLocation.first;
-//	ObjRnum orn_last = zone_table[zrn_from].RnumObjsLocation.second;
-	ObjRnum orn_to = zone_table[zrn_to].RnumObjsLocation.first, i;
+	ObjRnum orn_to, i;
+	ObjVnum new_vnum;
 	ObjData *obj;
 
-	if (zone_table[zrn_from].RnumObjsLocation.first == -1) {
-		sprintf(buf, "В зоне нет объектов, копируем остальное");
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return;
-	}
 	for (int counter = zone_table[zrn_from].vnum * 100; counter <= zone_table[zrn_from].top; counter++) {
 		if ((i = real_object(counter)) >= 0) {
-			sprintf(buf, "proto from rnum %d vnum %d", i, obj_proto[i]->get_vnum());
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
-
+			new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
+			orn_to = real_object(new_vnum);
 			NEWCREATE(obj, new_vnum);
 			const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
 			obj->copy_from(obj_original.get());
@@ -4786,8 +4790,6 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			obj->set_extra_flag(EObjFlag::kNolocate);
 			obj->set_extra_flag(EObjFlag::kNorent);
 			obj->set_extra_flag(EObjFlag::kNosell);
-//			sprintf(buf, "имя %s", GET_OBJ_PNAME(obj, 0));
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			obj_proto.replace(obj, orn_to, new_vnum);
 			for (const auto tvn : obj_proto[i]->get_proto_script()) {
 				if (zone_table[zrn_from].vnum == tvn / 100) {
@@ -4799,8 +4801,6 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				}
 			}
 			ExtractObjFromWorld(obj_original.get());
-			zone_table[zrn_to].RnumObjsLocation.second = i;
-			orn_to++;
 		}
 	}
 }
@@ -4834,8 +4834,7 @@ void ZoneDataFree(ZoneRnum zrn) {
 		zone_table[zrn_to].cmd[subcmd].arg = real_mobile(mob_index[zone_table[zrn_from].cmd[subcmd].arg].vnum % 100 + zone_table[zrn_to].vnum * 100); }
 #define TRANS_OBJ(arg) \
 	if (obj_proto[zone_table[zrn_to].cmd[subcmd].arg]->get_vnum() / 100 == zone_table[zrn_from].vnum) { \
-		zone_table[zrn_to].cmd[subcmd].arg =  zone_table[zrn_from].cmd[subcmd].arg - \
-		zone_table[zrn_from].RnumObjsLocation.first + zone_table[zrn_to].RnumObjsLocation.first; \
+		zone_table[zrn_to].cmd[subcmd].arg = real_object(obj_proto[zone_table[zrn_from].cmd[subcmd].arg]->get_vnum() % 100 + zone_table[zrn_to].vnum * 100); \
 	}
 #define TRANS_ROOM(arg) \
 	if (world[zone_table[zrn_to].cmd[subcmd].arg]->room_vn / 100 == zone_table[zrn_from].vnum) { \
@@ -5496,12 +5495,12 @@ void ZoneReset::reset_zone_essential() {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
 			RoomData *gate_room = OneWayPortal::get_from_room(room);
-			if (gate_room)   // случай врат
-			{
+			if (gate_room) {
 				gate_room->portal_time = 0;
 				OneWayPortal::remove(room);
-			} else if (room->portal_time > 0)   // случай двусторонней пенты
-			{
+				act("Пентаграмма медленно растаяла.", false, gate_room->first_character(), 0, 0, kToRoom);
+				act("Пентаграмма медленно растаяла.", false, gate_room->first_character(), 0, 0, kToChar);
+			} else if (room->portal_time > 0) {  // случай двусторонней пенты
 				world[room->portal_room]->portal_time = 0;
 				room->portal_time = 0;
 			}

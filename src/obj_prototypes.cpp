@@ -19,6 +19,7 @@ void CObjectPrototypes::replace(CObjectPrototype *prototype, const ObjRnum orn, 
 	prototype->set_rnum(static_cast<int>(orn));
 	m_vnum2index[ovn] = orn;
 	m_prototypes[orn].reset(prototype);
+	m_index[orn] = SPrototypeIndex();
 }
 
 void CObjectPrototypes::dec_number(const size_t rnum) {

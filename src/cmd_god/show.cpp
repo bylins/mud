@@ -316,10 +316,6 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			mob_index[zone_table[zone].RnumMobsLocation.first].vnum,
 			mob_index[zone_table[zone].RnumMobsLocation.second].vnum);
 	*bufptr = str_add(*bufptr, tmpstr);
-	snprintf(tmpstr, BUFFER_SIZE, "Объекты: first %d last %d\r\n",
-			obj_proto[zone_table[zone].RnumObjsLocation.first]->get_vnum(),
-			obj_proto[zone_table[zone].RnumObjsLocation.second]->get_vnum());
-	*bufptr = str_add(*bufptr, tmpstr);
 	snprintf(tmpstr, BUFFER_SIZE, "Триггера: first %d last %d",
 			trig_index[zone_table[zone].RnumTrigsLocation.first]->vnum,
 			trig_index[zone_table[zone].RnumTrigsLocation.second]->vnum);
