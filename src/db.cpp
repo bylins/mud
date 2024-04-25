@@ -4772,8 +4772,8 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	}
 	for (int counter = zone_table[zrn_from].vnum * 100; counter <= zone_table[zrn_from].top; counter++) {
 		if ((i = real_object(counter)) >= 0) {
-//			sprintf(buf, "proto from rnum %d vnum %d", i, obj_proto[i]->get_vnum());
-//			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			sprintf(buf, "proto from rnum %d vnum %d", i, obj_proto[i]->get_vnum());
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			ObjVnum new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
 
 			NEWCREATE(obj, new_vnum);
@@ -5135,9 +5135,7 @@ void ZoneReset::reset_zone_essential() {
 							rndlev += number(-2, +2);
 							mob->set_level(std::max(1, rndlev));
 						}
-						log("mob %s %d plase in room %d (%d)", GET_NAME(mob), GET_MOB_VNUM(mob), ZCMD.arg3, world[ZCMD.arg3]->room_vn);
 						PlaceCharToRoom(mob, ZCMD.arg3);
-						log("mob %s %d  is located in room %d (%d)", GET_NAME(mob), GET_MOB_VNUM(mob), mob->in_room, world[mob->in_room]->room_vn);
 						load_mtrigger(mob);
 						tmob = mob;
 						curr_state = 1;
