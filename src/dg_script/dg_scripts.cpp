@@ -3233,6 +3233,64 @@ void find_replacement(void *go,
 			o->gm_extra_flag(subfield, extra_bits, str);
 		} else if (!str_cmp(field, "affect")) {
 			o->gm_affect_flag(subfield, weapon_affects, str);
+		} else if (!str_cmp(field, "apply")) {
+			char *p = strchr(subfield, ',');
+			if (p) {
+				*p++ = '\0';
+			}
+			int num, i;
+			for (num = 0; num < EApply::kNumberApplies; num++) {
+				if (!str_cmp(subfield, apply_types[num]))
+				break;
+			}
+			if (num == EApply::kNumberApplies) {
+				sprintf(buf, "Не найден апплай '%s' в списке apply_types", subfield);
+				trig_log(trig, buf);
+				return;
+			}
+			if (!p) {
+				for (i = 0; i < kMaxObjAffect; i++) {
+					if (o->get_affected(i).modifier) {
+						if (o->get_affected(i).location == num) {
+							sprintf(str, "%d", o->get_affected(i).modifier);
+							return;
+						}
+					}
+				}
+			} else {
+				for (i = 0; i < kMaxObjAffect; i++) {
+					if (o->get_affected(i).modifier) {
+						o->set_affected_location(i, static_cast<EApply>(num));
+						o->set_affected_modifier(i, atoi(p));
+					}
+				}
+			}
+		} else if (!str_cmp(field, "skills")) {
+			char *p = strchr(subfield, ',');
+			if (p) {
+				*p = '\0';
+			}
+			ESkill skill_id;
+
+			for (skill_id = ESkill::kFirst; skill_id < ESkill::kLast; ++skill_id) {
+				if (MUD::Skills().IsInvalid(skill_id))
+					continue;
+				if (!str_cmp(MUD::Skill(skill_id).GetName(), subfield))
+					break;
+			}
+			if (skill_id == ESkill::kLast) {
+				sprintf(buf, "Не найдено умение '%s'", subfield);
+				trig_log(trig, buf);
+				return;
+			}
+			if (!p) {
+				if (o->has_skills()) {
+					sprintf(str, "%d", o->get_skill(skill_id));
+				}
+			} else {
+				p++;
+				o->set_skill(skill_id, atoi(p));
+			}
 		} else if (!str_cmp(field, "carriedby")) {
 			if (o->get_carried_by()) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(o->get_carried_by()));
