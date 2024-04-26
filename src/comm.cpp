@@ -3751,10 +3751,10 @@ void act(const char *str,
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
 		// находим первую клетку в зоне
-		while ((int) world[arena_room_rnum - 1]->room_vn / 100 == (int) world[arena_room_rnum]->room_vn / 100)
+		while ((int) world[arena_room_rnum - 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100)
 			arena_room_rnum--;
 		//пробегаемся по всем клеткам в зоне
-		while ((int) world[arena_room_rnum + 1]->room_vn / 100 == (int) world[arena_room_rnum]->room_vn / 100) {
+		while ((int) world[arena_room_rnum + 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100) {
 			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ERoomFlag::kTribune)) {
 				int stop_count = 0;

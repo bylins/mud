@@ -35,7 +35,7 @@ class Birthplaces {
 	static std::string ShowMenu(std::vector<int> BPList);   // Получение меню выбора точек одной строкой
 	static short ParseSelect(char *arg);                    // Поиск точки по текстовому вводу и описанию (description)
 	static bool CheckId(short Id);                          // Проверка наличия точки с указанным ID
-	static int GetIdByRoom(int room_vnum);                  // Выяснение ID через текущую комнату
+	static int GetIdByRoom(int vnumum);                  // Выяснение ID через текущую комнату
 	static std::string GetRentHelp(short Id);               // Фраза рентера нубу после смерти по ID
 
 	// Доступ к свойствам класса.

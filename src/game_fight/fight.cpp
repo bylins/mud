@@ -1921,7 +1921,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
 			&& CanUseFeat(ch, EFeat::kSlashMaster)
-			&& (static_cast<ESkill>(GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths))) == ESkill::kTwohands)) {
+			&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kTwohands)) {
 			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}

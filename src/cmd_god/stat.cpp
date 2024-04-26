@@ -466,12 +466,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			// пытаемся просчитать маршрут на несколько клеток вперед
 			std::vector<RoomVnum> predictive_path_vnum_list;
 			static const int max_path_size = 25;
-			RoomVnum current_room = world[k->in_room]->room_vn;
+			RoomVnum current_room = world[k->in_room]->vnum;
 			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
 				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
 				if (direction >= 0) {
 					const auto exit_room_rnum = world[real_room(current_room)]->dir_option[direction]->to_room();
-					current_room = world[exit_room_rnum]->room_vn;
+					current_room = world[exit_room_rnum]->vnum;
 					predictive_path_vnum_list.push_back(current_room);
 				} else {
 					break;
@@ -972,14 +972,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			);
 			break;
 
-		case EObjType::kIngredient:sprintbit(GET_OBJ_SKILL(j), ingradient_bits, smallBuf);
+		case EObjType::kIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf);
 			sprintf(buf, "ingr bits %s", smallBuf);
 
-			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckUses)) {
+			if (IS_SET(j->get_spec_param(), kItemCheckUses)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить %d раз", GET_OBJ_VAL(j, 2));
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckLag)) {
+			if (IS_SET(j->get_spec_param(), kItemCheckLag)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить 1 раз в %d сек", (i = GET_OBJ_VAL(j, 0) & 0xFF));
 				if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(nullptr))
 					sprintf(buf + strlen(buf), "(можно применять).");
@@ -989,7 +989,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				}
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(j), kItemCheckLevel)) {
+			if (IS_SET(j->get_spec_param(), kItemCheckLevel)) {
 				sprintf(buf + strlen(buf), "\r\nможно применить с %d уровня.", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 			}
 
@@ -1102,7 +1102,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	sprintf(buf,
 			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
-			zone_table[rm->zone_rn].vnum, CCGRN(ch, C_NRM), rm->room_vn, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
+			zone_table[rm->zone_rn].vnum, CCGRN(ch, C_NRM), rm->vnum, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
 	SendMsgToChar(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");

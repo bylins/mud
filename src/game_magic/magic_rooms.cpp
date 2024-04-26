@@ -79,7 +79,7 @@ void ShowAffectedRooms(CharData *ch) {
 	int count = 1;
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
-			table << count << r->room_vn << MUD::Spell(af->type).GetName()
+			table << count << r->vnum << MUD::Spell(af->type).GetName()
 				<< get_name_by_id(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
@@ -116,7 +116,7 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			SendRemoveAffectMsgToRoom((*affect)->type, real_room(room->room_vn));
+			SendRemoveAffectMsgToRoom((*affect)->type, real_room(room->vnum));
 			spell_id = (*affect)->type;
 			RoomRemoveAffect(room, affect);
 			return spell_id;
@@ -342,7 +342,7 @@ void UpdateRoomsAffects() {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->room_vn));
+						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->vnum));
 					}
 				}
 				if (affect->type == ESpell::kPortalTimer) {

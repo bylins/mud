@@ -2253,11 +2253,11 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 	GetOneParam(text, buffer2);
 	utils::Trim(text);
 
-	int clan_vnum = 0, room_vnum = 0;
+	int clan_vnum = 0, vnumum = 0;
 	if (!text.empty()) {
 		try {
 			clan_vnum = std::stol(buffer2, nullptr, 10);
-			room_vnum = std::stol(text, nullptr, 10);
+			vnumum = std::stol(text, nullptr, 10);
 		}
 		catch (const std::invalid_argument &) {
 			SendMsgToChar(ch, "Неверный формат (\"hcontrol ingr <клан-рента> <комната хранилища>\").");
@@ -2265,9 +2265,9 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 		}
 	}
 
-	int room_rnum = real_room(room_vnum);
+	int room_rnum = real_room(vnumum);
 	if (room_rnum <= 0) {
-		SendMsgToChar(ch, "Комнаты %d не существует.", room_vnum);
+		SendMsgToChar(ch, "Комнаты %d не существует.", vnumum);
 		return;
 	}
 
@@ -2281,8 +2281,8 @@ void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
 		SendMsgToChar(ch, "Клана %d не существует.", clan_vnum);
 		return;
 	}
-	if ((*i)->GetRent() / 100 != room_vnum / 100) {
-		SendMsgToChar(ch, "Комната %d находится вне зоны замка %d.", room_vnum, (*i)->GetRent());
+	if ((*i)->GetRent() / 100 != vnumum / 100) {
+		SendMsgToChar(ch, "Комната %d находится вне зоны замка %d.", vnumum, (*i)->GetRent());
 		return;
 	}
 

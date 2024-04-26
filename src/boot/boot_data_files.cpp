@@ -223,12 +223,12 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 			if (rnum >= 0) {
 				const auto trigger_instance = read_trigger(rnum);
 				if (add_trigger(SCRIPT(room).get(), trigger_instance, -1)) {
-					add_trig_to_owner(-1, vnum, room->room_vn);
+					add_trig_to_owner(-1, vnum, room->vnum);
 				} else {
 					extract_trigger(trigger_instance);
 				}
 			} else {
-				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->room_vn);
+				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->vnum);
 				log("%s", line);
 			}
 			break;
@@ -409,7 +409,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	// Создаем новую комнату
 	world.push_back(new RoomData);
 	world[room_realnum]->zone_rn = zone;
-	world[room_realnum]->room_vn = virtual_nr;
+	world[room_realnum]->vnum = virtual_nr;
 	std::string tmpstr = fread_string();
 	tmpstr[0] = UPPER(tmpstr[0]);
 	world[room_realnum]->set_name(tmpstr);
@@ -645,9 +645,9 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 
-	int skill = 0;
-	asciiflag_conv(f0, &skill);
-	tobj->set_skill(skill);
+	int sparam = 0;
+	asciiflag_conv(f0, &sparam);
+	tobj->set_spec_param(sparam);
 
 	tobj->set_maximum_durability(t[1]);
 	tobj->set_current_durability(MIN(t[1], t[2]));

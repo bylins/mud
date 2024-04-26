@@ -482,7 +482,7 @@ int calculate_weapon_class(CharData *ch, ObjData *weapon) {
 		return 0;
 	}
 
-	hits = CalcCurrentSkill(ch, static_cast<ESkill>(GET_OBJ_SKILL(weapon)), 0);
+	hits = CalcCurrentSkill(ch, static_cast<ESkill>(weapon->get_spec_param()), 0);
 	damage = (GET_OBJ_VAL(weapon, 1) + 1) * (GET_OBJ_VAL(weapon, 2)) / 2;
 	for (i = 0; i < kMaxObjAffect; i++) {
 		auto &affected = weapon->get_affected(i);

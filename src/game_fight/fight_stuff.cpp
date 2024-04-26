@@ -1053,7 +1053,7 @@ void alterate_object(ObjData *obj, int dam, int chance) {
 		MAX(1, GET_OBJ_MAX(obj) *
 			(obj->has_flag(EObjFlag::kNodrop) ? 5 :
 			 obj->has_flag(EObjFlag::kBless) ? 15 : 10)
-			 * (static_cast<ESkill>(GET_OBJ_SKILL(obj)) == ESkill::kBows ? 3 : 1)));
+			 * (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {
 		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), EEquipPos::kShield) == obj) {

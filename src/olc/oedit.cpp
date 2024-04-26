@@ -345,7 +345,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 					!obj->get_PName(5).empty() ? obj->get_PName(5).c_str() : "о чем-то",
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 					buf1,
-					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
+					obj->get_spec_param(), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
 					GET_OBJ_MATER(obj), to_underlying(GET_OBJ_SEX(obj)),
 					obj->get_timer(), to_underlying(GET_OBJ_SPELL(obj)),
 					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
@@ -1043,7 +1043,7 @@ void oedit_disp_ingradient_menu(DescriptorData *d) {
 				ingradient_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
-	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), ingradient_bits, buf1);
+	sprintbit(OLC_OBJ(d)->get_spec_param(), ingradient_bits, buf1);
 	snprintf(buf, kMaxStringLength, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -1058,7 +1058,7 @@ void oedit_disp_magic_container_menu(DescriptorData *d) {
 				magic_container_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
-	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), magic_container_bits, buf1);
+	sprintbit(OLC_OBJ(d)->get_spec_param(), magic_container_bits, buf1);
 	snprintf(buf, kMaxStringLength, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -1139,7 +1139,7 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 	sprintf(buf,
 			"%sТренируемое умение : %s%d%s\r\n"
 			"Выберите умение (0 - выход) : ",
-			(columns % 2 == 1 ? "\r\n" : ""), cyn, GET_OBJ_SKILL(OLC_OBJ(d)), nrm);
+			(columns % 2 == 1 ? "\r\n" : ""), cyn, OLC_OBJ(d)->get_spec_param(), nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
@@ -1150,7 +1150,7 @@ std::string print_values2_menu(ObjData *obj) {
 	}
 
 	char buf_[kMaxInputLength];    
-	snprintf(buf_, sizeof(buf_), "Спец. параметры: %d", GET_OBJ_SKILL(obj));
+	snprintf(buf_, sizeof(buf_), "Спец. параметры: %d", obj->get_spec_param());
 	return buf_;
 }
 
@@ -1648,7 +1648,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
 				mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 				if (number != EObjType::kWeapon && number != EObjType::kIngredient) {
-					OLC_OBJ(d)->set_skill(0);
+					OLC_OBJ(d)->set_spec_param(0);
 				}
 			}
 			break;
@@ -1788,7 +1788,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					default: oedit_disp_skills_menu(d);
 						return;
 				}
-			OLC_OBJ(d)->set_skill(number);
+			OLC_OBJ(d)->set_spec_param(number);
 			oedit_disp_skills_menu(d);
 			return;
 			break;

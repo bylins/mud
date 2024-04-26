@@ -7,7 +7,7 @@
 bool TechniqueItem::operator==(const ObjData *item) const {
 	return (item
 		&& (type == GET_OBJ_TYPE(item))
-		&& ((skill == ESkill::kAny) || (skill == static_cast<ESkill>(item->get_skill())))
+		&& ((skill == ESkill::kAny) || (skill == static_cast<ESkill>(item->get_spec_param())))
 		&& (flagged ? item->has_flag(flag) : true));
 };
 

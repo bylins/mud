@@ -199,7 +199,7 @@ bool TechniqueRoll::IsSuitableItem(const TechniqueItem &item) {
 		if (char_item->get_type() == EObjType::kWeapon) {
 			weapon_equip_position_ = item.wear_position;
 			if (MUD::Ability(ability_).IsWeaponTechnique()) {
-				base_skill_ = static_cast<ESkill>(char_item->get_skill());
+				base_skill_ = static_cast<ESkill>(char_item->get_spec_param());
 			};
 		};
 		return true;

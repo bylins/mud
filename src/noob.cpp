@@ -187,15 +187,15 @@ void equip_start_outfit(CharData *ch, ObjData *obj) {
 		if (CAN_WEAR(obj, EWearFlag::kWield)
 			&& !GET_EQ(ch, EEquipPos::kWield)) {
 			EquipObj(ch, obj, EEquipPos::kWield, CharEquipFlags());
-			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
+			ch->set_skill(static_cast<ESkill>(obj->get_spec_param()), 10);
 		} else if (CAN_WEAR(obj, EWearFlag::kBoth)
 			&& !GET_EQ(ch, EEquipPos::kBoths)) {
 			EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlags());
-			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
+			ch->set_skill(static_cast<ESkill>(obj->get_spec_param()), 10);
 		} else if (CAN_WEAR(obj, EWearFlag::kHold)
 			&& !GET_EQ(ch, EEquipPos::kHold)) {
 			EquipObj(ch, obj, EEquipPos::kHold, CharEquipFlags());
-			ch->set_skill(static_cast<ESkill>(GET_OBJ_SKILL(obj)), 10);
+			ch->set_skill(static_cast<ESkill>(obj->get_spec_param()), 10);
 		}
 	}
 }

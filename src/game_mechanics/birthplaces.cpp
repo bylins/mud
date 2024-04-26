@@ -120,9 +120,9 @@ bool Birthplaces::CheckId(short Id) {
 	return false;
 };
 
-int Birthplaces::GetIdByRoom(int room_vnum) {
+int Birthplaces::GetIdByRoom(int vnumum) {
 	for (auto i = BirthPlaceList.begin(); i != BirthPlaceList.end(); ++i) {
-		if ((*i)->LoadRoom() / 100 == room_vnum / 100) {
+		if ((*i)->LoadRoom() / 100 == vnumum / 100) {
 			return (*i)->Id();
 		}
 	}

@@ -132,7 +132,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	{
 		switch (subcmd) {
 			case SCMD_OLC_ZEDIT:
-			case SCMD_OLC_REDIT: number = world[ch->in_room]->room_vn;
+			case SCMD_OLC_REDIT: number = world[ch->in_room]->vnum;
 				break;
 			case SCMD_OLC_TRIGEDIT:
 			case SCMD_OLC_OEDIT:
@@ -192,7 +192,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	d->olc = new olc_data;
 
 	// * Find the zone.
-	if ((OLC_ZNUM(d) = get_zone_rnum_by_room_vnum(number)) == -1) {
+	if ((OLC_ZNUM(d) = get_zone_rnum_by_vnumum(number)) == -1) {
 		SendMsgToChar("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
 		delete d->olc;
 		return;

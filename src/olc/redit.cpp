@@ -96,7 +96,7 @@ void redit_save_internally(DescriptorData *d) {
 	int j, rrn, cmd_no;
 	ObjData *temp_obj;
 
-	rrn = real_room(OLC_ROOM(d)->room_vn);
+	rrn = real_room(OLC_ROOM(d)->vnum);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
 	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
 	// * Room exists: move contents over then free and replace it.
@@ -116,14 +116,14 @@ void redit_save_internally(DescriptorData *d) {
 		int i = kFirstRoom;
 
 		for (; it != world.cend(); ++it, ++i) {
-			if ((*it)->room_vn > OLC_NUM(d)) {
+			if ((*it)->vnum > OLC_NUM(d)) {
 				break;
 			}
 		}
 
 		RoomData *new_room = new RoomData;
 		room_copy(new_room, OLC_ROOM(d));
-		new_room->room_vn = OLC_NUM(d);
+		new_room->vnum = OLC_NUM(d);
 		new_room->zone_rn = OLC_ZNUM(d);
 		new_room->func = nullptr;
 		rrn = i; // рнум новой комнаты
@@ -334,7 +334,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 							counter2, buf1, buf2,
 							room->dir_option_proto[counter2]->exit_info, room->dir_option_proto[counter2]->key,
 							room->dir_option_proto[counter2]->to_room() != kNowhere ?
-							world[room->dir_option_proto[counter2]->to_room()]->room_vn : kNowhere,
+							world[room->dir_option_proto[counter2]->to_room()]->vnum : kNowhere,
 							room->dir_option_proto[counter2]->lock_complexity);
 				}
 			}
@@ -426,7 +426,7 @@ void redit_disp_exit_menu(DescriptorData *d) {
 			 "%s6%s) Очистить выход.\r\n"
 			 "Ваш выбор (0 - конец) : ",
 			 grn, nrm, cyn,
-			 OLC_EXIT(d)->to_room() != kNowhere ? world[OLC_EXIT(d)->to_room()]->room_vn : kNowhere,
+			 OLC_EXIT(d)->to_room() != kNowhere ? world[OLC_EXIT(d)->to_room()]->vnum : kNowhere,
 			 grn, nrm,
 			 yel,
 			 !OLC_EXIT(d)->general_description.empty() ? OLC_EXIT(d)->general_description.c_str() : "<NONE>",
@@ -524,22 +524,22 @@ void redit_disp_menu(DescriptorData *d) {
 			 grn, room->temp_description,
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
 			 room->dir_option_proto[EDirection::kNorth] && room->dir_option_proto[EDirection::kNorth]->to_room() != kNowhere
-			 ? world[room->dir_option_proto[EDirection::kNorth]->to_room()]->room_vn : kNowhere,
+			 ? world[room->dir_option_proto[EDirection::kNorth]->to_room()]->vnum : kNowhere,
 			 grn, nrm, cyn,
 			 room->dir_option_proto[EDirection::kEast] && room->dir_option_proto[EDirection::kEast]->to_room() != kNowhere
-			 ? world[room->dir_option_proto[EDirection::kEast]->to_room()]->room_vn : kNowhere,
+			 ? world[room->dir_option_proto[EDirection::kEast]->to_room()]->vnum : kNowhere,
 			 grn, nrm, cyn,
 			 room->dir_option_proto[EDirection::kSouth] && room->dir_option_proto[EDirection::kSouth]->to_room() != kNowhere
-			 ? world[room->dir_option_proto[EDirection::kSouth]->to_room()]->room_vn : kNowhere,
+			 ? world[room->dir_option_proto[EDirection::kSouth]->to_room()]->vnum : kNowhere,
 			 grn, nrm, cyn,
 			 room->dir_option_proto[EDirection::kWest] && room->dir_option_proto[EDirection::kWest]->to_room() != kNowhere
-			 ? world[room->dir_option_proto[EDirection::kWest]->to_room()]->room_vn : kNowhere,
+			 ? world[room->dir_option_proto[EDirection::kWest]->to_room()]->vnum : kNowhere,
 			 grn, nrm, cyn,
 			 room->dir_option_proto[EDirection::kUp] && room->dir_option_proto[EDirection::kUp]->to_room() != kNowhere
-			 ? world[room->dir_option_proto[EDirection::kUp]->to_room()]->room_vn : kNowhere,
+			 ? world[room->dir_option_proto[EDirection::kUp]->to_room()]->vnum : kNowhere,
 			 grn, nrm, cyn,
 			 room->dir_option_proto[EDirection::kDown] && room->dir_option_proto[EDirection::kDown]->to_room() != kNowhere
-			 ? world[room->dir_option_proto[EDirection::kDown]->to_room()]->room_vn : kNowhere,
+			 ? world[room->dir_option_proto[EDirection::kDown]->to_room()]->vnum : kNowhere,
 			 grn, nrm, grn, nrm, cyn,
 			 !room->proto_script->empty() ? "Set." : "Not Set.",
 			 grn, nrm);

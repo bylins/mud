@@ -413,7 +413,7 @@ int find_char_vnum(int vnum, int num = 0) {
 // return room with VNUM n
 // Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
 // RNUM может быть независимо изменен с помощью OLC
-int find_room_vnum(long n) {
+int find_vnumum(long n) {
 	//  return (real_room (n) != kNowhere) ? ROOM_ID_BASE + n : -1;
 	return (real_room(n) != kNowhere) ? n : -1;
 }
@@ -763,7 +763,7 @@ void script_trigger_check() {
 			}
 		}
 	}
-	buffer << "WLD random trigger: самый долгий у комнаты [" << where->room_vn << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms." << "\r\n";
+	buffer << "WLD random trigger: самый долгий у комнаты [" << where->vnum << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms." << "\r\n";
 	buffer << "script_trigger_check() всего: " << timercheck.delta().count() <<" ms.";
 	log("%s", buffer.str().c_str());
 }
@@ -1165,10 +1165,10 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
-							tn, GET_TRIG_NAME(trig), world[room]->room_vn);
+							tn, GET_TRIG_NAME(trig), world[room]->vnum);
 					SendMsgToChar(buf, ch);
 					if (add_trigger(world[room]->script.get(), trig, loc)) {
-						add_trig_to_owner(-1, tn, world[room]->room_vn);
+						add_trig_to_owner(-1, tn, world[room]->vnum);
 					} else {
 						extract_trigger(trig);
 					}
@@ -1209,7 +1209,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			SendMsgToChar("All triggers removed from room.\r\n", ch);
 		} else if (SCRIPT(room)->remove_trigger(arg2)) {
-				owner_trig[atoi(arg2)][-1].erase(world[ch->in_room]->room_vn);
+				owner_trig[atoi(arg2)][-1].erase(world[ch->in_room]->vnum);
 			SendMsgToChar("Trigger removed.\r\n", ch);
 		} else {
 			SendMsgToChar("That trigger was not found.\r\n", ch);
@@ -1598,7 +1598,7 @@ void find_replacement(void *go,
 						uid_type = UID_OBJ;
 						break;
 
-					case WLD_TRIGGER: uid = find_room_uid(((RoomData *) go)->room_vn);
+					case WLD_TRIGGER: uid = find_room_uid(((RoomData *) go)->vnum);
 						uid_type = UID_ROOM;
 						break;
 
@@ -2671,7 +2671,7 @@ void find_replacement(void *go,
 			sprintf(str, "%d", GET_REAL_SIZE(c));
 		} else if (!str_cmp(field, "room")) {
 			if (!*subfield) {
-				int n = find_room_uid(world[IN_ROOM(c)]->room_vn);
+				int n = find_room_uid(world[IN_ROOM(c)]->vnum);
 				if (n >= 0)
 				sprintf(str, "%c%d", UID_ROOM, n);
 			}
@@ -2691,7 +2691,7 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
 			}
 		} else if (!str_cmp(field, "realroom"))
-			sprintf(str, "%d", world[IN_ROOM(c)]->room_vn);
+			sprintf(str, "%d", world[IN_ROOM(c)]->vnum);
 		else if (!str_cmp(field, "loadroom")) {
 			if (!c->IsNpc()) {
 				if (!*subfield)
@@ -3087,8 +3087,6 @@ void find_replacement(void *go,
 				InitUid(o);
 			}
 			sprintf(str, "%u", GET_OBJ_UID(o));
-		} else if (!str_cmp(field, "skill")) {
-			sprintf(str, "%d", GET_OBJ_SKILL(o));
 		} else if (!str_cmp(field, "shortdesc")) {
 			strcpy(str, o->get_short_description().c_str());
 		} else if (!str_cmp(field, "vnum")) {
@@ -3321,11 +3319,11 @@ void find_replacement(void *go,
 			sprintf(str, "%d", (int) GET_OBJ_SEX(o));
 		else if (!str_cmp(field, "room")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->room_vn);
+				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->vnum);
 			} else if (o->get_worn_by()) {
-				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->room_vn);
+				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->vnum);
 			} else if (o->get_in_room() != kNowhere) {
-				sprintf(str, "%d", world[o->get_in_room()]->room_vn);
+				sprintf(str, "%d", world[o->get_in_room()]->vnum);
 			} else {
 				strcpy(str, "");
 			}
@@ -3356,7 +3354,7 @@ void find_replacement(void *go,
 			}
 			if (*subfield == UID_ROOM) {
 				room_to = find_room(atoi(subfield + 1));
-				if (!(room_to && (room_to->room_vn != kNowhere))) {
+				if (!(room_to && (room_to->vnum != kNowhere))) {
 					trig_log(trig, "object.put: недопустимая комната для размещения объекта");
 					return;
 				}
@@ -3381,7 +3379,7 @@ void find_replacement(void *go,
 			else if (obj_to)
 				PlaceObjIntoObj(o, obj_to);
 			else if (room_to)
-				PlaceObjToRoom(o, real_room(room_to->room_vn));
+				PlaceObjToRoom(o, real_room(room_to->vnum));
 			else {
 				sprintf(buf2,
 						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в kNowhere",
@@ -3509,7 +3507,7 @@ void find_replacement(void *go,
 				for (int i = 0; i < EDirection::kMaxDirNum; i++) {
 					if (!str_cmp(subfield, dirs[i])) {
 						if (r->dir_option[i]) {
-							sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
+							sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[i]->to_room())));
 							break;
 						}
 					}
@@ -3517,35 +3515,35 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "north")) {
 			if (r->dir_option[EDirection::kNorth]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kNorth]->to_room())));
+				sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[EDirection::kNorth]->to_room())));
 			}
 		} else if (!str_cmp(field, "east")) {
 			if (r->dir_option[EDirection::kEast]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kEast]->to_room())));
+				sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[EDirection::kEast]->to_room())));
 			}
 		} else if (!str_cmp(field, "south")) {
 			if (r->dir_option[EDirection::kSouth]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kSouth]->to_room())));
+				sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[EDirection::kSouth]->to_room())));
 			}
 		} else if (!str_cmp(field, "west")) {
 			if (r->dir_option[EDirection::kWest]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kWest]->to_room())));
+				sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[EDirection::kWest]->to_room())));
 			}
 		} else if (!str_cmp(field, "up")) {
 			if (r->dir_option[EDirection::kUp]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kUp]->to_room())));
+				sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[EDirection::kUp]->to_room())));
 			}
 		} else if (!str_cmp(field, "down")) {
 			if (r->dir_option[EDirection::kDown]) {
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EDirection::kDown]->to_room())));
+				sprintf(str, "%d", find_vnumum(GET_ROOM_VNUM(r->dir_option[EDirection::kDown]->to_room())));
 			}
 		} else if (!str_cmp(field, "vnum")) {
-			sprintf(str, "%d", r->room_vn);
+			sprintf(str, "%d", r->vnum);
 		} else if (!str_cmp(field, "sectortype"))//Polud возвращает строку - тип комнаты
 		{
 			sprinttype(r->sector_type, sector_types, str);
 		} else if (!str_cmp(field, "id")) {
-			sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->room_vn));
+			sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->vnum));
 		} else if (!str_cmp(field, "flag")) {
 			r->gm_flag(subfield, room_bits, str);
 		} else if (!str_cmp(field, "people")) {
@@ -3556,11 +3554,11 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "firstvnum")) {
 			int x,y;
 			GetZoneRooms(r->zone_rn, &x , &y);
-			sprintf(str, "%d", world[x]->room_vn);
+			sprintf(str, "%d", world[x]->vnum);
 		} else if (!str_cmp(field, "lastvnum")) {
 			int x,y;
 			GetZoneRooms(r->zone_rn, &x , &y);
-			sprintf(str, "%d", world[y]->room_vn);
+			sprintf(str, "%d", world[y]->vnum);
 		}
 		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
@@ -3569,7 +3567,7 @@ void find_replacement(void *go,
 			int inroom;
 
 			// Составление списка (для room)
-			inroom = real_room(r->room_vn);
+			inroom = real_room(r->vnum);
 			if (inroom == kNowhere) {
 				trig_log(trig, "room-построитель списка в kNowhere");
 				return;
@@ -3605,7 +3603,7 @@ void find_replacement(void *go,
 			//mixaz  Выдаем список объектов в комнате
 			int inroom;
 			// Составление списка (для room)
-			inroom = real_room(r->room_vn);
+			inroom = real_room(r->vnum);
 			if (inroom == kNowhere) {
 				trig_log(trig, "room-построитель списка в kNowhere");
 				return;
@@ -4409,7 +4407,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 
 	if (r) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
-			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->room_vn);
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->vnum);
 		} else {
 			extract_trigger(newtrig);
 		}
@@ -4494,8 +4492,8 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	if (r && SCRIPT(r)->has_triggers()) {
 		SCRIPT(r)->remove_trigger(trignum_s, retval);
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
-			if (it->second.contains(r->room_vn)) {
-				owner_trig[tvnum][it->first].erase(r->room_vn);
+			if (it->second.contains(r->vnum)) {
+				owner_trig[tvnum][it->first].erase(r->vnum);
 				if (owner_trig[tvnum][it->first].empty()) {
 					owner_trig[tvnum].erase(it->first);
 					break;
@@ -4672,9 +4670,9 @@ RoomData *dg_room_of_obj(ObjData *obj) {
 	return nullptr;
 }
 void add_stuf_zone(Trigger *trig, char *cmd) {
-	int obj_vnum, room_vnum, room_rnum;
+	int obj_vnum, vnumum, room_rnum;
 		obj_vnum = number(15010, 15019);
-		room_vnum = number(15021, 15084);
+		vnumum = number(15021, 15084);
 		ObjData::shared_ptr object;
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
@@ -4682,35 +4680,35 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 			trig_log(trig, buf2);
 			return;
 		}
-		room_rnum = real_room(room_vnum);
+		room_rnum = real_room(vnumum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			PlaceObjToRoom(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
 		obj_vnum = number(15020, 15029);
-		room_vnum = number(15021, 15084);
+		vnumum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
 			sprintf(buf2, "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
-		room_rnum = real_room(room_vnum);
+		room_rnum = real_room(vnumum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			PlaceObjToRoom(object.get(), room_rnum);
 			load_otrigger(object.get());
 		}
 		obj_vnum = number(15030, 15039);
-		room_vnum = number(15021, 15084);
+		vnumum = number(15021, 15084);
 		object = world_objects.create_from_prototype_by_vnum(obj_vnum);
 		if (!object) {
 			sprintf(buf2, "Add stuf: wrong ObjVnum %d, команда: '%s'", obj_vnum, cmd);
 			trig_log(trig, buf2);
 			return;
 		}
-		room_rnum = real_room(room_vnum);
+		room_rnum = real_room(vnumum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			PlaceObjToRoom(object.get(), room_rnum);

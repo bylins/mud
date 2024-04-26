@@ -250,11 +250,9 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
-	if (   // не может одеть колчан если одет не лук
-		(equip_pos == EEquipPos::kQuiver &&
-			!(GET_EQ(ch, EEquipPos::kBoths) &&
-				(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == EObjType::kWeapon)
-					&& (static_cast<ESkill>GET_OBJ_SKILL(GET_EQ(ch, EEquipPos::kBoths)) == ESkill::kBows))))) {
+	if ((equip_pos == EEquipPos::kQuiver && !(GET_EQ(ch, EEquipPos::kBoths) // не может одеть колчан если одет не лук
+				&& (GET_EQ(ch, EEquipPos::kBoths)->get_spec_param() == EObjType::kWeapon)
+				&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))) {
 		SendMsgToChar("А стрелять чем будете?\r\n", ch);
 		return;
 	}
@@ -451,8 +449,8 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-				if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kTwohands
-					|| static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kBows) {
+				if (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kTwohands
+					|| static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows) {
 					SendMsgToChar("Данный тип оружия держать невозможно.", ch);
 					return;
 				}

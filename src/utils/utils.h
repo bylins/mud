@@ -443,7 +443,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
                                  weather_info.sunlight == kSunDark )) )
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->vnum : kNowhere))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
@@ -855,7 +855,6 @@ const int kNameLevel = 5;
 #define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
 #define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
 #define GET_OBJ_DESTROY(obj) ((obj)->get_destroyer())
-#define GET_OBJ_SKILL(obj) ((obj)->get_skill())
 #define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
 #define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
 #define GET_OBJ_MATER(obj)  ((obj)->get_material())

@@ -404,7 +404,7 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 
 void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) {
 	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
-	auto i = check_dupe.find(room->room_vn);
+	auto i = check_dupe.find(room->vnum);
 	if (i != check_dupe.end()) {
 		if (i->second <= cur_depth) {
 			return;
@@ -412,7 +412,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			i->second = cur_depth;
 		}
 	} else {
-		check_dupe.insert(std::make_pair(room->room_vn, cur_depth));
+		check_dupe.insert(std::make_pair(room->vnum, cur_depth));
 	}
 
 	if (world[ch->in_room] == room) {

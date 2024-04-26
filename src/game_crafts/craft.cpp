@@ -610,8 +610,8 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			switch (get_type()) {
 				case EObjType::kIngredient: {
 					int flag = 1;
-					while (flag <= get_skill()) {
-						if (IS_SET(get_skill(), flag)) {
+					while (flag <= get_spec_param()) {
+						if (IS_SET(get_spec_param(), flag)) {
 							item_parameters.push_back(NAME_BY_ITEM(static_cast<EIngredientFlag>(flag)));
 						}
 						flag <<= 1;
@@ -619,7 +619,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 				}
 					break;
 
-				case EObjType::kWeapon: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_skill())));
+				case EObjType::kWeapon: item_parameters.push_back(NAME_BY_ITEM(static_cast<ESkill>(get_spec_param())));
 					break;
 
 				default: break;
@@ -730,7 +730,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 				const char *flag = flags.child_value();
 				try {
 					const auto value = ITEM_BY_NAME<EIngredientFlag>(flag);
-					set_skill(get_skill() | to_underlying(value));
+					set_spec_param(get_spec_param() | to_underlying(value));
 					logger("Setting ingredient flag '%s' for object with VNUM %d.\n",
 						   NAME_BY_ITEM(value).c_str(), get_vnum());
 				}
@@ -746,7 +746,7 @@ bool CObject::load_item_parameters(const pugi::xml_node *node) {
 		case EObjType::kWeapon: {
 			const char *skill_value = node->child_value("parameter");
 			try {
-				set_skill(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));
+				set_spec_param(to_underlying(ITEM_BY_NAME<ESkill>(skill_value)));
 			}
 			catch (const std::out_of_range &) {
 				logger("WARNING: Failed to set skill value '%s' for object with VNUM %d. Object will be skipped.\n",

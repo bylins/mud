@@ -886,7 +886,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 	}
 
 	// пропускаем виртуальные комнаты
-	if (zone_table[room->zone_rn].vnum * 100 + 99 == room->room_vn) {
+	if (zone_table[room->zone_rn].vnum * 100 + 99 == room->vnum) {
 		return;
 	}
 
@@ -922,7 +922,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
 			if (o)
-				PlaceObjToRoom(o, real_room(room->room_vn));
+				PlaceObjToRoom(o, real_room(room->vnum));
 		}
 	}
 }

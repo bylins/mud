@@ -117,20 +117,20 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 			trig_log(trig, buf2);
 			return false;
 		}
-		std::vector<MobVnum> room_vnum_list;
-		array_argument(vd_room->value, room_vnum_list);
+		std::vector<MobVnum> vnumum_list;
+		array_argument(vd_room->value, vnumum_list);
 
-		dd.mob_list_to_load.emplace_back(mob_vnum_list, room_vnum_list);
+		dd.mob_list_to_load.emplace_back(mob_vnum_list, vnumum_list);
 	}
 
 	return true;
 }
 
-static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum room_vn, bool debug_mode)
+static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum vnum, bool debug_mode)
 {
-	const RoomRnum room_rn = real_room(room_vn);
+	const RoomRnum room_rn = real_room(vnum);
 	if (room_rn <= 0) {
-		snprintf(buf2, kMaxStringLength, "Не могу найти комнату: %d", room_vn);
+		snprintf(buf2, kMaxStringLength, "Не могу найти комнату: %d", vnum);
 		trig_log(trig, buf2);
 		return false;
 	}
@@ -143,7 +143,7 @@ static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum room_vn, bool
 	}
 
 	if (debug_mode) {
-		snprintf(buf2, kMaxStringLength, "load mob: %d to room: %d", mob_vn, room_vn);
+		snprintf(buf2, kMaxStringLength, "load mob: %d to room: %d", mob_vn, vnum);
 		trig_log(trig, buf2);
 	}
 	PlaceCharToRoom(mob_rn, room_rn);
@@ -174,17 +174,17 @@ void process_arena_round(Script *sc, Trigger *trig, char *cmd)
 	for (auto i = 0; i < amount_mob_each_type; i++) {
 		for (const auto &mob_to_load : dd.mob_list_to_load) {
 			const auto &mob_vnum_list = mob_to_load.first;
-			const auto &room_vnum_list = mob_to_load.second;
-			if (room_vnum_list.empty() || mob_vnum_list.empty()) {
+			const auto &vnumum_list = mob_to_load.second;
+			if (vnumum_list.empty() || mob_vnum_list.empty()) {
 				continue;
 			}
-			const auto random_room_index = number(0, room_vnum_list.size() - 1);
+			const auto random_room_index = number(0, vnumum_list.size() - 1);
 			const auto mob_index = dd.current_round - 1;
 
 			const MobVnum mob_vn = mob_vnum_list.at(mob_index);
-			const RoomVnum room_vn = room_vnum_list.at(random_room_index);
+			const RoomVnum vnum = vnumum_list.at(random_room_index);
 
-			load_arena_mob(trig, mob_vn, room_vn, dd.debug_mode);
+			load_arena_mob(trig, mob_vn, vnum, dd.debug_mode);
 		}
 	}
 
@@ -192,17 +192,17 @@ void process_arena_round(Script *sc, Trigger *trig, char *cmd)
 	for (auto i = 0; i < amount_mob_random; i++) {
 		const int random_type_index = number(0, dd.mob_list_to_load.size() - 1);
 		const auto &mob_vnum_list = dd.mob_list_to_load[random_type_index].first;
-		const auto &room_vnum_list = dd.mob_list_to_load[random_type_index].second;
-		if (room_vnum_list.empty() || mob_vnum_list.empty()) {
+		const auto &vnumum_list = dd.mob_list_to_load[random_type_index].second;
+		if (vnumum_list.empty() || mob_vnum_list.empty()) {
 			continue;
 		}
-		const auto random_room_index = number(0, room_vnum_list.size() - 1);
+		const auto random_room_index = number(0, vnumum_list.size() - 1);
 		const auto mob_index = dd.current_round - 1;
 
 		const MobVnum mob_vn = mob_vnum_list.at(mob_index);
-		const RoomVnum room_vn = room_vnum_list.at(random_room_index);
+		const RoomVnum vnum = vnumum_list.at(random_room_index);
 
-		load_arena_mob(trig, mob_vn, room_vn, dd.debug_mode);
+		load_arena_mob(trig, mob_vn, vnum, dd.debug_mode);
 	}
 }
 

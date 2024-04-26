@@ -1265,15 +1265,14 @@ void init_portals(void) {
 
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
-	if (GET_OBJ_SKILL(obj) > 0
+	if (obj->get_spec_param() > 0
 		&& (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
 			|| GET_OBJ_TYPE(obj) == EObjType::kFountain)) {
-		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
-			GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
+		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
-			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
+			const auto potion = world_objects.create_from_prototype_by_vnum(obj->get_spec_param());
 			if (potion
 				&& GET_OBJ_TYPE(potion) == EObjType::kPotion) {
 				drinkcon::copy_potion_values(potion.get(), obj);
@@ -1285,7 +1284,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 				}
 			}
 		}
-		obj->set_skill(to_underlying(ESkill::kUndefined));
+		obj->set_spec_param(to_underlying(ESkill::kUndefined));
 
 		return 1;
 	}
@@ -2918,8 +2917,8 @@ void CreateBlankRoomDungeon() {
 			top_of_world++;
 			world.push_back(new_room);
 			new_room->zone_rn = zone_rnum;
-			new_room->room_vn = zone_vnum * 100 + rvn;
-//			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->room_vn), new_room->room_vn, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
+			new_room->vnum = zone_vnum * 100 + rvn;
+//			log("Room rnum %d vnum %d zone %d (%d), in zone %d", real_room(new_room->vnum), new_room->vnum, zone_rnum, zone_vnum, zone_table[zone_rnum].vnum);
 			new_room->sector_type = ESector::kSecret;
 			new_room->name = str_dup("ДАНЖ");
 		}
@@ -3053,9 +3052,9 @@ void add_vrooms_to_all_zones() {
 		const auto first_room = it->vnum * 100;
 		const auto last_room = first_room + 99;
 
-		const RoomVnum virtual_room_vnum = (it->vnum * 100) + 99;
-		const auto vroom_it = std::find_if(world.cbegin(), world.cend(), [virtual_room_vnum](RoomData *room) {
-			return room->room_vn == virtual_room_vnum;
+		const RoomVnum virtual_vnumum = (it->vnum * 100) + 99;
+		const auto vroom_it = std::find_if(world.cbegin(), world.cend(), [virtual_vnumum](RoomData *room) {
+			return room->vnum == virtual_vnumum;
 		});
 		if (vroom_it != world.cend()) {
 			log("Zone %d already contains virtual room.", it->vnum);
@@ -3073,7 +3072,7 @@ void add_vrooms_to_all_zones() {
 		RoomData *new_room = new RoomData;
 		world.insert(insert_position, new_room);
 		new_room->zone_rn = rnum;
-		new_room->room_vn = last_room;
+		new_room->vnum = last_room;
 		new_room->set_name(std::string("Виртуальная комната"));
 		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
@@ -3683,7 +3682,7 @@ int vnum_room(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_world; nr++) {
 		if (isname(searchname, world[nr]->name)) {
-			sprintf(buf, "%3d. [%7d] %s\r\n", ++found, world[nr]->room_vn, world[nr]->name);
+			sprintf(buf, "%3d. [%7d] %s\r\n", ++found, world[nr]->vnum, world[nr]->name);
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -4081,7 +4080,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 		month_ok |= no_month;
 		time_ok |= no_time;
 		if (month_ok && time_ok) {
-			if (world[room]->room_vn != zone_table[world[room]->zone_rn].top)
+			if (world[room]->vnum != zone_table[world[room]->zone_rn].top)
 				return;
 
 			if (GET_LASTROOM(ch) == kNowhere) {
@@ -4092,7 +4091,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, real_room(GET_LASTROOM(ch)));
 		} else {
-			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top)
+			if (world[room]->vnum == zone_table[world[room]->zone_rn].top)
 				return;
 
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
@@ -4178,7 +4177,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 		month_ok |= no_month;
 		time_ok |= no_time;
 		if (month_ok && time_ok) {
-			if (world[room]->room_vn != zone_table[world[room]->zone_rn].top) {
+			if (world[room]->vnum != zone_table[world[room]->zone_rn].top) {
 				return;
 			}
 			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
@@ -4188,7 +4187,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			RemoveObjFromRoom(obj);
 			PlaceObjToRoom(obj, real_room(OBJ_GET_LASTROOM(obj)));
 		} else {
-			if (world[room]->room_vn == zone_table[world[room]->zone_rn].top) {
+			if (world[room]->vnum == zone_table[world[room]->zone_rn].top) {
 				return;
 			}
 			// зачем сезонные переносить в виртуалку? спуржить нафиг
@@ -4484,7 +4483,7 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->affected_by.clear();
 		room->cleanup_script();
 		room->affected.clear();
-		room->room_vn = zone_table[zrn].vnum * 100 + rvn;
+		room->vnum = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			if (room->dir_option[dir]) {
 //				room->dir_option[dir]->general_description.clear();
@@ -4596,11 +4595,11 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		}
 	}
 	for(int i = rrn_start; i <= rrn_stop; i++) {
-		RoomRnum new_rnum = world[i]->room_vn % 100 + rrn_to;
+		RoomRnum new_rnum = world[i]->vnum % 100 + rrn_to;
 		auto &new_room = world[new_rnum];
 
 		free(new_room->name);
-		new_room->room_vn = zone_table[zrn_to].vnum * 100 + world[i]->room_vn % 100;
+		new_room->vnum = zone_table[zrn_to].vnum * 100 + world[i]->vnum % 100;
 		new_room->name = str_dup(world[i]->name); //почистить
 		new_room->description_num = world[i]->description_num;
 		new_room->write_flags(world[i]->read_flags());
@@ -4621,7 +4620,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			if (from) {
 				int to_room = from->to_room();// - rrn_start + first_room_dungeon;
 				if (to_room >= rrn_start && to_room <= rrn_stop) {
-					RoomVnum rvn = zone_table[zrn_to].vnum * 100 + world[from->to_room()]->room_vn % 100;
+					RoomVnum rvn = zone_table[zrn_to].vnum * 100 + world[from->to_room()]->vnum % 100;
 					new_room->dir_option[dir].reset(new ExitData());
 					new_room->dir_option[dir]->to_room(real_room(rvn));
 					if (!from->general_description.empty()) {
@@ -4646,12 +4645,12 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				Trigger *trig = read_trigger(real_trigger(tvn)); 
 
 				add_trigger(SCRIPT(new_room).get(), trig, -1);
-				add_trig_to_owner(-1, tvn, new_room->room_vn);
+				add_trig_to_owner(-1, tvn, new_room->vnum);
 			} else {
 				Trigger *trig = read_trigger(real_trigger(trigger_vnum)); 
 
 				add_trigger(SCRIPT(new_room).get(), trig, -1);
-				add_trig_to_owner(-1, trigger_vnum, new_room->room_vn);
+				add_trig_to_owner(-1, trigger_vnum, new_room->vnum);
 			}
 		}
 		ExtraDescription::shared_ptr sdd = world[i]->ex_description;
@@ -4837,8 +4836,8 @@ void ZoneDataFree(ZoneRnum zrn) {
 		zone_table[zrn_to].cmd[subcmd].arg = real_object(obj_proto[zone_table[zrn_from].cmd[subcmd].arg]->get_vnum() % 100 + zone_table[zrn_to].vnum * 100); \
 	}
 #define TRANS_ROOM(arg) \
-	if (world[zone_table[zrn_to].cmd[subcmd].arg]->room_vn / 100 == zone_table[zrn_from].vnum) { \
-		zone_table[zrn_to].cmd[subcmd].arg = real_room(world[zone_table[zrn_from].cmd[subcmd].arg]->room_vn % 100 + zone_table[zrn_to].vnum * 100); }
+	if (world[zone_table[zrn_to].cmd[subcmd].arg]->vnum / 100 == zone_table[zrn_from].vnum) { \
+		zone_table[zrn_to].cmd[subcmd].arg = real_room(world[zone_table[zrn_from].cmd[subcmd].arg]->vnum % 100 + zone_table[zrn_to].vnum * 100); }
 
 void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 	for (int subcmd = 0; zone_table[zrn_to].cmd[subcmd].command != 'S'; ++subcmd) {
@@ -5490,7 +5489,7 @@ void ZoneReset::reset_zone_essential() {
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
 			RoomData *room = world[rnum];
 			reset_wtrigger(room);
-			int sect = real_sector(real_room(room->room_vn));
+			int sect = real_sector(real_room(room->vnum));
 			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
@@ -6082,7 +6081,7 @@ ZoneRnum real_zone(ZoneVnum vnum) {
 RoomRnum real_room(RoomVnum vnum) {
 	RoomRnum bot, top, mid;
 /*	for (int i = 0; i <= top_of_world; i++) {
-		if (world[i]->room_vn == vnum)
+		if (world[i]->vnum == vnum)
 			return (i);
 	}
 	return 0;
@@ -6092,11 +6091,11 @@ RoomRnum real_room(RoomVnum vnum) {
 	// perform binary search on world-table
 	for (;;) {
 		mid = (bot + top) / 2;
-		if (world[mid]->room_vn == vnum)
+		if (world[mid]->vnum == vnum)
 			return (mid);
 		if (bot >= top)
 			return (kNowhere);
-		if (world[mid]->room_vn > vnum)
+		if (world[mid]->vnum > vnum)
 			top = mid - 1;
 		else
 			bot = mid + 1;

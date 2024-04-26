@@ -2,7 +2,7 @@
 
 #include "structs/structs.h"
 
-ZoneRnum get_zone_rnum_by_room_vnum(RoomVnum vnum);
+ZoneRnum get_zone_rnum_by_vnumum(RoomVnum vnum);
 ZoneRnum get_zone_rnum_by_obj_vnum(ObjVnum vnum);
 ZoneRnum get_zone_rnum_by_mob_vnum(MobVnum vnum);
 
