@@ -645,9 +645,9 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 
-	int skill = 0;
-	asciiflag_conv(f0, &skill);
-	tobj->set_skill(skill);
+	int sparam = 0;
+	asciiflag_conv(f0, &sparam);
+	tobj->set_spec_param(sparam);
 
 	tobj->set_maximum_durability(t[1]);
 	tobj->set_current_durability(MIN(t[1], t[2]));

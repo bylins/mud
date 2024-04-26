@@ -248,7 +248,7 @@ void ObjData::set_uid(const unsigned _) {
 }
 
 void CObjectPrototype::toggle_skill(const uint32_t skill) {
-	TOGGLE_BIT(m_skill, skill);
+	TOGGLE_BIT(m_sparam, skill);
 }
 
 void CObjectPrototype::toggle_val_bit(const size_t index, const Bitvector bit) {
@@ -353,7 +353,7 @@ CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
 		m_destroyer = from.m_destroyer;
 		m_spell = from.m_spell;
 		m_level = from.m_level;
-		m_skill = from.m_skill;
+		m_sparam = from.m_sparam;
 		m_maximum_durability = from.m_maximum_durability;
 		m_current_durability = from.m_current_durability;
 		m_material = from.m_material;

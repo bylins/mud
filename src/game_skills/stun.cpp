@@ -74,7 +74,7 @@ void go_stun(CharData *ch, CharData *vict) {
 		set_hit(ch, vict);
 	} else {
 		if (GET_EQ(ch, EEquipPos::kBoths)
-		&& static_cast<ESkill>((ch->equipment[EEquipPos::kBoths])->get_skill()) == ESkill::kBows) {
+		&& static_cast<ESkill>((ch->equipment[EEquipPos::kBoths])->get_spec_param()) == ESkill::kBows) {
 			act("Точным выстрелом вы ошеломили $N3!",
 				false, ch, nullptr, vict, kToChar);
 			act("Точный выстрел $N1 повалил вас с ног и лишил сознания.",

@@ -479,7 +479,7 @@ bool ParseFilter::check_wear(ObjData *obj) const {
 }
 
 bool ParseFilter::check_weap_class(ObjData *obj) const {
-	if (MUD::Skills().IsInvalid(weap_class) || weap_class == static_cast<ESkill>(GET_OBJ_SKILL(obj))) {
+	if (MUD::Skills().IsInvalid(weap_class) || weap_class == static_cast<ESkill>(obj->get_spec_param())) {
 		return true;
 	}
 	return false;

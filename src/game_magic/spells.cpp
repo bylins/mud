@@ -1664,16 +1664,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			}
 			break;
 
-		case EObjType::kIngredient: sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
+		case EObjType::kIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2);
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			SendMsgToChar(buf, ch);
 
-			if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)) {
+			if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
 				sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
 				SendMsgToChar(buf, ch);
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckLag)) {
+			if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
 				sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
 				if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr))
 					strcat(buf, "(можно применять).\r\n");
@@ -1684,7 +1684,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				SendMsgToChar(buf, ch);
 			}
 
-			if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckLevel)) {
+			if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
 				sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
 				SendMsgToChar(buf, ch);
 			}
@@ -2447,10 +2447,10 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 
 	obj->set_val(3, time(nullptr));
 
-	if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)) {
+	if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
 		obj->dec_val(2);
 		if (GET_OBJ_VAL(obj, 2) <= 0
-			&& IS_SET(GET_OBJ_SKILL(obj), kItemDecayEmpty)) {
+			&& IS_SET(obj->get_spec_param(), kItemDecayEmpty)) {
 			extract = true;
 		}
 	} else if (spelltype != ESpellType::kRunes) {
@@ -2554,18 +2554,18 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	}
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient) {
-		if ((!IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype == ESpellType::kRunes)
-			|| (IS_SET(GET_OBJ_SKILL(obj), kItemRunes) && spelltype != ESpellType::kRunes)) {
+		if ((!IS_SET(obj->get_spec_param(), kItemRunes) && spelltype == ESpellType::kRunes)
+			|| (IS_SET(obj->get_spec_param(), kItemRunes) && spelltype != ESpellType::kRunes)) {
 			return false;
 		}
 	}
 
-	if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)
+	if (IS_SET(obj->get_spec_param(), kItemCheckUses)
 		&& GET_OBJ_VAL(obj, 2) <= 0) {
 		return false;
 	}
 
-	if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckLag)) {
+	if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
 		num = 0;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLag1S))
 			num += 1;
@@ -2587,7 +2587,7 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 			return false;
 	}
 
-	if (IS_SET(GET_OBJ_SKILL(obj), kItemCheckLevel)) {
+	if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
 		num = 0;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), kMiLevel1))
 			num += 1;

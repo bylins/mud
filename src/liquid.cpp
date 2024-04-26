@@ -290,7 +290,7 @@ int cast_potion(CharData *ch, ObjData *jar) {
 		if (GET_OBJ_VAL(jar, 1) <= 0
 			&& GET_OBJ_TYPE(jar) != EObjType::kFountain) {
 			name_from_drinkcon(jar);
-			jar->set_skill(0);
+			jar->set_spec_param(0);
 			reset_potion_values(jar);
 		}
 		do_drink_poison(ch, jar, 0);
@@ -985,7 +985,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			from_obj->set_val(1, 0);
 			from_obj->set_val(2, 0);
 			from_obj->set_val(3, 0);
-			from_obj->set_skill(0);
+			from_obj->set_spec_param(0);
 			name_from_drinkcon(from_obj);
 			reset_potion_values(from_obj);
 

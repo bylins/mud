@@ -855,7 +855,6 @@ const int kNameLevel = 5;
 #define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
 #define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
 #define GET_OBJ_DESTROY(obj) ((obj)->get_destroyer())
-#define GET_OBJ_SKILL(obj) ((obj)->get_skill())
 #define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
 #define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
 #define GET_OBJ_MATER(obj)  ((obj)->get_material())

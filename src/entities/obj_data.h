@@ -170,7 +170,7 @@ class CObjectPrototype {
 										   m_destroyer(DEFAULT_DESTROYER),
 										   m_spell(ESpell::kUndefined),
 										   m_level(DEFAULT_LEVEL),
-										   m_skill(-1),
+										   m_sparam(-1),
 										   m_maximum_durability(DEFAULT_MAXIMUM_DURABILITY),
 										   m_current_durability(DEFAULT_CURRENT_DURABILITY),
 										   m_material(DEFAULT_MATERIAL),
@@ -195,7 +195,7 @@ class CObjectPrototype {
 	auto get_max_in_world() const { return m_max_in_world; }
 	auto get_maximum_durability() const { return m_maximum_durability; }
 	auto get_sex() const { return m_sex; }
-	auto get_skill() const { return m_skill; }
+	auto get_spec_param() const { return m_sparam; }
 	auto get_spell() const { return m_spell; }
 	auto get_type() const { return m_type; }
 	auto get_val(size_t index) const { return m_vals[index]; }
@@ -289,7 +289,7 @@ class CObjectPrototype {
 	void set_proto_script(const triggers_list_t &_) { *m_proto_script = _; }
 	void set_short_description(const char *_) { m_short_description = _; }
 	void set_short_description(const std::string &_) { m_short_description = _; }
-	void set_skill(const int _) { m_skill = _; }
+	void set_spec_param(const int _) { m_sparam = _; }
 	void set_spell(const int _) { m_spell = std::clamp(static_cast<ESpell>(_), ESpell::kUndefined, ESpell::kLast); }
 	void set_type(const EObjType _) { m_type = _; }
 	void set_sex(const EGender _) { m_sex = _; }
@@ -385,7 +385,7 @@ class CObjectPrototype {
 	int m_destroyer;
 	ESpell m_spell;
 	int m_level;
-	int m_skill;
+	int m_sparam;
 	int m_maximum_durability;
 	int m_current_durability;
 
@@ -401,8 +401,7 @@ class CObjectPrototype {
 
 	int m_timer;    ///< таймер (в минутах рл)
 
-	skills_t
-		m_skills;    ///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
+	skills_t m_skills;    ///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 
 	int m_minimum_remorts;    ///< если > 0 - требование по минимальным мортам, проставленное в олц
 	std::string m_dgscript_field;

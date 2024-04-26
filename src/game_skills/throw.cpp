@@ -26,7 +26,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 	void (*DoSideAction)(abilities_roll::TechniqueRoll &technique);
 	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
 
-	switch (static_cast<ESkill>(weapon->get_skill())) {
+	switch (static_cast<ESkill>(weapon->get_spec_param())) {
 		case ESkill::kSpades:
 			mob_no_flag = EMobFlag::kNoBash;
 			ability_id = abilities::EAbility::kShadowSpear;

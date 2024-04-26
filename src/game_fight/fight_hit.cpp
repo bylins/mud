@@ -1162,7 +1162,7 @@ int do_punctual(CharData *ch, CharData * /*victim*/, ObjData *wielded) {
 	int dam_critic = 0, wapp = 0;
 
 	if (wielded) {
-		wapp = (int) ((static_cast<ESkill>GET_OBJ_SKILL(wielded) == ESkill::kBows) && GET_EQ(ch, EEquipPos::kBoths)) ?
+		wapp = (int) ((static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) && GET_EQ(ch, EEquipPos::kBoths)) ?
 			GET_OBJ_WEIGHT(wielded) * 1 / 3 : GET_OBJ_WEIGHT(wielded);
 	}
 	if (wapp < 10)
@@ -2860,7 +2860,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 		if (IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
 		} else if (ch->IsNpc()) {
-			const bool wielded_with_bow = wielded && (static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows);
+			const bool wielded_with_bow = wielded && (static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows);
 			if (AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) {
 				// проверка оружия для глуша чармисов
 				const bool wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
@@ -2875,7 +2875,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 				}
 			}
 		} else if (wielded) {
-			if (static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows) {
+			if (static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) {
 				SendMsgToChar("Луком оглушить нельзя.\r\n", ch);
 			} else if (!GET_AF_BATTLE(ch, kEafParry) && !GET_AF_BATTLE(ch, kEafMultyparry)) {
 				if (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth) {
@@ -2957,7 +2957,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 	if (wielded
 		&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon) {
 		// для всех типов атак скилл берется из пушки, если она есть
-		weap_skill = static_cast<ESkill>(GET_OBJ_SKILL(wielded));
+		weap_skill = static_cast<ESkill>(wielded->get_spec_param());
 	} else {
 		// удар голыми руками
 		weap_skill = ESkill::kPunch;
@@ -3909,7 +3909,7 @@ void exthit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapo
 	wielded = GetUsedWeapon(ch, weapon);
 	if (wielded
 		&& !GET_EQ(ch, EEquipPos::kShield)
-		&& static_cast<ESkill>(wielded->get_skill()) == ESkill::kBows
+		&& static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows
 		&& GET_EQ(ch, EEquipPos::kBoths)) {
 		// Лук в обеих руках - юзаем доп. или двойной выстрел
 		if (CanUseFeat(ch, EFeat::kDoubleShot) && !ch->GetSkill(ESkill::kAddshot)

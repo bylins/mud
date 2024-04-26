@@ -222,7 +222,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 
 	*out_str = '\0';
 	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-		switch (static_cast<ESkill>(obj->get_skill())) {
+		switch (static_cast<ESkill>(obj->get_spec_param())) {
 			case ESkill::kBows: skill = 1;
 				break;
 			case ESkill::kShortBlades: skill = 2;
@@ -241,7 +241,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 				break;
 			case ESkill::kSpades: skill = 9;
 				break;
-			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_skill());
+			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());
 				break;
 		}
 		if (skill) {
@@ -368,7 +368,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient
-		&& IS_SET(GET_OBJ_SKILL(obj), kItemCheckUses)
+		&& IS_SET(obj->get_spec_param(), kItemCheckUses)
 		&& IS_MANA_CASTER(ch)) {
 		int i = -1;
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
@@ -2781,7 +2781,7 @@ void do_equipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						continue;
 				if ((i == 19) && (GET_EQ(ch, EEquipPos::kBoths))) {
 					if (!(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == EObjType::kWeapon)
-						&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_skill()) == ESkill::kBows)))
+						&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))
 						continue;
 				} else if (i == 19)
 					continue;

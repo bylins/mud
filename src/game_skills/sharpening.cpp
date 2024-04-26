@@ -29,7 +29,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (static_cast<ESkill>GET_OBJ_SKILL(obj) == ESkill::kBows) {
+	if (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows) {
 		SendMsgToChar("Невозможно заточить этот тип оружия.\r\n", ch);
 		return;
 	}

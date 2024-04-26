@@ -427,7 +427,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kClubs: // дубины
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 12);
-		obj->set_skill(141);
+		obj->set_spec_param(141);
 		obj->set_extra_flag(EObjFlag::kThrowing);
 		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
 		obj->set_affected(1, EApply::kSavingStability, -floorf(diff/4.0));
@@ -437,7 +437,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kSpades: // копья
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 11);
-		obj->set_skill(148);
+		obj->set_spec_param(148);
 		obj->set_extra_flag(EObjFlag::kThrowing);
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
@@ -446,7 +446,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kPicks: // стабер
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 11);
-		obj->set_skill(147);
+		obj->set_spec_param(147);
 		obj->set_affected(0, EApply::kStr, floorf(diff/16.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
@@ -455,7 +455,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kAxes: // секиры
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 8);
-		obj->set_skill(142);
+		obj->set_spec_param(142);
 		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
 		obj->set_affected(2, EApply::kDamroll, floorf(diff/10.0));
@@ -467,7 +467,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kBows: // луки
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 2);
-		obj->set_skill(154);
+		obj->set_spec_param(154);
 		obj->set_affected(0, EApply::kStr, floorf(diff/20.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
@@ -476,7 +476,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kTwohands: // двуруч
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 1);
-		obj->set_skill(146);
+		obj->set_spec_param(146);
 		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
 		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
 		obj->set_affected(1, EApply::kDamroll, floorf(diff/13.0));
@@ -492,7 +492,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	case ESkill::kLongBlades: // длинные
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 10);
-		obj->set_skill(143);
+		obj->set_spec_param(143);
 		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
 		obj->set_affected(1, EApply::kDex, floorf(diff/12.0));
 		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff/3.5));

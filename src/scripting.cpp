@@ -923,9 +923,9 @@ class ObjWrapper : private std::shared_ptr<ObjectData>, public Wrapper<ObjectDat
 		Ensurer obj(*this);
 		obj->set_level(v);
 	}
-	int get_skill() const {
+	int get_spec_param() const {
 		Ensurer obj(*this);
-		return obj->get_skill();
+		return obj->get_spec_param();
 	}
 
 	void set_skill(const int v) {
