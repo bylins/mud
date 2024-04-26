@@ -1406,7 +1406,7 @@ const int kScriptDestroyTimer = 10; // * !!! Never set less than ONE * //
 */
 bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 //	int sect = 0;
-	if (world[room]->room_vn == 7699) {
+	if (world[room]->vnum == 7699) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		log("SYSERR: какая то хрень опять лоад в виртуалке");
 	}
@@ -1418,12 +1418,12 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 	} 
 	RestoreObject(object, nullptr);
 	ArrangeObjs(object, &world[room]->contents);
-	if (zone_table[world[room]->zone_rn].vnum * 100 + 99 == world[room]->room_vn) {
+	if (zone_table[world[room]->zone_rn].vnum * 100 + 99 == world[room]->vnum) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
 			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d", 
-					object->get_vnum(), object->get_PName(0).c_str(), world[room]->room_vn);
+					object->get_vnum(), object->get_PName(0).c_str(), world[room]->vnum);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
 	}

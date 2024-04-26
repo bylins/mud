@@ -1013,7 +1013,7 @@ void do_ozoneecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	if (!*zone_name || !*msg)
 		obj_log(obj, "ozoneecho called with too few args");
-	else if ((zone = get_zone_rnum_by_room_vnum(atoi(zone_name))) < 0) {
+	else if ((zone = get_zone_rnum_by_vnumum(atoi(zone_name))) < 0) {
 		std::stringstream str_log;
 		str_log << "ozoneecho called for nonexistant zone: " << zone_name;
 		obj_log(obj, str_log.str().c_str());

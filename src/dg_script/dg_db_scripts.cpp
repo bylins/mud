@@ -247,13 +247,13 @@ void assign_triggers(void *i, int type) {
 				rnum = real_trigger(trigger_vnum);
 				if (rnum == -1) {
 					sprintf(buf, "SYSERR: trigger #%d non-existant, for room #%d",
-							trigger_vnum, room->room_vn);
+							trigger_vnum, room->vnum);
 					log("%s", buf);
 				} else {
 					if (trig_index[rnum]->proto->get_attach_type() != WLD_TRIGGER) {
 						sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for room #%d",
 								trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
-								room->room_vn);
+								room->vnum);
 						mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
@@ -262,7 +262,7 @@ void assign_triggers(void *i, int type) {
 								owner_to_triggers_map_t tmp_map;
 								owner_trig.emplace(trigger_vnum, tmp_map);
 							}
-							add_trig_to_owner(-1, trigger_vnum, room->room_vn);
+							add_trig_to_owner(-1, trigger_vnum, room->vnum);
 						} else {
 							extract_trigger(trig);
 						}

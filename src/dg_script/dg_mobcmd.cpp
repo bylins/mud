@@ -1422,7 +1422,7 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		sprintf(buf, "mzoneecho called with too few args, команда: %s", argument);
 		mob_log(ch, buf);
 	}
-	else if ((zone = get_zone_rnum_by_room_vnum(atoi(zone_name))) < 0) {
+	else if ((zone = get_zone_rnum_by_vnumum(atoi(zone_name))) < 0) {
 		std::stringstream str_log;
 		str_log << "mzoneecho called for nonexistant zone: " << zone_name;
 		mob_log(ch, str_log.str().c_str());

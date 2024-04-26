@@ -50,7 +50,7 @@ struct wld_command_info {
 void wld_log(RoomData *room, const char *msg, LogMode type = LogMode::OFF) {
 	char small_buf[kMaxInputLength + 100];
 
-	snprintf(small_buf, kMaxInputLength + 100, "(Room: %d, trig: %d): %s [строка: %d]", room->room_vn, last_trig_vnum, msg, last_trig_line_num);
+	snprintf(small_buf, kMaxInputLength + 100, "(Room: %d, trig: %d): %s [строка: %d]", room->vnum, last_trig_vnum, msg, last_trig_line_num);
 	script_log(small_buf, type);
 }
 
@@ -149,7 +149,7 @@ void do_wzoneecho(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 
 	if (!*zone_name || !*msg)
 		wld_log(room, "wzoneecho called with too few args");
-	else if ((zone = get_zone_rnum_by_room_vnum(atoi(zone_name))) < 0) {
+	else if ((zone = get_zone_rnum_by_vnumum(atoi(zone_name))) < 0) {
 		std::stringstream str_log;
 		str_log << "wzoneecho called for nonexistant zone: " << zone_name;
 		wld_log(room, str_log.str().c_str());
@@ -489,7 +489,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		}
 		uid_type = UID_CHAR;
 		idnum = mob->id;
-		PlaceCharToRoom(mob, real_room(room->room_vn));
+		PlaceCharToRoom(mob, real_room(room->vnum));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -509,7 +509,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		object->set_vnum_zone_from(zone_table[room->zone_rn].vnum);
 		uid_type = UID_OBJ;
 		idnum = object->get_id();
-		PlaceObjToRoom(object.get(), real_room(room->room_vn));
+		PlaceObjToRoom(object.get(), real_room(room->vnum));
 		load_otrigger(object.get());
 	} else {
 		wld_log(room, "wload: bad type");
@@ -898,7 +898,7 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
-	curroom = real_room(room->room_vn);
+	curroom = real_room(room->vnum);
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;

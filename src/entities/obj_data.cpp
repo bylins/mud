@@ -678,15 +678,15 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
 				<< "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " <<  get_id() << ", таймер > 100к равен: " << get_timer();
 		if (get_in_room() != kNowhere) {
-			buffer << ", находится в комнате vnum: " << world[get_in_room()]->room_vn;
+			buffer << ", находится в комнате vnum: " << world[get_in_room()]->vnum;
 		} else if (get_carried_by()) {
 			buffer << ", затарено: " <<  GET_NAME(get_carried_by()) << "["
-					<< GET_MOB_VNUM(get_carried_by()) <<"] в комнате: [" << world[this->get_carried_by()->in_room]->room_vn << "]";
+					<< GET_MOB_VNUM(get_carried_by()) <<"] в комнате: [" << world[this->get_carried_by()->in_room]->vnum << "]";
 		} else if (get_worn_by()) {
 			buffer << ", надет на перс: " << GET_NAME(get_worn_by()) << "[" << GET_MOB_VNUM(get_worn_by()) << "] в комнате: [" 
-					<< world[get_worn_by()->in_room]->room_vn <<"]";
+					<< world[get_worn_by()->in_room]->vnum <<"]";
 		} else if (get_in_obj()) {
-			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: [" << world[get_in_obj()->get_in_room()]->room_vn << "]";
+			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: [" << world[get_in_obj()->get_in_room()]->vnum << "]";
 		}
 		mudlog(buffer.str(), BRF, kLvlGod, SYSLOG, true);
 	}

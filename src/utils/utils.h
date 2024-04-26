@@ -443,7 +443,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
                                  weather_info.sunlight == kSunDark )) )
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->room_vn : kNowhere))
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->vnum : kNowhere))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************

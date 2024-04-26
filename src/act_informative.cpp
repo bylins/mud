@@ -3524,14 +3524,14 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
 				PERS(obj->get_carried_by(), ch, 4),
 				GET_MOB_VNUM(obj->get_carried_by()),
-				world[obj->get_carried_by()->in_room]->room_vn);
+				world[obj->get_carried_by()->in_room]->vnum);
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else if (obj->get_worn_by()) {
 		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
 				PERS(obj->get_worn_by(), ch, 3),
 				GET_MOB_VNUM(obj->get_worn_by()),
-				world[obj->get_worn_by()->in_room]->room_vn);
+				world[obj->get_worn_by()->in_room]->vnum);
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else if (obj->get_in_obj()) {

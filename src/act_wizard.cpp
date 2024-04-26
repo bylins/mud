@@ -378,7 +378,7 @@ void DoZoneCopy(CharData *ch, char *argument, int, int) {
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
-	if (world[rnum_start]->room_vn % 100 != 0) {
+	if (world[rnum_start]->vnum % 100 != 0) {
 		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
@@ -3999,10 +3999,10 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			snprintf(buf_, sizeof(buf_),
 					 "Список комнат от Vnum %d до %d\r\n", first, last);
 			out += buf_;
-			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->room_vn <= last); nr++) {
-				if (world[nr]->room_vn >= first) {
+			for (nr = kFirstRoom; nr <= top_of_world && (world[nr]->vnum <= last); nr++) {
+				if (world[nr]->vnum >= first) {
 					snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
-							 ++found, world[nr]->room_vn, nr, world[nr]->name);
+							 ++found, world[nr]->vnum, nr, world[nr]->name);
 					out += buf_;
 					if (!world[nr]->proto_script->empty()) {
 						out += " - есть скрипты -";

@@ -224,11 +224,11 @@ std::string print_zone_enters(ZoneRnum zone) {
 			for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn == zone
-					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
+					&& world[world[n]->dir_option[dir]->to_room()]->vnum > 0) {
 					snprintf(tmp, sizeof(tmp),
 							 "  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
-							 world[n]->room_vn, dirs_rus[dir],
-							 world[world[n]->dir_option[dir]->to_room()]->room_vn);
+							 world[n]->vnum, dirs_rus[dir],
+							 world[world[n]->dir_option[dir]->to_room()]->vnum);
 					out += tmp;
 					found = true;
 				}
@@ -254,11 +254,11 @@ std::string print_zone_exits(ZoneRnum zone) {
 			for (int dir = 0; dir < EDirection::kMaxDirNum; dir++) {
 				if (world[n]->dir_option[dir]
 					&& world[world[n]->dir_option[dir]->to_room()]->zone_rn != zone
-					&& world[world[n]->dir_option[dir]->to_room()]->room_vn > 0) {
+					&& world[world[n]->dir_option[dir]->to_room()]->vnum > 0) {
 					snprintf(tmp, sizeof(tmp),
 							 "  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
-							 world[n]->room_vn, dirs_rus[dir],
-							 world[world[n]->dir_option[dir]->to_room()]->room_vn);
+							 world[n]->vnum, dirs_rus[dir],
+							 world[world[n]->dir_option[dir]->to_room()]->vnum);
 					out += tmp;
 					found = true;
 				}
@@ -291,8 +291,8 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
 			 (zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
-			 world[rfirst]->room_vn,
-			 world[rlast]->room_vn,
+			 world[rfirst]->vnum,
+			 world[rlast]->vnum,
 			 zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
 			 zone_table[zone].locked ? "&RРедактирование запрещено!&n" : " ",
 			 zone_table[zone].reset_idle ? "Y" : "N",
@@ -309,8 +309,8 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 		*bufptr = str_add(*bufptr, tmpstr);
 	}
 	snprintf(tmpstr, BUFFER_SIZE, "Комнаты: first %d last %d\r\n",
-			world[zone_table[zone].RnumRoomsLocation.first]->room_vn,
-			world[zone_table[zone].RnumRoomsLocation.second]->room_vn);
+			world[zone_table[zone].RnumRoomsLocation.first]->vnum,
+			world[zone_table[zone].RnumRoomsLocation.second]->vnum);
 	*bufptr = str_add(*bufptr, tmpstr);
 	snprintf(tmpstr, BUFFER_SIZE, "Мобы: first %d last %d\r\n",
 			mob_index[zone_table[zone].RnumMobsLocation.first].vnum,

@@ -201,7 +201,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 			caster->player_data.PNames[5] = "Богах";
 		}
 		caster_room->people.push_front(caster);
-		IN_ROOM(caster) = real_room(caster_room->room_vn);
+		IN_ROOM(caster) = real_room(caster_room->vnum);
 	}
 
 	// Find the target
