@@ -3265,7 +3265,7 @@ void find_replacement(void *go,
 					}
 				}
 			}
-		} else if (!str_cmp(field, "skills")) {
+		} else if (!str_cmp(field, "skill")) {
 			char *p = strchr(subfield, ',');
 			if (p) {
 				*p = '\0';
