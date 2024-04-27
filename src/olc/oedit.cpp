@@ -1244,6 +1244,7 @@ void oedit_disp_menu(DescriptorData *d) {
 			 grn, nrm,
 			 grn, nrm);
 	SendMsgToChar(buf, d->character.get());
+
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
 }
 

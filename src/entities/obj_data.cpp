@@ -1511,7 +1511,10 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 } // namespace SetSystem
 
 int GetObjMIW(ObjRnum rnum) {
+	if (rnum < 0)
+		return 0;
 	ObjRnum val = obj_proto[rnum]->GetParent();
+
 	if (val < 0)
 		return obj_proto[rnum]->get_max_in_world();
 	else 
