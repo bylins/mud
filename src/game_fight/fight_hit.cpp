@@ -2048,7 +2048,7 @@ void update_pk_logs(CharData *ch, CharData *victim) {
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
 			IN_ROOM(victim) != kNowhere ? world[IN_ROOM(victim)]->name : "kNowhere", GET_ROOM_VNUM(IN_ROOM(victim)));
-	log("%s", buf2);
+	mudlog(buf2, CMP, kLvlImmortal, SYSLOG, true);
 
 	if ((!ch->IsNpc()
 		|| (ch->has_master()
