@@ -909,7 +909,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"last", EPosition::kDead, do_last, kLvlGod, 0, 0},
 		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
 		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"load", EPosition::kDead, do_load, kLvlBuilder, 0, 0},
+		{"load", EPosition::kDead, do_load, 0, 0, 0},
 		{"loadstat", EPosition::kDead, do_loadstat, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, do_look, 0, SCMD_LOOK, 200},
 		{"lock", EPosition::kSit, do_gen_door, 0, SCMD_LOCK, 500},
@@ -997,7 +997,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"spells", EPosition::kRest, DoSpells, 0, 0, 0},
 		{"split", EPosition::kRest, do_split, 1, 0, 0},
 		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
-		{"stat", EPosition::kDead, do_stat, kLvlGod, 0, 0},
+		{"stat", EPosition::kDead, do_stat, 0, 0, 0},
 		{"steal", EPosition::kStand, do_steal, 1, 0, 300},
 		{"strangle", EPosition::kFight, do_strangle, 0, 0, -1},
 		{"stupor", EPosition::kFight, do_stupor, 0, 0, -1},
@@ -1035,7 +1035,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
 		{"vnum", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},
 		{"вномер", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
-		{"vstat", EPosition::kDead, do_vstat, kLvlGreatGod, 0, 0},
+		{"vstat", EPosition::kDead, do_vstat, 0, 0, 0},
 		{"wake", EPosition::kSleep, do_wake, 0, 0, -1},
 		{"warcry", EPosition::kFight, do_warcry, 1, 0, -1},
 		{"wear", EPosition::kRest, do_wear, 0, 0, 500},
@@ -1055,7 +1055,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"write", EPosition::kStand, do_write, 1, 0, -1},
 		{"zedit", EPosition::kDead, do_olc, 0, SCMD_OLC_ZEDIT, 0},
 		{"zone", EPosition::kRest, do_zone, 0, 0, 0},
-		{"zreset", EPosition::kDead, do_zreset, kLvlGreatGod, 0, 0},
+		{"zreset", EPosition::kDead, do_zreset, 0, 0, 0},
 
 		// test command for gods
 		{"godtest", EPosition::kDead, do_godtest, kLvlGreatGod, 0, 0},

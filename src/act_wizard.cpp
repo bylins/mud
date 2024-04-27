@@ -1867,7 +1867,7 @@ void do_return(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 }
 
-void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	CharData *mob;
 	MobVnum number;
 	MobRnum r_num;
@@ -1875,6 +1875,16 @@ void do_load(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	iname = two_arguments(argument, buf, buf2);
 
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
+		SendMsgToChar("Чаво?\r\n", ch);
+		return;
+	}
+	int first = atoi(buf2) / 100;
+
+	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
+		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
+		return;
+	}
 	if (!*buf || !*buf2 || !a_isdigit(*buf2)) {
 		SendMsgToChar("Usage: load { obj | mob } <number>\r\n"
 					  "       load ing { <сила> | <VNUM> } <имя>\r\n", ch);
@@ -1969,17 +1979,30 @@ void send_to_all(char *buffer) {
 	}
 }
 
-void do_vstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	CharData *mob;
 	MobVnum number;    // or ObjVnum ...
 	MobRnum r_num;        // or ObjRnum ...
 
 	two_arguments(argument, buf, buf2);
+	int first = atoi(buf2) / 100;
+
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
+		SendMsgToChar("Чаво?\r\n", ch);
+		return;
+	}
 
 	if (!*buf || !*buf2 || !a_isdigit(*buf2)) {
 		SendMsgToChar("Usage: vstat { obj | mob } <number>\r\n", ch);
 		return;
 	}
+
+
+	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
+		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
+		return;
+	}
+
 	if ((number = atoi(buf2)) < 0) {
 		SendMsgToChar("Отрицательный номер? Оригинально!\r\n", ch);
 		return;
@@ -2726,15 +2749,28 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_zreset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	ZoneRnum i;
 	ZoneVnum j;
 	std::vector<ZoneRnum> zone_repop_list;
 	one_argument(argument, arg);
+
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
+		SendMsgToChar("Чаво?\r\n", ch);
+		return;
+	}
+
 	if (!*arg) {
 		SendMsgToChar("Укажите зону.\r\n", ch);
 		return;
 	}
+	int first = atoi(arg);
+
+	if (IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
+		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
+		return;
+	}
+
 	if (*arg == '*') {
 		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 			zone_repop_list.push_back(i);
