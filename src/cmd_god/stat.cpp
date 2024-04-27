@@ -19,6 +19,7 @@
 #include "depot.h"
 #include "game_magic/magic.h"
 #include "noob.h"
+#include "administration/privilege.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
@@ -1211,130 +1212,164 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	do_sstat_room(rm, ch);
 }
 
-void do_stat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	CharData *victim;
 	ObjData *object;
 	int tmp;
+	int level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	half_chop(argument, buf1, buf2);
 
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <=0)) {
+		SendMsgToChar("Чаво?\r\n", ch);
+		return;
+	}
 	if (!*buf1) {
 		SendMsgToChar("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
-
-	int level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
-
-	if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
-		int vnum, rnum = kNowhere;
-		if (*buf2 && (vnum = atoi(buf2))) {
-			if ((rnum = real_room(vnum)) != kNowhere)
-				do_stat_room(ch, rnum);
-			else
-				SendMsgToChar("Состояние какой комнаты?\r\n", ch);
-		}
-		if (!*buf2)
-			do_stat_room(ch);
-	} else if (utils::IsAbbr(buf1, "mob") && level >= kLvlBuilder) {
-		if (!*buf2)
-			SendMsgToChar("Состояние какого создания?\r\n", ch);
-		else {
-			if ((victim = get_char_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
-				do_stat_character(ch, victim, 0);
-			else
-				SendMsgToChar("Нет такого создания в этом МАДе.\r\n", ch);
-		}
-	} else if (utils::IsAbbr(buf1, "player")) {
-		if (!*buf2) {
-			SendMsgToChar("Состояние какого игрока?\r\n", ch);
-		} else {
-			if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
-				do_stat_character(ch, victim);
-			else
-				SendMsgToChar("Этого персонажа сейчас нет в игре.\r\n", ch);
-		}
-	} else if (utils::IsAbbr(buf1, "ip")) {
-		if (!*buf2) {
-			SendMsgToChar("Состояние ip какого игрока?\r\n", ch);
-		} else {
-			if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
-				do_statip(ch, victim);
-				return;
-			} else {
-				SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
+	if (*buf1 && IS_IMMORTAL(ch)) {
+		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
+			int vnum, rnum = kNowhere;
+			if (*buf2 && (vnum = atoi(buf2))) {
+				if ((rnum = real_room(vnum)) != kNowhere)
+					do_stat_room(ch, rnum);
+				else
+					SendMsgToChar("Состояние какой комнаты?\r\n", ch);
 			}
-			Player t_vict;
-			if (load_char(buf2, &t_vict) > -1) {
-				do_statip(ch, &t_vict);
-			} else {
-				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
-			}
+			if (!*buf2)
+				do_stat_room(ch);
+			return;
 		}
-	} else if (utils::IsAbbr(buf1, "karma") || utils::IsAbbr(buf1, "карма")) {
-		if (!*buf2) {
-			SendMsgToChar("Карму какого игрока?\r\n", ch);
-		} else {
-			if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
-				DoStatKarma(ch, victim);
-				return;
-			} else {
-				SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
+		if (utils::IsAbbr(buf1, "mob") && level >= kLvlBuilder) {
+			if (!*buf2)
+				SendMsgToChar("Состояние какого создания?\r\n", ch);
+			else {
+				if ((victim = get_char_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+					do_stat_character(ch, victim, 0);
+				else
+					SendMsgToChar("Нет такого создания в этом МАДе.\r\n", ch);
 			}
-			Player t_vict;
-			if (load_char(buf2, &t_vict) > -1) {
-				DoStatKarma(ch, &t_vict);
+			return;
+		} 
+		if (utils::IsAbbr(buf1, "player")) {
+			if (!*buf2) {
+				SendMsgToChar("Состояние какого игрока?\r\n", ch);
 			} else {
-				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
+				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+					do_stat_character(ch, victim);
+				else
+					SendMsgToChar("Этого персонажа сейчас нет в игре.\r\n", ch);
 			}
+			return;
 		}
-	} else if (utils::IsAbbr(buf1, "file")) {
-		if (!*buf2) {
-			SendMsgToChar("Состояние какого игрока(из файла)?\r\n", ch);
-		} else {
-			Player t_vict;
-			if (load_char(buf2, &t_vict) > -1) {
-				if (GetRealLevel(&t_vict) > level) {
-					SendMsgToChar("Извините, вам это еще рано.\r\n", ch);
+		if (utils::IsAbbr(buf1, "ip")) {
+			if (!*buf2) {
+				SendMsgToChar("Состояние ip какого игрока?\r\n", ch);
+			} else {
+				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+					do_statip(ch, victim);
+					return;
 				} else {
-					Clan::SetClanData(&t_vict);
-					do_stat_character(ch, &t_vict);
+					SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
 				}
-			} else {
-				SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
+				Player t_vict;
+				if (load_char(buf2, &t_vict) > -1) {
+					do_statip(ch, &t_vict);
+				} else {
+					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
+				}
 			}
+			return;
 		}
-	} else if (utils::IsAbbr(buf1, "object") && level >= kLvlBuilder) {
-		if (!*buf2)
-			SendMsgToChar("Состояние какого предмета?\r\n", ch);
-		else {
-			if ((object = get_obj_vis(ch, buf2)) != nullptr)
-				do_stat_object(ch, object);
-			else
-				SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
+		if (utils::IsAbbr(buf1, "karma") || utils::IsAbbr(buf1, "карма")) {
+			if (!*buf2) {
+				SendMsgToChar("Карму какого игрока?\r\n", ch);
+			} else {
+				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+					DoStatKarma(ch, victim);
+					return;
+				} else {
+					SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
+				}
+				Player t_vict;
+				if (load_char(buf2, &t_vict) > -1) {
+					DoStatKarma(ch, &t_vict);
+				} else {
+					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
+				}
+			}
+			return;
 		}
-	} else {
-		if (level >= kLvlBuilder) {
-			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr)
-				do_stat_object(ch, object);
-			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr)
-				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr)
-				do_stat_character(ch, victim);
-			else if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != nullptr)
-				do_stat_object(ch, object);
-			else if ((victim = get_char_vis(ch, buf1, EFind::kCharInWorld)) != nullptr)
-				do_stat_character(ch, victim);
-			else if ((object = get_obj_vis(ch, buf1)) != nullptr)
-				do_stat_object(ch, object);
-			else
-				SendMsgToChar("Ничего похожего с этим именем нет.\r\n", ch);
-		} else {
-			if ((victim = get_player_vis(ch, buf1, EFind::kCharInRoom)) != nullptr)
-				do_stat_character(ch, victim);
-			else if ((victim = get_player_vis(ch, buf1, EFind::kCharInWorld)) != nullptr)
-				do_stat_character(ch, victim);
-			else
-				SendMsgToChar("Никого похожего с этим именем нет.\r\n", ch);
+		if (utils::IsAbbr(buf1, "file")) {
+			if (!*buf2) {
+				SendMsgToChar("Состояние какого игрока(из файла)?\r\n", ch);
+			} else {
+				Player t_vict;
+				if (load_char(buf2, &t_vict) > -1) {
+					if (GetRealLevel(&t_vict) > level) {
+						SendMsgToChar("Извините, вам это еще рано.\r\n", ch);
+					} else {
+						Clan::SetClanData(&t_vict);
+						do_stat_character(ch, &t_vict);
+					}
+				} else {
+					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
+				}
+			}
+			return;
+		}
+		if (utils::IsAbbr(buf1, "object") && level >= kLvlBuilder) {
+			if (!*buf2)
+				SendMsgToChar("Состояние какого предмета?\r\n", ch);
+			else {
+				if ((object = get_obj_vis(ch, buf2)) != nullptr)
+					do_stat_object(ch, object);
+				else
+					SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
+			}
+			return;
 		}
 	}
+	if (IS_IMMORTAL(ch)) {
+		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
+			do_stat_object(ch, object);
+			return;
+		}
+		if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != nullptr) {
+			do_stat_object(ch, object);
+			return;
+		}
+		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+			do_stat_character(ch, victim);
+			return;
+		}
+		if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != nullptr) {
+			do_stat_object(ch, object);
+			return;
+		}
+		if ((victim = get_char_vis(ch, buf1, EFind::kCharInWorld)) != nullptr) {
+			do_stat_character(ch, victim);
+			return;
+		}
+		if ((object = get_obj_vis(ch, buf1)) != nullptr) {
+			do_stat_object(ch, object);
+			return;
+		}
+	} 
+	if (GET_OLC_ZONE(ch) == zone_table[world[ch->in_room]->zone_rn].vnum) {
+		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
+			do_stat_object(ch, object);
+			return;
+		}
+		if ((object = get_obj_in_list_vis(ch, buf1, world[ch->in_room]->contents)) != nullptr) {
+			do_stat_object(ch, object);
+			return;
+		}
+		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+			do_stat_character(ch, victim);
+			return;
+		}
+	}
+	SendMsgToChar("Ничего похожего с этим именем нет.\r\n", ch);
 }
