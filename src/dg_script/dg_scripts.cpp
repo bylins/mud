@@ -1777,6 +1777,10 @@ void find_replacement(void *go,
 				num = count_char_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%d", num);
+			} else if (!str_cmp(field, "createdungeon") && num > 0) {
+				sprintf(str, "%d", zone_table[ZoneCopy(num)].entrance);
+			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
+				DungeonReset(num);
 			} else if (!str_cmp(field, "zreset") && num > 0) {
 				std::vector<ZoneRnum> zone_repop_list;
 				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);

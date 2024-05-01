@@ -400,6 +400,7 @@ void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_console(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
+void DoDungeonReset(CharData *ch, char *argument, int cmd, int subcmd);
 //void Bonus::do_bonus_by_character(CharData *, char *, int, int);
 void do_summon(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
@@ -434,6 +435,10 @@ std::map<std::string, int> new_loc_codes;
 
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
+
+void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
+	DungeonReset(atoi(argument));
+}
 
 void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
 	std::stringstream ss;
@@ -766,6 +771,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
+		{"сбросить", EPosition::kRest, DoDungeonReset, kLvlImplementator, 0, -1},
 		{"спрятаться", EPosition::kStand, do_hide, 1, 0, 500},
 		{"сравнить", EPosition::kRest, do_consider, 0, 0, 500},
 		{"сразить", EPosition::kFight, do_slay, 1, 0, -1},
