@@ -387,8 +387,10 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	target = find_obj_target_room(obj, arg2);
 
-	if (target == kNowhere)
+	if (target == kNowhere) {
 		obj_log(obj, "oteleport target is an invalid room");
+		return;
+	}
 	rm = obj_room(obj);
 	if (rm == kNowhere) {
 		obj_log(obj, "oteleport called in kNowhere");
