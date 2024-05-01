@@ -308,18 +308,6 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s\r\n", zone_table[zone].copy_from_zone, zone_table[real_zone(zone_table[zone].copy_from_zone)].name.c_str());
 		*bufptr = str_add(*bufptr, tmpstr);
 	}
-	snprintf(tmpstr, BUFFER_SIZE, "Комнаты: first %d last %d\r\n",
-			world[zone_table[zone].RnumRoomsLocation.first]->vnum,
-			world[zone_table[zone].RnumRoomsLocation.second]->vnum);
-	*bufptr = str_add(*bufptr, tmpstr);
-	snprintf(tmpstr, BUFFER_SIZE, "Мобы: first %d last %d\r\n",
-			mob_index[zone_table[zone].RnumMobsLocation.first].vnum,
-			mob_index[zone_table[zone].RnumMobsLocation.second].vnum);
-	*bufptr = str_add(*bufptr, tmpstr);
-	snprintf(tmpstr, BUFFER_SIZE, "Триггера: first %d last %d",
-			trig_index[zone_table[zone].RnumTrigsLocation.first]->vnum,
-			trig_index[zone_table[zone].RnumTrigsLocation.second]->vnum);
-	*bufptr = str_add(*bufptr, tmpstr);
 }
 
 struct show_struct {
