@@ -62,6 +62,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				} else if (vict->GetEnemy()) {
 					if (vict->last_comm != nullptr) {
 						free(vict->last_comm);
+						vict->last_comm = nullptr;
 					}
 					vict->last_comm = str_dup(message);
 				}
@@ -85,6 +86,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					} else if (follower->GetEnemy()) {
 						if (follower->last_comm != nullptr) {
 							free(follower->last_comm);
+							follower->last_comm = nullptr;
 						}
 						follower->last_comm = str_dup(message);
 					}

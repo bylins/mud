@@ -219,7 +219,12 @@ void Player::add_hryvn(int value) {
 	if (GetRealRemort(this) < 6) {
 		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
-	} else if ((this->get_hryvn() + value) > cap_hryvn) {
+	} 
+	if (zone_table[world[this->in_room]->zone_rn].under_construction) {
+		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
+		return;
+	}
+	if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
 					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
@@ -244,7 +249,6 @@ void Player::dquest(const int id) {
 		log("Quest Id: %d - не найден", id);
 		return;
 	}
-
 	if (!this->account->quest_is_available(id)) {
 		SendMsgToChar(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
 		return;
@@ -256,9 +260,7 @@ void Player::dquest(const int id) {
 		&& zone_lvl <= (GetRealLevel(this) + GetRealRemort(this) / 5)) {
 		value /= 2;
 	}
-
 	this->add_hryvn(value);
-
 	this->account->complete_quest(id);
 }
 

@@ -532,18 +532,13 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	char fname[64];
 	CharData *mob;
 
-			sprintf(buf, "сохраняем зон %d на диск.", zone_table[zone_num].vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
 	ZoneVnum zone = zone_table[zone_num].vnum;
-	MobRnum first = zone_table[zone_num].RnumMobsLocation.first;
-	MobRnum top = zone_table[zone_num].RnumMobsLocation.second;
+	MobVnum top = zone_table[zone_num].top;
 	if (zone >= ZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-
 	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
 	if (!(mob_file = fopen(fname, "w"))) {
 		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, kLvlBuilder, SYSLOG, true);
@@ -551,7 +546,9 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	}
 
 	// * Seach the database for mobs in this zone and save them.
-	for (rmob_num = first; rmob_num <= top; rmob_num++) {
+	for (MobVnum i = zone * 100; i <= top; i++) {
+		if ((rmob_num = real_mobile(i)) == -1)
+			continue;
 		if (fprintf(mob_file, "#%d\n", mob_index[rmob_num].vnum) < 0) {
 			mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);
 			fclose(mob_file);
@@ -1771,7 +1768,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					case MEDIT_MANAREG: GET_MANAREG(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 						break;
 
-					case MEDIT_CASTSUCCESS: GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(1000, MAX(1000, bit));
+					case MEDIT_CASTSUCCESS: GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(1000, MAX(-1000, bit));
 						break;
 
 					case MEDIT_SUCCESS: GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(0, bit));

@@ -251,7 +251,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 	}
 	if ((equip_pos == EEquipPos::kQuiver && !(GET_EQ(ch, EEquipPos::kBoths) // не может одеть колчан если одет не лук
-				&& (GET_EQ(ch, EEquipPos::kBoths)->get_spec_param() == EObjType::kWeapon)
+				&& (GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths)) == EObjType::kWeapon)
 				&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))) {
 		SendMsgToChar("А стрелять чем будете?\r\n", ch);
 		return;
