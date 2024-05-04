@@ -508,10 +508,12 @@ void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/
 	RoomRnum ch_room, vic_room;
 	struct FollowerType *k, *k_next;
 
-	if (ch == nullptr || victim == nullptr || ch == victim || !victim->desc) {
+	if (ch == nullptr || victim == nullptr || ch == victim) {
 		return;
 	}
-
+	if (!victim->desc) {
+		SendMsgToChar(SUMMON_FAIL, ch);
+	}
 	ch_room = ch->in_room;
 	vic_room = IN_ROOM(victim);
 
