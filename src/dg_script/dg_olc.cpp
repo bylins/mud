@@ -495,7 +495,7 @@ void trigedit_save(DescriptorData *d) {
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
-	if (zone_table[zone].vnum >= ZoneStartDungeons) {
+	if (zone >= ZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
