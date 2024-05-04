@@ -1,17 +1,3 @@
-/************************************************************************
-*   File: db.cpp                                        Part of Bylins    *
-*  Usage: Loading/saving entities, booting/resetting world, internal funcs   *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
-
 #define DB_C__
 
 #include "administration/accounts.h"
@@ -4919,6 +4905,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	auto &zone_to = zone_table[zrn_to];
 
 	zone_to.name = zone_from.name;
+	zone_to.entrance = zone_to.vnum + zone_from.entrance % 100;
 	zone_to.comment = zone_from.comment;
 	zone_to.location = zone_from.location;
 	zone_to.author = zone_from.author;
@@ -4934,8 +4921,6 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
 	zone_to.group = zone_from.group;
-//	zone_to.RnumRoomsLocation.first = zone_to.vnum * 100 + (zone_from.FirstRoomVnum - zone_from.vnum * 100);
-//	zone_to.RnumRoomsLocation.first = zone_to.vnum * 100 + (zone_from.LastRoomVnum - zone_from.vnum * 100);
 	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
 	}
@@ -4994,9 +4979,13 @@ class ZoneReset {
 	ZoneRnum m_zone_rnum;
 };
 
-void ZoneReset::reset() {
-		utils::CExecutionTimer timer;
+void DungeonReset(int zrn) {
+	auto m_zone_rnum = zrn;
+	utils::CExecutionTimer timer;
 
+	if (m_zone_rnum == 0) {
+		return;
+	}
 	if (zone_table[m_zone_rnum].copy_from_zone > 0) {
 		utils::CExecutionTimer timer1;
 		RoomDataFree(m_zone_rnum);
@@ -5017,8 +5006,13 @@ void ZoneReset::reset() {
 		TrigDataFree(m_zone_rnum);
 		sprintf(buf, "Free all dungeons %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		zone_table[m_zone_rnum].copy_from_zone = 0;
 		return;
 	}
+}
+
+void ZoneReset::reset() {
+		utils::CExecutionTimer timer;
 
 	if (GlobalObjects::stats_sender().ready()) {
 		reset_zone_essential();

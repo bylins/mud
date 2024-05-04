@@ -69,6 +69,7 @@ void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
 void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
+void DungeonReset(int zrn);
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 
