@@ -825,17 +825,16 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->script->trig_list.clear();
 	 	for (auto t_tmp : m->script->trig_list) {
 			Trigger *t = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
+			GET_TRIG_DEPTH(t) = GET_TRIG_DEPTH(t_tmp);
 			ch->script->trig_list.add(t);
 		}
-//найдем текущую выполняемую строку в старом триггере
-		auto c = *trig->cmdlist;
-		auto c_new = *new_t->cmdlist;
+//найдем текущую выполняемую строку в триггере
+		auto c_new = *trig->cmdlist;
 
-		while (c) {
-			if (&c->cmd == &trig->curr_line->next->cmd) {
+		while (c_new) {
+			if (&c_new->cmd == &trig->curr_line->next->cmd) {
 				break;
 			}
-			c = c->next;
 			c_new = c_new->next;
 		}
 // скопируем переменные в новый триггер
@@ -897,7 +896,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		chardata_by_uid[ch->id] = ch;
 		if (c_new) {
 			new_t->curr_line = c_new;
-			GET_TRIG_DEPTH(new_t) = 1;
+			GET_TRIG_DEPTH(new_t) = GET_TRIG_DEPTH(trig);
 			script_driver(ch, new_t, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
