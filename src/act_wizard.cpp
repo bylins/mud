@@ -2766,7 +2766,7 @@ void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 	int first = atoi(arg);
 
-	if (IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
+	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}
