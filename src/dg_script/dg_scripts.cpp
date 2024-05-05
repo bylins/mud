@@ -4631,7 +4631,6 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 			case WLD_TRIGGER: triggers_list = &SCRIPT((RoomData *) go)->trig_list;
 				break;
 		}
-
 		if (triggers_list
 			&& triggers_list->has_trigger(*trig)) {
 			runtrig = *trig;
@@ -6124,11 +6123,10 @@ long TriggersList::get_type() const {
 
 bool TriggersList::has_trigger(const Trigger *const trigger) {
 	for (const auto &i : m_list) {
-		if (i == trigger) {
+		if (i->get_rnum() == trigger->get_rnum()) {
 			return true;
 		}
 	}
-
 	return false;
 }
 

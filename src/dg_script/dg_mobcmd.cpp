@@ -820,7 +820,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		std::swap(ch, m);
 		ch->script->types = m->script->types;
 		std::swap(ch->id, m->id); //UID надо осталять старые
-		Trigger *new_t = new Trigger(*trig_index[trig->get_rnum()]->proto);
 //перенесем триггера
 		ch->script->trig_list.clear();
 	 	for (auto t_tmp : m->script->trig_list) {
@@ -828,18 +827,6 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			GET_TRIG_DEPTH(t) = GET_TRIG_DEPTH(t_tmp);
 			ch->script->trig_list.add(t);
 		}
-//найдем текущую выполняемую строку в триггере
-		auto c_new = *trig->cmdlist;
-
-		while (c_new) {
-			if (&c_new->cmd == &trig->curr_line->next->cmd) {
-				break;
-			}
-			c_new = c_new->next;
-		}
-// скопируем переменные в новый триггер
-		new_t->var_list = trig->var_list;
-		trig->var_list = nullptr;
 		ch->script->global_vars = m->script->global_vars;
 		m->script->global_vars = nullptr;
 		ch->script->context = m->script->context;
@@ -894,10 +881,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		m->set_master(nullptr);
 		ExtractCharFromWorld(m, true);
 		chardata_by_uid[ch->id] = ch;
-		if (c_new) {
-			new_t->curr_line = c_new;
-			GET_TRIG_DEPTH(new_t) = GET_TRIG_DEPTH(trig);
-			script_driver(ch, new_t, MOB_TRIGGER, TRIG_FROM_LINE);
+		if (trig->curr_line->next) {
+			trig->curr_line = trig->curr_line->next;
+			script_driver(ch, trig, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
 }
