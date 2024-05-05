@@ -818,15 +818,23 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 */
 		PlaceCharToRoom(m, ch->in_room);
 		std::swap(ch, m);
-		ch->script->types = m->script->types;
 		std::swap(ch->id, m->id); //UID надо осталять старые
 //перенесем триггера
+		ch->script->types = m->script->types;
 		ch->script->trig_list.clear();
 	 	for (auto t_tmp : m->script->trig_list) {
-			Trigger *t = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
-			GET_TRIG_DEPTH(t) = GET_TRIG_DEPTH(t_tmp);
-			ch->script->trig_list.add(t);
+			if (t_tmp->get_rnum() != trig->get_rnum()) {
+				Trigger *t = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
+				ch->script->trig_list.add(t);
+			}
 		}
+		// продолжать работать будем по копии
+		Trigger *trig_copy = new Trigger(*trig_index[trig->get_rnum()]->proto);
+		GET_TRIG_DEPTH(trig_copy) = GET_TRIG_DEPTH(trig);
+		trig_copy->var_list = trig->var_list;
+		trig->var_list = nullptr;
+		ch->script->trig_list.add(trig_copy);
+
 		ch->script->global_vars = m->script->global_vars;
 		m->script->global_vars = nullptr;
 		ch->script->context = m->script->context;
@@ -878,12 +886,11 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
-		m->set_master(nullptr);
 		ExtractCharFromWorld(m, true);
 		chardata_by_uid[ch->id] = ch;
 		if (trig->curr_line->next) {
-			trig->curr_line = trig->curr_line->next;
-			script_driver(ch, trig, MOB_TRIGGER, TRIG_FROM_LINE);
+			trig_copy->curr_line = trig->curr_line->next;
+			script_driver(ch, trig_copy, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
 }
