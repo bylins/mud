@@ -251,6 +251,9 @@ void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &
  */
 void EraseAll(std::string &s, const std::string &toSearch);
 
+// убрать в строке s повторяющиеся подряд символы ch
+std::string CompressSymbol(std::string s, const char ch);
+
 } // namespace utils
 
 #endif // UTILS_STRING_HPP_

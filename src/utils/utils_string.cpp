@@ -136,7 +136,8 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 	std::vector<std::string> tokens;
 
 	while (std::getline(tokens_stream, token, delimiter)) {
-		utils::Trim(token);
+		if (token.empty())
+			continue;
 		tokens.push_back(token);
 	}
 	return tokens; //если разделитель не найден вернется 1 элемент содержащий полную строку
@@ -321,6 +322,17 @@ void EraseAll(std::string &s, const std::string &toSearch) {
 		s.erase(pos, len);
 		pos = s.find(toSearch);
 	}
+}
+
+std::string CompressSymbol(std::string s, const char ch) {
+	std::string c(1, ch);
+	std::string::size_type pos = s.find(c + c);
+
+	while (pos != std::string::npos) {
+		s.replace(pos, 2, c);
+		pos = s.find(c + c, pos);
+	}
+	return s;
 }
 
 }
