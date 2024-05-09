@@ -50,7 +50,7 @@ class Cases {
 
  private:
 	cases_t m_cases;
-	std::list<std::string> m_aliases;
+	std::vector<std::string> m_aliases;
 	std::string m_joined_aliases;
 
 	friend class CMaterialClass;

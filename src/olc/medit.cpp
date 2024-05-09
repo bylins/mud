@@ -676,7 +676,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			fprintf(mob_file, "Helper: %d\n", helper);
 		}
 		if (mob->get_role_bits().any()) {
-			std::string tmp std::to_string(mob->get_role_bits());
+			std::string tmp = to_string(mob->get_role_bits());
 			fprintf(mob_file, "Role: %s\n", tmp.c_str());
 		}
 		// * XXX: Add E-mob handlers here.
