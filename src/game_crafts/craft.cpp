@@ -79,7 +79,7 @@ bool Cases::load_from_node(const pugi::xml_node *node) {
 
 void Cases::load_from_object(const CObjectPrototype::shared_ptr &object) {
 	const std::string &aliases = object->get_aliases();
-	boost::algorithm::split(m_aliases, aliases, boost::algorithm::is_any_of(" "), boost::token_compress_on);
+	m_aliases = utils::Split(aliases);
 	for (size_t n = 0; n < CASES_COUNT; ++n) {
 		m_cases[n] = object->get_PName(n);
 	}

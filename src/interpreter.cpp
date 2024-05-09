@@ -4214,20 +4214,10 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 	int mana = ch->get_who_mana();
 	int last = ch->get_who_last();
 
-#ifdef WHO_DEBUG
-	SendMsgToChar(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
-#endif
-
 	// рестим ману, в БД скорость реста маны удваивается
 	mana = MIN(WHO_MANA_MAX,
 			   mana + (ctime - last) * WHO_MANA_REST_PER_SECOND
 				   + (ctime - last) * WHO_MANA_REST_PER_SECOND * (NORENTABLE(ch) ? 1 : 0));
-
-#ifdef WHO_DEBUG
-	SendMsgToChar(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
-										  (ctime - last) % (mana - ch->get_who_mana()) % mana).c_str(), ch);
-#endif
-
 	ch->set_who_mana(mana);
 	ch->set_who_last(ctime);
 
@@ -4238,9 +4228,6 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 		mana -= cost;
 		ch->set_who_mana(mana);
 	}
-#ifdef WHO_DEBUG
-	SendMsgToChar(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), ch);
-#endif
 	return false;
 }
 

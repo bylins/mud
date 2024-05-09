@@ -12,8 +12,6 @@ namespace DpsSystem {
 
 // кол-во учитываемых чармисов с каждого чара
 const unsigned MAX_DPS_CHARMICE = 5;
-//boost::format dps_stat_format(" %25s |  %15d | %5d |  %5d | %11d |\r\n");
-//boost::format dps_group_stat_format(" %25s |  %8d | %5.1f%% | %5d |  %5d | %11d |\r\n");
 
 // * Добавление эффективной дамаги и овер-дамаги.
 void DpsNode::add_dmg(int dmg, int over_dmg) {
