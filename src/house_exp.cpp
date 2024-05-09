@@ -8,8 +8,6 @@
 #include "house.h"
 #include "modify.h"
 
-#include <boost/algorithm/string.hpp>
-
 namespace {
 
 // количество нодов в списке экспы (зависит от CLAN_EXP_UPDATE_PERIOD)

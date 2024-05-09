@@ -13,8 +13,6 @@
 #include "utils/random.h"
 #include "game_economics/currencies.h"
 
-#include <boost/algorithm/string.hpp>
-
 // see http://stackoverflow.com/questions/20145488/cygwin-g-stdstoi-error-stoi-is-not-a-member-of-std
 #if defined __CYGWIN__
 #include <cstdlib>

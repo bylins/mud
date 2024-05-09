@@ -349,6 +349,14 @@ void EraseAll(std::string &s, const std::string &toSearch) {
 	}
 }
 
+std::string EraseAllAny(const std::string s, const std::string any) {
+	std::string mstr = ReplaceAny(s, any);
+	for (size_t k = mstr.find(any[0]); k != mstr.npos;  k = mstr.find(any[0], k )) {
+		mstr.erase(k, 1);
+	}
+	return mstr;
+}
+
 std::string CompressSymbol(std::string s, const char ch) {
 	std::string c(1, ch);
 	std::string::size_type pos = s.find(c + c);

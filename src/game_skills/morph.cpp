@@ -6,7 +6,6 @@
 #include "game_magic/magic_utils.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
-#include <boost/algorithm/string.hpp>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 MorphListType IdToMorphMap;
@@ -381,8 +380,8 @@ void morphs_save(CharData *ch, FILE *saved) {
 };
 
 void morphs_load(CharData *ch, std::string line) {
-	std::list<std::string> morphs;
-	boost::split(morphs, line, boost::is_any_of(std::string("#")), boost::token_compress_on);
+	std::vector<std::string> morphs = utils::Split(line, '#');
+
 	for (const auto &it : morphs) {
 		if (ExistsMorph(it)
 			&& !ch->know_morph(it)) {

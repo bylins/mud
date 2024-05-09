@@ -3,8 +3,6 @@
 
 #include "sets_drop.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include "third_party_libs/pugixml/pugixml.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -831,8 +829,8 @@ void init_xhelp_full() {
 	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
 			 iend = help_list.end(); i != iend; ++i) {
 		std::string text = print_current_set(*i);
-		std::vector<std::string> str_list;
-		boost::split(str_list, i->alias_list, boost::is_any_of(", "), boost::token_compress_on);
+		std::vector<std::string> str_list = utils::SplitAny(i->alias_list, ", ");
+
 		for (std::vector<std::string>::const_iterator k = str_list.begin(),
 				 kend = str_list.end(); k != kend; ++k) {
 			HelpSystem::add_sets_drop(*k, text);

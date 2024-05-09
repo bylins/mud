@@ -27,7 +27,6 @@
 #include "entities/char_player.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
 
 extern int buf_switches, buf_largecount, buf_overflows;
 extern unsigned long int number_of_bytes_read;

@@ -260,6 +260,13 @@ void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &
  */
 void EraseAll(std::string &s, const std::string &toSearch);
 
+/**
+ * Удалить все указанные символы в строке.
+ * @param s - исходная строка.
+ * @param any - список символов.
+ */
+std::string EraseAllAny(const std::string s, const std::string any);
+
 // убрать в строке s повторяющиеся подряд символы ch
 std::string CompressSymbol(std::string s, const char ch);
 

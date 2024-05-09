@@ -16,7 +16,6 @@
 #include "entities/zone.h"
 #include "utils/objects_filter.h"
 
-#include <boost/algorithm/string.hpp>
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 
