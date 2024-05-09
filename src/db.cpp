@@ -891,7 +891,7 @@ void load_cases() {
 	}
 }
 
-std::vector<City> cities;
+std::vector<City> Cities;
 std::string default_str_cities;
 /* Загрузка городов из xml файлов */
 void load_cities() {
@@ -906,7 +906,7 @@ void load_cities() {
 		for (object_ = child_.child("ZoneVnum"); object_; object_ = object_.next_sibling("ZoneVnum")) {
 			city.vnums.push_back(object_.attribute("value").as_int());
 		}
-		cities.push_back(city);
+		Cities.push_back(city);
 		default_str_cities += "0";
 	}
 }

@@ -36,7 +36,7 @@ enum {
 
 class Player : public CharData {
  public:
-	using cities_t = boost::dynamic_bitset<std::size_t>;
+	using cities_t = std::vector<bool>;
 
 	Player();
 
@@ -226,7 +226,7 @@ class Player : public CharData {
 	// сколько дней подряд выполнялись дейлики
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
-	boost::dynamic_bitset<size_t> cities;
+	cities_t cities;
 	// здесь храним инфу о татуировках
 	//std::map<unsigned int, StigmaWear> stigmas;
 	// режим !бот

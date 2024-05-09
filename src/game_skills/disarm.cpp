@@ -9,6 +9,8 @@
 #include "structs/global_objects.h"
 #include "game_fight/fight.h"
 
+#include <cmath>
+
 // ************* DISARM PROCEDURES
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisarm)) {

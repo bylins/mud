@@ -94,7 +94,7 @@ extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
-extern std::vector<City> cities;
+extern std::vector<City> Cities;
 
 // local functions
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
@@ -600,15 +600,15 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 
 void do_cities(CharData *ch, char *, int, int) {
 	SendMsgToChar("Города на Руси:\r\n", ch);
-	for (unsigned int i = 0; i < cities.size(); i++) {
+	for (unsigned int i = 0; i < Cities.size(); i++) {
 		sprintf(buf, "%3d.", i + 1);
 		if (IS_IMMORTAL(ch)) {
-			sprintf(buf1, " [VNUM: %d]", cities[i].rent_vnum);
+			sprintf(buf1, " [VNUM: %d]", Cities[i].rent_vnum);
 			strcat(buf, buf1);
 		}
 		sprintf(buf1,
 				" %s: %s\r\n",
-				cities[i].name.c_str(),
+				Cities[i].name.c_str(),
 				(ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
 		strcat(buf, buf1);
 		SendMsgToChar(buf, ch);

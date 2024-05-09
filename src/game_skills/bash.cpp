@@ -5,6 +5,8 @@
 #include "protect.h"
 #include "structs/global_objects.h"
 
+#include <cmath>
+
 // ************************* BASH PROCEDURES
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kBash)) {

@@ -9,6 +9,8 @@
 #include "color.h"
 #include "structs/global_objects.h"
 
+#include <cmath>
+
 namespace char_stat {
 
 /// мобов убито - для 'статистика'

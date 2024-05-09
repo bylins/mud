@@ -16,6 +16,8 @@
 #include "game_mechanics/bonus.h"
 #include "game_fight/fight.h"
 
+#include <cmath>
+
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
 

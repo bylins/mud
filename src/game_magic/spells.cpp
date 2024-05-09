@@ -31,6 +31,8 @@
 #include "stuff.h"
 #include "utils/utils_char_obj.inl"
 
+#include <cmath>
+
 extern char cast_argument[kMaxInputLength];
 extern im_type *imtypes;
 extern int top_imtypes;

@@ -1443,7 +1443,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		if (value && *value) {
 			std::string str(value);
 			CharData::role_t tmp(str);
-			tmp.resize(mob_proto[i].get_role().size());
+//			tmp.resize(mob_proto[i].get_role().size());
 			mob_proto[i].set_role(tmp);
 		}
 	}

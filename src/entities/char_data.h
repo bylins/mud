@@ -18,8 +18,6 @@
 #include "game_affects/affect_data.h"
 #include "game_mechanics/mem_queue.h"
 
-#include <boost/dynamic_bitset.hpp>
-
 #include <unordered_map>
 #include <bitset>
 #include <list>
@@ -355,7 +353,7 @@ class CharData : public ProtectedCharData {
 	using shared_ptr = std::shared_ptr<CharData>;
 	using char_affects_list_t = std::list<Affect<EApply>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
-	using role_t = boost::dynamic_bitset<std::size_t>;
+	using role_t = std::bitset<8>;
 	using followers_list_t = std::list<CharData *>;
 
 	CharData();
@@ -627,7 +625,7 @@ class CharData : public ProtectedCharData {
 	bool has_any_affect(const affects_list_t &affects);
 	size_t remove_random_affects(const size_t count);
 
-	const auto &get_role() const { return role_; }
+	const role_t &get_role() const { return role_; }
 	void set_role(const role_t &new_role) { role_ = new_role; }
 	void msdp_report(const std::string &name);
 

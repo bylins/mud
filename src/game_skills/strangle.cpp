@@ -9,6 +9,8 @@
 #include "utils/random.h"
 #include "protect.h"
 
+#include <cmath>
+
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kStrangle)) {
 		SendMsgToChar("Вы не умеете этого.\r\n", ch);

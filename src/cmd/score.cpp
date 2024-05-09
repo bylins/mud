@@ -21,6 +21,8 @@
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"
 
+#include <cmath>
+
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);
 void PrintScoreAll(CharData *ch);

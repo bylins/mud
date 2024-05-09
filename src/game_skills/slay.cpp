@@ -10,6 +10,8 @@
 #include "protect.h"
 #include "entities/obj_data.h"
 
+#include <cmath>
+
 void go_slay(CharData *ch, CharData *vict) {
 
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopRight)) {
