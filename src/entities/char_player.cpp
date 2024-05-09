@@ -29,7 +29,7 @@
 
 
 long GetExpUntilNextLvl(CharData *ch, int level);
-extern std::vector<City> cities;
+extern std::vector<City> Cities;
 extern std::string default_str_cities;
 namespace {
 
@@ -175,10 +175,6 @@ void Player::set_last_tell(const char *text) {
 	}
 }
 
-void Player::str_to_cities(std::string str) {
-	decltype(cities) tmp_bitset(str);
-	this->cities = tmp_bitset;
-}
 
 int Player::get_hryvn() {
 	return this->hryvn;
@@ -278,10 +274,28 @@ bool Player::check_city(const size_t index) {
 	return false;
 }
 
+void Player::str_to_cities(std::string str) {
+	std::reverse(str.begin(), str.end());
+
+	this->cities.clear();
+	for (auto &it : str) {
+		if (it == '1')
+			this->cities.push_back(true);
+		else
+			this->cities.push_back(false);
+	}
+}
+
 std::string Player::cities_to_str() {
-	std::string return_value;
-	boost::to_string(this->cities, return_value);
-	return return_value;
+	std::string value = "";
+
+	for (auto it : reverse(this->cities)) {
+		if (it)
+			value += "1";
+		else
+			value += "0";
+	}
+	return value;
 }
 
 std::string const &Player::get_last_tell() {
@@ -1339,16 +1353,16 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				else if (!strcmp(tag, "Cits")) {
 					std::string buffer_cities = std::string(line);
 					// это на тот случай, если вдруг количество городов поменялось
-					if (buffer_cities.size() != ::cities.size()) {
+					if (buffer_cities.size() != Cities.size()) {
 						// если меньше
-						if (buffer_cities.size() < ::cities.size()) {
+						if (buffer_cities.size() < Cities.size()) {
 							const size_t b_size = buffer_cities.size();
 							// то добиваем нулями
-							for (unsigned int i = 0; i < ::cities.size() - b_size; i++)
+							for (unsigned int i = 0; i < Cities.size() - b_size; i++)
 								buffer_cities += "0";
 						} else {
 							// режем строку
-							buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - ::cities.size()));
+							buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - Cities.size()));
 						}
 					}
 					this->str_to_cities(std::string(buffer_cities));

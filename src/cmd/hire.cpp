@@ -4,6 +4,8 @@
 #include "handler.h"
 #include "structs/global_objects.h"
 
+#include <cmath>
+
 constexpr short MAX_HIRE_TIME = 10080 / 2;
 constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
 

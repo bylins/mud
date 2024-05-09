@@ -16,6 +16,8 @@
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/named_stuff.h"
 
+#include <cmath>
+
 extern int bank(CharData *, void *, int, char *);
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);

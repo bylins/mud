@@ -7,6 +7,8 @@
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
 
+#include <cmath>
+
 void DoSpells(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;

@@ -48,7 +48,7 @@ void PerformDropGold(CharData *ch, int amount);
 int invalid_unique(CharData *ch, const ObjData *obj);
 void do_entergame(DescriptorData *d);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
-extern std::vector<City> cities;
+extern std::vector<City> Cities;
 extern int global_uid;
 extern void change_leader(CharData *ch, CharData *vict);
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
@@ -336,8 +336,8 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
-	for (unsigned int i = 0; i < cities.size(); i++) {
-		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum) {
+	for (unsigned int i = 0; i < Cities.size(); i++) {
+		if (GET_ROOM_VNUM(room) == Cities[i].rent_vnum) {
 			ch->mark_city(i);
 			break;
 		}
@@ -403,8 +403,8 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 //			ch->desc->msdp_report("ROOM");
 //	}
 
-	for (unsigned int i = 0; i < cities.size(); i++) {
-		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum) {
+	for (unsigned int i = 0; i < Cities.size(); i++) {
+		if (GET_ROOM_VNUM(room) == Cities[i].rent_vnum) {
 			ch->mark_city(i);
 			break;
 		}

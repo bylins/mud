@@ -12,7 +12,7 @@
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/guilds.h"
 
-extern std::vector<City> cities;
+extern std::vector<City> Cities;
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);
@@ -574,8 +574,8 @@ void print_map(CharData *ch, CharData *imm) {
 	MAX_LENGTH = MAX_LENGTH_STANDART;
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
 	if (ch->map_check_option(MAP_MODE_BIG)) {
-		for (unsigned int i = 0; i < cities.size(); i++) {
-			if (GetZoneVnumByCharPlace(ch) == cities[i].rent_vnum / 100) {
+		for (unsigned int i = 0; i < Cities.size(); i++) {
+			if (GetZoneVnumByCharPlace(ch) == Cities[i].rent_vnum / 100) {
 				MAX_LINES = MAX_LINES_BIG;
 				MAX_LENGTH = MAX_LENGTH_BIG;
 				MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_BIG;
