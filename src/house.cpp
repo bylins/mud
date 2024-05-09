@@ -5475,8 +5475,6 @@ void Clan::house_web_url(CharData *ch, const std::string &buffer) {
 	std::istringstream tmp(buffer);
 	std::string url;
 	tmp >> url;
-//	url.erase(boost::remove_if(url, boost::is_any_of("$\\")), url.end());
-//	boost::erase_all(url, "$");
 
 	if (url.size() > MAX_URL_LENGTH) {
 		url = url.substr(0, MAX_URL_LENGTH);

@@ -10,8 +10,6 @@
 #include "interpreter.h"
 #include "comm.h"
 
-#include <boost/crc.hpp>
-
 bool need_warn = true;
 namespace FileCRC {
 void add_message(const char *text, ...) __attribute__((format(printf, 1, 2)));
@@ -50,11 +48,25 @@ void add_message(const char *text, ...) {
 	message += out + std::string("\r\n");
 }
 
+unsigned int CRC32_function(const char *buf, unsigned long len) {
+	unsigned long crc_table[256];
+	unsigned long crc;
+	for (int i = 0; i < 256; i++)
+	{
+		crc = i;
+		for (int j = 0; j < 8; j++)
+			crc = crc & 1 ? (crc >> 1) ^ 0xEDB88320UL : crc >> 1;
+		crc_table[i] = crc;
+	};
+	crc = 0xFFFFFFFFUL;
+	while (len--)
+	crc = crc_table[(crc ^ *buf++) & 0xFF] ^ (crc >> 8);
+	return crc ^ 0xFFFFFFFFUL;
+}
+
 // * Подсчет crc для строки.
 uint32_t calculate_str_crc(const std::string &text) {
-	boost::crc_32_type crc;
-	crc = std::for_each(text.begin(), text.end(), crc);
-	return crc();
+	return CRC32_function(text.c_str(), text.size());
 }
 
 // * Подсчет crc для файла.
