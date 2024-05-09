@@ -3,9 +3,6 @@
 // Part of Bylins http://www.bylins.su
 
 #include "title.h"
-
-#include <boost/algorithm/string.hpp>
-
 #include "entities/char_player.h"
 #include "game_fight/pk.h"
 #include "handler.h"
@@ -221,20 +218,20 @@ bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 * \return 0 не сканало, 1 сканало
 */
 bool TitleSystem::check_pre_title(std::string text, CharData *ch) {
-	if (!check_alphabet(text, ch, " .-?Ёё")) return 0;
+	if (!check_alphabet(text, ch, " .-?Ёё")) 
+		return 0;
 
-	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) return 1;
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) 
+		return 1;
 
 	if (!GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
 		return 0;
 	}
-
+	std::vector<std::string> list = utils::Split(text);
 	int word = 0, prep = 0;
-	typedef boost::split_iterator<std::string::iterator> split_it;
-	for (split_it it = boost::make_split_iterator(text, boost::first_finder(" ", boost::is_iequal())); it != split_it();
-		 ++it) {
-		if (boost::copy_range<std::string>(*it).size() > 3)
+	for (auto it : list) {
+		if (it.size() > 3)
 			++word;
 		else
 			++prep;
