@@ -9,7 +9,6 @@
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
 
 using namespace ExtMoney;
 using namespace Remort;

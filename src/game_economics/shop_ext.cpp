@@ -10,7 +10,6 @@
 #include "house.h"
 #include "game_economics/shops_implementation.h"
 
-#include <boost/algorithm/string.hpp>
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
 extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);

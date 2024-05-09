@@ -1,10 +1,7 @@
 #include "fight_extra_attack.h"
-
 #include "entities/char_data.h"
 #include "game_magic/spells.h"
 #include "utils/utils.h"
-
-#include <boost/algorithm/string.hpp>
 
 WeaponMagicalAttack::WeaponMagicalAttack(CharacterData *ch) { ch_ = ch; }
 

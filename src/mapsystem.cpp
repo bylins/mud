@@ -3,7 +3,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "boost/multi_array.hpp"
-#include <boost/algorithm/string.hpp>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "act_movement.h"
@@ -894,8 +893,7 @@ const char *message =
 	"   &Wкарта справка|помощь&n - вывод данной справки\r\n";
 
 bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_OPTIONS> &bits, bool flag) {
-	std::vector<std::string> str_list;
-	boost::split(str_list, str, boost::is_any_of(","), boost::token_compress_on);
+	std::vector<std::string> str_list = utils::Split(str, ',');
 	bool error = false;
 
 	for (std::vector<std::string>::const_iterator k = str_list.begin(),

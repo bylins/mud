@@ -5,8 +5,6 @@
 #include "help.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
 
 #include "obj_prototypes.h"
 #include "modify.h"
@@ -412,13 +410,11 @@ void process() {
 		std::string set_name = "актив";
 		if (it.second.get_alias().empty()) {
 			set_name += it.second.get_name();
-			set_name.erase(boost::remove_if(set_name, boost::is_any_of(" ,.")), set_name.end());
-			HelpSystem::add_static(set_name, out.str(), 0, true);
+			HelpSystem::add_static(utils::EraseAllAny(set_name, " ,."), out.str(), 0, true);
 		} else {
 			std::string alias = it.second.get_alias();
 			for (auto & k : utils::Split(alias, ',')) {
-				k.erase(boost::remove_if(k, boost::is_any_of(" ,.")), k.end());
-				HelpSystem::add_static(set_name + "сет" + k, out.str(), 0, true);
+				HelpSystem::add_static(set_name + "сет" + utils::EraseAllAny(k, " ,."), out.str(), 0, true);
 			}
 		}
 	}

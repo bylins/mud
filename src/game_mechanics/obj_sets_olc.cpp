@@ -9,8 +9,6 @@
 #include <array>
 #include <algorithm>
 
-#include <boost/algorithm/string.hpp>
-
 #include "obj_prototypes.h"
 #include "conf.h"
 #include "obj_sets_stuff.h"
@@ -1093,9 +1091,8 @@ void sedit::parse_obj_add(CharData *ch, const char *arg) {
 		return;
 	}
 
-	std::vector<std::string> vnum_list;
-	boost::split(vnum_list, arg, boost::is_any_of(" "),
-				 boost::token_compress_on);
+	std::vector<std::string> vnum_list = utils::Split(arg);
+
 	for (auto i = vnum_list.begin(); i != vnum_list.end(); ++i) {
 		const int vnum = atoi(i->c_str());
 		const int rnum = real_object(vnum);

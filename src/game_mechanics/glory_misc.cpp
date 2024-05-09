@@ -3,9 +3,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_misc.h"
-
-#include <boost/algorithm/string.hpp>
-
 #include "glory.h"
 #include "glory_const.h"
 #include "genchar.h"

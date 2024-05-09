@@ -11,7 +11,6 @@
 #include "structs/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
 
 namespace obj_sets {
 
@@ -1018,8 +1017,7 @@ void init_xhelp() {
 			bool first = true;
 			std::string name = "актив";
 			std::vector<std::string> str_list;
-			boost::split(str_list, sets_list.at(i)->alias,
-						 boost::is_any_of(", "), boost::token_compress_on);
+			str_list = utils::SplitAny(sets_list.at(i)->alias, ", ");
 			for (auto & k : str_list) {
 				if (first) {
 					sets_list.at(i)->help = name + k;

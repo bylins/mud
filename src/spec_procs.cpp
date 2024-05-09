@@ -12,7 +12,6 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include <boost/algorithm/string.hpp>
 
 #include "act_movement.h"
 #include "utils/utils_char_obj.inl"
