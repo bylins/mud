@@ -130,6 +130,31 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 	}
 }
 
+std::string ReplaceSymbol(std::string s, const char ToSearch, const char Replacer) {
+	for (char &it: s) {
+		if (it == ToSearch) {
+			it = Replacer;
+		}
+	}
+	return s;
+}
+
+std::string ReplaceAny(std::string s, std::string any) {
+	if (any.size() == 1)
+		return s;
+	size_t i = 1;
+
+	while (i < any.size()) {
+		s = ReplaceSymbol(s, any[i], any[0]);
+		i++;
+	}
+		return s;
+}
+
+std::vector<std::string> SplitAny(const std::string s, std::string any) {
+	return Split(ReplaceAny(s, any), any[0]);
+}
+
 std::vector<std::string> Split(const std::string s, char delimiter) {
 	std::string token;
 	std::istringstream tokens_stream(s);

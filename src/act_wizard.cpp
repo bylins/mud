@@ -87,7 +87,6 @@
 #include "game_magic/magic_rooms.h"
 #include "olc/olc.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <iomanip>
 #include <fstream>
@@ -3888,15 +3887,15 @@ std::string print_role(CharData *mob) {
 }
 
 std::string print_flag(CharData *ch, CharData *mob, const std::string &options) {
-	std::vector<std::string> option_list;
-	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
+	std::vector<std::string> option_list = utils::SplitAny(options, ",. ");
 	auto out = fmt::memory_buffer();
 
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
 			format_to(std::back_inserter(out), " [раса: {}{}{} ]",
 					CCCYN(ch, C_NRM), print_race(mob), CCNRM(ch, C_NRM));
-		} else if (isname(i, "role")) {
+		}
+		if (isname(i, "role")) {
 			format_to(std::back_inserter(out), " [роли: {}{}{} ]",
 					CCCYN(ch, C_NRM), print_role(mob), CCNRM(ch, C_NRM));
 		} 
@@ -3908,6 +3907,7 @@ std::string print_flag(CharData *ch, CharData *mob, const std::string &options) 
 
 void print(CharData *ch, int first, int last, const std::string &options) {
 	auto out = fmt::memory_buffer();
+
 	format_to(std::back_inserter(out), "Список мобов от {} до {}\r\n", first, last);
 	int cnt = 0;
 	for (int i = 0; i <= top_of_mobt; ++i) {
@@ -3976,7 +3976,6 @@ int print_olist(const CharData *ch, const int first, const int last, std::string
 }
 
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
-
 	int first, last, nr, found = 0;
 
 	argument = two_arguments(argument, buf, buf2);
@@ -4068,6 +4067,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			if (*buf2 && !a_isdigit(buf2[0])) {
 				option = buf2;
 			}
+			option += " ";
 			option += argument;
 			Mlist::print(ch, first, last, option);
 			return;

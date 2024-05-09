@@ -120,6 +120,15 @@ void ConvertToLow(char *text);
  */
 std::vector<std::string> Split(const std::string s, char delimiter = ' ');
 
+/**
+ * Разделить строку на элементы по разделителю и записать в вектор tokens.
+ * аналог 	boost::split(option_list, options, boost::is_any_of(", "), boost::token_compress_on);
+ * @param tokens - приемный вектор.
+ * @param s - разделяемая строка.
+ * @param any - символы-разделители, пример ",- "
+ */
+std::vector<std::string> SplitAny(const std::string s, std::string any);
+
 // аналог one_argument для string
 // s - разделяемая строка
 // возвращает первое слово, в remains остаток, если нет пробелов то строки пустые
