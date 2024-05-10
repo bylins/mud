@@ -2347,7 +2347,7 @@ ObjData *get_object_in_equip_vis(CharData *ch, const char *arg, ObjData *equipme
  * describes what it filled in.
  */
 int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch, ObjData **tar_obj) {
-	char name[256];
+	char name[kMaxInputLength];
 
 	*tar_ch = nullptr;
 	*tar_obj = nullptr;
@@ -2357,6 +2357,8 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 
+	if (strlen(arg) > 256)
+		return 0;
 	one_argument(arg, name);
 
 	if (!*name)

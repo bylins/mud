@@ -2,6 +2,7 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "boost/multi_array.hpp"
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "act_movement.h"
@@ -40,46 +41,14 @@ const int MAX_DEPTH_ROOM_BIG = 10;
 const size_t MAX_LINES_BIG = MAX_DEPTH_ROOM_BIG * 4 + 1;
 const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 
-template <typename T>
-class MultiArray {
-public:
-    MultiArray(size_t rows, size_t cols) : rows(rows), cols(cols), data(rows * cols) {}
-
-    T& operator()(size_t row, size_t col) {
-        return data[row * cols + col];
-    }
-
-    const T& operator()(size_t row, size_t col) const {
-        return data[row * cols + col];
-    }
-
-    size_t Rows() const {
-        return rows;
-    }
-
-    size_t Cols() const {
-        return cols;
-    }
-
-private:
-    size_t rows;
-    size_t cols;
-    std::vector<T> data;
-};
-
 // поле для отрисовки
 //int screen[MAX_LINES][MAX_LENGHT];
-
-//boost::multi_array<int, 2> screen(boost::extents[MAX_LINES_BIG][MAX_LENGTH_BIG]);
-MultiArray<int> screen(MAX_LINES_BIG, MAX_LENGTH_BIG);
-
+int screen[MAX_LINES_BIG][MAX_LENGTH_BIG];
 // копия поля для хранения глубины текущей отрисовки по нужным координатам
 // используется для случаев наезжания комнат друг на друга, в этом случае
 // ближняя затирает более дальнюю и все остальные после нее
-//int depths[MAX_LINES][MAX_LENGHT];
-
-//boost::multi_array<int, 2> depths(boost::extents[MAX_LINES_BIG][MAX_LENGTH_BIG]);
-MultiArray<int> depths(MAX_LINES_BIG, MAX_LENGTH_BIG);
+//int depths[MAX_LINES][MAX_LENGHT]
+int depths[MAX_LINES_BIG][MAX_LENGTH_BIG];
 
 enum {
 	// свободный проход
@@ -252,37 +221,37 @@ void put_on_screen(unsigned y, unsigned x, int num, int depth) {
 		log("SYSERROR: %d;%d (%s %s %d)", y, x, __FILE__, __func__, __LINE__);
 		return;
 	}
-	if (depths(y, x) == -1) {
+	if (depths[y][x] == -1) {
 		// поле было чистое
-		screen(y, x) = num;
-		depths(y, x) = depth;
-	} else if (depths(y, x) > depth) {
+		screen[y][x] = num;
+		depths[y][x] = depth;
+	} else if (depths[y][x] > depth) {
 		// уже что-то было отрисовано
-		if (screen(y, x) == num) {
+		if (screen[y][x] == num) {
 			// если тот же самый символ,
 			// то надо обновить глубину на случай последующих затираний
-			depths(y, x) = depth;
+			depths[y][x] = depth;
 		} else {
 			// другой символ и меньшая глубина
 			// затираем все символы этой и далее глубины
 			// и поверх рисуем текущий символ
-			const int hide_num = depths(y, x);
+			const int hide_num = depths[y][x];
 			for (unsigned i = 0; i < MAX_LINES; ++i) {
 				for (unsigned k = 0; k < MAX_LENGTH; ++k) {
-					if (depths(i, k) >= hide_num) {
-						screen(i, k) = -1;
-						depths(i, k) = -1;
+					if (depths[i][k] >= hide_num) {
+						screen[i][k] = -1;
+						depths[i][k] = -1;
 					}
 				}
 			}
-			screen(y, x) = num;
-			depths(y, x) = depth;
+			screen[y][x] = num;
+			depths[y][x] = depth;
 		}
-	} else if ((screen(y, x) >= SCREEN_UP_OPEN && screen(y, x) <= SCREEN_UP_WALL)
-		|| (screen(y, x) >= SCREEN_DOWN_OPEN && screen(y, x) <= SCREEN_DOWN_WALL)) {
+	} else if ((screen[y][x] >= SCREEN_UP_OPEN && screen[y][x] <= SCREEN_UP_WALL)
+		|| (screen[y][x] >= SCREEN_DOWN_OPEN && screen[y][x] <= SCREEN_DOWN_WALL)) {
 		// выходы ^ и v затираются, если есть чем
-		screen(y, x) = num;
-		depths(y, x) = depth;
+		screen[y][x] = num;
+		depths[y][x] = depth;
 	}
 }
 
@@ -616,8 +585,8 @@ void print_map(CharData *ch, CharData *imm) {
 	}
 	for (unsigned i = 0; i < MAX_LINES; ++i) {
 		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
-			screen(i, k) = -1;
-			depths(i, k) = -1;
+			screen[i][k] = -1;
+			depths[i][k] = -1;
 		}
 	}
 	check_dupe.clear();
@@ -634,32 +603,32 @@ void print_map(CharData *ch, CharData *imm) {
 		bool found = false;
 
 		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
-			if (screen(i, k) > -1 && screen(i, k) < SCREEN_TOTAL) {
+			if (screen[i][k] > -1 && screen[i][k] < SCREEN_TOTAL) {
 				found = true;
 
-				if (screen(i, k) == SCREEN_CHAR) {
+				if (screen[i][k] == SCREEN_CHAR) {
 					char_line = i;
 				}
 
-				if (screen(i, k) >= SCREEN_Y_OPEN
-					&& screen(i, k) <= SCREEN_Y_WALL
+				if (screen[i][k] >= SCREEN_Y_OPEN
+					&& screen[i][k] <= SCREEN_Y_WALL
 					&& k + 1 < MAX_LENGTH && k >= 1) {
-					if (screen(i, k + 1) > -1
-						&& screen(i, k + 1) != SCREEN_UP_WALL) {
-						screen(i, k - 1) = screen(i, k) + SCREEN_Y_UP_OPEN;
-						screen(i, k) = SCREEN_EMPTY;
-					} else if (screen(i, k - 1) > -1
-						&& screen(i, k - 1) != SCREEN_DOWN_WALL) {
-						screen(i, k) += SCREEN_Y_DOWN_OPEN;
-						screen(i, k + 1) = SCREEN_EMPTY;
+					if (screen[i][k + 1] > -1
+						&& screen[i][k + 1] != SCREEN_UP_WALL) {
+						screen[i][k - 1] = screen[i][k] + SCREEN_Y_UP_OPEN;
+						screen[i][k] = SCREEN_EMPTY;
+					} else if (screen[i][k - 1] > -1
+						&& screen[i][k - 1] != SCREEN_DOWN_WALL) {
+						screen[i][k] += SCREEN_Y_DOWN_OPEN;
+						screen[i][k + 1] = SCREEN_EMPTY;
 					} else {
-						screen(i, k - 1) = screen(i, k);
-						screen(i, k) = SCREEN_EMPTY;
-						screen(i, k + 1) = SCREEN_EMPTY;
+						screen[i][k - 1] = screen[i][k];
+						screen[i][k] = SCREEN_EMPTY;
+						screen[i][k + 1] = SCREEN_EMPTY;
 					}
-				} else if (screen(i, k) >= SCREEN_Y_OPEN
-					&& screen(i, k) <= SCREEN_Y_WALL) {
-					screen(i, k) = SCREEN_EMPTY;
+				} else if (screen[i][k] >= SCREEN_Y_OPEN
+					&& screen[i][k] <= SCREEN_Y_WALL) {
+					screen[i][k] = SCREEN_EMPTY;
 					SendMsgToChar("Ошибка при генерации карты (1), сообщите богам!\r\n", ch);
 				}
 			}
@@ -709,11 +678,11 @@ void print_map(CharData *ch, CharData *imm) {
 		//if (ch->map_check_option(MAP_MODE_BIG))
 		//	k = 10;
 		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
-			if (screen(i, k) <= -1) {
+			if (screen[i][k] <= -1) {
 				out += " ";
-			} else if (screen(i, k) < SCREEN_TOTAL
-				&& screen(i, k) != SCREEN_EMPTY) {
-				out += signs[screen(i, k)];
+			} else if (screen[i][k] < SCREEN_TOTAL
+				&& screen[i][k] != SCREEN_EMPTY) {
+				out += signs[screen[i][k]];
 			}
 		}
 		out += "\r\n";
