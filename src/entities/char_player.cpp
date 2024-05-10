@@ -275,10 +275,8 @@ bool Player::check_city(const size_t index) {
 }
 
 void Player::str_to_cities(std::string str) {
-	std::reverse(str.begin(), str.end());
-
 	this->cities.clear();
-	for (auto &it : str) {
+	for (auto &it : reverse(str)) {
 		if (it == '1')
 			this->cities.push_back(true);
 		else

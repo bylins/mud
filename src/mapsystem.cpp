@@ -43,12 +43,12 @@ const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 
 // поле для отрисовки
 //int screen[MAX_LINES][MAX_LENGHT];
-boost::multi_array<int, 2> screen(boost::extents[MAX_LINES_BIG][MAX_LENGTH_BIG]);
+int screen[MAX_LINES_BIG][MAX_LENGTH_BIG];
 // копия поля для хранения глубины текущей отрисовки по нужным координатам
 // используется для случаев наезжания комнат друг на друга, в этом случае
 // ближняя затирает более дальнюю и все остальные после нее
-//int depths[MAX_LINES][MAX_LENGHT];
-boost::multi_array<int, 2> depths(boost::extents[MAX_LINES_BIG][MAX_LENGTH_BIG]);
+//int depths[MAX_LINES][MAX_LENGHT]
+int depths[MAX_LINES_BIG][MAX_LENGTH_BIG];
 
 enum {
 	// свободный проход
