@@ -421,7 +421,7 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Reload proxy ban",
 							 5 * 60 * kPassesPerSec,
 							 36,
-							 std::make_shared<SimpleCall>([]() { ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE); })),
+							 std::make_shared<SimpleCall>([]() { ban->reload_proxy_ban(); })),
 		Heartbeat::PulseStep("God work invoice",
 							 5 * 60 * kPassesPerSec,
 							 35,
