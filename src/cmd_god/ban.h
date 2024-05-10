@@ -49,8 +49,6 @@ class BanList {
 		ban_filename;
 	static const char *const
 		proxy_ban_filename;
-	static const char *const
-		proxy_ban_filename_tmp;
 	static const int
 		BAN_NO = 0;
 	static const int
@@ -99,36 +97,26 @@ class BanList {
 	int
 	is_banned(std::string Ip);
 	bool reload_ban();
-	bool reload_proxy_ban(int mode);
+	bool reload_proxy_ban();
 	bool save_ip();
 	bool save_proxy();
-	void
-	sort_ip(int sort_algorithm);
-	void
-	sort_proxy(int sort_algorithm);
+	void sort_ip(int sort_algorithm);
+	void sort_proxy(int sort_algorithm);
 	bool empty_ip();
 	bool empty_proxy();
-	void
-	clear_all();
-	void
-	purge_obsolete();
-	void
-	disconnectBannedIp(std::string Ip);
+	void clear_all();
+	void purge_obsolete();
+	void disconnectBannedIp(std::string Ip);
 //////////////////////////////////////////////////////////////////////////////
-	void
-	ShowBannedIp(int sort_mode, CharData *ch);
-	void
-	ShowBannedProxy(int sort_mode, CharData *ch);
-	void
-	ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask);
+	void ShowBannedIp(int sort_mode, CharData *ch);
+	void ShowBannedProxy(int sort_mode, CharData *ch);
+	void ShowBannedIpByMask(int sort_mode, CharData *ch, const char *mask);
 //////////////////////////////////////////////////////////////////////////////
  private:
 	std::list<BanNodePtr> Ban_List;
 	std::list<ProxyBanNodePtr> Proxy_Ban_List;
-	int
-		current_sort_algorithm;
-	int
-		current_proxy_sort_algorithm;
+	int current_sort_algorithm;
+	int current_proxy_sort_algorithm;
 	bool ban_compare(BanNodePtr nodePtr, int mode, const void *op2);
 	bool proxy_ban_compare(ProxyBanNodePtr nodePtr, int mode, const void *op2);
 	bool ban_sort_func(const BanNodePtr &lft, const BanNodePtr &rght, int sort_algorithm);

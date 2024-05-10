@@ -54,8 +54,6 @@
 #include <iconv.h>
 #endif
 
-#include <boost/algorithm/string/trim.hpp>
-
 #include <vector>
 #include <string>
 #include <fstream>

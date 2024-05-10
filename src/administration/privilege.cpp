@@ -148,20 +148,51 @@ void insert_default_command(long uid) {
 		parse_command_line(it->second);
 }
 
+
+std::vector<std::string> tokenize(const std::string& str) {
+	std::vector<std::string> tokens;
+	std::istringstream iss(str);
+	std::string token;
+
+	while (iss >> token) {
+		std::string new_token;
+
+		for (char c : token) {
+			if (c == '(' || c == ')') {
+				if (!new_token.empty()) {
+					tokens.push_back(new_token);
+					new_token.clear();
+				}
+				tokens.push_back(std::string(1, c));
+			} else {
+				new_token += c;
+			}
+		}
+		if (!new_token.empty()) {
+			tokens.push_back(new_token);
+		}
+	}
+	return tokens;
+}
 /**
 * Парс строки нагло дернут у Пелена, ибо креативить свой было влом
 * \param other_flags - по дефолту 0 (добавление идет в основной список команд), 1 - добавление в список arena
 * \param commands - строка со списком команд для парса
 */
 void parse_command_line(const std::string &commands, int other_flags) {
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep(" ", "()");
-	tokenizer::iterator tok_iter, tmp_tok_iter;
-	tokenizer tokens(commands, sep);
-
+	std::vector<std::string>::iterator tok_iter, tmp_tok_iter;
+	std::stringstream ss;
 	int fill_mode = 0;
-	tokens.assign(commands);
-	if (tokens.begin() == tokens.end()) return;
+	auto tokens = tokenize(commands);
+
+/*	for (auto it : tokens) {
+		ss << it << "|";
+	}
+	ss << "\r\n";
+	mudlog(ss.str(), CMP, kLvlImmortal, SYSLOG, true);
+*/
+	if (tokens.begin() == tokens.end()) 
+		return;
 	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
 		if ((*tok_iter) == "(") {
 			if ((*tmp_tok_iter) == "set") {
