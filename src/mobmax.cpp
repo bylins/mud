@@ -107,12 +107,14 @@ void MobMax::refresh(int level) {
 
 // * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
 void MobMax::add(CharData *ch, int vnum, int count, int level) {
+	if (vnum >= ZoneStartDungeons * 100) {
+		return;
+	}
 	if (ch->IsNpc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
-	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-										   [&](const mobmax_data &data) {
-											   return data.vnum == vnum;
-										   });
+	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		it->count += count;
@@ -125,29 +127,35 @@ void MobMax::add(CharData *ch, int vnum, int count, int level) {
 
 // * Версия add без лишних расчетов для инита во время загрузки персонажа.
 void MobMax::load(CharData *ch, int vnum, int count, int level) {
-	if (ch->IsNpc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
-
+	if (ch->IsNpc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) {
+		return;
+	}
 	mobmax_data tmp_data(vnum, count, level);
 	mobmax_.push_front(tmp_data);
 }
 
 // * Удаление замакса по указанному мобу vnum.
 void MobMax::remove(int vnum) {
-	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-										   [&](const mobmax_data &data) {
-											   return data.vnum == vnum;
-										   });
-
+	if (vnum >= ZoneStartDungeons * 100) {
+		return;
+	}
+	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
+		return data.vnum == vnum;
+	});
 	if (it != mobmax_.end())
 		mobmax_.erase(it);
 }
 
 // * Возвращает кол-во убитых мобов данного vnum.
 int MobMax::get_kill_count(int vnum) const {
-	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-												 [&](const mobmax_data &data) {
-													 return data.vnum == vnum;
-												 });
+	if (vnum >= ZoneStartDungeons * 100) {
+		ZoneVnum zvn = vnum / 100;
+		MobVnum  mvn = vnum % 100;
+		vnum = zone_table[real_zone(zvn)].copy_from_zone * 100 + mvn;
+	}
+	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		return it->count;

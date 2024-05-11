@@ -369,7 +369,7 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 }
 
 
-ZoneVnum ZoneCopy(ZoneVnum zvn_from) {
+ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ZoneVnum zvn_to;
 	RoomRnum rnum_start, rnum_stop;
 	ZoneRnum zrn_from = real_zone(zvn_from);
@@ -423,7 +423,7 @@ ZoneVnum ZoneCopy(ZoneVnum zvn_from) {
 	zone_table[zrn_to].under_construction = true;
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	return zone_table[zrn_to].vnum;
+	return zrn_to;
 }
 
 void DoZoneCopy(CharData *, char *argument, int, int) {

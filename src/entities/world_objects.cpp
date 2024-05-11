@@ -113,16 +113,15 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 			new_object->set_extra_flag(EObjFlag::kTransformed);
 			new_object->set_extra_flag(EObjFlag::kNosell);
 		}
-
 		new_object->clear_proto_script();
-
 		const auto id = max_id.allocate();
+
 		new_object->set_id(id);
 		if (new_object->get_type() == EObjType::kLiquidContainer) {
 			if (new_object->get_val(1) > 0) {
 				name_from_drinkcon(new_object.get());
 				name_to_drinkcon(new_object.get(), new_object->get_val(2));
-			}
+				}
 		}
 
 		assign_triggers(new_object.get(), OBJ_TRIGGER);
@@ -140,6 +139,9 @@ ObjData::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(ObjRnum rnum
 
 	auto new_object = std::make_shared<ObjData>(*obj_proto[rnum]);
 	obj_proto.inc_number(rnum);
+	if (obj_proto[rnum]->GetParent() > 0) {
+		new_object->set_parent(obj_proto[rnum]->GetParent());
+	}
 	world_objects.add(new_object);
 
 	return new_object;

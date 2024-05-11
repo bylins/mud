@@ -3185,7 +3185,6 @@ void renum_single_table(int zone) {
 void renum_zone_table(void) {
 	for (ZoneRnum zone = 0; zone < static_cast<ZoneRnum>(zone_table.size()); zone++) {
 		renum_single_table(zone);
-		zone_table[zone].entrance = real_room(zone_table[zone].entrance);
 	}
 }
 
@@ -4905,12 +4904,13 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	auto &zone_to = zone_table[zrn_to];
 
 	zone_to.name = zone_from.name;
-	zone_to.entrance = zone_to.vnum + zone_from.entrance % 100;
+	zone_to.entrance = zone_to.vnum * 100 + zone_from.entrance % 100;
 	zone_to.comment = zone_from.comment;
 	zone_to.location = zone_from.location;
 	zone_to.author = zone_from.author;
 	zone_to.description = zone_from.description;
 	zone_to.level = zone_from.level;
+	zone_to.mob_level = zone_from.mob_level;
 	zone_to.type = zone_from.type;
 	zone_to.top = zone_to.vnum * 100 + 99;
 	zone_to.reset_mode = 0; //самостоятельно не ресетится
