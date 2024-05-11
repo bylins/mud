@@ -1778,7 +1778,7 @@ void find_replacement(void *go,
 				if (num >= 0)
 					sprintf(str, "%d", num);
 			} else if (!str_cmp(field, "createdungeon") && num > 0) {
-				sprintf(str, "%d", ZoneCopy(num));
+				sprintf(str, "%d", zone_table[ZoneCopy(num)].vnum);
 			} else if (!str_cmp(field, "isdungeon") && num > 0) {
 				sprintf(str, "%d", zone_table[real_zone(num)].copy_from_zone);
 			} else if (!str_cmp(field, "entrance") && num > 0) {
