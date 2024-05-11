@@ -16,6 +16,7 @@
 // these factors should be unique integers
 const int RENT_FACTOR = 1;
 const int CRYO_FACTOR = 4;
+extern ZoneVnum ZoneStartDungeons;
 
 struct SaveRentInfo {
 	SaveRentInfo() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
