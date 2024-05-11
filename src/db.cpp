@@ -4796,8 +4796,10 @@ void ZoneDataFree(ZoneRnum zrn) {
 			free(zone_table[zrn].cmd[subcmd].sarg2);
 		}
 	}
-	free(zone_table[zrn].cmd);
-	zone_table[zrn].cmd = nullptr;
+	if (zone_table[zrn].cmd) {
+		free(zone_table[zrn].cmd);
+		zone_table[zrn].cmd = nullptr;
+	}
 	if (zone_table[zrn].typeA_count) {
 		zone_table[zrn].typeA_count = 0;
 		free(zone_table[zrn].typeA_list);
@@ -4921,7 +4923,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
 	zone_to.group = zone_from.group;
-	if (zone_to.typeA_count) {
+/*	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
 	}
 	for (i = 0; i < zone_to.typeA_count; i++) {
@@ -4934,24 +4936,26 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	for (i = 0; i < zone_to.typeB_count; i++) {
 		zone_to.typeB_list[i] = zone_from.typeB_list[i];
 	}
-	for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
-	CREATE(zone_to.cmd, count + 1); //почистить
-
-	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
-		zone_to.cmd[subcmd].command = zone_from.cmd[subcmd].command;
-		zone_to.cmd[subcmd].if_flag = zone_from.cmd[subcmd].if_flag;
-		zone_to.cmd[subcmd].arg1 = zone_from.cmd[subcmd].arg1;
-		zone_to.cmd[subcmd].arg2 = zone_from.cmd[subcmd].arg2;
-		zone_to.cmd[subcmd].arg3 = zone_from.cmd[subcmd].arg3;
-		zone_to.cmd[subcmd].arg4 = zone_from.cmd[subcmd].arg4;
-		if (zone_from.cmd[subcmd].sarg1) {
-			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg1); //почистить
+*/
+	if (zone_from.cmd) {
+		for (count = 0; zone_from.cmd[count].command != 'S'; ++count);
+		CREATE(zone_to.cmd, count + 1); //почистить
+		for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
+			zone_to.cmd[subcmd].command = zone_from.cmd[subcmd].command;
+			zone_to.cmd[subcmd].if_flag = zone_from.cmd[subcmd].if_flag;
+			zone_to.cmd[subcmd].arg1 = zone_from.cmd[subcmd].arg1;
+			zone_to.cmd[subcmd].arg2 = zone_from.cmd[subcmd].arg2;
+			zone_to.cmd[subcmd].arg3 = zone_from.cmd[subcmd].arg3;
+			zone_to.cmd[subcmd].arg4 = zone_from.cmd[subcmd].arg4;
+			if (zone_from.cmd[subcmd].sarg1) {
+				zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg1); //почистить
+			}
+			if (zone_from.cmd[subcmd].sarg2) {
+				zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg2); //почистить
+			}
 		}
-		if (zone_from.cmd[subcmd].sarg2) {
-			zone_to.cmd[subcmd].sarg1 = str_dup(zone_from.cmd[subcmd].sarg2); //почистить
-		}
+		zone_to.cmd[subcmd].command = 'S';
 	}
-	zone_to.cmd[subcmd].command = 'S';
 	ZoneTransformCMD(zrn_to, zrn_from);
 
 /*
