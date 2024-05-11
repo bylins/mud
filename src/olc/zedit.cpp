@@ -464,7 +464,7 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 			zone_table[zone_num].level,
 			zone_table[zone_num].type,
 			zone_table[zone_num].group,
-			world[zone_table[zone_num].entrance]->vnum,
+			zone_table[zone_num].entrance,
 			zone_table[zone_num].top,
 			zone_table[zone_num].lifespan,
 			zone_table[zone_num].reset_mode,
@@ -944,7 +944,7 @@ void zedit_disp_menu(DescriptorData *d) {
 			 grn, nrm, yel, OLC_ZONE(d)->group, nrm);
 	SendMsgToChar(buf, d->character.get());
 	snprintf(buf, kMaxStringLength, "%sV%s) Стартовая комната зоны     : %s%d%s\r\n",
-			 grn, nrm, yel, world[OLC_ZONE(d)->entrance]->vnum, nrm);
+			 grn, nrm, yel, OLC_ZONE(d)->entrance, nrm);
 	SendMsgToChar(buf, d->character.get());
 	
 	// Print the commands into display buffer.
@@ -2080,9 +2080,9 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		}
 
 		case ZEDIT_ZONE_ENTRANCE: {
-			int num = real_room(atoi(arg));
+			int num = atoi(arg);
 			
-			if (num == kNowhere) {
+			if (real_room(num) == kNowhere) {
 				SendMsgToChar("Такая комната не найдена, повторите ввод:", d->character.get());
 			} else {
 				OLC_ZONE(d)->entrance = num;
