@@ -139,9 +139,6 @@ ObjData::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(ObjRnum rnum
 
 	auto new_object = std::make_shared<ObjData>(*obj_proto[rnum]);
 	obj_proto.inc_number(rnum);
-	if (obj_proto[rnum]->GetParent() > 0) {
-		new_object->set_parent(obj_proto[rnum]->GetParent());
-	}
 	world_objects.add(new_object);
 
 	return new_object;
