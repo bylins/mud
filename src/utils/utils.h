@@ -848,7 +848,6 @@ const int kNameLevel = 5;
 #define GET_OBJ_WEAR(obj)  ((obj)->get_wear_flags())
 #define GET_OBJ_OWNER(obj)      ((obj)->get_owner())
 #define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
-#define GET_OBJ_PARENT(obj)      ((obj)->get_parent())
 #define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
 #define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
 #define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())

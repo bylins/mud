@@ -163,7 +163,7 @@ class CObjectPrototype {
 	CObjectPrototype(const ObjVnum vnum) : m_vnum(vnum),
 										   m_type(DEFAULT_TYPE),
 										   m_weight(DEFAULT_WEIGHT),
-										   m_parent_obj(-1),
+										   m_parent_proto(-1),
 										   m_proto_script(new triggers_list_t()),
 										   m_max_in_world(DEFAULT_MAX_IN_WORLD),
 										   m_vals({0, 0, 0, 0}),
@@ -184,8 +184,8 @@ class CObjectPrototype {
 										   m_ilevel(0),
 										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
-	ObjRnum GetParent() const {return m_parent_obj;}
-	void SetParent(ObjRnum _) {m_parent_obj = _;}
+	ObjRnum GetParentProto() const {return m_parent_proto;}
+	void SetParentProto(ObjRnum _) {m_parent_proto = _;}
 	auto &get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
 	auto get_current_durability() const { return m_current_durability; }
@@ -366,7 +366,7 @@ class CObjectPrototype {
 	int m_weight;
 
 	affected_t m_affected;    // affects //
-	ObjRnum m_parent_obj;
+	ObjRnum m_parent_proto;
 	std::string m_aliases;        // Title of object :get etc.        //
 	std::string m_description;    // When in room                     //
 
@@ -701,7 +701,6 @@ class ObjData : public CObjectPrototype {
 	auto get_next() const { return m_next; }
 	auto get_next_content() const { return m_next_content; }
 	auto get_owner() const { return m_owner; }
-	auto get_parent() const { return m_parent; }
 	auto get_room_was_in() const { return m_room_was_in; }
 	auto get_uid() const { return m_uid; }
 	auto get_worn_by() const { return m_worn_by; }
@@ -729,7 +728,6 @@ class ObjData : public CObjectPrototype {
 	void set_next(ObjData *_) { m_next = _; }
 	void set_next_content(ObjData *_) { m_next_content = _; }
 	void set_owner(const int _) { m_owner = _; }
-	void set_parent(const int _) { m_parent = _; }
 	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_script(const std::shared_ptr<Script> &_) { m_script = _; }
 	void set_script(Script *_);
@@ -774,7 +772,6 @@ class ObjData : public CObjectPrototype {
 	int m_maker;
 	int m_owner;
 	int m_zone_from;
-	int m_parent;        // Vnum for object parent //
 	bool m_is_rename;
 
 	CharData *m_carried_by;    // Carried by :NULL in room/conta   //

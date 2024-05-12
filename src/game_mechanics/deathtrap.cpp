@@ -71,10 +71,8 @@ void deathtrap::activity() {
 
 			if (dmg.Process(i, i) < 0) {
 				char buf_[kMaxInputLength];
-				snprintf(buf_, sizeof(buf_),
-						 "Player %s died in slow DT (room %d)",
-						 name.c_str(), (*it)->vnum);
-				mudlog(buf_, LGH, kLvlImmortal, SYSLOG, true);
+				snprintf(buf_, sizeof(buf_), "Player %s died in slow DT (room %d)", name.c_str(), (*it)->vnum);
+				mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 			}
 		}
 	}

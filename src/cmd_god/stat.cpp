@@ -706,8 +706,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		else
 			SendMsgToChar(ch, ", Создатель : не найден");
 	}
-	if (GET_OBJ_PARENT(j)) {
-		SendMsgToChar(ch, ", Родитель(VNum) : [%d]", obj_proto[GET_OBJ_PARENT(j)]->get_vnum());
+	if (obj_proto[j->get_rnum()]->GetParentProto() > 0) {
+		SendMsgToChar(ch, ", Родитель(VNum) : [%d]", obj_proto[j->get_rnum()]->GetParentProto());
 	}
 	if (GET_OBJ_CRAFTIMER(j) > 0) {
 		SendMsgToChar(ch, ", &Yскрафчена с таймером : [%d]&n", GET_OBJ_CRAFTIMER(j));

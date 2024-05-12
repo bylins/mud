@@ -33,7 +33,6 @@ ObjData::ObjData(const ObjVnum vnum) :
 	m_maker(DEFAULT_MAKER),
 	m_owner(DEFAULT_OWNER),
 	m_zone_from(0),
-	m_parent(DEFAULT_PARENT),
 	m_is_rename(false),
 	m_carried_by(nullptr),
 	m_worn_by(nullptr),
@@ -60,7 +59,6 @@ ObjData::ObjData(const CObjectPrototype &other) :
 	m_maker(DEFAULT_MAKER),
 	m_owner(DEFAULT_OWNER),
 	m_zone_from(0),
-	m_parent(DEFAULT_PARENT),
 	m_is_rename(false),
 	m_carried_by(nullptr),
 	m_worn_by(nullptr),
@@ -1513,7 +1511,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 int GetObjMIW(ObjRnum rnum) {
 	if (rnum < 0)
 		return 0;
-	ObjRnum val = obj_proto[rnum]->GetParent();
+	ObjRnum val = obj_proto[rnum]->GetParentProto();
 
 	if (val < 0)
 		return obj_proto[rnum]->get_max_in_world();

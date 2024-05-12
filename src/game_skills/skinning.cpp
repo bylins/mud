@@ -251,7 +251,6 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 	}
 
 	skin->set_val(3, int(GetRealLevel(mob) / 11)); // установим уровень шкуры, топовая 44+
-	skin->set_parent(GET_MOB_VNUM(mob));
 	trans_obj_name(skin.get(), mob); // переносим падежи
 	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
 	{

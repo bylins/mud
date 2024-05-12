@@ -3295,7 +3295,6 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 				}
 				if (load) {
 					tobj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
-					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN) {
 						trans_obj_name(tobj.get(), ch);
 					}
@@ -4504,7 +4503,7 @@ void TrigDataFree(ZoneRnum zrn) {
 void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	TrgRnum trn_start = zone_table[zrn_from].RnumTrigsLocation.first;
 	TrgRnum trn_stop = zone_table[zrn_from].RnumTrigsLocation.second;
-	TrgRnum trn_to = zone_table[zrn_to].RnumTrigsLocation.first;
+	ZoneVnum zvn_to = zone_table[zrn_to].vnum;
 	std::string replacer = to_string(zone_table[zrn_to].vnum);
 	std::string search = to_string(zone_table[zrn_from].vnum);
 	bool renum = true;
@@ -4521,9 +4520,10 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	}
 	for(int i = trn_start; i <= trn_stop; i++) {
 		Trigger *trig = new Trigger(*trig_index[i]->proto);
-		TrgRnum new_rnum = trig_index[i]->vnum % 100 + trn_to;
+		TrgRnum new_tvn = trig_index[i]->vnum % 100 + zvn_to * 100;
+		TrgRnum new_trn = real_trigger(new_tvn);
 
-		trig->set_rnum(new_rnum);
+		trig->set_rnum(new_trn);
 		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
 		trig->cmdlist->reset(new cmdlist_element());
 		auto c_copy = *trig->cmdlist;
@@ -4540,7 +4540,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			c_copy = c_copy->next;
 		}
 		c_copy->next.reset();
-		trig_index[new_rnum]->proto = trig;
+		trig_index[new_trn]->proto = trig;
 	}
 }
 
@@ -4716,7 +4716,7 @@ void ObjDataFree(ZoneRnum zrn) {
 		if ((orn = real_object(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
 			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
-				const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParent());
+				const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParentProto());
 				if (obj->get_worn_by()) {
 					pos = obj->get_worn_on();
 					wearer = obj->get_worn_by();
@@ -4749,6 +4749,7 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_PName(4, "вооружиться чем");
 			obj->set_PName(5, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+			obj->SetParentProto(-1);
 			obj->clear_proto_script();
 
 		}
@@ -4757,31 +4758,31 @@ void ObjDataFree(ZoneRnum zrn) {
 
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	ObjRnum orn_to, i;
-	ObjVnum new_vnum;
-	ObjData *obj;
+	ObjVnum new_ovn;
+	ObjData *new_obj;
 
 	for (int counter = zone_table[zrn_from].vnum * 100; counter <= zone_table[zrn_from].top; counter++) {
 		if ((i = real_object(counter)) >= 0) {
-			new_vnum = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
-			orn_to = real_object(new_vnum);
-			NEWCREATE(obj, new_vnum);
+			new_ovn = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
+			orn_to = real_object(new_ovn);
+			NEWCREATE(new_obj, new_ovn);
 			const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
-			obj->copy_from(obj_original.get());
-				if (obj->get_type() == EObjType::kLiquidContainer) {
-					name_from_drinkcon(obj);
+			new_obj->copy_from(obj_original.get());
+				if (new_obj->get_type() == EObjType::kLiquidContainer) {
+					name_from_drinkcon(new_obj);
 			}
-			obj->SetParent(obj_original->get_rnum());
-			obj->set_extra_flag(EObjFlag::kNolocate);
-			obj->set_extra_flag(EObjFlag::kNorent);
-			obj->set_extra_flag(EObjFlag::kNosell);
-			obj_proto.replace(obj, orn_to, new_vnum);
+			new_obj->SetParentProto(obj_proto[obj_original->get_rnum()]->get_vnum());
+			new_obj->set_extra_flag(EObjFlag::kNolocate);
+			new_obj->set_extra_flag(EObjFlag::kNorent);
+			new_obj->set_extra_flag(EObjFlag::kNosell);
+			obj_proto.replace(new_obj, orn_to, new_ovn);
 			for (const auto tvn : obj_proto[i]->get_proto_script()) {
 				if (zone_table[zrn_from].vnum == tvn / 100) {
-					obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
-					add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, obj->get_vnum());
+					new_obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
+					add_trig_to_owner(-1, zone_table[zrn_to].vnum * 100 + tvn % 100, new_obj->get_vnum());
 				} else {
-					obj->add_proto_script(tvn);
-					add_trig_to_owner(-1, tvn, obj->get_vnum());
+					new_obj->add_proto_script(tvn);
+					add_trig_to_owner(-1, tvn, new_obj->get_vnum());
 				}
 			}
 			ExtractObjFromWorld(obj_original.get());
@@ -4901,7 +4902,7 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 }
 
 void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
-	int i, count, subcmd;
+	int count, subcmd;
 	auto &zone_from = zone_table[zrn_from];
 	auto &zone_to = zone_table[zrn_to];
 
