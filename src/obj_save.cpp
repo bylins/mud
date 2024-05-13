@@ -133,7 +133,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	char buffer[kMaxStringLength];
 	char read_line[kMaxStringLength];
 	int t[2];
-	int vnum , parent = 0;
+	int vnum;
 	ObjData::shared_ptr object;
 
 	// Станем на начало предмета
@@ -150,14 +150,10 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 		*error = 2;
 		return object;
 	}
-
-	const auto count = sscanf(buffer, "%d %d", &vnum, &parent);
-	if (count < 1) {
+	vnum = atoi(buffer);
+	if (!vnum) {
 		*error = 3;
 		return object;
-	}
-	if (parent > 0) {
-		vnum = parent;
 	}
 	// Если без прототипа, создаем новый. Иначе читаем прототип и возвращаем NULL,
 	// если прототип не существует.
@@ -547,10 +543,12 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	int i, j;
 
 	// vnum
-	out << "#" << GET_OBJ_VNUM(object);
 	if (obj_proto[object->get_rnum()]->GetParentProto() > 0) {
-		out << " " << obj_proto[object->get_rnum()]->GetParentProto();
+		out << "#" << obj_proto[object->get_rnum()]->GetParentProto();
+	} else {
+		out << "#" << GET_OBJ_VNUM(object);
 	}
+
 	out << "\n";
 	// Положение в экипировке (сохраняем только если > 0)
 	if (location) {
@@ -787,161 +785,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (object->get_all_values() != proto->get_all_values()) {
 			out << object->serialize_values();
 		}
-	} else        // Если у шмотки нет прототипа - придется сохранять ее целиком.
-				//6.12.2021 такого уже не может быть можно удалить нахрен
-	{
-		// Алиасы
-		if (!GET_OBJ_ALIAS(object).empty()) {
-			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
-		}
-
-		// Падежи
-		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			if (!GET_OBJ_PNAME(object, i).empty()) {
-				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
-			}
-		}
-
-		// Описание когда на земле
-		if (!GET_OBJ_DESC(object).empty()) {
-			out << "Desc: " << GET_OBJ_DESC(object) << "~\n";
-		}
-
-		// Описание при действии
-		if (!GET_OBJ_ACT(object).empty()) {
-			out << "ADsc: " << GET_OBJ_ACT(object) << "~\n";
-		}
-
-		// Тренируемый скилл
-		if (object->has_skills()) {
-			CObjectPrototype::skills_t tmp_skills_object_;
-			object->get_skills(tmp_skills_object_);
-			for (const auto &it : tmp_skills_object_) {
-				out << "Skil: " << to_underlying(it.first) << " " << it.second << "~\n";
-			}
-		}
-
-		// Макс. прочность
-		if (GET_OBJ_MAX(object)) {
-			out << "Maxx: " << GET_OBJ_MAX(object) << "~\n";
-		}
-
-		// Текущая прочность
-		if (GET_OBJ_CUR(object)) {
-			out << "Curr: " << GET_OBJ_CUR(object) << "~\n";
-		}
-		// Материал
-		if (GET_OBJ_MATER(object)) {
-			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
-		}
-		// Пол
-		if (EGender::kNeutral != GET_OBJ_SEX(object)) {
-			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
-		}
-		// Таймер
-		if (object->get_timer()) {
-			out << "Tmer: " << object->get_timer() << "~\n";
-		}
-		// Сложность замкА
-		if (GET_OBJ_SPELL(object) > ESpell::kUndefined) {
-			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
-		}
-		// Уровень заклинания
-		if (GET_OBJ_LEVEL(object)) {
-			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
-		}
-		// Наводимые аффекты
-		*buf = '\0';
-		GET_OBJ_AFFECTS(object).tascii(4, buf);
-		out << "Affs: " << buf << "~\n";
-		// Анти флаги
-		*buf = '\0';
-		GET_OBJ_ANTI(object).tascii(4, buf);
-		out << "Anti: " << buf << "~\n";
-		// Запрещающие флаги
-		*buf = '\0';
-		GET_OBJ_NO(object).tascii(4, buf);
-		out << "Nofl: " << buf << "~\n";
-		// Экстра флаги
-		*buf = '\0';
-		GET_OBJ_EXTRA(object).tascii(4, buf);
-		out << "Extr: " << buf << "~\n";
-
-		// Флаги слотов экипировки
-		*buf = '\0';
-		auto wear = GET_OBJ_WEAR(object);
-		tascii(&wear, 1, buf);
-		out << "Wear: " << buf << "~\n";
-
-		// Тип предмета
-		out << "Type: " << GET_OBJ_TYPE(object) << "~\n";
-		// Значение 0, Значение 1, Значение 2, Значение 3.
-		for (i = 0; i < 4; i++) {
-			if (GET_OBJ_VAL(object, i)) {
-				out << "Val" << i << ": " << GET_OBJ_VAL(object, i) << "~\n";
-			}
-		}
-		// Вес
-		if (GET_OBJ_WEIGHT(object)) {
-			out << "Weig: " << GET_OBJ_WEIGHT(object) << "~\n";
-		}
-		// Цена
-		if (GET_OBJ_COST(object)) {
-			out << "Cost: " << GET_OBJ_COST(object) << "~\n";
-		}
-		// Рента (снято)
-		if (GET_OBJ_RENT(object)) {
-			out << "Rent: " << GET_OBJ_RENT(object) << "~\n";
-		}
-		// Рента (одето)
-		if (GET_OBJ_RENTEQ(object)) {
-			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
-		}
-		// Владелец
-		if (GET_OBJ_OWNER(object)) {
-			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
-		}
-		// Создатель
-		if (GET_OBJ_MAKER(object)) {
-			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
-		}
-		// была ли шмотка ренейм
-		if (GET_OBJ_RENAME(object))
-			out << "Rnme: 1~\n";
-		else
-			out << "Rnme: 0~\n";
-		// есть ли на шмотке таймер при крафте
-		if (GET_OBJ_CRAFTIMER(object) > 0) {
-			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
-		}
-		// в какой зоне было загружено в мир
-		if (GET_OBJ_VNUM_ZONE_FROM(object)) {
-			out << "Ozne: " << GET_OBJ_VNUM_ZONE_FROM(object) << "~\n";
-		}
-		// Аффекты
-		for (j = 0; j < kMaxObjAffect; j++) {
-			if (object->get_affected(j).location
-				&& object->get_affected(j).modifier) {
-				out << "Afc" << j << ": " << object->get_affected(j).location
-					<< " " << object->get_affected(j).modifier << "~\n";
-			}
-		}
-
-		// Доп описания
-		for (auto descr = object->get_ex_description(); descr; descr = descr->next) {
-			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
-				<< (descr->description ? descr->description : "") << "~\n";
-		}
-
-		// требования по мортам
-		if (object->get_auto_mort_req() > 0) {
-			out << "Mort: " << object->get_auto_mort_req() << "~\n";
-		}
-
-		// ObjectValue предмета, если есть что сохранять
-		out << object->serialize_values();
 	}
-
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
 	if (object->has_timed_spell()) {
 		out << object->timed_spell().print();
@@ -1663,10 +1507,12 @@ int Crash_load(CharData *ch) {
 					 fname);
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		}
+/*
 		if (SAVEINFO(index)->time[fsize].vnum >= ZoneStartDungeons * 100) {
 			SendMsgToChar(ch, "Предмет из данжа: %s, заменяем на оригинал.\r\n", obj->get_PName(0).c_str());
 			SAVEINFO(index)->time[fsize].vnum = obj->get_vnum();
 		}
+*/
 		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum) {
 			SendMsgToChar("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
@@ -1972,7 +1818,11 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 		if (iplayer >= 0) {
 			write_one_object(write_buffer, obj, location);
 			SaveTimeInfo tmp_node;
-			tmp_node.vnum = GET_OBJ_VNUM(obj);
+			if (obj_proto[obj->get_rnum()]->GetParentProto() > 0) {
+				tmp_node.vnum = obj_proto[obj->get_rnum()]->GetParentProto();
+			} else {
+				tmp_node.vnum = obj->get_vnum();
+			}
 			tmp_node.timer = obj->get_timer();
 			SAVEINFO(iplayer)->time.push_back(tmp_node);
 
