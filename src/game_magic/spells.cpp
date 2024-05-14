@@ -2165,7 +2165,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 	} while (o);
 }
 
-void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellSummonAngel(CharData *ch) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
@@ -2355,7 +2355,7 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/) {
 }
 
-void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellMentalShadow(CharData *ch) {
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 

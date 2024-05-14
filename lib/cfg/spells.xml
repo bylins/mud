@@ -1724,7 +1724,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagManual"/>
+        <flags val="kMagSummons"/>
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
         <name rus="массовый страх" eng="mass fear"/>
@@ -2254,7 +2254,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagManual"/>
+        <flags val="kMagSummons"/>
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
         <name rus="навьи руки" eng="evards black tentacles"/>
