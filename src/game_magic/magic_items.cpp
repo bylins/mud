@@ -55,6 +55,8 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 				SetWaitState(ch, kBattleRound);
 				if (MUD::Spell(spell_id).IsFlagged(kMagMasses | kMagAreas)) {
 					CallMagic(ch, nullptr, nullptr, world[ch->in_room], spell_id, level);
+				} else  if (MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagManual)) {
+					CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
 				} else {
 					const auto people_copy = world[ch->in_room]->people;
 					for (const auto target : people_copy) {
