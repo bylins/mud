@@ -92,11 +92,11 @@ struct AttackHitType {
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
 void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *obj);
-void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
-void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData */*obj*/);
-void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/);
-void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
-void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
+void SpellRecall(CharData *ch, CharData *victim);
+void SpellTeleport(CharData *ch, CharData */*victim*/);
+void SpellSummon(CharData *ch, CharData *victim);
+void SpellRelocate(CharData *ch, CharData *victim);
+void SpellPortal(CharData *ch, CharData *victim);
 void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *obj);
 void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);

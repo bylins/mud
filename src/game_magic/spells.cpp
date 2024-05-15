@@ -231,7 +231,7 @@ int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 	return n ? fnd_room : kNowhere;
 }
 
-void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
+void SpellRecall(CharData *ch, CharData *victim) {
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -302,7 +302,7 @@ void SpellRecall(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 }
 
 // ПРЫЖОК в рамках зоны
-void SpellTeleport(int /* level */, CharData *ch, CharData */*victim*/, ObjData */*obj*/) {
+void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -336,7 +336,7 @@ void CheckAutoNosummon(CharData *ch) {
 	}
 }
 
-void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
+void SpellRelocate(CharData *ch, CharData *victim) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -398,7 +398,7 @@ void SpellRelocate(int/* level*/, CharData *ch, CharData *victim, ObjData* /* ob
 	greet_otrigger(ch, -1);
 }
 
-void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
+void SpellPortal(CharData *ch, CharData *victim) {
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -506,7 +506,7 @@ void SpellPortal(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*
 	}
 }
 
-void SpellSummon(int /*level*/, CharData *ch, CharData *victim, ObjData */*obj*/) {
+void SpellSummon(CharData *ch, CharData *victim) {
 	RoomRnum ch_room, vic_room;
 	struct FollowerType *k, *k_next;
 

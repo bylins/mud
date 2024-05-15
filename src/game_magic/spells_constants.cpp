@@ -958,6 +958,7 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
 	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";
 	EMagic_name_by_value[EMagic::kMagNeedControl] = "kMagNeedControl";
+	EMagic_name_by_value[EMagic::kMagCharRelocate] = "kMagCharRelocate";
 	EMagic_name_by_value[EMagic::kNpcDamagePc] = "kNpcDamagePc";
 	EMagic_name_by_value[EMagic::kNpcDamagePcMinhp] = "kNpcDamagePcMinhp";
 	EMagic_name_by_value[EMagic::kNpcAffectPc] = "kNpcAffectPc";
