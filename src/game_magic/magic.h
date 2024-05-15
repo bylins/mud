@@ -59,6 +59,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
 int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
 int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
 int CastCreation(int, CharData *ch, ESpell spell_id);
+int CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id);
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);

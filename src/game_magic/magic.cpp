@@ -3592,26 +3592,39 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	return 1;
 }
 
-int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
+int CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kGroupRecall:
-		case ESpell::kWorldOfRecall: SpellRecall(level, caster, cvict, ovict);
+		case ESpell::kWorldOfRecall: 
+			SpellRecall(caster, cvict);
 			break;
-		case ESpell::kTeleport: SpellTeleport(level, caster, cvict, ovict);
+		case ESpell::kTeleport: 
+			SpellTeleport(caster, cvict);
 			break;
+		case ESpell::kSummon: 
+			SpellSummon(caster, cvict);
+			break;
+		case ESpell::kPortal: 
+			SpellPortal(caster, cvict);
+			break;
+		case ESpell::kRelocate: 
+			SpellRelocate(caster, cvict);
+			break;
+		default: return 0;
+			break;
+	}
+	return 1;
+}
+
+int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
+	switch (spell_id) {
 		case ESpell::kControlWeather: SpellControlWeather(level, caster, cvict, ovict);
 			break;
 		case ESpell::kCreateWater: SpellCreateWater(level, caster, cvict, ovict);
 			break;
 		case ESpell::kLocateObject: SpellLocateObject(level, caster, cvict, ovict);
 			break;
-		case ESpell::kSummon: SpellSummon(level, caster, cvict, ovict);
-			break;
-		case ESpell::kPortal: SpellPortal(level, caster, cvict, ovict);
-			break;
 		case ESpell::kCreateWeapon: SpellCreateWeapon(level, caster, cvict, ovict);
-			break;
-		case ESpell::kRelocate: SpellRelocate(level, caster, cvict, ovict);
 			break;
 		case ESpell::kCharm: SpellCharm(level, caster, cvict, ovict);
 			break;
@@ -3734,6 +3747,9 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagManual))
 		CastManual(level, caster, cvict, ovict, spell_id);
+
+	if (MUD::Spell(spell_id).IsFlagged(kMagCharRelocate))
+		CastCharRelocate(caster, cvict, spell_id);
 
 	ReactToCast(cvict, caster, spell_id);
 	return 1;
