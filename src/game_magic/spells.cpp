@@ -2341,8 +2341,6 @@ void SpellSummonAngel(CharData *ch) {
 
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
-	
 	if (IS_FEMALE(mob)) {
 		act("Небесная защитница появилась в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -2350,6 +2348,7 @@ void SpellSummonAngel(CharData *ch) {
 		act("Небесный защитник появился в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
+	ch->add_follower(mob);
 }
 
 void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/) {
