@@ -302,8 +302,9 @@ CharData *selectVictimDependingOnGroupFormation(CharData *assaulter, CharData *i
 	abilities_roll::AgainstRivalRoll abilityRoll;
 	abilityRoll.Init(leader, abilities::EAbility::kTactician, assaulter);
 	bool tacticianFail = !abilityRoll.IsSuccess();
-	abilityRoll.Init(newVictim, abilities::EAbility::kScirmisher, assaulter);
-	if (tacticianFail || !abilityRoll.IsSuccess()) {
+	abilities_roll::AgainstRivalRoll abilityRoll2;
+	abilityRoll2.Init(newVictim, abilities::EAbility::kScirmisher, assaulter);
+	if (tacticianFail || !abilityRoll2.IsSuccess()) {
 		return initialVictim;
 	}
 
