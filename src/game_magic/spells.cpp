@@ -2165,7 +2165,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 	} while (o);
 }
 
-void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellSummonAngel(CharData *ch) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
@@ -2341,8 +2341,6 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
-	
 	if (IS_FEMALE(mob)) {
 		act("Небесная защитница появилась в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -2350,12 +2348,13 @@ void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData
 		act("Небесный защитник появился в яркой вспышке света!",
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
+	ch->add_follower(mob);
 }
 
 void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/) {
 }
 
-void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellMentalShadow(CharData *ch) {
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 

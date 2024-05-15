@@ -2485,7 +2485,6 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (!ch->desc)
 		return;
-
 	if (GET_POS(ch) < EPosition::kSleep) {
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {

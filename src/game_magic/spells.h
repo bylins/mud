@@ -111,9 +111,9 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellSummonAngel(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
 void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/);
-void SpellMentalShadow(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
+void SpellMentalShadow(CharData *ch);
+void SpellSummonAngel(CharData *ch);
 
 // basic magic calling functions
 

@@ -5,6 +5,7 @@
 #include "abilities_rollsystem.h"
 #include "structs/global_objects.h"
 #include "game_magic/magic.h"
+#include "abilities_constants.h"
 
 namespace abilities_roll {
 
@@ -56,11 +57,27 @@ bool AbilityRoll::TryRevealWrongConditions() {
 	return false;
 };
 
+// явно что-то не дописано, чтоб не углубляться в чужие мысли сделаем пока так
+EFeat ConvertFeat(abilities::EAbility new_enum) {
+	switch (new_enum) {
+		case abilities::EAbility::kScirmisher:
+			return EFeat::kScirmisher;
+		break;
+		case abilities::EAbility::kTactician:
+			return  EFeat::kTactician;
+		break;
+		default:
+			return EFeat::kUndefined;
+		break;
+	}
+
+}
+
 bool AbilityRoll::IsActorCantUseAbility() {
-/*	if (!IS_IMPL(actor_) && !CanUseFeat(actor_, ability_->id)) {
+	if (!CanUseFeat(actor_, ConvertFeat(ability_))) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
-	};*/
+	}
 	return wrong_conditions_;
 }
 

@@ -2712,6 +2712,14 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	if (ch == nullptr) {
 		return 0;
 	}
+	if (spell_id == ESpell::kSumonAngel) {
+		SpellSummonAngel(ch);
+		return 1;
+	}
+	if (spell_id == ESpell::kMentalShadow) {
+		SpellMentalShadow(ch);
+		return 1;
+	}
 
 	switch (spell_id) {
 		case ESpell::kClone: msg = 10;
@@ -3620,11 +3628,7 @@ int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESp
 			break;
 		case ESpell::kHolystrike: SpellHolystrike(level, caster, cvict, ovict);
 			break;
-		case ESpell::kSumonAngel: SpellSummonAngel(level, caster, cvict, ovict);
-			break;
 		case ESpell::kVampirism: SpellVampirism(level, caster, cvict, ovict);
-			break;
-		case ESpell::kMentalShadow: SpellMentalShadow(level, caster, cvict, ovict);
 			break;
 		default: return 0;
 			break;
