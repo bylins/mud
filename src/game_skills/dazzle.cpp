@@ -82,7 +82,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	}
 
 	if (!has_pepper) {
-		SendMsgToChar("&WЧем Вы собираетесь ослепить соперника?! У вас нет ни щипотки жгучей смеси!\r\n&n", ch);
+		SendMsgToChar("&WЧем Вы собираетесь ослепить соперника?! У вас нет ни щепотки жгучей смеси!\r\n&n", ch);
 		return;
 	}
 
