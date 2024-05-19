@@ -263,9 +263,7 @@ void stop_fighting(CharData *ch, int switch_others) {
 	REMOVE_FROM_LIST(ch, combat_list, [](auto list) -> auto & { return list->next_fighting; });
 	//Попробуем сперва очистить ссылку у врага, потом уже у самой цели
 	ch->next_fighting = nullptr;
-	if (ch->last_comm != nullptr)
-		free(ch->last_comm);
-	ch->last_comm = nullptr;
+	ch->last_comm.clear();
 	ch->set_touching(0);
 	ch->SetEnemy(0);
 	ch->initiative = 0;
@@ -2014,10 +2012,11 @@ bool stuff_before_round(CharData *ch) {
 		}
 		//end by WorM
 		//dzMUDiST. Выполнение последнего переданого в бою за время лага приказа
-		if (ch->last_comm != nullptr) {
-			command_interpreter(ch, ch->last_comm);
-			free(ch->last_comm);
-			ch->last_comm = nullptr;
+		if (!ch->last_comm.empty()) {
+			char *tmp = str_dup(ch->last_comm.c_str());
+			command_interpreter(ch, tmp);
+			ch->last_comm.clear();
+			free(tmp);
 		}
 		// Set some flag-skills
 		set_mob_skills_flags(ch);

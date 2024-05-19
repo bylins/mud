@@ -261,6 +261,23 @@ void Trim(std::string &s) {
 	TrimRight(s);
 }
 
+void skip_spaces_from_end(char* string) {
+	char* pos = string;
+	char* cur = pos;
+	while ('\0' != *pos) {
+		if (' ' != *pos) { cur = pos; }
+			++pos;
+		}
+		if (cur != pos) {
+		*(++cur) = '\0';
+	}
+}
+
+void Trim(char *s) {
+	skip_spaces(&s);
+	skip_spaces_from_end(s);
+}
+
 std::string TrimLeftCopy(std::string s) {
 	TrimLeft(s);
 	return s;

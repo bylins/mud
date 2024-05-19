@@ -770,7 +770,7 @@ class CharData : public ProtectedCharData {
 
  public:
 	int punctual_wait;        // wait for how many loops (punctual style)
-	char *last_comm;        // последний приказ чармису перед окончанием лага
+	std::string last_comm;        // последний приказ чармису перед окончанием лага
 
 	struct char_player_data player_data;        // Normal data
 	struct char_played_ability_data add_abils;        // Abilities that add to main
