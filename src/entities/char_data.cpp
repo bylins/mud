@@ -336,7 +336,7 @@ void CharData::zero_init() {
 	in_room = 0;
 	set_wait(0u);
 	punctual_wait = 0;
-	last_comm = nullptr;
+	last_comm.clear();
 	player_specials = nullptr;
 	timed = nullptr;
 	timed_feat = nullptr;
