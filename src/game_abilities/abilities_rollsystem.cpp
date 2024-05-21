@@ -71,18 +71,51 @@ EFeat ConvertFeat(abilities::EAbility new_enum) {
 		case abilities::EAbility::kCutting:
 			return  EFeat::kCutting;
 		break;
-//		case abilities::EAbility::kTurnUndead:
-//			return  EFeat::kTurnUndead;
-//		break;
+		case abilities::EAbility::kShadowDagger:
+			return  EFeat::kShadowDagger;
+		break;
+		case abilities::EAbility::kShadowSpear:
+			return  EFeat::kShadowSpear;
+		break;
+		case abilities::EAbility::kShadowClub:
+			return  EFeat::kShadowClub;
+		break;
+		case abilities::EAbility::kDoubleThrower:
+			return  EFeat::kDoubleThrower;
+		break;
+		case abilities::EAbility::kTripleThrower:
+			return  EFeat::kTripleThrower;
+		break;
+		case abilities::EAbility::kPowerThrow:
+			return  EFeat::kPowerThrow;
+		break;
+		case abilities::EAbility::kDeadlyThrow:
+			return  EFeat::kDeadlyThrow;
+		break;
 		default:
 			return EFeat::kUndefined;
 		break;
 	}
-
+}
+// второй костыль
+bool CanUseAbilitySkill(CharData *ch, abilities::EAbility new_enum) {
+	switch (new_enum) {
+		case abilities::EAbility::kTurnUndead:
+			if (ch->GetSkill(ESkill::kTurnUndead))
+				return  true;
+			break;
+		case abilities::EAbility::kThrowWeapon:
+			if (ch->GetSkill(ESkill::kThrow))
+				return  true;
+			break;
+		default:
+		break;
+	}
+	return false;
 }
 
 bool AbilityRoll::IsActorCantUseAbility() {
-	if (!CanUseFeat(actor_, ConvertFeat(ability_))) {
+	if (!CanUseFeat(actor_, ConvertFeat(ability_)) && !CanUseAbilitySkill(actor_, ability_)) {
 		deny_msg_ = "Вы не можете использовать этот навык.\r\n";
 		wrong_conditions_ = true;
 	}
