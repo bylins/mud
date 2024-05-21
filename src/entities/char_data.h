@@ -888,13 +888,12 @@ inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.
 inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
 inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
-	return AFF_FLAGS(ch).get(flag)
-		|| ch->isAffected(flag);
+	return AFF_FLAGS(ch).get(flag);
 }
 
 inline bool AFF_FLAGGED(const CharData::shared_ptr &ch, const EAffect flag) {
-	return AFF_FLAGS(ch).get(flag)
-		|| ch->isAffected(flag);
+	return AFF_FLAGS(ch).get(flag);
+//		|| ch->isAffected(flag); //обойдемся без морфа
 }
 
 bool IS_CHARMICE(const CharData *ch);
