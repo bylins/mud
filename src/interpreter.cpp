@@ -1204,7 +1204,11 @@ void command_interpreter(CharData *ch, char *argument) {
 	} else {
 		line = any_one_arg(argument, arg);
 	}
-	utils::Trim(line);
+// все тримат теперь any_one_arg
+//	std::string line2 = line;
+//	utils::Trim(line2);
+//	line = strdup(line2.c_str());
+//	utils::Trim(line);
 	const size_t length = strlen(arg);
 	if (1 < length && *(arg + length - 1) == '!') {
 		hardcopy = true;
@@ -1257,14 +1261,13 @@ void command_interpreter(CharData *ch, char *argument) {
 			return;
 		}
 	}
-
-	if (((!ch->IsNpc()
-		&& (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
-		&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
-		|| AFF_FLAGGED(ch, EAffect::kHold)
-		|| AFF_FLAGGED(ch, EAffect::kStopFight)
-		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
-		&& !check_frozen_cmd(ch, cmd)) {
+	if (!is_head(ch->get_name())
+			&& ((!ch->IsNpc() && (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
+				&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
+				|| AFF_FLAGGED(ch, EAffect::kHold)
+				|| AFF_FLAGGED(ch, EAffect::kStopFight)
+				|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
+			&& !check_frozen_cmd(ch, cmd)) {
 		SendMsgToChar("Вы попытались, но не смогли сдвинуться с места...\r\n", ch);
 		return;
 	}
@@ -1641,7 +1644,7 @@ T any_one_arg_template(T argument, char *first_arg) {
 		++num;
 	}
 	*first_arg = '\0';
-
+	skip_spaces(&argument);
 	return argument;
 }
 

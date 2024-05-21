@@ -65,6 +65,15 @@ EFeat ConvertFeat(abilities::EAbility new_enum) {
 		case abilities::EAbility::kTactician:
 			return  EFeat::kTactician;
 		break;
+		case abilities::EAbility::kShadowThrower:
+			return  EFeat::kShadowThrower;
+		break;
+		case abilities::EAbility::kCutting:
+			return  EFeat::kCutting;
+		break;
+//		case abilities::EAbility::kTurnUndead:
+//			return  EFeat::kTurnUndead;
+//		break;
 		default:
 			return EFeat::kUndefined;
 		break;

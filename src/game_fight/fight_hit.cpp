@@ -3755,9 +3755,12 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam *= backstab_mult(GetRealLevel(ch));
 		}
 
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
-			&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
-			&& !victim->get_role(MOB_ROLE_BOSS)) {
+		if (!ch->IsNpc() 
+				&& CanUseFeat(ch, EFeat::kShadowStrike)
+				&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
+				&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(MOB_FLAGGED(victim, EMobFlag::kProtect)))
+				&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
+				&& !victim->get_role(MOB_ROLE_BOSS)) {
 			GET_HIT(victim) = 1;
 			hit_params.dam = victim->points.hit + fight::kLethalDmg;
 			SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
@@ -3765,8 +3768,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			return;
 		}
 
-		if ((number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
-		&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
+		if (!ch->IsNpc()
+				&& (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL))
+				&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 			if ((hit_params.dam > 0)
 				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)

@@ -176,6 +176,8 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			if (!strcmp(read_line, "Alia")) {
 				*error = 6;
 				object->set_aliases(buffer);
+			} else if (!strcmp(read_line, "Prnt")) {
+			// 13.05.2024 можно удалить через месяц
 			} else if (!strcmp(read_line, "Pad0")) {
 				*error = 7;
 				object->set_PName(0, buffer);
