@@ -3764,6 +3764,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			GET_HIT(victim) = 1;
 			hit_params.dam = victim->points.hit + fight::kLethalDmg;
 			SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
+			hit_params.set_flag(fight::kIgnoreBlink);
 			hit_params.extdamage(ch, victim);
 			return;
 		}
@@ -3776,6 +3777,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
 				&& !(MOB_FLAGGED(victim, EMobFlag::kProtect))) {
 				SendMsgToChar("&GПрямо в сердце!&n\r\n", ch);
+				hit_params.set_flag(fight::kIgnoreBlink);
 			}
 		}
 
