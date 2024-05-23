@@ -353,7 +353,7 @@ class CharData : public ProtectedCharData {
 	using shared_ptr = std::shared_ptr<CharData>;
 	using char_affects_list_t = std::list<Affect<EApply>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
-	using role_t = std::bitset<8>;
+	using role_t = std::bitset<9>;
 	using followers_list_t = std::list<CharData *>;
 
 	CharData();
@@ -994,6 +994,13 @@ inline auto GetSave(CharData *ch, ESaving save) {
 
 inline void SetSave(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
+}
+
+inline bool IS_UNDEAD(CharData *ch) {
+	return ch->IsNpc()
+			&& (MOB_FLAGGED(ch, EMobFlag::kResurrected)
+					|| GET_RACE(ch) == ENpcRace::kZombie
+					|| GET_RACE(ch) == ENpcRace::kGhost);
 }
 
 void change_fighting(CharData *ch, int need_stop);
