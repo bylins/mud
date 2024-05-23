@@ -617,25 +617,24 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 	} else        // this is a PC, display their global variables
 	{
-		if (SCRIPT(k)->global_vars) {
-			struct TriggerVar *tv;
+		if (!SCRIPT(k)->global_vars.empty()) {
 			char name[kMaxInputLength];
-			void find_uid_name(char *uid, char *name);
+			void find_uid_name(const char *uid, char *name);
 			SendMsgToChar("Глобальные переменные:\r\n", ch);
 			// currently, variable context for players is always 0, so it is
 			// not displayed here. in the future, this might change
-			for (tv = k->script->global_vars; tv; tv = tv->next) {
-				if (*(tv->value) == UID_CHAR) {
-					find_uid_name(tv->value, name);
-					sprintf(buf, "    %10s:  [CharUID]: %s\r\n", tv->name, name);
-				} else if (*(tv->value) == UID_OBJ) {
-					find_uid_name(tv->value, name);
-					sprintf(buf, "    %10s:  [ObjUID]: %s\r\n", tv->name, name);
-				} else if (*(tv->value) == UID_ROOM) {
-					find_uid_name(tv->value, name);
-					sprintf(buf, "    %10s:  [RoomUID]: %s\r\n", tv->name, name);
+			for (auto tv : k->script->global_vars) {
+				if (tv.value[0] == UID_CHAR) {
+					find_uid_name(tv.value.c_str(), name);
+					sprintf(buf, "    %10s:  [CharUID]: %s\r\n", tv.name.c_str(), name);
+				} else if (tv.value[0] == UID_OBJ) {
+					find_uid_name(tv.value.c_str(), name);
+					sprintf(buf, "    %10s:  [ObjUID]: %s\r\n", tv.name.c_str(), name);
+				} else if (tv.value[0] == UID_ROOM) {
+					find_uid_name(tv.value.c_str(), name);
+					sprintf(buf, "    %10s:  [RoomUID]: %s\r\n", tv.name.c_str(), name);
 				} else
-					sprintf(buf, "    %10s:  %s\r\n", tv->name, tv->value);
+					sprintf(buf, "    %10s:  %s\r\n", tv.name.c_str(), tv.value.c_str());
 				SendMsgToChar(buf, ch);
 			}
 		}
