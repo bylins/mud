@@ -941,11 +941,6 @@ const int kNameLevel = 5;
 #define IS_WIZARD(ch)		(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kWizard))
 #define IS_NECROMANCER(ch)	(!(ch)->IsNpc() && ((ch)->GetClass() == ECharClass::kNecromancer))
 
-#define IS_UNDEAD(ch) ((ch)->IsNpc() && \
-    (MOB_FLAGGED(ch, EMobFlag::kResurrected) || \
-	(GET_RACE(ch) == ENpcRace::kZombie) ||  \
-	(GET_RACE(ch) == ENpcRace::kGhost)))
-
 // \todo Ввести для комнат флаг а-ля "место отдыха", а это убрать.
 #define LIKE_ROOM(ch) ((IS_SORCERER(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForSorcerers)) || \
                        (IsMage(ch) && ROOM_FLAGGED((ch)->in_room, ERoomFlag::kForMages)) || \
