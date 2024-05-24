@@ -1269,7 +1269,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void add_var_cntx(std::list<TriggerVar> var_list, std::string name, std::string value, long id) {
+void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string value, long id) {
 /*++
 	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
 	При добавлении в список локальных переменных контекст должен быть 0.
@@ -1280,11 +1280,12 @@ void add_var_cntx(std::list<TriggerVar> var_list, std::string name, std::string 
 	id			- контекст переменной
 --*/
 	TriggerVar vd;
-	
+
+	utils::ConvertToLow(name);
+	utils::ConvertToLow(value);
 	vd.name = name;
 	vd.value = value;
 	vd.context = id;
-//	std::erase_if(var_list, [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	auto it = std::find_if(var_list.begin(), var_list.end(), [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (it != var_list.end()) {
 		*it = vd;
@@ -1306,14 +1307,15 @@ TriggerVar find_var_cntx(std::list<TriggerVar> var_list, std::string name, long 
 		name		- имя переменной
 		id			- контекст переменной
 	--*/
-	TriggerVar vd;
+	utils::ConvertToLow(name);
 	auto it = std::find_if(var_list.begin(), var_list.end(), [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
-	if (it != var_list.end())
+	if (it != var_list.end()) {
 		return *it;
-	return vd;
+	}
+	return {};
 }
 
-int remove_var_cntx(std::list<TriggerVar> var_list, std::string name, long id) {
+int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id) {
 /*++
 	Удаление переменной из списка с учетом контекста (СТРОГИЙ поиск).
 
@@ -1328,6 +1330,7 @@ int remove_var_cntx(std::list<TriggerVar> var_list, std::string name, long id) {
 	   0 - переменная не найдена
 
 --*/
+	utils::ConvertToLow(name);
 	auto erased = std::erase_if(var_list, [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (erased > 0) {
 		return 1;
@@ -1494,7 +1497,6 @@ void find_replacement(void *go,
 	int num = 0, count = 0, i;
 	char uid_type = '\0';
 	char tmp[kMaxTrglineLength] = {};
-
 	const char *send_cmd[] = {"msend", "osend", "wsend"};
 	const char *echo_cmd[] = {"mecho", "oecho", "wecho"};
 	const char *echoaround_cmd[] = {"mechoaround", "oechoaround", "wechoaround"};
@@ -1530,7 +1532,7 @@ void find_replacement(void *go,
 	*str = '\0';
 
 	if (!field || !*field) {
-		if (vd.name.empty()) {
+		if (!vd.name.empty()) {
 			strcpy(str, vd.value.c_str());
 		} else {
 			if (!str_cmp(var, "self")) {
@@ -2032,7 +2034,8 @@ void find_replacement(void *go,
 		}
 		if (text_processed(field, subfield, vd, str)) {
 			return;
-		} else if (!str_cmp(field, "global")) {    // get global of something else
+		}
+		if (!str_cmp(field, "global")) {    // get global of something else
 			if (c->IsNpc()) {
 				find_replacement(go, c->script.get(), nullptr, MOB_TRIGGER, subfield, nullptr, nullptr, str);
 			}
@@ -2134,8 +2137,7 @@ void find_replacement(void *go,
 				strcpy(str, GET_NAME(c));
 				CharacterLinkDrop = false;
 			}
-		}
-		else if (!str_cmp(field, "description")) {
+		} else if (!str_cmp(field, "description")) {
 			if (*subfield) {
 				sprintf(buf, "%s\r\n", std::string(subfield).c_str());
 				c->player_data.long_descr = buf;
@@ -2366,7 +2368,7 @@ void find_replacement(void *go,
 			else {
 				sprintf(str, "%d", c->get_nogata());
 			}
-		} if (!str_cmp(field, "gold")) {
+		} else if (!str_cmp(field, "gold")) {
 			if (*subfield) {
 				const long before = c->get_gold();
 				int value;
@@ -2388,8 +2390,9 @@ void find_replacement(void *go,
 				if (!c->IsNpc() && IN_ROOM(c) > 0) {
 					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
 				}
-			} else
+			} else {
 				sprintf(str, "%ld", c->get_gold());
+			}
 		} else if (!str_cmp(field, "bank")) {
 			if (*subfield) {
 				const long before = c->get_bank();
@@ -2695,9 +2698,7 @@ void find_replacement(void *go,
 					c->quested_add(c, num, subfield);
 				}
 			}
-		}
-			// все эти блоки надо переписать на что-нибудь другое, их слишком много
-		else if (!str_cmp(field, "alliance")) {
+		} else if (!str_cmp(field, "alliance")) {
 			if (*subfield) {
 				subfield = one_argument(subfield, buf);
 				if (ClanSystem::is_alliance(c, buf))
@@ -2752,10 +2753,7 @@ void find_replacement(void *go,
 
 			if (people_i != room->people.end()) {
 				++people_i;
-				people_i = std::find_if(people_i, room->people.end(),
-										[](const CharData *ch) {
-											return !GET_INVIS_LEV(ch);
-										});
+				people_i = std::find_if(people_i, room->people.end(), [](const CharData *ch) { return !GET_INVIS_LEV(ch); });
 
 				if (people_i != room->people.end()) {
 					next = *people_i;
@@ -3612,8 +3610,8 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 
 	p = strcpy(tmp, line);
 	subfield_p = subfield;
-
 	size_t left = kMaxTrglineLength - 1;
+
 	while (*p && (left > 0)) {
 		while (*p && (*p != '%') && (left > 0)) {
 			*(buf++) = *(p++);
@@ -3663,7 +3661,6 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 			*subfield_p = '\0';
 			*repl_str = '\0';
 			find_replacement(go, sc, trig, type, var, field, subfield, repl_str);
-
 			strncat(buf, repl_str, left);
 			size_t len = std::min(strlen(repl_str), left);
 			buf += len;
@@ -4735,7 +4732,6 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 			return;
 		}
 	}
-
 	if (!str_cmp(what, "room")) {
 		uid_type = UID_ROOM;
 		result = find_room_uid(result);
@@ -4759,7 +4755,6 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 
 		return;
 	}
-
 	sprintf(uid, "%c%ld", uid_type, result);
 	add_var_cntx(trig->var_list, varname, uid, 0);
 }
