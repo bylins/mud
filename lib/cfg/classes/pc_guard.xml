@@ -84,7 +84,7 @@
         <feat id="kAimingAttack"		level="1"	remort="0"	slot="3"	inborn="0"/>
         <feat id="kPowerAttack"			level="1"	remort="0"	slot="3"	inborn="0"/>
         <feat id="kLightWalk"			level="1"	remort="0"	slot="3"	inborn="0"/>
-	<feat id="kTactician"			level="1"	remort="0"	slot="3"	inborn="0"/>
+		<feat id="kTactician"			level="1"	remort="0"	slot="3"	inborn="0"/>
         <feat id="kGreatAimingAttack"		level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kGreatPowerAttack"		level="1"	remort="0"	slot="4"	inborn="0"/>
         <feat id="kWeaponFinesse"		level="1"	remort="0"	slot="4"	inborn="0"/>

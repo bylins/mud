@@ -87,5 +87,6 @@
         <feat id="kEvasion"			level="1"	remort="0"	slot="0"	inborn="0"/>
         <feat id="kCutting"			level="1"	remort="0"	slot="0"	inborn="0"/>
         <feat id="kSerratedBlade"		level="1"	remort="0"	slot="0"	inborn="0"/>
+		<feat id="kTactician"		level="1"		remort="0"	slot="3"	inborn="0"/>
     </feats>
 </class>
