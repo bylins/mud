@@ -448,7 +448,6 @@ int remove_var_cntx(std::list<TriggerVar> var_list, std::string name, long id);
 #define GET_TRIG_DATA_TYPE(t)      ((t)->get_data_type())
 #define GET_TRIG_NARG(t)          ((t)->narg)
 #define GET_TRIG_ARG(t)           ((t)->arglist)
-#define GET_TRIG_VARS(t)      ((t)->var_list)
 #define GET_TRIG_WAIT(t)      ((t)->wait_event)
 #define GET_TRIG_DEPTH(t)         ((t)->depth)
 #define GET_TRIG_LOOPS(t)         ((t)->loops)
@@ -489,6 +488,7 @@ void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spell_type);
 CharData *get_char(char *name);
+ObjData *get_obj(const char *name, int vnum = 0);
 // external vars from db.cpp //
 extern int top_of_trigt;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка

@@ -14,7 +14,6 @@
 #include "utils/utils_char_obj.inl"
 
 extern DescriptorData *descriptor_list;
-
 // same as any_one_arg except that it stops at punctuation 
 char *any_one_name(char *argument, char *first_arg) {
 	char *arg;
