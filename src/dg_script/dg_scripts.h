@@ -487,7 +487,7 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spell_type);
-CharData *get_char(char *name);
+CharData *get_char(const char *name);
 ObjData *get_obj(const char *name, int vnum = 0);
 // external vars from db.cpp //
 extern int top_of_trigt;

@@ -1284,8 +1284,8 @@ void add_var_cntx(std::list<TriggerVar> var_list, std::string name, std::string 
 	vd.name = name;
 	vd.value = value;
 	vd.context = id;
-//	std::erase_if(var_list, [](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
-	auto it = std::find(var_list.begin(), var_list.end(), [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+//	std::erase_if(var_list, [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+	auto it = std::find_if(var_list.begin(), var_list.end(), [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (it != var_list.end()) {
 		*it = vd;
 	} else {
@@ -1307,7 +1307,7 @@ TriggerVar find_var_cntx(std::list<TriggerVar> var_list, std::string name, long 
 		id			- контекст переменной
 	--*/
 	TriggerVar vd;
-	auto it = std::find(var_list.begin(), var_list.end(), [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+	auto it = std::find_if(var_list.begin(), var_list.end(), [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (it != var_list.end())
 		return *it;
 	return vd;
@@ -2020,6 +2020,7 @@ void find_replacement(void *go,
 			sprintf(str, "%s", "array some error");
 		}
 	}
+
 	if (c) {
 		if (!c->IsNpc() && !c->desc && name[0] == UID_CHAR) {
 			CharacterLinkDrop = true;
@@ -2277,7 +2278,6 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_RELIGION(c));
 		} else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore"))) {
-			/* Так, тупо, но иначе ругается, мол слишком много блоков*/
 			if (!str_cmp(field, "fullrestore")) {
 				do_arena_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_arena_restore!");
@@ -2366,7 +2366,7 @@ void find_replacement(void *go,
 			else {
 				sprintf(str, "%d", c->get_nogata());
 			}
-		} else if (!str_cmp(field, "gold")) {
+		} if (!str_cmp(field, "gold")) {
 			if (*subfield) {
 				const long before = c->get_gold();
 				int value;
@@ -2447,9 +2447,9 @@ void find_replacement(void *go,
 			sprintf(str, "%ld", (long) max_exp_gain_pc(c));
 		} else if (!str_cmp(field, "TnlExp")) {
 			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
-		} else if (!str_cmp(field, "sex"))
+		} else if (!str_cmp(field, "sex")) {
 			sprintf(str, "%d", (int) GET_SEX(c));
-		else if (!str_cmp(field, "clan")) {
+		} else if (!str_cmp(field, "clan")) {
 			if (CLAN(c)) {
 				sprintf(str, "%s", CLAN(c)->GetAbbrev());
 				for (i = 0; str[i]; i++)
@@ -2641,9 +2641,9 @@ void find_replacement(void *go,
 			if (IS_HORSE(c) && c->get_master()->IsOnHorse() && (GET_ID(c->get_master()->get_horse()) == GET_ID(c))) {
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
 			}
-		} else if (!str_cmp(field, "realroom"))
+		} else if (!str_cmp(field, "realroom")) {
 			sprintf(str, "%d", world[IN_ROOM(c)]->vnum);
-		else if (!str_cmp(field, "loadroom")) {
+		} else if (!str_cmp(field, "loadroom")) {
 			if (!c->IsNpc()) {
 				if (!*subfield)
 					sprintf(str, "%d", GET_LOADROOM(c));
@@ -2741,7 +2741,7 @@ void find_replacement(void *go,
 			vd = find_var_cntx(SCRIPT(c)->global_vars, subfield, sc->context);
 			if (!vd.name.empty()) {
 				strcpy(str, "1");
-			} else
+			} else {
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "nextinroom")) {
@@ -2991,7 +2991,7 @@ void find_replacement(void *go,
 				sprintf(buf2, "unknown char field: '%s'", field);
 				trig_log(trig, buf2);
 			}
-		}
+		} 
 	} else if (o) {
 		if (text_processed(field, subfield, vd, str)) {
 			return;

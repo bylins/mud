@@ -49,7 +49,7 @@ extern int reloc_target;
 extern Trigger *cur_trig;
 
 void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
-RoomData *get_room(char *name);
+RoomData *get_room(const char *name);
 ObjData *get_obj_by_char(CharData *ch, char *name);
 // * Local functions.
 void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
