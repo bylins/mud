@@ -16,7 +16,7 @@ mkdir build
 
 cd build
 
-cmake -DCMAKE_BUILD_TYPE=Test ..
+cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
 
 make -j2 (2 это количество ядер в компьютере)
 
