@@ -523,11 +523,17 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 ESpell FixNameAndFindSpellId(char *name);
 
 void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
-	char name[kMaxInputLength], amount[kMaxInputLength];
+	const std::map<std::string, fight::DmgType> kDamageTypes = {
+			{"physic", fight::kPhysDmg},
+			{"magic", fight::kMagicDmg},
+			{"poisonous", fight::kPoisonDmg}
+	};
 	int dam = 0;
 	CharData *ch;
+	char name[kMaxInputLength], amount[kMaxInputLength], damage_type[kMaxInputLength];
+	fight::DmgType type = fight::kPureDmg;
 
-	two_arguments(argument, name, amount);
+	three_arguments(argument, name, amount, damage_type);
 
 	if (!*name || !*amount || !a_isdigit(*amount)) {
 		wld_log(room, "wdamage: bad syntax");
@@ -545,21 +551,31 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			SendMsgToChar("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}
-		GET_HIT(ch) -= dam;
-		if (dam < 0) {
-			SendMsgToChar("Вы почувствовали себя лучше.\r\n", ch);
-			return;
-		}
-
-		update_pos(ch);
-		char_dam_message(dam, ch, ch, 0);
-		if (GET_POS(ch) == EPosition::kDead) {
-			if (!ch->IsNpc()) {
-				sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
-						ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
-				mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
+		if (*damage_type) {
+			try {
+				type = kDamageTypes.at(damage_type);
+			} catch (const std::out_of_range &) {
+				wld_log(room, "wdamage: incorrect damage type.");
+				return;
 			}
-			die(ch, nullptr);
+			Damage mdamage(SimpleDmg(kTypeTriggerdeath), dam, type);
+			mdamage.Process(ch, ch);
+		} else {
+			GET_HIT(ch) -= dam;
+			if (dam < 0) {
+				SendMsgToChar("Вы почувствовали себя лучше.\r\n", ch);
+				return;
+			}
+			update_pos(ch);
+			char_dam_message(dam, ch, ch, 0);
+			if (GET_POS(ch) == EPosition::kDead) {
+				if (!ch->IsNpc()) {
+					sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
+							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
+					mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
+				}
+				die(ch, nullptr);
+			}
 		}
 	} else {
 		wld_log(room, "wdamage: target not found");

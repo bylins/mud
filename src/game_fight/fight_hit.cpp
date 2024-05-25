@@ -2462,11 +2462,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, msg_num);
 		}
-		act("Магический кокон полностью поглотил удар $N1.", false, victim, nullptr, ch, kToChar);
-		act("Магический кокон вокруг $N1 полностью поглотил ваш удар.",
-			false, ch, nullptr, victim, kToChar);
-		act("Магический кокон вокруг $N1 полностью поглотил удар $n1.",
-			true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+		if (ch != victim) {
+			act("Магический кокон полностью поглотил удар $N1.", false, victim, nullptr, ch, kToChar);
+			act("Магический кокон вокруг $N1 полностью поглотил ваш удар.", false, ch, nullptr, victim, kToChar);
+			act("Магический кокон вокруг $N1 полностью поглотил удар $n1.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+		} else {
+			act("Магический кокон полностью поглотил повреждения.", false, ch, nullptr, nullptr, kToChar);
+			act("Магический кокон вокруг $N1 полностью поглотил повреждения.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
+		}
 		return 0;
 	}
 	// щиты, броня, поглощение
