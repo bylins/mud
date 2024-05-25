@@ -31,6 +31,8 @@
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
+extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
+
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
 inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));};
@@ -2615,6 +2617,14 @@ void find_replacement(void *go,
 			sprintf(str, "%d", GetRealCha(c));
 		} else if (!str_cmp(field, "size")) {
 			sprintf(str, "%d", GET_SIZE(c));
+		} else if (!str_cmp(field, "will")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kWill, 0));
+		} else if (!str_cmp(field, "reflex")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kReflex, 0));
+		} else if (!str_cmp(field, "stability")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kStability, 0));
+		} else if (!str_cmp(field, "critical")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kCritical, 0));
 		} else if (!str_cmp(field, "sizeadd")) {
 			if (*subfield)
 				GET_SIZE_ADD(c) =
