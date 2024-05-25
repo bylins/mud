@@ -141,11 +141,9 @@ class cmdlist_element {
 };
 
 struct TriggerVar {
-	char *name;        // name of variable  //
-	char *value;        // value of variable //
+	std::string name;        // name of variable  //
+	std::string value;        // value of variable //
 	long context;        // 0: global context //
-
-	struct TriggerVar *next;
 };
 
 // structure for triggers //
@@ -172,7 +170,7 @@ class Trigger {
 	void set_name(const std::string &_) { name = _; }
 	auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
-	void clear_var_list();
+	void clear_var_list() {var_list.clear();}
 	cmdlist_ptr cmdlist;    // top of command list             //
 	cmdlist_element::shared_ptr wait_line;    // ptr to current line of trigger after wait  //
 	cmdlist_element::shared_ptr curr_line;    // ptr to current line of trigger //
@@ -183,7 +181,7 @@ class Trigger {
 	int depth;        // depth into nest ifs/whiles/etc  //
 	int loops;        // loop iteration counter          //
 	struct TriggerEvent *wait_event;    // event to pause the trigger      //
-	struct TriggerVar *var_list;    // list of local vars for trigger  //
+	std::list<TriggerVar> var_list;    // list of local vars for trigger  //
 
  private:
 	void reset();
@@ -302,7 +300,7 @@ class Script {
 	int remove_trigger(char *name, Trigger *&trig_addr);
 	int remove_trigger(char *name);
 
-	void clear_global_vars();
+	void clear_global_vars() {global_vars.clear();}
 	void cleanup();
 
 	bool has_triggers() { return !trig_list.empty(); }
@@ -311,7 +309,7 @@ class Script {
 
 	long types;        // bitvector of trigger types //
 	TriggersList trig_list;    // list of triggers           //
-	struct TriggerVar *global_vars;    // list of global variables   //
+	std::list<TriggerVar> global_vars;    // list of global variables   //
 	long context;        // current context for statics //
 
  private:
@@ -432,9 +430,9 @@ RoomData *dg_room_of_obj(ObjData *obj);
 void do_dg_cast(void *go, Trigger *trig, int type, char *cmd);
 void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, char *cmd);
 
-void add_var_cntx(struct TriggerVar **var_list, const char *name, const char *value, long id);
-struct TriggerVar *find_var_cntx(struct TriggerVar **var_list, const char *name, long id);
-int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
+void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string value, long id);
+TriggerVar find_var_cntx(std::list<TriggerVar>, std::string name, long id);
+int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id);
 
 // Macros for scripts //
 
@@ -450,7 +448,6 @@ int remove_var_cntx(struct TriggerVar **var_list, char *name, long id);
 #define GET_TRIG_DATA_TYPE(t)      ((t)->get_data_type())
 #define GET_TRIG_NARG(t)          ((t)->narg)
 #define GET_TRIG_ARG(t)           ((t)->arglist)
-#define GET_TRIG_VARS(t)      ((t)->var_list)
 #define GET_TRIG_WAIT(t)      ((t)->wait_event)
 #define GET_TRIG_DEPTH(t)         ((t)->depth)
 #define GET_TRIG_LOOPS(t)         ((t)->loops)
@@ -490,7 +487,8 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spell_type);
-CharData *get_char(char *name);
+CharData *get_char(const char *name);
+ObjData *get_obj(const char *name, int vnum = 0);
 // external vars from db.cpp //
 extern int top_of_trigt;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка

@@ -71,7 +71,7 @@ ObjData *get_obj_in_list(char *name, ObjData *list);
 ObjData *GetObjByRnumInContent(int obj_rnum, ObjData *list);
 ObjData *GetObjByVnumInContent(int vnum, ObjData *list);
 
-ObjData *get_obj(char *name, int vnum = 0);
+//ObjData *get_obj(const char *name, int vnum = 0);
 ObjData *SearchObjByRnum(ObjRnum rnum);
 
 bool CheckObjDecay(ObjData *object);
@@ -85,7 +85,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog = true);
 
 // ******* characters ********* //
 
-CharData *SearchCharInRoomByName(char *name, RoomRnum room);
+CharData *SearchCharInRoomByName(const char *name, RoomRnum room);
 //CharData *get_char(char *name);
 
 void RemoveCharFromRoom(CharData *ch);

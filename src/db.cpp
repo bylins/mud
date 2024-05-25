@@ -5434,14 +5434,14 @@ void ZoneReset::reset_zone_essential() {
 						if (!SCRIPT(tmob)->has_triggers()) {
 							ZONE_ERROR("Attempt to give variable to scriptless mobile");
 						} else {
-							add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+							add_var_cntx(SCRIPT(tmob)->global_vars, ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 							curr_state = 1;
 						}
 					} else if (ZCMD.arg1 == OBJ_TRIGGER && tobj) {
 						if (!tobj->get_script()->has_triggers()) {
 							ZONE_ERROR("Attempt to give variable to scriptless object");
 						} else {
-							add_var_cntx(&(tobj->get_script()->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+							add_var_cntx(tobj->get_script()->global_vars, ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 							curr_state = 1;
 						}
 					} else if (ZCMD.arg1 == WLD_TRIGGER) {
@@ -5451,10 +5451,7 @@ void ZoneReset::reset_zone_essential() {
 							if (!SCRIPT(world[ZCMD.arg2])->has_triggers()) {
 								ZONE_ERROR("Attempt to give variable to scriptless room");
 							} else {
-								add_var_cntx(&(world[ZCMD.arg2]->script->global_vars),
-											 ZCMD.sarg1,
-											 ZCMD.sarg2,
-											 ZCMD.arg3);
+								add_var_cntx(world[ZCMD.arg2]->script->global_vars, ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 								curr_state = 1;
 							}
 						}

@@ -1370,7 +1370,7 @@ ObjData *SearchObjByRnum(ObjRnum rnum) {
 }
 
 // search a room for a char, and return a pointer if found..  //
-CharData *SearchCharInRoomByName(char *name, RoomRnum room) {
+CharData *SearchCharInRoomByName(const char *name, RoomRnum room) {
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
 

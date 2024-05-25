@@ -49,7 +49,7 @@ extern int reloc_target;
 extern Trigger *cur_trig;
 
 void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
-RoomData *get_room(char *name);
+RoomData *get_room(const char *name);
 ObjData *get_obj_by_char(CharData *ch, char *name);
 // * Local functions.
 void mob_command_interpreter(CharData *ch, char *argument, Trigger *trig);
@@ -386,7 +386,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 	}
 	sprintf(uid, "%c%d", uid_type, idnum);
-	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
+	add_var_cntx(trig->var_list, varname, uid, 0);
 }
 
 /*
@@ -832,11 +832,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		Trigger *trig_copy = new Trigger(*trig_index[trig->get_rnum()]->proto);
 		GET_TRIG_DEPTH(trig_copy) = GET_TRIG_DEPTH(trig);
 		trig_copy->var_list = trig->var_list;
-		trig->var_list = nullptr;
 		ch->script->trig_list.add(trig_copy);
-
 		ch->script->global_vars = m->script->global_vars;
-		m->script->global_vars = nullptr;
 		ch->script->context = m->script->context;
 		if (m->GetEnemy()) {
 			m->GetEnemy()->SetEnemy(ch);

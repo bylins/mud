@@ -25,9 +25,9 @@ extern const char *dirs[];
 void die(CharData *ch, CharData *killer);
 void sub_write(char *arg, CharData *ch, byte find_invis, int targets);
 void send_to_zone(char *messg, int zone_rnum);
-CharData *get_char_by_room(RoomData *room, char *name);
-RoomData *get_room(char *name);
-ObjData *get_obj_by_room(RoomData *room, char *name);
+CharData *get_char_by_room(RoomData *room, const char *name);
+RoomData *get_room(const char *name);
+ObjData *get_obj_by_room(RoomData *room, const char *name);
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig);
 
@@ -516,7 +516,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 	sprintf(uid, "%c%d", uid_type, idnum);
-	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
+	add_var_cntx(trig->var_list, varname, uid, 0);
 }
 
 // increases spells & skills //

@@ -53,10 +53,10 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 
 	// дебажные сообщения в лог
-	TriggerVar *vd_debug = find_var_cntx(&GET_TRIG_VARS(trig), var_name_debug.c_str(), sc->context);
+	auto vd_debug = find_var_cntx(trig->var_list, var_name_debug.c_str(), sc->context);
 	dd.debug_mode = false;
-	if (vd_debug && vd_debug->value) {
-		dd.debug_mode = atoi(vd_debug->value);
+	if (!vd_debug.name.empty() && !vd_debug.value.empty()) {
+		dd.debug_mode = atoi(vd_debug.value.c_str());
 	}
 
 	dd.current_round = atoi(arg);
@@ -71,14 +71,14 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 
 	// количество мобов
-	TriggerVar *vd_mob_count = find_var_cntx(&GET_TRIG_VARS(trig), var_name_counter.c_str(), sc->context);
-	if (!vd_mob_count) {
+	auto vd_mob_count = find_var_cntx(trig->var_list, var_name_counter.c_str(), sc->context);
+	if (vd_mob_count.name.empty()) {
 		snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_counter.c_str());
 		trig_log(trig, buf2);
 		return false;
 	}
 	// вычитываем список количества мобов по раундам
-	array_argument(vd_mob_count->value, dd.mob_counter_per_round);
+	array_argument(vd_mob_count.value.c_str(), dd.mob_counter_per_round);
 	if (dd.mob_counter_per_round.size() != expected_round_count) {
 		snprintf(buf2, kMaxStringLength, "Неверное количество элементов в переменной mobs_count: %zu", dd.mob_counter_per_round.size());
 		trig_log(trig, buf2);
@@ -96,14 +96,14 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 
 	for (const auto &var_name_mob : var_name_mob_list) {
-		TriggerVar *vd_mob = find_var_cntx(&GET_TRIG_VARS(trig), var_name_mob.first.c_str(), sc->context);
-		if (!vd_mob) {
+		auto vd_mob = find_var_cntx(trig->var_list, var_name_mob.first.c_str(), sc->context);
+		if (vd_mob.name.empty()) {
 			snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_mob.first.c_str());
 			trig_log(trig, buf2);
 			return false;
 		}
 		std::vector<MobVnum> mob_vnum_list;
-		array_argument(vd_mob->value, mob_vnum_list);
+		array_argument(vd_mob.value.c_str(), mob_vnum_list);
 		// т.к. мобы грузятся по раундам - количество мобов >= количествj раундов
 		if (mob_vnum_list.size() < expected_round_count) {
 			snprintf(buf2, kMaxStringLength, "Неверное количество мобов в группе %s: %zu", var_name_mob.first.c_str(), mob_vnum_list.size());
@@ -111,14 +111,14 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 			return false;
 		}
 
-		TriggerVar *vd_room = find_var_cntx(&GET_TRIG_VARS(trig), var_name_mob.second.c_str(), sc->context);
-		if (!vd_room) {
+		auto vd_room = find_var_cntx(trig->var_list, var_name_mob.second.c_str(), sc->context);
+		if (vd_room.name.empty()) {
 			snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_mob.second.c_str());
 			trig_log(trig, buf2);
 			return false;
 		}
 		std::vector<MobVnum> vnumum_list;
-		array_argument(vd_room->value, vnumum_list);
+		array_argument(vd_room.value.c_str(), vnumum_list);
 
 		dd.mob_list_to_load.emplace_back(mob_vnum_list, vnumum_list);
 	}
