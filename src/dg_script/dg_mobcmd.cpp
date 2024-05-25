@@ -1349,14 +1349,20 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 }
 
 void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *) {
-	char name[kMaxInputLength], amount[kMaxInputLength];
+	char name[kMaxInputLength], amount[kMaxInputLength], damage_type[kMaxInputLength];
 	int dam = 0;
+	const std::map<std::string, fight::DmgType> kDamageTypes = {
+			{"physic", fight::kPhysDmg},
+			{"magic", fight::kMagicDmg},
+			{"poisonous", fight::kPoisonDmg}
+	};
+	fight::DmgType type = fight::kPureDmg;
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return;
 	}
 
-	two_arguments(argument, name, amount);
+	three_arguments(argument, name, amount, damage_type);
 
 	if (!*name || !*amount || !a_isdigit(*amount)) {
 		sprintf(buf, "mdamage: bad syntax, команда: %s", argument);
@@ -1372,28 +1378,35 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		}
 
 		if (IS_IMMORTAL(victim) && dam > 0) {
-			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n",
-						  victim);
+			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}
-		GET_HIT(victim) -= dam;
-		if (dam < 0) {
-			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
-			return;
-		}
-
-		update_pos(victim);
-		char_dam_message(dam, victim, victim, 0);
-		if (GET_POS(victim) == EPosition::kDead) {
-			if (!victim->IsNpc()) {
-				sprintf(buf2,
-						"%s killed by mobdamage at %s [%d]",
-						GET_NAME(victim),
+		if (*damage_type) {
+			try {
+				type = kDamageTypes.at(damage_type);
+			} catch (const std::out_of_range &) {
+				mob_log(ch, "mdamage: incorrect damage type.");
+				return;
+			}
+			Damage mdamage(SimpleDmg(kTypeTriggerdeath), dam, type);
+			mdamage.Process(ch, victim);
+		} else {
+			GET_HIT(victim) -= dam;
+			if (dam < 0) {
+				SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
+				return;
+			}
+			update_pos(victim);
+			char_dam_message(dam, victim, victim, 0);
+			if (GET_POS(victim) == EPosition::kDead) {
+				if (!victim->IsNpc()) {
+					sprintf(buf2, "%s killed by mobdamage at %s [%d]",GET_NAME(victim),
 						IN_ROOM(victim) == kNowhere ? "kNowhere" : world[IN_ROOM(victim)]->name,
 						GET_ROOM_VNUM(IN_ROOM(victim)));
 				mudlog(buf2, BRF, 0, SYSLOG, true);
+				}
+				die(victim, ch);
 			}
-			die(victim, ch);
 		}
 	} else {
 		mob_log(ch, "mdamage: target not found");
@@ -1423,7 +1436,10 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 }
 // для команды mat
 void MobDgCast(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
-	do_dg_cast(ch, trig, MOB_TRIGGER, argument);
+	char *dg_arg = str_dup("DgCast ");
+	strcat(dg_arg, argument);
+	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg);
+	free(dg_arg);
 }
 
 const struct mob_command_info mob_cmd_info[] =

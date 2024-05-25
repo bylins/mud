@@ -31,6 +31,8 @@
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
+extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
+
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
 inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));};
@@ -1308,7 +1310,7 @@ TriggerVar find_var_cntx(std::list<TriggerVar> var_list, std::string name, long 
 		id			- контекст переменной
 	--*/
 	utils::ConvertToLow(name);
-	auto it = std::find_if(var_list.begin(), var_list.end(), [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+	auto it = std::find_if(var_list.begin(), var_list.end(), [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (it != var_list.end()) {
 		return *it;
 	}
@@ -1331,7 +1333,7 @@ int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id) 
 
 --*/
 	utils::ConvertToLow(name);
-	auto erased = std::erase_if(var_list, [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+	auto erased = std::erase_if(var_list, [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (erased > 0) {
 		return 1;
 	}
@@ -2615,6 +2617,14 @@ void find_replacement(void *go,
 			sprintf(str, "%d", GetRealCha(c));
 		} else if (!str_cmp(field, "size")) {
 			sprintf(str, "%d", GET_SIZE(c));
+		} else if (!str_cmp(field, "will")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kWill, 0));
+		} else if (!str_cmp(field, "reflex")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kReflex, 0));
+		} else if (!str_cmp(field, "stability")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kStability, 0));
+		} else if (!str_cmp(field, "critical")) {
+			sprintf(str, "%d", CalcSaving(c, c, ESaving::kCritical, 0));
 		} else if (!str_cmp(field, "sizeadd")) {
 			if (*subfield)
 				GET_SIZE_ADD(c) =
