@@ -909,7 +909,10 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 }
 // для команды wat
 void WldDgCast(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
-	do_dg_cast(room, trig, WLD_TRIGGER, argument);
+	char *dg_arg = str_dup("DgCast ");
+	strcat(dg_arg, argument);
+	do_dg_cast(room, trig, WLD_TRIGGER, dg_arg);
+	free(dg_arg);
 }
 
 const struct wld_command_info wld_cmd_info[] =

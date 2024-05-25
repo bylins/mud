@@ -143,16 +143,15 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 		default: trig_log(trig, "dg_do_cast: unknown trigger type!");
 			return;
 	}
-
 	// get: blank, spell name, target name
-	s = strtok(cmd, "'");
+	s = strtok(cmd, "'!");
 //ошибка сравнения с nullptr но так уже привыкли
 	if (s == nullptr) {
 		sprintf(buf2, "dg_cast: needs spell name.");
 		trig_log(trig, buf2);
 		return;
 	}
-	s = strtok(nullptr, "'");
+	s = strtok(nullptr, "'!");
 	if (s == nullptr) {
 		sprintf(buf2, "dg_cast: needs spell name in `'s.");
 		trig_log(trig, buf2);

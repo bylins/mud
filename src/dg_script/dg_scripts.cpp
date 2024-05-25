@@ -1308,7 +1308,7 @@ TriggerVar find_var_cntx(std::list<TriggerVar> var_list, std::string name, long 
 		id			- контекст переменной
 	--*/
 	utils::ConvertToLow(name);
-	auto it = std::find_if(var_list.begin(), var_list.end(), [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+	auto it = std::find_if(var_list.begin(), var_list.end(), [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (it != var_list.end()) {
 		return *it;
 	}
@@ -1331,7 +1331,7 @@ int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id) 
 
 --*/
 	utils::ConvertToLow(name);
-	auto erased = std::erase_if(var_list, [name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
+	auto erased = std::erase_if(var_list, [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (erased > 0) {
 		return 1;
 	}
