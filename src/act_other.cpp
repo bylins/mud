@@ -950,7 +950,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		act(buf, false, ch, nullptr, k, kToChar);
 	} else {
 		if (!header)
-			SendMsgToChar("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n",
+			SendMsgToChar("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект |  Дебаф  |  Кто  | Строй | Положение \r\n",
 				 ch);
 
 		std::string name = GET_NAME(k);
@@ -1016,12 +1016,37 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 				k->IsOnHorse() ? "В" : " ",
 				CCNRM(ch, C_NRM));
 
-		sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
+		// Дебафы
+                sprintf(buf + strlen(buf),
+                                " %s%s%s%s%s%s%s%s%s%s%s%s%s  |",
+                                CCIRED(ch, C_NRM),
+				AFF_FLAGGED(k, EAffect::kHold) ? "Х" : " ",
+                                
+				CCIBLU(ch, C_NRM),
+                                AFF_FLAGGED(k, EAffect::kSleep) ? "С" : " ",
+                               
+				CCYEL(ch, C_NRM),
+                                AFF_FLAGGED(k, EAffect::kSilence) ? "М" : " ",
+
+				CCGRN(ch, C_NRM),
+                                AFF_FLAGGED(k, EAffect::kDeafness) ? "Г" : " ",
+
+				CCIYEL(ch, C_NRM),
+                                AFF_FLAGGED(k, EAffect::kBlind) ? "Б" : " ",
+
+                                CCMAG(ch, C_NRM),
+                                AFF_FLAGGED(k, EAffect::kCurse) ? "П" : " ",
+
+                                CCNRM(ch, C_NRM));
+
+
+		sprintf(buf + strlen(buf), "%7s|", leader ? " Лидер " : "");
 		ok = PRF_FLAGGED(k, EPrf::kSkirmisher);
+
 		sprintf(buf + strlen(buf),
-				"%s%-14s%s|",
+				"%s%7s%s|",
 				ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM),
-				ok ? " Да  " : " Нет ",
+				ok ? "  Да   " : "  Нет  ",
 				CCNRM(ch, C_NRM));
 		sprintf(buf + strlen(buf), " %s", POS_STATE[(int) GET_POS(k)]);
 		act(buf, false, ch, nullptr, k, kToChar);
