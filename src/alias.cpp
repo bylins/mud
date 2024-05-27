@@ -38,7 +38,7 @@ void write_aliases(CharData *ch) {
 
 	for (temp = GET_ALIASES(ch); temp; temp = temp->next) {
 		size_t aliaslen = strlen(temp->alias);
-		size_t repllen = strlen(temp->replacement) - 1;
+		size_t repllen = strlen(temp->replacement);
 
 		fprintf(file, "%d\n%s\n"    // Alias
 					  "%d\n%s\n"    // Replacement
@@ -46,7 +46,7 @@ void write_aliases(CharData *ch) {
 				static_cast<int>(aliaslen),
 				temp->alias,
 				static_cast<int>(repllen),
-				temp->replacement + 1,
+				temp->replacement,
 				temp->type);
 	}
 
@@ -80,17 +80,13 @@ void read_aliases(CharData *ch) {
 		dummyi = fscanf(file, "%d\n", &length);
 		dummyc = fgets(xbuf, length + 1, file);
 		t2->alias = str_dup(xbuf);
-
 		// Build the replacement.
 		dummyi = fscanf(file, "%d\n", &length);
-		*xbuf = ' ';    // Doesn't need terminated, fgets() will.
-		dummyc = fgets(xbuf + 1, length + 1, file);
+		dummyc = fgets(xbuf, length + 1, file);
 		t2->replacement = str_dup(xbuf);
-
 		// Figure out the alias type.
 		dummyi = fscanf(file, "%d\n", &length);
 		t2->type = length;
-
 		if (feof(file))
 			break;
 
