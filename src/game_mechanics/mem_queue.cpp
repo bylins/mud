@@ -27,26 +27,25 @@ int koef_skill_magic(int percent_skill) {
 
 int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 	int result = 0;
+
 	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
-
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
 		result = static_cast<int>(kManaCostModifier
 			* (float) mana_gain_cs[VPOSI(55 - GetRealInt(ch), 10, 50)]
 			/ (float) int_app[VPOSI(55 - GetRealInt(ch), 10, 50)].mana_per_tic
 			* 60
 			* std::max(MUD::Spell(spell_id).GetMaxMana()
-						   - (MUD::Spell(spell_id).GetManaChange()
-							   * (GetRealLevel(ch)
-								   - spell_create[spell_id].runes.min_caster_level)),
-					   MUD::Spell(spell_id).GetMinMana()));
+					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),
+				MUD::Spell(spell_id).GetMinMana()));
 	} else {
-		if (!IS_MANA_CASTER(ch) && GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
-			&& GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
-			result = std::max(MUD::Spell(spell_id).GetMaxMana() - (MUD::Spell(spell_id).GetManaChange() *
-								  (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
-							  MUD::Spell(spell_id).GetMinMana());
+		if (!IS_MANA_CASTER(ch)
+					&& GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
+					&& GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
+			result = std::max(MUD::Spell(spell_id).GetMaxMana() 
+					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinSpellLvl(ch, spell_id))),
+				MUD::Spell(spell_id).GetMinMana());
 			auto class_mem_mod = MUD::Class(ch->GetClass()).spells[spell_id].GetMemMod();
 			if (class_mem_mod < 0) {
 				result = result*(100 - abs(class_mem_mod))/100;
