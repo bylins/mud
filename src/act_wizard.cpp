@@ -416,7 +416,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	MobDataCopy(zrn_from, zrn_to);
 	ObjDataCopy(zrn_from, zrn_to);
 	ZoneDataCopy(zrn_from, zrn_to); //последним
-	sprintf(buf,  "Сбрасываю зону %d, delta %f\r\n", zone_table[zrn_to].vnum, timer.delta().count());
+	sprintf(buf,  "Сбрасываю зону %d, delta %f", zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	reset_zone(zrn_to);
 	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
