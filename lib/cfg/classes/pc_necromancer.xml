@@ -10,7 +10,7 @@
             <stat id="kDex"	gen_min="9"		gen_max="13"	auto="9"	cap="50"/>
             <stat id="kCon"	gen_min="11"	gen_max="14"	auto="14"	cap="50"/>
             <stat id="kWis"	gen_min="20"	gen_max="23"	auto="23"	cap="100"/>
-            <stat id="kInt"	gen_min="20"	gen_max="25"	auto="25"	cap="50"/>
+            <stat id="kInt"	gen_min="20"	gen_max="25"	auto="25"	cap="100"/>
             <stat id="kCha"	gen_min="10"	gen_max="12"	auto="10"	cap="50"/>
         </base_stats>
     </stats>

@@ -89,6 +89,13 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 	return std::max(1, min_lvl);
 }
 
+int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id) {
+	auto min_lvl = spell_create[spell_id].runes.min_caster_level
+		- GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+
+	return std::max(1, min_lvl);
+}
+
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl) {
 	if (MUD::Class(ch->GetClass()).spells.IsUnavailable(spell_id) ||
 		CalcMinSpellLvl(ch, spell_id, req_lvl) > GetRealLevel(ch) ||
