@@ -25,17 +25,117 @@ int koef_skill_magic(int percent_skill) {
 //	return 0;
 }
 
+float druid_manacost_modifier[] {
+	9.875,	
+	9.750,	
+	9.625,	
+	9.500,	
+	9.375,	
+	9.250,	
+	9.125,	
+	9.000,
+	8.875,	
+	8.750,	
+	8.625,	
+	8.500,	
+	8.375,	
+	8.250,	
+	8.125,	
+	8.000,
+	7.875,	
+	7.750,	
+	7.625,	
+	7.500,	
+	7.375,	
+	7.250,	
+	7.125,	
+	7.000,
+	6.750,	//25
+	6.640,	
+	6.530,	
+	6.420,	
+	6.310,	
+	6.200,	
+	6.090,	
+	5.980,	
+	5.870,	
+	5.760,	
+	5.650,	
+	5.540,	
+	5.430,	
+	5.320,	
+	5.210,	
+	5.100,	
+	4.990,	
+	4.880,	
+	4.770,	
+	4.660,	
+	4.550,	
+	4.440,	
+	4.330,	
+	4.220,	
+	4.110,	
+	4.0,	//50
+	3.98,	
+	3.96,	
+	3.94,	
+	3.92,	
+	3.90,	
+	3.88,	
+	3.86,	
+	3.84,	
+	3.82,	
+	3.80,	
+	3.78,	
+	3.76,	
+	3.74,	
+	3.72,	
+	3.70,	
+	3.68,	
+	3.66,	
+	3.64,	
+	3.62,	
+	3.60,	
+	3.58,	
+	3.56,	
+	3.54,	
+	3.52,	
+	3.50,	//75
+	3.48,	
+	3.46,	
+	3.44,	
+	3.42,	
+	3.40,	
+	3.38,	
+	3.36,	
+	3.34,	
+	3.32,	
+	3.30,	
+	3.28,	
+	3.26,	
+	3.24,	
+	3.22,	
+	3.20,	
+	3.18,	
+	3.16,	
+	3.14,	
+	3.12,	
+	3.10,	
+	3.08,	
+	3.06,	
+	3.04,	
+	3.02,	
+	3.0	//100
+};
+
 int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
 	int result = 0;
-
+	
 	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
-		result = static_cast<int>(kManaCostModifier
-			* (float) mana_gain_cs[VPOSI(55 - GetRealInt(ch), 10, 50)]
-			/ (float) int_app[VPOSI(55 - GetRealInt(ch), 10, 50)].mana_per_tic
-			* 60
+		result = static_cast<int>(druid_manacost_modifier[GetRealInt(ch)]
 			* std::max(MUD::Spell(spell_id).GetMaxMana()
 					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),
 				MUD::Spell(spell_id).GetMinMana()));
