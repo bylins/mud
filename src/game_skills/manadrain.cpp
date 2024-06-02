@@ -7,6 +7,8 @@
 #include "game_fight/fight_hit.h"
 #include "structs/global_objects.h"
 
+extern bool CritLuckTest(CharData *ch, CharData *vict);
+
 void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct TimedSkill timed;
@@ -57,12 +59,13 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skill = ch->GetSkill(ESkill::kJinx);
 
 	percent = number(1, MUD::Skill(ESkill::kJinx).difficulty);
-	prob = std::max(20, 90 - 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch)));
-	ImproveSkill(ch, ESkill::kJinx, percent > prob, vict);
+	prob = std::max(20, 90 - 5 * std::max(0, GetRealLevel(vict) - GetRealLevel(ch) - std::max(0, (skill - 80) / 6)));
+	TrainSkill(ch, ESkill::kJinx, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(ESkill::kJinx), fight::kZeroDmg, fight::kMagicDmg, nullptr);
 	manadrainDamage.element = EElement::kDark;
-	if (percent <= prob) {
+	bool success = percent <= prob;
+	if (success) {
 		skill = std::max(10, skill - 10 * std::max(0, GetRealLevel(ch) - GetRealLevel(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - ch->mem_queue.stored) * skill / 100;
 		ch->mem_queue.stored = std::min(GET_MAX_MANA(ch), ch->mem_queue.stored + drained_mana);
@@ -73,8 +76,10 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kJinx;
-		timed.time = 6 - std::min(4, (ch->GetSkill(ESkill::kJinx) + 30) / 50);
+		if (CritLuckTest(ch, vict) || !success)
+			timed.time = 1;
+		else
+			timed.time = 6 - std::min(4, (ch->GetSkill(ESkill::kJinx) + 30) / 50);
 		ImposeTimedSkill(ch, &timed);
 	}
-
 }

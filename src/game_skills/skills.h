@@ -187,7 +187,7 @@ int CalcSkillMinCap(const CharData *ch, ESkill skill);
 SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict, bool need_log = true);
 void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percent, int prob, bool success);
 int CalculateSkillAwakeModifier(CharData *killer, CharData *victim);
-
+bool CritLuckTest(CharData *ch, CharData *vict);
 #endif // SKILLS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

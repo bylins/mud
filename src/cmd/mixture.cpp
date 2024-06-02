@@ -98,12 +98,12 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
-
-		if (ch->mem_queue.stored < CalcSpellManacost(ch, spell_id)) {
+		auto mana_cost = CalcSpellManacost(ch, spell_id);
+		if (ch->mem_queue.stored < mana_cost) {
 			SendMsgToChar("У вас маловато магической энергии!\r\n", ch);
 			return;
 		} else {
-			ch->mem_queue.stored = ch->mem_queue.stored - CalcSpellManacost(ch, spell_id);
+			ch->mem_queue.stored = ch->mem_queue.stored - mana_cost;
 		}
 	}
 

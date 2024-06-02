@@ -128,17 +128,28 @@ float druid_manacost_modifier[] {
 	3.0	//100
 };
 
-int CalcSpellManacost(const CharData *ch, ESpell spell_id) {
+int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	int result = 0;
-	
+
 	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
 		result = static_cast<int>(druid_manacost_modifier[GetRealInt(ch)]
-			* std::max(MUD::Spell(spell_id).GetMaxMana()
-					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),
+			* std::max(MUD::Spell(spell_id).GetMaxMana() 
+					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),  
 				MUD::Spell(spell_id).GetMinMana()));
+
+			int tmp =  std::max(MUD::Spell(spell_id).GetMaxMana() 
+					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),  
+				MUD::Spell(spell_id).GetMinMana());
+		ch->send_to_TC(false, true, true, "&MМакс манна %d, маначенж %d minrunespelllevel %d&n\r\n", MUD::Spell(spell_id).GetMaxMana(),
+				MUD::Spell(spell_id).GetManaChange(), CalcMinRuneSpellLvl(ch, spell_id));
+		ch->send_to_TC(false, true, true, "&MПотрачено манны множитель %f  затраты %d всего = %d&n\r\n", druid_manacost_modifier[GetRealInt(ch)], tmp, result );
+//		log("manacost Макс манна %d, маначенж %d minrunespelllevel %d\r\n", MUD::Spell(spell_id).GetMaxMana(),
+//				MUD::Spell(spell_id).GetManaChange(), CalcMinRuneSpellLvl(ch, spell_id));
+//		log("manacost Потрачено манны множитель %f  затраты %d всего = %d\r\n", druid_manacost_modifier[GetRealInt(ch)], tmp, result );
+
 	} else {
 		if (!IS_MANA_CASTER(ch)
 					&& GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
