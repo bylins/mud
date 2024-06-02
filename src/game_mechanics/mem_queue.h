@@ -28,7 +28,7 @@ struct SpellMemQueue {
 	void Clear();
 };
 
-int CalcSpellManacost(const CharData *ch, ESpell spell_id);
+int CalcSpellManacost(CharData *ch, ESpell spell_id);
 void MemQ_init(CharData *ch);
 void MemQ_flush(CharData *ch);
 ESpell MemQ_learn(CharData *ch);

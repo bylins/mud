@@ -1247,6 +1247,12 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	return static_cast<int>(rate);
 }
 
+bool CritLuckTest(CharData *ch, CharData *vict) {
+	if (MakeLuckTest(ch, vict) == ELuckTestResult::kLuckTestCriticalSuccess)
+		return true;
+	return false;
+}
+
 ELuckTestResult MakeLuckTest(CharData *ch, CharData *vict) {
 	int luck = ch->calc_morale();
 
