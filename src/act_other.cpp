@@ -24,6 +24,8 @@
 #include <utility>
 #include <iomanip>
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
@@ -877,7 +879,6 @@ void change_leader(CharData *ch, CharData *vict) {
 }
 
 void print_one_line(CharData *ch, CharData *k, int leader, int header) {
-	int ok, ok2, div;
 	const char *WORD_STATE[] = {"При смерти",
 								"Оч.тяж.ран",
 								"Оч.тяж.ран",
@@ -915,59 +916,35 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 							   "Стоит"
 	};
 
-	if (k->IsNpc()) {
-		if (!header)
-//       SendMsgToChar("Персонаж       | Здоровье |Рядом| Доп | Положение     | Лояльн.\r\n",ch);
-			SendMsgToChar("Персонаж            | Здоровье |Рядом| Аффект | Положение\r\n", ch);
-		std::string name = GET_NAME(k);
-		name[0] = UPPER(name[0]);
-		sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM),
-				name.substr(0, 20).c_str(), CCNRM(ch, C_NRM));
-		sprintf(buf + strlen(buf), "%s%10s%s|",
-				color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
-				WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
-
-		ok = ch->in_room == IN_ROOM(k);
-		sprintf(buf + strlen(buf), "%s%5s%s|",
-				ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-
-		sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-				CCIRED(ch, C_NRM),
-				AFF_FLAGGED(k, EAffect::kSanctuary) ? "О" : (AFF_FLAGGED(k, EAffect::kPrismaticAura) ? "П"
-																									 : " "),
-				CCGRN(ch, C_NRM),
-				AFF_FLAGGED(k, EAffect::kWaterBreath) ? "Д" : " ", CCICYN(ch, C_NRM),
-				AFF_FLAGGED(k, EAffect::kInvisible) ? "Н" : " ", CCIYEL(ch, C_NRM),
-				(AFF_FLAGGED(k, EAffect::kSingleLight)
+	auto generate_affects_string = [](CharData *k) -> std::string {
+		std::string affects;
+		affects += AFF_FLAGGED(k, EAffect::kSanctuary) ? "&RО" : (AFF_FLAGGED(k, EAffect::kPrismaticAura) ? "&RП" : " ");
+		affects += AFF_FLAGGED(k, EAffect::kWaterBreath) ? "&gД" : " ";
+		affects += AFF_FLAGGED(k, EAffect::kInvisible) ? "&CН" : " ";
+		affects += (AFF_FLAGGED(k, EAffect::kSingleLight) 
 					|| AFF_FLAGGED(k, EAffect::kHolyLight)
 					|| (GET_EQ(k, EEquipPos::kLight)
-						&& GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "С" : " ",
-				CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffect::kFly) ? "Л" : " ", CCYEL(ch, C_NRM),
-				k->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
+						&& GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "&YС" : " ";
+		affects += AFF_FLAGGED(k, EAffect::kFly) ? "&BЛ" : " ";
 
-		sprintf(buf + strlen(buf), "%-15s", POS_STATE[(int) GET_POS(k)]);
+		return affects;
+	};
 
-		act(buf, false, ch, nullptr, k, kToChar);
-	} else {
-		if (!header)
-			SendMsgToChar("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект |  Дебаф  |  Кто  | Строй | Положение \r\n",
-				 ch);
+	auto generate_debuf_string = [](CharData *k) -> std::string {
+		std::string debuf;
+		debuf += AFF_FLAGGED(k, EAffect::kHold) ? "&RХ" : " ";
+		debuf += AFF_FLAGGED(k, EAffect::kSleep) ? "&BС" : " ";
+		debuf += AFF_FLAGGED(k, EAffect::kSilence) ? "&yМ" : " ";
+		debuf += AFF_FLAGGED(k, EAffect::kDeafness) ? "&gГ" : " ";
+		debuf += AFF_FLAGGED(k, EAffect::kBlind) ? "&YБ" : " ";
+		debuf += AFF_FLAGGED(k, EAffect::kCurse) ? "&mП" : " ";
+		debuf += IsAffectedBySpell(k, ESpell::kFever) ? "&cЛ" : " ";
 
-		std::string name = GET_NAME(k);
-		name[0] = UPPER(name[0]);
-		sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM), name.c_str(), CCNRM(ch, C_NRM));
-		sprintf(buf + strlen(buf), "%s%10s%s|",
-				color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
-				WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
+		return debuf;
+	};
 
-		sprintf(buf + strlen(buf), "%s%7s%s|",
-				color_value(ch, GET_MOVE(k), GET_REAL_MAX_MOVE(k)),
-				MOVE_STATE[posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) + 1], CCNRM(ch, C_NRM));
-
-		ok = ch->in_room == IN_ROOM(k);
-		sprintf(buf + strlen(buf), "%s%5s%s|",
-				ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-
+	auto generate_mem_string = [](CharData *k) -> std::string {
+		int ok, ok2, div;
 		if ((!IS_MANA_CASTER(k) && !k->mem_queue.Empty()) ||
 			(IS_MANA_CASTER(k) && k->mem_queue.stored < GET_MAX_MANA(k))) {
 			div = CalcManaGain(k);
@@ -982,74 +959,66 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 				ok = ok2 / 60;
 				ok2 %= 60;
 				if (ok > 99)
-					sprintf(buf + strlen(buf), "&g%5d&n|", ok);
+					return fmt::format("&g{:02}", ok);
 				else
-					sprintf(buf + strlen(buf), "&g%2d:%02d&n|", ok, ok2);
+					return fmt::format("&g{:02}:{:02}", ok, ok2);
 			} else {
-				sprintf(buf + strlen(buf), "&r    -&n|");
+				return "&r  -  ";				
 			}
 		} else
-			sprintf(buf + strlen(buf), "     |");
-
-		sprintf(buf + strlen(buf),
-				" %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-				CCIRED(ch, C_NRM),
-				AFF_FLAGGED(k, EAffect::kSanctuary) ? "О" : (AFF_FLAGGED(k, EAffect::kPrismaticAura)
-																	? "П" : " "),
-				CCGRN(ch,
-					  C_NRM),
-				AFF_FLAGGED(k, EAffect::kWaterBreath) ? "Д" : " ",
-				CCICYN(ch,
-					   C_NRM),
-				AFF_FLAGGED(k, EAffect::kInvisible) ? "Н" : " ",
-				CCIYEL(ch, C_NRM),
-				(AFF_FLAGGED(k, EAffect::kSingleLight)
-					|| AFF_FLAGGED(k, EAffect::kHolyLight)
-					|| (GET_EQ(k, EEquipPos::kLight)
-						&&
-							GET_OBJ_VAL(GET_EQ
-										(k, EEquipPos::kLight),
-										2))) ? "С" : " ",
-				CCIBLU(ch, C_NRM),
-				AFF_FLAGGED(k, EAffect::kFly) ? "Л" : " ",
-				CCYEL(ch, C_NRM),
-				k->IsOnHorse() ? "В" : " ",
-				CCNRM(ch, C_NRM));
-
-		// Дебафы
-                sprintf(buf + strlen(buf),
-                                " %s%s%s%s%s%s%s%s%s%s%s%s%s  |",
-                                CCIRED(ch, C_NRM),
-				AFF_FLAGGED(k, EAffect::kHold) ? "Х" : " ",
-                                
-				CCIBLU(ch, C_NRM),
-                                AFF_FLAGGED(k, EAffect::kSleep) ? "С" : " ",
-                               
-				CCYEL(ch, C_NRM),
-                                AFF_FLAGGED(k, EAffect::kSilence) ? "М" : " ",
-
-				CCGRN(ch, C_NRM),
-                                AFF_FLAGGED(k, EAffect::kDeafness) ? "Г" : " ",
-
-				CCIYEL(ch, C_NRM),
-                                AFF_FLAGGED(k, EAffect::kBlind) ? "Б" : " ",
-
-                                CCMAG(ch, C_NRM),
-                                AFF_FLAGGED(k, EAffect::kCurse) ? "П" : " ",
-
-                                CCNRM(ch, C_NRM));
+			return " ";
+	};
 
 
-		sprintf(buf + strlen(buf), "%7s|", leader ? " Лидер " : "");
-		ok = PRF_FLAGGED(k, EPrf::kSkirmisher);
+	if (k->IsNpc()) {
+		std::ostringstream buffer;
+		if (!header)
+			buffer << "Персонаж            | Здоровье | Рядом | Аффект |  Дебаф  | Положение\r\n";
 
-		sprintf(buf + strlen(buf),
-				"%s%7s%s|",
-				ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM),
-				ok ? "  Да   " : "  Нет  ",
-				CCNRM(ch, C_NRM));
-		sprintf(buf + strlen(buf), " %s", POS_STATE[(int) GET_POS(k)]);
-		act(buf, false, ch, nullptr, k, kToChar);
+		buffer << fmt::format("&B{:<20}&n|", k->get_name()); 
+
+		buffer << fmt::format("{}", color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)));
+		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
+		buffer << fmt::format(" {:^7} &n|", ch->in_room == IN_ROOM(k) ? "&gДа" : "&rНет");
+
+		// АФФЕКТЫ 
+		buffer << fmt::format(" {:<5}", generate_affects_string(k));
+		buffer << fmt::format("{:<1} &n|", k->low_charm() ? "&nТ" : " ");
+		
+		// ДЕБАФЫ
+		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
+		
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) GET_POS(k)]);
+
+		SendMsgToChar(buffer.str().c_str(), ch);
+
+	} else {
+		std::ostringstream buffer;
+		if (!header)
+			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект |  Дебаф  |  Кто  | Строй | Положение \r\n";
+
+		std::string health_color = color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k));
+		std::string move_color = color_value(ch, GET_MOVE(k), GET_REAL_MAX_MOVE(k));
+
+		buffer << fmt::format("&B{:<20}&n|", k->get_name()); 
+
+		buffer << fmt::format("{}", health_color);
+		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
+
+		buffer << fmt::format("{}", move_color);
+		buffer << fmt::format("{:^9}&n|", MOVE_STATE[posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) + 1]);
+
+		buffer << fmt::format(" {:^7} &n|", ch->in_room == IN_ROOM(k) ? "&gДа" : "&rНет");
+
+		buffer << fmt::format(" {:^5} &n|", generate_mem_string(k));
+		buffer << fmt::format(" {:<5}  &n|", generate_affects_string(k));
+		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
+		
+		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
+		buffer << fmt::format(" {:^5} &n|", PRF_FLAGGED(k, EPrf::kSkirmisher) ? " &gДа  " : "Нет");
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) GET_POS(k)]);
+
+		SendMsgToChar(buffer.str().c_str(), ch);
 	}
 }
 
