@@ -975,7 +975,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		if (!header)
 			buffer << "Персонаж            | Здоровье | Рядом | Аффект |  Дебаф  | Положение\r\n";
 
-		buffer << fmt::format("&B{:<20}&n|", k->get_name()); 
+		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
 
 		buffer << fmt::format("{}", color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)));
 		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
