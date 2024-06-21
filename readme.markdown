@@ -4,7 +4,7 @@
 
 sudo apt update && sudo apt upgrade
 
-sudo apt install build-essential make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake
+sudo apt install build-essential make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb
 
 git clone --recurse-submodules https://github.com/bylins/mud
 
