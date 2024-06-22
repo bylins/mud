@@ -1857,8 +1857,10 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
 					CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 		} else {
-			sprintf(buf, "%sЛазурная пентаграмма ярко сверкает здесь.%s\r\n",
-					CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+			if (IS_GOD(ch))
+				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n", world[ch->in_room]->portal_time, GET_ROOM_VNUM(world[ch->in_room]->portal_room));
+			else
+				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
 		}
 
 		SendMsgToChar(buf, ch);
