@@ -1621,7 +1621,7 @@ bool ZoneFile::load_regular_zone() {
 	}
 	auto group = 0;
 	const auto count = sscanf(buf, "#%d %d %d %d", &zone.level, &zone.type, &group, &zone.entrance);
-	if (count < 3) {
+	if (count < 2) {
 		log("SYSERR: ошибка чтения z.level, z.type, z.group, z.entrance: %s", buf);
 		exit(1);
 	}
