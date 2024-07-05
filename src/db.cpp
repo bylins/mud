@@ -5491,6 +5491,7 @@ void ZoneReset::reset_zone_essential() {
 			}
 			RoomData *gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room) {
+				oom->portal_time = 0;
 				OneWayPortal::remove(room);
 				decay_portal(real_room(gate_room->vnum));
 			} else if (room->portal_time > 0) {  // случай двусторонней пенты

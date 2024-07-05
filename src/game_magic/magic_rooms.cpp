@@ -36,7 +36,8 @@ void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
-	ROOM_AFF_FLAGS(room).unset((*affect)->bitvector);
+	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, false);
+//OOM_AFF_FLAGS(room).unset((*affect)->bitvector);
 	room->affected.erase(affect);
 	RefreshRoomAffects(room);
 }
