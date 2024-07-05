@@ -25,8 +25,14 @@ void add(RoomData *to_room, RoomData *from_room) {
 */
 void remove(RoomData *to_room) {
 	const auto it = portal_list.find(to_room->vnum);
-	if (it != portal_list.end())
+
+	if (it != portal_list.end()) {
+		const auto aff = room_spells::FindAffect(it->second, ESpell::kPortalTimer);
+		if (aff != to_room->affected.end()) {
+			room_spells::RoomRemoveAffect(it->second, aff);
+		}
 		portal_list.erase(it);
+	}
 }
 
 /**

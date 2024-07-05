@@ -36,7 +36,7 @@ void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
-	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, false);
+	ROOM_AFF_FLAGS(room).unset((*affect)->bitvector);
 	room->affected.erase(affect);
 	RefreshRoomAffects(room);
 }
@@ -349,10 +349,7 @@ void UpdateRoomsAffects() {
 					(*room)->pkPenterUnique = 0;
 					(*room)->portal_time = 0;
 					OneWayPortal::remove(*room);
-//					act("Пентаграмма медленно растаяла. (врата)",
-//							false, (*room)->first_character(), nullptr, nullptr, kToRoom);
-//					act("Пентаграмма медленно растаяла.(врата)",
-//							false, (*room)->first_character(), nullptr, nullptr, kToChar);
+//					decay_portal((*room)->vnum);
 				}
 				RoomRemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик

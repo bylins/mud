@@ -5491,10 +5491,8 @@ void ZoneReset::reset_zone_essential() {
 			}
 			RoomData *gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room) {
-				gate_room->portal_time = 0;
-				OneWayPortal::remove(gate_room);
-				act("Пентаграмма медленно растаяла.", false, gate_room->first_character(), 0, 0, kToRoom);
-				act("Пентаграмма медленно растаяла.", false, gate_room->first_character(), 0, 0, kToChar);
+				OneWayPortal::remove(room);
+				decay_portal(real_room(gate_room->vnum));
 			} else if (room->portal_time > 0) {  // случай двусторонней пенты
 				world[room->portal_room]->portal_time = 0;
 				room->portal_time = 0;
