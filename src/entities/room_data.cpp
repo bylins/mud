@@ -93,10 +93,7 @@ RoomData::RoomData() : vnum(0),
 	for (auto i = 0; i < EDirection::kMaxDirNum; ++i) {
 		dir_option[i].reset();
 	}
-
 	memset(&weather, 0, sizeof(WeatherControl));
-	memset(&base_property, 0, sizeof(RoomState));
-	memset(&add_property, 0, sizeof(RoomState));
 }
 
 RoomData::~RoomData() {

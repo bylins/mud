@@ -412,7 +412,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
-#define ROOM_AFF_FLAGS(room)  ((room)->affected_by)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 
 #define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
@@ -423,7 +422,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
-#define ROOM_AFFECTED(loc, flag) (ROOM_AFF_FLAGS((world[(loc)])).get(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
@@ -576,7 +574,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 
 // Макросы доступа к полям параметров комнат
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
-#define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
 
 // Получение кубиков урона - работает только для мобов!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)

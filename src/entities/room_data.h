@@ -93,8 +93,6 @@ struct RoomData {
 	people_t people;    // List of NPC / PC in room           //
 
 	room_spells::RoomAffects affected;    // affected by what spells       //
-	FlagData affected_by;    // флаги которые в отличии от room_flags появляются от аффектов
-	//и не могут быть записаны на диск
 
 	// Всякие характеристики комнаты
 	ubyte fires;        // Time when fires - костерок    //
@@ -103,16 +101,8 @@ struct RoomData {
 	int portal_room;
 	ubyte portal_time;    // Время жисти пентаграммы//
 	long pkPenterUnique; //Постановщик пенты по мести
-
 	int holes;        // Дырки для камне - копателей //
-
-	// Параметры которые грузяться из файла (по крайней мере так планируется)
-	struct RoomState base_property;
-	// Добавки к параметрам  которые модифицируются аффектами ...
-	struct RoomState add_property;
-
 	int poison;        // Степень заражения территории в SPELL_DEADLY_FOG //
-
 	bool get_flag(const Bitvector flag) const { return m_room_flags.get(flag); }
 	void set_flag(const Bitvector flag) { m_room_flags.set(flag); }
 	FlagData read_flags() {return m_room_flags; }
