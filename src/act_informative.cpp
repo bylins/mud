@@ -1851,8 +1851,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 				CCRED(ch, C_NRM), Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
 	}
-
-	if (world[ch->in_room]->portal_time) {
+	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
+//	if (world[ch->in_room]->portal_time) {
 		if (world[ch->in_room]->pkPenterUnique) {
 			sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
 					CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));

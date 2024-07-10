@@ -1490,11 +1490,9 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, smallBuf);
 
-	if (*smallBuf)
-//     {if (!str_cmp("пентаграмма",smallBuf))
-	{
+	if (*smallBuf) {
 		if (isname(smallBuf, p_str)) {
-			if (!world[ch->in_room]->portal_time)
+			if (!room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer))
 				SendMsgToChar("Вы не видите здесь пентаграмму.\r\n", ch);
 			else {
 				from_room = ch->in_room;
