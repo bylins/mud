@@ -3064,9 +3064,6 @@ void add_vrooms_to_all_zones() {
 		new_room->clear_flags();
 		new_room->sector_type = ESector::kSecret;
 
-		new_room->affected_by.clear();
-		memset(&new_room->base_property, 0, sizeof(RoomState));
-		memset(&new_room->add_property, 0, sizeof(RoomState));
 		new_room->func = nullptr;
 		new_room->contents = nullptr;
 		new_room->track = nullptr;
@@ -4464,7 +4461,6 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->people.clear();
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
-		room->affected_by.clear();
 		room->cleanup_script();
 		room->affected.clear();
 		room->vnum = zone_table[zrn].vnum * 100 + rvn;
@@ -4589,9 +4585,6 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		new_room->description_num = world[i]->description_num;
 		new_room->write_flags(world[i]->read_flags());
 		new_room->sector_type = world[i]->sector_type;
-		new_room->affected_by.clear();
-		memset(&new_room->base_property, 0, sizeof(RoomState));
-		memset(&new_room->add_property, 0, sizeof(RoomState));
 		new_room->people.clear();
 		new_room->func = nullptr;
 		new_room->contents = nullptr;
@@ -5492,7 +5485,8 @@ void ZoneReset::reset_zone_essential() {
 			RoomData *gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room) {
 				OneWayPortal::remove(room);
-				decay_portal(real_room(gate_room->vnum));
+				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToRoom);
+				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToChar);
 			} else if (room->portal_time > 0) {  // случай двусторонней пенты
 				world[room->portal_room]->portal_time = 0;
 				room->portal_time = 0;

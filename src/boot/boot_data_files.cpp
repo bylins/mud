@@ -437,15 +437,6 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_realnum]->sector_type = t[2];
 
 	check_room_flags(room_realnum);
-
-	// Обнуляем флаги от аффектов и сами аффекты на комнате.
-	world[room_realnum]->affected_by.clear();
-	// Обнуляем базовые параметры (пока нет их загрузки)
-	memset(&world[room_realnum]->base_property, 0, sizeof(RoomState));
-
-	// Обнуляем добавочные параметры комнаты
-	memset(&world[room_realnum]->add_property, 0, sizeof(RoomState));
-
 	world[room_realnum]->func = nullptr;
 	world[room_realnum]->contents = nullptr;
 	world[room_realnum]->track = nullptr;

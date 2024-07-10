@@ -27,19 +27,13 @@ void AddRoomToAffected(RoomData *room);
 void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
-void RefreshRoomAffects(RoomData *room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
-void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add);
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
-
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
-//	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, false);
-	ROOM_AFF_FLAGS(room).unset((*affect)->bitvector);
 	room->affected.erase(affect);
-	RefreshRoomAffects(room);
 }
 
 RoomAffectIt FindAffect(RoomData *room, ESpell type) {
@@ -614,7 +608,6 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 			if (hjp->duration < af.duration) {
 				hjp->duration = af.duration;
 			}
-			RefreshRoomAffects(room);
 			found = true;
 			break;
 		}
@@ -624,13 +617,13 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af) {
 		affect_to_room(room, af);
 	}
 }
+
 void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
 	bool found = false;
 
 	for (auto &affect_i : room->affected) {
 		if (affect_i->type == af.type && affect_i->location == af.location) {
 			affect_i->duration = af.duration;
-			RefreshRoomAffects(room);
 			found = true;
 		}
 	}
@@ -638,7 +631,6 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
 		affect_to_room(room, af);
 	}
 }
-
 
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 					  bool add_dur, bool avg_dur, bool add_mod, bool avg_mod) {
@@ -674,52 +666,10 @@ void affect_room_join(RoomData *room, Affect<ERoomApply> &af,
 	}
 }
 
-// Тут осуществляется апдейт аффектов влияющих на комнату
-void RefreshRoomAffects(RoomData *room) {
-	// А че тут надо делать пересуммирование аффектов от заклов.
-	/* Вобщем все комнаты имеют (вроде как базовую и
-	   добавочную характеристику) если скажем ввести
-	   возможность устанавливать степень зараженности комнтаы
-	   в OLC , то дополнительное загаживание только будет вносить
-	   + но не обнулять это значение. */
-
-	// обнуляем все добавочные характеристики
-	memset(&room->add_property, 0, sizeof(RoomState));
-
-	// перенакладываем аффекты
-	for (const auto &af : room->affected) {
-		affect_room_modify(room, af->location, af->modifier, af->bitvector, true);
-	}
-}
-
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	Affect<ERoomApply>::shared_ptr new_affect(new Affect<ERoomApply>(af));
 
 	room->affected.push_front(new_affect);
-
-	affect_room_modify(room, af.location, af.modifier, af.bitvector, true);
-	RefreshRoomAffects(room);
-}
-
-void affect_room_modify(RoomData *room, byte loc, sbyte mod, Bitvector bitv, bool add) {
-	if (add) {
-		ROOM_AFF_FLAGS(room).set(bitv);
-	} else {
-		ROOM_AFF_FLAGS(room).unset(bitv);
-		mod = -mod;
-	}
-
-	switch (loc) {
-		case kNone: break;
-		case kPoison:
-			// Увеличиваем загаженность от аффекта вызываемого SPELL_POISONED_FOG
-			// Хотя это сделанно скорее для примера пока не обрабатывается вообще
-			GET_ROOM_ADD_POISON(room) += mod;
-			break;
-		default: log("SYSERR: Unknown room apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
-			break;
-
-	}            // switch
 }
 
 } // namespace room_spells
