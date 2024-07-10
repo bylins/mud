@@ -73,6 +73,7 @@
 #include "act_other.h"
 #include "game_crafts/mining.h"
 #include "structs/global_objects.h"
+#include "game_skills/townportal.h"
 
 #include <iomanip>
 #include <string>
@@ -1863,7 +1864,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 					if (aff->type ==  ESpell::kPortalTimer)
 						time = aff->duration;
 				}
-				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n", time , GET_ROOM_VNUM(world[ch->in_room]->portal_room));
+				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n", time , OneWayPortal::get_to_room(world[ch->in_room])->vnum);
 			}
 			else
 				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");

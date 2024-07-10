@@ -7,29 +7,26 @@
 
 namespace OneWayPortal {
 
-// список односторонних порталов <куда указывает, откуда поставлен>
-std::unordered_map<RoomVnum /*to*/, RoomData * /*from*/> portal_list;
-
+std::map<RoomData * /*from*/, RoomData * /*to*/> portal_list;
 /**
 * Добавление портала в список
 * \param to_room - куда ставится пента
 * \param from_room - откуда ставится
 */
-void add(RoomData *to_room, RoomData *from_room) {
-	portal_list.emplace(to_room->vnum, from_room);
+void add(RoomData *from_room, RoomData *to_room) {
+	portal_list.emplace(from_room, to_room);
 }
 
 /**
 * Удаление портала из списка
-* \param to_room - куда указывает пента
 */
-void remove(RoomData *to_room) {
-	const auto it = portal_list.find(to_room->vnum);
+void remove(RoomData *from_room) {
+	const auto it = portal_list.find(from_room);
 
 	if (it != portal_list.end()) {
 		const auto aff = room_spells::FindAffect(it->second, ESpell::kPortalTimer);
-		if (aff != to_room->affected.end()) {
-			room_spells::RoomRemoveAffect(it->second, aff);
+		if (aff != from_room->affected.end()) {
+			room_spells::RoomRemoveAffect(it->first, aff);
 		}
 		portal_list.erase(it);
 	}
@@ -41,11 +38,20 @@ void remove(RoomData *to_room) {
 * \return указатель на источник пенты
 */
 RoomData *get_from_room(RoomData *to_room) {
+	const auto it = std::find_if(portal_list.begin(), portal_list.end(), [to_room] (const std::pair<const RoomData *, RoomData *> &from) { return (from.second == to_room); });
 
-	const auto it = portal_list.find(to_room->vnum);
-	if (it != portal_list.end())
+	if (it != portal_list.end()) {
+		return it->first;
+	}
+	return nullptr;
+}
+
+RoomData *get_to_room(RoomData *from_room) {
+	const auto it = portal_list.find(from_room);
+
+	if (it != portal_list.end()) {
 		return it->second;
-
+	}
 	return nullptr;
 }
 
@@ -63,7 +69,6 @@ void AddPortalTimer(CharData *ch, RoomData *room, int time) {
 	af.must_handled = false;
 	af.apply_time = 0;
 	room_spells::AffectRoomJoinReplace(room, af);
-	room_spells::AddRoomToAffected(room);
 }
 
 void spell_townportal(CharData *ch, char *arg) {
@@ -74,14 +79,14 @@ void spell_townportal(CharData *ch, char *arg) {
 	struct CharacterPortal *tmp;
 	struct Portal *port;
 	struct Portal label_port;
-	RoomData *label_room;
+	RoomData *label_room = nullptr;
 
 	port = get_portal(-1, arg);
 
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, arg)) {
 
-		label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
+		label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
 		if (label_room) {
 			label_port.vnum = label_room->vnum;
 			label_port.level = 1;
@@ -125,7 +130,7 @@ void spell_townportal(CharData *ch, char *arg) {
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
 		from_room->pkPenterUnique = 0;
-		OneWayPortal::add(world[from_room->portal_room], from_room);  //какая то недоделка
+		OneWayPortal::add(from_room, world[real_room(port->vnum)]);
 		AddPortalTimer(ch, from_room, 29);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToChar);
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, kToRoom);

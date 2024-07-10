@@ -26,6 +26,7 @@ namespace OneWayPortal {
 void add(RoomData *to_room, RoomData *from_room);
 void remove(RoomData *to_room);
 RoomData *get_from_room(RoomData *to_room);
+RoomData *get_to_room(RoomData *from_room);
 
 } // namespace OneWayPortal
 

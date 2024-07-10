@@ -197,7 +197,7 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
 		if (timer_room_label > 0) {
@@ -256,7 +256,7 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
 		out << InfoStrPrefix(ch) << KIGRN << "Вы поставили рунную метку в комнате \'"
@@ -799,7 +799,7 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoom(GET_ID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",

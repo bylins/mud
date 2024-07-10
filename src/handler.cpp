@@ -2714,7 +2714,7 @@ int get_object_low_rent(ObjData *obj) {
  * @param spell_id - removing spell affect.
  */
 void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id) {
-	auto affected_room = room_spells::FindAffectedRoom(GET_ID(ch), spell_id);
+	auto affected_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), spell_id);
 	if (affected_room) {
 		const auto aff = room_spells::FindAffect(affected_room, spell_id);
 		if (aff != affected_room->affected.end()) {

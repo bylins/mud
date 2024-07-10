@@ -95,7 +95,7 @@ CharData *find_char_in_room(long char_id, RoomData *room) {
 	return nullptr;
 }
 
-RoomData *FindAffectedRoom(long caster_id, ESpell spell_id) {
+RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id) {
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
 			if (af->type == spell_id && af->caster_id == caster_id) {
