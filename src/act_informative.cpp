@@ -2393,17 +2393,17 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	}
 
 	// заглянуть в пентаграмму
-	if (isname(whatp, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom)) {
+	RoomRnum to_room = IsRoomWithPortal(ch->in_room);
+
+	if (isname(whatp, "пентаграмма") && to_room != kNowhere && IS_SET(where_bits, EFind::kObjRoom)) {
 		const auto r = ch->in_room;
-		const auto to_room = world[r]->portal_room;
 		SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
 		act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
-		if (world[to_room]->portal_time && (r == world[to_room]->portal_room)) {
-			SendMsgToChar
-				("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
+		if (IsRoomWithPortal(to_room) != kNowhere) { //не односторонняя
+			SendMsgToChar("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
 			return false;
 		}
-		ch->in_room = world[ch->in_room]->portal_room;
+		ch->in_room = to_room;
 		look_at_room(ch, 1);
 		ch->in_room = r;
 		return false;
@@ -2653,7 +2653,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (look_at_target(ch, argument, subcmd))
 		return;
 
-	if (isname(arg, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom))
+	if (isname(arg, "пентаграмма") && IsRoomWithPortal(ch->in_room) != kNowhere && IS_SET(where_bits, EFind::kObjRoom))
 		return;
 
 	if (isname(arg, "камень") &&

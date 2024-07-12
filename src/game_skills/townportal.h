@@ -8,13 +8,12 @@
 class CharData;
 
 void spell_townportal(CharData *ch, char *arg);
-void AddPortalTimer(CharData *ch, RoomData *room, int time);
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time);
+RoomRnum IsRoomWithPortal(RoomRnum room);
 
-inline void decay_portal(const int room_num) {
+inline void DecayPortalMessage(const RoomRnum room_num) {
 	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, kToRoom);
 	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), 0, 0, kToChar);
-	world[room_num]->portal_time = 0;
-	world[room_num]->portal_room = 0;
 }
 
 /**

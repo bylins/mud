@@ -342,9 +342,7 @@ void UpdateRoomsAffects() {
 				}
 				if (affect->type == ESpell::kPortalTimer) {
 					(*room)->pkPenterUnique = 0;
-					(*room)->portal_time = 0;
 					OneWayPortal::remove(*room);
-//					decay_portal((*room)->vnum);
 				}
 				RoomRemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик

@@ -1102,7 +1102,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	sprintf(buf,
 			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
-			zone_table[rm->zone_rn].vnum, CCGRN(ch, C_NRM), rm->vnum, CCNRM(ch, C_NRM), ch->in_room, smallBuf);
+			zone_table[rm->zone_rn].vnum, CCGRN(ch, C_NRM), rm->vnum, CCNRM(ch, C_NRM), rnum, smallBuf);
 	SendMsgToChar(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");
@@ -1198,12 +1198,11 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	if (!rm->affected.empty()) {
 		sprintf(buf1, "&GАффекты на комнате:\r\n&n");
 		for (const auto &aff : rm->affected) {
-			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
+			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (длит: %d, модиф: %d) - %s.\r\n",
 					MUD::Spell(aff->type).GetCName(),
 					aff->duration,
-					((k = find_char(aff->caster_id))
-					 ? GET_NAME(k)
-					 : "неизвестно"));
+					aff->type == ESpell::kPortalTimer ? world[aff->modifier]->vnum : aff->modifier,
+					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);
 	}

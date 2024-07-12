@@ -121,13 +121,10 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
 	curroom = real_room(get_room_where_obj(obj));
-	world[curroom]->portal_room = target;
-	world[curroom]->portal_time = howlong;
-	world[curroom]->pkPenterUnique = 0;
-	AddPortalTimer(nullptr, world[curroom], howlong * 30 - 1);
+	AddPortalTimer(nullptr, world[curroom], target, howlong * 30 - 1);
 //	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
 //	mudlog(buf, DEF, std::max(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-	OneWayPortal::add(world[target], world[curroom]);
+	OneWayPortal::add(world[curroom], world[target]);
 	act("Лазурная пентаграмма возникла в воздухе.",
 		false, world[curroom]->first_character(), 0, 0, kToChar);
 	act("Лазурная пентаграмма возникла в воздухе.",

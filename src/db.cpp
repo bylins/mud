@@ -5487,9 +5487,17 @@ void ZoneReset::reset_zone_essential() {
 				OneWayPortal::remove(room);
 				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToRoom);
 				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToChar);
-			} else if (room->portal_time > 0) {  // случай двусторонней пенты
-				world[room->portal_room]->portal_time = 0;
-				room->portal_time = 0;
+			} else if (IsRoomWithPortal(rnum) != kNowhere) {  // случай двусторонней пенты
+				auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
+				const RoomRnum to_room = (*aff)->modifier;
+
+				if (aff != world[rnum]->affected.end()) {
+						room_spells::RoomRemoveAffect(world[rnum], aff);
+				}
+				aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
+				if (aff != world[to_room]->affected.end()) {
+						room_spells::RoomRemoveAffect(world[to_room], aff);
+				}
 			}
 			paste_on_reset(room);
 		}

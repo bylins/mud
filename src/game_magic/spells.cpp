@@ -444,8 +444,27 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		SendMsgToChar("Может, вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
 	}
+/*
+	RoomRnum room_out = IsRoomWithPortal(fnd_room);
+	RoomRnum room_in = IsRoomWithPortal(ch->in_room);
 
-	if (world[fnd_room]->portal_time) {
++                       } else if (IsRoomWithPortal(rnum) != kNowhere) {  // яп╩яяп╟п╧ п╢п╡яяяп╬яп╬п╫п╫п╣п╧ п©п╣п╫яя
++                               auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
++                               const RoomRnum to_room = (*aff)->modifier;
++
++                               if (aff != world[rnum]->affected.end()) {
++                                               room_spells::RoomRemoveAffect(world[rnum], aff);
++                               }
++                               aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
++                               if (aff != world[to_room]->affected.end()) {
++                                               room_spells::RoomRemoveAffect(world[to_room], aff);
++                               }
+
+
+
+
+
+	if (room_in != kNowhere) {
 		if (world[world[fnd_room]->portal_room]->portal_room == fnd_room
 			&& world[world[fnd_room]->portal_room]->portal_time)
 			decay_portal(world[fnd_room]->portal_room);
@@ -457,6 +476,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			decay_portal(world[ch->in_room]->portal_room);
 		decay_portal(ch->in_room);
 	}
+*/
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 		pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
@@ -470,10 +490,9 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		}
 
 		to_room = ch->in_room;
-		world[fnd_room]->portal_room = to_room;
-		world[fnd_room]->portal_time = 1;
-		AddPortalTimer(ch, world[fnd_room], 29);
-		if (pkPortal) world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
+		AddPortalTimer(ch, world[fnd_room], to_room, 29);
+		if (pkPortal) 
+			world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
@@ -492,12 +511,9 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
 			return;
 		}
-
-		world[to_room]->portal_room = fnd_room;
-		world[to_room]->portal_time = 1;
-		AddPortalTimer(ch, world[to_room], 29);
-
-		if (pkPortal) world[to_room]->pkPenterUnique = GET_UNIQUE(ch);
+		AddPortalTimer(ch, world[to_room], fnd_room, 29);
+		if (pkPortal) 
+			world[to_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
