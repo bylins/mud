@@ -622,6 +622,7 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
 	for (auto &affect_i : room->affected) {
 		if (affect_i->type == af.type && affect_i->location == af.location) {
 			affect_i->duration = af.duration;
+			affect_i->modifier = af.modifier;
 			found = true;
 		}
 	}

@@ -5493,10 +5493,14 @@ void ZoneReset::reset_zone_essential() {
 
 				if (aff != world[rnum]->affected.end()) {
 						room_spells::RoomRemoveAffect(world[rnum], aff);
+					act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToRoom);
+					act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToChar);
 				}
 				aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
 				if (aff != world[to_room]->affected.end()) {
 						room_spells::RoomRemoveAffect(world[to_room], aff);
+				act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
+				act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
 				}
 			}
 			paste_on_reset(room);

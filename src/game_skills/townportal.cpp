@@ -63,6 +63,9 @@ RoomData *get_to_room(RoomData *from_room) {
 } // namespace OneWayPortal
 
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+	sprintf(buf, "Стивим портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
 	af.bitvector = room_spells::ERoomAffect::kPortalTimer;

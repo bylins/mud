@@ -1859,12 +1859,11 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 					CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 		} else {
 			if (IS_GOD(ch)) {
-				int time = 0;
 				for (const auto &aff : world[ch->in_room]->affected) {
-					if (aff->type ==  ESpell::kPortalTimer)
-						time = aff->duration;
+					if (aff->type ==  ESpell::kPortalTimer) {
+						sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",  aff->duration,  world[aff->modifier]->vnum);
+					}
 				}
-				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n", time , OneWayPortal::get_to_room(world[ch->in_room])->vnum);
 			}
 			else
 				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
@@ -2399,7 +2398,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		const auto r = ch->in_room;
 		SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
 		act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
-		if (IsRoomWithPortal(to_room) != kNowhere) { //не односторонняя
+		if (IsRoomWithPortal(to_room) == kNowhere) { //не односторонняя
 			SendMsgToChar("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
 			return false;
 		}
