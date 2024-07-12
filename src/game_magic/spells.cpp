@@ -405,6 +405,42 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	greet_otrigger(ch, -1);
 }
 
+void ReplacePortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+	sprintf(buf, "Заменяем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+
+	Affect<room_spells::ERoomApply> af;
+	af.type = ESpell::kPortalTimer;
+	af.bitvector = 0;
+	af.duration = time; //раз в 2 секунды
+	af.modifier = to_room;
+	af.battleflag = 0;
+	af.location = room_spells::ERoomApply::kNone;
+	af.caster_id = ch? GET_ID(ch) : 0;
+	af.must_handled = false;
+	af.apply_time = 0;
+	room_spells::AffectRoomJoinReplace(from_room, af);
+	room_spells::AddRoomToAffected(from_room);
+}
+
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+
+	Affect<room_spells::ERoomApply> af;
+	af.type = ESpell::kPortalTimer;
+	af.bitvector = room_spells::ERoomAffect::kPortalTimer;
+	af.duration = time; //раз в 2 секунды
+	af.modifier = to_room;
+	af.battleflag = 0;
+	af.location = room_spells::ERoomApply::kNone;
+	af.caster_id = ch? GET_ID(ch) : 0;
+	af.must_handled = false;
+	af.apply_time = 0;
+	room_spells::affect_to_room(from_room, af);
+	room_spells::AddRoomToAffected(from_room);
+}
+
 void SpellPortal(CharData *ch, CharData *victim) {
 	RoomRnum fnd_room;
 
@@ -443,7 +479,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		SendMsgToChar("Может, вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
 	}
-
+/*
 	if (IsRoomWithPortal(fnd_room) == ch->in_room) {
 		DecayPortalMessage(fnd_room);
 	}
@@ -451,7 +487,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 	if (IsRoomWithPortal(ch->in_room) == fnd_room) {
 		DecayPortalMessage(ch->in_room);
 	}
-
+*/
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 		pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
@@ -464,7 +500,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			pk_increment_revenge(ch, victim);
 		}
 
-		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29);
+		ReplacePortalTimer(ch, world[fnd_room], ch->in_room, 29);
 		if (pkPortal) 
 			world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
 
@@ -485,7 +521,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
 			return;
 		}
-		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29);
+		ReplacePortalTimer(ch, world[ch->in_room], fnd_room, 29);
 		if (pkPortal) 
 			world[ch->in_room]->pkPenterUnique = GET_UNIQUE(ch);
 

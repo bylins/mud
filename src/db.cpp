@@ -41,7 +41,6 @@
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_economics/shop_ext.h"
-#include "game_skills/townportal.h"
 #include "stuff.h"
 #include "title.h"
 #include "statistics/top.h"
@@ -5482,25 +5481,20 @@ void ZoneReset::reset_zone_essential() {
 			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
-			RoomData *gate_room = OneWayPortal::get_from_room(room);
-			if (gate_room) {
-				OneWayPortal::remove(gate_room);
-				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToRoom);
-				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToChar);
-			} else if (IsRoomWithPortal(rnum) != kNowhere) {  // случай двусторонней пенты
+			if (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
 				auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
 				const RoomRnum to_room = (*aff)->modifier;
 
 				if (aff != world[rnum]->affected.end()) {
-						room_spells::RoomRemoveAffect(world[rnum], aff);
+					room_spells::RoomRemoveAffect(world[rnum], aff);
 					act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToRoom);
 					act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToChar);
 				}
 				aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
 				if (aff != world[to_room]->affected.end()) {
-						room_spells::RoomRemoveAffect(world[to_room], aff);
-				act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
-				act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
+					room_spells::RoomRemoveAffect(world[to_room], aff);
+					act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
+					act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
 				}
 			}
 			paste_on_reset(room);

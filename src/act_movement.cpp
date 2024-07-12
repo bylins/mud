@@ -29,7 +29,6 @@
 #include "structs/global_objects.h"
 #include "liquid.h"
 #include "utils/utils_char_obj.inl"
-#include "game_skills/townportal.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
@@ -1485,7 +1484,8 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 }
 
 void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int door, from_room;
+	int door = kNowhere;
+	int from_room;
 	const char *p_str = "пентаграмма";
 	struct FollowerType *k, *k_next;
 
@@ -1493,11 +1493,15 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*smallBuf) {
 		if (isname(smallBuf, p_str)) {
-			if (!room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer))
+			for (const auto &aff : world[ch->in_room]->affected) {
+				if (aff->type == ESpell::kPortalTimer && aff->bitvector != to_underlying(EAffect::kNoTeleport)) {
+					door = aff->modifier;
+				}
+			}
+			if (door == kNowhere) {
 				SendMsgToChar("Вы не видите здесь пентаграмму.\r\n", ch);
-			else {
+			} else {
 				from_room = ch->in_room;
-				door = IsRoomWithPortal(ch->in_room);
 				if (ch->IsOnHorse() && AFF_FLAGGED(ch->get_horse(), EAffect::kHold)) {
 					act("$Z $N не в состоянии нести вас на себе.\r\n",
 						false, ch, nullptr, ch->get_horse(), kToChar);
@@ -1509,7 +1513,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				// Если чар под местью, и портал односторонний, то не пускать
-				if (NORENTABLE(ch) && !ch->IsNpc() && IsRoomWithPortal(door) == kNowhere) {
+				if (NORENTABLE(ch) && !ch->IsNpc()) {
 					SendMsgToChar("Грехи мешают вам воспользоваться вратами.\r\n", ch);
 					return;
 				}

@@ -114,8 +114,7 @@ void do_mportal(CharData *mob, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
 	curroom = mob->in_room;
-	AddPortalTimer(mob, world[curroom], target, howlong * 30 - 1);
-	OneWayPortal::add(world[curroom], world[target]);
+	OneWayPortal::ReplacePortalTimer(mob, curroom, target, howlong * 30 - 1);
 	act("Лазурная пентаграмма возникла в воздухе.",
 		false, world[curroom]->first_character(), nullptr, nullptr, kToChar);
 	act("Лазурная пентаграмма возникла в воздухе.",

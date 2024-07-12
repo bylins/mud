@@ -340,10 +340,6 @@ void UpdateRoomsAffects() {
 						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->vnum));
 					}
 				}
-				if (affect->type == ESpell::kPortalTimer) {
-					(*room)->pkPenterUnique = 0;
-					OneWayPortal::remove(*room);
-				}
 				RoomRemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик
 			}

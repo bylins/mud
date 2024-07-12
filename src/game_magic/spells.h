@@ -114,6 +114,8 @@ void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/);
 void SpellMentalShadow(CharData *ch);
 void SpellSummonAngel(CharData *ch);
+void ReplacePortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time);
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time);
 
 // basic magic calling functions
 

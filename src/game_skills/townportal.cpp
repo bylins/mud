@@ -6,69 +6,13 @@
 #include "game_magic/magic_rooms.h"
 
 namespace OneWayPortal {
-
-std::map<RoomData * /*from*/, RoomData * /*to*/> portal_list;
-/**
-* Добавление портала в список
-* \param to_room - куда ставится пента
-* \param from_room - откуда ставится
-*/
-void add(RoomData *from_room, RoomData *to_room) {
-	portal_list.emplace(from_room, to_room);
-}
-
-/**
-* Удаление портала из списка
-*/
-void remove(RoomData *from_room) {
-	const auto it = portal_list.find(from_room);
-	for (auto i : portal_list) {
-			sprintf(buf, "Найден портал %d %d", i.first->vnum, i.second->vnum);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-	}
-	if (it != portal_list.end()) {
-		const auto aff = room_spells::FindAffect(it->first, ESpell::kPortalTimer);
-		if (aff != it->first->affected.end()) {
-			sprintf(buf, "Удаляем портал %d %d", it->first->vnum, it->second->vnum);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			room_spells::RoomRemoveAffect(it->first, aff);
-		}
-		portal_list.erase(it);
-	}
-}
-
-/**
-* Проверка на наличие комнаты в списке
-* \param to_room - куда указывает пента
-* \return указатель на источник пенты
-*/
-RoomData *get_from_room(RoomData *to_room) {
-	const auto it = std::find_if(portal_list.begin(), portal_list.end(), [to_room] (const std::pair<const RoomData *, RoomData *> &from) { return (from.second == to_room); });
-
-	if (it != portal_list.end()) {
-		return it->first;
-	}
-	return nullptr;
-}
-
-RoomData *get_to_room(RoomData *from_room) {
-	const auto it = portal_list.find(from_room);
-
-	if (it != portal_list.end()) {
-		return it->second;
-	}
-	return nullptr;
-}
-
-} // namespace OneWayPortal
-
-void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
-	sprintf(buf, "Стивим портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int time) {
+	sprintf(buf, "Ставим портал из %d в %d", world[from_room]->vnum, world[to_room]->vnum);
 	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = room_spells::ERoomAffect::kPortalTimer;
+	af.bitvector = 0;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
@@ -76,20 +20,15 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 	af.caster_id = ch? GET_ID(ch) : 0;
 	af.must_handled = false;
 	af.apply_time = 0;
-	room_spells::AffectRoomJoinReplace(from_room, af);
-	room_spells::AddRoomToAffected(from_room);
+	room_spells::AffectRoomJoinReplace(world[from_room], af);
+	room_spells::AddRoomToAffected(world[from_room]);
+	af.modifier = from_room;
+	af.bitvector = to_underlying(EAffect::kNoTeleport);
+	room_spells::AffectRoomJoinReplace(world[to_room], af);
+	room_spells::AddRoomToAffected(world[to_room]);
 }
 
-RoomRnum IsRoomWithPortal(RoomRnum room) {
-	for (const auto &aff : world[room]->affected) {
-		if (aff->type ==  ESpell::kPortalTimer) {
-			sprintf(buf, "Найден портал в %d", world[aff->modifier]->vnum);
-			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-			return aff->modifier;
-		}
-	}
-	return kNowhere;
-}
+} // namespace OneWayPortal
 
 void spell_townportal(CharData *ch, char *arg) {
 	int gcount = 0, cn = 0, ispr = 0;
@@ -135,17 +74,12 @@ void spell_townportal(CharData *ch, char *arg) {
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, kToRoom);
 			return;
 		}
-		if (IsRoomWithPortal(ch->in_room) != kNowhere) {
-			DecayPortalMessage(ch->in_room);
-		}
-
 		// Открываем пентаграмму в комнату rnum //
 		ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
 		RoomData *from_room = world[ch->in_room];
 		RoomRnum to_room = real_room(port->vnum);
 		from_room->pkPenterUnique = 0;
-		OneWayPortal::add(from_room, world[to_room]);
-		AddPortalTimer(ch, from_room, to_room, 29);
+		OneWayPortal::ReplacePortalTimer(ch, ch->in_room, to_room, 29);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToChar);
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, kToRoom);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToRoom);
