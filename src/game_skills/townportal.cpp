@@ -80,7 +80,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 RoomRnum IsRoomWithPortal(RoomRnum room) {
 	for (const auto &aff : world[room]->affected) {
 		if (aff->type ==  ESpell::kPortalTimer) {
-			sprintf(buf, "Найден портал в %d .\r\n", world[aff->modifier]->vnum);
+			sprintf(buf, "Найден портал в %d", world[aff->modifier]->vnum);
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			return aff->modifier;
 		}
@@ -132,16 +132,13 @@ void spell_townportal(CharData *ch, char *arg) {
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, kToRoom);
 			return;
 		}
-		SendMsgToChar("1.\r\n", ch);
 		if (IsRoomWithPortal(ch->in_room) != kNowhere) {
-			SendMsgToChar("2.\r\n", ch);
 			DecayPortalMessage(ch->in_room);
 		}
 
 		// Открываем пентаграмму в комнату rnum //
 		ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
 		RoomData *from_room = world[ch->in_room];
-		SendMsgToChar(ch, "портал ведет в %d\r\n", port->vnum);
 		RoomRnum to_room = real_room(port->vnum);
 		from_room->pkPenterUnique = 0;
 		OneWayPortal::add(from_room, world[to_room]);

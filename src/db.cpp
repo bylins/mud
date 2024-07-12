@@ -5484,7 +5484,7 @@ void ZoneReset::reset_zone_essential() {
 			}
 			RoomData *gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room) {
-				OneWayPortal::remove(room);
+				OneWayPortal::remove(gate_room);
 				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToRoom);
 				act("Пентаграмма была разрушена.", false, gate_room->first_character(), 0, 0, kToChar);
 			} else if (IsRoomWithPortal(rnum) != kNowhere) {  // случай двусторонней пенты
