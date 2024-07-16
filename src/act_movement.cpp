@@ -1484,7 +1484,8 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 }
 
 void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int door, from_room;
+	int door = kNowhere;
+	int from_room;
 	const char *p_str = "пентаграмма";
 	struct FollowerType *k, *k_next;
 
@@ -1492,11 +1493,15 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*smallBuf) {
 		if (isname(smallBuf, p_str)) {
-			if (!room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer))
+			for (const auto &aff : world[ch->in_room]->affected) {
+				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomApply::kNoPortalExit) {
+					door = aff->modifier;
+				}
+			}
+			if (door == kNowhere) {
 				SendMsgToChar("Вы не видите здесь пентаграмму.\r\n", ch);
-			else {
+			} else {
 				from_room = ch->in_room;
-				door = world[ch->in_room]->portal_room;
 				if (ch->IsOnHorse() && AFF_FLAGGED(ch->get_horse(), EAffect::kHold)) {
 					act("$Z $N не в состоянии нести вас на себе.\r\n",
 						false, ch, nullptr, ch->get_horse(), kToChar);
@@ -1508,7 +1513,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				// Если чар под местью, и портал односторонний, то не пускать
-				if (NORENTABLE(ch) && !ch->IsNpc() && !world[door]->portal_time) {
+				if (NORENTABLE(ch) && !ch->IsNpc()) {
 					SendMsgToChar("Грехи мешают вам воспользоваться вратами.\r\n", ch);
 					return;
 				}
@@ -1532,8 +1537,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!IS_IMMORTAL(ch)
-					&& ((!ch->IsNpc()
-						&& (!Clan::MayEnter(ch, door, kHousePortal) || (GetRealLevel(ch) <= 10 && world[door]->portal_time && GetRealRemort(ch) < 9)))
+					&& ((!ch->IsNpc() && !Clan::MayEnter(ch, door, kHousePortal))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
 						|| (world[door]->pkPenterUnique

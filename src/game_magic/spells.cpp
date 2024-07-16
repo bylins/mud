@@ -405,8 +405,44 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	greet_otrigger(ch, -1);
 }
 
+void ReplacePortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+//	sprintf(buf, "Заменяем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+
+	Affect<room_spells::ERoomApply> af;
+	af.type = ESpell::kPortalTimer;
+	af.bitvector = room_spells::ERoomApply::kPortalExit;
+	af.duration = time; //раз в 2 секунды
+	af.modifier = to_room;
+	af.battleflag = 0;
+	af.location = room_spells::ERoomApply::kNone;
+	af.caster_id = ch? GET_ID(ch) : 0;
+	af.must_handled = false;
+	af.apply_time = 0;
+	room_spells::AffectRoomJoinReplace(from_room, af);
+	room_spells::AddRoomToAffected(from_room);
+}
+
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+//	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+
+	Affect<room_spells::ERoomApply> af;
+	af.type = ESpell::kPortalTimer;
+	af.bitvector = room_spells::ERoomAffect::kPortalTimer;
+	af.duration = time; //раз в 2 секунды
+	af.modifier = to_room;
+	af.battleflag = 0;
+	af.location = room_spells::ERoomApply::kNone;
+	af.caster_id = ch? GET_ID(ch) : 0;
+	af.must_handled = false;
+	af.apply_time = 0;
+	room_spells::affect_to_room(from_room, af);
+	room_spells::AddRoomToAffected(from_room);
+}
+
 void SpellPortal(CharData *ch, CharData *victim) {
-	RoomRnum to_room, fnd_room;
+	RoomRnum fnd_room;
 
 	if (victim == nullptr)
 		return;
@@ -426,7 +462,6 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
-
 	fnd_room = IN_ROOM(victim);
 	if (fnd_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
@@ -444,19 +479,15 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		SendMsgToChar("Может, вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
 	}
+/*
+	if (IsRoomWithPortal(fnd_room) == ch->in_room) {
+		DecayPortalMessage(fnd_room);
+	}
 
-	if (world[fnd_room]->portal_time) {
-		if (world[world[fnd_room]->portal_room]->portal_room == fnd_room
-			&& world[world[fnd_room]->portal_room]->portal_time)
-			decay_portal(world[fnd_room]->portal_room);
-		decay_portal(fnd_room);
+	if (IsRoomWithPortal(ch->in_room) == fnd_room) {
+		DecayPortalMessage(ch->in_room);
 	}
-	if (world[ch->in_room]->portal_time) {
-		if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room
-			&& world[world[ch->in_room]->portal_room]->portal_time)
-			decay_portal(world[ch->in_room]->portal_room);
-		decay_portal(ch->in_room);
-	}
+*/
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 		pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
@@ -469,11 +500,9 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			pk_increment_revenge(ch, victim);
 		}
 
-		to_room = ch->in_room;
-		world[fnd_room]->portal_room = to_room;
-		world[fnd_room]->portal_time = 1;
-		AddPortalTimer(ch, world[fnd_room], 29);
-		if (pkPortal) world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
+		ReplacePortalTimer(ch, world[fnd_room], ch->in_room, 29);
+		if (pkPortal) 
+			world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
@@ -492,23 +521,20 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
 			return;
 		}
-
-		world[to_room]->portal_room = fnd_room;
-		world[to_room]->portal_time = 1;
-		AddPortalTimer(ch, world[to_room], 29);
-
-		if (pkPortal) world[to_room]->pkPenterUnique = GET_UNIQUE(ch);
+		ReplacePortalTimer(ch, world[ch->in_room], fnd_room, 29);
+		if (pkPortal) 
+			world[ch->in_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[to_room]->first_character(), nullptr, nullptr, kToChar);
+				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[to_room]->first_character(), nullptr, nullptr, kToRoom);
+				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
 		} else {
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[to_room]->first_character(), nullptr, nullptr, kToChar);
+				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[to_room]->first_character(), nullptr, nullptr, kToRoom);
+				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
 		}
 	}
 }

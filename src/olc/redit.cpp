@@ -212,10 +212,11 @@ void redit_save_internally(DescriptorData *d) {
 
 		// Порталы, выходы
 		for (i = kFirstRoom; i < top_of_world + 1; i++) {
-			if (world[i]->portal_room >= rrn) {
+/* переживем одну минуту с кривыми порталами, потом все равно закроются
+			if (world[i]->portal_room >= rrn) { 
 				world[i]->portal_room++;
 			}
-
+*/
 			for (j = 0; j < EDirection::kMaxDirNum; j++) {
 				if (world[i]->dir_option[j]) {
 					const auto to_room = world[i]->dir_option[j]->to_room();

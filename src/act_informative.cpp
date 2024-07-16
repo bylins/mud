@@ -1852,24 +1852,21 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		SendMsgToChar(buf, ch);
 	}
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
-//	if (world[ch->in_room]->portal_time) {
-		if (world[ch->in_room]->pkPenterUnique) {
-			sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
-					CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-		} else {
-			if (IS_GOD(ch)) {
-				int time = 0;
-				for (const auto &aff : world[ch->in_room]->affected) {
-					if (aff->type ==  ESpell::kPortalTimer)
-						time = aff->duration;
+		for (const auto &aff : world[ch->in_room]->affected) {
+			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomApply::kNoPortalExit) {
+				if (IS_GOD(ch)) {
+					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",  aff->duration,  world[aff->modifier]->vnum);
+				} else {
+					if (world[ch->in_room]->pkPenterUnique) {
+						sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
+								CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+					} else {
+						sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
+					}
 				}
-				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n", time , GET_ROOM_VNUM(world[ch->in_room]->portal_room));
+				SendMsgToChar(buf, ch);
 			}
-			else
-				sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
 		}
-
-		SendMsgToChar(buf, ch);
 	}
 
 	if (world[ch->in_room]->holes) {
@@ -2392,20 +2389,39 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	}
 
 	// заглянуть в пентаграмму
-	if (isname(whatp, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom)) {
-		const auto r = ch->in_room;
-		const auto to_room = world[r]->portal_room;
-		SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
-		act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
-		if (world[to_room]->portal_time && (r == world[to_room]->portal_room)) {
-			SendMsgToChar
-				("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
+	if (isname(whatp, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
+		RoomRnum to_room = kNowhere;
+		bool one_way;
+
+		for (const auto &aff : world[ch->in_room]->affected) {
+			if (aff->type == ESpell::kPortalTimer) {
+				if (aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
+					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
+					return false;
+				}
+				to_room = aff->modifier;
+				for (const auto &aff : world[to_room]->affected) {
+					if (aff->type == ESpell::kPortalTimer) {
+						if (aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
+							one_way = true;
+						}
+					}
+				}
+			}
+		}
+		if (to_room != kNowhere) {
+			const auto r = ch->in_room;
+			SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
+			act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
+			if (one_way) {
+				SendMsgToChar("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
+				return false;
+			}
+			ch->in_room = to_room;
+			look_at_room(ch, 1);
+			ch->in_room = r;
 			return false;
 		}
-		ch->in_room = world[ch->in_room]->portal_room;
-		look_at_room(ch, 1);
-		ch->in_room = r;
-		return false;
 	}
 
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
@@ -2652,9 +2668,13 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (look_at_target(ch, argument, subcmd))
 		return;
 
-	if (isname(arg, "пентаграмма") && world[ch->in_room]->portal_time && IS_SET(where_bits, EFind::kObjRoom))
-		return;
-
+	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
+		for (const auto &aff : world[ch->in_room]->affected) {
+			if (aff->type == ESpell::kPortalTimer && aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
+				return;
+			}
+		}
+	}
 	if (isname(arg, "камень") &&
 		ch->GetSkill(ESkill::kTownportal) &&
 		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom))

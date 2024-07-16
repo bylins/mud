@@ -95,7 +95,7 @@ CharData *find_char_in_room(long char_id, RoomData *room) {
 	return nullptr;
 }
 
-RoomData *FindAffectedRoom(long caster_id, ESpell spell_id) {
+RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id) {
 	for (const auto room : affected_rooms) {
 		for (const auto &af : room->affected) {
 			if (af->type == spell_id && af->caster_id == caster_id) {
@@ -339,12 +339,6 @@ void UpdateRoomsAffects() {
 						|| (*next_affect_i)->duration > 0) {
 						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->vnum));
 					}
-				}
-				if (affect->type == ESpell::kPortalTimer) {
-					(*room)->pkPenterUnique = 0;
-					(*room)->portal_time = 0;
-					OneWayPortal::remove(*room);
-//					decay_portal((*room)->vnum);
 				}
 				RoomRemoveAffect(*room, affect_i);
 				continue;  // Чтоб не вызвался обработчик
@@ -624,6 +618,7 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af) {
 	for (auto &affect_i : room->affected) {
 		if (affect_i->type == af.type && affect_i->location == af.location) {
 			affect_i->duration = af.duration;
+			affect_i->modifier = af.modifier;
 			found = true;
 		}
 	}

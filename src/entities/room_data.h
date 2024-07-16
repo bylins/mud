@@ -98,8 +98,6 @@ struct RoomData {
 	ubyte fires;        // Time when fires - костерок    //
 	ubyte ices;        // Time when ices restore //
 
-	int portal_room;
-	ubyte portal_time;    // Время жисти пентаграммы//
 	long pkPenterUnique; //Постановщик пенты по мести
 	int holes;        // Дырки для камне - копателей //
 	int poison;        // Степень заражения территории в SPELL_DEADLY_FOG //
