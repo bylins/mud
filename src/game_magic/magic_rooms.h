@@ -23,15 +23,13 @@ enum ERoomAffect : Bitvector {
 	kBlackTentacles = 1 << 5, 	// Комната под SPELL_EVARDS_BLACK_TENTACLES //
 	kMeteorstorm= 1 << 6,       // Комната под SPELL_METEORSTORM //
 	kThunderstorm = 1 << 7,      // SPELL_THUNDERSTORM
-	kPortalTimer = 1 << 8      // врата
+	kNoPortalExit = 1 << 8		// портал без входа\выхода
 };
 
 // Эффекты для комнат //
 enum ERoomApply {
 	kNone = 0,
 	kPoison,						// Изменяет в комнате уровень ядности //
-	kPortalExit,
-	kNoPortalExit,
 	kFlame [[maybe_unused]],		// Изменяет в комнате уровень огня (для потомков) //
 	kNumApplies [[maybe_unused]]
 };

@@ -5481,7 +5481,7 @@ void ZoneReset::reset_zone_essential() {
 			if (!(sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim || sect == ESector::kOnlyFlying)) {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
-			if (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
+			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
 				auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
 				const RoomRnum to_room = (*aff)->modifier;
 
