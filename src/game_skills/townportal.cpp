@@ -7,12 +7,12 @@
 
 namespace OneWayPortal {
 void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int time) {
-	sprintf(buf, "Ставим портал из %d в %d", world[from_room]->vnum, world[to_room]->vnum);
-	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+//	sprintf(buf, "Ставим портал из %d в %d", world[from_room]->vnum, world[to_room]->vnum);
+//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.bitvector = room_spells::ERoomApply::kPortalExit;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
@@ -23,7 +23,7 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 	room_spells::AffectRoomJoinReplace(world[from_room], af);
 	room_spells::AddRoomToAffected(world[from_room]);
 	af.modifier = from_room;
-	af.bitvector = to_underlying(EAffect::kNoTeleport);
+	af.bitvector = room_spells::ERoomApply::kNoPortalExit;
 	room_spells::AffectRoomJoinReplace(world[to_room], af);
 	room_spells::AddRoomToAffected(world[to_room]);
 }

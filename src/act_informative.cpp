@@ -1853,7 +1853,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->bitvector != to_underlying(EAffect::kNoTeleport)) {
+			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomApply::kNoPortalExit) {
 				if (IS_GOD(ch)) {
 					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",  aff->duration,  world[aff->modifier]->vnum);
 				} else {
@@ -2395,14 +2395,14 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer) {
-				if (aff->bitvector == to_underlying(EAffect::kNoTeleport)) {
+				if (aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
 					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 					return false;
 				}
 				to_room = aff->modifier;
 				for (const auto &aff : world[to_room]->affected) {
 					if (aff->type == ESpell::kPortalTimer) {
-						if (aff->bitvector == to_underlying(EAffect::kNoTeleport)) {
+						if (aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
 							one_way = true;
 						}
 					}
@@ -2670,7 +2670,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->bitvector == to_underlying(EAffect::kNoTeleport)) {
+			if (aff->type == ESpell::kPortalTimer && aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
 				return;
 			}
 		}

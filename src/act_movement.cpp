@@ -1494,7 +1494,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (*smallBuf) {
 		if (isname(smallBuf, p_str)) {
 			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->type == ESpell::kPortalTimer && aff->bitvector != to_underlying(EAffect::kNoTeleport)) {
+				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomApply::kNoPortalExit) {
 					door = aff->modifier;
 				}
 			}

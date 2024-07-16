@@ -406,12 +406,12 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 }
 
 void ReplacePortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
-	sprintf(buf, "Заменяем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
-	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+//	sprintf(buf, "Заменяем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.bitvector = room_spells::ERoomApply::kPortalExit;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
@@ -424,8 +424,8 @@ void ReplacePortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int
 }
 
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
-	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
-	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
+//	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
+//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
