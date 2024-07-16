@@ -1853,7 +1853,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomApply::kNoPortalExit) {
+			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
 				if (IS_GOD(ch)) {
 					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",  aff->duration,  world[aff->modifier]->vnum);
 				} else {
@@ -2395,14 +2395,14 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer) {
-				if (aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
+				if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
 					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
 					return false;
 				}
 				to_room = aff->modifier;
 				for (const auto &aff : world[to_room]->affected) {
 					if (aff->type == ESpell::kPortalTimer) {
-						if (aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
+						if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
 							one_way = true;
 						}
 					}
@@ -2413,7 +2413,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 			const auto r = ch->in_room;
 			SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
 			act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
-			if (one_way) {
+			if (!one_way) {
 				SendMsgToChar("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
 				return false;
 			}
@@ -2670,7 +2670,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (isname(arg, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->bitvector == room_spells::ERoomApply::kNoPortalExit) {
+			if (aff->type == ESpell::kPortalTimer && aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
 				return;
 			}
 		}
