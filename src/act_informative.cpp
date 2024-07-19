@@ -2388,41 +2388,6 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		}
 	}
 
-	// заглянуть в пентаграмму
-	if (isname(whatp, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
-		RoomRnum to_room = kNowhere;
-		bool one_way;
-
-		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer) {
-				if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
-					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
-					return false;
-				}
-				to_room = aff->modifier;
-				for (const auto &aff : world[to_room]->affected) {
-					if (aff->type == ESpell::kPortalTimer) {
-						if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
-							one_way = true;
-						}
-					}
-				}
-			}
-		}
-		if (to_room != kNowhere) {
-			const auto r = ch->in_room;
-			SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
-			act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
-			if (!one_way) {
-				SendMsgToChar("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
-				return false;
-			}
-			ch->in_room = to_room;
-			look_at_room(ch, 1);
-			ch->in_room = r;
-			return false;
-		}
-	}
 
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	// Is the target a character?
@@ -2452,7 +2417,45 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		SendMsgToChar("Что осматриваем?\r\n", ch);
 		return false;
 	}
+	// заглянуть в пентаграмму
+	i = 0;
+	if (isname(whatp, "пентаграмма") && IS_SET(where_bits, EFind::kObjRoom)) {
+		RoomRnum to_room = kNowhere;
+		bool one_way = false;
 
+		for (const auto &aff : world[ch->in_room]->affected) {
+			if (aff->type == ESpell::kPortalTimer) {
+				if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
+					SendMsgToChar("Похоже, этого здесь нет!\r\n", ch);
+					return false;
+				}
+				if (++i == fnum) {
+					to_room = aff->modifier;
+				}
+				for (const auto &aff : world[to_room]->affected) {
+					if (aff->type == ESpell::kPortalTimer) {
+						if (aff->bitvector == room_spells::ERoomAffect::kNoPortalExit) {
+							one_way = true;
+						}
+					}
+				}
+			}
+		}
+		if (to_room != kNowhere) {
+			const auto r = ch->in_room;
+			SendMsgToChar("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
+			act("$n0 осторожно заглянул$g в пентаграмму.\r\n", true, ch, nullptr, nullptr, kToRoom);
+			if (!one_way) {
+				SendMsgToChar("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
+				return false;
+			}
+			ch->in_room = to_room;
+			look_at_room(ch, 1);
+			ch->in_room = r;
+			return false;
+		}
+	}
+	i = 0;
 	// Does the argument match an extra desc in the room?
 	if ((desc = find_exdesc(what, world[ch->in_room]->ex_description)) != nullptr && ++i == fnum) {
 		page_string(ch->desc, desc, false);
