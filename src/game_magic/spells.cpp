@@ -469,8 +469,8 @@ void SpellPortal(CharData *ch, CharData *victim) {
 	}
 
 	if (!IS_GOD(ch) && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
-		ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
-		ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -479,6 +479,12 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		SendMsgToChar("Может, вам лучше просто потоптаться на месте?\r\n", ch);
 		return;
 	}
+
+	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
+		SendMsgToChar("Здесь уже открыт переход, попробуйте попозже.\r\n", ch);
+		return;
+	}
+
 /*
 	if (IsRoomWithPortal(fnd_room) == ch->in_room) {
 		DecayPortalMessage(fnd_room);
