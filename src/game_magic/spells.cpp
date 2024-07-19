@@ -482,6 +482,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		SendMsgToChar("Здесь уже открыт переход, попробуйте попозже.\r\n", ch);
+		act("$n0 попытал$u открыть переход, но другие врата мешают этому, надо подождать.", true, ch, nullptr, nullptr, kToRoom);
 		return;
 	}
 
