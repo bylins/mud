@@ -20,7 +20,8 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 	af.caster_id = ch? GET_ID(ch) : 0;
 	af.must_handled = false;
 	af.apply_time = 0;
-	room_spells::AffectRoomJoinReplace(world[from_room], af);
+//	room_spells::AffectRoomJoinReplace(world[from_room], af);
+	room_spells::affect_to_room(world[from_room], af);
 	room_spells::AddRoomToAffected(world[from_room]);
 	af.modifier = from_room;
 	af.bitvector = room_spells::ERoomAffect::kNoPortalExit;

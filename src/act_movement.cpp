@@ -1484,17 +1484,26 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 }
 
 void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int door = kNowhere;
-	int from_room;
+	RoomRnum door = kNowhere;
+	RoomRnum from_room;
+	int fnum;
 	const char *p_str = "пентаграмма";
 	struct FollowerType *k, *k_next;
+	char *pnumber;
 
 	one_argument(argument, smallBuf);
+	pnumber = smallBuf;
+	if (!(fnum = get_number(&pnumber))) {
+		SendMsgToChar("Здесь такой нет!\r\n", ch);
+		return;
+	}
 
 	if (*smallBuf) {
 		if (isname(smallBuf, p_str)) {
+
+			int i = 0;
 			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
+				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit && ++i == fnum) {
 					door = aff->modifier;
 				}
 			}

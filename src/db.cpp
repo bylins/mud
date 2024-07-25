@@ -5482,6 +5482,10 @@ void ZoneReset::reset_zone_essential() {
 				im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			}
 			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
+				RemovePortalGate(rnum);
+			}
+/*
+			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
 				auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
 				const RoomRnum to_room = (*aff)->modifier;
 
@@ -5497,6 +5501,7 @@ void ZoneReset::reset_zone_essential() {
 					act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
 				}
 			}
+*/
 			paste_on_reset(room);
 		}
 	}
