@@ -405,24 +405,6 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	greet_otrigger(ch, -1);
 }
 
-void ReplacePortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
-//	sprintf(buf, "Заменяем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
-//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-
-	Affect<room_spells::ERoomApply> af;
-	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
-	af.duration = time; //раз в 2 секунды
-	af.modifier = to_room;
-	af.battleflag = 0;
-	af.location = room_spells::ERoomApply::kNone;
-	af.caster_id = ch? GET_ID(ch) : 0;
-	af.must_handled = false;
-	af.apply_time = 0;
-	room_spells::AffectRoomJoinReplace(from_room, af);
-	room_spells::AddRoomToAffected(from_room);
-}
-
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
 //	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -439,6 +421,23 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 	af.apply_time = 0;
 	room_spells::affect_to_room(from_room, af);
 	room_spells::AddRoomToAffected(from_room);
+}
+
+void RemovePortalGate(RoomRnum rnum) {
+	auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
+	const RoomRnum to_room = (*aff)->modifier;
+
+	if (aff != world[rnum]->affected.end()) {
+		room_spells::RoomRemoveAffect(world[rnum], aff);
+		act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToRoom);
+		act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToChar);
+	}
+	aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
+	if (aff != world[to_room]->affected.end()) {
+		room_spells::RoomRemoveAffect(world[to_room], aff);
+		act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
+		act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
+	}
 }
 
 void SpellPortal(CharData *ch, CharData *victim) {
@@ -480,21 +479,6 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
-		SendMsgToChar("Здесь уже открыт переход, попробуйте попозже.\r\n", ch);
-		act("$n0 попытал$u открыть переход, но другие врата мешают этому, надо подождать.", true, ch, nullptr, nullptr, kToRoom);
-		return;
-	}
-
-/*
-	if (IsRoomWithPortal(fnd_room) == ch->in_room) {
-		DecayPortalMessage(fnd_room);
-	}
-
-	if (IsRoomWithPortal(ch->in_room) == fnd_room) {
-		DecayPortalMessage(ch->in_room);
-	}
-*/
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 		pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
@@ -506,8 +490,20 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
 		}
-
-		ReplacePortalTimer(ch, world[fnd_room], ch->in_room, 29);
+		if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
+			bool remove = false;
+			for (const auto &aff : world[ch->in_room]->affected) {
+				if (aff->type == ESpell::kPortalTimer ) {
+					if (aff->caster_id == GET_ID(ch) && aff->modifier == fnd_room) {
+						remove = true;
+						break;
+					}
+				}
+			}
+			if (remove)
+				RemovePortalGate(ch->in_room);
+		}
+		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29);
 		if (pkPortal) 
 			world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
 
@@ -528,20 +524,21 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
 			return;
 		}
-		ReplacePortalTimer(ch, world[ch->in_room], fnd_room, 29);
+
+		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29);
 		if (pkPortal) 
 			world[ch->in_room]->pkPenterUnique = GET_UNIQUE(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
+					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
+					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
 		} else {
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
+					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
 			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
+					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
 		}
 	}
 }
