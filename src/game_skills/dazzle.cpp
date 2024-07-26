@@ -11,7 +11,7 @@
 // Created by Svetodar on 04.01.2024.
 //
 void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (IsUnableToAct(ch)) {
+	if (!IS_IMMORTAL(ch) && IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
@@ -19,7 +19,7 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kDazzle)) {
+	if (!IS_IMMORTAL(ch) && ch->HasCooldown(ESkill::kDazzle)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
@@ -45,7 +45,7 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Лучше уж выколите себе глаза, чтобы не мучаться!\r\n", ch);
 		return;
 	}
-	if (IsAffectedBySpellWithCasterId(vict, ch, ESpell::kDazzle)) {
+	if (!IS_IMMORTAL(ch) && IsAffectedBySpellWithCasterId(vict, ch, ESpell::kDazzle)) {
 		SendMsgToChar("Невозможно ослепить жертву повторно!\r\n", ch);
 		return;
 	}
@@ -81,7 +81,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 		}
 	}
 
-	if (!has_pepper) {
+	if (!IS_IMMORTAL(ch) && !has_pepper) {
 		SendMsgToChar("&WЧем Вы собираетесь ослепить соперника?! У вас нет ни щепотки жгучей смеси!\r\n&n", ch);
 		return;
 	}
@@ -106,7 +106,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
 		if (!IsAffectedBySpellWithCasterId(ch, target, ESpell::kDazzle)) {
-			if (!target->IsNpc()) {
+			if (!IS_IMMORTAL(ch) && !target->IsNpc()) {
 				SendMsgToChar("Нельзя слепить человеков! Чтобы видали кому кланяться...\r\n", ch);
 				continue;
 			} else {

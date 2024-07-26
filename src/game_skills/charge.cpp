@@ -12,6 +12,7 @@
 #include "bash.h"
 #include "action_targeting.h"
 #include "game_fight/common.h"
+#include "game_fight/mobact.h"
 
 // ********************* CHARGE PROCEDURE
 
@@ -43,16 +44,13 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((direction = search_block(arg, dirs, false)) >= 0 ||
 		(direction = search_block(arg, dirs_rus, false)) >= 0) {
 		go_charge(ch, direction);
-		return;
 	} else {
 		SendMsgToChar("В каком направлении Вы желаете ринуться в бой?\r\n", ch);
-		return;
 	}
 }
 
 void go_charge(CharData *ch, int direction) {
-	if (IsCorrectDirection(ch, direction, true, false)
-		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
+	if (IsCorrectDirection(ch, direction, true, false)) {
 		act("$n истошно завопил$g и ринул$u в бой, лихо размахивая своим оружием.",
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (DoSimpleMove(ch, direction, true, nullptr, false)) {
@@ -70,8 +68,8 @@ void go_charge(CharData *ch, int direction) {
 		is_awake = true;
 	}
 
-	int dam = (number(ceil((ceil GET_SKILL(ch,ESkill::kCharge) * 3) / 1.25),
-					  ceil(((ceil GET_SKILL(ch,ESkill::kCharge) * 3) * 1.25))) *
+	int dam = (number(ceil(ceil GET_SKILL(ch,ESkill::kCharge) * 3 / 1.25),
+					  ceil(ceil GET_SKILL(ch,ESkill::kCharge) * 3 * 1.25)) *
 			   GetRealLevel(ch)) / 30;
 
 	if (is_awake) {
@@ -80,7 +78,7 @@ void go_charge(CharData *ch, int direction) {
 
 	int victims_amount = 2;
 	if (is_awake) {
-		victims_amount = 2 + ((ch->GetSkill(ESkill::kCharge) / 40));
+		victims_amount = 2 + ch->GetSkill(ESkill::kCharge) / 40;
 	}
 
 	Affect<EApply> af;
@@ -101,7 +99,7 @@ void go_charge(CharData *ch, int direction) {
 
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
-		if (MOB_FLAGGED(target, EMobFlag::kProtect) || (!may_kill_here(ch,target, arg)) ||target == ch || !CAN_SEE(ch,target)) {
+		if (MOB_FLAGGED(target, EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !CAN_SEE(ch,target)) {
 			--victims_amount;
 		} else {
 			if (IsAffectedBySpellWithCasterId(ch, target, ESpell::kNoCharge)) {
@@ -130,7 +128,7 @@ void go_charge(CharData *ch, int direction) {
 					dmg.dam = 0;
 					dmg.Process(target, ch);
 				} else {
-					if (ch->GetSkill(ESkill::kShieldBash) && (ch->GetSkill(ESkill::kBash)) && (GET_EQ(ch, kShield)) && (!is_awake)) {
+					if (ch->GetSkill(ESkill::kShieldBash) && ch->GetSkill(ESkill::kBash) && (GET_EQ(ch, kShield)) && !is_awake) {
 						go_bash(ch,target);
 					} else {
 						act("Хорошенько разогнавшись Вы прописали $N2 роскошного тумака!",
@@ -150,4 +148,5 @@ void go_charge(CharData *ch, int direction) {
 			break;
 		}
 	}
+	do_aggressive_room(ch,1);
 }
