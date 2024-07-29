@@ -50,6 +50,7 @@
         <spell id="kEnlarge"				level="8"	remort="0"	circle="1"	mem="0"		cast="1.0"/>
         <spell id="kCurse"					level="8"	remort="0"	circle="1"	mem="0"		cast="1.0"/>
         <spell id="kRemovePoison"			level="10"	remort="0"	circle="1"	mem="0"		cast="1.0"/>
+        <spell id="kRoomLight"				level="12"	remort="0"	circle="1"	mem="0"		cast="1.0"/>
         <spell id="kSilence"				level="14"	remort="0"	circle="2"	mem="0"		cast="1.0"/>
         <spell id="kBlindness"				level="14"	remort="0"	circle="2"	mem="0"		cast="1.0"/>
         <spell id="kFear"					level="14"	remort="0"	circle="2"	mem="0"		cast="1.0"/>
