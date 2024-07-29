@@ -107,7 +107,7 @@ const char *olc_stat_name[] =
 		"Разум",
 		"Запоминание",
 		"Физ. урон %",
-		"Маг. урон %"
+		"Сила заклинаний %"
 	};
 
 void glory_hide(CharData *ch,

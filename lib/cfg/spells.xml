@@ -358,6 +358,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
+	<talent_actions>
+            <action>
+                <heal saving="kCritical">
+                    <dices ndice="10" sdice="10" adice="1"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="1.5" hi_skill_bonus="3"/>
+                </heal>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kInvisible" element="kMind" mode="kEnabled">
         <name rus="невидимость" eng="invisible"/>

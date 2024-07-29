@@ -147,7 +147,7 @@ void PrintScoreList(CharData *ch) {
 				  ch->calc_morale(),
 				  calc_initiative(ch, false));
 	SendMsgToChar(ch, "Бонусы в процентах: маг.урон: %d, физ. урон: %d, опыт: %d\r\n",
-				  ch->add_abils.percent_magdam_add,
+				  ch->add_abils.percent_spellpower_add,
 				  ch->add_abils.percent_physdam_add,
 				  ch->add_abils.percent_exp_add);
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
@@ -570,7 +570,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
 	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
-	table[++row][col] = "Маг. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_magdam_add);
+	table[++row][col] = "Сила заклинаний %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_spellpower_add);
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add);
 	table[++row][col] = "Инициатива";	table[row][col + 1] = std::to_string(calc_initiative(ch, false));
 	table[++row][col] = "Спас-броски:";	table[row][col + 1] = " ";

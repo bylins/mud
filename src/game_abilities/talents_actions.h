@@ -19,7 +19,8 @@ namespace talents_actions {
 
 enum class EAction {
 	kDamage,
-	kArea
+	kArea,
+	kHeal
 };
 
 class IAction {
@@ -46,11 +47,16 @@ class Damage : public IAction {
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
 
-	[[nodiscard]] int RollDmgDices() const;
-	[[nodiscard]] double CalcSkillDmgCoeff(const CharData *ch) const;
+	[[nodiscard]] int RollSkillDices() const;
+	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+
+class Heal : public	Damage {
+public:
+	explicit Heal(parser_wrapper::DataNode &node);
 };
 
 struct Area : public IAction {
@@ -77,6 +83,7 @@ class Actions {
 	static void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {
@@ -88,6 +95,7 @@ class Actions {
 
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
+	[[nodiscard]] const Heal &GetHeal() const;
 };
 
 }
