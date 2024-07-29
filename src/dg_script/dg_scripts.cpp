@@ -819,7 +819,7 @@ EVENT(trig_wait_event) {
 	type = wait_event_obj->type;
 
 	GET_TRIG_WAIT(trig) = nullptr;
-	log("trigger wait event: start trigger %d", GET_TRIG_VNUM(trig));
+	log("trigger wait event: start trigger %d GET_TRIG_LOOPS %d GET_TRIG_DEPTH(trig) %d", GET_TRIG_VNUM(trig), GET_TRIG_LOOPS(trig), GET_TRIG_DEPTH(trig));
 
 	script_driver(go, trig, type, TRIG_CONTINUE);
 	free(wait_event_obj);
@@ -3861,7 +3861,7 @@ int eval_lhs_op_rhs(const char *expr, char *result, void *go, Script *sc, Trigge
 			"\n"
 		};
 
-	p = strcpy(line, expr);
+	p = strncpy(line, expr, kMaxTrglineLength);
 
 	/*
 	 * initialize tokens, an array of pointers to locations
@@ -5465,6 +5465,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					cl = cl->original;
 					loops++;
 					GET_TRIG_LOOPS(trig)++;
+
 					if (loops == 30) {
 						snprintf(buf2, kMaxStringLength, "wait 1");
 						process_wait(go, trig, type, buf2, cl);
@@ -5480,8 +5481,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					if (GET_TRIG_LOOPS(trig) == 1000) {
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
-					if (GET_TRIG_LOOPS(trig) == 10000) {
+					if (GET_TRIG_LOOPS(trig) >= 10000) {
 						trig_log(trig, "looping 10000 times, cancelled", DEF);
+						GET_TRIG_LOOPS(trig) = 0;
 						cl = find_done(trig, cl);
 					}
 				}

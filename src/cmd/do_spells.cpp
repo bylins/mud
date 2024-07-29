@@ -76,6 +76,8 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		}
 		max_slot = std::max(slot_num + 1, max_slot);
 		if (IS_MANA_CASTER(ch)) {
+			if (!spell_create.contains(spell_id))
+				continue;
 			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
 				continue;
 			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
