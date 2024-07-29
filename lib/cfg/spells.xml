@@ -563,6 +563,21 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
     </spell>
+    <spell id="kGreatHeal" element="kLife" mode="kEnabled">
+        <name rus="великое исцеление" eng="great heal"/>
+        <misc pos="kFight" violent="N" danger="30"/>
+        <mana max="110" min="100" change="2"/>
+        <targets val="kTarIgnore"/>
+        <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
+        <talent_actions>
+            <action>
+                <area>
+                    <decay cast="0.01" level="0" free_targets="3"/>
+                    <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
+                </area>
+            </action>
+        </talent_actions>
+    </spell>
     <spell id="kGroupRecall" element="kMind" mode="kEnabled">
         <name rus="групповой возврат" eng="group recall"/>
         <misc pos="kFight" violent="N" danger="0"/>
