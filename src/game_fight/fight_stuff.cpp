@@ -35,6 +35,7 @@ void SetWait(CharData *ch, int waittime, int victim_in_room);
 
 extern int material_value[];
 extern int max_exp_gain_npc;
+extern std::list<CharData *> combat_list;
 
 //интервал в секундах между восстановлением кругов после рипа
 void process_mobmax(CharData *ch, CharData *killer) {
@@ -649,7 +650,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->GetEnemy())
 		stop_fighting(ch, true);
 
-	for (CharData *hitter = combat_list; hitter; hitter = hitter->next_fighting) {
+	for (auto hitter : combat_list) {
 		if (hitter->GetEnemy() == ch) {
 			SetWaitState(hitter, 0);
 		}

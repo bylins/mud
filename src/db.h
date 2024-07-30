@@ -252,7 +252,7 @@ extern const int sunrise[][2];
 extern const int Reverse[];
 
 // external vars
-extern CharData *combat_list;
+//extern std::list<CharData *> combat_list;
 
 #include <vector>
 #include <deque>

@@ -37,8 +37,7 @@
 #include "game_skills/slay.h"
 
 // Structures
-CharData *combat_list = nullptr;    // head of l-list of fighting entities
-CharData *next_combat_list = nullptr;
+std::list<CharData *> combat_list;
 
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
@@ -201,8 +200,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 		RemoveAffectFromChar(ch, ESpell::kRecallSpells);
 	}
 
-	ch->next_fighting = combat_list;
-	combat_list = ch;
+	combat_list.push_front(ch);
 
 	if (AFF_FLAGGED(ch, EAffect::kSleep)) {
 		RemoveAffectFromChar(ch, ESpell::kSleep);
@@ -255,14 +253,14 @@ void SetFighting(CharData *ch, CharData *vict) {
 
 // remove a char from the list of fighting entities
 void stop_fighting(CharData *ch, int switch_others) {
-	CharData *temp, *found;
+	std::list<CharData *>::iterator found;
 
-	if (ch == next_combat_list)
-		next_combat_list = ch->next_fighting;
-
-	REMOVE_FROM_LIST(ch, combat_list, [](auto list) -> auto & { return list->next_fighting; });
-	//Попробуем сперва очистить ссылку у врага, потом уже у самой цели
-	ch->next_fighting = nullptr;
+	for (std::list<CharData *>::iterator it = combat_list.begin(); it != combat_list.end();) {
+		if (*it  == ch)
+			it = combat_list.erase(it);
+		else
+			++it;
+	}
 	ch->last_comm.clear();
 	ch->set_touching(0);
 	ch->SetEnemy(0);
@@ -277,7 +275,7 @@ void stop_fighting(CharData *ch, int switch_others) {
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
 	handle_affects(params);
 	if (switch_others != 2) {
-		for (temp = combat_list; temp; temp = temp->next_fighting) {
+		for (auto &temp : combat_list) {
 			if (temp->get_touching() == ch) {
 				temp->set_touching(0);
 				CLR_AF_BATTLE(temp, kEafTouch);
@@ -288,15 +286,17 @@ void stop_fighting(CharData *ch, int switch_others) {
 				temp->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 			if (temp->GetEnemy() == ch && switch_others) {
 				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
-				for (found = combat_list; found; found = found->next_fighting)
-					if (found != ch && found->GetEnemy() == temp) {
-						act("Вы переключили свое внимание на $N3.", false, temp, 0, found, kToChar);
-						temp->SetEnemy(found);
+				for (found = combat_list.begin(); found != combat_list.end(); found++) {
+					if (*found != ch && (*found)->GetEnemy() == temp) {
+						if (!temp->IsNpc())
+							act("Вы переключили свое внимание на $N3.", false, temp, 0, *found, kToChar);
+						temp->SetEnemy(*found);
 						break;
 					}
-				if (!found) {
+				}
+				if (found == combat_list.end()) {
 					stop_fighting(temp, false);
-				};
+				}
 			}
 		}
 
@@ -1196,8 +1196,7 @@ void summon_mob_helpers(CharData *ch) {
 }
 
 void check_mob_helpers() {
-	for (CharData *ch = combat_list; ch; ch = next_combat_list) {
-		next_combat_list = ch->next_fighting;
+	for (auto &ch : combat_list) {
 		// Extract battler if no opponent
 		if (ch->GetEnemy() == nullptr
 			|| ch->in_room != IN_ROOM(ch->GetEnemy())
@@ -1683,7 +1682,7 @@ void add_attackers_round(CharData *ch) {
 }
 
 void update_round_affs() {
-	for (CharData *ch = combat_list; ch; ch = ch->next_fighting) {
+	for (auto &ch : combat_list) {
 		if (ch->in_room == kNowhere)
 			continue;
 
@@ -2040,9 +2039,7 @@ void perform_violence() {
 
 	//* действия до раунда и расчет инициативы
 	round_profiler.next_step("Calc initiative");
-	for (CharData *ch = combat_list; ch; ch = next_combat_list) {
-		next_combat_list = ch->next_fighting;
-
+	for (auto &ch : combat_list) {
 		if (ch->desc) {
 			msdp_report_chars.insert(ch);
 		} else if (ch->has_master()
@@ -2082,8 +2079,7 @@ void perform_violence() {
 	round_profiler.next_step("Round check");
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
-		for (CharData *ch = combat_list; ch; ch = next_combat_list) {
-			next_combat_list = ch->next_fighting;
+		for (auto &ch : combat_list) {
 			size++;
 			if (ch->initiative != initiative || ch->in_room == kNowhere) {
 				continue;

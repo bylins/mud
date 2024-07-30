@@ -32,6 +32,7 @@
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
 extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
+extern std::list<CharData *> combat_list;
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
@@ -51,7 +52,6 @@ int last_trig_line_num = 0;
 // other external vars
 
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
-extern CharData *combat_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *exit_bits[];
@@ -2903,9 +2903,8 @@ void find_replacement(void *go,
 				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
 			}
 		} else if (!str_cmp(field, "attackers")) {
-			CharData *t;
 			size_t str_length = strlen(str);
-			for (t = combat_list; t; t = t->next_fighting) {
+			for (auto t : combat_list) {
 				if (t->GetEnemy() != c) {
 					continue;
 				}
