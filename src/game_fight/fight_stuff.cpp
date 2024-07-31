@@ -35,7 +35,7 @@ void SetWait(CharData *ch, int waittime, int victim_in_room);
 
 extern int material_value[];
 extern int max_exp_gain_npc;
-extern std::list<CharData *> combat_list;
+extern std::list<std::pair<CharData * /*ch*/, bool /*deleted*/>> combat_list;
 
 //интервал в секундах между восстановлением кругов после рипа
 void process_mobmax(CharData *ch, CharData *killer) {
@@ -650,9 +650,9 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->GetEnemy())
 		stop_fighting(ch, true);
 
-	for (auto hitter : combat_list) {
-		if (hitter->GetEnemy() == ch) {
-			SetWaitState(hitter, 0);
+	for (auto &hitter : combat_list) {
+		if (hitter.first->GetEnemy() == ch) {
+			SetWaitState(hitter.first, 0);
 		}
 	}
 
@@ -660,10 +660,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 //		debug::coredump();
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.",
-			   NRM,
-			   kLvlGod,
-			   ERRLOG,
-			   true);
+				NRM, kLvlGod, ERRLOG, true);
 		return;
 	}
 	if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
