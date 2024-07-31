@@ -256,14 +256,15 @@ void stop_fighting(CharData *ch, int switch_others) {
 	std::list<CharData *>::iterator found;
 
 	for (std::list<CharData *>::iterator it = combat_list.begin(); it != combat_list.end();) {
-		if (*it  == ch)
+		if (*it  == ch) {
 			it = combat_list.erase(it);
+		}
 		else
 			++it;
 	}
 	ch->last_comm.clear();
-	ch->set_touching(0);
-	ch->SetEnemy(0);
+	ch->set_touching(nullptr);
+	ch->SetEnemy(nullptr);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
 	ch->round_counter = 0;
@@ -274,10 +275,12 @@ void stop_fighting(CharData *ch, int switch_others) {
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
 	handle_affects(params);
+	auto combat_list_copy = combat_list; // в рекурсии может быть удаление, потому по копии
+
 	if (switch_others != 2) {
-		for (auto &temp : combat_list) {
+		for (auto &temp : combat_list_copy) {
 			if (temp->get_touching() == ch) {
-				temp->set_touching(0);
+				temp->set_touching(nullptr);
 				CLR_AF_BATTLE(temp, kEafTouch);
 			}
 			if (temp->GetExtraVictim() == ch)
@@ -286,7 +289,7 @@ void stop_fighting(CharData *ch, int switch_others) {
 				temp->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 			if (temp->GetEnemy() == ch && switch_others) {
 				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
-				for (found = combat_list.begin(); found != combat_list.end(); found++) {
+				for (found = combat_list_copy.begin(); found != combat_list_copy.end(); found++) {
 					if (*found != ch && (*found)->GetEnemy() == temp) {
 						if (!temp->IsNpc())
 							act("Вы переключили свое внимание на $N3.", false, temp, 0, *found, kToChar);
@@ -294,13 +297,13 @@ void stop_fighting(CharData *ch, int switch_others) {
 						break;
 					}
 				}
-				if (found == combat_list.end()) {
+				if (found == combat_list_copy.end()) {
 					stop_fighting(temp, false);
 				}
 			}
 		}
 
-		update_pos(ch);
+ 		update_pos(ch);
 		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
 		if ((ch->GetEnemy() == nullptr) && PRF_FLAGS(ch).get(EPrf::kIronWind)) {
 			PRF_FLAGS(ch).unset(EPrf::kIronWind);
@@ -308,9 +311,9 @@ void stop_fighting(CharData *ch, int switch_others) {
 				SendMsgToChar("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
 				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			};
-		};
-	};
+			}
+		}
+	}
 }
 
 int GET_MAXDAMAGE(CharData *ch) {
