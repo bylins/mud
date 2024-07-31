@@ -260,6 +260,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kNoCharge, ""},
 		{ESpell::kConfuse, ""},
 		{ESpell::kDazzle, ""},
+		{ESpell::kGreatHeal, "!Great Heal!"},
 		{ESpell::kPortalTimer, "Пентаграмма медленно растаяла."}
 	};
 
@@ -303,6 +304,7 @@ std::optional<CastPhraseList> GetCastPhrase(ESpell spell_id) {
 		{ESpell::kFireball, {"огненну солнце", "... да ниспадет огонь с неба, и пожрет их."}},
 		{ESpell::kHarm, {"згола скверна", "... и жестокою болью во всех костях твоих."}},
 		{ESpell::kHeal, {"згола гой еси", "... тебе говорю, встань."}},
+		{ESpell::kGreatHeal, {"згола гой еси", "... тебе говорю, встань."}},
 		{ESpell::kInvisible, {"низовати мечетно", "... ибо видимое временно, а невидимое вечно."}},
 		{ESpell::kLightingBolt, {"грянет гром", "... и были громы и молнии."}},
 		{ESpell::kLocateObject, {"рища, летая умом под облакы", "... ибо всякий просящий получает, и ищущий находит."}},
@@ -830,6 +832,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kPortalTimer] = "kPortalTimer";
 	ESpell_name_by_value[ESpell::kNoCharge] = "kNoCharge";
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
+	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "entities/char_data.h"
+#include "fmt/format.h"
 #include "utils/random.h"
 
 namespace talents_actions {
@@ -28,7 +29,7 @@ double Damage::CalcSkillCoeff(const CharData *const ch) const {
 }
 
 double Damage::CalcBaseStatCoeff(const CharData *const ch) const {
-	return (std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_)) * base_stat_weight_ / 100.0;
+	return std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
 
 Damage::Damage(parser_wrapper::DataNode &node) {

@@ -2632,7 +2632,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
 					break;
-				case 5:CallMagic(ch, ch, nullptr, nullptr, ESpell::kGroupHeal, GetRealLevel(ch));
+				case 5:CallMagic(ch, ch, nullptr, nullptr, ESpell::kGreatHeal, GetRealLevel(ch));
 					break;
 				default:break;
 			}
@@ -3178,7 +3178,11 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		case ESpell::kHeal:
 		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, ESpell::kHeal);
-			SendMsgToChar("Вы почувствовали себя здоровым.\r\n", victim);
+			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
+			break;
+		case ESpell::kGreatHeal:
+			hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+			SendMsgToChar("Вы почувствовали себя полностью здоровым.\r\n", victim);
 			break;
 		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
 			break;
@@ -3946,7 +3950,7 @@ const AreaSpellParams mag_messages[] =
 		 nullptr,
 		 nullptr,
 		 nullptr},
-		{ESpell::kGroupHeal,
+		{ESpell::kGreatHeal,
 		 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 		 nullptr,
 		 nullptr},
