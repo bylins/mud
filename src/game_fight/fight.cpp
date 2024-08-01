@@ -2123,9 +2123,9 @@ void perform_violence() {
 				log("Process player attack, name %s, time %f", GET_NAME(it.ch), violence_timer.delta().count());
 			}
 		}
-		// удалим помеченные (убитые)
-		std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	}
+	// удалим помеченные (убитые)
+	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	//* обновление аффектов и лагов после раунда
 	round_profiler.next_step("Update round affs");
 	update_round_affs();
