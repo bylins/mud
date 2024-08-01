@@ -4798,19 +4798,16 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		trig_log(trig, buf2);
 		return;
 	}
-
-	for (const auto &tch : character_list) {
-		if (tch->IsNpc()
-			|| !HERE(tch)
-			|| !isname(who, GET_NAME(tch))) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING)
+			continue;
+		if (!HERE(d->character) || !isname(who, d->character->get_name())) {
 			continue;
 		}
-
-		if (IN_ROOM(tch) != kNowhere) {
-			result = GET_ID(tch);
+		if (IN_ROOM(d->character) != kNowhere) {
+			result = d->character->id;
 		}
 	}
-
 	if (result <= -1) {
 //		sprintf(buf2, "charuid target not found, name: '%s'", who);
 //		trig_log(trig, buf2);
