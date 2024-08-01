@@ -32,7 +32,7 @@
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
 extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
-extern std::list<std::pair<CharData * /*ch*/, bool /*deleted*/>> combat_list;
+extern std::list<combat_list_element> combat_list;
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
@@ -2904,11 +2904,13 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			size_t str_length = strlen(str);
-			for (auto t : combat_list) {
-				if (t.first->GetEnemy() != c) {
+			for (auto it : combat_list) {
+				if (it.deleted)
+					continue;
+				if (it.ch->GetEnemy() != c) {
 					continue;
 				}
-				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(t.first));
+				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(it.ch));
 				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
