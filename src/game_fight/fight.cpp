@@ -37,7 +37,7 @@
 #include "game_skills/slay.h"
 
 // Structures
-std::list<std::pair<CharData * /*ch*/, bool /*deleted*/>> combat_list;
+std::list<combat_list_element> combat_list;
 
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
@@ -199,8 +199,11 @@ void SetFighting(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
 		RemoveAffectFromChar(ch, ESpell::kRecallSpells);
 	}
+	combat_list_element attaker;
 
-	combat_list.push_front(std::make_pair(ch, false));
+	attaker.ch = ch;
+	attaker.deleted = false;
+	combat_list.push_front(attaker);
 
 	if (AFF_FLAGGED(ch, EAffect::kSleep)) {
 		RemoveAffectFromChar(ch, ESpell::kSleep);
@@ -253,11 +256,11 @@ void SetFighting(CharData *ch, CharData *vict) {
 
 // remove a char from the list of fighting entities
 void stop_fighting(CharData *ch, int switch_others) {
-	std::list<std::pair<CharData *, bool>>::iterator found;
+	std::list<combat_list_element>::iterator found;
 
 	for (auto &it : combat_list) {
-		if (it.first  == ch) {
-			it.second = true;
+		if (it.ch  == ch) {
+			it.deleted = true;
 		}
 	}
 	ch->last_comm.clear();
@@ -275,30 +278,30 @@ void stop_fighting(CharData *ch, int switch_others) {
 	handle_affects(params);
 	if (switch_others != 2) {
 		for (auto &temp : combat_list) {
-			if (temp.second)
+			if (temp.deleted)
 				continue;
-			if (temp.first->get_touching() == ch) {
-				temp.first->set_touching(nullptr);
-				CLR_AF_BATTLE(temp.first, kEafTouch);
+			if (temp.ch->get_touching() == ch) {
+				temp.ch->set_touching(nullptr);
+				CLR_AF_BATTLE(temp.ch, kEafTouch);
 			}
-			if (temp.first->GetExtraVictim() == ch)
-				temp.first->SetExtraAttack(kExtraAttackUnused, nullptr);
-			if (temp.first->GetCastChar() == ch)
-				temp.first->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
-			if (temp.first->GetEnemy() == ch && switch_others) {
-				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp.first));
+			if (temp.ch->GetExtraVictim() == ch)
+				temp.ch->SetExtraAttack(kExtraAttackUnused, nullptr);
+			if (temp.ch->GetCastChar() == ch)
+				temp.ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
+			if (temp.ch->GetEnemy() == ch && switch_others) {
+				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp.ch));
 				for (found = combat_list.begin(); found != combat_list.end(); found++) {
-					if ((*found).second)
+					if ((*found).deleted)
 						continue;
-					if ((*found).first != ch && (*found).first->GetEnemy() == temp.first) {
-						if (!temp.first->IsNpc())
-							act("Вы переключили свое внимание на $N3.", false, temp.first, 0, (*found).first, kToChar);
-						temp.first->SetEnemy((*found).first);
+					if ((*found).ch != ch && (*found).ch->GetEnemy() == temp.ch) {
+						if (!temp.ch->IsNpc())
+							act("Вы переключили свое внимание на $N3.", false, temp.ch, 0, (*found).ch, kToChar);
+						temp.ch->SetEnemy((*found).ch);
 						break;
 					}
 				}
 				if (found == combat_list.end()) {
-					stop_fighting(temp.first, false);
+					stop_fighting(temp.ch, false);
 				}
 			}
 		}
@@ -1200,25 +1203,27 @@ void summon_mob_helpers(CharData *ch) {
 
 void check_mob_helpers() {
 	for (auto &it : combat_list) {
+		if (it.deleted)
+			continue;
 		// Extract battler if no opponent
-		if (it.first->GetEnemy() == nullptr
-			|| it.first->in_room != IN_ROOM(it.first->GetEnemy())
-			|| it.first->in_room == kNowhere) {
-			stop_fighting(it.first, true);
+		if (it.ch->GetEnemy() == nullptr
+			|| it.ch->in_room != IN_ROOM(it.ch->GetEnemy())
+			|| it.ch->in_room == kNowhere) {
+			stop_fighting(it.ch, true);
 			continue;
 		}
-		if (AFF_FLAGGED(it.first, EAffect::kHold)
-			|| !it.first->IsNpc()
-			|| it.first->get_wait() > 0
-			|| GET_POS(it.first) < EPosition::kFight
-			|| AFF_FLAGGED(it.first, EAffect::kCharmed)
-			|| AFF_FLAGGED(it.first, EAffect::kMagicStopFight)
-			|| AFF_FLAGGED(it.first, EAffect::kStopFight)
-			|| AFF_FLAGGED(it.first, EAffect::kSilence)
-			|| PRF_FLAGGED(it.first->GetEnemy(), EPrf::kNohassle)) {
+		if (AFF_FLAGGED(it.ch, EAffect::kHold)
+			|| !it.ch->IsNpc()
+			|| it.ch->get_wait() > 0
+			|| GET_POS(it.ch) < EPosition::kFight
+			|| AFF_FLAGGED(it.ch, EAffect::kCharmed)
+			|| AFF_FLAGGED(it.ch, EAffect::kMagicStopFight)
+			|| AFF_FLAGGED(it.ch, EAffect::kStopFight)
+			|| AFF_FLAGGED(it.ch, EAffect::kSilence)
+			|| PRF_FLAGGED(it.ch->GetEnemy(), EPrf::kNohassle)) {
 			continue;
 		}
-		summon_mob_helpers(it.first);
+		summon_mob_helpers(it.ch);
 	}
 }
 
@@ -1686,39 +1691,39 @@ void add_attackers_round(CharData *ch) {
 
 void update_round_affs() {
 	for (auto &it : combat_list) {
-		if (it.second)
+		if (it.deleted)
 			continue;
-		if (it.first->in_room == kNowhere)
+		if (it.ch->in_room == kNowhere)
 			continue;
 
-		CLR_AF_BATTLE(it.first, kEafFirst);
-		CLR_AF_BATTLE(it.first, kEafSecond);
-		CLR_AF_BATTLE(it.first, kEafUsedleft);
-		CLR_AF_BATTLE(it.first, kEafUsedright);
-		CLR_AF_BATTLE(it.first, kEafMultyparry);
-		CLR_AF_BATTLE(it.first, kEafDodge);
-		CLR_AF_BATTLE(it.first, kEafTouch);
-		if (it.first->get_touching())
-			it.first->set_touching(0);
+		CLR_AF_BATTLE(it.ch, kEafFirst);
+		CLR_AF_BATTLE(it.ch, kEafSecond);
+		CLR_AF_BATTLE(it.ch, kEafUsedleft);
+		CLR_AF_BATTLE(it.ch, kEafUsedright);
+		CLR_AF_BATTLE(it.ch, kEafMultyparry);
+		CLR_AF_BATTLE(it.ch, kEafDodge);
+		CLR_AF_BATTLE(it.ch, kEafTouch);
+		if (it.ch->get_touching())
+			it.ch->set_touching(0);
 
-		if (GET_AF_BATTLE(it.first, kEafSleep)) {
-			RemoveAffectFromChar(it.first, ESpell::kSleep);
-			AFF_FLAGS(it.first).unset(EAffect::kSleep);
+		if (GET_AF_BATTLE(it.ch, kEafSleep)) {
+			RemoveAffectFromChar(it.ch, ESpell::kSleep);
+			AFF_FLAGS(it.ch).unset(EAffect::kSleep);
 		}
-		if (GET_AF_BATTLE(it.first, kEafBlock)) {
-			CLR_AF_BATTLE(it.first, kEafBlock);
-			if (!IS_IMMORTAL(it.first) && it.first->get_wait() < kBattleRound)
-				SetWaitState(it.first, 1 * kBattleRound);
-		}
-
-		if (GET_AF_BATTLE(it.first, kEafPoisoned)) {
-			CLR_AF_BATTLE(it.first, kEafPoisoned);
+		if (GET_AF_BATTLE(it.ch, kEafBlock)) {
+			CLR_AF_BATTLE(it.ch, kEafBlock);
+			if (!IS_IMMORTAL(it.ch) && it.ch->get_wait() < kBattleRound)
+				SetWaitState(it.ch, 1 * kBattleRound);
 		}
 
-		battle_affect_update(it.first);
+		if (GET_AF_BATTLE(it.ch, kEafPoisoned)) {
+			CLR_AF_BATTLE(it.ch, kEafPoisoned);
+		}
 
-		if (it.first->IsNpc() && !IS_CHARMICE(it.first)) {
-			add_attackers_round(it.first);
+		battle_affect_update(it.ch);
+
+		if (it.ch->IsNpc() && !IS_CHARMICE(it.ch)) {
+			add_attackers_round(it.ch);
 		}
 	}
 }
@@ -2033,51 +2038,50 @@ bool stuff_before_round(CharData *ch) {
 void perform_violence() {
 	int max_init = -100, min_init = 100;
 	utils::CSteppedProfiler round_profiler("Perform violence", 0.1);
+	std::unordered_set<CharData *> msdp_report_chars;
 
 	//* суммон хелперов
 	sprintf(buf, "Check mob helpers");
 	round_profiler.next_step(buf);
 	check_mob_helpers();
-
-	// храним список писей, которым надо показать состояние группы по msdp
-	std::unordered_set<CharData *> msdp_report_chars;
-
 	//* действия до раунда и расчет инициативы
 	round_profiler.next_step("Calc initiative");
+	// почистим удаленных между раундами боя
+	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	for (auto &it : combat_list) {
-		if (it.second)
+		if (it.deleted)
 			continue;
-		if (it.first->desc) {
-			msdp_report_chars.insert(it.first);
-		} else if (it.first->has_master()
-			&& (AFF_FLAGGED(it.first, EAffect::kCharmed)
-				|| MOB_FLAGGED(it.first, EMobFlag::kTutelar)
-				|| MOB_FLAGGED(it.first, EMobFlag::kMentalShadow))) {
-			auto master = it.first->get_master();
+		if (it.ch->desc) {
+			msdp_report_chars.insert(it.ch);
+		} else if (it.ch->has_master()
+			&& (AFF_FLAGGED(it.ch, EAffect::kCharmed)
+				|| MOB_FLAGGED(it.ch, EMobFlag::kTutelar)
+				|| MOB_FLAGGED(it.ch, EMobFlag::kMentalShadow))) {
+			auto master = it.ch->get_master();
 			if (master->desc
 				&& !master->GetEnemy()
-				&& master->in_room == it.first->in_room) {
+				&& master->in_room == it.ch->in_room) {
 				msdp_report_chars.insert(master);
 			}
 		}
 
-		if (!stuff_before_round(it.first)) {
+		if (!stuff_before_round(it.ch)) {
 			continue;
 		}
 
-		const int initiative = calc_initiative(it.first, true);
+		const int initiative = calc_initiative(it.ch, true);
 		if (initiative > 100) { //откуда больше 100??????
-			log("initiative calc: %s (%d) == %d", GET_NAME(it.first), GET_MOB_VNUM(it.first), initiative);
+			log("initiative calc: %s (%d) == %d", GET_NAME(it.ch), GET_MOB_VNUM(it.ch), initiative);
 		}
 		std::clamp(initiative, -100, 100);
 		if (initiative == 0) {
-			it.first->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
+			it.ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
 			min_init = MIN(min_init, -100);
 		} else {
-			it.first->initiative = initiative;
+			it.ch->initiative = initiative;
 		}
 
-		SET_AF_BATTLE(it.first, kEafFirst);
+		SET_AF_BATTLE(it.ch, kEafFirst);
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
 	}
@@ -2087,21 +2091,21 @@ void perform_violence() {
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
 		for (auto &it : combat_list) {
-			if (it.second) //метка удален
+			if (it.deleted) 
 				continue;
 			size++;
-			if (it.first->initiative != initiative || it.first->in_room == kNowhere) {
+			if (it.ch->initiative != initiative || it.ch->in_room == kNowhere) {
 				continue;
 			}
 			// If mob cast 'hold' when initiative setted
-			if (AFF_FLAGGED(it.first, EAffect::kHold)
-				|| AFF_FLAGGED(it.first, EAffect::kMagicStopFight)
-				|| AFF_FLAGGED(it.first, EAffect::kStopFight)
-				|| !AWAKE(it.first)) {
+			if (AFF_FLAGGED(it.ch, EAffect::kHold)
+				|| AFF_FLAGGED(it.ch, EAffect::kMagicStopFight)
+				|| AFF_FLAGGED(it.ch, EAffect::kStopFight)
+				|| !AWAKE(it.ch)) {
 				continue;
 			}
 			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
-			if (!it.first->GetEnemy() || it.first->in_room != IN_ROOM(it.first->GetEnemy())) {
+			if (!it.ch->GetEnemy() || it.ch->in_room != IN_ROOM(it.ch->GetEnemy())) {
 				continue;
 			}
 			//везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
@@ -2110,25 +2114,18 @@ void perform_violence() {
 			}
 			utils::CExecutionTimer violence_timer;
 			//* выполнение атак в раунде
-			if (it.first->IsNpc()) {
-				process_npc_attack(it.first);
+			if (it.ch->IsNpc()) {
+				process_npc_attack(it.ch);
 			} else {
-				process_player_attack(it.first, min_init);
+				process_player_attack(it.ch, min_init);
 			}
 			if (violence_timer.delta().count() > 0.01) {
-				log("Process player attack, name %s, time %f", GET_NAME(it.first), violence_timer.delta().count());
+				log("Process player attack, name %s, time %f", GET_NAME(it.ch), violence_timer.delta().count());
 			}
 		}
-		// удалим помеченные
-		for (auto it = combat_list.begin(); it != combat_list.end();) {
-			if ((*it).second) {
-				it = combat_list.erase(it);
-			}
-			else
-				++it;
-		}
+		// удалим помеченные (убитые)
+		std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	}
-
 	//* обновление аффектов и лагов после раунда
 	round_profiler.next_step("Update round affs");
 	update_round_affs();

@@ -80,7 +80,13 @@ int vnum_flag(char *searchname, CharData *ch);
 int vnum_room(char *searchname, CharData *ch);
 int vnum_obj_trig(char *searchname, CharData *ch);
 
+
 // structure for the reset commands
+struct combat_list_element {
+	CharData *ch;
+	bool deleted;
+};
+
 struct reset_com {
 	/**
 	 *  Commands:
