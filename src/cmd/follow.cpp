@@ -215,7 +215,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ch->removeGroupFlags();
 			for (f = ch->followers; f; f = f->next) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
-				f->follower->removeGroupFlags();
+				f->removeGroupFlags();
 			}
 
 			leader->add_follower(ch);

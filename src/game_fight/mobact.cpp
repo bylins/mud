@@ -671,11 +671,11 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 			struct FollowerType *f;
 			// поиск клонов и отработка атаки в клона персонажа
 			for (f = best->followers; f; f = f->next)
-				if (MOB_FLAGGED(f->follower, EMobFlag::kClone))
+				if (MOB_FLAGGED(f, EMobFlag::kClone))
 					clone_number++;
 			for (f = best->followers; f; f = f->next)
-				if (f->follower->IsNpc() && MOB_FLAGGED(f->follower, EMobFlag::kClone)
-					&& IN_ROOM(f->follower) == IN_ROOM(best)) {
+				if (f->IsNpc() && MOB_FLAGGED(f, EMobFlag::kClone)
+					&& IN_ROOM(f) == IN_ROOM(best)) {
 					if (number(0, clone_number) == 1)
 						break;
 					if ((GetRealInt(ch) < 20) && number(0, clone_number))

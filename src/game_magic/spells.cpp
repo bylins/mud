@@ -2148,11 +2148,11 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	do_sacrifice(ch, dam);
 	if (!ch->IsNpc()) {
 		for (f = ch->followers; f; f = f->next) {
-			if (f->follower->IsNpc()
-				&& AFF_FLAGGED(f->follower, EAffect::kCharmed)
-				&& MOB_FLAGGED(f->follower, EMobFlag::kCorpse)
-				&& ch->in_room == IN_ROOM(f->follower)) {
-				do_sacrifice(f->follower, dam);
+			if (f->IsNpc()
+				&& AFF_FLAGGED(f, EAffect::kCharmed)
+				&& MOB_FLAGGED(f, EMobFlag::kCorpse)
+				&& ch->in_room == IN_ROOM(f)) {
+				do_sacrifice(f, dam);
 			}
 		}
 	}

@@ -355,10 +355,10 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 	}
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& IN_ROOM(f->follower) == IN_ROOM(victim)
-			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
-			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& IN_ROOM(f) == IN_ROOM(victim)
+			&& pk_action_type(agressor, f) > PK_ACTION_FIGHT) {
+			pk_increment_kill(agressor, f, f == victim, has_clanmember);
 		}
 	}
 }
@@ -1023,8 +1023,8 @@ bool has_clan_members_in_group(CharData *ch) {
 		return true;
 	} else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffect::kGroup) && IN_ROOM(f->follower) == ch->in_room
-				&& CLAN(f->follower)) {
+			if (AFF_FLAGGED(f, EAffect::kGroup) && IN_ROOM(f) == ch->in_room
+				&& CLAN(f)) {
 				return true;
 			}
 		}

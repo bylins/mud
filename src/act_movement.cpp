@@ -915,7 +915,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 		} else
 			SendMsgToChar("Закрыто.\r\n", ch);
 	} else {
-		if (!ch->followers) {
+		if (ch->followers.empty()) {
 			if (!DoSimpleMove(ch, dir, need_specials_check, master, false))
 				return false;
 		} else {

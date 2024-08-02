@@ -138,21 +138,21 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			//end by WorM
 		}
-		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-				&& (f->follower != ch)
-				&& !ignores(f->follower, ch, EIgnore::kGroup)) {
-				act(buf, false, ch, 0, f->follower, kToVict | kToSleep | kToNotDeaf);
+		for (auto f : k->followers) {
+			if (AFF_FLAGGED(f, EAffect::kGroup)
+				&& (f != ch)
+				&& !ignores(f, ch, EIgnore::kGroup)) {
+				act(buf, false, ch, 0, f, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
-				if (!AFF_FLAGGED(f->follower, EAffect::kDeafness)
-					&& GET_POS(f->follower) > EPosition::kDead) {
+				if (!AFF_FLAGGED(f, EAffect::kDeafness)
+					&& GET_POS(f) > EPosition::kDead) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
-							tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то",
-							GET_CH_VIS_SUF_1(ch, f->follower),
+							tell_can_see(ch, f) ? GET_NAME(ch) : "Кто-то",
+							GET_CH_VIS_SUF_1(ch, f),
 							argument);
-					f->follower->remember_add(buf1, Remember::ALL);
-					f->follower->remember_add(buf1, Remember::GROUP);
+					f->remember_add(buf1, Remember::ALL);
+					f->remember_add(buf1, Remember::GROUP);
 				}
 				//end by WorM
 			}

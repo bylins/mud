@@ -15,9 +15,9 @@ int other_pc_in_group(CharData *ch) {
 	int num = 0;
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
 	for (FollowerType *f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& !f->follower->IsNpc()
-			&& IN_ROOM(f->follower) == ch->in_room) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& !f->IsNpc()
+			&& IN_ROOM(f) == ch->in_room) {
 			++num;
 		}
 	}

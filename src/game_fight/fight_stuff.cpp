@@ -74,12 +74,12 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			}
 
 			for (struct FollowerType *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+				if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
+				if (AFF_FLAGGED(f, EAffect::kGroup)
+					&& IN_ROOM(f) == IN_ROOM(killer)) {
 					++cnt;
 					if (leader_partner) {
-						if (!f->follower->IsNpc()) {
+						if (!f->IsNpc()) {
 							partner_feat++;
 							partner = f->follower;
 						}
@@ -107,9 +107,9 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				members_to_mobmax.push_back(master);
 			}
 			for (struct FollowerType *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
-					members_to_mobmax.push_back(f->follower);
+				if (AFF_FLAGGED(f, EAffect::kGroup)
+					&& IN_ROOM(f) == IN_ROOM(killer)) {
+					members_to_mobmax.push_back(f);
 				}
 			}
 
@@ -126,8 +126,8 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			auto n = number(0, cnt);
 			int i = 0;
 			for (struct FollowerType *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+				if (AFF_FLAGGED(f, EAffect::kGroup)
+					&& IN_ROOM(f) == IN_ROOM(killer)) {
 					++i;
 					master = f->follower;
 				}
@@ -462,9 +462,9 @@ void arena_kill(CharData *ch, CharData *killer) {
 		to_room = r_helled_start_room;
 	}
 	for (FollowerType *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->follower)) {
-			RemoveCharFromRoom(f->follower);
-			PlaceCharToRoom(f->follower, to_room);
+		if (IS_CHARMICE(f)) {
+			RemoveCharFromRoom(f);
+			PlaceCharToRoom(f, to_room);
 		}
 	}
 	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
@@ -930,20 +930,20 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == IN_ROOM(killer)) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& f->in_room == IN_ROOM(killer)) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (CanUseFeat(f->follower, EFeat::kCynic)) {
+			if (CanUseFeat(f, EFeat::kCynic)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GetRealLevel(f->follower));
-			if (!f->follower->IsNpc()) {
+			maxlevel = MAX(maxlevel, GetRealLevel(f));
+			if (!f->IsNpc()) {
 				partner_count++;
 			}
 		}
@@ -988,9 +988,9 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == IN_ROOM(killer)) {
-			perform_group_gain(f->follower, victim, inroom_members, koef);
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& f->in_room == IN_ROOM(killer)) {
+			perform_group_gain(f, victim, inroom_members, koef);
 		}
 	}
 }

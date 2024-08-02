@@ -862,8 +862,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_master(m->get_master());
 		if (m->get_master()) {
 			for (auto f = m->get_master()->followers; f; f = f->next) {
-				if (f->follower == m) {
-					f->follower = ch;
+				if (f == m) {
+					f = ch;
 				}
 			}
 		}

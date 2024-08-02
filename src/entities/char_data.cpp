@@ -2116,8 +2116,8 @@ bool CharData::has_horse(bool same_room) const {
 	}
 
 	for (f = this->followers; f; f = f->next) {
-		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)
-			&& (!same_room || this->in_room == IN_ROOM(f->follower))) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)
+			&& (!same_room || this->in_room == IN_ROOM(f))) {
 			return true;
 		}
 	}
@@ -2175,8 +2175,8 @@ CharData *CharData::get_horse() {
 		return nullptr;
 
 	for (f = this->followers; f; f = f->next) {
-		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)) {
-			return (f->follower);
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)) {
+			return (f);
 		}
 	}
 	return nullptr;
