@@ -2337,9 +2337,8 @@ void find_replacement(void *go,
 						} else {
 							num = 0;
 						}
-						for (auto f = k->followers; f; f = f->next) {
-							if (AFF_FLAGGED(f, EAffect::kGroup)
-									&& !f->IsNpc() && IN_ROOM(f) == c->in_room) {
+						for (auto &f : k->followers) {
+							if (AFF_FLAGGED(f, EAffect::kGroup) && !f->IsNpc() && IN_ROOM(f) == c->in_room) {
 								num++;
 							}
 						}
@@ -2348,7 +2347,7 @@ void find_replacement(void *go,
 							int rest = val % num;
 							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->IsNpc() && k != c)
 								k->add_nogata(share);
-							for (auto f = k->followers; f; f = f->next) {
+							for (auto &f : k->followers) {
 								if (AFF_FLAGGED(f, EAffect::kGroup)
 										&& !f->IsNpc() && IN_ROOM(f) == c->in_room && f != c) {
 									f->add_nogata(share);
@@ -2886,7 +2885,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "group")) {
 			CharData *l;
-			struct FollowerType *f;
+
 			if (!AFF_FLAGGED(c, EAffect::kGroup)) {
 				return;
 			}
@@ -2896,7 +2895,7 @@ void find_replacement(void *go,
 			}
 			// l - лидер группы
 			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(l));
-			for (f = l->followers; f; f = f->next) {
+			for (auto &f : l->followers) {
 				if (!AFF_FLAGGED(f, EAffect::kGroup)) {
 					continue;
 				}

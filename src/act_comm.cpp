@@ -91,7 +91,6 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
-	struct FollowerType *f;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);

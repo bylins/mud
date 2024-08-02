@@ -405,10 +405,10 @@ bool has_connected_bosses(CharData *ch) {
 	// если у данного моба есть живые последователи-боссы
 	for (FollowerType *i = ch->followers; i; i = i->next) {
 		if (i->follower != ch
-			&& i->follower->IsNpc()
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch
-			&& i->follower->get_role(MOB_ROLE_BOSS)) {
+			&& i->IsNpc()
+			&& !IS_CHARMICE(i)
+			&& i->get_master() == ch
+			&& i->get_role(MOB_ROLE_BOSS)) {
 			return true;
 		}
 	}

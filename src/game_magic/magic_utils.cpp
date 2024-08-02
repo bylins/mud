@@ -475,7 +475,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 				int tnum = get_number(&tmp);
 				for (k = ch->followers; k; k = k_next) {
 					k_next = k->next;
-					if (isname(tmp, k->follower->GetCharAliases())) {
+					if (isname(tmp, k->GetCharAliases())) {
 						if (++fnum == tnum) {// нашли!!
 							*tch = k->follower;
 							return true;

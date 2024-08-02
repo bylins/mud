@@ -67,11 +67,11 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	FollowerType *k;
 	CharData *follower = nullptr;
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-			&& k->follower->get_master() == ch
-			&& MOB_FLAGGED(k->follower, EMobFlag::kClone)
-			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
-			&& ch->in_room == IN_ROOM(k->follower)) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)
+			&& k->get_master() == ch
+			&& MOB_FLAGGED(k, EMobFlag::kClone)
+			&& !IsAffectedBySpell(k, ESpell::kCapable)
+			&& ch->in_room == IN_ROOM(k)) {
 			follower = k->follower;
 			break;
 		}

@@ -358,8 +358,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		return;
 	}
 
-	if (ch->followers
-		|| ch->has_master()) {
+	if (!ch->followers.empty() || ch->has_master()) {
 		die_follower(ch);
 	}
 	ExtractCharFromWorld(ch, false);

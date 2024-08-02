@@ -158,6 +158,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 }
 
 void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	CharData *k = nullptr;
 	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
@@ -167,15 +168,15 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-		FollowerType *k;
-		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->follower, EAffect::kHelper) && AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
+		for (auto it : ch->followers) {
+			if (AFF_FLAGGED(it, EAffect::kHelper) && AFF_FLAGGED(it, EAffect::kCharmed)) {
+				k = it;
 				break;
 			}
 		}
 
 		if (k) {
-			act("Вашим наемником является $N.", false, ch, 0, k->follower, kToChar);
+			act("Вашим наемником является $N.", false, ch, 0, k, kToChar);
 		} else {
 			act("У вас нет наемников!", false, ch, 0, 0, kToChar);
 		}
@@ -188,9 +189,9 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	FollowerType *k;
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kHelper) && AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
+	for (auto it : ch->followers) {
+		if (AFF_FLAGGED(it, EAffect::kHelper) && AFF_FLAGGED(it, EAffect::kCharmed)) {
+			k = it;
 			break;
 		}
 	}
@@ -201,7 +202,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете нанять реального игрока!\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, ENpcFlag::kHelped))
 		act("$N не нанимается!", false, ch, 0, helpee, kToChar);
-	else if (AFF_FLAGGED(helpee, EAffect::kCharmed) && (!k || (k && helpee != k->follower)))
+	else if (AFF_FLAGGED(helpee, EAffect::kCharmed) && (!k || (k && helpee != k)))
 		act("$N под чьим-то контролем.", false, ch, 0, helpee, kToChar);
 	else if (AFF_FLAGGED(helpee, EAffect::kDeafness))
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
@@ -228,9 +229,9 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
 			return;
 		}
-		if (k && helpee != k->follower) {
+		if (k && helpee != k) {
 //		if (k && helpee) {
-			act("Вы уже наняли $N3.", false, ch, 0, k->follower, kToChar);
+			act("Вы уже наняли $N3.", false, ch, 0, k, kToChar);
 			return;
 		}
 
@@ -261,20 +262,20 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			MOB_FLAGS(helpee).unset(EMobFlag::kNoGroup);
 
 		Affect<EApply> af;
-		if (!(k && k->follower == helpee)) {
+		if (!(k && k  == helpee)) {
 			ch->add_follower(helpee);
 			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 		} else {
-			auto aff = k->follower->affected.begin();
-			for (; aff != k->follower->affected.end(); ++aff) {
+			auto aff = k->affected.begin();
+			for (; aff != k->affected.end(); ++aff) {
 				if ((*aff)->type == ESpell::kCharm) {
 					break;
 				}
 			}
-			if (aff != k->follower->affected.end()) {
-				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(k->follower->mob_specials.hire_price));
+			if (aff != k->affected.end()) {
+				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(k->mob_specials.hire_price));
 				if (oldcost > 0) {
-					if (k->follower->mob_specials.hire_price < 0) {
+					if (k->mob_specials.hire_price < 0) {
 						ch->add_bank(oldcost);
 					} else {
 						ch->add_gold(oldcost);
@@ -338,16 +339,17 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharData *k = nullptr;
+
 	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
-
-	FollowerType *k;
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-			&& AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
+	for (auto it : ch->followers) {
+		if (AFF_FLAGGED(it, EAffect::kHelper)
+			&& AFF_FLAGGED(it, EAffect::kCharmed)) {
+			k = it;
 			break;
 		}
 	}
@@ -357,22 +359,22 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if (ch->in_room != IN_ROOM(k->follower)) {
-		act("Вам следует встретиться с $N4 для этого.", false, ch, 0, k->follower, kToChar);
+	if (ch->in_room != IN_ROOM(k)) {
+		act("Вам следует встретиться с $N4 для этого.", false, ch, 0, k, kToChar);
 		return;
 	}
 
-	if (GET_POS(k->follower) < EPosition::kStand) {
-		act("$N2 сейчас, похоже, не до вас.", false, ch, 0, k->follower, kToChar);
+	if (GET_POS(k) < EPosition::kStand) {
+		act("$N2 сейчас, похоже, не до вас.", false, ch, 0, k, kToChar);
 		return;
 	}
 
 	if (!IS_IMMORTAL(ch)) {
-		for (const auto &aff : k->follower->affected) {
+		for (const auto &aff : k->affected) {
 			if (aff->type == ESpell::kCharm) {
-				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->follower->mob_specials.hire_price));
+				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(k->mob_specials.hire_price));
 				if (cost > 0) {
-					if (k->follower->mob_specials.hire_price < 0) {
+					if (k->mob_specials.hire_price < 0) {
 						ch->add_bank(cost);
 					} else {
 						ch->add_gold(cost);
@@ -384,9 +386,9 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 		}
 	}
 
-	act("Вы рассчитали $N3.", false, ch, 0, k->follower, kToChar);
-	RemoveAffectFromCharAndRecalculate(k->follower, ESpell::kCharm);
-	stop_follower(k->follower, kSfCharmlost);
+	act("Вы рассчитали $N3.", false, ch, 0, k, kToChar);
+	RemoveAffectFromCharAndRecalculate(k, ESpell::kCharm);
+	stop_follower(k, kSfCharmlost);
 }
 
 

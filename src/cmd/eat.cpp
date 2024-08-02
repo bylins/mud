@@ -10,7 +10,6 @@ extern void die(CharData *ch, CharData *killer);
 void feed_charmice(CharData *ch, char *local_arg) {
 	int max_charm_duration = 1;
 	int chance_to_eat = 0;
-	struct FollowerType *k;
 	int reformed_hp_summ = 0;
 
 	auto obj = get_obj_in_list_vis(ch, local_arg, world[ch->in_room]->contents);
@@ -19,10 +18,10 @@ void feed_charmice(CharData *ch, char *local_arg) {
 		return;
 	}
 
-	for (k = ch->get_master()->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-			&& k->follower->get_master() == ch->get_master()) {
-			reformed_hp_summ += GetReformedCharmiceHp(ch->get_master(), k->follower, ESpell::kAnimateDead);
+	for (auto k : ch->get_master()->followers) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)
+			&& k->get_master() == ch->get_master()) {
+			reformed_hp_summ += GetReformedCharmiceHp(ch->get_master(), k, ESpell::kAnimateDead);
 		}
 	}
 

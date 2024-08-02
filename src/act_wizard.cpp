@@ -2088,8 +2088,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			// TODO: честно говоря дублирование куска из экстракта не ясно
 			// смену лидера пока сюду не сую, над вникнуть будет...
-			if (vict->followers
-				|| vict->has_master()) {
+			if (!vict->followers.empty() || vict->has_master()) {
 				die_follower(vict);
 			}
 
@@ -2115,8 +2114,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (vict->IsNpc()) {
-				if (vict->followers
-					|| vict->has_master()) {
+				if (!vict->followers.empty() || vict->has_master()) {
 					die_follower(vict);
 				}
 				if (!vict->purged()) {

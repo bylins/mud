@@ -177,7 +177,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		Ensurer ch(*this);
 		py::list result;
 		for (follow_type *i = ch->followers; i; i = i->next)
-			result.append(CharacterWrapper(i->follower));
+			result.append(CharacterWrapper(i));
 		return result;
 	}
 

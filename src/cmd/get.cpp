@@ -14,7 +14,7 @@ extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &l
 int other_pc_in_group(CharData *ch) {
 	int num = 0;
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
-	for (FollowerType *f = k->followers; f; f = f->next) {
+	for (auto f : k->followers) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)
 			&& !f->IsNpc()
 			&& IN_ROOM(f) == ch->in_room) {

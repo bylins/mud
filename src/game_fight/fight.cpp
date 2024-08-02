@@ -64,18 +64,18 @@ void go_autoassist(CharData *ch) {
 
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
-		if (PRF_FLAGGED(k->follower, EPrf::kAutoassist) &&
-			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->GetEnemy() &&
-			(GET_POS(k->follower) == EPosition::kStand) && k->follower->get_wait() <= 0) {
+		if (PRF_FLAGGED(k, EPrf::kAutoassist) &&
+			(IN_ROOM(k) == IN_ROOM(ch)) && !k->GetEnemy() &&
+			(GET_POS(k) == EPosition::kStand) && k->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
-			if (IsCaster(k->follower)) {
+			if (IsCaster(k)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->follower->followers; d; d = d->next)
-					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->GetEnemy() &&
-						(GET_POS(d->follower) == EPosition::kStand) && d->follower->get_wait() <= 0)
-						do_assist(d->follower, buf2, 0, 0);
+				for (d = k->followers; d; d = d->next)
+					if ((IN_ROOM(d) == IN_ROOM(ch)) && !d->GetEnemy() &&
+						(GET_POS(d) == EPosition::kStand) && d->get_wait() <= 0)
+						do_assist(d, buf2, 0, 0);
 			} else {
-				do_assist(k->follower, buf2, 0, 0);
+				do_assist(k, buf2, 0, 0);
 			}
 		}
 	}
@@ -1232,20 +1232,20 @@ void try_angel_rescue(CharData *ch) {
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-			&& MOB_FLAGGED(k->follower, EMobFlag::kTutelar)
-			&& !k->follower->GetEnemy()
-			&& IN_ROOM(k->follower) == ch->in_room
-			&& CAN_SEE(k->follower, ch)
-			&& AWAKE(k->follower)
-			&& MAY_ACT(k->follower)
-			&& GET_POS(k->follower) >= EPosition::kFight) {
+		if (AFF_FLAGGED(k, EAffect::kHelper)
+			&& MOB_FLAGGED(k, EMobFlag::kTutelar)
+			&& !k->GetEnemy()
+			&& IN_ROOM(k) == ch->in_room
+			&& CAN_SEE(k, ch)
+			&& AWAKE(k)
+			&& MAY_ACT(k)
+			&& GET_POS(k) >= EPosition::kFight) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch
 					&& vict != ch
-					&& vict != k->follower) {
-					if (k->follower->GetSkill(ESkill::kRescue)) {
-						go_rescue(k->follower, ch, vict);
+					&& vict != k) {
+					if (k->GetSkill(ESkill::kRescue)) {
+						go_rescue(k, ch, vict);
 					}
 
 					break;

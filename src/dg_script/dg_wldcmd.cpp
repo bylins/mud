@@ -461,8 +461,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 		return;
 	}
 
-	if (ch->followers
-		|| ch->get_master()) {
+	if (!ch->followers.empty() || ch->get_master()) {
 		die_follower(ch);
 	}
 	ExtractCharFromWorld(ch, false);

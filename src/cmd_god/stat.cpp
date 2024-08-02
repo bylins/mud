@@ -93,7 +93,6 @@ void DoStatKarma(CharData *ch, CharData *victim) {
 void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	int i, i2, found = 0;
 	ObjData *j;
-	struct FollowerType *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
 	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
@@ -546,14 +545,11 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (god_level >= kLvlGreatGod) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
-		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol->follower, ch, 0), GET_MOB_VNUM(fol->follower));
+		for (auto fol : k->followers) {
+			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol, ch, 0), GET_MOB_VNUM(fol));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 162) {
-				if (fol->next)
-					SendMsgToChar(strcat(buf, ",\r\n"), ch);
-				else
-					SendMsgToChar(strcat(buf, "\r\n"), ch);
+				SendMsgToChar(strcat(buf, "\r\n"), ch);
 				*buf = found = 0;
 			}
 		}

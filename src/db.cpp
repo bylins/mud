@@ -3864,10 +3864,8 @@ void after_reset_zone(ZoneRnum nr_zone) {
 				zone_table[nr_zone].used = true;
 				return;
 			}
-			struct FollowerType *k, *k_next;
-			for (k = d->character->followers; k; k = k_next) {
-				k_next = k->next;
-				if (IS_CHARMICE(k->follower) && world[k->follower->in_room]->zone_rn == nr_zone) {
+			for (auto k : d->character->followers) {
+				if (IS_CHARMICE(k) && world[k->in_room]->zone_rn == nr_zone) {
 					zone_table[nr_zone].used = true;
 					return;
 				}
@@ -4438,8 +4436,7 @@ void RoomDataFree(ZoneRnum zrn) {
 
 		for (const auto vict : people_copy) {
 			if (vict->IsNpc()) {
-				if (vict->followers
-					|| vict->has_master()) {
+				if (!vict->followers.empty() || vict->has_master()) {
 					die_follower(vict);
 				}
 				if (!vict->purged()) {
@@ -4554,8 +4551,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 		for (const auto vict : people_copy) {
 			if (vict->IsNpc()) {
-				if (vict->followers
-					|| vict->has_master()) {
+				if (!vict->followers.empty() || vict->has_master()) {
 					die_follower(vict);
 				}
 				if (!vict->purged()) {

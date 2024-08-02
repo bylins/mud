@@ -423,8 +423,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		return;
 	}
 
-	if (victim->followers
-		|| victim->has_master()) {
+	if (!victim->followers.empty() || victim->has_master()) {
 		die_follower(victim);
 	}
 
@@ -614,12 +613,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 		}
 		from_room = vict->in_room;
-		if (!str_cmp(argument, "followers") && vict->followers) {
-			FollowerType *ft;
-			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->follower) == from_room && ft->follower->IsNpc()) {
-					RemoveCharFromRoom(ft->follower);
-					PlaceCharToRoom(ft->follower, target);
+		if (!str_cmp(argument, "followers") && !vict->followers.empty()) {
+			for (auto ft : vict->followers) {
+				if (IN_ROOM(ft) == from_room && ft->IsNpc()) {
+					RemoveCharFromRoom(ft);
+					PlaceCharToRoom(ft, target);
 				}
 			}
 		}
@@ -837,9 +835,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			m->SetEnemy(nullptr);
 		}
 		ch->followers = m->followers;
-		m->followers = nullptr;
-		for (struct FollowerType *l = ch->followers; l; l = l->next) {
-			l->follower->set_master(ch);
+		for (auto l : ch->followers) {
+			l->set_master(ch);
 		}
 		ch->set_normal_morph();
 		for (const auto &af : m->affected) {
@@ -861,7 +858,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_wait(m->get_wait());  
 		ch->set_master(m->get_master());
 		if (m->get_master()) {
-			for (auto f = m->get_master()->followers; f; f = f->next) {
+			for (auto &f : m->get_master()->followers) {
 				if (f == m) {
 					f = ch;
 				}

@@ -672,16 +672,16 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	// призываем чармисов
 	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
-		if (IN_ROOM(k->follower) == vic_room) {
-			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
-				if (!k->follower->GetEnemy()) {
+		if (IN_ROOM(k) == vic_room) {
+			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
+				if (!k->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
-						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-					RemoveCharFromRoom(k->follower);
-					PlaceCharToRoom(k->follower, ch_room);
+						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+					RemoveCharFromRoom(k);
+					PlaceCharToRoom(k, ch_room);
 					act("$n прибыл$g за хозяином.",
-						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-					act("$n призвал$g вас!", false, ch, nullptr, k->follower, kToVict);
+						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("$n призвал$g вас!", false, ch, nullptr, k, kToVict);
 				}
 			}
 		}
@@ -895,13 +895,13 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	bool undead_in_group = false, living_in_group = false;
 
 	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-			&& k->follower->get_master() == ch) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)
+			&& k->get_master() == ch) {
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
-			reformed_hp_summ += GetReformedCharmiceHp(ch, k->follower, spell_id);
+			reformed_hp_summ += GetReformedCharmiceHp(ch, k, spell_id);
 // Проверка на тип последователей -- некрасиво, зато эффективно
-			if (MOB_FLAGGED(k->follower, EMobFlag::kCorpse)) {
+			if (MOB_FLAGGED(k, EMobFlag::kCorpse)) {
 				undead_in_group = true;
 			} else {
 				living_in_group = true;
@@ -1021,12 +1021,12 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			struct FollowerType *k, *k_next;
 			for (k = ch->followers; k; k = k_next) {
 				k_next = k->next;
-				if (IS_CHARMICE(k->follower) && k->follower->get_type_charmice() > 0) {
-					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->follower->get_type_charmice());
+				if (IS_CHARMICE(k) && k->get_type_charmice() > 0) {
+					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->get_type_charmice());
 					if (it != rndcharmice.end()) {
 						rndcharmice.erase(it);
 					}
-//					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
+//					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->get_type_charmice());
 				}
 			}
 			int rnd = number(0, rndcharmice.size() - 1);
@@ -2212,12 +2212,12 @@ void SpellSummonAngel(CharData *ch) {
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower,
+		if (MOB_FLAGGED(k,
 						EMobFlag::kTutelar))    //SendMsgToChar("Боги не обратили на вас никакого внимания!\r\n", ch);
 		{
 			//return;
 			//пуржим старого ангела
-			stop_follower(k->follower, kSfCharmlost);
+			stop_follower(k, kSfCharmlost);
 		}
 	}
 
@@ -2401,8 +2401,8 @@ void SpellMentalShadow(CharData *ch) {
 	struct FollowerType *k, *k_next;
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow)) {
-			stop_follower(k->follower, false);
+		if (MOB_FLAGGED(k, EMobFlag::kMentalShadow)) {
+			stop_follower(k, false);
 		}
 	}
 	auto eff_int = get_effective_int(ch);

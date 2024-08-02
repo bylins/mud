@@ -926,33 +926,32 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 				return false;
 
 			--dir;
-			for (k = ch->followers; k && k->follower->get_master(); k = next) {
-				next = k->next;
-				if (k->follower->in_room == was_in
-					&& !k->follower->GetEnemy()
-					&& HERE(k->follower)
-					&& !(AFF_FLAGGED(k->follower, EAffect::kHold)
-							|| AFF_FLAGGED(k->follower, EAffect::kStopFight)
-							|| AFF_FLAGGED(k->follower, EAffect::kMagicStopFight))
-					&& AWAKE(k->follower)
-					&& (k->follower->IsNpc()
-						|| (!PLR_FLAGGED(k->follower, EPlrFlag::kMailing)
-							&& !PLR_FLAGGED(k->follower, EPlrFlag::kWriting)))
-					&& (!IS_HORSE(k->follower)
-						|| !AFF_FLAGGED(k->follower, EAffect::kTethered))) {
-					if (GET_POS(k->follower) < EPosition::kStand) {
-						if (k->follower->IsNpc()
-							&& k->follower->get_master()->IsNpc()
-							&& GET_POS(k->follower) > EPosition::kSleep
-							&& !k->follower->get_wait()) {
-							act("$n поднял$u.", false, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-							GET_POS(k->follower) = EPosition::kStand;
+			for (auto k : ch->followers) {
+				if (k->in_room == was_in
+					&& !k->GetEnemy()
+					&& HERE(k)
+					&& !(AFF_FLAGGED(k, EAffect::kHold)
+							|| AFF_FLAGGED(k, EAffect::kStopFight)
+							|| AFF_FLAGGED(k, EAffect::kMagicStopFight))
+					&& AWAKE(k)
+					&& (k->IsNpc()
+						|| (!PLR_FLAGGED(k, EPlrFlag::kMailing)
+							&& !PLR_FLAGGED(k, EPlrFlag::kWriting)))
+					&& (!IS_HORSE(k)
+						|| !AFF_FLAGGED(k, EAffect::kTethered))) {
+					if (GET_POS(k) < EPosition::kStand) {
+						if (k->IsNpc()
+							&& k->get_master()->IsNpc()
+							&& GET_POS(k) > EPosition::kSleep
+							&& !k->get_wait()) {
+							act("$n поднял$u.", false, k, nullptr, nullptr, kToRoom | kToArenaListen);
+							GET_POS(k) = EPosition::kStand;
 						} else {
 							continue;
 						}
 					}
 //                   act("Вы поплелись следом за $N4.",false,k->ch,0,ch,TO_CHAR);
-					perform_move(k->follower, dir, 1, false, ch);
+					perform_move(k, dir, 1, false, ch);
 				}
 			}
 		}
@@ -1579,37 +1578,36 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SetWait(ch, 3, false);
 				act("$n появил$u из пентаграммы.", true, ch, nullptr, nullptr, kToRoom);
 				// ищем ангела и лошадь
-				for (k = ch->followers; k; k = k_next) {
-					k_next = k->next;
-					if (IS_HORSE(k->follower) &&
-						!k->follower->GetEnemy() &&
-						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						IN_ROOM(k->follower) == from_room && AWAKE(k->follower)) {
+				for (auto k : ch->followers) {
+					if (IS_HORSE(k) &&
+						!k->GetEnemy() &&
+						!AFF_FLAGGED(k, EAffect::kHold) &&
+						IN_ROOM(k) == from_room && AWAKE(k)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
-							RemoveCharFromRoom(k->follower);
-							PlaceCharToRoom(k->follower, door);
+							RemoveCharFromRoom(k);
+							PlaceCharToRoom(k, door);
 						}
 					}
-					if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-						&& !AFF_FLAGGED(k->follower, EAffect::kHold)
-						&& (MOB_FLAGGED(k->follower, EMobFlag::kTutelar) || MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow))
-						&& !k->follower->GetEnemy()
-						&& IN_ROOM(k->follower) == from_room
-						&& AWAKE(k->follower)) {
+					if (AFF_FLAGGED(k, EAffect::kHelper)
+						&& !AFF_FLAGGED(k, EAffect::kHold)
+						&& (MOB_FLAGGED(k, EMobFlag::kTutelar) || MOB_FLAGGED(k, EMobFlag::kMentalShadow))
+						&& !k->GetEnemy()
+						&& IN_ROOM(k) == from_room
+						&& AWAKE(k)) {
 						act("$n исчез$q в пентаграмме.", true,
-							k->follower, nullptr, nullptr, kToRoom);
-						RemoveCharFromRoom(k->follower);
-						PlaceCharToRoom(k->follower, door);
-						SetWait(k->follower, 3, false);
+							k, nullptr, nullptr, kToRoom);
+						RemoveCharFromRoom(k);
+						PlaceCharToRoom(k, door);
+						SetWait(k, 3, false);
 						act("$n появил$u из пентаграммы.", true,
-							k->follower, nullptr, nullptr, kToRoom);
+							k, nullptr, nullptr, kToRoom);
 					}
-					if (IS_CHARMICE(k->follower) &&
-						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						GET_POS(k->follower) == EPosition::kStand &&
-						IN_ROOM(k->follower) == from_room) {
+					if (IS_CHARMICE(k) &&
+						!AFF_FLAGGED(k, EAffect::kHold) &&
+						GET_POS(k) == EPosition::kStand &&
+						IN_ROOM(k) == from_room) {
 						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
-						command_interpreter(k->follower, buf2);
+						command_interpreter(k, buf2);
 					}
 				}
 				if (ch->desc != nullptr)

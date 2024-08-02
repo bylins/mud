@@ -36,30 +36,11 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	//log("[Stop ch] Remove from followers list");
-	if (!ch->get_master()->followers) {
+	if (ch->get_master()->followers.empty()) {
 		log("[Stop ch] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
-	} else if (ch->get_master()->followers->follower == ch)    // Head of ch-list?
-	{
-		k = ch->get_master()->followers;
-		ch->get_master()->followers = k->next;
-		if (!ch->get_master()->followers
-			&& !ch->get_master()->has_master()) {
-			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
-			ch->get_master()->removeGroupFlags();
-		}
-		free(k);
-	} else        // locate ch who is not head of list
-	{
-		for (k = ch->get_master()->followers; k->next && k->next->follower != ch; k = k->next);
-		if (!k->next) {
-			log("[Stop ch] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
-		} else {
-			j = k->next;
-			k->next = j->next;
-			free(j);
-		}
+	} else {        // locate ch who is not head of list
+		ch->get_master()->followers.clear();
 	}
-
 	ch->set_master(nullptr);
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	ch->removeGroupFlags();
@@ -128,8 +109,6 @@ bool stop_follower(CharData *ch, int mode) {
 
 // * Called when a character that follows/is followed dies
 bool die_follower(CharData *ch) {
-	struct FollowerType *j, *k = ch->followers;
-
 	if (ch->has_master() && stop_follower(ch, kSfFollowerdie)) {
 		//  чармиса спуржили в stop_follower
 		return true;
@@ -139,9 +118,8 @@ bool die_follower(CharData *ch) {
 		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 
-	for (k = ch->followers; k; k = j) {
-		j = k->next;
-		stop_follower(k->follower, kSfMasterdie);
+	for (auto k : ch->followers) {
+		stop_follower(k, kSfMasterdie);
 	}
 	return false;
 }
@@ -213,7 +191,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			ch->removeGroupFlags();
-			for (f = ch->followers; f; f = f->next) {
+			for (auto f : ch->followers) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
 				f->removeGroupFlags();
 			}

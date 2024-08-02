@@ -1474,20 +1474,19 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	}
 
 	// чармисы
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master()) {
+	if (!ch->followers.empty()) {
+		for (auto k : ch->followers) {
+			if (!IS_CHARMICE(k) || !k->has_master()) {
 				continue;
 			}
 
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (find_set_item(GET_EQ(k->follower, j))) {
+				if (find_set_item(GET_EQ(k, j))) {
 					return false;
 				}
 			}
 
-			if (find_set_item(k->follower->carrying)) {
+			if (find_set_item(k->carrying)) {
 				return false;
 			}
 		}

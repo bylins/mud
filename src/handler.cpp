@@ -1772,10 +1772,10 @@ void change_npc_leader(CharData *ch) {
 	std::vector<CharData *> tmp_list;
 
 	for (FollowerType *i = ch->followers; i; i = i->next) {
-		if (i->follower->IsNpc()
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch) {
-			tmp_list.push_back(i->follower);
+		if (i->IsNpc()
+			&& !IS_CHARMICE(i)
+			&& i->get_master() == ch) {
+			tmp_list.push_back(i);
 		}
 	}
 	if (tmp_list.empty()) {
