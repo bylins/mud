@@ -190,7 +190,6 @@ void CharData::reset() {
 	m_master = nullptr;
 	in_room = kNowhere;
 	carrying = nullptr;
-	next_fighting = nullptr;
 	if (this->get_protecting()) {
 		remove_protecting();
 	}
@@ -343,7 +342,6 @@ void CharData::zero_init() {
 	carrying = nullptr;
 	desc = nullptr;
 	id = 0;
-	next_fighting = nullptr;
 	followers = nullptr;
 	m_master = nullptr;
 	caster_level = 0;

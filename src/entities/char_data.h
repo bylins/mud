@@ -792,8 +792,6 @@ class CharData : public ProtectedCharData {
 	ObjData::triggers_list_ptr proto_script;    // list of default triggers
 	Script::shared_ptr script;    // script info for the object
 
-	CharData *next_fighting;    // For fighting list
-
 	//отладочные сообщения имморталу/тестеру/кодеру
 	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 

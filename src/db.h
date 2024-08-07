@@ -80,7 +80,13 @@ int vnum_flag(char *searchname, CharData *ch);
 int vnum_room(char *searchname, CharData *ch);
 int vnum_obj_trig(char *searchname, CharData *ch);
 
+
 // structure for the reset commands
+struct combat_list_element {
+	CharData *ch;
+	bool deleted;
+};
+
 struct reset_com {
 	/**
 	 *  Commands:
@@ -252,7 +258,7 @@ extern const int sunrise[][2];
 extern const int Reverse[];
 
 // external vars
-extern CharData *combat_list;
+//extern std::list<CharData *> combat_list;
 
 #include <vector>
 #include <deque>

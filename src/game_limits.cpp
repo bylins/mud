@@ -1742,7 +1742,7 @@ void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
 }
 
 void RepopDecay(std::vector<ZoneRnum> zone_list) {
-	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &j) {
+	world_objects.foreach_on_copy([&zone_list](const ObjData::shared_ptr &j) {
 		if (j->has_flag(EObjFlag::kRepopDecay)) {
 			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
 			for (auto it = zone_list.begin(); it != zone_list.end(); ++it) {

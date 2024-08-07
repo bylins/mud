@@ -337,7 +337,7 @@ struct show_struct show_fields[] = {
 	{"affectedrooms", kLvlImmortal},
 	{"money", kLvlImplementator}, // 20
 	{"expgain", kLvlImplementator},
-	{"runes", kLvlImplementator},
+	{"runestat", kLvlGod},
 	{"mobstat", kLvlImplementator},
 	{"bosses", kLvlImplementator},
 	{"remort", kLvlImplementator}, // 25
@@ -352,6 +352,7 @@ struct show_struct show_fields[] = {
 	{"abilityinfo", kLvlImmortal},
 	{"account", kLvlGod}, //35
 	{"shops", kLvlGod},
+	{"runeslist", kLvlGod},
 	{"\n", 0}
 };
 
@@ -383,6 +384,17 @@ std::pair<int, int> TotalMemUse(){
 #else
 	return std::make_pair(-1, -1);
 #endif
+}
+
+void List_spell_create(CharData *ch) {
+	int i = 0;
+	for (auto it : spell_create) {
+		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %3d %3d %3d %3d level %d\r\n", 
+				++i, to_underlying(it.first), MUD::Spell(it.first).GetCName(),
+				it.second.runes.items[0], it.second.runes.items[1],
+				it.second.runes.items[2], it.second.runes.rnumber,
+				it.second.runes.min_caster_level);
+	}
 }
 
 void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -794,7 +806,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case 21: // expgain
 			ZoneExpStat::print_gain(ch);
 			break;
-		case 22: // runes
+		case 22: // runes stat
 			print_rune_stats(ch);
 			break;
 		case 23: { // mobstat
@@ -879,6 +891,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		case 36: // shops
 			do_shops_list(ch);
+			break;
+		case 37: // runes list
+			List_spell_create(ch);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;
