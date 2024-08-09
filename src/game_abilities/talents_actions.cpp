@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "entities/char_data.h"
+#include "fmt/format.h"
 #include "utils/random.h"
 
 namespace talents_actions {
@@ -16,11 +17,11 @@ void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
 }
 
-int Damage::RollDmgDices() const {
+int Damage::RollSkillDices() const {
 	return RollDices(dice_num_, dice_size_) + dice_add_;
 }
 
-double Damage::CalcSkillDmgCoeff(const CharData *const ch) const {
+double Damage::CalcSkillCoeff(const CharData *const ch) const {
 	auto skill = ch->GetSkill(base_skill_);
 	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
 	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
@@ -28,7 +29,7 @@ double Damage::CalcSkillDmgCoeff(const CharData *const ch) const {
 }
 
 double Damage::CalcBaseStatCoeff(const CharData *const ch) const {
-	return (std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_)) * base_stat_weight_ / 100.0;
+	return std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
 
 Damage::Damage(parser_wrapper::DataNode &node) {
@@ -55,6 +56,16 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		node.GoToParent();
 	}
 }
+
+Heal::Heal(parser_wrapper::DataNode &node) : Damage(node) {
+	npc_coeff_ = parse::ReadAsDouble(node.GetValue("npc_coeff"));
+}
+
+double Heal::CalcNpcCoeff(const CharData* ch) const
+{
+	return npc_coeff_;
+}
+
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Area:" << "\r\n"
@@ -101,6 +112,8 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseDamage(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "area") == 0) {
 			ParseArea(info, manifestation);
+		} else if (strcmp(manifestation.GetName(), "heal") == 0) {
+			ParseHeal(info, manifestation);
 		}
 	}
 	node.GoToParent();
@@ -129,6 +142,10 @@ void Actions::ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node) 
 	info->insert({EAction::kArea, std::move(ptr)});
 }
 
+void Actions::ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
+	info->emplace(EAction::kHeal, std::make_shared<Heal>(node));
+}
+
 /*
  *  Геттеры эффектов
  *  Area и Dmg возвпращаются только по одному, потому что для обраьотки их списка надо переписывать всю логику
@@ -148,6 +165,14 @@ const Area &Actions::GetArea() const {
 		return *std::static_pointer_cast<Area>(actions_->find(EAction::kArea)->second);
 	} else {
 		throw std::runtime_error("Getting area parameters from talent which has no 'area' action.");
+	}
+}
+
+const Heal &Actions::GetHeal() const {
+	if (actions_->contains(EAction::kHeal)) {
+		return *std::static_pointer_cast<Heal>(actions_->find(EAction::kHeal)->second);
+	} else {
+		throw std::runtime_error("Getting heal parameters from talent which has no 'heal' action.");
 	}
 }
 

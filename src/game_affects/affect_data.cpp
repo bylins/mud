@@ -901,7 +901,7 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 		case EApply::kPhysicDamagePercent: ch->add_abils.percent_physdam_add += mod;
 			break;
 		case EApply::kMagicDamagePercent: 
-			ch->add_abils.percent_magdam_add += mod;
+			ch->add_abils.percent_spellpower_add += mod;
 			break;
 		case EApply::kExpPercent: ch->add_abils.percent_exp_add += mod;
 			break;

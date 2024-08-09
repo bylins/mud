@@ -1,0 +1,2 @@
+Jul 29 19:12:02 :: INFO: MSDP request CLIENT_NAME.
+Jul 29 19:12:02 :: INFO: MSDP request CLIENT_VERSION.

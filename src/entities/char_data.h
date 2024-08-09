@@ -81,7 +81,7 @@ struct char_played_ability_data {
 	int pray_add;
 	int percent_exp_add;
 	int percent_physdam_add;
-	int percent_magdam_add;
+	int percent_spellpower_add;
 	int percent_spell_blink_phys;
 	int percent_spell_blink_mag;
 	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw;	// Saving throw (Bonuses)

@@ -362,7 +362,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_AR(k),
 			GET_MR(k),
 			GET_PR(k),
-			k->add_abils.percent_magdam_add,
+			k->add_abils.percent_spellpower_add,
 			k->add_abils.percent_physdam_add);
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
