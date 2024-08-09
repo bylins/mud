@@ -212,8 +212,9 @@ void go_bash(CharData *ch, CharData *vict) {
 		damage = dmg.Process(ch, vict);
 		vict->DropFromHorse();
 		// Сам баш:
-		if (!IS_IMPL(vict) && GET_POS(vict) > EPosition::kSit) {
-			GET_POS(vict) = EPosition::kSit;
+		if (!IS_IMPL(vict)) {
+			if (GET_POS(vict) > EPosition::kSit)
+				GET_POS(vict) = EPosition::kSit;
 			SetWait(vict, 3, true);
 		}
 		lag = 1;

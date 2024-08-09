@@ -113,7 +113,7 @@ struct SpellCreate {
 	struct SpellCreateItem runes;
 };
 
-extern std::unordered_map<ESpell, SpellCreate> spell_create;
+extern std::map<ESpell, SpellCreate> spell_create;
 
 
 #endif //SPELLS_INFO_H_

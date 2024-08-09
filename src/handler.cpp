@@ -2181,15 +2181,14 @@ ObjData *get_obj_vis(CharData *ch, const char *name) {
 	}
 
 	// ok.. no luck yet. scan the entire obj list except already found
-	const WorldObjects::predicate_f predicate = [&](const ObjData::shared_ptr &i) -> bool {
+	const WorldObjects::predicate_f predicate = [&ch, &tmp, &id_obj_set](const ObjData::shared_ptr &i) -> bool {
 		const auto result = CAN_SEE_OBJ(ch, i.get())
 			&& (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
 			&& (id_obj_set.count(i.get()->get_id()) == 0);
 		return result;
 	};
-	// не совсем понял зачем вычитать единицу
-	obj = world_objects.find_if(predicate, number - 1).get();
+	obj = world_objects.find_if(predicate, number).get();
 		if (obj) {
 		return obj;
 	}

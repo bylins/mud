@@ -32,6 +32,7 @@
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
 extern int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log);
+extern std::list<combat_list_element> combat_list;
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
@@ -51,7 +52,6 @@ int last_trig_line_num = 0;
 // other external vars
 
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
-extern CharData *combat_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *exit_bits[];
@@ -2903,13 +2903,14 @@ void find_replacement(void *go,
 				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_ID(f->follower));
 			}
 		} else if (!str_cmp(field, "attackers")) {
-			CharData *t;
 			size_t str_length = strlen(str);
-			for (t = combat_list; t; t = t->next_fighting) {
-				if (t->GetEnemy() != c) {
+			for (auto it : combat_list) {
+				if (it.deleted)
+					continue;
+				if (it.ch->GetEnemy() != c) {
 					continue;
 				}
-				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(t));
+				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(it.ch));
 				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
@@ -4797,19 +4798,16 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		trig_log(trig, buf2);
 		return;
 	}
-
-	for (const auto &tch : character_list) {
-		if (tch->IsNpc()
-			|| !HERE(tch)
-			|| !isname(who, GET_NAME(tch))) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING)
+			continue;
+		if (!HERE(d->character) || !isname(who, d->character->get_name())) {
 			continue;
 		}
-
-		if (IN_ROOM(tch) != kNowhere) {
-			result = GET_ID(tch);
+		if (IN_ROOM(d->character) != kNowhere) {
+			result = d->character->id;
 		}
 	}
-
 	if (result <= -1) {
 //		sprintf(buf2, "charuid target not found, name: '%s'", who);
 //		trig_log(trig, buf2);
