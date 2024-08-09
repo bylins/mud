@@ -57,7 +57,15 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 	}
 }
 
-Heal::Heal(parser_wrapper::DataNode &node) : Damage(node){}
+Heal::Heal(parser_wrapper::DataNode &node) : Damage(node) {
+	npc_coeff_ = parse::ReadAsDouble(node.GetValue("npc_coeff"));
+}
+
+double Heal::CalcNpcCoeff(const CharData* ch) const
+{
+	return npc_coeff_;
+}
+
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Area:" << "\r\n"

@@ -57,6 +57,8 @@ class Damage : public IAction {
 class Heal : public	Damage {
 public:
 	explicit Heal(parser_wrapper::DataNode &node);
+	double CalcNpcCoeff(const CharData *ch) const;
+private: double npc_coeff_{1};
 };
 
 struct Area : public IAction {
