@@ -379,7 +379,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <heal saving="kCritical" npc_coeff="3">
-                    <dices ndice="10" sdice="11" adice="11"/>
+                    <dices ndice="12" sdice="12" adice="12"/>
                     <base_skill id="kLifeMagic" low_skill_bonus="10" hi_skill_bonus="5"/>
                     <base_stat id="kWis" threshold="25" weight="6"/>
                 </heal>
@@ -584,7 +584,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <heal saving="kCritical" npc_coeff="3">
-                    <dices ndice="6" sdice="6" adice="6"/>
+                    <dices ndice="8" sdice="8" adice="8"/>
                     <base_skill id="kLifeMagic" low_skill_bonus="9" hi_skill_bonus="7"/>
                     <base_stat id="kWis" threshold="25" weight="5"/>
                 </heal>
