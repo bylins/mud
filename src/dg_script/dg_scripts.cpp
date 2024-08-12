@@ -2017,6 +2017,61 @@ void find_replacement(void *go,
 						}
 					}
 				}
+			} else if (!str_cmp(field, "find")) {
+				std::string arg = subfield;
+				unsigned long index = 0;
+				std::vector<std::string> tokens = utils::SplitAny(arg, ",");
+
+				if (tokens.size() < 2 || tokens.size() > 3) {
+					sprintf(buf, "%s", "array.find: путанница в количестве аргументов");
+					trig_log(trig, buf);
+					return;
+				}
+				if (tokens.size() == 3) {
+					index = atoi(tokens.at(2).c_str()) - 1;
+				}
+				std::vector<std::string> arr = utils::Split(tokens.at(0));
+				std::string elem = tokens.at(1);
+				if (index + 1 > arr.size()) {
+					sprintf(buf, "%s", "array.find: index больше размера массива");
+					trig_log(trig, buf);
+					return;
+				}
+				auto result = std::find(arr.begin() + index, arr.end(), elem);
+				if (result == arr.end()) {
+					sprintf(str, "%s", "");
+				}
+				else {
+					size_t dst = std::distance(arr.begin(), result);
+					sprintf(str, "%ld", dst + 1);
+				}
+				return;
+			} else if (!str_cmp(field, "remove")) {
+				std::string arg = subfield;
+				std::vector<std::string> tokens = utils::SplitAny(arg, ",");
+
+				if (tokens.size() != 2) {
+					sprintf(buf, "%s", "array.remove: путанница в количестве аргументов");
+					trig_log(trig, buf);
+					return;
+				}
+				size_t index = atoi(tokens.at(1).c_str()) - 1;
+				std::vector<std::string> arr = utils::Split(tokens.at(0));
+
+				if (index + 1 > arr.size()) {
+					sprintf(buf, "%s", "array.remove: index больше размера массива");
+					trig_log(trig, buf);
+					return;
+				}
+				auto it = arr.begin();
+				std::advance(it, index);
+				arr.erase(it);
+				std::stringstream ss;
+				for (auto res : arr) {
+					ss << res << " ";
+				}
+				sprintf(str, "%s", ss.str().c_str());
+				return;
 			}
 			/*Вот тут можно наделать вот так еще:
 			else if (!str_cmp(field, "pop")) {}

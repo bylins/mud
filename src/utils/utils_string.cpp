@@ -163,6 +163,7 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 	while (std::getline(tokens_stream, token, delimiter)) {
 		if (token.empty())
 			continue;
+		TrimLeft(token);
 		tokens.push_back(token);
 	}
 	return tokens; //если разделитель не найден вернется 1 элемент содержащий полную строку
