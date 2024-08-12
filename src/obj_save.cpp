@@ -1730,8 +1730,8 @@ void Crash_extract_norent_eq(CharData *ch) {
 }
 
 void Crash_extract_norent_charmee(CharData *ch) {
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
+	if (!ch->followers.empty()) {
+		for (auto &k : ch->followers) {
 			if (!IS_CHARMICE(k)
 				|| !k->has_master()) {
 				continue;
@@ -1772,8 +1772,8 @@ int Crash_calculate_rent_eq(ObjData *obj) {
 
 int Crash_calculate_charmee_rent(CharData *ch) {
 	int cost = 0;
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
+	if (!ch->followers.empty()) {
+		for (auto &k : ch->followers) {
 			if (!IS_CHARMICE(k)
 				|| !k->has_master()) {
 				continue;
@@ -1798,10 +1798,9 @@ int Crash_calcitems(ObjData *obj) {
 
 int Crash_calc_charmee_items(CharData *ch) {
 	int num = 0;
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k)
-				|| !k->has_master())
+	if (!ch->followers.empty()) {
+		for (auto k : ch->followers) {
+			if (!IS_CHARMICE(k) || !k->has_master())
 				continue;
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
 				num += Crash_calcitems(GET_EQ(k, j));
@@ -1942,12 +1941,9 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	crash_save_and_restore_weight(write_buffer, iplayer, ch->carrying, 0, savetype);
 
-	if (ch->followers
-		&& (savetype == RENT_CRASH
-			|| savetype == RENT_FORCED)) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k)
-				|| !k->has_master()) {
+	if (!ch->followers.empty() && (savetype == RENT_CRASH || savetype == RENT_FORCED)) {
+		for (auto &k : ch->followers) {
+			if (!IS_CHARMICE(k) || !k->has_master()) {
 				continue;
 			}
 

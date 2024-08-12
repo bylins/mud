@@ -15,7 +15,7 @@ int GroupPenaltyCalculator::get() const {
 		}
 	}
 
-	for (auto f = m_leader->followers; f; f = f->next) {
+	for (auto f : m_leader->followers) {
 		const bool follower_is_npc = f->IsNpc();
 		const bool follower_is_in_room = AFF_FLAGGED(f, EAffect::kGroup)
 			&& f->in_room == IN_ROOM(m_killer);

@@ -545,7 +545,6 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 void SpellSummon(CharData *ch, CharData *victim) {
 	RoomRnum ch_room, vic_room;
-	struct FollowerType *k, *k_next;
 
 	if (ch == nullptr || victim == nullptr || ch == victim) {
 		return;
@@ -670,8 +669,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	victim->dismount();
 	look_at_room(victim, 0);
 	// призываем чармисов
-	for (k = victim->followers; k; k = k_next) {
-		k_next = k->next;
+	for (auto k : victim->followers) {
 		if (IN_ROOM(k) == vic_room) {
 			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
 				if (!k->GetEnemy()) {
@@ -890,13 +888,11 @@ void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, Ob
 }
 
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
-	struct FollowerType *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
 
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k, EAffect::kCharmed)
-			&& k->get_master() == ch) {
+	for (auto &k : ch->followers) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
 			reformed_hp_summ += GetReformedCharmiceHp(ch, k, spell_id);
@@ -1018,9 +1014,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (CanUseFeat(ch, EFeat::kAnimalMaster) && GET_RACE(victim) == 104) {
 			int type_mob;
 			std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
-			struct FollowerType *k, *k_next;
-			for (k = ch->followers; k; k = k_next) {
-				k_next = k->next;
+			for (auto &k : ch->followers) {
 				if (IS_CHARMICE(k) && k->get_type_charmice() > 0) {
 					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->get_type_charmice());
 					if (it != rndcharmice.end()) {
@@ -2125,7 +2119,6 @@ void do_sacrifice(CharData *ch, int dam) {
 
 void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
 	int dam, d0 = GET_HIT(victim);
-	struct FollowerType *f;
 
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
@@ -2147,7 +2140,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 
 	do_sacrifice(ch, dam);
 	if (!ch->IsNpc()) {
-		for (f = ch->followers; f; f = f->next) {
+		for (auto f : ch->followers) {
 			if (f->IsNpc()
 				&& AFF_FLAGGED(f, EAffect::kCharmed)
 				&& MOB_FLAGGED(f, EMobFlag::kCorpse)
@@ -2206,14 +2199,10 @@ void SpellSummonAngel(CharData *ch) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
-	struct FollowerType *k, *k_next;
-
 	auto eff_cha = get_effective_cha(ch);
 
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
-		if (MOB_FLAGGED(k,
-						EMobFlag::kTutelar))    //SendMsgToChar("Боги не обратили на вас никакого внимания!\r\n", ch);
+	for (auto &k : ch->followers) {
+		if (MOB_FLAGGED(k, EMobFlag::kTutelar))    //SendMsgToChar("Боги не обратили на вас никакого внимания!\r\n", ch);
 		{
 			//return;
 			//пуржим старого ангела
@@ -2398,9 +2387,7 @@ void SpellMentalShadow(CharData *ch) {
 	MobVnum mob_num = kMobMentalShadow;
 
 	CharData *mob = nullptr;
-	struct FollowerType *k, *k_next;
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
+	for (auto &k : ch->followers) {
 		if (MOB_FLAGGED(k, EMobFlag::kMentalShadow)) {
 			stop_follower(k, false);
 		}

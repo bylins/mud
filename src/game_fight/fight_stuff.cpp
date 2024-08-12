@@ -73,15 +73,14 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				}
 			}
 
-			for (struct FollowerType *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
-				if (AFF_FLAGGED(f, EAffect::kGroup)
-					&& IN_ROOM(f) == IN_ROOM(killer)) {
-					++cnt;
+			for (auto &f : master->followers) {
+				if (AFF_FLAGGED(f, EAffect::kGroup)) 
+					++total_group_members;
+				if (AFF_FLAGGED(f, EAffect::kGroup) && IN_ROOM(f) == IN_ROOM(killer)) {
 					if (leader_partner) {
 						if (!f->IsNpc()) {
 							partner_feat++;
-							partner = f->follower;
+							partner = f;
 						}
 					}
 				}
@@ -106,9 +105,8 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			if (IN_ROOM(master) == IN_ROOM(killer)) {
 				members_to_mobmax.push_back(master);
 			}
-			for (struct FollowerType *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f, EAffect::kGroup)
-					&& IN_ROOM(f) == IN_ROOM(killer)) {
+			for (auto &f : master->followers) {
+				if (AFF_FLAGGED(f, EAffect::kGroup) && IN_ROOM(f) == IN_ROOM(killer)) {
 					members_to_mobmax.push_back(f);
 				}
 			}
@@ -123,14 +121,14 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			}
 		} else {
 			// выберем случайным образом мембера группы для замакса
-			auto n = number(0, cnt);
+			auto n = number(0,  master->followers.size() - 1);
 			int i = 0;
-			for (struct FollowerType *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f, EAffect::kGroup)
-					&& IN_ROOM(f) == IN_ROOM(killer)) {
-					++i;
-					master = f->follower;
+			for (auto &f : master->followers) {
+				if (AFF_FLAGGED(f, EAffect::kGroup) && IN_ROOM(f) == IN_ROOM(killer)) {
+					master = f;
 				}
+				if (i++ == n)
+					break;
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GetRealLevel(ch));
 		}
@@ -461,7 +459,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 		HELL_DURATION(ch) = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
-	for (FollowerType *f = ch->followers; f; f = f->next) {
+	for (auto &f : ch->followers) {
 		if (IS_CHARMICE(f)) {
 			RemoveCharFromRoom(f);
 			PlaceCharToRoom(f, to_room);
@@ -899,7 +897,6 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 --*/
 void group_gain(CharData *killer, CharData *victim) {
 	int inroom_members, koef = 100, maxlevel;
-	struct FollowerType *f;
 	int partner_count = 0;
 	int total_group_members = 1;
 	bool use_partner_exp = false;
@@ -929,7 +926,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	// Вычисляем максимальный уровень в группе
-	for (f = leader->followers; f; f = f->next) {
+	for (auto &f : leader->followers) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
 		if (AFF_FLAGGED(f, EAffect::kGroup)
 			&& f->in_room == IN_ROOM(killer)) {
@@ -987,7 +984,7 @@ void group_gain(CharData *killer, CharData *victim) {
 		perform_group_gain(leader, victim, inroom_members, koef);
 	}
 
-	for (f = leader->followers; f; f = f->next) {
+	for (auto &f : leader->followers) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)
 			&& f->in_room == IN_ROOM(killer)) {
 			perform_group_gain(f, victim, inroom_members, koef);

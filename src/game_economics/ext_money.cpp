@@ -403,8 +403,8 @@ bool has_connected_bosses(CharData *ch) {
 		}
 	}
 	// если у данного моба есть живые последователи-боссы
-	for (FollowerType *i = ch->followers; i; i = i->next) {
-		if (i->follower != ch
+	for (auto i : ch->followers) {
+		if (i != ch
 			&& i->IsNpc()
 			&& !IS_CHARMICE(i)
 			&& i->get_master() == ch
@@ -570,7 +570,7 @@ void drop_torc(CharData *mob) {
 						: d->character.get();
 
 	int members = 1;
-	for (FollowerType *f = leader->followers; f; f = f->next) {
+	for (auto f : leader->followers) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)
 			&& f->in_room == IN_ROOM(mob)
 			&& !f->IsNpc()) {
@@ -591,7 +591,7 @@ void drop_torc(CharData *mob) {
 		gain_torc(leader, drop);
 	}
 
-	for (FollowerType *f = leader->followers; f; f = f->next) {
+	for (auto f : leader->followers) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)
 			&& f->in_room == IN_ROOM(mob)
 			&& !f->IsNpc()

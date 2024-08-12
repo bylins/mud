@@ -4257,13 +4257,14 @@ void process_set(Script * /*sc*/, Trigger *trig, char *cmd) {
 	char arg[kMaxTrglineLength], name[kMaxTrglineLength], *value;
 
 	value = two_arguments(cmd, arg, name);
-
-	skip_spaces(&value);
-
 	if (!*name) {
 		sprintf(buf2, "set w/o an argument, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
+	}
+	if (strlen(name) > kMaxTrglineLength) {
+		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%ld), команда: '%s'", strlen(name), cmd);
+		trig_log(trig, buf2);
 	}
 
 	add_var_cntx(trig->var_list, name, value, 0);
@@ -4285,6 +4286,10 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	}
 
 	eval_expr(expr, result, go, sc, trig, type);
+	if (strlen(result) > kMaxTrglineLength) {
+		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%ld), команда: '%s'", strlen(result), cmd);
+		trig_log(trig, buf2);
+	}
 	add_var_cntx(trig->var_list, name, result, 0);
 }
 

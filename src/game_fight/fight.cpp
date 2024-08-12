@@ -53,8 +53,7 @@ void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
 
 void go_autoassist(CharData *ch) {
-	struct FollowerType *k;
-	struct FollowerType *d;
+	CharData *k;
 	CharData *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
@@ -63,14 +62,15 @@ void go_autoassist(CharData *ch) {
 	}
 
 	buf2[0] = '\0';
-	for (k = ch_lider->followers; k; k = k->next) {
+	for (auto it : ch_lider->followers) {
+		k = it;
 		if (PRF_FLAGGED(k, EPrf::kAutoassist) &&
 			(IN_ROOM(k) == IN_ROOM(ch)) && !k->GetEnemy() &&
 			(GET_POS(k) == EPosition::kStand) && k->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
 			if (IsCaster(k)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->followers; d; d = d->next)
+				for (auto d : k->followers)
 					if ((IN_ROOM(d) == IN_ROOM(ch)) && !d->GetEnemy() &&
 						(GET_POS(d) == EPosition::kStand) && d->get_wait() <= 0)
 						do_assist(d, buf2, 0, 0);
@@ -1228,10 +1228,7 @@ void check_mob_helpers() {
 }
 
 void try_angel_rescue(CharData *ch) {
-	struct FollowerType *k, *k_next;
-
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
+	for (auto k : ch->followers) {
 		if (AFF_FLAGGED(k, EAffect::kHelper)
 			&& MOB_FLAGGED(k, EMobFlag::kTutelar)
 			&& !k->GetEnemy()
@@ -1247,7 +1244,6 @@ void try_angel_rescue(CharData *ch) {
 					if (k->GetSkill(ESkill::kRescue)) {
 						go_rescue(k, ch, vict);
 					}
-
 					break;
 				}
 			}
@@ -2265,8 +2261,7 @@ int calc_leadership(CharData *ch) {
 
 	if (ch->IsNpc()
 		|| !AFF_FLAGGED(ch, EAffect::kGroup)
-		|| (!ch->has_master()
-			&& !ch->followers)) {
+		|| (!ch->has_master() && ch->followers.empty())) {
 		return false;
 	}
 

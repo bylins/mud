@@ -271,7 +271,7 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	const auto ch = descriptor()->character.get();
 	const auto master = ch->has_master() ? ch->get_master() : ch;
 	append_char(group_descriptor, ch, master, true);
-	for (auto f = master->followers; f; f = f->next) {
+	for (auto f : master->followers) {
 		if (!AFF_FLAGGED(f, EAffect::kGroup)
 			&& !(AFF_FLAGGED(f, EAffect::kCharmed)
 				|| MOB_FLAGGED(f, EMobFlag::kTutelar)
@@ -286,7 +286,7 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 			continue;
 		}
 
-		for (auto ff = f->followers; ff; ff = ff->next) {
+		for (auto ff : f->followers) {
 			if (!(AFF_FLAGGED(ff, EAffect::kCharmed)
 				|| MOB_FLAGGED(ff, EMobFlag::kTutelar)
 				|| MOB_FLAGGED(ff, EMobFlag::kMentalShadow))) {

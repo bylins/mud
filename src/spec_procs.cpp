@@ -965,20 +965,24 @@ void npc_group(CharData *ch) {
 }
 
 void npc_groupbattle(CharData *ch) {
-	struct FollowerType *k;
 	CharData *tch, *helper;
+	std::list<Chardata *> target;
 
 	if (!ch->IsNpc()
 		|| !ch->GetEnemy()
 		|| AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| !ch->has_master()
 		|| ch->in_room == kNowhere
-		|| !ch->followers) {
+		|| ch->followers.empty()) {
 		return;
 	}
-
-	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
-	tch = ch->has_master() ? ch->get_master() : ch;
+	if (ch->has_master()) {
+		target = ch->get_master()->followers
+		tch = ch->get_master();
+	} else {
+		target = ch->followers;
+		tch = ch;
+	}
 	for (; k; (k = tch ? k : k->next), tch = nullptr) {
 		helper = tch ? tch : k->follower;
 		if (ch->in_room == IN_ROOM(helper)

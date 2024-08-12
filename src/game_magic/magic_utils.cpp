@@ -467,17 +467,15 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
 			if (!ch->IsNpc()) {
-				struct FollowerType *k, *k_next;
 				char tmpname[kMaxInputLength];
 				char *tmp = tmpname;
 				strcpy(tmp, t);
 				int fnum = 0;
 				int tnum = get_number(&tmp);
-				for (k = ch->followers; k; k = k_next) {
-					k_next = k->next;
+				for (auto k : ch->followers) {
 					if (isname(tmp, k->GetCharAliases())) {
 						if (++fnum == tnum) {// нашли!!
-							*tch = k->follower;
+							*tch = k;
 							return true;
 						}
 					}
