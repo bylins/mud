@@ -90,6 +90,69 @@ Bitvector ReadAsConstantsBitvector(const char *value) {
 	return result;
 }
 
+	/*
+ * Конвертирует битвектор в набор строковых констант, разделенных символом "|".
+ * ВНИМАНИЕ! Не используйте эту функцию для наборов констант, длиннее 29.
+ * Из-за особенности хранения флаговв битвекторах обратная конвертация для
+ * констант с номерами выше 29 (т.е. имеющими первые три бита, отличные от нуля)
+ * работает некорректно.
+ * Если нужно хранить набор таких констант, используйте std::set.
+ */
+	template<typename T>
+	std::string BitvectorToString(Bitvector bits) {
+	if (bits == 0u) {
+		try {
+			return NAME_BY_ITEM<T>(static_cast<T>(bits));
+		} catch (...) {
+			return "None";
+		}
+	}
+
+	Bitvector flag;
+	Bitvector bit_number = 0u;
+	std::ostringstream buffer;
+	while (bits != 0u) {
+		auto bit = bits & 1u;
+		if (bit) {
+			flag = (1u << bit_number);
+			try {
+				buffer << NAME_BY_ITEM<T>(static_cast<T>(flag));
+			} catch (...) {
+				err_log("value '%dl' is incorrcect constant in this context.", flag);
+			}
+		}
+		bits >>= 1;
+		if (bit && bits != 0u) {
+			buffer << "|";
+		}
+		++bit_number;
+	}
+	return buffer.str();
+}
+
+	template<typename T>
+	std::string ConstantsSetToString(const std::unordered_set<T> &constants) {
+	if (constants.empty()) {
+		try {
+			return NAME_BY_ITEM<T>(static_cast<T>(0u));
+		} catch (...) {
+			return "None";
+		}
+	}
+
+	std::ostringstream buffer;
+	for (const auto constant: constants) {
+		try {
+			buffer << NAME_BY_ITEM<T>(static_cast<T>(constant)) << "|";
+		} catch (...) {
+			err_log("value '%ud' is incorrcect constant in this context.", to_underlying(constant));
+		}
+	}
+	auto out = buffer.str();
+	out.pop_back();
+	return out;
+}
+
 } // namespace Parse
 
 #endif // PARSE_HPP_INCLUDED

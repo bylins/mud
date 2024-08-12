@@ -26,6 +26,7 @@
 #include "handler.h"
 #include "magic_utils.h"
 #include "obj_prototypes.h"
+#include "entities/char_player.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
 
@@ -372,7 +373,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 		base_dmg = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice) +
 			GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
 	} else {
-		base_dmg = spell_dmg.RollDmgDices();
+		base_dmg = spell_dmg.RollSkillDices();
 	}
 
 	if (!ch->IsNpc()) {
@@ -381,14 +382,52 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 	return base_dmg;
 }
 
+int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id) {
+	auto spell_heal = MUD::Spell(spell_id).actions.GetHeal();
+	int total_heal{0};
+
+	double base_heal = spell_heal.RollSkillDices();
+	double skill_mod = base_heal * spell_heal.CalcSkillCoeff(ch);
+	double wis_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
+	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
+	total_heal = static_cast<int>(base_heal + skill_mod + wis_mod);
+	total_heal += static_cast<int>(total_heal * bonus_mod);
+	double npc_heal = spell_heal.CalcNpcCoeff(ch);
+	if (ch->IsNpc()) {
+		total_heal += static_cast<int>(total_heal * npc_heal);
+	}
+
+	ch->send_to_TC(false, true, true,
+		"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
+		GET_NAME(victim),
+		base_heal,
+		skill_mod,
+		wis_mod,
+		1 + bonus_mod,
+		npc_heal,
+		total_heal);
+
+	victim->send_to_TC(false, true, true,
+			"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
+			GET_NAME(ch),
+			base_heal,
+			skill_mod,
+			wis_mod,
+			bonus_mod,
+			npc_heal,
+			total_heal);
+
+	return total_heal;
+}
+
 int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	auto spell_dmg = MUD::Spell(spell_id).actions.GetDmg();
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
 		float base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
-		float skill_mod = base_dmg * spell_dmg.CalcSkillDmgCoeff(ch);
+		float skill_mod = base_dmg * spell_dmg.CalcSkillCoeff(ch);
 		float wis_mod = base_dmg * spell_dmg.CalcBaseStatCoeff(ch);
-		float bonus_mod = ch->add_abils.percent_magdam_add / 100.0;
+		float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 //		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
 		float elem_coeff = CalcMagicElementCoeff(victim, spell_id);
 
@@ -2602,7 +2641,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
 					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
 					break;
-				case 5:CallMagic(ch, ch, nullptr, nullptr, ESpell::kGroupHeal, GetRealLevel(ch));
+				case 5:CallMagic(ch, ch, nullptr, nullptr, ESpell::kGreatHeal, GetRealLevel(ch));
 					break;
 				default:break;
 			}
@@ -3135,20 +3174,26 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	switch (spell_id) {
 		case ESpell::kCureLight:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GetRealInt(ch) / 3 + ch->GetSkill(ESkill::kLifeMagic) / 2;
+			hit = CalcHeal(ch, victim, ESpell::kCureLight);
 			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case ESpell::kCureSerious:
-			hit = GET_REAL_MAX_HIT(victim) / 100 * GetRealInt(ch) / 2 + ch->GetSkill(ESkill::kLifeMagic) / 2;
-			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
+			hit = CalcHeal(ch, victim, ESpell::kCureSerious);
+			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			break;
 		case ESpell::kCureCritic:
-			hit = int(GET_REAL_MAX_HIT(victim) / 100 * GetRealInt(ch) / 1.5) + ch->GetSkill(ESkill::kLifeMagic) / 2;
+			hit = CalcHeal(ch, victim, ESpell::kCureCritic);
 			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
-		case ESpell::kHeal:
-		case ESpell::kGroupHeal: hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
-			SendMsgToChar("Вы почувствовали себя здоровым.\r\n", victim);
+		case ESpell::kHeal: hit = CalcHeal(ch, victim, ESpell::kHeal);
+			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
+			break;
+		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, ESpell::kGroupHeal);
+			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
+			break;
+		case ESpell::kGreatHeal:
+			hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+			SendMsgToChar("Вы почувствовали себя полностью здоровым.\r\n", victim);
 			break;
 		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
 			break;
@@ -3916,7 +3961,7 @@ const AreaSpellParams mag_messages[] =
 		 nullptr,
 		 nullptr,
 		 nullptr},
-		{ESpell::kGroupHeal,
+		{ESpell::kGreatHeal,
 		 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 		 nullptr,
 		 nullptr},

@@ -218,6 +218,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
+        <talent_actions>
+            <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="6" sdice="6" adice="6"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="7" hi_skill_bonus="8"/>
+                    <base_stat id="kWis" threshold="25" weight="5"/>
+                </heal>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCureLight" element="kLife" mode="kEnabled">
         <name rus="легкое исцеление" eng="light cure"/>
@@ -225,6 +234,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
+        <talent_actions>
+            <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="4" sdice="4" adice="4"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="5" hi_skill_bonus="5"/>
+                    <base_stat id="kWis" threshold="25" weight="5"/>
+                </heal>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCurse" element="kDark" mode="kEnabled">
         <name rus="проклятие" eng="curse"/>
@@ -358,7 +376,16 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
-    </spell>
+        <talent_actions>
+            <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="12" sdice="12" adice="12"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="10" hi_skill_bonus="5"/>
+                    <base_stat id="kWis" threshold="25" weight="6"/>
+                </heal>
+            </action>
+            </talent_actions>
+        </spell>
     <spell id="kInvisible" element="kMind" mode="kEnabled">
         <name rus="невидимость" eng="invisible"/>
         <misc pos="kStand" violent="N" danger="0"/>
@@ -556,6 +583,22 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="8" sdice="8" adice="8"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="9" hi_skill_bonus="7"/>
+                    <base_stat id="kWis" threshold="25" weight="5"/>
+                </heal>
+            </action>
+        </talent_actions>
+    </spell>
+    <spell id="kGreatHeal" element="kLife" mode="kEnabled">
+        <name rus="великое исцеление" eng="great heal"/>
+        <misc pos="kFight" violent="N" danger="30"/>
+        <mana max="110" min="100" change="2"/>
+        <targets val="kTarIgnore"/>
+        <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
+        <talent_actions>
+            <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -598,6 +641,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
+        <talent_actions>
+            <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="4" sdice="4" adice="5"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="8" hi_skill_bonus="7"/>
+                    <base_stat id="kWis" threshold="25" weight="5"/>
+                </heal>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kGroupStrength" element="kMind" mode="kEnabled">
         <name rus="групповая сила" eng="group strength"/>

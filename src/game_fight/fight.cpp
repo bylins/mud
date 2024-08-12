@@ -413,6 +413,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 		case ESpell::kCureCritic: AFF_USED = 50;
 			break;
 		case ESpell::kHeal:
+		case ESpell::kGreatHeal:
 		case ESpell::kGroupHeal: AFF_USED = 30;
 			break;
 		default: break;
