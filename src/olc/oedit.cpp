@@ -1350,6 +1350,7 @@ void oedit_disp_clone_menu(DescriptorData *d) {
 void oedit_parse(DescriptorData *d, char *arg) {
 	int number{};
 	int max_val, min_val, plane, bit;
+	bool need_break = false;
 	ESkill skill_id{};
 
 	switch (OLC_MODE(d)) {
@@ -1817,8 +1818,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: {
-					if (number == 0)
-						return;
+					if (number == 0) {
+						need_break = true;
+						break;
+					}
 					auto spell_id = static_cast<ESpell>(number);
 					if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 						oedit_disp_val2_menu(d);
@@ -1901,6 +1904,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					}
 				default: break;
 			}
+			if (need_break)
+				break;
 			OLC_OBJ(d)->set_val(1, number);
 			OLC_VAL(d) = 1;
 			oedit_disp_val3_menu(d);
@@ -1911,8 +1916,10 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: 
-					if (number == 0)
-						return;
+					if (number == 0) {
+						need_break = true;
+						break;
+					}
 					min_val = -1;
 					max_val = to_underlying(ESpell::kLast);
 					break;
@@ -1938,39 +1945,44 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				default: min_val = -999999;
 					max_val = 999999;
 			}
+			if (need_break)
+				break;
 			OLC_OBJ(d)->set_val(2, MAX(min_val, MIN(number, max_val)));
 			OLC_VAL(d) = 1;
 			oedit_disp_val4_menu(d);
 			return;
 
-		case OEDIT_VALUE_4: number = atoi(arg);
+		case OEDIT_VALUE_4:
+			number = atoi(arg);
+			min_val = -999999;
+			max_val = 999999;
 			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 				case EObjType::kScroll:
-				case EObjType::kPotion: 
-					if (number == 0)
-						return;
-					min_val = -1;
+				case EObjType::kPotion:
+					if (number == 0) {
+						break;
+					}
+					min_val = 1;
 					max_val = to_underlying(ESpell::kLast);
 					break;
-
 				case EObjType::kWand:
-				case EObjType::kStaff: min_val = 1;
+				case EObjType::kStaff: 
+					min_val = 1;
 					max_val = to_underlying(ESpell::kLast);
 					break;
-
-				case EObjType::kWeapon: min_val = 0;
+				case EObjType::kWeapon: 
+					min_val = 0;
 					max_val = NUM_ATTACK_TYPES - 1;
 					break;
-				case EObjType::kMagicIngredient: min_val = 0;
+				case EObjType::kMagicIngredient: 
+					min_val = 0;
 					max_val = 2;
 					break;
-
-				case EObjType::kCraftMaterial: min_val = 0;
+				case EObjType::kCraftMaterial: 
+					min_val = 0;
 					max_val = 100;
 					break;
-
-				default: min_val = -999999;
-					max_val = 999999;
+				default:
 					break;
 			}
 			OLC_OBJ(d)->set_val(3, MAX(min_val, MIN(number, max_val)));
