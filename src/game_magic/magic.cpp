@@ -3808,8 +3808,8 @@ struct AreaSpellParams {
 };
 
 const AreaSpellParams mag_messages[] = {
-		{ESpell::kGreatHeal,
-		 nullptr,
+		{ESpell::kGroupHeal,
+		 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 		 nullptr,
 		 nullptr},
 		{ESpell::kPaladineInspiration,
