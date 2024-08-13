@@ -3807,8 +3807,11 @@ struct AreaSpellParams {
 	const char *to_vict{nullptr};
 };
 
-const AreaSpellParams mag_messages[] =
-	{
+const AreaSpellParams mag_messages[] = {
+		{ESpell::kGreatHeal,
+		 nullptr,
+		 nullptr,
+		 nullptr},
 		{ESpell::kPaladineInspiration,
 		 "Ваш точный удар воодушевил и придал новых сил!",
 		 "Точный удар $n1 воодушевил и придал новых сил!",
