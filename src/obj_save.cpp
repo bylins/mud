@@ -545,8 +545,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	int i, j;
 
 	// vnum
-	if (obj_proto[object->get_rnum()]->GetParentProto() > 0) {
-		out << "#" << obj_proto[object->get_rnum()]->GetParentProto();
+	if (obj_proto[object->get_rnum()]->get_parent_rnum() > -1) {
+		out << "#" << obj_proto[object->get_rnum()]->get_parent_vnum();
 	} else {
 		out << "#" << GET_OBJ_VNUM(object);
 	}
@@ -1820,8 +1820,8 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 		if (iplayer >= 0) {
 			write_one_object(write_buffer, obj, location);
 			SaveTimeInfo tmp_node;
-			if (obj_proto[obj->get_rnum()]->GetParentProto() > 0) {
-				tmp_node.vnum = obj_proto[obj->get_rnum()]->GetParentProto();
+			if (obj_proto[obj->get_rnum()]->get_parent_rnum() > -1) {
+				tmp_node.vnum = obj_proto[obj->get_rnum()]->get_parent_vnum();
 			} else {
 				tmp_node.vnum = obj->get_vnum();
 			}

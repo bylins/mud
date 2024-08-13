@@ -701,6 +701,10 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	}
 }
 
+ObjRnum CObjectPrototype::get_parent_vnum() {
+	return obj_proto[this->get_parent_rnum()]->get_vnum();
+}
+
 float CObjectPrototype::show_mort_req() {
 	return count_mort_requred(this);
 }
@@ -1511,8 +1515,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 int GetObjMIW(ObjRnum rnum) {
 	if (rnum < 0)
 		return 0;
-	ObjRnum val = obj_proto[rnum]->GetParentProto();
-
+	ObjRnum val = obj_proto[rnum]->get_parent_rnum();
 	if (val < 0)
 		return obj_proto[rnum]->get_max_in_world();
 	else 
