@@ -4700,41 +4700,71 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	}
 }
 
+void SwapOriginalObject(ObjData *obj) { 
+
+	if (obj->get_parent_rnum() > -1) {
+		const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->get_parent_rnum());
+		int pos = -1;
+		CharData *wearer = nullptr;
+		ObjData *in_obj = nullptr;
+
+		if (obj->get_worn_by()) {
+			pos = obj->get_worn_on();
+			wearer = obj->get_worn_by();
+			UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
+		}
+		if (obj->get_in_obj()) {
+			in_obj = obj->get_in_obj();
+			RemoveObjFromObj(obj);
+		}
+		obj->swap(*obj_original.get());
+		if (obj_original->has_flag(EObjFlag::kTicktimer)) {
+			obj->set_extra_flag(EObjFlag::kTicktimer);
+		}
+		if (in_obj) {
+			PlaceObjIntoObj(obj, in_obj);
+		}
+		if (wearer) {
+			EquipObj(wearer, obj, pos, CharEquipFlags());
+		}
+		ExtractObjFromWorld(obj_original.get());
+	}
+}
+
+void SwapObjectDungeon(CharData *ch) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
+		if (ch->equipment[i]) {
+			SwapOriginalObject(ch->equipment[i]);
+		}
+	}
+	ObjData *obj_next = nullptr;
+	ObjData *next_obj = nullptr;
+
+	for (auto obj = ch->carrying; obj; obj = obj_next) {
+		obj_next = obj->get_next_content();
+		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+			for (auto obj2 = obj->get_contains(); obj2; obj2 = next_obj) {
+				next_obj = obj2->get_next_content();
+				SwapOriginalObject(obj2);
+			}
+		}
+		SwapOriginalObject(obj);
+	}
+}
+
 void ObjDataFree(ZoneRnum zrn) {
 // на земле удаляются в RoomDataFree
 //	ObjRnum orn_from = zone_table[zrn].RnumObjsLocation.first;
 //	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
 	ObjRnum orn;
-	CharData *wearer = nullptr;
-	ObjData *in_obj = nullptr;
-	int pos = -1;
 
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = real_object(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
-			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
-				const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->get_parent_rnum());
-				if (obj->get_worn_by()) {
-					pos = obj->get_worn_on();
-					wearer = obj->get_worn_by();
-					UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
-				}
-				if (obj->get_in_obj()) {
-					in_obj = obj->get_in_obj();
-					RemoveObjFromObj(obj.get());
-				}
-				obj->swap(*obj_original.get());
-				if (obj_original->has_flag(EObjFlag::kTicktimer)) {
-					obj->set_extra_flag(EObjFlag::kTicktimer);
-				}
-				if (in_obj) {
-					PlaceObjIntoObj(obj.get(), in_obj);
-				}
-				if (wearer) {
-					EquipObj(wearer, obj.get(), pos, CharEquipFlags());
-				}
-				ExtractObjFromWorld(obj_original.get());
-			});
+// перенесено в char_from_room
+//			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
+//				SwapOriginalObject(obj);
+//			});
 			auto &obj = obj_proto[orn];
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
@@ -4769,8 +4799,8 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 					name_from_drinkcon(new_obj);
 			}
 			new_obj->set_parent_rnum(obj_original->get_rnum());
-			new_obj->set_extra_flag(EObjFlag::kNolocate);
-			new_obj->set_extra_flag(EObjFlag::kNorent);
+//			new_obj->set_extra_flag(EObjFlag::kNolocate);
+//			new_obj->set_extra_flag(EObjFlag::kNorent);
 			new_obj->set_extra_flag(EObjFlag::kNosell);
 			obj_proto.replace(new_obj, orn_to, new_ovn);
 			for (const auto tvn : obj_proto[i]->get_proto_script()) {
