@@ -586,7 +586,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
 			sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
 					world_objects.size(), obj_proto.size());
-			sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd\r\n", top_of_world + 1, zone_table.size());
+			sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd, триггеров %d\r\n", top_of_world + 1, zone_table.size(), top_of_trigt);
 			sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 			sprintf(buf + strlen(buf),
 					"  Переключенных буферов - %5d, переполненных - %5d\r\n",
