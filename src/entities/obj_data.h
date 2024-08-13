@@ -184,8 +184,9 @@ class CObjectPrototype {
 										   m_ilevel(0),
 										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
-	ObjRnum GetParentProto() const {return m_parent_proto;}
-	void SetParentProto(ObjRnum _) {m_parent_proto = _;}
+	ObjRnum get_parent_rnum() const {return m_parent_proto;}
+	ObjVnum get_parent_vnum();
+	void set_parent_rnum(ObjRnum _) {m_parent_proto = _;}
 	auto &get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
 	auto get_current_durability() const { return m_current_durability; }

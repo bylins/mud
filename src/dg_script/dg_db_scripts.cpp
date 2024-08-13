@@ -189,13 +189,14 @@ void assign_triggers(void *i, int type) {
 					sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d", trigger_vnum, mob_index[rnum].vnum);
 					log("%s", buf);
 				} else {
+					int tmp = trig_index[rnum]->proto->get_attach_type();
 					if (trig_index[rnum]->proto->get_attach_type() != MOB_TRIGGER) {
 						const auto rnum = mob->get_rnum();
 						sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
 								trigger_vnum,
-								static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
+								tmp,
 								mob_index[rnum].vnum);
-						mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 					} else {
 						auto trig = read_trigger(rnum);
 						if (add_trigger(SCRIPT(mob).get(), trig, -1)) {

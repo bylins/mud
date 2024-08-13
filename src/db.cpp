@@ -4713,7 +4713,7 @@ void ObjDataFree(ZoneRnum zrn) {
 		if ((orn = real_object(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
 			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
-				const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->GetParentProto());
+				const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->get_parent_rnum());
 				if (obj->get_worn_by()) {
 					pos = obj->get_worn_on();
 					wearer = obj->get_worn_by();
@@ -4746,7 +4746,7 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_PName(4, "вооружиться чем");
 			obj->set_PName(5, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
-			obj->SetParentProto(-1);
+			obj->set_parent_rnum(-1);
 			obj->clear_proto_script();
 
 		}
@@ -4768,7 +4768,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				if (new_obj->get_type() == EObjType::kLiquidContainer) {
 					name_from_drinkcon(new_obj);
 			}
-			new_obj->SetParentProto(obj_proto[obj_original->get_rnum()]->get_vnum());
+			new_obj->set_parent_rnum(obj_original->get_rnum());
 			new_obj->set_extra_flag(EObjFlag::kNolocate);
 			new_obj->set_extra_flag(EObjFlag::kNorent);
 			new_obj->set_extra_flag(EObjFlag::kNosell);
@@ -5180,14 +5180,12 @@ void ZoneReset::reset_zone_essential() {
 					// read an object
 					// 'O' <flag> <ObjVnum> <max_in_world> <RoomVnum|-1> <load%|-1>
 					// Проверка  - сколько всего таких же обьектов надо на эту клетку
-
 					if (ZCMD.arg3 < kFirstRoom) {
 						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
 								obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
-
 					for (cmd_tmp = 0, obj_in_room_max = 0; ZCMD_CMD(cmd_tmp).command != 'S'; cmd_tmp++)
 						if ((ZCMD_CMD(cmd_tmp).command == 'O')
 							&& (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
