@@ -1983,6 +1983,7 @@ void find_replacement(void *go,
 				sprintf(str, "%s", "0");
 			return;
 		} else if (!str_cmp(var, "array")) {
+			utils::Trim(subfield);
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
 				int n = 0;
@@ -2023,7 +2024,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "find")) {
 				std::string arg = subfield;
-				unsigned long index = 0;
+				int index = 0;
 				std::vector<std::string> tokens = utils::SplitAny(arg, ",");
 
 				if (tokens.size() < 2 || tokens.size() > 3) {
@@ -2032,20 +2033,37 @@ void find_replacement(void *go,
 					return;
 				}
 				if (tokens.size() == 3) {
-					index = atoi(tokens.at(2).c_str()) - 1;
+					try {
+						index = std::stoi(tokens.at(2));
+					}
+					catch (const std::invalid_argument &) {
+						sprintf(buf, "array.find: index кривой, указано '%s'", tokens.at(2).c_str());
+						trig_log(trig, buf);
+						return;
+					}
+					if (index < 0) {
+						sprintf(buf, "array.find: index меньше нуля, указано '%s'", tokens.at(2).c_str());
+						trig_log(trig, buf);
+						return;
+					}
 				}
+				log("index %d" , index);
 				std::vector<std::string> arr = utils::Split(tokens.at(0));
 				std::string elem = tokens.at(1);
-				if (index + 1 > arr.size()) {
+				if (index > static_cast<int>(arr.size())) {
 					sprintf(buf, "%s", "array.find: index больше размера массива");
 					trig_log(trig, buf);
 					return;
 				}
-				auto result = std::find(arr.begin() + index, arr.end(), elem);
+				std::vector<std::string>::iterator result;
+
+				if (index == 0)
+					result = std::find(arr.begin(), arr.end(), elem);
+				else
+					result = std::find(arr.begin() + index, arr.end(), elem);
 				if (result == arr.end()) {
 					sprintf(str, "%s", "");
-				}
-				else {
+				} else {
 					size_t dst = std::distance(arr.begin(), result);
 					sprintf(str, "%ld", dst + 1);
 				}
@@ -2053,26 +2071,33 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "remove")) {
 				std::string arg = subfield;
 				std::vector<std::string> tokens = utils::SplitAny(arg, ",");
+				int index = 0;
 
 				if (tokens.size() != 2) {
 					sprintf(buf, "%s", "array.remove: путанница в количестве аргументов");
 					trig_log(trig, buf);
 					return;
 				}
-				size_t index = atoi(tokens.at(1).c_str());
-				if (index == 0) {
-					sprintf(buf, "%s", "array.remove: index кривой или отсуствует");
+				try {
+					index = std::stoi(tokens.at(1));
+				}
+				catch (const std::invalid_argument &) {
+					sprintf(buf, "array.remove: index кривой или отсуствует, указано '%s'", tokens.at(1).c_str());
 					trig_log(trig, buf);
 					return;
 				}
-				index--; // в DG массивы с 1
+				if (index < 1) {
+					sprintf(buf, "array.remove: index меньше единицы, указано '%s'", tokens.at(1).c_str());
+					trig_log(trig, buf);
+					return;
+				}
 				std::vector<std::string> arr = utils::Split(tokens.at(0));
-
-				if (index + 1 > arr.size()) {
+				if (index > static_cast<int>(arr.size())) {
 					sprintf(buf, "%s", "array.remove: index больше размера массива");
 					trig_log(trig, buf);
 					return;
 				}
+				index--; // в DG массивы с 1
 				auto it = arr.begin();
 				std::advance(it, index);
 				arr.erase(it);
@@ -2080,6 +2105,7 @@ void find_replacement(void *go,
 				for (auto res : arr) {
 					ss << res << " ";
 				}
+				ss.seekp(-1, std::ios::end);
 				sprintf(str, "%s", ss.str().c_str());
 				return;
 			}
