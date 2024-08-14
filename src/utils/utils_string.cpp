@@ -263,15 +263,14 @@ void Trim(std::string &s) {
 }
 
 void skip_spaces_from_end(char* string) {
-	char* pos = string;
-	char* cur = pos;
-	while ('\0' != *pos) {
-		if (' ' != *pos) { cur = pos; }
-			++pos;
-		}
-		if (cur != pos) {
-		*(++cur) = '\0';
+	if (!string || !*string) {
+		return;
 	}
+	size_t len = strlen(string);
+	while (len > 0 && (string[len - 1] == ' ')) {
+		len--;
+	}
+	string[len] = '\0';
 }
 
 void Trim(char *s) {
