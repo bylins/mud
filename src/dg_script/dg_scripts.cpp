@@ -2059,7 +2059,13 @@ void find_replacement(void *go,
 					trig_log(trig, buf);
 					return;
 				}
-				size_t index = atoi(tokens.at(1).c_str()) - 1;
+				size_t index = atoi(tokens.at(1).c_str());
+				if (index == 0) {
+					sprintf(buf, "%s", "array.remove: index кривой или отсуствует");
+					trig_log(trig, buf);
+					return;
+				}
+				index--; // в DG массивы с 1
 				std::vector<std::string> arr = utils::Split(tokens.at(0));
 
 				if (index + 1 > arr.size()) {
