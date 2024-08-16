@@ -3480,7 +3480,8 @@ int vnum_mobile(char *searchname, CharData *ch) {
 
 	for (nr = 0; nr <= top_of_mobt; nr++) {
 		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str());
+			sprintf(buf, "%3d. [%5d] %-30s (%s)\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str(), 
+				npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]);
 			SendMsgToChar(buf, ch);
 		}
 	}
