@@ -1988,8 +1988,12 @@ void find_replacement(void *go,
 				char *p = strchr(subfield, ',');
 				int n = 0;
 				if (!p) {
+					if (*subfield == '\0'){
+						sprintf(str, "0");
+						return;
+					}
 					int count = 0;
-					for(const char * c = subfield; *c; ++c) {
+					for(const char *c = subfield; *c; ++c) {
 						if (*c == ' ' && *(c + 1) != ' ') {
 							++count;
 						}
@@ -2047,7 +2051,6 @@ void find_replacement(void *go,
 						return;
 					}
 				}
-				log("index %d" , index);
 				std::vector<std::string> arr = utils::Split(tokens.at(0));
 				std::string elem = tokens.at(1);
 				if (index > static_cast<int>(arr.size())) {
