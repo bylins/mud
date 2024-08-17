@@ -403,7 +403,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	if (zvn_from >= ZoneStartDungeons) {
 			sprintf(buf, "Попытка склонировать данж.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return;
+			return 0;
 	}
 	ZoneRnum zrn_to = real_zone(zvn_to);
 	
