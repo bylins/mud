@@ -398,15 +398,16 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	if (zvn_from < 100) {
 			sprintf(buf, "Попытка склонировать двухзначную зону.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return;
+			return 0;
 	}
 	if (zvn_from >= ZoneStartDungeons) {
-			sprintf(buf, "Попытка склонировать данжи.");
+			sprintf(buf, "Попытка склонировать данж.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
 	ZoneRnum zrn_to = real_zone(zvn_to);
-	if (zrn_to == 0) {
+	
+  if (zrn_to == 0) {
 			sprintf(buf, "Нет такой зоны.");
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return 0;
