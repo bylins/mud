@@ -5052,6 +5052,27 @@ int process_return(Trigger *trig, char *cmd) {
 	return atoi(arg2);
 }
 
+void ClearContextVar(Trigger *trig,char *cmd) {
+	char arg[kMaxInputLength], *var;
+	int id;
+
+	var = any_one_arg(cmd, arg);
+
+	if (!*var) {
+		sprintf(buf2, "clearcontext w/o an arg, команда: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+	id = atoi(var);
+
+	if (id == 0) {
+		sprintf(buf2, "clearcontext попытка удалить в 0 контексте, команда: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+	std::erase_if(worlds_vars, [id](TriggerVar vd) { return (vd.context == id); });
+}
+
 /*
  * removes a variable from the global vars of sc,
  * or the local vars of trig if not found in global list.
@@ -5647,6 +5668,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				process_set(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "unset ", 6)) {
 				process_unset(sc, trig, cmd);
+			} else if (!strn_cmp(cmd, "clearcontext ", 13)) {
+				ClearContextVar(trig, cmd);
 			} else if (!strn_cmp(cmd, "log ", 4)) {
 				trig_log(trig, cmd + 4);
 			} else if (!strn_cmp(cmd, "syslog ", 7)) {
