@@ -2738,8 +2738,6 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf1, ch);
 
 			return;
-		case '\\': ++argument;
-			break;
 		default: break;
 	}
 	if (PRF_FLAGGED(ch, EPrf::kNoWiz)) {
