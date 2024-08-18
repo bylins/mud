@@ -881,7 +881,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"mute", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_MUTE, 0},
 		{"medit", EPosition::kDead, do_olc, 0, SCMD_OLC_MEDIT, 0},
 		{"name", EPosition::kDead, do_wizutil, kLvlGod, SCMD_NAME, 0},
-		{"nedit", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_EDIT, 0},
+		{"nedit", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
 		{"news", EPosition::kDead, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 		{"nlist", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_LIST, 0},
 		{"notitle", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_NOTITLE, 0},
@@ -992,7 +992,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"version", EPosition::kDead, do_gen_ps, 0, SCMD_VERSION, 0},
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
 		{"vnum", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},
-		{"вномер", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
+		{"вномер", EPosition::kDead, do_vnum, kLvlGreatGod, 0,
+		 0},  //тупой копипаст для использования русского синтаксиса
 		{"vstat", EPosition::kDead, do_vstat, 0, 0, 0},
 		{"wake", EPosition::kSleep, do_wake, 0, 0, -1},
 		{"warcry", EPosition::kFight, do_warcry, 1, 0, -1},
@@ -1039,12 +1040,11 @@ cpp_extern const struct command_info cmd_info[] =
 		{"tstat", EPosition::kDead, do_tstat, 0, 0, 0},
 		{"vdelete", EPosition::kDead, do_vdelete, kLvlImplementator, 0, 0},
 		{"debug_queues", EPosition::kDead, do_debug_queues, kLvlImplementator, 0, 0},
-
 		{heartbeat::cmd::HEARTBEAT_COMMAND, heartbeat::cmd::MINIMAL_POSITION, heartbeat::cmd::do_heartbeat,
 		 heartbeat::cmd::MINIMAL_LEVEL, heartbeat::SCMD_NOTHING, heartbeat::cmd::UNHIDE_PROBABILITY},
 		//{crafts::cmd::CRAFT_COMMAND, crafts::cmd::MINIMAL_POSITION, crafts::cmd::do_craft, crafts::cmd::MINIMAL_LEVEL, crafts::SCMD_NOTHING, crafts::cmd::UNHIDE_PROBABILITY},
 		{"\n", EPosition::kDead, nullptr, 0, 0, 0}
-	};                // this must be last
+	};
 
 const char *dir_fill[] = {"in",
 						  "from",
