@@ -1743,6 +1743,13 @@ void find_replacement(void *go,
 				sprintf(str, "%d", zone_table[real_zone(num)].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
 				DungeonReset(real_zone(num));
+			} else if (!str_cmp(field, "zonename") && num > 0) {
+				ZoneRnum zrn = real_zone(num);
+				if (zrn == 0) {
+					sprintf(str, "0");
+				} else {
+					sprintf(str, "%s", zone_table[zrn].name.c_str());
+				}
 			} else if (!str_cmp(field, "zreset") && num > 0) {
 				std::vector<ZoneRnum> zone_repop_list;
 				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);
@@ -2904,8 +2911,8 @@ void find_replacement(void *go,
 			int num;
 			int sum  = 0;
 			for (num = 0; num < EApply::kNumberApplies; num++) {
-				if (!str_cmp(subfield, apply_types[num]))
-				break;
+				if (!strn_cmp(subfield, apply_types[num], strlen(subfield)))
+					break;
 			}
 			if (num == EApply::kNumberApplies) {
 				sprintf(buf, "Не найден апплай '%s' в списке ApplyTypes", subfield);
