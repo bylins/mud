@@ -424,7 +424,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	reset_zone(zrn_to);
 	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
-	zone_table[zrn_to].under_construction = true;
+//	zone_table[zrn_to].under_construction = true;
 	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	return zrn_to;

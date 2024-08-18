@@ -724,6 +724,9 @@ int get_npc_long_live_exp_bounus(CharData *victim) {
 	if (GET_MOB_VNUM(victim) == -1) {
 		return 1;
 	}
+	if (GET_MOB_VNUM(victim) / 100 >= ZoneStartDungeons) {
+		return 1;
+	}
 
 	int exp_multiplier = 1;
 
