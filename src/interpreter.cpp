@@ -437,7 +437,7 @@ std::map<std::string, int> new_loc_codes;
 std::map<std::string, int> new_char_codes;
 
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
-	DungeonReset(atoi(argument));
+	DungeonReset(real_zone(atoi(argument)));
 }
 
 void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {

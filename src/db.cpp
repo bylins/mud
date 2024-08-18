@@ -5013,34 +5013,39 @@ class ZoneReset {
 };
 
 void DungeonReset(int zrn) {
-	auto m_zone_rnum = zrn;
 	utils::CExecutionTimer timer;
+	log("copy_from_zone %d", zone_table[zrn].copy_from_zone);
 
-	if (m_zone_rnum == 0) {
+	if (zrn == 0) {
+		sprintf(buf, "Неправильный номер зоны");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
-	if (zone_table[m_zone_rnum].copy_from_zone > 0) {
+	if (zone_table[zrn].copy_from_zone > 0) {
 		utils::CExecutionTimer timer1;
-		RoomDataFree(m_zone_rnum);
-		sprintf(buf, "Free rooms. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer1.delta().count());
+		RoomDataFree(zrn);
+		sprintf(buf, "Free rooms. zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer1.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		utils::CExecutionTimer timer2;
-		MobDataFree(m_zone_rnum);
-		sprintf(buf, "Free mobs. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer2.delta().count());
+		MobDataFree(zrn);
+		sprintf(buf, "Free mobs. zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer2.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		utils::CExecutionTimer timer4;
-		ObjDataFree(m_zone_rnum);
-		sprintf(buf, "Free objs. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer4.delta().count());
+		ObjDataFree(zrn);
+		sprintf(buf, "Free objs. zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer4.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		utils::CExecutionTimer timer3;
-		ZoneDataFree(m_zone_rnum);
-		sprintf(buf, "Free zone data. zone %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer3.delta().count());
+		ZoneDataFree(zrn);
+		sprintf(buf, "Free zone data. zone %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer3.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		TrigDataFree(m_zone_rnum);
-		sprintf(buf, "Free all dungeons %s %d, delta %f", zone_table[m_zone_rnum].name.c_str(), zone_table[m_zone_rnum].vnum, timer.delta().count());
+		TrigDataFree(zrn);
+		sprintf(buf, "Free all dungeons %s %d, delta %f", zone_table[zrn].name.c_str(), zone_table[zrn].vnum, timer.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		zone_table[m_zone_rnum].copy_from_zone = 0;
+		zone_table[zrn].copy_from_zone = 0;
 		return;
+	} else {
+		sprintf(buf, "Попытка сбросить обычныю зону: %d", zone_table[zrn].vnum);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 }
 
