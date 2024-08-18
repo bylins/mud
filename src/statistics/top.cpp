@@ -60,7 +60,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 
 const PlayerChart &TopPlayer::Chart() {
 	return chart_;
-};
+}
 
 void TopPlayer::PrintPlayersChart(CharData *ch) {
 	SendMsgToChar(" Лучшие персонажи игроков:\r\n", ch);
@@ -135,7 +135,7 @@ void TopPlayer::PrintHelp(CharData *ch) {
 	table_wrapper::PrintTableToChar(ch, table);
 }
 
-void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void Rating::DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}

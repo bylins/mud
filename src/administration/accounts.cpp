@@ -8,7 +8,7 @@
 #include <sstream>
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
-extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
+extern bool CompareParam(const std::string &buffer, const char *str, bool full);
 
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))

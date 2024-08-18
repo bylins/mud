@@ -48,6 +48,7 @@ class BaseItem {
 
   public:
 	BaseItem() = default;
+    virtual ~BaseItem() = default;
 	BaseItem(IdEnum id, EItemMode mode)
 	    	: id_(id), mode_(mode) {};
 
@@ -74,6 +75,7 @@ class BaseItem {
 template<typename Item>
 class IItemBuilder {
  public:
+    virtual ~IItemBuilder() = default;
 	using ItemPtr = std::shared_ptr<Item>;
 
 	virtual ItemPtr Build(parser_wrapper::DataNode &node) = 0;
@@ -84,6 +86,7 @@ template<typename IdEnum, typename Item, typename ItemBuilder>
 class InfoContainer {
  public:
 	InfoContainer();
+    virtual ~InfoContainer() = default;
 	InfoContainer(InfoContainer &s) = delete;
 	void operator=(const InfoContainer &s) = delete;
 
@@ -117,8 +120,7 @@ class InfoContainer {
 	/**
 	 *  Id доступен либо тестируется.
 	 */
-	bool IsValid(const IdEnum id) const { return (IsUnknown(id) ?
-		false : items_->at(id)->GetMode() > EItemMode::kFrozen); };
+	bool IsValid(const IdEnum id) const { return !IsUnknown(id) && items_->at(id)->GetMode() > EItemMode::kFrozen; };
 	/**
 	 *  Id отключен.
 	 */
@@ -126,7 +128,7 @@ class InfoContainer {
 	/**
 	 *  Id доступен и не тестируется).
 	 */
-	bool IsAvailable(const IdEnum id) const { return (IsUnknown(id) ? false : IsEnabled(id)); };
+	bool IsAvailable(const IdEnum id) const { return !IsUnknown(id) && IsEnabled(id); };
 	/**
 	 *  Id недоступен (тестируется, служебный или отключен).
 	 */
@@ -206,7 +208,7 @@ void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const NodeRange &data) {
 	} else {
 		err_log("Reloading was canceled - file damaged.");
 	}
-};
+}
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
 void InfoContainer<IdEnum, Item, ItemBuilder>::Init(const NodeRange &data) {
@@ -215,7 +217,7 @@ void InfoContainer<IdEnum, Item, ItemBuilder>::Init(const NodeRange &data) {
 		return;
 	}
 	items_ = std::move(RegisterBuilder::Build(data, false));
-};
+}
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
 const Item &InfoContainer<IdEnum, Item, ItemBuilder>::operator[](IdEnum id) const {
@@ -225,7 +227,7 @@ const Item &InfoContainer<IdEnum, Item, ItemBuilder>::operator[](IdEnum id) cons
 		//err_log("Incorrect id (%d) passed into %s.", to_underlying(id), typeid(this).name()); ABYRVALG
 		return *(items_->at(IdEnum::kUndefined));
 	}
-};
+}
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
 auto InfoContainer<IdEnum, Item, ItemBuilder>::begin() const {
@@ -270,7 +272,7 @@ EItemMode IItemBuilder<Item>::ParseItemMode(parser_wrapper::DataNode &node, EIte
 	} catch (std::exception &) {
 		return default_mode;
 	}
-};
+}
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
 typename InfoContainer<IdEnum, Item, ItemBuilder>::RegisterPtr
@@ -348,6 +350,7 @@ class BaseItem<int> {
 
  public:
 	BaseItem() = default;
+    virtual ~BaseItem() = default;
 	BaseItem(int id, std::string &text_id, EItemMode mode)
 		: id_(id), mode_(mode), text_id_{text_id} {};
 
@@ -377,6 +380,7 @@ template<typename Item, typename ItemBuilder>
 class InfoContainer<int, Item, ItemBuilder> {
  public:
 	InfoContainer();
+    virtual ~InfoContainer() = default;
 	InfoContainer(InfoContainer &s) = delete;
 	void operator=(const InfoContainer &s) = delete;
 
@@ -410,8 +414,9 @@ class InfoContainer<int, Item, ItemBuilder> {
 	/**
 	 *  Id доступен либо тестируется.
 	 */
-	[[nodiscard]] bool IsValid(const int id) const { return (IsUnknown(id) ?
-												  false : items_->at(id)->GetMode() > EItemMode::kFrozen); };
+	[[nodiscard]] bool IsValid(const int id) const {
+      return !IsUnknown(id) && items_->at(id)->GetMode() > EItemMode::kFrozen;
+    };
 	/**
 	 *  Id отключен.
 	 */
@@ -419,7 +424,7 @@ class InfoContainer<int, Item, ItemBuilder> {
 	/**
 	 *  Id доступен и не тестируется).
 	 */
-	[[nodiscard]] bool IsAvailable(const int id) const { return (IsUnknown(id) ? false : IsEnabled(id)); };
+	[[nodiscard]] bool IsAvailable(const int id) const { return !IsUnknown(id) && IsEnabled(id); };
 	/**
 	 *  Id недоступен (тестируется, служебный или отключен).
 	 */
@@ -508,7 +513,7 @@ void InfoContainer<int, Item, ItemBuilder>::Reload(const NodeRange &data) {
 	} else {
 		err_log("Reloading was canceled - file damaged.");
 	}
-};
+}
 
 template<typename Item, typename ItemBuilder>
 void InfoContainer<int, Item, ItemBuilder>::Init(const NodeRange &data) {
@@ -518,7 +523,7 @@ void InfoContainer<int, Item, ItemBuilder>::Init(const NodeRange &data) {
 	}
 	items_ = std::move(RegisterBuilder::Build(data, false));
 	BuildTextIdsRegister();
-};
+}
 
 template<typename Item, typename ItemBuilder>
 void InfoContainer<int, Item, ItemBuilder>::BuildTextIdsRegister() {
@@ -526,7 +531,7 @@ void InfoContainer<int, Item, ItemBuilder>::BuildTextIdsRegister() {
 	for (const auto &[key, val] : *items_) {
 		text_ids_register_->try_emplace(val->GetTextId(), val);
 	}
-};
+}
 
 template<typename Item, typename ItemBuilder>
 const Item &InfoContainer<int, Item, ItemBuilder>::operator[](int id) const {
@@ -535,7 +540,7 @@ const Item &InfoContainer<int, Item, ItemBuilder>::operator[](int id) const {
 	} catch (const std::out_of_range &) {
 		return *(items_->at(kUndefinedVnum));
 	}
-};
+}
 
 template<typename Item, typename ItemBuilder>
 auto InfoContainer<int, Item, ItemBuilder>::begin() const {

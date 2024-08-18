@@ -27,40 +27,38 @@ typedef std::vector<BirthPlacePtr> BirthPlaceListType;
 
 class Birthplaces {
  public:
-	//static void Load(const char *PathToFile);               // Загрузка файла настроек
 	static void Load(pugi::xml_node XMLBirthPlaceList);
-	static int GetLoadRoom(short Id);                       // Получение внума загрузочной комнаты по ID
-	static std::string GetMenuStr(short Id);                // Получение строчки для меню по ID
-	static std::vector<int> GetItemList(short Id);          // Получение списка выдаваемых итемов по ID
-	static std::string ShowMenu(std::vector<int> BPList);   // Получение меню выбора точек одной строкой
-	static short ParseSelect(char *arg);                    // Поиск точки по текстовому вводу и описанию (description)
-	static bool CheckId(short Id);                          // Проверка наличия точки с указанным ID
+	static int GetLoadRoom(int Id);                       // Получение внума загрузочной комнаты по ID
+  [[maybe_unused]] static std::string GetMenuStr(int Id);                // Получение строчки для меню по ID
+	static std::vector<int> GetItemList(int Id);          // Получение списка выдаваемых итемов по ID
+	static std::string ShowMenu(const std::vector<int> &BPList);   // Получение меню выбора точек одной строкой
+	static int ParseSelect(const char *arg);                    // Поиск точки по текстовому вводу и описанию (description)
+	static bool CheckId(int Id);                          // Проверка наличия точки с указанным ID
 	static int GetIdByRoom(int vnumum);                  // Выяснение ID через текущую комнату
-	static std::string GetRentHelp(short Id);               // Фраза рентера нубу после смерти по ID
+	static std::string GetRentHelp(int Id);               // Фраза рентера нубу после смерти по ID
 
 	// Доступ к свойствам класса.
 	// Не особенно нужно, но пусть будет
-	short Id() const { return this->_Id; }
-	std::string Name() { return this->_Name; }
-	std::string Description() { return this->_Description; }
-	std::string MenuStr() { return this->_MenuStr; }
-	int LoadRoom() { return this->_LoadRoom; }
-	std::vector<int> ItemsList() const { return this->_ItemsList; }
-	std::string RentHelp() { return this->_RentHelp; }
+	[[nodiscard]] int Id() const { return this->id_; }
+	std::string Name() { return this->name_; }
+	std::string Description() { return this->description_; }
+	std::string MenuStr() { return this->menu_str_; }
+	[[nodiscard]] int LoadRoom() const { return this->load_room_; }
+	[[nodiscard]] std::vector<int> ItemsList() const { return this->items_list_; }
+	std::string RentHelp() { return this->rent_help_; }
 
  private:
-	short _Id;                                  // Идентификатор - целое число
-	std::string _Name;                          // Название точки
-	std::string _Description;                   // Короткое описание для парсинга
-	std::string _MenuStr;                       // Название в меню
-	int _LoadRoom;                              // Номер комнаты входа
-	std::vector<int> _ItemsList;                // Список предметов, которые дополнительно выдаются на руки в этой точке
-	std::string
-		_RentHelp;                      // Фраза, выдаваемая нубу мобом-рентером при выходе на ренту после смерти
+	int id_;                                  // Идентификатор - целое число
+	std::string name_;                          // Название точки
+	std::string description_;                   // Короткое описание для парсинга
+	std::string menu_str_;                       // Название в меню
+	int load_room_;                              // Номер комнаты входа
+	std::vector<int> items_list_;                // Список предметов, которые дополнительно выдаются на руки в этой точке
+	std::string rent_help_;                      // Фраза, выдаваемая нубу мобом-рентером при выходе на ренту после смерти
 
 	static BirthPlaceListType BirthPlaceList;   // Список точек входа в игру новых персонажей
 	static void LoadBirthPlace(pugi::xml_node BirthPlaceNode);  // Парсинг описания одной точки входа
-	static BirthPlacePtr GetBirthPlaceById(short Id);           // Получение ссылки на точку хода по ее ID
+	static BirthPlacePtr GetBirthPlaceById(int Id);           // Получение ссылки на точку хода по ее ID
 };
 
 #endif // BIRTH_PLACES_HPP_INCLUDED

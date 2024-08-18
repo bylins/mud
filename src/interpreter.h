@@ -30,20 +30,19 @@ void do_move(CharData *ch, char *argument, int cmd, int subcmd);
 #define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
 void command_interpreter(CharData *ch, char *argument);
-int search_block(const char *arg, const char **list, int exact);
-int search_block(const std::string &arg, const char **list, int exact);
+int search_block(const char *target_string, const char **list, int exact);
+int search_block(const std::string &block, const char **list, int exact);
 int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
-void nanny(DescriptorData *d, char *arg);
+void nanny(DescriptorData *d, char *argument);
 
 int is_number(const char *str);
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
 void GetOneParam(std::string &buffer, std::string &buffer2);
-bool CompareParam(const std::string &buffer, const char *arg, bool full = false);
+bool CompareParam(const std::string &buffer, const char *str, bool full = false);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
 DescriptorData *DescByUID(int uid);
-DescriptorData *get_desc_by_id(long id, bool playing = 1);
 long GetUniqueByName(const std::string &name, bool god = false);
 std::string GetNameByUnique(long unique, bool god = false);
 bool IsActiveUser(long unique);
@@ -51,7 +50,7 @@ void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
 void name_convert(std::string &text);
 void god_work_invoice();
-int special(CharData *ch, int cmd, char *arg, int fnum);
+int special(CharData *ch, int cmd, char *argument, int fnum);
 int find_name(const char *name);
 
 void check_hiding_cmd(CharData *ch, int percent);
@@ -319,10 +318,10 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }
 
-// читает все аргументы из arg в out
-void array_argument(const char *arg, std::vector<std::string> &out);
-void array_argument(const char *arg, std::vector<short> &out);
-void array_argument(const char *arg, std::vector<int> &out);
+// читает все аргументы из arguments в out
+void array_argument(const char *arguments, std::vector<std::string> &out);
+void array_argument(const char *arguments, std::vector<short> &out);
+void array_argument(const char *arguments, std::vector<int> &out);
 
 // константы для спам-контроля команды кто
 // если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава

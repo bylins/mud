@@ -10,11 +10,13 @@ bin
 .idea
 build.clang/*
 cmake-build-debug/
+cmake-build-debug-wsl/
 .crash
 cmake_install.cmake
 libcircle.library.a
 lib/
 tests/CTestTestfile.cmake
 cmake-build-release/
+cmake-build-release-wsl/
 log/
 syslog
