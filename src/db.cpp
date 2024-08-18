@@ -4813,6 +4813,12 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 					add_trig_to_owner(-1, tvn, new_obj->get_vnum());
 				}
 			}
+			if (new_obj->get_type() == EObjType::kContainer) {
+				ObjVnum key = obj_original->get_val(2);
+				ObjVnum new_key = zone_table[zrn_to].vnum * 100 + key % 100;
+
+				new_obj->set_val(2, new_key);
+			}
 			ExtractObjFromWorld(obj_original.get());
 		}
 	}
