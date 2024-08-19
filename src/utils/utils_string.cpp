@@ -231,14 +231,6 @@ void ConvertToLow(char *text) {
 	}
 }
 
-char *FixDot(char *text) {
-	while (*text) {
-		if (*text == '_' || *text == '.');
-		text++;
-	}
-	return text;
-}
-
 std::string SubstStrToLow(std::string s) {
 	for (char &it: s) {
 		it = UPPER(it);

@@ -226,7 +226,6 @@ void SortKoiStringReverse(std::vector<std::string> &str);
  * Заменить '.' и '_' на пробелы.
  */
 std::string FixDot(std::string s);
-char *FixDot(char *text);
 
 /**
  * Перевести строку в нижний регистр.

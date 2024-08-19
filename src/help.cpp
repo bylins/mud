@@ -1477,9 +1477,6 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->desc) {
 		return;
 	}
-
-//	skip_spaces(&argument);
-
 	// печатаем экран справки если нет аргументов
 	if (!*argument) {
 		page_string(ch->desc, help, 0);
