@@ -1418,7 +1418,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 	} 
 	RestoreObject(object, nullptr);
 	ArrangeObjs(object, &world[room]->contents);
-	if (zone_table[world[room]->zone_rn].vnum * 100 + 99 == world[room]->vnum) {
+	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < ZoneStartDungeons) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
