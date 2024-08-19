@@ -353,6 +353,7 @@ struct show_struct show_fields[] = {
 	{"account", kLvlGod}, //35
 	{"shops", kLvlGod},
 	{"runeslist", kLvlGod},
+	{"dungeons", kLvlGod},
 	{"\n", 0}
 };
 
@@ -386,7 +387,7 @@ std::pair<int, int> TotalMemUse(){
 #endif
 }
 
-void List_spell_create(CharData *ch) {
+void ListSpellCreate(CharData *ch) {
 	int i = 0;
 	for (auto it : spell_create) {
 		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %3d %3d %3d %3d level %d\r\n", 
@@ -395,6 +396,35 @@ void List_spell_create(CharData *ch) {
 				it.second.runes.items[2], it.second.runes.rnumber,
 				it.second.runes.min_caster_level);
 	}
+}
+extern int NumberOfZoneDungeons;
+
+std::string WhoInZone(ZoneRnum zrn) {
+	int from = 0, to = 0;
+	std::string pc;
+
+	GetZoneRooms(zrn, &from , &to);
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING) 
+			continue;
+		if (d->character->in_room >= from && d->character->in_room <= to) {
+			pc = pc +  d->character->get_name() + " ";
+		}
+	}
+	return pc.empty()? "никого" : pc;
+}
+
+void ListDungeons(CharData *ch) {
+	std::ostringstream buffer;
+	ZoneRnum zrn_start = real_zone(ZoneStartDungeons);
+	ZoneRnum zrn_stop = real_zone(ZoneStartDungeons + NumberOfZoneDungeons - 1);
+
+	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:<50} {:<}\r\n",  "#", "предок", "вход", "название зоны", "игроки");
+	for (int i = zrn_start; i <= zrn_stop; i++) {
+		if (zone_table[i].copy_from_zone > 0)
+			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:<50} {:<}\r\n", i - zrn_start + 1, zone_table[i].copy_from_zone, zone_table[i].entrance, zone_table[i].name, WhoInZone(i));
+	}
+	SendMsgToChar(buffer.str().c_str(), ch);
 }
 
 void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -893,7 +923,10 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			do_shops_list(ch);
 			break;
 		case 37: // runes list
-			List_spell_create(ch);
+			ListSpellCreate(ch);
+			break;
+		case 38: // dungeons
+			ListDungeons(ch);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;
