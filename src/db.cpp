@@ -46,6 +46,7 @@
 #include "statistics/top.h"
 #include "backtrace.h"
 #include "dg_script/dg_db_scripts.h"
+#include "game_economics/shop_ext.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -223,7 +224,8 @@ extern int NumberOfZoneDungeons;
 extern ZoneVnum ZoneStartDungeons;
 extern void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
-
+void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
+void RemoveShopSeller(MobRnum mrn);
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
 
@@ -4652,6 +4654,9 @@ void MobDataFree(ZoneRnum zrn) {
 	ZoneVnum zvn = zone_table[zrn].vnum;
 
 	for (MobRnum mrn = 0; mrn <= 99; mrn++) {
+		if (mob_index[mrn_start + mrn].func == shop_ext) {
+			RemoveShopSeller(mrn_start + mrn);
+		}
 		mob_proto[mrn_start + mrn].proto_script->clear();
 		mob_proto[mrn_start + mrn].set_npc_name("пустой моб");
 		mob_index[mrn_start + mrn].vnum = mrn + zvn * 100;
@@ -4675,6 +4680,9 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_index[mrn_to] = mob_index[i];
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
 		mob_proto[mrn_to].set_rnum(rrn_first + mob_index[i].vnum % 100);
+		if (mob_index[i].func == shop_ext) {
+			AddDungeonShopSeller(i, mrn_to);
+		}
 		mob_proto[mrn_to].script->cleanup();
 		mob_proto[mrn_to].proto_script.reset(new ObjData::triggers_list_t());
 		if (!mob_proto[i].summon_helpers.empty()) {

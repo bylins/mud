@@ -10,8 +10,11 @@
 #include "interpreter.h"
 #include "dictionary.h"
 
+
 namespace ShopExt {
 
+void RemoveShopSeller(MobRnum mrn);;
+void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
 void do_shops_list(CharData *ch);
 void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void load(bool reload);
