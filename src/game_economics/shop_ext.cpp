@@ -526,12 +526,50 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Чего хотим? Могу пока только характерстики.\r\n", ch);
 }
 
+
+void RemoveShopSeller(MobRnum mrn) {
+	MobVnum mvn = mob_index[mrn].vnum;
+
+	for (const auto &shop : shop_list) {
+		auto it = std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), mvn);
+
+		if (it != std::end(shop->mob_vnums())) {
+			shop->remove_mob_vnum(it);
+			mob_index[mrn].func = nullptr;
+		}
+	}
+}
+
+void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to) {
+	MobVnum mvn_from  = mob_index[mrn_from].vnum;
+
+	for (const auto &shop : shop_list) {
+		if (std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), mvn_from) != std::end(shop->mob_vnums())) {
+			shop->add_mob_vnum(mob_index[mrn_to].vnum);
+			mob_index[mrn_to].func = shop_ext;
+		}
+	}
+}
+
 void do_shops_list(CharData *ch) {
-	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
+/*	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
 	std::ostringstream out;
 	for (size_t i = 0; i < n; i++) {
 		out << std::to_string(i + 1) << " " << dic->GetNameByNID(i) << " " << dic->GetTIDByNID(i) + "\r\n";
+	}
+*/
+	std::ostringstream out;
+
+	for (const auto &shop : shop_list) {
+		out << shop->GetDictionaryName() << "\r\nvnum : ";
+			if (std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), 49954) != std::end(shop->mob_vnums())) {
+				out << " &R549954&n" << " ";
+			}
+		for (const auto &mob_vnum : shop->mob_vnums()) {
+			out << mob_vnum << " ";
+		}
+		out << "\r\n";
 	}
 	SendMsgToChar(out.str().c_str(), ch);
 }

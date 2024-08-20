@@ -140,6 +140,7 @@ class shop_node : public DictionaryItem {
 	const auto &items_list() const { return m_items_list; }
 
 	void add_mob_vnum(const MobVnum vnum) { m_mob_vnums.push_back(vnum); }
+	void remove_mob_vnum(auto it) { m_mob_vnums.erase(it); }
 
 	const auto &mob_vnums() const { return m_mob_vnums; }
 
