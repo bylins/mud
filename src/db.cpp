@@ -4520,13 +4520,6 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 
 
-		for (auto cmd = *trig_index[i]->proto->cmdlist; cmd; cmd = cmd->next) {
-			if (trig_index[i]->vnum == 3000003) {
-				sprintf(buf, "cmd->cmd %s, cmd->line_num %d", cmd->cmd.c_str(), cmd->line_num);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
-		}
-
 		while (c) {
 			utils::ReplaceAll(c->cmd, search, replacer);
 			if (trig_index[i]->vnum == 3000003) {
@@ -4560,17 +4553,14 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		auto c = *trig_index[i]->proto->cmdlist;
 
 		while (c) {
-			if (trig_index[i]->vnum == 49903) {
-				sprintf(buf, "c->cmd %s, c->line_num %d", c->cmd.c_str(), c->line_num);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
 			c_copy->cmd = c->cmd;
 			c_copy->line_num = c->line_num;
 			c = c->next;
-			c_copy->next.reset(new cmdlist_element());
-			c_copy = c_copy->next;
+			if (c) {
+				c_copy->next.reset(new cmdlist_element());
+				c_copy = c_copy->next;
+			}
 		}
-		c_copy->next.reset();
 		trig_index[new_trn]->proto = trig;
 	}
 }
