@@ -2924,6 +2924,7 @@ void CreateBlankTrigsDungeon() {
 	}
 	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons  - 1); zvn++) {
 		zone_table[real_zone(zvn)].RnumTrigsLocation.first = top_of_trigt;
+		zone_table[real_zone(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
 		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
 			Trigger *trig = new Trigger(-1, "Blank trigger", MTRIG_GREET);
 			IndexData *index;
@@ -4503,23 +4504,49 @@ void TrigDataFree(ZoneRnum zrn) {
 	}
 }
 
+void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to) {
+	TrgRnum trn_start = zone_table[zrn_to].RnumTrigsLocation.first;
+	TrgRnum trn_stop = zone_table[zrn_to].RnumTrigsLocation.second;
+	std::string replacer = to_string(zone_table[zrn_to].vnum);
+	std::string search = to_string(zone_table[zrn_from].vnum);
+
+	if (zone_table[zrn_from].vnum < 100) {
+		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
+	for(int i = trn_start; i <= trn_stop; i++) {
+		auto c = *trig_index[i]->proto->cmdlist;
+
+
+
+		for (auto cmd = *trig_index[i]->proto->cmdlist; cmd; cmd = cmd->next) {
+			if (trig_index[i]->vnum == 3000003) {
+				sprintf(buf, "cmd->cmd %s, cmd->line_num %d", cmd->cmd.c_str(), cmd->line_num);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			}
+		}
+
+		while (c) {
+			utils::ReplaceAll(c->cmd, search, replacer);
+			if (trig_index[i]->vnum == 3000003) {
+				sprintf(buf, "c->cmd %s, c->line_num %d", c->cmd.c_str(), c->line_num);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+			}
+			c = c->next;
+		}
+	}
+}
+
 void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	TrgRnum trn_start = zone_table[zrn_from].RnumTrigsLocation.first;
 	TrgRnum trn_stop = zone_table[zrn_from].RnumTrigsLocation.second;
 	ZoneVnum zvn_to = zone_table[zrn_to].vnum;
-	std::string replacer = to_string(zone_table[zrn_to].vnum);
-	std::string search = to_string(zone_table[zrn_from].vnum);
-	bool renum = true;
 
 	if (trn_start == -1) {
 		sprintf(buf, "В зоне нет триггеров, копируем остальное");
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
-	}
-	if (zone_table[zrn_from].vnum < 100) {
-		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		renum = false;
 	}
 	for(int i = trn_start; i <= trn_stop; i++) {
 		Trigger *trig = new Trigger(*trig_index[i]->proto);
@@ -4533,13 +4560,14 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		auto c = *trig_index[i]->proto->cmdlist;
 
 		while (c) {
-			c_copy->cmd = c->cmd;
-			if (renum) {
-				utils::ReplaceAll(c_copy->cmd, search, replacer);
+			if (trig_index[i]->vnum == 49903) {
+				sprintf(buf, "c->cmd %s, c->line_num %d", c->cmd.c_str(), c->line_num);
+				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			}
+			c_copy->cmd = c->cmd;
 			c_copy->line_num = c->line_num;
-			c_copy->next.reset(new cmdlist_element());
 			c = c->next;
+			c_copy->next.reset(new cmdlist_element());
 			c_copy = c_copy->next;
 		}
 		c_copy->next.reset();
