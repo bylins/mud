@@ -223,6 +223,7 @@ extern int NumberOfZoneDungeons;
 extern ZoneVnum ZoneStartDungeons;
 extern void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
+extern void ExtractObjRepopDecay(const ObjData::shared_ptr obj);
 
 char *fread_action(FILE *fl, int nr) {
 	char buf[kMaxStringLength];
@@ -4779,9 +4780,13 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj->set_parent_rnum(-1);
 			obj->clear_proto_script();
-
 		}
 	}
+	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
+		if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
+			ExtractObjRepopDecay(j);
+		}
+	});
 }
 
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
