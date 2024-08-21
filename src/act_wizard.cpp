@@ -416,6 +416,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	sprintf(buf, "Попытка создать  dungeon, zone %s %d", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum);
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	TrigDataCopy(zrn_from, zrn_to);
+	TrigCommandsConvert(zrn_from, zrn_to);
 	RoomDataCopy(zrn_from, zrn_to);
 	MobDataCopy(zrn_from, zrn_to);
 	ObjDataCopy(zrn_from, zrn_to);

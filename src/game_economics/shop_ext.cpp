@@ -563,9 +563,6 @@ void do_shops_list(CharData *ch) {
 
 	for (const auto &shop : shop_list) {
 		out << shop->GetDictionaryName() << "\r\nvnum : ";
-			if (std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), 49954) != std::end(shop->mob_vnums())) {
-				out << " &R549954&n" << " ";
-			}
 		for (const auto &mob_vnum : shop->mob_vnums()) {
 			out << mob_vnum << " ";
 		}
