@@ -4524,10 +4524,6 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 		while (c) {
 			utils::ReplaceAll(c->cmd, search, replacer);
-			if (trig_index[i]->vnum == 3000003) {
-				sprintf(buf, "c->cmd %s, c->line_num %d", c->cmd.c_str(), c->line_num);
-				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
 			c = c->next;
 		}
 	}
