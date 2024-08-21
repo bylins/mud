@@ -224,6 +224,8 @@ extern int NumberOfZoneDungeons;
 extern ZoneVnum ZoneStartDungeons;
 extern void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
+extern void ExtractObjRepopDecay(const ObjData::shared_ptr obj);
+
 void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
 void RemoveShopSeller(MobRnum mrn);
 char *fread_action(FILE *fl, int nr) {
