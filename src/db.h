@@ -29,6 +29,7 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
+struct zrn_complex_list;
 
 // room manage functions
 void room_copy(RoomData *dst, RoomData *src);
@@ -67,7 +68,7 @@ bool is_empty(ZoneRnum zone_nr, bool debug = false);
 void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to);
 void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
+void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<zrn_complex_list> dungeon_list = {});
 void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void DungeonReset(int zrn);
@@ -86,6 +87,11 @@ int vnum_obj_trig(char *searchname, CharData *ch);
 struct combat_list_element {
 	CharData *ch;
 	bool deleted;
+};
+
+struct zrn_complex_list {
+	ZoneRnum from;
+	ZoneRnum to;
 };
 
 struct reset_com {

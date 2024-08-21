@@ -1223,11 +1223,6 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 	return zvn_to;
 }
 
-struct zrn_complex_list {
-	ZoneRnum from;
-	ZoneRnum to;
-};
-
 std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens) {
 	std::vector<zrn_complex_list> zrn_list;
 	ZoneVnum zvn;
@@ -1259,8 +1254,9 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 
 
 		TrigDataCopy(it.from, it.to);
+		
 		TrigCommandsConvert(it.from, it.to);
-		RoomDataCopy(it.from, it.to);
+		RoomDataCopy(it.from, it.to, zrn_list);
 		MobDataCopy(it.from, it.to);
 		ObjDataCopy(it.from, it.to);
 		ZoneDataCopy(it.from, it.to); //последним
