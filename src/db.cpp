@@ -4506,10 +4506,10 @@ void TrigDataFree(ZoneRnum zrn) {
 	}
 }
 
-void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to) {
+void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn) {
 	TrgRnum trn_start = zone_table[zrn_to].RnumTrigsLocation.first;
 	TrgRnum trn_stop = zone_table[zrn_to].RnumTrigsLocation.second;
-	std::string replacer = to_string(zone_table[zrn_to].vnum);
+	std::string replacer = to_string(zone_table[replacer_zrn].vnum);
 	std::string search = to_string(zone_table[zrn_from].vnum);
 
 	if (zone_table[zrn_from].vnum < 100) {
@@ -4519,8 +4519,6 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	}
 	for(int i = trn_start; i <= trn_stop; i++) {
 		auto c = *trig_index[i]->proto->cmdlist;
-
-
 
 		while (c) {
 			utils::ReplaceAll(c->cmd, search, replacer);

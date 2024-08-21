@@ -1251,11 +1251,7 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 	trig_log(trig, buf);
 	for (auto it : zrn_list) {
 		out_to << to_string(zone_table[it.to].vnum) << " ";
-
-
 		TrigDataCopy(it.from, it.to);
-		
-		TrigCommandsConvert(it.from, it.to);
 		RoomDataCopy(it.from, it.to, zrn_list);
 		MobDataCopy(it.from, it.to);
 		ObjDataCopy(it.from, it.to);
@@ -1263,6 +1259,11 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 		reset_zone(it.to);
 	}
 	out_to.seekp(-1, std::ios_base::end); // Удаляем \0 из конца строки.
+	for (auto it : zrn_list) {
+		for (auto it2 : zrn_list) {
+			TrigCommandsConvert(it.from, it2.to, it.to);
+		}
+	}
 	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.str().c_str(), timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 

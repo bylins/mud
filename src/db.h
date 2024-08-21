@@ -66,7 +66,7 @@ void SaveGlobalUID();
 void flush_player_index();
 bool is_empty(ZoneRnum zone_nr, bool debug = false);
 void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to);
+void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn);
 void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<zrn_complex_list> dungeon_list = {});
 void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
