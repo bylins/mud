@@ -420,8 +420,10 @@ void death_cry(CharData *ch, CharData *killer) {
 	int door;
 	if (killer) {
 		if (IS_CHARMICE(killer)) {
-			act("Кровушка стынет в жилах от предсмертного крика $N1.",
-				false, killer->get_master(), nullptr, ch, kToRoom | kToNotDeaf);
+			if (killer->get_master() && killer->get_master()->in_room == killer->in_room) {
+				act("Кровушка стынет в жилах от предсмертного крика $N1.",
+					false, killer->get_master(), nullptr, ch, kToRoom | kToNotDeaf);
+			}
 		} else {
 			act("Кровушка стынет в жилах от предсмертного крика $N1.",
 				false, killer, nullptr, ch, kToRoom | kToNotDeaf);
