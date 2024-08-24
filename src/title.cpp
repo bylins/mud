@@ -273,7 +273,7 @@ bool TitleSystem::check_alphabet(const std::string &text, CharData *ch, const st
 * \param action - 0 если запрещаем, 1 если одобряем
 */
 DescriptorData *TitleSystem::send_result_message(long unique, bool action) {
-	DescriptorData *d = DescByUID(unique);
+	DescriptorData *d = DescriptorByUid(unique);
 	if (d) {
 		SendMsgToChar(d->character.get(), "Ваш титул был %s Богами.\r\n", action ? "одобрен" : "запрещен");
 	}

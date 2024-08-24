@@ -52,7 +52,7 @@ const char *get_name_by_id(long id);
 const char *get_name_by_unique(int unique);
 int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
-long get_ptable_by_unique(long unique);
+long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
 

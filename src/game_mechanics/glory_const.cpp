@@ -179,7 +179,7 @@ void add_glory(long uid, int amount) {
 		glory_list[uid] = temp_node;
 	}
 
-	DescriptorData *d = DescByUID(uid);
+	DescriptorData *d = DescriptorByUid(uid);
 	if (d) {
 		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 					  CCGRN(d->character, C_NRM),

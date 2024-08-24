@@ -1099,7 +1099,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 	for (auto it = this->ranks.begin() + rank; it != this->ranks.end(); ++it, ++temp_rank) {
 	  if (CompareParam(buffer2, *it)) {
 		CharData::shared_ptr editedChar;
-		DescriptorData *d = DescByUID(unique);
+		DescriptorData *d = DescriptorByUid(unique);
 		m_members.set_rank(unique, temp_rank);
 		if (d) {
 		  editedChar = d->character;
@@ -1139,7 +1139,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 	return;
   }
 
-  DescriptorData *d = DescByUID(unique);
+  DescriptorData *d = DescriptorByUid(unique);
   if (!d || !CAN_SEE(ch, d->character)) {
 	SendMsgToChar("Этого персонажа нет в игре!\r\n", ch);
 	return;
@@ -1232,7 +1232,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
   long unique = it->first;
   m_members.erase(it);
 
-  DescriptorData *k = DescByUID(unique);
+  DescriptorData *k = DescriptorByUid(unique);
   if (k && k->character) {
 	Clan::SetClanData(k->character.get());
 	SendMsgToChar(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
@@ -2050,7 +2050,7 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
   Boards::Static::ClanInit();
 
   // уведомляем счастливых воеводу и имма
-  DescriptorData *d = DescByUID(unique);
+  DescriptorData *d = DescriptorByUid(unique);
   if (d) {
 	Clan::SetClanData(d->character.get());
 	SendMsgToChar(d->character.get(), "Вы стали хозяином нового замка. Добро пожаловать!\r\n");
@@ -2163,7 +2163,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan, char *reason) {
 
   char smallbuf[128];
   for (const auto &it : members) {
-	DescriptorData *d = DescByUID(it.first);
+	DescriptorData *d = DescriptorByUid(it.first);
 	if (d) {
 	  Clan::SetClanData(d->character.get());
 	  SendMsgToChar(d->character.get(), "Ваша дружина распущена. Желаем удачи!\r\n");
@@ -3404,7 +3404,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
   std::string buffer2;
   GetOneParam(buffer, buffer2);
   long unique = GetUniqueByName(buffer2);
-  DescriptorData *d = DescByUID(unique);
+  DescriptorData *d = DescriptorByUid(unique);
 
   if (buffer2.empty())
 	SendMsgToChar("Укажите имя персонажа.\r\n", ch);
@@ -3512,7 +3512,7 @@ void Clan::hcon_owner(CharData *ch, std::string &text) {
   }
 
   // новый воевода онлайн
-  DescriptorData *d = DescByUID(member_uid);
+  DescriptorData *d = DescriptorByUid(member_uid);
   if (d && d->character) {
 	Clan::SetClanData(d->character.get());
 	SendMsgToChar(d->character.get(), "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
@@ -3659,7 +3659,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
   for (const auto &it : m_members) {
 	it.second->level = 0;
 	if (!all && !name) {
-	  DescriptorData *d = DescByUID(it.first);
+	  DescriptorData *d = DescriptorByUid(it.first);
 	  if (!d) {
 		continue;
 	  } else if (!IS_IMMORTAL(d->character)) {
@@ -5076,7 +5076,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else
 	  CLAN(ch)->frList[unique] = tempRecord;
 
-	DescriptorData *d = DescByUID(unique);
+	DescriptorData *d = DescriptorByUid(unique);
 	if (d && PRF_FLAGGED(d->character, EPrf::kPklMode)) {
 	  if (!subcmd) {
 		SendMsgToChar(d->character.get(),
@@ -5153,7 +5153,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (removed) {
 	  SendMsgToChar("Запись удалена.\r\n", ch);
 	  DescriptorData *d;
-	  if ((d = DescByUID(unique))
+	  if ((d = DescriptorByUid(unique))
 		  && PRF_FLAGGED(d->character, EPrf::kPklMode)) {
 		if (!subcmd) {
 		  SendMsgToChar(d->character.get(),

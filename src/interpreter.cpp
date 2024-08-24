@@ -2283,7 +2283,7 @@ void do_entergame(DescriptorData *d) {
   chardata_by_uid[d->character->id] = d->character.get();
   GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
   d->character->set_last_logon(time(nullptr));
-//	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
+//	player_table[GetPtableByUnique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
   player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
   add_logon_record(d);
   // чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
@@ -3979,12 +3979,14 @@ bool CompareParam(const std::string &buffer, const std::string &buffer2, bool fu
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
-DescriptorData *DescByUID(int uid) {
+DescriptorData *DescriptorByUid(int uid) {
   DescriptorData *d = nullptr;
 
-  for (d = descriptor_list; d; d = d->next)
-	if (d->character && GET_UNIQUE(d->character) == uid)
+  for (d = descriptor_list; d; d = d->next) {
+	if (d->character && d->character->get_uid() == uid) {
 	  break;
+	}
+  }
   return (d);
 }
 
@@ -3996,7 +3998,7 @@ DescriptorData *DescByUID(int uid) {
 * \param god по умолчанию = 0
 * \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
 */
-long GetUniqueByName(const std::string &name, bool god) {
+int GetUniqueByName(const std::string &name, bool god) {
   for (auto &i : player_table) {
 	if (!str_cmp(i.name(), name) && i.unique != -1) {
 	  if (!god) {

@@ -77,10 +77,10 @@ int pk_player_count(CharData *ch) {
 	struct PK_Memory_type *pk, *pkg;
 	unsigned count = 0;
 	for (pk = ch->pk_list; pk; pk = pk->next) {
-		long i = get_ptable_by_unique(pk->unique);
+		long i = GetPtableByUnique(pk->unique);
 		bool flag = true;
 		for (pkg = pk->next; pkg && flag; pkg = pkg->next) {
-			long j = get_ptable_by_unique(pkg->unique);
+			long j = GetPtableByUnique(pkg->unique);
 			flag = strcmp(player_table[i].mail, player_table[j].mail) != 0;
 		}
 		if (flag) ++count;
@@ -93,10 +93,10 @@ int pk_calc_spamm(CharData *ch) {
 	int count = 0;
 	for (pk = ch->pk_list; pk; pk = pk->next) {
 		if (time(nullptr) - pk->kill_at <= SPAM_PK_TIME * 60) {
-			long i = get_ptable_by_unique(pk->unique);
+			long i = GetPtableByUnique(pk->unique);
 			bool spamPK = true;
 			for (pkg = pk->next; pkg && spamPK; pkg = pkg->next) {
-				long j = get_ptable_by_unique(pkg->unique);
+				long j = GetPtableByUnique(pkg->unique);
 				// Cчитаем убийства со временем больше TIME_PK_GROUP (5 секунд) и чаров с разных мыл
 				spamPK = !(MAX(pk->kill_at, pkg->kill_at) - MIN(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP
 					|| strcmp(player_table[i].mail, player_table[j].mail) == 0);
@@ -1105,7 +1105,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 				|| (CLAN(victim)
 					&& (CLAN(victim)->is_clan_member(it->second.owner_unique)
 						|| CLAN(victim)->is_alli_member(it->second.owner_unique)))
-				|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim)) == 0)) {
+				|| strcmp(player_table[GetPtableByUnique(it->second.owner_unique)].mail, GET_EMAIL(victim)) == 0)) {
 			remove_obj(obj); //снимаем флаг
 			result = true;
 		} else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем

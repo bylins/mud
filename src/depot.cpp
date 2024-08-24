@@ -1371,7 +1371,7 @@ void reload_char(long uid, CharData *ch) {
 
 	// после чего надо записать ему бабла, иначе при входе все спуржится (бабло проставит в exit_char)
 	CharData::shared_ptr vict;
-	DescriptorData *d = DescByUID(uid);
+	DescriptorData *d = DescriptorByUid(uid);
 	if (d) {
 		vict = d->character; // чар онлайн
 	} else {

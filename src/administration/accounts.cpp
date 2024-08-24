@@ -30,7 +30,7 @@ int Account::zero_hryvn(CharData *ch, int val) {
 			continue;
 		}
 
-		const auto &player = player_table[get_ptable_by_unique(plr)];
+		const auto &player = player_table[GetPtableByUnique(plr)];
 		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
 			if (PRF_FLAGGED(ch, EPrf::kTester)) {
 				SendMsgToChar(ch,

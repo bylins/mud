@@ -394,7 +394,7 @@ void print_notices() {
 		if (!has_mail(*i)) {
 			continue;
 		}
-		DescriptorData *d = DescByUID(*i);
+		DescriptorData *d = DescriptorByUid(*i);
 		if (d) {
 			SendMsgToChar(d->character.get(),
 						  "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",

@@ -1047,7 +1047,7 @@ void setall_inspect() {
 	CharData *ch = nullptr;
 	DescriptorData *d_vict = nullptr;
 
-	DescriptorData *imm_d = DescByUID(player_table[it->first].unique);
+	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].unique);
 	if (!imm_d
 		|| (STATE(imm_d) != CON_PLAYING)
 		|| !(ch = imm_d->character.get())) {
@@ -1070,7 +1070,7 @@ void setall_inspect() {
 		}
 		buf1[0] = '\0';
 		is_online = 0;
-		d_vict = DescByUID(player_table[it->second->pos].unique);
+		d_vict = DescriptorByUid(player_table[it->second->pos].unique);
 		if (d_vict)
 			is_online = 1;
 		if (player_table[it->second->pos].mail)

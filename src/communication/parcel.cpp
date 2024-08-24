@@ -94,7 +94,7 @@ void parcel_log(const char *format, ...) {
 
 // * Уведомление чара (если он онлайна) о новой посылке.
 void invoice(long uid) {
-	DescriptorData *d = DescByUID(uid);
+	DescriptorData *d = DescriptorByUid(uid);
 	if (d) {
 		if (!has_parcel(d->character.get())) {
 			SendMsgToChar(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
@@ -543,7 +543,7 @@ void receive(CharData *ch, CharData *mailman) {
 // * Отправка сообщения через письмо, с уведомлением чару, если тот онлайн.
 void create_mail(int to_uid, int from_uid, char *text) {
 	mail::add(to_uid, from_uid, text);
-	const DescriptorData *i = DescByUID(to_uid);
+	const DescriptorData *i = DescriptorByUid(to_uid);
 	if (i) {
 		SendMsgToChar(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
 					  CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));

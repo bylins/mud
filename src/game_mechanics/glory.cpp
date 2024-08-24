@@ -304,7 +304,7 @@ void add_glory(long uid, int amount) {
 		glory_list[uid] = temp_node;
 	}
 	save_glory();
-	DescriptorData *d = DescByUID(uid);
+	DescriptorData *d = DescriptorByUid(uid);
 	if (d)
 		SendMsgToChar(d->character.get(), "Вы заслужили %d %s славы.\r\n",
 					  amount, GetDeclensionInNumber(amount, EWhat::kPoint));
@@ -826,7 +826,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // * Удаление статов у чара, если он онлайн.
 void remove_stat_online(long uid, int stat, int glory) {
-	DescriptorData *d = DescByUID(uid);
+	DescriptorData *d = DescriptorByUid(uid);
 	if (d) {
 		switch (stat) {
 			case G_STR: d->character->inc_str(-glory);
@@ -872,7 +872,7 @@ void timers_update() {
 		}
 
 		if (removed) {
-			DescriptorData *d = DescByUID(it.first);
+			DescriptorData *d = DescriptorByUid(it.first);
 			if (d) {
 				SendMsgToChar("Вы долго не совершали достойных деяний и слава вас покинула...\r\n",
 							 d->character.get());
@@ -985,7 +985,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 		return;
 	}
 
-	DescriptorData *d_vict = DescByUID(vict_uid);
+	DescriptorData *d_vict = DescriptorByUid(vict_uid);
 	CharData::shared_ptr vict;
 	if (d_vict) {
 		vict = d_vict->character;
@@ -1065,7 +1065,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 	glory_list.erase(it);
 	// и выставляем ему новые статы (он то полюбому уже загружен канеш,
 	// но тут стройная картина через дескриптор везде) и если он был оффлайн - обнулится при входе
-	DescriptorData *k = DescByUID(GET_UNIQUE(ch));
+	DescriptorData *k = DescriptorByUid(GET_UNIQUE(ch));
 	if (k) {
 		GloryMisc::recalculate_stats(k->character.get());
 	}

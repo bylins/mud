@@ -5737,7 +5737,7 @@ long get_ptable_by_name(const char *name) {
 	return (-1);
 }
 
-long get_ptable_by_unique(long unique) {
+long GetPtableByUnique(long unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		if (player_table[i].unique == unique) {
