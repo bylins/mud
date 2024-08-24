@@ -7,6 +7,7 @@
 #include "structs/global_objects.h"
 #include "color.h"
 #include "modify.h"
+#include "fmt/format.h"
 
 enum class EInspect {
 	kIp = 1,
@@ -20,16 +21,16 @@ const int kMinRequestLength{3};
 struct InspectRequest {
 	EInspect search_for{EInspect::kIp};	// тип запроса
 	int vict_uid{0};
-	bool full_search{false};
 	int found{0};						// сколько всего найдено
-	char *request_text{nullptr};
-	char *mail{nullptr};
-	int player_table_pos{0};			// текущая позиция поиска
+  	int player_table_pos{0};			// текущая позиция поиска
+  	bool full_search{false};
+  	bool send_mail{false};				// отправлять ли на мыло список чаров
+  	bool valid{false};					// был ли зпрос корректно сформирован
+  	std::string request_text;
+	std::string mail;
+  	std::string out;					// буфер в который накапливается вывод
 	std::vector<Logon> ip_log;			// айпи адреса по которым идет поиск
 	struct timeval start;				// время когда запустили запрос для отладки
-	std::string out;					// буфер в который накапливается вывод
-	bool send_mail{false};				// отправлять ли на мыло список чаров
-	bool valid{false};					// был ли зпрос корректно сформирован
 };
 
 extern bool need_warn;
@@ -99,7 +100,7 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   	if (request->valid) {
 	  if (request->search_for < EInspect::kChar) {
 		sprintf(buf, "%s: %s&S%s&s%s\r\n", (request->search_for == EInspect::kIp ? "IP" : "e-mail"),
-				CCWHT(ch, C_SPR), request->request_text, CCNRM(ch, C_SPR));
+				CCWHT(ch, C_SPR), request->request_text.c_str(), CCNRM(ch, C_SPR));
 	  }
 
 	  request->out += buf;
@@ -118,7 +119,7 @@ void ComposeMailInspectRequest(InspReqPtr &request_ptr) {
 void ComposeIpInspectRequest(InspReqPtr &request_ptr) {
   request_ptr->search_for = EInspect::kIp;
   if (request_ptr->full_search) {
-	const Logon logon = {str_dup(request_ptr->request_text), 0, 0, false};
+	const Logon logon = {str_dup(request_ptr->request_text.c_str()), 0, 0, false};
 	request_ptr->ip_log.push_back(logon);
   }
   request_ptr->valid = true;
@@ -133,7 +134,7 @@ void ComposeCharacterInspectRequest(CharData *ch, InspReqPtr &request_ptr) {
 	  || (player_table[player_index].level > GetRealLevel(ch) && !IS_IMPL(ch)
 		  && !PRF_FLAGGED(ch, EPrf::kCoderinfo)))
   {
-	SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", request_ptr->request_text);
+	SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", request_ptr->request_text.c_str());
 	return;
   }
 
@@ -147,7 +148,7 @@ void ComposeCharacterInspectRequest(CharData *ch, InspReqPtr &request_ptr) {
 		  player_table[player_index].name(),
 		  CCNRM(ch, C_SPR),
 		  CCWHT(ch, C_SPR),
-		  request_ptr->mail,
+		  request_ptr->mail.c_str(),
 		  CCNRM(ch, C_SPR),
 		  CCWHT(ch, C_SPR),
 		  rustime(localtime(&tmp_time)),
@@ -178,8 +179,9 @@ void ComposeCharacterInspectRequest(CharData *ch, InspReqPtr &request_ptr) {
 	  target = d_vict->character;
 	} else {
 	  target = std::make_shared<Player>();
-	  if (load_char(request_ptr->request_text, target.get()) < 0) {
-		SendMsgToChar(ch, "Некорректное имя персонажа (%s) Inspecting char.\r\n", request_ptr->request_text);
+	  if (load_char(request_ptr->request_text.c_str(), target.get()) < 0) {
+		auto msg = fmt::format("Некорректное имя персонажа ({}) Inspecting char.\r\n", request_ptr->request_text);
+		SendMsgToChar(msg, ch);
 		return;
 	  }
 	}
@@ -236,7 +238,7 @@ void Inspecting() {
 		log("inspecting %d/%lu", 1 + request->pos, player_table.size());
 #endif
 
-		if (!*request->request_text) {
+		if (request->request_text.empty()) {
 			SendMsgToChar(ch, "Ошибка: пустой параметр для поиска");
 			break;
 		}
@@ -258,12 +260,12 @@ void Inspecting() {
 			} else {
 				vict = std::make_shared<Player>();
 				if (load_char(inspected_index.name(), vict.get()) < 0) {
-					SendMsgToChar(ch,
-								  "Некорректное имя персонажа (%s) Inspecting %s: %s.\r\n",
-								  inspected_index.name(),
-								  (request->search_for == EInspect::kMail ? "mail" :
-								   (request->search_for == EInspect::kIp ? "ip" : "char")),
-								  request->request_text);
+					auto msg = fmt::format("Некорректное имя персонажа ({}) Inspecting {}: {}.\r\n",
+										   inspected_index.name(),
+										   (request->search_for == EInspect::kMail ? "mail" :
+											(request->search_for == EInspect::kIp ? "ip" : "char")),
+										   request->request_text);
+					SendMsgToChar(msg, ch);
 					continue;
 				}
 			}
@@ -274,9 +276,9 @@ void Inspecting() {
 			mail_found = 0;
 			if (inspected_index.mail) {
 				if ((request->search_for == EInspect::kMail
-					&& strstr(inspected_index.mail, request->request_text))
+					&& strstr(inspected_index.mail, request->request_text.c_str()))
 					|| (request->search_for == EInspect::kChar
-					&& !strcmp(inspected_index.mail, request->mail))) {
+					&& !strcmp(inspected_index.mail, request->mail.c_str()))) {
 					mail_found = 1;
 				}
 			}
@@ -286,7 +288,7 @@ void Inspecting() {
 			if (!request->full_search) {
 				if (inspected_index.last_ip) {
 					if ((request->search_for == EInspect::kIp
-						&& strstr(inspected_index.last_ip, request->request_text))
+						&& strstr(inspected_index.last_ip, request->request_text.c_str()))
 						|| (!request->ip_log.empty()
 							&& !str_cmp(inspected_index.last_ip, request->ip_log.at(0).ip))) {
 						sprintf(buf1 + strlen(buf1),
@@ -366,12 +368,8 @@ void Inspecting() {
 			SendListChar(request->out, request->request_text);
 		}
 	}
-	if (request->mail) {
-		free(request->mail);
-	}
 
 	page_string(ch->desc, request->out);
-	free(request->request_text);
 	MUD::inspect_list().erase(it);
 }
 
