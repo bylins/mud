@@ -1,6 +1,7 @@
 #include "inspect.h"
 
 #include <memory>
+#include <iostream>
 
 #include "house.h"
 #include "entities/char_player.h"
@@ -28,9 +29,9 @@ struct InspectRequest {
   	bool valid{false};					// был ли зпрос корректно сформирован
   	std::string request_text;
 	std::string mail;
-  	std::string out;					// буфер в который накапливается вывод
+	std::ostringstream output;			// буфер в который накапливается вывод
 	std::vector<Logon> ip_log;			// айпи адреса по которым идет поиск
-	struct timeval start;				// время когда запустили запрос для отладки
+	struct timeval start{};				// время когда запустили запрос для отладки
 };
 
 extern bool need_warn;
@@ -38,7 +39,7 @@ extern bool need_warn;
 
 void PrintPunishment(CharData *vict, char *output);
 char *PrintPunishmentTime(int time);
-void SendListChar(const std::string &list_char, const std::string &email);
+void SendListChar(const std::ostringstream &list_char, const std::string &email);
 void ComposeMailInspectRequest(InspReqPtr &request_ptr);
 void ComposeIpInspectRequest(InspReqPtr &request_ptr);
 void ComposeCharacterInspectRequest(CharData *ch, InspReqPtr &request_ptr);
@@ -80,13 +81,15 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	buf2[0] = '\0';
 
 	if (argument) {
-		if (isname(argument, "все all"))
+		if (isname(argument, "все all")) {
 			if (IS_GRGOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 				need_warn = false;
 				request->full_search = true;
 			}
-		if (isname(argument, "send_mail"))
+		}
+		if (isname(argument, "send_mail")) {
 			request->send_mail = true;
+		}
 	}
 
 	if (utils::IsAbbr(buf, "mail")) {
@@ -103,8 +106,8 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				CCWHT(ch, C_SPR), request->request_text.c_str(), CCNRM(ch, C_SPR));
 	  }
 
-	  request->out += buf;
-	  request->out += buf2;
+	  request->output << buf;
+	  request->output << buf2;
 
 	  gettimeofday(&request->start, nullptr);
 	  MUD::inspect_list()[ch->get_pfilepos()] = request;
@@ -223,7 +226,7 @@ void Inspecting() {
 	auto request = it->second;
 	timeval start{}, stop{}, result{};
 	time_t mytime;
-	int mail_found = 0;
+	bool mail_found{false};
 	need_warn = false;
 
 	gettimeofday(&start, nullptr);
@@ -235,7 +238,7 @@ void Inspecting() {
 		}
 
 #ifdef TEST_BUILD
-		log("inspecting %d/%lu", 1 + request->pos, player_table.size());
+		log("inspecting %d/%lu", 1 + request->player_table_pos, player_table.size());
 #endif
 
 		if (request->request_text.empty()) {
@@ -273,13 +276,13 @@ void Inspecting() {
 		}
 
 		if (request->search_for == EInspect::kMail || request->search_for == EInspect::kChar) {
-			mail_found = 0;
+			mail_found = false;
 			if (inspected_index.mail) {
 				if ((request->search_for == EInspect::kMail
 					&& strstr(inspected_index.mail, request->request_text.c_str()))
 					|| (request->search_for == EInspect::kChar
 					&& !strcmp(inspected_index.mail, request->mail.c_str()))) {
-					mail_found = 1;
+					mail_found = true;
 				}
 			}
 		}
@@ -350,9 +353,9 @@ void Inspecting() {
 					inspected_index.level,
 					inspected_index.remorts,
 					smallBuf, clanstatus);
-			request->out += buf;
-			request->out += buf2;
-			request->out += buf1;
+			request->output << buf;
+			request->output << buf2;
+			request->output << buf1;
 			request->found++;
 		}
 	}
@@ -361,15 +364,15 @@ void Inspecting() {
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &request->start);
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", request->found, result.tv_sec);
-	request->out += buf1;
+	request->output << buf1;
 	if (request->send_mail) {
 		if (request->found > 1 && request->search_for == EInspect::kMail) {
-			request->out += "Данный список отправлен игроку на емайл\r\n";
-			SendListChar(request->out, request->request_text);
+			request->output << "Данный список отправлен игроку на емайл\r\n";
+			SendListChar(request->output, request->request_text);
 		}
 	}
 
-	page_string(ch->desc, request->out);
+	page_string(ch->desc, request->output.str());
 	MUD::inspect_list().erase(it);
 }
 
@@ -422,8 +425,8 @@ char *PrintPunishmentTime(int time) {
 	return time_buf;
 }
 
-void SendListChar(const std::string &list_char, const std::string &email) {
-	std::string cmd_line = "python3 SendListChar.py " + email + " " + list_char + " &";
+void SendListChar(const std::ostringstream &list_char, const std::string &email) {
+	std::string cmd_line = "python3 SendListChar.py " + email + " " + list_char.str() + " &";
 	auto result = system(cmd_line.c_str());
 	UNUSED_ARG(result);
 }

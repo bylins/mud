@@ -16,7 +16,7 @@ class Padding {
 		m_padding(padding) {
 	}
 
-	const auto length() const { return m_length; }
+	auto length() const { return m_length; }
 	std::ostream &output(std::ostream &os) const;
 
  protected:
@@ -54,12 +54,12 @@ class AbstractStringWriter {
 
 class DelegatedStringWriter : public AbstractStringWriter {
  public:
-	DelegatedStringWriter(char *&managed) : m_delegated_string_(managed) {}
-	virtual const char *get_string() const override { return m_delegated_string_; }
-	virtual void set_string(const char *string) override;
-	virtual void append_string(const char *string) override;
-	virtual size_t length() const override { return m_delegated_string_ ? strlen(m_delegated_string_) : 0; }
-	virtual void clear() override;
+	explicit DelegatedStringWriter(char *&managed) : m_delegated_string_(managed) {}
+	[[nodiscard]] const char *get_string() const final { return m_delegated_string_; }
+	void set_string(const char *string) final;
+	void append_string(const char *string) final;
+	[[nodiscard]] size_t length() const final { return m_delegated_string_ ? strlen(m_delegated_string_) : 0; }
+	void clear() override;
 
  private:
 	char *&m_delegated_string_;
@@ -67,15 +67,15 @@ class DelegatedStringWriter : public AbstractStringWriter {
 
 class AbstractStdStringWriter : public AbstractStringWriter {
  public:
-	virtual const char *get_string() const override { return string().c_str(); }
-	virtual void set_string(const char *string) override { this->string() = string; }
-	virtual void append_string(const char *string) override { this->string() += string; }
-	virtual size_t length() const override { return string().length(); }
-	virtual void clear() override { string().clear(); }
+	[[nodiscard]] const char *get_string() const override { return string().c_str(); }
+	void set_string(const char *string) override { this->string() = string; }
+	void append_string(const char *string) override { this->string() += string; }
+	[[nodiscard]] size_t length() const override { return string().length(); }
+	void clear() override { string().clear(); }
 
  private:
 	virtual std::string &string() = 0;
-	virtual const std::string &string() const = 0;
+	[[nodiscard]] virtual const std::string &string() const = 0;
 };
 
 class StdStringWriter : public AbstractStdStringWriter {
