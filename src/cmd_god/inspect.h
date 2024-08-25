@@ -9,7 +9,7 @@
 #define BYLINS_SRC_CMD_GOD_INSPECT_H_
 
 class CharData;
-struct InspectRequest;
+class InspectRequest;
 
 using InspReqPtr = std::shared_ptr<InspectRequest>;
 /**
