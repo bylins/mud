@@ -2209,11 +2209,14 @@ void find_replacement(void *go,
 				auto it = arr.begin();
 				std::advance(it, index);
 				arr.erase(it);
-				std::stringstream ss;
+				std::string ss;
+
 				for (auto res : arr) {
-					ss << res << " ";
+					ss = ss + res + " ";
 				}
-				sprintf(str, "%s", utils::TrimRightCopy(ss.str()).c_str());
+				if (!ss.empty())
+					ss.pop_back();
+				sprintf(str, "%s", ss.c_str());
 				return;
 			}
 			/*Вот тут можно наделать вот так еще:
