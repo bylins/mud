@@ -10,12 +10,6 @@
 #include "modify.h"
 #include "fmt/format.h"
 
-enum class EInspect {
-  kIp = 1,
-  kMail = 2,
-  kChar = 3
-};
-
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
 const int kMinArgsNumber{2};
@@ -24,9 +18,9 @@ const int kRequestTextPos{1};
 
 extern bool need_warn;
 
-void PrintPunishment(CharData *vict, std::ostringstream &out);
 char *PrintPunishmentTime(int time);
 void SendListChar(const std::ostringstream &list_char, const std::string &email);
+std::string GelClanAbbrev(std::shared_ptr<Player> &player);
 
 class InspectRequest {
  public:
@@ -35,34 +29,31 @@ class InspectRequest {
   void Inspect();
   bool IsFinished() const { return finished_; };
 
-  int found_{0};                        // сколько всего найдено
-  bool send_mail_{false};                // отправлять ли на мыло список чаров
   std::ostringstream output_;            // буфер в который накапливается вывод
   struct timeval start_{};                // время когда запустили запрос для отладки
 
  protected:
   bool finished_{false};
+  int found_{0};                        // сколько всего найдено
   int vict_uid_{0};
   std::string request_text_;
+
   virtual void SendInspectResult();
   void PageOutputToAuthor() const;
   void PrintFindStatToOutput();
+  void PrintCharInfoToOutput(const PlayerIndexElement &index);
 
  private:
   int author_uid_{0};
   std::size_t player_table_pos_{0};            // текущая позиция поиска
 
   virtual void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) = 0;
+  void PrintPunishmentToOutput(std::shared_ptr<Player> &player);
 };
 
 InspectRequest::InspectRequest(CharData *author, std::vector<std::string> &args) {
 	author_uid_ = author->get_uid();
 	request_text_ = args[kRequestTextPos];
-	if (args.size() > kMinArgsNumber) {
-		if (isname(args.back(), "send_mail")) {
-			send_mail_ = true;
-		}
-	}
 	gettimeofday(&start_, nullptr);
 }
 
@@ -127,7 +118,66 @@ void InspectRequest::PrintFindStatToOutput() {
 	timeval stop{}, result{};
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &start_);
-	output_ << fmt::format("Всего найдено: {} за {}сек.\r\n", found_, result.tv_sec);
+	output_ << fmt::format("Всего найдено: {} за {} сек.\r\n", found_, result.tv_sec);
+}
+
+void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
+	DescriptorData *d_vict = DescriptorByUid(index.unique);
+	time_t mytime = index.last_logon;
+
+	auto player = std::make_shared<Player>();
+	auto player_loaded = (load_char(index.name(), player.get()) > -1);
+
+	output_ << fmt::format("{:-^121}\r\n", "*");
+	output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {}. Level {}, Remort {}, Class: {}, Clan: {}.\r\n",
+						   (d_vict ? KIGRN : KIWHT), index.name(), KNRM,
+						   index.mail, rustime(localtime(&mytime)), index.level, index.remorts,
+						   MUD::Class(index.plr_class).GetName(), player_loaded ? GelClanAbbrev(player) : "нет");
+
+
+	if (player_loaded) {
+		PrintPunishmentToOutput(player);
+	}
+}
+
+std::string GelClanAbbrev(std::shared_ptr<Player> &player) {
+	Clan::SetClanData(player.get());
+	if (CLAN(player)) {
+		return (player)->player_specials->clan->GetAbbrev();
+	}
+	return "нет";
+}
+
+void InspectRequest::PrintPunishmentToOutput(std::shared_ptr<Player> &player) {
+	if (PLR_FLAGGED(player, EPlrFlag::kFrozen) && FREEZE_DURATION(player)) {
+		output_ << fmt::format("FREEZE : {} [{}].\r\n",
+						   PrintPunishmentTime(FREEZE_DURATION(player) - time(nullptr)),
+						   FREEZE_REASON(player) ? FREEZE_REASON(player) : "-");
+	}
+
+	if (PLR_FLAGGED(player, EPlrFlag::kMuted) && MUTE_DURATION(player)) {
+		output_ << fmt::format("MUTE   : {} [{}].\r\n",
+						   PrintPunishmentTime(MUTE_DURATION(player) - time(nullptr)),
+						   MUTE_REASON(player) ? MUTE_REASON(player) : "-");
+	}
+
+	if (PLR_FLAGGED(player, EPlrFlag::kDumbed) && DUMB_DURATION(player)) {
+		output_ << fmt::format("DUMB   : {} [{}].\r\n",
+						   PrintPunishmentTime(DUMB_DURATION(player) - time(nullptr)),
+						   DUMB_REASON(player) ? DUMB_REASON(player) : "-");
+	}
+
+	if (PLR_FLAGGED(player, EPlrFlag::kHelled) && HELL_DURATION(player)) {
+		output_ << fmt::format("HELL   : {} [{}].\r\n",
+						   PrintPunishmentTime(HELL_DURATION(player) - time(nullptr)),
+						   HELL_REASON(player) ? HELL_REASON(player) : "-");
+	}
+
+	if (!PLR_FLAGGED(player, EPlrFlag::kRegistred) && UNREG_DURATION(player)) {
+		output_ << fmt::format("UNREG  : {} [{}].\r\n",
+						   PrintPunishmentTime(UNREG_DURATION(player) - time(nullptr)),
+						   UNREG_REASON(player) ? UNREG_REASON(player) : "-");
+	}
 }
 
 // =======================================  INSPECT IP  ============================================
@@ -143,14 +193,16 @@ class InspectRequestIp : public InspectRequest {
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("IP: {}&S{}&s{}\r\n", CCWHT(author, C_SPR), args[kRequestTextPos], CCNRM(author, C_SPR));
+	output_ << fmt::format("Inspecting IP: {}&S{}&s{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 }
 
 void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &/* author */, const PlayerIndexElement &index) {
 	if (index.last_ip) {
 		if (strstr(index.last_ip, request_text_.c_str())
-		|| (!ip_log_.empty() && !str_cmp(index.last_ip, ip_log_.at(0).ip))) {
-			output_ << fmt::format(" IP:{}{:<16}{}\r\n", KBLU, index.last_ip, KNRM);
+			|| (!ip_log_.empty() && !str_cmp(index.last_ip, ip_log_.at(0).ip))) {
+			++found_;
+			PrintCharInfoToOutput(index);
+			output_ << fmt::format(" IP: {}{:<16}{}\r\n", KICYN, index.last_ip, KNRM);
 		}
 	}
 }
@@ -162,6 +214,8 @@ class InspectRequestMail : public InspectRequest {
   explicit InspectRequestMail(CharData *author, std::vector<std::string> &args);
 
  private:
+  bool send_mail_{false};                // отправлять ли на мыло список чаров
+
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
   void SendInspectResult() final;
   void SendEmail();
@@ -169,34 +223,19 @@ class InspectRequestMail : public InspectRequest {
 
 InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("E-mail: {}&S{}&s{}\r\n", CCWHT(author, C_SPR), args[kRequestTextPos], CCNRM(author, C_SPR));
-	request_text_ = args[kRequestTextPos];
+	output_ << fmt::format("Inspecting e-mail: {}&S{}&s{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+	if (args.size() > kMinArgsNumber) {
+		if (isname(args.back(), "send_mail")) {
+			send_mail_ = true;
+		}
+	}
 }
 
-void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
+void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> & /* author */, const PlayerIndexElement &index) {
 	if (index.mail) {
 		if (strstr(index.mail, request_text_.c_str())) {
 			++found_;
-			DescriptorData *d_vict = DescriptorByUid(index.unique);
-			time_t mytime = index.last_logon;
-			output_ << fmt::format("{:*^80}\r\n", "*");
-			output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {}. Level {}, Remort {}, Class: {}",
-				(d_vict ? CCGRN(author, C_SPR) : CCWHT(author, C_SPR)), index.name(), CCNRM(author, C_SPR),
-				index.mail, rustime(localtime(&mytime)), index.level,
-				index.remorts, MUD::Class(index.plr_class).GetName());
-
-			Player target;
-			if ((load_char(index.name(), &target)) > -1) {
-				Clan::SetClanData(&target);
-				if (CLAN(&target)) {
-					output_ << fmt::format(", Clan: {}.\r\n", (&target)->player_specials->clan->GetAbbrev());
-				} else {
-					output_ << ", Clan: нет.\r\n";
-				}
-				PrintPunishment(&target, output_);
-			}  else {
-				output_ << ", Clan: unknown.\r\n";
-			}
+			PrintCharInfoToOutput(index);
 		}
 	}
 }
@@ -209,8 +248,8 @@ void InspectRequestMail::SendInspectResult() {
 
 void InspectRequestMail::SendEmail() {
 	if (send_mail_ && found_ > 1) {
-		output_ << "Данный список отправлен игроку на емайл\r\n";
 		SendListChar(output_, request_text_);
+		output_ << "Данный список отправлен игроку на емайл\r\n";
 	}
 }
 
@@ -222,6 +261,7 @@ class InspectRequestChar : public InspectRequest {
 
  private:
   std::string mail_;
+
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
 };
 
@@ -237,8 +277,7 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 		SendMsgToChar(author, "Некорректное имя персонажа (%s) Inspecting char.\r\n", victim_name.c_str());
 		finished_ = true;
 	} else {
-		output_
-			<< fmt::format("Char: {}&S{}&s{}\r\n", CCWHT(author, C_SPR), args[kRequestTextPos], CCNRM(author, C_SPR));
+		output_ << fmt::format("Char: {}&S{}&s{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 		mail_ = player_index.mail;
 	}
 }
@@ -404,38 +443,6 @@ void Inspecting() {
 //	}
 }
 
-void PrintPunishment(CharData *vict, std::ostringstream &out) {
-	if (PLR_FLAGGED(vict, EPlrFlag::kFrozen) && FREEZE_DURATION(vict)) {
-		out << fmt::format("FREEZE : {} [{}].\r\n",
-				PrintPunishmentTime(FREEZE_DURATION(vict) - time(nullptr)),
-				FREEZE_REASON(vict) ? FREEZE_REASON(vict) : "-");
-	}
-
-	if (PLR_FLAGGED(vict, EPlrFlag::kMuted) && MUTE_DURATION(vict)) {
-		out << fmt::format("MUTE   : {} [{}].\r\n",
-				PrintPunishmentTime(MUTE_DURATION(vict) - time(nullptr)),
-				MUTE_REASON(vict) ? MUTE_REASON(vict) : "-");
-	}
-
-	if (PLR_FLAGGED(vict, EPlrFlag::kDumbed) && DUMB_DURATION(vict)) {
-		out << fmt::format("DUMB   : {} [{}].\r\n",
-				PrintPunishmentTime(DUMB_DURATION(vict) - time(nullptr)),
-				DUMB_REASON(vict) ? DUMB_REASON(vict) : "-");
-	}
-
-	if (PLR_FLAGGED(vict, EPlrFlag::kHelled) && HELL_DURATION(vict)) {
-		out << fmt::format("HELL   : {} [{}].\r\n",
-				PrintPunishmentTime(HELL_DURATION(vict) - time(nullptr)),
-				HELL_REASON(vict) ? HELL_REASON(vict) : "-");
-	}
-
-	if (!PLR_FLAGGED(vict, EPlrFlag::kRegistred) && UNREG_DURATION(vict)) {
-		out << fmt::format("UNREG  : {} [{}].\r\n",
-				PrintPunishmentTime(UNREG_DURATION(vict) - time(nullptr)),
-				UNREG_REASON(vict) ? UNREG_REASON(vict) : "-");
-	}
-}
-
 char *PrintPunishmentTime(int time) {
 	static char time_buf[16];
 	time_buf[0] = '\0';
@@ -477,7 +484,7 @@ void SendListChar(const std::ostringstream &list_char, const std::string &email)
 	if (CLAN(&vict)) {
 	  sprintf(clan_status, "%s", (&vict)->player_specials->clan->GetAbbrev());
 	}
-	PrintPunishment(&vict, buf2);
+	PrintPunishmentToOutput(&vict, buf2);
   }
 
   time_t mytime = player_table[player_index].last_logon;
