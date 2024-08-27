@@ -96,7 +96,6 @@ using std::ifstream;
 using std::fstream;
 
 // external vars
-extern bool need_warn;
 extern FILE *player_fl;
 extern int circle_restrict;
 extern int load_into_inventory;
@@ -1057,7 +1056,6 @@ void setall_inspect() {
 
 	timeval start{}, stop{}, result{};
 	int is_online;
-	need_warn = false;
 	gettimeofday(&start, nullptr);
 	Player *vict;
 	for (; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++) {
@@ -1089,7 +1087,8 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1126,7 +1125,8 @@ void setall_inspect() {
 						it->second->out += buf2;
 
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1162,7 +1162,8 @@ void setall_inspect() {
 						it->second->out += buf1;
 						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1196,7 +1197,8 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1230,7 +1232,6 @@ void setall_inspect() {
 		free(it->second->newmail);
 	if (it->second->mail)
 		free(it->second->mail);
-	need_warn = true;
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d.\r\n", it->second->found);

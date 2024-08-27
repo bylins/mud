@@ -18,8 +18,6 @@ const int kRequestTextPos{1};
 
 const std::set<std::string> ignored_ip = {"135.181.219.76"};
 
-extern bool need_warn;
-
 char *PrintPunishmentTime(time_t time);
 void SendListChar(const std::ostringstream &list_char, const std::string &email);
 bool IsTimeout(timeval &start_time);
@@ -66,10 +64,6 @@ InspectRequest::InspectRequest(CharData *author, std::vector<std::string> &args)
 }
 
 void InspectRequest::Inspect() {
-	if (finished_) {
-		return;
-	}
-
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
 	if (!author_descriptor || (author_descriptor->connected != CON_PLAYING)) {
 		finished_ = true;
