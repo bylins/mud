@@ -16,14 +16,16 @@ const int kMinArgsNumber{2};
 const int kRequestTypePos{0};
 const int kRequestTextPos{1};
 
+const std::set<std::string> ignored_ip = {"135.181.219.76"};
+
 extern bool need_warn;
 
 char *PrintPunishmentTime(time_t time);
 void SendListChar(const std::ostringstream &list_char, const std::string &email);
 bool IsTimeout(timeval &start_time);
-bool IsAuthorLevelPoor(CharData *author, const PlayerIndexElement &index);
-bool IsRequestAlreadySent(CharData *ch);
-bool IsArgsIncorrect(CharData *ch, std::vector<std::string> &args);
+bool IsAuthorLevelAcceptable(CharData *author, const PlayerIndexElement &index);
+void CheckSentRequests(CharData *ch);
+void ValidateArgs(std::vector<std::string> &args);
 void CreateRequest(CharData *ch, std::vector<std::string> &args);
 
 class InspectRequest {
@@ -45,7 +47,7 @@ class InspectRequest {
   void PrintFindStatToOutput();
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
   bool IsPlayerFound(std::shared_ptr<CharData> &author, const PlayerIndexElement &index);
-  virtual bool IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) = 0;
+  virtual bool IsMatchedRequest(const PlayerIndexElement &index) = 0;
 
  private:
   int author_uid_{0};
@@ -80,7 +82,6 @@ void InspectRequest::Inspect() {
 		return;
 	}
 
-	need_warn = false;
 	timeval start_time{};
 	gettimeofday(&start_time, nullptr);
 	for (; player_table_pos_ < player_table.size(); ++player_table_pos_) {
@@ -91,7 +92,7 @@ void InspectRequest::Inspect() {
 			return;
 		}
 		const auto &player_index = player_table[player_table_pos_];
-		if (IsAuthorLevelPoor(author.get(), player_index)) {
+		if (IsAuthorLevelAcceptable(author.get(), player_index)) {
 			continue;
 		}
 		InspectIndex(author, player_index);
@@ -110,9 +111,9 @@ bool IsTimeout(timeval &start_time) {
 	return (delta_time.tv_sec > 0 || delta_time.tv_usec >= kOptUsec);
 }
 
-bool IsAuthorLevelPoor(CharData *author, const PlayerIndexElement &index) {
-	return ((index.level >= kLvlImmortal && !IS_GRGOD(author))
-		|| (index.level > GetRealLevel(author) && !IS_IMPL(author)));
+bool IsAuthorLevelAcceptable(CharData *author, const PlayerIndexElement &index) {
+	return ((index.level < kLvlImmortal || IS_GRGOD(author))
+		&& (index.level <= GetRealLevel(author)));
 }
 
 void InspectRequest::SendInspectResult(DescriptorData *author_descriptor) {
@@ -121,7 +122,6 @@ void InspectRequest::SendInspectResult(DescriptorData *author_descriptor) {
 }
 
 void InspectRequest::PrintFindStatToOutput() {
-	need_warn = true;
 	timeval stop{}, result{};
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &start_);
@@ -205,9 +205,12 @@ char *PrintPunishmentTime(time_t time) {
 }
 
 bool InspectRequest::IsPlayerFound(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	auto result = IsMatchedRequest(author, index);
-	found_ += result;
-	return result;
+	if (IsAuthorLevelAcceptable(author.get(), index)) {
+		auto result = IsMatchedRequest(index);
+		found_ += result;
+		return result;
+	}
+	return false;
 }
 
 // =======================================  INSPECT IP  ============================================
@@ -218,7 +221,7 @@ class InspectRequestIp : public InspectRequest {
 
  private:
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
-  bool IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
+  bool IsMatchedRequest(const PlayerIndexElement &index) final;
 };
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
@@ -232,8 +235,8 @@ void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &author, const Pla
 	}
 }
 
-bool InspectRequestIp::IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (index.last_ip && !IsAuthorLevelPoor(author.get(), index)) {
+bool InspectRequestIp::IsMatchedRequest(const PlayerIndexElement &index) {
+	if (index.last_ip) {
 		return (strstr(index.last_ip, request_text_.c_str()));
 	}
 	return false;
@@ -249,7 +252,7 @@ class InspectRequestMail : public InspectRequest {
   bool send_mail_{false};                // отправлять ли на мыло список чаров
 
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
-  bool IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
+  bool IsMatchedRequest(const PlayerIndexElement &index) final;
   void SendInspectResult(DescriptorData *author_descriptor) final;
   void SendEmail();
 };
@@ -270,8 +273,8 @@ void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> &author, const P
 	}
 }
 
-bool InspectRequestMail::IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (index.mail && !IsAuthorLevelPoor(author.get(), index)) {
+bool InspectRequestMail::IsMatchedRequest(const PlayerIndexElement &index) {
+	if (index.mail) {
 		return (strstr(index.mail, request_text_.c_str()));
 	}
 	return false;
@@ -308,7 +311,7 @@ class InspectRequestChar : public InspectRequest {
   std::string last_ip_;
 
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
-  bool IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
+  bool IsMatchedRequest(const PlayerIndexElement &index) final;
 };
 
 InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string> &args)
@@ -316,14 +319,12 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 	const auto victim_name = args[kRequestTextPos];
 	vict_uid_ = GetUniqueByName(victim_name);
 	if (vict_uid_ <= 0) {
-		SendMsgToChar(author, "Неизвестное имя персонажа (%s) Inspecting char.\r\n", victim_name.c_str());
-		finished_ = true;
+		throw std::runtime_error("Inspecting char: Неизвестное имя персонажа.\r\n");
 	} else {
 		auto player_pos = GetPtableByUnique(vict_uid_);
 		const auto &player_index = player_table[player_pos];
-		if (IsAuthorLevelPoor(author, player_index)) {
-			SendMsgToChar("А ежели он вам молнией по тыковке?.\r\n", author);
-			finished_ = true;
+		if (IsAuthorLevelAcceptable(author, player_index)) {
+			throw std::runtime_error("А ежели он ваc молнией по тыковке?.\r\n");
 		} else {
 			mail_ = player_index.mail;
 			last_ip_ = player_index.last_ip;
@@ -340,8 +341,8 @@ void InspectRequestChar::InspectIndex(std::shared_ptr<CharData> &author, const P
 	}
 }
 
-bool InspectRequestChar::IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (vict_uid_ == index.unique || IsAuthorLevelPoor(author.get(), index)) {
+bool InspectRequestChar::IsMatchedRequest(const PlayerIndexElement &index) {
+	if (vict_uid_ == index.unique) {
 		return false;
 	}
 	bool result{false};
@@ -361,26 +362,66 @@ class InspectRequestAll : public InspectRequest {
   explicit InspectRequestAll(CharData *author, std::vector<std::string> &args);
 
  private:
-  std::vector<Logon> ip_log_;            // айпи адреса по которым идет поиск
+  std::set<std::string> victim_ip_log_;	// айпи адреса по которым идет поиск
+  std::ostringstream  logon_buffer_;	// буфер, в который накапливаются записи о коннектах проверяемого персонажа
 
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
-  bool IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
+  bool IsMatchedRequest(const PlayerIndexElement &index) final;
 };
 
 InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("All: {}&S{}&s{}\r\n", CCWHT(author, C_SPR), args[kRequestTextPos], CCNRM(author, C_SPR));
-	ip_log_.emplace_back(Logon{str_dup(args[kRequestTextPos].c_str()), 0, 0, false});
+	if (!IS_GRGOD(author)) {
+		throw std::runtime_error("Вы не столь божественны, как вам кажется.\r\n");
+	}
+
+	auto vict = std::make_shared<Player>();
+	if (load_char(request_text_.c_str(), vict.get()) > -1) {
+		output_ << fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, request_text_, KNRM);
+		auto player_pos = GetPtableByUnique(vict->get_uid());
+		const auto &player_index = player_table[player_pos];
+		PrintCharInfoToOutput(player_index);
+		for (const auto &logon : LOGON_LIST(vict)) {
+			if (logon.ip) {
+				if (!ignored_ip.contains(logon.ip)) {
+					victim_ip_log_.insert(logon.ip);
+				}
+			}
+		}
+	} else {
+		throw std::runtime_error("Inspecting all: не удалось загрузить файл персонажа.\r\n");
+	}
 }
 
 void InspectRequestAll::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
 	if (IsPlayerFound(author, index)) {
 		PrintCharInfoToOutput(index);
+		output_ << logon_buffer_.str();
+		logon_buffer_.str("");
+		logon_buffer_.clear();
 	}
 }
 
-bool InspectRequestAll::IsMatchedRequest(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	return false;
+bool InspectRequestAll::IsMatchedRequest(const PlayerIndexElement &index) {
+	auto player = std::make_shared<Player>();
+	bool result{false};
+	if (load_char(index.name(), player.get()) > -1) {
+		for (const auto &inspected_logon : LOGON_LIST(player)) {
+			if (!inspected_logon.ip) {
+				continue;
+			}
+			if (ignored_ip.contains(inspected_logon.ip)) {
+				continue;
+			}
+			if (victim_ip_log_.contains(inspected_logon.ip)) {
+				result =  true;
+				logon_buffer_ << fmt::format(" IP: {}{:<16}{} Количество заходов: {}. Последний: {}.\r\n",
+									   KICYN, inspected_logon.ip, KNRM, inspected_logon.count,
+									   rustime(localtime(&inspected_logon.lasttime)));
+			}
+		}
+	}
+	return result;
 }
 
 // ========================================================================
@@ -390,54 +431,40 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IsRequestAlreadySent(ch)) {
-		return;
+	try {
+		CheckSentRequests(ch);
+		std::vector<std::string> args;
+		array_argument(argument, args);
+		ValidateArgs(args);
+		CreateRequest(ch, args);
+		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+	} catch (std::runtime_error &e) {
+		SendMsgToChar(ch, "%s", e.what());
 	}
-
-	std::vector<std::string> args;
-	array_argument(argument, args);
-	if (IsArgsIncorrect(ch, args)) {
-		return;
-	}
-
-	CreateRequest(ch, args);
 }
 
-bool IsRequestAlreadySent(CharData *ch) {
+void CheckSentRequests(CharData *ch) {
 	auto it_inspect = MUD::inspect_list().find(ch->get_uid());
 	auto it_setall = setall_inspect_list.find(ch->get_uid());
 	if (it_inspect != MUD::inspect_list().end() || it_setall != setall_inspect_list.end()) {
-		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
-		return true;
+		throw std::runtime_error("Обрабатывается другой запрос, подождите...\r\n");
 	}
-	return false;
 }
 
-bool IsArgsIncorrect(CharData *ch, std::vector<std::string> &args) {
+void ValidateArgs(std::vector<std::string> &args) {
 	if (args.size() < kMinArgsNumber) {
-		SendMsgToChar("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n", ch);
-		return true;
+		throw std::runtime_error("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n");
 	}
 	if (!isname(args[kRequestTypePos], "mail ip char all")) {
-		SendMsgToChar("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
-		return true;
+		throw std::runtime_error("Нет уж. Изыщите другую цель для своих исследований.\r\n");
 	}
-
 	auto &request_text = args[kRequestTextPos];
 	if (request_text.length() < kMinRequestLength) {
-		SendMsgToChar("Слишком короткий запрос.\r\n", ch);
-		return true;
+		throw std::runtime_error("Слишком короткий запрос.\r\n");
 	}
 	if (request_text.length() > kMaxRequestLength) {
-		SendMsgToChar("Слишком длинный запрос.\r\n", ch);
-		return true;
+		throw std::runtime_error("Слишком длинный запрос.\r\n");
 	}
-	if (utils::IsAbbr(request_text.c_str(), "char") && (GetUniqueByName(request_text) <= 0)) {
-		auto msg = fmt::format("Некорректное имя персонажа ({}) Inspecting char.\r\n", request_text);
-		SendMsgToChar(msg, ch);
-		return true;
-	}
-	return false;
 }
 
 void CreateRequest(CharData *ch, std::vector<std::string> &args) {
@@ -449,13 +476,8 @@ void CreateRequest(CharData *ch, std::vector<std::string> &args) {
 	} else if (utils::IsAbbr(request_type.c_str(), "char")) {
 		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestChar>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "all")) {
-		if (!IS_GRGOD(ch)) {
-			SendMsgToChar("Вы не столь божественны, как вам кажется.\r\n", ch);
-			return;
-		}
 		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestAll>(ch, args));
 	}
-	SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
 }
 
 void Inspecting() {
