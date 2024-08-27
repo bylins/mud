@@ -1,9 +1,9 @@
-/src/**           working-tree-encoding=KOI8-R
-/tests/**         working-tree-encoding=KOI8-R
-/lib.template/**  working-tree-encoding=KOI8-R
-/lib/text/help/** working-tree-encoding=KOI8-R
-/lib/etc/board/** working-tree-encoding=KOI8-R
-/lib/misc/** working-tree-encoding=KOI8-R
-/lib/cfg/** working-tree-encoding=KOI8-R
-/bin.win/**       working-tree-encoding=windows-1251
+/src/**           working-tree-encoding=KOI8-R eol=lf
+/tests/**         working-tree-encoding=KOI8-R eol=lf
+/lib.template/**  working-tree-encoding=KOI8-R eol=lf
+/lib/text/help/** working-tree-encoding=KOI8-R eol=lf
+/lib/etc/board/** working-tree-encoding=KOI8-R eol=lf
+/lib/misc/** working-tree-encoding=KOI8-R eol=lf
+/lib/cfg/** working-tree-encoding=KOI8-R eol=lf
+/bin.win/**       working-tree-encoding=windows-1251 eol=crlf
 *.dll             -diff -working-tree-encoding
