@@ -44,6 +44,7 @@ class InspectRequest {
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
   bool IsPlayerFound(std::shared_ptr<CharData> &author, const PlayerIndexElement &index);
   virtual bool IsMatchedRequest(const PlayerIndexElement &index) = 0;
+  virtual void PrintOtherInfoToOutput() { }
 
  private:
   bool finished_{false};
@@ -51,7 +52,7 @@ class InspectRequest {
   std::size_t player_table_pos_{0};            // текущая позиция поиска
   struct timeval start_{};                // время когда запустили запрос
 
-  virtual void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) = 0;
+  void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index);
   void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
   void PrintSinglePunishmentInfoToOutput(std::string_view name, const Punish &punish);
   void PrintClanAbbrevToOutput(std::shared_ptr<Player> &player);
@@ -102,6 +103,13 @@ bool IsTimeout(timeval &start_time) {
 	gettimeofday(&current_time, nullptr);
 	timediff(&delta_time, &current_time, &start_time);
 	return (delta_time.tv_sec > 0 || delta_time.tv_usec >= kOptUsec);
+}
+
+void InspectRequest::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
+	if (IsPlayerFound(author, index)) {
+		PrintCharInfoToOutput(index);
+		PrintOtherInfoToOutput();
+	}
 }
 
 bool IsAuthorLevelAcceptable(CharData *author, const PlayerIndexElement &index) {
@@ -213,19 +221,12 @@ class InspectRequestIp : public InspectRequest {
   explicit InspectRequestIp(CharData *author, std::vector<std::string> &args);
 
  private:
-  void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
-  bool IsMatchedRequest(const PlayerIndexElement &index) final;
+    bool IsMatchedRequest(const PlayerIndexElement &index) final;
 };
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	output_ << fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
-}
-
-void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (IsPlayerFound(author, index)) {
-		PrintCharInfoToOutput(index);
-	}
 }
 
 bool InspectRequestIp::IsMatchedRequest(const PlayerIndexElement &index) {
@@ -244,10 +245,9 @@ class InspectRequestMail : public InspectRequest {
  private:
   bool send_mail_{false};                // отправлять ли на мыло список чаров
 
-  void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
   bool IsMatchedRequest(const PlayerIndexElement &index) final;
   void SendInspectResult(DescriptorData *author_descriptor) final;
-  void SendEmail();
+  void SendOutputToEmail();
 };
 
 InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
@@ -260,12 +260,6 @@ InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string
 	}
 }
 
-void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (IsPlayerFound(author, index)) {
-		PrintCharInfoToOutput(index);
-	}
-}
-
 bool InspectRequestMail::IsMatchedRequest(const PlayerIndexElement &index) {
 	if (index.mail) {
 		return (strstr(index.mail, request_text_.c_str()));
@@ -275,12 +269,12 @@ bool InspectRequestMail::IsMatchedRequest(const PlayerIndexElement &index) {
 
 void InspectRequestMail::SendInspectResult(DescriptorData *author_descriptor) {
 	PrintFindStatToOutput();
-	SendEmail();
+	SendOutputToEmail();
 	PageOutputToAuthor(author_descriptor);
 }
 
-void InspectRequestMail::SendEmail() {
-	if (send_mail_ && found_ > 1) {
+void InspectRequestMail::SendOutputToEmail() {
+	if (send_mail_ && found_ > 0) {
 		SendListChar(output_, request_text_);
 		output_ << "Данный список отправлен игроку на емайл\r\n";
 	}
@@ -303,7 +297,6 @@ class InspectRequestChar : public InspectRequest {
   std::string mail_;
   std::string last_ip_;
 
-  void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
   bool IsMatchedRequest(const PlayerIndexElement &index) final;
 };
 
@@ -325,12 +318,6 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 		} else {
 			throw std::runtime_error("А ежели он ваc молнией по тыковке?\r\n");
 		}
-	}
-}
-
-void InspectRequestChar::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (IsPlayerFound(author, index)) {
-		PrintCharInfoToOutput(index);
 	}
 }
 
@@ -359,8 +346,8 @@ class InspectRequestAll : public InspectRequest {
   std::set<std::string> victim_ip_log_;	// айпи адреса по которым идет поиск
   std::ostringstream  logon_buffer_;	// буфер, в который накапливаются записи о коннектах проверяемого персонажа
 
-  void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
   bool IsMatchedRequest(const PlayerIndexElement &index) final;
+  void PrintOtherInfoToOutput() final;
 };
 
 InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> &args)
@@ -388,13 +375,10 @@ InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> 
 	}
 }
 
-void InspectRequestAll::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-	if (IsPlayerFound(author, index)) {
-		PrintCharInfoToOutput(index);
-		output_ << logon_buffer_.str();
-		logon_buffer_.str("");
-		logon_buffer_.clear();
-	}
+void InspectRequestAll::PrintOtherInfoToOutput() {
+	output_ << logon_buffer_.str();
+	logon_buffer_.str("");
+	logon_buffer_.clear();
 }
 
 bool InspectRequestAll::IsMatchedRequest(const PlayerIndexElement &index) {
