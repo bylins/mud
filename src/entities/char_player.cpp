@@ -938,7 +938,7 @@ void Player::save_char() {
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
 // на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
-int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/) {
+int Player::load_char_ascii(const char *name, const int load_flags) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
 	unsigned long long llnum = 0;
@@ -950,10 +950,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	TimedFeat timed_feat;
 	*filename = '\0';
 	log("Load ascii char %s", name);
-	if (!find_id) {
-		id = 1;
-	} else {
+	if (load_flags & ELoadCharFlags::kFindId) {
 		id = find_name(name);
+	} else {
+		id = 1;
 	}
 
 	bool result = id >= 0;
@@ -1064,7 +1064,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		}
 	} while (!skip_file);
 
-	//added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
+	bool reboot = (load_flags & ELoadCharFlags::kReboot);
 	while ((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this))) {
 		if (!fbgetline(fl, line)) {
 			log("SYSERROR: Wrong file ascii %d %s", id, filename);
@@ -1078,7 +1078,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		else if (!strcmp(tag, "Host"))
 			strcpy(GET_LASTIP(this), line);
 	}
-	//end by WorM
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
@@ -1097,7 +1096,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->account->add_player(this->get_uid());
 
 
-	if (reboot) {
+	if (load_flags & ELoadCharFlags::kReboot) {
 		fbclose(fl);
 		return id;
 	}
@@ -1920,7 +1919,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
-	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
+	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
+		FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
+	}
 
 	return (id);
 }

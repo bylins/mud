@@ -589,7 +589,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		auto seller_ptr = std::make_unique<Player>();
 		seller = seller_ptr.get(); // TODO: переделать на стек
 		if (seller_name == nullptr
-			|| load_char(seller_name, seller) < 0) {
+			|| load_char(seller_name, seller, ELoadCharFlags::kFindId) < 0) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			//edited by WorM 2011.05.21

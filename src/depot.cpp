@@ -178,7 +178,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 
 	Player t_ch;
 	Player *ch = &t_ch;
-	if (load_char(name.c_str(), ch) < 0)
+	if (load_char(name.c_str(), ch, ELoadCharFlags::kFindId) < 0)
 		return out.str();
 
 	char filename[kMaxStringLength];
@@ -344,7 +344,7 @@ void remove_char_entry(long uid, CharNode &node) {
 	if (!node.name.empty() && (node.money_spend || node.buffer_cost)) {
 		Player t_victim;
 		Player *victim = &t_victim;
-		if (load_char(node.name.c_str(), victim) > -1 && GET_UNIQUE(victim) == uid) {
+		if (load_char(node.name.c_str(), victim, ELoadCharFlags::kFindId) > -1 && GET_UNIQUE(victim) == uid) {
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
 			victim->remove_both_gold(total_pay);
 			victim->save_char();
@@ -1377,7 +1377,7 @@ void reload_char(long uid, CharData *ch) {
 	} else {
 		// чар соответственно оффлайн
 		const CharData::shared_ptr t_vict(new Player);
-		if (load_char(it->second.name.c_str(), t_vict.get()) < 0) {
+		if (load_char(it->second.name.c_str(), t_vict.get(), ELoadCharFlags::kFindId) < 0) {
 			// вообще эт нереальная ситуация после проверки в do_reboot
 			SendMsgToChar(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
 		}

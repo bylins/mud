@@ -605,7 +605,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		Player p_vict;
 		CharData *vict = &p_vict;
-		if (load_char(name.c_str(), vict) < 0) {
+		if (load_char(name.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
 		}
@@ -791,7 +791,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	Player t_vict; // TODO: мутно
 	if (!vict) {
-		if (load_char(arg, &t_vict) < 0) {
+		if (load_char(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}

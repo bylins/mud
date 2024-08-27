@@ -20,6 +20,7 @@
 #include "administration/name_adviser.h"
 #include "obj_save.h"
 #include "entities/obj_data.h"
+#include "entities/player_i.h"
 #include "structs/descriptor_data.h"
 #include "structs/structs.h"
 
@@ -56,7 +57,7 @@ long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
 
-int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
+int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
 int vnum_mobile(char *searchname, CharData *ch);
 void ClearCharTalents(CharData *ch);

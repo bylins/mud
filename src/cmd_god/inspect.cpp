@@ -36,11 +36,9 @@ class InspectRequest {
   bool IsFinished() const { return finished_; };
 
  protected:
-  bool finished_{false};
   int found_{0};                        // сколько всего найдено
-    std::string request_text_;
+  std::string request_text_;
   std::ostringstream output_;            // буфер в который накапливается вывод
-  struct timeval start_{};                // время когда запустили запрос
 
   virtual void SendInspectResult(DescriptorData *author_descriptor);
   void PageOutputToAuthor(DescriptorData *author_descriptor) const;
@@ -50,8 +48,10 @@ class InspectRequest {
   virtual bool IsMatchedRequest(const PlayerIndexElement &index) = 0;
 
  private:
+  bool finished_{false};
   int author_uid_{0};
   std::size_t player_table_pos_{0};            // текущая позиция поиска
+  struct timeval start_{};                // время когда запустили запрос
 
   virtual void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) = 0;
   void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
@@ -85,17 +85,16 @@ void InspectRequest::Inspect() {
 	timeval start_time{};
 	gettimeofday(&start_time, nullptr);
 	for (; player_table_pos_ < player_table.size(); ++player_table_pos_) {
-#ifdef TEST_BUILD
-		log("inspecting %d/%lu", 1 + player_table_pos_, player_table.size());
-#endif
 		if (IsTimeout(start_time)) {
 			return;
 		}
+#ifdef TEST_BUILD
+		log("inspecting %d/%lu", 1 + player_table_pos_, player_table.size());
+#endif
 		const auto &player_index = player_table[player_table_pos_];
 		if (IsAuthorLevelAcceptable(author.get(), player_index)) {
-			continue;
+			InspectIndex(author, player_index);
 		}
-		InspectIndex(author, player_index);
 	}
 
 	if (player_table_pos_ == player_table.size()) {
@@ -142,7 +141,7 @@ void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
 						   index.level, index.remorts, MUD::Class(index.plr_class).GetName());
 
 	auto player = std::make_shared<Player>();
-	if (load_char(index.name(), player.get()) > -1) {
+	if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
 		PrintClanAbbrevToOutput(player);
 		PrintPunishmentsInfoToOutput(player);
 	} else {
@@ -226,7 +225,7 @@ class InspectRequestIp : public InspectRequest {
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("Inspecting IP: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+	output_ << fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 }
 
 void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
@@ -324,13 +323,13 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 		auto player_pos = GetPtableByUnique(vict_uid_);
 		const auto &player_index = player_table[player_pos];
 		if (IsAuthorLevelAcceptable(author, player_index)) {
-			throw std::runtime_error("А ежели он ваc молнией по тыковке?.\r\n");
-		} else {
 			mail_ = player_index.mail;
 			last_ip_ = player_index.last_ip;
-			output_ << fmt::format("Incpecting character: {}{}{}. E-mail: {} Last IP: {}\r\n",
+			output_ << fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 								   KWHT, args[kRequestTextPos], KNRM, mail_, last_ip_);
 			PrintCharInfoToOutput(player_index);
+		} else {
+			throw std::runtime_error("А ежели он ваc молнией по тыковке?\r\n");
 		}
 	}
 }
@@ -362,6 +361,7 @@ class InspectRequestAll : public InspectRequest {
   explicit InspectRequestAll(CharData *author, std::vector<std::string> &args);
 
  private:
+  int vict_uid_{0};
   std::set<std::string> victim_ip_log_;	// айпи адреса по которым идет поиск
   std::ostringstream  logon_buffer_;	// буфер, в который накапливаются записи о коннектах проверяемого персонажа
 
@@ -376,8 +376,9 @@ InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> 
 	}
 
 	auto vict = std::make_shared<Player>();
-	if (load_char(request_text_.c_str(), vict.get()) > -1) {
+	if (load_char(request_text_.c_str(), vict.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
 		output_ << fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, request_text_, KNRM);
+		vict_uid_ = vict->get_uid();
 		auto player_pos = GetPtableByUnique(vict->get_uid());
 		const auto &player_index = player_table[player_pos];
 		PrintCharInfoToOutput(player_index);
@@ -403,9 +404,12 @@ void InspectRequestAll::InspectIndex(std::shared_ptr<CharData> &author, const Pl
 }
 
 bool InspectRequestAll::IsMatchedRequest(const PlayerIndexElement &index) {
+	if (vict_uid_ == index.unique) {
+		return false;
+	}
 	auto player = std::make_shared<Player>();
 	bool result{false};
-	if (load_char(index.name(), player.get()) > -1) {
+	if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
 		for (const auto &inspected_logon : LOGON_LIST(player)) {
 			if (!inspected_logon.ip) {
 				continue;

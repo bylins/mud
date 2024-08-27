@@ -167,7 +167,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		return 0;
 	}
 	Player t_vict;
-	if (load_char(GetNameByUnique(vict_uid).c_str(), &t_vict) < 0) {
+	if (load_char(GetNameByUnique(vict_uid).c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
 		return 0;
 	}
 	if (invalid_anti_class(&t_vict, obj)) {
@@ -442,7 +442,7 @@ void return_money(std::string const &name, int money, bool add) {
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек
-		if (load_char(name.c_str(), vict) < 0) {
+		if (load_char(name.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
 			delete vict;
 			return;
 		}

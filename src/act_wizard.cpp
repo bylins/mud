@@ -1089,7 +1089,7 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1126,7 +1126,7 @@ void setall_inspect() {
 						it->second->out += buf2;
 
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1162,7 +1162,7 @@ void setall_inspect() {
 						it->second->out += buf1;
 						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1196,7 +1196,7 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict, ELoadCharFlags::kFindId) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1433,7 +1433,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
-		if (load_char(arg, &t_vict) < 0) {
+		if (load_char(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
@@ -1627,7 +1627,7 @@ void do_unfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	while (!unfreeze_list.eof()) {
 		unfreeze_list >> name_buffer;
-		if (load_char(name_buffer.c_str(), &t_vict) < 0) {
+		if (load_char(name_buffer.c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
 			sprintf(buf, "Чара с именем %s не существует !\r\n", name_buffer.c_str());
 			SendMsgToChar(buf, ch);
 			continue;
@@ -2541,7 +2541,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	Player t_chdata;
 	Player *chdata = &t_chdata;
-	if (load_char(arg, chdata) < 0) {
+	if (load_char(arg, chdata, ELoadCharFlags::kFindId) < 0) {
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
@@ -3843,7 +3843,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		cbuf = std::make_unique<Player>();
-		if ((player_i = load_char(name, cbuf.get())) > -1) {
+		if ((player_i = load_char(name, cbuf.get(), ELoadCharFlags::kFindId)) > -1) {
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(cbuf) && !(is_head(ch->get_name_str()))) {

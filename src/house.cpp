@@ -489,7 +489,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	if (tempClan->bank > 0) {
 	  Player t_victim;
 	  Player *victim = &t_victim;
-	  if (load_char(tempClan->owner.c_str(), victim) < 0) {
+	  if (load_char(tempClan->owner.c_str(), victim, ELoadCharFlags::kFindId) < 0) {
 		log("SYSERROR: error read owner file %s for clan delete (%s:%d)",
 			tempClan->owner.c_str(), __FILE__, __LINE__);
 		return;
@@ -1255,7 +1255,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
   } else {
 	Player p_vict;
 	CharData *vict = &p_vict;
-	if (load_char(name.c_str(), vict) > -1) {
+	if (load_char(name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
 	  sprintf(buf, "Исключен(а) из дружины '%s'", this->name.c_str());
 	  add_karma(vict, buf, reason);
 	  vict->save_char();
@@ -2112,7 +2112,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 	if (!tch) // если нет онлайн
 	{
 	  cbuf = new Player;
-	  if (load_char(player_table[i].name(), cbuf) > -1) {
+	  if (load_char(player_table[i].name(), cbuf, ELoadCharFlags::kFindId) > -1) {
 		GET_LOADROOM(cbuf) = mortal_start_room;
 		cbuf->save_char();
 	  }
@@ -2170,7 +2170,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan, char *reason) {
 	}
 	Player p_vict;
 	CharData *vict = &p_vict;
-	if (load_char(it.second->name.c_str(), vict) > -1) {
+	if (load_char(it.second->name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
 	  sprintf(smallbuf, "Исключен(а) из дружины '%s'. (распущена)", clan->get_abbrev().c_str());
 	  add_karma(vict, smallbuf, reason);
 	  vict->save_char();

@@ -2845,7 +2845,7 @@ void nanny(DescriptorData *d, char *argument) {
 	  } else {
 		if (sscanf(argument, "%s %s", pwd_name, pwd_pwd) == 2) {
 		  if (parse_exist_name(pwd_name, tmp_name)
-			  || (player_i = load_char(tmp_name, d->character.get())) < 0) {
+			  || (player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId)) < 0) {
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		  }
@@ -2878,7 +2878,7 @@ void nanny(DescriptorData *d, char *argument) {
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		  } else if (!Is_Valid_Dc(tmp_name)) {
-			player_i = load_char(tmp_name, d->character.get());
+			player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 			d->character->set_pfilepos(player_i);
 			if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
 			  SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
@@ -2893,7 +2893,7 @@ void nanny(DescriptorData *d, char *argument) {
 		  }
 		}
 
-		player_i = load_char(tmp_name, d->character.get());
+		player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 		if (player_i > -1) {
 		  d->character->set_pfilepos(player_i);
 		  if (PLR_FLAGGED(d->character,
@@ -3038,7 +3038,7 @@ void nanny(DescriptorData *d, char *argument) {
 		return;
 	  }
 
-	  player_i = load_char(tmp_name, d->character.get());
+	  player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 	  is_player_deleted = false;
 	  if (player_i > -1) {
 		is_player_deleted = PLR_FLAGGED(d->character, EPlrFlag::kDeleted);
