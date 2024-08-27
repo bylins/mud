@@ -18,9 +18,8 @@ const int kRequestTextPos{1};
 
 extern bool need_warn;
 
-char *PrintPunishmentTime(int time);
+char *PrintPunishmentTime(time_t time);
 void SendListChar(const std::ostringstream &list_char, const std::string &email);
-std::string GelClanAbbrev(std::shared_ptr<Player> &player);
 
 class InspectRequest {
  public:
@@ -48,7 +47,9 @@ class InspectRequest {
   std::size_t player_table_pos_{0};            // текущая позиция поиска
 
   virtual void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) = 0;
-  void PrintPunishmentToOutput(std::shared_ptr<Player> &player);
+  void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
+  void PrintSinglePunishmentInfoToOutput(std::string_view name, const Punish &punish);
+  void PrintClanAbbrevToOutput(std::shared_ptr<Player> &player);
 };
 
 InspectRequest::InspectRequest(CharData *author, std::vector<std::string> &args) {
@@ -87,7 +88,6 @@ void InspectRequest::Inspect() {
 		log("inspecting %d/%lu", 1 + player_table_pos_, player_table.size());
 #endif
 		const auto &inspected_index = player_table[player_table_pos_];
-		//(request->search_for == EInspect::kChar && request->vict_uid == inspected_index.unique)
 		if ((inspected_index.level >= kLvlImmortal && !IS_GRGOD(author))
 			|| (inspected_index.level > GetRealLevel(author) && !IS_IMPL(author))) {
 			continue;
@@ -124,59 +124,55 @@ void InspectRequest::PrintFindStatToOutput() {
 void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
 	DescriptorData *d_vict = DescriptorByUid(index.unique);
 	time_t mytime = index.last_logon;
+	output_ << fmt::format("{:-^121}\r\n", "*");
+	output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {}. Level {}, Remort {}, Class: {}",
+						   (d_vict ? KIGRN : KIWHT), index.name(), KNRM,
+						   index.mail, rustime(localtime(&mytime)), index.level,
+						   index.remorts, MUD::Class(index.plr_class).GetName());
 
 	auto player = std::make_shared<Player>();
-	auto player_loaded = (load_char(index.name(), player.get()) > -1);
-
-	output_ << fmt::format("{:-^121}\r\n", "*");
-	output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {}. Level {}, Remort {}, Class: {}, Clan: {}.\r\n",
-						   (d_vict ? KIGRN : KIWHT), index.name(), KNRM,
-						   index.mail, rustime(localtime(&mytime)), index.level, index.remorts,
-						   MUD::Class(index.plr_class).GetName(), player_loaded ? GelClanAbbrev(player) : "нет");
-
-
-	if (player_loaded) {
-		PrintPunishmentToOutput(player);
+	if (load_char(index.name(), player.get()) > -1) {
+		PrintClanAbbrevToOutput(player);
+		PrintPunishmentsInfoToOutput(player);
+	} else {
+		output_ << ".\r\n";
 	}
 }
 
-std::string GelClanAbbrev(std::shared_ptr<Player> &player) {
+void InspectRequest::PrintClanAbbrevToOutput(std::shared_ptr<Player> &player) {
 	Clan::SetClanData(player.get());
 	if (CLAN(player)) {
-		return (player)->player_specials->clan->GetAbbrev();
+		output_ << fmt::format(", Clan: {}.\r\n", (player)->player_specials->clan->GetAbbrev());
+	} else {
+		output_ << ", Clan: нет.\r\n";
 	}
-	return "нет";
 }
 
-void InspectRequest::PrintPunishmentToOutput(std::shared_ptr<Player> &player) {
-	if (PLR_FLAGGED(player, EPlrFlag::kFrozen) && FREEZE_DURATION(player)) {
-		output_ << fmt::format("FREEZE : {} [{}].\r\n",
-						   PrintPunishmentTime(FREEZE_DURATION(player) - time(nullptr)),
-						   FREEZE_REASON(player) ? FREEZE_REASON(player) : "-");
+void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player) {
+	if (PLR_FLAGGED(player, EPlrFlag::kFrozen)) {
+		PrintSinglePunishmentInfoToOutput("FREEZE", player->player_specials->pfreeze);
 	}
-
-	if (PLR_FLAGGED(player, EPlrFlag::kMuted) && MUTE_DURATION(player)) {
-		output_ << fmt::format("MUTE   : {} [{}].\r\n",
-						   PrintPunishmentTime(MUTE_DURATION(player) - time(nullptr)),
-						   MUTE_REASON(player) ? MUTE_REASON(player) : "-");
+	if (PLR_FLAGGED(player, EPlrFlag::kMuted)) {
+		PrintSinglePunishmentInfoToOutput("MUTE", player->player_specials->pmute);
 	}
-
-	if (PLR_FLAGGED(player, EPlrFlag::kDumbed) && DUMB_DURATION(player)) {
-		output_ << fmt::format("DUMB   : {} [{}].\r\n",
-						   PrintPunishmentTime(DUMB_DURATION(player) - time(nullptr)),
-						   DUMB_REASON(player) ? DUMB_REASON(player) : "-");
+	if (PLR_FLAGGED(player, EPlrFlag::kDumbed)) {
+		PrintSinglePunishmentInfoToOutput("DUMB", player->player_specials->pdumb);
 	}
-
-	if (PLR_FLAGGED(player, EPlrFlag::kHelled) && HELL_DURATION(player)) {
-		output_ << fmt::format("HELL   : {} [{}].\r\n",
-						   PrintPunishmentTime(HELL_DURATION(player) - time(nullptr)),
-						   HELL_REASON(player) ? HELL_REASON(player) : "-");
+	if (PLR_FLAGGED(player, EPlrFlag::kHelled)) {
+		PrintSinglePunishmentInfoToOutput("HELL", player->player_specials->phell);
 	}
+	if (!PLR_FLAGGED(player, EPlrFlag::kRegistred)) {
+		PrintSinglePunishmentInfoToOutput("UNREG", player->player_specials->punreg);
+	}
+}
 
-	if (!PLR_FLAGGED(player, EPlrFlag::kRegistred) && UNREG_DURATION(player)) {
-		output_ << fmt::format("UNREG  : {} [{}].\r\n",
-						   PrintPunishmentTime(UNREG_DURATION(player) - time(nullptr)),
-						   UNREG_REASON(player) ? UNREG_REASON(player) : "-");
+void InspectRequest::PrintSinglePunishmentInfoToOutput(std::string_view name, const Punish &punish) {
+	if (punish.duration) {
+		const std::string_view output_format("{:<6}: {} [{}].\r\n");
+		output_ << fmt::format(fmt::runtime(output_format),
+							   name,
+							   PrintPunishmentTime(punish.duration - time(nullptr)),
+							   punish.reason ? punish.reason : "-");
 	}
 }
 
@@ -193,7 +189,7 @@ class InspectRequestIp : public InspectRequest {
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("Inspecting IP: {}&S{}&s{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+	output_ << fmt::format("Inspecting IP: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 }
 
 void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &/* author */, const PlayerIndexElement &index) {
@@ -223,7 +219,7 @@ class InspectRequestMail : public InspectRequest {
 
 InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("Inspecting e-mail: {}&S{}&s{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+	output_ << fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 	if (args.size() > kMinArgsNumber) {
 		if (isname(args.back(), "send_mail")) {
 			send_mail_ = true;
@@ -269,20 +265,27 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 	: InspectRequest(author, args) {
 	const auto victim_name = args[kRequestTextPos];
 	vict_uid_ = GetUniqueByName(victim_name);
-	auto player_pos = GetPtableByUnique(vict_uid_);
-	const auto &player_index = player_table[player_pos];
-	if ((vict_uid_ <= 0)
-		|| (player_index.level >= kLvlImmortal && !IS_GRGOD(author))
-		|| (player_index.level > GetRealLevel(author) && !IS_IMPL(author))) {
-		SendMsgToChar(author, "Некорректное имя персонажа (%s) Inspecting char.\r\n", victim_name.c_str());
+	if (vict_uid_ <= 0) {
+		SendMsgToChar(author, "Неизвестное имя персонажа (%s) Inspecting char.\r\n", victim_name.c_str());
 		finished_ = true;
 	} else {
-		output_ << fmt::format("Char: {}&S{}&s{}\r\n", KWHT, args[kRequestTextPos], KNRM);
-		mail_ = player_index.mail;
+		auto player_pos = GetPtableByUnique(vict_uid_);
+		const auto &player_index = player_table[player_pos];
+		if ((player_index.level >= kLvlImmortal && !IS_GRGOD(author))
+			|| (player_index.level > GetRealLevel(author) && !IS_IMPL(author))) {
+			SendMsgToChar("А ежели он вам молнией по тыковке?.\r\n", author);
+			finished_ = true;
+		} else {
+			output_ << fmt::format("Char: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+			mail_ = player_index.mail;
+		}
 	}
 }
 
 void InspectRequestChar::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
+	if (vict_uid_ == index.unique) {
+		return;
+	}
 	finished_ = true;
 }
 
@@ -366,21 +369,25 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (utils::IsAbbr(request_type.c_str(), "mail")) {
-		InspReqPtr request = std::make_shared<InspectRequestMail>(ch, args);
-		MUD::inspect_list()[ch->get_pfilepos()] = request;
+//		InspReqPtr request = std::make_shared<InspectRequestMail>(ch, args);
+//		MUD::inspect_list()[ch->get_pfilepos()] = request;
+		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestMail>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "ip")) {
-		InspReqPtr request = std::make_shared<InspectRequestIp>(ch, args);
-		MUD::inspect_list()[ch->get_pfilepos()] = request;
+//		InspReqPtr request = std::make_shared<InspectRequestIp>(ch, args);
+//		MUD::inspect_list()[ch->get_pfilepos()] = request;
+		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestIp>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "char")) {
-		InspReqPtr request = std::make_shared<InspectRequestChar>(ch, args);
-		MUD::inspect_list()[ch->get_pfilepos()] = request;
+//		InspReqPtr request = std::make_shared<InspectRequestChar>(ch, args);
+//		MUD::inspect_list()[ch->get_pfilepos()] = request;
+		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestChar>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "all")) {
 		if (!IS_GRGOD(ch)) {
 			SendMsgToChar("Вы не столь божественны, как вам кажется.\r\n", ch);
 			return;
 		}
-		InspReqPtr request = std::make_shared<InspectRequestAll>(ch, args);
-		MUD::inspect_list()[ch->get_pfilepos()] = request;
+//		InspReqPtr request = std::make_shared<InspectRequestAll>(ch, args);
+//		MUD::inspect_list()[ch->get_pfilepos()] = request;
+		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestAll>(ch, args));
 	}
 	SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
 }
@@ -395,14 +402,6 @@ void Inspecting() {
 	if (it->second->IsFinished()) {
 		MUD::inspect_list().erase(it);
 	}
-
-//	for (; request->player_table_pos < static_cast<int>(player_table.size()); request->player_table_pos++) {
-//		const auto &inspected_index = player_table[request->player_table_pos];
-//		if ((request->search_for == EInspect::kChar && request->vict_uid == inspected_index.unique)
-//			|| (inspected_index.level >= kLvlImmortal && !IS_GRGOD(ch))
-//			|| (inspected_index.level > GetRealLevel(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
-//			continue;
-//		}
 
 //		if (request->search_for == EInspect::kIp || request->search_for == EInspect::kChar) {
 //			if (!request->full_search) {
@@ -443,7 +442,7 @@ void Inspecting() {
 //	}
 }
 
-char *PrintPunishmentTime(int time) {
+char *PrintPunishmentTime(time_t time) {
 	static char time_buf[16];
 	time_buf[0] = '\0';
 	if (time < 3600)
@@ -466,46 +465,6 @@ void SendListChar(const std::ostringstream &list_char, const std::string &email)
 }
 
 /*
-
- time_t tmp_time = player_table[player_index].last_logon;
-   DescriptorData *d_vict = DescriptorByUid(request_ptr->vict_uid);
-  std::ostringstream out;
-  out << fmt::format(
-		  "Персонаж: {}{}{} e-mail: {}&S{}&s{} Last: {}{}{} from IP: {}{}{}\r\n",
-		  (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[player_index].name(), CCNRM(ch, C_SPR),
-		  CCWHT(ch, C_SPR), request_ptr->mail, CCNRM(ch, C_SPR),
-		  CCWHT(ch, C_SPR), rustime(localtime(&tmp_time)), CCNRM(ch, C_SPR),
-		  CCWHT(ch, C_SPR), player_table[player_index].last_ip, CCNRM(ch, C_SPR));
-  Player vict;
-//  char clan_status[kMaxInputLength];
-  sprintf(clan_status, "%s", "нет");
-  if ((load_char(player_table[player_index].name(), &vict)) > -1) {
-	Clan::SetClanData(&vict);
-	if (CLAN(&vict)) {
-	  sprintf(clan_status, "%s", (&vict)->player_specials->clan->GetAbbrev());
-	}
-	PrintPunishmentToOutput(&vict, buf2);
-  }
-
-  time_t mytime = player_table[player_index].last_logon;
-  sprintf(buf1, "Last: %s. Level %d, Remort %d, Проф: %s, Клан: %s.\r\n",
-		  rustime(localtime(&mytime)),
-		  player_table[player_index].level, player_table[player_index].remorts,
-		  MUD::Class(player_table[player_index].plr_class).GetCName(), clan_status);
-  strcat(buf, buf1);
-
-  if (request_ptr->full_search) {
-	CharData::shared_ptr target;
-	if (d_vict) {
-	  target = d_vict->character;
-	} else {
-	  target = std::make_shared<Player>();
-	  if (load_char(request_ptr->request_text.c_str(), target.get()) < 0) {
-		auto msg = fmt::format("Некорректное имя персонажа ({}) Inspecting char.\r\n", request_ptr->request_text);
-		SendMsgToChar(msg, ch);
-		return;
-	  }
-	}
 
 	if (target && !LOGON_LIST(target).empty()) {
 #ifdef TEST_BUILD
