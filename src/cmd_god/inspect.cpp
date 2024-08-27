@@ -20,6 +20,11 @@ extern bool need_warn;
 
 char *PrintPunishmentTime(time_t time);
 void SendListChar(const std::ostringstream &list_char, const std::string &email);
+bool IsTimeout(timeval &start_time);
+bool IsAuthorLevelPoor(CharData *author, const PlayerIndexElement &index);
+bool IsRequestAlreadySent(CharData *ch);
+bool IsArgsIncorrect(CharData *ch, std::vector<std::string> &args);
+void CreateRequest(CharData *ch, std::vector<std::string> &args);
 
 class InspectRequest {
  public:
@@ -28,17 +33,16 @@ class InspectRequest {
   void Inspect();
   bool IsFinished() const { return finished_; };
 
-  std::ostringstream output_;            // буфер в который накапливается вывод
-  struct timeval start_{};                // время когда запустили запрос для отладки
-
  protected:
   bool finished_{false};
   int found_{0};                        // сколько всего найдено
   int vict_uid_{0};
   std::string request_text_;
+  std::ostringstream output_;            // буфер в который накапливается вывод
+  struct timeval start_{};                // время когда запустили запрос
 
-  virtual void SendInspectResult();
-  void PageOutputToAuthor() const;
+  virtual void SendInspectResult(DescriptorData *author_descriptor);
+  void PageOutputToAuthor(DescriptorData *author_descriptor) const;
   void PrintFindStatToOutput();
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
 
@@ -75,42 +79,44 @@ void InspectRequest::Inspect() {
 		return;
 	}
 
-	timeval start{}, stop{}, result{};
 	need_warn = false;
-	gettimeofday(&start, nullptr);
+	timeval start_time{};
+	gettimeofday(&start_time, nullptr);
 	for (; player_table_pos_ < player_table.size(); ++player_table_pos_) {
-		gettimeofday(&stop, nullptr);
-		timediff(&result, &stop, &start);
-		if (result.tv_sec > 0 || result.tv_usec >= kOptUsec) {
-			return;
-		}
 #ifdef TEST_BUILD
 		log("inspecting %d/%lu", 1 + player_table_pos_, player_table.size());
 #endif
-		const auto &inspected_index = player_table[player_table_pos_];
-		if ((inspected_index.level >= kLvlImmortal && !IS_GRGOD(author))
-			|| (inspected_index.level > GetRealLevel(author) && !IS_IMPL(author))) {
+		if (IsTimeout(start_time)) {
+			return;
+		}
+		const auto &player_index = player_table[player_table_pos_];
+		if (IsAuthorLevelPoor(author.get(), player_index)) {
 			continue;
 		}
-		InspectIndex(author, inspected_index);
+		InspectIndex(author, player_index);
 	}
 
 	if (player_table_pos_ == player_table.size()) {
-		SendInspectResult();
+		SendInspectResult(author_descriptor);
 		finished_ = true;
 	}
 }
 
-void InspectRequest::SendInspectResult() {
-	PrintFindStatToOutput();
-	PageOutputToAuthor();
+bool IsTimeout(timeval &start_time) {
+	timeval current_time{}, delta_time{};
+	gettimeofday(&current_time, nullptr);
+	timediff(&delta_time, &current_time, &start_time);
+	return (delta_time.tv_sec > 0 || delta_time.tv_usec >= kOptUsec);
 }
 
-void InspectRequest::PageOutputToAuthor() const {
-	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
-	if (author_descriptor && (author_descriptor->connected == CON_PLAYING)) {
-		page_string(author_descriptor, output_.str());
-	}
+bool IsAuthorLevelPoor(CharData *author, const PlayerIndexElement &index) {
+	return ((index.level >= kLvlImmortal && !IS_GRGOD(author))
+		|| (index.level > GetRealLevel(author) && !IS_IMPL(author)));
+}
+
+void InspectRequest::SendInspectResult(DescriptorData *author_descriptor) {
+	PrintFindStatToOutput();
+	PageOutputToAuthor(author_descriptor);
 }
 
 void InspectRequest::PrintFindStatToOutput() {
@@ -121,14 +127,18 @@ void InspectRequest::PrintFindStatToOutput() {
 	output_ << fmt::format("Всего найдено: {} за {} сек.\r\n", found_, result.tv_sec);
 }
 
+void InspectRequest::PageOutputToAuthor(DescriptorData *author_descriptor) const {
+	page_string(author_descriptor, output_.str());
+}
+
 void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
 	DescriptorData *d_vict = DescriptorByUid(index.unique);
 	time_t mytime = index.last_logon;
 	output_ << fmt::format("{:-^121}\r\n", "*");
-	output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {}. Level {}, Remort {}, Class: {}",
+	output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {} from IP: {}, Level {}, Remort {}, Class: {}",
 						   (d_vict ? KIGRN : KIWHT), index.name(), KNRM,
-						   index.mail, rustime(localtime(&mytime)), index.level,
-						   index.remorts, MUD::Class(index.plr_class).GetName());
+						   index.mail, rustime(localtime(&mytime)), index.last_ip,
+						   index.level, index.remorts, MUD::Class(index.plr_class).GetName());
 
 	auto player = std::make_shared<Player>();
 	if (load_char(index.name(), player.get()) > -1) {
@@ -176,6 +186,23 @@ void InspectRequest::PrintSinglePunishmentInfoToOutput(std::string_view name, co
 	}
 }
 
+char *PrintPunishmentTime(time_t time) {
+	static char time_buf[16];
+	time_buf[0] = '\0';
+	if (time < 3600) {
+		snprintf(time_buf, sizeof(time_buf), "%d m", (int) time / 60);
+	} else if (time < 3600 * 24) {
+		snprintf(time_buf, sizeof(time_buf), "%d h", (int) time / 3600);
+	} else if (time < 3600 * 24 * 30) {
+		snprintf(time_buf, sizeof(time_buf), "%d D", (int) time / (3600 * 24));
+	} else if (time < 3600 * 24 * 365) {
+		snprintf(time_buf, sizeof(time_buf), "%d M", (int) time / (3600 * 24 * 30));
+	} else {
+		snprintf(time_buf, sizeof(time_buf), "%d Y", (int) time / (3600 * 24 * 365));
+	}
+	return time_buf;
+}
+
 // =======================================  INSPECT IP  ============================================
 
 class InspectRequestIp : public InspectRequest {
@@ -183,7 +210,6 @@ class InspectRequestIp : public InspectRequest {
   explicit InspectRequestIp(CharData *author, std::vector<std::string> &args);
 
  private:
-  std::vector<Logon> ip_log_;
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
 };
 
@@ -192,10 +218,9 @@ InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &a
 	output_ << fmt::format("Inspecting IP: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 }
 
-void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &/* author */, const PlayerIndexElement &index) {
-	if (index.last_ip) {
-		if (strstr(index.last_ip, request_text_.c_str())
-			|| (!ip_log_.empty() && !str_cmp(index.last_ip, ip_log_.at(0).ip))) {
+void InspectRequestIp::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
+	if (index.last_ip && !IsAuthorLevelPoor(author.get(), index)) {
+		if (strstr(index.last_ip, request_text_.c_str())) {
 			++found_;
 			PrintCharInfoToOutput(index);
 			output_ << fmt::format(" IP: {}{:<16}{}\r\n", KICYN, index.last_ip, KNRM);
@@ -213,7 +238,7 @@ class InspectRequestMail : public InspectRequest {
   bool send_mail_{false};                // отправлять ли на мыло список чаров
 
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
-  void SendInspectResult() final;
+  void SendInspectResult(DescriptorData *author_descriptor) final;
   void SendEmail();
 };
 
@@ -227,8 +252,8 @@ InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string
 	}
 }
 
-void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> & /* author */, const PlayerIndexElement &index) {
-	if (index.mail) {
+void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
+	if (index.mail && !IsAuthorLevelPoor(author.get(), index)) {
 		if (strstr(index.mail, request_text_.c_str())) {
 			++found_;
 			PrintCharInfoToOutput(index);
@@ -236,10 +261,10 @@ void InspectRequestMail::InspectIndex(std::shared_ptr<CharData> & /* author */, 
 	}
 }
 
-void InspectRequestMail::SendInspectResult() {
+void InspectRequestMail::SendInspectResult(DescriptorData *author_descriptor) {
 	PrintFindStatToOutput();
 	SendEmail();
-	PageOutputToAuthor();
+	PageOutputToAuthor(author_descriptor);
 }
 
 void InspectRequestMail::SendEmail() {
@@ -247,6 +272,12 @@ void InspectRequestMail::SendEmail() {
 		SendListChar(output_, request_text_);
 		output_ << "Данный список отправлен игроку на емайл\r\n";
 	}
+}
+
+void SendListChar(const std::ostringstream &list_char, const std::string &email) {
+	std::string cmd_line = "python3 SendListChar.py " + email + " " + list_char.str() + " &";
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
 }
 
 // =======================================  INSPECT CHAR  ============================================
@@ -257,6 +288,7 @@ class InspectRequestChar : public InspectRequest {
 
  private:
   std::string mail_;
+  std::vector<Logon> ip_log_;
 
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) final;
 };
@@ -271,13 +303,13 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 	} else {
 		auto player_pos = GetPtableByUnique(vict_uid_);
 		const auto &player_index = player_table[player_pos];
-		if ((player_index.level >= kLvlImmortal && !IS_GRGOD(author))
-			|| (player_index.level > GetRealLevel(author) && !IS_IMPL(author))) {
+		if (IsAuthorLevelPoor(author, player_index)) {
 			SendMsgToChar("А ежели он вам молнией по тыковке?.\r\n", author);
 			finished_ = true;
 		} else {
-			output_ << fmt::format("Char: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+			output_ << fmt::format("Incpecting character: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
 			mail_ = player_index.mail;
+			PrintCharInfoToOutput(player_index);
 		}
 	}
 }
@@ -308,22 +340,6 @@ InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> 
 }
 
 void InspectRequestAll::InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
-//	if (request->search_for != EInspect::kMail && request->full_search) {
-//		if (d_vict) {
-//			vict = d_vict->character;
-//		} else {
-//			vict = std::make_shared<Player>();
-//			if (load_char(inspected_index.name(), vict.get()) < 0) {
-//				auto msg = fmt::format("Некорректное имя персонажа ({}) Inspecting {}: {}.\r\n",
-//									   inspected_index.name(),
-//									   (request->search_for == EInspect::kMail ? "mail" :
-//										(request->search_for == EInspect::kIp ? "ip" : "char")),
-//									   request->request_text);
-//				SendMsgToChar(msg, ch);
-//				continue;
-//			}
-//		}
-//	}
 	finished_ = true;
 }
 
@@ -334,59 +350,69 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	auto it_inspect = MUD::inspect_list().find(ch->get_uid());
-	auto it_setall = setall_inspect_list.find(ch->get_uid());
-	if (it_inspect != MUD::inspect_list().end() && it_setall != setall_inspect_list.end()) {
-		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
+	if (IsRequestAlreadySent(ch)) {
 		return;
 	}
 
 	std::vector<std::string> args;
 	array_argument(argument, args);
-	if (args.size() < kMinArgsNumber) {
-		SendMsgToChar("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n", ch);
+	if (IsArgsIncorrect(ch, args)) {
 		return;
 	}
 
-	auto &request_type = args[kRequestTypePos];
-	auto &request_text = args[kRequestTextPos];
-	if (!isname(request_type, "mail ip char all")) {
-		SendMsgToChar("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
-		return;
+	CreateRequest(ch, args);
+}
+
+bool IsRequestAlreadySent(CharData *ch) {
+	auto it_inspect = MUD::inspect_list().find(ch->get_uid());
+	auto it_setall = setall_inspect_list.find(ch->get_uid());
+	if (it_inspect != MUD::inspect_list().end() || it_setall != setall_inspect_list.end()) {
+		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
+		return true;
 	}
+	return false;
+}
+
+bool IsArgsIncorrect(CharData *ch, std::vector<std::string> &args) {
+	if (args.size() < kMinArgsNumber) {
+		SendMsgToChar("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n", ch);
+		return true;
+	}
+	if (!isname(args[kRequestTypePos], "mail ip char all")) {
+		SendMsgToChar("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
+		return true;
+	}
+
+	auto &request_text = args[kRequestTextPos];
 	if (request_text.length() < kMinRequestLength) {
 		SendMsgToChar("Слишком короткий запрос.\r\n", ch);
-		return;
+		return true;
 	}
 	if (request_text.length() > kMaxRequestLength) {
 		SendMsgToChar("Слишком длинный запрос.\r\n", ch);
-		return;
+		return true;
 	}
 	if (utils::IsAbbr(request_text.c_str(), "char") && (GetUniqueByName(request_text) <= 0)) {
 		auto msg = fmt::format("Некорректное имя персонажа ({}) Inspecting char.\r\n", request_text);
 		SendMsgToChar(msg, ch);
-		return;
+		return true;
 	}
+	return false;
+}
 
+void CreateRequest(CharData *ch, std::vector<std::string> &args) {
+	auto &request_type = args[kRequestTypePos];
 	if (utils::IsAbbr(request_type.c_str(), "mail")) {
-//		InspReqPtr request = std::make_shared<InspectRequestMail>(ch, args);
-//		MUD::inspect_list()[ch->get_pfilepos()] = request;
 		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestMail>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "ip")) {
-//		InspReqPtr request = std::make_shared<InspectRequestIp>(ch, args);
-//		MUD::inspect_list()[ch->get_pfilepos()] = request;
 		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestIp>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "char")) {
-//		InspReqPtr request = std::make_shared<InspectRequestChar>(ch, args);
-//		MUD::inspect_list()[ch->get_pfilepos()] = request;
 		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestChar>(ch, args));
 	} else if (utils::IsAbbr(request_type.c_str(), "all")) {
 		if (!IS_GRGOD(ch)) {
 			SendMsgToChar("Вы не столь божественны, как вам кажется.\r\n", ch);
 			return;
 		}
-//		InspReqPtr request = std::make_shared<InspectRequestAll>(ch, args);
-//		MUD::inspect_list()[ch->get_pfilepos()] = request;
 		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestAll>(ch, args));
 	}
 	SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
@@ -402,84 +428,6 @@ void Inspecting() {
 	if (it->second->IsFinished()) {
 		MUD::inspect_list().erase(it);
 	}
-
-//		if (request->search_for == EInspect::kIp || request->search_for == EInspect::kChar) {
-//			if (!request->full_search) {
-//				if (inspected_index.last_ip) {
-//					if ((request->search_for == EInspect::kIp
-//						&& strstr(inspected_index.last_ip, request->request_text.c_str()))
-//						|| (!request->ip_log.empty()
-//							&& !str_cmp(inspected_index.last_ip, request->ip_log.at(0).ip))) {
-//						sprintf(buf1 + strlen(buf1),
-//								" IP:%s%-16s%s\r\n",
-//								(request->search_for == EInspect::kChar ? CCBLU(ch, C_SPR) : ""),
-//								inspected_index.last_ip,
-//								(request->search_for == EInspect::kChar ? CCNRM(ch, C_SPR) : ""));
-//					}
-//				}
-//			} else if (vict && !LOGON_LIST(vict).empty()) {
-//				for (const auto &cur_log : LOGON_LIST(vict)) {
-//					for (const auto &ch_log : request->ip_log) {
-//						if (!ch_log.ip) {
-//							SendMsgToChar(ch, "Ошибка: пустой ip\r\n");
-//							break;
-//						}
-//						if (str_cmp(cur_log.ip, "135.181.219.76")) { // игнорим bylins.online
-//							if (!str_cmp(cur_log.ip, ch_log.ip)) {
-//								sprintf(buf1 + strlen(buf1),
-//										" IP:%s%-16s%s Количество входов с него:%5ld Последний раз: %-30s\r\n",
-//										CCBLU(ch, C_SPR),
-//										cur_log.ip,
-//										CCNRM(ch, C_SPR),
-//										cur_log.count,
-//										rustime(localtime(&cur_log.lasttime)));
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
 }
-
-char *PrintPunishmentTime(time_t time) {
-	static char time_buf[16];
-	time_buf[0] = '\0';
-	if (time < 3600)
-		snprintf(time_buf, sizeof(time_buf), "%d m", (int) time / 60);
-	else if (time < 3600 * 24)
-		snprintf(time_buf, sizeof(time_buf), "%d h", (int) time / 3600);
-	else if (time < 3600 * 24 * 30)
-		snprintf(time_buf, sizeof(time_buf), "%d D", (int) time / (3600 * 24));
-	else if (time < 3600 * 24 * 365)
-		snprintf(time_buf, sizeof(time_buf), "%d M", (int) time / (3600 * 24 * 30));
-	else
-		snprintf(time_buf, sizeof(time_buf), "%d Y", (int) time / (3600 * 24 * 365));
-	return time_buf;
-}
-
-void SendListChar(const std::ostringstream &list_char, const std::string &email) {
-	std::string cmd_line = "python3 SendListChar.py " + email + " " + list_char.str() + " &";
-	auto result = system(cmd_line.c_str());
-	UNUSED_ARG(result);
-}
-
-/*
-
-	if (target && !LOGON_LIST(target).empty()) {
-#ifdef TEST_BUILD
-	  log("filling logon list");
-#endif
-	  for (const auto &cur_log : LOGON_LIST(target)) {
-		const Logon logon = {str_dup(cur_log.ip), cur_log.count, cur_log.lasttime, false};
-		request_ptr->ip_log.push_back(logon);
-	  }
-	}
-  } else {
-	const Logon logon = {str_dup(player_table[player_index].last_ip), 0, player_table[player_index].last_logon, false};
-	request_ptr->ip_log.push_back(logon);
-  }
-
- */
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
