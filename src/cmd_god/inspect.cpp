@@ -17,9 +17,8 @@ const int kMinArgsNumber{2};
 const int kRequestTypePos{0};
 const int kRequestTextPos{1};
 
-const std::set<std::string> ignored_ip = {"135.181.219.76"};
+const std::set<std::string> kIgnoredIpChecklist = {"135.181.219.76"};
 
-void SendListChar(const std::ostringstream &list_char, const std::string &email);
 bool IsTimeout(timeval &start_time);
 bool IsAuthorLevelAcceptable(CharData *author, const PlayerIndexElement &index);
 void CheckSentRequests(CharData *ch);
@@ -34,23 +33,26 @@ class InspectRequest {
   bool IsFinished() const { return finished_; };
 
  protected:
-  int found_{0};                        // сколько всего найдено
   std::string request_text_;
-  std::ostringstream output_;            // буфер в который накапливается вывод
 
   virtual void SendInspectResult(DescriptorData *author_descriptor);
   void PageOutputToAuthor(DescriptorData *author_descriptor) const;
   void PrintFindStatToOutput();
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
   bool IsPlayerFound(std::shared_ptr<CharData> &author, const PlayerIndexElement &index);
+  void AddToOutput(const std::string &str) { output_ << str; };
+  void MailOutputTo(const std::string &email);
+  bool GetNumFound() const { return found_; };
   virtual bool IsMatchedRequest(const PlayerIndexElement &index) = 0;
   virtual void PrintOtherInfoToOutput() { }
 
  private:
   bool finished_{false};
   int author_uid_{0};
-  std::size_t player_table_pos_{0};            // текущая позиция поиска
-  struct timeval start_{};                // время когда запустили запрос
+  int found_{0};                    // сколько всего найдено
+  std::size_t player_table_pos_{0};	// текущая позиция поиска
+  struct timeval start_{};          // время когда запустили запрос
+  std::ostringstream output_;       // буфер в который накапливается вывод
 
   void InspectIndex(std::shared_ptr<CharData> &author, const PlayerIndexElement &index);
   void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
@@ -196,6 +198,12 @@ bool InspectRequest::IsPlayerFound(std::shared_ptr<CharData> &author, const Play
 	return false;
 }
 
+void InspectRequest::MailOutputTo(const std::string &email) {
+	std::string cmd_line = "python3 MailOutputTo.py " + email + " " + output_.str() + " &";
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
+}
+
 // =======================================  INSPECT IP  ============================================
 
 class InspectRequestIp : public InspectRequest {
@@ -208,7 +216,7 @@ class InspectRequestIp : public InspectRequest {
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+	AddToOutput(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM));
 }
 
 bool InspectRequestIp::IsMatchedRequest(const PlayerIndexElement &index) {
@@ -229,12 +237,11 @@ class InspectRequestMail : public InspectRequest {
 
   bool IsMatchedRequest(const PlayerIndexElement &index) final;
   void SendInspectResult(DescriptorData *author_descriptor) final;
-  void SendOutputToEmail();
 };
 
 InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	output_ << fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM);
+	AddToOutput(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM));
 	if (args.size() > kMinArgsNumber) {
 		if (isname(args.back(), "send_mail")) {
 			send_mail_ = true;
@@ -251,21 +258,11 @@ bool InspectRequestMail::IsMatchedRequest(const PlayerIndexElement &index) {
 
 void InspectRequestMail::SendInspectResult(DescriptorData *author_descriptor) {
 	PrintFindStatToOutput();
-	SendOutputToEmail();
-	PageOutputToAuthor(author_descriptor);
-}
-
-void InspectRequestMail::SendOutputToEmail() {
-	if (send_mail_ && found_ > 0) {
-		SendListChar(output_, request_text_);
-		output_ << "Данный список отправлен игроку на емайл\r\n";
+	if (send_mail_ && GetNumFound() > 0) {
+		MailOutputTo(request_text_);
+		AddToOutput("Данный список отправлен игроку на емайл\r\n");
 	}
-}
-
-void SendListChar(const std::ostringstream &list_char, const std::string &email) {
-	std::string cmd_line = "python3 SendListChar.py " + email + " " + list_char.str() + " &";
-	auto result = system(cmd_line.c_str());
-	UNUSED_ARG(result);
+	PageOutputToAuthor(author_descriptor);
 }
 
 // =======================================  INSPECT CHAR  ============================================
@@ -294,8 +291,8 @@ InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string
 		if (IsAuthorLevelAcceptable(author, player_index)) {
 			mail_ = player_index.mail;
 			last_ip_ = player_index.last_ip;
-			output_ << fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
-								   KWHT, args[kRequestTextPos], KNRM, mail_, last_ip_);
+			AddToOutput(fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
+								   KWHT, args[kRequestTextPos], KNRM, mail_, last_ip_));
 			PrintCharInfoToOutput(player_index);
 		} else {
 			throw std::runtime_error("А ежели он ваc молнией по тыковке?\r\n");
@@ -340,14 +337,14 @@ InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> 
 
 	auto vict = std::make_shared<Player>();
 	if (load_char(request_text_.c_str(), vict.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
-		output_ << fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, request_text_, KNRM);
+		AddToOutput(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, request_text_, KNRM));
 		vict_uid_ = vict->get_uid();
 		auto player_pos = GetPtableByUnique(vict->get_uid());
 		const auto &player_index = player_table[player_pos];
 		PrintCharInfoToOutput(player_index);
 		for (const auto &logon : LOGON_LIST(vict)) {
 			if (logon.ip) {
-				if (!ignored_ip.contains(logon.ip)) {
+				if (!kIgnoredIpChecklist.contains(logon.ip)) {
 					victim_ip_log_.insert(logon.ip);
 				}
 			}
@@ -358,7 +355,7 @@ InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> 
 }
 
 void InspectRequestAll::PrintOtherInfoToOutput() {
-	output_ << logon_buffer_.str();
+	AddToOutput(logon_buffer_.str());
 	logon_buffer_.str("");
 	logon_buffer_.clear();
 }
@@ -374,7 +371,7 @@ bool InspectRequestAll::IsMatchedRequest(const PlayerIndexElement &index) {
 			if (!inspected_logon.ip) {
 				continue;
 			}
-			if (ignored_ip.contains(inspected_logon.ip)) {
+			if (kIgnoredIpChecklist.contains(inspected_logon.ip)) {
 				continue;
 			}
 			if (victim_ip_log_.contains(inspected_logon.ip)) {
