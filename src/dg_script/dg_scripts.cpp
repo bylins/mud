@@ -2209,12 +2209,14 @@ void find_replacement(void *go,
 				auto it = arr.begin();
 				std::advance(it, index);
 				arr.erase(it);
-				std::stringstream ss;
+				std::string ss;
+
 				for (auto res : arr) {
-					ss << res << " ";
+					ss = ss + res + " ";
 				}
-				ss.seekp(-1, std::ios::end);
-				sprintf(str, "%s", ss.str().c_str());
+				if (!ss.empty())
+					ss.pop_back();
+				sprintf(str, "%s", ss.c_str());
 				return;
 			}
 			/*Вот тут можно наделать вот так еще:
@@ -5690,7 +5692,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					loops++;
 					GET_TRIG_LOOPS(trig)++;
 
-					if (loops == 30) {
+					if (loops % 30 == 0) {
 						snprintf(buf2, kMaxStringLength, "wait 1");
 						process_wait(go, trig, type, buf2, cl);
 						depth--;
@@ -5698,8 +5700,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 						return ret_val;
 					}
 
-					if (GET_TRIG_LOOPS(trig) == 300) {
-						trig_log(trig, "looping 300 times.", LGH);
+					if (GET_TRIG_LOOPS(trig) == 500) {
+						trig_log(trig, "looping 500 times.", LGH);
 					}
 
 					if (GET_TRIG_LOOPS(trig) == 1000) {
@@ -5708,6 +5710,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					if (GET_TRIG_LOOPS(trig) >= 10000) {
 						trig_log(trig, "looping 10000 times, cancelled", DEF);
 						GET_TRIG_LOOPS(trig) = 0;
+						loops = 0;
 						cl = find_done(trig, cl);
 					}
 				}
