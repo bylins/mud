@@ -9,6 +9,7 @@
 #include "color.h"
 #include "modify.h"
 #include "fmt/format.h"
+#include "fmt/chrono.h"
 
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
@@ -18,7 +19,6 @@ const int kRequestTextPos{1};
 
 const std::set<std::string> ignored_ip = {"135.181.219.76"};
 
-char *PrintPunishmentTime(time_t time);
 void SendListChar(const std::ostringstream &list_char, const std::string &email);
 bool IsTimeout(timeval &start_time);
 bool IsAuthorLevelAcceptable(CharData *author, const PlayerIndexElement &index);
@@ -162,47 +162,29 @@ void InspectRequest::PrintClanAbbrevToOutput(std::shared_ptr<Player> &player) {
 
 void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player) {
 	if (PLR_FLAGGED(player, EPlrFlag::kFrozen)) {
-		PrintSinglePunishmentInfoToOutput("FREEZE", player->player_specials->pfreeze);
+		PrintSinglePunishmentInfoToOutput("FROZEN", player->player_specials->pfreeze);
 	}
 	if (PLR_FLAGGED(player, EPlrFlag::kMuted)) {
-		PrintSinglePunishmentInfoToOutput("MUTE", player->player_specials->pmute);
+		PrintSinglePunishmentInfoToOutput("MUTED", player->player_specials->pmute);
 	}
 	if (PLR_FLAGGED(player, EPlrFlag::kDumbed)) {
-		PrintSinglePunishmentInfoToOutput("DUMB", player->player_specials->pdumb);
+		PrintSinglePunishmentInfoToOutput("DUMBED", player->player_specials->pdumb);
 	}
 	if (PLR_FLAGGED(player, EPlrFlag::kHelled)) {
-		PrintSinglePunishmentInfoToOutput("HELL", player->player_specials->phell);
+		PrintSinglePunishmentInfoToOutput("HELLED", player->player_specials->phell);
 	}
 	if (!PLR_FLAGGED(player, EPlrFlag::kRegistred)) {
-		PrintSinglePunishmentInfoToOutput("UNREG", player->player_specials->punreg);
+		PrintSinglePunishmentInfoToOutput("UNREGISTERED", player->player_specials->punreg);
 	}
 }
 
 void InspectRequest::PrintSinglePunishmentInfoToOutput(std::string_view name, const Punish &punish) {
 	if (punish.duration) {
-		const std::string_view output_format("{:<6}: {} [{}].\r\n");
-		output_ << fmt::format(fmt::runtime(output_format),
+		output_ << fmt::format("{} until {:%R %d-%B-%Y} [{}].\r\n",
 							   name,
-							   PrintPunishmentTime(punish.duration - time(nullptr)),
-							   punish.reason ? punish.reason : "-");
+							   std::chrono::system_clock::from_time_t(punish.duration),
+							   (punish.reason ? punish.reason : "-"));
 	}
-}
-
-char *PrintPunishmentTime(time_t time) {
-	static char time_buf[16];
-	time_buf[0] = '\0';
-	if (time < 3600) {
-		snprintf(time_buf, sizeof(time_buf), "%d m", (int) time / 60);
-	} else if (time < 3600 * 24) {
-		snprintf(time_buf, sizeof(time_buf), "%d h", (int) time / 3600);
-	} else if (time < 3600 * 24 * 30) {
-		snprintf(time_buf, sizeof(time_buf), "%d D", (int) time / (3600 * 24));
-	} else if (time < 3600 * 24 * 365) {
-		snprintf(time_buf, sizeof(time_buf), "%d M", (int) time / (3600 * 24 * 30));
-	} else {
-		snprintf(time_buf, sizeof(time_buf), "%d Y", (int) time / (3600 * 24 * 365));
-	}
-	return time_buf;
 }
 
 bool InspectRequest::IsPlayerFound(std::shared_ptr<CharData> &author, const PlayerIndexElement &index) {
