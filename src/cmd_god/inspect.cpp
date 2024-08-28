@@ -286,7 +286,6 @@ class InspectRequestChar : public InspectRequest {
   explicit InspectRequestChar(CharData *author, std::vector<std::string> &args);
 
  private:
-  int vict_uid_{0};
   std::string mail_;
   std::string last_ip_;
 
@@ -296,11 +295,11 @@ class InspectRequestChar : public InspectRequest {
 
 InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	vict_uid_ = GetUniqueByName(GetRequestText());
-	if (vict_uid_ <= 0) {
+	auto vict_uid = GetUniqueByName(GetRequestText());
+	if (vict_uid <= 0) {
 		throw std::runtime_error("Inspecting char: Неизвестное имя персонажа.\r\n");
 	} else {
-		auto player_pos = GetPtableByUnique(vict_uid_);
+		auto player_pos = GetPtableByUnique(vict_uid);
 		const auto &player_index = player_table[player_pos];
 		if (IsAuthorPrivilegedForInspect(player_index)) {
 			NoteVictimInfo(player_index);
@@ -315,13 +314,9 @@ void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
 	last_ip_ = index.last_ip;
 	AddToOutput(fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 							KWHT, GetRequestText(), KNRM, mail_, last_ip_));
-	PrintCharInfoToOutput(index);
 }
 
 bool InspectRequestChar::IsIndexMatched(const PlayerIndexElement &index) {
-	if (vict_uid_ == index.unique) {
-		return false;
-	}
 	return ((index.mail && (mail_ == index.mail)) || (index.last_ip && (last_ip_ == index.last_ip)));
 }
 
@@ -378,14 +373,17 @@ void InspectRequestAll::PrintOtherInspectInfoToOutput() {
 }
 
 bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
+	std::cout << "Check index matching...\r\n";
 	if (vict_uid_ == index.unique) {
 		return false;
 	}
 	auto player = std::make_shared<Player>();
 	bool result{false};
 	if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+		std::cout << fmt::format("Loaded character '{}'.\r\n", index.name());
 		for (const auto &logon : LOGON_LIST(player)) {
 			if (IsIpMatched(logon.ip)) {
+				std::cout << fmt::format("IP '{}' matched.\r\n", logon.ip);
 				result = true;
 				NoteLogonInfo(logon);
 			}
