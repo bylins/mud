@@ -1605,7 +1605,7 @@ const char *one_argument(const char *argument, char *first_arg) { return one_arg
 char *any_one_arg(char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 const char *any_one_arg(const char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
 
-void array_argument(const char *arguments, std::vector<std::string> &out) {
+void SplitArgument(const char *arguments, std::vector<std::string> &out) {
   char local_buf[kMaxTrglineLength];
   const char *current_arg = arguments;
   out.clear();
@@ -1618,17 +1618,17 @@ void array_argument(const char *arguments, std::vector<std::string> &out) {
   } while (*current_arg);
 }
 
-void array_argument(const char *arguments, std::vector<short> &out) {
+void SplitArgument(const char *arguments, std::vector<short> &out) {
   std::vector<std::string> tmp;
-  array_argument(arguments, tmp);
+	SplitArgument(arguments, tmp);
   for (const auto &value : tmp) {
 	out.push_back(atoi(value.c_str()));
   }
 }
 
-void array_argument(const char *arguments, std::vector<int> &out) {
+void SplitArgument(const char *arguments, std::vector<int> &out) {
   std::vector<std::string> tmp;
-  array_argument(arguments, tmp);
+	SplitArgument(arguments, tmp);
   for (const auto &value : tmp) {
 	out.push_back(atoi(value.c_str()));
   }

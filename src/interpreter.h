@@ -27,7 +27,6 @@ void do_move(CharData *ch, char *argument, int cmd, int subcmd);
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
-#define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
 void command_interpreter(CharData *ch, char *argument);
 int search_block(const char *target_string, const char **list, int exact);
@@ -59,9 +58,6 @@ char *delete_doubledollar(char *string);
 // Cоответствие классов и религий (Кард)
 extern const int class_religion[];
 
-// for compatibility with 2.20:
-#define argument_interpreter(a, b, c) two_arguments(a, b, c)
-
 struct command_info {
 	const char *command;
 	EPosition minimum_position;
@@ -73,7 +69,7 @@ struct command_info {
 
 /*
  * Necessary for CMD_IS macro.  Borland needs the structure defined first
- * so it has been moved down here.
+ * so, it has been moved down here.
  */
 #ifndef __INTERPRETER_C__
 extern const struct command_info cmd_info[];
@@ -101,7 +97,7 @@ struct alias_data {
 /*
  * SUBCOMMANDS
  *   You can define these however you want to, and the definitions of the
- *   subcommands are independent from function to function.
+ *   subcommands are independent of function to function.
  */
 
 // directions
@@ -116,8 +112,8 @@ struct alias_data {
 #define SCMD_INFO       0
 #define SCMD_HANDBOOK   1
 #define SCMD_CREDITS    2
-// free
-// free
+// 3 free
+// 4 free
 #define SCMD_POLICIES   5
 #define SCMD_VERSION    6
 #define SCMD_IMMLIST    7
@@ -144,11 +140,11 @@ struct alias_data {
 #define SCMD_SLOWNS  14
 #define SCMD_AUTOEXIT   15
 #define SCMD_TRACK   16
-//#define SCMD_COLOR      17  теперь свободно
+// 17  теперь свободно
 #define SCMD_CODERINFO  18
 #define SCMD_AUTOMEM    19
 #define SCMD_COMPRESS   20
-#define SCMD_AUTOZLIB   21
+//  21
 #define SCMD_NOSHOUT    22
 #define SCMD_GOAHEAD    23
 #define SCMD_SHOWGROUP  24
@@ -210,11 +206,9 @@ struct alias_data {
 #define SCMD_AUCTION 3
 
 // do_shutdown
-#define SCMD_SHUTDOW 0
 #define SCMD_SHUTDOWN   1
 
 // do_quit
-#define SCMD_QUI  0
 #define SCMD_QUIT 1
 
 // do_date
@@ -319,9 +313,9 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 }
 
 // читает все аргументы из arguments в out
-void array_argument(const char *arguments, std::vector<std::string> &out);
-void array_argument(const char *arguments, std::vector<short> &out);
-void array_argument(const char *arguments, std::vector<int> &out);
+void SplitArgument(const char *arguments, std::vector<std::string> &out);
+void SplitArgument(const char *arguments, std::vector<short> &out);
+void SplitArgument(const char *arguments, std::vector<int> &out);
 
 // константы для спам-контроля команды кто
 // если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава

@@ -78,7 +78,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 		return false;
 	}
 	// вычитываем список количества мобов по раундам
-	array_argument(vd_mob_count.value.c_str(), dd.mob_counter_per_round);
+	SplitArgument(vd_mob_count.value.c_str(), dd.mob_counter_per_round);
 	if (dd.mob_counter_per_round.size() != expected_round_count) {
 		snprintf(buf2, kMaxStringLength, "Неверное количество элементов в переменной mobs_count: %zu", dd.mob_counter_per_round.size());
 		trig_log(trig, buf2);
@@ -103,7 +103,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 			return false;
 		}
 		std::vector<MobVnum> mob_vnum_list;
-		array_argument(vd_mob.value.c_str(), mob_vnum_list);
+		SplitArgument(vd_mob.value.c_str(), mob_vnum_list);
 		// т.к. мобы грузятся по раундам - количество мобов >= количествj раундов
 		if (mob_vnum_list.size() < expected_round_count) {
 			snprintf(buf2, kMaxStringLength, "Неверное количество мобов в группе %s: %zu", var_name_mob.first.c_str(), mob_vnum_list.size());
@@ -118,7 +118,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 			return false;
 		}
 		std::vector<MobVnum> vnumum_list;
-		array_argument(vd_room.value.c_str(), vnumum_list);
+		SplitArgument(vd_room.value.c_str(), vnumum_list);
 
 		dd.mob_list_to_load.emplace_back(mob_vnum_list, vnumum_list);
 	}

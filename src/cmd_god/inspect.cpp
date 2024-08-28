@@ -239,7 +239,7 @@ class InspectRequestIp : public InspectRequest {
 
 InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	AddToOutput(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM));
+	AddToOutput(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
 }
 
 bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
@@ -261,12 +261,8 @@ class InspectRequestMail : public InspectRequest {
 
 InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	AddToOutput(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, args[kRequestTextPos], KNRM));
-	if (args.size() > kMinArgsNumber) {
-		if (isname(args.back(), "send_mail")) {
-			send_mail_ = true;
-		}
-	}
+	AddToOutput(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
+	send_mail_ = ((args.size() > kMinArgsNumber) && (isname(args.back(), "send_mail")));
 }
 
 bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
@@ -338,7 +334,7 @@ class InspectRequestAll : public InspectRequest {
  private:
   int vict_uid_{0};
   std::set<std::string> victim_ip_log_;    // айпи адреса по которым идет поиск
-  std::ostringstream logon_buffer_;        // Записи о коннектах проверяемого персонажа
+  std::ostringstream logon_buffer_;        // записи о совпавших коннектах проверяемого персонажа
 
   void NoteVictimInfo(const std::shared_ptr<Player> &vict);
   bool IsIndexMatched(const PlayerIndexElement &index) final;
@@ -418,7 +414,7 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	try {
 		CheckSentRequests(ch);
 		std::vector<std::string> args;
-		array_argument(argument, args);
+		SplitArgument(argument, args);
 		InspectRequest::ValidateArgs(args);
 		CreateRequest(ch, args);
 		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
