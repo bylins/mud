@@ -24,7 +24,7 @@ void CreateRequest(CharData *ch, std::vector<std::string> &args);
 
 class InspectRequest {
  public:
-  enum RequestStatus { kProcessing = false, kFinished = true };
+  enum class Status { kProcessing, kFinished };
 
   InspectRequest() = delete;
   InspectRequest(const InspectRequest &) = delete;
@@ -32,7 +32,7 @@ class InspectRequest {
   InspectRequest &operator=(const InspectRequest &) = delete;
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
-  RequestStatus Inspect();
+  Status Inspect();
 
   static void ValidateArgs(std::vector<std::string> &args);
 
@@ -46,14 +46,13 @@ class InspectRequest {
   bool IsPlayerMathed(const PlayerIndexElement &index);
   bool GetMatchCount() const { return match_count_; };
   bool IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const;
-  virtual RequestStatus FinishInspect(DescriptorData *author_descriptor);
   const std::string &GetRequestText() const { return request_text_; };
 
-  virtual bool IsIndexMatched(const PlayerIndexElement &index) = 0;
+  virtual void OutputResult(DescriptorData *author_descriptor);
   virtual void PrintOtherInspectInfoToOutput() {}
+  virtual bool IsIndexMatched(const PlayerIndexElement &index) = 0;
 
  private:
-  bool is_author_implementor_{false};
   int author_uid_{0};
   int author_level_{0};
   int match_count_{0};
@@ -62,19 +61,20 @@ class InspectRequest {
   std::string request_text_;
   std::ostringstream output_;
 
+  void InspectPlayerTable();
   void InspectIndex(const PlayerIndexElement &index);
   void PrintBaseCharInfoToOutput(const PlayerIndexElement &index);
   void PrintExtraCharInfoToOutput(const PlayerIndexElement &index);
   void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
   void PrintSinglePunishmentInfoToOutput(std::string_view punish_text, const Punish &punish);
   void PrintClanAbbrevToOutput(const std::shared_ptr<Player> &player);
+  Status CheckStatus(DescriptorData *author);
 
-  static bool IsTimeNotExpired(timeval &start_time);
+  static bool IsTimeExpired(timeval &start_time);
 };
 
 InspectRequest::InspectRequest(CharData *author, std::vector<std::string> &args) {
 	author_uid_ = author->get_uid();
-	is_author_implementor_ = IS_IMPL(author);
 	author_level_ = author->GetLevel();
 	request_text_ = args[kRequestTextPos];
 	gettimeofday(&request_creation_time_, nullptr);
@@ -96,34 +96,39 @@ void InspectRequest::ValidateArgs(std::vector<std::string> &args) {
 	}
 }
 
-InspectRequest::RequestStatus InspectRequest::Inspect() {
+InspectRequest::Status InspectRequest::Inspect() {
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
 	if (!author_descriptor || (author_descriptor->connected != CON_PLAYING)) {
-		return InspectRequest::kFinished;
+		return Status::kFinished;
 	}
 
+	InspectPlayerTable();
+	return CheckStatus(author_descriptor);
+}
+
+void InspectRequest::InspectPlayerTable() {
 	timeval start_inspect_time{};
 	gettimeofday(&start_inspect_time, nullptr);
 	for (; current_player_table_pos_ < player_table.size(); ++current_player_table_pos_) {
-		if (IsTimeNotExpired(start_inspect_time)) {
-			const auto &player_index = player_table[current_player_table_pos_];
-			if (IsAuthorPrivilegedForInspect(player_index)) {
-				InspectIndex(player_index);
-			}
+		if (IsTimeExpired(start_inspect_time)) {
+			break;
+		}
+		const auto &player_index = player_table[current_player_table_pos_];
+		if (IsAuthorPrivilegedForInspect(player_index)) {
+			InspectIndex(player_index);
 		}
 	}
-
-	if (current_player_table_pos_ >= player_table.size()) {
-		return FinishInspect(author_descriptor);
-	}
-	return RequestStatus::kProcessing;
 }
 
-bool InspectRequest::IsTimeNotExpired(timeval &start_time) {
+bool InspectRequest::IsTimeExpired(timeval &start_time) {
 	timeval current_time{}, delta_time{};
 	gettimeofday(&current_time, nullptr);
 	timediff(&delta_time, &current_time, &start_time);
-	return (delta_time.tv_sec <= 0 && delta_time.tv_usec < kOptUsec);
+	return (delta_time.tv_sec > 0 || delta_time.tv_usec > kOptUsec);
+}
+
+bool InspectRequest::IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const {
+	return ((author_level_ >= kLvlImplementator) || ((index.level < author_level_) && (index.level < kLvlImmortal)));
 }
 
 void InspectRequest::InspectIndex(const PlayerIndexElement &index) {
@@ -133,14 +138,17 @@ void InspectRequest::InspectIndex(const PlayerIndexElement &index) {
 	}
 }
 
-bool InspectRequest::IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const {
-	return ((index.level < kLvlImmortal || is_author_implementor_) && (index.level <= author_level_));
+InspectRequest::Status InspectRequest::CheckStatus(DescriptorData *author) {
+	if (current_player_table_pos_ >= player_table.size()) {
+		OutputResult(author);
+		return Status::kFinished;
+	}
+	return Status::kProcessing;
 }
 
-InspectRequest::RequestStatus InspectRequest::FinishInspect(DescriptorData *author_descriptor) {
+void InspectRequest::OutputResult(DescriptorData *author_descriptor) {
 	PrintSearchStatisticsToOutput();
 	PageOutputToAuthor(author_descriptor);
-	return InspectRequest::kFinished;
 }
 
 void InspectRequest::PrintSearchStatisticsToOutput() {
@@ -256,7 +264,7 @@ class InspectRequestMail : public InspectRequest {
   bool send_mail_{false};                // отправлять ли на мыло список чаров
 
   bool IsIndexMatched(const PlayerIndexElement &index) final;
-  RequestStatus FinishInspect(DescriptorData *author_descriptor) final;
+  void OutputResult(DescriptorData *author_descriptor) final;
 };
 
 InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
@@ -269,14 +277,13 @@ bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
 	return (index.mail && strstr(index.mail, GetRequestText().c_str()));
 }
 
-InspectRequest::RequestStatus InspectRequestMail::FinishInspect(DescriptorData *author_descriptor) {
+void InspectRequestMail::OutputResult(DescriptorData *author_descriptor) {
 	PrintSearchStatisticsToOutput();
 	if (send_mail_ && GetMatchCount() > 0) {
 		MailOutputTo(GetRequestText());
 		AddToOutput("Данный список отправлен игроку на емайл\r\n");
 	}
 	PageOutputToAuthor(author_descriptor);
-	return InspectRequest::kFinished;
 }
 
 // =======================================  INSPECT CHAR  ============================================
@@ -334,6 +341,7 @@ class InspectRequestAll : public InspectRequest {
   void NoteVictimInfo(const std::shared_ptr<Player> &vict);
   bool IsIndexMatched(const PlayerIndexElement &index) final;
   bool IsIpMatched(const char *ip);
+  bool InspectLogonList(const CharData::shared_ptr &player);
   void NoteLogonInfo(const Logon &logon);
   void PrintOtherInspectInfoToOutput() final;
 };
@@ -356,9 +364,6 @@ InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> 
 void InspectRequestAll::NoteVictimInfo(const std::shared_ptr<Player> &vict) {
 	AddToOutput(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, GetRequestText(), KNRM));
 	vict_uid_ = vict->get_uid();
-	auto player_pos = GetPtableByUnique(vict->get_uid());
-	const auto &player_index = player_table[player_pos];
-	PrintCharInfoToOutput(player_index);
 	for (const auto &logon : LOGON_LIST(vict)) {
 		if (logon.ip && !kIgnoredIpChecklist.contains(logon.ip)) {
 			victim_ip_log_.insert(logon.ip);
@@ -373,20 +378,28 @@ void InspectRequestAll::PrintOtherInspectInfoToOutput() {
 }
 
 bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
-	std::cout << "Check index matching...\r\n";
 	if (vict_uid_ == index.unique) {
 		return false;
 	}
-	auto player = std::make_shared<Player>();
+
+	auto d_vict = DescriptorByUid(index.unique);
+	if (d_vict) {
+		return InspectLogonList(d_vict->character);
+	} else {
+		auto player = std::make_shared<Player>();
+		if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+			return InspectLogonList(player);
+		}
+	}
+	return false;
+}
+
+bool InspectRequestAll::InspectLogonList(const CharData::shared_ptr &player) {
 	bool result{false};
-	if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
-		std::cout << fmt::format("Loaded character '{}'.\r\n", index.name());
-		for (const auto &logon : LOGON_LIST(player)) {
-			if (IsIpMatched(logon.ip)) {
-				std::cout << fmt::format("IP '{}' matched.\r\n", logon.ip);
-				result = true;
-				NoteLogonInfo(logon);
-			}
+	for (const auto &logon : LOGON_LIST(player)) {
+		if (IsIpMatched(logon.ip)) {
+			result = true;
+			NoteLogonInfo(logon);
 		}
 	}
 	return result;
@@ -448,7 +461,7 @@ void Inspecting() {
 	}
 
 	auto it = MUD::inspect_list().begin();
-	if (it->second->Inspect() == InspectRequest::kFinished) {
+	if (it->second->Inspect() == InspectRequest::Status::kFinished) {
 		MUD::inspect_list().erase(it);
 	}
 }
