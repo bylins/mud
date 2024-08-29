@@ -61,7 +61,7 @@ class GlobalObjects {
 	static Characters &characters();
 	static ShutdownParameters &shutdown_parameters();
 	static Speedwalks &speedwalks();
-	static InspReqListType &inspect_list();
+	static InspectRequestDeque &InspectRequests();
 	static SetAllInspReqListType &setall_inspect_list();
 	static BanList *&ban();
 	static Heartbeat &heartbeat();

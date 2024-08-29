@@ -3,8 +3,6 @@
 #include "game_economics/auction.h"
 #include "game_mechanics/deathtrap.h"
 #include "communication/parcel.h"
-//#include "game_fight/pk.h"
-//#include "game_mechanics/celebrates.h"
 #include "game_fight/fight.h"
 #include "help.h"
 #include "game_mechanics/bonus.h"
@@ -25,8 +23,6 @@
 #include "game_fight/mobact.h"
 #include "dg_script/dg_event.h"
 #include "corpse.h"
-//#include "cmd_god/shutdown_parameters.h"
-//#include "utils/utils_time.h"
 #include "structs/global_objects.h"
 
 #if defined WITH_SCRIPTING
@@ -133,8 +129,8 @@ class InspectCall : public AbstractPulseAction {
 };
 
 void InspectCall::perform(int, int missed_pulses) {
-	if (0 == missed_pulses && !MUD::inspect_list().empty()) {
-		Inspecting();
+	if (0 == missed_pulses) {
+		MUD::InspectRequests().Inspecting();
 	}
 }
 

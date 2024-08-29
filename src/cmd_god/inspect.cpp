@@ -19,7 +19,7 @@ const int kRequestTextPos{1};
 
 const std::set<std::string> kIgnoredIpChecklist = {"135.181.219.76"};
 
-void CheckRequestsQueue(CharData *ch);
+// =======================================  INSPECT REQUEST INTERFACE  ============================================
 
 class InspectRequest {
  public:
@@ -31,10 +31,11 @@ class InspectRequest {
   InspectRequest &operator=(const InspectRequest &) = delete;
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
+  int GetAuthorUid() const { return author_uid_; }
   Status Inspect();
 
  protected:
-  explicit InspectRequest(CharData *author, std::vector<std::string> &args);
+  explicit InspectRequest(const CharData *author, std::vector<std::string> &args);
   void PageOutputToAuthor(DescriptorData *author_descriptor) const;
   void PrintSearchStatisticsToOutput();
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
@@ -70,7 +71,7 @@ class InspectRequest {
   static bool IsTimeExpired(timeval &start_time);
 };
 
-InspectRequest::InspectRequest(CharData *author, std::vector<std::string> &args) {
+InspectRequest::InspectRequest(const CharData *author, std::vector<std::string> &args) {
 	author_uid_ = author->get_uid();
 	author_level_ = author->GetLevel();
 	request_text_ = args[kRequestTextPos];
@@ -220,13 +221,13 @@ void InspectRequest::MailOutputTo(const std::string &email) {
 
 class InspectRequestIp : public InspectRequest {
  public:
-  explicit InspectRequestIp(CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestIp(const CharData *author, std::vector<std::string> &args);
 
  private:
   bool IsIndexMatched(const PlayerIndexElement &index) final;
 };
 
-InspectRequestIp::InspectRequestIp(CharData *author, std::vector<std::string> &args)
+InspectRequestIp::InspectRequestIp(const CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	AddToOutput(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
 }
@@ -239,7 +240,7 @@ bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
 
 class InspectRequestMail : public InspectRequest {
  public:
-  explicit InspectRequestMail(CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestMail(const CharData *author, std::vector<std::string> &args);
 
  private:
   bool send_mail_{false};
@@ -248,7 +249,7 @@ class InspectRequestMail : public InspectRequest {
   void OutputResult(DescriptorData *author_descriptor) final;
 };
 
-InspectRequestMail::InspectRequestMail(CharData *author, std::vector<std::string> &args)
+InspectRequestMail::InspectRequestMail(const CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	AddToOutput(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
 	send_mail_ = ((args.size() > kMinArgsNumber) && (isname(args.back(), "send_mail")));
@@ -271,7 +272,7 @@ void InspectRequestMail::OutputResult(DescriptorData *author_descriptor) {
 
 class InspectRequestChar : public InspectRequest {
  public:
-  explicit InspectRequestChar(CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestChar(const CharData *author, std::vector<std::string> &args);
 
  private:
   std::string mail_;
@@ -281,7 +282,7 @@ class InspectRequestChar : public InspectRequest {
   bool IsIndexMatched(const PlayerIndexElement &index) final;
 };
 
-InspectRequestChar::InspectRequestChar(CharData *author, std::vector<std::string> &args)
+InspectRequestChar::InspectRequestChar(const CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	auto vict_uid = GetUniqueByName(GetRequestText());
 	if (vict_uid <= 0) {
@@ -312,7 +313,7 @@ bool InspectRequestChar::IsIndexMatched(const PlayerIndexElement &index) {
 
 class InspectRequestAll : public InspectRequest {
  public:
-  explicit InspectRequestAll(CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestAll(const CharData *author, std::vector<std::string> &args);
 
  private:
   int vict_uid_{0};
@@ -327,7 +328,7 @@ class InspectRequestAll : public InspectRequest {
   void PrintOtherInspectInfoToOutput() final;
 };
 
-InspectRequestAll::InspectRequestAll(CharData *author, std::vector<std::string> &args)
+InspectRequestAll::InspectRequestAll(const CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	if (!IS_GRGOD(author)) {
 		throw std::runtime_error("Вы не столь божественны, как вам кажется.\r\n");
@@ -401,14 +402,14 @@ void InspectRequestAll::NoteLogonInfo(const Logon &logon) {
 class InspectRequestFactory {
  public:
   InspectRequestFactory() = delete;
-  static InspReqPtr Create(CharData *ch, char *argument);
+  static InspectRequestPtr Create(const CharData *ch, char *argument);
 
  private:
   static void ValidateArgs(std::vector<std::string> &args);
-  static InspReqPtr CreateRequest(CharData *ch, std::vector<std::string> &args);
+  static InspectRequestPtr CreateRequest(const CharData *ch, std::vector<std::string> &args);
 };
 
-InspReqPtr InspectRequestFactory::Create(CharData *ch, char *argument) {
+InspectRequestPtr InspectRequestFactory::Create(const CharData *ch, char *argument) {
 	std::vector<std::string> args;
 	SplitArgument(argument, args);
 	ValidateArgs(args);
@@ -431,7 +432,7 @@ void InspectRequestFactory::ValidateArgs(std::vector<std::string> &args) {
 	}
 }
 
-InspReqPtr InspectRequestFactory::CreateRequest(CharData *ch, std::vector<std::string> &args) {
+InspectRequestPtr InspectRequestFactory::CreateRequest(const CharData *ch, std::vector<std::string> &args) {
 	auto &request_type = args[kRequestTypePos];
 	if (utils::IsAbbr(request_type.c_str(), "mail")) {
 		return std::make_shared<InspectRequestMail>(ch, args);
@@ -445,6 +446,38 @@ InspReqPtr InspectRequestFactory::CreateRequest(CharData *ch, std::vector<std::s
 	throw std::runtime_error("Неизвестный тип запроса.\r\n");
 }
 
+// ================================= Inspect Request Deque =======================================
+
+void InspectRequestDeque::Create(const CharData *ch, char *argument) {
+	if (IsQueueAvailable(ch)) {
+		emplace_back(InspectRequestFactory::Create(ch, argument));
+		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+	} else {
+		SendMsgToChar("Обрабатывается другой запрос, подождите...\r\n", ch);
+	}
+}
+
+bool InspectRequestDeque::IsQueueAvailable(const CharData *ch) {
+	auto it_setall = setall_inspect_list.find(ch->get_uid());
+	return (!IsBusy(ch) && (it_setall == setall_inspect_list.end()));
+}
+
+bool InspectRequestDeque::IsBusy(const CharData *ch) {
+	auto predicate = [ch](const auto &p)
+		{ return (ch->get_uid() == p->GetAuthorUid()); };
+	return (std::find_if(begin(), end(), predicate) != end());
+}
+
+void InspectRequestDeque::Inspecting() {
+	if (empty()) {
+		return;
+	}
+
+	if (front()->Inspect() == InspectRequest::Status::kFinished) {
+		pop_front();
+	}
+}
+
 // ================================= Commands =======================================
 
 void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -453,30 +486,9 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	try {
-		CheckRequestsQueue(ch);
-		MUD::inspect_list().emplace(ch->get_uid(), InspectRequestFactory::Create(ch, argument));
-		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+		MUD::InspectRequests().Create(ch, argument);
 	} catch (std::runtime_error &e) {
 		SendMsgToChar(ch, "%s", e.what());
-	}
-}
-
-void CheckRequestsQueue(CharData *ch) {
-	auto it_inspect = MUD::inspect_list().find(ch->get_uid());
-	auto it_setall = setall_inspect_list.find(ch->get_uid());
-	if (it_inspect != MUD::inspect_list().end() || it_setall != setall_inspect_list.end()) {
-		throw std::runtime_error("Обрабатывается другой запрос, подождите...\r\n");
-	}
-}
-
-void Inspecting() {
-	if (MUD::inspect_list().empty()) {
-		return;
-	}
-
-	auto it = MUD::inspect_list().begin();
-	if (it->second->Inspect() == InspectRequest::Status::kFinished) {
-		MUD::inspect_list().erase(it);
 	}
 }
 
