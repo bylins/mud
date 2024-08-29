@@ -19,8 +19,7 @@ const int kRequestTextPos{1};
 
 const std::set<std::string> kIgnoredIpChecklist = {"135.181.219.76"};
 
-void CheckSentRequests(CharData *ch);
-void CreateRequest(CharData *ch, std::vector<std::string> &args);
+void CheckRequestsQueue(CharData *ch);
 
 class InspectRequest {
  public:
@@ -33,8 +32,6 @@ class InspectRequest {
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
   Status Inspect();
-
-  static void ValidateArgs(std::vector<std::string> &args);
 
  protected:
   explicit InspectRequest(CharData *author, std::vector<std::string> &args);
@@ -78,22 +75,6 @@ InspectRequest::InspectRequest(CharData *author, std::vector<std::string> &args)
 	author_level_ = author->GetLevel();
 	request_text_ = args[kRequestTextPos];
 	gettimeofday(&request_creation_time_, nullptr);
-}
-
-void InspectRequest::ValidateArgs(std::vector<std::string> &args) {
-	if (args.size() < kMinArgsNumber) {
-		throw std::runtime_error("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n");
-	}
-	if (!isname(args[kRequestTypePos], "mail ip char all")) {
-		throw std::runtime_error("Нет уж. Изыщите другую цель для своих исследований.\r\n");
-	}
-	auto &request_text = args[kRequestTextPos];
-	if (request_text.length() < kMinRequestLength) {
-		throw std::runtime_error("Слишком короткий запрос.\r\n");
-	}
-	if (request_text.length() > kMaxRequestLength) {
-		throw std::runtime_error("Слишком длинный запрос.\r\n");
-	}
 }
 
 InspectRequest::Status InspectRequest::Inspect() {
@@ -216,7 +197,7 @@ void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &playe
 
 void InspectRequest::PrintSinglePunishmentInfoToOutput(std::string_view punish_text, const Punish &punish) {
 	if (punish.duration) {
-		output_ << fmt::format("{}{}{} until {:%R %d-%B-%Y} [{}].\r\n",
+		output_ << fmt::format(" {}{}{} until {:%R %d-%B-%Y} [{}].\r\n",
 							   KIRED, punish_text, KNRM,
 							   std::chrono::system_clock::from_time_t(punish.duration),
 							   (punish.reason ? punish.reason : "-"));
@@ -261,7 +242,7 @@ class InspectRequestMail : public InspectRequest {
   explicit InspectRequestMail(CharData *author, std::vector<std::string> &args);
 
  private:
-  bool send_mail_{false};                // отправлять ли на мыло список чаров
+  bool send_mail_{false};
 
   bool IsIndexMatched(const PlayerIndexElement &index) final;
   void OutputResult(DescriptorData *author_descriptor) final;
@@ -415,43 +396,76 @@ void InspectRequestAll::NoteLogonInfo(const Logon &logon) {
 								 rustime(localtime(&logon.lasttime)));
 }
 
-// ========================================================================
+// ================================== Inspect Request Factory ======================================
+
+class InspectRequestFactory {
+ public:
+  InspectRequestFactory() = delete;
+  static InspReqPtr Create(CharData *ch, char *argument);
+
+ private:
+  static void ValidateArgs(std::vector<std::string> &args);
+  static InspReqPtr CreateRequest(CharData *ch, std::vector<std::string> &args);
+};
+
+InspReqPtr InspectRequestFactory::Create(CharData *ch, char *argument) {
+	std::vector<std::string> args;
+	SplitArgument(argument, args);
+	ValidateArgs(args);
+	return CreateRequest(ch, args);
+}
+
+void InspectRequestFactory::ValidateArgs(std::vector<std::string> &args) {
+	if (args.size() < kMinArgsNumber) {
+		throw std::runtime_error("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n");
+	}
+	if (!isname(args[kRequestTypePos], "mail ip char all")) {
+		throw std::runtime_error("Нет уж. Изыщите другую цель для своих исследований.\r\n");
+	}
+	auto &request_text = args[kRequestTextPos];
+	if (request_text.length() < kMinRequestLength) {
+		throw std::runtime_error("Слишком короткий запрос.\r\n");
+	}
+	if (request_text.length() > kMaxRequestLength) {
+		throw std::runtime_error("Слишком длинный запрос.\r\n");
+	}
+}
+
+InspReqPtr InspectRequestFactory::CreateRequest(CharData *ch, std::vector<std::string> &args) {
+	auto &request_type = args[kRequestTypePos];
+	if (utils::IsAbbr(request_type.c_str(), "mail")) {
+		return std::make_shared<InspectRequestMail>(ch, args);
+	} else if (utils::IsAbbr(request_type.c_str(), "ip")) {
+		return std::make_shared<InspectRequestIp>(ch, args);
+	} else if (utils::IsAbbr(request_type.c_str(), "char")) {
+		return std::make_shared<InspectRequestChar>(ch, args);
+	} else if (utils::IsAbbr(request_type.c_str(), "all")) {
+		return std::make_shared<InspectRequestAll>(ch, args);
+	}
+	throw std::runtime_error("Неизвестный тип запроса.\r\n");
+}
+
+// ================================= Commands =======================================
 
 void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->get_pfilepos() < 0) {
+	if (ch->IsNpc() || ch->get_pfilepos() < 0) {
 		return;
 	}
 
 	try {
-		CheckSentRequests(ch);
-		std::vector<std::string> args;
-		SplitArgument(argument, args);
-		InspectRequest::ValidateArgs(args);
-		CreateRequest(ch, args);
+		CheckRequestsQueue(ch);
+		MUD::inspect_list().emplace(ch->get_uid(), InspectRequestFactory::Create(ch, argument));
 		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
 	} catch (std::runtime_error &e) {
 		SendMsgToChar(ch, "%s", e.what());
 	}
 }
 
-void CheckSentRequests(CharData *ch) {
+void CheckRequestsQueue(CharData *ch) {
 	auto it_inspect = MUD::inspect_list().find(ch->get_uid());
 	auto it_setall = setall_inspect_list.find(ch->get_uid());
 	if (it_inspect != MUD::inspect_list().end() || it_setall != setall_inspect_list.end()) {
 		throw std::runtime_error("Обрабатывается другой запрос, подождите...\r\n");
-	}
-}
-
-void CreateRequest(CharData *ch, std::vector<std::string> &args) {
-	auto &request_type = args[kRequestTypePos];
-	if (utils::IsAbbr(request_type.c_str(), "mail")) {
-		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestMail>(ch, args));
-	} else if (utils::IsAbbr(request_type.c_str(), "ip")) {
-		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestIp>(ch, args));
-	} else if (utils::IsAbbr(request_type.c_str(), "char")) {
-		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestChar>(ch, args));
-	} else if (utils::IsAbbr(request_type.c_str(), "all")) {
-		MUD::inspect_list().emplace(ch->get_pfilepos(), std::make_shared<InspectRequestAll>(ch, args));
 	}
 }
 
