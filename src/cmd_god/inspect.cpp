@@ -311,7 +311,7 @@ class InspectRequestAll : public InspectRequest {
 
  private:
   int vict_uid_{0};
-  std::set<std::string> victim_ip_log_;    // айпи адреса по которым идет поиск
+  std::set<std::string> victim_ip_log_;
   std::ostringstream logon_buffer_;        // записи о совпавших коннектах проверяемого персонажа
 
   void NoteVictimInfo(const std::shared_ptr<Player> &vict);
@@ -355,7 +355,7 @@ void InspectRequestAll::PrintOtherInspectInfoToOutput() {
 
 bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
 	if (vict_uid_ == index.unique) {
-		return false;
+		return true;
 	}
 
 	auto d_vict = DescriptorByUid(index.unique);
