@@ -3435,7 +3435,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				// выносим из листа неодобренных имен, если есть
 				NewNames::remove(vict);
 
-				ptnum = get_ptable_by_name(GET_NAME(vict));
+				ptnum = GetPlayerTablePosByName(GET_NAME(vict));
 				if (ptnum < 0)
 					return (0);
 

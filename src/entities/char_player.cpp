@@ -915,7 +915,7 @@ void Player::save_char() {
 	}
 	affect_total(this);
 
-	i = get_ptable_by_name(GET_NAME(this));
+	i = GetPlayerTablePosByName(GET_NAME(this));
 	if (i >= 0) {
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GetRealLevel(this);

@@ -5720,7 +5720,7 @@ long cmp_ptable_by_name(char *name, int len) {
 	return -1;
 }
 
-long get_ptable_by_name(const char *name) {
+long GetPlayerTablePosByName(const char *name) {
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {

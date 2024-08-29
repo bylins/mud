@@ -37,15 +37,16 @@ class InspectRequest {
 
  protected:
   explicit InspectRequest(const CharData *author, std::vector<std::string> &args);
+  void ProcessMatchedIndex(const PlayerIndexElement &index);
   void PageOutputToAuthor(DescriptorData *author_descriptor) const;
   void PrintSearchStatisticsToOutput();
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
   void AddToOutput(const std::string &str) { output_ << str; };
   void MailOutputTo(const std::string &email);
-  bool IsPlayerMathed(const PlayerIndexElement &index);
   bool GetMatchCount() const { return match_count_; };
   bool IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const;
   const std::string &GetRequestText() const { return request_text_; };
+  static CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index);
 
   virtual void OutputResult(DescriptorData *author_descriptor);
   virtual void PrintOtherInspectInfoToOutput() {}
@@ -65,9 +66,9 @@ class InspectRequest {
   void InspectIndex(const PlayerIndexElement &index);
   void PrintBaseCharInfoToOutput(const PlayerIndexElement &index);
   void PrintExtraCharInfoToOutput(const PlayerIndexElement &index);
-  void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
+  void PrintPunishmentsInfoToOutput(std::shared_ptr<CharData> &player);
   void PrintSinglePunishmentInfoToOutput(std::string_view punish_text, const Punish &punish);
-  void PrintClanAbbrevToOutput(const std::shared_ptr<Player> &player);
+  void PrintClanAbbrevToOutput(const std::shared_ptr<CharData> &player);
   bool IsTimeExpired();
   Status CheckStatus(DescriptorData *author);
 };
@@ -110,10 +111,15 @@ bool InspectRequest::IsAuthorPrivilegedForInspect(const PlayerIndexElement &inde
 }
 
 void InspectRequest::InspectIndex(const PlayerIndexElement &index) {
-	if (IsPlayerMathed(index)) {
-		PrintCharInfoToOutput(index);
-		PrintOtherInspectInfoToOutput();
+	if (IsIndexMatched(index)) {
+		ProcessMatchedIndex(index);
 	}
+}
+
+void InspectRequest::ProcessMatchedIndex(const PlayerIndexElement &index) {
+	++match_count_;
+	PrintCharInfoToOutput(index);
+	PrintOtherInspectInfoToOutput();
 }
 
 InspectRequest::Status InspectRequest::CheckStatus(DescriptorData *author) {
@@ -145,25 +151,37 @@ void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
 
 void InspectRequest::PrintBaseCharInfoToOutput(const PlayerIndexElement &index) {
 	DescriptorData *d_vict = DescriptorByUid(index.unique);
-	time_t last_logon = index.last_logon;
 	output_ << fmt::format("{:-^121}\r\n", "*");
-	output_ << fmt::format("Name: {}{:<12}{} E-mail: {:<30} Last: {} from IP: {}, Level {}, Remort {}, Class: {}",
+	output_ << fmt::format("Name: {}{:<12}{} Mail: {:<30} Last: {:%e-%b-%Y} from {}, Lvl {}, Rmt {}, Cls: {}",
 						   (d_vict ? KIGRN : KIWHT), index.name(), KNRM,
-						   index.mail, rustime(localtime(&last_logon)), index.last_ip,
+						   index.mail, std::chrono::system_clock::from_time_t(index.last_logon), index.last_ip,
 						   index.level, index.remorts, MUD::Class(index.plr_class).GetName());
 }
 
 void InspectRequest::PrintExtraCharInfoToOutput(const PlayerIndexElement &index) {
-	auto player = std::make_shared<Player>();
-	if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
-		PrintClanAbbrevToOutput(player);
-		PrintPunishmentsInfoToOutput(player);
+	auto player_ptr =  GetCharPtr(index);
+	if (player_ptr) {
+		PrintClanAbbrevToOutput(player_ptr);
+		PrintPunishmentsInfoToOutput(player_ptr);
 	} else {
 		output_ << ".\r\n";
 	}
 }
 
-void InspectRequest::PrintClanAbbrevToOutput(const std::shared_ptr<Player> &player) {
+CharData::shared_ptr InspectRequest::GetCharPtr(const PlayerIndexElement &index) {
+	auto d_vict = DescriptorByUid(index.unique);
+	if (d_vict) {
+		return d_vict->character;
+	} else {
+		auto player_ptr = std::make_shared<Player>();
+		if (load_char(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+			return player_ptr;
+		}
+	}
+	return {};
+}
+
+void InspectRequest::PrintClanAbbrevToOutput(const std::shared_ptr<CharData> &player) {
 	Clan::SetClanData(player.get());
 	if (CLAN(player)) {
 		output_ << fmt::format(", Clan: {}.\r\n", (player)->player_specials->clan->GetAbbrev());
@@ -172,7 +190,7 @@ void InspectRequest::PrintClanAbbrevToOutput(const std::shared_ptr<Player> &play
 	}
 }
 
-void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player) {
+void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<CharData> &player) {
 	if (PLR_FLAGGED(player, EPlrFlag::kFrozen)) {
 		PrintSinglePunishmentInfoToOutput("FROZEN", player->player_specials->pfreeze);
 	}
@@ -192,17 +210,11 @@ void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &playe
 
 void InspectRequest::PrintSinglePunishmentInfoToOutput(std::string_view punish_text, const Punish &punish) {
 	if (punish.duration) {
-		output_ << fmt::format(" {}{}{} until {:%R %d-%B-%Y} [{}].\r\n",
+		output_ << fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
 							   KIRED, punish_text, KNRM,
 							   std::chrono::system_clock::from_time_t(punish.duration),
 							   (punish.reason ? punish.reason : "-"));
 	}
-}
-
-bool InspectRequest::IsPlayerMathed(const PlayerIndexElement &index) {
-	auto result = IsIndexMatched(index);
-	match_count_ += result;
-	return result;
 }
 
 void InspectRequest::MailOutputTo(const std::string &email) {
@@ -314,7 +326,7 @@ class InspectRequestAll : public InspectRequest {
   std::set<std::string> victim_ip_log_;
   std::ostringstream logon_buffer_;        // записи о совпавших коннектах проверяемого персонажа
 
-  void NoteVictimInfo(const std::shared_ptr<Player> &vict);
+  void NoteVictimInfo(const CharData::shared_ptr &vict);
   bool IsIndexMatched(const PlayerIndexElement &index) final;
   bool IsIpMatched(const char *ip);
   bool InspectLogonList(const CharData::shared_ptr &player);
@@ -328,16 +340,20 @@ InspectRequestAll::InspectRequestAll(const CharData *author, std::vector<std::st
 		throw std::runtime_error("Вы не столь божественны, как вам кажется.\r\n");
 	}
 
-	auto vict = std::make_shared<Player>();
-	if (load_char(GetRequestText().c_str(), vict.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
-		NoteVictimInfo(vict);
+	const auto vict_table_pos = player_table.get_by_name(GetRequestText().c_str());
+	const auto &vict_index = player_table[vict_table_pos];
+	auto vict_ptr = GetCharPtr(vict_index);
+	if (vict_ptr) {
+		NoteVictimInfo(vict_ptr);
 	} else {
 		throw std::runtime_error(fmt::format("Inspecting all: не удалось загрузить файл персонажа '{}'.\r\n",
 											 GetRequestText()));
 	}
+	// Forced processing so that victim info was on the top of inpect results.
+	ProcessMatchedIndex(vict_index);
 }
 
-void InspectRequestAll::NoteVictimInfo(const std::shared_ptr<Player> &vict) {
+void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 	AddToOutput(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, GetRequestText(), KNRM));
 	vict_uid_ = vict->get_uid();
 	for (const auto &logon : LOGON_LIST(vict)) {
@@ -355,19 +371,14 @@ void InspectRequestAll::PrintOtherInspectInfoToOutput() {
 
 bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
 	if (vict_uid_ == index.unique) {
-		return true;
+		return false;
 	}
-
-	auto d_vict = DescriptorByUid(index.unique);
-	if (d_vict) {
-		return InspectLogonList(d_vict->character);
+	auto player_ptr = GetCharPtr(index);
+	if (player_ptr) {
+		return InspectLogonList(player_ptr);
 	} else {
-		auto player = std::make_shared<Player>();
-		if (load_char(index.name(), player.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
-			return InspectLogonList(player);
-		}
+		return false;
 	}
-	return false;
 }
 
 bool InspectRequestAll::InspectLogonList(const CharData::shared_ptr &player) {
