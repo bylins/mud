@@ -10,6 +10,7 @@
 #include "modify.h"
 #include "fmt/format.h"
 #include "fmt/chrono.h"
+#include "utils/utils_time.h"
 
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
@@ -55,9 +56,10 @@ class InspectRequest {
   int author_level_{0};
   int match_count_{0};
   std::size_t current_player_table_pos_{0};
-  struct timeval request_creation_time_{};
   std::string request_text_;
   std::ostringstream output_;
+  utils::CExecutionTimer request_timer_;
+  utils::CExecutionTimer inspecting_timer_;
 
   void InspectPlayerTable();
   void InspectIndex(const PlayerIndexElement &index);
@@ -66,17 +68,14 @@ class InspectRequest {
   void PrintPunishmentsInfoToOutput(std::shared_ptr<Player> &player);
   void PrintSinglePunishmentInfoToOutput(std::string_view punish_text, const Punish &punish);
   void PrintClanAbbrevToOutput(const std::shared_ptr<Player> &player);
+  bool IsTimeExpired();
   Status CheckStatus(DescriptorData *author);
-
-  static bool IsTimeExpired(timeval &start_time);
 };
 
-InspectRequest::InspectRequest(const CharData *author, std::vector<std::string> &args) {
-	author_uid_ = author->get_uid();
-	author_level_ = author->GetLevel();
-	request_text_ = args[kRequestTextPos];
-	gettimeofday(&request_creation_time_, nullptr);
-}
+InspectRequest::InspectRequest(const CharData *author, std::vector<std::string> &args)
+	: author_uid_(author->get_uid()),
+	  author_level_(author->GetLevel()),
+	  request_text_(args[kRequestTextPos]) {}
 
 InspectRequest::Status InspectRequest::Inspect() {
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
@@ -89,10 +88,9 @@ InspectRequest::Status InspectRequest::Inspect() {
 }
 
 void InspectRequest::InspectPlayerTable() {
-	timeval start_inspect_time{};
-	gettimeofday(&start_inspect_time, nullptr);
+	inspecting_timer_.restart();
 	for (; current_player_table_pos_ < player_table.size(); ++current_player_table_pos_) {
-		if (IsTimeExpired(start_inspect_time)) {
+		if (IsTimeExpired()) {
 			break;
 		}
 		const auto &player_index = player_table[current_player_table_pos_];
@@ -102,11 +100,9 @@ void InspectRequest::InspectPlayerTable() {
 	}
 }
 
-bool InspectRequest::IsTimeExpired(timeval &start_time) {
-	timeval current_time{}, delta_time{};
-	gettimeofday(&current_time, nullptr);
-	timediff(&delta_time, &current_time, &start_time);
-	return (delta_time.tv_sec > 0 || delta_time.tv_usec > kOptUsec);
+bool InspectRequest::IsTimeExpired() {
+	auto delta = std::chrono::duration_cast<std::chrono::microseconds>(inspecting_timer_.delta()).count();
+	return (delta > kOptUsec);
 }
 
 bool InspectRequest::IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const {
@@ -134,10 +130,8 @@ void InspectRequest::OutputResult(DescriptorData *author_descriptor) {
 }
 
 void InspectRequest::PrintSearchStatisticsToOutput() {
-	timeval stop{}, result{};
-	gettimeofday(&stop, nullptr);
-	timediff(&result, &stop, &request_creation_time_);
-	output_ << fmt::format("Всего найдено: {} за {} сек.\r\n", match_count_, result.tv_sec);
+	using namespace std::chrono_literals;
+	output_ << fmt::format("Всего найдено: {} за {:.3f} сек.\r\n", match_count_, request_timer_.delta()/1.0s);
 }
 
 void InspectRequest::PageOutputToAuthor(DescriptorData *author_descriptor) const {
@@ -463,8 +457,7 @@ bool InspectRequestDeque::IsQueueAvailable(const CharData *ch) {
 }
 
 bool InspectRequestDeque::IsBusy(const CharData *ch) {
-	auto predicate = [ch](const auto &p)
-		{ return (ch->get_uid() == p->GetAuthorUid()); };
+	auto predicate = [ch](const auto &p) { return (ch->get_uid() == p->GetAuthorUid()); };
 	return (std::find_if(begin(), end(), predicate) != end());
 }
 

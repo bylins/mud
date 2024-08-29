@@ -12,7 +12,7 @@ class CharData;
 class InspectRequest;
 using InspectRequestPtr = std::shared_ptr<InspectRequest>;
 
-class InspectRequestDeque : protected std::deque<InspectRequestPtr> {
+class InspectRequestDeque : private std::deque<InspectRequestPtr> {
  public:
   InspectRequestDeque() = default;
 
