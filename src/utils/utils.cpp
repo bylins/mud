@@ -1613,7 +1613,7 @@ void MemLeakInfo() {
 	if (pmem_used != last_pmem_used) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		last_pmem_used = pmem_used;
-		sprintf(buf, "Memory size missmatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
+		sprintf(buf, "Memory size mistmatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		last_pmem_used = pmem_used;
 	}
