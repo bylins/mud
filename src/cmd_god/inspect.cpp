@@ -20,6 +20,29 @@ const int kRequestTextPos{1};
 
 const std::set<std::string> kIgnoredIpChecklist = {"135.181.219.76"};
 
+// =======================================  REQUEST RESULT  ============================================
+
+class RequestResult {
+ public:
+  RequestResult() = default;
+
+  void AddToOutput(const std::string &str) { output_ << str; };
+  void MailOutputTo(const std::string &email);
+  void PageOutputToAuthor(DescriptorData *author_descriptor) const;
+ private:
+  std::ostringstream output_;
+};
+
+void RequestResult::MailOutputTo(const std::string &email) {
+	std::string cmd_line = "python3 MailOutputTo.py " + email + " " + output_.str() + " &";
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
+}
+
+void RequestResult::PageOutputToAuthor(DescriptorData *author_descriptor) const {
+	page_string(author_descriptor, output_.str());
+}
+
 // =======================================  INSPECT REQUEST INTERFACE  ============================================
 
 class InspectRequest {
@@ -36,13 +59,12 @@ class InspectRequest {
   Status Inspect();
 
  protected:
+  RequestResult result_;
+
   explicit InspectRequest(const CharData *author, std::vector<std::string> &args);
   void ProcessMatchedIndex(const PlayerIndexElement &index);
-  void PageOutputToAuthor(DescriptorData *author_descriptor) const;
   void PrintSearchStatisticsToOutput();
   void PrintCharInfoToOutput(const PlayerIndexElement &index);
-  void AddToOutput(const std::string &str) { output_ << str; };
-  void MailOutputTo(const std::string &email);
   bool GetMatchCount() const { return match_count_; };
   bool IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const;
   const std::string &GetRequestText() const { return request_text_; };
@@ -58,7 +80,6 @@ class InspectRequest {
   int match_count_{0};
   std::size_t current_player_table_pos_{0};
   std::string request_text_;
-  std::ostringstream output_;
   utils::CExecutionTimer request_timer_;
   utils::CExecutionTimer inspecting_timer_;
 
@@ -132,16 +153,12 @@ InspectRequest::Status InspectRequest::CheckStatus(DescriptorData *author) {
 
 void InspectRequest::OutputResult(DescriptorData *author_descriptor) {
 	PrintSearchStatisticsToOutput();
-	PageOutputToAuthor(author_descriptor);
+	result_.PageOutputToAuthor(author_descriptor);
 }
 
 void InspectRequest::PrintSearchStatisticsToOutput() {
 	using namespace std::chrono_literals;
-	output_ << fmt::format("Всего найдено: {} за {:.3f} сек.\r\n", match_count_, request_timer_.delta()/1.0s);
-}
-
-void InspectRequest::PageOutputToAuthor(DescriptorData *author_descriptor) const {
-	page_string(author_descriptor, output_.str());
+	result_.AddToOutput(fmt::format("Всего найдено: {} за {:.3f} сек.\r\n", match_count_, request_timer_.delta()/1.0s));
 }
 
 void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
@@ -151,11 +168,11 @@ void InspectRequest::PrintCharInfoToOutput(const PlayerIndexElement &index) {
 
 void InspectRequest::PrintBaseCharInfoToOutput(const PlayerIndexElement &index) {
 	DescriptorData *d_vict = DescriptorByUid(index.unique);
-	output_ << fmt::format("{:-^121}\r\n", "*");
-	output_ << fmt::format("Name: {}{:<12}{} Mail: {:<30} Last: {:%e-%b-%Y} from {}, Lvl {}, Rmt {}, Cls: {}",
+	result_.AddToOutput(fmt::format("{:-^121}\r\n", "*"));
+	result_.AddToOutput(fmt::format("Name: {}{:<12}{} Mail: {:<30} Last: {:%e-%b-%Y} from {}, Lvl {}, Rmt {}, Cls: {}",
 						   (d_vict ? KIGRN : KIWHT), index.name(), KNRM,
 						   index.mail, std::chrono::system_clock::from_time_t(index.last_logon), index.last_ip,
-						   index.level, index.remorts, MUD::Class(index.plr_class).GetName());
+						   index.level, index.remorts, MUD::Class(index.plr_class).GetName()));
 }
 
 void InspectRequest::PrintExtraCharInfoToOutput(const PlayerIndexElement &index) {
@@ -164,7 +181,7 @@ void InspectRequest::PrintExtraCharInfoToOutput(const PlayerIndexElement &index)
 		PrintClanAbbrevToOutput(player_ptr);
 		PrintPunishmentsInfoToOutput(player_ptr);
 	} else {
-		output_ << ".\r\n";
+		result_.AddToOutput(".\r\n");
 	}
 }
 
@@ -184,9 +201,9 @@ CharData::shared_ptr InspectRequest::GetCharPtr(const PlayerIndexElement &index)
 void InspectRequest::PrintClanAbbrevToOutput(const std::shared_ptr<CharData> &player) {
 	Clan::SetClanData(player.get());
 	if (CLAN(player)) {
-		output_ << fmt::format(", Clan: {}.\r\n", (player)->player_specials->clan->GetAbbrev());
+		result_.AddToOutput(fmt::format(", Clan: {}.\r\n", (player)->player_specials->clan->GetAbbrev()));
 	} else {
-		output_ << ", Clan: нет.\r\n";
+		result_.AddToOutput(", Clan: нет.\r\n");
 	}
 }
 
@@ -210,17 +227,11 @@ void InspectRequest::PrintPunishmentsInfoToOutput(std::shared_ptr<CharData> &pla
 
 void InspectRequest::PrintSinglePunishmentInfoToOutput(std::string_view punish_text, const Punish &punish) {
 	if (punish.duration) {
-		output_ << fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
+		result_.AddToOutput(fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
 							   KIRED, punish_text, KNRM,
 							   std::chrono::system_clock::from_time_t(punish.duration),
-							   (punish.reason ? punish.reason : "-"));
+							   (punish.reason ? punish.reason : "-")));
 	}
-}
-
-void InspectRequest::MailOutputTo(const std::string &email) {
-	std::string cmd_line = "python3 MailOutputTo.py " + email + " " + output_.str() + " &";
-	auto result = system(cmd_line.c_str());
-	UNUSED_ARG(result);
 }
 
 // =======================================  INSPECT IP  ============================================
@@ -235,7 +246,7 @@ class InspectRequestIp : public InspectRequest {
 
 InspectRequestIp::InspectRequestIp(const CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	AddToOutput(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
+	result_.AddToOutput(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
 }
 
 bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
@@ -257,8 +268,8 @@ class InspectRequestMail : public InspectRequest {
 
 InspectRequestMail::InspectRequestMail(const CharData *author, std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	AddToOutput(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
-	send_mail_ = ((args.size() > kMinArgsNumber) && (isname(args.back(), "send_mail")));
+	result_.AddToOutput(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
+	send_mail_ = ((args.size() > kMinArgsNumber) && (args.back() == "send_mail"));
 }
 
 bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
@@ -268,10 +279,10 @@ bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
 void InspectRequestMail::OutputResult(DescriptorData *author_descriptor) {
 	PrintSearchStatisticsToOutput();
 	if (send_mail_ && GetMatchCount() > 0) {
-		MailOutputTo(GetRequestText());
-		AddToOutput("Данный список отправлен игроку на емайл\r\n");
+		result_.MailOutputTo(GetRequestText());
+		result_.AddToOutput("Данный список отправлен игроку на емайл\r\n");
 	}
-	PageOutputToAuthor(author_descriptor);
+	result_.PageOutputToAuthor(author_descriptor);
 }
 
 // =======================================  INSPECT CHAR  ============================================
@@ -307,7 +318,7 @@ InspectRequestChar::InspectRequestChar(const CharData *author, std::vector<std::
 void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
 	mail_ = index.mail;
 	last_ip_ = index.last_ip;
-	AddToOutput(fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
+	result_.AddToOutput(fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 							KWHT, GetRequestText(), KNRM, mail_, last_ip_));
 }
 
@@ -354,7 +365,7 @@ InspectRequestAll::InspectRequestAll(const CharData *author, std::vector<std::st
 }
 
 void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
-	AddToOutput(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, GetRequestText(), KNRM));
+	result_.AddToOutput(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, GetRequestText(), KNRM));
 	vict_uid_ = vict->get_uid();
 	for (const auto &logon : LOGON_LIST(vict)) {
 		if (logon.ip && !kIgnoredIpChecklist.contains(logon.ip)) {
@@ -364,7 +375,7 @@ void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 }
 
 void InspectRequestAll::PrintOtherInspectInfoToOutput() {
-	AddToOutput(logon_buffer_.str());
+	result_.AddToOutput(logon_buffer_.str());
 	logon_buffer_.str("");
 	logon_buffer_.clear();
 }
