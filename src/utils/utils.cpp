@@ -47,6 +47,8 @@
 #include "conf.h"
 #include "game_mechanics/obj_sets.h"
 #include "utils_string.h"
+#include "backtrace.h"
+
 //#include "noob.h"
 //#include "game_mechanics/guilds.h"
 
@@ -66,6 +68,8 @@
 extern DescriptorData *descriptor_list;
 extern CharData *mob_proto;
 extern const char *weapon_class[];
+extern std::pair<int, int> TotalMemUse();
+
 // local functions
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
@@ -1596,6 +1600,22 @@ void add(int zone_vnum, long exp) {
 			tmp_zone.lose = -exp;
 		}
 		zone_list[zone_vnum] = tmp_zone;
+	}
+}
+
+void MemLeakInfo() {
+ 	static int last_pmem_used = 0;
+	auto get_mem = TotalMemUse();
+	int vmem_used = get_mem.first;
+	int pmem_used = get_mem.second;
+	char buf [256];
+
+	if (pmem_used != last_pmem_used) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		last_pmem_used = pmem_used;
+		sprintf(buf, "Memory size missmatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		last_pmem_used = pmem_used;
 	}
 }
 
