@@ -12,8 +12,6 @@
 #include "fmt/chrono.h"
 #include "utils/utils_time.h"
 
-extern void MemLeakInfo();
-
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
 const int kMinArgsNumber{2};

@@ -119,11 +119,7 @@ int get_line(FILE *fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
 TimeInfoData *age(const CharData *ch);
 int num_pc_in_room(RoomData *room);
-int replace_str(const utils::AbstractStringWriter::shared_ptr &writer,
-				const char *pattern,
-				const char *replacement,
-				int rep_all,
-				int max_size);
+int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern, const char *replacement, int rep_all, int max_size);
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
 int check_moves(CharData *ch, int how_moves);
 void koi_to_alt(char *str, int len);
@@ -141,10 +137,11 @@ char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-
-extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
+void MemLeakInfo();
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
 bool is_head(std::string name);
+
+extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
 /*
 std::string to_string(int x) { return std::to_string(x); }
 std::string to_string(unsigned int x) { return std::to_string(x); }
