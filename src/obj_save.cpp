@@ -40,7 +40,7 @@ extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
 #define RENTCODE(number) (player_table[(number)].timer->rent.rentcode)
-#define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
+#define GET_INDEX(ch) (GetPlayerTablePosByName(GET_NAME(ch)))
 
 // Extern functions
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
@@ -1302,10 +1302,7 @@ void Crash_list_objects(CharData *ch, int index) {
 }
 
 void Crash_listrent(CharData *ch, char *name) {
-	int index;
-
-	index = get_ptable_by_name(name);
-
+	int index = GetPlayerTablePosByName(name);
 	if (index < 0) {
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;

@@ -96,7 +96,6 @@ using std::ifstream;
 using std::fstream;
 
 // external vars
-extern bool need_warn;
 extern FILE *player_fl;
 extern int circle_restrict;
 extern int load_into_inventory;
@@ -1047,7 +1046,7 @@ void setall_inspect() {
 	CharData *ch = nullptr;
 	DescriptorData *d_vict = nullptr;
 
-	DescriptorData *imm_d = DescByUID(player_table[it->first].unique);
+	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].unique);
 	if (!imm_d
 		|| (STATE(imm_d) != CON_PLAYING)
 		|| !(ch = imm_d->character.get())) {
@@ -1057,7 +1056,6 @@ void setall_inspect() {
 
 	timeval start{}, stop{}, result{};
 	int is_online;
-	need_warn = false;
 	gettimeofday(&start, nullptr);
 	Player *vict;
 	for (; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++) {
@@ -1070,7 +1068,7 @@ void setall_inspect() {
 		}
 		buf1[0] = '\0';
 		is_online = 0;
-		d_vict = DescByUID(player_table[it->second->pos].unique);
+		d_vict = DescriptorByUid(player_table[it->second->pos].unique);
 		if (d_vict)
 			is_online = 1;
 		if (player_table[it->second->pos].mail)
@@ -1089,7 +1087,8 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1126,7 +1125,8 @@ void setall_inspect() {
 						it->second->out += buf2;
 
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1162,7 +1162,8 @@ void setall_inspect() {
 						it->second->out += buf1;
 						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1196,7 +1197,8 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict) < 0) {
+						if (load_char(player_table[it->second->pos].name(), vict,
+									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1230,7 +1232,6 @@ void setall_inspect() {
 		free(it->second->newmail);
 	if (it->second->mail)
 		free(it->second->mail);
-	need_warn = true;
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d.\r\n", it->second->found);
@@ -1245,10 +1246,9 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it_inspect = MUD::inspect_list().find(GET_UNIQUE(ch));
 	auto it = setall_inspect_list.find(GET_UNIQUE(ch));
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
-	if (it_inspect != MUD::inspect_list().end() && it != setall_inspect_list.end()) {
+	if (MUD::InspectRequests().IsBusy(ch) && it != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
 		return;
 	}
@@ -1433,7 +1433,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
-		if (load_char(arg, &t_vict) < 0) {
+		if (load_char(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
@@ -1627,7 +1627,7 @@ void do_unfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	while (!unfreeze_list.eof()) {
 		unfreeze_list >> name_buffer;
-		if (load_char(name_buffer.c_str(), &t_vict) < 0) {
+		if (load_char(name_buffer.c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
 			sprintf(buf, "Чара с именем %s не существует !\r\n", name_buffer.c_str());
 			SendMsgToChar(buf, ch);
 			continue;
@@ -2541,7 +2541,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	Player t_chdata;
 	Player *chdata = &t_chdata;
-	if (load_char(arg, chdata) < 0) {
+	if (load_char(arg, chdata, ELoadCharFlags::kFindId) < 0) {
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
@@ -3435,7 +3435,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				// выносим из листа неодобренных имен, если есть
 				NewNames::remove(vict);
 
-				ptnum = get_ptable_by_name(GET_NAME(vict));
+				ptnum = GetPlayerTablePosByName(GET_NAME(vict));
 				if (ptnum < 0)
 					return (0);
 
@@ -3843,7 +3843,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		cbuf = std::make_unique<Player>();
-		if ((player_i = load_char(name, cbuf.get())) > -1) {
+		if ((player_i = load_char(name, cbuf.get(), ELoadCharFlags::kFindId)) > -1) {
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(cbuf) && !(is_head(ch->get_name_str()))) {

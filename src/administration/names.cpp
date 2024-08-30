@@ -230,7 +230,7 @@ void NewNames::load() {
 		// сразу проверяем не сделетился ли уже персонаж
 		Player t_tch;
 		Player *tch = &t_tch;
-		if (load_char(buffer.c_str(), tch) < 0)
+		if (load_char(buffer.c_str(), tch, ELoadCharFlags::kFindId) < 0)
 			continue;
 		// не сделетился...
 		cache_add(tch);
@@ -452,7 +452,7 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		go_name(ch, vict, action);
 	} else {
 		vict = new Player; // TODO: переделать на стек
-		if (load_char(name.c_str(), vict) < 0) {
+		if (load_char(name.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			delete vict;
 			return;

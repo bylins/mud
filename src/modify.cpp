@@ -785,7 +785,7 @@ void string_add(DescriptorData *d, char *str) {
 			if ((terminator == 1) && d->writer->get_string()) {
 				mail::add(d->mail_to, d->character->get_uid(), d->writer->get_string());
 				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
-				if (DescByUID(d->mail_to)) {
+				if (DescriptorByUid(d->mail_to)) {
 					mail::add_notice(d->mail_to);
 				}
 			} else

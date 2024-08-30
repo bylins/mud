@@ -20,6 +20,7 @@
 #include "administration/name_adviser.h"
 #include "obj_save.h"
 #include "entities/obj_data.h"
+#include "entities/player_i.h"
 #include "structs/descriptor_data.h"
 #include "structs/structs.h"
 
@@ -52,11 +53,11 @@ const char *get_name_by_id(long id);
 const char *get_name_by_unique(int unique);
 int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
-long get_ptable_by_unique(long unique);
+long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
 
-int load_char(const char *name, CharData *char_element, bool reboot = false, bool find_id = true);
+int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
 int vnum_mobile(char *searchname, CharData *ch);
 void ClearCharTalents(CharData *ch);
@@ -303,7 +304,7 @@ extern RoomRnum r_immort_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
-long get_ptable_by_name(const char *name);
+long GetPlayerTablePosByName(const char *name);
 void free_alias(struct alias_data *a);
 
 class PlayersIndex : public std::vector<PlayerIndexElement> {

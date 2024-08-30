@@ -3,25 +3,28 @@
 //
 
 #include <memory>
-#include <map>
+#include <deque>
 
 #ifndef BYLINS_SRC_CMD_GOD_INSPECT_H_
 #define BYLINS_SRC_CMD_GOD_INSPECT_H_
 
 class CharData;
-struct InspectRequest;
+class InspectRequest;
+using InspectRequestPtr = std::shared_ptr<InspectRequest>;
 
-using InspReqPtr = std::shared_ptr<InspectRequest>;
-/**
- * filepos - позиция в player_table перса который делает запрос
- * InspReqPtr - сам запрос
-*/
-using InspReqListType = std::map<int, InspReqPtr>;
+class InspectRequestDeque : private std::deque<InspectRequestPtr> {
+ public:
+  InspectRequestDeque() = default;
 
-//extern InspReqListType &inspect_list;
+  void Create(const CharData *ch, char *argument);
+  void Inspecting();
+  bool IsBusy(const CharData *ch);
+
+ private:
+  bool IsQueueAvailable(const CharData *ch);
+};
 
 void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void Inspecting();
 
 #endif //BYLINS_SRC_CMD_GOD_INSPECT_H_
 

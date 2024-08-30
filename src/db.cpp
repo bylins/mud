@@ -5720,7 +5720,7 @@ long cmp_ptable_by_name(char *name, int len) {
 	return -1;
 }
 
-long get_ptable_by_name(const char *name) {
+long GetPlayerTablePosByName(const char *name) {
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
@@ -5737,7 +5737,7 @@ long get_ptable_by_name(const char *name) {
 	return (-1);
 }
 
-long get_ptable_by_unique(long unique) {
+long GetPtableByUnique(long unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		if (player_table[i].unique == unique) {
@@ -5854,8 +5854,8 @@ void set_god_skills(CharData *ch) {
 #define NUM_OF_SAVE_THROWS    5
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
-int load_char(const char *name, CharData *char_element, bool reboot, const bool find_id) {
-	const auto player_i = char_element->load_char_ascii(name, reboot, find_id);
+int load_char(const char *name, CharData *char_element, const int load_flags) {
+	const auto player_i = char_element->load_char_ascii(name, load_flags);
 	if (player_i > -1) {
 		char_element->set_pfilepos(player_i);
 	}
@@ -6268,7 +6268,7 @@ int must_be_deleted(CharData *short_ch) {
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void entrycount(char *name, const bool find_id /*= true*/) {
+void entrycount(char *name) {
 	int deleted;
 	char filename[kMaxStringLength];
 
@@ -6277,7 +6277,7 @@ void entrycount(char *name, const bool find_id /*= true*/) {
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, 1, find_id) > -1) {
+		if (load_char(name, short_ch, ELoadCharFlags::kReboot) > -1) {
 			// если чар удален или им долго не входили, то не создаем для него запись
 			if (!must_be_deleted(short_ch)) {
 				deleted = 0;
@@ -6361,7 +6361,7 @@ void new_build_player_index() {
 			continue;
 
 		if (!player_table.player_exists(playername)) {
-			entrycount(playername, false);
+			entrycount(playername);
 		}
 	}
 
@@ -6438,7 +6438,7 @@ void rename_char(CharData *ch, char *oname) {
 void delete_char(const char *name) {
 	Player t_st;
 	Player *st = &t_st;
-	int id = load_char(name, st);
+	int id = load_char(name, st, ELoadCharFlags::kFindId);
 
 	if (id >= 0) {
 		PLR_FLAGS(st).set(EPlrFlag::kDeleted);

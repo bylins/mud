@@ -27,31 +27,29 @@ void do_move(CharData *ch, char *argument, int cmd, int subcmd);
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
-#define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
 void command_interpreter(CharData *ch, char *argument);
-int search_block(const char *arg, const char **list, int exact);
-int search_block(const std::string &arg, const char **list, int exact);
+int search_block(const char *target_string, const char **list, int exact);
+int search_block(const std::string &block, const char **list, int exact);
 int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
-void nanny(DescriptorData *d, char *arg);
+void nanny(DescriptorData *d, char *argument);
 
 int is_number(const char *str);
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
 void GetOneParam(std::string &buffer, std::string &buffer2);
-bool CompareParam(const std::string &buffer, const char *arg, bool full = false);
+bool CompareParam(const std::string &buffer, const char *str, bool full = false);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
-DescriptorData *DescByUID(int uid);
-DescriptorData *get_desc_by_id(long id, bool playing = 1);
-long GetUniqueByName(const std::string &name, bool god = false);
+DescriptorData *DescriptorByUid(int uid);
+int GetUniqueByName(const std::string &name, bool god = false);
 std::string GetNameByUnique(long unique, bool god = false);
 bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
 void name_convert(std::string &text);
 void god_work_invoice();
-int special(CharData *ch, int cmd, char *arg, int fnum);
+int special(CharData *ch, int cmd, char *argument, int fnum);
 int find_name(const char *name);
 
 void check_hiding_cmd(CharData *ch, int percent);
@@ -59,9 +57,6 @@ void check_hiding_cmd(CharData *ch, int percent);
 char *delete_doubledollar(char *string);
 // Cоответствие классов и религий (Кард)
 extern const int class_religion[];
-
-// for compatibility with 2.20:
-#define argument_interpreter(a, b, c) two_arguments(a, b, c)
 
 struct command_info {
 	const char *command;
@@ -74,7 +69,7 @@ struct command_info {
 
 /*
  * Necessary for CMD_IS macro.  Borland needs the structure defined first
- * so it has been moved down here.
+ * so, it has been moved down here.
  */
 #ifndef __INTERPRETER_C__
 extern const struct command_info cmd_info[];
@@ -102,7 +97,7 @@ struct alias_data {
 /*
  * SUBCOMMANDS
  *   You can define these however you want to, and the definitions of the
- *   subcommands are independent from function to function.
+ *   subcommands are independent of function to function.
  */
 
 // directions
@@ -117,8 +112,8 @@ struct alias_data {
 #define SCMD_INFO       0
 #define SCMD_HANDBOOK   1
 #define SCMD_CREDITS    2
-// free
-// free
+// 3 free
+// 4 free
 #define SCMD_POLICIES   5
 #define SCMD_VERSION    6
 #define SCMD_IMMLIST    7
@@ -145,11 +140,11 @@ struct alias_data {
 #define SCMD_SLOWNS  14
 #define SCMD_AUTOEXIT   15
 #define SCMD_TRACK   16
-//#define SCMD_COLOR      17  теперь свободно
+// 17  теперь свободно
 #define SCMD_CODERINFO  18
 #define SCMD_AUTOMEM    19
 #define SCMD_COMPRESS   20
-#define SCMD_AUTOZLIB   21
+//  21
 #define SCMD_NOSHOUT    22
 #define SCMD_GOAHEAD    23
 #define SCMD_SHOWGROUP  24
@@ -211,11 +206,9 @@ struct alias_data {
 #define SCMD_AUCTION 3
 
 // do_shutdown
-#define SCMD_SHUTDOW 0
 #define SCMD_SHUTDOWN   1
 
 // do_quit
-#define SCMD_QUI  0
 #define SCMD_QUIT 1
 
 // do_date
@@ -319,10 +312,10 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }
 
-// читает все аргументы из arg в out
-void array_argument(const char *arg, std::vector<std::string> &out);
-void array_argument(const char *arg, std::vector<short> &out);
-void array_argument(const char *arg, std::vector<int> &out);
+// читает все аргументы из arguments в out
+void SplitArgument(const char *arguments, std::vector<std::string> &out);
+void SplitArgument(const char *arguments, std::vector<short> &out);
+void SplitArgument(const char *arguments, std::vector<int> &out);
 
 // константы для спам-контроля команды кто
 // если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава

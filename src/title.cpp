@@ -273,7 +273,7 @@ bool TitleSystem::check_alphabet(const std::string &text, CharData *ch, const st
 * \param action - 0 если запрещаем, 1 если одобряем
 */
 DescriptorData *TitleSystem::send_result_message(long unique, bool action) {
-	DescriptorData *d = DescByUID(unique);
+	DescriptorData *d = DescriptorByUid(unique);
 	if (d) {
 		SendMsgToChar(d->character.get(), "Ваш титул был %s Богами.\r\n", action ? "одобрен" : "запрещен");
 	}
@@ -298,7 +298,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 				send_to_gods(buf, true);
 			} else {
 				Player victim;
-				if (load_char(it->first.c_str(), &victim) < 0) {
+				if (load_char(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
 					SendMsgToChar("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;
@@ -317,7 +317,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 				send_to_gods(buf, true);
 			} else {
 				Player victim;
-				if (load_char(it->first.c_str(), &victim) < 0) {
+				if (load_char(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
 					SendMsgToChar("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;

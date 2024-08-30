@@ -20,6 +20,10 @@ const int kPlayerChartSize = 10;
 class TopPlayer;
 using PlayerChart = std::unordered_map<ECharClass, std::list<TopPlayer>>;
 
+namespace Rating {
+    void DoBest(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+}
+
 class TopPlayer {
  public:
 	TopPlayer(long unique, const char *name, long exp, int remort)
@@ -43,7 +47,7 @@ class TopPlayer {
 	static void PrintPlayersChart(CharData *ch);
 	static void PrintClassChart(CharData *ch, ECharClass id);
 
-	friend void DoBest(CharData *ch, char *argument, int cmd, int subcmd);
+	friend void Rating::DoBest(CharData *ch, char *argument, int cmd, int subcmd);
 };
 
 #endif // TOP_H_

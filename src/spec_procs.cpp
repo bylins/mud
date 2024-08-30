@@ -1484,7 +1484,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 		} else {
 			vict = new Player; // TODO: переделать на стек
-			if (load_char(arg, vict) < 0) {
+			if (load_char(arg, vict, ELoadCharFlags::kFindId) < 0) {
 				SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 				delete vict;
 				return (1);

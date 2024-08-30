@@ -97,7 +97,7 @@ class Player : public CharData {
 	void dps_add_exp(int exp, bool battle = false);
 
 	void save_char();
-	int load_char_ascii(const char *name, bool reboot = 0, const bool find_id = true);
+	int load_char_ascii(const char *name, int load_flags) override;
 
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
@@ -178,7 +178,7 @@ class Player : public CharData {
 	bool arena_player = false;
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
-	// get_ptable_by_name или find_name (дублирование кода кстати) и всякие поиски по ид/уид, если уже имеем чар-дату
+	// GetPlayerTablePosByName или find_name (дублирование кода кстати) и всякие поиски по ид/уид, если уже имеем чар-дату
 	int pfilepos_;
 	// комната, в которой был чар до того, как его поместили в странную (linkdrop)
 	RoomRnum was_in_room_;

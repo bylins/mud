@@ -559,7 +559,7 @@ void drop_torc(CharData *mob) {
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
 	DescriptorData *d = nullptr;
 	if (damager.first > 0) {
-		d = DescByUID(damager.first);
+		d = DescriptorByUid(damager.first);
 	}
 	if (!d) {
 		return;

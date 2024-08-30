@@ -8,7 +8,7 @@
 #include <sstream>
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
-extern bool CompareParam(const std::string &buffer, const char *arg, bool full);
+extern bool CompareParam(const std::string &buffer, const char *str, bool full);
 
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
@@ -30,7 +30,7 @@ int Account::zero_hryvn(CharData *ch, int val) {
 			continue;
 		}
 
-		const auto &player = player_table[get_ptable_by_unique(plr)];
+		const auto &player = player_table[GetPtableByUnique(plr)];
 		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
 			if (PRF_FLAGGED(ch, EPrf::kTester)) {
 				SendMsgToChar(ch,

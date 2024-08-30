@@ -30,7 +30,7 @@ void do_telegram(CharData *ch, char *argument, int, int) {
 	Player p_vict;
 	if (!found) {
 //        SendMsgToChar(ch, "Не нашли онлайн, ищем в файле.\r\n");
-		if (load_char(playerName, &p_vict) == -1) {
+		if (load_char(playerName, &p_vict, ELoadCharFlags::kFindId) == -1) {
 			SendMsgToChar("Ошибочка вышла..\r\n", ch);
 			return;
 		}

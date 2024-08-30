@@ -37,7 +37,7 @@ struct GlobalObjectsStorage {
 	ShutdownParameters shutdown_parameters;
 	Speedwalks speedwalks;
 	SetAllInspReqListType setall_inspect_list;
-	InspReqListType inspect_list;
+  	InspectRequestDeque inspect_request_deque;
 	BanList *ban;
 	Heartbeat heartbeat;
 	std::shared_ptr<influxdb::Sender> stats_sender;
@@ -139,8 +139,8 @@ Speedwalks &GlobalObjects::speedwalks() {
 	return global_objects().speedwalks;
 }
 
-InspReqListType &GlobalObjects::inspect_list() {
-	return global_objects().inspect_list;
+InspectRequestDeque &GlobalObjects::InspectRequests() {
+	return global_objects().inspect_request_deque;
 }
 
 SetAllInspReqListType &GlobalObjects::setall_inspect_list() {

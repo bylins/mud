@@ -10,7 +10,6 @@
 #include "interpreter.h"
 #include "comm.h"
 
-bool need_warn = true;
 namespace FileCRC {
 void add_message(const char *text, ...) __attribute__((format(printf, 1, 2)));
 
@@ -174,12 +173,8 @@ void save(bool force_save) {
 }
 
 void create_message(std::string &name, int mode, const uint32_t &expected, const uint32_t &calculated) {
-	if (!need_warn) {
-		return;
-	}
-
 	char time_buf[20];
-	time_t ct = time(0);
+	time_t ct = time(nullptr);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	std::string file_type;
 	switch (mode) {

@@ -413,7 +413,7 @@ void CharData::purge() {
 	struct alias_data *a;
 
 	if (!this->IsNpc() && !get_name().empty()) {
-		id = get_ptable_by_name(GET_NAME(this));
+		id = GetPlayerTablePosByName(GET_NAME(this));
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
 			player_table[id].remorts = GetRealRemort(this);

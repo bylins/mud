@@ -14,18 +14,18 @@ void Birthplaces::LoadBirthPlace(pugi::xml_node BirthPlaceNode) {
 	BirthPlacePtr TmpBirthPlace(new Birthplaces);
 
 	//Парсим параметры точки создания
-	TmpBirthPlace->_Id = BirthPlaceNode.attribute("id").as_int();
-	TmpBirthPlace->_Name = BirthPlaceNode.child("name").child_value();
-	TmpBirthPlace->_Description = BirthPlaceNode.child("shortdesc").child_value();
-	TmpBirthPlace->_MenuStr = BirthPlaceNode.child("menustring").child_value();
+	TmpBirthPlace->id_ = BirthPlaceNode.attribute("id").as_int();
+	TmpBirthPlace->name_ = BirthPlaceNode.child("name").child_value();
+	TmpBirthPlace->description_ = BirthPlaceNode.child("shortdesc").child_value();
+	TmpBirthPlace->menu_str_ = BirthPlaceNode.child("menustring").child_value();
 	CurNode = BirthPlaceNode.child("room");
-	TmpBirthPlace->_LoadRoom = CurNode.attribute("vnum").as_int();
-	TmpBirthPlace->_RentHelp = BirthPlaceNode.child("renthelp").child_value();
+	TmpBirthPlace->load_room_ = CurNode.attribute("vnum").as_int();
+	TmpBirthPlace->rent_help_ = BirthPlaceNode.child("renthelp").child_value();
 
 	//Парсим список предметов
 	CurNode = BirthPlaceNode.child("items");
 	for (CurNode = CurNode.child("item"); CurNode; CurNode = CurNode.next_sibling("item")) {
-		TmpBirthPlace->_ItemsList.push_back(CurNode.attribute("vnum").as_int());
+		TmpBirthPlace->items_list_.push_back(CurNode.attribute("vnum").as_int());
 	}
 	//Добавляем новую точку в список
 	Birthplaces::BirthPlaceList.push_back(TmpBirthPlace);
@@ -44,92 +44,92 @@ void Birthplaces::Load(pugi::xml_node XMLBirthPlaceList) {
 // Если руки дойдут - потом переделаю.
 
 // Получение ссылки на точку входа по ее ID
-BirthPlacePtr Birthplaces::GetBirthPlaceById(short Id) {
+BirthPlacePtr Birthplaces::GetBirthPlaceById(int Id) {
 	BirthPlacePtr BPPtr;
-	for (BirthPlaceListType::iterator it = BirthPlaceList.begin(); it != BirthPlaceList.end(); ++it)
-		if (Id == (*it)->Id())
-			BPPtr = *it;
+	for (auto & it : BirthPlaceList) {
+      if (Id == it->Id()) {
+        BPPtr = it;
+      }
+    }
 
 	return BPPtr;
-};
+}
 
 // Получение внума комнаты по ID точки входа
-int Birthplaces::GetLoadRoom(short Id) {
+int Birthplaces::GetLoadRoom(int Id) {
 	BirthPlacePtr BPPtr = Birthplaces::GetBirthPlaceById(Id);
 	if (BPPtr)
 		return BPPtr->LoadRoom();
 
 	return kDefaultLoadroom;
-};
+}
 
 // Получение списка предметов, которые выдаются в этой точке при первом входе в игру
-std::vector<int> Birthplaces::GetItemList(short Id) {
+std::vector<int> Birthplaces::GetItemList(int Id) {
 	std::vector<int> BirthPlaceItemList;
 	BirthPlacePtr BPPtr = Birthplaces::GetBirthPlaceById(Id);
 	if (BPPtr)
 		BirthPlaceItemList = BPPtr->ItemsList();
 
 	return BirthPlaceItemList;
-};
+}
 
 // Получение строчки меню для точки входа по ID
-std::string Birthplaces::GetMenuStr(short Id) {
+[[maybe_unused]] std::string Birthplaces::GetMenuStr(int Id) {
 	BirthPlacePtr BPPtr = Birthplaces::GetBirthPlaceById(Id);
 	if (BPPtr != nullptr)
 		return BPPtr->MenuStr();
 
 	return BIRTH_PLACE_NAME_UNDEFINED;
-};
+}
 
 // Генерация меню по списку точек входа
-std::string Birthplaces::ShowMenu(std::vector<int> BPList) {
+std::string Birthplaces::ShowMenu(const std::vector<int> &BPList) {
 	int i;
 	BirthPlacePtr BPPtr;
 	std::ostringstream buffer;
 	i = 1;
-	for (std::vector<int>::iterator it = BPList.begin(); it != BPList.end(); ++it) {
-		BPPtr = Birthplaces::GetBirthPlaceById(*it);
+	for (const auto it : BPList) {
+		BPPtr = Birthplaces::GetBirthPlaceById(it);
 		if (BPPtr != nullptr) {
-			buffer << " " << i << ") " << BPPtr->_MenuStr << "\r\n";
+			buffer << " " << i << ") " << BPPtr->menu_str_ << "\r\n";
 			i++;
-		};
-	};
+		}
+	}
 
 	return buffer.str();
-};
+}
 
 // Сравнение текстового ввода с описанием точек
 // Добавлено, чтоб не травмировать нежную психику мортящихся
-short Birthplaces::ParseSelect(char *arg) {
-	std::string select = arg;
+int Birthplaces::ParseSelect(const char *argument) {
+	std::string select = argument;
 	utils::ConvertToLow(select);
-//    std::transform(select.begin(), select.end(), select.begin(), _tolower);
-	for (BirthPlaceListType::iterator it = BirthPlaceList.begin(); it != BirthPlaceList.end(); ++it)
-		if (select == (*it)->Description())
-			return (*it)->Id();
+	for (auto & it : BirthPlaceList) {
+      if (select == it->Description()) {
+        return it->Id();
+      }
+    }
 
 	return kBirthplaceUndefined;
-};
+}
 
 // Проверка наличия точки входа с указанным ID
-bool Birthplaces::CheckId(short Id) {
+bool Birthplaces::CheckId(int Id) {
 	BirthPlacePtr BPPtr = Birthplaces::GetBirthPlaceById(Id);
-	if (BPPtr != nullptr)
-		return true;
-
-	return false;
-};
+	return (BPPtr != nullptr);
+}
 
 int Birthplaces::GetIdByRoom(int vnumum) {
-	for (auto i = BirthPlaceList.begin(); i != BirthPlaceList.end(); ++i) {
-		if ((*i)->LoadRoom() / 100 == vnumum / 100) {
-			return (*i)->Id();
+	for (auto & i : BirthPlaceList) {
+		if (i->LoadRoom() / 100 == vnumum / 100) {
+			return i->Id();
 		}
 	}
 	return -1;
 }
 
-std::string Birthplaces::GetRentHelp(short Id) {
+std::string Birthplaces::GetRentHelp(int Id) {
 	BirthPlacePtr BPPtr = Birthplaces::GetBirthPlaceById(Id);
 	if (BPPtr != nullptr && !BPPtr->RentHelp().empty()) {
 		return BPPtr->RentHelp();

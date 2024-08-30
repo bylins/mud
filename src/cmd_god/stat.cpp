@@ -1272,7 +1272,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 					SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
 				}
 				Player t_vict;
-				if (load_char(buf2, &t_vict) > -1) {
+				if (load_char(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
 					do_statip(ch, &t_vict);
 				} else {
 					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
@@ -1291,7 +1291,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 					SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
 				}
 				Player t_vict;
-				if (load_char(buf2, &t_vict) > -1) {
+				if (load_char(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
 					DoStatKarma(ch, &t_vict);
 				} else {
 					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
@@ -1304,7 +1304,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 				SendMsgToChar("Состояние какого игрока(из файла)?\r\n", ch);
 			} else {
 				Player t_vict;
-				if (load_char(buf2, &t_vict) > -1) {
+				if (load_char(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
 					if (GetRealLevel(&t_vict) > level) {
 						SendMsgToChar("Извините, вам это еще рано.\r\n", ch);
 					} else {

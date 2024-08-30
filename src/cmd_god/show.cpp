@@ -911,7 +911,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			Player t_chdata;
 			Player *chdata = &t_chdata;
-			if (load_char(value, chdata) < 0) {
+			if (load_char(value, chdata, ELoadCharFlags::kFindId) < 0) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
