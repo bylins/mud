@@ -338,7 +338,6 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 
 	using id_to_index_t = std::unordered_map<int, std::size_t>;
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
-	using free_names_t = std::deque<std::string>;
 
 	void add_name_to_index(const char *name, std::size_t index);
 
@@ -385,13 +384,13 @@ void set_zone_mob_level();
 
 class GameLoader {
  public:
-	GameLoader();
+	GameLoader() = default;
 
 	void boot_world();
-	void index_boot(EBootType mode);
+	static void index_boot(EBootType mode);
 
  private:
-	static void prepare_global_structures(EBootType mode, const int rec_count);
+	static void prepare_global_structures(EBootType mode, int rec_count);
 };
 
 extern GameLoader world_loader;

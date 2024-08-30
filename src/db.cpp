@@ -46,10 +46,11 @@
 #include "statistics/top.h"
 #include "backtrace.h"
 #include "dg_script/dg_db_scripts.h"
-#include "game_economics/shop_ext.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
+
+#include <memory>
 
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -136,9 +137,6 @@ time_t zones_stat_date;
 
 guardian_type guardian_list;
 
-GameLoader::GameLoader() {
-}
-
 GameLoader world_loader;
 
 QuestBodrich qb;
@@ -183,21 +181,21 @@ void init_im();
 void init_zone_types();
 void LoadGuardians();
 TimeInfoData *mud_time_passed(time_t t2, time_t t1);
-void free_alias(struct alias_data *a);
+//void free_alias(struct alias_data *a);
 void load_messages();
 void sort_commands();
 void Read_Invalid_List();
-int find_name(const char *name);
+//int find_name(const char *name);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
-int Crash_read_timer(const std::size_t index, int temp);
-void Crash_clear_objects(const std::size_t index);
-int exchange_database_load(void);
+int Crash_read_timer(std::size_t index, int temp);
+void Crash_clear_objects(std::size_t index);
+int exchange_database_load();
 
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-void calc_easter(void);
+void calc_easter();
 void do_start(CharData *ch, int newbie);
-long GetExpUntilNextLvl(CharData *ch, int level);
+//long GetExpUntilNextLvl(CharData *ch, int level);
 //extern char *fread_action(FILE *fl, int nr);
 void load_mobraces();
 
@@ -211,9 +209,9 @@ extern RoomVnum frozen_start_room;
 extern RoomVnum helled_start_room;
 extern RoomVnum named_start_room;
 extern RoomVnum unreg_start_room;
-extern DescriptorData *descriptor_list;
+//extern DescriptorData *descriptor_list;
 extern struct MonthTemperature year_temp[];
-extern char *house_rank[];
+//extern char *house_rank[];
 extern struct PCCleanCriteria pclean_criteria[];
 extern void LoadProxyList();
 extern void add_karma(CharData *ch, const char *punish, const char *reason);
@@ -221,10 +219,10 @@ extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпан�
 extern void extract_trigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
 extern int NumberOfZoneDungeons;
-extern ZoneVnum ZoneStartDungeons;
+//extern ZoneVnum ZoneStartDungeons;
 extern void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
-extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
-extern void ExtractObjRepopDecay(const ObjData::shared_ptr obj);
+//extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
+extern void ExtractObjRepopDecay(ObjData::shared_ptr obj);
 
 void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
 void RemoveShopSeller(MobRnum mrn);
@@ -256,20 +254,8 @@ int strchrn(const char *s, int c) {
 	return -1;
 }
 
-// поиск подстроки
-int strchrs(const char *s, const char *t) {
-	while (*t) {
-		int r = strchrn(s, *t);
-		if (r > -1) return r;
-		t++;
-	}
-	return -1;
-}
-
 struct Item_struct {
-	// для параметров
 	std::map<std::string, double> params;
-	// для аффектов
 	std::map<std::string, double> affects;
 };
 
@@ -448,11 +434,10 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 		if (obj->get_affected(i).modifier) {
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
-			for (std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin();
-				 it != items_struct[item_wear].params.end(); it++) {
-				if (strcmp(it->first.c_str(), buf_temp) == 0) {
+			for (auto & param : items_struct[item_wear].params) {
+				if (strcmp(param.first.c_str(), buf_temp) == 0) {
 					if (obj->get_affected(i).modifier > 0) {
-						sum += it->second * obj->get_affected(i).modifier;
+						sum += param.second * obj->get_affected(i).modifier;
 					}
 				}
 			}
@@ -461,11 +446,10 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 
 	// проходим по всем аффектам в нашей таблице
-	for (std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin();
-		 it != items_struct[item_wear].affects.end(); it++) {
+	for (auto & affect : items_struct[item_wear].affects) {
 		// проверяем, есть ли наш аффект на предмете
-		if (strstr(buf_temp1, it->first.c_str()) != nullptr) {
-			sum_aff += it->second;
+		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
+			sum_aff += affect.second;
 		}
 		//std::cout << it->first << " " << it->second << "\r\n";
 	}
@@ -495,12 +479,10 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 		if (obj->get_affected(i).modifier) {
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
 			// проходим по нашей таблице с критериями
-			for (std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin();
-				 it != items_struct[item_wear].params.end(); it++) {
-
-				if (strcmp(it->first.c_str(), buf_temp) == 0) {
+			for (auto & param : items_struct[item_wear].params) {
+				if (strcmp(param.first.c_str(), buf_temp) == 0) {
 					if (obj->get_affected(i).modifier > 0) {
-						sum += it->second * obj->get_affected(i).modifier;
+						sum += param.second * obj->get_affected(i).modifier;
 					}
 				}
 
@@ -510,14 +492,10 @@ float count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 
-	// проходим по всем аффектам в нашей таблице
-	for (std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin();
-		 it != items_struct[item_wear].affects.end(); it++) {
-		// проверяем, есть ли наш аффект на предмете
-		if (strstr(buf_temp1, it->first.c_str()) != nullptr) {
-			sum_aff += it->second;
+	for (auto & affect : items_struct[item_wear].affects) {
+		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
+			sum_aff += affect.second;
 		}
-		//std::cout << it->first << " " << it->second << "\r\n";
 	}
 	sum += sum_aff;
 	return sum;
@@ -1004,7 +982,7 @@ void QuestBodrich::load_rewards() {
 	for (class_ = file_.child("class"); class_; class_ = class_.next_sibling("class")) {
 		tmp_array.clear();
 		for (level_ = level_.child("level"); level_; level_ = level_.next_sibling("level")) {
-			QuestBodrichRewards qbr;
+			QuestBodrichRewards qbr{};
 			qbr.level = level_.attribute("level").as_int();
 			qbr.vnum = level_.attribute("ObjVnum").as_int();
 			qbr.money = level_.attribute("money_value").as_int();
@@ -1199,7 +1177,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar(OK, ch);
 }
 
-void init_portals(void) {
+void init_portals() {
 	FILE *portal_f;
 	char nm[300], nm2[300], *wrd;
 	int rnm = 0, i, level = 0;
@@ -1310,7 +1288,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading zone table");
 	log("Loading zone table.");
-	world_loader.index_boot(DB_BOOT_ZON);
+	GameLoader::index_boot(DB_BOOT_ZON);
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
@@ -1318,7 +1296,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading triggers");
 	log("Loading triggers and generating index.");
-	world_loader.index_boot(DB_BOOT_TRG);
+	GameLoader::index_boot(DB_BOOT_TRG);
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
@@ -1326,7 +1304,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading rooms");
 	log("Loading rooms.");
-	world_loader.index_boot(DB_BOOT_WLD);
+	GameLoader::index_boot(DB_BOOT_WLD);
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -1576,26 +1554,23 @@ void ObjData::init_set_table() {
 		if (cppstr[0] == '#') {
 			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS
 				&& mode != SETSTUFF_AFCN) {
-				cppstr = "init_set_table:: Wrong position of line '" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
+				cppstr = fmt::format("init_set_table:: Wrong position of line '{}'", cppstr);
+				mudlog(cppstr, LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
 			cppstr.erase(cppstr.begin());
-
 			if (cppstr.empty() || !a_isdigit(cppstr[0])) {
-				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected set id after #";
-				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
+				cppstr = fmt::format("init_set_table:: Error in line '#{}', expected set id after #", cppstr);
+				mudlog(cppstr, LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
 
 			int tmpsnum;
-
 			isstream.str(cppstr);
 			isstream >> std::noskipws >> tmpsnum;
-
 			if (!isstream.eof()) {
-				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected only set id after #";
+				cppstr = fmt::format("init_set_table:: Error in line '#{}', expected only set id after #", cppstr);
 				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
@@ -1604,7 +1579,7 @@ void ObjData::init_set_table() {
 				p = ObjData::set_table.insert(std::make_pair(tmpsnum, set_info()));
 
 			if (!p.second) {
-				cppstr = "init_set_table:: Error in line '#" + cppstr + "', this set already exists";
+				cppstr = fmt::format("init_set_table:: Error in line '#{}', this set already exists", cppstr);
 				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 				continue;
 			}
@@ -1615,7 +1590,7 @@ void ObjData::init_set_table() {
 		}
 
 		if (cppstr.size() < 5 || cppstr[4] != ':') {
-			cppstr = "init_set_table:: Format error in line '" + cppstr + "'";
+			cppstr = fmt::format("init_set_table:: Format error in line '{}'", cppstr);
 			mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
 			continue;
 		}
@@ -2034,19 +2009,19 @@ void ObjData::init_set_table() {
 }
 
 void set_zone_mob_level() {
-	for (std::size_t i = 0; i < zone_table.size(); ++i) {
+	for (auto & i : zone_table) {
 		int level = 0;
 		int count = 0;
 
 		for (int nr = 0; nr <= top_of_mobt; ++nr) {
-			if (mob_index[nr].vnum >= zone_table[i].vnum * 100
-				&& mob_index[nr].vnum <= zone_table[i].vnum * 100 + 99) {
+			if (mob_index[nr].vnum >= i.vnum * 100
+				&& mob_index[nr].vnum <= i.vnum * 100 + 99) {
 				level += mob_proto[nr].GetLevel();
 				++count;
 			}
 		}
 
-		zone_table[i].mob_level = count ? level / count : 0;
+		i.mob_level = count ? level / count : 0;
 	}
 }
 
@@ -2100,10 +2075,9 @@ bool can_snoop(CharData *imm, CharData *vict) {
 		return true;
 	}
 
-	for (ClanMailType::const_iterator i = clan_list.begin(),
-			 iend = clan_list.end(); i != iend; ++i) {
-		std::set<std::string>::const_iterator k = i->second.find(GET_EMAIL(imm));
-		if (k != i->second.end() && CLAN(vict)->CheckPolitics(i->first) == kPoliticsWar) {
+	for (const auto & i : clan_list) {
+		const auto k = i.second.find(GET_EMAIL(imm));
+		if (k != i.second.end() && CLAN(vict)->CheckPolitics(i.first) == kPoliticsWar) {
 			return false;
 		}
 	}
@@ -2181,11 +2155,11 @@ void ZoneTrafficSave() {
 	time_node.set_name("time");
 	time_node.append_attribute("date") = static_cast<unsigned long long>(zones_stat_date);
 
-	for (auto i = 0u; i < zone_table.size(); ++i) {
+	for (auto & i : zone_table) {
 		pugi::xml_node zone_node = node_list.append_child();
 		zone_node.set_name("zone");
-		zone_node.append_attribute("vnum") = zone_table[i].vnum;
-		zone_node.append_attribute("traffic") = zone_table[i].traffic;
+		zone_node.append_attribute("vnum") = i.vnum;
+		zone_node.append_attribute("traffic") = i.traffic;
 	}
 
 	doc.save_file(ZONE_TRAFFIC_FILE);
@@ -2382,11 +2356,11 @@ void boot_db(void) {
 
 	boot_profiler.next_step("Loading help entries");
 	log("Loading help entries.");
-	world_loader.index_boot(DB_BOOT_HLP);
+	GameLoader::index_boot(DB_BOOT_HLP);
 
 	boot_profiler.next_step("Loading social entries");
 	log("Loading social entries.");
-	world_loader.index_boot(DB_BOOT_SOCIAL);
+	GameLoader::index_boot(DB_BOOT_SOCIAL);
 
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
@@ -2641,8 +2615,8 @@ void boot_db(void) {
 }
 
 // reset the time in the game from file
-void reset_time(void) {
-	time_info = *mud_time_passed(time(0), beginning_of_time);
+void reset_time() {
+	time_info = *mud_time_passed(time(nullptr), beginning_of_time);
 	// Calculate moon day
 	weather_info.moon_day =
 		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kMoonCycle;
@@ -2711,7 +2685,7 @@ void reset_time(void) {
 }
 
 // generate index table for the player file
-void build_player_index(void) {
+void build_player_index() {
 	new_build_player_index();
 	return;
 }
@@ -2814,7 +2788,7 @@ void check_room_flags(int rnum) {
 }
 
 // make sure the start rooms exist & resolve their vnums to rnums
-void check_start_rooms(void) {
+void check_start_rooms() {
 	if ((r_mortal_start_room = real_room(mortal_start_room)) == kNowhere) {
 		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 		exit(1);
@@ -2855,7 +2829,7 @@ void RestoreRoomExitData(RoomRnum rrn) {
 //			world[rrn]->dir_option[dir].reset();
 //		}
 		if (from) {
-			world[rrn]->dir_option[dir].reset(new ExitData());
+			world[rrn]->dir_option[dir] = std::make_shared<ExitData>();
 			world[rrn]->dir_option[dir]->to_room(from->to_room());
 			if (!from->general_description.empty()) {
 				world[rrn]->dir_option[dir]->general_description = from->general_description;
@@ -2901,7 +2875,7 @@ void CreateBlankRoomDungeon() {
 
 	for (ZoneVnum zvn = 0; zvn < NumberOfZoneDungeons; zvn++) {
 		for (RoomVnum rvn = 0; rvn <= 98; rvn++) {
-			RoomData *new_room = new RoomData;
+			auto *new_room = new RoomData;
 
 			top_of_world++;
 			world.push_back(new_room);
@@ -3032,8 +3006,8 @@ void CalculateFirstAndLastRooms() {
 	}
 	zone_table[zrn].RnumRoomsLocation.first = zone_table[zrn - 1].RnumRoomsLocation.second + 1;
 	zone_table[zrn].RnumRoomsLocation.second = rn - 1;
-	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
-		zone_table[zrn].RnumRoomsLocation.second--; //уберем виртуалки
+	for (auto & zrn : zone_table) {
+		zrn.RnumRoomsLocation.second--; //уберем виртуалки
 	}
 }
 
@@ -3059,7 +3033,7 @@ void add_vrooms_to_all_zones() {
 		auto insert_position = (insert_reverse_position == world.rend()) ? world.begin() : insert_reverse_position.base();
 
 		top_of_world++;
-		RoomData *new_room = new RoomData;
+		auto *new_room = new RoomData;
 		world.insert(insert_position, new_room);
 		new_room->zone_rn = rnum;
 		new_room->vnum = last_room;
@@ -3075,12 +3049,12 @@ void add_vrooms_to_all_zones() {
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
-		new_room->proto_script.reset(new ObjData::triggers_list_t());
+		new_room->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	}
 }
 
 // resolve all vnums into rnums in the world
-void renum_world(void) {
+void renum_world() {
 	int room, door;
 
 	for (room = kFirstRoom; room <= top_of_world; room++) {
@@ -3098,14 +3072,14 @@ void renum_world(void) {
 }
 
 // Установка принадлежности к зоне в прототипах
-void renum_obj_zone(void) {
+void renum_obj_zone() {
 	for (size_t i = 0; i < obj_proto.size(); ++i) {
 		obj_proto.zone(i, get_zone_rnum_by_obj_vnum(obj_proto[i]->get_vnum()));
 	}
 }
 
 // Установкапринадлежности к зоне в индексе
-void renum_mob_zone(void) {
+void renum_mob_zone() {
 	int i;
 	for (i = 0; i <= top_of_mobt; ++i) {
 		mob_index[i].zone = get_zone_rnum_by_mob_vnum(mob_index[i].vnum);
@@ -3196,7 +3170,7 @@ void renum_single_table(int zone) {
 }
 
 // resove vnums into rnums in the zone reset tables
-void renum_zone_table(void) {
+void renum_zone_table() {
 	for (ZoneRnum zone = 0; zone < static_cast<ZoneRnum>(zone_table.size()); zone++) {
 		renum_single_table(zone);
 	}
@@ -3221,7 +3195,7 @@ int trans_obj_name(ObjData *obj, CharData *ch) {
 				obj->set_aliases(obj_pad); // ставим алиасы
 			}
 		}
-	};
+	}
 	obj->set_is_rename(true); // присвоим флажок что у шмотки заменены падежи
 	return (true);
 }
@@ -3314,7 +3288,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 					}
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-						act("На земле остал$U лежать $o.", false, ch, tobj.get(), 0, kToRoom);
+						act("На земле остал$U лежать $o.", false, ch, tobj.get(), nullptr, kToRoom);
 						PlaceObjToRoom(tobj.get(), ch->in_room);
 					} else {
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr)) {
@@ -3346,7 +3320,7 @@ int dl_parse(OnDeadLoadList **dl_list, char *line) {
 		// Ошибка чтения.
 		log("SYSERR: Parse death load list (bad param count).");
 		return false;
-	};
+	}
 	// проверяем существование прототипа в мире (предметы уже должны быть загружены)
 	if (*dl_list == nullptr) {
 		// Создаем новый список.
@@ -3509,12 +3483,12 @@ int vnum_mobile(char *searchname, CharData *ch) {
 int vnum_object(char *searchname, CharData *ch) {
 	int found = 0;
 
-	for (size_t nr = 0; nr < obj_proto.size(); nr++) {
-		if (isname(searchname, obj_proto[nr]->get_aliases())) {
+	for (const auto & nr : obj_proto) {
+		if (isname(searchname, nr->get_aliases())) {
 			++found;
 			sprintf(buf, "%3d. [%5d] %s\r\n",
-					found, obj_proto[nr]->get_vnum(),
-					obj_proto[nr]->get_short_description().c_str());
+					found, nr->get_vnum(),
+					nr->get_short_description().c_str());
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -3532,7 +3506,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane++;
 			plane_offset = 0;
 			continue;
-		};
+		}
 		if (utils::IsAbbr(searchname, extra_bits[counter])) {
 			f = true;
 			break;
@@ -3544,7 +3518,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			if (i->has_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
 						++found, i->get_vnum(), 
-						utils::RemoveColors(i->get_short_description().c_str()).c_str(), 
+						utils::RemoveColors(i->get_short_description()).c_str(),
 						extra_bits[counter]);
 				out += buf;
 			}
@@ -3564,7 +3538,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
 					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
 							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+							 utils::RemoveColors(i->get_short_description()).c_str(),
 							 apply_types[counter], i->get_affected(plane).modifier);
 					out += buf;
 					continue;
@@ -3579,7 +3553,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane++;
 			plane_offset = 0;
 			continue;
-		};
+		}
 		if (utils::IsAbbr(searchname, weapon_affects[counter])) {
 			f = true;
 			break;
@@ -3591,7 +3565,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
 						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+						 utils::RemoveColors(i->get_short_description()).c_str(),
 						 weapon_affects[counter]);
 				out += buf;
 			}
@@ -3604,7 +3578,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane++;
 			plane_offset = 0;
 			continue;
-		};
+		}
 		if (utils::IsAbbr(searchname, anti_bits[counter])) {
 			f = true;
 			break;
@@ -3616,7 +3590,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : запрещен для: %s\r\n",
 						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+						 utils::RemoveColors(i->get_short_description()).c_str(),
 						 anti_bits[counter]);
 				out += buf;
 			}
@@ -3629,7 +3603,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			plane++;
 			plane_offset = 0;
 			continue;
-		};
+		}
 		if (utils::IsAbbr(searchname, no_bits[counter])) {
 			f = true;
 			break;
@@ -3641,7 +3615,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
 				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : неудобен для: %s\r\n",
 						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+						 utils::RemoveColors(i->get_short_description()).c_str(),
 						 no_bits[counter]);
 				out += buf;
 			}
@@ -3663,7 +3637,7 @@ int vnum_flag(char *searchname, CharData *ch) {
 				if (it != i->get_skills().end()) {
 					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
 							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description().c_str()).c_str(),
+							 utils::RemoveColors(i->get_short_description()).c_str(),
 							 MUD::Skill(skill_id).GetName(), it->second);
 					out += buf;
 				}
@@ -3797,8 +3771,8 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	}
 	auto *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
-	mob->proto_script.reset(new ObjData::triggers_list_t());
-	mob->script.reset(new Script());    //fill it in assign_triggers from proto_script
+	mob->proto_script = std::make_shared<ObjData::triggers_list_t>();
+	mob->script = std::make_shared<Script>();    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
 
 	if (!mob->points.max_hit) {
@@ -3898,7 +3872,7 @@ void after_reset_zone(ZoneRnum nr_zone) {
 #define ZO_DEAD  9999
 
 // update zone ages, queue for reset if necessary, and dequeue when possible
-void zone_update(void) {
+void zone_update() {
 	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
@@ -3956,9 +3930,9 @@ void zone_update(void) {
 			std::stringstream ss;
 			RepopDecay(zone_repop_list);
 			ss << "В списке репопа: ";
-			for (auto it = zone_repop_list.begin(); it != zone_repop_list.end(); ++it) {
-				ss << zone_table[*it].vnum << " ";
-				reset_zone(*it);
+			for (int & it : zone_repop_list) {
+				ss << zone_table[it].vnum << " ";
+				reset_zone(it);
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
@@ -4249,9 +4223,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 		for (room = celebrate->rooms[vnum].begin(); room != celebrate->rooms[vnum].end(); ++room) {
 			RoomRnum rn = real_room((*room)->vnum);
 			if (rn != kNowhere) {
-				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); it != (*room)->triggers.end();
-					 ++it) {
-					auto trig = read_trigger(real_trigger(*it));
+				for (int & trigger : (*room)->triggers) {
+					auto trig = read_trigger(real_trigger(trigger));
 					if (!add_trigger(world[rn]->script.get(), trig, -1)) {
 						extract_trigger(trig);
 					}
@@ -4265,9 +4238,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 					&& mob_index[i].total_online < (*load)->max) {
 					mob = read_mobile(i, REAL);
 					if (mob) {
-						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
-							 it != (*load)->triggers.end(); ++it) {
-							auto trig = read_trigger(real_trigger(*it));
+						for (int & trigger : (*load)->triggers) {
+							auto trig = read_trigger(real_trigger(trigger));
 							if (!add_trigger(SCRIPT(mob).get(), trig, -1)) {
 								extract_trigger(trig);
 							}
@@ -4284,9 +4256,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 									PlaceObjToInventory(obj.get(), mob);
 									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
 
-									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
-										 it != (*load_in)->triggers.end(); ++it) {
-										auto trig = read_trigger(real_trigger(*it));
+									for (int & trigger : (*load_in)->triggers) {
+										auto trig = read_trigger(real_trigger(trigger));
 										if (!add_trigger(obj->get_script().get(), trig, -1)) {
 											extract_trigger(trig);
 										}
@@ -4327,9 +4298,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 					&& (obj_in_room < (*load)->max)) {
 					const auto obj = world_objects.create_from_prototype_by_vnum((*load)->vnum);
 					if (obj) {
-						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
-							 it != (*load)->triggers.end(); ++it) {
-							auto trig = read_trigger(real_trigger(*it));
+						for (int & trigger : (*load)->triggers) {
+							auto trig = read_trigger(real_trigger(trigger));
 							if (!add_trigger(obj->get_script().get(), trig, -1)) {
 								extract_trigger(trig);
 							}
@@ -4349,9 +4319,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum) {
 									PlaceObjIntoObj(obj_in.get(), obj.get());
 									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
 
-									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
-										 it != (*load_in)->triggers.end(); ++it) {
-										auto trig = read_trigger(real_trigger(*it));
+									for (int & trigger : (*load_in)->triggers) {
+										auto trig = read_trigger(real_trigger(trigger));
 										if (!add_trigger(obj_in->get_script().get(), trig, -1)) {
 											extract_trigger(trig);
 										}
@@ -4388,10 +4357,8 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			const auto rnum = ch->get_rnum();
 			if (rnum > 0
 				&& list.find(mob_index[rnum].vnum) != list.end()) {
-				for (Celebrates::TrigList::iterator it = list[mob_index[rnum].vnum].begin();
-					 it != list[mob_index[rnum].vnum].end();
-					 ++it) {
-					auto trig = read_trigger(real_trigger(*it));
+				for (int & it : list[mob_index[rnum].vnum]) {
+					auto trig = read_trigger(real_trigger(it));
 					if (!add_trigger(SCRIPT(ch).get(), trig, -1)) {
 						extract_trigger(trig);
 					}
@@ -4407,8 +4374,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 
 		world_objects.foreach([&](const ObjData::shared_ptr &o) {
 			if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end()) {
-				for (Celebrates::TrigList::iterator it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end();
-					 ++it) {
+				for (auto it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it) {
 					auto trig = read_trigger(real_trigger(*it));
 					if (!add_trigger(o->get_script().get(), trig, -1)) {
 						extract_trigger(trig);
@@ -4551,13 +4517,13 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		return;
 	}
 	for(int i = trn_start; i <= trn_stop; i++) {
-		Trigger *trig = new Trigger(*trig_index[i]->proto);
+		auto *trig = new Trigger(*trig_index[i]->proto);
 		TrgRnum new_tvn = trig_index[i]->vnum % 100 + zvn_to * 100;
 		TrgRnum new_trn = real_trigger(new_tvn);
 
 		trig->set_rnum(new_trn);
 		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
-		trig->cmdlist->reset(new cmdlist_element());
+		*trig->cmdlist = std::make_shared<cmdlist_element>();
 		auto c_copy = *trig->cmdlist;
 		auto c = *trig_index[i]->proto->cmdlist;
 
@@ -4566,7 +4532,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			c_copy->line_num = c->line_num;
 			c = c->next;
 			if (c) {
-				c_copy->next.reset(new cmdlist_element());
+				c_copy->next = std::make_shared<cmdlist_element>();
 				c_copy = c_copy->next;
 			}
 		}
@@ -4644,7 +4610,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<zrn_complex_li
 						}
 					}
 				}
-				new_room->dir_option[dir].reset(new ExitData());
+				new_room->dir_option[dir] = std::make_shared<ExitData>();
 				new_room->dir_option[dir]->to_room(real_room(rvn));
 				if (!from->general_description.empty()) {
 					new_room->dir_option[dir]->general_description = from->general_description; //чиcтить
@@ -4660,7 +4626,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<zrn_complex_li
 				new_room->dir_option[dir]->lock_complexity = from->lock_complexity;
 			}
 		}
-		new_room->proto_script.reset(new ObjData::triggers_list_t());
+		new_room->proto_script = std::make_shared<ObjData::triggers_list_t>();
 		for (const auto trigger_vnum : *world[i]->proto_script) {
 			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
 				TrgVnum tvn = zone_table[zrn_to].vnum * 100 + trigger_vnum % 100;
@@ -4722,7 +4688,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			AddDungeonShopSeller(i, mrn_to);
 		}
 		mob_proto[mrn_to].script->cleanup();
-		mob_proto[mrn_to].proto_script.reset(new ObjData::triggers_list_t());
+		mob_proto[mrn_to].proto_script = std::make_shared<ObjData::triggers_list_t>();
 		if (!mob_proto[i].summon_helpers.empty()) {
 			mob_proto[mrn_to].summon_helpers.clear();
 			for (const auto helper : mob_proto[i].summon_helpers) {
@@ -4922,65 +4888,61 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 //		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
 		switch (zone_table[zrn_to].cmd[subcmd].command) {
 			case 'M': 
-				TRANS_MOB(arg1);
-				TRANS_ROOM(arg3);
+				TRANS_MOB(arg1)
+				TRANS_ROOM(arg3)
 				break;
 
 			case 'F': 
-				TRANS_ROOM(arg1);
-				TRANS_MOB(arg2);
-				TRANS_MOB(arg3);
+				TRANS_ROOM(arg1)
+				TRANS_MOB(arg2)
+				TRANS_MOB(arg3)
 				break;
 
 			case 'Q':
-				TRANS_MOB(arg1);
+				TRANS_MOB(arg1)
 				break;
 			case 'O': 
-				TRANS_OBJ(arg1);
-				TRANS_ROOM(arg3);
+				TRANS_OBJ(arg1)
+				TRANS_ROOM(arg3)
 				break;
 
 			case 'P': 
-				TRANS_OBJ(arg1);
-				TRANS_OBJ(arg3);
+				TRANS_OBJ(arg1)
+				TRANS_OBJ(arg3)
 				break;
 
 			case 'G': 
-				TRANS_OBJ(arg1);
+				TRANS_OBJ(arg1)
 				break;
 
 			case 'E': 
-				TRANS_OBJ(arg1);
+				TRANS_OBJ(arg1)
 				break;
 
 			case 'R': 
-				TRANS_ROOM(arg1);
-				TRANS_OBJ(arg2);
+				TRANS_ROOM(arg1)
+				TRANS_OBJ(arg2)
 				break;
 
 			case 'D': 
-				TRANS_ROOM(arg1);
+				TRANS_ROOM(arg1)
 				break;
 
 			case 'T':
 				// arg2 не преобразовываю, хотя может надо :)
 				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
-					TRANS_ROOM(arg3);
+					TRANS_ROOM(arg3)
 				}
 				break;
 
 			case 'V':
 				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
-					TRANS_ROOM(arg2);
+					TRANS_ROOM(arg2)
 				}
 				break;
 			default: 
-				break;;
+				break;
 		}
-//		log("CMD to %d %d %d %d %d %d",
-//		zone_table[zrn_to].cmd[subcmd].command, zone_table[zrn_to].cmd[subcmd].if_flag,
-//		zone_table[zrn_to].cmd[subcmd].arg1, zone_table[zrn_to].cmd[subcmd].arg2,
-//		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
 	}
 
 }
@@ -5338,7 +5300,7 @@ void ZoneReset::reset_zone_essential() {
 						if (ZCMD.arg2 > 0) {
 							RoomRnum arg2 = real_room(ZCMD.arg2);
 							if (arg2 == kNowhere) {
-								ZONE_ERROR("room in arg2 not found, command omited");
+								ZONE_ERROR("room in arg2 not found, command omited")
 								break;
 							}
 							if (!(obj_to = GetObjByRnumInContent(ZCMD.arg3, world[arg2]->contents))) {
@@ -5346,12 +5308,12 @@ void ZoneReset::reset_zone_essential() {
 							}
 						} else {
 							if (!(obj_to = SearchObjByRnum(ZCMD.arg3))) {
-								ZONE_ERROR("target obj not found in word, command omited");
+								ZONE_ERROR("target obj not found in word, command omited")
 								break;
 							}
 						}
 						if (GET_OBJ_TYPE(obj_to) != EObjType::kContainer) {
-							ZONE_ERROR("attempt put obj to non container, omited");
+							ZONE_ERROR("attempt put obj to non container, omited")
 							ZCMD.command = '*';
 							break;
 						}
@@ -5412,7 +5374,7 @@ void ZoneReset::reset_zone_essential() {
 							|| number(1, 100) <= ZCMD.arg4)) {
 						if (ZCMD.arg3 < 0
 							|| ZCMD.arg3 >= EEquipPos::kNumEquipPos) {
-							ZONE_ERROR("invalid equipment pos number");
+							ZONE_ERROR("invalid equipment pos number")
 						} else {
 							const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
@@ -5424,7 +5386,7 @@ void ZoneReset::reset_zone_essential() {
 							} else {
 								PlaceObjToInventory(obj.get(), mob);
 							}
-							if (!(obj->get_carried_by() == mob) && !(obj->get_worn_by() == mob)) {
+							if (obj->get_carried_by() != mob && obj->get_worn_by() != mob) {
 								ExtractObjFromWorld(obj.get(), false);
 								tobj = nullptr;
 							} else {
@@ -5467,7 +5429,7 @@ void ZoneReset::reset_zone_essential() {
 					}
 					if (ZCMD.arg2 < 0 || ZCMD.arg2 >= EDirection::kMaxDirNum ||
 						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == nullptr)) {
-						ZONE_ERROR("door does not exist, command disabled");
+						ZONE_ERROR("door does not exist, command disabled")
 						ZCMD.command = '*';
 					} else {
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EExitFlag::kBrokenLock);
@@ -5528,24 +5490,24 @@ void ZoneReset::reset_zone_essential() {
 					// 'V' <flag> <trigger_type> <RoomVnum> <context> <var_name> <var_value>
 					if (ZCMD.arg1 == MOB_TRIGGER && tmob) {
 						if (!SCRIPT(tmob)->has_triggers()) {
-							ZONE_ERROR("Attempt to give variable to scriptless mobile");
+							ZONE_ERROR("Attempt to give variable to scriptless mobile")
 						} else {
 							add_var_cntx(SCRIPT(tmob)->global_vars, ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 							curr_state = 1;
 						}
 					} else if (ZCMD.arg1 == OBJ_TRIGGER && tobj) {
 						if (!tobj->get_script()->has_triggers()) {
-							ZONE_ERROR("Attempt to give variable to scriptless object");
+							ZONE_ERROR("Attempt to give variable to scriptless object")
 						} else {
 							add_var_cntx(tobj->get_script()->global_vars, ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 							curr_state = 1;
 						}
 					} else if (ZCMD.arg1 == WLD_TRIGGER) {
 						if (ZCMD.arg2 < kFirstRoom || ZCMD.arg2 > top_of_world) {
-							ZONE_ERROR("Invalid room number in variable assignment");
+							ZONE_ERROR("Invalid room number in variable assignment")
 						} else {
 							if (!SCRIPT(world[ZCMD.arg2])->has_triggers()) {
-								ZONE_ERROR("Attempt to give variable to scriptless room");
+								ZONE_ERROR("Attempt to give variable to scriptless room")
 							} else {
 								add_var_cntx(world[ZCMD.arg2]->script->global_vars, ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 								curr_state = 1;
@@ -5554,7 +5516,8 @@ void ZoneReset::reset_zone_essential() {
 					}
 					break;
 
-				default: ZONE_ERROR("unknown cmd in reset table; cmd disabled");
+				default:
+					ZONE_ERROR("unknown cmd in reset table; cmd disabled")
 					ZCMD.command = '*';
 					break;
 			}
@@ -5773,9 +5736,9 @@ long GetPtableByUnique(long unique) {
 long get_id_by_name(char *name) {
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (!str_cmp(player_table[i].name(), arg)) {
-			return (player_table[i].id());
+	for (const auto & i : player_table) {
+		if (!str_cmp(i.name(), arg)) {
+			return (i.id());
 		}
 	}
 
@@ -5784,9 +5747,9 @@ long get_id_by_name(char *name) {
 
 long get_id_by_uid(long uid) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (player_table[i].unique == uid) {
-			return player_table[i].id();
+	for (auto & i : player_table) {
+		if (i.unique == uid) {
+			return i.id();
 		}
 	}
 	return -1;
@@ -5794,9 +5757,9 @@ long get_id_by_uid(long uid) {
 
 int get_uid_by_id(int id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (player_table[i].id() == id) {
-			return player_table[i].unique;
+	for (auto & i : player_table) {
+		if (i.id() == id) {
+			return i.unique;
 		}
 	}
 	return -1;
@@ -5804,9 +5767,9 @@ int get_uid_by_id(int id) {
 
 const char *get_name_by_id(long id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (player_table[i].id() == id) {
-			return player_table[i].name();
+	for (const auto & i : player_table) {
+		if (i.id() == id) {
+			return i.name();
 		}
 	}
 	return "";
@@ -5814,9 +5777,9 @@ const char *get_name_by_id(long id) {
 
 const char *get_name_by_unique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (player_table[i].unique == unique) {
-			return player_table[i].name();
+	for (auto & i : player_table) {
+		if (i.unique == unique) {
+			return i.name();
 		}
 	}
 	return nullptr;
@@ -5826,9 +5789,9 @@ int get_level_by_unique(long unique) {
 	int level = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); ++i) {
-		if (player_table[i].unique == unique) {
-			level = player_table[i].level;
+	for (auto & i : player_table) {
+		if (i.unique == unique) {
+			level = i.level;
 		}
 	}
 	return level;
@@ -5838,9 +5801,9 @@ long get_lastlogon_by_unique(long unique) {
 	long time = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); ++i) {
-		if (player_table[i].unique == unique) {
-			time = player_table[i].last_logon;
+	for (auto & i : player_table) {
+		if (i.unique == unique) {
+			time = i.last_logon;
 		}
 	}
 	return time;
@@ -5848,8 +5811,8 @@ long get_lastlogon_by_unique(long unique) {
 
 int correct_unique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (player_table[i].unique == unique) {
+	for (auto & i : player_table) {
+		if (i.unique == unique) {
 			return true;
 		}
 	}
@@ -5873,8 +5836,6 @@ void set_god_skills(CharData *ch) {
 		}
 	}
 }
-
-#define NUM_OF_SAVE_THROWS    5
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
 int load_char(const char *name, CharData *char_element, const int load_flags) {
@@ -6112,10 +6073,11 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// забываем всех чармисов
 	std::map<int, MERCDATA> *m;
 	m = ch->getMercList();
-	if (m->size() > 0) {
-		std::map<int, MERCDATA>::iterator it = m->begin();
-		for (; it != m->end(); ++it)
+	if (!m->empty()) {
+		auto it = m->begin();
+		for (; it != m->end(); ++it) {
 			it->second.currRemortAvail = 0;
+		}
 	}
 	do_start(ch, false);
 	ch->save_char();
@@ -6153,8 +6115,8 @@ void do_remort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	snprintf(buf2, sizeof(buf2), "dest=%d", place_of_destination);
 	add_karma(ch, buf, buf2);
 
-	act("$n вступил$g в игру.", true, ch, 0, 0, kToRoom);
-	act("Вы перевоплотились! Желаем удачи!", false, ch, 0, 0, kToChar);
+	act("$n вступил$g в игру.", true, ch, nullptr, nullptr, kToRoom);
+	act("Вы перевоплотились! Желаем удачи!", false, ch, nullptr, nullptr, kToChar);
 	affect_total(ch);
 }
 
@@ -6281,7 +6243,7 @@ int must_be_deleted(CharData *short_ch) {
 	}
 	if (timeout >= 0) {
 		timeout *= kSecsPerRealDay;
-		if ((time(0) - LAST_LOGON(short_ch)) > timeout) {
+		if ((time(nullptr) - LAST_LOGON(short_ch)) > timeout) {
 			return (1);
 		}
 	}
@@ -6403,16 +6365,15 @@ void flush_player_index() {
 	}
 
 	std::size_t saved = 0;
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (!player_table[i].name()
-			|| !*player_table[i].name()) {
+	for (auto & i : player_table) {
+		if (!i.name() || !*i.name()) {
 			continue;
 		}
 
 		++saved;
 		sprintf(name, "%s %d %d %d %d\n",
-				player_table[i].name(),
-				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
+				i.name(),
+				i.id(), i.unique, i.level, i.last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
@@ -6522,13 +6483,13 @@ void room_copy(RoomData *dst, RoomData *src)
 
 	// Название и описание
 	dst->name = str_dup(src->name ? src->name : "неопределено");
-	dst->temp_description = 0; // так надо
+	dst->temp_description = nullptr; // так надо
 
 	// Выходы и входы
 	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
 		const auto &rdd = src->dir_option_proto[i];
 		if (rdd) {
-			dst->dir_option[i].reset(new ExitData());
+			dst->dir_option[i] = std::make_shared<ExitData>();
 			// Копируем числа
 			*dst->dir_option_proto[i] = *rdd;
 			// Выделяем память
@@ -6544,7 +6505,7 @@ void room_copy(RoomData *dst, RoomData *src)
 	*pddd = nullptr;
 
 	while (sdd) {
-		pddd->reset(new ExtraDescription());
+		*pddd = std::make_shared<ExtraDescription>();
 		(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
 		(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
 		pddd = &((*pddd)->next);
@@ -6554,7 +6515,7 @@ void room_copy(RoomData *dst, RoomData *src)
 	// Копирую скрипт и прототипы
 	SCRIPT(dst).reset(new Script());
 
-	dst->proto_script.reset(new ObjData::triggers_list_t());
+	dst->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	*dst->proto_script = *src->proto_script;
 }
 
@@ -6822,8 +6783,9 @@ void load_speedwalk() {
 
 Rooms::~Rooms() {
 	log("~Rooms()");
-	for (auto i = this->begin(); i != this->end(); ++i)
-		delete *i;
+	for (auto & i : *this) {
+		delete i;
+	}
 }
 
 const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
@@ -6843,7 +6805,7 @@ std::size_t PlayersIndex::append(const PlayerIndexElement &element) {
 }
 
 std::size_t PlayersIndex::get_by_name(const char *name) const {
-	name_to_index_t::const_iterator i = m_name_to_index.find(name);
+	const auto i = m_name_to_index.find(name);
 	if (i != m_name_to_index.end()) {
 		return i->second;
 	}
@@ -6852,7 +6814,7 @@ std::size_t PlayersIndex::get_by_name(const char *name) const {
 }
 
 void PlayersIndex::set_name(const std::size_t index, const char *name) {
-	name_to_index_t::const_iterator i = m_name_to_index.find(operator[](index).name());
+	const auto i = m_name_to_index.find(operator[](index).name());
 	m_name_to_index.erase(i);
 	operator[](index).set_name(name);
 	add_name_to_index(name, index);
