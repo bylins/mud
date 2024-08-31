@@ -29,7 +29,8 @@ extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
 extern struct ZoneCategory *zone_types;
-//------------------------------------------------------------------------
+extern int NumberOfZoneDungeons;
+//---------------------------------
 
 // * Function prototypes.
 void zedit_disp_menu(DescriptorData *d);
@@ -1932,8 +1933,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_A_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || (pos < 1) || (pos > kMaxProtoNumber)) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", kMaxProtoNumber);
+			if (!is_number(arg) || real_zone(pos) == 0) {
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", zone_table[zone_table.size() - 1 - NumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
 					if (OLC_ZONE(d)->typeA_list[i] == pos)    // нашли совпадающий -- убираем элемент
@@ -1975,8 +1976,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_B_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || (pos < 1) || (pos > kMaxProtoNumber)) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", kMaxProtoNumber);
+			if (!is_number(arg) || real_zone(pos) == 0) {
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", zone_table[zone_table.size() - 1 - NumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
 					if (OLC_ZONE(d)->typeB_list[i] == pos)    // нашли совпадающий -- убираем элемент
