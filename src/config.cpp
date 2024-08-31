@@ -46,7 +46,7 @@
  * efficency of doing it the other way.
  *
  */
-int NumberOfZoneDungeons = 20;
+int NumberOfZoneDungeons = 50;
 ZoneVnum ZoneStartDungeons = 30000;
 
 long GetExpUntilNextLvl(CharData *ch, int level);
