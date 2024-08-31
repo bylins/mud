@@ -24,7 +24,7 @@ const std::set<std::string_view> kIgnoredIpChecklist = {"135.181.219.76"};
 const PlayerIndexElement &GetCharIndex(std::string_view char_name) {
 	auto vict_uid = GetUniqueByName(char_name);
 	if (vict_uid <= 0) {
-		throw std::runtime_error(fmt::format("Inspecting char: Неизвестное имя персонажа '{}'.\r\n", char_name));
+		throw std::runtime_error(fmt::format("Неизвестное имя персонажа '{}'.\r\n", char_name));
 	} else {
 		auto player_pos = GetPtableByUnique(vict_uid);
 		return player_table[player_pos];
@@ -41,8 +41,10 @@ CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index) {
 			return player_ptr;
 		}
 	}
-	throw std::runtime_error(fmt::format("Inspecting all: не удалось загрузить файл персонажа '{}'.\r\n",
-										 (index.name() ? index.name() : "unknown")));
+	const auto error_msg = fmt::format("Не удалось загрузить файл персонажа '{}'.\r\n",
+				(index.name() ? index.name() : "unknown"));
+	mudlog(error_msg, DEF, kLvlImplementator, ERRLOG, true);
+	return {};
 }
 
 void ClearBuffer(std::ostringstream &stream) {
@@ -201,7 +203,7 @@ class ReportGenerator {
   void GenerateCharacterReport();
   void GenerateSummary(std::ostringstream &summary);
   void OutputSummary(std::ostringstream &summary, DescriptorData *descriptor);
-  void ProcessLoadingCharError(const char *error_msg);
+  void ProcessLoadingCharError();
 
  private:
   int character_reports_count_{0};
@@ -267,16 +269,13 @@ void ReportGenerator::OutputSummary(std::ostringstream &summary, DescriptorData 
 	page_string(descriptor, summary.str());
 }
 
-void ReportGenerator::ProcessLoadingCharError(const char *error_msg) {
-	mudlog(error_msg, DEF, kLvlImplementator, ERRLOG, true);
+void ReportGenerator::ProcessLoadingCharError() {
 	current_char_info_.Clear();
 }
 
 // =======================================  INSPECT REQUEST INTERFACE  ============================================
 
 class InspectRequest {
-  enum Status { kFinished = false, kProcessing = true };
-
  public:
   InspectRequest() = delete;
   InspectRequest(const InspectRequest &) = delete;
@@ -285,10 +284,12 @@ class InspectRequest {
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
   int GetAuthorUid() const { return author_uid_; }
-  Status IsActive() { return status_; };
+  bool IsActive() { return status_; };
   void Execute();
 
  protected:
+  enum Status { kFinished = false, kProcessing = true };
+  Status status_{kProcessing};
   ReportGenerator report_generator_;
 
   explicit InspectRequest(const CharData *author, const std::vector<std::string> &args);
@@ -301,7 +302,6 @@ class InspectRequest {
  private:
   int author_uid_{0};
   int author_level_{0};
-  Status status_{kProcessing};
   std::size_t current_player_table_pos_{0};
   std::string request_text_;
   utils::CExecutionTimer inspecting_timer_;
@@ -321,6 +321,7 @@ void InspectRequest::Execute() {
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
 	if (!author_descriptor || (author_descriptor->connected != CON_PLAYING)) {
 		status_ = kFinished;
+		return;
 	}
 
 	InspectPlayersTable();
@@ -357,12 +358,12 @@ void InspectRequest::InspectIndex(const PlayerIndexElement &index) {
 
 void InspectRequest::ProcessMatchedIndex(const PlayerIndexElement &index) {
 	report_generator_.ExtractDataFromIndex(index);
-	try {
-		auto player_ptr = GetCharPtr(index);
+	auto player_ptr = GetCharPtr(index);
+	if (player_ptr) {
 		report_generator_.ExtractDataFromPtr(player_ptr);
 		report_generator_.GenerateCharacterReport();
-	} catch (std::runtime_error &e) {
-		report_generator_.ProcessLoadingCharError(e.what());
+	} else {
+		report_generator_.ProcessLoadingCharError();
 	}
 }
 
@@ -439,7 +440,8 @@ InspectRequestChar::InspectRequestChar(const CharData *author, const std::vector
 	if (IsAuthorPrivilegedForInspect(player_index)) {
 		NoteVictimInfo(player_index);
 	} else {
-		throw std::runtime_error("А ежели он ваc молнией по тыковке?\r\n");
+		status_ = kFinished;
+		SendMsgToChar("А ежели он ваc молнией по тыковке?\r\n", author);
 	}
 }
 
@@ -484,13 +486,19 @@ class InspectRequestAll : public InspectRequest {
 InspectRequestAll::InspectRequestAll(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	if (!IS_GRGOD(author)) {
-		throw std::runtime_error("Вы не столь божественны, как вам кажется.\r\n");
+		SendMsgToChar("Вы не столь божественны, как вам кажется.\r\n", author);
+		status_ = kFinished;
+		return;
 	}
 	const auto &vict_index = GetCharIndex(GetRequestText());
 	const auto vict_ptr = GetCharPtr(vict_index);
-	NoteVictimInfo(vict_ptr);
-	// Forced processing so that victim info was on the top of inpect results.
-	ForceGenerateReport(vict_index, vict_ptr);
+	if (vict_ptr) {
+		NoteVictimInfo(vict_ptr);
+		ForceGenerateReport(vict_index, vict_ptr);
+	} else {
+		SendMsgToChar(fmt::format("Не удалось загрузить файл персонажа '{}'.\r\n", GetRequestText()), author);
+		status_ = kFinished;
+	}
 }
 
 void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
@@ -528,16 +536,14 @@ bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
 		return false;
 	}
 
-	try {
-		const auto player_ptr = GetCharPtr(index);
-		if (IsLogonsIntersect(player_ptr)) {
-			report_generator_.ExtractDataFromPtr(player_ptr);
-			return true;
-		}
-	} catch (std::runtime_error &e) {
-		report_generator_.ProcessLoadingCharError(e.what());
+	const auto player_ptr = GetCharPtr(index);
+	if (player_ptr && IsLogonsIntersect(player_ptr)) {
+		report_generator_.ExtractDataFromPtr(player_ptr);
+		return true;
+	} else {
+		report_generator_.ProcessLoadingCharError();
+		return false;
 	}
-	return false;
 }
 
 bool InspectRequestAll::IsLogonsIntersect(const CharData::shared_ptr &player) {
@@ -562,72 +568,16 @@ void InspectRequestAll::NoteLogonInfo(const Logon &logon) {
 					   std::chrono::system_clock::from_time_t(logon.lasttime));
 }
 
-// ================================== IsExecuting Request Factory ======================================
-
-class InspectRequestFactory {
- public:
-  InspectRequestPtr Create(const CharData *ch, char *argument);
-
- private:
-  enum EKind { kMail, kIp, kChar, kAll };
-  const std::map<std::string_view, EKind> kinds_ = {{"mail", kMail}, {"ip", kIp}, {"char", kChar}, {"all", kAll}};
-
-  void ValidateArgs(std::vector<std::string> &args);
-  InspectRequestPtr CreateRequest(const CharData *ch, const std::vector<std::string> &args);
-};
-
-InspectRequestPtr InspectRequestFactory::Create(const CharData *ch, char *argument) {
-	std::vector<std::string> args;
-	SplitArgument(argument, args);
-	ValidateArgs(args);
-	return CreateRequest(ch, args);
-}
-
-void InspectRequestFactory::ValidateArgs(std::vector<std::string> &args) {
-	auto &request_text = args[kRequestTextPos];
-	if (request_text.length() < kMinRequestLength) {
-		throw std::runtime_error("Слишком короткий запрос.\r\n");
-	}
-
-	if (request_text.length() > kMaxRequestLength) {
-		throw std::runtime_error("Слишком длинный запрос.\r\n");
-	}
-
-	if (args.size() < kMinArgsNumber) {
-		std::string request_names;
-		for (const auto &request_kind : kinds_) {
-			request_names.append(fmt::format(" {} |", request_kind.first));
-		}
-		request_names.pop_back();
-		auto msg = fmt::format("Usage: inspect {{{}}} <argument> [send_mail]\r\n", request_names);
-		throw std::runtime_error(msg);
-	}
-
-	if (!kinds_.contains(args[kRequestKindPos])) {
-		throw std::runtime_error("Нет уж. Изыщите другую цель для своих исследований.\r\n");
-	}
-}
-
-InspectRequestPtr InspectRequestFactory::CreateRequest(const CharData *ch, const std::vector<std::string> &args) {
-	auto request_kind = kinds_.at(args[kRequestKindPos]);
-	switch (request_kind) {
-		case kMail: return std::make_shared<InspectRequestMail>(ch, args);
-		case kIp: return std::make_shared<InspectRequestIp>(ch, args);
-		case kChar: return std::make_shared<InspectRequestChar>(ch, args);
-		case kAll: return std::make_shared<InspectRequestAll>(ch, args);
-		default:
-			SendMsgToChar(ch, "Неизвестный тип запроса.\r\n");
-			break;
-	}
-}
-
 // ================================= IsExecuting Request Deque =======================================
 
-void InspectRequestDeque::Create(const CharData *ch, char *argument) {
+void InspectRequestDeque::NewRequest(const CharData *ch, char *argument) {
 	if (IsQueueAvailable(ch)) {
-		InspectRequestFactory factory;
-		emplace_back(factory.Create(ch, argument));
-		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+		std::vector<std::string> args;
+		SplitArgument(argument, args);
+		if (IsArgsValid(ch, args)) {
+			emplace_back(CreateRequest(ch, args));
+			SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+		}
 	} else {
 		SendMsgToChar("Обрабатывается другой запрос, подождите...\r\n", ch);
 	}
@@ -641,6 +591,46 @@ bool InspectRequestDeque::IsQueueAvailable(const CharData *ch) {
 bool InspectRequestDeque::IsBusy(const CharData *ch) {
 	auto predicate = [ch](const auto &p) { return (ch->get_uid() == p->GetAuthorUid()); };
 	return (std::find_if(begin(), end(), predicate) != end());
+}
+
+bool InspectRequestDeque::IsArgsValid(const CharData *ch, const std::vector<std::string> &args) {
+	auto &request_text = args[kRequestTextPos];
+	if (request_text.length() < kMinRequestLength) {
+		SendMsgToChar("Слишком короткий запрос.\r\n", ch);
+		return false;
+	}
+	if (request_text.length() > kMaxRequestLength) {
+		SendMsgToChar("Слишком длинный запрос.\r\n", ch);
+		return false;
+	}
+	if (args.size() < kMinArgsNumber) {
+		std::string request_names;
+		for (const auto &request_kind : request_kinds_) {
+			request_names.append(fmt::format(" {} |", request_kind.first));
+		}
+		request_names.pop_back();
+		SendMsgToChar(fmt::format("Usage: inspect {{{}}} <argument> [send_mail]\r\n", request_names), ch);
+		return false;
+	}
+	if (!request_kinds_.contains(args[kRequestKindPos])) {
+		SendMsgToChar("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
+		return false;
+	}
+
+	return true;
+}
+
+InspectRequestPtr InspectRequestDeque::CreateRequest(const CharData *ch, const std::vector<std::string> &args) {
+	auto request_kind = request_kinds_.at(args[kRequestKindPos]);
+	switch (request_kind) {
+		case kMail: return std::make_shared<InspectRequestMail>(ch, args);
+		case kIp: return std::make_shared<InspectRequestIp>(ch, args);
+		case kChar: return std::make_shared<InspectRequestChar>(ch, args);
+		case kAll: return std::make_shared<InspectRequestAll>(ch, args);
+		default:
+			SendMsgToChar(ch, "Неизвестный тип запроса.\r\n");
+			break;
+	}
 }
 
 void InspectRequestDeque::Inspecting() {
@@ -661,7 +651,7 @@ void DoInspect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	try {
-		MUD::InspectRequests().Create(ch, argument);
+		MUD::InspectRequests().NewRequest(ch, argument);
 	} catch (std::runtime_error &e) {
 		SendMsgToChar(ch, "%s", e.what());
 	}
