@@ -3118,6 +3118,19 @@ void renum_mob_zone(void) {
 void renum_single_table(int zone) {
 	int cmd_no, a, b, c, olda, oldb, oldc;
 	char buf[128];
+	int i;
+	for (i = 0; i < zone_table[zone].typeA_count; i++) {
+		if (real_zone(zone_table[zone].typeA_list[i]) == 0) {
+			sprintf(buf, "SYSERROR: некорректное значение в typeA (%d) для зоны: %d", zone_table[zone].typeA_list[i], zone_table[zone].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+	}
+	for (i = 0; i < zone_table[zone].typeB_count; i++) {
+		if (real_zone(zone_table[zone].typeB_list[i]) == 0) {
+			sprintf(buf, "SYSERROR: некорректное значение в typeB (%d) для зоны: %d", zone_table[zone].typeB_list[i], zone_table[zone].vnum);
+			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		}
+	}
 
 	if (!zone_table[zone].cmd)
 		return;
