@@ -10,7 +10,6 @@
 #include "modify.h"
 #include "fmt/format.h"
 #include "fmt/chrono.h"
-#include "fmt/ranges.h"
 #include "utils/utils_time.h"
 
 const int kMaxRequestLength{65};
@@ -19,9 +18,10 @@ const int kMinArgsNumber{2};
 const int kRequestKindPos{0};
 const int kRequestTextPos{1};
 
-const std::set<std::string> kIgnoredIpChecklist = {"135.181.219.76"};
+const char *kUndefined{"undefined"};
+const std::set<std::string_view> kIgnoredIpChecklist = {"135.181.219.76"};
 
-const PlayerIndexElement &GetCharIndex(const std::string &char_name) {
+const PlayerIndexElement &GetCharIndex(std::string_view char_name) {
 	auto vict_uid = GetUniqueByName(char_name);
 	if (vict_uid <= 0) {
 		throw std::runtime_error(fmt::format("Inspecting char: Неизвестное имя персонажа '{}'.\r\n", char_name));
@@ -50,7 +50,7 @@ void ClearBuffer(std::ostringstream &stream) {
 	stream.clear();
 }
 
-void MailTextTo(const std::string &address, const std::string &text) {
+void MailTextTo(std::string_view address, std::string_view text) {
 	std::string cmd_line = fmt::format("python3 MailTextTo.py {} {} &", address, text);
 	auto result = system(cmd_line.c_str());
 	UNUSED_ARG(result);
@@ -62,7 +62,7 @@ class ExtractedCharacterInfo {
  public:
   void ExtractDataFromIndex(const PlayerIndexElement &index);
   void ExtractDataFromPtr(const CharData::shared_ptr &player_ptr);
-  void AddExtraInfo(const std::string &str) { extra_info_ << str; };
+  void AddExtraInfo(std::string_view str) { extra_info_ << str; };
   void PrintReport(std::ostringstream &report);
   void Clear();
   bool IsPresent() { return !name_.empty(); };
@@ -72,11 +72,11 @@ class ExtractedCharacterInfo {
   int level_{0};
   int remort_{0};
   int last_logon_time_{0};
-  std::string name_;
-  std::string mail_;
-  std::string last_ip_;
-  std::string class_name_;
   std::string clan_abbrev_;
+  std::string class_name_;
+  std::string_view name_;
+  std::string_view mail_;
+  std::string_view last_ip_;
   std::ostringstream punishments_;
   std::ostringstream extra_info_;
 
@@ -91,8 +91,9 @@ class ExtractedCharacterInfo {
 
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
 	online_ = (DescriptorByUid(index.unique) != nullptr);
-	mail_ = (index.mail ? index.mail : "undefined");
-	last_ip_ = (index.last_ip ? index.last_ip : "undefined");
+	name_ = (index.name() ? index.name() : kUndefined);
+	mail_ = (index.mail ? index.mail : kUndefined);
+	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
 	class_name_ = MUD::Class(index.plr_class).GetName();
 	level_ = index.level;
 	remort_ = index.remorts;
@@ -100,7 +101,6 @@ void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &inde
 }
 
 void ExtractedCharacterInfo::ExtractDataFromPtr(const CharData::shared_ptr &player_ptr) {
-	name_ = player_ptr->get_name();
 	ExtractClanAbbrev(player_ptr);
 	ExtractPunishmenstsInfo(player_ptr);
 }
@@ -180,9 +180,9 @@ void ExtractedCharacterInfo::Clear() {
 	last_logon_time_ = 0;
 	level_ = 0;
 	remort_ = 0;
-	name_.clear();
-	mail_.clear();
-	last_ip_.clear();
+	name_ = kUndefined;
+	mail_ = kUndefined;
+	last_ip_ = kUndefined;
 	class_name_.clear();
 	clan_abbrev_.clear();
 	ClearBuffer(punishments_);
@@ -193,9 +193,9 @@ void ExtractedCharacterInfo::Clear() {
 
 class ReportGenerator {
  public:
-  void SetReportHeader(const std::string &header) { report_header_ = header; };
-  void SetDestinationEmail(const std::string &email) { destination_email_ = email; };
-  void AddCharacterExtraInfo(const std::string &str) { current_char_info_.AddExtraInfo(str); };
+  void SetReportHeader(std::string_view header) { report_header_ = header; };
+  void SetDestinationEmail(std::string_view email) { destination_email_ = email; };
+  void AddCharacterExtraInfo(std::string_view str) { current_char_info_.AddExtraInfo(str); };
   void ExtractDataFromIndex(const PlayerIndexElement &index);
   void ExtractDataFromPtr(const CharData::shared_ptr &player_ptr);
   void GenerateCharacterReport();
@@ -292,7 +292,7 @@ class InspectRequest {
 
   explicit InspectRequest(const CharData *author, const std::vector<std::string> &args);
   bool IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const;
-  const std::string &GetRequestText() const { return request_text_; };
+  std::string_view GetRequestText() const { return request_text_; };
 
   virtual bool IsIndexMatched(const PlayerIndexElement &index) = 0;
   virtual void ProcessMatchedIndex(const PlayerIndexElement &index);
@@ -393,7 +393,7 @@ InspectRequestIp::InspectRequestIp(const CharData *author, const std::vector<std
 }
 
 bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
-	return (index.last_ip && strstr(index.last_ip, GetRequestText().c_str()));
+	return (index.last_ip && strstr(index.last_ip, GetRequestText().data()));
 }
 
 // =======================================  INSPECT MAIL  ============================================
@@ -415,7 +415,7 @@ InspectRequestMail::InspectRequestMail(const CharData *author, const std::vector
 }
 
 bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
-	return (index.mail && strstr(index.mail, GetRequestText().c_str()));
+	return (index.mail && strstr(index.mail, GetRequestText().data()));
 }
 
 // =======================================  INSPECT CHAR  ============================================
@@ -425,8 +425,8 @@ class InspectRequestChar : public InspectRequest {
   explicit InspectRequestChar(const CharData *author, const std::vector<std::string> &args);
 
  private:
-  std::string mail_;
-  std::string last_ip_;
+  std::string_view mail_;
+  std::string_view last_ip_;
 
   void NoteVictimInfo(const PlayerIndexElement &index);
   bool IsIndexMatched(const PlayerIndexElement &index) final;
@@ -443,8 +443,8 @@ InspectRequestChar::InspectRequestChar(const CharData *author, const std::vector
 }
 
 void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
-	mail_ = (index.mail ? index.mail : "undefined");
-	last_ip_ = (index.last_ip ? index.last_ip : "undefined");
+	mail_ = (index.mail ? index.mail : kUndefined);
+	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
 	report_generator_.SetReportHeader(fmt::format(
 		"Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 		KWHT,
@@ -569,7 +569,7 @@ class InspectRequestFactory {
 
  private:
   enum EKind { kMail, kIp, kChar, kAll };
-  const std::map<std::string, EKind> kinds_ = {{"mail", kMail}, {"ip", kIp}, {"char", kChar}, {"all", kAll}};
+  const std::map<std::string_view, EKind> kinds_ = {{"mail", kMail}, {"ip", kIp}, {"char", kChar}, {"all", kAll}};
 
   void ValidateArgs(std::vector<std::string> &args);
   InspectRequestPtr CreateRequest(const CharData *ch, const std::vector<std::string> &args);
@@ -595,10 +595,10 @@ void InspectRequestFactory::ValidateArgs(std::vector<std::string> &args) {
 	if (args.size() < kMinArgsNumber) {
 		std::string request_names{" "};
 		for (const auto &request_kind : kinds_) {
-			request_names.append(request_kind.first);
+			request_names.append(fmt::format("{} |", request_kind.first));
 		}
-		auto msg = fmt::format("Usage: inspect {{ {} }} <argument> [send_mail]\r\n",
-							   fmt::join(request_names, " | "));
+		request_names.pop_back();
+		auto msg = fmt::format("Usage: inspect {{{}}} <argument> [send_mail]\r\n", request_names);
 		throw std::runtime_error(msg);
 	}
 
