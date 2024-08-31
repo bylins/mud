@@ -6165,7 +6165,7 @@ ZoneRnum real_zone(ZoneVnum vnum) {
 	ZoneRnum bot, top, mid;
 
 	bot = 0;
-	top = static_cast<ZoneRnum>(zone_table.size());
+	top = static_cast<ZoneRnum>(zone_table.size() - 1);
 	for (;;) {
 		mid = (bot + top) / 2;
 		if (zone_table[mid].vnum == vnum)
