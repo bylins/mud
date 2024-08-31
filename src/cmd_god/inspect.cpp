@@ -275,9 +275,9 @@ void ReportGenerator::ProcessLoadingCharError(const char *error_msg) {
 // =======================================  INSPECT REQUEST INTERFACE  ============================================
 
 class InspectRequest {
- public:
-  enum class Status { kProcessing, kFinished };
+  enum Status { kFinished = false, kProcessing = true };
 
+ public:
   InspectRequest() = delete;
   InspectRequest(const InspectRequest &) = delete;
   InspectRequest(InspectRequest &&) = delete;
@@ -285,7 +285,7 @@ class InspectRequest {
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
   int GetAuthorUid() const { return author_uid_; }
-  Status Inspect();
+  Status IsExecuting();
 
  protected:
   ReportGenerator report_generator_;
@@ -315,7 +315,7 @@ InspectRequest::InspectRequest(const CharData *author, const std::vector<std::st
 	  author_level_(author->GetLevel()),
 	  request_text_(args[kRequestTextPos]) {}
 
-InspectRequest::Status InspectRequest::Inspect() {
+InspectRequest::Status InspectRequest::IsExecuting() {
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
 	if (!author_descriptor || (author_descriptor->connected != CON_PLAYING)) {
 		return Status::kFinished;
@@ -561,7 +561,7 @@ void InspectRequestAll::NoteLogonInfo(const Logon &logon) {
 					   std::chrono::system_clock::from_time_t(logon.lasttime));
 }
 
-// ================================== Inspect Request Factory ======================================
+// ================================== IsExecuting Request Factory ======================================
 
 class InspectRequestFactory {
  public:
@@ -593,9 +593,9 @@ void InspectRequestFactory::ValidateArgs(std::vector<std::string> &args) {
 	}
 
 	if (args.size() < kMinArgsNumber) {
-		std::string request_names{" "};
+		std::string request_names;
 		for (const auto &request_kind : kinds_) {
-			request_names.append(fmt::format("{} |", request_kind.first));
+			request_names.append(fmt::format(" {} |", request_kind.first));
 		}
 		request_names.pop_back();
 		auto msg = fmt::format("Usage: inspect {{{}}} <argument> [send_mail]\r\n", request_names);
@@ -618,7 +618,7 @@ InspectRequestPtr InspectRequestFactory::CreateRequest(const CharData *ch, const
 	}
 }
 
-// ================================= Inspect Request Deque =======================================
+// ================================= IsExecuting Request Deque =======================================
 
 void InspectRequestDeque::Create(const CharData *ch, char *argument) {
 	if (IsQueueAvailable(ch)) {
@@ -641,11 +641,7 @@ bool InspectRequestDeque::IsBusy(const CharData *ch) {
 }
 
 void InspectRequestDeque::Inspecting() {
-	if (empty()) {
-		return;
-	}
-
-	if (front()->Inspect() == InspectRequest::Status::kFinished) {
+	if (!empty() && !front()->IsExecuting()) {
 		pop_front();
 	}
 }
