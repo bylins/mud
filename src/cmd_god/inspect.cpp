@@ -10,39 +10,64 @@
 #include "modify.h"
 #include "fmt/format.h"
 #include "fmt/chrono.h"
+#include "fmt/ranges.h"
 #include "utils/utils_time.h"
 
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
 const int kMinArgsNumber{2};
-const int kRequestTypePos{0};
+const int kRequestKindPos{0};
 const int kRequestTextPos{1};
 
 const std::set<std::string> kIgnoredIpChecklist = {"135.181.219.76"};
 
-// =======================================  REQUEST RESULT  ============================================
+const PlayerIndexElement &GetCharIndex(const std::string &char_name) {
+	auto vict_uid = GetUniqueByName(char_name);
+	if (vict_uid <= 0) {
+		throw std::runtime_error(fmt::format("Inspecting char: Неизвестное имя персонажа '{}'.\r\n", char_name));
+	} else {
+		auto player_pos = GetPtableByUnique(vict_uid);
+		return player_table[player_pos];
+	}
+}
 
-class RequestResult {
+CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index) {
+	auto d_vict = DescriptorByUid(index.unique);
+	if (d_vict) {
+		return d_vict->character;
+	} else {
+		auto player_ptr = std::make_shared<Player>();
+		if (load_char(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+			return player_ptr;
+		}
+	}
+	throw std::runtime_error(fmt::format("Inspecting all: не удалось загрузить файл персонажа '{}'.\r\n",
+										 (index.name() ? index.name() : "unknown")));
+}
+
+void ClearBuffer(std::ostringstream &stream) {
+	stream.str("");
+	stream.clear();
+}
+
+void MailTextTo(const std::string &address, const std::string &text) {
+	std::string cmd_line = fmt::format("python3 MailTextTo.py {} {} &", address, text);
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
+}
+
+// ==================================  EXTRACTED CHARACTER INFO  ========================================
+
+class ExtractedCharacterInfo {
  public:
-  RequestResult() = default;
-
-  void SetReportHeader(const std::string &header) { report_header_ = header; };
-  void SetDestinationEmail(const std::string &email) { destination_email_ = email; };
-  void AddCharacterExtraInfo(const std::string &str) { extra_info_ << str; };
   void ExtractDataFromIndex(const PlayerIndexElement &index);
-  void ExtractDataFromChar(const CharData::shared_ptr &player_ptr);
-
-  void GenerateCharacterReport();
-  void GenerateSummary(std::ostringstream &summary);
-  void OutputSummary(std::ostringstream &summary, DescriptorData *descriptor);
+  void ExtractDataFromPtr(const CharData::shared_ptr &player_ptr);
+  void AddExtraInfo(const std::string &str) { extra_info_ << str; };
+  void PrintReport(std::ostringstream &report);
+  void Clear();
+  bool IsPresent() { return !name_.empty(); };
 
  private:
-  int match_count_{0};
-  std::string report_header_;
-  std::string destination_email_;
-  std::ostringstream character_reports_;
-  utils::CExecutionTimer request_timer_;
-
   bool online_{false};
   int level_{0};
   int remort_{0};
@@ -55,46 +80,41 @@ class RequestResult {
   std::ostringstream punishments_;
   std::ostringstream extra_info_;
 
-  void AddToCharacterReport(const std::string &str) { character_reports_ << str; };
   void ExtractClanAbbrev(const CharData::shared_ptr &player_ptr);
   void ExtractPunishmenstsInfo(const CharData::shared_ptr &player_ptr);
   void ExtractPunishmentInfo(std::string_view punish_text, const Punish &punish);
-  void PrintBaseCharacterInfoToReport();
-  void PrintPunishmentsInfoToReport();
-  void PrintExtraInfoToReport();
-  void PrintSearchStatistics(std::ostringstream &stream);
-  void ClearPunishments();
-  void ClearExtraInfo();
-  void PrintHeader(std::ostringstream &stream);
-  void PrintCharacterReports(std::ostringstream &stream);
-  static void MailTextTo(const std::ostringstream &text, const std::string &email);
+  void PrintBaseInfo(std::ostringstream &report);
+  void PrintPunishmentsInfo(std::ostringstream &report) const;
+  void PrintExtraInfo(std::ostringstream &report) const;
+  static void PrintSeparator(std::ostringstream &report);
 };
 
-void RequestResult::ExtractDataFromIndex(const PlayerIndexElement &index) {
+void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
 	online_ = (DescriptorByUid(index.unique) != nullptr);
-	name_ = (index.name() ? index.name() : "");
-	mail_ = (index.mail ? index.mail : "");
-	last_ip_ = (index.last_ip ? index.last_ip : "");
+	mail_ = (index.mail ? index.mail : "undefined");
+	last_ip_ = (index.last_ip ? index.last_ip : "undefined");
 	class_name_ = MUD::Class(index.plr_class).GetName();
 	level_ = index.level;
 	remort_ = index.remorts;
 	last_logon_time_ = index.last_logon;
 }
 
-void RequestResult::ExtractDataFromChar(const CharData::shared_ptr &player_ptr) {
+void ExtractedCharacterInfo::ExtractDataFromPtr(const CharData::shared_ptr &player_ptr) {
+	name_ = player_ptr->get_name();
 	ExtractClanAbbrev(player_ptr);
 	ExtractPunishmenstsInfo(player_ptr);
 }
 
-void RequestResult::ExtractClanAbbrev(const CharData::shared_ptr &player_ptr) {
-	if (CLAN(player_ptr)) {
-		clan_abbrev_ = (player_ptr)->player_specials->clan->GetAbbrev();
+void ExtractedCharacterInfo::ExtractClanAbbrev(const CharData::shared_ptr &player_ptr) {
+	const auto clan = player_ptr->player_specials->clan;
+	if (clan) {
+		clan_abbrev_ = clan->GetAbbrev();
 	} else {
 		clan_abbrev_ = "нет";
 	}
 }
 
-void RequestResult::ExtractPunishmenstsInfo(const CharData::shared_ptr &player_ptr) {
+void ExtractedCharacterInfo::ExtractPunishmenstsInfo(const CharData::shared_ptr &player_ptr) {
 	if (PLR_FLAGGED(player_ptr, EPlrFlag::kFrozen)) {
 		ExtractPunishmentInfo("FROZEN", player_ptr->player_specials->pfreeze);
 	}
@@ -112,91 +132,144 @@ void RequestResult::ExtractPunishmenstsInfo(const CharData::shared_ptr &player_p
 	}
 }
 
-void RequestResult::ExtractPunishmentInfo(std::string_view punish_text, const Punish &punish) {
+void ExtractedCharacterInfo::ExtractPunishmentInfo(std::string_view punish_text, const Punish &punish) {
 	if (punish.duration) {
 		punishments_ << fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
-								KIRED, punish_text, KNRM,
-								std::chrono::system_clock::from_time_t(punish.duration),
-								(punish.reason ? punish.reason : "-"));
+									KIRED, punish_text, KNRM,
+									std::chrono::system_clock::from_time_t(punish.duration),
+									(punish.reason ? punish.reason : "-"));
 	}
 }
 
-void RequestResult::GenerateCharacterReport() {
-	++match_count_;
-	PrintBaseCharacterInfoToReport();
-	PrintPunishmentsInfoToReport();
-	PrintExtraInfoToReport();
-	ClearPunishments();
-	ClearExtraInfo();
+void ExtractedCharacterInfo::PrintReport(std::ostringstream &report) {
+	PrintSeparator(report);
+	PrintBaseInfo(report);
+	PrintPunishmentsInfo(report);
+	PrintExtraInfo(report);
 }
 
-void RequestResult::PrintBaseCharacterInfoToReport() {
-	AddToCharacterReport(fmt::format("{:-^131}\r\n", "-"));
-	AddToCharacterReport(fmt::format(
-		"Name: {}{:<12}{} Mail: {:<30} Last: {:%e-%b-%Y} from {}, Lvl {}, Rmt {}, Cls: {}, Clan: {}.\r\n",
-		(online_ ? KIGRN : KIWHT),
-		name_,
-		KNRM,
-		mail_,
-		std::chrono::system_clock::from_time_t(last_logon_time_),
-		last_ip_,
-		level_,
-		remort_,
-		class_name_,
-		clan_abbrev_));
+void ExtractedCharacterInfo::PrintSeparator(std::ostringstream &report) {
+	report << fmt::format("{:-^132}\r\n", "");
 }
 
-void RequestResult::PrintPunishmentsInfoToReport() {
-	character_reports_ << punishments_.str();
+void ExtractedCharacterInfo::PrintBaseInfo(std::ostringstream &report) {
+	report << fmt::format(
+		"Name: {color_on}{name:<12}{color_off} Mail: {mail:<30} Last: {time:%e-%b-%Y} from {ip}, Lvl {level}, Rmt {remort}, Cls: {class}, Clan: {clan}.\r\n",
+		fmt::arg("color_on", (online_ ? KIGRN : KIWHT)),
+		fmt::arg("name", name_),
+		fmt::arg("color_off", KNRM),
+		fmt::arg("mail", mail_),
+		fmt::arg("time", std::chrono::system_clock::from_time_t(last_logon_time_)),
+		fmt::arg("ip", last_ip_),
+		fmt::arg("level", level_),
+		fmt::arg("remort", remort_),
+		fmt::arg("class", class_name_),
+		fmt::arg("clan", clan_abbrev_));
 }
 
-void RequestResult::PrintExtraInfoToReport() {
-	character_reports_ << extra_info_.str();
+void ExtractedCharacterInfo::PrintPunishmentsInfo(std::ostringstream &report) const {
+	report << punishments_.str();
 }
 
-void RequestResult::ClearPunishments() {
-	punishments_.str("");
-	punishments_.clear();
+void ExtractedCharacterInfo::PrintExtraInfo(std::ostringstream &report) const {
+	report << extra_info_.str();
 }
 
-void RequestResult::ClearExtraInfo() {
-	extra_info_.str("");
-	extra_info_.clear();
+void ExtractedCharacterInfo::Clear() {
+	online_ = false;
+	last_logon_time_ = 0;
+	level_ = 0;
+	remort_ = 0;
+	name_.clear();
+	mail_.clear();
+	last_ip_.clear();
+	class_name_.clear();
+	clan_abbrev_.clear();
+	ClearBuffer(punishments_);
+	ClearBuffer(extra_info_);
 }
 
-void RequestResult::GenerateSummary(std::ostringstream &summary) {
+// =======================================  REPORT GENERATOR  ============================================
+
+class ReportGenerator {
+ public:
+  void SetReportHeader(const std::string &header) { report_header_ = header; };
+  void SetDestinationEmail(const std::string &email) { destination_email_ = email; };
+  void AddCharacterExtraInfo(const std::string &str) { current_char_info_.AddExtraInfo(str); };
+  void ExtractDataFromIndex(const PlayerIndexElement &index);
+  void ExtractDataFromPtr(const CharData::shared_ptr &player_ptr);
+  void GenerateCharacterReport();
+  void GenerateSummary(std::ostringstream &summary);
+  void OutputSummary(std::ostringstream &summary, DescriptorData *descriptor);
+  void ProcessLoadingCharError(const char *error_msg);
+
+ private:
+  int character_reports_count_{0};
+  std::string report_header_;
+  std::string destination_email_;
+  std::ostringstream character_reports_;
+  utils::CExecutionTimer request_timer_;
+  ExtractedCharacterInfo current_char_info_;
+
+  void PrintHeader(std::ostringstream &stream);
+  void PrintCharacterReports(std::ostringstream &stream);
+  void PrintSearchStatistics(std::ostringstream &stream);
+};
+
+void ReportGenerator::ExtractDataFromIndex(const PlayerIndexElement &index) {
+	current_char_info_.ExtractDataFromIndex(index);
+}
+
+void ReportGenerator::ExtractDataFromPtr(const CharData::shared_ptr &player_ptr) {
+	current_char_info_.ExtractDataFromPtr(player_ptr);
+}
+
+void ReportGenerator::GenerateCharacterReport() {
+	if (current_char_info_.IsPresent()) {
+		++character_reports_count_;
+		current_char_info_.PrintReport(character_reports_);
+	} else {
+		mudlog("Inspecting: попытка сгенерировать отчёт для персонажа без собранной информации.",
+			   DEF,
+			   kLvlImplementator,
+			   ERRLOG,
+			   true);
+	}
+	current_char_info_.Clear();
+}
+
+void ReportGenerator::GenerateSummary(std::ostringstream &summary) {
 	PrintHeader(summary);
 	PrintCharacterReports(summary);
 	PrintSearchStatistics(summary);
 }
 
-void RequestResult::PrintHeader(std::ostringstream &stream) {
+void ReportGenerator::PrintHeader(std::ostringstream &stream) {
 	stream << report_header_;
 }
 
-void RequestResult::PrintCharacterReports(std::ostringstream &stream) {
+void ReportGenerator::PrintCharacterReports(std::ostringstream &stream) {
 	stream << character_reports_.str();
 }
 
-void RequestResult::PrintSearchStatistics(std::ostringstream &stream) {
+void ReportGenerator::PrintSearchStatistics(std::ostringstream &stream) {
 	using namespace std::chrono_literals;
 	stream << fmt::format("\r\nВсего найдено: {} за {:.3f} сек.\r\n",
-									 match_count_,
-									 request_timer_.delta() / 1.0s);
+						  character_reports_count_,
+						  request_timer_.delta() / 1.0s);
 }
 
-void RequestResult::MailTextTo(const std::ostringstream &text, const std::string &email) {
-	std::string cmd_line = "python3 MailTextTo.py " + email + " " + text.str() + " &";
-	auto result = system(cmd_line.c_str());
-	UNUSED_ARG(result);
-}
-
-void RequestResult::OutputSummary(std::ostringstream &summary, DescriptorData *descriptor) {
-	if (!destination_email_.empty() && match_count_ > 0) {
-		MailTextTo(summary, destination_email_);
+void ReportGenerator::OutputSummary(std::ostringstream &summary, DescriptorData *descriptor) {
+	if (!destination_email_.empty() && character_reports_count_ > 0) {
+		MailTextTo(destination_email_, summary.str());
 		summary << "Данный список отправлен игроку на емайл\r\n";
 	}
 	page_string(descriptor, summary.str());
+}
+
+void ReportGenerator::ProcessLoadingCharError(const char *error_msg) {
+	mudlog(error_msg, DEF, kLvlImplementator, ERRLOG, true);
+	current_char_info_.Clear();
 }
 
 // =======================================  INSPECT REQUEST INTERFACE  ============================================
@@ -215,12 +288,11 @@ class InspectRequest {
   Status Inspect();
 
  protected:
-  RequestResult result_;
+  ReportGenerator report_generator_;
 
-  explicit InspectRequest(const CharData *author, std::vector<std::string> &args);
+  explicit InspectRequest(const CharData *author, const std::vector<std::string> &args);
   bool IsAuthorPrivilegedForInspect(const PlayerIndexElement &index) const;
   const std::string &GetRequestText() const { return request_text_; };
-  static CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index);
 
   virtual bool IsIndexMatched(const PlayerIndexElement &index) = 0;
   virtual void ProcessMatchedIndex(const PlayerIndexElement &index);
@@ -238,7 +310,7 @@ class InspectRequest {
   Status CheckStatus(DescriptorData *author);
 };
 
-InspectRequest::InspectRequest(const CharData *author, std::vector<std::string> &args)
+InspectRequest::InspectRequest(const CharData *author, const std::vector<std::string> &args)
 	: author_uid_(author->get_uid()),
 	  author_level_(author->GetLevel()),
 	  request_text_(args[kRequestTextPos]) {}
@@ -282,50 +354,42 @@ void InspectRequest::InspectIndex(const PlayerIndexElement &index) {
 }
 
 void InspectRequest::ProcessMatchedIndex(const PlayerIndexElement &index) {
-	result_.ExtractDataFromIndex(index);
-	auto player_ptr = GetCharPtr(index);
-	if (player_ptr) {
-		result_.ExtractDataFromChar(player_ptr);
+	report_generator_.ExtractDataFromIndex(index);
+	try {
+		auto player_ptr = GetCharPtr(index);
+		report_generator_.ExtractDataFromPtr(player_ptr);
+		report_generator_.GenerateCharacterReport();
+	} catch (std::runtime_error &e) {
+		report_generator_.ProcessLoadingCharError(e.what());
 	}
-	result_.GenerateCharacterReport();
 }
 
 InspectRequest::Status InspectRequest::CheckStatus(DescriptorData *author) {
 	if (current_player_table_pos_ >= player_table.size()) {
 		std::ostringstream summary;
-		result_.GenerateSummary(summary);
-		result_.OutputSummary(summary, author);
+		report_generator_.GenerateSummary(summary);
+		report_generator_.OutputSummary(summary, author);
 		return Status::kFinished;
 	}
 	return Status::kProcessing;
-}
-
-CharData::shared_ptr InspectRequest::GetCharPtr(const PlayerIndexElement &index) {
-	auto d_vict = DescriptorByUid(index.unique);
-	if (d_vict) {
-		return d_vict->character;
-	} else {
-		auto player_ptr = std::make_shared<Player>();
-		if (load_char(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
-			return player_ptr;
-		}
-	}
-	return {};
 }
 
 // =======================================  INSPECT IP  ============================================
 
 class InspectRequestIp : public InspectRequest {
  public:
-  explicit InspectRequestIp(const CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestIp(const CharData *author, const std::vector<std::string> &args);
 
  private:
   bool IsIndexMatched(const PlayerIndexElement &index) final;
 };
 
-InspectRequestIp::InspectRequestIp(const CharData *author, std::vector<std::string> &args)
+InspectRequestIp::InspectRequestIp(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	result_.SetReportHeader(fmt::format("Inspecting IP (last logon): {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
+	report_generator_.SetReportHeader(fmt::format("Inspecting IP (last logon): {}{}{}\r\n",
+												  KWHT,
+												  GetRequestText(),
+												  KNRM));
 }
 
 bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
@@ -336,17 +400,17 @@ bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
 
 class InspectRequestMail : public InspectRequest {
  public:
-  explicit InspectRequestMail(const CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestMail(const CharData *author, const std::vector<std::string> &args);
 
  private:
   bool IsIndexMatched(const PlayerIndexElement &index) final;
 };
 
-InspectRequestMail::InspectRequestMail(const CharData *author, std::vector<std::string> &args)
+InspectRequestMail::InspectRequestMail(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	result_.SetReportHeader(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
+	report_generator_.SetReportHeader(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
 	if ((args.size() > kMinArgsNumber) && (args.back() == "send_mail")) {
-		result_.SetDestinationEmail(GetRequestText());
+		report_generator_.SetDestinationEmail(GetRequestText());
 	}
 }
 
@@ -358,7 +422,7 @@ bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
 
 class InspectRequestChar : public InspectRequest {
  public:
-  explicit InspectRequestChar(const CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestChar(const CharData *author, const std::vector<std::string> &args);
 
  private:
   std::string mail_;
@@ -368,27 +432,26 @@ class InspectRequestChar : public InspectRequest {
   bool IsIndexMatched(const PlayerIndexElement &index) final;
 };
 
-InspectRequestChar::InspectRequestChar(const CharData *author, std::vector<std::string> &args)
+InspectRequestChar::InspectRequestChar(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	auto vict_uid = GetUniqueByName(GetRequestText());
-	if (vict_uid <= 0) {
-		throw std::runtime_error("Inspecting char: Неизвестное имя персонажа.\r\n");
+	const auto &player_index = GetCharIndex(GetRequestText());
+	if (IsAuthorPrivilegedForInspect(player_index)) {
+		NoteVictimInfo(player_index);
 	} else {
-		auto player_pos = GetPtableByUnique(vict_uid);
-		const auto &player_index = player_table[player_pos];
-		if (IsAuthorPrivilegedForInspect(player_index)) {
-			NoteVictimInfo(player_index);
-		} else {
-			throw std::runtime_error("А ежели он ваc молнией по тыковке?\r\n");
-		}
+		throw std::runtime_error("А ежели он ваc молнией по тыковке?\r\n");
 	}
 }
 
 void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
-	mail_ = index.mail;
-	last_ip_ = index.last_ip;
-	result_.SetReportHeader(fmt::format("Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
-							KWHT, GetRequestText(), KNRM, mail_, last_ip_));
+	mail_ = (index.mail ? index.mail : "undefined");
+	last_ip_ = (index.last_ip ? index.last_ip : "undefined");
+	report_generator_.SetReportHeader(fmt::format(
+		"Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
+		KWHT,
+		GetRequestText(),
+		KNRM,
+		mail_,
+		last_ip_));
 }
 
 bool InspectRequestChar::IsIndexMatched(const PlayerIndexElement &index) {
@@ -399,44 +462,41 @@ bool InspectRequestChar::IsIndexMatched(const PlayerIndexElement &index) {
 
 class InspectRequestAll : public InspectRequest {
  public:
-  explicit InspectRequestAll(const CharData *author, std::vector<std::string> &args);
+  explicit InspectRequestAll(const CharData *author, const std::vector<std::string> &args);
 
  private:
   int vict_uid_{0};
   std::set<std::string> victim_ip_log_;
-  std::ostringstream logons_buffer_;        // записи о совпавших коннектах проверяемого персонажа
+  std::ostringstream current_char_intercesting_logons_;
 
   void NoteVictimInfo(const CharData::shared_ptr &vict);
   bool IsIpMatched(const char *ip);
   bool IsLogonsIntersect(const CharData::shared_ptr &player);
   void NoteLogonInfo(const Logon &logon);
-  void FlushLogonsBufferIntoResult();
+  void FlushLogonsBufferToReportGenerator();
 
   bool IsIndexMatched(const PlayerIndexElement &index) final;
   void ProcessMatchedIndex(const PlayerIndexElement &index) final;
+  void ForceGenerateReport(const PlayerIndexElement &index, const CharData::shared_ptr &vict);
 };
 
-InspectRequestAll::InspectRequestAll(const CharData *author, std::vector<std::string> &args)
+InspectRequestAll::InspectRequestAll(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	if (!IS_GRGOD(author)) {
 		throw std::runtime_error("Вы не столь божественны, как вам кажется.\r\n");
 	}
-
-	const auto vict_table_pos = player_table.get_by_name(GetRequestText().c_str());
-	const auto &vict_index = player_table[vict_table_pos];
-	auto vict_ptr = GetCharPtr(vict_index);
-	if (vict_ptr) {
-		NoteVictimInfo(vict_ptr);
-	} else {
-		throw std::runtime_error(fmt::format("Inspecting all: не удалось загрузить файл персонажа '{}'.\r\n",
-											 GetRequestText()));
-	}
+	const auto &vict_index = GetCharIndex(GetRequestText());
+	const auto vict_ptr = GetCharPtr(vict_index);
+	NoteVictimInfo(vict_ptr);
 	// Forced processing so that victim info was on the top of inpect results.
-	result_.ExtractDataFromIndex(vict_index);
+	ForceGenerateReport(vict_index, vict_ptr);
 }
 
 void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
-	result_.SetReportHeader(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n", KIWHT, GetRequestText(), KNRM));
+	report_generator_.SetReportHeader(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n",
+												  KIWHT,
+												  GetRequestText(),
+												  KNRM));
 	vict_uid_ = vict->get_uid();
 	for (const auto &logon : LOGON_LIST(vict)) {
 		if (logon.ip && !kIgnoredIpChecklist.contains(logon.ip)) {
@@ -445,33 +505,43 @@ void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 	}
 }
 
-void InspectRequestAll::ProcessMatchedIndex(const PlayerIndexElement &index) {
-	result_.ExtractDataFromIndex(index);
-	FlushLogonsBufferIntoResult();
-	result_.GenerateCharacterReport();
+void InspectRequestAll::ForceGenerateReport(const PlayerIndexElement &index, const CharData::shared_ptr &vict) {
+	report_generator_.ExtractDataFromIndex(index);
+	report_generator_.ExtractDataFromPtr(vict);
+	report_generator_.GenerateCharacterReport();
 }
 
-void InspectRequestAll::FlushLogonsBufferIntoResult() {
-	result_.AddCharacterExtraInfo(logons_buffer_.str());
-	logons_buffer_.str("");
-	logons_buffer_.clear();
+void InspectRequestAll::ProcessMatchedIndex(const PlayerIndexElement &index) {
+	report_generator_.ExtractDataFromIndex(index);
+	FlushLogonsBufferToReportGenerator();
+	report_generator_.GenerateCharacterReport();
+}
+
+void InspectRequestAll::FlushLogonsBufferToReportGenerator() {
+	report_generator_.AddCharacterExtraInfo(current_char_intercesting_logons_.str());
+	ClearBuffer(current_char_intercesting_logons_);
 }
 
 bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
 	if (vict_uid_ == index.unique) {
 		return false;
 	}
-	auto player_ptr = GetCharPtr(index);
-	if (player_ptr && IsLogonsIntersect(player_ptr)) {
-		result_.ExtractDataFromChar(player_ptr);
-		return true;
+
+	try {
+		const auto player_ptr = GetCharPtr(index);
+		if (IsLogonsIntersect(player_ptr)) {
+			report_generator_.ExtractDataFromPtr(player_ptr);
+			return true;
+		}
+	} catch (std::runtime_error &e) {
+		report_generator_.ProcessLoadingCharError(e.what());
 	}
 	return false;
 }
 
 bool InspectRequestAll::IsLogonsIntersect(const CharData::shared_ptr &player) {
 	bool result{false};
-	for (const auto &logon : LOGON_LIST(player)) {
+	for (const auto &logon : player->player_specials->logons) {
 		if (IsIpMatched(logon.ip)) {
 			result = true;
 			NoteLogonInfo(logon);
@@ -485,21 +555,24 @@ bool InspectRequestAll::IsIpMatched(const char *ip) {
 }
 
 void InspectRequestAll::NoteLogonInfo(const Logon &logon) {
-	logons_buffer_ << fmt::format(" IP: {}{:<16}{} Количество заходов: {}. Последний: {:%R %e-%b-%Y}.\r\n",
-								  KICYN, logon.ip, KNRM, logon.count,
-								  std::chrono::system_clock::from_time_t(logon.lasttime));
+	current_char_intercesting_logons_
+		<< fmt::format(" IP: {}{:<16}{} Logons: {}. Last: {:%R %e-%b-%Y}.\r\n",
+					   KICYN, logon.ip, KNRM, logon.count,
+					   std::chrono::system_clock::from_time_t(logon.lasttime));
 }
 
 // ================================== Inspect Request Factory ======================================
 
 class InspectRequestFactory {
  public:
-  InspectRequestFactory() = delete;
-  static InspectRequestPtr Create(const CharData *ch, char *argument);
+  InspectRequestPtr Create(const CharData *ch, char *argument);
 
  private:
-  static void ValidateArgs(std::vector<std::string> &args);
-  static InspectRequestPtr CreateRequest(const CharData *ch, std::vector<std::string> &args);
+  enum EKind { kMail, kIp, kChar, kAll };
+  const std::map<std::string, EKind> kinds_ = {{"mail", kMail}, {"ip", kIp}, {"char", kChar}, {"all", kAll}};
+
+  void ValidateArgs(std::vector<std::string> &args);
+  InspectRequestPtr CreateRequest(const CharData *ch, const std::vector<std::string> &args);
 };
 
 InspectRequestPtr InspectRequestFactory::Create(const CharData *ch, char *argument) {
@@ -510,40 +583,47 @@ InspectRequestPtr InspectRequestFactory::Create(const CharData *ch, char *argume
 }
 
 void InspectRequestFactory::ValidateArgs(std::vector<std::string> &args) {
-	if (args.size() < kMinArgsNumber) {
-		throw std::runtime_error("Usage: inspect { mail | ip | char | all } <argument> [send_mail]\r\n");
-	}
-	if (!isname(args[kRequestTypePos], "mail ip char all")) {
-		throw std::runtime_error("Нет уж. Изыщите другую цель для своих исследований.\r\n");
-	}
 	auto &request_text = args[kRequestTextPos];
 	if (request_text.length() < kMinRequestLength) {
 		throw std::runtime_error("Слишком короткий запрос.\r\n");
 	}
+
 	if (request_text.length() > kMaxRequestLength) {
 		throw std::runtime_error("Слишком длинный запрос.\r\n");
 	}
+
+	if (args.size() < kMinArgsNumber) {
+		std::string request_names{" "};
+		for (const auto &request_kind : kinds_) {
+			request_names.append(request_kind.first);
+		}
+		auto msg = fmt::format("Usage: inspect {{ {} }} <argument> [send_mail]\r\n",
+							   fmt::join(request_names, " | "));
+		throw std::runtime_error(msg);
+	}
+
+	if (!kinds_.contains(args[kRequestKindPos])) {
+		throw std::runtime_error("Нет уж. Изыщите другую цель для своих исследований.\r\n");
+	}
 }
 
-InspectRequestPtr InspectRequestFactory::CreateRequest(const CharData *ch, std::vector<std::string> &args) {
-	auto &request_type = args[kRequestTypePos];
-	if (utils::IsAbbr(request_type.c_str(), "mail")) {
-		return std::make_shared<InspectRequestMail>(ch, args);
-	} else if (utils::IsAbbr(request_type.c_str(), "ip")) {
-		return std::make_shared<InspectRequestIp>(ch, args);
-	} else if (utils::IsAbbr(request_type.c_str(), "char")) {
-		return std::make_shared<InspectRequestChar>(ch, args);
-	} else if (utils::IsAbbr(request_type.c_str(), "all")) {
-		return std::make_shared<InspectRequestAll>(ch, args);
+InspectRequestPtr InspectRequestFactory::CreateRequest(const CharData *ch, const std::vector<std::string> &args) {
+	auto request_kind = kinds_.at(args[kRequestKindPos]);
+	switch (request_kind) {
+		case kMail: return std::make_shared<InspectRequestMail>(ch, args);
+		case kIp: return std::make_shared<InspectRequestIp>(ch, args);
+		case kChar: return std::make_shared<InspectRequestChar>(ch, args);
+		case kAll: return std::make_shared<InspectRequestAll>(ch, args);
+		default: throw std::runtime_error("Неизвестный тип запроса.\r\n");
 	}
-	throw std::runtime_error("Неизвестный тип запроса.\r\n");
 }
 
 // ================================= Inspect Request Deque =======================================
 
 void InspectRequestDeque::Create(const CharData *ch, char *argument) {
 	if (IsQueueAvailable(ch)) {
-		emplace_back(InspectRequestFactory::Create(ch, argument));
+		InspectRequestFactory factory;
+		emplace_back(factory.Create(ch, argument));
 		SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
 	} else {
 		SendMsgToChar("Обрабатывается другой запрос, подождите...\r\n", ch);
