@@ -1227,7 +1227,8 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 	std::vector<zrn_complex_list> zrn_list;
 	ZoneVnum zvn;
 	ZoneRnum zrn;
-	std::stringstream out_from, out_to;
+	std::stringstream out_from;
+	std::string out_to;
 	zrn_complex_list pair;
 
 	for (auto it : tokens) {
@@ -1250,7 +1251,7 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 	sprintf(buf, "Попытка создать комплекс: %s", out_from.str().c_str());
 	trig_log(trig, buf);
 	for (auto it : zrn_list) {
-		out_to << to_string(zone_table[it.to].vnum) << " ";
+		out_to = out_to + to_string(zone_table[it.to].vnum) + " ";
 		TrigDataCopy(it.from, it.to);
 		RoomDataCopy(it.from, it.to, zrn_list);
 		MobDataCopy(it.from, it.to);
@@ -1258,16 +1259,16 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 		ZoneDataCopy(it.from, it.to); //последним
 		reset_zone(it.to);
 	}
-	out_to.seekp(-1, std::ios_base::end); // Удаляем \0 из конца строки.
+	out_to.pop_back();
 	for (auto it : zrn_list) {
 		for (auto it2 : zrn_list) {
 			TrigCommandsConvert(it.from, it2.to, it.to);
 		}
 	}
-	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.str().c_str(), timer.delta().count());
+	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.c_str(), timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 
-	return out_to.str();
+	return out_to;
 }
 
 void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
