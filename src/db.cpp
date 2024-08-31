@@ -4988,24 +4988,33 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	zone_to.top = zone_to.vnum * 100 + 99;
 	zone_to.reset_mode = 0; //самостоятельно не ресетится
 	zone_to.lifespan = zone_from.lifespan;
-	zone_to.reset_idle = zone_from.reset_idle;
-	zone_to.typeA_count = zone_from.typeA_count;
-	zone_to.typeB_count = zone_from.typeB_count;
+	zone_to.reset_idle = 60;
+	zone_to.typeA_count = 0;
+	zone_to.typeB_count = 0;
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
 	zone_to.group = zone_from.group;
-/*	if (zone_to.typeA_count) {
+/*
+	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
 	}
 	for (i = 0; i < zone_to.typeA_count; i++) {
-		zone_to.typeA_list[i] = zone_from.typeA_list[i];
+		for (auto d_zvn = ZoneStartDungeons; d_zvn < ZoneStartDungeons + NumberOfZoneDungeons; d_zvn++) {
+			if (d_zvn == zone_from.typeA_list[i]) {
+				zone_to.typeA_list[i] = d_zvn;
+			}
+		}
 	}
 	if (zone_to.typeB_count) {
 		CREATE(zone_to.typeB_list, zone_to.typeB_count); //почистить
 		CREATE(zone_to.typeB_flag, zone_to.typeB_count); //почистить
 	}
 	for (i = 0; i < zone_to.typeB_count; i++) {
-		zone_to.typeB_list[i] = zone_from.typeB_list[i];
+		for (auto d_zvn = ZoneStartDungeons; d_zvn < ZoneStartDungeons + NumberOfZoneDungeons; d_zvn++) {
+			if (d_zvn == zone_from.typeB_list[i]) {
+				zone_to.typeB_list[i] = d_zvn;
+			}
+		}
 	}
 */
 	if (zone_from.cmd) {
@@ -6491,7 +6500,7 @@ void room_copy(RoomData *dst, RoomData *src)
 		// Восстанавливаю track, contents, people, аффекты
 		dst->track = track;
 		dst->contents = contents;
-		dst->people = std::move(people_backup);
+		dst->people = people_backup;
 		dst->affected = affected;
 	}
 
