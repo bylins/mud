@@ -981,7 +981,7 @@ void script_stat(CharData *ch, Script *sc) {
 		}
 		SendMsgToChar(buffer.str(), ch);
 
-		if (GET_TRIG_WAIT(t)) {
+		if (GET_TRIG_WAIT(t).time_remaining > 0) {
 			if (t->wait_line != nullptr) {
 				sprintf(buf, "    Wait: %d, Current line: %s\r\n",
 						GET_TRIG_WAIT(t)->time_remaining, t->wait_line->cmd.c_str());
@@ -4440,8 +4440,10 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 				time *= kPassesPerSec;
 		}
 	}
-//	if (time < 2)	//костыль пока не разберемся почему корректно не работает wait 1
-//		time = 2;
+	if (time == 0) {
+		trig_log(trig, "попытка запустить Wait 0");
+		return;
+	}
 	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
@@ -6390,7 +6392,7 @@ Trigger::Trigger() :
 	add_flag{false},
 	depth(0),
 	loops(-1),
-	wait_event(nullptr),
+	wait_event.time_remaining(0),
 	var_list(),
 	nr(kNothing),
 	attach_type(0),
@@ -6404,7 +6406,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, co
 	add_flag{false},
 	depth(0),
 	loops(-1),
-	wait_event(nullptr),
+	wait_event.time_remaining(0),
 	var_list(),
 	nr(rnum),
 	attach_type(attach_type),
@@ -6418,7 +6420,7 @@ Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, 
 	add_flag{false},
 	depth(0),
 	loops(-1),
-	wait_event(nullptr),
+	wait_event.time_remaining(0),
 	var_list(),
 	nr(rnum),
 	attach_type(attach_type),
@@ -6436,7 +6438,7 @@ Trigger::Trigger(const Trigger &from) :
 	arglist(from.arglist),
 	depth(from.depth),
 	loops(from.loops),
-	wait_event(nullptr),
+	wait_event(0),
 	var_list(from.var_list),
 	nr(from.nr),
 	attach_type(from.attach_type),
@@ -6457,7 +6459,7 @@ void Trigger::reset() {
 	arglist.clear();
 	depth = 0;
 	loops = -1;
-	wait_event = nullptr;
+	wait_event.time_remaining = 0;
 	var_list.clear();
 }
 

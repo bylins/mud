@@ -31,12 +31,12 @@ struct TriggerEvent {
 	int time_remaining;
 	EVENT(*func);
 	void *info;
-	struct TriggerEvent *next;
+	bool deleted;
 };
 
 // * prototype event functions
-struct TriggerEvent *add_event(int time, EVENT(*func), void *info);
-void remove_event(struct TriggerEvent *event);
+TriggerEvent add_event(int time, EVENT(*func), void *info);
+void remove_event(TriggerEvent event);
 void process_events(void);
 
 // список всех ивентов в очереди
