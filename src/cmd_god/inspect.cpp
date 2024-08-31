@@ -285,7 +285,8 @@ class InspectRequest {
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
   int GetAuthorUid() const { return author_uid_; }
-  Status IsExecuting();
+  Status IsActive() { return status_; };
+  void Execute();
 
  protected:
   ReportGenerator report_generator_;
@@ -300,14 +301,15 @@ class InspectRequest {
  private:
   int author_uid_{0};
   int author_level_{0};
+  Status status_{kProcessing};
   std::size_t current_player_table_pos_{0};
   std::string request_text_;
   utils::CExecutionTimer inspecting_timer_;
 
   void InspectPlayersTable();
   void InspectIndex(const PlayerIndexElement &index);
+  void CheckCompletion(DescriptorData *author);
   bool IsTimeExpired();
-  Status CheckStatus(DescriptorData *author);
 };
 
 InspectRequest::InspectRequest(const CharData *author, const std::vector<std::string> &args)
@@ -315,14 +317,14 @@ InspectRequest::InspectRequest(const CharData *author, const std::vector<std::st
 	  author_level_(author->GetLevel()),
 	  request_text_(args[kRequestTextPos]) {}
 
-InspectRequest::Status InspectRequest::IsExecuting() {
+void InspectRequest::Execute() {
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
 	if (!author_descriptor || (author_descriptor->connected != CON_PLAYING)) {
-		return Status::kFinished;
+		status_ = kFinished;
 	}
 
 	InspectPlayersTable();
-	return CheckStatus(author_descriptor);
+	CheckCompletion(author_descriptor);
 }
 
 void InspectRequest::InspectPlayersTable() {
@@ -364,14 +366,13 @@ void InspectRequest::ProcessMatchedIndex(const PlayerIndexElement &index) {
 	}
 }
 
-InspectRequest::Status InspectRequest::CheckStatus(DescriptorData *author) {
+void InspectRequest::CheckCompletion(DescriptorData *author) {
 	if (current_player_table_pos_ >= player_table.size()) {
 		std::ostringstream summary;
 		report_generator_.GenerateSummary(summary);
 		report_generator_.OutputSummary(summary, author);
-		return Status::kFinished;
+		status_ = kFinished;
 	}
-	return Status::kProcessing;
 }
 
 // =======================================  INSPECT IP  ============================================
@@ -614,7 +615,9 @@ InspectRequestPtr InspectRequestFactory::CreateRequest(const CharData *ch, const
 		case kIp: return std::make_shared<InspectRequestIp>(ch, args);
 		case kChar: return std::make_shared<InspectRequestChar>(ch, args);
 		case kAll: return std::make_shared<InspectRequestAll>(ch, args);
-		default: throw std::runtime_error("Неизвестный тип запроса.\r\n");
+		default:
+			SendMsgToChar(ch, "Неизвестный тип запроса.\r\n");
+			break;
 	}
 }
 
@@ -641,8 +644,12 @@ bool InspectRequestDeque::IsBusy(const CharData *ch) {
 }
 
 void InspectRequestDeque::Inspecting() {
-	if (!empty() && !front()->IsExecuting()) {
-		pop_front();
+	if (!empty()) {
+		if (front()->IsActive()) {
+			front()->Execute();
+		} else {
+			pop_front();
+		}
 	}
 }
 
