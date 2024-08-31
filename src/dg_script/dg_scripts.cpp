@@ -839,8 +839,9 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 	}
 
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
-			CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
-			CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
+			CCYEL(ch, C_NRM), trig->get_name().c_str(), CCNRM(ch, C_NRM),
+			CCGRN(ch, C_NRM), trig_index[(trig)->get_rnum()]->vnum,
+			CCNRM(ch, C_NRM), trig->get_rnum());
 	SendMsgToChar(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER) {
@@ -1257,13 +1258,13 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 		MobDataCopy(it.from, it.to);
 		ObjDataCopy(it.from, it.to);
 		ZoneDataCopy(it.from, it.to); //последним
-		reset_zone(it.to);
 	}
 	out_to.pop_back();
 	for (auto it : zrn_list) {
 		for (auto it2 : zrn_list) {
 			TrigCommandsConvert(it.from, it2.to, it.to);
 		}
+		reset_zone(it.to);
 	}
 	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.c_str(), timer.delta().count());
 	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
