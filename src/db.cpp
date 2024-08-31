@@ -2928,7 +2928,7 @@ void CreateBlankTrigsDungeon() {
 		zone_table[real_zone(zvn)].RnumTrigsLocation.first = top_of_trigt;
 		zone_table[real_zone(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
 		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
-			Trigger *trig = new Trigger(-1, "Blank trigger", MTRIG_GREET);
+			Trigger *trig = new Trigger(top_of_trigt, "Blank trigger", MTRIG_GREET);
 			IndexData *index;
 			CREATE(index, 1);
 			index->vnum = zvn * 100 + tvn;
