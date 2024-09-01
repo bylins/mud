@@ -32,6 +32,10 @@ struct TriggerEvent {
 	EVENT(*func);
 	void *info;
 	bool deleted;
+TriggerEvent () {
+	time_remaining = 0;
+	deleted = false;
+}
 };
 
 // * prototype event functions

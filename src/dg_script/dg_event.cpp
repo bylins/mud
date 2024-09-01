@@ -57,7 +57,10 @@ void process_events(void) {
 		const auto time_remaining = e.time_remaining;
 		if (time_remaining == 0) {
 			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e.info))->trigger);
+				sprintf(buf, "[TrigVNum: %d]: process_events удаляю", trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, true);
 			e.func(e.info);
+//			e.time_remaining = 0;
 			e.deleted = true;;
 			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
@@ -72,6 +75,8 @@ void process_events(void) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
+		} else {
+			e.time_remaining--;
 		}
 	}
 	std::erase_if(event_list, [](auto flag) {return flag.deleted;});
@@ -91,7 +96,8 @@ void print_event_list(CharData *ch)
 		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
 //		if (wed->trigger->wait_line != nullptr) {
 		if (wed->trigger->wait_event.time_remaining > 0 && wed->trigger->wait_line != nullptr) {
-			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, wed->trigger->wait_line->cmd.c_str());
+			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s (%d)\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, 
+					wed->trigger->wait_line->cmd.c_str(), wed->trigger->wait_line->line_num);
 		}
 		SendMsgToChar(buf, ch);
 		++trig_counter;
