@@ -96,7 +96,7 @@ void print_event_list(CharData *ch)
 		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
 //		if (wed->trigger->wait_line != nullptr) {
 		if (wed->trigger->wait_event.time_remaining > 0 && wed->trigger->wait_line != nullptr) {
-			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s (%d)\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, 
+			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s (num line: %d)\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, 
 					wed->trigger->wait_line->cmd.c_str(), wed->trigger->wait_line->line_num);
 		}
 		SendMsgToChar(buf, ch);

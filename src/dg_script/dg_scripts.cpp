@@ -984,8 +984,8 @@ void script_stat(CharData *ch, Script *sc) {
 
 		if (GET_TRIG_WAIT(t).time_remaining > 0) {
 			if (t->wait_line != nullptr) {
-				sprintf(buf, "    Wait: %d, Current line: %s\r\n",
-						GET_TRIG_WAIT(t).time_remaining, t->wait_line->cmd.c_str());
+				sprintf(buf, "    Wait: %d, Current line: %s (num line: %d)\r\n",
+						GET_TRIG_WAIT(t).time_remaining, t->wait_line->cmd.c_str(), t->wait_line->line_num);
 				SendMsgToChar(buf, ch);
 			} else {
 				sprintf(buf, "    Wait: %d\r\n", GET_TRIG_WAIT(t).time_remaining);
