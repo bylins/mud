@@ -5113,7 +5113,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	  SendMsgToChar("Список очищен.\r\n", ch);
 	  return;
 	}
-	long unique = GetUniqueByName(buffer2, 1);
+	long unique = GetUniqueByName(buffer2, true);
 
 	if (unique <= 0) {
 	  SendMsgToChar("Интересующий вас персонаж не найден.\r\n", ch);

@@ -1150,7 +1150,7 @@ void do_reboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
-			long uid = GetUniqueByName(std::string(argument));
+			long uid = GetUniqueByName(argument);
 			if (uid > 0) {
 				Depot::reload_char(uid, ch);
 			} else {
