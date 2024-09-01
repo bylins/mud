@@ -575,8 +575,11 @@ void InspectRequestDeque::NewRequest(const CharData *ch, char *argument) {
 		std::vector<std::string> args;
 		SplitArgument(argument, args);
 		if (IsArgsValid(ch, args)) {
-			emplace_back(CreateRequest(ch, args));
-			SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+			auto request_ptr = CreateRequest(ch, args);
+			if (request_ptr) {
+				push_back(request_ptr);
+				SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
+			}
 		}
 	} else {
 		SendMsgToChar("Обрабатывается другой запрос, подождите...\r\n", ch);
@@ -629,6 +632,7 @@ InspectRequestPtr InspectRequestDeque::CreateRequest(const CharData *ch, const s
 		case kAll: return std::make_shared<InspectRequestAll>(ch, args);
 		default:
 			SendMsgToChar(ch, "Неизвестный тип запроса.\r\n");
+			return {};
 			break;
 	}
 }

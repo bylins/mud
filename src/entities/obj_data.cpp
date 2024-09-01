@@ -22,6 +22,8 @@ extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void extract_trigger(Trigger *trig);
+extern double count_mort_requred(const CObjectPrototype *obj);
+extern double count_unlimited_timer(const CObjectPrototype *obj);
 
 id_to_set_info_map ObjData::set_table;
 
@@ -651,9 +653,6 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 	}
 }
 
-float count_mort_requred(const CObjectPrototype *obj);
-float count_unlimited_timer(const CObjectPrototype *obj);
-
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
@@ -705,19 +704,19 @@ ObjRnum CObjectPrototype::get_parent_vnum() {
 	return obj_proto[this->get_parent_rnum()]->get_vnum();
 }
 
-float CObjectPrototype::show_mort_req() {
+double CObjectPrototype::show_mort_req() const {
 	return count_mort_requred(this);
 }
 
-float CObjectPrototype::show_koef_obj() {
+double CObjectPrototype::show_koef_obj() const {
 	return count_unlimited_timer(this);
 }
 
-float CObjectPrototype::get_ilevel() const {
+double CObjectPrototype::get_ilevel() const {
 	return m_ilevel;
 }
 
-void CObjectPrototype::set_ilevel(float ilvl) {
+void CObjectPrototype::set_ilevel(double ilvl) {
 	m_ilevel = ilvl;
 }
 
@@ -979,7 +978,7 @@ void init_ilvl(CObjectPrototype *obj) {
 		return;
 	}
 
-	float total_weight = count_mort_requred(obj);
+	auto total_weight = count_mort_requred(obj);
 
 	obj->set_ilevel(total_weight);
 }

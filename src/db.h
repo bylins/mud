@@ -46,7 +46,6 @@ void boot_db();
 void zone_update();
 bool can_be_reset(ZoneRnum zone);
 long get_id_by_name(char *name);
-//long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
@@ -386,7 +385,7 @@ class GameLoader {
  public:
 	GameLoader() = default;
 
-	void boot_world();
+	static void boot_world();
 	static void index_boot(EBootType mode);
 
  private:

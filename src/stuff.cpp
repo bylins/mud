@@ -20,7 +20,7 @@
 #include "structs/global_objects.h"
 
 
-extern std::vector<RandomObj> random_objs;
+std::vector<RandomObj> random_objs;
 extern void set_obj_eff(ObjData *itemobj, const EApply type, int mod);
 extern void set_obj_aff(ObjData *itemobj, const EAffect bitv);
 extern int planebit(const char *str, int *plane, int *bit);

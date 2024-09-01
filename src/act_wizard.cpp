@@ -1802,8 +1802,6 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы уже подслушиваете.\r\n", ch);
 	else if (victim->desc->snoop_by && victim->desc->snoop_by != ch->desc)
 		SendMsgToChar("Дык его уже кто-то из богов подслушивает.\r\n", ch);
-		//	else if (!can_snoop(ch, victim))
-		//		SendMsgToChar("Дружина данного персонажа находится в состоянии войны с вашей дружиной.\r\n", ch);
 	else {
 		if (victim->desc->original)
 			tch = victim->desc->original.get();

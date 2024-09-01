@@ -331,10 +331,10 @@ class CObjectPrototype {
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
 	void set_dgscript_field(const std::string _) { m_dgscript_field = _; }
 	int get_auto_mort_req() const;
-	float show_mort_req();
-	float show_koef_obj();
-	float get_ilevel() const;    ///< разные системы расчета привлекательности предмета
-	void set_ilevel(float ilvl);
+	double show_mort_req() const;
+	double show_koef_obj() const;
+	double get_ilevel() const;    ///< разные системы расчета привлекательности предмета
+	void set_ilevel(double ilvl);
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
@@ -410,7 +410,7 @@ class CObjectPrototype {
 	int m_rent_on;    ///< стоимость ренты, если надета
 	int m_rent_off;    ///< стоимость ренты, если в инве
 
-	float m_ilevel;    ///< расчетный уровень шмотки, не сохраняется
+  	double m_ilevel;    ///< расчетный уровень шмотки, не сохраняется
 	ObjVnum m_rnum;    ///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
