@@ -1050,7 +1050,10 @@ void do_sstat_character(CharData *ch, CharData *k) {
 
 void print_worlds_vars(CharData *ch, std::optional<long> context) {
 	SendMsgToChar("Worlds vars list:\r\n", ch);
-	for (auto current : worlds_vars) {
+	worlds_vars.sort([](const TriggerVar &it1, const TriggerVar &it2) {
+		return it1.context < it2.context;
+	});
+	for (auto &current : worlds_vars) {
 		if (context && context.value() != current.context) {
 			continue;
 		}
