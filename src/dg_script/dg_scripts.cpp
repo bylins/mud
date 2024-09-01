@@ -4458,7 +4458,7 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	}
 
 	GET_TRIG_WAIT(trig) = add_event(time, trig_wait_event, wait_event_obj);
-	trig->wait_line = cl->next;
+	trig->wait_line = cl;
 }
 
 // processes a script set command
@@ -5607,7 +5607,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	switch  (mode) {
 		case TRIG_NEW: cl = *trig->cmdlist;
 		break;
-		case TRIG_CONTINUE: cl =  trig->wait_line;
+		case TRIG_CONTINUE: cl =  trig->wait_line->next;
 		break;
 		case TRIG_FROM_LINE: cl = trig->curr_line;
 		break;
