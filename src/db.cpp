@@ -37,6 +37,7 @@
 #include "noob.h"
 #include "obj_prototypes.h"
 #include "olc/olc.h"
+#include "communication/offtop.h"
 #include "communication/parcel.h"
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
@@ -3692,7 +3693,7 @@ void after_reset_zone(ZoneRnum nr_zone) {
 	}
 }
 
-#define ZO_DEAD  9999
+const int ZO_DEAD{9999};
 
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void zone_update() {
@@ -6548,48 +6549,6 @@ MobRace::~MobRace() {
 	ingrlist.clear();
 }
 //-Polud
-
-////////////////////////////////////////////////////////////////////////////////
-namespace offtop_system {
-
-const char *BLOCK_FILE{LIB_MISC"offtop.lst"};
-std::vector<std::string> block_list;
-
-/// Проверка на наличие чара в стоп-списке и сет флага
-void SetStopOfftopFlag(CharData *ch) {
-	std::string mail(GET_EMAIL(ch));
-	utils::ConvertToLow(mail);
-	auto i = std::find(block_list.begin(), block_list.end(), mail);
-	if (i != block_list.end()) {
-		PRF_FLAGS(ch).set(EPrf::kStopOfftop);
-	} else {
-		PRF_FLAGS(ch).unset(EPrf::kStopOfftop);
-	}
-}
-
-/// Лоад/релоад списка нежелательных для оффтопа товарисчей.
-void Init() {
-	block_list.clear();
-	std::ifstream file(BLOCK_FILE);
-	if (!file.is_open()) {
-		log("SYSERROR: не удалось открыть файл на чтение: %s", BLOCK_FILE);
-		return;
-	}
-	std::string buffer;
-	while (file >> buffer) {
-		utils::ConvertToLow(buffer);
-		block_list.push_back(buffer);
-	}
-
-	for (DescriptorData *d = descriptor_list; d; d = d->next) {
-		if (d->character) {
-			SetStopOfftopFlag(d->character.get());
-		}
-	}
-}
-
-} // namespace offtop_system
-////////////////////////////////////////////////////////////////////////////////
 
 void LoadSpeedwalk() {
 

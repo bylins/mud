@@ -11,7 +11,6 @@
 
 namespace antispam {
 
-const int kMinOfftopLvl = 6;
 enum { kOfftopMode };
 bool check(CharData *ch, int mode);
 

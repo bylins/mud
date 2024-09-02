@@ -149,7 +149,7 @@ set(SOURCES
 		src/cmd_god/shutdown_parameters.cpp
 		src/game_skills/skills.cpp
 		src/game_skills/skills_info.cpp
-		src/spam.cpp
+		src/communication/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
 		src/structs/descriptor_data.cpp
@@ -280,7 +280,8 @@ set(SOURCES
 		src/feats_constants.cpp
 		src/game_abilities/abilities_items_set.cpp
 		src/game_abilities/talents_actions.cpp
-		src/game_skills/slay.cpp src/game_skills/charge.cpp src/game_skills/dazzle.cpp)
+		src/game_skills/slay.cpp src/game_skills/charge.cpp src/game_skills/dazzle.cpp
+		src/communication/offtop.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -465,7 +466,7 @@ set(HEADERS
 		src/cmd_god/shutdown_parameters.h
 		src/game_skills/skills.h
 		src/game_skills/skills_info.h
-		src/spam.h
+		src/communication/spam.h
 		src/structs/descriptor_data.h
         src/structs/structs.h
 		src/stuff.h
@@ -541,7 +542,8 @@ set(HEADERS
 		src/game_abilities/talents_effects.h
 		src/feats_constants.h
 		src/game_abilities/talents_actions.h
-		src/game_skills/slay.h src/game_skills/charge.h src/game_skills/dazzle.h)
+		src/game_skills/slay.h src/game_skills/charge.h src/game_skills/dazzle.h
+		src/communication/offtop.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

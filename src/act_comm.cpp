@@ -18,8 +18,8 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "house.h"
-#include "spam.h"
-//#include "stuff.h"
+#include "communication/offtop.h"
+#include "communication/spam.h"
 #include "utils/utils_char_obj.inl"
 
 // extern variables
@@ -74,7 +74,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (ch == to || ignores(to, ch, EIgnore::kSay)) {
 				continue;
 			}
-			act(buf, false, ch, 0, to, kToVict | DG_NO_TRIG | kToNotDeaf);
+			act(buf, false, ch, nullptr, to, kToVict | DG_NO_TRIG | kToNotDeaf);
 		}
 
 		if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
@@ -124,7 +124,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (AFF_FLAGGED(k, EAffect::kGroup)
 			&& k != ch
 			&& !ignores(k, ch, EIgnore::kGroup)) {
-			act(buf, false, ch, 0, k, kToVict | kToSleep | kToNotDeaf);
+			act(buf, false, ch, nullptr, k, kToVict | kToSleep | kToNotDeaf);
 			// added by WorM  групптелы 2010.10.13
 			if (!AFF_FLAGGED(k, EAffect::kDeafness)
 				&& GET_POS(k) > EPosition::kDead) {
@@ -142,7 +142,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
 				&& (f->follower != ch)
 				&& !ignores(f->follower, ch, EIgnore::kGroup)) {
-				act(buf, false, ch, 0, f->follower, kToVict | kToSleep | kToNotDeaf);
+				act(buf, false, ch, nullptr, f->follower, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
 				if (!AFF_FLAGGED(f->follower, EAffect::kDeafness)
 					&& GET_POS(f->follower) > EPosition::kDead) {
@@ -186,7 +186,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 		&& !CAN_SEE(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
 		&& !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		act("$N не любит разговаривать с теми, кого не видит.", false, ch, 0, vict, kToChar | kToSleep);
+		act("$N не любит разговаривать с теми, кого не видит.", false, ch, nullptr, vict, kToChar | kToSleep);
 		return;
 	}
 
@@ -233,10 +233,10 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (false);
 	} else if (!vict->IsNpc() && !vict->desc)    // linkless
 	{
-		act("$N потерял$G связь в этот момент.", false, ch, 0, vict, kToChar | kToSleep);
+		act("$N потерял$G связь в этот момент.", false, ch, nullptr, vict, kToChar | kToSleep);
 		return (false);
 	} else if (PLR_FLAGGED(vict, EPlrFlag::kWriting)) {
-		act("$N пишет сообщение - повторите попозже.", false, ch, 0, vict, kToChar | kToSleep);
+		act("$N пишет сообщение - повторите попозже.", false, ch, nullptr, vict, kToChar | kToSleep);
 		return (false);
 	}
 
@@ -255,10 +255,10 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 			if (PRF_FLAGGED(vict, EPrf::kNoTell))
 				log("NOTELL: name %s глух как пробка", GET_NAME(vict));
 		}
-		act("$N не сможет вас услышать.", false, ch, 0, vict, kToChar | kToSleep);
+		act("$N не сможет вас услышать.", false, ch, nullptr, vict, kToChar | kToSleep);
 	}
 	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
-		act("$N вас не услышит.", false, ch, 0, vict, kToChar | kToSleep);
+		act("$N вас не услышит.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else
 		return (true);
 
@@ -406,7 +406,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		std::stringstream buffer;
 		buffer << "$n " << action_plur << "$g " << vict2 << " : " << buf2;
 //		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
-		act(buffer.str().c_str(), false, ch, 0, vict, kToVict | kToNotDeaf);
+		act(buffer.str().c_str(), false, ch, nullptr, vict, kToVict | kToNotDeaf);
 
 		if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
 			SendMsgToChar(OK, ch);
@@ -417,7 +417,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(buffer.str(), ch);
 		}
 
-		act(action_others, false, ch, 0, vict, kToNotVict);
+		act(action_others, false, ch, nullptr, vict, kToNotVict);
 	}
 }
 
@@ -939,9 +939,9 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(SOUNDPROOF, ch);
 		return;
 	}
-	if (GetRealLevel(ch) < antispam::kMinOfftopLvl && !GetRealRemort(ch)) {
+	if (GetRealLevel(ch) < offtop_system::kMinOfftopLvl && !GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
-					  antispam::kMinOfftopLvl);
+					  offtop_system::kMinOfftopLvl);
 		return;
 	}
 	if (!PRF_FLAGGED(ch, EPrf::kOfftopMode)) {
@@ -993,13 +993,13 @@ void ignore_usage(CharData *ch) {
 }
 
 int ign_find_id(char *name, long *id) {
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (!str_cmp(name, player_table[i].name())) {
-			if (player_table[i].level >= kLvlImmortal) {
+	for (auto & i : player_table) {
+		if (!str_cmp(name, i.name())) {
+			if (i.level >= kLvlImmortal) {
 				return 0;
 			}
 
-			*id = player_table[i].id();
+			*id = i.id();
 			return 1;
 		}
 	}
@@ -1007,9 +1007,9 @@ int ign_find_id(char *name, long *id) {
 }
 
 const char *ign_find_name(long id) {
-	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (id == player_table[i].id()) {
-			return player_table[i].name();
+	for (const auto & i : player_table) {
+		if (id == i.id()) {
+			return i.name();
 		}
 	}
 

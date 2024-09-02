@@ -30,17 +30,17 @@ typedef std::list<std::pair<long, time_t> > UidListType;
 UidListType offtop_list;
 
 void add_to_list(UidListType &list, long uid) {
-	list.push_front(std::make_pair(uid, time(0)));
+	list.emplace_front(uid, time(nullptr));
 	if (list.size() > MESSAGE_LIST_SIZE) {
 		list.pop_back();
 	}
-};
+}
 
 int check_list(const UidListType & /*list*/, long uid) {
 	int total = 0, running = 0;
-	time_t first_message = time(0);
-	for (UidListType::const_iterator i = offtop_list.begin(); i != offtop_list.end(); ++i) {
-		if (uid != i->first) {
+	time_t first_message = time(nullptr);
+	for (const auto &i : offtop_list) {
+		if (uid != i.first) {
 			running = -1;
 		} else {
 			if (running != -1) {
@@ -49,19 +49,19 @@ int check_list(const UidListType & /*list*/, long uid) {
 					return RUNNING_FLAG;
 				}
 			}
-			if ((time(0) - i->second) < MIN_MESSAGE_TIME) {
+			if ((time(nullptr) - i.second) < MIN_MESSAGE_TIME) {
 				return MIN_TIME_FLAG;
 			}
 			++total;
-			first_message = i->second;
+			first_message = i.second;
 		}
 	}
 	if (total >= MAX_MESSAGE_TOTAL
-		&& (time(0) - first_message) < MAX_TIME_TOTAL) {
+		&& (time(nullptr) - first_message) < MAX_TIME_TOTAL) {
 		return TOTAL_FLAG;
 	}
 	return NORMAL_FLAG;
-};
+}
 
 int add_message(int mode, long uid) {
 	switch (mode) {
@@ -76,7 +76,7 @@ int add_message(int mode, long uid) {
 		}
 		default: log("SYSERROR: мы не должны были сюда попасть (%s %s %d)", __FILE__, __func__, __LINE__);
 			return NORMAL_FLAG;
-	};
+	}
 
 	return NORMAL_FLAG;
 }
@@ -99,7 +99,7 @@ bool check(CharData *ch, int mode) {
 				break;
 			default: log("SYSERROR: мы не должны были сюда попасть (%s %s %d)", __FILE__, __func__, __LINE__);
 				return true;
-		};
+		}
 		text << ".\r\n";
 		SendMsgToChar(text.str(), ch);
 		return false;

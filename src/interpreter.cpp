@@ -22,6 +22,7 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "communication/insult.h"
+#include "communication/offtop.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/show.h"
 #include "cmd_god/godtest.h"

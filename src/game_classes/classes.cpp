@@ -24,7 +24,7 @@
 #include "handler.h"
 #include "game_fight/pk.h"
 #include "statistics/top.h"
-#include "spam.h"
+#include "communication/offtop.h"
 #include "color.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
@@ -84,7 +84,7 @@ ECharClass FindAvailableCharClassId(const std::string &class_name) {
 		}
 	}
 	return ECharClass::kUndefined;
-};
+}
 
 // Таблицы бызовых спасбросков
 
@@ -1064,7 +1064,7 @@ void check_max_hp(CharData *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CharData *ch) {
-	if (antispam::kMinOfftopLvl == GetRealLevel(ch)
+	if (offtop_system::kMinOfftopLvl == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);

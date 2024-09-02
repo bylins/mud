@@ -366,11 +366,6 @@ void recreate_saveinfo(size_t number);
 void set_god_skills(CharData *ch);
 void CheckRoomForIncompatibleFlags(int rnum);
 
-namespace offtop_system {
-void Init();
-void SetStopOfftopFlag(CharData *ch);
-} // namespace offtop_system
-
 void DeletePcByHimself(const char *name);
 
 void set_test_data(CharData *mob);
