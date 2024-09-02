@@ -1819,7 +1819,13 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	} else {
 		if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
 			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper)) {
-			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
+			RoomVnum rvn;
+			if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
+				rvn = zone_table[world[ch->in_room]->zone_rn].copy_from_zone * 100 + world[ch->in_room]->vnum % 100;
+			} else {
+				rvn =  world[ch->in_room]->vnum;
+			}
+			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, rvn);
 			SendMsgToChar(buf2, ch);
 		} else
 			SendMsgToChar(world[ch->in_room]->name, ch);
@@ -3940,11 +3946,12 @@ void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	print_zone_info(ch);
-
+	if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
+		SendMsgToChar(ch, "Зазеркальный мир.\r\n");
+	}
 	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
 		&& !zone_table[world[ch->in_room]->zone_rn].comment.empty()) {
-		SendMsgToChar(ch, "Комментарий: %s.\r\n",
-					  zone_table[world[ch->in_room]->zone_rn].comment.c_str());
+		SendMsgToChar(ch, "Комментарий: %s.\r\n", zone_table[world[ch->in_room]->zone_rn].comment.c_str());
 	}
 }
 
