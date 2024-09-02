@@ -819,7 +819,7 @@ EVENT(trig_wait_event) {
 	go = wait_event_obj->go;
 	type = wait_event_obj->type;
 
-	GET_TRIG_WAIT(trig) = nullptr;
+	GET_TRIG_WAIT(trig).time_remaining = 0;
 	if (GET_TRIG_VNUM(trig) == 99100) {
 		log("trigger wait event: start trigger %d GET_TRIG_LOOPS %d GET_TRIG_DEPTH(trig) %d wait line %d", 
 				GET_TRIG_VNUM(trig), GET_TRIG_LOOPS(trig), GET_TRIG_DEPTH(trig), trig->wait_line->line_num);
@@ -982,13 +982,13 @@ void script_stat(CharData *ch, Script *sc) {
 		}
 		SendMsgToChar(buffer.str(), ch);
 
-		if (GET_TRIG_WAIT(t)) {
+		if (GET_TRIG_WAIT(t).time_remaining > 0) {
 			if (t->wait_line != nullptr) {
-				sprintf(buf, "    Wait: %d, Current line: %s\r\n",
-						GET_TRIG_WAIT(t)->time_remaining, t->wait_line->cmd.c_str());
+				sprintf(buf, "    Wait: %d, Current line: %s (num line: %d)\r\n",
+						GET_TRIG_WAIT(t).time_remaining, t->wait_line->cmd.c_str(), t->wait_line->line_num);
 				SendMsgToChar(buf, ch);
 			} else {
-				sprintf(buf, "    Wait: %d\r\n", GET_TRIG_WAIT(t)->time_remaining);
+				sprintf(buf, "    Wait: %d\r\n", GET_TRIG_WAIT(t).time_remaining);
 				SendMsgToChar(buf, ch);
 			}
 
@@ -1050,7 +1050,10 @@ void do_sstat_character(CharData *ch, CharData *k) {
 
 void print_worlds_vars(CharData *ch, std::optional<long> context) {
 	SendMsgToChar("Worlds vars list:\r\n", ch);
-	for (auto current : worlds_vars) {
+	worlds_vars.sort([](const TriggerVar &it1, const TriggerVar &it2) {
+		return it1.context < it2.context;
+	});
+	for (auto &current : worlds_vars) {
 		if (context && context.value() != current.context) {
 			continue;
 		}
@@ -4441,19 +4444,21 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 				time *= kPassesPerSec;
 		}
 	}
-//	if (time < 2)	//костыль пока не разберемся почему корректно не работает wait 1
-//		time = 2;
+	if (time == 0) {
+		trig_log(trig, "попытка запустить Wait 0");
+		return;
+	}
 	CREATE(wait_event_obj, 1);
 	wait_event_obj->trigger = trig;
 	wait_event_obj->go = go;
 	wait_event_obj->type = type;
 
-	if (GET_TRIG_WAIT(trig)) {
+	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
 		trig_log(trig, "Wait structure already allocated for trigger");
 	}
 
 	GET_TRIG_WAIT(trig) = add_event(time, trig_wait_event, wait_event_obj);
-	trig->wait_line = cl->next;
+	trig->wait_line = cl;
 }
 
 // processes a script set command
@@ -5602,7 +5607,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	switch  (mode) {
 		case TRIG_NEW: cl = *trig->cmdlist;
 		break;
-		case TRIG_CONTINUE: cl =  trig->wait_line;
+		case TRIG_CONTINUE: cl =  trig->wait_line->next;
 		break;
 		case TRIG_FROM_LINE: cl = trig->curr_line;
 		break;
@@ -6391,7 +6396,6 @@ Trigger::Trigger() :
 	add_flag{false},
 	depth(0),
 	loops(-1),
-	wait_event(nullptr),
 	var_list(),
 	nr(kNothing),
 	attach_type(0),
@@ -6405,7 +6409,6 @@ Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, co
 	add_flag{false},
 	depth(0),
 	loops(-1),
-	wait_event(nullptr),
 	var_list(),
 	nr(rnum),
 	attach_type(attach_type),
@@ -6419,7 +6422,6 @@ Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, 
 	add_flag{false},
 	depth(0),
 	loops(-1),
-	wait_event(nullptr),
 	var_list(),
 	nr(rnum),
 	attach_type(attach_type),
@@ -6437,7 +6439,6 @@ Trigger::Trigger(const Trigger &from) :
 	arglist(from.arglist),
 	depth(from.depth),
 	loops(from.loops),
-	wait_event(nullptr),
 	var_list(from.var_list),
 	nr(from.nr),
 	attach_type(from.attach_type),
@@ -6458,7 +6459,7 @@ void Trigger::reset() {
 	arglist.clear();
 	depth = 0;
 	loops = -1;
-	wait_event = nullptr;
+	wait_event.time_remaining = 0;
 	var_list.clear();
 }
 

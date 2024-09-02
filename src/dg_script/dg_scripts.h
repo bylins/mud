@@ -17,6 +17,7 @@
 #include "utils/logger.h"
 #include <optional>
 #include <feats.h>
+#include "dg_script/dg_event.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -180,7 +181,7 @@ class Trigger {
 	std::string arglist;        // argument list                   //
 	int depth;        // depth into nest ifs/whiles/etc  //
 	int loops;        // loop iteration counter          //
-	struct TriggerEvent *wait_event;    // event to pause the trigger      //
+	TriggerEvent wait_event;    // event to pause the trigger      //
 	std::list<TriggerVar> var_list;    // list of local vars for trigger  //
 
  private:
@@ -448,9 +449,9 @@ int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id);
 #define GET_TRIG_DATA_TYPE(t)      ((t)->get_data_type())
 #define GET_TRIG_NARG(t)          ((t)->narg)
 #define GET_TRIG_ARG(t)           ((t)->arglist)
-#define GET_TRIG_WAIT(t)      ((t)->wait_event)
 #define GET_TRIG_DEPTH(t)         ((t)->depth)
 #define GET_TRIG_LOOPS(t)         ((t)->loops)
+#define GET_TRIG_WAIT(t)      ((t)->wait_event)
 
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //

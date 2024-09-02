@@ -21,58 +21,31 @@
 #include "comm.h"
 
 // * define statics
-static struct TriggerEvent *event_list = nullptr;
+std::list<TriggerEvent> event_list;
 
 // * Add an event to the current list
-struct TriggerEvent *add_event(int time, EVENT(*func), void *info) {
-	struct TriggerEvent *this_data, *prev, *curr;
+TriggerEvent add_event(int time, EVENT(*func), void *info) {
+	TriggerEvent this_data;
 
-	CREATE(this_data, 1);
-	this_data->time_remaining = time;
-	this_data->func = func;
-	this_data->info = info;
+	this_data.time_remaining = time;
+	this_data.func = func;
+	this_data.info = info;
+	this_data.deleted = false;
+	auto it = std::find_if(event_list.begin(), event_list.end(), [time](auto i) {return time >= i.time_remaining;});
 
-	// sort the event into the list in next-to-fire order
-	if (event_list == nullptr)
-		event_list = this_data;
-	else if (this_data->time_remaining <= event_list->time_remaining) {
-		this_data->next = event_list;
-		event_list = this_data;
+	if (it != event_list.end()) {
+		event_list.insert(it, this_data);
 	} else {
-		prev = event_list;
-		curr = prev->next;
-
-		while (curr && (curr->time_remaining > this_data->time_remaining)) {
-			prev = curr;
-			curr = curr->next;
-		}
-
-		this_data->next = curr;
-		prev->next = this_data;
+		event_list.push_back(this_data);
 	}
-
 	return this_data;
 }
 
-void remove_event(struct TriggerEvent *event) {
-	struct TriggerEvent *curr;
-
-	if (event_list == event) {
-		event_list = event->next;
-	} else {
-		curr = event_list;
-		while (curr && (curr->next != event))
-			curr = curr->next;
-		if (!curr)
-			return;    // failed to find it
-		curr->next = curr->next->next;
-	}
-	free(event);
+void remove_event(TriggerEvent event) {
+	std::erase_if(event_list, [event](auto it) {return it.info == event.info;});
 }
 
 void process_events(void) {
-	struct TriggerEvent *e = event_list;
-	struct TriggerEvent *del;
 	int trig_vnum;
 	int timewarning = 50;
 
@@ -80,14 +53,15 @@ void process_events(void) {
 	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 	auto start = now_ms.time_since_epoch();
 
-	while (e) {
-		const auto time_remaining = e->time_remaining;
+	for (auto &e : event_list) {
+		const auto time_remaining = e.time_remaining;
 		if (time_remaining == 0) {
-			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e->info))->trigger);
-			e->func(e->info);
-			del = e;
-			e = e->next;
-			remove_event(del);
+			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e.info))->trigger);
+				sprintf(buf, "[TrigVNum: %d]: process_events удаляю", trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, true);
+			e.func(e.info);
+//			e.time_remaining = 0;
+			e.deleted = true;;
 			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
@@ -102,10 +76,10 @@ void process_events(void) {
 				break;
 			}
 		} else {
-			e->time_remaining--;
-			e = e->next;
+			e.time_remaining--;
 		}
 	}
+	std::erase_if(event_list, [](auto flag) {return flag.deleted;});
 }
 
 void print_event_list(CharData *ch)
@@ -114,23 +88,20 @@ void print_event_list(CharData *ch)
 	SendMsgToChar(buf, ch);
 
 	short trig_counter = 1;
-	TriggerEvent *e = event_list;
-	while (e) {
-		const wait_event_data *wed = static_cast<wait_event_data*>(e->info);
+	for (auto &e : event_list) {
+		const wait_event_data *wed = static_cast<wait_event_data*>(e.info);
 		if (!wed || !wed->trigger) {
-			e = e->next;
 			continue;
 		}
 		sprintf(buf, "[%-3d] Trigger: %s, VNum: [%5d]\r\n", trig_counter, GET_TRIG_NAME(wed->trigger), GET_TRIG_VNUM(wed->trigger));
-		if (GET_TRIG_WAIT(wed->trigger) && wed->trigger->wait_line != nullptr) {
-			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s\r\n", GET_TRIG_WAIT(wed->trigger)->time_remaining, wed->trigger->wait_line->cmd.c_str());
+//		if (wed->trigger->wait_line != nullptr) {
+		if (wed->trigger->wait_event.time_remaining > 0 && wed->trigger->wait_line != nullptr) {
+			sprintf(buf+strlen(buf), "    Wait: %d, Current line: %s (num line: %d)\r\n", GET_TRIG_WAIT(wed->trigger).time_remaining, 
+					wed->trigger->wait_line->cmd.c_str(), wed->trigger->wait_line->line_num);
 		}
 		SendMsgToChar(buf, ch);
-
 		++trig_counter;
-		e = e->next;
 	}
-
 	sprintf(buf, "Итого триггеров %d.\r\n", trig_counter - 1);
 	SendMsgToChar(buf, ch);
 }

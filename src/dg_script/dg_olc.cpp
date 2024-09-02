@@ -421,8 +421,8 @@ void trigedit_save(DescriptorData *d) {
 
 				trigger->arglist.clear();
 				trigger->set_name("");
-				if (GET_TRIG_WAIT(trigger)) {
-					free(GET_TRIG_WAIT(trigger)->info);    // Причина уже обсуждалась
+				if (GET_TRIG_WAIT(trigger).time_remaining > 0) {
+					free(GET_TRIG_WAIT(trigger).info);    // Причина уже обсуждалась
 					remove_event(GET_TRIG_WAIT(trigger));
 				}
 

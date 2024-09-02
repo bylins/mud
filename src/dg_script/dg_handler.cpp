@@ -21,11 +21,11 @@
 
 // remove a single trigger from a mob/obj/room
 void extract_trigger(Trigger *trig) {
-	if (GET_TRIG_WAIT(trig)) {
+	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
 		// см. объяснения в вызове trig_data_free()
-		free(GET_TRIG_WAIT(trig)->info);
+		free(GET_TRIG_WAIT(trig).info);
 		remove_event(GET_TRIG_WAIT(trig));
-		GET_TRIG_WAIT(trig) = nullptr;
+		GET_TRIG_WAIT(trig).time_remaining = 0;
 	}
 
 	trig_index[trig->get_rnum()]->total_online--;
