@@ -41,8 +41,8 @@ RoomRnum GetRoomRnum(RoomVnum vnum);
 ZoneRnum real_zone(ZoneVnum zvn);
 MobRnum real_mobile(MobVnum vnum);
 ObjRnum real_object(ObjVnum vnum);
-void tag_argument(char *argument, char *tag);
-void boot_db();
+void ExtractTagFromArgument(char *argument, char *tag);
+void BootMudDataBase();
 void zone_update();
 bool can_be_reset(ZoneRnum zone);
 long get_id_by_name(char *name);
@@ -61,7 +61,7 @@ CharData *read_mobile(MobVnum nr, int type);
 int vnum_mobile(char *searchname, CharData *ch);
 void ClearCharTalents(CharData *ch);
 int correct_unique(int unique);
-bool check_unlimited_timer(const CObjectPrototype *obj);
+bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void flush_player_index();
 bool is_empty(ZoneRnum zone_nr, bool debug = false);
@@ -144,9 +144,9 @@ class QuestBodrich {
 	QuestBodrich();
 
  private:
-	void load_mobs();
-	void load_objs();
-	void load_rewards();
+	void LoadMobs();
+	void LoadObjs();
+	void LoadRewards();
 
 	// здесь храним предметы для каждого класса
 	std::map<int, std::vector<int>> objs;
@@ -289,12 +289,12 @@ extern const char *MENU;
 extern struct Portal *portals_list;
 extern TimeInfoData time_info;
 
-extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
+extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);
 
-int dl_parse(OnDeadLoadList **dl_list, char *line);
-int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE);
-int trans_obj_name(ObjData *obj, CharData *ch);
-void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src);
+bool ParseDeadLoadLineToDeadLoadList(OnDeadLoadList **dl_list, char *line);
+bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE);
+int ResolveTagsInObjName(ObjData *obj, CharData *ch);
+void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
 extern RoomRnum r_helled_start_room;
@@ -316,13 +316,13 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 
 	~PlayersIndex();
 
-	std::size_t append(const PlayerIndexElement &element);
-	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
-	bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
-	std::size_t get_by_name(const char *name) const;
-	void set_name(std::size_t index, const char *name);
+	std::size_t Append(const PlayerIndexElement &element);
+	bool IsPlayerExists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
+	bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetRnumByName(name); }
+	std::size_t GetRnumByName(const char *name) const;
+	void SetName(std::size_t index, const char *name);
 
-	NameAdviser &name_adviser() { return m_name_adviser; }
+	NameAdviser &GetNameAdviser() { return m_name_adviser; }
 
  private:
 	class hasher {
@@ -338,7 +338,7 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 	using id_to_index_t = std::unordered_map<int, std::size_t>;
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
 
-	void AddNameToIndex(const char *name, const std::size_t index);
+	void AddNameToIndex(const char *name, std::size_t index);
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
@@ -364,18 +364,18 @@ inline void clear_saveinfo(const size_t number) {
 void recreate_saveinfo(size_t number);
 
 void set_god_skills(CharData *ch);
-void check_room_flags(int rnum);
+void CheckRoomForIncompatibleFlags(int rnum);
 
-namespace OfftopSystem {
-void init();
-void set_flag(CharData *ch);
-} // namespace OfftopSystem
+namespace offtop_system {
+void Init();
+void SetStopOfftopFlag(CharData *ch);
+} // namespace offtop_system
 
 void DeletePcByHimself(const char *name);
 
 void set_test_data(CharData *mob);
 
-void set_zone_mob_level();
+void SetZoneMobLevel();
 
 //bool can_snoop(CharacterData *imm, CharacterData *vict);
 
@@ -385,11 +385,11 @@ class GameLoader {
  public:
 	GameLoader() = default;
 
-	static void boot_world();
-	static void index_boot(EBootType mode);
+	static void BootWorld();
+	static void BootIndex(const EBootType mode);
 
  private:
-	static void prepare_global_structures(EBootType mode, int rec_count);
+	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);
 };
 
 extern GameLoader world_loader;

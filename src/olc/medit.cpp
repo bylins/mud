@@ -196,9 +196,9 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
 	if (partial_copy && tmp.dl_list)
-		dl_list_copy(&dst->dl_list, tmp.dl_list);
+		CopyDeadLoadList(&dst->dl_list, tmp.dl_list);
 	else
-		dl_list_copy(&dst->dl_list, src->dl_list);
+		CopyDeadLoadList(&dst->dl_list, src->dl_list);
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
 	//	CharacterAlias::remove(dst);
@@ -2241,7 +2241,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case MEDIT_DLIST_ADD:
-			if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
+			if (!ParseDeadLoadLineToDeadLoadList(&OLC_MOB(d)->dl_list, arg))
 				SendMsgToChar("\r\nНеверный ввод.\r\n", d->character.get());
 			else {
 				SendMsgToChar("\r\nЗапись добавлена.\r\n", d->character.get());

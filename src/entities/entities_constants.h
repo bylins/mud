@@ -770,7 +770,7 @@ enum class EObjFlag : Bitvector {
 	KNofail = kIntOne | (1 << 7),						//< не фейлится при изучении (в случае книги)
 	kNamed = kIntOne | (1 << 8),
 	kBloody = kIntOne | (1 << 9),
-	k1inlaid = kIntOne | (1 << 10),						//< TODO: не используется, см convert_obj_values()
+	k1inlaid = kIntOne | (1 << 10),						//< TODO: не используется, см ConvertObjValues()
 	k2inlaid = kIntOne | (1 << 11),
 	k3inlaid = kIntOne | (1 << 12),
 	kNopour = kIntOne | (1 << 13),						//< нельзя перелить

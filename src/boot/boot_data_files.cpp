@@ -436,7 +436,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_realnum]->flags_from_string(flags);
 	world[room_realnum]->sector_type = t[2];
 
-	check_room_flags(room_realnum);
+	CheckRoomForIncompatibleFlags(room_realnum);
 	world[room_realnum]->func = nullptr;
 	world[room_realnum]->contents = nullptr;
 	world[room_realnum]->track = nullptr;
@@ -1063,7 +1063,7 @@ void MobileFile::parse_mobile(const int nr) {
 				break;
 
 			case 'L': get_line(file(), line);
-				dl_parse(&mob_proto[i].dl_list, line + 1);
+				ParseDeadLoadLineToDeadLoadList(&mob_proto[i].dl_list, line + 1);
 				break;
 
 			case 'T': dg_read_trigger(&mob_proto[i], MOB_TRIGGER, nr);

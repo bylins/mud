@@ -91,7 +91,7 @@ CharData *search_by_word(const char *name, const std::string &search_word) {
 	return ch;
 }
 
-// * См ObjectAlias::get_by_name()
+// * См ObjectAlias::GetRnumByName()
 CharData *get_by_name(const char *str) {
 	if (!str || !*str) {
 		return 0;

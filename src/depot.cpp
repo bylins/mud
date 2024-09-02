@@ -703,7 +703,7 @@ void CharNode::update_offline_item(long uid) {
 			continue;
 		}
 		const auto obj = obj_proto[rnum];
-		if (!check_unlimited_timer(obj.get())) {
+		if (!IsTimerUnlimited(obj.get())) {
 			--(obj_it->timer);
 		}
 		if (obj_it->timer <= 0) {

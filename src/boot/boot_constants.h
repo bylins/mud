@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-// arbitrary constants used by index_boot() (must be unique)
+// arbitrary constants used by BootIndex() (must be unique)
 const int kMaxProtoNumber = 9999999;    //Максимально возможный номер комнаты, предмета и т.д.
 
 #define MIN_ZONE_LEVEL    1

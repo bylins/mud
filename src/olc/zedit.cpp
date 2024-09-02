@@ -50,7 +50,7 @@ void zedit_save_internally(DescriptorData *d);
 void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
 
-void renum_single_table(ZoneData &zone_data);
+void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data);
 int is_number(const char *str);
 //------------------------------------------------------------------------
 
@@ -365,7 +365,7 @@ void zedit_save_internally(DescriptorData *d) {
 		ZCMD = item->cmd;    // копирование команды
 	}
 	ZCMD.command = 'S';
-	renum_single_table(*(d->olc->zone));
+	ResolveZoneCmdVnumArgsToRnums(*(d->olc->zone));
 
 	// Finally, if zone headers have been changed, copy over
 	if (OLC_ZONE(d)->vnum) {

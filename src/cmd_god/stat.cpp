@@ -762,7 +762,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
 			GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j));
 	SendMsgToChar(buf, ch);
-	if (check_unlimited_timer(j))
+	if (IsTimerUnlimited(j))
 		sprintf(buf, "Таймер: нерушимо, ");
 	else
 		sprintf(buf, "Таймер: %d, ", j->get_timer());

@@ -3458,7 +3458,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					TopPlayer::Refresh(vict);
 				}
 
-				player_table.set_name(ptnum, npad[0]);
+				player_table.SetName(ptnum, npad[0]);
 
 				return_code = 2;
 				PLR_FLAGS(vict).set(EPlrFlag::kCrashSave);

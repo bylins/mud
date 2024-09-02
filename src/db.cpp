@@ -95,7 +95,7 @@ int global_uid = 0;
 
 PlayersIndex &player_table = GlobalObjects::player_table();    // index to plr file
 
-bool IsPlayerExists(const long id) { return player_table.player_exists(id); }
+bool IsPlayerExists(const long id) { return player_table.IsPlayerExists(id); }
 
 long top_idnum = 0;        // highest idnum in use
 
@@ -155,7 +155,7 @@ void CalculateFirstAndLastRooms();
 void CalculateFirstAndLastMobs();
 void RenumberWorld();
 void PasteDirs();
-void RenumberZoneTable();
+void ResolveZoneTableCmdVnumArgsToRnums();
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message);
 void ResetGameWorldTime();
 int CountMobsInRoom(int m_num, int r_num);
@@ -175,7 +175,7 @@ int CompareSocials(const void *a, const void *b);
 void PruneCrlf(char *txt);
 int ReadCrashTimerFile(std::size_t index, int temp);
 void ClearCrashSavedObjects(std::size_t index);
-int LoadExchangeDatabase();
+int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void CalcEaster();
 void DoPcInit(CharData *ch, bool is_newbie);
@@ -231,7 +231,7 @@ struct Item_struct {
 Item_struct items_struct[17]; // = new Item_struct[16];
 
 // определение степени двойки
-int exp_two_implementation(int number) {
+int DeterminePowerOfTwo(int number) {
 	int count = 0;
 	while (true) {
 		const int tmp = 1 << count;
@@ -246,11 +246,11 @@ int exp_two_implementation(int number) {
 }
 
 template<typename EnumType>
-inline int exp_two(EnumType number) {
-	return exp_two_implementation(to_underlying(number));
+inline int DeterminePowerOfTwoForEnum(EnumType number) {
+	return DeterminePowerOfTwo(to_underlying(number));
 }
 
-bool check_obj_in_system_zone(int vnum) {
+bool IsObjFromSystemZone(ObjVnum vnum) {
 	// ковка
 	if ((vnum < 400) && (vnum > 299))
 		return true;
@@ -265,7 +265,7 @@ bool check_obj_in_system_zone(int vnum) {
 	return false;
 }
 
-bool check_unlimited_timer(const CObjectPrototype *obj) {
+bool IsTimerUnlimited(const CObjectPrototype *obj) {
 	char buf_temp[kMaxStringLength];
 	char buf_temp1[kMaxStringLength];
 	//sleep(15);
@@ -284,74 +284,74 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	double sum_aff = 0;
 	// по другому чот не получилось
 	if (obj->has_wear_flag(EWearFlag::kFinger)) {
-		item_wear = exp_two(EWearFlag::kFinger);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kFinger);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kNeck)) {
-		item_wear = exp_two(EWearFlag::kNeck);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kNeck);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kBody)) {
-		item_wear = exp_two(EWearFlag::kBody);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kBody);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kHead)) {
-		item_wear = exp_two(EWearFlag::kHead);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kHead);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kLegs)) {
-		item_wear = exp_two(EWearFlag::kLegs);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kLegs);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kFeet)) {
-		item_wear = exp_two(EWearFlag::kFeet);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kFeet);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kHands)) {
-		item_wear = exp_two(EWearFlag::kHands);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kHands);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kArms)) {
-		item_wear = exp_two(EWearFlag::kArms);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kArms);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kShield)) {
-		item_wear = exp_two(EWearFlag::kShield);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kShield);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kShoulders)) {
-		item_wear = exp_two(EWearFlag::kShoulders);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kShoulders);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kWaist)) {
-		item_wear = exp_two(EWearFlag::kWaist);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kWaist);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kQuiver)) {
-		item_wear = exp_two(EWearFlag::kQuiver);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kQuiver);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kWrist)) {
-		item_wear = exp_two(EWearFlag::kWrist);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kWrist);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kBoth)) {
-		item_wear = exp_two(EWearFlag::kBoth);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kBoth);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kWield)) {
-		item_wear = exp_two(EWearFlag::kWield);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kWield);
 	}
 
 	if (obj->has_wear_flag(EWearFlag::kHold)) {
-		item_wear = exp_two(EWearFlag::kHold);
+		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kHold);
 	}
 
 	if (!type_item) {
 		return false;
 	}
 	// находится ли объект в системной зоне
-	if (check_obj_in_system_zone(obj->get_vnum())) {
+	if (IsObjFromSystemZone(obj->get_vnum())) {
 		return false;
 	}
 	// если объект никуда не надевается, то все, облом
@@ -433,7 +433,7 @@ bool check_unlimited_timer(const CObjectPrototype *obj) {
 	return true;
 }
 
-double count_koef_obj(const CObjectPrototype *obj, int item_wear) {
+double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear) {
 	double sum = 0.0;
 	double sum_aff = 0.0;
 	char buf_temp[kMaxStringLength];
@@ -466,7 +466,7 @@ double count_koef_obj(const CObjectPrototype *obj, int item_wear) {
 	return sum;
 }
 
-double count_unlimited_timer(const CObjectPrototype *obj) {
+double CountUnlimitedTimer(const CObjectPrototype *obj) {
 	bool type_item = false;
 	if (GET_OBJ_TYPE(obj) == EObjType::kArmor
 		|| GET_OBJ_TYPE(obj) == EObjType::kStaff
@@ -478,67 +478,67 @@ double count_unlimited_timer(const CObjectPrototype *obj) {
 
 	double result{0.0};
 	if (CAN_WEAR(obj, EWearFlag::kFinger)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kFinger));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kFinger));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kNeck)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kNeck));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kNeck));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kBody)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kBody));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kBody));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kHead)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kHead));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kHead));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kLegs)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kLegs));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kLegs));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kFeet)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kFeet));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kFeet));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kHands)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kHands));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kHands));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kArms)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kArms));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kArms));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kShield)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kShield));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kShield));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kShoulders));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kShoulders));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kWaist)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kWaist));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kWaist));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kQuiver));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kQuiver));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kWrist)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kWrist));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kWrist));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kWield)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kWield));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kWield));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kHold)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kHold));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kHold));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-		result += count_koef_obj(obj, exp_two(EWearFlag::kBoth));
+		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kBoth));
 	}
 
 	if (!type_item) {
@@ -548,7 +548,7 @@ double count_unlimited_timer(const CObjectPrototype *obj) {
 	return result;
 }
 
-double count_mort_requred(const CObjectPrototype *obj) {
+double CalcRemortRequirements(const CObjectPrototype *obj) {
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
 	const int AFF_MAGICGLASS_MOD = 10;
@@ -642,7 +642,7 @@ double count_mort_requred(const CObjectPrototype *obj) {
 }
 
 void LoadCriterion(pugi::xml_node criterion, const EWearFlag type) {
-	int index = exp_two(type);
+	int index = DeterminePowerOfTwoForEnum(type);
 	pugi::xml_node params, CurNode, affects;
 	params = criterion.child("params");
 	affects = criterion.child("affects");
@@ -663,7 +663,7 @@ void LoadCriterion(pugi::xml_node criterion, const EWearFlag type) {
 }
 
 // Separate a 4-character id tag from the data it precedes
-void tag_argument(char *argument, char *tag) {
+void ExtractTagFromArgument(char *argument, char *tag) {
 	char *tmp = argument, *ttag = tag, *wrt = argument;
 	int i;
 
@@ -711,7 +711,7 @@ void GoBootSocials() {
 	}
 	number_of_social_messages = -1;
 	number_of_social_commands = -1;
-	GameLoader::index_boot(DB_BOOT_SOCIAL);
+	GameLoader::BootIndex(DB_BOOT_SOCIAL);
 }
 
 void LoadSheduledReboot() {
@@ -843,12 +843,12 @@ void LoadCities() {
 }
 
 QuestBodrich::QuestBodrich() {
-	this->load_objs();
-	this->load_mobs();
-	this->load_rewards();
+	this->LoadObjs();
+	this->LoadMobs();
+	this->LoadRewards();
 }
 
-void QuestBodrich::load_objs() {
+void QuestBodrich::LoadObjs() {
 	pugi::xml_document doc_;
 	pugi::xml_node class_, file_, object_;
 	file_ = XmlLoad(LIB_MISC QUESTBODRICH_FILE, "objects", "Error loading obj file: quest_bodrich.xml", doc_);
@@ -862,7 +862,7 @@ void QuestBodrich::load_objs() {
 	}
 }
 
-void QuestBodrich::load_mobs() {
+void QuestBodrich::LoadMobs() {
 	pugi::xml_document doc_;
 	pugi::xml_node level_, file_, mob_;
 	file_ = XmlLoad(LIB_MISC QUESTBODRICH_FILE, "mobs", "Error loading mobs file: quest_bodrich.xml", doc_);
@@ -876,7 +876,7 @@ void QuestBodrich::load_mobs() {
 	}
 }
 
-void QuestBodrich::load_rewards() {
+void QuestBodrich::LoadRewards() {
 	pugi::xml_document doc_;
 	pugi::xml_node class_, file_, object_, level_;
 	file_ = XmlLoad(LIB_MISC QUESTBODRICH_FILE, "rewards", "Error loading rewards file: quest_bodrich.xml", doc_);
@@ -897,9 +897,9 @@ void QuestBodrich::load_rewards() {
 	}
 }
 
-void load_dquest() {
+void LoadDailyQuests() {
 	log("Loading daily quests...");
-	DailyQuest::load_from_file();
+	DailyQuest::LoadFromFile();
 }
 
 /*
@@ -931,18 +931,18 @@ void DoReboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		InitPortals();
 		LoadSheduledReboot();
 		oload_table.init();
-		ObjData::init_set_table();
+		ObjData::InitSetTable();
 		LoadMobraces();
 		load_morphs();
 		GlobalDrop::init();
-		OfftopSystem::init();
+		offtop_system::Init();
 		Celebrates::load();
 		HelpSystem::reload_all();
 		Remort::init();
 		Noob::init();
 		stats_reset::init();
 		Bonus::bonus_log_load();
-		DailyQuest::load_from_file();
+		DailyQuest::LoadFromFile();
 	} else if (!str_cmp(arg, "portals"))
 		InitPortals();
 	else if (!str_cmp(arg, "abilities")) {
@@ -966,7 +966,7 @@ void DoReboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
 	else if (!str_cmp(arg, "setstuff")) {
-		ObjData::init_set_table();
+		ObjData::InitSetTable();
 		HelpSystem::reload(HelpSystem::STATIC);
 	} else if (!str_cmp(arg, "immlist"))
 		AllocateBufferForFile(IMMLIST_FILE, &immlist);
@@ -1043,7 +1043,7 @@ void DoReboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "globaldrop")) {
 		GlobalDrop::init();
 	} else if (!str_cmp(arg, "offtop")) {
-		OfftopSystem::init();
+		offtop_system::Init();
 	} else if (!str_cmp(arg, "shop")) {
 		ShopExt::load(true);
 	} else if (!str_cmp(arg, "named")) {
@@ -1066,7 +1066,7 @@ void DoReboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "objsets")) {
 		obj_sets::load();
 	} else if (!str_cmp(arg, "daily")) {
-		DailyQuest::load_from_file(ch);
+		DailyQuest::LoadFromFile(ch);
 	} else {
 		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -1132,7 +1132,7 @@ void InitPortals() {
 }
 
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
-int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
+int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
 		&& (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
 			|| GET_OBJ_TYPE(obj) == EObjType::kFountain)) {
@@ -1160,10 +1160,10 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto) {
 }
 
 /// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
-void convert_obj_values() {
+void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
-		save = std::max(save, convert_drinkcon_skill(i.get(), true));
+		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
 		if (i->has_flag(EObjFlag::k1inlaid)) {
 			i->unset_extraflag(EObjFlag::k1inlaid);
 			save = 1;
@@ -1184,12 +1184,12 @@ void convert_obj_values() {
 	}
 }
 
-void GameLoader::boot_world() {
+void GameLoader::BootWorld() {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
 	boot_profiler.next_step("Loading zone table");
 	log("Loading zone table.");
-	GameLoader::index_boot(DB_BOOT_ZON);
+	GameLoader::BootIndex(DB_BOOT_ZON);
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
@@ -1197,7 +1197,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading triggers");
 	log("Loading triggers and generating index.");
-	GameLoader::index_boot(DB_BOOT_TRG);
+	GameLoader::BootIndex(DB_BOOT_TRG);
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
@@ -1205,7 +1205,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading rooms");
 	log("Loading rooms.");
-	GameLoader::index_boot(DB_BOOT_WLD);
+	GameLoader::BootIndex(DB_BOOT_WLD);
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -1233,7 +1233,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading mobs and regerating index");
 	log("Loading mobs and generating index.");
-	GameLoader::index_boot(DB_BOOT_MOB);
+	GameLoader::BootIndex(DB_BOOT_MOB);
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -1249,7 +1249,7 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Loading objects");
 	log("Loading objs and generating index.");
-	GameLoader::index_boot(DB_BOOT_OBJ);
+	GameLoader::BootIndex(DB_BOOT_OBJ);
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");
@@ -1261,11 +1261,11 @@ void GameLoader::boot_world() {
 
 	boot_profiler.next_step("Converting deprecated obj values");
 	log("Converting deprecated obj values.");
-	convert_obj_values();
+	ConvertObjValues();
 
 	boot_profiler.next_step("enumbering zone table");
 	log("Renumbering zone table.");
-	RenumberZoneTable();
+	ResolveZoneTableCmdVnumArgsToRnums();
 
 	boot_profiler.next_step("Renumbering Obj_zone");
 	log("Renumbering Obj_zone.");
@@ -1400,7 +1400,7 @@ void LogSetTableFormatError(std::string_view error, std::string_view tag, std::s
 	mudlog(msg, LGH, kLvlImmortal, SYSLOG, true);
 }
 
-void ObjData::init_set_table() {
+void ObjData::InitSetTable() {
 	const char *const format_error{"Format error in line"};
 	const char *const wrong_position{"Wrong position of line"};
 	int mode = SETSTUFF_SNUM;
@@ -1415,7 +1415,7 @@ void ObjData::init_set_table() {
 	std::ifstream fp(LIB_MISC "setstuff.lst");
 
 	if (!fp) {
-		mudlog("init_set_table:: Unable open input file 'lib/misc/setstuff.lst'", LGH, kLvlImmortal, SYSLOG, true);
+		mudlog("InitSetTable:: Unable open input file 'lib/misc/setstuff.lst'", LGH, kLvlImmortal, SYSLOG, true);
 		return;
 	}
 
@@ -1854,13 +1854,13 @@ void ObjData::init_set_table() {
 
 	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS
 		&& mode != SETSTUFF_AFCN) {
-		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
+		cppstr = "InitSetTable:: Last set was deleted, because of unexpected end of file";
 		ObjData::set_table.erase(snum);
 		mudlog(cppstr, LGH, kLvlImmortal, SYSLOG, true);
 	}
 }
 
-void set_zone_mob_level() {
+void SetZoneMobLevel() {
 	for (auto &i : zone_table) {
 		int level = 0;
 		int count = 0;
@@ -1877,8 +1877,9 @@ void set_zone_mob_level() {
 	}
 }
 
-void set_zone_town() {
-	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); ++i) {
+void SetZonesTownFlags() {
+	const auto zones_count = static_cast<ZoneRnum>(zone_table.size());
+	for (ZoneRnum i = 0; i < zones_count; ++i) {
 		zone_table[i].is_town = false;
 		int rnum_start = 0, rnum_end = 0;
 		if (!GetZoneRooms(i, &rnum_start, &rnum_end)) {
@@ -1886,7 +1887,6 @@ void set_zone_town() {
 		}
 
 		bool rent_flag = false, bank_flag = false, post_flag = false;
-		// зона считается городом, если в ней есть рентер, банкир и почтовик
 		for (int k = rnum_start; k <= rnum_end; ++k) {
 			for (const auto ch : world[k]->people) {
 				if (IS_RENTKEEPER(ch)) {
@@ -2014,7 +2014,7 @@ void zone_traffic_load() {
 }
 
 // body of the booting system
-void boot_db() {
+void BootMudDataBase() {
 	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
 
 	log("Boot db -- BEGIN.");
@@ -2091,7 +2091,7 @@ void boot_db() {
 
 	pugi::xml_document doc;
 
-	load_dquest();
+	LoadDailyQuests();
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
@@ -2159,7 +2159,7 @@ void boot_db() {
 	LoadGuardians();
 
 	boot_profiler.next_step("Loading world");
-	GameLoader::boot_world();
+	GameLoader::BootWorld();
 
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
@@ -2167,7 +2167,7 @@ void boot_db() {
 
 	boot_profiler.next_step("Loading setstuff table");
 	log("Booting setstuff table.");
-	ObjData::init_set_table();
+	ObjData::InitSetTable();
 
 	boot_profiler.next_step("Loading item levels");
 	log("Init item levels.");
@@ -2175,11 +2175,11 @@ void boot_db() {
 
 	boot_profiler.next_step("Loading help entries");
 	log("Loading help entries.");
-	GameLoader::index_boot(DB_BOOT_HLP);
+	GameLoader::BootIndex(DB_BOOT_HLP);
 
 	boot_profiler.next_step("Loading social entries");
 	log("Loading social entries.");
-	GameLoader::index_boot(DB_BOOT_SOCIAL);
+	GameLoader::BootIndex(DB_BOOT_SOCIAL);
 
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
@@ -2269,7 +2269,7 @@ void boot_db() {
 
 	boot_profiler.next_step("Loading exchange");
 	log("Booting exchange");
-	LoadExchangeDatabase();
+	LoadExchange();
 
 	boot_profiler.next_step("Loading scheduled reboot time");
 	log("Load schedule reboot time");
@@ -2356,7 +2356,7 @@ void boot_db() {
 
 	boot_profiler.next_step("Loading offtop block list");
 	log("Init offtop block list.");
-	OfftopSystem::init();
+	offtop_system::Init();
 
 	boot_profiler.next_step("Loading shop_ext list");
 	log("load shop_ext list start.");
@@ -2365,11 +2365,11 @@ void boot_db() {
 
 	boot_profiler.next_step("Loading zone average mob_level");
 	log("Set zone average mob_level.");
-	set_zone_mob_level();
+	SetZoneMobLevel();
 
 	boot_profiler.next_step("Setting zone town");
 	log("Set zone town.");
-	set_zone_town();
+	SetZonesTownFlags();
 
 	boot_profiler.next_step("Initializing town shop_keepers");
 	log("Init town shop_keepers.");
@@ -2508,7 +2508,7 @@ void BuildPlayerIndex() {
 	BuildPlayerIndexNew();
 }
 
-void GameLoader::index_boot(const EBootType mode) {
+void GameLoader::BootIndex(const EBootType mode) {
 	log("Index booting %d", mode);
 
 	auto index = IndexFileFactory::get_index(mode);
@@ -2517,7 +2517,7 @@ void GameLoader::index_boot(const EBootType mode) {
 	}
 	const int rec_count = index->load();
 
-	prepare_global_structures(mode, rec_count);
+	PrepareGlobalStructures(mode, rec_count);
 
 	const auto data_file_factory = DataFileFactory::create();
 	for (const auto &entry : *index) {
@@ -2537,7 +2537,7 @@ void GameLoader::index_boot(const EBootType mode) {
 	}
 }
 
-void GameLoader::prepare_global_structures(const EBootType mode, const int rec_count) {
+void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_count) {
 	// * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
 	switch (mode) {
 		case DB_BOOT_TRG: CREATE(trig_index, rec_count);
@@ -2590,8 +2590,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 	}
 }
 
-// * Проверки всяких несочетаемых флагов на комнатах.
-void check_room_flags(int rnum) {
+void CheckRoomForIncompatibleFlags(int rnum) {
 	if (deathtrap::IsSlowDeathtrap(rnum)) {
 		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
 		world[rnum]->unset_flag(ERoomFlag::kNoMagic);
@@ -2901,7 +2900,7 @@ void SetZoneRnumForMobiles() {
 	}
 }
 
-void renum_single_table(ZoneData &zone_data) {
+void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	int cmd_no, a, b, c, olda, oldb, oldc;
 	char local_buf[128];
 	int i;
@@ -2991,15 +2990,14 @@ void renum_single_table(ZoneData &zone_data) {
 	}
 }
 
-// resove vnums into rnums in the zone reset tables
-void RenumberZoneTable() {
+// resolve vnums into rnums in the zone reset tables
+void ResolveZoneTableCmdVnumArgsToRnums() {
 	for (auto &zone : zone_table) {
-		renum_single_table(zone);
+		ResolveZoneCmdVnumArgsToRnums(zone);
 	}
 }
 
-// Make own name by process aliases
-int trans_obj_name(ObjData *obj, CharData *ch) {
+int ResolveTagsInObjName(ObjData *obj, CharData *ch) {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
 	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
@@ -3019,10 +3017,10 @@ int trans_obj_name(ObjData *obj, CharData *ch) {
 		}
 	}
 	obj->set_is_rename(true); // присвоим флажок что у шмотки заменены падежи
-	return (true);
+	return true;
 }
 
-void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src) {
+void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src) {
 	OnDeadLoadList::iterator p;
 	if (src == nullptr) {
 		*pdst = nullptr;
@@ -3037,8 +3035,7 @@ void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src) {
 	}
 }
 
-// Dead load list object load
-int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) {
+bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) {
 	bool last_load = true;
 	bool load = false;
 	bool miw;
@@ -3073,7 +3070,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
 				if (GetObjMIW(tobj->get_rnum()) >= obj_proto.actual_count(tobj->get_rnum())
 					|| GetObjMIW(tobj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-					|| check_unlimited_timer(tobj.get())) {
+					|| IsTimerUnlimited(tobj.get())) {
 					miw = true;
 				} else {
 					miw = false;
@@ -3111,7 +3108,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 				if (load) {
 					tobj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 					if (DL_LOAD_TYPE == DL_SKIN) {
-						trans_obj_name(tobj.get(), ch);
+						ResolveTagsInObjName(tobj.get(), ch);
 					}
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
@@ -3138,7 +3135,7 @@ int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) 
 }
 
 // Dead load list object parse
-int dl_parse(OnDeadLoadList **dl_list, char *line) {
+bool ParseDeadLoadLineToDeadLoadList(OnDeadLoadList **dl_list, char *line) {
 	// Формат парсинга D {номер прототипа} {вероятность загрузки} {спец поле - тип загрузки}
 	int vnum, prob, type, spec;
 	struct LoadingItem *new_item;
@@ -5104,7 +5101,7 @@ void ZoneReset::reset_zone_essential() {
 					// Теперь грузим обьект если надо
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[reset_cmd.arg1].get()))
+						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)
 						&& (obj_in_room < obj_in_room_max)) {
@@ -5134,7 +5131,7 @@ void ZoneReset::reset_zone_essential() {
 					// 'P' <flag> <ObjVnum> <room or 0> <target_vnum> <load%|-1>
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[reset_cmd.arg1].get()))
+						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						if (reset_cmd.arg2 > 0) {
@@ -5185,7 +5182,7 @@ void ZoneReset::reset_zone_essential() {
 					}
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[reset_cmd.arg1].get()))
+						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(reset_cmd.arg1);
@@ -5209,7 +5206,7 @@ void ZoneReset::reset_zone_essential() {
 					}
 					if ((obj_proto.actual_count(reset_cmd.arg1) < obj_proto[reset_cmd.arg1]->get_max_in_world()
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[reset_cmd.arg1].get()))
+						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						if (reset_cmd.arg3 < 0
@@ -6143,7 +6140,7 @@ void entrycount(char *name) {
 				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());
-				player_table.append(element);
+				player_table.Append(element);
 			} else {
 				log("Delete %s from account email: %s",
 					GET_NAME(short_ch),
@@ -6192,14 +6189,14 @@ void BuildPlayerIndexNew() {
 		if (sscanf(name, "%s ", playername) == 0)
 			continue;
 
-		if (!player_table.player_exists(playername)) {
+		if (!player_table.IsPlayerExists(playername)) {
 			entrycount(playername);
 		}
 	}
 
 	fclose(players);
 
-	player_table.name_adviser().init();
+	player_table.GetNameAdviser().init();
 }
 
 void flush_player_index() {
@@ -6275,7 +6272,7 @@ void DeletePcByHimself(const char *name) {
 		PLR_FLAGS(st).set(EPlrFlag::kDeleted);
 		NewNames::remove(st);
 		if (NAME_FINE(st)) {
-			player_table.name_adviser().add(GET_NAME(st));
+			player_table.GetNameAdviser().add(GET_NAME(st));
 		}
 		Clan::remove_from_clan(GET_UNIQUE(st));
 		st->save_char();
@@ -6553,13 +6550,13 @@ MobRace::~MobRace() {
 //-Polud
 
 ////////////////////////////////////////////////////////////////////////////////
-namespace OfftopSystem {
+namespace offtop_system {
 
-const char *BLOCK_FILE = LIB_MISC"offtop.lst";
+const char *BLOCK_FILE{LIB_MISC"offtop.lst"};
 std::vector<std::string> block_list;
 
 /// Проверка на наличие чара в стоп-списке и сет флага
-void set_flag(CharData *ch) {
+void SetStopOfftopFlag(CharData *ch) {
 	std::string mail(GET_EMAIL(ch));
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
@@ -6571,7 +6568,7 @@ void set_flag(CharData *ch) {
 }
 
 /// Лоад/релоад списка нежелательных для оффтопа товарисчей.
-void init() {
+void Init() {
 	block_list.clear();
 	std::ifstream file(BLOCK_FILE);
 	if (!file.is_open()) {
@@ -6586,12 +6583,12 @@ void init() {
 
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character) {
-			set_flag(d->character.get());
+			SetStopOfftopFlag(d->character.get());
 		}
 	}
 }
 
-} // namespace OfftopSystem
+} // namespace offtop_system
 ////////////////////////////////////////////////////////////////////////////////
 
 void LoadSpeedwalk() {
@@ -6641,7 +6638,7 @@ PlayersIndex::~PlayersIndex() {
 	log("~PlayersIndex()");
 }
 
-std::size_t PlayersIndex::append(const PlayerIndexElement &element) {
+std::size_t PlayersIndex::Append(const PlayerIndexElement &element) {
 	const auto index = size();
 
 	push_back(element);
@@ -6651,7 +6648,7 @@ std::size_t PlayersIndex::append(const PlayerIndexElement &element) {
 	return index;
 }
 
-std::size_t PlayersIndex::get_by_name(const char *name) const {
+std::size_t PlayersIndex::GetRnumByName(const char *name) const {
 	const auto i = m_name_to_index.find(name);
 	if (i != m_name_to_index.end()) {
 		return i->second;
@@ -6660,7 +6657,7 @@ std::size_t PlayersIndex::get_by_name(const char *name) const {
 	return NOT_FOUND;
 }
 
-void PlayersIndex::set_name(const std::size_t index, const char *name) {
+void PlayersIndex::SetName(const std::size_t index, const char *name) {
 	const auto i = m_name_to_index.find(operator[](index).name());
 	m_name_to_index.erase(i);
 	operator[](index).set_name(name);

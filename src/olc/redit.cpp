@@ -244,7 +244,7 @@ void redit_save_internally(DescriptorData *d) {
 		}
 	}
 
-	check_room_flags(rrn);
+	CheckRoomForIncompatibleFlags(rrn);
 
 	// пока мы не удаляем комнаты через олц - проблем нету
 	// а вот в случае удаления надо будет обновлять указатели для списка слоу-дт и врат

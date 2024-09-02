@@ -251,7 +251,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 	}
 
 	skin->set_val(3, int(GetRealLevel(mob) / 11)); // установим уровень шкуры, топовая 44+
-	trans_obj_name(skin.get(), mob); // переносим падежи
+	ResolveTagsInObjName(skin.get(), mob); // переносим падежи
 	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
 	{
 		if ((k == 1) && (number(1, 100) >= 35)) {
@@ -367,7 +367,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вы умело освежевали $o3.",
 			false, ch, obj, nullptr, kToChar);
 
-		dl_load_obj(obj, mob, ch, DL_SKIN);
+		LoadObjFromDeadLoad(obj, mob, ch, DL_SKIN);
 
 		std::vector<ObjData *> entrails;
 		entrails.push_back(tobj.get());

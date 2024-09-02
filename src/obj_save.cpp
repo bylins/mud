@@ -49,7 +49,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 int invalid_unique(CharData *ch, const ObjData *obj);
 int min_rent_cost(CharData *ch);
-extern bool check_obj_in_system_zone(int vnum);
+extern bool IsObjFromSystemZone(ObjVnum vnum);
 // local functions
 void Crash_extract_norent_eq(CharData *ch);
 int auto_equip(CharData *ch, ObjData *obj, int location);
@@ -168,7 +168,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	}
 	// Далее найденные параметры присваиваем к прототипу
 	while (get_buf_lines(data, buffer)) {
-		tag_argument(buffer, read_line);
+		ExtractTagFromArgument(buffer, read_line);
 
 		//if (read_line != NULL) read_line cannot be NULL because it is a local array
 		{
@@ -519,7 +519,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	{
 		object->cleanup_script();
 	}
-	convert_drinkcon_skill(object.get(), false);
+	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(GET_OBJ_TYPE(object));
 
 	return (object);
@@ -629,7 +629,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// Таймер
 		if (object->get_timer() != proto->get_timer()) {
 			out << "Tmer: " << object->get_timer() << "~\n";
-			if (!check_obj_in_system_zone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
+			if (!IsObjFromSystemZone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
 			{
 				// на тот случай, если есть объекты с таймером, больше таймера прототипа
 				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
@@ -1222,7 +1222,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = real_object(player_table[index].timer->time[i].vnum);
-			if ((!check_unlimited_timer(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
+			if ((!IsTimerUnlimited(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
 				timer = player_table[index].timer->time[i].timer;
 				if (timer < timer_dec) {
 					player_table[index].timer->time[i].timer = -1;
@@ -1284,7 +1284,7 @@ void Crash_list_objects(CharData *ch, int index) {
 		if (data.vnum > 799 || data.vnum < 700) {
 			int tmr = data.timer;
 			auto obj = obj_proto[rnum];
-			if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
+			if (!(IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 				tmr = MAX(-1, data.timer - timer_dec);
 			}
 			ss << fmt::format(" [{:>7}] ({:>5}au) <{:>6}> {:<20}\r\n",
@@ -1526,7 +1526,7 @@ int Crash_load(CharData *ch) {
 			obj_proto.dec_stored(rnum);
 		}
 		// вычтем таймер оффлайна
-		if (!(check_unlimited_timer(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
+		if (!(IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 			const SaveInfo *si = SAVEINFO(index);
 			obj->set_timer(si->time[fsize].timer);
 			obj->dec_timer(timer_dec);

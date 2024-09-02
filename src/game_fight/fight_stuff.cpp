@@ -619,8 +619,7 @@ void real_kill(CharData *ch, CharData *killer) {
 			PerformDropGold(ch, local_gold);
 			ch->set_gold(0);
 		}
-		dl_load_obj(corpse, ch, nullptr, DL_ORDINARY);
-//		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION); вот зачем это неработающее?
+		LoadObjFromDeadLoad(corpse, ch, nullptr, DL_ORDINARY);
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
 #endif

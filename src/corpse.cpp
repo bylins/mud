@@ -512,10 +512,6 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		}
 	}
 
-	// Загружаю шмотки по листу. - перемещено в raw_kill
-	//if (IS_NPC (ch))
-	//	dl_load_obj (corpse, ch);
-
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, EMobFlag::kCorpse)
 		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {

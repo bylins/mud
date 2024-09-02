@@ -1718,7 +1718,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 
 // locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name) {
-  const auto index = player_table.get_by_name(name);
+  const auto index = player_table.GetRnumByName(name);
   return PlayersIndex::NOT_FOUND == index ? -1 : static_cast<int>(index);
 }
 
@@ -2129,7 +2129,7 @@ void do_entergame(DescriptorData *d) {
 	}
   }
 
-  OfftopSystem::set_flag(d->character.get());
+  offtop_system::SetStopOfftopFlag(d->character.get());
   // пересчет максимального хп, если нужно
   check_max_hp(d->character.get());
   // проверка и сет религии
@@ -2614,7 +2614,7 @@ int create_entry(PlayerIndexElement &element) {
   element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
   element.timer = nullptr;
 
-  return static_cast<int>(player_table.append(element));
+  return static_cast<int>(player_table.Append(element));
 }
 
 void DoAfterEmailConfirm(DescriptorData *d) {
@@ -2643,7 +2643,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
   }
 
   // remove from free names
-  player_table.name_adviser().remove(GET_NAME(d->character));
+	player_table.GetNameAdviser().remove(GET_NAME(d->character));
 
   SEND_TO_Q(motd, d);
   SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
@@ -2830,7 +2830,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		std::stringstream ss;
 		ss << "Введите имя";
-		const auto free_name_list = player_table.name_adviser().get_random_name_list();
+		const auto free_name_list = player_table.GetNameAdviser().get_random_name_list();
 		if (!free_name_list.empty()) {
 		  ss << " (примеры доступных имен : ";
 		  ss << JoinRange(free_name_list);

@@ -770,7 +770,7 @@ int main_function(int argc, char **argv) {
 	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
-		world_loader.boot_world();
+		world_loader.BootWorld();
 		printf("Done.");
 	} else {
 		printf("Running game on port %d.\r\n", port);
@@ -804,7 +804,7 @@ void stop_game(ush_int port) {
 #if defined WITH_SCRIPTING
 	scripting::init();
 #endif
-	boot_db();
+	BootMudDataBase();
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 	log("Signal trapping.");
 	signal_setup();

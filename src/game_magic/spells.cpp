@@ -1561,7 +1561,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
-		if (check_unlimited_timer(obj))
+		if (IsTimerUnlimited(obj))
 			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
 		else
 			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());

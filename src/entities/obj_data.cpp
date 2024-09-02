@@ -22,8 +22,8 @@ extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void ExtractTrigger(Trigger *trig);
-extern double count_mort_requred(const CObjectPrototype *obj);
-extern double count_unlimited_timer(const CObjectPrototype *obj);
+extern double CalcRemortRequirements(const CObjectPrototype *obj);
+extern double CountUnlimitedTimer(const CObjectPrototype *obj);
 
 id_to_set_info_map ObjData::set_table;
 
@@ -663,7 +663,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, time);
 	}
-	if (!ignore_utimer && check_unlimited_timer(this)) {
+	if (!ignore_utimer && IsTimerUnlimited(this)) {
 		return;
 	}
 	std::stringstream buffer;
@@ -705,11 +705,11 @@ ObjRnum CObjectPrototype::get_parent_vnum() {
 }
 
 double CObjectPrototype::show_mort_req() const {
-	return count_mort_requred(this);
+	return CalcRemortRequirements(this);
 }
 
 double CObjectPrototype::show_koef_obj() const {
-	return count_unlimited_timer(this);
+	return CountUnlimitedTimer(this);
 }
 
 double CObjectPrototype::get_ilevel() const {
@@ -978,7 +978,7 @@ void init_ilvl(CObjectPrototype *obj) {
 		return;
 	}
 
-	auto total_weight = count_mort_requred(obj);
+	auto total_weight = CalcRemortRequirements(obj);
 
 	obj->set_ilevel(total_weight);
 }

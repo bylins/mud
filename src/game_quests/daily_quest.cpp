@@ -114,7 +114,7 @@ bool DailyQuestLoader::do_load()
 	return m_load_status;
 }
 
-void load_from_file(CharData *ch)
+void LoadFromFile(CharData *ch)
 {
 	DailyQuestLoader quest_loader;
 	if (quest_loader.load()) {

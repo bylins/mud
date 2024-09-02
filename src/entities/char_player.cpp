@@ -995,7 +995,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			return (-1);
 		}
 
-		tag_argument(line, tag);
+		ExtractTagFromArgument(line, tag);
 		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
 			line1[i] = line[i];
 		}
@@ -1071,7 +1071,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			return (-1);
 		}
 
-		tag_argument(line, tag);
+		ExtractTagFromArgument(line, tag);
 
 		if (!strcmp(tag, "EMal"))
 			strcpy(GET_EMAIL(this), line);
@@ -1234,7 +1234,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_who_last(time(0));
 
 	while (fbgetline(fl, line)) {
-		tag_argument(line, tag);
+		ExtractTagFromArgument(line, tag);
 		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
 			line1[i] = line[i];
 		}

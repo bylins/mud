@@ -1296,7 +1296,7 @@ void check_update_dynamic() {
 void reload(Flags flag) {
 	switch (flag) {
 		case STATIC: static_help.clear();
-			world_loader.index_boot(DB_BOOT_HLP);
+			world_loader.BootIndex(DB_BOOT_HLP);
 			init_group_zones();
 			init_zone_all();
 			ClassRecipiesHelp();

@@ -361,7 +361,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			return;
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
-			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
+			if (!IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				mob_log(ch, trig, buf);
 //				extract_obj(object.get());

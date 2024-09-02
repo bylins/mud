@@ -499,7 +499,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
-			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
+			if (!IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "wload: количество больше чем в MIW для #%d.", number);
 				wld_log(room, trig, buf);
 //				extract_obj(object.get());

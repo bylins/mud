@@ -337,7 +337,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 const char *diag_obj_timer(const ObjData *obj) {
 	int prot_timer;
 	if (GET_OBJ_RNUM(obj) != kNothing) {
-		if (check_unlimited_timer(obj)) {
+		if (IsTimerUnlimited(obj)) {
 			return "нерушимо";
 		}
 

@@ -365,7 +365,7 @@ inline auto count_obj_vnum(long n) {
 	}
 
 	// Чот косячит таймер, решили переделать тригги, хоть и дольше
-	//	if (check_unlimited_timer(obj_proto[i]))
+	//	if (IsTimerUnlimited(obj_proto[i]))
 	//		return 0;
 	return obj_proto.actual_count(i);
 }
@@ -1769,7 +1769,7 @@ void find_replacement(void *go,
 				const auto rnum = real_object(num);
 				const auto count = count_obj_vnum(num);
 				if (count >= 0 && 0 <= rnum) {
-					if (check_unlimited_timer(obj_proto[rnum].get())) {
+					if (IsTimerUnlimited(obj_proto[rnum].get())) {
 						sprintf(str, "0");
 					} else {
 						sprintf(str, "%d", count);
@@ -1888,7 +1888,7 @@ void find_replacement(void *go,
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
+					if (IsTimerUnlimited(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
 						sprintf(str, "1");
 						return;
 					}
@@ -1906,7 +1906,7 @@ void find_replacement(void *go,
 				if (num >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()) || (GetObjMIW(num) < 0))
+					if (IsTimerUnlimited(obj_proto[num].get()) || (GetObjMIW(num) < 0))
 						sprintf(str, "9999999");
 					else
 						sprintf(str, "%d", GetObjMIW(num));
