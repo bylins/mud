@@ -40,7 +40,7 @@ extern int top_imtypes;
 void weight_change_object(ObjData *obj, int weight);
 int compute_armor_class(CharData *ch);
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
-void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
+void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int CalcAntiSavings(CharData *ch);
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
 void RemoveEquipment(CharData *ch, int pos);
@@ -271,8 +271,8 @@ void SpellRecall(CharData *ch, CharData *victim) {
 		}
 	}
 
-	if ((to_room = real_room(GET_LOADROOM(victim))) == kNowhere)
-		to_room = real_room(calc_loadroom(victim));
+	if ((to_room = GetRoomRnum(GET_LOADROOM(victim))) == kNowhere)
+		to_room = GetRoomRnum(calc_loadroom(victim));
 
 	if (to_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
@@ -2035,17 +2035,17 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 		case kSkyRaining:
 			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kOctober) {
 				sky_info = "Начался проливной дождь.";
-				create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
+				SetPrecipitations(&sky_type, kWeatherLightrain, 0, 50, 50);
 			} else if (time_info.month >= EMonth::kDecember || time_info.month <= EMonth::kFebruary) {
 				sky_info = "Повалил снег.";
-				create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
+				SetPrecipitations(&sky_type, kWeatherLightsnow, 0, 50, 50);
 			} else if (time_info.month == EMonth::kMarch || time_info.month == EMonth::kNovember) {
 				if (weather_info.temperature > 2) {
 					sky_info = "Начался проливной дождь.";
-					create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
+					SetPrecipitations(&sky_type, kWeatherLightrain, 0, 50, 50);
 				} else {
 					sky_info = "Повалил снег.";
-					create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
+					SetPrecipitations(&sky_type, kWeatherLightsnow, 0, 50, 50);
 				}
 			}
 			break;

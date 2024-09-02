@@ -33,11 +33,11 @@ class CharData;    // forward declaration to avoid inclusion of char.hpp and any
 struct zrn_complex_list;
 
 // room manage functions
-void room_copy(RoomData *dst, RoomData *src);
+void CopyRoom(RoomData *dst, RoomData *src);
 void room_free(RoomData *room);
 
 // public procedures in db.cpp
-RoomRnum real_room(RoomVnum vnum);
+RoomRnum GetRoomRnum(RoomVnum vnum);
 ZoneRnum real_zone(ZoneVnum zvn);
 MobRnum real_mobile(MobVnum vnum);
 ObjRnum real_object(ObjVnum vnum);
@@ -250,7 +250,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 extern RoomRnum top_of_world;
 extern std::unordered_map<long, CharData *> chardata_by_uid;
 
-void add_trig_index_entry(int nr, Trigger *proto);
+void AddTrigIndexEntry(int nr, Trigger *trig);
 extern IndexData **trig_index;
 
 #ifndef __CONFIG_C__
@@ -338,7 +338,7 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 	using id_to_index_t = std::unordered_map<int, std::size_t>;
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
 
-	void add_name_to_index(const char *name, std::size_t index);
+	void AddNameToIndex(const char *name, const std::size_t index);
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
@@ -350,7 +350,7 @@ extern PlayersIndex &player_table;
 
 extern long top_idnum;
 
-bool player_exists(long id);
+bool IsPlayerExists(long id);
 
 inline SaveInfo *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
@@ -371,7 +371,7 @@ void init();
 void set_flag(CharData *ch);
 } // namespace OfftopSystem
 
-void delete_char(const char *name);
+void DeletePcByHimself(const char *name);
 
 void set_test_data(CharData *mob);
 

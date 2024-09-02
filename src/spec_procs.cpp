@@ -782,7 +782,7 @@ int npc_walk(CharData *ch) {
 	if (ch->in_room == kNowhere)
 		return (kBfsError);
 
-	if (GET_DEST(ch) == kNowhere || (rnum = real_room(GET_DEST(ch))) == kNowhere)
+	if (GET_DEST(ch) == kNowhere || (rnum = GetRoomRnum(GET_DEST(ch))) == kNowhere)
 		return (kBfsError);
 
 	if (ch->in_room == rnum) {
@@ -793,14 +793,14 @@ int npc_walk(CharData *ch) {
 		if (!ch->mob_specials.dest_pos && ch->mob_specials.dest_dir < 0)
 			ch->mob_specials.dest_dir = 0;
 		ch->mob_specials.dest_pos += ch->mob_specials.dest_dir >= 0 ? 1 : -1;
-		if (((rnum = real_room(GET_DEST(ch))) == kNowhere)
+		if (((rnum = GetRoomRnum(GET_DEST(ch))) == kNowhere)
 			|| rnum == ch->in_room)
 			return (kBfsError);
 		else
 			return (npc_walk(ch));
 	}
 
-	door = find_first_step(ch->in_room, real_room(GET_DEST(ch)), ch);
+	door = find_first_step(ch->in_room, GetRoomRnum(GET_DEST(ch)), ch);
 
 	return (door);
 }

@@ -2273,7 +2273,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const int rent_room = real_room(GET_LOADROOM(ch));
+	const int rent_room = GetRoomRnum(GET_LOADROOM(ch));
 	if (rent_room == kNowhere || ch->in_room == kNowhere) {
 		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return;

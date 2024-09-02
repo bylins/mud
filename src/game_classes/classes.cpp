@@ -40,7 +40,7 @@ extern double exp_coefficients[];
 
 // local functions
 byte saving_throws(int class_num, int type, int level);
-void do_start(CharData *ch, int newbie);
+void DoPcInit(CharData *ch, bool is_newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
@@ -981,21 +981,21 @@ void init_warcry(CharData *ch) // проставление кличей в об�
 
 }
 
-void do_start(CharData *ch, int newbie) {
+void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
-	if (newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
+	if (is_newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
-	if (newbie && IS_MANA_CASTER(ch)) {
+	if (is_newbie && IS_MANA_CASTER(ch)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 		}
 	}
 
-	if (newbie) {
+	if (is_newbie) {
 		log("Create new player %s", GET_NAME(ch));
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (int & i : outfit_list) {
@@ -1359,7 +1359,7 @@ void InitSpellLevels() {
 	fclose(magic);
 }
 
-void init_basic_values() {
+void InitBasicValues() {
 	FILE *magic;
 	char line[256], name[kMaxInputLength];
 	int i[10], c, j, mode = 0, *pointer;

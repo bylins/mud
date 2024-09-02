@@ -176,17 +176,17 @@ extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern const char *default_race[];
-extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
-extern char *GREETINGS;
+extern char *greetings;
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern char *name_rules;
 
 // external functions
-void do_start(CharData *ch, int newbie);
+void DoPcInit(CharData *ch, bool is_newbie);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -276,7 +276,7 @@ void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
-void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
+void DoReboot(CharData *ch, char *argument, int cmd, int subcmd);
 void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_setall(CharData *ch, char *argument, int cmd, int subcmd);
@@ -916,7 +916,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"redit", EPosition::kDead, do_olc, 0, SCMD_OLC_REDIT, 0},
 		{"register", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_REGISTER, 0},
 		{"unregister", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_UNREGISTER, 0},
-		{"reload", EPosition::kDead, do_reboot, kLvlImplementator, 0, 0},
+		{"reload", EPosition::kDead, DoReboot, kLvlImplementator, 0, 0},
 		{"remove", EPosition::kRest, do_remove, 0, 0, 500},
 		{"rent", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"reply", EPosition::kRest, do_reply, 0, 0, -1},
@@ -2151,7 +2151,7 @@ void do_entergame(DescriptorData *d) {
 	if ((load_room = GET_LOADROOM(d->character)) == kNowhere) {
 	  load_room = calc_loadroom(d->character.get());
 	}
-	load_room = real_room(load_room);
+	load_room = GetRoomRnum(load_room);
 
 	if (!Clan::MayEnter(d->character.get(), load_room, kHousePortal)) {
 	  load_room = Clan::CloseRent(load_room);
@@ -2162,7 +2162,7 @@ void do_entergame(DescriptorData *d) {
 	}
   }
 
-  // If char was saved with kNowhere, or real_room above failed...
+  // If char was saved with kNowhere, or GetRoomRnum( above failed...
   if (load_room == kNowhere) {
 	if (GetRealLevel(d->character) >= kLvlImmortal)
 	  load_room = r_immort_start_room;
@@ -2315,7 +2315,7 @@ void do_entergame(DescriptorData *d) {
 	PRF_FLAGS(d->character).set(EPrf::kShowZoneNameOnEnter);
 	PRF_FLAGS(d->character).set(EPrf::kBoardMode);
 	d->character->set_last_exchange(time(nullptr));
-	do_start(d->character.get(), true);
+	  DoPcInit(d->character.get(), true);
 	d->character->mem_queue.stored = 0;
 	SendMsgToChar(START_MESSG, d->character.get());
   }
@@ -2814,7 +2814,7 @@ void nanny(DescriptorData *d, char *argument) {
 	  }
 	  d->keytable = (ubyte) *argument - (ubyte) '0';
 	  ip_log(d->host);
-	  SEND_TO_Q(GREETINGS, d);
+	  SEND_TO_Q(greetings, d);
 	  STATE(d) = CON_GET_NAME;
 	  break;
 
@@ -3186,7 +3186,7 @@ void nanny(DescriptorData *d, char *argument) {
 		STATE(d) = CON_QCLASS;
 	  } else {
 		sprintf(buffer, "%s заменил себе пароль.", GET_NAME(d->character));
-		add_karma(d->character.get(), buffer, "");
+		  AddKarma(d->character.get(), buffer, "");
 		d->character->save_char();
 		SEND_TO_Q("\r\nГотово.\r\n", d);
 		SEND_TO_Q(MENU, d);
@@ -3625,7 +3625,7 @@ break;
 		}
 		if (GetRealLevel(d->character) >= kLvlGreatGod)
 		  return;
-		delete_char(GET_NAME(d->character));
+		  DeletePcByHimself(GET_NAME(d->character));
 		sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 		SEND_TO_Q(buffer, d);
 		sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));

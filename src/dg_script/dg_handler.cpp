@@ -20,7 +20,7 @@
 #include "structs/global_objects.h"
 
 // remove a single trigger from a mob/obj/room
-void extract_trigger(Trigger *trig) {
+void ExtractTrigger(Trigger *trig) {
 	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
 		// см. объяснения в вызове trig_data_free()
 		free(GET_TRIG_WAIT(trig).info);

@@ -157,13 +157,13 @@ class Trigger {
 	Trigger();
 	Trigger(const Trigger &from);
 	Trigger &operator=(const Trigger &right);
-	Trigger(const sh_int rnum, const char *name, const long trigger_type);
-	Trigger(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type);
-	Trigger(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type);
+	Trigger(int rnum, const char *name, long trigger_type);
+	Trigger(int rnum, const char *name, byte attach_type, long trigger_type);
+	Trigger(int rnum, std::string &&name, byte attach_type, long trigger_type);
 
-	virtual ~Trigger() {}    // make constructor virtual to be able to create a mock for this class
+	virtual ~Trigger() = default;    // make constructor virtual to be able to create a mock for this class
 
-	auto get_rnum() const { return nr; }
+	[[nodiscard]] auto get_rnum() const { return nr; }
 	void set_rnum(const sh_int _) { nr = _; }
 	void set_attach_type(const byte _) { attach_type = _; }
 	auto get_attach_type() const { return attach_type; }
@@ -187,7 +187,7 @@ class Trigger {
  private:
 	void reset();
 
-	sh_int nr;            // trigger's rnum                  //
+	int nr;            // trigger's rnum                  //
 	byte attach_type;    // mob/obj/wld intentions          //
 	std::string name;    // name of trigger
 	long trigger_type;    // type of trigger (for bitvector) //
@@ -421,7 +421,7 @@ extern GlobalTriggersStorage &trigger_list;
 
 void dg_obj_trigger(char *line, ObjData *obj);
 void assign_triggers(void *i, int type);
-int real_trigger(int vnum);
+int GetTriggerRnum(int vnum);
 void extract_script_mem(struct script_memory *sc);
 
 Trigger *read_trigger(int nr);

@@ -50,7 +50,7 @@ int planebit(const char *str, int *plane, int *bit);
 // * Function Prototypes
 void redit_setup(DescriptorData *d, int real_num);
 
-void room_copy(RoomData *dst, RoomData *src);
+void CopyRoom(RoomData *dst, RoomData *src);
 void room_free(RoomData *room);
 
 void redit_save_internally(DescriptorData *d);
@@ -76,7 +76,7 @@ void redit_setup(DescriptorData *d, int real_num)
 		room->temp_description =
 			str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
 	} else {
-		room_copy(room, world[real_num]);
+		CopyRoom(room, world[real_num]);
 		// temp_description существует только на время редактирования комнаты в олц
 		room->temp_description = str_dup(RoomDescription::show_desc(world[real_num]->description_num).c_str());
 	}
@@ -96,7 +96,7 @@ void redit_save_internally(DescriptorData *d) {
 	int j, rrn, cmd_no;
 	ObjData *temp_obj;
 
-	rrn = real_room(OLC_ROOM(d)->vnum);
+	rrn = GetRoomRnum(OLC_ROOM(d)->vnum);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
 	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
 	// * Room exists: move contents over then free and replace it.
@@ -105,7 +105,7 @@ void redit_save_internally(DescriptorData *d) {
 		// Удаляю устаревшие данные
 		room_free(world[rrn]);
 		// Текущее состояние комнаты не изменилось, обновляю редактированные данные
-		room_copy(world[rrn], OLC_ROOM(d));
+		CopyRoom(world[rrn], OLC_ROOM(d));
 		// Теперь просто удалить OLC_ROOM(d) и все будет хорошо
 		room_free(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
@@ -122,7 +122,7 @@ void redit_save_internally(DescriptorData *d) {
 		}
 
 		RoomData *new_room = new RoomData;
-		room_copy(new_room, OLC_ROOM(d));
+		CopyRoom(new_room, OLC_ROOM(d));
 		new_room->vnum = OLC_NUM(d);
 		new_room->zone_rn = OLC_ZNUM(d);
 		new_room->func = nullptr;
@@ -286,7 +286,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 		return;
 	}
 	for (counter = zone_table[zone_num].vnum * 100; counter < zone_table[zone_num].top; counter++) {
-		if ((realcounter = real_room(counter)) != kNowhere) {
+		if ((realcounter = GetRoomRnum(counter)) != kNowhere) {
 			if (counter % 100 == 99)
 				continue;
 			room = world[realcounter];
@@ -740,7 +740,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 
 		case REDIT_EXIT_NUMBER: number = atoi(arg);
 			if (number != kNowhere) {
-				number = real_room(number);
+				number = GetRoomRnum(number);
 				if (number == kNowhere) {
 					SendMsgToChar("Нет такой комнаты - повторите ввод : ", d->character.get());
 

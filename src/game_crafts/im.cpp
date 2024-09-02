@@ -415,7 +415,7 @@ void im_cleanup_recipe(im_recipe *r) {
 }
 
 // Инициализация подсистемы ингредиентной магии
-void init_im(void) {
+void initIngredientsMagic(void) {
 	FILE *im_file;
 	char tmp[1024], tlist[1024], line1[256], line2[256], name[256];
 	im_memb *mbs, *mptr;
@@ -922,7 +922,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
 			if (o)
-				PlaceObjToRoom(o, real_room(room->vnum));
+				PlaceObjToRoom(o, GetRoomRnum(room->vnum));
 		}
 	}
 }
@@ -1750,7 +1750,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	for (i = 0; i < 100; ++i)
 	{
-		if ((rnum = real_room(i + 100 * zone)) == kNowhere)
+		if ((rnum = GetRoomRnum((i + 100 * zone)) == kNowhere)
 			continue;
 		ping = world[rnum]->ing_list;
 		for (str = buf1, str[0] = 0; im_ing_dump(ping, str); ping += 2)

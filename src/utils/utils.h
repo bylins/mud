@@ -1297,7 +1297,7 @@ private:
 #endif
 
 // global buffering system
-#ifdef DB_C__
+#ifdef DB_CPP_
 char buf[kMaxStringLength];
 char buf1[kMaxStringLength];
 char buf2[kMaxStringLength];

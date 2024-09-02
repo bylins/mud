@@ -362,7 +362,7 @@ void our_terminate() {
 
 // externs
 extern int num_invalid;
-extern char *GREETINGS;
+extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
 extern FILE *player_fl;
@@ -511,7 +511,7 @@ void gifts() {
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 
 	// создаем упаковку для подарка
-	PlaceObjToRoom(obj_cont.get(), real_room(rand_vnum_r));
+	PlaceObjToRoom(obj_cont.get(), GetRoomRnum(rand_vnum_r));
 	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
 	CheckObjDecay(obj_cont.get());

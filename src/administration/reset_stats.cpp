@@ -6,7 +6,7 @@
 #include "entities/char_data.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern bool ValidateStats(DescriptorData *d);
 extern int check_dupes_email(DescriptorData *d);
 extern void do_entergame(DescriptorData *d);
@@ -163,7 +163,7 @@ void process(DescriptorData *d, Type type) {
 			// в любом другом случае изменения можно считать состояшимися
 			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
 					 reset_prices.at(type).log_text.c_str(), price);
-			add_karma(ch.get(), buf_, "auto");
+			AddKarma(ch.get(), buf_, "auto");
 
 			ch->remove_both_gold(price);
 			ch->save_char();

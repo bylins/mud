@@ -72,8 +72,8 @@ extern std::pair<int, int> TotalMemUse();
 
 // local functions
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
-TimeInfoData *mud_time_passed(time_t t2, time_t t1);
-void prune_crlf(char *txt);
+TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
+void PruneCrlf(char *txt);
 bool IsValidEmail(const char *address);
 
 // external functions
@@ -230,7 +230,7 @@ return result;
 */
 
 // * Strips \r\n from end of string.
-void prune_crlf(char *txt) {
+void PruneCrlf(char *txt) {
 	size_t i = strlen(txt) - 1;
 
 	while (txt[i] == '\n' || txt[i] == '\r') {
@@ -466,12 +466,12 @@ TimeInfoData *real_time_passed(time_t t2, time_t t1) {
 	return (&now);
 }
 
-// Calculate the MUD time passed over the last t2-t1 centuries (secs) //
-TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
+// Calculate the MUD time passed over the last time_to-time_from centuries (secs) //
+TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from) {
 	long secs;
 	static TimeInfoData now;
 
-	secs = (long) (t2 - t1);
+	secs = (long) (time_to - time_from);
 
 	now.hours = (secs / (kSecsPerMudHour * kTimeKoeff)) % kHoursPerDay;    // 0..23 hours //
 	secs -= kSecsPerMudHour * kTimeKoeff * now.hours;
@@ -490,7 +490,7 @@ TimeInfoData *mud_time_passed(time_t t2, time_t t1) {
 TimeInfoData *age(const CharData *ch) {
 	static TimeInfoData player_age;
 
-	player_age = *mud_time_passed(time(nullptr), ch->player_data.time.birth);
+	player_age = *CalcMudTimePassed(time(nullptr), ch->player_data.time.birth);
 
 	player_age.year += 17;    // All players start at 17 //
 

@@ -18,7 +18,7 @@ extern DescriptorData *descriptor_list;
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 int Valid_Name(char *newname);
-void Read_Invalid_List(void);
+void ReadCharacterInvalidNamesList(void);
 
 void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*argument) {
@@ -170,7 +170,7 @@ int Valid_Name(char *newname) {
 	return (Is_Valid_Name(newname) && Is_Valid_Dc(newname));
 }
 
-void Read_Invalid_List(void) {
+void ReadCharacterInvalidNamesList(void) {
 	FILE *fp;
 	char temp[256];
 

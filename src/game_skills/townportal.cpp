@@ -79,7 +79,7 @@ void spell_townportal(CharData *ch, char *arg) {
 		// Открываем пентаграмму в комнату rnum //
 		ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
 		RoomData *from_room = world[ch->in_room];
-		RoomRnum to_room = real_room(port->vnum);
+		RoomRnum to_room = GetRoomRnum(port->vnum);
 		from_room->pkPenterUnique = 0;
 		OneWayPortal::ReplacePortalTimer(ch, ch->in_room, to_room, 29);
 		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToChar);

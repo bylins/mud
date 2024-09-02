@@ -1014,7 +1014,7 @@ int Crash_delete_crashfile(CharData *ch) {
 
 // ********* Timer utils: create, read, write, list, timer_objects *********
 
-void Crash_clear_objects(const std::size_t index) {
+void ClearCrashSavedObjects(std::size_t index) {
 	int i = 0, rnum;
 	Crash_delete_files(index);
 	if (SAVEINFO(index)) {
@@ -1032,7 +1032,7 @@ void Crash_create_timer(const std::size_t index, int/* num*/) {
 	recreate_saveinfo(index);
 }
 
-int Crash_read_timer(const std::size_t index, int temp) {
+int ReadCrashTimerFile(std::size_t index, int temp) {
 	FILE *fl;
 	char fname[kMaxInputLength];
 	char name[kMaxNameLength + 1];
@@ -1132,7 +1132,7 @@ void Crash_reload_timer(int index) {
 		clear_saveinfo(index);
 	}
 
-	if (!Crash_read_timer(index, false)) {
+	if (!ReadCrashTimerFile(index, false)) {
 		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name());
 		mudlog(buf, BRF, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 	}
@@ -1190,11 +1190,11 @@ void Crash_timer_obj(const std::size_t index, long time) {
 
 	//удаляем просроченные файлы ренты
 	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * kSecsPerRealDay) {
-		Crash_clear_objects(index);
+		ClearCrashSavedObjects(index);
 		log("[TO] Deleting %s's rent info - time outed.", name);
 		return;
 	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * kSecsPerRealDay) {
-		Crash_clear_objects(index);
+		ClearCrashSavedObjects(index);
 		strcpy(buf, "");
 		switch (rentcode) {
 			case RENT_CRASH: log("[TO] Deleting crash rent info for %s  - time outed.", name);
@@ -1309,7 +1309,7 @@ void Crash_listrent(CharData *ch, char *name) {
 	}
 
 	if (!SAVEINFO(index)) {
-		if (!Crash_read_timer(index, true)) {
+		if (!ReadCrashTimerFile(index, true)) {
 			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
 			SendMsgToChar(buf, ch);
 		} else if (!SAVEINFO(index)) {
@@ -1372,7 +1372,7 @@ int Crash_load(CharData *ch) {
 			SendMsgToChar("\r\n** Неизвестный код ренты **\r\n"
 						  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 						  "Обращайтесь за помощью к Богам.\r\n", ch);
-			Crash_clear_objects(index);
+			ClearCrashSavedObjects(index);
 			return (1);
 			break;
 	}
@@ -1422,7 +1422,7 @@ int Crash_load(CharData *ch) {
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		ch->set_bank(0);
 		ch->set_gold(0);
-		Crash_clear_objects(index);
+		ClearCrashSavedObjects(index);
 		return (2);
 	} else {
 		if (cost) {
@@ -1447,7 +1447,7 @@ int Crash_load(CharData *ch) {
 		SendMsgToChar("\r\n** Нет файла описания вещей **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
-		Crash_clear_objects(index);
+		ClearCrashSavedObjects(index);
 		return (1);
 	}
 	fseek(fl, 0L, SEEK_END);
@@ -1457,7 +1457,7 @@ int Crash_load(CharData *ch) {
 		SendMsgToChar("\r\n** Файл описания вещей пустой **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
-		Crash_clear_objects(index);
+		ClearCrashSavedObjects(index);
 		return (1);
 	}
 
@@ -1471,7 +1471,7 @@ int Crash_load(CharData *ch) {
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
 		log("Memory error or cann't read %s(%d)...", fname, fsize);
 		free(readdata);
-		Crash_clear_objects(index);
+		ClearCrashSavedObjects(index);
 		return (1);
 	};
 	fclose(fl);
@@ -1555,7 +1555,7 @@ int Crash_load(CharData *ch) {
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
-		//очищаем RepopDecay объедки
+		//очищаем DecayObjectsOnRepop объедки
 		if (obj->has_flag(EObjFlag::kRepopDecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			SendMsgToChar(buf, ch);

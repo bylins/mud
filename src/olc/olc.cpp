@@ -52,7 +52,7 @@ void room_free(RoomData *room);
 void medit_mobile_free(CharData *mob);
 void trigedit_setup_new(DescriptorData *d);
 void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
-int real_trigger(int vnum);
+int GetTriggerRnum(int vnum);
 void dg_olc_script_free(DescriptorData *d);
 
 // Internal function prototypes.
@@ -277,21 +277,21 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	// * Steal player's descriptor start up subcommands.
 	switch (subcmd) {
 		case SCMD_OLC_TRIGEDIT:
-			if ((real_num = real_trigger(number)) >= 0)
+			if ((real_num = GetTriggerRnum(number)) >= 0)
 				trigedit_setup_existing(d, real_num);
 			else
 				trigedit_setup_new(d);
 			STATE(d) = CON_TRIGEDIT;
 			break;
 		case SCMD_OLC_REDIT:
-			if ((real_num = real_room(number)) != kNowhere)
+			if ((real_num = GetRoomRnum(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
 				redit_setup(d, kNowhere);
 			STATE(d) = CON_REDIT;
 			break;
 		case SCMD_OLC_ZEDIT:
-			if ((real_num = real_room(number)) == kNowhere) {
+			if ((real_num = GetRoomRnum(number)) == kNowhere) {
 				SendMsgToChar("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 				delete d->olc;
 				return;

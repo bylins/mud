@@ -613,8 +613,8 @@ enum { MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME };
 * Замена макросов:
 * #define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player_data.short_descr:"???"
 * #define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum]->short_description:"???"
-* #define ROOM_NAME(vnum) (rnum=real_room(vnum))>=0?world[rnum]->name:"???"
-* #define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
+* #define ROOM_NAME(vnum) (rnum=GetRoomRnum((vnum))>=0?world[rnum]->name:"???"
+* #define TRIG_NAME(vnum) (rnum=GetTriggerRnum(vnum))>=0?trig_index[rnum]->proto->name:"???"
 * т.к. gcc 4.x на такие конструкции косо смотрит и правильно делает
 * \param vnum - номер (внум) моба/объекта/комнаты/триггера
 * \param type - тип номера, чье имя возвращаем
@@ -636,13 +636,13 @@ const char *name_by_vnum(int vnum, int type) {
 			}
 			break;
 
-		case ROOM_NAME: rnum = real_room(vnum);
+		case ROOM_NAME: rnum = GetRoomRnum(vnum);
 			if (rnum >= 0) {
 				return world[rnum]->name;
 			}
 			break;
 
-		case TRIG_NAME: rnum = real_trigger(vnum);
+		case TRIG_NAME: rnum = GetTriggerRnum(vnum);
 			if (rnum >= 0) {
 				return trig_index[rnum]->proto->get_name().c_str();
 			}
@@ -1357,8 +1357,8 @@ void zedit_disp_sarg2(DescriptorData *d) {
 
 #define CHECK_MOB(d, n)  if(real_mobile(n)<0)   {SendMsgToChar("Неверный номер моба, повторите : ",d->character.get());return;}
 #define CHECK_OBJ(d, n)  if(real_object(n)<0)   {SendMsgToChar("Неверный номер объекта, повторите : ",d->character.get());return;}
-#define CHECK_ROOM(d, n) if(real_room(n)<=kNowhere)     {SendMsgToChar("Неверный номер комнаты, повторите : ",d->character.get());return;}
-#define CHECK_TRIG(d, n) if(real_trigger(n)<0)  {SendMsgToChar("Неверный номер триггера, повторите : ",d->character.get());return;}
+#define CHECK_ROOM(d, n) if(GetRoomRnum(n)<=kNowhere)     {SendMsgToChar("Неверный номер комнаты, повторите : ",d->character.get());return;}
+#define CHECK_TRIG(d, n) if(GetTriggerRnum(n)<0)  {SendMsgToChar("Неверный номер триггера, повторите : ",d->character.get());return;}
 #define CHECK_NUM(d, n)  if(!is_signednumber(n)){SendMsgToChar("Ожидается число, повторите : ",d->character.get());return;}
 
 void zedit_parse(DescriptorData *d, char *arg) {
@@ -2083,7 +2083,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_ZONE_ENTRANCE: {
 			int num = atoi(arg);
 			
-			if (real_room(num) == kNowhere) {
+			if (GetRoomRnum(num) == kNowhere) {
 				SendMsgToChar("Такая комната не найдена, повторите ввод:", d->character.get());
 			} else {
 				OLC_ZONE(d)->entrance = num;

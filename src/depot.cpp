@@ -1378,7 +1378,7 @@ void reload_char(long uid, CharData *ch) {
 		// чар соответственно оффлайн
 		const CharData::shared_ptr t_vict(new Player);
 		if (load_char(it->second.name.c_str(), t_vict.get(), ELoadCharFlags::kFindId) < 0) {
-			// вообще эт нереальная ситуация после проверки в do_reboot
+			// вообще эт нереальная ситуация после проверки в DoReboot
 			SendMsgToChar(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
 		}
 		vict = t_vict;

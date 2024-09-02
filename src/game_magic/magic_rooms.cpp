@@ -111,7 +111,7 @@ ESpell RemoveAffectFromRooms(ESpell spell_id, const F &filter) {
 	for (const auto room : affected_rooms) {
 		const auto &affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 		if (affect != room->affected.end()) {
-			SendRemoveAffectMsgToRoom((*affect)->type, real_room(room->vnum));
+			SendRemoveAffectMsgToRoom((*affect)->type, GetRoomRnum(room->vnum));
 			spell_id = (*affect)->type;
 			RoomRemoveAffect(room, affect);
 			return spell_id;
@@ -337,7 +337,7 @@ void UpdateRoomsAffects() {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
 						|| (*next_affect_i)->duration > 0) {
-						SendRemoveAffectMsgToRoom(affect->type, real_room((*room)->vnum));
+						SendRemoveAffectMsgToRoom(affect->type, GetRoomRnum((*room)->vnum));
 					}
 				}
 				RoomRemoveAffect(*room, affect_i);

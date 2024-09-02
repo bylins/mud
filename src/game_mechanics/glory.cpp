@@ -22,7 +22,7 @@
 
 #include <sstream>
 
-extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void check_max_hp(CharData *ch);
 
 namespace Glory {
@@ -1029,7 +1029,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 			 vict_it->second->spend_glory - was_stats);
 	imm_log("%s", buf);
 	mudlog(buf, DEF, kLvlImmortal, SYSLOG, true);
-	add_karma(ch, buf, reason);
+	AddKarma(ch, buf, reason);
 	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict.get());
 
 	// если принимающий чар онлайн - сетим сразу ему статы
@@ -1058,7 +1058,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 			}
 		}
 	}
-	add_karma(vict.get(), buf, reason);
+	AddKarma(vict.get(), buf, reason);
 	vict->save_char();
 
 	// удаляем запись чара, с которого перекидывали

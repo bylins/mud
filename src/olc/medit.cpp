@@ -82,7 +82,7 @@ void clear_mob_charm(CharData *mob);
 void medit_setup(DescriptorData *d, int rmob_num);
 
 void medit_mobile_init(CharData *mob);
-void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
+void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);
 void medit_mobile_free(CharData *mob);
 
 void medit_save_internally(DescriptorData *d);
@@ -131,7 +131,7 @@ void medit_mobile_init(CharData *mob) {
 	}
 }
 
-void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
+void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy)
 /*++
    Функция делает создает копию ПРОТОТИПА моба.
    После вызова этой функции создается полностью независимая копия моба src.
@@ -287,7 +287,7 @@ void medit_setup(DescriptorData *d, int real_num)
 		MPROG_DATA *head;
 #endif
 
-		medit_mobile_copy(mob, &mob_proto[real_num], false);
+		CopyMobilePrototypeForMedit(mob, &mob_proto[real_num], false);
 
 #if defined(OASIS_MPROG)
 		/*
@@ -329,7 +329,7 @@ void medit_setup(DescriptorData *d, int real_num)
 * Save new/edited mob to memory.
 *
 * Здесь сейчас нельзя просто копировать через указатель поля из моба, т.к. при выходе
-* они будут чиститься через деструктор, поэтому пока только через medit_mobile_copy
+* они будут чиститься через деструктор, поэтому пока только через CopyMobilePrototypeForMedit
 * add: прямое копирование без переаллокаций при добавлении нового моба работает
 * только потому, что в деструкторе сейчас не очищаются аллокации прототипов.
 * TODO: ес-сно это муть все
@@ -358,7 +358,7 @@ void medit_save_internally(DescriptorData *d) {
 		// Удаление старого прототипа
 		medit_mobile_free(&mob_proto[rmob_num]);
 		// Обновляю прототип
-		medit_mobile_copy(&mob_proto[rmob_num], OLC_MOB(d), false);
+		CopyMobilePrototypeForMedit(&mob_proto[rmob_num], OLC_MOB(d), false);
 		// Теперь просто удалить OLC_MOB(d) и все будет хорошо
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
@@ -408,7 +408,7 @@ void medit_save_internally(DescriptorData *d) {
 					new_index[rmob_num].func = nullptr;
 					new_mob_num = rmob_num;
 					OLC_MOB(d)->set_rnum(rmob_num);
-					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
+					CopyMobilePrototypeForMedit(&new_proto[rmob_num], OLC_MOB(d), false);
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 					new_index[rmob_num].set_idx = -1;
@@ -434,7 +434,7 @@ void medit_save_internally(DescriptorData *d) {
 			new_mob_num = rmob_num;
 			OLC_MOB(d)->set_rnum(rmob_num);
 
-			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
+			CopyMobilePrototypeForMedit(&new_proto[rmob_num], OLC_MOB(d), false);
 
 			new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 			new_index[rmob_num].set_idx = -1;
@@ -2076,7 +2076,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				OLC_MOB(d)->mob_specials.dest_count = 0;
 				break;
 			}
-			if ((plane = real_room(number)) == kNowhere) {
+			if ((plane = GetRoomRnum(number)) == kNowhere) {
 				SendMsgToChar("Нет такой комнаты.\r\n", d->character.get());
 			} else {
 				for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++) {
@@ -2308,7 +2308,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], false);
+			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 
 			break;
@@ -2324,7 +2324,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 			auto proto_script_old = OLC_MOB(d)->proto_script;
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], false);
+			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 			OLC_MOB(d)->proto_script = proto_script_old;
 
@@ -2341,7 +2341,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 			auto proto_script_old = OLC_MOB(d)->proto_script;
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], true);
+			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], true);
 			OLC_MOB(d)->set_rnum(rnum_old);
 			OLC_MOB(d)->proto_script = proto_script_old;
 

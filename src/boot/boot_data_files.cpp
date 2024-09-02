@@ -14,7 +14,7 @@
 extern int scheck;                        // TODO: get rid of this line
 CharData *mob_proto;                    // TODO: get rid of this global variable
 
-extern void extract_trigger(Trigger *trig);
+extern void ExtractTrigger(Trigger *trig);
 
 class DataFile : public BaseDataFile {
  protected:
@@ -206,7 +206,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 		return;
 	}
 
-	rnum = real_trigger(vnum);
+	rnum = GetTriggerRnum(vnum);
 	if (rnum < 0) {
 		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
 		log("%s", line);
@@ -225,7 +225,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 				if (add_trigger(SCRIPT(room).get(), trigger_instance, -1)) {
 					add_trig_to_owner(-1, vnum, room->vnum);
 				} else {
-					extract_trigger(trigger_instance);
+					ExtractTrigger(trigger_instance);
 				}
 			} else {
 				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->vnum);
@@ -358,7 +358,7 @@ void TriggersFile::parse_trigger(int vnum) {
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
 
-	add_trig_index_entry(vnum, trig);
+	AddTrigIndexEntry(vnum, trig);
 	count++;
 }
 

@@ -123,7 +123,7 @@ void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
 void do_consider(CharData *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
 void do_toggle(CharData *ch, char *argument, int cmd, int subcmd);
-void sort_commands();
+void SortCommands();
 void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
 void do_looking(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hearing(CharData *ch, char *argument, int cmd, int subcmd);
@@ -3962,7 +3962,7 @@ struct sort_struct {
 
 int num_of_cmds;
 
-void sort_commands() {
+void SortCommands() {
 	int a, b, tmp;
 
 	num_of_cmds = 0;

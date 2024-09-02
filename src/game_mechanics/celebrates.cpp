@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "backtrace.h"
 
-extern void extract_trigger(Trigger *trig);
+extern void ExtractTrigger(Trigger *trig);
 
 namespace Celebrates {
 int tab_day[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};//да и хрен с ним, с 29 февраля!
@@ -406,7 +406,7 @@ void remove_triggers(TrigList trigs, Script *sc) {
 
 		Trigger *removed = sc->trig_list.remove_by_vnum(*it);
 		if (removed) {
-			extract_trigger(removed);
+			ExtractTrigger(removed);
 			SCRIPT_TYPES(sc) = sc->trig_list.get_type();
 		}
 	}
@@ -506,7 +506,7 @@ bool make_clean(CelebrateDataPtr celebrate) {
 	for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end(); ++rooms) {
 		for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room) {
 			if (!(*room)->triggers.empty()) {
-				const int rnum = real_room((*room)->vnum);
+				const int rnum = GetRoomRnum((*room)->vnum);
 				remove_triggers((*room)->triggers, world[rnum]->script.get());
 			}
 		}

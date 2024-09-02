@@ -308,7 +308,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
 	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
 	act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
-	const int rent_room = real_room(GET_LOADROOM(ch));
+	const int rent_room = GetRoomRnum(GET_LOADROOM(ch));
 	if (rent_room == kNowhere) {
 		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return true;
@@ -352,7 +352,7 @@ void die(CharData *ch, CharData *killer) {
 	{
 		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);
 		RemoveCharFromRoom(ch);
-		PlaceCharToRoom(ch, real_room(75989));
+		PlaceCharToRoom(ch, GetRoomRnum(75989));
 		ch->dismount();
 		GET_HIT(ch) = 1;
 		update_pos(ch);
@@ -453,7 +453,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	change_fighting(ch, true);
 	GET_HIT(ch) = 1;
 	GET_POS(ch) = EPosition::kSit;
-	int to_room = real_room(GET_LOADROOM(ch));
+	int to_room = GetRoomRnum(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
 		to_room = Clan::CloseRent(to_room);

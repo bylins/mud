@@ -21,7 +21,7 @@
 extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
-extern void extract_trigger(Trigger *trig);
+extern void ExtractTrigger(Trigger *trig);
 extern double count_mort_requred(const CObjectPrototype *obj);
 extern double count_unlimited_timer(const CObjectPrototype *obj);
 
@@ -643,11 +643,11 @@ void ObjData::set_tag(const char *tag) {
 
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
 	for (auto it = trigs.begin(); it != trigs.end(); ++it) {
-		int rnum = real_trigger(*it);
+		int rnum = GetTriggerRnum(*it);
 		if (rnum != -1) {
 			auto trig = read_trigger(rnum);
 			if (!add_trigger(get_script().get(), trig, -1)) {
-				extract_trigger(trig);
+				ExtractTrigger(trig);
 			}
 		}
 	}
@@ -1436,7 +1436,7 @@ bool is_norent_set(int vnum, std::vector<int> objs) {
 // * Поиск в хране из списка vnum_list.
 bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 	// храны у нас через задницу сделаны
-	for (ObjData *chest = world[real_room(CLAN(ch)->get_chest_room())]->contents; chest;
+	for (ObjData *chest = world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents; chest;
 		 chest = chest->get_next_content()) {
 		if (Clan::is_clan_chest(chest)) {
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {

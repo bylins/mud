@@ -81,7 +81,7 @@ RoomRnum dg_find_target_room(CharData *ch, Trigger *trig,char *rawroomstr) {
 
 	const auto tmp = atoi(roomstr);
 	if (tmp > 0) {
-		location = real_room(tmp);
+		location = GetRoomRnum(tmp);
 	} else {
 		sprintf(buf, "Undefined mteleport room: %s", roomstr);
 		mob_log(ch, trig, buf);
@@ -105,7 +105,7 @@ void do_mportal(CharData *mob, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 
 	howlong = atoi(arg2);
 	nr = atoi(arg1);
-	target = real_room(nr);
+	target = GetRoomRnum(nr);
 
 	if (target == kNowhere) {
 		mob_log(mob, trig, "mportal: target is an invalid room");
@@ -973,7 +973,7 @@ void do_mdoor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 				break;
 
 			case 5:    // room
-				if ((to_room = real_room(atoi(value))) != kNowhere) {
+				if ((to_room = GetRoomRnum(atoi(value))) != kNowhere) {
 					exit->to_room(to_room);
 				} else {
 					mob_log(ch, trig, "mdoor: invalid door target");

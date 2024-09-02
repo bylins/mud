@@ -65,7 +65,7 @@ int exchange_purchase(CharData *ch, char *arg);
 int exchange_offers(CharData *ch, char *arg);
 bool exchange_setfilter(CharData *ch, char *argument);
 
-int exchange_database_load();
+int LoadExchangeDatabase();
 int exchange_database_reload(bool loadbackup);
 void check_exchange(ObjData *obj);
 void extract_exchange_item(ExchangeItem *item);
@@ -883,7 +883,7 @@ void exchange_write_one_object_new(std::stringstream &out, ExchangeItem *item) {
 	out << "\n";
 }
 
-int exchange_database_load() {
+int LoadExchangeDatabase() {
 	FILE *fl;
 	char *data, *readdata;
 	ExchangeItem *item;
