@@ -1261,6 +1261,7 @@ std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens)
 		MobDataCopy(it.from, it.to);
 		ObjDataCopy(it.from, it.to);
 		ZoneDataCopy(it.from, it.to); //последним
+		zone_table[it.to].copy_from_zone = zone_table[it.from].vnum;
 	}
 	out_to.pop_back();
 	for (auto it : zrn_list) {
@@ -4484,16 +4485,15 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	char result[kMaxTrglineLength], *expr;
 
 	expr = two_arguments(cmd, arg, name);
-
-	skip_spaces(&expr);
-
 	if (!*name) {
 		sprintf(buf2, "eval w/o an arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
-	if (strlen(result) > kMaxTrglineLength) {
-		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%ld), команда: '%s'", strlen(result), cmd);
+	size_t len_expr = strlen(expr);
+
+	if (len_expr > kMaxTrglineLength) {
+		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%ld), команда: '%s'", len_expr, cmd);
 		trig_log(trig, buf2);
 	}
 	eval_expr(expr, result, go, sc, trig, type);
@@ -5091,7 +5091,7 @@ bool find_all_char_vnum(MobVnum vnum, char *str) {
 bool find_all_obj_vnum(long n, char *str) {
 	int count = 0;
 
-	world_objects.foreach_with_vnum(n, [&](const ObjData::shared_ptr &i) {
+	world_objects.foreach_with_vnum(n, [&str, &count](const ObjData::shared_ptr &i) {
 		if (strlen(str + strlen(str)) < kMaxTrglineLength) {
 			snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_OBJ, i->get_id());
 			count++;

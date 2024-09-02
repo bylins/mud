@@ -262,7 +262,7 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	world_objects.foreach_with_vnum(vnum, [&](const ObjData::shared_ptr &k) {
+	world_objects.foreach_with_vnum(vnum, [&num](const ObjData::shared_ptr &k) {
 		k->set_timer(0);
 		++num;
 	});
