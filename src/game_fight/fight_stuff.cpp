@@ -3,6 +3,7 @@
 #include <random>
 
 #include "game_affects/affect_data.h"
+#include "game_mechanics/dead_load.h"
 #include "mobact.h"
 #include "entities/obj_data.h"
 #include "cmd/flee.h"
@@ -22,7 +23,6 @@
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"
 #include "entities/char_player.h"
-#include "structs/global_objects.h"
 #include "utils/utils_char_obj.inl"
 
 // extern
@@ -619,7 +619,7 @@ void real_kill(CharData *ch, CharData *killer) {
 			PerformDropGold(ch, local_gold);
 			ch->set_gold(0);
 		}
-		LoadObjFromDeadLoad(corpse, ch, nullptr, DL_ORDINARY);
+		dead_load::LoadObjFromDeadLoad(corpse, ch, nullptr, dead_load::kOrdinary);
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
 #endif

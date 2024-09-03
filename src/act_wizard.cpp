@@ -18,6 +18,7 @@
 #include "cmd_god/ban.h"
 #include "game_mechanics/birthplaces.h"
 #include "game_mechanics/celebrates.h"
+#include "game_mechanics/dead_load.h"
 #include "game_mechanics/guilds.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
@@ -1710,7 +1711,8 @@ int vnum_mob_load(char *vnum, CharData *ch) {
 	for (auto i = 0; i <= top_of_mobt; i++) {
 		if (mob_proto[i].dl_list == nullptr)
 			continue;
-		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), [mvn] (struct LoadingItem *item) { return (item->obj_vnum == mvn); });
+		auto predicate = [mvn] (struct dead_load::LoadingItem *item) { return (item->obj_vnum == mvn); };
+		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), predicate);
 		if (it != mob_proto[i].dl_list->end()) {
 			sprintf(buf, "%3d. [%5d] (%d,%d,%d,%d) %s\r\n", ++found, mob_index[i].vnum, (*it)->obj_vnum, (*it)->load_prob, 
 				(*it)->load_type, (*it)->spec_param, mob_proto[i].get_npc_name().c_str());

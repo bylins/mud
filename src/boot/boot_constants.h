@@ -11,11 +11,6 @@ const int kMaxProtoNumber = 9999999;    //Максимально возможн�
 #define MIN_ZONE_LEVEL    1
 #define MAX_ZONE_LEVEL    50
 
-#define DL_LOAD_ANYWAY     0
-#define DL_LOAD_IFLAST     1
-#define DL_LOAD_ANYWAY_NC  2
-#define DL_LOAD_IFLAST_NC  3
-
 #define DUPLICATE_MINI_SET_VNUM 1000000
 
 enum SetStuffMode {
@@ -149,11 +144,6 @@ enum SetStuffMode {
 #define PROXY_BAN_FILE    LIB_ETC "badproxy"    // for the siteban system
 
 #define WHOLIST_FILE    LIB_STAT "wholist.html"    // for the stat system
-
-//Dead load (dl_load) options
-#define DL_ORDINARY    0
-#define DL_PROGRESSION 1
-#define DL_SKIN        2
 
 enum EBootType : int {
 	DB_BOOT_WLD = 0,

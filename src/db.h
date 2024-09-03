@@ -291,10 +291,6 @@ extern TimeInfoData time_info;
 
 extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);
 
-bool ParseDeadLoadLineToDeadLoadList(OnDeadLoadList **dl_list, char *line);
-bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE);
-int ResolveTagsInObjName(ObjData *obj, CharData *ch);
-void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
 extern RoomRnum r_helled_start_room;

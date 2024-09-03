@@ -1,4 +1,4 @@
-
+#include "game_mechanics/dead_load.h"
 #include "entities/char_data.h"
 #include "structs/global_objects.h"
 #include "handler.h"
@@ -251,7 +251,7 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 	}
 
 	skin->set_val(3, int(GetRealLevel(mob) / 11)); // установим уровень шкуры, топовая 44+
-	ResolveTagsInObjName(skin.get(), mob); // переносим падежи
+	dead_load::ResolveTagsInObjName(skin.get(), mob); // переносим падежи
 	for (i = 1; i <= GET_OBJ_VAL(skin, 3); i++) // топовая шкура до 4х афектов
 	{
 		if ((k == 1) && (number(1, 100) >= 35)) {
@@ -367,7 +367,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вы умело освежевали $o3.",
 			false, ch, obj, nullptr, kToChar);
 
-		LoadObjFromDeadLoad(obj, mob, ch, DL_SKIN);
+		dead_load::LoadObjFromDeadLoad(obj, mob, ch, dead_load::kSkin);
 
 		std::vector<ObjData *> entrails;
 		entrails.push_back(tobj.get());

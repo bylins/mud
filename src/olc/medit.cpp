@@ -22,6 +22,7 @@
 #include "name_list.h"
 #include "entities/room_data.h"
 #include "corpse.h"
+#include "game_mechanics/dead_load.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_fight/fight.h"
 #include "entities/zone.h"
@@ -196,9 +197,9 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
 	if (partial_copy && tmp.dl_list)
-		CopyDeadLoadList(&dst->dl_list, tmp.dl_list);
+		dead_load::CopyDeadLoadList(&dst->dl_list, tmp.dl_list);
 	else
-		CopyDeadLoadList(&dst->dl_list, src->dl_list);
+		dead_load::CopyDeadLoadList(&dst->dl_list, src->dl_list);
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
 	//	CharacterAlias::remove(dst);
@@ -684,7 +685,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		script_save_to_disk(mob_file, mob, MOB_TRIGGER);
 		// Сохраняем список в файл
 		if (mob->dl_list) {
-			OnDeadLoadList::iterator p = mob->dl_list->begin();
+			auto p = mob->dl_list->begin();
 			while (p != mob->dl_list->end()) {
 				fprintf(mob_file, "L %d %d %d %d\n",
 						(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
@@ -1253,7 +1254,7 @@ void disp_dl_list(DescriptorData *d) {
 
 	if (mob->dl_list != nullptr) {
 		i = 0;
-		OnDeadLoadList::iterator p = mob->dl_list->begin();
+		auto p = mob->dl_list->begin();
 		while (p != mob->dl_list->end()) {
 			i++;
 
@@ -2241,7 +2242,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case MEDIT_DLIST_ADD:
-			if (!ParseDeadLoadLineToDeadLoadList(&OLC_MOB(d)->dl_list, arg))
+			if (!dead_load::ParseDeadLoadLine(&OLC_MOB(d)->dl_list, arg))
 				SendMsgToChar("\r\nНеверный ввод.\r\n", d->character.get());
 			else {
 				SendMsgToChar("\r\nЗапись добавлена.\r\n", d->character.get());
@@ -2261,7 +2262,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				}
 				// Удаляем указаный элемент.
 				i = 0;
-				OnDeadLoadList::iterator p = OLC_MOB(d)->dl_list->begin();
+				auto p = OLC_MOB(d)->dl_list->begin();
 				while (p != OLC_MOB(d)->dl_list->end() && i < number - 1) {
 					p++;
 					i++;

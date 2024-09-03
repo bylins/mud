@@ -7,6 +7,7 @@
 #include "player_i.h"
 #include "game_skills/morph.hpp"
 #include "game_mechanics/obj_sets.h"
+#include "game_mechanics/dead_load.h"
 #include "db.h"
 #include "entities/entities_constants.h"
 #include "room_data.h"
@@ -816,7 +817,7 @@ class CharData : public ProtectedCharData {
 
 	int poisoner;
 
-	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
+	dead_load::OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
 	std::map<ESpell, TemporarySpell> temp_spells;

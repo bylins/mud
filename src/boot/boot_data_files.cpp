@@ -2,6 +2,7 @@
 
 #include "obj_prototypes.h"
 #include "dg_script/dg_olc.h"
+#include "game_mechanics/dead_load.h"
 #include "boards/boards.h"
 #include "communication/social.h"
 #include "description.h"
@@ -1063,7 +1064,7 @@ void MobileFile::parse_mobile(const int nr) {
 				break;
 
 			case 'L': get_line(file(), line);
-				ParseDeadLoadLineToDeadLoadList(&mob_proto[i].dl_list, line + 1);
+				dead_load::ParseDeadLoadLine(&mob_proto[i].dl_list, line + 1);
 				break;
 
 			case 'T': dg_read_trigger(&mob_proto[i], MOB_TRIGGER, nr);

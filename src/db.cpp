@@ -898,11 +898,6 @@ void QuestBodrich::LoadRewards() {
 	}
 }
 
-void LoadDailyQuests() {
-	log("Loading daily quests...");
-	DailyQuest::LoadFromFile();
-}
-
 /*
  * Too bad it doesn't check the return values to let the user
  * know about -1 values.  This will result in an 'Okay.' to a
@@ -1900,9 +1895,7 @@ void SetZonesTownFlags() {
 			}
 		}
 
-		if (rent_flag && bank_flag && post_flag) {
-			zone_table[i].is_town = true;
-		}
+		zone_table[i].is_town = (rent_flag && bank_flag && post_flag);
 	}
 }
 
@@ -2090,9 +2083,11 @@ void BootMudDataBase() {
 	log("Loading abilities.");
 	MUD::CfgManager().LoadCfg("abilities");
 
-	pugi::xml_document doc;
+	boot_profiler.next_step("Loading daily quests");
+	log("Loading daily quests.");
+	DailyQuest::LoadFromFile();
 
-	LoadDailyQuests();
+	pugi::xml_document doc;
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
 	pugi::xml_document doc1;
@@ -2870,14 +2865,11 @@ void AddVirtualRoomsToAllZones() {
 
 // resolve all vnums into rnums in the world
 void RenumberWorld() {
-	int room, door;
-
-	for (room = kFirstRoom; room <= top_of_world; room++) {
-		for (door = 0; door < EDirection::kMaxDirNum; door++) {
+	for (auto room = kFirstRoom; room <= top_of_world; room++) {
+		for (auto door = 0; door < EDirection::kMaxDirNum; door++) {
 			if (world[room]->dir_option_proto[door]) {
 				if (world[room]->dir_option_proto[door]->to_room() != kNowhere) {
 					const auto to_room = GetRoomRnum(world[room]->dir_option_proto[door]->to_room());
-
 					world[room]->dir_option_proto[door]->to_room(to_room);
 					world[room]->dir_option[door]->to_room(to_room);
 				}
@@ -2996,170 +2988,6 @@ void ResolveZoneTableCmdVnumArgsToRnums() {
 	for (auto &zone : zone_table) {
 		ResolveZoneCmdVnumArgsToRnums(zone);
 	}
-}
-
-int ResolveTagsInObjName(ObjData *obj, CharData *ch) {
-	// ищем метку @p , @p1 ... и заменяем на падежи.
-	int i, k;
-	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
-		size_t j = obj_pad.find("@p");
-		if (std::string::npos != j && 0 < j) {
-			// Родитель найден прописываем его.
-			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
-			obj_pad.replace(j, 3, GET_PAD(ch, k));
-
-			obj->set_PName(i, obj_pad);
-			// Если имя в именительном то дублируем запись
-			if (i == 0) {
-				obj->set_short_description(obj_pad);
-				obj->set_aliases(obj_pad); // ставим алиасы
-			}
-		}
-	}
-	obj->set_is_rename(true); // присвоим флажок что у шмотки заменены падежи
-	return true;
-}
-
-void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src) {
-	OnDeadLoadList::iterator p;
-	if (src == nullptr) {
-		*pdst = nullptr;
-		return;
-	} else {
-		*pdst = new OnDeadLoadList;
-		p = src->begin();
-		while (p != src->end()) {
-			(*pdst)->push_back(*p);
-			p++;
-		}
-	}
-}
-
-bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE) {
-	bool last_load = true;
-	bool load = false;
-	bool miw;
-
-	if (mob_proto[GET_MOB_RNUM(ch)].dl_list == nullptr) {
-		return false;
-	}
-
-	auto p = mob_proto[GET_MOB_RNUM(ch)].dl_list->begin();
-
-	while (p != mob_proto[GET_MOB_RNUM(ch)].dl_list->end()) {
-		switch ((*p)->load_type) {
-			case DL_LOAD_ANYWAY: last_load = load;
-			case DL_LOAD_ANYWAY_NC: break;
-			case DL_LOAD_IFLAST: last_load = load && last_load;
-				break;
-			case DL_LOAD_IFLAST_NC: load = load && last_load;
-				break;
-		}
-		// Блокируем лоад в зависимости от значения смецпараметра
-		if ((*p)->spec_param != DL_LOAD_TYPE)
-			load = false;
-		else
-			load = true;
-		if (load) {
-			const auto tobj = world_objects.create_from_prototype_by_vnum((*p)->obj_vnum);
-			if (!tobj) {
-				auto msg = fmt::format("Попытка загрузки в труп (VNUM:{}) несуществующего объекта (VNUM:{}).",
-									   GET_MOB_VNUM(ch), (*p)->obj_vnum);
-				mudlog(msg, NRM, kLvlBuilder, ERRLOG, true);
-			} else {
-				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GetObjMIW(tobj->get_rnum()) >= obj_proto.actual_count(tobj->get_rnum())
-					|| GetObjMIW(tobj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-					|| IsTimerUnlimited(tobj.get())) {
-					miw = true;
-				} else {
-					miw = false;
-				}
-
-				switch (DL_LOAD_TYPE) {
-					case DL_ORDINARY:    //Обычная загрузка - без выкрутасов
-						if (miw && (number(1, 100) <= (*p)->load_prob))
-							load = true;
-						else
-							load = false;
-						break;
-
-					case DL_PROGRESSION:    //Загрузка с убывающей до 0.01 вероятностью
-						if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
-							load = true;
-						else
-							load = false;
-						break;
-
-					case DL_SKIN:    //Загрузка по применению "освежевать"
-						if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
-							load = true;
-						else
-							load = false;
-						if (chr == nullptr)
-							load = false;
-						break;
-					default:
-						auto msg = fmt::format("Неизвестный тип загрузки объекта у моба (VNUM:%d)", GET_MOB_VNUM(ch));
-						mudlog(msg, NRM, kLvlBuilder, ERRLOG, true);
-						mudlog("", LGH, kLvlImmortal, SYSLOG, true);
-						break;
-				}
-				if (load) {
-					tobj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
-					if (DL_LOAD_TYPE == DL_SKIN) {
-						ResolveTagsInObjName(tobj.get(), ch);
-					}
-					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
-						act("На земле остал$U лежать $o.", false, ch, tobj.get(), nullptr, kToRoom);
-						PlaceObjToRoom(tobj.get(), ch->in_room);
-					} else {
-						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr)) {
-							can_carry_obj(chr, tobj.get());
-						} else {
-							PlaceObjIntoObj(tobj.get(), corpse);
-						}
-					}
-				} else {
-					ExtractObjFromWorld(tobj.get());
-					load = false;
-				}
-
-			}
-		}
-		p++;
-	}
-
-	return true;
-}
-
-// Dead load list object parse
-bool ParseDeadLoadLineToDeadLoadList(OnDeadLoadList **dl_list, char *line) {
-	// Формат парсинга D {номер прототипа} {вероятность загрузки} {спец поле - тип загрузки}
-	int vnum, prob, type, spec;
-	struct LoadingItem *new_item;
-
-	if (sscanf(line, "%d %d %d %d", &vnum, &prob, &type, &spec) != 4) {
-		// Ошибка чтения.
-		log("SYSERR: Parse death load list (bad param count).");
-		return false;
-	}
-	// проверяем существование прототипа в мире (предметы уже должны быть загружены)
-	if (*dl_list == nullptr) {
-		// Создаем новый список.
-		*dl_list = new OnDeadLoadList;
-	}
-
-	CREATE(new_item, 1);
-	new_item->obj_vnum = vnum;
-	new_item->load_prob = prob;
-	new_item->load_type = type;
-	new_item->spec_param = spec;
-
-	(*dl_list)->push_back(new_item);
-	return true;
 }
 
 namespace {

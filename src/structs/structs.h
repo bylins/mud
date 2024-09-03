@@ -283,17 +283,6 @@ struct FollowerType {
 	int dirs = 0;
 };*/
 
-// ===============================================================
-// Structure used for on_dead object loading //
-// Эту механику следует вырезать.
-struct LoadingItem {
-	ObjVnum obj_vnum = 0;
-	int load_prob = 0;
-	int load_type = 0;
-	int spec_param = 0;
-};
-
-using OnDeadLoadList = std::list<struct LoadingItem *>;
 // descriptor-related structures ****************************************
 
 struct TextBlock {
