@@ -24,6 +24,7 @@
 #include "entities/world_characters.h"
 #include "structs/global_objects.h"
 #include "dg_script/dg_db_scripts.h"
+#include "game_mechanics/dungeons.h"
 
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DescriptorData *descriptor_list;
@@ -495,7 +496,7 @@ void trigedit_save(DescriptorData *d) {
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
 	top = zone_table[OLC_ZNUM(d)].top;
-	if (zone >= ZoneStartDungeons) {
+	if (zone >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;

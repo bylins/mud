@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "mobmax.h"
+#include "game_mechanics/dungeons.h"
 
 #include "entities/char_data.h"
 
@@ -78,7 +79,7 @@ void MobMax::init() {
 
 // * Возвращает левел указанного vnum моба или -1, если такого нет.
 int MobMax::get_level_by_vnum(int vnum) {
-	VnumToLevelType::const_iterator it = vnum_to_level.find(vnum);
+	auto it = vnum_to_level.find(vnum);
 	if (it != vnum_to_level.end())
 		return it->second;
 	return -1;
@@ -92,7 +93,7 @@ int MobMax::get_level_by_vnum(int vnum) {
 */
 void MobMax::refresh(int level) {
 	int count = 0;
-	for (MobMaxType::iterator it = mobmax_.begin(); it != mobmax_.end();/* empty */) {
+	for (auto it = mobmax_.begin(); it != mobmax_.end();/* empty */) {
 		if (it->level == level) {
 			if (count > num_levels[level])
 				mobmax_.erase(it++);
@@ -107,12 +108,12 @@ void MobMax::refresh(int level) {
 
 // * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
 void MobMax::add(CharData *ch, int vnum, int count, int level) {
-	if (vnum >= ZoneStartDungeons * 100) {
+	if (vnum >= dungeons::kZoneStartDungeons * 100) {
 		return;
 	}
 	if (ch->IsNpc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
-	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
+	auto it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
 		return data.vnum == vnum;
 	});
 
@@ -136,10 +137,10 @@ void MobMax::load(CharData *ch, int vnum, int count, int level) {
 
 // * Удаление замакса по указанному мобу vnum.
 void MobMax::remove(int vnum) {
-	if (vnum >= ZoneStartDungeons * 100) {
+	if (vnum >= dungeons::kZoneStartDungeons * 100) {
 		return;
 	}
-	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
+	auto it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
 		return data.vnum == vnum;
 	});
 	if (it != mobmax_.end())
@@ -148,12 +149,12 @@ void MobMax::remove(int vnum) {
 
 // * Возвращает кол-во убитых мобов данного vnum.
 int MobMax::get_kill_count(int vnum) const {
-	if (vnum >= ZoneStartDungeons * 100) {
+	if (vnum >= dungeons::kZoneStartDungeons * 100) {
 		ZoneVnum zvn = vnum / 100;
 		MobVnum  mvn = vnum % 100;
 		vnum = zone_table[real_zone(zvn)].copy_from_zone * 100 + mvn;
 	}
-	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
+	auto it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
 		return data.vnum == vnum;
 	});
 

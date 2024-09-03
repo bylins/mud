@@ -61,7 +61,6 @@ extern TimeInfoData time_info;
 extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
-extern int NumberOfZoneDungeons;
 
 // external functions
 RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig);

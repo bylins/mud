@@ -15,10 +15,18 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-extern int NumberOfZoneDungeons;
+
 extern void ExtractRepopDecayObject(const ObjData::shared_ptr &obj);
 
 namespace dungeons {
+
+const int kNumberOfZoneDungeons = 50;
+const ZoneVnum kZoneStartDungeons = 30000;
+
+struct ZrnComplexList {
+  ZoneRnum from;
+  ZoneRnum to;
+};
 
 std::string WhoInZone(ZoneRnum zrn);
 ZoneVnum CheckDungionErrors(ZoneRnum zrn_from);
@@ -36,6 +44,7 @@ void ZoneDataFree(ZoneRnum zrn);
 void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
 void RemoveShopSeller(MobRnum mrn);
 void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from);
+void SwapOriginalObject(ObjData *obj);
 
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
 	DungeonReset(real_zone(atoi(argument)));
@@ -58,15 +67,15 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		auto msg = fmt::format("Нет 00 комнаты в зоне источнике {}.", zvn_from);
 		mudlog(msg, CMP, kLvlGreatGod, SYSLOG, true);
 	}
-	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
+	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
 		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
 			auto msg = fmt::format("Клонирую зону {} в {}, осталось мест: {}",
-								   zvn_from, zvn_to, ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
+								   zvn_from, zvn_to, kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
 	}
-	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
+	if (zvn_to == kZoneStartDungeons + kNumberOfZoneDungeons) {
 		mudlog("Нет свободного места.", CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
@@ -74,7 +83,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		mudlog("Попытка склонировать двухзначную зону.", CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
-	if (zvn_from >= ZoneStartDungeons) {
+	if (zvn_from >= kZoneStartDungeons) {
 		mudlog("Попытка склонировать данж.", CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
@@ -106,9 +115,9 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 }
 
 void CreateBlankZoneDungeon() {
-	ZoneVnum zone_vnum = ZoneStartDungeons;
+	ZoneVnum zone_vnum = kZoneStartDungeons;
 
-	for (ZoneVnum zvn = 0; zvn < NumberOfZoneDungeons; zvn++) {
+	for (ZoneVnum zvn = 0; zvn < kNumberOfZoneDungeons; zvn++) {
 		ZoneData new_zone;
 
 		new_zone.vnum = zone_vnum;
@@ -122,10 +131,10 @@ void CreateBlankZoneDungeon() {
 }
 
 void CreateBlankRoomDungeon() {
-	ZoneVnum zone_vnum = ZoneStartDungeons;
-	ZoneRnum zone_rnum = real_zone(ZoneStartDungeons);
+	ZoneVnum zone_vnum = kZoneStartDungeons;
+	ZoneRnum zone_rnum = real_zone(kZoneStartDungeons);
 
-	for (ZoneVnum zvn = 0; zvn < NumberOfZoneDungeons; zvn++) {
+	for (ZoneVnum zvn = 0; zvn < kNumberOfZoneDungeons; zvn++) {
 		for (RoomVnum rvn = 0; rvn <= 98; rvn++) {
 			auto *new_room = new RoomData;
 
@@ -144,13 +153,13 @@ void CreateBlankRoomDungeon() {
 
 void CreateBlankTrigsDungeon() {
 	IndexData **new_index;
-	size_t size_new_trig_table = (top_of_trigt - 1) + 100 * NumberOfZoneDungeons;
+	size_t size_new_trig_table = (top_of_trigt - 1) + 100 * kNumberOfZoneDungeons;
 
 	CREATE(new_index, size_new_trig_table + 1);
 	for (int i = 0; i < top_of_trigt; i++) {
 		new_index[i] = trig_index[i];
 	}
-	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons - 1); zvn++) {
+	for (ZoneVnum zvn = kZoneStartDungeons; zvn <= kZoneStartDungeons + (kNumberOfZoneDungeons - 1); zvn++) {
 		zone_table[real_zone(zvn)].RnumTrigsLocation.first = top_of_trigt;
 		zone_table[real_zone(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
 		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
@@ -170,7 +179,7 @@ void CreateBlankTrigsDungeon() {
 
 void CreateBlankObjsDungeon() {
 	ObjVnum obj_vnum;
-	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons - 1); zvn++) {
+	for (ZoneVnum zvn = kZoneStartDungeons; zvn <= kZoneStartDungeons + (kNumberOfZoneDungeons - 1); zvn++) {
 		for (ObjVnum vnum = 0; vnum <= 99; vnum++) {
 			ObjData *obj;
 
@@ -194,7 +203,7 @@ void CreateBlankObjsDungeon() {
 void CreateBlankMobsDungeon() {
 	CharData *new_proto;
 	IndexData *new_index;
-	size_t size_new_mob_table = top_of_mobt + 100 * NumberOfZoneDungeons;
+	size_t size_new_mob_table = top_of_mobt + 100 * kNumberOfZoneDungeons;
 	new_proto = new CharData[size_new_mob_table + 1];
 	CREATE(new_index, size_new_mob_table + 1);
 
@@ -205,7 +214,7 @@ void CreateBlankMobsDungeon() {
 	}
 	MobRnum rnum = top_of_mobt + 1;
 
-	for (ZoneVnum zvn = ZoneStartDungeons; zvn <= ZoneStartDungeons + (NumberOfZoneDungeons - 1); zvn++) {
+	for (ZoneVnum zvn = kZoneStartDungeons; zvn <= kZoneStartDungeons + (kNumberOfZoneDungeons - 1); zvn++) {
 		zone_table[real_zone(zvn)].RnumMobsLocation.first = rnum;
 		for (MobVnum mvn = 0; mvn <= 99; mvn++) {
 			new_proto[rnum].set_rnum(rnum);
@@ -263,7 +272,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
 	}
 	for (i = 0; i < zone_to.typeA_count; i++) {
-		for (auto d_zvn = ZoneStartDungeons; d_zvn < ZoneStartDungeons + NumberOfZoneDungeons; d_zvn++) {
+		for (auto d_zvn = kZoneStartDungeons; d_zvn < kZoneStartDungeons + kNumberOfZoneDungeons; d_zvn++) {
 			if (d_zvn == zone_from.typeA_list[i]) {
 				zone_to.typeA_list[i] = d_zvn;
 			}
@@ -274,7 +283,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		CREATE(zone_to.typeB_flag, zone_to.typeB_count); //почистить
 	}
 	for (i = 0; i < zone_to.typeB_count; i++) {
-		for (auto d_zvn = ZoneStartDungeons; d_zvn < ZoneStartDungeons + NumberOfZoneDungeons; d_zvn++) {
+		for (auto d_zvn = kZoneStartDungeons; d_zvn < kZoneStartDungeons + kNumberOfZoneDungeons; d_zvn++) {
 			if (d_zvn == zone_from.typeB_list[i]) {
 				zone_to.typeB_list[i] = d_zvn;
 			}
@@ -519,8 +528,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	ZoneVnum zvn_to = zone_table[zrn_to].vnum;
 
 	if (trn_start == -1) {
-		sprintf(buf, "В зоне нет триггеров, копируем остальное");
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		mudlog("В зоне нет триггеров, копируем остальное", CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
 	for (int i = trn_start; i <= trn_stop; i++) {
@@ -549,8 +557,8 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 void ListDungeons(CharData *ch) {
 	std::ostringstream buffer;
-	ZoneRnum zrn_start = real_zone(ZoneStartDungeons);
-	ZoneRnum zrn_stop = real_zone(ZoneStartDungeons + NumberOfZoneDungeons - 1);
+	ZoneRnum zrn_start = real_zone(kZoneStartDungeons);
+	ZoneRnum zrn_stop = real_zone(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
 
 	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:<50} {:<}\r\n", "#", "предок", "вход", "название зоны", "игроки");
 	for (int i = zrn_start; i <= zrn_stop; i++) {
@@ -646,24 +654,24 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
-	if (zvn_from >= ZoneStartDungeons) {
+	if (zvn_from >= kZoneStartDungeons) {
 		sprintf(buf, "Попытка склонировать данж.");
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
-	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
+	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
 		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
 			zone_table[real_zone(zvn_to)].copy_from_zone = zvn_to;
 			sprintf(buf,
 					"Клонирую зону %d в %d, осталось мест: %d",
 					zvn_from,
 					zvn_to,
-					ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
+					kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
 	}
-	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
+	if (zvn_to == kZoneStartDungeons + kNumberOfZoneDungeons) {
 		sprintf(buf, "Нет свободного места.");
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
@@ -965,6 +973,57 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 		}
 	}
 
+}
+
+void SwapObjectDungeon(CharData *ch) {
+	for (auto & i : ch->equipment) {
+		if (i) {
+			SwapOriginalObject(i);
+		}
+	}
+	ObjData *obj_next = nullptr;
+	ObjData *next_obj = nullptr;
+
+	for (auto obj = ch->carrying; obj; obj = obj_next) {
+		obj_next = obj->get_next_content();
+		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+			for (auto obj2 = obj->get_contains(); obj2; obj2 = next_obj) {
+				next_obj = obj2->get_next_content();
+				SwapOriginalObject(obj2);
+			}
+		}
+		SwapOriginalObject(obj);
+	}
+}
+
+void SwapOriginalObject(ObjData *obj) {
+	if (obj->get_parent_rnum() > -1 && !obj->has_flag(EObjFlag::kRepopDecay)) {
+		const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->get_parent_rnum());
+		int pos = -1;
+		CharData *wearer = nullptr;
+		ObjData *in_obj = nullptr;
+
+		if (obj->get_worn_by()) {
+			pos = obj->get_worn_on();
+			wearer = obj->get_worn_by();
+			UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
+		}
+		if (obj->get_in_obj()) {
+			in_obj = obj->get_in_obj();
+			RemoveObjFromObj(obj);
+		}
+		obj->swap(*obj_original.get());
+		if (obj_original->has_flag(EObjFlag::kTicktimer)) {
+			obj->set_extra_flag(EObjFlag::kTicktimer);
+		}
+		if (in_obj) {
+			PlaceObjIntoObj(obj, in_obj);
+		}
+		if (wearer) {
+			EquipObj(wearer, obj, pos, CharEquipFlags());
+		}
+		ExtractObjFromWorld(obj_original.get());
+	}
 }
 
 } // namespace dungeons

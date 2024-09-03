@@ -102,7 +102,6 @@ extern int circle_restrict;
 extern int load_into_inventory;
 extern time_t zones_stat_date;
 extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
-extern int NumberOfZoneDungeons;
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 
 void medit_save_to_disk(int zone_num);

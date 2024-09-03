@@ -1507,7 +1507,7 @@ int Crash_load(CharData *ch) {
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		}
 /*
-		if (SAVEINFO(index)->time[fsize].vnum >= ZoneStartDungeons * 100) {
+		if (SAVEINFO(index)->time[fsize].vnum >= dungeons::kZoneStartDungeons * 100) {
 			SendMsgToChar(ch, "Предмет из данжа: %s, заменяем на оригинал.\r\n", obj->get_PName(0).c_str());
 			SAVEINFO(index)->time[fsize].vnum = obj->get_vnum();
 		}

@@ -38,6 +38,7 @@
 #include "game_skills/skills_info.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/dungeons.h"
 #include <sys/stat.h>
 
 #include <array>
@@ -289,7 +290,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
 
-	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;

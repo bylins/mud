@@ -10,15 +10,14 @@
 class CharData;
 namespace dungeons {
 
-struct ZrnComplexList {
-  ZoneRnum from;
-  ZoneRnum to;
-};
+extern const int kNumberOfZoneDungeons;
+extern const ZoneVnum kZoneStartDungeons;
 
 void ListDungeons(CharData *ch);
 void DoZoneCopy(CharData *, char *argument, int, int);
 ZoneRnum ZoneCopy(ZoneVnum zvn_from);
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/);
+void SwapObjectDungeon(CharData *ch);
 
 void CreateBlankZoneDungeon();
 void CreateBlankTrigsDungeon();

@@ -23,6 +23,7 @@
 #include "entities/room_data.h"
 #include "corpse.h"
 #include "game_mechanics/dead_load.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_fight/fight.h"
 #include "entities/zone.h"
@@ -67,11 +68,9 @@ void clear_mob_charm(CharData *mob);
 
 // * Handy internal macros.
 #define GET_ALIAS(mob) ((mob)->GetCharAliases().c_str())
-#define GET_SDESC(mob) ((mob)->get_npc_name().c_str())
 #define GET_LDESC(mob) ((mob)->player_data.long_descr)
 #define GET_DDESC(mob) ((mob)->player_data.description)
 #define GET_ATTACK(mob) ((mob)->mob_specials.attack_type)
-#define S_KEEPER(shop) ((shop)->keeper)
 #if defined(OASIS_MPROG)
 #define GET_MPROG(mob)		(mob_index[(mob)->nr].mobprogs)
 #define GET_MPROG_TYPE(mob)	(mob_index[(mob)->nr].progtypes)
@@ -535,7 +534,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 
 	ZoneVnum zone = zone_table[zone_num].vnum;
 	MobVnum top = zone_table[zone_num].top;
-	if (zone >= ZoneStartDungeons) {
+	if (zone >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;

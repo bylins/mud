@@ -677,7 +677,7 @@ class ObjData : public CObjectPrototype {
 	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
 
 	static id_to_set_info_map set_table;
-	static void InitSetTable();
+	static void InitSetTable() {};
 
 	void purge();
 

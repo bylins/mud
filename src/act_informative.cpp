@@ -24,6 +24,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
+#include "game_mechanics/dungeons.h"
 #include "game_magic/spells.h"
 #include "game_skills/skills.h"
 #include "game_fight/fight.h"
@@ -95,7 +96,6 @@ extern int top_imtypes;
 extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> Cities;
-extern void SwapObjectDungeon(CharData *ch);
 
 // local functions
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
@@ -1938,8 +1938,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->IsNpc()) {
 		ZoneRnum inroom = world[ch->in_room]->zone_rn;
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
-			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= ZoneStartDungeons) {
-				SwapObjectDungeon(ch);
+			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons) {
+				dungeons::SwapObjectDungeon(ch);
 			}
 			if (PRF_FLAGGED(ch, EPrf::kShowZoneNameOnEnter))
 				print_zone_info(ch);

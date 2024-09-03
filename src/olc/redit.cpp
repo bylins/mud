@@ -28,6 +28,8 @@
 #include "structs/structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "game_mechanics/dungeons.h"
+
 #include <sys/stat.h>
 
 #include <vector>
@@ -270,7 +272,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	FILE *fp;
 	RoomData *room;
 
-	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;

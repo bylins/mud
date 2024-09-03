@@ -4,6 +4,7 @@
 
 #include "game_affects/affect_data.h"
 #include "game_mechanics/dead_load.h"
+#include "game_mechanics/dungeons.h"
 #include "mobact.h"
 #include "entities/obj_data.h"
 #include "cmd/flee.h"
@@ -725,7 +726,7 @@ int get_npc_long_live_exp_bounus(CharData *victim) {
 	if (GET_MOB_VNUM(victim) == -1) {
 		return 1;
 	}
-	if (GET_MOB_VNUM(victim) / 100 >= ZoneStartDungeons) {
+	if (GET_MOB_VNUM(victim) / 100 >= dungeons::kZoneStartDungeons) {
 		return 1;
 	}
 

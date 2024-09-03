@@ -9,6 +9,7 @@
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
+#include "game_mechanics/dungeons.h"
 #include "dg_script/dg_scripts.h"
 #include "entities/char_data.h"
 #include "entities/room_data.h"
@@ -29,7 +30,6 @@ extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
 extern struct ZoneCategory *zone_types;
-extern int NumberOfZoneDungeons;
 //---------------------------------
 
 // * Function prototypes.
@@ -432,7 +432,7 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	std::string comment;
 	FILE *zfile;
 
-	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
@@ -1934,7 +1934,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
 			if (!is_number(arg) || real_zone(pos) == 0) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", zone_table[zone_table.size() - 1 - NumberOfZoneDungeons].vnum);
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
+							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
 					if (OLC_ZONE(d)->typeA_list[i] == pos)    // нашли совпадающий -- убираем элемент
@@ -1977,7 +1978,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
 			if (!is_number(arg) || real_zone(pos) == 0) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", zone_table[zone_table.size() - 1 - NumberOfZoneDungeons].vnum);
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
+							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
 					if (OLC_ZONE(d)->typeB_list[i] == pos)    // нашли совпадающий -- убираем элемент
