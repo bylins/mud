@@ -4717,7 +4717,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_index[mrn_to] = mob_index[i];
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
 // а это нахрена
-//		mob_proto[mrn_to].set_rnum(rrn_first + mob_index[i].vnum % 100);
+		mob_proto[mrn_to].set_rnum(rrn_first + mob_index[i].vnum % 100);
 		if (mob_index[i].func == shop_ext) {
 			AddDungeonShopSeller(i, mrn_to);
 		}
