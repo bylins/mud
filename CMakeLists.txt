@@ -282,7 +282,8 @@ set(SOURCES
 		src/game_abilities/talents_actions.cpp
 		src/game_skills/slay.cpp src/game_skills/charge.cpp src/game_skills/dazzle.cpp
 		src/communication/offtop.cpp
-		src/game_mechanics/dead_load.cpp)
+		src/game_mechanics/dead_load.cpp
+		src/game_mechanics/city_guards.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -545,7 +546,8 @@ set(HEADERS
 		src/game_abilities/talents_actions.h
 		src/game_skills/slay.h src/game_skills/charge.h src/game_skills/dazzle.h
 		src/communication/offtop.h
-		src/game_mechanics/dead_load.h)
+		src/game_mechanics/dead_load.h
+		src/game_mechanics/city_guards.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

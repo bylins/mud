@@ -13,12 +13,12 @@
 #include "cmd/follow.h"
 #include "corpse.h"
 #include "game_mechanics/deathtrap.h"
+#include "game_mechanics/city_guards.h"
 #include "description.h"
 #include "depot.h"
 #include "game_economics/ext_money.h"
 #include "game_mechanics/bonus.h"
 #include "game_fight/fight.h"
-#include "game_fight/mobact.h"
 #include "utils/file_crc.h"
 #include "structs/global_objects.h"
 #include "game_mechanics/glory.h"
@@ -130,8 +130,6 @@ struct Portal *portals_list;    // Список проталов для townport
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
-guardian_type guardian_list;
-
 GameLoader world_loader;
 
 // local functions
@@ -167,7 +165,6 @@ void InitBasicValues();
 void InitPortals();
 void initIngredientsMagic();
 void InitZoneTypes();
-void LoadGuardians();
 TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
 void LoadMessages();
 void SortCommands();
@@ -2152,7 +2149,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading gurdians");
 	log("Load guardians.");
-	LoadGuardians();
+	city_guards::LoadGuardians();
 
 	boot_profiler.next_step("Loading world");
 	GameLoader::BootWorld();
@@ -3470,8 +3467,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		MOB_FLAGS(mob).set(EMobFlag::kNoSummon);
 	}
 
-	auto it = guardian_list.find(GET_MOB_VNUM(mob));
-	if (it != guardian_list.end()) {
+	if (city_guards::guardian_roster.contains(GET_MOB_VNUM(mob))) {
 		MOB_FLAGS(mob).set(EMobFlag::kCityGuardian);
 	}
 
@@ -6247,64 +6243,6 @@ void SaveGlobalUID() {
 
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
-}
-
-void LoadGuardians() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node xMainNode = doc.child("guardians");
-
-	if (!xMainNode) {
-		snprintf(buf, kMaxStringLength, "...guards.xml read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	guardian_list.clear();
-
-	int num_wars_global = atoi(xMainNode.child_value("wars"));
-
-	struct mob_guardian tmp_guard;
-	for (pugi::xml_node xNodeGuard = xMainNode.child("guard"); xNodeGuard;
-		 xNodeGuard = xNodeGuard.next_sibling("guard")) {
-		int guard_vnum = xNodeGuard.attribute("vnum").as_int();
-
-		if (guard_vnum <= 0) {
-			log("ERROR: Ошибка загрузки файла %s - некорректное значение VNUM: %d", LIB_MISC"guards.xml", guard_vnum);
-			continue;
-		}
-		//значения по умолчанию
-		tmp_guard.max_wars_allow = num_wars_global;
-		tmp_guard.agro_all_agressors = false;
-		tmp_guard.agro_argressors_in_zones.clear();
-		tmp_guard.agro_killers = true;
-
-		int num_wars = xNodeGuard.attribute("wars").as_int();
-
-		if (num_wars && (num_wars != num_wars_global))
-			tmp_guard.max_wars_allow = num_wars;
-
-		if (!strcmp(xNodeGuard.attribute("killer").value(), "no"))
-			tmp_guard.agro_killers = false;
-
-		if (!strcmp(xNodeGuard.attribute("agressor").value(), "yes"))
-			tmp_guard.agro_all_agressors = true;
-
-		if (!strcmp(xNodeGuard.attribute("agressor").value(), "list")) {
-			for (pugi::xml_node xNodeZone = xNodeGuard.child("zone"); xNodeZone;
-				 xNodeZone = xNodeZone.next_sibling("zone")) {
-				tmp_guard.agro_argressors_in_zones.push_back(atoi(xNodeZone.child_value()));
-			}
-		}
-		guardian_list[guard_vnum] = tmp_guard;
-	}
-
 }
 
 //Polud тестовый класс для хранения параметров различных рас мобов
