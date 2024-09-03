@@ -49,6 +49,7 @@
 #include "cmd/mixture.h"
 #include "cmd/cast.h"
 #include "cmd/employ.h"
+#include "cmd/remort.h"
 #include "cmd/remove.h"
 #include "cmd/refill.h"
 #include "cmd/sign.h"
@@ -187,7 +188,6 @@ extern struct show_struct show_fields[];
 extern char *name_rules;
 
 // external functions
-void DoPcInit(CharData *ch, bool is_newbie);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -234,7 +234,6 @@ void DoDrop(CharData *ch, char *argument, int, int);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
-void do_remort(CharData *ch, char *argument, int cmd, int subcmd);
 void do_remember_char(CharData *ch, char *argument, int cmd, int subcmd);
 void do_exits(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -629,8 +628,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
 		{"перевести", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
-		{"перевоплотитьс", EPosition::kStand, do_remort, 0, 0, -1},
-		{"перевоплотиться", EPosition::kStand, do_remort, 0, 1, -1},
+		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
+		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
 		{"перелить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
 		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, do_drink, 0, SCMD_DRINK, 400},

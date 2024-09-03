@@ -40,7 +40,6 @@ extern double exp_coefficients[];
 
 // local functions
 byte saving_throws(int class_num, int type, int level);
-void DoPcInit(CharData *ch, bool is_newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);

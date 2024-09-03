@@ -24,6 +24,7 @@ class GroupPenalties {
 };
 
 extern GroupPenalties grouping;
+void DoPcInit(CharData *ch, bool is_newbie);
 int GetThac0(ECharClass class_id, int level);
 bool IsMage(const CharData *ch);
 bool IsCaster(const CharData *ch);

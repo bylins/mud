@@ -241,6 +241,7 @@ void send_to_gods(char *text, bool demigod) {
 extern const char *deaf_social;
 
 // Adds karma string to KARMA
+// \TODO Move to PlayerData
 void AddKarma(CharData *ch, const char *punish, const char *reason) {
 	if (reason && (reason[0] != '.')) {
 		char smallbuf[kMaxInputLength];
