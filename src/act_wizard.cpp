@@ -113,7 +113,7 @@ void log_zone_count_reset();
 void appear(CharData *ch);
 void ResetZone(ZoneRnum zone);
 //extern CharData *find_char(long n);
-void rename_char(CharData *ch, char *oname);
+void RenamePlayer(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
@@ -283,7 +283,7 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf2, "Player %s : item [%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
 					SendMsgToChar(buf2, ch);
 					i->timer = -1;
-					int rnum = real_object(i->vnum);
+					int rnum = GetObjRnum(i->vnum);
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
 					}
@@ -353,8 +353,8 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		PrintZoneStat(ch, 0, 999999, sort);
 		return;
 	}
-	int tmp1 = real_zone(atoi(arg1));
-	int tmp2 = real_zone(atoi(arg2));
+	int tmp1 = GetZoneRnum(atoi(arg1));
+	int tmp2 = GetZoneRnum(atoi(arg2));
 	if (tmp1 >= 0 && !*arg2) {
 		PrintZoneStat(ch, tmp1, tmp1, sort);
 		return;
@@ -1864,7 +1864,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(buf, "mob")) {
-		if ((r_num = real_mobile(number)) < 0) {
+		if ((r_num = GetMobRnum(number)) < 0) {
 			SendMsgToChar("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
@@ -1880,7 +1880,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		load_mtrigger(mob);
 		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
 	} else if (utils::IsAbbr(buf, "obj")) {
-		if ((r_num = real_object(number)) < 0) {
+		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
@@ -1977,7 +1977,7 @@ void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(buf, "mob")) {
-		if ((r_num = real_mobile(number)) < 0) {
+		if ((r_num = GetMobRnum(number)) < 0) {
 			SendMsgToChar("Обратитесь в Арктику - там ОН живет.\r\n", ch);
 			return;
 		}
@@ -1986,7 +1986,7 @@ void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		do_stat_character(ch, mob, 1);
 		ExtractCharFromWorld(mob, false);
 	} else if (utils::IsAbbr(buf, "obj")) {
-		if ((r_num = real_object(number)) < 0) {
+		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Этот предмет явно перенесли в РМУД.\r\n", ch);
 			return;
 		}
@@ -3809,7 +3809,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// save the character if a change was made
 	if (retval && !vict->IsNpc()) {
 		if (retval == 2) {
-			rename_char(vict, OName);
+			RenamePlayer(vict, OName);
 		} else {
 			if (!is_file && !vict->IsNpc()) {
 				vict->save_char();

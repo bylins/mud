@@ -502,7 +502,7 @@ void gifts() {
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	ObjRnum rnum;
-	if ((rnum = real_object(rand_vnum)) < 0) {
+	if ((rnum = GetObjRnum(rand_vnum)) < 0) {
 		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
@@ -843,7 +843,7 @@ void stop_game(ush_int port) {
 	game_loop(mother_desc);
 #endif
 
-	flush_player_index();
+	FlushPlayerIndex();
 
 	// храны надо сейвить до Crash_save_all_rent(), иначе будем брать бабло у чара при записи
 	// уже после его экстракта, и что там будет хз...

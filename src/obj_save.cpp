@@ -1020,7 +1020,7 @@ void ClearCrashSavedObjects(std::size_t index) {
 	if (SAVEINFO(index)) {
 		for (; i < SAVEINFO(index)->rent.nitems; i++) {
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
-				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0) {
+				(rnum = GetObjRnum(SAVEINFO(index)->time[i].vnum)) >= 0) {
 				obj_proto.dec_stored(rnum);
 			}
 		}
@@ -1103,7 +1103,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			log("[ReadTimer] Warning: incorrect vnum (%d) or timer (%d) while reading %s timer file.",
 				info.vnum, info.timer, name);
 		}
-		if (info.timer >= 0 && (rnum = real_object(info.vnum)) >= 0 && !temp) {
+		if (info.timer >= 0 && (rnum = GetObjRnum(info.vnum)) >= 0 && !temp) {
 			obj_proto.inc_stored(rnum);
 		}
 	}
@@ -1125,7 +1125,7 @@ void Crash_reload_timer(int index) {
 	if (SAVEINFO(index)) {
 		for (; i < SAVEINFO(index)->rent.nitems; i++) {
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
-				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0) {
+				(rnum = GetObjRnum(SAVEINFO(index)->time[i].vnum)) >= 0) {
 				obj_proto.dec_stored(rnum);
 			}
 		}
@@ -1221,7 +1221,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 		if (player_table[index].timer->time[i].vnum < 0) //для шмоток без прототипа идем мимо
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
-			rnum = real_object(player_table[index].timer->time[i].vnum);
+			rnum = GetObjRnum(player_table[index].timer->time[i].vnum);
 			if ((!IsTimerUnlimited(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
 				timer = player_table[index].timer->time[i].timer;
 				if (timer < timer_dec) {
@@ -1280,7 +1280,7 @@ void Crash_list_objects(CharData *ch, int index) {
 	std::stringstream ss;
 	for (int i = 0; i < SAVEINFO(index)->rent.nitems; i++) {
 		data = SAVEINFO(index)->time[i];
-		rnum = real_object(data.vnum);
+		rnum = GetObjRnum(data.vnum);
 		if (data.vnum > 799 || data.vnum < 700) {
 			int tmr = data.timer;
 			auto obj = obj_proto[rnum];
@@ -1522,7 +1522,7 @@ int Crash_load(CharData *ch) {
 
 		//Check timers
 		if (SAVEINFO(index)->time[fsize].timer > 0
-			&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0) {
+			&& (rnum = GetObjRnum(SAVEINFO(index)->time[fsize].vnum)) >= 0) {
 			obj_proto.dec_stored(rnum);
 		}
 		// вычтем таймер оффлайна

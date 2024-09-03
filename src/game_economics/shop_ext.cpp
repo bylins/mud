@@ -149,7 +149,7 @@ void load(bool reload) {
 			shop->clear_store();
 
 			for (const auto &mob_vnum : shop->mob_vnums()) {
-				int mob_rnum = real_mobile(mob_vnum);
+				int mob_rnum = GetMobRnum(mob_vnum);
 				if (mob_rnum >= 0) {
 					mob_index[mob_rnum].func = nullptr;
 				}
@@ -242,7 +242,7 @@ void load(bool reload) {
 			tmp_shop->add_mob_vnum(mob_vnum);
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
-			auto mob_rnum = real_mobile(mob_vnum);
+			auto mob_rnum = GetMobRnum(mob_vnum);
 			if (mob_rnum >= 0) {
 				if (mob_index[mob_rnum].func
 					&& mob_index[mob_rnum].func != shop_ext) {
@@ -271,7 +271,7 @@ void load(bool reload) {
 			}
 
 			// проверяем шмотку
-			int item_rnum = real_object(item_vnum);
+			int item_rnum = GetObjRnum(item_vnum);
 			if (item_rnum < 0) {
 				snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -291,7 +291,7 @@ void load(bool reload) {
 				if ((*it)->_id == itemSetId) {
 					for (unsigned i = 0; i < (*it)->item_list.size(); i++) {
 						// проверяем шмотку
-						int item_rnum = real_object((*it)->item_list[i].item_vnum);
+						int item_rnum = GetObjRnum((*it)->item_list[i].item_vnum);
 						if (item_rnum < 0) {
 							snprintf(buf,
 									 kMaxStringLength,

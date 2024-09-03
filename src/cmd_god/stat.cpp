@@ -993,7 +993,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				sprintf(buf + strlen(buf), "\r\nможно применить с %d уровня.", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 			}
 
-			if ((i = real_object(GET_OBJ_VAL(j, 1))) >= 0) {
+			if ((i = GetObjRnum(GET_OBJ_VAL(j, 1))) >= 0) {
 				sprintf(buf + strlen(buf), "\r\nпрототип %s%s%s.",
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			}

@@ -342,13 +342,13 @@ int gcount_char_vnum(long n) {
 
 int count_char_vnum(long n) {
 	int i;
-	if ((i = real_mobile(n)) < 0)
+	if ((i = GetMobRnum(n)) < 0)
 		return 0;
 	return (mob_index[i].total_online);
 }
 
 inline auto gcount_obj_vnum(long n) {
-	const auto i = real_object(n);
+	const auto i = GetObjRnum(n);
 
 	if (i < 0) {
 		return 0;
@@ -358,7 +358,7 @@ inline auto gcount_obj_vnum(long n) {
 }
 
 inline auto count_obj_vnum(long n) {
-	const auto i = real_object(n);
+	const auto i = GetObjRnum(n);
 
 	if (i < 0) {
 		return 0;
@@ -1677,7 +1677,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(var, "world")) {
 			num = atoi(subfield);
 			if ((!str_cmp(field, "curobj") || !str_cmp(field, "curobjs")) && num > 0) {
-				const auto rnum = real_object(num);
+				const auto rnum = GetObjRnum(num);
 				const auto count = count_obj_vnum(num);
 				if (count >= 0 && 0 <= rnum) {
 					if (IsTimerUnlimited(obj_proto[rnum].get())) {
@@ -1696,7 +1696,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
@@ -1704,7 +1704,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1714,7 +1714,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (STATE(d) != CON_PLAYING) 
 						continue;
@@ -1724,7 +1724,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1753,13 +1753,13 @@ void find_replacement(void *go,
 					sprintf(str, "%s", "0");
 				}
 			} else if (!str_cmp(field, "isdungeon") && num > 0) {
-				sprintf(str, "%d", zone_table[real_zone(num)].copy_from_zone);
+				sprintf(str, "%d", zone_table[GetZoneRnum(num)].copy_from_zone);
 			} else if (!str_cmp(field, "zoneentrance") && num > 0) {
-				sprintf(str, "%d", zone_table[real_zone(num)].entrance);
+				sprintf(str, "%d", zone_table[GetZoneRnum(num)].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
-				dungeons::DungeonReset(real_zone(num));
+				dungeons::DungeonReset(GetZoneRnum(num));
 			} else if (!str_cmp(field, "zonename") && num > 0) {
-				ZoneRnum zrn = real_zone(num);
+				ZoneRnum zrn = GetZoneRnum(num);
 				if (zrn == 0) {
 					sprintf(str, "0");
 				} else {
@@ -1795,7 +1795,7 @@ void find_replacement(void *go,
 				//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 				//которое прописано в самом предмете с указанным vnum
 			else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
-				const auto rnum = real_object(num);
+				const auto rnum = GetObjRnum(num);
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
@@ -1813,7 +1813,7 @@ void find_replacement(void *go,
 				}
 			}
 			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
-				num = real_object(num);
+				num = GetObjRnum(num);
 				if (num >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире

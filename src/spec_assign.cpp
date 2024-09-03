@@ -48,7 +48,7 @@ void clear_mob_charm(CharData *mob);
 void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 	MobRnum rnum;
 
-	if ((rnum = real_mobile(mob)) >= 0) {
+	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
 		// рентерам хардкодом снимаем возможные нежелательные флаги
 		if (fname == receptionist) {
@@ -60,7 +60,7 @@ void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 }
 
 void ASSIGNOBJ(ObjVnum obj, special_f fname) {
-	const ObjRnum rnum = real_object(obj);
+	const ObjRnum rnum = GetObjRnum(obj);
 
 	if (rnum >= 0) {
 		obj_proto.func(rnum, fname);
@@ -82,7 +82,7 @@ void ASSIGNROOM(RoomVnum room, special_f fname) {
 void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
 	MobRnum rnum;
 
-	if ((rnum = real_mobile(mob)) >= 0) {
+	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
 	} else {
@@ -156,7 +156,7 @@ void InitSpecProcs(void) {
 		}
 		log("<%s>-%d-[%s]", line1, i, line2);
 		if (!str_cmp(line1, "mob")) {
-			if (real_mobile(i) < 0) {
+			if (GetMobRnum(i) < 0) {
 				log("Unknown mobile %d in specials assignment...", i);
 				continue;
 			}
@@ -181,7 +181,7 @@ void InitSpecProcs(void) {
 			else
 				log("Unknown mobile %d assignment type - %s...", i, line2);
 		} else if (!str_cmp(line1, "obj")) {
-			if (real_object(i) < 0) {
+			if (GetObjRnum(i) < 0) {
 				log("Unknown object %d in specials assignment...", i);
 				continue;
 			}

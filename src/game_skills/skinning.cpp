@@ -326,7 +326,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto mob = (mob_proto + real_mobile(mobn));
+	const auto mob = (mob_proto + GetMobRnum(mobn));
 	mob->set_normal_morph();
 
 	if (!IS_IMMORTAL(ch)

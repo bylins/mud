@@ -6,7 +6,7 @@
 #include "obj_prototypes.h"
 #include "db.h"
 
-//extern ObjRnum real_object(ObjVnum vnum) { return obj_proto.rnum(vnum);
+//extern ObjRnum GetObjRnum(ObjVnum vnum) { return obj_proto.rnum(vnum);
 
 namespace text_id {
 
@@ -213,7 +213,7 @@ pugi::xml_node GetChild(const pugi::xml_node &node, const char *name) {
 /// \return true - если есть прототип объекта (рнум) с данным внумом
 ///
 bool IsValidObjVnum(int vnum) {
-	if (real_object(vnum) < 0) {
+	if (GetObjRnum(vnum) < 0) {
 		snprintf(buf, sizeof(buf), "...bad obj vnum (%d)", vnum);
 		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		return false;

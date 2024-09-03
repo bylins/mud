@@ -47,7 +47,7 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from);
 void SwapOriginalObject(ObjData *obj);
 
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
-	DungeonReset(real_zone(atoi(argument)));
+	DungeonReset(GetZoneRnum(atoi(argument)));
 }
 void DoZoneCopy(CharData *, char *argument, int, int) {
 	ZoneCopy(atoi(argument));
@@ -56,7 +56,7 @@ void DoZoneCopy(CharData *, char *argument, int, int) {
 ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ZoneVnum zvn_to;
 	RoomRnum rnum_start, rnum_stop;
-	ZoneRnum zrn_from = real_zone(zvn_from);
+	ZoneRnum zrn_from = GetZoneRnum(zvn_from);
 
 	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
 		auto msg = fmt::format("Нет комнат в зоне {}.", zvn_from);
@@ -68,7 +68,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		mudlog(msg, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
+		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone == 0) {
 			auto msg = fmt::format("Клонирую зону {} в {}, осталось мест: {}",
 								   zvn_from, zvn_to, kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -87,7 +87,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		mudlog("Попытка склонировать данж.", CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
-	ZoneRnum zrn_to = real_zone(zvn_to);
+	ZoneRnum zrn_to = GetZoneRnum(zvn_to);
 
 	if (zrn_to == 0) {
 		mudlog("Нет такой зоны.", CMP, kLvlGreatGod, SYSLOG, true);
@@ -132,7 +132,7 @@ void CreateBlankZoneDungeon() {
 
 void CreateBlankRoomDungeon() {
 	ZoneVnum zone_vnum = kZoneStartDungeons;
-	ZoneRnum zone_rnum = real_zone(kZoneStartDungeons);
+	ZoneRnum zone_rnum = GetZoneRnum(kZoneStartDungeons);
 
 	for (ZoneVnum zvn = 0; zvn < kNumberOfZoneDungeons; zvn++) {
 		for (RoomVnum rvn = 0; rvn <= 98; rvn++) {
@@ -160,8 +160,8 @@ void CreateBlankTrigsDungeon() {
 		new_index[i] = trig_index[i];
 	}
 	for (ZoneVnum zvn = kZoneStartDungeons; zvn <= kZoneStartDungeons + (kNumberOfZoneDungeons - 1); zvn++) {
-		zone_table[real_zone(zvn)].RnumTrigsLocation.first = top_of_trigt;
-		zone_table[real_zone(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
+		zone_table[GetZoneRnum(zvn)].RnumTrigsLocation.first = top_of_trigt;
+		zone_table[GetZoneRnum(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
 		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
 			auto *trig = new Trigger(top_of_trigt, "Blank trigger", MTRIG_GREET);
 			IndexData *index;
@@ -215,7 +215,7 @@ void CreateBlankMobsDungeon() {
 	MobRnum rnum = top_of_mobt + 1;
 
 	for (ZoneVnum zvn = kZoneStartDungeons; zvn <= kZoneStartDungeons + (kNumberOfZoneDungeons - 1); zvn++) {
-		zone_table[real_zone(zvn)].RnumMobsLocation.first = rnum;
+		zone_table[GetZoneRnum(zvn)].RnumMobsLocation.first = rnum;
 		for (MobVnum mvn = 0; mvn <= 99; mvn++) {
 			new_proto[rnum].set_rnum(rnum);
 			new_index[rnum].vnum = mvn + zvn * 100;
@@ -234,7 +234,7 @@ void CreateBlankMobsDungeon() {
 			top_of_mobt++;
 			rnum++;
 		}
-		zone_table[real_zone(zvn)].RnumMobsLocation.second = rnum - 1;
+		zone_table[GetZoneRnum(zvn)].RnumMobsLocation.second = rnum - 1;
 	}
 
 	delete[] mob_proto;
@@ -442,9 +442,9 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	ObjData *new_obj;
 
 	for (int counter = zone_table[zrn_from].vnum * 100; counter <= zone_table[zrn_from].top; counter++) {
-		if ((i = real_object(counter)) >= 0) {
+		if ((i = GetObjRnum(counter)) >= 0) {
 			new_ovn = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
-			orn_to = real_object(new_ovn);
+			orn_to = GetObjRnum(new_ovn);
 			NEWCREATE(new_obj, new_ovn);
 			const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
 			new_obj->copy_from(obj_original.get());
@@ -557,8 +557,8 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 
 void ListDungeons(CharData *ch) {
 	std::ostringstream buffer;
-	ZoneRnum zrn_start = real_zone(kZoneStartDungeons);
-	ZoneRnum zrn_stop = real_zone(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
+	ZoneRnum zrn_start = GetZoneRnum(kZoneStartDungeons);
+	ZoneRnum zrn_stop = GetZoneRnum(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
 
 	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:<50} {:<}\r\n", "#", "предок", "вход", "название зоны", "игроки");
 	for (int i = zrn_start; i <= zrn_stop; i++) {
@@ -597,7 +597,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 	ZrnComplexList pair{};
 
 	for (const auto &it : tokens) {
-		zrn = real_zone(stoi(it));
+		zrn = GetZoneRnum(stoi(it));
 		if (zrn == 0) {
 			trig_log(trig, fmt::format("Ошибка в создании комплекса, данж {} не найден", it).c_str());
 			return "0";
@@ -605,7 +605,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 		zvn = CheckDungionErrors(zrn);
 		if (zvn > 0) {
 			pair.from = zrn;
-			pair.to = real_zone(zvn);
+			pair.to = GetZoneRnum(zvn);
 			zrn_list.push_back(pair);
 		} else
 			return "0";
@@ -660,8 +660,8 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 		return 0;
 	}
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
-			zone_table[real_zone(zvn_to)].copy_from_zone = zvn_to;
+		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone == 0) {
+			zone_table[GetZoneRnum(zvn_to)].copy_from_zone = zvn_to;
 			sprintf(buf,
 					"Клонирую зону %d в %d, осталось мест: %d",
 					zvn_from,
@@ -817,7 +817,7 @@ void ObjDataFree(ZoneRnum zrn) {
 	ObjRnum orn;
 
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
-		if ((orn = real_object(counter)) >= 0) {
+		if ((orn = GetObjRnum(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
 // перенесено в char_from_room
 //			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
@@ -908,10 +908,10 @@ void RemoveShopSeller(MobRnum mrn) {
 
 #define TRANS_MOB(arg) \
     if (mob_index[zone_table[zrn_to].cmd[subcmd].arg].vnum / 100 == zone_table[zrn_from].vnum) { \
-        zone_table[zrn_to].cmd[subcmd].arg = real_mobile(mob_index[zone_table[zrn_from].cmd[subcmd].arg].vnum % 100 + zone_table[zrn_to].vnum * 100); }
+        zone_table[zrn_to].cmd[subcmd].arg = GetMobRnum(mob_index[zone_table[zrn_from].cmd[subcmd].arg].vnum % 100 + zone_table[zrn_to].vnum * 100); }
 #define TRANS_OBJ(arg) \
     if (obj_proto[zone_table[zrn_to].cmd[subcmd].arg]->get_vnum() / 100 == zone_table[zrn_from].vnum) { \
-        zone_table[zrn_to].cmd[subcmd].arg = real_object(obj_proto[zone_table[zrn_from].cmd[subcmd].arg]->get_vnum() % 100 + zone_table[zrn_to].vnum * 100); \
+        zone_table[zrn_to].cmd[subcmd].arg = GetObjRnum(obj_proto[zone_table[zrn_from].cmd[subcmd].arg]->get_vnum() % 100 + zone_table[zrn_to].vnum * 100); \
     }
 #define TRANS_ROOM(arg) \
     if (world[zone_table[zrn_to].cmd[subcmd].arg]->vnum / 100 == zone_table[zrn_from].vnum) { \

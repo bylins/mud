@@ -33,7 +33,7 @@ void MobMax::get_stats(mobmax_stats_t &result) const {
 	MobRnum r_num;
 	result.clear();
 	for (const auto &item : mobmax_) {
-		if ((r_num = real_mobile(item.vnum)) < 0) {
+		if ((r_num = GetMobRnum(item.vnum)) < 0) {
 			log("SYSERR: unknown rnum mob in mombax");
 			return;
 		}
@@ -152,7 +152,7 @@ int MobMax::get_kill_count(int vnum) const {
 	if (vnum >= dungeons::kZoneStartDungeons * 100) {
 		ZoneVnum zvn = vnum / 100;
 		MobVnum  mvn = vnum % 100;
-		vnum = zone_table[real_zone(zvn)].copy_from_zone * 100 + mvn;
+		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
 	}
 	auto it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
 		return data.vnum == vnum;

@@ -1730,7 +1730,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				SendMsgToChar(buf, ch);
 			}
 
-			if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
+			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 				sprintf(buf, "прототип %s%s%s.\r\n",
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
@@ -1858,7 +1858,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
 				for (auto & vnum : it->second) {
-					const int r_num = real_object(vnum.first);
+					const int r_num = GetObjRnum(vnum.first);
 					if (r_num < 0) {
 						SendMsgToChar("Неизвестный объект!!!\r\n", ch);
 						continue;
@@ -2528,10 +2528,10 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 	} else
 		return (false);
 
-	if (((obj_num = real_object(items->rnumber)) < 0 &&
+	if (((obj_num = GetObjRnum(items->rnumber)) < 0 &&
 		spell_type != ESpellType::kItemCast && spell_type != ESpellType::kRunes) ||
-		((item0 = real_object(items->items[0])) +
-			(item1 = real_object(items->items[1])) + (item2 = real_object(items->items[2])) < -2)) {
+		((item0 = GetObjRnum(items->items[0])) +
+			(item1 = GetObjRnum(items->items[1])) + (item2 = GetObjRnum(items->items[2])) < -2)) {
 		if (showrecipe)
 			SendMsgToChar("Боги хранят в секрете этот рецепт.\n\r", ch);
 		return (false);
@@ -2683,10 +2683,10 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 	item0 = items->items[0];
 	item1 = items->items[1];
 	item2 = items->items[2];
-	const int item0_rnum = item0 >= 0 ? real_object(item0) : -1;
-	const int item1_rnum = item1 >= 0 ? real_object(item1) : -1;
-	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
-	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
+	const int item0_rnum = item0 >= 0 ? GetObjRnum(item0) : -1;
+	const int item1_rnum = item1 >= 0 ? GetObjRnum(item1) : -1;
+	const int item2_rnum = item2 >= 0 ? GetObjRnum(item2) : -1;
+	const int item3_rnum = item3 >= 0 ? GetObjRnum(item3) : -1;
 
 	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
 		if (item0 >= 0 && item0_rnum >= 0

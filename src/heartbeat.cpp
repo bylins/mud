@@ -505,7 +505,7 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Players index flushing",
 							 kSecsPerMudHour * kPassesPerSec,
 							 1,
-							 std::make_shared<SimpleCall>(flush_player_index)),
+							 std::make_shared<SimpleCall>(FlushPlayerIndex)),
 		Heartbeat::PulseStep("Point updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 kPassesPerSec - 5,

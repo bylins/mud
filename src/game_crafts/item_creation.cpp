@@ -227,7 +227,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 
 		case MREDIT_OBJ_PROTO:
 			i = atoi(sagr.c_str());
-			if (real_object(i) < 0) {
+			if (GetObjRnum(i) < 0) {
 				SendMsgToChar("Прототип выбранного вами объекта не существует.\r\n", d->character.get());
 			} else {
 				trec->obj_proto = i;
@@ -321,7 +321,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 				trec->parts[OLC_NUM(d)].proto = 0;
 				trec->parts[OLC_NUM(d)].min_weight = 0;
 				trec->parts[OLC_NUM(d)].min_power = 0;
-			} else if (real_object(i) < 0) {
+			} else if (GetObjRnum(i) < 0) {
 				SendMsgToChar("Прототип выбранного вами ингредиента не существует.\r\n", d->character.get());
 			} else {
 				trec->parts[OLC_NUM(d)].proto = i;
@@ -958,7 +958,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				for (i = 0, found = true; i < MAX_PROTO; i++) {
 					if (created_item[obj_type].proto[i]
 						&& !proto[i]) {
-						rnum = real_object(created_item[obj_type].proto[i]);
+						rnum = GetObjRnum(created_item[obj_type].proto[i]);
 						if (rnum < 0) {
 							act("У вас нет необходимого ингредиента.", false, ch, 0, 0, kToChar);
 						} else {
@@ -997,7 +997,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			for (i = 0, found = true; i < MAX_PROTO; i++) {
 				if (created_item[obj_type].proto[i]
 					&& !proto[i]) {
-					rnum = real_object(created_item[obj_type].proto[i]);
+					rnum = GetObjRnum(created_item[obj_type].proto[i]);
 					if (rnum < 0) {
 						act("У вас нет необходимого ингредиента.", false, ch, 0, 0, kToChar);
 					} else {
@@ -1231,7 +1231,7 @@ int MakeRecept::can_make(CharData *ch) {
 		if (parts[i].proto == 0) {
 			break;
 		}
-		if (real_object(parts[i].proto) < 0)
+		if (GetObjRnum(parts[i].proto) < 0)
 			return (false);
 		//SendMsgToChar("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
 		if (!(ingrobj = get_obj_in_list_ingr(parts[i].proto, ch->carrying))) {
@@ -2080,7 +2080,7 @@ int MakeRecept::load_from_str(string &rstr) {
 	obj_proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
 	rstr = rstr.substr(rstr.find(" ") + 1);
 
-	if (real_object(obj_proto) < 0) {
+	if (GetObjRnum(obj_proto) < 0) {
 		// Обнаружен несуществующий прототип объекта.
 		sprintf(tmpbuf, "MakeRecept::Unfound object proto %d", obj_proto);
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
@@ -2096,7 +2096,7 @@ int MakeRecept::load_from_str(string &rstr) {
 		if (parts[i].proto == 0) {
 			break;
 		}
-		if (real_object(parts[i].proto) < 0) {
+		if (GetObjRnum(parts[i].proto) < 0) {
 			// Обнаружен несуществующий прототип компонента.
 			sprintf(tmpbuf, "MakeRecept::Unfound item part %d for %d", obj_proto, parts[i].proto);
 			mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);

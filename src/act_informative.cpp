@@ -372,7 +372,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 		&& IS_SET(obj->get_spec_param(), kItemCheckUses)
 		&& IS_MANA_CASTER(ch)) {
 		int i = -1;
-		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
+		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
 					CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 		}

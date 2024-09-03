@@ -160,7 +160,7 @@ void Load() {
 	for (pugi::xml_node xml_mob = node_list.child("mob"); xml_mob;
 		 xml_mob = xml_mob.next_sibling("mob")) {
 		const int mob_vnum = parse::ReadAttrAsInt(xml_mob, "vnum");
-		if (real_mobile(mob_vnum) < 0) {
+		if (GetMobRnum(mob_vnum) < 0) {
 			snprintf(buf_, sizeof(buf_),
 					 "...bad mob attributes (vnum=%d)", mob_vnum);
 			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
@@ -341,7 +341,7 @@ void AddMob(CharData *mob, int members) {
 
 std::string PrintMobName(int mob_vnum, unsigned int len) {
 	std::string name = "null";
-	const int rnum = real_mobile(mob_vnum);
+	const int rnum = GetMobRnum(mob_vnum);
 	if (rnum > 0 && rnum <= top_of_mobt) {
 		name = mob_proto[rnum].get_name();
 	}

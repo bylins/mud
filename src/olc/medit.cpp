@@ -340,7 +340,7 @@ void medit_save_internally(DescriptorData *d) {
 	IndexData *new_index;
 	DescriptorData *dsc;
 
-	//  rmob_num = real_mobile(OLC_NUM(d));
+	//  rmob_num = GetMobRnum(OLC_NUM(d));
 	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
 	//	set_test_data(OLC_MOB(d));
 
@@ -547,7 +547,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 
 	// * Seach the database for mobs in this zone and save them.
 	for (MobVnum i = zone * 100; i <= top; i++) {
-		if ((rmob_num = real_mobile(i)) == -1)
+		if ((rmob_num = GetMobRnum(i)) == -1)
 			continue;
 		if (fprintf(mob_file, "#%d\n", mob_index[rmob_num].vnum) < 0) {
 			mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);
@@ -2101,7 +2101,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if ((plane = real_mobile(number)) < 0) {
+			if ((plane = GetMobRnum(number)) < 0) {
 				SendMsgToChar("Нет такого моба.\r\n", d->character.get());
 			} else {
 				auto it = std::find(OLC_MOB(d)->summon_helpers.begin(), OLC_MOB(d)->summon_helpers.end(), number);
@@ -2300,7 +2300,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			break;
 
 		case MEDIT_CLONE_WITH_TRIGGERS: {
-			auto rnum = real_mobile(atoi(arg));
+			auto rnum = GetMobRnum(atoi(arg));
 
 			if (rnum < 0) {
 				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
@@ -2315,7 +2315,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		}
 
 		case MEDIT_CLONE_WITHOUT_TRIGGERS: {
-			auto rnum = real_mobile(atoi(arg));
+			auto rnum = GetMobRnum(atoi(arg));
 
 			if (rnum < 0) {
 				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
@@ -2332,7 +2332,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		}
 
 		case MEDIT_CLONE_PARTIAL: {
-			auto rnum = real_mobile(atoi(arg));
+			auto rnum = GetMobRnum(atoi(arg));
 
 			if (rnum < 0) {
 				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());

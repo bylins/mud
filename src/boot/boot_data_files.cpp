@@ -282,7 +282,7 @@ void TriggersFile::parse_trigger(int vnum) {
 
 	char line[256], flags[256];
 
-	ZoneRnum zrn = real_zone(vnum / 100);
+	ZoneRnum zrn = GetZoneRnum(vnum / 100);
 
 	if (zone_table[zrn].RnumTrigsLocation.first == -1) {
 		zone_table[zrn].RnumTrigsLocation.first = count;
@@ -999,10 +999,10 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_index[i].vnum = nr;
 	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
-	if (zone_table[real_zone(nr / 100)].RnumMobsLocation.first == -1) {
-		zone_table[real_zone(nr / 100)].RnumMobsLocation.first = i;
+	if (zone_table[GetZoneRnum(nr / 100)].RnumMobsLocation.first == -1) {
+		zone_table[GetZoneRnum(nr / 100)].RnumMobsLocation.first = i;
 	}
-	zone_table[real_zone(nr / 100)].RnumMobsLocation.second = i;
+	zone_table[GetZoneRnum(nr / 100)].RnumMobsLocation.second = i;
 //snprintf(tmpstr, BUFFER_SIZE, "ZONE_MOB zone %d first %d last %d", zone_table[zone].vnum, zone_table[zone].RnumMobsLocation.first, zone_table[zone].RnumMobsLocation.second);
 	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
 	// **** String data

@@ -1513,7 +1513,7 @@ void zone_traffic_load() {
 	for (pugi::xml_node node = node_list.child("zone"); node; node = node.next_sibling("zone")) {
 		const int zone_vnum = atoi(node.attribute("vnum").value());
 		ZoneRnum zrn;
-		zrn = real_zone(zone_vnum);
+		zrn = GetZoneRnum(zone_vnum);
 		int num = atoi(node.attribute("traffic").value());
 		if (zrn == 0 && zone_vnum != 1) {
 			snprintf(buf, kMaxStringLength,
@@ -2287,7 +2287,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	char local_buf[128];
 	int i;
 	for (i = 0; i < zone_data.typeA_count; i++) {
-		if (real_zone(zone_data.typeA_list[i]) == 0) {
+		if (GetZoneRnum(zone_data.typeA_list[i]) == 0) {
 			sprintf(local_buf,
 					"SYSERROR: некорректное значение в typeA (%d) для зоны: %d",
 					zone_data.typeA_list[i],
@@ -2296,7 +2296,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 		}
 	}
 	for (i = 0; i < zone_data.typeB_count; i++) {
-		if (real_zone(zone_data.typeB_list[i]) == 0) {
+		if (GetZoneRnum(zone_data.typeB_list[i]) == 0) {
 			sprintf(local_buf,
 					"SYSERROR: некорректное значение в typeB (%d) для зоны: %d",
 					zone_data.typeB_list[i],
@@ -2315,7 +2315,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 		oldb = reset_cmd.arg2;
 		oldc = reset_cmd.arg3;
 		switch (reset_cmd.command) {
-			case 'M': a = reset_cmd.arg1 = real_mobile(reset_cmd.arg1);
+			case 'M': a = reset_cmd.arg1 = GetMobRnum(reset_cmd.arg1);
 				if (reset_cmd.arg2 <= 0 || reset_cmd.arg1 <= 0) {
 					auto msg = fmt::format("SYSERROR: incorrect M cmd: zone {} rnum {}, stored {} room {}",
 										   zone_data.vnum,
@@ -2331,26 +2331,26 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 				}
 				break;
 			case 'F': a = reset_cmd.arg1 = GetRoomRnum(reset_cmd.arg1);
-				b = reset_cmd.arg2 = real_mobile(reset_cmd.arg2);
-				c = reset_cmd.arg3 = real_mobile(reset_cmd.arg3);
+				b = reset_cmd.arg2 = GetMobRnum(reset_cmd.arg2);
+				c = reset_cmd.arg3 = GetMobRnum(reset_cmd.arg3);
 				break;
-			case 'O': a = reset_cmd.arg1 = real_object(reset_cmd.arg1);
+			case 'O': a = reset_cmd.arg1 = GetObjRnum(reset_cmd.arg1);
 				if (reset_cmd.arg3 != kNowhere)
 					c = reset_cmd.arg3 = GetRoomRnum(reset_cmd.arg3);
 				break;
 			case 'G': [[fallthrough]];
-			case 'E': a = reset_cmd.arg1 = real_object(reset_cmd.arg1);
+			case 'E': a = reset_cmd.arg1 = GetObjRnum(reset_cmd.arg1);
 				break;
-			case 'P': a = reset_cmd.arg1 = real_object(reset_cmd.arg1);
-				c = reset_cmd.arg3 = real_object(reset_cmd.arg3);
+			case 'P': a = reset_cmd.arg1 = GetObjRnum(reset_cmd.arg1);
+				c = reset_cmd.arg3 = GetObjRnum(reset_cmd.arg3);
 				break;
 			case 'D': a = reset_cmd.arg1 = GetRoomRnum(reset_cmd.arg1);
 				break;
 			case 'R':    // rem obj from room
 				a = reset_cmd.arg1 = GetRoomRnum(reset_cmd.arg1);
-				b = reset_cmd.arg2 = real_object(reset_cmd.arg2);
+				b = reset_cmd.arg2 = GetObjRnum(reset_cmd.arg2);
 				break;
-			case 'Q': a = reset_cmd.arg1 = real_mobile(reset_cmd.arg1);
+			case 'Q': a = reset_cmd.arg1 = GetMobRnum(reset_cmd.arg1);
 				break;
 			case 'T':    // a trigger
 				// designer's choice: convert this later
@@ -2800,7 +2800,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 	}
 
 	if (type == VIRTUAL) {
-		if ((i = real_mobile(nr)) < 0) {
+		if ((i = GetMobRnum(nr)) < 0) {
 			log("WARNING: Mobile vnum %d does not exist in database.", nr);
 			return (nullptr);
 		}
@@ -2874,7 +2874,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type) {
 	unsigned i = nr;
 	if (type == VIRTUAL) {
-		const int rnum = real_object(nr);
+		const int rnum = GetObjRnum(nr);
 		if (rnum < 0) {
 			log("Object (V) %d does not exist in database.", nr);
 			return nullptr;
@@ -3273,7 +3273,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 
 			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load) {
 				CharData *mob;
-				int i = real_mobile((*load)->vnum);
+				int i = GetMobRnum((*load)->vnum);
 				if (i > 0
 					&& mob_index[i].total_online < (*load)->max) {
 					mob = read_mobile(i, REAL);
@@ -3288,7 +3288,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 						PlaceCharToRoom(mob, GetRoomRnum((*room)->vnum));
 						Celebrates::add_mob_to_load_list(mob->id, mob);
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
-							ObjRnum rnum = real_object((*load_in)->vnum);
+							ObjRnum rnum = GetObjRnum((*load_in)->vnum);
 
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
 								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
@@ -3321,7 +3321,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
 				ObjData *obj_room;
-				ObjRnum rnum = real_object((*load)->vnum);
+				ObjRnum rnum = GetObjRnum((*load)->vnum);
 				if (rnum == -1) {
 					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
 					return;
@@ -3350,7 +3350,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 						PlaceObjToRoom(obj.get(), GetRoomRnum((*room)->vnum));
 
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
-							ObjRnum current_obj_rnum = real_object((*load_in)->vnum);
+							ObjRnum current_obj_rnum = GetObjRnum((*load_in)->vnum);
 
 							if (obj_proto.actual_count(current_obj_rnum)
 								< obj_proto[current_obj_rnum]->get_max_in_world()) {
@@ -4343,20 +4343,11 @@ int ReadFileToBuffer(const char *name, char *destination_buf) {
 	return (0);
 }
 
-void ClearCharTalents(CharData *ch) {
-	ch->real_abils.Feats.reset();
-	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_TYPE(ch, spell_id) = 0;
-		GET_SPELL_MEM(ch, spell_id) = 0;
-	}
-	ch->clear_skills();
-}
-
-ObjRnum real_object(ObjVnum vnum) {
+ObjRnum GetObjRnum(ObjVnum vnum) {
 	return obj_proto.get_rnum(vnum);
 }
 
-ZoneRnum real_zone(ZoneVnum vnum) {
+ZoneRnum GetZoneRnum(ZoneVnum vnum) {
 	ZoneRnum bot, top, mid;
 
 	bot = 0;
@@ -4429,7 +4420,7 @@ TrgRnum GetTriggerRnum(TrgVnum vnum) {
 }
 
 // returns the real number of the monster with given virtual number
-MobRnum real_mobile(MobVnum vnum) {
+MobRnum GetMobRnum(MobVnum vnum) {
 //	log("real mobile vnum %d top %d", vnum, top_of_mobt);
 	MobRnum bot, top, mid;
 
@@ -4451,19 +4442,19 @@ MobRnum real_mobile(MobVnum vnum) {
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-int must_be_deleted(CharData *short_ch) {
+bool MustBeDeleted(CharData *short_ch) {
 	int ci, timeout;
 
 	if (PLR_FLAGS(short_ch).get(EPlrFlag::kNoDelete)) {
-		return 0;
+		return false;
 	}
 
 	if (PLR_FLAGS(short_ch).get(EPlrFlag::kDeleted)) {
-		return 1;
+		return true;
 	}
 
 	if (short_ch->get_remort()) {
-		return (0);
+		return false;
 	}
 
 	timeout = -1;
@@ -4476,16 +4467,16 @@ int must_be_deleted(CharData *short_ch) {
 	if (timeout >= 0) {
 		timeout *= kSecsPerRealDay;
 		if ((time(nullptr) - LAST_LOGON(short_ch)) > timeout) {
-			return (1);
+			return true;
 		}
 	}
 
-	return (0);
+	return false;
 }
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void entrycount(char *name) {
+void ActualizePlayersIndex(char *name) {
 	int deleted;
 	char filename[kMaxStringLength];
 
@@ -4496,7 +4487,7 @@ void entrycount(char *name) {
 		// персонаж загружается неполностью
 		if (load_char(name, short_ch, ELoadCharFlags::kReboot) > -1) {
 			// если чар удален или им долго не входили, то не создаем для него запись
-			if (!must_be_deleted(short_ch)) {
+			if (!MustBeDeleted(short_ch)) {
 				deleted = 0;
 
 				PlayerIndexElement element(GET_IDNUM(short_ch), GET_NAME(short_ch));
@@ -4578,7 +4569,7 @@ void BuildPlayerIndexNew() {
 			continue;
 
 		if (!player_table.IsPlayerExists(playername)) {
-			entrycount(playername);
+			ActualizePlayersIndex(playername);
 		}
 	}
 
@@ -4587,7 +4578,7 @@ void BuildPlayerIndexNew() {
 	player_table.GetNameAdviser().init();
 }
 
-void flush_player_index() {
+void FlushPlayerIndex() {
 	FILE *players;
 	char name[kMaxStringLength];
 
@@ -4612,7 +4603,7 @@ void flush_player_index() {
 	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
-void rename_char(CharData *ch, char *oname) {
+void RenamePlayer(CharData *ch, char *oname) {
 	char filename[kMaxInputLength], ofilename[kMaxInputLength];
 
 	// 1) Rename(if need) char and pkill file - directly

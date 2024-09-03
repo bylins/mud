@@ -33,9 +33,9 @@ class CharData;    // forward declaration to avoid inclusion of char.hpp and any
 
 // public procedures in db.cpp
 RoomRnum GetRoomRnum(RoomVnum vnum);
-ZoneRnum real_zone(ZoneVnum zvn);
-MobRnum real_mobile(MobVnum vnum);
-ObjRnum real_object(ObjVnum vnum);
+ZoneRnum GetZoneRnum(ZoneVnum zvn);
+MobRnum GetMobRnum(MobVnum vnum);
+ObjRnum GetObjRnum(ObjVnum vnum);
 void ExtractTagFromArgument(char *argument, char *tag);
 void BootMudDataBase();
 void zone_update();
@@ -55,11 +55,10 @@ void ResetZone(ZoneRnum zone);
 int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
 int vnum_mobile(char *searchname, CharData *ch);
-void ClearCharTalents(CharData *ch);
 int correct_unique(int unique);
 bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
-void flush_player_index();
+void FlushPlayerIndex();
 bool is_empty(ZoneRnum zone_nr, bool debug = false);
 void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn);
 

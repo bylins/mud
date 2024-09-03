@@ -299,13 +299,13 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			STATE(d) = CON_ZEDIT;
 			break;
 		case SCMD_OLC_MEDIT:
-			if ((real_num = real_mobile(number)) >= 0)
+			if ((real_num = GetMobRnum(number)) >= 0)
 				medit_setup(d, real_num);
 			else
 				medit_setup(d, -1);
 			STATE(d) = CON_MEDIT;
 			break;
-		case SCMD_OLC_OEDIT: real_num = real_object(number);
+		case SCMD_OLC_OEDIT: real_num = GetObjRnum(number);
 			if (real_num >= 0) {
 				oedit_setup(d, real_num);
 			} else {

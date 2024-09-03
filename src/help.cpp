@@ -346,7 +346,7 @@ std::string print_fullset_stats(const set_info &set) {
 
 	// первый проход - родные статы предметов + инит проф в clss_list
 	for (auto k = set.begin(), kend = set.end(); k != kend; ++k) {
-		const int rnum = real_object(k->first);
+		const int rnum = GetObjRnum(k->first);
 		if (rnum < 0) {
 			continue;
 		}
@@ -389,7 +389,7 @@ void process() {
 		for (const auto & k : it.second) {
 			out << "---------------------------------------------------------------------------\r\n";
 			// k->first = int_obj_vnum, k->second = qty_to_camap_map
-			const int rnum = real_object(k.first);
+			const int rnum = GetObjRnum(k.first);
 			if (rnum < 0) {
 				log("SYSERROR: wrong obj vnum: %d (%s %s %d)", k.first, __FILE__, __func__, __LINE__);
 				continue;

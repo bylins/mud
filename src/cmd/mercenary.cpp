@@ -96,7 +96,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			return;
 		}
 
-		if ((rnum = real_mobile(it->first)) < 0) {
+		if ((rnum = GetMobRnum(it->first)) < 0) {
 			sprintf(buf, "С персонажем стряслось что то, не могу его найти.");
 			tell_to_char(boss, ch, buf);
 			sprintf(buf1, "[ERROR] MERC::doBring, не найден моб, vnum: %d", it->first);

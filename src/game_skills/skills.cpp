@@ -375,7 +375,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 	switch (attacktype) {
 		case to_underlying(ESkill::kBackstab) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
 			if (!weap.get_prototype_raw_ptr()) {
-				weap_i = real_object(kDummyKnight);
+				weap_i = GetObjRnum(kDummyKnight);
 				if (0 <= weap_i) {
 					weap = obj_proto[weap_i];
 				}
@@ -384,7 +384,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 
 		case to_underlying(ESkill::kThrow) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
 			if (!weap.get_prototype_raw_ptr()) {
-				weap_i = real_object(kDummyKnight);
+				weap_i = GetObjRnum(kDummyKnight);
 				if (0 <= weap_i) {
 					weap = obj_proto[weap_i];
 				}
@@ -393,7 +393,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 
 		case to_underlying(ESkill::kBash) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kShield);
 			if (!weap.get_prototype_raw_ptr()) {
-				weap_i = real_object(kDummyShield);
+				weap_i = GetObjRnum(kDummyShield);
 				if (0 <= weap_i) {
 					weap = obj_proto[weap_i];
 				}
@@ -407,7 +407,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 
 		case kTypeHit: break;
 
-		default: weap_i = real_object(kDummyWeapon);
+		default: weap_i = GetObjRnum(kDummyWeapon);
 			if (0 <= weap_i) {
 				weap = obj_proto[weap_i];
 			}

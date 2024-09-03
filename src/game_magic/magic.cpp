@@ -2799,7 +2799,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			if (mob_num <= 0)
 				mob_num = kMobSkeleton;
 			else {
-				const int real_mob_num = real_mobile(mob_num);
+				const int real_mob_num = GetMobRnum(mob_num);
 				tmp_mob = (mob_proto + real_mob_num);
 				tmp_mob->set_normal_morph();
 				pfail = 10 + tmp_mob->get_con() * 2
@@ -2856,7 +2856,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			msg = 11;
 			fmsg = number(2, 6);
 
-			tmp_mob = mob_proto + real_mobile(mob_num);
+			tmp_mob = mob_proto + GetMobRnum(mob_num);
 			tmp_mob->set_normal_morph();
 
 			pfail = 10 + tmp_mob->get_con() * 2
@@ -3160,6 +3160,15 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment; //выровняем алигмент чтоб не агрили вдруг
 	return 1;
+}
+
+void ClearCharTalents(CharData *ch) {
+	ch->real_abils.Feats.reset();
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_TYPE(ch, spell_id) = 0;
+		GET_SPELL_MEM(ch, spell_id) = 0;
+	}
+	ch->clear_skills();
 }
 
 int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
@@ -3724,7 +3733,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		return;
 
 	if (caster->IsNpc()
-		&& GET_MOB_RNUM(caster) == real_mobile(kDgCasterProxy))
+		&& GET_MOB_RNUM(caster) == GetMobRnum(kDgCasterProxy))
 		return;
 
 	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && IN_ROOM(victim) == IN_ROOM(caster)) {

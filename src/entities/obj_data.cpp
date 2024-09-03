@@ -518,7 +518,7 @@ void ObjData::unset_enchant() {
 }
 
 bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {
-	const auto rnum = real_object(vnum);
+	const auto rnum = GetObjRnum(vnum);
 
 	if (rnum < 0) {
 		return false;
@@ -1002,8 +1002,8 @@ TelegramBot *bot = new TelegramBot();
 
 /// при старте сразу после лоада зон
 void init() {
-	PURSE_RNUM = real_object(PURSE_VNUM);
-	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
+	PURSE_RNUM = GetObjRnum(PURSE_VNUM);
+	PERS_CHEST_RNUM = GetObjRnum(PERS_CHEST_VNUM);
 }
 
 ObjData *create_purse(CharData *ch, int/* gold*/) {
@@ -1316,7 +1316,7 @@ void delete_item(const std::size_t pt_num, int vnum) {
 			if (i->vnum == vnum) {
 				log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name(), i->vnum);
 				i->timer = -1;
-				int rnum = real_object(i->vnum);
+				int rnum = GetObjRnum(i->vnum);
 				if (rnum >= 0) {
 					obj_proto.dec_stored(rnum);
 				}

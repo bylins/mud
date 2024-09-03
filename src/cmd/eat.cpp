@@ -35,7 +35,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	int mob_level = 1;
 	// труп не игрока
 	if (GET_OBJ_VAL(obj, 2) != -1) {
-		mob_level = GetRealLevel(mob_proto + real_mobile(GET_OBJ_VAL(obj, 2)));
+		mob_level = GetRealLevel(mob_proto + GetMobRnum(GET_OBJ_VAL(obj, 2)));
 	}
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;

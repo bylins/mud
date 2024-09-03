@@ -299,7 +299,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 		break;
 	  }
 	  // как и охранника
-	  if (real_mobile(guard) < 0) {
+	  if (GetMobRnum(guard) < 0) {
 		log("Guard %d is no longer exist (%s).", guard, filename.c_str());
 		break;
 	  }
@@ -1967,7 +1967,7 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	SendMsgToChar(ch, "Комнаты %d не существует.\r\n", out_rent);
 	return;
   }
-  if (real_mobile(guard) < 0) {
+  if (GetMobRnum(guard) < 0) {
 	SendMsgToChar(ch, "Моба %d не существует.\r\n", guard);
 	return;
   }
@@ -3952,8 +3952,8 @@ void Clan::remove_from_clan(long unique) {
 }
 
 void Clan::init_chest_rnum() {
-  CLAN_CHEST_RNUM = real_object(CLAN_CHEST_VNUM);
-  INGR_CHEST_RNUM = real_object(INGR_CHEST_VNUM);
+  CLAN_CHEST_RNUM = GetObjRnum(CLAN_CHEST_VNUM);
+  INGR_CHEST_RNUM = GetObjRnum(INGR_CHEST_VNUM);
 }
 
 bool Clan::is_ingr_chest(ObjData *obj) {

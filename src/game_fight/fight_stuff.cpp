@@ -629,7 +629,7 @@ void real_kill(CharData *ch, CharData *killer) {
 	if (!ch->IsNpc() && GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
 	{
 		// лоадим свиток с экспой
-		const auto rnum = real_object(100);
+		const auto rnum = GetObjRnum(100);
 		if (rnum >= 0)
 		{
 			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
