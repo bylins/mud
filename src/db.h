@@ -30,11 +30,6 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct zrn_complex_list;
-
-// room manage functions
-void CopyRoom(RoomData *dst, RoomData *src);
-void room_free(RoomData *room);
 
 // public procedures in db.cpp
 RoomRnum GetRoomRnum(RoomVnum vnum);
@@ -55,6 +50,7 @@ long get_lastlogon_by_unique(long unique);
 long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
+void ResetZone(ZoneRnum zone);
 
 int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
@@ -65,13 +61,8 @@ bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void flush_player_index();
 bool is_empty(ZoneRnum zone_nr, bool debug = false);
-void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn);
-void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<zrn_complex_list> dungeon_list = {});
-void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void DungeonReset(int zrn);
+
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 
@@ -87,11 +78,6 @@ int vnum_obj_trig(char *searchname, CharData *ch);
 struct combat_list_element {
 	CharData *ch;
 	bool deleted;
-};
-
-struct zrn_complex_list {
-	ZoneRnum from;
-	ZoneRnum to;
 };
 
 struct reset_com {
@@ -361,8 +347,6 @@ void recreate_saveinfo(size_t number);
 
 void set_god_skills(CharData *ch);
 void CheckRoomForIncompatibleFlags(int rnum);
-
-void DeletePcByHimself(const char *name);
 
 void set_test_data(CharData *mob);
 

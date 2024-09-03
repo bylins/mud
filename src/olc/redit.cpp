@@ -51,7 +51,7 @@ int planebit(const char *str, int *plane, int *bit);
 void redit_setup(DescriptorData *d, int real_num);
 
 void CopyRoom(RoomData *dst, RoomData *src);
-void room_free(RoomData *room);
+void CleanupRoomData(RoomData *room);
 
 void redit_save_internally(DescriptorData *d);
 void redit_save_to_disk(int zone);
@@ -103,11 +103,11 @@ void redit_save_internally(DescriptorData *d) {
 	if (rrn != kNowhere) {
 		log("[REdit] Save room to mem %d", rrn);
 		// Удаляю устаревшие данные
-		room_free(world[rrn]);
+		CleanupRoomData(world[rrn]);
 		// Текущее состояние комнаты не изменилось, обновляю редактированные данные
 		CopyRoom(world[rrn], OLC_ROOM(d));
 		// Теперь просто удалить OLC_ROOM(d) и все будет хорошо
-		room_free(OLC_ROOM(d));
+		CleanupRoomData(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
 	} else {
 		// если комнаты не было - добавляем новую
@@ -855,6 +855,106 @@ void redit_parse(DescriptorData *d, char *arg) {
 	// * If we get this far, something has been changed.
 	OLC_VAL(d) = 1;
 	redit_disp_menu(d);
+}
+
+/*++
+   Функция делает создает копию комнаты.
+   После вызова этой функции создается полностью независимая копия комнты src
+   за исключением полей track, contents, people, affected.
+   Все поля имеют те же значения, но занимают свои области памяти.
+      dst - "чистый" указатель на структуру room_data.
+      src - исходная комната
+   Примечание: Неочищенный указатель dst приведет к утечке памяти.
+               Используйте redit_room_free() для очистки содержимого комнаты
+--*/
+void CopyRoom(RoomData *dst, RoomData *src) {
+	int i;
+
+	{
+		// Сохраняю track, contents, people, аффекты
+		struct TrackData *track = dst->track;
+		ObjData *contents = dst->contents;
+		const auto people_backup = dst->people;
+		auto affected = dst->affected;
+
+		// Копирую все поверх
+		*dst = *src;
+
+		// Восстанавливаю track, contents, people, аффекты
+		dst->track = track;
+		dst->contents = contents;
+		dst->people = people_backup;
+		dst->affected = affected;
+	}
+
+	// Теперь нужно выделить собственные области памяти
+
+	// Название и описание
+	dst->name = str_dup(src->name ? src->name : "неопределено");
+	dst->temp_description = nullptr; // так надо
+
+	// Выходы и входы
+	for (i = 0; i < EDirection::kMaxDirNum; ++i) {
+		const auto &rdd = src->dir_option_proto[i];
+		if (rdd) {
+			dst->dir_option[i] = std::make_shared<ExitData>();
+			// Копируем числа
+			*dst->dir_option_proto[i] = *rdd;
+			// Выделяем память
+			dst->dir_option_proto[i]->general_description = rdd->general_description;
+			dst->dir_option_proto[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : nullptr);
+			dst->dir_option_proto[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : nullptr);
+		}
+	}
+
+	// Дополнительные описания, если есть
+	ExtraDescription::shared_ptr *pddd = &dst->ex_description;
+	ExtraDescription::shared_ptr sdd = src->ex_description;
+	*pddd = nullptr;
+
+	while (sdd) {
+		*pddd = std::make_shared<ExtraDescription>();
+		(*pddd)->keyword = sdd->keyword ? str_dup(sdd->keyword) : nullptr;
+		(*pddd)->description = sdd->description ? str_dup(sdd->description) : nullptr;
+		pddd = &((*pddd)->next);
+		sdd = sdd->next;
+	}
+
+	// Копирую скрипт и прототипы
+	SCRIPT(dst).reset(new Script());
+
+	dst->proto_script = std::make_shared<ObjData::triggers_list_t>();
+	*dst->proto_script = *src->proto_script;
+}
+
+/*++
+   Функция полностью освобождает память, занимаемую данными комнаты.
+   ВНИМАНИЕ. Память самой структуры room_data не освобождается.
+             Необходимо дополнительно использовать delete()
+--*/
+void CleanupRoomData(RoomData *room)
+{
+	// Название и описание
+	if (room->name) {
+		free(room->name);
+		room->name = nullptr;
+	}
+
+	if (room->temp_description) {
+		free(room->temp_description);
+		room->temp_description = nullptr;
+	}
+
+	// Выходы и входы
+	for (int i = 0; i < EDirection::kMaxDirNum; i++) {
+		if (room->dir_option[i]) {
+			room->dir_option[i].reset();
+		}
+	}
+
+	// Скрипт
+	room->cleanup_script();
+	room->affected.clear();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

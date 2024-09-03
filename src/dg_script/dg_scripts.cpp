@@ -18,6 +18,7 @@
 #include "house.h"
 #include "entities/char_player.h"
 #include "modify.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/named_stuff.h"
 #include "game_magic/magic_utils.h"
 #include "noob.h"
@@ -1187,95 +1188,6 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
-	ZoneVnum zvn_to;
-	RoomRnum rnum_start, rnum_stop;
-	ZoneVnum zvn_from = zone_table[zrn_from].vnum;
-
-	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
-		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return 0;
-	}
-	if (world[rnum_start]->vnum % 100 != 0) {
-		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-	if (zvn_from < 100) {
-			sprintf(buf, "Попытка склонировать двухзначную зону.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	if (zvn_from >= ZoneStartDungeons) {
-			sprintf(buf, "Попытка склонировать данж.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
-			zone_table[real_zone(zvn_to)].copy_from_zone = zvn_to;
-			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn_to, ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			break;
-		}
-	}
-	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
-			sprintf(buf, "Нет свободного места.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	return zvn_to;
-}
-
-std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens) {
-	std::vector<zrn_complex_list> zrn_list;
-	ZoneVnum zvn;
-	ZoneRnum zrn;
-	std::stringstream out_from;
-	std::string out_to;
-	zrn_complex_list pair;
-
-	for (auto it : tokens) {
-		zrn = real_zone(stoi(it));
-		if (zrn == 0){
-			sprintf(buf, "Ошибка в создании комплекса, данж %s не найден", it.c_str());
-			trig_log(trig, buf);
-			return "0";
-		}
-		zvn = CheckDungionErrors(zrn);
-		if (zvn > 0) {
-			pair.from = zrn;
-			pair.to = real_zone(zvn);
-			zrn_list.push_back(pair);
-		} else
-			return "0";
-		out_from << it << " ";
-	}
-	utils::CExecutionTimer timer;
-	sprintf(buf, "Попытка создать комплекс: %s", out_from.str().c_str());
-	trig_log(trig, buf);
-	for (auto it : zrn_list) {
-		out_to = out_to + to_string(zone_table[it.to].vnum) + " ";
-		TrigDataCopy(it.from, it.to);
-		RoomDataCopy(it.from, it.to, zrn_list);
-		MobDataCopy(it.from, it.to);
-		ObjDataCopy(it.from, it.to);
-		ZoneDataCopy(it.from, it.to); //последним
-		zone_table[it.to].copy_from_zone = zone_table[it.from].vnum;
-	}
-	out_to.pop_back();
-	for (auto it : zrn_list) {
-		for (auto it2 : zrn_list) {
-			TrigCommandsConvert(it.from, it2.to, it.to);
-		}
-		ResetZone(it.to);
-	}
-	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.c_str(), timer.delta().count());
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
-	return out_to;
-}
-
 void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim = nullptr;
 	ObjData *object = nullptr;
@@ -1830,14 +1742,14 @@ void find_replacement(void *go,
 				std::string arg = subfield;
 				std::vector<std::string> tokens = utils::Split(arg, ' ');
 				if (tokens.size() == 1) {
-					int zrn = ZoneCopy(num);
+					int zrn = dungeons::ZoneCopy(num);
 					if (zrn > 0)
 						sprintf(str, "%d", zone_table[zrn].vnum);
 					else{
 						sprintf(str, "%s", "0");
 					}
 				} else if (tokens.size() > 1) {
-					sprintf(str, "%s", CreateComplexDungeon(trig, tokens).c_str());
+					sprintf(str, "%s", dungeons::CreateComplexDungeon(trig, tokens).c_str());
 				} else {
 					sprintf(str, "%s", "0");
 				}
@@ -1846,7 +1758,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "zoneentrance") && num > 0) {
 				sprintf(str, "%d", zone_table[real_zone(num)].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
-				DungeonReset(real_zone(num));
+				dungeons::DungeonReset(real_zone(num));
 			} else if (!str_cmp(field, "zonename") && num > 0) {
 				ZoneRnum zrn = real_zone(num);
 				if (zrn == 0) {

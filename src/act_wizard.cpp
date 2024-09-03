@@ -103,9 +103,7 @@ extern int load_into_inventory;
 extern time_t zones_stat_date;
 extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern int NumberOfZoneDungeons;
-extern ZoneVnum ZoneStartDungeons;
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
-extern bool is_empty(ZoneRnum zone_nr);
 
 void medit_save_to_disk(int zone_num);
 
@@ -283,7 +281,7 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
 				if (i->vnum == vnum && i->timer > 0) {
 					num++;
-					sprintf(buf2, "Player %s : item \[%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
+					sprintf(buf2, "Player %s : item [%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
 					SendMsgToChar(buf2, ch);
 					i->timer = -1;
 					int rnum = real_object(i->vnum);
@@ -367,73 +365,6 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		return;
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
-}
-
-
-ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
-	ZoneVnum zvn_to;
-	RoomRnum rnum_start, rnum_stop;
-	ZoneRnum zrn_from = real_zone(zvn_from);
-
-	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
-		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return 0;
-	}
-	if (world[rnum_start]->vnum % 100 != 0) {
-		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
-			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn_to, ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			break;
-		}
-	}
-	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
-			sprintf(buf, "Нет свободного места.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	if (zvn_from < 100) {
-			sprintf(buf, "Попытка склонировать двухзначную зону.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	if (zvn_from >= ZoneStartDungeons) {
-			sprintf(buf, "Попытка склонировать данж.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	ZoneRnum zrn_to = real_zone(zvn_to);
-	
-  if (zrn_to == 0) {
-			sprintf(buf, "Нет такой зоны.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	utils::CExecutionTimer timer;
-	sprintf(buf, "Попытка создать  dungeon, zone %s %d", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	TrigDataCopy(zrn_from, zrn_to);
-	TrigCommandsConvert(zrn_from, zrn_to, zrn_to);
-	RoomDataCopy(zrn_from, zrn_to);
-	MobDataCopy(zrn_from, zrn_to);
-	ObjDataCopy(zrn_from, zrn_to);
-	ZoneDataCopy(zrn_from, zrn_to); //последним
-	sprintf(buf,  "Сбрасываю зону %d, delta %f", zone_table[zrn_to].vnum, timer.delta().count());
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	ResetZone(zrn_to);
-	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
-//	zone_table[zrn_to].under_construction = true;
-	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	return zrn_to;
-}
-
-void DoZoneCopy(CharData *, char *argument, int, int) {
-	ZoneCopy(atoi(argument));
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

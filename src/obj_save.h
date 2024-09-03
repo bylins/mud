@@ -59,6 +59,7 @@ void Crash_rent_time(int dectime);
 void Crash_save_all();
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
+void ClearCrashSavedObjects(std::size_t index);
 
 namespace ObjSaveSync {
 

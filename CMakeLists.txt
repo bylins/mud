@@ -284,7 +284,8 @@ set(SOURCES
 		src/communication/offtop.cpp
 		src/game_mechanics/dead_load.cpp
 		src/game_mechanics/city_guards.cpp
-		src/cmd/remort.cpp)
+		src/cmd/remort.cpp
+		src/game_mechanics/dungeons.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -549,7 +550,8 @@ set(HEADERS
 		src/communication/offtop.h
 		src/game_mechanics/dead_load.h
 		src/game_mechanics/city_guards.h
-		src/cmd/remort.h)
+		src/cmd/remort.h
+		src/game_mechanics/dungeons.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -35,6 +35,8 @@
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
 
+const int kRecallSpellsInterval = 28;
+
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
 extern int idle_max_level;

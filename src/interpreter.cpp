@@ -70,6 +70,7 @@
 #include "genchar.h"
 #include "game_classes/classes.h"
 #include "game_mechanics/glory.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
 #include "handler.h"
@@ -127,6 +128,7 @@
 #include "statistics/top.h"
 #include "game_skills/skills_info.h"
 #include "game_mechanics/mem_queue.h"
+#include "obj_save.h"
 
 #include <ctime>
 
@@ -186,6 +188,8 @@ extern char *greetings;
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern char *name_rules;
+
+void DeletePcByHimself(const char *name);
 
 // external functions
 int Valid_Name(char *newname);
@@ -356,11 +360,9 @@ void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
-void DoDungeonReset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
-void DoZoneCopy(CharData *, char *, int, int);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_cities(CharData *ch, char *, int, int);
@@ -387,10 +389,6 @@ std::map<std::string, int> new_loc_codes;
 
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
-
-void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
-	DungeonReset(real_zone(atoi(argument)));
-}
 
 void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
   std::stringstream ss;
@@ -546,7 +544,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
 		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
-		{"копироватьзону", EPosition::kStand, DoZoneCopy, kLvlImplementator, 0, 0},
+		{"копироватьзону", EPosition::kStand, dungeons::DoZoneCopy, kLvlImplementator, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"кто", EPosition::kRest, do_who, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, ClanSystem::DoWhoClan, 0, 0, 0},
@@ -723,7 +721,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
-		{"сбросить", EPosition::kRest, DoDungeonReset, kLvlImplementator, 0, -1},
+		{"сбросить", EPosition::kRest, dungeons::DoDungeonReset, kLvlImplementator, 0, -1},
 		{"спрятаться", EPosition::kStand, do_hide, 1, 0, 500},
 		{"сравнить", EPosition::kRest, do_consider, 0, 0, 500},
 		{"сразить", EPosition::kFight, do_slay, 1, 0, -1},
@@ -3623,9 +3621,10 @@ break;
 		  STATE(d) = CON_CLOSE;
 		  return;
 		}
-		if (GetRealLevel(d->character) >= kLvlGreatGod)
+		if (GetRealLevel(d->character) >= kLvlGreatGod) {
 		  return;
-		  DeletePcByHimself(GET_NAME(d->character));
+		}
+		DeletePcByHimself(GET_NAME(d->character));
 		sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 		SEND_TO_Q(buffer, d);
 		sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
@@ -4167,5 +4166,34 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
   return false;
 }
 
+// * Добровольное удаление персонажа через игровое меню.
+void DeletePcByHimself(const char *name) {
+	Player t_st;
+	Player *st = &t_st;
+	int id = load_char(name, st, ELoadCharFlags::kFindId);
+
+	if (id >= 0) {
+		PLR_FLAGS(st).set(EPlrFlag::kDeleted);
+		NewNames::remove(st);
+		if (NAME_FINE(st)) {
+			player_table.GetNameAdviser().add(GET_NAME(st));
+		}
+		Clan::remove_from_clan(GET_UNIQUE(st));
+		st->save_char();
+
+		ClearCrashSavedObjects(id);
+		player_table[id].unique = -1;
+		player_table[id].level = -1;
+		player_table[id].remorts = -1;
+		player_table[id].last_logon = -1;
+		player_table[id].activity = -1;
+		if (player_table[id].mail)
+			free(player_table[id].mail);
+		player_table[id].mail = nullptr;
+		if (player_table[id].last_ip)
+			free(player_table[id].last_ip);
+		player_table[id].last_ip = nullptr;
+	}
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -48,7 +48,6 @@ void oedit_setup(DescriptorData *d, int robj_num);
 void oedit_save_to_disk(int zone);
 void sedit_setup_new(DescriptorData *d);
 void sedit_setup_existing(DescriptorData *d, int robj_num);
-void room_free(RoomData *room);
 void medit_mobile_free(CharData *mob);
 void trigedit_setup_new(DescriptorData *d);
 void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
@@ -451,7 +450,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 		// Освободить комнату
 		if (OLC_ROOM(d)) {
 			switch (cleanup_type) {
-				case CLEANUP_ALL: room_free(OLC_ROOM(d));    // удаляет все содержимое
+				case CLEANUP_ALL: CleanupRoomData(OLC_ROOM(d));    // удаляет все содержимое
 					// break; - не нужен
 
 					// fall through

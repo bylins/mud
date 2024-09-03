@@ -392,6 +392,7 @@ extern struct olc_save_info *olc_save_list;
 void xedit_disp_ing(DescriptorData *d, int *ping);
 int xparse_ing(DescriptorData *d, int **pping, char *arg);
 int zedit_count_cmdlist(pzcmd head);
+void CleanupRoomData(RoomData *room);
 
 #endif
 
