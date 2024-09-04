@@ -9,8 +9,9 @@
 #include "communication/social.h"
 #include "game_crafts/jewelry.h"
 #include "game_crafts/mining.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "corpse.h"
+#include "game_mechanics/celebrates.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_mechanics/dungeons.h"
 #include "game_mechanics/city_guards.h"
@@ -46,6 +47,7 @@
 #include "statistics/top.h"
 #include "backtrace.h"
 #include "dg_script/dg_db_scripts.h"
+#include "game_mechanics/mob_races.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -1613,9 +1615,8 @@ void BootMudDataBase() {
 	Parcel::load();
 
 	boot_profiler.next_step("Loading celebrates");
-	log("Load Celebrates."); //Polud праздники. используются при ресете зон
-	//Celebrates::load(XmlLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
-	Celebrates::load();
+	log("Load Celebrates.");
+	celebrates::load();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
@@ -1644,7 +1645,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
-	LoadMobraces();
+	mob_races::LoadMobraces();
 
 	boot_profiler.next_step("Loading morphs");
 	log("Load morphs.");
@@ -2820,201 +2821,6 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
 	mudlog(local_buf, NRM, kLvlGod, SYSLOG, true);
 }
 
-void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
-	Celebrates::CelebrateRoomsList::iterator room;
-	Celebrates::LoadList::iterator load, load_in;
-
-	log("Processing celebrate %s load section for zone %d", celebrate->name.c_str(), vnum);
-
-	if (celebrate->rooms.find(vnum) != celebrate->rooms.end()) {
-		for (room = celebrate->rooms[vnum].begin(); room != celebrate->rooms[vnum].end(); ++room) {
-			RoomRnum rn = GetRoomRnum((*room)->vnum);
-			if (rn != kNowhere) {
-				for (int &trigger : (*room)->triggers) {
-					auto trig = read_trigger(GetTriggerRnum(trigger));
-					if (!add_trigger(world[rn]->script.get(), trig, -1)) {
-						ExtractTrigger(trig);
-					}
-				}
-			}
-
-			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load) {
-				CharData *mob;
-				int i = GetMobRnum((*load)->vnum);
-				if (i > 0
-					&& mob_index[i].total_online < (*load)->max) {
-					mob = read_mobile(i, REAL);
-					if (mob) {
-						for (int &trigger : (*load)->triggers) {
-							auto trig = read_trigger(GetTriggerRnum(trigger));
-							if (!add_trigger(SCRIPT(mob).get(), trig, -1)) {
-								ExtractTrigger(trig);
-							}
-						}
-						load_mtrigger(mob);
-						PlaceCharToRoom(mob, GetRoomRnum((*room)->vnum));
-						Celebrates::add_mob_to_load_list(mob->id, mob);
-						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
-							ObjRnum rnum = GetObjRnum((*load_in)->vnum);
-
-							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
-								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
-								if (obj) {
-									PlaceObjToInventory(obj.get(), mob);
-									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
-
-									for (int &trigger : (*load_in)->triggers) {
-										auto trig = read_trigger(GetTriggerRnum(trigger));
-										if (!add_trigger(obj->get_script().get(), trig, -1)) {
-											ExtractTrigger(trig);
-										}
-									}
-
-									load_otrigger(obj.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
-								} else {
-									log("{Error] Processing celebrate %s while loading obj %d",
-										celebrate->name.c_str(),
-										(*load_in)->vnum);
-								}
-							}
-						}
-					} else {
-						log("{Error] Processing celebrate %s while loading mob %d",
-							celebrate->name.c_str(),
-							(*load)->vnum);
-					}
-				}
-			}
-			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
-				ObjData *obj_room;
-				ObjRnum rnum = GetObjRnum((*load)->vnum);
-				if (rnum == -1) {
-					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
-					return;
-				}
-				int obj_in_room = 0;
-
-				for (obj_room = world[rn]->contents; obj_room; obj_room = obj_room->get_next_content()) {
-					if (rnum == GET_OBJ_RNUM(obj_room)) {
-						obj_in_room++;
-					}
-				}
-
-				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
-					&& (obj_in_room < (*load)->max)) {
-					const auto obj = world_objects.create_from_prototype_by_vnum((*load)->vnum);
-					if (obj) {
-						for (int &trigger : (*load)->triggers) {
-							auto trig = read_trigger(GetTriggerRnum(trigger));
-							if (!add_trigger(obj->get_script().get(), trig, -1)) {
-								ExtractTrigger(trig);
-							}
-						}
-						load_otrigger(obj.get());
-						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
-
-						PlaceObjToRoom(obj.get(), GetRoomRnum((*room)->vnum));
-
-						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
-							ObjRnum current_obj_rnum = GetObjRnum((*load_in)->vnum);
-
-							if (obj_proto.actual_count(current_obj_rnum)
-								< obj_proto[current_obj_rnum]->get_max_in_world()) {
-								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
-								if (obj_in
-									&& GET_OBJ_TYPE(obj) == EObjType::kContainer) {
-									PlaceObjIntoObj(obj_in.get(), obj.get());
-									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
-
-									for (int &trigger : (*load_in)->triggers) {
-										auto trig = read_trigger(GetTriggerRnum(trigger));
-										if (!add_trigger(obj_in->get_script().get(), trig, -1)) {
-											ExtractTrigger(trig);
-										}
-									}
-
-									load_otrigger(obj_in.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
-								} else {
-									log("{Error] Processing celebrate %s while loading obj %d",
-										celebrate->name.c_str(),
-										(*load_in)->vnum);
-								}
-							}
-						}
-					} else {
-						log("{Error] Processing celebrate %s while loading mob %d",
-							celebrate->name.c_str(),
-							(*load)->vnum);
-					}
-				}
-			}
-		}
-	}
-}
-
-void process_attach_celebrate(Celebrates::CelebrateDataPtr &celebrate, int zone_vnum) {
-	log("Processing celebrate %s attach section for zone %d", celebrate->name.c_str(), zone_vnum);
-
-	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end()) {
-		//поскольку единственным доступным способом получить всех мобов одного внума является
-		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
-		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
-		for (const auto &ch : character_list) {
-			const auto rnum = ch->get_rnum();
-			if (rnum > 0
-				&& list.find(mob_index[rnum].vnum) != list.end()) {
-				for (int &it : list[mob_index[rnum].vnum]) {
-					auto trig = read_trigger(GetTriggerRnum(it));
-					if (!add_trigger(SCRIPT(ch).get(), trig, -1)) {
-						ExtractTrigger(trig);
-					}
-				}
-
-				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
-			}
-		}
-	}
-
-	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end()) {
-		Celebrates::AttachList list = celebrate->objsToAttach[zone_vnum];
-
-		world_objects.foreach([&](const ObjData::shared_ptr &o) {
-		  if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end()) {
-			  for (auto it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it) {
-				  auto trig = read_trigger(GetTriggerRnum(*it));
-				  if (!add_trigger(o->get_script().get(), trig, -1)) {
-					  ExtractTrigger(trig);
-				  }
-			  }
-
-			  Celebrates::add_obj_to_attach_list(o->get_uid(), o.get());
-		  }
-		});
-	}
-}
-
-void process_celebrates(int vnum) {
-	Celebrates::CelebrateDataPtr mono = Celebrates::get_mono_celebrate();
-	Celebrates::CelebrateDataPtr poly = Celebrates::get_poly_celebrate();
-	Celebrates::CelebrateDataPtr real = Celebrates::get_real_celebrate();
-
-	if (mono) {
-		process_load_celebrate(mono, vnum);
-		process_attach_celebrate(mono, vnum);
-	}
-
-	if (poly) {
-		process_load_celebrate(poly, vnum);
-		process_attach_celebrate(poly, vnum);
-	}
-	if (real) {
-		process_load_celebrate(real, vnum);
-		process_attach_celebrate(real, vnum);
-	}
-}
-
 // Выполить команду, только если предыдущая успешна
 #define        CHECK_SUCCESS        1
 // Команда не должна изменить флаг
@@ -3531,7 +3337,7 @@ void ZoneReset::reset_zone_essential() {
 
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
-	process_celebrates(zone_table[m_zone_rnum].vnum);
+	celebrates::process_celebrates(zone_table[m_zone_rnum].vnum);
 	int rnum_start = 0;
 	int rnum_stop = 0;
 
@@ -4234,77 +4040,6 @@ void SaveGlobalUID() {
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
 }
-
-//Polud тестовый класс для хранения параметров различных рас мобов
-//Читает данные из файла
-const char *MOBRACE_FILE = LIB_CFG "mob_races.xml";
-
-MobRaceListType mobraces_list;
-
-//загрузка рас из файла
-void LoadMobraces() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MOBRACE_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node node_list = doc.child("mob_races");
-
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...mob races read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	for (auto &race : node_list.children("mob_race")) {
-		MobRacePtr tmp_mobrace(new MobRace);
-		auto race_num = race.attribute("id").as_int();
-		tmp_mobrace->race_name = race.attribute("name").value();
-
-		pugi::xml_node imList = race.child("imlist");
-
-		for (pugi::xml_node im = imList.child("im"); im; im = im.next_sibling("im")) {
-			struct ingredient tmp_ingr;
-			tmp_ingr.imtype = im.attribute("type").as_int();
-			tmp_ingr.imname = string(im.attribute("name").value());
-			utils::Trim(tmp_ingr.imname);
-			int cur_lvl = 1;
-			int prob_value = 1;
-			for (pugi::xml_node prob = im.child("prob"); prob; prob = prob.next_sibling("prob")) {
-				int next_lvl = prob.attribute("lvl").as_int();
-				if (next_lvl > 0) {
-					for (int lvl = cur_lvl; lvl < next_lvl; lvl++)
-						tmp_ingr.prob[lvl - 1] = prob_value;
-				} else {
-					log("SYSERROR: Неверный уровень lvl=%d для ингредиента %s расы %s",
-						next_lvl,
-						tmp_ingr.imname.c_str(),
-						tmp_mobrace->race_name.c_str());
-					return;
-				}
-				prob_value = atoi(prob.child_value());
-				cur_lvl = next_lvl;
-			}
-			for (int lvl = cur_lvl; lvl <= kMaxMobLevel; lvl++)
-				tmp_ingr.prob[lvl - 1] = prob_value;
-
-			tmp_mobrace->ingrlist.push_back(tmp_ingr);
-		}
-		mobraces_list[race_num] = tmp_mobrace;
-	}
-}
-
-MobRace::MobRace() {
-	ingrlist.clear();
-}
-
-MobRace::~MobRace() {
-	ingrlist.clear();
-}
-//-Polud
 
 void LoadSpeedwalk() {
 

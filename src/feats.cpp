@@ -3,7 +3,7 @@
 
 #include <third_party_libs/fmt/include/fmt/core.h>
 
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "color.h"
 #include "game_magic/magic_utils.h"
 #include "structs/global_objects.h"

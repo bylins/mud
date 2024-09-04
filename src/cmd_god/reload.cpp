@@ -23,6 +23,7 @@
 #include "help.h"
 #include "utils/utils.h"
 #include "game_mechanics/bonus.h"
+#include "game_mechanics/mob_races.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -62,11 +63,11 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
-		LoadMobraces();
+		mob_races::LoadMobraces();
 		load_morphs();
 		GlobalDrop::init();
 		offtop_system::Init();
-		Celebrates::load();
+		celebrates::load();
 		HelpSystem::reload_all();
 		Remort::init();
 		Noob::init();
@@ -154,7 +155,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "privilege"))
 		privilege::Load();
 	else if (!str_cmp(arg, "mobraces"))
-		LoadMobraces();
+		mob_races::LoadMobraces();
 	else if (!str_cmp(arg, "morphs"))
 		load_morphs();
 	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
@@ -179,7 +180,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "named")) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
-		Celebrates::load();
+		celebrates::load();
 	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {

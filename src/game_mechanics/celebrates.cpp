@@ -4,12 +4,16 @@
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "structs/global_objects.h"
+#include "obj_prototypes.h"
 #include "handler.h"
 #include "backtrace.h"
 
 extern void ExtractTrigger(Trigger *trig);
 
-namespace Celebrates {
+namespace celebrates {
+
+const int CLEAN_PERIOD{10};
+
 int tab_day[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};//да и хрен с ним, с 29 февраля!
 
 CelebrateList &mono_celebrates = GlobalObjects::mono_celebrates();
@@ -66,7 +70,7 @@ std::string get_name_poly(int day) {
 	else return "";
 }
 
-std::string add_rest(CelebrateList::iterator it, CelebrateDataPtr celebrate) {
+std::string add_rest(CelebrateList::iterator it, const CelebrateDataPtr& celebrate) {
 	int days_count = 0;
 	while (it->second->celebrate == celebrate) {
 		days_count++;
@@ -85,8 +89,8 @@ std::string add_rest(CelebrateList::iterator it, CelebrateDataPtr celebrate) {
 }
 
 std::string get_name_real(int day) {
-	CelebrateList::iterator it = real_celebrates.find(day);
-	std::string result = "";
+	auto it = real_celebrates.find(day);
+	std::string result;
 	if (it != real_celebrates.end()) {
 		if (real_celebrates[day]->start_at <= get_real_hour() && real_celebrates[day]->finish_at >= get_real_hour())
 			result = real_celebrates[day]->celebrate->name;// + add_rest(it, real_celebrates[day]->celebrate)
@@ -106,7 +110,7 @@ void parse_trig_list(pugi::xml_node node, TrigList *triggers) {
 	}
 }
 
-void parse_load_data(pugi::xml_node node, LoadPtr node_data) {
+void parse_load_data(pugi::xml_node node, const LoadPtr& node_data) {
 	int vnum = node.attribute("vnum").as_int();
 	int max = node.attribute("max").as_int();
 	if (!vnum || !max) {
@@ -118,7 +122,7 @@ void parse_load_data(pugi::xml_node node, LoadPtr node_data) {
 	node_data->max = max;
 }
 
-void parse_load_section(pugi::xml_node node, CelebrateDataPtr holiday) {
+void parse_load_section(pugi::xml_node node, const CelebrateDataPtr& holiday) {
 	for (pugi::xml_node room = node.child("room"); room; room = room.next_sibling("room")) {
 		int vnum = room.attribute("vnum").as_int();
 		if (!vnum) {
@@ -159,7 +163,7 @@ void parse_load_section(pugi::xml_node node, CelebrateDataPtr holiday) {
 		holiday->rooms[tmp_room->vnum / 100].push_back(tmp_room);
 	}
 }
-void parse_attach_section(pugi::xml_node node, CelebrateDataPtr holiday) {
+void parse_attach_section(pugi::xml_node node, const CelebrateDataPtr& holiday) {
 	pugi::xml_node attaches = node.child("attaches");
 	int vnum;
 	for (pugi::xml_node mob = attaches.child("mob"); mob; mob = mob.next_sibling("mob")) {
@@ -355,19 +359,19 @@ CelebrateDataPtr get_real_celebrate() {
 
 class sc_Checker {
  public:
-	sc_Checker(const TrigList &trigs);
-	void set_inside_loop() { m_inside_loop = true; }
-	void set_current_trigger(const TrigList::value_type current_trigger) { m_current_trigger = current_trigger; }
-	void report_null_sc() const;
+  explicit sc_Checker(const TrigList &trigs);
+  void set_inside_loop() { m_inside_loop = true; }
+  void set_current_trigger(const TrigList::value_type current_trigger) { m_current_trigger = current_trigger; }
+  void report_null_sc() const;
 
  private:
-	auto get_inside_loop() const { return m_inside_loop; }
-	const auto &triggers_list() const { return m_triggers_list; }
-	auto get_current_trigger() const { return m_current_trigger; }
+  [[nodiscard]] auto get_inside_loop() const { return m_inside_loop; }
+  [[nodiscard]] const auto &triggers_list() const { return m_triggers_list; }
+  [[nodiscard]] auto get_current_trigger() const { return m_current_trigger; }
 
-	bool m_inside_loop;
-	TrigList m_triggers_list;
-	TrigList::value_type m_current_trigger;
+  bool m_inside_loop;
+  TrigList m_triggers_list;
+  TrigList::value_type m_current_trigger;
 };
 
 sc_Checker::sc_Checker(const TrigList &trigs) : m_inside_loop(false), m_triggers_list(trigs), m_current_trigger(0) {
@@ -389,22 +393,22 @@ void sc_Checker::report_null_sc() const {
 	mudlog(ss.str().c_str(), DEF, kLvlImplementator, ERRLOG, false);
 }
 
-void remove_triggers(TrigList trigs, Script *sc) {
+void remove_triggers(const TrigList& trigs, Script *sc) {
 	sc_Checker checker(trigs);
 	if (nullptr == sc) {
 		checker.report_null_sc();
 		return;
 	}
 
-	for (TrigList::const_iterator it = trigs.begin(); it != trigs.end(); ++it) {
+	for (int trig : trigs) {
 		if (nullptr == sc) {
 			checker.set_inside_loop();
-			checker.set_current_trigger(*it);
+			checker.set_current_trigger(trig);
 			checker.report_null_sc();
 			return;
 		}
 
-		Trigger *removed = sc->trig_list.remove_by_vnum(*it);
+		Trigger *removed = sc->trig_list.remove_by_vnum(trig);
 		if (removed) {
 			ExtractTrigger(removed);
 			SCRIPT_TYPES(sc) = sc->trig_list.get_type();
@@ -413,7 +417,7 @@ void remove_triggers(TrigList trigs, Script *sc) {
 }
 
 void remove_from_obj_lists(long uid) {
-	CelebrateObjs::iterator it = attached_objs.find(uid);
+	auto it = attached_objs.find(uid);
 	if (it != attached_objs.end()) {
 		attached_objs.erase(it);
 	}
@@ -425,7 +429,7 @@ void remove_from_obj_lists(long uid) {
 }
 
 void remove_from_mob_lists(long uid) {
-	CelebrateMobs::iterator it = attached_mobs.find(uid);
+	auto it = attached_mobs.find(uid);
 	if (it != attached_mobs.end())
 		attached_mobs.erase(it);
 	it = loaded_mobs.find(uid);
@@ -433,16 +437,16 @@ void remove_from_mob_lists(long uid) {
 		loaded_mobs.erase(it);
 }
 
-bool make_clean(CelebrateDataPtr celebrate) {
+bool make_clean(const CelebrateDataPtr& celebrate) {
 	CelebrateObjs::iterator obj_it;
 	CelebrateMobs::iterator mob_it;
 
 	for (mob_it = attached_mobs.begin(); mob_it != attached_mobs.end(); ++mob_it) {
 		const auto rnum = mob_it->second->get_rnum();
 		int vnum = mob_index[rnum].vnum;
-		for (AttachZonList::iterator it = celebrate->mobsToAttach.begin(); it != celebrate->mobsToAttach.end(); ++it) {
-			if (it->second.find(vnum) != it->second.end()) {
-				remove_triggers(it->second[vnum], mob_it->second->script.get());
+		for (auto & it : celebrate->mobsToAttach) {
+			if (it.second.find(vnum) != it.second.end()) {
+				remove_triggers(it.second[vnum], mob_it->second->script.get());
 			}
 		}
 
@@ -454,9 +458,9 @@ bool make_clean(CelebrateDataPtr celebrate) {
 
 	for (obj_it = attached_objs.begin(); obj_it != attached_objs.end(); ++obj_it) {
 		int vnum = obj_it->second->get_rnum();
-		for (AttachZonList::iterator it = celebrate->objsToAttach.begin(); it != celebrate->objsToAttach.end(); ++it) {
-			if (it->second.find(vnum) != it->second.end()) {
-				remove_triggers(it->second[vnum], obj_it->second->get_script().get());
+		for (auto & it : celebrate->objsToAttach) {
+			if (it.second.find(vnum) != it.second.end()) {
+				remove_triggers(it.second[vnum], obj_it->second->get_script().get());
 			}
 		}
 
@@ -472,10 +476,10 @@ bool make_clean(CelebrateDataPtr celebrate) {
 	for (const auto &mob : loaded_mobs_copy) {
 		const auto rnum = mob->get_rnum();
 		const int vnum = mob_index[rnum].vnum;
-		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end(); ++rooms) {
-			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room) {
-				for (LoadList::iterator it = (*room)->mobs.begin(); it != (*room)->mobs.end(); ++it) {
-					if ((*it)->vnum == vnum) {
+		for (auto & rooms : celebrate->rooms) {
+			for (auto room = rooms.second.begin(); room != rooms.second.end(); ++room) {
+				for (auto & it : (*room)->mobs) {
+					if (it->vnum == vnum) {
 						// This function is very bad because modifies global variable loaded_mobs
 						// Initially loop was over this global variable. Therefore this loop constantly crashed.
 						// I've changed loop variable to the copy of loaded_mobs, but it's still a bad approach.
@@ -488,10 +492,10 @@ bool make_clean(CelebrateDataPtr celebrate) {
 
 	for (obj_it = loaded_objs.begin(); obj_it != loaded_objs.end(); ++obj_it) {
 		const int vnum = obj_it->second->get_rnum();
-		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end(); ++rooms) {
-			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room) {
-				for (LoadList::iterator it = (*room)->objects.begin(); it != (*room)->objects.end(); ++it) {
-					if ((*it)->vnum == vnum) {
+		for (auto &rooms : celebrate->rooms) {
+			for (auto & room : rooms.second) {
+				for (auto &object : room->objects) {
+					if (object->vnum == vnum) {
 						ExtractObjFromWorld(obj_it->second);
 					}
 				}
@@ -503,11 +507,11 @@ bool make_clean(CelebrateDataPtr celebrate) {
 		}
 	}
 
-	for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end(); ++rooms) {
-		for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room) {
-			if (!(*room)->triggers.empty()) {
-				const int rnum = GetRoomRnum((*room)->vnum);
-				remove_triggers((*room)->triggers, world[rnum]->script.get());
+	for (auto &rooms : celebrate->rooms) {
+		for (auto & room : rooms.second) {
+			if (!room->triggers.empty()) {
+				const int rnum = GetRoomRnum(room->vnum);
+				remove_triggers(room->triggers, world[rnum]->script.get());
 			}
 		}
 	}
@@ -546,6 +550,202 @@ void sanitize() {
 	clear_mud_celebrates(poly_celebrates);
 	clear_mud_celebrates(mono_celebrates);
 }
+
+void process_load_celebrate(CelebrateDataPtr &celebrate, int vnum) {
+	CelebrateRoomsList::iterator room;
+	LoadList::iterator load, load_in;
+
+	log("Processing celebrate %s load section for zone %d", celebrate->name.c_str(), vnum);
+
+	if (celebrate->rooms.find(vnum) != celebrate->rooms.end()) {
+		for (room = celebrate->rooms[vnum].begin(); room != celebrate->rooms[vnum].end(); ++room) {
+			RoomRnum rn = GetRoomRnum((*room)->vnum);
+			if (rn != kNowhere) {
+				for (int &trigger : (*room)->triggers) {
+					auto trig = read_trigger(GetTriggerRnum(trigger));
+					if (!add_trigger(world[rn]->script.get(), trig, -1)) {
+						ExtractTrigger(trig);
+					}
+				}
+			}
+
+			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load) {
+				CharData *mob;
+				int i = GetMobRnum((*load)->vnum);
+				if (i > 0
+					&& mob_index[i].total_online < (*load)->max) {
+					mob = read_mobile(i, REAL);
+					if (mob) {
+						for (int &trigger : (*load)->triggers) {
+							auto trig = read_trigger(GetTriggerRnum(trigger));
+							if (!add_trigger(SCRIPT(mob).get(), trig, -1)) {
+								ExtractTrigger(trig);
+							}
+						}
+						load_mtrigger(mob);
+						PlaceCharToRoom(mob, GetRoomRnum((*room)->vnum));
+						add_mob_to_load_list(mob->id, mob);
+						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
+							ObjRnum rnum = GetObjRnum((*load_in)->vnum);
+
+							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
+								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
+								if (obj) {
+									PlaceObjToInventory(obj.get(), mob);
+									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
+
+									for (int &trigger : (*load_in)->triggers) {
+										auto trig = read_trigger(GetTriggerRnum(trigger));
+										if (!add_trigger(obj->get_script().get(), trig, -1)) {
+											ExtractTrigger(trig);
+										}
+									}
+
+									load_otrigger(obj.get());
+									add_obj_to_load_list(obj->get_uid(), obj.get());
+								} else {
+									log("{Error] Processing celebrate %s while loading obj %d",
+										celebrate->name.c_str(),
+										(*load_in)->vnum);
+								}
+							}
+						}
+					} else {
+						log("{Error] Processing celebrate %s while loading mob %d",
+							celebrate->name.c_str(),
+							(*load)->vnum);
+					}
+				}
+			}
+			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
+				ObjData *obj_room;
+				ObjRnum rnum = GetObjRnum((*load)->vnum);
+				if (rnum == -1) {
+					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
+					return;
+				}
+				int obj_in_room = 0;
+
+				for (obj_room = world[rn]->contents; obj_room; obj_room = obj_room->get_next_content()) {
+					if (rnum == GET_OBJ_RNUM(obj_room)) {
+						obj_in_room++;
+					}
+				}
+
+				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
+					&& (obj_in_room < (*load)->max)) {
+					const auto obj = world_objects.create_from_prototype_by_vnum((*load)->vnum);
+					if (obj) {
+						for (int &trigger : (*load)->triggers) {
+							auto trig = read_trigger(GetTriggerRnum(trigger));
+							if (!add_trigger(obj->get_script().get(), trig, -1)) {
+								ExtractTrigger(trig);
+							}
+						}
+						load_otrigger(obj.get());
+						add_obj_to_load_list(obj->get_uid(), obj.get());
+
+						PlaceObjToRoom(obj.get(), GetRoomRnum((*room)->vnum));
+
+						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
+							ObjRnum current_obj_rnum = GetObjRnum((*load_in)->vnum);
+
+							if (obj_proto.actual_count(current_obj_rnum)
+								< obj_proto[current_obj_rnum]->get_max_in_world()) {
+								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
+								if (obj_in
+									&& GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+									PlaceObjIntoObj(obj_in.get(), obj.get());
+									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
+
+									for (int &trigger : (*load_in)->triggers) {
+										auto trig = read_trigger(GetTriggerRnum(trigger));
+										if (!add_trigger(obj_in->get_script().get(), trig, -1)) {
+											ExtractTrigger(trig);
+										}
+									}
+
+									load_otrigger(obj_in.get());
+									add_obj_to_load_list(obj->get_uid(), obj.get());
+								} else {
+									log("{Error] Processing celebrate %s while loading obj %d",
+										celebrate->name.c_str(),
+										(*load_in)->vnum);
+								}
+							}
+						}
+					} else {
+						log("{Error] Processing celebrate %s while loading mob %d",
+							celebrate->name.c_str(),
+							(*load)->vnum);
+					}
+				}
+			}
+		}
+	}
 }
+
+void process_attach_celebrate(CelebrateDataPtr &celebrate, int zone_vnum) {
+	log("Processing celebrate %s attach section for zone %d", celebrate->name.c_str(), zone_vnum);
+
+	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end()) {
+		//поскольку единственным доступным способом получить всех мобов одного внума является
+		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
+		AttachList list = celebrate->mobsToAttach[zone_vnum];
+		for (const auto &ch : character_list) {
+			const auto rnum = ch->get_rnum();
+			if (rnum > 0
+				&& list.find(mob_index[rnum].vnum) != list.end()) {
+				for (int &it : list[mob_index[rnum].vnum]) {
+					auto trig = read_trigger(GetTriggerRnum(it));
+					if (!add_trigger(SCRIPT(ch).get(), trig, -1)) {
+						ExtractTrigger(trig);
+					}
+				}
+
+				add_mob_to_attach_list(ch->id, ch.get());
+			}
+		}
+	}
+
+	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end()) {
+		AttachList list = celebrate->objsToAttach[zone_vnum];
+
+		world_objects.foreach([&](const ObjData::shared_ptr &o) {
+		  if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end()) {
+			  for (auto it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it) {
+				  auto trig = read_trigger(GetTriggerRnum(*it));
+				  if (!add_trigger(o->get_script().get(), trig, -1)) {
+					  ExtractTrigger(trig);
+				  }
+			  }
+
+			  add_obj_to_attach_list(o->get_uid(), o.get());
+		  }
+		});
+	}
+}
+
+void process_celebrates(int vnum) {
+	CelebrateDataPtr mono = get_mono_celebrate();
+	CelebrateDataPtr poly = get_poly_celebrate();
+	CelebrateDataPtr real = get_real_celebrate();
+
+	if (mono) {
+		process_load_celebrate(mono, vnum);
+		process_attach_celebrate(mono, vnum);
+	}
+
+	if (poly) {
+		process_load_celebrate(poly, vnum);
+		process_attach_celebrate(poly, vnum);
+	}
+	if (real) {
+		process_load_celebrate(real, vnum);
+		process_attach_celebrate(real, vnum);
+	}
+}
+
+} // namespace Celebrates
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

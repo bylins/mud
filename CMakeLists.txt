@@ -135,7 +135,7 @@ set(SOURCES
 		src/utils/parse.cpp
 		src/administration/password.cpp
 		src/game_fight/pk.cpp
-		src/entities/player_races.cpp
+		src/game_mechanics/player_races.cpp
 		src/administration/privilege.cpp
         src/third_party_libs/pugixml/pugixml.cpp
 		src/game_quests/quested.cpp
@@ -287,7 +287,8 @@ set(SOURCES
 		src/cmd/remort.cpp
 		src/game_mechanics/dungeons.cpp
 		src/cmd_god/tabulate.cpp
-		src/cmd_god/reload.cpp)
+		src/cmd_god/reload.cpp
+		src/game_mechanics/mob_races.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -457,7 +458,7 @@ set(HEADERS
 		src/administration/password.h
 		src/game_fight/pk.h
 		src/entities/player_i.h
-		src/entities/player_races.h
+		src/game_mechanics/player_races.h
 		src/administration/privilege.h
         src/third_party_libs/pugixml/pugiconfig.h
         src/third_party_libs/pugixml/pugixml.h
@@ -555,7 +556,8 @@ set(HEADERS
 		src/cmd/remort.h
 		src/game_mechanics/dungeons.h
 		src/cmd_god/tabulate.h
-		src/cmd_god/reload.h)
+		src/cmd_god/reload.h
+		src/game_mechanics/mob_races.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

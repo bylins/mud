@@ -55,7 +55,6 @@ void LoadSheduledReboot();
 void initIngredientsMagic();
 void InitZoneTypes();
 void InitPortals();
-void LoadMobraces();
 int AllocateBufferForFile(const char *name, char **destination_buf);
 
 int load_char(const char *name, CharData *char_element, int load_flags);
@@ -210,26 +209,6 @@ class PlayerIndexElement {
 	int m_id;
 	const char *m_name;
 };
-
-//Polud тестовый класс для хранения параметров различных рас мобов
-struct ingredient {
-	int imtype;
-	std::string imname;
-	std::array<int, kMaxMobLevel + 1> prob; // вероятность загрузки для каждого уровня моба
-};
-
-class MobRace {
- public:
-	MobRace();
-	~MobRace();
-	std::string race_name;
-	std::vector<ingredient> ingrlist;
-};
-
-typedef std::shared_ptr<MobRace> MobRacePtr;
-typedef std::map<int, MobRacePtr> MobRaceListType;
-
-//-Polud
 
 extern RoomRnum top_of_world;
 extern std::unordered_map<long, CharData *> chardata_by_uid;

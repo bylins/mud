@@ -1,7 +1,7 @@
 #include "stat.h"
 #include "ban.h"
 #include "entities/char_player.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "utils/utils_char_obj.inl"
 #include "description.h"
 #include "game_fight/fight_hit.h"

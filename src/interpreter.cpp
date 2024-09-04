@@ -137,7 +137,7 @@
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "game_mechanics/birthplaces.h"
 #include "help.h"
 #include "mapsystem.h"

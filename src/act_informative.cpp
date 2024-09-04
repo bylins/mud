@@ -51,7 +51,7 @@
 #include "entities/room_data.h"
 #include "game_mechanics/glory_const.h"
 #include "structs/global_objects.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "corpse.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_mechanics/weather.h"

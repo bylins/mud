@@ -35,7 +35,7 @@
 #include "entities/room_data.h"
 #include "modify.h"
 #include "house.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "depot.h"
 #include "obj_save.h"
 #include "game_fight/fight.h"

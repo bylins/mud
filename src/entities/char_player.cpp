@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "structs/global_objects.h"
 #include "game_affects/affect_handler.h"
-#include "player_races.h"
+#include "game_mechanics/player_races.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"

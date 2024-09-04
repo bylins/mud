@@ -10,13 +10,13 @@ struct GlobalObjectsStorage {
 	/// This object should be destroyed last because it serves all output operations. So I define it first.
 	std::shared_ptr<OutputThread> output_thread;
 
-	Celebrates::CelebrateList mono_celebrates;
-	Celebrates::CelebrateList poly_celebrates;
-	Celebrates::CelebrateList real_celebrates;
-	Celebrates::CelebrateMobs attached_mobs;
-	Celebrates::CelebrateMobs loaded_mobs;
-	Celebrates::CelebrateObjs attached_objs;
-	Celebrates::CelebrateObjs loaded_objs;
+	celebrates::CelebrateList mono_celebrates;
+	celebrates::CelebrateList poly_celebrates;
+	celebrates::CelebrateList real_celebrates;
+	celebrates::CelebrateMobs attached_mobs;
+	celebrates::CelebrateMobs loaded_mobs;
+	celebrates::CelebrateObjs attached_objs;
+	celebrates::CelebrateObjs loaded_objs;
 
 	GlobalTriggersStorage trigger_list;
 	Rooms world;
@@ -176,31 +176,31 @@ ZoneTable &GlobalObjects::zone_table() {
 	return global_objects().zone_table;
 }
 
-Celebrates::CelebrateList &GlobalObjects::mono_celebrates() {
+celebrates::CelebrateList &GlobalObjects::mono_celebrates() {
 	return global_objects().mono_celebrates;
 }
 
-Celebrates::CelebrateList &GlobalObjects::poly_celebrates() {
+celebrates::CelebrateList &GlobalObjects::poly_celebrates() {
 	return global_objects().poly_celebrates;
 }
 
-Celebrates::CelebrateList &GlobalObjects::real_celebrates() {
+celebrates::CelebrateList &GlobalObjects::real_celebrates() {
 	return global_objects().real_celebrates;
 }
 
-Celebrates::CelebrateMobs &GlobalObjects::attached_mobs() {
+celebrates::CelebrateMobs &GlobalObjects::attached_mobs() {
 	return global_objects().attached_mobs;
 }
 
-Celebrates::CelebrateMobs &GlobalObjects::loaded_mobs() {
+celebrates::CelebrateMobs &GlobalObjects::loaded_mobs() {
 	return global_objects().loaded_mobs;
 }
 
-Celebrates::CelebrateObjs &GlobalObjects::attached_objs() {
+celebrates::CelebrateObjs &GlobalObjects::attached_objs() {
 	return global_objects().attached_objs;
 }
 
-Celebrates::CelebrateObjs &GlobalObjects::loaded_objs() {
+celebrates::CelebrateObjs &GlobalObjects::loaded_objs() {
 	return global_objects().loaded_objs;
 }
 

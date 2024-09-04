@@ -24,7 +24,7 @@
 #include "entities/char_data.h"
 #include "entities/obj_data.h"
 #include "entities/char_player.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "entities/entities_constants.h"
 #include "entities/world_characters.h"
 #include "cmd_god/stat.h"
@@ -4163,7 +4163,7 @@ void do_spellstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_sanitize(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("Запущена процедура сбора мусора после праздника...\r\n", ch);
-	Celebrates::sanitize();
+	celebrates::sanitize();
 }
 
 void do_loadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

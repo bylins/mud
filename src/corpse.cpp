@@ -11,7 +11,6 @@
 #include "house.h"
 #include "utils/parse.h"
 #include "utils/random.h"
-#include "game_economics/currencies.h"
 
 // see http://stackoverflow.com/questions/20145488/cygwin-g-stdstoi-error-stoi-is-not-a-member-of-std
 #if defined __CYGWIN__
@@ -20,7 +19,6 @@
 #endif
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
-extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload);
 extern ObjData::shared_ptr CreateCurrencyObj(long quantity);
 

@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "administration/privilege.h"
 #include "char_player.h"
-#include "player_races.h"
+#include "game_mechanics/player_races.h"
 //#include "game_mechanics/celebrates.h"
 #include "cache.h"
 #include "game_fight/fight.h"
@@ -437,7 +437,7 @@ void CharData::purge() {
 		ExpireTimedSkill(this, this->timed);
 	}
 
-	Celebrates::remove_from_mob_lists(this->id);
+	celebrates::remove_from_mob_lists(this->id);
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
 	if (this->player_specials && !keep_player_specials) {

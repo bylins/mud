@@ -9,9 +9,9 @@
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class ObjData;        // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
-namespace Celebrates {
+namespace celebrates {
 
-const int CLEAN_PERIOD = 10;
+extern const int CLEAN_PERIOD;
 
 typedef std::vector<int> TrigList;
 struct ToLoad;
@@ -59,14 +59,10 @@ struct CelebrateDay {
 	CelebrateDataPtr celebrate;
 };
 
-typedef std::shared_ptr<CelebrateDay> CelebrateDayPtr;
-typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
-typedef std::map<long, CharData *> CelebrateMobs;
-typedef std::map<long, ObjData *> CelebrateObjs;
-
-CelebrateDataPtr get_mono_celebrate();
-CelebrateDataPtr get_poly_celebrate();
-CelebrateDataPtr get_real_celebrate();
+using CelebrateDayPtr = std::shared_ptr<CelebrateDay>;
+using CelebrateList = std::map<int, CelebrateDayPtr>; //номер дня в году, праздник
+using CelebrateMobs = std::map<long, CharData *>;
+using CelebrateObjs = std::map<long, ObjData *>;
 
 std::string get_name_mono(int day);
 std::string get_name_poly(int day);
@@ -85,6 +81,8 @@ void add_obj_to_load_list(long, ObjData *);
 
 void remove_from_obj_lists(long uid);
 void remove_from_mob_lists(long uid);
+
+void process_celebrates(int vnum);
 
 };
 
