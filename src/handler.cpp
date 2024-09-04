@@ -509,11 +509,11 @@ void ArrangeObjs(ObjData *obj, ObjData **list_start) {
 // * Инициализация уида для нового объекта.
 void InitUid(ObjData *object) {
 	if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
-		GET_OBJ_UID(object) == 0)   // У объекта точно нет уида
+		GET_OBJ_UNIQUE_ID(object) == 0)   // У объекта точно нет уида
 	{
 		global_uid++; // Увеличиваем глобальный счетчик уидов
 		global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
-		object->set_uid(global_uid); // Назначаем уид
+		object->set_unique_id(global_uid); // Назначаем уид
 	}
 }
 
@@ -545,12 +545,12 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 		if (!ch->IsNpc()
 			|| (ch->has_master()
 				&& !ch->get_master()->IsNpc())) {
-			if (object && GET_OBJ_UID(object) != 0 && object->get_timer() > 0) {
-				tuid = GET_OBJ_UID(object);
+			if (object && GET_OBJ_UNIQUE_ID(object) != 0 && object->get_timer() > 0) {
+				tuid = GET_OBJ_UNIQUE_ID(object);
 				inworld = 1;
 				// Объект готов для проверки. Ищем в мире такой же.
 				world_objects.foreach_with_vnum(GET_OBJ_VNUM(object), [&inworld, tuid, object](const ObjData::shared_ptr &i) {
-					if (GET_OBJ_UID(i) == tuid // UID совпадает
+					if (GET_OBJ_UNIQUE_ID(i) == tuid // UID совпадает
 						&& i->get_timer() > 0  // Целенький
 						&& object != i.get()) // Не оно же
 					{
@@ -561,9 +561,9 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 				if (inworld > 1) // У объекта есть как минимум одна копия
 				{
 					sprintf(buf,
-							"Copy detected and prepared to extract! Object %s (UID=%u, VNUM=%d), holder %s. In world %d.",
+							"Copy detected and prepared to extract! Object %s (UID=%ld, VNUM=%d), holder %s. In world %d.",
 							object->get_PName(0).c_str(),
-							GET_OBJ_UID(object),
+							GET_OBJ_UNIQUE_ID(object),
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
 							inworld);
@@ -575,11 +575,11 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 			} // Назначаем UID
 			else {
 				InitUid(object);
-				log("%s obj_to_char %s #%d|%u",
+				log("%s obj_to_char %s #%d|%ld",
 					GET_NAME(ch),
 					object->get_PName(0).c_str(),
 					GET_OBJ_VNUM(object),
-					object->get_uid());
+					object->get_unique_id());
 			}
 		}
 

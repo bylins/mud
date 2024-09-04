@@ -543,7 +543,7 @@ void npc_wield(CharData *ch) {
 	for (obj = ch->carrying; obj; obj = next) {
 		next = obj->get_next_content();
 		if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
-			|| GET_OBJ_UID(obj) != 0) {
+			|| GET_OBJ_UNIQUE_ID(obj) != 0) {
 			continue;
 		}
 

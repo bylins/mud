@@ -703,7 +703,7 @@ class ObjData : public CObjectPrototype {
 	auto get_next_content() const { return m_next_content; }
 	auto get_owner() const { return m_owner; }
 	auto get_room_was_in() const { return m_room_was_in; }
-	auto get_uid() const { return m_uid; }
+	auto get_unique_id() const { return m_unique_id; }
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
 	auto get_vnum_zone_from() const { return m_zone_from; }
@@ -733,7 +733,7 @@ class ObjData : public CObjectPrototype {
 	void set_script(const std::shared_ptr<Script> &_) { m_script = _; }
 	void set_script(Script *_);
 	void cleanup_script();
-	void set_uid(const unsigned _);
+	void set_unique_id(const long _);
 	void set_worn_by(CharData *_) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_vnum_zone_from(const int _) { m_zone_from = _; }
@@ -752,11 +752,11 @@ class ObjData : public CObjectPrototype {
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr &observer) { m_id_change_observers.insert(observer); }
 	void unsubscribe_from_id_change(const IDChangeObserver::shared_ptr &observer) { m_id_change_observers.erase(observer); }
 
-	void subscribe_for_uid_change(const UIDChangeObserver::shared_ptr &observer) {
-		m_uid_change_observers.insert(observer);
+	void subscribe_for_unique_id_change(const UIDChangeObserver::shared_ptr &observer) {
+		m_unique_id_change_observers.insert(observer);
 	}
-	void unsubscribe_from_uid_change(const UIDChangeObserver::shared_ptr &observer) {
-		m_uid_change_observers.erase(observer);
+	void unsubscribe_from_unique_id_change(const UIDChangeObserver::shared_ptr &observer) {
+		m_unique_id_change_observers.erase(observer);
 	}
 
 	void attach_triggers(const triggers_list_t &trigs);
@@ -766,7 +766,7 @@ class ObjData : public CObjectPrototype {
 
 	void detach_ex_description();
 
-	unsigned int m_uid;
+	long m_unique_id;
 	RoomRnum m_in_room;    // In what room -1 when conta/carr //
 	int m_room_was_in;
 
@@ -792,7 +792,7 @@ class ObjData : public CObjectPrototype {
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 
-	object_id_t m_id;            // used by DG triggers              //
+	long  m_id;            // used by DG triggers              //
 	std::shared_ptr<Script> m_script;    // script info for the object       //
 
 	// порядковый номер в списке чаров (для name_list)
@@ -803,7 +803,7 @@ class ObjData : public CObjectPrototype {
 	std::pair<bool, int> m_activator;
 
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
-	std::unordered_set<UIDChangeObserver::shared_ptr> m_uid_change_observers;
+	std::unordered_set<UIDChangeObserver::shared_ptr> m_unique_id_change_observers;
 };
 
 inline void CObjectPrototype::set_affected(const size_t index, const EApply location, const int modifier) {

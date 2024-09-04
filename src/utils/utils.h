@@ -823,7 +823,7 @@ const int kNameLevel = 5;
 
 
 // object utils *********************************************************
-#define GET_OBJ_UID(obj)    ((obj)->get_uid())
+#define GET_OBJ_UNIQUE_ID(obj)    ((obj)->get_unique_id())
 
 #define GET_OBJ_ALIAS(obj)      ((obj)->get_aliases())
 #define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))

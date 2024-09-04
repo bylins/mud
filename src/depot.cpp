@@ -224,7 +224,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 			continue;
 		}
 
-		if (GET_OBJ_UID(obj) == obj_uid
+		if (GET_OBJ_UNIQUE_ID(obj) == obj_uid
 			&& obj->get_vnum() == obj_vnum) {
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
@@ -492,7 +492,7 @@ void CharNode::add_cost_per_day(ObjData *obj) {
 void write_objlist_timedata(const ObjListType &cont, std::stringstream &out) {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it) {
 		out << GET_OBJ_VNUM(obj_it->get()) << " " << (*obj_it)->get_timer() << " "
-			<< get_object_low_rent(obj_it->get()) << " " << GET_OBJ_UID(obj_it->get()) << "\n";
+			<< get_object_low_rent(obj_it->get()) << " " << GET_OBJ_UNIQUE_ID(obj_it->get()) << "\n";
 	}
 }
 
@@ -556,7 +556,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it) {
 		depot_log("save: %s %d %d",
 				  (*obj_it)->get_short_description().c_str(),
-				  GET_OBJ_UID(obj_it->get()),
+				  GET_OBJ_UNIQUE_ID(obj_it->get()),
 				  GET_OBJ_VNUM(obj_it->get()));
 		write_one_object(out, obj_it->get(), 0);
 	}
@@ -611,14 +611,14 @@ void CharNode::update_online_item() {
 								  char_get_custom_label(obj_it->get(), ch).c_str(),
 								  GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
 				} else {
-					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(obj_it->get()), GET_OBJ_UID(obj_it->get()));
+					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(obj_it->get()), GET_OBJ_UNIQUE_ID(obj_it->get()));
 				}
 			}
 
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			depot_log("zero timer, online extract: %s %d %d",
 					  (*obj_it)->get_short_description().c_str(),
-					  GET_OBJ_UID(obj_it->get()),
+					  GET_OBJ_UNIQUE_ID(obj_it->get()),
 					  GET_OBJ_VNUM(obj_it->get()));
 			ExtractObjFromWorld(obj_it->get());
 			pers_online.erase(obj_it++);
@@ -732,7 +732,7 @@ void CharNode::reset() {
 		depot_log("reset %s: online extract %s %d %d",
 				  name.c_str(),
 				  (*obj_it)->get_short_description().c_str(),
-				  GET_OBJ_UID(obj_it->get()),
+				  GET_OBJ_UNIQUE_ID(obj_it->get()),
 				  GET_OBJ_VNUM(obj_it->get()));
 		ExtractObjFromWorld(obj_it->get());
 	}
@@ -1023,7 +1023,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 	depot_log("put_depot %s %ld: %s %d %d",
 			  GET_NAME(ch), GET_UNIQUE(ch), obj->get_short_description().c_str(),
-			  GET_OBJ_UID(obj), GET_OBJ_VNUM(obj.get()));
+			  GET_OBJ_UNIQUE_ID(obj), GET_OBJ_VNUM(obj.get()));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
@@ -1069,7 +1069,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, Cha
 	depot_log("remove_item %s: %s %d %d",
 			  name.c_str(),
 			  (*obj_it)->get_short_description().c_str(),
-			  GET_OBJ_UID(obj_it->get()),
+			  GET_OBJ_UNIQUE_ID(obj_it->get()),
 			  GET_OBJ_VNUM(obj_it->get()));
 	world_objects.add(*obj_it);
 	PlaceObjToInventory(obj_it->get(), vict);
@@ -1241,13 +1241,13 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 			// собсна сверимся со списком таймеров и проставим изменившиеся данные
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
 														  [&](const OfflineNode &x) {
-															  return x.uid == GET_OBJ_UID(obj);
+															  return x.uid == GET_OBJ_UNIQUE_ID(obj);
 														  });
 
 			if (obj_it != offline_list.end() && obj_it->vnum == obj->get_vnum()) {
 				depot_log("load object %s %d %d",
 						  obj->get_short_description().c_str(),
-						  GET_OBJ_UID(obj),
+						  GET_OBJ_UNIQUE_ID(obj),
 						  obj->get_vnum());
 				obj->set_timer(obj_it->timer);
 				int temp_timer = obj_proto[obj->get_rnum()]->get_timer();
@@ -1262,7 +1262,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 			} else {
 				depot_log("extract object %s %d %d",
 						  obj->get_short_description().c_str(),
-						  GET_OBJ_UID(obj),
+						  GET_OBJ_UNIQUE_ID(obj),
 						  obj->get_vnum());
 				ExtractObjFromWorld(obj.get());
 				continue;
@@ -1319,13 +1319,13 @@ void CharNode::online_to_offline(ObjListType &cont) {
 		depot_log("online_to_offline %s: %s %d %d",
 				  name.c_str(),
 				  (*obj_it)->get_short_description().c_str(),
-				  GET_OBJ_UID(*obj_it),
+				  GET_OBJ_UNIQUE_ID(*obj_it),
 				  (*obj_it)->get_vnum());
 		OfflineNode tmp_obj;
 		tmp_obj.vnum = (*obj_it)->get_vnum();
 		tmp_obj.timer = (*obj_it)->get_timer();
 		tmp_obj.rent_cost = get_object_low_rent(obj_it->get());
-		tmp_obj.uid = GET_OBJ_UID(*obj_it);
+		tmp_obj.uid = GET_OBJ_UNIQUE_ID(*obj_it);
 		offline_list.push_back(tmp_obj);
 		ExtractObjFromWorld(obj_it->get());
 		// плюсуем персональное хранилище к общей ренте

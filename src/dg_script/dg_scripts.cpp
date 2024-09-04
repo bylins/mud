@@ -3165,11 +3165,11 @@ void find_replacement(void *go,
 			strcpy(str, o->get_aliases().c_str());
 		} else if (!str_cmp(field, "id")) {
 			sprintf(str, "%c%ld", UID_OBJ, o->get_id());
-		} else if (!str_cmp(field, "uid")) {
-			if (!GET_OBJ_UID(o)) {
+		} else if (!str_cmp(field, "unique")) {
+			if (!GET_OBJ_UNIQUE_ID(o)) {
 				InitUid(o);
 			}
-			sprintf(str, "%u", GET_OBJ_UID(o));
+			sprintf(str, "%ld", GET_OBJ_UNIQUE_ID(o));
 		} else if (!str_cmp(field, "shortdesc")) {
 			strcpy(str, o->get_short_description().c_str());
 		} else if (!str_cmp(field, "vnum")) {

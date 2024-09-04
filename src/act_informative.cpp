@@ -3583,14 +3583,14 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		}
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
+			if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
 				ss << fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(j));
 				SendMsgToChar(ss.str().c_str(), ch);
 				return true;
 			}
 		}
 		for (const auto &shop : GlobalObjects::Shops()) {
-				const auto tmp_obj = shop->GetObjFromShop(obj->get_uid());
+				const auto tmp_obj = shop->GetObjFromShop(obj->get_unique_id());
 				if (!tmp_obj) {
 					continue;
 				}

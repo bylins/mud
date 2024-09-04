@@ -340,7 +340,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				}
 			} else if (!strcmp(read_line, "Ouid")) {
 				*error = 48;
-				object->set_uid(atoi(buffer));
+				object->set_unique_id(atoi(buffer));
 			} else if (!strcmp(read_line, "TSpl")) {
 				*error = 49;
 				std::stringstream text(buffer);
@@ -572,7 +572,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto) {
 		// Сохраняем UID
-		out << "Ouid: " << GET_OBJ_UID(object) << "~\n";
+		out << "Ouid: " << GET_OBJ_UNIQUE_ID(object) << "~\n";
 		// Алиасы
 		if (str_cmp(GET_OBJ_ALIAS(object), GET_OBJ_ALIAS(proto))) {
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
@@ -1611,7 +1611,7 @@ int Crash_load(CharData *ch) {
 			obj->set_worn_on(0);
 
 			auto_equip(ch, obj, location);
-			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
+			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
@@ -1641,7 +1641,7 @@ int Crash_load(CharData *ch) {
 			} else {
 				PlaceObjToInventory(obj, ch);
 			}
-			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
+			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 		}
 	}
 
@@ -1826,8 +1826,8 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 			SAVEINFO(iplayer)->time.push_back(tmp_node);
 
 			if (savetype != RENT_CRASH) {
-				log("%s save_char_obj %d %d %u", player_table[iplayer].name(),
-					GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
+				log("%s save_char_obj %d %ld %u", player_table[iplayer].name(),
+					GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 			}
 		}
 	}

@@ -37,7 +37,7 @@ class CharData;
 int genchar_parse(CharData *ch, char *arg);
 void genchar_disp_menu(CharData *ch);
 void SetStartAbils(CharData *ch);
-void GetCase(const char *name, EGender sex, int caseNum, char *result);
+void GetCase(std::string name, EGender sex, int caseNum, char *data);
 
 extern int max_stats[][6];
 extern int min_stats[][6];

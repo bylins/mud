@@ -3304,7 +3304,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 									}
 
 									load_otrigger(obj.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
+									Celebrates::add_obj_to_load_list(obj->get_unique_id(), obj.get());
 								} else {
 									log("{Error] Processing celebrate %s while loading obj %d",
 										celebrate->name.c_str(),
@@ -3345,7 +3345,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 							}
 						}
 						load_otrigger(obj.get());
-						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
+						Celebrates::add_obj_to_load_list(obj->get_unique_id(), obj.get());
 
 						PlaceObjToRoom(obj.get(), GetRoomRnum((*room)->vnum));
 
@@ -3368,7 +3368,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
 									}
 
 									load_otrigger(obj_in.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
+									Celebrates::add_obj_to_load_list(obj->get_unique_id(), obj.get());
 								} else {
 									log("{Error] Processing celebrate %s while loading obj %d",
 										celebrate->name.c_str(),
@@ -3422,7 +3422,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr &celebrate, int zone_
 				  }
 			  }
 
-			  Celebrates::add_obj_to_attach_list(o->get_uid(), o.get());
+			  Celebrates::add_obj_to_attach_list(o->get_unique_id(), o.get());
 		  }
 		});
 	}
