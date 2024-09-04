@@ -139,8 +139,6 @@ void AssignRooms();
 void InitSpecProcs();
 void BuildPlayerIndex();
 int ReadFileToBuffer(const char *name, char *destination_buf);
-int AllocateBufferForFile(const char *name, char **destination_buf);
-void DoReboot(CharData *ch, char *argument, int cmd, int subcmd);
 void CheckStartRooms();
 void AddVirtualRoomsToAllZones();
 void CalculateFirstAndLastRooms();
@@ -155,20 +153,15 @@ void BuildPlayerIndexNew();
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void InitBasicValues();
-void InitPortals();
-void initIngredientsMagic();
-void InitZoneTypes();
 TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
 void LoadMessages();
 void SortCommands();
 void ReadCharacterInvalidNamesList();
 int CompareSocials(const void *a, const void *b);
-void PruneCrlf(char *txt);
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void CalcEaster();
-void LoadMobraces();
 
 // external
 extern int number_of_social_messages;
@@ -183,7 +176,6 @@ extern RoomVnum unreg_start_room;
 extern struct MonthTemperature year_temp[];
 extern struct PCCleanCriteria pclean_criteria[];
 
-extern void LoadProxyList();
 extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
@@ -668,37 +660,6 @@ void ExtractTagFromArgument(char *argument, char *tag) {
 *  routines for booting the system                                       *
 *************************************************************************/
 
-void GoBootSocials() {
-	int i;
-
-	if (soc_mess_list) {
-		for (i = 0; i < number_of_social_messages; i++) {
-			if (soc_mess_list[i].char_no_arg)
-				free(soc_mess_list[i].char_no_arg);
-			if (soc_mess_list[i].others_no_arg)
-				free(soc_mess_list[i].others_no_arg);
-			if (soc_mess_list[i].char_found)
-				free(soc_mess_list[i].char_found);
-			if (soc_mess_list[i].others_found)
-				free(soc_mess_list[i].others_found);
-			if (soc_mess_list[i].vict_found)
-				free(soc_mess_list[i].vict_found);
-			if (soc_mess_list[i].not_found)
-				free(soc_mess_list[i].not_found);
-		}
-		free(soc_mess_list);
-	}
-	if (soc_keys_list) {
-		for (i = 0; i < number_of_social_commands; i++)
-			if (soc_keys_list[i].keyword)
-				free(soc_keys_list[i].keyword);
-		free(soc_keys_list);
-	}
-	number_of_social_messages = -1;
-	number_of_social_commands = -1;
-	GameLoader::BootIndex(DB_BOOT_SOCIAL);
-}
-
 void LoadSheduledReboot() {
 	FILE *sch;
 	int day = 0, hour = 0, minutes = 0, numofreaded = 0, timeOffset = 0;
@@ -880,182 +841,6 @@ void QuestBodrich::LoadRewards() {
 		this->rewards.insert(std::pair<int, std::vector<QuestBodrichRewards>>(class_.attribute("id").as_int(),
 																			  tmp_array));
 	}
-}
-
-/*
- * Too bad it doesn't check the return values to let the user
- * know about -1 values.  This will result in an 'Okay.' to a
- * 'reload' command even when the string was not replaced.
- * To fix later, if desired. -gg 6/24/99
- */
-void DoReboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	argument = one_argument(argument, arg);
-
-	if (!str_cmp(arg, "all") || *arg == '*') {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0) {
-			PruneCrlf(greetings);
-		}
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-		AllocateBufferForFile(MOTD_FILE, &motd);
-		AllocateBufferForFile(RULES_FILE, &rules);
-		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-		AllocateBufferForFile(INFO_FILE, &info);
-		AllocateBufferForFile(POLICIES_FILE, &policies);
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-		GoBootSocials();
-		initIngredientsMagic();
-		InitZoneTypes();
-		InitPortals();
-		LoadSheduledReboot();
-		oload_table.init();
-		ObjData::InitSetTable();
-		LoadMobraces();
-		load_morphs();
-		GlobalDrop::init();
-		offtop_system::Init();
-		Celebrates::load();
-		HelpSystem::reload_all();
-		Remort::init();
-		Noob::init();
-		stats_reset::init();
-		Bonus::bonus_log_load();
-		DailyQuest::LoadFromFile();
-	} else if (!str_cmp(arg, "portals"))
-		InitPortals();
-	else if (!str_cmp(arg, "abilities")) {
-		MUD::CfgManager().ReloadCfg("abilities");
-	} else if (!str_cmp(arg, "skills")) {
-		MUD::CfgManager().ReloadCfg("skills");
-	} else if (!str_cmp(arg, "spells")) {
-		MUD::CfgManager().ReloadCfg("spells");
-	} else if (!str_cmp(arg, "feats")) {
-		MUD::CfgManager().ReloadCfg("feats");
-	} else if (!str_cmp(arg, "classes")) {
-		MUD::CfgManager().ReloadCfg("classes");
-	} else if (!str_cmp(arg, "guilds")) {
-		MUD::CfgManager().ReloadCfg("guilds");
-	} else if (!str_cmp(arg, "currencies")) {
-		MUD::CfgManager().ReloadCfg("currencies");
-	} else if (!str_cmp(arg, "imagic"))
-		initIngredientsMagic();
-	else if (!str_cmp(arg, "ztypes"))
-		InitZoneTypes();
-	else if (!str_cmp(arg, "oloadtable"))
-		oload_table.init();
-	else if (!str_cmp(arg, "setstuff")) {
-		ObjData::InitSetTable();
-		HelpSystem::reload(HelpSystem::STATIC);
-	} else if (!str_cmp(arg, "immlist"))
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-	else if (!str_cmp(arg, "credits"))
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-	else if (!str_cmp(arg, "motd"))
-		AllocateBufferForFile(MOTD_FILE, &motd);
-	else if (!str_cmp(arg, "rules"))
-		AllocateBufferForFile(RULES_FILE, &rules);
-	else if (!str_cmp(arg, "help"))
-		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	else if (!str_cmp(arg, "info"))
-		AllocateBufferForFile(INFO_FILE, &info);
-	else if (!str_cmp(arg, "policy"))
-		AllocateBufferForFile(POLICIES_FILE, &policies);
-	else if (!str_cmp(arg, "handbook"))
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-	else if (!str_cmp(arg, "background"))
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-	else if (!str_cmp(arg, "namerules"))
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-	else if (!str_cmp(arg, "greetings")) {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0)
-			PruneCrlf(greetings);
-	} else if (!str_cmp(arg, "xhelp")) {
-		HelpSystem::reload_all();
-	} else if (!str_cmp(arg, "socials"))
-		GoBootSocials();
-	else if (!str_cmp(arg, "schedule"))
-		LoadSheduledReboot();
-	else if (!str_cmp(arg, "clan")) {
-		skip_spaces(&argument);
-		if (!*argument) {
-			Clan::ClanLoad();
-			return;
-		}
-		Clan::ClanListType::iterator clan;
-		std::string buffer(argument);
-		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-			if (CompareParam(buffer, (*clan)->get_abbrev())) {
-				CreateFileName(buffer);
-				Clan::ClanReload(buffer);
-				SendMsgToChar("Перезагрузка клана.\r\n", ch);
-				break;
-			}
-		}
-	} else if (!str_cmp(arg, "proxy"))
-		LoadProxyList();
-	else if (!str_cmp(arg, "boards"))
-		Boards::Static::reload_all();
-	else if (!str_cmp(arg, "titles"))
-		TitleSystem::load_title_list();
-	else if (!str_cmp(arg, "emails"))
-		RegisterSystem::load();
-	else if (!str_cmp(arg, "privilege"))
-		privilege::Load();
-	else if (!str_cmp(arg, "mobraces"))
-		LoadMobraces();
-	else if (!str_cmp(arg, "morphs"))
-		load_morphs();
-	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		skip_spaces(&argument);
-		if (*argument) {
-			long uid = GetUniqueByName(argument);
-			if (uid > 0) {
-				Depot::reload_char(uid, ch);
-			} else {
-				SendMsgToChar("Указанный чар не найден\r\n"
-							  "Формат команды: reload depot <имя чара>.\r\n", ch);
-			}
-		} else {
-			SendMsgToChar("Формат команды: reload depot <имя чара>.\r\n", ch);
-		}
-	} else if (!str_cmp(arg, "globaldrop")) {
-		GlobalDrop::init();
-	} else if (!str_cmp(arg, "offtop")) {
-		offtop_system::Init();
-	} else if (!str_cmp(arg, "shop")) {
-		ShopExt::load(true);
-	} else if (!str_cmp(arg, "named")) {
-		NamedStuff::load();
-	} else if (!str_cmp(arg, "celebrates")) {
-		Celebrates::load();
-	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		skip_spaces(&argument);
-		if (*argument && is_number(argument)) {
-			SetsDrop::reload(atoi(argument));
-		} else {
-			SetsDrop::reload();
-		}
-	} else if (!str_cmp(arg, "remort")) {
-		Remort::init();
-	} else if (!str_cmp(arg, "noobhelp")) {
-		Noob::init();
-	} else if (!str_cmp(arg, "resetstats")) {
-		stats_reset::init();
-	} else if (!str_cmp(arg, "objsets")) {
-		obj_sets::load();
-	} else if (!str_cmp(arg, "daily")) {
-		DailyQuest::LoadFromFile(ch);
-	} else {
-		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
-		return;
-	}
-
-	std::string str = fmt::format("{} reload {}.", ch->get_name(), arg);
-	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
-
-	SendMsgToChar(OK, ch);
 }
 
 void InitPortals() {

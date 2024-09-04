@@ -135,4 +135,35 @@ int do_social(CharData *ch, char *argument) {
 	return (true);
 }
 
+void GoBootSocials() {
+	int i;
+
+	if (soc_mess_list) {
+		for (i = 0; i < number_of_social_messages; i++) {
+			if (soc_mess_list[i].char_no_arg)
+				free(soc_mess_list[i].char_no_arg);
+			if (soc_mess_list[i].others_no_arg)
+				free(soc_mess_list[i].others_no_arg);
+			if (soc_mess_list[i].char_found)
+				free(soc_mess_list[i].char_found);
+			if (soc_mess_list[i].others_found)
+				free(soc_mess_list[i].others_found);
+			if (soc_mess_list[i].vict_found)
+				free(soc_mess_list[i].vict_found);
+			if (soc_mess_list[i].not_found)
+				free(soc_mess_list[i].not_found);
+		}
+		free(soc_mess_list);
+	}
+	if (soc_keys_list) {
+		for (i = 0; i < number_of_social_commands; i++)
+			if (soc_keys_list[i].keyword)
+				free(soc_keys_list[i].keyword);
+		free(soc_keys_list);
+	}
+	number_of_social_messages = -1;
+	number_of_social_commands = -1;
+	GameLoader::BootIndex(DB_BOOT_SOCIAL);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

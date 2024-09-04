@@ -286,7 +286,8 @@ set(SOURCES
 		src/game_mechanics/city_guards.cpp
 		src/cmd/remort.cpp
 		src/game_mechanics/dungeons.cpp
-		src/cmd_god/tabulate.cpp)
+		src/cmd_god/tabulate.cpp
+		src/cmd_god/reload.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -553,7 +554,8 @@ set(HEADERS
 		src/game_mechanics/city_guards.h
 		src/cmd/remort.h
 		src/game_mechanics/dungeons.h
-		src/cmd_god/tabulate.h)
+		src/cmd_god/tabulate.h
+		src/cmd_god/reload.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

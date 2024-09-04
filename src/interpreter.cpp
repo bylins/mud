@@ -23,6 +23,7 @@
 #include "entities/world_characters.h"
 #include "communication/insult.h"
 #include "communication/offtop.h"
+#include "cmd_god/reload.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/show.h"
 #include "cmd_god/godtest.h"
@@ -281,7 +282,6 @@ void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
-void DoReboot(CharData *ch, char *argument, int cmd, int subcmd);
 void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_setall(CharData *ch, char *argument, int cmd, int subcmd);
@@ -914,7 +914,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"redit", EPosition::kDead, do_olc, 0, SCMD_OLC_REDIT, 0},
 		{"register", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_REGISTER, 0},
 		{"unregister", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_UNREGISTER, 0},
-		{"reload", EPosition::kDead, DoReboot, kLvlImplementator, 0, 0},
+		{"reload", EPosition::kDead, DoReload, kLvlImplementator, 0, 0},
 		{"remove", EPosition::kRest, do_remove, 0, 0, 500},
 		{"rent", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"reply", EPosition::kRest, do_reply, 0, 0, -1},

@@ -310,3 +310,5 @@ int TabulateMobsByDeadLoad(char *vnum, CharData *ch) {
 	}
 	return found;
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

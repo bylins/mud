@@ -73,7 +73,6 @@ extern std::pair<int, int> TotalMemUse();
 // local functions
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
-void PruneCrlf(char *txt);
 bool IsValidEmail(const char *address);
 
 // external functions

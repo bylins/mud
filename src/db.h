@@ -51,6 +51,12 @@ long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
 void ResetZone(ZoneRnum zone);
+void LoadSheduledReboot();
+void initIngredientsMagic();
+void InitZoneTypes();
+void InitPortals();
+void LoadMobraces();
+int AllocateBufferForFile(const char *name, char **destination_buf);
 
 int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
