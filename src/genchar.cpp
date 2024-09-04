@@ -267,7 +267,6 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "е"; // Иване
 	} else if (name[len - 1] == 'я') {
 		result = name.substr(0, len - 1);
-		result[len - 1] = '\0';
 		if (caseNum == 1)
 			result += "и"; // Ани, Вани
 		else if (caseNum == 2)
@@ -283,7 +282,6 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 	} else if (name[len - 1] == 'й'
 		&& sex == EGender::kMale) {
 		result = name.substr(0, len - 1);
-		result[len - 1] = '\0';
 		if (caseNum == 1)
 			result += "я"; // Дрегвия
 		else if (caseNum == 2)
@@ -298,7 +296,6 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 			result += "й"; // Дрегвий
 	} else if (name[len - 1] == 'а') {
 		result = name.substr(0, len - 1);
-		result[len - 1] = '\0';
 		if (caseNum == 1) {
 			if (strchr("шщжч", name[len - 2]) != nullptr)
 				result += "и"; // Маши, Паши
