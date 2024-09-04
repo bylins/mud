@@ -919,13 +919,11 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 					|| obj->get_short_description() == tmp_obj->get_short_description()) {
 					item->add_uid(obj->get_uid());
 					put_to_storage(obj);
-
 					return;
 				}
 			}
 		}
 	}
-
 	add_item(obj->get_vnum(), obj->get_cost(), obj->get_uid());
 
 	put_to_storage(obj);
@@ -1032,9 +1030,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			return;
 		} else {
 			RemoveObjFromChar(obj);
-			tell_to_char(keeper,
-						 ch,
-						 ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
+			tell_to_char(keeper, ch, ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 			ch->add_gold(buy_price);
 			put_item_to_shop(obj);
 		}

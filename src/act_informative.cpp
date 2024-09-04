@@ -75,6 +75,8 @@
 #include "game_crafts/mining.h"
 #include "structs/global_objects.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -3594,22 +3596,15 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		}
 
 		for (const auto &shop : GlobalObjects::Shops()) {
-			const auto &item_list = shop->items_list();
-			for (size_t i = 0; i < item_list.size(); i++) {
-				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
+				const auto tmp_obj = shop->GetObjFromShop(obj->get_uid());
+				if (!tmp_obj) {
 					continue;
 				}
-				if (item_list.node(i)->uid() == obj->get_uid()) {
-					sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
-					SendMsgToChar(buf, ch);
-					return true;
-				}
-			}
-
-
+				sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
+				SendMsgToChar(buf, ch);
+				return true;
 		}
 		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
-//		strcat(buf, buf1);
 		SendMsgToChar(buf, ch);
 		return true;
 	}
@@ -3626,13 +3621,13 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 
 	/* maybe it is possible to create some index instead of linear search */
 	world_objects.foreach([&](const ObjData::shared_ptr& object) {
-							  if (isname(arg, object->get_aliases())) {
-								if (print_object_location(num, object.get(), ch)) {
-									found = true;
-									num++;
-								}
-							  }
-						  });
+		if (isname(arg, object->get_aliases())) {
+			if (print_object_location(num, object.get(), ch)) {
+				found = true;
+				num++;
+			}
+		}
+	});
 
 	int tmp_num = num;
 	if (IS_GOD(ch)

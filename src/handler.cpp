@@ -411,21 +411,6 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	}
 }
 
-void RestoreObject(ObjData *obj, CharData *ch) {
-	int i = GET_OBJ_RNUM(obj);
-	if (i < 0) {
-		return;
-	}
-
-	if (GET_OBJ_OWNER(obj)
-		&& obj->has_flag(EObjFlag::kNodonate)
-		&& ch
-		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj)) {
-		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
-		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-	}
-}
-
 bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 	// без меток стокаются
 	if (!obj_one->get_custom_label() && !obj_two->get_custom_label())
@@ -549,7 +534,6 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 
 	int may_carry = true;
 	if (object && ch) {
-		RestoreObject(object, ch);
 		if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, false))
 			may_carry = false;
 		if (!may_carry) {
@@ -1416,7 +1400,6 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 			room, top_of_world, object);
 		return false;
 	} 
-	RestoreObject(object, nullptr);
 	ArrangeObjs(object, &world[room]->contents);
 	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < dungeons::kZoneStartDungeons) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
