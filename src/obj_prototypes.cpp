@@ -23,11 +23,11 @@ void CObjectPrototypes::replace(CObjectPrototype *prototype, const ObjRnum orn, 
 }
 
 void CObjectPrototypes::dec_number(const size_t rnum) {
-	if (0 == m_index[rnum].CountInWorld) {
+	if (0 == m_index[rnum].total_online) {
 		log("SYSERR: Attempt to decrement number of objects that does not exist at all (0 == number).");
 		return;
 	}
-	--m_index[rnum].CountInWorld;
+	--m_index[rnum].total_online;
 }
 
 int CObjectPrototypes::get_rnum(const ObjVnum vnum) const {

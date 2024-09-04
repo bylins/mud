@@ -1572,7 +1572,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			sprintf(miw, "%d", GetObjMIW(obj->get_rnum()));
 		}
 		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
-				 obj_proto.CountInWorld(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
+				 obj_proto.total_online(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
 		SendMsgToChar(buf, ch);
 	}
 	if (fullness < 75)

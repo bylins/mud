@@ -686,8 +686,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		strcpy(buf2, "None");
 	}
 
-	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], Id: [%ld]\r\n",
-				  CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
+	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
+				  CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UNIQUE_ID(j), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
@@ -1076,7 +1076,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	if (is_grgod) {
 		sprintf(buf,
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
-				rnum >= 0 ? obj_proto.CountInWorld(rnum) - (virt ? 1 : 0) : -1,
+				rnum >= 0 ? obj_proto.total_online(rnum) - (virt ? 1 : 0) : -1,
 				rnum >= 0 ? obj_proto.stored(rnum) : -1,
 				GetObjMIW(j->get_rnum()));
 		SendMsgToChar(buf, ch);
