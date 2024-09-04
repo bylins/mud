@@ -15,6 +15,7 @@
 #include "game_economics/shop_ext.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_utils.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/glory.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
@@ -304,7 +305,8 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].entrance);
 	*bufptr = str_add(*bufptr, tmpstr);
 	if (zone_table[zone].copy_from_zone > 0) {
-		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s\r\n", zone_table[zone].copy_from_zone, zone_table[real_zone(zone_table[zone].copy_from_zone)].name.c_str());
+		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s\r\n",
+				 zone_table[zone].copy_from_zone, zone_table[GetZoneRnum(zone_table[zone].copy_from_zone)].name.c_str());
 		*bufptr = str_add(*bufptr, tmpstr);
 	}
 }
@@ -396,35 +398,6 @@ void ListSpellCreate(CharData *ch) {
 				it.second.runes.items[2], it.second.runes.rnumber,
 				it.second.runes.min_caster_level);
 	}
-}
-extern int NumberOfZoneDungeons;
-
-std::string WhoInZone(ZoneRnum zrn) {
-	int from = 0, to = 0;
-	std::string pc;
-
-	GetZoneRooms(zrn, &from , &to);
-	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING) 
-			continue;
-		if (d->character->in_room >= from && d->character->in_room <= to) {
-			pc = pc +  d->character->get_name() + " ";
-		}
-	}
-	return pc.empty()? "никого" : pc;
-}
-
-void ListDungeons(CharData *ch) {
-	std::ostringstream buffer;
-	ZoneRnum zrn_start = real_zone(ZoneStartDungeons);
-	ZoneRnum zrn_stop = real_zone(ZoneStartDungeons + NumberOfZoneDungeons - 1);
-
-	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:<50} {:<}\r\n",  "#", "предок", "вход", "название зоны", "игроки");
-	for (int i = zrn_start; i <= zrn_stop; i++) {
-		if (zone_table[i].copy_from_zone > 0)
-			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:<50} {:<}\r\n", i - zrn_start + 1, zone_table[i].copy_from_zone, zone_table[i].entrance, zone_table[i].name, WhoInZone(i));
-	}
-	SendMsgToChar(buffer.str().c_str(), ch);
 }
 
 void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -926,7 +899,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			ListSpellCreate(ch);
 			break;
 		case 38: // dungeons
-			ListDungeons(ch);
+			dungeons::ListDungeons(ch);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

@@ -1,7 +1,7 @@
 #ifndef LIMITS_HPP_
 #define LIMITS_HPP_
 
-const int kRecallSpellsInterval = 28;
+extern const int kRecallSpellsInterval;
 
 void underwater_check();
 void beat_points_update(int pulse);

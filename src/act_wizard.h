@@ -25,7 +25,6 @@ using SetAllInspReqPtr = std::shared_ptr<setall_inspect_request>;
 using SetAllInspReqListType = std::map<int, SetAllInspReqPtr>;
 extern SetAllInspReqListType &setall_inspect_list;
 void setall_inspect();
-ZoneRnum ZoneCopy(ZoneVnum zvn_from);
 
 #endif // __ACT_WIZARD_HPP__
 

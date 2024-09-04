@@ -1179,7 +1179,7 @@ bool check_ingame(std::string name) {
 void char_to_room_wrap(CharacterWrapper &c, int vnum) {
 	CharacterWrapper::Ensurer ch(c);
 	room_rnum location;
-	if (((location = real_room(vnum)) == kNowhere)) {
+	if (((location = GetRoomRnum(vnum)) == kNowhere)) {
 		log("[PythonError] Error in char_to_room_wrap. %d vnum invalid.", vnum);
 		return;
 	}

@@ -32,6 +32,7 @@
 #include "entities/world_objects.h"
 #include "handler.h"
 #include "game_magic/magic.h"
+#include "game_mechanics/city_guards.h"
 #include "game_fight/pk.h"
 #include "utils/random.h"
 #include "house.h"
@@ -43,7 +44,6 @@ const int kMobMemKoeff = kSecsPerMudHour;
 // external structs
 extern int no_specials;
 extern int guild_poly(CharData *, void *, int, char *);
-extern guardian_type guardian_list;
 
 int npc_scavenge(CharData *ch);
 int npc_loot(CharData *ch);
@@ -56,12 +56,9 @@ int npc_walk(CharData *ch);
 int npc_steal(CharData *ch);
 void npc_light(CharData *ch);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
-bool guardian_attack(CharData *ch, CharData *vict);
 void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset);
 
 // local functions
-
-#define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 
 int extra_aggressive(CharData *ch, CharData *victim) {
 	int time_ok = false, no_time = true, month_ok = false, no_month = true, agro = false;
@@ -72,7 +69,7 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 	if (MOB_FLAGGED(ch, EMobFlag::kAgressive))
 		return (true);
 
-	if (MOB_FLAGGED(ch, EMobFlag::kCityGuardian) && guardian_attack(ch, victim))
+	if (MOB_FLAGGED(ch, EMobFlag::kCityGuardian) && city_guards::MustGuardianAttack(ch, victim))
 		return (true);
 
 	if (victim && MOB_FLAGGED(ch, EMobFlag::kAgressiveMono) && !victim->IsNpc() && GET_RELIGION(victim) == kReligionMono)
@@ -1381,39 +1378,6 @@ void clearMemory(CharData *ch) {
 		curr = next;
 	}
 	MEMORY(ch) = nullptr;
-}
-//Polud Функция проверяет, является ли моб ch стражником (описан в файле guards.xml)
-//и должен ли он сагрить на эту жертву vict
-bool guardian_attack(CharData *ch, CharData *vict) {
-	struct mob_guardian tmp_guard;
-	int num_wars_vict = 0;
-
-	if (!ch->IsNpc() || !vict || !MOB_FLAGGED(ch, EMobFlag::kCityGuardian))
-		return false;
-//на всякий случай проверим, а вдруг моб да подевался куда из списка...
-	auto it = guardian_list.find(GET_MOB_VNUM(ch));
-	if (it == guardian_list.end())
-		return false;
-
-	tmp_guard = guardian_list[GET_MOB_VNUM(ch)];
-
-	if ((tmp_guard.agro_all_agressors && AGRESSOR(vict)) ||
-		(tmp_guard.agro_killers && PLR_FLAGGED(vict, EPlrFlag::kKiller)))
-		return true;
-
-	if (CLAN(vict)) {
-		num_wars_vict = Clan::GetClanWars(vict);
-		int clan_town_vnum = CLAN(vict)->GetOutRent() / 100; //Polud подскажите мне другой способ определить vnum зоны
-		int mob_town_vnum = GET_MOB_VNUM(ch) / 100;          //по vnum комнаты, не перебирая все комнаты и зоны мира
-		if (num_wars_vict && num_wars_vict > tmp_guard.max_wars_allow && clan_town_vnum != mob_town_vnum)
-			return true;
-	}
-	if (AGRESSOR(vict))
-		for (int & agro_argressors_in_zone : tmp_guard.agro_argressors_in_zones) {
-			if (agro_argressors_in_zone == AGRESSOR(vict) / 100) return true;
-		}
-
-	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -41,7 +41,7 @@ bool IndexFileImplementation::open() {
 
 	const auto &prefix = get_file_prefix();
 	if (prefix.empty()) {
-		log("SYSERR: Unknown subcommand %d to index_boot!", mode());
+		log("SYSERR: Unknown subcommand %d to BootIndex!", mode());
 		return false;
 	}
 

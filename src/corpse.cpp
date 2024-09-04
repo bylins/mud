@@ -209,7 +209,7 @@ void init() {
 		tmp_node.chance = chance;
 
 		if (obj_vnum >= 0) {
-			int obj_rnum = real_object(obj_vnum);
+			int obj_rnum = GetObjRnum(obj_vnum);
 			if (obj_rnum < 0) {
 				snprintf(buf, kMaxStringLength, "...incorrect ObjVnum=%d", obj_vnum);
 				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -227,7 +227,7 @@ void init() {
 					return;
 				}
 				// проверяем шмотку
-				int item_rnum = real_object(item_vnum);
+				int item_rnum = GetObjRnum(item_vnum);
 				if (item_rnum < 0) {
 					snprintf(buf, kMaxStringLength, "...incorrect item_vnum=%d", item_vnum);
 					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -300,7 +300,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 	for (size_t i = 0; i < tables_drop.size(); i++) {
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob))) {
 			int rnum;
-			if ((rnum = real_object(tables_drop[i].get_vnum())) < 0) {
+			if ((rnum = GetObjRnum(tables_drop[i].get_vnum())) < 0) {
 				log("Ошибка tdrop. Внум: %d", tables_drop[i].get_vnum());
 				return true;
 			}
@@ -511,10 +511,6 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 			PlaceObjIntoObj(ingr, corpse.get());
 		}
 	}
-
-	// Загружаю шмотки по листу. - перемещено в raw_kill
-	//if (IS_NPC (ch))
-	//	dl_load_obj (corpse, ch);
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, EMobFlag::kCorpse)

@@ -275,13 +275,13 @@ int im_assign_power(ObjData *obj)
 
 // Поиск образца или моба
 // Если используется живь, получить уровень из моба
-	onum = real_object(imtypes[rind].proto_vnum);
+	onum = GetObjRnum(imtypes[rind].proto_vnum);
 	if (onum < 0)
 		return 4;
 	if (GET_OBJ_VAL(obj_proto[onum], 3) == IM_CLASS_JIV) {
 		if (GET_OBJ_VAL(obj, IM_INDEX_SLOT) == -1)
 			return 3;
-		rnum = real_mobile(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
+		rnum = GetMobRnum(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
 		if (rnum < 0)
 			return 3;    // неверный VNUM базового моба
 		obj->set_val(IM_POWER_SLOT, (GetRealLevel(mob_proto + rnum) + 3) * 3 / 4);
@@ -415,7 +415,7 @@ void im_cleanup_recipe(im_recipe *r) {
 }
 
 // Инициализация подсистемы ингредиентной магии
-void init_im(void) {
+void initIngredientsMagic(void) {
 	FILE *im_file;
 	char tmp[1024], tlist[1024], line1[256], line2[256], name[256];
 	im_memb *mbs, *mptr;
@@ -922,7 +922,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
 			if (o)
-				PlaceObjToRoom(o, real_room(room->vnum));
+				PlaceObjToRoom(o, GetRoomRnum(room->vnum));
 		}
 	}
 }
@@ -1352,7 +1352,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	sprintf(name, "Рассчитанные основные ингредиенты: W1=%f W2=%f", W1, W2);
 	imlog(CMP, name);
 	// Преобразование параметров прототипа
-	tgt = real_object(imrecipes[rs->rid].result);
+	tgt = GetObjRnum(imrecipes[rs->rid].result);
 	if (tgt < 0) {
 		imlog(NRM, "Прототип утерян");
 		SendMsgToChar("Результат рецепта утерян.\r\n", ch);
@@ -1750,7 +1750,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	for (i = 0; i < 100; ++i)
 	{
-		if ((rnum = real_room(i + 100 * zone)) == kNowhere)
+		if ((rnum = GetRoomRnum((i + 100 * zone)) == kNowhere)
 			continue;
 		ping = world[rnum]->ing_list;
 		for (str = buf1, str[0] = 0; im_ing_dump(ping, str); ping += 2)
@@ -1767,7 +1767,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	for (i = 0; i < 100; ++i)
 	{
-		if ((rnum = real_mobile(i + 100 * zone)) == -1)
+		if ((rnum = GetMobRnum(i + 100 * zone)) == -1)
 		{
 			continue;
 		}

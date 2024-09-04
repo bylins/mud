@@ -9,6 +9,7 @@
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
+#include "game_mechanics/dungeons.h"
 #include "dg_script/dg_scripts.h"
 #include "entities/char_data.h"
 #include "entities/room_data.h"
@@ -29,7 +30,6 @@ extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
 extern struct ZoneCategory *zone_types;
-extern int NumberOfZoneDungeons;
 //---------------------------------
 
 // * Function prototypes.
@@ -50,7 +50,7 @@ void zedit_save_internally(DescriptorData *d);
 void zedit_save_to_disk(int zone_num);
 void zedit_create_index(int znum, char *type);
 
-void renum_single_table(int zone);
+void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data);
 int is_number(const char *str);
 //------------------------------------------------------------------------
 
@@ -365,7 +365,7 @@ void zedit_save_internally(DescriptorData *d) {
 		ZCMD = item->cmd;    // копирование команды
 	}
 	ZCMD.command = 'S';
-	renum_single_table(OLC_ZNUM(d));
+	ResolveZoneCmdVnumArgsToRnums(*(d->olc->zone));
 
 	// Finally, if zone headers have been changed, copy over
 	if (OLC_ZONE(d)->vnum) {
@@ -432,7 +432,7 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	std::string comment;
 	FILE *zfile;
 
-	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
@@ -611,10 +611,10 @@ enum { MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME };
 
 /**
 * Замена макросов:
-* #define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player_data.short_descr:"???"
-* #define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum]->short_description:"???"
-* #define ROOM_NAME(vnum) (rnum=real_room(vnum))>=0?world[rnum]->name:"???"
-* #define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
+* #define MOB_NAME(vnum) (rnum=GetMobRnum(vnum))>=0?mob_proto[rnum].player_data.short_descr:"???"
+* #define OBJ_NAME(vnum) (rnum=GetObjRnum(vnum))>=0?obj_proto[rnum]->short_description:"???"
+* #define ROOM_NAME(vnum) (rnum=GetRoomRnum((vnum))>=0?world[rnum]->name:"???"
+* #define TRIG_NAME(vnum) (rnum=GetTriggerRnum(vnum))>=0?trig_index[rnum]->proto->name:"???"
 * т.к. gcc 4.x на такие конструкции косо смотрит и правильно делает
 * \param vnum - номер (внум) моба/объекта/комнаты/триггера
 * \param type - тип номера, чье имя возвращаем
@@ -624,25 +624,25 @@ const char *name_by_vnum(int vnum, int type) {
 	int rnum;
 
 	switch (type) {
-		case MOB_NAME: rnum = real_mobile(vnum);
+		case MOB_NAME: rnum = GetMobRnum(vnum);
 			if (rnum >= 0) {
 				return mob_proto[rnum].get_npc_name().c_str();
 			}
 			break;
 
-		case OBJ_NAME: rnum = real_object(vnum);
+		case OBJ_NAME: rnum = GetObjRnum(vnum);
 			if (rnum >= 0) {
 				return obj_proto[rnum]->get_short_description().c_str();
 			}
 			break;
 
-		case ROOM_NAME: rnum = real_room(vnum);
+		case ROOM_NAME: rnum = GetRoomRnum(vnum);
 			if (rnum >= 0) {
 				return world[rnum]->name;
 			}
 			break;
 
-		case TRIG_NAME: rnum = real_trigger(vnum);
+		case TRIG_NAME: rnum = GetTriggerRnum(vnum);
 			if (rnum >= 0) {
 				return trig_index[rnum]->proto->get_name().c_str();
 			}
@@ -1355,10 +1355,10 @@ void zedit_disp_sarg2(DescriptorData *d) {
 // * The GARGANTAUN event handler                                          *
 // *************************************************************************
 
-#define CHECK_MOB(d, n)  if(real_mobile(n)<0)   {SendMsgToChar("Неверный номер моба, повторите : ",d->character.get());return;}
-#define CHECK_OBJ(d, n)  if(real_object(n)<0)   {SendMsgToChar("Неверный номер объекта, повторите : ",d->character.get());return;}
-#define CHECK_ROOM(d, n) if(real_room(n)<=kNowhere)     {SendMsgToChar("Неверный номер комнаты, повторите : ",d->character.get());return;}
-#define CHECK_TRIG(d, n) if(real_trigger(n)<0)  {SendMsgToChar("Неверный номер триггера, повторите : ",d->character.get());return;}
+#define CHECK_MOB(d, n)  if(GetMobRnum(n)<0)   {SendMsgToChar("Неверный номер моба, повторите : ",d->character.get());return;}
+#define CHECK_OBJ(d, n)  if(GetObjRnum(n)<0)   {SendMsgToChar("Неверный номер объекта, повторите : ",d->character.get());return;}
+#define CHECK_ROOM(d, n) if(GetRoomRnum(n)<=kNowhere)     {SendMsgToChar("Неверный номер комнаты, повторите : ",d->character.get());return;}
+#define CHECK_TRIG(d, n) if(GetTriggerRnum(n)<0)  {SendMsgToChar("Неверный номер триггера, повторите : ",d->character.get());return;}
 #define CHECK_NUM(d, n)  if(!is_signednumber(n)){SendMsgToChar("Ожидается число, повторите : ",d->character.get());return;}
 
 void zedit_parse(DescriptorData *d, char *arg) {
@@ -1933,8 +1933,9 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_A_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || real_zone(pos) == 0) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", zone_table[zone_table.size() - 1 - NumberOfZoneDungeons].vnum);
+			if (!is_number(arg) || GetZoneRnum(pos) == 0) {
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
+							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
 					if (OLC_ZONE(d)->typeA_list[i] == pos)    // нашли совпадающий -- убираем элемент
@@ -1976,8 +1977,9 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_B_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || real_zone(pos) == 0) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ", zone_table[zone_table.size() - 1 - NumberOfZoneDungeons].vnum);
+			if (!is_number(arg) || GetZoneRnum(pos) == 0) {
+				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
+							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
 					if (OLC_ZONE(d)->typeB_list[i] == pos)    // нашли совпадающий -- убираем элемент
@@ -2083,7 +2085,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_ZONE_ENTRANCE: {
 			int num = atoi(arg);
 			
-			if (real_room(num) == kNowhere) {
+			if (GetRoomRnum(num) == kNowhere) {
 				SendMsgToChar("Такая комната не найдена, повторите ввод:", d->character.get());
 			} else {
 				OLC_ZONE(d)->entrance = num;

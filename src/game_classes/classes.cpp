@@ -24,7 +24,7 @@
 #include "handler.h"
 #include "game_fight/pk.h"
 #include "statistics/top.h"
-#include "spam.h"
+#include "communication/offtop.h"
 #include "color.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
@@ -40,7 +40,6 @@ extern double exp_coefficients[];
 
 // local functions
 byte saving_throws(int class_num, int type, int level);
-void do_start(CharData *ch, int newbie);
 int invalid_anti_class(CharData *ch, const ObjData *obj);
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int invalid_unique(CharData *ch, const ObjData *obj);
@@ -84,7 +83,7 @@ ECharClass FindAvailableCharClassId(const std::string &class_name) {
 		}
 	}
 	return ECharClass::kUndefined;
-};
+}
 
 // Таблицы бызовых спасбросков
 
@@ -981,21 +980,21 @@ void init_warcry(CharData *ch) // проставление кличей в об�
 
 }
 
-void do_start(CharData *ch, int newbie) {
+void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
-	if (newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
+	if (is_newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
-	if (newbie && IS_MANA_CASTER(ch)) {
+	if (is_newbie && IS_MANA_CASTER(ch)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
 		}
 	}
 
-	if (newbie) {
+	if (is_newbie) {
 		log("Create new player %s", GET_NAME(ch));
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (int & i : outfit_list) {
@@ -1064,7 +1063,7 @@ void check_max_hp(CharData *ch) {
 
 // * Обработка событий при левел-апе.
 void levelup_events(CharData *ch) {
-	if (antispam::kMinOfftopLvl == GetRealLevel(ch)
+	if (offtop_system::kMinOfftopLvl == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
 		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
@@ -1359,7 +1358,7 @@ void InitSpellLevels() {
 	fclose(magic);
 }
 
-void init_basic_values() {
+void InitBasicValues() {
 	FILE *magic;
 	char line[256], name[kMaxInputLength];
 	int i[10], c, j, mode = 0, *pointer;

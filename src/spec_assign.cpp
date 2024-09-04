@@ -32,9 +32,9 @@ int puff(CharData *ch, void *me, int cmd, char *argument);
 void assign_kings_castle(void);
 
 // local functions
-void assign_mobiles(void);
-void assign_objects(void);
-void assign_rooms(void);
+void AssignMobiles(void);
+void AssignObjects(void);
+void AssignRooms(void);
 
 typedef int special_f(CharData *, void *, int, char *);
 
@@ -48,7 +48,7 @@ void clear_mob_charm(CharData *mob);
 void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 	MobRnum rnum;
 
-	if ((rnum = real_mobile(mob)) >= 0) {
+	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
 		// рентерам хардкодом снимаем возможные нежелательные флаги
 		if (fname == receptionist) {
@@ -60,7 +60,7 @@ void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 }
 
 void ASSIGNOBJ(ObjVnum obj, special_f fname) {
-	const ObjRnum rnum = real_object(obj);
+	const ObjRnum rnum = GetObjRnum(obj);
 
 	if (rnum >= 0) {
 		obj_proto.func(rnum, fname);
@@ -70,7 +70,7 @@ void ASSIGNOBJ(ObjVnum obj, special_f fname) {
 }
 
 void ASSIGNROOM(RoomVnum room, special_f fname) {
-	const RoomRnum rnum = real_room(room);
+	const RoomRnum rnum = GetRoomRnum(room);
 
 	if (rnum != kNowhere) {
 		world[rnum]->func = fname;
@@ -82,7 +82,7 @@ void ASSIGNROOM(RoomVnum room, special_f fname) {
 void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
 	MobRnum rnum;
 
-	if ((rnum = real_mobile(mob)) >= 0) {
+	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
 	} else {
@@ -99,7 +99,7 @@ void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
 * TODO: вообще убирать надо это тоже в конфиг, всеравно без конфигов мад
 * не запустится, толку в коде держать даже этот минимальный набор.
 */
-void assign_mobiles(void) {
+void AssignMobiles(void) {
 	// HOTEL //
 	ASSIGNMOB(106, receptionist);
 	ASSIGNMOB(4022, receptionist);
@@ -116,7 +116,7 @@ void assign_mobiles(void) {
 }
 
 // assign special procedures to objects //
-void assign_objects(void) {
+void AssignObjects(void) {
 	special_f *const function = Boards::Static::Special;
 	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, function);
 	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, function);
@@ -126,7 +126,7 @@ void assign_objects(void) {
 }
 
 // assign special procedures to rooms //
-void assign_rooms(void) {
+void AssignRooms(void) {
 	RoomRnum i;
 
 	if (dts_are_dumps)
@@ -135,15 +135,15 @@ void assign_rooms(void) {
 				world[i]->func = dump;
 }
 
-void init_spec_procs(void) {
+void InitSpecProcs(void) {
 	FILE *magic;
 	char line1[256], line2[256], name[256];
 	int i;
 
 	if (!(magic = fopen(LIB_MISC "specials.lst", "r"))) {
 		log("Cann't open specials list file...");
-		assign_mobiles();
-		assign_objects();
+		AssignMobiles();
+		AssignObjects();
 		return;
 	}
 	while (get_line(magic, name)) {
@@ -156,7 +156,7 @@ void init_spec_procs(void) {
 		}
 		log("<%s>-%d-[%s]", line1, i, line2);
 		if (!str_cmp(line1, "mob")) {
-			if (real_mobile(i) < 0) {
+			if (GetMobRnum(i) < 0) {
 				log("Unknown mobile %d in specials assignment...", i);
 				continue;
 			}
@@ -181,7 +181,7 @@ void init_spec_procs(void) {
 			else
 				log("Unknown mobile %d assignment type - %s...", i, line2);
 		} else if (!str_cmp(line1, "obj")) {
-			if (real_object(i) < 0) {
+			if (GetObjRnum(i) < 0) {
 				log("Unknown object %d in specials assignment...", i);
 				continue;
 			}

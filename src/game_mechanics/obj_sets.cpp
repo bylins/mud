@@ -191,7 +191,7 @@ void VerifySet(SetNode &set) {
 	}
 
 	for (auto i = set.obj_list.begin(); i != set.obj_list.end(); ++i) {
-		const int rnum = real_object(i->first);
+		const int rnum = GetObjRnum(i->first);
 		if (rnum < 0) {
 			err_log("Items set #%zu: empty obj proto (vnum=%d).", num, i->first);
 			set.enabled = false;
@@ -696,7 +696,7 @@ std::string print_obj_list(const SetNode &set) {
 	bool left = true;
 
 	for (const auto & i : set.obj_list) {
-		const int rnum = real_object(i.first);
+		const int rnum = GetObjRnum(i.first);
 		if (rnum < 0
 			|| obj_proto[rnum]->get_short_description().empty()) {
 			continue;
@@ -851,7 +851,7 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench) {
 	char buf_[128];
 
 	if (ench.first > 0) {
-		int rnum = real_object(ench.first);
+		int rnum = GetObjRnum(ench.first);
 		if (rnum < 0) return "";
 
 		if (ench.second.weight != 0) {

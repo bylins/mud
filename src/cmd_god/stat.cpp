@@ -469,9 +469,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			static const int max_path_size = 25;
 			RoomVnum current_room = world[k->in_room]->vnum;
 			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
-				const auto direction = find_first_step(real_room(current_room), real_room(GET_DEST(k)), k);
+				const auto direction = find_first_step(GetRoomRnum(current_room), GetRoomRnum(GET_DEST(k)), k);
 				if (direction >= 0) {
-					const auto exit_room_rnum = world[real_room(current_room)]->dir_option[direction]->to_room();
+					const auto exit_room_rnum = world[GetRoomRnum(current_room)]->dir_option[direction]->to_room();
 					current_room = world[exit_room_rnum]->vnum;
 					predictive_path_vnum_list.push_back(current_room);
 				} else {
@@ -762,7 +762,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
 			GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j));
 	SendMsgToChar(buf, ch);
-	if (check_unlimited_timer(j))
+	if (IsTimerUnlimited(j))
 		sprintf(buf, "Таймер: нерушимо, ");
 	else
 		sprintf(buf, "Таймер: %d, ", j->get_timer());
@@ -993,7 +993,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 				sprintf(buf + strlen(buf), "\r\nможно применить с %d уровня.", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 			}
 
-			if ((i = real_object(GET_OBJ_VAL(j, 1))) >= 0) {
+			if ((i = GetObjRnum(GET_OBJ_VAL(j, 1))) >= 0) {
 				sprintf(buf + strlen(buf), "\r\nпрототип %s%s%s.",
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 			}
@@ -1230,7 +1230,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 			int vnum, rnum = kNowhere;
 			if (*buf2 && (vnum = atoi(buf2))) {
-				if ((rnum = real_room(vnum)) != kNowhere)
+				if ((rnum = GetRoomRnum(vnum)) != kNowhere)
 					do_stat_room(ch, rnum);
 				else
 					SendMsgToChar("Состояние какой комнаты?\r\n", ch);

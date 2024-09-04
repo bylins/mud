@@ -382,8 +382,8 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 		else
 			SendMsgToChar("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
 		SendMsgToChar("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
-		PlaceCharToRoom(agressor, real_room(CLAN(agressor)->out_rent));
-		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
+		PlaceCharToRoom(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
+		look_at_room(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
 		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", true, agressor, 0, 0, kToRoom);
 		SetWait(agressor, 1, true);
 		return false;
@@ -911,7 +911,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		if (MOB_FLAGGED(ch, EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
 			return true;
 		// моб по триггеру имеет право
-		if (ch->IsNpc() && ch->get_rnum() == real_mobile(kDgCasterProxy))
+		if (ch->IsNpc() && ch->get_rnum() == GetMobRnum(kDgCasterProxy))
 			return true;
 		// богам, мстящим и продолжающим агро-бд можно
 		if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))

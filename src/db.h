@@ -30,23 +30,17 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct zrn_complex_list;
-
-// room manage functions
-void room_copy(RoomData *dst, RoomData *src);
-void room_free(RoomData *room);
 
 // public procedures in db.cpp
-RoomRnum real_room(RoomVnum vnum);
-ZoneRnum real_zone(ZoneVnum zvn);
-MobRnum real_mobile(MobVnum vnum);
-ObjRnum real_object(ObjVnum vnum);
-void tag_argument(char *argument, char *tag);
-void boot_db();
+RoomRnum GetRoomRnum(RoomVnum vnum);
+ZoneRnum GetZoneRnum(ZoneVnum zvn);
+MobRnum GetMobRnum(MobVnum vnum);
+ObjRnum GetObjRnum(ObjVnum vnum);
+void ExtractTagFromArgument(char *argument, char *tag);
+void BootMudDataBase();
 void zone_update();
 bool can_be_reset(ZoneRnum zone);
 long get_id_by_name(char *name);
-//long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
@@ -56,23 +50,18 @@ long get_lastlogon_by_unique(long unique);
 long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
+void ResetZone(ZoneRnum zone);
 
 int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
 int vnum_mobile(char *searchname, CharData *ch);
-void ClearCharTalents(CharData *ch);
 int correct_unique(int unique);
-bool check_unlimited_timer(const CObjectPrototype *obj);
+bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
-void flush_player_index();
+void FlushPlayerIndex();
 bool is_empty(ZoneRnum zone_nr, bool debug = false);
-void TrigDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
 void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn);
-void ZoneDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<zrn_complex_list> dungeon_list = {});
-void MobDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void ObjDataCopy(ZoneRnum rzone_from, ZoneRnum rzone_to);
-void DungeonReset(int zrn);
+
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 
@@ -88,11 +77,6 @@ int vnum_obj_trig(char *searchname, CharData *ch);
 struct combat_list_element {
 	CharData *ch;
 	bool deleted;
-};
-
-struct zrn_complex_list {
-	ZoneRnum from;
-	ZoneRnum to;
 };
 
 struct reset_com {
@@ -145,9 +129,9 @@ class QuestBodrich {
 	QuestBodrich();
 
  private:
-	void load_mobs();
-	void load_objs();
-	void load_rewards();
+	void LoadMobs();
+	void LoadObjs();
+	void LoadRewards();
 
 	// здесь храним предметы для каждого класса
 	std::map<int, std::vector<int>> objs;
@@ -251,7 +235,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 extern RoomRnum top_of_world;
 extern std::unordered_map<long, CharData *> chardata_by_uid;
 
-void add_trig_index_entry(int nr, Trigger *proto);
+void AddTrigIndexEntry(int nr, Trigger *trig);
 extern IndexData **trig_index;
 
 #ifndef __CONFIG_C__
@@ -290,12 +274,8 @@ extern const char *MENU;
 extern struct Portal *portals_list;
 extern TimeInfoData time_info;
 
-extern int convert_drinkcon_skill(CObjectPrototype *obj, bool proto);
+extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);
 
-int dl_parse(OnDeadLoadList **dl_list, char *line);
-int dl_load_obj(ObjData *corpse, CharData *ch, CharData *chr, int DL_LOAD_TYPE);
-int trans_obj_name(ObjData *obj, CharData *ch);
-void dl_list_copy(OnDeadLoadList **pdst, OnDeadLoadList *src);
 void paste_mobiles();
 
 extern RoomRnum r_helled_start_room;
@@ -317,13 +297,13 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 
 	~PlayersIndex();
 
-	std::size_t append(const PlayerIndexElement &element);
-	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
-	bool player_exists(const char *name) const { return NOT_FOUND != get_by_name(name); }
-	std::size_t get_by_name(const char *name) const;
-	void set_name(std::size_t index, const char *name);
+	std::size_t Append(const PlayerIndexElement &element);
+	bool IsPlayerExists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
+	bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetRnumByName(name); }
+	std::size_t GetRnumByName(const char *name) const;
+	void SetName(std::size_t index, const char *name);
 
-	NameAdviser &name_adviser() { return m_name_adviser; }
+	NameAdviser &GetNameAdviser() { return m_name_adviser; }
 
  private:
 	class hasher {
@@ -338,9 +318,8 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 
 	using id_to_index_t = std::unordered_map<int, std::size_t>;
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
-	using free_names_t = std::deque<std::string>;
 
-	void add_name_to_index(const char *name, std::size_t index);
+	void AddNameToIndex(const char *name, std::size_t index);
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
@@ -352,7 +331,7 @@ extern PlayersIndex &player_table;
 
 extern long top_idnum;
 
-bool player_exists(long id);
+bool IsPlayerExists(long id);
 
 inline SaveInfo *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
@@ -366,18 +345,11 @@ inline void clear_saveinfo(const size_t number) {
 void recreate_saveinfo(size_t number);
 
 void set_god_skills(CharData *ch);
-void check_room_flags(int rnum);
-
-namespace OfftopSystem {
-void init();
-void set_flag(CharData *ch);
-} // namespace OfftopSystem
-
-void delete_char(const char *name);
+void CheckRoomForIncompatibleFlags(int rnum);
 
 void set_test_data(CharData *mob);
 
-void set_zone_mob_level();
+void SetZoneMobLevel();
 
 //bool can_snoop(CharacterData *imm, CharacterData *vict);
 
@@ -385,13 +357,13 @@ void set_zone_mob_level();
 
 class GameLoader {
  public:
-	GameLoader();
+	GameLoader() = default;
 
-	void boot_world();
-	void index_boot(EBootType mode);
+	static void BootWorld();
+	static void BootIndex(const EBootType mode);
 
  private:
-	static void prepare_global_structures(EBootType mode, const int rec_count);
+	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);
 };
 
 extern GameLoader world_loader;

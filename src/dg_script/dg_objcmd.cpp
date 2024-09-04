@@ -87,7 +87,7 @@ int find_obj_target_room(ObjData *obj, Trigger *trig, char *rawroomstr) {
 
 	auto tmp = atoi(roomstr);
 	if (tmp > 0) {
-		location = real_room(tmp);
+		location = GetRoomRnum(tmp);
 	} else {
 		sprintf(buf, "Undefined oteleport room: %s", roomstr);
 		obj_log(obj, trig, buf);
@@ -111,7 +111,7 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 
 	howlong = atoi(arg2);
 	nr = atoi(arg1);
-	target = real_room(nr);
+	target = GetRoomRnum(nr);
 
 	if (target == kNowhere) {
 		obj_log(obj, trig, "oportal: target is an invalid room");
@@ -120,7 +120,7 @@ void do_oportal(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 
 	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
-	curroom = real_room(get_room_where_obj(obj));
+	curroom = GetRoomRnum(get_room_where_obj(obj));
 	OneWayPortal::ReplacePortalTimer(nullptr, curroom, target, howlong * 30 - 1);
 	act("Лазурная пентаграмма возникла в воздухе.",
 		false, world[curroom]->first_character(), 0, 0, kToChar);
@@ -151,7 +151,7 @@ void do_oat(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *
 	one_argument(argument, roomstr);
 	auto tmp = atoi(roomstr);
 	if (tmp > 0) {
-		location = real_room(tmp);
+		location = GetRoomRnum(tmp);
 	} else {
 		sprintf(buf, "oat: invalid location '%d'", tmp);
 		obj_log(obj, trig, buf);
@@ -526,7 +526,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
-			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
+			if (!IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				obj_log(obj, trig, buf);
 //				extract_obj(object.get());
@@ -688,7 +688,7 @@ void do_odoor(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 				break;
 
 			case 5:    // room
-				if ((to_room = real_room(atoi(value))) != kNowhere) {
+				if ((to_room = GetRoomRnum(atoi(value))) != kNowhere) {
 					exit->to_room(to_room);
 				} else {
 					obj_log(obj, trig, "odoor: invalid door target");

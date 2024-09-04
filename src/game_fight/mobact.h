@@ -23,15 +23,6 @@ void mobRemember(CharData *ch, CharData *victim);
 void mobForget(CharData *ch, CharData *victim);
 void clearMemory(CharData *ch);
 
-struct mob_guardian {
-	int max_wars_allow{};
-	bool agro_killers{};
-	bool agro_all_agressors{};
-	std::vector<ZoneVnum> agro_argressors_in_zones{};
-};
-
-typedef std::unordered_map<int, mob_guardian> guardian_type;
-
 #endif // MOBACT_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

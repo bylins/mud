@@ -22,6 +22,8 @@
 #include "name_list.h"
 #include "entities/room_data.h"
 #include "corpse.h"
+#include "game_mechanics/dead_load.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/sets_drop.h"
 #include "game_fight/fight.h"
 #include "entities/zone.h"
@@ -66,11 +68,9 @@ void clear_mob_charm(CharData *mob);
 
 // * Handy internal macros.
 #define GET_ALIAS(mob) ((mob)->GetCharAliases().c_str())
-#define GET_SDESC(mob) ((mob)->get_npc_name().c_str())
 #define GET_LDESC(mob) ((mob)->player_data.long_descr)
 #define GET_DDESC(mob) ((mob)->player_data.description)
 #define GET_ATTACK(mob) ((mob)->mob_specials.attack_type)
-#define S_KEEPER(shop) ((shop)->keeper)
 #if defined(OASIS_MPROG)
 #define GET_MPROG(mob)		(mob_index[(mob)->nr].mobprogs)
 #define GET_MPROG_TYPE(mob)	(mob_index[(mob)->nr].progtypes)
@@ -82,7 +82,7 @@ void clear_mob_charm(CharData *mob);
 void medit_setup(DescriptorData *d, int rmob_num);
 
 void medit_mobile_init(CharData *mob);
-void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy);
+void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);
 void medit_mobile_free(CharData *mob);
 
 void medit_save_internally(DescriptorData *d);
@@ -131,7 +131,7 @@ void medit_mobile_init(CharData *mob) {
 	}
 }
 
-void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
+void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy)
 /*++
    Функция делает создает копию ПРОТОТИПА моба.
    После вызова этой функции создается полностью независимая копия моба src.
@@ -196,9 +196,9 @@ void medit_mobile_copy(CharData *dst, CharData *src, bool partial_copy)
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
 	if (partial_copy && tmp.dl_list)
-		dl_list_copy(&dst->dl_list, tmp.dl_list);
+		dead_load::CopyDeadLoadList(&dst->dl_list, tmp.dl_list);
 	else
-		dl_list_copy(&dst->dl_list, src->dl_list);
+		dead_load::CopyDeadLoadList(&dst->dl_list, src->dl_list);
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
 	//	CharacterAlias::remove(dst);
@@ -287,7 +287,7 @@ void medit_setup(DescriptorData *d, int real_num)
 		MPROG_DATA *head;
 #endif
 
-		medit_mobile_copy(mob, &mob_proto[real_num], false);
+		CopyMobilePrototypeForMedit(mob, &mob_proto[real_num], false);
 
 #if defined(OASIS_MPROG)
 		/*
@@ -329,7 +329,7 @@ void medit_setup(DescriptorData *d, int real_num)
 * Save new/edited mob to memory.
 *
 * Здесь сейчас нельзя просто копировать через указатель поля из моба, т.к. при выходе
-* они будут чиститься через деструктор, поэтому пока только через medit_mobile_copy
+* они будут чиститься через деструктор, поэтому пока только через CopyMobilePrototypeForMedit
 * add: прямое копирование без переаллокаций при добавлении нового моба работает
 * только потому, что в деструкторе сейчас не очищаются аллокации прототипов.
 * TODO: ес-сно это муть все
@@ -340,7 +340,7 @@ void medit_save_internally(DescriptorData *d) {
 	IndexData *new_index;
 	DescriptorData *dsc;
 
-	//  rmob_num = real_mobile(OLC_NUM(d));
+	//  rmob_num = GetMobRnum(OLC_NUM(d));
 	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
 	//	set_test_data(OLC_MOB(d));
 
@@ -358,7 +358,7 @@ void medit_save_internally(DescriptorData *d) {
 		// Удаление старого прототипа
 		medit_mobile_free(&mob_proto[rmob_num]);
 		// Обновляю прототип
-		medit_mobile_copy(&mob_proto[rmob_num], OLC_MOB(d), false);
+		CopyMobilePrototypeForMedit(&mob_proto[rmob_num], OLC_MOB(d), false);
 		// Теперь просто удалить OLC_MOB(d) и все будет хорошо
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
@@ -408,7 +408,7 @@ void medit_save_internally(DescriptorData *d) {
 					new_index[rmob_num].func = nullptr;
 					new_mob_num = rmob_num;
 					OLC_MOB(d)->set_rnum(rmob_num);
-					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
+					CopyMobilePrototypeForMedit(&new_proto[rmob_num], OLC_MOB(d), false);
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 					new_index[rmob_num].set_idx = -1;
@@ -434,7 +434,7 @@ void medit_save_internally(DescriptorData *d) {
 			new_mob_num = rmob_num;
 			OLC_MOB(d)->set_rnum(rmob_num);
 
-			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d), false);
+			CopyMobilePrototypeForMedit(&new_proto[rmob_num], OLC_MOB(d), false);
 
 			new_index[rmob_num].zone = get_zone_rnum_by_mob_vnum(OLC_NUM(d));
 			new_index[rmob_num].set_idx = -1;
@@ -534,7 +534,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 
 	ZoneVnum zone = zone_table[zone_num].vnum;
 	MobVnum top = zone_table[zone_num].top;
-	if (zone >= ZoneStartDungeons) {
+	if (zone >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
@@ -547,7 +547,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 
 	// * Seach the database for mobs in this zone and save them.
 	for (MobVnum i = zone * 100; i <= top; i++) {
-		if ((rmob_num = real_mobile(i)) == -1)
+		if ((rmob_num = GetMobRnum(i)) == -1)
 			continue;
 		if (fprintf(mob_file, "#%d\n", mob_index[rmob_num].vnum) < 0) {
 			mudlog("SYSERR: OLC: Cannot write mob file!\r\n", BRF, kLvlBuilder, SYSLOG, true);
@@ -684,7 +684,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		script_save_to_disk(mob_file, mob, MOB_TRIGGER);
 		// Сохраняем список в файл
 		if (mob->dl_list) {
-			OnDeadLoadList::iterator p = mob->dl_list->begin();
+			auto p = mob->dl_list->begin();
 			while (p != mob->dl_list->end()) {
 				fprintf(mob_file, "L %d %d %d %d\n",
 						(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
@@ -1253,7 +1253,7 @@ void disp_dl_list(DescriptorData *d) {
 
 	if (mob->dl_list != nullptr) {
 		i = 0;
-		OnDeadLoadList::iterator p = mob->dl_list->begin();
+		auto p = mob->dl_list->begin();
 		while (p != mob->dl_list->end()) {
 			i++;
 
@@ -2076,7 +2076,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				OLC_MOB(d)->mob_specials.dest_count = 0;
 				break;
 			}
-			if ((plane = real_room(number)) == kNowhere) {
+			if ((plane = GetRoomRnum(number)) == kNowhere) {
 				SendMsgToChar("Нет такой комнаты.\r\n", d->character.get());
 			} else {
 				for (plane = 0; plane < OLC_MOB(d)->mob_specials.dest_count; plane++) {
@@ -2101,7 +2101,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if ((plane = real_mobile(number)) < 0) {
+			if ((plane = GetMobRnum(number)) < 0) {
 				SendMsgToChar("Нет такого моба.\r\n", d->character.get());
 			} else {
 				auto it = std::find(OLC_MOB(d)->summon_helpers.begin(), OLC_MOB(d)->summon_helpers.end(), number);
@@ -2241,7 +2241,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case MEDIT_DLIST_ADD:
-			if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
+			if (!dead_load::ParseDeadLoadLine(&OLC_MOB(d)->dl_list, arg))
 				SendMsgToChar("\r\nНеверный ввод.\r\n", d->character.get());
 			else {
 				SendMsgToChar("\r\nЗапись добавлена.\r\n", d->character.get());
@@ -2261,7 +2261,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				}
 				// Удаляем указаный элемент.
 				i = 0;
-				OnDeadLoadList::iterator p = OLC_MOB(d)->dl_list->begin();
+				auto p = OLC_MOB(d)->dl_list->begin();
 				while (p != OLC_MOB(d)->dl_list->end() && i < number - 1) {
 					p++;
 					i++;
@@ -2300,7 +2300,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			break;
 
 		case MEDIT_CLONE_WITH_TRIGGERS: {
-			auto rnum = real_mobile(atoi(arg));
+			auto rnum = GetMobRnum(atoi(arg));
 
 			if (rnum < 0) {
 				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
@@ -2308,14 +2308,14 @@ void medit_parse(DescriptorData *d, char *arg) {
 			}
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], false);
+			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 
 			break;
 		}
 
 		case MEDIT_CLONE_WITHOUT_TRIGGERS: {
-			auto rnum = real_mobile(atoi(arg));
+			auto rnum = GetMobRnum(atoi(arg));
 
 			if (rnum < 0) {
 				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
@@ -2324,7 +2324,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 			auto proto_script_old = OLC_MOB(d)->proto_script;
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], false);
+			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 			OLC_MOB(d)->proto_script = proto_script_old;
 
@@ -2332,7 +2332,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 		}
 
 		case MEDIT_CLONE_PARTIAL: {
-			auto rnum = real_mobile(atoi(arg));
+			auto rnum = GetMobRnum(atoi(arg));
 
 			if (rnum < 0) {
 				SendMsgToChar("Нет моба с таким внумом. Повторите ввод:", d->character.get());
@@ -2341,7 +2341,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 			auto proto_script_old = OLC_MOB(d)->proto_script;
-			medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum], true);
+			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], true);
 			OLC_MOB(d)->set_rnum(rnum_old);
 			OLC_MOB(d)->proto_script = proto_script_old;
 

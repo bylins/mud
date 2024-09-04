@@ -7,6 +7,7 @@
 #include "player_i.h"
 #include "game_skills/morph.hpp"
 #include "game_mechanics/obj_sets.h"
+#include "game_mechanics/dead_load.h"
 #include "db.h"
 #include "entities/entities_constants.h"
 #include "room_data.h"
@@ -106,7 +107,7 @@ struct char_ability_data {
 // Char's points.
 struct char_point_data {
 	int hit;
-	sh_int move;
+	int move;
 
 	int max_move;    // Max move for PC/NPC
 	int max_hit;        // Max hit for PC/NPC
@@ -367,7 +368,7 @@ class CharData : public ProtectedCharData {
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(const ESkill skill_id, int percent);
-	void SetSkillAfterRemort(short remort);
+	void SetSkillAfterRemort(int remort);
 	void clear_skills();
 	int GetSkill(const ESkill skill_id) const;
 	int GetSkillWithoutEquip(const ESkill skill_id) const;
@@ -816,7 +817,7 @@ class CharData : public ProtectedCharData {
 
 	int poisoner;
 
-	OnDeadLoadList *dl_list;    // загружаемые в труп предметы
+	dead_load::OnDeadLoadList *dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
 	std::map<ESpell, TemporarySpell> temp_spells;

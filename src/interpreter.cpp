@@ -22,6 +22,7 @@
 #include "entities/char_player.h"
 #include "entities/world_characters.h"
 #include "communication/insult.h"
+#include "communication/offtop.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/show.h"
 #include "cmd_god/godtest.h"
@@ -48,6 +49,7 @@
 #include "cmd/mixture.h"
 #include "cmd/cast.h"
 #include "cmd/employ.h"
+#include "cmd/remort.h"
 #include "cmd/remove.h"
 #include "cmd/refill.h"
 #include "cmd/sign.h"
@@ -68,6 +70,7 @@
 #include "genchar.h"
 #include "game_classes/classes.h"
 #include "game_mechanics/glory.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
 #include "handler.h"
@@ -125,6 +128,7 @@
 #include "statistics/top.h"
 #include "game_skills/skills_info.h"
 #include "game_mechanics/mem_queue.h"
+#include "obj_save.h"
 
 #include <ctime>
 
@@ -176,17 +180,18 @@ extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern const char *default_race[];
-extern void add_karma(CharData *ch, const char *punish, const char *reason);
+extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
-extern char *GREETINGS;
+extern char *greetings;
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern char *name_rules;
 
+void DeletePcByHimself(const char *name);
+
 // external functions
-void do_start(CharData *ch, int newbie);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
@@ -233,7 +238,6 @@ void DoDrop(CharData *ch, char *argument, int, int);
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
-void do_remort(CharData *ch, char *argument, int cmd, int subcmd);
 void do_remember_char(CharData *ch, char *argument, int cmd, int subcmd);
 void do_exits(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -276,7 +280,7 @@ void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
-void do_reboot(CharData *ch, char *argument, int cmd, int subcmd);
+void DoReboot(CharData *ch, char *argument, int cmd, int subcmd);
 void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_setall(CharData *ch, char *argument, int cmd, int subcmd);
@@ -356,11 +360,9 @@ void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
-void DoDungeonReset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
-void DoZoneCopy(CharData *, char *, int, int);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_cities(CharData *ch, char *, int, int);
@@ -387,10 +389,6 @@ std::map<std::string, int> new_loc_codes;
 
 // имя чара на код, отправленный на почту для подтверждения мыла при создании
 std::map<std::string, int> new_char_codes;
-
-void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
-	DungeonReset(real_zone(atoi(argument)));
-}
 
 void do_debug_queues(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
   std::stringstream ss;
@@ -546,7 +544,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
 		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
-		{"копироватьзону", EPosition::kStand, DoZoneCopy, kLvlImplementator, 0, 0},
+		{"копироватьзону", EPosition::kStand, dungeons::DoZoneCopy, kLvlImplementator, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"кто", EPosition::kRest, do_who, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, ClanSystem::DoWhoClan, 0, 0, 0},
@@ -628,8 +626,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
 		{"перевести", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
-		{"перевоплотитьс", EPosition::kStand, do_remort, 0, 0, -1},
-		{"перевоплотиться", EPosition::kStand, do_remort, 0, 1, -1},
+		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
+		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
 		{"перелить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
 		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, do_drink, 0, SCMD_DRINK, 400},
@@ -723,7 +721,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
-		{"сбросить", EPosition::kRest, DoDungeonReset, kLvlImplementator, 0, -1},
+		{"сбросить", EPosition::kRest, dungeons::DoDungeonReset, kLvlImplementator, 0, -1},
 		{"спрятаться", EPosition::kStand, do_hide, 1, 0, 500},
 		{"сравнить", EPosition::kRest, do_consider, 0, 0, 500},
 		{"сразить", EPosition::kFight, do_slay, 1, 0, -1},
@@ -916,7 +914,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"redit", EPosition::kDead, do_olc, 0, SCMD_OLC_REDIT, 0},
 		{"register", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_REGISTER, 0},
 		{"unregister", EPosition::kDead, do_wizutil, kLvlImmortal, SCMD_UNREGISTER, 0},
-		{"reload", EPosition::kDead, do_reboot, kLvlImplementator, 0, 0},
+		{"reload", EPosition::kDead, DoReboot, kLvlImplementator, 0, 0},
 		{"remove", EPosition::kRest, do_remove, 0, 0, 500},
 		{"rent", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"reply", EPosition::kRest, do_reply, 0, 0, -1},
@@ -1718,7 +1716,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 
 // locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name) {
-  const auto index = player_table.get_by_name(name);
+  const auto index = player_table.GetRnumByName(name);
   return PlayersIndex::NOT_FOUND == index ? -1 : static_cast<int>(index);
 }
 
@@ -2129,7 +2127,7 @@ void do_entergame(DescriptorData *d) {
 	}
   }
 
-  OfftopSystem::set_flag(d->character.get());
+  offtop_system::SetStopOfftopFlag(d->character.get());
   // пересчет максимального хп, если нужно
   check_max_hp(d->character.get());
   // проверка и сет религии
@@ -2151,7 +2149,7 @@ void do_entergame(DescriptorData *d) {
 	if ((load_room = GET_LOADROOM(d->character)) == kNowhere) {
 	  load_room = calc_loadroom(d->character.get());
 	}
-	load_room = real_room(load_room);
+	load_room = GetRoomRnum(load_room);
 
 	if (!Clan::MayEnter(d->character.get(), load_room, kHousePortal)) {
 	  load_room = Clan::CloseRent(load_room);
@@ -2162,7 +2160,7 @@ void do_entergame(DescriptorData *d) {
 	}
   }
 
-  // If char was saved with kNowhere, or real_room above failed...
+  // If char was saved with kNowhere, or GetRoomRnum( above failed...
   if (load_room == kNowhere) {
 	if (GetRealLevel(d->character) >= kLvlImmortal)
 	  load_room = r_immort_start_room;
@@ -2315,7 +2313,7 @@ void do_entergame(DescriptorData *d) {
 	PRF_FLAGS(d->character).set(EPrf::kShowZoneNameOnEnter);
 	PRF_FLAGS(d->character).set(EPrf::kBoardMode);
 	d->character->set_last_exchange(time(nullptr));
-	do_start(d->character.get(), true);
+	  DoPcInit(d->character.get(), true);
 	d->character->mem_queue.stored = 0;
 	SendMsgToChar(START_MESSG, d->character.get());
   }
@@ -2614,7 +2612,7 @@ int create_entry(PlayerIndexElement &element) {
   element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
   element.timer = nullptr;
 
-  return static_cast<int>(player_table.append(element));
+  return static_cast<int>(player_table.Append(element));
 }
 
 void DoAfterEmailConfirm(DescriptorData *d) {
@@ -2643,7 +2641,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
   }
 
   // remove from free names
-  player_table.name_adviser().remove(GET_NAME(d->character));
+	player_table.GetNameAdviser().remove(GET_NAME(d->character));
 
   SEND_TO_Q(motd, d);
   SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
@@ -2814,7 +2812,7 @@ void nanny(DescriptorData *d, char *argument) {
 	  }
 	  d->keytable = (ubyte) *argument - (ubyte) '0';
 	  ip_log(d->host);
-	  SEND_TO_Q(GREETINGS, d);
+	  SEND_TO_Q(greetings, d);
 	  STATE(d) = CON_GET_NAME;
 	  break;
 
@@ -2830,7 +2828,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		std::stringstream ss;
 		ss << "Введите имя";
-		const auto free_name_list = player_table.name_adviser().get_random_name_list();
+		const auto free_name_list = player_table.GetNameAdviser().get_random_name_list();
 		if (!free_name_list.empty()) {
 		  ss << " (примеры доступных имен : ";
 		  ss << JoinRange(free_name_list);
@@ -3186,7 +3184,7 @@ void nanny(DescriptorData *d, char *argument) {
 		STATE(d) = CON_QCLASS;
 	  } else {
 		sprintf(buffer, "%s заменил себе пароль.", GET_NAME(d->character));
-		add_karma(d->character.get(), buffer, "");
+		  AddKarma(d->character.get(), buffer, "");
 		d->character->save_char();
 		SEND_TO_Q("\r\nГотово.\r\n", d);
 		SEND_TO_Q(MENU, d);
@@ -3623,9 +3621,10 @@ break;
 		  STATE(d) = CON_CLOSE;
 		  return;
 		}
-		if (GetRealLevel(d->character) >= kLvlGreatGod)
+		if (GetRealLevel(d->character) >= kLvlGreatGod) {
 		  return;
-		delete_char(GET_NAME(d->character));
+		}
+		DeletePcByHimself(GET_NAME(d->character));
 		sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 		SEND_TO_Q(buffer, d);
 		sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
@@ -4167,5 +4166,34 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
   return false;
 }
 
+// * Добровольное удаление персонажа через игровое меню.
+void DeletePcByHimself(const char *name) {
+	Player t_st;
+	Player *st = &t_st;
+	int id = load_char(name, st, ELoadCharFlags::kFindId);
+
+	if (id >= 0) {
+		PLR_FLAGS(st).set(EPlrFlag::kDeleted);
+		NewNames::remove(st);
+		if (NAME_FINE(st)) {
+			player_table.GetNameAdviser().add(GET_NAME(st));
+		}
+		Clan::remove_from_clan(GET_UNIQUE(st));
+		st->save_char();
+
+		ClearCrashSavedObjects(id);
+		player_table[id].unique = -1;
+		player_table[id].level = -1;
+		player_table[id].remorts = -1;
+		player_table[id].last_logon = -1;
+		player_table[id].activity = -1;
+		if (player_table[id].mail)
+			free(player_table[id].mail);
+		player_table[id].mail = nullptr;
+		if (player_table[id].last_ip)
+			free(player_table[id].last_ip);
+		player_table[id].last_ip = nullptr;
+	}
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

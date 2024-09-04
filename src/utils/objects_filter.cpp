@@ -439,7 +439,7 @@ bool ParseFilter::check_state(ObjData *obj) const {
 			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
-			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
+			if (IsTimerUnlimited(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
 			{
 				tm_pct = 1000;
 			} else {

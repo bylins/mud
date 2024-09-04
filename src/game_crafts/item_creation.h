@@ -147,7 +147,7 @@ class MakeRecept {
 	void make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS], int ingr_cnt);
 
 	void make_value_wear(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PARTS]);
-	//к сожалению у нас не прототип. прийдется расчитывать отдельно
+	//к сожалению у нас не прототип. придется расчитывать отдельно
 	float count_mort_requred(ObjData *obj);
 
 	float count_affect_weight(int num, int mod);

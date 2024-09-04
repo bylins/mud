@@ -189,7 +189,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 	switch (LOWER(*buf1)) {
 		case '1':
 			if (a_isdigit(*buf2) && sscanf(buf2, "%d", &num)) {
-				if (real_object(num) < 0) {
+				if (GetObjRnum(num) < 0) {
 					SendMsgToChar(ch, "Такого объекта не существует.\r\n");
 					return false;
 				}
@@ -296,8 +296,8 @@ void nedit_menu(CharData *ch) {
 	std::ostringstream out;
 
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: "
-		<< (real_object(ch->desc->cur_vnum)
-			? obj_proto[real_object(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
+		<< (GetObjRnum(ch->desc->cur_vnum)
+			? obj_proto[GetObjRnum(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: "
 		<< GetNameByUnique(ch->desc->named_obj->uid, 0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
 	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: "
@@ -354,7 +354,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				out += " Пока что пусто.\r\n";
 			} else {
 				for (StuffListType::iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
-					if ((r_num = real_object(it->first)) < 0) {
+					if ((r_num = GetObjRnum(it->first)) < 0) {
 						if ((*buf && strstr(it->second->mail.c_str(), buf))
 							|| (uid != -1
 								&& uid == it->second->uid)
@@ -407,7 +407,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 			break;
 		case SCMD_NAMED_EDIT: int found = 0;
 			if ((first > 0 && first < 0x7fffffff) || uid != -1 || *buf) {
-				if (first > 0 && first < 0x7fffffff && real_object(first) < 0) {
+				if (first > 0 && first < 0x7fffffff && GetObjRnum(first) < 0) {
 					SendMsgToChar(ch, "Такого объекта не существует.\r\n");
 					return;
 				}
@@ -419,7 +419,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 					++it) {
 					if ((uid == -1 && it->first == first) || it->second->uid == uid
 						|| !str_cmp(it->second->mail.c_str(), buf)) {
-						if (real_object(it->first) < 0) {
+						if (GetObjRnum(it->first) < 0) {
 							if (!have_missed_items) {
 								out += "&RВнимание!!!&n\r\nНесуществующие объекты в списке именых вещей:\r\n";
 								have_missed_items = true;
@@ -492,7 +492,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 	snprintf(buf1, kMaxStringLength, "не найден именной предмет");
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
 		if ((it->second->uid == GET_UNIQUE(ch)) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
-			if ((r_num = real_object(it->first)) < 0) {
+			if ((r_num = GetObjRnum(it->first)) < 0) {
 				SendMsgToChar("Странно, но такого объекта не существует.\r\n", ch);
 				snprintf(buf1, kMaxStringLength, "объект не существует!!!");
 				continue;
@@ -554,7 +554,7 @@ void load() {
 				continue;
 			}
 
-			if (real_object(vnum) < 0) {
+			if (GetObjRnum(vnum) < 0) {
 				snprintf(buf, kMaxStringLength,
 						 "NamedStuff: предмет vnum=%ld не существует.", vnum);
 				mudlog(buf, NRM, kLvlBuilder, SYSLOG, true);

@@ -38,6 +38,7 @@
 #include "game_skills/skills_info.h"
 #include "game_magic/spells_info.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/dungeons.h"
 #include <sys/stat.h>
 
 #include <array>
@@ -289,7 +290,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	int counter, counter2, realcounter;
 	FILE *fp;
 
-	if (zone_table[zone_num].vnum >= ZoneStartDungeons) {
+	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
 			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
@@ -301,7 +302,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 	}
 	// * Start running through all objects in this zone.
 	for (counter = zone_table[zone_num].vnum * 100; counter <= zone_table[zone_num].top; counter++) {
-		if ((realcounter = real_object(counter)) >= 0) {
+		if ((realcounter = GetObjRnum(counter)) >= 0) {
 			const auto &obj = obj_proto[realcounter];
 			if (!obj->get_action_description().empty()) {
 				strcpy(buf1, obj->get_action_description().c_str());
@@ -2165,7 +2166,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			break;
 		case OEDIT_CLONE_WITH_TRIGGERS: {
 			number = atoi(arg);
-			const int rnum_object = real_object((OLC_OBJ(d)->get_vnum()));
+			const int rnum_object = GetObjRnum((OLC_OBJ(d)->get_vnum()));
 			if (!OLC_OBJ(d)->clone_olc_object_from_prototype(number)) {
 				SendMsgToChar("Нет объекта с таким внумом. Повторите ввод : ", d->character.get());
 				return;
@@ -2178,7 +2179,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			number = atoi(arg);
 
 			auto proto_script_old = OLC_OBJ(d)->get_proto_script();
-			const int rnum_object = real_object((OLC_OBJ(d)->get_vnum()));
+			const int rnum_object = GetObjRnum((OLC_OBJ(d)->get_vnum()));
 
 			if (!OLC_OBJ(d)->clone_olc_object_from_prototype(number)) {
 				SendMsgToChar("Нет объекта с таким внумом. Повторите ввод: :", d->character.get());

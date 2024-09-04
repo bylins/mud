@@ -232,7 +232,7 @@ void do_wdoor(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 				exit->set_keywords(value);
 				break;
 			case 5:    // room        //
-				if ((to_room = real_room(atoi(value))) != kNowhere) {
+				if ((to_room = GetRoomRnum(atoi(value))) != kNowhere) {
 					exit->to_room(to_room);
 				} else {
 					wld_log(room, trig, "wdoor: invalid door target");
@@ -264,7 +264,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 	}
 	nr = atoi(arg2);
 	if (nr > 0) {
-		target = real_room(nr);
+		target = GetRoomRnum(nr);
 	} else {
 		sprintf(buf, "Undefined wteleport room: %s", arg2);
 		wld_log(room, trig, buf);
@@ -490,7 +490,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		}
 		uid_type = UID_CHAR;
 		idnum = mob->id;
-		PlaceCharToRoom(mob, real_room(room->vnum));
+		PlaceCharToRoom(mob, GetRoomRnum(room->vnum));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
 		const auto object = world_objects.create_from_prototype_by_vnum(number);
@@ -499,7 +499,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
-			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get())) {
+			if (!IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "wload: количество больше чем в MIW для #%d.", number);
 				wld_log(room, trig, buf);
 //				extract_obj(object.get());
@@ -510,7 +510,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		object->set_vnum_zone_from(zone_table[room->zone_rn].vnum);
 		uid_type = UID_OBJ;
 		idnum = object->get_id();
-		PlaceObjToRoom(object.get(), real_room(room->vnum));
+		PlaceObjToRoom(object.get(), GetRoomRnum(room->vnum));
 		load_otrigger(object.get());
 	} else {
 		wld_log(room, trig, "wload: bad type");
@@ -597,7 +597,7 @@ void do_wat(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 	}
 	vnum = atoi(location);
-	rnum = real_room(vnum);
+	rnum = GetRoomRnum(vnum);
 	if (kNowhere == rnum) {
 		wld_log(room, trig, "wat: location not found");
 		return;
@@ -906,7 +906,7 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	howlong = atoi(arg2);
 	nr = atoi(arg1);
-	target = real_room(nr);
+	target = GetRoomRnum(nr);
 
 	if (target == kNowhere) {
 		wld_log(room, trig, "wportal: target is an invalid room");
@@ -915,7 +915,7 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 
 	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
-	curroom = real_room(room->vnum);
+	curroom = GetRoomRnum(room->vnum);
 	OneWayPortal::ReplacePortalTimer(nullptr, curroom, target, howlong * 30 - 1);
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, kToChar);
 	act("Лазурная пентаграмма возникла в воздухе.", false, world[curroom]->first_character(), 0, 0, kToRoom);

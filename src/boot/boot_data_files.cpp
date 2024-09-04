@@ -2,6 +2,7 @@
 
 #include "obj_prototypes.h"
 #include "dg_script/dg_olc.h"
+#include "game_mechanics/dead_load.h"
 #include "boards/boards.h"
 #include "communication/social.h"
 #include "description.h"
@@ -14,7 +15,7 @@
 extern int scheck;                        // TODO: get rid of this line
 CharData *mob_proto;                    // TODO: get rid of this global variable
 
-extern void extract_trigger(Trigger *trig);
+extern void ExtractTrigger(Trigger *trig);
 
 class DataFile : public BaseDataFile {
  protected:
@@ -206,7 +207,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 		return;
 	}
 
-	rnum = real_trigger(vnum);
+	rnum = GetTriggerRnum(vnum);
 	if (rnum < 0) {
 		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
 		log("%s", line);
@@ -225,7 +226,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 				if (add_trigger(SCRIPT(room).get(), trigger_instance, -1)) {
 					add_trig_to_owner(-1, vnum, room->vnum);
 				} else {
-					extract_trigger(trigger_instance);
+					ExtractTrigger(trigger_instance);
 				}
 			} else {
 				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->vnum);
@@ -281,7 +282,7 @@ void TriggersFile::parse_trigger(int vnum) {
 
 	char line[256], flags[256];
 
-	ZoneRnum zrn = real_zone(vnum / 100);
+	ZoneRnum zrn = GetZoneRnum(vnum / 100);
 
 	if (zone_table[zrn].RnumTrigsLocation.first == -1) {
 		zone_table[zrn].RnumTrigsLocation.first = count;
@@ -358,7 +359,7 @@ void TriggersFile::parse_trigger(int vnum) {
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
 
-	add_trig_index_entry(vnum, trig);
+	AddTrigIndexEntry(vnum, trig);
 	count++;
 }
 
@@ -436,7 +437,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	world[room_realnum]->flags_from_string(flags);
 	world[room_realnum]->sector_type = t[2];
 
-	check_room_flags(room_realnum);
+	CheckRoomForIncompatibleFlags(room_realnum);
 	world[room_realnum]->func = nullptr;
 	world[room_realnum]->contents = nullptr;
 	world[room_realnum]->track = nullptr;
@@ -998,10 +999,10 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_index[i].vnum = nr;
 	mob_index[i].func = nullptr;
 	mob_index[i].set_idx = -1;
-	if (zone_table[real_zone(nr / 100)].RnumMobsLocation.first == -1) {
-		zone_table[real_zone(nr / 100)].RnumMobsLocation.first = i;
+	if (zone_table[GetZoneRnum(nr / 100)].RnumMobsLocation.first == -1) {
+		zone_table[GetZoneRnum(nr / 100)].RnumMobsLocation.first = i;
 	}
-	zone_table[real_zone(nr / 100)].RnumMobsLocation.second = i;
+	zone_table[GetZoneRnum(nr / 100)].RnumMobsLocation.second = i;
 //snprintf(tmpstr, BUFFER_SIZE, "ZONE_MOB zone %d first %d last %d", zone_table[zone].vnum, zone_table[zone].RnumMobsLocation.first, zone_table[zone].RnumMobsLocation.second);
 	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
 	// **** String data
@@ -1063,7 +1064,7 @@ void MobileFile::parse_mobile(const int nr) {
 				break;
 
 			case 'L': get_line(file(), line);
-				dl_parse(&mob_proto[i].dl_list, line + 1);
+				dead_load::ParseDeadLoadLine(&mob_proto[i].dl_list, line + 1);
 				break;
 
 			case 'T': dg_read_trigger(&mob_proto[i], MOB_TRIGGER, nr);

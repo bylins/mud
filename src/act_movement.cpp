@@ -1264,7 +1264,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
 						const int random_number = number(0, maximal_chance);
 						vnum = cases[i].vnum_objs[random_number];
-						if ((r_num = real_object(vnum)) < 0) {
+						if ((r_num = GetObjRnum(vnum)) < 0) {
 							act("$o исчез$Y с яркой вспышкой. Случилось неладное, поняли вы..",
 								false,
 								ch,

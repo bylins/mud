@@ -21,7 +21,9 @@
 extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void set_obj_eff(ObjData *itemobj, EApply type, int mod);
 void set_obj_aff(ObjData *itemobj, EAffect bitv);
-extern void extract_trigger(Trigger *trig);
+extern void ExtractTrigger(Trigger *trig);
+extern double CalcRemortRequirements(const CObjectPrototype *obj);
+extern double CountUnlimitedTimer(const CObjectPrototype *obj);
 
 id_to_set_info_map ObjData::set_table;
 
@@ -516,7 +518,7 @@ void ObjData::unset_enchant() {
 }
 
 bool ObjData::clone_olc_object_from_prototype(const ObjVnum vnum) {
-	const auto rnum = real_object(vnum);
+	const auto rnum = GetObjRnum(vnum);
 
 	if (rnum < 0) {
 		return false;
@@ -641,18 +643,15 @@ void ObjData::set_tag(const char *tag) {
 
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
 	for (auto it = trigs.begin(); it != trigs.end(); ++it) {
-		int rnum = real_trigger(*it);
+		int rnum = GetTriggerRnum(*it);
 		if (rnum != -1) {
 			auto trig = read_trigger(rnum);
 			if (!add_trigger(get_script().get(), trig, -1)) {
-				extract_trigger(trig);
+				ExtractTrigger(trig);
 			}
 		}
 	}
 }
-
-float count_mort_requred(const CObjectPrototype *obj);
-float count_unlimited_timer(const CObjectPrototype *obj);
 
 /**
 * Реальное старение шмотки (без всяких технических сетов таймера по коду).
@@ -664,7 +663,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, time);
 	}
-	if (!ignore_utimer && check_unlimited_timer(this)) {
+	if (!ignore_utimer && IsTimerUnlimited(this)) {
 		return;
 	}
 	std::stringstream buffer;
@@ -705,19 +704,19 @@ ObjRnum CObjectPrototype::get_parent_vnum() {
 	return obj_proto[this->get_parent_rnum()]->get_vnum();
 }
 
-float CObjectPrototype::show_mort_req() {
-	return count_mort_requred(this);
+double CObjectPrototype::show_mort_req() const {
+	return CalcRemortRequirements(this);
 }
 
-float CObjectPrototype::show_koef_obj() {
-	return count_unlimited_timer(this);
+double CObjectPrototype::show_koef_obj() const {
+	return CountUnlimitedTimer(this);
 }
 
-float CObjectPrototype::get_ilevel() const {
+double CObjectPrototype::get_ilevel() const {
 	return m_ilevel;
 }
 
-void CObjectPrototype::set_ilevel(float ilvl) {
+void CObjectPrototype::set_ilevel(double ilvl) {
 	m_ilevel = ilvl;
 }
 
@@ -979,7 +978,7 @@ void init_ilvl(CObjectPrototype *obj) {
 		return;
 	}
 
-	float total_weight = count_mort_requred(obj);
+	auto total_weight = CalcRemortRequirements(obj);
 
 	obj->set_ilevel(total_weight);
 }
@@ -1003,8 +1002,8 @@ TelegramBot *bot = new TelegramBot();
 
 /// при старте сразу после лоада зон
 void init() {
-	PURSE_RNUM = real_object(PURSE_VNUM);
-	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
+	PURSE_RNUM = GetObjRnum(PURSE_VNUM);
+	PERS_CHEST_RNUM = GetObjRnum(PERS_CHEST_VNUM);
 }
 
 ObjData *create_purse(CharData *ch, int/* gold*/) {
@@ -1317,7 +1316,7 @@ void delete_item(const std::size_t pt_num, int vnum) {
 			if (i->vnum == vnum) {
 				log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name(), i->vnum);
 				i->timer = -1;
-				int rnum = real_object(i->vnum);
+				int rnum = GetObjRnum(i->vnum);
 				if (rnum >= 0) {
 					obj_proto.dec_stored(rnum);
 				}
@@ -1437,7 +1436,7 @@ bool is_norent_set(int vnum, std::vector<int> objs) {
 // * Поиск в хране из списка vnum_list.
 bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 	// храны у нас через задницу сделаны
-	for (ObjData *chest = world[real_room(CLAN(ch)->get_chest_room())]->contents; chest;
+	for (ObjData *chest = world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents; chest;
 		 chest = chest->get_next_content()) {
 		if (Clan::is_clan_chest(chest)) {
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {

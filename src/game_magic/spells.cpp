@@ -40,7 +40,7 @@ extern int top_imtypes;
 void weight_change_object(ObjData *obj, int weight);
 int compute_armor_class(CharData *ch);
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
-void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
+void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int CalcAntiSavings(CharData *ch);
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
 void RemoveEquipment(CharData *ch, int pos);
@@ -271,8 +271,8 @@ void SpellRecall(CharData *ch, CharData *victim) {
 		}
 	}
 
-	if ((to_room = real_room(GET_LOADROOM(victim))) == kNowhere)
-		to_room = real_room(calc_loadroom(victim));
+	if ((to_room = GetRoomRnum(GET_LOADROOM(victim))) == kNowhere)
+		to_room = GetRoomRnum(calc_loadroom(victim));
 
 	if (to_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
@@ -1561,7 +1561,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
-		if (check_unlimited_timer(obj))
+		if (IsTimerUnlimited(obj))
 			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
 		else
 			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
@@ -1730,7 +1730,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				SendMsgToChar(buf, ch);
 			}
 
-			if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
+			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 				sprintf(buf, "прототип %s%s%s.\r\n",
 						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
@@ -1858,7 +1858,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						CCNRM(ch, C_NRM));
 				SendMsgToChar(buf, ch);
 				for (auto & vnum : it->second) {
-					const int r_num = real_object(vnum.first);
+					const int r_num = GetObjRnum(vnum.first);
 					if (r_num < 0) {
 						SendMsgToChar("Неизвестный объект!!!\r\n", ch);
 						continue;
@@ -2035,17 +2035,17 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 		case kSkyRaining:
 			if (time_info.month >= EMonth::kMay && time_info.month <= EMonth::kOctober) {
 				sky_info = "Начался проливной дождь.";
-				create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
+				SetPrecipitations(&sky_type, kWeatherLightrain, 0, 50, 50);
 			} else if (time_info.month >= EMonth::kDecember || time_info.month <= EMonth::kFebruary) {
 				sky_info = "Повалил снег.";
-				create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
+				SetPrecipitations(&sky_type, kWeatherLightsnow, 0, 50, 50);
 			} else if (time_info.month == EMonth::kMarch || time_info.month == EMonth::kNovember) {
 				if (weather_info.temperature > 2) {
 					sky_info = "Начался проливной дождь.";
-					create_rainsnow(&sky_type, kWeatherLightrain, 0, 50, 50);
+					SetPrecipitations(&sky_type, kWeatherLightrain, 0, 50, 50);
 				} else {
 					sky_info = "Повалил снег.";
-					create_rainsnow(&sky_type, kWeatherLightsnow, 0, 50, 50);
+					SetPrecipitations(&sky_type, kWeatherLightsnow, 0, 50, 50);
 				}
 			}
 			break;
@@ -2528,10 +2528,10 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 	} else
 		return (false);
 
-	if (((obj_num = real_object(items->rnumber)) < 0 &&
+	if (((obj_num = GetObjRnum(items->rnumber)) < 0 &&
 		spell_type != ESpellType::kItemCast && spell_type != ESpellType::kRunes) ||
-		((item0 = real_object(items->items[0])) +
-			(item1 = real_object(items->items[1])) + (item2 = real_object(items->items[2])) < -2)) {
+		((item0 = GetObjRnum(items->items[0])) +
+			(item1 = GetObjRnum(items->items[1])) + (item2 = GetObjRnum(items->items[2])) < -2)) {
 		if (showrecipe)
 			SendMsgToChar("Боги хранят в секрете этот рецепт.\n\r", ch);
 		return (false);
@@ -2683,10 +2683,10 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 	item0 = items->items[0];
 	item1 = items->items[1];
 	item2 = items->items[2];
-	const int item0_rnum = item0 >= 0 ? real_object(item0) : -1;
-	const int item1_rnum = item1 >= 0 ? real_object(item1) : -1;
-	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
-	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
+	const int item0_rnum = item0 >= 0 ? GetObjRnum(item0) : -1;
+	const int item1_rnum = item1 >= 0 ? GetObjRnum(item1) : -1;
+	const int item2_rnum = item2 >= 0 ? GetObjRnum(item2) : -1;
+	const int item3_rnum = item3 >= 0 ? GetObjRnum(item3) : -1;
 
 	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
 		if (item0 >= 0 && item0_rnum >= 0

@@ -23,7 +23,6 @@
 #include "game_economics/exchange.h"
 #include "game_economics/ext_money.h"
 #include "game_fight/fight.h"
-#include "game_fight/pk.h"
 #include "house.h"
 #include "liquid.h"
 #include "game_magic/magic.h"
@@ -33,6 +32,7 @@
 #include "game_classes/classes_spell_slots.h"
 #include "depot.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/dungeons.h"
 
 using classes::CalcCircleSlotsAmount;
 
@@ -1418,7 +1418,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 	} 
 	RestoreObject(object, nullptr);
 	ArrangeObjs(object, &world[room]->contents);
-	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < ZoneStartDungeons) {
+	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < dungeons::kZoneStartDungeons) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {

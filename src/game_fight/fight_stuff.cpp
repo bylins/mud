@@ -3,6 +3,8 @@
 #include <random>
 
 #include "game_affects/affect_data.h"
+#include "game_mechanics/dead_load.h"
+#include "game_mechanics/dungeons.h"
 #include "mobact.h"
 #include "entities/obj_data.h"
 #include "cmd/flee.h"
@@ -22,7 +24,6 @@
 #include "backtrace.h"
 #include "game_magic/magic_utils.h"
 #include "entities/char_player.h"
-#include "structs/global_objects.h"
 #include "utils/utils_char_obj.inl"
 
 // extern
@@ -308,7 +309,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
 	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
 	act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
-	const int rent_room = real_room(GET_LOADROOM(ch));
+	const int rent_room = GetRoomRnum(GET_LOADROOM(ch));
 	if (rent_room == kNowhere) {
 		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return true;
@@ -352,7 +353,7 @@ void die(CharData *ch, CharData *killer) {
 	{
 		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);
 		RemoveCharFromRoom(ch);
-		PlaceCharToRoom(ch, real_room(75989));
+		PlaceCharToRoom(ch, GetRoomRnum(75989));
 		ch->dismount();
 		GET_HIT(ch) = 1;
 		update_pos(ch);
@@ -453,7 +454,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	change_fighting(ch, true);
 	GET_HIT(ch) = 1;
 	GET_POS(ch) = EPosition::kSit;
-	int to_room = real_room(GET_LOADROOM(ch));
+	int to_room = GetRoomRnum(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
 		to_room = Clan::CloseRent(to_room);
@@ -619,8 +620,7 @@ void real_kill(CharData *ch, CharData *killer) {
 			PerformDropGold(ch, local_gold);
 			ch->set_gold(0);
 		}
-		dl_load_obj(corpse, ch, nullptr, DL_ORDINARY);
-//		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION); вот зачем это неработающее?
+		dead_load::LoadObjFromDeadLoad(corpse, ch, nullptr, dead_load::kOrdinary);
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
 #endif
@@ -629,7 +629,7 @@ void real_kill(CharData *ch, CharData *killer) {
 	if (!ch->IsNpc() && GetRealRemort(ch) > 7 && (GetRealLevel(ch) == 29 || GetRealLevel(ch) == 30))
 	{
 		// лоадим свиток с экспой
-		const auto rnum = real_object(100);
+		const auto rnum = GetObjRnum(100);
 		if (rnum >= 0)
 		{
 			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
@@ -726,7 +726,7 @@ int get_npc_long_live_exp_bounus(CharData *victim) {
 	if (GET_MOB_VNUM(victim) == -1) {
 		return 1;
 	}
-	if (GET_MOB_VNUM(victim) / 100 >= ZoneStartDungeons) {
+	if (GET_MOB_VNUM(victim) / 100 >= dungeons::kZoneStartDungeons) {
 		return 1;
 	}
 

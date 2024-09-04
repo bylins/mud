@@ -18,6 +18,7 @@
 #include "house.h"
 #include "entities/char_player.h"
 #include "modify.h"
+#include "game_mechanics/dungeons.h"
 #include "game_mechanics/named_stuff.h"
 #include "game_magic/magic_utils.h"
 #include "noob.h"
@@ -36,7 +37,7 @@ extern std::list<combat_list_element> combat_list;
 
 constexpr long long kPulsesPerMudHour = kSecsPerMudHour*kPassesPerSec;
 
-inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));};
+inline bool IS_CHARMED(CharData* ch) {return (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffect::kCharmed));}
 
 // Вывод сообщений о неверных управляющих конструкциях DGScript
 #define DG_CODE_ANALYZE
@@ -57,10 +58,9 @@ extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
 extern TimeInfoData time_info;
-extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
+extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
-extern int NumberOfZoneDungeons;
 
 // external functions
 RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig);
@@ -68,14 +68,14 @@ void free_varlist(struct TriggerVar *vd);
 int obj_room(ObjData *obj);
 Trigger *read_trigger(int nr);
 ObjData *get_object_in_equip(CharData *ch, char *name);
-void extract_trigger(Trigger *trig);
+void ExtractTrigger(Trigger *trig);
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, Script *sc, Trigger *trig, int type);
 const char *skill_percent(Trigger *trig, CharData *ch, char *skill);
 bool feat_owner(Trigger *trig, CharData *ch, char *feat);
 const char *spell_count(Trigger *trig, CharData *ch, char *spell);
 const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell);
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
-void reset_zone(int znum);
+void ResetZone(int znum);
 
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mpurge(CharData *ch, char *argument, int cmd, int subcmd);
@@ -236,7 +236,7 @@ obj2triggers_t &obj2triggers = GlobalObjects::obj_triggers();
 GlobalTriggersStorage &trigger_list = GlobalObjects::trigger_list();    // all attached triggers
 
 int trgvar_in_room(int vnum) {
-	const int rnum = real_room(vnum);
+	const int rnum = GetRoomRnum(vnum);
 
 	if (kNowhere == rnum) {
 		script_log("people.vnum: world[rnum] does not exist");
@@ -342,13 +342,13 @@ int gcount_char_vnum(long n) {
 
 int count_char_vnum(long n) {
 	int i;
-	if ((i = real_mobile(n)) < 0)
+	if ((i = GetMobRnum(n)) < 0)
 		return 0;
 	return (mob_index[i].total_online);
 }
 
 inline auto gcount_obj_vnum(long n) {
-	const auto i = real_object(n);
+	const auto i = GetObjRnum(n);
 
 	if (i < 0) {
 		return 0;
@@ -358,14 +358,14 @@ inline auto gcount_obj_vnum(long n) {
 }
 
 inline auto count_obj_vnum(long n) {
-	const auto i = real_object(n);
+	const auto i = GetObjRnum(n);
 
 	if (i < 0) {
 		return 0;
 	}
 
 	// Чот косячит таймер, решили переделать тригги, хоть и дольше
-	//	if (check_unlimited_timer(obj_proto[i]))
+	//	if (IsTimerUnlimited(obj_proto[i]))
 	//		return 0;
 	return obj_proto.actual_count(i);
 }
@@ -382,7 +382,7 @@ ObjData *find_obj_by_id(const object_id_t id) {
 
 // return room with UID n
 RoomData *find_room(long n) {
-	n = real_room(n - kRoomToBase);
+	n = GetRoomRnum(n - kRoomToBase);
 
 	if ((n >= kFirstRoom) && (n <= top_of_world))
 		return world[n];
@@ -417,12 +417,12 @@ int find_char_vnum(int vnum, int num = 0) {
 // Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
 // RNUM может быть независимо изменен с помощью OLC
 int find_vnumum(long n) {
-	//  return (real_room (n) != kNowhere) ? ROOM_ID_BASE + n : -1;
-	return (real_room(n) != kNowhere) ? n : -1;
+	//  return (GetRoomRnum (n) != kNowhere) ? ROOM_ID_BASE + n : -1;
+	return (GetRoomRnum(n) != kNowhere) ? n : -1;
 }
 
 int find_room_uid(long n) {
-	return (real_room(n) != kNowhere) ? kRoomToBase + n : 0;
+	return (GetRoomRnum(n) != kNowhere) ? kRoomToBase + n : 0;
 }
 
 /************************************************************
@@ -482,7 +482,7 @@ RoomData *get_room(const char *name) {
 
 	if (*name == UID_ROOM)
 		return find_room(atoi(name + 1));
-	else if ((nr = real_room(atoi(name))) == kNowhere)
+	else if ((nr = GetRoomRnum(atoi(name))) == kNowhere)
 		return nullptr;
 	else
 		return world[nr];
@@ -1106,7 +1106,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	tn = atoi(trig_name);
 	loc = (*loc_name) ? atoi(loc_name) : -1;
 
-	rn = real_trigger(tn);
+	rn = GetTriggerRnum(tn);
 	if (rn >= 0
 		&& ((utils::IsAbbr(arg, "mtr") && trig_index[rn]->proto->get_attach_type() != MOB_TRIGGER)
 			|| (utils::IsAbbr(arg, "otr") && trig_index[rn]->proto->get_attach_type() != OBJ_TRIGGER)
@@ -1125,14 +1125,14 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
-				rn = real_trigger(tn);
+				rn = GetTriggerRnum(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
 					SendMsgToChar(buf, ch);
 					if (add_trigger(SCRIPT(victim).get(), trig, loc)) {
 						add_trig_to_owner(-1, tn, GET_MOB_VNUM(victim));
 					} else {
-						extract_trigger(trig);
+						ExtractTrigger(trig);
 					}
 				} else {
 					SendMsgToChar("That trigger does not exist.\r\n", ch);
@@ -1145,7 +1145,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (utils::IsAbbr(arg, "otr")) {
 		if ((object = get_obj_vis(ch, targ_name)))    // have a valid obj, now get trigger
 		{
-			rn = real_trigger(tn);
+			rn = GetTriggerRnum(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn))) {
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
 						tn, GET_TRIG_NAME(trig),
@@ -1155,7 +1155,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (add_trigger(object->get_script().get(), trig, loc)) {
 					add_trig_to_owner(-1, tn, GET_OBJ_VNUM(object));
 				} else {
-					extract_trigger(trig);
+					ExtractTrigger(trig);
 				}
 			} else
 				SendMsgToChar("That trigger does not exist.\r\n", ch);
@@ -1165,7 +1165,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
 			if ((room = find_target_room(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
 			{
-				rn = real_trigger(tn);
+				rn = GetTriggerRnum(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
 							tn, GET_TRIG_NAME(trig), world[room]->vnum);
@@ -1173,7 +1173,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (add_trigger(world[room]->script.get(), trig, loc)) {
 						add_trig_to_owner(-1, tn, world[room]->vnum);
 					} else {
-						extract_trigger(trig);
+						ExtractTrigger(trig);
 					}
 				} else {
 					SendMsgToChar("That trigger does not exist.\r\n", ch);
@@ -1185,95 +1185,6 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		SendMsgToChar("Please specify 'mtr', otr', or 'wtr'.\r\n", ch);
 	}
-}
-
-ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
-	ZoneVnum zvn_to;
-	RoomRnum rnum_start, rnum_stop;
-	ZoneVnum zvn_from = zone_table[zrn_from].vnum;
-
-	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
-		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return 0;
-	}
-	if (world[rnum_start]->vnum % 100 != 0) {
-		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-	if (zvn_from < 100) {
-			sprintf(buf, "Попытка склонировать двухзначную зону.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	if (zvn_from >= ZoneStartDungeons) {
-			sprintf(buf, "Попытка склонировать данж.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
-			zone_table[real_zone(zvn_to)].copy_from_zone = zvn_to;
-			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn_to, ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			break;
-		}
-	}
-	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
-			sprintf(buf, "Нет свободного места.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	return zvn_to;
-}
-
-std::string CreateComplexDungeon(Trigger *trig, std::vector<std::string> tokens) {
-	std::vector<zrn_complex_list> zrn_list;
-	ZoneVnum zvn;
-	ZoneRnum zrn;
-	std::stringstream out_from;
-	std::string out_to;
-	zrn_complex_list pair;
-
-	for (auto it : tokens) {
-		zrn = real_zone(stoi(it));
-		if (zrn == 0){
-			sprintf(buf, "Ошибка в создании комплекса, данж %s не найден", it.c_str());
-			trig_log(trig, buf);
-			return "0";
-		}
-		zvn = CheckDungionErrors(zrn);
-		if (zvn > 0) {
-			pair.from = zrn;
-			pair.to = real_zone(zvn);
-			zrn_list.push_back(pair);
-		} else
-			return "0";
-		out_from << it << " ";
-	}
-	utils::CExecutionTimer timer;
-	sprintf(buf, "Попытка создать комплекс: %s", out_from.str().c_str());
-	trig_log(trig, buf);
-	for (auto it : zrn_list) {
-		out_to = out_to + to_string(zone_table[it.to].vnum) + " ";
-		TrigDataCopy(it.from, it.to);
-		RoomDataCopy(it.from, it.to, zrn_list);
-		MobDataCopy(it.from, it.to);
-		ObjDataCopy(it.from, it.to);
-		ZoneDataCopy(it.from, it.to); //последним
-		zone_table[it.to].copy_from_zone = zone_table[it.from].vnum;
-	}
-	out_to.pop_back();
-	for (auto it : zrn_list) {
-		for (auto it2 : zrn_list) {
-			TrigCommandsConvert(it.from, it2.to, it.to);
-		}
-		reset_zone(it.to);
-	}
-	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.c_str(), timer.delta().count());
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-
-	return out_to;
 }
 
 void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1766,10 +1677,10 @@ void find_replacement(void *go,
 		} else if (!str_cmp(var, "world")) {
 			num = atoi(subfield);
 			if ((!str_cmp(field, "curobj") || !str_cmp(field, "curobjs")) && num > 0) {
-				const auto rnum = real_object(num);
+				const auto rnum = GetObjRnum(num);
 				const auto count = count_obj_vnum(num);
 				if (count >= 0 && 0 <= rnum) {
-					if (check_unlimited_timer(obj_proto[rnum].get())) {
+					if (IsTimerUnlimited(obj_proto[rnum].get())) {
 						sprintf(str, "0");
 					} else {
 						sprintf(str, "%d", count);
@@ -1785,7 +1696,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
@@ -1793,7 +1704,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1803,7 +1714,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (STATE(d) != CON_PLAYING) 
 						continue;
@@ -1813,7 +1724,7 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				GetZoneRooms(real_zone(num), &from , &to);
+				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
@@ -1830,25 +1741,25 @@ void find_replacement(void *go,
 				std::string arg = subfield;
 				std::vector<std::string> tokens = utils::Split(arg, ' ');
 				if (tokens.size() == 1) {
-					int zrn = ZoneCopy(num);
+					int zrn = dungeons::ZoneCopy(num);
 					if (zrn > 0)
 						sprintf(str, "%d", zone_table[zrn].vnum);
 					else{
 						sprintf(str, "%s", "0");
 					}
 				} else if (tokens.size() > 1) {
-					sprintf(str, "%s", CreateComplexDungeon(trig, tokens).c_str());
+					sprintf(str, "%s", dungeons::CreateComplexDungeon(trig, tokens).c_str());
 				} else {
 					sprintf(str, "%s", "0");
 				}
 			} else if (!str_cmp(field, "isdungeon") && num > 0) {
-				sprintf(str, "%d", zone_table[real_zone(num)].copy_from_zone);
+				sprintf(str, "%d", zone_table[GetZoneRnum(num)].copy_from_zone);
 			} else if (!str_cmp(field, "zoneentrance") && num > 0) {
-				sprintf(str, "%d", zone_table[real_zone(num)].entrance);
+				sprintf(str, "%d", zone_table[GetZoneRnum(num)].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
-				DungeonReset(real_zone(num));
+				dungeons::DungeonReset(GetZoneRnum(num));
 			} else if (!str_cmp(field, "zonename") && num > 0) {
-				ZoneRnum zrn = real_zone(num);
+				ZoneRnum zrn = GetZoneRnum(num);
 				if (zrn == 0) {
 					sprintf(str, "0");
 				} else {
@@ -1858,8 +1769,8 @@ void find_replacement(void *go,
 				std::vector<ZoneRnum> zone_repop_list;
 				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);
 				zone_repop_list.push_back(zrn);
-				RepopDecay(zone_repop_list);
-				reset_zone(zrn);
+				DecayObjectsOnRepop(zone_repop_list);
+				ResetZone(zrn);
 			} else if (!str_cmp(field, "mob") && num > 0) {
 				num = find_char_vnum(num);
 
@@ -1884,11 +1795,11 @@ void find_replacement(void *go,
 				//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 				//которое прописано в самом предмете с указанным vnum
 			else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
-				const auto rnum = real_object(num);
+				const auto rnum = GetObjRnum(num);
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
+					if (IsTimerUnlimited(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
 						sprintf(str, "1");
 						return;
 					}
@@ -1902,11 +1813,11 @@ void find_replacement(void *go,
 				}
 			}
 			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
-				num = real_object(num);
+				num = GetObjRnum(num);
 				if (num >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()) || (GetObjMIW(num) < 0))
+					if (IsTimerUnlimited(obj_proto[num].get()) || (GetObjMIW(num) < 0))
 						sprintf(str, "9999999");
 					else
 						sprintf(str, "%d", GetObjMIW(num));
@@ -1922,7 +1833,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "sky")) {
 				num = -1;
 				if ((num = atoi(subfield)) > 0)
-					num = real_room(num);
+					num = GetRoomRnum(num);
 				if (num != kNowhere)
 					sprintf(str, "%d", GET_ROOM_SKY(num));
 				else
@@ -1932,7 +1843,7 @@ void find_replacement(void *go,
 				int wt = weather_info.weather_type;
 				num = -1;
 				if ((num = atoi(subfield)) > 0)
-					num = real_room(num);
+					num = GetRoomRnum(num);
 				if (num != kNowhere && world[num]->weather.duration > 0)
 					wt = world[num]->weather.weather_type;
 				for (c = 'a'; wt; ++c, wt >>= 1)
@@ -2853,7 +2764,7 @@ void find_replacement(void *go,
 				int p = atoi(subfield);
 				if (p > 0){
 					RemoveCharFromRoom(c);
-					PlaceCharToRoom(c, real_room(p));
+					PlaceCharToRoom(c, GetRoomRnum(p));
 				}
 			}
 		} else if (!str_cmp(field, "riding")) {
@@ -2872,7 +2783,7 @@ void find_replacement(void *go,
 					sprintf(str, "%d", GET_LOADROOM(c));
 				else {
 					int pos = atoi(subfield);
-					if (real_room(pos) != kNowhere) {
+					if (GetRoomRnum(pos) != kNowhere) {
 						GET_LOADROOM(c) = pos;
 						c->save_char();
 					}
@@ -3551,7 +3462,7 @@ void find_replacement(void *go,
 			else if (obj_to)
 				PlaceObjIntoObj(o, obj_to);
 			else if (room_to)
-				PlaceObjToRoom(o, real_room(room_to->vnum));
+				PlaceObjToRoom(o, GetRoomRnum(room_to->vnum));
 			else {
 				sprintf(buf2,
 						"object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в kNowhere",
@@ -3740,7 +3651,7 @@ void find_replacement(void *go,
 			int inroom;
 
 			// Составление списка (для room)
-			inroom = real_room(r->vnum);
+			inroom = GetRoomRnum(r->vnum);
 			if (inroom == kNowhere) {
 				trig_log(trig, "room-построитель списка в kNowhere");
 				return;
@@ -3776,7 +3687,7 @@ void find_replacement(void *go,
 			//mixaz  Выдаем список объектов в комнате
 			int inroom;
 			// Составление списка (для room)
-			inroom = real_room(r->vnum);
+			inroom = GetRoomRnum(r->vnum);
 			if (inroom == kNowhere) {
 				trig_log(trig, "room-построитель списка в kNowhere");
 				return;
@@ -4548,7 +4459,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	}
 
 	// locate and load the trigger specified
-	trignum = real_trigger(atoi(trignum_s));
+	trignum = GetTriggerRnum(atoi(trignum_s));
 	if (trignum >= 0
 		&& (((c) && trig_index[trignum]->proto->get_attach_type() != MOB_TRIGGER)
 			|| ((o) && trig_index[trignum]->proto->get_attach_type() != OBJ_TRIGGER)
@@ -4570,7 +4481,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		if (add_trigger(SCRIPT(c).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
 		} else {
-			extract_trigger(newtrig);
+			ExtractTrigger(newtrig);
 		}
 
 		return;
@@ -4580,7 +4491,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		if (add_trigger(o->get_script().get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 		} else {
-			extract_trigger(newtrig);
+			ExtractTrigger(newtrig);
 		}
 		return;
 	}
@@ -4589,12 +4500,10 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 		if (add_trigger(SCRIPT(r).get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->vnum);
 		} else {
-			extract_trigger(newtrig);
+			ExtractTrigger(newtrig);
 		}
 		return;
 	}
-
-	return;
 }
 
 // script detaching a trigger from something
@@ -4636,7 +4545,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 			}
 		}
 	}
-	int nr = real_trigger(atoi(trignum_s));
+	int nr = GetTriggerRnum(atoi(trignum_s));
 	if (nr == -1) {
 		sprintf(buf2, "detach попытка удалить несуществующий триггер, команда: '%s'", cmd);
 		trig_log(trig, buf2);
@@ -4852,7 +4761,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 			trig_log(trig, buf2);
 			return;
 		}
-		room_rnum = real_room(vnumum);
+		room_rnum = GetRoomRnum(vnumum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			PlaceObjToRoom(object.get(), room_rnum);
@@ -4866,7 +4775,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 			trig_log(trig, buf2);
 			return;
 		}
-		room_rnum = real_room(vnumum);
+		room_rnum = GetRoomRnum(vnumum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			PlaceObjToRoom(object.get(), room_rnum);
@@ -4880,7 +4789,7 @@ void add_stuf_zone(Trigger *trig, char *cmd) {
 			trig_log(trig, buf2);
 			return;
 		}
-		room_rnum = real_room(vnumum);
+		room_rnum = GetRoomRnum(vnumum);
 		if (room_rnum != kNowhere) {
 			object->set_vnum_zone_from(zone_table[world[room_rnum]->zone_rn].vnum);
 			PlaceObjToRoom(object.get(), room_rnum);
@@ -5905,7 +5814,7 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Максимальный показываемый промежуток - 200.\n\r", ch);
 		return;
 	}
-	nr = real_trigger(first);
+	nr = GetTriggerRnum(first);
 	if (nr < 0) {
 		SendMsgToChar("Кривое первое число.\n\r", ch);
 		return;
@@ -5980,7 +5889,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 	if (*str) {
 		vnum = atoi(str);
-		rnum = real_trigger(vnum);
+		rnum = GetTriggerRnum(vnum);
 		if (rnum < 0) {
 			SendMsgToChar("That vnum does not exist.\r\n", ch);
 			return;
@@ -6184,7 +6093,7 @@ TriggersList::triggers_list_t::iterator TriggersList::remove(const triggers_list
 
 	triggers_list_t::iterator result = m_list.erase(iterator);
 
-	extract_trigger(trigger);
+	ExtractTrigger(trigger);
 
 	return result;
 }
@@ -6403,7 +6312,7 @@ Trigger::Trigger() :
 	trigger_type(0) {
 }
 
-Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, const long trigger_type) :
+Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	add_flag{false},
@@ -6416,7 +6325,7 @@ Trigger::Trigger(const sh_int rnum, const char *name, const byte attach_type, co
 	trigger_type(trigger_type) {
 }
 
-Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
+Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	add_flag{false},
@@ -6429,7 +6338,7 @@ Trigger::Trigger(const sh_int rnum, std::string &&name, const byte attach_type, 
 	trigger_type(trigger_type) {
 }
 
-Trigger::Trigger(const sh_int rnum, const char *name, const long trigger_type) : Trigger(rnum, name, 0, trigger_type) {
+Trigger::Trigger(const int rnum, const char *name, const long trigger_type) : Trigger(rnum, name, 0, trigger_type) {
 }
 
 Trigger::Trigger(const Trigger &from) :

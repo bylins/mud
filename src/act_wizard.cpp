@@ -18,6 +18,7 @@
 #include "cmd_god/ban.h"
 #include "game_mechanics/birthplaces.h"
 #include "game_mechanics/celebrates.h"
+#include "game_mechanics/dead_load.h"
 #include "game_mechanics/guilds.h"
 #include "utils/utils_char_obj.inl"
 #include "entities/char_data.h"
@@ -100,11 +101,8 @@ extern FILE *player_fl;
 extern int circle_restrict;
 extern int load_into_inventory;
 extern time_t zones_stat_date;
-extern void RepopDecay(std::vector<ZoneRnum> zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
-extern int NumberOfZoneDungeons;
-extern ZoneVnum ZoneStartDungeons;
+extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
-extern bool is_empty(ZoneRnum zone_nr);
 
 void medit_save_to_disk(int zone_num);
 
@@ -113,9 +111,9 @@ void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void log_zone_count_reset();
 // extern functions
 void appear(CharData *ch);
-void reset_zone(ZoneRnum zone);
+void ResetZone(ZoneRnum zone);
 //extern CharData *find_char(long n);
-void rename_char(CharData *ch, char *oname);
+void RenamePlayer(CharData *ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
@@ -196,7 +194,7 @@ void do_send_text_to_char(CharData *ch, char *argument, int, int) {
 void do_overstuff(CharData *ch, char *, int, int) {
 	std::map<std::string, int> objects;
 	for (const auto & clan : Clan::ClanList) {
-		for (ObjData *chest = world[real_room(clan->get_chest_room())]->contents; chest;
+		for (ObjData *chest = world[GetRoomRnum(clan->get_chest_room())]->contents; chest;
 			 chest = chest->get_next_content()) {
 			if (Clan::is_clan_chest(chest)) {
 				for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
@@ -240,7 +238,8 @@ void send_to_gods(char *text, bool demigod) {
 extern const char *deaf_social;
 
 // Adds karma string to KARMA
-void add_karma(CharData *ch, const char *punish, const char *reason) {
+// \TODO Move to PlayerData
+void AddKarma(CharData *ch, const char *punish, const char *reason) {
 	if (reason && (reason[0] != '.')) {
 		char smallbuf[kMaxInputLength];
 		time_t nt = time(nullptr);
@@ -281,10 +280,10 @@ void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
 				if (i->vnum == vnum && i->timer > 0) {
 					num++;
-					sprintf(buf2, "Player %s : item \[%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
+					sprintf(buf2, "Player %s : item [%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
 					SendMsgToChar(buf2, ch);
 					i->timer = -1;
-					int rnum = real_object(i->vnum);
+					int rnum = GetObjRnum(i->vnum);
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
 					}
@@ -354,8 +353,8 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		PrintZoneStat(ch, 0, 999999, sort);
 		return;
 	}
-	int tmp1 = real_zone(atoi(arg1));
-	int tmp2 = real_zone(atoi(arg2));
+	int tmp1 = GetZoneRnum(atoi(arg1));
+	int tmp2 = GetZoneRnum(atoi(arg2));
 	if (tmp1 >= 0 && !*arg2) {
 		PrintZoneStat(ch, tmp1, tmp1, sort);
 		return;
@@ -365,73 +364,6 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 		return;
 	}
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
-}
-
-
-ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
-	ZoneVnum zvn_to;
-	RoomRnum rnum_start, rnum_stop;
-	ZoneRnum zrn_from = real_zone(zvn_from);
-
-	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
-		sprintf(buf, "Нет комнат в зоне %d.", static_cast<int>(zvn_from));
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return 0;
-	}
-	if (world[rnum_start]->vnum % 100 != 0) {
-		sprintf(buf, "Нет 00 комнаты в зоне источнике %d", zvn_from);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-	for (zvn_to = ZoneStartDungeons; zvn_to < ZoneStartDungeons + NumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[real_zone(zvn_to)].copy_from_zone == 0) {
-			sprintf(buf, "Клонирую зону %d в %d, осталось мест: %d", zvn_from, zvn_to, ZoneStartDungeons + NumberOfZoneDungeons - zvn_to - 1);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			break;
-		}
-	}
-	if (zvn_to == ZoneStartDungeons + NumberOfZoneDungeons) {
-			sprintf(buf, "Нет свободного места.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	if (zvn_from < 100) {
-			sprintf(buf, "Попытка склонировать двухзначную зону.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	if (zvn_from >= ZoneStartDungeons) {
-			sprintf(buf, "Попытка склонировать данж.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	ZoneRnum zrn_to = real_zone(zvn_to);
-	
-  if (zrn_to == 0) {
-			sprintf(buf, "Нет такой зоны.");
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return 0;
-	}
-	utils::CExecutionTimer timer;
-	sprintf(buf, "Попытка создать  dungeon, zone %s %d", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum);
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	TrigDataCopy(zrn_from, zrn_to);
-	TrigCommandsConvert(zrn_from, zrn_to, zrn_to);
-	RoomDataCopy(zrn_from, zrn_to);
-	MobDataCopy(zrn_from, zrn_to);
-	ObjDataCopy(zrn_from, zrn_to);
-	ZoneDataCopy(zrn_from, zrn_to); //последним
-	sprintf(buf,  "Сбрасываю зону %d, delta %f", zone_table[zrn_to].vnum, timer.delta().count());
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	reset_zone(zrn_to);
-	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
-//	zone_table[zrn_to].under_construction = true;
-	sprintf(buf, "Create dungeon, zone %s %d, delta %f", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
-	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	return zrn_to;
-}
-
-void DoZoneCopy(CharData *, char *argument, int, int) {
-	ZoneCopy(atoi(argument));
 }
 
 void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -550,7 +482,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 				sprintf(buf, "%s%s разрешил$G вам кричать.%s", CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 				sprintf(buf2, "$n2 вернулся голос.");
 				break;
@@ -567,12 +499,12 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 				if (IN_ROOM(vict) != kNowhere) {
 					act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
-					result = real_room(result);
+					result = GetRoomRnum(result);
 					if (result == kNowhere) {
 						if (GetRealLevel(vict) >= kLvlImmortal)
 							result = r_immort_start_room;
@@ -602,7 +534,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 
 				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s разрешил$G вам издавать звуки.%s",
 						CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -623,7 +555,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				if (IN_ROOM(vict) != kNowhere) {
 					act("$n выпущен$a из темницы!",
@@ -632,7 +564,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
-					result = real_room(result);
+					result = GetRoomRnum(result);
 
 					if (result == kNowhere) {
 						if (GetRealLevel(vict) >= kLvlImmortal)
@@ -664,13 +596,13 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 
 				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				if (IN_ROOM(vict) != kNowhere) {
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
-					result = real_room(result);
+					result = GetRoomRnum(result);
 
 					if (result == kNowhere) {
 						if (GetRealLevel(vict) >= kLvlImmortal)
@@ -704,7 +636,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				sprintf(buf, "Registered by %s", GET_NAME(ch));
 				RegisterSystem::add(vict, buf, reason);
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				if (IN_ROOM(vict) != kNowhere) {
 
@@ -714,7 +646,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
-					result = real_room(result);
+					result = GetRoomRnum(result);
 
 					if (result == kNowhere) {
 						if (GetRealLevel(vict) >= kLvlImmortal)
@@ -743,7 +675,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				sprintf(buf, "Unregistered by %s", GET_NAME(ch));
 				RegisterSystem::remove(vict);
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				if (IN_ROOM(vict) != kNowhere) {
 					act("C $n1 снята метка регистрации!",
@@ -751,7 +683,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					/*				if ((result = GET_LOADROOM(vict)) == kNowhere)
 									result = r_unreg_start_room;
 
-								result = real_room(result);
+								result = GetRoomRnum(result);
 
 								if (result == kNowhere)
 								{
@@ -795,7 +727,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 
 				sprintf(buf, "Mute ON (%ldh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s запретил$G вам кричать.%s",
 						CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -812,7 +744,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze ON (%ldh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 						CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
@@ -835,7 +767,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 
 				sprintf(buf, "Dumb ON (%ldm) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s запретил$G вам издавать звуки.%s",
 						CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -860,7 +792,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s поместил$G вас в темницу.%s", GET_NAME(ch),
 						CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
@@ -884,7 +816,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s поместил$G вас в комнату имени.%s",
 						CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -909,7 +841,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s снял$G с вас... регистрацию :).%s",
 						CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -1121,7 +1053,7 @@ void setall_inspect() {
 								player_table[it->second->pos].name(),
 								player_table[it->second->pos].mail,
 								it->second->newmail);
-						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
+						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 
 					} else {
@@ -1144,7 +1076,7 @@ void setall_inspect() {
 									player_table[it->second->pos].mail,
 									it->second->newmail);
 							it->second->out += buf2;
-							add_karma(vict, buf2, GET_NAME(imm_d->character));
+							AddKarma(vict, buf2, GET_NAME(imm_d->character));
 							vict->save_char();
 						}
 					}
@@ -1160,7 +1092,7 @@ void setall_inspect() {
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
-						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
+						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					} else {
 						if (load_char(player_table[it->second->pos].name(), vict,
 									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
@@ -1181,7 +1113,7 @@ void setall_inspect() {
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
-						add_karma(vict, buf2, GET_NAME(imm_d->character));
+						AddKarma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
 				} else if (it->second->type_req == SETALL_HELL) {
@@ -1449,7 +1381,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
-			add_karma(vict, buf, reason);
+			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
 		}
@@ -1464,14 +1396,14 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
-			add_karma(vict, buf, reason);
+			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
 		}
 		case SUB_STATS: {
 			if (Glory::remove_stats(vict, ch, atoi(arg1))) {
 				sprintf(buf, "Remove stats %s by %s", arg1, GET_NAME(ch));
-				add_karma(vict, buf, reason);
+				AddKarma(vict, buf, reason);
 				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 			}
 			break;
@@ -1483,7 +1415,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case SUB_HIDE: {
 			Glory::hide_char(vict, ch, arg1);
 			sprintf(buf, "Hide %s by %s", arg1, GET_NAME(ch));
-			add_karma(vict, buf, reason);
+			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 			break;
 		}
@@ -1532,7 +1464,7 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 	}
 	if (a_isdigit(*roomstr) && !strchr(roomstr, '.')) {
 		tmp = atoi(roomstr);
-		if ((location = real_room(tmp)) == kNowhere) {
+		if ((location = GetRoomRnum(tmp)) == kNowhere) {
 			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
 			return (kNowhere);
 		}
@@ -1710,7 +1642,8 @@ int vnum_mob_load(char *vnum, CharData *ch) {
 	for (auto i = 0; i <= top_of_mobt; i++) {
 		if (mob_proto[i].dl_list == nullptr)
 			continue;
-		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), [mvn] (struct LoadingItem *item) { return (item->obj_vnum == mvn); });
+		auto predicate = [mvn] (struct dead_load::LoadingItem *item) { return (item->obj_vnum == mvn); };
+		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), predicate);
 		if (it != mob_proto[i].dl_list->end()) {
 			sprintf(buf, "%3d. [%5d] (%d,%d,%d,%d) %s\r\n", ++found, mob_index[i].vnum, (*it)->obj_vnum, (*it)->load_prob, 
 				(*it)->load_type, (*it)->spec_param, mob_proto[i].get_npc_name().c_str());
@@ -1802,8 +1735,6 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы уже подслушиваете.\r\n", ch);
 	else if (victim->desc->snoop_by && victim->desc->snoop_by != ch->desc)
 		SendMsgToChar("Дык его уже кто-то из богов подслушивает.\r\n", ch);
-		//	else if (!can_snoop(ch, victim))
-		//		SendMsgToChar("Дружина данного персонажа находится в состоянии войны с вашей дружиной.\r\n", ch);
 	else {
 		if (victim->desc->original)
 			tch = victim->desc->original.get();
@@ -1933,7 +1864,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(buf, "mob")) {
-		if ((r_num = real_mobile(number)) < 0) {
+		if ((r_num = GetMobRnum(number)) < 0) {
 			SendMsgToChar("Нет такого моба в этом МУДе.\r\n", ch);
 			return;
 		}
@@ -1949,7 +1880,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		load_mtrigger(mob);
 		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
 	} else if (utils::IsAbbr(buf, "obj")) {
-		if ((r_num = real_object(number)) < 0) {
+		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Господи, да изучи ты номера объектов.\r\n", ch);
 			return;
 		}
@@ -2046,7 +1977,7 @@ void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(buf, "mob")) {
-		if ((r_num = real_mobile(number)) < 0) {
+		if ((r_num = GetMobRnum(number)) < 0) {
 			SendMsgToChar("Обратитесь в Арктику - там ОН живет.\r\n", ch);
 			return;
 		}
@@ -2055,7 +1986,7 @@ void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		do_stat_character(ch, mob, 1);
 		ExtractCharFromWorld(mob, false);
 	} else if (utils::IsAbbr(buf, "obj")) {
-		if ((r_num = real_object(number)) < 0) {
+		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Этот предмет явно перенесли в РМУД.\r\n", ch);
 			return;
 		}
@@ -2811,9 +2742,9 @@ void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 			zone_repop_list.push_back(i);
 		}
-		RepopDecay(zone_repop_list);
+		DecayObjectsOnRepop(zone_repop_list);
 		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-			reset_zone(i);
+			ResetZone(i);
 		}
 		SendMsgToChar("Перезагружаю мир.\r\n", ch);
 		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
@@ -2833,9 +2764,9 @@ void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	if (i >= 0 && i < static_cast<ZoneRnum>(zone_table.size())) {
 		zone_repop_list.push_back(i);
-		RepopDecay(zone_repop_list);
+		DecayObjectsOnRepop(zone_repop_list);
 		utils::CExecutionTimer timer;
-		reset_zone(i);
+		ResetZone(i);
 		sprintf(buf, "Перегружаю зону %d (#%d): %s, delta %f\r\n", i, zone_table[i].vnum, zone_table[i].name.c_str(), timer.delta().count());
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
@@ -3234,7 +3165,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			vict->set_level(value);
 			break;
 		case 27:
-			if ((rnum = real_room(value)) == kNowhere) {
+			if ((rnum = GetRoomRnum(value)) == kNowhere) {
 				SendMsgToChar("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 				return (0);
 			}
@@ -3284,7 +3215,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 33:
 			if (is_number(val_arg)) {
 				rvnum = atoi(val_arg);
-				if (real_room(rvnum) != kNowhere) {
+				if (GetRoomRnum(rvnum) != kNowhere) {
 					GET_LOADROOM(vict) = rvnum;
 					sprintf(output, "%s будет входить в игру из комнаты #%d.",
 							GET_NAME(vict), GET_LOADROOM(vict));
@@ -3324,7 +3255,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			Password::set_password(vict, val_arg);
 			Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
 			sprintf(buf, "%s заменен пароль богом.", GET_PAD(vict, 2));
-			add_karma(vict, buf, GET_NAME(ch));
+			AddKarma(vict, buf, GET_NAME(ch));
 			sprintf(output, "Пароль изменен на '%s'.", val_arg);
 			break;
 		case 37: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kNoDelete);
@@ -3452,7 +3383,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				}
 				sprintf(buf, "Name changed from %s to %s", GET_NAME(vict), npad[0]);
 				vict->set_name(npad[0]);
-				add_karma(vict, buf, GET_NAME(ch));
+				AddKarma(vict, buf, GET_NAME(ch));
 
 				if (!PLR_FLAGS(vict).get(EPlrFlag::kFrozen)
 					&& !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)
@@ -3460,7 +3391,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					TopPlayer::Refresh(vict);
 				}
 
-				player_table.set_name(ptnum, npad[0]);
+				player_table.SetName(ptnum, npad[0]);
 
 				return_code = 2;
 				PLR_FLAGS(vict).set(EPlrFlag::kCrashSave);
@@ -3538,7 +3469,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			if (IsValidEmail(val_arg)) {
 				utils::ConvertToLow(val_arg);
 				sprintf(buf, "Email changed from %s to %s", GET_EMAIL(vict), val_arg);
-				add_karma(vict, buf, GET_NAME(ch));
+				AddKarma(vict, buf, GET_NAME(ch));
 				strncpy(GET_EMAIL(vict), val_arg, 127);
 				*(GET_EMAIL(vict) + 127) = '\0';
 			} else {
@@ -3625,9 +3556,9 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					KARMA(vict) = nullptr;
 					act("Вы отпустили $N2 все грехи.", false, ch, nullptr, vict, kToChar);
 					sprintf(buf, "%s", GET_NAME(ch));
-					add_karma(vict, "Очистка грехов", buf);
+					AddKarma(vict, "Очистка грехов", buf);
 
-				} else add_karma(vict, buf, reason);
+				} else AddKarma(vict, buf, reason);
 			} else {
 				SendMsgToChar("Формат команды: set [ file | player ] <character> karma <reason>\r\n", ch);
 				return (0);
@@ -3643,7 +3574,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			reason = one_argument(val_arg, num);
 			skip_spaces(&reason);
 			sprintf(buf, "executor %s by %s", (on ? "on" : "off"), GET_NAME(ch));
-//			add_karma(vict, buf, reason);
+//			AddKarma(vict, buf, reason);
 			if (on) {
 				PRF_FLAGS(vict).set(EPrf::kExecutor);
 			} else if (off) {
@@ -3657,8 +3588,8 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 59: // флаг реморта
 			if (value > 1 && value < 75) {
 				sprintf(buf, "Иммортал %s установил реморт %d  для игрока %s ", GET_NAME(ch), value, GET_NAME(vict));
-				add_karma(vict, buf, GET_NAME(ch));
-				add_karma(ch, buf, GET_NAME(vict));
+				AddKarma(vict, buf, GET_NAME(ch));
+				AddKarma(ch, buf, GET_NAME(vict));
 				vict->set_remort(value);
 				SendMsgToGods(buf);
 			}
@@ -3690,13 +3621,13 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			sprintf(buf, "%s", GET_NAME(ch));
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 				PLR_FLAGS(vict).unset(EPlrFlag::kScriptWriter);
-				add_karma(vict, "Снятие флага скриптера", buf);
+				AddKarma(vict, "Снятие флага скриптера", buf);
 				sprintf(buf, "%s убрал флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				return (1);
 			} else if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
 				PLR_FLAGS(vict).set(EPlrFlag::kScriptWriter);
-				add_karma(vict, "Установка флага скриптера", buf);
+				AddKarma(vict, "Установка флага скриптера", buf);
 				sprintf(buf, "%s установил  флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				return (1);
@@ -3878,7 +3809,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// save the character if a change was made
 	if (retval && !vict->IsNpc()) {
 		if (retval == 2) {
-			rename_char(vict, OName);
+			RenamePlayer(vict, OName);
 		} else {
 			if (!is_file && !vict->IsNpc()) {
 				vict->save_char();

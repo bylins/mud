@@ -40,7 +40,7 @@ typedef struct {
 	char *name;        // filename (for delayed writing)       //
 } FBFILE;
 
-void tag_argument(char *argument, char *tag);
+void ExtractTagFromArgument(char *argument, char *tag);
 int fbgetline(FBFILE *fbfl, char *line);
 FBFILE *fbopen(char *fname, int mode);
 size_t fbclose(FBFILE *fbfl);

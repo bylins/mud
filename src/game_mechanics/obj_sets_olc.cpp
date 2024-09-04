@@ -182,7 +182,7 @@ std::string main_menu_objlist(CharData *ch, const SetNode &set, int menu) {
 
 	std::list<std::pair<int, const char *>> rnum_list;
 	for (const auto &i : set.obj_list) {
-		const auto rnum = real_object(i.first);
+		const auto rnum = GetObjRnum(i.first);
 		const auto name = rnum < 0
 						  ? MISSING_OBJECT_NAME
 						  : obj_proto[rnum]->get_short_description().c_str();
@@ -350,7 +350,7 @@ void sedit::show_obj_edit(CharData *ch) {
 	}
 	const SetMsgNode &msg = obj->second;
 
-	const auto rnum = real_object(obj_edit);
+	const auto rnum = GetObjRnum(obj_edit);
 	const auto name = rnum < 0
 					  ? MISSING_OBJECT_NAME
 					  : obj_proto[rnum]->get_short_description().c_str();
@@ -443,7 +443,7 @@ void sedit::show_activ_edit(CharData *ch) {
 	out += buf_;
 
 	if (activ.enchant.first > 0) {
-		const int rnum = real_object(activ.enchant.first);
+		const int rnum = GetObjRnum(activ.enchant.first);
 		const char *name =
 			(rnum >= 0 ? obj_proto[rnum]->get_short_description().c_str() : "<null>");
 		if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
@@ -1021,9 +1021,9 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 			std::advance(i, add);
 		}
 		vnum = i->first;
-		rnum = real_object(vnum);
+		rnum = GetObjRnum(vnum);
 	} else {
-		rnum = real_object(vnum);
+		rnum = GetObjRnum(vnum);
 		if (rnum < 0) {
 			SendMsgToChar(ch, "Предметов с vnum %d не существует.\r\n", vnum);
 			show_activ_ench_vnum(ch);
@@ -1095,7 +1095,7 @@ void sedit::parse_obj_add(CharData *ch, const char *arg) {
 
 	for (auto i = vnum_list.begin(); i != vnum_list.end(); ++i) {
 		const int vnum = atoi(i->c_str());
-		const int rnum = real_object(vnum);
+		const int rnum = GetObjRnum(vnum);
 		if (olc_set.obj_list.size() >= MAX_OBJ_LIST) {
 			SendMsgToChar(
 				"Набор уже содержит максимальное кол-во предметов.\r\n", ch);
@@ -1464,7 +1464,7 @@ void sedit::parse_obj_change(CharData *ch, const char *arg) {
 		return;
 	}
 
-	const auto rnum = real_object(vnum);
+	const auto rnum = GetObjRnum(vnum);
 	const auto name = rnum < 0
 					  ? MISSING_OBJECT_NAME
 					  : obj_proto[rnum]->get_short_description().c_str();
@@ -1650,7 +1650,7 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			start_sedit(ch, num);
 		} else {
 			// по внуму предмета
-			if (real_object(num) < 0) {
+			if (GetObjRnum(num) < 0) {
 				SendMsgToChar(SEDIT_HELP, ch);
 				SendMsgToChar(ch, "Предметов с vnum %s не существует.\r\n",
 							  argument);

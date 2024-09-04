@@ -46,9 +46,6 @@
  * efficency of doing it the other way.
  *
  */
-int NumberOfZoneDungeons = 50;
-ZoneVnum ZoneStartDungeons = 30000;
-
 long GetExpUntilNextLvl(CharData *ch, int level);
 
 // GAME PLAY OPTIONS
@@ -468,7 +465,7 @@ void RuntimeConfiguration::setup_logs() {
 	mkdir("log/perslog", 0700);
 
 	for (int i = 0; i < 1 + LAST_LOG; ++i) {
-		EOutputStream stream = static_cast<EOutputStream>(i);
+		auto stream = static_cast<EOutputStream>(i);
 
 		constexpr int MAX_SRC_PATH_LENGTH = 4096;
 		char src_path[MAX_SRC_PATH_LENGTH];

@@ -362,7 +362,7 @@ void our_terminate() {
 
 // externs
 extern int num_invalid;
-extern char *GREETINGS;
+extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
 extern FILE *player_fl;
@@ -502,7 +502,7 @@ void gifts() {
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	ObjRnum rnum;
-	if ((rnum = real_object(rand_vnum)) < 0) {
+	if ((rnum = GetObjRnum(rand_vnum)) < 0) {
 		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
@@ -511,7 +511,7 @@ void gifts() {
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 
 	// создаем упаковку для подарка
-	PlaceObjToRoom(obj_cont.get(), real_room(rand_vnum_r));
+	PlaceObjToRoom(obj_cont.get(), GetRoomRnum(rand_vnum_r));
 	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
 	CheckObjDecay(obj_cont.get());
@@ -770,7 +770,7 @@ int main_function(int argc, char **argv) {
 	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
-		world_loader.boot_world();
+		world_loader.BootWorld();
 		printf("Done.");
 	} else {
 		printf("Running game on port %d.\r\n", port);
@@ -804,7 +804,7 @@ void stop_game(ush_int port) {
 #if defined WITH_SCRIPTING
 	scripting::init();
 #endif
-	boot_db();
+	BootMudDataBase();
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 	log("Signal trapping.");
 	signal_setup();
@@ -843,7 +843,7 @@ void stop_game(ush_int port) {
 	game_loop(mother_desc);
 #endif
 
-	flush_player_index();
+	FlushPlayerIndex();
 
 	// храны надо сейвить до Crash_save_all_rent(), иначе будем брать бабло у чара при записи
 	// уже после его экстракта, и что там будет хз...

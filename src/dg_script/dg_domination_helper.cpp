@@ -128,7 +128,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 
 static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum vnum, bool debug_mode)
 {
-	const RoomRnum room_rn = real_room(vnum);
+	const RoomRnum room_rn = GetRoomRnum(vnum);
 	if (room_rn <= 0) {
 		snprintf(buf2, kMaxStringLength, "Не могу найти комнату: %d", vnum);
 		trig_log(trig, buf2);

@@ -35,6 +35,8 @@
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
 
+const int kRecallSpellsInterval = 28;
+
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
 extern int idle_max_level;
@@ -377,7 +379,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Вас выпустили из темницы.\r\n", i.get());
 		if ((restore = GET_LOADROOM(i)) == kNowhere)
 			restore = calc_loadroom(i.get());
-		restore = real_room(restore);
+		restore = GetRoomRnum(restore);
 		if (restore == kNowhere) {
 			if (GetRealLevel(i) >= kLvlImmortal)
 				restore = r_immort_start_room;
@@ -408,7 +410,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 			restore = calc_loadroom(i.get());
 		}
 
-		restore = real_room(restore);
+		restore = GetRoomRnum(restore);
 
 		if (restore == kNowhere) {
 			if (GetRealLevel(i) >= kLvlImmortal) {
@@ -468,7 +470,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				restore = calc_loadroom(i.get());
 			}
 
-			restore = real_room(restore);
+			restore = GetRoomRnum(restore);
 
 			if (restore == kNowhere) {
 				if (GetRealLevel(i) >= kLvlImmortal) {
@@ -518,7 +520,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {
 			restore = calc_loadroom(i.get());
 		}
-		restore = real_room(restore);
+		restore = GetRoomRnum(restore);
 		if (restore == kNowhere) {
 			if (GetRealLevel(i) >= kLvlImmortal)
 				restore = r_immort_start_room;
@@ -598,7 +600,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				if (restore == kNowhere) {
 					restore = calc_loadroom(i.get());
 				}
-				restore = real_room(restore);
+				restore = GetRoomRnum(restore);
 			}
 
 			char_from_room(i);
@@ -1710,7 +1712,7 @@ void point_update() {
 	});
 //	}
 }
-void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
+void ExtractRepopDecayObject(const ObjData::shared_ptr &obj) {
 	if (obj->get_worn_by()) {
 		act("$o рассыпал$U, вспыхнув ярким светом...",
 			false, obj->get_worn_by(), obj.get(), nullptr, kToChar);
@@ -1741,13 +1743,13 @@ void ExtractObjRepopDecay(const ObjData::shared_ptr obj) {
 	ExtractObjFromWorld(obj.get());
 }
 
-void RepopDecay(std::vector<ZoneRnum> zone_list) {
+void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list) {
 	world_objects.foreach_on_copy([&zone_list](const ObjData::shared_ptr &j) {
 		if (j->has_flag(EObjFlag::kRepopDecay)) {
 			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
-			for (auto it = zone_list.begin(); it != zone_list.end(); ++it) {
-				if (obj_zone_num == zone_table[*it].vnum) {
-					ExtractObjRepopDecay(j);
+			for (int &it : zone_list) {
+				if (obj_zone_num == zone_table[it].vnum) {
+					ExtractRepopDecayObject(j);
 				}
 			}
 		}

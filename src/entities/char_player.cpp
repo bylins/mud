@@ -932,9 +932,9 @@ void Player::save_char() {
 
 #undef NO_EXTRANEOUS_TRIGGERS
 
-// на счет reboot: используется только при старте мада в вызовах из entrycount
+// на счет reboot: используется только при старте мада в вызовах из ActualizePlayersIndex
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
-// поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
+// поэтому при каких-то изменениях в ActualizePlayersIndex, MustBeDeleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
 // на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
@@ -995,7 +995,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			return (-1);
 		}
 
-		tag_argument(line, tag);
+		ExtractTagFromArgument(line, tag);
 		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
 			line1[i] = line[i];
 		}
@@ -1071,7 +1071,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			return (-1);
 		}
 
-		tag_argument(line, tag);
+		ExtractTagFromArgument(line, tag);
 
 		if (!strcmp(tag, "EMal"))
 			strcpy(GET_EMAIL(this), line);
@@ -1234,7 +1234,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_who_last(time(0));
 
 	while (fbgetline(fl, line)) {
-		tag_argument(line, tag);
+		ExtractTagFromArgument(line, tag);
 		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
 			line1[i] = line[i];
 		}

@@ -191,10 +191,10 @@ void create_clone_miniset(int vnum) {
 		return;
 	}
 
-	const int rnum = real_object(vnum);
+	const int rnum = GetObjRnum(vnum);
 
 	// проверяем, есть ли у нашей сетины клон в системной зоне
-	const int rnum_nobj = real_object(new_vnum);
+	const int rnum_nobj = GetObjRnum(new_vnum);
 
 	if (rnum_nobj < 0) {
 		return;
@@ -243,7 +243,7 @@ void init_obj_list() {
 			for (pugi::xml_node obj_node = set_node.child("obj");
 				 obj_node; obj_node = obj_node.next_sibling("obj")) {
 				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
-				const int obj_rnum = real_object(obj_vnum);
+				const int obj_rnum = GetObjRnum(obj_vnum);
 				if (obj_rnum < 0) {
 					snprintf(buf, sizeof(buf),
 							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
@@ -292,7 +292,7 @@ void init_obj_list() {
 
 			for (pugi::xml_node obj_node = set_node.child("obj"); obj_node; obj_node = obj_node.next_sibling("obj")) {
 				const int obj_vnum = parse::ReadAttrAsInt(obj_node, "vnum");
-				if (real_object(obj_vnum) < 0) {
+				if (GetObjRnum(obj_vnum) < 0) {
 					snprintf(buf, sizeof(buf),
 							 "...bad obj_node attributes (vnum=%d)", obj_vnum);
 					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -414,7 +414,7 @@ void init_mob_name_list() {
 
 	for (auto i = mob_stat::mob_stat_register.cbegin(),
 			 iend = mob_stat::mob_stat_register.cend(); i != iend; ++i) {
-		const int rnum = real_mobile(i->first);
+		const int rnum = GetMobRnum(i->first);
 		const int zone = i->first / 100;
 		std::set<int>::const_iterator k = bad_zones.find(zone);
 
@@ -662,7 +662,7 @@ void init_drop_table(int type) {
 	while (!obj_list.empty() && !mob_list.empty()) {
 		std::list<int>::iterator it = obj_list.begin();
 		std::advance(it, number(0, static_cast<int>(obj_list.size()) - 1));
-		const int obj_rnum = real_object(*it);
+		const int obj_rnum = GetObjRnum(*it);
 
 		std::list<ZoneNode>::iterator k = mob_list.begin();
 		std::advance(k, number(0, static_cast<int>(mob_list.size()) - 1));
@@ -899,7 +899,7 @@ bool load_drop_table() {
 	for (pugi::xml_node item_node = node_list.child("item"); item_node;
 		 item_node = item_node.next_sibling("item")) {
 		const int obj_vnum = parse::ReadAttrAsInt(item_node, "vnum");
-		const int obj_rnum = real_object(obj_vnum);
+		const int obj_rnum = GetObjRnum(obj_vnum);
 		if (obj_vnum <= 0 || obj_rnum < 0) {
 			snprintf(buf, sizeof(buf),
 					 "...bad item attributes (vnum=%d)", obj_vnum);
@@ -908,7 +908,7 @@ bool load_drop_table() {
 		}
 
 		const int mob_vnum = parse::ReadAttrAsInt(item_node, "mob");
-		const int mob_rnum = real_mobile(mob_vnum);
+		const int mob_rnum = GetMobRnum(mob_vnum);
 		if (mob_vnum <= 0 || mob_rnum < 0) {
 			snprintf(buf, sizeof(buf),
 					 "...bad item attributes (mob=%d)", mob_vnum);

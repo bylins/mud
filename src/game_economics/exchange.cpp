@@ -65,7 +65,7 @@ int exchange_purchase(CharData *ch, char *arg);
 int exchange_offers(CharData *ch, char *arg);
 bool exchange_setfilter(CharData *ch, char *argument);
 
-int exchange_database_load();
+int LoadExchange();
 int exchange_database_reload(bool loadbackup);
 void check_exchange(ObjData *obj);
 void extract_exchange_item(ExchangeItem *item);
@@ -278,7 +278,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	else
 		GET_EXCHANGE_ITEM_COMMENT(item) = nullptr;
 
-	if (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
+	if (IsTimerUnlimited(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
 	RemoveObjFromChar(obj);
@@ -410,7 +410,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	message_exchange(tmpbuf, ch, item);
-	if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+	if (IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 	PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
@@ -600,7 +600,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 			//end by WorM
 
 			message_exchange(tmpbuf, ch, item);
-			if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+			if (IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 			PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
@@ -630,7 +630,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
 		message_exchange(tmpbuf, ch, item);
-		if (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+		if (IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
@@ -883,7 +883,7 @@ void exchange_write_one_object_new(std::stringstream &out, ExchangeItem *item) {
 	out << "\n";
 }
 
-int exchange_database_load() {
+int LoadExchange() {
 	FILE *fl;
 	char *data, *readdata;
 	ExchangeItem *item;

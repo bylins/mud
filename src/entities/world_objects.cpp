@@ -91,7 +91,7 @@ ObjData::shared_ptr WorldObjects::create_blank() {
 }
 
 ObjData::shared_ptr WorldObjects::create_from_prototype_by_vnum(ObjVnum vnum) {
-	const auto rnum = real_object(vnum);
+	const auto rnum = GetObjRnum(vnum);
 	if (rnum < 0) {
 		log("Object (V) %d does not exist in database.", vnum);
 		return nullptr;

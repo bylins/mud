@@ -404,7 +404,7 @@ void init_depot() {
 				break;
 			}
 			// проверяем существование прототипа предмета и суем его в маск в мире на постое
-			int rnum = real_object(tmp_obj.vnum);
+			int rnum = GetObjRnum(tmp_obj.vnum);
 			if (rnum >= 0) {
 				obj_proto.inc_stored(rnum);
 				tmp_node.add_cost_per_day(tmp_obj.rent_cost);
@@ -697,13 +697,13 @@ void update_timers() {
 // * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 void CharNode::update_offline_item(long uid) {
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();) {
-		int rnum = real_object(obj_it->vnum);
+		int rnum = GetObjRnum(obj_it->vnum);
 		if (rnum < 0) {
 			depot_log("Что-то не так с объектом : %d", obj_it->vnum);
 			continue;
 		}
 		const auto obj = obj_proto[rnum];
-		if (!check_unlimited_timer(obj.get())) {
+		if (!IsTimerUnlimited(obj.get())) {
 			--(obj_it->timer);
 		}
 		if (obj_it->timer <= 0) {
@@ -741,7 +741,7 @@ void CharNode::reset() {
 	// тут нужно ручками перекинуть удаляемый шмот в лоад и потом уже грохнуть все разом
 	for (TimerListType::iterator obj = offline_list.begin(); obj != offline_list.end(); ++obj) {
 		depot_log("reset_%s: offline erase %d %d", name.c_str(), obj->vnum, obj->uid);
-		int rnum = real_object(obj->vnum);
+		int rnum = GetObjRnum(obj->vnum);
 		if (rnum >= 0) {
 			obj_proto.dec_stored(rnum);
 		}
@@ -1255,7 +1255,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 					obj->set_timer(temp_timer);
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
-				int rnum = real_object(obj->get_vnum());
+				int rnum = GetObjRnum(obj->get_vnum());
 				if (rnum >= 0) {
 					obj_proto.dec_stored(rnum);
 				}
@@ -1331,7 +1331,7 @@ void CharNode::online_to_offline(ObjListType &cont) {
 		// плюсуем персональное хранилище к общей ренте
 		add_cost_per_day(tmp_obj.rent_cost);
 		// из макс.в мире в игре она уходит в ренту
-		int rnum = real_object(tmp_obj.vnum);
+		int rnum = GetObjRnum(tmp_obj.vnum);
 		if (rnum >= 0) {
 			obj_proto.inc_stored(rnum);
 		}
@@ -1378,7 +1378,7 @@ void reload_char(long uid, CharData *ch) {
 		// чар соответственно оффлайн
 		const CharData::shared_ptr t_vict(new Player);
 		if (load_char(it->second.name.c_str(), t_vict.get(), ELoadCharFlags::kFindId) < 0) {
-			// вообще эт нереальная ситуация после проверки в do_reboot
+			// вообще эт нереальная ситуация после проверки в DoReboot
 			SendMsgToChar(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
 		}
 		vict = t_vict;

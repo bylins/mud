@@ -48,11 +48,10 @@ void oedit_setup(DescriptorData *d, int robj_num);
 void oedit_save_to_disk(int zone);
 void sedit_setup_new(DescriptorData *d);
 void sedit_setup_existing(DescriptorData *d, int robj_num);
-void room_free(RoomData *room);
 void medit_mobile_free(CharData *mob);
 void trigedit_setup_new(DescriptorData *d);
 void trigedit_setup_existing(DescriptorData *d, int rtrg_num);
-int real_trigger(int vnum);
+int GetTriggerRnum(int vnum);
 void dg_olc_script_free(DescriptorData *d);
 
 // Internal function prototypes.
@@ -277,21 +276,21 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	// * Steal player's descriptor start up subcommands.
 	switch (subcmd) {
 		case SCMD_OLC_TRIGEDIT:
-			if ((real_num = real_trigger(number)) >= 0)
+			if ((real_num = GetTriggerRnum(number)) >= 0)
 				trigedit_setup_existing(d, real_num);
 			else
 				trigedit_setup_new(d);
 			STATE(d) = CON_TRIGEDIT;
 			break;
 		case SCMD_OLC_REDIT:
-			if ((real_num = real_room(number)) != kNowhere)
+			if ((real_num = GetRoomRnum(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
 				redit_setup(d, kNowhere);
 			STATE(d) = CON_REDIT;
 			break;
 		case SCMD_OLC_ZEDIT:
-			if ((real_num = real_room(number)) == kNowhere) {
+			if ((real_num = GetRoomRnum(number)) == kNowhere) {
 				SendMsgToChar("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 				delete d->olc;
 				return;
@@ -300,13 +299,13 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			STATE(d) = CON_ZEDIT;
 			break;
 		case SCMD_OLC_MEDIT:
-			if ((real_num = real_mobile(number)) >= 0)
+			if ((real_num = GetMobRnum(number)) >= 0)
 				medit_setup(d, real_num);
 			else
 				medit_setup(d, -1);
 			STATE(d) = CON_MEDIT;
 			break;
-		case SCMD_OLC_OEDIT: real_num = real_object(number);
+		case SCMD_OLC_OEDIT: real_num = GetObjRnum(number);
 			if (real_num >= 0) {
 				oedit_setup(d, real_num);
 			} else {
@@ -451,7 +450,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 		// Освободить комнату
 		if (OLC_ROOM(d)) {
 			switch (cleanup_type) {
-				case CLEANUP_ALL: room_free(OLC_ROOM(d));    // удаляет все содержимое
+				case CLEANUP_ALL: CleanupRoomData(OLC_ROOM(d));    // удаляет все содержимое
 					// break; - не нужен
 
 					// fall through
