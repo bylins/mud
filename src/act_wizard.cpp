@@ -126,7 +126,6 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
-void do_vnum(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void stop_snooping(CharData *ch);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
@@ -1632,69 +1631,6 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$n переместил$g вас!", false, ch, nullptr, (char *) victim, kToVict);
 		look_at_room(victim, 0);
 	}
-}
-
-int vnum_mob_load(char *vnum, CharData *ch) {
-	auto mvn = atoi(vnum);
-	int found = 0;
-	if (mvn == 0)
-		return 0;
-	for (auto i = 0; i <= top_of_mobt; i++) {
-		if (mob_proto[i].dl_list == nullptr)
-			continue;
-		auto predicate = [mvn] (struct dead_load::LoadingItem *item) { return (item->obj_vnum == mvn); };
-		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), predicate);
-		if (it != mob_proto[i].dl_list->end()) {
-			sprintf(buf, "%3d. [%5d] (%d,%d,%d,%d) %s\r\n", ++found, mob_index[i].vnum, (*it)->obj_vnum, (*it)->load_prob, 
-				(*it)->load_type, (*it)->spec_param, mob_proto[i].get_npc_name().c_str());
-			SendMsgToChar(buf, ch);
-		}
-	}
-	return found;
-}
-
-void do_vnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	half_chop(argument, buf, buf2);
-
-	if (!*buf || !*buf2
-		|| (!utils::IsAbbr(buf, "mob") 
-			&& !utils::IsAbbr(buf, "obj") 
-			&& !utils::IsAbbr(buf, "room") 
-			&& !utils::IsAbbr(buf, "flag")
-			&& !utils::IsAbbr(buf, "существо") 
-			&& !utils::IsAbbr(buf, "предмет") 
-			&& !utils::IsAbbr(buf, "флаг")
-			&& !utils::IsAbbr(buf, "комната")
-			&& !utils::IsAbbr(buf, "trig") 
-			&& !utils::IsAbbr(buf, "триггер")
-			&& !utils::IsAbbr(buf, "load"))) {
-		SendMsgToChar("Usage: vnum { obj | mob | flag | room | trig | load} <name>\r\n", ch);
-		return;
-	}
-
-	if ((utils::IsAbbr(buf, "mob")) || (utils::IsAbbr(buf, "существо")))
-		if (!vnum_mobile(buf2, ch))
-			SendMsgToChar("Нет существа с таким именем.\r\n", ch);
-
-	if ((utils::IsAbbr(buf, "obj")) || (utils::IsAbbr(buf, "предмет")))
-		if (!vnum_object(buf2, ch))
-			SendMsgToChar("Нет предмета с таким названием.\r\n", ch);
-
-	if ((utils::IsAbbr(buf, "flag")) || (utils::IsAbbr(buf, "флаг")))
-		if (!vnum_flag(buf2, ch))
-			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
-
-	if ((utils::IsAbbr(buf, "room")) || (utils::IsAbbr(buf, "комната")))
-		if (!vnum_room(buf2, ch))
-			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
-
-	if (utils::IsAbbr(buf, "trig") || utils::IsAbbr(buf, "триггер"))
-		if (!vnum_obj_trig(buf2, ch))
-			SendMsgToChar("Нет триггеров, загружаемых такой объект\r\n", ch);
-
-	if (utils::IsAbbr(buf, "load") || utils::IsAbbr(buf, "загрузка"))
-		if (!vnum_mob_load(buf2, ch))
-			SendMsgToChar("Нет мобов, загружаемых такой объект\r\n", ch);
 }
 
 void do_shutdown(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

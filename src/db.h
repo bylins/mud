@@ -54,7 +54,6 @@ void ResetZone(ZoneRnum zone);
 
 int load_char(const char *name, CharData *char_element, int load_flags);
 CharData *read_mobile(MobVnum nr, int type);
-int vnum_mobile(char *searchname, CharData *ch);
 int correct_unique(int unique);
 bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
@@ -66,12 +65,6 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 #define VIRTUAL       (1 << 0)
 
 CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type = VIRTUAL);
-
-int vnum_object(char *searchname, CharData *ch);
-int vnum_flag(char *searchname, CharData *ch);
-int vnum_room(char *searchname, CharData *ch);
-int vnum_obj_trig(char *searchname, CharData *ch);
-
 
 // structure for the reset commands
 struct combat_list_element {

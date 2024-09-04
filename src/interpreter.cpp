@@ -26,6 +26,7 @@
 #include "cmd_god/stat.h"
 #include "cmd_god/show.h"
 #include "cmd_god/godtest.h"
+#include "cmd_god/tabulate.h"
 #include "cmd_god/mark.h"
 #include "cmd/equip.h"
 #include "cmd/eat.h"
@@ -312,7 +313,6 @@ void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
-void do_vnum(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_where(CharData *ch, char *argument, int cmd, int subcmd);
@@ -989,8 +989,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"value", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"version", EPosition::kDead, do_gen_ps, 0, SCMD_VERSION, 0},
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
-		{"vnum", EPosition::kDead, do_vnum, kLvlGreatGod, 0, 0},
-		{"вномер", EPosition::kDead, do_vnum, kLvlGreatGod, 0,
+		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
+		{"вномер", EPosition::kDead, DoTabulate, kLvlGreatGod, 0,
 		 0},  //тупой копипаст для использования русского синтаксиса
 		{"vstat", EPosition::kDead, do_vstat, 0, 0, 0},
 		{"wake", EPosition::kSleep, do_wake, 0, 0, -1},
