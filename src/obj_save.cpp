@@ -559,7 +559,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 
 	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
 	// придется сохранять все статсы шмотки.
-	auto proto = get_object_prototype(GET_OBJ_VNUM(object));
+	auto proto = GetObjectPrototype(GET_OBJ_VNUM(object));
 
 /*	auto obj_ptr = world_objects.get_by_raw_ptr(object);
 	if (!obj_ptr)
@@ -1024,12 +1024,12 @@ void ClearCrashSavedObjects(std::size_t index) {
 				obj_proto.dec_stored(rnum);
 			}
 		}
-		clear_saveinfo(index);
+		ClearSaveinfo(index);
 	}
 }
 
 void Crash_create_timer(const std::size_t index, int/* num*/) {
-	recreate_saveinfo(index);
+	RecreateSaveinfo(index);
 }
 
 int ReadCrashTimerFile(std::size_t index, int temp) {
@@ -1093,7 +1093,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			log("SYSERR: I/O Error reading %s timer file.", name);
 			fclose(fl);
 			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
-			clear_saveinfo(index);
+			ClearSaveinfo(index);
 			return false;
 		}
 		if (info.vnum && info.timer >= -1) {
@@ -1114,7 +1114,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 
 	if (rent.nitems != num) {
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
-		clear_saveinfo(index);
+		ClearSaveinfo(index);
 		return false;
 	} else
 		return true;
@@ -1129,7 +1129,7 @@ void Crash_reload_timer(int index) {
 				obj_proto.dec_stored(rnum);
 			}
 		}
-		clear_saveinfo(index);
+		ClearSaveinfo(index);
 	}
 
 	if (!ReadCrashTimerFile(index, false)) {
@@ -1319,7 +1319,7 @@ void Crash_listrent(CharData *ch, char *name) {
 			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", CAP(name));
 			SendMsgToChar(buf, ch);
 			Crash_list_objects(ch, index);
-			clear_saveinfo(index);
+			ClearSaveinfo(index);
 		}
 	} else {
 		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", CAP(name));
@@ -1653,7 +1653,7 @@ int Crash_load(CharData *ch) {
 	}
 
 	affect_total(ch);
-	clear_saveinfo(index);
+	ClearSaveinfo(index);
 	//???
 	//Crash_crashsave();
 	return 0;
@@ -1996,7 +1996,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	}
 
 	if (savetype == RENT_CRASH) {
-		clear_saveinfo(iplayer);
+		ClearSaveinfo(iplayer);
 	}
 
 	return true;
@@ -2258,10 +2258,10 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 		return (false);
 	}
 
-	if (numitems > MAX_SAVED_ITEMS) {
+	if (numitems > kMaxSavedItems) {
 		sprintf(buf,
 				"$n сказал$g вам : \"Извините, но я не могу хранить больше %d предметов.\"\r\n"
-				"$n сказал$g вам : \"В данный момент их у вас %ld.\"", MAX_SAVED_ITEMS, numitems);
+				"$n сказал$g вам : \"В данный момент их у вас %ld.\"", kMaxSavedItems, numitems);
 		act(buf, false, receptionist, 0, ch, kToVict);
 		return (false);
 	}

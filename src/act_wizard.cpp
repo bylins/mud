@@ -24,7 +24,7 @@
 #include "entities/char_data.h"
 #include "entities/obj_data.h"
 #include "entities/char_player.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "entities/entities_constants.h"
 #include "entities/world_characters.h"
 #include "cmd_god/stat.h"
@@ -126,7 +126,6 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
-void do_vnum(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void stop_snooping(CharData *ch);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
@@ -1019,8 +1018,8 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict,
-									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
+						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1057,8 +1056,8 @@ void setall_inspect() {
 						it->second->out += buf2;
 
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict,
-									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
+						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1094,8 +1093,8 @@ void setall_inspect() {
 						it->second->out += buf1;
 						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict,
-									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
+						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
@@ -1129,8 +1128,8 @@ void setall_inspect() {
 								   it->second->reason,
 								   it->second->freeze_time);
 					} else {
-						if (load_char(player_table[it->second->pos].name(), vict,
-									  ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
+						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
 							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
@@ -1365,7 +1364,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
-		if (load_char(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
@@ -1559,7 +1558,7 @@ void do_unfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	while (!unfreeze_list.eof()) {
 		unfreeze_list >> name_buffer;
-		if (load_char(name_buffer.c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(name_buffer.c_str(), &t_vict, ELoadCharFlags::kFindId) < 0) {
 			sprintf(buf, "Чара с именем %s не существует !\r\n", name_buffer.c_str());
 			SendMsgToChar(buf, ch);
 			continue;
@@ -1632,69 +1631,6 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$n переместил$g вас!", false, ch, nullptr, (char *) victim, kToVict);
 		look_at_room(victim, 0);
 	}
-}
-
-int vnum_mob_load(char *vnum, CharData *ch) {
-	auto mvn = atoi(vnum);
-	int found = 0;
-	if (mvn == 0)
-		return 0;
-	for (auto i = 0; i <= top_of_mobt; i++) {
-		if (mob_proto[i].dl_list == nullptr)
-			continue;
-		auto predicate = [mvn] (struct dead_load::LoadingItem *item) { return (item->obj_vnum == mvn); };
-		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), predicate);
-		if (it != mob_proto[i].dl_list->end()) {
-			sprintf(buf, "%3d. [%5d] (%d,%d,%d,%d) %s\r\n", ++found, mob_index[i].vnum, (*it)->obj_vnum, (*it)->load_prob, 
-				(*it)->load_type, (*it)->spec_param, mob_proto[i].get_npc_name().c_str());
-			SendMsgToChar(buf, ch);
-		}
-	}
-	return found;
-}
-
-void do_vnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	half_chop(argument, buf, buf2);
-
-	if (!*buf || !*buf2
-		|| (!utils::IsAbbr(buf, "mob") 
-			&& !utils::IsAbbr(buf, "obj") 
-			&& !utils::IsAbbr(buf, "room") 
-			&& !utils::IsAbbr(buf, "flag")
-			&& !utils::IsAbbr(buf, "существо") 
-			&& !utils::IsAbbr(buf, "предмет") 
-			&& !utils::IsAbbr(buf, "флаг")
-			&& !utils::IsAbbr(buf, "комната")
-			&& !utils::IsAbbr(buf, "trig") 
-			&& !utils::IsAbbr(buf, "триггер")
-			&& !utils::IsAbbr(buf, "load"))) {
-		SendMsgToChar("Usage: vnum { obj | mob | flag | room | trig | load} <name>\r\n", ch);
-		return;
-	}
-
-	if ((utils::IsAbbr(buf, "mob")) || (utils::IsAbbr(buf, "существо")))
-		if (!vnum_mobile(buf2, ch))
-			SendMsgToChar("Нет существа с таким именем.\r\n", ch);
-
-	if ((utils::IsAbbr(buf, "obj")) || (utils::IsAbbr(buf, "предмет")))
-		if (!vnum_object(buf2, ch))
-			SendMsgToChar("Нет предмета с таким названием.\r\n", ch);
-
-	if ((utils::IsAbbr(buf, "flag")) || (utils::IsAbbr(buf, "флаг")))
-		if (!vnum_flag(buf2, ch))
-			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
-
-	if ((utils::IsAbbr(buf, "room")) || (utils::IsAbbr(buf, "комната")))
-		if (!vnum_room(buf2, ch))
-			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
-
-	if (utils::IsAbbr(buf, "trig") || utils::IsAbbr(buf, "триггер"))
-		if (!vnum_obj_trig(buf2, ch))
-			SendMsgToChar("Нет триггеров, загружаемых такой объект\r\n", ch);
-
-	if (utils::IsAbbr(buf, "load") || utils::IsAbbr(buf, "загрузка"))
-		if (!vnum_mob_load(buf2, ch))
-			SendMsgToChar("Нет мобов, загружаемых такой объект\r\n", ch);
 }
 
 void do_shutdown(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1872,7 +1808,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			SendMsgToChar("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
-		mob = read_mobile(r_num, REAL);
+		mob = ReadMobile(r_num, kReal);
 		PlaceCharToRoom(mob, ch->in_room);
 		act("$n порыл$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
@@ -1981,7 +1917,7 @@ void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			SendMsgToChar("Обратитесь в Арктику - там ОН живет.\r\n", ch);
 			return;
 		}
-		mob = read_mobile(r_num, REAL);
+		mob = ReadMobile(r_num, kReal);
 		PlaceCharToRoom(mob, 1);
 		do_stat_character(ch, mob, 1);
 		ExtractCharFromWorld(mob, false);
@@ -2472,7 +2408,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	Player t_chdata;
 	Player *chdata = &t_chdata;
-	if (load_char(arg, chdata, ELoadCharFlags::kFindId) < 0) {
+	if (LoadPlayerCharacter(arg, chdata, ELoadCharFlags::kFindId) < 0) {
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
@@ -3358,7 +3294,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					return (0);
 				}
 
-				if ((get_id_by_name(npad[0]) >= 0) && !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
+				if ((GetPlayerIdByName(npad[0]) >= 0) && !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
 					SendMsgToChar("Это имя совпадает с именем другого персонажа.\r\n"
 								  "Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
 					return (0);
@@ -3774,7 +3710,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		cbuf = std::make_unique<Player>();
-		if ((player_i = load_char(name, cbuf.get(), ELoadCharFlags::kFindId)) > -1) {
+		if ((player_i = LoadPlayerCharacter(name, cbuf.get(), ELoadCharFlags::kFindId)) > -1) {
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(cbuf) && !(is_head(ch->get_name_str()))) {
@@ -4227,7 +4163,7 @@ void do_spellstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_sanitize(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("Запущена процедура сбора мусора после праздника...\r\n", ch);
-	Celebrates::sanitize();
+	celebrates::Sanitize();
 }
 
 void do_loadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

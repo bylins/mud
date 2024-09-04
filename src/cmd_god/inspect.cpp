@@ -37,7 +37,7 @@ CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index) {
 		return d_vict->character;
 	} else {
 		auto player_ptr = std::make_shared<Player>();
-		if (load_char(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+		if (LoadPlayerCharacter(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
 			return player_ptr;
 		}
 	}

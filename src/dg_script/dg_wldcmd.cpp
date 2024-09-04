@@ -486,7 +486,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 	if (utils::IsAbbr(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
+		if ((mob = ReadMobile(number, kVirtual)) == nullptr) {
 			wld_log(room, trig, "wload: bad mob vnum");
 			return;
 		}

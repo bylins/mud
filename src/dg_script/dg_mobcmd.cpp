@@ -345,7 +345,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 	}
 	if (utils::IsAbbr(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
+		if ((mob = ReadMobile(number, kVirtual)) == nullptr) {
 			mob_log(ch, trig, "mload: bad mob vnum");
 			return;
 		}
@@ -798,10 +798,10 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		mob_log(ch, trig, buf);
 	} else {
 		if (a_isdigit(*arg))
-			m = read_mobile(atoi(arg), VIRTUAL);
+			m = ReadMobile(atoi(arg), kVirtual);
 		else {
 			keep_hp = false;
-			m = read_mobile(atoi(arg + 1), VIRTUAL);
+			m = ReadMobile(atoi(arg + 1), kVirtual);
 		}
 		if (m == nullptr) {
 			mob_log(ch, trig, "mtransform: bad mobile vnum");

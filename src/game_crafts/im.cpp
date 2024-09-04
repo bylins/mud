@@ -14,6 +14,7 @@
 
 #include "entities/world_characters.h"
 #include "entities/world_objects.h"
+#include "game_mechanics/mob_races.h"
 #include "obj_prototypes.h"
 #include "handler.h"
 #include "color.h"
@@ -927,8 +928,6 @@ void im_reset_room(RoomData *room, int level, int type) {
 	}
 }
 
-extern MobRaceListType mobraces_list;
-
 ObjData *try_make_ingr(int *ing_list, int vnum, int max_prob) {
 	for (int indx = 0; ing_list[indx] != -1; indx += 2) {
 		int power;
@@ -945,9 +944,9 @@ ObjData *try_make_ingr(int *ing_list, int vnum, int max_prob) {
 }
 
 ObjData *try_make_ingr(CharData *mob, int prob_default) {
-	MobRaceListType::iterator it = mobraces_list.find(GET_RACE(mob));
+	auto it = mob_races::mobraces_list.find(GET_RACE(mob));
 	const int vnum = GET_MOB_VNUM(mob);
-	if (it != mobraces_list.end()) {
+	if (it != mob_races::mobraces_list.end()) {
 		size_t num_inrgs = it->second->ingrlist.size();
 		int *ingr_to_load_list = nullptr;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);

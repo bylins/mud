@@ -196,8 +196,8 @@ class CrashFracSaveCall : public AbstractPulseAction {
 
 void CrashFracSaveCall::perform(int pulse_number, int) {
 	if (FRAC_SAVE && AUTO_SAVE) {
-		Crash_frac_save_all((pulse_number / kPassesPerSec) % PLAYER_SAVE_ACTIVITY);
-		Crash_frac_rent_time((pulse_number / kPassesPerSec) % OBJECT_SAVE_ACTIVITY);
+		Crash_frac_save_all((pulse_number / kPassesPerSec) % kPlayerSaveActivity);
+		Crash_frac_rent_time((pulse_number / kPassesPerSec) % kObjectSaveActivity);
 	}
 }
 
@@ -363,8 +363,8 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Paste mobiles",
 							 kTimeKoeff * kSecsPerMudHour * kPassesPerSec,
 							 kPassesPerSec - 1,
-							 std::make_shared<SimpleCall>(paste_mobiles)),
-		Heartbeat::PulseStep("Zone update", kPulseZone, 5, std::make_shared<SimpleCall>(zone_update)),
+							 std::make_shared<SimpleCall>(PasteMobiles)),
+		Heartbeat::PulseStep("Zone update", kPulseZone, 5, std::make_shared<SimpleCall>(ZoneUpdate)),
 		Heartbeat::PulseStep("Money drop stat: print log",
 							 60 * 60 * kPassesPerSec,
 							 45,
@@ -409,10 +409,10 @@ Heartbeat::steps_t &pulse_steps() {
 							 60 * kChestUpdatePeriod * kPassesPerSec,
 							 40,
 							 std::make_shared<SimpleCall>(Clan::ClanSave)),
-		Heartbeat::PulseStep("Celebrates: sanitize",
-							 Celebrates::CLEAN_PERIOD * 60 * kPassesPerSec,
+		Heartbeat::PulseStep("Celebrates: Sanitize",
+							 celebrates::kCleanPeriod * 60 * kPassesPerSec,
 							 39,
-							 std::make_shared<SimpleCall>(Celebrates::sanitize)),
+							 std::make_shared<SimpleCall>(celebrates::Sanitize)),
 		Heartbeat::PulseStep("Record usage", 5 * 60 * kPassesPerSec, 37, std::make_shared<SimpleCall>(record_usage)),
 		Heartbeat::PulseStep("Reload proxy ban",
 							 5 * 60 * kPassesPerSec,

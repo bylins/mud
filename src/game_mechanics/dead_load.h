@@ -44,4 +44,4 @@ void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src);
 
 #endif //BYLINS_SRC_GAME_MECHANICS_DEAD_LOAD_H_
 
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+

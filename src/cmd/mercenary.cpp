@@ -103,7 +103,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			mudlog(buf1, LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
 			return;
 		}
-		mob = read_mobile(rnum, REAL);
+		mob = ReadMobile(rnum, kReal);
 		PlaceCharToRoom(mob, ch->in_room);
 		if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow)) {
 			act("$n окрикнул$g своих парней и скрыл$u из виду.",

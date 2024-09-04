@@ -463,8 +463,8 @@ void add(int to_uid, int from_uid, const char *message) {
 }
 
 void add_by_id(int to_id, int from_id, char *message) {
-	const int to_uid = get_uid_by_id(to_id);
-	const int from_uid = from_id >= 0 ? get_uid_by_id(from_id) : from_id;
+	const int to_uid = GetPlayerUidByName(to_id);
+	const int from_uid = from_id >= 0 ? GetPlayerUidByName(from_id) : from_id;
 
 	add(to_uid, from_uid, message);
 }
@@ -482,7 +482,7 @@ std::string get_author_name(int uid) {
 	} else if (uid < 0) {
 		out = "Неизвестно";
 	} else {
-		const char *name = get_name_by_unique(uid);
+		const char *name = GetPlayerNameByUnique(uid);
 		if (name) {
 			out = name;
 			name_convert(out);
@@ -604,7 +604,7 @@ void load() {
 				header.c_str());
 			continue;
 		}
-		const char *to_name = get_name_by_unique(to_uid);
+		const char *to_name = GetPlayerNameByUnique(to_uid);
 		// проверяем, чего распарсили в хедере
 		if (!to_name) {
 			// адресата больше нет
@@ -614,7 +614,7 @@ void load() {
 			// технические сообщения старше года
 			continue;
 		}
-		if (message.from > 0 && !get_name_by_unique(message.from)) {
+		if (message.from > 0 && !GetPlayerNameByUnique(message.from)) {
 			// убираем левые уиды, чтобы потом с кем-нить другим не совпало
 			message.from = -2;
 		}

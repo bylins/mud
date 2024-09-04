@@ -1454,6 +1454,8 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  */
 std::string PrintNumberByDigits(long long num, const char separator = ' ');
 
+void PruneCrlf(char *txt);
+
 #endif // UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

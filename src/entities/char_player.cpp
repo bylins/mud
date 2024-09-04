@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "structs/global_objects.h"
 #include "game_affects/affect_handler.h"
-#include "player_races.h"
+#include "game_mechanics/player_races.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
 #include "administration/accounts.h"
@@ -1605,7 +1605,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						if (sscanf(line, "%ld %d %d", &lnum, &num, &num2) < 3) {
 							num2 = 0;
 						};
-						if (lnum < 0 || !correct_unique(lnum))
+						if (lnum < 0 || !IsCorrectUnique(lnum))
 							continue;
 						if (num2 >= MAX_REVENGE) {
 							if (--num <= 0) {
@@ -1877,7 +1877,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	PRF_FLAGS(this).set(EPrf::kColor2); //всегда цвет полный
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
-		set_god_skills(this);
+		SetGodSkills(this);
 		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
 		GET_COND(this, THIRST) = -1;

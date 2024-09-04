@@ -2887,7 +2887,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		}
 	}
 
-	if (!(mob = read_mobile(-mob_num, VIRTUAL))) {
+	if (!(mob = ReadMobile(-mob_num, kVirtual))) {
 		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return 0;
 	}

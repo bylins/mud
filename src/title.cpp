@@ -298,7 +298,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 				send_to_gods(buf, true);
 			} else {
 				Player victim;
-				if (load_char(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
+				if (LoadPlayerCharacter(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
 					SendMsgToChar("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;
@@ -317,7 +317,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 				send_to_gods(buf, true);
 			} else {
 				Player victim;
-				if (load_char(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
+				if (LoadPlayerCharacter(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
 					SendMsgToChar("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;

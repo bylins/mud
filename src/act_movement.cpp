@@ -325,9 +325,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 	}
 
 	// charmed
-	if (AFF_FLAGGED(ch, EAffect::kCharmed)
-		&& ch->has_master()
-		&& ch->in_room == ch->get_master()->in_room) {
+	if (IS_CHARMICE(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room) {
 		if (show_msg) {
 			SendMsgToChar("Вы не можете покинуть свой идеал.\r\n", ch);
 			act("$N попытал$U покинуть вас.", false, ch->get_master(), nullptr, ch, kToChar);
@@ -1226,7 +1224,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 						"<%s> {%d} открыл трупный кошелек %s.",
 						ch->get_name().c_str(),
 						GET_ROOM_VNUM(ch->in_room),
-						get_name_by_unique(GET_OBJ_VAL(obj, 3)));
+						GetPlayerNameByUnique(GET_OBJ_VAL(obj, 3)));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				system_obj::process_open_purse(ch, obj);
 				return;

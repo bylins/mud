@@ -38,5 +38,8 @@ extern struct SocialKeyword *soc_keys_list;
 
 int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);
+void GoBootSocials();
 
 #endif //BYLINS_SRC_COMMUNICATION_SOCIAL_H_
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

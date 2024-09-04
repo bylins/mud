@@ -1,6 +1,6 @@
 #include "color.h"
 #include "handler.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "structs/global_objects.h"
 
 int feat_slot_lvl(int remort, int slot_for_remort, int slot) {

@@ -289,7 +289,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		obj_from_proto = false;
 	}
 
-	auto proto = (tmp_obj ? tmp_obj : get_object_prototype(item->vnum()).get());
+	auto proto = (tmp_obj ? tmp_obj : GetObjectPrototype(item->vnum()).get());
 	if (!proto) {
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
 		SendMsgToChar("Ошибочка вышла.\r\n", ch);

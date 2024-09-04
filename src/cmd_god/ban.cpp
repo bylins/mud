@@ -1007,7 +1007,7 @@ EmailListType email_list;
 // файл для соъхранения/лоада
 const char *REGISTERED_EMAIL_FILE = LIB_PLRSTUFF"registered-email.lst";
 // т.к. список потенциально может быть довольно большим, то сейвить бум только в случае изменений в add и remove
-bool need_save = 0;
+bool need_save = false;
 
 } // namespace RegisterSystem
 

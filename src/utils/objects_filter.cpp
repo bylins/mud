@@ -609,7 +609,7 @@ bool ParseFilter::check_affect_extra(ObjData *obj) const {
 
 bool ParseFilter::check_owner(ExchangeItem *exch_obj) const {
 	if (owner.empty()
-		|| isname(owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(exch_obj)))) {
+		|| isname(owner, GetNameById(GET_EXCHANGE_ITEM_SELLERID(exch_obj)))) {
 		return true;
 	}
 	return false;

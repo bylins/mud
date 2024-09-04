@@ -53,7 +53,7 @@ int was_agree_name(DescriptorData *d) {
 			d->character->set_sex(static_cast<EGender>(sex));
 			// Auto-Agree char ...
 			NAME_GOD(d->character) = immlev + 1000;
-			NAME_ID_GOD(d->character) = get_id_by_name(immname);
+			NAME_ID_GOD(d->character) = GetPlayerIdByName(immname);
 			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
@@ -230,7 +230,7 @@ void NewNames::load() {
 		// сразу проверяем не сделетился ли уже персонаж
 		Player t_tch;
 		Player *tch = &t_tch;
-		if (load_char(buffer.c_str(), tch, ELoadCharFlags::kFindId) < 0)
+		if (LoadPlayerCharacter(buffer.c_str(), tch, ELoadCharFlags::kFindId) < 0)
 			continue;
 		// не сделетился...
 		cache_add(tch);
@@ -452,7 +452,7 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		go_name(ch, vict, action);
 	} else {
 		vict = new Player; // TODO: переделать на стек
-		if (load_char(name.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(name.c_str(), vict, ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 			delete vict;
 			return;

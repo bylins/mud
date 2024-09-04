@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 
-#include <third_party_libs/pugixml/pugixml.h>
+#include "third_party_libs/pugixml/pugixml.h"
 
-#include "entities_constants.h"
+#include "entities/entities_constants.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs/structs.h"

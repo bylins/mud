@@ -780,7 +780,7 @@ void script_timechange_trigger_check(const int time, const int time_day) {
 		if (SCRIPT(ch)->has_triggers()) {
 			auto sc = SCRIPT(ch).get();
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
-					&& (!is_empty(world[ch->in_room]->zone_rn))) {
+					&& (!IsZoneEmpty(world[ch->in_room]->zone_rn))) {
 				timechange_mtrigger(ch.get(), time, time_day);
 			}
 		}
@@ -800,7 +800,7 @@ void script_timechange_trigger_check(const int time, const int time_day) {
 			auto room = world[nr];
 			auto sc = SCRIPT(room).get();
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
-					&& (!is_empty(room->zone_rn))) {
+					&& (!IsZoneEmpty(room->zone_rn))) {
 				timechange_wtrigger(room, time, time_day);
 			}
 		}

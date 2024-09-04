@@ -79,7 +79,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 				false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		if (!(horse = read_mobile(kHorseVnum, VIRTUAL))) {
+		if (!(horse = ReadMobile(kHorseVnum, kVirtual))) {
 			act("\"Извини, у меня нет для тебя скакуна.\"-смущенно произнес$Q $N",
 				false, ch, 0, victim, kToChar);
 			return (true);
@@ -1352,7 +1352,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->remove_gold(PET_PRICE(pet));
 
-		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
+		pet = ReadMobile(GET_MOB_RNUM(pet), kReal);
 		pet->set_exp(0);
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
@@ -1484,7 +1484,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 		} else {
 			vict = new Player; // TODO: переделать на стек
-			if (load_char(arg, vict, ELoadCharFlags::kFindId) < 0) {
+			if (LoadPlayerCharacter(arg, vict, ELoadCharFlags::kFindId) < 0) {
 				SendMsgToChar("Такого персонажа не существует.\r\n", ch);
 				delete vict;
 				return (1);

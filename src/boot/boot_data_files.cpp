@@ -1087,7 +1087,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].set_rnum(i);
 	mob_proto[i].desc = nullptr;
 	if ((mob_proto + 1)->GetLevel() == 0)
-		set_test_data(mob_proto + i);
+		SetTestData(mob_proto + i);
 
 	top_of_mobt = i++;
 }

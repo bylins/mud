@@ -1,7 +1,7 @@
 #include "stat.h"
 #include "ban.h"
 #include "entities/char_player.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "utils/utils_char_obj.inl"
 #include "description.h"
 #include "game_fight/fight_hit.h"
@@ -142,10 +142,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
 			SendMsgToChar(buf, ch);
 		} else if (NAME_GOD(k) < 1000) {
-			sprintf(buf, "Имя запрещено! - %s\r\n", get_name_by_id(NAME_ID_GOD(k)));
+			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)));
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "Имя одобрено! - %s\r\n", get_name_by_id(NAME_ID_GOD(k)));
+			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)));
 			SendMsgToChar(buf, ch);
 		}
 
@@ -259,7 +259,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
-		time_t ltime = get_lastlogon_by_unique(GET_UNIQUE(k));
+		time_t ltime = GetLastlogonByUnique(GET_UNIQUE(k));
 		char t1[11];
 		char t2[11];
 		strftime(t1, sizeof(t1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
@@ -693,13 +693,13 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
 	if (GET_OBJ_OWNER(j)) {
-		auto *tmpstr = get_name_by_unique(GET_OBJ_OWNER(j));
+		auto *tmpstr = GetPlayerNameByUnique(GET_OBJ_OWNER(j));
 		SendMsgToChar(ch, ", Владелец : %s", tmpstr == nullptr ? "УДАЛЕН": tmpstr);
 	}
 //	if (GET_OBJ_ZONE(j))
 	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));
 	if (GET_OBJ_MAKER(j)) {
-		const char *to_name = get_name_by_unique(GET_OBJ_MAKER(j));
+		const char *to_name = GetPlayerNameByUnique(GET_OBJ_MAKER(j));
 		if (to_name)
 			SendMsgToChar(ch, ", Создатель : %s", to_name);
 		else
@@ -1272,7 +1272,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 					SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
 				}
 				Player t_vict;
-				if (load_char(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
+				if (LoadPlayerCharacter(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
 					do_statip(ch, &t_vict);
 				} else {
 					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
@@ -1291,7 +1291,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 					SendMsgToChar("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
 				}
 				Player t_vict;
-				if (load_char(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
+				if (LoadPlayerCharacter(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
 					DoStatKarma(ch, &t_vict);
 				} else {
 					SendMsgToChar("Такого игрока нет ВООБЩЕ.\r\n", ch);
@@ -1304,7 +1304,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 				SendMsgToChar("Состояние какого игрока(из файла)?\r\n", ch);
 			} else {
 				Player t_vict;
-				if (load_char(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
+				if (LoadPlayerCharacter(buf2, &t_vict, ELoadCharFlags::kFindId) > -1) {
 					if (GetRealLevel(&t_vict) > level) {
 						SendMsgToChar("Извините, вам это еще рано.\r\n", ch);
 					} else {
