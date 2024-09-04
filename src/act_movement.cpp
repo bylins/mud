@@ -325,9 +325,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 	}
 
 	// charmed
-	if (AFF_FLAGGED(ch, EAffect::kCharmed)
-		&& ch->has_master()
-		&& ch->in_room == ch->get_master()->in_room) {
+	if (IS_CHARMICE(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room) {
 		if (show_msg) {
 			SendMsgToChar("Вы не можете покинуть свой идеал.\r\n", ch);
 			act("$N попытал$U покинуть вас.", false, ch->get_master(), nullptr, ch, kToChar);
