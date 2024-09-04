@@ -1076,7 +1076,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	if (is_grgod) {
 		sprintf(buf,
 				"Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
-				rnum >= 0 ? obj_proto.CountInWorld(rnum) - (virt ? 1 : 0) : -1,
+				rnum >= 0 ? obj_proto.total_online(rnum) - (virt ? 1 : 0) : -1,
 				rnum >= 0 ? obj_proto.stored(rnum) : -1,
 				GetObjMIW(j->get_rnum()));
 		SendMsgToChar(buf, ch);

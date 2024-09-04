@@ -3917,7 +3917,7 @@ int print_olist(const CharData *ch, const int first, const int last, std::string
 
 		if (GetRealLevel(ch) >= kLvlGreatGod
 			|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", obj_proto.CountInWorld(rnum), obj_proto.stored(rnum), GetObjMIW(rnum));
+			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", obj_proto.total_online(rnum), obj_proto.stored(rnum), GetObjMIW(rnum));
 			const auto &script = prototype->get_proto_script();
 
 			if (!script.empty()) {

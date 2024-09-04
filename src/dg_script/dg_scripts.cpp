@@ -354,7 +354,7 @@ inline auto gcount_obj_vnum(long n) {
 		return 0;
 	}
 
-	return obj_proto.CountInWorld(i);
+	return obj_proto.total_online(i);
 }
 
 inline auto count_obj_vnum(long n) {
