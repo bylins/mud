@@ -1616,7 +1616,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading celebrates");
 	log("Load Celebrates.");
-	celebrates::load();
+	celebrates::Load();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
@@ -2229,7 +2229,7 @@ int calc_boss_value(CharData *mob, int num) {
 	return num;
 }
 
-void set_test_data(CharData *mob) {
+void SetTestData(CharData *mob) {
 	if (!mob) {
 		log("SYSERROR: null mob (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
@@ -2358,7 +2358,7 @@ int get_test_hp(int lvl) {
 }
 
 // create a new mobile from a prototype
-CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
+CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	int is_corpse = 0;
 	MobRnum i;
 
@@ -2367,7 +2367,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		nr = -nr;
 	}
 
-	if (type == VIRTUAL) {
+	if (type == kVirtual) {
 		if ((i = GetMobRnum(nr)) < 0) {
 			log("WARNING: Mobile vnum %d does not exist in database.", nr);
 			return (nullptr);
@@ -2439,9 +2439,9 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 // мы просто отдаем константный указатель на прототип
  * \param type по дефолту VIRTUAL
  */
-CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type) {
+CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type) {
 	unsigned i = nr;
-	if (type == VIRTUAL) {
+	if (type == kVirtual) {
 		const int rnum = GetObjRnum(nr);
 		if (rnum < 0) {
 			log("Object (V) %d does not exist in database.", nr);
@@ -2480,7 +2480,7 @@ void after_reset_zone(ZoneRnum nr_zone) {
 const int ZO_DEAD{9999};
 
 // update zone ages, queue for reset if necessary, and dequeue when possible
-void zone_update() {
+void ZoneUpdate() {
 	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
@@ -2515,8 +2515,8 @@ void zone_update() {
 	std::vector<ZoneRnum> zone_repop_list;
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
-			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && is_empty(update_u->zone_to_reset))
-			|| can_be_reset(update_u->zone_to_reset)) {
+			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
+			|| CanBeReset(update_u->zone_to_reset)) {
 			zone_repop_list.push_back(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
@@ -2560,18 +2560,18 @@ void zone_update() {
 		}
 }
 
-bool can_be_reset(ZoneRnum zone) {
+bool CanBeReset(ZoneRnum zone) {
 	if (zone_table[zone].reset_mode != 3)
 		return false;
 // проверяем себя
-	if (!is_empty(zone))
+	if (!IsZoneEmpty(zone))
 		return false;
 // проверяем список B
 	for (auto i = 0; i < zone_table[zone].typeB_count; i++) {
 		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeB_list[i]) {
-				if (!zone_table[zone].typeB_flag[i] || !is_empty(j)) {
+				if (!zone_table[zone].typeB_flag[i] || !IsZoneEmpty(j)) {
 					return false;
 				}
 				break;
@@ -2583,7 +2583,7 @@ bool can_be_reset(ZoneRnum zone) {
 		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
-				if (!is_empty(j)) {
+				if (!IsZoneEmpty(j)) {
 					return false;
 				}
 				break;
@@ -2787,7 +2787,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 	}
 }
 
-void paste_mobiles() {
+void PasteMobiles() {
 	character_list.foreach_on_copy([](const CharData::shared_ptr &character) {
 	  paste_mob(character.get(), character->in_room);
 	});
@@ -2851,22 +2851,22 @@ class ZoneReset {
  public:
   explicit ZoneReset(const ZoneRnum zone) : m_zone_rnum(zone) {}
 
-  void reset();
+  void Reset();
 
  private:
-  [[nodiscard]] bool handle_zone_Q_command(MobRnum rnum) const;
+  [[nodiscard]] bool HandleZoneCmdQ(const MobRnum rnum) const;
 
   // execute the reset command table of a given zone
-  void reset_zone_essential();
+  void ResetZoneEssential();
 
   ZoneRnum m_zone_rnum;
 };
 
-void ZoneReset::reset() {
+void ZoneReset::Reset() {
 	utils::CExecutionTimer timer;
 
 	if (GlobalObjects::stats_sender().ready()) {
-		reset_zone_essential();
+		ResetZoneEssential();
 		const auto execution_time = timer.delta();
 
 		influxdb::Record record("zone_reset");
@@ -2875,11 +2875,11 @@ void ZoneReset::reset() {
 		record.add_field("duration", execution_time.count());
 		GlobalObjects::stats_sender().send(record);
 	} else {
-		reset_zone_essential();
+		ResetZoneEssential();
 	}
 }
 
-bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) const {
+bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 	utils::CExecutionTimer overall_timer;
 	bool extracted = false;
 
@@ -2919,7 +2919,7 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) const {
 	return extracted;
 }
 
-void ZoneReset::reset_zone_essential() {
+void ZoneReset::ResetZoneEssential() {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
 	CharData *mob = nullptr, *leader = nullptr;
@@ -2968,7 +2968,7 @@ void ZoneReset::reset_zone_essential() {
 					mob = nullptr;    //Добавлено Ладником
 					if (mob_index[reset_cmd.arg1].total_online < reset_cmd.arg2 &&
 						(reset_cmd.arg4 < 0 || CountMobsInRoom(reset_cmd.arg1, reset_cmd.arg3) < reset_cmd.arg4)) {
-						mob = read_mobile(reset_cmd.arg1, REAL);
+						mob = ReadMobile(reset_cmd.arg1, kReal);
 						if (!mob) {
 							sprintf(buf,
 									"ZRESET: ошибка! моб %d  в зоне %d не существует",
@@ -3021,7 +3021,7 @@ void ZoneReset::reset_zone_essential() {
 					break;
 
 				case 'Q':
-					if (handle_zone_Q_command(reset_cmd.arg1)) {
+					if (HandleZoneCmdQ(reset_cmd.arg1)) {
 						curr_state = 1;
 					}
 
@@ -3337,7 +3337,7 @@ void ZoneReset::reset_zone_essential() {
 
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
-	celebrates::process_celebrates(zone_table[m_zone_rnum].vnum);
+	celebrates::ProcessCelebrates(zone_table[m_zone_rnum].vnum);
 	int rnum_start = 0;
 	int rnum_stop = 0;
 
@@ -3394,7 +3394,7 @@ void ZoneReset::reset_zone_essential() {
 
 void ResetZone(ZoneRnum zone) {
 	ZoneReset zreset(zone);
-	zreset.reset();
+	zreset.Reset();
 }
 
 // Ищет RNUM первой и последней комнаты зоны
@@ -3409,18 +3409,18 @@ int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
 }
 
 // for use in ResetZone; return true if zone 'nr' is free of PC's
-bool is_empty(ZoneRnum zone_nr, bool debug) {
+bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 	int rnum_start, rnum_stop;
 	static ZoneRnum last_zone_nr = 0;
 	static bool result;
 	if (debug) {
-		sprintf(buf, "is_empty чек. Зона %d", zone_table[zone_nr].vnum);
+		sprintf(buf, "Is empty check. Зона %d", zone_table[zone_nr].vnum);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	if (last_zone_nr == zone_nr) {
 		if (debug) {
 			sprintf(buf,
-					"is_empty повтор. Зона %d, прошлый запрос %d",
+					"Is empty repeat. Зона %d, прошлый запрос %d",
 					zone_table[zone_nr].vnum,
 					zone_table[last_zone_nr].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -3498,10 +3498,11 @@ int CountMobsInRoom(int m_num, int r_num) {
 *  stuff related to the save/load player system                          *
 *************************************************************************/
 
-long cmp_ptable_by_name(char *name, int len) {
+long CmpPtableByName(char *name, int len) {
 	len = std::min(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
-	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
+	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here.
+	 * TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		const char *pname = player_table[i].name();
 		if (!strn_cmp(pname, arg, std::min(len, static_cast<int>(strlen(pname))))) {
@@ -3538,7 +3539,7 @@ long GetPtableByUnique(long unique) {
 	return 0;
 }
 
-long get_id_by_name(char *name) {
+long GetPlayerIdByName(char *name) {
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
@@ -3550,7 +3551,7 @@ long get_id_by_name(char *name) {
 	return (-1);
 }
 
-int get_uid_by_id(int id) {
+int GetPlayerUidByName(int id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.id() == id) {
@@ -3560,7 +3561,7 @@ int get_uid_by_id(int id) {
 	return -1;
 }
 
-const char *get_name_by_id(long id) {
+const char *GetNameById(long id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
 		if (i.id() == id) {
@@ -3570,7 +3571,7 @@ const char *get_name_by_id(long id) {
 	return "";
 }
 
-const char *get_name_by_unique(int unique) {
+const char *GetPlayerNameByUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.unique == unique) {
@@ -3580,7 +3581,7 @@ const char *get_name_by_unique(int unique) {
 	return nullptr;
 }
 
-int get_level_by_unique(long unique) {
+int GetLevelByUnique(long unique) {
 	int level = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
@@ -3592,7 +3593,7 @@ int get_level_by_unique(long unique) {
 	return level;
 }
 
-long get_lastlogon_by_unique(long unique) {
+long GetLastlogonByUnique(long unique) {
 	long time = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
@@ -3604,7 +3605,7 @@ long get_lastlogon_by_unique(long unique) {
 	return time;
 }
 
-int correct_unique(int unique) {
+int IsCorrectUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.unique == unique) {
@@ -3615,7 +3616,7 @@ int correct_unique(int unique) {
 	return false;
 }
 
-void recreate_saveinfo(const size_t number) {
+void RecreateSaveinfo(size_t number) {
 	delete player_table[number].timer;
 	NEWCREATE(player_table[number].timer);
 }
@@ -3624,7 +3625,7 @@ void recreate_saveinfo(const size_t number) {
 * Можно канеш просто в get_skill иммам возвращать 100 или там 200, но тут зато можно
 * потестить че-нить с возможностью покачать скилл во время игры иммом.
 */
-void set_god_skills(CharData *ch) {
+void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
 			ch->set_skill(i, 200);
@@ -3633,7 +3634,7 @@ void set_god_skills(CharData *ch) {
 }
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
-int load_char(const char *name, CharData *char_element, const int load_flags) {
+int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags) {
 	const auto player_i = char_element->load_char_ascii(name, load_flags);
 	if (player_i > -1) {
 		char_element->set_pfilepos(player_i);
@@ -3858,7 +3859,7 @@ void ActualizePlayersIndex(char *name) {
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, ELoadCharFlags::kReboot) > -1) {
+		if (LoadPlayerCharacter(name, short_ch, ELoadCharFlags::kReboot) > -1) {
 			// если чар удален или им долго не входили, то не создаем для него запись
 			if (!MustBeDeleted(short_ch)) {
 				deleted = 0;
@@ -3881,7 +3882,7 @@ void ActualizePlayersIndex(char *name) {
 					element.activity = -1;
 				} else {
 					element.last_logon = LAST_LOGON(short_ch);
-					element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
+					element.activity = number(0, kObjectSaveActivity - 1);
 				}
 
 #ifdef TEST_BUILD

@@ -6,57 +6,57 @@
 #include <map>
 #include <memory>
 
-class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-class ObjData;        // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class CharData;
+class ObjData;
 
 namespace celebrates {
 
-extern const int CLEAN_PERIOD;
+extern const int kCleanPeriod;
 
-typedef std::vector<int> TrigList;
+using TrigList = std::vector<int>;
 struct ToLoad;
 
-typedef std::shared_ptr<ToLoad> LoadPtr;
-typedef std::vector<LoadPtr> LoadList;
+using LoadPtr = std::shared_ptr<ToLoad>;
+using LoadList = std::vector<LoadPtr>;
 
 struct ToLoad {
-	TrigList triggers;
-	int vnum;
-	int max;
-	LoadList objects;
+  TrigList triggers;
+  int vnum;
+  int max;
+  LoadList objects;
 };
 
-typedef std::map<int, TrigList> AttachList; //mob vnum, списк триггеров
-typedef std::map<int, AttachList> AttachZonList; //zone_num, список для аттача
+using AttachList = std::map<MobVnum, TrigList>;
+using AttachZonList = std::map<ZoneVnum, AttachList>;
 
 struct CelebrateRoom {
-	int vnum;
-	TrigList triggers;
-	LoadList mobs;
-	LoadList objects;
+  int vnum;
+  TrigList triggers;
+  LoadList mobs;
+  LoadList objects;
 };
 
 typedef std::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
-typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
+typedef std::map<ZoneVnum, CelebrateRoomsList> CelebrateZonList;
 
 struct CelebrateData {
-	CelebrateData() : is_clean(true) {};
-	std::string name;
-	bool is_clean;
-	CelebrateZonList rooms;
-	AttachZonList mobsToAttach;
-	AttachZonList objsToAttach;
+  CelebrateData() : is_clean(true) {};
+  std::string name;
+  bool is_clean;
+  CelebrateZonList rooms{};
+  AttachZonList mobsToAttach{};
+  AttachZonList objsToAttach{};
 };
 
-typedef std::shared_ptr<CelebrateData> CelebrateDataPtr;
+using CelebrateDataPtr = std::shared_ptr<CelebrateData>;
 
 struct CelebrateDay {
-	CelebrateDay() : last(false), start_at(0), finish_at(24) {};
-	bool last;
-	int start_at;
-	int finish_at;
-	CelebrateDataPtr celebrate;
+  CelebrateDay() : last(false), start_at(0), finish_at(24) {};
+  bool last;
+  int start_at;
+  int finish_at;
+  CelebrateDataPtr celebrate;
 };
 
 using CelebrateDayPtr = std::shared_ptr<CelebrateDay>;
@@ -64,25 +64,16 @@ using CelebrateList = std::map<int, CelebrateDayPtr>; //номер дня в г�
 using CelebrateMobs = std::map<long, CharData *>;
 using CelebrateObjs = std::map<long, ObjData *>;
 
-std::string get_name_mono(int day);
-std::string get_name_poly(int day);
-std::string get_name_real(int day);
-
-int get_mud_day();
-int get_real_day();
-
-void load();
-void sanitize();
-
-void add_mob_to_attach_list(long, CharData *);
-void add_mob_to_load_list(long, CharData *);
-void add_obj_to_attach_list(long, ObjData *);
-void add_obj_to_load_list(long, ObjData *);
-
-void remove_from_obj_lists(long uid);
-void remove_from_mob_lists(long uid);
-
-void process_celebrates(int vnum);
+std::string GetNameMono(int day);
+std::string GetNamePoly(int day);
+std::string GetNameReal(int day);
+int GetMudDay();
+int GetRealDay();
+void Load();
+void Sanitize();
+void RemoveFromObjLists(long uid);
+void RemoveFromMobLists(long uid);
+void ProcessCelebrates(int vnum);
 
 };
 

@@ -473,7 +473,7 @@ void town_shop_keepers() {
 			&& zone_list.find(world[ch->in_room]->zone_rn) == zone_list.end()) {
 			int rnum_start, rnum_end;
 			if (GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_end)) {
-				CharData *mob = read_mobile(1901, VIRTUAL);
+				CharData *mob = ReadMobile(1901, kVirtual);
 				if (mob) {
 					PlaceCharToRoom(mob, number(rnum_start, rnum_end));
 				}

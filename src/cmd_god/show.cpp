@@ -290,7 +290,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_types[zone_table[zone].type].name,
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
-			 (zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
+			 (zone_table[zone].reset_mode == 3) ? (CanBeReset(zone) ? 1 : 0) : (IsZoneEmpty(zone) ? 1 : 0),
 			 world[rfirst]->vnum,
 			 world[rlast]->vnum,
 			 zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
@@ -527,11 +527,11 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!NAME_GOD(vict)) {
 				sprintf(buf + strlen(buf), "Имя никем не одобрено!\r\n");
 			} else if (NAME_GOD(vict) < 1000) {
-				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
+				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
-				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(vict)));
+				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)));
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
@@ -884,7 +884,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			Player t_chdata;
 			Player *chdata = &t_chdata;
-			if (load_char(value, chdata, ELoadCharFlags::kFindId) < 0) {
+			if (LoadPlayerCharacter(value, chdata, ELoadCharFlags::kFindId) < 0) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}

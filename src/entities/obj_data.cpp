@@ -130,7 +130,7 @@ void ObjData::purge() {
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
-	celebrates::remove_from_obj_lists(this->get_uid());
+	celebrates::RemoveFromObjLists(this->get_uid());
 }
 
 int ObjData::get_serial_num() {

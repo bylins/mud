@@ -196,7 +196,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	// копнули мертвяка
 	if (number(1, dig_vars.mob_chance) == 1) {
 		vnum = number(dig_vars.mob_vnum_start, dig_vars.mob_vnum_end);
-		mob = read_mobile(GetMobRnum(vnum), REAL);
+		mob = ReadMobile(GetMobRnum(vnum), kReal);
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
 				MOB_FLAGS(mob).set(EMobFlag::kAgressive);

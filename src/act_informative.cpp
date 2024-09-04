@@ -3226,7 +3226,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) && NAME_BAD(tch)) {
-				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
+				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById(NAME_ID_GOD(tch)));
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
@@ -3432,7 +3432,7 @@ void sendWhoami(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	} else {
 		const int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
-		sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
+		sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(ch)));
 		*buf1 = UPPER(*buf1);
 
 		static const char *by_rank_god = "Богом";

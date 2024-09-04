@@ -1288,7 +1288,7 @@ struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
   return (nullptr);
 }
 
-void free_alias(struct alias_data *a) {
+void FreeAlias(struct alias_data *a) {
   if (a->alias)
 	free(a->alias);
   if (a->replacement)
@@ -1323,7 +1323,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// is this an alias we've already defined?
 	if ((a = find_alias(GET_ALIASES(ch), arg)) != nullptr) {
 	  REMOVE_FROM_LIST(a, GET_ALIASES(ch));
-	  free_alias(a);
+		FreeAlias(a);
 	}
 	// if no replacement string is specified, assume we want to delete
 	if (!*repl) {
@@ -2279,7 +2279,7 @@ void do_entergame(DescriptorData *d) {
   // with the copyover patch, this next line goes in enter_player_game()
   d->character->id = GET_IDNUM(d->character);
   chardata_by_uid[d->character->id] = d->character.get();
-  GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
+  GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
   d->character->set_last_logon(time(nullptr));
 //	player_table[GetPtableByUnique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
   player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
@@ -2501,7 +2501,7 @@ int create_unique() {
 
   do {
 	unique = (number(0, 64) << 24) + (number(0, 255) << 16) + (number(0, 255) << 8) + (number(0, 255));
-  } while (correct_unique(unique));
+  } while (IsCorrectUnique(unique));
 
   return (unique);
 }
@@ -2552,7 +2552,7 @@ ch->set_level(kLvlImplementator);
   element.last_ip = nullptr;//added by WorM последний айпи
 
   if (GetRealLevel(ch) > kLvlGod) {
-	set_god_skills(ch);
+	  SetGodSkills(ch);
 	set_god_morphs(ch);
   }
 
@@ -2609,7 +2609,7 @@ ch->set_level(kLvlImplementator);
 */
 int create_entry(PlayerIndexElement &element) {
   // create new save activity
-  element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
+  element.activity = number(0, kObjectSaveActivity - 1);
   element.timer = nullptr;
 
   return static_cast<int>(player_table.Append(element));
@@ -2843,7 +2843,7 @@ void nanny(DescriptorData *d, char *argument) {
 	  } else {
 		if (sscanf(argument, "%s %s", pwd_name, pwd_pwd) == 2) {
 		  if (parse_exist_name(pwd_name, tmp_name)
-			  || (player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId)) < 0) {
+			  || (player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId)) < 0) {
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		  }
@@ -2876,7 +2876,7 @@ void nanny(DescriptorData *d, char *argument) {
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		  } else if (!Is_Valid_Dc(tmp_name)) {
-			player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
+			player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 			d->character->set_pfilepos(player_i);
 			if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
 			  SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
@@ -2891,7 +2891,7 @@ void nanny(DescriptorData *d, char *argument) {
 		  }
 		}
 
-		player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
+		player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 		if (player_i > -1) {
 		  d->character->set_pfilepos(player_i);
 		  if (PLR_FLAGGED(d->character,
@@ -2951,7 +2951,7 @@ void nanny(DescriptorData *d, char *argument) {
 			return;
 		  }
 
-		  if (cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
+		  if (CmpPtableByName(tmp_name, kMinNameLength) >= 0) {
 			SEND_TO_Q
 			("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 			 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
@@ -3036,7 +3036,7 @@ void nanny(DescriptorData *d, char *argument) {
 		return;
 	  }
 
-	  player_i = load_char(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
+	  player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 	  is_player_deleted = false;
 	  if (player_i > -1) {
 		is_player_deleted = PLR_FLAGGED(d->character, EPlrFlag::kDeleted);
@@ -3057,7 +3057,7 @@ void nanny(DescriptorData *d, char *argument) {
 	  }
 
 	  // skip name check for deleted players
-	  if (!is_player_deleted && cmp_ptable_by_name(tmp_name, kMinNameLength) >= 0) {
+	  if (!is_player_deleted && CmpPtableByName(tmp_name, kMinNameLength) >= 0) {
 		SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
 				  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 				  "Имя  : ", d);
@@ -4170,7 +4170,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 void DeletePcByHimself(const char *name) {
 	Player t_st;
 	Player *st = &t_st;
-	int id = load_char(name, st, ELoadCharFlags::kFindId);
+	int id = LoadPlayerCharacter(name, st, ELoadCharFlags::kFindId);
 
 	if (id >= 0) {
 		PLR_FLAGS(st).set(EPlrFlag::kDeleted);

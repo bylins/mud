@@ -38,15 +38,15 @@ MobRnum GetMobRnum(MobVnum vnum);
 ObjRnum GetObjRnum(ObjVnum vnum);
 void ExtractTagFromArgument(char *argument, char *tag);
 void BootMudDataBase();
-void zone_update();
-bool can_be_reset(ZoneRnum zone);
-long get_id_by_name(char *name);
-int get_uid_by_id(int id);
-long cmp_ptable_by_name(char *name, int len);
-const char *get_name_by_id(long id);
-const char *get_name_by_unique(int unique);
-int get_level_by_unique(long unique);
-long get_lastlogon_by_unique(long unique);
+void ZoneUpdate();
+bool CanBeReset(ZoneRnum zone);
+long GetPlayerIdByName(char *name);
+int GetPlayerUidByName(int id);
+long CmpPtableByName(char *name, int len);
+const char *GetNameById(long id);
+const char *GetPlayerNameByUnique(int unique);
+int GetLevelByUnique(long unique);
+long GetLastlogonByUnique(long unique);
 long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
@@ -56,20 +56,19 @@ void initIngredientsMagic();
 void InitZoneTypes();
 void InitPortals();
 int AllocateBufferForFile(const char *name, char **destination_buf);
-
-int load_char(const char *name, CharData *char_element, int load_flags);
-CharData *read_mobile(MobVnum nr, int type);
-int correct_unique(int unique);
+int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags);
+CharData *ReadMobile(MobVnum nr, int type);
+int IsCorrectUnique(int unique);
 bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void FlushPlayerIndex();
-bool is_empty(ZoneRnum zone_nr, bool debug = false);
+bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
 void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn);
 
-#define REAL          0
-#define VIRTUAL       (1 << 0)
+const int kReal		= 0;
+const int kVirtual	= 1 << 0;
 
-CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type = VIRTUAL);
+CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type = kVirtual);
 
 // structure for the reset commands
 struct combat_list_element {
@@ -181,9 +180,9 @@ struct reset_q_type {
 	struct reset_q_element *tail;
 };
 
-const int OBJECT_SAVE_ACTIVITY = 300;
-const int PLAYER_SAVE_ACTIVITY = 305;
-const int MAX_SAVED_ITEMS = 1000;
+const int kObjectSaveActivity = 300;
+const int kPlayerSaveActivity = 305;
+const int kMaxSavedItems = 1000;
 
 class PlayerIndexElement {
  public:
@@ -254,7 +253,7 @@ extern TimeInfoData time_info;
 
 extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);
 
-void paste_mobiles();
+void PasteMobiles();
 
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_mortal_start_room;
@@ -263,7 +262,7 @@ extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
 long GetPlayerTablePosByName(const char *name);
-void free_alias(struct alias_data *a);
+void FreeAlias(struct alias_data *a);
 
 class PlayersIndex : public std::vector<PlayerIndexElement> {
  public:
@@ -315,30 +314,23 @@ inline SaveInfo *SAVEINFO(const size_t number) {
 	return player_table[number].timer;
 }
 
-inline void clear_saveinfo(const size_t number) {
+inline void ClearSaveinfo(const size_t number) {
 	delete player_table[number].timer;
 	player_table[number].timer = nullptr;
 }
 
-void recreate_saveinfo(size_t number);
-
-void set_god_skills(CharData *ch);
+void RecreateSaveinfo(size_t number);
+void SetGodSkills(CharData *ch);
 void CheckRoomForIncompatibleFlags(int rnum);
-
-void set_test_data(CharData *mob);
-
+void SetTestData(CharData *mob);
 void SetZoneMobLevel();
-
-//bool can_snoop(CharacterData *imm, CharacterData *vict);
-
-//extern insert_wanted_gem iwg;
 
 class GameLoader {
  public:
 	GameLoader() = default;
 
 	static void BootWorld();
-	static void BootIndex(const EBootType mode);
+	static void BootIndex(EBootType mode);
 
  private:
 	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);

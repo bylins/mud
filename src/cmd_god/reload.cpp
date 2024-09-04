@@ -67,7 +67,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		load_morphs();
 		GlobalDrop::init();
 		offtop_system::Init();
-		celebrates::load();
+		celebrates::Load();
 		HelpSystem::reload_all();
 		Remort::init();
 		Noob::init();
@@ -180,7 +180,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "named")) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
-		celebrates::load();
+		celebrates::Load();
 	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {

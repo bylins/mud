@@ -614,7 +614,7 @@ void pk_list_sprintf(CharData *ch, char *buff) {
 	strcat(buff, "ПК список:\r\n");
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (pk = ch->pk_list; pk; pk = pk->next) {
-		const char *temp = get_name_by_unique(pk->unique);
+		const char *temp = GetPlayerNameByUnique(pk->unique);
 		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp ? temp : "<УДАЛЕН>", pk->kill_num, pk->revenge_num);
 
 		if (pk->clan_exp > time(nullptr)) {
@@ -669,7 +669,7 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			const char *temp = get_name_by_unique(pk->unique);
+			const char *temp = GetPlayerNameByUnique(pk->unique);
 			if (!temp) {
 				continue;
 			}
@@ -843,7 +843,7 @@ void save_pkills(CharData *ch, FILE *saved) {
 
 	fprintf(saved, "Pkil:\n");
 	for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, EPlrFlag::kDeleted);) {
-		if (pk->kill_num > 0 && correct_unique(pk->unique)) {
+		if (pk->kill_num > 0 && IsCorrectUnique(pk->unique)) {
 			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(nullptr)) {
 				CharData *result = nullptr;
 				for (const auto &tch : character_list) {

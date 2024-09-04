@@ -1226,7 +1226,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 						"<%s> {%d} открыл трупный кошелек %s.",
 						ch->get_name().c_str(),
 						GET_ROOM_VNUM(ch->in_room),
-						get_name_by_unique(GET_OBJ_VAL(obj, 3)));
+						GetPlayerNameByUnique(GET_OBJ_VAL(obj, 3)));
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				system_obj::process_open_purse(ch, obj);
 				return;

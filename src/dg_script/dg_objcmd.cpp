@@ -510,7 +510,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	}
 
 	if (utils::IsAbbr(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == nullptr) {
+		if ((mob = ReadMobile(number, kVirtual)) == nullptr) {
 			obj_log(obj, trig, "oload: bad mob vnum");
 			return;
 		}

@@ -992,7 +992,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 	} else {
 		// принимающий оффлайн
 		CharData::shared_ptr t_vict(new Player); // TODO: переделать на стек
-		if (load_char(name.c_str(), t_vict.get(), ELoadCharFlags::kFindId) < 0) {
+		if (LoadPlayerCharacter(name.c_str(), t_vict.get(), ELoadCharFlags::kFindId) < 0) {
 			SendMsgToChar(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
 			return;
 		}

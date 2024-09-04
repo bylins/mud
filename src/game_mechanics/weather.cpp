@@ -56,9 +56,9 @@ void gods_day_now(CharData *ch) {
 	*poly = 0;
 	*real = 0;
 
-	std::string mono_name = celebrates::get_name_mono(celebrates::get_mud_day());
-	std::string poly_name = celebrates::get_name_poly(celebrates::get_mud_day());
-	std::string real_name = celebrates::get_name_real(celebrates::get_real_day());
+	std::string mono_name = celebrates::GetNameMono(celebrates::GetMudDay());
+	std::string poly_name = celebrates::GetNamePoly(celebrates::GetMudDay());
+	std::string real_name = celebrates::GetNameReal(celebrates::GetRealDay());
 
 	if (IS_IMMORTAL(ch)) {
 		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));

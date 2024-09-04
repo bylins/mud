@@ -417,7 +417,7 @@ void CharData::purge() {
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
 			player_table[id].remorts = GetRealRemort(this);
-			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
+			player_table[id].activity = number(0, kObjectSaveActivity - 1);
 		}
 	}
 
@@ -437,13 +437,13 @@ void CharData::purge() {
 		ExpireTimedSkill(this, this->timed);
 	}
 
-	celebrates::remove_from_mob_lists(this->id);
+	celebrates::RemoveFromMobLists(this->id);
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
 	if (this->player_specials && !keep_player_specials) {
 		while ((a = GET_ALIASES(this)) != nullptr) {
 			GET_ALIASES(this) = (GET_ALIASES(this))->next;
-			free_alias(a);
+			FreeAlias(a);
 		}
 		if (this->player_specials->poofin)
 			free(this->player_specials->poofin);
