@@ -489,7 +489,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 	if (tempClan->bank > 0) {
 	  Player t_victim;
 	  Player *victim = &t_victim;
-	  if (load_char(tempClan->owner.c_str(), victim, ELoadCharFlags::kFindId) < 0) {
+	  if (LoadPlayerCharacter(tempClan->owner.c_str(), victim, ELoadCharFlags::kFindId) < 0) {
 		log("SYSERROR: error read owner file %s for clan delete (%s:%d)",
 			tempClan->owner.c_str(), __FILE__, __LINE__);
 		return;
@@ -1255,7 +1255,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
   } else {
 	Player p_vict;
 	CharData *vict = &p_vict;
-	if (load_char(name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
+	if (LoadPlayerCharacter(name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
 	  sprintf(buf, "Исключен(а) из дружины '%s'", this->name.c_str());
 		AddKarma(vict, buf, reason);
 	  vict->save_char();
@@ -2112,7 +2112,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 	if (!tch) // если нет онлайн
 	{
 	  cbuf = new Player;
-	  if (load_char(player_table[i].name(), cbuf, ELoadCharFlags::kFindId) > -1) {
+	  if (LoadPlayerCharacter(player_table[i].name(), cbuf, ELoadCharFlags::kFindId) > -1) {
 		GET_LOADROOM(cbuf) = mortal_start_room;
 		cbuf->save_char();
 	  }
@@ -2170,7 +2170,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan, char *reason) {
 	}
 	Player p_vict;
 	CharData *vict = &p_vict;
-	if (load_char(it.second->name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
+	if (LoadPlayerCharacter(it.second->name.c_str(), vict, ELoadCharFlags::kFindId) > -1) {
 	  sprintf(smallbuf, "Исключен(а) из дружины '%s'. (распущена)", clan->get_abbrev().c_str());
 		AddKarma(vict, smallbuf, reason);
 	  vict->save_char();
@@ -3674,7 +3674,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 	  }
 	}
 	char timeBuf[17];
-	time_t tmp_time = get_lastlogon_by_unique(it.first);
+	time_t tmp_time = GetLastlogonByUnique(it.first);
 	if (tmp_time <= 0) tmp_time = time(nullptr);
 	strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&tmp_time));
 
@@ -3686,7 +3686,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 		break;
 	  case SORT_STAT_BY_MONEY: lSortParam = it.second->money;
 		break;
-	  case SORT_STAT_BY_LOGON: lSortParam = get_lastlogon_by_unique(it.first);
+	  case SORT_STAT_BY_LOGON: lSortParam = GetLastlogonByUnique(it.first);
 		break;
 	  case SORT_STAT_BY_NAME: {
 		pcFirstChar[0] = LOWER(it.second->name[0]);

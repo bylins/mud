@@ -28,7 +28,7 @@ namespace {
 /// \param flag - ITEM_XXX
 ///
 void remove_tmp_extra(ObjData *obj, EObjFlag flag) {
-	auto proto = get_object_prototype(GET_OBJ_VNUM(obj));
+	auto proto = GetObjectPrototype(GET_OBJ_VNUM(obj));
 	if (!proto->has_flag(flag)) {
 		obj->unset_extraflag(flag);
 	}

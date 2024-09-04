@@ -2228,7 +2228,7 @@ void SpellSummonAngel(CharData *ch) {
 		SendMsgToRoom("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
 		return;
 	};
-	if (!(mob = read_mobile(-mob_num, VIRTUAL))) {
+	if (!(mob = ReadMobile(-mob_num, kVirtual))) {
 		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
@@ -2415,7 +2415,7 @@ void SpellMentalShadow(CharData *ch) {
 		return;
 	};
 
-	if (!(mob = read_mobile(-mob_num, VIRTUAL))) {
+	if (!(mob = ReadMobile(-mob_num, kVirtual))) {
 		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}

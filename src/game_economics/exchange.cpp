@@ -479,8 +479,8 @@ int exchange_information(CharData *ch, char *arg) {
 		strcat(buf, "\n");
 	}
 	sprintf(buf2, "%s",
-			get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item)) ?
-			get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item)) : "(null)");
+			GetNameById(GET_EXCHANGE_ITEM_SELLERID(item)) ?
+			GetNameById(GET_EXCHANGE_ITEM_SELLERID(item)) : "(null)");
 	*buf2 = UPPER(*buf2);
 	strcat(buf, "Продавец ");
 	strcat(buf, buf2);
@@ -584,12 +584,12 @@ int exchange_purchase(CharData *ch, char *arg) {
 	seller = get_char_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
 	if (seller == nullptr) {
-		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
+		const char *seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 
 		auto seller_ptr = std::make_unique<Player>();
 		seller = seller_ptr.get(); // TODO: переделать на стек
 		if (seller_name == nullptr
-			|| load_char(seller_name, seller, ELoadCharFlags::kFindId) < 0) {
+			|| LoadPlayerCharacter(seller_name, seller, ELoadCharFlags::kFindId) < 0) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			//edited by WorM 2011.05.21
@@ -1143,7 +1143,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		"--------------------------------------------------------------------------------------------\r\n";
 
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-		if (show_type == 1 && !isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))
+		if (show_type == 1 && !isname(GET_NAME(ch), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
 		// ну идиотизм сидеть статить 5-10 страниц резных
 		if (utils::IsAbbr("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())

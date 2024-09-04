@@ -138,7 +138,7 @@ void insert_command(const std::string &command, int fill_mode, int other_flags) 
 // * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
 void insert_default_command(long uid) {
 	std::map<std::string, std::string>::const_iterator it;
-	if (get_level_by_unique(uid) < kLvlImmortal)
+	if (GetLevelByUnique(uid) < kLvlImmortal)
 		it = group_list.find("default_demigod");
 	else
 		it = group_list.find("default");
@@ -293,7 +293,7 @@ bool IsContainedInGodsList(const std::string &name, long unique) {
 void LoadGodBoards() {
 	Boards::Static::clear_god_boards();
 	for (auto & god : god_list) {
-		int level = get_level_by_unique(god.first);
+		int level = GetLevelByUnique(god.first);
 		if (level < kLvlImmortal) continue;
 		Boards::Static::init_god_board(god.first, god.second.name);
 	}

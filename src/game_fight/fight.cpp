@@ -40,7 +40,6 @@
 std::list<combat_list_element> combat_list;
 
 extern int r_helled_start_room;
-extern MobRaceListType mobraces_list;
 extern CharData *mob_proto;
 extern DescriptorData *descriptor_list;
 // External procedures

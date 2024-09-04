@@ -419,13 +419,13 @@ void mredit_disp_ingr_menu(DescriptorData *d) {
 	int index = OLC_NUM(d);
 	trec = OLC_MREC(d);
 	get_char_cols(d->character.get());
-	auto tobj = get_object_prototype(trec->obj_proto);
+	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
 		objname = tobj->get_PName(0);
 	} else {
 		objname = "Нет";
 	}
-	tobj = get_object_prototype(trec->parts[index].proto);
+	tobj = GetObjectPrototype(trec->parts[index].proto);
 	if (trec->parts[index].proto && tobj) {
 		ingrname = tobj->get_PName(0);
 	} else {
@@ -458,7 +458,7 @@ void mredit_disp_menu(DescriptorData *d) {
 	string tmpstr, objname, skillname;
 	trec = OLC_MREC(d);
 	get_char_cols(d->character.get());
-	auto tobj = get_object_prototype(trec->obj_proto);
+	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
 		objname = tobj->get_PName(0);
 	} else {
@@ -488,7 +488,7 @@ void mredit_disp_menu(DescriptorData *d) {
 			grn, nrm, yel, (trec->locked ? "Да" : "Нет"));
 	tmpstr = string(tmpbuf);
 	for (int i = 0; i < MAX_PARTS; i++) {
-		tobj = get_object_prototype(trec->parts[i].proto);
+		tobj = GetObjectPrototype(trec->parts[i].proto);
 		if (trec->parts[i].proto && tobj) {
 			objname = tobj->get_PName(0);
 		} else {
@@ -523,7 +523,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		skill_name = "Нет";
 		obj_name = str_dup("Нет");
 		trec = make_recepts[i];
-		auto obj = get_object_prototype(trec->obj_proto);
+		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
 			obj_name = str_dup(obj->get_PName(0).substr(0, 39).c_str());
 			utils::RemoveColors(obj_name);
@@ -540,7 +540,7 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		tmpstr += string(tmpbuf);
 		for (int j = 0; j < MAX_PARTS; j++) {
 			if (trec->parts[j].proto != 0) {
-				obj = get_object_prototype(trec->parts[j].proto);
+				obj = GetObjectPrototype(trec->parts[j].proto);
 				if (obj) {
 					obj_name = str_dup(obj->get_PName(0).substr(0, 34).c_str());
 					utils::RemoveColors(obj_name);
@@ -616,7 +616,7 @@ void do_make_item(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*tmpbuf) {
 		// Выводим тут список предметов которые можем сделать.
 		for (size_t i = 0; i < canlist.size(); i++) {
-			auto tobj = get_object_prototype(canlist[i]->obj_proto);
+			auto tobj = GetObjectPrototype(canlist[i]->obj_proto);
 			if (!tobj)
 				return;
 			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(0).c_str());
@@ -1151,7 +1151,7 @@ MakeRecept *MakeReceptList::get_by_name(string &rname) {
 	}
 	int j = 0;
 	while (p != recepts.end()) {
-		auto tobj = get_object_prototype((*p)->obj_proto);
+		auto tobj = GetObjectPrototype((*p)->obj_proto);
 		if (!tobj) {
 			return 0;
 		}
@@ -1597,7 +1597,7 @@ int MakeRecept::make(CharData *ch) {
 		SendMsgToChar("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
 		return (false);
 	}
-	auto tobj = get_object_prototype(obj_proto);
+	auto tobj = GetObjectPrototype(obj_proto);
 	if (!tobj) {
 		return 0;
 	}

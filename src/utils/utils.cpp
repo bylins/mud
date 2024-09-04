@@ -35,7 +35,7 @@
 #include "entities/room_data.h"
 #include "modify.h"
 #include "house.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "depot.h"
 #include "obj_save.h"
 #include "game_fight/fight.h"
@@ -73,7 +73,6 @@ extern std::pair<int, int> TotalMemUse();
 // local functions
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
 TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
-void PruneCrlf(char *txt);
 bool IsValidEmail(const char *address);
 
 // external functions

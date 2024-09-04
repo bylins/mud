@@ -9,8 +9,9 @@
 #include "communication/social.h"
 #include "game_crafts/jewelry.h"
 #include "game_crafts/mining.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "corpse.h"
+#include "game_mechanics/celebrates.h"
 #include "game_mechanics/deathtrap.h"
 #include "game_mechanics/dungeons.h"
 #include "game_mechanics/city_guards.h"
@@ -46,6 +47,7 @@
 #include "statistics/top.h"
 #include "backtrace.h"
 #include "dg_script/dg_db_scripts.h"
+#include "game_mechanics/mob_races.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -139,8 +141,6 @@ void AssignRooms();
 void InitSpecProcs();
 void BuildPlayerIndex();
 int ReadFileToBuffer(const char *name, char *destination_buf);
-int AllocateBufferForFile(const char *name, char **destination_buf);
-void DoReboot(CharData *ch, char *argument, int cmd, int subcmd);
 void CheckStartRooms();
 void AddVirtualRoomsToAllZones();
 void CalculateFirstAndLastRooms();
@@ -155,20 +155,15 @@ void BuildPlayerIndexNew();
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void InitBasicValues();
-void InitPortals();
-void initIngredientsMagic();
-void InitZoneTypes();
 TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
 void LoadMessages();
 void SortCommands();
 void ReadCharacterInvalidNamesList();
 int CompareSocials(const void *a, const void *b);
-void PruneCrlf(char *txt);
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void CalcEaster();
-void LoadMobraces();
 
 // external
 extern int number_of_social_messages;
@@ -183,7 +178,6 @@ extern RoomVnum unreg_start_room;
 extern struct MonthTemperature year_temp[];
 extern struct PCCleanCriteria pclean_criteria[];
 
-extern void LoadProxyList();
 extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
@@ -668,37 +662,6 @@ void ExtractTagFromArgument(char *argument, char *tag) {
 *  routines for booting the system                                       *
 *************************************************************************/
 
-void GoBootSocials() {
-	int i;
-
-	if (soc_mess_list) {
-		for (i = 0; i < number_of_social_messages; i++) {
-			if (soc_mess_list[i].char_no_arg)
-				free(soc_mess_list[i].char_no_arg);
-			if (soc_mess_list[i].others_no_arg)
-				free(soc_mess_list[i].others_no_arg);
-			if (soc_mess_list[i].char_found)
-				free(soc_mess_list[i].char_found);
-			if (soc_mess_list[i].others_found)
-				free(soc_mess_list[i].others_found);
-			if (soc_mess_list[i].vict_found)
-				free(soc_mess_list[i].vict_found);
-			if (soc_mess_list[i].not_found)
-				free(soc_mess_list[i].not_found);
-		}
-		free(soc_mess_list);
-	}
-	if (soc_keys_list) {
-		for (i = 0; i < number_of_social_commands; i++)
-			if (soc_keys_list[i].keyword)
-				free(soc_keys_list[i].keyword);
-		free(soc_keys_list);
-	}
-	number_of_social_messages = -1;
-	number_of_social_commands = -1;
-	GameLoader::BootIndex(DB_BOOT_SOCIAL);
-}
-
 void LoadSheduledReboot() {
 	FILE *sch;
 	int day = 0, hour = 0, minutes = 0, numofreaded = 0, timeOffset = 0;
@@ -880,182 +843,6 @@ void QuestBodrich::LoadRewards() {
 		this->rewards.insert(std::pair<int, std::vector<QuestBodrichRewards>>(class_.attribute("id").as_int(),
 																			  tmp_array));
 	}
-}
-
-/*
- * Too bad it doesn't check the return values to let the user
- * know about -1 values.  This will result in an 'Okay.' to a
- * 'reload' command even when the string was not replaced.
- * To fix later, if desired. -gg 6/24/99
- */
-void DoReboot(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	argument = one_argument(argument, arg);
-
-	if (!str_cmp(arg, "all") || *arg == '*') {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0) {
-			PruneCrlf(greetings);
-		}
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-		AllocateBufferForFile(MOTD_FILE, &motd);
-		AllocateBufferForFile(RULES_FILE, &rules);
-		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-		AllocateBufferForFile(INFO_FILE, &info);
-		AllocateBufferForFile(POLICIES_FILE, &policies);
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-		GoBootSocials();
-		initIngredientsMagic();
-		InitZoneTypes();
-		InitPortals();
-		LoadSheduledReboot();
-		oload_table.init();
-		ObjData::InitSetTable();
-		LoadMobraces();
-		load_morphs();
-		GlobalDrop::init();
-		offtop_system::Init();
-		Celebrates::load();
-		HelpSystem::reload_all();
-		Remort::init();
-		Noob::init();
-		stats_reset::init();
-		Bonus::bonus_log_load();
-		DailyQuest::LoadFromFile();
-	} else if (!str_cmp(arg, "portals"))
-		InitPortals();
-	else if (!str_cmp(arg, "abilities")) {
-		MUD::CfgManager().ReloadCfg("abilities");
-	} else if (!str_cmp(arg, "skills")) {
-		MUD::CfgManager().ReloadCfg("skills");
-	} else if (!str_cmp(arg, "spells")) {
-		MUD::CfgManager().ReloadCfg("spells");
-	} else if (!str_cmp(arg, "feats")) {
-		MUD::CfgManager().ReloadCfg("feats");
-	} else if (!str_cmp(arg, "classes")) {
-		MUD::CfgManager().ReloadCfg("classes");
-	} else if (!str_cmp(arg, "guilds")) {
-		MUD::CfgManager().ReloadCfg("guilds");
-	} else if (!str_cmp(arg, "currencies")) {
-		MUD::CfgManager().ReloadCfg("currencies");
-	} else if (!str_cmp(arg, "imagic"))
-		initIngredientsMagic();
-	else if (!str_cmp(arg, "ztypes"))
-		InitZoneTypes();
-	else if (!str_cmp(arg, "oloadtable"))
-		oload_table.init();
-	else if (!str_cmp(arg, "setstuff")) {
-		ObjData::InitSetTable();
-		HelpSystem::reload(HelpSystem::STATIC);
-	} else if (!str_cmp(arg, "immlist"))
-		AllocateBufferForFile(IMMLIST_FILE, &immlist);
-	else if (!str_cmp(arg, "credits"))
-		AllocateBufferForFile(CREDITS_FILE, &credits);
-	else if (!str_cmp(arg, "motd"))
-		AllocateBufferForFile(MOTD_FILE, &motd);
-	else if (!str_cmp(arg, "rules"))
-		AllocateBufferForFile(RULES_FILE, &rules);
-	else if (!str_cmp(arg, "help"))
-		AllocateBufferForFile(HELP_PAGE_FILE, &help);
-	else if (!str_cmp(arg, "info"))
-		AllocateBufferForFile(INFO_FILE, &info);
-	else if (!str_cmp(arg, "policy"))
-		AllocateBufferForFile(POLICIES_FILE, &policies);
-	else if (!str_cmp(arg, "handbook"))
-		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
-	else if (!str_cmp(arg, "background"))
-		AllocateBufferForFile(BACKGROUND_FILE, &background);
-	else if (!str_cmp(arg, "namerules"))
-		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-	else if (!str_cmp(arg, "greetings")) {
-		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0)
-			PruneCrlf(greetings);
-	} else if (!str_cmp(arg, "xhelp")) {
-		HelpSystem::reload_all();
-	} else if (!str_cmp(arg, "socials"))
-		GoBootSocials();
-	else if (!str_cmp(arg, "schedule"))
-		LoadSheduledReboot();
-	else if (!str_cmp(arg, "clan")) {
-		skip_spaces(&argument);
-		if (!*argument) {
-			Clan::ClanLoad();
-			return;
-		}
-		Clan::ClanListType::iterator clan;
-		std::string buffer(argument);
-		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-			if (CompareParam(buffer, (*clan)->get_abbrev())) {
-				CreateFileName(buffer);
-				Clan::ClanReload(buffer);
-				SendMsgToChar("Перезагрузка клана.\r\n", ch);
-				break;
-			}
-		}
-	} else if (!str_cmp(arg, "proxy"))
-		LoadProxyList();
-	else if (!str_cmp(arg, "boards"))
-		Boards::Static::reload_all();
-	else if (!str_cmp(arg, "titles"))
-		TitleSystem::load_title_list();
-	else if (!str_cmp(arg, "emails"))
-		RegisterSystem::load();
-	else if (!str_cmp(arg, "privilege"))
-		privilege::Load();
-	else if (!str_cmp(arg, "mobraces"))
-		LoadMobraces();
-	else if (!str_cmp(arg, "morphs"))
-		load_morphs();
-	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		skip_spaces(&argument);
-		if (*argument) {
-			long uid = GetUniqueByName(argument);
-			if (uid > 0) {
-				Depot::reload_char(uid, ch);
-			} else {
-				SendMsgToChar("Указанный чар не найден\r\n"
-							  "Формат команды: reload depot <имя чара>.\r\n", ch);
-			}
-		} else {
-			SendMsgToChar("Формат команды: reload depot <имя чара>.\r\n", ch);
-		}
-	} else if (!str_cmp(arg, "globaldrop")) {
-		GlobalDrop::init();
-	} else if (!str_cmp(arg, "offtop")) {
-		offtop_system::Init();
-	} else if (!str_cmp(arg, "shop")) {
-		ShopExt::load(true);
-	} else if (!str_cmp(arg, "named")) {
-		NamedStuff::load();
-	} else if (!str_cmp(arg, "celebrates")) {
-		Celebrates::load();
-	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-		skip_spaces(&argument);
-		if (*argument && is_number(argument)) {
-			SetsDrop::reload(atoi(argument));
-		} else {
-			SetsDrop::reload();
-		}
-	} else if (!str_cmp(arg, "remort")) {
-		Remort::init();
-	} else if (!str_cmp(arg, "noobhelp")) {
-		Noob::init();
-	} else if (!str_cmp(arg, "resetstats")) {
-		stats_reset::init();
-	} else if (!str_cmp(arg, "objsets")) {
-		obj_sets::load();
-	} else if (!str_cmp(arg, "daily")) {
-		DailyQuest::LoadFromFile(ch);
-	} else {
-		SendMsgToChar("Неверный параметр для перезагрузки файлов.\r\n", ch);
-		return;
-	}
-
-	std::string str = fmt::format("{} reload {}.", ch->get_name(), arg);
-	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
-
-	SendMsgToChar(OK, ch);
 }
 
 void InitPortals() {
@@ -1828,9 +1615,8 @@ void BootMudDataBase() {
 	Parcel::load();
 
 	boot_profiler.next_step("Loading celebrates");
-	log("Load Celebrates."); //Polud праздники. используются при ресете зон
-	//Celebrates::load(XmlLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
-	Celebrates::load();
+	log("Load Celebrates.");
+	celebrates::Load();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
@@ -1859,7 +1645,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
-	LoadMobraces();
+	mob_races::LoadMobraces();
 
 	boot_profiler.next_step("Loading morphs");
 	log("Load morphs.");
@@ -2443,7 +2229,7 @@ int calc_boss_value(CharData *mob, int num) {
 	return num;
 }
 
-void set_test_data(CharData *mob) {
+void SetTestData(CharData *mob) {
 	if (!mob) {
 		log("SYSERROR: null mob (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
@@ -2506,224 +2292,6 @@ int CompareSocials(const void *a, const void *b) {
 /*************************************************************************
 *  procedures for resetting, both play-time and boot-time                *
 *************************************************************************/
-
-
-
-int vnum_mobile(char *searchname, CharData *ch) {
-	int nr, found = 0;
-
-	for (nr = 0; nr <= top_of_mobt; nr++) {
-		if (isname(searchname, mob_proto[nr].GetCharAliases())) {
-			sprintf(buf, "%3d. [%5d] %-30s (%s)\r\n", ++found, mob_index[nr].vnum, mob_proto[nr].get_npc_name().c_str(),
-					npc_race_types[mob_proto[nr].player_data.Race - ENpcRace::kBasic]);
-			SendMsgToChar(buf, ch);
-		}
-	}
-	return (found);
-}
-
-int vnum_object(char *searchname, CharData *ch) {
-	int found = 0;
-
-	for (const auto &nr : obj_proto) {
-		if (isname(searchname, nr->get_aliases())) {
-			++found;
-			sprintf(buf, "%3d. [%5d] %s\r\n",
-					found, nr->get_vnum(),
-					nr->get_short_description().c_str());
-			SendMsgToChar(buf, ch);
-		}
-	}
-	return (found);
-}
-
-int vnum_flag(char *searchname, CharData *ch) {
-	int found = 0, plane = 0, counter = 0, plane_offset = 0;
-	bool f = false;
-	std::string out;
-
-// ---------------------- extra_bits
-	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*extra_bits[counter] == '\n') {
-			plane++;
-			plane_offset = 0;
-			continue;
-		}
-		if (utils::IsAbbr(searchname, extra_bits[counter])) {
-			f = true;
-			break;
-		}
-		plane_offset++;
-	}
-	if (f) {
-		for (const auto &i : obj_proto) {
-			if (i->has_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 extra_bits[counter]);
-				out += buf;
-			}
-		}
-	}
-// --------------------- apply_types
-	f = false;
-	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (utils::IsAbbr(searchname, apply_types[counter])) {
-			f = true;
-			break;
-		}
-	}
-	if (f) {
-		for (const auto &i : obj_proto) {
-			for (plane = 0; plane < kMaxObjAffect; plane++) {
-				if (i->get_affected(plane).location == static_cast<EApply>(counter)) {
-					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
-							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description()).c_str(),
-							 apply_types[counter], i->get_affected(plane).modifier);
-					out += buf;
-					continue;
-				}
-			}
-		}
-	}
-// --------------------- weapon affects
-	f = false;
-	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*weapon_affects[counter] == '\n') {
-			plane++;
-			plane_offset = 0;
-			continue;
-		}
-		if (utils::IsAbbr(searchname, weapon_affects[counter])) {
-			f = true;
-			break;
-		}
-		plane_offset++;
-	}
-	if (f) {
-		for (const auto &i : obj_proto) {
-			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 weapon_affects[counter]);
-				out += buf;
-			}
-		}
-	}
-// --------------------- anti_bits
-	f = false;
-	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*anti_bits[counter] == '\n') {
-			plane++;
-			plane_offset = 0;
-			continue;
-		}
-		if (utils::IsAbbr(searchname, anti_bits[counter])) {
-			f = true;
-			break;
-		}
-		plane_offset++;
-	}
-	if (f) {
-		for (const auto &i : obj_proto) {
-			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : запрещен для: %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 anti_bits[counter]);
-				out += buf;
-			}
-		}
-	}
-// --------------------- no_bits
-	f = false;
-	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*no_bits[counter] == '\n') {
-			plane++;
-			plane_offset = 0;
-			continue;
-		}
-		if (utils::IsAbbr(searchname, no_bits[counter])) {
-			f = true;
-			break;
-		}
-		plane_offset++;
-	}
-	if (f) {
-		for (const auto &i : obj_proto) {
-			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset)) {
-				snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : неудобен для: %s\r\n",
-						 ++found, i->get_vnum(),
-						 utils::RemoveColors(i->get_short_description()).c_str(),
-						 no_bits[counter]);
-				out += buf;
-			}
-		}
-	}
-//--------------------------------- skills
-	f = false;
-	ESkill skill_id;
-	for (skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id) {
-		if (FixNameAndFindSkillId(searchname) == skill_id) {
-			f = true;
-			break;
-		}
-	}
-	if (f) {
-		for (const auto &i : obj_proto) {
-			if (i->has_skills()) {
-				auto it = i->get_skills().find(skill_id);
-				if (it != i->get_skills().end()) {
-					snprintf(buf, kMaxStringLength, "%3d. [%7d] %60s : %s, значение: %d\r\n",
-							 ++found, i->get_vnum(),
-							 utils::RemoveColors(i->get_short_description()).c_str(),
-							 MUD::Skill(skill_id).GetName(), it->second);
-					out += buf;
-				}
-			}
-		}
-	}
-	if (!out.empty()) {
-		page_string(ch->desc, out);
-	}
-	return found;
-}
-
-int vnum_room(char *searchname, CharData *ch) {
-	int nr, found = 0;
-
-	for (nr = 0; nr <= top_of_world; nr++) {
-		if (isname(searchname, world[nr]->name)) {
-			sprintf(buf, "%3d. [%7d] %s\r\n", ++found, world[nr]->vnum, world[nr]->name);
-			SendMsgToChar(buf, ch);
-		}
-	}
-	return found;
-}
-
-int vnum_obj_trig(char *searchname, CharData *ch) {
-	int num;
-	if ((num = atoi(searchname)) == 0) {
-		return 0;
-	}
-
-	const auto trigger = obj2triggers.find(num);
-	if (trigger == obj2triggers.end()) {
-		return 0;
-	}
-
-	int found = 0;
-	for (const auto &t : trigger->second) {
-		TrgRnum rnum = GetTriggerRnum(t);
-		sprintf(buf, "%3d. [%5d] %s\r\n", ++found, trig_index[rnum]->vnum, trig_index[rnum]->proto->get_name().c_str());
-		SendMsgToChar(buf, ch);
-	}
-
-	return found;
-}
 
 namespace {
 
@@ -2790,7 +2358,7 @@ int get_test_hp(int lvl) {
 }
 
 // create a new mobile from a prototype
-CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
+CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	int is_corpse = 0;
 	MobRnum i;
 
@@ -2799,7 +2367,7 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 		nr = -nr;
 	}
 
-	if (type == VIRTUAL) {
+	if (type == kVirtual) {
 		if ((i = GetMobRnum(nr)) < 0) {
 			log("WARNING: Mobile vnum %d does not exist in database.", nr);
 			return (nullptr);
@@ -2871,9 +2439,9 @@ CharData *read_mobile(MobVnum nr, int type) {                // and MobRnum
 // мы просто отдаем константный указатель на прототип
  * \param type по дефолту VIRTUAL
  */
-CObjectPrototype::shared_ptr get_object_prototype(ObjVnum nr, int type) {
+CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type) {
 	unsigned i = nr;
-	if (type == VIRTUAL) {
+	if (type == kVirtual) {
 		const int rnum = GetObjRnum(nr);
 		if (rnum < 0) {
 			log("Object (V) %d does not exist in database.", nr);
@@ -2912,7 +2480,7 @@ void after_reset_zone(ZoneRnum nr_zone) {
 const int ZO_DEAD{9999};
 
 // update zone ages, queue for reset if necessary, and dequeue when possible
-void zone_update() {
+void ZoneUpdate() {
 	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
@@ -2947,8 +2515,8 @@ void zone_update() {
 	std::vector<ZoneRnum> zone_repop_list;
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
-			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && is_empty(update_u->zone_to_reset))
-			|| can_be_reset(update_u->zone_to_reset)) {
+			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
+			|| CanBeReset(update_u->zone_to_reset)) {
 			zone_repop_list.push_back(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
@@ -2992,18 +2560,18 @@ void zone_update() {
 		}
 }
 
-bool can_be_reset(ZoneRnum zone) {
+bool CanBeReset(ZoneRnum zone) {
 	if (zone_table[zone].reset_mode != 3)
 		return false;
 // проверяем себя
-	if (!is_empty(zone))
+	if (!IsZoneEmpty(zone))
 		return false;
 // проверяем список B
 	for (auto i = 0; i < zone_table[zone].typeB_count; i++) {
 		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeB_list[i]) {
-				if (!zone_table[zone].typeB_flag[i] || !is_empty(j)) {
+				if (!zone_table[zone].typeB_flag[i] || !IsZoneEmpty(j)) {
 					return false;
 				}
 				break;
@@ -3015,7 +2583,7 @@ bool can_be_reset(ZoneRnum zone) {
 		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
-				if (!is_empty(j)) {
+				if (!IsZoneEmpty(j)) {
 					return false;
 				}
 				break;
@@ -3219,7 +2787,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 	}
 }
 
-void paste_mobiles() {
+void PasteMobiles() {
 	character_list.foreach_on_copy([](const CharData::shared_ptr &character) {
 	  paste_mob(character.get(), character->in_room);
 	});
@@ -3253,201 +2821,6 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
 	mudlog(local_buf, NRM, kLvlGod, SYSLOG, true);
 }
 
-void process_load_celebrate(Celebrates::CelebrateDataPtr &celebrate, int vnum) {
-	Celebrates::CelebrateRoomsList::iterator room;
-	Celebrates::LoadList::iterator load, load_in;
-
-	log("Processing celebrate %s load section for zone %d", celebrate->name.c_str(), vnum);
-
-	if (celebrate->rooms.find(vnum) != celebrate->rooms.end()) {
-		for (room = celebrate->rooms[vnum].begin(); room != celebrate->rooms[vnum].end(); ++room) {
-			RoomRnum rn = GetRoomRnum((*room)->vnum);
-			if (rn != kNowhere) {
-				for (int &trigger : (*room)->triggers) {
-					auto trig = read_trigger(GetTriggerRnum(trigger));
-					if (!add_trigger(world[rn]->script.get(), trig, -1)) {
-						ExtractTrigger(trig);
-					}
-				}
-			}
-
-			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load) {
-				CharData *mob;
-				int i = GetMobRnum((*load)->vnum);
-				if (i > 0
-					&& mob_index[i].total_online < (*load)->max) {
-					mob = read_mobile(i, REAL);
-					if (mob) {
-						for (int &trigger : (*load)->triggers) {
-							auto trig = read_trigger(GetTriggerRnum(trigger));
-							if (!add_trigger(SCRIPT(mob).get(), trig, -1)) {
-								ExtractTrigger(trig);
-							}
-						}
-						load_mtrigger(mob);
-						PlaceCharToRoom(mob, GetRoomRnum((*room)->vnum));
-						Celebrates::add_mob_to_load_list(mob->id, mob);
-						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
-							ObjRnum rnum = GetObjRnum((*load_in)->vnum);
-
-							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world()) {
-								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
-								if (obj) {
-									PlaceObjToInventory(obj.get(), mob);
-									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
-
-									for (int &trigger : (*load_in)->triggers) {
-										auto trig = read_trigger(GetTriggerRnum(trigger));
-										if (!add_trigger(obj->get_script().get(), trig, -1)) {
-											ExtractTrigger(trig);
-										}
-									}
-
-									load_otrigger(obj.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
-								} else {
-									log("{Error] Processing celebrate %s while loading obj %d",
-										celebrate->name.c_str(),
-										(*load_in)->vnum);
-								}
-							}
-						}
-					} else {
-						log("{Error] Processing celebrate %s while loading mob %d",
-							celebrate->name.c_str(),
-							(*load)->vnum);
-					}
-				}
-			}
-			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
-				ObjData *obj_room;
-				ObjRnum rnum = GetObjRnum((*load)->vnum);
-				if (rnum == -1) {
-					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
-					return;
-				}
-				int obj_in_room = 0;
-
-				for (obj_room = world[rn]->contents; obj_room; obj_room = obj_room->get_next_content()) {
-					if (rnum == GET_OBJ_RNUM(obj_room)) {
-						obj_in_room++;
-					}
-				}
-
-				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
-					&& (obj_in_room < (*load)->max)) {
-					const auto obj = world_objects.create_from_prototype_by_vnum((*load)->vnum);
-					if (obj) {
-						for (int &trigger : (*load)->triggers) {
-							auto trig = read_trigger(GetTriggerRnum(trigger));
-							if (!add_trigger(obj->get_script().get(), trig, -1)) {
-								ExtractTrigger(trig);
-							}
-						}
-						load_otrigger(obj.get());
-						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
-
-						PlaceObjToRoom(obj.get(), GetRoomRnum((*room)->vnum));
-
-						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
-							ObjRnum current_obj_rnum = GetObjRnum((*load_in)->vnum);
-
-							if (obj_proto.actual_count(current_obj_rnum)
-								< obj_proto[current_obj_rnum]->get_max_in_world()) {
-								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
-								if (obj_in
-									&& GET_OBJ_TYPE(obj) == EObjType::kContainer) {
-									PlaceObjIntoObj(obj_in.get(), obj.get());
-									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
-
-									for (int &trigger : (*load_in)->triggers) {
-										auto trig = read_trigger(GetTriggerRnum(trigger));
-										if (!add_trigger(obj_in->get_script().get(), trig, -1)) {
-											ExtractTrigger(trig);
-										}
-									}
-
-									load_otrigger(obj_in.get());
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
-								} else {
-									log("{Error] Processing celebrate %s while loading obj %d",
-										celebrate->name.c_str(),
-										(*load_in)->vnum);
-								}
-							}
-						}
-					} else {
-						log("{Error] Processing celebrate %s while loading mob %d",
-							celebrate->name.c_str(),
-							(*load)->vnum);
-					}
-				}
-			}
-		}
-	}
-}
-
-void process_attach_celebrate(Celebrates::CelebrateDataPtr &celebrate, int zone_vnum) {
-	log("Processing celebrate %s attach section for zone %d", celebrate->name.c_str(), zone_vnum);
-
-	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end()) {
-		//поскольку единственным доступным способом получить всех мобов одного внума является
-		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
-		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
-		for (const auto &ch : character_list) {
-			const auto rnum = ch->get_rnum();
-			if (rnum > 0
-				&& list.find(mob_index[rnum].vnum) != list.end()) {
-				for (int &it : list[mob_index[rnum].vnum]) {
-					auto trig = read_trigger(GetTriggerRnum(it));
-					if (!add_trigger(SCRIPT(ch).get(), trig, -1)) {
-						ExtractTrigger(trig);
-					}
-				}
-
-				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
-			}
-		}
-	}
-
-	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end()) {
-		Celebrates::AttachList list = celebrate->objsToAttach[zone_vnum];
-
-		world_objects.foreach([&](const ObjData::shared_ptr &o) {
-		  if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end()) {
-			  for (auto it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it) {
-				  auto trig = read_trigger(GetTriggerRnum(*it));
-				  if (!add_trigger(o->get_script().get(), trig, -1)) {
-					  ExtractTrigger(trig);
-				  }
-			  }
-
-			  Celebrates::add_obj_to_attach_list(o->get_uid(), o.get());
-		  }
-		});
-	}
-}
-
-void process_celebrates(int vnum) {
-	Celebrates::CelebrateDataPtr mono = Celebrates::get_mono_celebrate();
-	Celebrates::CelebrateDataPtr poly = Celebrates::get_poly_celebrate();
-	Celebrates::CelebrateDataPtr real = Celebrates::get_real_celebrate();
-
-	if (mono) {
-		process_load_celebrate(mono, vnum);
-		process_attach_celebrate(mono, vnum);
-	}
-
-	if (poly) {
-		process_load_celebrate(poly, vnum);
-		process_attach_celebrate(poly, vnum);
-	}
-	if (real) {
-		process_load_celebrate(real, vnum);
-		process_attach_celebrate(real, vnum);
-	}
-}
-
 // Выполить команду, только если предыдущая успешна
 #define        CHECK_SUCCESS        1
 // Команда не должна изменить флаг
@@ -3478,22 +2851,22 @@ class ZoneReset {
  public:
   explicit ZoneReset(const ZoneRnum zone) : m_zone_rnum(zone) {}
 
-  void reset();
+  void Reset();
 
  private:
-  [[nodiscard]] bool handle_zone_Q_command(MobRnum rnum) const;
+  [[nodiscard]] bool HandleZoneCmdQ(const MobRnum rnum) const;
 
   // execute the reset command table of a given zone
-  void reset_zone_essential();
+  void ResetZoneEssential();
 
   ZoneRnum m_zone_rnum;
 };
 
-void ZoneReset::reset() {
+void ZoneReset::Reset() {
 	utils::CExecutionTimer timer;
 
 	if (GlobalObjects::stats_sender().ready()) {
-		reset_zone_essential();
+		ResetZoneEssential();
 		const auto execution_time = timer.delta();
 
 		influxdb::Record record("zone_reset");
@@ -3502,11 +2875,11 @@ void ZoneReset::reset() {
 		record.add_field("duration", execution_time.count());
 		GlobalObjects::stats_sender().send(record);
 	} else {
-		reset_zone_essential();
+		ResetZoneEssential();
 	}
 }
 
-bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) const {
+bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 	utils::CExecutionTimer overall_timer;
 	bool extracted = false;
 
@@ -3546,7 +2919,7 @@ bool ZoneReset::handle_zone_Q_command(const MobRnum rnum) const {
 	return extracted;
 }
 
-void ZoneReset::reset_zone_essential() {
+void ZoneReset::ResetZoneEssential() {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
 	CharData *mob = nullptr, *leader = nullptr;
@@ -3595,7 +2968,7 @@ void ZoneReset::reset_zone_essential() {
 					mob = nullptr;    //Добавлено Ладником
 					if (mob_index[reset_cmd.arg1].total_online < reset_cmd.arg2 &&
 						(reset_cmd.arg4 < 0 || CountMobsInRoom(reset_cmd.arg1, reset_cmd.arg3) < reset_cmd.arg4)) {
-						mob = read_mobile(reset_cmd.arg1, REAL);
+						mob = ReadMobile(reset_cmd.arg1, kReal);
 						if (!mob) {
 							sprintf(buf,
 									"ZRESET: ошибка! моб %d  в зоне %d не существует",
@@ -3648,7 +3021,7 @@ void ZoneReset::reset_zone_essential() {
 					break;
 
 				case 'Q':
-					if (handle_zone_Q_command(reset_cmd.arg1)) {
+					if (HandleZoneCmdQ(reset_cmd.arg1)) {
 						curr_state = 1;
 					}
 
@@ -3964,7 +3337,7 @@ void ZoneReset::reset_zone_essential() {
 
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
-	process_celebrates(zone_table[m_zone_rnum].vnum);
+	celebrates::ProcessCelebrates(zone_table[m_zone_rnum].vnum);
 	int rnum_start = 0;
 	int rnum_stop = 0;
 
@@ -4021,7 +3394,7 @@ void ZoneReset::reset_zone_essential() {
 
 void ResetZone(ZoneRnum zone) {
 	ZoneReset zreset(zone);
-	zreset.reset();
+	zreset.Reset();
 }
 
 // Ищет RNUM первой и последней комнаты зоны
@@ -4036,18 +3409,18 @@ int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
 }
 
 // for use in ResetZone; return true if zone 'nr' is free of PC's
-bool is_empty(ZoneRnum zone_nr, bool debug) {
+bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 	int rnum_start, rnum_stop;
 	static ZoneRnum last_zone_nr = 0;
 	static bool result;
 	if (debug) {
-		sprintf(buf, "is_empty чек. Зона %d", zone_table[zone_nr].vnum);
+		sprintf(buf, "Is empty check. Зона %d", zone_table[zone_nr].vnum);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	if (last_zone_nr == zone_nr) {
 		if (debug) {
 			sprintf(buf,
-					"is_empty повтор. Зона %d, прошлый запрос %d",
+					"Is empty repeat. Зона %d, прошлый запрос %d",
 					zone_table[zone_nr].vnum,
 					zone_table[last_zone_nr].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -4125,10 +3498,11 @@ int CountMobsInRoom(int m_num, int r_num) {
 *  stuff related to the save/load player system                          *
 *************************************************************************/
 
-long cmp_ptable_by_name(char *name, int len) {
+long CmpPtableByName(char *name, int len) {
 	len = std::min(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
-	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
+	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here.
+	 * TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
 		const char *pname = player_table[i].name();
 		if (!strn_cmp(pname, arg, std::min(len, static_cast<int>(strlen(pname))))) {
@@ -4165,7 +3539,7 @@ long GetPtableByUnique(long unique) {
 	return 0;
 }
 
-long get_id_by_name(char *name) {
+long GetPlayerIdByName(char *name) {
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
@@ -4177,7 +3551,7 @@ long get_id_by_name(char *name) {
 	return (-1);
 }
 
-int get_uid_by_id(int id) {
+int GetPlayerUidByName(int id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.id() == id) {
@@ -4187,7 +3561,7 @@ int get_uid_by_id(int id) {
 	return -1;
 }
 
-const char *get_name_by_id(long id) {
+const char *GetNameById(long id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
 		if (i.id() == id) {
@@ -4197,7 +3571,7 @@ const char *get_name_by_id(long id) {
 	return "";
 }
 
-const char *get_name_by_unique(int unique) {
+const char *GetPlayerNameByUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.unique == unique) {
@@ -4207,7 +3581,7 @@ const char *get_name_by_unique(int unique) {
 	return nullptr;
 }
 
-int get_level_by_unique(long unique) {
+int GetLevelByUnique(long unique) {
 	int level = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
@@ -4219,7 +3593,7 @@ int get_level_by_unique(long unique) {
 	return level;
 }
 
-long get_lastlogon_by_unique(long unique) {
+long GetLastlogonByUnique(long unique) {
 	long time = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
@@ -4231,7 +3605,7 @@ long get_lastlogon_by_unique(long unique) {
 	return time;
 }
 
-int correct_unique(int unique) {
+int IsCorrectUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.unique == unique) {
@@ -4242,7 +3616,7 @@ int correct_unique(int unique) {
 	return false;
 }
 
-void recreate_saveinfo(const size_t number) {
+void RecreateSaveinfo(size_t number) {
 	delete player_table[number].timer;
 	NEWCREATE(player_table[number].timer);
 }
@@ -4251,7 +3625,7 @@ void recreate_saveinfo(const size_t number) {
 * Можно канеш просто в get_skill иммам возвращать 100 или там 200, но тут зато можно
 * потестить че-нить с возможностью покачать скилл во время игры иммом.
 */
-void set_god_skills(CharData *ch) {
+void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
 		if (MUD::Skills().IsValid(i)) {
 			ch->set_skill(i, 200);
@@ -4260,7 +3634,7 @@ void set_god_skills(CharData *ch) {
 }
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
-int load_char(const char *name, CharData *char_element, const int load_flags) {
+int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags) {
 	const auto player_i = char_element->load_char_ascii(name, load_flags);
 	if (player_i > -1) {
 		char_element->set_pfilepos(player_i);
@@ -4485,7 +3859,7 @@ void ActualizePlayersIndex(char *name) {
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, ELoadCharFlags::kReboot) > -1) {
+		if (LoadPlayerCharacter(name, short_ch, ELoadCharFlags::kReboot) > -1) {
 			// если чар удален или им долго не входили, то не создаем для него запись
 			if (!MustBeDeleted(short_ch)) {
 				deleted = 0;
@@ -4508,7 +3882,7 @@ void ActualizePlayersIndex(char *name) {
 					element.activity = -1;
 				} else {
 					element.last_logon = LAST_LOGON(short_ch);
-					element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
+					element.activity = number(0, kObjectSaveActivity - 1);
 				}
 
 #ifdef TEST_BUILD
@@ -4667,77 +4041,6 @@ void SaveGlobalUID() {
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
 }
-
-//Polud тестовый класс для хранения параметров различных рас мобов
-//Читает данные из файла
-const char *MOBRACE_FILE = LIB_CFG "mob_races.xml";
-
-MobRaceListType mobraces_list;
-
-//загрузка рас из файла
-void LoadMobraces() {
-	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(MOBRACE_FILE);
-	if (!result) {
-		snprintf(buf, kMaxStringLength, "...%s", result.description());
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	pugi::xml_node node_list = doc.child("mob_races");
-
-	if (!node_list) {
-		snprintf(buf, kMaxStringLength, "...mob races read fail");
-		mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
-		return;
-	}
-
-	for (auto &race : node_list.children("mob_race")) {
-		MobRacePtr tmp_mobrace(new MobRace);
-		auto race_num = race.attribute("id").as_int();
-		tmp_mobrace->race_name = race.attribute("name").value();
-
-		pugi::xml_node imList = race.child("imlist");
-
-		for (pugi::xml_node im = imList.child("im"); im; im = im.next_sibling("im")) {
-			struct ingredient tmp_ingr;
-			tmp_ingr.imtype = im.attribute("type").as_int();
-			tmp_ingr.imname = string(im.attribute("name").value());
-			utils::Trim(tmp_ingr.imname);
-			int cur_lvl = 1;
-			int prob_value = 1;
-			for (pugi::xml_node prob = im.child("prob"); prob; prob = prob.next_sibling("prob")) {
-				int next_lvl = prob.attribute("lvl").as_int();
-				if (next_lvl > 0) {
-					for (int lvl = cur_lvl; lvl < next_lvl; lvl++)
-						tmp_ingr.prob[lvl - 1] = prob_value;
-				} else {
-					log("SYSERROR: Неверный уровень lvl=%d для ингредиента %s расы %s",
-						next_lvl,
-						tmp_ingr.imname.c_str(),
-						tmp_mobrace->race_name.c_str());
-					return;
-				}
-				prob_value = atoi(prob.child_value());
-				cur_lvl = next_lvl;
-			}
-			for (int lvl = cur_lvl; lvl <= kMaxMobLevel; lvl++)
-				tmp_ingr.prob[lvl - 1] = prob_value;
-
-			tmp_mobrace->ingrlist.push_back(tmp_ingr);
-		}
-		mobraces_list[race_num] = tmp_mobrace;
-	}
-}
-
-MobRace::MobRace() {
-	ingrlist.clear();
-}
-
-MobRace::~MobRace() {
-	ingrlist.clear();
-}
-//-Polud
 
 void LoadSpeedwalk() {
 

@@ -135,7 +135,7 @@ static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum vnum, bool de
 		return false;
 	}
 
-	CharData *mob_rn = read_mobile(mob_vn, VIRTUAL);
+	CharData *mob_rn = ReadMobile(mob_vn, kVirtual);
 	if (!mob_rn) {
 		snprintf(buf2, kMaxStringLength, "Не могу найти моба: %d", mob_vn);
 		trig_log(trig, buf2);

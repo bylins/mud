@@ -4,7 +4,7 @@
 
 #include "cmd/follow.h"
 #include "entities/char_data.h"
-#include "entities/player_races.h"
+#include "game_mechanics/player_races.h"
 #include "handler.h"
 #include "game_classes/classes.h"
 #include "game_fight/fight.h"

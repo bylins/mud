@@ -75,7 +75,7 @@ void ShowAffectedRooms(CharData *ch) {
 	for (const auto r : affected_rooms) {
 		for (const auto &af : r->affected) {
 			table << count << r->vnum << MUD::Spell(af->type).GetName()
-				<< get_name_by_id(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
+				  << GetNameById(af->caster_id) << af->duration * 2 << table_wrapper::kEndRow;
 			++count;
 		}
 	}
