@@ -187,7 +187,6 @@ extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
 extern char *greetings;
-extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern char *name_rules;
 

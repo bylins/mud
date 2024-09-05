@@ -3977,44 +3977,6 @@ void FlushPlayerIndex() {
 	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
-void RenamePlayer(CharData *ch, char *oname) {
-	char filename[kMaxInputLength], ofilename[kMaxInputLength];
-
-	// 1) Rename(if need) char and pkill file - directly
-	log("Rename char %s->%s", GET_NAME(ch), oname);
-	get_filename(oname, ofilename, kPlayersFile);
-	get_filename(GET_NAME(ch), filename, kPlayersFile);
-	rename(ofilename, filename);
-
-	ch->save_char();
-
-	// 2) Rename all other files
-	get_filename(oname, ofilename, kTextCrashFile);
-	get_filename(GET_NAME(ch), filename, kTextCrashFile);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, kTimeCrashFile);
-	get_filename(GET_NAME(ch), filename, kTimeCrashFile);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, kAliasFile);
-	get_filename(GET_NAME(ch), filename, kAliasFile);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, kScriptVarsFile);
-	get_filename(GET_NAME(ch), filename, kScriptVarsFile);
-	rename(ofilename, filename);
-
-	// хранилища
-	Depot::rename_char(ch);
-	get_filename(oname, ofilename, kPersDepotFile);
-	get_filename(GET_NAME(ch), filename, kPersDepotFile);
-	rename(ofilename, filename);
-	get_filename(oname, ofilename, kPurgeDepotFile);
-	get_filename(GET_NAME(ch), filename, kPurgeDepotFile);
-	rename(ofilename, filename);
-}
-
 void LoadGlobalUid() {
 	FILE *guid;
 	char buffer[256];

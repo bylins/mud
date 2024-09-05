@@ -222,6 +222,7 @@ const int kMaxAffect = 128;
 const int kMaxObjAffect = 8;
 const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
 const long kMaxMoneyKept = 1000000000L; // планка на кол-во денег у чара на руках и в банке (раздельно) //
+const int_least32_t MAX_TIME = 0x7fffffff;
 
 const int kMinCharLevel = 0;
 const int kMaxMobLevel = 100;
@@ -376,16 +377,7 @@ struct CharacterPortal {
 	int vnum = 0;            // vnum комнаты для портала //
 	struct CharacterPortal *next = nullptr;
 };
-// ===============================================================
-// Структуры для act.wizard.cpp //
-// После распиливания акт.визард надо вынести в соответтующие файлы
 
-struct set_struct {
-	const char *cmd = nullptr;
-	const char level = 0;
-	const char pcnpc = 0;
-	const char type = 0;
-};
 // ===============================================================
 
 namespace parser_wrapper {
