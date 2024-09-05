@@ -143,6 +143,7 @@ pzcmd zedit_build_cmdlist(DescriptorData *d) {
 				break;
 
 			case 'T':
+				item->cmd.arg2 = trig_index[item->cmd.arg2]->vnum;
 				// arg2 не преобразовываю, хотя может надо :)
 				if (item->cmd.arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg3);

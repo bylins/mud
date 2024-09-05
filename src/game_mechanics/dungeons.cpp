@@ -972,15 +972,13 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 			case 'D': TRANS_ROOM(arg1)
 				break;
 			case 'T':
-				// судя по веселому комментарию от 1995 года тут тоже хотели сделат рнум, но когда нибудь потом, сейчас тут внум
+				if (trig_index[zone_table[zrn_to].cmd[subcmd].arg2]->vnum / 100 == zone_table[zrn_from].vnum) { 
+					zone_table[zrn_to].cmd[subcmd].arg2 = GetTriggerRnum(trig_index[zone_table[zrn_from].cmd[subcmd].arg2]->vnum % 100 + zone_table[zrn_to].vnum * 100); 
+				}
 				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
-					if (zone_table[zrn_to].cmd[subcmd].arg2 / 100 == zone_table[zrn_from].vnum) { 
-						zone_table[zrn_to].cmd[subcmd].arg2 = zone_table[zrn_from].cmd[subcmd].arg2 % 100 + zone_table[zrn_to].vnum * 100; 
-					}
 					TRANS_ROOM(arg3)
 				}
 				break;
-
 			case 'V':
 				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg2)
@@ -989,7 +987,6 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 			default: break;
 		}
 	}
-
 }
 
 void SwapObjectDungeon(CharData *ch) {

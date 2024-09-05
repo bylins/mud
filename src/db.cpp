@@ -2141,7 +2141,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 			case 'T':    // a trigger
 				// designer's choice: convert this later
 				// b = reset_cmd.arg2 = GetTriggerRnum(reset_cmd.arg2);
-				b = GetTriggerRnum(reset_cmd.arg2);    // leave this in for validation
+				b = reset_cmd.arg2 = GetTriggerRnum(reset_cmd.arg2);
 				if (reset_cmd.arg1 == WLD_TRIGGER)
 					c = reset_cmd.arg3 = GetRoomRnum(reset_cmd.arg3);
 				break;
@@ -3241,20 +3241,20 @@ void ZoneReset::ResetZoneEssential() {
 					// trigger command; details to be filled in later
 					// 'T' <flag> <trigger_type> <trigger_vnum> <RoomVnum, для WLD_TRIGGER>
 					if (reset_cmd.arg1 == MOB_TRIGGER && tmob) {
-						auto trig = read_trigger(GetTriggerRnum(reset_cmd.arg2));
+						auto trig = read_trigger(reset_cmd.arg2);
 						if (!add_trigger(SCRIPT(tmob).get(), trig, -1)) {
 							ExtractTrigger(trig);
 						}
 						curr_state = 1;
 					} else if (reset_cmd.arg1 == OBJ_TRIGGER && tobj) {
-						auto trig = read_trigger(GetTriggerRnum(reset_cmd.arg2));
+						auto trig = read_trigger(reset_cmd.arg2);
 						if (!add_trigger(tobj->get_script().get(), trig, -1)) {
 							ExtractTrigger(trig);
 						}
 						curr_state = 1;
 					} else if (reset_cmd.arg1 == WLD_TRIGGER) {
 						if (reset_cmd.arg3 > kNowhere) {
-							auto trig = read_trigger(GetTriggerRnum(reset_cmd.arg2));
+							auto trig = read_trigger(reset_cmd.arg2);
 							if (!add_trigger(world[reset_cmd.arg3]->script.get(), trig, -1)) {
 								ExtractTrigger(trig);
 							}
