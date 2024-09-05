@@ -53,6 +53,27 @@ void DoZoneCopy(CharData *, char *argument, int, int) {
 	ZoneCopy(atoi(argument));
 }
 
+void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn) {
+	TrgRnum trn_start = zone_table[zrn_to].RnumTrigsLocation.first;
+	TrgRnum trn_stop = zone_table[zrn_to].RnumTrigsLocation.second;
+	std::string replacer = to_string(zone_table[replacer_zrn].vnum);
+	std::string search = to_string(zone_table[zrn_from].vnum);
+
+	if (zone_table[zrn_from].vnum < 100) {
+		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return;
+	}
+	for(int i = trn_start; i <= trn_stop; i++) {
+		auto c = *trig_index[i]->proto->cmdlist;
+
+		while (c) {
+			utils::ReplaceAll(c->cmd, search, replacer);
+			c = c->next;
+		}
+	}
+}
+
 ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ZoneVnum zvn_to;
 	RoomRnum rnum_start, rnum_stop;
@@ -70,8 +91,8 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
 		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone == 0) {
 			auto msg = fmt::format("Клонирую зону {} в {}, осталось мест: {}",
-								   zvn_from, zvn_to, kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+					zvn_from, zvn_to, kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
+			mudlog(msg, CMP, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
 	}
@@ -108,7 +129,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ResetZone(zrn_to);
 	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
 //	zone_table[zrn_to].under_construction = true;
-	msg = fmt::format("Create dungeon, zone %s %d, delta %f",
+	msg = fmt::format("Create dungeon, zone {} {}, delta {:.3f}",
 					  zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(msg, CMP, kLvlGreatGod, SYSLOG, true);
 	return zrn_to;
@@ -380,6 +401,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 			if (from) {
 				RoomVnum rvn = 0;
 				int to_room = from->to_room();// - rrn_start + first_room_dungeon;
+
 				if (to_room >= rrn_start && to_room <= rrn_stop) {
 					rvn = zone_table[zrn_to].vnum * 100 + world[from->to_room()]->vnum % 100;
 				} else {
@@ -415,7 +437,6 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 			if (zone_table[zrn_from].vnum == trigger_vnum / 100) {
 				TrgVnum tvn = zone_table[zrn_to].vnum * 100 + trigger_vnum % 100;
 				Trigger *trig = read_trigger(GetTriggerRnum(tvn));
-
 				add_trigger(SCRIPT(new_room).get(), trig, -1);
 				add_trig_to_owner(-1, tvn, new_room->vnum);
 			} else {
@@ -930,40 +951,34 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 			case 'M': TRANS_MOB(arg1)
 				TRANS_ROOM(arg3)
 				break;
-
 			case 'F': TRANS_ROOM(arg1)
 				TRANS_MOB(arg2)
 				TRANS_MOB(arg3)
 				break;
-
 			case 'Q': TRANS_MOB(arg1)
 				break;
 			case 'O': TRANS_OBJ(arg1)
 				TRANS_ROOM(arg3)
 				break;
-
 			case 'P': TRANS_OBJ(arg1)
 				TRANS_OBJ(arg3)
 				break;
-
 			case 'G': [[fallthrough]];
 			case 'E': TRANS_OBJ(arg1)
 				break;
-
 			case 'R': TRANS_ROOM(arg1)
 				TRANS_OBJ(arg2)
 				break;
-
 			case 'D': TRANS_ROOM(arg1)
 				break;
-
 			case 'T':
-				// arg2 не преобразовываю, хотя может надо :)
+				if (trig_index[zone_table[zrn_to].cmd[subcmd].arg2]->vnum / 100 == zone_table[zrn_from].vnum) { 
+					zone_table[zrn_to].cmd[subcmd].arg2 = GetTriggerRnum(trig_index[zone_table[zrn_from].cmd[subcmd].arg2]->vnum % 100 + zone_table[zrn_to].vnum * 100); 
+				}
 				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg3)
 				}
 				break;
-
 			case 'V':
 				if (zone_table[zrn_to].cmd[subcmd].arg1 == WLD_TRIGGER) {
 					TRANS_ROOM(arg2)
@@ -972,7 +987,6 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 			default: break;
 		}
 	}
-
 }
 
 void SwapObjectDungeon(CharData *ch) {
