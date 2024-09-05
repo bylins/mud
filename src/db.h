@@ -63,7 +63,6 @@ bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void FlushPlayerIndex();
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
-void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn);
 
 const int kReal		= 0;
 const int kVirtual	= 1 << 0;

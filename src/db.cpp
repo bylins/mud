@@ -2826,27 +2826,6 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
 // Команда не должна изменить флаг
 #define        FLAG_PERSIST        2
 
-void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_zrn) {
-	TrgRnum trn_start = zone_table[zrn_to].RnumTrigsLocation.first;
-	TrgRnum trn_stop = zone_table[zrn_to].RnumTrigsLocation.second;
-	std::string replacer = to_string(zone_table[replacer_zrn].vnum);
-	std::string search = to_string(zone_table[zrn_from].vnum);
-
-	if (zone_table[zrn_from].vnum < 100) {
-		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return;
-	}
-	for (int i = trn_start; i <= trn_stop; i++) {
-		auto c = *trig_index[i]->proto->cmdlist;
-
-		while (c) {
-			utils::ReplaceAll(c->cmd, search, replacer);
-			c = c->next;
-		}
-	}
-}
-
 class ZoneReset {
  public:
   explicit ZoneReset(const ZoneRnum zone) : m_zone_rnum(zone) {}
