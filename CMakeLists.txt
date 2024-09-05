@@ -119,7 +119,6 @@ set(SOURCES
 		src/game_skills/morph.cpp
         src/administration/name_adviser.cpp
 		src/game_mechanics/named_stuff.cpp
-		src/name_list.cpp
 		src/administration/names.cpp
 		src/noob.cpp
 		src/entities/obj_data.cpp
@@ -445,7 +444,6 @@ set(HEADERS
 		src/modify.h
         src/administration/name_adviser.h
 		src/game_mechanics/named_stuff.h
-		src/name_list.h
 		src/noob.h
 		src/obj_enchant.h
 		src/entities/obj_data.h

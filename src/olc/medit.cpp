@@ -19,7 +19,6 @@
 #include "game_crafts/im.h"
 #include "entities/char_data.h"
 #include "game_skills/skills.h"
-#include "name_list.h"
 #include "entities/room_data.h"
 #include "corpse.h"
 #include "game_mechanics/dead_load.h"
