@@ -30,14 +30,14 @@ enum class ESetValue {
   kNumber
 };
 
-struct set_struct {
+struct SetCmdStruct {
   const char *cmd{nullptr};
   const char level{0};
   const ESetVict pcnpc{ESetVict::kPc};
   const ESetValue type{ESetValue::kMisc};
 };
 
-set_struct set_fields[] =
+SetCmdStruct set_fields[] =
 	{
 		{"brief", kLvlGod, ESetVict::kPc, ESetValue::kBinary},    // 0
 		{"invstart", kLvlGod, ESetVict::kPc, ESetValue::kBinary},    // 1
@@ -113,7 +113,7 @@ set_struct set_fields[] =
 		{"\n", 0, ESetVict::kBoth, ESetValue::kMisc}
 	};
 
-int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg);
+int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg);
 void RenamePlayer(CharData *ch, char *oname);
 
 extern void AddKarma(CharData *ch, const char *punish, const char *reason);
@@ -121,7 +121,7 @@ extern int set_punish(CharData *ch, CharData *vict, int punish, char *reason, lo
 extern int _parse_name(char *arg, char *name);
 extern int reserved_word(const char *argument);
 
-void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const Bitvector packed_flag) {
+void SetOrRemove(const bool on, const bool off, FlagData &flagset, const Bitvector packed_flag) {
 	if (on) {
 		flagset.set(packed_flag);
 	} else if (off) {
@@ -129,7 +129,7 @@ void SET_OR_REMOVE(const bool on, const bool off, FlagData &flagset, const Bitve
 	}
 }
 
-void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = nullptr;
 	char field[kMaxInputLength], name[kMaxInputLength], val_arg[kMaxInputLength], OName[kMaxInputLength];
 	int mode, player_i = 0, retval;
@@ -234,7 +234,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// perform the set
 	strcpy(OName, GET_NAME(vict));
-	retval = perform_set(ch, vict, mode, val_arg);
+	retval = PerformSet(ch, vict, mode, val_arg);
 
 	// save the character if a change was made
 	if (retval && !vict->IsNpc()) {
@@ -255,7 +255,7 @@ void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	imm_log("%s try to set: %s", GET_NAME(ch), argument);
 }
 
-int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
+int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
 	bool on = false;
 	bool off = false;
@@ -314,11 +314,11 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		strcpy(output, "Хорошо.");
 	}
 	switch (mode) {
-		case 0: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kBrief);
+		case 0: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kBrief);
 			break;
-		case 1: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kInvStart);
+		case 1: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kInvStart);
 			break;
-		case 2: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::KSummonable);
+		case 2: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::KSummonable);
 			sprintf(output, "Возможность призыва %s для %s.\r\n", ONOFF(!on), GET_PAD(vict, 1));
 			break;
 		case 3: vict->points.max_hit = std::clamp(value, 1, 5000);
@@ -381,7 +381,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return (0);
 			}
-			SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kNohassle);
+			SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kNohassle);
 			break;
 		case 19: reason = one_argument(val_arg, num);
 			if (!*num) {
@@ -428,7 +428,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		}
-		case 25: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kBurglar);
+		case 25: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kBurglar);
 			break;
 		case 26:
 			if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)
@@ -449,16 +449,16 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			PlaceCharToRoom(vict, rnum);
 			vict->dismount();
 			break;
-		case 28: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kRoomFlags);
+		case 28: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kRoomFlags);
 			break;
-		case 29: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kSiteOk);
+		case 29: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kSiteOk);
 			break;
 		case 30:
 			if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
 				SendMsgToChar("Истинные боги вечны!\r\n", ch);
 				return 0;
 			}
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kDeleted);
+			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kDeleted);
 			if (PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
 				if (PLR_FLAGS(vict).get(EPlrFlag::kNoDelete)) {
 					PLR_FLAGS(vict).unset(EPlrFlag::kNoDelete);
@@ -505,8 +505,8 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0);
 			}
 			break;
-		case 34: SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kColor1);
-			SET_OR_REMOVE(on, off, PRF_FLAGS(vict), EPrf::kColor2);
+		case 34: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kColor1);
+			SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kColor2);
 			break;
 		case 35:
 			if (!IS_IMPL(ch) || !vict->IsNpc()) {
@@ -533,7 +533,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			AddKarma(vict, buf, GET_NAME(ch));
 			sprintf(output, "Пароль изменен на '%s'.", val_arg);
 			break;
-		case 37: SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kNoDelete);
+		case 37: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kNoDelete);
 			break;
 		case 38:
 			if ((i = search_block(val_arg, genders, false)) < 0) {
@@ -858,7 +858,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 
 		case 58: // Снятие или постановка флага !ДУШЕГУБ! только для имплементоров
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kKiller);
+			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kKiller);
 			break;
 		case 59: // флаг реморта
 			if (value > 1 && value < 75) {
@@ -886,7 +886,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 61: // флаг автобота
 		{
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kAutobot);
+			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kAutobot);
 			break;
 		}
 		case 62: vict->set_hryvn(value);
@@ -912,7 +912,7 @@ int perform_set(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 64: // флаг спамера
 		{
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), EPlrFlag::kSpamer);
+			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kSpamer);
 			break;
 		}
 		case 65: { // спрятать отображение славы

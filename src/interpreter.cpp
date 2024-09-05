@@ -23,6 +23,8 @@
 #include "entities/world_characters.h"
 #include "communication/insult.h"
 #include "communication/offtop.h"
+#include "cmd_god/do_set.h"
+#include "cmd_god/show.h"
 #include "cmd_god/reload.h"
 #include "cmd_god/stat.h"
 #include "cmd_god/show.h"
@@ -292,7 +294,6 @@ void do_say(CharData *ch, char *argument, int cmd, int subcmd);
 void DoScore(CharData *ch, char *argument, int, int);
 void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
-void do_set(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
@@ -933,7 +934,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"send", EPosition::kSleep, do_send, kLvlGreatGod, 0, 0},
 		{"sense", EPosition::kStand, do_sense, 0, 0, 500},
-		{"set", EPosition::kDead, do_set, kLvlImmortal, 0, 0},
+		{"set", EPosition::kDead, DoSet, kLvlImmortal, 0, 0},
 		{"settle", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"shout", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"show", EPosition::kDead, do_show, kLvlImmortal, 0, 0},

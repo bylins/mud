@@ -6,7 +6,7 @@
 #define BYLINS_SRC_CMD_GOD_DO_SET_H_
 
 class CharData;
-void do_set(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CMD_GOD_DO_SET_H_
 
