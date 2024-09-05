@@ -83,7 +83,6 @@
 #include "utils/logger.h"
 #include "communication/mail.h"
 #include "modify.h"
-#include "name_list.h"
 #include "game_mechanics/named_stuff.h"
 #include "administration/names.h"
 #include "entities/obj_data.h"

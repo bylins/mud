@@ -28,7 +28,6 @@
 #include "game_skills/skills.h"
 #include "communication/parcel.h"
 #include "liquid.h"
-#include "name_list.h"
 #include "corpse.h"
 #include "game_economics/shop_ext.h"
 #include "constants.h"
