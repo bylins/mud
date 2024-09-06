@@ -29,7 +29,7 @@ id_to_set_info_map ObjData::set_table;
 
 ObjData::ObjData(const ObjVnum vnum) :
 	CObjectPrototype(vnum),
-	m_uid(0),
+	m_unique_id(0),
 	m_in_room(0),
 	m_room_was_in(0),
 	m_maker(DEFAULT_MAKER),
@@ -55,7 +55,7 @@ ObjData::ObjData(const ObjVnum vnum) :
 
 ObjData::ObjData(const CObjectPrototype &other) :
 	CObjectPrototype(other),
-	m_uid(0),
+	m_unique_id(0),
 	m_in_room(0),
 	m_room_was_in(0),
 	m_maker(DEFAULT_MAKER),
@@ -94,7 +94,7 @@ ObjData::~ObjData() {
 void ObjData::zero_init() {
 	CObjectPrototype::zero_init();
 	set_weight(0);
-	m_uid = 0;
+	m_unique_id = 0;
 	m_in_room = kNowhere;
 	m_carried_by = nullptr;
 	m_worn_by = nullptr;
@@ -130,7 +130,7 @@ void ObjData::purge() {
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
-	celebrates::RemoveFromObjLists(this->get_uid());
+	celebrates::RemoveFromObjLists(this->get_unique_id());
 }
 
 int ObjData::get_serial_num() {
@@ -235,13 +235,13 @@ void ObjData::cleanup_script() {
 	m_script->cleanup();
 }
 
-void ObjData::set_uid(const unsigned _) {
-	if (_ != m_uid) {
-		const auto old_uid = m_uid;
+void ObjData::set_unique_id(const long _) {
+	if (_ != m_unique_id) {
+		const auto old_uid = m_unique_id;
 
-		m_uid = _;
+		m_unique_id = _;
 
-		for (const auto &observer : m_uid_change_observers) {
+		for (const auto &observer : m_unique_id_change_observers) {
 			observer->notify(*this, old_uid);
 		}
 	}

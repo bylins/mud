@@ -76,6 +76,8 @@
 #include "game_crafts/mining.h"
 #include "structs/global_objects.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -3510,74 +3512,66 @@ void perform_mortal_where(CharData *ch, char *arg) {
 
 // возвращает true если объект был выведен
 bool print_object_location(int num, const ObjData *obj, CharData *ch) {
+	std::stringstream ss;
 	if (num > 0) {
-		sprintf(buf, "%2d. ", num);
+		ss << fmt::format("{:>2}. ", num);
 		if (IS_GRGOD(ch)) {
-			sprintf(buf2, "[%6d] %-25s - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
-			strcat(buf, buf2);
+			ss <<  fmt::format("[{:>7}] {:<25} - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 		} else {
-			sprintf(buf2, "%-34s - ", obj->get_short_description().c_str());
-			strcat(buf, buf2);
+			ss << fmt::format("{:<34} - ", obj->get_short_description().c_str());
 		}
 	} else {
-		sprintf(buf, "%41s", " - ");
+		ss << fmt::format("{:>41}", " - ");
 	}
 
 	if (obj->get_in_room() > kNowhere) {
-		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
-		strcat(buf, "\r\n");
-		SendMsgToChar(buf, ch);
+		ss << fmt::format("[{:>7}] {}", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		ss << "\r\n";
+		SendMsgToChar(ss.str().c_str(), ch);
 	} else if (obj->get_carried_by()) {
-		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
-				PERS(obj->get_carried_by(), ch, 4),
-				GET_MOB_VNUM(obj->get_carried_by()),
+		ss << fmt::format("затарено {} [{}] в комнате [{}]", PERS(obj->get_carried_by(), ch, 4), GET_MOB_VNUM(obj->get_carried_by()),
 				world[obj->get_carried_by()->in_room]->vnum);
-		strcat(buf, "\r\n");
-		SendMsgToChar(buf, ch);
+		ss << "\r\n";
+		SendMsgToChar(ss.str().c_str(), ch);
 	} else if (obj->get_worn_by()) {
-		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
-				PERS(obj->get_worn_by(), ch, 3),
-				GET_MOB_VNUM(obj->get_worn_by()),
+		ss << fmt::format("надет на {} [{}] в комнате [{}]", PERS(obj->get_worn_by(), ch, 3), GET_MOB_VNUM(obj->get_worn_by()),
 				world[obj->get_worn_by()->in_room]->vnum);
-		strcat(buf, "\r\n");
-		SendMsgToChar(buf, ch);
+		ss << "\r\n";
+		SendMsgToChar(ss.str().c_str(), ch);
 	} else if (obj->get_in_obj()) {
 		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		{
 			return false; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 		} else {
-			sprintf(buf + strlen(buf), "лежит в [%d]%s, который находится \r\n",
+			ss << fmt::format("лежит в [{}] {}, который находится \r\n",
 					GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
-			SendMsgToChar(buf, ch);
+			SendMsgToChar(ss.str().c_str(), ch);
 			print_object_location(0, obj->get_in_obj(), ch);
 		}
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-			if (GET_EXCHANGE_ITEM(j)->get_uid() == obj->get_uid()) {
-				sprintf(buf + strlen(buf), "продается на базаре, лот #%d\r\n", GET_EXCHANGE_ITEM_LOT(j));
-				SendMsgToChar(buf, ch);
+			if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
+				ss << fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(j));
+				SendMsgToChar(ss.str().c_str(), ch);
 				return true;
 			}
 		}
-
 		for (const auto &shop : GlobalObjects::Shops()) {
-			const auto &item_list = shop->items_list();
-			for (size_t i = 0; i < item_list.size(); i++) {
-				if (item_list.node(i)->uid() == ShopExt::ItemNode::NO_UID) {
+				const auto tmp_obj = shop->GetObjFromShop(obj->get_unique_id());
+				if (!tmp_obj) {
 					continue;
 				}
-				if (item_list.node(i)->uid() == obj->get_uid()) {
-					sprintf(buf + strlen(buf), "можно купить в магазине: %s\r\n", shop->GetDictionaryName().c_str());
-					SendMsgToChar(buf, ch);
-					return true;
-				}
-			}
-
-
+				ss << fmt::format("можно купить в магазине: {}\r\n", shop->GetDictionaryName());
+				SendMsgToChar(ss.str().c_str(), ch);
+				return true;
 		}
-		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
-//		strcat(buf, buf1);
-		SendMsgToChar(buf, ch);
+		if (obj->get_in_room() == kNowhere) {
+			ss << "находится где-то там, далеко-далеко...\r\n";
+			SendMsgToChar(ss.str().c_str(), ch);
+		} else {
+			ss << "расположение не найдено.\r\n";
+			SendMsgToChar(ss.str().c_str(), ch);
+		}
 		return true;
 	}
 
@@ -3593,13 +3587,13 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 
 	/* maybe it is possible to create some index instead of linear search */
 	world_objects.foreach([&](const ObjData::shared_ptr& object) {
-							  if (isname(arg, object->get_aliases())) {
-								if (print_object_location(num, object.get(), ch)) {
-									found = true;
-									num++;
-								}
-							  }
-						  });
+		if (isname(arg, object->get_aliases())) {
+			if (print_object_location(num, object.get(), ch)) {
+				found = true;
+				num++;
+			}
+		}
+	});
 
 	int tmp_num = num;
 	if (IS_GOD(ch)
@@ -3621,31 +3615,27 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 void perform_immort_where(CharData *ch, char *arg) {
 	DescriptorData *d;
 	int num = 1, found = 0;
-
+	std::stringstream ss;
 	if (!*arg) {
-		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
-			SendMsgToChar("Где КТО конкретно?", ch);
-		} else {
-			SendMsgToChar("ИГРОКИ\r\n------\r\n", ch);
-			for (d = descriptor_list; d; d = d->next) {
-				if (STATE(d) == CON_PLAYING) {
-					const auto i = d->get_character();
-					if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
-						if (d->original) {
-							sprintf(buf, "%-20s - [%5d] %s (in %s)\r\n",
-									GET_NAME(i),
-									GET_ROOM_VNUM(IN_ROOM(d->character)),
-									world[d->character->in_room]->name,
-									GET_NAME(d->character));
-						} else {
-							sprintf(buf, "%-20s - [%5d] %s\r\n", GET_NAME(i),
-									GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
-						}
-						SendMsgToChar(buf, ch);
+		ss << "ИГРОКИ\r\n------\r\n";
+		for (d = descriptor_list; d; d = d->next) {
+			if (STATE(d) == CON_PLAYING) {
+				const auto i = d->get_character();
+				if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
+					if (d->original) {
+						ss << fmt::format("{:<20} - [{:>7}] {} (in {})\r\n",
+								GET_NAME(i),
+								GET_ROOM_VNUM(IN_ROOM(d->character)),
+								world[d->character->in_room]->name,
+								GET_NAME(d->character));
+					} else {
+						ss << fmt::format("{:<20} - [{:>7}] {}\r\n", GET_NAME(i),
+								GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
 					}
 				}
 			}
 		}
+		SendMsgToChar(ss.str(), ch);
 	} else {
 		for (const auto &i : character_list) {
 			if (CAN_SEE(ch, i)
@@ -3653,21 +3643,18 @@ void perform_immort_where(CharData *ch, char *arg) {
 				&& isname(arg, i->GetCharAliases())) {
 				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
 				found = 1;
-				sprintf(buf,
-						"%s(%6d)%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n",
-						i->IsNpc() ? "Моб:  " : "Игрок:",
-						GET_MOB_VNUM(i),
+				ss << fmt::format("{:>3}. {} ({:>6}) {:<25} - [{:>7}] {}. Название зоны: '{}'\r\n",
 						num++,
+						i->IsNpc() ? "Моб:   " : "Игрок: ",
+						GET_MOB_VNUM(i),
 						GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)),
 						world[IN_ROOM(i)]->name,
 						zone->name.c_str());
-				SendMsgToChar(buf, ch);
 			}
 		}
-
-		if (!print_imm_where_obj(ch, arg, num)
-			&& !found) {
+		SendMsgToChar(ss.str(), ch);
+		if (!print_imm_where_obj(ch, arg, num) && !found) {
 			SendMsgToChar("Нет ничего похожего.\r\n", ch);
 		}
 	}

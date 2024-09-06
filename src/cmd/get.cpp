@@ -5,6 +5,8 @@
 #include "house.h"
 #include "utils/utils_char_obj.inl"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 extern void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency);
 extern void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 extern bool CanTakeObj(CharData *ch, ObjData *obj);

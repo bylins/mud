@@ -20,6 +20,8 @@
 //#include "entities/zone.h"
 #include "structs/global_objects.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 extern const char *dirs[];
 
 void die(CharData *ch, CharData *killer);

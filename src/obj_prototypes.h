@@ -12,9 +12,9 @@ class Trigger;    // to avoid inclusion of the "dg_script.h"
 class CObjectPrototypes {
  private:
 	struct SPrototypeIndex {
-		SPrototypeIndex() : CountInWorld(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
+		SPrototypeIndex() : total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
 
-		int CountInWorld;        // number of existing units of this obj //
+		int total_online;        // number of existing units of this obj //
 		int stored;        // number of things in rent file            //
 		int (*func)(CharData *, void *, int, char *);
 		char *farg;        // string argument for special function     //
@@ -64,14 +64,14 @@ class CObjectPrototypes {
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
 	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
 
-	auto CountInWorld(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].CountInWorld : -1; }
-	auto CountInWorld(const CObjectPrototype::shared_ptr &object) const { return CountInWorld(object->get_rnum()); }
+	auto total_online(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].total_online : -1; }
+	auto total_online(const CObjectPrototype::shared_ptr &object) const { return total_online(object->get_rnum()); }
 	void dec_number(const size_t rnum);
-	void inc_number(const size_t rnum) { ++m_index[rnum].CountInWorld; }
+	void inc_number(const size_t rnum) { ++m_index[rnum].total_online; }
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
 
-	auto actual_count(const size_t rnum) const { return CountInWorld(rnum) + stored(rnum); }
+	auto actual_count(const size_t rnum) const { return total_online(rnum) + stored(rnum); }
 
 	auto func(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].func : nullptr; }
 	void func(const size_t rnum, const decltype(SPrototypeIndex::func) function) { m_index[rnum].func = function; }

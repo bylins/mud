@@ -85,7 +85,6 @@
 #include "utils/logger.h"
 #include "communication/mail.h"
 #include "modify.h"
-#include "name_list.h"
 #include "game_mechanics/named_stuff.h"
 #include "administration/names.h"
 #include "entities/obj_data.h"
@@ -3213,7 +3212,7 @@ void nanny(DescriptorData *d, char *argument) {
 		  return;
 	  }
 	  SEND_TO_Q("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
-	  GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
+	  GetCase(d->character->GetCharAliases(), GET_SEX(d->character), 1, tmp_name);
 	  sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 	  SEND_TO_Q(buffer, d);
 	  STATE(d) = CON_NAME2;

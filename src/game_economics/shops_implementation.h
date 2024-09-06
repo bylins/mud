@@ -154,7 +154,6 @@ class shop_node : public DictionaryItem {
 					   const std::string &cmd);    // it should be const
 	void clear_store();
 	bool empty() const { return m_items_list.empty(); }
-	
 
  private:
 	void put_to_storage(ObjData *object) { m_storage.add(object); }

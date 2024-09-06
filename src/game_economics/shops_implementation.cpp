@@ -74,7 +74,7 @@ void GoodsStorage::ObjectUIDChangeObserver::notify(ObjData &object, const int ol
 	}
 
 	m_parent.m_objects_by_uid.erase(i);
-	m_parent.m_objects_by_uid.emplace(object.get_uid(), &object);
+	m_parent.m_objects_by_uid.emplace(object.get_unique_id(), &object);
 }
 
 void GoodsStorage::add(ObjData *object) {
@@ -85,25 +85,25 @@ void GoodsStorage::add(ObjData *object) {
 		return;
 	}
 
-	const auto uid_i = m_objects_by_uid.find(object->get_uid());
+	const auto uid_i = m_objects_by_uid.find(object->get_unique_id());
 	if (uid_i != m_objects_by_uid.end()) {
-		log("LOGIC ERROR: Try to add object at ptr %p with UID %d but such UID already presented for the object at address %p. "
+		log("LOGIC ERROR: Try to add object at ptr %p with UID %ld but such UID already presented for the object at address %p. "
 			"Won't do anything. VNUM of the addee object: %d; VNUM of the presented object: %d.",
-			object, object->get_uid(), uid_i->second, object->get_vnum(), uid_i->second->get_vnum());
+			object, object->get_unique_id(), uid_i->second, object->get_vnum(), uid_i->second->get_vnum());
 		return;
 	}
 
 	m_activities.emplace(object, static_cast<int>(time(nullptr)));
-	m_objects_by_uid.emplace(object->get_uid(), object);
-	object->subscribe_for_uid_change(m_object_uid_change_observer);
+	m_objects_by_uid.emplace(object->get_unique_id(), object);
+	object->subscribe_for_unique_id_change(m_object_uid_change_observer);
 }
 
 void GoodsStorage::remove(ObjData *object) {
 	std::stringstream error;
 
-	object->unsubscribe_from_uid_change(m_object_uid_change_observer);
+	object->unsubscribe_from_unique_id_change(m_object_uid_change_observer);
 
-	const auto uid = object->get_uid();
+	const auto uid = object->get_unique_id();
 	const auto object_by_uid_i = m_objects_by_uid.find(uid);
 	if (object_by_uid_i != m_objects_by_uid.end()) {
 		m_objects_by_uid.erase(object_by_uid_i);
@@ -138,7 +138,7 @@ ObjData *GoodsStorage::get_by_uid(const int uid) const {
 void GoodsStorage::clear() {
 	m_activities.clear();
 	for (const auto &uid_pair : m_objects_by_uid) {
-		uid_pair.second->unsubscribe_from_uid_change(m_object_uid_change_observer);
+		uid_pair.second->unsubscribe_from_unique_id_change(m_object_uid_change_observer);
 	}
 	m_objects_by_uid.clear();
 }
@@ -344,7 +344,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		if (!item->empty()) {
 			obj = get_from_shelve(item_index);
 			if (obj != nullptr) {
-				item->remove_uid(obj->get_uid());
+				item->remove_uid(obj->get_unique_id());
 				if (item->empty()) {
 					m_items_list.remove(item_index);
 				}
@@ -553,6 +553,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 						 num, numToShow, print_value, item->get_price());
 			} 
 			if (tmp_obj) {
+				obj_proto.dec_number(tmp_obj->get_rnum());
 				world_objects.remove(tmp_obj);
 			}
 		} else {
@@ -916,16 +917,14 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 
 				if (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description()) {
-					item->add_uid(obj->get_uid());
+					item->add_uid(obj->get_unique_id());
 					put_to_storage(obj);
-
 					return;
 				}
 			}
 		}
 	}
-
-	add_item(obj->get_vnum(), obj->get_cost(), obj->get_uid());
+	add_item(obj->get_vnum(), obj->get_cost(), obj->get_unique_id());
 
 	put_to_storage(obj);
 }
@@ -1031,9 +1030,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			return;
 		} else {
 			RemoveObjFromChar(obj);
-			tell_to_char(keeper,
-						 ch,
-						 ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
+			tell_to_char(keeper, ch, ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 			ch->add_gold(buy_price);
 			put_item_to_shop(obj);
 		}

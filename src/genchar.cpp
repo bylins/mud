@@ -248,79 +248,78 @@ void SetStartAbils(CharData *ch) {
 //  4 - творительный (кем? чем?)
 //  5 - предложный (о ком? о чем?)
 // result - результат
-void GetCase(const char *name, const EGender sex, int caseNum, char *result) {
-	size_t len = strlen(name);
+void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
+	size_t len = name.size();
+	std::string result = data;
 
 	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != nullptr
 		&& sex == EGender::kMale) {
-		strcpy(result, name);
+		result = name;
 		if (caseNum == 1)
-			strcat(result, "а"); // Ивана
+			result += "а"; // Ивана
 		else if (caseNum == 2)
-			strcat(result, "у"); // Ивану
+			result += "у"; // Ивану
 		else if (caseNum == 3)
-			strcat(result, "а"); // Ивана
+			result += "а"; // Ивана
 		else if (caseNum == 4)
-			strcat(result, "ом"); // Иваном, Ретичем
+			result += "ом"; // Иваном, Ретичем
 		else if (caseNum == 5)
-			strcat(result, "е"); // Иване
+			result += "е"; // Иване
 	} else if (name[len - 1] == 'я') {
-		strncpy(result, name, len - 1);
-		result[len - 1] = '\0';
+		result = name.substr(0, len - 1);
 		if (caseNum == 1)
-			strcat(result, "и"); // Ани, Вани
+			result += "и"; // Ани, Вани
 		else if (caseNum == 2)
-			strcat(result, "е"); // Ане, Ване
+			result += "е"; // Ане, Ване
 		else if (caseNum == 3)
-			strcat(result, "ю"); // Аню, Ваню
+			result += "ю"; // Аню, Ваню
 		else if (caseNum == 4)
-			strcat(result, "ей"); // Аней, Ваней
+			result += "ей"; // Аней, Ваней
 		else if (caseNum == 5)
-			strcat(result, "е"); // Ане, Ване
+			result += "е"; // Ане, Ване
 		else
-			strcat(result, "я"); // Аня, Ваня
+			result += "я"; // Аня, Ваня
 	} else if (name[len - 1] == 'й'
 		&& sex == EGender::kMale) {
-		strncpy(result, name, len - 1);
-		result[len - 1] = '\0';
+		result = name.substr(0, len - 1);
 		if (caseNum == 1)
-			strcat(result, "я"); // Дрегвия
+			result += "я"; // Дрегвия
 		else if (caseNum == 2)
-			strcat(result, "ю"); // Дрегвию
+			result += "ю"; // Дрегвию
 		else if (caseNum == 3)
-			strcat(result, "я"); // Дрегвия
+			result += "я"; // Дрегвия
 		else if (caseNum == 4)
-			strcat(result, "ем"); // Дрегвием
+			result += "ем"; // Дрегвием
 		else if (caseNum == 5)
-			strcat(result, "и"); // Дрегвии
+			result += "и"; // Дрегвии
 		else
-			strcat(result, "й"); // Дрегвий
+			result += "й"; // Дрегвий
 	} else if (name[len - 1] == 'а') {
-		strncpy(result, name, len - 1);
-		result[len - 1] = '\0';
+		result = name.substr(0, len - 1);
 		if (caseNum == 1) {
 			if (strchr("шщжч", name[len - 2]) != nullptr)
-				strcat(result, "и"); // Маши, Паши
+				result += "и"; // Маши, Паши
 			else
-				strcat(result, "ы"); // Анны
+				result += "ы"; // Анны
 		} else if (caseNum == 2)
-			strcat(result, "е"); // Паше, Анне
+			result += "е"; // Паше, Анне
 		else if (caseNum == 3)
-			strcat(result, "у"); // Пашу, Анну
+			result += "у"; // Пашу, Анну
 		else if (caseNum == 4) {
 			if (strchr("шщч", name[len - 2]) != nullptr)
-				strcat(result, "ей"); // Машей, Пашей
+				result += "ей"; // Машей, Пашей
 			else
-				strcat(result, "ой"); // Анной, Ханжой
+				result += "ой"; // Анной, Ханжой
 		} else if (caseNum == 5)
-			strcat(result, "е"); // Паше, Анне
+			result += "е"; // Паше, Анне
 		else
-			strcat(result, "а"); // Паша, Анна
+			result += "а"; // Паша, Анна
 	} else {
 		// остальные варианты либо не склоняются, либо редки (например, оканчиваются на ь)
-		strcpy(result, name);
+		result = name;
 	}
-	CAP(result);
+	strcpy(data, result.c_str());
+	CAP(data);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
