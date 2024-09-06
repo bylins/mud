@@ -1734,12 +1734,12 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
-			} else if (!str_cmp(field, "runestones_vnums")) {
-				const auto runestone_vnums = MUD::Runestones().GetVnumRoster();
+			} else if (!str_cmp(field, "runestone_vnums")) {
+				const auto &runestone_vnums = MUD::Runestones().GetVnumRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));
 				sprintf(str, "%s", result.c_str());
-			} else if (!str_cmp(field, "runestones_names")) {
-				const auto runestone_names = MUD::Runestones().GetNameRoster();
+			} else if (!str_cmp(field, "runestone_names")) {
+				const auto &runestone_names = MUD::Runestones().GetNameRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_names, " "));
 				sprintf(str, "%s", result.c_str());
 			} else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0) {
