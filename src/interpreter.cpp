@@ -2273,8 +2273,7 @@ void do_entergame(DescriptorData *d) {
   d->character->remove_affect(EAffect::kGroup);
   d->character->remove_affect(EAffect::kHorse);
 
-  // изменяем порталы
-  CleanupSurplusPortals(d->character.get());
+  d->character->CleanupSurplusPortals();
 
   // with the copyover patch, this next line goes in enter_player_game()
   d->character->id = GET_IDNUM(d->character);

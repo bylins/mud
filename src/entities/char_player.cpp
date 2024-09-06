@@ -768,9 +768,9 @@ void Player::save_char() {
 	}
 
 	// порталы
-	for (const auto p : this->player_specials->townportals) {
-		fprintf(saved, "Prtl: %d\n", p);
-	}
+	std::ostringstream out;
+	this->player_specials->townportals.Serialize(out);
+	fprintf(saved, "%s", out.str().c_str());
 
 	for (auto x : this->daily_quest) {
 		std::stringstream buffer;
@@ -1632,7 +1632,10 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (true);
 				} else if (!strcmp(tag, "Prtl")) {
 					if (num > 0) {
-						AddTownportalToChar(this, num);
+						auto portal = MUD::Townportals().FindTownportal(num);
+						if (portal.IsAllowed()) {
+							this->player_specials->townportals.AddTownportalToChar(portal);
+						}
 					}
 					// Loads Here new punishment strings
 				} else if (!strcmp(tag, "PMut")) {

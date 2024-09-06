@@ -14,6 +14,7 @@
 #include "communication/ignores.h"
 #include "game_crafts/im.h"
 #include "game_skills/skills.h"
+#include "game_skills/townportal.h"
 #include "utils/utils.h"
 #include "conf.h"
 #include "game_affects/affect_data.h"
@@ -251,7 +252,7 @@ struct player_special_data {
 	int agressor;        // Agression room(it is also a flag)
 	time_t agro_time;        // Last agression time (it is also a flag)
 	im_rskill *rskill;    // Известные рецепты
-	std::vector<RoomVnum> townportals;
+  	CharacterTownportalRoster townportals;
 	int *logs;        // уровни подробности каналов log
 
 	char *Exchange_filter;
@@ -781,6 +782,14 @@ class CharData : public ProtectedCharData {
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
+  	void AddTownportalToChar(const Townportal &portal) { player_specials->townportals.AddTownportalToChar(portal); };
+  	void CleanupSurplusPortals() { player_specials->townportals.CleanupSurplusPortals(this); };
+	void ListKnownTownportalsToChar() { player_specials->townportals.ListKnownTownportalsToChar(this); };
+  	void ForgetTownportal(const Townportal &portal) { player_specials->townportals.ForgetTownportal(this, portal); };
+  	bool IsPortalKnown(const Townportal &portal) { return player_specials->townportals.IsPortalKnown(portal); };
+  	bool IsTownportalsFull() { return (CalcMaxPortals() <= GetTownportalsNumber()); }
+  	std::size_t CalcMaxPortals() { return CharacterTownportalRoster::CalcMaxPortals(this); };
+  	std::size_t GetTownportalsNumber() { return player_specials->townportals.Count(); };
 
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells

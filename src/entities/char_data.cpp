@@ -457,7 +457,7 @@ void CharData::purge() {
 			GET_RSKILL(this) = r;
 		}
 		// порталы
-		this->player_specials->townportals.clear();
+		this->player_specials->townportals.Clear();
 // Cleanup punish reasons
 		if (MUTE_REASON(this))
 			free(MUTE_REASON(this));

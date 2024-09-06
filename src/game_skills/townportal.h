@@ -35,7 +35,7 @@ class Townportal {
   State state_{State::kEnabled};
 };
 
-class TownportalRoster : std::vector<Townportal> {
+class TownportalRoster : private std::vector<Townportal> {
  public:
   TownportalRoster();
   TownportalRoster(const TownportalRoster &) = delete;
@@ -53,12 +53,24 @@ class TownportalRoster : std::vector<Townportal> {
   Townportal incorrect_portal_;
 };
 
+ class CharacterTownportalRoster : private std::vector<RoomVnum> {
+  public:
+   void Clear() { clear(); };
+   void Serialize(std::ostringstream &out);
+   void AddTownportalToChar(const Townportal &portal);
+   void CleanupSurplusPortals(CharData *ch);
+   void ForgetTownportal(CharData *ch, const Townportal &portal);
+   void ListKnownTownportalsToChar(CharData *ch);
+   bool IsPortalKnown(const Townportal &portal);
+   std::size_t Count() { return size(); };
+   static std::size_t CalcMaxPortals(CharData *ch);
+
+  private:
+   void ShrinkToLimit(CharData *ch);
+   bool IsTownportalsOverfilled(CharData *ch);
+};
+
 void DecayPortalMessage(RoomRnum room_num);
-//void LoadTownportals();
-//bool ViewTownportal(CharData *ch, int where_bits);
-//void ShowPortalRunestone(CharData *ch);
-void AddTownportalToChar(CharData *ch, RoomVnum vnum);
-void CleanupSurplusPortals(CharData *ch);
 
 /**
 * Список односторонних порталов (по втригеру и вратам), единственная цель - не перебирать все

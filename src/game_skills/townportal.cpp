@@ -17,11 +17,6 @@ void SetSkillTownportalTimer(CharData *ch);
 int CalcMinPortalLevel(CharData *ch, const Townportal &portal);
 Townportal GetLabelPortal(CharData *ch);
 
-void ForgetTownportal(CharData *ch, char *argument);
-void ListKnownTownportalsToChar(CharData *ch);
-bool IsPortalKnown(CharData *ch, const Townportal &portal);
-std::size_t CalcMaxPortals(CharData *ch);
-
 void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
 		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
@@ -29,14 +24,15 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!argument || !*argument) {
-		ListKnownTownportalsToChar(ch);
+		ch->ListKnownTownportalsToChar();
 		return;
 	}
 
 	char arg2[kMaxInputLength];
 	two_arguments(argument, arg, arg2);
 	if (!str_cmp(arg, "забыть")) {
-		ForgetTownportal(ch, arg2);
+		auto portal = MUD::Townportals().FindTownportal(arg2);
+		ch->ForgetTownportal(portal);
 		return;
 	}
 
@@ -45,7 +41,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void GoTownportal(CharData *ch, char *argument) {
 	auto portal = MUD::Townportals().FindTownportal(argument);
-	if (portal.IsAllowed() && IsPortalKnown(ch, portal)) {
+	if (portal.IsAllowed() && ch->IsPortalKnown(portal)) {
 		TryOpenTownportal(ch, portal);
 	} else {
 		TryOpenLabelPortal(ch, argument);
@@ -171,77 +167,6 @@ inline void DecayPortalMessage(const RoomRnum room_num) {
 	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), nullptr, nullptr, kToChar);
 }
 
-void ListKnownTownportalsToChar(CharData *ch) {
-	std::ostringstream out;
-	if (ch->player_specials->townportals.empty()) {
-		out << " В настоящий момент вам неизвестны врата.\r\n";
-	} else {
-		out << " Вам доступны следующие врата:\r\n";
-		table_wrapper::Table table;
-		const int columns_num{3};
-		int count = 1;
-		const auto &player_portals = ch->player_specials->townportals;
-		for (const auto it : player_portals) {
-			auto portal = MUD::Townportals().FindTownportal(it);
-			if (portal.IsAllowed()) {
-				table << portal.GetName();
-				if (count % columns_num == 0) {
-					table << table_wrapper::kEndRow;
-				}
-				++count;
-			}
-		}
-		table_wrapper::DecorateSimpleTable(ch, table);
-		table_wrapper::PrintTableToStream(out, table);
-		out << fmt::format("\r\n Сейчас в памяти {}.\r\n", player_portals.size());
-	}
-	out << fmt::format(" Максимально возможно {}.\r\n", CalcMaxPortals(ch));
-
-	page_string(ch->desc, out.str());
-}
-
-void ForgetTownportal(CharData *ch, char *argument) {
-	const auto &portal = MUD::Townportals().FindTownportal(argument);
-	auto predicate = [portal](const RoomVnum p) { return p == portal.GetRoomVnum(); };
-	auto erased = std::erase_if(ch->player_specials->townportals, predicate);
-	if (erased) {
-		auto msg = fmt::format("Вы полностью забыли, как выглядит камень '&R{}&n'.\r\n", argument);
-		SendMsgToChar(msg, ch);
-	} else {
-		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", ch);
-	}
-}
-
-void AddTownportalToChar(CharData *ch, RoomVnum vnum) {
-	if (MUD::Townportals().FindTownportal(vnum).IsAllowed()) {
-		std::erase_if(ch->player_specials->townportals, [vnum](RoomVnum p) { return p == vnum; });
-		ch->player_specials->townportals.push_back(vnum);
-	}
-}
-
-bool IsPortalKnown(CharData *ch, const Townportal &portal) {
-	auto &char_townportals = ch->player_specials->townportals;
-	const auto it = std::find(char_townportals.begin(), char_townportals.end(), portal.GetRoomVnum());
-	return (it != char_townportals.end());
-}
-
-// Убирает лишние и несуществующие порталы у чара
-void CleanupSurplusPortals(CharData *ch) {
-	auto &char_portals = ch->player_specials->townportals;
-	auto &townportals = MUD::Townportals();
-	auto predicate =
-		[&townportals](const RoomVnum portal_vnum)  { return townportals.FindTownportal(portal_vnum).IsForbidden(); };
-	std::erase_if(ch->player_specials->townportals, predicate);
-	auto max_portals = CalcMaxPortals(ch);
-	if (char_portals.size() > max_portals) {
-		char_portals.resize(max_portals);
-	}
-}
-
-std::size_t CalcMaxPortals(CharData *ch) {
-	return GetRealLevel(ch) / 3 + GetRealRemort(ch);
-}
-
 void Townportal::SetEnabled(bool enabled) {
 	if (state_ != State::kForbidden) {
 		state_ = enabled ? State::kEnabled : State::kDisabled;
@@ -308,8 +233,7 @@ bool TownportalRoster::ViewTownportal(CharData *ch, int where_bits) {
 	}
 	auto portal = FindTownportal(GET_ROOM_VNUM(ch->in_room));
 	if (portal.IsAllowed() && IS_SET(where_bits, EFind::kObjRoom)) {
-		auto room_vnum = GET_ROOM_VNUM(ch->in_room);
-		if (IsPortalKnown(ch, portal)) {
+		if (ch->IsPortalKnown(portal)) {
 			auto msg = fmt::format("На камне огненными буквами написано слово '&R{}&n'.\r\n", portal.GetName());
 			SendMsgToChar(msg, ch);
 			return true;
@@ -318,15 +242,15 @@ bool TownportalRoster::ViewTownportal(CharData *ch, int where_bits) {
 			SendMsgToChar("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
 			return true;
 		} else {
-			if (ch->player_specials->townportals.size() >= CalcMaxPortals(ch)) {
+			if (ch->IsTownportalsFull()) {
 				SendMsgToChar
 					("Все доступные вам камни уже запомнены, удалите и попробуйте еще.\r\n", ch);
 				return true;
 			}
 			auto msg = fmt::format("На камне огненными буквами написано слово '&R{}&n'.\r\n", portal.GetName());
 			SendMsgToChar(msg, ch);
-			AddTownportalToChar(ch, portal.GetRoomVnum());
-			CleanupSurplusPortals(ch);
+			ch->AddTownportalToChar(portal);
+			ch->CleanupSurplusPortals();
 			return true;
 		}
 	}
@@ -348,5 +272,86 @@ void TownportalRoster::ShowPortalRunestone(CharData *ch) {
 }
 
 // ============================================ CHARACTER TOWNPORTALS ================================================
+
+void CharacterTownportalRoster::Serialize(std::ostringstream &out) {
+	for (const auto it : *this) {
+		out << fmt::format("Prtl: {}\n", it);
+	}
+}
+
+void CharacterTownportalRoster::ListKnownTownportalsToChar(CharData *ch) {
+	std::ostringstream out;
+	if (empty()) {
+		out << " В настоящий момент вам неизвестны врата.\r\n";
+	} else {
+		out << " Вам доступны следующие врата:\r\n";
+		table_wrapper::Table table;
+		const int columns_num{3};
+		int count = 1;
+		for (const auto it : *this) {
+			auto portal = MUD::Townportals().FindTownportal(it);
+			if (portal.IsAllowed()) {
+				table << portal.GetName();
+				if (count % columns_num == 0) {
+					table << table_wrapper::kEndRow;
+				}
+				++count;
+			}
+		}
+		table_wrapper::DecorateSimpleTable(ch, table);
+		table_wrapper::PrintTableToStream(out, table);
+		out << fmt::format("\r\n Сейчас в памяти {}.\r\n", size());
+	}
+	out << fmt::format(" Максимально возможно {}.\r\n", CalcMaxPortals(ch));
+
+	page_string(ch->desc, out.str());
+}
+
+void CharacterTownportalRoster::ForgetTownportal(CharData *ch, const Townportal &portal) {
+	auto predicate = [portal](const RoomVnum p) { return p == portal.GetRoomVnum(); };
+	auto erased = std::erase_if(*this, predicate);
+	if (erased) {
+		auto msg = fmt::format("Вы полностью забыли, как выглядит камень '&R{}&n'.\r\n", portal.GetName());
+		SendMsgToChar(msg, ch);
+	} else {
+		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", ch);
+	}
+}
+
+void CharacterTownportalRoster::AddTownportalToChar(const Townportal &portal) {
+	if (portal.IsAllowed()) {
+		const auto room_vnum = portal.GetRoomVnum();
+		std::erase_if(*this, [room_vnum](RoomVnum p) { return p == room_vnum; });
+		push_back(room_vnum);
+	}
+}
+
+bool CharacterTownportalRoster::IsPortalKnown(const Townportal &portal) {
+	const auto it = std::find(begin(), end(), portal.GetRoomVnum());
+	return (it != end());
+}
+
+// Убирает лишние и несуществующие порталы у чара
+void CharacterTownportalRoster::CleanupSurplusPortals(CharData *ch) {
+	auto &townportals = MUD::Townportals();
+	auto predicate =
+		[&townportals](const RoomVnum portal_vnum) { return townportals.FindTownportal(portal_vnum).IsForbidden(); };
+	std::erase_if(*this, predicate);
+	if (IsTownportalsOverfilled(ch)) {
+		ShrinkToLimit(ch);
+	}
+}
+
+bool CharacterTownportalRoster::IsTownportalsOverfilled(CharData *ch) {
+	return (size() > CalcMaxPortals(ch));
+}
+
+void CharacterTownportalRoster::ShrinkToLimit(CharData *ch) {
+	resize(CalcMaxPortals(ch));
+}
+
+std::size_t CharacterTownportalRoster::CalcMaxPortals(CharData *ch) {
+	return GetRealLevel(ch) / 3 + GetRealRemort(ch);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

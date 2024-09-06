@@ -140,7 +140,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
 	PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
 	PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
-	CleanupSurplusPortals(ch);
+	ch->CleanupSurplusPortals();
 	if (ch->get_protecting()) {
 		ch->remove_protecting();
 	}
