@@ -29,6 +29,8 @@
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
 #include "utils/utils_char_obj.inl"
+#include <third_party_libs/fmt/include/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/ranges.h>
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -1732,6 +1734,14 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
+			} else if (!str_cmp(field, "runestones_vnums")) {
+				const auto runestone_vnums = MUD::Runestones().GetVnumRoster();
+				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));
+				sprintf(str, "%s", result.c_str());
+			} else if (!str_cmp(field, "runestones_names")) {
+				const auto runestone_names = MUD::Runestones().GetNameRoster();
+				auto result = fmt::format("{}", fmt::join(runestone_names, " "));
+				sprintf(str, "%s", result.c_str());
 			} else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0) {
 				num = count_char_vnum(num);
 				if (num >= 0)
@@ -3643,8 +3653,16 @@ void find_replacement(void *go,
 			int x,y;
 			GetZoneRooms(r->zone_rn, &x , &y);
 			sprintf(str, "%d", world[y]->vnum);
-		}
-		else if (!str_cmp(field, "char")
+		} else if (!str_cmp(field, "runestone")) {
+			if (*subfield) {
+				auto &stone = MUD::Runestones().FindRunestone(r->vnum);
+				auto mod = atoi(subfield);
+				stone.SetEnabled(mod);
+				auto msg = fmt::format("Runestone in room {} toggled to {}.",
+								   r->vnum, mod ? "Enabled" : "Disabled");
+				trig_log(trig, msg.c_str());
+			}
+		} else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
 			|| !str_cmp(field, "npc")
 			|| !str_cmp(field, "all")) {

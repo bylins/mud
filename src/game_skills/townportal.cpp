@@ -2,6 +2,7 @@
 
 #include "modify.h"
 #include "handler.h"
+#include "game_abilities/abilities_constants.h"
 #include "game_fight/pk.h"
 #include "game_magic/magic_rooms.h"
 #include "structs/global_objects.h"
@@ -31,7 +32,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg2[kMaxInputLength];
 	two_arguments(argument, arg, arg2);
 	if (!str_cmp(arg, "забыть")) {
-		auto stone = MUD::Runestones().FindRunestone(arg2);
+		auto &stone = MUD::Runestones().FindRunestone(arg2);
 		ch->RemoveRunestone(stone);
 		return;
 	}
@@ -40,7 +41,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void GoTownportal(CharData *ch, char *argument) {
-	auto stone = MUD::Runestones().FindRunestone(argument);
+	auto &stone = MUD::Runestones().FindRunestone(argument);
 	if (stone.IsAllowed() && ch->IsRunestoneKnown(stone)) {
 		TryOpenTownportal(ch, stone);
 	} else {
@@ -169,7 +170,7 @@ inline void DecayPortalMessage(const RoomRnum room_num) {
 
 void Runestone::SetEnabled(bool enabled) {
 	if (state_ != State::kForbidden) {
-		state_ = enabled ? State::kEnabled : State::kDisabled;
+		state_ = (enabled ? State::kEnabled : State::kDisabled);
 	}
 }
 
@@ -231,10 +232,13 @@ bool RunestoneRoster::ViewRunestone(CharData *ch, int where_bits) {
 	if (ch->GetSkill(ESkill::kTownportal) == 0) {
 		return false;
 	}
-	auto stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
+	auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
 	if (stone.IsAllowed() && IS_SET(where_bits, EFind::kObjRoom)) {
-		if (ch->IsRunestoneKnown(stone)) {
-			auto msg = fmt::format("На камне огненными буквами написано слово '&R{}&n'.\r\n", stone.GetName());
+		if (stone.IsDisabled()) {
+			SendMsgToChar("Камень грубо расколот на несколько частей и прочитать надпись невозможно.", ch);
+			return true;
+		} else if (ch->IsRunestoneKnown(stone)) {
+			auto msg = fmt::format("На камне огненными рунами начертано слово '&R{}&n'.\r\n", stone.GetName());
 			SendMsgToChar(msg, ch);
 			return true;
 		} else if (GetRealLevel(ch) < CalcMinRunestoneLevel(ch, stone)) {
@@ -263,6 +267,28 @@ void RunestoneRoster::ShowRunestone(CharData *ch) {
 	}
 }
 
+std::vector<RoomVnum> RunestoneRoster::GetVnumRoster() {
+	std::vector<RoomVnum> vnums;
+	vnums.reserve(size());
+	for (const auto &it : *this) {
+		if (it.IsAllowed()) {
+			vnums.push_back(it.GetRoomVnum());
+		}
+	}
+	return vnums;
+}
+
+std::vector<std::string_view> RunestoneRoster::GetNameRoster() {
+	std::vector<std::string_view> names;
+	names.reserve(size());
+	for (const auto &it : *this) {
+		if (it.IsAllowed()) {
+			names.push_back(it.GetName());
+		}
+	}
+	return names;
+}
+
 // ======================================== CHARACTER RUNESTONE ROSTER ==============================================
 
 void CharacterRunestoneRoster::Serialize(std::ostringstream &out) {
@@ -278,10 +304,10 @@ void CharacterRunestoneRoster::PageToChar(CharData *ch) {
 	} else {
 		out << " Вам известны следующие рунные метки:\r\n";
 		table_wrapper::Table table;
-		const int columns_num{3};
+		const int columns_num{4};
 		int count = 1;
 		for (const auto it : *this) {
-			auto portal = MUD::Runestones().FindRunestone(it);
+			auto &portal = MUD::Runestones().FindRunestone(it);
 			if (portal.IsAllowed()) {
 				table << portal.GetName();
 				if (count % columns_num == 0) {
@@ -342,7 +368,10 @@ void CharacterRunestoneRoster::ShrinkToLimit(CharData *ch) {
 }
 
 std::size_t CharacterRunestoneRoster::CalcLimit(CharData *ch) {
-	return GetRealLevel(ch) / 3 + GetRealRemort(ch);
+	const auto skill = ch->GetSkill(ESkill::kTownportal);
+	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
+	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
+	return (1 + low_skill/9 + hi_skill/5);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

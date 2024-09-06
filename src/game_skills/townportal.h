@@ -48,6 +48,8 @@ class RunestoneRoster : private std::vector<Runestone> {
   bool ViewRunestone(CharData *ch, int where_bits);
   Runestone &FindRunestone(RoomVnum vnum);
   Runestone &FindRunestone(std::string_view name);
+  std::vector<RoomVnum> GetVnumRoster();
+  std::vector<std::string_view> GetNameRoster();
 
  private:
   Runestone incorrect_stone_;
