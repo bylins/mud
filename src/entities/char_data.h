@@ -251,7 +251,7 @@ struct player_special_data {
 	int agressor;        // Agression room(it is also a flag)
 	time_t agro_time;        // Last agression time (it is also a flag)
 	im_rskill *rskill;    // Известные рецепты
-	struct CharacterPortal *portals;    // порталы теперь живут тут
+	std::vector<RoomVnum> townportals;
 	int *logs;        // уровни подробности каналов log
 
 	char *Exchange_filter;

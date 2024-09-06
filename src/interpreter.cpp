@@ -131,6 +131,7 @@
 #include "title.h"
 #include "statistics/top.h"
 #include "game_skills/skills_info.h"
+#include "game_skills/townportal.h"
 #include "game_mechanics/mem_queue.h"
 #include "obj_save.h"
 
@@ -350,7 +351,7 @@ void do_rset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_recipes(CharData *ch, char *argument, int cmd, int subcmd);
 void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
-void do_townportal(CharData *ch, char *argument, int cmd, int subcmd);
+void DoTownportal(CharData *ch, char *argument, int, int);
 void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mystat(CharData *ch, char *argument, int cmd, int subcmd);
@@ -460,7 +461,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"воззвать", EPosition::kDead, do_pray_gods, 0, 0, -1},
 		{"вплавить", EPosition::kStand, do_insertgem, 0, 0, -1},
 		{"время", EPosition::kDead, do_time, 0, 0, 0},
-		{"врата", EPosition::kSit, do_townportal, 1, 0, -1},
+		{"врата", EPosition::kSit, DoTownportal, 1, 0, -1},
 		{"вскочить", EPosition::kFight, do_horseon, 0, 0, 500},
 		{"встать", EPosition::kRest, do_stand, 0, 0, 500},
 		{"вспомнить", EPosition::kDead, do_remember_char, 0, 0, 0},
@@ -2274,7 +2275,7 @@ void do_entergame(DescriptorData *d) {
   d->character->remove_affect(EAffect::kHorse);
 
   // изменяем порталы
-  check_portals(d->character.get());
+  CleanupSurplusPortals(d->character.get());
 
   // with the copyover patch, this next line goes in enter_player_game()
   d->character->id = GET_IDNUM(d->character);
@@ -2518,7 +2519,6 @@ ch->set_level(kLvlImplementator);
 }
 #endif
 
-  GET_PORTALS(ch) = nullptr;
   CREATE(GET_LOGS(ch), 1 + LAST_LOG);
   ch->set_npc_name(nullptr);
   ch->player_data.long_descr = "";

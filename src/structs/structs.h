@@ -363,22 +363,6 @@ const __uint8_t GAPPLY_MODIFIER = 4;
 const __uint8_t GAPPLY_AFFECT = 5;
 
 // ===============================================================
-// Структрура для описания проталов для спела townportal //
-// Механику порталов надо обобщить и вынести в отдельный файл в game_mechanics
-// После чего использовать ее для врат, !перехода! и триггерной постановки портала.
-struct Portal {
-	char *wrd = nullptr;			// кодовое слово
-	RoomVnum vnum = 0;				// vnum комнаты для портала
-	int level = 0;					// минимальный уровень для запоминания
-	struct Portal *next = nullptr;
-};
-
-struct CharacterPortal {
-	int vnum = 0;            // vnum комнаты для портала //
-	struct CharacterPortal *next = nullptr;
-};
-
-// ===============================================================
 
 namespace parser_wrapper {
 // forward declaration

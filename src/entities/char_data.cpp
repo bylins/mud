@@ -457,12 +457,7 @@ void CharData::purge() {
 			GET_RSKILL(this) = r;
 		}
 		// порталы
-		while (GET_PORTALS(this) != nullptr) {
-			struct CharacterPortal *prt_next;
-			prt_next = GET_PORTALS(this)->next;
-			free(GET_PORTALS(this));
-			GET_PORTALS(this) = prt_next;
-		}
+		this->player_specials->townportals.clear();
 // Cleanup punish reasons
 		if (MUTE_REASON(this))
 			free(MUTE_REASON(this));
@@ -2205,8 +2200,7 @@ player_special_data::player_special_data() :
 	may_rent(0),
 	agressor(0),
 	agro_time(0),
-	rskill(0),
-	portals(0),
+	rskill(nullptr),
 	logs(nullptr),
 	Exchange_filter(nullptr),
 	Karma(nullptr),

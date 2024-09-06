@@ -17,6 +17,7 @@
 #include "game_mechanics/player_races.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
+#include "game_skills/townportal.h"
 #include "administration/accounts.h"
 #include "liquid.h"
 
@@ -406,7 +407,7 @@ void Player::save_char() {
 	time_t li;
 	ObjData *char_eq[EEquipPos::kNumEquipPos];
 	struct TimedSkill *skj;
-	struct CharacterPortal *prt;
+
 	int tmp = time(0) - this->player_data.time.logon;
 
 	if (this->IsNpc() || this->get_pfilepos() < 0)
@@ -767,8 +768,8 @@ void Player::save_char() {
 	}
 
 	// порталы
-	for (prt = GET_PORTALS(this); prt; prt = prt->next) {
-		fprintf(saved, "Prtl: %d\n", prt->vnum);
+	for (const auto p : this->player_specials->townportals) {
+		fprintf(saved, "Prtl: %d\n", p);
 	}
 
 	for (auto x : this->daily_quest) {
@@ -1224,7 +1225,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	AFF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
-	GET_PORTALS(this) = nullptr;
+
 	EXCHANGE_FILTER(this) = nullptr;
 	clear_ignores();
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
@@ -1629,10 +1630,12 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						pk_one->next = this->pk_list;
 						this->pk_list = pk_one;
 					} while (true);
-				} else if (!strcmp(tag, "Prtl"))
-					add_portal_to_char(this, num);
+				} else if (!strcmp(tag, "Prtl")) {
+					if (num > 0) {
+						AddTownportalToChar(this, num);
+					}
 					// Loads Here new punishment strings
-				else if (!strcmp(tag, "PMut")) {
+				} else if (!strcmp(tag, "PMut")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 					MUTE_DURATION(this) = lnum;
 					GET_MUTE_LEV(this) = num2;
