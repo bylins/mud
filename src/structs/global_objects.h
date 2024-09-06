@@ -69,7 +69,7 @@ class GlobalObjects {
 	static influxdb::Sender &stats_sender();
 	static OutputThread &output_thread();
 	static ZoneTable &zone_table();
-  	static TownportalRoster &Townportals();
+  	static RunestoneRoster &Runestones();
 
 	static celebrates::CelebrateList &mono_celebrates();
 	static celebrates::CelebrateList &poly_celebrates();

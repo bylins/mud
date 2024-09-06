@@ -457,7 +457,7 @@ void CharData::purge() {
 			GET_RSKILL(this) = r;
 		}
 		// порталы
-		this->player_specials->townportals.Clear();
+		this->ClearRunestones();
 // Cleanup punish reasons
 		if (MUTE_REASON(this))
 			free(MUTE_REASON(this));
@@ -2275,5 +2275,32 @@ int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
 		return 1;
 	}
 }
+
+void CharData::AddRunestone(const Runestone &stone) {
+	if (player_specials->runestones.IsFull(this)) {
+		SendMsgToChar
+			("В вашей памяти не осталось места для новых рунных меток. Сперва забудьте какую-нибудь.\r\n", this);
+		return;
+	}
+
+	if (player_specials->runestones.AddRunestone(stone)) {
+		auto msg = fmt::format(
+			"Вы осмотрели надпись и крепко запомнили начертанное огненными рунами слово '&R{}&n'.\r\n",
+			stone.GetName());
+		SendMsgToChar(msg, this);
+	} else {
+		SendMsgToChar("Руны всё время странно искажаются и вам не удаётся их запомнить.\r\n", this);
+	}
+	player_specials->runestones.DeleteIrrelevant(this);
+};
+
+void CharData::RemoveRunestone(const Runestone &stone) {
+	if (player_specials->runestones.RemoveRunestone(stone)) {
+		auto msg = fmt::format("Вы полностью забыли, как выглядит рунная метка '&R{}&n'.\r\n", stone.GetName());
+		SendMsgToChar(msg, this);
+	} else {
+		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", this);
+	}
+};
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

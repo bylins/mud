@@ -30,7 +30,7 @@ struct GlobalObjectsStorage {
 	classes::ClassesInfo classes_info;
 	guilds::GuildsInfo guilds_info;
 	currencies::CurrenciesInfo currencies_info;
-  	TownportalRoster townportal_roster;
+  	RunestoneRoster runestone_roster;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
 	PlayersIndex player_table;
@@ -120,8 +120,8 @@ const currencies::CurrencyInfo &GlobalObjects::Currency(Vnum currency_vnum) {
 	return global_objects().currencies_info[currency_vnum];
 };
 
-TownportalRoster &GlobalObjects::Townportals() {
-	return global_objects().townportal_roster;
+RunestoneRoster &GlobalObjects::Runestones() {
+	return global_objects().runestone_roster;
 }
 
 WorldObjects &GlobalObjects::world_objects() {

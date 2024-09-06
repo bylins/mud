@@ -1508,7 +1508,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
-	MUD::Townportals().LoadTownportals();
+	MUD::Runestones().LoadRunestones();
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");

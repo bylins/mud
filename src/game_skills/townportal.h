@@ -5,15 +5,15 @@
 
 class CharData;
 
-class Townportal {
+class Runestone {
  public:
   enum class State { kEnabled, kDisabled, kForbidden };
 
-  Townportal() = default;
-  Townportal(std::string_view name,
-			 RoomVnum room_vnum,
-			 int min_char_level,
-			 State state = State::kEnabled)
+  Runestone() = default;
+  Runestone(std::string_view name,
+			RoomVnum room_vnum,
+			int min_char_level,
+			State state = State::kEnabled)
 	  : name_(name),
 		room_vnum_(room_vnum),
 		min_char_level_(min_char_level),
@@ -35,39 +35,40 @@ class Townportal {
   State state_{State::kEnabled};
 };
 
-class TownportalRoster : private std::vector<Townportal> {
+class RunestoneRoster : private std::vector<Runestone> {
  public:
-  TownportalRoster();
-  TownportalRoster(const TownportalRoster &) = delete;
-  TownportalRoster(TownportalRoster &&) = delete;
-  TownportalRoster &operator=(const TownportalRoster &) = delete;
-  TownportalRoster &operator=(TownportalRoster &&) = delete;
+  RunestoneRoster();
+  RunestoneRoster(const RunestoneRoster &) = delete;
+  RunestoneRoster(RunestoneRoster &&) = delete;
+  RunestoneRoster &operator=(const RunestoneRoster &) = delete;
+  RunestoneRoster &operator=(RunestoneRoster &&) = delete;
 
-  void LoadTownportals();
-  void ShowPortalRunestone(CharData *ch);
-  bool ViewTownportal(CharData *ch, int where_bits);
-  Townportal &FindTownportal(RoomVnum vnum);
-  Townportal &FindTownportal(std::string_view name);
+  void LoadRunestones();
+  void ShowRunestone(CharData *ch);
+  bool ViewRunestone(CharData *ch, int where_bits);
+  Runestone &FindRunestone(RoomVnum vnum);
+  Runestone &FindRunestone(std::string_view name);
 
  private:
-  Townportal incorrect_portal_;
+  Runestone incorrect_stone_;
 };
 
- class CharacterTownportalRoster : private std::vector<RoomVnum> {
+ class CharacterRunestoneRoster : private std::vector<RoomVnum> {
   public:
    void Clear() { clear(); };
    void Serialize(std::ostringstream &out);
-   void AddTownportalToChar(const Townportal &portal);
-   void CleanupSurplusPortals(CharData *ch);
-   void ForgetTownportal(CharData *ch, const Townportal &portal);
-   void ListKnownTownportalsToChar(CharData *ch);
-   bool IsPortalKnown(const Townportal &portal);
+   void DeleteIrrelevant(CharData *ch);
+   void PageToChar(CharData *ch);
+   bool AddRunestone(const Runestone &stone);
+   bool RemoveRunestone(const Runestone &stone);
+   bool Contains(const Runestone &stone);
+   bool IsFull(CharData *ch);
    std::size_t Count() { return size(); };
-   static std::size_t CalcMaxPortals(CharData *ch);
+   static std::size_t CalcLimit(CharData *ch);
 
   private:
    void ShrinkToLimit(CharData *ch);
-   bool IsTownportalsOverfilled(CharData *ch);
+   bool IsOverfilled(CharData *ch);
 };
 
 void DecayPortalMessage(RoomRnum room_num);

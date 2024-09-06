@@ -252,7 +252,7 @@ struct player_special_data {
 	int agressor;        // Agression room(it is also a flag)
 	time_t agro_time;        // Last agression time (it is also a flag)
 	im_rskill *rskill;    // Известные рецепты
-  	CharacterTownportalRoster townportals;
+  	CharacterRunestoneRoster runestones; // рунные камни для врат и не только
 	int *logs;        // уровни подробности каналов log
 
 	char *Exchange_filter;
@@ -782,14 +782,12 @@ class CharData : public ProtectedCharData {
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
-  	void AddTownportalToChar(const Townportal &portal) { player_specials->townportals.AddTownportalToChar(portal); };
-  	void CleanupSurplusPortals() { player_specials->townportals.CleanupSurplusPortals(this); };
-	void ListKnownTownportalsToChar() { player_specials->townportals.ListKnownTownportalsToChar(this); };
-  	void ForgetTownportal(const Townportal &portal) { player_specials->townportals.ForgetTownportal(this, portal); };
-  	bool IsPortalKnown(const Townportal &portal) { return player_specials->townportals.IsPortalKnown(portal); };
-  	bool IsTownportalsFull() { return (CalcMaxPortals() <= GetTownportalsNumber()); }
-  	std::size_t CalcMaxPortals() { return CharacterTownportalRoster::CalcMaxPortals(this); };
-  	std::size_t GetTownportalsNumber() { return player_specials->townportals.Count(); };
+  	void ClearRunestones() { player_specials->runestones.Clear(); };
+  	void AddRunestone(const Runestone &stone);
+  	void RemoveRunestone(const Runestone &stone);
+  	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
+	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
+  	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };
 
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells

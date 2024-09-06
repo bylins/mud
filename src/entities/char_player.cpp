@@ -769,7 +769,7 @@ void Player::save_char() {
 
 	// порталы
 	std::ostringstream out;
-	this->player_specials->townportals.Serialize(out);
+	this->player_specials->runestones.Serialize(out);
 	fprintf(saved, "%s", out.str().c_str());
 
 	for (auto x : this->daily_quest) {
@@ -1632,9 +1632,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (true);
 				} else if (!strcmp(tag, "Prtl")) {
 					if (num > 0) {
-						auto portal = MUD::Townportals().FindTownportal(num);
+						auto portal = MUD::Runestones().FindRunestone(num);
 						if (portal.IsAllowed()) {
-							this->player_specials->townportals.AddTownportalToChar(portal);
+							this->player_specials->runestones.AddRunestone(portal);
 						}
 					}
 					// Loads Here new punishment strings

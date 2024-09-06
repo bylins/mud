@@ -1925,7 +1925,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
-	MUD::Townportals().ShowPortalRunestone(ch);
+	MUD::Runestones().ShowRunestone(ch);
 
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, false);
 	list_char_to_char_thing(world[ch->in_room]->people,
@@ -2364,7 +2364,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		where_bits = EFind::kObjEquip;
 
 	// для townportal
-	if (isname(whatp, "камень") && MUD::Townportals().ViewTownportal(ch, where_bits)) {
+	if (isname(whatp, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
 		return false;
 	}
 
@@ -2658,7 +2658,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	if (isname(arg, "камень") && MUD::Townportals().ViewTownportal(ch, where_bits)) {
+	if (isname(arg, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
 		return;
 	}
 

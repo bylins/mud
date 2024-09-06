@@ -60,7 +60,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		GoBootSocials();
 		initIngredientsMagic();
 		InitZoneTypes();
-		MUD::Townportals().LoadTownportals();
+		MUD::Runestones().LoadRunestones();
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
@@ -76,7 +76,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Bonus::bonus_log_load();
 		DailyQuest::LoadFromFile();
 	} else if (!str_cmp(arg, "portals"))
-		MUD::Townportals().LoadTownportals();
+		MUD::Runestones().LoadRunestones();
 	else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {
