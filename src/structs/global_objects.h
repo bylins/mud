@@ -22,6 +22,7 @@
 #include "entities/zone.h"
 #include "game_quests/daily_quest.h"
 #include "game_skills/skills_info.h"
+#include "game_skills/townportal.h"
 #include "strengthening.h"
 #include "boot/cfg_manager.h"
 
@@ -68,6 +69,7 @@ class GlobalObjects {
 	static influxdb::Sender &stats_sender();
 	static OutputThread &output_thread();
 	static ZoneTable &zone_table();
+  	static TownportalRoster &Townportals();
 
 	static celebrates::CelebrateList &mono_celebrates();
 	static celebrates::CelebrateList &poly_celebrates();

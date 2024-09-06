@@ -4,10 +4,59 @@
 #include "structs/structs.h"
 
 class CharData;
+
+class Townportal {
+ public:
+  enum class State { kEnabled, kDisabled, kForbidden };
+
+  Townportal() = default;
+  Townportal(std::string_view name,
+			 RoomVnum room_vnum,
+			 int min_char_level,
+			 State state = State::kEnabled)
+	  : name_(name),
+		room_vnum_(room_vnum),
+		min_char_level_(min_char_level),
+		state_(state) {}
+
+  [[nodiscard]] std::string_view GetName() const { return name_; };
+  [[nodiscard]] RoomVnum GetRoomVnum() const { return room_vnum_; };
+  [[nodiscard]] int GetMinCharLevel() const { return min_char_level_; };
+  [[nodiscard]] bool IsEnabled() const { return (state_ == State::kEnabled); };
+  [[nodiscard]] bool IsDisabled() const { return (state_ != State::kEnabled); };
+  [[nodiscard]] bool IsAllowed() const { return (state_ != State::kForbidden); };
+  [[nodiscard]] bool IsForbidden() const { return (state_ == State::kForbidden); };
+  void SetEnabled(bool enabled);
+
+ private:
+  std::string name_;
+  RoomVnum room_vnum_{0};
+  int min_char_level_{0};
+  State state_{State::kEnabled};
+};
+
+class TownportalRoster : std::vector<Townportal> {
+ public:
+  TownportalRoster();
+  TownportalRoster(const TownportalRoster &) = delete;
+  TownportalRoster(TownportalRoster &&) = delete;
+  TownportalRoster &operator=(const TownportalRoster &) = delete;
+  TownportalRoster &operator=(TownportalRoster &&) = delete;
+
+  void LoadTownportals();
+  void ShowPortalRunestone(CharData *ch);
+  bool ViewTownportal(CharData *ch, int where_bits);
+  Townportal &FindTownportal(RoomVnum vnum);
+  Townportal &FindTownportal(std::string_view name);
+
+ private:
+  Townportal incorrect_portal_;
+};
+
 void DecayPortalMessage(RoomRnum room_num);
-void LoadTownportals();
-bool ViewTownportal(CharData *ch, int where_bits);
-void ShowPortalRunestone(CharData *ch);
+//void LoadTownportals();
+//bool ViewTownportal(CharData *ch, int where_bits);
+//void ShowPortalRunestone(CharData *ch);
 void AddTownportalToChar(CharData *ch, RoomVnum vnum);
 void CleanupSurplusPortals(CharData *ch);
 
