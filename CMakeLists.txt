@@ -294,7 +294,10 @@ set(SOURCES
 		src/game_quests/bodrich_quests.cpp
 		src/cmd/do_affects.cpp
 		src/cmd/do_toggle.cpp
-		src/cmd/do_mode.cpp)
+		src/cmd/do_mode.cpp
+		src/cmd/levels.cpp
+		src/cmd/where.cpp
+		src/cmd/who.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -569,7 +572,10 @@ set(HEADERS
 		src/game_quests/bodrich_quests.h
 		src/cmd/do_affects.h
 		src/cmd/do_toggle.h
-		src/cmd/do_mode.h)
+		src/cmd/do_mode.h
+		src/cmd/levels.h
+		src/cmd/where.h
+		src/cmd/who.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

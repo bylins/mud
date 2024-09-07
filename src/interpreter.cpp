@@ -40,6 +40,7 @@
 #include "cmd/do_affects.h"
 #include "cmd/do_mode.h"
 #include "cmd/mercenary.h"
+#include "cmd/levels.h"
 #include "cmd/order.h"
 #include "cmd/put.h"
 #include "cmd/retreat.h"
@@ -60,6 +61,8 @@
 #include "cmd/refill.h"
 #include "cmd/sign.h"
 #include "cmd/trample.h"
+#include "cmd/where.h"
+#include "cmd/who.h"
 #include "comm.h"
 #include "constants.h"
 #include "game_crafts/craft_commands.h"
@@ -269,7 +272,6 @@ void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
-void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
 void do_load(CharData *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
@@ -315,8 +317,6 @@ void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
-void do_where(CharData *ch, char *argument, int cmd, int subcmd);
-void do_who(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
