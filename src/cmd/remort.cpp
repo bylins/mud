@@ -8,6 +8,7 @@
 #include "handler.h"
 #include "game_classes/classes.h"
 #include "game_fight/fight.h"
+#include "game_skills/townportal.h"
 #include "structs/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -139,8 +140,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
 	PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
 	PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
-	// Убираем все заученные порталы
-	check_portals(ch);
+	ch->DeleteIrrelevantRunestones();
 	if (ch->get_protecting()) {
 		ch->remove_protecting();
 	}

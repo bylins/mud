@@ -4,8 +4,10 @@
 #ifndef NAMES_HPP_INCLUDED
 #define NAMES_HPP_INCLUDED
 
-class CharData;
+#include <string>
 
+class CharData;
+struct DescriptorData;
 // Система одобрения имён
 namespace NewNames {
 enum {

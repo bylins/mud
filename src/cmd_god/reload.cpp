@@ -24,6 +24,7 @@
 #include "utils/utils.h"
 #include "game_mechanics/bonus.h"
 #include "game_mechanics/mob_races.h"
+#include "game_skills/townportal.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -59,7 +60,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		GoBootSocials();
 		initIngredientsMagic();
 		InitZoneTypes();
-		InitPortals();
+		MUD::Runestones().LoadRunestones();
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
@@ -75,7 +76,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Bonus::bonus_log_load();
 		DailyQuest::LoadFromFile();
 	} else if (!str_cmp(arg, "portals"))
-		InitPortals();
+		MUD::Runestones().LoadRunestones();
 	else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {

@@ -451,7 +451,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 #define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
-#define MAX_PORTALS(ch)  ((GetRealLevel(ch)/3)+GetRealRemort(ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
 #define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
@@ -599,7 +598,6 @@ const int kNameLevel = 5;
 
 #define GET_ALIASES(ch)        ((ch)->player_specials->aliases)
 #define GET_RSKILL(ch)        ((ch)->player_specials->rskill)
-#define GET_PORTALS(ch)        ((ch)->player_specials->portals)
 #define GET_LOGS(ch)        ((ch)->player_specials->logs)
 
 // Punishments structs

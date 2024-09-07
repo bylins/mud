@@ -48,6 +48,7 @@
 #include "backtrace.h"
 #include "dg_script/dg_db_scripts.h"
 #include "game_mechanics/mob_races.h"
+#include "game_skills/townportal.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -125,8 +126,6 @@ TimeInfoData time_info;    // the infomation about the time
 struct reset_q_type reset_q;    // queue of zones to be reset
 
 const FlagData clear_flags;
-
-struct Portal *portals_list;    // Список проталов для townportal
 
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
@@ -845,59 +844,6 @@ void QuestBodrich::LoadRewards() {
 	}
 }
 
-void InitPortals() {
-	FILE *portal_f;
-	char nm[300], nm2[300], *wrd;
-	int rnm = 0, i, level = 0;
-	struct Portal *curr, *prev;
-
-	// Сначала освобождаем все порталы
-	for (curr = portals_list; curr; curr = prev) {
-		prev = curr->next;
-		free(curr->wrd);
-		free(curr);
-	}
-
-	portals_list = nullptr;
-	prev = nullptr;
-
-	// читаем файл
-	if (!(portal_f = fopen(LIB_MISC "portals.lst", "r"))) {
-		log("Can not open portals.lst");
-		return;
-	}
-
-	while (get_line(portal_f, nm)) {
-		if (!nm[0] || nm[0] == ';')
-			continue;
-		sscanf(nm, "%d %d %s", &rnm, &level, nm2);
-		if (GetRoomRnum(rnm) == kNowhere || nm2[0] == '\0') {
-			log("Invalid portal entry detected");
-			continue;
-		}
-		wrd = nm2;
-		for (i = 0; !(i == 10 || wrd[i] == ' ' || wrd[i] == '\0'); i++);
-		wrd[i] = '\0';
-		// добавляем портал в список - rnm - комната, wrd - слово
-		CREATE(curr, 1);
-		CREATE(curr->wrd, strlen(wrd) + 1);
-		curr->vnum = rnm;
-		curr->level = level;
-		for (i = 0, curr->wrd[i] = '\0'; wrd[i]; i++)
-			curr->wrd[i] = LOWER(wrd[i]);
-		curr->wrd[i] = '\0';
-		curr->next = nullptr;
-		if (!portals_list)
-			portals_list = curr;
-		else
-			prev->next = curr;
-
-		prev = curr;
-
-	}
-	fclose(portal_f);
-}
-
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
@@ -1562,8 +1508,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
-	portals_list = nullptr;
-	InitPortals();
+	MUD::Runestones().LoadRunestones();
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");
@@ -3954,44 +3899,6 @@ void FlushPlayerIndex() {
 	}
 	fclose(players);
 	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
-}
-
-void RenamePlayer(CharData *ch, char *oname) {
-	char filename[kMaxInputLength], ofilename[kMaxInputLength];
-
-	// 1) Rename(if need) char and pkill file - directly
-	log("Rename char %s->%s", GET_NAME(ch), oname);
-	get_filename(oname, ofilename, kPlayersFile);
-	get_filename(GET_NAME(ch), filename, kPlayersFile);
-	rename(ofilename, filename);
-
-	ch->save_char();
-
-	// 2) Rename all other files
-	get_filename(oname, ofilename, kTextCrashFile);
-	get_filename(GET_NAME(ch), filename, kTextCrashFile);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, kTimeCrashFile);
-	get_filename(GET_NAME(ch), filename, kTimeCrashFile);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, kAliasFile);
-	get_filename(GET_NAME(ch), filename, kAliasFile);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, kScriptVarsFile);
-	get_filename(GET_NAME(ch), filename, kScriptVarsFile);
-	rename(ofilename, filename);
-
-	// хранилища
-	Depot::rename_char(ch);
-	get_filename(oname, ofilename, kPersDepotFile);
-	get_filename(GET_NAME(ch), filename, kPersDepotFile);
-	rename(ofilename, filename);
-	get_filename(oname, ofilename, kPurgeDepotFile);
-	get_filename(GET_NAME(ch), filename, kPurgeDepotFile);
-	rename(ofilename, filename);
 }
 
 void LoadGlobalUid() {

@@ -2,10 +2,141 @@
 
 #include "modify.h"
 #include "handler.h"
+#include "game_abilities/abilities_constants.h"
 #include "game_fight/pk.h"
 #include "game_magic/magic_rooms.h"
+#include "structs/global_objects.h"
+#include "utils/table_wrapper.h"
 
-namespace OneWayPortal {
+#include <third_party_libs/fmt/include/fmt/format.h>
+
+void GoTownportal(CharData *ch, char *argument);
+void TryOpenTownportal(CharData *ch, const Runestone &stone);
+void TryOpenLabelPortal(CharData *ch, char *argument);
+void OpenTownportal(CharData *ch, const Runestone &stone);
+void SetSkillTownportalTimer(CharData *ch);
+int CalcMinRunestoneLevel(CharData *ch, const Runestone &stone);
+Runestone GetLabelPortal(CharData *ch);
+
+void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
+		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
+		return;
+	}
+
+	if (!argument || !*argument) {
+		ch->PageRunestonesToChar();
+		return;
+	}
+
+	char arg2[kMaxInputLength];
+	two_arguments(argument, arg, arg2);
+	if (!str_cmp(arg, "забыть")) {
+		auto &stone = MUD::Runestones().FindRunestone(arg2);
+		ch->RemoveRunestone(stone);
+		return;
+	}
+
+	GoTownportal(ch, arg);
+}
+
+void GoTownportal(CharData *ch, char *argument) {
+	auto &stone = MUD::Runestones().FindRunestone(argument);
+	if (stone.IsAllowed() && ch->IsRunestoneKnown(stone)) {
+		TryOpenTownportal(ch, stone);
+	} else {
+		TryOpenLabelPortal(ch, argument);
+	}
+}
+
+void TryOpenTownportal(CharData *ch, const Runestone &stone) {
+	if (IsTimedBySkill(ch, ESkill::kTownportal)) {
+		SendMsgToChar("У вас недостаточно сил для постановки врат.\r\n", ch);
+		return;
+	}
+
+	if (MUD::Runestones().FindRunestone(GET_ROOM_VNUM(ch->in_room)).IsAllowed()) {
+		SendMsgToChar("Камень рядом с вами мешает вашей магии.\r\n", ch);
+		return;
+	}
+
+	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kRuneLabel)) {
+		SendMsgToChar("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
+		return;
+	}
+
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic) && !IS_GRGOD(ch)) {
+		SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
+		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, nullptr, nullptr, kToRoom);
+		return;
+	}
+
+	if (stone.IsDisabled()) {
+		act("Лазурная пентаграмма возникла в воздухе... и сразу же растаяла.", false, ch, nullptr, nullptr, kToChar);
+		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, nullptr, nullptr, kToRoom);
+		act("Лазурная пентаграмма возникла в воздухе... и сразу же растаяла.", false, ch, nullptr, nullptr, kToRoom);
+		SetSkillTownportalTimer(ch);
+		return;
+	}
+
+	OpenTownportal(ch, stone);
+}
+
+void TryOpenLabelPortal(CharData *ch, char *argument) {
+	if (name_cmp(ch, argument)) {
+		const auto &stone = GetLabelPortal(ch);
+		if (stone.IsAllowed()) {
+			TryOpenTownportal(ch, stone);
+		} else {
+			SendMsgToChar("Вы не оставляли рунных меток.\r\n", ch);
+		}
+		return;
+	}
+	SendMsgToChar("Вам неизвестны такие руны.\r\n", ch);
+}
+
+Runestone GetLabelPortal(CharData *ch) {
+	auto label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
+	if (label_room) {
+		return {ch->get_name(), label_room->vnum, 1};
+	} else {
+		return {"undefined", kNowhere, 1, Runestone::State::kForbidden};
+	}
+}
+
+void OpenTownportal(CharData *ch, const Runestone &stone) {
+	ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
+	RoomData *from_room = world[ch->in_room];
+	auto to_room = GetRoomRnum(stone.GetRoomVnum());
+	from_room->pkPenterUnique = 0;
+	one_way_portal::ReplacePortalTimer(ch, ch->in_room, to_room, 29);
+	act("Лазурная пентаграмма возникла в воздухе.", false, ch, nullptr, nullptr, kToChar);
+	act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, nullptr, nullptr, kToRoom);
+	act("Лазурная пентаграмма возникла в воздухе.", false, ch, nullptr, nullptr, kToRoom);
+	SetSkillTownportalTimer(ch);
+}
+
+void SetSkillTownportalTimer(CharData *ch) {
+	if (!IS_IMMORTAL(ch)) {
+		TimedSkill timed;
+		timed.skill = ESkill::kTownportal;
+		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
+		int modif = ch->GetSkill(ESkill::kTownportal) / 7 + number(1, 5);
+		timed.time = MAX(1, 25 - modif);
+		ImposeTimedSkill(ch, &timed);
+	}
+}
+
+int CalcMinRunestoneLevel(CharData *ch, const Runestone &stone) {
+	if (stone.IsAllowed()) {
+		return std::max(1, stone.GetMinCharLevel() - GetRealRemort(ch) / 2);
+	}
+
+	return kLvlImplementator + 1;
+}
+
+namespace one_way_portal {
+
 void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int time) {
 //	sprintf(buf, "Ставим портал из %d в %d", world[from_room]->vnum, world[to_room]->vnum);
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -17,7 +148,7 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 	af.modifier = to_room;
 	af.battleflag = 0;
 	af.location = room_spells::ERoomApply::kNone;
-	af.caster_id = ch? GET_ID(ch) : 0;
+	af.caster_id = ch ? GET_ID(ch) : 0;
 	af.must_handled = false;
 	af.apply_time = 0;
 //	room_spells::AffectRoomJoinReplace(world[from_room], af);
@@ -32,125 +163,215 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 
 } // namespace OneWayPortal
 
-void spell_townportal(CharData *ch, char *arg) {
-	int gcount = 0, cn = 0, ispr = 0;
-	bool has_label_portal = false;
-	struct TimedSkill timed;
-	char *nm;
-	struct CharacterPortal *tmp;
-	struct Portal *port;
-	struct Portal label_port;
-	RoomData *label_room = nullptr;
+inline void DecayPortalMessage(const RoomRnum room_num) {
+	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), nullptr, nullptr, kToRoom);
+	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), nullptr, nullptr, kToChar);
+}
 
-	port = get_portal(-1, arg);
-
-	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
-	if (!port && name_cmp(ch, arg)) {
-
-		label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
-		if (label_room) {
-			label_port.vnum = label_room->vnum;
-			label_port.level = 1;
-			port = &label_port;
-			has_label_portal = true;
-		}
+void Runestone::SetEnabled(bool enabled) {
+	if (state_ != State::kForbidden) {
+		state_ = (enabled ? State::kEnabled : State::kDisabled);
 	}
-	if (port && (has_char_portal(ch, port->vnum) || has_label_portal)) {
-		if (IsTimedBySkill(ch, ESkill::kTownportal)) {
-			SendMsgToChar("У вас недостаточно сил для постановки врат.\r\n", ch);
-			return;
-		}
+}
 
-		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
-			SendMsgToChar("Камень рядом с вами мешает вашей магии.\r\n", ch);
-			return;
-		}
+// ============================================ RUNESTONE ROSTER ================================================
 
-		if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kRuneLabel)) {
-			SendMsgToChar("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
-			return;
-		}
+RunestoneRoster::RunestoneRoster() {
+	incorrect_stone_ = Runestone("undefined", kNowhere, kMaxPlayerLevel + 1, Runestone::State::kForbidden);
+}
 
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic) && !IS_GRGOD(ch)) {
-			SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
-			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, 0, 0, kToRoom);
-			return;
-		}
-		// Открываем пентаграмму в комнату rnum //
-		ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
-		RoomData *from_room = world[ch->in_room];
-		RoomRnum to_room = GetRoomRnum(port->vnum);
-		from_room->pkPenterUnique = 0;
-		OneWayPortal::ReplacePortalTimer(ch, ch->in_room, to_room, 29);
-		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToChar);
-		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, 0, 0, kToRoom);
-		act("Лазурная пентаграмма возникла в воздухе.", false, ch, 0, 0, kToRoom);
-		if (!IS_IMMORTAL(ch)) {
-			timed.skill = ESkill::kTownportal;
-			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-			int modif = ch->GetSkill(ESkill::kTownportal) / 7 + number(1, 5);
-			timed.time = MAX(1, 25 - modif);
-			ImposeTimedSkill(ch, &timed);
-		}
+void RunestoneRoster::LoadRunestones() {
+	FILE *portal_f;
+	char nm[300], nm2[300], *wrd;
+	int rnm = 0, i, level = 0;
+
+	clear();
+	if (!(portal_f = fopen(LIB_MISC "portals.lst", "r"))) {
+		log("Cannot open portals.lst");
 		return;
 	}
 
-	// выдаем список мест //
-	gcount = sprintf(buf2 + gcount, "Вам доступны следующие врата:\r\n");
-	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
-		nm = find_portal_by_vnum(tmp->vnum);
-		if (nm) {
-			gcount += sprintf(buf2 + gcount, "%11s", nm);
-			cn++;
-			ispr++;
-			if (cn == 3) {
-				gcount += sprintf(buf2 + gcount, "\r\n");
-				cn = 0;
+	while (get_line(portal_f, nm)) {
+		if (!nm[0] || nm[0] == ';')
+			continue;
+		sscanf(nm, "%d %d %s", &rnm, &level, nm2);
+		if (GetRoomRnum(rnm) == kNowhere || nm2[0] == '\0') {
+			log("Invalid runestone entry detected");
+			continue;
+		}
+		wrd = nm2;
+		for (i = 0; !(i == 10 || wrd[i] == ' ' || wrd[i] == '\0'); i++);
+		wrd[i] = '\0';
+
+		emplace_back(wrd, rnm, level);
+	}
+	fclose(portal_f);
+}
+
+Runestone &RunestoneRoster::FindRunestone(RoomVnum vnum) {
+	auto predicate = [vnum](const Runestone &p) { return p.GetRoomVnum() == vnum; };
+	auto it = std::find_if(begin(), end(), predicate);
+	if (it != end()) {
+		return *it.base();
+	}
+
+	return incorrect_stone_;
+}
+
+Runestone &RunestoneRoster::FindRunestone(std::string_view name) {
+	auto predicate = [name](const Runestone &p) { return p.GetName() == name; };
+	auto it = std::find_if(begin(), end(), predicate);
+	if (it != end()) {
+		return *it.base();
+	}
+
+	return incorrect_stone_;
+}
+
+bool RunestoneRoster::ViewRunestone(CharData *ch, int where_bits) {
+	if (ch->GetSkill(ESkill::kTownportal) == 0) {
+		return false;
+	}
+	auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
+	if (stone.IsAllowed() && IS_SET(where_bits, EFind::kObjRoom)) {
+		if (stone.IsDisabled()) {
+			SendMsgToChar("Камень грубо расколот на несколько частей и прочитать надпись невозможно.", ch);
+			return true;
+		} else if (ch->IsRunestoneKnown(stone)) {
+			auto msg = fmt::format("На камне огненными рунами начертано слово '&R{}&n'.\r\n", stone.GetName());
+			SendMsgToChar(msg, ch);
+			return true;
+		} else if (GetRealLevel(ch) < CalcMinRunestoneLevel(ch, stone)) {
+			SendMsgToChar("Здесь что-то написано огненными рунами.\r\n", ch);
+			SendMsgToChar("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
+			return true;
+		} else {
+			ch->AddRunestone(stone);
+			return true;
+		}
+	}
+	return false;
+}
+
+void RunestoneRoster::ShowRunestone(CharData *ch) {
+	if (ch->GetSkill(ESkill::kTownportal)) {
+		const auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
+		if (stone.IsAllowed()) {
+			if (stone.IsEnabled()) {
+				SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
+			} else {
+				SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли... расколот.\r\n",
+							  ch);
 			}
 		}
 	}
-	if (cn)
-		gcount += sprintf(buf2 + gcount, "\r\n");
-	if (!ispr) {
-		gcount += sprintf(buf2 + gcount, "     В настоящий момент вам неизвестны порталы.\r\n");
+}
+
+std::vector<RoomVnum> RunestoneRoster::GetVnumRoster() {
+	std::vector<RoomVnum> vnums;
+	vnums.reserve(size());
+	for (const auto &it : *this) {
+		if (it.IsAllowed()) {
+			vnums.push_back(it.GetRoomVnum());
+		}
+	}
+	return vnums;
+}
+
+std::vector<std::string_view> RunestoneRoster::GetNameRoster() {
+	std::vector<std::string_view> names;
+	names.reserve(size());
+	for (const auto &it : *this) {
+		if (it.IsAllowed()) {
+			names.push_back(it.GetName());
+		}
+	}
+	return names;
+}
+
+// ======================================== CHARACTER RUNESTONE ROSTER ==============================================
+
+void CharacterRunestoneRoster::Serialize(std::ostringstream &out) {
+	for (const auto it : *this) {
+		out << fmt::format("Prtl: {}\n", it);
+	}
+}
+
+void CharacterRunestoneRoster::PageToChar(CharData *ch) {
+	std::ostringstream out;
+	if (empty()) {
+		out << " В настоящий момент вам неизвестны рунные метки.\r\n";
 	} else {
-		gcount += sprintf(buf2 + gcount, "     Сейчас в памяти - %d.\r\n", ispr);
-	}
-	gcount += sprintf(buf2 + gcount, "     Максимально     - %d.\r\n", MAX_PORTALS(ch));
-
-	page_string(ch->desc, buf2, 1);
-}
-
-void do_townportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-
-	struct CharacterPortal *tmp, *dlt = nullptr;
-	char arg2[kMaxInputLength];
-	int vnum = 0;
-
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
-		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
-		return;
-	}
-
-	two_arguments(argument, arg, arg2);
-	if (!str_cmp(arg, "забыть")) {
-		vnum = find_portal_by_word(arg2);
-		for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
-			if (tmp->vnum == vnum) {
-				if (dlt) {
-					dlt->next = tmp->next;
-				} else {
-					GET_PORTALS(ch) = tmp->next;
+		out << " Вам известны следующие рунные метки:\r\n";
+		table_wrapper::Table table;
+		const int columns_num{4};
+		int count = 1;
+		for (const auto it : *this) {
+			auto &portal = MUD::Runestones().FindRunestone(it);
+			if (portal.IsAllowed()) {
+				table << portal.GetName();
+				if (count % columns_num == 0) {
+					table << table_wrapper::kEndRow;
 				}
-				free(tmp);
-				sprintf(buf, "Вы полностью забыли, как выглядит камень '&R%s&n'.\r\n", arg2);
-				SendMsgToChar(buf, ch);
-				break;
+				++count;
 			}
-			dlt = tmp;
 		}
-		return;
+		table_wrapper::DecorateSimpleTable(ch, table);
+		table_wrapper::PrintTableToStream(out, table);
+		out << fmt::format("\r\n Сейчас вы помните {} рунных меток.\r\n", size());
 	}
+	out << fmt::format(" Максимально возможно {}.\r\n", CalcLimit(ch));
 
-	spell_townportal(ch, arg);
+	page_string(ch->desc, out.str());
 }
+
+bool CharacterRunestoneRoster::RemoveRunestone(const Runestone &stone) {
+	auto predicate = [stone](const RoomVnum p) { return p == stone.GetRoomVnum(); };
+	return std::erase_if(*this, predicate);
+}
+
+bool CharacterRunestoneRoster::AddRunestone(const Runestone &stone) {
+	if (stone.IsAllowed()) {
+		const auto room_vnum = stone.GetRoomVnum();
+		std::erase_if(*this, [room_vnum](RoomVnum p) { return p == room_vnum; });
+		push_back(room_vnum);
+		return true;
+	}
+	return false;
+}
+
+bool CharacterRunestoneRoster::IsFull(CharData *ch) {
+	return CalcLimit(ch) <= Count();
+}
+
+bool CharacterRunestoneRoster::Contains(const Runestone &stone) {
+	const auto it = std::find(begin(), end(), stone.GetRoomVnum());
+	return (it != end());
+}
+
+void CharacterRunestoneRoster::DeleteIrrelevant(CharData *ch) {
+	auto &runestones = MUD::Runestones();
+	auto predicate =
+		[&runestones](const RoomVnum vnum) { return runestones.FindRunestone(vnum).IsForbidden(); };
+	std::erase_if(*this, predicate);
+	if (IsOverfilled(ch)) {
+		ShrinkToLimit(ch);
+	}
+}
+
+bool CharacterRunestoneRoster::IsOverfilled(CharData *ch) {
+	return (size() > CalcLimit(ch));
+}
+
+void CharacterRunestoneRoster::ShrinkToLimit(CharData *ch) {
+	resize(CalcLimit(ch));
+}
+
+std::size_t CharacterRunestoneRoster::CalcLimit(CharData *ch) {
+	const auto skill = ch->GetSkill(ESkill::kTownportal);
+	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
+	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
+	return (1 + low_skill/9 + hi_skill/5);
+}
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

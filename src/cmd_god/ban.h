@@ -137,6 +137,7 @@ void save();
 
 } // namespace RegisterSystem
 
+int Valid_Name(char *newname);
 void LoadProxyList();
 extern BanList *&ban;
 

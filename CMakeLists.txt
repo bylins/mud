@@ -287,7 +287,8 @@ set(SOURCES
 		src/game_mechanics/dungeons.cpp
 		src/cmd_god/tabulate.cpp
 		src/cmd_god/reload.cpp
-		src/game_mechanics/mob_races.cpp)
+		src/game_mechanics/mob_races.cpp
+		src/cmd_god/do_set.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -555,7 +556,8 @@ set(HEADERS
 		src/game_mechanics/dungeons.h
 		src/cmd_god/tabulate.h
 		src/cmd_god/reload.h
-		src/game_mechanics/mob_races.h)
+		src/game_mechanics/mob_races.h
+		src/cmd_god/do_set.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

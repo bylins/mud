@@ -178,15 +178,6 @@ void Crash_idlesave(CharData *ch);
 
 bool stop_follower(CharData *ch, int mode);
 
-// townportal //
-char *find_portal_by_vnum(int vnum);
-int level_portal_by_vnum(int vnum);
-int find_portal_by_word(char *wrd);
-void add_portal_to_char(CharData *ch, int vnum);
-int has_char_portal(CharData *ch, int vnum);
-void check_portals(CharData *ch);
-struct Portal *get_portal(int vnum, char *wrd);
-
 // charm //
 
 float get_effective_cha(CharData *ch);

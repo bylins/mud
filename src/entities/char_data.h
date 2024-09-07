@@ -14,6 +14,7 @@
 #include "communication/ignores.h"
 #include "game_crafts/im.h"
 #include "game_skills/skills.h"
+#include "game_skills/townportal.h"
 #include "utils/utils.h"
 #include "conf.h"
 #include "game_affects/affect_data.h"
@@ -251,7 +252,7 @@ struct player_special_data {
 	int agressor;        // Agression room(it is also a flag)
 	time_t agro_time;        // Last agression time (it is also a flag)
 	im_rskill *rskill;    // Известные рецепты
-	struct CharacterPortal *portals;    // порталы теперь живут тут
+  	CharacterRunestoneRoster runestones; // рунные камни для врат и не только
 	int *logs;        // уровни подробности каналов log
 
 	char *Exchange_filter;
@@ -781,6 +782,12 @@ class CharData : public ProtectedCharData {
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
+  	void ClearRunestones() { player_specials->runestones.Clear(); };
+  	void AddRunestone(const Runestone &stone);
+  	void RemoveRunestone(const Runestone &stone);
+  	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
+	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
+  	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };
 
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells

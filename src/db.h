@@ -54,7 +54,6 @@ void ResetZone(ZoneRnum zone);
 void LoadSheduledReboot();
 void initIngredientsMagic();
 void InitZoneTypes();
-void InitPortals();
 int AllocateBufferForFile(const char *name, char **destination_buf);
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags);
 CharData *ReadMobile(MobVnum nr, int type);
@@ -247,7 +246,6 @@ inline ObjVnum GET_OBJ_VNUM(const CObjectPrototype *obj) { return obj->get_vnum(
 extern CharData *mob_proto;
 extern const char *MENU;
 
-extern struct Portal *portals_list;
 extern TimeInfoData time_info;
 
 extern int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto);

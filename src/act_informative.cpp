@@ -69,6 +69,7 @@
 #include "game_classes/classes_constants.h"
 #include "game_skills/skills_info.h"
 #include "game_skills/pick.h"
+#include "game_skills/townportal.h"
 #include "game_magic/magic_rooms.h"
 #include "game_economics/exchange.h"
 #include "act_other.h"
@@ -1924,11 +1925,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
-	if (ch->GetSkill(ESkill::kTownportal)) {
-		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
-			SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
-		}
-	}
+	MUD::Runestones().ShowRunestone(ch);
+
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, false);
 	list_char_to_char_thing(world[ch->in_room]->people,
 							ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
@@ -2340,11 +2338,9 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
  * \return флаг если смотрим в клан-сундук, чтобы после осмотра не смотреть второй раз по look_in_obj
  */
 bool look_at_target(CharData *ch, char *arg, int subcmd) {
-	int bits, found = false, fnum, i = 0, cn = 0;
-	struct Portal *port;
+	int bits, found = false, fnum, i = 0;
 	CharData *found_char = nullptr;
 	ObjData *found_obj = nullptr;
-	struct CharacterPortal *tmp;
 	char *desc, *what, whatp[kMaxInputLength], where[kMaxInputLength];
 	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip | EFind::kCharInRoom | EFind::kObjExtraDesc;
 
@@ -2368,38 +2364,9 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		where_bits = EFind::kObjEquip;
 
 	// для townportal
-	if (isname(whatp, "камень") &&
-		ch->GetSkill(ESkill::kTownportal) &&
-		(port = get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom)) {
-
-		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room))) {
-			SendMsgToChar("На камне огненными буквами написано слово '&R", ch);
-			SendMsgToChar(port->wrd, ch);
-			SendMsgToChar("&n'.\r\n", ch);
-			return 0;
-		} else if (GetRealLevel(ch) < MAX(1, port->level - GetRealRemort(ch) / 2)) {
-			SendMsgToChar("На камне что-то написано огненными буквами.\r\n", ch);
-			SendMsgToChar("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
-			return false;
-		} else {
-			for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
-				cn++;
-			}
-			if (cn >= MAX_PORTALS(ch)) {
-				SendMsgToChar
-					("Все доступные вам камни уже запомнены, удалите и попробуйте еще.\r\n", ch);
-				return false;
-			}
-			SendMsgToChar("На камне огненными буквами написано слово '&R", ch);
-			SendMsgToChar(port->wrd, ch);
-			SendMsgToChar("&n'.\r\n", ch);
-			// теперь добавляем в память чара
-			add_portal_to_char(ch, GET_ROOM_VNUM(ch->in_room));
-			check_portals(ch);
-			return false;
-		}
+	if (isname(whatp, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
+		return false;
 	}
-
 
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	// Is the target a character?
@@ -2690,10 +2657,10 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		}
 	}
-	if (isname(arg, "камень") &&
-		ch->GetSkill(ESkill::kTownportal) &&
-		(get_portal(GET_ROOM_VNUM(ch->in_room), nullptr)) != nullptr && IS_SET(where_bits, EFind::kObjRoom))
+
+	if (isname(arg, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
 		return;
+	}
 
 	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
 	if (tmp_object) {
