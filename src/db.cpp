@@ -2,7 +2,6 @@
 
 #include "administration/accounts.h"
 #include "cmd_god/ban.h"
-#include "cmd_god/stat.h"
 #include "boards/boards.h"
 #include "boot/boot_data_files.h"
 #include "boot/boot_index.h"
@@ -41,6 +40,7 @@
 #include "communication/parcel.h"
 #include "administration/privilege.h"
 #include "game_mechanics/sets_drop.h"
+#include "game_mechanics/stable_objs.h"
 #include "game_economics/shop_ext.h"
 #include "stuff.h"
 #include "title.h"
@@ -48,27 +48,24 @@
 #include "backtrace.h"
 #include "dg_script/dg_db_scripts.h"
 #include "game_mechanics/mob_races.h"
-#include "game_skills/townportal.h"
+#include "game_mechanics/treasure_cases.h"
+#include "game_mechanics/cities.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
 
 #include <memory>
 
-#define CRITERION_FILE "criterion.xml"
-#define CASES_FILE "cases.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
-#define CITIES_FILE "cities.xml"
-#define QUESTBODRICH_FILE "quest_bodrich.xml"
 
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 **************************************************************************/
 #if defined(CIRCLE_MACINTOSH)
-long beginning_of_time = -1561789232;
+const long kBeginningOfTime = -1561789232;
 #else
-long beginning_of_time = 650336715;
+const long kBeginningOfTime = 650336715;
 #endif
 
 Rooms &world = GlobalObjects::world();
@@ -144,7 +141,7 @@ void CheckStartRooms();
 void AddVirtualRoomsToAllZones();
 void CalculateFirstAndLastRooms();
 void CalculateFirstAndLastMobs();
-void RenumberWorld();
+void RosolveWorldDoorToRoomVnumsToRnums();
 void PasteDirs();
 void ResolveZoneTableCmdVnumArgsToRnums();
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message);
@@ -198,446 +195,6 @@ char *ReadActionMsgFromFile(FILE *fl, int nr) {
 
 	local_buf[strlen(local_buf) - 1] = '\0';
 	return (str_dup(local_buf));
-}
-
-struct Item_struct {
-  std::map<std::string, double> params;
-  std::map<std::string, double> affects;
-};
-
-// массив для критерии, каждый элемент массива это отдельный слот
-Item_struct items_struct[17]; // = new Item_struct[16];
-
-// определение степени двойки
-int DeterminePowerOfTwo(int number) {
-	int count = 0;
-	while (true) {
-		const int tmp = 1 << count;
-		if (number < tmp) {
-			return -1;
-		}
-		if (number == tmp) {
-			return count;
-		}
-		count++;
-	}
-}
-
-template<typename EnumType>
-inline int DeterminePowerOfTwoForEnum(EnumType number) {
-	return DeterminePowerOfTwo(to_underlying(number));
-}
-
-bool IsObjFromSystemZone(ObjVnum vnum) {
-	// ковка
-	if ((vnum < 400) && (vnum > 299))
-		return true;
-	// сет-шмот
-	if ((vnum >= 1200) && (vnum <= 1299))
-		return true;
-	if ((vnum >= 2300) && (vnum <= 2399))
-		return true;
-	// луки
-	if ((vnum >= 1500) && (vnum <= 1599))
-		return true;
-	return false;
-}
-
-bool IsTimerUnlimited(const CObjectPrototype *obj) {
-	char buf_temp[kMaxStringLength];
-	char buf_temp1[kMaxStringLength];
-	//sleep(15);
-	// куда надевается наш предмет.
-	int item_wear = -1;
-	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == EObjType::kArmor
-		|| GET_OBJ_TYPE(obj) == EObjType::kStaff
-		|| GET_OBJ_TYPE(obj) == EObjType::kWorm
-		|| GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-		type_item = true;
-	}
-	// сумма для статов
-	double sum = 0;
-	// сумма для аффектов
-	double sum_aff = 0;
-	// по другому чот не получилось
-	if (obj->has_wear_flag(EWearFlag::kFinger)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kFinger);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kNeck)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kNeck);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kBody)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kBody);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kHead)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kHead);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kLegs)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kLegs);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kFeet)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kFeet);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kHands)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kHands);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kArms)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kArms);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kShield)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kShield);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kShoulders)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kShoulders);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kWaist)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kWaist);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kQuiver)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kQuiver);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kWrist)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kWrist);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kBoth)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kBoth);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kWield)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kWield);
-	}
-
-	if (obj->has_wear_flag(EWearFlag::kHold)) {
-		item_wear = DeterminePowerOfTwoForEnum(EWearFlag::kHold);
-	}
-
-	if (!type_item) {
-		return false;
-	}
-	// находится ли объект в системной зоне
-	if (IsObjFromSystemZone(obj->get_vnum())) {
-		return false;
-	}
-	// если объект никуда не надевается, то все, облом
-	if (item_wear == -1) {
-		return false;
-	}
-	// если шмотка магическая или энчантнута таймер обычный
-	if (obj->has_flag(EObjFlag::kMagic)) {
-		return false;
-	}
-	// если это сетовый предмет
-	if (obj->has_flag(EObjFlag::KSetItem)) {
-		return false;
-	}
-	// !нерушима
-	if (obj->has_flag(EObjFlag::KLimitedTimer)) {
-		return false;
-	}
-	// рассыпется вне зоны
-	if (obj->has_flag(EObjFlag::kZonedacay)) {
-		return false;
-	}
-	// рассыпется на репоп зоны
-	if (obj->has_flag(EObjFlag::kRepopDecay)) {
-		return false;
-	}
-
-	// если предмет требует реморты, то он явно овер
-	if (obj->get_auto_mort_req() > 0)
-		return false;
-	if (obj->get_minimum_remorts() > 0)
-		return false;
-	// проверяем дырки в предмете
-	if (obj->has_flag(EObjFlag::kHasOneSlot)
-		|| obj->has_flag(EObjFlag::kHasTwoSlots)
-		|| obj->has_flag(EObjFlag::kHasThreeSlots)) {
-		return false;
-	}
-	// если у объекта таймер ноль, то облом.
-	if (obj->get_timer() == 0) {
-		return false;
-	}
-	// проходим по всем характеристикам предмета
-	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).modifier) {
-			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
-			// проходим по нашей таблице с критериями
-			for (auto &param : items_struct[item_wear].params) {
-				if (strcmp(param.first.c_str(), buf_temp) == 0) {
-					if (obj->get_affected(i).modifier > 0) {
-						sum += param.second * obj->get_affected(i).modifier;
-					}
-				}
-			}
-		}
-	}
-	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
-
-	// проходим по всем аффектам в нашей таблице
-	for (auto &affect : items_struct[item_wear].affects) {
-		// проверяем, есть ли наш аффект на предмете
-		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
-			sum_aff += affect.second;
-		}
-		//std::cout << it->first << " " << it->second << "\r\n";
-	}
-
-	// если сумма больше или равна единице
-	if (sum >= 1) {
-		return false;
-	}
-
-	// тоже самое для аффектов на объекте
-	if (sum_aff >= 1) {
-		return false;
-	}
-
-	// иначе все норм
-	return true;
-}
-
-double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear) {
-	double sum = 0.0;
-	double sum_aff = 0.0;
-	char buf_temp[kMaxStringLength];
-	char buf_temp1[kMaxStringLength];
-
-	// проходим по всем характеристикам предмета
-	for (int i = 0; i < kMaxObjAffect; i++) {
-		if (obj->get_affected(i).modifier) {
-			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
-			// проходим по нашей таблице с критериями
-			for (auto &param : items_struct[item_wear].params) {
-				if (strcmp(param.first.c_str(), buf_temp) == 0) {
-					if (obj->get_affected(i).modifier > 0) {
-						sum += param.second * obj->get_affected(i).modifier;
-					}
-				}
-
-				//std::cout << it->first << " " << it->second << "\r\n";
-			}
-		}
-	}
-	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
-
-	for (auto &affect : items_struct[item_wear].affects) {
-		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
-			sum_aff += affect.second;
-		}
-	}
-	sum += sum_aff;
-	return sum;
-}
-
-double CountUnlimitedTimer(const CObjectPrototype *obj) {
-	bool type_item = false;
-	if (GET_OBJ_TYPE(obj) == EObjType::kArmor
-		|| GET_OBJ_TYPE(obj) == EObjType::kStaff
-		|| GET_OBJ_TYPE(obj) == EObjType::kWorm
-		|| GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
-		type_item = true;
-	}
-	// сумма для статов
-
-	double result{0.0};
-	if (CAN_WEAR(obj, EWearFlag::kFinger)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kFinger));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kNeck)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kNeck));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kBody)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kBody));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kHead)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kHead));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kLegs)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kLegs));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kFeet)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kFeet));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kHands)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kHands));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kArms)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kArms));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kShield)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kShield));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kShoulders));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kWaist)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kWaist));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kQuiver));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kWrist)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kWrist));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kWield)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kWield));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kHold)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kHold));
-	}
-
-	if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-		result += CountUnlimitedTimerBonus(obj, DeterminePowerOfTwoForEnum(EWearFlag::kBoth));
-	}
-
-	if (!type_item) {
-		return 0.0;
-	}
-
-	return result;
-}
-
-double CalcRemortRequirements(const CObjectPrototype *obj) {
-	const float SQRT_MOD = 1.7095f;
-	const int AFF_SHIELD_MOD = 30;
-	const int AFF_MAGICGLASS_MOD = 10;
-	const int AFF_BLINK_MOD = 10;
-	const int AFF_CLOUDLY_MOD = 10;
-
-	double result{0.0};
-	if (ObjSystem::is_mob_item(obj) || obj->has_flag(EObjFlag::KSetItem)) {
-		return result;
-	}
-
-	double total_weight{0.0};
-	// аффекты APPLY_x
-	for (int k = 0; k < kMaxObjAffect; k++) {
-		if (obj->get_affected(k).location == 0) continue;
-
-		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < kMaxObjAffect; kk++) {
-			if (obj->get_affected(k).location == obj->get_affected(kk).location
-				&& k != kk) {
-				log("SYSERROR: double affect=%d, ObjVnum=%d",
-					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
-				return 1000000;
-			}
-		}
-		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != EApply::kAc) &&
-			(obj->get_affected(k).location != EApply::kSavingWill) &&
-			(obj->get_affected(k).location != EApply::kSavingCritical) &&
-			(obj->get_affected(k).location != EApply::kSavingStability) &&
-			(obj->get_affected(k).location != EApply::kSavingReflex))) {
-			auto weight =
-				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-			total_weight += pow(weight, SQRT_MOD);
-		}
-			// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
-			(obj->get_affected(k).location == EApply::kSavingWill) ||
-			(obj->get_affected(k).location == EApply::kSavingCritical) ||
-			(obj->get_affected(k).location == EApply::kSavingStability) ||
-			(obj->get_affected(k).location == EApply::kSavingReflex))) {
-			auto weight =
-				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
-			total_weight -= pow(weight, -SQRT_MOD);
-		}
-			//Добавленый кусок учет савесов с - значениями
-		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location == EApply::kAc) ||
-				(obj->get_affected(k).location == EApply::kSavingWill) ||
-				(obj->get_affected(k).location == EApply::kSavingCritical) ||
-				(obj->get_affected(k).location == EApply::kSavingStability) ||
-				(obj->get_affected(k).location == EApply::kSavingReflex))) {
-			auto weight =
-				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-			total_weight += pow(weight, SQRT_MOD);
-		}
-			//Добавленый кусок учет отрицательного значения но не савесов
-		else if ((obj->get_affected(k).modifier < 0)
-			&& ((obj->get_affected(k).location != EApply::kAc) &&
-				(obj->get_affected(k).location != EApply::kSavingWill) &&
-				(obj->get_affected(k).location != EApply::kSavingCritical) &&
-				(obj->get_affected(k).location != EApply::kSavingStability) &&
-				(obj->get_affected(k).location != EApply::kSavingReflex))) {
-			auto weight =
-				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
-			total_weight -= pow(weight, -SQRT_MOD);
-		}
-	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto &m : weapon_affect) {
-		if (IS_OBJ_AFF(obj, m.aff_pos)) {
-			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
-			if (obj_affects == EAffect::kAirShield ||
-				obj_affects == EAffect::kFireShield ||
-				obj_affects == EAffect::kIceShield) {
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			} else if (obj_affects == EAffect::kMagicGlass) {
-				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			} else if (obj_affects == EAffect::kBlink) {
-				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			} else if (obj_affects == EAffect::kCloudly) {
-				total_weight += pow(AFF_CLOUDLY_MOD, SQRT_MOD);
-			}
-		}
-	}
-
-	if (total_weight < 1) {
-		return result;
-	} else {
-		return ceil(pow(total_weight, 1 / SQRT_MOD));
-	}
-}
-
-void LoadCriterion(pugi::xml_node criterion, const EWearFlag type) {
-	int index = DeterminePowerOfTwoForEnum(type);
-	pugi::xml_node params, CurNode, affects;
-	params = criterion.child("params");
-	affects = criterion.child("affects");
-
-	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
-	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param")) {
-		items_struct[index].params.insert(std::make_pair(CurNode.attribute("name").value(),
-														 CurNode.attribute("value").as_double()));
-		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
-	}
-
-	// добавляем в массив все аффекты
-	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect")) {
-		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(),
-														  CurNode.attribute("value").as_double()));
-		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
-	}
 }
 
 // Separate a 4-character id tag from the data it precedes
@@ -752,98 +309,6 @@ pugi::xml_node XmlLoad(const char *PathToFile, const char *MainTag, const char *
 	return NodeList;
 }
 
-std::vector<TreasureCase> cases;
-// Заггрузка сундуков в мире
-void LoadTreasureCases() {
-	pugi::xml_document doc_cases;
-	pugi::xml_node case_, object_, file_case;
-	file_case = XmlLoad(LIB_MISC CASES_FILE, "cases", "Error loading cases file: cases.xml", doc_cases);
-	for (case_ = file_case.child("casef"); case_; case_ = case_.next_sibling("casef")) {
-		TreasureCase treasure_case;
-		treasure_case.vnum = case_.attribute("vnum").as_int();
-		treasure_case.drop_chance = case_.attribute("drop_chance").as_int();
-		for (object_ = case_.child("object"); object_; object_ = object_.next_sibling("object")) {
-			treasure_case.vnum_objs.push_back(object_.attribute("vnum").as_int());
-		}
-		cases.push_back(treasure_case);
-	}
-}
-
-std::vector<City> Cities;
-std::string default_str_cities;
-/* Загрузка городов из xml файлов */
-void LoadCities() {
-	default_str_cities = "";
-	pugi::xml_document doc_cities;
-	pugi::xml_node child_, object_, file_;
-	file_ = XmlLoad(LIB_MISC CITIES_FILE, "cities", "Error loading cases file: cities.xml", doc_cities);
-	for (child_ = file_.child("city"); child_; child_ = child_.next_sibling("city")) {
-		City city;
-		city.name = child_.child("name").attribute("value").as_string();
-		city.rent_vnum = child_.child("rent_vnum").attribute("value").as_int();
-		for (object_ = child_.child("ZoneVnum"); object_; object_ = object_.next_sibling("ZoneVnum")) {
-			city.vnums.push_back(object_.attribute("value").as_int());
-		}
-		Cities.push_back(city);
-		default_str_cities += "0";
-	}
-}
-
-QuestBodrich::QuestBodrich() {
-	this->LoadObjs();
-	this->LoadMobs();
-	this->LoadRewards();
-}
-
-void QuestBodrich::LoadObjs() {
-	pugi::xml_document doc_;
-	pugi::xml_node class_, file_, object_;
-	file_ = XmlLoad(LIB_MISC QUESTBODRICH_FILE, "objects", "Error loading obj file: quest_bodrich.xml", doc_);
-	std::vector<int> tmp_array;
-	for (class_ = file_.child("class"); class_; class_ = class_.next_sibling("class")) {
-		tmp_array.clear();
-		for (object_ = object_.child("obj"); object_; object_ = object_.next_sibling("obj")) {
-			tmp_array.push_back(object_.attribute("vnum").as_int());
-		}
-		this->objs.insert(std::pair<int, std::vector<int>>(class_.attribute("id").as_int(), tmp_array));
-	}
-}
-
-void QuestBodrich::LoadMobs() {
-	pugi::xml_document doc_;
-	pugi::xml_node level_, file_, mob_;
-	file_ = XmlLoad(LIB_MISC QUESTBODRICH_FILE, "mobs", "Error loading mobs file: quest_bodrich.xml", doc_);
-	std::vector<int> tmp_array;
-	for (level_ = file_.child("level"); level_; level_ = level_.next_sibling("level")) {
-		tmp_array.clear();
-		for (mob_ = mob_.child("mob"); mob_; mob_ = mob_.next_sibling("mob")) {
-			tmp_array.push_back(mob_.attribute("vnum").as_int());
-		}
-		this->mobs.insert(std::pair<int, std::vector<int>>(level_.attribute("value").as_int(), tmp_array));
-	}
-}
-
-void QuestBodrich::LoadRewards() {
-	pugi::xml_document doc_;
-	pugi::xml_node class_, file_, object_, level_;
-	file_ = XmlLoad(LIB_MISC QUESTBODRICH_FILE, "rewards", "Error loading rewards file: quest_bodrich.xml", doc_);
-	std::vector<QuestBodrichRewards> tmp_array;
-	for (class_ = file_.child("class"); class_; class_ = class_.next_sibling("class")) {
-		tmp_array.clear();
-		for (level_ = level_.child("level"); level_; level_ = level_.next_sibling("level")) {
-			QuestBodrichRewards qbr{};
-			qbr.level = level_.attribute("level").as_int();
-			qbr.vnum = level_.attribute("ObjVnum").as_int();
-			qbr.money = level_.attribute("money_value").as_int();
-			qbr.exp = level_.attribute("exp_value").as_int();
-			tmp_array.push_back(qbr);
-		}
-		//std::map<int, QuestBodrichRewards> rewards;
-		this->rewards.insert(std::pair<int, std::vector<QuestBodrichRewards>>(class_.attribute("id").as_int(),
-																			  tmp_array));
-	}
-}
-
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
@@ -938,7 +403,7 @@ void GameLoader::BootWorld() {
 
 	boot_profiler.next_step("Renumbering rooms");
 	log("Renumbering rooms.");
-	RenumberWorld();
+	RosolveWorldDoorToRoomVnumsToRnums();
 
 	boot_profiler.next_step("Checking start rooms");
 	log("Checking start rooms.");
@@ -1340,41 +805,9 @@ void BootMudDataBase() {
 	DailyQuest::LoadFromFile();
 
 	pugi::xml_document doc;
-	boot_profiler.next_step("Loading criterion");
-	log("Loading Criterion...");
-	pugi::xml_document doc1;
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "finger", "Error Loading Criterion.xml: <finger>", doc1),
-				  EWearFlag::kFinger);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "neck", "Error Loading Criterion.xml: <neck>", doc1),
-				  EWearFlag::kNeck);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "body", "Error Loading Criterion.xml: <body>", doc1),
-				  EWearFlag::kBody);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "head", "Error Loading Criterion.xml: <head>", doc1),
-				  EWearFlag::kHead);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "legs", "Error Loading Criterion.xml: <legs>", doc1),
-				  EWearFlag::kLegs);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "feet", "Error Loading Criterion.xml: <feet>", doc1),
-				  EWearFlag::kFeet);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "hands", "Error Loading Criterion.xml: <hands>", doc1),
-				  EWearFlag::kHands);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "arms", "Error Loading Criterion.xml: <arms>", doc1),
-				  EWearFlag::kArms);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1),
-				  EWearFlag::kShield);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1),
-				  EWearFlag::kShoulders);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1),
-				  EWearFlag::kWaist);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1),
-				  EWearFlag::kQuiver);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1),
-				  EWearFlag::kWrist);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1),
-				  EWearFlag::kBoth);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1),
-				  EWearFlag::kWield);
-	LoadCriterion(XmlLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1),
-				  EWearFlag::kHold);
+	boot_profiler.next_step("Loading undecayable object criterions");
+	log("Loading undecayable object criterions.");
+	stable_objs::LoadCriterionsCfg();
 
 	boot_profiler.next_step("Loading birthplaces definitions");
 	log("Loading birthplaces definitions.");
@@ -1659,8 +1092,8 @@ void BootMudDataBase() {
 	mail::load();
 
 	// загрузка кейсов
-	boot_profiler.next_step("Loading cases");
-	LoadTreasureCases();
+	boot_profiler.next_step("Loading treasure cases");
+	treasure_cases::LoadTreasureCases();
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");
@@ -1672,7 +1105,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
-	LoadCities();
+	cities::LoadCities();
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
@@ -1681,7 +1114,7 @@ void BootMudDataBase() {
 
 // reset the time in the game from file
 void ResetGameWorldTime() {
-	time_info = *CalcMudTimePassed(time(nullptr), beginning_of_time);
+	time_info = *CalcMudTimePassed(time(nullptr), kBeginningOfTime);
 	// Calculate moon day
 	weather_info.moon_day =
 		((time_info.year * kMonthsPerYear + time_info.month) * kDaysPerMonth + time_info.day) % kMoonCycle;
@@ -1983,8 +1416,7 @@ void AddVirtualRoomsToAllZones() {
 	}
 }
 
-// resolve all vnums into rnums in the world
-void RenumberWorld() {
+void RosolveWorldDoorToRoomVnumsToRnums() {
 	for (auto room = kFirstRoom; room <= top_of_world; room++) {
 		for (auto door = 0; door < EDirection::kMaxDirNum; door++) {
 			if (world[room]->dir_option_proto[door]) {
@@ -1998,14 +1430,12 @@ void RenumberWorld() {
 	}
 }
 
-// Установка принадлежности к зоне в прототипах
 void SetZoneRnumForObjects() {
 	for (size_t i = 0; i < obj_proto.size(); ++i) {
 		obj_proto.zone(i, get_zone_rnum_by_obj_vnum(obj_proto[i]->get_vnum()));
 	}
 }
 
-// Установкапринадлежности к зоне в индексе
 void SetZoneRnumForMobiles() {
 	int i;
 	for (i = 0; i <= top_of_mobt; ++i) {
@@ -2766,10 +2196,8 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
 	mudlog(local_buf, NRM, kLvlGod, SYSLOG, true);
 }
 
-// Выполить команду, только если предыдущая успешна
-#define        CHECK_SUCCESS        1
-// Команда не должна изменить флаг
-#define        FLAG_PERSIST        2
+const int CHECK_SUCCESS{1};	// Выполить команду, только если предыдущая успешна
+const int FLAG_PERSIST{2};	// Команда не должна изменить флаг
 
 class ZoneReset {
  public:
@@ -2778,7 +2206,7 @@ class ZoneReset {
   void Reset();
 
  private:
-  [[nodiscard]] bool HandleZoneCmdQ(const MobRnum rnum) const;
+  [[nodiscard]] bool HandleZoneCmdQ(MobRnum rnum) const;
 
   // execute the reset command table of a given zone
   void ResetZoneEssential();
@@ -2978,7 +2406,7 @@ void ZoneReset::ResetZoneEssential() {
 					// Теперь грузим обьект если надо
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
+						|| stable_objs::IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)
 						&& (obj_in_room < obj_in_room_max)) {
@@ -3008,7 +2436,7 @@ void ZoneReset::ResetZoneEssential() {
 					// 'P' <flag> <ObjVnum> <room or 0> <target_vnum> <load%|-1>
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
+						|| stable_objs::IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						if (reset_cmd.arg2 > 0) {
@@ -3059,7 +2487,7 @@ void ZoneReset::ResetZoneEssential() {
 					}
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
+						|| stable_objs::IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(reset_cmd.arg1);
@@ -3083,7 +2511,7 @@ void ZoneReset::ResetZoneEssential() {
 					}
 					if ((obj_proto.actual_count(reset_cmd.arg1) < obj_proto[reset_cmd.arg1]->get_max_in_world()
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-						|| IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
+						|| stable_objs::IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
 						&& (reset_cmd.arg4 <= 0
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						if (reset_cmd.arg3 < 0

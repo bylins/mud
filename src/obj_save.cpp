@@ -21,6 +21,7 @@
 #include "utils/file_crc.h"
 #include "game_mechanics/named_stuff.h"
 #include "utils/utils_char_obj.inl"
+#include "game_mechanics/stable_objs.h"
 #include <sys/stat.h>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -629,7 +630,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// Таймер
 		if (object->get_timer() != proto->get_timer()) {
 			out << "Tmer: " << object->get_timer() << "~\n";
-			if (!IsObjFromSystemZone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
+			if (!stable_objs::IsObjFromSystemZone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
 			{
 				// на тот случай, если есть объекты с таймером, больше таймера прототипа
 				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
@@ -1222,7 +1223,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
 			rnum = GetObjRnum(player_table[index].timer->time[i].vnum);
-			if ((!IsTimerUnlimited(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
+			if ((!stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) && (!obj_proto[rnum]->has_flag(EObjFlag::kNoRentTimer))) {
 				timer = player_table[index].timer->time[i].timer;
 				if (timer < timer_dec) {
 					player_table[index].timer->time[i].timer = -1;
@@ -1284,7 +1285,7 @@ void Crash_list_objects(CharData *ch, int index) {
 		if (data.vnum > 799 || data.vnum < 700) {
 			int tmr = data.timer;
 			auto obj = obj_proto[rnum];
-			if (!(IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
+			if (!(stable_objs::IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 				tmr = MAX(-1, data.timer - timer_dec);
 			}
 			ss << fmt::format(" [{:>7}] ({:>5}au) <{:>6}> {:<20}\r\n",
@@ -1526,7 +1527,7 @@ int Crash_load(CharData *ch) {
 			obj_proto.dec_stored(rnum);
 		}
 		// вычтем таймер оффлайна
-		if (!(IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
+		if (!(stable_objs::IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 			const SaveInfo *si = SAVEINFO(index);
 			obj->set_timer(si->time[fsize].timer);
 			obj->dec_timer(timer_dec);

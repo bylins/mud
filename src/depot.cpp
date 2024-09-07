@@ -15,6 +15,7 @@
 #include "house.h"
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/named_stuff.h"
+#include "game_mechanics/stable_objs.h"
 
 #include <cmath>
 
@@ -703,7 +704,7 @@ void CharNode::update_offline_item(long uid) {
 			continue;
 		}
 		const auto obj = obj_proto[rnum];
-		if (!IsTimerUnlimited(obj.get())) {
+		if (!stable_objs::IsTimerUnlimited(obj.get())) {
 			--(obj_it->timer);
 		}
 		if (obj_it->timer <= 0) {

@@ -29,6 +29,7 @@
 #include "administration/privilege.h"
 #include "game_fight/fight_hit.h"
 #include "utils/utils_char_obj.inl"
+#include "game_mechanics/stable_objs.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <third_party_libs/fmt/include/fmt/ranges.h>
 
@@ -367,7 +368,7 @@ inline auto count_obj_vnum(long n) {
 	}
 
 	// Чот косячит таймер, решили переделать тригги, хоть и дольше
-	//	if (IsTimerUnlimited(obj_proto[i]))
+	//	if (stable_objs::IsTimerUnlimited(obj_proto[i]))
 	//		return 0;
 	return obj_proto.actual_count(i);
 }
@@ -1682,7 +1683,7 @@ void find_replacement(void *go,
 				const auto rnum = GetObjRnum(num);
 				const auto count = count_obj_vnum(num);
 				if (count >= 0 && 0 <= rnum) {
-					if (IsTimerUnlimited(obj_proto[rnum].get())) {
+					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) {
 						sprintf(str, "0");
 					} else {
 						sprintf(str, "%d", count);
@@ -1809,7 +1810,7 @@ void find_replacement(void *go,
 				if (rnum >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (IsTimerUnlimited(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
+					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
 						sprintf(str, "1");
 						return;
 					}
@@ -1827,7 +1828,7 @@ void find_replacement(void *go,
 				if (num >= 0) {
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (IsTimerUnlimited(obj_proto[num].get()) || (GetObjMIW(num) < 0))
+					if (stable_objs::IsTimerUnlimited(obj_proto[num].get()) || (GetObjMIW(num) < 0))
 						sprintf(str, "9999999");
 					else
 						sprintf(str, "%d", GetObjMIW(num));
@@ -2542,7 +2543,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
-					if(IS_CHARMICE(c)) {
+					if (IS_CHARMICE(c)) {
 //						SendMsgToChar(c->get_master(), "Квест чармисом, берем мастера\r\n");
 						c->get_master()->dquest(atoi(subfield));
 					}

@@ -75,6 +75,7 @@
 #include "act_other.h"
 #include "game_crafts/mining.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/stable_objs.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -98,7 +99,6 @@ extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
-extern std::vector<City> Cities;
 
 // local functions
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
@@ -133,7 +133,6 @@ void do_hearing(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sides(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check(CharData *ch, char *argument, int cmd, int subcmd);
-void do_cities(CharData *ch, char *, int, int);
 void diag_char_to_char(CharData *i, CharData *ch);
 void look_at_char(CharData *i, CharData *ch);
 void ListOneChar(CharData *i, CharData *ch, ESkill mode);
@@ -340,7 +339,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 const char *diag_obj_timer(const ObjData *obj) {
 	int prot_timer;
 	if (GET_OBJ_RNUM(obj) != kNothing) {
-		if (IsTimerUnlimited(obj)) {
+		if (stable_objs::IsTimerUnlimited(obj)) {
 			return "нерушимо";
 		}
 
@@ -600,23 +599,6 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 	}
 	page_string(ch->desc, buf, true);
 	return nullptr;
-}
-
-void do_cities(CharData *ch, char *, int, int) {
-	SendMsgToChar("Города на Руси:\r\n", ch);
-	for (unsigned int i = 0; i < Cities.size(); i++) {
-		sprintf(buf, "%3d.", i + 1);
-		if (IS_IMMORTAL(ch)) {
-			sprintf(buf1, " [VNUM: %d]", Cities[i].rent_vnum);
-			strcat(buf, buf1);
-		}
-		sprintf(buf1,
-				" %s: %s\r\n",
-				Cities[i].name.c_str(),
-				(ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
-		strcat(buf, buf1);
-		SendMsgToChar(buf, ch);
-	}
 }
 
 bool quest_item(ObjData *obj) {

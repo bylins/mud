@@ -160,6 +160,7 @@
 #include "game_skills/slay.h"
 #include "game_skills/charge.h"
 #include "game_skills/dazzle.h"
+#include "game_mechanics/cities.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -365,7 +366,6 @@ void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
-void do_cities(CharData *ch, char *, int, int);
 void do_send_text_to_char(CharData *ch, char *, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
@@ -476,7 +476,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"где", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
 		{"гдея", EPosition::kRest, do_zone, 0, 0, 0},
 		{"глоток", EPosition::kRest, do_drink, 0, SCMD_SIP, 200},
-		{"города", EPosition::kDead, do_cities, 0, 0, 0},
+		{"города", EPosition::kDead, cities::DoCities, 0, 0, 0},
 		{"группа", EPosition::kSleep, do_group, 1, 0, -1},
 		{"гсоюзникам", EPosition::kSleep, ClanSystem::DoClanChannel, 0, SCMD_ACHANNEL, 0},
 		{"гэхо", EPosition::kDead, do_gecho, kLvlGod, 0, 0},

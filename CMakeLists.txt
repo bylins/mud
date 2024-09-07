@@ -288,7 +288,11 @@ set(SOURCES
 		src/cmd_god/tabulate.cpp
 		src/cmd_god/reload.cpp
 		src/game_mechanics/mob_races.cpp
-		src/cmd_god/do_set.cpp)
+		src/cmd_god/do_set.cpp
+		src/game_mechanics/stable_objs.cpp
+		src/game_mechanics/treasure_cases.cpp
+		src/game_mechanics/cities.cpp
+		src/game_quests/bodrich_quests.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -557,7 +561,11 @@ set(HEADERS
 		src/cmd_god/tabulate.h
 		src/cmd_god/reload.h
 		src/game_mechanics/mob_races.h
-		src/cmd_god/do_set.h)
+		src/cmd_god/do_set.h
+		src/game_mechanics/stable_objs.h
+		src/game_mechanics/treasure_cases.h
+		src/game_mechanics/cities.h
+		src/game_quests/bodrich_quests.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

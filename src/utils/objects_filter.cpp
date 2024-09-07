@@ -11,6 +11,7 @@
 #include "house.h"
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/stable_objs.h"
 
 extern ESkill FixNameAndFindSkillId(char *name);
 
@@ -439,8 +440,7 @@ bool ParseFilter::check_state(ObjData *obj) const {
 			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
-			if (IsTimerUnlimited(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
-			{
+			if (stable_objs::IsTimerUnlimited(obj)) {
 				tm_pct = 1000;
 			} else {
 				tm_pct = obj->get_timer() * 100 / proto_tm;

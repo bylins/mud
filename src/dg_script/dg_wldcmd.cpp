@@ -19,6 +19,7 @@
 #include "game_magic/magic_utils.h"
 //#include "entities/zone.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/stable_objs.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -501,7 +502,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
-			if (!IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
+			if (!stable_objs::IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "wload: количество больше чем в MIW для #%d.", number);
 				wld_log(room, trig, buf);
 //				extract_obj(object.get());

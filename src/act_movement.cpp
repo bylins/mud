@@ -29,6 +29,7 @@
 #include "structs/global_objects.h"
 #include "liquid.h"
 #include "utils/utils_char_obj.inl"
+#include "game_mechanics/treasure_cases.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
@@ -1172,12 +1173,10 @@ inline void LOCK_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 	}
 }
 
-// для кейсов
-extern std::vector<TreasureCase> cases;;
 void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 	bool deaf = false;
 	int other_room = 0;
-	int r_num, vnum;
+	int r_num;
 	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 	char local_buf[kMaxStringLength]; // строка, в которую накапливается совершенное действо
 	// пишем начало строки - кто чё сделал
@@ -1253,50 +1252,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			if (!deaf)
 				SendMsgToChar("*Щелк*\r\n", ch);
 			if (obj) {
-				for (unsigned long i = 0; i < cases.size(); i++) {
-					if (GET_OBJ_VNUM(obj) == cases[i].vnum) {
-						if (!deaf)
-							SendMsgToChar("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						// drop_chance = cases[i].drop_chance;
-						// drop_chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
-						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
-						const int random_number = number(0, maximal_chance);
-						vnum = cases[i].vnum_objs[random_number];
-						if ((r_num = GetObjRnum(vnum)) < 0) {
-							act("$o исчез$Y с яркой вспышкой. Случилось неладное, поняли вы..",
-								false,
-								ch,
-								obj,
-								nullptr,
-								kToRoom);
-							sprintf(local_buf,
-									"[ERROR] do_doorcmd: ошибка при открытии контейнера %d, неизвестное содержимое!",
-									obj->get_vnum());
-							mudlog(local_buf, LogMode::CMP, kLvlGreatGod, MONEY_LOG, true);
-							return;
-						}
-						// сначала удалим ключ из инвентаря
-						int vnum_key = GET_OBJ_VAL(obj, 2);
-						// первый предмет в инвентаре
-						ObjData *obj_inv = ch->carrying;
-						ObjData *i;
-						for (i = obj_inv; i; i = i->get_next_content()) {
-							if (GET_OBJ_VNUM(i) == vnum_key) {
-								ExtractObjFromWorld(i);
-								break;
-							}
-						}
-						ExtractObjFromWorld(obj);
-						obj = world_objects.create_from_prototype_by_rnum(r_num).get();
-						obj->set_crafter_uid(GET_UNIQUE(ch));
-						PlaceObjToInventory(obj, ch);
-						act("$n завизжал$g от радости.", false, ch, nullptr, nullptr, kToRoom);
-						load_otrigger(obj);
-						CheckObjDecay(obj);
-						olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
-						return;
-					}
-				}
+				treasure_cases::UnlockTreasureCase(ch, obj);
 			}
 			break;
 

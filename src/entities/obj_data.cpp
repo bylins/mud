@@ -15,15 +15,16 @@
 #include "depot.h"
 #include "house.h"
 #include "obj_prototypes.h"
+#include "game_mechanics/stable_objs.h"
+
+#include <cmath>
+#include <memory>
 
 //#include <sstream>
 
 extern void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
-void set_obj_eff(ObjData *itemobj, EApply type, int mod);
-void set_obj_aff(ObjData *itemobj, EAffect bitv);
 extern void ExtractTrigger(Trigger *trig);
 extern double CalcRemortRequirements(const CObjectPrototype *obj);
-extern double CountUnlimitedTimer(const CObjectPrototype *obj);
 
 id_to_set_info_map ObjData::set_table;
 
@@ -81,7 +82,7 @@ ObjData::ObjData(const CObjectPrototype &other) :
 ObjData::ObjData(const ObjData &other) : CObjectPrototype(other.get_vnum()) {
 	*this = other;
 
-	m_script.reset(new Script(*other.m_script));    // each object must have its own script. Just copy it
+	m_script = std::make_shared<Script>(*other.m_script);    // each object must have its own script. Just copy it
 
 	caching::obj_cache.Add(this);
 }
@@ -663,27 +664,31 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	if (!m_timed_spell.empty()) {
 		m_timed_spell.dec_timer(this, time);
 	}
-	if (!ignore_utimer && IsTimerUnlimited(this)) {
+	if (!ignore_utimer && stable_objs::IsTimerUnlimited(this)) {
 		return;
 	}
 	std::stringstream buffer;
 
-	if (get_timer()  > 100000 && (GET_OBJ_TYPE(this) == EObjType::kArmor
-			|| GET_OBJ_TYPE(this) == EObjType::kStaff
-			|| GET_OBJ_TYPE(this) == EObjType::kWorm
-			|| GET_OBJ_TYPE(this) == EObjType::kWeapon)) {
+	if (get_timer() > 100000 && (GET_OBJ_TYPE(this) == EObjType::kArmor
+		|| GET_OBJ_TYPE(this) == EObjType::kStaff
+		|| GET_OBJ_TYPE(this) == EObjType::kWorm
+		|| GET_OBJ_TYPE(this) == EObjType::kWeapon)) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
-				<< "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " <<  get_id() << ", таймер > 100к равен: " << get_timer();
+			   << "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " << get_id() << ", таймер > 100к равен: "
+			   << get_timer();
 		if (get_in_room() != kNowhere) {
 			buffer << ", находится в комнате vnum: " << world[get_in_room()]->vnum;
 		} else if (get_carried_by()) {
-			buffer << ", затарено: " <<  GET_NAME(get_carried_by()) << "["
-					<< GET_MOB_VNUM(get_carried_by()) <<"] в комнате: [" << world[this->get_carried_by()->in_room]->vnum << "]";
+			buffer << ", затарено: " << GET_NAME(get_carried_by()) << "["
+				   << GET_MOB_VNUM(get_carried_by()) << "] в комнате: [" << world[this->get_carried_by()->in_room]->vnum
+				   << "]";
 		} else if (get_worn_by()) {
-			buffer << ", надет на перс: " << GET_NAME(get_worn_by()) << "[" << GET_MOB_VNUM(get_worn_by()) << "] в комнате: [" 
-					<< world[get_worn_by()->in_room]->vnum <<"]";
+			buffer << ", надет на перс: " << GET_NAME(get_worn_by()) << "[" << GET_MOB_VNUM(get_worn_by())
+				   << "] в комнате: ["
+				   << world[get_worn_by()->in_room]->vnum << "]";
 		} else if (get_in_obj()) {
-			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: [" << world[get_in_obj()->get_in_room()]->vnum << "]";
+			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: ["
+				   << world[get_in_obj()->get_in_room()]->vnum << "]";
 		}
 		mudlog(buffer.str(), BRF, kLvlGod, SYSLOG, true);
 	}
@@ -709,7 +714,7 @@ double CObjectPrototype::show_mort_req() const {
 }
 
 double CObjectPrototype::show_koef_obj() const {
-	return CountUnlimitedTimer(this);
+	return stable_objs::CountUnlimitedTimer(this);
 }
 
 double CObjectPrototype::get_ilevel() const {
@@ -1160,7 +1165,7 @@ std::string ObjVal::print_to_zone() const {
 
 	std::sort(m_val_vec.begin(), m_val_vec.end(),
 			  [](std::pair<std::string, int> &a, std::pair<std::string, int> &b) {
-				  return a.first < b.first;
+				return a.first < b.first;
 			  });
 
 	for (auto const &i : m_val_vec) {
@@ -1257,13 +1262,13 @@ void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
 
 namespace SetSystem {
 struct SetNode {
-	// список шмоток по конкретному сету для сверки
-	// инится один раз при ребуте и больше не меняется
-	std::set<int> set_vnum;
-	// список шмоток из данного сета у текущего чара
-	// если после заполнения в списке только 1 предмет
-	// значит удаляем его как единственный у чара
-	std::vector<int> obj_vnum;
+  // список шмоток по конкретному сету для сверки
+  // инится один раз при ребуте и больше не меняется
+  std::set<int> set_vnum;
+  // список шмоток из данного сета у текущего чара
+  // если после заполнения в списке только 1 предмет
+  // значит удаляем его как единственный у чара
+  std::vector<int> obj_vnum;
 };
 
 std::vector<SetNode> set_list;
@@ -1517,8 +1522,101 @@ int GetObjMIW(ObjRnum rnum) {
 	ObjRnum val = obj_proto[rnum]->get_parent_rnum();
 	if (val < 0)
 		return obj_proto[rnum]->get_max_in_world();
-	else 
+	else
 		return obj_proto[val]->get_max_in_world();
+}
+
+double CalcRemortRequirements(const CObjectPrototype *obj) {
+	const float SQRT_MOD = 1.7095f;
+	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
+	const int AFF_BLINK_MOD = 10;
+	const int AFF_CLOUDLY_MOD = 10;
+
+	double result{0.0};
+	if (ObjSystem::is_mob_item(obj) || obj->has_flag(EObjFlag::KSetItem)) {
+		return result;
+	}
+
+	double total_weight{0.0};
+	// аффекты APPLY_x
+	for (int k = 0; k < kMaxObjAffect; k++) {
+		if (obj->get_affected(k).location == 0) continue;
+
+		// случай, если один аффект прописан в нескольких полях
+		for (int kk = 0; kk < kMaxObjAffect; kk++) {
+			if (obj->get_affected(k).location == obj->get_affected(kk).location
+				&& k != kk) {
+				log("SYSERROR: double affect=%d, ObjVnum=%d",
+					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
+				return 1000000;
+			}
+		}
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != EApply::kAc) &&
+			(obj->get_affected(k).location != EApply::kSavingWill) &&
+			(obj->get_affected(k).location != EApply::kSavingCritical) &&
+			(obj->get_affected(k).location != EApply::kSavingStability) &&
+			(obj->get_affected(k).location != EApply::kSavingReflex))) {
+			auto weight =
+				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
+		}
+			// савесы которые с минусом должны тогда понижать вес если в +
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == EApply::kAc) ||
+			(obj->get_affected(k).location == EApply::kSavingWill) ||
+			(obj->get_affected(k).location == EApply::kSavingCritical) ||
+			(obj->get_affected(k).location == EApply::kSavingStability) ||
+			(obj->get_affected(k).location == EApply::kSavingReflex))) {
+			auto weight =
+				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
+			//Добавленый кусок учет савесов с - значениями
+		else if ((obj->get_affected(k).modifier < 0)
+			&& ((obj->get_affected(k).location == EApply::kAc) ||
+				(obj->get_affected(k).location == EApply::kSavingWill) ||
+				(obj->get_affected(k).location == EApply::kSavingCritical) ||
+				(obj->get_affected(k).location == EApply::kSavingStability) ||
+				(obj->get_affected(k).location == EApply::kSavingReflex))) {
+			auto weight =
+				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
+		}
+			//Добавленый кусок учет отрицательного значения но не савесов
+		else if ((obj->get_affected(k).modifier < 0)
+			&& ((obj->get_affected(k).location != EApply::kAc) &&
+				(obj->get_affected(k).location != EApply::kSavingWill) &&
+				(obj->get_affected(k).location != EApply::kSavingCritical) &&
+				(obj->get_affected(k).location != EApply::kSavingStability) &&
+				(obj->get_affected(k).location != EApply::kSavingReflex))) {
+			auto weight =
+				ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
+	}
+	// аффекты AFF_x через weapon_affect
+	for (const auto &m : weapon_affect) {
+		if (IS_OBJ_AFF(obj, m.aff_pos)) {
+			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
+			if (obj_affects == EAffect::kAirShield ||
+				obj_affects == EAffect::kFireShield ||
+				obj_affects == EAffect::kIceShield) {
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			} else if (obj_affects == EAffect::kMagicGlass) {
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
+			} else if (obj_affects == EAffect::kBlink) {
+				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			} else if (obj_affects == EAffect::kCloudly) {
+				total_weight += pow(AFF_CLOUDLY_MOD, SQRT_MOD);
+			}
+		}
+	}
+
+	if (total_weight < 1) {
+		return result;
+	} else {
+		return ceil(pow(total_weight, 1 / SQRT_MOD));
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

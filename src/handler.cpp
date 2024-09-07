@@ -33,6 +33,7 @@
 #include "depot.h"
 #include "structs/global_objects.h"
 #include "game_mechanics/dungeons.h"
+#include "game_mechanics/cities.h"
 
 using classes::CalcCircleSlotsAmount;
 
@@ -48,7 +49,7 @@ void PerformDropGold(CharData *ch, int amount);
 int invalid_unique(CharData *ch, const ObjData *obj);
 void do_entergame(DescriptorData *d);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
-extern std::vector<City> Cities;
+//extern std::vector<City> Cities;
 extern int global_uid;
 extern void change_leader(CharData *ch, CharData *vict);
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
@@ -336,12 +337,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
-	for (unsigned int i = 0; i < Cities.size(); i++) {
-		if (GET_ROOM_VNUM(room) == Cities[i].rent_vnum) {
-			ch->mark_city(i);
-			break;
-		}
-	}
+	cities::CheckCityVisit(ch, room);
 }
 // place a character in a room
 void FleeToRoom(CharData *ch, RoomRnum room) {
@@ -396,19 +392,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
 
-	// небольшой перегиб. когда сбегаешь то ты теряешься в ориентации а тут нате все видно
-//	if (ch->desc)
-//	{
-//		if (!(is_dark(ch->in_room) && !EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)))
-//			ch->desc->msdp_report("ROOM");
-//	}
-
-	for (unsigned int i = 0; i < Cities.size(); i++) {
-		if (GET_ROOM_VNUM(room) == Cities[i].rent_vnum) {
-			ch->mark_city(i);
-			break;
-		}
-	}
+	cities::CheckCityVisit(ch, room);
 }
 
 bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {

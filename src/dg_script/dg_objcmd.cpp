@@ -20,6 +20,7 @@
 #include "utils/id_converter.h"
 //#include "entities/zone.h"
 #include "structs/global_objects.h"
+#include "game_mechanics/stable_objs.h"
 
 extern const char *dirs[];
 extern int up_obj_where(ObjData *obj);
@@ -527,7 +528,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		}
 		if (GetObjMIW(object->get_rnum()) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
-			if (!IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
+			if (!stable_objs::IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				obj_log(obj, trig, buf);
 //				extract_obj(object.get());

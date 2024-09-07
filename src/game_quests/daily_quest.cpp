@@ -1,6 +1,7 @@
 #include "game_quests/daily_quest.h"
 
 #include "entities/char_data.h"
+#include "entities/char_player.h"
 #include "structs/global_objects.h"
 
 namespace DailyQuest {
