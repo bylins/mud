@@ -56,9 +56,6 @@
 
 #include <memory>
 
-#define SPEEDWALKS_FILE "speedwalks.xml"
-
-
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 **************************************************************************/
@@ -89,8 +86,6 @@ int top_of_trigt = 0;        // top of trigger index table
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
 std::unordered_map<long, CharData *> chardata_by_uid;
-
-void LoadSpeedwalk();
 int global_uid = 0;
 
 PlayersIndex &player_table = GlobalObjects::player_table();    // index to plr file
@@ -1093,15 +1088,17 @@ void BootMudDataBase() {
 
 	// загрузка кейсов
 	boot_profiler.next_step("Loading treasure cases");
+	log("Loading treasure cases.");
 	treasure_cases::LoadTreasureCases();
 
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");
+	log("Loading help system.");
 	HelpSystem::reload_all();
 
 	boot_profiler.next_step("Loading bonus log");
+	log("Loading bonus log.");
 	Bonus::bonus_log_load();
-	LoadSpeedwalk();
 
 	boot_profiler.next_step("Loading cities cfg");
 	log("Loading cities cfg.");
@@ -3354,40 +3351,6 @@ void SaveGlobalUID() {
 
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
-}
-
-void LoadSpeedwalk() {
-
-	pugi::xml_document doc_sw;
-	pugi::xml_node child_, object_, file_sw;
-	file_sw = XmlLoad(LIB_MISC SPEEDWALKS_FILE, "speedwalks", "Error loading cases file: speedwalks.xml", doc_sw);
-
-	for (child_ = file_sw.child("speedwalk"); child_; child_ = child_.next_sibling("speedwalk")) {
-		SpeedWalk sw;
-		sw.wait = 0;
-		sw.cur_state = 0;
-		sw.default_wait = child_.attribute("default_wait").as_int();
-		for (object_ = child_.child("mob"); object_; object_ = object_.next_sibling("mob"))
-			sw.vnum_mobs.push_back(object_.attribute("vnum").as_int());
-		for (object_ = child_.child("route"); object_; object_ = object_.next_sibling("route")) {
-			Route r;
-			r.direction = object_.attribute("direction").as_string();
-			r.wait = object_.attribute("wait").as_int();
-			sw.route.push_back(r);
-		}
-		speedwalks.push_back(sw);
-
-	}
-	for (const auto &ch : character_list) {
-		for (auto &sw : speedwalks) {
-			for (auto mob : sw.vnum_mobs) {
-				if (GET_MOB_VNUM(ch) == mob) {
-					sw.mobs.push_back(ch.get());
-				}
-			}
-		}
-	}
-
 }
 
 Rooms::~Rooms() {

@@ -11,7 +11,6 @@
 #include "feats.h"
 #include "utils/logger.h"
 #include "heartbeat.h"
-#include "speedwalks.h"
 #include "cmd_god/shutdown_parameters.h"
 #include "cmd_god/inspect.h"
 #include "game_economics/shops_implementation.h"
@@ -61,7 +60,6 @@ class GlobalObjects {
 	static ShopExt::ShopListType &Shops();
 	static Characters &characters();
 	static ShutdownParameters &shutdown_parameters();
-	static Speedwalks &speedwalks();
 	static InspectRequestDeque &InspectRequests();
 	static SetAllInspReqListType &setall_inspect_list();
 	static BanList *&ban();

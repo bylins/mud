@@ -1176,7 +1176,6 @@ inline void LOCK_DOOR(const RoomRnum room, ObjData *obj, const int door) {
 void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 	bool deaf = false;
 	int other_room = 0;
-	int r_num;
 	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 	char local_buf[kMaxStringLength]; // строка, в которую накапливается совершенное действо
 	// пишем начало строки - кто чё сделал

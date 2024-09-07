@@ -1,5 +1,7 @@
 #include "global_objects.h"
 
+#include <memory>
+
 #include "cmd_god/ban.h"
 
 namespace {
@@ -36,7 +38,6 @@ struct GlobalObjectsStorage {
 	PlayersIndex player_table;
 	Characters characters;
 	ShutdownParameters shutdown_parameters;
-	Speedwalks speedwalks;
 	SetAllInspReqListType setall_inspect_list;
   	InspectRequestDeque inspect_request_deque;
 	BanList *ban;
@@ -140,10 +141,6 @@ ShutdownParameters &GlobalObjects::shutdown_parameters() {
 	return global_objects().shutdown_parameters;
 }
 
-Speedwalks &GlobalObjects::speedwalks() {
-	return global_objects().speedwalks;
-}
-
 InspectRequestDeque &GlobalObjects::InspectRequests() {
 	return global_objects().inspect_request_deque;
 }
@@ -162,8 +159,8 @@ Heartbeat &GlobalObjects::heartbeat() {
 
 influxdb::Sender &GlobalObjects::stats_sender() {
 	if (!global_objects().stats_sender) {
-		global_objects().stats_sender.reset(new influxdb::Sender(
-			runtime_config.statistics().host(), runtime_config.statistics().port()));
+		global_objects().stats_sender = std::make_shared<influxdb::Sender>(
+			runtime_config.statistics().host(), runtime_config.statistics().port());
 	}
 
 	return *global_objects().stats_sender;

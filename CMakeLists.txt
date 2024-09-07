@@ -172,8 +172,7 @@ set(SOURCES
 		src/game_economics/shops_implementation.cpp
 		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
-		src/speedwalks.cpp
-		src/game_economics/shops_implementation.cpp
+        src/game_economics/shops_implementation.cpp
         src/structs/radix_trie.cpp
         src/structs/compact_trie.cpp
 		src/id.cpp
@@ -346,7 +345,6 @@ set(HEADERS
 		src/game_limits.h
 		src/act_wizard.h
 		src/heartbeat.h
-		src/speedwalks.h
 		src/entities/world_characters.h
 		src/game_economics/shops_implementation.h
         src/structs/global_objects.h
