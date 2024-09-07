@@ -291,7 +291,10 @@ set(SOURCES
 		src/game_mechanics/stable_objs.cpp
 		src/game_mechanics/treasure_cases.cpp
 		src/game_mechanics/cities.cpp
-		src/game_quests/bodrich_quests.cpp)
+		src/game_quests/bodrich_quests.cpp
+		src/cmd/do_affects.cpp
+		src/cmd/do_toggle.cpp
+		src/cmd/do_mode.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -563,7 +566,10 @@ set(HEADERS
 		src/game_mechanics/stable_objs.h
 		src/game_mechanics/treasure_cases.h
 		src/game_mechanics/cities.h
-		src/game_quests/bodrich_quests.h)
+		src/game_quests/bodrich_quests.h
+		src/cmd/do_affects.h
+		src/cmd/do_toggle.h
+		src/cmd/do_mode.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

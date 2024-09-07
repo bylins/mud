@@ -11,7 +11,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define __INTERPRETER_C__
+#define INTERPRETER_CPP_
 
 #include "interpreter.h"
 
@@ -37,6 +37,8 @@
 #include "cmd/hire.h"
 #include "cmd/get.h"
 #include "cmd/give.h"
+#include "cmd/do_affects.h"
+#include "cmd/do_mode.h"
 #include "cmd/mercenary.h"
 #include "cmd/order.h"
 #include "cmd/put.h"
@@ -196,7 +198,7 @@ extern char *name_rules;
 void DeletePcByHimself(const char *name);
 
 // external functions
-int Valid_Name(char *newname);
+//int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
 void read_aliases(CharData *ch);
@@ -225,7 +227,6 @@ void do_advance(CharData *ch, char *argument, int cmd, int subcmd);
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
 void do_antigods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
-void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_beep(CharData *ch, char *argument, int cmd, int subcmd);
@@ -267,7 +268,6 @@ void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
-void do_mode(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
 void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
@@ -308,7 +308,6 @@ void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
-void do_toggle(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CharData *ch, char *argument, int cmd, int subcmd);
