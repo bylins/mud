@@ -20,6 +20,30 @@
 #include "structs/global_objects.h"
 
 
+class RandomObj {
+ public:
+  // внум объекта
+  int vnum;
+  // массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
+  std::map<std::string, int> not_wear;
+  // минимальный и максимальный вес
+  int min_weight;
+  int max_weight;
+  // минимальная и максимальная цена за предмет
+  int min_price;
+  int max_price;
+  // прочность
+  int min_stability;
+  int max_stability;
+  // value0, value1, value2, value3
+  int value0_min, value1_min, value2_min, value3_min;
+  int value0_max, value1_max, value2_max, value3_max;
+  // список аффектов и их шанс упасть на шмотку
+  std::map<std::string, int> affects;
+  // список экстраффектов и их шанс упасть на шмотку
+  std::vector<ExtraAffects> extraffect;
+};
+
 std::vector<RandomObj> random_objs;
 extern void set_obj_eff(ObjData *itemobj, const EApply type, int mod);
 extern void set_obj_aff(ObjData *itemobj, const EAffect bitv);

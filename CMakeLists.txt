@@ -172,8 +172,7 @@ set(SOURCES
 		src/game_economics/shops_implementation.cpp
 		src/entities/world_characters.cpp
 		src/utils/utils_debug.cpp
-		src/speedwalks.cpp
-		src/game_economics/shops_implementation.cpp
+        src/game_economics/shops_implementation.cpp
         src/structs/radix_trie.cpp
         src/structs/compact_trie.cpp
 		src/id.cpp
@@ -288,7 +287,17 @@ set(SOURCES
 		src/cmd_god/tabulate.cpp
 		src/cmd_god/reload.cpp
 		src/game_mechanics/mob_races.cpp
-		src/cmd_god/do_set.cpp)
+		src/cmd_god/do_set.cpp
+		src/game_mechanics/stable_objs.cpp
+		src/game_mechanics/treasure_cases.cpp
+		src/game_mechanics/cities.cpp
+		src/game_quests/bodrich_quests.cpp
+		src/cmd/do_affects.cpp
+		src/cmd/do_toggle.cpp
+		src/cmd/do_mode.cpp
+		src/cmd/levels.cpp
+		src/cmd/where.cpp
+		src/cmd/who.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -342,7 +351,6 @@ set(HEADERS
 		src/game_limits.h
 		src/act_wizard.h
 		src/heartbeat.h
-		src/speedwalks.h
 		src/entities/world_characters.h
 		src/game_economics/shops_implementation.h
         src/structs/global_objects.h
@@ -557,7 +565,17 @@ set(HEADERS
 		src/cmd_god/tabulate.h
 		src/cmd_god/reload.h
 		src/game_mechanics/mob_races.h
-		src/cmd_god/do_set.h)
+		src/cmd_god/do_set.h
+		src/game_mechanics/stable_objs.h
+		src/game_mechanics/treasure_cases.h
+		src/game_mechanics/cities.h
+		src/game_quests/bodrich_quests.h
+		src/cmd/do_affects.h
+		src/cmd/do_toggle.h
+		src/cmd/do_mode.h
+		src/cmd/levels.h
+		src/cmd/where.h
+		src/cmd/who.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

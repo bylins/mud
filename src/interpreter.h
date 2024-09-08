@@ -12,8 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _INTERPRETER_H_
-#define _INTERPRETER_H_
+#ifndef INTERPRETER_H_
+#define INTERPRETER_H_
 
 #include "conf.h"
 #include "structs/descriptor_data.h"
@@ -71,7 +71,7 @@ struct command_info {
  * Necessary for CMD_IS macro.  Borland needs the structure defined first
  * so, it has been moved down here.
  */
-#ifndef __INTERPRETER_C__
+#ifndef INTERPRETER_CPP_
 extern const struct command_info cmd_info[];
 #endif
 
@@ -338,6 +338,6 @@ void SplitArgument(const char *arguments, std::vector<int> &out);
 bool login_change_invoice(CharData *ch);
 bool who_spamcontrol(CharData *, unsigned short int);
 
-#endif // _INTERPRETER_H_
+#endif // INTERPRETER_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

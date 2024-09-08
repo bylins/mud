@@ -21,12 +21,12 @@
 #include "color.h"
 #include "game_crafts/im.h"
 #include "constants.h"
-#include "game_skills/skills.h"
+//#include "game_skills/skills.h"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
 #include "game_mechanics/named_stuff.h"
 #include "modify.h"
-#include "entities/room_data.h"
+//#include "entities/room_data.h"
 #include "communication/mail.h"
 #include "obj_save.h"
 #include "game_fight/pk.h"
@@ -35,7 +35,8 @@
 #include "utils/utils.h"
 #include "structs/structs.h"
 #include "sysdep.h"
-#include "conf.h"
+//#include "conf.h"
+#include "game_mechanics/stable_objs.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -278,7 +279,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	else
 		GET_EXCHANGE_ITEM_COMMENT(item) = nullptr;
 
-	if (IsTimerUnlimited(obj)) // если нерушима таймер 1 неделя
+	if (stable_objs::IsTimerUnlimited(obj)) // если нерушима таймер 1 неделя
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
 	RemoveObjFromChar(obj);
@@ -410,7 +411,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	message_exchange(tmpbuf, ch, item);
-	if (IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+	if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 	PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
@@ -592,15 +593,13 @@ int exchange_purchase(CharData *ch, char *arg) {
 			|| LoadPlayerCharacter(seller_name, seller, ELoadCharFlags::kFindId) < 0) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
-			//edited by WorM 2011.05.21
 			act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 					GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
-			//end by WorM
 
 			message_exchange(tmpbuf, ch, item);
-			if (IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+			if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 			PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
@@ -615,14 +614,14 @@ int exchange_purchase(CharData *ch, char *arg) {
 
 		seller->add_bank(GET_EXCHANGE_ITEM_COST(item), true);
 		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item), true);
-//Polud напишем письмецо чару, раз уж его нету онлайн
+
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller)) {
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 					GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyA));
 			mail::add_by_id(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
 		}
-//-Polud
+
 		seller->save_char();
 
 		act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
@@ -630,7 +629,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
 		message_exchange(tmpbuf, ch, item);
-		if (IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+		if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
 			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);

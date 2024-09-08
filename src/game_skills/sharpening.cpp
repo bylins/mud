@@ -2,6 +2,7 @@
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
 #include "utils/utils_char_obj.inl"
+#include "game_mechanics/stable_objs.h"
 
 void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjData *obj;
@@ -108,7 +109,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	min_mod = ch->GetMorphSkill(ESkill::kSharpening) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = std::clamp((GetRealLevel(ch) + 5 + GetRealRemort(ch)/4)/6, 1, 5);
-	oldstate = IsTimerUnlimited(obj); // запомним какая шмотка была до заточки
+	oldstate = stable_objs::IsTimerUnlimited(obj); // запомним какая шмотка была до заточки
 	if (IS_IMMORTAL(ch)) {
 		add_dr = add_hr = 10;
 	} else {
@@ -126,7 +127,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	obj->set_affected(1, EApply::kDamroll, add_dr);
 
 	// если шмотка перестала быть нерушимой ставим таймер из прототипа
-	if (oldstate && !IsTimerUnlimited(obj)) {
+	if (oldstate && !stable_objs::IsTimerUnlimited(obj)) {
 		obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 	}
 	//Вес меняется только если шмотка еще не была заточена

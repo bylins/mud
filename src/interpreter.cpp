@@ -11,7 +11,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define __INTERPRETER_C__
+#define INTERPRETER_CPP_
 
 #include "interpreter.h"
 
@@ -37,7 +37,10 @@
 #include "cmd/hire.h"
 #include "cmd/get.h"
 #include "cmd/give.h"
+#include "cmd/do_affects.h"
+#include "cmd/do_mode.h"
 #include "cmd/mercenary.h"
+#include "cmd/levels.h"
 #include "cmd/order.h"
 #include "cmd/put.h"
 #include "cmd/retreat.h"
@@ -58,6 +61,8 @@
 #include "cmd/refill.h"
 #include "cmd/sign.h"
 #include "cmd/trample.h"
+#include "cmd/where.h"
+#include "cmd/who.h"
 #include "comm.h"
 #include "constants.h"
 #include "game_crafts/craft_commands.h"
@@ -160,6 +165,7 @@
 #include "game_skills/slay.h"
 #include "game_skills/charge.h"
 #include "game_skills/dazzle.h"
+#include "game_mechanics/cities.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -195,7 +201,7 @@ extern char *name_rules;
 void DeletePcByHimself(const char *name);
 
 // external functions
-int Valid_Name(char *newname);
+//int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
 void read_aliases(CharData *ch);
@@ -224,7 +230,6 @@ void do_advance(CharData *ch, char *argument, int cmd, int subcmd);
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
 void do_antigods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
-void do_affects(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_beep(CharData *ch, char *argument, int cmd, int subcmd);
@@ -266,9 +271,7 @@ void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_inventory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
-void do_mode(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
-void do_levels(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
 void do_load(CharData *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
@@ -307,7 +310,6 @@ void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
-void do_toggle(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CharData *ch, char *argument, int cmd, int subcmd);
@@ -315,8 +317,6 @@ void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
-void do_where(CharData *ch, char *argument, int cmd, int subcmd);
-void do_who(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
@@ -365,7 +365,6 @@ void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
-void do_cities(CharData *ch, char *, int, int);
 void do_send_text_to_char(CharData *ch, char *, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
@@ -476,7 +475,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"где", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
 		{"гдея", EPosition::kRest, do_zone, 0, 0, 0},
 		{"глоток", EPosition::kRest, do_drink, 0, SCMD_SIP, 200},
-		{"города", EPosition::kDead, do_cities, 0, 0, 0},
+		{"города", EPosition::kDead, cities::DoCities, 0, 0, 0},
 		{"группа", EPosition::kSleep, do_group, 1, 0, -1},
 		{"гсоюзникам", EPosition::kSleep, ClanSystem::DoClanChannel, 0, SCMD_ACHANNEL, 0},
 		{"гэхо", EPosition::kDead, do_gecho, kLvlGod, 0, 0},

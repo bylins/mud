@@ -36,8 +36,6 @@ enum {
 
 class Player : public CharData {
  public:
-	using cities_t = std::vector<bool>;
-
 	Player();
 
 	int get_pfilepos() const;
@@ -154,7 +152,7 @@ class Player : public CharData {
 	void set_hryvn(int value);
 	void sub_hryvn(int value);
 	void add_hryvn(int value);
-	void dquest(int id);
+	void dquest(int id) override;
 	void complete_quest(int id);
 	int get_nogata();
 	void set_nogata(int value);
@@ -226,7 +224,7 @@ class Player : public CharData {
 	// сколько дней подряд выполнялись дейлики
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
-	cities_t cities;
+	std::vector<bool> cities_visited_;
 	// здесь храним инфу о татуировках
 	//std::map<unsigned int, StigmaWear> stigmas;
 	// режим !бот

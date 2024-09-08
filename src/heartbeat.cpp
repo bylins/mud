@@ -75,37 +75,6 @@ void record_usage() {
 
 // pulse steps
 namespace {
-void process_speedwalks() {
-	for (auto &sw : GlobalObjects::speedwalks()) {
-		if (sw.wait > sw.route[sw.cur_state].wait) {
-			for (CharData *ch : sw.mobs) {
-				if (ch && !ch->purged()) {
-					std::string direction = sw.route[sw.cur_state].direction;
-					int dir = 1;
-					if (direction.starts_with("север"))
-						dir = SCMD_NORTH;
-					if (direction.starts_with("восток"))
-						dir = SCMD_EAST;
-					if (direction.starts_with("юг"))
-						dir = SCMD_SOUTH;
-					if (direction.starts_with("запад"))
-						dir = SCMD_WEST;
-					if (direction.starts_with("вверх"))
-						dir = SCMD_UP;
-					if (direction.starts_with("вниз"))
-						dir = SCMD_DOWN;
-					perform_move(ch, dir - 1, 0, true, nullptr);
-				}
-			}
-			sw.wait = 0;
-			sw.cur_state =
-				(sw.cur_state >= static_cast<decltype(sw.cur_state)>(sw.route.size()) - 1) ? 0 : sw.cur_state + 1;
-		} else {
-			sw.wait += 1;
-		}
-	}
-}
-
 class SimpleCall : public AbstractPulseAction {
  public:
 	using call_t = std::function<void()>;
@@ -300,10 +269,6 @@ class SpellUsageCall : public AbstractPulseAction {
 
 Heartbeat::steps_t &pulse_steps() {
 	static Heartbeat::steps_t pulse_steps_storage = {
-		Heartbeat::PulseStep("Speed walks processing",
-							 kPassesPerSec,
-							 0,
-							 std::make_shared<SimpleCall>(process_speedwalks)),
 		Heartbeat::PulseStep("Global drop: tables reloading",
 							 kPassesPerSec * 120 * 60,
 							 0,

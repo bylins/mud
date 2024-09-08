@@ -8,6 +8,7 @@
 #include "handler.h"
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
+#include "stable_objs.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -61,7 +62,7 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 				bool miw;
 				if (GetObjMIW(tobj->get_rnum()) >= obj_proto.actual_count(tobj->get_rnum())
 					|| GetObjMIW(tobj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
-					|| IsTimerUnlimited(tobj.get())) {
+					|| stable_objs::IsTimerUnlimited(tobj.get())) {
 					miw = true;
 				} else {
 					miw = false;

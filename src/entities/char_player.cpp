@@ -17,9 +17,9 @@
 #include "game_mechanics/player_races.h"
 #include "game_economics/ext_money.h"
 #include "game_magic/magic_temp_spells.h"
-#include "game_skills/townportal.h"
 #include "administration/accounts.h"
 #include "liquid.h"
+#include "game_mechanics/cities.h"
 
 #ifdef _WIN32
 #else
@@ -30,8 +30,7 @@
 
 
 long GetExpUntilNextLvl(CharData *ch, int level);
-extern std::vector<City> Cities;
-extern std::string default_str_cities;
+
 namespace {
 
 uint8_t get_day_today() {
@@ -262,33 +261,33 @@ void Player::dquest(const int id) {
 }
 
 void Player::mark_city(const size_t index) {
-	if (index < cities.size()) {
-		cities[index] = true;
+	if (index < cities_visited_.size()) {
+		cities_visited_[index] = true;
 	}
 }
 
 bool Player::check_city(const size_t index) {
-	if (index < cities.size()) {
-		return cities[index];
+	if (index < cities_visited_.size()) {
+		return cities_visited_[index];
 	}
 
 	return false;
 }
 
 void Player::str_to_cities(std::string str) {
-	this->cities.clear();
+	this->cities_visited_.clear();
 	for (auto &it : reverse(str)) {
 		if (it == '1')
-			this->cities.push_back(true);
+			this->cities_visited_.push_back(true);
 		else
-			this->cities.push_back(false);
+			this->cities_visited_.push_back(false);
 	}
 }
 
 std::string Player::cities_to_str() {
 	std::string value = "";
 
-	for (auto it : reverse(this->cities)) {
+	for (auto it : reverse(this->cities_visited_)) {
 		if (it)
 			value += "1";
 		else
@@ -1101,7 +1100,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		fbclose(fl);
 		return id;
 	}
-	this->str_to_cities(default_str_cities);
+	this->str_to_cities(cities::default_str_cities);
 	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1350,17 +1349,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					this->reset_stats_cnt_[stats_reset::Type::FEATS] = num;
 				else if (!strcmp(tag, "Cits")) {
 					std::string buffer_cities = std::string(line);
-					// это на тот случай, если вдруг количество городов поменялось
-					if (buffer_cities.size() != Cities.size()) {
-						// если меньше
-						if (buffer_cities.size() < Cities.size()) {
+					auto cities_number = cities::CountCities();
+					if (buffer_cities.size() != cities_number) {
+						if (buffer_cities.size() < cities_number) {
 							const size_t b_size = buffer_cities.size();
-							// то добиваем нулями
-							for (unsigned int i = 0; i < Cities.size() - b_size; i++)
+							for (unsigned int i = 0; i < cities_number - b_size; i++)
 								buffer_cities += "0";
 						} else {
-							// режем строку
-							buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - Cities.size()));
+							buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - cities_number));
 						}
 					}
 					this->str_to_cities(std::string(buffer_cities));
@@ -2075,7 +2071,7 @@ time_t Player::get_time_daily_quest(int id) {
 }
 
 void Player::add_value_cities(bool v) {
-	this->cities.push_back(v);
+	this->cities_visited_.push_back(v);
 }
 
 void Player::reset_daily_quest() {

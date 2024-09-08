@@ -20,6 +20,7 @@
 #include "game_magic/magic.h"
 #include "noob.h"
 #include "administration/privilege.h"
+#include "game_mechanics/stable_objs.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
@@ -762,7 +763,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
 			GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j));
 	SendMsgToChar(buf, ch);
-	if (IsTimerUnlimited(j))
+	if (stable_objs::IsTimerUnlimited(j))
 		sprintf(buf, "Таймер: нерушимо, ");
 	else
 		sprintf(buf, "Таймер: %d, ", j->get_timer());

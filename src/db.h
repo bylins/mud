@@ -58,7 +58,6 @@ int AllocateBufferForFile(const char *name, char **destination_buf);
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags);
 CharData *ReadMobile(MobVnum nr, int type);
 int IsCorrectUnique(int unique);
-bool IsTimerUnlimited(const CObjectPrototype *obj);
 void SaveGlobalUID();
 void FlushPlayerIndex();
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
@@ -98,72 +97,12 @@ struct reset_com {
 	char *sarg2;        // string argument
 };
 
-struct TreasureCase {
-	ObjVnum vnum;
-	int drop_chance;
-	std::vector<ObjVnum> vnum_objs; // внумы шмоток, которые выпадают из кейса
-};
-
 // для экстраффектов в random_obj
 struct ExtraAffects {
 	int number; // номер экстрааафетка
 	int min_val; // минимальное значение
 	int max_val; // максимальное значение
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
-};
-
-struct QuestBodrichRewards {
-	int level;
-	int vnum;
-	int money;
-	int exp;
-};
-
-class QuestBodrich {
- public:
-	QuestBodrich();
-
- private:
-	void LoadMobs();
-	void LoadObjs();
-	void LoadRewards();
-
-	// здесь храним предметы для каждого класса
-	std::map<int, std::vector<int>> objs;
-	// здесь храним мобов
-	std::map<int, std::vector<int>> mobs;
-	// а здесь награды
-	std::map<int, std::vector<QuestBodrichRewards>> rewards;
-};
-
-struct City {
-	std::string name; // имя города
-	std::vector<int> vnums; // номера зон, которые принадлежат городу
-	int rent_vnum; // внум ренты города
-};
-
-class RandomObj {
- public:
-	// внум объекта
-	int vnum;
-	// массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
-	std::map<std::string, int> not_wear;
-	// минимальный и максимальный вес
-	int min_weight;
-	int max_weight;
-	// минимальная и максимальная цена за предмет
-	int min_price;
-	int max_price;
-	// прочность
-	int min_stability;
-	int max_stability;
-	// value0, value1, value2, value3
-	int value0_min, value1_min, value2_min, value3_min;
-	int value0_max, value1_max, value2_max, value3_max;
-	// список аффектов и их шанс упасть на шмотку
-	std::map<std::string, int> affects;
-	// список экстраффектов и их шанс упасть на шмотку
-	std::vector<ExtraAffects> extraffect;
 };
 
 // for queueing zones for update

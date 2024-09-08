@@ -8,9 +8,7 @@ class CharData;
 namespace DailyQuest {
 
 struct DailyQuest {
-	// описание
 	std::string desk;
-	// награда
 	int reward;
 
 	DailyQuest(const std::string &desk, int reward);
