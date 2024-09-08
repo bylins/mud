@@ -33,6 +33,7 @@
 #include "cmd_god/mark.h"
 #include "cmd/equip.h"
 #include "cmd/eat.h"
+#include "cmd/enter.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "cmd/get.h"
@@ -44,6 +45,7 @@
 #include "cmd/order.h"
 #include "cmd/put.h"
 #include "cmd/retreat.h"
+#include "cmd/sleep.h"
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
 #include "cmd/do_features.h"
@@ -63,6 +65,7 @@
 #include "cmd/trample.h"
 #include "cmd/where.h"
 #include "cmd/who.h"
+#include "cmd/wake.h"
 #include "comm.h"
 #include "constants.h"
 #include "game_crafts/craft_commands.h"
@@ -668,7 +671,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"присмотреться", EPosition::kRest, do_looking, 0, 0, 250},
 		{"придумки", EPosition::kDead, Boards::DoBoard, 0, Boards::SUGGEST_BOARD, 0},
 		{"проверить", EPosition::kDead, do_check, 0, 0, 0},
-		{"проснуться", EPosition::kSleep, do_wake, 0, SCMD_WAKE, -1},
+		{"проснуться", EPosition::kSleep, do_wake, 0, kScmdWake, -1},
 		{"простить", EPosition::kRest, do_forgive, 0, 0, 0},
 		{"пробовать", EPosition::kRest, do_eat, 0, kScmdTaste, 300},
 		{"сожрать", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
@@ -676,7 +679,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"прыжок", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
 
-		{"разбудить", EPosition::kRest, do_wake, 0, SCMD_WAKEUP, -1},
+		{"разбудить", EPosition::kRest, do_wake, 0, kScmdWakeUp, -1},
 		{"разгруппировать", EPosition::kDead, do_ungroup, 0, 0, 500},
 		{"разделить", EPosition::kRest, do_split, 1, 0, 500},
 		{"разделы", EPosition::kRest, do_help, 1, 0, 500},

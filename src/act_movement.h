@@ -24,12 +24,9 @@ enum FD_RESULT : int {
 
 void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd);
 void do_gen_door(CharData *ch, char *argument, int cmd, int subcmd);
-void do_enter(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stand(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sit(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rest(CharData *ch, char *argument, int cmd, int subcmd);
-void do_sleep(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wake(CharData *ch, char *argument, int cmd, int subcmd);
 
 int HasKey(CharData *ch, ObjVnum key);
 bool HasBoat(CharData *ch);

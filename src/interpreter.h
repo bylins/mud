@@ -268,10 +268,6 @@ struct alias_data {
 #define SCMD_ZLIST      3
 #define SCMD_CLIST        4
 
-// do_wake
-#define SCMD_WAKE 0
-#define SCMD_WAKEUP  1
-
 // do_hchannel
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
