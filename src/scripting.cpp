@@ -2591,8 +2591,8 @@ bool check_command_on_list(const python_command_list_t &lst,
 			SendMsgToChar("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 			return true;
 		}
-		if (GET_POS(ch) < i->minimum_position) {
-			switch (GET_POS(ch)) {
+		if (ch->GetPosition() < i->minimum_position) {
+			switch (ch->GetPosition()) {
 				case POS_DEAD: SendMsgToChar("Очень жаль - ВЫ МЕРТВЫ !!! :-(\r\n", ch);
 					break;
 				case POS_INCAP:

@@ -584,7 +584,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 				buf2, GET_ALIGNMENT(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
 				mob->mem_queue.stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(GET_POS(mob)),
+				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(mob->GetPosition()),
 				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
 		// * Deal with Extra stats in case they are there.
 		sum = 0;
@@ -1150,7 +1150,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 "%sT%s) Тип атаки     : %s%s\r\n"
 			 "%sU%s) Флаги   (MOB) : %s%s\r\n"
 			 "%sV%s) Аффекты (AFF) : %s%s\r\n",
-			 grn, nrm, yel, position_types[(int) GET_POS(mob)],
+			 grn, nrm, yel, position_types[(int) mob->GetPosition()],
 			 grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)],
 			 grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	SendMsgToChar(buf, d->character.get());
@@ -2053,10 +2053,11 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_GOLD_SIZE: GET_GOLD_SiDs(OLC_MOB(d)) = MAX(0, atoi(arg));
 			break;
 
-		case MEDIT_POS:
-			GET_POS(OLC_MOB(d)) =
-				std::clamp(static_cast<EPosition>(atoi(arg)), EPosition::kDead, --EPosition::kLast);
+		case MEDIT_POS: {
+			auto pos = std::clamp(static_cast<EPosition>(atoi(arg)), EPosition::kDead, --EPosition::kLast);
+			OLC_MOB(d)->SetPosition(pos);
 			break;
+		}
 		case MEDIT_DEFAULT_POS:
 			GET_DEFAULT_POS(OLC_MOB(d)) =
 				std::clamp(static_cast<EPosition>(atoi(arg)), EPosition::kDead, --EPosition::kLast);

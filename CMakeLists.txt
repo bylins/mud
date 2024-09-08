@@ -298,9 +298,9 @@ set(SOURCES
 		src/cmd/levels.cpp
 		src/cmd/where.cpp
 		src/cmd/who.cpp
-		src/cmd/wake.cpp
 		src/cmd/enter.cpp
-		src/cmd/sleep.cpp)
+		src/cmd/sleep.cpp
+		src/cmd/wake.cpp)
 
 set(HEADERS
 		src/cmd/flee.h

@@ -214,7 +214,7 @@ namespace {
 			switch (number(1, 3)) {
 				case 1:
 					// аналог баша с лагом
-					if (GET_POS(vict) >= EPosition::kFight) {
+					if (vict->GetPosition() >= EPosition::kFight) {
 						if (vict->IsOnHorse()) {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 										  CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
@@ -229,7 +229,7 @@ namespace {
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 							act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 								true, ch, nullptr, vict, kToNotVict);
-							GET_POS(vict) = EPosition::kSit;
+							vict->SetPosition(EPosition::kSit);
 							SetWaitState(vict, 3 * kBattleRound);
 						}
 						break;

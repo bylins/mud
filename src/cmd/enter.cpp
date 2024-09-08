@@ -136,7 +136,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					if (IS_CHARMICE(k->follower) &&
 						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						GET_POS(k->follower) == EPosition::kStand &&
+						k->follower->GetPosition() == EPosition::kStand &&
 						IN_ROOM(k->follower) == from_room) {
 						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
 						command_interpreter(k->follower, buf2);

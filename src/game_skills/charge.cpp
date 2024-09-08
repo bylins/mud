@@ -35,7 +35,7 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Невидимые оковы мешают вам ринуться в бой!\r\n", ch);
 		return;
 	}
-	if (GET_POS(ch) != EPosition::kStand) {
+	if (ch->GetPosition() != EPosition::kStand) {
 		SendMsgToChar("Вы не можете ринуться в бой из этого положения!\r\n", ch);
 		return;
 	}

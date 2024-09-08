@@ -377,7 +377,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_INITIATIVE(k));
 	SendMsgToChar(buf, ch);
 
-	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
+	sprinttype(static_cast<int>(k->GetPosition()), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
 			smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 

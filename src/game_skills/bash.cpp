@@ -66,7 +66,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
 		return;
 	}
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -134,7 +134,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		if (!can_shield_bash || (!shield_bash_success && !still_stands)) {
 			SetFighting(ch, vict);
 			SetFighting(vict, ch);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			SetWait(ch, 2, true);
 			act("&WВы попытались сбить $N3, но упали сами. Учитесь.&n",
 				false, ch, nullptr,vict, kToChar);
@@ -168,7 +168,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				&& PRF_FLAGGED(vict, EPrf::kAwake)
 				&& vict->GetSkill(ESkill::kAwake)
 				&& vict->GetSkill(ESkill::kShieldBlock)
-				&& GET_POS(vict) > EPosition::kSit))
+				&& vict->GetPosition() > EPosition::kSit))
 			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
@@ -213,8 +213,9 @@ void go_bash(CharData *ch, CharData *vict) {
 		vict->DropFromHorse();
 		// Сам баш:
 		if (!IS_IMPL(vict)) {
-			if (GET_POS(vict) > EPosition::kSit)
-				GET_POS(vict) = EPosition::kSit;
+			if (vict->GetPosition() > EPosition::kSit) {
+				vict->SetPosition(EPosition::kSit);
+			}
 			SetWait(vict, 3, true);
 		}
 		lag = 1;

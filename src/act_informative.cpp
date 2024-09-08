@@ -690,7 +690,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 		strcat(buf, " умирает");
 
 	if (!i->IsOnHorse())
-		switch (GET_POS(i)) {
+		switch (i->GetPosition()) {
 			case EPosition::kPerish: strcat(buf, ".");
 				break;
 			case EPosition::kIncap: strcat(buf, IS_POLY(i) ? ", лежат без сознания." : ", лежит без сознания.");
@@ -1011,7 +1011,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (i->IsNpc()
 		&& !i->player_data.long_descr.empty()
-		&& GET_POS(i) == GET_DEFAULT_POS(i)
+		&& i->GetPosition() == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
 		&& !IS_HORSE(i)) {
@@ -1172,7 +1172,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	if (!i->IsNpc() && PLR_FLAGGED(i, EPlrFlag::kWriting))
 		strcat(buf, "(пишет) ");
 
-	if (GET_POS(i) != EPosition::kFight) {
+	if (i->GetPosition() != EPosition::kFight) {
 		if (i->IsOnHorse()) {
 			CharData *horse = i->get_horse();
 			if (horse) {
@@ -1187,13 +1187,13 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == ESector::kUnderwater)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
-		else if (GET_POS(i) > EPosition::kSleep && AFF_FLAGGED(i, EAffect::kFly))
+		else if (i->GetPosition() > EPosition::kSleep && AFF_FLAGGED(i, EAffect::kFly))
 			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == ESector::kWaterSwim || sector == ESector::kWaterNoswim)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
 			strcat(buf,
-				   IS_POLY(i) ? poly_positions[static_cast<int>(GET_POS(i))] : positions[static_cast<int>(GET_POS(i))]);
+				   IS_POLY(i) ? poly_positions[static_cast<int>(i->GetPosition())] : positions[static_cast<int>(i->GetPosition())]);
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic) && i->IsNpc() && IsAffectedBySpell(i, ESpell::kCapable))
 			sprintf(buf + strlen(buf), "(аура магии) ");
 	} else {
@@ -1766,7 +1766,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Вы все еще слепы...\r\n", ch);
 		return;
-	} else if (GET_POS(ch) < EPosition::kSleep) {
+	} else if (ch->GetPosition() < EPosition::kSleep) {
 		return;
 	}
 	if (msdp_mode) {
@@ -2466,7 +2466,7 @@ void do_look(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (!ch->desc)
 		return;
-	if (GET_POS(ch) < EPosition::kSleep) {
+	if (ch->GetPosition() < EPosition::kSleep) {
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
@@ -2528,7 +2528,7 @@ void do_sides(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) <= EPosition::kSleep)
+	if (ch->GetPosition() <= EPosition::kSleep)
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
@@ -2547,9 +2547,9 @@ void do_looking(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) < EPosition::kSleep)
+	if (ch->GetPosition() < EPosition::kSleep)
 		SendMsgToChar("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
-	if (GET_POS(ch) == EPosition::kSleep)
+	if (ch->GetPosition() == EPosition::kSleep)
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kBlind))
 		SendMsgToChar("Вы ослеплены!\r\n", ch);
@@ -2576,9 +2576,9 @@ void do_hearing(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kSleep)
+	if (ch->GetPosition() < EPosition::kSleep)
 		SendMsgToChar("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
-	if (GET_POS(ch) == EPosition::kSleep)
+	if (ch->GetPosition() == EPosition::kSleep)
 		SendMsgToChar("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
 	else if (ch->GetSkill(ESkill::kHearing)) {
 		if (check_moves(ch, kHearingMoves)) {
@@ -2598,7 +2598,7 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char where[kMaxInputLength];
 	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip | EFind::kCharInRoom | EFind::kObjExtraDesc;
 
-	if (GET_POS(ch) < EPosition::kSleep) {
+	if (ch->GetPosition() < EPosition::kSleep) {
 		SendMsgToChar("Виделся часто сон беспокойный...\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {

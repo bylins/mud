@@ -942,7 +942,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				sprinttype(value, position_types, smallBuf);
 				sprintf(buf, "Для персонажа %s установлена позиция: %s.\r\n", GET_NAME(vict), smallBuf);
 				SendMsgToChar(buf, ch);
-				GET_POS(vict) = tmpval;
+				vict->SetPosition(tmpval);
 			} else {
 				SendMsgToChar(ch, "Позиция может принимать значения от 1 до 8.\r\n");
 				return (0);

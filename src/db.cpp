@@ -1967,7 +1967,7 @@ bool CanBeReset(ZoneRnum zone) {
 }
 
 void paste_mob(CharData *ch, RoomRnum room) {
-	if (!ch->IsNpc() || ch->GetEnemy() || GET_POS(ch) < EPosition::kStun)
+	if (!ch->IsNpc() || ch->GetEnemy() || ch->GetPosition() < EPosition::kStun)
 		return;
 	if (IS_CHARMICE(ch)
 		|| AFF_FLAGGED(ch, EAffect::kHorse)

@@ -117,7 +117,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		act("$N безуспешно попытал$U поранить $n3. Как нелепо...",
 			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
 	}
-	if (GET_POS(vict) != EPosition::kDead) {
+	if (vict->GetPosition() != EPosition::kDead) {
 		int no_injure_duration = 4;
 
 		if (!vict->IsNpc()) {

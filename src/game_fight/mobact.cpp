@@ -646,9 +646,9 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 			SendMsgToChar(best, "&GАгромоб, атака остановлена.\r\n");
 			return (false);
 		}
-		if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
+		if (ch->GetPosition() < EPosition::kFight && ch->GetPosition() > EPosition::kSleep) {
 			act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
-			GET_POS(ch) = EPosition::kStand;
+			ch->SetPosition(EPosition::kStand);
 		}
 
 		if (IS_SET(extmode, KILL_FIGHTING) && best->GetEnemy()) {
@@ -707,9 +707,9 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 			continue;
 		}
 		if (!SAME_ALIGN(ch, vict)) {
-			if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
+			if (ch->GetPosition() < EPosition::kFight && ch->GetPosition() > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
-				GET_POS(ch) = EPosition::kStand;
+				ch->SetPosition(EPosition::kStand);
 			}
 			if (!start_fight_mtrigger(ch, vict)) {
 				return false;
@@ -827,9 +827,9 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 
 		// Is memory found ?
 		if (victim && ch->get_wait() <= 0) {
-			if (GET_POS(ch) < EPosition::kFight && GET_POS(ch) > EPosition::kSleep) {
+			if (ch->GetPosition() < EPosition::kFight && ch->GetPosition() > EPosition::kSleep) {
 				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
-				GET_POS(ch) = EPosition::kStand;
+				ch->SetPosition(EPosition::kStand);
 			}
 			if (GET_RACE(ch) != ENpcRace::kHuman) {
 				act("$n вспомнил$g $N3.", false, ch, nullptr, victim, kToRoom);
@@ -1035,7 +1035,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 		// If the mob has no specproc, do the default actions
 		if (ch->GetEnemy() ||
-			GET_POS(ch) <= EPosition::kStun ||
+			ch->GetPosition() <= EPosition::kStun ||
 			ch->get_wait() > 0 ||
 			AFF_FLAGGED(ch, EAffect::kCharmed) ||
 			AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
@@ -1044,15 +1044,15 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		if (IS_HORSE(ch)) {
-			if (GET_POS(ch) < EPosition::kFight) {
-				GET_POS(ch) = EPosition::kStand;
+			if (ch->GetPosition() < EPosition::kFight) {
+				ch->SetPosition(EPosition::kStand);
 			}
 
 			return;
 		}
 
-		if (GET_POS(ch) == EPosition::kSleep && GET_DEFAULT_POS(ch) > EPosition::kSleep) {
-			GET_POS(ch) = GET_DEFAULT_POS(ch);
+		if (ch->GetPosition() == EPosition::kSleep && GET_DEFAULT_POS(ch) > EPosition::kSleep) {
+			ch->SetPosition(GET_DEFAULT_POS(ch));
 			act("$n проснул$u.", false, ch.get(), 0, 0, kToRoom);
 		}
 
@@ -1080,29 +1080,29 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		// Mob attemp rest if it is not an angel
 		if (!max && !MOB_FLAGGED(ch, EMobFlag::kNoRest) && !MOB_FLAGGED(ch, EMobFlag::kHorde) &&
 			GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !MOB_FLAGGED(ch, EMobFlag::kTutelar) && !MOB_FLAGGED(ch, EMobFlag::kMentalShadow)
-			&& GET_POS(ch) > EPosition::kRest) {
+			&& ch->GetPosition() > EPosition::kRest) {
 			act("$n присел$g отдохнуть.", false, ch.get(), 0, 0, kToRoom);
-			GET_POS(ch) = EPosition::kRest;
+			ch->SetPosition(EPosition::kRest);
 		}
 
 		// Mob return to default pos if full rested or if it is an angel
 		if ((GET_HIT(ch) >= GET_REAL_MAX_HIT(ch)
-			&& GET_POS(ch) != GET_DEFAULT_POS(ch))
+			&& ch->GetPosition() != GET_DEFAULT_POS(ch))
 			|| ((MOB_FLAGGED(ch, EMobFlag::kTutelar)
 				|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
-				&& GET_POS(ch) != GET_DEFAULT_POS(ch))) {
+				&& ch->GetPosition() != GET_DEFAULT_POS(ch))) {
 			switch (GET_DEFAULT_POS(ch)) {
 				case EPosition::kStand: act("$n поднял$u.", false, ch.get(), 0, 0, kToRoom);
-					GET_POS(ch) = EPosition::kStand;
+					ch->SetPosition(EPosition::kStand);
 					break;
 				case EPosition::kSit: act("$n сел$g.", false, ch.get(), 0, 0, kToRoom);
-					GET_POS(ch) = EPosition::kSit;
+					ch->SetPosition(EPosition::kSit);
 					break;
 				case EPosition::kRest: act("$n присел$g отдохнуть.", false, ch.get(), 0, 0, kToRoom);
-					GET_POS(ch) = EPosition::kRest;
+					ch->SetPosition(EPosition::kRest);
 					break;
 				case EPosition::kSleep: act("$n уснул$g.", false, ch.get(), 0, 0, kToRoom);
-					GET_POS(ch) = EPosition::kSleep;
+					ch->SetPosition(EPosition::kSleep);
 					break;
 				default:
 					break;
@@ -1157,15 +1157,15 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		npc_wield(ch.get());
 		npc_armor(ch.get());
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kInvis)) {
+		if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kInvis)) {
 			ch->set_affect(EAffect::kInvisible);
 		}
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kMoveFly)) {
+		if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kMoveFly)) {
 			ch->set_affect(EAffect::kFly);
 		}
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kSneaking)) {
+		if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kSneaking)) {
 			if (CalcCurrentSkill(ch.get(), ESkill::kSneak, 0) >= number(0, 100)) {
 				ch->set_affect(EAffect::kSneak);
 			} else {
@@ -1174,7 +1174,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			affect_total(ch.get());
 		}
 
-		if (GET_POS(ch) == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kDisguising)) {
+		if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kDisguising)) {
 			if (CalcCurrentSkill(ch.get(), ESkill::kDisguise, 0) >= number(0, 100)) {
 				ch->set_affect(EAffect::kDisguise);
 			} else {
@@ -1191,7 +1191,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			&& !MOB_FLAGGED(ch, EMobFlag::kSentinel)
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)
 			&& !ch->has_master()
-			&& GET_POS(ch) == EPosition::kStand) {
+			&& ch->GetPosition() == EPosition::kStand) {
 			for (found = false, door = 0; door < EDirection::kMaxDirNum; door++) {
 				RoomData::exit_data_ptr rdata = EXIT(ch, door);
 				if (!rdata
@@ -1229,13 +1229,13 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		}
 
 		if (GET_DEST(ch) != kNowhere
-			&& GET_POS(ch) > EPosition::kFight
+			&& ch->GetPosition() > EPosition::kFight
 			&& door == kBfsError) {
 			npc_group(ch.get());
 			door = npc_walk(ch.get());
 		}
 
-		if (MEMORY(ch) && door == kBfsError && GET_POS(ch) > EPosition::kFight && ch->GetSkill(ESkill::kTrack))
+		if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && ch->GetSkill(ESkill::kTrack))
 			door = npc_track(ch.get());
 
 		if (door == kBfsAlreadyThere) {
@@ -1249,7 +1249,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 		// Mob Movement
 		if (!MOB_FLAGGED(ch, EMobFlag::kSentinel)
-			&& GET_POS(ch) == EPosition::kStand
+			&& ch->GetPosition() == EPosition::kStand
 			&& (door >= 0 && door < EDirection::kMaxDirNum)
 			&& EXIT(ch, door)
 			&& EXIT(ch, door)->to_room() != kNowhere
@@ -1272,7 +1272,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		// *****************  Mob Memory
 		if (MOB_FLAGGED(ch, EMobFlag::kMemory)
 			&& MEMORY(ch)
-			&& GET_POS(ch) > EPosition::kSleep
+			&& ch->GetPosition() > EPosition::kSleep
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)
 			&& !ch->GetEnemy()) {
 			// Find memory in world

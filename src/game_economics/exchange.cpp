@@ -1108,7 +1108,7 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			&& !PRF_FLAGGED(i->character, EPrf::kNoExchange)
 			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof)
-			&& GET_POS(i->character) > EPosition::kSleep) {
+			&& i->character->GetPosition() > EPosition::kSleep) {
 			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)
 				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient
 					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)) {

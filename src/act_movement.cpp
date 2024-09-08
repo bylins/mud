@@ -23,7 +23,6 @@
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "administration/privilege.h"
-#include "color.h"
 #include "game_skills/pick.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
@@ -249,28 +248,22 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 
 int real_forest_paths_sect(int sect) {
 	switch (sect) {
-		case ESector::kForest: return ESector::kField;
-			break;
-		case ESector::kForestSnow: return ESector::kFieldSnow;
-			break;
-		case ESector::kForestRain: return ESector::kFieldRain;
-			break;
+		case ESector::kForest:		return ESector::kField;
+		case ESector::kForestSnow:	return ESector::kFieldSnow;
+		case ESector::kForestRain:	return ESector::kFieldRain;
+		default:					return sect;
 	}
-	return sect;
 }
 
 int real_mountains_paths_sect(int sect) {
 	switch (sect) {
-		case ESector::kHills:
-		case ESector::kMountain: return ESector::kField;
-			break;
-		case ESector::kHillsRain: return ESector::kFieldRain;
-			break;
-		case ESector::kHillsSnow:
-		case ESector::kMountainSnow: return ESector::kFieldSnow;
-			break;
+		case ESector::kHills:			[[fallthrough]];
+		case ESector::kMountain:		return ESector::kField;
+		case ESector::kHillsRain:		return ESector::kFieldRain;
+		case ESector::kHillsSnow:		[[fallthrough]];
+		case ESector::kMountainSnow:	return ESector::kFieldSnow;
+		default: return sect;
 	}
-	return sect;
 }
 
 int calculate_move_cost(CharData *ch, int dir) {
@@ -490,7 +483,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 				continue;
 			if (NPC_FLAGGED(tch, 1 << dir)
 				&& AWAKE(tch)
-				&& GET_POS(tch) > EPosition::kSleep
+				&& tch->GetPosition() > EPosition::kSleep
 				&& CAN_SEE(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& !AFF_FLAGGED(tch, EAffect::kHold)) {
@@ -509,30 +502,28 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 	return true;
 }
 
-#define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
-#define MAX_DRUNK_SONG 6
-#define MAX_DRUNK_VOICE 5
-
+const int kMaxDrunkSong{6};
+const int kMaxDrunkVoice{5};
 void PerformDunkSong(CharData *ch) {
-	const char *drunk_songs[MAX_DRUNK_SONG] = {"\"Шумел камыш, и-к-к..., деревья гнулися\"",
-											   "\"Куда ты, тропинка, меня завела\"",
-											   "\"Пабабам, пара пабабам\"",
-											   "\"А мне любое море по колено\"",
-											   "\"Не жди меня мама, хорошего сына\"",
-											   "\"Бываааали дниии, весеееелыя\"",
+	const char *drunk_songs[kMaxDrunkSong] = {"\"Шумел камыш, и-к-к..., деревья гнулися\"",
+											  "\"Куда ты, тропинка, меня завела\"",
+											  "\"Пабабам, пара пабабам\"",
+											  "\"А мне любое море по колено\"",
+											  "\"Не жди меня мама, хорошего сына\"",
+											  "\"Бываааали дниии, весеееелыя\"",
 	};
-	const char *drunk_voice[MAX_DRUNK_VOICE] = {" - затянул$g $n",
-												" - запел$g $n.",
-												" - прохрипел$g $n.",
-												" - зычно заревел$g $n.",
-												" - разухабисто протянул$g $n.",
+	const char *drunk_voice[kMaxDrunkVoice] = {" - затянул$g $n",
+											   " - запел$g $n.",
+											   " - прохрипел$g $n.",
+											   " - зычно заревел$g $n.",
+											   " - разухабисто протянул$g $n.",
 	};
 	// орем песни
 	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, DRUNK)) {
-		sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
+		sprintf(buf, "%s", drunk_songs[number(0, kMaxDrunkSong - 1)]);
 		SendMsgToChar(buf, ch);
 		SendMsgToChar("\r\n", ch);
-		strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
+		strcat(buf, drunk_voice[number(0, kMaxDrunkVoice - 1)]);
 		act(buf, false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
 		RemoveAffectFromChar(ch, ESpell::kHide);
 		RemoveAffectFromChar(ch, ESpell::kSneak);
@@ -603,7 +594,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		return false;
 	}
 
-	// Now we know we're allow to go into the room.
+	// Now we know we're allowed to go into the room.
 	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
 		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
@@ -868,17 +859,17 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 				|| AFF_FLAGGED(ch, EAffect::kSneak)
 				|| AFF_FLAGGED(ch, EAffect::kDisguise)
 				|| vict->GetEnemy()
-				|| GET_POS(vict) < EPosition::kRest) {
+				|| vict->GetPosition() < EPosition::kRest) {
 				continue;
 			}
 
 			// AWARE mobs
 			if (MOB_FLAGGED(vict, EMobFlag::kAware)
-				&& GET_POS(vict) < EPosition::kFight
+				&& vict->GetPosition() < EPosition::kFight
 				&& !AFF_FLAGGED(vict, EAffect::kHold)
-				&& GET_POS(vict) > EPosition::kSleep) {
+				&& vict->GetPosition() > EPosition::kSleep) {
 				act("$n поднял$u.", false, vict, nullptr, nullptr, kToRoom | kToArenaListen);
-				GET_POS(vict) = EPosition::kStand;
+				vict->SetPosition(EPosition::kStand);
 			}
 		}
 	}
@@ -919,7 +910,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 				return false;
 		} else {
 			was_in = ch->in_room;
-			// When leader mortally drunked - he change direction
+			// When leader mortally drunked - he changes direction
 			// So returned value set to false or DIR + 1
 			if (!(dir = DoSimpleMove(ch, dir, need_specials_check, master, false)))
 				return false;
@@ -939,13 +930,13 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 							&& !PLR_FLAGGED(k->follower, EPlrFlag::kWriting)))
 					&& (!IS_HORSE(k->follower)
 						|| !AFF_FLAGGED(k->follower, EAffect::kTethered))) {
-					if (GET_POS(k->follower) < EPosition::kStand) {
+					if (k->follower->GetPosition() < EPosition::kStand) {
 						if (k->follower->IsNpc()
 							&& k->follower->get_master()->IsNpc()
-							&& GET_POS(k->follower) > EPosition::kSleep
+							&& k->follower->GetPosition() > EPosition::kSleep
 							&& !k->follower->get_wait()) {
 							act("$n поднял$u.", false, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-							GET_POS(k->follower) = EPosition::kStand;
+							k->follower->SetPosition(EPosition::kStand);
 						} else {
 							continue;
 						}
@@ -1036,8 +1027,6 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #define DOOR_IS_LOCKED(ch, obj, door)    (!(DOOR_IS_UNLOCKED(ch, obj, door)))
 #define DOOR_KEY(ch, obj, door)        ((obj) ? (GET_OBJ_VAL(obj, 2)) : \
                     (EXIT(ch, door)->key))
-#define DOOR_LOCK(ch, obj, door)    ((obj) ? (GET_OBJ_VAL(obj, 1)) : \
-                    (EXIT(ch, door)->exit_info))
 #define DOOR_LOCK_COMPLEX(ch, obj, door) ((obj) ? \
             (GET_OBJ_VAL(obj,3)) :\
             (EXIT(ch, door)->lock_complexity))
@@ -1046,59 +1035,51 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 	int door;
 	bool found = false;
 
-	if (*dir)  //Указано направление (второй аргумент)
-	{
-		//Проверяем соответствует ли аргумент английским или русским направлениям
+	if (*dir) {
 		if ((door = search_block(dir, dirs, false)) == -1
-			&& (door = search_block(dir, dirs_rus, false)) == -1)    // Partial Match
-		{
-			//strcpy(doorbuf,"Уточните направление.\r\n");
-			return (FD_WRONG_DIR); //НЕВЕРНОЕ НАПРАВЛЕНИЕ
+			&& (door = search_block(dir, dirs_rus, false)) == -1) {
+			return kWrongDir;
 		}
-		if (EXIT(ch, door)) { //Проверяем есть ли такая дверь в указанном направлении
-			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {//Дверь как-то по-особенному называется?
-				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
-					//Первый аргумент соответствует именительному или винительному алиасу двери
+		if (EXIT(ch, door)) {
+			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {
+				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword)) {
 					return (door);
-				else
-					return (FD_WRONG_DOOR_NAME); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
+				} else {
+					return kWrongDirDoorName;
+				}
 			} else if (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")) {
-				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
-				return (door);
-			} else
-				//Дверь с названием "дверь" есть, но аргумент не соответствует
-				return (FD_DOORNAME_WRONG);
-		} else {
-			return (FD_NO_DOOR_GIVEN_DIR); //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
-		}
-	} else //Направления не указано, ищем дверь по названию
-	{
-		if (!*type) { //Названия не указано
-			return (FD_DOORNAME_EMPTY); //НЕ УКАЗАНО АРГУМЕНТОВ
-		}
-		for (door = 0; door < EDirection::kMaxDirNum; door++) {//Проверяем все направления, не найдется ли двери?
-			found = false;
-			if (EXIT(ch, door)) {//Есть выход в этом направлении
-				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) { //Дверь как-то по-особенному называется?
-					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
-						//Аргумент соответствует имени этой двери
-						found = true;
-				} else if (DOOR_IS(ch, door) && (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")))
-					//Дверь не имеет особых алиасов, аргумент соответствует двери
-					found = true;
+				return door;
+			} else {
+				return kWrongDoorName;
 			}
-			// дверь найдена проверяем ейный статус.
-			// скипуем попытку закрыть закрытую и открыть открытую.
-			// остальные статусы двери автоматом не проверяются.
+		} else {
+			return kNoDoorGivenDir;
+		}
+	} else {
+		if (!*type) {
+			return (kDoorNameIsEmpty);
+		}
+		for (door = 0; door < EDirection::kMaxDirNum; door++) {
+			found = false;
+			if (EXIT(ch, door)) {
+				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {
+					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword)) {
+						found = true;
+					}
+				} else if (DOOR_IS(ch, door) && (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door"))) {
+					found = true;
+				}
+			}
 			if (found) {
 				if ((scmd == kScmdOpen && DOOR_IS_OPEN(ch, nullptr, door)) ||
-					(scmd == kScmdClose && DOOR_IS_CLOSED(ch, nullptr, door)))
+					(scmd == kScmdClose && DOOR_IS_CLOSED(ch, nullptr, door))) {
 					continue;
-				else
+				} else {
 					return door;
+				}
 			}
 		}
-		return (FD_DOORNAME_WRONG); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
+		return (kWrongDoorName); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
 	}
 
 }
@@ -1343,13 +1324,6 @@ bool ok_pick(CharData *ch, ObjVnum /*keynum*/, ObjData *obj, int door, int scmd)
 }
 
 void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
-	int door = -1;
-	ObjVnum keynum;
-	char type[kMaxInputLength], dir[kMaxInputLength];
-	ObjData *obj = nullptr;
-	CharData *victim = nullptr;
-	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
-
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Очнитесь, вы же слепы!\r\n", ch);
 		return;
@@ -1365,8 +1339,9 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		SendMsgToChar(CAP(buf), ch);
 		return;
 	}
+	char type[kMaxInputLength], dir[kMaxInputLength];
 	two_arguments(argument, type, dir);
-
+	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
 	if (isname(dir, "земля комната room ground"))
 		where_bits = EFind::kObjRoom;
 	else if (isname(dir, "инвентарь inventory"))
@@ -1374,31 +1349,33 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 	else if (isname(dir, "экипировка equipment"))
 		where_bits = EFind::kObjEquip;
 
-	//Сначала ищем дверь, считая второй аргумент указанием на сторону света
-	door = find_door(ch, type, dir, (EDoorScmd) subcmd);
-	//Если двери не нашлось, проверяем объекты в экипировке, инвентаре, на земле
+	auto door = find_door(ch, type, dir, (EDoorScmd) subcmd);
+	ObjData *obj{nullptr};
+	CharData *victim{nullptr};
 	if (door < 0)
 		if (!generic_find(type, where_bits, ch, &victim, &obj)) {
-			//Если и объектов не нашлось, выдаем одно из сообщений об ошибке
 			switch (door) {
-				case -1: //НЕВЕРНОЕ НАПРАВЛЕНИЕ
+				case kWrongDir:
 					SendMsgToChar("Уточните направление.\r\n", ch);
 					break;
-				case -2: //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
+				case kWrongDirDoorName:
 					sprintf(buf, "Вы не видите '%s' в этой комнате.\r\n", type);
 					SendMsgToChar(buf, ch);
 					break;
-				case -3: //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
+				case kNoDoorGivenDir:
 					sprintf(buf, "Вы не можете это '%s'.\r\n", a_cmd_door[subcmd]);
 					SendMsgToChar(buf, ch);
 					break;
-				case -4: //НЕ УКАЗАНО АРГУМЕНТОВ
+				case kDoorNameIsEmpty:
 					sprintf(buf, "Что вы хотите '%s'?\r\n", a_cmd_door[subcmd]);
 					SendMsgToChar(buf, ch);
 					break;
-				case -5: //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
+				case kWrongDoorName:
 					sprintf(buf, "Вы не видите здесь '%s'.\r\n", type);
 					SendMsgToChar(buf, ch);
+					break;
+				default:
+					SendMsgToChar("Что-то с дверью произошло непнятное, сообщите богам.", ch);
 					break;
 			}
 			return;
@@ -1411,7 +1388,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 				SendMsgToChar("Просьба не трогать! Частная собственность!\r\n", ch);
 			return;
 		}
-		keynum = DOOR_KEY(ch, obj, door);
+		auto keynum = DOOR_KEY(ch, obj, door);
 		if ((subcmd == kScmdClose || subcmd == kScmdLock) && !ch->IsNpc() && NORENTABLE(ch))
 			SendMsgToChar("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
@@ -1437,27 +1414,27 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 }
 
 void do_stand(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GET_POS(ch) > EPosition::kSleep && AFF_FLAGGED(ch, EAffect::kSleep)) {
+	if (ch->GetPosition() > EPosition::kSleep && AFF_FLAGGED(ch, EAffect::kSleep)) {
 		SendMsgToChar("Вы сладко зевнули и решили еще немного подремать.\r\n", ch);
 		act("$n сладко зевнул$a и решил$a еще немного подремать.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		GET_POS(ch) = EPosition::kSleep;
+		ch->SetPosition(EPosition::kSleep);
 	}
 
 	if (ch->IsOnHorse()) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand: SendMsgToChar("А вы уже стоите.\r\n", ch);
 			break;
 		case EPosition::kSit: SendMsgToChar("Вы встали.\r\n", ch);
 			act("$n поднял$u.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			// Will be sitting after a successful bash and may still be fighting.
-			GET_POS(ch) = ch->GetEnemy() ? EPosition::kFight : EPosition::kStand;
+			ch->GetEnemy() ? ch->SetPosition(EPosition::kFight) : ch->SetPosition(EPosition::kStand);
 			break;
 		case EPosition::kRest: SendMsgToChar("Вы прекратили отдыхать и встали.\r\n", ch);
 			act("$n прекратил$g отдых и поднял$u.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = ch->GetEnemy() ? EPosition::kFight : EPosition::kStand;
+			ch->GetEnemy() ? ch->SetPosition(EPosition::kFight) : ch->SetPosition(EPosition::kStand);
 			break;
 		case EPosition::kSleep: SendMsgToChar("Пожалуй, сначала стоит проснуться!\r\n", ch);
 			break;
@@ -1465,7 +1442,7 @@ void do_stand(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили летать и опустились на грешную землю.\r\n", ch);
 			act("$n опустил$u на землю.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kStand;
+			ch->SetPosition(EPosition::kStand);
 			break;
 	}
 }
@@ -1475,16 +1452,16 @@ void do_sit(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand: SendMsgToChar("Вы сели.\r\n", ch);
 			act("$n сел$g.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			break;
 		case EPosition::kSit: SendMsgToChar("А вы и так сидите.\r\n", ch);
 			break;
 		case EPosition::kRest: SendMsgToChar("Вы прекратили отдыхать и сели.\r\n", ch);
 			act("$n прервал$g отдых и сел$g.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			break;
 		case EPosition::kSleep: SendMsgToChar("Вам стоит проснуться.\r\n", ch);
 			break;
@@ -1492,7 +1469,7 @@ void do_sit(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили свой полет и сели.\r\n", ch);
 			act("$n прекратил$g свой полет и сел$g.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			break;
 	}
 }
@@ -1502,14 +1479,14 @@ void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand: SendMsgToChar("Вы присели отдохнуть.\r\n", ch);
 			act("$n присел$g отдохнуть.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kRest;
+			ch->SetPosition(EPosition::kRest);
 			break;
 		case EPosition::kSit: SendMsgToChar("Вы пристроились поудобнее для отдыха.\r\n", ch);
 			act("$n пристроил$u поудобнее для отдыха.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kRest;
+			ch->SetPosition(EPosition::kRest);
 			break;
 		case EPosition::kRest: SendMsgToChar("Вы и так отдыхаете.\r\n", ch);
 			break;
@@ -1519,7 +1496,7 @@ void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили полет и присели отдохнуть.\r\n", ch);
 			act("$n прекратил$g полет и пристроил$u поудобнее для отдыха.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kRest);
 			break;
 	}
 }

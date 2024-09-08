@@ -98,7 +98,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kBlind)
 			&& !AFF_FLAGGED(vict, EAffect::kHold)
-			&& GET_POS(vict) >= EPosition::kFight) {
+			&& vict->GetPosition() >= EPosition::kFight) {
 			if (vict == ch) {
 				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.",
 					false, vict, 0, victim, kToChar);

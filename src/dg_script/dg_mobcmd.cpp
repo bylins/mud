@@ -876,7 +876,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			ch->set_exp(m->get_exp());
 		}
 		ch->set_gold(m->get_gold());
-		GET_POS(ch) = GET_POS(m);
+		ch->SetPosition(m->GetPosition());
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		// для name_list
@@ -1396,7 +1396,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			}
 			update_pos(victim);
 			char_dam_message(dam, victim, victim, 0);
-			if (GET_POS(victim) == EPosition::kDead) {
+			if (victim->GetPosition() == EPosition::kDead) {
 				if (!victim->IsNpc()) {
 					sprintf(buf2, "%s killed by mobdamage at %s [%d]",GET_NAME(victim),
 						IN_ROOM(victim) == kNowhere ? "kNowhere" : world[IN_ROOM(victim)]->name,
@@ -1545,7 +1545,7 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	}
 	if (*mob_cmd_info[cmd].command == '\n') {
 		return false;
-	} else if (GET_POS(ch) < mob_cmd_info[cmd].minimum_position) {
+	} else if (ch->GetPosition() < mob_cmd_info[cmd].minimum_position) {
 		return false;
 	} else {
 		check_hiding_cmd(ch, -1);

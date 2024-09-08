@@ -478,7 +478,7 @@ void message_auction(char *message, CharData *ch) {
 			i->character &&
 			!PRF_FLAGGED(i->character, EPrf::kNoAuction) &&
 			!PLR_FLAGGED(i->character, EPlrFlag::kWriting) &&
-			!ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof) && GET_POS(i->character) > EPosition::kSleep) {
+			!ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof) && i->character->GetPosition() > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				SendMsgToChar("&Y&q", i->character.get());
 			}

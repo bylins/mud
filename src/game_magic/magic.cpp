@@ -519,8 +519,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 	}
 
-	auto ch_start_pos = GET_POS(ch);
-	auto victim_start_pos = GET_POS(victim);
+	auto ch_start_pos = ch->GetPosition();
+	auto victim_start_pos = victim->GetPosition();
 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -573,13 +573,13 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kClod: {
-				if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+				if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(victim))
 					victim->DropFromHorse();
 				act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Огромная глыба камня свалила вас на землю!", false, victim, nullptr, nullptr, kToChar);
-				GET_POS(victim) = EPosition::kSit;
+				victim->SetPosition(EPosition::kSit);
 				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
@@ -632,25 +632,25 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				}
 			}
-			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+			if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(ch))
 					ch->DropFromHorse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				GET_POS(victim) = EPosition::kSit;
+				victim->SetPosition(EPosition::kSit);
 				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
 		}
 		case ESpell::kSonicWave: {
-			if (GET_POS(victim) > EPosition::kSit &&
+			if (victim->GetPosition() > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) 
 						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				GET_POS(victim) = EPosition::kSit;
+				victim->SetPosition(EPosition::kSit);
 				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
@@ -666,7 +666,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					act("Ваше каменное проклятие отшибло сознание у $N1.", false, ch, nullptr, victim, kToChar);
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
-					GET_POS(victim) = EPosition::kStun;
+					victim->SetPosition(EPosition::kStun);
 					SetWaitState(victim, (5 + (GetRealWis(ch) - 20) / 6) * kBattleRound);
 				}
 			}
@@ -691,7 +691,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af.battleflag = kAfPulsedec;
 					af.location = EApply::kNone;
 					ImposeAffect(victim, af);
-					GET_POS(victim) = EPosition::kStun;
+					victim->SetPosition(EPosition::kStun);
 //			SetWaitState(victim, wait * kBattleRound);
 				}
 			}
@@ -727,12 +727,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kDustStorm: {
-			if (GET_POS(victim) > EPosition::kSit &&
+			if (victim->GetPosition() > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				GET_POS(victim) = EPosition::kSit;
+				victim->SetPosition(EPosition::kSit);
 				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
@@ -753,11 +753,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kWarcryOfThunder: {
-			if (GET_POS(victim) > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
+			if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
 				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				GET_POS(victim) = EPosition::kSit;
+				victim->SetPosition(EPosition::kSit);
 				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
@@ -796,8 +796,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& IN_ROOM(victim) != kNowhere
-			&& GET_POS(ch) > EPosition::kStun
-			&& GET_POS(victim) > EPosition::kDead) {
+			&& ch->GetPosition() > EPosition::kStun
+			&& victim->GetPosition() > EPosition::kDead) {
 			// инит полей для дамага
 			Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
 			dmg.ch_start_pos = ch_start_pos;
@@ -1798,14 +1798,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 										 CalcDuration(victim, 1, level, 6, 1, 6)) * koef_duration;
 			af[0].bitvector = to_underlying(EAffect::kSleep);
 			af[0].battleflag = kAfBattledec;
-			if (GET_POS(victim) > EPosition::kSleep && success) {
+			if (victim->GetPosition() > EPosition::kSleep && success) {
 				if (victim->IsOnHorse()) {
 					victim->DropFromHorse();
 				}
 				SendMsgToChar("Вы слишком устали... Спать... Спа...\r\n", victim);
 				act("$n прилег$q подремать.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 
-				GET_POS(victim) = EPosition::kSleep;
+				victim->SetPosition(EPosition::kSleep);
 			}
 			break;
 
@@ -3047,7 +3047,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		GET_GOLD_SiDs(mob) = 0;
 		mob->set_exp(0);
 
-		GET_POS(mob) = EPosition::kStand;
+		mob->SetPosition(EPosition::kStand);
 		GET_DEFAULT_POS(mob) = EPosition::kStand;
 		mob->set_sex(EGender::kMale);
 

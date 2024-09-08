@@ -131,7 +131,6 @@ struct char_special_data_saved {
 
 // Special playing constants shared by PCs and NPCs which aren't in pfile
 struct char_special_data {
-	//byte position;        // Standing, fighting, sleeping, etc.
 	EPosition position;        // Standing, fighting, sleeping, etc.
 
 	int carry_weight;        // Carried weight
@@ -778,7 +777,11 @@ class CharData : public ProtectedCharData {
 	struct char_played_ability_data add_abils;        // Abilities that add to main
 	struct char_ability_data real_abils;        // Abilities without modifiers
 	struct char_point_data points;        // Points
+
 	struct char_special_data char_specials;        // PC/NPC specials
+	EPosition GetPosition() const { return char_specials.position; };
+  	void SetPosition(EPosition position) { char_specials.position = position; };
+
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials

@@ -47,7 +47,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Это не скакун.\r\n", ch);
 	else if (horse->get_master() != ch)
 		SendMsgToChar("Это не ваш скакун.\r\n", ch);
-	else if (GET_POS(horse) < EPosition::kFight)
+	else if (horse->GetPosition() < EPosition::kFight)
 		act("$N не сможет вас нести в таком состоянии.", false, ch, 0, horse, kToChar);
 	else if (AFF_FLAGGED(horse, EAffect::kTethered))
 		act("Вам стоит отвязать $N3.", false, ch, 0, horse, kToChar);
@@ -202,7 +202,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			SendMsgToChar("Вам не усидеть сразу на двух скакунах.\r\n", ch);
 		return;
-	} else if (GET_POS(horse) < EPosition::kStand) {
+	} else if (horse->GetPosition() < EPosition::kStand) {
 		act("$N не сможет стать вашим скакуном.", false, ch, 0, horse, kToChar);
 		return;
 	} else if (IS_HORSE(horse)) {

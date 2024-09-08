@@ -39,7 +39,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
 					technique.GetRival()->DropFromHorse();
 				} else { // иначе просто садится на попу с лагом 2
-					GET_POS(technique.GetRival()) = std::min(GET_POS(technique.GetRival()), EPosition::kSit);
+					auto pos = std::min(technique.GetRival()->GetPosition(), EPosition::kSit);
+					technique.GetRival()->SetPosition(pos);
 					SetWait(technique.GetRival(), 2, false);
 				}
 			});

@@ -108,8 +108,8 @@ void go_kick(CharData *ch, CharData *vict) {
 					default:
 						if (!MOB_FLAGGED(vict, EMobFlag::kNoBash)) {
 							SetWaitState(vict, number(2, 5) * kBattleRound);
-							if (GET_POS(vict) > EPosition::kSit) {
-								GET_POS(vict) = EPosition::kSit;
+							if (vict->GetPosition() > EPosition::kSit) {
+								vict->SetPosition(EPosition::kSit);
 							}
 							to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
 							to_vict = "Мощный удар ноги $n1 попал точно в голову, свалив вас с ног.";
@@ -147,8 +147,8 @@ void go_kick(CharData *ch, CharData *vict) {
 		if (result.CritLuck && !ch->IsOnHorse()) {
 			dam *= 2;
 			if (!MOB_FLAGGED(vict, EMobFlag::kNoBash)) {
-				if (GET_POS(vict) > EPosition::kSit) {
-					GET_POS(vict) = EPosition::kSit;
+				if (vict->GetPosition() > EPosition::kSit) {
+					vict->SetPosition(EPosition::kSit);
 					SetWaitState(vict, 2 * kBattleRound);
 					to_char = "$N упал$A на землю!";
 					to_vict = "Мощный удар $n1 свалил вас с ног.";

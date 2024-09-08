@@ -127,9 +127,9 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd != SCMD_QUIT)
 		SendMsgToChar("Вам стоит набрать эту команду полностью во избежание недоразумений!\r\n", ch);
-	else if (GET_POS(ch) == EPosition::kFight)
+	else if (ch->GetPosition() == EPosition::kFight)
 		SendMsgToChar("Угу! Щаз-з-з! Вы, батенька, деретесь!\r\n", ch);
-	else if (GET_POS(ch) < EPosition::kStun) {
+	else if (ch->GetPosition() < EPosition::kStun) {
 		SendMsgToChar("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, nullptr);
 	}
@@ -483,7 +483,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, MUD::Skill(ESkill::kSteal).difficulty);
 
-	if (IS_IMMORTAL(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
+	if (IS_IMMORTAL(ch) || (vict->GetPosition() <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
@@ -985,7 +985,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		// ДЕБАФЫ
 		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
 		
-		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) GET_POS(k)]);
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 
@@ -1013,7 +1013,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		
 		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
 		buffer << fmt::format(" {:^5} &n|", PRF_FLAGGED(k, EPrf::kSkirmisher) ? " &gДа  " : "Нет");
-		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) GET_POS(k)]);
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 	}
@@ -1149,7 +1149,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kRest) {
+	if (ch->GetPosition() < EPosition::kRest) {
 		SendMsgToChar("Трудно управлять группой в таком состоянии.\r\n", ch);
 		return;
 	}

@@ -1235,8 +1235,8 @@ void command_interpreter(CharData *ch, char *argument) {
 		return;
 	}
 
-	if (!social && GET_POS(ch) < cmd_info[cmd].minimum_position) {
-		switch (GET_POS(ch)) {
+	if (!social && ch->GetPosition() < cmd_info[cmd].minimum_position) {
+		switch (ch->GetPosition()) {
 			case EPosition::kDead: SendMsgToChar("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
 				break;
 			case EPosition::kIncap:

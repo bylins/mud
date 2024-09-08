@@ -49,7 +49,7 @@ bool CanUseFeat(const CharData *ch, EFeat feat_id) {
 		case EFeat::kAnimalMaster: return (ch->GetSkill(ESkill::kMindMagic) > 79);
 		case EFeat::kScirmisher: return !(AFF_FLAGGED(ch, EAffect::kStopFight) ||
 			AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
-			GET_POS(ch) < EPosition::kFight);
+			ch->GetPosition() < EPosition::kFight);
 		default: return true;
 	}
 }

@@ -159,15 +159,15 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 4:    // Hit genus, victim bashed, speed/2
 					SET_AF_BATTLE(victim, kEafSlow);
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 10);
-					if (GET_POS(victim) > EPosition::kSit)
-						GET_POS(victim) = EPosition::kSit;
+					if (victim->GetPosition() > EPosition::kSit)
+						victim->SetPosition(EPosition::kSit);
 					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
 				case 5:    // victim bashed
-					if (GET_POS(victim) > EPosition::kSit)
-						GET_POS(victim) = EPosition::kSit;
+					if (victim->GetPosition() > EPosition::kSit)
+						victim->SetPosition(EPosition::kSit);
 					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
@@ -338,8 +338,8 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					return;
 				case 4:    // waits 1d4, bashed
 					SetWaitState(victim, number(2, 5) * kBattleRound);
-					if (GET_POS(victim) > EPosition::kSit)
-						GET_POS(victim) = EPosition::kSit;
+					if (victim->GetPosition() > EPosition::kSit)
+						victim->SetPosition(EPosition::kSit);
 					to_char = "повредило $N2 грудь, свалив $S с ног";
 					to_vict = "повредило вам грудь, свалив вас с ног";
 					break;
@@ -804,8 +804,8 @@ void might_hit_bash(CharData *ch, CharData *victim) {
 	act("$n обреченно повалил$u на землю.", true, victim, 0, 0, kToRoom | kToArenaListen);
 	SetWaitState(victim, 3 * kBattleRound);
 
-	if (GET_POS(victim) > EPosition::kSit) {
-		GET_POS(victim) = EPosition::kSit;
+	if (victim->GetPosition() > EPosition::kSit) {
+		victim->SetPosition(EPosition::kSit);
 		SendMsgToChar(victim, "&R&qБогатырский удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 	}
 }
@@ -828,7 +828,7 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 			&& !ch->get_master()->IsNpc()
 			&& ch->get_master() != victim))
 		&& !victim->IsNpc()
-		&& GET_POS(victim) != EPosition::kDead
+		&& victim->GetPosition() != EPosition::kDead
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
 		&& number(1, 100) == 5)// пусть будет 5, а то 1 по субъективным ощущениям выпадает как-то часто
 	{
@@ -1329,7 +1329,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 		&& !AFF_FLAGGED(vict, EAffect::kHold)
 		&& (IS_IMMORTAL(vict) || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
-		&& GET_POS(vict) > EPosition::kSleep) {
+		&& vict->GetPosition() > EPosition::kSleep) {
 		int percent = number(1, MUD::Skill(ESkill::kIntercept).difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
@@ -1804,7 +1804,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		const int mg_damage = dam * pct / 100;
 		if (mg_damage > 0
 			&& victim->GetEnemy()
-			&& GET_POS(victim) > EPosition::kStun
+			&& victim->GetPosition() > EPosition::kStun
 			&& IN_ROOM(victim) != kNowhere) {
 			flags.set(fight::kDrawBriefMagMirror);
 			Damage dmg(SpellDmg(ESpell::kMagicGlass), mg_damage, fight::kUndefDmg);
@@ -2289,11 +2289,11 @@ void Damage::post_init(CharData *ch, CharData *victim) {
 	}
 
 	if (ch_start_pos == EPosition::kUndefined) {
-		ch_start_pos = GET_POS(ch);
+		ch_start_pos = ch->GetPosition();
 	}
 
 	if (victim_start_pos == EPosition::kUndefined) {
-		victim_start_pos = GET_POS(victim);
+		victim_start_pos = victim->GetPosition();
 	}
 
 	post_init_shields(victim);
@@ -2313,7 +2313,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 
-	if (GET_POS(victim) <= EPosition::kDead) {
+	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(IN_ROOM(victim)), GET_NAME(ch));
 		die(victim, nullptr);
@@ -2347,7 +2347,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	if (victim != ch) {
-		if (GET_POS(ch) > EPosition::kStun && (ch->GetEnemy() == nullptr)) {
+		if (ch->GetPosition() > EPosition::kStun && (ch->GetEnemy() == nullptr)) {
 			if (!pk_agro_action(ch, victim)) {
 				return 0;
 			}
@@ -2355,7 +2355,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			npc_groupbattle(ch);
 		}
 		// Start the victim fighting the attacker
-		if (GET_POS(victim) > EPosition::kDead && (victim->GetEnemy() == nullptr)) {
+		if (victim->GetPosition() > EPosition::kDead && (victim->GetEnemy() == nullptr)) {
 			SetFighting(victim, ch);
 			npc_groupbattle(victim);
 		}
@@ -2374,7 +2374,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// нельзя драться в состоянии нестояния
-	if (GET_POS(ch) <= EPosition::kIncap) {
+	if (ch->GetPosition() <= EPosition::kIncap) {
 		return 0;
 	}
 
@@ -2586,7 +2586,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	// если у чара есть жатва жизни
 	if (CanUseFeat(victim, EFeat::kHarvestOfLife)) {
-		if (GET_POS(victim) == EPosition::kDead) {
+		if (victim->GetPosition() == EPosition::kDead) {
 			int souls = victim->get_souls();
 			if (souls >= 10) {
 				GET_HIT(victim) = 0 + souls * 10;
@@ -2625,7 +2625,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
 	} else {
 		// простой удар рукой/оружием
-		if (GET_POS(victim) == EPosition::kDead || dam == 0) {
+		if (victim->GetPosition() == EPosition::kDead || dam == 0) {
 			if (!SendSkillMessages(dam, ch, victim, msg_num, brief_shields_)) {
 				dam_message(ch, victim);
 			}
@@ -2646,15 +2646,15 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// Stop someone from fighting if they're stunned or worse
-	/*if ((GET_POS(victim) <= EPosition::kStun)
+	/*if ((victim->GetPosition() <= EPosition::kStun)
 		&& (victim->GetEnemy() != NULL))
 	{
-		stop_fighting(victim, GET_POS(victim) <= EPosition::kDead);
+		stop_fighting(victim, victim->GetPosition() <= EPosition::kDead);
 	} */
 
 
 	// жертва умирает //
-	if (GET_POS(victim) == EPosition::kDead) {
+	if (victim->GetPosition() == EPosition::kDead) {
 		process_death(ch, victim);
 		return -1;
 	}
@@ -2662,7 +2662,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// обратка от огненного щита
 	if (fs_damage > 0
 		&& victim->GetEnemy()
-		&& GET_POS(victim) > EPosition::kStun
+		&& victim->GetPosition() > EPosition::kStun
 		&& IN_ROOM(victim) != kNowhere) {
 		Damage dmg(SpellDmg(ESpell::kFireShield), fs_damage, fight::kUndefDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
@@ -2818,8 +2818,8 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		}
 		dam *= MAX(3, number(1, k));
 		SetWaitState(victim, 3 * kBattleRound);
-		if (GET_POS(victim) > EPosition::kSit && !MOB_FLAGGED(victim, EMobFlag::kNoBash)) {
-			GET_POS(victim) = EPosition::kSit;
+		if (victim->GetPosition() > EPosition::kSit && !MOB_FLAGGED(victim, EMobFlag::kNoBash)) {
+			victim->SetPosition(EPosition::kSit);
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		} else {
@@ -3022,8 +3022,8 @@ void HitData::init(CharData *ch, CharData *victim) {
 	}
 
 	// позиции сражающихся до применения скилов и прочего, что может их изменить
-	ch_start_pos = GET_POS(ch);
-	victim_start_pos = GET_POS(victim);
+	ch_start_pos = ch->GetPosition();
+	victim_start_pos = victim->GetPosition();
 }
 
 /**
@@ -3286,9 +3286,9 @@ void HitData::calc_ac(CharData *victim) {
 		}
 	}
 
-	if (GET_POS(victim) < EPosition::kFight)
+	if (victim->GetPosition() < EPosition::kFight)
 		victim_ac += 4;
-	if (GET_POS(victim) < EPosition::kRest)
+	if (victim->GetPosition() < EPosition::kRest)
 		victim_ac += 3;
 	if (AFF_FLAGGED(victim, EAffect::kHold))
 		victim_ac += 4;
@@ -3345,7 +3345,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 		hit_multyparry(ch, victim, weap_skill, hit_type, &dam);
 	} else if (dam > 0
 		&& !hit_no_parry
-		&& ((GET_AF_BATTLE(victim, kEafBlock) || can_auto_block(victim)) && GET_POS(victim) > EPosition::kSit)
+		&& ((GET_AF_BATTLE(victim, kEafBlock) || can_auto_block(victim)) && victim->GetPosition() > EPosition::kSit)
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)

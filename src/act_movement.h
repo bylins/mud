@@ -15,11 +15,11 @@ enum EDoorScmd : int {
 };
 
 enum EFindDoorResult : int {
-  FD_WRONG_DIR = -1,  // -1 НЕВЕРНОЕ НАПРАВЛЕНИЕ
-  FD_WRONG_DOOR_NAME = -2,  // -2 НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
-  FD_NO_DOOR_GIVEN_DIR = -3,  // -3 В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРИ
-  FD_DOORNAME_EMPTY = -4, // -4 НЕ УКАЗАНО АРГУМЕНТОВ
-  FD_DOORNAME_WRONG = -5   // -5 НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ
+  kWrongDir = -1,
+  kWrongDirDoorName = -2,
+  kNoDoorGivenDir = -3,
+  kDoorNameIsEmpty = -4,
+  kWrongDoorName = -5
 };
 
 void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd);

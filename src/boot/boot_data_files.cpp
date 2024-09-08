@@ -1161,7 +1161,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 			exit(1);
 	}
 
-	mob_proto[i].char_specials.position = static_cast<EPosition>(t[0]);
+	mob_proto[i].SetPosition(static_cast<EPosition>(t[0]));
 	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
 	mob_proto[i].set_sex(static_cast<EGender>(t[2]));
 

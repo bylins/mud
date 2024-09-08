@@ -817,11 +817,11 @@ bool MAY_ATTACK(const CharData *sub) {
 		&& !MOB_FLAGGED((sub), EMobFlag::kNoFight)
 		&& sub->get_wait() <= 0
 		&& !sub->GetEnemy()
-		&& GET_POS(sub) >= EPosition::kRest);
+		&& sub->GetPosition() >= EPosition::kRest);
 }
 
 bool AWAKE(const CharData *ch) {
-	return GET_POS(ch) > EPosition::kSleep
+	return ch->GetPosition() > EPosition::kSleep
 		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
@@ -2147,8 +2147,8 @@ bool CharData::DropFromHorse() {
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	SetWaitState(plr, 3 * kBattleRound);
-	if (GET_POS(plr) > EPosition::kSit) {
-		GET_POS(plr) = EPosition::kSit;
+	if (plr->GetPosition() > EPosition::kSit) {
+		plr->SetPosition(EPosition::kSit);
 	}
 	return true;
 }

@@ -16,12 +16,12 @@ void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand:
 		case EPosition::kSit:
 		case EPosition::kRest: SendMsgToChar("Вы заснули.\r\n", ch);
 			act("$n сладко зевнул$g и задал$g храпака.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSleep;
+			ch->SetPosition(EPosition::kSleep);
 			break;
 		case EPosition::kSleep: SendMsgToChar("А вы и так спите.\r\n", ch);
 			break;
@@ -29,7 +29,7 @@ void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили свой полет и отошли ко сну.\r\n", ch);
 			act("$n прекратил$g летать и нагло заснул$g.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSleep;
+			ch->SetPosition(EPosition::kSleep);
 			break;
 	}
 }

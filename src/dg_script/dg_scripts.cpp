@@ -2909,14 +2909,14 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "position")) {
 			if (!*subfield) {
-				sprintf(str, "%d", static_cast<int>(GET_POS(c)));
+				sprintf(str, "%d", static_cast<int>(c->GetPosition()));
 			} else {
 				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 				if (!IS_IMMORTAL(c)) {
 					if (c->IsOnHorse()) {
 						c->dismount();
 					}
-					GET_POS(c) = pos;
+					c->SetPosition(pos);
 				}
 			}
 		} else if (!str_cmp(field, "wait") || !str_cmp(field, "lag")) {

@@ -8,7 +8,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Из этого положения отступать невозможно.\r\n", ch);
 		return;
 	}

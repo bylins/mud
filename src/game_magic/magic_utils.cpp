@@ -569,8 +569,8 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		troom = world[ch->in_room];
 	}
 
-	if (GET_POS(ch) < MUD::Spell(spell_id).GetMinPos()) {
-		switch (GET_POS(ch)) {
+	if (ch->GetPosition() < MUD::Spell(spell_id).GetMinPos()) {
+		switch (ch->GetPosition()) {
 			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 				break;
 			case EPosition::kRest: SendMsgToChar("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);

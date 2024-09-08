@@ -207,7 +207,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
 	else if (IS_HORSE(helpee))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (helpee->GetEnemy() || GET_POS(helpee) < EPosition::kRest)
+	else if (helpee->GetEnemy() || helpee->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
 	else if (circle_follow(helpee, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
@@ -362,7 +362,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if (GET_POS(k->follower) < EPosition::kStand) {
+	if (k->follower->GetPosition() < EPosition::kStand) {
 		act("$N2 сейчас, похоже, не до вас.", false, ch, 0, k->follower, kToChar);
 		return;
 	}

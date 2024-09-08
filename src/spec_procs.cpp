@@ -60,12 +60,12 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 	if (!*argument) {
 		if (ch->has_horse(false)) {
 			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
-				false, ch, 0, victim, kToChar);
+				false, ch, nullptr, victim, kToChar);
 			return (true);
 		}
 		sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
 				kHorseCost, GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA));
-		act(buf, false, ch, 0, victim, kToChar);
+		act(buf, false, ch, nullptr, victim, kToChar);
 		return (true);
 	}
 
@@ -856,7 +856,7 @@ int npc_steal(CharData *ch) {
 	if (!NPC_FLAGGED(ch, ENpcFlag::kStealing))
 		return (false);
 
-	if (GET_POS(ch) != EPosition::kStand || IS_SHOPKEEPER(ch) || ch->GetEnemy())
+	if (ch->GetPosition() != EPosition::kStand || IS_SHOPKEEPER(ch) || ch->GetEnemy())
 		return (false);
 
 	for (const auto cons : world[ch->in_room]->people) {
@@ -896,7 +896,7 @@ void npc_group(CharData *ch) {
 
 	if (leader
 		&& (AFF_FLAGGED(leader, EAffect::kCharmed)
-			|| GET_POS(leader) < EPosition::kSleep)) {
+			|| leader->GetPosition() < EPosition::kSleep)) {
 		leader = nullptr;
 	}
 
@@ -914,7 +914,7 @@ void npc_group(CharData *ch) {
 			|| group != GROUP(vict)
 			|| MOB_FLAGGED(vict, EMobFlag::kNoGroup)
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
-			|| GET_POS(vict) < EPosition::kSleep) {
+			|| vict->GetPosition() < EPosition::kSleep) {
 			continue;
 		}
 
@@ -945,7 +945,7 @@ void npc_group(CharData *ch) {
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
-			|| GET_POS(vict) < EPosition::kSleep) {
+			|| vict->GetPosition() < EPosition::kSleep) {
 			continue;
 		}
 
@@ -984,8 +984,8 @@ void npc_groupbattle(CharData *ch) {
 		if (ch->in_room == IN_ROOM(helper)
 			&& !helper->GetEnemy()
 			&& !helper->IsNpc()
-			&& GET_POS(helper) > EPosition::kStun) {
-			GET_POS(helper) = EPosition::kStand;
+			&& helper->GetPosition() > EPosition::kStun) {
+			helper->SetPosition(EPosition::kStand);
 			SetFighting(helper, ch->GetEnemy());
 			act("$n вступил$u за $N3.", false, helper, 0, ch, kToRoom);
 		}
@@ -1048,7 +1048,7 @@ path = close_path;
 index = 0;
 }
 }
-if (cmd || !move || (GET_POS(ch) < EPosition::kSleep) || (GET_POS(ch) == EPosition::kFight))
+if (cmd || !move || (ch->GetPosition() < EPosition::kSleep) || (ch->GetPosition() == EPosition::kFight))
 return (false);
 
 switch (path[index])
@@ -1061,12 +1061,12 @@ perform_move(ch, path[index] - '0', 1, false);
 break;
 
 case 'W':
-GET_POS(ch) = EPosition::kStand;
+ch->SetPosition(EPosition::kStand);
 act("$n awakens and groans loudly.", false, ch, 0, 0, TO_ROOM);
 break;
 
 case 'S':
-GET_POS(ch) = EPosition::kSleep;
+ch->SetPosition(EPosition::kSleep);
 act("$n lies down and instantly falls asleep.", false, ch, 0, 0, TO_ROOM);
 break;
 
@@ -1126,7 +1126,7 @@ return (false);
 	if (cmd)
 		return (false);
 
-	if (GET_POS(ch) != EPosition::kStand)
+	if (ch->GetPosition() != EPosition::kStand)
 		return (false);
 
 	for (const auto cons : world[ch->in_room]->people)
@@ -1145,7 +1145,7 @@ return (false);
 }
 */
 int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	if (cmd || GET_POS(ch) != EPosition::kFight) {
+	if (cmd || ch->GetPosition() != EPosition::kFight) {
 		return (false);
 	}
 

@@ -127,7 +127,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act(buf, false, ch, nullptr, k, kToVict | kToSleep | kToNotDeaf);
 			// added by WorM  групптелы 2010.10.13
 			if (!AFF_FLAGGED(k, EAffect::kDeafness)
-				&& GET_POS(k) > EPosition::kDead) {
+				&& k->GetPosition() > EPosition::kDead) {
 				sprintf(buf1,
 						"%s сообщил%s группе : '%s'\r\n",
 						tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то",
@@ -145,7 +145,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				act(buf, false, ch, nullptr, f->follower, kToVict | kToSleep | kToNotDeaf);
 				// added by WorM  групптелы 2010.10.13
 				if (!AFF_FLAGGED(f->follower, EAffect::kDeafness)
-					&& GET_POS(f->follower) > EPosition::kDead) {
+					&& f->follower->GetPosition() > EPosition::kDead) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
 							tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то",
@@ -257,7 +257,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		}
 		act("$N не сможет вас услышать.", false, ch, nullptr, vict, kToChar | kToSleep);
 	}
-	else if (GET_POS(vict) < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
+	else if (vict->GetPosition() < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
 		act("$N вас не услышит.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else
 		return (true);
@@ -783,7 +783,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
 			!PRF_FLAGS(i->character).get(com_msgs[subcmd].noflag) &&
 			!PLR_FLAGGED(i->character, EPlrFlag::kWriting) &&
-			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof) && GET_POS(i->character) > EPosition::kSleep) {
+			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof) && i->character->GetPosition() > EPosition::kSleep) {
 			if (ignores(i->character.get(), ch, ign_flag)) {
 				continue;
 			}
@@ -827,7 +827,7 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (STATE(i) == CON_PLAYING
 			&& i->character
 			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
-			&& GET_POS(i->character) > EPosition::kSleep) {
+			&& i->character->GetPosition() > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				SendMsgToChar(KIYEL, i->character.get());
 			}

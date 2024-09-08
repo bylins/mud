@@ -24,7 +24,7 @@ void go_slay(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -65,7 +65,7 @@ void go_slay(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 		lag = 1;
 
-		if (GET_POS(vict) == EPosition::kDead) {
+		if (vict->GetPosition() == EPosition::kDead) {
 				lag = 0;
 			}
 

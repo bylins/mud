@@ -110,7 +110,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 					if (AFF_FLAGGED(enemy, EAffect::kBlind)) {
 						bonus += 40;
 					}
-					if (GET_POS(enemy) < EPosition::kFight) {
+					if (enemy->GetPosition() < EPosition::kFight) {
 						bonus += 40;
 					}
 					return bonus;

@@ -49,7 +49,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 		GET_HIT(ch) -= 3 * mob_level;
 		update_pos(ch);
 		// Подавился насмерть.
-		if (GET_POS(ch) == EPosition::kDead) {
+		if (ch->GetPosition() == EPosition::kDead) {
 			die(ch, nullptr);
 		}
 		ExtractObjFromWorld(obj);

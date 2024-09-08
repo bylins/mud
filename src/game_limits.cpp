@@ -176,7 +176,7 @@ int CalcManaGain(const CharData *ch) {
 			percent -= 90;
 		}
 	} else
-		switch (GET_POS(ch)) {
+		switch (ch->GetPosition()) {
 			case EPosition::kSleep:
 				if (IS_MANA_CASTER(ch)) {
 					percent += 80;
@@ -255,7 +255,7 @@ int hit_gain(CharData *ch) {
 	// Skill/Spell calculations //
 
 	// Position calculations    //
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kSleep: percent += 25;
 			break;
 		case EPosition::kRest: percent += 15;
@@ -277,7 +277,7 @@ int hit_gain(CharData *ch) {
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	if (!ch->IsNpc()) {
-		if (GET_POS(ch) == EPosition::kIncap || GET_POS(ch) == EPosition::kPerish)
+		if (ch->GetPosition() == EPosition::kIncap || ch->GetPosition() == EPosition::kPerish)
 			gain = 0;
 	}
 	return (gain);
@@ -315,7 +315,7 @@ int move_gain(CharData *ch) {
 
 
 	// Position calculations    //
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kSleep: percent += 25;
 			break;
 		case EPosition::kRest: percent += 15;
@@ -648,10 +648,10 @@ void beat_points_update(int pulse) {
 		// working time, if you're sure, that you control these situations
 		// everywhere. To the time of this code revision I've fix some of them
 		// and haven't seen any other.
-		//             if (GET_POS(i) == EPosition::kDead)
+		//             if (i->GetPosition() == EPosition::kDead)
 		//                     die(i, NULL);
 
-		if (GET_POS(d->character.get()) < EPosition::kStun) {
+		if (d->character.get()->GetPosition() < EPosition::kStun) {
 			continue;
 		}
 
@@ -1577,8 +1577,8 @@ void point_update() {
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffect::kSleep)
-			&& GET_POS(i) > EPosition::kSleep) {
-			GET_POS(i) = EPosition::kSleep;
+			&& i->GetPosition() > EPosition::kSleep) {
+			i->SetPosition(EPosition::kSleep);
 			SendMsgToChar("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.",
 				true, i, nullptr, nullptr, kToRoom);
@@ -1601,7 +1601,7 @@ void point_update() {
 			}
 			UpdateCharObjects(i);
 		}
-		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
+		if (i->GetPosition() >= EPosition::kStun)    // Restore hit points
 		{
 			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
@@ -1696,10 +1696,10 @@ void point_update() {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
 				}
 			}
-		} else if (GET_POS(i) == EPosition::kIncap) {
+		} else if (i->GetPosition() == EPosition::kIncap) {
 			i->points.hit += 1;
 			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
-		} else if (GET_POS(i) == EPosition::kPerish) {
+		} else if (i->GetPosition() == EPosition::kPerish) {
 			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 			i->points.hit += 2;
 		}

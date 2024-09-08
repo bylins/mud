@@ -1061,7 +1061,7 @@ int CalcHitroll(CharData *ch) {
 }
 
 const char *GetPositionStr(CharData *ch) {
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kDead:
 			return "Вы МЕРТВЫ!\r\n";
 		case EPosition::kPerish:
@@ -1093,7 +1093,7 @@ const char *GetPositionStr(CharData *ch) {
 
 const char *GetShortPositionStr(CharData *ch) {
 	if (!ch->IsOnHorse()) {
-		switch (GET_POS(ch)) {
+		switch (ch->GetPosition()) {
 			case EPosition::kDead: return "Вы МЕРТВЫ!";
 			case EPosition::kPerish: return "Вы умираете!";
 			case EPosition::kIncap: return "Вы без сознания.";

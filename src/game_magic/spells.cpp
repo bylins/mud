@@ -602,7 +602,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 				return;
 			}
 			if (victim->GetEnemy()
-				|| GET_POS(victim) < EPosition::kRest) {
+				|| victim->GetPosition() < EPosition::kRest) {
 				ch->send_to_TC(true, true, true, "Чармис сражается или дрыхнет\r\n");
 				SendMsgToChar(SUMMON_FAIL4, ch);
 				return;
@@ -664,7 +664,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, ch_room);
 	CheckAutoNosummon(victim);
-	GET_POS(victim) = EPosition::kStand;
+	victim->SetPosition(EPosition::kStand);
 	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
 	victim->dismount();
@@ -978,7 +978,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (victim->GetEnemy() || GET_POS(victim) < EPosition::kRest)
+	else if (victim->GetEnemy() || victim->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
@@ -2351,7 +2351,7 @@ void SpellSummonAngel(CharData *ch) {
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 
-	GET_POS(mob) = EPosition::kStand;
+	mob->SetPosition(EPosition::kStand);
 	GET_DEFAULT_POS(mob) = EPosition::kStand;
 
 	mob->set_skill(ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));

@@ -278,7 +278,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 						ch->AffectRemove(ch->affected.begin());
 					}
 					affect_total(ch);
-					GET_POS(ch) = EPosition::kStand;
+					ch->SetPosition(EPosition::kStand);
 					look_at_room(ch, 0);
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
@@ -326,7 +326,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 		ch->AffectRemove(ch->affected.begin());
 	}
 	affect_total(ch);
-	GET_POS(ch) = EPosition::kStand;
+	ch->SetPosition(EPosition::kStand);
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -409,7 +409,7 @@ int can_loot(CharData *ch) {
 			&& AFF_FLAGGED(ch, EAffect::kHold) == 0 // если под холдом
 			&& !AFF_FLAGGED(ch, EAffect::kStopFight) // парализован точкой
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)    // слеп
-			&& (GET_POS(ch) >= EPosition::kRest)) // мертв, умирает, без сознания, спит
+			&& (ch->GetPosition() >= EPosition::kRest)) // мертв, умирает, без сознания, спит
 		{
 			return true;
 		}
@@ -453,7 +453,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	change_fighting(ch, true);
 	GET_HIT(ch) = 1;
-	GET_POS(ch) = EPosition::kSit;
+	ch->SetPosition(EPosition::kSit);
 	int to_room = GetRoomRnum(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
@@ -551,10 +551,10 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 		RemoveAffectFromCharAndRecalculate(ch, ESpell::kCapable);
 		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
 			false, ch, nullptr, killer, kToRoom | kToArenaListen);
-		auto pos = GET_POS(ch);
-		GET_POS(ch) = EPosition::kStand;
+		auto pos = ch->GetPosition();
+		ch->SetPosition(EPosition::kStand);
 		CallMagic(ch, killer, nullptr, world[ch->in_room], ch->mob_specials.capable_spell, GetRealLevel(ch));
-		GET_POS(ch) = pos;
+		ch->SetPosition(pos);
 	}
 }
 
@@ -1166,7 +1166,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 		return;
 	if (!victim || victim->purged())
 		return;
-	switch (GET_POS(victim)) {
+	switch (victim->GetPosition()) {
 		case EPosition::kPerish:
 			if (IS_POLY(victim))
 				act("$n смертельно ранены и умрут, если им не помогут.",
@@ -1225,12 +1225,12 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
 				&& MOB_FLAGGED(victim, EMobFlag::kWimpy)
 				&& !noflee
-				&& GET_POS(victim) > EPosition::kSit) {
+				&& victim->GetPosition() > EPosition::kSit) {
 				DoFlee(victim, nullptr, 0, 0);
 			}
 
 			if (ch != victim
-				&& GET_POS(victim) > EPosition::kSit
+				&& victim->GetPosition() > EPosition::kSit
 				&& !victim->IsNpc()
 				&& HERE(victim)
 				&& GET_WIMP_LEV(victim)
