@@ -1481,6 +1481,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 										   reset_cmd.arg2,
 										   reset_cmd.arg3);
 					mudlog(msg, CMP, kLvlGreatGod, SYSLOG, true);
+					reset_cmd.command = '*';
 				} else {
 					if (mob_index[reset_cmd.arg1].stored < reset_cmd.arg2) {
 						mob_index[reset_cmd.arg1].stored = reset_cmd.arg2;
