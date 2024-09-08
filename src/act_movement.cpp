@@ -1091,8 +1091,8 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 			// скипуем попытку закрыть закрытую и открыть открытую.
 			// остальные статусы двери автоматом не проверяются.
 			if (found) {
-				if ((scmd == SCMD_OPEN && DOOR_IS_OPEN(ch, nullptr, door)) ||
-					(scmd == SCMD_CLOSE && DOOR_IS_CLOSED(ch, nullptr, door)))
+				if ((scmd == kScmdOpen && DOOR_IS_OPEN(ch, nullptr, door)) ||
+					(scmd == kScmdClose && DOOR_IS_CLOSED(ch, nullptr, door)))
 					continue;
 				else
 					return door;
@@ -1198,19 +1198,19 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 	}
 
 	switch (scmd) {
-		case SCMD_OPEN:
-		case SCMD_CLOSE:
-			if (scmd == SCMD_OPEN && obj && !open_otrigger(obj, ch, false))
+		case kScmdOpen:
+		case kScmdClose:
+			if (scmd == kScmdOpen && obj && !open_otrigger(obj, ch, false))
 				return;
-			if (scmd == SCMD_OPEN && !obj && !open_wtrigger(world[ch->in_room], ch, door, false))
+			if (scmd == kScmdOpen && !obj && !open_wtrigger(world[ch->in_room], ch, door, false))
 				return;
-			if (scmd == SCMD_OPEN && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], false))
+			if (scmd == kScmdOpen && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], false))
 				return;
-			if (scmd == SCMD_CLOSE && obj && !close_otrigger(obj, ch, false))
+			if (scmd == kScmdClose && obj && !close_otrigger(obj, ch, false))
 				return;
-			if (scmd == SCMD_CLOSE && !obj && !close_wtrigger(world[ch->in_room], ch, door, false))
+			if (scmd == kScmdClose && !obj && !close_wtrigger(world[ch->in_room], ch, door, false))
 				return;
-			if (scmd == SCMD_CLOSE && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], false))
+			if (scmd == kScmdClose && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], false))
 				return;
 			OPEN_DOOR(ch->in_room, obj, door);
 			if (back) {
@@ -1231,19 +1231,19 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			}
 			break;
 
-		case SCMD_UNLOCK:
-		case SCMD_LOCK:
-			if (scmd == SCMD_UNLOCK && obj && !open_otrigger(obj, ch, true))
+		case kScmdUnlock:
+		case kScmdLock:
+			if (scmd == kScmdUnlock && obj && !open_otrigger(obj, ch, true))
 				return;
-			if (scmd == SCMD_LOCK && obj && !close_otrigger(obj, ch, true))
+			if (scmd == kScmdLock && obj && !close_otrigger(obj, ch, true))
 				return;
-			if (scmd == SCMD_UNLOCK && !obj && !open_wtrigger(world[ch->in_room], ch, door, true))
+			if (scmd == kScmdUnlock && !obj && !open_wtrigger(world[ch->in_room], ch, door, true))
 				return;
-			if (scmd == SCMD_LOCK && !obj && !close_wtrigger(world[ch->in_room], ch, door, true))
+			if (scmd == kScmdLock && !obj && !close_wtrigger(world[ch->in_room], ch, door, true))
 				return;
-			if (scmd == SCMD_UNLOCK && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], true))
+			if (scmd == kScmdUnlock && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], true))
 				return;
-			if (scmd == SCMD_LOCK && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], true))
+			if (scmd == kScmdLock && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], true))
 				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)
@@ -1255,7 +1255,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			}
 			break;
 
-		case SCMD_PICK:
+		case kScmdPick:
 			if (obj && !pick_otrigger(obj, ch))
 				return;
 			if (!obj && !pick_wtrigger(world[ch->in_room], ch, door))
@@ -1277,7 +1277,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 	}
 
 	// Notify the other room
-	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {
+	if ((scmd == kScmdOpen || scmd == kScmdClose) && back) {
 		const auto &people = world[EXIT(ch, door)->to_room()]->people;
 		if (!people.empty()) {
 			sprintf(local_buf + strlen(local_buf) - 1, " с той стороны.");
@@ -1296,7 +1296,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 bool ok_pick(CharData *ch, ObjVnum /*keynum*/, ObjData *obj, int door, int scmd) {
 	const bool pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
 
-	if (scmd != SCMD_PICK) {
+	if (scmd != kScmdPick) {
 		return true;
 	}
 
@@ -1355,7 +1355,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !ch->GetSkill(ESkill::kPickLock)) {
+	if (subcmd == kScmdPick && !ch->GetSkill(ESkill::kPickLock)) {
 		SendMsgToChar("Это умение вам недоступно.\r\n", ch);
 		return;
 	}
@@ -1412,7 +1412,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 			return;
 		}
 		keynum = DOOR_KEY(ch, obj, door);
-		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !ch->IsNpc() && NORENTABLE(ch))
+		if ((subcmd == kScmdClose || subcmd == kScmdLock) && !ch->IsNpc() && NORENTABLE(ch))
 			SendMsgToChar("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
 			act("Вы никогда не сможете $F это!", false, ch, nullptr, a_cmd_door[subcmd], kToChar);
@@ -1426,10 +1426,10 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], kNeedUnlocked))
 			SendMsgToChar("Угу, заперто.\r\n", ch);
 		else if (!HasKey(ch, keynum) && !privilege::CheckFlag(ch, privilege::kUseSkills)
-			&& ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+			&& ((subcmd == kScmdLock) || (subcmd == kScmdUnlock)))
 			SendMsgToChar("У вас нет ключа.\r\n", ch);
 		else if (DOOR_IS_BROKEN(ch, obj, door) && !privilege::CheckFlag(ch, privilege::kUseSkills)
-			&& ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+			&& ((subcmd == kScmdLock) || (subcmd == kScmdUnlock)))
 			SendMsgToChar("Замок сломан.\r\n", ch);
 		else if (ok_pick(ch, keynum, obj, door, subcmd))
 			do_doorcmd(ch, obj, door, (EDoorScmd) subcmd);

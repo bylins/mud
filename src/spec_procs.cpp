@@ -222,14 +222,14 @@ int npc_scavenge(CharData *ch) {
 				// Заперто, открываем, если есть ключ
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
 					&& HasKey(ch, GET_OBJ_VAL(obj, 2))) {
-					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
+					do_doorcmd(ch, obj, 0, kScmdUnlock);
 				}
 
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
 					&& ch->GetSkill(ESkill::kPickLock)
-					&& ok_pick(ch, 0, obj, 0, SCMD_PICK)) {
-					do_doorcmd(ch, obj, 0, SCMD_PICK);
+					&& ok_pick(ch, 0, obj, 0, kScmdPick)) {
+					do_doorcmd(ch, obj, 0, kScmdPick);
 				}
 				// Все равно заперто, ну тогда фиг с ним
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)) {
@@ -237,7 +237,7 @@ int npc_scavenge(CharData *ch) {
 				}
 
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
-					do_doorcmd(ch, obj, 0, SCMD_OPEN);
+					do_doorcmd(ch, obj, 0, kScmdOpen);
 				}
 
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
@@ -362,7 +362,7 @@ int npc_loot(CharData *ch) {
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
 							&& ch->GetSkill(ESkill::kPickLock)
-							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK)) {
+							&& ok_pick(ch, 0, loot_obj, 0, kScmdPick)) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
 
@@ -419,7 +419,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 				|| (!EXIT_FLAGGED(rdata, EExitFlag::kPickroof)
 					&& !EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)
 					&& CalcCurrentSkill(ch, ESkill::kPicks, 0) >= number(0, 100))) {
-				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
+				do_doorcmd(ch, 0, dir, kScmdUnlock);
 				need_lock = true;
 			} else {
 				return (false);
@@ -429,7 +429,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 			if (GetRealInt(ch) >= 15
 				|| GET_DEST(ch) != kNowhere
 				|| MOB_FLAGGED(ch, EMobFlag::kOpensDoor)) {
-				do_doorcmd(ch, 0, dir, SCMD_OPEN);
+				do_doorcmd(ch, 0, dir, kScmdOpen);
 				need_close = true;
 			}
 		}
@@ -443,7 +443,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		if (EXIT(ch, close_direction) &&
 			EXIT_FLAGGED(EXIT(ch, close_direction), EExitFlag::kHasDoor) &&
 			EXIT(ch, close_direction)->to_room() != kNowhere) {
-			do_doorcmd(ch, 0, close_direction, SCMD_CLOSE);
+			do_doorcmd(ch, 0, close_direction, kScmdClose);
 		}
 	}
 
@@ -453,7 +453,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		if (EXIT(ch, lock_direction) &&
 			EXIT_FLAGGED(EXIT(ch, lock_direction), EExitFlag::kHasDoor) &&
 			EXIT(ch, lock_direction)->to_room() != kNowhere) {
-			do_doorcmd(ch, 0, lock_direction, SCMD_LOCK);
+			do_doorcmd(ch, 0, lock_direction, kScmdLock);
 		}
 	}
 
