@@ -943,16 +943,12 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 		if (zone_table[zrn_to].cmd[subcmd].command == '*')
 			continue;
 
-		log("CMD from %d %d %d %d %d %d",
-		zone_table[zrn_to].cmd[subcmd].command, zone_table[zrn_to].cmd[subcmd].if_flag,
-		zone_table[zrn_to].cmd[subcmd].arg1, zone_table[zrn_to].cmd[subcmd].arg2,
-		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
+//		log("CMD from %d %d %d %d %d %d",
+//		zone_table[zrn_to].cmd[subcmd].command, zone_table[zrn_to].cmd[subcmd].if_flag,
+//		zone_table[zrn_to].cmd[subcmd].arg1, zone_table[zrn_to].cmd[subcmd].arg2,
+//		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
 		switch (zone_table[zrn_to].cmd[subcmd].command) {
 			case 'M': TRANS_MOB(arg1)
-log("111   %d", world[zone_table[zrn_from].cmd[subcmd].arg3]->vnum % 100);
-log("222   %d",  zone_table[zrn_to].vnum * 100);
-log("333   %d",  world[zone_table[zrn_from].cmd[subcmd].arg3]->vnum % 100 + zone_table[zrn_to].vnum * 100);
-log("444   %d",  GetRoomRnum(world[zone_table[zrn_from].cmd[subcmd].arg3]->vnum % 100 + zone_table[zrn_to].vnum * 100));
 				TRANS_ROOM(arg3)
 				break;
 			case 'F': TRANS_ROOM(arg1)
