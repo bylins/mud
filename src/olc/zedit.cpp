@@ -366,7 +366,7 @@ void zedit_save_internally(DescriptorData *d) {
 		ZCMD = item->cmd;    // копирование команды
 	}
 	ZCMD.command = 'S';
-	ResolveZoneCmdVnumArgsToRnums(zone_table[OLC_ZNUM(d)]));
+	ResolveZoneCmdVnumArgsToRnums(zone_table[OLC_ZNUM(d)]);
 
 	// Finally, if zone headers have been changed, copy over
 	if (OLC_ZONE(d)->vnum) {
