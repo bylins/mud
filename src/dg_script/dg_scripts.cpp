@@ -1735,11 +1735,11 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
-			} else if (!str_cmp(field, "runestone_vnums")) {
+			} else if (!str_cmp(field, "runestonevnums")) {
 				const auto &runestone_vnums = MUD::Runestones().GetVnumRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));
 				sprintf(str, "%s", result.c_str());
-			} else if (!str_cmp(field, "runestone_names")) {
+			} else if (!str_cmp(field, "runestonenames")) {
 				const auto &runestone_names = MUD::Runestones().GetNameRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_names, " "));
 				sprintf(str, "%s", result.c_str());
