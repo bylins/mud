@@ -331,16 +331,11 @@ const char *get_objs_in_world(ObjData *obj) {
 }
 
 // * return number of obj|mob in world by vnum
-int gcount_char_vnum(long n) {
-	int count = 0;
+int gcount_char_vnum(MobVnum mvn) {
 
-	for (const auto &ch : character_list) {
-		if (n == GET_MOB_VNUM(ch)) {
-			count++;
-		}
-	}
-
-	return (count);
+	Characters::list_t mobs;
+	character_list.get_mobs_by_vnum(mvn, mobs);
+	return mobs.size();
 }
 
 int count_char_vnum(long n) {
@@ -350,17 +345,15 @@ int count_char_vnum(long n) {
 	return (mob_index[i].total_online);
 }
 
-inline auto gcount_obj_vnum(long n) {
-	const auto i = GetObjRnum(n);
-
-	if (i <= 0) {
+int GameCountObjs(ObjRnum orn) {
+	if (orn <= 0) {
 		return 0;
 	}
 
-	return obj_proto.total_online(i);
+	return obj_proto.total_online(orn);
 }
 
-inline auto count_obj_rnum(ObjRnum orn) {
+int ActualCountObjs(ObjRnum orn) {
 	if (orn <= 0) {
 		return 0;
 	}
@@ -1656,13 +1649,23 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(var, "exist")) {
 			if (!str_cmp(field, "mob") && (num = atoi(subfield)) > 0) {
+				if (GetMobRnum(num) <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в exist.mob", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
 				num = count_char_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%c", num > 0 ? '1' : '0');
+				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "obj") && (num = atoi(subfield)) > 0) {
-				num = gcount_obj_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%c", num > 0 ? '1' : '0');
+				auto rnum = GetObjRnum(num);
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в exist.obj", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
+				num = GameCountObjs(rnum);
+				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (STATE(d) != CON_PLAYING) 
@@ -1686,11 +1689,11 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 					return;
 				}
-				ObjRnum val = obj_proto[rnum]->get_parent_rnum();
-				if (val > -1) {
-					count = count_obj_rnum(val);
+				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
+				if (orn > -1) {
+					count = ActualCountObjs(orn);
 				} else {
-					count = count_obj_rnum(rnum);
+					count = ActualCountObjs(rnum);
 				}
 				if (count > 0) {
 					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) {
@@ -1702,9 +1705,21 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 				}
 			} else if ((!str_cmp(field, "gameobj") || !str_cmp(field, "gameobjs")) && num > 0) {
-				num = gcount_obj_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%d", num);
+				auto rnum = GetObjRnum(num);
+				int count = 0;
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в gameobjs", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
+				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
+				if (orn > -1) {
+					count = GameCountObjs(orn);
+				} else {
+					count = GameCountObjs(rnum);
+				}
+				sprintf(str, "%d", count);
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
