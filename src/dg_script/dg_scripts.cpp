@@ -1681,6 +1681,11 @@ void find_replacement(void *go,
 				auto rnum = GetObjRnum(num);
 				int count = 0;
 
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в curobjs", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
 				ObjRnum val = obj_proto[rnum]->get_parent_rnum();
 				if (val > -1) {
 					count = count_obj_rnum(val);
