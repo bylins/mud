@@ -5668,8 +5668,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
 					if (GET_TRIG_LOOPS(trig) >= 10000) {
-						trig_log(trig, "looping 10000 times, cancelled", DEF);
-						GET_TRIG_LOOPS(trig) = 0;
+						trig_log(trig, fmt::format("looping 10000 times, cancelled, GET_TRIG_DEPTH(trig) {} depth {}", GET_TRIG_DEPTH(trig), depth));
+//						GET_TRIG_LOOPS(trig) = 0;
 						loops = 0;
 						cl = find_done(trig, cl);
 					}
