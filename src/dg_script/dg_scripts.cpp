@@ -353,24 +353,22 @@ int count_char_vnum(long n) {
 inline auto gcount_obj_vnum(long n) {
 	const auto i = GetObjRnum(n);
 
-	if (i < 0) {
+	if (i <= 0) {
 		return 0;
 	}
 
 	return obj_proto.total_online(i);
 }
 
-inline auto count_obj_vnum(long n) {
-	const auto i = GetObjRnum(n);
-
-	if (i < 0) {
+inline auto count_obj_rnum(ObjRnum orn) {
+	if (orn <= 0) {
 		return 0;
 	}
 
 	// Чот косячит таймер, решили переделать тригги, хоть и дольше
 	//	if (stable_objs::IsTimerUnlimited(obj_proto[i]))
 	//		return 0;
-	return obj_proto.actual_count(i);
+	return obj_proto.actual_count(orn);
 }
 
 /************************************************************
@@ -1680,9 +1678,16 @@ void find_replacement(void *go,
 		} else if (!str_cmp(var, "world")) {
 			num = atoi(subfield);
 			if ((!str_cmp(field, "curobj") || !str_cmp(field, "curobjs")) && num > 0) {
-				const auto rnum = GetObjRnum(num);
-				const auto count = count_obj_vnum(num);
-				if (count >= 0 && 0 <= rnum) {
+				auto rnum = GetObjRnum(num);
+				int count = 0;
+
+				ObjRnum val = obj_proto[rnum]->get_parent_rnum();
+				if (val > -1) {
+					count = count_obj_rnum(val) + count_obj_rnum(rnum);
+				} else {
+					count = count_obj_rnum(rnum);
+				}
+				if (count > 0) {
 					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) {
 						sprintf(str, "0");
 					} else {
