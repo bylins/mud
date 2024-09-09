@@ -1683,7 +1683,7 @@ void find_replacement(void *go,
 
 				ObjRnum val = obj_proto[rnum]->get_parent_rnum();
 				if (val > -1) {
-					count = count_obj_rnum(val) + count_obj_rnum(rnum);
+					count = count_obj_rnum(val);
 				} else {
 					count = count_obj_rnum(rnum);
 				}
