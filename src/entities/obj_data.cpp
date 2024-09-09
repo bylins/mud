@@ -1519,11 +1519,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 int GetObjMIW(ObjRnum rnum) {
 	if (rnum < 0)
 		return 0;
-	ObjRnum val = obj_proto[rnum]->get_parent_rnum();
-	if (val < 0)
-		return obj_proto[rnum]->get_max_in_world();
-	else
-		return obj_proto[val]->get_max_in_world();
+	return obj_proto[rnum]->get_max_in_world();
 }
 
 double CalcRemortRequirements(const CObjectPrototype *obj) {
