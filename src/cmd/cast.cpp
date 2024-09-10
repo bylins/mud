@@ -136,7 +136,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (GET_SPELL_MEM(ch, substitute_spell_id)) {
 			GET_SPELL_MEM(ch, substitute_spell_id)--;
 		}
-		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
+		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 			MemQ_remember(ch, substitute_spell_id);
 		}
 		affect_total(ch);

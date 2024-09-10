@@ -650,7 +650,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& STATE(d) == CON_PLAYING
 					&& IN_ROOM(d->character) != kNowhere
 					&& ((CAN_SEE(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
-						|| PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+						|| ch->IsFlagged(EPrf::kCoderinfo))) {
 					sprintf(buf + strlen(buf),
 							"%-10s - подслушивается %s (map %s).\r\n",
 							GET_NAME(d->snooping->character),
@@ -685,36 +685,36 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->snooping != nullptr && d->character != nullptr)
 					continue;
 				if (STATE(d) != CON_PLAYING
-					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)))
+					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !ch->IsFlagged(EPrf::kCoderinfo)))
 					continue;
 				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == kNowhere)
 					continue;
 				buf[0] = 0;
-				if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen)
+				if (d->character->IsFlagged(EPlrFlag::kFrozen)
 					&& FREEZE_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
 							static_cast<long>((FREEZE_DURATION(d->character) - time(nullptr)) / 3600),
 							FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
 
-				if (PLR_FLAGGED(d->character, EPlrFlag::kMuted)
+				if (d->character->IsFlagged(EPlrFlag::kMuted)
 					&& MUTE_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
 							static_cast<long>((MUTE_DURATION(d->character) - time(nullptr)) / 3600),
 							MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
 
-				if (PLR_FLAGGED(d->character, EPlrFlag::kDumbed)
+				if (d->character->IsFlagged(EPlrFlag::kDumbed)
 					&& DUMB_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
 							static_cast<long>((DUMB_DURATION(d->character) - time(nullptr)) / 3600),
 							DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
 
-				if (PLR_FLAGGED(d->character, EPlrFlag::kHelled)
+				if (d->character->IsFlagged(EPlrFlag::kHelled)
 					&& HELL_DURATION(d->character))
 					sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
 							static_cast<long>((HELL_DURATION(d->character) - time(nullptr)) / 3600),
 							HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
 
-				if (!PLR_FLAGGED(d->character, EPlrFlag::kRegistred)
+				if (!d->character->IsFlagged(EPlrFlag::kRegistred)
 					&& UNREG_DURATION(d->character)) {
 					sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
 							static_cast<long>((UNREG_DURATION(d->character) - time(nullptr)) / 3600),

@@ -78,7 +78,7 @@ bool stop_follower(CharData *ch, int mode) {
 		}
 
 		if (ch->IsNpc()) {
-			if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				PerformDropGold(ch, ch->get_gold());
@@ -90,7 +90,7 @@ bool stop_follower(CharData *ch, int mode) {
 			}
 		}
 	}
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSummoned)) {
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSummoned)) {
 		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
@@ -117,10 +117,8 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (ch->IsNpc()
-		//&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)    //Не ресетим флаги, если моб призван игроком
-		&& (i = GET_MOB_RNUM(ch)) >= 0) {
-		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
+	if (ch->IsNpc() && (i = GET_MOB_RNUM(ch)) >= 0) {
+		ch->CopyFlagsFrom(mob_proto + i);
 	}
 
 	return (false);

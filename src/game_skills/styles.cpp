@@ -136,7 +136,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		SendMsgToChar(ch, "Вы сражаетесь %s стилем.\r\n",
-					  PRF_FLAGS(ch).get(EPrf::kPunctual) ? "точным" : PRF_FLAGS(ch).get(EPrf::kAwake) ? "осторожным"
+					  ch->IsFlagged(EPrf::kPunctual) ? "точным" : ch->IsFlagged(EPrf::kAwake) ? "осторожным"
 																									  : "обычным");
 		return;
 	}
@@ -156,14 +156,14 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (tp) {
 		case 0:
 		case 1:
-		case 2:PRF_FLAGS(ch).unset(EPrf::kPunctual);
-			PRF_FLAGS(ch).unset(EPrf::kAwake);
+		case 2:ch->UnsetFlag(EPrf::kPunctual);
+			ch->UnsetFlag(EPrf::kAwake);
 
 			if (tp == 1) {
-				PRF_FLAGS(ch).set(EPrf::kPunctual);
+				ch->SetFlag(EPrf::kPunctual);
 			}
 			if (tp == 2) {
-				PRF_FLAGS(ch).set(EPrf::kAwake);
+				ch->SetFlag(EPrf::kAwake);
 			}
 
 			if (ch->GetEnemy() && !(AFF_FLAGGED(ch, EAffect::kCourage) ||

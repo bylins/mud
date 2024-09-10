@@ -319,7 +319,7 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 		SendMsgToChar("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return true;
 	}
-	if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(feat_id))) {
+	if (ch->IsFlagged(GetPrfWithFeatNumber(feat_id))) {
 		DeactivateFeature(ch, feat_id);
 	} else {
 		ActivateFeat(ch, feat_id);
@@ -331,30 +331,30 @@ bool TryFlipActivatedFeature(CharData *ch, char *argument) {
 
 void ActivateFeat(CharData *ch, EFeat feat_id) {
 	switch (feat_id) {
-		case EFeat::kPowerAttack: PRF_FLAGS(ch).unset(EPrf::kPerformAimingAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformGreatAimingAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
-			PRF_FLAGS(ch).set(EPrf::kPerformPowerAttack);
+		case EFeat::kPowerAttack: ch->UnsetFlag(EPrf::kPerformAimingAttack);
+			ch->UnsetFlag(EPrf::kPerformGreatAimingAttack);
+			ch->UnsetFlag(EPrf::kPerformGreatPowerAttack);
+			ch->SetFlag(EPrf::kPerformPowerAttack);
 			break;
-		case EFeat::kGreatPowerAttack: PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformAimingAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformGreatAimingAttack);
-			PRF_FLAGS(ch).set(EPrf::kPerformGreatPowerAttack);
+		case EFeat::kGreatPowerAttack: ch->UnsetFlag(EPrf::kPerformPowerAttack);
+			ch->UnsetFlag(EPrf::kPerformAimingAttack);
+			ch->UnsetFlag(EPrf::kPerformGreatAimingAttack);
+			ch->SetFlag(EPrf::kPerformGreatPowerAttack);
 			break;
-		case EFeat::kAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformGreatAimingAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
-			PRF_FLAGS(ch).set(EPrf::kPerformAimingAttack);
+		case EFeat::kAimingAttack: ch->UnsetFlag(EPrf::kPerformPowerAttack);
+			ch->UnsetFlag(EPrf::kPerformGreatAimingAttack);
+			ch->UnsetFlag(EPrf::kPerformGreatPowerAttack);
+			ch->SetFlag(EPrf::kPerformAimingAttack);
 			break;
-		case EFeat::kGreatAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformAimingAttack);
-			PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
-			PRF_FLAGS(ch).set(EPrf::kPerformGreatAimingAttack);
+		case EFeat::kGreatAimingAttack: ch->UnsetFlag(EPrf::kPerformPowerAttack);
+			ch->UnsetFlag(EPrf::kPerformAimingAttack);
+			ch->UnsetFlag(EPrf::kPerformGreatPowerAttack);
+			ch->SetFlag(EPrf::kPerformGreatAimingAttack);
 			break;
 		case EFeat::kSerratedBlade: SendMsgToChar("Вы перехватили свои клинки особым хватом.\r\n", ch);
 			act("$n0 ловко прокрутил$g между пальцев свои клинки.",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			PRF_FLAGS(ch).set(EPrf::kPerformSerratedBlade);
+			ch->SetFlag(EPrf::kPerformSerratedBlade);
 			break;
 		case EFeat::kScirmisher:
 			if (!AFF_FLAGGED(ch, EAffect::kGroup)) {
@@ -362,19 +362,19 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 							ch->get_name()), ch);
 				return;
 			}
-			if (PRF_FLAGGED(ch, EPrf::kSkirmisher)) {
+			if (ch->IsFlagged(EPrf::kSkirmisher)) {
 				SendMsgToChar("Вы уже стоите в передовом строю.\r\n", ch);
 				return;
 			}
-			PRF_FLAGS(ch).set(EPrf::kSkirmisher);
+			ch->SetFlag(EPrf::kSkirmisher);
 			SendMsgToChar("Вы протиснулись вперед и встали в строй.\r\n", ch);
 			act("$n0 протиснул$u вперед и встал$g в строй.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			break;
-		case EFeat::kDoubleThrower: PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
-			PRF_FLAGS(ch).set(EPrf::kDoubleThrow);
+		case EFeat::kDoubleThrower: ch->UnsetFlag(EPrf::kTripleThrow);
+			ch->SetFlag(EPrf::kDoubleThrow);
 			break;
-		case EFeat::kTripleThrower: PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
-			PRF_FLAGS(ch).set(EPrf::kTripleThrow);
+		case EFeat::kTripleThrower: ch->UnsetFlag(EPrf::kDoubleThrow);
+			ch->SetFlag(EPrf::kTripleThrow);
 			break;
 		default:
 			SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
@@ -386,29 +386,29 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 
 void DeactivateFeature(CharData *ch, EFeat feat_id) {
 	switch (feat_id) {
-		case EFeat::kPowerAttack: PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
+		case EFeat::kPowerAttack: ch->UnsetFlag(EPrf::kPerformPowerAttack);
 			break;
-		case EFeat::kGreatPowerAttack: PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
+		case EFeat::kGreatPowerAttack: ch->UnsetFlag(EPrf::kPerformGreatPowerAttack);
 			break;
-		case EFeat::kAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformAimingAttack);
+		case EFeat::kAimingAttack: ch->UnsetFlag(EPrf::kPerformAimingAttack);
 			break;
-		case EFeat::kGreatAimingAttack: PRF_FLAGS(ch).unset(EPrf::kPerformGreatAimingAttack);
+		case EFeat::kGreatAimingAttack: ch->UnsetFlag(EPrf::kPerformGreatAimingAttack);
 			break;
 		case EFeat::kSerratedBlade: SendMsgToChar("Вы ловко прокрутили свои клинки в обычный прямой хват.\r\n", ch);
 			act("$n0 ловко прокрутил$g между пальцев свои клинки.",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			PRF_FLAGS(ch).unset(EPrf::kPerformSerratedBlade);
+			ch->UnsetFlag(EPrf::kPerformSerratedBlade);
 			break;
-		case EFeat::kScirmisher: PRF_FLAGS(ch).unset(EPrf::kSkirmisher);
+		case EFeat::kScirmisher: ch->UnsetFlag(EPrf::kSkirmisher);
 			if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 				SendMsgToChar("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 				act("$n0 тактически отступил$g в тыл отряда.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			}
 			break;
-		case EFeat::kDoubleThrower: PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
+		case EFeat::kDoubleThrower: ch->UnsetFlag(EPrf::kDoubleThrow);
 			break;
-		case EFeat::kTripleThrower: PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
+		case EFeat::kTripleThrower: ch->UnsetFlag(EPrf::kTripleThrow);
 			break;
 		default:
 			SendMsgToChar("Эту способность невозможно применить таким образом.\r\n", ch);
@@ -438,7 +438,7 @@ EFeat FindWeaponMasterFeat(ESkill skill) {
 /*
  TODO: при переписывании способностей переделать на композицию или интерфейс
 */
-Bitvector GetPrfWithFeatNumber(EFeat feat_id) {
+EPrf GetPrfWithFeatNumber(EFeat feat_id) {
 	switch (feat_id) {
 		case EFeat::kPowerAttack: return EPrf::kPerformPowerAttack;
 		case EFeat::kGreatPowerAttack: return EPrf::kPerformGreatPowerAttack;

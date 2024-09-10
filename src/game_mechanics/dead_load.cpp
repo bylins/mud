@@ -94,7 +94,7 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 						ResolveTagsInObjName(tobj.get(), ch);
 					}
 					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+					if (ch->IsFlagged(EMobFlag::kCorpse)) {
 						act("На земле остал$U лежать $o.", false, ch, tobj.get(), nullptr, kToRoom);
 						PlaceObjToRoom(tobj.get(), ch->in_room);
 					} else {

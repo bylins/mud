@@ -61,7 +61,7 @@ int do_social(CharData *ch, char *argument) {
 	if (!argument || !*argument)
 		return (false);
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+	if (ch->IsFlagged(EPlrFlag::kDumbed)) {
 		SendMsgToChar("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return (false);
 	}

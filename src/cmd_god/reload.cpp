@@ -159,7 +159,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		mob_races::LoadMobraces();
 	else if (!str_cmp(arg, "morphs"))
 		load_morphs();
-	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	else if (!str_cmp(arg, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
 			long uid = GetUniqueByName(argument);
@@ -182,7 +182,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		NamedStuff::load();
 	} else if (!str_cmp(arg, "celebrates")) {
 		celebrates::Load();
-	} else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	} else if (!str_cmp(arg, "setsdrop") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument && is_number(argument)) {
 			SetsDrop::reload(atoi(argument));

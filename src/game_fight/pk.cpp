@@ -116,7 +116,7 @@ void pk_check_spamm(CharData *ch) {
 		act("Боги прокляли тот день, когда ты появился на свет!", false, ch, 0, 0, kToChar);
 	}
 	if (pk_player_count(ch) >= KillerPK) {
-		PLR_FLAGS(ch).set(EPlrFlag::kKiller);
+		ch->SetFlag(EPlrFlag::kKiller);
 	}
 }
 
@@ -537,7 +537,7 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 			&& (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kNoBattle) || ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoBattle))))
 		return PK_ACTION_NO;
 
-	if (PLR_FLAGGED(victim, EPlrFlag::kKiller) || (AGRO(victim) && NORENTABLE(victim)))
+	if (victim->IsFlagged(EPlrFlag::kKiller) || (AGRO(victim) && NORENTABLE(victim)))
 		return PK_ACTION_FIGHT;
 
 	for (pk = agressor->pk_list; pk; pk = pk->next) {
@@ -842,7 +842,7 @@ void save_pkills(CharData *ch, FILE *saved) {
 	struct PK_Memory_type *pk, *tpk;
 
 	fprintf(saved, "Pkil:\n");
-	for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, EPlrFlag::kDeleted);) {
+	for (pk = ch->pk_list; pk && !ch->IsFlagged(EPlrFlag::kDeleted);) {
 		if (pk->kill_num > 0 && IsCorrectUnique(pk->unique)) {
 			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(nullptr)) {
 				CharData *result = nullptr;
@@ -878,10 +878,10 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 	if (!victim)
 		return true;
 
-	if (MOB_FLAGGED(ch, EMobFlag::kNoFight))
+	if (ch->IsFlagged(EMobFlag::kNoFight))
 		return (false);
 
-	if (MOB_FLAGGED(victim, EMobFlag::kNoFight)) {
+	if (victim->IsFlagged(EMobFlag::kNoFight)) {
 		act("Боги предотвратили ваше нападение на $N3.", false, ch, 0, victim, kToChar);
 		return (false);
 	}
@@ -906,9 +906,9 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		&& (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
 			|| ROOM_FLAGGED(victim->in_room, ERoomFlag::kPeaceful))) {
 		// но это специальные мобы
-		if (MOB_FLAGGED(victim, EMobFlag::kHorde))
+		if (victim->IsFlagged(EMobFlag::kHorde))
 			return true;
-		if (MOB_FLAGGED(ch, EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
+		if (ch->IsFlagged(EMobFlag::kIgnoresPeaceRoom) && !IS_CHARMICE(ch))
 			return true;
 		// моб по триггеру имеет право
 		if (ch->IsNpc() && ch->get_rnum() == GetMobRnum(kDgCasterProxy))
@@ -1151,7 +1151,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		&& ch != killer
 		&& !ch->IsNpc()
 		&& !killer->IsNpc()
-		&& !PLR_FLAGGED(ch, EPlrFlag::kKiller)
+		&& !ch->IsFlagged(EPlrFlag::kKiller)
 		&& !AGRO(ch)
 		&& !IS_GOD(killer)) {
 		//Проверим, может у killer есть месть на ch

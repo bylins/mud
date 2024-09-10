@@ -54,7 +54,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -74,9 +74,9 @@ void go_bash(CharData *ch, CharData *vict) {
 	int lag;
 	int damage = number(GET_SKILL(ch, ESkill::kBash) / 1.25, GET_SKILL(ch, ESkill::kBash) * 1.25);
 	bool can_shield_bash = false;
-	if (ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && (!PRF_FLAGGED(ch,kAwake))) {
+	if (ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && !ch->IsFlagged(kAwake)) {
 		can_shield_bash = true;
-		}
+	}
 	bool shield_bash_success;
 
 	if (can_shield_bash) {
@@ -118,7 +118,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 		success = true;
 	}
-	if (MOB_FLAGGED(vict, EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	if (vict->IsFlagged(EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
 		success = false;
 	}
 
@@ -165,7 +165,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		if ((GET_AF_BATTLE(vict, kEafBlock)
 			|| (CanUseFeat(vict, EFeat::kDefender)
 				&& GET_EQ(vict, kShield)
-				&& PRF_FLAGGED(vict, EPrf::kAwake)
+				&& vict->IsFlagged(EPrf::kAwake)
 				&& vict->GetSkill(ESkill::kAwake)
 				&& vict->GetSkill(ESkill::kShieldBlock)
 				&& vict->GetPosition() > EPosition::kSit))

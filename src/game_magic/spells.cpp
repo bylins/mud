@@ -337,8 +337,8 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 }
 
 void CheckAutoNosummon(CharData *ch) {
-	if (PRF_FLAGGED(ch, EPrf::kAutonosummon) && PRF_FLAGGED(ch, EPrf::KSummonable)) {
-		PRF_FLAGS(ch).unset(EPrf::KSummonable);
+	if (ch->IsFlagged(EPrf::kAutonosummon) && ch->IsFlagged(EPrf::KSummonable)) {
+		ch->UnsetFlag(EPrf::KSummonable);
 		SendMsgToChar("Режим автопризыв: вы защищены от призыва.\r\n", ch);
 	}
 }
@@ -445,7 +445,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 	if (victim == nullptr)
 		return;
-	if (GetRealLevel(victim) > GetRealLevel(ch) && !PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !same_group(ch, victim)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -485,7 +485,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, EGf::kGodscurse)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
-		|| pkPortal || ((!victim->IsNpc() || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, EPrf::KSummonable))
+		|| pkPortal || ((!victim->IsNpc() || IS_CHARMICE(ch)) && victim->IsFlagged(EPrf::KSummonable))
 		|| same_group(ch, victim)) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
@@ -591,7 +591,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 				SendMsgToChar(SUMMON_FAIL3, ch);
 				return;
 			}
-			if (!PRF_FLAGGED(victim, EPrf::KSummonable) && !same_group(ch, victim)) {
+			if (!victim->IsFlagged(EPrf::KSummonable) && !same_group(ch, victim)) {
 				ch->send_to_TC(true, true, true, "Чармис не в вашей группе\r\n");
 				SendMsgToChar(SUMMON_FAIL2, ch);
 				return;
@@ -901,7 +901,7 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
 			reformed_hp_summ += GetReformedCharmiceHp(ch, k->follower, spell_id);
 // Проверка на тип последователей -- некрасиво, зато эффективно
-			if (MOB_FLAGGED(k->follower, EMobFlag::kCorpse)) {
+			if (k->follower->IsFlagged(EMobFlag::kCorpse)) {
 				undead_in_group = true;
 			} else {
 				living_in_group = true;
@@ -956,25 +956,25 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (!pk_agro_action(ch, victim))
 			return;
 	} else if (!IS_IMMORTAL(ch)
-		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
+		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || victim->IsFlagged(EMobFlag::kProtect)))
 		SendMsgToChar("Ваша жертва освящена Богами!\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffect::kGodsShield) || MOB_FLAGGED(victim, EMobFlag::kProtect)))
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, EAffect::kGodsShield) || victim->IsFlagged(EMobFlag::kProtect)))
 		SendMsgToChar("Ваша жертва защищена Богами!\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && MOB_FLAGGED(victim, EMobFlag::kNoCharm))
+	else if (!IS_IMMORTAL(ch) && victim->IsFlagged(EMobFlag::kNoCharm))
 		SendMsgToChar("Ваша жертва устойчива к этому!\r\n", ch);
 	else if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		SendMsgToChar("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
 	else if (AFF_FLAGGED(victim, EAffect::kCharmed)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressive)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveMono)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressivePoly)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveDay)
-		|| MOB_FLAGGED(victim, EMobFlag::kAggressiveNight)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveFullmoon)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveWinter)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveSpring)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveSummer)
-		|| MOB_FLAGGED(victim, EMobFlag::kAgressiveAutumn))
+		|| victim->IsFlagged(EMobFlag::kAgressive)
+		|| victim->IsFlagged(EMobFlag::kAgressiveMono)
+		|| victim->IsFlagged(EMobFlag::kAgressivePoly)
+		|| victim->IsFlagged(EMobFlag::kAgressiveDay)
+		|| victim->IsFlagged(EMobFlag::kAggressiveNight)
+		|| victim->IsFlagged(EMobFlag::kAgressiveFullmoon)
+		|| victim->IsFlagged(EMobFlag::kAgressiveWinter)
+		|| victim->IsFlagged(EMobFlag::kAgressiveSpring)
+		|| victim->IsFlagged(EMobFlag::kAgressiveSummer)
+		|| victim->IsFlagged(EMobFlag::kAgressiveAutumn))
 		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -1001,8 +1001,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			mobRemember(victim, ch);
 		}
 
-		if (MOB_FLAGGED(victim, EMobFlag::kNoGroup))
-			MOB_FLAGS(victim).unset(EMobFlag::kNoGroup);
+		if (victim->IsFlagged(EMobFlag::kNoGroup))
+			victim->UnsetFlag(EMobFlag::kNoGroup);
 		RemoveAffectFromChar(victim, ESpell::kCharm);
 		if (GetRealInt(victim) > GetRealInt(ch)) {
 			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
@@ -1055,7 +1055,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
 			// === Формируем новые статы ===
 			// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-			MOB_FLAGS(victim).set(EMobFlag::kSummoned);
+			victim->SetFlag(EMobFlag::kSummoned);
 			// Модифицируем имя в зависимости от хари
 			static char descr[kMaxStringLength];
 			int gender;
@@ -1415,7 +1415,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		}
 		victim->summon_helpers.clear();
 		if (victim->IsNpc()) {
-			if (!MOB_FLAGGED(victim, EMobFlag::kSummoned)) { // только если не маг зверьки ()
+			if (!victim->IsFlagged(EMobFlag::kSummoned)) { // только если не маг зверьки ()
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -1427,12 +1427,12 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 					}
 				}
 			}
-			MOB_FLAGS(victim).unset(EMobFlag::kAgressive);
-			MOB_FLAGS(victim).unset(EMobFlag::kSpec);
-			PRF_FLAGS(victim).unset(EPrf::kPunctual);
-			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
-			MOB_FLAGS(victim).unset(ENpcFlag::kWielding);
-			MOB_FLAGS(victim).unset(ENpcFlag::kArmoring);
+			victim->UnsetFlag(EMobFlag::kAgressive);
+			victim->UnsetFlag(EMobFlag::kSpec);
+			victim->UnsetFlag(EPrf::kPunctual);
+			victim->SetFlag(EMobFlag::kNoSkillTrain);
+			victim->UnsetFlag(ENpcFlag::kWielding);
+			victim->UnsetFlag(ENpcFlag::kArmoring);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
 				ch->updateCharmee(GET_MOB_VNUM(victim), 0);
@@ -1448,7 +1448,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		ch->add_follower(victim);
 	}
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
-	if (MOB_FLAGGED(victim, EMobFlag::kSummoned)) {
+	if (victim->IsFlagged(EMobFlag::kSummoned)) {
 		create_charmice_stuff(victim, skill_id, k_skills);
 	}
 }
@@ -2080,12 +2080,12 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 	}
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
-	if (PRF_FLAGGED(ch, EPrf::kAwake))
+	if (ch->IsFlagged(EPrf::kAwake))
 		modi = modi - 50;
 	if (AFF_FLAGGED(victim, EAffect::kBless))
 		modi -= 25;
 
-	if (!MOB_FLAGGED(victim, EMobFlag::kNoFear) && !CalcGeneralSaving(ch, victim, ESaving::kWill, modi))
+	if (!victim->IsFlagged(EMobFlag::kNoFear) && !CalcGeneralSaving(ch, victim, ESaving::kWill, modi))
 		GoFlee(victim);
 }
 
@@ -2101,7 +2101,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 	}
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
-	if (PRF_FLAGGED(ch, EPrf::kAwake))
+	if (ch->IsFlagged(EPrf::kAwake))
 		modi = modi - 50;
 
 	if (ch == victim || !CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
@@ -2150,7 +2150,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		for (f = ch->followers; f; f = f->next) {
 			if (f->follower->IsNpc()
 				&& AFF_FLAGGED(f->follower, EAffect::kCharmed)
-				&& MOB_FLAGGED(f->follower, EMobFlag::kCorpse)
+				&& f->follower->IsFlagged(EMobFlag::kCorpse)
 				&& ch->in_room == IN_ROOM(f->follower)) {
 				do_sacrifice(f->follower, dam);
 			}
@@ -2168,7 +2168,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 	const auto people_copy = world[ch->in_room]->people;
 	for (const auto tch : people_copy) {
 		if (tch->IsNpc()) {
-			if (!MOB_FLAGGED(tch, EMobFlag::kCorpse)
+			if (!tch->IsFlagged(EMobFlag::kCorpse)
 				&& GET_RACE(tch) != ENpcRace::kZombie
 				&& GET_RACE(tch) != ENpcRace::kBoggart) {
 				continue;
@@ -2212,11 +2212,7 @@ void SpellSummonAngel(CharData *ch) {
 
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower,
-						EMobFlag::kTutelar))    //SendMsgToChar("Боги не обратили на вас никакого внимания!\r\n", ch);
-		{
-			//return;
-			//пуржим старого ангела
+		if (k->follower->IsFlagged(EMobFlag::kTutelar)) {
 			stop_follower(k->follower, kSfCharmlost);
 		}
 	}
@@ -2277,7 +2273,7 @@ void SpellSummonAngel(CharData *ch) {
 	float additional_shields_for_charisma = 0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
-		MOB_FLAGS(mob).set(EMobFlag::kNoHold);
+		mob->SetFlag(EMobFlag::kNoHold);
 		af.bitvector = to_underlying(EAffect::kAirShield);
 		affect_to_char(mob, af);
 	}
@@ -2365,16 +2361,16 @@ void SpellSummonAngel(CharData *ch) {
 	SET_SPELL_MEM(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
 
 	if (mob->GetSkill(ESkill::kAwake)) {
-		PRF_FLAGS(mob).set(EPrf::kAwake);
+		mob->SetFlag(EPrf::kAwake);
 	}
 
 	GET_LIKES(mob) = 100;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
 
-	MOB_FLAGS(mob).set(EMobFlag::kCorpse);
-	MOB_FLAGS(mob).set(EMobFlag::kTutelar);
-	MOB_FLAGS(mob).set(EMobFlag::kLightingBreath);
+	mob->SetFlag(EMobFlag::kCorpse);
+	mob->SetFlag(EMobFlag::kTutelar);
+	mob->SetFlag(EMobFlag::kLightingBreath);
 
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);
@@ -2401,7 +2397,7 @@ void SpellMentalShadow(CharData *ch) {
 	struct FollowerType *k, *k_next;
 	for (k = ch->followers; k; k = k_next) {
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow)) {
+		if (k->follower->IsFlagged(EMobFlag::kMentalShadow)) {
 			stop_follower(k->follower, false);
 		}
 	}
@@ -2452,11 +2448,11 @@ void SpellMentalShadow(CharData *ch) {
 		affect_to_char(mob, af);
 	}
 	if (mob->GetSkill(ESkill::kAwake)) {
-		PRF_FLAGS(mob).set(EPrf::kAwake);
+		mob->SetFlag(EPrf::kAwake);
 	}
 	mob->set_level(GetRealLevel(ch));
-	MOB_FLAGS(mob).set(EMobFlag::kCorpse);
-	MOB_FLAGS(mob).set(EMobFlag::kMentalShadow);
+	mob->SetFlag(EMobFlag::kCorpse);
+	mob->SetFlag(EMobFlag::kMentalShadow);
 	PlaceCharToRoom(mob, IN_ROOM(ch));
 	ch->add_follower(mob);
 	mob->set_protecting(ch);
@@ -2804,7 +2800,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 				sprintf(buf + strlen(buf),
 						"котор%s вспыхнул%s ярким светом.%s",
 						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
-						PRF_FLAGGED(ch, EPrf::kCompact) ? "" : "\r\n");
+						ch->IsFlagged(EPrf::kCompact) ? "" : "\r\n");
 				act(buf, false, ch, nullptr, nullptr, kToChar);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					true, ch, nullptr, nullptr, kToRoom);

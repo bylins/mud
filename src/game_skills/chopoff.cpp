@@ -15,7 +15,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -48,7 +48,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		vict->IsOnHorse() || vict->GetPosition() < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(
+		vict->IsOnHorse() || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || IS_IMMORTAL(
 		vict))
 		prob = 0;
 

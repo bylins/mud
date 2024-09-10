@@ -64,7 +64,7 @@ DescriptorData *send_result_message(long unique, bool action);
 void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) return;
 
-	if (!privilege::CheckFlag(ch, privilege::kTitle) && PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
+	if (!privilege::CheckFlag(ch, privilege::kTitle) && ch->IsFlagged(EPlrFlag::kNoTitle)) {
 		SendMsgToChar("Вам запрещена работа с титулами.\r\n", ch);
 		return;
 	}
@@ -88,7 +88,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			if (GetRealLevel(vict) >= kLvlImmortal || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
+			if (GetRealLevel(vict) >= kLvlImmortal || vict->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}
@@ -111,7 +111,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 	if (CompareParam(buffer2, "установить")) {
 		utils::Trim(buffer);
 		if (buffer.size() > MAX_TITLE_LENGTH) {
-			if (PLR_FLAGGED(ch, EPlrFlag::kNoTitle)) {
+			if (ch->IsFlagged(EPlrFlag::kNoTitle)) {
 				SendMsgToChar(ch, "Вам запрещено устанавливать самому себе титул.\r\n");
 				return;
 			}

@@ -941,8 +941,8 @@ bool same_group(CharData *ch, CharData *tch) {
 		&& !ch->get_master()->IsNpc()
 		&& (IS_HORSE(ch)
 			|| AFF_FLAGGED(ch, EAffect::kCharmed)
-			|| MOB_FLAGGED(ch, EMobFlag::kTutelar)
-			|| MOB_FLAGGED(ch, EMobFlag::kMentalShadow))) {
+			|| ch->IsFlagged(EMobFlag::kTutelar)
+			|| ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		ch = ch->get_master();
 	}
 
@@ -951,8 +951,8 @@ bool same_group(CharData *ch, CharData *tch) {
 		&& !tch->get_master()->IsNpc()
 		&& (IS_HORSE(tch)
 			|| AFF_FLAGGED(tch, EAffect::kCharmed)
-			|| MOB_FLAGGED(tch, EMobFlag::kTutelar)
-			|| MOB_FLAGGED(tch, EMobFlag::kMentalShadow))) {
+			|| tch->IsFlagged(EMobFlag::kTutelar)
+			|| tch->IsFlagged(EMobFlag::kMentalShadow))) {
 		tch = tch->get_master();
 	}
 
@@ -1619,7 +1619,7 @@ void MemLeakInfo() {
 }
 
 void print_gain(CharData *ch) {
-	if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (!ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar(ch, "Пока в разработке.\r\n");
 		return;
 	}
@@ -1977,7 +1977,7 @@ size_t strlen_no_colors(const char *str) {
 // Симуляция телла от моба
 void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	char local_buf[kMaxInputLength];
-	if (AFF_FLAGGED(ch, EAffect::kDeafness) || PRF_FLAGGED(ch, EPrf::kNoTell)) {
+	if (AFF_FLAGGED(ch, EAffect::kDeafness) || ch->IsFlagged(EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;

@@ -39,7 +39,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			high = kLvlImplementator;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
-			if (IS_GOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+			if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		} else if (*arg == '-') {
@@ -47,33 +47,33 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			switch (mode) {
 				case 'b':
 				case 'и':
-					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kDemigod) || ch->IsFlagged(EPrf::kCoderinfo))
 						showname = true;
 					strcpy(buf, buf1);
 					break;
 				case 'z':
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						localwho = true;
 					strcpy(buf, buf1);
 					break;
 				case 's':
-					if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						short_list = true;
 					strcpy(buf, buf1);
 					break;
 				case 'l': half_chop(buf1, arg, buf);
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						sscanf(arg, "%d-%d", &low, &high);
 					break;
 				case 'n': half_chop(buf1, name_search, buf);
 					break;
 				case 'r':
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						who_room = true;
 					strcpy(buf, buf1);
 					break;
 				case 'c': half_chop(buf1, arg, buf);
-					if (IS_GOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+					if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 /*						const size_t len = strlen(arg);
 						for (size_t i = 0; i < len; i++) {
 							showclass |= FindCharClassMask(arg[i]);
@@ -84,7 +84,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				case 'h':
 				case '?':
 				default:
-					if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+					if (IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 						SendMsgToChar(IMM_WHO_FORMAT, ch);
 					else
 						SendMsgToChar(MORT_WHO_FORMAT, ch);
@@ -145,8 +145,8 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= kNameLevel)) {
 			continue;
 		}
-		if (PLR_FLAGGED(tch, EPlrFlag::kNameDenied) && NAME_DURATION(tch)
-			&& !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)
+		if (tch->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(tch)
+			&& !IS_IMMORTAL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)
 			&& ch != tch.get()) {
 			continue;
 		}
@@ -156,7 +156,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (short_list) {
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
-			if (IS_IMPL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (IS_IMPL(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
@@ -168,7 +168,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else {
 			if (IS_IMPL(ch)
-				|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+				|| ch->IsFlagged(EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GetRealLevel(tch),
@@ -192,20 +192,20 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (AFF_FLAGGED(tch, EAffect::kDisguise))
 				strcat(buf, " (маскируется)");
 
-			if (PLR_FLAGGED(tch, EPlrFlag::kMailing))
+			if (tch->IsFlagged(EPlrFlag::kMailing))
 				strcat(buf, " (отправляет письмо)");
-			else if (PLR_FLAGGED(tch, EPlrFlag::kWriting))
+			else if (tch->IsFlagged(EPlrFlag::kWriting))
 				strcat(buf, " (пишет)");
 
-			if (PRF_FLAGGED(tch, EPrf::kNoHoller))
+			if (tch->IsFlagged(EPrf::kNoHoller))
 				sprintf(buf + strlen(buf), " (глух%s)", GET_CH_SUF_1(tch));
-			if (PRF_FLAGGED(tch, EPrf::kNoTell))
+			if (tch->IsFlagged(EPrf::kNoTell))
 				sprintf(buf + strlen(buf), " (занят%s)", GET_CH_SUF_6(tch));
-			if (PLR_FLAGGED(tch, EPlrFlag::kMuted))
+			if (tch->IsFlagged(EPlrFlag::kMuted))
 				sprintf(buf + strlen(buf), " (молчит)");
-			if (PLR_FLAGGED(tch, EPlrFlag::kDumbed))
+			if (tch->IsFlagged(EPlrFlag::kDumbed))
 				sprintf(buf + strlen(buf), " (нем%s)", GET_CH_SUF_6(tch));
-			if (PLR_FLAGGED(tch, EPlrFlag::kKiller) == EPlrFlag::kKiller)
+			if (tch->IsFlagged(EPlrFlag::kKiller) == EPlrFlag::kKiller)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
 			if ((IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kDemigod)) && !NAME_GOD(tch)
 				&& GetRealLevel(tch) <= kNameLevel) {
@@ -221,14 +221,14 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
-			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) && NAME_BAD(tch)) {
+			else if ((IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo)) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById(NAME_ID_GOD(tch)));
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kSkillTester)))
 				sprintf(buf + strlen(buf), " &G(СКИЛЛТЕСТЕР!)&n");
-			if (IS_GOD(ch) && (PLR_FLAGGED(tch, EPlrFlag::kAutobot)))
+			if (IS_GOD(ch) && (tch->IsFlagged(EPlrFlag::kAutobot)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
@@ -241,7 +241,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				imms += "\r\n";
 			}
 		} else if (GET_GOD_FLAG(tch, EGf::kDemigod)
-			&& (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo) || GET_GOD_FLAG(tch, EGf::kDemigod))) {
+			&& (IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo) || GET_GOD_FLAG(tch, EGf::kDemigod))) {
 			demigods_num++;
 			demigods += buf;
 			if (!short_list || !(demigods_num % 4)) {

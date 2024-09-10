@@ -249,7 +249,7 @@ void CreateBlankMobsDungeon() {
 			new_proto[rnum].script->cleanup();
 			new_proto[rnum].proto_script->clear();
 			new_index[rnum].zone = zvn;
-			MOB_FLAGS(&new_proto[rnum]).set(EMobFlag::kNpc);
+			new_proto[rnum].SetFlag(EMobFlag::kNpc);
 			new_proto[rnum].player_specials = player_special_data::s_for_mobiles;
 			new_index[rnum].set_idx = -1;
 			top_of_mobt++;

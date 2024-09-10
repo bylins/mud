@@ -25,7 +25,7 @@ void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	cut.type = ESpell::kBattle;
 	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
-	if (PRF_FLAGGED(roll.GetActor(), EPrf::kPerformSerratedBlade)) {
+	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {
 		cut.modifier = 1;
 		cut.bitvector = to_underlying(EAffect::kLacerations);
 		cut.location = EApply::kNone;

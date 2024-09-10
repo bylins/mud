@@ -467,11 +467,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 		pundata->reason = nullptr;
 		switch (punish) {
 			case SCMD_MUTE:
-				if (!PLR_FLAGGED(vict, EPlrFlag::kMuted)) {
+				if (!vict->IsFlagged(EPlrFlag::kMuted)) {
 					SendMsgToChar("Ваша жертва и так может кричать.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(EPlrFlag::kMuted);
+				vict->UnsetFlag(EPlrFlag::kMuted);
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
@@ -481,14 +481,14 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n2 вернулся голос.");
 				break;
 			case SCMD_FREEZE:
-				if (!PLR_FLAGGED(vict, EPlrFlag::kFrozen)) {
+				if (!vict->IsFlagged(EPlrFlag::kFrozen)) {
 					SendMsgToChar("Ваша жертва уже разморожена.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(EPlrFlag::kFrozen);
+				vict->UnsetFlag(EPlrFlag::kFrozen);
 				Glory::remove_freeze(GET_UNIQUE(vict));
-				if (PLR_FLAGGED(vict, EPlrFlag::kHelled)) //заодно снимем ад
-					PLR_FLAGS(vict).unset(EPlrFlag::kHelled);
+				if (vict->IsFlagged(EPlrFlag::kHelled)) //заодно снимем ад
+					vict->UnsetFlag(EPlrFlag::kHelled);
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
@@ -517,11 +517,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n освободил$u из ледяного плена.");
 				break;
 			case SCMD_DUMB:
-				if (!PLR_FLAGGED(vict, EPlrFlag::kDumbed)) {
+				if (!vict->IsFlagged(EPlrFlag::kDumbed)) {
 					SendMsgToChar("Ваша жертва и так может издавать звуки.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(EPlrFlag::kDumbed);
+				vict->UnsetFlag(EPlrFlag::kDumbed);
 
 				sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -538,11 +538,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				break;
 
 			case SCMD_HELL:
-				if (!PLR_FLAGGED(vict, EPlrFlag::kHelled)) {
+				if (!vict->IsFlagged(EPlrFlag::kHelled)) {
 					SendMsgToChar("Ваша жертва и так на свободе.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(EPlrFlag::kHelled);
+				vict->UnsetFlag(EPlrFlag::kHelled);
 
 				sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -579,11 +579,11 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 			case SCMD_NAME:
 
-				if (!PLR_FLAGGED(vict, EPlrFlag::kNameDenied)) {
+				if (!vict->IsFlagged(EPlrFlag::kNameDenied)) {
 					SendMsgToChar("Вашей жертвы там нет.\r\n", ch);
 					return (0);
 				};
-				PLR_FLAGS(vict).unset(EPlrFlag::kNameDenied);
+				vict->UnsetFlag(EPlrFlag::kNameDenied);
 
 				sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -619,7 +619,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 			case SCMD_REGISTER:
 				// Регистриуем чара
-				if (PLR_FLAGGED(vict, EPlrFlag::kRegistred)) {
+				if (vict->IsFlagged(EPlrFlag::kRegistred)) {
 					SendMsgToChar("Вашей жертва уже зарегистрирована.\r\n", ch);
 					return (0);
 				};
@@ -658,7 +658,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
 				break;
 			case SCMD_UNREGISTER:
-				if (!PLR_FLAGGED(vict, EPlrFlag::kRegistred)) {
+				if (!vict->IsFlagged(EPlrFlag::kRegistred)) {
 					SendMsgToChar("Ваша цель и так не зарегистрирована.\r\n", ch);
 					return (0);
 				};
@@ -704,7 +704,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 		} else
 			skip_spaces(&reason);
 
-		pundata->level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
+		pundata->level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 		pundata->godid = GET_UNIQUE(ch);
 
 		// Добавляем в причину имя имма
@@ -713,7 +713,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 		pundata->reason = str_dup(buf);
 
 		switch (punish) {
-			case SCMD_MUTE: PLR_FLAGS(vict).set(EPlrFlag::kMuted);
+			case SCMD_MUTE: vict->SetFlag(EPlrFlag::kMuted);
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -730,7 +730,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				break;
 
-			case SCMD_FREEZE: PLR_FLAGS(vict).set(EPlrFlag::kFrozen);
+			case SCMD_FREEZE: vict->SetFlag(EPlrFlag::kFrozen);
 				Glory::set_freeze(GET_UNIQUE(vict));
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
@@ -753,7 +753,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				};
 				break;
 
-			case SCMD_DUMB: PLR_FLAGS(vict).set(EPlrFlag::kDumbed);
+			case SCMD_DUMB: vict->SetFlag(EPlrFlag::kDumbed);
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 : MAX_TIME;
 
 				sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
@@ -768,7 +768,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				sprintf(buf2, "$n дал$g обет молчания.");
 				break;
-			case SCMD_HELL: PLR_FLAGS(vict).set(EPlrFlag::kHelled);
+			case SCMD_HELL: vict->SetFlag(EPlrFlag::kHelled);
 
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
@@ -793,7 +793,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf2, "$n водворен$a в темницу!");
 				break;
 
-			case SCMD_NAME: PLR_FLAGS(vict).set(EPlrFlag::kNameDenied);
+			case SCMD_NAME: vict->SetFlag(EPlrFlag::kNameDenied);
 
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
@@ -1252,7 +1252,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+	if (ch->IsFlagged(EPlrFlag::kDumbed)) {
 		SendMsgToChar("Вы не в состоянии что-либо продемонстрировать окружающим.\r\n", ch);
 		return;
 	}
@@ -1263,11 +1263,8 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("И что вы хотите выразить столь красочно?\r\n", ch);
 	} else {
 		if (subcmd == SCMD_EMOTE) {
-			// added by Pereplut
 			if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
-				if PLR_FLAGGED(ch->get_master(), EPlrFlag::kDumbed) {
-					// shapirus: правильно пишется не "так-же", а "так же".
-					// и запятая пропущена была :-P.
+				if (ch->get_master()->IsFlagged(EPlrFlag::kDumbed)) {
 					SendMsgToChar("Ваши последователи так же немы, как и вы!\r\n", ch->get_master());
 					return;
 				}
@@ -1287,7 +1284,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			act(deaf_social, false, ch, nullptr, to, kToVict | kToDeaf);
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
+		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			SendMsgToChar(OK, ch);
 		} else {
 			act(buf, false, ch, nullptr, nullptr, kToChar);
@@ -1434,7 +1431,7 @@ void do_send(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	SendMsgToChar(buf, vict);
 	SendMsgToChar("\r\n", vict);
-	if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
+	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar("Послано.\r\n", ch);
 	else {
 		snprintf(buf2, kMaxStringLength, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
@@ -1477,7 +1474,7 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
-	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
@@ -1611,7 +1608,7 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(NOPERSON, ch);
 	else if (victim == ch)
 		SendMsgToChar("Используйте 'прыжок' для собственного перемещения.\r\n", ch);
-	else if (GetRealLevel(victim) >= GetRealLevel(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
+	else if (GetRealLevel(victim) >= GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo))
 		SendMsgToChar("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
 		act("Куда вы хотите $S переместить?", false, ch, nullptr, victim, kToChar);
@@ -1672,8 +1669,8 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			tch = victim;
 
-		const int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
-		const int victim_level = PRF_FLAGGED(tch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(tch);
+		const int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
+		const int victim_level = tch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(tch);
 
 		if (victim_level >= god_level) {
 			SendMsgToChar("Вы не можете.\r\n", ch);
@@ -1938,7 +1935,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (*buf) {        // argument supplied. destroy single object or char
 		if ((vict = get_char_vis(ch, buf, EFind::kCharInRoom)) != nullptr) {
-			if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Да я вас за это...\r\n", ch);
 				return;
 			}
@@ -2060,7 +2057,7 @@ void do_advance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GetRealLevel(ch) <= GetRealLevel(victim) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (GetRealLevel(ch) <= GetRealLevel(victim) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("Нелогично.\r\n", ch);
 		return;
 	}
@@ -2073,7 +2070,7 @@ void do_advance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(buf, ch);
 		return;
 	}
-	if (newlevel > GetRealLevel(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (newlevel > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("Вы не можете установить уровень выше собственного.\r\n", ch);
 		return;
 	}
@@ -2224,9 +2221,9 @@ void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		level = MIN(atoi(arg), kLvlImplementator);
-		if (level > GetRealLevel(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
+		if (level > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo))
 			SendMsgToChar("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
-		else if (GetRealLevel(ch) < kLvlImplementator && level > kLvlImmortal && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
+		else if (GetRealLevel(ch) < kLvlImplementator && level > kLvlImmortal && !ch->IsFlagged(EPrf::kCoderinfo))
 			perform_immort_invis(ch, kLvlImmortal);
 		else if (level < 1)
 			perform_immort_vis(ch);
@@ -2253,7 +2250,7 @@ void do_gecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
+		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			SendMsgToChar(OK, ch);
 		} else {
 			SendMsgToChar(buf, ch);
@@ -2302,8 +2299,8 @@ void do_dc(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
 	{
-		int victim_level = PRF_FLAGGED(d->character, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(d->character);
-		int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
+		int victim_level = d->character->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(d->character);
+		int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 		if (victim_level >= god_level) {
 			if (!CAN_SEE(ch, d->character))
 				SendMsgToChar("Нет такого соединения.\r\n", ch);
@@ -2352,7 +2349,7 @@ void do_wizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		value = atoi(arg);
 		if (value > kLvlImplementator)
 			value = kLvlImplementator; // 34е всегда должны иметь возможность зайти
-		if (value < 0 || (value > GetRealLevel(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+		if (value < 0 || (value > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo))) {
 			SendMsgToChar("Неверное значение для wizlock.\r\n", ch);
 			return;
 		}
@@ -2407,7 +2404,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
-	if (GetRealLevel(chdata) > GetRealLevel(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (GetRealLevel(chdata) > GetRealLevel(ch) && !IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);
@@ -2434,7 +2431,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!vict) {
 			SendMsgToChar(NOPERSON, ch);
-		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 			SendMsgToChar("Господи, только не это!\r\n", ch);
 		} else {
 			char *pstr;
@@ -2459,7 +2456,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (const auto vict : people_copy) {
 			if (!vict->IsNpc()
 				&& GetRealLevel(vict) >= GetRealLevel(ch)
-				&& !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+				&& !ch->IsFlagged(EPrf::kCoderinfo)) {
 				continue;
 			}
 
@@ -2480,7 +2477,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (STATE(i) != CON_PLAYING
 				|| !vict
 				|| (!vict->IsNpc() && GetRealLevel(vict) >= GetRealLevel(ch)
-					&& !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+					&& !ch->IsFlagged(EPrf::kCoderinfo))) {
 				continue;
 			}
 
@@ -2510,9 +2507,9 @@ void do_sdemigod(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if ((GET_GOD_FLAG(d->character, EGf::kDemigod)) || (GetRealLevel(d->character) == kLvlImplementator)) {
 				// Проверяем пишет ли чар или отправляет письмо
 				// А так же на реж сдемигод
-				if ((!PLR_FLAGGED(d->character, EPlrFlag::kWriting)) &&
-					(!PLR_FLAGGED(d->character, EPlrFlag::kMailing)) &&
-					(!PLR_FLAGGED(d->character, EPrf::kDemigodChat))) {
+				if ((!d->character->IsFlagged(EPlrFlag::kWriting)) &&
+					(!d->character->IsFlagged(EPlrFlag::kMailing)) &&
+					(!d->character->IsFlagged(EPrf::kDemigodChat))) {
 					d->character->remember_add(buf1, Remember::ALL);
 					SendMsgToChar(buf1, d->character.get());
 				}
@@ -2566,16 +2563,16 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (STATE(d) == CON_PLAYING &&
 					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					!PRF_FLAGGED(d->character, EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || IS_IMPL(ch))) {
+					!d->character->IsFlagged(EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || IS_IMPL(ch))) {
 					if (!bookmark1) {
 						strcpy(buf1,
 							   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
 						bookmark1 = true;
 					}
 					sprintf(buf1 + strlen(buf1), "  %s", GET_NAME(d->character));
-					if (PLR_FLAGGED(d->character, EPlrFlag::kWriting))
+					if (d->character->IsFlagged(EPlrFlag::kWriting))
 						strcat(buf1, " (пишет)\r\n");
-					else if (PLR_FLAGGED(d->character, EPlrFlag::kMailing))
+					else if (d->character->IsFlagged(EPlrFlag::kMailing))
 						strcat(buf1, " (пишет письмо)\r\n");
 					else
 						strcat(buf1, "\r\n");
@@ -2584,7 +2581,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (STATE(d) == CON_PLAYING &&
 					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					PRF_FLAGGED(d->character, EPrf::kNoWiz) && CAN_SEE(ch, d->character)) {
+					d->character->IsFlagged(EPrf::kNoWiz) && CAN_SEE(ch, d->character)) {
 					if (!bookmark2) {
 						if (!bookmark1)
 							strcpy(buf1,
@@ -2603,7 +2600,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		default: break;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kNoWiz)) {
+	if (ch->IsFlagged(EPrf::kNoWiz)) {
 		SendMsgToChar("Вы вне игры!\r\n", ch);
 		return;
 	}
@@ -2627,9 +2624,9 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((STATE(d) == CON_PLAYING) &&    // персонаж должен быть в игре
 			((GetRealLevel(d->character) >= level) ||    // уровень равным или выше level
 				(GET_GOD_FLAG(d->character, EGf::kDemigod) && level == 31)) &&    // демигоды видят 31 канал
-			(!PRF_FLAGGED(d->character, EPrf::kNoWiz)) &&    // игрок с режимом NOWIZ не видит имм канала
-			(!PLR_FLAGGED(d->character, EPlrFlag::kWriting)) &&    // пишущий не видит имм канала
-			(!PLR_FLAGGED(d->character, EPlrFlag::kMailing)))    // отправляющий письмо не видит имм канала
+			(!d->character->IsFlagged(EPrf::kNoWiz)) &&    // игрок с режимом NOWIZ не видит имм канала
+			(!d->character->IsFlagged(EPlrFlag::kWriting)) &&    // пишущий не видит имм канала
+			(!d->character->IsFlagged(EPlrFlag::kMailing)))    // отправляющий письмо не видит имм канала
 		{
 			// отправляем сообщение чару
 			snprintf(buf2, kMaxStringLength, "%s%s%s",
@@ -2637,12 +2634,12 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			d->character->remember_add(buf2, Remember::ALL);
 			// не видино своих мессаг если 'режим repeat'
 			if (d != ch->desc
-				|| !(PRF_FLAGGED(d->character, EPrf::kNoRepeat))) {
+				|| !(d->character->IsFlagged(EPrf::kNoRepeat))) {
 				SendMsgToChar(buf2, d->character.get());
 			}
 		}
 	}
-	if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
+	if (ch->IsFlagged(EPrf::kNoRepeat)) {
 		SendMsgToChar(OK, ch);
 	}
 }
@@ -2725,7 +2722,7 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Для кого?\r\n", ch);
 	else if (!(vict = get_player_pun(ch, arg, EFind::kCharInWorld)))
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
-	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))
+	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod) && !ch->IsFlagged(EPrf::kCoderinfo))
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
 	else if (GetRealLevel(vict) >= kLvlImmortal && GET_GOD_FLAG(ch, EGf::kDemigod))
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
@@ -2744,7 +2741,9 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				SendMsgToChar(buf, ch);
 */
 				break;
-			case SCMD_NOTITLE: result = PLR_TOG_CHK(vict, EPlrFlag::kNoTitle);
+			case SCMD_NOTITLE:
+				vict->IsFlagged(EPlrFlag::kNoTitle) ? vict->UnsetFlag(EPlrFlag::kNoTitle) : vict->SetFlag(EPlrFlag::kNoTitle);
+				result = vict->IsFlagged(EPlrFlag::kNoTitle);
 				sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
@@ -2901,7 +2900,7 @@ int print_olist(const CharData *ch, const int first, const int last, std::string
 				colored_name(prototype->get_short_description().c_str(), 45), vnum, prototype->get_ilevel(), prototype->get_auto_mort_req());
 
 		if (GetRealLevel(ch) >= kLvlGreatGod
-			|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			|| ch->IsFlagged(EPrf::kCoderinfo)) {
 			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", obj_proto.total_online(rnum), obj_proto.stored(rnum), GetObjMIW(rnum));
 			const auto &script = prototype->get_proto_script();
 
@@ -3257,7 +3256,7 @@ struct filter_type {
 } // namespace
 
 void do_print_armor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+	if (ch->IsNpc() || (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo))) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

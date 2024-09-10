@@ -293,7 +293,7 @@ int get_obj_to_drop(DropListType::iterator &i) {
  * Если vnum отрицательный, то поиск идет по списку общего дропа.
  */
 bool check_mob(ObjData *corpse, CharData *mob) {
-	if (MOB_FLAGGED(mob, EMobFlag::kMounting))
+	if (mob->IsFlagged(EMobFlag::kMounting))
 		return false;
 	for (size_t i = 0; i < tables_drop.size(); i++) {
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob))) {
@@ -410,7 +410,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	ObjData *obj, *next_obj;
 	int i;
 
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kCorpse))
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kCorpse))
 		return nullptr;
 	auto corpse = world_objects.create_blank();
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -511,8 +511,8 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	}
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
-	if (IS_CHARMICE(ch) && !MOB_FLAGGED(ch, EMobFlag::kCorpse)
-		&& ((killer && PRF_FLAGGED(killer, EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
+	if (IS_CHARMICE(ch) && !ch->IsFlagged(EMobFlag::kCorpse)
+		&& ((killer && killer->IsFlagged(EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
 			PlaceObjToInventory(corpse.get(), ch->get_master());
 		}

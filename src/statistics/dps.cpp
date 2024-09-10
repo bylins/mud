@@ -473,7 +473,7 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
 		}
-	} else if (PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	} else if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		// распечатка статистики указанного персонажа
 		CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 		if (vict) {

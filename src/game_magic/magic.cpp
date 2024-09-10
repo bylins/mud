@@ -164,7 +164,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	}
 
 	// Учет осторожного стиля
-	if (PRF_FLAGGED(victim, EPrf::kAwake)) {
+	if (victim->IsFlagged(EPrf::kAwake)) {
 		if (CanUseFeat(victim, EFeat::kImpregnable)) {
 			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
 		}
@@ -249,8 +249,9 @@ bool IsAbleToSay(CharData *ch) {
 }
 
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch) {
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kWriting))
+	if (!ch->IsNpc() && ch->IsFlagged(EPlrFlag::kWriting)) {
 		return;
+	}
 
 	const std::string &msg = GetAffExpiredText(aff_type);
 	if (!msg.empty()) {
@@ -525,7 +526,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
-		if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc())
+		if (ch->IsFlagged(EPrf::kAwake) && !victim->IsNpc())
 			modi = modi - 50;
 	}
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
@@ -1015,7 +1016,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
 	}
 
-	if (PRF_FLAGGED(ch, EPrf::kAwake) && !victim->IsNpc()) {
+	if (ch->IsFlagged(EPrf::kAwake) && !victim->IsNpc()) {
 		modi = modi - 50;
 	}
 
@@ -1459,7 +1460,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kMassBlindness:
 		case ESpell::kPowerBlindness:
 		case ESpell::kBlindness: savetype = ESaving::kStability;
-			if (MOB_FLAGGED(victim, EMobFlag::kNoBlind) ||
+			if (victim->IsFlagged(EMobFlag::kNoBlind) ||
 				IS_IMMORTAL(victim) ||
 				((ch != victim) &&
 					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
@@ -1785,7 +1786,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kSleep: savetype = ESaving::kWill;
-			if (AFF_FLAGGED(victim, EAffect::kHold) || MOB_FLAGGED(victim, EMobFlag::kNoSleep)
+			if (AFF_FLAGGED(victim, EAffect::kHold) || victim->IsFlagged(EMobFlag::kNoSleep)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
@@ -1903,7 +1904,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kMassHold:
 		case ESpell::kPowerHold:
 		case ESpell::kHold:
-			if (MOB_FLAGGED(victim, EMobFlag::kNoHold) 
+			if (victim->IsFlagged(EMobFlag::kNoHold)
 					|| AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
 					|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
@@ -1937,7 +1938,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				default: break;
 			}
-			if (  //MOB_FLAGGED(victim, MOB_NODEAFNESS) ||
+			if (  //victim->IsFlagged(MOB_NODEAFNESS) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
@@ -1970,7 +1971,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kMassSilence:
 		case ESpell::kPowerSilence:
 		case ESpell::kSilence: savetype = ESaving::kWill;
-			if (MOB_FLAGGED(victim, EMobFlag::kNoSilence) ||
+			if (victim->IsFlagged(EMobFlag::kNoSilence) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
@@ -2077,7 +2078,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kEviless:
-			if (!victim->IsNpc() || victim->get_master() != ch || !MOB_FLAGGED(victim, EMobFlag::kCorpse)) {
+			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
 				//тихо уходим, т.к. заклинание массовое
 				break;
 			}
@@ -2913,7 +2914,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		mob->player_data.PNames[1] = std::string(buf2);
 		mob->set_sex(EGender::kNeutral);
-		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
+		mob->SetFlag(EMobFlag::kResurrected);
 		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
 			GET_MAX_HIT(mob) = GET_MAX_HIT(mob) + GET_MAX_HIT(mob) * 0.20;
@@ -2922,14 +2923,14 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		}
 	}
 
-	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffect::kSanctuary) || MOB_FLAGGED(mob, EMobFlag::kProtect))) {
+	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
 		SendMsgToChar("Оживляемый был освящен Богами и противится этому!\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 	if (!IS_IMMORTAL(ch) &&
-		(GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, EMobFlag::kNoResurrection) ||
-			MOB_FLAGGED(mob, EMobFlag::kAreaAttack))) {
+		(GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) ||
+			mob->IsFlagged(EMobFlag::kAreaAttack))) {
 		SendMsgToChar("Вы не можете обрести власть над этим созданием!\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
@@ -2939,8 +2940,8 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
-	if (MOB_FLAGGED(mob, EMobFlag::kMounting)) {
-		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
+	if (mob->IsFlagged(EMobFlag::kMounting)) {
+		mob->UnsetFlag(EMobFlag::kMounting);
 	}
 	if (IS_HORSE(mob)) {
 		SendMsgToChar("Это был боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -3006,7 +3007,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->set_skill(ESkill::kRescue, 100);
 	}
 
-	MOB_FLAGS(mob).set(EMobFlag::kCorpse);
+	mob->SetFlag(EMobFlag::kCorpse);
 	if (spell_id == ESpell::kClone) {
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
 		mob->SetCharAliases(buf2);
@@ -3055,8 +3056,8 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
 		GET_HEIGHT(mob) = GET_HEIGHT(ch);
 		GET_SIZE(mob) = GET_SIZE(ch);
-		MOB_FLAGS(mob).set(EMobFlag::kClone);
-		MOB_FLAGS(mob).unset(EMobFlag::kMounting);
+		mob->SetFlag(EMobFlag::kClone);
+		mob->UnsetFlag(EMobFlag::kMounting);
 	}
 	act(mag_summon_msgs[msg], false, ch, nullptr, mob, kToRoom | kToArenaListen);
 
@@ -3077,7 +3078,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		CastSummon(level, ch, obj, spell_id, 0);
 	}
 	if (spell_id == ESpell::kAnimateDead) {
-		MOB_FLAGS(mob).set(EMobFlag::kResurrected);
+		mob->SetFlag(EMobFlag::kResurrected);
 		if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist))
 			mob->set_skill(ESkill::kRescue, 100);
 
@@ -3142,9 +3143,9 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 
 		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
 		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
-		PRF_FLAGS(mob).set(EPrf::kAwake);
+		mob->SetFlag(EPrf::kAwake);
 	}
-	MOB_FLAGS(mob).set(EMobFlag::kNoSkillTrain);
+	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	// А надо ли это вообще делать???
 	if (handle_corpse) {
 		for (tobj = obj->get_contains(); tobj;) {
@@ -3215,7 +3216,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		case ESpell::kEviless:
 			//лечим только умертвия-чармисы
-			if (!victim->IsNpc() || victim->get_master() != ch || !MOB_FLAGGED(victim, EMobFlag::kCorpse))
+			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse))
 				return 1;
 			//при рекасте - не лечим
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
@@ -3742,7 +3743,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		else
 			hit(victim, caster, ESkill::kUndefined, fight::kMainHand);
 	} else if (CAN_SEE(victim, caster) && !caster->IsNpc() && victim->IsNpc()
-		&& MOB_FLAGGED(victim, EMobFlag::kMemory)) {
+		&& victim->IsFlagged(EMobFlag::kMemory)) {
 		mobRemember(victim, caster);
 	}
 
@@ -4235,7 +4236,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 					int tax = kCasterCastSuccess * cast_decay * (targets_counter - params.free_targets);
 					GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
 					level = std::max(1, level - lvl_decay);
-					if (PRF_FLAGGED(ch, EPrf::kTester)) {
+					if (ch->IsFlagged(EPrf::kTester)) {
 						SendMsgToChar(ch,
 									  "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
 									  targets_num,

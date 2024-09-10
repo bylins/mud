@@ -28,7 +28,7 @@ int other_pc_in_group(CharData *ch) {
 
 void split_or_clan_tax(CharData *ch, long amount) {
 	if (AFF_FLAGGED(ch, EAffect::kGroup) && (other_pc_in_group(ch) > 0) &&
-		PRF_FLAGGED(ch, EPrf::kAutosplit)) {
+		ch->IsFlagged(EPrf::kAutosplit)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);
@@ -80,7 +80,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	}
 	// все, что делится на группу - идет через налог (из кошельков не делится)
 	if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0 &&
-		PRF_FLAGGED(ch, EPrf::kAutosplit) && (!cont || !system_obj::is_purse(cont))) {
+		ch->IsFlagged(EPrf::kAutosplit) && (!cont || !system_obj::is_purse(cont))) {
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
 		ch->add_gold(value);
@@ -200,7 +200,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 				if (autoloot
 					&& (GET_OBJ_TYPE(obj) == EObjType::kIngredient
 						|| GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient)
-					&& PRF_FLAGGED(ch, EPrf::kNoIngrLoot)) {
+					&& ch->IsFlagged(EPrf::kNoIngrLoot)) {
 					continue;
 				}
 				found = 1;

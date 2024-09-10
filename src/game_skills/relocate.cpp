@@ -97,7 +97,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	if (!(PRF_FLAGGED(victim, EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
+	if (!(victim->IsFlagged(EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));

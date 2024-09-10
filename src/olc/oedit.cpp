@@ -310,11 +310,11 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 				*buf1 = '\0';
 			}
 			*buf2 = '\0';
-			GET_OBJ_AFFECTS(obj).tascii(4, buf2);
-			GET_OBJ_ANTI(obj).tascii(4, buf2);
-			GET_OBJ_NO(obj).tascii(4, buf2);
+			GET_OBJ_AFFECTS(obj).tascii(FlagData::kPlanesNumber, buf2);
+			GET_OBJ_ANTI(obj).tascii(FlagData::kPlanesNumber, buf2);
+			GET_OBJ_NO(obj).tascii(FlagData::kPlanesNumber, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
-			GET_OBJ_EXTRA(obj).tascii(4, buf2);
+			GET_OBJ_EXTRA(obj).tascii(FlagData::kPlanesNumber, buf2);
 			const auto wear_flags = GET_OBJ_WEAR(obj);
 			tascii(&wear_flags, 1, buf2);
 			strcat(buf2, "\n");

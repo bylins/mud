@@ -14,7 +14,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}

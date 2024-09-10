@@ -19,7 +19,7 @@ void go_slay(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -101,7 +101,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Сразить себя?! Вы же дружинник, а не самурай!\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kAwake)) {
+	if (ch->IsFlagged(EPrf::kAwake)) {
 		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
 		return;
 	}

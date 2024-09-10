@@ -2644,7 +2644,7 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->GetEnemy()));
 			}
 		} else if (!str_cmp(field, "iskiller")) {
-			if (PLR_FLAGGED(c, EPlrFlag::kKiller)) {
+			if (c->IsFlagged(EPlrFlag::kKiller)) {
 				strcpy(str, "1");
 			} else {
 				strcpy(str, "0");
@@ -2656,7 +2656,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "isthief")) {
-			if (PLR_FLAGGED(c, EPlrFlag::kBurglar)) {
+			if (c->IsFlagged(EPlrFlag::kBurglar)) {
 				strcpy(str, "1");
 			} else {
 				strcpy(str, "0");

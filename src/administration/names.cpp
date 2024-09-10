@@ -360,7 +360,7 @@ void agree_name(CharData *d, const char *immname, int immlev) {
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
 static void go_name(CharData *ch, CharData *vict, int action) {
-	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
+	int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	if (GetRealLevel(vict) > god_level) {
 		SendMsgToChar("А он ведь старше вас...\r\n", ch);

@@ -106,7 +106,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			SendMsgToChar("Вы немы, как рыба об лед.\r\n", ch);
 			return 1;
 		}
-		if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+		if (ch->IsFlagged(EPlrFlag::kDumbed)) {
 			SendMsgToChar("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
@@ -1105,11 +1105,11 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 		if (STATE(i) == CON_PLAYING
 			&& (!ch || i != ch->desc)
 			&& i->character
-			&& !PRF_FLAGGED(i->character, EPrf::kNoExchange)
-			&& !PLR_FLAGGED(i->character, EPlrFlag::kWriting)
+			&& !i->character->IsFlagged(EPrf::kNoExchange)
+			&& !i->character->IsFlagged(EPlrFlag::kWriting)
 			&& !ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof)
 			&& i->character->GetPosition() > EPosition::kSleep) {
-			if (!PRF_FLAGGED(i->character, EPrf::kNoIngrMode)
+			if (!i->character->IsFlagged(EPrf::kNoIngrMode)
 				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient
 					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)) {
 				continue;

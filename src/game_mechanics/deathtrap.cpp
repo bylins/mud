@@ -97,7 +97,7 @@ void deathtrap::log_death_trap(CharData *ch) {
 
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
-	if (ch->in_room != kNowhere && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (ch->in_room != kNowhere && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
 			&& !IS_IMMORTAL(ch))
 			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc()

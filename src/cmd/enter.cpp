@@ -122,7 +122,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					if (AFF_FLAGGED(k->follower, EAffect::kHelper)
 						&& !AFF_FLAGGED(k->follower, EAffect::kHold)
-						&& (MOB_FLAGGED(k->follower, EMobFlag::kTutelar) || MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow))
+						&& (k->follower->IsFlagged(EMobFlag::kTutelar) || k->follower->IsFlagged(EMobFlag::kMentalShadow))
 						&& !k->follower->GetEnemy()
 						&& IN_ROOM(k->follower) == from_room
 						&& AWAKE(k->follower)) {

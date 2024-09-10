@@ -9,11 +9,11 @@
 void make_horse(CharData *horse, CharData *ch) {
 	AFF_FLAGS(horse).set(EAffect::kHorse);
 	ch->add_follower(horse);
-	MOB_FLAGS(horse).unset(EMobFlag::kWimpy);
-	MOB_FLAGS(horse).unset(EMobFlag::kSentinel);
-	MOB_FLAGS(horse).unset(EMobFlag::kHelper);
-	MOB_FLAGS(horse).unset(EMobFlag::kAgressive);
-	MOB_FLAGS(horse).unset(EMobFlag::kMounting);
+	horse->UnsetFlag(EMobFlag::kWimpy);
+	horse->UnsetFlag(EMobFlag::kSentinel);
+	horse->UnsetFlag(EMobFlag::kHelper);
+	horse->UnsetFlag(EMobFlag::kAgressive);
+	horse->UnsetFlag(EMobFlag::kMounting);
 	AFF_FLAGS(horse).unset(EAffect::kTethered);
 }
 
@@ -191,7 +191,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 		// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
 	else if (!IS_GOD(ch)
-		&& !MOB_FLAGGED(horse, EMobFlag::kMounting)
+		&& !horse->IsFlagged(EMobFlag::kMounting)
 		&& !(horse->has_master()
 			&& AFF_FLAGGED(horse, EAffect::kHorse))) {
 		act("Вы не сможете оседлать $N3.", false, ch, 0, horse, kToChar);

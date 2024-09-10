@@ -194,7 +194,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
 			}
-			if (outlaws && !PLR_FLAGGED((ch), EPlrFlag::kKiller)) {
+			if (outlaws && !(ch)->IsFlagged(EPlrFlag::kKiller)) {
 				continue;
 			}
 			if (showclass != ECharClass::kUndefined && showclass != character->GetClass()) {
@@ -233,7 +233,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(classname, "      -      ");
 		}
 
-		if (GetRealLevel(ch) < kLvlImplementator && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		if (GetRealLevel(ch) < kLvlImplementator && !ch->IsFlagged(EPrf::kCoderinfo)) {
 			strcpy(classname, "      -      ");
 		}
 

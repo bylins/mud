@@ -153,7 +153,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	char arg[kMaxInputLength];
 	CharData *victim;
 
-	if (MOB_FLAGGED(ch, EMobFlag::kNoFight)) {
+	if (ch->IsFlagged(EMobFlag::kNoFight)) {
 		mob_log(ch, trig, "mkill called for mob with NOFIGHT flag");
 		return;
 	}

@@ -100,7 +100,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (subcmd == kScmdDevour) {
-		if (MOB_FLAGGED(ch, EMobFlag::kResurrected)
+		if (ch->IsFlagged(EMobFlag::kResurrected)
 			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
 			feed_charmice(ch, arg);
 			return;

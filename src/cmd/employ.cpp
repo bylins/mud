@@ -17,7 +17,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы в бою и вам сейчас не до магических выкрутасов!\r\n", ch);
 		return;
 	}
@@ -48,7 +48,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 	switch (subcmd) {
 		case SCMD_QUAFF:
-			if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+			if (ch->IsFlagged(EPrf::kIronWind)) {
 				SendMsgToChar("Не стоит отвлекаться в бою!\r\n", ch);
 				return;
 			}

@@ -77,7 +77,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (aff_i != room->affected.end()
 				&& (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					|| IS_IMMORTAL(ch)
-					|| PRF_FLAGGED(ch, EPrf::kCoderinfo))) {
+					|| ch->IsFlagged(EPrf::kCoderinfo))) {
 				SendMsgToChar("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);

@@ -183,7 +183,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if ((board.get_type() == NEWS_BOARD
 			|| board.get_type() == GODNEWS_BOARD
 			|| board.get_type() == CODER_BOARD)
-			&& !PRF_FLAGGED(ch, EPrf::kNewsMode)) {
+			&& !ch->IsFlagged(EPrf::kNewsMode)) {
 			std::ostringstream body;
 			Board::Formatter::shared_ptr formatter = FormattersBuilder::create(board.get_type(), body, ch, date);
 			board.format_board(formatter);
@@ -192,7 +192,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		// дрновости в ленточном варианте
-		if (board.get_type() == CLANNEWS_BOARD && !PRF_FLAGGED(ch, EPrf::kNewsMode)) {
+		if (board.get_type() == CLANNEWS_BOARD && !ch->IsFlagged(EPrf::kNewsMode)) {
 			std::ostringstream body;
 			Board::Formatter::shared_ptr formatter = FormattersBuilder::create(board.get_type(), body, ch, date);
 			board.format_board(formatter);
@@ -260,7 +260,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		/// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if (PRF_FLAGGED(ch, EPrf::kCoderinfo)
+		if (ch->IsFlagged(EPrf::kCoderinfo)
 			&& (board.get_type() == NEWS_BOARD
 				|| board.get_type() == NOTICE_BOARD)) {
 			GetOneParam(buffer2, buffer);
@@ -275,7 +275,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
-		PRF_FLAGGED(ch, EPrf::kCoderinfo) ? tempMessage->level = kLvlImplementator : tempMessage->level = GetRealLevel(ch);
+		ch->IsFlagged(EPrf::kCoderinfo) ? tempMessage->level = kLvlImplementator : tempMessage->level = GetRealLevel(ch);
 
 		// клановым еще ранг
 		if (CLAN(ch)) {
@@ -326,7 +326,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else if (board.get_type() != CLAN_BOARD
 			&& board.get_type() != CLANNEWS_BOARD
 			&& board.get_type() != PERS_BOARD
-			&& !PRF_FLAGGED(ch, EPrf::kCoderinfo)
+			&& !ch->IsFlagged(EPrf::kCoderinfo)
 			&& GetRealLevel(ch) < board.messages[messages_index]->level) {
 			// для простых досок сверяем левела (для контроля иммов)
 			// клановые ниже, у персональных смысла нет
@@ -464,7 +464,7 @@ bool Static::LoginInfo(CharData *ch) {
 		// доска не видна или можно только писать, опечатки тож не спамим
 		if (!can_read(ch, *board)
 			|| ((*board)->get_type() == MISPRINT_BOARD
-				&& !PRF_FLAGGED(ch, EPrf::kShowUnread))
+				&& !ch->IsFlagged(EPrf::kShowUnread))
 			|| (*board)->get_type() == CODER_BOARD) {
 			continue;
 		}
@@ -587,10 +587,10 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 		for (DescriptorData *f = descriptor_list; f; f = f->next) {
 			if (f->character
 				&& STATE(f) == CON_PLAYING
-				&& PRF_FLAGGED(f->character, EPrf::kBoardMode)
+				&& f->character->IsFlagged(EPrf::kBoardMode)
 				&& can_read(f->character.get(), board)
 				&& (board->get_type() != MISPRINT_BOARD
-					|| PRF_FLAGGED(f->character, EPrf::kShowUnread))) {
+					|| f->character->IsFlagged(EPrf::kShowUnread))) {
 				SendMsgToChar(buf_, f->character.get());
 			}
 		}
@@ -699,7 +699,7 @@ std::string Static::print_stats(CharData *ch, const Board::shared_ptr board, int
 
 	std::string out;
 	if (IS_IMMORTAL(ch)
-		|| PRF_FLAGGED(ch, EPrf::kCoderinfo)
+		|| ch->IsFlagged(EPrf::kCoderinfo)
 		|| !board->get_blind()) {
 		const int unread = board->count_unread(ch->get_board_date(board->get_type()));
 		out += fmt::format(" {:>3})  {:<10}   [{:>3}|{:>3}]   {:<40}  {:<6}\r\n",
@@ -847,10 +847,10 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 
 	// категории граждан, которые писать могут только на клан-доски
 	if (!IS_IMMORTAL(ch)
-		&& (PLR_FLAGGED(ch, EPlrFlag::kHelled)
-			|| PLR_FLAGGED(ch, EPlrFlag::kNameDenied)
-			|| PLR_FLAGGED(ch, EPlrFlag::kDumbed)
-			|| PLR_FLAGGED(ch, EPlrFlag::kMuted)
+		&& (ch->IsFlagged(EPlrFlag::kHelled)
+			|| ch->IsFlagged(EPlrFlag::kNameDenied)
+			|| ch->IsFlagged(EPlrFlag::kDumbed)
+			|| ch->IsFlagged(EPlrFlag::kMuted)
 			|| lvl_no_write(ch))
 		&& (board->get_type() != CLAN_BOARD && board->get_type() != CLANNEWS_BOARD)) {
 		access.reset(ACCESS_CAN_WRITE);

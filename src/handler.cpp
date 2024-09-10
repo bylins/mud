@@ -308,7 +308,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	if (PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
@@ -362,7 +362,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	if (PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
@@ -588,7 +588,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 		}
 		// set flag for crash-save system, but not on mobs!
 		if (!ch->IsNpc()) {
-			PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
+			ch->SetFlag(EPlrFlag::kCrashSave);
 		}
 	} else
 		log("SYSERR: NULL obj (%p) or char (%p) passed to obj_to_char.", object, ch);
@@ -604,7 +604,7 @@ void RemoveObjFromChar(ObjData *object) {
 
 	// set flag for crash-save system, but not on mobs!
 	if (!object->get_carried_by()->IsNpc()) {
-		PLR_FLAGS(object->get_carried_by()).set(EPlrFlag::kCrashSave);
+		object->get_carried_by()->SetFlag(EPlrFlag::kCrashSave);
 		log("obj_from_char: %s -> %d", object->get_carried_by()->get_name().c_str(), GET_OBJ_VNUM(object));
 	}
 
@@ -1714,7 +1714,7 @@ void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
 		// Если этот моб трупа не оставит, то не выводить сообщение
 		// иначе ужасно коряво смотрится в бою и в тригах
 		bool msgShown = false;
-		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+		if (!ch->IsNpc() || !ch->IsFlagged(EMobFlag::kCorpse)) {
 			if (inv)
 				act("$n бросил$g $o3 на землю.", false, ch, obj, nullptr, kToRoom);
 			else
@@ -1774,7 +1774,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		return;
 	}
 
-	if (MOB_FLAGGED(ch, EMobFlag::kMobFreed) || MOB_FLAGGED(ch, EMobFlag::kMobDeleted)) {
+	if (ch->IsFlagged(EMobFlag::kMobFreed) || ch->IsFlagged(EMobFlag::kMobDeleted)) {
 		return;
 	}
 
@@ -1860,7 +1860,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	RemoveCharFromRoom(ch);
 
 	// pull the char from the list
-	MOB_FLAGS(ch).set(EMobFlag::kMobDeleted);
+	ch->SetFlag(EMobFlag::kMobDeleted);
 
 	if (ch->desc && ch->desc->original) {
 		do_return(ch, nullptr, 0, 0);
@@ -1875,7 +1875,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) >= 0) && !MOB_FLAGGED(ch, EMobFlag::kSummoned)) {
+		if ((GET_MOB_RNUM(ch) >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
 			mob_index[GET_MOB_RNUM(ch)].total_online--;
 		}
 	}
@@ -2515,7 +2515,7 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 		r_hp *= remort_coeff;
 	}
 
-	if (PRF_FLAGGED(ch, EPrf::kTester))
+	if (ch->IsFlagged(EPrf::kTester))
 		SendMsgToChar(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }

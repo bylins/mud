@@ -24,9 +24,9 @@ void SetStopOfftopFlag(CharData *ch) {
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {
-		PRF_FLAGS(ch).set(EPrf::kStopOfftop);
+		ch->SetFlag(EPrf::kStopOfftop);
 	} else {
-		PRF_FLAGS(ch).unset(EPrf::kStopOfftop);
+		ch->UnsetFlag(EPrf::kStopOfftop);
 	}
 }
 

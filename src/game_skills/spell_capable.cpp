@@ -69,7 +69,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (k = ch->followers; k; k = k->next) {
 		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
 			&& k->follower->get_master() == ch
-			&& MOB_FLAGGED(k->follower, EMobFlag::kClone)
+			&& k->follower->IsFlagged(EMobFlag::kClone)
 			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
 			&& ch->in_room == IN_ROOM(k->follower)) {
 			follower = k->follower;
@@ -90,7 +90,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spell_id)--;
-	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem))
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem))
 		MemQ_remember(ch, spell_id);
 
 	if (!MUD::Spell(spell_id).IsViolent() ||

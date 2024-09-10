@@ -81,7 +81,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	if ((MOB_FLAGGED(vict, EMobFlag::kAware) && AWAKE(vict)) && !IS_GOD(ch)) {
+	if ((vict->IsFlagged(EMobFlag::kAware) && AWAKE(vict)) && !IS_GOD(ch)) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, kToChar);
 		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, kToVict);
 		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, kToNotVict | kToArenaListen);
@@ -92,7 +92,7 @@ void go_backstab(CharData *ch, CharData *vict) {
 
 	bool success = false;
 ///*	
-	if (PRF_FLAGGED(ch, EPrf::kTester)) {
+	if (ch->IsFlagged(EPrf::kTester)) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kBackstab, vict);
 		success = result.success;
 	} else 

@@ -122,7 +122,7 @@ void medit_mobile_init(CharData *mob) {
 	mob->set_cha(11);
 	mob->set_con(11);
 
-	MOB_FLAGS(mob).set(EMobFlag::kNpc);
+	mob->SetFlag(EMobFlag::kNpc);
 	mob->player_specials = player_special_data::s_for_mobiles;
 
 	for (auto i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
@@ -578,8 +578,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			strcpy(buf1, "");
 		strip_string(buf1);
 		*buf2 = 0;
-		MOB_FLAGS(mob).tascii(4, buf2);
-		AFF_FLAGS(mob).tascii(4, buf2);
+		mob->PrintFlagsToAscii(buf2);
+		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2);
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 				buf2, GET_ALIGNMENT(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
@@ -654,7 +654,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 		strcpy(buf1, "Special_Bitvector: ");
-		NPC_FLAGS(mob).tascii(4, buf1);
+		NPC_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf1);
 		fprintf(mob_file, "%s\n", buf1);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {
@@ -1323,7 +1323,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 	switch (OLC_MODE(d)) {
 		case MEDIT_CONFIRM_SAVESTRING:
 			// * Ensure mob has MOB_ISNPC set or things will go pair shaped.
-			MOB_FLAGS(OLC_MOB(d)).set(EMobFlag::kNpc);
+			OLC_MOB(d)->SetFlag(EMobFlag::kNpc);
 			switch (*arg) {
 				case 'y':
 				case 'Y':
@@ -1864,7 +1864,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else {
 				OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
 				medit_disp_mob_flags(d);
-				if (MOB_FLAGGED(OLC_MOB(d), EMobFlag::kIgnoresFormation)) {
+				if (OLC_MOB(d)->IsFlagged(EMobFlag::kIgnoresFormation)) {
 					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, true);
 				}
 				return;

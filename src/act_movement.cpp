@@ -334,8 +334,8 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 		}
 
 		//  if this room or the one we're going to needs a boat, check for one */
-		if (!MOB_FLAGGED(ch, EMobFlag::kSwimming)
-			&& !MOB_FLAGGED(ch, EMobFlag::kFlying)
+		if (!ch->IsFlagged(EMobFlag::kSwimming)
+			&& !ch->IsFlagged(EMobFlag::kFlying)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)
 			&& (real_sector(ch->in_room) == ESector::kWaterNoswim
 				|| real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim)) {
@@ -346,14 +346,14 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 
 		// Добавляем проверку на то что моб может вскрыть дверь
 		if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed) &&
-			!MOB_FLAGGED(ch, EMobFlag::kOpensDoor))
+			!ch->IsFlagged(EMobFlag::kOpensDoor))
 			return false;
 
-		if (!MOB_FLAGGED(ch, EMobFlag::kFlying) &&
+		if (!ch->IsFlagged(EMobFlag::kFlying) &&
 			!AFF_FLAGGED(ch, EAffect::kFly) && SECT(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying)
 			return false;
 
-		if (MOB_FLAGGED(ch, EMobFlag::kOnlySwimming) &&
+		if (ch->IsFlagged(EMobFlag::kOnlySwimming) &&
 			!(real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterSwim ||
 				real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim ||
 				real_sector(EXIT(ch, dir)->to_room()) == ESector::kUnderwater))
@@ -361,8 +361,8 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
 			!IS_HORSE(ch) &&
-			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
-			&& !MOB_FLAGGED(ch, EMobFlag::kIgnoresNoMob))
+			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
+			&& !ch->IsFlagged(EMobFlag::kIgnoresNoMob))
 			return false;
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !IS_HORSE(ch))
@@ -400,12 +400,9 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		// если там ДТ и чар верхом на пони
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && ch->IsOnHorse()) {
 			if (show_msg) {
-				// я весьма костоязычен, исправьте кто-нибудь на нормальную
-				// мессагу, антуражненькую
-				SendMsgToChar("Ваш скакун не хочет идти туда.\r\n", ch);
+				SendMsgToChar("Ваш скакун артачится и боится идти туда.\r\n", ch);
 			}
 			return false;
 		}
@@ -624,7 +621,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
@@ -704,7 +701,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		PlaceCharToRoom(horse, go_to);
 	}
 
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		for (int i = 0; i < EDirection::kMaxDirNum; i++) {
 			if (CAN_GO(ch, i)
 				|| (EXIT(ch, i)
@@ -864,7 +861,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			}
 
 			// AWARE mobs
-			if (MOB_FLAGGED(vict, EMobFlag::kAware)
+			if (vict->IsFlagged(EMobFlag::kAware)
 				&& vict->GetPosition() < EPosition::kFight
 				&& !AFF_FLAGGED(vict, EAffect::kHold)
 				&& vict->GetPosition() > EPosition::kSleep) {
@@ -926,8 +923,8 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 							|| AFF_FLAGGED(k->follower, EAffect::kMagicStopFight))
 					&& AWAKE(k->follower)
 					&& (k->follower->IsNpc()
-						|| (!PLR_FLAGGED(k->follower, EPlrFlag::kMailing)
-							&& !PLR_FLAGGED(k->follower, EPlrFlag::kWriting)))
+						|| (!k->follower->IsFlagged(EPlrFlag::kMailing)
+							&& !k->follower->IsFlagged(EPlrFlag::kWriting)))
 					&& (!IS_HORSE(k->follower)
 						|| !AFF_FLAGGED(k->follower, EAffect::kTethered))) {
 					if (k->follower->GetPosition() < EPosition::kStand) {

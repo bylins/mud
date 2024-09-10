@@ -405,26 +405,18 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-#define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
-#define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
-#define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
+
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 
 #define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
 
-#define MOB_FLAGGED(ch, flag)   ((ch)->IsNpc() && MOB_FLAGS(ch).get(flag))
-#define PLR_FLAGGED(ch, flag)   (!(ch)->IsNpc() && PLR_FLAGS(ch).get(flag))
-#define PRF_FLAGGED(ch, flag)   (PRF_FLAGS(ch).get(flag))
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
-
-#define PLR_TOG_CHK(ch, flag) (PLR_FLAGS(ch).toggle(flag))
-#define PRF_TOG_CHK(ch, flag) (PRF_FLAGS(ch).toggle(flag))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -449,7 +441,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
-#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && PRF_FLAGGED(ch, EPrf::kCoderinfo))
+#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && (ch)->IsFlagged(EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
@@ -664,7 +656,7 @@ const int kNameLevel = 5;
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && PRF_FLAGGED(ch, EPrf::kHolylight)))
+   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && ch->IsFlagged(EPrf::kHolylight)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
@@ -876,7 +868,7 @@ const int kNameLevel = 5;
                 )
 
 #define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && PRF_FLAGGED(sub, EPrf::kHolylight)))
+        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && sub->IsFlagged(EPrf::kHolylight)))
 
 #define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
         ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
@@ -1044,7 +1036,7 @@ size_t strlen_no_colors(const char *str);
 
 #define SENDOK(ch)   (((ch)->desc || CheckScript((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
-                     !PLR_FLAGGED((ch), EPlrFlag::kWriting))
+                     !(ch)->IsFlagged(EPlrFlag::kWriting))
 
 extern const bool a_isspace_table[];
 inline bool a_isspace(const unsigned char c) {

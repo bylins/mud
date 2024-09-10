@@ -508,7 +508,7 @@ void save() {
 			if (!k.second.affects.empty()) {
 				pugi::xml_node xml_affects = xml_activ.append_child("affects");
 				*buf_ = '\0';
-				k.second.affects.tascii(4, buf_);
+				k.second.affects.tascii(FlagData::kPlanesNumber, buf_);
 				xml_affects.append_child(pugi::node_pcdata).set_value(buf_);
 			}
 			// set/activ/apply

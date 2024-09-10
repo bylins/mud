@@ -368,8 +368,8 @@ int interpolate(int min_value, int pulse) {
 void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
-	if (PLR_FLAGGED(i, EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kHelled);
+	if (i->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
+		i->UnsetFlag(EPlrFlag::kHelled);
 		if (HELL_REASON(i))
 			free(HELL_REASON(i));
 		HELL_REASON(i) = nullptr;
@@ -393,10 +393,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)
+	if (i->IsFlagged(EPlrFlag::kNameDenied)
 		&& NAME_DURATION(i)
 		&& NAME_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kNameDenied);
+		i->UnsetFlag(EPlrFlag::kNameDenied);
 		if (NAME_REASON(i)) {
 			free(NAME_REASON(i));
 		}
@@ -427,10 +427,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kMuted)
+	if (i->IsFlagged(EPlrFlag::kMuted)
 		&& MUTE_DURATION(i) != 0
 		&& MUTE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kMuted);
+		i->UnsetFlag(EPlrFlag::kMuted);
 		if (MUTE_REASON(i))
 			free(MUTE_REASON(i));
 		MUTE_REASON(i) = nullptr;
@@ -440,10 +440,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Вы можете орать.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kDumbed)
+	if (i->IsFlagged(EPlrFlag::kDumbed)
 		&& DUMB_DURATION(i) != 0
 		&& DUMB_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kDumbed);
+		i->UnsetFlag(EPlrFlag::kDumbed);
 		if (DUMB_REASON(i))
 			free(DUMB_REASON(i));
 		DUMB_REASON(i) = nullptr;
@@ -453,10 +453,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Вы можете говорить.\r\n", i.get());
 	}
 
-	if (!PLR_FLAGGED(i, EPlrFlag::kRegistred)
+	if (!i->IsFlagged(EPlrFlag::kRegistred)
 		&& UNREG_DURATION(i) != 0
 		&& UNREG_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kRegistred);
+		i->UnsetFlag(EPlrFlag::kRegistred);
 		if (UNREG_REASON(i))
 			free(UNREG_REASON(i));
 		UNREG_REASON(i) = nullptr;
@@ -504,10 +504,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kFrozen)
+	if (i->IsFlagged(EPlrFlag::kFrozen)
 		&& FREEZE_DURATION(i) != 0
 		&& FREEZE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kFrozen);
+		i->UnsetFlag(EPlrFlag::kFrozen);
 		if (FREEZE_REASON(i)) {
 			free(FREEZE_REASON(i));
 		}
@@ -541,7 +541,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		restore = IN_ROOM(i);
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kHelled)) {
+	if (i->IsFlagged(EPlrFlag::kHelled)) {
 		if (restore != r_helled_start_room) {
 			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_helled_start_room);
@@ -557,7 +557,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			}
 		}
-	} else if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)) {
+	} else if (i->IsFlagged(EPlrFlag::kNameDenied)) {
 		if (restore != r_named_start_room) {
 			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_named_start_room);
@@ -913,7 +913,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		GET_DRUNK_STATE(ch) = 0;
 	}
 
-	if (PLR_FLAGGED(ch, EPlrFlag::kWriting))
+	if (ch->IsFlagged(EPlrFlag::kWriting))
 		return;
 
 	int cond_value = GET_COND(ch, condition);
@@ -1074,7 +1074,7 @@ void hour_update() {
 	DescriptorData *i;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, EPlrFlag::kWriting))
+		if (STATE(i) != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
 		SEND_TO_Q(buf, i);
@@ -1233,7 +1233,7 @@ void clan_chest_invoice(ObjData *j) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
-			&& PRF_FLAGGED(d->character, EPrf::kDecayMode)
+			&& d->character->IsFlagged(EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
@@ -1706,7 +1706,7 @@ void point_update() {
 		update_pos(i);
 		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
-			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
+			&& !i->IsFlagged(EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
 	});

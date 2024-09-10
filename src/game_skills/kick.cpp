@@ -23,7 +23,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	vict = TryToFindProtector(vict, ch);
 
 	bool success = false;
-//	if (PRF_FLAGGED(ch, EPrf::kTester)) {
+//	if (ch->IsFlagged(EPrf::kTester)) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kKick, vict);
 	success = result.success;
 /*	} else {
@@ -106,7 +106,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						dam *= 2;
 						break;
 					default:
-						if (!MOB_FLAGGED(vict, EMobFlag::kNoBash)) {
+						if (!vict->IsFlagged(EMobFlag::kNoBash)) {
 							SetWaitState(vict, number(2, 5) * kBattleRound);
 							if (vict->GetPosition() > EPosition::kSit) {
 								vict->SetPosition(EPosition::kSit);
@@ -146,7 +146,7 @@ void go_kick(CharData *ch, CharData *vict) {
 		}
 		if (result.CritLuck && !ch->IsOnHorse()) {
 			dam *= 2;
-			if (!MOB_FLAGGED(vict, EMobFlag::kNoBash)) {
+			if (!vict->IsFlagged(EMobFlag::kNoBash)) {
 				if (vict->GetPosition() > EPosition::kSit) {
 					vict->SetPosition(EPosition::kSit);
 					SetWaitState(vict, 2 * kBattleRound);

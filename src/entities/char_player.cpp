@@ -465,7 +465,7 @@ void Player::save_char() {
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
 	// флаги
 	*buf = '\0';
-	PLR_FLAGS(this).tascii(4, buf);
+	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
@@ -510,7 +510,7 @@ void Player::save_char() {
 	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
-	AFF_FLAGS(this).tascii(4, buf);
+	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -667,31 +667,31 @@ void Player::save_char() {
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	PRF_FLAGS(this).tascii(4, buf);
+	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
-	if (MUTE_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kMuted))
+	if (MUTE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kMuted))
 		fprintf(saved,
 				"PMut: %ld %d %ld %s~\n",
 				MUTE_DURATION(this),
 				GET_MUTE_LEV(this),
 				MUTE_GODID(this),
 				MUTE_REASON(this));
-	if (NAME_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kNameDenied))
+	if (NAME_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kNameDenied))
 		fprintf(saved,
 				"PNam: %ld %d %ld %s~\n",
 				NAME_DURATION(this),
 				GET_NAME_LEV(this),
 				NAME_GODID(this),
 				NAME_REASON(this));
-	if (DUMB_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kDumbed))
+	if (DUMB_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kDumbed))
 		fprintf(saved,
 				"PDum: %ld %d %ld %s~\n",
 				DUMB_DURATION(this),
 				GET_DUMB_LEV(this),
 				DUMB_GODID(this),
 				DUMB_REASON(this));
-	if (HELL_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kHelled))
+	if (HELL_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kHelled))
 		fprintf(saved,
 				"PHel: %ld %d %ld %s~\n",
 				HELL_DURATION(this),
@@ -705,7 +705,7 @@ void Player::save_char() {
 				GET_GCURSE_LEV(this),
 				GCURSE_GODID(this),
 				GCURSE_REASON(this));
-	if (FREEZE_DURATION(this) > 0 && PLR_FLAGGED(this, EPlrFlag::kFrozen))
+	if (FREEZE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kFrozen))
 		fprintf(saved,
 				"PFrz: %ld %d %ld %s~\n",
 				FREEZE_DURATION(this),
@@ -985,7 +985,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_remort(0);
 	GET_LASTIP(this)[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	PLR_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 
@@ -1011,7 +1011,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		switch (*tag) {
 			case 'A':
 				if (!strcmp(tag, "Act ")) {
-					PLR_FLAGS(this).from_string(line);
+					char_specials.saved.act.from_string(line);
 				}
 				break;
 			case 'C':
@@ -1222,7 +1222,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	GET_COND(this, THIRST) = kNormCondition;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
-	PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	this->player_specials->saved.pref.from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	AFF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 
 	EXCHANGE_FILTER(this) = nullptr;
@@ -1592,7 +1592,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "PfOt"))
 					POOFOUT(this) = str_dup(line);
 				else if (!strcmp(tag, "Pref")) {
-					PRF_FLAGS(this).from_string(line);
+					this->player_specials->saved.pref.from_string(line);
 				} else if (!strcmp(tag, "Pkil")) {
 					do {
 						if (!fbgetline(fl, line))
@@ -1876,7 +1876,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
 	}
-	PRF_FLAGS(this).set(EPrf::kColor2); //всегда цвет полный
+	this->SetFlag(EPrf::kColor2); //всегда цвет полный
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);

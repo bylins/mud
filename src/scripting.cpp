@@ -1124,7 +1124,7 @@ void flag_toggle(FLAG_DATA &flag, const unsigned f) {
 str flag_str(const FLAG_DATA &flag) {
 	char buf[MAX_STRING_LENGTH];
 	*buf = '\0';
-	flag.tascii(4, buf);
+	flag.tascii(FlagData::kPlanesNumber, buf);
 	return str(buf);
 }
 

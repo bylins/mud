@@ -844,7 +844,7 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 	  || IS_GRGOD(ch)
 	  || !ROOM_FLAGGED(room, ERoomFlag::kHouse)
 	  || clan->entranceMode
-	  || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	  || ch->IsFlagged(EPrf::kCoderinfo)) {
 	return true;
   }
 
@@ -1145,7 +1145,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 	return;
   }
 
-  if (PRF_FLAGGED(d->character, EPrf::kCoderinfo) || (GetRealLevel(d->character) >= kLvlGod)) {
+  if (d->character->IsFlagged(EPrf::kCoderinfo) || (GetRealLevel(d->character) >= kLvlGod)) {
 	SendMsgToChar("Вы не можете приписать этого игрока.\r\n", ch);
 	return;
   }
@@ -1446,7 +1446,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 	return;
   }
 
-  if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+  if (ch->IsFlagged(EPlrFlag::kDumbed)) {
 	SendMsgToChar("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 	return;
   }
@@ -1632,7 +1632,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	for (d = descriptor_list; d; d = d->next) {
 	  if (d->character
 		  && STATE(d) == CON_PLAYING
-		  && PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
+		  && d->character->IsFlagged(EPrf::kPolitMode)) {
 		if (CLAN(d->character) == *vict) {
 		  SendMsgToChar(d->character.get(), "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n",
 						CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
@@ -1643,7 +1643,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	  }
 	}
 
-	if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) // а то сам может не увидеть нафик
+	if (!ch->IsFlagged(EPrf::kPolitMode)) // а то сам может не увидеть нафик
 	{
 	  SendMsgToChar(ch, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n",
 					CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
@@ -1661,7 +1661,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	for (d = descriptor_list; d; d = d->next) {
 	  if (d->character
 		  && STATE(d) == CON_PLAYING
-		  && PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
+		  && d->character->IsFlagged(EPrf::kPolitMode)) {
 		if (CLAN(d->character) == *vict) {
 		  SendMsgToChar(d->character.get(),
 						"%sДружина %s объявила вашей дружине войну!%s\r\n",
@@ -1678,7 +1678,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	  }
 	}
 
-	if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) {
+	if (!ch->IsFlagged(EPrf::kPolitMode)) {
 	  SendMsgToChar(ch,
 					"%sВаша дружина объявила дружине %s войну!%s\r\n",
 					CCIRED(ch, C_NRM),
@@ -1696,7 +1696,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 
 	// тож самое
 	for (d = descriptor_list; d; d = d->next) {
-	  if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, EPrf::kPolitMode)) {
+	  if (d->character && STATE(d) == CON_PLAYING && d->character->IsFlagged(EPrf::kPolitMode)) {
 		if (CLAN(d->character) == *vict) {
 		  SendMsgToChar(d->character.get(),
 						"%sДружина %s заключила с вашей дружиной альянс!%s\r\n",
@@ -1713,7 +1713,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 	  }
 	}
 
-	if (!PRF_FLAGGED(ch, EPrf::kPolitMode)) {
+	if (!ch->IsFlagged(EPrf::kPolitMode)) {
 	  SendMsgToChar(ch, "%sВаша дружина заключила альянс с дружиной %s!%s\r\n",
 					CCGRN(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 	}
@@ -1833,7 +1833,7 @@ void Clan::hcontrol_rank(CharData *ch, std::string &text) {
 * \param text - число последних месяцев, если пустая строка - 0 (только текущий месяц).
 */
 void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
-  if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+  if (!ch->IsFlagged(EPrf::kCoderinfo)) {
 	SendMsgToChar(HCONTROL_FORMAT, ch);
 	return;
   }
@@ -1861,7 +1861,7 @@ void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
 }
 
 void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
-  if (!PRF_FLAGGED(ch, EPrf::kCoderinfo) || !IS_IMPL(ch)) {
+  if (!ch->IsFlagged(EPrf::kCoderinfo) || !IS_IMPL(ch)) {
 	SendMsgToChar(HCONTROL_FORMAT, ch);
 	return;
   }
@@ -2210,7 +2210,7 @@ bool check_online_state(long uid) {
 void print_pkl(CharData *ch, std::ostringstream &stream, ClanPkList::const_iterator &it) {
   static char timeBuf[11];
 
-  if (PRF_FLAGGED(ch, EPrf::kPkFormatMode))
+  if (ch->IsFlagged(EPrf::kPkFormatMode))
 	stream << it->second->victimName << " : " << it->second->text << "\n";
   else {
 	strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
@@ -2304,7 +2304,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		  && !AFF_FLAGGED(d->character, EAffect::kDeafness)
 		  && CLAN(d->character)
 		  && CLAN(d->character) == CLAN(ch)
-		  && PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
+		  && d->character->IsFlagged(EPrf::kTakeMode)) {
 		SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
 					  CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
 					  obj->get_PName(3).c_str(),
@@ -2313,7 +2313,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	  }
 	}
 
-	if (!PRF_FLAGGED(ch, EPrf::kDecayMode)) {
+	if (!ch->IsFlagged(EPrf::kDecayMode)) {
 	  act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
 	}
 
@@ -2350,7 +2350,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		  && !AFF_FLAGGED(d->character, EAffect::kDeafness)
 		  && CLAN(d->character)
 		  && CLAN(d->character) == CLAN(ch)
-		  && PRF_FLAGGED(d->character, EPrf::kTakeMode)) {
+		  && d->character->IsFlagged(EPrf::kTakeMode)) {
 		SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
 					  CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
 					  obj->get_PName(3).c_str(),
@@ -2359,7 +2359,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	  }
 	}
 
-	if (!PRF_FLAGGED(ch, EPrf::kTakeMode)) {
+	if (!ch->IsFlagged(EPrf::kTakeMode)) {
 	  act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
 	}
 	CLAN(ch)->chest_objcount--;
@@ -3891,21 +3891,21 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 	return;
   }
   if (CompareParam(buffer, "нет")) {
-	PRF_FLAGS(ch).unset(EPrf::kDecayMode);
-	PRF_FLAGS(ch).unset(EPrf::kTakeMode);
+	ch->UnsetFlag(EPrf::kDecayMode);
+	ch->UnsetFlag(EPrf::kTakeMode);
 	SendMsgToChar("Ладушки.\r\n", ch);
   } else if (CompareParam(buffer, "рассыпание")) {
-	PRF_FLAGS(ch).set(EPrf::kDecayMode);
-	PRF_FLAGS(ch).unset(EPrf::kTakeMode);
+	ch->SetFlag(EPrf::kDecayMode);
+	ch->UnsetFlag(EPrf::kTakeMode);
 	SendMsgToChar("Ладушки.\r\n", ch);
   } else if (CompareParam(buffer, "изменение")) {
-	PRF_FLAGS(ch).unset(EPrf::kDecayMode);
-	PRF_FLAGS(ch).set(EPrf::kTakeMode);
+	ch->UnsetFlag(EPrf::kDecayMode);
+	ch->SetFlag(EPrf::kTakeMode);
 	SendMsgToChar("Ладушки.\r\n", ch);
   } else if (CompareParam(buffer, "полный")) {
 
-	PRF_FLAGS(ch).set(EPrf::kDecayMode);
-	PRF_FLAGS(ch).set(EPrf::kTakeMode);
+	ch->SetFlag(EPrf::kDecayMode);
+	ch->SetFlag(EPrf::kTakeMode);
 	SendMsgToChar("Ладушки.\r\n", ch);
   } else {
 	SendMsgToChar("Задается режим оповещения об изменениях в хранилище дружины.\r\n"
@@ -3920,12 +3920,12 @@ void SetChestMode(CharData *ch, std::string &buffer) {
 
 // шоб не засорять в режиме, а выдать строку сразу
 std::string GetChestMode(CharData *ch) {
-  if (PRF_FLAGGED(ch, EPrf::kDecayMode)) {
-	if (PRF_FLAGGED(ch, EPrf::kTakeMode))
+  if (ch->IsFlagged(EPrf::kDecayMode)) {
+	if (ch->IsFlagged(EPrf::kTakeMode))
 	  return "полный";
 	else
 	  return "рассыпание";
-  } else if (PRF_FLAGGED(ch, EPrf::kTakeMode))
+  } else if (ch->IsFlagged(EPrf::kTakeMode))
 	return "изменение";
   else
 	return "выкл";
@@ -4012,7 +4012,7 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 		&& d->character.get() != ch
 		&& STATE(d) == CON_PLAYING
 		&& CLAN(d->character) == CLAN(ch)
-		&& PRF_FLAGGED(d->character, EPrf::kClanmembersMode)) {
+		&& d->character->IsFlagged(EPrf::kClanmembersMode)) {
 	  if (enter) {
 		SendMsgToChar(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
 					  CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
@@ -4828,7 +4828,7 @@ void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// ограничения на клан-канал не канают на любое звание, если это БОГ
 	if (!IS_IMMORTAL(ch)
 		&& (!(CLAN(ch))->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHANNEL]
-			|| PLR_FLAGGED(ch, EPlrFlag::kDumbed))) {
+			|| ch->IsFlagged(EPlrFlag::kDumbed))) {
 	  SendMsgToChar("Вы не можете пользоваться каналом дружины.\r\n", ch);
 	  return;
 	}
@@ -4905,7 +4905,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& CLAN(d->character)
 		&& CAN_SEE_CHAR(ch, d->character)
 		&& !IS_IMMORTAL(d->character)
-		&& !PRF_FLAGGED(d->character, EPrf::kCoderinfo)
+		&& !d->character->IsFlagged(EPrf::kCoderinfo)
 		&& (all || CLAN(d->character) == *clan)) {
 	  temp_list.push_back(d->character);
 	}
@@ -4926,7 +4926,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 																	  : (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num]),
 							 CCPK(ch, C_NRM, it), (it)->noclan_title(),
 							 CCNRM(ch, C_NRM), CCIRED(ch, C_NRM),
-							 (PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
+							 (it->IsFlagged(EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
 							 CCNRM(ch, C_NRM));
 	}
   }
@@ -4945,7 +4945,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		  buffer2 << fmt::format(fmt::runtime(memberFormat), (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num],
 								 CCPK(ch, C_NRM, it), it->noclan_title(),
 								 CCNRM(ch, C_NRM), CCIRED(ch, C_NRM),
-								 (PLR_FLAGGED(it, EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
+								 (it->IsFlagged(EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
 								 CCNRM(ch, C_NRM));
 		}
 	  }
@@ -5077,7 +5077,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	  CLAN(ch)->frList[unique] = tempRecord;
 
 	DescriptorData *d = DescriptorByUid(unique);
-	if (d && PRF_FLAGGED(d->character, EPrf::kPklMode)) {
+	if (d && d->character->IsFlagged(EPrf::kPklMode)) {
 	  if (!subcmd) {
 		SendMsgToChar(d->character.get(),
 					  "%sДружина '%s' добавила вас в список своих врагов!%s\r\n",
@@ -5154,7 +5154,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	  SendMsgToChar("Запись удалена.\r\n", ch);
 	  DescriptorData *d;
 	  if ((d = DescriptorByUid(unique))
-		  && PRF_FLAGGED(d->character, EPrf::kPklMode)) {
+		  && d->character->IsFlagged(EPrf::kPklMode)) {
 		if (!subcmd) {
 		  SendMsgToChar(d->character.get(),
 						"%sДружина '%s' удалила вас из списка своих врагов!%s\r\n",

@@ -16,6 +16,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 void SetScreen(CharData *ch, char *argument, int flag);
 void setNotifyEchange(CharData *ch, char *argument);
 void set_autoloot_mode(CharData *ch, char *argument);
+bool TogglePrfFlag(CharData *ch, EPrf flag);
 
 const char *gen_tog_type[] = {"автовыходы", "autoexits",
 							  "краткий", "brief",
@@ -297,67 +298,67 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	switch (subcmd) {
-		case SCMD_NOSUMMON: result = PRF_TOG_CHK(ch, EPrf::KSummonable);
+		case SCMD_NOSUMMON: result = TogglePrfFlag(ch, EPrf::KSummonable);
 			break;
-		case SCMD_NOHASSLE: result = PRF_TOG_CHK(ch, EPrf::kNohassle);
+		case SCMD_NOHASSLE: result = TogglePrfFlag(ch, EPrf::kNohassle);
 			break;
-		case SCMD_BRIEF: result = PRF_TOG_CHK(ch, EPrf::kBrief);
+		case SCMD_BRIEF: result = TogglePrfFlag(ch, EPrf::kBrief);
 			break;
-		case SCMD_COMPACT: result = PRF_TOG_CHK(ch, EPrf::kCompact);
+		case SCMD_COMPACT: result = TogglePrfFlag(ch, EPrf::kCompact);
 			break;
-		case SCMD_NOTELL: result = PRF_TOG_CHK(ch, EPrf::kNoTell);
+		case SCMD_NOTELL: result = TogglePrfFlag(ch, EPrf::kNoTell);
 			break;
-		case SCMD_NOAUCTION: result = PRF_TOG_CHK(ch, EPrf::kNoAuction);
+		case SCMD_NOAUCTION: result = TogglePrfFlag(ch, EPrf::kNoAuction);
 			break;
-		case SCMD_NOHOLLER: result = PRF_TOG_CHK(ch, EPrf::kNoHoller);
+		case SCMD_NOHOLLER: result = TogglePrfFlag(ch, EPrf::kNoHoller);
 			break;
-		case SCMD_NOGOSSIP: result = PRF_TOG_CHK(ch, EPrf::kNoGossip);
+		case SCMD_NOGOSSIP: result = TogglePrfFlag(ch, EPrf::kNoGossip);
 			break;
-		case SCMD_NOSHOUT: result = PRF_TOG_CHK(ch, EPrf::kNoShout);
+		case SCMD_NOSHOUT: result = TogglePrfFlag(ch, EPrf::kNoShout);
 			break;
-		case SCMD_NOGRATZ: result = PRF_TOG_CHK(ch, EPrf::kNoGossip);
+		case SCMD_NOGRATZ: result = TogglePrfFlag(ch, EPrf::kNoGossip);
 			break;
-		case SCMD_NOWIZ: result = PRF_TOG_CHK(ch, EPrf::kNoWiz);
+		case SCMD_NOWIZ: result = TogglePrfFlag(ch, EPrf::kNoWiz);
 			break;
-		case SCMD_QUEST: result = PRF_TOG_CHK(ch, EPrf::kQuest);
+		case SCMD_QUEST: result = TogglePrfFlag(ch, EPrf::kQuest);
 			break;
-		case SCMD_ROOMFLAGS: result = PRF_TOG_CHK(ch, EPrf::kRoomFlags);
+		case SCMD_ROOMFLAGS: result = TogglePrfFlag(ch, EPrf::kRoomFlags);
 			break;
-		case SCMD_NOREPEAT: result = PRF_TOG_CHK(ch, EPrf::kNoRepeat);
+		case SCMD_NOREPEAT: result = TogglePrfFlag(ch, EPrf::kNoRepeat);
 			break;
-		case SCMD_HOLYLIGHT: result = PRF_TOG_CHK(ch, EPrf::kHolylight);
+		case SCMD_HOLYLIGHT: result = TogglePrfFlag(ch, EPrf::kHolylight);
 			break;
 		case SCMD_SLOWNS: result = (nameserver_is_slow = !nameserver_is_slow);
 			break;
 		case SCMD_AUTOEXIT:
-			if (PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
+			if (ch->IsFlagged(EPlrFlag::kScriptWriter)) {
 				SendMsgToChar("Скриптерам запрещено видеть автовыходы.\r\n", ch);
 				return;
 			}
-			result = PRF_TOG_CHK(ch, EPrf::kAutoexit);
+			result = TogglePrfFlag(ch, EPrf::kAutoexit);
 			break;
-		case SCMD_CODERINFO: result = PRF_TOG_CHK(ch, EPrf::kCoderinfo);
+		case SCMD_CODERINFO: result = TogglePrfFlag(ch, EPrf::kCoderinfo);
 			break;
-		case SCMD_AUTOMEM: result = PRF_TOG_CHK(ch, EPrf::kAutomem);
+		case SCMD_AUTOMEM: result = TogglePrfFlag(ch, EPrf::kAutomem);
 			break;
-		case SCMD_SDEMIGOD: result = PRF_TOG_CHK(ch, EPrf::kDemigodChat);
+		case SCMD_SDEMIGOD: result = TogglePrfFlag(ch, EPrf::kDemigodChat);
 			break;
 		case SCMD_BLIND: break;
 		case SCMD_MAPPER:
-			if (PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
+			if (ch->IsFlagged(EPlrFlag::kScriptWriter)) {
 				SendMsgToChar("Скриптерам запрещено видеть vnum комнаты.\r\n", ch);
 				return;
 			}
-			result = PRF_TOG_CHK(ch, EPrf::kMapper);
+			result = TogglePrfFlag(ch, EPrf::kMapper);
 			break;
 		case SCMD_TESTER:
 			//if (GET_GOD_FLAG(ch, EGodFlag::TESTER))
 			//{
-			result = PRF_TOG_CHK(ch, EPrf::kTester);
+			result = TogglePrfFlag(ch, EPrf::kTester);
 			//return;
 			//}
 			break;
-		case SCMD_IPCONTROL: result = PRF_TOG_CHK(ch, EPrf::kIpControl);
+		case SCMD_IPCONTROL: result = TogglePrfFlag(ch, EPrf::kIpControl);
 			break;
 #if defined(HAVE_ZLIB)
 		case SCMD_COMPRESS: result = toggle_compression(ch->desc);
@@ -367,25 +368,25 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				SendMsgToChar("Compression not supported.\r\n", ch);
 				return;
 #endif
-		case SCMD_GOAHEAD: result = PRF_TOG_CHK(ch, EPrf::kGoAhead);
+		case SCMD_GOAHEAD: result = TogglePrfFlag(ch, EPrf::kGoAhead);
 			break;
-		case SCMD_SHOWGROUP: result = PRF_TOG_CHK(ch, EPrf::kShowGroup);
+		case SCMD_SHOWGROUP: result = TogglePrfFlag(ch, EPrf::kShowGroup);
 			break;
-		case SCMD_AUTOASSIST: result = PRF_TOG_CHK(ch, EPrf::kAutoassist);
+		case SCMD_AUTOASSIST: result = TogglePrfFlag(ch, EPrf::kAutoassist);
 			break;
 		case SCMD_AUTOLOOT: set_autoloot_mode(ch, argument);
 			return;
-		case SCMD_AUTOSPLIT: result = PRF_TOG_CHK(ch, EPrf::kAutosplit);
+		case SCMD_AUTOSPLIT: result = TogglePrfFlag(ch, EPrf::kAutosplit);
 			break;
-		case SCMD_AUTOMONEY: result = PRF_TOG_CHK(ch, EPrf::kAutomoney);
+		case SCMD_AUTOMONEY: result = TogglePrfFlag(ch, EPrf::kAutomoney);
 			break;
-		case SCMD_NOARENA: result = PRF_TOG_CHK(ch, EPrf::kNoArena);
+		case SCMD_NOARENA: result = TogglePrfFlag(ch, EPrf::kNoArena);
 			break;
-		case SCMD_NOEXCHANGE: result = PRF_TOG_CHK(ch, EPrf::kNoExchange);
+		case SCMD_NOEXCHANGE: result = TogglePrfFlag(ch, EPrf::kNoExchange);
 			break;
-		case SCMD_NOCLONES: result = PRF_TOG_CHK(ch, EPrf::kNoClones);
+		case SCMD_NOCLONES: result = TogglePrfFlag(ch, EPrf::kNoClones);
 			break;
-		case SCMD_NOINVISTELL: result = PRF_TOG_CHK(ch, EPrf::kNoInvistell);
+		case SCMD_NOINVISTELL: result = TogglePrfFlag(ch, EPrf::kNoInvistell);
 			break;
 		case SCMD_LENGTH: SetScreen(ch, argument, 0);
 			return;
@@ -393,28 +394,28 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		case SCMD_SCREEN: SetScreen(ch, argument, 2);
 			return;
-		case SCMD_NEWS_MODE: result = PRF_TOG_CHK(ch, EPrf::kNewsMode);
+		case SCMD_NEWS_MODE: result = TogglePrfFlag(ch, EPrf::kNewsMode);
 			break;
-		case SCMD_BOARD_MODE: result = PRF_TOG_CHK(ch, EPrf::kBoardMode);
+		case SCMD_BOARD_MODE: result = TogglePrfFlag(ch, EPrf::kBoardMode);
 			break;
 		case SCMD_CHEST_MODE: {
 			std::string buffer = argument;
 			SetChestMode(ch, buffer);
 			break;
 		}
-		case SCMD_PKL_MODE: result = PRF_TOG_CHK(ch, EPrf::kPklMode);
+		case SCMD_PKL_MODE: result = TogglePrfFlag(ch, EPrf::kPklMode);
 			break;
-		case SCMD_POLIT_MODE: result = PRF_TOG_CHK(ch, EPrf::kPolitMode);
+		case SCMD_POLIT_MODE: result = TogglePrfFlag(ch, EPrf::kPolitMode);
 			break;
-		case SCMD_PKFORMAT_MODE: result = PRF_TOG_CHK(ch, EPrf::kPkFormatMode);
+		case SCMD_PKFORMAT_MODE: result = TogglePrfFlag(ch, EPrf::kPkFormatMode);
 			break;
-		case SCMD_WORKMATE_MODE: result = PRF_TOG_CHK(ch, EPrf::kClanmembersMode);
+		case SCMD_WORKMATE_MODE: result = TogglePrfFlag(ch, EPrf::kClanmembersMode);
 			break;
-		case SCMD_OFFTOP_MODE: result = PRF_TOG_CHK(ch, EPrf::kOfftopMode);
+		case SCMD_OFFTOP_MODE: result = TogglePrfFlag(ch, EPrf::kOfftopMode);
 			break;
-		case SCMD_ANTIDC_MODE: result = PRF_TOG_CHK(ch, EPrf::kAntiDcMode);
+		case SCMD_ANTIDC_MODE: result = TogglePrfFlag(ch, EPrf::kAntiDcMode);
 			break;
-		case SCMD_NOINGR_MODE: result = PRF_TOG_CHK(ch, EPrf::kNoIngrMode);
+		case SCMD_NOINGR_MODE: result = TogglePrfFlag(ch, EPrf::kNoIngrMode);
 			break;
 		case SCMD_REMEMBER: {
 			skip_spaces(&argument);
@@ -438,20 +439,20 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		case SCMD_DRAW_MAP: {
-			if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+			if (ch->IsFlagged(EPrf::kBlindMode)) {
 				SendMsgToChar("В режиме слепого игрока карта недоступна.\r\n", ch);
 				return;
 			}
-			result = PRF_TOG_CHK(ch, EPrf::kDrawMap);
+			result = TogglePrfFlag(ch, EPrf::kDrawMap);
 			break;
 		}
-		case SCMD_ENTER_ZONE: result = PRF_TOG_CHK(ch, EPrf::kShowZoneNameOnEnter);
+		case SCMD_ENTER_ZONE: result = TogglePrfFlag(ch, EPrf::kShowZoneNameOnEnter);
 			break;
-		case SCMD_MISPRINT: result = PRF_TOG_CHK(ch, EPrf::kShowUnread);
+		case SCMD_MISPRINT: result = TogglePrfFlag(ch, EPrf::kShowUnread);
 			break;
-		case SCMD_BRIEF_SHIELDS: result = PRF_TOG_CHK(ch, EPrf::kBriefShields);
+		case SCMD_BRIEF_SHIELDS: result = TogglePrfFlag(ch, EPrf::kBriefShields);
 			break;
-		case SCMD_AUTO_NOSUMMON: result = PRF_TOG_CHK(ch, EPrf::kAutonosummon);
+		case SCMD_AUTO_NOSUMMON: result = TogglePrfFlag(ch, EPrf::kAutonosummon);
 			break;
 		default: SendMsgToChar(ch, "Введите параметр режима полностью.\r\n");
 //		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
@@ -523,26 +524,32 @@ void set_autoloot_mode(CharData *ch, char *argument) {
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		if (PRF_TOG_CHK(ch, EPrf::kAutoloot)) {
-			SendMsgToChar(PRF_FLAGGED(ch, EPrf::kNoIngrLoot) ? message_no_ingr : message_on, ch);
+		if (TogglePrfFlag(ch, EPrf::kAutoloot)) {
+			SendMsgToChar(ch->IsFlagged(EPrf::kNoIngrLoot) ? message_no_ingr : message_on, ch);
 		} else {
 			SendMsgToChar(message_off, ch);
 		}
 	} else if (utils::IsAbbr(argument, "все")) {
-		PRF_FLAGS(ch).set(EPrf::kAutoloot);
-		PRF_FLAGS(ch).unset(EPrf::kNoIngrLoot);
+		ch->SetFlag(EPrf::kAutoloot);
+		ch->UnsetFlag(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_on, ch);
 	} else if (utils::IsAbbr(argument, "ингредиенты")) {
-		PRF_FLAGS(ch).set(EPrf::kAutoloot);
-		PRF_FLAGS(ch).set(EPrf::kNoIngrLoot);
+		ch->SetFlag(EPrf::kAutoloot);
+		ch->SetFlag(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_no_ingr, ch);
 	} else if (utils::IsAbbr(argument, "нет")) {
-		PRF_FLAGS(ch).unset(EPrf::kAutoloot);
-		PRF_FLAGS(ch).unset(EPrf::kNoIngrLoot);
+		ch->UnsetFlag(EPrf::kAutoloot);
+		ch->UnsetFlag(EPrf::kNoIngrLoot);
 		SendMsgToChar(message_off, ch);
 	} else {
 		SendMsgToChar("Формат команды: режим автограбеж <без-параметров|все|ингредиенты|нет>\r\n", ch);
 	}
+}
+
+bool TogglePrfFlag(CharData *ch, EPrf flag) {
+	const auto flagged = ch->IsFlagged(flag);
+	ch->IsFlagged(flag) ? ch->UnsetFlag(flag) : ch->SetFlag(flag);
+	return (!flagged);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

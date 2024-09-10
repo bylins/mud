@@ -35,7 +35,7 @@ int CalcHitroll(CharData *ch);
 int CalcAntiSavings(CharData *ch);
 int calc_initiative(CharData *ch, bool mode);
 TimeInfoData *real_time_passed(time_t t2, time_t t1);
-void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
+void GetClassWeaponMod(ECharClass class_id, ESkill skill, int *damroll, int *hitroll);
 
 const char *ac_text[] =
 	{
@@ -160,10 +160,10 @@ void PrintScoreList(CharData *ch) {
 				  MIN(GET_RESIST(ch, EResist::kMind), 75),
 				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
-			-CalcSaving(ch, ch, ESaving::kWill, 0),
-			-CalcSaving(ch, ch, ESaving::kCritical, 0),
-			-CalcSaving(ch, ch, ESaving::kStability, 0),
-			-CalcSaving(ch, ch, ESaving::kReflex, 0),
+			-CalcSaving(ch, ch, ESaving::kWill, false),
+			-CalcSaving(ch, ch, ESaving::kCritical, false),
+			-CalcSaving(ch, ch, ESaving::kStability, false),
+			-CalcSaving(ch, ch, ESaving::kReflex, false),
 			GET_MR(ch),
 			GET_PR(ch),
 			GET_AR(ch));
@@ -191,7 +191,7 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
 		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
-	if (PRF_FLAGGED(ch, EPrf::KSummonable))
+	if (ch->IsFlagged(EPrf::KSummonable))
 		SendMsgToChar(ch, "Вы можете быть призваны.\r\n");
 	else
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
@@ -238,7 +238,7 @@ void PrintScoreList(CharData *ch) {
 const std::string &InfoStrPrefix(CharData *ch) {
 	static const std::string cyan_star{KICYN " * " KNRM};
 	static const std::string space_str;
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		return space_str;
 	} else {
 		return cyan_star;
@@ -295,7 +295,7 @@ void PrintNameStatusInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintSummonableInfo(CharData *ch, std::ostringstream &out) {
-	if (PRF_FLAGGED(ch, EPrf::KSummonable)) {
+	if (ch->IsFlagged(EPrf::KSummonable)) {
 		out << InfoStrPrefix(ch) << KIYEL << "Вы можете быть призваны." << KNRM << "\r\n";
 	} else {
 		out << InfoStrPrefix(ch) << "Вы защищены от призыва." << "\r\n";
@@ -316,7 +316,7 @@ void PrintExpTaxInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintBlindModeInfo(CharData *ch, std::ostringstream &out) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		out << InfoStrPrefix(ch) << "Режим слепого игрока включен." << "\r\n";
 	}
 }
@@ -344,7 +344,7 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 		} else {
 			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << KNRM << "\r\n";
 		}
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
 		out << InfoStrPrefix(ch) << KIGRN << "Тут вы чувствуете себя в безопасности." << KNRM << "\r\n";
 	}
 }
@@ -389,7 +389,7 @@ struct ScorePunishmentInfo {
 	explicit ScorePunishmentInfo(CharData *ch)
 		: ch{ch} {};
 
-	void SetFInfo(Bitvector punish_flag, const Punish *punish_info) {
+	void SetFInfo(EPlrFlag punish_flag, const Punish *punish_info) {
 		flag = punish_flag;
 		punish = punish_info;
 	};
@@ -397,7 +397,7 @@ struct ScorePunishmentInfo {
 	CharData *ch{};
 	const Punish *punish{};
 	std::string msg;
-	Bitvector flag{};
+  	EPlrFlag flag{};
 };
 
 void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstream &out) {
@@ -419,7 +419,7 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 
 // \todo Место этого - в структурах, которые работают с наказаниями персонажа. Куда их и следует перенести.
 bool IsPunished(const ScorePunishmentInfo &info) {
-	return (PLR_FLAGGED(info.ch, info.flag)
+	return (info.ch->IsFlagged(info.flag)
 		&& info.punish->duration != 0
 		&& info.punish->duration > time(nullptr));
 }
@@ -473,7 +473,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 	 * персонаж НЕ наказан. Было бы разумнее ставить новым персонажам по умолчанию флаг unreg и снимать его при
 	 * регистрации, но увы.
 	 */
-	if (!PLR_FLAGGED(ch, EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
 		punish_info.punish = &ch->player_specials->punreg;
 		punish_info.msg = "Вы не сможете входить с одного IP еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -574,10 +574,10 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add);
 	table[++row][col] = "Инициатива";	table[row][col + 1] = std::to_string(calc_initiative(ch, false));
 	table[++row][col] = "Спас-броски:";	table[row][col + 1] = " ";
-	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kWill, 0));
-	table[++row][col] = "Здоровье";		table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kCritical, 0));
-	table[++row][col] = "Стойкость";	table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kStability, 0));
-	table[++row][col] = "Реакция";		table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kReflex, 0));
+	table[++row][col] = "Воля";			table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kWill, false));
+	table[++row][col] = "Здоровье";		table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kCritical, false));
+	table[++row][col] = "Стойкость";	table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kStability, false));
+	table[++row][col] = "Реакция";		table[row][col + 1] = std::to_string(-CalcSaving(ch, ch, ESaving::kReflex, false));
 
 	return 2; // заполнено столбцов
 }
@@ -636,7 +636,7 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintTesterModeInfo(CharData *ch, std::ostringstream &out) {
-	if (PRF_FLAGGED(ch, EPrf::kTester)) {
+	if (ch->IsFlagged(EPrf::kTester)) {
 		out << InfoStrPrefix(ch) << KICYN << "Включен режим тестирования." << KNRM << "\r\n";
 		PrintSelfHitrollInfo(ch, out);
 	}
@@ -768,7 +768,7 @@ void PrintScoreBase(CharData *ch) {
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d %c. ", GET_EXP(ch),
 			GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
 	if (GetRealLevel(ch) < kLvlImmortal) {
-		if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+		if (ch->IsFlagged(EPrf::kBlindMode)) {
 			sprintf(buf + strlen(buf), "\r\n");
 		}
 		sprintf(buf + strlen(buf),
@@ -852,7 +852,7 @@ void PrintScoreBase(CharData *ch) {
 	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	   strcat(buf,buf2);
 	 */
-	if (PRF_FLAGGED(ch, EPrf::KSummonable))
+	if (ch->IsFlagged(EPrf::KSummonable))
 		strcat(buf, "Вы можете быть призваны.\r\n");
 
 	if (ch->has_horse(false)) {
@@ -868,7 +868,7 @@ void PrintScoreBase(CharData *ch) {
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
-	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !PLR_FLAGGED(ch, EPlrFlag::kKiller)) {
+	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
 		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		SendMsgToChar(buf, ch);
 	}
@@ -892,7 +892,7 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (PLR_FLAGGED(ch, EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
+	if (ch->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
 		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf,
@@ -902,7 +902,7 @@ void PrintScoreBase(CharData *ch) {
 				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (PLR_FLAGGED(ch, EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
+	if (ch->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
 		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
@@ -910,7 +910,7 @@ void PrintScoreBase(CharData *ch) {
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (PLR_FLAGGED(ch, EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
+	if (ch->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
 		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
@@ -918,7 +918,7 @@ void PrintScoreBase(CharData *ch) {
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (PLR_FLAGGED(ch, EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
+	if (ch->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
 		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
@@ -927,7 +927,7 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (!PLR_FLAGGED(ch, EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
 		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
@@ -1043,16 +1043,16 @@ int CalcHitroll(CharData *ch) {
 		hr += str_bonus(GetRealStr(ch), STR_TO_HIT);
 	}
 	hr += GET_REAL_HR(ch) - GetThac0(ch->GetClass(), GetRealLevel(ch));
-	if (PRF_FLAGGED(ch, EPrf::kPerformPowerAttack)) {
+	if (ch->IsFlagged(EPrf::kPerformPowerAttack)) {
 		hr -= 2;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kPerformGreatPowerAttack)) {
+	if (ch->IsFlagged(EPrf::kPerformGreatPowerAttack)) {
 		hr -= 4;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kPerformAimingAttack)) {
+	if (ch->IsFlagged(EPrf::kPerformAimingAttack)) {
 		hr += 2;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kPerformGreatAimingAttack)) {
+	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
 	hr -= (ch->IsOnHorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);

@@ -303,7 +303,7 @@ int cast_potion(CharData *ch, ObjData *jar) {
 
 int do_drink_check(CharData *ch, ObjData *jar) {
 	//Проверка в бою?
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Не стоит отвлекаться в бою!\r\n", ch);
 		return 0;
 	}

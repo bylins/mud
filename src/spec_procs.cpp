@@ -91,7 +91,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
 		ch->remove_gold(kHorseCost);
-		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
+		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
 	}
 
@@ -122,7 +122,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		act(buf, false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
 		ch->add_gold((kHorseCost >> 1));
-		PLR_FLAGS(ch).set(EPlrFlag::kCrashSave);
+		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
 	}
 
@@ -192,7 +192,7 @@ int npc_scavenge(CharData *ch) {
 	int max = 1;
 	ObjData *obj, *best_obj, *cont, *best_cont, *cobj;
 
-	if (!MOB_FLAGGED(ch, EMobFlag::kScavenger)) {
+	if (!ch->IsFlagged(EMobFlag::kScavenger)) {
 		return (false);
 	}
 
@@ -287,7 +287,7 @@ int npc_loot(CharData *ch) {
 	int max = false;
 	ObjData *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
 
-	if (!MOB_FLAGGED(ch, EMobFlag::kLooter))
+	if (!ch->IsFlagged(EMobFlag::kLooter))
 		return (false);
 	if (IS_SHOPKEEPER(ch))
 		return (false);
@@ -428,7 +428,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
 			if (GetRealInt(ch) >= 15
 				|| GET_DEST(ch) != kNowhere
-				|| MOB_FLAGGED(ch, EMobFlag::kOpensDoor)) {
+				|| ch->IsFlagged(EMobFlag::kOpensDoor)) {
 				do_doorcmd(ch, 0, dir, kScmdOpen);
 				need_close = true;
 			}
@@ -754,7 +754,7 @@ int npc_battle_scavenge(CharData *ch) {
 	int max = false;
 	ObjData *obj, *next_obj = nullptr;
 
-	if (!MOB_FLAGGED(ch, EMobFlag::kScavenger))
+	if (!ch->IsFlagged(EMobFlag::kScavenger))
 		return (false);
 
 	if (IS_SHOPKEEPER(ch))
@@ -881,7 +881,7 @@ void npc_group(CharData *ch) {
 		return;
 
 	// ноугруп мобы не вступают в группу
-	if (MOB_FLAGGED(ch, EMobFlag::kNoGroup)) {
+	if (ch->IsFlagged(EMobFlag::kNoGroup)) {
 		return;
 	}
 
@@ -901,8 +901,7 @@ void npc_group(CharData *ch) {
 	}
 
 	// ноугруп моб не может быть лидером
-	if (leader
-		&& MOB_FLAGGED(leader, EMobFlag::kNoGroup)) {
+	if (leader && leader->IsFlagged(EMobFlag::kNoGroup)) {
 		leader = nullptr;
 	}
 
@@ -912,7 +911,7 @@ void npc_group(CharData *ch) {
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
 			|| group != GROUP(vict)
-			|| MOB_FLAGGED(vict, EMobFlag::kNoGroup)
+			|| vict->IsFlagged(EMobFlag::kNoGroup)
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
 			|| vict->GetPosition() < EPosition::kSleep) {
 			continue;
@@ -1285,7 +1284,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	evil = 0;
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->IsNpc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, EPlrFlag::kKiller)) {
+		if (!tch->IsNpc() && CAN_SEE(ch, tch) && tch->IsFlagged(EPlrFlag::kKiller)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -1294,7 +1293,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->IsNpc() && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, EPlrFlag::kBurglar)) {
+		if (!tch->IsNpc() && CAN_SEE(ch, tch) && tch->IsFlagged(EPlrFlag::kBurglar)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 

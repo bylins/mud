@@ -81,12 +81,12 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 
 bool RoomReporter::blockReport() const {
 	bool nomapper = true;
-	const auto blind = (PRF_FLAGGED(descriptor()->character, EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
+	const auto blind = (descriptor()->character->IsFlagged(EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
 	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
 		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
-	const auto scriptwriter = PLR_FLAGGED(descriptor()->character, EPlrFlag::kScriptWriter); // скриптеру не шлем
+	const auto scriptwriter = descriptor()->character->IsFlagged(EPlrFlag::kScriptWriter); // скриптеру не шлем
 
 	return blind || cannot_see_in_dark || scriptwriter || nomapper;
 }
@@ -158,9 +158,9 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 								const CharData *ch,
 								const CharData *character,
 								const bool leader) {
-	if (PRF_FLAGGED(ch, EPrf::kNoClones)
+	if (ch->IsFlagged(EPrf::kNoClones)
 		&& character->IsNpc()
-		&& (MOB_FLAGGED(character, EMobFlag::kClone)
+		&& (character->IsFlagged(EMobFlag::kClone)
 			|| GET_MOB_VNUM(character) == kMobKeeper)) {
 		return;
 	}
@@ -274,8 +274,8 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	for (auto f = master->followers; f; f = f->next) {
 		if (!AFF_FLAGGED(f->follower, EAffect::kGroup)
 			&& !(AFF_FLAGGED(f->follower, EAffect::kCharmed)
-				|| MOB_FLAGGED(f->follower, EMobFlag::kTutelar)
-				|| MOB_FLAGGED(f->follower, EMobFlag::kMentalShadow))) {
+				|| f->follower->IsFlagged(EMobFlag::kTutelar)
+				|| f->follower->IsFlagged(EMobFlag::kMentalShadow))) {
 			continue;
 		}
 
@@ -288,8 +288,8 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 
 		for (auto ff = f->follower->followers; ff; ff = ff->next) {
 			if (!(AFF_FLAGGED(ff->follower, EAffect::kCharmed)
-				|| MOB_FLAGGED(ff->follower, EMobFlag::kTutelar)
-				|| MOB_FLAGGED(ff->follower, EMobFlag::kMentalShadow))) {
+				|| ff->follower->IsFlagged(EMobFlag::kTutelar)
+				|| ff->follower->IsFlagged(EMobFlag::kMentalShadow))) {
 				continue;
 			}
 

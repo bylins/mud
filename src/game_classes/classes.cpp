@@ -1051,7 +1051,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone) {
-		PLR_FLAGS(ch).set(EPlrFlag::kSiteOk);
+		ch->SetFlag(EPlrFlag::kSiteOk);
 	}
 }
 
@@ -1065,7 +1065,7 @@ void check_max_hp(CharData *ch) {
 void levelup_events(CharData *ch) {
 	if (offtop_system::kMinOfftopLvl == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_OFFTOP_MESSAGE)) {
-		PRF_FLAGS(ch).set(EPrf::kOfftopMode);
+		ch->SetFlag(EPrf::kOfftopMode);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		SendMsgToChar(ch,
 					  "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
@@ -1116,7 +1116,7 @@ void advance_level(CharData *ch) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
-		PRF_FLAGS(ch).set(EPrf::kHolylight);
+		ch->SetFlag(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1153,7 +1153,7 @@ void decrease_level(CharData *ch) {
 
 	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, GET_REAL_MAX_HIT(ch)/2);
 	if (!IS_IMMORTAL(ch)) {
-		PRF_FLAGS(ch).unset(EPrf::kHolylight);
+		ch->UnsetFlag(EPrf::kHolylight);
 	}
 
 	TopPlayer::Refresh(ch);
@@ -1225,7 +1225,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kVigilant) && IS_VIGILANT(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMerchant) && IS_MERCHANT(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMagus) && IS_MAGUS(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kKiller) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kBattle) && check_agrobd(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kColored) && IS_COLORED(ch))) {
 		return (true);
@@ -1265,7 +1265,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_NO(obj, ENoFlag::kVigilant) && IS_VIGILANT(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kMerchant) && IS_MERCHANT(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::kMagus) && IS_MAGUS(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && PLR_FLAGGED(ch, EPlrFlag::kKiller))
+		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
 		|| (IS_OBJ_NO(obj, ENoFlag::kBattle) && check_agrobd(ch))
 		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
 		|| (IS_OBJ_NO(obj, ENoFlag::kColored) && IS_COLORED(ch))) {

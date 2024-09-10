@@ -447,7 +447,7 @@ std::string char_get_custom_label(ObjData *obj, CharData *ch) {
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
 const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how) {
 	*buf = '\0';
-	if ((mode < 5) && (PRF_FLAGGED(ch, EPrf::kRoomFlags) || InTestZone(ch)))
+	if ((mode < 5) && (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
 
 	if (mode == 0
@@ -1016,7 +1016,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
 		&& !IS_HORSE(i)) {
 		*buf = '\0';
-		if (PRF_FLAGGED(ch, EPrf::kRoomFlags) || InTestZone(ch)) {
+		if (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch)) {
 			sprintf(buf, "[%5d] ", GET_MOB_VNUM(i));
 		}
 
@@ -1157,7 +1157,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf1, "(под седлом) ");
 		CAP(buf1);
 	} else {
-		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
+		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
 	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
@@ -1169,7 +1169,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
 	if (!i->IsNpc() && !i->desc)
 		sprintf(buf + strlen(buf), "(потерял%s связь) ", GET_CH_SUF_1(i));
-	if (!i->IsNpc() && PLR_FLAGGED(i, EPlrFlag::kWriting))
+	if (!i->IsNpc() && i->IsFlagged(EPlrFlag::kWriting))
 		strcat(buf, "(пишет) ");
 
 	if (i->GetPosition() != EPosition::kFight) {
@@ -1419,7 +1419,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	*buf = '\0';
 	*buf2 = '\0';
 
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		do_blind_exits(ch);
 		return;
 	}
@@ -1438,7 +1438,7 @@ void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 					strcat(buf2, "слишком темно\r\n");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
+					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
 						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
@@ -1476,7 +1476,7 @@ void do_blind_exits(CharData *ch) {
 					strcat(buf2, "слишком темно");
 				else {
 					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
+					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
 						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
 					} else {
@@ -1772,7 +1772,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (msdp_mode) {
 		ch->desc->msdp_report("ROOM");
 	}
-	if (PRF_FLAGGED(ch, EPrf::kDrawMap) && !PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kDrawMap) && !ch->IsFlagged(EPrf::kBlindMode)) {
 		MapSystem::print_map(ch);
 	} else if (ch->desc->snoop_by
 		&& ch->desc->snoop_by->snoop_with_map
@@ -1782,7 +1782,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	SendMsgToChar(CCICYN(ch, C_NRM), ch);
 
-	if (!ch->IsNpc() && (PRF_FLAGGED(ch, EPrf::kRoomFlags) || InTestZone(ch))) {
+	if (!ch->IsNpc() && (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch))) {
 		// иммам рандомная * во флагах ломает мапер грят
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ERoomFlag::kBfsMark) ? true : false;
 		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
@@ -1795,7 +1795,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			world[ch->in_room]->set_flag(ERoomFlag::kBfsMark);
 		}
 	} else {
-		if (PRF_FLAGGED(ch, EPrf::kMapper) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)
+		if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
 			&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper)) {
 			RoomVnum rvn;
 			if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
@@ -1812,14 +1812,13 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	SendMsgToChar(CCNRM(ch, C_NRM), ch);
 	SendMsgToChar("\r\n", ch);
 
-	if (is_dark(ch->in_room) && !PRF_FLAGGED(ch, EPrf::kHolylight)) {
+	if (is_dark(ch->in_room) && !ch->IsFlagged(EPrf::kHolylight)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
-	} else if ((!ch->IsNpc() && !PRF_FLAGGED(ch, EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
+	} else if ((!ch->IsNpc() && !ch->IsFlagged(EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
-	// autoexits
-	if (!ch->IsNpc() && PRF_FLAGGED(ch, EPrf::kAutoexit) && !PLR_FLAGGED(ch, EPlrFlag::kScriptWriter)) {
+	if (ch->IsFlagged(EPrf::kAutoexit) && !ch->IsFlagged(EPlrFlag::kScriptWriter)) {
 		do_auto_exits(ch);
 	}
 
@@ -1916,7 +1915,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons) {
 				dungeons::SwapObjectDungeon(ch);
 			}
-			if (PRF_FLAGGED(ch, EPrf::kShowZoneNameOnEnter))
+			if (ch->IsFlagged(EPrf::kShowZoneNameOnEnter))
 				print_zone_info(ch);
 			if ((ch->GetLevel() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
@@ -2234,7 +2233,7 @@ const char *diag_liquid_timer(const ObjData *obj) {
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
-	if (CanUseFeat(ch, EFeat::kSkilledTrader) || PRF_FLAGGED(ch, EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
+	if (CanUseFeat(ch, EFeat::kSkilledTrader) || ch->IsFlagged(EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
 		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
 		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
@@ -2242,7 +2241,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
 		&& (CanUseFeat(ch, EFeat::kHerbalist)
-			|| PRF_FLAGGED(ch, EPrf::kHolylight))) {
+			|| ch->IsFlagged(EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 			j++;
 		}
@@ -3210,7 +3209,7 @@ void do_zone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
 		SendMsgToChar(ch, "Зазеркальный мир.\r\n");
 	}
-	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+	if ((IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		&& !zone_table[world[ch->in_room]->zone_rn].comment.empty()) {
 		SendMsgToChar(ch, "Комментарий: %s.\r\n", zone_table[world[ch->in_room]->zone_rn].comment.c_str());
 	}
