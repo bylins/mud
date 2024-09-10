@@ -441,7 +441,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
-#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && (ch)->IsFlagged(EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
@@ -870,7 +869,7 @@ const int kNameLevel = 5;
 #define IMM_CAN_SEE_CHAR(sub, obj) \
         (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && sub->IsFlagged(EPrf::kHolylight)))
 
-#define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
+#define CAN_SEE_CHAR(sub, obj) (SELF(sub, obj) || \
         ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
