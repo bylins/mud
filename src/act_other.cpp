@@ -184,7 +184,6 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	// для начала проверяем, есть ли вообще лошадь у чара
 	CharData *horse = nullptr;
 	horse = ch->get_horse();
 	if (!horse) {
@@ -192,8 +191,8 @@ void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->in_room == IN_ROOM(horse)) {
-		SendMsgToChar("Но ваш какун рядом с вами!\r\n", ch);
+	if (ch->in_room == horse->in_room) {
+		SendMsgToChar("Но ваш cкакун рядом с вами!\r\n", ch);
 		return;
 	}
 
@@ -475,7 +474,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena)) {
+	if (!IS_IMMORTAL(ch) && ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena)) {
 		SendMsgToChar("Воровство при поединке недопустимо.\r\n", ch);
 		return;
 	}
@@ -976,7 +975,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format("{}", color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)));
 		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
-		buffer << fmt::format(" {:^7} &n|", ch->in_room == IN_ROOM(k) ? "&gДа" : "&rНет");
+		buffer << fmt::format(" {:^7} &n|", ch->in_room == k->in_room ? "&gДа" : "&rНет");
 
 		// АФФЕКТЫ 
 		buffer << fmt::format(" {:<5}", generate_affects_string(k));
@@ -1005,7 +1004,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		buffer << fmt::format("{}", move_color);
 		buffer << fmt::format("{:^9}&n|", MOVE_STATE[posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) + 1]);
 
-		buffer << fmt::format(" {:^7} &n|", ch->in_room == IN_ROOM(k) ? "&gДа" : "&rНет");
+		buffer << fmt::format(" {:^7} &n|", ch->in_room == k->in_room ? "&gДа" : "&rНет");
 
 		buffer << fmt::format(" {:^5} &n|", generate_mem_string(k));
 		buffer << fmt::format(" {:<5}  &n|", generate_affects_string(k));
@@ -1393,7 +1392,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
 				&& !f->follower->IsNpc()
-				&& IN_ROOM(f->follower) == ch->in_room) {
+				&& f->follower->in_room == ch->in_room) {
 				num++;
 			}
 		}
@@ -1416,7 +1415,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
-		if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == ch->in_room && !k->IsNpc() && k != ch) {
+		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
 			switch (currency) {
 				case currency::ICE : {
@@ -1432,7 +1431,7 @@ void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int cur
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
 				&& !f->follower->IsNpc()
-				&& IN_ROOM(f->follower) == ch->in_room
+				&& f->follower->in_room == ch->in_room
 				&& f->follower != ch) {
 				SendMsgToChar(buf, f->follower);
 				switch (currency) {

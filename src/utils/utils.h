@@ -433,7 +433,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
@@ -841,8 +840,8 @@ const int kNameLevel = 5;
 #define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM((obj)->get_worn_by()) : \
-                        (obj)->get_carried_by() ? IN_ROOM((obj)->get_carried_by()) : (obj)->get_in_room())
+#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : \
+                        (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
 #define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
 #define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))

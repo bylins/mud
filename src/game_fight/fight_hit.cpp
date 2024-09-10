@@ -738,10 +738,10 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
 		}
-		if (!victim->IsNpc() && ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena))
+		if (!victim->IsNpc() && ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena))
 			PlaceObjToInventory(obj, victim);
 		else
-			PlaceObjToRoom(obj, IN_ROOM(victim));
+			PlaceObjToRoom(obj, victim->in_room);
 		CheckObjDecay(obj);
 	}
 	if (!victim->IsNpc()) {
@@ -1761,7 +1761,7 @@ void update_mob_memory(CharData *ch, CharData *victim) {
 			&& !ch->get_master()->IsNpc()) {
 			if (ch->IsFlagged(EMobFlag::kClone)) {
 				mobRemember(victim, ch->get_master());
-			} else if (IN_ROOM(ch->get_master()) == IN_ROOM(victim)
+			} else if (ch->get_master()->in_room == victim->in_room
 				&& CAN_SEE(victim, ch->get_master())) {
 				mobRemember(victim, ch->get_master());
 			}
@@ -1777,7 +1777,7 @@ void update_mob_memory(CharData *ch, CharData *victim) {
 			&& !victim->get_master()->IsNpc()) {
 			if (victim->IsFlagged(EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
-			} else if (IN_ROOM(victim->get_master()) == ch->in_room
+			} else if (victim->get_master()->in_room == ch->in_room
 				&& CAN_SEE(ch, victim->get_master())) {
 				mobRemember(ch, victim->get_master());
 			}
@@ -1805,7 +1805,7 @@ bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 		if (mg_damage > 0
 			&& victim->GetEnemy()
 			&& victim->GetPosition() > EPosition::kStun
-			&& IN_ROOM(victim) != kNowhere) {
+			&& victim->in_room != kNowhere) {
 			flags.set(fight::kDrawBriefMagMirror);
 			Damage dmg(SpellDmg(ESpell::kMagicGlass), mg_damage, fight::kUndefDmg);
 			dmg.flags.set(fight::kNoFleeDmg);
@@ -2011,7 +2011,7 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 		&& !victim->IsNpc()
 		&& AFF_FLAGGED(victim, EAffect::kGroup)) {
 		const auto people =
-			world[IN_ROOM(victim)]->people;    // make copy of people because keeper might be removed from this list inside the loop
+			world[victim->in_room]->people;    // make copy of people because keeper might be removed from this list inside the loop
 		for (const auto keeper : people) {
 			if (keeper->IsNpc()
 				&& keeper->IsFlagged(EMobFlag::kTutelar)
@@ -2047,14 +2047,14 @@ void try_angel_sacrifice(CharData *ch, CharData *victim) {
 void update_pk_logs(CharData *ch, CharData *victim) {
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
-			IN_ROOM(victim) != kNowhere ? world[IN_ROOM(victim)]->name : "kNowhere", GET_ROOM_VNUM(IN_ROOM(victim)));
+			victim->in_room != kNowhere ? world[victim->in_room]->name : "kNowhere", GET_ROOM_VNUM(victim->in_room));
 	mudlog(buf2, CMP, kLvlImmortal, SYSLOG, true);
 
 	if ((!ch->IsNpc()
 		|| (ch->has_master()
 			&& !ch->get_master()->IsNpc()))
 		&& NORENTABLE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+		&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, 0);
 		if (ch->IsNpc()
 			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
@@ -2115,16 +2115,16 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 	CharData *killer = nullptr;
 
 	if (victim->IsNpc() || victim->desc) {
-		if (victim == ch && IN_ROOM(victim) != kNowhere) {
+		if (victim == ch && victim->in_room != kNowhere) {
 			if (spell_id == ESpell::kPoison) {
-				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
+				for (const auto poisoner : world[victim->in_room]->people) {
 					if (poisoner != victim
 						&& GET_ID(poisoner) == victim->poisoner) {
 						killer = poisoner;
 					}
 				}
 			} else if (msg_num == kTypeSuffering) {
-				for (const auto attacker : world[IN_ROOM(victim)]->people) {
+				for (const auto attacker : world[victim->in_room]->people) {
 					if (attacker->GetEnemy() == victim) {
 						killer = attacker;
 					}
@@ -2151,13 +2151,10 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
 			// которые рядом с убившим моба чармисом.
 			if (AFF_FLAGGED(killer->get_master(), EAffect::kGroup)
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
+				&& killer->in_room == killer->get_master()->in_room) {
 				// Хозяин - PC в группе => опыт группе
 				group_gain(killer->get_master(), victim);
-			} else if (IN_ROOM(killer) == IN_ROOM(killer->get_master()))
-				// Чармис и хозяин в одной комнате
-				// Опыт хозяину
-			{
+			} else if (killer->in_room == killer->get_master()->in_room) {
 				perform_group_gain(killer->get_master(), victim, 1, 100);
 			}
 			// else
@@ -2315,7 +2312,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 
 	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
-			GET_NAME(victim), GET_ROOM_VNUM(IN_ROOM(victim)), GET_NAME(ch));
+			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
 		die(victim, nullptr);
 		return 0;
 	}
@@ -2663,7 +2660,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (fs_damage > 0
 		&& victim->GetEnemy()
 		&& victim->GetPosition() > EPosition::kStun
-		&& IN_ROOM(victim) != kNowhere) {
+		&& victim->in_room != kNowhere) {
 		Damage dmg(SpellDmg(ESpell::kFireShield), fs_damage, fight::kUndefDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kMagicReflect);
@@ -3614,7 +3611,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 	// Do some sanity checking, in case someone flees, etc.
-	if (ch->in_room != IN_ROOM(victim) || ch->in_room == kNowhere) {
+	if (ch->in_room != victim->in_room || ch->in_room == kNowhere) {
 		if (ch->GetEnemy() && ch->GetEnemy() == victim) {
 			stop_fighting(ch, true);
 		}
@@ -3645,7 +3642,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				const auto
 					people = world[ch->in_room]->people;    // make copy because inside loop this list might be changed.
 				for (const auto &tch : people) {
-					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || IN_ROOM(tch) == kNowhere)
+					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !same_group(ch, tch)) {
 						CastDamage(GetRealLevel(ch), ch, tch, spell_id);

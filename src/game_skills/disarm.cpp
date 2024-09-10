@@ -6,7 +6,6 @@
 #include "handler.h"
 #include "utils/random.h"
 #include "color.h"
-#include "structs/global_objects.h"
 #include "game_fight/fight.h"
 
 #include <cmath>
@@ -194,10 +193,10 @@ void go_disarm(CharData *ch, CharData *vict) {
 		UnequipChar(vict, pos, CharEquipFlags());
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->IsNpc() ? 1 : 2);
 		lag = 2;
-		if (ROOM_FLAGGED(IN_ROOM(vict), ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
+		if (ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
 			PlaceObjToInventory(wielded, vict);
 		} else {
-			PlaceObjToRoom(wielded, IN_ROOM(vict));
+			PlaceObjToRoom(wielded, vict->in_room);
 			CheckObjDecay(wielded);
 		};
 	}

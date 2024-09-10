@@ -111,7 +111,7 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			return (true);
 		}
 
-		if (IN_ROOM(horse) != IN_ROOM(victim)) {
+		if (horse->in_room != victim->in_room) {
 			act("\"Извини, твой скакун где-то бродит.\"- заявил$G $N", false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -404,8 +404,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		return (false);
 	} else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere) {
 		return (false);
-	} else if (ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master())) {
+	} else if (ch->has_master() && ch->isInSameRoom(ch->get_master())) {
 		return (false);
 	} else if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed)) {
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kHasDoor)) {
@@ -885,8 +884,7 @@ void npc_group(CharData *ch) {
 		return;
 	}
 
-	if (ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master())) {
+	if (ch->has_master() && ch->isInSameRoom(ch->get_master())) {
 		leader = ch->get_master();
 	}
 
@@ -980,7 +978,7 @@ void npc_groupbattle(CharData *ch) {
 	tch = ch->has_master() ? ch->get_master() : ch;
 	for (; k; (k = tch ? k : k->next), tch = nullptr) {
 		helper = tch ? tch : k->follower;
-		if (ch->in_room == IN_ROOM(helper)
+		if (ch->in_room == helper->in_room
 			&& !helper->GetEnemy()
 			&& !helper->IsNpc()
 			&& helper->GetPosition() > EPosition::kStun) {
@@ -1161,7 +1159,7 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	// if I didn't pick any of those, then just slam the guy I'm fighting //
 	if (target == nullptr
-		&& IN_ROOM(ch->GetEnemy()) == ch->in_room) {
+		&& ch->GetEnemy()->in_room == ch->in_room) {
 		target = ch->GetEnemy();
 	}
 

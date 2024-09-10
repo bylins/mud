@@ -44,8 +44,6 @@ struct mob_command_info {
 	bool use_in_lag;
 };
 
-#define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-
 extern int reloc_target;
 extern Trigger *cur_trig;
 
@@ -250,7 +248,7 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 		return;
 	}
 
-	if (reloc_target != -1 && reloc_target != IN_ROOM(victim)) {
+	if (reloc_target != -1 && reloc_target != victim->in_room) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
@@ -289,7 +287,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		return;
 	}
 
-	if (reloc_target != -1 && reloc_target != IN_ROOM(victim)) {
+	if (reloc_target != -1 && reloc_target != victim->in_room) {
 		sprintf(buf,
 				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
@@ -527,7 +525,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
-			if (IN_ROOM(vict) == kNowhere) {
+			if (vict->in_room == kNowhere) {
 				mob_log(ch, trig, "mteleport transports from kNowhere");
 				return;
 			}
@@ -549,7 +547,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 	} else if (!str_cmp(arg1, "allchar") || !str_cmp(arg1, "всечары")) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
-			if (IN_ROOM(vict) == kNowhere) {
+			if (vict->in_room == kNowhere) {
 				mob_log(ch, trig, "mteleport transports allchar from kNowhere");
 				return;
 			}
@@ -601,7 +599,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		}
 		if (IS_CHARMICE(vict) && vict->in_room == vict->get_master()->in_room)
 			vict = vict->get_master();
-		const auto people_copy = world[IN_ROOM(vict)]->people;
+		const auto people_copy = world[vict->in_room]->people;
 		for (const auto charmee : people_copy) {
 			if (IS_CHARMICE(charmee) && charmee->get_master()  == vict) {
 				RemoveCharFromRoom(charmee);
@@ -619,7 +617,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 		if (!str_cmp(argument, "followers") && vict->followers) {
 			FollowerType *ft;
 			for (ft = vict->followers; ft; ft = ft->next) {
-				if (IN_ROOM(ft->follower) == from_room && ft->follower->IsNpc()) {
+				if (ft->follower->in_room == from_room && ft->follower->IsNpc()) {
 					RemoveCharFromRoom(ft->follower);
 					PlaceCharToRoom(ft->follower, target);
 				}
@@ -1371,7 +1369,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	dam = atoi(amount);
 	auto victim = get_char(name);
 	if (victim) {
-		if (world[IN_ROOM(victim)]->zone_rn != world[ch->in_room]->zone_rn) {
+		if (world[victim->in_room]->zone_rn != world[ch->in_room]->zone_rn) {
 			return;
 		}
 
@@ -1399,8 +1397,8 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			if (victim->GetPosition() == EPosition::kDead) {
 				if (!victim->IsNpc()) {
 					sprintf(buf2, "%s killed by mobdamage at %s [%d]",GET_NAME(victim),
-						IN_ROOM(victim) == kNowhere ? "kNowhere" : world[IN_ROOM(victim)]->name,
-						GET_ROOM_VNUM(IN_ROOM(victim)));
+						victim->in_room == kNowhere ? "kNowhere" : world[victim->in_room]->name,
+						GET_ROOM_VNUM(victim->in_room));
 				mudlog(buf2, BRF, 0, SYSLOG, true);
 				}
 				die(victim, ch);

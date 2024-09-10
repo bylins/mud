@@ -19,7 +19,7 @@ int other_pc_in_group(CharData *ch) {
 	for (FollowerType *f = k->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
 			&& !f->follower->IsNpc()
-			&& IN_ROOM(f->follower) == ch->in_room) {
+			&& f->follower->in_room == ch->in_room) {
 			++num;
 		}
 	}

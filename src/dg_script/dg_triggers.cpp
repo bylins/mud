@@ -263,7 +263,7 @@ void greet_mtrigger(CharData *actor, int dir) {
 		return;
 	}
 
-	const auto people_copy = world[IN_ROOM(actor)]->people;
+	const auto people_copy = world[actor->in_room]->people;
 	for (const auto ch : people_copy) {
 		if (ch->purged()) {
 			continue;
@@ -388,7 +388,7 @@ int compare_cmd(int mode, const char *source, const char *dest) {
 int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 	char buf[kMaxInputLength];
 
-	const auto people_copy = world[IN_ROOM(actor)]->people;
+	const auto people_copy = world[actor->in_room]->people;
 	for (const auto ch : people_copy) {
 		if ((CheckScript(ch, MTRIG_COMMAND)
 			&& CAN_START_MTRIG(ch)
@@ -456,7 +456,7 @@ void speech_mtrigger(CharData *actor, char *str) {
 	if (!actor || actor->purged())
 		return;
 
-	const auto people_copy = world[IN_ROOM(actor)]->people;
+	const auto people_copy = world[actor->in_room]->people;
 	for (const auto ch : people_copy) {
 		if ((CheckScript(ch, MTRIG_SPEECH)
 			&& AWAKE(ch)
@@ -970,7 +970,7 @@ int command_otrigger(CharData *actor, char *cmd, const char *argument) {
 		}
 	}
 
-	for (ObjData *obj = world[IN_ROOM(actor)]->contents; obj; obj = obj->get_next_content()) {
+	for (ObjData *obj = world[actor->in_room]->contents; obj; obj = obj->get_next_content()) {
 		if (cmd_otrig(obj, actor, cmd, argument, OCMD_ROOM)) {
 			return 1;
 		}
@@ -1166,7 +1166,7 @@ void greet_otrigger(CharData *actor, int dir) {
 		return;
 	}
 
-	for (obj = world[IN_ROOM(actor)]->contents; obj; obj = obj->get_next_content()) {
+	for (obj = world[actor->in_room]->contents; obj; obj = obj->get_next_content()) {
 		if (!CheckSript(obj, OTRIG_GREET_ALL_PC)) {
 			continue;
 		}
@@ -1266,11 +1266,11 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 	RoomData *room;
 	char buf[kMaxInputLength];
 
-	if (!actor || IN_ROOM(actor) == kNowhere || !CheckSript(world[IN_ROOM(actor)], WTRIG_COMMAND)
+	if (!actor || actor->in_room == kNowhere || !CheckSript(world[actor->in_room], WTRIG_COMMAND)
 		|| GET_INVIS_LEV(actor))
 		return 0;
 
-	room = world[IN_ROOM(actor)];
+	room = world[actor->in_room];
 	for (auto t : SCRIPT(room)->trig_list) {
 		if (t->get_attach_type() != WLD_TRIGGER)//детачим триги не для комнат
 		{
@@ -1325,9 +1325,9 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 }
 
 void kill_pc_wtrigger(CharData *killer, CharData *victim) {
-	if (!killer || !victim || !CheckSript(world[IN_ROOM(killer)], WTRIG_KILL_PC) || GET_INVIS_LEV(killer))
+	if (!killer || !victim || !CheckSript(world[killer->in_room], WTRIG_KILL_PC) || GET_INVIS_LEV(killer))
 		return;
-	auto room = world[IN_ROOM(victim)];
+	auto room = world[victim->in_room];
 	for (auto t : SCRIPT(room)->trig_list) {
 		if (!TRIGGER_CHECK(t, WTRIG_KILL_PC)) {
 			continue;
@@ -1342,10 +1342,10 @@ void kill_pc_wtrigger(CharData *killer, CharData *victim) {
 void speech_wtrigger(CharData *actor, char *str) {
 	char buf[kMaxInputLength];
 
-	if (!actor || !CheckSript(world[IN_ROOM(actor)], WTRIG_SPEECH) || GET_INVIS_LEV(actor))
+	if (!actor || !CheckSript(world[actor->in_room], WTRIG_SPEECH) || GET_INVIS_LEV(actor))
 		return;
 
-	auto room = world[IN_ROOM(actor)];
+	auto room = world[actor->in_room];
 	for (auto t : SCRIPT(room)->trig_list) {
 		if (!TRIGGER_CHECK(t, WTRIG_SPEECH)) {
 			continue;
@@ -1372,12 +1372,12 @@ int drop_wtrigger(ObjData *obj, CharData *actor) {
 	char buf[kMaxInputLength];
 
 	if (!actor
-		|| !CheckSript(world[IN_ROOM(actor)], WTRIG_DROP)
+		|| !CheckSript(world[actor->in_room], WTRIG_DROP)
 		|| GET_INVIS_LEV(actor)) {
 		return 1;
 	}
 
-	auto room = world[IN_ROOM(actor)];
+	auto room = world[actor->in_room];
 	for (auto t : SCRIPT(room)->trig_list) {
 		if (TRIGGER_CHECK(t, WTRIG_DROP)
 			&& (number(1, 100) <= GET_TRIG_NARG(t))) {

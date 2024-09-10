@@ -114,7 +114,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (IS_HORSE(k->follower) &&
 						!k->follower->GetEnemy() &&
 						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						IN_ROOM(k->follower) == from_room && AWAKE(k->follower)) {
+						k->follower->in_room == from_room && AWAKE(k->follower)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
 							RemoveCharFromRoom(k->follower);
 							PlaceCharToRoom(k->follower, door);
@@ -124,7 +124,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						&& !AFF_FLAGGED(k->follower, EAffect::kHold)
 						&& (k->follower->IsFlagged(EMobFlag::kTutelar) || k->follower->IsFlagged(EMobFlag::kMentalShadow))
 						&& !k->follower->GetEnemy()
-						&& IN_ROOM(k->follower) == from_room
+						&& k->follower->in_room == from_room
 						&& AWAKE(k->follower)) {
 						act("$n исчез$q в пентаграмме.", true,
 							k->follower, nullptr, nullptr, kToRoom);
@@ -137,7 +137,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (IS_CHARMICE(k->follower) &&
 						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
 						k->follower->GetPosition() == EPosition::kStand &&
-						IN_ROOM(k->follower) == from_room) {
+						k->follower->in_room == from_room) {
 						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
 						command_interpreter(k->follower, buf2);
 					}

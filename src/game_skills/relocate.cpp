@@ -60,7 +60,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	to_room = IN_ROOM(victim);
+	to_room = victim->in_room;
 
 	if (to_room == kNowhere) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);

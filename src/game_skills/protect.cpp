@@ -92,7 +92,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 	if (ch->GetEnemy() == victim)
 		return victim;
 
-	for (const auto vict : world[IN_ROOM(victim)]->people) {
+	for (const auto vict : world[victim->in_room]->people) {
 		if (vict->get_protecting() == victim
 			&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 			&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)

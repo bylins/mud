@@ -63,9 +63,9 @@ int obj_room(ObjData *obj) {
 	if (obj->get_in_room() != kNowhere) {
 		return obj->get_in_room();
 	} else if (obj->get_carried_by()) {
-		return IN_ROOM(obj->get_carried_by());
+		return obj->get_carried_by()->in_room;
 	} else if (obj->get_worn_by()) {
-		return IN_ROOM(obj->get_worn_by());
+		return obj->get_worn_by()->in_room;
 	} else if (obj->get_in_obj()) {
 		return obj_room(obj->get_in_obj());
 	} else {

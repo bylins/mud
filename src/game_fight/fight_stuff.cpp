@@ -66,7 +66,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				master = master->get_master();
 			}
 
-			if (IN_ROOM(master) == IN_ROOM(killer)) {
+			if (master->in_room == killer->in_room) {
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
 				if (CanUseFeat(master, EFeat::kPartner)) {
@@ -77,7 +77,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			for (struct FollowerType *f = master->followers; f; f = f->next) {
 				if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
 				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					&& f->follower->in_room == killer->in_room) {
 					++cnt;
 					if (leader_partner) {
 						if (!f->follower->IsNpc()) {
@@ -104,12 +104,12 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 			// выбираем всех мемберов в группе в комнате с убивецом
 			std::vector<CharData *> members_to_mobmax;
-			if (IN_ROOM(master) == IN_ROOM(killer)) {
+			if (master->in_room == killer->in_room) {
 				members_to_mobmax.push_back(master);
 			}
 			for (struct FollowerType *f = master->followers; f; f = f->next) {
 				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					&& f->follower->in_room == killer->in_room) {
 					members_to_mobmax.push_back(f->follower);
 				}
 			}
@@ -128,7 +128,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			int i = 0;
 			for (struct FollowerType *f = master->followers; f && i < n; f = f->next) {
 				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer)) {
+					&& f->follower->in_room == killer->in_room) {
 					++i;
 					master = f->follower;
 				}
@@ -225,7 +225,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 			&& AFF_FLAGGED(killer, EAffect::kGroup)
 			&& killer->has_master()
 			&& killer->get_master()->GetSkill(ESkill::kLeadership) > 0
-			&& IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
+			&& killer->in_room == killer->get_master()->in_room) {
 			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
 		} else if (killer->IsNpc() // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
@@ -233,8 +233,8 @@ void update_leadership(CharData *ch, CharData *killer) {
 			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
 			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
 				&& killer->get_master()->get_master()->GetSkill(ESkill::kLeadership) > 0
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master())) {
+				&& killer->in_room == killer->get_master()->in_room
+				&& killer->in_room == killer->get_master()->get_master()->in_room) {
 				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
 			}
 		}
@@ -246,7 +246,7 @@ void update_leadership(CharData *ch, CharData *killer) {
 		&& killer->IsNpc()
 		&& AFF_FLAGGED(ch, EAffect::kGroup)
 		&& ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master())
+		&& ch->in_room == ch->get_master()->in_room
 		&& ch->get_master()->GetTrainedSkill(ESkill::kLeadership) > 1) {
 		const auto current_skill = ch->get_master()->GetMorphSkill(ESkill::kLeadership);
 		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
@@ -489,7 +489,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 void auto_loot(CharData *ch, CharData *killer, ObjData *corpse, int local_gold) {
 	char obj[256];
 
-	if (is_dark(IN_ROOM(killer))
+	if (is_dark(killer->in_room)
 		&& !(CAN_SEE_IN_DARK(killer) || CanUseFeat(killer, EFeat::kDarkReading))
 		&& !(killer->IsNpc()
 			&& AFF_FLAGGED(killer, EAffect::kCharmed)
@@ -880,11 +880,11 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 				&& !IS_IMMORTAL(ch)
 				&& victim->IsNpc()
 				&& !IS_CHARMICE(victim)
-				&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 				mob_stat::AddMob(victim, members);
 				EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
 		} else if (ch->IsNpc() && !victim->IsNpc()
-			&& !ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)) {
+			&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 			mob_stat::AddMob(ch, 0);
 		}
 	}
@@ -923,7 +923,7 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	// k - подозрение на лидера группы
 	const bool leader_inroom = AFF_FLAGGED(leader, EAffect::kGroup)
-		&& leader->in_room == IN_ROOM(killer);
+		&& leader->in_room == killer->in_room;
 
 	// Количество согрупников в комнате
 	if (leader_inroom) {
@@ -937,7 +937,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	for (f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == IN_ROOM(killer)) {
+			&& f->follower->in_room == killer->in_room) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
@@ -994,7 +994,7 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	for (f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == IN_ROOM(killer)) {
+			&& f->follower->in_room == killer->in_room) {
 			perform_group_gain(f->follower, victim, inroom_members, koef);
 		}
 	}
@@ -1111,8 +1111,9 @@ void alt_equip(CharData *ch, int pos, int dam, int chance) {
 			pos = EEquipPos::kHold;
 	}
 
-	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield))
-		return; // Добавил: под "зб" не убивается стаф (Купала)
+	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield)) {
+		return;
+	}
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
 

@@ -439,7 +439,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 				return (0);
 			}
-			if (IN_ROOM(vict) != kNowhere) {
+			if (vict->in_room != kNowhere) {
 				RemoveCharFromRoom(vict);
 			}
 			PlaceCharToRoom(vict, rnum);

@@ -572,7 +572,7 @@ void drop_torc(CharData *mob) {
 	int members = 1;
 	for (FollowerType *f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == IN_ROOM(mob)
+			&& f->follower->in_room == mob->in_room
 			&& !f->follower->IsNpc()) {
 			++members;
 		}
@@ -584,7 +584,7 @@ void drop_torc(CharData *mob) {
 		return;
 	}
 
-	if (IN_ROOM(leader) == IN_ROOM(mob)
+	if (leader->in_room == mob->in_room
 		&& GET_GOD_FLAG(leader, EGf::kRemort)
 		&& (GET_UNIQUE(leader) == damager.first
 			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
@@ -593,7 +593,7 @@ void drop_torc(CharData *mob) {
 
 	for (FollowerType *f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == IN_ROOM(mob)
+			&& f->follower->in_room == mob->in_room
 			&& !f->follower->IsNpc()
 			&& GET_GOD_FLAG(f->follower, EGf::kRemort)
 			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2) {

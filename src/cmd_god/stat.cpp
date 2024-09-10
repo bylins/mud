@@ -100,7 +100,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
 	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
-		k_room = GET_ROOM_VNUM(IN_ROOM(k));
+		k_room = GET_ROOM_VNUM(k->in_room);
 	}
 	// пишем пол  (мужчина)
 	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);

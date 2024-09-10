@@ -2461,9 +2461,9 @@ void ZoneReset::ResetZoneEssential() {
 						if (obj_to->get_in_room() != kNowhere) {
 							obj->set_vnum_zone_from(zone_table[world[obj_to->get_in_room()]->zone_rn].vnum);
 						} else if (obj_to->get_worn_by()) {
-							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(obj_to->get_worn_by())]->zone_rn].vnum);
+							obj->set_vnum_zone_from(zone_table[world[obj_to->get_worn_by()->in_room]->zone_rn].vnum);
 						} else if (obj_to->get_carried_by()) {
-							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(obj_to->get_carried_by())]->zone_rn].vnum);
+							obj->set_vnum_zone_from(zone_table[world[obj_to->get_carried_by()->in_room]->zone_rn].vnum);
 						}
 						PlaceObjIntoObj(obj.get(), obj_to);
 						load_otrigger(obj.get());
@@ -2490,7 +2490,7 @@ void ZoneReset::ResetZoneEssential() {
 							|| number(1, 100) <= reset_cmd.arg4)) {
 						const auto obj = world_objects.create_from_prototype_by_rnum(reset_cmd.arg1);
 						PlaceObjToInventory(obj.get(), mob);
-						obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
+						obj->set_vnum_zone_from(zone_table[world[mob->in_room]->zone_rn].vnum);
 						tobj = obj.get();
 						load_otrigger(obj.get());
 						curr_state = 1;
@@ -2517,8 +2517,8 @@ void ZoneReset::ResetZoneEssential() {
 							LogZoneError(zone_data, cmd_no, "invalid equipment pos number");
 						} else {
 							const auto obj = world_objects.create_from_prototype_by_rnum(reset_cmd.arg1);
-							obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
-							obj->set_in_room(IN_ROOM(mob));
+							obj->set_vnum_zone_from(zone_table[world[mob->in_room]->zone_rn].vnum);
+							obj->set_in_room(mob->in_room);
 							load_otrigger(obj.get());
 							if (wear_otrigger(obj.get(), mob, reset_cmd.arg3)) {
 								obj->set_in_room(kNowhere);
@@ -2781,7 +2781,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
-		if (IN_ROOM(i->character) == kNowhere)
+		if (i->character->in_room == kNowhere)
 			continue;
 		if (GetRealLevel(i->character) >= kLvlImmortal)
 			continue;

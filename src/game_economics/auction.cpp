@@ -478,7 +478,7 @@ void message_auction(char *message, CharData *ch) {
 			i->character &&
 			!i->character->IsFlagged(EPrf::kNoAuction) &&
 			!i->character->IsFlagged(EPlrFlag::kWriting) &&
-			!ROOM_FLAGGED(IN_ROOM(i->character), ERoomFlag::kSoundproof) && i->character->GetPosition() > EPosition::kSleep) {
+			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof) && i->character->GetPosition() > EPosition::kSleep) {
 			if (COLOR_LEV(i->character) >= C_NRM) {
 				SendMsgToChar("&Y&q", i->character.get());
 			}
@@ -571,8 +571,7 @@ void trans_auction(int lot) {
 		return;
 	}
 
-	if (ch->in_room == IN_ROOM(tch)) {
-		// Проверка на нахождение в одной комнате.
+	if (ch->in_room == tch->in_room) {
 		tmpstr = "$n стоит рядом с вами.";
 		act(tmpstr.c_str(), false, ch, 0, tch, kToVict | kToSleep);
 		return;
@@ -618,8 +617,7 @@ void trans_auction(int lot) {
 		return;
 	}
 
-	if (!is_post(IN_ROOM(tch))) {
-		// Проверка на то что продавец на ренте.
+	if (!is_post(tch->in_room)) {
 		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи денег $N2.\r\n";
 		act(tmpstr.c_str(), false, tch, 0, ch, kToChar | kToSleep);
 
@@ -704,7 +702,7 @@ void sell_auction(int lot) {
 	if (!check_sell(lot))
 		return;
 
-	if (ch->in_room != IN_ROOM(tch)
+	if (ch->in_room != tch->in_room
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)) {
 		if (GET_LOT(lot)->tact >= kMaxAuctionTact) {
 			sprintf(tmpbuff,

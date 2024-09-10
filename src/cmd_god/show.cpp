@@ -648,7 +648,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->snooping
 					&& d->character
 					&& STATE(d) == CON_PLAYING
-					&& IN_ROOM(d->character) != kNowhere
+					&& d->character->in_room != kNowhere
 					&& ((CAN_SEE(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
 					sprintf(buf + strlen(buf),
@@ -667,12 +667,12 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			i = 0;
 			for (const auto &character : character_list) {
 				if (IS_GOD(character) || character->IsNpc() ||
-					character->desc != nullptr || IN_ROOM(character) == kNowhere) {
+					character->desc != nullptr || character->in_room == kNowhere) {
 					continue;
 				}
 				++i;
 				sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
-						character->noclan_title().c_str(), GET_ROOM_VNUM(IN_ROOM(character)),
+						character->noclan_title().c_str(), GET_ROOM_VNUM(character->in_room),
 						GET_ROOM_VNUM(character->get_was_in_room()), character->char_specials.timer);
 				SendMsgToChar(buf, ch);
 			}
@@ -687,7 +687,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (STATE(d) != CON_PLAYING
 					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !ch->IsFlagged(EPrf::kCoderinfo)))
 					continue;
-				if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == kNowhere)
+				if (!CAN_SEE(ch, d->character) || d->character->in_room == kNowhere)
 					continue;
 				buf[0] = 0;
 				if (d->character->IsFlagged(EPlrFlag::kFrozen)

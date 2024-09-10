@@ -796,7 +796,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
-			&& IN_ROOM(victim) != kNowhere
+			&& victim->in_room != kNowhere
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
 			// инит полей для дамага
@@ -939,7 +939,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rnd = 0;
 	int decline_mod = 0;
 	if (victim == nullptr
-		|| IN_ROOM(victim) == kNowhere
+		|| victim->in_room == kNowhere
 		|| ch == nullptr) {
 		return 0;
 	}
@@ -961,7 +961,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			&& MUD::Spell(spell_id).IsViolent()
 			&& ((!IS_GOD(ch)
 				&& AFF_FLAGGED(victim, EAffect::kMagicGlass)
-				&& (ch->in_room == IN_ROOM(victim)) //зеркало сработает только если оба в одной комнате
+				&& (ch->in_room == victim->in_room)
 				&& number(1, 100) < (GetRealLevel(victim) / 3))
 				|| (IS_GOD(victim)
 					&& (ch->IsNpc()
@@ -1716,9 +1716,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kPoison: savetype = ESaving::kCritical;
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
 				CalcGeneralSaving(ch, victim, savetype, modi))) {
-				if (ch->in_room
-					== IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_DEADLY_FOG не спамил чару постоянно
+				if (ch->in_room == victim->in_room) {
 					SendMsgToChar(NOEFFECT, ch);
+				}
 				success = false;
 				break;
 			}
@@ -2151,8 +2151,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 						&& AFF_FLAGGED(victim, static_cast<EAffect>(af[0].bitvector)))
 						|| (ch != victim
 							&& IsAffectedBySpell(victim, ESpell::kDeafness))) {
-						if (ch->in_room == IN_ROOM(victim))
+						if (ch->in_room == victim->in_room) {
 							SendMsgToChar(NOEFFECT, ch);
+						}
 					} else {
 						ImposeAffect(victim, af[0], accum_duration, false, accum_affect, false);
 						act(to_vict, false, victim, nullptr, ch, kToChar);
@@ -2654,7 +2655,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (victim->IsNpc() && success) {
 		for (i = 0; i < kMaxSpellAffects && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffect>(af[i].bitvector))) {
-				if (ch->in_room == IN_ROOM(victim)) {
+				if (ch->in_room == victim->in_room) {
 					SendMsgToChar(NOEFFECT, ch);
 				}
 				success = false;
@@ -2667,8 +2668,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
 	if ((ch != victim) && IsAffectedBySpell(victim, spell_id) && success && (!update_spell)) {
-		if (ch->in_room == IN_ROOM(victim))
+		if (ch->in_room == victim->in_room) {
 			SendMsgToChar(NOEFFECT, ch);
+		}
 		success = false;
 	}
 
@@ -3737,7 +3739,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		&& GET_MOB_RNUM(caster) == GetMobRnum(kDgCasterProxy))
 		return;
 
-	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && IN_ROOM(victim) == IN_ROOM(caster)) {
+	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && victim->in_room == caster->in_room) {
 		if (victim->IsNpc())
 			attack_best(victim, caster, false);
 		else
@@ -4197,7 +4199,7 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, int msg
 };
 
 int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
-	if (ch == nullptr || IN_ROOM(ch) == kNowhere) {
+	if (ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
 
@@ -4264,7 +4266,7 @@ int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
 		return 0;
 	}
 
-	TrySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], FindIndexOfMsg(spell_id));
+	TrySendCastMessages(ch, nullptr, world[ch->in_room], FindIndexOfMsg(spell_id));
 
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();

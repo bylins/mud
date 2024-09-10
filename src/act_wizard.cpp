@@ -494,7 +494,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 				AddKarma(vict, buf, reason);
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					act("$n выпущен$a из темницы!", false, vict, nullptr, nullptr, kToRoom);
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
@@ -551,7 +551,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
 				AddKarma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					act("$n выпущен$a из темницы!",
 						false, vict, nullptr, nullptr, kToRoom);
 
@@ -592,7 +592,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
 				AddKarma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					if ((result = GET_LOADROOM(vict)) == kNowhere)
 						result = calc_loadroom(vict);
 
@@ -632,7 +632,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				RegisterSystem::add(vict, buf, reason);
 				AddKarma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 
 					act("$n зарегистрирован$a!", false, vict,
 						nullptr, nullptr, kToRoom);
@@ -671,7 +671,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				RegisterSystem::remove(vict);
 				AddKarma(vict, buf, reason);
 
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					act("C $n1 снята метка регистрации!",
 						false, vict, nullptr, nullptr, kToRoom);
 					/*				if ((result = GET_LOADROOM(vict)) == kNowhere)
@@ -743,7 +743,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 						CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
 				sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					act("$n водворен$a в темницу!",
 						false, vict, nullptr, nullptr, kToRoom);
 
@@ -772,7 +772,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					act("$n водворен$a в темницу!",
 						false, vict, nullptr, nullptr, kToRoom);
 
@@ -797,7 +797,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
-				if (IN_ROOM(vict) != kNowhere) {
+				if (vict->in_room != kNowhere) {
 					act("$n водворен$a в комнату имени!",
 						false, vict, nullptr, nullptr, kToRoom);
 					RemoveCharFromRoom(vict);
@@ -820,8 +820,8 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 			case SCMD_UNREGISTER: pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 				RegisterSystem::remove(vict);
 
-				if (IN_ROOM(vict) != kNowhere) {
-					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
+				if (vict->in_room != kNowhere) {
+					if (vict->desc && !check_dupes_host(vict->desc) && vict->in_room != r_unreg_start_room) {
 						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
 							false, vict, nullptr, nullptr, kToRoom);
 						RemoveCharFromRoom(vict);
@@ -864,7 +864,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
-		if (IN_ROOM(i->character) == kNowhere)
+		if (i->character->in_room == kNowhere)
 			continue;
 		if (GetRealLevel(i->character) >= kLvlImmortal)
 			continue;
@@ -873,7 +873,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 		sprintf(buf2,
 				"Проверка по дискрипторам: В зоне (vnum: %d клетка: %d) находится персонаж: %s.\r\n",
 				zone_table[zone_nr].vnum,
-				GET_ROOM_VNUM(IN_ROOM(i->character)),
+				GET_ROOM_VNUM(i->character->in_room),
 				GET_NAME(i->character));
 		SendMsgToChar(buf2, ch);
 		found = true;
@@ -895,7 +895,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 					sprintf(buf2,
 							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
 							zone_table[zone_nr].vnum,
-							GET_ROOM_VNUM(IN_ROOM(c)),
+							GET_ROOM_VNUM(c->in_room),
 							GET_NAME(c));
 					SendMsgToChar(buf2, ch);
 					found = true;
@@ -917,7 +917,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 				"В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n",
 				GET_NAME(c),
 				zone_table[zone_nr].vnum,
-				GET_ROOM_VNUM(IN_ROOM(c)));
+				GET_ROOM_VNUM(c->in_room));
 		SendMsgToChar(buf2, ch);
 		found = true;
 	}
@@ -1439,7 +1439,7 @@ void do_send(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-// take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93
+// Take a string, and return a rnum. Used for goto, at, etc.  -je 4/6/93
 RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 	RoomVnum tmp;
 	RoomRnum location;
@@ -1713,10 +1713,10 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !visible_character->IsNpc()) {
 			SendMsgToChar("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 		} else if (GetRealLevel(ch) < kLvlGreatGod
-			&& ROOM_FLAGGED(IN_ROOM(visible_character), ERoomFlag::kGodsRoom)) {
+			&& ROOM_FLAGGED(visible_character->in_room, ERoomFlag::kGodsRoom)) {
 			SendMsgToChar("Вы не можете находиться в той комнате.\r\n", ch);
 		} else if (!IS_GRGOD(ch)
-			&& !Clan::MayEnter(ch, IN_ROOM(visible_character), kHousePortal)) {
+			&& !Clan::MayEnter(ch, visible_character->in_room, kHousePortal)) {
 			SendMsgToChar("Вы не сможете проникнуть на частную территорию.\r\n", ch);
 		} else {
 			const auto victim = character_list.get_character_by_address(visible_character);

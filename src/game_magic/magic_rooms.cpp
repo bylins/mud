@@ -506,7 +506,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			break;
 
 		case ESpell::kBlackTentacles:
-			if (ROOM_FLAGGED(IN_ROOM(ch), ERoomFlag::kForMono) || ROOM_FLAGGED(IN_ROOM(ch), ERoomFlag::kForPoly)) {
+			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
 				success = false;
 				break;
 			}

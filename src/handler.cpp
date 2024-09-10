@@ -324,7 +324,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
-	if (ch->GetEnemy() && ch->in_room != IN_ROOM(ch->GetEnemy())) {
+	if (ch->GetEnemy() && ch->in_room != ch->GetEnemy()->in_room) {
 		stop_fighting(ch->GetEnemy(), false);
 		stop_fighting(ch, true);
 	}
@@ -378,7 +378,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
-	if (ch->GetEnemy() && ch->in_room != IN_ROOM(ch->GetEnemy())) {
+	if (ch->GetEnemy() && ch->in_room != ch->GetEnemy()->in_room) {
 		stop_fighting(ch->GetEnemy(), false);
 		stop_fighting(ch, true);
 	}
@@ -1548,9 +1548,9 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 	} else if (obj->get_in_obj() && !deep) {
 		return get_room_where_obj(obj->get_in_obj(), true);
 	} else if (obj->get_carried_by()) {
-		return GET_ROOM_VNUM(IN_ROOM(obj->get_carried_by()));
+		return GET_ROOM_VNUM(obj->get_carried_by()->in_room);
 	} else if (obj->get_worn_by()) {
-		return GET_ROOM_VNUM(IN_ROOM(obj->get_worn_by()));
+		return GET_ROOM_VNUM(obj->get_worn_by()->in_room);
 	}
 
 	return kNowhere;
@@ -1579,7 +1579,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 			if (obj->get_carried_by()) {
 				if (obj->get_carried_by()->IsNpc()
 					|| (IS_CARRYING_N(obj->get_carried_by()) >= CAN_CARRY_N(obj->get_carried_by()))) {
-					PlaceObjToRoom(temp, IN_ROOM(obj->get_carried_by()));
+					PlaceObjToRoom(temp, obj->get_carried_by()->in_room);
 					CheckObjDecay(temp);
 				} else {
 					PlaceObjToInventory(temp, obj->get_carried_by());
@@ -1587,7 +1587,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 			} else if (obj->get_worn_by() != nullptr) {
 				if (obj->get_worn_by()->IsNpc()
 					|| (IS_CARRYING_N(obj->get_worn_by()) >= CAN_CARRY_N(obj->get_worn_by()))) {
-					PlaceObjToRoom(temp, IN_ROOM(obj->get_worn_by()));
+					PlaceObjToRoom(temp, obj->get_worn_by()->in_room);
 					CheckObjDecay(temp);
 				} else {
 					PlaceObjToInventory(temp, obj->get_worn_by());
@@ -2209,7 +2209,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 	{
 		return false;
 	} else if (i->get_carried_by() && i->get_carried_by()->IsNpc()) {
-		if (world[IN_ROOM(i->get_carried_by())]->zone_rn
+		if (world[i->get_carried_by()->in_room]->zone_rn
 			== world[ch->in_room]->zone_rn) //шмотки у моба можно локейтить только в одной зоне
 		{
 			return true;
@@ -2225,7 +2225,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 			return false;
 		}
 	} else if (i->get_worn_by() && i->get_worn_by()->IsNpc()) {
-		if (world[IN_ROOM(i->get_worn_by())]->zone_rn == world[ch->in_room]->zone_rn) {
+		if (world[i->get_worn_by()->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
 			return true;
 		} else {
 			return false;
@@ -2237,7 +2237,7 @@ bool try_locate_obj(CharData *ch, ObjData *i) {
 			const auto in_obj = i->get_in_obj();
 			if (in_obj->get_carried_by()) {
 				if (in_obj->get_carried_by()->IsNpc()) {
-					if (world[IN_ROOM(in_obj->get_carried_by())]->zone_rn == world[ch->in_room]->zone_rn) {
+					if (world[in_obj->get_carried_by()->in_room]->zone_rn == world[ch->in_room]->zone_rn) {
 						return true;
 					} else {
 						return false;
