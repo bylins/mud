@@ -150,10 +150,10 @@ void script_log(const char *msg, LogMode type) {
  *  Logs any errors caused by scripts to the system log.
  *  Will eventually allow on-line view of script errors.
  */
-void trig_log(Trigger *trig, const char *msg, LogMode type) {
+void trig_log(Trigger *trig, std::string msg, LogMode type) {
 	char tmpbuf[kMaxStringLength];
 	snprintf(tmpbuf, kMaxStringLength, "(Trigger: %s, VNum: %d) : %s [строка: %d]", GET_TRIG_NAME(trig), 
-			GET_TRIG_VNUM(trig), msg, last_trig_line_num);
+			GET_TRIG_VNUM(trig), msg.c_str(), last_trig_line_num);
 	script_log(tmpbuf, type);
 }
 
@@ -4026,8 +4026,11 @@ int eval_lhs_op_rhs(const char *expr, char *result, void *go, Script *sc, Trigge
 			"!",
 			"\n"
 		};
-
-	p = strncpy(line, expr, kMaxTrglineLength);
+	if (strlen(expr) > kMaxTrglineLength - 1) {
+		trig_log(trig, fmt::format("Ошибка! Слишком длинное выражение: {}", expr).c_str());
+		return 0;
+	}
+	p = strcpy(line, expr);
 
 	/*
 	 * initialize tokens, an array of pointers to locations
@@ -5608,7 +5611,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				}
 			} else {
 				cl = temp;
-				loops = 0;
 			}
 			if (CharacterLinkDrop) {
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
@@ -5623,7 +5625,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				}
 			} else {
 				cl = temp;
-				loops = 0;
 			}
 			if (CharacterLinkDrop) {
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
@@ -5652,24 +5653,21 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					loops++;
 					GET_TRIG_LOOPS(trig)++;
 
-					if (loops % 30 == 0) {
+					if (loops == 30) {
 						snprintf(buf2, kMaxStringLength, "wait 1");
 						process_wait(go, trig, type, buf2, cl);
 						depth--;
 						cur_trig = prev_trig;
 						return ret_val;
 					}
-
 					if (GET_TRIG_LOOPS(trig) == 500) {
 						trig_log(trig, "looping 500 times.", LGH);
 					}
-
 					if (GET_TRIG_LOOPS(trig) == 1000) {
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
 					if (GET_TRIG_LOOPS(trig) >= 10000) {
-						trig_log(trig, "looping 10000 times, cancelled", DEF);
-						GET_TRIG_LOOPS(trig) = 0;
+						trig_log(trig, fmt::format("looping 10000 times, cancelled"));
 						loops = 0;
 						cl = find_done(trig, cl);
 					}
