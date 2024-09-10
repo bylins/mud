@@ -386,7 +386,7 @@ void print_worlds_vars(CharData *ch, std::optional<long> context);
 
 void script_log(const char *msg,
 				LogMode type = LogMode::OFF);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
-void trig_log(Trigger *trig, const char *msg, LogMode type = LogMode::OFF);
+void trig_log(Trigger *trig, std::string msg, LogMode type = LogMode::OFF);
 
 using obj2triggers_t = std::unordered_map<ObjVnum, std::list<TrgVnum>>;
 extern obj2triggers_t &obj2triggers;
