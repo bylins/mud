@@ -89,7 +89,7 @@ void go_stun(CharData *ch, CharData *vict) {
 			act("$n мощным ударом ошеломил$g $N3!", true, ch,
 				nullptr, vict, kToNotVict | kToArenaListen);
 		}
-		GET_POS(vict) = EPosition::kIncap;
+		vict->SetPosition(EPosition::kIncap);
 		SetWaitState(vict, (2 + GetRealRemort(ch) / 5) * kBattleRound * GET_SKILL(ch, ESkill::kStun) / MUD::Skill(ESkill::kStun).cap);
 		ch->setSkillCooldown(ESkill::kStun, 3 * kBattleRound);
 		hit(ch, vict, ESkill::kUndefined, AFF_FLAGGED(vict, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);

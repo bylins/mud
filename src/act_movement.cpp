@@ -23,7 +23,6 @@
 #include "game_mechanics/named_stuff.h"
 #include "obj_prototypes.h"
 #include "administration/privilege.h"
-#include "color.h"
 #include "game_skills/pick.h"
 #include "utils/random.h"
 #include "structs/global_objects.h"
@@ -249,28 +248,22 @@ int skip_sneaking(CharData *ch, CharData *vict) {
 
 int real_forest_paths_sect(int sect) {
 	switch (sect) {
-		case ESector::kForest: return ESector::kField;
-			break;
-		case ESector::kForestSnow: return ESector::kFieldSnow;
-			break;
-		case ESector::kForestRain: return ESector::kFieldRain;
-			break;
+		case ESector::kForest:		return ESector::kField;
+		case ESector::kForestSnow:	return ESector::kFieldSnow;
+		case ESector::kForestRain:	return ESector::kFieldRain;
+		default:					return sect;
 	}
-	return sect;
 }
 
 int real_mountains_paths_sect(int sect) {
 	switch (sect) {
-		case ESector::kHills:
-		case ESector::kMountain: return ESector::kField;
-			break;
-		case ESector::kHillsRain: return ESector::kFieldRain;
-			break;
-		case ESector::kHillsSnow:
-		case ESector::kMountainSnow: return ESector::kFieldSnow;
-			break;
+		case ESector::kHills:			[[fallthrough]];
+		case ESector::kMountain:		return ESector::kField;
+		case ESector::kHillsRain:		return ESector::kFieldRain;
+		case ESector::kHillsSnow:		[[fallthrough]];
+		case ESector::kMountainSnow:	return ESector::kFieldSnow;
+		default: return sect;
 	}
-	return sect;
 }
 
 int calculate_move_cost(CharData *ch, int dir) {
@@ -341,8 +334,8 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 		}
 
 		//  if this room or the one we're going to needs a boat, check for one */
-		if (!MOB_FLAGGED(ch, EMobFlag::kSwimming)
-			&& !MOB_FLAGGED(ch, EMobFlag::kFlying)
+		if (!ch->IsFlagged(EMobFlag::kSwimming)
+			&& !ch->IsFlagged(EMobFlag::kFlying)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)
 			&& (real_sector(ch->in_room) == ESector::kWaterNoswim
 				|| real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim)) {
@@ -353,14 +346,14 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 
 		// Добавляем проверку на то что моб может вскрыть дверь
 		if (EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed) &&
-			!MOB_FLAGGED(ch, EMobFlag::kOpensDoor))
+			!ch->IsFlagged(EMobFlag::kOpensDoor))
 			return false;
 
-		if (!MOB_FLAGGED(ch, EMobFlag::kFlying) &&
+		if (!ch->IsFlagged(EMobFlag::kFlying) &&
 			!AFF_FLAGGED(ch, EAffect::kFly) && SECT(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying)
 			return false;
 
-		if (MOB_FLAGGED(ch, EMobFlag::kOnlySwimming) &&
+		if (ch->IsFlagged(EMobFlag::kOnlySwimming) &&
 			!(real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterSwim ||
 				real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim ||
 				real_sector(EXIT(ch, dir)->to_room()) == ESector::kUnderwater))
@@ -368,8 +361,8 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNoEntryMob) &&
 			!IS_HORSE(ch) &&
-			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(MOB_FLAGGED(ch, EMobFlag::kTutelar) || MOB_FLAGGED(ch, EMobFlag::kMentalShadow))
-			&& !MOB_FLAGGED(ch, EMobFlag::kIgnoresNoMob))
+			!AFF_FLAGGED(ch, EAffect::kCharmed) && !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
+			&& !ch->IsFlagged(EMobFlag::kIgnoresNoMob))
 			return false;
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && !IS_HORSE(ch))
@@ -407,12 +400,9 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		// если там ДТ и чар верхом на пони
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kDeathTrap) && ch->IsOnHorse()) {
 			if (show_msg) {
-				// я весьма костоязычен, исправьте кто-нибудь на нормальную
-				// мессагу, антуражненькую
-				SendMsgToChar("Ваш скакун не хочет идти туда.\r\n", ch);
+				SendMsgToChar("Ваш скакун артачится и боится идти туда.\r\n", ch);
 			}
 			return false;
 		}
@@ -490,7 +480,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 				continue;
 			if (NPC_FLAGGED(tch, 1 << dir)
 				&& AWAKE(tch)
-				&& GET_POS(tch) > EPosition::kSleep
+				&& tch->GetPosition() > EPosition::kSleep
 				&& CAN_SEE(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& !AFF_FLAGGED(tch, EAffect::kHold)) {
@@ -509,30 +499,28 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 	return true;
 }
 
-#define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
-#define MAX_DRUNK_SONG 6
-#define MAX_DRUNK_VOICE 5
-
+const int kMaxDrunkSong{6};
+const int kMaxDrunkVoice{5};
 void PerformDunkSong(CharData *ch) {
-	const char *drunk_songs[MAX_DRUNK_SONG] = {"\"Шумел камыш, и-к-к..., деревья гнулися\"",
-											   "\"Куда ты, тропинка, меня завела\"",
-											   "\"Пабабам, пара пабабам\"",
-											   "\"А мне любое море по колено\"",
-											   "\"Не жди меня мама, хорошего сына\"",
-											   "\"Бываааали дниии, весеееелыя\"",
+	const char *drunk_songs[kMaxDrunkSong] = {"\"Шумел камыш, и-к-к..., деревья гнулися\"",
+											  "\"Куда ты, тропинка, меня завела\"",
+											  "\"Пабабам, пара пабабам\"",
+											  "\"А мне любое море по колено\"",
+											  "\"Не жди меня мама, хорошего сына\"",
+											  "\"Бываааали дниии, весеееелыя\"",
 	};
-	const char *drunk_voice[MAX_DRUNK_VOICE] = {" - затянул$g $n",
-												" - запел$g $n.",
-												" - прохрипел$g $n.",
-												" - зычно заревел$g $n.",
-												" - разухабисто протянул$g $n.",
+	const char *drunk_voice[kMaxDrunkVoice] = {" - затянул$g $n",
+											   " - запел$g $n.",
+											   " - прохрипел$g $n.",
+											   " - зычно заревел$g $n.",
+											   " - разухабисто протянул$g $n.",
 	};
 	// орем песни
 	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, DRUNK)) {
-		sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
+		sprintf(buf, "%s", drunk_songs[number(0, kMaxDrunkSong - 1)]);
 		SendMsgToChar(buf, ch);
 		SendMsgToChar("\r\n", ch);
-		strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
+		strcat(buf, drunk_voice[number(0, kMaxDrunkVoice - 1)]);
 		act(buf, false, ch, nullptr, nullptr, kToRoom | kToNotDeaf);
 		RemoveAffectFromChar(ch, ESpell::kHide);
 		RemoveAffectFromChar(ch, ESpell::kSneak);
@@ -603,7 +591,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		return false;
 	}
 
-	// Now we know we're allow to go into the room.
+	// Now we know we're allowed to go into the room.
 	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
 		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
@@ -633,7 +621,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
@@ -713,7 +701,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		PlaceCharToRoom(horse, go_to);
 	}
 
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		for (int i = 0; i < EDirection::kMaxDirNum; i++) {
 			if (CAN_GO(ch, i)
 				|| (EXIT(ch, i)
@@ -868,17 +856,17 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 				|| AFF_FLAGGED(ch, EAffect::kSneak)
 				|| AFF_FLAGGED(ch, EAffect::kDisguise)
 				|| vict->GetEnemy()
-				|| GET_POS(vict) < EPosition::kRest) {
+				|| vict->GetPosition() < EPosition::kRest) {
 				continue;
 			}
 
 			// AWARE mobs
-			if (MOB_FLAGGED(vict, EMobFlag::kAware)
-				&& GET_POS(vict) < EPosition::kFight
+			if (vict->IsFlagged(EMobFlag::kAware)
+				&& vict->GetPosition() < EPosition::kFight
 				&& !AFF_FLAGGED(vict, EAffect::kHold)
-				&& GET_POS(vict) > EPosition::kSleep) {
+				&& vict->GetPosition() > EPosition::kSleep) {
 				act("$n поднял$u.", false, vict, nullptr, nullptr, kToRoom | kToArenaListen);
-				GET_POS(vict) = EPosition::kStand;
+				vict->SetPosition(EPosition::kStand);
 			}
 		}
 	}
@@ -919,7 +907,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 				return false;
 		} else {
 			was_in = ch->in_room;
-			// When leader mortally drunked - he change direction
+			// When leader mortally drunked - he changes direction
 			// So returned value set to false or DIR + 1
 			if (!(dir = DoSimpleMove(ch, dir, need_specials_check, master, false)))
 				return false;
@@ -935,17 +923,17 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 							|| AFF_FLAGGED(k->follower, EAffect::kMagicStopFight))
 					&& AWAKE(k->follower)
 					&& (k->follower->IsNpc()
-						|| (!PLR_FLAGGED(k->follower, EPlrFlag::kMailing)
-							&& !PLR_FLAGGED(k->follower, EPlrFlag::kWriting)))
+						|| (!k->follower->IsFlagged(EPlrFlag::kMailing)
+							&& !k->follower->IsFlagged(EPlrFlag::kWriting)))
 					&& (!IS_HORSE(k->follower)
 						|| !AFF_FLAGGED(k->follower, EAffect::kTethered))) {
-					if (GET_POS(k->follower) < EPosition::kStand) {
+					if (k->follower->GetPosition() < EPosition::kStand) {
 						if (k->follower->IsNpc()
 							&& k->follower->get_master()->IsNpc()
-							&& GET_POS(k->follower) > EPosition::kSleep
+							&& k->follower->GetPosition() > EPosition::kSleep
 							&& !k->follower->get_wait()) {
 							act("$n поднял$u.", false, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-							GET_POS(k->follower) = EPosition::kStand;
+							k->follower->SetPosition(EPosition::kStand);
 						} else {
 							continue;
 						}
@@ -1036,8 +1024,6 @@ void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 #define DOOR_IS_LOCKED(ch, obj, door)    (!(DOOR_IS_UNLOCKED(ch, obj, door)))
 #define DOOR_KEY(ch, obj, door)        ((obj) ? (GET_OBJ_VAL(obj, 2)) : \
                     (EXIT(ch, door)->key))
-#define DOOR_LOCK(ch, obj, door)    ((obj) ? (GET_OBJ_VAL(obj, 1)) : \
-                    (EXIT(ch, door)->exit_info))
 #define DOOR_LOCK_COMPLEX(ch, obj, door) ((obj) ? \
             (GET_OBJ_VAL(obj,3)) :\
             (EXIT(ch, door)->lock_complexity))
@@ -1046,59 +1032,51 @@ int find_door(CharData *ch, const char *type, char *dir, EDoorScmd scmd) {
 	int door;
 	bool found = false;
 
-	if (*dir)  //Указано направление (второй аргумент)
-	{
-		//Проверяем соответствует ли аргумент английским или русским направлениям
+	if (*dir) {
 		if ((door = search_block(dir, dirs, false)) == -1
-			&& (door = search_block(dir, dirs_rus, false)) == -1)    // Partial Match
-		{
-			//strcpy(doorbuf,"Уточните направление.\r\n");
-			return (FD_WRONG_DIR); //НЕВЕРНОЕ НАПРАВЛЕНИЕ
+			&& (door = search_block(dir, dirs_rus, false)) == -1) {
+			return kWrongDir;
 		}
-		if (EXIT(ch, door)) { //Проверяем есть ли такая дверь в указанном направлении
-			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {//Дверь как-то по-особенному называется?
-				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
-					//Первый аргумент соответствует именительному или винительному алиасу двери
+		if (EXIT(ch, door)) {
+			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {
+				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword)) {
 					return (door);
-				else
-					return (FD_WRONG_DOOR_NAME); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
+				} else {
+					return kWrongDirDoorName;
+				}
 			} else if (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")) {
-				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
-				return (door);
-			} else
-				//Дверь с названием "дверь" есть, но аргумент не соответствует
-				return (FD_DOORNAME_WRONG);
+				return door;
+			} else {
+				return kWrongDoorName;
+			}
 		} else {
-			return (FD_NO_DOOR_GIVEN_DIR); //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
+			return kNoDoorGivenDir;
 		}
-	} else //Направления не указано, ищем дверь по названию
-	{
-		if (!*type) { //Названия не указано
-			return (FD_DOORNAME_EMPTY); //НЕ УКАЗАНО АРГУМЕНТОВ
+	} else {
+		if (!*type) {
+			return (kDoorNameIsEmpty);
 		}
-		for (door = 0; door < EDirection::kMaxDirNum; door++) {//Проверяем все направления, не найдется ли двери?
+		for (door = 0; door < EDirection::kMaxDirNum; door++) {
 			found = false;
-			if (EXIT(ch, door)) {//Есть выход в этом направлении
-				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) { //Дверь как-то по-особенному называется?
-					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
-						//Аргумент соответствует имени этой двери
+			if (EXIT(ch, door)) {
+				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {
+					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword)) {
 						found = true;
-				} else if (DOOR_IS(ch, door) && (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door")))
-					//Дверь не имеет особых алиасов, аргумент соответствует двери
+					}
+				} else if (DOOR_IS(ch, door) && (utils::IsAbbr(type, "дверь") || utils::IsAbbr(type, "door"))) {
 					found = true;
+				}
 			}
-			// дверь найдена проверяем ейный статус.
-			// скипуем попытку закрыть закрытую и открыть открытую.
-			// остальные статусы двери автоматом не проверяются.
 			if (found) {
-				if ((scmd == SCMD_OPEN && DOOR_IS_OPEN(ch, nullptr, door)) ||
-					(scmd == SCMD_CLOSE && DOOR_IS_CLOSED(ch, nullptr, door)))
+				if ((scmd == kScmdOpen && DOOR_IS_OPEN(ch, nullptr, door)) ||
+					(scmd == kScmdClose && DOOR_IS_CLOSED(ch, nullptr, door))) {
 					continue;
-				else
+				} else {
 					return door;
+				}
 			}
 		}
-		return (FD_DOORNAME_WRONG); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
+		return (kWrongDoorName); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
 	}
 
 }
@@ -1198,19 +1176,19 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 	}
 
 	switch (scmd) {
-		case SCMD_OPEN:
-		case SCMD_CLOSE:
-			if (scmd == SCMD_OPEN && obj && !open_otrigger(obj, ch, false))
+		case kScmdOpen:
+		case kScmdClose:
+			if (scmd == kScmdOpen && obj && !open_otrigger(obj, ch, false))
 				return;
-			if (scmd == SCMD_OPEN && !obj && !open_wtrigger(world[ch->in_room], ch, door, false))
+			if (scmd == kScmdOpen && !obj && !open_wtrigger(world[ch->in_room], ch, door, false))
 				return;
-			if (scmd == SCMD_OPEN && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], false))
+			if (scmd == kScmdOpen && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], false))
 				return;
-			if (scmd == SCMD_CLOSE && obj && !close_otrigger(obj, ch, false))
+			if (scmd == kScmdClose && obj && !close_otrigger(obj, ch, false))
 				return;
-			if (scmd == SCMD_CLOSE && !obj && !close_wtrigger(world[ch->in_room], ch, door, false))
+			if (scmd == kScmdClose && !obj && !close_wtrigger(world[ch->in_room], ch, door, false))
 				return;
-			if (scmd == SCMD_CLOSE && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], false))
+			if (scmd == kScmdClose && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], false))
 				return;
 			OPEN_DOOR(ch->in_room, obj, door);
 			if (back) {
@@ -1231,19 +1209,19 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			}
 			break;
 
-		case SCMD_UNLOCK:
-		case SCMD_LOCK:
-			if (scmd == SCMD_UNLOCK && obj && !open_otrigger(obj, ch, true))
+		case kScmdUnlock:
+		case kScmdLock:
+			if (scmd == kScmdUnlock && obj && !open_otrigger(obj, ch, true))
 				return;
-			if (scmd == SCMD_LOCK && obj && !close_otrigger(obj, ch, true))
+			if (scmd == kScmdLock && obj && !close_otrigger(obj, ch, true))
 				return;
-			if (scmd == SCMD_UNLOCK && !obj && !open_wtrigger(world[ch->in_room], ch, door, true))
+			if (scmd == kScmdUnlock && !obj && !open_wtrigger(world[ch->in_room], ch, door, true))
 				return;
-			if (scmd == SCMD_LOCK && !obj && !close_wtrigger(world[ch->in_room], ch, door, true))
+			if (scmd == kScmdLock && !obj && !close_wtrigger(world[ch->in_room], ch, door, true))
 				return;
-			if (scmd == SCMD_UNLOCK && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], true))
+			if (scmd == kScmdUnlock && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], true))
 				return;
-			if (scmd == SCMD_LOCK && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], true))
+			if (scmd == kScmdLock && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], true))
 				return;
 			LOCK_DOOR(ch->in_room, obj, door);
 			if (back)
@@ -1255,7 +1233,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 			}
 			break;
 
-		case SCMD_PICK:
+		case kScmdPick:
 			if (obj && !pick_otrigger(obj, ch))
 				return;
 			if (!obj && !pick_wtrigger(world[ch->in_room], ch, door))
@@ -1277,7 +1255,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 	}
 
 	// Notify the other room
-	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {
+	if ((scmd == kScmdOpen || scmd == kScmdClose) && back) {
 		const auto &people = world[EXIT(ch, door)->to_room()]->people;
 		if (!people.empty()) {
 			sprintf(local_buf + strlen(local_buf) - 1, " с той стороны.");
@@ -1296,7 +1274,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 bool ok_pick(CharData *ch, ObjVnum /*keynum*/, ObjData *obj, int door, int scmd) {
 	const bool pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
 
-	if (scmd != SCMD_PICK) {
+	if (scmd != kScmdPick) {
 		return true;
 	}
 
@@ -1343,19 +1321,12 @@ bool ok_pick(CharData *ch, ObjVnum /*keynum*/, ObjData *obj, int door, int scmd)
 }
 
 void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
-	int door = -1;
-	ObjVnum keynum;
-	char type[kMaxInputLength], dir[kMaxInputLength];
-	ObjData *obj = nullptr;
-	CharData *victim = nullptr;
-	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
-
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		SendMsgToChar("Очнитесь, вы же слепы!\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !ch->GetSkill(ESkill::kPickLock)) {
+	if (subcmd == kScmdPick && !ch->GetSkill(ESkill::kPickLock)) {
 		SendMsgToChar("Это умение вам недоступно.\r\n", ch);
 		return;
 	}
@@ -1365,8 +1336,9 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		SendMsgToChar(CAP(buf), ch);
 		return;
 	}
+	char type[kMaxInputLength], dir[kMaxInputLength];
 	two_arguments(argument, type, dir);
-
+	int where_bits = EFind::kObjInventory | EFind::kObjRoom | EFind::kObjEquip;
 	if (isname(dir, "земля комната room ground"))
 		where_bits = EFind::kObjRoom;
 	else if (isname(dir, "инвентарь inventory"))
@@ -1374,31 +1346,33 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 	else if (isname(dir, "экипировка equipment"))
 		where_bits = EFind::kObjEquip;
 
-	//Сначала ищем дверь, считая второй аргумент указанием на сторону света
-	door = find_door(ch, type, dir, (EDoorScmd) subcmd);
-	//Если двери не нашлось, проверяем объекты в экипировке, инвентаре, на земле
+	auto door = find_door(ch, type, dir, (EDoorScmd) subcmd);
+	ObjData *obj{nullptr};
+	CharData *victim{nullptr};
 	if (door < 0)
 		if (!generic_find(type, where_bits, ch, &victim, &obj)) {
-			//Если и объектов не нашлось, выдаем одно из сообщений об ошибке
 			switch (door) {
-				case -1: //НЕВЕРНОЕ НАПРАВЛЕНИЕ
+				case kWrongDir:
 					SendMsgToChar("Уточните направление.\r\n", ch);
 					break;
-				case -2: //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
+				case kWrongDirDoorName:
 					sprintf(buf, "Вы не видите '%s' в этой комнате.\r\n", type);
 					SendMsgToChar(buf, ch);
 					break;
-				case -3: //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
+				case kNoDoorGivenDir:
 					sprintf(buf, "Вы не можете это '%s'.\r\n", a_cmd_door[subcmd]);
 					SendMsgToChar(buf, ch);
 					break;
-				case -4: //НЕ УКАЗАНО АРГУМЕНТОВ
+				case kDoorNameIsEmpty:
 					sprintf(buf, "Что вы хотите '%s'?\r\n", a_cmd_door[subcmd]);
 					SendMsgToChar(buf, ch);
 					break;
-				case -5: //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
+				case kWrongDoorName:
 					sprintf(buf, "Вы не видите здесь '%s'.\r\n", type);
 					SendMsgToChar(buf, ch);
+					break;
+				default:
+					SendMsgToChar("Что-то с дверью произошло непнятное, сообщите богам.", ch);
 					break;
 			}
 			return;
@@ -1411,8 +1385,8 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 				SendMsgToChar("Просьба не трогать! Частная собственность!\r\n", ch);
 			return;
 		}
-		keynum = DOOR_KEY(ch, obj, door);
-		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !ch->IsNpc() && NORENTABLE(ch))
+		auto keynum = DOOR_KEY(ch, obj, door);
+		if ((subcmd == kScmdClose || subcmd == kScmdLock) && !ch->IsNpc() && NORENTABLE(ch))
 			SendMsgToChar("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
 			act("Вы никогда не сможете $F это!", false, ch, nullptr, a_cmd_door[subcmd], kToChar);
@@ -1426,198 +1400,38 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 		else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], kNeedUnlocked))
 			SendMsgToChar("Угу, заперто.\r\n", ch);
 		else if (!HasKey(ch, keynum) && !privilege::CheckFlag(ch, privilege::kUseSkills)
-			&& ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+			&& ((subcmd == kScmdLock) || (subcmd == kScmdUnlock)))
 			SendMsgToChar("У вас нет ключа.\r\n", ch);
 		else if (DOOR_IS_BROKEN(ch, obj, door) && !privilege::CheckFlag(ch, privilege::kUseSkills)
-			&& ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+			&& ((subcmd == kScmdLock) || (subcmd == kScmdUnlock)))
 			SendMsgToChar("Замок сломан.\r\n", ch);
 		else if (ok_pick(ch, keynum, obj, door, subcmd))
 			do_doorcmd(ch, obj, door, (EDoorScmd) subcmd);
 	}
 }
 
-void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	RoomRnum door = kNowhere;
-	RoomRnum from_room;
-	int fnum;
-	const char *p_str = "пентаграмма";
-	struct FollowerType *k, *k_next;
-	char *pnumber;
-
-	one_argument(argument, smallBuf);
-	pnumber = smallBuf;
-	if (!(fnum = get_number(&pnumber))) {
-		SendMsgToChar("Здесь такой нет!\r\n", ch);
-		return;
-	}
-
-	if (*smallBuf) {
-		if (isname(smallBuf, p_str)) {
-
-			int i = 0;
-			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit && ++i == fnum) {
-					door = aff->modifier;
-				}
-			}
-			if (door == kNowhere) {
-				SendMsgToChar("Вы не видите здесь пентаграмму.\r\n", ch);
-			} else {
-				from_room = ch->in_room;
-				if (ch->IsOnHorse() && AFF_FLAGGED(ch->get_horse(), EAffect::kHold)) {
-					act("$Z $N не в состоянии нести вас на себе.\r\n",
-						false, ch, nullptr, ch->get_horse(), kToChar);
-					return;
-				}
-				// не пускать в ванрумы после пк, если его там прибьет сразу
-				if (deathtrap::check_tunnel_death(ch, door)) {
-					SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
-					return;
-				}
-				// Если чар под местью, и портал односторонний, то не пускать
-				if (NORENTABLE(ch) && !ch->IsNpc()) {
-					SendMsgToChar("Грехи мешают вам воспользоваться вратами.\r\n", ch);
-					return;
-				}
-				//проверка на флаг нельзя_верхом
-				if (ROOM_FLAGGED(door, ERoomFlag::kNohorse) && ch->IsOnHorse()) {
-					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
-						false, ch, nullptr, ch->get_horse(), kToChar);
-					ch->dismount();
-				}
-				//проверка на ванрум и лошадь
-				if (ROOM_FLAGGED(door, ERoomFlag::kTunnel) &&
-					(num_pc_in_room(world[door]) > 0 || ch->IsOnHorse())) {
-					if (num_pc_in_room(world[door]) > 0) {
-						SendMsgToChar("Слишком мало места.\r\n", ch);
-						return;
-					} else {
-						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
-							false, ch, nullptr, ch->get_horse(), kToChar);
-						ch->dismount();
-					}
-				}
-				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
-				if (!IS_IMMORTAL(ch)
-					&& ((!ch->IsNpc() && !Clan::MayEnter(ch, door, kHousePortal))
-						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
-						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
-						|| (world[door]->pkPenterUnique
-							&& (ROOM_FLAGGED(door, ERoomFlag::kArena) || ROOM_FLAGGED(door, ERoomFlag::kHouse))))) {
-					sprintf(smallBuf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
-							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-					act(smallBuf, true, ch, nullptr, nullptr, kToChar);
-					act(smallBuf, true, ch, nullptr, nullptr, kToRoom);
-
-					SendMsgToChar("Мощным ударом вас отшвырнуло от пентаграммы.\r\n", ch);
-					act("$n с визгом отлетел$g от пентаграммы.\r\n", true, ch,
-						nullptr, nullptr, kToRoom | kToNotDeaf);
-					act("$n отлетел$g от пентаграммы.\r\n", true, ch, nullptr, nullptr, kToRoom | kToDeaf);
-					SetWaitState(ch, kBattleRound);
-					return;
-				}
-				if (!enter_wtrigger(world[door], ch, -1))
-					return;
-				act("$n исчез$q в пентаграмме.", true, ch, nullptr, nullptr, kToRoom);
-				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch)
-					&& !IS_IMMORTAL(ch)) {
-					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-								  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
-					pkPortal(ch);
-				}
-				RemoveCharFromRoom(ch);
-				PlaceCharToRoom(ch, door);
-				greet_mtrigger(ch, -1);
-				greet_otrigger(ch, -1);
-				SetWait(ch, 3, false);
-				act("$n появил$u из пентаграммы.", true, ch, nullptr, nullptr, kToRoom);
-				// ищем ангела и лошадь
-				for (k = ch->followers; k; k = k_next) {
-					k_next = k->next;
-					if (IS_HORSE(k->follower) &&
-						!k->follower->GetEnemy() &&
-						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						IN_ROOM(k->follower) == from_room && AWAKE(k->follower)) {
-						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
-							RemoveCharFromRoom(k->follower);
-							PlaceCharToRoom(k->follower, door);
-						}
-					}
-					if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-						&& !AFF_FLAGGED(k->follower, EAffect::kHold)
-						&& (MOB_FLAGGED(k->follower, EMobFlag::kTutelar) || MOB_FLAGGED(k->follower, EMobFlag::kMentalShadow))
-						&& !k->follower->GetEnemy()
-						&& IN_ROOM(k->follower) == from_room
-						&& AWAKE(k->follower)) {
-						act("$n исчез$q в пентаграмме.", true,
-							k->follower, nullptr, nullptr, kToRoom);
-						RemoveCharFromRoom(k->follower);
-						PlaceCharToRoom(k->follower, door);
-						SetWait(k->follower, 3, false);
-						act("$n появил$u из пентаграммы.", true,
-							k->follower, nullptr, nullptr, kToRoom);
-					}
-					if (IS_CHARMICE(k->follower) &&
-						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						GET_POS(k->follower) == EPosition::kStand &&
-						IN_ROOM(k->follower) == from_room) {
-						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
-						command_interpreter(k->follower, buf2);
-					}
-				}
-				if (ch->desc != nullptr)
-					look_at_room(ch, 0);
-			}
-		} else {    // an argument was supplied, search for door keyword
-			for (door = 0; door < EDirection::kMaxDirNum; door++) {
-				if (EXIT(ch, door)
-					&& (isname(smallBuf, EXIT(ch, door)->keyword)
-						|| isname(smallBuf, EXIT(ch, door)->vkeyword))) {
-					perform_move(ch, door, 1, true, nullptr);
-					return;
-				}
-			}
-			sprintf(buf2, "Вы не нашли здесь '%s'.\r\n", smallBuf);
-			SendMsgToChar(buf2, ch);
-		}
-	} else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors))
-		SendMsgToChar("Вы уже внутри.\r\n", ch);
-	else            // try to locate an entrance
-	{
-		for (door = 0; door < EDirection::kMaxDirNum; door++)
-			if (EXIT(ch, door))
-				if (EXIT(ch, door)->to_room() != kNowhere)
-					if (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed) &&
-						ROOM_FLAGGED(EXIT(ch, door)->to_room(), ERoomFlag::kIndoors)) {
-						perform_move(ch, door, 1, true, nullptr);
-						return;
-					}
-		SendMsgToChar("Вы не можете найти вход.\r\n", ch);
-	}
-}
-
 void do_stand(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GET_POS(ch) > EPosition::kSleep && AFF_FLAGGED(ch, EAffect::kSleep)) {
+	if (ch->GetPosition() > EPosition::kSleep && AFF_FLAGGED(ch, EAffect::kSleep)) {
 		SendMsgToChar("Вы сладко зевнули и решили еще немного подремать.\r\n", ch);
 		act("$n сладко зевнул$a и решил$a еще немного подремать.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		GET_POS(ch) = EPosition::kSleep;
+		ch->SetPosition(EPosition::kSleep);
 	}
 
 	if (ch->IsOnHorse()) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand: SendMsgToChar("А вы уже стоите.\r\n", ch);
 			break;
 		case EPosition::kSit: SendMsgToChar("Вы встали.\r\n", ch);
 			act("$n поднял$u.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			// Will be sitting after a successful bash and may still be fighting.
-			GET_POS(ch) = ch->GetEnemy() ? EPosition::kFight : EPosition::kStand;
+			ch->GetEnemy() ? ch->SetPosition(EPosition::kFight) : ch->SetPosition(EPosition::kStand);
 			break;
 		case EPosition::kRest: SendMsgToChar("Вы прекратили отдыхать и встали.\r\n", ch);
 			act("$n прекратил$g отдых и поднял$u.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = ch->GetEnemy() ? EPosition::kFight : EPosition::kStand;
+			ch->GetEnemy() ? ch->SetPosition(EPosition::kFight) : ch->SetPosition(EPosition::kStand);
 			break;
 		case EPosition::kSleep: SendMsgToChar("Пожалуй, сначала стоит проснуться!\r\n", ch);
 			break;
@@ -1625,7 +1439,7 @@ void do_stand(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили летать и опустились на грешную землю.\r\n", ch);
 			act("$n опустил$u на землю.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kStand;
+			ch->SetPosition(EPosition::kStand);
 			break;
 	}
 }
@@ -1635,16 +1449,16 @@ void do_sit(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand: SendMsgToChar("Вы сели.\r\n", ch);
 			act("$n сел$g.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			break;
 		case EPosition::kSit: SendMsgToChar("А вы и так сидите.\r\n", ch);
 			break;
 		case EPosition::kRest: SendMsgToChar("Вы прекратили отдыхать и сели.\r\n", ch);
 			act("$n прервал$g отдых и сел$g.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			break;
 		case EPosition::kSleep: SendMsgToChar("Вам стоит проснуться.\r\n", ch);
 			break;
@@ -1652,7 +1466,7 @@ void do_sit(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили свой полет и сели.\r\n", ch);
 			act("$n прекратил$g свой полет и сел$g.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kSit);
 			break;
 	}
 }
@@ -1662,14 +1476,14 @@ void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
 		return;
 	}
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kStand: SendMsgToChar("Вы присели отдохнуть.\r\n", ch);
 			act("$n присел$g отдохнуть.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kRest;
+			ch->SetPosition(EPosition::kRest);
 			break;
 		case EPosition::kSit: SendMsgToChar("Вы пристроились поудобнее для отдыха.\r\n", ch);
 			act("$n пристроил$u поудобнее для отдыха.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kRest;
+			ch->SetPosition(EPosition::kRest);
 			break;
 		case EPosition::kRest: SendMsgToChar("Вы и так отдыхаете.\r\n", ch);
 			break;
@@ -1679,82 +1493,9 @@ void do_rest(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		default: SendMsgToChar("Вы прекратили полет и присели отдохнуть.\r\n", ch);
 			act("$n прекратил$g полет и пристроил$u поудобнее для отдыха.", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSit;
+			ch->SetPosition(EPosition::kRest);
 			break;
 	}
 }
-
-void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (GetRealLevel(ch) >= kLvlImmortal) {
-		SendMsgToChar("Не время вам спать, родина в опасности!\r\n", ch);
-		return;
-	}
-	if (ch->IsOnHorse()) {
-		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
-		return;
-	}
-	switch (GET_POS(ch)) {
-		case EPosition::kStand:
-		case EPosition::kSit:
-		case EPosition::kRest: SendMsgToChar("Вы заснули.\r\n", ch);
-			act("$n сладко зевнул$g и задал$g храпака.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSleep;
-			break;
-		case EPosition::kSleep: SendMsgToChar("А вы и так спите.\r\n", ch);
-			break;
-		case EPosition::kFight: SendMsgToChar("Вам нужно сражаться! Отоспитесь после смерти.\r\n", ch);
-			break;
-		default: SendMsgToChar("Вы прекратили свой полет и отошли ко сну.\r\n", ch);
-			act("$n прекратил$g летать и нагло заснул$g.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			GET_POS(ch) = EPosition::kSleep;
-			break;
-	}
-}
-
-void do_wake(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	CharData *vict;
-	int self = 0;
-
-	one_argument(argument, arg);
-
-	if (subcmd == SCMD_WAKEUP) {
-		if (!(*arg)) {
-			SendMsgToChar("Кого будить то будем???\r\n", ch);
-			return;
-		}
-	} else {
-		*arg = 0;
-	}
-
-	if (*arg) {
-		if (GET_POS(ch) == EPosition::kSleep)
-			SendMsgToChar("Может быть вам лучше проснуться?\r\n", ch);
-		else if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom)) == nullptr)
-			SendMsgToChar(NOPERSON, ch);
-		else if (vict == ch)
-			self = 1;
-		else if (AWAKE(vict))
-			act("$E и не спал$G.", false, ch, nullptr, vict, kToChar);
-		else if (GET_POS(vict) < EPosition::kSleep)
-			act("$M так плохо! Оставьте $S в покое!", false, ch, nullptr, vict, kToChar);
-		else {
-			act("Вы $S разбудили.", false, ch, nullptr, vict, kToChar);
-			act("$n растолкал$g вас.", false, ch, nullptr, vict, kToVict | kToSleep);
-			GET_POS(vict) = EPosition::kSit;
-		}
-		if (!self)
-			return;
-	}
-	if (AFF_FLAGGED(ch, EAffect::kSleep))
-		SendMsgToChar("Вы не можете проснуться!\r\n", ch);
-	else if (GET_POS(ch) > EPosition::kSleep)
-		SendMsgToChar("А вы и не спали...\r\n", ch);
-	else {
-		SendMsgToChar("Вы проснулись и сели.\r\n", ch);
-		act("$n проснул$u.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		GET_POS(ch) = EPosition::kSit;
-	}
-}
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

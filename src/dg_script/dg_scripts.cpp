@@ -2669,7 +2669,7 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->GetEnemy()));
 			}
 		} else if (!str_cmp(field, "iskiller")) {
-			if (PLR_FLAGGED(c, EPlrFlag::kKiller)) {
+			if (c->IsFlagged(EPlrFlag::kKiller)) {
 				strcpy(str, "1");
 			} else {
 				strcpy(str, "0");
@@ -2681,7 +2681,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "isthief")) {
-			if (PLR_FLAGGED(c, EPlrFlag::kBurglar)) {
+			if (c->IsFlagged(EPlrFlag::kBurglar)) {
 				strcpy(str, "1");
 			} else {
 				strcpy(str, "0");
@@ -2934,14 +2934,14 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "position")) {
 			if (!*subfield) {
-				sprintf(str, "%d", static_cast<int>(GET_POS(c)));
+				sprintf(str, "%d", static_cast<int>(c->GetPosition()));
 			} else {
 				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
 				if (!IS_IMMORTAL(c)) {
 					if (c->IsOnHorse()) {
 						c->dismount();
 					}
-					GET_POS(c) = pos;
+					c->SetPosition(pos);
 				}
 			}
 		} else if (!str_cmp(field, "wait") || !str_cmp(field, "lag")) {

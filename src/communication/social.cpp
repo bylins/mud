@@ -61,7 +61,7 @@ int do_social(CharData *ch, char *argument) {
 	if (!argument || !*argument)
 		return (false);
 
-	if (!ch->IsNpc() && PLR_FLAGGED(ch, EPlrFlag::kDumbed)) {
+	if (ch->IsFlagged(EPlrFlag::kDumbed)) {
 		SendMsgToChar("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return (false);
 	}
@@ -72,7 +72,7 @@ int do_social(CharData *ch, char *argument) {
 		return (false);
 
 	action = &soc_mess_list[act_nr];
-	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos) {
+	if (ch->GetPosition() < action->ch_min_pos || ch->GetPosition() > action->ch_max_pos) {
 		SendMsgToChar("Вам крайне неудобно это сделать.\r\n", ch);
 		return (true);
 	}
@@ -115,7 +115,7 @@ int do_social(CharData *ch, char *argument) {
 			act(deaf_social, false, ch, nullptr, to, kToVict | kToDeaf);
 		}
 	} else {
-		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
+		if (vict->GetPosition() < action->vict_min_pos || vict->GetPosition() > action->vict_max_pos)
 			act("$N2 сейчас, похоже, не до вас.", false, ch, nullptr, vict, kToChar | kToSleep);
 		else {
 			act(action->char_found, 0, ch, nullptr, vict, kToChar | kToSleep);

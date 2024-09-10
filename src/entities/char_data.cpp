@@ -804,7 +804,7 @@ bool IS_HORSE(const CharData *ch) {
 bool IS_MORTIFIER(const CharData *ch) {
 	return ch->IsNpc()
 		&& ch->has_master()
-		&& MOB_FLAGGED(ch, EMobFlag::kCorpse);
+		&& ch->IsFlagged(EMobFlag::kCorpse);
 }
 
 bool MAY_ATTACK(const CharData *sub) {
@@ -814,14 +814,14 @@ bool MAY_ATTACK(const CharData *sub) {
 		&& !AFF_FLAGGED((sub), EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED((sub), EAffect::kHold)
 		&& !AFF_FLAGGED((sub), EAffect::kSleep)
-		&& !MOB_FLAGGED((sub), EMobFlag::kNoFight)
+		&& !(sub)->IsFlagged(EMobFlag::kNoFight)
 		&& sub->get_wait() <= 0
 		&& !sub->GetEnemy()
-		&& GET_POS(sub) >= EPosition::kRest);
+		&& sub->GetPosition() >= EPosition::kRest);
 }
 
 bool AWAKE(const CharData *ch) {
-	return GET_POS(ch) > EPosition::kSleep
+	return ch->GetPosition() > EPosition::kSleep
 		&& !AFF_FLAGGED(ch, EAffect::kSleep);
 }
 
@@ -863,7 +863,7 @@ bool IS_POLY(const CharData *ch) {
 bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return MORT_CAN_SEE(sub, obj)
 		|| (!sub->IsNpc()
-			&& PRF_FLAGGED(sub, EPrf::kHolylight));
+			&& sub->IsFlagged(EPrf::kHolylight));
 }
 
 bool CAN_SEE(const CharData *sub, const CharData *obj) {
@@ -1636,7 +1636,7 @@ std::string CharData::only_title_noclan() {
 std::string CharData::clan_for_title() {
 	std::string result = std::string();
 
-	bool imm = IS_IMMORTAL(this) || PRF_FLAGGED(this, EPrf::kCoderinfo);
+	bool imm = IS_IMMORTAL(this) || this->IsFlagged(EPrf::kCoderinfo);
 
 	if (CLAN(this) && !imm)
 		result = result + "(" + GET_CLAN_STATUS(this) + ")";
@@ -1748,12 +1748,12 @@ void CharData::msdp_report(const std::string &name) {
 
 void CharData::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffect::kGroup);
-	PRF_FLAGS(this).unset(EPrf::kSkirmisher);
+	this->UnsetFlag(EPrf::kSkirmisher);
 }
 
 void CharData::add_follower(CharData *ch) {
 
-	if (ch->IsNpc() && MOB_FLAGGED(ch, EMobFlag::kNoGroup))
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kNoGroup))
 		return;
 	add_follower_silently(ch);
 
@@ -1947,7 +1947,7 @@ void CharData::restore_npc() {
 	// this->mob_specials.damsizedice = 1;
 	// this->mob_specials.ExtraAttack = 0;
 	//флаги
-	MOB_FLAGS(this) = MOB_FLAGS(proto);
+	this->char_specials.saved.act = proto->char_specials.saved.act;
 	this->set_touching(nullptr);
 	if (this->get_protecting()) {
 		this->remove_protecting();
@@ -2073,10 +2073,10 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
 		needSend = true;
 	if (!needSend && to_coder &&
-		(PRF_FLAGGED(this, EPrf::kCoderinfo) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), EPrf::kCoderinfo)))))
+		(this->IsFlagged(EPrf::kCoderinfo) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
 		needSend = true;
 	if (!needSend && to_tester &&
-		(PRF_FLAGGED(this, EPrf::kTester) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), EPrf::kTester)))))
+		(this->IsFlagged(EPrf::kTester) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kTester)))))
 		needSend = true;
 	if (!needSend)
 		return;
@@ -2147,8 +2147,8 @@ bool CharData::DropFromHorse() {
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	SetWaitState(plr, 3 * kBattleRound);
-	if (GET_POS(plr) > EPosition::kSit) {
-		GET_POS(plr) = EPosition::kSit;
+	if (plr->GetPosition() > EPosition::kSit) {
+		plr->SetPosition(EPosition::kSit);
 	}
 	return true;
 }

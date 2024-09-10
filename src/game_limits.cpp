@@ -176,7 +176,7 @@ int CalcManaGain(const CharData *ch) {
 			percent -= 90;
 		}
 	} else
-		switch (GET_POS(ch)) {
+		switch (ch->GetPosition()) {
 			case EPosition::kSleep:
 				if (IS_MANA_CASTER(ch)) {
 					percent += 80;
@@ -255,7 +255,7 @@ int hit_gain(CharData *ch) {
 	// Skill/Spell calculations //
 
 	// Position calculations    //
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kSleep: percent += 25;
 			break;
 		case EPosition::kRest: percent += 15;
@@ -277,7 +277,7 @@ int hit_gain(CharData *ch) {
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	if (!ch->IsNpc()) {
-		if (GET_POS(ch) == EPosition::kIncap || GET_POS(ch) == EPosition::kPerish)
+		if (ch->GetPosition() == EPosition::kIncap || ch->GetPosition() == EPosition::kPerish)
 			gain = 0;
 	}
 	return (gain);
@@ -315,7 +315,7 @@ int move_gain(CharData *ch) {
 
 
 	// Position calculations    //
-	switch (GET_POS(ch)) {
+	switch (ch->GetPosition()) {
 		case EPosition::kSleep: percent += 25;
 			break;
 		case EPosition::kRest: percent += 15;
@@ -368,8 +368,8 @@ int interpolate(int min_value, int pulse) {
 void beat_punish(const CharData::shared_ptr &i) {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
-	if (PLR_FLAGGED(i, EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kHelled);
+	if (i->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(i) && HELL_DURATION(i) <= time(nullptr)) {
+		i->UnsetFlag(EPlrFlag::kHelled);
 		if (HELL_REASON(i))
 			free(HELL_REASON(i));
 		HELL_REASON(i) = nullptr;
@@ -393,10 +393,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)
+	if (i->IsFlagged(EPlrFlag::kNameDenied)
 		&& NAME_DURATION(i)
 		&& NAME_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kNameDenied);
+		i->UnsetFlag(EPlrFlag::kNameDenied);
 		if (NAME_REASON(i)) {
 			free(NAME_REASON(i));
 		}
@@ -427,10 +427,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 			false, i.get(), nullptr, nullptr, kToRoom);
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kMuted)
+	if (i->IsFlagged(EPlrFlag::kMuted)
 		&& MUTE_DURATION(i) != 0
 		&& MUTE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kMuted);
+		i->UnsetFlag(EPlrFlag::kMuted);
 		if (MUTE_REASON(i))
 			free(MUTE_REASON(i));
 		MUTE_REASON(i) = nullptr;
@@ -440,10 +440,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Вы можете орать.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kDumbed)
+	if (i->IsFlagged(EPlrFlag::kDumbed)
 		&& DUMB_DURATION(i) != 0
 		&& DUMB_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kDumbed);
+		i->UnsetFlag(EPlrFlag::kDumbed);
 		if (DUMB_REASON(i))
 			free(DUMB_REASON(i));
 		DUMB_REASON(i) = nullptr;
@@ -453,10 +453,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Вы можете говорить.\r\n", i.get());
 	}
 
-	if (!PLR_FLAGGED(i, EPlrFlag::kRegistred)
+	if (!i->IsFlagged(EPlrFlag::kRegistred)
 		&& UNREG_DURATION(i) != 0
 		&& UNREG_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kRegistred);
+		i->UnsetFlag(EPlrFlag::kRegistred);
 		if (UNREG_REASON(i))
 			free(UNREG_REASON(i));
 		UNREG_REASON(i) = nullptr;
@@ -504,10 +504,10 @@ void beat_punish(const CharData::shared_ptr &i) {
 		SendMsgToChar("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kFrozen)
+	if (i->IsFlagged(EPlrFlag::kFrozen)
 		&& FREEZE_DURATION(i) != 0
 		&& FREEZE_DURATION(i) <= time(nullptr)) {
-		restore = PLR_TOG_CHK(i, EPlrFlag::kFrozen);
+		i->UnsetFlag(EPlrFlag::kFrozen);
 		if (FREEZE_REASON(i)) {
 			free(FREEZE_REASON(i));
 		}
@@ -541,7 +541,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		restore = IN_ROOM(i);
 	}
 
-	if (PLR_FLAGGED(i, EPlrFlag::kHelled)) {
+	if (i->IsFlagged(EPlrFlag::kHelled)) {
 		if (restore != r_helled_start_room) {
 			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_helled_start_room);
@@ -557,7 +557,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			}
 		}
-	} else if (PLR_FLAGGED(i, EPlrFlag::kNameDenied)) {
+	} else if (i->IsFlagged(EPlrFlag::kNameDenied)) {
 		if (restore != r_named_start_room) {
 			if (IN_ROOM(i) == kStrangeRoom) {
 				i->set_was_in_room(r_named_start_room);
@@ -648,10 +648,10 @@ void beat_points_update(int pulse) {
 		// working time, if you're sure, that you control these situations
 		// everywhere. To the time of this code revision I've fix some of them
 		// and haven't seen any other.
-		//             if (GET_POS(i) == EPosition::kDead)
+		//             if (i->GetPosition() == EPosition::kDead)
 		//                     die(i, NULL);
 
-		if (GET_POS(d->character.get()) < EPosition::kStun) {
+		if (d->character.get()->GetPosition() < EPosition::kStun) {
 			continue;
 		}
 
@@ -913,7 +913,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		GET_DRUNK_STATE(ch) = 0;
 	}
 
-	if (PLR_FLAGGED(ch, EPlrFlag::kWriting))
+	if (ch->IsFlagged(EPlrFlag::kWriting))
 		return;
 
 	int cond_value = GET_COND(ch, condition);
@@ -1074,7 +1074,7 @@ void hour_update() {
 	DescriptorData *i;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == nullptr || PLR_FLAGGED(i->character, EPlrFlag::kWriting))
+		if (STATE(i) != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
 		SEND_TO_Q(buf, i);
@@ -1233,7 +1233,7 @@ void clan_chest_invoice(ObjData *j) {
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
-			&& PRF_FLAGGED(d->character, EPrf::kDecayMode)
+			&& d->character->IsFlagged(EPrf::kDecayMode)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
@@ -1577,8 +1577,8 @@ void point_update() {
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffect::kSleep)
-			&& GET_POS(i) > EPosition::kSleep) {
-			GET_POS(i) = EPosition::kSleep;
+			&& i->GetPosition() > EPosition::kSleep) {
+			i->SetPosition(EPosition::kSleep);
 			SendMsgToChar("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.",
 				true, i, nullptr, nullptr, kToRoom);
@@ -1601,7 +1601,7 @@ void point_update() {
 			}
 			UpdateCharObjects(i);
 		}
-		if (GET_POS(i) >= EPosition::kStun)    // Restore hit points
+		if (i->GetPosition() >= EPosition::kStun)    // Restore hit points
 		{
 			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
@@ -1696,17 +1696,17 @@ void point_update() {
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
 				}
 			}
-		} else if (GET_POS(i) == EPosition::kIncap) {
+		} else if (i->GetPosition() == EPosition::kIncap) {
 			i->points.hit += 1;
 			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
-		} else if (GET_POS(i) == EPosition::kPerish) {
+		} else if (i->GetPosition() == EPosition::kPerish) {
 			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 			i->points.hit += 2;
 		}
 		update_pos(i);
 		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
-			&& !PRF_FLAGGED(i, EPrf::kCoderinfo)) {
+			&& !i->IsFlagged(EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
 	});

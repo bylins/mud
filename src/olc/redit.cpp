@@ -304,7 +304,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 
 			// * Forget making a buffer, lets just write the thing now.
 			*buf2 = '\0';
-			room->flags_tascii(4, buf2);
+			room->flags_tascii(FlagData::kPlanesNumber, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
 					zone_table[room->zone_rn].vnum, buf2, room->sector_type);

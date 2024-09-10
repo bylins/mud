@@ -42,7 +42,7 @@ void PerformDropGold(CharData *ch, int amount) {
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!ch->IsNpc() || !MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+		if (!ch->IsNpc() || !ch->IsFlagged(EMobFlag::kCorpse)) {
 			SendMsgToChar(ch, "Вы бросили %d %s на землю.\r\n",
 						  amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 			sprintf(buf,

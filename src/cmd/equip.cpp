@@ -286,7 +286,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kArmoring)
-			|| MOB_FLAGGED(ch, EMobFlag::kResurrected))) {
+			|| ch->IsFlagged(EMobFlag::kResurrected))) {
 		return;
 	}
 
@@ -302,7 +302,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (dotmode == kFindAll) {
 		for (obj = ch->carrying; obj && !AFF_FLAGGED(ch, EAffect::kHold) &&
-			GET_POS(ch) > EPosition::kSleep; obj = next_obj) {
+			ch->GetPosition() > EPosition::kSleep; obj = next_obj) {
 			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
 				&& (equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
@@ -322,7 +322,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
 			SendMsgToChar(buf, ch);
 		} else
-			while (obj && !AFF_FLAGGED(ch, EAffect::kHold) && GET_POS(ch) > EPosition::kSleep) {
+			while (obj && !AFF_FLAGGED(ch, EAffect::kHold) && ch->GetPosition() > EPosition::kSleep) {
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->get_next_content());
 				if ((equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
 					perform_wear(ch, obj, equip_pos);
@@ -349,7 +349,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int wear;
 
 	if (ch->IsNpc() && (AFF_FLAGGED(ch, EAffect::kCharmed)
-		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || MOB_FLAGGED(ch, EMobFlag::kResurrected))))
+		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || ch->IsFlagged(EMobFlag::kResurrected))))
 		return;
 
 	if (ch->is_morphed()) {
@@ -371,7 +371,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Это не оружие.\r\n", ch);
 		} else if (ch->IsNpc()
 			&& AFF_FLAGGED(ch, EAffect::kCharmed)
-			&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+			&& ch->IsFlagged(EMobFlag::kCorpse)) {
 			SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 		} else {
 			one_argument(argument, arg);
@@ -458,7 +458,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (ch->IsNpc()
 				&& AFF_FLAGGED(ch, EAffect::kCharmed)
-				&& MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+				&& ch->IsFlagged(EMobFlag::kCorpse)) {
 				SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}

@@ -22,12 +22,12 @@ void GoFlee(CharData *ch) {
 
 	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
 		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
-		PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+		ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вы не можете сбежать из этого положения.\r\n", ch);
 		return;
 	}
@@ -36,7 +36,7 @@ void GoFlee(CharData *ch) {
 		SetWaitState(ch, kBattleRound);
 	}
 
-	if (ch->IsOnHorse() && (GET_POS(ch->get_horse()) < EPosition::kFight ||
+	if (ch->IsOnHorse() && (ch->get_horse()->GetPosition() < EPosition::kFight ||
 		AFF_FLAGGED(ch->get_horse(), EAffect::kHold))) {
 		SendMsgToChar("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
@@ -78,12 +78,12 @@ void GoDirectFlee(CharData *ch, int direction) {
 
 	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
 		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
-		PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+		ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вы не сможете сбежать из этого положения.\r\n", ch);
 		return;
 	}

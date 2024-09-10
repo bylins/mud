@@ -299,9 +299,9 @@ brief_shields::brief_shields(CharData *ch_, CharData *vict_, const WeapForAct &w
 void brief_shields::act_to_char(const char *msg) {
 	if (!reflect
 		|| (reflect
-			&& !PRF_FLAGGED(ch, EPrf::kBriefShields))) {
+			&& !ch->IsFlagged(EPrf::kBriefShields))) {
 		if (!add.empty()
-			&& PRF_FLAGGED(ch, EPrf::kBriefShields)) {
+			&& ch->IsFlagged(EPrf::kBriefShields)) {
 			act_add(msg, kToChar);
 		} else {
 			act_no_add(msg, kToChar);
@@ -312,9 +312,9 @@ void brief_shields::act_to_char(const char *msg) {
 void brief_shields::act_to_vict(const char *msg) {
 	if (!reflect
 		|| (reflect
-			&& !PRF_FLAGGED(vict, EPrf::kBriefShields))) {
+			&& !vict->IsFlagged(EPrf::kBriefShields))) {
 		if (!add.empty()
-			&& PRF_FLAGGED(vict, EPrf::kBriefShields)) {
+			&& vict->IsFlagged(EPrf::kBriefShields)) {
 			act_add(msg, kToVict | kToSleep);
 		} else {
 			act_no_add(msg, kToVict | kToSleep);
@@ -571,7 +571,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, con
 				brief.reflect = true;
 			}
 
-			if (!vict->IsNpc() && (GetRealLevel(vict) >= kLvlImmortal) && !PLR_FLAGGED((ch), EPlrFlag::kWriting)) {
+			if (!vict->IsNpc() && (GetRealLevel(vict) >= kLvlImmortal) && !(ch)->IsFlagged(EPlrFlag::kWriting)) {
 				switch (attacktype) {
 					case to_underlying(ESkill::kBackstab) + kTypeHit:
 					case to_underlying(ESkill::kThrow) + kTypeHit:
@@ -587,7 +587,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, con
 				brief.act_to_vict(msg->god_msg.victim_msg);
 				brief.act_to_room(msg->god_msg.room_msg);
 			} else if (dam != 0) {
-				if (GET_POS(vict) == EPosition::kDead) {
+				if (vict->GetPosition() == EPosition::kDead) {
 					SendMsgToChar("&Y&q", ch);
 					brief.act_to_char(msg->die_msg.attacker_msg);
 					SendMsgToChar("&Q&n", ch);
@@ -669,7 +669,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	switch (skill_id) {
 
 		case ESkill::kBackstab: {
-			if ((GET_POS(vict) >= EPosition::kFight) && AFF_FLAGGED(vict, EAffect::kAwarness)) {
+			if ((vict->GetPosition() >= EPosition::kFight) && AFF_FLAGGED(vict, EAffect::kAwarness)) {
 				rate += 30;
 			}
 			rate += dex_bonus(GetRealDex(vict));
@@ -678,23 +678,23 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kCharge: {
-			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+			if (vict->IsFlagged(EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kBash: {
-			if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) >= EPosition::kSleep) {
+			if (vict->GetPosition() < EPosition::kFight && vict->GetPosition() >= EPosition::kSleep) {
 				rate -= 20;
 			}
-			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+			if (vict->IsFlagged(EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 		case ESkill::kSlay: {
-			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+			if (vict->IsFlagged(EPrf::kAwake)) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -710,7 +710,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kKick: {
 			//rate += size_app[GET_POS_SIZE(vict)].interpolate;
 			rate += GetRealCon(vict);
-			if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+			if (vict->IsFlagged(EPrf::kAwake)) {
 				rate += CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -756,7 +756,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			rate += dex_bonus(GetRealStr(ch));
 			if (GET_EQ(vict, EEquipPos::kBoths))
 				rate -= 10;
-			if (PRF_FLAGGED(vict, EPrf::kAwake))
+			if (vict->IsFlagged(EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -773,9 +773,9 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kChopoff: {
-			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
+			if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || vict->IsFlagged(EMobFlag::kMobAwake))
 				rate -= 20;
-			if (PRF_FLAGGED(vict, EPrf::kAwake))
+			if (vict->IsFlagged(EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -811,21 +811,21 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kStrangle: {
-			if (CAN_SEE(ch, vict) && (PRF_FLAGGED(vict, EPrf::kAwake))) {
+			if (CAN_SEE(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kDazzle: {
-			if (CAN_SEE(ch, vict) && (PRF_FLAGGED(vict, EPrf::kAwake))) {
+			if (CAN_SEE(ch, vict) && (vict->IsFlagged(EPrf::kAwake))) {
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
 		}
 
 		case ESkill::kStun: {
-			if (PRF_FLAGGED(vict, EPrf::kAwake))
+			if (vict->IsFlagged(EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -887,8 +887,8 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				if (!CAN_SEE(vict, ch)) {
 					bonus += 25;
 				}
-				if (GET_POS(vict) < EPosition::kFight) {
-					bonus += (20 * (EPosition::kFight - GET_POS(vict)));
+				if (vict->GetPosition() < EPosition::kFight) {
+					bonus += (20 * (EPosition::kFight - vict->GetPosition()));
 				}
 			}
 			break;
@@ -898,7 +898,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
 			bonus = (GET_REAL_SIZE(ch) - 50) + (GET_EQ(ch, EEquipPos::kShield) ?
 							weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 35)].bashing : 0);
-			if (PRF_FLAGGED(ch, EPrf::kAwake)) {
+			if (ch->IsFlagged(EPrf::kAwake)) {
 				bonus = -50;
 			}
 			if (ch->IsNpc()) {
@@ -1122,7 +1122,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (vict) {
 				if (!CAN_SEE(vict, ch))
 					bonus += 10;
-				if (GET_POS(vict) < EPosition::kSit)
+				if (vict->GetPosition() < EPosition::kSit)
 					bonus -= 50;
 			}
 			break;
@@ -1402,8 +1402,8 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 					bonus += 25;
 				}
 
-				if (GET_POS(vict) < EPosition::kFight) {
-					bonus += (20 * (EPosition::kFight - GET_POS(vict)));
+				if (vict->GetPosition() < EPosition::kFight) {
+					bonus += (20 * (EPosition::kFight - vict->GetPosition()));
 				} else if (AFF_FLAGGED(vict, EAffect::kAwarness)) {
 					victim_modi -= 30;
 				}
@@ -1421,10 +1421,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 				   ? weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)), 0, 50)].bashing
 				   : 0);
 			if (vict) {
-				if (GET_POS(vict) < EPosition::kFight && GET_POS(vict) > EPosition::kSleep) {
+				if (vict->GetPosition() < EPosition::kFight && vict->GetPosition() > EPosition::kSleep) {
 					victim_modi -= 20;
 				}
-				if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+				if (vict->IsFlagged(EPrf::kAwake)) {
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 				}
 			}
@@ -1466,7 +1466,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 			if (vict) {
 				victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 				victim_modi -= GetRealCon(vict);
-				if (PRF_FLAGGED(vict, EPrf::kAwake)) {
+				if (vict->IsFlagged(EPrf::kAwake)) {
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 				}
 			}
@@ -1638,7 +1638,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 				victim_modi -= dex_bonus(GetRealStr(ch));
 				if (GET_EQ(vict, EEquipPos::kBoths))
 					victim_modi -= 10;
-				if (PRF_FLAGGED(vict, EPrf::kAwake))
+				if (vict->IsFlagged(EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -1704,11 +1704,11 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 			if (vict) {
 				if (!CAN_SEE(vict, ch))
 					bonus += 10;
-				if (GET_POS(vict) < EPosition::kSit)
+				if (vict->GetPosition() < EPosition::kSit)
 					bonus -= 50;
-				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || MOB_FLAGGED(vict, EMobFlag::kMobAwake))
+				if (AWAKE(vict) || AFF_FLAGGED(vict, EAffect::kAwarness) || vict->IsFlagged(EMobFlag::kMobAwake))
 					victim_modi -= 20;
-				if (PRF_FLAGGED(vict, EPrf::kAwake))
+				if (vict->IsFlagged(EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -1823,7 +1823,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 			} else {
 				if (!CAN_SEE(ch, vict))
 					bonus += (base_percent + bonus) / 5;
-				if (PRF_FLAGGED(vict, EPrf::kAwake))
+				if (vict->IsFlagged(EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			}
 			break;
@@ -1844,7 +1844,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 				bonus +=
 					weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths))].shocking;
 
-			if (PRF_FLAGGED(vict, EPrf::kAwake))
+			if (vict->IsFlagged(EPrf::kAwake))
 				victim_modi -= CalculateSkillAwakeModifier(ch, vict);
 			break;
 		}
@@ -1881,7 +1881,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool n
 //		total_percent = MUD::Skill(skill_id).cap;
 //	}
 
-	if (PRF_FLAGGED(ch, EPrf::kAwake) && (skill_id == ESkill::kBash)) {
+	if (ch->IsFlagged(EPrf::kAwake) && (skill_id == ESkill::kBash)) {
 		total_percent /= 2;
 	}
 
@@ -1952,8 +1952,8 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	if (victim &&
-		(MOB_FLAGGED(victim, EMobFlag::kNoSkillTrain)
-			|| MOB_FLAGGED(victim, EMobFlag::kMounting)
+		(victim->IsFlagged(EMobFlag::kNoSkillTrain)
+			|| victim->IsFlagged(EMobFlag::kMounting)
 			|| !OK_GAIN_EXP(ch, victim)
 			|| (victim->get_master() && !victim->get_master()->IsNpc()))) {
 		return;
@@ -2000,7 +2000,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 								  (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetMorphSkill(skill))));
 		}
 		if (victim && victim->IsNpc()) {
-			MOB_FLAGS(victim).set(EMobFlag::kNoSkillTrain);
+			victim->SetFlag(EMobFlag::kNoSkillTrain);
 		}
 	}
 }
@@ -2011,8 +2011,8 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 			&& ch->GetMorphSkill(skill) > 0
 			&& (!vict
 				|| (vict->IsNpc()
-					&& !MOB_FLAGGED(vict, EMobFlag::kProtect)
-					&& !MOB_FLAGGED(vict, EMobFlag::kNoSkillTrain)
+					&& !vict->IsFlagged(EMobFlag::kProtect)
+					&& !vict->IsFlagged(EMobFlag::kNoSkillTrain)
 					&& !AFF_FLAGGED(vict, EAffect::kCharmed)
 					&& !IS_HORSE(vict)))) {
 			ImproveSkill(ch, skill, success, vict);

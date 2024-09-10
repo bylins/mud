@@ -661,24 +661,24 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
-		GET_OBJ_AFFECTS(object).tascii(4, buf);
-		GET_OBJ_AFFECTS(proto).tascii(4, buf2);
+		GET_OBJ_AFFECTS(object).tascii(FlagData::kPlanesNumber, buf);
+		GET_OBJ_AFFECTS(proto).tascii(FlagData::kPlanesNumber, buf2);
 		if (str_cmp(buf, buf2)) {
 			out << "Affs: " << buf << "~\n";
 		}
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		GET_OBJ_ANTI(object).tascii(4, buf);
-		GET_OBJ_ANTI(proto).tascii(4, buf2);
+		GET_OBJ_ANTI(object).tascii(FlagData::kPlanesNumber, buf);
+		GET_OBJ_ANTI(proto).tascii(FlagData::kPlanesNumber, buf2);
 		if (str_cmp(buf, buf2)) {
 			out << "Anti: " << buf << "~\n";
 		}
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		GET_OBJ_NO(object).tascii(4, buf);
-		GET_OBJ_NO(proto).tascii(4, buf2);
+		GET_OBJ_NO(object).tascii(FlagData::kPlanesNumber, buf);
+		GET_OBJ_NO(proto).tascii(FlagData::kPlanesNumber, buf2);
 		if (str_cmp(buf, buf2)) {
 			out << "Nofl: " << buf << "~\n";
 		}
@@ -690,8 +690,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (blooded) {
 			object->unset_extraflag(EObjFlag::kBloody);
 		}
-		GET_OBJ_EXTRA(object).tascii(4, buf);
-		GET_OBJ_EXTRA(proto).tascii(4, buf2);
+		GET_OBJ_EXTRA(object).tascii(FlagData::kPlanesNumber, buf);
+		GET_OBJ_EXTRA(proto).tascii(FlagData::kPlanesNumber, buf2);
 		if (blooded) //Возвращаем флаг назад
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
@@ -2393,7 +2393,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 				"Вы потеряли связь с окружающими вас...", false, recep, 0, ch, kToVict);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
-			PLR_FLAGS(ch).set(EPlrFlag::kCryo);
+			ch->SetFlag(EPlrFlag::kCryo);
 		}
 
 		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -2460,7 +2460,7 @@ void Crash_frac_save_all(int frac_part) {
 			if (timer1.delta().count() > 0.1)
 				log("Crash_frac_save_all: save_char, timer %f, save player: %d", timer1.delta().count(), count);
 			count++;
-			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
+			d->character->UnsetFlag(EPlrFlag::kCrashSave);
 		}
 	}
 }
@@ -2468,10 +2468,10 @@ void Crash_frac_save_all(int frac_part) {
 void Crash_save_all(void) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, EPlrFlag::kCrashSave)) {
+		if ((STATE(d) == CON_PLAYING) && d->character->IsFlagged(EPlrFlag::kCrashSave)) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
-			PLR_FLAGS(d->character).unset(EPlrFlag::kCrashSave);
+			d->character->UnsetFlag(EPlrFlag::kCrashSave);
 		}
 	}
 }
@@ -2487,7 +2487,7 @@ void Crash_save_all_rent(void) {
 		if (!ch->IsNpc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
-			PLR_FLAGS(ch).unset(EPlrFlag::kCrashSave);
+			ch->UnsetFlag(EPlrFlag::kCrashSave);
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();
 			AFF_FLAGS(ch.get()).unset(EAffect::kHorse);

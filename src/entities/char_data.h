@@ -131,7 +131,6 @@ struct char_special_data_saved {
 
 // Special playing constants shared by PCs and NPCs which aren't in pfile
 struct char_special_data {
-	//byte position;        // Standing, fighting, sleeping, etc.
 	EPosition position;        // Standing, fighting, sleeping, etc.
 
 	int carry_weight;        // Carried weight
@@ -778,7 +777,31 @@ class CharData : public ProtectedCharData {
 	struct char_played_ability_data add_abils;        // Abilities that add to main
 	struct char_ability_data real_abils;        // Abilities without modifiers
 	struct char_point_data points;        // Points
+
 	struct char_special_data char_specials;        // PC/NPC specials
+
+	EPosition GetPosition() const { return char_specials.position; };
+  	void SetPosition(const EPosition position) { char_specials.position = position; };
+
+	/* Character's flags actions */
+	// Костыльная функция, которая пока нужна, потому что загрузчик файлов не часть чардаты и не friend class.
+	void SetFlagsFromString(const std::string &string) { char_specials.saved.act.from_string(string.c_str()); };
+  	void PrintFlagsToAscii(char *sink) const { char_specials.saved.act.tascii(FlagData::kPlanesNumber, sink); };
+  	void CopyFlagsFrom(CharData *source) { char_specials.saved.act = source->char_specials.saved.act ; };
+	void SetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.act.set(flag); }; };
+  	void UnsetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.act.unset(flag); }; };
+  	[[nodiscard]] bool IsFlagged(const EMobFlag flag) const { return (IsNpc() && char_specials.saved.act.get(flag)); };
+  	void SetFlag(const ENpcFlag flag) { if (IsNpc()) { char_specials.saved.act.set(flag); }; };
+  	void UnsetFlag(const ENpcFlag flag) { if (IsNpc()) { char_specials.saved.act.unset(flag); }; };
+  	[[nodiscard]] bool IsFlagged(const ENpcFlag flag) const { return (IsNpc() && char_specials.saved.act.get(flag)); };
+
+  	void SetFlag(const EPlrFlag flag) { if (!IsNpc()) { char_specials.saved.act.set(flag); }; };
+  	void UnsetFlag(const EPlrFlag flag) { if (!IsNpc()) { char_specials.saved.act.unset(flag); }; };
+  	[[nodiscard]] bool IsFlagged(const EPlrFlag flag) const { return (!IsNpc() && char_specials.saved.act.get(flag)); };
+  	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };
+  	void UnsetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.unset(flag); }; };
+  	[[nodiscard]] bool IsFlagged(const EPrf flag) const { return (!IsNpc() && player_specials->saved.pref.get(flag)); };
+
 	struct mob_special_data mob_specials;        // NPC specials
 
 	player_special_data::shared_ptr player_specials;    // PC specials
@@ -1004,7 +1027,7 @@ inline void SetSave(CharData *ch, ESaving save, int mod) {
 
 inline bool IS_UNDEAD(CharData *ch) {
 	return ch->IsNpc()
-			&& (MOB_FLAGGED(ch, EMobFlag::kResurrected)
+			&& (ch->IsFlagged(EMobFlag::kResurrected)
 					|| GET_RACE(ch) == ENpcRace::kZombie
 					|| GET_RACE(ch) == ENpcRace::kGhost);
 }

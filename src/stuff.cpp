@@ -357,7 +357,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 		}
 	}
 	o->set_vnum_zone_from(99999);
-	if (MOB_FLAGGED(ch, EMobFlag::kCorpse)) {
+	if (ch->IsFlagged(EMobFlag::kCorpse)) {
 		PlaceObjToRoom(o.get(), ch->in_room);
 	} else {
 		PlaceObjIntoObj(o.get(), corpse);
@@ -374,7 +374,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 void obj_load_on_death(ObjData *corpse, CharData *ch) {
 	if (ch == nullptr
 		|| !ch->IsNpc()
-		|| (!MOB_FLAGGED(ch, EMobFlag::kCorpse)
+		|| (!ch->IsFlagged(EMobFlag::kCorpse)
 			&& corpse == nullptr)) {
 		return;
 	}

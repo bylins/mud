@@ -24,7 +24,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 	auto feat_id{EFeat::kUndefined};
 	std::string to_char, to_vict, to_room;
 	void (*DoSideAction)(abilities_roll::TechniqueRoll &technique);
-	Bitvector mob_no_flag = EMobFlag::kMobDeleted;
+	auto mob_no_flag = EMobFlag::kMobDeleted;
 
 	switch (static_cast<ESkill>(weapon->get_spec_param())) {
 		case ESkill::kSpades:
@@ -39,7 +39,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				if (technique.GetRival()->IsOnHorse()) { //если на лошади - падение с лагом 3
 					technique.GetRival()->DropFromHorse();
 				} else { // иначе просто садится на попу с лагом 2
-					GET_POS(technique.GetRival()) = std::min(GET_POS(technique.GetRival()), EPosition::kSit);
+					auto pos = std::min(technique.GetRival()->GetPosition(), EPosition::kSit);
+					technique.GetRival()->SetPosition(pos);
 					SetWait(technique.GetRival(), 2, false);
 				}
 			});
@@ -87,7 +88,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 	};
 	abilities_roll::TechniqueRoll side_roll;
 	side_roll.Init(technique.GetActor(), ability_id, technique.GetRival());
-	if (side_roll.IsSuccess() && !MOB_FLAGGED(technique.GetRival(), mob_no_flag)) {
+	if (side_roll.IsSuccess() && !technique.GetRival()->IsFlagged(mob_no_flag)) {
 		act(to_char.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToVict);
 		act(to_vict.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToChar);
 		act(to_room.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToNotVict | kToArenaListen);
@@ -132,11 +133,11 @@ void go_throw(CharData *ch, CharData *victim) {
 	}
 
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
-	int victims_amount = 1 + PRF_FLAGGED(ch, EPrf::kDoubleThrow) + 2 * PRF_FLAGGED(ch, EPrf::kTripleThrow);
+	int victims_amount = 1 + ch->IsFlagged(EPrf::kDoubleThrow) + 2 * ch->IsFlagged(EPrf::kTripleThrow);
 
 	auto technique_id = abilities::EAbility::kThrowWeapon;
 	auto dmg_type = fight::kPhysDmg;
-	if (PRF_FLAGGED(ch, EPrf::kShadowThrow)) {
+	if (ch->IsFlagged(EPrf::kShadowThrow)) {
 		SendMsgToChar("Рукоять оружия в вашей руке налилась неестественным холодом.\r\n", ch);
 		act("Оружие в руках $n1 окружила призрачная дымка.",
 			true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -146,7 +147,7 @@ void go_throw(CharData *ch, CharData *victim) {
 		timed.feat = EFeat::kShadowThrower;
 		timed.time = 6;
 		ImposeTimedFeat(ch, &timed);
-		PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
+		ch->UnsetFlag(EPrf::kShadowThrow);
 	}
 	abilities_roll::TechniqueRoll roll;
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
@@ -218,7 +219,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
 		}
-		PRF_FLAGS(ch).set(EPrf::kShadowThrow);
+		ch->SetFlag(EPrf::kShadowThrow);
 	};
 
 	if (IS_IMPL(ch) || !ch->GetEnemy()) {

@@ -38,7 +38,7 @@ void SetInbornAndRaceFeats(CharData *ch);
 bool CanUseFeat(const CharData *ch, EFeat feat_id);
 bool CanGetFeat(CharData *ch, EFeat feat);
 bool TryFlipActivatedFeature(CharData *ch, char *argument);
-Bitvector GetPrfWithFeatNumber(EFeat feat_id);
+EPrf GetPrfWithFeatNumber(EFeat feat_id);
 
 namespace feats {
 

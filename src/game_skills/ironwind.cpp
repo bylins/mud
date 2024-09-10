@@ -11,11 +11,11 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
@@ -39,14 +39,14 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 	act(buf2, false, victim, weapon, ch, kToChar);
 
 	if (!ch->GetEnemy()) {
-		PRF_FLAGS(ch).set(EPrf::kIronWind);
+		ch->SetFlag(EPrf::kIronWind);
 		SET_AF_BATTLE(ch, kEafIronWind);
 		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		SetWait(ch, 2, true);
 		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 		//ch->setSkillCooldown(ESkill::kIronwind, 2);
 	} else {
-		PRF_FLAGS(ch).set(EPrf::kIronWind);
+		ch->SetFlag(EPrf::kIronWind);
 		SET_AF_BATTLE(ch, kEafIronWind);
 	}
 }

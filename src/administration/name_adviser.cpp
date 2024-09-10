@@ -112,7 +112,7 @@ void NameAdviser::init() {
 
 		Player tmp_player;
 		const int char_i = LoadPlayerCharacter(char_name.c_str(), &tmp_player, ELoadCharFlags::kFindId);
-		if (char_i > -1 && !PLR_FLAGGED(&tmp_player, EPlrFlag::kDeleted)) {
+		if (char_i > -1 && !tmp_player.IsFlagged(EPlrFlag::kDeleted)) {
 			// char exists and not deleted - skip name
 			remove(char_name);
 			continue;

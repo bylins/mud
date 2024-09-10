@@ -65,7 +65,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -126,7 +126,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreArmor);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
-		if (GET_POS(vict) > EPosition::kDead) {
+		if (vict->GetPosition() > EPosition::kDead) {
 			SetWait(vict, 2, true);
 			if (vict->IsOnHorse()) {
 				act("Рванув на себя, $N стащил$G Вас на землю.",

@@ -49,7 +49,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 		GET_HIT(ch) -= 3 * mob_level;
 		update_pos(ch);
 		// Подавился насмерть.
-		if (GET_POS(ch) == EPosition::kDead) {
+		if (ch->GetPosition() == EPosition::kDead) {
 			die(ch, nullptr);
 		}
 		ExtractObjFromWorld(obj);
@@ -100,7 +100,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
 
 	if (subcmd == kScmdDevour) {
-		if (MOB_FLAGGED(ch, EMobFlag::kResurrected)
+		if (ch->IsFlagged(EMobFlag::kResurrected)
 			&& CanUseFeat(ch->get_master(), EFeat::kZombieDrover)) {
 			feed_charmice(ch, arg);
 			return;

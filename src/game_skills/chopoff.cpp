@@ -15,7 +15,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -23,7 +23,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (ch->IsHorsePrevents())
 		return;
 
-	if ((GET_POS(vict) < EPosition::kFight)) {
+	if ((vict->GetPosition() < EPosition::kFight)) {
 		if (number(1, 100) < ch->GetSkill(ESkill::kChopoff)) {
 			SendMsgToChar("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			ch->setSkillCooldown(ESkill::kChopoff, kBattleRound / 6);
@@ -48,7 +48,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
 		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
-		vict->IsOnHorse() || GET_POS(vict) < EPosition::kFight || MOB_FLAGGED(vict, EMobFlag::kNoUndercut) || IS_IMMORTAL(
+		vict->IsOnHorse() || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || IS_IMMORTAL(
 		vict))
 		prob = 0;
 
@@ -60,7 +60,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		act(buf, false, ch, nullptr, vict, kToChar);
 		act("$n попытал$u подсечь вас, но упал$g сам$g.", false, ch, nullptr, vict, kToVict);
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-		GET_POS(ch) = EPosition::kSit;
+		ch->SetPosition(EPosition::kSit);
 		prob = 3;
 		if (CanUseFeat(ch, EFeat::kEvasion)) {
 			Affect<EApply> af;
@@ -99,7 +99,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SetWait(vict, 3, false);
 			if (ch->isInSameRoom(vict)) {
-				GET_POS(vict) = EPosition::kSit;
+				vict->SetPosition(EPosition::kSit);
 			}
 		}
 		prob = 1;

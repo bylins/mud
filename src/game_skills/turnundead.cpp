@@ -85,7 +85,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		};
 		damage.flags.set(fight::kIgnoreBlink);
 		damage.Process(ch, target);
-		if (!target->purged() && roll.IsSuccess() && !MOB_FLAGGED(target, EMobFlag::kNoFear)
+		if (!target->purged() && roll.IsSuccess() && !target->IsFlagged(EMobFlag::kNoFear)
 			&& !CalcGeneralSaving(ch, target, ESaving::kWill, GetRealWis(ch) + GetRealInt(ch))) {
 			GoFlee(target);
 		};

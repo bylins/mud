@@ -1592,23 +1592,23 @@ std::string MakePrompt(DescriptorData *d) {
 			format_to(std::back_inserter(out), "i{} ", GET_INVIS_LEV(ch));
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispHp)) {
+		if (ch->IsFlagged(EPrf::kDispHp)) {
 			format_to(std::back_inserter(out), "{}{}H{} ",
 					  color_value(ch.get(), GET_HIT(ch), GET_REAL_MAX_HIT(ch)), GET_HIT(ch), KNRM);
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispMove)) {
+		if (ch->IsFlagged(EPrf::kDispMove)) {
 			format_to(std::back_inserter(out), "{}{}M{} ",
 					  color_value(ch.get(), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch)), GET_MOVE(ch),  KNRM);
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
+		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
 			int perc = (100 * ch->mem_queue.stored) / GET_MAX_MANA((ch).get());
 			format_to(std::back_inserter(out), "{}э{}{} ",
 					  CCMANA(ch, C_NRM, perc), ch->mem_queue.stored, KNRM);
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispExp)) {
+		if (ch->IsFlagged(EPrf::kDispExp)) {
 			if (IS_IMMORTAL(ch)) {
 				format_to(std::back_inserter(out), "??? ");
 			} else {
@@ -1617,7 +1617,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispMana) && !IS_MANA_CASTER(ch)) {
+		if (ch->IsFlagged(EPrf::kDispMana) && !IS_MANA_CASTER(ch)) {
 			if (!ch->mem_queue.Empty()) {
 				auto mana_gain = CalcManaGain(ch.get());
 				if (mana_gain) {
@@ -1634,7 +1634,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispCooldowns)) {
+		if (ch->IsFlagged(EPrf::kDispCooldowns)) {
 			format_to(std::back_inserter(out), "{}:{} ",
 					  MUD::Skill(ESkill::kGlobalCooldown).GetAbbr(),
 					  ch->getSkillCooldownInPulses(ESkill::kGlobalCooldown));
@@ -1649,7 +1649,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 		}
 
-		if (PRF_FLAGGED(ch, EPrf::kDispTimed)) {
+		if (ch->IsFlagged(EPrf::kDispTimed)) {
 			for (auto timed = ch->timed; timed; timed = timed->next) {
 				if (timed->skill != ESkill::kWarcry && timed->skill != ESkill::kTurnUndead) {
 					format_to(std::back_inserter(out), "{}:{} ",
@@ -1671,15 +1671,15 @@ std::string MakePrompt(DescriptorData *d) {
 		}
 
 		if (!ch->GetEnemy() || IN_ROOM(ch) != IN_ROOM(ch->GetEnemy())) {
-			if (PRF_FLAGGED(ch, EPrf::kDispLvl)) {
+			if (ch->IsFlagged(EPrf::kDispLvl)) {
 				format_to(std::back_inserter(out), "{}L ", GetRealLevel(ch));
 			}
 
-			if (PRF_FLAGGED(ch, EPrf::kDispMoney)) {
+			if (ch->IsFlagged(EPrf::kDispMoney)) {
 				format_to(std::back_inserter(out), "{}G ", ch->get_gold());
 			}
 
-			if (PRF_FLAGGED(ch, EPrf::kDispExits)) {
+			if (ch->IsFlagged(EPrf::kDispExits)) {
 				static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
 				format_to(std::back_inserter(out), "Вых:");
 				if (!AFF_FLAGGED(ch, EAffect::kBlind)) {
@@ -1695,7 +1695,7 @@ std::string MakePrompt(DescriptorData *d) {
 				}
 			}
 		} else {
-			if (PRF_FLAGGED(ch, EPrf::kDispFight)) {
+			if (ch->IsFlagged(EPrf::kDispFight)) {
 				format_to(std::back_inserter(out), "{}", show_state(ch.get(), ch.get()));
 			}
 			if (ch->GetEnemy()->GetEnemy() && ch->GetEnemy()->GetEnemy() != ch.get()) {
@@ -2183,10 +2183,10 @@ int process_output(DescriptorData *t) {
 
 	// add the extra CRLF if the person isn't in compact mode
 	if (STATE(t) == CON_PLAYING && t->character && !t->character->IsNpc()
-		&& !PRF_FLAGGED(t->character, EPrf::kCompact)) {
+		&& !t->character->IsFlagged(EPrf::kCompact)) {
 		strcat(i, "\r\n");
 	} else if (STATE(t) == CON_PLAYING && t->character && !t->character->IsNpc()
-		&& PRF_FLAGGED(t->character, EPrf::kCompact)) {
+		&& t->character->IsFlagged(EPrf::kCompact)) {
 		// added by WorM (Видолюб)
 		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
 		for (size_t c = strlen(i) - 1; c > 0; c--) {
@@ -2235,7 +2235,7 @@ int process_output(DescriptorData *t) {
 	else
 		offset = 2;
 
-	if (t->character && PRF_FLAGGED(t->character, EPrf::kGoAhead))
+	if (t->character && t->character->IsFlagged(EPrf::kGoAhead))
 		strncat(o, str_goahead, kMaxPromptLength);
 
 	if (!write_to_descriptor_with_options(t, o + offset, strlen(o + offset), result)) {
@@ -2977,7 +2977,7 @@ void close_socket(DescriptorData * d, int direct)
 	if (d->character) {
 		// Plug memory leak, from Eric Green.
 		if (!d->character->IsNpc()
-			&& (PLR_FLAGGED(d->character, EPlrFlag::kMailing)
+			&& (d->character->IsFlagged(EPlrFlag::kMailing)
 				|| STATE(d) == CON_WRITEBOARD
 				|| STATE(d) == CON_WRITE_MOD)
 			&& d->writer) {
@@ -2999,7 +2999,7 @@ void close_socket(DescriptorData * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
 			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
-			if (d->character->GetEnemy() && PRF_FLAGGED(d->character, EPrf::kAntiDcMode)) {
+			if (d->character->GetEnemy() && d->character->IsFlagged(EPrf::kAntiDcMode)) {
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
 				command_interpreter(d->character.get(), buf2);
 			}
@@ -3674,8 +3674,8 @@ void act(const char *str,
 			&& ch->in_room != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(ch, EAffect::kDeafness))
 			&& (!check_nodeaf || AFF_FLAGGED(ch, EAffect::kDeafness))
-			&& (!to_brief_shields || PRF_FLAGGED(ch, EPrf::kBriefShields))
-			&& (!to_no_brief_shields || !PRF_FLAGGED(ch, EPrf::kBriefShields))) {
+			&& (!to_brief_shields || ch->IsFlagged(EPrf::kBriefShields))
+			&& (!to_no_brief_shields || !ch->IsFlagged(EPrf::kBriefShields))) {
 			perform_act(str, ch, obj, vict_obj, ch, kick_type);
 		}
 		return;
@@ -3688,8 +3688,8 @@ void act(const char *str,
 			&& IN_ROOM(to) != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffect::kDeafness))
 			&& (!check_nodeaf || AFF_FLAGGED(to, EAffect::kDeafness))
-			&& (!to_brief_shields || PRF_FLAGGED(to, EPrf::kBriefShields))
-			&& (!to_no_brief_shields || !PRF_FLAGGED(to, EPrf::kBriefShields))) {
+			&& (!to_brief_shields || to->IsFlagged(EPrf::kBriefShields))
+			&& (!to_no_brief_shields || !to->IsFlagged(EPrf::kBriefShields))) {
 			perform_act(str, ch, obj, vict_obj, to, kick_type);
 		}
 
@@ -3717,8 +3717,9 @@ void act(const char *str,
 			}
 			++stop_counter;
 
-			if (!SENDOK(to) || (to == ch))
+			if (!SENDOK(to) || (to == ch)) {
 				continue;
+			}
 			if (hide_invisible && ch && !CAN_SEE(to, ch))
 				continue;
 			if ((type != kToRoom && type != kToRoomSensors) && to == vict_obj)
@@ -3727,14 +3728,14 @@ void act(const char *str,
 				continue;
 			if (check_nodeaf && !AFF_FLAGGED(to, EAffect::kDeafness))
 				continue;
-			if (to_brief_shields && !PRF_FLAGGED(to, EPrf::kBriefShields))
+			if (to_brief_shields && !to->IsFlagged(EPrf::kBriefShields))
 				continue;
-			if (to_no_brief_shields && PRF_FLAGGED(to, EPrf::kBriefShields))
+			if (to_no_brief_shields && to->IsFlagged(EPrf::kBriefShields))
 				continue;
 			if (type == kToRoomSensors && !AFF_FLAGGED(to, EAffect::kDetectLife)
-				&& (to->IsNpc() || !PRF_FLAGGED(to, EPrf::kHolylight)))
+				&& (to->IsNpc() || !to->IsFlagged(EPrf::kHolylight)))
 				continue;
-			if (type == kToRoomSensors && PRF_FLAGGED(to, EPrf::kHolylight)) {
+			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
 					utils::ReplaceFirst(buffer, "ся", GET_CH_SUF_2(ch));

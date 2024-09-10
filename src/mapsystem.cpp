@@ -998,7 +998,7 @@ void do_map(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		SendMsgToChar("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
 	} else if (AFF_FLAGGED(ch, EAffect::kBlind)) {

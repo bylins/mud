@@ -8,12 +8,12 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Из этого положения отступать невозможно.\r\n", ch);
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffect::kCombatLuck)) {
+	if (ch->IsFlagged(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffect::kCombatLuck)) {
 		SendMsgToChar("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
 	}

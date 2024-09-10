@@ -202,13 +202,13 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = one_argument(argument, arg);
 
 	if (utils::IsAbbr(arg, "воззвать")) {
-		if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		if (IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 			SendMsgToChar(ch->remember_get(Remember::PRAY), ch);
 		} else {
 			SendMsgToChar(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
 	} else if ((GetRealLevel(ch) < kLvlImmortal || IS_IMPL(ch)) && utils::IsAbbr(arg, "оффтоп")) {
-		if (!PRF_FLAGGED(ch, EPrf::kStopOfftop)) {
+		if (!ch->IsFlagged(EPrf::kStopOfftop)) {
 			SendMsgToChar(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
 			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");

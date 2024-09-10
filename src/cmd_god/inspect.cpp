@@ -117,19 +117,19 @@ void ExtractedCharacterInfo::ExtractClanAbbrev(const CharData::shared_ptr &playe
 }
 
 void ExtractedCharacterInfo::ExtractPunishmenstsInfo(const CharData::shared_ptr &player_ptr) {
-	if (PLR_FLAGGED(player_ptr, EPlrFlag::kFrozen)) {
+	if (player_ptr->IsFlagged(EPlrFlag::kFrozen)) {
 		ExtractPunishmentInfo("FROZEN", player_ptr->player_specials->pfreeze);
 	}
-	if (PLR_FLAGGED(player_ptr, EPlrFlag::kMuted)) {
+	if (player_ptr->IsFlagged(EPlrFlag::kMuted)) {
 		ExtractPunishmentInfo("MUTED", player_ptr->player_specials->pmute);
 	}
-	if (PLR_FLAGGED(player_ptr, EPlrFlag::kDumbed)) {
+	if (player_ptr->IsFlagged(EPlrFlag::kDumbed)) {
 		ExtractPunishmentInfo("DUMBED", player_ptr->player_specials->pdumb);
 	}
-	if (PLR_FLAGGED(player_ptr, EPlrFlag::kHelled)) {
+	if (player_ptr->IsFlagged(EPlrFlag::kHelled)) {
 		ExtractPunishmentInfo("HELLED", player_ptr->player_specials->phell);
 	}
-	if (!PLR_FLAGGED(player_ptr, EPlrFlag::kRegistred)) {
+	if (!player_ptr->IsFlagged(EPlrFlag::kRegistred)) {
 		ExtractPunishmentInfo("UNREGISTERED", player_ptr->player_specials->punreg);
 	}
 }

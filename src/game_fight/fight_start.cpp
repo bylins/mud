@@ -30,7 +30,7 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		STATE(victim->desc) = CON_PLAYING;
 		if (!victim->IsNpc()) {
-			PLR_FLAGS(victim).unset(EPlrFlag::kWriting);
+			victim->UnsetFlag(EPlrFlag::kWriting);
 		}
 		if (victim->desc->backstr) {
 			free(victim->desc->backstr);
@@ -68,13 +68,13 @@ int set_hit(CharData *ch, CharData *victim) {
 		SendMsgToChar(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
 	}
 
-	if (MOB_FLAGGED(ch, EMobFlag::kMemory) && ch->get_wait() > 0) {
+	if (ch->IsFlagged(EMobFlag::kMemory) && ch->get_wait() > 0) {
 		if (!victim->IsNpc()) {
 			mobRemember(ch, victim);
 		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 			&& victim->has_master()
 			&& !victim->get_master()->IsNpc()) {
-			if (MOB_FLAGGED(victim, EMobFlag::kClone)) {
+			if (victim->IsFlagged(EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
 				mobRemember(ch, victim->get_master());
@@ -136,7 +136,7 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		//ch->setSkillCooldown(kGlobalCooldown, 2);
 		return;
 	}
-	if ((GET_POS(ch) == EPosition::kStand) && (vict != ch->GetEnemy())) {
+	if ((ch->GetPosition() == EPosition::kStand) && (vict != ch->GetEnemy())) {
 		set_hit(ch, vict);
 	} else {
 		SendMsgToChar("Вам явно не до боя!\r\n", ch);
@@ -157,7 +157,7 @@ void do_kill(CharData *ch, char *argument, int cmd, int subcmd) {
 		SendMsgToChar("Вы мазохист... :(\r\n", ch);
 		return;
 	};
-	if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
+	if (IS_IMPL(vict) || vict->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);

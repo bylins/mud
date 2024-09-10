@@ -20,7 +20,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch);
 void do_where(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
-	if (IS_GRGOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo))
+	if (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		perform_immort_where(ch, arg);
 	else
 		perform_mortal_where(ch, arg);
@@ -93,7 +93,7 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 
 	int tmp_num = num;
 	if (IS_GOD(ch)
-		|| PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+		|| ch->IsFlagged(EPrf::kCoderinfo)) {
 		tmp_num = Clan::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);

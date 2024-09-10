@@ -73,7 +73,7 @@ void LoadGuardians() {
 }
 
 bool MustGuardianAttack(CharData *ch, CharData *vict) {
-	if (!ch->IsNpc() || !vict || !MOB_FLAGGED(ch, EMobFlag::kCityGuardian)) {
+	if (!ch->IsNpc() || !vict || !ch->IsFlagged(EMobFlag::kCityGuardian)) {
 		return false;
 	}
 
@@ -83,7 +83,7 @@ bool MustGuardianAttack(CharData *ch, CharData *vict) {
 
 	const auto &tmp_guard = guardian_roster[GET_MOB_VNUM(ch)];
 	if ((tmp_guard.agro_all_agressors && AGRESSOR(vict)) ||
-		(tmp_guard.agro_killers && PLR_FLAGGED(vict, EPlrFlag::kKiller))) {
+		(tmp_guard.agro_killers && vict->IsFlagged(EPlrFlag::kKiller))) {
 		return true;
 	}
 

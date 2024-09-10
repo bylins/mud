@@ -11,7 +11,7 @@ namespace table_wrapper {
 const int kDefaultLeftTableMargin = 1;	// Отступ таблицы от левого края окна
 
 void DecorateSimpleTable(CharData *ch, Table &table) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_BASIC_STYLE);
@@ -20,7 +20,7 @@ void DecorateSimpleTable(CharData *ch, Table &table) {
 }
 
 void DecorateNoBorderTable(CharData *ch, Table &table) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_EMPTY_STYLE);
@@ -29,7 +29,7 @@ void DecorateNoBorderTable(CharData *ch, Table &table) {
 }
 
 void DecorateServiceTable(CharData *ch, Table &table) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_PLAIN_STYLE);
@@ -43,7 +43,7 @@ void DecorateServiceTable(CharData *ch, Table &table) {
 }
 
 void DecorateCuteTable(CharData *ch, Table &table) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_BASIC_STYLE);
@@ -79,7 +79,7 @@ void DecorateCuteTable(CharData *ch, Table &table) {
 }
 
 void DecorateZebraTable(CharData *ch, Table &table, Color color) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_SIMPLE_STYLE);
@@ -93,7 +93,7 @@ void DecorateZebraTable(CharData *ch, Table &table, Color color) {
 }
 
 void DecorateZebraTextTable(CharData *ch, Table &table, Color color) {
-	if (PRF_FLAGGED(ch, EPrf::kBlindMode)) {
+	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		table.set_border_style(FT_EMPTY2_STYLE);
 	} else {
 		table.set_border_style(FT_SIMPLE_STYLE);

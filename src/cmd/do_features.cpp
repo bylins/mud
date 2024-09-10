@@ -156,7 +156,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kDoubleThrower:
 				case EFeat::kTripleThrower:
 				case EFeat::kSerratedBlade:
-					if (PRF_FLAGGED(ch, GetPrfWithFeatNumber(feat.GetId()))) {
+					if (ch->IsFlagged(GetPrfWithFeatNumber(feat.GetId()))) {
 						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 					} else {
 						sprintf(buf, "[-:-] ");

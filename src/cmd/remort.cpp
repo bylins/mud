@@ -31,7 +31,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}
-/*	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, EPrf::kCanRemort)) {
+/*	if (Remort::need_torc(ch) && !ch->IsFlagged(EPrf::kCanRemort)) {
 		SendMsgToChar(ch,
 					  "Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
 					  "%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
@@ -130,16 +130,16 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
-	PRF_FLAGS(ch).unset(EPrf::KSummonable);
-	PRF_FLAGS(ch).unset(EPrf::kAwake);
-	PRF_FLAGS(ch).unset(EPrf::kPunctual);
-	PRF_FLAGS(ch).unset(EPrf::kPerformPowerAttack);
-	PRF_FLAGS(ch).unset(EPrf::kPerformGreatPowerAttack);
-	PRF_FLAGS(ch).unset(EPrf::kAwake);
-	PRF_FLAGS(ch).unset(EPrf::kIronWind);
-	PRF_FLAGS(ch).unset(EPrf::kDoubleThrow);
-	PRF_FLAGS(ch).unset(EPrf::kTripleThrow);
-	PRF_FLAGS(ch).unset(EPrf::kShadowThrow);
+	ch->UnsetFlag(EPrf::KSummonable);
+	ch->UnsetFlag(EPrf::kAwake);
+	ch->UnsetFlag(EPrf::kPunctual);
+	ch->UnsetFlag(EPrf::kPerformPowerAttack);
+	ch->UnsetFlag(EPrf::kPerformGreatPowerAttack);
+	ch->UnsetFlag(EPrf::kAwake);
+	ch->UnsetFlag(EPrf::kIronWind);
+	ch->UnsetFlag(EPrf::kDoubleThrow);
+	ch->UnsetFlag(EPrf::kTripleThrow);
+	ch->UnsetFlag(EPrf::kShadowThrow);
 	ch->DeleteIrrelevantRunestones();
 	if (ch->get_protecting()) {
 		ch->remove_protecting();
@@ -167,11 +167,11 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	DoPcInit(ch, false);
 	ch->save_char();
 	RoomRnum load_room;
-	if (PLR_FLAGGED(ch, EPlrFlag::kHelled))
+	if (ch->IsFlagged(EPlrFlag::kHelled))
 		load_room = r_helled_start_room;
-	else if (PLR_FLAGGED(ch, EPlrFlag::kNameDenied))
+	else if (ch->IsFlagged(EPlrFlag::kNameDenied))
 		load_room = r_named_start_room;
-	else if (PLR_FLAGGED(ch, EPlrFlag::kFrozen))
+	else if (ch->IsFlagged(EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else {
 		if ((load_room = GET_LOADROOM(ch)) == kNowhere)
@@ -187,11 +187,11 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
-	PLR_FLAGS(ch).set(EPlrFlag::kNoDelete);
+	ch->SetFlag(EPlrFlag::kNoDelete);
 	RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
-	PRF_FLAGS(ch).unset(EPrf::kCanRemort);
+	ch->UnsetFlag(EPrf::kCanRemort);
 	ch->set_ext_money(ExtMoney::kTorcGold, 0);
 	ch->set_ext_money(ExtMoney::kTorcSilver, 0);
 	ch->set_ext_money(ExtMoney::kTorcBronze, 0);

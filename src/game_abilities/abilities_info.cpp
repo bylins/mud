@@ -110,7 +110,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 					if (AFF_FLAGGED(enemy, EAffect::kBlind)) {
 						bonus += 40;
 					}
-					if (GET_POS(enemy) < EPosition::kFight) {
+					if (enemy->GetPosition() < EPosition::kFight) {
 						bonus += 40;
 					}
 					return bonus;
@@ -226,7 +226,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
 	ActionTargeting::FriendsRosterType roster{ch};
-	int skirmishers = roster.count([](CharData *ch) { return PRF_FLAGGED(ch, EPrf::kSkirmisher); });
+	int skirmishers = roster.count([](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return (skirmishers * 2 - uncoveredSquadMembers) * abilities::kCircumstanceFactor - 40;

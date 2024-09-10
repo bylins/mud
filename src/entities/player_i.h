@@ -40,7 +40,7 @@ extern RoomRnum r_helled_start_room;
 */
 class PlayerI {
  public:
-	virtual int get_pfilepos() const { return -1; };
+  	virtual int get_pfilepos() const { return -1; };
 	virtual void set_pfilepos(int/* pfilepos*/) {};
 
 	virtual RoomRnum get_was_in_room() const { return kNowhere; };

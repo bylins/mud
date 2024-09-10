@@ -235,7 +235,7 @@ bool RunestoneRoster::ViewRunestone(CharData *ch, int where_bits) {
 	auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
 	if (stone.IsAllowed() && IS_SET(where_bits, EFind::kObjRoom)) {
 		if (stone.IsDisabled()) {
-			SendMsgToChar("Камень грубо расколот на несколько частей и прочитать надпись невозможно.", ch);
+			SendMsgToChar("Камень грубо расколот на несколько частей и прочитать надпись невозможно.\r\n", ch);
 			return true;
 		} else if (ch->IsRunestoneKnown(stone)) {
 			auto msg = fmt::format("На камне огненными рунами начертано слово '&R{}&n'.\r\n", stone.GetName());

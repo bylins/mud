@@ -16,6 +16,8 @@
 #include "administration/password.h"
 #include "statistics/top.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <memory>
 
 enum class ESetVict {
@@ -120,14 +122,6 @@ extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long times);
 extern int _parse_name(char *arg, char *name);
 extern int reserved_word(const char *argument);
-
-void SetOrRemove(const bool on, const bool off, FlagData &flagset, const Bitvector packed_flag) {
-	if (on) {
-		flagset.set(packed_flag);
-	} else if (off) {
-		flagset.unset(packed_flag);
-	}
-}
 
 void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = nullptr;
@@ -257,8 +251,8 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
-	bool on = false;
-	bool off = false;
+//	bool on = false;
+//	bool off = false;
 	char npad[ECase::kLastCase + 1][256];
 	char *reason;
 	RoomRnum rnum;
@@ -270,12 +264,12 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	if (!IS_IMPL(ch)) {
 		if (!vict->IsNpc() && vict != ch) {
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
-				if (GetRealLevel(ch) <= GetRealLevel(vict) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+				if (GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 					SendMsgToChar("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
 			} else {
-				if (GetRealLevel(vict) >= kLvlImmortal || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
+				if (GetRealLevel(vict) >= kLvlImmortal || vict->IsFlagged(EPrf::kCoderinfo)) {
 					SendMsgToChar("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
@@ -297,16 +291,17 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	}
 
 	// Find the value of the argument
+	bool on_off_mode{false};
 	if (set_fields[mode].type == ESetValue::kBinary) {
-		if (!strn_cmp(val_arg, "on", 2) || !strn_cmp(val_arg, "yes", 3) || !strn_cmp(val_arg, "вкл", 3))
-			on = true;
-		else if (!strn_cmp(val_arg, "off", 3) || !strn_cmp(val_arg, "no", 2) || !strn_cmp(val_arg, "выкл", 4))
-			off = true;
-		if (!(on || off)) {
+		if (!strn_cmp(val_arg, "on", 2) || !strn_cmp(val_arg, "yes", 3) || !strn_cmp(val_arg, "вкл", 3)) {
+			on_off_mode = true;
+		} else if (!strn_cmp(val_arg, "off", 3) || !strn_cmp(val_arg, "no", 2) || !strn_cmp(val_arg, "выкл", 4)) {
+			on_off_mode = false;
+		} else {
 			SendMsgToChar("Значение может быть 'on' или 'off'.\r\n", ch);
-			return (0);
+			return 0;
 		}
-		sprintf(output, "%s %s для %s.", set_fields[mode].cmd, ONOFF(on), GET_PAD(vict, 1));
+		sprintf(output, "%s %s для %s.", set_fields[mode].cmd, ONOFF(on_off_mode), GET_PAD(vict, 1));
 	} else if (set_fields[mode].type == ESetValue::kNumber) {
 		value = atoi(val_arg);
 		sprintf(output, "У %s %s установлено в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
@@ -314,12 +309,12 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		strcpy(output, "Хорошо.");
 	}
 	switch (mode) {
-		case 0: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kBrief);
+		case 0: on_off_mode ? vict->SetFlag(EPrf::kBrief) : vict->UnsetFlag(EPrf::kBrief);
 			break;
-		case 1: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kInvStart);
+		case 1: on_off_mode ? vict->SetFlag(EPlrFlag::kInvStart) : vict->UnsetFlag(EPlrFlag::kInvStart);
 			break;
-		case 2: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::KSummonable);
-			sprintf(output, "Возможность призыва %s для %s.\r\n", ONOFF(!on), GET_PAD(vict, 1));
+		case 2: on_off_mode ? vict->SetFlag(EPrf::KSummonable) : vict->UnsetFlag(EPrf::KSummonable);
+			sprintf(output, "Возможность призыва %s для %s.\r\n", ONOFF(on_off_mode), GET_PAD(vict, 1));
 			break;
 		case 3: vict->points.max_hit = std::clamp(value, 1, 5000);
 			affect_total(vict);
@@ -332,7 +327,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			affect_total(vict);
 			update_pos(vict);
 			break;
-		case 7: break;
+		case 7: [[fallthrough]];
 		case 8: break;
 		case 9:
 			// Выставляется род для РС
@@ -370,18 +365,18 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			affect_total(vict);
 			break;
 		case 17:
-			if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (!IS_IMPL(ch) && ch != vict && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return (0);
 			}
 			SET_INVIS_LEV(vict, std::clamp(value, 0, GetRealLevel(vict)));
 			break;
 		case 18:
-			if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (!IS_IMPL(ch) && ch != vict && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return (0);
 			}
-			SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kNohassle);
+			on_off_mode ? vict->SetFlag(EPrf::kNohassle) : vict->UnsetFlag(EPrf::kNohassle);
 			break;
 		case 19: reason = one_argument(val_arg, num);
 			if (!*num) {
@@ -409,18 +404,18 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 22:
 		case 23:
 		case 24: {
-			const unsigned num = mode - 22; // magic number циркулевских времен
-			if (num >= (ch)->player_specials->saved.conditions.size()) {
+			const unsigned circle_magic_number = mode - 22;
+			if (circle_magic_number >= (ch)->player_specials->saved.conditions.size()) {
 				SendMsgToChar("Ошибка: num >= saved.conditions.size(), сообщите кодерам.\r\n", ch);
 				return 0;
 			}
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-				GET_COND(vict, num) = -1;
+				GET_COND(vict, circle_magic_number) = -1;
 				sprintf(output, "Для %s %s сейчас отключен.", GET_PAD(vict, 1), set_fields[mode].cmd);
 			} else if (is_number(val_arg)) {
 				value = atoi(val_arg);
 				value = std::clamp(value, 0, kMaxCondition);
-				GET_COND(vict, num) = value;
+				GET_COND(vict, circle_magic_number) = value;
 				sprintf(output, "Для %s %s установлен в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
 			} else {
 				SendMsgToChar("Должно быть 'off' или значение от 0 до 24.\r\n", ch);
@@ -428,10 +423,10 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		}
-		case 25: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kBurglar);
+		case 25: on_off_mode ? vict->SetFlag(EPlrFlag::kBurglar) : vict->UnsetFlag(EPlrFlag::kBurglar);
 			break;
 		case 26:
-			if (!PRF_FLAGGED(ch, EPrf::kCoderinfo)
+			if (!ch->IsFlagged(EPrf::kCoderinfo)
 				&& (value > GetRealLevel(ch) || value > kLvlImplementator || GetRealLevel(vict) > GetRealLevel(ch))) {
 				SendMsgToChar("Вы не можете установить уровень игрока выше собственного.\r\n", ch);
 				return (0);
@@ -444,24 +439,25 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 				return (0);
 			}
-			if (IN_ROOM(vict) != kNowhere)    // Another Eric Green special.
+			if (IN_ROOM(vict) != kNowhere) {
 				RemoveCharFromRoom(vict);
+			}
 			PlaceCharToRoom(vict, rnum);
 			vict->dismount();
 			break;
-		case 28: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kRoomFlags);
+		case 28: on_off_mode ? vict->SetFlag(EPrf::kRoomFlags) : vict->UnsetFlag(EPrf::kRoomFlags);
 			break;
-		case 29: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kSiteOk);
+		case 29: on_off_mode ? vict->SetFlag(EPlrFlag::kSiteOk) : vict->UnsetFlag(EPlrFlag::kSiteOk);
 			break;
 		case 30:
-			if (IS_IMPL(vict) || PRF_FLAGGED(vict, EPrf::kCoderinfo)) {
+			if (IS_IMPL(vict) || vict->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Истинные боги вечны!\r\n", ch);
 				return 0;
 			}
-			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kDeleted);
-			if (PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
-				if (PLR_FLAGS(vict).get(EPlrFlag::kNoDelete)) {
-					PLR_FLAGS(vict).unset(EPlrFlag::kNoDelete);
+			on_off_mode ? vict->SetFlag(EPlrFlag::kDeleted) : vict->UnsetFlag(EPlrFlag::kDeleted);
+			if (vict->IsFlagged(EPlrFlag::kDeleted)) {
+				if (vict->IsFlagged(EPlrFlag::kNoDelete)) {
+					vict->UnsetFlag(EPlrFlag::kNoDelete);
 					SendMsgToChar("NODELETE flag also removed.\r\n", ch);
 				}
 			}
@@ -477,13 +473,13 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		}
 		case 32:
 			// Флаг для морталов с привилегиями
-			if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (!IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return 0;
 			}
-			if (on) {
+			if (on_off_mode) {
 				SET_GOD_FLAG(vict, EGf::kDemigod);
-			} else if (off) {
+			} else {
 				CLR_GOD_FLAG(vict, EGf::kDemigod);
 			}
 			break;
@@ -505,8 +501,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0);
 			}
 			break;
-		case 34: SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kColor1);
-			SetOrRemove(on, off, PRF_FLAGS(vict), EPrf::kColor2);
+		case 34: on_off_mode ? vict->SetFlag(EPrf::kColor1) : vict->UnsetFlag(EPrf::kColor1);
+			on_off_mode ? vict->SetFlag(EPrf::kColor2) : vict->UnsetFlag(EPrf::kColor2);
 			break;
 		case 35:
 			if (!IS_IMPL(ch) || !vict->IsNpc()) {
@@ -515,7 +511,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			vict->set_idnum(value);
 			break;
 		case 36:
-			if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo) && ch != vict) {
+			if (!IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo) && ch != vict) {
 				SendMsgToChar("Давайте не будем экспериментировать.\r\n", ch);
 				return (0);
 			}
@@ -533,7 +529,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			AddKarma(vict, buf, GET_NAME(ch));
 			sprintf(output, "Пароль изменен на '%s'.", val_arg);
 			break;
-		case 37: SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kNoDelete);
+		case 37: on_off_mode ? vict->SetFlag(EPlrFlag::kNoDelete) : vict->UnsetFlag(EPlrFlag::kNoDelete);
 			break;
 		case 38:
 			if ((i = search_block(val_arg, genders, false)) < 0) {
@@ -568,7 +564,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 
 		case 42:
-			if (on) {
+			if (on_off_mode) {
 				SET_GOD_FLAG(vict, EGf::kGodsLike);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
 					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
@@ -577,21 +573,24 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				sprintf(buf, "%s установил GUDSLIKE персонажу %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImplementator, SYSLOG, 0);
 
-			} else if (off)
+			} else {
 				CLR_GOD_FLAG(vict, EGf::kGodsLike);
+			}
 			break;
 		case 43:
-			if (on) {
+			if (on_off_mode) {
 				SET_GOD_FLAG(vict, EGf::kGodscurse);
-				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
+				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0) {
 					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
-				else
+				} else {
 					GCURSE_DURATION(vict) = 0;
-			} else if (off)
+				}
+			} else {
 				CLR_GOD_FLAG(vict, EGf::kGodscurse);
+			}
 			break;
 		case 44:
-			if (PRF_FLAGGED(ch, EPrf::kCoderinfo) || IS_IMPL(ch))
+			if (ch->IsFlagged(EPrf::kCoderinfo) || IS_IMPL(ch))
 				GET_OLC_ZONE(vict) = value;
 			else {
 				sprintf(buf, "Слишком низкий уровень чтоб раздавать права OLC.\r\n");
@@ -633,7 +632,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 					return (0);
 				}
 
-				if ((GetPlayerIdByName(npad[0]) >= 0) && !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)) {
+				if ((GetPlayerIdByName(npad[0]) >= 0) && !vict->IsFlagged(EPlrFlag::kDeleted)) {
 					SendMsgToChar("Это имя совпадает с именем другого персонажа.\r\n"
 								  "Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
 					return (0);
@@ -645,8 +644,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				if (ptnum < 0)
 					return (0);
 
-				if (!PLR_FLAGS(vict).get(EPlrFlag::kFrozen)
-					&& !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)
+				if (!vict->IsFlagged(EPlrFlag::kFrozen)
+					&& !vict->IsFlagged(EPlrFlag::kDeleted)
 					&& !IS_IMMORTAL(vict)) {
 					TopPlayer::Remove(vict);
 				}
@@ -660,8 +659,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				vict->set_name(npad[0]);
 				AddKarma(vict, buf, GET_NAME(ch));
 
-				if (!PLR_FLAGS(vict).get(EPlrFlag::kFrozen)
-					&& !PLR_FLAGS(vict).get(EPlrFlag::kDeleted)
+				if (!vict->IsFlagged(EPlrFlag::kFrozen)
+					&& !vict->IsFlagged(EPlrFlag::kDeleted)
 					&& !IS_IMMORTAL(vict)) {
 					TopPlayer::Refresh(vict);
 				}
@@ -669,7 +668,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				player_table.SetName(ptnum, npad[0]);
 
 				return_code = 2;
-				PLR_FLAGS(vict).set(EPlrFlag::kCrashSave);
+				vict->SetFlag(EPlrFlag::kCrashSave);
 			}
 			break;
 
@@ -767,9 +766,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 		case 52:
 			// Отдельный лог команд персонажа
-			if (on) {
+			if (on_off_mode) {
 				SET_GOD_FLAG(vict, EGf::kPerslog);
-			} else if (off) {
+			} else {
 				CLR_GOD_FLAG(vict, EGf::kPerslog);
 			}
 			break;
@@ -816,7 +815,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 55:
-			if (GetRealLevel(vict) >= kLvlImmortal && !IS_IMPL(ch) && !PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+			if (GetRealLevel(vict) >= kLvlImmortal && !IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 				return 0;
 			}
@@ -848,17 +847,16 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 57:      // Установка флага палач
 			reason = one_argument(val_arg, num);
 			skip_spaces(&reason);
-			sprintf(buf, "executor %s by %s", (on ? "on" : "off"), GET_NAME(ch));
+			sprintf(buf, "executor %s by %s", (on_off_mode ? "on" : "off"), GET_NAME(ch));
 //			AddKarma(vict, buf, reason);
-			if (on) {
-				PRF_FLAGS(vict).set(EPrf::kExecutor);
-			} else if (off) {
-				PRF_FLAGS(vict).unset(EPrf::kExecutor);
+			if (on_off_mode) {
+				vict->SetFlag(EPrf::kExecutor);
+			} else {
+				vict->UnsetFlag(EPrf::kExecutor);
 			}
 			break;
 
-		case 58: // Снятие или постановка флага !ДУШЕГУБ! только для имплементоров
-			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kKiller);
+		case 58: on_off_mode ? vict->SetFlag(EPlrFlag::kKiller) : vict->UnsetFlag(EPlrFlag::kKiller);
 			break;
 		case 59: // флаг реморта
 			if (value > 1 && value < 75) {
@@ -874,7 +872,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 60: // флаг тестера
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 				CLR_GOD_FLAG(vict, EGf::kAllowTesterMode);
-				PRF_FLAGS(vict).unset(EPrf::kTester); // обнулим реж тестер
+				vict->UnsetFlag(EPrf::kTester); // обнулим реж тестер
 				sprintf(buf, "%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			} else {
@@ -884,23 +882,20 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				//			send_to_gods(buf);
 			}
 			break;
-		case 61: // флаг автобота
-		{
-			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kAutobot);
+		case 61: on_off_mode ? vict->SetFlag(EPlrFlag::kAutobot) : vict->UnsetFlag(EPlrFlag::kAutobot);
 			break;
-		}
 		case 62: vict->set_hryvn(value);
 			break;
 		case 63: // флаг скриптера
 			sprintf(buf, "%s", GET_NAME(ch));
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-				PLR_FLAGS(vict).unset(EPlrFlag::kScriptWriter);
+				vict->UnsetFlag(EPlrFlag::kScriptWriter);
 				AddKarma(vict, "Снятие флага скриптера", buf);
 				sprintf(buf, "%s убрал флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				return (1);
 			} else if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
-				PLR_FLAGS(vict).set(EPlrFlag::kScriptWriter);
+				vict->SetFlag(EPlrFlag::kScriptWriter);
 				AddKarma(vict, "Установка флага скриптера", buf);
 				sprintf(buf, "%s установил  флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -910,11 +905,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0); // не пишем в пфайл ничего
 			}
 			break;
-		case 64: // флаг спамера
-		{
-			SetOrRemove(on, off, PLR_FLAGS(vict), EPlrFlag::kSpamer);
+		case 64: on_off_mode ? vict->SetFlag(EPlrFlag::kSpamer) : vict->UnsetFlag(EPlrFlag::kSpamer);
 			break;
-		}
 		case 65: { // спрятать отображение славы
 			if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
 				GloryConst::glory_hide(vict, true);
@@ -937,15 +929,17 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 67: vict->set_nogata(value);
 			break;
 		case 68: {
-			EPosition tmpval = (EPosition) value;
+			auto tmpval = (EPosition) value;
 			if (tmpval > EPosition::kDead && tmpval < EPosition::kLast) {
 				sprinttype(value, position_types, smallBuf);
 				sprintf(buf, "Для персонажа %s установлена позиция: %s.\r\n", GET_NAME(vict), smallBuf);
 				SendMsgToChar(buf, ch);
-				GET_POS(vict) = tmpval;
+				vict->SetPosition(tmpval);
 			} else {
-				SendMsgToChar(ch, "Позиция может принимать значения от 1 до 8.\r\n");
-				return (0);
+				const auto msg = fmt::format("Позиция может принимать значения от {} до {}.\r\n",
+											 static_cast<int>(EPosition::kPerish), static_cast<int>(EPosition::kStand));
+				SendMsgToChar(msg, ch);
+				return 0;
 			}
 			break;
 		}

@@ -97,7 +97,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	struct FollowerType *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
-	int god_level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
+	int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
 	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
@@ -165,36 +165,36 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		if (k->player_specials->saved.telegram_id != 0)
 			SendMsgToChar(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
 
-		if (PLR_FLAGGED(k, EPlrFlag::kFrozen) && FREEZE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(k)) {
 			sprintf(buf, "Заморожен : %ld час [%s].\r\n",
 					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
 					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (PLR_FLAGGED(k, EPlrFlag::kHelled) && HELL_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(k)) {
 			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
 					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
 					HELL_REASON(k) ? HELL_REASON(k) : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (PLR_FLAGGED(k, EPlrFlag::kNameDenied) && NAME_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(k)) {
 			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
 					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (PLR_FLAGGED(k, EPlrFlag::kMuted) && MUTE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(k)) {
 			sprintf(buf, "Будет молчать : %ld час [%s].\r\n",
 					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
 					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (PLR_FLAGGED(k, EPlrFlag::kDumbed) && DUMB_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(k)) {
 			sprintf(buf, "Будет нем : %ld мин [%s].\r\n",
 					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
 					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (!PLR_FLAGGED(k, EPlrFlag::kRegistred) && UNREG_DURATION(k)) {
+		if (!k->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(k)) {
 			sprintf(buf, "Не будет зарегистрирован : %ld час [%s].\r\n",
 					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
 					UNREG_REASON(k) ? UNREG_REASON(k) : "-");
@@ -377,7 +377,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GET_INITIATIVE(k));
 	SendMsgToChar(buf, ch);
 
-	sprinttype(static_cast<int>(GET_POS(k)), position_types, smallBuf);
+	sprinttype(static_cast<int>(k->GetPosition()), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
 			smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 
@@ -663,7 +663,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (IS_GRGOD(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo)) ? true : false;
+	bool is_grgod = (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
@@ -1215,7 +1215,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	CharData *victim;
 	ObjData *object;
 	int tmp;
-	int level = PRF_FLAGGED(ch, EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
+	int level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 
 	half_chop(argument, buf1, buf2);
 

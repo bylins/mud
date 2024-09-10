@@ -18,7 +18,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GetRealLevel(ch) >= kLvlImmortal || PRF_FLAGGED(ch, EPrf::kCoderinfo)) {
+	if (GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kCoderinfo)) {
 		snprintf(buf, kMaxStringLength,
 				 " Нет агров     : %-3s     "
 				 " Супервидение  : %-3s     "
@@ -27,13 +27,13 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				 " Замедление    : %-3s     "
 				 " Кодер         : %-3s \r\n"
 				 " Опечатки      : %-3s \r\n",
-				 ONOFF(PRF_FLAGGED(ch, EPrf::kNohassle)),
-				 ONOFF(PRF_FLAGGED(ch, EPrf::kHolylight)),
-				 ONOFF(PRF_FLAGGED(ch, EPrf::kRoomFlags)),
-				 ONOFF(PRF_FLAGGED(ch, EPrf::kNoWiz)),
+				 ONOFF(ch->IsFlagged(EPrf::kNohassle)),
+				 ONOFF(ch->IsFlagged(EPrf::kHolylight)),
+				 ONOFF(ch->IsFlagged(EPrf::kRoomFlags)),
+				 ONOFF(ch->IsFlagged(EPrf::kNoWiz)),
 				 ONOFF(nameserver_is_slow),
-				 ONOFF(PRF_FLAGGED(ch, EPrf::kCoderinfo)),
-				 ONOFF(PRF_FLAGGED(ch, EPrf::kShowUnread)));
+				 ONOFF(ch->IsFlagged(EPrf::kCoderinfo)),
+				 ONOFF(ch->IsFlagged(EPrf::kShowUnread)));
 		SendMsgToChar(buf, ch);
 	}
 
@@ -74,27 +74,27 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Потеря связи  : %-3s     "
 			 " Ингредиенты   : %-3s     "
 			 " Вспомнить     : %-3u \r\n",
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutoexit)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kBrief)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kCompact)),
-			 YESNO(!PRF_FLAGGED(ch, EPrf::kNoRepeat)),
-			 ONOFF(!PRF_FLAGGED(ch, EPrf::kNoTell)),
+			 ONOFF(ch->IsFlagged(EPrf::kAutoexit)),
+			 ONOFF(ch->IsFlagged(EPrf::kBrief)),
+			 ONOFF(ch->IsFlagged(EPrf::kCompact)),
+			 YESNO(!ch->IsFlagged(EPrf::kNoRepeat)),
+			 ONOFF(!ch->IsFlagged(EPrf::kNoTell)),
 			 ctypes[COLOR_LEV(ch)],
-			 PRF_FLAGGED(ch, EPrf::kNoInvistell) ? "нельзя" : "можно",
-			 ONOFF(!PRF_FLAGGED(ch, EPrf::kNoGossip)),
-			 ONOFF(!PRF_FLAGGED(ch, EPrf::kNoHoller)),
-			 ONOFF(!PRF_FLAGGED(ch, EPrf::kNoAuction)),
-			 ONOFF(!PRF_FLAGGED(ch, EPrf::kNoExchange)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutomem)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::KSummonable)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kGoAhead)),
-			 PRF_FLAGGED(ch, EPrf::kShowGroup) ? "полный" : "краткий",
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kNoClones)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutoassist)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutosplit)),
-			 PRF_FLAGGED(ch, EPrf::kAutoloot) ? PRF_FLAGGED(ch, EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL    " : "OFF    ",
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutomoney)),
-			 ONOFF(!PRF_FLAGGED(ch, EPrf::kNoArena)),
+			 ch->IsFlagged(EPrf::kNoInvistell) ? "нельзя" : "можно",
+			 ONOFF(!ch->IsFlagged(EPrf::kNoGossip)),
+			 ONOFF(!ch->IsFlagged(EPrf::kNoHoller)),
+			 ONOFF(!ch->IsFlagged(EPrf::kNoAuction)),
+			 ONOFF(!ch->IsFlagged(EPrf::kNoExchange)),
+			 ONOFF(ch->IsFlagged(EPrf::kAutomem)),
+			 ONOFF(ch->IsFlagged(EPrf::KSummonable)),
+			 ONOFF(ch->IsFlagged(EPrf::kGoAhead)),
+			 ch->IsFlagged(EPrf::kShowGroup) ? "полный" : "краткий",
+			 ONOFF(ch->IsFlagged(EPrf::kNoClones)),
+			 ONOFF(ch->IsFlagged(EPrf::kAutoassist)),
+			 ONOFF(ch->IsFlagged(EPrf::kAutosplit)),
+			 ch->IsFlagged(EPrf::kAutoloot) ? ch->IsFlagged(EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL    " : "OFF    ",
+			 ONOFF(ch->IsFlagged(EPrf::kAutomoney)),
+			 ONOFF(!ch->IsFlagged(EPrf::kNoArena)),
 			 buf2,
 			 STRING_LENGTH(ch),
 			 STRING_WIDTH(ch),
@@ -103,16 +103,16 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 #else
 		"N/A",
 #endif
-			 PRF_FLAGGED(ch, EPrf::kNewsMode) ? "доска" : "лента",
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kBoardMode)),
+			 ch->IsFlagged(EPrf::kNewsMode) ? "доска" : "лента",
+			 ONOFF(ch->IsFlagged(EPrf::kBoardMode)),
 			 GetChestMode(ch).c_str(),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kPklMode)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kPolitMode)),
-			 PRF_FLAGGED(ch, EPrf::kPkFormatMode) ? "краткий" : "полный",
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kClanmembersMode)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kOfftopMode)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAntiDcMode)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kNoIngrMode)),
+			 ONOFF(ch->IsFlagged(EPrf::kPklMode)),
+			 ONOFF(ch->IsFlagged(EPrf::kPolitMode)),
+			 ch->IsFlagged(EPrf::kPkFormatMode) ? "краткий" : "полный",
+			 ONOFF(ch->IsFlagged(EPrf::kClanmembersMode)),
+			 ONOFF(ch->IsFlagged(EPrf::kOfftopMode)),
+			 ONOFF(ch->IsFlagged(EPrf::kAntiDcMode)),
+			 ONOFF(ch->IsFlagged(EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
 	SendMsgToChar(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0) {
@@ -128,15 +128,15 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Автопризыв    : %-5s   "
 			 " Маппер        : %-3s   \r\n"
 			 " Контроль IP   : %-6s  ",
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kDrawMap)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kShowZoneNameOnEnter)),
-			 (PRF_FLAGGED(ch, EPrf::kBriefShields) ? "краткий" : "полный"),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kAutonosummon)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kMapper)),
-			 ONOFF(PRF_FLAGGED(ch, EPrf::kIpControl)));
+			 ONOFF(ch->IsFlagged(EPrf::kDrawMap)),
+			 ONOFF(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
+			 (ch->IsFlagged(EPrf::kBriefShields) ? "краткий" : "полный"),
+			 ONOFF(ch->IsFlagged(EPrf::kAutonosummon)),
+			 ONOFF(ch->IsFlagged(EPrf::kMapper)),
+			 ONOFF(ch->IsFlagged(EPrf::kIpControl)));
 	SendMsgToChar(buf, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
-		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, EPrf::kTester)));
+		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(ch->IsFlagged(EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");
 	SendMsgToChar(buf, ch);

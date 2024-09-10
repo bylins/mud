@@ -25,7 +25,7 @@ void ApplyDebuffs(abilities_roll::TechniqueRoll &roll) {
 	cut.type = ESpell::kBattle;
 	cut.duration = CalcDuration(roll.GetActor(), 3 * number(2, 4), 0, 0, 0, 0);;
 	cut.battleflag = kAfBattledec;
-	if (PRF_FLAGGED(roll.GetActor(), EPrf::kPerformSerratedBlade)) {
+	if (roll.GetActor()->IsFlagged(EPrf::kPerformSerratedBlade)) {
 		cut.modifier = 1;
 		cut.bitvector = to_underlying(EAffect::kLacerations);
 		cut.location = EApply::kNone;
@@ -134,7 +134,7 @@ void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsHorsePrevents()) {
 		return;
 	}
-	if (GET_POS(ch) < EPosition::kFight) {
+	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}

@@ -20,10 +20,10 @@ extern void ExtractTrigger(Trigger *trig);
 class DataFile : public BaseDataFile {
  protected:
 	DataFile(const std::string &file_name) : m_file(nullptr), m_file_name(file_name) {}
-	virtual bool open() override;
-	virtual void close() override;
-	const std::string &file_name() const { return m_file_name; }
-	const auto &file() const { return m_file; }
+	bool open() override;
+	void close() override;
+	[[nodiscard]] const std::string &file_name() const { return m_file_name; }
+	[[nodiscard]] const auto &file() const { return m_file; }
 	void get_one_line(char *buf);
 
  private:
@@ -1032,8 +1032,8 @@ void MobileFile::parse_mobile(const int nr) {
 			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
 		exit(1);
 	}
-	MOB_FLAGS(&mob_proto[i]).from_string(f1);
-	MOB_FLAGS(&mob_proto[i]).set(EMobFlag::kNpc);
+	mob_proto[i].SetFlagsFromString(f1);
+	mob_proto[i].SetFlag(EMobFlag::kNpc);
 	AFF_FLAGS(&mob_proto[i]).from_string(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter)) {
@@ -1161,7 +1161,7 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 			exit(1);
 	}
 
-	mob_proto[i].char_specials.position = static_cast<EPosition>(t[0]);
+	mob_proto[i].SetPosition(static_cast<EPosition>(t[0]));
 	mob_proto[i].mob_specials.default_pos = static_cast<EPosition>(t[1]);
 	mob_proto[i].set_sex(static_cast<EGender>(t[2]));
 

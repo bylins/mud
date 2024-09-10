@@ -516,13 +516,13 @@ void filter_dupe_names() {
 			}
 			// редко появляющиеся мобы, мобы без экспы
 			const CharData *mob = &mob_proto[k->rnum];
-			if (MOB_FLAGGED(mob, EMobFlag::kAppearsFullmoon)
-				|| MOB_FLAGGED(mob, EMobFlag::kAppearsWinter)
-				|| MOB_FLAGGED(mob, EMobFlag::kAppearsSpring)
-				|| MOB_FLAGGED(mob, EMobFlag::kAppearsSummer)
-				|| MOB_FLAGGED(mob, EMobFlag::kAppearsAutumn)
+			if (mob->IsFlagged(EMobFlag::kAppearsFullmoon)
+				|| mob->IsFlagged(EMobFlag::kAppearsWinter)
+				|| mob->IsFlagged(EMobFlag::kAppearsSpring)
+				|| mob->IsFlagged(EMobFlag::kAppearsSummer)
+				|| mob->IsFlagged(EMobFlag::kAppearsAutumn)
 				|| NPC_FLAGGED(mob, ENpcFlag::kFreeDrop) //не падает фридроп
-				|| MOB_FLAGGED(mob, EMobFlag::kProtect) //нельзя убить
+				|| mob->IsFlagged(EMobFlag::kProtect) //нельзя убить
 				|| mob->get_exp() <= 0) {
 				continue;
 			}

@@ -124,7 +124,7 @@ void Characters::purge() {
 			clearMemory(character.get());
 		}
 
-		MOB_FLAGS(character).set(EMobFlag::kMobFreed);
+		character->SetFlag(EMobFlag::kMobFreed);
 	}
 
 	m_purge_list.clear();

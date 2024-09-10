@@ -297,7 +297,10 @@ set(SOURCES
 		src/cmd/do_mode.cpp
 		src/cmd/levels.cpp
 		src/cmd/where.cpp
-		src/cmd/who.cpp)
+		src/cmd/who.cpp
+		src/cmd/enter.cpp
+		src/cmd/sleep.cpp
+		src/cmd/wake.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -575,7 +578,10 @@ set(HEADERS
 		src/cmd/do_mode.h
 		src/cmd/levels.h
 		src/cmd/where.h
-		src/cmd/who.h)
+		src/cmd/who.h
+		src/cmd/wake.h
+		src/cmd/enter.h
+		src/cmd/sleep.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

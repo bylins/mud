@@ -367,7 +367,7 @@ void forget_all_spells(CharData *ch) {
 	int slotn;
 
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		if (PRF_FLAGGED(ch, EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
+		if (ch->IsFlagged(EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
 			slotn = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
 				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);

@@ -157,7 +157,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 	int cost;
 	char buf[256];
 
-	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
+	IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GetRealLevel(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf,
@@ -222,7 +222,7 @@ void postmaster_send_mail(CharData *ch, CharData *mailman, int/* cmd*/, char *ar
 
 	act(buf, false, mailman, 0, ch, kToVict);
 	ch->remove_gold(cost);
-	PLR_FLAGS(ch).set(EPlrFlag::kMailing);    // string_write() sets writing.
+	ch->SetFlag(EPlrFlag::kMailing);    // string_write() sets writing.
 
 	// Start writing!
 	utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());

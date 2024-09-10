@@ -20,7 +20,11 @@ float get_damage_per_round(CharData *victim) {
 	float dam_per_round = dam_per_attack * num_attacks;
 
 	//Если дыхание - то дамаг умножается
-	if (MOB_FLAGGED(victim, (EMobFlag::kFireBreath | EMobFlag::kGasBreath | EMobFlag::kFrostBreath | EMobFlag::kAcidBreath | EMobFlag::kLightingBreath))) {
+	if (victim->IsFlagged(EMobFlag::kFireBreath) ||
+		victim->IsFlagged(EMobFlag::kGasBreath) ||
+		victim->IsFlagged(EMobFlag::kFrostBreath) ||
+		victim->IsFlagged(EMobFlag::kAcidBreath) ||
+		victim->IsFlagged(EMobFlag::kLightingBreath)) {
 		dam_per_round *= 1.3f;
 	}
 
@@ -152,7 +156,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
 	}
 
-	if (PRF_FLAGGED(ch, EPrf::kTester))
+	if (ch->IsFlagged(EPrf::kTester))
 		SendMsgToChar(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
@@ -207,7 +211,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N не слышит вас.", false, ch, 0, helpee, kToChar);
 	else if (IS_HORSE(helpee))
 		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (helpee->GetEnemy() || GET_POS(helpee) < EPosition::kRest)
+	else if (helpee->GetEnemy() || helpee->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, 0, helpee, kToChar);
 	else if (circle_follow(helpee, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
@@ -257,8 +261,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 		}
-		if (MOB_FLAGGED(helpee, EMobFlag::kNoGroup))
-			MOB_FLAGS(helpee).unset(EMobFlag::kNoGroup);
+		if (helpee->IsFlagged(EMobFlag::kNoGroup))
+			helpee->UnsetFlag(EMobFlag::kNoGroup);
 
 		Affect<EApply> af;
 		if (!(k && k->follower == helpee)) {
@@ -324,10 +328,10 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			MOB_FLAGS(helpee).unset(EMobFlag::kAgressive);
-			MOB_FLAGS(helpee).unset(EMobFlag::kSpec);
-			PRF_FLAGS(helpee).unset(EPrf::kPunctual);
-			MOB_FLAGS(helpee).set(EMobFlag::kNoSkillTrain);
+			helpee->UnsetFlag(EMobFlag::kAgressive);
+			helpee->UnsetFlag(EMobFlag::kSpec);
+			helpee->UnsetFlag(EPrf::kPunctual);
+			helpee->SetFlag(EMobFlag::kNoSkillTrain);
 			helpee->set_skill(ESkill::kPunctual, 0);
 			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
 				ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
@@ -362,7 +366,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if (GET_POS(k->follower) < EPosition::kStand) {
+	if (k->follower->GetPosition() < EPosition::kStand) {
 		act("$N2 сейчас, похоже, не до вас.", false, ch, 0, k->follower, kToChar);
 		return;
 	}

@@ -1124,7 +1124,7 @@ void flag_toggle(FLAG_DATA &flag, const unsigned f) {
 str flag_str(const FLAG_DATA &flag) {
 	char buf[MAX_STRING_LENGTH];
 	*buf = '\0';
-	flag.tascii(4, buf);
+	flag.tascii(FlagData::kPlanesNumber, buf);
 	return str(buf);
 }
 
@@ -2591,8 +2591,8 @@ bool check_command_on_list(const python_command_list_t &lst,
 			SendMsgToChar("Вы еще не БОГ, чтобы делать это.\r\n", ch);
 			return true;
 		}
-		if (GET_POS(ch) < i->minimum_position) {
-			switch (GET_POS(ch)) {
+		if (ch->GetPosition() < i->minimum_position) {
+			switch (ch->GetPosition()) {
 				case POS_DEAD: SendMsgToChar("Очень жаль - ВЫ МЕРТВЫ !!! :-(\r\n", ch);
 					break;
 				case POS_INCAP:

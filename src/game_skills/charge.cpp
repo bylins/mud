@@ -31,11 +31,11 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGS(ch).get(EPrf::kIronWind)) {
+	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам ринуться в бой!\r\n", ch);
 		return;
 	}
-	if (GET_POS(ch) != EPosition::kStand) {
+	if (ch->GetPosition() != EPosition::kStand) {
 		SendMsgToChar("Вы не можете ринуться в бой из этого положения!\r\n", ch);
 		return;
 	}
@@ -64,7 +64,7 @@ void go_charge(CharData *ch, int direction) {
 	}
 
 	bool is_awake = false;
-	if PRF_FLAGGED(ch, EPrf::kAwake) {
+	if (ch->IsFlagged(EPrf::kAwake)) {
 		is_awake = true;
 	}
 
@@ -99,7 +99,7 @@ void go_charge(CharData *ch, int direction) {
 
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
-		if (MOB_FLAGGED(target, EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !CAN_SEE(ch,target)) {
+		if (target->IsFlagged(EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !CAN_SEE(ch,target)) {
 			--victims_amount;
 		} else {
 			if (IsAffectedBySpellWithCasterId(ch, target, ESpell::kNoCharge)) {

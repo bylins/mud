@@ -127,9 +127,9 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd != SCMD_QUIT)
 		SendMsgToChar("Вам стоит набрать эту команду полностью во избежание недоразумений!\r\n", ch);
-	else if (GET_POS(ch) == EPosition::kFight)
+	else if (ch->GetPosition() == EPosition::kFight)
 		SendMsgToChar("Угу! Щаз-з-з! Вы, батенька, деретесь!\r\n", ch);
-	else if (GET_POS(ch) < EPosition::kStun) {
+	else if (ch->GetPosition() < EPosition::kStun) {
 		SendMsgToChar("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, nullptr);
 	}
@@ -483,7 +483,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, MUD::Skill(ESkill::kSteal).difficulty);
 
-	if (IS_IMMORTAL(ch) || (GET_POS(vict) <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
+	if (IS_IMMORTAL(ch) || (vict->GetPosition() <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
@@ -668,8 +668,8 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Воровать у своих? Это мерзко...\r\n", ch);
 		return;
 	}
-	if (vict->IsNpc() && (MOB_FLAGGED(vict, EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kGodsShield)
-		|| MOB_FLAGGED(vict, EMobFlag::kProtect))
+	if (vict->IsNpc() && (vict->IsFlagged(EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kGodsShield)
+		|| vict->IsFlagged(EMobFlag::kProtect))
 		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
 		return;
@@ -776,8 +776,8 @@ bool is_group_member(CharData *ch, CharData *vict) {
 int perform_group(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(vict, EAffect::kGroup)
 		|| AFF_FLAGGED(vict, EAffect::kCharmed)
-		|| MOB_FLAGGED(vict, EMobFlag::kTutelar)
-		|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow)
+		|| vict->IsFlagged(EMobFlag::kTutelar)
+		|| vict->IsFlagged(EMobFlag::kMentalShadow)
 		|| IS_HORSE(vict)) {
 		return (false);
 	}
@@ -985,7 +985,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		// ДЕБАФЫ
 		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
 		
-		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) GET_POS(k)]);
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 
@@ -1012,8 +1012,8 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
 		
 		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
-		buffer << fmt::format(" {:^5} &n|", PRF_FLAGGED(k, EPrf::kSkirmisher) ? " &gДа  " : "Нет");
-		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) GET_POS(k)]);
+		buffer << fmt::format(" {:^5} &n|", k->IsFlagged(EPrf::kSkirmisher) ? " &gДа  " : "Нет");
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 	}
@@ -1069,7 +1069,7 @@ void print_group(CharData *ch) {
 
 	for (f = ch->followers; f; f = f->next) {
 		if (!(AFF_FLAGGED(f->follower, EAffect::kCharmed)
-			|| MOB_FLAGGED(f->follower, EMobFlag::kTutelar) || MOB_FLAGGED(f->follower, EMobFlag::kMentalShadow))) {
+			|| f->follower->IsFlagged(EMobFlag::kTutelar) || f->follower->IsFlagged(EMobFlag::kMentalShadow))) {
 			continue;
 		}
 		if (!cfound)
@@ -1080,11 +1080,11 @@ void print_group(CharData *ch) {
 		SendMsgToChar("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
 		return;
 	}
-	if (PRF_FLAGGED(ch, EPrf::kShowGroup)) {
+	if (ch->IsFlagged(EPrf::kShowGroup)) {
 		for (g = k->followers, cfound = 0; g; g = g->next) {
 			for (f = g->follower->followers; f; f = f->next) {
 				if (!(AFF_FLAGGED(f->follower, EAffect::kCharmed)
-					|| MOB_FLAGGED(f->follower, EMobFlag::kTutelar) || MOB_FLAGGED(f->follower, EMobFlag::kMentalShadow))
+					|| f->follower->IsFlagged(EMobFlag::kTutelar) || f->follower->IsFlagged(EMobFlag::kMentalShadow))
 					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
@@ -1095,9 +1095,9 @@ void print_group(CharData *ch) {
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
-				if (PRF_FLAGGED(ch, EPrf::kNoClones)
+				if (ch->IsFlagged(EPrf::kNoClones)
 					&& f->follower->IsNpc()
-					&& (MOB_FLAGGED(f->follower, EMobFlag::kClone)
+					&& (f->follower->IsFlagged(EMobFlag::kClone)
 						|| GET_MOB_VNUM(f->follower) == kMobKeeper)) {
 					continue;
 				}
@@ -1110,15 +1110,15 @@ void print_group(CharData *ch) {
 
 			if (ch->has_master()) {
 				if (!(AFF_FLAGGED(g->follower, EAffect::kCharmed)
-					|| MOB_FLAGGED(g->follower, EMobFlag::kTutelar) || MOB_FLAGGED(g->follower, EMobFlag::kMentalShadow))
+					|| g->follower->IsFlagged(EMobFlag::kTutelar) || g->follower->IsFlagged(EMobFlag::kMentalShadow))
 					|| !AFF_FLAGGED(ch, EAffect::kGroup)) {
 					continue;
 				}
 
 				// shapirus: при включенном режиме не показываем клонов и хранителей
-				if (PRF_FLAGGED(ch, EPrf::kNoClones)
+				if (ch->IsFlagged(EPrf::kNoClones)
 					&& g->follower->IsNpc()
-					&& (MOB_FLAGGED(g->follower, EMobFlag::kClone)
+					&& (g->follower->IsFlagged(EMobFlag::kClone)
 						|| GET_MOB_VNUM(g->follower) == kMobKeeper)) {
 					continue;
 				}
@@ -1149,7 +1149,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_POS(ch) < EPosition::kRest) {
+	if (ch->GetPosition() < EPosition::kRest) {
 		SendMsgToChar("Трудно управлять группой в таком состоянии.\r\n", ch);
 		return;
 	}
@@ -1195,7 +1195,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
 		if (vict
 			&& vict->IsNpc()
-			&& MOB_FLAGGED(vict, EMobFlag::kClone)
+			&& vict->IsFlagged(EMobFlag::kClone)
 			&& AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
 			&& !vict->get_master()->IsNpc()) {
@@ -1228,8 +1228,8 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
 	} else {
 		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {
-			if (AFF_FLAGGED(vict, EAffect::kCharmed) || MOB_FLAGGED(vict, EMobFlag::kTutelar)
-				|| MOB_FLAGGED(vict, EMobFlag::kMentalShadow) || IS_HORSE(vict)) {
+			if (AFF_FLAGGED(vict, EAffect::kCharmed) || vict->IsFlagged(EMobFlag::kTutelar)
+				|| vict->IsFlagged(EMobFlag::kMentalShadow) || IS_HORSE(vict)) {
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
 			};
@@ -1515,29 +1515,29 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void set_display_bits(CharData *ch, bool flag) {
 	if (flag) {
-		PRF_FLAGS(ch).set(EPrf::kDispHp);
-		PRF_FLAGS(ch).set(EPrf::kDispMana);
-		PRF_FLAGS(ch).set(EPrf::kDispMove);
-		PRF_FLAGS(ch).set(EPrf::kDispExits);
-		PRF_FLAGS(ch).set(EPrf::kDispMoney);
-		PRF_FLAGS(ch).set(EPrf::kDispLvl);
-		PRF_FLAGS(ch).set(EPrf::kDispExp);
-		PRF_FLAGS(ch).set(EPrf::kDispFight);
-		PRF_FLAGS(ch).set(EPrf::kDispCooldowns);
+		ch->SetFlag(EPrf::kDispHp);
+		ch->SetFlag(EPrf::kDispMana);
+		ch->SetFlag(EPrf::kDispMove);
+		ch->SetFlag(EPrf::kDispExits);
+		ch->SetFlag(EPrf::kDispMoney);
+		ch->SetFlag(EPrf::kDispLvl);
+		ch->SetFlag(EPrf::kDispExp);
+		ch->SetFlag(EPrf::kDispFight);
+		ch->SetFlag(EPrf::kDispCooldowns);
 		if (!IS_IMMORTAL(ch)) {
-			PRF_FLAGS(ch).set(EPrf::kDispTimed);
+			ch->SetFlag(EPrf::kDispTimed);
 		}
 	} else {
-		PRF_FLAGS(ch).unset(EPrf::kDispHp);
-		PRF_FLAGS(ch).unset(EPrf::kDispMana);
-		PRF_FLAGS(ch).unset(EPrf::kDispMove);
-		PRF_FLAGS(ch).unset(EPrf::kDispExits);
-		PRF_FLAGS(ch).unset(EPrf::kDispMoney);
-		PRF_FLAGS(ch).unset(EPrf::kDispLvl);
-		PRF_FLAGS(ch).unset(EPrf::kDispExp);
-		PRF_FLAGS(ch).unset(EPrf::kDispFight);
-		PRF_FLAGS(ch).unset(EPrf::kDispTimed);
-		PRF_FLAGS(ch).unset(EPrf::kDispCooldowns);
+		ch->UnsetFlag(EPrf::kDispHp);
+		ch->UnsetFlag(EPrf::kDispMana);
+		ch->UnsetFlag(EPrf::kDispMove);
+		ch->UnsetFlag(EPrf::kDispExits);
+		ch->UnsetFlag(EPrf::kDispMoney);
+		ch->UnsetFlag(EPrf::kDispLvl);
+		ch->UnsetFlag(EPrf::kDispExp);
+		ch->UnsetFlag(EPrf::kDispFight);
+		ch->UnsetFlag(EPrf::kDispTimed);
+		ch->UnsetFlag(EPrf::kDispCooldowns);
 	}
 }
 
@@ -1571,34 +1571,34 @@ void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (size_t i = 0; i < len; i++) {
 			switch (LOWER(argument[i])) {
 				case 'h':
-				case 'ж': PRF_FLAGS(ch).set(EPrf::kDispHp);
+				case 'ж': ch->SetFlag(EPrf::kDispHp);
 					break;
 				case 'w':
-				case 'з': PRF_FLAGS(ch).set(EPrf::kDispMana);
+				case 'з': ch->SetFlag(EPrf::kDispMana);
 					break;
 				case 'm':
-				case 'э': PRF_FLAGS(ch).set(EPrf::kDispMove);
+				case 'э': ch->SetFlag(EPrf::kDispMove);
 					break;
 				case 'e':
-				case 'в': PRF_FLAGS(ch).set(EPrf::kDispExits);
+				case 'в': ch->SetFlag(EPrf::kDispExits);
 					break;
 				case 'g':
-				case 'д': PRF_FLAGS(ch).set(EPrf::kDispMoney);
+				case 'д': ch->SetFlag(EPrf::kDispMoney);
 					break;
 				case 'l':
-				case 'у': PRF_FLAGS(ch).set(EPrf::kDispLvl);
+				case 'у': ch->SetFlag(EPrf::kDispLvl);
 					break;
 				case 'x':
-				case 'о': PRF_FLAGS(ch).set(EPrf::kDispExp);
+				case 'о': ch->SetFlag(EPrf::kDispExp);
 					break;
 				case 'б':
-				case 'f': PRF_FLAGS(ch).set(EPrf::kDispFight);
+				case 'f': ch->SetFlag(EPrf::kDispFight);
 					break;
 				case 'п':
-				case 't': PRF_FLAGS(ch).set(EPrf::kDispTimed);
+				case 't': ch->SetFlag(EPrf::kDispTimed);
 					break;
 				case 'к':
-				case 'c': PRF_FLAGS(ch).set(EPrf::kDispCooldowns);
+				case 'c': ch->SetFlag(EPrf::kDispCooldowns);
 					break;
 				case ' ': break;
 				default: SendMsgToChar(DISPLAY_HELP, ch);
@@ -1779,7 +1779,7 @@ void perform_beep(CharData *ch, CharData *vict) {
 	act(buf, false, ch, nullptr, vict, kToVict | kToSleep);
 	SendMsgToChar(CCNRM(vict, C_NRM), vict);
 
-	if (PRF_FLAGGED(ch, EPrf::kNoRepeat))
+	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar(OK, ch);
 	else {
 		SendMsgToChar(CCRED(ch, C_CMP), ch);
@@ -1800,13 +1800,13 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(NOPERSON, ch);
 	else if (ch == vict)
 		SendMsgToChar("\007\007Вы вызвали себя!\r\n", ch);
-	else if (PRF_FLAGGED(ch, EPrf::kNoTell))
+	else if (ch->IsFlagged(EPrf::kNoTell))
 		SendMsgToChar("Вы не можете пищать в режиме обращения.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
 		SendMsgToChar("Стены заглушили ваш писк.\r\n", ch);
 	else if (!vict->IsNpc() && !vict->desc)    // linkless
 		act("$N потерял связь.", false, ch, nullptr, vict, kToChar | kToSleep);
-	else if (PLR_FLAGGED(vict, EPlrFlag::kWriting))
+	else if (vict->IsFlagged(EPlrFlag::kWriting))
 		act("$N пишет сейчас; Попищите позже.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else
 		perform_beep(ch, vict);

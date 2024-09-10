@@ -81,7 +81,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				helpee_vict = "$n издал$g непонятный звук.";
 		}
 	} else {
-		if (PRF_FLAGGED(ch, EPrf::kNoRepeat)) {
+		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			if (!ch->GetEnemy()) {
 				SendMsgToChar(OK, ch);
 			}
@@ -289,7 +289,7 @@ bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
 		return true;
 	}
 	if (caster->IsNpc() &&
-		!(AFF_FLAGGED(caster, EAffect::kCharmed) || MOB_FLAGGED(caster, EMobFlag::kTutelar)))
+		!(AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar)))
 		return true;
 	return false;
 }
@@ -569,8 +569,8 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		troom = world[ch->in_room];
 	}
 
-	if (GET_POS(ch) < MUD::Spell(spell_id).GetMinPos()) {
-		switch (GET_POS(ch)) {
+	if (ch->GetPosition() < MUD::Spell(spell_id).GetMinPos()) {
+		switch (ch->GetPosition()) {
 			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 				break;
 			case EPosition::kRest: SendMsgToChar("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
@@ -650,7 +650,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 
-	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, EPrf::kAutomem)) {
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 

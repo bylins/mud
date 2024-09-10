@@ -33,6 +33,7 @@
 #include "cmd_god/mark.h"
 #include "cmd/equip.h"
 #include "cmd/eat.h"
+#include "cmd/enter.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "cmd/get.h"
@@ -44,6 +45,7 @@
 #include "cmd/order.h"
 #include "cmd/put.h"
 #include "cmd/retreat.h"
+#include "cmd/sleep.h"
 #include "cmd/telegram.h"
 #include "cmd/learn.h"
 #include "cmd/do_features.h"
@@ -63,6 +65,7 @@
 #include "cmd/trample.h"
 #include "cmd/where.h"
 #include "cmd/who.h"
+#include "cmd/wake.h"
 #include "comm.h"
 #include "constants.h"
 #include "game_crafts/craft_commands.h"
@@ -447,7 +450,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"вече", EPosition::kDead, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
 		{"взять", EPosition::kRest, do_get, 0, 0, 200},
 		{"взглянуть", EPosition::kRest, do_diagnose, 0, 0, 100},
-		{"взломать", EPosition::kStand, do_gen_door, 1, EDoorScmd::SCMD_PICK, -1},
+		{"взломать", EPosition::kStand, do_gen_door, 1, EDoorScmd::kScmdPick, -1},
 		{"вихрь", EPosition::kFight, do_iron_wind, 0, 0, -1},
 		{"вложить", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"вернуть", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -501,14 +504,14 @@ cpp_extern const struct command_info cmd_info[] =
 		{"задержать", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"заклинания", EPosition::kSleep, DoSpells, 0, 0, 0},
 		{"заклстат", EPosition::kDead, do_spellstat, kLvlGreatGod, 0, 0},
-		{"закрыть", EPosition::kSit, do_gen_door, 0, SCMD_CLOSE, 500},
+		{"закрыть", EPosition::kSit, do_gen_door, 0, kScmdClose, 500},
 		{"замакс", EPosition::kRest, do_show_mobmax, 1, 0, -1},
 		{"замести", EPosition::kStand, do_hidetrack, 1, 0, -1},
 		{"замолчать", EPosition::kDead, do_wizutil, kLvlGod, SCMD_MUTE, 0},
 		{"заморозить", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
 		{"занятость", EPosition::kDead, do_check_occupation, kLvlGod, 0, 0},
 		{"запомнить", EPosition::kRest, do_memorize, 0, 0, 0},
-		{"запереть", EPosition::kSit, do_gen_door, 0, SCMD_LOCK, 500},
+		{"запереть", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"запрет", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"заснуть", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"заставка", EPosition::kDead, do_gen_ps, 0, SCMD_MOTD, 0},
@@ -603,8 +606,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"отразить", EPosition::kFight, do_multyparry, 0, 0, -1},
 		{"отвязать", EPosition::kDead, do_horseget, 0, 0, -1},
 		{"отдохнуть", EPosition::kRest, do_rest, 0, 0, -1},
-		{"открыть", EPosition::kSit, do_gen_door, 0, EDoorScmd::SCMD_OPEN, 500},
-		{"отпереть", EPosition::kSit, do_gen_door, 0, SCMD_UNLOCK, 500},
+		{"открыть", EPosition::kSit, do_gen_door, 0, EDoorScmd::kScmdOpen, 500},
+		{"отпереть", EPosition::kSit, do_gen_door, 0, kScmdUnlock, 500},
 		{"отпустить", EPosition::kSit, do_stophorse, 0, 0, -1},
 		{"отравить", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"отринуть", EPosition::kRest, do_antigods, 1, 0, -1},
@@ -668,7 +671,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"присмотреться", EPosition::kRest, do_looking, 0, 0, 250},
 		{"придумки", EPosition::kDead, Boards::DoBoard, 0, Boards::SUGGEST_BOARD, 0},
 		{"проверить", EPosition::kDead, do_check, 0, 0, 0},
-		{"проснуться", EPosition::kSleep, do_wake, 0, SCMD_WAKE, -1},
+		{"проснуться", EPosition::kSleep, do_wake, 0, kScmdWake, -1},
 		{"простить", EPosition::kRest, do_forgive, 0, 0, 0},
 		{"пробовать", EPosition::kRest, do_eat, 0, kScmdTaste, 300},
 		{"сожрать", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
@@ -676,7 +679,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"прыжок", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
 
-		{"разбудить", EPosition::kRest, do_wake, 0, SCMD_WAKEUP, -1},
+		{"разбудить", EPosition::kRest, do_wake, 0, kScmdWakeUp, -1},
 		{"разгруппировать", EPosition::kDead, do_ungroup, 0, 0, 500},
 		{"разделить", EPosition::kRest, do_split, 1, 0, 500},
 		{"разделы", EPosition::kRest, do_help, 1, 0, 500},
@@ -789,7 +792,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
-		{"close", EPosition::kSit, do_gen_door, 0, SCMD_CLOSE, 500},
+		{"close", EPosition::kSit, do_gen_door, 0, kScmdClose, 500},
 		{"cls", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
 		{"commands", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
 		{"consider", EPosition::kRest, do_consider, 0, 0, 500},
@@ -867,7 +870,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"load", EPosition::kDead, do_load, 0, 0, 0},
 		{"loadstat", EPosition::kDead, do_loadstat, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, do_look, 0, SCMD_LOOK, 200},
-		{"lock", EPosition::kSit, do_gen_door, 0, SCMD_LOCK, 500},
+		{"lock", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"map", EPosition::kRest, do_map, 0, 0, 0},
 		{"mail", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"mercenary", EPosition::kStand, do_not_here, 1, 0, -1},
@@ -887,12 +890,12 @@ cpp_extern const struct command_info cmd_info[] =
 		{"oedit", EPosition::kDead, do_olc, 0, SCMD_OLC_OEDIT, 0},
 		{"offer", EPosition::kStand, do_not_here, 1, 0, 0},
 		{"olc", EPosition::kDead, do_olc, kLvlGod, SCMD_OLC_SAVEINFO, 0},
-		{"open", EPosition::kSit, do_gen_door, 0, SCMD_OPEN, 500},
+		{"open", EPosition::kSit, do_gen_door, 0, kScmdOpen, 500},
 		{"order", EPosition::kRest, do_order, 1, 0, -1},
 		{"overstuff", EPosition::kDead, do_overstuff, kLvlGreatGod, 0, 0},
 		{"page", EPosition::kDead, do_page, kLvlGod, 0, 0},
 		{"parry", EPosition::kFight, do_parry, 0, 0, -1},
-		{"pick", EPosition::kStand, do_gen_door, 1, SCMD_PICK, -1},
+		{"pick", EPosition::kStand, do_gen_door, 1, kScmdPick, -1},
 		{"poisoned", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"policy", EPosition::kDead, do_gen_ps, 0, SCMD_POLICIES, 0},
 		{"poofin", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFIN, 0},
@@ -982,7 +985,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
 		{"unfreeze", EPosition::kDead, do_unfreeze, kLvlImplementator, 0, 0},
 		{"ungroup", EPosition::kDead, do_ungroup, 0, 0, -1},
-		{"unlock", EPosition::kSit, do_gen_door, 0, SCMD_UNLOCK, 500},
+		{"unlock", EPosition::kSit, do_gen_door, 0, kScmdUnlock, 500},
 		{"uptime", EPosition::kDead, do_date, kLvlImmortal, SCMD_UPTIME, 0},
 		{"use", EPosition::kSit, do_employ, 1, SCMD_USE, 500},
 		{"users", EPosition::kDead, do_users, kLvlImmortal, 0, 0},
@@ -1213,7 +1216,7 @@ void command_interpreter(CharData *ch, char *argument) {
 	}
 	if (!is_head(ch->get_name())
 		&& ((!ch->IsNpc() && (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
-			&& (PLR_FLAGGED(ch, EPlrFlag::kFrozen)))
+			&& (ch->IsFlagged(EPlrFlag::kFrozen)))
 			|| AFF_FLAGGED(ch, EAffect::kHold)
 			|| AFF_FLAGGED(ch, EAffect::kStopFight)
 			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
@@ -1232,8 +1235,8 @@ void command_interpreter(CharData *ch, char *argument) {
 		return;
 	}
 
-	if (!social && GET_POS(ch) < cmd_info[cmd].minimum_position) {
-		switch (GET_POS(ch)) {
+	if (!social && ch->GetPosition() < cmd_info[cmd].minimum_position) {
+		switch (ch->GetPosition()) {
 			case EPosition::kDead: SendMsgToChar("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
 				break;
 			case EPosition::kIncap:
@@ -1884,8 +1887,8 @@ int perform_dupe_check(DescriptorData *d) {
 	d->character->desc = d;
 	d->original = nullptr;
 	d->character->char_specials.timer = 0;
-	PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
-	PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
+	d->character->UnsetFlag(EPlrFlag::kMailing);
+	d->character->UnsetFlag(EPlrFlag::kWriting);
 	STATE(d) = CON_PLAYING;
 
 	switch (mode) {
@@ -2098,27 +2101,27 @@ void do_entergame(DescriptorData *d) {
 	}
 
 	if (GetRealLevel(d->character) < kLvlImplementator) {
-		if (PLR_FLAGGED(d->character, EPlrFlag::kInvStart)) {
+		if (d->character->IsFlagged(EPlrFlag::kInvStart)) {
 			SET_INVIS_LEV(d->character, kLvlImmortal);
 		}
 		if (GET_INVIS_LEV(d->character) > GetRealLevel(d->character)) {
 			SET_INVIS_LEV(d->character, GetRealLevel(d->character));
 		}
 
-		if (PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
-			PRF_FLAGS(d->character).unset(EPrf::kCoderinfo);
+		if (d->character->IsFlagged(EPrf::kCoderinfo)) {
+			d->character->UnsetFlag(EPrf::kCoderinfo);
 		}
 		if (GetRealLevel(d->character) < kLvlGod) {
-			if (PRF_FLAGGED(d->character, EPrf::kHolylight)) {
-				PRF_FLAGS(d->character).unset(EPrf::kHolylight);
+			if (d->character->IsFlagged(EPrf::kHolylight)) {
+				d->character->UnsetFlag(EPrf::kHolylight);
 			}
 		}
 		if (GetRealLevel(d->character) < kLvlGod) {
-			if (PRF_FLAGGED(d->character, EPrf::kNohassle)) {
-				PRF_FLAGS(d->character).unset(EPrf::kNohassle);
+			if (d->character->IsFlagged(EPrf::kNohassle)) {
+				d->character->UnsetFlag(EPrf::kNohassle);
 			}
-			if (PRF_FLAGGED(d->character, EPrf::kRoomFlags)) {
-				PRF_FLAGS(d->character).unset(EPrf::kRoomFlags);
+			if (d->character->IsFlagged(EPrf::kRoomFlags)) {
+				d->character->UnsetFlag(EPrf::kRoomFlags);
 			}
 		}
 
@@ -2138,11 +2141,11 @@ void do_entergame(DescriptorData *d) {
 	   * We have to place the character in a room before equipping them
 	   * or equip_char() will gripe about the person in kNowhere.
 	   */
-	if (PLR_FLAGGED(d->character, EPlrFlag::kHelled))
+	if (d->character->IsFlagged(EPlrFlag::kHelled))
 		load_room = r_helled_start_room;
-	else if (PLR_FLAGGED(d->character, EPlrFlag::kNameDenied))
+	else if (d->character->IsFlagged(EPlrFlag::kNameDenied))
 		load_room = r_named_start_room;
-	else if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen))
+	else if (d->character->IsFlagged(EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else if (!check_dupes_host(d))
 		load_room = r_unreg_start_room;
@@ -2182,8 +2185,8 @@ void do_entergame(DescriptorData *d) {
 	if (!character) {
 		character_list.push_front(d->character);
 	} else {
-		MOB_FLAGS(character).unset(EMobFlag::kMobDeleted);
-		MOB_FLAGS(character).unset(EMobFlag::kMobFreed);
+		character->UnsetFlag(EMobFlag::kMobDeleted);
+		character->UnsetFlag(EMobFlag::kMobFreed);
 	}
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
@@ -2199,53 +2202,53 @@ void do_entergame(DescriptorData *d) {
 	Clan::clan_invoice(d->character.get(), true);
 
 	// Чистим стили если не знаем их
-	if (PRF_FLAGS(d->character).get(EPrf::kShadowThrow)) {
-		PRF_FLAGS(d->character).unset(EPrf::kShadowThrow);
+	if (d->character->IsFlagged(EPrf::kShadowThrow)) {
+		d->character->UnsetFlag(EPrf::kShadowThrow);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kPunctual)
+	if (d->character->IsFlagged(EPrf::kPunctual)
 		&& !d->character->GetSkill(ESkill::kPunctual)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPunctual);
+		d->character->UnsetFlag(EPrf::kPunctual);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kAwake)
+	if (d->character->IsFlagged(EPrf::kAwake)
 		&& !d->character->GetSkill(ESkill::kAwake)) {
-		PRF_FLAGS(d->character).unset(EPrf::kAwake);
+		d->character->UnsetFlag(EPrf::kAwake);
 	}
 
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformPowerAttack) &&
+	if (d->character->IsFlagged(EPrf::kPerformPowerAttack) &&
 		!CanUseFeat(d->character.get(), EFeat::kPowerAttack)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPerformPowerAttack);
+		d->character->UnsetFlag(EPrf::kPerformPowerAttack);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatPowerAttack) &&
+	if (d->character->IsFlagged(EPrf::kPerformGreatPowerAttack) &&
 		!CanUseFeat(d->character.get(), EFeat::kGreatPowerAttack)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatPowerAttack);
+		d->character->UnsetFlag(EPrf::kPerformGreatPowerAttack);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformAimingAttack) &&
+	if (d->character->IsFlagged(EPrf::kPerformAimingAttack) &&
 		!CanUseFeat(d->character.get(), EFeat::kAimingAttack)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPerformAimingAttack);
+		d->character->UnsetFlag(EPrf::kPerformAimingAttack);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformGreatAimingAttack) &&
+	if (d->character->IsFlagged(EPrf::kPerformGreatAimingAttack) &&
 		!CanUseFeat(d->character.get(), EFeat::kGreatAimingAttack)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPerformGreatAimingAttack);
+		d->character->UnsetFlag(EPrf::kPerformGreatAimingAttack);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kDoubleThrow) &&
+	if (d->character->IsFlagged(EPrf::kDoubleThrow) &&
 		!CanUseFeat(d->character.get(), EFeat::kDoubleThrower)) {
-		PRF_FLAGS(d->character).unset(EPrf::kDoubleThrow);
+		d->character->UnsetFlag(EPrf::kDoubleThrow);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kTripleThrow) &&
+	if (d->character->IsFlagged(EPrf::kTripleThrow) &&
 		!CanUseFeat(d->character.get(), EFeat::kTripleThrower)) {
-		PRF_FLAGS(d->character).unset(EPrf::kTripleThrow);
+		d->character->UnsetFlag(EPrf::kTripleThrow);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kPerformSerratedBlade) &&
+	if (d->character->IsFlagged(EPrf::kPerformSerratedBlade) &&
 		!CanUseFeat(d->character.get(), EFeat::kSerratedBlade)) {
-		PRF_FLAGS(d->character).unset(EPrf::kPerformSerratedBlade);
+		d->character->UnsetFlag(EPrf::kPerformSerratedBlade);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kSkirmisher)) {
-		PRF_FLAGS(d->character).unset(EPrf::kSkirmisher);
+	if (d->character->IsFlagged(EPrf::kSkirmisher)) {
+		d->character->UnsetFlag(EPrf::kSkirmisher);
 	}
-	if (PRF_FLAGS(d->character).get(EPrf::kIronWind)) {
-		PRF_FLAGS(d->character).unset(EPrf::kIronWind);
+	if (d->character->IsFlagged(EPrf::kIronWind)) {
+		d->character->UnsetFlag(EPrf::kIronWind);
 	}
 
 	// Check & remove/add natural, race & unavailable features
@@ -2295,23 +2298,23 @@ void do_entergame(DescriptorData *d) {
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
 	STATE(d) = CON_PLAYING;
-	PRF_FLAGS(d->character).set(EPrf::kColor2); // цвет всегда полный
+	d->character->SetFlag(EPrf::kColor2); // цвет всегда полный
 // режимы по дефолту у нового чара
 	const bool new_char = d->character->GetLevel() <= 0;
 	if (new_char) {
-		PRF_FLAGS(d->character).set(EPrf::kDrawMap);
-		PRF_FLAGS(d->character).set(EPrf::kGoAhead); //IAC GA
-		PRF_FLAGS(d->character).set(EPrf::kAutomem);
-		PRF_FLAGS(d->character).set(EPrf::kAutoloot);
-		PRF_FLAGS(d->character).set(EPrf::kPklMode);
-		PRF_FLAGS(d->character).set(EPrf::kClanmembersMode); // соклан
+		d->character->SetFlag(EPrf::kDrawMap);
+		d->character->SetFlag(EPrf::kGoAhead); //IAC GA
+		d->character->SetFlag(EPrf::kAutomem);
+		d->character->SetFlag(EPrf::kAutoloot);
+		d->character->SetFlag(EPrf::kPklMode);
+		d->character->SetFlag(EPrf::kClanmembersMode); // соклан
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
 		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
-		PRF_FLAGS(d->character).set(EPrf::kShowZoneNameOnEnter);
-		PRF_FLAGS(d->character).set(EPrf::kBoardMode);
+		d->character->SetFlag(EPrf::kShowZoneNameOnEnter);
+		d->character->SetFlag(EPrf::kBoardMode);
 		d->character->set_last_exchange(time(nullptr));
 		DoPcInit(d->character.get(), true);
 		d->character->mem_queue.stored = 0;
@@ -2408,7 +2411,7 @@ void DoAfterPassword(DescriptorData *d) {
 	GET_BAD_PWS(d->character) = 0;
 	d->bad_pws = 0;
 
-	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, EPlrFlag::kSiteOk)) {
+	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !d->character->IsFlagged(EPlrFlag::kSiteOk)) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
@@ -2440,7 +2443,7 @@ void DoAfterPassword(DescriptorData *d) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
-			if (PRF_FLAGGED(d->character, EPrf::kIpControl)) {
+			if (d->character->IsFlagged(EPrf::kIpControl)) {
 				int random_number = number(1000000, 9999999);
 				new_loc_codes[GET_EMAIL(d->character)] = random_number;
 				std::string cmd_line =
@@ -2586,14 +2589,14 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	}
 	GET_LASTIP(ch)[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
-	PRF_FLAGS(ch).set(EPrf::kDispHp);
-	PRF_FLAGS(ch).set(EPrf::kDispMana);
-	PRF_FLAGS(ch).set(EPrf::kDispExits);
-	PRF_FLAGS(ch).set(EPrf::kDispMove);
-	PRF_FLAGS(ch).set(EPrf::kDispExp);
-	PRF_FLAGS(ch).set(EPrf::kDispFight);
-	PRF_FLAGS(ch).unset(EPrf::KSummonable);
-	PRF_FLAGS(ch).set(EPrf::kColor2);
+	ch->SetFlag(EPrf::kDispHp);
+	ch->SetFlag(EPrf::kDispMana);
+	ch->SetFlag(EPrf::kDispExits);
+	ch->SetFlag(EPrf::kDispMove);
+	ch->SetFlag(EPrf::kDispExp);
+	ch->SetFlag(EPrf::kDispFight);
+	ch->UnsetFlag(EPrf::KSummonable);
+	ch->SetFlag(EPrf::kColor2);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 30;
 	NOTIFY_EXCH_PRICE(ch) = 0;
@@ -2848,10 +2851,10 @@ void nanny(DescriptorData *d, char *argument) {
 						return;
 					}
 
-					if (PLR_FLAGGED(d->character, EPlrFlag::kDeleted)
+					if (d->character->IsFlagged(EPlrFlag::kDeleted)
 						|| !Password::compare_password(d->character.get(), pwd_pwd)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
-						if (!PLR_FLAGGED(d->character, EPlrFlag::kDeleted)) {
+						if (!d->character->IsFlagged(EPlrFlag::kDeleted)) {
 							sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 							mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
 						}
@@ -2860,9 +2863,9 @@ void nanny(DescriptorData *d, char *argument) {
 						return;
 					}
 
-					PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
-					PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
-					PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
+					d->character->UnsetFlag(EPlrFlag::kMailing);
+					d->character->UnsetFlag(EPlrFlag::kWriting);
+					d->character->UnsetFlag(EPlrFlag::kCryo);
 					d->character->set_pfilepos(player_i);
 					GET_ID(d->character) = GET_IDNUM(d->character);
 					DoAfterPassword(d);
@@ -2878,7 +2881,7 @@ void nanny(DescriptorData *d, char *argument) {
 					} else if (!Is_Valid_Dc(tmp_name)) {
 						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 						d->character->set_pfilepos(player_i);
-						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
+						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
 							SEND_TO_Q("Игрок с подобным именем находится в игре.\r\n", d);
@@ -2894,18 +2897,14 @@ void nanny(DescriptorData *d, char *argument) {
 				player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 				if (player_i > -1) {
 					d->character->set_pfilepos(player_i);
-					if (PLR_FLAGGED(d->character,
-									EPlrFlag::kDeleted))    // We get a false positive from the original deleted character.
-					{
+					if (d->character->IsFlagged(EPlrFlag::kDeleted)) {
 						d->character.reset();
 
-						// Check for multiple creations...
 						if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
 							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
 						}
 
-						// дополнительная проверка на длину имени чара
 						if (strlen(tmp_name) < (kMinNameLength)) {
 							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
@@ -2921,7 +2920,7 @@ void nanny(DescriptorData *d, char *argument) {
 						STATE(d) = CON_NAME_CNFRM;
 					} else    // undo it just in case they are set
 					{
-						if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, EPrf::kCoderinfo)) {
+						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 							SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 							SEND_TO_Q("Имя и пароль через пробел : ", d);
@@ -2930,9 +2929,9 @@ void nanny(DescriptorData *d, char *argument) {
 							return;
 						}
 
-						PLR_FLAGS(d->character).unset(EPlrFlag::kMailing);
-						PLR_FLAGS(d->character).unset(EPlrFlag::kWriting);
-						PLR_FLAGS(d->character).unset(EPlrFlag::kCryo);
+						d->character->UnsetFlag(EPlrFlag::kMailing);
+						d->character->UnsetFlag(EPlrFlag::kWriting);
+						d->character->UnsetFlag(EPlrFlag::kCryo);
 						SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
 						d->idle_tics = 0;
 						STATE(d) = CON_PASSWORD;
@@ -3039,7 +3038,7 @@ void nanny(DescriptorData *d, char *argument) {
 			player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 			is_player_deleted = false;
 			if (player_i > -1) {
-				is_player_deleted = PLR_FLAGGED(d->character, EPlrFlag::kDeleted);
+				is_player_deleted = d->character->IsFlagged(EPlrFlag::kDeleted);
 				if (is_player_deleted) {
 					d->character.reset();
 					CreateChar(d);
@@ -3463,7 +3462,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 					if (GetRealRemort(d->character) == 0
 						&& GetRealLevel(d->character) <= 25
-						&& !PLR_FLAGS(d->character).get(EPlrFlag::kNoDelete)) {
+						&& !d->character->IsFlagged(EPlrFlag::kNoDelete)) {
 						int timeout = -1;
 						for (int ci = 0; GetRealLevel(d->character) > pclean_criteria[ci].level; ci++) {
 							//if (GetRealLevel(d->character) == pclean_criteria[ci].level)
@@ -3532,8 +3531,8 @@ void nanny(DescriptorData *d, char *argument) {
 						break;
 					}
 
-					if (PLR_FLAGGED(d->character, EPlrFlag::kHelled)
-						|| PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
+					if (d->character->IsFlagged(EPlrFlag::kHelled)
+						|| d->character->IsFlagged(EPlrFlag::kFrozen)) {
 						SEND_TO_Q("\r\nВы находитесь в АДУ!!! Амнистии подобным образом не будет.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						break;
@@ -3562,13 +3561,13 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '7':
-					if (!PRF_FLAGGED(d->character, EPrf::kBlindMode)) {
-						PRF_FLAGS(d->character).set(EPrf::kBlindMode);
+					if (!d->character->IsFlagged(EPrf::kBlindMode)) {
+						d->character->SetFlag(EPrf::kBlindMode);
 						SEND_TO_Q("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						STATE(d) = CON_MENU;
 					} else {
-						PRF_FLAGS(d->character).unset(EPrf::kBlindMode);
+						d->character->UnsetFlag(EPrf::kBlindMode);
 						SEND_TO_Q("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
 						SEND_TO_Q(MENU, d);
 						STATE(d) = CON_MENU;
@@ -3617,7 +3616,7 @@ void nanny(DescriptorData *d, char *argument) {
 				|| !strcmp(argument, "YES")
 				|| !strcmp(argument, "да")
 				|| !strcmp(argument, "ДА")) {
-				if (PLR_FLAGGED(d->character, EPlrFlag::kFrozen)) {
+				if (d->character->IsFlagged(EPlrFlag::kFrozen)) {
 					SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
 					SEND_TO_Q("Персонаж не удален.\r\n", d);
 					STATE(d) = CON_CLOSE;
@@ -4175,7 +4174,7 @@ void DeletePcByHimself(const char *name) {
 	int id = LoadPlayerCharacter(name, st, ELoadCharFlags::kFindId);
 
 	if (id >= 0) {
-		PLR_FLAGS(st).set(EPlrFlag::kDeleted);
+		st->SetFlag(EPlrFlag::kDeleted);
 		NewNames::remove(st);
 		if (NAME_FINE(st)) {
 			player_table.GetNameAdviser().add(GET_NAME(st));

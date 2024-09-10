@@ -1013,7 +1013,7 @@ bool need_save = false;
 
 // * Добавления мыла в список + проставления флага EPlrFlag::REGISTERED, registered_email не выставляется
 void RegisterSystem::add(CharData *ch, const char *text, const char *reason) {
-	PLR_FLAGS(ch).set(EPlrFlag::kRegistred);
+	ch->SetFlag(EPlrFlag::kRegistred);
 	if (!text || !reason) return;
 	std::stringstream out;
 	out << GET_NAME(ch) << " -> " << text << " [" << reason << "]";
@@ -1029,7 +1029,7 @@ void RegisterSystem::add(CharData *ch, const char *text, const char *reason) {
 * В течении секунды персонаж помещается в комнату незареганных игроков, если он не один с данного ип
 */
 void RegisterSystem::remove(CharData *ch) {
-	PLR_FLAGS(ch).unset(EPlrFlag::kRegistred);
+	ch->UnsetFlag(EPlrFlag::kRegistred);
 	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
 	if (it != email_list.end()) {
 		email_list.erase(it);
@@ -1044,7 +1044,7 @@ void RegisterSystem::remove(CharData *ch) {
 * \return 0 - нет, 1 - да
 */
 bool RegisterSystem::is_registered(CharData *ch) {
-	if (PLR_FLAGGED(ch, EPlrFlag::kRegistred) || (ch->desc && ch->desc->registered_email))
+	if (ch->IsFlagged(EPlrFlag::kRegistred) || (ch->desc && ch->desc->registered_email))
 		return 1;
 	return 0;
 }
