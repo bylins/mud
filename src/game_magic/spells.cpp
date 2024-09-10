@@ -242,13 +242,13 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!victim || victim->IsNpc() || ch->in_room != IN_ROOM(victim) || GetRealLevel(victim) >= kLvlImmortal) {
+	if (!victim || victim->IsNpc() || ch->in_room != victim->in_room || GetRealLevel(victim) >= kLvlImmortal) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (!IS_GOD(ch)
-		&& (ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
+		&& (ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -361,7 +361,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 		}
 	}
 
-	to_room = IN_ROOM(victim);
+	to_room = victim->in_room;
 
 	if (to_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
@@ -461,7 +461,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
-	fnd_room = IN_ROOM(victim);
+	fnd_room = victim->in_room;
 	if (fnd_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
@@ -554,7 +554,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 	}
 	ch_room = ch->in_room;
-	vic_room = IN_ROOM(victim);
+	vic_room = victim->in_room;
 
 	if (ch_room == kNowhere || vic_room == kNowhere) {
 		SendMsgToChar(SUMMON_FAIL, ch);
@@ -672,7 +672,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	// призываем чармисов
 	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
-		if (IN_ROOM(k->follower) == vic_room) {
+		if (k->follower->in_room == vic_room) {
 			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
 				if (!k->follower->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
@@ -749,16 +749,16 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 				return false;
 			}
 
-			if (!VALID_RNUM(IN_ROOM(carried_by))) {
+			if (!VALID_RNUM(carried_by->in_room)) {
 				sprintf(buf,
 						"SYSERR: Illegal room %d, char %s. Создана кора для исследований",
-						IN_ROOM(carried_by),
+						carried_by->in_room,
 						carried_by->get_name().c_str());
 				mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 				return false;
 			}
 
-			if (SECT(IN_ROOM(carried_by)) == ESector::kSecret || IS_IMMORTAL(carried_by)) {
+			if (SECT(carried_by->in_room) == ESector::kSecret || IS_IMMORTAL(carried_by)) {
 				return false;
 			}
 		}
@@ -2151,7 +2151,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 			if (f->follower->IsNpc()
 				&& AFF_FLAGGED(f->follower, EAffect::kCharmed)
 				&& f->follower->IsFlagged(EMobFlag::kCorpse)
-				&& ch->in_room == IN_ROOM(f->follower)) {
+				&& ch->in_room == f->follower->in_room) {
 				do_sacrifice(f->follower, dam);
 			}
 		}
@@ -2453,7 +2453,7 @@ void SpellMentalShadow(CharData *ch) {
 	mob->set_level(GetRealLevel(ch));
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kMentalShadow);
-	PlaceCharToRoom(mob, IN_ROOM(ch));
+	PlaceCharToRoom(mob, ch->in_room);
 	ch->add_follower(mob);
 	mob->set_protecting(ch);
 	

@@ -794,13 +794,9 @@ class CharData : public ProtectedCharData {
   	void SetFlag(const ENpcFlag flag) { if (IsNpc()) { char_specials.saved.act.set(flag); }; };
   	void UnsetFlag(const ENpcFlag flag) { if (IsNpc()) { char_specials.saved.act.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const ENpcFlag flag) const { return (IsNpc() && char_specials.saved.act.get(flag)); };
-
   	void SetFlag(const EPlrFlag flag) { if (!IsNpc()) { char_specials.saved.act.set(flag); }; };
   	void UnsetFlag(const EPlrFlag flag) { if (!IsNpc()) { char_specials.saved.act.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EPlrFlag flag) const { return (!IsNpc() && char_specials.saved.act.get(flag)); };
-  	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };
-  	void UnsetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.unset(flag); }; };
-  	[[nodiscard]] bool IsFlagged(const EPrf flag) const { return (!IsNpc() && player_specials->saved.pref.get(flag)); };
 
 	struct mob_special_data mob_specials;        // NPC specials
 
@@ -811,6 +807,10 @@ class CharData : public ProtectedCharData {
   	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
 	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
   	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };
+
+  	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };
+  	void UnsetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.unset(flag); }; };
+  	[[nodiscard]] bool IsFlagged(const EPrf flag) const { return (!IsNpc() && player_specials->saved.pref.get(flag)); };
 
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells

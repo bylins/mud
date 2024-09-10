@@ -1966,7 +1966,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 			switch (CheckProxy(d)) {
 				case 0:
 					// если уже сидим в проксе, то смысла спамить никакого
-					if (IN_ROOM(d->character) == r_unreg_start_room
+					if (d->character->in_room == r_unreg_start_room
 						|| d->character->get_was_in_room() == r_unreg_start_room) {
 						return 0;
 					}

@@ -465,7 +465,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		UNREG_DURATION(i) = 0;
 		SendMsgToChar("Ваша регистрация восстановлена.\r\n", i.get());
 
-		if (IN_ROOM(i) == r_unreg_start_room) {
+		if (i->in_room == r_unreg_start_room) {
 			if ((restore = GET_LOADROOM(i)) == kNowhere) {
 				restore = calc_loadroom(i.get());
 			}
@@ -535,15 +535,15 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 
 	// Проверяем а там ли мы где должны быть по флагам.
-	if (IN_ROOM(i) == kStrangeRoom) {
+	if (i->in_room == kStrangeRoom) {
 		restore = i->get_was_in_room();
 	} else {
-		restore = IN_ROOM(i);
+		restore = i->in_room;
 	}
 
 	if (i->IsFlagged(EPlrFlag::kHelled)) {
 		if (restore != r_helled_start_room) {
-			if (IN_ROOM(i) == kStrangeRoom) {
+			if (i->in_room == kStrangeRoom) {
 				i->set_was_in_room(r_helled_start_room);
 			} else {
 				SendMsgToChar("Чья-то злая воля вернула вас в темницу.\r\n", i.get());
@@ -559,7 +559,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		}
 	} else if (i->IsFlagged(EPlrFlag::kNameDenied)) {
 		if (restore != r_named_start_room) {
-			if (IN_ROOM(i) == kStrangeRoom) {
+			if (i->in_room == kStrangeRoom) {
 				i->set_was_in_room(r_named_start_room);
 			} else {
 				SendMsgToChar("Чья-то злая воля вернула вас в комнату имени.\r\n", i.get());
@@ -575,9 +575,9 @@ void beat_punish(const CharData::shared_ptr &i) {
 	} else if (!RegisterSystem::is_registered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
 		if (restore != r_unreg_start_room
 			&& !NORENTABLE(i)
-			&& !deathtrap::IsSlowDeathtrap(IN_ROOM(i))
+			&& !deathtrap::IsSlowDeathtrap(i->in_room)
 			&& !check_dupes_host(i->desc, true)) {
-			if (IN_ROOM(i) == kStrangeRoom) {
+			if (i->in_room == kStrangeRoom) {
 				i->set_was_in_room(r_unreg_start_room);
 			} else {
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
@@ -626,7 +626,7 @@ void beat_points_update(int pulse) {
 //		if (d->character.get()->IsNpc())
 //			return;
 
-		if (IN_ROOM(d->character.get()) == kNowhere) {
+		if (d->character.get()->in_room == kNowhere) {
 			log("SYSERR: Pulse character in kNowhere.");
 			continue;
 		}
@@ -1616,7 +1616,7 @@ void point_update() {
 			{
 				if (IS_HORSE(i)) {
 					int mana = 0;
-					switch (real_sector(IN_ROOM(i))) {
+					switch (real_sector(i->in_room)) {
 						case ESector::kOnlyFlying:
 						case ESector::kUnderwater:
 						case ESector::kSecret:

@@ -126,7 +126,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 		if (pkiller[0]->IsNpc()
 			&& pkiller[0]->has_master()
 			&& AFF_FLAGGED(pkiller[0], EAffect::kCharmed)
-			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->get_master())) {
+			&& pkiller[0]->in_room == pkiller[0]->get_master()->in_room) {
 			pkiller[0] = pkiller[0]->get_master();
 		}
 	}
@@ -135,7 +135,7 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 			&& pvictim[0]->has_master()
 			&& (AFF_FLAGGED(pvictim[0], EAffect::kCharmed)
 				|| IS_HORSE(pvictim[0]))) {
-			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master())) {
+			if (pvictim[0]->in_room == pvictim[0]->get_master()->in_room) {
 				if (HERE(pvictim[0]->get_master()))
 					pvictim[0] = pvictim[0]->get_master();
 			}
@@ -243,7 +243,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		pk->kill_num++;
 		pk->kill_at = time(nullptr);
 		// saving first agression room
-		AGRESSOR(agressor) = GET_ROOM_VNUM(IN_ROOM(agressor));
+		AGRESSOR(agressor) = GET_ROOM_VNUM(agressor->in_room);
 		pk_check_spamm(agressor);
 	}
 
@@ -350,13 +350,13 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 	leader = victim->has_master() ? victim->get_master() : victim;
 
 	if (AFF_FLAGGED(leader, EAffect::kGroup)
-		&& IN_ROOM(leader) == IN_ROOM(victim)
+		&& leader->in_room == victim->in_room
 		&& pk_action_type(agressor, leader) > PK_ACTION_FIGHT) {
 		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
 	}
 	for (f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& IN_ROOM(f->follower) == IN_ROOM(victim)
+			&& f->follower->in_room == victim->in_room
 			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
 			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
 		}
@@ -427,8 +427,8 @@ int pk_action_type_summon(CharData *agressor, CharData *victim) {
 	}
 
 	if (!agressor || !victim || agressor == victim
-		|| ROOM_FLAGGED(IN_ROOM(agressor), ERoomFlag::kArena)
-		|| ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)
+		|| ROOM_FLAGGED(agressor->in_room, ERoomFlag::kArena)
+		|| ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)
 		|| agressor->IsNpc() || victim->IsNpc()) {
 		return PK_ACTION_NO;
 	}
@@ -530,8 +530,8 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 	pk_translate_pair(&agressor, &victim);
 
 	if (!agressor || !victim || agressor == victim
-		|| ROOM_FLAGGED(IN_ROOM(agressor), ERoomFlag::kArena)
-		|| ROOM_FLAGGED(IN_ROOM(victim), ERoomFlag::kArena)
+		|| ROOM_FLAGGED(agressor->in_room, ERoomFlag::kArena)
+		|| ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)
 		|| agressor->IsNpc() || victim->IsNpc()
 		|| (agressor != victim
 			&& (ROOM_FLAGGED(agressor->in_room, ERoomFlag::kNoBattle) || ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoBattle))))
@@ -1023,7 +1023,7 @@ bool has_clan_members_in_group(CharData *ch) {
 		return true;
 	} else {
 		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffect::kGroup) && IN_ROOM(f->follower) == ch->in_room
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup) && f->follower->in_room == ch->in_room
 				&& CLAN(f->follower)) {
 				return true;
 			}

@@ -41,7 +41,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (horse == nullptr)
 		SendMsgToChar(NOPERSON, ch);
-	else if (IN_ROOM(horse) != ch->in_room)
+	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		SendMsgToChar("Это не скакун.\r\n", ch);
@@ -109,7 +109,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (horse == nullptr)
 		SendMsgToChar(NOPERSON, ch);
-	else if (IN_ROOM(horse) != ch->in_room)
+	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		SendMsgToChar("Это не скакун.\r\n", ch);
@@ -146,7 +146,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		horse = ch->get_horse();
 	if (horse == nullptr)
 		SendMsgToChar(NOPERSON, ch);
-	else if (IN_ROOM(horse) != ch->in_room)
+	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		SendMsgToChar("Это не скакун.\r\n", ch);

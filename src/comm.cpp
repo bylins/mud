@@ -1670,7 +1670,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 		}
 
-		if (!ch->GetEnemy() || IN_ROOM(ch) != IN_ROOM(ch->GetEnemy())) {
+		if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
 			if (ch->IsFlagged(EPrf::kDispLvl)) {
 				format_to(std::back_inserter(out), "{}L ", GetRealLevel(ch));
 			}
@@ -3282,7 +3282,7 @@ void SendMsgToOutdoor(const char *msg, int control) {
 			continue;
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
-		room = IN_ROOM(i->character);
+		room = i->character->in_room;
 		if (!control
 			|| (IS_SET(control, SUN_CONTROL)
 				&& room != kNowhere
@@ -3292,7 +3292,7 @@ void SendMsgToOutdoor(const char *msg, int control) {
 				&& room != kNowhere
 				&& SECT(room) != ESector::kUnderwater
 				&& !ROOM_FLAGGED(room, ERoomFlag::kNoWeather)
-				&& world[IN_ROOM(i->character)]->weather.duration <= 0)) {
+				&& world[i->character->in_room]->weather.duration <= 0)) {
 			SEND_TO_Q(msg, i);
 		}
 	}
@@ -3685,7 +3685,7 @@ void act(const char *str,
 		CharData *to = (CharData *) vict_obj;
 		if (to != nullptr
 			&& SENDOK(to)
-			&& IN_ROOM(to) != kNowhere
+			&& to->in_room != kNowhere
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffect::kDeafness))
 			&& (!check_nodeaf || AFF_FLAGGED(to, EAffect::kDeafness))
 			&& (!to_brief_shields || to->IsFlagged(EPrf::kBriefShields))

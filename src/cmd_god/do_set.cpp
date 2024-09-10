@@ -301,7 +301,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			SendMsgToChar("Значение может быть 'on' или 'off'.\r\n", ch);
 			return 0;
 		}
-		sprintf(output, "%s %s для %s.", set_fields[mode].cmd, ONOFF(on_off_mode), GET_PAD(vict, 1));
+		sprintf(output, "%s %s для %s.", set_fields[mode].cmd, (on_off_mode ? "ON" : "OFF"), GET_PAD(vict, 1));
 	} else if (set_fields[mode].type == ESetValue::kNumber) {
 		value = atoi(val_arg);
 		sprintf(output, "У %s %s установлено в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
@@ -314,7 +314,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 1: on_off_mode ? vict->SetFlag(EPlrFlag::kInvStart) : vict->UnsetFlag(EPlrFlag::kInvStart);
 			break;
 		case 2: on_off_mode ? vict->SetFlag(EPrf::KSummonable) : vict->UnsetFlag(EPrf::KSummonable);
-			sprintf(output, "Возможность призыва %s для %s.\r\n", ONOFF(on_off_mode), GET_PAD(vict, 1));
+			sprintf(output, "Возможность призыва %s для %s.\r\n", (on_off_mode ? "ON" : "OFF"), GET_PAD(vict, 1));
 			break;
 		case 3: vict->points.max_hit = std::clamp(value, 1, 5000);
 			affect_total(vict);
@@ -439,7 +439,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 				return (0);
 			}
-			if (IN_ROOM(vict) != kNowhere) {
+			if (vict->in_room != kNowhere) {
 				RemoveCharFromRoom(vict);
 			}
 			PlaceCharToRoom(vict, rnum);

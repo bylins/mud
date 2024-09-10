@@ -627,12 +627,12 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	go_to = world[was_in]->dir_option[dir]->to_room();
 	direction = dir + 1;
 	use_horse = ch->IsOnHorse() && ch->has_horse(false)
-		&& (IN_ROOM(ch->get_horse()) == was_in || IN_ROOM(ch->get_horse()) == go_to);
+		&& (ch->get_horse()->in_room == was_in || ch->get_horse()->in_room == go_to);
 	is_horse = IS_HORSE(ch)
 		&& ch->has_master()
 		&& !AFF_FLAGGED(ch->get_master(), EAffect::kInvisible)
-		&& (IN_ROOM(ch->get_master()) == was_in
-			|| IN_ROOM(ch->get_master()) == go_to);
+		&& (ch->get_master()->in_room == was_in
+			|| ch->get_master()->in_room == go_to);
 
 	if (!invis && !is_horse) {
 		if (is_flee)

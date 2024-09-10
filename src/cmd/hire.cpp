@@ -361,7 +361,7 @@ void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if (ch->in_room != IN_ROOM(k->follower)) {
+	if (ch->in_room != k->follower->in_room) {
 		act("Вам следует встретиться с $N4 для этого.", false, ch, 0, k->follower, kToChar);
 		return;
 	}

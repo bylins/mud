@@ -2493,18 +2493,18 @@ void find_replacement(void *go,
 						}
 						for (auto f = k->followers; f; f = f->next) {
 							if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-									&& !f->follower->IsNpc() && IN_ROOM(f->follower) == c->in_room) {
+									&& !f->follower->IsNpc() && f->follower->in_room == c->in_room) {
 								num++;
 							}
 						}
 						if (num > 1) {
 							int share = val / num;
 							int rest = val % num;
-							if (AFF_FLAGGED(k, EAffect::kGroup) && IN_ROOM(k) == c->in_room && !k->IsNpc() && k != c)
+							if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == c->in_room && !k->IsNpc() && k != c)
 								k->add_nogata(share);
 							for (auto f = k->followers; f; f = f->next) {
 								if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-										&& !f->follower->IsNpc() && IN_ROOM(f->follower) == c->in_room && f->follower != c) {
+										&& !f->follower->IsNpc() && f->follower->in_room == c->in_room && f->follower != c) {
 									f->follower->add_nogata(share);
 								}
 							}
@@ -2546,8 +2546,8 @@ void find_replacement(void *go,
 				const long diff = c->get_gold() - before;
 				split_or_clan_tax(c, diff);
 				// стата для show money
-				if (!c->IsNpc() && IN_ROOM(c) > 0) {
-					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
+				if (!c->IsNpc() && c->in_room > 0) {
+					MoneyDropStat::add(zone_table[world[c->in_room]->zone_rn].vnum, diff);
 				}
 			} else {
 				sprintf(str, "%ld", c->get_gold());
@@ -2560,8 +2560,8 @@ void find_replacement(void *go,
 				const long diff = c->get_bank() - before;
 				split_or_clan_tax(c, diff);
 				// стата для show money
-				if (!c->IsNpc() && IN_ROOM(c) > 0) {
-					MoneyDropStat::add(zone_table[world[IN_ROOM(c)]->zone_rn].vnum, diff);
+				if (!c->IsNpc() && c->in_room > 0) {
+					MoneyDropStat::add(zone_table[world[c->in_room]->zone_rn].vnum, diff);
 				} 
 			} else
 				sprintf(str, "%ld", c->get_bank());
@@ -2792,7 +2792,7 @@ void find_replacement(void *go,
 			sprintf(str, "%d", GET_REAL_SIZE(c));
 		} else if (!str_cmp(field, "room")) {
 			if (!*subfield) {
-				int n = find_room_uid(world[IN_ROOM(c)]->vnum);
+				int n = find_room_uid(world[c->in_room]->vnum);
 				if (n >= 0)
 				sprintf(str, "%c%d", UID_ROOM, n);
 			}
@@ -2812,7 +2812,7 @@ void find_replacement(void *go,
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_master()));
 			}
 		} else if (!str_cmp(field, "realroom")) {
-			sprintf(str, "%d", world[IN_ROOM(c)]->vnum);
+			sprintf(str, "%d", world[c->in_room]->vnum);
 		} else if (!str_cmp(field, "loadroom")) {
 			if (!c->IsNpc()) {
 				if (!*subfield)
@@ -3074,8 +3074,8 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "people")) {
-			//const auto first_char = world[IN_ROOM(c)]->first_character();
-			const auto room = world[IN_ROOM(c)]->people;
+			//const auto first_char = world[c->in_room]->first_character();
+			const auto room = world[c->in_room]->people;
 			const auto first_char = std::find_if(room.begin(), room.end(), [](CharData *ch) {
 				return !GET_INVIS_LEV(ch);
 			});
@@ -3108,7 +3108,7 @@ void find_replacement(void *go,
 			int inroom;
 
 			// Составление списка (для mob)
-			inroom = IN_ROOM(c);
+			inroom = c->in_room;
 			if (inroom == kNowhere) {
 				trig_log(trig, "mob-построитель списка в kNowhere");
 				return;
@@ -3438,9 +3438,9 @@ void find_replacement(void *go,
 			sprintf(str, "%d", (int) GET_OBJ_SEX(o));
 		else if (!str_cmp(field, "room")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%d", world[IN_ROOM(o->get_carried_by())]->vnum);
+				sprintf(str, "%d", world[o->get_carried_by()->in_room]->vnum);
 			} else if (o->get_worn_by()) {
-				sprintf(str, "%d", world[IN_ROOM(o->get_worn_by())]->vnum);
+				sprintf(str, "%d", world[o->get_worn_by()->in_room]->vnum);
 			} else if (o->get_in_room() != kNowhere) {
 				sprintf(str, "%d", world[o->get_in_room()]->vnum);
 			} else {
@@ -4971,7 +4971,7 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		if (!HERE(d->character) || !isname(who, d->character->get_name())) {
 			continue;
 		}
-		if (IN_ROOM(d->character) != kNowhere) {
+		if (d->character->in_room != kNowhere) {
 			result = d->character->id;
 		}
 	}
@@ -5014,7 +5014,7 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		if (str_cmp(who, GET_NAME(tch))) {
 			continue;
 		}
-		if (IN_ROOM(tch) != kNowhere) {
+		if (tch->in_room != kNowhere) {
 			result = GET_ID(tch);
 			break;
 		}

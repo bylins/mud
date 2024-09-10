@@ -897,7 +897,7 @@ void change_fighting(CharData *ch, int need_stop) {
 		}
 //		log("change_fighting set cast %f", time.delta().count());
 
-		if (k->GetEnemy() == ch && IN_ROOM(k) != kNowhere) {
+		if (k->GetEnemy() == ch && k->in_room != kNowhere) {
 //			log("change_fighting Change victim %f", time.delta().count());
 			bool found = false;
 			for (const auto j : world[ch->in_room]->people) {
@@ -1253,8 +1253,8 @@ void CharData::set_gold(long num, bool need_log) {
 		} else {
 			log("Gold: %s remove %ld", get_name().c_str(), -change);
 		}
-		if (IN_ROOM(this) > 0) {
-			MoneyDropStat::add(zone_table[world[IN_ROOM(this)]->zone_rn].vnum, change);
+		if (this->in_room > 0) {
+			MoneyDropStat::add(zone_table[world[this->in_room]->zone_rn].vnum, change);
 		}
 	}
 
@@ -2112,7 +2112,7 @@ bool CharData::has_horse(bool same_room) const {
 
 	for (f = this->followers; f; f = f->next) {
 		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)
-			&& (!same_room || this->in_room == IN_ROOM(f->follower))) {
+			&& (!same_room || this->in_room == f->follower->in_room)) {
 			return true;
 		}
 	}

@@ -274,10 +274,6 @@ extern int mercenary(CharData *, void *, int, char *);
 
 // string utils *********************************************************
 
-
-#define YESNO(a) ((a) ? "YES" : "NO")
-#define ONOFF(a) ((a) ? "ON" : "OFF")
-
 #define LOWER(c)   (a_lcc(c))
 #define UPPER(c)   (a_ucc(c))
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
@@ -433,7 +429,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
@@ -441,7 +436,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
-#define IS_CODER(ch)    (GetRealLevel(ch) < kLvlImmortal && (ch)->IsFlagged(EPrf::kCoderinfo))
 #define IS_COLORED(ch)    (pk_count (ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
@@ -842,8 +836,8 @@ const int kNameLevel = 5;
 #define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? IN_ROOM((obj)->get_worn_by()) : \
-                        (obj)->get_carried_by() ? IN_ROOM((obj)->get_carried_by()) : (obj)->get_in_room())
+#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : \
+                        (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
 #define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
 #define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))
@@ -870,7 +864,7 @@ const int kNameLevel = 5;
 #define IMM_CAN_SEE_CHAR(sub, obj) \
         (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && sub->IsFlagged(EPrf::kHolylight)))
 
-#define CAN_SEE_CHAR(sub, obj) (IS_CODER(sub) || SELF(sub, obj) || \
+#define CAN_SEE_CHAR(sub, obj) (SELF(sub, obj) || \
         ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE

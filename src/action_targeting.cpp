@@ -32,7 +32,7 @@ bool isIncorrectVictim(CharData *actor, CharData *target, char *arg) {
 const FilterType emptyFilter;
 
 const FilterType isNotCorrectTarget = [](CharData *actor, CharData *target) {
-	return (!HERE(target) || IN_ROOM(target) == kNowhere || !actor->isInSameRoom(target));
+	return (!HERE(target) || target->in_room == kNowhere || !actor->isInSameRoom(target));
 };
 
 const FilterType isCorrectFriend = [](CharData *actor, CharData *target) {

@@ -64,13 +64,13 @@ void go_autoassist(CharData *ch) {
 	buf2[0] = '\0';
 	for (k = ch_lider->followers; k; k = k->next) {
 		if (k->follower->IsFlagged(EPrf::kAutoassist) &&
-			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->GetEnemy() &&
+			(k->follower->in_room == ch->in_room) && !k->follower->GetEnemy() &&
 			(k->follower->GetPosition() == EPosition::kStand) && k->follower->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
 			if (IsCaster(k->follower)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
 				for (d = k->follower->followers; d; d = d->next)
-					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->GetEnemy() &&
+					if ((d->follower->in_room == ch->in_room) && !d->follower->GetEnemy() &&
 						(d->follower->GetPosition() == EPosition::kStand) && d->follower->get_wait() <= 0)
 						do_assist(d->follower, buf2, 0, 0);
 			} else {
@@ -358,9 +358,7 @@ int in_same_battle(CharData *npc, CharData *pc, int opponent) {
 	npc_master = npc->has_master() ? npc->get_master() : npc;
 	pc_master = pc->has_master() ? pc->get_master() : pc;
 
-	for (const auto
-			ch : world[IN_ROOM(npc)]->people)    // <- Anton Gorev (2017-07-11): changed loop to loop over the people in room (instead of all world)
-	{
+	for (const auto ch : world[npc->in_room]->people) {
 		if (!ch->GetEnemy()) {
 			continue;
 		}
@@ -426,7 +424,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
-			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& caster->get_master()->in_room == caster->in_room
 			&& caster->get_master()->GetEnemy()
 			&& GET_HP_PERC(caster->get_master()) < AFF_USED) {
 			return caster->get_master();
@@ -434,7 +432,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 		return nullptr;
 	}
 
-	for (const auto vict : world[IN_ROOM(caster)]->people) {
+	for (const auto vict : world[caster->in_room]->people) {
 		if (!vict->IsNpc()
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
 			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
@@ -492,7 +490,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
-			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& caster->get_master()->in_room == caster->in_room
 			&& (caster->get_master()->has_any_affect(AFF_USED)
 				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
 			return caster->get_master();
@@ -502,7 +500,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	}
 
 	if (!AFF_USED.empty()) {
-		for (const auto vict : world[IN_ROOM(caster)]->people) {
+		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc() || AFF_FLAGGED(vict, EAffect::kCharmed) ||
 				((vict->IsFlagged(EMobFlag::kTutelar) ||
 				vict->IsFlagged(EMobFlag::kMentalShadow) ||
@@ -570,7 +568,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
-			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& caster->get_master()->in_room == caster->in_room
 			&& (caster->get_master()->has_any_affect(AFF_USED)
 				|| IsAffectedBySpell(caster->get_master(), spellreal))) {
 			return caster->get_master();
@@ -580,7 +578,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 	}
 
 	if (!AFF_USED.empty()) {
-		for (const auto vict : world[IN_ROOM(caster)]->people) {
+		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
@@ -657,7 +655,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
-			&& IN_ROOM(caster->get_master()) == IN_ROOM(caster)
+			&& caster->get_master()->in_room == caster->in_room
 			&& caster->get_master()->GetEnemy() && !IsAffectedBySpell(caster->get_master(), spellreal)) {
 			return caster->get_master();
 		}
@@ -666,7 +664,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 	}
 
 	if (GetRealInt(caster) > number(5, 15)) {
-		for (const auto vict : world[IN_ROOM(caster)]->people) {
+		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
 				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
@@ -754,7 +752,7 @@ CharData *find_opp_caster(CharData *caster) {
 	CharData *victim = nullptr;
 	int vict_val = 0;
 
-	for (const auto vict : world[IN_ROOM(caster)]->people) {
+	for (const auto vict : world[caster->in_room]->people) {
 		if (vict->IsNpc()
 			&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) //
 				&& vict->has_master()
@@ -780,7 +778,7 @@ CharData *find_damagee(CharData *caster) {
 	int vict_val = 0;
 
 	if (GetRealInt(caster) > number(10, 20)) {
-		for (const auto vict : world[IN_ROOM(caster)]->people) {
+		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
 				&& !((vict->IsFlagged(EMobFlag::kTutelar)
 					|| vict->IsFlagged(EMobFlag::kMentalShadow)
@@ -930,7 +928,7 @@ CharData *find_minhp(CharData *caster) {
 	int vict_val = 0;
 
 	if (GetRealInt(caster) > number(10, 20)) {
-		for (const auto vict : world[IN_ROOM(caster)]->people) {
+		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
 				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned) // ()
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
@@ -1177,7 +1175,7 @@ void summon_mob_helpers(CharData *ch) {
 				|| AFF_FLAGGED(vict, EAffect::kBlind)
 				|| vict->get_wait() > 0
 				|| vict->GetPosition() < EPosition::kStand
-				|| IN_ROOM(vict) == kNowhere
+				|| vict->in_room == kNowhere
 				|| vict->GetEnemy()) {
 				continue;
 			}
@@ -1186,7 +1184,7 @@ void summon_mob_helpers(CharData *ch) {
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}
-			if (IN_ROOM(vict) != ch->in_room) {
+			if (vict->in_room != ch->in_room) {
 				act("$n был$g призван$g $N4.", false, vict.get(), 0, ch, kToRoom | kToArenaListen);
 				char_from_room(vict);
 				char_to_room(vict, ch->in_room);
@@ -1208,7 +1206,7 @@ void check_mob_helpers() {
 			continue;
 		// Extract battler if no opponent
 		if (it.ch->GetEnemy() == nullptr
-			|| it.ch->in_room != IN_ROOM(it.ch->GetEnemy())
+			|| it.ch->in_room != it.ch->GetEnemy()->in_room
 			|| it.ch->in_room == kNowhere) {
 			stop_fighting(it.ch, true);
 			continue;
@@ -1236,7 +1234,7 @@ void try_angel_rescue(CharData *ch) {
 		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
 			&& k->follower->IsFlagged(EMobFlag::kTutelar)
 			&& !k->follower->GetEnemy()
-			&& IN_ROOM(k->follower) == ch->in_room
+			&& k->follower->in_room == ch->in_room
 			&& CAN_SEE(k->follower, ch)
 			&& AWAKE(k->follower)
 			&& MAY_ACT(k->follower)
@@ -1788,7 +1786,7 @@ void process_npc_attack(CharData *ch) {
 		mob_casting(ch);
 
 	if (!ch->GetEnemy()
-		|| ch->in_room != IN_ROOM(ch->GetEnemy())
+		|| ch->in_room != ch->GetEnemy()->in_room
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 			// mob_casting мог от зеркала отразиться
 		|| AFF_FLAGGED(ch, EAffect::kStopFight)
@@ -1799,7 +1797,7 @@ void process_npc_attack(CharData *ch) {
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || ch->IsFlagged(EMobFlag::kTutelar))
-		&& ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())  // && !ch->master->IsNpc()
+		&& ch->has_master() && ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
 		&& AWAKE(ch) && MAY_ACT(ch) && ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
@@ -1833,7 +1831,7 @@ void process_npc_attack(CharData *ch) {
 		using_mob_skills(ch);
 	}
 
-	if (!ch->GetEnemy() || ch->in_room != IN_ROOM(ch->GetEnemy())) {
+	if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
 		return;
 	}
 
@@ -1902,8 +1900,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 	}
 
-	if (!ch->GetEnemy()
-		|| ch->in_room != IN_ROOM(ch->GetEnemy())) {
+	if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
 		return;
 	}
 	round_profiler.next_step("hit mainhand");
@@ -2106,7 +2103,7 @@ void perform_violence() {
 				continue;
 			}
 			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
-			if (!it.ch->GetEnemy() || it.ch->in_room != IN_ROOM(it.ch->GetEnemy())) {
+			if (!it.ch->GetEnemy() || it.ch->in_room != it.ch->GetEnemy()->in_room) {
 				continue;
 			}
 			//везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
@@ -2272,7 +2269,7 @@ int calc_leadership(CharData *ch) {
 	}
 
 	if (ch->has_master()) {
-		if (IN_ROOM(ch) != IN_ROOM(ch->get_master())) {
+		if (ch->in_room != ch->get_master()->in_room) {
 			return false;
 		}
 		leader = ch->get_master();

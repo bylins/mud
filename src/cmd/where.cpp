@@ -39,12 +39,12 @@ void perform_immort_where(CharData *ch, char *arg) {
 					if (d->original) {
 						ss << fmt::format("{:<20} - [{:>7}] {} (in {})\r\n",
 										  GET_NAME(i),
-										  GET_ROOM_VNUM(IN_ROOM(d->character)),
+										  GET_ROOM_VNUM(d->character->in_room),
 										  world[d->character->in_room]->name,
 										  GET_NAME(d->character));
 					} else {
 						ss << fmt::format("{:<20} - [{:>7}] {}\r\n", GET_NAME(i),
-										  GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
+										  GET_ROOM_VNUM(i->in_room), world[i->in_room]->name);
 					}
 				}
 			}
@@ -62,8 +62,8 @@ void perform_immort_where(CharData *ch, char *arg) {
 								  i->IsNpc() ? "Моб:   " : "Игрок: ",
 								  GET_MOB_VNUM(i),
 								  GET_NAME(i),
-								  GET_ROOM_VNUM(IN_ROOM(i)),
-								  world[IN_ROOM(i)]->name,
+								  GET_ROOM_VNUM(i->in_room),
+								  world[i->in_room]->name,
 								  zone->name.c_str());
 			}
 		}

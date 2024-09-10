@@ -6,7 +6,7 @@
 
 namespace msdp {
 void RoomReporter::get(Variable::shared_ptr &response) {
-	const auto rnum = IN_ROOM(descriptor()->character);
+	const auto rnum = descriptor()->character->in_room;
 	const auto vnum = GET_ROOM_VNUM(rnum);
 	const auto from_rnum = descriptor()->character->get_from_room();
 	if ((from_rnum == vnum) || (kNowhere == vnum)) {
@@ -83,7 +83,7 @@ bool RoomReporter::blockReport() const {
 	bool nomapper = true;
 	const auto blind = (descriptor()->character->IsFlagged(EPrf::kBlindMode)) //В режиме слепого игрока карта недоступна
 		|| (AFF_FLAGGED((descriptor()->character), EAffect::kBlind));  //Слепому карта не поможет!
-	const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+	const auto cannot_see_in_dark = (is_dark(descriptor()->character->in_room) && !CAN_SEE_IN_DARK(descriptor()->character));
 	if (descriptor()->character->in_room != kNowhere)
 		nomapper = ROOM_FLAGGED(descriptor()->character->in_room, ERoomFlag::kMoMapper);
 	const auto scriptwriter = descriptor()->character->IsFlagged(EPlrFlag::kScriptWriter); // скриптеру не шлем
@@ -178,7 +178,7 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 		std::to_string(posi_value(GET_MOVE(character), GET_REAL_MAX_MOVE(character)) * 10);// *10 to show percents
 	member->add(std::make_shared<Variable>("MOVE", std::make_shared<StringValue>(move_percents)));
 
-	const bool same_room = ch->in_room == IN_ROOM(character);
+	const bool same_room = ch->in_room == character->in_room;
 	member->add(std::make_shared<Variable>("IS_HERE", std::make_shared<StringValue>(same_room ? "1" : "0")));
 
 	const int memory = get_mem(character);

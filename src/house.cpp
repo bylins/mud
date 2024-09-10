@@ -1238,7 +1238,7 @@ void Clan::remove_member(const ClanMembersList::key_type &key, char *reason) {
 	SendMsgToChar(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
 	sprintf(buf, "Исключен(а) из дружины '%s'", this->name.c_str());
 	  AddKarma(k->character.get(), buf, reason);
-	const auto clan = Clan::GetClanByRoom(IN_ROOM(k->character));
+	const auto clan = Clan::GetClanByRoom(k->character->in_room);
 	if (clan) {
 	  char_from_room(k->character);
 	  act("$n был$g выдворен$a за пределы замка!", true, k->character.get(), nullptr, nullptr, kToRoom);
@@ -4700,8 +4700,8 @@ unsigned Clan::get_bank() const {
 void ClanSystem::check_player_in_house() {
   for (auto d = descriptor_list; d; d = d->next) {
 	if (d->character
-		&& (!Clan::MayEnter(d->character.get(), IN_ROOM(d->character), kHouseAtrium))) {
-	  const auto clan = Clan::GetClanByRoom(IN_ROOM(d->character));
+		&& (!Clan::MayEnter(d->character.get(), d->character->in_room, kHouseAtrium))) {
+	  const auto clan = Clan::GetClanByRoom(d->character->in_room);
 	  if (clan) {
 		char_from_room(d->character);
 		act("$n был$g выдворен$a за пределы замка!", true, d->character.get(), 0, 0, kToRoom);

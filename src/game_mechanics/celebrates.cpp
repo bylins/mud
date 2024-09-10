@@ -485,7 +485,7 @@ bool MakeClean(const CelebrateDataPtr &celebrate) {
 				for (auto &it : room->mobs) {
 					if (it->vnum == vnum) {
 						// This function is very bad because modifies global variable loaded_mobs
-						// Initially loop was over this global variable. Therefore this loop constantly crashed.
+						// Initially loop was over this global variable. Therefore, this loop constantly crashed.
 						// I've changed loop variable to the copy of loaded_mobs, but it's still a bad approach.
 						ExtractCharFromWorld(mob, 0);
 					}
@@ -594,7 +594,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj) {
 									PlaceObjToInventory(obj.get(), mob);
-									obj->set_vnum_zone_from(zone_table[world[IN_ROOM(mob)]->zone_rn].vnum);
+									obj->set_vnum_zone_from(zone_table[world[mob->in_room]->zone_rn].vnum);
 
 									for (int &trigger : (*load_in)->triggers) {
 										auto trig = read_trigger(GetTriggerRnum(trigger));

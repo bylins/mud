@@ -71,7 +71,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& k->follower->get_master() == ch
 			&& k->follower->IsFlagged(EMobFlag::kClone)
 			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
-			&& ch->in_room == IN_ROOM(k->follower)) {
+			&& ch->isInSameRoom(k->follower)) {
 			follower = k->follower;
 			break;
 		}
