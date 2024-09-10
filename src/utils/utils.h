@@ -1296,7 +1296,7 @@ char smallBuf[kMaxRawInputLength];
 extern char buf[kMaxStringLength];
 extern char buf1[kMaxStringLength];
 extern char buf2[kMaxStringLength];
-extern char arg[kMaxStringLength];
+extern char arg[kMaxInputLength];
 extern char smallBuf[kMaxRawInputLength];
 #endif
 

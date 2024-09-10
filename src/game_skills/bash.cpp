@@ -77,12 +77,10 @@ void go_bash(CharData *ch, CharData *vict) {
 	if (ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && !ch->IsFlagged(kAwake)) {
 		can_shield_bash = true;
 	}
-	bool shield_bash_success;
+	SkillRollResult result_shield_bash = MakeSkillTest(ch, ESkill::kShieldBash, vict);
+	bool shield_bash_success = result_shield_bash.success;
 
 	if (can_shield_bash) {
-		SkillRollResult result_shield_bash = MakeSkillTest(ch, ESkill::kShieldBash, vict);
-		shield_bash_success = result_shield_bash.success;
-
 		TrainSkill(ch, ESkill::kShieldBash, shield_bash_success, vict);
 		if (shield_bash_success) {
 			//Описание аффекта "ошарашен" для умения "удар щитом":

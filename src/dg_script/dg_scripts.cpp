@@ -331,16 +331,11 @@ const char *get_objs_in_world(ObjData *obj) {
 }
 
 // * return number of obj|mob in world by vnum
-int gcount_char_vnum(long n) {
-	int count = 0;
+int gcount_char_vnum(MobVnum mvn) {
 
-	for (const auto &ch : character_list) {
-		if (n == GET_MOB_VNUM(ch)) {
-			count++;
-		}
-	}
-
-	return (count);
+	Characters::list_t mobs;
+	character_list.get_mobs_by_vnum(mvn, mobs);
+	return mobs.size();
 }
 
 int count_char_vnum(long n) {
@@ -350,27 +345,23 @@ int count_char_vnum(long n) {
 	return (mob_index[i].total_online);
 }
 
-inline auto gcount_obj_vnum(long n) {
-	const auto i = GetObjRnum(n);
-
-	if (i < 0) {
+int GameCountObjs(ObjRnum orn) {
+	if (orn <= 0) {
 		return 0;
 	}
 
-	return obj_proto.total_online(i);
+	return obj_proto.total_online(orn);
 }
 
-inline auto count_obj_vnum(long n) {
-	const auto i = GetObjRnum(n);
-
-	if (i < 0) {
+int ActualCountObjs(ObjRnum orn) {
+	if (orn <= 0) {
 		return 0;
 	}
 
 	// Чот косячит таймер, решили переделать тригги, хоть и дольше
 	//	if (stable_objs::IsTimerUnlimited(obj_proto[i]))
 	//		return 0;
-	return obj_proto.actual_count(i);
+	return obj_proto.actual_count(orn);
 }
 
 /************************************************************
@@ -1658,13 +1649,23 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(var, "exist")) {
 			if (!str_cmp(field, "mob") && (num = atoi(subfield)) > 0) {
+				if (GetMobRnum(num) <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в exist.mob", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
 				num = count_char_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%c", num > 0 ? '1' : '0');
+				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "obj") && (num = atoi(subfield)) > 0) {
-				num = gcount_obj_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%c", num > 0 ? '1' : '0');
+				auto rnum = GetObjRnum(num);
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в exist.obj", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
+				num = GameCountObjs(rnum);
+				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (STATE(d) != CON_PLAYING) 
@@ -1680,9 +1681,21 @@ void find_replacement(void *go,
 		} else if (!str_cmp(var, "world")) {
 			num = atoi(subfield);
 			if ((!str_cmp(field, "curobj") || !str_cmp(field, "curobjs")) && num > 0) {
-				const auto rnum = GetObjRnum(num);
-				const auto count = count_obj_vnum(num);
-				if (count >= 0 && 0 <= rnum) {
+				auto rnum = GetObjRnum(num);
+				int count = 0;
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в curobjs", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
+				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
+				if (orn > -1) {
+					count = ActualCountObjs(orn);
+				} else {
+					count = ActualCountObjs(rnum);
+				}
+				if (count > 0) {
 					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) {
 						sprintf(str, "0");
 					} else {
@@ -1692,9 +1705,21 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 				}
 			} else if ((!str_cmp(field, "gameobj") || !str_cmp(field, "gameobjs")) && num > 0) {
-				num = gcount_obj_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%d", num);
+				auto rnum = GetObjRnum(num);
+				int count = 0;
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в gameobjs", num).c_str());
+					sprintf(str, "0");
+					return;
+				}
+				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
+				if (orn > -1) {
+					count = GameCountObjs(orn);
+				} else {
+					count = GameCountObjs(rnum);
+				}
+				sprintf(str, "%d", count);
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
@@ -1735,11 +1760,11 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(tch));
 					}
 				}
-			} else if (!str_cmp(field, "runestone_vnums")) {
+			} else if (!str_cmp(field, "runestonevnums")) {
 				const auto &runestone_vnums = MUD::Runestones().GetVnumRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));
 				sprintf(str, "%s", result.c_str());
-			} else if (!str_cmp(field, "runestone_names")) {
+			} else if (!str_cmp(field, "runestonenames")) {
 				const auto &runestone_names = MUD::Runestones().GetNameRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_names, " "));
 				sprintf(str, "%s", result.c_str());
