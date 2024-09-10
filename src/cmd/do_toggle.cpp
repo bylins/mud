@@ -9,6 +9,7 @@
 const char *ctypes[] = {"выключен", "простой", "обычный", "полный", "\n"};
 
 extern int nameserver_is_slow; //config.cpp
+const char *BoolToOnOffStr(bool value);
 
 void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
@@ -27,13 +28,13 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 				 " Замедление    : %-3s     "
 				 " Кодер         : %-3s \r\n"
 				 " Опечатки      : %-3s \r\n",
-				 ONOFF(ch->IsFlagged(EPrf::kNohassle)),
-				 ONOFF(ch->IsFlagged(EPrf::kHolylight)),
-				 ONOFF(ch->IsFlagged(EPrf::kRoomFlags)),
-				 ONOFF(ch->IsFlagged(EPrf::kNoWiz)),
-				 ONOFF(nameserver_is_slow),
-				 ONOFF(ch->IsFlagged(EPrf::kCoderinfo)),
-				 ONOFF(ch->IsFlagged(EPrf::kShowUnread)));
+				 BoolToOnOffStr(ch->IsFlagged(EPrf::kNohassle)),
+				 BoolToOnOffStr(ch->IsFlagged(EPrf::kHolylight)),
+				 BoolToOnOffStr(ch->IsFlagged(EPrf::kRoomFlags)),
+				 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoWiz)),
+				 BoolToOnOffStr(nameserver_is_slow),
+				 BoolToOnOffStr(ch->IsFlagged(EPrf::kCoderinfo)),
+				 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowUnread)));
 		SendMsgToChar(buf, ch);
 	}
 
@@ -74,27 +75,27 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Потеря связи  : %-3s     "
 			 " Ингредиенты   : %-3s     "
 			 " Вспомнить     : %-3u \r\n",
-			 ONOFF(ch->IsFlagged(EPrf::kAutoexit)),
-			 ONOFF(ch->IsFlagged(EPrf::kBrief)),
-			 ONOFF(ch->IsFlagged(EPrf::kCompact)),
-			 YESNO(!ch->IsFlagged(EPrf::kNoRepeat)),
-			 ONOFF(!ch->IsFlagged(EPrf::kNoTell)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoexit)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBrief)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kCompact)),
+			 (ch->IsFlagged(EPrf::kNoRepeat) ? "NO" : "YES"),
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoTell)),
 			 ctypes[COLOR_LEV(ch)],
 			 ch->IsFlagged(EPrf::kNoInvistell) ? "нельзя" : "можно",
-			 ONOFF(!ch->IsFlagged(EPrf::kNoGossip)),
-			 ONOFF(!ch->IsFlagged(EPrf::kNoHoller)),
-			 ONOFF(!ch->IsFlagged(EPrf::kNoAuction)),
-			 ONOFF(!ch->IsFlagged(EPrf::kNoExchange)),
-			 ONOFF(ch->IsFlagged(EPrf::kAutomem)),
-			 ONOFF(ch->IsFlagged(EPrf::KSummonable)),
-			 ONOFF(ch->IsFlagged(EPrf::kGoAhead)),
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoGossip)),
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoHoller)),
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoAuction)),
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoExchange)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomem)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::KSummonable)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kGoAhead)),
 			 ch->IsFlagged(EPrf::kShowGroup) ? "полный" : "краткий",
-			 ONOFF(ch->IsFlagged(EPrf::kNoClones)),
-			 ONOFF(ch->IsFlagged(EPrf::kAutoassist)),
-			 ONOFF(ch->IsFlagged(EPrf::kAutosplit)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoClones)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutoassist)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutosplit)),
 			 ch->IsFlagged(EPrf::kAutoloot) ? ch->IsFlagged(EPrf::kNoIngrLoot) ? "NO-INGR" : "ALL    " : "OFF    ",
-			 ONOFF(ch->IsFlagged(EPrf::kAutomoney)),
-			 ONOFF(!ch->IsFlagged(EPrf::kNoArena)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomoney)),
+			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
 			 buf2,
 			 STRING_LENGTH(ch),
 			 STRING_WIDTH(ch),
@@ -104,15 +105,15 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		"N/A",
 #endif
 			 ch->IsFlagged(EPrf::kNewsMode) ? "доска" : "лента",
-			 ONOFF(ch->IsFlagged(EPrf::kBoardMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kBoardMode)),
 			 GetChestMode(ch).c_str(),
-			 ONOFF(ch->IsFlagged(EPrf::kPklMode)),
-			 ONOFF(ch->IsFlagged(EPrf::kPolitMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kPklMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kPolitMode)),
 			 ch->IsFlagged(EPrf::kPkFormatMode) ? "краткий" : "полный",
-			 ONOFF(ch->IsFlagged(EPrf::kClanmembersMode)),
-			 ONOFF(ch->IsFlagged(EPrf::kOfftopMode)),
-			 ONOFF(ch->IsFlagged(EPrf::kAntiDcMode)),
-			 ONOFF(ch->IsFlagged(EPrf::kNoIngrMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kClanmembersMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kOfftopMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAntiDcMode)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
 	SendMsgToChar(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0) {
@@ -128,16 +129,20 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Автопризыв    : %-5s   "
 			 " Маппер        : %-3s   \r\n"
 			 " Контроль IP   : %-6s  ",
-			 ONOFF(ch->IsFlagged(EPrf::kDrawMap)),
-			 ONOFF(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kDrawMap)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kShowZoneNameOnEnter)),
 			 (ch->IsFlagged(EPrf::kBriefShields) ? "краткий" : "полный"),
-			 ONOFF(ch->IsFlagged(EPrf::kAutonosummon)),
-			 ONOFF(ch->IsFlagged(EPrf::kMapper)),
-			 ONOFF(ch->IsFlagged(EPrf::kIpControl)));
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutonosummon)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
+			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
 	SendMsgToChar(buf, ch);
 	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
-		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(ch->IsFlagged(EPrf::kTester)));
+		sprintf(buf, " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");
 	SendMsgToChar(buf, ch);
+}
+
+const char *BoolToOnOffStr(bool value) {
+	return (value ? "ON" : "OFF");
 }

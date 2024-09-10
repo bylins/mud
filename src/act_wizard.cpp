@@ -2744,9 +2744,9 @@ void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			case SCMD_NOTITLE:
 				vict->IsFlagged(EPlrFlag::kNoTitle) ? vict->UnsetFlag(EPlrFlag::kNoTitle) : vict->SetFlag(EPlrFlag::kNoTitle);
 				result = vict->IsFlagged(EPlrFlag::kNoTitle);
-				sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
+				sprintf(buf, "(GC) Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-				imm_log("Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
+				imm_log("Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
 				strcat(buf, "\r\n");
 				SendMsgToChar(buf, ch);
 				break;

@@ -931,8 +931,6 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			break;
 
 		case EObjType::kContainer:sprintbit(GET_OBJ_VAL(j, 1), container_bits, smallBuf);
-			//sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
-			//	GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
 			if (IS_CORPSE(j)) {
 				sprintf(buf, "Объем: %d, Тип ключа: %s, VNUM моба: %d, Труп: да",
 						GET_OBJ_VAL(j, 0), smallBuf, GET_OBJ_VAL(j, 2));

@@ -274,10 +274,6 @@ extern int mercenary(CharData *, void *, int, char *);
 
 // string utils *********************************************************
 
-
-#define YESNO(a) ((a) ? "YES" : "NO")
-#define ONOFF(a) ((a) ? "ON" : "OFF")
-
 #define LOWER(c)   (a_lcc(c))
 #define UPPER(c)   (a_ucc(c))
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
