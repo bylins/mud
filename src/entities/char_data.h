@@ -791,9 +791,9 @@ class CharData : public ProtectedCharData {
 	void SetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.act.set(flag); }; };
   	void UnsetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.act.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EMobFlag flag) const { return (IsNpc() && char_specials.saved.act.get(flag)); };
-  	void SetFlag(const ENpcFlag flag) { if (IsNpc()) { char_specials.saved.act.set(flag); }; };
-  	void UnsetFlag(const ENpcFlag flag) { if (IsNpc()) { char_specials.saved.act.unset(flag); }; };
-  	[[nodiscard]] bool IsFlagged(const ENpcFlag flag) const { return (IsNpc() && char_specials.saved.act.get(flag)); };
+  	void SetFlag(const ENpcFlag flag) { if (IsNpc()) { mob_specials.npc_flags.set(flag); }; };
+  	void UnsetFlag(const ENpcFlag flag) { if (IsNpc()) { mob_specials.npc_flags.unset(flag); }; };
+  	[[nodiscard]] bool IsFlagged(const ENpcFlag flag) const { return (IsNpc() && mob_specials.npc_flags.get(flag)); };
   	void SetFlag(const EPlrFlag flag) { if (!IsNpc()) { char_specials.saved.act.set(flag); }; };
   	void UnsetFlag(const EPlrFlag flag) { if (!IsNpc()) { char_specials.saved.act.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EPlrFlag flag) const { return (!IsNpc() && char_specials.saved.act.get(flag)); };
