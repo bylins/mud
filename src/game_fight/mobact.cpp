@@ -781,7 +781,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
 		return;
 	}
-	//Polud стражники
+
 	if (ch->IsFlagged(EMobFlag::kCityGuardian)) {
 		perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
 		return;

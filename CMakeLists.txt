@@ -300,7 +300,8 @@ set(SOURCES
 		src/cmd/who.cpp
 		src/cmd/enter.cpp
 		src/cmd/sleep.cpp
-		src/cmd/wake.cpp)
+		src/cmd/wake.cpp
+		src/cmd/bandage.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -581,7 +582,8 @@ set(HEADERS
 		src/cmd/who.h
 		src/cmd/wake.h
 		src/cmd/enter.h
-		src/cmd/sleep.h)
+		src/cmd/sleep.h
+		src/cmd/bandage.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

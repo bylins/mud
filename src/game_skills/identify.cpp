@@ -31,7 +31,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timed.skill = ESkill::kIdentify;
 		auto time = 12;
 		time = std::max(1, time);
-		timed.time = std::max(time - ((GET_SKILL(ch, ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
+		timed.time = std::max(time - ((ch->GetSkill(ESkill::kIdentify) - 25) / 25), 1); //12..5 or 8..1
 		ImposeTimedSkill(ch, &timed);
 	}
 	MANUAL_SPELL(SkillIdentify)

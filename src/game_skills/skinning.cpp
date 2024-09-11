@@ -350,7 +350,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	TrainSkill(ch, ESkill::kSkinning, percent <= prob, mob);
 
 	ObjData::shared_ptr tobj;
-	if (GET_SKILL(ch, ESkill::kSkinning) > 150 && number(1, 200) == 1) // артефакт
+	if (ch->GetSkill(ESkill::kSkinning) > 150 && number(1, 200) == 1) // артефакт
 	{
 		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
 	} else {

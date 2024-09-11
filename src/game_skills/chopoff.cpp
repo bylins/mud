@@ -85,7 +85,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
 					CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
 			percent = number(1, MUD::Skill(ESkill::kRiding).difficulty);
-			prob = GET_SKILL(tch, ESkill::kRiding);
+			prob = tch->GetSkill(ESkill::kRiding);
 			if (percent < prob) {
 				SendMsgToChar(tch, "Вы смогли удержаться на спине своего скакуна.\r\n");
 			} else {

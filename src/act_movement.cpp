@@ -53,7 +53,7 @@ int check_death_ice(int room, CharData * /*ch*/) {
 	for (const auto vict : world[room]->people) {
 		if (!vict->IsNpc()
 			&& !AFF_FLAGGED(vict, EAffect::kFly)) {
-			mass += GET_WEIGHT(vict) + IS_CARRYING_W(vict);
+			mass += GET_WEIGHT(vict) + vict->GetCarryingWeight();
 		}
 	}
 

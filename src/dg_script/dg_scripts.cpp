@@ -1828,8 +1828,7 @@ void find_replacement(void *go,
 				else
 					sprintf(str, "0");
 			}
-				//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
-				//которое прописано в самом предмете с указанным vnum
+
 			else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
 				const auto rnum = GetObjRnum(num);
 				if (rnum >= 0) {
@@ -1859,7 +1858,6 @@ void find_replacement(void *go,
 						sprintf(str, "%d", GetObjMIW(num));
 				}
 			}
-			//-Polud
 			return;
 		} else if (!str_cmp(var, "weather")) {
 			if (!str_cmp(field, "temp")) {
@@ -3086,7 +3084,6 @@ void find_replacement(void *go,
 				strcpy(str, "");
 			}
 		}
-			//Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
 		else if (!str_cmp(field, "objs")) {
 			size_t str_length = strlen(str);
 			for (obj = c->carrying; obj; obj = obj->get_next_content()) {
@@ -3100,7 +3097,6 @@ void find_replacement(void *go,
 				}
 			}
 		}
-			//-Polud
 		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
 			|| !str_cmp(field, "npc")
@@ -3447,7 +3443,6 @@ void find_replacement(void *go,
 				strcpy(str, "");
 			}
 		}
-			//Polud обработка %obj.put(UID)% - пытается поместить объект в контейнер, комнату или инвентарь чара, в зависимости от UIDа
 		else if (!str_cmp(field, "put")) {
 			ObjData *obj_to = nullptr;
 			CharData *char_to = nullptr;
@@ -3507,7 +3502,6 @@ void find_replacement(void *go,
 				return;
 			}
 		}
-			//-Polud
 		else if (!str_cmp(field, "char") ||
 			!str_cmp(field, "pc") || !str_cmp(field, "npc") || !str_cmp(field, "all")) {
 			int inroom;
@@ -3659,7 +3653,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "vnum")) {
 			sprintf(str, "%d", r->vnum);
-		} else if (!str_cmp(field, "sectortype"))//Polud возвращает строку - тип комнаты
+		} else if (!str_cmp(field, "sectortype"))
 		{
 			sprinttype(r->sector_type, sector_types, str);
 		} else if (!str_cmp(field, "id")) {

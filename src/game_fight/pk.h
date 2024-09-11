@@ -113,7 +113,6 @@ bool has_clan_members_in_group(CharData *ch);
 //проверяем не чармис ли это наш или группы
 //bool check_charmise(CharacterData * ch, CharacterData * victim, char * argument);
 
-//Polud
 void pkPortal(CharData *ch);
 
 //Кровавый стаф

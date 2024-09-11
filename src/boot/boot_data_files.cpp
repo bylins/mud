@@ -525,8 +525,7 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 		exit(1);
 	}
 	int result = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3);
-	if (result == 3)//Polud видимо "старый" формат (20.10.2010), прочитаем в старом
-	{
+	if (result == 3) {
 		if (t[0] & 1)
 			world[room]->dir_option_proto[dir]->exit_info = EExitFlag::kHasDoor;
 		else if (t[0] & 2)

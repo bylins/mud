@@ -56,9 +56,11 @@ void go_slay(CharData *ch, CharData *vict) {
 		lag = 2;
 
 	} else {
-		dam = (number(ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 6) + ((GetRealDamroll(ch)) * 2)) / 1.25),
-					 ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ceil GET_SKILL(ch,ESkill::kSlay) / 6) + ((GetRealDamroll(ch)) * 2)) * 1.25)) *
-					GetRealLevel(ch)) / 30;
+		dam = (number(ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ch->GetSkill(ESkill::kSlay) / 6)
+						  + ((GetRealDamroll(ch)) * 2)) / 1.25),
+					  ceil((((GetRealStr(ch) + weapon_dmg) / 1.2) * (ch->GetSkill(ESkill::kSlay) / 6)
+						  + ((GetRealDamroll(ch)) * 2)) * 1.25)) *
+			GetRealLevel(ch)) / 30;
 
 		Damage dmg(SkillDmg(ESkill::kSlay), dam, fight::kPhysDmg, ch->equipment[EEquipPos::kWield]);
 		dmg.flags.set(fight::kIgnoreBlink);
@@ -66,22 +68,19 @@ void go_slay(CharData *ch, CharData *vict) {
 		lag = 1;
 
 		if (vict->GetPosition() == EPosition::kDead) {
-				lag = 0;
-			}
+			lag = 0;
+		}
 
 		if (AFF_FLAGGED(vict, EAffect::kGodsShield)) {
 			lag = 1;
 		}
 	}
 	switch (lag) {
-		case 0:
-			SetWait(ch, 0, true);
+		case 0: SetWait(ch, 0, true);
 			break;
-		case 1:
-			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+		case 1: SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 			break;
-		case 2:
-			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
+		case 2: SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			break;
 	}
 }

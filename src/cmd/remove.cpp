@@ -14,7 +14,7 @@ void RemoveEquipment(CharData *ch, int pos) {
 			   act("Вы не можете снять $o3!", false, ch, obj, 0, TO_CHAR);
 			   else
 			 */
-		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			act("$p: Вы не можете нести столько вещей!", false, ch, obj, nullptr, kToChar);
 		} else {
 			if (!remove_otrigger(obj, ch)) {

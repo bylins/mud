@@ -1557,7 +1557,7 @@ int CharData::get_zone_group() const {
 }
 
 //===================================
-//Polud формы и все что с ними связано
+// формы и все что с ними связано
 //===================================
 
 bool CharData::know_morph(const std::string &morph_id) const {
@@ -1718,8 +1718,6 @@ const IMorph::affects_list_t &CharData::GetMorphAffects() {
 	return current_morph_->GetAffects();
 }
 
-//===================================
-//-Polud
 //===================================
 
 bool CharData::get_role(unsigned num) const {
@@ -1967,7 +1965,7 @@ void CharData::restore_npc() {
 
 	for (const auto &skill : MUD::Skills()) {
 		if (skill.IsValid()) {
-			this->set_skill(skill.GetId(), GET_SKILL(proto, skill.GetId()));
+			this->set_skill(skill.GetId(), proto->GetSkill(skill.GetId()));
 		}
 	}
 

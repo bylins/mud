@@ -1526,7 +1526,7 @@ void RemoveObjFromObj(ObjData *obj) {
 	// Subtract weight from char that carries the object
 	temp->set_weight(std::max(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
 	if (temp->get_carried_by()) {
-		IS_CARRYING_W(temp->get_carried_by()) = std::max(1, IS_CARRYING_W(temp->get_carried_by()) - GET_OBJ_WEIGHT(obj));
+		IS_CARRYING_W(temp->get_carried_by()) = std::max(1, temp->get_carried_by()->GetCarryingWeight() - GET_OBJ_WEIGHT(obj));
 	}
 
 	obj->set_in_obj(nullptr);
@@ -1578,7 +1578,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 			RemoveObjFromObj(temp);
 			if (obj->get_carried_by()) {
 				if (obj->get_carried_by()->IsNpc()
-					|| (IS_CARRYING_N(obj->get_carried_by()) >= CAN_CARRY_N(obj->get_carried_by()))) {
+					|| (obj->get_carried_by()->GetCarryingQuantity() >= CAN_CARRY_N(obj->get_carried_by()))) {
 					PlaceObjToRoom(temp, obj->get_carried_by()->in_room);
 					CheckObjDecay(temp);
 				} else {
@@ -1586,7 +1586,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 				}
 			} else if (obj->get_worn_by() != nullptr) {
 				if (obj->get_worn_by()->IsNpc()
-					|| (IS_CARRYING_N(obj->get_worn_by()) >= CAN_CARRY_N(obj->get_worn_by()))) {
+					|| (obj->get_worn_by()->GetCarryingQuantity() >= CAN_CARRY_N(obj->get_worn_by()))) {
 					PlaceObjToRoom(temp, obj->get_worn_by()->in_room);
 					CheckObjDecay(temp);
 				} else {

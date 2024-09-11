@@ -72,11 +72,11 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void go_injure(CharData *ch, CharData *vict) {
-	SkillRollResult result = MakeSkillTest(ch, ESkill::kDisarm,vict);
+	SkillRollResult result = MakeSkillTest(ch, ESkill::kDisarm, vict);
 	bool injure_success = result.success;
 
 	if (injure_success) {
-		int injure_duration = std::min((2 + GET_SKILL(ch, ESkill::kDisarm) / 20), 10);
+		int injure_duration = std::min((2 + ch->GetSkill(ESkill::kDisarm) / 20), 10);
 
 		if (!vict->IsNpc()) {
 			injure_duration *= 30;
@@ -87,20 +87,21 @@ void go_injure(CharData *ch, CharData *vict) {
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
-		af.modifier = -(10 + std::min((GET_SKILL(ch, ESkill::kDisarm) / 10), 20));
+		af.modifier = -(10 + std::min((ch->GetSkill(ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
 		af.bitvector = to_underlying(EAffect::kInjured);
 		affect_to_char(vict, af);
 
 		act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",
-			false, ch, nullptr,vict, kToChar);
+			false, ch, nullptr, vict, kToChar);
 		act("$N ранил$G Вас в руку! Надо бы дать сдачи...",
-			false,vict, nullptr, ch, kToChar);
+			false, vict, nullptr, ch, kToChar);
 		act("$N ранил$G $n3. Кажется $n0 уже передумал$g драться...",
-			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
+			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 
-		int dam = number(ceil(GET_SKILL(ch, ESkill::kDisarm) / 1.25), ceil(GET_SKILL(ch, ESkill::kDisarm) * 1.25)) * GetRealLevel(ch) / 30;
+		int dam = number(ceil(ch->GetSkill(ESkill::kDisarm) / 1.25), ceil(ch->GetSkill(ESkill::kDisarm) * 1.25))
+			* GetRealLevel(ch) / 30;
 		Damage dmg(SkillDmg(ESkill::kDisarm), dam, fight::kPhysDmg, nullptr);
 		dmg.flags.set(fight::kIgnoreBlink);
 		dmg.Process(ch, vict);
@@ -110,11 +111,11 @@ void go_injure(CharData *ch, CharData *vict) {
 		dmg.Process(ch, vict);
 
 		act("Вам не удалось ранить $N3 и $e продолжил$g весело бить Вас!",
-			false, ch, nullptr,vict, kToChar);
+			false, ch, nullptr, vict, kToChar);
 		act("$N попытал$U поранить Вас, но у н$S не вышло! На радостях Вы принялись колотить $S еще веселей!",
-			false,vict, nullptr, ch, kToChar);
+			false, vict, nullptr, ch, kToChar);
 		act("$N безуспешно попытал$U поранить $n3. Как нелепо...",
-			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
+			false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 	}
 	if (vict->GetPosition() != EPosition::kDead) {
 		int no_injure_duration = 4;
@@ -141,8 +142,9 @@ void go_injure(CharData *ch, CharData *vict) {
 }
 
 void go_disarm(CharData *ch, CharData *vict) {
-	ObjData *wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) : GET_EQ(vict, EEquipPos::kBoths),
-			*helded = GET_EQ(vict, EEquipPos::kHold);
+	ObjData
+		*wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) : GET_EQ(vict, EEquipPos::kBoths),
+		*helded = GET_EQ(vict, EEquipPos::kHold);
 
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -165,7 +167,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 		return;
 	if (!pk_agro_action(ch, vict))
 		return;
-	SkillRollResult result = MakeSkillTest(ch, ESkill::kDisarm,vict);
+	SkillRollResult result = MakeSkillTest(ch, ESkill::kDisarm, vict);
 	bool success = result.success;
 	int lag;
 

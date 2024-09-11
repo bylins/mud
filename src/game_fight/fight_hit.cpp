@@ -3176,7 +3176,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 	// Horse modifier for attacker
 	if (!ch->IsNpc() && skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab && ch->IsOnHorse()) {
 		TrainSkill(ch, ESkill::kRiding, true, victim);
-		calc_thaco += 10 - GET_SKILL(ch, ESkill::kRiding) / 20;
+		calc_thaco += 10 - ch->GetSkill(ESkill::kRiding) / 20;
 	}
 
 	// not can see (blind, dark, etc)
@@ -3555,8 +3555,8 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 		dam += RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
-	if (GET_SKILL(ch, ESkill::kRiding) > 100 && ch->IsOnHorse()) {
-		dam *= 1 + (GET_SKILL(ch, ESkill::kRiding) - 100) / 500.0; // на лошадке до +20%
+	if (ch->GetSkill(ESkill::kRiding) > 100 && ch->IsOnHorse()) {
+		dam *= 1 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0; // на лошадке до +20%
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
 	}

@@ -116,10 +116,10 @@ void dig_obj(CharData *ch, ObjData *obj) {
 		SendMsgToChar(textbuf, ch);
 		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
-		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
-		} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+		} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 			SendMsgToChar("Вы не смогли унести такой веc.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
 		} else {

@@ -442,8 +442,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
 #define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
 #define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
-#define GET_REMORT(ch)         ((ch)->get_remort())
-#define GET_SKILL(ch, skill)   ((ch)->GetSkill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
@@ -479,7 +477,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 #define STRING_LENGTH(ch)  ((ch)->player_specials->saved.stringLength)
 #define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
-//Polud
 #define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
 #define POSI(val)      (((val) < 50) ? (((val) > 0) ? (val) : 1) : 50)
@@ -552,9 +549,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_ID(x)         ((x)->id)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
-
-// Макросы доступа к полям параметров комнат
-#define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
 
 // Получение кубиков урона - работает только для мобов!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
@@ -650,7 +644,7 @@ const int kNameLevel = 5;
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
 #define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && ch->IsFlagged(EPrf::kHolylight)))
+   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && (ch)->IsFlagged(EPrf::kHolylight)))
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
@@ -862,7 +856,7 @@ const int kNameLevel = 5;
                 )
 
 #define IMM_CAN_SEE_CHAR(sub, obj) \
-        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && sub->IsFlagged(EPrf::kHolylight)))
+        (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && (sub)->IsFlagged(EPrf::kHolylight)))
 
 #define CAN_SEE_CHAR(sub, obj) (SELF(sub, obj) || \
         ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
@@ -1306,7 +1300,7 @@ extern char smallBuf[kMaxRawInputLength];
 * if someone uses the buffer as a non-terminated character array but that
 * is not likely. -gg
 */
-void sanity_check(void);
+void sanity_check();
 
 inline void graceful_exit(int retcode) {
 	_exit(retcode);
