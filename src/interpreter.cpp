@@ -95,6 +95,7 @@
 #include "game_mechanics/dungeons.h"
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
+#include "game_mechanics/sight.h"
 #include "handler.h"
 #include "heartbeat_commands.h"
 #include "house.h"
@@ -2347,7 +2348,7 @@ void do_entergame(DescriptorData *d) {
 	login_change_invoice(d->character.get());
 	affect_total(d->character.get());
 	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
-	DoLook(d->character.get(), nullptr, 0, SCMD_LOOK);
+	look_at_room(d->character.get(), false);
 
 	if (new_char) {
 		SendMsgToChar("\r\nВоспользуйтесь командой НОВИЧОК для получения вводной информации игроку.\r\n",
