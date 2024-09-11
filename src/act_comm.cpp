@@ -180,8 +180,6 @@ bool tell_can_see(CharData *ch, CharData *vict) {
 }
 
 void perform_tell(CharData *ch, CharData *vict, char *arg) {
-// shapirus: не позволим телять, если жертва не видит и включила
-// соответствующий режим; имморталы могут телять всегда
 	if (vict->IsFlagged(EPrf::kNoInvistell)
 		&& !CAN_SEE(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
@@ -984,7 +982,6 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->remember_add(buf1, Remember::OFFTOP);
 }
 
-// shapirus
 void ignore_usage(CharData *ch) {
 	SendMsgToChar("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
 				 "Доступные режимы:\r\n"

@@ -464,7 +464,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		}
 	}
 	// Считаем вес шмоток после того как разденем чара
-	corpse->set_weight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
+	corpse->set_weight(GET_WEIGHT(ch) + ch)->GetCarryingWeight();
 	// transfer character's inventory to the corpse
 	corpse->set_contains(ch->carrying);
 	for (obj = corpse->get_contains(); obj != nullptr; obj = obj->get_next_content()) {
@@ -501,7 +501,6 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	IS_CARRYING_N(ch) = 0;
 	IS_CARRYING_W(ch) = 0;
 
-	//Polud привязываем загрузку ингров к расе (типу) моба
 	if (ch->IsNpc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);

@@ -31,6 +31,7 @@
 #include "cmd_god/godtest.h"
 #include "cmd_god/tabulate.h"
 #include "cmd_god/mark.h"
+#include "cmd/bandage.h"
 #include "cmd/equip.h"
 #include "cmd/eat.h"
 #include "cmd/enter.h"
@@ -358,7 +359,6 @@ void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mystat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zone(CharData *ch, char *argument, int cmd, int subcmd);
-void do_bandage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
@@ -435,7 +435,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"баланс", EPosition::kStand, do_not_here, 1, 0, 0},
 		{"баги", EPosition::kDead, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
 		{"бежать", EPosition::kFight, DoFlee, 1, 0, -1},
-		{"бинтовать", EPosition::kRest, do_bandage, 0, 0, 0},
+		{"бинтовать", EPosition::kRest, DoBandage, 0, 0, 0},
 		{"билдер", EPosition::kDead, Boards::DoBoard, 1, Boards::GODBUILD_BOARD, -1},
 		{"блок", EPosition::kFight, do_block, 0, 0, -1},
 		{"блокнот", EPosition::kDead, Boards::DoBoard, 1, Boards::PERS_BOARD, -1},
@@ -641,7 +641,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"подножка", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"подняться", EPosition::kRest, do_stand, 0, 0, -1},
 		{"поджарить", EPosition::kRest, do_fry, 0, 0, -1},
-		{"перевязать", EPosition::kRest, do_bandage, 0, 0, 0},
+		{"перевязать", EPosition::kRest, DoBandage, 0, 0, 0},
 		{"переделать", EPosition::kRest, DoFit, 0, kScmdDoAdapt, 500},
 		{"подсмотреть", EPosition::kRest, do_look, 0, SCMD_LOOK_HIDE, 0},
 		{"положить", EPosition::kRest, do_put, 0, 0, 400},
@@ -1140,8 +1140,6 @@ void command_interpreter(CharData *ch, char *argument) {
 		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, EGf::kPerslog) || GET_GOD_FLAG(ch, EGf::kDemigod))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
-
-	//Polud спешиал для спешиалов добавим обработку числового префикса перед именем команды
 
 	int fnum = get_number(&argument);
 
@@ -1692,7 +1690,6 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 	}
 
 	// special in mobile present? //
-//Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (const auto k : world[ch->in_room]->people) {
 		if (GET_MOB_SPEC(k) != nullptr && (fnum == 1 || fnum == specialNum++)

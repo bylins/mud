@@ -71,7 +71,6 @@ class CombatLuckAffectHandler : public IAffectHandler {
 	bool damFromMe_;
 };
 
-//Polud функция, вызывающая обработчики аффектов, если они есть
 template<class S>
 void handle_affects(S &params) //тип params определяется при вызове функции
 {

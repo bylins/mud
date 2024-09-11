@@ -12,8 +12,7 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 	unsigned int i, j, o;
 
 	if (exact) {
-		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)    // shapirus: попытка в лоб убрать креш
-		{
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++) {
 			if (**(list + i) == '\n') {
 				o = 1;
 				switch (j) {
@@ -37,8 +36,7 @@ int ext_search_block(const char *arg, const char *const *const list, int exact) 
 		if (!l) {
 			l = 1;    // Avoid "" to match the first available string
 		}
-		for (i = j = 0, o = 1; j != 1; i++)    // shapirus: попытка в лоб убрать креш
-		{
+		for (i = j = 0, o = 1; j != 1; i++) {
 			if (**(list + i) == '\n') {
 				o = 1;
 				switch (j) {

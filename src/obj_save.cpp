@@ -526,7 +526,6 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	return (object);
 }
 
-// shapirus: функция проверки наличия доп. описания в прототипе
 inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const ExtraDescription::shared_ptr &pdesc) {
 	for (auto desc = pdesc; desc; desc = desc->next) {
 		if (!str_cmp(odesc->keyword, desc->keyword)
@@ -756,9 +755,6 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			}
 		}
 
-		// Доп описания
-		// shapirus: исправлена ошибка с несохранением, например, меток
-		// на крафтеных луках
 		for (auto descr = object->get_ex_description(); descr; descr = descr->next) {
 			if (proto_has_descr(descr, proto->get_ex_description())) {
 				continue;
@@ -2478,11 +2474,6 @@ void Crash_save_all(void) {
 
 // * Сейв при плановом ребуте/остановке с таймером != 0.
 void Crash_save_all_rent(void) {
-	// shapirus: проходим не по списку дескрипторов,
-	// а по списку чаров, чтобы сохранить заодно и тех,
-	// кто перед ребутом ушел в ЛД с целью сохранить
-	// свои грязные денежки.
-
 	character_list.foreach_on_copy([&](const auto &ch) {
 		if (!ch->IsNpc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);

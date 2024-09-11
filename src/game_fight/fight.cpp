@@ -1324,7 +1324,7 @@ int calc_initiative(CharData *ch, bool mode) {
 	initiative += GET_INITIATIVE(ch);
 
 	if (!ch->IsNpc()) {
-		switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch))) {
+		switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
 			case 10:
 			case 9:
 			case 8: initiative -= 20;

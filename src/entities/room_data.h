@@ -31,7 +31,7 @@ class ExitData {
 	char *vkeyword;        // алиас двери в винительном падеже для открывания/закрывания
 
 	byte exit_info;    // Exit info             //
-	ubyte lock_complexity; //Polud сложность замка
+	ubyte lock_complexity;
 	ObjVnum key;        // Key's number (-1 for no key) //
 
  private:

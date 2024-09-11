@@ -1241,7 +1241,6 @@ void clear_exchange_lot(ExchangeItem *lot) {
 	free(lot);
 }
 
-//Polud дублируем кучку кода, чтобы можно было часть команд базара выполнять в любой комнате
 void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	char *arg = str_dup(argument);
 	argument = one_argument(argument, arg1);

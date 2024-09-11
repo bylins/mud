@@ -306,7 +306,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = two_arguments(argument, arg1, arg2);
 	argument = two_arguments(argument, arg3, arg4);
 
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch))
 		SendMsgToChar("У вас заняты руки!\r\n", ch);
 	else if (!*arg1)
 		SendMsgToChar("Что вы хотите взять?\r\n", ch);

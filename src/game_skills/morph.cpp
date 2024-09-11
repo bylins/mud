@@ -54,8 +54,8 @@ void NormalMorph::set_skill(const ESkill skill_num, int percent) {
 void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 	auto it = skills_.find(skill_num);
 	if (it != skills_.end()) {
-		int diff = percent - it->second;//Polud	пока все снижения уровня скилов в звериной форме уходят в /dev/null
-		if (diff > 0 && number(1, 2) == 2)//Polud в звериной форме вся прокачка идет в оборотничество
+		int diff = percent - it->second;
+		if (diff > 0 && number(1, 2) == 2)
 		{
 			sprintf(buf,
 					"%sВаши успехи сделали вас опытнее в оборотничестве.%s\r\n",

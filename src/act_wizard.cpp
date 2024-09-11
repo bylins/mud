@@ -3110,7 +3110,6 @@ void do_forcetime(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//Polud статистика использования заклинаний
 namespace SpellUsage {
 bool is_active = false;
 std::map<ECharClass, SpellCountType> usage;

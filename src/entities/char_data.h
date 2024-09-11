@@ -217,7 +217,6 @@ struct player_special_data_saved {
 	int Rip_pk_this; // рипы от чаров на этом морте
 	int Rip_dt_this; // дт на этом морте
 	int Rip_other_this; // рипы от триггеров и прочее на этом морте
-	//edited by WorM переделал на unsigned long long чтоб экспа в минуса не уходила
 	unsigned long long Exp_arena; //потеряно экспы за рипы на арене
 	unsigned long long Exp_mob; //потеряно экспы  рипы от мобов всего
 	unsigned long long Exp_pk; //потеряно экспы  рипы от чаров всего
@@ -228,9 +227,8 @@ struct player_special_data_saved {
 	unsigned long long Exp_dt_this; //потеряно экспы  дт на этом морте
 	unsigned long long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
 	//конец правки (с) Василиса
-	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
 	long ntfyExchangePrice;
-	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
+	int HiredCost;
 	unsigned int who_mana; // количество энергии для использования команды кто
 	unsigned long int telegram_id;// идентификатор телеграма
 	time_t lastGloryRespecTime; // дата последнего респека славой
@@ -782,7 +780,6 @@ class CharData : public ProtectedCharData {
 
 	EPosition GetPosition() const { return char_specials.position; };
   	void SetPosition(const EPosition position) { char_specials.position = position; };
-
 	/* Character's flags actions */
 	// Костыльная функция, которая пока нужна, потому что загрузчик файлов не часть чардаты и не friend class.
 	void SetFlagsFromString(const std::string &string) { char_specials.saved.act.from_string(string.c_str()); };
@@ -811,6 +808,9 @@ class CharData : public ProtectedCharData {
   	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };
   	void UnsetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EPrf flag) const { return (!IsNpc() && player_specials->saved.pref.get(flag)); };
+
+	int GetCarryingWeight() const { return char_specials.carry_weight; };
+  	int GetCarryingQuantity() const { return char_specials.carry_items; };
 
 	char_affects_list_t affected;    // affected by what spells
 	struct TimedSkill *timed;    // use which timed skill/spells
@@ -973,12 +973,9 @@ inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 bool CLEAR_MIND(const CharData *ch);
 inline bool CLEAR_MIND(const CharData::shared_ptr &ch) { return CLEAR_MIND(ch.get()); }
 
-// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
-//пока здесь только чарм, как и было раньше
 inline bool CAN_START_MTRIG(const CharData *ch) {
 	return !AFF_FLAGGED(ch, EAffect::kCharmed);
 }
-//-Polud
 
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim);
 

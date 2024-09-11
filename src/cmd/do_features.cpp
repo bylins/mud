@@ -51,7 +51,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	for (i = 1; i < max_slot; i++) {
 		if (all_feats) {
 			// на каком уровне будет слот i?
-			j = feat_slot_lvl(GET_REMORT(ch), MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot(), i);
+			j = feat_slot_lvl(ch->get_remort(), MUD::Class(ch->GetClass()).GetRemortsNumForFeatSlot(), i);
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
 		} else {
 			*names[i] = '\0';

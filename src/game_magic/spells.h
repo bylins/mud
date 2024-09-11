@@ -132,9 +132,7 @@ ESkill GetMagicSkillId(ESpell spell_id);
 int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int showrecipe);
 int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
 
-//Polud статистика использования заклинаний
 typedef std::map<ESpell, int> SpellCountType;
-
 namespace SpellUsage {
 	extern bool is_active;
 	extern time_t start;
@@ -142,7 +140,6 @@ namespace SpellUsage {
 	void save();
 	void clear();
 };
-//-Polud
 
 //#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 

@@ -516,10 +516,10 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				if (!success) {
 					SendMsgToChar("Украсть? Из экипировки? Щаз-з-з!\r\n", ch);
 					return;
-				} else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+				} else if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 					SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 					return;
-				} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+				} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 					SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				} else if (obj->has_flag(EObjFlag::kBloody)) {
@@ -561,8 +561,8 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				act("$n пытал$u украсть нечто у $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			} else    // Steal the item
 			{
-				if (IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch)) {
-					if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) < CAN_CARRY_W(ch)) {
+				if (ch->GetCarryingQuantity() + 1 < CAN_CARRY_N(ch)) {
+					if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) < CAN_CARRY_W(ch)) {
 						RemoveObjFromChar(obj);
 						PlaceObjToInventory(obj, ch);
 						act("Вы украли $o3 у $N1!", false, ch, obj, vict, kToChar);
@@ -1093,7 +1093,6 @@ void print_group(CharData *ch) {
 					continue;
 				}
 
-				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (ch->IsFlagged(EPrf::kNoClones)
 					&& f->follower->IsNpc()
 					&& (f->follower->IsFlagged(EMobFlag::kClone)
@@ -1114,7 +1113,6 @@ void print_group(CharData *ch) {
 					continue;
 				}
 
-				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (ch->IsFlagged(EPrf::kNoClones)
 					&& g->follower->IsNpc()
 					&& (g->follower->IsFlagged(EMobFlag::kClone)
@@ -1813,65 +1811,6 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 extern struct IndexData *obj_index;
 
-void do_bandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc()) {
-		return;
-	}
-	if (GET_HIT(ch) == GET_REAL_MAX_HIT(ch)) {
-		SendMsgToChar("Вы не нуждаетесь в перевязке!\r\n", ch);
-		return;
-	}
-	if (ch->GetEnemy()) {
-		SendMsgToChar("Вы не можете перевязывать раны во время боя!\r\n", ch);
-		return;
-	}
-	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
-		SendMsgToChar("Вы и так уже занимаетесь перевязкой!\r\n", ch);
-		return;
-	}
-	if (AFF_FLAGGED(ch, EAffect::kCannotBeBandaged)) {
-		SendMsgToChar("Вы не можете перевязывать свои раны чаще раза в минуту!\r\n", ch);
-		return;
-	}
-
-	ObjData *bandage = nullptr;
-	for (ObjData *i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_TYPE(i) == EObjType::kBandage) {
-			bandage = i;
-			break;
-		}
-	}
-	if (!bandage || GET_OBJ_WEIGHT(bandage) <= 0) {
-		SendMsgToChar("В вашем инвентаре нет подходящих для перевязки бинтов!\r\n", ch);
-		return;
-	}
-
-	SendMsgToChar("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
-	act("$n начал$g перевязывать свои раны.&n", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-
-	Affect<EApply> af;
-	af.type = ESpell::kBandage;
-	af.location = EApply::kNone;
-	af.modifier = GET_OBJ_VAL(bandage, 0);
-	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
-	af.bitvector = to_underlying(EAffect::kBandage);
-	af.battleflag = kAfPulsedec;
-	ImposeAffect(ch, af, false, false, false, false);
-
-	af.type = ESpell::kNoBandage;
-	af.location = EApply::kNone;
-	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
-	af.bitvector = to_underlying(EAffect::kCannotBeBandaged);
-	af.battleflag = kAfPulsedec;
-	ImposeAffect(ch, af, false, false, false, false);
-
-	bandage->set_weight(bandage->get_weight() - 1);
-	IS_CARRYING_W(ch) -= 1;
-	if (GET_OBJ_WEIGHT(bandage) <= 0) {
-		SendMsgToChar("Очередная пачка бинтов подошла к концу.\r\n", ch);
-		ExtractObjFromWorld(bandage);
-	}
-}
 
 bool is_dark(RoomRnum room) {
 	double coef = 0.0;

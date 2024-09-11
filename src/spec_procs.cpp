@@ -835,10 +835,10 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 			victim->remove_gold(gold);
 		}
 		// Steal something from equipment
-		if (IS_CARRYING_N(ch) < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
+		if (ch->GetCarryingQuantity() < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
-				if (CAN_SEE_OBJ(ch, obj) && IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)
+				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)
 					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
 					best = obj;
 			if (best) {

@@ -34,11 +34,11 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 		act("Вы не можете передать $o3!", false, ch, obj, nullptr, kToChar);
 		return;
 	}
-	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
+	if (vict->GetCarryingQuantity() >= CAN_CARRY_N(vict)) {
 		act("У $N1 заняты руки.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
+	if (GET_OBJ_WEIGHT(obj) + vict->GetCarryingWeight() > CAN_CARRY_W(vict)) {
 		act("$E не может нести такой вес.", false, ch, nullptr, vict, kToChar);
 		return;
 	}

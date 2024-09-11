@@ -2595,7 +2595,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
 			af[0].bitvector = to_underlying(EAffect::kCombatLuck);
-			//Polud пробный обработчик аффектов
 			af[0].handler.reset(new CombatLuckAffectHandler());
 			af[0].type = ESpell::kCombatLuck;
 			af[0].location = EApply::kHitroll;
@@ -3634,11 +3633,11 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	act("Вы создали $o3.", false, ch, tobj.get(), nullptr, kToChar);
 	load_otrigger(tobj.get());
 
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(tobj.get(), ch->in_room);
 		CheckObjDecay(tobj.get());
-	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
+	} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
 		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(tobj.get(), ch->in_room);
 		CheckObjDecay(tobj.get());

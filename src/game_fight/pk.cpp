@@ -247,13 +247,10 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		pk_check_spamm(agressor);
 	}
 
-// shapirus: прописываем время получения флага агрессора
 	AGRO(agressor) = MAX(AGRO(agressor), time(nullptr) + KILLER_UNRENTABLE * 60);
-	//  вешаем агробд на агрессора
 	agressor->agrobd = true;
 	pk_update_revenge(agressor, victim, BATTLE_DURATION, rent ? KILLER_UNRENTABLE : 0);
 	pk_update_revenge(victim, agressor, BATTLE_DURATION, rent ? REVENGE_UNRENTABLE : 0);
-	//Костыль cнимаем цацки недоступные и кладем в чара.
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		ObjData *p_item;
 		if (GET_EQ(agressor, i)) {
@@ -1032,7 +1029,6 @@ bool has_clan_members_in_group(CharData *ch) {
 	return false;
 }
 
-//Polud
 void pkPortal(CharData *ch) {
 	AGRO(ch) = MAX(AGRO(ch), time(nullptr) + PENTAGRAM_TIME * 60);
 	ch->player_specials->may_rent = MAX(NORENTABLE(ch), time(nullptr) + PENTAGRAM_TIME * 60);

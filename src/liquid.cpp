@@ -407,14 +407,13 @@ int do_drink_check_conditions(CharData *ch, ObjData *jar, int amount) {
 		return 0;
 	}
 
-
 	// Если жидкость с градусом
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) {
 		// Если у чара бадун - пусть похмеляется, бухать нельзя
 		if (AFF_FLAGGED(ch, EAffect::kAbstinent)) {
-			if (GET_SKILL(ch, ESkill::kHangovering) > 0) {//если опохмел есть
+			if (ch->GetSkill(ESkill::kHangovering) > 0) {//если опохмел есть
 				SendMsgToChar(
-					"Вас передернуло от одной мысли о том что бы выпить.\r\nПохоже, вам стоит опохмелиться.\r\n",
+					"Вас передернуло от одной мысли о выпивке.\r\nПохоже, вам стоит опохмелиться.\r\n",
 					ch);
 			} else {//если опохмела нет
 				SendMsgToChar("Вы пытались... но не смогли заставить себя выпить...\r\n", ch);

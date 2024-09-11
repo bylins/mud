@@ -1055,7 +1055,7 @@ int CalcHitroll(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kPerformGreatAimingAttack)) {
 		hr += 4;
 	}
-	hr -= (ch->IsOnHorse() ? (10 - GET_SKILL(ch, ESkill::kRiding) / 20) : 0);
+	hr -= (ch->IsOnHorse() ? (10 - ch->GetSkill(ESkill::kRiding) / 20) : 0);
 	hr *= ch->get_cond_penalty(P_HITROLL);
 	return hr;
 }

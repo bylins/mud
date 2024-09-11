@@ -1409,7 +1409,6 @@ const char *tmp_npc_race_types[] =
 const std::vector<const char *> npc_role_types(tmp_npc_race_types,
 											   tmp_npc_race_types + sizeof(tmp_npc_race_types) / sizeof(const char *));
 
-//Polud new mob races. (26/01/2009)
 const char *npc_race_types[] = {"Обычный",
 								"Человек",
 								"Зверолюд",
@@ -1426,12 +1425,6 @@ const char *npc_race_types[] = {"Обычный",
 								"Нематериальный дух",
 								"Магическое создание",
 								"\n"
-};
-//-Polud
-
-const char *places_of_birth[] = {"Киев",
-								 "Новгород",
-								 "\n"
 };
 
 int rev_dir[] =

@@ -738,7 +738,7 @@ void Player::save_char() {
 	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(this));
 	fprintf(saved, "StrL: %d\n", STRING_LENGTH(this));
 	fprintf(saved, "StrW: %d\n", STRING_WIDTH(this));
-	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this)); //Polud мин. цена для оффлайн-оповещений
+	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this));
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM) {
 		fprintf(saved, "Rmbr: %u\n", this->remember_get_num());
@@ -1573,7 +1573,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					NAME_GOD(this) = num;
 				else if (!strcmp(tag, "NaID"))
 					NAME_ID_GOD(this) = lnum;
-				else if (!strcmp(tag, "NtfE"))//Polud мин. цена для оффлайн-оповещений
+				else if (!strcmp(tag, "NtfE"))
 					NOTIFY_EXCH_PRICE(this) = lnum;
 				break;
 
@@ -2170,7 +2170,7 @@ int con_total_hp(CharData *ch) {
 ///
 unsigned weight_dex_penalty(CharData *ch) {
 	int n = 0;
-	switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch))) {
+	switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
 		case 10:
 		case 9:
 		case 8: n = 2;

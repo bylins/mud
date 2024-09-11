@@ -806,11 +806,11 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 				act(to_room, false, ch, tobj.get(), 0, kToRoom);
 			}
 
-			if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+			if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 				SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
-			} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
+			} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
 				SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
@@ -2053,10 +2053,10 @@ int MakeRecept::make(CharData *ch) {
 	// Пишем производителя в поле.
 	obj->set_crafter_uid(GET_UNIQUE(ch));
 	// 9. Проверяем минимум 2
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
-	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+	} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else {

@@ -1150,7 +1150,6 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
 					//dg_victim = (CharacterData *) vict_obj;
 					break;
-//Polud Добавил склонение местоимения ваш(е,а,и)
 				case 'z':
 					if (obj)
 						i = OYOU(obj);
@@ -1161,7 +1160,6 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 						i = HYOU((const CharData *) vict_obj);
 					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj));
 					break;
-//-Polud
 				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
 					log("SYSERR: %s", orig);
 					i = "";
@@ -1218,12 +1216,12 @@ int roundup(float fl) {
 // Функция проверяет может ли ch нести предмет obj и загружает предмет
 // в инвентарь игрока или в комнату, где игрок находится
 void can_carry_obj(CharData *ch, ObjData *obj) {
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 		SendMsgToChar("Вы не можете нести столько предметов.", ch);
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
 	} else {
-		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch)) {
+		if (GET_OBJ_WEIGHT(obj) + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
 			SendMsgToChar(buf, ch);
 			PlaceObjToRoom(obj, ch->in_room);
@@ -1236,8 +1234,8 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
 
 /**
  * Бывшее #define CAN_CARRY_OBJ(ch,obj)  \
-   (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
-    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
+   (((ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
+    ((ch->GetCarryingQuantity() + 1) <= CAN_CARRY_N(ch)))
  */
 bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
@@ -1245,21 +1243,19 @@ bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 		return true;
 	}
 
-	if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)
-		&& IS_CARRYING_N(ch) + 1 <= CAN_CARRY_N(ch)) {
+	if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)
+		&& ch->GetCarryingQuantity() + 1 <= CAN_CARRY_N(ch)) {
 		return true;
 	}
 
 	return false;
 }
 
-// shapirus: проверка, игнорирет ли чар who чара whom
 bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 	if (who->IsNpc()) return false;
 
 	long ign_id;
 
-// имморталов не игнорит никто
 	if (IS_IMMORTAL(whom)) {
 		return false;
 	}
