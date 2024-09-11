@@ -81,8 +81,9 @@ void go_strangle(CharData *ch, CharData *vict) {
 	bool success = result.success;
 //Формула дамага - (удавить/10)% от хп моба (максимум 10%) + удавить*2. Рандом - +/- 25%. Сделал отдельными переменными для удобочитаемости, иначе фиг разберёшь формулу.
 	int hp_percent_dam = ceil(GET_MAX_HIT(vict) * 0.03);
-	int hp_percent_dam2 = (GET_MAX_HIT(vict) / 100) * (GET_SKILL(ch, ESkill::kStrangle) / 10);
-	int flat_damage = GET_SKILL(ch, ESkill::kStrangle) * 1.5;
+	auto skill_strangle = ch->GetSkill(ESkill::kStrangle);
+	int hp_percent_dam2 = (GET_MAX_HIT(vict) / 100) * (skill_strangle / 10);
+	int flat_damage = skill_strangle * 1.5;
 	int dam = number(ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) * 1.25,
 					ceil(std::min(hp_percent_dam, hp_percent_dam2) + flat_damage) / 1.25);
 	int strangle_duration = 5;
@@ -107,7 +108,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		if (AFF_FLAGGED(vict, EAffect::kStrangled)) {
 			dam = number(ceil((flat_damage * 1.25)), ceil((flat_damage / 1.25)));
 		}
-		int silence_duration = 2 + std::min(GET_SKILL(ch, ESkill::kStrangle) / 25, 10);
+		int silence_duration = 2 + std::min(skill_strangle/25, 10);
 
 		if (!vict->IsNpc()) {
 			silence_duration *= 30;
@@ -116,7 +117,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		Affect<EApply> af2;
 		af2.type = ESpell::kSilence;
 		af2.duration = silence_duration;
-		af2.modifier = -GET_SKILL(ch, ESkill::kStrangle) / 3;
+		af2.modifier = -skill_strangle/3;
 		af2.location = EApply::kMagicDamagePercent;
 		af2.battleflag = kAfBattledec;
 		af2.bitvector = to_underlying(EAffect::kSilence);

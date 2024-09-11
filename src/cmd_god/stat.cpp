@@ -524,7 +524,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				k->mob_specials.damnodice, k->mob_specials.damsizedice);
 		SendMsgToChar(buf, ch);
 	}
-	sprintf(buf, "Несет - вес %d, предметов %d; ", k->GetCarryingWeight(), k)->GetCarryingQuantity();
+	sprintf(buf, "Несет - вес %d, предметов %d; ", k->GetCarryingWeight(), k->GetCarryingQuantity());
 
 	for (i = 0, j = k->carrying; j; j = j->get_next_content(), i++) { ; }
 	sprintf(buf + strlen(buf), "(в инвентаре) : %d, ", i);

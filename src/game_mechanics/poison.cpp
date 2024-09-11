@@ -95,7 +95,7 @@ namespace {
 			af[3].bitvector = to_underlying(EAffect::kScopolaPoison)
 							  | to_underlying(EAffect::kNoBattleSwitch);
 
-			int affect_modifier = 10 + std::min((GET_SKILL(ch, ESkill::kPoisoning) / 20), 10);
+			int affect_modifier = 10 + std::min((ch->GetSkill(ESkill::kPoisoning) / 20), 10);
 			bool was_poisoned = true;
 
 			for (auto & i : af) {

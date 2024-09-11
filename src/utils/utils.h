@@ -442,7 +442,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
 #define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
 #define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
-#define GET_SKILL(ch, skill)   ((ch)->GetSkill(skill))
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))

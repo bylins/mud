@@ -1,5 +1,5 @@
 /**
-\file bandage.h - a part of Bylins engine.
+\file bandage.h - a part of the Bylins engine.
 \authors Created by Sventovit.
 \date 11.09.2024.
 \brief Do bandage command.

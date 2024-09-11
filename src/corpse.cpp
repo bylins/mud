@@ -464,7 +464,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		}
 	}
 	// Считаем вес шмоток после того как разденем чара
-	corpse->set_weight(GET_WEIGHT(ch) + ch)->GetCarryingWeight();
+	corpse->set_weight(GET_WEIGHT(ch) + ch->GetCarryingWeight());
 	// transfer character's inventory to the corpse
 	corpse->set_contains(ch->carrying);
 	for (obj = corpse->get_contains(); obj != nullptr; obj = obj->get_next_content()) {

@@ -628,7 +628,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				if (rand > 95)
 					break;
 				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::kRiding, nullptr) * number(1, 6))
-					< GET_SKILL(ch, ESkill::kEarthMagic) * number(1, 6)) {//фейл
+					< ch->GetSkill(ESkill::kEarthMagic) * number(1, 6)) {//фейл
 					ch->DropFromHorse();
 					break;
 				}

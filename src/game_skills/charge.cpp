@@ -67,9 +67,9 @@ void go_charge(CharData *ch, int direction) {
 	if (ch->IsFlagged(EPrf::kAwake)) {
 		is_awake = true;
 	}
-
-	int dam = (number(ceil(ceil GET_SKILL(ch,ESkill::kCharge) * 3 / 1.25),
-					  ceil(ceil GET_SKILL(ch,ESkill::kCharge) * 3 * 1.25)) *
+	auto skill_charge = ch->GetSkill(ESkill::kCharge);
+	int dam = (number(ceil(ch->GetSkill(ESkill::kCharge) * 3 / 1.25),
+					  ceil(ch->GetSkill(ESkill::kCharge) * 3 * 1.25)) *
 			   GetRealLevel(ch)) / 30;
 
 	if (is_awake) {
