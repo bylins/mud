@@ -5,6 +5,7 @@
 #include "color.h"
 #include "handler.h"
 #include "game_fight/pk.h"
+#include "game_mechanics/sight.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 

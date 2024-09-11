@@ -34,6 +34,7 @@
 #include "utils/id_converter.h"
 #include "structs/global_objects.h"
 #include "game_mechanics/stable_objs.h"
+#include "game_mechanics/sight.h"
 
 struct mob_command_info {
 	const char *command;

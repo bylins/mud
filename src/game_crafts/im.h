@@ -71,6 +71,7 @@ const int IM_MSG_OK = 0;
 const int IM_MSG_FAIL = 1;
 const int kImMsgDam = 2;
 const int kKnownRecipe = 1;
+extern int top_imtypes;
 
 // Описание рецепта
 struct _im_recipe_tag {
@@ -101,11 +102,10 @@ struct im_rskill {
 };
 
 extern im_recipe *imrecipes;
+extern im_type *imtypes;
 
 void im_parse(int **ing_list, char *line);
-//MZ.load
 void im_reset_room(RoomData *room, int level, int type);
-//-MZ.load
 ObjData *try_make_ingr(CharData *mob, int prob_default);
 int im_assign_power(ObjData *obj);
 int im_get_recipe(int id);

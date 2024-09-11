@@ -19,6 +19,7 @@
 #include "handler.h"
 #include "game_fight/fight.h"
 #include "game_classes/classes.h"
+#include "game_mechanics/sight.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -374,10 +375,11 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 			stop_fighting(agressor, false);
 		act("$n был$g выдворен$a за пределы замка!", true, agressor, 0, 0, kToRoom);
 		RemoveCharFromRoom(agressor);
-		if (IS_FEMALE(agressor))
+		if (IS_FEMALE(agressor)) {
 			SendMsgToChar("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
-		else
+		} else {
 			SendMsgToChar("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
+		}
 		SendMsgToChar("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
 		PlaceCharToRoom(agressor, GetRoomRnum(CLAN(agressor)->out_rent));
 		look_at_room(agressor, GetRoomRnum(CLAN(agressor)->out_rent));

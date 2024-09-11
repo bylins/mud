@@ -51,6 +51,7 @@
 #include "game_mechanics/glory_const.h"
 #include "game_mechanics/glory_misc.h"
 #include "game_mechanics/mem_queue.h"
+#include "game_mechanics/sight.h"
 #include "handler.h"
 #include "heartbeat.h"
 #include "house.h"
@@ -87,6 +88,7 @@
 #include "game_magic/spells_info.h"
 #include "game_magic/magic_rooms.h"
 #include "olc/olc.h"
+
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 #include <iomanip>

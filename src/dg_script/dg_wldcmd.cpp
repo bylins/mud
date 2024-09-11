@@ -17,7 +17,7 @@
 #include "obj_prototypes.h"
 #include "game_skills/townportal.h"
 #include "game_magic/magic_utils.h"
-//#include "entities/zone.h"
+#include "game_mechanics/sight.h"
 #include "structs/global_objects.h"
 #include "game_mechanics/stable_objs.h"
 

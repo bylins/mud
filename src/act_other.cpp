@@ -67,6 +67,7 @@
 #include "entities/world_objects.h"
 #include "game_skills/skills_info.h"
 #include "game_mechanics/weather.h"
+#include "game_mechanics/sight.h"
 #include "structs/global_objects.h"
 #include "utils/table_wrapper.h"
 

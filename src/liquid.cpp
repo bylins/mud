@@ -24,8 +24,6 @@ const int kMortallyDrunked = 18;
 const int kMaxCondition = 48;
 const int kNormCondition = 22;
 
-const char *diag_liquid_timer(const ObjData *obj);
-
 const char *drinks[] = {"воды",
 						"пива",
 						"вина",
@@ -1282,6 +1280,46 @@ void identify(CharData *ch, const ObjData *obj) {
 		out += buf1;
 	}
 	SendMsgToChar(out, ch);
+}
+
+char *daig_filling_drink(const ObjData *obj, const CharData *ch) {
+	char tmp[256];
+	if (GET_OBJ_VAL(obj, 1) <= 0) {
+		sprintf(buf1, "Пусто");
+		return buf1;
+	}
+	else {
+		if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
+			sprintf(buf1, "Заполнен%s вакуумом?!", GET_OBJ_SUF_6(obj));    // BUG
+			return buf1;
+		}
+		else {
+			const char *msg = AFF_FLAGGED(ch, EAffect::kDetectPoison) && obj->get_val(3) == 1 ? " *отравленной*" : "";
+			int amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
+			sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, tmp);
+			snprintf(buf1, kMaxStringLength,
+					 "Наполнен%s %s%s%s жидкостью", GET_OBJ_SUF_6(obj), fullness[amt], tmp, msg);
+			return buf1;
+		}
+	}
+}
+
+const char *diag_liquid_timer(const ObjData *obj) {
+	int tm;
+	if (GET_OBJ_VAL(obj, 3) == 1)
+		return "испортилось!";
+	if (GET_OBJ_VAL(obj, 3) == 0)
+		return "идеальное.";
+	tm = (GET_OBJ_VAL(obj, 3));
+	if (tm < 1440) // сутки
+		return "скоро испортится!";
+	else if (tm < 10080) //неделя
+		return "сомнительное.";
+	else if (tm < 20160) // 2 недели
+		return "выглядит свежим.";
+	else if (tm < 30240) // 3 недели
+		return "свежее.";
+	return "идеальное.";
 }
 
 } // namespace drinkcon

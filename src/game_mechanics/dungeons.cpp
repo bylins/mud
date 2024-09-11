@@ -10,7 +10,7 @@
 #include "liquid.h"
 #include "obj_prototypes.h"
 #include "structs/global_objects.h"
-
+#include "game_mechanics/sight.h"
 #include "entities/char_data.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>

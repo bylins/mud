@@ -29,6 +29,7 @@
 #include "liquid.h"
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/treasure_cases.h"
+#include "game_mechanics/sight.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);

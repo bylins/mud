@@ -18,7 +18,7 @@
 #include "game_magic/magic_utils.h"
 #include "game_skills/townportal.h"
 #include "utils/id_converter.h"
-//#include "entities/zone.h"
+#include "game_mechanics/sight.h"
 #include "structs/global_objects.h"
 #include "game_mechanics/stable_objs.h"
 

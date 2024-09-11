@@ -14,8 +14,6 @@
 
 #include "game_limits.h"
 
-//#include "entities/world_characters.h"
-//#include "game_skills/townportal.h"
 #include "handler.h"
 #include "color.h"
 #include "house.h"
@@ -28,12 +26,12 @@
 #include "game_fight/fight.h"
 #include "game_economics/ext_money.h"
 #include "statistics/mob_stat.h"
-//#include "game_magic/spells_info.h"
 #include "liquid.h"
 #include "structs/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
+#include "game_mechanics/sight.h"
 
 const int kRecallSpellsInterval = 28;
 

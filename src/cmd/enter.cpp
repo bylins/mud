@@ -12,6 +12,7 @@
 #include "handler.h"
 #include "house.h"
 #include "game_mechanics/deathtrap.h"
+#include "game_mechanics/sight.h"
 
 void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum door = kNowhere;

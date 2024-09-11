@@ -303,7 +303,16 @@ set(SOURCES
 		src/cmd/wake.cpp
 		src/cmd/bandage.cpp
 		src/cmd/consider.cpp
-		src/cmd/exits.cpp)
+		src/cmd/exits.cpp
+		src/game_mechanics/sight.cpp
+		src/cmd/look.cpp
+		src/cmd/examine.cpp
+		src/cmd/peer.cpp
+		src/cmd/look_around.cpp
+		src/cmd/inventory.cpp
+		src/cmd/equipment.cpp
+		src/cmd/listen.cpp
+		src/cmd/do_zone.cpp)
 
 set(HEADERS
 		src/cmd/flee.h
@@ -587,7 +596,16 @@ set(HEADERS
 		src/cmd/sleep.h
 		src/cmd/bandage.h
 		src/cmd/consider.h
-		src/cmd/exits.h)
+		src/cmd/exits.h
+		src/game_mechanics/sight.h
+		src/cmd/look.h
+		src/cmd/examine.h
+		src/cmd/peer.h
+		src/cmd/look_around.h
+		src/cmd/inventory.h
+		src/cmd/equipment.h
+		src/cmd/listen.h
+		src/cmd/do_zone.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -68,9 +68,7 @@ void go_charge(CharData *ch, int direction) {
 		is_awake = true;
 	}
 	auto skill_charge = ch->GetSkill(ESkill::kCharge);
-	int dam = (number(ceil(ch->GetSkill(ESkill::kCharge) * 3 / 1.25),
-					  ceil(ch->GetSkill(ESkill::kCharge) * 3 * 1.25)) *
-			   GetRealLevel(ch)) / 30;
+	int dam = (number(ceil(skill_charge * 3 / 1.25), ceil(skill_charge * 3 * 1.25)) * GetRealLevel(ch)) / 30;
 
 	if (is_awake) {
 		dam /= 2;

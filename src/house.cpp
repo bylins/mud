@@ -42,6 +42,7 @@
 #include "structs/global_objects.h"
 #include "utils/objects_filter.h"
 #include "utils/table_wrapper.h"
+#include "game_mechanics/sight.h"
 
 using namespace ClanSystem;
 

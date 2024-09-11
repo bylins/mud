@@ -30,6 +30,7 @@
 #include "stuff.h"
 #include "utils/utils_char_obj.inl"
 #include "game_mechanics/stable_objs.h"
+#include "game_mechanics/sight.h"
 
 #include <cmath>
 

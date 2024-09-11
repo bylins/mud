@@ -25,6 +25,7 @@
 #include "game_magic/magic_utils.h"
 #include "entities/char_player.h"
 #include "utils/utils_char_obj.inl"
+#include "game_mechanics/sight.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
