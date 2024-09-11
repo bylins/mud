@@ -339,7 +339,7 @@ void Logger::operator()(const char *format, ...) {
 		prefix += part;
 	}
 	const size_t plength = std::min(BUFFER_SIZE, prefix.length());
-	strncpy(p, prefix.c_str(), plength);
+	strncpy(p, prefix.c_str(), plength - 1);
 	free_space -= plength;
 	p += plength;
 
