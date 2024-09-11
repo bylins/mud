@@ -32,9 +32,11 @@
 #include "cmd_god/tabulate.h"
 #include "cmd_god/mark.h"
 #include "cmd/bandage.h"
+#include "cmd/consider.h"
 #include "cmd/equip.h"
 #include "cmd/eat.h"
 #include "cmd/enter.h"
+#include "cmd/exits.h"
 #include "cmd/follow.h"
 #include "cmd/hire.h"
 #include "cmd/get.h"
@@ -240,7 +242,6 @@ void do_beep(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
 void do_courage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
-void do_consider(CharData *ch, char *argument, int cmd, int subcmd);
 void do_date(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
@@ -251,7 +252,6 @@ void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CharData *ch, char *argument, int cmd, int subcmd);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
 void do_remember_char(CharData *ch, char *argument, int cmd, int subcmd);
-void do_exits(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseon(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseoff(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
@@ -469,7 +469,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"выбросить", EPosition::kRest, DoDrop, 0, 0 /*SCMD_DONATE */ , 300},
 		{"выследить", EPosition::kStand, do_track, 0, 0, 500},
 		{"вылить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
-		{"выходы", EPosition::kRest, do_exits, 0, 0, 0},
+		{"выходы", EPosition::kRest, DoExits, 0, 0, 0},
 
 		{"говорить", EPosition::kRest, do_say, 0, 0, -1},
 		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
@@ -725,7 +725,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"спросить", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
 		{"сбросить", EPosition::kRest, dungeons::DoDungeonReset, kLvlImplementator, 0, -1},
 		{"спрятаться", EPosition::kStand, do_hide, 1, 0, 500},
-		{"сравнить", EPosition::kRest, do_consider, 0, 0, 500},
+		{"сравнить", EPosition::kRest, DoConsider, 0, 0, 500},
 		{"сразить", EPosition::kFight, do_slay, 1, 0, -1},
 		{"ставка", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"статус", EPosition::kDead, do_display, 0, 0, 0},
@@ -795,7 +795,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"close", EPosition::kSit, do_gen_door, 0, kScmdClose, 500},
 		{"cls", EPosition::kDead, do_gen_ps, 0, SCMD_CLEAR, 0},
 		{"commands", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
-		{"consider", EPosition::kRest, do_consider, 0, 0, 500},
+		{"consider", EPosition::kRest, DoConsider, 0, 0, 500},
 		{"credits", EPosition::kDead, do_gen_ps, 0, SCMD_CREDITS, 0},
 		{"date", EPosition::kDead, do_date, kLvlImmortal, SCMD_DATE, 0},
 		{"dazzle", EPosition::kFight, DoDazzle, 1, 0, -1},
@@ -817,7 +817,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"equipment", EPosition::kSleep, do_equipment, 0, 0, 0},
 		{"examine", EPosition::kRest, do_examine, 0, 0, 500},
 		{"exchange", EPosition::kRest, do_exchange, 1, 0, -1},
-		{"exits", EPosition::kRest, do_exits, 0, 0, 500},
+		{"exits", EPosition::kRest, DoExits, 0, 0, 500},
 		{"featset", EPosition::kSleep, do_featset, kLvlImplementator, 0, 0},
 		{"features", EPosition::kSleep, DoFeatures, 0, 0, 0},
 		{"fill", EPosition::kStand, do_pour, 0, SCMD_FILL, 500},
@@ -1145,7 +1145,7 @@ void command_interpreter(CharData *ch, char *argument) {
 
 	/*
 	   * special case to handle one-character, non-alphanumeric commands;
-	   * requested by many people so "'hi" or ";godnet test" is possible.
+	   * requested by many people so "hi" or ";godnet test" is possible.
 	   * Patch sent by Eric Green and Stefan Wasilewski.
 	   */
 	if (!a_isalpha(*argument)) {
@@ -2161,7 +2161,6 @@ void do_entergame(DescriptorData *d) {
 		}
 	}
 
-	// If char was saved with kNowhere, or GetRoomRnum( above failed...
 	if (load_room == kNowhere) {
 		if (GetRealLevel(d->character) >= kLvlImmortal)
 			load_room = r_immort_start_room;

@@ -30,49 +30,31 @@
 #include "color.h"
 #include "constants.h"
 #include "game_fight/pk.h"
-//#include "dg_script/dg_scripts.h"
 #include "communication/mail.h"
-//#include "communication/parcel.h"
 #include "feats.h"
 #include "game_crafts/im.h"
 #include "house.h"
 #include "description.h"
 #include "administration/privilege.h"
 #include "depot.h"
-//#include "game_mechanics/glory.h"
 #include "utils/random.h"
 #include "entities/char_data.h"
 #include "entities/char_player.h"
-//#include "communication/parcel.h"
 #include "liquid.h"
 #include "modify.h"
 #include "entities/room_data.h"
-//#include "game_mechanics/glory_const.h"
 #include "structs/global_objects.h"
-//#include "game_mechanics/player_races.h"
-#include "corpse.h"
-//#include "game_mechanics/sets_drop.h"
 #include "game_mechanics/weather.h"
-//#include "help.h"
 #include "mapsystem.h"
-//#include "game_economics/ext_money.h"
 #include "statistics/mob_stat.h"
 #include "utils/utils_char_obj.inl"
-//#include "game_classes/classes.h"
 #include "entities/zone.h"
 #include "structs/structs.h"
 #include "sysdep.h"
-//#include "game_mechanics/bonus.h"
-//#include "conf.h"
 #include "game_classes/classes_constants.h"
-//#include "game_skills/skills_info.h"
 #include "game_skills/pick.h"
-//#include "game_skills/townportal.h"
 #include "game_magic/magic_rooms.h"
-//#include "game_economics/exchange.h"
-//#include "act_other.h"
 #include "game_crafts/mining.h"
-//#include "structs/global_objects.h"
 #include "game_mechanics/stable_objs.h"
 
 //#include <third_party_libs/fmt/include/fmt/format.h>
@@ -117,7 +99,6 @@ void do_who(CharData *ch, char *argument, int cmd, int subcmd);
 //void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
 void perform_immort_where(CharData *ch, char *arg);
-void do_consider(CharData *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
 void SortCommands();
 void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
@@ -131,7 +112,6 @@ void look_at_char(CharData *i, CharData *ch);
 void ListOneChar(CharData *i, CharData *ch, ESkill mode);
 void list_char_to_char(const RoomData::people_t &list, CharData *ch);
 void do_auto_exits(CharData *ch);
-void do_exits(CharData *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CharData *ch, int dir, int info_is);
 void look_in_obj(CharData *ch, char *arg);
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
@@ -1411,87 +1391,6 @@ void do_auto_exits(CharData *ch) {
 	sprintf(buf2, "%s[ Exits: %s]%s\r\n", CCCYN(ch, C_NRM), *buf ? buf : "None! ", CCNRM(ch, C_NRM));
 
 	SendMsgToChar(buf2, ch);
-}
-
-void do_exits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	int door;
-
-	*buf = '\0';
-	*buf2 = '\0';
-
-	if (ch->IsFlagged(EPrf::kBlindMode)) {
-		do_blind_exits(ch);
-		return;
-	}
-	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		SendMsgToChar("Вы слепы, как котенок!\r\n", ch);
-		return;
-	}
-	for (door = 0; door < EDirection::kMaxDirNum; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (IS_GOD(ch))
-				sprintf(buf2, "%-6s - [%5d] %s\r\n", dirs_rus[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
-			else {
-				sprintf(buf2, "%-6s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
-					strcat(buf2, "слишком темно\r\n");
-				else {
-					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
-						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						sprintf(buf2 + strlen(buf2), "[%5d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
-					} else {
-						strcat(buf2, world[rnum_exit_room]->name);
-					}
-					strcat(buf2, "\r\n");
-				}
-			}
-			strcat(buf, CAP(buf2));
-		}
-	SendMsgToChar("Видимые выходы:\r\n", ch);
-	if (*buf)
-		SendMsgToChar(buf, ch);
-	else
-		SendMsgToChar(" Замуровали, ДЕМОНЫ!\r\n", ch);
-}
-void do_blind_exits(CharData *ch) {
-	int door;
-
-	*buf = '\0';
-	*buf2 = '\0';
-
-	if (AFF_FLAGGED(ch, EAffect::kBlind)) {
-		SendMsgToChar("Вы слепы, как котенок!\r\n", ch);
-		return;
-	}
-	for (door = 0; door < EDirection::kMaxDirNum; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (IS_GOD(ch))
-				sprintf(buf2, "&W%s - [%d] %s ", dirs_rus[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
-			else {
-				sprintf(buf2, "&W%s - ", dirs_rus[door]);
-				if (is_dark(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
-					strcat(buf2, "слишком темно");
-				else {
-					const RoomRnum rnum_exit_room = EXIT(ch, door)->to_room();
-					if (ch->IsFlagged(EPrf::kMapper) && !ch->IsFlagged(EPlrFlag::kScriptWriter)
-						&& !ROOM_FLAGGED(rnum_exit_room, ERoomFlag::kMoMapper)) {
-						sprintf(buf2 + strlen(buf2), "[%d] %s", GET_ROOM_VNUM(rnum_exit_room), world[rnum_exit_room]->name);
-					} else {
-						strcat(buf2, world[rnum_exit_room]->name);
-					}
-					strcat(buf2, "");
-				}
-			}
-			strcat(buf, CAP(buf2));
-		}
-	SendMsgToChar("Видимые выходы:\r\n", ch);
-	if (*buf)
-		SendMsgToChar(ch, "%s&n\r\n", buf);
-	else
-		SendMsgToChar("&W Замуровали, ДЕМОНЫ!&n\r\n", ch);
 }
 
 #define MAX_FIRES 6
@@ -3133,51 +3032,6 @@ void do_gen_ps(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 		default: log("SYSERR: Unhandled case in do_gen_ps. (%d)", subcmd);
 			return;
 	}
-}
-
-void do_consider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharData *victim;
-	int diff;
-
-	one_argument(argument, buf);
-
-	if (!(victim = get_char_vis(ch, buf, EFind::kCharInRoom))) {
-		SendMsgToChar("Кого вы хотите оценить?\r\n", ch);
-		return;
-	}
-	if (victim == ch) {
-		SendMsgToChar("Легко! Выберите параметр <Удалить персонаж>!\r\n", ch);
-		return;
-	}
-	if (!victim->IsNpc()) {
-		SendMsgToChar("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
-		return;
-	}
-	diff = (GetRealLevel(victim) - GetRealLevel(ch) - GetRealRemort(ch));
-
-	if (diff <= -10)
-		SendMsgToChar("Ути-пути, моя рыбонька.\r\n", ch);
-	else if (diff <= -5)
-		SendMsgToChar("\"Сделаем без шуму и пыли!\"\r\n", ch);
-	else if (diff <= -2)
-		SendMsgToChar("Легко.\r\n", ch);
-	else if (diff <= -1)
-		SendMsgToChar("Сравнительно легко.\r\n", ch);
-	else if (diff == 0)
-		SendMsgToChar("Равный поединок!\r\n", ch);
-	else if (diff <= 1)
-		SendMsgToChar("Вам понадобится немного удачи!\r\n", ch);
-	else if (diff <= 2)
-		SendMsgToChar("Вам потребуется везение!\r\n", ch);
-	else if (diff <= 3)
-		SendMsgToChar("Удача и хорошее снаряжение вам сильно пригодятся!\r\n", ch);
-	else if (diff <= 5)
-		SendMsgToChar("Вы берете на себя слишком много.\r\n", ch);
-	else if (diff <= 10)
-		SendMsgToChar("Ладно, войдете еще раз.\r\n", ch);
-	else if (diff <= 100)
-		SendMsgToChar("Срочно к психиатру - вы страдаете манией величия!\r\n", ch);
-
 }
 
 void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
