@@ -5031,41 +5031,50 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 
 
 // * Поиск мобов для calcuidall_var.
-bool find_all_char_vnum(MobVnum vnum, char *str) {
-	int count = 0;
+std::string ListAllMobsByVnum(MobVnum vnum) {
 	Characters::list_t mobs;
+	std::string str;
+	std::stringstream ss;
 
 	character_list.get_mobs_by_vnum(vnum, mobs);
-	for (const auto &mob : mobs) {
-		snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_ID(mob));
-		++count;
+	if (mobs.empty()) {
+		return "";
+	} else {
+		for (const auto &mob : mobs) {
+			ss << UID_CHAR << GET_ID(mob) << " ";
+		}
 	}
-	return count == 0? true : false;
+	str = ss.str();
+	str.pop_back();
+	return str;
 }
 
 // * Поиск предметов для calcuidall_var.
-bool find_all_obj_vnum(long n, char *str) {
-	int count = 0;
+std::string ListAllObjsByVnum(MobVnum mvn) {
+	std::string str;
+	std::stringstream ss;
 
-	world_objects.foreach_with_vnum(n, [&str, &count](const ObjData::shared_ptr &i) {
-		if (strlen(str + strlen(str)) < kMaxTrglineLength) {
-			snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_OBJ, i->get_id());
-			count++;
-		}
+	world_objects.foreach_with_vnum(mvn, [&ss](const ObjData::shared_ptr &i) {
+		ss << UID_OBJ << i->get_id() << " ";
 	});
-	return count ? true : false;
+	if (!ss.str().empty()) {
+		str = ss.str();
+		str.pop_back();
+	}
+	return str;
 }
 
 // * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
 void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/, char *cmd) {
 	char arg[kMaxTrglineLength], varname[kMaxTrglineLength];
-	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
-	char uid[kMaxInputLength];
-	int result = -1;
+	char *t, str_vnum[kMaxInputLength], what[kMaxInputLength];
+	int vnum;
+	std::string uid;
+	std::string  result;
 
 	uid[0] = '\0';
 	t = two_arguments(cmd, arg, varname);
-	two_arguments(t, vnum, what);
+	two_arguments(t, str_vnum, what);
 
 	if (!*varname) {
 		sprintf(buf2, "calcuidall w/o an arg, команда: '%s'", cmd);
@@ -5073,7 +5082,7 @@ void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/,
 		return;
 	}
 
-	if (!*vnum || (result = atoi(vnum)) == 0) {
+	if (!*str_vnum || (vnum = atoi(str_vnum)) == 0) {
 		sprintf(buf2, "calcuidall invalid VNUM arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
@@ -5086,22 +5095,21 @@ void calcuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* type*/,
 	}
 
 	if (!str_cmp(what, "mob")) {
-		result = find_all_char_vnum(result, uid);
+		result = ListAllMobsByVnum(vnum);
 	} else if (!str_cmp(what, "obj")) {
-		result = find_all_obj_vnum(result, uid);
+		result = ListAllObjsByVnum(vnum);
 	} else {
 		sprintf(buf2, "calcuidall unknown TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
-	if (!result) {
-		sprintf(buf2, "calcuidall target not found '%s'", vnum);
+	if (result.empty()) {
+		sprintf(buf2, "calcuidall target not found '%d'", vnum);
 		trig_log(trig, buf2);
-		*uid = '\0';
 		return;
 	}
-	add_var_cntx(trig->var_list, varname, uid, 0);
+	add_var_cntx(trig->var_list, varname, result, 0);
 }
 
 /*
