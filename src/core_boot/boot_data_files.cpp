@@ -1032,7 +1032,7 @@ void MobileFile::parse_mobile(const int nr) {
 		exit(1);
 	}
 	mob_proto[i].SetFlagsFromString(f1);
-	mob_proto[i].SetFlag(EMobFlag::kNpc);
+	mob_proto[i].char_specials.saved.act.set(EMobFlag::kNpc); //нужен нормальный критерий что это моб
 	AFF_FLAGS(&mob_proto[i]).from_string(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter)) {
