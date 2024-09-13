@@ -32,6 +32,7 @@
 #include "third_party_libs/fmt/include/fmt/format.h"
 #include <random>
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/ai/mob_memory.h"
 
 const int kRecallSpellsInterval = 28;
 
@@ -1566,7 +1567,7 @@ void point_update() {
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
 	character_list.foreach_on_copy([&real_spell](const auto &character) {
-	MemoryRecord *mem, *nmem, *pmem;
+	mob_ai::MemoryRecord *mem, *nmem, *pmem;
 		const auto i = character.get();
 
 		if (i->IsNpc()) {
@@ -1708,7 +1709,6 @@ void point_update() {
 			check_idling(i);
 		}
 	});
-//	}
 }
 void ExtractRepopDecayObject(const ObjData::shared_ptr &obj) {
 	if (obj->get_worn_by()) {

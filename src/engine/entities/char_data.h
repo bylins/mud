@@ -19,6 +19,7 @@
 #include "engine/core/conf.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/mem_queue.h"
+#include "gameplay/ai/mob_memory.h"
 
 #include <unordered_map>
 #include <bitset>
@@ -146,7 +147,7 @@ struct mob_special_data {
 	byte last_direction;    // The last direction the monster went
 	int attack_type;        // The Attack Type Bitvector for NPC's
 	EPosition default_pos;    // Default position for NPC
-	MemoryRecord *memory;    // List of attackers to remember
+	mob_ai::MemoryRecord *memory;    // List of attackers to remember
 	byte damnodice;        // The number of damage dice's
 	byte damsizedice;    // The size of the damage dice's
 	std::array<int, kMaxDest> dest;

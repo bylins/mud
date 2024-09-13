@@ -314,7 +314,9 @@ set(SOURCES
 		src/engine/ui/cmd/inventory.cpp
 		src/engine/ui/cmd/equipment.cpp
 		src/engine/ui/cmd/listen.cpp
-		src/engine/ui/cmd/do_zone.cpp)
+		src/engine/ui/cmd/do_zone.cpp
+		src/gameplay/skills/dazzle.cpp
+		src/gameplay/ai/mob_memory.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -609,7 +611,9 @@ set(HEADERS
 		src/engine/ui/cmd/inventory.h
 		src/engine/ui/cmd/equipment.h
 		src/engine/ui/cmd/listen.h
-		src/engine/ui/cmd/do_zone.h)
+		src/engine/ui/cmd/do_zone.h
+		src/gameplay/ai/mob_memory.h
+		src/gameplay/skills/dazzle.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
@@ -786,7 +790,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/gameplay/skills/dazzle.cpp src/gameplay/skills/dazzle.h)
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} )
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)

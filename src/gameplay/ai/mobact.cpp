@@ -38,12 +38,10 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
-
-const int kMobMemKoeff = kSecsPerMudHour;
+#include "gameplay/ai/mob_memory.h"
 
 // external structs
 extern int no_specials;
-extern int guild_poly(CharData *, void *, int, char *);
 
 int npc_scavenge(CharData *ch);
 int npc_loot(CharData *ch);
@@ -57,6 +55,13 @@ int npc_steal(CharData *ch);
 void npc_light(CharData *ch);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset);
+
+namespace mob_ai {
+
+const short kStupidMob{10};
+const short kMiddleAi{30};
+const short kHighAi{40};
+const short kCharacterHpForMobPriorityAttack{100};
 
 // local functions
 
@@ -126,7 +131,7 @@ int extra_aggressive(CharData *ch, CharData *victim) {
 		return (false);
 }
 
-int attack_best(CharData *ch, CharData *victim, bool do_mode = false) {
+int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
@@ -481,7 +486,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	bool kill_this;
 
 	int mobINT = GetRealInt(ch);
-	if (mobINT < kStupidMod) {
+	if (mobINT < kStupidMob) {
 		return find_best_stupidmob_victim(ch, extmode);
 	}
 
@@ -580,7 +585,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			continue;
 		}
 
-		if (GET_HIT(vict) <= kCharacterHPForMobPriorityAttack) {
+		if (GET_HIT(vict) <= kCharacterHpForMobPriorityAttack) {
 			return vict;
 		}
 		if (IsCaster(vict)) {
@@ -593,7 +598,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	if (!best) {
 		best = currentVictim;
 	}
-	if (mobINT < kMiddleAI) {
+	if (mobINT < kMiddleAi) {
 		int rand = number(0, 2);
 		if (caster) {
 			best = caster;
@@ -610,7 +615,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
-	if (mobINT < kHighAI) {
+	if (mobINT < kHighAi) {
 		int rand = number(0, 1);
 		if (caster)
 			best = caster;
@@ -787,66 +792,10 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 		return;
 	}
 
-	// *****************  Mob Memory
-	if (ch->IsFlagged(EMobFlag::kMemory) && MEMORY(ch)) {
-		CharData *victim = nullptr;
-		// Find memory in room
-		const auto people_copy = world[ch->in_room]->people;
-		for (auto vict_i = people_copy.begin(); vict_i != people_copy.end() && !victim; ++vict_i) {
-			const auto vict = *vict_i;
-
-			if (vict->IsNpc()
-				|| vict->IsFlagged(EPrf::kNohassle)) {
-				continue;
-			}
-			for (MemoryRecord *names = MEMORY(ch); names && !victim; names = names->next) {
-				if (names->id == GET_IDNUM(vict)) {
-					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict, NoArgument)) {
-						continue;
-					}
-					if (check_sneak) {
-						skip_sneaking(vict, ch);
-						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
-							AFF_FLAGS(vict).unset(EAffect::kSneak);
-						}
-						if (AFF_FLAGGED(vict, EAffect::kSneak))
-							continue;
-					}
-					skip_hiding(vict, ch);
-					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
-						AFF_FLAGS(vict).unset(EAffect::kHide);
-					}
-					skip_camouflage(vict, ch);
-					if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
-						AFF_FLAGS(vict).unset(EAffect::kDisguise);
-					}
-					if (CAN_SEE(ch, vict)) {
-						victim = vict;
-					}
-				}
-			}
-		}
-
-		// Is memory found ?
-		if (victim && ch->get_wait() <= 0) {
-			if (ch->GetPosition() < EPosition::kFight && ch->GetPosition() > EPosition::kSleep) {
-				act("$n вскочил$g.", false, ch, nullptr, nullptr, kToRoom);
-				ch->SetPosition(EPosition::kStand);
-			}
-			if (GET_RACE(ch) != ENpcRace::kHuman) {
-				act("$n вспомнил$g $N3.", false, ch, nullptr, victim, kToRoom);
-			} else {
-				act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
-					false, ch, nullptr, victim, kToRoom);
-			}
-			if (!start_fight_mtrigger(ch, victim)) {
-				return;
-			}
-			if (!attack_best(ch, victim)) {
-				hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
-			}
-			return;
-		}
+	if (ch->IsFlagged(EMobFlag::kMemory)) {
+		auto victim = FimdRememberedEnemyInRoom(ch, check_sneak);
+		AttackToRememberedVictim(ch, victim);
+		return;
 	}
 
 	// ****************  Helper Mobs
@@ -1302,84 +1251,6 @@ void mobile_activity(int activity_level, int missed_pulses) {
 //	}
 }
 
-// Mob Memory Routines
-// 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
-
-// make ch remember victim
-void mobRemember(CharData *ch, CharData *victim) {
-	struct TimedSkill timed{};
-	MemoryRecord *tmp;
-	bool present = false;
-
-	if (!ch->IsNpc() ||
-		victim->IsNpc() ||
-		victim->IsFlagged(EPrf::kNohassle) ||
-		!ch->IsFlagged(EMobFlag::kMemory) ||
-		AFF_FLAGGED(ch, EAffect::kCharmed))
-		return;
-
-	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
-		if (tmp->id == GET_IDNUM(victim)) {
-			if (tmp->time > 0)
-				tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
-			present = true;
-		}
-
-	if (!present) {
-		CREATE(tmp, 1);
-		tmp->next = MEMORY(ch);
-		tmp->id = GET_IDNUM(victim);
-		tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
-		MEMORY(ch) = tmp;
-	}
-	if (!IsTimedBySkill(victim, ESkill::kHideTrack) && victim->GetSkill(ESkill::kHideTrack)) {
-		timed.skill = ESkill::kHideTrack;
-		timed.time = ch->GetSkill(ESkill::kTrack) ? 6 : 3;
-		ImposeTimedSkill(victim, &timed);
-	}
-}
-
-// make ch forget victim
-void mobForget(CharData *ch, CharData *victim) {
-	MemoryRecord *curr, *prev = nullptr;
-
-	// Момент спорный, но думаю, что так правильнее
-	if (AFF_FLAGGED(ch, EAffect::kCharmed))
-		return;
-
-	if (!(curr = MEMORY(ch)))
-		return;
-
-	while (curr && curr->id != GET_IDNUM(victim)) {
-		prev = curr;
-		curr = curr->next;
-	}
-
-	if (!curr)
-		return;        // person wasn't there at all.
-
-	if (curr == MEMORY(ch))
-		MEMORY(ch) = curr->next;
-	else
-		prev->next = curr->next;
-
-	free(curr);
-}
-
-// erase ch's memory
-// Можно заметить, что функция вызывается только при extract char/mob
-// Удаляется все подряд
-void clearMemory(CharData *ch) {
-	MemoryRecord *curr, *next;
-
-	curr = MEMORY(ch);
-
-	while (curr) {
-		next = curr->next;
-		free(curr);
-		curr = next;
-	}
-	MEMORY(ch) = nullptr;
-}
+} // namespace mob_ai
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

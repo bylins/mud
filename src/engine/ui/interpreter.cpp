@@ -1268,7 +1268,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 		if (!ch->IsNpc() && ch->in_room != kNowhere && ch->check_aggressive) {
 			ch->check_aggressive = false;
-			do_aggressive_room(ch, false);
+			mob_ai::do_aggressive_room(ch, false);
 			if (ch->purged()) {
 				return;
 			}

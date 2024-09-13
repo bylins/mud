@@ -1,10 +1,8 @@
 #include "world_characters.h"
 
 #include "gameplay/ai/mobact.h"
-/*#include "config.h"
-#include "logger.h"
-#include "utils/utils.h"*/
 #include "global_objects.h"
+#include "gameplay/ai/mob_memory.h"
 
 Characters &character_list = GlobalObjects::characters();    // global container of entities
 
@@ -121,7 +119,7 @@ void Characters::purge() {
 	m_purge_set.clear();
 	for (const auto &character : m_purge_list) {
 		if (character->IsNpc()) {
-			clearMemory(character.get());
+			mob_ai::clearMemory(character.get());
 		}
 
 		character->SetFlag(EMobFlag::kMobFreed);

@@ -875,7 +875,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	// If flee - go agressive mobs
 	if (!ch->IsNpc()
 		&& is_flee) {
-		do_aggressive_room(ch, false);
+		mob_ai::do_aggressive_room(ch, false);
 	}
 
 	return direction;
@@ -945,7 +945,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 			}
 		}
 		if (checkmob) {
-			do_aggressive_room(ch, true);
+			mob_ai::do_aggressive_room(ch, true);
 		}
 		return true;
 	}

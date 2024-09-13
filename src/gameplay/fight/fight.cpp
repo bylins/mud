@@ -823,7 +823,7 @@ CharData *find_target(CharData *ch) {
 
 	int mobINT = GetRealInt(ch);
 
-	if (mobINT < kStupidMod) {
+	if (mobINT < mob_ai::kStupidMob) {
 		return find_damagee(ch);
 	}
 
@@ -839,7 +839,7 @@ CharData *find_target(CharData *ch) {
 	for (const auto vict : world[ch->in_room]->people) {
 		if ((vict->IsNpc() && !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict) && !vict->GetEnemy()
-				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				&& mob_ai::find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 			|| vict->IsFlagged(EPrf::kNohassle)
 			|| !MAY_SEE(ch, ch, vict)) {
 			continue;
@@ -867,7 +867,7 @@ CharData *find_target(CharData *ch) {
 			continue;
 		}
 
-		if (GET_HIT(vict) <= kCharacterHPForMobPriorityAttack) {
+		if (GET_HIT(vict) <= mob_ai::kCharacterHpForMobPriorityAttack) {
 			return vict;
 		}
 
@@ -883,7 +883,7 @@ CharData *find_target(CharData *ch) {
 		best = currentVictim;
 	}
 
-	if (mobINT < kMiddleAI) {
+	if (mobINT < mob_ai::kMiddleAi) {
 		int rand = number(0, 2);
 		if (caster)
 			best = caster;
@@ -896,7 +896,7 @@ CharData *find_target(CharData *ch) {
 		return best;
 	}
 
-	if (mobINT < kHighAI) {
+	if (mobINT < mob_ai::kHighAi) {
 		int rand = number(0, 1);
 		if (caster)
 			best = caster;
@@ -1778,7 +1778,7 @@ void process_npc_attack(CharData *ch) {
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& !AFF_FLAGGED(ch, EAffect::kNoBattleSwitch)
 		&& GetRealInt(ch) > number(15, 25)) {
-		perform_mob_switch(ch);
+		mob_ai::perform_mob_switch(ch);
 	}
 
 	// Cast spells

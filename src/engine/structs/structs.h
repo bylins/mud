@@ -29,8 +29,6 @@
 #include <array>
 #include <memory>
 
-//#include "utils/wrapper.h"
-
 using sbyte = int8_t;
 using ubyte = uint8_t;
 using sh_int = int16_t ;
@@ -241,12 +239,6 @@ inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, co
 // =======================================================================
 
 // char-related structures ***********************************************
-// memory structure for characters //
-struct MemoryRecord {
-	long id = 0;
-	long time = 0;
-	struct MemoryRecord *next = nullptr;
-};
 
 // This structure is purely intended to be an easy way to transfer //
 // and return information about time (real or mudwise).            //
@@ -276,13 +268,6 @@ struct FollowerType {
 	CharData *follower = nullptr;
 	struct FollowerType *next = nullptr;
 };
-
-// Structure used for tracking a mob //
-/*struct track_info {
-	int trk_info = 0;
-	int who = 0;
-	int dirs = 0;
-};*/
 
 // descriptor-related structures ****************************************
 

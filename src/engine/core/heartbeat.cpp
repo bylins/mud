@@ -89,7 +89,7 @@ class SimpleCall : public AbstractPulseAction {
 
 class MobActCall : public AbstractPulseAction {
  public:
-	virtual void perform(int pulse_number, int) override { mobile_activity(pulse_number, 10); }
+	virtual void perform(int pulse_number, int) override { mob_ai::mobile_activity(pulse_number, 10); }
 };
 
 class InspectCall : public AbstractPulseAction {

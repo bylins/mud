@@ -6,8 +6,8 @@
 #include "gameplay/skills/protect.h"
 #include "gameplay/ai/mobact.h"
 #include "common.h"
+#include "gameplay/ai/mob_memory.h"
 
-extern int attack_best(CharData *ch, CharData *victim, bool do_mode);
 
 int set_hit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
@@ -69,20 +69,11 @@ int set_hit(CharData *ch, CharData *victim) {
 	}
 
 	if (ch->IsFlagged(EMobFlag::kMemory) && ch->get_wait() > 0) {
-		if (!victim->IsNpc()) {
-			mobRemember(ch, victim);
-		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
-			&& victim->has_master()
-			&& !victim->get_master()->IsNpc()) {
-			if (victim->IsFlagged(EMobFlag::kClone)) {
-				mobRemember(ch, victim->get_master());
-			} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
-				mobRemember(ch, victim->get_master());
-			}
-		}
-		return (false);
+		mob_ai::update_mob_memory(ch, victim);
+		return false;
 	}
-	if (!IS_CHARMICE(ch) || (AFF_FLAGGED(ch, EAffect::kCharmed) && !attack_best(ch, victim, true))) {
+
+	if (!IS_CHARMICE(ch) || (AFF_FLAGGED(ch, EAffect::kCharmed) && !mob_ai::attack_best(ch, victim, true))) {
 		exthit(ch, victim, ESkill::kUndefined,
 			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}

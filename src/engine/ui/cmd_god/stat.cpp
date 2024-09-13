@@ -1,5 +1,6 @@
 #include "stat.h"
-#include "ban.h"
+
+#include "engine/ui/cmd_god/ban.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/player_races.h"
 #include "engine/core/utils_char_obj.inl"
@@ -607,7 +608,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (k->IsNpc() && god_level >= kLvlBuilder) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
-			struct MemoryRecord *memchar;
+			struct mob_ai::MemoryRecord *memchar;
 			SendMsgToChar("Помнит:\r\n", ch);
 			for (memchar = MEMORY(k); memchar; memchar = memchar->next) {
 				sprintf(buf, "%10ld - %10ld\r\n",

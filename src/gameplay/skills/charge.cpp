@@ -146,5 +146,5 @@ void go_charge(CharData *ch, int direction) {
 			break;
 		}
 	}
-	do_aggressive_room(ch,1);
+	mob_ai::do_aggressive_room(ch,1);
 }

@@ -14,6 +14,7 @@
 #include "fight.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
+#include "gameplay/ai/mob_memory.h"
 
 // extern
 int GetExtraAc0(ECharClass class_id, int level);
@@ -1746,45 +1747,6 @@ void Damage::dam_message(CharData *ch, CharData *victim) const {
 	SendMsgToChar("&Q&n", victim);
 }
 
-// запоминание.
-// чара-обидчика моб помнит всегда, если он его бьет непосредственно.
-// если бьют клоны (проверка на MOB_CLONE), тоже помнит всегда.
-// если бьют храны или чармис (все остальные под чармом), то только если
-// моб может видеть их хозяина.
-void update_mob_memory(CharData *ch, CharData *victim) {
-	// первое -- бьют моба, он запоминает обидчика
-	if (victim->IsNpc() && victim->IsFlagged(EMobFlag::kMemory)) {
-		if (!ch->IsNpc()) {
-			mobRemember(victim, ch);
-		} else if (AFF_FLAGGED(ch, EAffect::kCharmed)
-			&& ch->has_master()
-			&& !ch->get_master()->IsNpc()) {
-			if (ch->IsFlagged(EMobFlag::kClone)) {
-				mobRemember(victim, ch->get_master());
-			} else if (ch->get_master()->in_room == victim->in_room
-				&& CAN_SEE(victim, ch->get_master())) {
-				mobRemember(victim, ch->get_master());
-			}
-		}
-	}
-
-	// второе -- бьет сам моб и запоминает, кого потом добивать :)
-	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kMemory)) {
-		if (!victim->IsNpc()) {
-			mobRemember(ch, victim);
-		} else if (AFF_FLAGGED(victim, EAffect::kCharmed)
-			&& victim->has_master()
-			&& !victim->get_master()->IsNpc()) {
-			if (victim->IsFlagged(EMobFlag::kClone)) {
-				mobRemember(ch, victim->get_master());
-			} else if (victim->get_master()->in_room == ch->in_room
-				&& CAN_SEE(ch, victim->get_master())) {
-				mobRemember(ch, victim->get_master());
-			}
-		}
-	}
-}
-
 bool Damage::magic_shields_dam(CharData *ch, CharData *victim) {
 	if (dam <= 0) {
 		return false;
@@ -2182,7 +2144,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			if (!ch_vict->IsNpc())
 				continue;
 			if (ch_vict->IsFlagged(EMobFlag::kMemory)) {
-				mobForget(ch_vict, victim);
+				mob_ai::mobForget(ch_vict, victim);
 			}
 		}
 
@@ -2332,7 +2294,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	// запоминание мобами обидчиков и жертв
-	update_mob_memory(ch, victim);
+	mob_ai::update_mob_memory(ch, victim);
 
 	// атакер и жертва становятся видимыми
 	appear(ch);

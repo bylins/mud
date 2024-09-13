@@ -31,6 +31,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/ai/mob_memory.h"
 
 #include <cmath>
 
@@ -999,7 +1000,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		}
 
 		if (CAN_SEE(victim, ch)) {
-			mobRemember(victim, ch);
+			mob_ai::mobRemember(victim, ch);
 		}
 
 		if (victim->IsFlagged(EMobFlag::kNoGroup))

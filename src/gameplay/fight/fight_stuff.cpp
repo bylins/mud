@@ -26,6 +26,7 @@
 #include "engine/entities/char_player.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/ai/mob_memory.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -562,7 +563,7 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 void clear_mobs_memory(CharData *ch) {
 	for (const auto &hitter : character_list) {
 		if (hitter->IsNpc() && MEMORY(hitter)) {
-			mobForget(hitter.get(), ch);
+			mob_ai::mobForget(hitter.get(), ch);
 		}
 	}
 }
