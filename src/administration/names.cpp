@@ -10,9 +10,9 @@
 ************************************************************************ */
 
 //#include "interpreter.h"
-#include "handler.h"
-#include "color.h"
-#include "entities/char_player.h"
+#include "engine/core/handler.h"
+#include "engine/ui/color.h"
+#include "engine/entities/char_player.h"
 
 #include "names.h"
 

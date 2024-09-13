@@ -6,9 +6,9 @@
 #ifndef __ACCOUNTS_HPP__
 #define __ACCOUNTS_HPP__
 
-#include "structs/structs.h"
-#include "entities/char_data.h"
-#include "structs/descriptor_data.h"
+#include "engine/structs/structs.h"
+#include "engine/entities/char_data.h"
+#include "engine/network/descriptor_data.h"
 
 #include <string>
 #include <vector>

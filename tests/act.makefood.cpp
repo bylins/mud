@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "meat_maker.h"
+#include "gameplay/mechanics/meat_maker.h"
 
 #include <unordered_set>
 

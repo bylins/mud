@@ -5,11 +5,11 @@
 #ifndef PASSWORD_HPP_INCLUDED
 #define PASSWORD_HPP_INCLUDED
 
-#include "conf.h"
+#include "engine/core/conf.h"
 #include <string>
 
-#include "sysdep.h"
-#include "structs/structs.h"
+#include "engine/core/sysdep.h"
+#include "engine/structs/structs.h"
 
 /**
 * Вобщем вынес всю работу с паролями в один файл + прикрутил md5, хотя толку с него сейчас тоже уже не особо много.

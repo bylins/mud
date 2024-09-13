@@ -9,7 +9,8 @@
 #include <set>
 #include <bitset>
 #include <map>
-#include <game_magic/spells.h>
+
+#include "gameplay/magic/spells.h"
 
 class CharData;    // to avoid inclusion of "char.hpp"
 

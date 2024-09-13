@@ -1,8 +1,8 @@
 #ifndef __LOGGER_HPP__
 #define __LOGGER_HPP__
 
-#include "config.h"
-#include "sysdep.h"
+#include "engine/core/config.h"
+#include "engine/core/sysdep.h"
 
 #include <list>
 #include <string>

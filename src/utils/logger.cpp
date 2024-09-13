@@ -1,5 +1,5 @@
-#include "structs/global_objects.h"
-#include "color.h"
+#include "engine/db/global_objects.h"
+#include "engine/ui/color.h"
 #include "backtrace.h"
 
 #include <iostream>

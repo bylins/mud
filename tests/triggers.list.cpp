@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <dg_script/dg_scripts.h>
-#include <db.h>
+#include "engine/db/db.h"
 
 class TriggersList_F : public ::testing::Test
 {

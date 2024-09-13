@@ -3,8 +3,8 @@
 
 #include "parse.h"
 
-#include "obj_prototypes.h"
-#include "db.h"
+#include "engine/db/obj_prototypes.h"
+#include "engine/db/db.h"
 
 //extern ObjRnum GetObjRnum(ObjVnum vnum) { return obj_proto.rnum(vnum);
 

@@ -5,8 +5,8 @@
 #include "privilege.h"
 
 #include "utils/logger.h"
-#include "entities/char_data.h"
-#include "boards/boards.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/communication/boards.h"
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.

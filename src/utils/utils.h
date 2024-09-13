@@ -20,16 +20,16 @@
 #include <vector>
 #include <sstream>
 
-#include "game_classes/classes_constants.h"
-#include "game_classes/classes.h"
-#include "conf.h"
-#include "config.h"
-#include "entities/entities_constants.h"
+#include "gameplay/classes/classes_constants.h"
+#include "gameplay/classes/classes.h"
+#include "engine/core/conf.h"
+#include "engine/core/config.h"
+#include "engine/entities/entities_constants.h"
 #include "utils/id_converter.h"
-#include "structs/structs.h"
-#include "game_mechanics/weather.h"
+#include "engine/structs/structs.h"
+#include "gameplay/mechanics/weather.h"
 #include "utils_string.h"
-#include "entities/zone.h"
+#include "engine/entities/zone.h"
 #include "utils/utils_time.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.

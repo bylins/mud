@@ -5,9 +5,9 @@
 #ifndef FILE_CRC_HPP_INCLUDED
 #define FILE_CRC_HPP_INCLUDED
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs/structs.h"
+#include "engine/core/conf.h"
+#include "engine/core/sysdep.h"
+#include "engine/structs/structs.h"
 
 namespace FileCRC {
 
