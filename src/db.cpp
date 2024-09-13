@@ -3214,7 +3214,7 @@ void ActualizePlayersIndex(char *name) {
 			if (!MustBeDeleted(short_ch)) {
 				deleted = 0;
 
-				PlayerIndexElement element(GET_IDNUM(short_ch), GET_NAME(short_ch));
+				PlayerIndexElement element(GET_ID(short_ch), GET_NAME(short_ch));
 
 				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
@@ -3239,7 +3239,7 @@ void ActualizePlayersIndex(char *name) {
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 #endif
 
-				top_idnum = std::max(top_idnum, GET_IDNUM(short_ch));
+				top_idnum = std::max(top_idnum, GET_ID(short_ch));
 				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());

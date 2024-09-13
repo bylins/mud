@@ -110,12 +110,11 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
-			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
-			(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
+			"%s '%s' В комнате [%ld] Текущий UID:[%d]",
+			(!k->IsNpc() ? "PC" : "MOB"),
 			GET_NAME(k),
-			GET_IDNUM(k),
-			k_room,
-			GET_ID(k));
+			GET_ID(k),
+			k_room);
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (IS_MOB(k)) {
@@ -155,7 +154,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		std::string file_name = GET_NAME(k);
 		CreateFileName(file_name);
-		sprintf(buf, "E-mail: &S%s&s Unique: %d File: %s\r\n", GET_EMAIL(k), GET_UNIQUE(k), file_name.c_str());
+		sprintf(buf, "E-mail: &S%s&s File: %s\r\n", GET_EMAIL(k), file_name.c_str());
 		SendMsgToChar(buf, ch);
 
 		std::string text = RegisterSystem::show_comment(GET_EMAIL(k));

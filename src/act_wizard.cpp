@@ -2409,7 +2409,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);
 		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
-				GET_IDNUM(chdata), GetRealLevel(chdata),
+				GET_ID(chdata), GetRealLevel(chdata),
 				MUD::Class(chdata->GetClass()).GetAbbr().c_str(), GET_NAME(chdata),
 				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
 		SendMsgToChar(buf, ch);

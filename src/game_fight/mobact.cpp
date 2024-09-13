@@ -237,7 +237,7 @@ int find_door(CharData *ch, const bool track_method) {
 	for (const auto &vict : character_list) {
 		if (CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
-				if (GET_IDNUM(vict) == names->id
+				if (GET_ID(vict) == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
 						|| world[ch->in_room]->zone_rn == world[vict->in_room]->zone_rn)) {
 					if (!msg) {
@@ -247,7 +247,7 @@ int find_door(CharData *ch, const bool track_method) {
 					}
 
 					const auto door = track_method
-									  ? check_room_tracks(ch->in_room, GET_IDNUM(vict))
+									  ? check_room_tracks(ch->in_room, GET_ID(vict))
 									  : go_track(ch, vict.get(), ESkill::kTrack);
 
 					if (kBfsError != door) {
@@ -800,7 +800,7 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 				continue;
 			}
 			for (MemoryRecord *names = MEMORY(ch); names && !victim; names = names->next) {
-				if (names->id == GET_IDNUM(vict)) {
+				if (names->id == GET_ID(vict)) {
 					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict, NoArgument)) {
 						continue;
 					}
@@ -1281,7 +1281,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 			  for (const auto &vict : character_list) {
-				  if (names->id == GET_IDNUM(vict)
+				  if (names->id == GET_ID(vict)
 					  && CAN_SEE(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
 					  if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
 						  CastSpell(ch.get(), vict.get(), nullptr, nullptr, ESpell::kSummon, ESpell::kSummon);
@@ -1319,7 +1319,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 		return;
 
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
-		if (tmp->id == GET_IDNUM(victim)) {
+		if (tmp->id == GET_ID(victim)) {
 			if (tmp->time > 0)
 				tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
 			present = true;
@@ -1328,7 +1328,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	if (!present) {
 		CREATE(tmp, 1);
 		tmp->next = MEMORY(ch);
-		tmp->id = GET_IDNUM(victim);
+		tmp->id = GET_ID(victim);
 		tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
 		MEMORY(ch) = tmp;
 	}
@@ -1350,7 +1350,7 @@ void mobForget(CharData *ch, CharData *victim) {
 	if (!(curr = MEMORY(ch)))
 		return;
 
-	while (curr && curr->id != GET_IDNUM(victim)) {
+	while (curr && curr->id != GET_ID(victim)) {
 		prev = curr;
 		curr = curr->next;
 	}

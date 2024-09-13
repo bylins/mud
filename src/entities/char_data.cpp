@@ -294,6 +294,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 */
 void CharData::zero_init() {
 	set_sex(EGender::kMale);
+	is_npc = false;
 	set_race(0);
 	protecting_ = nullptr;
 	touching_ = nullptr;
@@ -304,7 +305,6 @@ void CharData::zero_init() {
 	chclass_ = ECharClass::kUndefined;
 	level_ = 0;
 	level_add_ = 0,
-	idnum_ = 0;
 	uid_ = 0;
 	exp_ = 0;
 	remorts_ = 0;
@@ -341,7 +341,6 @@ void CharData::zero_init() {
 	timed_feat = nullptr;
 	carrying = nullptr;
 	desc = nullptr;
-	id = 0;
 	followers = nullptr;
 	m_master = nullptr;
 	caster_level = 0;
@@ -1034,15 +1033,7 @@ void CharData::set_level_add(int level) {
 	level_add_ = level;
 }
 
-long CharData::get_idnum() const {
-	return idnum_;
-}
-
-void CharData::set_idnum(long idnum) {
-	idnum_ = idnum;
-}
-
-int CharData::get_uid() const {
+long CharData::get_uid() const {
 	return uid_;
 }
 

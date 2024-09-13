@@ -447,7 +447,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
 #define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
 #define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
 #define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
 //структуры для подсчета количества рипов на морте (с) Василиса
@@ -545,8 +544,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
 #define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
-#define GET_IDNUM(ch)     ((ch)->get_idnum())
-#define GET_ID(x)         ((x)->id)
+#define GET_ID(x)         ((x))->get_uid()
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 

@@ -434,20 +434,14 @@ class CharData : public ProtectedCharData {
 
 	int GetLevel() const;
 	int get_level_add() const;
-	void set_level(int level);
-	void set_level_add(int level);
-
-	long get_idnum() const;
-	void set_idnum(long idnum);
-
-	int get_uid() const;
-	void set_uid(int uid);
-
-	long get_exp() const;
-	void set_exp(long exp);
-
 	int get_remort() const;
 	int get_remort_add() const;
+	long get_exp() const;
+	long get_uid() const;
+	void set_level(int level);
+	void set_level_add(int level);
+	void set_uid(int uid);
+	void set_exp(long exp);
 	void set_remort(int num);
 	void set_remort_add(short num);
 
@@ -653,7 +647,8 @@ class CharData : public ProtectedCharData {
 
 	void cleanup_script();
 
-	bool IsNpc() const { return char_specials.saved.act.get(EMobFlag::kNpc); }
+	bool IsNpc() const { return is_npc_; }
+	void SetNpcAttribute() { is_npc_ = true; }
 	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
 	bool HasWeapon();
@@ -688,15 +683,13 @@ class CharData : public ProtectedCharData {
 	std::string short_descr_;
 	// профессия чара/класс моба
 	ECharClass chclass_;
+	bool is_npc_;
 	// уровень
 	int level_;
 	// плюс на уровень
 	int level_add_;
 	// id чара (не тот, что для тригов), у мобов -1
-	long idnum_;
-	// uid (бывший unique) чара
-	int uid_;
-	//#
+	long uid_;
 	// экспа
 	long exp_;
 	// реморты

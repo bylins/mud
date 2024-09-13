@@ -218,7 +218,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	}
 
 	if (!vict->IsNpc() && !ch->IsNpc()) {
-		vict->set_answer_id(GET_IDNUM(ch));
+		vict->set_answer_id(GET_ID(ch));
 	}
 }
 
@@ -337,7 +337,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		bool found = false;
 		for (const auto &i : character_list) {
 			if (!i->IsNpc()
-				&& GET_IDNUM(i) == ch->get_answer_id()) {
+				&& GET_ID(i) == ch->get_answer_id()) {
 				if (is_tell_ok(ch, i.get())) {
 					perform_tell(ch, i.get(), argument);
 				}

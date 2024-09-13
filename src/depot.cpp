@@ -281,7 +281,7 @@ bool show_purged_message(CharData *ch) {
 		// имя у нас канеш и так есть, но че зря код дублировать
 		std::string name = generate_purged_filename(GET_UNIQUE(ch));
 		if (name.empty()) {
-			log("Хранилище: show_purged_message пустое имя файла %d.", GET_UNIQUE(ch));
+			log("Хранилище: show_purged_message пустое имя файла %ld.", ch->get_uid());
 			return true;
 		}
 		std::ifstream file(name.c_str(), std::ios::binary);
@@ -904,7 +904,7 @@ void show_depot(CharData *ch) {
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end()) {
 		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
-		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.", GET_UNIQUE(ch), GET_NAME(ch));
+		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid, GET_NAME(ch));
 		return;
 	}
 
@@ -999,8 +999,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end()) {
 		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
-		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.",
-			GET_UNIQUE(ch), GET_NAME(ch));
+		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid, GET_NAME(ch));
 		return 0;
 	}
 

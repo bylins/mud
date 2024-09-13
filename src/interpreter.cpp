@@ -1774,7 +1774,7 @@ int perform_dupe_check(DescriptorData *d) {
 	DescriptorData *k, *next_k;
 	Mode mode = UNDEFINED;
 
-	int id = GET_IDNUM(d->character);
+	int id = GET_ID(d->character);
 
 	/*
 	   * Now that this descriptor has successfully logged in, disconnect all
@@ -1788,11 +1788,11 @@ int perform_dupe_check(DescriptorData *d) {
 			continue;
 		}
 
-		if (k->original && (GET_IDNUM(k->original) == id))    // switched char
+		if (k->original && (GET_ID(k->original) == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
-						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
+						GET_ID(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
@@ -1811,10 +1811,10 @@ int perform_dupe_check(DescriptorData *d) {
 
 			k->character = nullptr;
 			k->original = nullptr;
-		} else if (k->character && (GET_IDNUM(k->character) == id)) {
+		} else if (k->character && (GET_ID(k->character) == id)) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
-						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
+						GET_ID(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
@@ -1846,7 +1846,7 @@ int perform_dupe_check(DescriptorData *d) {
 		  return;
 	  }
 
-	  if (GET_IDNUM(ch) != id) {
+	  if (GET_ID(ch) != id) {
 		  return;
 	  }
 
@@ -2277,7 +2277,7 @@ void do_entergame(DescriptorData *d) {
 	d->character->DeleteIrrelevantRunestones();
 
 	// with the copyover patch, this next line goes in enter_player_game()
-	d->character->id = GET_IDNUM(d->character);
+	d->character->id = GET_ID(d->character);
 	chardata_by_uid[d->character->id] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
 	d->character->set_last_logon(time(nullptr));
@@ -2864,7 +2864,7 @@ void nanny(DescriptorData *d, char *argument) {
 					d->character->UnsetFlag(EPlrFlag::kWriting);
 					d->character->UnsetFlag(EPlrFlag::kCryo);
 					d->character->set_pfilepos(player_i);
-					GET_ID(d->character) = GET_IDNUM(d->character);
+					GET_ID(d->character) = GET_ID(d->character);
 					DoAfterPassword(d);
 
 					return;

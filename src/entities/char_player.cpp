@@ -460,7 +460,7 @@ void Player::save_char() {
 	fprintf(saved, "Host: %s\n", buf);
 	free(player_table[this->get_pfilepos()].last_ip);
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
-	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
+	fprintf(saved, "Id  : %ld\n", GET_ID(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
 	// флаги
