@@ -389,13 +389,13 @@ struct ScorePunishmentInfo {
 	explicit ScorePunishmentInfo(CharData *ch)
 		: ch{ch} {};
 
-	void SetFInfo(EPlrFlag punish_flag, const Punish *punish_info) {
+	void SetFInfo(EPlrFlag punish_flag, const punishments::Punish *punish_info) {
 		flag = punish_flag;
 		punish = punish_info;
 	};
 
 	CharData *ch{};
-	const Punish *punish{};
+	const punishments::Punish *punish{};
 	std::string msg;
   	EPlrFlag flag{};
 };

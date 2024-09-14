@@ -84,7 +84,7 @@ class ExtractedCharacterInfo {
 
   void ExtractClanAbbrev(const CharData::shared_ptr &player_ptr);
   void ExtractPunishmenstsInfo(const CharData::shared_ptr &player_ptr);
-  void ExtractPunishmentInfo(std::string_view punish_text, const Punish &punish);
+  void ExtractPunishmentInfo(std::string_view punish_text, const punishments::Punish &punish);
   void PrintBaseInfo(std::ostringstream &report);
   void PrintPunishmentsInfo(std::ostringstream &report) const;
   void PrintExtraInfo(std::ostringstream &report) const;
@@ -134,7 +134,7 @@ void ExtractedCharacterInfo::ExtractPunishmenstsInfo(const CharData::shared_ptr 
 	}
 }
 
-void ExtractedCharacterInfo::ExtractPunishmentInfo(std::string_view punish_text, const Punish &punish) {
+void ExtractedCharacterInfo::ExtractPunishmentInfo(std::string_view punish_text, const punishments::Punish &punish) {
 	if (punish.duration) {
 		punishments_ << fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
 									KIRED, punish_text, KNRM,

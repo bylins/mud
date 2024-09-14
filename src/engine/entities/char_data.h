@@ -5,6 +5,7 @@
 #define CHAR_HPP_INCLUDED
 
 #include "player_i.h"
+#include "administration/punishments.h"
 #include "gameplay/skills/morph.hpp"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
@@ -265,13 +266,13 @@ struct player_special_data {
   	network::LogonRecords logons;
 
 // Punishments structs
-	Punish pmute;
-	Punish pdumb;
-	Punish phell;
-	Punish pname;
-	Punish pfreeze;
-	Punish pgcurse;
-	Punish punreg;
+  	punishments::Punish pmute;
+  	punishments::Punish pdumb;
+  	punishments::Punish phell;
+  	punishments::Punish pname;
+  	punishments::Punish pfreeze;
+  	punishments::Punish pgcurse;
+  	punishments::Punish punreg;
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать

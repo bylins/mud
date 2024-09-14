@@ -320,7 +320,12 @@ set(SOURCES
 		src/engine/network/logon.cpp
 		src/engine/ui/cmd_god/do_ban.cpp
 		src/engine/ui/cmd_god/do_proxy.cpp
-		src/administration/proxy.cpp)
+		src/administration/proxy.cpp
+		src/engine/ui/cmd_god/print_armor.cpp
+		src/engine/ui/cmd_god/forcetime.cpp
+		src/engine/ui/cmd_god/liblist.cpp
+		src/engine/ui/cmd_god/wizutil.cpp
+		src/administration/punishments.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -621,7 +626,12 @@ set(HEADERS
 		src/engine/network/logon.h
 		src/engine/ui/cmd_god/do_ban.h
 		src/engine/ui/cmd_god/do_proxy.h
-		src/administration/proxy.h)
+		src/administration/proxy.h
+		src/engine/ui/cmd_god/print_armor.h
+		src/engine/ui/cmd_god/forcetime.h
+		src/engine/ui/cmd_god/liblist.h
+		src/engine/ui/cmd_god/wizutil.h
+		src/administration/punishments.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

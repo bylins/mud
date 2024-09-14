@@ -173,13 +173,6 @@ struct TimeInfoData {
 	sh_int year = 0;
 };
 
-struct Punish {
-	long duration = 0;
-	char *reason = nullptr;
-	int level = 0;
-	long godid = 0;
-};
-
 struct FollowerType {
 	CharData *follower = nullptr;
 	struct FollowerType *next = nullptr;

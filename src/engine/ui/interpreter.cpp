@@ -24,13 +24,17 @@
 #include "gameplay/communication/insult.h"
 #include "gameplay/communication/offtop.h"
 #include "engine/ui/cmd_god/do_set.h"
+#include "engine/ui/cmd_god/forcetime.h"
 #include "engine/ui/cmd_god/show.h"
 #include "engine/ui/cmd_god/reload.h"
 #include "engine/ui/cmd_god/stat.h"
 #include "engine/ui/cmd_god/show.h"
+#include "engine/ui/cmd_god/liblist.h"
+#include "engine/ui/cmd_god/print_armor.h"
 #include "engine/ui/cmd_god/godtest.h"
 #include "engine/ui/cmd_god/tabulate.h"
 #include "engine/ui/cmd_god/mark.h"
+#include "engine/ui/cmd_god/wizutil.h"
 #include "engine/ui/cmd/bandage.h"
 #include "engine/ui/cmd/consider.h"
 #include "engine/ui/cmd/do_zone.h"
@@ -264,7 +268,6 @@ void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
 void do_force(CharData *ch, char *argument, int cmd, int subcmd);
-void do_forcetime(CharData *ch, char *argument, int cmd, int subcmd);
 void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
@@ -280,7 +283,6 @@ void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
-void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
 void do_load(CharData *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
@@ -326,7 +328,6 @@ void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wizutil(CharData *ch, char *argument, int cmd, int subcmd);
 void do_write(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
@@ -338,7 +339,6 @@ void do_insertgem(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_proxy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_exchange(CharData *ch, char *argument, int cmd, int subcmd);
-void do_print_armor(CharData *ch, char *argument, int cmd, int subcmd);
 void do_quest(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check(CharData *ch, char *argument, int cmd, int subcmd);
 // DG Script ACMD's
@@ -824,7 +824,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"flee", EPosition::kFight, DoFlee, 1, 0, -1},
 		{"follow", EPosition::kRest, do_follow, 0, 0, -1},
 		{"force", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
-		{"forcetime", EPosition::kDead, do_forcetime, kLvlImplementator, 0, 0},
+		{"forcetime", EPosition::kDead, DoForcetime, kLvlImplementator, 0, 0},
 		{"freeze", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
 		{"gecho", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
 		{"get", EPosition::kRest, do_get, 0, 0, 500},
@@ -1018,7 +1018,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		// test command for gods
 		{"godtest", EPosition::kDead, do_godtest, kLvlGreatGod, 0, 0},
-		{"armor", EPosition::kDead, do_print_armor, kLvlImplementator, 0, 0},
+		{"armor", EPosition::kDead, DoPrintArmor, kLvlImplementator, 0, 0},
 
 		// Команды крафтинга - для тестига пока уровня имма
 		{"mrlist", EPosition::kDead, do_list_make, kLvlBuilder, 0, 0},
@@ -2465,16 +2465,6 @@ void CreateChar(DescriptorData *d) {
 	d->character = std::make_shared<Player>();
 	d->character->player_specials = std::make_shared<player_special_data>();
 	d->character->desc = d;
-}
-
-int create_unique() {
-	int unique;
-
-	do {
-		unique = (number(0, 64) << 24) + (number(0, 255) << 16) + (number(0, 255) << 8) + (number(0, 255));
-	} while (IsCorrectUnique(unique));
-
-	return (unique);
 }
 
 // initialize a new character only if class is set
