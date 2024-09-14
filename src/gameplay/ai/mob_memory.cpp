@@ -32,7 +32,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 		return;
 
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
-		if (tmp->id == GET_IDNUM(victim)) {
+		if (tmp->id == victim->get_uid()) {
 			if (tmp->time > 0)
 				tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
 			present = true;
@@ -41,7 +41,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	if (!present) {
 		CREATE(tmp, 1);
 		tmp->next = MEMORY(ch);
-		tmp->id = GET_IDNUM(victim);
+		tmp->id = victim->get_uid();
 		tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
 		MEMORY(ch) = tmp;
 	}
@@ -63,7 +63,7 @@ void mobForget(CharData *ch, CharData *victim) {
 	if (!(curr = MEMORY(ch)))
 		return;
 
-	while (curr && curr->id != GET_IDNUM(victim)) {
+	while (curr && curr->id != victim->get_uid()) {
 		prev = curr;
 		curr = curr->next;
 	}
@@ -109,7 +109,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak) {
 			continue;
 		}
 		for (MemoryRecord *names = MEMORY(mob); names && !victim; names = names->next) {
-			if (names->id == GET_IDNUM(vict)) {
+			if (names->id == vict->get_uid()) {
 				if (!MAY_SEE(mob, mob, vict) || !may_kill_here(mob, vict, NoArgument)) {
 					continue;
 				}

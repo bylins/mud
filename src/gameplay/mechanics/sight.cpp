@@ -670,7 +670,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 		switch (af->bitvector) {
 			case room_spells::ERoomAffect::kLight:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kLight)) {
-					if (af->caster_id == ch->id && *name_self_affects[0] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[0] != '\0') {
 						buffer << name_self_affects[0] << "\r\n";
 					} else if (*name_affects[0] != '\0') {
 						buffer << name_affects[0] << "\r\n";
@@ -680,7 +680,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				break;
 			case room_spells::ERoomAffect::kDeadlyFog:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kDeadlyFog)) {
-					if (af->caster_id == ch->id && *name_self_affects[1] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[1] != '\0') {
 						buffer << name_self_affects[1] << "\r\n";
 					} else if (*name_affects[1] != '\0') {
 						buffer << name_affects[1] << "\r\n";
@@ -689,7 +689,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				}
 				break;
 			case room_spells::ERoomAffect::kRuneLabel:                // 1 << 2
-				if (af->caster_id == ch->id && *name_self_affects[2] != '\0') {
+				if (af->caster_id == ch->get_uid() && *name_self_affects[2] != '\0') {
 					buffer << name_self_affects[2] << "\r\n";
 				} else if (*name_affects[2] != '\0') {
 					buffer << name_affects[2] << "\r\n";
@@ -697,7 +697,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				break;
 			case room_spells::ERoomAffect::kForbidden:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kForbidden)) {
-					if (af->caster_id == ch->id && *name_self_affects[3] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[3] != '\0') {
 						buffer << name_self_affects[3] << "\r\n";
 					} else if (*name_affects[3] != '\0') {
 						buffer << name_affects[3] << "\r\n";
@@ -707,7 +707,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				break;
 			case room_spells::ERoomAffect::kHypnoticPattern:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kHypnoticPattern)) {
-					if (af->caster_id == ch->id && *name_self_affects[4] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[4] != '\0') {
 						buffer << name_self_affects[4] << "\r\n";
 					} else if (*name_affects[4] != '\0') {
 						buffer << name_affects[4] << "\r\n";
@@ -717,7 +717,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				break;
 			case room_spells::ERoomAffect::kBlackTentacles:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kBlackTentacles)) {
-					if (af->caster_id == ch->id && *name_self_affects[5] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[5] != '\0') {
 						buffer << name_self_affects[5] << "\r\n";
 					} else if (*name_affects[5] != '\0') {
 						buffer << name_affects[5] << "\r\n";
@@ -727,7 +727,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				break;
 			case room_spells::ERoomAffect::kMeteorstorm:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kMeteorstorm)) {
-					if (af->caster_id == ch->id && *name_self_affects[6] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[6] != '\0') {
 						buffer << name_self_affects[6] << "\r\n";
 					} else if (*name_affects[6] != '\0') {
 						buffer << name_affects[6] << "\r\n";
@@ -737,7 +737,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				break;
 			case room_spells::ERoomAffect::kThunderstorm:
 				if (!IS_SET(bitvector, room_spells::ERoomAffect::kThunderstorm)) {
-					if (af->caster_id == ch->id && *name_self_affects[7] != '\0') {
+					if (af->caster_id == ch->get_uid() && *name_self_affects[7] != '\0') {
 						buffer << name_self_affects[7] << "\r\n";
 					} else if (*name_affects[7] != '\0') {
 						buffer << name_affects[7] << "\r\n";

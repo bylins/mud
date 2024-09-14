@@ -307,15 +307,18 @@ void LoadGodBoards() {
 */
 bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
-		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
+		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level) {
 		return true;
-	if (ch->IsNpc()) return false;
+	}
+	if (ch->IsNpc()) {
+		return false;
+	}
 #ifdef TEST_BUILD
 	if (IS_IMMORTAL(ch))
 		return true;
 #endif
-	const auto it = god_list.find(GET_UID(ch));
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true)) {
+	const auto it = god_list.find(ch->get_uid());
+	if (it != god_list.end() && CompareParam(it->second.name, ch->get_name(), true)) {
 		if (GetRealLevel(ch) == kLvlImplementator)
 			return true;
 		switch (mode) {

@@ -935,7 +935,7 @@ void Player::save_char() {
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в ActualizePlayersIndex, MustBeDeleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, GET_IDNUM, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
+// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, get_uid, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, const int load_flags) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
