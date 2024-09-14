@@ -19,7 +19,7 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/deathtrap.h"
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/mechanics/glory.h"
 #include "engine/entities/char_player.h"
@@ -28,11 +28,12 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/sight.h"
+#include "gameplay/ai/mob_memory.h"
+#include "administration/proxy.h"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
 #include <random>
-#include "gameplay/mechanics/sight.h"
-#include "gameplay/ai/mob_memory.h"
 
 const int kRecallSpellsInterval = 28;
 
@@ -571,7 +572,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			};
 		};
-	} else if (!RegisterSystem::is_registered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
+	} else if (!RegisterSystem::IsRegistered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
 		if (restore != r_unreg_start_room
 			&& !NORENTABLE(i)
 			&& !deathtrap::IsSlowDeathtrap(i->in_room)
@@ -625,16 +626,16 @@ void beat_points_update(int pulse) {
 //		if (d->character.get()->IsNpc())
 //			return;
 
-		if (d->character.get()->in_room == kNowhere) {
+		if (d->character->in_room == kNowhere) {
 			log("SYSERR: Pulse character in kNowhere.");
 			continue;
 		}
 
 		if (NORENTABLE(d->character.get()) <= time(nullptr)) {
-			d->character.get()->player_specials->may_rent = 0;
+			d->character->player_specials->may_rent = 0;
 			AGRESSOR(d->character.get()) = 0;
 			AGRO(d->character.get()) = 0;
-			d->character.get()->agrobd = false;
+			d->character->agrobd = false;
 		}
 
 		if (AGRO(d->character.get()) < time(nullptr)) {
@@ -650,7 +651,7 @@ void beat_points_update(int pulse) {
 		//             if (i->GetPosition() == EPosition::kDead)
 		//                     die(i, NULL);
 
-		if (d->character.get()->GetPosition() < EPosition::kStun) {
+		if (d->character->GetPosition() < EPosition::kStun) {
 			continue;
 		}
 
@@ -659,7 +660,7 @@ void beat_points_update(int pulse) {
 		restore = interpolate(restore, pulse);
 
 		if (AFF_FLAGGED(d->character.get(), EAffect::kBandage)) {
-			for (const auto &aff : d->character.get()->affected) {
+			for (const auto &aff : d->character->affected) {
 				if (aff->type == ESpell::kBandage) {
 					restore += std::min(GET_REAL_MAX_HIT(d->character.get()) / 10, aff->modifier);
 					break;
@@ -672,22 +673,22 @@ void beat_points_update(int pulse) {
 		}
 
 		// Restore PC caster mem
-		if (!IS_MANA_CASTER(d->character.get()) && !d->character.get()->mem_queue.Empty()) {
+		if (!IS_MANA_CASTER(d->character.get()) && !d->character->mem_queue.Empty()) {
 			restore = CalcManaGain(d->character.get());
 			restore = interpolate(restore, pulse);
-			d->character.get()->mem_queue.stored += restore;
+			d->character->mem_queue.stored += restore;
 
 			if (AFF_FLAGGED(d->character.get(), EAffect::kMemorizeSpells)) {
 				handle_recall_spells(d->character.get());
 			}
 
-			while (d->character.get()->mem_queue.stored > GET_MEM_CURRENT(d->character.get()) && !d->character.get()->mem_queue.Empty()) {
+			while (d->character->mem_queue.stored > GET_MEM_CURRENT(d->character.get()) && !d->character->mem_queue.Empty()) {
 				auto spell_id = MemQ_learn(d->character.get());
-				++GET_SPELL_MEM(d->character.get(), spell_id);
-				d->character.get()->caster_level += MUD::Spell(spell_id).GetDanger();
+				++GET_SPELL_MEM(d->character, spell_id);
+				d->character->caster_level += MUD::Spell(spell_id).GetDanger();
 			}
 
-			if (d->character.get()->mem_queue.Empty()) {
+			if (d->character->mem_queue.Empty()) {
 				if (GET_RELIGION(d->character.get()) == kReligionMono) {
 					SendMsgToChar("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", d->character.get());
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.",
@@ -699,22 +700,22 @@ void beat_points_update(int pulse) {
 			}
 		}
 
-		if (!IS_MANA_CASTER(d->character.get()) && d->character.get()->mem_queue.Empty()) {
-			d->character.get()->mem_queue.total = 0;
-			d->character.get()->mem_queue.stored = 0;
+		if (!IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.Empty()) {
+			d->character->mem_queue.total = 0;
+			d->character->mem_queue.stored = 0;
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(d->character.get()) && d->character.get()->mem_queue.stored < GET_MAX_MANA(d->character.get())) {
-			d->character.get()->mem_queue.stored += CalcManaGain(d->character.get());
-			if (d->character.get()->mem_queue.stored >= GET_MAX_MANA(d->character.get())) {
-				d->character.get()->mem_queue.stored = GET_MAX_MANA(d->character.get());
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < GET_MAX_MANA(d->character.get())) {
+			d->character->mem_queue.stored += CalcManaGain(d->character.get());
+			if (d->character->mem_queue.stored >= GET_MAX_MANA(d->character.get())) {
+				d->character->mem_queue.stored = GET_MAX_MANA(d->character.get());
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(d->character.get()) && d->character.get()->mem_queue.stored > GET_MAX_MANA(d->character.get())) {
-			d->character.get()->mem_queue.stored = GET_MAX_MANA(d->character.get());
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > GET_MAX_MANA(d->character.get())) {
+			d->character->mem_queue.stored = GET_MAX_MANA(d->character.get());
 		}
 
 		// Restore moves
@@ -1733,9 +1734,8 @@ void ExtractRepopDecayObject(const ObjData::shared_ptr &obj) {
 			}
 
 		if (owner) {
-			char buf[kMaxStringLength];
-			snprintf(buf, kMaxStringLength, "$o рассыпал$U в %s...", obj->get_in_obj()->get_PName(5).c_str());
-			act(buf, false, owner, obj.get(), nullptr, kToChar);
+			const auto msg = fmt::format("$o рассыпал$U в {}...", obj->get_in_obj()->get_PName(5));
+			act(msg, false, owner, obj.get(), nullptr, kToChar);
 		}
 	}
 	ExtractObjFromWorld(obj.get());

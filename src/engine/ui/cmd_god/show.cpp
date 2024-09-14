@@ -3,7 +3,7 @@
 //
 
 #include "administration/accounts.h"
-#include "ban.h"
+#include "administration/ban.h"
 #include "administration/privilege.h"
 #include "engine/ui/cmd/do_features.h"
 #include "engine/ui/cmd/do_skills.h"

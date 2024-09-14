@@ -69,7 +69,6 @@ void DoScore(CharData *ch, char *argument, int, int);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_who(CharData *ch, char *argument, int cmd, int subcmd);
-//void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
 void perform_immort_where(CharData *ch, char *arg);
 void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);

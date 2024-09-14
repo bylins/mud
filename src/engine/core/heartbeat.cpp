@@ -1,5 +1,8 @@
 //#include "heartbeat.h"
 
+#include <utility>
+
+#include "administration/proxy.h"
 #include "gameplay/economics/auction.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/communication/parcel.h"
@@ -9,7 +12,7 @@
 #include "gameplay/magic/magic_temp_spells.h"
 #include "external_trigger.h"
 #include "gameplay/clans/house.h"
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/title.h"
 #include "gameplay/mechanics/depot.h"
@@ -79,9 +82,9 @@ class SimpleCall : public AbstractPulseAction {
  public:
 	using call_t = std::function<void()>;
 
-	SimpleCall(call_t call) : m_call(call) {}
+	explicit SimpleCall(call_t call) : m_call(std::move(call)) {}
 
-	virtual void perform(int, int) override { m_call(); }
+	void perform(int, int) override { m_call(); }
 
  private:
 	call_t m_call;
@@ -89,12 +92,12 @@ class SimpleCall : public AbstractPulseAction {
 
 class MobActCall : public AbstractPulseAction {
  public:
-	virtual void perform(int pulse_number, int) override { mob_ai::mobile_activity(pulse_number, 10); }
+	void perform(int pulse_number, int) override { mob_ai::mobile_activity(pulse_number, 10); }
 };
 
 class InspectCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int missed_pulses) override;
+	void perform(int, int missed_pulses) override;
 };
 
 void InspectCall::perform(int, int missed_pulses) {
@@ -105,19 +108,18 @@ void InspectCall::perform(int, int missed_pulses) {
 
 class SetAllInspectCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int missed_pulses) override;
+	void perform(int, int missed_pulses) override;
 };
 
 void SetAllInspectCall::perform(int, int missed_pulses) {
-	if (0 == missed_pulses
-		&& 0 < setall_inspect_list.size()) {
+	if (0 == missed_pulses && !setall_inspect_list.empty()) {
 		setall_inspect();
 	}
 }
 
 class CheckScheduledRebootCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 };
 
 void CheckScheduledRebootCall::perform(int, int) {
@@ -134,7 +136,7 @@ void CheckScheduledRebootCall::perform(int, int) {
 
 class CheckTriggeredRebootCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 
  private:
 	std::unique_ptr<ExternalTriggerChecker> m_external_trigger_checker;
@@ -155,12 +157,12 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 class BeatPointsUpdateCall : public AbstractPulseAction {
  public:
-	virtual void perform(int pulse_number, int) override { beat_points_update(pulse_number / kPassesPerSec); }
+	void perform(int pulse_number, int) override { beat_points_update(pulse_number / kPassesPerSec); }
 };
 
 class CrashFracSaveCall : public AbstractPulseAction {
  public:
-	virtual void perform(int pulse_number, int) override;
+	void perform(int pulse_number, int) override;
 };
 
 void CrashFracSaveCall::perform(int pulse_number, int) {
@@ -172,7 +174,7 @@ void CrashFracSaveCall::perform(int pulse_number, int) {
 
 class ExchangeDatabaseSaveCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 };
 
 void ExchangeDatabaseSaveCall::perform(int, int) {
@@ -183,7 +185,7 @@ void ExchangeDatabaseSaveCall::perform(int, int) {
 
 class ExchangeDatabaseBackupSaveCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 };
 
 void ExchangeDatabaseBackupSaveCall::perform(int, int) {
@@ -194,7 +196,7 @@ void ExchangeDatabaseBackupSaveCall::perform(int, int) {
 
 class GlobalSaveUIDCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 };
 
 void GlobalSaveUIDCall::perform(int, int) {
@@ -207,7 +209,7 @@ class CrashSaveCall : public AbstractPulseAction {
  public:
 	CrashSaveCall();
 
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 
  private:
 	int m_mins_since_crashsave;
@@ -244,7 +246,7 @@ void CrashSaveCall::perform(int, int) {
 
 class UpdateClanExpCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override;
+	void perform(int, int) override;
 };
 
 void UpdateClanExpCall::perform(int, int) {
@@ -254,12 +256,12 @@ void UpdateClanExpCall::perform(int, int) {
 
 class SpellUsageCall : public AbstractPulseAction {
  public:
-	virtual void perform(int, int) override {
+	void perform(int, int) override {
 		if (!SpellUsage::is_active) {
 			return;
 		}
 
-		time_t tmp_time = time(0);
+		time_t tmp_time = time(nullptr);
 		if ((tmp_time - SpellUsage::start) >= (60 * 60 * 24)) {
 			SpellUsage::save();
 			SpellUsage::clear();
@@ -382,7 +384,7 @@ Heartbeat::steps_t &pulse_steps() {
 		Heartbeat::PulseStep("Reload proxy ban",
 							 5 * 60 * kPassesPerSec,
 							 36,
-							 std::make_shared<SimpleCall>([]() { ban->reload_proxy_ban(); })),
+							 std::make_shared<SimpleCall>([]() { ban->ReloadProxyBan(); })),
 		Heartbeat::PulseStep("God work invoice",
 							 5 * 60 * kPassesPerSec,
 							 35,
@@ -534,8 +536,6 @@ Heartbeat::Heartbeat() :
 	m_global_pulse_number(0) {
 }
 
-constexpr long long Heartbeat::ROLL_OVER_AFTER;
-
 void Heartbeat::operator()(const int missed_pulses) {
 	pulse_label_t label;
 
@@ -624,14 +624,14 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	}
 }
 
-Heartbeat::PulseStep::PulseStep(const std::string &name,
+Heartbeat::PulseStep::PulseStep(std::string name,
 								const int modulo,
 								const int offset,
-								const pulse_action_t &action) :
-	m_name(name),
+								pulse_action_t action) :
+	m_name(std::move(name)),
 	m_modulo(modulo),
 	m_offset(offset),
-	m_action(action),
+	m_action(std::move(action)),
 	m_off(false) {
 }
 
@@ -690,8 +690,5 @@ void BasePulseMeasurements::squeeze() {
 		m_measurements.pop_back();
 	}
 }
-
-constexpr std::size_t BasePulseMeasurements::WINDOW_SIZE;
-constexpr BasePulseMeasurements::measurement_t BasePulseMeasurements::NO_VALUE;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

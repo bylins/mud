@@ -1,6 +1,6 @@
 #include "stat.h"
 
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/player_races.h"
 #include "engine/core/utils_char_obj.inl"
@@ -23,16 +23,17 @@
 #include "administration/privilege.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/economics/ext_money.h"
+#include "administration/proxy.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
 std::string print_special(CharData *mob) {
 	std::string out;
 
-	if (mob_index[GET_MOB_RNUM(mob)].func) {
-		auto func = mob_index[GET_MOB_RNUM(mob)].func;
+	if (mob_index[mob->get_rnum()].func) {
+		auto func = mob_index[mob->get_rnum()].func;
 		if (func == shop_ext)
-			out += "торгаш";
+			out += "торговец";
 		else if (func == receptionist)
 			out += "рентер";
 		else if (func == postmaster)
@@ -40,7 +41,7 @@ std::string print_special(CharData *mob) {
 		else if (func == bank)
 			out += "банкир";
 		else if (func == exchange)
-			out += "глашатай";
+			out += "зазывала";
 		else if (func == horse_keeper)
 			out += "конюх";
 		else if (func == guilds::GuildInfo::DoGuildLearn)
@@ -160,7 +161,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "E-mail: &S%s&s Unique: %d File: %s\r\n", GET_EMAIL(k), GET_UNIQUE(k), file_name.c_str());
 		SendMsgToChar(buf, ch);
 
-		std::string text = RegisterSystem::show_comment(GET_EMAIL(k));
+		std::string text = RegisterSystem::ShowComment(GET_EMAIL(k));
 		if (!text.empty())
 			SendMsgToChar(ch, "Registered by email from %s\r\n", text.c_str());
 

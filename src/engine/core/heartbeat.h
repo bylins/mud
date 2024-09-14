@@ -155,7 +155,7 @@ class Heartbeat {
 	 public:
 		using StepMeasurement = LabelledMeasurements<std::size_t>;    // Label is the index in steps array
 
-		PulseStep(const std::string &name, const int modulo, const int offset, const pulse_action_t &action);
+		PulseStep(std::string name, const int modulo, const int offset, pulse_action_t action);
 
 		const auto &name() const { return m_name; }
 		const auto modulo() const { return m_modulo; }

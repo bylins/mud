@@ -4,7 +4,6 @@
 
 #include "administration/names.h"
 #include "administration/privilege.h"
-#include "ban.h"
 #include "gameplay/mechanics/depot.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -627,7 +626,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				if (_parse_name(npad[0], npad[0]) ||
 					strlen(npad[0]) < kMinNameLength ||
 					strlen(npad[0]) > kMaxNameLength ||
-					!Valid_Name(npad[0]) || reserved_word(npad[0]) || fill_word(npad[0])) {
+					!IsNameAvailable(npad[0]) || reserved_word(npad[0]) || fill_word(npad[0])) {
 					SendMsgToChar("Некорректное имя.\r\n", ch);
 					return (0);
 				}

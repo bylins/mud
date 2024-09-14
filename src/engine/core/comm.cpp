@@ -43,7 +43,8 @@
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
 #include "engine/ui/color.h"
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
+#include "administration/proxy.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/title.h"
 #include "gameplay/mechanics/depot.h"
@@ -376,7 +377,7 @@ extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
 extern CharData *combat_list;
 extern int proc_color(char *inbuf, int color);
-extern void tact_auction(void);
+extern void tact_auction();
 extern void log_code_date();
 
 // local globals
@@ -519,7 +520,6 @@ void gifts() {
 }
 
 // functions in this file
-RETSIGTYPE unrestrict_game(int sig);
 RETSIGTYPE reap(int sig);
 RETSIGTYPE checkpointing(int sig);
 RETSIGTYPE hupsig(int sig);
@@ -1998,8 +1998,8 @@ int new_descriptor(socket_t s)
 	sprintf(buf2, "New connection from [%s]", newd->host);
 	mudlog(buf2, CMP, kLevelGod, SYSLOG, false);
 #endif
-	if (ban->is_banned(newd->host) == BanList::BAN_ALL) {
-		time_t bantime = ban->getBanDate(newd->host);
+	if (ban->IsBanned(newd->host) == BanList::BAN_ALL) {
+		time_t bantime = ban->GetBanDate(newd->host);
 		sprintf(buf, "Sorry, your IP is banned till %s",
 				bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
 		write_to_descriptor(desc, buf, strlen(buf));
@@ -3153,14 +3153,6 @@ sigfunc *my_signal(int signo, sigfunc *func) {
 #endif                // POSIX
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
-
-RETSIGTYPE unrestrict_game(int/* sig*/) {
-	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, kLvlImmortal, SYSLOG, true);
-	ban->clear_all();
-	circle_restrict = 0;
-	num_invalid = 0;
-}
-
 #ifdef CIRCLE_UNIX
 
 // clean up our zombie kids to avoid defunct processes

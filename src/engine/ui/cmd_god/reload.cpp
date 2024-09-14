@@ -2,7 +2,7 @@
 // Created by Sventovit on 04.09.2024.
 //
 
-#include "ban.h"
+#include "administration/ban.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "engine/db/db.h"
@@ -24,9 +24,9 @@
 #include "utils/utils.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/mechanics/mob_races.h"
-#include "gameplay/skills/townportal.h"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
+#include "administration/proxy.h"
 
 extern char *credits;
 extern char *info;
@@ -146,7 +146,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	} else if (!str_cmp(arg, "proxy"))
-		LoadProxyList();
+		RegisterSystem::LoadProxyList();
 	else if (!str_cmp(arg, "boards"))
 		Boards::Static::reload_all();
 	else if (!str_cmp(arg, "titles"))

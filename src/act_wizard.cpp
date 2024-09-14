@@ -14,8 +14,9 @@
 
 #include "act_wizard.h"
 
+#include "administration/proxy.h"
 #include "engine/core/action_targeting.h"
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 #include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/dead_load.h"
@@ -309,7 +310,7 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 		end = start;
 	std::vector<std::pair<int, int>> zone;
 	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
-		zone.push_back(std::make_pair(i, zone_table[i].traffic));
+		zone.emplace_back(i, zone_table[i].traffic);
 	}
 	if (sort) {
 		std::sort(zone.begin(), zone.end(), comp);

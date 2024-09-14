@@ -24,6 +24,10 @@ int auto_authorize(DescriptorData *d);
 } // namespace NewNames
 
 void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void ReadCharacterInvalidNamesList();
+bool IsNameAvailable(char *newname);
+int IsValidName(char *newname);
+bool IsNameOffline(char *newname);
 
 #endif // NAMES_HPP_INCLUDED
 

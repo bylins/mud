@@ -1,7 +1,7 @@
 #define DB_CPP_
 
 #include "administration/accounts.h"
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 #include "gameplay/communication/boards.h"
 #include "engine/boot/boot_data_files.h"
 #include "engine/boot/boot_index.h"
@@ -50,6 +50,7 @@
 #include "gameplay/mechanics/mob_races.h"
 #include "gameplay/mechanics/treasure_cases.h"
 #include "gameplay/mechanics/cities.h"
+#include "administration/proxy.h"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
 #include <sys/stat.h>
@@ -952,7 +953,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading proxies list");
 	log("Load proxy list");
-	LoadProxyList();
+	RegisterSystem::LoadProxyList();
 
 	boot_profiler.next_step("Loading new_name list");
 	log("Load new_name list");

@@ -27,7 +27,7 @@ set(SOURCES
 		src/engine/ui/alias.cpp
 		src/gameplay/economics/auction.cpp
 		src/utils/backtrace.cpp
-		src/engine/ui/cmd_god/ban.cpp
+		src/administration/ban.cpp
 		src/gameplay/mechanics/birthplaces.cpp
 		src/gameplay/communication/boards_changelog_loaders.cpp
 		src/gameplay/communication/boards_constants.cpp
@@ -317,7 +317,10 @@ set(SOURCES
 		src/engine/ui/cmd/do_zone.cpp
 		src/gameplay/skills/dazzle.cpp
 		src/gameplay/ai/mob_memory.cpp
-		src/engine/network/logon.cpp)
+		src/engine/network/logon.cpp
+		src/engine/ui/cmd_god/do_ban.cpp
+		src/engine/ui/cmd_god/do_proxy.cpp
+		src/administration/proxy.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -386,7 +389,7 @@ set(HEADERS
 		src/gameplay/affects/affect_handler.h
 		src/gameplay/economics/auction.h
 		src/utils/backtrace.h
-		src/engine/ui/cmd_god/ban.h
+		src/administration/ban.h
 		src/gameplay/mechanics/birthplaces.h
 		src/gameplay/communication/boards_changelog_loaders.h
 		src/gameplay/communication/boards_constants.h
@@ -615,7 +618,10 @@ set(HEADERS
 		src/engine/ui/cmd/do_zone.h
 		src/gameplay/ai/mob_memory.h
 		src/gameplay/skills/dazzle.h
-		src/engine/network/logon.h)
+		src/engine/network/logon.h
+		src/engine/ui/cmd_god/do_ban.h
+		src/engine/ui/cmd_god/do_proxy.h
+		src/administration/proxy.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 
 namespace {
 // This struct defines order of creating and destroying global objects

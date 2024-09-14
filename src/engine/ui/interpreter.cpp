@@ -16,7 +16,7 @@
 #include "interpreter.h"
 
 #include "act_movement.h"
-#include "engine/ui/cmd_god/ban.h"
+#include "administration/ban.h"
 #include "gameplay/communication/boards.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -183,6 +183,7 @@
 #include "gameplay/mechanics/cities.h"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
+#include "administration/proxy.h"
 
 #include <memory>
 #include <stdexcept>
@@ -216,9 +217,6 @@ extern char *name_rules;
 void DeletePcByHimself(const char *name);
 
 // external functions
-//int Valid_Name(char *newname);
-int Is_Valid_Name(char *newname);
-int Is_Valid_Dc(char *newname);
 void read_aliases(CharData *ch);
 void write_aliases(CharData *ch);
 void read_saved_vars(CharData *ch);
@@ -360,7 +358,6 @@ void DoTownportal(CharData *ch, char *argument, int, int);
 void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mystat(CharData *ch, char *argument, int cmd, int subcmd);
-void do_zone(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
@@ -984,7 +981,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"turn undead", EPosition::kRest, do_turn_undead, 0, 0, -1},
 		{"typo", EPosition::kDead, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 		{"unaffect", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_UNAFFECT, 0},
-		{"unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
+		{"Unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
 		{"unfreeze", EPosition::kDead, do_unfreeze, kLvlImplementator, 0, 0},
 		{"ungroup", EPosition::kDead, do_ungroup, 0, 0, -1},
 		{"unlock", EPosition::kSit, do_gen_door, 0, kScmdUnlock, 500},
@@ -1945,11 +1942,11 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 
 	// в случае авточекалки нужная проверка уже выполнена до входа в функцию
 	if (!autocheck) {
-		if (RegisterSystem::is_registered(d->character.get())) {
+		if (RegisterSystem::IsRegistered(d->character.get())) {
 			return 1;
 		}
 
-		if (RegisterSystem::is_registered_email(GET_EMAIL(d->character))) {
+		if (RegisterSystem::IsRegisteredEmail(GET_EMAIL(d->character))) {
 			d->registered_email = true;
 			return 1;
 		}
@@ -2383,7 +2380,7 @@ void DoAfterPassword(DescriptorData *d) {
 	GET_BAD_PWS(d->character) = 0;
 	d->bad_pws = 0;
 
-	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !d->character->IsFlagged(EPlrFlag::kSiteOk)) {
+	if (ban->IsBanned(d->host) == BanList::BAN_SELECT && !d->character->IsFlagged(EPlrFlag::kSiteOk)) {
 		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
@@ -2847,10 +2844,10 @@ void nanny(DescriptorData *d, char *argument) {
 					if (parse_exist_name(argument, tmp_name) ||
 						strlen(tmp_name) < (kMinNameLength - 1) || // дабы можно было войти чарам с 4 буквами
 						strlen(tmp_name) > kMaxNameLength ||
-						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
+						!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
-					} else if (!Is_Valid_Dc(tmp_name)) {
+					} else if (!IsNameOffline(tmp_name)) {
 						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 						d->character->set_pfilepos(player_i);
 						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
@@ -2872,7 +2869,7 @@ void nanny(DescriptorData *d, char *argument) {
 					if (d->character->IsFlagged(EPlrFlag::kDeleted)) {
 						d->character.reset();
 
-						if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
+						if (!IsNameAvailable(tmp_name) || _parse_name(tmp_name, tmp_name)) {
 							SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 							return;
 						}
@@ -2917,7 +2914,7 @@ void nanny(DescriptorData *d, char *argument) {
 					}
 
 					// Check for multiple creations of a character.
-					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
+					if (!IsNameAvailable(tmp_name) || _parse_name(tmp_name, tmp_name)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
@@ -2943,7 +2940,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case CON_NAME_CNFRM:    // wait for conf. of new name
 			if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
-				if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
+				if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 					sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 							GET_PC_NAME(d->character), d->host);
 					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
@@ -3002,7 +2999,7 @@ void nanny(DescriptorData *d, char *argument) {
 			if (_parse_name(argument, tmp_name) ||
 				strlen(tmp_name) < kMinNameLength ||
 				strlen(tmp_name) > kMaxNameLength ||
-				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
+				!IsValidName(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			}
@@ -3022,7 +3019,7 @@ void nanny(DescriptorData *d, char *argument) {
 				}
 			}
 
-			if (!Valid_Name(tmp_name)) {
+			if (!IsNameAvailable(tmp_name)) {
 				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			}
@@ -3040,7 +3037,7 @@ void nanny(DescriptorData *d, char *argument) {
 			if (is_player_deleted) {
 				d->character->set_pfilepos(player_i);
 			}
-			if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
+			if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 				sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
