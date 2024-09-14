@@ -517,7 +517,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 		uid_type = UID_CHAR;
-		idnum = mob->id;
+		idnum = mob->get_uid();
 		PlaceCharToRoom(mob, room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {

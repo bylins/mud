@@ -177,7 +177,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			next_d = d->next;
 			if (d == ch->desc)
 				continue;
-			if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
+			if (d->character && (GET_UID(d->character) == GET_UID(ch)))
 				STATE(d) = CON_DISCONNECT;
 		}
 		ExtractCharFromWorld(ch, false);

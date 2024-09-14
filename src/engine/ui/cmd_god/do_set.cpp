@@ -504,10 +504,8 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			on_off_mode ? vict->SetFlag(EPrf::kColor2) : vict->UnsetFlag(EPrf::kColor2);
 			break;
 		case 35:
-			if (!IS_IMPL(ch) || !vict->IsNpc()) {
-				return (0);
-			}
-			vict->set_idnum(value);
+			SendMsgToChar("Самое то чтоб поломать мад!\r\n", ch);
+			return 0;
 			break;
 		case 36:
 			if (!IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo) && ch != vict) {

@@ -96,7 +96,7 @@ void TryOpenLabelPortal(CharData *ch, char *argument) {
 }
 
 Runestone GetLabelPortal(CharData *ch) {
-	auto label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
+	auto label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		return {ch->get_name(), label_room->vnum, 1};
 	} else {
@@ -148,7 +148,7 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 	af.modifier = to_room;
 	af.battleflag = 0;
 	af.location = room_spells::ERoomApply::kNone;
-	af.caster_id = ch ? GET_ID(ch) : 0;
+	af.caster_id = ch ? GET_UID(ch) : 0;
 	af.must_handled = false;
 	af.apply_time = 0;
 //	room_spells::AffectRoomJoinReplace(world[from_room], af);

@@ -294,17 +294,16 @@ size_t CharData::remove_random_affects(const size_t count) {
 */
 void CharData::zero_init() {
 	set_sex(EGender::kMale);
+	is_npc_ = false;
 	set_race(0);
 	protecting_ = nullptr;
 	touching_ = nullptr;
 	enemy_ = nullptr;
-	serial_num_ = 0;
 	purged_ = false;
 	// на плеер-таблицу
 	chclass_ = ECharClass::kUndefined;
 	level_ = 0;
 	level_add_ = 0,
-	idnum_ = 0;
 	uid_ = 0;
 	exp_ = 0;
 	remorts_ = 0;
@@ -341,7 +340,6 @@ void CharData::zero_init() {
 	timed_feat = nullptr;
 	carrying = nullptr;
 	desc = nullptr;
-	id = 0;
 	followers = nullptr;
 	m_master = nullptr;
 	caster_level = 0;
@@ -437,7 +435,7 @@ void CharData::purge() {
 		ExpireTimedSkill(this, this->timed);
 	}
 
-	celebrates::RemoveFromMobLists(this->id);
+	celebrates::RemoveFromMobLists(this->get_uid());
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
 	if (this->player_specials && !keep_player_specials) {
@@ -920,14 +918,6 @@ void change_fighting(CharData *ch, int need_stop) {
 //	log("change_fighting stop %f", time.delta().count());
 }
 
-int CharData::get_serial_num() {
-	return serial_num_;
-}
-
-void CharData::set_serial_num(int num) {
-	serial_num_ = num;
-}
-
 bool CharData::purged() const {
 	return purged_;
 }
@@ -1034,15 +1024,7 @@ void CharData::set_level_add(int level) {
 	level_add_ = level;
 }
 
-long CharData::get_idnum() const {
-	return idnum_;
-}
-
-void CharData::set_idnum(long idnum) {
-	idnum_ = idnum;
-}
-
-int CharData::get_uid() const {
+long CharData::get_uid() const {
 	return uid_;
 }
 

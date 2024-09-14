@@ -85,7 +85,7 @@ void showlots(CharData *ch) {
 				GET_LOT(i)->cost, GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA),
 				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
 
-		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == GET_UNIQUE(ch)) {
+		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == GET_UID(ch)) {
 			strcat(tmpbuf, "(Специально для вас).\r\n");
 		}
 		SendMsgToChar(tmpbuf, ch);
@@ -182,12 +182,12 @@ bool auction_drive(CharData *ch, char *argument) {
 			lotis->item = obj;
 			lotis->cost = value;
 			lotis->tact = -1;
-			lotis->seller_unique = GET_UNIQUE(ch);
+			lotis->seller_unique = GET_UID(ch);
 			lotis->seller = ch;
 			lotis->buyer_unique = lotis->prefect_unique = -1;
 			lotis->buyer = lotis->prefect = nullptr;
 			if (tch) {
-				lotis->prefect_unique = GET_UNIQUE(tch);
+				lotis->prefect_unique = GET_UID(tch);
 				lotis->prefect = tch;
 			}
 
@@ -215,7 +215,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Неверный номер лота.\r\n", ch);
 				return false;
 			}
-			if (GET_LOT(lot)->seller != ch || GET_LOT(lot)->seller_unique != GET_UNIQUE(ch)) {
+			if (GET_LOT(lot)->seller != ch || GET_LOT(lot)->seller_unique != GET_UID(ch)) {
 				SendMsgToChar("Это не ваш лот.\r\n", ch);
 				return false;
 			}
@@ -241,12 +241,12 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Лот пуст.\r\n", ch);
 				return false;
 			}
-			if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UNIQUE(ch)) {
+			if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UID(ch)) {
 				SendMsgToChar("Но это же ваш лот!\r\n", ch);
 				return false;
 			}
 			if (GET_LOT(lot)->prefect && GET_LOT(lot)->prefect_unique > 0 &&
-				(GET_LOT(lot)->prefect != ch || GET_LOT(lot)->prefect_unique != GET_UNIQUE(ch))) {
+				(GET_LOT(lot)->prefect != ch || GET_LOT(lot)->prefect_unique != GET_UID(ch))) {
 				SendMsgToChar("Этот лот имеет другого покупателя.\r\n", ch);
 				return false;
 			}
@@ -273,7 +273,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			GET_LOT(lot)->cost = value;
 			GET_LOT(lot)->tact = -1;
 			GET_LOT(lot)->buyer = ch;
-			GET_LOT(lot)->buyer_unique = GET_UNIQUE(ch);
+			GET_LOT(lot)->buyer_unique = GET_UID(ch);
 			sprintf(tmpbuf, "Хорошо, вы согласны заплатить %d %s за %s (лот %d).\r\n",
 					value, GetDeclensionInNumber(value, EWhat::kMoneyU), GET_LOT(lot)->item->get_PName(3).c_str(), lot);
 			SendMsgToChar(tmpbuf, ch);
@@ -301,7 +301,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("Неверный номер лота.\r\n", ch);
 				return false;
 			}
-			if (GET_LOT(lot)->seller != ch || GET_LOT(lot)->seller_unique != GET_UNIQUE(ch)) {
+			if (GET_LOT(lot)->seller != ch || GET_LOT(lot)->seller_unique != GET_UID(ch)) {
 				SendMsgToChar("Это не ваш лот.\r\n", ch);
 				return false;
 			}
@@ -343,12 +343,12 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 
-			if (GET_LOT(lot)->seller == ch && GET_LOT(lot)->seller_unique == GET_UNIQUE(ch)) {
+			if (GET_LOT(lot)->seller == ch && GET_LOT(lot)->seller_unique == GET_UID(ch)) {
 				SendMsgToChar("Это может сделать только покупатель.\r\n", ch);
 				return false;
 			}
 
-			if (GET_LOT(lot)->prefect != ch || GET_LOT(lot)->prefect_unique != GET_UNIQUE(ch)) {
+			if (GET_LOT(lot)->prefect != ch || GET_LOT(lot)->prefect_unique != GET_UID(ch)) {
 				SendMsgToChar("Вы еще не купили этот предмет.\r\n", ch);
 				return false;
 			}
@@ -432,7 +432,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 
-			if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UNIQUE(ch)) {
+			if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UID(ch)) {
 				SendMsgToChar("Но это же ваш лот!\r\n", ch);
 				return false;
 			}
@@ -507,8 +507,8 @@ int check_sell(int lot) {
 	char tmpbuf[kMaxInputLength];
 
 	if (lot < 0 || lot >= kMaxAuctionLot || !(ch = GET_LOT(lot)->seller)
-		|| GET_UNIQUE(ch) != GET_LOT(lot)->seller_unique || !(tch = GET_LOT(lot)->buyer)
-		|| GET_UNIQUE(tch) != GET_LOT(lot)->buyer_unique || !(obj = GET_LOT(lot)->item)
+		|| GET_UID(ch) != GET_LOT(lot)->seller_unique || !(tch = GET_LOT(lot)->buyer)
+		|| GET_UID(tch) != GET_LOT(lot)->buyer_unique || !(obj = GET_LOT(lot)->item)
 		|| obj->get_id() != GET_LOT(lot)->item_id)
 		return (false);
 
@@ -755,9 +755,9 @@ void check_auction(CharData *ch, ObjData *obj) {
 		for (i = 0; i < kMaxAuctionLot; i++) {
 			if (!GET_LOT(i)->seller || !GET_LOT(i)->item)
 				continue;
-			if (GET_LOT(i)->seller == ch || GET_LOT(i)->seller_unique == GET_UNIQUE(ch)
-				|| GET_LOT(i)->buyer == ch || GET_LOT(i)->buyer_unique == GET_UNIQUE(ch)
-				|| GET_LOT(i)->prefect == ch || GET_LOT(i)->prefect_unique == GET_UNIQUE(ch)) {
+			if (GET_LOT(i)->seller == ch || GET_LOT(i)->seller_unique == GET_UID(ch)
+				|| GET_LOT(i)->buyer == ch || GET_LOT(i)->buyer_unique == GET_UID(ch)
+				|| GET_LOT(i)->prefect == ch || GET_LOT(i)->prefect_unique == GET_UID(ch)) {
 				sprintf(tmpbuf, "Аукцион : лот %d(%s) снят с аукциона распорядителем.",
 						i, GET_LOT(i)->item->get_PName(0).c_str());
 				message_auction(tmpbuf, ch);

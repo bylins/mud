@@ -492,7 +492,7 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 		uid_type = UID_CHAR;
-		idnum = mob->id;
+		idnum = mob->get_uid();
 		PlaceCharToRoom(mob, GetRoomRnum(room->vnum));
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {

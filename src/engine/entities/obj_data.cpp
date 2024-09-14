@@ -1336,7 +1336,7 @@ void delete_item(const std::size_t pt_num, int vnum) {
 		return;
 	}
 	// перс.хран
-	Depot::delete_set_item(player_table[pt_num].unique, vnum);
+	Depot::delete_set_item(player_table[pt_num].uid(), vnum);
 }
 
 // * Проверка при ребуте всех рент и перс.хранилищ чаров.
@@ -1355,7 +1355,7 @@ void check_rented() {
 			}
 		}
 		// перс.хран
-		Depot::check_rented(player_table[i].unique);
+		Depot::check_rented(player_table[i].uid());
 		// проверка итогового списка
 		for (std::vector<SetNode>::iterator it = set_list.begin(),
 				 iend = set_list.end(); it != iend; ++it) {

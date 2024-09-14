@@ -86,7 +86,7 @@ int add_message(int mode, long uid) {
 namespace antispam {
 
 bool check(CharData *ch, int mode) {
-	int flag = add_message(mode, GET_UNIQUE(ch));
+	int flag = add_message(mode, GET_UID(ch));
 	if (NORMAL_FLAG != flag) {
 		std::stringstream text;
 		text << "Спам-контроль: ";

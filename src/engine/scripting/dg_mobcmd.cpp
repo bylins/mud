@@ -351,7 +351,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 		}
 		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		uid_type = UID_CHAR;
-		idnum = mob->id;
+		idnum = mob->get_uid();
 		PlaceCharToRoom(mob, ch->in_room);
 		load_mtrigger(mob);
 	} else if (utils::IsAbbr(arg1, "obj")) {
@@ -815,8 +815,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 */
 		PlaceCharToRoom(m, ch->in_room);
 		std::swap(ch, m);
-		std::swap(ch->id, m->id); //UID надо осталять старые
-//перенесем триггера
+		long tmp = ch->get_uid(); //UID надо осталять старые
+		ch->set_uid(m->get_uid());
+		m->set_uid(tmp);
 		ch->script->types = m->script->types;
 		ch->script->trig_list.clear();
 	 	for (auto t_tmp : m->script->trig_list) {
@@ -879,9 +880,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		// для name_list
-		ch->set_serial_num(m->get_serial_num());
 		ExtractCharFromWorld(m, true);
-		chardata_by_uid[ch->id] = ch;
+		chardata_by_uid[ch->get_uid()] = ch;
 		if (trig->curr_line->next) {
 			trig_copy->curr_line = trig->curr_line->next;
 			script_driver(ch, trig_copy, MOB_TRIGGER, TRIG_FROM_LINE);

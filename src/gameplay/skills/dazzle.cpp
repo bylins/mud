@@ -101,7 +101,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af2.type = ESpell::kDazzle;
 	af2.duration = 5;
 	af2.battleflag = kNone;
-	af2.caster_id = GET_ID(ch);
+	af2.caster_id = GET_UID(ch);
 
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {

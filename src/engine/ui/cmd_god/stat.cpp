@@ -113,12 +113,11 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
-			"%s '%s' IDNum: [%ld] В комнате [%d] Текущий Id:[%ld]",
-			(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
+			"%s '%s' В комнате [%d] Текущий UID:[%ld]",
+			(!k->IsNpc() ? "PC" : "MOB"),
 			GET_NAME(k),
-			GET_IDNUM(k),
 			k_room,
-			GET_ID(k));
+			k->get_uid());
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (IS_MOB(k)) {
@@ -158,7 +157,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		std::string file_name = GET_NAME(k);
 		CreateFileName(file_name);
-		sprintf(buf, "E-mail: &S%s&s Unique: %d File: %s\r\n", GET_EMAIL(k), GET_UNIQUE(k), file_name.c_str());
+		sprintf(buf, "E-mail: &S%s&s File: %s\r\n", GET_EMAIL(k), file_name.c_str());
 		SendMsgToChar(buf, ch);
 
 		std::string text = RegisterSystem::ShowComment(GET_EMAIL(k));
@@ -263,7 +262,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
-		time_t ltime = GetLastlogonByUnique(GET_UNIQUE(k));
+		time_t ltime = GetLastlogonByUnique(GET_UID(k));
 		char t1[11];
 		char t2[11];
 		strftime(t1, sizeof(t1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
@@ -331,8 +330,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf,
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
-			Glory::get_glory(GET_UNIQUE(k)),
-			GloryConst::get_glory(GET_UNIQUE(k)),
+			Glory::get_glory(GET_UID(k)),
+			GloryConst::get_glory(GET_UID(k)),
 			GET_AC(k),
 			GET_REAL_AC(k),
 			compute_armor_class(k),

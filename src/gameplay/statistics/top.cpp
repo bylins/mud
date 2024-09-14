@@ -49,7 +49,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
-	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GetRealRemort(short_ch));
+	TopPlayer temp_player(GET_UID(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GetRealRemort(short_ch));
 
 	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
 		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);

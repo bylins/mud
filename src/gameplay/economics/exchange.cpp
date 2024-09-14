@@ -249,7 +249,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GetRealRemort(ch) * 2));
 		 j = next_thing) {
 		next_thing = j->next;
-		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch)) {
+		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_UID(ch)) {
 			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
 				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient) {
 				counter++;
@@ -270,7 +270,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 	item = create_exchange_item();
 	GET_EXCHANGE_ITEM_LOT(item) = lot;
-	GET_EXCHANGE_ITEM_SELLERID(item) = GET_IDNUM(ch);
+	GET_EXCHANGE_ITEM_SELLERID(item) = GET_UID(ch);
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
 	item->time = time(0);
 	skip_spaces(&arg);
@@ -328,7 +328,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -398,12 +398,12 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
 	act("Вы сняли $O3 с базара.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
-	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) {
+	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	} else {
@@ -538,7 +538,7 @@ int exchange_identify(CharData *ch, char *arg) {
 
 CharData *get_char_by_id(int id) {
 	for (const auto &i : character_list) {
-		if (!i->IsNpc() && GET_IDNUM(i) == id) {
+		if (!i->IsNpc() && GET_UID(i) == id) {
 			return i.get();
 		}
 	}
@@ -573,7 +573,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if (GET_EXCHANGE_ITEM_SELLERID(item) == GET_IDNUM(ch)) {
+	if (GET_EXCHANGE_ITEM_SELLERID(item) == GET_UID(ch)) {
 		SendMsgToChar("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}

@@ -586,7 +586,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 						}
 						load_mtrigger(mob);
 						PlaceCharToRoom(mob, GetRoomRnum((*room)->vnum));
-						AddMobToLoadList(mob->id, mob);
+						AddMobToLoadList(mob->get_uid(), mob);
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in) {
 							ObjRnum rnum = GetObjRnum((*load_in)->vnum);
 
@@ -705,7 +705,7 @@ void ProcessAttachCelebrate(CelebrateDataPtr &celebrate, int zone_vnum) {
 					}
 				}
 
-				AddMobToAttachList(ch->id, ch.get());
+				AddMobToAttachList(ch->get_uid(), ch.get());
 			}
 		}
 	}

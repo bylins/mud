@@ -97,7 +97,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (!enter_wtrigger(world[door], ch, -1))
 					return;
 				act("$n исчез$q в пентаграмме.", true, ch, nullptr, nullptr, kToRoom);
-				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch)
+				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UID(ch)
 					&& !IS_IMMORTAL(ch)) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 								  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));

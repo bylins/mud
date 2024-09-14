@@ -36,7 +36,7 @@ int spent_today = 0;
 
 bool check_money(CharData *ch, long price, const std::string &currency) {
 	if (currency == "слава") {
-		const auto total_glory = GloryConst::get_glory(GET_UNIQUE(ch));
+		const auto total_glory = GloryConst::get_glory(GET_UID(ch));
 		return total_glory >= price;
 	}
 
@@ -359,7 +359,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			load_otrigger(obj);
 			obj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 			if (obj->has_flag(EObjFlag::kBindOnPurchase)) {
-				obj->set_owner(GET_UNIQUE(ch));
+				obj->set_owner(GET_UID(ch));
 			}
 			PlaceObjToInventory(obj, ch);
 			if (currency == "слава") {
@@ -369,7 +369,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				}
 				// снятие и логирование славы
 				GloryConst::add_total_spent(price);
-				GloryConst::remove_glory(GET_UNIQUE(ch), price);
+				GloryConst::remove_glory(GET_UID(ch), price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
 										 GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
 			} else if (currency == "лед") {
