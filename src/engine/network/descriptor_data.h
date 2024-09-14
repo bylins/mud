@@ -8,11 +8,28 @@
 #define BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 
 #include "gameplay/communication/boards_types.h"
+#include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "utils/utils_string.h"
 
 #include <string>
+
+namespace Glory {
+	class spend_glory;
+}
+namespace GloryConst {
+	struct glory_olc;
+}
+namespace NamedStuff {
+	struct stuff_node;
+}
+namespace MapSystem {
+	struct Options;
+}
+namespace  obj_sets_olc {
+	class sedit;
+}
 
 struct DescriptorData {
 	DescriptorData();

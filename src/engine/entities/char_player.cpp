@@ -1506,7 +1506,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						fbgetline(fl, line);
 						sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 						if (buf[0] != '~') {
-							const Logon cur_log = {str_dup(buf), lnum, lnum2, false};
+							const network::Logon cur_log = {str_dup(buf), lnum, lnum2, false};
 							LOGON_LIST(this).push_back(cur_log);
 						} else break;
 					} while (true);
@@ -1514,7 +1514,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					if (!LOGON_LIST(this).empty()) {
 						LOGON_LIST(this).at(0).is_first = true;
 						std::sort(LOGON_LIST(this).begin(), LOGON_LIST(this).end(),
-								  [](const Logon &a, const Logon &b) {
+								  [](const network::Logon &a, const network::Logon &b) {
 									  return a.lasttime < b.lasttime;
 								  });
 					}

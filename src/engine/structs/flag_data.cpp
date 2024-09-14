@@ -230,4 +230,19 @@ bool CompareBits(const FlagData &flags, const char *names[], int affect) {
 	return false;
 }
 
+void tascii(const Bitvector *pointer, int num_planes, char *ascii) {
+	bool found = false;
+
+	for (int i = 0; i < num_planes; i++) {
+		for (int c = 0; c < 30; c++) {
+			if (pointer[i] & (1 << c)) {
+				found = true;
+				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
+			}
+		}
+	}
+
+	strcat(ascii, found ? " " : "0 ");
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

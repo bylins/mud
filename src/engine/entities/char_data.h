@@ -20,12 +20,17 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/mem_queue.h"
 #include "gameplay/ai/mob_memory.h"
+#include "engine/network/logon.h"
 
 #include <unordered_map>
 #include <bitset>
 #include <list>
 #include <map>
 
+// pernalty types
+enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
+
+enum { DRUNK, FULL, THIRST };
 
 // These data contain information about a players time data
 struct time_data {
@@ -257,7 +262,7 @@ struct player_special_data {
 	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	std::vector<Logon> logons; //Записи о входах чара
+  	network::LogonRecords logons;
 
 // Punishments structs
 	Punish pmute;

@@ -61,19 +61,10 @@ extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
 extern void ExtractObjFromWorld(ObjData *obj);
 
-//------------------------------------------------------------------------
-
-// * Handy macros.
-#define S_PRODUCT(s, i) ((s)->producing[(i)])
-
-//------------------------------------------------------------------------
 void oedit_setup(DescriptorData *d, int real_num);
-
 void oedit_object_copy(ObjData *dst, CObjectPrototype *src);
-
 void oedit_save_internally(DescriptorData *d);
 void oedit_save_to_disk(int zone);
-
 void oedit_parse(DescriptorData *d, char *arg);
 void oedit_disp_spells_menu(DescriptorData *d);
 void oedit_liquid_type(DescriptorData *d);

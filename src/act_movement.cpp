@@ -24,6 +24,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "administration/privilege.h"
 #include "gameplay/skills/pick.h"
+#include "gameplay/skills/track.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/liquid.h"

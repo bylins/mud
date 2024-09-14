@@ -14,6 +14,11 @@ class CharData;
 
 namespace ExtMoney {
 
+const unsigned kTorcGold = 0;        // золотые гривны
+const unsigned kTorcSilver = 1;        // серебряные гривны
+const unsigned kTorcBronze = 2;        // бронзовые гривны
+const unsigned kTotalTypes = 3;        // терминатор всегда в конце
+
 void torc_exch_menu(CharData *ch);
 void torc_exch_parse(CharData *ch, const char *arg);
 
@@ -21,7 +26,7 @@ void drop_torc(CharData *mob);
 std::string draw_daily_limit(CharData *ch, bool imm_stat = false);
 
 void player_drop_log(CharData *ch, unsigned type, int num);
-std::string name_currency_plural(std::string name);
+std::string name_currency_plural(const std::string& name);
 
 } // namespace ExtMoney
 

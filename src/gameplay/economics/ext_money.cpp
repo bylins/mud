@@ -40,7 +40,7 @@ std::map<std::string, std::string> plural_name_currency_map = {
 	{"ногаты", "ногат"}
 };
 
-std::string name_currency_plural(std::string name) {
+std::string name_currency_plural(const std::string& name) {
 	auto it = plural_name_currency_map.find(name);
 	if (it != plural_name_currency_map.end()) {
 		return (*it).second;

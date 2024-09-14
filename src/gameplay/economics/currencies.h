@@ -12,6 +12,12 @@
 #include "engine/entities/entities_constants.h"
 #include "engine/structs/info_container.h"
 
+// Старый неймспейс со старыми идами валют
+// Его необходимо удалить после доделывания системы валют
+namespace currency {
+enum { GOLD, GLORY, TORC, ICE, NOGATA };
+}
+
 namespace currencies {
 
 /**

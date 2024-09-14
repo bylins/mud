@@ -113,6 +113,7 @@
 #include "administration/password.h"
 #include "administration/privilege.h"
 #include "engine/entities/room_data.h"
+#include "engine/network/logon.h"
 #include "engine/ui/color.h"
 #include "gameplay/skills/armoring.h"
 #include "gameplay/skills/skills.h"
@@ -235,7 +236,6 @@ void perform_complex_alias(struct TextBlocksQueue *input_q, char *orig, struct a
 int perform_alias(DescriptorData *d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *argument, char *name);
-void add_logon_record(DescriptorData *d);
 int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);
 void init_warcry(CharData *ch);
@@ -1918,7 +1918,7 @@ int perform_dupe_check(DescriptorData *d) {
 			break;
 	}
 
-	add_logon_record(d);
+	network::add_logon_record(d);
 	return 1;
 }
 
@@ -2019,32 +2019,6 @@ int check_dupes_email(DescriptorData *d) {
 	}
 
 	return 1;
-}
-
-void add_logon_record(DescriptorData *d) {
-	// Добавляем запись в LOG_LIST
-	d->character->get_account()->add_login(std::string(d->host));
-
-	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
-									[&](const Logon &l) -> bool {
-									  return !strcmp(l.ip, d->host);
-									});
-
-	if (logon == LOGON_LIST(d->character).end()) {
-		const Logon cur_log = {str_dup(d->host), 1, time(nullptr), false};
-		LOGON_LIST(d->character).push_back(cur_log);
-	} else {
-		++logon->count;
-		logon->lasttime = time(nullptr);
-	}
-
-	int pos = d->character->get_pfilepos();
-	if (pos >= 0) {
-		if (player_table[pos].last_ip)
-			free(player_table[pos].last_ip);
-		player_table[pos].last_ip = str_dup(d->host);
-		player_table[pos].last_logon = LAST_LOGON(d->character);
-	}
 }
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
@@ -2284,7 +2258,7 @@ void do_entergame(DescriptorData *d) {
 	d->character->set_last_logon(time(nullptr));
 //	player_table[GetPtableByUnique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
-	add_logon_record(d);
+	network::add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
 	d->character->set_who_last(time(nullptr));
@@ -3448,7 +3422,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			new_loc_codes.erase(GET_EMAIL(d->character));
-			add_logon_record(d);
+			network::add_logon_record(d);
 			DoAfterPassword(d);
 
 			break;

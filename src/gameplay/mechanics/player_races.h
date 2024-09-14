@@ -14,6 +14,9 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 
+// PC Kin - выпилить к чертям
+const int kNumKins = 3;
+
 const int RACE_UNDEFINED = -1;
 const int KIN_UNDEFINED = -1;
 #define RACE_NAME_UNDEFINED "RaceUndef"

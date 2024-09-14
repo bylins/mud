@@ -13,6 +13,8 @@
 
 namespace Glory {
 
+class spend_glory;
+
 int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);

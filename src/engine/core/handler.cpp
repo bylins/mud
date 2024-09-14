@@ -34,6 +34,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/cities.h"
+#include "gameplay/mechanics/player_races.h"
 
 using classes::CalcCircleSlotsAmount;
 

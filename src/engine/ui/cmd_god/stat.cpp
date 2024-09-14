@@ -22,6 +22,7 @@
 #include "gameplay/mechanics/noob.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/economics/ext_money.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 

@@ -14,6 +14,7 @@
 #include "global_objects.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/mechanics/obj_sets_stuff.h"
+#include "gameplay/mechanics/player_races.h"
 
 extern char *help;
 extern int top_imrecipes;

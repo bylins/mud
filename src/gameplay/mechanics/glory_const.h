@@ -10,6 +10,7 @@
 #include "engine/ui/interpreter.h"
 
 namespace GloryConst {
+struct glory_olc;
 const int cur_ver = 1;//текущая версия нужна чтоб определить надо обновлять xml файл/пересчитывать статы или нет
 
 // процент комиссии на вложенную славу при вынимании

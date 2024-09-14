@@ -19,6 +19,7 @@
 #include "gameplay/crafting/im.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/skills/track.h"
 #include "engine/entities/room_data.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/mechanics/dead_load.h"

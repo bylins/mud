@@ -475,7 +475,7 @@ class InspectRequestAll : public InspectRequest {
   void NoteVictimInfo(const CharData::shared_ptr &vict);
   bool IsIpMatched(const char *ip);
   bool IsLogonsIntersect(const CharData::shared_ptr &player);
-  void NoteLogonInfo(const Logon &logon);
+  void NoteLogonInfo(const network::Logon &logon);
   void FlushLogonsBufferToReportGenerator();
 
   bool IsIndexMatched(const PlayerIndexElement &index) final;
@@ -561,7 +561,7 @@ bool InspectRequestAll::IsIpMatched(const char *ip) {
 	return (ip && !kIgnoredIpChecklist.contains(ip) && victim_ip_log_.contains(ip));
 }
 
-void InspectRequestAll::NoteLogonInfo(const Logon &logon) {
+void InspectRequestAll::NoteLogonInfo(const network::Logon &logon) {
 	current_char_intercesting_logons_
 		<< fmt::format(" IP: {}{:<16}{} Logons: {}. Last: {:%R %e-%b-%Y}.\r\n",
 					   KICYN, logon.ip, KNRM, logon.count,

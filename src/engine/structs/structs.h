@@ -34,29 +34,24 @@ using ubyte = uint8_t;
 using sh_int = int16_t ;
 using ush_int = uint16_t;
 
-// This structure describe new bitvector structure
 using Bitvector = uint32_t;
 constexpr Bitvector kIntOne = 1u << 30;
 constexpr Bitvector kIntTwo = 2u << 30;
 constexpr Bitvector kIntThree = 3u << 30;
 
 using Vnum = int;
-using RoomVnum = Vnum;	// A room's vnum type //
-using ObjVnum = Vnum;	// An object's vnum type //
-using MobVnum = Vnum;	// A mob's vnum type //
-using ZoneVnum = Vnum;	// A virtual zone number.  //
-using TrgVnum = Vnum;	// A virtual trigger number.  //
+using RoomVnum = Vnum;
+using ObjVnum = Vnum;
+using MobVnum = Vnum;
+using ZoneVnum = Vnum;
+using TrgVnum = Vnum;
 
 using Rnum = int;
-using RoomRnum = Rnum;	// A room's real (internal) number type //
-using ObjRnum = Rnum;	// An object's real (internal) num type //
-using MobRnum = Rnum;	// A mobile's real (internal) num type //
-using ZoneRnum = Rnum;	// A zone's real (array index) number. //
-using TrgRnum = Rnum;	// A trigger's real (array index) number. //
-
-#if !defined(__cplusplus)    // Anyone know a portable method?
-typedef char bool;
-#endif
+using RoomRnum = Rnum;
+using ObjRnum = Rnum;
+using MobRnum = Rnum;
+using ZoneRnum = Rnum;
+using TrgRnum = Rnum;
 
 #if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)    // Hm, sysdep.h?
 typedef char byte;
@@ -65,21 +60,6 @@ typedef char byte;
 const int kMinRemort = 0;
 const int kMaxRemort = 75;
 const int kMaxPlayerLevel = 30;
-
-// Структуры валют надо вынести в отдельный модуль с механикой валют ***************************************
-
-namespace ExtMoney {
-const unsigned kTorcGold = 0;        // золотые гривны
-const unsigned kTorcSilver = 1;        // серебряные гривны
-const unsigned kTorcBronze = 2;        // бронзовые гривны
-const unsigned kTotalTypes = 3;        // терминатор всегда в конце
-} // namespace ExtMoney
-
-
-namespace currency {
-enum { GOLD, GLORY, TORC, ICE, NOGATA };
-}
-
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
 
@@ -101,16 +81,10 @@ class CharData;    // forward declaration to avoid inclusion of char.hpp and any
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 class Trigger;
 
-// preamble ************************************************************
-
-const __int8_t kNoHouse = -1;        // nil reference for non house
 const __int8_t kNowhere = 0;        // nil reference for room-database
 const __int8_t kNothing = -1;        // nil reference for objects
 const __int8_t kNobody = -1;        // nil reference for mobiles
 
-// misc editor defines *************************************************
-
-// format modes for format_text
 constexpr int kFormatIndent = 1 << 0;
 
 const __uint8_t kCodePageAlt = 1;
@@ -139,12 +113,6 @@ E ITEM_BY_NAME(const std::string &name) {
 template<typename E>
 inline E ITEM_BY_NAME(const char *name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
-// PC Kin - выпилить к чертям
-const int kNumKins = 3;
-
-// Descriptor flags //
-//constexpr bitvector_t DESC_CANZLIB = 1 << 0;    // Client says compression capable.   //
-
 // object-related defines ******************************************* //
 
 template<typename E>
@@ -152,39 +120,12 @@ constexpr typename std::underlying_type<E>::type to_underlying(E e) {
 	return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
-constexpr Bitvector TRACK_NPC = 1 << 0;
-constexpr Bitvector TRACK_HIDE = 1 << 1;
-
-// other miscellaneous defines ****************************************** //
-
-enum { DRUNK, FULL, THIRST };
-// pernalty types
-enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
-
-constexpr Bitvector EXTRA_FAILHIDE = 1 << 0;
-constexpr Bitvector EXTRA_FAILSNEAK = 1 << 1;
-constexpr Bitvector EXTRA_FAILCAMOUFLAGE = 1 << 2;
-constexpr Bitvector EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания повторных записей моба в списки SetsDrop
-
-// other #defined constants ********************************************* //
-
-/*
- * **DO**NOT** blindly change the number of levels in your MUD merely by
- * changing these numbers and without changing the rest of the code to match.
- * Other changes throughout the code are required.  See coding.doc for
- * details.
- *
- * kLevelImplementator should always be the HIGHEST possible immortal level, and
- * kLevelImmortal should always be the LOWEST immortal level.  The number of
- * mortal levels will always be kLevelImmortal - 1.
- */
 const int kLvlImplementator = 34;
 const int kLvlGreatGod = 33;
 const int kLvlBuilder = 33;
 const int kLvlGod = 32;
 const int kLvlImmortal = 31;
 const int kLvlFreeze = kLvlGreatGod; // Level of the 'freeze' command //
-
 const __uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 
 constexpr long long kOptUsec = 40000;    // 25 passes per second //
@@ -193,9 +134,7 @@ constexpr long long kRealSec = kPassesPerSec;
 constexpr long long kPulseZone = (1*kRealSec);
 constexpr long long kPulseMobile = (10*kRealSec);
 constexpr long long kBattleRound = (2*kRealSec);
-
 const int kZonesReset = 1;    // number of zones to reset at one time //
-//#define PULSE_LOGROTATE (10 kRealSec)
 
 // Variables for the output buffering system //
 constexpr __uint16_t kMaxSockBuf = 48 * 1024;	// Size of kernel's sock buf   //
@@ -205,8 +144,7 @@ const __uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
 // Max amount of output that can be buffered //
 constexpr __uint16_t kLargeBufSize = kMaxSockBuf - kGarbageSpace - kMaxPromptLength;
 
-// Keep last 5 commands
-const int kHistorySize = 5;
+const int kHistorySize = 5; // Keep last commands
 const int kMaxStringLength = 32768;
 const int kMaxExtendLength = 0xFFFF;
 const std::size_t kMaxInputLength = 2048;   // Max length per *line* of input //
@@ -216,44 +154,23 @@ const int kMaxNameLength = 20;
 const int kMinNameLength = 5;
 const int kHostLength = 30;
 const int kExdscrLength = 512;
-const int kMaxAffect = 128;
 const int kMaxObjAffect = 8;
-const int kMaxHits = 32000; // Максимальное количество хитов и дамага //
+const int kMaxHits = 32000;
 const long kMaxMoneyKept = 1000000000L; // планка на кол-во денег у чара на руках и в банке (раздельно) //
 const int_least32_t MAX_TIME = 0x7fffffff;
-
 const int kMinCharLevel = 0;
 const int kMaxMobLevel = 100;
-const int kMaxSaving = 400; //максимальное значение воля, здоровье, стойкость, реакция
+const int kMaxSaving = 400;
 constexpr int kMinSaving = -kMaxSaving;
 const int kMaxNpcResist = 100;
 constexpr int kMinResistance = -kMaxNpcResist;
 const int kStrongMobLevel = 30;
 
-bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
-
-inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, const int print_flag = 0) {
-	return sprintbitwd(bitvector, names, result, ",", print_flag);
-}
-
-// =======================================================================
-
-// char-related structures ***********************************************
-
-// This structure is purely intended to be an easy way to transfer //
-// and return information about time (real or mudwise).            //
 struct TimeInfoData {
 	int hours = 0;
 	int day = 0;
 	int month = 0;
 	sh_int year = 0;
-};
-
-struct Logon {
-	char *ip;
-	long count;
-	time_t lasttime;
-	bool is_first;
 };
 
 struct Punish {
@@ -263,13 +180,10 @@ struct Punish {
 	long godid = 0;
 };
 
-// Structure used for entities following other entities //
 struct FollowerType {
 	CharData *follower = nullptr;
 	struct FollowerType *next = nullptr;
 };
-
-// descriptor-related structures ****************************************
 
 struct TextBlock {
 	char *text = nullptr;
@@ -283,50 +197,13 @@ struct TextBlocksQueue {
 };
 // ===============================================================
 
-namespace Glory {
-
-class spend_glory;
-
-}
-
-namespace GloryConst {
-
-struct glory_olc;
-
-}
-
-namespace NamedStuff {
-
-struct stuff_node;
-
-}
-
-#if defined WITH_SCRIPTING
-namespace scripting
-{
-	class Console;
-}
-#endif
-
-namespace MapSystem {
-struct Options;
-}
-
-namespace obj_sets_olc {
-class sedit;
-}
-
 #ifndef HAVE_ZLIB
 struct z_stream;
 #endif
-// ===============================================================
-
-// ===============================================================
-// other miscellaneous structures **************************************
 
 struct IndexData {
 	IndexData() : vnum(0), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
-	IndexData(int _vnum)
+	explicit IndexData(int _vnum)
 		: vnum(_vnum), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
 
 	Vnum vnum;            // virtual number of this mob/obj       //
@@ -338,21 +215,8 @@ struct IndexData {
 	int zone;            // mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
-// ===============================================================
-
-const __uint8_t GAPPLY_NONE = 0;
-const __uint8_t GAPPLY_SKILL_SUCCESS = 1;
-const __uint8_t GAPPLY_SPELL_SUCCESS = 2;
-const __uint8_t GAPPLY_SPELL_EFFECT = 3;
-const __uint8_t GAPPLY_MODIFIER = 4;
-const __uint8_t GAPPLY_AFFECT = 5;
 
 // ===============================================================
-
-namespace parser_wrapper {
-// forward declaration
-class DataNode;
-}
 
 enum ECase {
 	kNom = 0,
@@ -364,6 +228,11 @@ enum ECase {
 	kFirstCase = kNom,
 	kLastCase = kPre,
 };
+
+namespace parser_wrapper {
+// forward declaration
+class DataNode;
+}
 
 namespace base_structs {
 

@@ -19,6 +19,7 @@
 void asciiflag_conv(const char *flag, void *to);
 
 int ext_search_block(const char *arg, const char *const *list, int exact);
+void tascii(const Bitvector *pointer, int num_planes, char *ascii);
 
 class FlagData {
  public:
@@ -148,8 +149,6 @@ inline bool unique_bit_flag_data::operator>(const unique_bit_flag_data &r) const
 			|| m_flags[2] > r.m_flags[2]
 			|| m_flags[3] > r.m_flags[3]);
 }
-
-void tascii(const Bitvector *pointer, int num_planes, char *ascii);
 
 inline int flag_data_by_num(const int &num) {
 	return num < 0 ? 0 :

@@ -1879,8 +1879,6 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	obj_sets::print_identify(ch, obj);
 }
 
-#define IDENT_SELF_LEVEL 6
-
 void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	int val0, val1, val2;
 

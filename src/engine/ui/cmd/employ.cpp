@@ -75,7 +75,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 				SendMsgToChar("Применять можно только магические предметы!\r\n", ch);
 				return;
 			}
-			// палочки с чармами/оживлялками юзают только кастеры и дружи до 25 левева
+
 			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(mag_item, 3));
 			if (spell_id == ESpell::kCharm || spell_id == ESpell::kAnimateDead || spell_id == ESpell::kResurrection) {
 				if (!CanUseFeat(ch, EFeat::kMagicUser)) {

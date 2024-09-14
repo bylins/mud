@@ -316,7 +316,8 @@ set(SOURCES
 		src/engine/ui/cmd/listen.cpp
 		src/engine/ui/cmd/do_zone.cpp
 		src/gameplay/skills/dazzle.cpp
-		src/gameplay/ai/mob_memory.cpp)
+		src/gameplay/ai/mob_memory.cpp
+		src/engine/network/logon.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -613,7 +614,8 @@ set(HEADERS
 		src/engine/ui/cmd/listen.h
 		src/engine/ui/cmd/do_zone.h
 		src/gameplay/ai/mob_memory.h
-		src/gameplay/skills/dazzle.h)
+		src/gameplay/skills/dazzle.h
+		src/engine/network/logon.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

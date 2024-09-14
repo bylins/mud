@@ -157,6 +157,13 @@ enum EEquipPos : int {
 	kNumEquipPos = 20    // This must be the # of eq positions!!
 };
 
+// Экстра флаги персонажа
+// \TODO Переделать на enum или удалить
+constexpr Bitvector EXTRA_FAILHIDE = 1 << 0;
+constexpr Bitvector EXTRA_FAILSNEAK = 1 << 1;
+constexpr Bitvector EXTRA_FAILCAMOUFLAGE = 1 << 2;
+constexpr Bitvector EXTRA_GRP_KILL_COUNT = 1 << 3; // для избежания повторных записей моба в списки SetsDrop
+
 /*
  * ========================================================================================
  *  								PC constants

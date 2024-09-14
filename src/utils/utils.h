@@ -1430,6 +1430,12 @@ std::string PrintNumberByDigits(long long num, const char separator = ' ');
 
 void PruneCrlf(char *txt);
 
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, int print_flag = 0);
+
+inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, const int print_flag = 0) {
+	return sprintbitwd(bitvector, names, result, ",", print_flag);
+}
+
 #endif // UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

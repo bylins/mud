@@ -4,6 +4,13 @@
 #include "engine/structs/structs.h"
 #include "gameplay/skills/skills.h" // ABYRVALG - вынести в скиллз_константс
 
+const __uint8_t GAPPLY_NONE = 0;
+const __uint8_t GAPPLY_SKILL_SUCCESS = 1;
+const __uint8_t GAPPLY_SPELL_SUCCESS = 2;
+const __uint8_t GAPPLY_SPELL_EFFECT = 3;
+const __uint8_t GAPPLY_MODIFIER = 4;
+const __uint8_t GAPPLY_AFFECT = 5;
+
 enum class ESeason {
 	kWinter = 0,
 	kSpring,
