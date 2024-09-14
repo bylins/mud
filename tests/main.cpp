@@ -1,4 +1,4 @@
-#include <config.h>
+#include "engine/core/config.h"
 
 #include <gtest/gtest.h>
 

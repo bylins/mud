@@ -2,7 +2,7 @@
 
 #include <random>
 
-#include "entities/char_player.h"
+#include "engine/entities/char_player.h"
 
 NameAdviser::NameAdviser() {
 	std::srand(static_cast<unsigned int>((std::time(nullptr))));

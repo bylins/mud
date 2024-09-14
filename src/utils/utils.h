@@ -20,16 +20,16 @@
 #include <vector>
 #include <sstream>
 
-#include "game_classes/classes_constants.h"
-#include "game_classes/classes.h"
-#include "conf.h"
-#include "config.h"
-#include "entities/entities_constants.h"
+#include "gameplay/classes/classes_constants.h"
+#include "gameplay/classes/classes.h"
+#include "engine/core/conf.h"
+#include "engine/core/config.h"
+#include "engine/entities/entities_constants.h"
 #include "utils/id_converter.h"
-#include "structs/structs.h"
-#include "game_mechanics/weather.h"
+#include "engine/structs/structs.h"
+#include "gameplay/mechanics/weather.h"
 #include "utils_string.h"
-#include "entities/zone.h"
+#include "engine/entities/zone.h"
 #include "utils/utils_time.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
@@ -202,9 +202,6 @@ ZoneVnum GetZoneVnumByCharPlace(CharData *ch);
 #define WtoK(c) ((ubyte)(c) < 128 ? (c) : WinToKoi[(ubyte)(c)-128])
 #define AtoK(c) ((ubyte)(c) < 128 ? (c) : AltToKoi[(ubyte)(c)-128])
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
-
-// in act.informative.cpp //
-void look_at_room(CharData *ch, int mode, bool msdp_mode = true);
 
 // in act.movmement.cpp //
 int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is_flee);
@@ -1430,6 +1427,12 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
 std::string PrintNumberByDigits(long long num, const char separator = ' ');
 
 void PruneCrlf(char *txt);
+
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, int print_flag = 0);
+
+inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, const int print_flag = 0) {
+	return sprintbitwd(bitvector, names, result, ",", print_flag);
+}
 
 #endif // UTILS_H_
 

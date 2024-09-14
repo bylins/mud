@@ -1,7 +1,7 @@
 #ifndef ACT_MOVEMENT_HPP_
 #define ACT_MOVEMENT_HPP_
 
-#include "structs/structs.h"
+#include "engine/structs/structs.h"
 
 class CharData;
 class ObjData;

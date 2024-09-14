@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <telnet.h>
+#include "engine/network/telnet.h"
 #include <msdp/msdp_senders.h>
 #include <msdp/msdp_constants.h>
 

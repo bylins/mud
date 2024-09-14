@@ -3,7 +3,7 @@
 
 #include "logger.h"
 #include "third_party_libs/pugixml/pugixml.h"
-#include "structs/flag_data.h"
+#include "engine/structs/flag_data.h"
 #include "utils/utils.h"
 
 namespace xml {

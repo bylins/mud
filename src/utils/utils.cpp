@@ -17,40 +17,38 @@
 #include <algorithm>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-#include "entities/world_characters.h"
-#include "obj_prototypes.h"
+#include "engine/db/world_characters.h"
+#include "engine/db/obj_prototypes.h"
 #include "logger.h"
-#include "entities/obj_data.h"
-#include "db.h"
-#include "comm.h"
-#include "color.h"
-#include "game_magic/spells.h"
-#include "handler.h"
-#include "interpreter.h"
-#include "constants.h"
-#include "game_crafts/im.h"
-#include "dg_script/dg_scripts.h"
+#include "engine/entities/obj_data.h"
+#include "engine/db/db.h"
+#include "engine/core/comm.h"
+#include "engine/ui/color.h"
+#include "gameplay/magic/spells.h"
+#include "engine/core/handler.h"
+#include "engine/ui/interpreter.h"
+#include "gameplay/core/constants.h"
+#include "gameplay/crafting/im.h"
+#include "engine/scripting/dg_scripts.h"
 #include "administration/privilege.h"
-#include "entities/char_data.h"
-#include "entities/room_data.h"
-#include "modify.h"
-#include "house.h"
-#include "game_mechanics/player_races.h"
-#include "depot.h"
-#include "obj_save.h"
-#include "game_fight/fight.h"
-#include "game_skills/skills.h"
-#include "game_economics/exchange.h"
-#include "game_mechanics/sets_drop.h"
-#include "structs/structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "game_mechanics/obj_sets.h"
+#include "engine/entities/char_data.h"
+#include "engine/entities/room_data.h"
+#include "engine/ui/modify.h"
+#include "gameplay/clans/house.h"
+#include "gameplay/mechanics/player_races.h"
+#include "gameplay/mechanics/depot.h"
+#include "engine/db/obj_save.h"
+#include "gameplay/fight/fight.h"
+#include "gameplay/skills/skills.h"
+#include "gameplay/economics/exchange.h"
+#include "gameplay/mechanics/sets_drop.h"
+#include "engine/structs/structs.h"
+#include "engine/core/sysdep.h"
+#include "engine/core/conf.h"
+#include "gameplay/mechanics/obj_sets.h"
 #include "utils_string.h"
 #include "backtrace.h"
 
-//#include "noob.h"
-//#include "game_mechanics/guilds.h"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -2768,6 +2766,71 @@ void koi_to_utf8(char *str_i, char *str_o) {
 
 ZoneVnum GetZoneVnumByCharPlace(CharData *ch) {
 		return zone_table[world[ch->in_room]->zone_rn].vnum;
+}
+
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag) {
+
+	long nr = 0;
+	Bitvector fail;
+	int plane = 0;
+	char c = 'a';
+
+	*result = '\0';
+
+	fail = bitvector >> 30;
+	bitvector &= 0x3FFFFFFF;
+	while (fail) {
+		if (*names[nr] == '\n') {
+			fail--;
+			plane++;
+		}
+		nr++;
+	}
+
+	bool can_show;
+	for (; bitvector; bitvector >>= 1) {
+		if (IS_SET(bitvector, 1)) {
+			can_show = ((*names[nr] != '*') || (print_flag & 4));
+
+			if (*result != '\0' && can_show)
+				strcat(result, div);
+
+			if (*names[nr] != '\n') {
+				if (print_flag & 1) {
+					sprintf(result + strlen(result), "%c%d:", c, plane);
+				}
+				if ((print_flag & 2) && (!strcmp(names[nr], "UNUSED"))) {
+					sprintf(result + strlen(result), "%ld:", nr + 1);
+				}
+				if (can_show)
+					strcat(result, (*names[nr] != '*' ? names[nr] : names[nr] + 1));
+			} else {
+				if (print_flag & 2) {
+					sprintf(result + strlen(result), "%ld:", nr + 1);
+				} else if (print_flag & 1) {
+					sprintf(result + strlen(result), "%c%d:", c, plane);
+				}
+				strcat(result, "UNDEF");
+			}
+		}
+
+		if (print_flag & 1) {
+			c++;
+			if (c > 'z') {
+				c = 'A';
+			}
+		}
+		if (*names[nr] != '\n') {
+			nr++;
+		}
+	}
+
+	if ('\0' == *result) {
+		strcat(result, nothing_string);
+		return false;
+	}
+
+	return true;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <string>
-#include "sysdep.h"
+#include "engine/core/sysdep.h"
 
 namespace DiskIo {
 

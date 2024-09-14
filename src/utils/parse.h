@@ -7,11 +7,11 @@
 #include <string>
 #include <set>
 
-#include "conf.h"
+#include "engine/core/conf.h"
 #include "third_party_libs/pugixml/pugixml.h"
-#include "sysdep.h"
-#include "structs/structs.h"
-#include "comm.h"
+#include "engine/core/sysdep.h"
+#include "engine/structs/structs.h"
+#include "engine/core/comm.h"
 #include "utils/logger.h"
 
 namespace text_id {
