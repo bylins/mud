@@ -24,6 +24,8 @@
 #include "gameplay/communication/insult.h"
 #include "gameplay/communication/offtop.h"
 #include "engine/ui/cmd_god/do_set.h"
+#include "engine/ui/cmd_god/do_invisible.h"
+#include "engine/ui/cmd_god/force.h"
 #include "engine/ui/cmd_god/forcetime.h"
 #include "engine/ui/cmd_god/show.h"
 #include "engine/ui/cmd_god/reload.h"
@@ -34,6 +36,7 @@
 #include "engine/ui/cmd_god/godtest.h"
 #include "engine/ui/cmd_god/tabulate.h"
 #include "engine/ui/cmd_god/mark.h"
+#include "engine/ui/cmd_god/wiznet.h"
 #include "engine/ui/cmd_god/wizutil.h"
 #include "engine/ui/cmd/bandage.h"
 #include "engine/ui/cmd/consider.h"
@@ -267,7 +270,6 @@ void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
-void do_force(CharData *ch, char *argument, int cmd, int subcmd);
 void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
@@ -280,7 +282,6 @@ void do_group(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
-void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
 void do_load(CharData *ch, char *argument, int cmd, int subcmd);
@@ -327,7 +328,6 @@ void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
 void do_write(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);

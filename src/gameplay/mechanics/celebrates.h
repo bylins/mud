@@ -1,6 +1,8 @@
 #ifndef CELEBRATES_HPP_INCLUDED
 #define CELEBRATES_HPP_INCLUDED
 
+#include "engine/structs/structs.h"
+
 #include <string>
 #include <vector>
 #include <map>

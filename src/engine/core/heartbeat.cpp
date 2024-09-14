@@ -27,6 +27,7 @@
 #include "engine/scripting/dg_event.h"
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
+#include "engine/ui/cmd_god/set_all.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

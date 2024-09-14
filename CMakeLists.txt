@@ -325,7 +325,11 @@ set(SOURCES
 		src/engine/ui/cmd_god/forcetime.cpp
 		src/engine/ui/cmd_god/liblist.cpp
 		src/engine/ui/cmd_god/wizutil.cpp
-		src/administration/punishments.cpp)
+		src/administration/punishments.cpp
+		src/engine/ui/cmd_god/wiznet.cpp
+		src/engine/ui/cmd_god/force.cpp
+		src/engine/ui/cmd_god/do_invisible.cpp
+		src/engine/ui/cmd_god/set_all.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -377,7 +381,6 @@ set(HEADERS
 		src/engine/core/heartbeat_commands.h
 		src/gameplay/mechanics/weather.h
 		src/gameplay/core/game_limits.h
-		src/act_wizard.h
 		src/engine/core/heartbeat.h
 		src/engine/db/world_characters.h
 		src/gameplay/economics/shops_implementation.h
@@ -631,7 +634,11 @@ set(HEADERS
 		src/engine/ui/cmd_god/forcetime.h
 		src/engine/ui/cmd_god/liblist.h
 		src/engine/ui/cmd_god/wizutil.h
-		src/administration/punishments.h)
+		src/administration/punishments.h
+		src/engine/ui/cmd_god/wiznet.h
+		src/engine/ui/cmd_god/force.h
+		src/engine/ui/cmd_god/do_invisible.h
+		src/engine/ui/cmd_god/set_all.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

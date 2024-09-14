@@ -16,7 +16,6 @@
 #include "gameplay/economics/shops_implementation.h"
 #include "world_objects.h"
 #include "world_characters.h"
-#include "act_wizard.h"
 #include "influxdb.h"
 #include "engine/entities/zone.h"
 #include "gameplay/quests/daily_quest.h"
@@ -24,6 +23,7 @@
 #include "gameplay/skills/townportal.h"
 #include "gameplay/mechanics/strengthening.h"
 #include "engine/boot/cfg_manager.h"
+#include "engine/ui/cmd_god/set_all.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
 
