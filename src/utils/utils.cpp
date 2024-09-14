@@ -111,7 +111,7 @@ CharData *find_char(long n) {
 // return pc online with UID n
 CharData *find_pc(long n) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && GET_ID(d->character) == n) {
+		if (STATE(d) == CON_PLAYING && GET_UID(d->character) == n) {
 			return d->character.get();
 		}
 	}
@@ -1266,7 +1266,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 		return ignores(who, whom->get_master(), flag);
 	}
 
-	ign_id = GET_ID(whom);
+	ign_id = GET_UID(whom);
 	for (const auto &ignore : who->get_ignores()) {
 		if ((ignore->id == ign_id || ignore->id == -1)
 			&& IS_SET(ignore->mode, flag)) {

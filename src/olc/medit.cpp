@@ -122,7 +122,7 @@ void medit_mobile_init(CharData *mob) {
 	mob->set_cha(11);
 	mob->set_con(11);
 
-	mob->SetFlag(EMobFlag::kNpc);
+	mob->SetNpcAttribute(true);
 	mob->player_specials = player_special_data::s_for_mobiles;
 
 	for (auto i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {

@@ -895,7 +895,7 @@ void Player::save_char() {
 		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
-	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_ID(this));
+	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UID(this));
 
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
@@ -1915,7 +1915,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::check_crc(filename, FileCRC::PLAYER, GET_ID(this));
+		FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UID(this));
 	}
 
 	return (id);

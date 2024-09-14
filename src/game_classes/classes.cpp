@@ -1180,7 +1180,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
 		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
-		|| obj->get_owner() == GET_ID(ch)) {
+		|| obj->get_owner() == GET_UID(ch)) {
 		return (false);
 	}
 	return (true);

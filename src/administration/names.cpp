@@ -377,12 +377,12 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	}
 
 	if (lev == god_level)
-		if (NAME_ID_GOD(vict) != GET_ID(ch))
+		if (NAME_ID_GOD(vict) != GET_UID(ch))
 			SendMsgToChar("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE) {
 		NAME_GOD(vict) = god_level + 1000;
-		NAME_ID_GOD(vict) = GET_ID(ch);
+		NAME_ID_GOD(vict) = GET_UID(ch);
 		//SendMsgToChar("Имя одобрено!\r\n", ch);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
@@ -393,7 +393,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 
 	} else {
 		NAME_GOD(vict) = god_level;
-		NAME_ID_GOD(vict) = GET_ID(ch);
+		NAME_ID_GOD(vict) = GET_UID(ch);
 		//SendMsgToChar("Имя запрещено!\r\n", ch);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);

@@ -82,7 +82,7 @@ void UnlockTreasureCase(CharData *ch, ObjData *obj) {
 			}
 			ExtractObjFromWorld(obj);
 			obj = world_objects.create_from_prototype_by_rnum(r_num).get();
-			obj->set_crafter_uid(GET_ID(ch));
+			obj->set_crafter_uid(GET_UID(ch));
 			PlaceObjToInventory(obj, ch);
 			act("$n завизжал$g от радости.", false, ch, nullptr, nullptr, kToRoom);
 			load_otrigger(obj);

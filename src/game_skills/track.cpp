@@ -210,7 +210,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			EXITDATA(EXITDATA(croom, dir)->to_room(), rdir)->to_room() == croom) {
 			for (temp = world[EXITDATA(croom, dir)->to_room()]->track; temp; temp = temp->next)
 				if (!IS_SET(temp->track_info, TRACK_NPC)
-					&& GET_ID(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
+					&& GET_UID(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
 					&& IS_SET(temp->time_outgone[rdir], 3)) {
 					found = true;
 					track[dir] = temp;
@@ -222,7 +222,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	track[EDirection::kMaxDirNum] = nullptr;
 	for (temp = world[ch->in_room]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
-			GET_ID(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
+			GET_UID(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
 			found = true;
 			track[EDirection::kMaxDirNum] = temp;
 			break;

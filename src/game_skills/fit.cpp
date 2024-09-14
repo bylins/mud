@@ -86,7 +86,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Это какая-то ошибка...\r\n", ch);
 			return;
 	};
-	obj->set_owner(GET_ID(vict));
+	obj->set_owner(GET_UID(vict));
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",

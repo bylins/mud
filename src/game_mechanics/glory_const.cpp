@@ -238,7 +238,7 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 
 // * Показ свободной и вложенной славы у чара (glory имя).
 void print_to_god(CharData *ch, CharData *god) {
-	GloryListType::iterator it = glory_list.find(GET_ID(ch));
+	GloryListType::iterator it = glory_list.find(GET_UID(ch));
 	if (it == glory_list.end()) {
 		SendMsgToChar(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
 		return;
@@ -532,7 +532,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			ch->set_con(olc_real_stat(ch, GLORY_CON));
 			ch->set_cha(olc_real_stat(ch, GLORY_CHA));
 			// обновление записи в списке славы
-			GloryListType::const_iterator it = glory_list.find(GET_ID(ch));
+			GloryListType::const_iterator it = glory_list.find(GET_UID(ch));
 			if (glory_list.end() == it) {
 				log("SYSERROR : нет записи чара при выходе из олц постоянной славы name=%s (%s:%d)",
 					ch->get_name().c_str(), __FILE__, __LINE__);
@@ -584,7 +584,7 @@ const char *GLORY_CONST_FORMAT =
 	"        слава2 перевести <имя> <кол-во>\r\n";
 
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	GloryListType::iterator it = glory_list.find(GET_ID(ch));
+	GloryListType::iterator it = glory_list.find(GET_UID(ch));
 	if (glory_list.end() == it || IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
@@ -635,8 +635,8 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		int tax = int(amount / 100. * TRANSFER_FEE);
 		int total_amount = amount - tax;
 
-		remove_glory(GET_ID(ch), amount);
-		add_glory(GET_ID(vict), total_amount);
+		remove_glory(GET_UID(ch), amount);
+		add_glory(GET_UID(vict), total_amount);
 
 		snprintf(buf, kMaxStringLength,
 				 "Transfer %d const glory from %s", total_amount, GET_NAME(ch));
@@ -738,7 +738,7 @@ int remove_glory(long uid, int amount) {
 }
 
 bool reset_glory(CharData *ch) {
-	GloryListType::iterator i = glory_list.find(GET_ID(ch));
+	GloryListType::iterator i = glory_list.find(GET_UID(ch));
 	if (glory_list.end() != i) {
 		glory_list.erase(i);
 		save();
@@ -801,9 +801,9 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (mode) {
 		case ADD_GLORY: {
 			int amount = atoi((num + 1));
-			add_glory(GET_ID(vict), amount);
+			add_glory(GET_UID(vict), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, get_glory(GET_ID(vict)));
+						  GET_PAD(vict, 2), amount, get_glory(GET_UID(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -814,13 +814,13 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 		case SUB_GLORY: {
-			int amount = remove_glory(GET_ID(vict), atoi((num + 1)));
+			int amount = remove_glory(GET_UID(vict), atoi((num + 1)));
 			if (amount <= 0) {
 				SendMsgToChar(ch, "У %s нет свободной постоянной славы.\r\n", GET_PAD(vict, 1));
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, get_glory(GET_ID(vict)));
+						  GET_PAD(vict, 1), amount, get_glory(GET_UID(vict)));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -985,7 +985,7 @@ void load() {
 }
 
 void set_stats(CharData *ch) {
-	GloryListType::iterator i = glory_list.find(GET_ID(ch));
+	GloryListType::iterator i = glory_list.find(GET_UID(ch));
 	if (glory_list.end() == i) {
 		return;
 	}
@@ -1005,14 +1005,14 @@ void set_stats(CharData *ch) {
 				break;
 			case G_CHA: ch->inc_cha(k->second);
 				break;
-			default: log("Glory: некорректный номер стата %d (uid: %ld)", k->first, GET_ID(ch));
+			default: log("Glory: некорректный номер стата %d (uid: %ld)", k->first, GET_UID(ch));
 		}
 	}
 }
 
 // * Количество вложенных статов (только из числа 6 основных).
 int main_stats_count(CharData *ch) {
-	GloryListType::iterator i = glory_list.find(GET_ID(ch));
+	GloryListType::iterator i = glory_list.find(GET_UID(ch));
 	if (glory_list.end() == i) {
 		return 0;
 	}
@@ -1053,7 +1053,7 @@ void add_total_spent(int amount) {
 }
 
 void apply_modifiers(CharData *ch) {
-	auto it = glory_list.find(GET_ID(ch));
+	auto it = glory_list.find(GET_UID(ch));
 	if (it == glory_list.end()) {
 		return;
 	}

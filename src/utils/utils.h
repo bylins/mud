@@ -544,7 +544,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
 #define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
-#define GET_ID(x)         ((x)->get_uid())
+#define GET_UID(x)         ((x)->get_uid())
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 

@@ -2909,7 +2909,7 @@ bool any_other_ch(CharData *ch) {
 	for (const auto &vict : character_list) {
 		if (!vict->IsNpc()
 			&& vict.get() != ch
-			&& GET_ID(vict) == GET_ID(ch)) {
+			&& GET_UID(vict) == GET_UID(ch)) {
 			return true;
 		}
 	}

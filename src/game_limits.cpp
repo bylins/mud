@@ -516,7 +516,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		FREEZE_GODID(i) = 0;
 		FREEZE_DURATION(i) = 0;
 		SendMsgToChar("Вы оттаяли.\r\n", i.get());
-		Glory::remove_freeze(GET_ID(i));
+		Glory::remove_freeze(GET_UID(i));
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {
 			restore = calc_loadroom(i.get());
 		}

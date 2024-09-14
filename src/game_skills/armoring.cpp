@@ -50,7 +50,7 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$o3 невозможно укрепить.", false, ch, obj, nullptr, kToChar);
 		return;
 	}
-	if (obj->get_owner() != GET_ID(ch)) {
+	if (obj->get_owner() != GET_UID(ch)) {
 		SendMsgToChar(ch, "Укрепить можно только лично сделанный предмет.\r\n");
 		return;
 	}

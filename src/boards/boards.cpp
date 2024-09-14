@@ -120,7 +120,7 @@ bool is_spamer(CharData *ch, const Board &board) {
 	if (IS_IMMORTAL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 		return false;
 	}
-	if (board.get_lastwrite() != GET_ID(ch)) {
+	if (board.get_lastwrite() != GET_UID(ch)) {
 		return false;
 	}
 	switch (board.get_type()) {
@@ -273,7 +273,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		/// генерим мессагу
 		const auto tempMessage = std::make_shared<Message>();
 		tempMessage->author = name;
-		tempMessage->unique = GET_ID(ch);
+		tempMessage->unique = GET_UID(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
 		ch->IsFlagged(EPrf::kCoderinfo) ? tempMessage->level = kLvlImplementator : tempMessage->level = GetRealLevel(ch);
 
@@ -319,7 +319,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		set_last_read(ch, board.get_type(), board.messages[messages_index]->date);
 		// или он может делетить любые мессаги (по левелу/рангу), или только свои
 		if (!Static::full_access(ch, board_ptr)) {
-			if (board.messages[messages_index]->unique != GET_ID(ch)) {
+			if (board.messages[messages_index]->unique != GET_UID(ch)) {
 				SendMsgToChar("У вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
@@ -342,7 +342,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		// собственно делетим и проставляем сдвиг номеров
 		board_ptr->erase_message(messages_index);
-		if (board.get_lastwrite() == GET_ID(ch)) {
+		if (board.get_lastwrite() == GET_UID(ch)) {
 			board_ptr->set_lastwrite_uid(0);
 		}
 		board_ptr->Save();
@@ -785,7 +785,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			}
 			break;
 		case PERS_BOARD:
-			if (IS_GOD(ch) && board->get_pers_uniq() == GET_ID(ch)
+			if (IS_GOD(ch) && board->get_pers_uniq() == GET_UID(ch)
 				&& CompareParam(board->get_pers_name(), GET_NAME(ch), 1)) {
 				access.set();
 			}
@@ -913,7 +913,7 @@ void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// генерим мессагу (TODO: копипаст с написания на доску, надо бы вынести)
 	const auto temp_message = std::make_shared<Message>();
 	temp_message->author = GET_NAME(ch) ? GET_NAME(ch) : "неизвестен";
-	temp_message->unique = GET_ID(ch);
+	temp_message->unique = GET_UID(ch);
 	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
 	temp_message->level = GetRealLevel(ch);
 	temp_message->rank = 0;

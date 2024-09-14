@@ -314,7 +314,7 @@ bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int
 	if (IS_IMMORTAL(ch))
 		return true;
 #endif
-	const auto it = god_list.find(GET_ID(ch));
+	const auto it = god_list.find(GET_UID(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true)) {
 		if (GetRealLevel(ch) == kLvlImplementator)
 			return true;
@@ -349,7 +349,7 @@ bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int
 bool CheckFlag(const CharData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
-	const auto it = god_list.find(GET_ID(ch));
+	const auto it = god_list.find(GET_UID(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true))
 		if (it->second.flags[flag])
 			result = true;

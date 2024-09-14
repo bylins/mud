@@ -3221,7 +3221,7 @@ void ActualizePlayersIndex(char *name) {
 				CREATE(element.last_ip, strlen(GET_LASTIP(short_ch)) + 1);
 				for (int i = 0; (element.last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
 
-				element.set_uid(GET_ID(short_ch));
+				element.set_uid(GET_UID(short_ch));
 				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
@@ -3238,7 +3238,7 @@ void ActualizePlayersIndex(char *name) {
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 #endif
 
-				top_idnum = std::max(top_idnum, GET_ID(short_ch));
+				top_idnum = std::max(top_idnum, GET_UID(short_ch));
 				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());

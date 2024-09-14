@@ -486,7 +486,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					return (0);
 				};
 				vict->UnsetFlag(EPlrFlag::kFrozen);
-				Glory::remove_freeze(GET_ID(vict));
+				Glory::remove_freeze(GET_UID(vict));
 				if (vict->IsFlagged(EPlrFlag::kHelled)) //заодно снимем ад
 					vict->UnsetFlag(EPlrFlag::kHelled);
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
@@ -705,7 +705,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 			skip_spaces(&reason);
 
 		pundata->level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
-		pundata->godid = GET_ID(ch);
+		pundata->godid = GET_UID(ch);
 
 		// Добавляем в причину имя имма
 
@@ -731,7 +731,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				break;
 
 			case SCMD_FREEZE: vict->SetFlag(EPlrFlag::kFrozen);
-				Glory::set_freeze(GET_ID(vict));
+				Glory::set_freeze(GET_UID(vict));
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -1172,7 +1172,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it = setall_inspect_list.find(GET_ID(ch));
+	auto it = setall_inspect_list.find(GET_UID(ch));
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (MUD::InspectRequests().IsBusy(ch) && it != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
@@ -1366,9 +1366,9 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (mode) {
 		case ADD_GLORY: {
 			int amount = atoi((num + 1));
-			Glory::add_glory(GET_ID(vict), amount);
+			Glory::add_glory(GET_UID(vict), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_ID(vict)));
+						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UID(vict)));
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
@@ -1377,13 +1377,13 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 		case SUB_GLORY: {
-			int amount = Glory::remove_glory(GET_ID(vict), atoi((num + 1)));
+			int amount = Glory::remove_glory(GET_UID(vict), atoi((num + 1)));
 			if (amount <= 0) {
 				SendMsgToChar(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_ID(vict)));
+						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UID(vict)));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
@@ -1817,7 +1817,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-		obj->set_crafter_uid(GET_ID(ch));
+		obj->set_crafter_uid(GET_UID(ch));
 		obj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 
 		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM
@@ -2409,7 +2409,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);
 		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
-				GET_ID(chdata), GetRealLevel(chdata),
+				GET_UID(chdata), GetRealLevel(chdata),
 				MUD::Class(chdata->GetClass()).GetAbbr().c_str(), GET_NAME(chdata),
 				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
 		SendMsgToChar(buf, ch);

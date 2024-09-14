@@ -197,9 +197,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_UID(ch), ESpell::kRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
@@ -256,9 +256,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_ID(ch), ESpell::kRuneLabel);
+		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_UID(ch), ESpell::kRuneLabel);
 		out << InfoStrPrefix(ch) << KIGRN << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -275,7 +275,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
-	auto glory = GloryConst::get_glory(GET_ID(ch));
+	auto glory = GloryConst::get_glory(GET_UID(ch));
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
 			<< glory << " " << GetDeclensionInNumber(glory, EWhat::kPoint) << " постоянной славы." << "\r\n";
@@ -799,18 +799,18 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_ID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
 				std::string(label_room->name).c_str());
 	}
 
-	int glory = Glory::get_glory(GET_ID(ch));
+	int glory = Glory::get_glory(GET_UID(ch));
 	if (glory) {
 	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
 	}
-	glory = GloryConst::get_glory(GET_ID(ch));
+	glory = GloryConst::get_glory(GET_UID(ch));
 	if (glory) {
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
 				glory, GetDeclensionInNumber(glory, EWhat::kPoint));

@@ -147,7 +147,7 @@ SortGroupType tmp_group_list;
 unsigned tmp_total_dmg = 0;
 
 void Dps::AddTmpGroupList(CharData *ch) {
-	auto it = group_dps_.find(GET_ID(ch));
+	auto it = group_dps_.find(GET_UID(ch));
 	if (it != group_dps_.end()) {
 		sort_node tmp_node(it->second.get_name(), it->second.get_stat(),
 						   it->second.get_round_dmg(), it->second.get_over_dmg());
@@ -269,50 +269,50 @@ void Dps::PrintGroupStats(CharData *ch, CharData *coder) {
 }
 
 void Dps::AddGroupDmg(CharData *ch, int dmg, int over_dmg) {
-	auto it = group_dps_.find(GET_ID(ch));
+	auto it = group_dps_.find(GET_UID(ch));
 	if (it != group_dps_.end()) {
 		it->second.add_dmg(dmg, over_dmg);
 	} else {
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch));
 		tmp_node.add_dmg(dmg, over_dmg);
-		group_dps_.insert(std::make_pair(GET_ID(ch), tmp_node));
+		group_dps_.insert(std::make_pair(GET_UID(ch), tmp_node));
 	}
 }
 
 void Dps::EndGroupRound(CharData *ch) {
-	auto it = group_dps_.find(GET_ID(ch));
+	auto it = group_dps_.find(GET_UID(ch));
 	if (it != group_dps_.end()) {
 		it->second.end_round();
 	} else {
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch));
 		tmp_node.end_round();
-		group_dps_.insert(std::make_pair(GET_ID(ch), tmp_node));
+		group_dps_.insert(std::make_pair(GET_UID(ch), tmp_node));
 	}
 }
 
 void Dps::AddGroupCharmDmg(CharData *ch, int dmg, int over_dmg) {
-	auto it = group_dps_.find(GET_ID(ch->get_master()));
+	auto it = group_dps_.find(GET_UID(ch->get_master()));
 	if (it != group_dps_.end()) {
 		it->second.add_charm_dmg(ch, dmg, over_dmg);
 	} else {
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch->get_master()));
 		tmp_node.add_charm_dmg(ch, dmg, over_dmg);
-		group_dps_.insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
+		group_dps_.insert(std::make_pair(GET_UID(ch->get_master()), tmp_node));
 	}
 }
 
 void Dps::EndGroupCharmRound(CharData *ch) {
-	auto it = group_dps_.find(GET_ID(ch->get_master()));
+	auto it = group_dps_.find(GET_UID(ch->get_master()));
 	if (it != group_dps_.end()) {
 		it->second.end_charm_round(ch);
 	} else {
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch->get_master()));
 		tmp_node.end_charm_round(ch);
-		group_dps_.insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
+		group_dps_.insert(std::make_pair(GET_UID(ch->get_master()), tmp_node));
 	}
 }
 
@@ -343,14 +343,14 @@ void Dps::AddBattleExp(int exp) {
 CharmListType::iterator PlayerDpsNode::find_charmice(CharData *ch) {
 	auto i = std::find_if(charm_list_.begin(), charm_list_.end(),
 											 [&](const DpsNode &x) {
-												 return x.get_id() == GET_ID(ch);
+												 return x.get_id() == GET_UID(ch);
 											 });
 
 	if (i != charm_list_.end()) {
 		return i;
 	}
 
-	DpsNode tmp_node(GET_ID(ch));
+	DpsNode tmp_node(GET_UID(ch));
 	tmp_node.set_name(GET_NAME(ch));
 
 	charm_list_.push_front(tmp_node);
@@ -400,7 +400,7 @@ void PlayerDpsNode::print_group_charm_stats(CharData *ch) const {
 		}
 		const auto it = std::find_if(charm_list_.begin(), charm_list_.end(),
 														[&](const DpsNode &dps_node) {
-															return dps_node.get_id() == GET_ID(f->follower);
+															return dps_node.get_id() == GET_UID(f->follower);
 														});
 
 		if (it != charm_list_.end() && it->get_dmg() > 0) {

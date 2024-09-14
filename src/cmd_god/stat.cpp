@@ -259,7 +259,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
-		time_t ltime = GetLastlogonByUnique(GET_ID(k));
+		time_t ltime = GetLastlogonByUnique(GET_UID(k));
 		char t1[11];
 		char t2[11];
 		strftime(t1, sizeof(t1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
@@ -327,8 +327,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf,
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
-			Glory::get_glory(GET_ID(k)),
-			GloryConst::get_glory(GET_ID(k)),
+			Glory::get_glory(GET_UID(k)),
+			GloryConst::get_glory(GET_UID(k)),
 			GET_AC(k),
 			GET_REAL_AC(k),
 			compute_armor_class(k),
