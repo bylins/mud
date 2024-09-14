@@ -1752,7 +1752,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		log("WARNING: Mobile rnum %d is above the list 'top of mobt' (%s %s %d)", i, __FILE__, __func__, __LINE__);
 		return (nullptr);
 	}
-	auto *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	CharData *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	mob->script = std::make_shared<Script>();    //fill it in assign_triggers from proto_script
@@ -1785,15 +1785,14 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	mob->player_data.time.played = 0;
 	mob->player_data.time.logon = time(nullptr);
 
-	mob->id = max_id.allocate();
-
+	mob->set_uid(max_id.allocate());
 	if (!is_corpse) {
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
 		mob->SetFlag(EMobFlag::kSummoned);
 	}
-	chardata_by_uid[mob->id] = mob;
+	chardata_by_uid[mob->get_uid()] = mob;
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction) {
 		// mobile принадлежит тестовой зоне
@@ -2882,7 +2881,7 @@ long GetPlayerTablePosByName(const char *name) {
 long GetPtableByUnique(long unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
-		if (player_table[i].unique == unique) {
+		if (player_table[i].uid() == unique) {
 			return static_cast<long>(i);
 		}
 	}
@@ -2894,7 +2893,7 @@ long GetPlayerIdByName(char *name) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
 		if (!str_cmp(i.name(), arg)) {
-			return (i.id());
+			return (i.uid());
 		}
 	}
 
@@ -2904,8 +2903,8 @@ long GetPlayerIdByName(char *name) {
 int GetPlayerUidByName(int id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
-		if (i.id() == id) {
-			return i.unique;
+		if (i.uid() == id) {
+			return i.uid();
 		}
 	}
 	return -1;
@@ -2914,7 +2913,7 @@ int GetPlayerUidByName(int id) {
 const char *GetNameById(long id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
-		if (i.id() == id) {
+		if (i.uid() == id) {
 			return i.name();
 		}
 	}
@@ -2924,7 +2923,7 @@ const char *GetNameById(long id) {
 const char *GetPlayerNameByUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
-		if (i.unique == unique) {
+		if (i.uid() == unique) {
 			return i.name();
 		}
 	}
@@ -2936,7 +2935,7 @@ int GetLevelByUnique(long unique) {
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
-		if (i.unique == unique) {
+		if (i.uid() == unique) {
 			level = i.level;
 		}
 	}
@@ -2948,7 +2947,7 @@ long GetLastlogonByUnique(long unique) {
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
-		if (i.unique == unique) {
+		if (i.uid() == unique) {
 			time = i.last_logon;
 		}
 	}
@@ -2958,7 +2957,7 @@ long GetLastlogonByUnique(long unique) {
 int IsCorrectUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
-		if (i.unique == unique) {
+		if (i.uid() == unique) {
 			return true;
 		}
 	}
@@ -3214,7 +3213,7 @@ void ActualizePlayersIndex(char *name) {
 			if (!MustBeDeleted(short_ch)) {
 				deleted = 0;
 
-				PlayerIndexElement element(GET_IDNUM(short_ch), GET_NAME(short_ch));
+				PlayerIndexElement element(GET_NAME(short_ch));
 
 				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
@@ -3222,7 +3221,7 @@ void ActualizePlayersIndex(char *name) {
 				CREATE(element.last_ip, strlen(GET_LASTIP(short_ch)) + 1);
 				for (int i = 0; (element.last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
 
-				element.unique = GET_UNIQUE(short_ch);
+				element.set_uid(GET_UID(short_ch));
 				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
@@ -3239,7 +3238,7 @@ void ActualizePlayersIndex(char *name) {
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 #endif
 
-				top_idnum = std::max(top_idnum, GET_IDNUM(short_ch));
+				top_idnum = std::max(top_idnum, GET_UID(short_ch));
 				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());
@@ -3318,9 +3317,9 @@ void FlushPlayerIndex() {
 		}
 
 		++saved;
-		sprintf(name, "%s %d %d %d %d\n",
+		sprintf(name, "%s %ld %d %d\n",
 				i.name(),
-				i.id(), i.unique, i.level, i.last_logon);
+				i.uid(), i.level, i.last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
@@ -3371,7 +3370,7 @@ std::size_t PlayersIndex::Append(const PlayerIndexElement &element) {
 	const auto index = size();
 
 	push_back(element);
-	m_id_to_index.emplace(element.id(), index);
+	m_id_to_index.emplace(element.uid(), index);
 	AddNameToIndex(element.name(), index);
 
 	return index;
@@ -3402,17 +3401,16 @@ void PlayersIndex::AddNameToIndex(const char *name, const std::size_t index) {
 	m_name_to_index.emplace(name, index);
 }
 
-PlayerIndexElement::PlayerIndexElement(const int id, const char *name) :
+PlayerIndexElement::PlayerIndexElement(const char *name) :
 	mail(nullptr),
 	last_ip(nullptr),
-	unique(0),
 	level(0),
 	remorts(0),
 	plr_class(ECharClass::kUndefined),
 	last_logon(0),
 	activity(0),
 	timer(nullptr),
-	m_id(id),
+	m_uid_(0),
 	m_name(nullptr) {
 	set_name(name);
 }

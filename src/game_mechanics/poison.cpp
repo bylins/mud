@@ -24,12 +24,12 @@ namespace {
 				 || affect->type == ESpell::kBelenaPoison
 				 || affect->type == ESpell::kDaturaPoison)
 				 && af.type == affect->type
-				 && affect->caster_id != GET_ID(ch)) {
+				 && affect->caster_id != GET_UID(ch)) {
 				// если уже есть другой яд - борода
 				return false;
 			}
 
-			if ((affect->type == af.type) && (affect->caster_id == GET_ID(ch)) && (affect->location == af.location)) {
+			if ((affect->type == af.type) && (affect->caster_id == GET_UID(ch)) && (affect->location == af.location)) {
 				if (abs(affect->modifier / 3) < abs(af.modifier)) {
 					affect->modifier += af.modifier;
 				}
@@ -69,7 +69,7 @@ namespace {
 
 			for (auto & i : af) {
 				i.type = ESpell::kAconitumPoison;
-				i.caster_id = GET_ID(ch);
+				i.caster_id = GET_UID(ch);
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
@@ -81,7 +81,7 @@ namespace {
 				}
 			}
 			if (was_poisoned) {
-				vict->poisoner = GET_ID(ch);
+				vict->poisoner = GET_UID(ch);
 				return true;
 			}
 
@@ -100,7 +100,7 @@ namespace {
 
 			for (auto & i : af) {
 				i.type = ESpell::kScopolaPoison;
-				i.caster_id = GET_ID(ch);
+				i.caster_id = GET_UID(ch);
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
@@ -145,7 +145,7 @@ namespace {
 			bool was_poisoned = true;
 			for (auto & i : af) {
 				i.type = ESpell::kBelenaPoison;
-				i.caster_id = GET_ID(ch);
+				i.caster_id = GET_UID(ch);
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
@@ -193,7 +193,7 @@ namespace {
 				if (!ch->IsNpc()) {
 					i.duration *= 30;
 				}
-				i.caster_id = GET_ID(ch);
+				i.caster_id = GET_UID(ch);
 				i.battleflag = kAfSameTime;
 
 				if (!poison_affect_join(ch, vict, i)) {
@@ -319,7 +319,7 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	for (auto & i : af) {
 		ImposeAffect(vict, i, false, false, false, false);
 	}
-	vict->poisoner = GET_ID(ch);
+	vict->poisoner = GET_UID(ch);
 
 	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 	act(buf, false, ch, nullptr, vict, kToChar);

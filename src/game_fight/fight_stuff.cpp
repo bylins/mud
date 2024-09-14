@@ -633,7 +633,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		if (rnum >= 0)
 		{
 			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
-			o->set_owner(GET_UNIQUE(ch));
+			o->set_owner(GET_UID(ch));
 			obj_to_obj(o.get(), corpse);
 		}
 
@@ -674,11 +674,11 @@ void raw_kill(CharData *ch, CharData *killer) {
 	}
 
 	if (killer && killer->IsNpc() && !ch->IsNpc() && kill_mtrigger(killer, ch)) {
-		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), GET_ID(ch));
+		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), GET_UID(ch));
 		if (it != killer->kill_list.end()) {
 			killer->kill_list.erase(it);
 		}
-		killer->kill_list.push_back(GET_ID(ch));
+		killer->kill_list.push_back(GET_UID(ch));
 	}
 
 	// добавляем одну душу киллеру

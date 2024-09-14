@@ -2690,7 +2690,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (success) {
 		// вот некрасиво же тут это делать...
 		if (spell_id == ESpell::kPoison)
-			victim->poisoner = GET_ID(ch);
+			victim->poisoner = GET_UID(ch);
 		if (to_vict != nullptr)
 			act(to_vict, false, victim, nullptr, ch, kToChar);
 		if (to_room != nullptr)

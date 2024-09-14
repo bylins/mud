@@ -123,11 +123,10 @@ const int kMaxSavedItems = 1000;
 
 class PlayerIndexElement {
  public:
-	PlayerIndexElement(int id, const char *name);
+	PlayerIndexElement(const char *name);
 
 	char *mail;
 	char *last_ip;
-	int unique;
 	int level;
 	int remorts;
 	ECharClass plr_class;
@@ -136,13 +135,13 @@ class PlayerIndexElement {
 	SaveInfo *timer;
 
 	[[nodiscard]] const char *name() const { return m_name; }
-	[[nodiscard]] int id() const { return m_id; }
+	[[nodiscard]] long uid() const { return m_uid_; }
 
 	void set_name(const char *name);
-	void set_id(const int id) { m_id = id; }
-
+	void set_uid(const long _) { m_uid_ = _; }
+	long uid() { return m_uid_;}
  private:
-	int m_id;
+	int m_uid_;
 	const char *m_name;
 };
 

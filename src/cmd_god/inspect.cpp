@@ -32,7 +32,7 @@ const PlayerIndexElement &GetCharIndex(std::string_view char_name) {
 }
 
 CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index) {
-	auto d_vict = DescriptorByUid(index.unique);
+	auto d_vict = DescriptorByUid(index.uid());
 	if (d_vict) {
 		return d_vict->character;
 	} else {
@@ -92,7 +92,7 @@ class ExtractedCharacterInfo {
 };
 
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
-	online_ = (DescriptorByUid(index.unique) != nullptr);
+	online_ = (DescriptorByUid(index.uid()) != nullptr);
 	name_ = (index.name() ? index.name() : kUndefined);
 	mail_ = (index.mail ? index.mail : kUndefined);
 	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
@@ -532,7 +532,7 @@ void InspectRequestAll::FlushLogonsBufferToReportGenerator() {
 }
 
 bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
-	if (vict_uid_ == index.unique) {
+	if (vict_uid_ == index.uid()) {
 		return false;
 	}
 

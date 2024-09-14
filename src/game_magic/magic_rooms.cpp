@@ -88,7 +88,7 @@ void ShowAffectedRooms(CharData *ch) {
 CharData *find_char_in_room(long char_id, RoomData *room) {
 	assert(room);
 	for (const auto tch : room->people) {
-		if (GET_ID(tch) == char_id) {
+		if (GET_UID(tch) == char_id) {
 			return (tch);
 		}
 	}
@@ -127,7 +127,7 @@ void RemoveSingleRoomAffect(long caster_id, ESpell spell_id) {
 }
 
 ESpell RemoveControlledRoomAffect(CharData *ch) {
-	long casterID = GET_ID(ch);
+	long casterID = GET_UID(ch);
 	auto filter =
 		[&casterID](auto &af) {
 			return (af->caster_id == casterID && MUD::Spell(af->type).IsFlagged(kMagNeedControl));
@@ -393,7 +393,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		case ESpell::kForbidden: af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kForbidden;
 			af[0].must_handled = false;
 			accum_duration = false;
@@ -418,7 +418,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kLight;
 			af[0].must_handled = false;
 			accum_duration = true;
@@ -432,7 +432,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].modifier = 0;
 			af[0].duration = 8;
 			af[0].bitvector = ERoomAffect::kDeadlyFog;
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].must_handled = true;
 			update_spell = false;
 			to_char = "Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
@@ -443,7 +443,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 3;
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kMeteorstorm;
 			af[0].must_handled = true;
 			accum_duration = false;
@@ -455,7 +455,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		case ESpell::kThunderstorm: af[0].type = spell_id;
 			af[0].duration = 7;
 			af[0].must_handled = true;
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kThunderstorm;
 			update_spell = false;
 			to_char = "Вы ощутили в небесах силу бури и призвали ее к себе.";
@@ -475,7 +475,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kRuneLabel;
 			af[0].must_handled = false;
 			accum_duration = false;
@@ -495,7 +495,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kHypnoticPattern;
 			af[0].must_handled = false;
 			accum_duration = false;
@@ -514,7 +514,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 1 + GetRealLevel(ch) / 7;
-			af[0].caster_id = GET_ID(ch);
+			af[0].caster_id = GET_UID(ch);
 			af[0].bitvector = ERoomAffect::kBlackTentacles;
 			af[0].must_handled = true;
 			accum_duration = false;
@@ -538,10 +538,10 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		} else {
 			auto RoomAffect_i = FindAffect(room, spell_id);
 			const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
-			if (RoomAffect && RoomAffect->caster_id == GET_ID(ch) && !update_spell) {
+			if (RoomAffect && RoomAffect->caster_id == GET_UID(ch) && !update_spell) {
 				success = false;
 			} else if (only_one) {
-				RemoveSingleRoomAffect(GET_ID(ch), spell_id);
+				RemoveSingleRoomAffect(GET_UID(ch), spell_id);
 			}
 		}
 	}

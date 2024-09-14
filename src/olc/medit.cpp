@@ -122,7 +122,7 @@ void medit_mobile_init(CharData *mob) {
 	mob->set_cha(11);
 	mob->set_con(11);
 
-	mob->SetFlag(EMobFlag::kNpc);
+	mob->SetNpcAttribute(true);
 	mob->player_specials = player_special_data::s_for_mobiles;
 
 	for (auto i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
@@ -198,10 +198,6 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 		dead_load::CopyDeadLoadList(&dst->dl_list, tmp.dl_list);
 	else
 		dead_load::CopyDeadLoadList(&dst->dl_list, src->dl_list);
-	// для name_list
-	dst->set_serial_num(tmp.get_serial_num());
-	//	CharacterAlias::remove(dst);
-	//	CharacterAlias::add(dst);
 }
 
 void medit_mobile_free(CharData *mob)

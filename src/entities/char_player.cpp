@@ -449,7 +449,6 @@ void Player::save_char() {
 	}
 	fprintf(saved, "Levl: %d\n", this->GetLevel());
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
-	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
 	if (player_table[this->get_pfilepos()].last_ip) {
@@ -460,7 +459,7 @@ void Player::save_char() {
 	fprintf(saved, "Host: %s\n", buf);
 	free(player_table[this->get_pfilepos()].last_ip);
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
-	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
+	fprintf(saved, "Id  : %ld\n", this->get_uid());
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
 	// флаги
@@ -896,7 +895,7 @@ void Player::save_char() {
 		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
-	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
+	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UID(this));
 
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
@@ -924,7 +923,7 @@ void Player::save_char() {
 		if (player_table[i].mail)
 			free(player_table[i].mail);
 		player_table[i].mail = str_dup(GET_EMAIL(this));
-		player_table[i].unique = GET_UNIQUE(this);
+		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
 		//end by WorM
 	}
@@ -980,7 +979,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_class(ECharClass::kFirst);
 	set_uid(0);
 	set_last_logon(time(0));
-	set_idnum(0);
 	set_exp(0);
 	set_remort(0);
 	GET_LASTIP(this)[0] = 0;
@@ -1033,7 +1031,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'I':
 				if (!strcmp(tag, "Id  ")) {
-					set_idnum(lnum);
+					set_uid(lnum);
 				}
 				break;
 			case 'L':
@@ -1053,11 +1051,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					skip_file = 1;
 				else if (!strcmp(tag, "Rmrt")) {
 					set_remort(num);
-				}
-				break;
-			case 'U':
-				if (!strcmp(tag, "UIN ")) {
-					set_uid(num);
 				}
 				break;
 			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
@@ -1922,7 +1915,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
+		FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UID(this));
 	}
 
 	return (id);

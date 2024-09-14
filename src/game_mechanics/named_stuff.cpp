@@ -82,7 +82,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 				return false;
 			}
 
-			if (it->second->uid == GET_UNIQUE(master)) // Чармис владельца предмета
+			if (it->second->uid == GET_UID(master)) // Чармис владельца предмета
 			{
 				return false;
 			} else if (!strcmp(GET_EMAIL(master), it->second->mail.c_str()))  // Чармис владельца предмета судя по мылу
@@ -108,7 +108,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 			return true;
 		if (IS_IMMORTAL(ch)) // Имм
 			return false;
-		if (it->second->uid == GET_UNIQUE(ch))//Это владелец предмета
+		if (it->second->uid == GET_UID(ch))//Это владелец предмета
 			return false;
 		else if (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))//Это владелец предмета судя по мылу
 			return false;
@@ -491,7 +491,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 	int in_world = 0;
 	snprintf(buf1, kMaxStringLength, "не найден именной предмет");
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
-		if ((it->second->uid == GET_UNIQUE(ch)) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
+		if ((it->second->uid == GET_UID(ch)) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
 			if ((r_num = GetObjRnum(it->first)) < 0) {
 				SendMsgToChar("Странно, но такого объекта не существует.\r\n", ch);
 				snprintf(buf1, kMaxStringLength, "объект не существует!!!");

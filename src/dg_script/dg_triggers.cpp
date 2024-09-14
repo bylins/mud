@@ -32,7 +32,7 @@ void ADD_UID_CHAR_VAR(char *buf, Trigger *trig, const ObjData *go, const char *n
 }
 
 void ADD_UID_CHAR_VAR(char *buf, Trigger *trig, const CharData *go, const char *name, const long context) {
-	sprintf(buf, "%c%ld", UID_CHAR, GET_ID(go));
+	sprintf(buf, "%c%ld", UID_CHAR, GET_UID(go));
 	add_var_cntx(trig->var_list, name, buf, context);
 }
 
@@ -42,7 +42,7 @@ void ADD_UID_OBJ_VAR(char *buf, Trigger *trig, const ObjData *go, const char *na
 }
 
 void ADD_UID_OBJ_VAR(char *buf, Trigger *trig, const CharData *go, const char *name, const long context) {
-	sprintf(buf, "%c%ld", UID_OBJ, GET_ID(go));
+	sprintf(buf, "%c%ld", UID_OBJ, GET_UID(go));
 	add_var_cntx(trig->var_list, name, buf, context);
 }
 
