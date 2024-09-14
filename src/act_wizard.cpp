@@ -486,7 +486,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					return (0);
 				};
 				vict->UnsetFlag(EPlrFlag::kFrozen);
-				Glory::remove_freeze(GET_UNIQUE(vict));
+				Glory::remove_freeze(GET_ID(vict));
 				if (vict->IsFlagged(EPlrFlag::kHelled)) //заодно снимем ад
 					vict->UnsetFlag(EPlrFlag::kHelled);
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
@@ -705,7 +705,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 			skip_spaces(&reason);
 
 		pundata->level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
-		pundata->godid = GET_UNIQUE(ch);
+		pundata->godid = GET_ID(ch);
 
 		// Добавляем в причину имя имма
 
@@ -731,7 +731,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				break;
 
 			case SCMD_FREEZE: vict->SetFlag(EPlrFlag::kFrozen);
-				Glory::set_freeze(GET_UNIQUE(vict));
+				Glory::set_freeze(GET_ID(vict));
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -972,7 +972,7 @@ void setall_inspect() {
 	CharData *ch = nullptr;
 	DescriptorData *d_vict = nullptr;
 
-	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].unique);
+	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].uid());
 	if (!imm_d
 		|| (STATE(imm_d) != CON_PLAYING)
 		|| !(ch = imm_d->character.get())) {
@@ -994,7 +994,7 @@ void setall_inspect() {
 		}
 		buf1[0] = '\0';
 		is_online = 0;
-		d_vict = DescriptorByUid(player_table[it->second->pos].unique);
+		d_vict = DescriptorByUid(player_table[it->second->pos].uid());
 		if (d_vict)
 			is_online = 1;
 		if (player_table[it->second->pos].mail)
@@ -1172,7 +1172,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it = setall_inspect_list.find(GET_UNIQUE(ch));
+	auto it = setall_inspect_list.find(GET_ID(ch));
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (MUD::InspectRequests().IsBusy(ch) && it != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
@@ -1366,9 +1366,9 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (mode) {
 		case ADD_GLORY: {
 			int amount = atoi((num + 1));
-			Glory::add_glory(GET_UNIQUE(vict), amount);
+			Glory::add_glory(GET_ID(vict), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_ID(vict)));
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
@@ -1377,13 +1377,13 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 		case SUB_GLORY: {
-			int amount = Glory::remove_glory(GET_UNIQUE(vict), atoi((num + 1)));
+			int amount = Glory::remove_glory(GET_ID(vict), atoi((num + 1)));
 			if (amount <= 0) {
 				SendMsgToChar(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_ID(vict)));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
@@ -1817,7 +1817,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-		obj->set_crafter_uid(GET_UNIQUE(ch));
+		obj->set_crafter_uid(GET_ID(ch));
 		obj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 
 		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM

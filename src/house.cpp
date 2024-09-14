@@ -799,7 +799,7 @@ void Clan::SetClanData(CharData *ch) {
 
   // если куда-то приписан, то дергаем сразу итераторы на клан и список членов
   for (auto &clan : Clan::ClanList) {
-	const auto member = clan->m_members.find(GET_UNIQUE(ch));
+	const auto member = clan->m_members.find(GET_ID(ch));
 	if (member != clan->m_members.end()) {
 	  CLAN(ch) = clan;
 	  CLAN_MEMBER(ch) = member->second;
@@ -1068,7 +1068,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
   }
   std::string name = buffer2;
   name[0] = UPPER(name[0]);
-  if (unique == GET_UNIQUE(ch)) {
+  if (unique == GET_ID(ch)) {
 	SendMsgToChar("Сам себя повысил, самому себе вынес благодарность?\r\n", ch);
 	return;
   }
@@ -1282,7 +1282,7 @@ void Clan::HouseRemove(CharData *ch, std::string &buffer) {
 	SendMsgToChar("Укажите имя персонажа.\r\n", ch);
   } else if (!unique) {
 	SendMsgToChar("Неизвестный персонаж.\r\n", ch);
-  } else if (unique == GET_UNIQUE(ch)) {
+  } else if (unique == GET_ID(ch)) {
 	SendMsgToChar("Выглядит довольно странно...\r\n", ch);
   }
 
@@ -1304,7 +1304,7 @@ void Clan::HouseLeave(CharData *ch) {
 	return;
   }
 
-  const auto member_id = GET_UNIQUE(ch);
+  const auto member_id = GET_ID(ch);
   const auto it = this->m_members.find(member_id);
   if (it != this->m_members.end()) {
 	char tmpstr[kMaxInputLength];
@@ -2086,7 +2086,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
   DescriptorData *tch;
 
   for (std::size_t i = 0; i < player_table.size(); i++) {
-	const auto unique = player_table[i].unique;
+	const auto unique = player_table[i].uid();
 	auto member_i = clan->m_members.find(unique);
 	if (member_i == clan->m_members.end()) {
 	  continue;
@@ -2196,7 +2196,7 @@ const char *CLAN_PKLIST_FORMAT[] =
 bool check_online_state(long uid) {
   for (const auto &tch : character_list) {
 	if (tch->IsNpc()
-		|| GET_UNIQUE(tch) != uid
+		|| GET_ID(tch) != uid
 		|| (!tch->desc && !NORENTABLE(tch))) {
 	  continue;
 	}
@@ -2244,7 +2244,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if ((CLAN(ch)->bank + gold) < 0) {
 	  long over = std::numeric_limits<long>::max() - CLAN(ch)->bank;
 	  CLAN(ch)->bank += over;
-	  CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), over);
+	  CLAN(ch)->m_members.add_money(GET_ID(ch), over);
 	  gold -= over;
 	  ch->add_gold(gold);
 	  RemoveObjFromChar(obj);
@@ -2256,7 +2256,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	  return true;
 	}
 	CLAN(ch)->bank += gold;
-	CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
+	CLAN(ch)->m_members.add_money(GET_ID(ch), gold);
 	RemoveObjFromChar(obj);
 	ExtractObjFromWorld(obj);
 	SendMsgToChar(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
@@ -2617,7 +2617,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 	if ((CLAN(ch)->bank + gold) < 0) {
 	  long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 	  CLAN(ch)->bank += over;
-	  CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), over);
+	  CLAN(ch)->m_members.add_money(GET_ID(ch), over);
 	  ch->remove_gold(over);
 	  SendMsgToChar(ch,
 					"Вам удалось вложить в казну дружины только %ld %s.\r\n",
@@ -2632,7 +2632,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 	}
 	ch->remove_gold(gold);
 	CLAN(ch)->bank += gold;
-	CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
+	CLAN(ch)->m_members.add_money(GET_ID(ch), gold);
 	SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 	act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
 	std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
@@ -2664,7 +2664,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 	  long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 	  ch->add_gold(over);
 	  CLAN(ch)->bank -= over;
-	  CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), over);
+	  CLAN(ch)->m_members.sub_money(GET_ID(ch), over);
 	  SendMsgToChar(ch, "Вам удалось снять только %ld %s.\r\n", over, GetDeclensionInNumber(over, EWhat::kMoneyU));
 	  act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
 	  std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
@@ -2674,7 +2674,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 	  return true;
 	}
 	CLAN(ch)->bank -= gold;
-	CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), gold);
+	CLAN(ch)->m_members.sub_money(GET_ID(ch), gold);
 	ch->add_gold(gold);
 	SendMsgToChar(ch, "Вы сняли %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 	act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
@@ -3367,12 +3367,12 @@ void Clan::add_offline_member(const std::string &name, int uid, int rank) {
 // игрок ранг
 void Clan::ClanAddMember(CharData *ch, int rank, std::string invite_name) {
   if (ch->get_name_str().empty()) {
-	log("SYSERROR: zero player name (uid = %d) (%s:%d %s)", GET_UNIQUE(ch),
+	log("SYSERROR: zero player name (uid = %ld) (%s:%d %s)", GET_ID(ch),
 		__FILE__, __LINE__, __func__);
 	return;
   }
 
-  this->add_offline_member(ch->get_name_str(), GET_UNIQUE(ch), rank);
+  this->add_offline_member(ch->get_name_str(), GET_ID(ch), rank);
   Clan::SetClanData(ch);
   DescriptorData *d;
   for (d = descriptor_list; d; d = d->next) {
@@ -3410,7 +3410,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 	SendMsgToChar("Укажите имя персонажа.\r\n", ch);
   else if (!unique)
 	SendMsgToChar("Неизвестный персонаж.\r\n", ch);
-  else if (unique == GET_UNIQUE(ch))
+  else if (unique == GET_ID(ch))
 	SendMsgToChar("Сменить себя на самого себя? Вы бредите.\r\n", ch);
   else if (!d || !CAN_SEE(ch, d->character))
 	SendMsgToChar("Этого персонажа нет в игре!\r\n", ch);
@@ -3419,11 +3419,11 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
   else {
 	buffer2[0] = UPPER(buffer2[0]);
 	// воевода идет рангом ниже
-	this->m_members.set_rank(GET_UNIQUE(ch), 1);
+	this->m_members.set_rank(GET_ID(ch), 1);
 	Clan::SetClanData(ch);
 	// ставим нового воеводу (если он был в клане - меняем только ранг)
 	if (CLAN(d->character)) {
-	  this->m_members.set_rank(GET_UNIQUE(d->character), 0);
+	  this->m_members.set_rank(GET_ID(d->character), 0);
 	  Clan::SetClanData(d->character.get());
 	} else {
 	  this->ClanAddMember(d->character.get(), 0, ch->get_name());
@@ -3544,13 +3544,13 @@ void Clan::CheckPkList(CharData *ch) {
   ClanPkList::iterator it;
   for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 	// пкл
-	if ((it = (*clan)->pkList.find(GET_UNIQUE(ch))) != (*clan)->pkList.end())
+	if ((it = (*clan)->pkList.find(GET_ID(ch))) != (*clan)->pkList.end())
 	  SendMsgToChar(ch,
 					"Находитесь в списке врагов дружины '%s', добавивший: %s.\r\n",
 					(*clan)->name.c_str(),
 					it->second->authorName.c_str());
 	// дрл
-	if ((it = (*clan)->frList.find(GET_UNIQUE(ch))) != (*clan)->frList.end())
+	if ((it = (*clan)->frList.find(GET_ID(ch))) != (*clan)->frList.end())
 	  SendMsgToChar(ch,
 					"Находитесь в списке друзей дружины '%s', добавивший: %s.\r\n",
 					(*clan)->name.c_str(),
@@ -4648,7 +4648,7 @@ bool is_alliance_by_abbr(const CharData *ch, char *abbrev) {
 }
 
 bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
-  return (obj->get_custom_label()->author == (ch)->get_idnum()
+  return (obj->get_custom_label()->author == (ch)->get_uid()
 	  && !(obj->get_custom_label()->clan_abbrev))
 	  || IS_IMPL(ch)
 	  || ((ch)->player_specials->clan
@@ -4980,13 +4980,13 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		continue;
 	  // пкл
 	  if (!subcmd) {
-		it = CLAN(ch)->pkList.find(GET_UNIQUE(tch));
+		it = CLAN(ch)->pkList.find(GET_ID(tch));
 		if (it != CLAN(ch)->pkList.end())
 		  print_pkl(ch, info, it);
 	  }
 		// дрл
 	  else {
-		it = CLAN(ch)->frList.find(GET_UNIQUE(tch));
+		it = CLAN(ch)->frList.find(GET_ID(tch));
 		if (it != CLAN(ch)->frList.end())
 		  print_pkl(ch, info, it);
 	  }
@@ -5065,7 +5065,7 @@ void DoClanPkList(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	// собственно пишем новую жертву/друга
 	ClanPkPtr tempRecord(new ClanPk);
-	tempRecord->author = GET_UNIQUE(ch);
+	tempRecord->author = GET_ID(ch);
 	tempRecord->authorName = GET_NAME(ch);
 	tempRecord->victimName = buffer2;
 	name_convert(tempRecord->victimName);

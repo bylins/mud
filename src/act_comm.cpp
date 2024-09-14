@@ -996,7 +996,7 @@ int ign_find_id(char *name, long *id) {
 				return 0;
 			}
 
-			*id = i.id();
+			*id = i.uid();
 			return 1;
 		}
 	}
@@ -1005,7 +1005,7 @@ int ign_find_id(char *name, long *id) {
 
 const char *ign_find_name(long id) {
 	for (const auto & i : player_table) {
-		if (id == i.id()) {
+		if (id == i.uid()) {
 			return i.name();
 		}
 	}

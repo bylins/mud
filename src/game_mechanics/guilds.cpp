@@ -581,7 +581,7 @@ bool HasEnoughCurrency(CharData *ch, Vnum currency_id, long amount) {
 			return ch->get_gold() >= amount;
 		}
 		case 1: { // слава
-			const auto total_glory = GloryConst::get_glory(GET_UNIQUE(ch));
+			const auto total_glory = GloryConst::get_glory(GET_ID(ch));
 			return total_glory >= amount;
 		}
 		case 2: { // гривны
@@ -607,7 +607,7 @@ void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
 		}
 		case 1: { // слава
 			GloryConst::add_total_spent(amount);
-			GloryConst::remove_glory(GET_UNIQUE(ch), amount);
+			GloryConst::remove_glory(GET_ID(ch), amount);
 			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), amount);
 			break;
 		}

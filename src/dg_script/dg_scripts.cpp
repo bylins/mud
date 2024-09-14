@@ -400,7 +400,7 @@ int find_char_vnum(int vnum, int num = 0) {
 	if (!mobs.empty()) {
 		for (auto it : mobs) {
 			if (count++ == num) {
-				return it->id;
+				return it->get_uid();
 			}
 		}
 	}
@@ -2199,7 +2199,7 @@ void find_replacement(void *go,
 		} else if (*field == 'u' || *field == 'U') {
 			if (!str_cmp(field, "uniq")) {
 				if (!c->IsNpc())
-					sprintf(str, "%d", GET_UNIQUE(c));
+					sprintf(str, "%ld", c->get_uid());
 			} else if (!str_cmp(field, "u")) {
 				strcpy(str, GET_CH_SUF_2(c));
 			} else if (!str_cmp(field, "UPiname")) {
@@ -4966,7 +4966,7 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 			continue;
 		}
 		if (d->character->in_room != kNowhere) {
-			result = d->character->id;
+			result = d->character->get_uid();
 		}
 	}
 	if (result <= -1) {

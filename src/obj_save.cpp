@@ -458,7 +458,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->get_custom_label()->author = atoi(buffer);
 				if (object->get_custom_label()->author > 0) {
 					for (std::size_t i = 0; i < player_table.size(); i++) {
-						if (player_table[i].id() == object->get_custom_label()->author) {
+						if (player_table[i].uid() == object->get_custom_label()->author) {
 							object->get_custom_label()->author_mail = str_dup(player_table[i].mail);
 							break;
 						}
@@ -971,7 +971,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::check_crc(filename, FileCRC::UPDATE_TEXTOBJS, player_table[index].unique);
+			FileCRC::check_crc(filename, FileCRC::UPDATE_TEXTOBJS, player_table[index].uid());
 		}
 	}
 
@@ -991,7 +991,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::check_crc(filename, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
+			FileCRC::check_crc(filename, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
 		}
 	}
 
@@ -1089,7 +1089,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 		if (ferror(fl)) {
 			log("SYSERR: I/O Error reading %s timer file.", name);
 			fclose(fl);
-			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
+			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
 			ClearSaveinfo(index);
 			return false;
 		}
@@ -1107,7 +1107,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	UNUSED_ARG(dummy);
 
 	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
+	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
 
 	if (rent.nitems != num) {
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
@@ -1163,7 +1163,7 @@ int Crash_write_timer(const std::size_t index) {
 		ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
-	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
+	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
 	return true;
 }
 
@@ -1462,7 +1462,7 @@ int Crash_load(CharData *ch) {
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata) {
 		fclose(fl);
-		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UNIQUE(ch));
+		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_ID(ch));
 		SendMsgToChar("\r\n** Ошибка чтения файла описания вещей **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1472,7 +1472,7 @@ int Crash_load(CharData *ch) {
 		return (1);
 	};
 	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UNIQUE(ch));
+	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_ID(ch));
 
 	data = readdata;
 	*(data + fsize) = '\0';
@@ -1981,7 +1981,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
-		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UNIQUE(ch));
+		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_ID(ch));
 	} else {
 		Crash_delete_files(iplayer);
 		return false;
@@ -2491,7 +2491,7 @@ void Crash_frac_rent_time(int frac_part) {
 	utils::CExecutionTimer timer;
 	for (std::size_t c = 0; c < player_table.size(); c++) {
 		if (player_table[c].activity == frac_part
-			&& player_table[c].unique != -1
+			&& player_table[c].uid() != -1
 			&& SAVEINFO(c)) {
 			Crash_timer_obj(c, time(0));
 		}
@@ -2502,7 +2502,7 @@ void Crash_frac_rent_time(int frac_part) {
 
 void Crash_rent_time(int/* dectime*/) {
 	for (std::size_t c = 0; c < player_table.size(); c++) {
-		if (player_table[c].unique != -1) {
+		if (player_table[c].uid() != -1) {
 			Crash_timer_obj(c, time(0));
 		}
 	}

@@ -1879,7 +1879,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			mob_index[GET_MOB_RNUM(ch)].total_online--;
 		}
 	}
-	chardata_by_uid.erase(ch->id);
+	chardata_by_uid.erase(ch->get_uid());
 	bool left_in_game = false;
 	if (!is_npc
 		&& ch->desc != nullptr) {

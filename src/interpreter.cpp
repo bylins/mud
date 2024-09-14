@@ -2277,11 +2277,10 @@ void do_entergame(DescriptorData *d) {
 	d->character->DeleteIrrelevantRunestones();
 
 	// with the copyover patch, this next line goes in enter_player_game()
-	d->character->id = GET_ID(d->character);
-	chardata_by_uid[d->character->id] = d->character.get();
+	chardata_by_uid[d->character->get_uid()] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
 	d->character->set_last_logon(time(nullptr));
-//	player_table[GetPtableByUnique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
+//	player_table[GetPtableByUnique(GET_ID(d->character))].last_logon = LAST_LOGON(d->character);
 	player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
@@ -2321,7 +2320,7 @@ void do_entergame(DescriptorData *d) {
 	init_warcry(d->character.get());
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (privilege::IsContainedInGodsList(GET_NAME(d->character), GET_UNIQUE(d->character))
+	if (privilege::IsContainedInGodsList(GET_NAME(d->character), GET_ID(d->character))
 		&& (GetRealLevel(d->character) < kLvlGod)) {
 		SET_GOD_FLAG(d->character, EGf::kDemigod);
 	}
@@ -2540,10 +2539,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->points.move = GET_MAX_MOVE(ch);
 	ch->real_abils.armor = 100;
 
-	ch->set_idnum(++top_idnum);
-	element.set_id(ch->get_idnum());
-	ch->set_uid(create_unique());
-	element.unique = ch->get_uid();
+	ch->set_uid(++top_idnum);
 	element.level = 0;
 	element.remorts = 0;
 	element.last_logon = -1;
@@ -2615,7 +2611,7 @@ int create_entry(PlayerIndexElement &element) {
 }
 
 void DoAfterEmailConfirm(DescriptorData *d) {
-	PlayerIndexElement element(-1, GET_PC_NAME(d->character));
+	PlayerIndexElement element(GET_PC_NAME(d->character));
 
 	// Now GET_NAME() will work properly.
 	init_char(d->character.get(), element);
@@ -2864,7 +2860,6 @@ void nanny(DescriptorData *d, char *argument) {
 					d->character->UnsetFlag(EPlrFlag::kWriting);
 					d->character->UnsetFlag(EPlrFlag::kCryo);
 					d->character->set_pfilepos(player_i);
-					GET_ID(d->character) = GET_ID(d->character);
 					DoAfterPassword(d);
 
 					return;
@@ -3976,7 +3971,7 @@ bool CompareParam(const std::string &buffer, const std::string &buffer2, bool fu
 }
 
 // ищет дескриптор игрока(онлайн состояние) по его УИДу
-DescriptorData *DescriptorByUid(int uid) {
+DescriptorData *DescriptorByUid(long uid) {
 	DescriptorData *d = nullptr;
 
 	for (d = descriptor_list; d; d = d->next) {
@@ -3997,12 +3992,12 @@ DescriptorData *DescriptorByUid(int uid) {
 */
 int GetUniqueByName(std::string_view name, bool god) {
 	for (auto &i : player_table) {
-		if (!name.compare(i.name()) && i.unique != -1) {
+		if (!name.compare(i.name()) && i.uid() != -1) {
 			if (!god) {
-				return i.unique;
+				return i.uid();
 			} else {
 				if (i.level < kLvlImmortal) {
-					return i.unique;
+					return i.uid();
 				} else {
 					return -1;
 				}
@@ -4017,7 +4012,7 @@ bool IsActiveUser(long unique) {
 	time_t charLogon;
 	int inactivityDelay = /* day*/ (3600 * 24) * /*days count*/ 60;
 	for (auto &i : player_table) {
-		if (i.unique == unique) {
+		if (i.uid() == unique) {
 			charLogon = i.last_logon;
 			return currTime - charLogon < inactivityDelay;
 		}
@@ -4030,7 +4025,7 @@ std::string GetNameByUnique(long unique, bool god) {
 	std::string empty;
 
 	for (auto &i : player_table) {
-		if (i.unique == unique) {
+		if (i.uid() == unique) {
 			if (!god) {
 				return i.name();
 			} else {
@@ -4176,11 +4171,11 @@ void DeletePcByHimself(const char *name) {
 		if (NAME_FINE(st)) {
 			player_table.GetNameAdviser().add(GET_NAME(st));
 		}
-		Clan::remove_from_clan(GET_UNIQUE(st));
+		Clan::remove_from_clan(GET_ID(st));
 		st->save_char();
 
 		ClearCrashSavedObjects(id);
-		player_table[id].unique = -1;
+		player_table[id].set_uid(0);
 		player_table[id].level = -1;
 		player_table[id].remorts = -1;
 		player_table[id].last_logon = -1;

@@ -407,9 +407,6 @@ class CharData : public ProtectedCharData {
 
 	////////////////////////////////////////////////////////////////////////////
 
-	int get_serial_num();
-	void set_serial_num(int num);
-
 	bool purged() const;
 
 	const std::string &get_name() const;
@@ -648,7 +645,7 @@ class CharData : public ProtectedCharData {
 	void cleanup_script();
 
 	bool IsNpc() const { return is_npc_; }
-	void SetNpcAttribute() { is_npc_ = true; }
+	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
 	bool HasWeapon();
@@ -672,7 +669,6 @@ class CharData : public ProtectedCharData {
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct CastAttack cast_attack_;   // каст заклинания
 	////////////////////////////////////////////////////////////////////////////
-	int serial_num_; // порядковый номер в списке чаров (для name_list)
 	// true - чар очищен и ждет вызова delete для оболочки
 	bool purged_;
 
@@ -812,7 +808,6 @@ class CharData : public ProtectedCharData {
 
 	ObjData *carrying;    // Head of list
 	DescriptorData *desc;    // NULL for mobiles
-	long id;            // used by DG triggers
 	ObjData::triggers_list_ptr proto_script;    // list of default triggers
 	Script::shared_ptr script;    // script info for the object
 

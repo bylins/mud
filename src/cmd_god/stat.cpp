@@ -110,11 +110,11 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
-			"%s '%s' В комнате [%ld] Текущий UID:[%d]",
+			"%s '%s' В комнате [%d] Текущий UID:[%ld]",
 			(!k->IsNpc() ? "PC" : "MOB"),
 			GET_NAME(k),
-			GET_ID(k),
-			k_room);
+			k_room,
+			k->get_uid());
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
 	if (IS_MOB(k)) {
@@ -259,7 +259,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
-		time_t ltime = GetLastlogonByUnique(GET_UNIQUE(k));
+		time_t ltime = GetLastlogonByUnique(GET_ID(k));
 		char t1[11];
 		char t2[11];
 		strftime(t1, sizeof(t1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
@@ -327,8 +327,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf,
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
-			Glory::get_glory(GET_UNIQUE(k)),
-			GloryConst::get_glory(GET_UNIQUE(k)),
+			Glory::get_glory(GET_ID(k)),
+			GloryConst::get_glory(GET_ID(k)),
 			GET_AC(k),
 			GET_REAL_AC(k),
 			compute_armor_class(k),

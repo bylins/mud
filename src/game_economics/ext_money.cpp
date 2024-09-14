@@ -586,7 +586,7 @@ void drop_torc(CharData *mob) {
 
 	if (leader->in_room == mob->in_room
 		&& GET_GOD_FLAG(leader, EGf::kRemort)
-		&& (GET_UNIQUE(leader) == damager.first
+		&& (GET_ID(leader) == damager.first
 			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
 		gain_torc(leader, drop);
 	}

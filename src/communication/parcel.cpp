@@ -129,7 +129,7 @@ void add_parcel(long target, long sender, const Node &tmp_node) {
 int total_sended(CharData *ch) {
 	int sended = 0;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
-		SenderListType::const_iterator it2 = it->second.find(GET_UNIQUE(ch));
+		SenderListType::const_iterator it2 = it->second.find(GET_ID(ch));
 		if (it2 != it->second.end()) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
 				++sended;
@@ -234,7 +234,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 		return;
 	}
 	if (SetSystem::is_norent_set(ch, obj)
-		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UNIQUE(ch)))) {
+		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_ID(ch)))) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		SendMsgToChar(CAP(buf), ch);
 		return;
@@ -249,7 +249,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 
 	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
 	Node tmp_node(reserved_cost, object_ptr);
-	add_parcel(vict_uid, GET_UNIQUE(ch), tmp_node);
+	add_parcel(vict_uid, GET_ID(ch), tmp_node);
 
 	send_reserved_buffer += reserved_cost;
 	send_cost_buffer += SEND_COST;
@@ -266,7 +266,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 	if (ch->IsNpc()) return;
 
-	if (GET_UNIQUE(ch) == vict_uid) {
+	if (GET_ID(ch) == vict_uid) {
 		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
@@ -363,7 +363,7 @@ void print_sending_stuff(CharData *ch) {
 	out << "\r\nВаши текущие посылки:";
 	bool print = false;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
-		SenderListType::const_iterator it2 = it->second.find(GET_UNIQUE(ch));
+		SenderListType::const_iterator it2 = it->second.find(GET_ID(ch));
 		if (it2 != it->second.end()) {
 			print = true;
 			std::string name = GetNameByUnique(it->first);
@@ -419,7 +419,7 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 
 // * Есть ли на чара какие-нить посылки.
 bool has_parcel(CharData *ch) {
-	ParcelListType::const_iterator it = parcel_list.find(GET_UNIQUE(ch));
+	ParcelListType::const_iterator it = parcel_list.find(GET_ID(ch));
 	if (it != parcel_list.end())
 		return true;
 	else
@@ -511,7 +511,7 @@ void receive(CharData *ch, CharData *mailman) {
 		return;
 	}
 
-	ParcelListType::iterator it = parcel_list.find(GET_UNIQUE(ch));
+	ParcelListType::iterator it = parcel_list.find(GET_ID(ch));
 	if (it != parcel_list.end()) {
 		for (SenderListType::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			std::string name = GetNameByUnique(it2->first);
@@ -874,7 +874,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 	int money = 0;
 	bool empty = true;
 	for (ParcelListType::iterator i = parcel_list.begin(); i != parcel_list.end(); /* empty */) {
-		SenderListType::iterator k = i->second.find(GET_UNIQUE(ch));
+		SenderListType::iterator k = i->second.find(GET_ID(ch));
 		if (k == i->second.end()) {
 			++i;
 			continue;

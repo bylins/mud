@@ -181,7 +181,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			return;
 
 		}
-		if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch) && (ch->GetSkill(ESkill::kJewelry) < 130)) {
+		if (GET_OBJ_OWNER(itemobj) != GET_ID(ch) && (ch->GetSkill(ESkill::kJewelry) < 130)) {
 			sprintf(buf, "Вы недостаточно искусны и можете вплавлять желаемые аффекты только в перековку!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
@@ -215,7 +215,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	sprintf(buf, "$n вплавил$g %s в %s.\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
 	act(buf, false, ch, nullptr, nullptr, kToRoom);
 
-	if (GET_OBJ_OWNER(itemobj) == GET_UNIQUE(ch)) {
+	if (GET_OBJ_OWNER(itemobj) == GET_ID(ch)) {
 		int timer = itemobj->get_timer() + itemobj->get_timer() / 100 * insgem_vars.timer_plus_percent;
 		itemobj->set_timer(timer);
 	} else {

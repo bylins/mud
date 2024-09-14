@@ -275,7 +275,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
-	auto glory = GloryConst::get_glory(GET_UNIQUE(ch));
+	auto glory = GloryConst::get_glory(GET_ID(ch));
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
 			<< glory << " " << GetDeclensionInNumber(glory, EWhat::kPoint) << " постоянной славы." << "\r\n";
@@ -806,11 +806,11 @@ void PrintScoreBase(CharData *ch) {
 				std::string(label_room->name).c_str());
 	}
 
-	int glory = Glory::get_glory(GET_UNIQUE(ch));
+	int glory = Glory::get_glory(GET_ID(ch));
 	if (glory) {
 	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
 	}
-	glory = GloryConst::get_glory(GET_UNIQUE(ch));
+	glory = GloryConst::get_glory(GET_ID(ch));
 	if (glory) {
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
 				glory, GetDeclensionInNumber(glory, EWhat::kPoint));

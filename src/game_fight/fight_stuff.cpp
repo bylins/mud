@@ -633,7 +633,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		if (rnum >= 0)
 		{
 			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
-			o->set_owner(GET_UNIQUE(ch));
+			o->set_owner(GET_ID(ch));
 			obj_to_obj(o.get(), corpse);
 		}
 

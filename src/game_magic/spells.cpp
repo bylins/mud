@@ -505,7 +505,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		}
 		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29);
 		if (pkPortal) 
-			world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
+			world[fnd_room]->pkPenterUnique = GET_ID(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
@@ -527,7 +527,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29);
 		if (pkPortal) 
-			world[ch->in_room]->pkPenterUnique = GET_UNIQUE(ch);
+			world[ch->in_room]->pkPenterUnique = GET_ID(ch);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",

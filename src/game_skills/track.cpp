@@ -103,7 +103,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				strcpy(name, GET_NAME(mob_proto + track->who));
 			} else {
 				for (std::size_t c = 0; c < player_table.size(); c++) {
-					if (player_table[c].id() == track->who) {
+					if (player_table[c].uid() == track->who) {
 						strcpy(name, player_table[c].name());
 						break;
 					}
@@ -139,7 +139,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(name, GET_NAME(mob_proto + track->who));
 		} else {
 			for (std::size_t c = 0; c < player_table.size(); c++) {
-				if (player_table[c].id() == track->who) {
+				if (player_table[c].uid() == track->who) {
 					strcpy(name, player_table[c].name());
 					break;
 				}
