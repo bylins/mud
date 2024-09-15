@@ -63,8 +63,6 @@ const int kMaxPlayerLevel = 30;
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
 
-extern const char *nothing_string;
-
 /*
  * If you want equipment to be automatically equipped to the same place
  * it was when players rented, set the define below to 1.  Please note
@@ -96,22 +94,6 @@ const __uint8_t kCodePageWinzOld = 6;
 const __uint8_t kCodePageLast = 7;
 
 const int kKtSelectmenu = 255;
-
-template<typename T>
-struct Unimplemented {};
-
-template<typename E>
-const std::string &NAME_BY_ITEM(const E item) {
-	return Unimplemented<E>::FAIL;
-}
-
-template<typename E>
-E ITEM_BY_NAME(const std::string &name) {
-	return Unimplemented<E>::FAIL;
-}
-
-template<typename E>
-inline E ITEM_BY_NAME(const char *name) { return ITEM_BY_NAME<E>(std::string(name)); }
 
 // object-related defines ******************************************* //
 

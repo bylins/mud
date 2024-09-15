@@ -8,6 +8,7 @@
 #define BYLINS_SRC_FEATS_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/structs/meta_enum.h"
 
 enum class EFeat {
 	kUndefined = 0,			//DO NOT USE

@@ -152,7 +152,6 @@ set(SOURCES
 		src/gameplay/ai/spec_assign.cpp
 		src/gameplay/ai/spec_procs.cpp
 		src/engine/network/descriptor_data.cpp
-		src/engine/structs/structs.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
 		src/utils/id_converter.cpp
@@ -641,7 +640,8 @@ set(HEADERS
 		src/engine/ui/cmd_god/do_invisible.h
 		src/engine/ui/cmd_god/set_all.h
 		src/gameplay/ai/spec_procs.h
-		src/engine/grammar/cases.h)
+		src/engine/grammar/cases.h
+		src/engine/structs/meta_enum.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

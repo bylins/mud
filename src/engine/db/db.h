@@ -169,11 +169,6 @@ extern std::unordered_map<long, CharData *> chardata_by_uid;
 void AddTrigIndexEntry(int nr, Trigger *trig);
 extern IndexData **trig_index;
 
-#ifndef __CONFIG_C__
-extern char const *OK;
-extern char const *NOPERSON;
-extern char const *NOEFFECT;
-#endif
 
 // external variables
 
