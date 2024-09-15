@@ -329,7 +329,8 @@ set(SOURCES
 		src/engine/ui/cmd_god/wiznet.cpp
 		src/engine/ui/cmd_god/force.cpp
 		src/engine/ui/cmd_god/do_invisible.cpp
-		src/engine/ui/cmd_god/set_all.cpp)
+		src/engine/ui/cmd_god/set_all.cpp
+		src/engine/grammar/cases.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -638,7 +639,9 @@ set(HEADERS
 		src/engine/ui/cmd_god/wiznet.h
 		src/engine/ui/cmd_god/force.h
 		src/engine/ui/cmd_god/do_invisible.h
-		src/engine/ui/cmd_god/set_all.h)
+		src/engine/ui/cmd_god/set_all.h
+		src/gameplay/ai/spec_procs.h
+		src/engine/grammar/cases.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

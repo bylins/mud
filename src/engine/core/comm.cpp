@@ -68,6 +68,7 @@
 #include "engine/db/db.h"
 #include "utils/utils.h"
 #include "engine/db/global_objects.h"
+#include "engine/core/conf.h"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
 

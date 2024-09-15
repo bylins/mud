@@ -11,6 +11,7 @@
 #include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
+#include "engine/core/conf.h"
 #include "utils/utils_string.h"
 
 #include <string>
@@ -170,7 +171,7 @@ const __uint8_t CON_TORC_EXCH = 52;        // обмен гривен
 const __uint8_t CON_MENU_STATS = 53;        // оплата сброса стартовых статов из главного меню
 const __uint8_t CON_SEDIT = 54;            // sedit - редактирование сетов
 const __uint8_t CON_RESET_RELIGION = 55;    // сброс религии из меню сброса статов
-const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter in the game from new location
+const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter the game from new location
 const __uint8_t CON_INIT = 57;                // just connected
 // не забываем отражать новые состояния в connected_types -- Krodo
 

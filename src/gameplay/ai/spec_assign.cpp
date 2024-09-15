@@ -18,6 +18,7 @@
 #include "gameplay/communication/boards.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/noob.h"
+#include "gameplay/ai/spec_procs.h"
 
 extern int dts_are_dumps;
 

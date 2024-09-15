@@ -1812,7 +1812,6 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 extern struct IndexData *obj_index;
 
-
 bool is_dark(RoomRnum room) {
 	double coef = 0.0;
 

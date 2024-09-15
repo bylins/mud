@@ -11,6 +11,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/mechanics/cities.h"
+#include "gameplay/ai/spec_procs.h"
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);

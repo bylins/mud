@@ -121,9 +121,28 @@ const int kObjectSaveActivity = 300;
 const int kPlayerSaveActivity = 305;
 const int kMaxSavedItems = 1000;
 
+// =====================================================================================================================
+
+struct IndexData {
+  IndexData() : vnum(0), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
+  explicit IndexData(int _vnum)
+	  : vnum(_vnum), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
+
+  Vnum vnum;            // virtual number of this mob/obj       //
+  int total_online;        // number of existing units of this mob/obj //
+  int stored;        // number of things in rent file            //
+  int (*func)(CharData *, void *, int, char *);
+  char *farg;        // string argument for special function     //
+  Trigger *proto;    // for triggers... the trigger     //
+  int zone;            // mob/obj zone rnum //
+  size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
+};
+
+// =====================================================================================================================
+
 class PlayerIndexElement {
  public:
-	PlayerIndexElement(const char *name);
+	explicit PlayerIndexElement(const char *name);
 
 	char *mail;
 	char *last_ip;
@@ -139,7 +158,6 @@ class PlayerIndexElement {
 
 	void set_name(const char *name);
 	void set_uid(const long _) { m_uid_ = _; }
-	long uid() { return m_uid_;}
  private:
 	int m_uid_;
 	const char *m_name;
