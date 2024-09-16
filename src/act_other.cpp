@@ -82,8 +82,6 @@ extern int nameserver_is_slow;
 void write_aliases(CharData *ch);
 void perform_immort_vis(CharData *ch);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
-extern char *color_value(CharData *ch, int real, int max);
-//int posi_value(int real, int max);
 extern void split_or_clan_tax(CharData *ch, long amount);
 extern bool IsWearingLight(CharData *ch);
 // local functions
@@ -979,7 +977,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
 
-		buffer << fmt::format("{}", color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)));
+		buffer << fmt::format("{}", GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k)));
 		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
 		buffer << fmt::format(" {:^7} &n|", ch->in_room == k->in_room ? "&gДа" : "&rНет");
 
@@ -999,8 +997,8 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		if (!header)
 			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект |  Дебаф  |  Кто  | Строй | Положение \r\n";
 
-		std::string health_color = color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k));
-		std::string move_color = color_value(ch, GET_MOVE(k), GET_REAL_MAX_MOVE(k));
+		std::string health_color = GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k));
+		std::string move_color = GetWarmValueColor(GET_MOVE(k), GET_REAL_MAX_MOVE(k));
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name()); 
 
@@ -1777,18 +1775,18 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void perform_beep(CharData *ch, CharData *vict) {
-	SendMsgToChar(CCRED(vict, C_NRM), vict);
+	SendMsgToChar(KRED, vict);
 	sprintf(buf, "\007\007 $n вызывает вас!");
 	act(buf, false, ch, nullptr, vict, kToVict | kToSleep);
-	SendMsgToChar(CCNRM(vict, C_NRM), vict);
+	SendMsgToChar(KNRM, vict);
 
 	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar(OK, ch);
 	else {
-		SendMsgToChar(CCRED(ch, C_CMP), ch);
+		SendMsgToChar(KRED, ch);
 		sprintf(buf, "Вы вызвали $N3.");
 		act(buf, false, ch, nullptr, vict, kToChar | kToSleep);
-		SendMsgToChar(CCNRM(ch, C_CMP), ch);
+		SendMsgToChar(KNRM, ch);
 	}
 }
 

@@ -242,7 +242,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		} else {
 			str += "нет";
 		}
-		SendMsgToChar(ch, "Роли NPC: %s%s%s", CCCYN(ch, C_NRM), str.c_str(), CCNRM(ch, C_NRM));
+		SendMsgToChar(ch, "Роли NPC: %s%s%s", KCYN, str.c_str(), KNRM);
 	}
 
 	char tmp_buf[256];
@@ -254,8 +254,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
-			CCYEL(ch, C_NRM), GetRealLevel(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
+			KYEL, GetRealLevel(k), KNRM, KYEL,
+			GET_EXP(k), KNRM, tmp_buf, GET_ALIGNMENT(k));
 
 	SendMsgToChar(buf, ch);
 
@@ -287,7 +287,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		//. Display OLC zone for immorts .
 		if (GetRealLevel(ch) >= kLvlImmortal) {
-			sprintf(buf1, ", %sOLC[%d]%s", CCGRN(ch, C_NRM), GET_OLC_ZONE(k), CCNRM(ch, C_NRM));
+			sprintf(buf1, ", %sOLC[%d]%s", KGRN, GET_OLC_ZONE(k), KNRM);
 			strcat(buf, buf1);
 		}
 		strcat(buf, "\r\n");
@@ -304,28 +304,22 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	sprintf(buf,
 			"Сила: [%s%d/%d%s]  Инт : [%s%d/%d%s]  Мудр : [%s%d/%d%s] \r\n"
 			"Ловк: [%s%d/%d%s]  Тело:[%s%d/%d%s]  Обаян:[%s%d/%d%s] Размер: [%s%d/%d%s]\r\n",
-			CCCYN(ch, C_NRM), k->GetInbornStr(), GetRealStr(k), CCNRM(ch,
-																	  C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornInt(), GetRealInt(k), CCNRM(ch,
-																	  C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornWis(), GetRealWis(k), CCNRM(ch,
-																	  C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornDex(), GetRealDex(k), CCNRM(ch,
-																	  C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornCon(), GetRealCon(k), CCNRM(ch,
-																	  C_NRM),
-			CCCYN(ch, C_NRM), k->GetInbornCha(), GetRealCha(k), CCNRM(ch,
-																	  C_NRM),
-			CCCYN(ch, C_NRM), GET_SIZE(k), GET_REAL_SIZE(k), CCNRM(ch, C_NRM));
+			KCYN, k->GetInbornStr(), GetRealStr(k), KNRM,
+			KCYN, k->GetInbornInt(), GetRealInt(k), KNRM,
+			KCYN, k->GetInbornWis(), GetRealWis(k), KNRM,
+			KCYN, k->GetInbornDex(), GetRealDex(k), KNRM,
+			KCYN, k->GetInbornCon(), GetRealCon(k), KNRM,
+			KCYN, k->GetInbornCha(), GetRealCha(k), KNRM,
+			KCYN, GET_SIZE(k), GET_REAL_SIZE(k), KNRM);
 	SendMsgToChar(buf, ch);
 
 	sprintf(buf, "Жизни :[%s%d/%d+%d%s]  Энергии :[%s%d/%d+%d%s]",
-			CCGRN(ch, C_NRM), GET_HIT(k), GET_REAL_MAX_HIT(k), hit_gain(k),
-			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MOVE(k), GET_REAL_MAX_MOVE(k), move_gain(k), CCNRM(ch, C_NRM));
+			KGRN, GET_HIT(k), GET_REAL_MAX_HIT(k), hit_gain(k),
+			KNRM, KGRN, GET_MOVE(k), GET_REAL_MAX_MOVE(k), move_gain(k), KNRM);
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		sprintf(buf, " Мана :[%s%d/%d+%d%s]\r\n",
-				CCGRN(ch, C_NRM), k->mem_queue.stored, GET_MAX_MANA(k), CalcManaGain(k), CCNRM(ch, C_NRM));
+				KGRN, k->mem_queue.stored, GET_MAX_MANA(k), CalcManaGain(k), KNRM);
 	} else {
 		sprintf(buf, "\r\n");
 	}
@@ -407,26 +401,26 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	if (k->IsNpc()) {
 		k->char_specials.saved.act.sprintbits(action_bits, smallBuf, ",", 4);
-		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		sprintf(buf, "MOB флаги: %s%s%s\r\n", KCYN, smallBuf, KNRM);
 		SendMsgToChar(buf, ch);
 		k->mob_specials.npc_flags.sprintbits(function_bits, smallBuf, ",", 4);
-		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		sprintf(buf, "NPC флаги: %s%s%s\r\n", KCYN, smallBuf, KNRM);
 		SendMsgToChar(buf, ch);
 		SendMsgToChar(ch,
 					  "Количество атак: %s%d%s. ",
-					  CCCYN(ch, C_NRM),
+					  KCYN,
 					  k->mob_specials.extra_attack + 1,
-					  CCNRM(ch, C_NRM));
+					  KNRM);
 		SendMsgToChar(ch,
 					  "Вероятность использования умений: %s%d%%%s. ",
-					  CCCYN(ch, C_NRM),
+					  KCYN,
 					  k->mob_specials.like_work,
-					  CCNRM(ch, C_NRM));
+					  KNRM);
 		SendMsgToChar(ch,
 					  "Убить до начала замакса: %s%d%s\r\n",
-					  CCCYN(ch, C_NRM),
+					  KCYN,
 					  k->mob_specials.MaxFactor,
-					  CCNRM(ch, C_NRM));
+					  KNRM);
 		SendMsgToChar(ch, "&GУмения:&c");
 		for (const auto &skill : MUD::Skills()) {
 			if (skill.IsValid() && k->GetSkill(skill.GetId())) {
@@ -457,7 +451,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				SendMsgToChar(ch, " '%s'", feat.GetCName());
 			}
 		}
-		SendMsgToChar(ch, CCNRM(ch, C_NRM));
+		SendMsgToChar(ch, KNRM);
 		SendMsgToChar(ch, "\r\n");
 		// информация о маршруте моба
 		if (k->mob_specials.dest_count > 0) {
@@ -495,29 +489,29 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 			SendMsgToChar(ch,
 						  "Заданные путевые точки: %s%s%s\r\n",
-						  CCCYN(ch, C_NRM),
+						  KCYN,
 						  str_dest_list.str().c_str(),
-						  CCNRM(ch, C_NRM));
+						  KNRM);
 			if (!virt) {
 				SendMsgToChar(ch,
 							  "Предполагаемый маршрут: %s%s%s\r\n",
-							  CCCYN(ch, C_NRM),
+							  KCYN,
 							  str_predictive_path.str().c_str(),
-							  CCNRM(ch, C_NRM));
+							  KNRM);
 			}
 		}
 	} else {
 		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, ",", 4);
-		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		sprintf(buf, "PLR: %s%s%s\r\n", KCYN, smallBuf, KNRM);
 		SendMsgToChar(buf, ch);
 
 		k->player_specials->saved.pref.sprintbits(preference_bits, smallBuf, ",", 4);
-		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		sprintf(buf, "PRF: %s%s%s\r\n", KGRN, smallBuf, KNRM);
 		SendMsgToChar(buf, ch);
 
 		if (IS_IMPL(ch)) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, ",");
-			sprintf(buf, "GFL: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+			sprintf(buf, "GFL: %s%s%s\r\n", KCYN, smallBuf, KNRM);
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -579,7 +573,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 	// Showing the bitvector
 	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
-	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+	sprintf(buf, "Аффекты: %s%s%s\r\n", KYEL, smallBuf, KNRM);
 	SendMsgToChar(buf, ch);
 	sprintf(buf, "&GПеревоплощений: %d\r\n&n", GetRealRemort(k));
 	SendMsgToChar(buf, ch);
@@ -590,7 +584,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
 					(aff->battleflag & kAfPulsedec) || (aff->battleflag & kAfSameTime) ? "плс" : "мин",
 					(aff->battleflag & kAfBattledec) || (aff->battleflag & kAfSameTime) ? "рнд" : "мин",
-					CCCYN(ch, C_NRM), MUD::Spell(aff->type).GetCName(), CCNRM(ch, C_NRM));
+					KCYN, MUD::Spell(aff->type).GetCName(), KNRM);
 			if (aff->modifier) {
 				sprintf(buf2, "%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 				strcat(buf, buf2);
@@ -674,9 +668,9 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	rnum = GET_OBJ_RNUM(j);
 
 	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: '&c%s&n',",
-			CCYEL(ch, C_NRM),
+			KYEL,
 			(!j->get_short_description().empty() ? j->get_short_description().c_str() : "<None>"),
-			CCNRM(ch, C_NRM),
+			KNRM,
 			j->get_aliases().c_str());
 	SendMsgToChar(buf, ch);
 	if (j->get_custom_label() && j->get_custom_label()->text_label) {
@@ -693,7 +687,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 
 	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
-				  CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UNIQUE_ID(j), j->get_id());
+				  KGRN, vnum, KNRM, GET_OBJ_RNUM(j), GET_OBJ_UNIQUE_ID(j), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
@@ -724,16 +718,16 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "\r\n%s", diag_weapon_to_char(j, 2));
 	sprintf(buf, "L-Des: %s\r\n%s",
 			!j->get_description().empty() ? j->get_description().c_str() : "Нет",
-			CCNRM(ch, C_NRM));
+			KNRM);
 	SendMsgToChar(buf, ch);
 
 	if (j->get_ex_description()) {
-		sprintf(buf, "Экстра описание:%s", CCCYN(ch, C_NRM));
+		sprintf(buf, "Экстра описание:%s", KCYN);
 		for (auto desc = j->get_ex_description(); desc; desc = desc->next) {
 			strcat(buf, " ");
 			strcat(buf, desc->keyword);
 		}
-		strcat(buf, CCNRM(ch, C_NRM));
+		strcat(buf, KNRM);
 		SendMsgToChar(strcat(buf, "\r\n"), ch);
 	}
 	SendMsgToChar("Может быть надет : ", ch);
@@ -999,7 +993,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 			if ((i = GetObjRnum(GET_OBJ_VAL(j, 1))) >= 0) {
 				sprintf(buf + strlen(buf), "\r\nпрототип %s%s%s.",
-						CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
+						KICYN, obj_proto[i]->get_PName(0).c_str(), KNRM);
 			}
 			break;
 		case EObjType::kMagicContaner:
@@ -1020,7 +1014,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	// * more or less useless and just takes up valuable screen space.
 
 	if (j->get_contains()) {
-		sprintf(buf, "\r\nСодержит:%s", CCGRN(ch, C_NRM));
+		sprintf(buf, "\r\nСодержит:%s", KGRN);
 		for (found = 0, j2 = j->get_contains(); j2; j2 = j2->get_next_content()) {
 			sprintf(buf2, "%s %s", found++ ? "," : "", j2->get_short_description().c_str());
 			strcat(buf, buf2);
@@ -1037,7 +1031,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		if (*buf) {
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
-		SendMsgToChar(CCNRM(ch, C_NRM), ch);
+		SendMsgToChar(KNRM, ch);
 	}
 	found = 0;
 	SendMsgToChar("Аффекты:", ch);
@@ -1100,13 +1094,13 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		rm = world[rnum];
 	}
 
-	sprintf(buf, "Комната : %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name, CCNRM(ch, C_NRM));
+	sprintf(buf, "Комната : %s%s%s\r\n", KCYN, rm->name, KNRM);
 	SendMsgToChar(buf, ch);
 
 	sprinttype(rm->sector_type, sector_types, smallBuf);
 	sprintf(buf,
 			"Зона: [%3d], VNum: [%s%5d%s], RNum: [%5d], Тип  сектора: %s\r\n",
-			zone_table[rm->zone_rn].vnum, CCGRN(ch, C_NRM), rm->vnum, CCNRM(ch, C_NRM), rnum, smallBuf);
+			zone_table[rm->zone_rn].vnum, KGRN, rm->vnum, KNRM, rnum, smallBuf);
 	SendMsgToChar(buf, ch);
 
 	rm->flags_sprint(smallBuf, ",");
@@ -1117,15 +1111,15 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	SendMsgToChar(RoomDescription::show_desc(rm->description_num), ch);
 
 	if (rm->ex_description) {
-		sprintf(buf, "Доп. описание:%s", CCCYN(ch, C_NRM));
+		sprintf(buf, "Доп. описание:%s", KCYN);
 		for (auto desc = rm->ex_description; desc; desc = desc->next) {
 			strcat(buf, " ");
 			strcat(buf, desc->keyword);
 		}
-		strcat(buf, CCNRM(ch, C_NRM));
+		strcat(buf, KNRM);
 		SendMsgToChar(strcat(buf, "\r\n"), ch);
 	}
-	sprintf(buf, "Живые существа:%s", CCYEL(ch, C_NRM));
+	sprintf(buf, "Живые существа:%s", KYEL);
 	found = 0;
 	size_t counter = 0;
 	for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i) {
@@ -1151,10 +1145,10 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	if (*buf) {
 		SendMsgToChar(strcat(buf, "\r\n"), ch);
 	}
-	SendMsgToChar(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(KNRM, ch);
 
 	if (rm->contents) {
-		sprintf(buf, "Предметы:%s", CCGRN(ch, C_NRM));
+		sprintf(buf, "Предметы:%s", KGRN);
 		for (found = 0, j = rm->contents; j; j = j->get_next_content()) {
 			if (!CAN_SEE_OBJ(ch, j))
 				continue;
@@ -1173,19 +1167,19 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		if (*buf) {
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
-		SendMsgToChar(CCNRM(ch, C_NRM), ch);
+		SendMsgToChar(KNRM, ch);
 	}
 	for (i = 0; i < EDirection::kMaxDirNum; i++) {
 		if (rm->dir_option[i]) {
 			if (rm->dir_option[i]->to_room() == kNowhere)
-				sprintf(smallBuf, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+				sprintf(smallBuf, " %sNONE%s", KCYN, KNRM);
 			else
-				sprintf(smallBuf, "%s%5d%s", CCCYN(ch, C_NRM),
-						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), CCNRM(ch, C_NRM));
+				sprintf(smallBuf, "%s%5d%s", KCYN,
+						GET_ROOM_VNUM(rm->dir_option[i]->to_room()), KNRM);
 			sprintbit(rm->dir_option[i]->exit_info, exit_bits, tmpBuf);
 			sprintf(buf,
 					"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
-					CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM), smallBuf,
+					KCYN, dirs[i], KNRM, smallBuf,
 					rm->dir_option[i]->key,
 					rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
 					rm->dir_option[i]->vkeyword ? rm->dir_option[i]->vkeyword : "Нет(дверь)", tmpBuf);

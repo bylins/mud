@@ -61,23 +61,24 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
 	j = 0;
 	if (all_feats) {
-		if (clr(vict, C_NRM)) // реж цвет >= обычный
+		if (!ch->IsFlagged(EPrf::kBlindMode)) {
 			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 						  " &gЗеленым цветом и пометкой [И] выделены уже изученные способности.\r\n&n"
 						  " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						  " &rКрасным цветом и пометкой [Н] выделены способности, недоступные вам в настоящий момент.&n\r\n\r\n",
 						  vict);
-		else
+		} else {
 			SendMsgToChar(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 						  " Пометкой [И] выделены уже изученные способности.\r\n"
 						  " Пометкой [Д] выделены доступные для изучения способности.\r\n"
 						  " Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
+		}
 		for (const auto &feat : MUD::Class(ch->GetClass()).feats) {
 			if (feat.IsUnavailable() &&
 				!PlayerRace::FeatureCheck((int) GET_KIN(ch), (int) GET_RACE(ch), to_underlying(feat.GetId()))) {
 				continue;
 			}
-			if (clr(vict, C_NRM)) {
+			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "        %s%s %-30s%s\r\n",
 						ch->HaveFeat(feat.GetId()) ? KGRN :
 						CanGetFeat(ch, feat.GetId()) ? KNRM : KRED,
@@ -157,7 +158,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kTripleThrower:
 				case EFeat::kSerratedBlade:
 					if (ch->IsFlagged(GetPrfWithFeatNumber(feat.GetId()))) {
-						sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
+						sprintf(buf, "[-%s*%s-] ", KIGRN, KNRM);
 					} else {
 						sprintf(buf, "[-:-] ");
 					}
@@ -166,8 +167,8 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			}
 			if (CanUseFeat(ch, feat.GetId())) {
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
-						CCIYEL(vict, C_NRM), MUD::Feat(feat.GetId()).GetCName(), CCNRM(vict, C_NRM));
-			} else if (clr(vict, C_NRM)) {
+						KIYEL, MUD::Feat(feat.GetId()).GetCName(), KNRM);
+			} else if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf + strlen(buf), "%s\r\n", MUD::Feat(feat.GetId()).GetCName());
 			} else {
 				sprintf(buf, "[-Н-] %s\r\n", MUD::Feat(feat.GetId()).GetCName());
@@ -182,8 +183,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				sfound = false;
 				while (slot < max_slot) {
 					if (*names[slot] == '\0') {
-						sprintf(names[slot], " %s%-2d%s) ",
-								CCGRN(vict, C_NRM), slot + 1, CCNRM(vict, C_NRM));
+						sprintf(names[slot], " %s%-2d%s) ", KGRN, slot + 1, KNRM);
 						strcat(names[slot], buf);
 						sfound = true;
 						break;
@@ -206,8 +206,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	auto max_slot_per_lvl = CalcMaxFeatSlotPerLvl(ch);
 	for (i = 0; i < max_slot; i++) {
 		if (*names[i] == '\0')
-			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n",
-					CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
+			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n", KGRN, i + 1, KNRM, KIDRK, KNRM);
 		if (i >= max_slot_per_lvl)
 			break;
 		sprintf(buf1 + strlen(buf1), "%s", names[i]);

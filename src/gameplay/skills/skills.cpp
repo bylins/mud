@@ -1990,10 +1990,10 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		|| (!victim && skill_is <= GetRealInt(ch))) {
 		if (success) {
 			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), MUD::Skill(skill).GetName(), CCNRM(ch, C_NRM));
+					KICYN, MUD::Skill(skill).GetName(), KNRM);
 		} else {
 			sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), MUD::Skill(skill).GetName(), CCNRM(ch, C_NRM));
+					KICYN, MUD::Skill(skill).GetName(), KNRM);
 		}
 		SendMsgToChar(buf, ch);
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));

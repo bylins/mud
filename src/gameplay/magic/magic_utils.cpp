@@ -91,12 +91,12 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		} else {
 			if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
 				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM),
-						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+						MUD::Spell(spell_id).IsViolent() ? KIRED : KIGRN,
+						MUD::Spell(spell_id).GetCName(), KNRM);
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM),
-						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+						MUD::Spell(spell_id).IsViolent() ? KIRED : KIGRN,
+						MUD::Spell(spell_id).GetCName(), KNRM);
 			SendMsgToChar(buf, ch);
 		}
 		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;

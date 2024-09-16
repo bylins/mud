@@ -1220,7 +1220,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			if (dam > 0
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)) {
 				sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
-						CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
+						KRED, KNRM);
 				SendMsgToChar(buf2, victim);
 			}
 

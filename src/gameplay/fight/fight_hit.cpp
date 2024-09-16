@@ -836,7 +836,7 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 	{
 		GET_HIT(victim) = GET_REAL_MAX_HIT(victim);
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
+					  KWHT, GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), KNRM);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, 0, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, 0, victim, kToNotVict | kToArenaListen);
 	}
@@ -2064,7 +2064,7 @@ void Damage::Blink(CharData *ch, CharData *victim) {
 		bottom = 10;
 	if (number(bottom, blink) >= number(1, 100)) {
 		sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-		CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+		KIDRK, KNRM);
 		SendMsgToChar(buf, victim);
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);

@@ -739,22 +739,22 @@ void PrintScoreBase(CharData *ch) {
 			"  Размер %3d(%3d)"
 			"  Рост   %3d(%3d)"
 			"  Вес    %3d(%3d)%s\r\n",
-			CCICYN(ch, C_NRM), ch->get_str(), GetRealStr(ch),
+			KICYN, ch->get_str(), GetRealStr(ch),
 			ch->get_dex(), GetRealDex(ch),
 			ch->get_con(), GetRealCon(ch),
 			ch->get_wis(), GetRealWis(ch),
 			ch->get_int(), GetRealInt(ch),
 			ch->get_cha(), GetRealCha(ch),
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
-			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCNRM(ch, C_NRM));
+			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), KNRM);
 
 	if (IS_IMMORTAL(ch)) {
 		sprintf(buf + strlen(buf),
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"
 				"  DR   : %4d(%4d)%s\r\n",
-				CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
-				GET_DR(ch), GetRealDamroll(ch), CCNRM(ch, C_NRM));
+				KIGRN, GET_AC(ch), compute_armor_class(ch),
+				GET_DR(ch), GetRealDamroll(ch), KNRM);
 	} else {
 		int ac = compute_armor_class(ch) / 10;
 
@@ -829,7 +829,7 @@ void PrintScoreBase(CharData *ch) {
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
-	strcpy(buf, CCIGRN(ch, C_NRM));
+	strcpy(buf, KIGRN);
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= kDrunked) {
 		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
@@ -851,7 +851,7 @@ void PrintScoreBase(CharData *ch) {
 	if (GET_COND_M(ch, THIRST))
 		strcat(buf, "Вас мучает жажда.\r\n");
 	/*
-	   strcat(buf, CCICYN(ch, C_NRM));
+	   strcat(buf, KICYN);
 	   strcat(buf,"Аффекты :\r\n");
 	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
 	   strcat(buf,buf2);
@@ -865,15 +865,15 @@ void PrintScoreBase(CharData *ch) {
 		else
 			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
 	}
-	strcat(buf, CCNRM(ch, C_NRM));
+	strcat(buf, KNRM);
 	SendMsgToChar(buf, ch);
 	if (NORENTABLE(ch)) {
 		sprintf(buf,
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
-				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				KIRED, KNRM);
 		SendMsgToChar(buf, ch);
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
-		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", KIGRN, KNRM);
 		SendMsgToChar(buf, ch);
 	}
 
@@ -881,18 +881,18 @@ void PrintScoreBase(CharData *ch) {
 		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
 		sprintf(buf,
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
-				CCIGRN(ch, C_NRM),
-				CCNRM(ch, C_NRM));
+				KIGRN,
+				KNRM);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (mail::has_mail(ch->get_uid())) {
-		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", KIGRN, KNRM);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (Parcel::has_parcel(ch)) {
-		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", KIGRN, KNRM);
 		SendMsgToChar(buf, ch);
 	}
 

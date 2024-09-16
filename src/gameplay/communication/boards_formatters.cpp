@@ -37,9 +37,9 @@ void StreamBoardFormatter::print_title(const Message::shared_ptr message) {
 	strftime(timeBuf, 17, "%H:%m %d-%m-%Y", tm);
 	snprintf(title, 250, "%s: (%s) :: %s", timeBuf, message->author.c_str(), message->subject.c_str());
 	if (message->date > date()) {
-		out() << CCWHT(character(), C_NRM); // новые подсветим
+		out() << KWHT; // новые подсветим
 	}
-	out() << title << CCNRM(character(), C_NRM);
+	out() << title << KNRM;
 }
 
 class Coder_BoardFormatter : public StreamBoardFormatter {
@@ -89,9 +89,9 @@ class ClanNews_BoardFormatter : public StreamBoardFormatter {
 
 bool ClanNews_BoardFormatter::format(const Message::shared_ptr message) {
 	if (message->date > date()) {
-		out() << CCWHT(character(), C_NRM); // новые подсветим
+		out() << KWHT; // новые подсветим
 	}
-	out() << "[" << message->author << "] " << CCNRM(character(), C_NRM) << message->text;
+	out() << "[" << message->author << "] " << KNRM << message->text;
 
 	return true;
 }
@@ -136,13 +136,13 @@ class ListMessages_BoardFormatter : public StreamBoardFormatter {
 bool ListMessages_BoardFormatter::format(const Message::shared_ptr message) {
 	char timeBuf[17];
 	if (message->date > date()) {
-		out() << CCWHT(character(), C_NRM); // для выделения новых мессаг светло-белым
+		out() << KWHT; // для выделения новых мессаг светло-белым
 	}
 
 	strftime(timeBuf, sizeof(timeBuf), "%H:%M %d-%m-%Y", localtime(&message->date));
 	out() << "[" << message->num + 1 << "] " << timeBuf << " "
 		  << "(" << message->author << ") :: "
-		  << message->subject << "\r\n" << CCNRM(character(), C_NRM);
+		  << message->subject << "\r\n" << KNRM;
 
 	return true;
 }

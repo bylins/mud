@@ -123,7 +123,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		{
 			// отправляем сообщение чару
 			snprintf(buf2, kMaxStringLength, "%s%s%s",
-					 CCCYN(d->character, C_NRM), buf1, CCNRM(d->character, C_NRM));
+					 KCYN, buf1, KNRM);
 			d->character->remember_add(buf2, Remember::ALL);
 			// не видино своих мессаг если 'режим repeat'
 			if (d != ch->desc

@@ -137,40 +137,40 @@ void torc_exch_menu(CharData *ch) {
 									  "   " << TORC_EXCH_RATE << " серебряных <-> 1 золотая\r\n\r\n";
 
 	out << "   Текущий баланс: "
-		<< CCIYEL(ch, C_NRM) << ch->desc->ext_money[kTorcGold] << "з "
-		<< CCWHT(ch, C_NRM) << ch->desc->ext_money[kTorcSilver] << "с "
-		<< CCYEL(ch, C_NRM) << ch->desc->ext_money[kTorcBronze] << "б\r\n\r\n";
+		<< KIYEL << ch->desc->ext_money[kTorcGold] << "з "
+		<< KWHT << ch->desc->ext_money[kTorcSilver] << "с "
+		<< KYEL << ch->desc->ext_money[kTorcBronze] << "б\r\n\r\n";
 
 	out << fmt::format(fmt::runtime(menu),
-		CCGRN(ch, C_NRM), 1,
-		CCYEL(ch, C_NRM), "Бронзовые гривны", CCNRM(ch, C_NRM),
-		CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
+		KGRN, 1,
+		KYEL, "Бронзовые гривны", KNRM,
+		KWHT, "Серебряные гривны", KNRM,
 		TORC_EXCH_RATE, 1);
 	out << fmt::format(fmt::runtime(menu),
-		CCGRN(ch, C_NRM), 2,
-		CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
-		CCIYEL(ch, C_NRM), "Золотые гривны", CCNRM(ch, C_NRM),
+		KGRN, 2,
+		KWHT, "Серебряные гривны", KNRM,
+		KIYEL, "Золотые гривны", KNRM,
 		TORC_EXCH_RATE, 1);
 	out << "\r\n"
 		<< fmt::format(fmt::runtime(menu),
-			CCGRN(ch, C_NRM), 3,
-			CCIYEL(ch, C_NRM), "Золотые гривны", CCNRM(ch, C_NRM),
-			CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
+			KGRN, 3,
+			KIYEL, "Золотые гривны", KNRM,
+			KWHT, "Серебряные гривны", KNRM,
 			1, TORC_EXCH_RATE);
 	out << fmt::format(fmt::runtime(menu),
-		CCGRN(ch, C_NRM), 4,
-		CCWHT(ch, C_NRM), "Серебряные гривны", CCNRM(ch, C_NRM),
-		CCYEL(ch, C_NRM), "Бронзовые гривны", CCNRM(ch, C_NRM),
+		KGRN, 4,
+		KWHT, "Серебряные гривны", KNRM,
+		KYEL, "Бронзовые гривны", KNRM,
 		1, TORC_EXCH_RATE);
 
 	out << "\r\n"
 		   "   <номер действия> - один минимальный обмен указанного вида\r\n"
 		   "   <номер действия> <число х> - обмен х имеющихся гривен\r\n\r\n";
 
-	out << CCGRN(ch, C_NRM) << "   5)"
-		<< CCNRM(ch, C_NRM) << " Отменить обмен и выйти\r\n"
-		<< CCGRN(ch, C_NRM) << "   6)"
-		<< CCNRM(ch, C_NRM) << " Подтвердить обмен и выйти\r\n\r\n"
+	out << KGRN << "   5)"
+		<< KNRM << " Отменить обмен и выйти\r\n"
+		<< KGRN << "   6)"
+		<< KNRM << " Подтвердить обмен и выйти\r\n\r\n"
 		<< "   Ваш выбор:";
 
 	SendMsgToChar(out.str(), ch);
@@ -351,41 +351,41 @@ std::string create_message(CharData *ch, int gold, int silver, int bronze) {
 	int cnt = 0;
 
 	if (gold > 0) {
-		out << CCIYEL(ch, C_NRM) << gold << " "
+		out << KIYEL << gold << " "
 			<< GetDeclensionInNumber(gold, type_list[kTorcGold].DESC_MESSAGE_U_NUM);
 		if (silver <= 0 && bronze <= 0) {
 			out << " " << GetDeclensionInNumber(gold, EWhat::kTorcU);
 		}
-		out << CCNRM(ch, C_NRM);
+		out << KNRM;
 		++cnt;
 	}
 	if (silver > 0) {
 		if (cnt > 0) {
 			if (bronze > 0) {
-				out << ", " << CCWHT(ch, C_NRM) << silver << " "
+				out << ", " << KWHT << silver << " "
 					<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
-					<< CCNRM(ch, C_NRM) << " и ";
+					<< KNRM << " и ";
 			} else {
-				out << " и " << CCWHT(ch, C_NRM) << silver << " "
+				out << " и " << KWHT << silver << " "
 					<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM)
 					<< " " << GetDeclensionInNumber(silver, EWhat::kTorcU)
-					<< CCNRM(ch, C_NRM);
+					<< KNRM;
 			}
 		} else {
-			out << CCWHT(ch, C_NRM) << silver << " "
+			out << KWHT << silver << " "
 				<< GetDeclensionInNumber(silver, type_list[kTorcSilver].DESC_MESSAGE_U_NUM);
 			if (bronze > 0) {
-				out << CCNRM(ch, C_NRM) << " и ";
+				out << KNRM << " и ";
 			} else {
-				out << " " << GetDeclensionInNumber(silver, EWhat::kTorcU) << CCNRM(ch, C_NRM);
+				out << " " << GetDeclensionInNumber(silver, EWhat::kTorcU) << KNRM;
 			}
 		}
 	}
 	if (bronze > 0) {
-		out << CCYEL(ch, C_NRM) << bronze << " "
+		out << KYEL << bronze << " "
 			<< GetDeclensionInNumber(bronze, type_list[kTorcBronze].DESC_MESSAGE_U_NUM)
 			<< " " << GetDeclensionInNumber(bronze, EWhat::kTorcU)
-			<< CCNRM(ch, C_NRM);
+			<< KNRM;
 	}
 
 	return out.str();
@@ -773,7 +773,7 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
 		SendMsgToChar(ch,
 					  "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-					  CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+					  KIGRN, KNRM);
 	} else {
 		SendMsgToChar(ch,
 					  "Вы подтвердили свое право на следующее перевоплощение,\r\n"

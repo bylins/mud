@@ -528,8 +528,8 @@ int exchange_identify(CharData *ch, char *arg) {
 	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200, full);    //200 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	SendMsgToChar(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
-				  CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY,
-				  GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), CCNRM(ch, C_NRM));
+				  KIGRN, EXCHANGE_IDENT_PAY,
+				  GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), KNRM);
 
 	return true;
 }

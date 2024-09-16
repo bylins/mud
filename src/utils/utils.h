@@ -1281,14 +1281,14 @@ std::array<
 		sizeof...(T)>{std::forward<T>(values)...};
 }
 
-inline int posi_value(int real, int max) {
-	if (real < 0) {
+inline int posi_value(int current, int max) {
+	if (current < 0) {
 		return (-1);
-	} else if (real >= max) {
+	} else if (current >= max) {
 		return (10);
 	}
 
-	return (real * 10 / MAX(max, 1));
+	return (current * 10 / std::max(max, 1));
 }
 
 class StreamFlagsHolder {

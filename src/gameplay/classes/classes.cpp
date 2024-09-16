@@ -1069,7 +1069,7 @@ void levelup_events(CharData *ch) {
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		SendMsgToChar(ch,
 					  "%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
-					  CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+					  KIGRN, KNRM);
 	}
 	if (EXCHANGE_MIN_CHAR_LEV == GetRealLevel(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE)) {
@@ -1077,7 +1077,7 @@ void levelup_events(CharData *ch) {
 		if (GetRealRemort(ch) <= 0) {
 			SendMsgToChar(ch,
 						  "%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
-						  CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+						  KIGRN, KNRM);
 		}
 		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
 	}

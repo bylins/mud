@@ -206,7 +206,7 @@ ESpell MemQ_learn(CharData *ch) {
 	ch->mem_queue.queue = i->next;
 	free(i);
 	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
-			CCICYN(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+			KICYN, MUD::Spell(spell_id).GetCName(), KNRM);
 	SendMsgToChar(buf, ch);
 	return spell_id;
 }
@@ -229,10 +229,10 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 
 	if (GET_RELIGION(ch) == kReligionMono)
 		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
-				CCIMAG(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+				KIMAG, MUD::Spell(spell_id).GetCName(), KNRM);
 	else
 		sprintf(buf, "Вы занесли заклинание \"%s%s%s\" в свои резы.\r\n",
-				CCIMAG(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+				KIMAG, MUD::Spell(spell_id).GetCName(), KNRM);
 	SendMsgToChar(buf, ch);
 
 	ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
@@ -264,7 +264,7 @@ void MemQ_forget(CharData *ch, ESpell spell_id) {
 		free(ptr);
 		sprintf(buf,
 				"Вы вычеркнули заклинание \"%s%s%s\" из списка для запоминания.\r\n",
-				CCIMAG(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+				KIMAG, MUD::Spell(spell_id).GetCName(), KNRM);
 		SendMsgToChar(buf, ch);
 	}
 }

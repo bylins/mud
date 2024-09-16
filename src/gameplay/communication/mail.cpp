@@ -400,7 +400,7 @@ void print_notices() {
 		if (d) {
 			SendMsgToChar(d->character.get(),
 						  "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-						  CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
+						  KWHT, KNRM);
 		}
 	}
 	notice_list.clear();

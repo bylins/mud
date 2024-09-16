@@ -181,14 +181,14 @@ void go_disarm(CharData *ch, CharData *vict) {
 	if (!success || GET_EQ(vict, pos)->has_flag(EObjFlag::kNodisarm)) {
 		SendMsgToChar(ch,
 					  "%sВы не сумели обезоружить %s...%s\r\n",
-					  CCWHT(ch, C_NRM),
+					  KWHT,
 					  GET_PAD(vict, 3),
-					  CCNRM(ch, C_NRM));
+					  KNRM);
 		lag = 2;
 	} else {
 		wielded = GET_EQ(vict, pos);
 		SendMsgToChar(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
-					  CCIBLU(ch, C_NRM), wielded->get_PName(3).c_str(), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
+					  KIBLU, wielded->get_PName(3).c_str(), GET_PAD(vict, 1), KNRM);
 		SendMsgToChar(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
 					  GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);

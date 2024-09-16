@@ -1465,12 +1465,12 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			ch->remove_bank(amount);
 			if (amount <= 100) ch->remove_bank(5);
 			else ch->remove_bank(((amount * 5) / 100));
-			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
-					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", KWHT, amount,
+					GET_PAD(vict, 2), KNRM);
 			SendMsgToChar(buf, ch);
 			vict->add_bank(amount);
-			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
-					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", KWHT, amount,
+					GET_PAD(ch, 1), KNRM);
 			SendMsgToChar(buf, vict);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
@@ -1492,8 +1492,8 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			ch->remove_bank(amount);
 			if (amount <= 100) ch->remove_bank(5);
 			else ch->remove_bank(((amount * 5) / 100));
-			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
-					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", KWHT, amount,
+					GET_PAD(vict, 2), KNRM);
 			SendMsgToChar(buf, ch);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",

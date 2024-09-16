@@ -743,8 +743,8 @@ void print_identify(CharData *ch, const ObjData *obj) {
 		char buf_[256], buf_2[128];
 
 		snprintf(buf_, sizeof(buf_), "%sЧасть набора предметов: %s%s%s\r\n",
-				 CCNRM(ch, C_NRM), CCWHT(ch, C_NRM),
-				 cur_set.name.c_str(), CCNRM(ch, C_NRM));
+				 KNRM, KWHT,
+				 cur_set.name.c_str(), KNRM);
 		out += buf_;
 		out += print_obj_list(cur_set);
 
@@ -756,7 +756,7 @@ void print_identify(CharData *ch, const ObjData *obj) {
 
 		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
 				 (i.second > 0 ? buf_2 : ""),
-				 CCWHT(ch, C_NRM), cur_set.help.c_str(), CCNRM(ch, C_NRM));
+				 KWHT, cur_set.help.c_str(), KNRM);
 		out += buf_;
 
 		SendMsgToChar(out, ch);
@@ -774,7 +774,7 @@ void do_slist(CharData *ch) {
 		snprintf(comment, sizeof(comment), " (%s)", i->comment.c_str());
 		char status[64];
 		snprintf(status, sizeof(status), "Статус: %sотключен%s, ",
-				 CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+				 KICYN, KNRM);
 
 		snprintf(buf_, sizeof(buf_),
 				 "%3d) %s%s\r\n"

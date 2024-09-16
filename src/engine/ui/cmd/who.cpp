@@ -103,13 +103,13 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	// Строки содержащие имена
-	sprintf(buf, "%sБОГИ%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	sprintf(buf, "%sБОГИ%s\r\n", KICYN, KNRM);
 	std::string imms(buf);
 
-	sprintf(buf, "%sПривилегированные%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	sprintf(buf, "%sПривилегированные%s\r\n", KCYN, KNRM);
 	std::string demigods(buf);
 
-	sprintf(buf, "%sИгроки%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	sprintf(buf, "%sИгроки%s\r\n", KCYN, KNRM);
 	std::string morts(buf);
 
 	int all = 0;
@@ -156,32 +156,32 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		num_can_see++;
 		if (short_list) {
 			char tmp[kMaxInputLength];
-			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
+			snprintf(tmp, sizeof(tmp), "%s%s%s", GetPkNameColor(tch), GET_NAME(tch), KNRM);
 			if (IS_IMPL(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %s] %-30s%s",
-						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
+						IS_GOD(tch) ? KWHT : "",
 						GetRealLevel(tch), MUD::Class(tch->GetClass()).GetCName(),
-						tmp, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
+						tmp, IS_GOD(tch) ? KNRM : "");
 			} else {
 				sprintf(buf, "%s%-30s%s",
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
-						tmp, IS_IMMORTAL(tch) ? CCNRM(ch, C_SPR) : "");
+						IS_IMMORTAL(tch) ? KWHT : "",
+						tmp, IS_IMMORTAL(tch) ? KNRM : "");
 			}
 		} else {
 			if (IS_IMPL(ch)
 				|| ch->IsFlagged(EPrf::kCoderinfo)) {
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
+						IS_IMMORTAL(tch) ? KWHT : "",
 						GetRealLevel(tch),
 						GetRealRemort(tch),
 						MUD::Class(tch->GetClass()).GetAbbr().c_str(),
 						tch->get_pfilepos(),
-						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+						GetPkNameColor(tch),
+						IS_IMMORTAL(tch) ? KWHT : "", tch->race_or_title().c_str(), KNRM);
 			} else {
 				sprintf(buf, "%s %s%s%s",
-						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+						GetPkNameColor(tch),
+						IS_IMMORTAL(tch) ? KWHT : "", tch->race_or_title().c_str(), KNRM);
 			}
 
 			if (GET_INVIS_LEV(tch))
@@ -232,7 +232,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (IS_GOD(ch) && (tch->IsFlagged(EPlrFlag::kAutobot)))
 				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))
-				strcat(buf, CCNRM(ch, C_SPR));
+				strcat(buf, KNRM);
 		}        // endif shortlist
 
 		if (IS_IMMORTAL(tch)) {

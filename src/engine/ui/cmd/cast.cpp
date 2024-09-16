@@ -147,7 +147,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		if (ch->GetEnemy() && !IS_IMPL(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
 			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
-					CCCYN(ch, C_NRM), MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM),
+					KCYN, MUD::Spell(spell_id).GetCName(), KNRM,
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {

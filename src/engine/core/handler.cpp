@@ -316,15 +316,15 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
-				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
-				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
-				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
-				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+				KNRM, KIDRK, room,
+				KRED, KIRED, world[room]->light,
+				KGRN, KIGRN, world[room]->glight,
+				KYEL, KIYEL, world[room]->fires,
+				KYEL, KIYEL, world[room]->ices,
+				KBLU, KIBLU, world[room]->gdark,
+				KMAG, KICYN, weather_info.sky,
+				KWHT, KIDRK, weather_info.sunlight,
+				KYEL, KIYEL, weather_info.moon_day, KNRM);
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
@@ -370,15 +370,15 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
-				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
-				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
-				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
-				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+				KNRM, KIDRK, room,
+				KRED, KIRED, world[room]->light,
+				KGRN, KIGRN, world[room]->glight,
+				KYEL, KIYEL, world[room]->fires,
+				KYEL, KIYEL, world[room]->ices,
+				KBLU, KIBLU, world[room]->gdark,
+				KMAG, KICYN, weather_info.sky,
+				KWHT, KIDRK, weather_info.sunlight,
+				KYEL, KIYEL, weather_info.moon_day, KNRM);
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.

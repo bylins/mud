@@ -150,7 +150,7 @@ void show_wizdom(CharData *ch, int bitset) {
 
 			gcount +=
 				sprintf(buf2 + gcount,
-						"  %sВы запоминаете следующие заклинания :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+						"  %sВы запоминаете следующие заклинания :%s", KCYN, KNRM);
 			for (i = 0; i < imax_slot; i++) {
 				if (slots[i]) {
 					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
@@ -164,11 +164,11 @@ void show_wizdom(CharData *ch, int bitset) {
 
 	if ((bitset & 0x04) && imax_slot) {
 		int *s = MemQ_slots(ch);
-		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", KCYN, KNRM);
 		for (i = 0; i < imax_slot; i++) {
 			slot_num = std::max(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
-					slot_num ? CCICYN(ch, C_NRM) : "", i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");
+					slot_num ? KICYN : "", i + 1, slot_num, slot_num ? KNRM : "");
 		}
 		sprintf(buf2 + gcount, "\r\n");
 	}

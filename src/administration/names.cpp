@@ -245,7 +245,7 @@ bool NewNames::show(CharData *actor) {
 		return false;
 
 	std::ostringstream buffer;
-	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(actor, C_NRM);
+	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << KWHT;
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it) {
 		const auto sex = static_cast<size_t>(to_underlying(it->second->sex));
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
@@ -254,7 +254,7 @@ bool NewNames::show(CharData *actor) {
 			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "неопределен" : it->second->email)
 			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
-	buffer << CCNRM(actor, C_NRM);
+	buffer << KNRM;
 	SendMsgToChar(buffer.str(), actor);
 	return true;
 }

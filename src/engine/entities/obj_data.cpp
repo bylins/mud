@@ -1254,9 +1254,9 @@ void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
 		negative = false;
 	}
 	snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
-			 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM),
-			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
+			 KCYN, buf2, KNRM,
+			 KCYN,
+			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), KNRM);
 	SendMsgToChar(buf, ch);
 }
 

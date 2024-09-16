@@ -26,7 +26,6 @@
 #define CMAG  "\x1B[0;35m"
 #define CCYN  "\x1B[0;36m"
 #define CWHT  "\x1B[0;37m"
-#define CNUL  ""
 
 #define BBLK  "\x1B[1;30m"
 #define BRED  "\x1B[1;31m"
@@ -69,95 +68,49 @@ int isnum(char s) {
 
 int is_colour(char code) {
 	switch (code) {
-		// Normal colours
-		case 'k': return 25;
-			break;        // Black
-		case 'r': return 1;
-			break;        // Red
-		case 'g': return 2;
-			break;        // Green
-		case 'y': return 3;
-			break;        // Yellow
-		case 'b': return 4;
-			break;        // Blue
-		case 'm': return 5;
-			break;        // Magenta
-		case 'c': return 6;
-			break;        // Cyan
-		case 'w': return 7;
-			break;        // White
-
-			// Bold colours
-		case 'K': return 29;
-			break;        // Bold black (Just for completeness)
-		case 'R': return 8;
-			break;        // Bold red
-		case 'G': return 9;
-			break;        // Bold green
-		case 'Y': return 10;
-			break;        // Bold yellow
-		case 'B': return 11;
-			break;        // Bold blue
-		case 'M': return 12;
-			break;        // Bold magenta
-		case 'C': return 13;
-			break;        // Bold cyan
-		case 'W': return 14;
-			break;        // Bold white
-
-			// Background colours
-		case '0': return 24;
-			break;        // Black background
-		case '1': return 15;
-			break;        // Red background
-		case '2': return 16;
-			break;        // Green background
-		case '3': return 17;
-			break;        // Yellow background
-		case '4': return 18;
-			break;        // Blue background
-		case '5': return 19;
-			break;        // Magenta background
-		case '6': return 20;
-			break;        // Cyan background
-		case '7': return 21;
-			break;        // White background
-
-			// Misc characters
-//	case '&':
-//		return 22;
-//		break;		// The & character
-		case '\\': return 23;
-			break;        // The \ character
-
-			// Special codes
-		case 'n': return 0;
-			break;        // Normal
-		case 'f': return 26;
-			break;        // Flash
-		case 'v': return 27;
-			break;        // Reverse video
-		case 'u': return 28;
-			break;        // Underline (Only for mono screens)
-		case 'q': return -2;
-			break;        // set default color to current
-		case 'Q': return -3;
-			break;        // set default color back to normal
-		case 'e': return -4;
-			break;        // print error when color not reseted to normal
-
+		case 'k': return 25;    // Black
+		case 'r': return 1;        // Red
+		case 'g': return 2;        // Green
+		case 'y': return 3;        // Yellow
+		case 'b': return 4;        // Blue
+		case 'm': return 5;        // Magenta
+		case 'c': return 6;        // Cyan
+		case 'w': return 7;        // White
+		case 'K': return 29;    // Bold black (Just for completeness)
+		case 'R': return 8;        // Bold red
+		case 'G': return 9;        // Bold green
+		case 'Y': return 10;    // Bold yellow
+		case 'B': return 11;    // Bold blue
+		case 'M': return 12;    // Bold magenta
+		case 'C': return 13;    // Bold cyan
+		case 'W': return 14;    // Bold white
+		case '0': return 24;    // Black background
+		case '1': return 15;    // Red background
+		case '2': return 16;    // Green background
+		case '3': return 17;    // Yellow background
+		case '4': return 18;    // Blue background
+		case '5': return 19;    // Magenta background
+		case '6': return 20;    // Cyan background
+		case '7': return 21;    // White background
+//	case '&': return 22;		// The & character
+		case '\\': return 23;    // The \ character
+		case 'n': return 0;        // Normal
+		case 'f': return 26;    // Flash
+		case 'v': return 27;    // Reverse video
+		case 'u': return 28;    // Underline (Only for mono screens)
+		case 'q': return -2;    // set default color to current
+		case 'Q': return -3;    // set default color back to normal
+		case 'e': return -4;    // print error when color not reseted to normal
 		default: return -1;
-			break;
 	}
-	return -1;
 }
 
-constexpr auto kMaxColorStringLength = kMaxSockBuf*2 - kGarbageSpace;
-int proc_color(char *inbuf, int colour) {
+constexpr auto kMaxColorStringLength = kMaxSockBuf * 2 - kGarbageSpace;
+int proc_color(char *inbuf) {
 	int p = 0;
 	int c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
 	bool show_all = false;
-	char out_buf[kMaxSockBuf*2];
+	char out_buf[kMaxSockBuf * 2];
 
 	if (inbuf == nullptr) {
 		return -1;
@@ -171,7 +124,7 @@ int proc_color(char *inbuf, int colour) {
 	size_t j = 0;
 	while (j < len) {
 		if (p > kMaxColorStringLength) {
-			snprintf(&out_buf[p], kMaxSockBuf*2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
+			snprintf(&out_buf[p], kMaxSockBuf * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
 			strcpy(inbuf, out_buf);
 			return 0;
 		}
@@ -211,11 +164,9 @@ int proc_color(char *inbuf, int colour) {
 			c = 0;
 		}
 		size_t max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
-		if (colour || max == 1) {
-			for (size_t k = 0; k < max; k++) {
-				out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
-				p++;
-			}
+		for (size_t k = 0; k < max; k++) {
+			out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
+			p++;
 		}
 	}
 	out_buf[p] = '\0';
@@ -227,9 +178,9 @@ int proc_color(char *inbuf, int colour) {
 	return 0;
 }
 
-char *color_value(CharData * /*ch*/, int real, int max) {
+const char *GetWarmValueColor(int current, int max) {
 	static char color[8];
-	switch (posi_value(real, max)) {
+	switch (posi_value(current, max)) {
 		case -1:
 		case 0:
 		case 1: sprintf(color, "&r");
@@ -245,6 +196,29 @@ char *color_value(CharData * /*ch*/, int real, int max) {
 		case 8: sprintf(color, "&G");
 			break;
 		default: sprintf(color, "&g");
+			break;
+	}
+	return (color);
+}
+
+const char *GetColdValueColor(int current, int max) {
+	static char color[8];
+	switch (posi_value(current, max)) {
+		case -1:
+		case 0:
+		case 1: sprintf(color, "&w");
+			break;
+		case 2:
+		case 3: sprintf(color, "&b");
+			break;
+		case 4:
+		case 5: sprintf(color, "&B");
+			break;
+		case 6:
+		case 7:
+		case 8: sprintf(color, "&C");
+			break;
+		default: sprintf(color, "&c");
 			break;
 	}
 	return (color);

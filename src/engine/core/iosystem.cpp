@@ -754,7 +754,7 @@ int process_output(DescriptorData *t) {
 
 	// easy color
 	int pos;
-	if ((t->character) && (pos = proc_color(i, (clr(t->character, C_NRM))))) {
+	if ((t->character) && (pos = proc_color(i))) {
 		sprintf(buf,
 				"SYSERR: %s pos:%d player:%s in proc_color!",
 				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
@@ -1083,18 +1083,18 @@ std::string MakePrompt(DescriptorData *d) {
 
 		if (ch->IsFlagged(EPrf::kDispHp)) {
 			format_to(std::back_inserter(out), "{}{}H{} ",
-					  color_value(ch.get(), GET_HIT(ch), GET_REAL_MAX_HIT(ch)), GET_HIT(ch), KNRM);
+					  GetWarmValueColor(GET_HIT(ch), GET_REAL_MAX_HIT(ch)), GET_HIT(ch), KNRM);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispMove)) {
 			format_to(std::back_inserter(out), "{}{}M{} ",
-					  color_value(ch.get(), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch)), GET_MOVE(ch),  KNRM);
+					  GetWarmValueColor(GET_MOVE(ch), GET_REAL_MAX_MOVE(ch)), GET_MOVE(ch),  KNRM);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
-			int perc = (100 * ch->mem_queue.stored) / GET_MAX_MANA((ch).get());
+			int current_mana = 100 * ch->mem_queue.stored;
 			format_to(std::back_inserter(out), "{}э{}{} ",
-					  CCMANA(ch, C_NRM, perc), ch->mem_queue.stored, KNRM);
+					  GetColdValueColor(current_mana, GET_MAX_MANA((ch).get())), ch->mem_queue.stored, KNRM);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
@@ -1218,8 +1218,8 @@ char *show_state(CharData *ch, CharData *victim) {
 
 	const int ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
 	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
-			color_value(ch, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
-			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), CCNRM(ch, C_NRM));
+			GetWarmValueColor(GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
+			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), KNRM);
 	return buf;
 }
 

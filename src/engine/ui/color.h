@@ -14,8 +14,8 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#ifndef _SCREEN_H_
-#define _SCREEN_H_
+#ifndef COLOR_H_
+#define COLOR_H_
 
 #define KNRM  "\x1B[0;37m"
 #define KRED  "\x1B[0;31m"
@@ -36,51 +36,9 @@
 #define KICYN  "\x1B[1;36m"
 #define KIWHT  "\x1B[1;37m"
 
-#define KNUL  ""
-
-// conditional color.  pass it a pointer to a char_data and a color level.
-#define C_OFF    0
-#define C_SPR    1
-#define C_NRM    2
-#define C_CMP    3
-#define _clrlevel(ch) (!(ch)->IsNpc() ? ((ch)->IsFlagged(EPrf::kColor1) ? 1 : 0) + \
-                                     ((ch)->IsFlagged(EPrf::kColor2) ? 2 : 0) : 0)
-#define clr(ch, lvl) (_clrlevel(ch) >= (lvl))
-#define CCNRM(ch, lvl)  (clr((ch),(lvl))?KNRM:KNUL)
-#define CCRED(ch, lvl)  (clr((ch),(lvl))?KRED:KNUL)
-#define CCGRN(ch, lvl)  (clr((ch),(lvl))?KGRN:KNUL)
-#define CCYEL(ch, lvl)  (clr((ch),(lvl))?KYEL:KNUL)
-#define CCBLU(ch, lvl)  (clr((ch),(lvl))?KBLU:KNUL)
-#define CCMAG(ch, lvl)  (clr((ch),(lvl))?KMAG:KNUL)
-#define CCCYN(ch, lvl)  (clr((ch),(lvl))?KCYN:KNUL)
-#define CCWHT(ch, lvl)  (clr((ch),(lvl))?KWHT:KNUL)
-#define CCINRM(ch, lvl)  (clr((ch),(lvl))?KIDRK:KNUL)
-#define CCIRED(ch, lvl)  (clr((ch),(lvl))?KIRED:KNUL)
-#define CCIGRN(ch, lvl)  (clr((ch),(lvl))?KIGRN:KNUL)
-#define CCIYEL(ch, lvl)  (clr((ch),(lvl))?KIYEL:KNUL)
-#define CCIBLU(ch, lvl)  (clr((ch),(lvl))?KIBLU:KNUL)
-#define CCIMAG(ch, lvl)  (clr((ch),(lvl))?KIMAG:KNUL)
-#define CCICYN(ch, lvl)  (clr((ch),(lvl))?KICYN:KNUL)
-#define CCIWHT(ch, lvl)  (clr((ch),(lvl))?KIDRK:KNUL)
-
-#define COLOR_LEV(ch) (_clrlevel(ch))
-
-#define QNRM CCNRM(ch,C_SPR)
-#define QRED CCRED(ch,C_SPR)
-#define QGRN CCGRN(ch,C_SPR)
-#define QYEL CCYEL(ch,C_SPR)
-#define QBLU CCBLU(ch,C_SPR)
-#define QMAG CCMAG(ch,C_SPR)
-#define QCYN CCCYN(ch,C_SPR)
-#define QWHT CCWHT(ch,C_SPR)
-
-#define CCMANA(ch,C_SPR, perc) (perc >=90 ? CCCYN(ch,C_SPR)  :\
-                   perc >= 5 ? CCICYN(ch,C_SPR) :\
-                       CCIBLU(ch,C_SPR))
-
-class CharData;
-int proc_color(char *inbuf, int color);
-char *color_value(CharData * /*ch*/, int real, int max);
+int proc_color(char *inbuf);
+const char *GetWarmValueColor(int current, int max);
+const char *GetColdValueColor(int current, int max);
 
 #endif
 

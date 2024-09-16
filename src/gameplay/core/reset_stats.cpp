@@ -126,7 +126,7 @@ void print_menu(DescriptorData *d) {
 		"4) оплатить {} {} и перейти к выбору вероисповедания.\r\n"
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:",
-									 CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR),
+									 KIGRN, KNRM,
 									 stats_price, GetDeclensionInNumber(stats_price, EWhat::kMoneyA),
 									 race_price, GetDeclensionInNumber(race_price, EWhat::kMoneyA),
 									 feats_price, GetDeclensionInNumber(feats_price, EWhat::kMoneyA),

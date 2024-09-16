@@ -156,7 +156,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		temp_title_list[GET_NAME(ch)] = temp;
 
 		std::stringstream out;
-		out << "Ваш титул будет выглядеть следующим образом:\r\n" << CCPK(ch, C_NRM, ch);
+		out << "Ваш титул будет выглядеть следующим образом:\r\n" << GetPkNameColor(ch);
 		out << print_title_string(ch, pre_title, title) << print_agree_string(new_petition);
 		SendMsgToChar(out.str(), ch);
 	} else if (CompareParam(buffer2, "согласен")) {
@@ -339,10 +339,10 @@ bool TitleSystem::show_title_list(CharData *ch) {
 		return false;
 
 	std::stringstream out;
-	out << "\r\nДанные персонажи ждут одобрения титула (титул <игрок> одобрить/запретить):\r\n" << CCWHT(ch, C_NRM);
+	out << "\r\nДанные персонажи ждут одобрения титула (титул <игрок> одобрить/запретить):\r\n" << KWHT;
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
 		out << print_title_string(it->first, it->second->pre_title, it->second->title);
-	out << CCNRM(ch, C_NRM);
+	out << KNRM;
 	SendMsgToChar(out.str(), ch);
 	return true;
 }
@@ -364,13 +364,13 @@ std::string TitleSystem::print_title_string(const std::string &name,
 // * Распечатка титула игроку, как оно будет видно в игре с учетом цвета пк
 std::string TitleSystem::print_title_string(CharData *ch, const std::string &pre_title, const std::string &title) {
 	std::stringstream out;
-	out << CCPK(ch, C_NRM, ch);
+	out << GetPkNameColor(ch);
 	if (!pre_title.empty())
 		out << pre_title << " ";
 	out << GET_NAME(ch);
 	if (!title.empty())
 		out << ", " << title;
-	out << CCNRM(ch, C_NRM) << "\r\n";
+	out << KNRM << "\r\n";
 	return out.str();
 }
 

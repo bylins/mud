@@ -49,12 +49,12 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 */
 std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument) {
 	return fmt::format("{}{} {}{} : '{}'{}\r\n",
-				   (cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM)),
+				   (cmd == SCMD_GOSSIP ? KYEL : KIYEL),
 				   format_gossip_name(ch, vict).c_str(),
 				   (cmd == SCMD_GOSSIP ? "заметил" : "заорал"),
 				   GET_CH_VIS_SUF_1(ch, vict),
 				   argument,
-				   CCNRM(vict, C_NRM));
+				   KNRM);
 }
 
 // * Анти-копипаст для CharRemember::add_str.

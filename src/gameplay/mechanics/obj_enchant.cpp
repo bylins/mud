@@ -36,7 +36,7 @@ enchant::enchant(ObjData *obj) {
 }
 
 void enchant::print(CharData *ch) const {
-	SendMsgToChar(ch, "Зачаровано %s :%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
+	SendMsgToChar(ch, "Зачаровано %s :%s\r\n", name_.c_str(), KCYN);
 
 	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
 			 iend = affected_.end(); i != iend; ++i) {
@@ -45,35 +45,35 @@ void enchant::print(CharData *ch) const {
 
 	if (affects_flags_.sprintbits(weapon_affects, buf2, ",")) {
 		SendMsgToChar(ch, "%s   аффекты: %s%s\r\n",
-					  CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+					  KCYN, buf2, KNRM);
 	}
 
 	if (extra_flags_.sprintbits(extra_bits, buf2, ",")) {
 		SendMsgToChar(ch, "%s   экстрафлаги: %s%s\r\n",
-					  CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+					  KCYN, buf2, KNRM);
 	}
 
 	if (no_flags_.sprintbits(no_bits, buf2, ",")) {
 		SendMsgToChar(ch, "%s   неудобен: %s%s\r\n",
-					  CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+					  KCYN, buf2, KNRM);
 	}
 
 	if (weight_ != 0) {
-		SendMsgToChar(ch, "%s   %s вес на %d%s\r\n", CCCYN(ch, C_NRM),
+		SendMsgToChar(ch, "%s   %s вес на %d%s\r\n", KCYN,
 					  weight_ > 0 ? "увеличивает" : "уменьшает",
-					  abs(weight_), CCNRM(ch, C_NRM));
+					  abs(weight_), KNRM);
 	}
 
 	if (ndice_ != 0 || sdice_ != 0) {
 		if (ndice_ >= 0 && sdice_ >= 0) {
 			SendMsgToChar(ch, "%s   увеличивает урон на %dD%d%s\r\n",
-						  CCCYN(ch, C_NRM), abs(ndice_), abs(sdice_), CCNRM(ch, C_NRM));
+						  KCYN, abs(ndice_), abs(sdice_), KNRM);
 		} else if (ndice_ <= 0 && sdice_ <= 0) {
 			SendMsgToChar(ch, "%s   уменьшает урон на %dD%d%s\r\n",
-						  CCCYN(ch, C_NRM), abs(ndice_), abs(sdice_), CCNRM(ch, C_NRM));
+						  KCYN, abs(ndice_), abs(sdice_), KNRM);
 		} else {
 			SendMsgToChar(ch, "%s   изменяет урон на %+dD%+d%s\r\n",
-						  CCCYN(ch, C_NRM), ndice_, sdice_, CCNRM(ch, C_NRM));
+						  KCYN, ndice_, sdice_, KNRM);
 		}
 	}
 }

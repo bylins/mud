@@ -1202,10 +1202,10 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_), "Содержит заклинание: %s%s (%d ур.)%s\r\n",
-			 CCCYN(ch, C_NRM),
+			 KCYN,
 			 MUD::Spell(static_cast<ESpell>(obj->GetPotionValueKey(spell))).GetCName(),
 			 obj->GetPotionValueKey(level),
-			 CCNRM(ch, C_NRM));
+			 KNRM);
 
 	return buf_;
 }
@@ -1222,11 +1222,11 @@ std::string print_spells(CharData *ch, const ObjData *obj) {
 
 	if (!out.empty() && !is_potion(obj)) {
 		snprintf(buf_, sizeof(buf_), "%sВНИМАНИЕ%s: тип жидкости не является зельем\r\n",
-				 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				 KIRED, KNRM);
 		out += buf_;
 	} else if (out.empty() && is_potion(obj)) {
 		snprintf(buf_, sizeof(buf_), "%sВНИМАНИЕ%s: у данного зелья отсутствуют заклинания\r\n",
-				 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				 KIRED, KNRM);
 		out += buf_;
 	}
 
@@ -1240,9 +1240,9 @@ void identify(CharData *ch, const ObjData *obj) {
 	int amount = GET_OBJ_VAL(obj, 1);
 
 	snprintf(buf_, sizeof(buf_), "Может вместить зелья: %s%d %s%s\r\n",
-			 CCCYN(ch, C_NRM),
+			 KCYN,
 			 volume, GetDeclensionInNumber(volume, EWhat::kGulp),
-			 CCNRM(ch, C_NRM));
+			 KNRM);
 	out += buf_;
 
 	// емкость не пуста

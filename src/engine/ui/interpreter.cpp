@@ -2439,8 +2439,7 @@ void DoAfterPassword(DescriptorData *d) {
 	if (load_result) {
 		sprintf(buf, "\r\n\r\n\007\007\007"
 					 "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
-				CCRED(d->character, C_SPR), load_result,
-				(load_result > 1) ? "S" : "", CCNRM(d->character, C_SPR));
+				KRED, load_result, (load_result > 1) ? "S" : "", KNRM);
 		iosystem::write_to_output(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
@@ -3725,8 +3724,7 @@ void nanny(DescriptorData *d, char *argument) {
 					// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
 					GloryMisc::recalculate_stats(d->character.get());
 					// статы срезетили и новые выбрали
-					sprintf(buffer, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n",
-							CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));
+					sprintf(buffer, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n", KIGRN, KNRM);
 					iosystem::write_to_output(buffer, d);
 
 					// Проверяем корректность статов

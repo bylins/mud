@@ -295,28 +295,28 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 void nedit_menu(CharData *ch) {
 	std::ostringstream out;
 
-	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: "
+	out << KIGRN << "1" << KNRM << ") Vnum: " << ch->desc->cur_vnum << " Название: "
 		<< (GetObjRnum(ch->desc->cur_vnum)
 			? obj_proto[GetObjRnum(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: "
+	out << KIGRN << "2" << KNRM << ") Владелец: "
 		<< GetNameByUnique(ch->desc->named_obj->uid, 0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
-	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: "
+	out << KIGRN << "3" << KNRM << ") Доступно клану: "
 		<< (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: "
+	out << KIGRN << "4" << KNRM << ") Доступно альянсу: "
 		<< (0 == ch->desc->named_obj->can_alli ? 0 : 1) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании персу: "
+	out << KIGRN << "5" << KNRM << ") Сообщение при одевании персу: "
 		<< ch->desc->named_obj->wear_msg_v << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") Сообщение при одевании вокруг перса: "
+	out << KIGRN << "6" << KNRM << ") Сообщение при одевании вокруг перса: "
 		<< ch->desc->named_obj->wear_msg_a << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "7" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна персу: "
+	out << KIGRN << "7" << KNRM << ") Сообщение если вещь недоступна персу: "
 		<< ch->desc->named_obj->cant_msg_v << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "8" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна вокруг перса: "
+	out << KIGRN << "8" << KNRM << ") Сообщение если вещь недоступна вокруг перса: "
 		<< ch->desc->named_obj->cant_msg_a << "\r\n";
 	if (ch->desc->old_vnum) {
-		out << CCIGRN(ch, C_SPR) << "У" << CCNRM(ch, C_SPR) << ") Удалить\r\n";
+		out << KIGRN << "У" << KNRM << ") Удалить\r\n";
 	}
-	out << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR) << ") Выйти и сохранить\r\n";
-	out << CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR) << ") Выйти без сохранения\r\n";
+	out << KIGRN << "В" << KNRM << ") Выйти и сохранить\r\n";
+	out << KIGRN << "Х" << KNRM << ") Выйти без сохранения\r\n";
 	SendMsgToChar(out.str().c_str(), ch);
 }
 

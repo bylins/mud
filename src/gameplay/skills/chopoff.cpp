@@ -56,7 +56,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	TrainSkill(ch, ESkill::kChopoff, success, vict);
 	SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kChopoff).name, percent, prob, success);
 	if (!success) {
-		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", KWHT, KNRM);
 		act(buf, false, ch, nullptr, vict, kToChar);
 		act("$n попытал$u подсечь вас, но упал$g сам$g.", false, ch, nullptr, vict, kToVict);
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
@@ -74,7 +74,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kMagicResist;
 			ImposeAffect(ch, af, false, false, false, false);
-			SendMsgToChar(ch, "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n", CCIGRN(ch, C_NRM), GET_PAD(vict, 1), CCNRM(ch, C_NRM));
+			SendMsgToChar(ch, "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n", KIGRN, GET_PAD(vict, 1), KNRM);
 			act("$n покатил$u по земле, пытаясь избежать ваших атак.", false, ch, nullptr, vict, kToVict);
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
@@ -83,7 +83,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			CharData *tch = vict->get_master();
 			act("$n ловко подсек$q $N3, заставив $S споткнуться.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
-					CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
+					KIBLU, GET_PAD(vict, 3), KNRM);
 			percent = number(1, MUD::Skill(ESkill::kRiding).difficulty);
 			prob = tch->GetSkill(ESkill::kRiding);
 			if (percent < prob) {
@@ -94,7 +94,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			}
 		} else {
 			SendMsgToChar(ch, "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
-					CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
+					KIBLU, GET_PAD(vict, 3), KNRM);
 			act("$n ловко подсек$q вас, усадив на попу.", false, ch, nullptr, vict, kToVict);
 			act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SetWait(vict, 3, false);

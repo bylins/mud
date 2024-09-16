@@ -192,23 +192,23 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	} else {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
-	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
+	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", KICYN, CAP(buf), KNRM);
 	SendMsgToChar(buf1, vict);
 	if (!vict->IsNpc()) {
 		vict->remember_add(buf1, Remember::ALL);
 	}
 
 	if (!vict->IsNpc() && !ch->IsNpc()) {
-		snprintf(buf, kMaxStringLength, "%s%s : '%s'%s\r\n", CCICYN(vict, C_NRM),
-				 tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(vict, C_NRM));
+		snprintf(buf, kMaxStringLength, "%s%s : '%s'%s\r\n", KICYN,
+				 tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, KNRM);
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
 
 	if (ch->IsFlagged(EPrf::kNoRepeat)) {
 		SendMsgToChar(OK, ch);
 	} else {
-		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
-				 tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, CCNRM(ch, C_NRM));
+		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", KICYN,
+				 tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, KNRM);
 		SendMsgToChar(buf, ch);
 		if (!ch->IsNpc()) {
 			ch->remember_add(buf, Remember::ALL);
@@ -785,17 +785,10 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			}
 
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				SendMsgToChar(color_on, i->character.get());
-			}
-
+			SendMsgToChar(color_on, i->character.get());
 			act(out_str, false, ch, 0, i->character.get(), kToVict | kToSleep | kToNotDeaf);
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				SendMsgToChar(KNRM, i->character.get());
-			}
-
+			SendMsgToChar(KNRM, i->character.get());
 			const std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
-
 			i->character->remember_add(text, Remember::ALL);
 		}
 	}
@@ -819,15 +812,9 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& i->character
 			&& !i->character->IsFlagged(EPlrFlag::kWriting)
 			&& i->character->GetPosition() > EPosition::kSleep) {
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				SendMsgToChar(KIYEL, i->character.get());
-			}
-
+			SendMsgToChar(KIYEL, i->character.get());
 			act(buf, false, ch, 0, i->character.get(), kToVict | kToSleep | kToNotDeaf);
-
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				SendMsgToChar(KNRM, i->character.get());
-			}
+			SendMsgToChar(KNRM, i->character.get());
 		}
 	}
 }
@@ -1055,7 +1042,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 // при вызове без параметров выведем весь список
 	if (!arg1[0] && !arg2[0] && !arg3[0]) {
-		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", KWHT, KNRM);
 		SendMsgToChar(buf, ch);
 		for (const auto &ignore : ch->get_ignores()) {
 			if (!ignore->id)
@@ -1170,7 +1157,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				name[0] = UPPER(name[0]);
 				sprintf(buf,
 						"Вы и так не игнорируете "
-						"персонажа %s%s%s.\r\n", CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
+						"персонажа %s%s%s.\r\n", KWHT, name, KNRM);
 				SendMsgToChar(buf, ch);
 			}
 			return;
@@ -1196,7 +1183,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(name, ign_find_name(ignore->id));
 			name[0] = UPPER(name[0]);
 			sprintf(buf, "Для персонажа %s%s%s вы игнорируете:%s.\r\n",
-					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM), text_ignore_modes(ignore->mode, buf1));
+					KWHT, name, KNRM, text_ignore_modes(ignore->mode, buf1));
 			SendMsgToChar(buf, ch);
 		}
 	} else {
@@ -1206,7 +1193,7 @@ void do_ignore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(name, ign_find_name(vict_id));
 			name[0] = UPPER(name[0]);
 			sprintf(buf, "Вы больше не игнорируете персонажа %s%s%s.\r\n",
-					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
+					KWHT, name, KNRM);
 			SendMsgToChar(buf, ch);
 		}
 	}

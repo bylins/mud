@@ -475,10 +475,10 @@ bool Static::LoginInfo(CharData *ch) {
 				|| (*board)->get_type() == GODNEWS_BOARD
 				|| (*board)->get_type() == CLANNEWS_BOARD) {
 				news << std::setw(4) << unread << " в разделе '" << (*board)->get_description() << "' "
-					 << CCWHT(ch, C_NRM) << "(" << (*board)->get_name() << ")" << CCNRM(ch, C_NRM) << ".\r\n";
+					 << KWHT << "(" << (*board)->get_name() << ")" << KNRM << ".\r\n";
 			} else {
 				buffer << std::setw(4) << unread << " в разделе '" << (*board)->get_description() << "' "
-					   << CCWHT(ch, C_NRM) << "(" << (*board)->get_name() << ")" << CCNRM(ch, C_NRM) << ".\r\n";
+					   << KWHT << "(" << (*board)->get_name() << ")" << KNRM << ".\r\n";
 			}
 		}
 	}

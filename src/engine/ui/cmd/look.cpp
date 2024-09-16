@@ -25,15 +25,15 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(buf,
 					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 					"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), ch->in_room,
-					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[ch->in_room]->light,
-					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[ch->in_room]->glight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->fires,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->ices,
-					CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[ch->in_room]->gdark,
-					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+					KNRM, KIDRK, ch->in_room,
+					KRED, KIRED, world[ch->in_room]->light,
+					KGRN, KIGRN, world[ch->in_room]->glight,
+					KYEL, KIYEL, world[ch->in_room]->fires,
+					KYEL, KIYEL, world[ch->in_room]->ices,
+					KBLU, KIBLU, world[ch->in_room]->gdark,
+					KMAG, KICYN, weather_info.sky,
+					KWHT, KIDRK, weather_info.sunlight,
+					KYEL, KIYEL, weather_info.moon_day, KNRM);
 			SendMsgToChar(buf, ch);
 		}
 		skip_hide_on_look(ch);

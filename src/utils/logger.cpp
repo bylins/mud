@@ -276,9 +276,9 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int
 		if (i->character->IsFlagged(EPlrFlag::kWriting) || i->character->IsFlagged(EPlrFlag::kFrozen))
 			continue;
 
-		SendMsgToChar(CCGRN(i->character, C_NRM), i->character.get());
+		SendMsgToChar(KGRN, i->character.get());
 		SendMsgToChar(tmpbuf, i->character.get());
-		SendMsgToChar(CCNRM(i->character, C_NRM), i->character.get());
+		SendMsgToChar(KNRM, i->character.get());
 	}
 }
 

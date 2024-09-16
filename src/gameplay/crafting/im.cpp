@@ -968,12 +968,10 @@ ObjData *try_make_ingr(CharData *mob, int prob_default) {
 
 void list_recipes(CharData *ch, bool all_recipes) {
 	int i = 0, sortpos;
-// +newbook.patch (Alisher)
 	im_rskill *rs;
-// -newbook.patch (Alisher)
 
 	if (all_recipes) {
-		if (clr(ch, C_NRM)) {
+		if (!ch->IsFlagged(EPrf::kBlindMode)) {
 			sprintf(buf, " Список доступных рецептов.\r\n"
 						 " Зеленым цветом выделены уже изученные рецепты.\r\n"
 						 " Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
@@ -998,18 +996,19 @@ void list_recipes(CharData *ch, bool all_recipes) {
 				break;
 			}
 			rs = im_get_char_rskill(ch, sortpos);
-			if (clr(ch, C_NRM))
+			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
 						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
 							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
 						KRED : rs ? KGRN : KNRM, imrecipes[sortpos].name, KCYN,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort, KNRM);
-			else
+			} else {
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
-						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
-							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
+						(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GetRealLevel(ch) ||
+							imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GetRealRemort(ch)) ?
 						"[Н]" : rs ? "[И]" : "[Д]", imrecipes[sortpos].name,
 						imrecipes[sortpos].level, imrecipes[sortpos].remort);
+			}
 			strcat(buf1, buf);
 			++i;
 		}
@@ -1171,11 +1170,11 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			if (success)
 				sprintf(buf,
 						"%sВы постигли тонкости приготовления рецепта \"%s\".%s\r\n",
-						CCICYN(ch, C_NRM), imrecipes[rs->rid].name, CCNRM(ch, C_NRM));
+						KICYN, imrecipes[rs->rid].name, KNRM);
 			else
 				sprintf(buf,
 						"%sНеудача позволила вам осознать тонкости приготовления рецепта \"%s\".%s\r\n",
-						CCICYN(ch, C_NRM), imrecipes[rs->rid].name, CCNRM(ch, C_NRM));
+						KICYN, imrecipes[rs->rid].name, KNRM);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!IS_IMMORTAL(ch))
@@ -1563,8 +1562,8 @@ void compose_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 
 	// Этап 1. Основные компоненты
 	for (int i = 1, *req = imrecipes[rs->rid].require; *req != -1; req += 2, ++i) {
-		sprintf(name, "%s%d%s) %s%s%s\r\n", CCIGRN(ch, C_NRM), i,
-				CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[*req].name, CCNRM(ch, C_NRM));
+		sprintf(name, "%s%d%s) %s%s%s\r\n", KIGRN, i,
+				KNRM, KIYEL, imtypes[*req].name, KNRM);
 		SendMsgToChar(name, ch);
 	}
 	sprintf(name, "для приготовления отвара '%s'\r\n", imrecipes[rs->rid].name);

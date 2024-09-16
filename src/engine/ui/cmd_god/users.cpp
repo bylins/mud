@@ -317,7 +317,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		strcat(line, "\r\n");
 		if (STATE(d) != CON_PLAYING) {
-			snprintf(line2, sizeof(line2), "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
+			snprintf(line2, sizeof(line2), "%s%s%s", KGRN, line, KNRM);
 			strcpy(line, line2);
 		}
 

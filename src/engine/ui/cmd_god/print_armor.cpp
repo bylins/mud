@@ -328,9 +328,9 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				negative = false;
 			}
 			snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
-					 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-					 CCCYN(ch, C_NRM),
-					 negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
+					 KCYN, buf2, KNRM,
+					 KCYN,
+					 negative ? " ухудшает на " : " улучшает на ", abs(drsdice), KNRM);
 			out << "      |         |                | " << buf;
 		}
 	}

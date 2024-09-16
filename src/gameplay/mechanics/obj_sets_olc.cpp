@@ -210,9 +210,9 @@ std::string main_menu_objlist(CharData *ch, const SetNode &set, int menu) {
 		}
 
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
-				 CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
+				 KGRN, menu++, KNRM,
 				 colored_name(i.second, left ? l_max_name : r_max_name, true),
-				 CCCYN(ch, C_NRM), (left ? l_max_vnum : r_max_vnum), CCNRM(ch, C_NRM));
+				 KCYN, (left ? l_max_vnum : r_max_vnum), KNRM);
 		snprintf(buf_, sizeof(buf_), format, buf_vnum);
 		out += buf_;
 		if (!left) {
@@ -233,8 +233,8 @@ const char *main_menu_str(CharData *ch, SetNode &olc_set, int num) {
 	switch (num) {
 		case MAIN_SET_REMOVE: return "Удалить набор";
 		case MAIN_ENABLED:
-			snprintf(buf_, sizeof(buf_), "Статус : %s%s%s", CCCYN(ch, C_NRM),
-					 olc_set.enabled ? "активен" : "неактивен", CCNRM(ch, C_NRM));
+			snprintf(buf_, sizeof(buf_), "Статус : %s%s%s", KCYN,
+					 olc_set.enabled ? "активен" : "неактивен", KNRM);
 			break;
 		case MAIN_NAME:
 			snprintf(buf_, sizeof(buf_), "Имя    : %s",
@@ -292,23 +292,23 @@ void sedit::show_main(CharData *ch) {
 	int i = 1;
 	for (/**/; i < MAIN_TOTAL; ++i) {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) %s\r\n",
-				 CCGRN(ch, C_NRM), i, CCNRM(ch, C_NRM),
+				 KGRN, i, KNRM,
 				 main_menu_str(ch, olc_set, i));
 		out += buf_;
 	}
 	// предметы
 	snprintf(buf_, sizeof(buf_), "\r\n%s%2d%s) Добавить предмет(ы)\r\n",
-			 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
+			 KGRN, i++, KNRM);
 	out += buf_;
 	out += main_menu_objlist(ch, olc_set, i);
 	i += static_cast<int>(olc_set.obj_list.size());
 	// активаторы
 	snprintf(buf_, sizeof(buf_),
 			 "\r\n%s%2d%s) Распечатать сумму активаторов\r\n",
-			 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
+			 KGRN, i++, KNRM);
 	out += buf_;
 	snprintf(buf_, sizeof(buf_), "%s%2d%s) Добавить активатор\r\n",
-			 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
+			 KGRN, i++, KNRM);
 	out += buf_;
 	for (auto & k : olc_set.activ_list) {
 		if (!k.second.prof.all()) {
@@ -316,14 +316,14 @@ void sedit::show_main(CharData *ch) {
 			PrinSetClasses(k.second.prof, prof);
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Редактировать активатор: %s%d (%s)%s\r\n",
-					 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
-					 CCCYN(ch, C_NRM), k.first, prof.c_str(),
-					 CCNRM(ch, C_NRM));
+					 KGRN, i++, KNRM,
+					 KCYN, k.first, prof.c_str(),
+					 KNRM);
 		} else {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Редактировать активатор: %s%d%s\r\n",
-					 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
-					 CCCYN(ch, C_NRM), k.first, CCNRM(ch, C_NRM));
+					 KGRN, i++, KNRM,
+					 KCYN, k.first, KNRM);
 		}
 		out += buf_;
 	}
@@ -331,7 +331,7 @@ void sedit::show_main(CharData *ch) {
 	snprintf(buf_, sizeof(buf_),
 			 "\r\n%s%2d%s) Выйти Q(В)\r\n"
 			 "Ваш выбор : ",
-			 CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
+			 KGRN, i++, KNRM);
 	out += buf_;
 
 	SendMsgToChar(out, ch);
@@ -366,14 +366,14 @@ void sedit::show_obj_edit(CharData *ch) {
 			 "%s 7%s) В главное меню Q(В)\r\n"
 			 "Ваш выбор : ",
 			 name,
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			 (rnum < 0 ? CCYEL(ch, C_NRM) : CCCYN(ch, C_NRM)), obj_edit, CCNRM(ch, C_NRM),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.char_on_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.char_off_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.room_on_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.room_off_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+			 KGRN, KNRM,
+			 KGRN, KNRM,
+			 (rnum < 0 ? KYEL : KCYN), obj_edit, KNRM,
+			 KGRN, KNRM, msg.char_on_msg.c_str(),
+			 KGRN, KNRM, msg.char_off_msg.c_str(),
+			 KGRN, KNRM, msg.room_on_msg.c_str(),
+			 KGRN, KNRM, msg.room_off_msg.c_str(),
+			 KGRN, KNRM);
 	SendMsgToChar(buf_, ch);
 }
 
@@ -406,26 +406,26 @@ void sedit::show_activ_edit(CharData *ch) {
 			 "%s 2%s) Количество предметов : %s%d%s\r\n"
 			 "%s 3%s) Профессии : %s%s%s\r\n"
 			 "%s 4%s) Аффекты : %s%s%s\r\n",
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM), activ_edit, CCNRM(ch, C_NRM),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM), prof_str.c_str(), CCNRM(ch, C_NRM),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM), aff_str.c_str(), CCNRM(ch, C_NRM));
+			 KGRN, KNRM,
+			 KGRN, KNRM,
+			 KCYN, activ_edit, KNRM,
+			 KGRN, KNRM,
+			 KCYN, prof_str.c_str(), KNRM,
+			 KGRN, KNRM,
+			 KCYN, aff_str.c_str(), KNRM);
 	out += buf_;
 
 	int cnt = 5;
 	for (auto apply : activ.apply) {
 		if (apply.location > 0) {
 			snprintf(buf_, sizeof(buf_), "%s%2d%s) Наводимый аффект : %s",
-					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+					 KGRN, cnt++, KNRM,
 					 print_obj_affects(apply).c_str());
 		} else {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Наводимый аффект : %s%s%s\r\n",
-					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-					 CCCYN(ch, C_NRM), "ничего", CCNRM(ch, C_NRM));
+					 KGRN, cnt++, KNRM,
+					 KCYN, "ничего", KNRM);
 		}
 		out += buf_;
 	}
@@ -433,12 +433,12 @@ void sedit::show_activ_edit(CharData *ch) {
 	if (MUD::Skills().IsValid(activ.skill.first)) {
 		snprintf(buf_, sizeof(buf_),
 				 "%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
-				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+				 KGRN, cnt++, KNRM, KCYN,
 				 activ.skill.second, MUD::Skill(activ.skill.first).GetName(),
-				 CCNRM(ch, C_NRM));
+				 KNRM);
 	} else {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) Изменяемое умение : нет\r\n",
-				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
+				 KGRN, cnt++, KNRM);
 	}
 	out += buf_;
 
@@ -449,45 +449,45 @@ void sedit::show_activ_edit(CharData *ch) {
 		if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
-					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+					 KGRN, cnt++, KNRM, KCYN,
 					 activ.enchant.first, name, activ.enchant.second.weight,
 					 activ.enchant.second.ndice, activ.enchant.second.sdice,
-					 CCNRM(ch, C_NRM));
+					 KNRM);
 		} else {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d%s\r\n",
-					 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+					 KGRN, cnt++, KNRM, KCYN,
 					 activ.enchant.first, name, activ.enchant.second.weight,
-					 CCNRM(ch, C_NRM));
+					 KNRM);
 		}
 	} else {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) Зачарование предмета: нет\r\n",
-				 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
+				 KGRN, cnt++, KNRM);
 	}
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
 			 "%s%2d%s) Увеличение физ. урона : %s%+d%%%s\r\n",
-			 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM), activ.bonus.phys_dmg, CCNRM(ch, C_NRM));
+			 KGRN, cnt++, KNRM,
+			 KCYN, activ.bonus.phys_dmg, KNRM);
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
 			 "%s%2d%s) Увеличение маг. урона : %s%+d%%%s\r\n",
-			 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM), activ.bonus.mage_dmg, CCNRM(ch, C_NRM));
+			 KGRN, cnt++, KNRM,
+			 KCYN, activ.bonus.mage_dmg, KNRM);
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
 			 "%s%2d%s) Актив на мобах : %s%s%s\r\n",
-			 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-			 CCCYN(ch, C_NRM), (activ.npc ? "Да" : "Нет"), CCNRM(ch, C_NRM));
+			 KGRN, cnt++, KNRM,
+			 KCYN, (activ.npc ? "Да" : "Нет"), KNRM);
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
 			 "%s%2d%s) В главное меню Q(В)\r\n"
 			 "Ваш выбор : ",
-			 CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
+			 KGRN, cnt++, KNRM);
 	out += buf_;
 
 	SendMsgToChar(out, ch);
@@ -650,11 +650,11 @@ void sedit::show_global_msg(CharData *ch) {
 			 "%s 4%s) Деактиватор в комнату : %s\r\n"
 			 "%s 5%s) Выйти Q(В)\r\n"
 			 "Ваш выбор : ",
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.char_on_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.char_off_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.room_on_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.room_off_msg.c_str(),
-			 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+			 KGRN, KNRM, msg_edit.char_on_msg.c_str(),
+			 KGRN, KNRM, msg_edit.char_off_msg.c_str(),
+			 KGRN, KNRM, msg_edit.room_on_msg.c_str(),
+			 KGRN, KNRM, msg_edit.room_off_msg.c_str(),
+			 KGRN, KNRM);
 	SendMsgToChar(buf_, ch);
 }
 
@@ -1195,7 +1195,7 @@ void sedit::show_activ_skill(CharData *ch) {
 			continue;
 		}
 		snprintf(buf_, sizeof(buf_), "%s%3d%s) %25s     %s",
-				 CCGRN(ch, C_NRM), to_underlying(i), CCNRM(ch, C_NRM),
+				 KGRN, to_underlying(i), KNRM,
 				 MUD::Skill(i).GetName(), !(++col % 2) ? "\r\n" : "");
 		out += buf_;
 	}
@@ -1212,7 +1212,7 @@ void sedit::show_activ_prof(CharData *ch) {
 
 	for (size_t i = 0; i < bits.size(); ++i) {
 		snprintf(buf_, sizeof(buf_), "%s%2zu%s) %s\r\n",
-				 CCGRN(ch, C_NRM), i + 1, CCNRM(ch, C_NRM),
+				 KGRN, i + 1, KNRM,
 				 MUD::Classes().FindAvailableItem(static_cast<int>(i)).GetCName());
 		out += buf_;
 	}
@@ -1220,14 +1220,14 @@ void sedit::show_activ_prof(CharData *ch) {
 	snprintf(buf_, sizeof(buf_),
 			 "%s%2zu%s) Сбросить все\r\n"
 			 "%s%2zu%s) Установить все\r\n",
-			 CCGRN(ch, C_NRM), bits.size() + 1, CCNRM(ch, C_NRM),
-			 CCGRN(ch, C_NRM), bits.size() + 2, CCNRM(ch, C_NRM));
+			 KGRN, bits.size() + 1, KNRM,
+			 KGRN, bits.size() + 2, KNRM);
 	out += buf_;
 
-	snprintf(buf_, sizeof(buf_), "Текущие профессии : %s", CCCYN(ch, C_NRM));
+	snprintf(buf_, sizeof(buf_), "Текущие профессии : %s", KCYN);
 	out += buf_;
 	PrinSetClasses(bits, out, true);
-	out += CCNRM(ch, C_NRM);
+	out += KNRM;
 	out += "\r\nВыберите профессии для данного активатора (0 - выход) : ";
 
 	SendMsgToChar(out, ch);

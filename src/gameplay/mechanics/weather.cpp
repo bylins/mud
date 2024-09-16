@@ -54,18 +54,18 @@ void gods_day_now(CharData *ch) {
 	std::string real_name = celebrates::GetNameReal(celebrates::GetRealDay());
 
 	if (IS_IMMORTAL(ch)) {
-		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", KWHT, KNRM);
+		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", KWHT, KNRM);
+		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", KWHT, KNRM);
 
 		if (mono_name != "") {
-			sprintf(mono, "Христиане: %s %s. %s\r\n", CCWHT(ch, C_NRM),
-					mono_name.c_str(), CCNRM(ch, C_NRM));
+			sprintf(mono, "Христиане: %s %s. %s\r\n", KWHT,
+					mono_name.c_str(), KNRM);
 		}
 
 		if (poly_name != "") {
-			sprintf(poly, "Язычники : %s %s. %s\r\n", CCWHT(ch, C_NRM),
-					poly_name.c_str(), CCNRM(ch, C_NRM));
+			sprintf(poly, "Язычники : %s %s. %s\r\n", KWHT,
+					poly_name.c_str(), KNRM);
 		}
 
 		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
@@ -73,20 +73,20 @@ void gods_day_now(CharData *ch) {
 		SendMsgToChar(mono, ch);
 	} else if (GET_RELIGION(ch) == kReligionPoly) {
 		if (poly_name != "") {
-			sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
-					poly_name.c_str(), CCNRM(ch, C_NRM));
+			sprintf(poly, "%s Сегодня %s. %s\r\n", KWHT,
+					poly_name.c_str(), KNRM);
 			SendMsgToChar(poly, ch);
 		}
 	} else if (GET_RELIGION(ch) == kReligionMono) {
 		if (mono_name != "") {
-			sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
-					mono_name.c_str(), CCNRM(ch, C_NRM));
+			sprintf(mono, "%s Сегодня %s. %s\r\n", KWHT,
+					mono_name.c_str(), KNRM);
 			SendMsgToChar(mono, ch);
 		}
 	}
 	if (real_name != "") {
-		sprintf(real, "В реальном мире : %s %s. %s\r\n", CCWHT(ch, C_NRM),
-				real_name.c_str(), CCNRM(ch, C_NRM));
+		sprintf(real, "В реальном мире : %s %s. %s\r\n", KWHT,
+				real_name.c_str(), KNRM);
 	}
 	SendMsgToChar(real, ch);
 }

@@ -45,7 +45,7 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						continue;
 				}
 				SendMsgToChar(where[i], ch);
-				sprintf(buf, "%s[ Ничего ]%s\r\n", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
+				sprintf(buf, "%s[ Ничего ]%s\r\n", KIDRK, KNRM);
 				SendMsgToChar(buf, ch);
 				found = true;
 			}
