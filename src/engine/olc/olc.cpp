@@ -377,12 +377,12 @@ void olc_remove_from_save_list(int zone, byte type) {
 * see at color level NRM.  Changing the entries here will change
 * the colour scheme throughout the OLC. */
 void get_char_cols(CharData *ch) {
-	nrm = KNRM;
-	grn = KGRN;
-	cyn = KCYN;
-	yel = KYEL;
-	iyel = KIYEL;
-	ired = KIRED;
+	nrm = kColorNrm;
+	grn = kColorGrn;
+	cyn = kColorCyn;
+	yel = kColorYel;
+	iyel = kColorBoldYel;
+	ired = kColorBoldRed;
 }
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column) {
 	int counter, column = 0, plane = 0;

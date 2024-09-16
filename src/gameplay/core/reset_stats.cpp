@@ -126,11 +126,11 @@ void print_menu(DescriptorData *d) {
 		"4) оплатить {} {} и перейти к выбору вероисповедания.\r\n"
 		"5) отменить и вернуться в главное меню\r\n"
 		"\r\nВаш выбор:",
-									 KIGRN, KNRM,
-									 stats_price, GetDeclensionInNumber(stats_price, EWhat::kMoneyA),
-									 race_price, GetDeclensionInNumber(race_price, EWhat::kMoneyA),
-									 feats_price, GetDeclensionInNumber(feats_price, EWhat::kMoneyA),
-									 religion_price, GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
+		kColorBoldGrn, kColorNrm,
+		stats_price, GetDeclensionInNumber(stats_price, EWhat::kMoneyA),
+		race_price, GetDeclensionInNumber(race_price, EWhat::kMoneyA),
+		feats_price, GetDeclensionInNumber(feats_price, EWhat::kMoneyA),
+		religion_price, GetDeclensionInNumber(religion_price, EWhat::kMoneyA));
 iosystem::write_to_output(str.c_str(), d);
 }
 

@@ -113,7 +113,7 @@ void handle_recall_spells(CharData *ch) {
 				}
 				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
-						KICYN, MUD::Spell(i->spell_id).GetCName(), KNRM);
+						kColorBoldCyn, MUD::Spell(i->spell_id).GetCName(), kColorNrm);
 				SendMsgToChar(buf, ch);
 				GET_SPELL_MEM(ch, i->spell_id)++;
 				free(i);
@@ -775,11 +775,11 @@ void EndowExpToChar(CharData *ch, int gain) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GetRealRemort(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-								  KIGRN, KNRM);
+								  kColorBoldGrn, kColorNrm);
 				} else {
 					SendMsgToChar(ch,
 								  "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
-								  "%s%s\r\n", KIGRN, Remort::WHERE_TO_REMORT_STR.c_str(), KNRM);
+								  "%s%s\r\n", kColorBoldGrn, Remort::WHERE_TO_REMORT_STR.c_str(), kColorNrm);
 				}
 				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
@@ -788,7 +788,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->GetLevel() + 1);
 			num_levels++;
-			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", KWHT, KNRM);
+			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
 			SendMsgToChar(local_buf, ch);
 			advance_level(ch);
 			is_altered = true;
@@ -807,7 +807,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			num_levels++;
 			sprintf(local_buf,
 					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
-					KIRED, KNRM);
+					kColorBoldRed, kColorNrm);
 			SendMsgToChar(local_buf, ch);
 			decrease_level(ch);
 			is_altered = true;
@@ -824,7 +824,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-						  KIRED, KNRM);
+						  kColorBoldRed, kColorNrm);
 		}
 		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
@@ -846,7 +846,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-						KWHT, KNRM);
+						kColorWht, kColorNrm);
 				SendMsgToChar(buf, ch);
 
 				advance_level(ch);
@@ -869,7 +869,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 				num_levels++;
 				sprintf(buf,
 						"%sВы потеряли уровень!%s\r\n",
-						KIRED, KNRM);
+						kColorBoldRed, kColorNrm);
 				SendMsgToChar(buf, ch);
 				decrease_level(ch);
 				is_altered = true;
@@ -1080,7 +1080,7 @@ void hour_update() {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
-		sprintf(buf, "%sМинул час.%s\r\n", KIRED, KNRM);
+		sprintf(buf, "%sМинул час.%s\r\n", kColorBoldRed, kColorNrm);
 		iosystem::write_to_output(buf, i);
 	}
 }
@@ -1241,11 +1241,11 @@ void clan_chest_invoice(ObjData *j) {
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-						  KIRED,
+						  kColorBoldRed,
 						  j->get_short_description().c_str(),
 						  clan_get_custom_label(j, CLAN(d->character)).c_str(),
 						  GET_OBJ_SUF_2(j),
-						  KNRM);
+						  kColorNrm);
 		}
 	}
 
@@ -1329,9 +1329,9 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 			 local_buf1);
 	SendMsgToChar(charmee->get_master(),
 				  "%s%s%s\r\n",
-				  KICYN,
+				  kColorBoldCyn,
 				  CAP(local_buf),
-				  KNRM);
+				  kColorNrm);
 }
 
 void obj_point_update() {

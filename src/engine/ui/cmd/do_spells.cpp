@@ -127,7 +127,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		}
 		have_spells = true;
 	};
-	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", KCYN, KNRM);
+	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", kColorCyn, kColorNrm);
 	if (have_spells) {
 		for (i = 0; i < max_slot; i++) {
 			if (slots[i] != 0) {

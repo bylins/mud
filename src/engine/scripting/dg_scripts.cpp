@@ -837,9 +837,9 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 	}
 
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
-			KYEL, trig->get_name().c_str(), KNRM,
-			KGRN, trig_index[(trig)->get_rnum()]->vnum,
-			KNRM, trig->get_rnum());
+			kColorYel, trig->get_name().c_str(), kColorNrm,
+			kColorGrn, trig_index[(trig)->get_rnum()]->vnum,
+			kColorNrm, trig->get_rnum());
 	SendMsgToChar(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER) {
@@ -952,8 +952,8 @@ void script_stat(CharData *ch, Script *sc) {
 
 	for (auto t : sc->trig_list) {
 		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d]\r\n",
-				KYEL, GET_TRIG_NAME(t), KNRM,
-				KGRN, GET_TRIG_VNUM(t), KNRM, GET_TRIG_RNUM(t));
+				kColorYel, GET_TRIG_NAME(t), kColorNrm,
+				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t));
 		SendMsgToChar(buf, ch);
 
 		if (t->get_attach_type() == MOB_TRIGGER) {

@@ -17,7 +17,7 @@
 
 #include "act_movement.h"
 #include "administration/ban.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
@@ -2439,7 +2439,7 @@ void DoAfterPassword(DescriptorData *d) {
 	if (load_result) {
 		sprintf(buf, "\r\n\r\n\007\007\007"
 					 "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
-				KRED, load_result, (load_result > 1) ? "S" : "", KNRM);
+				kColorRed, load_result, (load_result > 1) ? "S" : "", kColorNrm);
 		iosystem::write_to_output(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
@@ -2666,8 +2666,8 @@ void DisplaySelectCharClassMenu(DescriptorData *d) {
 	}
 	std::sort(char_classes.begin(), char_classes.end());
 	for (const auto &it : char_classes) {
-		out << "  " << KCYN << std::right << std::setw(3) << to_underlying(it) + 1 << KNRM << ") "
-			<< KGRN << std::left << MUD::Class(it).GetName() << "\r\n" << KNRM;
+		out << "  " << kColorCyn << std::right << std::setw(3) << to_underlying(it) + 1 << kColorNrm << ") "
+			<< kColorGrn << std::left << MUD::Class(it).GetName() << "\r\n" << kColorNrm;
 	}
 	iosystem::write_to_output(out.str().c_str(), d);
 }
@@ -3724,7 +3724,7 @@ void nanny(DescriptorData *d, char *argument) {
 					// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
 					GloryMisc::recalculate_stats(d->character.get());
 					// статы срезетили и новые выбрали
-					sprintf(buffer, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n", KIGRN, KNRM);
+					sprintf(buffer, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n", kColorBoldGrn, kColorNrm);
 					iosystem::write_to_output(buffer, d);
 
 					// Проверяем корректность статов

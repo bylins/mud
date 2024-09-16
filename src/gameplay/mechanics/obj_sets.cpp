@@ -743,8 +743,8 @@ void print_identify(CharData *ch, const ObjData *obj) {
 		char buf_[256], buf_2[128];
 
 		snprintf(buf_, sizeof(buf_), "%sЧасть набора предметов: %s%s%s\r\n",
-				 KNRM, KWHT,
-				 cur_set.name.c_str(), KNRM);
+				 kColorNrm, kColorWht,
+				 cur_set.name.c_str(), kColorNrm);
 		out += buf_;
 		out += print_obj_list(cur_set);
 
@@ -756,7 +756,7 @@ void print_identify(CharData *ch, const ObjData *obj) {
 
 		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
 				 (i.second > 0 ? buf_2 : ""),
-				 KWHT, cur_set.help.c_str(), KNRM);
+				 kColorWht, cur_set.help.c_str(), kColorNrm);
 		out += buf_;
 
 		SendMsgToChar(out, ch);
@@ -774,7 +774,7 @@ void do_slist(CharData *ch) {
 		snprintf(comment, sizeof(comment), " (%s)", i->comment.c_str());
 		char status[64];
 		snprintf(status, sizeof(status), "Статус: %sотключен%s, ",
-				 KICYN, KNRM);
+				 kColorBoldCyn, kColorNrm);
 
 		snprintf(buf_, sizeof(buf_),
 				 "%3d) %s%s\r\n"
@@ -802,9 +802,9 @@ std::string print_activ_affects(const FlagData &aff) {
 		aff_str += line_split_str(buf_, ",", 74, 0);
 		utils::TrimRight(aff_str);
 		char filler[64];
-		snprintf(filler, sizeof(filler), "\n%s +    %s", KNRM, KCYN);
+		snprintf(filler, sizeof(filler), "\n%s +    %s", kColorNrm, kColorCyn);
 		utils::ReplaceAll(aff_str, "\n", filler);
-		aff_str += KNRM;
+		aff_str += kColorNrm;
 		aff_str += "\r\n";
 
 		return aff_str;
@@ -833,13 +833,13 @@ std::string print_activ_bonus(const bonus_type &bonus) {
 	if (bonus.phys_dmg > 0) {
 		snprintf(buf_, sizeof(buf_),
 				 " +    %sувеличивает физ. урон на %d%%%s\r\n",
-				 KCYN, bonus.phys_dmg, KNRM);
+				 kColorCyn, bonus.phys_dmg, kColorNrm);
 		out += buf_;
 	}
 	if (bonus.mage_dmg > 0) {
 		snprintf(buf_, sizeof(buf_),
 				 " +    %sувеличивает маг. урон на %d%%%s\r\n",
-				 KCYN, bonus.mage_dmg, KNRM);
+				 kColorCyn, bonus.mage_dmg, kColorNrm);
 		out += buf_;
 	}
 
@@ -857,27 +857,27 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench) {
 		if (ench.second.weight != 0) {
 			snprintf(buf_, sizeof(buf_),
 					 " +    %s%s вес %s на %d%s\r\n",
-					 KCYN, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
+					 kColorCyn, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
 					 GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
-					 abs(ench.second.weight), KNRM);
+					 abs(ench.second.weight), kColorNrm);
 			out += buf_;
 		}
 		if (ench.second.ndice != 0 || ench.second.sdice != 0) {
 			if (ench.second.ndice >= 0 && ench.second.sdice >= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sувеличивает урон %s на %dD%d%s\r\n",
-						 KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
-						 abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
+						 kColorCyn, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+						 abs(ench.second.ndice), abs(ench.second.sdice), kColorNrm);
 			} else if (ench.second.ndice <= 0 && ench.second.sdice <= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sуменьшает урон %s на %dD%d%s\r\n",
-						 KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
-						 abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
+						 kColorCyn, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+						 abs(ench.second.ndice), abs(ench.second.sdice), kColorNrm);
 			} else {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sизменяет урон %s на %+dD%+d%s\r\n",
-						 KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
-						 ench.second.ndice, ench.second.sdice, KNRM);
+						 kColorCyn, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+						 ench.second.ndice, ench.second.sdice, kColorNrm);
 			}
 			out += buf_;
 		}
@@ -921,7 +921,7 @@ std::string print_activ_help(const SetNode &set) {
 	snprintf(buf_, sizeof(buf_),
 			 "--------------------------------------------------------------------------------\r\n"
 			 "%s%d) Набор предметов: %s%s%s%s\r\n",
-			 KNRM, num, KWHT, set.name.c_str(), KNRM,
+			 kColorNrm, num, kColorWht, set.name.c_str(), kColorNrm,
 			 set.enabled ? "" : " (в данный момент отключен)");
 	out += buf_ + print_obj_list(set) +
 		"--------------------------------------------------------------------------------\r\n";

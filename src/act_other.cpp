@@ -156,7 +156,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		SendMsgToChar("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
@@ -1775,18 +1775,18 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void perform_beep(CharData *ch, CharData *vict) {
-	SendMsgToChar(KRED, vict);
+	SendMsgToChar(kColorRed, vict);
 	sprintf(buf, "\007\007 $n вызывает вас!");
 	act(buf, false, ch, nullptr, vict, kToVict | kToSleep);
-	SendMsgToChar(KNRM, vict);
+	SendMsgToChar(kColorNrm, vict);
 
 	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar(OK, ch);
 	else {
-		SendMsgToChar(KRED, ch);
+		SendMsgToChar(kColorRed, ch);
 		sprintf(buf, "Вы вызвали $N3.");
 		act(buf, false, ch, nullptr, vict, kToChar | kToSleep);
-		SendMsgToChar(KNRM, ch);
+		SendMsgToChar(kColorNrm, ch);
 	}
 }
 

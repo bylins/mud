@@ -49,7 +49,7 @@ void AddClassExp(ECharClass class_id, int exp) {
 
 std::string PrintClassExpStat(const ECharClass id, unsigned long long top_exp) {
 	std::ostringstream out;
-	out << std::left << std::setw(15) << MUD::Class(id).GetPluralName() << " " << std::left << KICYN;
+	out << std::left << std::setw(15) << MUD::Class(id).GetPluralName() << " " << std::left << kColorBoldCyn;
 	const int points_amount{10};
 	int stars{0};
 	if (top_exp > 0) {
@@ -58,7 +58,7 @@ std::string PrintClassExpStat(const ECharClass id, unsigned long long top_exp) {
 			out << "*";
 		}
 	}
-	out << KNRM << std::setfill('.') << std::setw(points_amount - stars) << "";
+	out << kColorNrm << std::setfill('.') << std::setw(points_amount - stars) << "";
 
 	return out.str();
 }

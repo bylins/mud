@@ -137,7 +137,7 @@ void ExtractedCharacterInfo::ExtractPunishmenstsInfo(const CharData::shared_ptr 
 void ExtractedCharacterInfo::ExtractPunishmentInfo(std::string_view punish_text, const punishments::Punish &punish) {
 	if (punish.duration) {
 		punishments_ << fmt::format(" {}{}{} until {:%R %e-%b-%Y} [{}].\r\n",
-									KIRED, punish_text, KNRM,
+									kColorBoldRed, punish_text, kColorNrm,
 									std::chrono::system_clock::from_time_t(punish.duration),
 									(punish.reason ? punish.reason : "-"));
 	}
@@ -157,9 +157,9 @@ void ExtractedCharacterInfo::PrintSeparator(std::ostringstream &report) {
 void ExtractedCharacterInfo::PrintBaseInfo(std::ostringstream &report) {
 	report << fmt::format(
 		"Name: {color_on}{name:<12}{color_off} Mail: {mail:<30} Last: {time:%e-%b-%Y} from {ip}, Lvl {level}, Rmt {remort}, Cls: {class}, Clan: {clan}.\r\n",
-		fmt::arg("color_on", (online_ ? KIGRN : KIWHT)),
+		fmt::arg("color_on", (online_ ? kColorBoldGrn : kColorBoldWht)),
 		fmt::arg("name", name_),
-		fmt::arg("color_off", KNRM),
+		fmt::arg("color_off", kColorNrm),
 		fmt::arg("mail", mail_),
 		fmt::arg("time", std::chrono::system_clock::from_time_t(last_logon_time_)),
 		fmt::arg("ip", last_ip_),
@@ -389,9 +389,9 @@ class InspectRequestIp : public InspectRequest {
 InspectRequestIp::InspectRequestIp(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
 	report_generator_.SetReportHeader(fmt::format("Inspecting IP (last logon): {}{}{}\r\n",
-												  KWHT,
+												  kColorWht,
 												  GetRequestText(),
-												  KNRM));
+												  kColorNrm));
 }
 
 bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
@@ -410,7 +410,7 @@ class InspectRequestMail : public InspectRequest {
 
 InspectRequestMail::InspectRequestMail(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	report_generator_.SetReportHeader(fmt::format("Inspecting e-mail: {}{}{}\r\n", KWHT, GetRequestText(), KNRM));
+	report_generator_.SetReportHeader(fmt::format("Inspecting e-mail: {}{}{}\r\n", kColorWht, GetRequestText(), kColorNrm));
 	if ((args.size() > kMinArgsNumber) && (args.back() == "send_mail")) {
 		report_generator_.SetDestinationEmail(GetRequestText());
 	}
@@ -450,9 +450,9 @@ void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
 	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
 	report_generator_.SetReportHeader(fmt::format(
 		"Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
-		KWHT,
+		kColorWht,
 		GetRequestText(),
-		KNRM,
+		kColorNrm,
 		mail_,
 		last_ip_));
 }
@@ -503,9 +503,9 @@ InspectRequestAll::InspectRequestAll(const CharData *author, const std::vector<s
 
 void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 	report_generator_.SetReportHeader(fmt::format("Inspecting all (IP intersection): {}{}{}\r\n",
-												  KIWHT,
+												  kColorBoldWht,
 												  GetRequestText(),
-												  KNRM));
+												  kColorNrm));
 	vict_uid_ = vict->get_uid();
 	for (const auto &logon : LOGON_LIST(vict)) {
 		if (logon.ip && !kIgnoredIpChecklist.contains(logon.ip)) {
@@ -564,7 +564,7 @@ bool InspectRequestAll::IsIpMatched(const char *ip) {
 void InspectRequestAll::NoteLogonInfo(const network::Logon &logon) {
 	current_char_intercesting_logons_
 		<< fmt::format(" IP: {}{:<16}{} Logons: {}. Last: {:%R %e-%b-%Y}.\r\n",
-					   KICYN, logon.ip, KNRM, logon.count,
+					   kColorBoldCyn, logon.ip, kColorNrm, logon.count,
 					   std::chrono::system_clock::from_time_t(logon.lasttime));
 }
 

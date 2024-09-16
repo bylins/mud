@@ -242,14 +242,14 @@ std::string PrintFlag(CharData *ch, CharData *mob, const std::string &options) {
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
 			format_to(std::back_inserter(out), " [раса: {}{}{} ]",
-					  KCYN, PrintRace(mob), KNRM);
+					  kColorCyn, PrintRace(mob), kColorNrm);
 		}
 		if (isname(i, "role")) {
 			format_to(std::back_inserter(out), " [роли: {}{}{} ]",
-					  KCYN, PrintRole(mob), KNRM);
+					  kColorCyn, PrintRole(mob), kColorNrm);
 		}
 		format_to(std::back_inserter(out), " [спец-проц: {}{}{} ]",
-				  KCYN, print_special(mob), KNRM);
+				  kColorCyn, print_special(mob), kColorNrm);
 	}
 	return to_string(out);
 }

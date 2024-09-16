@@ -6,7 +6,7 @@
 
 #include "utils/logger.h"
 #include "engine/entities/char_data.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.

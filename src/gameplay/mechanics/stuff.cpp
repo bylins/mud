@@ -353,7 +353,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 		}
 	} else {
 		for (const auto tch : world[ch->in_room]->people) {
-			SendMsgToChar(tch, "%sДиво дивное, чудо чудное!%s\r\n", KGRN, KNRM);
+			SendMsgToChar(tch, "%sДиво дивное, чудо чудное!%s\r\n", kColorGrn, kColorNrm);
 		}
 	}
 	o->set_vnum_zone_from(99999);

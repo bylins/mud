@@ -1236,9 +1236,9 @@ std::string print_obj_affects(const obj_affected_type &affect) {
 	}
 
 	snprintf(buf, kMaxStringLength, "%s%s%s%s%s%d%s\r\n",
-			 KCYN, buf2, KNRM,
-			 KCYN, (negative ? " ухудшает на " : " улучшает на "),
-			 abs(affect.modifier), KNRM);
+			 kColorCyn, buf2, kColorNrm,
+			 kColorCyn, (negative ? " ухудшает на " : " улучшает на "),
+			 abs(affect.modifier), kColorNrm);
 
 	return std::string(buf);
 }
@@ -1254,9 +1254,9 @@ void print_obj_affects(CharData *ch, const obj_affected_type &affect) {
 		negative = false;
 	}
 	snprintf(buf, kMaxStringLength, "   %s%s%s%s%s%d%s\r\n",
-			 KCYN, buf2, KNRM,
-			 KCYN,
-			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), KNRM);
+			 kColorCyn, buf2, kColorNrm,
+			 kColorCyn,
+			 negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), kColorNrm);
 	SendMsgToChar(buf, ch);
 }
 

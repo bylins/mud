@@ -1003,8 +1003,8 @@ void message_for_players() {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING && i->character) {
 			SendMsgToChar(i->character.get(), "%s%s%s\r\n",
-						  KICYN, RESET_MESSAGE,
-						  KNRM);
+						  kColorBoldCyn, RESET_MESSAGE,
+						  kColorNrm);
 		}
 	}
 }

@@ -1398,7 +1398,7 @@ int Crash_load(CharData *ch) {
 	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
 	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
 		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
-		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", KWHT, KNRM);
+		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1407,7 +1407,7 @@ int Crash_load(CharData *ch) {
 					 "%s"
 					 "Вам предъявили счет на %d %s за постой (%d %s в день).\r\n"
 					 "Но все, что у вас было - %ld %s... Увы. Все ваши вещи переданы мобам.%s\n\r",
-				KWHT,
+				kColorWht,
 				num_of_days,
 				RENTCODE(index) ==
 					RENT_TIMEDOUT ?
@@ -1416,7 +1416,7 @@ int Crash_load(CharData *ch) {
 				SAVEINFO(index)->rent.net_cost_per_diem,
 				GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem,
 									  EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
-				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), KNRM);
+				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1429,14 +1429,14 @@ int Crash_load(CharData *ch) {
 			sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 						 "%s"
 						 "С вас содрали %d %s за постой (%d %s в день).%s\r\n",
-					KWHT,
+					kColorWht,
 					num_of_days,
 					RENTCODE(index) ==
 						RENT_TIMEDOUT ?
 					"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
 									  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 					SAVEINFO(index)->rent.net_cost_per_diem,
-					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), KNRM);
+					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 		ch->remove_both_gold(cost);
@@ -1538,7 +1538,7 @@ int Crash_load(CharData *ch) {
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0) {
 			snprintf(buf, kMaxStringLength, "%s%s%s рассыпал%s от длительного использования.\r\n",
-					 KWHT,
+					 kColorWht,
 					 cap.c_str(),
 					 char_get_custom_label(obj.get(), ch).c_str(),
 					 GET_OBJ_SUF_2(obj));
@@ -2102,12 +2102,12 @@ void Crash_report_rent_item(CharData *ch,
 		}
 
 		sprintf(buf, "%s - %d %s%s за %s%s %s",
-				recursive ? "" : KWHT,
+				recursive ? "" : kColorWht,
 				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
 					factor * count,
 				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
 									  EWhat::kMoneyA),
-				bf, OBJN(obj, ch, 3), count > 1 ? bf2 : "", recursive ? "" : KNRM);
+				bf, OBJN(obj, ch, 3), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
 		act(buf, false, recep, 0, ch, kToVict);
 	}
 }

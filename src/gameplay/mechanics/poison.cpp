@@ -217,7 +217,7 @@ namespace {
 					if (vict->GetPosition() >= EPosition::kFight) {
 						if (vict->IsOnHorse()) {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
-										  KGRN, PERS(vict, ch, 1), KNRM);
+										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 										  GET_PAD(vict->get_horse(), 5));
 							act("$n0 зашатал$u и не смог$q усидеть на $N5.",
@@ -225,7 +225,7 @@ namespace {
 							vict->DropFromHorse();
 						} else {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
-										  KGRN, PERS(vict, ch, 1), KNRM);
+										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 							act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 								true, ch, nullptr, vict, kToNotVict);
@@ -252,7 +252,7 @@ namespace {
 					}
 
 					SendMsgToChar(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
-								  KGRN, PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), KNRM);
+								  kColorGrn, PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), kColorNrm);
 					SendMsgToChar(vict, "Вы почувствовали слабость во всем теле!\r\n");
 					act("$N0 побледнел$G на ваших глазах.", true, ch, nullptr, vict, kToNotVict);
 					break;
@@ -270,7 +270,7 @@ namespace {
 					af.battleflag = kAfSameTime;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
-								  KGRN, PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), KNRM);
+								  kColorGrn, PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), kColorNrm);
 					SendMsgToChar(vict, "Вы стали заметно медленнее двигаться!\r\n");
 					act("$N0 стал$G заметно медленнее двигаться!",
 						true, ch, nullptr, vict, kToNotVict);
@@ -321,9 +321,9 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	}
 	vict->poisoner = GET_UID(ch);
 
-	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", KIGRN, KCYN);
+	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", kColorBoldGrn, kColorCyn);
 	act(buf, false, ch, nullptr, vict, kToChar);
-	snprintf(buf, sizeof(buf), "%s$n отравил$g вас.%s", KIRED, KCYN);
+	snprintf(buf, sizeof(buf), "%s$n отравил$g вас.%s", kColorBoldRed, kColorCyn);
 	act(buf, false, ch, nullptr, vict, kToVict);
 }
 
@@ -362,8 +362,8 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				SendMsgToChar(ch, "Вы отравили %s.\r\n", PERS(ch, vict, 3));
 			}
 			SendMsgToChar(vict, "%s%s отравил%s вас.%s\r\n",
-						  KIRED, PERS(ch, vict, 0),
-						  GET_CH_VIS_SUF_1(ch, vict), KNRM);
+						  kColorBoldRed, PERS(ch, vict, 0),
+						  GET_CH_VIS_SUF_1(ch, vict), kColorNrm);
 			ProcessCritWeaponPoison(ch, vict, spell_id);
 		}
 	}

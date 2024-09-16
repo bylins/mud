@@ -16,8 +16,8 @@
 
 #include "config.h"
 
-#include "gameplay/communication/boards_changelog_loaders.h"
-#include "gameplay/communication/boards_constants.h"
+#include "gameplay/communication/boards/boards_changelog_loaders.h"
+#include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"
 #include "engine/structs/meta_enum.h"
 

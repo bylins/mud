@@ -23,7 +23,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	}
 
 	aff_copy.sprintbits(affected_bits, buf2, ",");
-	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", KIYEL, buf2, KNRM);
+	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorBoldYel, buf2, kColorNrm);
 	SendMsgToChar(buf, ch);
 
 	// Routine to show what spells a char is affected by
@@ -51,7 +51,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			: sprintf(buf2, "(менее часа)");
 			snprintf(buf, kMaxStringLength, "%s%s%-21s %-12s%s ",
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-					 KICYN, sp_name, buf2, KNRM);
+					 kColorBoldCyn, sp_name, buf2, kColorNrm);
 			*buf2 = '\0';
 			if (!IS_IMMORTAL(ch)) {
 				auto next_affect_i = affect_i;
@@ -73,10 +73,10 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 					} else {
 						strcat(buf, "устанавливает ");
 					}
-					strcat(buf, KIRED);
+					strcat(buf, kColorBoldRed);
 					sprintbit(aff->bitvector, affected_bits, buf2);
 					strcat(buf, buf2);
-					strcat(buf, KNRM);
+					strcat(buf, kColorNrm);
 				}
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
@@ -99,14 +99,14 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 				snprintf(buf,
 						 kMaxStringLength,
 						 "Заклинание : %s%-21s %-12s%s ",
-						 KICYN,
+						 kColorBoldCyn,
 						 "награда",
 						 buf2,
-						 KNRM);
+						 kColorNrm);
 				*buf2 = '\0';
 				if (aff->modifier) {
 					sprintf(buf2, "%s%-3d к параметру: %s%s%s", (aff->modifier > 0) ? "+" : "",
-							aff->modifier, KIRED, apply_types[(int) aff->location], KNRM);
+							aff->modifier, kColorBoldRed, apply_types[(int) aff->location], kColorNrm);
 					strcat(buf, buf2);
 				}
 				SendMsgToChar(strcat(buf, "\r\n"), ch);
@@ -120,7 +120,7 @@ void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		const IMorph::affects_list_t &affs = ch->GetMorphAffects();
 		for (auto it = affs.cbegin(); it != affs.cend();) {
 			sprintbit(to_underlying(*it), affected_bits, buf2);
-			SendMsgToChar(std::string(KIYEL) + std::string(buf2) + std::string(KNRM), ch);
+			SendMsgToChar(std::string(kColorBoldYel) + std::string(buf2) + std::string(kColorNrm), ch);
 			if (++it != affs.end()) {
 				SendMsgToChar(", ", ch);
 			}

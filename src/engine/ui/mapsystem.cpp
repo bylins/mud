@@ -711,121 +711,121 @@ void Options::olc_menu(CharData *ch) {
 	for (int i = 0; i < TOTAL_MAP_OPTIONS; ++i) {
 		switch (i) {
 			case MAP_MODE_MOBS:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOBS] ? "[x]" : "[ ]"),
-					"существа кроме игроков (мобы)");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOBS] ? "[x]" : "[ ]"),
+								   "существа кроме игроков (мобы)");
 				break;
 			case MAP_MODE_PLAYERS:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_PLAYERS] ? "[x]" : "[ ]"),
-					"другие игроки");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_PLAYERS] ? "[x]" : "[ ]"),
+								   "другие игроки");
 				break;
 			case MAP_MODE_MOBS_CORPSES:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOBS_CORPSES] ? "[x]" : "[ ]"),
-					"трупы существ (кроме игроков)");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOBS_CORPSES] ? "[x]" : "[ ]"),
+								   "трупы существ (кроме игроков)");
 				break;
 			case MAP_MODE_PLAYER_CORPSES:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_PLAYER_CORPSES] ? "[x]" : "[ ]"),
-					"трупы игроков");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_PLAYER_CORPSES] ? "[x]" : "[ ]"),
+								   "трупы игроков");
 				break;
 			case MAP_MODE_INGREDIENTS:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_INGREDIENTS] ? "[x]" : "[ ]"),
-					"ингредиенты");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_INGREDIENTS] ? "[x]" : "[ ]"),
+								   "ингредиенты");
 				break;
 			case MAP_MODE_OTHER_OBJECTS:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_OTHER_OBJECTS] ? "[x]" : "[ ]"),
-					"другие предметы\r\n");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_OTHER_OBJECTS] ? "[x]" : "[ ]"),
+								   "другие предметы\r\n");
 				break;
 			case MAP_MODE_1_DEPTH:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_1_DEPTH] ? "[x]" : "[ ]"),
-					"только прилегающие комнаты");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_1_DEPTH] ? "[x]" : "[ ]"),
+								   "только прилегающие комнаты");
 				break;
 			case MAP_MODE_2_DEPTH:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_2_DEPTH] ? "[x]" : "[ ]"),
-					"прилегающие комнаты + 1");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_2_DEPTH] ? "[x]" : "[ ]"),
+								   "прилегающие комнаты + 1");
 				break;
 			case MAP_MODE_DEPTH_FIXED:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_DEPTH_FIXED] ? "[x]" : "[ ]"),
-					"фиксировать высоту карты прилегающих комнат\r\n\r\n");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_DEPTH_FIXED] ? "[x]" : "[ ]"),
+								   "фиксировать высоту карты прилегающих комнат\r\n\r\n");
 				break;
 			case MAP_MODE_MOB_SPEC_SHOP:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_SHOP] ? "[x]" : "[ ]"),
-					"продавцы (магазины, $)");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_SHOP] ? "[x]" : "[ ]"),
+								   "продавцы (магазины, $)");
 				break;
 			case MAP_MODE_MOB_SPEC_RENT:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_RENT] ? "[x]" : "[ ]"),
-					"рентеры (постой, R)");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_RENT] ? "[x]" : "[ ]"),
+								   "рентеры (постой, R)");
 				break;
 			case MAP_MODE_MOB_SPEC_MAIL:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_MAIL] ? "[x]" : "[ ]"),
-					"ямщики (почта, M)");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_MAIL] ? "[x]" : "[ ]"),
+								   "ямщики (почта, M)");
 				break;
 			case MAP_MODE_MOB_SPEC_BANK:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_BANK] ? "[x]" : "[ ]"),
-					"банкиры (лежня, B)");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_BANK] ? "[x]" : "[ ]"),
+								   "банкиры (лежня, B)");
 				break;
 			case MAP_MODE_MOB_SPEC_EXCH:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]"),
-					"зазывалы (базар, E)");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_EXCH] ? "[x]" : "[ ]"),
+								   "зазывалы (базар, E)");
 				break;
 			case MAP_MODE_MOB_SPEC_HORSE:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_HORSE] ? "[x]" : "[ ]"),
-					"конюхи (конюшня, H)");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_HORSE] ? "[x]" : "[ ]"),
+								   "конюхи (конюшня, H)");
 				break;
 			case MAP_MODE_MOB_SPEC_TEACH:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_TEACH] ? "[x]" : "[ ]"),
-					"учителя (любые, T)");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_TEACH] ? "[x]" : "[ ]"),
+								   "учителя (любые, T)");
 				break;
 			case MAP_MODE_MOB_SPEC_TORC:
-				out << fmt::format(fmt::runtime(menu2), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_TORC] ? "[x]" : "[ ]"),
-					"глашатаи (гривны, G)");
+				out << fmt::format(fmt::runtime(menu2), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_TORC] ? "[x]" : "[ ]"),
+								   "глашатаи (гривны, G)");
 				break;
 			case MAP_MODE_MOB_SPEC_ALL:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOB_SPEC_ALL] ? "[x]" : "[ ]"),
-					"все мобы со спец. функциями\r\n\r\n");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOB_SPEC_ALL] ? "[x]" : "[ ]"),
+								   "все мобы со спец. функциями\r\n\r\n");
 				break;
 			case MAP_MODE_MOBS_CURR_ROOM:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_MOBS_CURR_ROOM] ? "[x]" : "[ ]"),
-					"существа (п. 1-2) в комнате с персонажем\r\n");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_MOBS_CURR_ROOM] ? "[x]" : "[ ]"),
+								   "существа (п. 1-2) в комнате с персонажем\r\n");
 				break;
 			case MAP_MODE_OBJS_CURR_ROOM:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_OBJS_CURR_ROOM] ? "[x]" : "[ ]"),
-					"объекты (п. 3-6) в комнате с персонажем\r\n");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_OBJS_CURR_ROOM] ? "[x]" : "[ ]"),
+								   "объекты (п. 3-6) в комнате с персонажем\r\n");
 				break;
 			case MAP_MODE_BIG:
-				out << fmt::format(fmt::runtime(menu1), KGRN, ++cnt, KNRM,
-					(bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]"),
-					"увеличенный размер карты\r\n\r\n");
+				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+								   (bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]"),
+								   "увеличенный размер карты\r\n\r\n");
 				break;
 		}
 	}
 
-	out << KGRN << std::setw(2) << ++cnt << KNRM
+	out << kColorGrn << std::setw(2) << ++cnt << kColorNrm
 		<< ") включить все\r\n";
-	out << KGRN << std::setw(2) << ++cnt << KNRM
+	out << kColorGrn << std::setw(2) << ++cnt << kColorNrm
 		<< ") выключить все\r\n\r\n";
 
-	out << KGRN << std::setw(2) << ++cnt << KNRM
+	out << kColorGrn << std::setw(2) << ++cnt << kColorNrm
 		<< ") Выйти без сохранения\r\n";
-	out << KGRN << std::setw(2) << ++cnt << KNRM
+	out << kColorGrn << std::setw(2) << ++cnt << kColorNrm
 		<< ") Сохранить и выйти\r\n"
 		<< "Ваш выбор:";
 

@@ -295,28 +295,28 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 void nedit_menu(CharData *ch) {
 	std::ostringstream out;
 
-	out << KIGRN << "1" << KNRM << ") Vnum: " << ch->desc->cur_vnum << " Название: "
+	out << kColorBoldGrn << "1" << kColorNrm << ") Vnum: " << ch->desc->cur_vnum << " Название: "
 		<< (GetObjRnum(ch->desc->cur_vnum)
 			? obj_proto[GetObjRnum(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
-	out << KIGRN << "2" << KNRM << ") Владелец: "
+	out << kColorBoldGrn << "2" << kColorNrm << ") Владелец: "
 		<< GetNameByUnique(ch->desc->named_obj->uid, 0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
-	out << KIGRN << "3" << KNRM << ") Доступно клану: "
+	out << kColorBoldGrn << "3" << kColorNrm << ") Доступно клану: "
 		<< (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
-	out << KIGRN << "4" << KNRM << ") Доступно альянсу: "
+	out << kColorBoldGrn << "4" << kColorNrm << ") Доступно альянсу: "
 		<< (0 == ch->desc->named_obj->can_alli ? 0 : 1) << "\r\n";
-	out << KIGRN << "5" << KNRM << ") Сообщение при одевании персу: "
+	out << kColorBoldGrn << "5" << kColorNrm << ") Сообщение при одевании персу: "
 		<< ch->desc->named_obj->wear_msg_v << "\r\n";
-	out << KIGRN << "6" << KNRM << ") Сообщение при одевании вокруг перса: "
+	out << kColorBoldGrn << "6" << kColorNrm << ") Сообщение при одевании вокруг перса: "
 		<< ch->desc->named_obj->wear_msg_a << "\r\n";
-	out << KIGRN << "7" << KNRM << ") Сообщение если вещь недоступна персу: "
+	out << kColorBoldGrn << "7" << kColorNrm << ") Сообщение если вещь недоступна персу: "
 		<< ch->desc->named_obj->cant_msg_v << "\r\n";
-	out << KIGRN << "8" << KNRM << ") Сообщение если вещь недоступна вокруг перса: "
+	out << kColorBoldGrn << "8" << kColorNrm << ") Сообщение если вещь недоступна вокруг перса: "
 		<< ch->desc->named_obj->cant_msg_a << "\r\n";
 	if (ch->desc->old_vnum) {
-		out << KIGRN << "У" << KNRM << ") Удалить\r\n";
+		out << kColorBoldGrn << "У" << kColorNrm << ") Удалить\r\n";
 	}
-	out << KIGRN << "В" << KNRM << ") Выйти и сохранить\r\n";
-	out << KIGRN << "Х" << KNRM << ") Выйти без сохранения\r\n";
+	out << kColorBoldGrn << "В" << kColorNrm << ") Выйти и сохранить\r\n";
+	out << kColorBoldGrn << "Х" << kColorNrm << ") Выйти без сохранения\r\n";
 	SendMsgToChar(out.str().c_str(), ch);
 }
 

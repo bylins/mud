@@ -1864,7 +1864,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
-		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", KWHT, KNRM);
+		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
 		CLR_AF_BATTLE(ch, kEafStand);
 	}

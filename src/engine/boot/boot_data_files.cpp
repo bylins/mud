@@ -3,7 +3,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/mechanics/dead_load.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "gameplay/communication/social.h"
 #include "engine/db/description.h"
 #include "engine/db/help.h"

@@ -339,10 +339,10 @@ bool TitleSystem::show_title_list(CharData *ch) {
 		return false;
 
 	std::stringstream out;
-	out << "\r\nДанные персонажи ждут одобрения титула (титул <игрок> одобрить/запретить):\r\n" << KWHT;
+	out << "\r\nДанные персонажи ждут одобрения титула (титул <игрок> одобрить/запретить):\r\n" << kColorWht;
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
 		out << print_title_string(it->first, it->second->pre_title, it->second->title);
-	out << KNRM;
+	out << kColorNrm;
 	SendMsgToChar(out.str(), ch);
 	return true;
 }
@@ -370,7 +370,7 @@ std::string TitleSystem::print_title_string(CharData *ch, const std::string &pre
 	out << GET_NAME(ch);
 	if (!title.empty())
 		out << ", " << title;
-	out << KNRM << "\r\n";
+	out << kColorNrm << "\r\n";
 	return out.str();
 }
 

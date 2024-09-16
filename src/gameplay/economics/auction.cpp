@@ -76,13 +76,13 @@ void showlots(CharData *ch) {
 		}
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect != ch) {
 			sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s (частный заказ).\r\n",
-					i, KIYEL, obj->get_PName(0).c_str(), KNRM);
+					i, kColorBoldYel, obj->get_PName(0).c_str(), kColorNrm);
 			SendMsgToChar(tmpbuf, ch);
 			continue;
 		}
 
 		sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s - ставка %d %s, попытка %d, владелец %s.\r\n",
-				i, KIYEL, obj->get_PName(0).c_str(), KNRM,
+				i, kColorBoldYel, obj->get_PName(0).c_str(), kColorNrm,
 				GET_LOT(i)->cost, GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA),
 				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
 
@@ -458,10 +458,10 @@ bool auction_drive(CharData *ch, char *argument) {
 			ch->remove_both_gold(AUCTION_IDENT_PAY);
 			SendMsgToChar(ch,
 						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
-						  KIGRN,
+						  kColorBoldGrn,
 						  AUCTION_IDENT_PAY,
 						  GetDeclensionInNumber(AUCTION_IDENT_PAY, EWhat::kMoneyU),
-						  KNRM);
+						  kColorNrm);
 
 			return true;
 			break;

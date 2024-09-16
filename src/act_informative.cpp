@@ -27,7 +27,6 @@
 #include "gameplay/core/constants.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/communication/mail.h"
-#include "gameplay/crafting/im.h"
 #include "gameplay/clans/house.h"
 #include "administration/privilege.h"
 #include "engine/entities/char_data.h"
@@ -382,12 +381,12 @@ void PrintUptime(std::ostringstream &out) {
 }
 
 void PrintPair(std::ostringstream &out, int column_width, int val1, int val2) {
-		out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val1
-		<< KIRED << "|" << KICYN << std::setw(column_width) << val2 << KIRED << "]" << KNRM << "\r\n";
+		out << kColorBoldRed << "[" << kColorBoldCyn << std::right << std::setw(column_width) << val1
+			<< kColorBoldRed << "|" << kColorBoldCyn << std::setw(column_width) << val2 << kColorBoldRed << "]" << kColorNrm << "\r\n";
 }
 
 void PrintValue(std::ostringstream &out, int column_width, int val) {
-	out << KIRED << "[" << KICYN << std::right << std::setw(column_width) << val << KIRED << "]" << KNRM << "\r\n";
+	out << kColorBoldRed << "[" << kColorBoldCyn << std::right << std::setw(column_width) << val << kColorBoldRed << "]" << kColorNrm << "\r\n";
 }
 
 void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -428,21 +427,21 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	 * \todo table format
 	 */
 	std::ostringstream out;
-	out << KICYN << " Статистика по персонажам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
-	<< KNRM << "\r\n" << "\r\n" << " ";
+	out << kColorBoldCyn << " Статистика по персонажам в игре (всего / 25 ур. и выше / ниже 25 ур.):"
+		<< kColorNrm << "\r\n" << "\r\n" << " ";
 	int count{1};
 	const int columns{2};
 	const int class_name_col_width{15};
 	const int number_col_width{3};
 	for (const auto &it : players) {
 		out << std::left << std::setw(class_name_col_width) << MUD::Class(it.first).GetPluralName() << " "
-			<< KIRED << "[" << KICYN
+			<< kColorBoldRed << "[" << kColorBoldCyn
 			<< std::setw(number_col_width) << std::right << it.second.first + it.second.second
-			<< KIRED << "|" << KICYN
+			<< kColorBoldRed << "|" << kColorBoldCyn
 			<< std::setw(number_col_width) << std::right << it.second.first
-			<< KIRED << "|" << KICYN
+			<< kColorBoldRed << "|" << kColorBoldCyn
 			<< std::setw(number_col_width) << std::right << it.second.second
-			<< KIRED << "]" << KNRM;
+			<< kColorBoldRed << "]" << kColorNrm;
 		if (count % columns == 0) {
 			out << "\r\n" << " ";
 		} else {

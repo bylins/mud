@@ -14,8 +14,8 @@
 
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/clans/house.h"
-#include "gameplay/communication/boards_constants.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards_constants.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/ai/spec_procs.h"

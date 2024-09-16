@@ -1,21 +1,32 @@
-/* ************************************************************************
-*   File: color.cpp                                     Part of Bylins    *
-*  Usage: interprets inline colour codes                                  *
-*  Name: Easy Colour v2.2                                                 *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*  Modifications Copyright Trevor Man 1997                                *
-*  Based on the Easy Color patch by mud@proimages.proimages.com           *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
+/**
+\file color.cpp - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Цвета текста.
+\details Константы и функции для работы с цветами telnet.
+*/
 
 #include "engine/structs/structs.h"
 #include "utils/utils.h"
+
+const char *kColorNrm{"\x1B[0;37m"};
+const char *kColorRed{"\x1B[0;31m"};
+const char *kColorGrn{"\x1B[0;32m"};
+const char *kColorYel{"\x1B[0;33m"};
+const char *kColorBlu{"\x1B[0;34m"};
+const char *kColorMag{"\x1B[0;35m"};
+const char *kColorCyn{"\x1B[0;36m"};
+const char *kColorWht{"\x1B[1;37m"};
+const char *kColorGry{"\x1B[0;37m"};
+
+const char *kColorBoldDrk{"\x1B[1;30m"};
+const char *kColorBoldRed{"\x1B[1;31m"};
+const char *kColorBoldGrn{"\x1B[1;32m"};
+const char *kColorBoldYel{"\x1B[1;33m"};
+const char *kColorBoldBlu{"\x1B[1;34m"};
+const char *kColorBoldMag{"\x1B[1;35m"};
+const char *kColorBoldCyn{"\x1B[1;36m"};
+const char *kColorBoldWht{"\x1B[1;37m"};
 
 #define CNRM  "\x1B[0;0m"
 #define CBLK  "\x1B[0;30m"

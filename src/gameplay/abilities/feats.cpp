@@ -381,7 +381,7 @@ void ActivateFeat(CharData *ch, EFeat feat_id) {
 			return;
 	}
 	SendMsgToChar(fmt::format("{}Вы решили использовать способность '{}'.{}\r\n",
-							  KIGRN, MUD::Feat(feat_id).GetName(), KNRM), ch);
+							  kColorBoldGrn, MUD::Feat(feat_id).GetName(), kColorNrm), ch);
 }
 
 void DeactivateFeature(CharData *ch, EFeat feat_id) {
@@ -416,7 +416,7 @@ void DeactivateFeature(CharData *ch, EFeat feat_id) {
 	}
 
 	SendMsgToChar(fmt::format("{}Вы прекратили использовать способность '{}'.{}\r\n",
-							  KIGRN,  MUD::Feat(feat_id).GetName(), KNRM), ch);
+							  kColorBoldGrn, MUD::Feat(feat_id).GetName(), kColorNrm), ch);
 }
 
 EFeat FindWeaponMasterFeat(ESkill skill) {
@@ -523,9 +523,9 @@ void FeatInfoBuilder::ParseEffects(ItemPtr &info, DataNode &node) {
 
 void FeatInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print feat:" << "\r\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<EFeat>(GetId()) << KNRM << "\r\n"
-		   << " Name: " << KGRN << GetName() << KNRM << "\r\n"
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n";
+		   << " Id: " << kColorGrn << NAME_BY_ITEM<EFeat>(GetId()) << kColorNrm << "\r\n"
+		   << " Name: " << kColorGrn << GetName() << kColorNrm << "\r\n"
+		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 
 	effects.Print(ch, buffer);
 }

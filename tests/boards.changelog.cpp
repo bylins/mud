@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "gameplay/communication/boards_changelog_loaders.h"
-#include "gameplay/communication/boards_types.h"
+#include "gameplay/communication/boards/boards_changelog_loaders.h"
+#include "gameplay/communication/boards/boards_types.h"
 
 #include <fstream>
 

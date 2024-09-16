@@ -146,19 +146,19 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 
 void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print spell:" << "\r\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<ESpell>(GetId()) << KNRM
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n"
-		   << " Name (rus): " << KGRN << name_ << KNRM << "\r\n"
-		   << " Name (eng): " << KGRN << name_eng_ << KNRM << "\r\n"
-		   << " Element: " << KGRN << NAME_BY_ITEM<EElement>(element_) << KNRM << "\r\n"
-		   << " Min position: " << KGRN << NAME_BY_ITEM<EPosition>(min_position_) << KNRM << "\r\n"
-		   << " Violent: " << KGRN << (violent_ ? "Yes" : "No") << KNRM << "\r\n"
-		   << " Danger: " << KGRN << danger_ << KNRM << "\r\n"
-		   << " Mana min: " << KGRN << min_mana_ << KNRM
-		   << " Mana max: " << KGRN << max_mana_ << KNRM
-		   << " Mana change: " << KGRN << mana_change_ << KNRM << "\r\n"
-		   << " Flags: " << KGRN << parse::BitvectorToString<EMagic>(flags_) << KNRM << "\r\n"
-		   << " Targets: " << KGRN << parse::BitvectorToString<ETarget>(targets_) << KNRM << "\r\n\r\n";
+		   << " Id: " << kColorGrn << NAME_BY_ITEM<ESpell>(GetId()) << kColorNrm
+		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n"
+		   << " Name (rus): " << kColorGrn << name_ << kColorNrm << "\r\n"
+		   << " Name (eng): " << kColorGrn << name_eng_ << kColorNrm << "\r\n"
+		   << " Element: " << kColorGrn << NAME_BY_ITEM<EElement>(element_) << kColorNrm << "\r\n"
+		   << " Min position: " << kColorGrn << NAME_BY_ITEM<EPosition>(min_position_) << kColorNrm << "\r\n"
+		   << " Violent: " << kColorGrn << (violent_ ? "Yes" : "No") << kColorNrm << "\r\n"
+		   << " Danger: " << kColorGrn << danger_ << kColorNrm << "\r\n"
+		   << " Mana min: " << kColorGrn << min_mana_ << kColorNrm
+		   << " Mana max: " << kColorGrn << max_mana_ << kColorNrm
+		   << " Mana change: " << kColorGrn << mana_change_ << kColorNrm << "\r\n"
+		   << " Flags: " << kColorGrn << parse::BitvectorToString<EMagic>(flags_) << kColorNrm << "\r\n"
+		   << " Targets: " << kColorGrn << parse::BitvectorToString<ETarget>(targets_) << kColorNrm << "\r\n\r\n";
 
 	actions.Print(ch, buffer);
 }

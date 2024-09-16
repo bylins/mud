@@ -1525,45 +1525,45 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	snprintf(buf, kMaxStringLength, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2,
 			 obj->get_maximum_durability(), obj->get_current_durability());
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 
 	if (fullness < 40)
 		return;
 
 	SendMsgToChar("Неудобен : ", ch);
-	SendMsgToChar(KCYN, ch);
+	SendMsgToChar(kColorCyn, ch);
 	obj->get_no_flags().sprintbits(no_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 
 	if (fullness < 50)
 		return;
 
 	SendMsgToChar("Недоступен : ", ch);
-	SendMsgToChar(KCYN, ch);
+	SendMsgToChar(kColorCyn, ch);
 	obj->get_anti_flags().sprintbits(anti_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 
 	if (obj->get_auto_mort_req() > 0) {
 		SendMsgToChar(ch, "Требует перевоплощений : %s%d%s\r\n",
-					  KCYN, obj->get_auto_mort_req(), KNRM);
+					  kColorCyn, obj->get_auto_mort_req(), kColorNrm);
 	} else if (obj->get_auto_mort_req() < -1) {
 		SendMsgToChar(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
-					  KCYN, abs(obj->get_minimum_remorts()), KNRM);
+					  kColorCyn, abs(obj->get_minimum_remorts()), kColorNrm);
 	}
 
 	if (fullness < 60)
 		return;
 
 	SendMsgToChar("Имеет экстрафлаги: ", ch);
-	SendMsgToChar(KCYN, ch);
+	SendMsgToChar(kColorCyn, ch);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
 		if (stable_objs::IsTimerUnlimited(obj))
@@ -1674,9 +1674,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 						SendMsgToChar(buf, ch);
 						if (drsdice == -1 || count == -1) {
-							SendMsgToChar(KIRED, ch);
+							SendMsgToChar(kColorBoldRed, ch);
 							SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-							SendMsgToChar(KNRM, ch);
+							SendMsgToChar(kColorNrm, ch);
 						} else if (drsdice == kLvlImplementator) {
 							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
 							SendMsgToChar(buf, ch);
@@ -1703,9 +1703,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				}
 					break;
 
-				default: SendMsgToChar(KIRED, ch);
+				default: SendMsgToChar(kColorBoldRed, ch);
 					SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-					SendMsgToChar(KNRM, ch);
+					SendMsgToChar(kColorNrm, ch);
 					break;
 			}
 			break;
@@ -1737,7 +1737,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 
 			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 				sprintf(buf, "прототип %s%s%s.\r\n",
-						KICYN, obj_proto[i]->get_PName(0).c_str(), KNRM);
+						kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
 				SendMsgToChar(buf, ch);
 			}
 			break;
@@ -1746,7 +1746,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 				j++;
 			}
-			sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", KCYN, imtypes[j].name, KNRM);
+			sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", kColorCyn, imtypes[j].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
 			if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
@@ -1799,11 +1799,11 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 	}
 
 	SendMsgToChar("Накладывает на вас аффекты: ", ch);
-	SendMsgToChar(KCYN, ch);
+	SendMsgToChar(kColorCyn, ch);
 	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 
 	if (fullness < 100) {
 		return;
@@ -1827,9 +1827,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			SendMsgToChar("Дополнительные свойства :\r\n", ch);
 			found = true;
 		}
-		SendMsgToChar(ch, "%s   %s вес предмета на %d%s\r\n", KCYN,
+		SendMsgToChar(ch, "%s   %s вес предмета на %d%s\r\n", kColorCyn,
 					  GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
-					  abs(GET_OBJ_VAL(obj, 0)), KNRM);
+					  abs(GET_OBJ_VAL(obj, 0)), kColorNrm);
 	}
 
 	if (obj->has_skills()) {
@@ -1845,9 +1845,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 				continue;
 
 			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					KCYN, MUD::Skill(skill_id).GetName(), KNRM,
-					KCYN,
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), KNRM);
+					kColorCyn, MUD::Skill(skill_id).GetName(), kColorNrm,
+					kColorCyn,
+					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -1858,9 +1858,9 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool e
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				sprintf(buf,
 						"Часть набора предметов: %s%s%s\r\n",
-						KNRM,
+						kColorNrm,
 						it->second.get_name().c_str(),
-						KNRM);
+						kColorNrm);
 				SendMsgToChar(buf, ch);
 				for (auto & vnum : it->second) {
 					const int r_num = GetObjRnum(vnum.first);
@@ -1957,7 +1957,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 			if (!found) {
 				SendMsgToChar("Дополнительные свойства :\r\n", ch);
 				found = true;
-				SendMsgToChar(KIRED, ch);
+				SendMsgToChar(kColorBoldRed, ch);
 			}
 			sprinttype(aff->location, apply_types, buf2);
 			snprintf(buf,
@@ -1969,14 +1969,14 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 			SendMsgToChar(buf, ch);
 		}
 	}
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 
 	SendMsgToChar("Аффекты :\r\n", ch);
-	SendMsgToChar(KICYN, ch);
+	SendMsgToChar(kColorBoldCyn, ch);
 	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n", IS_IMMORTAL(ch) ? 4 : 0);
 	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 	SendMsgToChar(buf, ch);
-	SendMsgToChar(KNRM, ch);
+	SendMsgToChar(kColorNrm, ch);
 }
 
 void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
@@ -2537,27 +2537,27 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 	else {
 		strcpy(buf, "Вам потребуется :\r\n");
 		if (item0 >= 0) {
-			strcat(buf, KIRED);
+			strcat(buf, kColorBoldRed);
 			strcat(buf, obj_proto[item0]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item1 >= 0) {
-			strcat(buf, KIYEL);
+			strcat(buf, kColorBoldYel);
 			strcat(buf, obj_proto[item1]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item2 >= 0) {
-			strcat(buf, KIGRN);
+			strcat(buf, kColorBoldGrn);
 			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (obj_num >= 0 && (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes)) {
-			strcat(buf, KIBLU);
+			strcat(buf, kColorBoldBlu);
 			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
 			strcat(buf, "\r\n");
 		}
 
-		strcat(buf, KNRM);
+		strcat(buf, kColorNrm);
 		if (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes) {
 			strcat(buf, "для создания магии '");
 			strcat(buf, MUD::Spell(spell_id).GetCName());
@@ -2749,34 +2749,34 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 		}
 
 		if (item0 == -2) {
-			strcat(buf, KWHT);
+			strcat(buf, kColorWht);
 			strcat(buf, obj0->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
-			strcat(buf, KWHT);
+			strcat(buf, kColorWht);
 			strcat(buf, obj1->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
-			strcat(buf, KWHT);
+			strcat(buf, kColorWht);
 			strcat(buf, obj2->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
-			strcat(buf, KWHT);
+			strcat(buf, kColorWht);
 			strcat(buf, obj3->get_PName(3).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}
 
-		strcat(buf, KNRM);
+		strcat(buf, kColorNrm);
 
 		if (create) {
 			if (percent >= 0) {

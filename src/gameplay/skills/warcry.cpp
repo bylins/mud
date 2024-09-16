@@ -38,7 +38,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						KGRN, cnt++, KNRM, MUD::Spell(spell_id).IsViolent() ? KIRED : KIGRN, realname, KNRM);
+						kColorGrn, cnt++, kColorNrm, MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn, realname, kColorNrm);
 			}
 		}
 		SendMsgToChar(buf, ch);

@@ -22,7 +22,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/communication/mail.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/ui/color.h"
 #include "engine/olc/olc.h"
 #include "gameplay/abilities/feats.h"
@@ -1094,42 +1094,42 @@ char *next_page(char *str, CharData *ch) {
 			// Check for the begining of an ANSI color code block. //
 		else if (*str == '$' && !strncmp(str + 1, "COLOR", 5)) {
 			if (!ch)
-				color = KNRM;
+				color = kColorNrm;
 			else
 				switch (*(str + 6)) {
-					case 'N': color = KIDRK;
+					case 'N': color = kColorBoldDrk;
 						break;
-					case 'n': color = KNRM;
+					case 'n': color = kColorNrm;
 						break;
-					case 'R': color = KIRED;
+					case 'R': color = kColorBoldRed;
 						break;
-					case 'r': color = KRED;
+					case 'r': color = kColorRed;
 						break;
-					case 'G': color = KIGRN;
+					case 'G': color = kColorBoldGrn;
 						break;
-					case 'g': color = KGRN;
+					case 'g': color = kColorGrn;
 						break;
-					case 'Y': color = KIYEL;
+					case 'Y': color = kColorBoldYel;
 						break;
-					case 'y': color = KYEL;
+					case 'y': color = kColorYel;
 						break;
-					case 'B': color = KIBLU;
+					case 'B': color = kColorBoldBlu;
 						break;
-					case 'b': color = KBLU;
+					case 'b': color = kColorBlu;
 						break;
-					case 'M': color = KIMAG;
+					case 'M': color = kColorBoldMag;
 						break;
-					case 'm': color = KMAG;
+					case 'm': color = kColorMag;
 						break;
-					case 'C': color = KICYN;
+					case 'C': color = kColorBoldCyn;
 						break;
-					case 'c': color = KCYN;
+					case 'c': color = kColorCyn;
 						break;
-					case 'W': color = KIDRK;
+					case 'W': color = kColorBoldDrk;
 						break;
-					case 'w': color = KWHT;
+					case 'w': color = kColorWht;
 						break;
-					default: color = KNRM;
+					default: color = kColorNrm;
 				}
 			strncpy(str, color, strlen(color));
 			str += (strlen(color) - 1);

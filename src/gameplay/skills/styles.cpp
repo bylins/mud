@@ -176,7 +176,7 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SET_AF_BATTLE(ch, kEafAwake);
 			}
 			SendMsgToChar(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
-						  KIRED, tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", KNRM);
+						  kColorBoldRed, tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", kColorNrm);
 			break;
 	}
 

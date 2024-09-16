@@ -80,11 +80,11 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			}
 			if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf, "        %s%s %-30s%s\r\n",
-						ch->HaveFeat(feat.GetId()) ? KGRN :
-						CanGetFeat(ch, feat.GetId()) ? KNRM : KRED,
+						ch->HaveFeat(feat.GetId()) ? kColorGrn :
+						CanGetFeat(ch, feat.GetId()) ? kColorNrm : kColorRed,
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
 						CanGetFeat(ch, feat.GetId()) ? "[Д]" : "[Н]",
-						MUD::Feat(feat.GetId()).GetCName(), KNRM);
+						MUD::Feat(feat.GetId()).GetCName(), kColorNrm);
 			} else {
 				sprintf(buf, "    %s %-30s\r\n",
 						ch->HaveFeat(feat.GetId()) ? "[И]" :
@@ -158,7 +158,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				case EFeat::kTripleThrower:
 				case EFeat::kSerratedBlade:
 					if (ch->IsFlagged(GetPrfWithFeatNumber(feat.GetId()))) {
-						sprintf(buf, "[-%s*%s-] ", KIGRN, KNRM);
+						sprintf(buf, "[-%s*%s-] ", kColorBoldGrn, kColorNrm);
 					} else {
 						sprintf(buf, "[-:-] ");
 					}
@@ -167,7 +167,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 			}
 			if (CanUseFeat(ch, feat.GetId())) {
 				sprintf(buf + strlen(buf), "%s%s%s\r\n",
-						KIYEL, MUD::Feat(feat.GetId()).GetCName(), KNRM);
+						kColorBoldYel, MUD::Feat(feat.GetId()).GetCName(), kColorNrm);
 			} else if (!ch->IsFlagged(EPrf::kBlindMode)) {
 				sprintf(buf + strlen(buf), "%s\r\n", MUD::Feat(feat.GetId()).GetCName());
 			} else {
@@ -183,7 +183,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 				sfound = false;
 				while (slot < max_slot) {
 					if (*names[slot] == '\0') {
-						sprintf(names[slot], " %s%-2d%s) ", KGRN, slot + 1, KNRM);
+						sprintf(names[slot], " %s%-2d%s) ", kColorGrn, slot + 1, kColorNrm);
 						strcat(names[slot], buf);
 						sfound = true;
 						break;
@@ -206,7 +206,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	auto max_slot_per_lvl = CalcMaxFeatSlotPerLvl(ch);
 	for (i = 0; i < max_slot; i++) {
 		if (*names[i] == '\0')
-			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n", KGRN, i + 1, KNRM, KIDRK, KNRM);
+			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n", kColorGrn, i + 1, kColorNrm, kColorBoldDrk, kColorNrm);
 		if (i >= max_slot_per_lvl)
 			break;
 		sprintf(buf1 + strlen(buf1), "%s", names[i]);

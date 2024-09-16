@@ -80,7 +80,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				imm_log("%s", buf);
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 				AddKarma(vict, buf, reason);
-				sprintf(buf, "%s%s разрешил$G вам кричать.%s", KIGRN, GET_NAME(ch), KNRM);
+				sprintf(buf, "%s%s разрешил$G вам кричать.%s", kColorBoldGrn, GET_NAME(ch), kColorNrm);
 				sprintf(buf2, "$n2 вернулся голос.");
 				break;
 			case SCMD_FREEZE:
@@ -113,10 +113,10 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					look_at_room(vict, result);
 				};
 				sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
-						KIGRN, GET_NAME(ch), KNRM);
+						kColorBoldGrn, GET_NAME(ch), kColorNrm);
 				sprintf(buf2, "$n выпущен$a из темницы!");
 				sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
-						KIYEL, KNRM);
+						kColorBoldYel, kColorNrm);
 				sprintf(buf2, "$n освободил$u из ледяного плена.");
 				break;
 			case SCMD_DUMB:
@@ -134,7 +134,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s разрешил$G вам издавать звуки.%s",
-						KIGRN, GET_NAME(ch), KNRM);
+						kColorBoldGrn, GET_NAME(ch), kColorNrm);
 
 				sprintf(buf2, "$n нарушил$g обет молчания.");
 
@@ -175,7 +175,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				};
 
 				sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
-						KIGRN, GET_NAME(ch), KNRM);
+						kColorBoldGrn, GET_NAME(ch), kColorNrm);
 
 				sprintf(buf2, "$n выпущен$a из темницы!");
 				break;
@@ -215,7 +215,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 						false, vict, nullptr, nullptr, kToRoom);
 				};
 				sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
-						KIGRN, GET_NAME(ch), KNRM);
+						kColorBoldGrn, GET_NAME(ch), kColorNrm);
 
 				sprintf(buf2, "$n выпущен$a из комнаты имени!");
 				break;
@@ -257,7 +257,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					look_at_room(vict, result);
 				};
 				sprintf(buf, "%s%s зарегистрировал$G вас.%s",
-						KIGRN, GET_NAME(ch), KNRM);
+						kColorBoldGrn, GET_NAME(ch), kColorNrm);
 				sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
 				break;
 			case SCMD_UNREGISTER:
@@ -327,7 +327,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s запретил$G вам кричать.%s",
-						KIRED, GET_NAME(ch), KNRM);
+						kColorBoldRed, GET_NAME(ch), kColorNrm);
 
 				sprintf(buf2, "$n подавился своим криком.");
 
@@ -344,7 +344,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
-						KIBLU, KNRM);
+						kColorBoldBlu, kColorNrm);
 				sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
 				if (vict->in_room != kNowhere) {
 					act("$n водворен$a в темницу!",
@@ -367,7 +367,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s запретил$G вам издавать звуки.%s",
-						KIRED, GET_NAME(ch), KNRM);
+						kColorBoldRed, GET_NAME(ch), kColorNrm);
 
 				sprintf(buf2, "$n дал$g обет молчания.");
 				break;
@@ -392,7 +392,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s поместил$G вас в темницу.%s", GET_NAME(ch),
-						KIRED, KNRM);
+						kColorBoldRed, kColorNrm);
 				sprintf(buf2, "$n водворен$a в темницу!");
 				break;
 
@@ -416,7 +416,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s поместил$G вас в комнату имени.%s",
-						KIRED, GET_NAME(ch), KNRM);
+						kColorBoldRed, GET_NAME(ch), kColorNrm);
 				sprintf(buf2, "$n помещен$a в комнату имени!");
 				break;
 
@@ -441,7 +441,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				AddKarma(vict, buf, reason);
 
 				sprintf(buf, "%s%s снял$G с вас... регистрацию :).%s",
-						KIRED, GET_NAME(ch), KNRM);
+						kColorBoldRed, GET_NAME(ch), kColorNrm);
 				sprintf(buf2, "$n лишен$a регистрации!");
 
 				break;

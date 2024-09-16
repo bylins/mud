@@ -19,7 +19,7 @@
 #include "administration/privilege.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/title.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/db/help.h"
 #include "utils/utils.h"
 #include "gameplay/mechanics/bonus.h"

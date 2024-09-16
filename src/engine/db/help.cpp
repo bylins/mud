@@ -76,11 +76,11 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 
 		sprintf(buf, "%s%s%s%s%d%s\r\n",
 				(activ ? " +    " : "   "),
-				KCYN,
+				kColorCyn,
 				MUD::Skill(skill.first).GetName(),
 				(skill.second < 0 ? " ухудшает на " : " улучшает на "),
 				abs(skill.second),
-				KNRM);
+				kColorNrm);
 		return buf;
 	}
 	return "";

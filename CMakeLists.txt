@@ -29,11 +29,11 @@ set(SOURCES
 		src/utils/backtrace.cpp
 		src/administration/ban.cpp
 		src/gameplay/mechanics/birthplaces.cpp
-		src/gameplay/communication/boards_changelog_loaders.cpp
-		src/gameplay/communication/boards_constants.cpp
-		src/gameplay/communication/boards.cpp
-		src/gameplay/communication/boards_formatters.cpp
-		src/gameplay/communication/boards_types.cpp
+        src/gameplay/communication/boards/boards_changelog_loaders.cpp
+        src/gameplay/communication/boards/boards_constants.cpp
+        src/gameplay/communication/boards/boards.cpp
+        src/gameplay/communication/boards/boards_formatters.cpp
+        src/gameplay/communication/boards/boards_types.cpp
 		src/gameplay/mechanics/bonus.cpp
 		src/gameplay/mechanics/bonus_command_parser.cpp
 		src/engine/boot/boot_constants.cpp
@@ -406,12 +406,12 @@ set(HEADERS
 		src/utils/backtrace.h
 		src/administration/ban.h
 		src/gameplay/mechanics/birthplaces.h
-		src/gameplay/communication/boards_changelog_loaders.h
-		src/gameplay/communication/boards_constants.h
-		src/gameplay/communication/boards_formatters.h
-		src/gameplay/communication/boards.h
-		src/gameplay/communication/boards_message.h
-		src/gameplay/communication/boards_types.h
+        src/gameplay/communication/boards/boards_changelog_loaders.h
+        src/gameplay/communication/boards/boards_constants.h
+        src/gameplay/communication/boards/boards_formatters.h
+        src/gameplay/communication/boards/boards.h
+        src/gameplay/communication/boards/boards_message.h
+        src/gameplay/communication/boards/boards_types.h
 		src/gameplay/mechanics/bonus.h
 		src/gameplay/mechanics/bonus_command_parser.h
 		src/gameplay/mechanics/bonus_types.h

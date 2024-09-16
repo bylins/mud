@@ -1000,8 +1000,8 @@ void list_recipes(CharData *ch, bool all_recipes) {
 				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
 						(imrecipes[sortpos].level<0 || imrecipes[sortpos].level>GetRealLevel(ch) ||
 							imrecipes[sortpos].remort<0 || imrecipes[sortpos].remort>GetRealRemort(ch)) ?
-						KRED : rs ? KGRN : KNRM, imrecipes[sortpos].name, KCYN,
-						imrecipes[sortpos].level, imrecipes[sortpos].remort, KNRM);
+						kColorRed : rs ? kColorGrn : kColorNrm, imrecipes[sortpos].name, kColorCyn,
+						imrecipes[sortpos].level, imrecipes[sortpos].remort, kColorNrm);
 			} else {
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
 						(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GetRealLevel(ch) ||
@@ -1029,7 +1029,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 		}
 		if (rs->perc <= 0)
 			continue;
-		sprintf(buf, "%-30s %s%s\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), KIDRK);
+		sprintf(buf, "%-30s %s%s\r\n", imrecipes[rs->rid].name, how_good(rs->perc, kMaxRecipeLevel), kColorBoldDrk);
 		strcat(buf2, buf);
 		++i;
 	}
@@ -1170,11 +1170,11 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 			if (success)
 				sprintf(buf,
 						"%sВы постигли тонкости приготовления рецепта \"%s\".%s\r\n",
-						KICYN, imrecipes[rs->rid].name, KNRM);
+						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			else
 				sprintf(buf,
 						"%sНеудача позволила вам осознать тонкости приготовления рецепта \"%s\".%s\r\n",
-						KICYN, imrecipes[rs->rid].name, KNRM);
+						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
 			if (!IS_IMMORTAL(ch))
@@ -1562,8 +1562,8 @@ void compose_recipe(CharData *ch, char *argument, int/* subcmd*/) {
 
 	// Этап 1. Основные компоненты
 	for (int i = 1, *req = imrecipes[rs->rid].require; *req != -1; req += 2, ++i) {
-		sprintf(name, "%s%d%s) %s%s%s\r\n", KIGRN, i,
-				KNRM, KIYEL, imtypes[*req].name, KNRM);
+		sprintf(name, "%s%d%s) %s%s%s\r\n", kColorBoldGrn, i,
+				kColorNrm, kColorBoldYel, imtypes[*req].name, kColorNrm);
 		SendMsgToChar(name, ch);
 	}
 	sprintf(name, "для приготовления отвара '%s'\r\n", imrecipes[rs->rid].name);

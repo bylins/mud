@@ -2,7 +2,7 @@
 
 #include "administration/accounts.h"
 #include "administration/ban.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/boot/boot_data_files.h"
 #include "engine/boot/boot_index.h"
 #include "gameplay/communication/social.h"

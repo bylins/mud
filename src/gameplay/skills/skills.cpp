@@ -62,47 +62,47 @@ char *how_good(int skill_level, int skill_cap) {
 	if (skill_level < 0)
 		strcpy(out_str, " !Ошибка! ");
 	else if (skill_level == 0)
-		sprintf(out_str, " %s(не изучено)", KIDRK);
+		sprintf(out_str, " %s(не изучено)", kColorBoldDrk);
 	else if (skill_percent <= 10)
-		sprintf(out_str, " %s(ужасно)", KIDRK);
+		sprintf(out_str, " %s(ужасно)", kColorBoldDrk);
 	else if (skill_percent <= 20)
-		sprintf(out_str, " %s(очень плохо)", KRED);
+		sprintf(out_str, " %s(очень плохо)", kColorRed);
 	else if (skill_percent <= 30)
-		sprintf(out_str, " %s(плохо)", KRED);
+		sprintf(out_str, " %s(плохо)", kColorRed);
 	else if (skill_percent <= 40)
-		sprintf(out_str, " %s(слабо)", KIRED);
+		sprintf(out_str, " %s(слабо)", kColorBoldRed);
 	else if (skill_percent <= 50)
-		sprintf(out_str, " %s(ниже среднего)", KIRED);
+		sprintf(out_str, " %s(ниже среднего)", kColorBoldRed);
 	else if (skill_percent <= 55)
-		sprintf(out_str, " %s(средне)", KYEL);
+		sprintf(out_str, " %s(средне)", kColorYel);
 	else if (skill_percent <= 60)
-		sprintf(out_str, " %s(выше среднего)", KYEL);
+		sprintf(out_str, " %s(выше среднего)", kColorYel);
 	else if (skill_percent <= 70)
-		sprintf(out_str, " %s(хорошо)", KYEL);
+		sprintf(out_str, " %s(хорошо)", kColorYel);
 	else if (skill_percent <= 75)
-		sprintf(out_str, " %s(очень хорошо)", KIYEL);
+		sprintf(out_str, " %s(очень хорошо)", kColorBoldYel);
 	else if (skill_percent <= 80)
-		sprintf(out_str, " %s(отлично)", KIYEL);
+		sprintf(out_str, " %s(отлично)", kColorBoldYel);
 	else if (skill_percent <= 90)
-		sprintf(out_str, " %s(превосходно)", KGRN);
+		sprintf(out_str, " %s(превосходно)", kColorGrn);
 	else if (skill_percent <= 95)
-		sprintf(out_str, " %s(великолепно)", KGRN);
+		sprintf(out_str, " %s(великолепно)", kColorGrn);
 	else if (skill_percent <= 100)
-		sprintf(out_str, " %s(мастерски)", KIGRN);
+		sprintf(out_str, " %s(мастерски)", kColorBoldGrn);
 	else if (skill_percent <= 110)
-		sprintf(out_str, " %s(идеально)", KIGRN);
+		sprintf(out_str, " %s(идеально)", kColorBoldGrn);
 	else if (skill_percent <= 120)
-		sprintf(out_str, " %s(совершенно)", KMAG);
+		sprintf(out_str, " %s(совершенно)", kColorMag);
 	else if (skill_percent <= 130)
-		sprintf(out_str, " %s(бесподобно)", KMAG);
+		sprintf(out_str, " %s(бесподобно)", kColorMag);
 	else if (skill_percent <= 140)
-		sprintf(out_str, " %s(возвышенно)", KCYN);
+		sprintf(out_str, " %s(возвышенно)", kColorCyn);
 	else if (skill_percent <= 150)
-		sprintf(out_str, " %s(заоблачно)", KICYN);
+		sprintf(out_str, " %s(заоблачно)", kColorBoldCyn);
 	else if (skill_percent <= 160)
-		sprintf(out_str, " %s(божественно)", KWHT);
+		sprintf(out_str, " %s(божественно)", kColorWht);
 	else
-		sprintf(out_str, " %s(недостижимо)", KWHT);
+		sprintf(out_str, " %s(недостижимо)", kColorWht);
 	sprintf(out_str + strlen(out_str), " %d", skill_level);
 	return out_str;
 }
@@ -1317,22 +1317,22 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 
 //	sprintf(buf, "Saving2 == %d dex_bouus %d", save, dex_bonus(GetRealDex(victim)));
 //	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	buffer << KICYN
+	buffer << kColorBoldCyn
 		   << "Skill: '" << MUD::Skill(skill_id).name << "'"
 //		   << " SkillRate: " << result.SkillRate
 		   << " Total_Percent: " << result.SkillRate
 		   << " ActorRate: " << actor_rate
-		   << " Victim: " << victim->get_name()
-		   << " V.Rate: " << victim_rate
-		   << " Difficulty: " << MUD::Skill(skill_id).difficulty
+		<< " Victim: " << victim->get_name()
+		<< " V.Rate: " << victim_rate
+		<< " Difficulty: " << MUD::Skill(skill_id).difficulty
 //		   << " Threshold: " << threshold
 		   << " Percent: " << roll
-		   << " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
+		<< " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
 //		   << " Crit: " << (result.critical ? "yes" : "no")
 		   << " CritLuck: " << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
 //		   << " Degree: " << result.degree
 		   << " Saving: " << save
-		   << KNRM << "\r\n";
+		<< kColorNrm << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
@@ -1354,12 +1354,12 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 // \TODO Не забыть убрать после ребаланса умений
 void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percent, int prob, bool success) {
 	std::stringstream buffer;
-	buffer << KICYN
+	buffer << kColorBoldCyn
 		   << "Skill: " << skill_name
 		   << " Percent: " << percent
 		   << " Prob: " << prob
 		   << " Success: " << (success ? "yes" : "no")
-		   << KNRM << "\r\n";
+		   << kColorNrm << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
@@ -1990,10 +1990,10 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		|| (!victim && skill_is <= GetRealInt(ch))) {
 		if (success) {
 			sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-					KICYN, MUD::Skill(skill).GetName(), KNRM);
+					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
 		} else {
 			sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
-					KICYN, MUD::Skill(skill).GetName(), KNRM);
+					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
 		}
 		SendMsgToChar(buf, ch);
 		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));

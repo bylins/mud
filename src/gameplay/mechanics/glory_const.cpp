@@ -182,9 +182,9 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescriptorByUid(uid);
 	if (d) {
 		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
-					  KGRN,
+					  kColorGrn,
 					  amount, GetDeclensionInNumber(amount, EWhat::kPoint),
-					  KNRM);
+					  kColorNrm);
 	}
 	save();
 }
@@ -325,14 +325,14 @@ std::string olc_print_stat(CharData *ch, int stat) {
 	}
 
 	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {:+}{}\r\n",
-						  olc_stat_name[stat],
-						  KIDRK, remove_stat_cost(stat, ch->desc->glory_const), KNRM,
-						  KIGRN, olc_del_name[stat], KNRM,
-						  ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
+					   olc_stat_name[stat],
+					   kColorBoldDrk, remove_stat_cost(stat, ch->desc->glory_const), kColorNrm,
+					   kColorBoldGrn, olc_del_name[stat], kColorNrm,
+					   ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
 							  * stat_multi(stat)),
-						  KIGRN, olc_add_name[stat], KNRM,
-						  KIDRK, add_stat_cost(stat, ch->desc->glory_const),
-						  stat_add, KNRM);
+					   kColorBoldGrn, olc_add_name[stat], kColorNrm,
+					   kColorBoldDrk, add_stat_cost(stat, ch->desc->glory_const),
+					   stat_add, kColorNrm);
 }
 
 // * Распечатка олц меню.
@@ -358,10 +358,10 @@ void spend_glory_menu(CharData *ch) {
 	out << "\r\n  Свободной славы: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
 
 	if (ch->desc->glory_const->olc_free_glory != ch->desc->glory_const->olc_was_free_glory) {
-		out << "  " << KIGRN << "В" << KNRM
+		out << "  " << kColorBoldGrn << "В" << kColorNrm
 			<< ") Сохранить результаты\r\n";
 	}
-	out << "  " << KIGRN << "Я" << KNRM
+	out << "  " << kColorBoldGrn << "Я" << kColorNrm
 		<< ") Выйти без сохранения\r\n"
 		<< "  Ваш выбор: ";
 	SendMsgToChar(out.str(), ch);
@@ -1114,7 +1114,7 @@ void PrintGloryChart(CharData *ch) {
 		return (a->free_glory + a->tmp_spent_glory) > (b->free_glory + b->tmp_spent_glory);
 	});
 
-	out << KWHT << "Лучшие прославленные:\r\n" << KNRM;
+	out << kColorWht << "Лучшие прославленные:\r\n" << kColorNrm;
 
 	int i = 0;
 

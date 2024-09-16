@@ -1,40 +1,32 @@
-/* ************************************************************************
-*   File: screen.h                                      Part of Bylins    *
-*  Usage: header file with ANSI color codes for online color              *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
-
-// комментарий на русском в надежде починить кодировки bitbucket
+/**
+\file color.h - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Цвета текста.
+\details Константы и функции для работы с цветами telnet.
+*/
 
 #ifndef COLOR_H_
 #define COLOR_H_
 
-#define KNRM  "\x1B[0;37m"
-#define KRED  "\x1B[0;31m"
-#define KGRN  "\x1B[0;32m"
-#define KYEL  "\x1B[0;33m"
-#define KBLU  "\x1B[0;34m"
-#define KMAG  "\x1B[0;35m"
-#define KCYN  "\x1B[0;36m"
-#define KWHT  "\x1B[1;37m"
-#define BWHT  "\x1B[0;37m"
+extern const char *kColorNrm;
+extern const char *kColorRed;
+extern const char *kColorGrn;
+extern const char *kColorYel;
+extern const char *kColorBlu;
+extern const char *kColorMag;
+extern const char *kColorCyn;
+extern const char *kColorWht;
+extern const char *kColorGry;
 
-#define KIDRK  "\x1B[1;30m"
-#define KIRED  "\x1B[1;31m"
-#define KIGRN  "\x1B[1;32m"
-#define KIYEL  "\x1B[1;33m"
-#define KIBLU  "\x1B[1;34m"
-#define KIMAG  "\x1B[1;35m"
-#define KICYN  "\x1B[1;36m"
-#define KIWHT  "\x1B[1;37m"
+extern const char *kColorBoldDrk;
+extern const char *kColorBoldRed;
+extern const char *kColorBoldGrn;
+extern const char *kColorBoldYel;
+extern const char *kColorBoldBlu;
+extern const char *kColorBoldMag;
+extern const char *kColorBoldCyn;
+extern const char *kColorBoldWht;
 
 int proc_color(char *inbuf);
 const char *GetWarmValueColor(int current, int max);

@@ -84,18 +84,18 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 
 void CurrencyInfo::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << "Print currency:" << "\n"
-		<< " Vnum: " << KGRN << GetId() << KNRM << "\r\n"
-		<< " TextId: " << KGRN << GetTextId() << KNRM << "\r\n"
-		<< " Name: " << KGRN << name_ << KNRM << "\r\n"
-		<< " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n"
-		<< " Can be given: " << KGRN << (giveable_ ? "Y" : "N") << KNRM << "\r\n"
-		<< " Can be objected: " << KGRN << (objectable_ ? "Y" : "N") << KNRM << "\r\n"
-		<< " Can be stored in bank: " << KGRN << (bankable_ ? "Y" : "N") << KNRM << "\r\n"
-		<< " Can be transfered: " << KGRN << (transferable_ ? "Y" : "N") << KNRM << "\r\n"
-		<< " Can be transfered to other account: " << KGRN << (transferable_to_other_ ? "Y" : "N") << KNRM << "\r\n"
-		<< " Transfer tax: " << KGRN << transfer_tax_ << KNRM << "\r\n"
-		<< " Drop on death: " << KGRN << drop_on_death_ << KNRM << "\r\n"
-		<< " Max clan tax: " << KGRN << max_clan_tax_ << KNRM << "\r\n"
+		   << " Vnum: " << kColorGrn << GetId() << kColorNrm << "\r\n"
+		   << " TextId: " << kColorGrn << GetTextId() << kColorNrm << "\r\n"
+		   << " Name: " << kColorGrn << name_ << kColorNrm << "\r\n"
+		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n"
+		   << " Can be given: " << kColorGrn << (giveable_ ? "Y" : "N") << kColorNrm << "\r\n"
+		   << " Can be objected: " << kColorGrn << (objectable_ ? "Y" : "N") << kColorNrm << "\r\n"
+		   << " Can be stored in bank: " << kColorGrn << (bankable_ ? "Y" : "N") << kColorNrm << "\r\n"
+		   << " Can be transfered: " << kColorGrn << (transferable_ ? "Y" : "N") << kColorNrm << "\r\n"
+		   << " Can be transfered to other account: " << kColorGrn << (transferable_to_other_ ? "Y" : "N") << kColorNrm << "\r\n"
+		   << " Transfer tax: " << kColorGrn << transfer_tax_ << kColorNrm << "\r\n"
+		   << " Drop on death: " << kColorGrn << drop_on_death_ << kColorNrm << "\r\n"
+		   << " Max clan tax: " << kColorGrn << max_clan_tax_ << kColorNrm << "\r\n"
 		<< "\r\n";
 }
 

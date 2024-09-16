@@ -19,17 +19,17 @@ void do_levels(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < kLvlImmortal; i++) {
-		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (GetRealLevel(ch) == i) ? KICYN : "", i,
+		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (GetRealLevel(ch) == i) ? kColorBoldCyn : "", i,
 					   thousands_sep(GetExpUntilNextLvl(ch, i)).c_str(),
 					   thousands_sep(GetExpUntilNextLvl(ch, i + 1) - 1).c_str(),
 					   thousands_sep((int) (GetExpUntilNextLvl(ch, i + 1) - GetExpUntilNextLvl(ch, i)) / (10 + GetRealRemort(ch))).c_str(),
-					   (GetRealLevel(ch) == i) ? KNRM : "");
+					   (GetRealLevel(ch) == i) ? kColorNrm : "");
 	}
 
 	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
-				   (GetRealLevel(ch) >= kLvlImmortal) ? KICYN : "", kLvlImmortal,
+				   (GetRealLevel(ch) >= kLvlImmortal) ? kColorBoldCyn : "", kLvlImmortal,
 				   thousands_sep(GetExpUntilNextLvl(ch, kLvlImmortal)).c_str(),
-				   (GetRealLevel(ch) >= kLvlImmortal) ? KNRM : "");
+				   (GetRealLevel(ch) >= kLvlImmortal) ? kColorNrm : "");
 	page_string(ch->desc, buf, 1);
 }
 

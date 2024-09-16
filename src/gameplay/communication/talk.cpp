@@ -22,7 +22,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 	snprintf(local_buf, kMaxInputLength,
 			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	SendMsgToChar(ch, "%s%s%s\r\n",
-				  KICYN, CAP(local_buf), KNRM);
+				  kColorBoldCyn, CAP(local_buf), kColorNrm);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

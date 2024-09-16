@@ -26,6 +26,7 @@
 #include "gameplay/core/base_stats.h"
 
 #include <cmath>
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);
@@ -240,7 +241,7 @@ void PrintScoreList(CharData *ch) {
  */
 
 const std::string &InfoStrPrefix(CharData *ch) {
-	static const std::string cyan_star{KICYN " * " KNRM};
+	static const std::string cyan_star = fmt::format("{}*{}", kColorBoldCyn, kColorNrm);
 	static const std::string space_str;
 	if (ch->IsFlagged(EPrf::kBlindMode)) {
 		return space_str;
@@ -263,7 +264,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
 	if (label_room) {
 		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_UID(ch), ESpell::kRuneLabel);
-		out << InfoStrPrefix(ch) << KIGRN << "Вы поставили рунную метку в комнате \'"
+		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
 			out << "[продержится еще ";
@@ -288,19 +289,19 @@ void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
 
 void PrintNameStatusInfo(CharData *ch, std::ostringstream &out) {
 	if (!NAME_GOD(ch) && GetRealLevel(ch) <= kNameLevel) {
-		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
+		out << InfoStrPrefix(ch) << kColorBoldRed << "ВНИМАНИЕ! " << kColorNrm
 			<< "ваше имя не одобрил никто из богов!" << "\r\n";
-		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
+		out << InfoStrPrefix(ch) << kColorBoldRed << "ВНИМАНИЕ! " << kColorNrm
 			<< "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени." << "\r\n";
 	} else if (NAME_BAD(ch)) {
-		out << InfoStrPrefix(ch) << KIRED << "ВНИМАНИЕ! " << KNRM
+		out << InfoStrPrefix(ch) << kColorBoldRed << "ВНИМАНИЕ! " << kColorNrm
 			<< "Ваше имя запрещено богами. Вы не можете получать опыт." << "\r\n";
 	}
 }
 
 void PrintSummonableInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->IsFlagged(EPrf::KSummonable)) {
-		out << InfoStrPrefix(ch) << KIYEL << "Вы можете быть призваны." << KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldYel << "Вы можете быть призваны." << kColorNrm << "\r\n";
 	} else {
 		out << InfoStrPrefix(ch) << "Вы защищены от призыва." << "\r\n";
 	}
@@ -342,14 +343,14 @@ void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
 	if (NORENTABLE(ch)) {
 		const time_t rent_time = NORENTABLE(ch) - time(nullptr);
 		const auto minutes = rent_time > 60 ? rent_time / 60 : 0;
-		out << InfoStrPrefix(ch) << KIRED << "В связи с боевыми действиями вы не можете уйти на постой еще ";
+		out << InfoStrPrefix(ch) << kColorBoldRed << "В связи с боевыми действиями вы не можете уйти на постой еще ";
 		if (minutes) {
-			out << minutes << " " << GetDeclensionInNumber(minutes, EWhat::kMinU) << "." << KNRM << "\r\n";
+			out << minutes << " " << GetDeclensionInNumber(minutes, EWhat::kMinU) << "." << kColorNrm << "\r\n";
 		} else {
-			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << KNRM << "\r\n";
+			out << rent_time << " " << GetDeclensionInNumber(rent_time, EWhat::kSec) << "." << kColorNrm << "\r\n";
 		}
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
-		out << InfoStrPrefix(ch) << KIGRN << "Тут вы чувствуете себя в безопасности." << KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldGrn << "Тут вы чувствуете себя в безопасности." << kColorNrm << "\r\n";
 	}
 }
 // \todo Сделать авторазмещение в комнате-кузнице горна и убрать эту функцию.
@@ -358,17 +359,17 @@ void PrinForgeInfo(CharData *ch, std::ostringstream &out) {
 		&& (ch->GetSkill(ESkill::kJewelry)
 		|| ch->GetSkill(ESkill::kRepair)
 		|| ch->GetSkill(ESkill::kReforging))) {
-		out << InfoStrPrefix(ch) << KIYEL << "Это место отлично подходит для занятий кузнечным делом."
-			<< KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldYel << "Это место отлично подходит для занятий кузнечным делом."
+			<< kColorNrm << "\r\n";
 	}
 }
 
 void PrintPostInfo(CharData *ch, std::ostringstream &out) {
 	if (mail::has_mail(ch->get_uid())) {
-		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает новое письмо, зайдите на почту." << KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вас ожидает новое письмо, зайдите на почту." << kColorNrm << "\r\n";
 	}
 	if (Parcel::has_parcel(ch)) {
-		out << InfoStrPrefix(ch) << KIGRN << "Вас ожидает посылка, зайдите на почту." << KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вас ожидает посылка, зайдите на почту." << kColorNrm << "\r\n";
 	}
 }
 
@@ -409,7 +410,7 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 	const auto hrs = (info.punish->duration - current_time)/3600;
 	const auto mins = ((info.punish->duration - current_time)%3600 + 59)/60;
 
-	out << InfoStrPrefix(info.ch) << KIRED << info.msg
+	out << InfoStrPrefix(info.ch) << kColorBoldRed << info.msg
 		<< hrs << " " << GetDeclensionInNumber(hrs, EWhat::kHour) << " "
 		<< mins << " " << GetDeclensionInNumber(mins, EWhat::kMinU);
 
@@ -418,7 +419,7 @@ void PrintSinglePunishmentInfo(const ScorePunishmentInfo &info, std::ostringstre
 			out << " [" << info.punish->reason << "]";
 		}
 	}
-	out << "." << KNRM  << "\r\n";
+	out << "." << kColorNrm << "\r\n";
 }
 
 // \todo Место этого - в структурах, которые работают с наказаниями персонажа. Куда их и следует перенести.
@@ -486,8 +487,8 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 
 void PrintMorphInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->is_morphed()) {
-		out << InfoStrPrefix(ch) << KIYEL << "Вы находитесь в звериной форме - "
-		<< ch->get_morph_desc() << "." << KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldYel << "Вы находитесь в звериной форме - "
+			<< ch->get_morph_desc() << "." << kColorNrm << "\r\n";
 	}
 }
 
@@ -633,15 +634,15 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);
 
-	out << InfoStrPrefix(ch) << KICYN
+	out << InfoStrPrefix(ch) << kColorBoldCyn
 		<< "RIGHT_WEAPON: hitroll=" << -hit.calc_thaco
 		<< ", LEFT_WEAPON: hitroll=" << hit2.calc_thaco
-		<< ", AC=" << hit.victim_ac << "." << KNRM << "\r\n";
+		<< ", AC=" << hit.victim_ac << "." << kColorNrm << "\r\n";
 }
 
 void PrintTesterModeInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->IsFlagged(EPrf::kTester)) {
-		out << InfoStrPrefix(ch) << KICYN << "Включен режим тестирования." << KNRM << "\r\n";
+		out << InfoStrPrefix(ch) << kColorBoldCyn << "Включен режим тестирования." << kColorNrm << "\r\n";
 		PrintSelfHitrollInfo(ch, out);
 	}
 }
@@ -709,7 +710,7 @@ void PrintScoreBase(CharData *ch) {
 	const auto &age = CalcCharAge(ch);
 	out << "Сейчас вам " << age->year << " " << GetDeclensionInNumber(age->year, EWhat::kYear) << ".";
 	if (CalcCharAge(ch)->month == 0 && CalcCharAge(ch)->day == 0) {
-		out << KIRED << " У вас сегодня День Варенья!" << KNRM;
+		out << kColorBoldRed << " У вас сегодня День Варенья!" << kColorNrm;
 	}
 	out << "\r\n";
 
@@ -739,22 +740,22 @@ void PrintScoreBase(CharData *ch) {
 			"  Размер %3d(%3d)"
 			"  Рост   %3d(%3d)"
 			"  Вес    %3d(%3d)%s\r\n",
-			KICYN, ch->get_str(), GetRealStr(ch),
+			kColorBoldCyn, ch->get_str(), GetRealStr(ch),
 			ch->get_dex(), GetRealDex(ch),
 			ch->get_con(), GetRealCon(ch),
 			ch->get_wis(), GetRealWis(ch),
 			ch->get_int(), GetRealInt(ch),
 			ch->get_cha(), GetRealCha(ch),
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
-			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), KNRM);
+			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), kColorNrm);
 
 	if (IS_IMMORTAL(ch)) {
 		sprintf(buf + strlen(buf),
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"
 				"  DR   : %4d(%4d)%s\r\n",
-				KIGRN, GET_AC(ch), compute_armor_class(ch),
-				GET_DR(ch), GetRealDamroll(ch), KNRM);
+				kColorBoldGrn, GET_AC(ch), compute_armor_class(ch),
+				GET_DR(ch), GetRealDamroll(ch), kColorNrm);
 	} else {
 		int ac = compute_armor_class(ch) / 10;
 
@@ -829,7 +830,7 @@ void PrintScoreBase(CharData *ch) {
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
-	strcpy(buf, KIGRN);
+	strcpy(buf, kColorBoldGrn);
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= kDrunked) {
 		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
@@ -865,15 +866,15 @@ void PrintScoreBase(CharData *ch) {
 		else
 			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
 	}
-	strcat(buf, KNRM);
+	strcat(buf, kColorNrm);
 	SendMsgToChar(buf, ch);
 	if (NORENTABLE(ch)) {
 		sprintf(buf,
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
-				KIRED, KNRM);
+				kColorBoldRed, kColorNrm);
 		SendMsgToChar(buf, ch);
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
-		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", KIGRN, KNRM);
+		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", kColorBoldGrn, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 
@@ -881,18 +882,18 @@ void PrintScoreBase(CharData *ch) {
 		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
 		sprintf(buf,
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
-				KIGRN,
-				KNRM);
+				kColorBoldGrn,
+				kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (mail::has_mail(ch->get_uid())) {
-		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", KIGRN, KNRM);
+		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", kColorBoldGrn, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (Parcel::has_parcel(ch)) {
-		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", KIGRN, KNRM);
+		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", kColorBoldGrn, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 

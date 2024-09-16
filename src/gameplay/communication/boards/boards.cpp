@@ -12,7 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "third_party_libs/fmt/include/fmt/format.h"
 
 namespace Boards {
 // общий список досок
@@ -475,10 +475,10 @@ bool Static::LoginInfo(CharData *ch) {
 				|| (*board)->get_type() == GODNEWS_BOARD
 				|| (*board)->get_type() == CLANNEWS_BOARD) {
 				news << std::setw(4) << unread << " в разделе '" << (*board)->get_description() << "' "
-					 << KWHT << "(" << (*board)->get_name() << ")" << KNRM << ".\r\n";
+					 << kColorWht << "(" << (*board)->get_name() << ")" << kColorNrm << ".\r\n";
 			} else {
 				buffer << std::setw(4) << unread << " в разделе '" << (*board)->get_description() << "' "
-					   << KWHT << "(" << (*board)->get_name() << ")" << KNRM << ".\r\n";
+					   << kColorWht << "(" << (*board)->get_name() << ")" << kColorNrm << ".\r\n";
 			}
 		}
 	}

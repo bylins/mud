@@ -654,49 +654,49 @@ void spend_glory_menu(CharData *ch) {
 	std::ostringstream out;
 	out << "\r\n                      -        +\r\n"
 		<< "  Сила     : ("
-		<< KIGRN << "А" << KNRM
+		<< kColorBoldGrn << "А" << kColorNrm
 		<< ") " << ch->desc->glory->olc_str << " ("
-		<< KIGRN << "З" << KNRM
+		<< kColorBoldGrn << "З" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_str)
 		out << "    (" << (ch->desc->glory->olc_add_str > 0 ? "+" : "") << ch->desc->glory->olc_add_str << ")";
 	out << "\r\n"
 		<< "  Ловкость : ("
-		<< KIGRN << "Б" << KNRM
+		<< kColorBoldGrn << "Б" << kColorNrm
 		<< ") " << ch->desc->glory->olc_dex << " ("
-		<< KIGRN << "И" << KNRM
+		<< kColorBoldGrn << "И" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_dex)
 		out << "    (" << (ch->desc->glory->olc_add_dex > 0 ? "+" : "") << ch->desc->glory->olc_add_dex << ")";
 	out << "\r\n"
 		<< "  Ум       : ("
-		<< KIGRN << "Г" << KNRM
+		<< kColorBoldGrn << "Г" << kColorNrm
 		<< ") " << ch->desc->glory->olc_int << " ("
-		<< KIGRN << "К" << KNRM
+		<< kColorBoldGrn << "К" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_int)
 		out << "    (" << (ch->desc->glory->olc_add_int > 0 ? "+" : "") << ch->desc->glory->olc_add_int << ")";
 	out << "\r\n"
 		<< "  Мудрость : ("
-		<< KIGRN << "Д" << KNRM
+		<< kColorBoldGrn << "Д" << kColorNrm
 		<< ") " << ch->desc->glory->olc_wis << " ("
-		<< KIGRN << "Л" << KNRM
+		<< kColorBoldGrn << "Л" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_wis)
 		out << "    (" << (ch->desc->glory->olc_add_wis > 0 ? "+" : "") << ch->desc->glory->olc_add_wis << ")";
 	out << "\r\n"
 		<< "  Здоровье : ("
-		<< KIGRN << "Е" << KNRM
+		<< kColorBoldGrn << "Е" << kColorNrm
 		<< ") " << ch->desc->glory->olc_con << " ("
-		<< KIGRN << "М" << KNRM
+		<< kColorBoldGrn << "М" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_con)
 		out << "    (" << (ch->desc->glory->olc_add_con > 0 ? "+" : "") << ch->desc->glory->olc_add_con << ")";
 	out << "\r\n"
 		<< "  Обаяние  : ("
-		<< KIGRN << "Ж" << KNRM
+		<< kColorBoldGrn << "Ж" << kColorNrm
 		<< ") " << ch->desc->glory->olc_cha << " ("
-		<< KIGRN << "Н" << KNRM
+		<< kColorBoldGrn << "Н" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_cha)
 		out << "    (" << (ch->desc->glory->olc_add_cha > 0 ? "+" : "") << ch->desc->glory->olc_add_cha << ")";
@@ -717,12 +717,12 @@ void spend_glory_menu(CharData *ch) {
 		|| ch->desc->glory->olc_con != ch->GetInbornCon()
 		|| ch->desc->glory->olc_cha != ch->GetInbornCha()) {
 		out << "  "
-			<< KIGRN << "В" << KNRM
+			<< kColorBoldGrn << "В" << kColorNrm
 			<< ") Сохранить результаты\r\n";
 	}
 
 	out << "  "
-		<< KIGRN << "Х" << KNRM
+		<< kColorBoldGrn << "Х" << kColorNrm
 		<< ") Выйти без сохранения\r\n"
 		<< " Ваш выбор: ";
 	SendMsgToChar(out.str(), ch);

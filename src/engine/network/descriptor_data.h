@@ -7,7 +7,7 @@
 #ifndef BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 #define BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 
-#include "gameplay/communication/boards_types.h"
+#include "gameplay/communication/boards/boards_types.h"
 #include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"

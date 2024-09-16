@@ -566,39 +566,39 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 const char *GetPkNameColor(CharData *victim) {
 	auto i = pk_count(victim);
 	if (i >= FifthPK) {
-		return KIRED;
+		return kColorBoldRed;
 	} else if (i >= FourthPK) {
-		return KIMAG;
+		return kColorBoldMag;
 	} else if (i >= ThirdPK) {
-		return KIYEL;
+		return kColorBoldYel;
 	} else if (i >= SecondPK) {
-		return KICYN;
+		return kColorBoldCyn;
 	} else if (i >= FirstPK) {
-		return KIGRN;
+		return kColorBoldGrn;
 	} else {
-		return KNRM;
+		return kColorNrm;
 	}
 }
 
 void AddPkAuraDescription(CharData *victim, char *s) {
 	auto i = pk_count(victim);
 	if (i >= FifthPK) {
-		sprintf(s, "%s(кровавая аура)%s", KRED, KIRED);
+		sprintf(s, "%s(кровавая аура)%s", kColorRed, kColorBoldRed);
 		return;
 	} else if (i >= FourthPK) {
-		sprintf(s, "%s(пурпурная аура)%s", KIMAG, KIRED);
+		sprintf(s, "%s(пурпурная аура)%s", kColorBoldMag, kColorBoldRed);
 		return;
 	} else if (i >= ThirdPK) {
-		sprintf(s, "%s(желтая аура)%s", KIYEL, KIRED);
+		sprintf(s, "%s(желтая аура)%s", kColorBoldYel, kColorBoldRed);
 		return;
 	} else if (i >= SecondPK) {
-		sprintf(s, "%s(голубая аура)%s", KICYN, KIRED);
+		sprintf(s, "%s(голубая аура)%s", kColorBoldCyn, kColorBoldRed);
 		return;
 	} else if (i >= FirstPK) {
-		sprintf(s, "%s(зеленая аура)%s", KIGRN, KIRED);
+		sprintf(s, "%s(зеленая аура)%s", kColorBoldGrn, kColorBoldRed);
 		return;
 	} else {
-		sprintf(s, "%s(чистая аура)%s", KIDRK, KIRED);
+		sprintf(s, "%s(чистая аура)%s", kColorBoldDrk, kColorBoldRed);
 		return;
 	}
 }

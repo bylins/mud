@@ -104,18 +104,18 @@ std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
 		case ESpell::kScopolaPoison:
 		case ESpell::kBelenaPoison:
 		case ESpell::kDaturaPoison:
-			out << KGRN << "Отравлено " << GetPoisonName(spell_id) << " еще " << timer << " "
-				<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << KNRM;
+			out << kColorGrn << "Отравлено " << GetPoisonName(spell_id) << " еще " << timer << " "
+				<< GetDeclensionInNumber(timer, EWhat::kMinU) << ".\r\n" << kColorNrm;
 			break;
 
 		default:
 			if (timer == -1) {
-				out << KCYN << "Наложено постоянное заклинание '"
-					<< MUD::Spell(spell_id).GetName() << "'" << ".\r\n" << KNRM;
+				out << kColorCyn << "Наложено постоянное заклинание '"
+					<< MUD::Spell(spell_id).GetName() << "'" << ".\r\n" << kColorNrm;
 			} else {
-				out << KCYN << "Наложено заклинание '"
+				out << kColorCyn << "Наложено заклинание '"
 					<< MUD::Spell(spell_id).GetName() << "' (" << FormatTimeToStr(timer, true) << ").\r\n"
-					<< KNRM;
+					<< kColorNrm;
 			}
 			break;
 	}
