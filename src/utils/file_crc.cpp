@@ -4,11 +4,11 @@
 
 #include "file_crc.h"
 
-#include "db.h"
+#include "engine/db/db.h"
 #include "logger.h"
 #include "utils/utils.h"
-#include "interpreter.h"
-#include "comm.h"
+#include "engine/ui/interpreter.h"
+#include "engine/core/comm.h"
 
 namespace FileCRC {
 void add_message(const char *text, ...) __attribute__((format(printf, 1, 2)));

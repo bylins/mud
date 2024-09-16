@@ -12,15 +12,15 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "handler.h"
-#include "color.h"
-#include "game_economics/auction.h"
-#include "entities/char_player.h"
-#include "entities/world_characters.h"
-#include "house.h"
-#include "communication/offtop.h"
-#include "communication/spam.h"
-#include "utils/utils_char_obj.inl"
+#include "engine/entities/char_player.h"
+#include "engine/core/handler.h"
+#include "engine/core/utils_char_obj.inl"
+#include "engine/db/world_characters.h"
+#include "engine/ui/color.h"
+#include "gameplay/clans/house.h"
+#include "gameplay/communication/offtop.h"
+#include "gameplay/communication/spam.h"
+#include "gameplay/economics/auction.h"
 
 // extern variables
 /*extern DescriptorData *descriptor_list;
@@ -218,7 +218,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	}
 
 	if (!vict->IsNpc() && !ch->IsNpc()) {
-		vict->set_answer_id(GET_IDNUM(ch));
+		vict->set_answer_id(GET_UID(ch));
 	}
 }
 
@@ -337,7 +337,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		bool found = false;
 		for (const auto &i : character_list) {
 			if (!i->IsNpc()
-				&& GET_IDNUM(i) == ch->get_answer_id()) {
+				&& GET_UID(i) == ch->get_answer_id()) {
 				if (is_tell_ok(ch, i.get())) {
 					perform_tell(ch, i.get(), argument);
 				}
@@ -996,7 +996,7 @@ int ign_find_id(char *name, long *id) {
 				return 0;
 			}
 
-			*id = i.id();
+			*id = i.uid();
 			return 1;
 		}
 	}
@@ -1005,7 +1005,7 @@ int ign_find_id(char *name, long *id) {
 
 const char *ign_find_name(long id) {
 	for (const auto & i : player_table) {
-		if (id == i.id()) {
+		if (id == i.uid()) {
 			return i.name();
 		}
 	}

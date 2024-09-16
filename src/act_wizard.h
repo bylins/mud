@@ -1,8 +1,8 @@
 #ifndef __ACT_WIZARD_HPP__
 #define __ACT_WIZARD_HPP__
 
-#include "sysdep.h"
-#include "structs/structs.h"
+#include "engine/core/sysdep.h"
+#include "engine/structs/structs.h"
 
 #include <memory>
 #include <map>

@@ -13,22 +13,24 @@
 ************************************************************************ */
 #include "act_movement.h"
 
-#include "game_mechanics/deathtrap.h"
-#include "entities/entities_constants.h"
-#include "game_fight/fight.h"
-#include "game_fight/pk.h"
-#include "game_fight/mobact.h"
-#include "handler.h"
-#include "house.h"
-#include "game_mechanics/named_stuff.h"
-#include "obj_prototypes.h"
+#include "gameplay/mechanics/deathtrap.h"
+#include "engine/entities/entities_constants.h"
+#include "gameplay/fight/fight.h"
+#include "gameplay/fight/pk.h"
+#include "gameplay/ai/mobact.h"
+#include "engine/core/handler.h"
+#include "gameplay/clans/house.h"
+#include "gameplay/mechanics/named_stuff.h"
+#include "engine/db/obj_prototypes.h"
 #include "administration/privilege.h"
-#include "game_skills/pick.h"
+#include "gameplay/skills/pick.h"
+#include "gameplay/skills/track.h"
 #include "utils/random.h"
-#include "structs/global_objects.h"
-#include "liquid.h"
-#include "utils/utils_char_obj.inl"
-#include "game_mechanics/treasure_cases.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/mechanics/liquid.h"
+#include "engine/core/utils_char_obj.inl"
+#include "gameplay/mechanics/treasure_cases.h"
+#include "gameplay/mechanics/sight.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
@@ -787,7 +789,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0)) {
 		for (track = world[go_to]->track; track; track = track->next) {
 			if ((ch->IsNpc() && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
-				|| (!ch->IsNpc() && !IS_SET(track->track_info, TRACK_NPC) && track->who == GET_IDNUM(ch))) {
+				|| (!ch->IsNpc() && !IS_SET(track->track_info, TRACK_NPC) && track->who == GET_UID(ch))) {
 				break;
 			}
 		}
@@ -795,7 +797,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		if (!track && !ROOM_FLAGGED(go_to, ERoomFlag::kNoTrack)) {
 			CREATE(track, 1);
 			track->track_info = ch->IsNpc() ? TRACK_NPC : 0;
-			track->who = ch->IsNpc() ? mob_rnum : GET_IDNUM(ch);
+			track->who = ch->IsNpc() ? mob_rnum : GET_UID(ch);
 			track->next = world[go_to]->track;
 			world[go_to]->track = track;
 		}
@@ -812,13 +814,13 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			if ((ch->IsNpc() && IS_SET(track->track_info, TRACK_NPC)
 				&& track->who == mob_rnum) || (!ch->IsNpc()
 				&& !IS_SET(track->track_info, TRACK_NPC)
-				&& track->who == GET_IDNUM(ch)))
+				&& track->who == GET_UID(ch)))
 				break;
 
 		if (!track && !ROOM_FLAGGED(was_in, ERoomFlag::kNoTrack)) {
 			CREATE(track, 1);
 			track->track_info = ch->IsNpc() ? TRACK_NPC : 0;
-			track->who = ch->IsNpc() ? mob_rnum : GET_IDNUM(ch);
+			track->who = ch->IsNpc() ? mob_rnum : GET_UID(ch);
 			track->next = world[was_in]->track;
 			world[was_in]->track = track;
 		}
@@ -874,7 +876,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	// If flee - go agressive mobs
 	if (!ch->IsNpc()
 		&& is_flee) {
-		do_aggressive_room(ch, false);
+		mob_ai::do_aggressive_room(ch, false);
 	}
 
 	return direction;
@@ -944,7 +946,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 			}
 		}
 		if (checkmob) {
-			do_aggressive_room(ch, true);
+			mob_ai::do_aggressive_room(ch, true);
 		}
 		return true;
 	}

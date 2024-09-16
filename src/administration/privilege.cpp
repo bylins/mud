@@ -5,8 +5,8 @@
 #include "privilege.h"
 
 #include "utils/logger.h"
-#include "entities/char_data.h"
-#include "boards/boards.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/communication/boards.h"
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.
@@ -307,15 +307,18 @@ void LoadGodBoards() {
 */
 bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int mode, bool check_level) {
 	if (check_level && !mode && cmd_info[cmd_number].minimum_level < kLvlImmortal
-		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level)
+		&& GetRealLevel(ch) >= cmd_info[cmd_number].minimum_level) {
 		return true;
-	if (ch->IsNpc()) return false;
+	}
+	if (ch->IsNpc()) {
+		return false;
+	}
 #ifdef TEST_BUILD
 	if (IS_IMMORTAL(ch))
 		return true;
 #endif
-	const auto it = god_list.find(GET_UNIQUE(ch));
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true)) {
+	const auto it = god_list.find(ch->get_uid());
+	if (it != god_list.end() && CompareParam(it->second.name, ch->get_name(), true)) {
 		if (GetRealLevel(ch) == kLvlImplementator)
 			return true;
 		switch (mode) {
@@ -349,7 +352,7 @@ bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int
 bool CheckFlag(const CharData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
-	const auto it = god_list.find(GET_UNIQUE(ch));
+	const auto it = god_list.find(GET_UID(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true))
 		if (it->second.flags[flag])
 			result = true;

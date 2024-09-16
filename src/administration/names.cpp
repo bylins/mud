@@ -10,9 +10,9 @@
 ************************************************************************ */
 
 //#include "interpreter.h"
-#include "handler.h"
-#include "color.h"
-#include "entities/char_player.h"
+#include "engine/core/handler.h"
+#include "engine/ui/color.h"
+#include "engine/entities/char_player.h"
 
 #include "names.h"
 
@@ -138,7 +138,6 @@ void rm_agree_name(CharData *d) {
 	fclose(fout);
 	// Rewrite from tmp
 	rename(ANAME_FILE ".tmp", ANAME_FILE);
-	return;
 }
 
 // список неодобренных имен, дубль2
@@ -152,7 +151,7 @@ struct NewName {
 	std::string name4; // --//--
 	std::string name5; // --//--
 	std::string email; // мыло
-	EGender sex;         // часто не ясно, для какоо пола падежи вообще
+	EGender sex{EGender::kNeutral};         // часто не ясно, для какоо пола падежи вообще
 };
 
 typedef std::shared_ptr<NewName> NewNamePtr;
@@ -207,7 +206,7 @@ void NewNames::remove(CharData *ch) {
 
 // для удаления через команду имма
 void NewNames::remove(const std::string &name, CharData *actor) {
-	NewNameListType::iterator it = NewNameList.find(name);
+	auto it = NewNameList.find(name);
 	if (it != NewNameList.end()) {
 		NewNameList.erase(it);
 		SendMsgToChar("Запись удалена.\r\n", actor);
@@ -248,7 +247,7 @@ bool NewNames::show(CharData *actor) {
 	std::ostringstream buffer;
 	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(actor, C_NRM);
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it) {
-		const size_t sex = static_cast<size_t>(to_underlying(it->second->sex));
+		const auto sex = static_cast<size_t>(to_underlying(it->second->sex));
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			   << "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 			   << "/" << it->second->name5 << " Email: &S"
@@ -293,7 +292,7 @@ static void rm_disagree_name(CharData *d) {
 	while (get_line(fin, temp)) {
 		// Get name ...
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
-		if (strcmp(mortname, GET_NAME(d))) {
+		if (strcmp(mortname, GET_NAME(d)) != 0) {
 			// Name un matches ... do copy ...
 			fprintf(fout, "%s\n", temp);
 		};
@@ -301,8 +300,6 @@ static void rm_disagree_name(CharData *d) {
 	fclose(fin);
 	fclose(fout);
 	rename(DNAME_FILE ".tmp", DNAME_FILE);
-	return;
-
 }
 
 static void add_agree_name(CharData *d, const char *immname, int immlev) {
@@ -324,7 +321,6 @@ static void add_agree_name(CharData *d, const char *immname, int immlev) {
 			immname,
 			immlev);
 	fclose(fl);
-	return;
 }
 
 static void add_disagree_name(CharData *d, const char *immname, int immlev) {
@@ -336,7 +332,6 @@ static void add_disagree_name(CharData *d, const char *immname, int immlev) {
 	// Pos to the end ...
 	fprintf(fl, "%s %s %d\r\n", GET_NAME(d), immname, immlev);
 	fclose(fl);
-	return;
 }
 
 static void disagree_name(CharData *d, const char *immname, int immlev) {
@@ -377,12 +372,12 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	}
 
 	if (lev == god_level)
-		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
+		if (NAME_ID_GOD(vict) != GET_UID(ch))
 			SendMsgToChar("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE) {
 		NAME_GOD(vict) = god_level + 1000;
-		NAME_ID_GOD(vict) = GET_IDNUM(ch);
+		NAME_ID_GOD(vict) = GET_UID(ch);
 		//SendMsgToChar("Имя одобрено!\r\n", ch);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
@@ -393,7 +388,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 
 	} else {
 		NAME_GOD(vict) = god_level;
-		NAME_ID_GOD(vict) = GET_IDNUM(ch);
+		NAME_ID_GOD(vict) = GET_UID(ch);
 		//SendMsgToChar("Имя запрещено!\r\n", ch);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
@@ -461,6 +456,71 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->save_char();
 		delete vict;
 	}
+}
+
+/**************************************************************************
+ *  Code to check for invalid names (i.e., profanity, etc.)		  *
+ *  Written by Sharon P. Goza						  *
+ **************************************************************************/
+
+const int kMaxInvalidNames{200};
+char *invalid_list[kMaxInvalidNames];
+std::size_t num_invalid{0};
+
+int IsValidName(char *newname) {
+	if (!*invalid_list || num_invalid < 1) {
+		return true;
+	}
+
+	// change to lowercase
+	char tempname[kMaxInputLength];
+	strcpy(tempname, newname);
+	for (std::size_t i = 0; tempname[i]; i++) {
+		tempname[i] = LOWER(tempname[i]);
+	}
+
+	// Does the desired name contain a string in the invalid list?
+	for (std::size_t i = 0; i < num_invalid; i++) {
+		if (strstr(tempname, invalid_list[i])) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool IsNameAvailable(char *newname) {
+	return (IsValidName(newname) && IsNameOffline(newname));
+}
+
+bool IsNameOffline(char *newname) {
+	for (auto dt = descriptor_list; dt; dt = dt->next) {
+		if (dt->character && GET_NAME(dt->character) && !str_cmp(GET_NAME(dt->character), newname)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void ReadCharacterInvalidNamesList() {
+	FILE *fp;
+	char temp[256];
+
+	if (!(fp = fopen(XNAME_FILE, "r"))) {
+		perror("SYSERR: Unable to open '" XNAME_FILE "' for reading");
+		return;
+	}
+
+	num_invalid = 0;
+	while (get_line(fp, temp) && num_invalid < kMaxInvalidNames)
+		invalid_list[num_invalid++] = str_dup(temp);
+
+	if (num_invalid >= kMaxInvalidNames) {
+		log("SYSERR: Too many invalid names; change MAX_INVALID_NAMES in ban.c");
+		exit(1);
+	}
+
+	fclose(fp);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

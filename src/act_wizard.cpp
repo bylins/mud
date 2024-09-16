@@ -14,79 +14,82 @@
 
 #include "act_wizard.h"
 
-#include "action_targeting.h"
-#include "cmd_god/ban.h"
-#include "game_mechanics/birthplaces.h"
-#include "game_mechanics/celebrates.h"
-#include "game_mechanics/dead_load.h"
-#include "game_mechanics/guilds.h"
-#include "utils/utils_char_obj.inl"
-#include "entities/char_data.h"
-#include "entities/obj_data.h"
-#include "entities/char_player.h"
-#include "game_mechanics/player_races.h"
-#include "entities/entities_constants.h"
-#include "entities/world_characters.h"
-#include "cmd_god/stat.h"
-#include "cmd/follow.h"
-#include "comm.h"
-#include "cmd_god/shutdown.h"
-#include "conf.h"
-#include "config.h"
-#include "constants.h"
-#include "corpse.h"
-#include "db.h"
-#include "depot.h"
-#include "description.h"
-#include "dg_script/dg_scripts.h"
-#include "dg_script/dg_event.h"
-#include "game_economics/ext_money.h"
-#include "game_fight/fight.h"
-#include "game_fight/pk.h"
+#include "administration/proxy.h"
+#include "engine/core/action_targeting.h"
+#include "administration/ban.h"
+#include "gameplay/mechanics/birthplaces.h"
+#include "gameplay/mechanics/celebrates.h"
+#include "gameplay/mechanics/dead_load.h"
+#include "gameplay/mechanics/guilds.h"
+#include "engine/core/utils_char_obj.inl"
+#include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
+#include "engine/entities/char_player.h"
+#include "gameplay/mechanics/player_races.h"
+#include "engine/entities/entities_constants.h"
+#include "engine/db/world_characters.h"
+#include "engine/ui/cmd_god/stat.h"
+#include "engine/ui/cmd/follow.h"
+#include "engine/core/comm.h"
+#include "engine/ui/cmd_god/shutdown.h"
+#include "engine/core/conf.h"
+#include "engine/core/config.h"
+#include "gameplay/core/constants.h"
+#include "gameplay/mechanics/corpse.h"
+#include "engine/db/db.h"
+#include "gameplay/mechanics/depot.h"
+#include "engine/db/description.h"
+#include "engine/scripting/dg_scripts.h"
+#include "engine/scripting/dg_event.h"
+#include "gameplay/economics/ext_money.h"
+#include "gameplay/fight/fight.h"
+#include "gameplay/fight/pk.h"
 #include "utils/file_crc.h"
-#include "genchar.h"
-#include "structs/global_objects.h"
-#include "game_classes/classes.h"
-#include "game_mechanics/glory.h"
-#include "game_mechanics/glory_const.h"
-#include "game_mechanics/glory_misc.h"
-#include "game_mechanics/mem_queue.h"
-#include "handler.h"
-#include "heartbeat.h"
-#include "house.h"
-#include "game_crafts/im.h"
-#include "interpreter.h"
-#include "liquid.h"
+#include "gameplay/core/genchar.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/glory.h"
+#include "gameplay/mechanics/glory_const.h"
+#include "gameplay/mechanics/glory_misc.h"
+#include "gameplay/mechanics/mem_queue.h"
+#include "gameplay/mechanics/sight.h"
+#include "engine/core/handler.h"
+#include "engine/core/heartbeat.h"
+#include "gameplay/clans/house.h"
+#include "gameplay/crafting/im.h"
+#include "engine/ui/interpreter.h"
+#include "gameplay/mechanics/liquid.h"
 #include "utils/logger.h"
-#include "communication/mail.h"
-#include "statistics/mob_stat.h"
-#include "modify.h"
+#include "gameplay/communication/mail.h"
+#include "gameplay/statistics/mob_stat.h"
+#include "engine/ui/modify.h"
 #include "administration/names.h"
-#include "entities/obj_data.h"
-#include "obj_prototypes.h"
-#include "olc/olc.h"
-#include "communication/parcel.h"
+#include "engine/entities/obj_data.h"
+#include "engine/db/obj_prototypes.h"
+#include "engine/olc/olc.h"
+#include "gameplay/communication/parcel.h"
 #include "administration/password.h"
 #include "administration/privilege.h"
 #include "third_party_libs/pugixml/pugixml.h"
-#include "entities/room_data.h"
-#include "color.h"
-#include "game_mechanics/sets_drop.h"
-#include "game_skills/skills.h"
-#include "game_magic/spells.h"
-#include "structs/descriptor_data.h"
-#include "structs/structs.h"
-#include "sysdep.h"
-#include "title.h"
-#include "statistics/top.h"
+#include "engine/entities/room_data.h"
+#include "engine/ui/color.h"
+#include "gameplay/mechanics/sets_drop.h"
+#include "gameplay/skills/skills.h"
+#include "gameplay/magic/spells.h"
+#include "engine/network/descriptor_data.h"
+#include "engine/structs/structs.h"
+#include "engine/core/sysdep.h"
+#include "gameplay/mechanics/title.h"
+#include "gameplay/statistics/top.h"
 #include "utils/utils.h"
 #include "utils/id_converter.h"
-#include "entities/world_objects.h"
-#include "entities/zone.h"
-#include "game_classes/classes_constants.h"
-#include "game_magic/spells_info.h"
-#include "game_magic/magic_rooms.h"
-#include "olc/olc.h"
+#include "engine/db/world_objects.h"
+#include "engine/entities/zone.h"
+#include "gameplay/classes/classes_constants.h"
+#include "gameplay/magic/spells_info.h"
+#include "gameplay/magic/magic_rooms.h"
+#include "engine/olc/olc.h"
+
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 #include <iomanip>
@@ -307,7 +310,7 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 		end = start;
 	std::vector<std::pair<int, int>> zone;
 	for (ZoneRnum i = start; i < static_cast<ZoneRnum>(zone_table.size()) && i <= end; i++) {
-		zone.push_back(std::make_pair(i, zone_table[i].traffic));
+		zone.emplace_back(i, zone_table[i].traffic);
 	}
 	if (sort) {
 		std::sort(zone.begin(), zone.end(), comp);
@@ -486,7 +489,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 					return (0);
 				};
 				vict->UnsetFlag(EPlrFlag::kFrozen);
-				Glory::remove_freeze(GET_UNIQUE(vict));
+				Glory::remove_freeze(GET_UID(vict));
 				if (vict->IsFlagged(EPlrFlag::kHelled)) //заодно снимем ад
 					vict->UnsetFlag(EPlrFlag::kHelled);
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
@@ -705,7 +708,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 			skip_spaces(&reason);
 
 		pundata->level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
-		pundata->godid = GET_UNIQUE(ch);
+		pundata->godid = GET_UID(ch);
 
 		// Добавляем в причину имя имма
 
@@ -731,7 +734,7 @@ int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long time
 				break;
 
 			case SCMD_FREEZE: vict->SetFlag(EPlrFlag::kFrozen);
-				Glory::set_freeze(GET_UNIQUE(vict));
+				Glory::set_freeze(GET_UID(vict));
 				pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
@@ -972,7 +975,7 @@ void setall_inspect() {
 	CharData *ch = nullptr;
 	DescriptorData *d_vict = nullptr;
 
-	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].unique);
+	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].uid());
 	if (!imm_d
 		|| (STATE(imm_d) != CON_PLAYING)
 		|| !(ch = imm_d->character.get())) {
@@ -994,7 +997,7 @@ void setall_inspect() {
 		}
 		buf1[0] = '\0';
 		is_online = 0;
-		d_vict = DescriptorByUid(player_table[it->second->pos].unique);
+		d_vict = DescriptorByUid(player_table[it->second->pos].uid());
 		if (d_vict)
 			is_online = 1;
 		if (player_table[it->second->pos].mail)
@@ -1172,7 +1175,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it = setall_inspect_list.find(GET_UNIQUE(ch));
+	auto it = setall_inspect_list.find(GET_UID(ch));
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (MUD::InspectRequests().IsBusy(ch) && it != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");
@@ -1366,9 +1369,9 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (mode) {
 		case ADD_GLORY: {
 			int amount = atoi((num + 1));
-			Glory::add_glory(GET_UNIQUE(vict), amount);
+			Glory::add_glory(GET_UID(vict), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UID(vict)));
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
@@ -1377,13 +1380,13 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 		case SUB_GLORY: {
-			int amount = Glory::remove_glory(GET_UNIQUE(vict), atoi((num + 1)));
+			int amount = Glory::remove_glory(GET_UID(vict), atoi((num + 1)));
 			if (amount <= 0) {
 				SendMsgToChar(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
+						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UID(vict)));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
@@ -1817,7 +1820,7 @@ void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-		obj->set_crafter_uid(GET_UNIQUE(ch));
+		obj->set_crafter_uid(GET_UID(ch));
 		obj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 
 		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM
@@ -2409,7 +2412,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);
 		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
-				GET_IDNUM(chdata), GetRealLevel(chdata),
+				GET_UID(chdata), GetRealLevel(chdata),
 				MUD::Class(chdata->GetClass()).GetAbbr().c_str(), GET_NAME(chdata),
 				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
 		SendMsgToChar(buf, ch);
