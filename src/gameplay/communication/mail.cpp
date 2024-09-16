@@ -16,7 +16,9 @@
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/ui/color.h"
-#include "third_party_libs/pugixml/pugixml.h"
+#include "engine/ui/modify.h"
+
+#include <third_party_libs/pugixml/pugixml.h>
 
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;

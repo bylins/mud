@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 

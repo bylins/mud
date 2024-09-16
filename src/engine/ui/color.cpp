@@ -15,6 +15,7 @@
 ************************************************************************ */
 
 #include "engine/structs/structs.h"
+#include "utils/utils.h"
 
 #define CNRM  "\x1B[0;0m"
 #define CBLK  "\x1B[0;30m"
@@ -224,6 +225,29 @@ int proc_color(char *inbuf, int colour) {
 		return static_cast<int>(j);
 	}
 	return 0;
+}
+
+char *color_value(CharData * /*ch*/, int real, int max) {
+	static char color[8];
+	switch (posi_value(real, max)) {
+		case -1:
+		case 0:
+		case 1: sprintf(color, "&r");
+			break;
+		case 2:
+		case 3: sprintf(color, "&R");
+			break;
+		case 4:
+		case 5: sprintf(color, "&Y");
+			break;
+		case 6:
+		case 7:
+		case 8: sprintf(color, "&G");
+			break;
+		default: sprintf(color, "&g");
+			break;
+	}
+	return (color);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

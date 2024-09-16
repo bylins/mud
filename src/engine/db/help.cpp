@@ -4,7 +4,7 @@
 
 #include "help.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "obj_prototypes.h"
 #include "engine/ui/modify.h"

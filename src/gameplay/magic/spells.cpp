@@ -32,6 +32,9 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/fight/fight.h"
 
 #include <cmath>
 
@@ -1892,10 +1895,9 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	}
 
 	if (!victim->IsNpc() && victim == ch) {
-		sprintf(buf,
-				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
-				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
-				age(victim)->day, age(victim)->hours);
+		const auto &victimAge = CalcCharAge(victim);
+		sprintf(buf, "Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
+				GET_PAD(victim, 1), victimAge->year, victimAge->month, victimAge->day, victimAge->hours);
 		SendMsgToChar(buf, ch);
 	}
 	if (fullness < 20 && ch != victim)
@@ -2114,12 +2116,9 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		SendMsgToChar(NOEFFECT, ch);
 }
 
-// накачка хитов
 void do_sacrifice(CharData *ch, int dam) {
-//MZ.overflow_fix
-	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
+	GET_HIT(ch) = std::max(GET_HIT(ch), std::min(GET_HIT(ch) + std::max(1, dam), GET_REAL_MAX_HIT(ch)
 		+ GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10));
-//-MZ.overflow_fix
 	update_pos(ch);
 }
 

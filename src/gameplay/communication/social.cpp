@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "engine/core/handler.h"
+#include "gameplay/communication/ignores.h"
 #include "social.h"
 
 // local globals

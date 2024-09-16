@@ -10,7 +10,7 @@
 #include "sets_drop.h"
 #include "engine/db/global_objects.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace obj_sets {
 

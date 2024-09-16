@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <limits>
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "engine/db/world_objects.h"
 #include "engine/db/world_characters.h"
@@ -43,6 +43,7 @@
 #include "engine/ui/objects_filter.h"
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/communication/ignores.h"
 
 using namespace ClanSystem;
 

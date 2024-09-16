@@ -15,8 +15,12 @@
 #include "gameplay/mechanics/player_races.h"
 #include "administration/password.h"
 #include "gameplay/statistics/top.h"
+#include "gameplay/fight/fight.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/weather.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <memory>
 

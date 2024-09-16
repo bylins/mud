@@ -329,7 +329,14 @@ set(SOURCES
 		src/engine/ui/cmd_god/force.cpp
 		src/engine/ui/cmd_god/do_invisible.cpp
 		src/engine/ui/cmd_god/set_all.cpp
-		src/engine/grammar/cases.cpp)
+		src/engine/grammar/cases.cpp
+		src/engine/core/iosystem.cpp
+		src/gameplay/mechanics/groups.cpp
+		src/gameplay/statistics/money_drop.cpp
+		src/gameplay/statistics/zone_exp.cpp
+		src/gameplay/communication/talk.cpp
+		src/engine/ui/cmd_god/echo.cpp
+		src/gameplay/core/base_stats.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -641,7 +648,14 @@ set(HEADERS
 		src/engine/ui/cmd_god/set_all.h
 		src/gameplay/ai/spec_procs.h
 		src/engine/grammar/cases.h
-		src/engine/structs/meta_enum.h)
+		src/engine/structs/meta_enum.h
+		src/engine/core/iosystem.h
+		src/gameplay/mechanics/groups.h
+		src/gameplay/statistics/money_drop.h
+		src/gameplay/statistics/zone_exp.h
+		src/gameplay/communication/talk.h
+		src/engine/ui/cmd_god/echo.h
+		src/gameplay/core/base_stats.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

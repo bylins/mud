@@ -39,6 +39,8 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/ai/mob_memory.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/classes/classes.h"
 
 // external structs
 extern int no_specials;

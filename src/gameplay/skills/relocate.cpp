@@ -6,6 +6,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/groups.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 

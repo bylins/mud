@@ -6,6 +6,7 @@
 #include "dungeons.h"
 
 #include "engine/entities/char_data.h"
+#include "engine/entities/zone.h"
 
 std::array<int, kMaxMobLevel / 11 + 1> animals_levels = {{0}};
 namespace {

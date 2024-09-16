@@ -8,6 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/mapsystem.h"
 #include "gameplay/mechanics/sight.h"
+#include "engine/entities/zone.h"
 
 void DoZone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->desc

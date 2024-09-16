@@ -11,6 +11,7 @@
 #include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
+#include "engine/core/iosystem.h"
 #include "engine/core/conf.h"
 #include "utils/utils_string.h"
 
@@ -72,8 +73,8 @@ struct DescriptorData {
 	int history_pos;        // Circular array position.      //
 	size_t bufptr;            // ptr to end of current output  //
 	size_t bufspace;        // space left in the output buffer  //
-	struct TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
-	struct TextBlocksQueue input;            // q of unprocessed input     //
+	struct iosystem::TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
+	struct iosystem::TextBlocksQueue input;            // q of unprocessed input     //
 
 	std::shared_ptr<CharData> character;    // linked to char       //
 	std::shared_ptr<CharData> original;    // original char if switched     //

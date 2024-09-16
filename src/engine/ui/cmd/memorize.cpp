@@ -6,6 +6,7 @@
 #include "gameplay/classes/classes_spell_slots.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/game_limits.h"
 
 using classes::CalcCircleSlotsAmount;
 

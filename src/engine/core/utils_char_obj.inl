@@ -1,5 +1,5 @@
-#ifndef __CHAR_OBJ_UTILS_HPP__
-#define __CHAR_OBJ_UTILS_HPP__
+#ifndef CHAR_OBJ_UTILS_HPP_
+#define CHAR_OBJ_UTILS_HPP_
 
 #include "handler.h"
 #include "engine/structs/structs.h"
@@ -7,8 +7,24 @@
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "utils/utils.h"
+#include "gameplay/core/base_stats.h"
+#include "engine/entities/zone.h"
 
 extern int invalid_anti_class(CharData *ch, const ObjData *obj);
+
+inline bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
+	// для анлимного лута мобами из трупов
+	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+		return true;
+	}
+
+	if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)
+		&& ch->GetCarryingQuantity() + 1 <= CAN_CARRY_N(ch)) {
+		return true;
+	}
+
+	return false;
+}
 
 inline bool INVIS_OK_OBJ(const CharData *sub, const ObjData *obj) {
 	return !obj->has_flag(EObjFlag::kInvisible)

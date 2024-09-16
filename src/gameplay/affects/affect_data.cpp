@@ -1,9 +1,8 @@
-#include "gameplay/mechanics/glory_const.h"
-
 #include "affect_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/fight/fight_hit.h"
+#include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/poison.h"
@@ -12,6 +11,11 @@
 #include "engine/core/handler.h"
 #include "utils/utils_time.h"
 #include "gameplay/core/genchar.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/glory_const.h"
+#include "engine/ui/cmd/equip.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/fight/fight.h"
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -350,7 +354,7 @@ void mobile_affect_update() {
 			}
 			count2++;
 			auto affect_i = i->affected.begin();
-			if (i->affected.size() > 0)
+			if (!i->affected.empty())
 				count3++;
 			while (affect_i != i->affected.end()) {
 				const auto &affect = *affect_i;
@@ -969,5 +973,59 @@ bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
 	return false;
 }
 
+bool IsNegativeApply(EApply location) {
+	for (auto elem : apply_negative) {
+		if (location == elem.location)
+			return true;
+	}
+	return false;
+}
+
+bool GetAffectNumByName(const std::string &affName, EAffect &result) {
+	int base = 0, offset = 0, counter = 0;
+	bool endOfArray = false;
+	while (!endOfArray) {
+		if (affName == std::string(affected_bits[counter])) {
+			result = static_cast<EAffect>((base << 30) | (1 << offset));
+			return true;
+		}
+		offset++;
+		if (*affected_bits[counter] == '\n') {
+			base++;
+			offset = 0;
+			if (*affected_bits[counter + 1] == '\n')
+				endOfArray = true;
+		}
+		counter++;
+	}
+	return false;
+}
+
+int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
+	int result = 0;
+	if (ch->IsNpc()) {
+		result = cnst;
+		if (level > 0 && level_divisor > 0)
+			level = level / level_divisor;
+		else
+			level = 0;
+		if (min > 0)
+			level = std::min(level, min);
+		if (max > 0)
+			level = std::max(level, max);
+		return (level + result);
+	}
+	result = cnst * kSecsPerMudHour;
+	if (level > 0 && level_divisor > 0)
+		level = level * kSecsPerMudHour / level_divisor;
+	else
+		level = 0;
+	if (min > 0)
+		level = std::min(level, min * kSecsPerMudHour);
+	if (max > 0)
+		level = std::max(level, max * kSecsPerMudHour);
+	result = (level + result) / kSecsPerPlayerAffect;
+	return (result);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

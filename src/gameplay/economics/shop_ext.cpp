@@ -9,7 +9,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/clans/house.h"
 #include "shops_implementation.h"
-
+#include "gameplay/ai/spec_procs.h"
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
 extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
@@ -28,7 +28,7 @@ struct item_set_node {
 };
 
 struct item_set {
-	item_set() {};
+	item_set() = default;
 
 	std::string _id;
 	std::vector<item_set_node> item_list;

@@ -5,6 +5,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/groups.h"
 
 // ******************* RESCUE PROCEDURES
 void fighting_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {

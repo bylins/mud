@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "modify.h"
 #include "interpreter.h"
@@ -150,7 +150,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					"/r 'a' 'b' -  заменить первое вхождение текста <a> в буфере на текст <b>\r\n"
 					"/ra 'a' 'b'-  заменить все вхождения текста <a> в буфере на текст <b>\r\n"
 					"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
-			SEND_TO_Q(buf, d);
+			iosystem::write_to_output(buf, d);
 			break;
 
 		case PARSE_FORMAT:
@@ -170,7 +170,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 			format_text(d->writer, flags, d, d->max_str);
 
 			sprintf(buf, "Текст отформатирован %s\r\n", (indent ? "WITH INDENT." : "."));
-			SEND_TO_Q(buf, d);
+			iosystem::write_to_output(buf, d);
 			break;
 
 		case PARSE_REPLACE:
@@ -185,16 +185,16 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				j++;
 			}
 			if ((s = strtok(string, "'")) == nullptr) {
-				SEND_TO_Q("Неверный формат.\r\n", d);
+				iosystem::write_to_output("Неверный формат.\r\n", d);
 				return;
 			} else if ((s = strtok(nullptr, "'")) == nullptr) {
-				SEND_TO_Q("Шаблон должен быть заключен в апострофы.\r\n", d);
+				iosystem::write_to_output("Шаблон должен быть заключен в апострофы.\r\n", d);
 				return;
 			} else if ((t = strtok(nullptr, "'")) == nullptr) {
-				SEND_TO_Q("No replacement string.\r\n", d);
+				iosystem::write_to_output("No replacement string.\r\n", d);
 				return;
 			} else if ((t = strtok(nullptr, "'")) == nullptr) {
-				SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
+				iosystem::write_to_output("Замещающая строка должна быть заключена в апострофы.\r\n", d);
 				return;
 			} else {
 				size_t total_len = strlen(t) + strlen(d->writer->get_string()) - strlen(s);
@@ -202,28 +202,28 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					replaced = replace_str(d->writer, s, t, rep_all, static_cast<int>(d->max_str));
 					if (replaced > 0) {
 						sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
-						SEND_TO_Q(buf, d);
+						iosystem::write_to_output(buf, d);
 					} else if (replaced == 0) {
 						sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
-						SEND_TO_Q(buf, d);
+						iosystem::write_to_output(buf, d);
 					} else {
-						SEND_TO_Q("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
+						iosystem::write_to_output("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
 					}
 				} else {
-					SEND_TO_Q("Нет свободного места для завершения команды.\r\n", d);
+					iosystem::write_to_output("Нет свободного места для завершения команды.\r\n", d);
 				}
 			}
 			break;
 
 		case PARSE_DELETE:
 			switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
-				case 0: SEND_TO_Q("Вы должны указать номер строки или диапазон для удаления.\r\n", d);
+				case 0: iosystem::write_to_output("Вы должны указать номер строки или диапазон для удаления.\r\n", d);
 					return;
 				case 1: line_high = line_low;
 					break;
 				case 2:
 					if (line_high < line_low) {
-						SEND_TO_Q("Неверный диапазон.\r\n", d);
+						iosystem::write_to_output("Неверный диапазон.\r\n", d);
 						return;
 					}
 					break;
@@ -235,7 +235,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				std::shared_ptr<char> guard(buffer, free);
 				s = buffer;
 				if (s == nullptr) {
-					SEND_TO_Q("Буфер пуст.\r\n", d);
+					iosystem::write_to_output("Буфер пуст.\r\n", d);
 					return;
 				} else if (line_low > 0) {
 					unsigned int total_len = 1;
@@ -246,7 +246,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						}
 					}
 					if ((i < line_low) || (s == nullptr)) {
-						SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+						iosystem::write_to_output("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 						return;
 					}
 					t = s;
@@ -269,9 +269,9 @@ void parse_action(int command, char *string, DescriptorData *d) {
 					d->writer->set_string(buffer);
 
 					sprintf(buf, "%u line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
-					SEND_TO_Q(buf, d);
+					iosystem::write_to_output(buf, d);
 				} else {
-					SEND_TO_Q("Отрицательный или нулевой номер строки для удаления.\r\n", d);
+					iosystem::write_to_output("Отрицательный или нулевой номер строки для удаления.\r\n", d);
 					return;
 				}
 			}
@@ -295,10 +295,10 @@ void parse_action(int command, char *string, DescriptorData *d) {
 			}
 
 			if (line_low < 1) {
-				SEND_TO_Q("Начальный номер отрицательный или 0.\r\n", d);
+				iosystem::write_to_output("Начальный номер отрицательный или 0.\r\n", d);
 				return;
 			} else if (line_high < line_low) {
-				SEND_TO_Q("Неверный диапазон.\r\n", d);
+				iosystem::write_to_output("Неверный диапазон.\r\n", d);
 				return;
 			}
 			*buf = '\0';
@@ -317,7 +317,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				}
 
 				if ((i < line_low) || (pos == nullptr)) {
-					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+					iosystem::write_to_output("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 					return;
 				}
 
@@ -359,11 +359,11 @@ void parse_action(int command, char *string, DescriptorData *d) {
 			}
 
 			if (line_low < 1) {
-				SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
+				iosystem::write_to_output("Номер строки должен быть больше 0.\r\n", d);
 				return;
 			}
 			if (line_high < line_low) {
-				SEND_TO_Q("Неверный диапазон.\r\n", d);
+				iosystem::write_to_output("Неверный диапазон.\r\n", d);
 				return;
 			}
 			*buf = '\0';
@@ -380,7 +380,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				}
 
 				if ((i < line_low) || (pos == nullptr)) {
-					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+					iosystem::write_to_output("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 					return;
 				}
 
@@ -409,7 +409,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 
 		case PARSE_INSERT: half_chop(string, buf, buf2);
 			if (*buf == '\0') {
-				SEND_TO_Q("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
+				iosystem::write_to_output("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
 				return;
 			}
 			line_low = atoi(buf);
@@ -421,7 +421,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				const char *pos = d->writer->get_string();
 				const char *beginning = pos;
 				if (pos == nullptr) {
-					SEND_TO_Q("Буфер пуст - ничего не вставлено.\r\n", d);
+					iosystem::write_to_output("Буфер пуст - ничего не вставлено.\r\n", d);
 					return;
 				}
 				if (line_low > 0) {
@@ -432,11 +432,11 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						}
 					}
 					if ((i < line_low) || (pos == nullptr)) {
-						SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
+						iosystem::write_to_output("Номер строки вне диапазона - прервано.\r\n", d);
 						return;
 					}
 					if ((pos - beginning + strlen(buf2) + strlen(pos) + 3) > d->max_str) {
-						SEND_TO_Q("Превышение размеров буфера - прервано.\r\n", d);
+						iosystem::write_to_output("Превышение размеров буфера - прервано.\r\n", d);
 						return;
 					}
 					if (beginning && (*beginning != '\0')) {
@@ -447,9 +447,9 @@ void parse_action(int command, char *string, DescriptorData *d) {
 						strcat(buf, pos);
 					}
 					d->writer->set_string(buf);
-					SEND_TO_Q("Строка вставлена.\r\n", d);
+					iosystem::write_to_output("Строка вставлена.\r\n", d);
 				} else {
-					SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
+					iosystem::write_to_output("Номер строки должен быть больше 0.\r\n", d);
 					return;
 				}
 			}
@@ -457,7 +457,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 
 		case PARSE_EDIT: half_chop(string, buf, buf2);
 			if (*buf == '\0') {
-				SEND_TO_Q("Вы должны указать номер строки изменяемого текста.\r\n", d);
+				iosystem::write_to_output("Вы должны указать номер строки изменяемого текста.\r\n", d);
 				return;
 			}
 			line_low = atoi(buf);
@@ -469,7 +469,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				const char *s = d->writer->get_string();
 				const char *beginning = s;
 				if (s == nullptr) {
-					SEND_TO_Q("Буфер пуст - изменения не проведены.\r\n", d);
+					iosystem::write_to_output("Буфер пуст - изменения не проведены.\r\n", d);
 					return;
 				}
 
@@ -483,7 +483,7 @@ void parse_action(int command, char *string, DescriptorData *d) {
 
 					// * Make sure that there was a THAT line in the text.
 					if ((i < line_low) || (s == nullptr)) {
-						SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
+						iosystem::write_to_output("Строка вне диапазона - прервано.\r\n", d);
 						return;
 					}
 
@@ -508,21 +508,21 @@ void parse_action(int command, char *string, DescriptorData *d) {
 
 					// * Check for buffer overflow.
 					if (strlen(buf) > d->max_str) {
-						SEND_TO_Q("Превышение максимального размера буфера - прервано.\r\n", d);
+						iosystem::write_to_output("Превышение максимального размера буфера - прервано.\r\n", d);
 						return;
 					}
 
 					// * Change the size of the REAL buffer to fit the new text.
 					d->writer->set_string(buf);
-					SEND_TO_Q("Строка изменена.\r\n", d);
+					iosystem::write_to_output("Строка изменена.\r\n", d);
 				} else {
-					SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
+					iosystem::write_to_output("Номер строки должен быть больше 0.\r\n", d);
 					return;
 				}
 			}
 			break;
 
-		default: SEND_TO_Q("Неверная опция.\r\n", d);
+		default: iosystem::write_to_output("Неверная опция.\r\n", d);
 			mudlog("SYSERR: invalid command passed to parse_action", BRF, kLvlImplementator, SYSLOG, true);
 			return;
 	}
@@ -571,9 +571,9 @@ void string_add(DescriptorData *d, char *str) {
 			case 'c':
 				if (d->writer->get_string()) {
 					d->writer->clear();
-					SEND_TO_Q("Буфер очищен.\r\n", d);
+					iosystem::write_to_output("Буфер очищен.\r\n", d);
 				} else
-					SEND_TO_Q("Буфер пуст.\r\n", d);
+					iosystem::write_to_output("Буфер пуст.\r\n", d);
 				break;
 			case 'd': parse_action(PARSE_DELETE, actions, d);
 				break;
@@ -583,14 +583,14 @@ void string_add(DescriptorData *d, char *str) {
 				if (d->writer->get_string()) {
 					parse_action(PARSE_FORMAT, actions, d);
 				} else {
-					SEND_TO_Q("Буфер пуст.\r\n", d);
+					iosystem::write_to_output("Буфер пуст.\r\n", d);
 				}
 				break;
 			case 'i':
 				if (d->writer->get_string()) {
 					parse_action(PARSE_INSERT, actions, d);
 				} else {
-					SEND_TO_Q("Буфер пуст.\r\n", d);
+					iosystem::write_to_output("Буфер пуст.\r\n", d);
 				}
 				break;
 			case 'h': parse_action(PARSE_HELP, actions, d);
@@ -599,14 +599,14 @@ void string_add(DescriptorData *d, char *str) {
 				if (d->writer->get_string()) {
 					parse_action(PARSE_LIST_NORM, actions, d);
 				} else {
-					SEND_TO_Q("Буфер пуст.\r\n", d);
+					iosystem::write_to_output("Буфер пуст.\r\n", d);
 				}
 				break;
 			case 'n':
 				if (d->writer->get_string()) {
 					parse_action(PARSE_LIST_NUM, actions, d);
 				} else {
-					SEND_TO_Q("Буфер пуст.\r\n", d);
+					iosystem::write_to_output("Буфер пуст.\r\n", d);
 				}
 				break;
 			case 'r': parse_action(PARSE_REPLACE, actions, d);
@@ -614,7 +614,7 @@ void string_add(DescriptorData *d, char *str) {
 			case 's': terminator = 1;
 				*str = '\0';
 				break;
-			default: SEND_TO_Q("Интересный выбор. Я о нем подумаю...\r\n", d);
+			default: iosystem::write_to_output("Интересный выбор. Я о нем подумаю...\r\n", d);
 				break;
 		}
 	}
@@ -725,7 +725,7 @@ void string_add(DescriptorData *d, char *str) {
 				&& d->writer->get_string()
 				&& !d->board.expired()) {
 				auto board = d->board.lock();
-				d->message->date = time(0);
+				d->message->date = time(nullptr);
 				d->message->text = d->writer->get_string();
 				// для новостных отступов ну и вообще мож все так сейвить, посмотрим
 				if (board->get_type() == Boards::NEWS_BOARD
@@ -734,9 +734,9 @@ void string_add(DescriptorData *d, char *str) {
 				}
 				board->write_message(d->message);
 				Boards::Static::new_message_notify(board);
-				SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
+				iosystem::write_to_output("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
 			} else {
-				SEND_TO_Q("Редактирование прервано.\r\n", d);
+				iosystem::write_to_output("Редактирование прервано.\r\n", d);
 			}
 			d->message.reset();
 			d->board.reset();
@@ -767,13 +767,13 @@ void string_add(DescriptorData *d, char *str) {
 						head += body;
 
 						CLAN(d->character)->write_mod(head);
-						SEND_TO_Q("Сообщение добавлено.\r\n", d);
+						iosystem::write_to_output("Сообщение добавлено.\r\n", d);
 					} else {
-						SEND_TO_Q("Ошибочка вышла...\r\n", d);
+						iosystem::write_to_output("Ошибочка вышла...\r\n", d);
 					}
 				}
 			} else {
-				SEND_TO_Q("Сообщение прервано.\r\n", d);
+				iosystem::write_to_output("Сообщение прервано.\r\n", d);
 			}
 
 			if (d->writer) {
@@ -784,12 +784,12 @@ void string_add(DescriptorData *d, char *str) {
 		} else if (!d->connected && (d->character->IsFlagged(EPlrFlag::kMailing))) {
 			if ((terminator == 1) && d->writer->get_string()) {
 				mail::add(d->mail_to, d->character->get_uid(), d->writer->get_string());
-				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
+				iosystem::write_to_output("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
 				if (DescriptorByUid(d->mail_to)) {
 					mail::add_notice(d->mail_to);
 				}
 			} else
-				SEND_TO_Q("Письмо удалено.\r\n", d);
+				iosystem::write_to_output("Письмо удалено.\r\n", d);
 			//log("[SA] 5s");
 			d->mail_to = 0;
 			if (d->writer) {
@@ -799,9 +799,9 @@ void string_add(DescriptorData *d, char *str) {
 		} else if (STATE(d) == CON_EXDESC)    //log("[SA] 7s");
 		{
 			if (terminator != 1) {
-				SEND_TO_Q("Создание описания прервано.\r\n", d);
+				iosystem::write_to_output("Создание описания прервано.\r\n", d);
 			}
-			SEND_TO_Q(MENU, d);
+			iosystem::write_to_output(MENU, d);
 			d->connected = CON_MENU;
 			//log("[SA] 7f");
 		} else if (!d->connected && d->character && !d->character->IsNpc()) {
@@ -821,7 +821,7 @@ void string_add(DescriptorData *d, char *str) {
 					d->writer->clear();
 				}
 
-				SEND_TO_Q("Сообщение прервано.\r\n", d);
+				iosystem::write_to_output("Сообщение прервано.\r\n", d);
 			}
 		}
 

@@ -6,6 +6,7 @@
 #include "gameplay/skills/morph.hpp"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/weather.h"
 
 std::array<EAffect, 3> hiding = {EAffect::kSneak,
 								 EAffect::kHide,

@@ -20,8 +20,9 @@
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/core/game_limits.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 extern const char *dirs[];
 

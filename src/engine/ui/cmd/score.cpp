@@ -20,6 +20,10 @@
 #include "gameplay/mechanics/liquid.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/core/game_limits.h"
+#include "gameplay/core/base_stats.h"
 
 #include <cmath>
 
@@ -114,7 +118,7 @@ void PrintScoreList(CharData *ch) {
 				  GetRealLevel(ch),
 				  GetRealRemort(ch));
 	SendMsgToChar(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
-				  GET_AGE(ch),
+				  CalcCharAge(ch)->year,
 				  GET_SIZE(ch), GET_REAL_SIZE(ch),
 				  GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
 				  GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
@@ -500,7 +504,7 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GetRealRemort(ch));
-	table[++row][col] = std::string("Возраст: ") + std::to_string(GET_AGE(ch));
+	table[++row][col] = std::string("Возраст: ") + std::to_string(CalcCharAge(ch)->year);
 	if (ch->GetLevel() < kLvlImmortal) {
 		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(GET_EXP(ch));
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
@@ -702,9 +706,9 @@ void PrintScoreBase(CharData *ch) {
 		<< GetRealLevel(ch) << " уровня)." << "\r\n";
 
 	PrintNameStatusInfo(ch, out);
-
-	out << "Сейчас вам " << GET_REAL_AGE(ch) << " " << GetDeclensionInNumber(GET_REAL_AGE(ch), EWhat::kYear) << ".";
-	if (age(ch)->month == 0 && age(ch)->day == 0) {
+	const auto &age = CalcCharAge(ch);
+	out << "Сейчас вам " << age->year << " " << GetDeclensionInNumber(age->year, EWhat::kYear) << ".";
+	if (CalcCharAge(ch)->month == 0 && CalcCharAge(ch)->day == 0) {
 		out << KIRED << " У вас сегодня День Варенья!" << KNRM;
 	}
 	out << "\r\n";

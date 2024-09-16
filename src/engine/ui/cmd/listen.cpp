@@ -9,6 +9,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
+#include "engine/core/handler.h"
 
 void hear_in_direction(CharData *ch, int dir, int info_is);
 

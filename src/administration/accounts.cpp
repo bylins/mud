@@ -7,8 +7,6 @@
 #include "engine/entities/zone.h"
 #include <sstream>
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
-extern std::string GetNameByUnique(long unique, bool god);
-extern bool CompareParam(const std::string &buffer, const char *str, bool full);
 
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
@@ -16,7 +14,7 @@ extern bool CompareParam(const std::string &buffer, const char *str, bool full);
 #define CRYPT(a, b) ((char *) crypt((a),(b)))
 #endif
 
-const std::shared_ptr<Account> Account::get_account(const std::string &email) {
+std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	if (accounts.contains(email)) {
 		return accounts[email];
 	}
@@ -50,14 +48,14 @@ void Account::complete_quest(int id) {
 	for (auto &x : this->dquests) {
 		if (x.id == id) {
 			x.count += 1;
-			x.time = time(0);
+			x.time = time(nullptr);
 			return;
 		}
 	}
-	DQuest dq_tmp;
+	DQuest dq_tmp{};
 	dq_tmp.id = id;
 	dq_tmp.count = 1;
-	dq_tmp.time = time(0);
+	dq_tmp.time = time(nullptr);
 	this->dquests.push_back(dq_tmp);
 }
 
@@ -91,16 +89,16 @@ void Account::list_players(DescriptorData *d) {
 	std::stringstream ss;
 	purge_erased();
 	ss << "Данные аккаунта: " << this->email << "\r\n";
-	SEND_TO_Q(ss.str().c_str(), d);
+	iosystem::write_to_output(ss.str().c_str(), d);
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
-		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
+		iosystem::write_to_output((std::to_string(count) + ") ").c_str(), d);
 		name[0] = UPPER(name[0]);
-		SEND_TO_Q(name.c_str(), d);
-		SEND_TO_Q("\r\n", d);
+		iosystem::write_to_output(name.c_str(), d);
+		iosystem::write_to_output("\r\n", d);
 		count++;
 	}
-	SEND_TO_Q(MENU, d);
+	iosystem::write_to_output(MENU, d);
 }
 
 void Account::save_to_file() {
@@ -131,7 +129,7 @@ void Account::read_from_file() {
 		while (getline(in, line)) {
 			tmp = utils::Split(line);
 			if (line.starts_with("DaiQ: ")) {
-				DQuest tmp_quest;
+				DQuest tmp_quest{};
 				tmp_quest.id = atoi(tmp[1].c_str());
 				tmp_quest.count = atoi(tmp[2].c_str());
 				tmp_quest.time = atoi(tmp[3].c_str());
@@ -186,12 +184,12 @@ void Account::remove_player(long uid) {
 	//mudlog("Функция Account::remove_player, uid  %d не был найден", uid);
 }
 
-time_t Account::get_last_login() {
+time_t Account::get_last_login() const {
 	return this->last_login;
 }
 
 void Account::set_last_login() {
-	this->last_login = time(0);
+	this->last_login = time(nullptr);
 }
 
 Account::Account(const std::string &email) {
@@ -203,12 +201,12 @@ Account::Account(const std::string &email) {
 
 void Account::add_login(const std::string &ip_addr) {
 	if (this->history_logins.count(ip_addr)) {
-		this->history_logins[ip_addr].last_login = time(0);
+		this->history_logins[ip_addr].last_login = time(nullptr);
 		this->history_logins[ip_addr].count += 1;
 		return;
 	}
-	login_index tmp;
-	tmp.last_login = time(0);
+	login_index tmp{};
+	tmp.last_login = time(nullptr);
 	tmp.count = 1;
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }

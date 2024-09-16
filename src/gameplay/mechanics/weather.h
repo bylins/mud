@@ -1,3 +1,10 @@
+/**
+\file weather.h - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Механики календаря и погоды. Календарь отсюжа по-хорошему надо вынести в отдельный модуль.
+*/
+
 #ifndef WEATHER_HPP_
 #define WEATHER_HPP_
 
@@ -121,6 +128,8 @@ int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value);
 int CalcDaySpellMod(CharData *ch, ESpell spell_id, int type, int value);
 int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value);
 int CalcComplexSpellMod(CharData *ch, ESpell spell_id, int type, int value);
+TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
+TimeInfoData *CalcCharAge(const CharData *ch);
 
 #endif // WEATHER_HPP_
 

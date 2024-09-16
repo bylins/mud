@@ -95,13 +95,6 @@ const __uint8_t kCodePageLast = 7;
 
 const int kKtSelectmenu = 255;
 
-// object-related defines ******************************************* //
-
-template<typename E>
-constexpr typename std::underlying_type<E>::type to_underlying(E e) {
-	return static_cast<typename std::underlying_type<E>::type>(e);
-}
-
 const int kLvlImplementator = 34;
 const int kLvlGreatGod = 33;
 const int kLvlBuilder = 33;
@@ -158,17 +151,6 @@ struct TimeInfoData {
 struct FollowerType {
 	CharData *follower = nullptr;
 	struct FollowerType *next = nullptr;
-};
-
-struct TextBlock {
-	char *text = nullptr;
-	int aliased = 0;
-	struct TextBlock *next = nullptr;
-};
-
-struct TextBlocksQueue {
-	struct TextBlock *head = nullptr;
-	struct TextBlock *tail = nullptr;
 };
 
 #endif // STRUCTS_STRUCTS_H_

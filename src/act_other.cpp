@@ -34,6 +34,7 @@
 #include "engine/ui/cmd/do_features.h"
 #include "engine/core/comm.h"
 #include "engine/core/conf.h"
+#include "gameplay/fight/fight.h"
 #include "gameplay/core/constants.h"
 #include "engine/db/db.h"
 #include "gameplay/mechanics/depot.h"
@@ -70,6 +71,10 @@
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/core/game_limits.h"
+#include "gameplay/ai/spec_procs.h"
+#include "gameplay/affects/affect_data.h"
 
 // extern variables
 extern int nameserver_is_slow;
@@ -489,7 +494,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
 		percent = MAX(percent - 50, 0);
 
-	// NO NO With Imp's and Shopkeepers, and if player thieving is not allowed
+	// NO, NO With Imp's and Shopkeepers, and if player thieving is not allowed
 	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_MOB_SPEC(vict) == shop_ext)
 		&& !IS_IMPL(ch)) {
 		SendMsgToChar("Вы постеснялись красть у такого хорошего человека.\r\n", ch);

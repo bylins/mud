@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "gameplay/ai/spec_procs.h"
 
 #include "act_movement.h"
 #include "engine/core/utils_char_obj.inl"
@@ -25,6 +26,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/game_limits.h"
 
 extern CharData *get_player_of_name(const char *name);
 
@@ -1510,6 +1512,31 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("казна"))
 		return (Clan::BankManage(ch, argument));
 	return 0;
+}
+
+bool is_post(RoomRnum room) {
+	for (const auto ch : world[room]->people) {
+		if (ch->IsNpc() && IS_POSTKEEPER(ch)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool is_rent(RoomRnum room) {
+	if (ROOM_FLAGGED(room, ERoomFlag::kHouse)) {
+		const auto clan = Clan::GetClanByRoom(room);
+		if (!clan) {
+			return false;
+		}
+	}
+	// комната без рентера в ней
+	for (const auto ch : world[room]->people) {
+		if (ch->IsNpc() && IS_RENTKEEPER(ch)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

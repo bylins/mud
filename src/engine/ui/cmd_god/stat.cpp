@@ -25,6 +25,8 @@
 #include "gameplay/economics/ext_money.h"
 #include "administration/proxy.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/core/game_limits.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
@@ -272,7 +274,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		sprintf(buf,
 				"Создан: [%s] Последний вход: [%s] Играл: [%dh %dm] Возраст: [%d]\r\n",
-				t1, t2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
+				t1, t2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), CalcCharAge(k)->year);
 		SendMsgToChar(buf, ch);
 
 		k->add_today_torc(0);

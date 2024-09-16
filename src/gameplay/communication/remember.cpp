@@ -9,7 +9,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace Remember {
 

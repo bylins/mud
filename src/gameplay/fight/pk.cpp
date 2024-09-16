@@ -20,6 +20,7 @@
 #include "fight.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/groups.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 

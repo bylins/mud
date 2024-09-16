@@ -1,5 +1,6 @@
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
+#include "engine/core/handler.h"
 
 void DoCampfire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;

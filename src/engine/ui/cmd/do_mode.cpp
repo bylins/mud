@@ -361,7 +361,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		case SCMD_IPCONTROL: result = TogglePrfFlag(ch, EPrf::kIpControl);
 			break;
 #if defined(HAVE_ZLIB)
-		case SCMD_COMPRESS: result = toggle_compression(ch->desc);
+		case SCMD_COMPRESS: result = iosystem::toggle_compression(ch->desc);
 			break;
 #else
 			case SCMD_COMPRESS:

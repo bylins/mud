@@ -15,6 +15,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"
+#include "gameplay/ai/spec_procs.h"
 
 const int kMaxAuctionLot = 3;
 const int kMaxAuctionTactBuy = 5;

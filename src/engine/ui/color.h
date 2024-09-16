@@ -78,6 +78,10 @@
                    perc >= 5 ? CCICYN(ch,C_SPR) :\
                        CCIBLU(ch,C_SPR))
 
+class CharData;
+int proc_color(char *inbuf, int color);
+char *color_value(CharData * /*ch*/, int real, int max);
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

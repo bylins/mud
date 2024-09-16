@@ -1026,6 +1026,15 @@ inline bool IS_UNDEAD(CharData *ch) {
 
 void change_fighting(CharData *ch, int need_stop);
 
+/*
+ *  Это все, разумеется, безобразно. Уровни-реморты должны возвращаться какие есть, а всякие таблицы принимать любой
+ *  уровень и возвращать вращумтельное значение. Но имеем, что имеем, потому пока так.
+ */
+int GetRealLevel(const CharData *ch);
+int GetRealLevel(const std::shared_ptr<CharData> &ch);
+int GetRealRemort(const CharData *ch);
+int GetRealRemort(const std::shared_ptr<CharData> &ch);
+
 #endif // CHAR_HPP_INCLUDED
 
 

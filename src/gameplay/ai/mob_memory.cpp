@@ -14,6 +14,7 @@
 #include "gameplay/fight/pk.h"
 #include "act_movement.h"
 #include "gameplay/fight/fight_constants.h"
+#include "gameplay/mechanics/weather.h"
 
 namespace mob_ai {
 

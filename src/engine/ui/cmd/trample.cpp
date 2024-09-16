@@ -1,5 +1,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
+#include "gameplay/mechanics/groups.h"
 
 void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *caster;

@@ -1,6 +1,10 @@
-//
-// Created by Sventovit on 03.09.2024.
-//
+/**
+\file dungeons.cpp - a part of the Bylins engine.
+\authors Created by Stribog.
+\date 03.09.2024.
+\brief
+\detail
+*/
 
 #include "engine/ui/cmd/follow.h"
 #include "engine/db/db.h"
@@ -12,8 +16,10 @@
 #include "engine/db/global_objects.h"
 #include "sight.h"
 #include "engine/entities/char_data.h"
+#include "utils/utils_time.h"
+#include "gameplay/ai/spec_procs.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 
 extern void ExtractRepopDecayObject(const ObjData::shared_ptr &obj);

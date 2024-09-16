@@ -16,6 +16,7 @@
 #include "gameplay/magic/magic.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/game_limits.h"
 
 #include <cmath>
 

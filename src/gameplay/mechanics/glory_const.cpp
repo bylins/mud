@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <vector>
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "utils/logger.h"
 #include "utils/utils.h"

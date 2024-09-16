@@ -16,6 +16,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "named_stuff.h"
 #include "stable_objs.h"
+#include "weather.h"
 
 #include <cmath>
 

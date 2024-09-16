@@ -30,8 +30,12 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "third_party_libs/fmt/include/fmt/ranges.h"
+#include "gameplay/mechanics/weather.h"
+#include "utils/utils_time.h"
+#include "gameplay/statistics/money_drop.h"
+#include "gameplay/core/game_limits.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -2577,7 +2581,7 @@ void find_replacement(void *go,
 			} else {
 				if (*subfield) {
 					if (*subfield == '-') {
-						EndowExpToChar(c, -MAX(1, atoi(subfield + 1)));
+						EndowExpToChar(c, -std::max(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
 								GET_NAME(c),
@@ -2585,7 +2589,7 @@ void find_replacement(void *go,
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
-						EndowExpToChar(c, +MAX(1, atoi(subfield + 1)));
+						EndowExpToChar(c, +std::max(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
 								GET_NAME(c),

@@ -68,8 +68,6 @@ bool exchange_setfilter(CharData *ch, char *argument);
 
 int LoadExchange();
 int exchange_database_reload(bool loadbackup);
-void check_exchange(ObjData *obj);
-void extract_exchange_item(ExchangeItem *item);
 int get_unique_lot();
 void message_exchange(char *message, CharData *ch, ExchangeItem *j);
 void show_lots(char *filter, short int show_type, CharData *ch);

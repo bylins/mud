@@ -60,7 +60,7 @@ extern char *rules;
 extern char *immlist;
 extern char *policies;
 extern char *handbook;
-extern im_type *imtypes;
+
 extern void show_code_date(CharData *ch);
 extern int nameserver_is_slow; //config.cpp
 

@@ -13,12 +13,11 @@
 #include "dg_event.h"
 #include "gameplay/magic/magic.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/affects/affect_data.h"
 
 extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
-
-extern int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 /*
  * Функция осуществляет поиск цели для DG_CAST

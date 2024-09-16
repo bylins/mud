@@ -22,8 +22,11 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/weather.h"
+#include "utils/utils_time.h"
+
 #include <sys/stat.h>
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;

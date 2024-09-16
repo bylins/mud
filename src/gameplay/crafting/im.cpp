@@ -19,6 +19,8 @@
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
+#include "engine/entities/zone.h"
+#include "gameplay/core/base_stats.h"
 
 #define        VAR_CHAR    '@'
 #define imlog(lvl, str)    mudlog(str, lvl, kLvlBuilder, IMLOG, true)

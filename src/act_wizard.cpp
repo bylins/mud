@@ -63,6 +63,9 @@
 #include "engine/entities/zone.h"
 #include "gameplay/classes/classes_constants.h"
 #include "gameplay/magic/magic_rooms.h"
+#include "utils/utils_time.h"
+#include "gameplay/core/game_limits.h"
+#include "gameplay/fight/fight.h"
 
 //#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
@@ -94,7 +97,6 @@ void appear(CharData *ch);
 int reserved_word(const char *name);
 // local functions
 void perform_immort_invis(CharData *ch, int level);
-void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
@@ -494,47 +496,6 @@ void do_check_occupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 
 	if (!is_found) {
 		SendMsgToChar("Такой зоны нет.\r\n", ch);
-	}
-}
-
-void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	if (ch->IsFlagged(EPlrFlag::kDumbed)) {
-		SendMsgToChar("Вы не в состоянии что-либо продемонстрировать окружающим.\r\n", ch);
-		return;
-	}
-
-	skip_spaces(&argument);
-
-	if (!*argument) {
-		SendMsgToChar("И что вы хотите выразить столь красочно?\r\n", ch);
-	} else {
-		if (subcmd == SCMD_EMOTE) {
-			if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
-				if (ch->get_master()->IsFlagged(EPlrFlag::kDumbed)) {
-					SendMsgToChar("Ваши последователи так же немы, как и вы!\r\n", ch->get_master());
-					return;
-				}
-			}
-			sprintf(buf, "&K$n %s.&n", argument);
-		} else {
-			strcpy(buf, argument);
-		}
-
-		for (const auto to : world[ch->in_room]->people) {
-			if (to == ch
-				|| ignores(to, ch, EIgnore::kEmote)) {
-				continue;
-			}
-
-			act(buf, false, ch, nullptr, to, kToVict | kToNotDeaf);
-			act(deaf_social, false, ch, nullptr, to, kToVict | kToDeaf);
-		}
-
-		if (ch->IsFlagged(EPrf::kNoRepeat)) {
-			SendMsgToChar(OK, ch);
-		} else {
-			act(buf, false, ch, nullptr, nullptr, kToChar);
-		}
 	}
 }
 

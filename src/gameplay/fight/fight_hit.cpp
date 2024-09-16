@@ -15,13 +15,14 @@
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
 #include "gameplay/ai/mob_memory.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/affects/affect_data.h"
 
 // extern
 int GetExtraAc0(ECharClass class_id, int level);
-void alt_equip(CharData *ch, int pos, int dam, int chance);
-int GetThac0(ECharClass class_id, int level);
 void npc_groupbattle(CharData *ch);
-void SetWait(CharData *ch, int waittime, int victim_in_room);
 void go_autoassist(CharData *ch);
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 
@@ -3891,8 +3892,8 @@ void exthit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapo
 }
 
 int CalcPcDamrollBonus(CharData *ch) {
-	const short kMaxRemortForDamrollBonus = 35;
-	const short kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
+	const int kMaxRemortForDamrollBonus = 35;
+	const int kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
 	int bonus = 0;
 	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {

@@ -20,6 +20,7 @@
 #include "administration/accounts.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/mechanics/cities.h"
+#include "gameplay/core/base_stats.h"
 
 #ifdef _WIN32
 #else
@@ -2163,7 +2164,7 @@ int con_total_hp(CharData *ch) {
 ///
 unsigned weight_dex_penalty(CharData *ch) {
 	int n = 0;
-	switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
+	switch (ch->GetCarryingWeight() * 10 / std::max(1, CAN_CARRY_W(ch))) {
 		case 10:
 		case 9:
 		case 8: n = 2;

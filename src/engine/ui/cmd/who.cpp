@@ -6,6 +6,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
+#include "gameplay/classes/classes.h"
 
 namespace {
 

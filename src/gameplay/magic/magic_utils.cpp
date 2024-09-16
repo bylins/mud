@@ -14,13 +14,16 @@
 
 #include "magic_utils.h"
 
-//#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "magic.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/core/base_stats.h"
 
 char cast_argument[kMaxStringLength];
 
@@ -669,7 +672,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	int prob;
-	// Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
+	// \todo Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
 	switch (saving) {
 		case ESaving::kStability:
 			prob = wis_bonus(GetRealWis(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);

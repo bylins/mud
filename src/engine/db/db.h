@@ -61,6 +61,9 @@ int IsCorrectUnique(int unique);
 void SaveGlobalUID();
 void FlushPlayerIndex();
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
+int get_filename(const char *orig_name, char *filename, int mode);
+CharData *find_char(long n);
+CharData *find_pc(long n);
 
 const int kReal		= 0;
 const int kVirtual	= 1 << 0;

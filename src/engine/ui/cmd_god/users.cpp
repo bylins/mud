@@ -7,6 +7,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/weather.h"
 /*#include "utils/utils_string.h"
 #include "utils/table_wrapper.h"
 #include "utils/utils.h"*/

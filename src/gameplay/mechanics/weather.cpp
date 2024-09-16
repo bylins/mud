@@ -1,18 +1,11 @@
-/* ************************************************************************
-*   File: weather.cpp                                   Part of Bylins    *
-*  Usage: functions handling time and the weather                         *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-* 									  *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                      *
-************************************************************************ */
+/**
+\file weather.h - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Механики календаря и погоды. Календарь отсюжа по-хорошему надо вынести в отдельный модуль.
+*/
 
-//#include "weather.h"
+#include "weather.h"
 
 #include "gameplay/magic/spells.h"
 #include "engine/core/handler.h"
@@ -22,7 +15,7 @@
 #include "engine/db/global_objects.h"
 
 Weather weather_info;
-extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
+extern void script_timechange_trigger_check(int time);//Эксопрт тригеров смены времени
 extern TimeInfoData time_info;
 
 void another_hour(int mode);
@@ -1044,6 +1037,37 @@ int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value) {
 
 int get_room_sky(int rnum) {
 	return GET_ROOM_SKY(rnum);
+}
+
+// Calculate the MUD time passed over the last time_to-time_from centuries (secs) //
+TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from) {
+	long secs;
+	static TimeInfoData now;
+
+	secs = (long) (time_to - time_from);
+
+	now.hours = (secs / (kSecsPerMudHour * kTimeKoeff)) % kHoursPerDay;    // 0..23 hours //
+	secs -= kSecsPerMudHour * kTimeKoeff * now.hours;
+
+	now.day = (secs / (kSecsPerMudDay * kTimeKoeff)) % kDaysPerMonth;    // 0..29 days  //
+	secs -= kSecsPerMudDay * kTimeKoeff * now.day;
+
+	now.month = (secs / (kSecsPerMudMonth * kTimeKoeff)) % kMonthsPerYear;    // 0..11 months //
+	secs -= kSecsPerMudMonth * kTimeKoeff * now.month;
+
+	now.year = (secs / (kSecsPerMudYear * kTimeKoeff));    // 0..XX? years //
+
+	return (&now);
+}
+
+TimeInfoData *CalcCharAge(const CharData *ch) {
+	static TimeInfoData player_age;
+
+	player_age = *CalcMudTimePassed(time(nullptr), ch->player_data.time.birth);
+
+	player_age.year += 17;    // All players start at 17 //
+
+	return (&player_age);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

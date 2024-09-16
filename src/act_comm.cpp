@@ -21,10 +21,8 @@
 #include "gameplay/communication/offtop.h"
 #include "gameplay/communication/spam.h"
 #include "gameplay/economics/auction.h"
-
-// extern variables
-/*extern DescriptorData *descriptor_list;
-extern TimeInfoData time_info;*/
+#include "gameplay/communication/ignores.h"
+#include "engine/ui/modify.h"
 
 // local functions
 void perform_tell(CharData *ch, CharData *vict, char *arg);
@@ -254,8 +252,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 				log("NOTELL: name %s глух как пробка", GET_NAME(vict));
 		}
 		act("$N не сможет вас услышать.", false, ch, nullptr, vict, kToChar | kToSleep);
-	}
-	else if (vict->GetPosition() < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
+	} else if (vict->GetPosition() < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
 		act("$N вас не услышит.", false, ch, nullptr, vict, kToChar | kToSleep);
 	else
 		return (true);
@@ -553,15 +550,15 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
   *********************************************************************/
 
 struct communication_type {
-	const char *muted_msg;
-	const char *action;
-	const char *no_channel;
-	const char *color;
-	const char *you_action;
-	const char *hi_action;
-	int min_lev;
-	int move_cost;
-	EPrf noflag;
+  const char *muted_msg;
+  const char *action;
+  const char *no_channel;
+  const char *color;
+  const char *you_action;
+  const char *hi_action;
+  int min_lev;
+  int move_cost;
+  EPrf noflag;
 };
 
 void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -726,13 +723,8 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (ch->IsFlagged(EPrf::kNoRepeat))
 			SendMsgToChar(OK, ch);
 		else {
-			if (COLOR_LEV(ch) >= C_CMP) {
-				snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
-						 com_msgs[subcmd].you_action, argument, KNRM);
-			} else {
-				snprintf(buf1, kMaxStringLength, "Вы %s : '%s'",
-						 com_msgs[subcmd].you_action, argument);
-			}
+			snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
+					 com_msgs[subcmd].you_action, argument, KNRM);
 			act(buf1, false, ch, 0, 0, kToChar | kToSleep);
 
 			if (!ch->IsNpc()) {
@@ -781,7 +773,8 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
 			!i->character->IsFlagged(com_msgs[subcmd].noflag) &&
 			!i->character->IsFlagged(EPlrFlag::kWriting) &&
-			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof) && i->character->GetPosition() > EPosition::kSleep) {
+			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof)
+			&& i->character->GetPosition() > EPosition::kSleep) {
 			if (ignores(i->character.get(), ch, ign_flag)) {
 				continue;
 			}
@@ -984,13 +977,13 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void ignore_usage(CharData *ch) {
 	SendMsgToChar("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
-				 "Доступные режимы:\r\n"
-				 "  сказать говорить шептать спросить эмоция кричать\r\n"
-				 "  болтать орать группа дружина союзники\r\n", ch);
+				  "Доступные режимы:\r\n"
+				  "  сказать говорить шептать спросить эмоция кричать\r\n"
+				  "  болтать орать группа дружина союзники\r\n", ch);
 }
 
 int ign_find_id(char *name, long *id) {
-	for (auto & i : player_table) {
+	for (auto &i : player_table) {
 		if (!str_cmp(name, i.name())) {
 			if (i.level >= kLvlImmortal) {
 				return 0;
@@ -1004,7 +997,7 @@ int ign_find_id(char *name, long *id) {
 }
 
 const char *ign_find_name(long id) {
-	for (const auto & i : player_table) {
+	for (const auto &i : player_table) {
 		if (id == i.uid()) {
 			return i.name();
 		}

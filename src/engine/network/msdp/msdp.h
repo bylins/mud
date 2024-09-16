@@ -1,5 +1,5 @@
-#ifndef __MSDP_HPP__
-#define __MSDP_HPP__
+#ifndef MSDP_HPP_
+#define MSDP_HPP_
 
 #include "engine/core/comm.h"
 

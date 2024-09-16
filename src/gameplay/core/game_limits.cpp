@@ -31,8 +31,11 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
 #include "administration/proxy.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/statistics/zone_exp.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
 
 const int kRecallSpellsInterval = 28;
@@ -143,7 +146,7 @@ int CalcManaGain(const CharData *ch) {
 
 		if (!IS_MANA_CASTER(ch)) {
 			auto restore = int_app[GetRealInt(ch)].mana_per_tic;
-			gain = graf(age(ch)->year, restore - 8, restore - 4, restore,
+			gain = graf(CalcCharAge(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
 			gain = mana_gain_cs[GetRealInt(ch)];
@@ -231,7 +234,7 @@ int hit_gain(CharData *ch) {
 			return (0);
 
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
-			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
+			gain = graf(CalcCharAge(ch)->year, restore - 3, restore, restore, restore - 2,
 						restore - 3, restore - 5, restore - 7);
 		} else {
 			const double base_hp = std::max(1, PlayerSystem::con_total_hp(ch));
@@ -294,7 +297,7 @@ int move_gain(CharData *ch) {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
 		gain =
-			graf(age(ch)->year, 15 + restore, 20 + restore, 25 + restore,
+			graf(CalcCharAge(ch)->year, 15 + restore, 20 + restore, 25 + restore,
 				 20 + restore, 16 + restore, 12 + restore, 8 + restore);
 		// Room specification    //
 		if (LIKE_ROOM(ch))
@@ -831,6 +834,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
+// \todo Сделать файл с механикой опыта и все по опыту собрать туда. Вероятно, в core.
 void gain_exp_regardless(CharData *ch, int gain) {
 	int is_altered = false;
 	int num_levels = 0;
@@ -1077,7 +1081,7 @@ void hour_update() {
 		if (STATE(i) != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
-		SEND_TO_Q(buf, i);
+		iosystem::write_to_output(buf, i);
 	}
 }
 

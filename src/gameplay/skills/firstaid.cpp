@@ -1,6 +1,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/fight/fight.h"
 
 void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;

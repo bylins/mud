@@ -12,7 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace Boards {
 // общий список досок

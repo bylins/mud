@@ -6,6 +6,7 @@
 #include "gameplay/magic/magic_temp_spells.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/weather.h"
 
 #include <cmath>
 

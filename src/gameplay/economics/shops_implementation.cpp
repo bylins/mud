@@ -15,12 +15,14 @@
 #include "gameplay/fight/pk.h"
 #include "engine/entities/zone.h"
 #include "engine/ui/objects_filter.h"
+#include "gameplay/communication/talk.h"
+#include "engine/ui/cmd_god/echo.h"
+#include "gameplay/core/base_stats.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
-extern void do_echo(CharData *ch, char *argument, int cmd, int subcmd);    // implemented in the act.wizard.cpp
 extern char *diag_weapon_to_char(const CObjectPrototype *obj,
 								 int show_wear);    // implemented in the act.informative.cpp
 extern char *diag_timer_to_char(const ObjData *obj);    // implemented in the act.informative.cpp
@@ -166,8 +168,8 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 
 	const auto &desc = desc_i->second;
 
-	obj->set_description(desc.description.c_str());
-	obj->set_aliases(desc.name.c_str());
+	obj->set_description(desc.description);
+	obj->set_aliases(desc.name);
 	obj->set_short_description(desc.short_description.c_str());
 	obj->set_PName(0, desc.PNames[0].c_str());
 	obj->set_PName(1, desc.PNames[1].c_str());
@@ -335,7 +337,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	int total_money = 0;
 	int sell_count = can_sell_count(item_index);
 
-	ObjData *obj = 0;
+	ObjData *obj = nullptr;
 	while (bought < item_count
 		&& check_money(ch, price, currency)
 		&& ch->GetCarryingQuantity() < CAN_CARRY_N(ch)

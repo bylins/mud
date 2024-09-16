@@ -7,8 +7,9 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "third_party_libs/pugixml/pugixml.h"
+#include "engine/entities/zone.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 using namespace ExtMoney;
 using namespace Remort;

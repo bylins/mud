@@ -23,6 +23,7 @@
 #include "gameplay/skills/pick.h"
 #include "engine/db/obj_prototypes.h"
 #include "stable_objs.h"
+#include "weather.h"
 
 #define TAG_NIGHT       "<night>"
 #define TAG_DAY         "<day>"
