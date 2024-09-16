@@ -2064,7 +2064,7 @@ void Damage::Blink(CharData *ch, CharData *victim) {
 		bottom = 10;
 	if (number(bottom, blink) >= number(1, 100)) {
 		sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-				kColorBoldDrk, kColorNrm);
+				kColorBoldBlk, kColorNrm);
 		SendMsgToChar(buf, victim);
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);

@@ -19,7 +19,7 @@ const char *kColorCyn{"\x1B[0;36m"};
 const char *kColorWht{"\x1B[1;37m"};
 const char *kColorGry{"\x1B[0;37m"};
 
-const char *kColorBoldDrk{"\x1B[1;30m"};
+const char *kColorBoldBlk{"\x1B[1;30m"};
 const char *kColorBoldRed{"\x1B[1;31m"};
 const char *kColorBoldGrn{"\x1B[1;32m"};
 const char *kColorBoldYel{"\x1B[1;33m"};
@@ -28,56 +28,38 @@ const char *kColorBoldMag{"\x1B[1;35m"};
 const char *kColorBoldCyn{"\x1B[1;36m"};
 const char *kColorBoldWht{"\x1B[1;37m"};
 
-#define CNRM  "\x1B[0;0m"
-#define CBLK  "\x1B[0;30m"
-#define CRED  "\x1B[0;31m"
-#define CGRN  "\x1B[0;32m"
-#define CYEL  "\x1B[0;33m"
-#define CBLU  "\x1B[0;34m"
-#define CMAG  "\x1B[0;35m"
-#define CCYN  "\x1B[0;36m"
-#define CWHT  "\x1B[0;37m"
-
-#define BBLK  "\x1B[1;30m"
-#define BRED  "\x1B[1;31m"
-#define BGRN  "\x1B[1;32m"
-#define BYEL  "\x1B[1;33m"
-#define BBLU  "\x1B[1;34m"
-#define BMAG  "\x1B[1;35m"
-#define BCYN  "\x1B[1;36m"
-#define BWHT  "\x1B[1;37m"
-
-#define BKBLK  "\x1B[40m"
-#define BKRED  "\x1B[41m"
-#define BKGRN  "\x1B[42m"
-#define BKYEL  "\x1B[43m"
-#define BKBLU  "\x1B[44m"
-#define BKMAG  "\x1B[45m"
-#define BKCYN  "\x1B[46m"
-#define BKWHT  "\x1B[47m"
-
-#define CAMP  "&"
-#define CSLH  "\\"
-
-#define CUDL  "\x1B[4m"        // Underline ANSI code
-#define CFSH  "\x1B[5m"        /* Flashing ANSI code.  Change to #define CFSH "" if
+const char *kColorNormal{"\x1B[0;0m"};
+const char *kColorBlk{"\x1B[0;30m"};
+const char *kColorBlackBlk{"\x1B[40m"};
+const char *kColorBlackRed{"\x1B[41m"};
+const char *kColorBlackGrn{"\x1B[42m"};
+const char *kColorBlackYel{"\x1B[43m"};
+const char *kColorBlackBlu{"\x1B[44m"};
+const char *kColorBlackMag{"\x1B[45m"};
+const char *kColorBlackCyn{"\x1B[46m"};
+const char *kColorBlackWht{"\x1B[47m"};
+const char *kAmp{"&"};
+const char *kSlh{"\\"};
+const char *kUdl{"\x1B[4m"};        // Underline ANSI code
+const char *kFsh{"\x1B[5m"};        /* Flashing ANSI code.  Change to #define CFSH "" if
 * you want to disable flashing colour codes
 */
-#define CRVS  "\x1B[7m"        // Reverse video ANSI code
+const char *kRvs{"\x1B[7m"};        // Reverse video ANSI code
 
-const char *COLOURLIST[] = {CNRM, CRED, CGRN, CYEL, CBLU, CMAG, CCYN, CWHT,
-							BRED, BGRN, BYEL, BBLU, BMAG, BCYN, BWHT,
-							BKRED, BKGRN, BKYEL, BKBLU, BKMAG, BKCYN, BKWHT,
-							CAMP, CSLH, BKBLK, CBLK, CFSH, CRVS, CUDL, BBLK
+const char *kColorList[] = {kColorNormal, kColorRed, kColorGrn, kColorYel, kColorBlu, kColorMag, kColorCyn, kColorGry,
+							kColorBoldRed, kColorBoldGrn, kColorBoldYel, kColorBoldBlu, kColorBoldMag, kColorBoldCyn,
+							kColorBoldWht, kColorBlackRed, kColorBlackGrn, kColorBlackYel, kColorBlackBlu,
+							kColorBlackMag, kColorBlackCyn, kColorBlackWht, kAmp, kSlh, kColorBlackBlk, kColorBlk,
+							kFsh, kRvs, kUdl, kColorBoldBlk
 };
 
 const int kMaxColors = 30;
 
-int isnum(char s) {
+int IsNumber(char s) {
 	return ((s >= '0') && (s <= '9'));
 }
 
-int is_colour(char code) {
+int IsColor(char code) {
 	switch (code) {
 		case 'k': return 25;    // Black
 		case 'r': return 1;        // Red
@@ -135,7 +117,7 @@ int proc_color(char *inbuf) {
 	size_t j = 0;
 	while (j < len) {
 		if (p > kMaxColorStringLength) {
-			snprintf(&out_buf[p], kMaxSockBuf * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
+			snprintf(&out_buf[p], kMaxSockBuf * 2 - p, "\r\n%s%s\r\n", kColorNormal, "***ПЕРЕПОЛНЕНИЕ***");
 			strcpy(inbuf, out_buf);
 			return 0;
 		}
@@ -147,10 +129,10 @@ int proc_color(char *inbuf) {
 			continue;
 		}
 		if (!show_all && (inbuf[j] == '\\') && (inbuf[j + 1] == 'c')
-			&& isnum(inbuf[j + 2]) && isnum(inbuf[j + 3])) {
+			&& IsNumber(inbuf[j + 2]) && IsNumber(inbuf[j + 3])) {
 			c = (inbuf[j + 2] - '0') * 10 + inbuf[j + 3] - '0';
 			j += 4;
-		} else if (!show_all && (inbuf[j] == '&') && !((tmp = is_colour(inbuf[j + 1])) == -1)) {
+		} else if (!show_all && (inbuf[j] == '&') && !((tmp = IsColor(inbuf[j + 1])) == -1)) {
 			j += 2;
 			if (tmp == -4) {
 				// ключ &e выводит три воскл.знака если тут не закрыты цвета ключом &n
@@ -174,9 +156,9 @@ int proc_color(char *inbuf) {
 		if (c >= kMaxColors) {
 			c = 0;
 		}
-		size_t max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
+		size_t max = strlen(kColorList[(c == 0 && nc != 0 ? nc : c)]);
 		for (size_t k = 0; k < max; k++) {
-			out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
+			out_buf[p] = kColorList[(c == 0 && nc != 0 ? nc : c)][k];
 			p++;
 		}
 	}
@@ -190,49 +172,35 @@ int proc_color(char *inbuf) {
 }
 
 const char *GetWarmValueColor(int current, int max) {
-	static char color[8];
 	switch (posi_value(current, max)) {
 		case -1:
-		case 0:
-		case 1: sprintf(color, "&r");
-			break;
-		case 2:
-		case 3: sprintf(color, "&R");
-			break;
-		case 4:
-		case 5: sprintf(color, "&Y");
-			break;
+		case 0: [[fallthrough]];
+		case 1: return kColorRed;
+		case 2: [[fallthrough]];
+		case 3: return kColorBoldRed;
+		case 4: [[fallthrough]];
+		case 5: return kColorYel;
 		case 6:
-		case 7:
-		case 8: sprintf(color, "&G");
-			break;
-		default: sprintf(color, "&g");
-			break;
+		case 7: [[fallthrough]];
+		case 8: return kColorBoldGrn;
+		default: return kColorGrn;
 	}
-	return (color);
 }
 
 const char *GetColdValueColor(int current, int max) {
-	static char color[8];
 	switch (posi_value(current, max)) {
 		case -1:
-		case 0:
-		case 1: sprintf(color, "&w");
-			break;
-		case 2:
-		case 3: sprintf(color, "&b");
-			break;
-		case 4:
-		case 5: sprintf(color, "&B");
-			break;
+		case 0: [[fallthrough]];
+		case 1: return kColorGry;
+		case 2: [[fallthrough]];
+		case 3: return kColorBlu;
+		case 4: [[fallthrough]];
+		case 5: return kColorBoldBlu;
 		case 6:
-		case 7:
-		case 8: sprintf(color, "&C");
-			break;
-		default: sprintf(color, "&c");
-			break;
+		case 7: [[fallthrough]];
+		case 8: return kColorBoldCyn;
+		default: return kColorCyn;
 	}
-	return (color);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

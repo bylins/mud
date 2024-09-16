@@ -206,7 +206,7 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 	auto max_slot_per_lvl = CalcMaxFeatSlotPerLvl(ch);
 	for (i = 0; i < max_slot; i++) {
 		if (*names[i] == '\0')
-			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n", kColorGrn, i + 1, kColorNrm, kColorBoldDrk, kColorNrm);
+			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n", kColorGrn, i + 1, kColorNrm, kColorBoldBlk, kColorNrm);
 		if (i >= max_slot_per_lvl)
 			break;
 		sprintf(buf1 + strlen(buf1), "%s", names[i]);

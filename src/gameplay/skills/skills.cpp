@@ -62,9 +62,9 @@ char *how_good(int skill_level, int skill_cap) {
 	if (skill_level < 0)
 		strcpy(out_str, " !Ошибка! ");
 	else if (skill_level == 0)
-		sprintf(out_str, " %s(не изучено)", kColorBoldDrk);
+		sprintf(out_str, " %s(не изучено)", kColorBoldBlk);
 	else if (skill_percent <= 10)
-		sprintf(out_str, " %s(ужасно)", kColorBoldDrk);
+		sprintf(out_str, " %s(ужасно)", kColorBoldBlk);
 	else if (skill_percent <= 20)
 		sprintf(out_str, " %s(очень плохо)", kColorRed);
 	else if (skill_percent <= 30)

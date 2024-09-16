@@ -1097,7 +1097,7 @@ char *next_page(char *str, CharData *ch) {
 				color = kColorNrm;
 			else
 				switch (*(str + 6)) {
-					case 'N': color = kColorBoldDrk;
+					case 'N': color = kColorBoldBlk;
 						break;
 					case 'n': color = kColorNrm;
 						break;
@@ -1125,7 +1125,7 @@ char *next_page(char *str, CharData *ch) {
 						break;
 					case 'c': color = kColorCyn;
 						break;
-					case 'W': color = kColorBoldDrk;
+					case 'W': color = kColorBoldBlk;
 						break;
 					case 'w': color = kColorWht;
 						break;

@@ -326,12 +326,12 @@ std::string olc_print_stat(CharData *ch, int stat) {
 
 	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {:+}{}\r\n",
 					   olc_stat_name[stat],
-					   kColorBoldDrk, remove_stat_cost(stat, ch->desc->glory_const), kColorNrm,
+					   kColorBoldBlk, remove_stat_cost(stat, ch->desc->glory_const), kColorNrm,
 					   kColorBoldGrn, olc_del_name[stat], kColorNrm,
 					   ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
 							  * stat_multi(stat)),
 					   kColorBoldGrn, olc_add_name[stat], kColorNrm,
-					   kColorBoldDrk, add_stat_cost(stat, ch->desc->glory_const),
+					   kColorBoldBlk, add_stat_cost(stat, ch->desc->glory_const),
 					   stat_add, kColorNrm);
 }
 

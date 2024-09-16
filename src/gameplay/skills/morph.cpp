@@ -60,7 +60,7 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 			sprintf(buf,
 					"%sВаши успехи сделали вас опытнее в оборотничестве.%s\r\n",
 					kColorBoldCyn,
-					kColorBoldDrk);
+					kColorBoldBlk);
 			SendMsgToChar(buf, ch_);
 			skills_[ESkill::kMorph] += diff;
 		}

@@ -598,7 +598,7 @@ void AddPkAuraDescription(CharData *victim, char *s) {
 		sprintf(s, "%s(зеленая аура)%s", kColorBoldGrn, kColorBoldRed);
 		return;
 	} else {
-		sprintf(s, "%s(чистая аура)%s", kColorBoldDrk, kColorBoldRed);
+		sprintf(s, "%s(чистая аура)%s", kColorBoldBlk, kColorBoldRed);
 		return;
 	}
 }

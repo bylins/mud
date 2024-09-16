@@ -25,14 +25,14 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(buf,
 					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 					"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-					kColorNrm, kColorBoldDrk, ch->in_room,
+					kColorNrm, kColorBoldBlk, ch->in_room,
 					kColorRed, kColorBoldRed, world[ch->in_room]->light,
 					kColorGrn, kColorBoldGrn, world[ch->in_room]->glight,
 					kColorYel, kColorBoldYel, world[ch->in_room]->fires,
 					kColorYel, kColorBoldYel, world[ch->in_room]->ices,
 					kColorBlu, kColorBoldBlu, world[ch->in_room]->gdark,
 					kColorMag, kColorBoldCyn, weather_info.sky,
-					kColorWht, kColorBoldDrk, weather_info.sunlight,
+					kColorWht, kColorBoldBlk, weather_info.sunlight,
 					kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 			SendMsgToChar(buf, ch);
 		}

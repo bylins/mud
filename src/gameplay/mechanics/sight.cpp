@@ -196,7 +196,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			case ESector::kHillsRain:
 				sprintf(buf,
 						"%sВы просто увязаете в грязи.%s\r\n",
-						kColorBoldDrk,
+						kColorBoldBlk,
 						kColorNrm);
 				break;
 			case ESector::kThickIce:
@@ -1314,7 +1314,7 @@ char *diag_obj_to_char(CharData *i, ObjData *obj, int mode) {
 		color = kColorRed;
 	} else {
 		percent = 0;
-		color = kColorBoldDrk;
+		color = kColorBoldBlk;
 	}
 
 	if (mode == 1)

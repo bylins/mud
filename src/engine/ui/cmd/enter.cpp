@@ -100,7 +100,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UID(ch)
 					&& !IS_IMMORTAL(ch)) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-								  kColorBoldRed, kColorBoldDrk);
+								  kColorBoldRed, kColorBoldBlk);
 					pkPortal(ch);
 				}
 				RemoveCharFromRoom(ch);

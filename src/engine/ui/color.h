@@ -19,7 +19,7 @@ extern const char *kColorCyn;
 extern const char *kColorWht;
 extern const char *kColorGry;
 
-extern const char *kColorBoldDrk;
+extern const char *kColorBoldBlk;
 extern const char *kColorBoldRed;
 extern const char *kColorBoldGrn;
 extern const char *kColorBoldYel;

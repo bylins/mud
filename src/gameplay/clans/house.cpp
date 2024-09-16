@@ -3001,7 +3001,7 @@ void Clan::MainMenu(DescriptorData *d) {
 				   << kColorNrm << ") "
 				   << "Отключить хранилище для ингредиентов" << "\r\n";
 		} else {
-			buffer << kColorBoldDrk << std::setw(2) << ++num
+			buffer << kColorBoldBlk << std::setw(2) << ++num
 				   << ") " << "Отключить хранилище для ингредиентов"
 				   << kColorNrm << "\r\n";
 		}
@@ -4009,11 +4009,11 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 			&& d->character->IsFlagged(EPrf::kClanmembersMode)) {
 			if (enter) {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
-							  kColorBoldDrk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+							  kColorBoldBlk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
 							  GET_CH_SUF_5(ch), kColorNrm);
 			} else {
 				SendMsgToChar(d->character.get(), "%sДружинни%s %s покинул%s мир.%s\r\n",
-							  kColorBoldDrk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+							  kColorBoldBlk, IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
 							  GET_CH_SUF_1(ch), kColorNrm);
 			}
 		}

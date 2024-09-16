@@ -316,14 +316,14 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				kColorNrm, kColorBoldDrk, room,
+				kColorNrm, kColorBoldBlk, room,
 				kColorRed, kColorBoldRed, world[room]->light,
 				kColorGrn, kColorBoldGrn, world[room]->glight,
 				kColorYel, kColorBoldYel, world[room]->fires,
 				kColorYel, kColorBoldYel, world[room]->ices,
 				kColorBlu, kColorBoldBlu, world[room]->gdark,
 				kColorMag, kColorBoldCyn, weather_info.sky,
-				kColorWht, kColorBoldDrk, weather_info.sunlight,
+				kColorWht, kColorBoldBlk, weather_info.sunlight,
 				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
@@ -370,14 +370,14 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				kColorNrm, kColorBoldDrk, room,
+				kColorNrm, kColorBoldBlk, room,
 				kColorRed, kColorBoldRed, world[room]->light,
 				kColorGrn, kColorBoldGrn, world[room]->glight,
 				kColorYel, kColorBoldYel, world[room]->fires,
 				kColorYel, kColorBoldYel, world[room]->ices,
 				kColorBlu, kColorBoldBlu, world[room]->gdark,
 				kColorMag, kColorBoldCyn, weather_info.sky,
-				kColorWht, kColorBoldDrk, weather_info.sunlight,
+				kColorWht, kColorBoldBlk, weather_info.sunlight,
 				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}

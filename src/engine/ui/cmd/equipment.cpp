@@ -45,7 +45,7 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						continue;
 				}
 				SendMsgToChar(where[i], ch);
-				sprintf(buf, "%s[ Ничего ]%s\r\n", kColorBoldDrk, kColorNrm);
+				sprintf(buf, "%s[ Ничего ]%s\r\n", kColorBoldBlk, kColorNrm);
 				SendMsgToChar(buf, ch);
 				found = true;
 			}
