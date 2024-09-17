@@ -1,6 +1,9 @@
-//
-// Created by Sventovit on 03.09.2024.
-//
+/**
+\file dead_load.cpp - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 03.09.2024.
+\brief Система загрузки предметов по списку DL непосредственно в мобе. Необходимо удалить после введения таблиц лута.
+*/
 
 #include "dead_load.h"
 #include "engine/entities/char_data.h"
@@ -10,7 +13,7 @@
 #include "engine/db/global_objects.h"
 #include "stable_objs.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace dead_load {
 

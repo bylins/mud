@@ -20,8 +20,6 @@
 #include <string>
 #include <sstream>
 
-#define NUM_RESERVED_DESCS    8
-
 class CObjectPrototype;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 
@@ -121,19 +119,6 @@ const int kToSleep = 128;			// to char, even if sleeping
 const int kToArenaListen = 512;		// не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
 const int kToBriefShields = 1024;	// отсылать только тем, у кого включен режим EPrf::BRIEF_SHIELDS
 const int kToNoBriefShields = 2048;	// отсылать только тем, у кого нет режима EPrf::BRIEF_SHIELDS
-
-// I/O functions
-int write_to_descriptor(socket_t desc, const char *txt, size_t total);
-bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, size_t byffer_size, int &written);
-void write_to_q(const char *txt, struct TextBlocksQueue *queue, int aliased);
-void write_to_output(const char *txt, DescriptorData *d);
-void string_add(DescriptorData *d, char *str);
-void string_write(DescriptorData *d, const utils::AbstractStringWriter::shared_ptr &writer,
-				  size_t len, int mailto, void *data);
-int toggle_compression(DescriptorData *d);
-
-#define SEND_TO_Q(messg, desc)        write_to_output((messg), desc)
-#define SEND_TO_SOCKET(messg, desc)    write_to_descriptor((desc), (messg), strlen(messg))
 
 typedef RETSIGTYPE sigfunc(int);
 

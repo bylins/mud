@@ -15,13 +15,14 @@
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
 #include "gameplay/ai/mob_memory.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/affects/affect_data.h"
 
 // extern
 int GetExtraAc0(ECharClass class_id, int level);
-void alt_equip(CharData *ch, int pos, int dam, int chance);
-int GetThac0(ECharClass class_id, int level);
 void npc_groupbattle(CharData *ch);
-void SetWait(CharData *ch, int waittime, int victim_in_room);
 void go_autoassist(CharData *ch);
 int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict);
 
@@ -835,7 +836,7 @@ void try_remove_extrahits(CharData *ch, CharData *victim) {
 	{
 		GET_HIT(victim) = GET_REAL_MAX_HIT(victim);
 		SendMsgToChar(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в вашей голове.%s\r\n",
-					  CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
+					  kColorWht, GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, 0, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, 0, victim, kToNotVict | kToArenaListen);
 	}
@@ -2063,7 +2064,7 @@ void Damage::Blink(CharData *ch, CharData *victim) {
 		bottom = 10;
 	if (number(bottom, blink) >= number(1, 100)) {
 		sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-		CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+				kColorBoldBlk, kColorNrm);
 		SendMsgToChar(buf, victim);
 		act("$n исчез$q из вашего поля зрения.", true, victim, nullptr, ch, kToVict);
 		act("$n исчез$q из поля зрения $N1.", true, victim, nullptr, ch, kToNotVict);
@@ -3891,8 +3892,8 @@ void exthit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapo
 }
 
 int CalcPcDamrollBonus(CharData *ch) {
-	const short kMaxRemortForDamrollBonus = 35;
-	const short kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
+	const int kMaxRemortForDamrollBonus = 35;
+	const int kRemortDamrollBonus[kMaxRemortForDamrollBonus + 1] =
 		{0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8};
 	int bonus = 0;
 	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {

@@ -10,7 +10,7 @@
 #include "engine/core/handler.h"
 #include "engine/boot/boot_constants.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "third_party_libs/pugixml/pugixml.h"
 
 extern pugi::xml_node XmlLoad(const char *PathToFile,

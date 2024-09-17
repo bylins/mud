@@ -83,6 +83,8 @@ class ZoneData {
 using ZoneTable = std::vector<ZoneData>;
 extern ZoneTable &zone_table;
 
+ZoneVnum GetZoneVnumByCharPlace(CharData *ch);
+
 #endif // __ZONE_TABLE_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

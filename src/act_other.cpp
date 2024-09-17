@@ -34,6 +34,7 @@
 #include "engine/ui/cmd/do_features.h"
 #include "engine/core/comm.h"
 #include "engine/core/conf.h"
+#include "gameplay/fight/fight.h"
 #include "gameplay/core/constants.h"
 #include "engine/db/db.h"
 #include "gameplay/mechanics/depot.h"
@@ -70,6 +71,10 @@
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/core/game_limits.h"
+#include "gameplay/ai/spec_procs.h"
+#include "gameplay/affects/affect_data.h"
 
 // extern variables
 extern int nameserver_is_slow;
@@ -77,8 +82,6 @@ extern int nameserver_is_slow;
 void write_aliases(CharData *ch);
 void perform_immort_vis(CharData *ch);
 void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
-extern char *color_value(CharData *ch, int real, int max);
-//int posi_value(int real, int max);
 extern void split_or_clan_tax(CharData *ch, long amount);
 extern bool IsWearingLight(CharData *ch);
 // local functions
@@ -153,7 +156,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		SendMsgToChar("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
 		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
@@ -489,7 +492,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
 		percent = MAX(percent - 50, 0);
 
-	// NO NO With Imp's and Shopkeepers, and if player thieving is not allowed
+	// NO, NO With Imp's and Shopkeepers, and if player thieving is not allowed
 	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_MOB_SPEC(vict) == shop_ext)
 		&& !IS_IMPL(ch)) {
 		SendMsgToChar("Вы постеснялись красть у такого хорошего человека.\r\n", ch);
@@ -974,7 +977,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
 
-		buffer << fmt::format("{}", color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)));
+		buffer << fmt::format("{}", GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k)));
 		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
 		buffer << fmt::format(" {:^7} &n|", ch->in_room == k->in_room ? "&gДа" : "&rНет");
 
@@ -994,8 +997,8 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		if (!header)
 			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект |  Дебаф  |  Кто  | Строй | Положение \r\n";
 
-		std::string health_color = color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k));
-		std::string move_color = color_value(ch, GET_MOVE(k), GET_REAL_MAX_MOVE(k));
+		std::string health_color = GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k));
+		std::string move_color = GetWarmValueColor(GET_MOVE(k), GET_REAL_MAX_MOVE(k));
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name()); 
 
@@ -1772,18 +1775,18 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void perform_beep(CharData *ch, CharData *vict) {
-	SendMsgToChar(CCRED(vict, C_NRM), vict);
+	SendMsgToChar(kColorRed, vict);
 	sprintf(buf, "\007\007 $n вызывает вас!");
 	act(buf, false, ch, nullptr, vict, kToVict | kToSleep);
-	SendMsgToChar(CCNRM(vict, C_NRM), vict);
+	SendMsgToChar(kColorNrm, vict);
 
 	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar(OK, ch);
 	else {
-		SendMsgToChar(CCRED(ch, C_CMP), ch);
+		SendMsgToChar(kColorRed, ch);
 		sprintf(buf, "Вы вызвали $N3.");
 		act(buf, false, ch, nullptr, vict, kToChar | kToSleep);
-		SendMsgToChar(CCNRM(ch, C_CMP), ch);
+		SendMsgToChar(kColorNrm, ch);
 	}
 }
 
@@ -1811,7 +1814,6 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 extern struct IndexData *obj_index;
-
 
 bool is_dark(RoomRnum room) {
 	double coef = 0.0;

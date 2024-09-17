@@ -7,6 +7,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "gameplay/affects/affect_data.h"
 
 void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {

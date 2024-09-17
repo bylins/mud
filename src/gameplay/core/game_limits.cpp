@@ -31,8 +31,11 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
 #include "administration/proxy.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/statistics/zone_exp.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
 
 const int kRecallSpellsInterval = 28;
@@ -110,7 +113,7 @@ void handle_recall_spells(CharData *ch) {
 				}
 				ch->mem_queue.total = std::max(0, ch->mem_queue.total - CalcSpellManacost(ch, i->spell_id));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
-						CCICYN(ch, C_NRM), MUD::Spell(i->spell_id).GetCName(), CCNRM(ch, C_NRM));
+						kColorBoldCyn, MUD::Spell(i->spell_id).GetCName(), kColorNrm);
 				SendMsgToChar(buf, ch);
 				GET_SPELL_MEM(ch, i->spell_id)++;
 				free(i);
@@ -143,7 +146,7 @@ int CalcManaGain(const CharData *ch) {
 
 		if (!IS_MANA_CASTER(ch)) {
 			auto restore = int_app[GetRealInt(ch)].mana_per_tic;
-			gain = graf(age(ch)->year, restore - 8, restore - 4, restore,
+			gain = graf(CalcCharAge(ch)->year, restore - 8, restore - 4, restore,
 						restore + 5, restore, restore - 4, restore - 8);
 		} else {
 			gain = mana_gain_cs[GetRealInt(ch)];
@@ -231,7 +234,7 @@ int hit_gain(CharData *ch) {
 			return (0);
 
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
-			gain = graf(age(ch)->year, restore - 3, restore, restore, restore - 2,
+			gain = graf(CalcCharAge(ch)->year, restore - 3, restore, restore, restore - 2,
 						restore - 3, restore - 5, restore - 7);
 		} else {
 			const double base_hp = std::max(1, PlayerSystem::con_total_hp(ch));
@@ -294,7 +297,7 @@ int move_gain(CharData *ch) {
 		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
 			return (0);
 		gain =
-			graf(age(ch)->year, 15 + restore, 20 + restore, 25 + restore,
+			graf(CalcCharAge(ch)->year, 15 + restore, 20 + restore, 25 + restore,
 				 20 + restore, 16 + restore, 12 + restore, 8 + restore);
 		// Room specification    //
 		if (LIKE_ROOM(ch))
@@ -772,11 +775,11 @@ void EndowExpToChar(CharData *ch, int gain) {
 			if (!GET_GOD_FLAG(ch, EGf::kRemort) && GetRealRemort(ch) < kMaxRemort) {
 				if (Remort::can_remort_now(ch)) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-								  CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+								  kColorBoldGrn, kColorNrm);
 				} else {
 					SendMsgToChar(ch,
 								  "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
-								  "%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
+								  "%s%s\r\n", kColorBoldGrn, Remort::WHERE_TO_REMORT_STR.c_str(), kColorNrm);
 				}
 				SET_GOD_FLAG(ch, EGf::kRemort);
 			}
@@ -785,7 +788,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->GetLevel() + 1);
 			num_levels++;
-			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
 			SendMsgToChar(local_buf, ch);
 			advance_level(ch);
 			is_altered = true;
@@ -804,7 +807,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			num_levels++;
 			sprintf(local_buf,
 					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
-					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					kColorBoldRed, kColorNrm);
 			SendMsgToChar(local_buf, ch);
 			decrease_level(ch);
 			is_altered = true;
@@ -821,7 +824,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
 		if (Remort::can_remort_now(ch)) {
 			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-						  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+						  kColorBoldRed, kColorNrm);
 		}
 		CLR_GOD_FLAG(ch, EGf::kRemort);
 	}
@@ -831,6 +834,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
+// \todo Сделать файл с механикой опыта и все по опыту собрать туда. Вероятно, в core.
 void gain_exp_regardless(CharData *ch, int gain) {
 	int is_altered = false;
 	int num_levels = 0;
@@ -842,7 +846,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+						kColorWht, kColorNrm);
 				SendMsgToChar(buf, ch);
 
 				advance_level(ch);
@@ -865,7 +869,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 				num_levels++;
 				sprintf(buf,
 						"%sВы потеряли уровень!%s\r\n",
-						CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+						kColorBoldRed, kColorNrm);
 				SendMsgToChar(buf, ch);
 				decrease_level(ch);
 				is_altered = true;
@@ -1076,8 +1080,8 @@ void hour_update() {
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
-		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
-		SEND_TO_Q(buf, i);
+		sprintf(buf, "%sМинул час.%s\r\n", kColorBoldRed, kColorNrm);
+		iosystem::write_to_output(buf, i);
 	}
 }
 
@@ -1237,11 +1241,11 @@ void clan_chest_invoice(ObjData *j) {
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room) {
 			SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-						  CCIRED(d->character, C_NRM),
+						  kColorBoldRed,
 						  j->get_short_description().c_str(),
 						  clan_get_custom_label(j, CLAN(d->character)).c_str(),
 						  GET_OBJ_SUF_2(j),
-						  CCNRM(d->character, C_NRM));
+						  kColorNrm);
 		}
 	}
 
@@ -1325,9 +1329,9 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 			 local_buf1);
 	SendMsgToChar(charmee->get_master(),
 				  "%s%s%s\r\n",
-				  CCICYN(charmee->get_master(), C_NRM),
+				  kColorBoldCyn,
 				  CAP(local_buf),
-				  CCNRM(charmee->get_master(), C_NRM));
+				  kColorNrm);
 }
 
 void obj_point_update() {

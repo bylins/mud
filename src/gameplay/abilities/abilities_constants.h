@@ -6,6 +6,7 @@
 #define BYLINS_SRC_ABILITIES_ABILITIES_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/structs/meta_enum.h"
 
 namespace abilities {
 

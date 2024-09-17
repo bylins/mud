@@ -5,7 +5,7 @@
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "gameplay/economics/currencies.h"
 
 extern void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency);

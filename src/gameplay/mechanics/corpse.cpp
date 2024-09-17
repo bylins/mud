@@ -11,12 +11,16 @@
 #include "gameplay/clans/house.h"
 #include "utils/parse.h"
 #include "utils/random.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/sets_drop.h"
 
 // see http://stackoverflow.com/questions/20145488/cygwin-g-stdstoi-error-stoi-is-not-a-member-of-std
 #if defined __CYGWIN__
 #include <cstdlib>
 #define stoi(x) strtol(x.c_str(),0,10)
 #endif
+
+int get_virtual_race(CharData *mob);
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload);
@@ -526,6 +530,19 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 		PlaceObjToRoom(corpse.get(), corpse_room);
 		return corpse.get();
 	}
+}
+
+int get_virtual_race(CharData *mob) {
+	if (mob->get_role(MOB_ROLE_BOSS)) {
+		return kNpcBoss;
+	}
+	std::map<int, int>::iterator it;
+	std::map<int, int> unique_mobs = SetsDrop::get_unique_mob();
+	for (it = unique_mobs.begin(); it != unique_mobs.end(); it++) {
+		if (GET_MOB_VNUM(mob) == it->first)
+			return kNpcUnique;
+	}
+	return -1;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

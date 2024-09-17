@@ -5,6 +5,7 @@
 */
 
 #include "spells_constants.h"
+#include "utils/utils.h"
 
 #include <map>
 #include <sstream>

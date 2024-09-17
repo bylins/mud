@@ -55,7 +55,7 @@ int was_agree_name(DescriptorData *d) {
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = GetPlayerIdByName(immname);
 			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
-			SEND_TO_Q(buf, d);
+			iosystem::write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
 			fclose(fp);
@@ -91,7 +91,7 @@ int was_disagree_name(DescriptorData *d) {
 			// Char found all ok;
 
 			sprintf(buf, "\r\nВаше имя запрещено!\r\n");
-			SEND_TO_Q(buf, d);
+		iosystem::write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
 
@@ -245,7 +245,7 @@ bool NewNames::show(CharData *actor) {
 		return false;
 
 	std::ostringstream buffer;
-	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(actor, C_NRM);
+	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << kColorWht;
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it) {
 		const auto sex = static_cast<size_t>(to_underlying(it->second->sex));
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
@@ -254,7 +254,7 @@ bool NewNames::show(CharData *actor) {
 			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "неопределен" : it->second->email)
 			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
-	buffer << CCNRM(actor, C_NRM);
+	buffer << kColorNrm;
 	SendMsgToChar(buffer.str(), actor);
 	return true;
 }

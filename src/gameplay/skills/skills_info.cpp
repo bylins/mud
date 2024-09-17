@@ -50,13 +50,13 @@ ItemPtr SkillInfoBuilder::ParseObligatoryValues(DataNode &node) {
 
 void SkillInfo::Print(std::ostringstream &buffer) const {
 	buffer << "Print skill:" << "\r\n"
-		   << " Id: " << KGRN << NAME_BY_ITEM<ESkill>(GetId()) << KNRM << "\r\n"
-		   << " Name: " << KGRN << name << KNRM << "\r\n"
-		   << " Abbreviation: " << KGRN << short_name << KNRM << "\r\n"
-		   << " Save type: " << KGRN << NAME_BY_ITEM<ESaving>(save_type) << KNRM << "\r\n"
-		   << " Difficulty: " << KGRN << difficulty << KNRM << "\r\n"
-		   << " Skill cap: " << KGRN << cap << KNRM << "\r\n"
-		   << " Mode: " << KGRN << NAME_BY_ITEM<EItemMode>(GetMode()) << KNRM << "\r\n";
+		   << " Id: " << kColorGrn << NAME_BY_ITEM<ESkill>(GetId()) << kColorNrm << "\r\n"
+		   << " Name: " << kColorGrn << name << kColorNrm << "\r\n"
+		   << " Abbreviation: " << kColorGrn << short_name << kColorNrm << "\r\n"
+		   << " Save type: " << kColorGrn << NAME_BY_ITEM<ESaving>(save_type) << kColorNrm << "\r\n"
+		   << " Difficulty: " << kColorGrn << difficulty << kColorNrm << "\r\n"
+		   << " Skill cap: " << kColorGrn << cap << kColorNrm << "\r\n"
+		   << " Mode: " << kColorGrn << NAME_BY_ITEM<EItemMode>(GetMode()) << kColorNrm << "\r\n";
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

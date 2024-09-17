@@ -84,8 +84,8 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			--GET_SPELL_MEM(ch, spell_id);
 			ch->caster_level -= MUD::Spell(spell_id).GetDanger();
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
-					KICYN, MUD::Spell(spell_id).GetCName(),
-					KNRM, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
+					kColorBoldCyn, MUD::Spell(spell_id).GetCName(),
+					kColorNrm, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
 			SendMsgToChar(buf, ch);
 		}
 	else

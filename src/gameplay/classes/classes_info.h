@@ -14,10 +14,11 @@
 #include "gameplay/magic/spells.h"
 #include "gameplay/skills/skills.h"
 #include "engine/structs/info_container.h"
+#include "engine/grammar/cases.h"
 
 #include <optional>
 
-namespace base_structs {
+namespace grammar {
 class ItemName;
 }
 
@@ -122,7 +123,7 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 	};
 
 	/* Имена */
-	std::unique_ptr<base_structs::ItemName> names;
+	std::unique_ptr<grammar::ItemName> names;
 	std::string abbr;
 	[[nodiscard]] const std::string &GetName(ECase name_case = ECase::kNom) const;
 	[[nodiscard]] const std::string &GetPluralName(ECase name_case = ECase::kNom) const;
@@ -189,7 +190,7 @@ class CharClassInfo : public info_container::BaseItem<ECharClass> {
 
  private:
 	void InnerInit() {
-		names = std::make_unique<base_structs::ItemName>();
+		names = std::make_unique<grammar::ItemName>();
 		for (auto stat = EBaseStat::kFirst; stat <= EBaseStat::kLast; ++stat) {
 			base_stats[stat] = CharClassInfo::BaseStatLimits();
 		}

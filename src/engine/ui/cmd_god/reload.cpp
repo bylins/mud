@@ -19,13 +19,13 @@
 #include "administration/privilege.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/title.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/db/help.h"
 #include "utils/utils.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/mechanics/mob_races.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "administration/proxy.h"
 
 extern char *credits;

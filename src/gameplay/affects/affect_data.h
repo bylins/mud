@@ -80,5 +80,8 @@ void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
 bool no_bad_affects(ObjData *obj);
+bool IsNegativeApply(EApply location);
+bool GetAffectNumByName(const std::string &affName, EAffect &result);
+int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 #endif //BYLINS_AFFECT_DATA_H

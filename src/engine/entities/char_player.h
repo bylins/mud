@@ -21,7 +21,7 @@
 #include "gameplay/statistics/dps.h"
 #include "engine/ui/mapsystem.h"
 #include "gameplay/core/reset_stats.h"
-#include "gameplay/communication/boards_types.h"
+#include "gameplay/communication/boards/boards_types.h"
 #include "engine/ui/cmd/mercenary.h"
 #include "gameplay/economics/ext_money.h"
 

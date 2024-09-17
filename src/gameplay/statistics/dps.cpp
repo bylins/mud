@@ -212,10 +212,10 @@ void Dps::PrintPersonalExpStat(std::ostringstream &out) const {
 	double percent = exp_ ? battle_exp_ * 100.0 / exp_ : 0.0;
 	int balance = exp_ + lost_exp_;
 
-	out << KIBLU << " *" << KNRM << " Всего получено опыта: " << PrintNumberByDigits(exp_)
+	out << kColorBoldBlu << " *" << kColorNrm << " Всего получено опыта: " << PrintNumberByDigits(exp_)
 		<< " Из него за удары: " << PrintNumberByDigits(battle_exp_)
 		<< " (" << std::setprecision(2) << percent << "%)" << "\r\n"
-		<< KIBLU << " *" << KNRM << " Потеряно опыта: " << PrintNumberByDigits(abs(lost_exp_));
+		<< kColorBoldBlu << " *" << kColorNrm << " Потеряно опыта: " << PrintNumberByDigits(abs(lost_exp_));
 
 	if (balance != 0) {
 		out << " Баланс: " << (balance > 0 ? "+" : "-") << PrintNumberByDigits(abs(balance)) << "\r\n";

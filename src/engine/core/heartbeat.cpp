@@ -27,6 +27,11 @@
 #include "engine/scripting/dg_event.h"
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
+#include "engine/ui/cmd_god/set_all.h"
+#include "gameplay/statistics/money_drop.h"
+#include "gameplay/mechanics/weather.h"
+#include "utils/utils_time.h"
+#include "gameplay/statistics/zone_exp.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -47,7 +52,7 @@ void check_idle_passwords() {
 			d->idle_tics++;
 			continue;
 		} else {
-			SEND_TO_Q("\r\nTimed out... goodbye.\r\n", d);
+			iosystem::write_to_output("\r\nTimed out... goodbye.\r\n", d);
 			STATE(d) = CON_CLOSE;
 		}
 	}

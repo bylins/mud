@@ -98,7 +98,7 @@ void invoice(long uid) {
 	if (d) {
 		if (!has_parcel(d->character.get())) {
 			SendMsgToChar(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
-						  CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
+						  kColorWht, kColorNrm);
 		}
 	}
 }
@@ -244,7 +244,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
 
-	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0).c_str(), CCNRM(ch, C_NRM));
+	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, GET_OBJ_PNAME(obj, 0).c_str(), kColorNrm);
 	send_buffer += buf;
 
 	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
@@ -368,14 +368,14 @@ void print_sending_stuff(CharData *ch) {
 			print = true;
 			std::string name = GetNameByUnique(it->first);
 			name_convert(name);
-			out << "\r\nАдресат: " << name << ", отправлено:\r\n" << CCWHT(ch, C_NRM);
+			out << "\r\nАдресат: " << name << ", отправлено:\r\n" << kColorWht;
 
 			int money = 0;
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
 				out << GET_OBJ_PNAME(it3->obj_, 0) << "\r\n";
 				money += it3->money_;
 			}
-			out << CCNRM(ch, C_NRM)
+			out << kColorNrm
 				<< money << " " << GetDeclensionInNumber(money, EWhat::kMoneyA) << " зарезервировано на 3 дня хранения.\r\n";
 		}
 	}
@@ -438,7 +438,7 @@ void return_money(std::string const &name, int money, bool add) {
 		if (add) {
 			vict->add_bank(money);
 			SendMsgToChar(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-						  CCWHT(vict, C_NRM), money, GetDeclensionInNumber(money, EWhat::kMoneyU), CCNRM(vict, C_NRM));
+						  kColorWht, money, GetDeclensionInNumber(money, EWhat::kMoneyU), kColorNrm);
 		}
 	} else {
 		vict = new Player; // TODO: переделать на стек
@@ -546,7 +546,7 @@ void create_mail(int to_uid, int from_uid, char *text) {
 	const DescriptorData *i = DescriptorByUid(to_uid);
 	if (i) {
 		SendMsgToChar(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-					  CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
+					  kColorWht, kColorNrm);
 	}
 }
 

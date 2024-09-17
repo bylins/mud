@@ -20,6 +20,7 @@
 #include "fight.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/groups.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -562,45 +563,42 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 	return PK_ACTION_KILL;
 }
 
-const char *CCPK(CharData *ch, int lvl, CharData *victim) {
-	int i;
-
-	i = pk_count(victim);
-	if (i >= FifthPK)
-		return CCIRED(ch, lvl);
-	else if (i >= FourthPK)
-		return CCIMAG(ch, lvl);
-	else if (i >= ThirdPK)
-		return CCIYEL(ch, lvl);
-	else if (i >= SecondPK)
-		return CCICYN(ch, lvl);
-	else if (i >= FirstPK)
-		return CCIGRN(ch, lvl);
-	else
-		return CCNRM(ch, lvl);
+const char *GetPkNameColor(CharData *victim) {
+	auto i = pk_count(victim);
+	if (i >= FifthPK) {
+		return kColorBoldRed;
+	} else if (i >= FourthPK) {
+		return kColorBoldMag;
+	} else if (i >= ThirdPK) {
+		return kColorBoldYel;
+	} else if (i >= SecondPK) {
+		return kColorBoldCyn;
+	} else if (i >= FirstPK) {
+		return kColorBoldGrn;
+	} else {
+		return kColorNrm;
+	}
 }
 
-void aura(CharData *ch, int lvl, CharData *victim, char *s) {
-	int i;
-
-	i = pk_count(victim);
+void AddPkAuraDescription(CharData *victim, char *s) {
+	auto i = pk_count(victim);
 	if (i >= FifthPK) {
-		sprintf(s, "%s(кровавая аура)%s", CCRED(ch, lvl), CCIRED(ch, lvl));
+		sprintf(s, "%s(кровавая аура)%s", kColorRed, kColorBoldRed);
 		return;
 	} else if (i >= FourthPK) {
-		sprintf(s, "%s(пурпурная аура)%s", CCIMAG(ch, lvl), CCIRED(ch, lvl));
+		sprintf(s, "%s(пурпурная аура)%s", kColorBoldMag, kColorBoldRed);
 		return;
 	} else if (i >= ThirdPK) {
-		sprintf(s, "%s(желтая аура)%s", CCIYEL(ch, lvl), CCIRED(ch, lvl));
+		sprintf(s, "%s(желтая аура)%s", kColorBoldYel, kColorBoldRed);
 		return;
 	} else if (i >= SecondPK) {
-		sprintf(s, "%s(голубая аура)%s", CCICYN(ch, lvl), CCIRED(ch, lvl));
+		sprintf(s, "%s(голубая аура)%s", kColorBoldCyn, kColorBoldRed);
 		return;
 	} else if (i >= FirstPK) {
-		sprintf(s, "%s(зеленая аура)%s", CCIGRN(ch, lvl), CCIRED(ch, lvl));
+		sprintf(s, "%s(зеленая аура)%s", kColorBoldGrn, kColorBoldRed);
 		return;
 	} else {
-		sprintf(s, "%s(чистая аура)%s", CCINRM(ch, lvl), CCIRED(ch, lvl));
+		sprintf(s, "%s(чистая аура)%s", kColorBoldBlk, kColorBoldRed);
 		return;
 	}
 }

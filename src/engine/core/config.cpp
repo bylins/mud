@@ -16,9 +16,10 @@
 
 #include "config.h"
 
-#include "gameplay/communication/boards_changelog_loaders.h"
-#include "gameplay/communication/boards_constants.h"
+#include "gameplay/communication/boards/boards_changelog_loaders.h"
+#include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"
+#include "engine/structs/meta_enum.h"
 
 #if CIRCLE_UNIX
 #include <sys/stat.h>
@@ -76,10 +77,10 @@ int dts_are_dumps = YES;
  */
 int load_into_inventory = YES;
 
-// "okay" etc.
 const char *OK = "Ладушки.\r\n";
 const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
 const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
+const char *nothing_string = "ничего";
 
 /*
  * You can define or not define TRACK_THOUGH_DOORS, depending on whether

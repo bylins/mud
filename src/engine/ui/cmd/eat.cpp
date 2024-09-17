@@ -4,6 +4,10 @@
 #include "engine/core/handler.h"
 #include "hire.h"
 #include "gameplay/mechanics/liquid.h"
+#include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/core/game_limits.h"
+#include "gameplay/affects/affect_data.h"
 
 extern void die(CharData *ch, CharData *killer);
 
@@ -39,11 +43,9 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
-	//Added by Ann
 	if (IsAffectedBySpell(ch->get_master(), ESpell::kFascination)) {
 		chance_to_eat -= 30;
 	}
-	//end Ann
 	if (number(1, 100) < chance_to_eat) {
 		act("$N подавил$U и начал$G сильно кашлять.", true, ch, nullptr, ch, kToRoom | kToArenaListen);
 		GET_HIT(ch) -= 3 * mob_level;

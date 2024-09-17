@@ -16,6 +16,7 @@
 #include "engine/structs/flag_data.h"
 #include "engine/core/sysdep.h"
 #include "utils/utils_string.h"
+#include "engine/grammar/cases.h"
 
 #include <array>
 #include <vector>

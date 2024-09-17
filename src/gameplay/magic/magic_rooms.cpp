@@ -7,6 +7,7 @@
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
+#include "gameplay/mechanics/weather.h"
 
 //#include <iomanip>
 

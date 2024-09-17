@@ -1,3 +1,13 @@
+/**
+\file equip.h - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 15.09.2024.
+\brief Команда "надать/экипировать".
+\detail Отсюда нужно вынести в механику собственно механику надевания, поиск слотов, требования к силе и все такие.
+*/
+
+#include "engine/ui/cmd/equip.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/core/utils_char_obj.inl"
@@ -484,6 +494,29 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			perform_wear(ch, obj, equip_pos);
 		}
 	}
+}
+
+void message_str_need(CharData *ch, ObjData *obj, int type) {
+	if (ch->GetPosition() == EPosition::kDead)
+		return;
+	int need_str = 0;
+	switch (type) {
+		case STR_WIELD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W);
+			break;
+		case STR_HOLD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W);
+			break;
+		case STR_BOTH_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W);
+			break;
+		case STR_SHIELD_W: need_str = calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W);
+			break;
+		default:
+			log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",
+				GET_NAME(ch), GET_OBJ_WEIGHT(obj), type,
+				__FILE__, __func__, __LINE__);
+			return;
+	}
+	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
+				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -16,6 +16,7 @@
 
 #include "engine/core/action_targeting.h"
 #include "gameplay/affects/affect_handler.h"
+#include "gameplay/affects/affect_data.h"
 #include "engine/db/world_characters.h"
 #include "engine/ui/cmd/hire.h"
 #include "gameplay/mechanics/corpse.h"
@@ -30,6 +31,9 @@
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/ai/mob_memory.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/weather.h"
 
 extern int what_sky;
 extern int interpolate(int min_value, int pulse);
@@ -820,33 +824,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 	}
 	return rand;
-}
-
-int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
-	int result = 0;
-	if (ch->IsNpc()) {
-		result = cnst;
-		if (level > 0 && level_divisor > 0)
-			level = level / level_divisor;
-		else
-			level = 0;
-		if (min > 0)
-			level = std::min(level, min);
-		if (max > 0)
-			level = std::max(level, max);
-		return (level + result);
-	}
-	result = cnst * kSecsPerMudHour;
-	if (level > 0 && level_divisor > 0)
-		level = level * kSecsPerMudHour / level_divisor;
-	else
-		level = 0;
-	if (min > 0)
-		level = std::min(level, min * kSecsPerMudHour);
-	if (max > 0)
-		level = std::max(level, max * kSecsPerMudHour);
-	result = (level + result) / kSecsPerPlayerAffect;
-	return (result);
 }
 
 bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {

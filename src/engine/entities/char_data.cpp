@@ -2,13 +2,10 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-//#include "world_characters.h"
-//#include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "gameplay/mechanics/player_races.h"
-//#include "gameplay/mechanics/celebrates.h"
 #include "utils/cache.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/clans/house.h"
@@ -17,9 +14,10 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/liquid.h"
 #include "char_data.h"
+#include "gameplay/statistics/money_drop.h"
+#include "gameplay/affects/affect_data.h"
 
-
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
 
 std::string PlayerI::empty_const_str;
@@ -2282,5 +2280,30 @@ void CharData::RemoveRunestone(const Runestone &stone) {
 		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", this);
 	}
 };
+
+int GetRealLevel(const CharData *ch) {
+
+	if (ch->IsNpc()) {
+		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
+	}
+
+	if (IS_IMMORTAL(ch)) {
+		return ch->GetLevel();
+	}
+
+	return std::clamp(ch->GetLevel() + ch->get_level_add(), 1, kLvlImmortal - 1);
+}
+
+int GetRealLevel(const std::shared_ptr<CharData> &ch) {
+	return GetRealLevel(ch.get());
+}
+
+int GetRealRemort(const CharData *ch) {
+	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
+}
+
+int GetRealRemort(const std::shared_ptr<CharData> &ch) {
+	return GetRealRemort(ch.get());
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

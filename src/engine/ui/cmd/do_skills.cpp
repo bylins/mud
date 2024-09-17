@@ -3,6 +3,7 @@
 #include "engine/ui/color.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/weather.h"
 
 void DoSkills(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
@@ -80,7 +81,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 					how_good(ch->GetSkill(skill_id), CalcSkillHardCap(ch, skill_id)),
 					ch->GetTrainedSkill(skill_id) == 0 ? ch->GetEquippedSkill(skill_id) : 
 					std::min(CalcSkillMinCap(ch, skill_id) + ch->GetEquippedSkill(skill_id), MUD::Skill(skill_id).cap),
-					CCNRM(ch, C_NRM));
+					kColorNrm);
 			skills_names.emplace_back(buf);
 			i++;
 		}

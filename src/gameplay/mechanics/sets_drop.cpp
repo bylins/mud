@@ -4,13 +4,15 @@
 #include "sets_drop.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
 #include "engine/db/help.h"
 #include "gameplay/statistics/mob_stat.h"
+#include "engine/entities/zone.h"
+#include "gameplay/ai/spec_procs.h"
 
 namespace SetsDrop {
 // список сетин на дроп
@@ -1001,8 +1003,8 @@ void message_for_players() {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING && i->character) {
 			SendMsgToChar(i->character.get(), "%s%s%s\r\n",
-						  CCICYN(i->character, C_NRM), RESET_MESSAGE,
-						  CCNRM(i->character, C_NRM));
+						  kColorBoldCyn, RESET_MESSAGE,
+						  kColorNrm);
 		}
 	}
 }

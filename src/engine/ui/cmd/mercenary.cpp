@@ -4,8 +4,10 @@
 #include "engine/entities/char_player.h"
 #include "engine/ui/modify.h"
 #include "gameplay/statistics/mob_stat.h"
+#include "gameplay/communication/talk.h"
+#include "gameplay/ai/spec_procs.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 int do_social(CharData *ch, char *argument);
 
@@ -33,7 +35,7 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 		return;
 	}
 	if (IS_IMMORTAL(ch)) {
-		sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел:",
+		sprintf(buf, "Вот, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
 	} else if (CanUseFeat(ch, EFeat::kEmployer)) {
 		sprintf(buf, "%s тех, с кем знакомство ты водишь:",
@@ -217,7 +219,6 @@ int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		tell_to_char(boss, ch, "Доступные команды: список (полный), привести <номер> (банк), фаворит <номер>");
 	return (1);
 }
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 

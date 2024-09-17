@@ -6,6 +6,7 @@
 */
 
 #include "gameplay/affects/affect_contants.h"
+#include "utils/utils.h"
 
 enum class ECharClass {
 	kUndefined = -1,

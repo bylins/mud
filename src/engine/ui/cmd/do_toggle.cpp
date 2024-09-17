@@ -3,10 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
-#include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
-
-const char *ctypes[] = {"выключен", "простой", "обычный", "полный", "\n"};
 
 extern int nameserver_is_slow; //config.cpp
 const char *BoolToOnOffStr(bool value);
@@ -44,7 +41,6 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 " Сжатый режим  : %-3s \r\n"
 			 " Повтор команд : %-3s     "
 			 " Обращения     : %-3s     "
-			 " Цвет          : %-8s \r\n"
 			 " Кто-то        : %-6s  "
 			 " Болтать       : %-3s     "
 			 " Орать         : %-3s \r\n"
@@ -80,7 +76,6 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kCompact)),
 			 (ch->IsFlagged(EPrf::kNoRepeat) ? "NO" : "YES"),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoTell)),
-			 ctypes[COLOR_LEV(ch)],
 			 ch->IsFlagged(EPrf::kNoInvistell) ? "нельзя" : "можно",
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoGossip)),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoHoller)),

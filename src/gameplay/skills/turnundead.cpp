@@ -9,7 +9,7 @@
 #include "engine/core/handler.h"
 #include "engine/ui/cmd/flee.h"
 #include "gameplay/magic/magic.h"
-//#include <structs/global_objects.h>
+#include "gameplay/mechanics/weather.h"
 
 //using namespace abilities;
 

@@ -184,7 +184,7 @@ void send_to_zone(char *messg, int zone_rnum) {
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && i->character && AWAKE(i->character) &&
 			(i->character->in_room != kNowhere) && (world[i->character->in_room]->zone_rn == zone_rnum))
-			SEND_TO_Q(messg, i);
+		iosystem::write_to_output(messg, i);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

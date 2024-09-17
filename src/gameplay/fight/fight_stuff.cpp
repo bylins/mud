@@ -27,10 +27,11 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
+#include "engine/entities/zone.h"
+#include "gameplay/core/game_limits.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
-long GetExpUntilNextLvl(CharData *ch, int level);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
 void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
@@ -1219,7 +1220,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			if (dam > 0
 				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)) {
 				sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
-						CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
+						kColorRed, kColorNrm);
 				SendMsgToChar(buf2, victim);
 			}
 

@@ -9,6 +9,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/db/global_objects.h"
+#include "engine/core/handler.h"
 
 void hear_in_direction(CharData *ch, int dir, int info_is);
 
@@ -53,8 +54,8 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
-		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), dirs_rus[dir], CCNRM(ch, C_NRM));
-		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
+		count += sprintf(buf, "%s%s:%s ", kColorYel, dirs_rus[dir], kColorNrm);
+		count += sprintf(buf + count, "\r\n%s", kColorGrn);
 		SendMsgToChar(buf, ch);
 		count = 0;
 		for (const auto tch : world[rdata->to_room()]->people) {
@@ -119,7 +120,7 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 			SendMsgToChar(tmpstr.c_str(), ch);
 		}
 
-		SendMsgToChar(CCNRM(ch, C_NRM), ch);
+		SendMsgToChar(kColorNrm, ch);
 	} else {
 		if (info_is & EXIT_SHOW_WALL) {
 			SendMsgToChar("И что вы там хотите услышать?\r\n", ch);

@@ -10,7 +10,7 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/communication/parcel.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 void perform_immort_where(CharData *ch, char *arg);
 void perform_mortal_where(CharData *ch, char *arg);

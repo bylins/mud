@@ -22,8 +22,11 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/mechanics/weather.h"
+#include "utils/utils_time.h"
+
 #include <sys/stat.h>
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;
@@ -1172,10 +1175,6 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	int nitems = 0, idelete = 0, ideleted = 0, rnum, timer, i;
 	int rentcode, timer_dec;
 
-#ifndef USE_AUTOEQ
-	return;
-#endif
-
 	strcpy(name, player_table[index].name());
 
 	if (!player_table[index].timer) {
@@ -1395,7 +1394,7 @@ int Crash_load(CharData *ch) {
 	// Бесплатная рента, если выйти в течение 2 часов после ребута или креша
 	if (((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
 		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
-		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1404,7 +1403,7 @@ int Crash_load(CharData *ch) {
 					 "%s"
 					 "Вам предъявили счет на %d %s за постой (%d %s в день).\r\n"
 					 "Но все, что у вас было - %ld %s... Увы. Все ваши вещи переданы мобам.%s\n\r",
-				CCWHT(ch, C_NRM),
+				kColorWht,
 				num_of_days,
 				RENTCODE(index) ==
 					RENT_TIMEDOUT ?
@@ -1413,7 +1412,7 @@ int Crash_load(CharData *ch) {
 				SAVEINFO(index)->rent.net_cost_per_diem,
 				GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem,
 									  EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
-				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), CCNRM(ch, C_NRM));
+				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
@@ -1426,14 +1425,14 @@ int Crash_load(CharData *ch) {
 			sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 						 "%s"
 						 "С вас содрали %d %s за постой (%d %s в день).%s\r\n",
-					CCWHT(ch, C_NRM),
+					kColorWht,
 					num_of_days,
 					RENTCODE(index) ==
 						RENT_TIMEDOUT ?
 					"Вас пришлось тащить до кровати, за это постой был дороже.\r\n"
 									  : "", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU),
 					SAVEINFO(index)->rent.net_cost_per_diem,
-					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), CCNRM(ch, C_NRM));
+					GetDeclensionInNumber(SAVEINFO(index)->rent.net_cost_per_diem, EWhat::kMoneyA), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 		ch->remove_both_gold(cost);
@@ -1535,7 +1534,7 @@ int Crash_load(CharData *ch) {
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0) {
 			snprintf(buf, kMaxStringLength, "%s%s%s рассыпал%s от длительного использования.\r\n",
-					 CCWHT(ch, C_NRM),
+					 kColorWht,
 					 cap.c_str(),
 					 char_get_custom_label(obj.get(), ch).c_str(),
 					 GET_OBJ_SUF_2(obj));
@@ -2099,14 +2098,12 @@ void Crash_report_rent_item(CharData *ch,
 		}
 
 		sprintf(buf, "%s - %d %s%s за %s%s %s",
-				recursive ? "" : CCWHT(ch, C_SPR),
+				recursive ? "" : kColorWht,
 				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
 					factor * count,
 				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
 									  EWhat::kMoneyA),
-				bf, OBJN(obj, ch, 3),
-				count > 1 ? bf2 : "",
-				recursive ? "" : CCNRM(ch, C_SPR));
+				bf, OBJN(obj, ch, 3), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
 		act(buf, false, recep, 0, ch, kToVict);
 	}
 }
@@ -2140,13 +2137,13 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 				else
 					*bf = '\0';
 				sprintf(buf, "%s - %d %s%s за %s %s",
-						recursive ? "" : CCWHT(ch, C_SPR),
+						recursive ? "" : KWHT,
 						(equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) *
 						factor,
 						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
 									GET_OBJ_RENT(obj)) * factor,
 								   EWhat::MONEYa), bf, OBJN(obj, ch, 3),
-						recursive ? "" : CCNRM(ch, C_SPR));
+						recursive ? "" : KNRM;
 				act(buf, false, recep, 0, ch, TO_VICT);
 			}*/
 			// added by WorM (Видолюб)

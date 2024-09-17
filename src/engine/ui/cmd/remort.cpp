@@ -12,7 +12,7 @@
 #include "gameplay/skills/townportal.h"
 #include "engine/db/global_objects.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "gameplay/economics/ext_money.h"
 
 extern RoomRnum r_frozen_start_room;

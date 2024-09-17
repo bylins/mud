@@ -7,10 +7,12 @@
 #ifndef BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 #define BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_
 
-#include "gameplay/communication/boards_types.h"
+#include "gameplay/communication/boards/boards_types.h"
 #include "gameplay/economics/ext_money.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
+#include "engine/core/iosystem.h"
+#include "engine/core/conf.h"
 #include "utils/utils_string.h"
 
 #include <string>
@@ -71,8 +73,8 @@ struct DescriptorData {
 	int history_pos;        // Circular array position.      //
 	size_t bufptr;            // ptr to end of current output  //
 	size_t bufspace;        // space left in the output buffer  //
-	struct TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
-	struct TextBlocksQueue input;            // q of unprocessed input     //
+	struct iosystem::TextBlock *large_outbuf;    // ptr to large buffer, if we need it //
+	struct iosystem::TextBlocksQueue input;            // q of unprocessed input     //
 
 	std::shared_ptr<CharData> character;    // linked to char       //
 	std::shared_ptr<CharData> original;    // original char if switched     //
@@ -170,7 +172,7 @@ const __uint8_t CON_TORC_EXCH = 52;        // обмен гривен
 const __uint8_t CON_MENU_STATS = 53;        // оплата сброса стартовых статов из главного меню
 const __uint8_t CON_SEDIT = 54;            // sedit - редактирование сетов
 const __uint8_t CON_RESET_RELIGION = 55;    // сброс религии из меню сброса статов
-const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter in the game from new location
+const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter the game from new location
 const __uint8_t CON_INIT = 57;                // just connected
 // не забываем отражать новые состояния в connected_types -- Krodo
 

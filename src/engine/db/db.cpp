@@ -2,7 +2,7 @@
 
 #include "administration/accounts.h"
 #include "administration/ban.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "engine/boot/boot_data_files.h"
 #include "engine/boot/boot_index.h"
 #include "gameplay/communication/social.h"
@@ -51,8 +51,11 @@
 #include "gameplay/mechanics/treasure_cases.h"
 #include "gameplay/mechanics/cities.h"
 #include "administration/proxy.h"
+#include "utils/utils_time.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/ai/spec_procs.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
 
 #include <memory>
@@ -115,7 +118,7 @@ char *handbook{nullptr};        // handbook for new immortals
 char *policies{nullptr};        // policies page
 char *name_rules{nullptr};        // rules of character's names
 
-TimeInfoData time_info;    // the infomation about the time
+TimeInfoData time_info;
 struct reset_q_type reset_q;    // queue of zones to be reset
 
 const FlagData clear_flags;
@@ -147,10 +150,8 @@ void BuildPlayerIndexNew();
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void InitBasicValues();
-TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
 void LoadMessages();
 void SortCommands();
-void ReadCharacterInvalidNamesList();
 int CompareSocials(const void *a, const void *b);
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
@@ -3454,6 +3455,108 @@ bool PlayersIndex::equal_to::operator()(const std::string &left, const std::stri
 	}
 
 	return true;
+}
+
+int get_filename(const char *orig_name, char *filename, int mode) {
+	const char *prefix, *middle, *suffix;
+	char name[64], *ptr;
+
+	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
+		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
+		return (0);
+	}
+
+	switch (mode) {
+		case kAliasFile: prefix = LIB_PLRALIAS;
+			suffix = SUF_ALIAS;
+			break;
+		case kScriptVarsFile: prefix = LIB_PLRVARS;
+			suffix = SUF_MEM;
+			break;
+		case kPlayersFile: prefix = LIB_PLRS;
+			suffix = SUF_PLAYER;
+			break;
+		case kTextCrashFile: prefix = LIB_PLROBJS;
+			suffix = TEXT_SUF_OBJS;
+			break;
+		case kTimeCrashFile: prefix = LIB_PLROBJS;
+			suffix = TIME_SUF_OBJS;
+			break;
+		case kPersDepotFile: prefix = LIB_DEPOT;
+			suffix = SUF_PERS_DEPOT;
+			break;
+		case kShareDepotFile: prefix = LIB_DEPOT;
+			suffix = SUF_SHARE_DEPOT;
+			break;
+		case kPurgeDepotFile: prefix = LIB_DEPOT;
+			suffix = SUF_PURGE_DEPOT;
+			break;
+		default: return (0);
+	}
+
+	strcpy(name, orig_name);
+	for (ptr = name; *ptr; ptr++) {
+		if (*ptr == 'Ё' || *ptr == 'ё')
+			*ptr = '9';
+		else
+			*ptr = LOWER(AtoL(*ptr));
+	}
+
+	switch (LOWER(*name)) {
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e': middle = LIB_A;
+			break;
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j': middle = LIB_F;
+			break;
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o': middle = LIB_K;
+			break;
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't': middle = LIB_P;
+			break;
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z': middle = LIB_U;
+			break;
+		default: middle = LIB_Z;
+			break;
+	}
+
+	sprintf(filename, "%s%s" SLASH "%s.%s", prefix, middle, name, suffix);
+	return (1);
+}
+
+CharData *find_char(long n) {
+	CharData *ch = chardata_by_uid[n];
+	if (ch) {
+		return ch;
+	}
+	return find_pc(n);
+}
+
+CharData *find_pc(long n) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) == CON_PLAYING && GET_UID(d->character) == n) {
+			return d->character.get();
+		}
+	}
+	return nullptr;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

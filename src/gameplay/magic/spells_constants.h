@@ -8,7 +8,10 @@
 #define BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/structs/meta_enum.h"
+
 #include <optional>
+
 const int kMinMemoryCircle = 1;
 const int kMaxMemoryCircle = 13;
 

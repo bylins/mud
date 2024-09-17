@@ -6,6 +6,7 @@
 */
 
 #include "entities_constants.h"
+#include "utils/utils.h"
 
 #include <map>
 

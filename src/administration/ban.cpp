@@ -11,7 +11,7 @@
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 const char *const BanList::ban_filename = "etc/badsites";
 const char *const BanList::proxy_ban_filename = "etc/badproxy";
@@ -554,7 +554,7 @@ void BanList::DisconnectBannedIp(const std::string &Ip) {
 			if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
 				return;
 			//SendMsgToChar will crash if character has not been loaded/created yet.
-			SEND_TO_Q("Your IP has been banned, disconnecting...\r\n", d);
+			iosystem::write_to_output("Your IP has been banned, disconnecting...\r\n", d);
 			if (STATE(d) == CON_PLAYING)
 				STATE(d) = CON_DISCONNECT;
 			else

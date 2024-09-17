@@ -30,8 +30,12 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "third_party_libs/fmt/include/fmt/ranges.h"
+#include "gameplay/mechanics/weather.h"
+#include "utils/utils_time.h"
+#include "gameplay/statistics/money_drop.h"
+#include "gameplay/core/game_limits.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -60,7 +64,6 @@ extern const char *item_types[];
 extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
-extern TimeInfoData time_info;
 extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
@@ -833,9 +836,9 @@ void do_stat_trigger(CharData *ch, Trigger *trig, bool need_num) {
 	}
 
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
-			CCYEL(ch, C_NRM), trig->get_name().c_str(), CCNRM(ch, C_NRM),
-			CCGRN(ch, C_NRM), trig_index[(trig)->get_rnum()]->vnum,
-			CCNRM(ch, C_NRM), trig->get_rnum());
+			kColorYel, trig->get_name().c_str(), kColorNrm,
+			kColorGrn, trig_index[(trig)->get_rnum()]->vnum,
+			kColorNrm, trig->get_rnum());
 	SendMsgToChar(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER) {
@@ -948,8 +951,8 @@ void script_stat(CharData *ch, Script *sc) {
 
 	for (auto t : sc->trig_list) {
 		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d]\r\n",
-				CCYEL(ch, C_NRM), GET_TRIG_NAME(t), CCNRM(ch, C_NRM),
-				CCGRN(ch, C_NRM), GET_TRIG_VNUM(t), CCNRM(ch, C_NRM), GET_TRIG_RNUM(t));
+				kColorYel, GET_TRIG_NAME(t), kColorNrm,
+				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t));
 		SendMsgToChar(buf, ch);
 
 		if (t->get_attach_type() == MOB_TRIGGER) {
@@ -969,10 +972,10 @@ void script_stat(CharData *ch, Script *sc) {
 		if (t->get_attach_type() == MOB_TRIGGER) {
 			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
 				   << " , Execute mob command: " << (t->add_flag ? "ДА" : "НЕТ")
-				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+				   << " , Arg list:" << (!t->arglist.empty() ? t->arglist.c_str() : "None");
 		} else {
 			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
-				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+				   << " , Arg list:" << (!t->arglist.empty() ? t->arglist.c_str() : "None");
 		}
 		SendMsgToChar(buffer.str(), ch);
 
@@ -2577,7 +2580,7 @@ void find_replacement(void *go,
 			} else {
 				if (*subfield) {
 					if (*subfield == '-') {
-						EndowExpToChar(c, -MAX(1, atoi(subfield + 1)));
+						EndowExpToChar(c, -std::max(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
 								GET_NAME(c),
@@ -2585,7 +2588,7 @@ void find_replacement(void *go,
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
-						EndowExpToChar(c, +MAX(1, atoi(subfield + 1)));
+						EndowExpToChar(c, +std::max(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
 								GET_NAME(c),
@@ -4353,8 +4356,6 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	struct wait_event_data *wait_event_obj;
 	long time = 0, hr, min, ntime;
 	char c;
-
-	extern TimeInfoData time_info;
 
 	if ((trig->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 		||(trig->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), OTRIG_PURGE))) {

@@ -20,17 +20,10 @@
 #include <vector>
 #include <sstream>
 
-#include "gameplay/classes/classes_constants.h"
-#include "gameplay/classes/classes.h"
 #include "engine/core/conf.h"
 #include "engine/core/config.h"
-#include "engine/entities/entities_constants.h"
 #include "utils/id_converter.h"
-#include "engine/structs/structs.h"
-#include "gameplay/mechanics/weather.h"
 #include "utils_string.h"
-#include "engine/entities/zone.h"
-#include "utils/utils_time.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -98,8 +91,6 @@ extern char KoiToWin2[];
 extern char AltToLat[];
 
 // public functions in utils.cpp
-CharData *find_char(long n);
-CharData *find_pc(long n);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -112,24 +103,20 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
+// \todo убрать и оставить только в random.h
 int number(int from, int to);
 int RollDices(int number, int size);
+
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE *fl, char *buf);
-int get_filename(const char *orig_name, char *filename, int mode);
-TimeInfoData *age(const CharData *ch);
-int num_pc_in_room(RoomData *room);
 int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const char *pattern, const char *replacement, int rep_all, int max_size);
 void format_text(const utils::AbstractStringWriter::shared_ptr &writer, int mode, DescriptorData *d, size_t maxlen);
-int check_moves(CharData *ch, int how_moves);
 void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string &input);
-bool IsNegativeApply(EApply location);
 void koi_to_win(char *str, int len);
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
-int real_sector(int room);
-char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj);
+// \todo Заменить на фунции из STD
 int roundup(float fl);
 bool IsValidEmail(const char *address);
 void skip_dots(char **string);
@@ -137,24 +124,8 @@ char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
-void MemLeakInfo();
-void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
 bool is_head(std::string name);
 
-extern bool GetAffectNumByName(const std::string &affName, EAffect &result);
-/*
-std::string to_string(int x) { return std::to_string(x); }
-std::string to_string(unsigned int x) { return std::to_string(x); }
-std::string to_string(long x) { return std::to_string(x); }
-std::string to_string(unsigned long x) { return std::to_string(x); }
-std::string to_string(long long x) { return std::to_string(x); }
-std::string to_string(unsigned long long x) { return std::to_string(x); }
-std::string to_string(float x) { return std::to_string(x); }
-std::string to_string(double x) { return std::to_string(x); }
-std::string to_string(long double x) { return std::to_string(x); }
-std::string to_string(const char *x) { return std::string(x); }
-std::string to_string(const std::string &x) { return x; }
-*/
 template<typename T> inline std::string to_string(const T &t) {
 	std::stringstream ss;
 	ss << t;
@@ -194,7 +165,6 @@ char *colorCAP(char *txt);
 std::string &colorCAP(std::string &txt);
 std::string &colorCAP(std::string &&txt);
 char *CAP(char *txt);
-ZoneVnum GetZoneVnumByCharPlace(CharData *ch);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
 #define KtoW2(c) ((ubyte)(c) < 128 ? (c) : KoiToWin2[(ubyte)(c)-128])
@@ -207,20 +177,6 @@ ZoneVnum GetZoneVnumByCharPlace(CharData *ch);
 int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is_flee);
 int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 
-// in limits.cpp //
-int CalcManaGain(const CharData *ch);
-int hit_gain(CharData *ch);
-int move_gain(CharData *ch);
-void advance_level(CharData *ch);
-void EndowExpToChar(CharData *ch, int gain);
-void gain_exp_regardless(CharData *ch, int gain);
-void gain_condition(CharData *ch, unsigned condition, int value);
-void check_idling(CharData *ch);
-void point_update();
-void room_point_update();
-void exchange_point_update();
-void obj_point_update();
-void update_pos(CharData *victim);
 
 // various constants ****************************************************
 // get_filename() //
@@ -243,26 +199,12 @@ const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
-int GetRealLevel(const CharData *ch);
-int GetRealLevel(const std::shared_ptr<CharData> *ch);
-int GetRealLevel(const std::shared_ptr<CharData> &ch);
-
-short GetRealRemort(const CharData *ch);
-short GetRealRemort(const std::shared_ptr<CharData> *ch);
-short GetRealRemort(const std::shared_ptr<CharData> &ch);
-
 #define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
 #define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
 #define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
 #define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
-
-extern int receptionist(CharData *, void *, int, char *);
-extern int postmaster(CharData *, void *, int, char *);
-extern int bank(CharData *, void *, int, char *);
-extern int shop_ext(CharData *, void *, int, char *);
-extern int mercenary(CharData *, void *, int, char *);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -353,6 +295,11 @@ inline void REMOVE_FROM_LIST(ListType *item, ListType *&head) {
 	REMOVE_FROM_LIST(item, head, [](ListType *list) -> ListType *& { return list->next; });
 }
 
+template<typename E>
+constexpr typename std::underlying_type<E>::type to_underlying(E e) {
+	return static_cast<typename std::underlying_type<E>::type>(e);
+};
+
 // basic bitvector utils ************************************************
 
 template<typename T>
@@ -426,8 +373,8 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define GET_AGE(ch)     (age(ch)->year)
-#define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
+#define GET_AGE(ch)     (CalcCharAge((ch))->year)
+#define GET_REAL_AGE(ch) (CalcCharAge((ch))->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_TITLE(ch)   ((ch)->player_data.title)
@@ -616,7 +563,6 @@ const int kNameLevel = 5;
 
 #define IS_SPELL_SET(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) & (pct))
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
-#define SET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) |= (pct))
 #define UNSET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) &= ~(pct))
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
 #define SET_SPELL_MEM(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
@@ -643,12 +589,6 @@ const int kNameLevel = 5;
 
 #define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
 #define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
-
-/*
-#define SAME_ALIGN(ch,vict)  ((IS_GOOD(ch) && IS_GOOD(vict)) ||\
-                              (IS_EVIL(ch) && IS_EVIL(vict)) ||\
-               (IS_NEUTRAL(ch) && IS_NEUTRAL(vict)))
-*/
 #define ALIGN_DELTA  10
 #define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\
                               (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
@@ -922,23 +862,6 @@ const int kNameLevel = 5;
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ERoomFlag::kIndoors))
 
-int on_horse(const CharData *ch);
-int has_horse(const CharData *ch, int same_room);
-CharData *get_horse(CharData *ch);
-void horse_drop(CharData *ch);
-void make_horse(CharData *horse, CharData *ch);
-void check_horse(CharData *ch);
-
-bool same_group(CharData *ch, CharData *tch);
-
-int is_post(RoomRnum room);
-bool is_rent(RoomRnum room);
-
-int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
-
-void can_carry_obj(CharData *ch, ObjData *obj);
-bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj);
-bool ignores(CharData *, CharData *, unsigned int);
 
 // PADS for something ***************************************************
 enum class EWhat : int  {
@@ -997,7 +920,7 @@ const int kAcheckLight = 1 << 1;
 const int kAcheckHumming = 1 << 2;
 const int kAcheckGlowing = 1 << 3;
 const int kAcheckWeight = 1 << 4;
-
+// \todo Удалить при распиливании act.other
 int check_awake(CharData *ch, int what);
 int awake_hide(CharData *ch);
 int awake_invis(CharData *ch);
@@ -1005,10 +928,6 @@ int awake_camouflage(CharData *ch);
 int awake_sneak(CharData *ch);
 int awaking(CharData *ch, int mode);
 std::string FormatTimeToStr(long in_timer, bool flag = 0);
-
-size_t count_colors(const char *str, size_t len = 0);
-char *colored_name(const char *str, size_t len, const bool left_align = false);
-size_t strlen_no_colors(const char *str);
 
 // defines for fseek
 #ifndef SEEK_SET
@@ -1162,36 +1081,8 @@ void skip_spaces(T string) {
 	for (; **string && a_isspace(**string); (*string)++);
 }
 
-namespace MoneyDropStat {
-
-void add(int zone_vnum, long money);
-void print(CharData *ch);
-void print_log();
-
-} // MoneyDropStat
-
-namespace ZoneExpStat {
-
-void add(int zone_vnum, long exp);
-void print_gain(CharData *ch);
-void print_log();
-
-} // ZoneExpStat
 
 std::string thousands_sep(long long n);
-
-enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W, STR_BOTH_W, STR_SHIELD_W };
-enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };
-
-int str_bonus(int str, int type);
-int dex_bonus(int dex);
-int dex_ac_bonus(int dex);
-int calc_str_req(int weight, int type);
-void message_str_need(CharData *ch, ObjData *obj, int type);
-int wis_bonus(int stat, int type);
-int CAN_CARRY_N(const CharData *ch);
-
-#define CAN_CARRY_W(ch) ((str_bonus(GetRealStr(ch), STR_CARRY_W) * ((ch)->HaveFeat(EFeat::kPorter) ? 110 : 100))/100)
 
 #define OK_BOTH(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_bonus(GetRealStr(ch), STR_WIELD_W) + str_bonus(GetRealStr(ch), STR_HOLD_W))
@@ -1243,10 +1134,6 @@ void print_bitset(const N &bits, const T &names,
 		}
 	}
 }
-
-const char *print_obj_state(int tm_pct);
-
-int get_virtual_race(CharData *mob);
 
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)
@@ -1388,14 +1275,14 @@ std::array<
 		sizeof...(T)>{std::forward<T>(values)...};
 }
 
-inline int posi_value(int real, int max) {
-	if (real < 0) {
+inline int posi_value(int current, int max) {
+	if (current < 0) {
 		return (-1);
-	} else if (real >= max) {
+	} else if (current >= max) {
 		return (10);
 	}
 
-	return (real * 10 / MAX(max, 1));
+	return (current * 10 / std::max(max, 1));
 }
 
 class StreamFlagsHolder {
@@ -1424,7 +1311,7 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  *  @param num  - обрабатываемоле число.
  *  @param separator - разделитель разрядов.
  */
-std::string PrintNumberByDigits(long long num, const char separator = ' ');
+std::string PrintNumberByDigits(long long num, char separator = ' ');
 
 void PruneCrlf(char *txt);
 

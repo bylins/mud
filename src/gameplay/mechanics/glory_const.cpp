@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <vector>
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -182,9 +182,9 @@ void add_glory(long uid, int amount) {
 	DescriptorData *d = DescriptorByUid(uid);
 	if (d) {
 		SendMsgToChar(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
-					  CCGRN(d->character, C_NRM),
+					  kColorGrn,
 					  amount, GetDeclensionInNumber(amount, EWhat::kPoint),
-					  CCNRM(d->character, C_NRM));
+					  kColorNrm);
 	}
 	save();
 }
@@ -325,14 +325,14 @@ std::string olc_print_stat(CharData *ch, int stat) {
 	}
 
 	return fmt::format("  {:<16} :  {}(+{:<5}){}  ({}{}{}) %4d ({}{}{})  {}(-{:<5})  | {:+}{}\r\n",
-						  olc_stat_name[stat],
-						  CCINRM(ch, C_NRM), remove_stat_cost(stat, ch->desc->glory_const), CCNRM(ch, C_NRM),
-						  CCIGRN(ch, C_NRM), olc_del_name[stat], CCNRM(ch, C_NRM),
-						  ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
+					   olc_stat_name[stat],
+					   kColorBoldBlk, remove_stat_cost(stat, ch->desc->glory_const), kColorNrm,
+					   kColorBoldGrn, olc_del_name[stat], kColorNrm,
+					   ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
 							  * stat_multi(stat)),
-						  CCIGRN(ch, C_NRM), olc_add_name[stat], CCNRM(ch, C_NRM),
-						  CCINRM(ch, C_NRM), add_stat_cost(stat, ch->desc->glory_const),
-						  stat_add, CCNRM(ch, C_NRM));
+					   kColorBoldGrn, olc_add_name[stat], kColorNrm,
+					   kColorBoldBlk, add_stat_cost(stat, ch->desc->glory_const),
+					   stat_add, kColorNrm);
 }
 
 // * Распечатка олц меню.
@@ -358,10 +358,10 @@ void spend_glory_menu(CharData *ch) {
 	out << "\r\n  Свободной славы: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
 
 	if (ch->desc->glory_const->olc_free_glory != ch->desc->glory_const->olc_was_free_glory) {
-		out << "  " << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
+		out << "  " << kColorBoldGrn << "В" << kColorNrm
 			<< ") Сохранить результаты\r\n";
 	}
-	out << "  " << CCIGRN(ch, C_SPR) << "Я" << CCNRM(ch, C_SPR)
+	out << "  " << kColorBoldGrn << "Я" << kColorNrm
 		<< ") Выйти без сохранения\r\n"
 		<< "  Ваш выбор: ";
 	SendMsgToChar(out.str(), ch);
@@ -1114,7 +1114,7 @@ void PrintGloryChart(CharData *ch) {
 		return (a->free_glory + a->tmp_spent_glory) > (b->free_glory + b->tmp_spent_glory);
 	});
 
-	out << CCWHT(ch, C_NRM) << "Лучшие прославленные:\r\n" << CCNRM(ch, C_NRM);
+	out << kColorWht << "Лучшие прославленные:\r\n" << kColorNrm;
 
 	int i = 0;
 

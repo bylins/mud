@@ -51,7 +51,7 @@ void PerformCutFail(abilities_roll::TechniqueRoll &roll) {
 	act("Ваши свистящие удары пропали втуне, не задев $N3.",
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToChar);
 	if (roll.IsCriticalFail()) {
-		SendMsgToChar(roll.GetActor(), "%sВы поскользнулись и потеряли равновесие.%s", BWHT, KNRM);
+		SendMsgToChar(roll.GetActor(), "%sВы поскользнулись и потеряли равновесие.%s", kColorGry, kColorNrm);
 		act("$n поскользнул$u и потерял$g равновесие.",
 			false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 		act("$n поскользнул$u и потерял$g равновесие.",

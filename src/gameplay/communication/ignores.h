@@ -1,5 +1,5 @@
-#ifndef __IGNORES_HPP__
-#define __IGNORES_HPP__
+#ifndef IGNORES_HPP_
+#define IGNORES_HPP_
 
 #include <memory>
 
@@ -11,6 +11,8 @@ struct ignore_data {
 	long id;
 	unsigned long mode;
 };
+
+bool ignores(CharData *who, CharData *whom, unsigned int flag);
 
 #endif // __IGNORES_HPP__
 

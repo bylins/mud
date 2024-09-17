@@ -14,6 +14,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 
 extern ESkill FixNameAndFindSkillId(char *name);
+extern const char *print_obj_state(int tm_pct);
 
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbr(str, "свет")

@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 
-#include "gameplay/communication/boards_types.h"
+#include "gameplay/communication/boards/boards_types.h"
 #include "engine/ui/cmd/mercenary.h"
 #include "engine/core/conf.h"
 #include "engine/structs/structs.h"

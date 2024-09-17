@@ -3,11 +3,14 @@
 #include "follow.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/affects/affect_data.h"
 
 #include <cmath>
 
-constexpr short MAX_HIRE_TIME = 10080 / 2;
-constexpr long MAX_HIRE_PRICE = LONG_MAX / (MAX_HIRE_TIME + 1);
+constexpr short kMaxHireTime = 10080 / 2; // Неделя в минутах пополам
+constexpr long kMaxHirePrice = LONG_MAX / (kMaxHireTime + 1);
 
 //Функции для модифицированного чарма
 float get_damage_per_round(CharData *victim) {
@@ -126,7 +129,7 @@ long calc_hire_price(CharData *ch, CharData *victim) {
 	ch->send_to_TC(true, true, true,
 				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
 				   rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, price, finalPrice);
-	return std::min(finalPrice, MAX_HIRE_PRICE);
+	return std::min(finalPrice, kMaxHirePrice);
 }
 
 int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
@@ -238,9 +241,9 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 
-		if (times > MAX_HIRE_TIME) {
+		if (times > kMaxHireTime) {
 			SendMsgToChar("Пожизненный найм запрещен!\r\n", ch);
-			times = MAX_HIRE_TIME;
+			times = kMaxHireTime;
 		}
 
 		auto hire_price = calc_hire_price(ch, helpee);
@@ -283,7 +286,8 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					} else {
 						ch->add_gold(oldcost);
 					}
-					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n", oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
+					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
+								  oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 				}
 				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 			}

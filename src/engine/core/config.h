@@ -4,6 +4,7 @@
 #include "engine/structs/blocking_queue.h"
 #include "gameplay/mechanics/birthplaces.h"
 #include "engine/structs/structs.h"
+#include "engine/structs/meta_enum.h"
 
 #include <cstdio>
 #include <array>
@@ -209,5 +210,10 @@ class RuntimeConfiguration {
 extern RuntimeConfiguration runtime_config;
 
 int calc_loadroom(const CharData *ch, int bplace_mode = kBirthplaceUndefined);
+
+extern char const *OK;
+extern char const *NOPERSON;
+extern char const *NOEFFECT;
+extern const char *nothing_string;
 
 #endif // __CONFIG_HPP__

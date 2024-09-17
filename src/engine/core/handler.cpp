@@ -1,16 +1,14 @@
-/* ************************************************************************
-*   File: handler.cpp                                   Part of Bylins    *
-*  Usage: internal funcs: moving and finding entities/objs                   *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
+/**
+\file sight.cpp - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Модуль оператора над игровыми сущностями - персонажами, предметами и комнатами.
+\details Тут должен размещаться код, который перемещает и размещает персонажей, предметы и мобов.
+ То есть, в комнату, из комнаты, в контейнер, в инвентарь и обратно и так далее. Либо сообщает их численность,
+ составляет списки и тому подобное. Что тут нужно сделать - удалить отсюда и перенести в соответствующие модули
+ код, который не относится к таким действиям. Если после этого модуль будет чересчур большим - раздеить его
+ на модули объектов, персонажей и комнат/мира.
+*/
 
 //#include "handler.h"
 
@@ -35,6 +33,11 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/player_races.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/core/base_stats.h"
+#include "utils/utils_time.h"
+#include "gameplay/classes/classes.h"
 
 using classes::CalcCircleSlotsAmount;
 
@@ -313,15 +316,15 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
-				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
-				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
-				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
-				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+				kColorNrm, kColorBoldBlk, room,
+				kColorRed, kColorBoldRed, world[room]->light,
+				kColorGrn, kColorBoldGrn, world[room]->glight,
+				kColorYel, kColorBoldYel, world[room]->fires,
+				kColorYel, kColorBoldYel, world[room]->ices,
+				kColorBlu, kColorBoldBlu, world[room]->gdark,
+				kColorMag, kColorBoldCyn, weather_info.sky,
+				kColorWht, kColorBoldBlk, weather_info.sunlight,
+				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
@@ -367,15 +370,15 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
-				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
-				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
-				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
-				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+				kColorNrm, kColorBoldBlk, room,
+				kColorRed, kColorBoldRed, world[room]->light,
+				kColorGrn, kColorBoldGrn, world[room]->glight,
+				kColorYel, kColorBoldYel, world[room]->fires,
+				kColorYel, kColorBoldYel, world[room]->ices,
+				kColorBlu, kColorBoldBlu, world[room]->gdark,
+				kColorMag, kColorBoldCyn, weather_info.sky,
+				kColorWht, kColorBoldBlk, weather_info.sunlight,
+				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 	// Stop fighting now, if we left.
@@ -1807,7 +1810,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		}
 
 		if (ch->desc->snoop_by) {
-			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
+			iosystem::write_to_output("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
 			ch->desc->snoop_by->snooping = nullptr;
 			ch->desc->snoop_by = nullptr;
 		}
@@ -1890,7 +1893,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	if (!is_npc
 		&& ch->desc != nullptr) {
 		STATE(ch->desc) = CON_MENU;
-		SEND_TO_Q(MENU, ch->desc);
+		iosystem::write_to_output(MENU, ch->desc);
 		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
 			do_entergame(ch->desc);
 			left_in_game = true;
@@ -2585,6 +2588,107 @@ void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id) {
 			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}
+}
+
+// Функция проверяет может ли ch нести предмет obj и загружает предмет
+// в инвентарь игрока или в комнату, где игрок находится
+void can_carry_obj(CharData *ch, ObjData *obj) {
+	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
+		SendMsgToChar("Вы не можете нести столько предметов.", ch);
+		PlaceObjToRoom(obj, ch->in_room);
+		CheckObjDecay(obj);
+	} else {
+		if (GET_OBJ_WEIGHT(obj) + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
+			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
+			SendMsgToChar(buf, ch);
+			PlaceObjToRoom(obj, ch->in_room);
+			// obj_decay(obj);
+		} else {
+			PlaceObjToInventory(obj, ch);
+		}
+	}
+}
+
+int num_pc_in_room(RoomData *room) {
+	int i = 0;
+	for (const auto ch : room->people) {
+		if (!ch->IsNpc()) {
+			i++;
+		}
+	}
+
+	return i;
+}
+
+int check_moves(CharData *ch, int how_moves) {
+	if (IS_IMMORTAL(ch) || ch->IsNpc())
+		return (true);
+	if (GET_MOVE(ch) < how_moves) {
+		SendMsgToChar("Вы слишком устали.\r\n", ch);
+		return (false);
+	}
+	GET_MOVE(ch) -= how_moves;
+	return (true);
+}
+
+int real_sector(int room) {
+	int sector = SECT(room);
+
+	if (ROOM_FLAGGED(room, ERoomFlag::kNoWeather))
+		return sector;
+	switch (sector) {
+		case ESector::kInside:
+		case ESector::kCity:
+		case ESector::kOnlyFlying:
+		case ESector::kUnderwater:
+		case ESector::kSecret:
+		case ESector::kStoneroad:
+		case ESector::kRoad:
+		case ESector::kWildroad: return sector;
+			break;
+		case ESector::kField:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kFieldSnow;
+			else if (world[room]->weather.rainlevel > 20)
+				return ESector::kFieldRain;
+			else
+				return ESector::kField;
+			break;
+		case ESector::kForest:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kForestSnow;
+			else if (world[room]->weather.rainlevel > 20)
+				return ESector::kForestRain;
+			else
+				return ESector::kForest;
+			break;
+		case ESector::kHills:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kHillsSnow;
+			else if (world[room]->weather.rainlevel > 20)
+				return ESector::kHillsRain;
+			else
+				return ESector::kHills;
+			break;
+		case ESector::kMountain:
+			if (world[room]->weather.snowlevel > 20)
+				return ESector::kMountainSnow;
+			else
+				return ESector::kMountain;
+			break;
+		case ESector::kWaterSwim:
+		case ESector::kWaterNoswim:
+			if (world[room]->weather.icelevel > 30)
+				return ESector::kThickIce;
+			else if (world[room]->weather.icelevel > 20)
+				return ESector::kNormalIce;
+			else if (world[room]->weather.icelevel > 10)
+				return ESector::kThinIce;
+			else
+				return sector;
+			break;
+	}
+	return ESector::kInside;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -6,6 +6,7 @@
 #include "gameplay/classes/classes_spell_slots.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/game_limits.h"
 
 using classes::CalcCircleSlotsAmount;
 
@@ -83,7 +84,7 @@ void show_wizdom(CharData *ch, int bitset) {
 					MUD::Spell(spell_id).GetCName());
 			is_full++;
 		};
-		gcount += sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", KICYN, KNRM);
+		gcount += sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", kColorBoldCyn, kColorNrm);
 		if (is_full) {
 			for (i = 0; i < max_slot + 1; i++) {
 				if (slots[i]) {
@@ -149,7 +150,7 @@ void show_wizdom(CharData *ch, int bitset) {
 
 			gcount +=
 				sprintf(buf2 + gcount,
-						"  %sВы запоминаете следующие заклинания :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+						"  %sВы запоминаете следующие заклинания :%s", kColorCyn, kColorNrm);
 			for (i = 0; i < imax_slot; i++) {
 				if (slots[i]) {
 					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
@@ -163,11 +164,11 @@ void show_wizdom(CharData *ch, int bitset) {
 
 	if ((bitset & 0x04) && imax_slot) {
 		int *s = MemQ_slots(ch);
-		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", kColorCyn, kColorNrm);
 		for (i = 0; i < imax_slot; i++) {
 			slot_num = std::max(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
 			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
-					slot_num ? CCICYN(ch, C_NRM) : "", i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");
+							  slot_num ? kColorBoldCyn : "", i + 1, slot_num, slot_num ? kColorNrm : "");
 		}
 		sprintf(buf2 + gcount, "\r\n");
 	}

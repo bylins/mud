@@ -1,12 +1,13 @@
 //#include "celebrates.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
 #include "utils/backtrace.h"
+#include "weather.h"
 
 extern void ExtractTrigger(Trigger *trig);
 

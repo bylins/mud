@@ -7,6 +7,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/weather.h"
 /*#include "utils/utils_string.h"
 #include "utils/table_wrapper.h"
 #include "utils/utils.h"*/
@@ -316,7 +317,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		strcat(line, "\r\n");
 		if (STATE(d) != CON_PLAYING) {
-			snprintf(line2, sizeof(line2), "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
+			snprintf(line2, sizeof(line2), "%s%s%s", kColorGrn, line, kColorNrm);
 			strcpy(line, line2);
 		}
 
