@@ -2107,4 +2107,20 @@ const char *diag_obj_timer(const ObjData *obj) {
 	return "";
 }
 
+const char *print_obj_state(int tm_pct) {
+	if (tm_pct < 20)
+		return "ужасно";
+	else if (tm_pct < 40)
+		return "скоро сломается";
+	else if (tm_pct < 60)
+		return "плоховато";
+	else if (tm_pct < 80)
+		return "средне";
+		//else if (tm_pct <=100) // у только что созданной шмотки значение 100% первый тик, потому <=
+		//	return "идеально";
+	else if (tm_pct < 1000) // проблема крафта, на хаймортах таймер больще прототипа
+		return "идеально";
+	else return "нерушимо";
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

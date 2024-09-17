@@ -39,7 +39,6 @@ int CalcHitroll(CharData *ch);
 /* extern */
 int CalcAntiSavings(CharData *ch);
 int calc_initiative(CharData *ch, bool mode);
-TimeInfoData *real_time_passed(time_t t2, time_t t1);
 void GetClassWeaponMod(ECharClass class_id, ESkill skill, int *damroll, int *hitroll);
 
 const char *ac_text[] =
@@ -821,7 +820,7 @@ void PrintScoreBase(CharData *ch) {
 				glory, GetDeclensionInNumber(glory, EWhat::kPoint));
 	}
 
-	TimeInfoData playing_time = *real_time_passed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
+	TimeInfoData playing_time = *CalcRealTimePassed((time(nullptr) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
 			playing_time.day, GetDeclensionInNumber(playing_time.day, EWhat::kDay),
 			playing_time.hours, GetDeclensionInNumber(playing_time.hours, EWhat::kHour));

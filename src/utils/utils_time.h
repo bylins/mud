@@ -65,6 +65,7 @@ class CSteppedProfiler {
 	std::list<step_t> m_steps;
 	CExecutionTimer m_timer;
 };
+
 }
 
 #endif // __TIME_UTILS_HPP__

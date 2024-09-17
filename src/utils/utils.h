@@ -929,10 +929,6 @@ int awake_sneak(CharData *ch);
 int awaking(CharData *ch, int mode);
 std::string FormatTimeToStr(long in_timer, bool flag = 0);
 
-size_t count_colors(const char *str, size_t len = 0);
-char *colored_name(const char *str, size_t len, const bool left_align = false);
-size_t strlen_no_colors(const char *str);
-
 // defines for fseek
 #ifndef SEEK_SET
 #define SEEK_SET  0
@@ -1139,8 +1135,6 @@ void print_bitset(const N &bits, const T &names,
 	}
 }
 
-const char *print_obj_state(int tm_pct);
-
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)
 
@@ -1326,11 +1320,6 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const c
 inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, const int print_flag = 0) {
 	return sprintbitwd(bitvector, names, result, ",", print_flag);
 }
-
-//template<typename E>
-//constexpr typename std::underlying_type<E>::type to_underlying(E e) {
-//	return static_cast<typename std::underlying_type<E>::type>(e);
-//};
 
 #endif // UTILS_H_
 

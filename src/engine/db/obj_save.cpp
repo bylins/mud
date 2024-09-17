@@ -1175,10 +1175,6 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	int nitems = 0, idelete = 0, ideleted = 0, rnum, timer, i;
 	int rentcode, timer_dec;
 
-#ifndef USE_AUTOEQ
-	return;
-#endif
-
 	strcpy(name, player_table[index].name());
 
 	if (!player_table[index].timer) {

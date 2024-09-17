@@ -15,15 +15,12 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <iostream>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "logger.h"
-#include "engine/ui/color.h"
-#include "engine/ui/modify.h"
-#include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
-#include "utils_string.h"
 #include "backtrace.h"
 
 
@@ -41,9 +38,6 @@
 #include <sstream>
 
 extern std::pair<int, int> TotalMemUse();
-
-// local functions
-TimeInfoData *real_time_passed(time_t t2, time_t t1);
 
 char AltToKoi[] = {
 		"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
@@ -379,25 +373,6 @@ void sprinttype(int type, const char *names[], char *result) {
 		strcpy(result, names[nr]);
 	else
 		strcpy(result, "UNDEF");
-}
-
-// * Calculate the REAL time passed over the last t2-t1 centuries (secs)
-TimeInfoData *real_time_passed(time_t t2, time_t t1) {
-	long secs;
-	static TimeInfoData now;
-
-	secs = (long) (t2 - t1);
-
-	now.hours = (secs / kSecsPerRealHour) % 24;    // 0..23 hours //
-	secs -= kSecsPerRealHour * now.hours;
-
-	now.day = (secs / kSecsPerRealDay);    // 0..34 days  //
-	// secs -= SECS_PER_REAL_DAY * now.day; - Not used. //
-
-	now.month = -1;
-	now.year = -1;
-
-	return (&now);
 }
 
 /*
@@ -1000,58 +975,6 @@ std::string thousands_sep(long long n) {
 	return buffer;
 }
 
-/// считает кол-во цветов &R и т.п. в строке
-/// size_t len = 0 - по дефолту считает strlen(str)
-size_t count_colors(const char *str, size_t len) {
-	unsigned int c, cc = 0;
-	len = len ? len : strlen(str);
-
-	for (c = 0; c < len - 1; c++) {
-		if (*(str + c) == '&' && *(str + c + 1) != '&')
-			cc++;
-	}
-	return cc;
-}
-
-//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
-//left_align выравнивание строки влево
-char *colored_name(const char *str, size_t len, const bool left_align) {
-	static char cstr[128];
-	static char fmt[6];
-	size_t cc = len + count_colors(str) * 2;
-
-	if (strlen(str) < cc) {
-		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align ? "-" : ""), static_cast<int>(cc));
-		snprintf(cstr, sizeof(cstr), fmt, str);
-	} else {
-		snprintf(cstr, sizeof(cstr), "%s", str);
-	}
-
-	return cstr;
-}
-
-/// длина строки без символов цвета из count_colors()
-size_t strlen_no_colors(const char *str) {
-	const size_t len = strlen(str);
-	return len - count_colors(str, len) * 2;
-}
-
-const char *print_obj_state(int tm_pct) {
-	if (tm_pct < 20)
-		return "ужасно";
-	else if (tm_pct < 40)
-		return "скоро сломается";
-	else if (tm_pct < 60)
-		return "плоховато";
-	else if (tm_pct < 80)
-		return "средне";
-		//else if (tm_pct <=100) // у только что созданной шмотки значение 100% первый тик, потому <=
-		//	return "идеально";
-	else if (tm_pct < 1000) // проблема крафта, на хаймортах таймер больще прототипа
-		return "идеально";
-	else return "нерушимо";
-}
-
 void sanity_check() {
 	int ok = true;
 
@@ -1434,8 +1357,6 @@ const bool a_isspace_table[256] = {
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 	false    //255
 };
-
-#include <iostream>
 
 void build_char_table(int(*func)(int c)) {
 	for (int c = 0; c < 256; c++) {

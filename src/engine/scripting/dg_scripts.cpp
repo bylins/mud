@@ -64,7 +64,6 @@ extern const char *item_types[];
 extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
-extern TimeInfoData time_info;
 extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
@@ -973,10 +972,10 @@ void script_stat(CharData *ch, Script *sc) {
 		if (t->get_attach_type() == MOB_TRIGGER) {
 			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
 				   << " , Execute mob command: " << (t->add_flag ? "ДА" : "НЕТ")
-				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+				   << " , Arg list:" << (!t->arglist.empty() ? t->arglist.c_str() : "None");
 		} else {
 			buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
-				   << " , Arg list:" << !t->arglist.empty() ? t->arglist.c_str() : "None";
+				   << " , Arg list:" << (!t->arglist.empty() ? t->arglist.c_str() : "None");
 		}
 		SendMsgToChar(buffer.str(), ch);
 
@@ -4357,8 +4356,6 @@ void process_wait(void *go, Trigger *trig, int type, char *cmd, const cmdlist_el
 	struct wait_event_data *wait_event_obj;
 	long time = 0, hr, min, ntime;
 	char c;
-
-	extern TimeInfoData time_info;
 
 	if ((trig->get_attach_type() == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 		||(trig->get_attach_type() == OBJ_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), OTRIG_PURGE))) {

@@ -21,12 +21,10 @@
 #include "engine/ui/color.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/core/constants.h"
-//#include "gameplay/skills/skills.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/ui/modify.h"
-//#include "engine/entities/room_data.h"
 #include "gameplay/communication/mail.h"
 #include "engine/db/obj_save.h"
 #include "gameplay/fight/pk.h"
@@ -35,7 +33,6 @@
 #include "utils/utils.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
-//#include "conf.h"
 #include "gameplay/mechanics/stable_objs.h"
 
 #include <stdexcept>
@@ -400,7 +397,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
-	act("Вы сняли $O3 с базара.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
+	act("Вы сняли $O3 с базара.", false, ch, nullptr, GET_EXCHANGE_ITEM(item), kToChar);
 	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));

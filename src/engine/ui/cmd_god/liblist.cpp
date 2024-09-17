@@ -21,7 +21,7 @@ int PrintOlist(const CharData *ch, int first, int last, std::string &out);
 
 namespace mob_list {
 	void Print(CharData *ch, int first, int last, const std::string &options);
-	std::string PrintFlag(CharData *ch, CharData *mob, const std::string &options);
+	std::string PrintFlag(CharData *mob, const std::string &options);
 	std::string PrintRole(CharData *mob);
 	std::string PrintRace(CharData *mob);
 }
@@ -235,7 +235,7 @@ std::string PrintRole(CharData *mob) {
 	return out;
 }
 
-std::string PrintFlag(CharData *ch, CharData *mob, const std::string &options) {
+std::string PrintFlag(CharData *mob, const std::string &options) {
 	std::vector<std::string> option_list = utils::SplitAny(options, ",. ");
 	auto out = fmt::memory_buffer();
 
@@ -264,7 +264,7 @@ void Print(CharData *ch, int first, int last, const std::string &options) {
 			format_to(std::back_inserter(out), "{:5}. {:<45} [{:<6}] [{:<2}]{}",
 					  ++cnt, mob_proto[i].get_name_str().substr(0, 45),
 					  mob_index[i].vnum, mob_proto[i].GetLevel(),
-					  PrintFlag(ch, mob_proto + i, options));
+					  PrintFlag(mob_proto + i, options));
 			if (!mob_proto[i].proto_script->empty()) {
 				format_to(std::back_inserter(out), " - есть скрипты -");
 				for (const auto trigger_vnum : *mob_proto[i].proto_script) {

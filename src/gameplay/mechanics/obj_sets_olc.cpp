@@ -171,7 +171,7 @@ const auto MISSING_OBJECT_NAME = "&R<объект с таким VNUM не сущ
 
 /// распечатка форматированного списка шмоток сета, форматирование идет как
 /// как по столбцам, так и по длине имени и внума шмоток, вобщем чтоб красиво
-std::string main_menu_objlist(CharData *ch, const SetNode &set, int menu) {
+std::string main_menu_objlist(const SetNode &set, int menu) {
 	std::string out;
 	char buf_[128];
 	char format[128];
@@ -228,7 +228,7 @@ std::string main_menu_objlist(CharData *ch, const SetNode &set, int menu) {
 	return out;
 }
 
-const char *main_menu_str(CharData *ch, SetNode &olc_set, int num) {
+const char *main_menu_str(SetNode &olc_set, int num) {
 	static char buf_[1024];
 	switch (num) {
 		case MAIN_SET_REMOVE: return "Удалить набор";
@@ -293,14 +293,14 @@ void sedit::show_main(CharData *ch) {
 	for (/**/; i < MAIN_TOTAL; ++i) {
 		snprintf(buf_, sizeof(buf_), "%s%2d%s) %s\r\n",
 				 kColorGrn, i, kColorNrm,
-				 main_menu_str(ch, olc_set, i));
+				 main_menu_str(olc_set, i));
 		out += buf_;
 	}
 	// предметы
 	snprintf(buf_, sizeof(buf_), "\r\n%s%2d%s) Добавить предмет(ы)\r\n",
 			 kColorGrn, i++, kColorNrm);
 	out += buf_;
-	out += main_menu_objlist(ch, olc_set, i);
+	out += main_menu_objlist(olc_set, i);
 	i += static_cast<int>(olc_set.obj_list.size());
 	// активаторы
 	snprintf(buf_, sizeof(buf_),
@@ -988,7 +988,7 @@ void sedit::parse_activ_add(CharData *ch, const char *arg) {
 
 void sedit::show_activ_ench_vnum(CharData *ch) {
 	state = STATE_ACTIV_ENCH_VNUM;
-	std::string out = main_menu_objlist(ch, olc_set, 1);
+	std::string out = main_menu_objlist(olc_set, 1);
 	out += "Укажите vnum предмета (0 - удалить и выйти, пустой ввод - выход) :";
 	SendMsgToChar(out, ch);
 }

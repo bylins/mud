@@ -23,6 +23,7 @@
 #include "engine/entities/player_i.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/structs/structs.h"
+#include "gameplay/mechanics/weather.h"
 
 #include <map>
 #include <list>

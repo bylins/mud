@@ -6,7 +6,8 @@
 \details Константы и функции для работы с цветами telnet.
 */
 
-#include "engine/structs/structs.h"
+#include "engine/ui/color.h"
+
 #include "utils/utils.h"
 
 const char *kColorNrm{"\x1B[0;37m"};
@@ -54,6 +55,8 @@ const char *kColorList[] = {kColorNormal, kColorRed, kColorGrn, kColorYel, kColo
 };
 
 const int kMaxColors = 30;
+
+std::size_t count_colors(const char *str, std::size_t len = 0);
 
 int IsNumber(char s) {
 	return ((s >= '0') && (s <= '9'));
@@ -201,6 +204,42 @@ const char *GetColdValueColor(int current, int max) {
 		case 8: return kColorBoldCyn;
 		default: return kColorCyn;
 	}
+}
+
+/// длина строки без символов цвета из count_colors()
+size_t strlen_no_colors(const char *str) {
+	const size_t len = strlen(str);
+	return len - count_colors(str, len) * 2;
+}
+
+/// считает кол-во цветов &R и т.п. в строке
+/// size_t len = 0 - по дефолту считает strlen(str)
+size_t count_colors(const char *str, size_t len) {
+	unsigned int c, cc = 0;
+	len = len ? len : strlen(str);
+
+	for (c = 0; c < len - 1; c++) {
+		if (*(str + c) == '&' && *(str + c + 1) != '&')
+			cc++;
+	}
+	return cc;
+}
+
+//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
+//left_align выравнивание строки влево
+char *colored_name(const char *str, size_t len, const bool left_align) {
+	static char cstr[128];
+	static char fmt[6];
+	size_t cc = len + count_colors(str) * 2;
+
+	if (strlen(str) < cc) {
+		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align ? "-" : ""), static_cast<int>(cc));
+		snprintf(cstr, sizeof(cstr), fmt, str);
+	} else {
+		snprintf(cstr, sizeof(cstr), "%s", str);
+	}
+
+	return cstr;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

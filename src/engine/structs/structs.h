@@ -54,7 +54,7 @@ using ZoneRnum = Rnum;
 using TrgRnum = Rnum;
 
 #if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)    // Hm, sysdep.h?
-typedef char byte;
+using byte = char;
 #endif
 
 const int kMinRemort = 0;
@@ -62,16 +62,6 @@ const int kMaxRemort = 75;
 const int kMaxPlayerLevel = 30;
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
-
-/*
- * If you want equipment to be automatically equipped to the same place
- * it was when players rented, set the define below to 1.  Please note
- * that this will require erasing or converting all of your rent files.
- * And of course, you have to recompile everything.  We need this feature
- * for CircleMUD 3.0 to be complete but we refuse to break binary file
- * compatibility.
- */
-#define USE_AUTOEQ 1
 
 const __uint8_t kMaxDest = 50;
 
@@ -140,13 +130,6 @@ constexpr int kMinSaving = -kMaxSaving;
 const int kMaxNpcResist = 100;
 constexpr int kMinResistance = -kMaxNpcResist;
 const int kStrongMobLevel = 30;
-
-struct TimeInfoData {
-	int hours = 0;
-	int day = 0;
-	int month = 0;
-	sh_int year = 0;
-};
 
 struct FollowerType {
 	CharData *follower = nullptr;

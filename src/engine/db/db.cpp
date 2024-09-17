@@ -52,7 +52,6 @@
 #include "gameplay/mechanics/cities.h"
 #include "administration/proxy.h"
 #include "utils/utils_time.h"
-#include "gameplay/mechanics/weather.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/ai/spec_procs.h"
 
@@ -119,7 +118,7 @@ char *handbook{nullptr};        // handbook for new immortals
 char *policies{nullptr};        // policies page
 char *name_rules{nullptr};        // rules of character's names
 
-TimeInfoData time_info;    // the infomation about the time
+TimeInfoData time_info;
 struct reset_q_type reset_q;    // queue of zones to be reset
 
 const FlagData clear_flags;

@@ -72,6 +72,6 @@ void CSteppedProfiler::CExecutionStepProfiler::stop() {
 	m_duration = m_timer.delta();
 	m_stopped = true;
 }
-}
+} // namespace utils
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -16,7 +16,6 @@
 
 Weather weather_info;
 extern void script_timechange_trigger_check(int time);//Эксопрт тригеров смены времени
-extern TimeInfoData time_info;
 
 void another_hour(int mode);
 void weather_change();
@@ -58,12 +57,12 @@ void gods_day_now(CharData *ch) {
 		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
 		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
 
-		if (mono_name != "") {
+		if (!mono_name.empty()) {
 			sprintf(mono, "Христиане: %s %s. %s\r\n", kColorWht,
 					mono_name.c_str(), kColorNrm);
 		}
 
-		if (poly_name != "") {
+		if (!poly_name.empty()) {
 			sprintf(poly, "Язычники : %s %s. %s\r\n", kColorWht,
 					poly_name.c_str(), kColorNrm);
 		}
@@ -72,19 +71,19 @@ void gods_day_now(CharData *ch) {
 		SendMsgToChar(poly, ch);
 		SendMsgToChar(mono, ch);
 	} else if (GET_RELIGION(ch) == kReligionPoly) {
-		if (poly_name != "") {
+		if (!poly_name.empty()) {
 			sprintf(poly, "%s Сегодня %s. %s\r\n", kColorWht,
 					poly_name.c_str(), kColorNrm);
 			SendMsgToChar(poly, ch);
 		}
 	} else if (GET_RELIGION(ch) == kReligionMono) {
-		if (mono_name != "") {
+		if (!mono_name.empty()) {
 			sprintf(mono, "%s Сегодня %s. %s\r\n", kColorWht,
 					mono_name.c_str(), kColorNrm);
 			SendMsgToChar(mono, ch);
 		}
 	}
-	if (real_name != "") {
+	if (!real_name.empty()) {
 		sprintf(real, "В реальном мире : %s %s. %s\r\n", kColorWht,
 				real_name.c_str(), kColorNrm);
 	}
@@ -207,20 +206,20 @@ int day_temp_change[kHoursPerDay][4] = {{0, -1, 0, -1},    // From 23 -> 00
 										 {-1, 0, 0, 0}            // From 22 -> 23
 };
 
-int average_day_temp(void) {
-	return (weather_info.temp_last_day / MAX(1, MIN(kHoursPerDay, weather_info.hours_go)));
+int average_day_temp() {
+	return (weather_info.temp_last_day / std::clamp(weather_info.hours_go, 1, kHoursPerDay));
 }
 
-int average_week_temp(void) {
-	return (weather_info.temp_last_week / MAX(1, MIN(kDaysPerWeek * kHoursPerDay, weather_info.hours_go)));
+int average_week_temp() {
+	return (weather_info.temp_last_week / std::clamp(weather_info.hours_go, 1, kDaysPerWeek * kHoursPerDay));
 }
 
-int average_day_press(void) {
-	return (weather_info.press_last_day / MAX(1, MIN(kHoursPerDay, weather_info.hours_go)));
+int average_day_press() {
+	return (weather_info.press_last_day / std::clamp(weather_info.hours_go, 1, kHoursPerDay));
 }
 
-int average_week_press(void) {
-	return (weather_info.press_last_week / MAX(1, MIN(kDaysPerWeek * kHoursPerDay, weather_info.hours_go)));
+int average_week_press() {
+	return (weather_info.press_last_week / std::clamp(weather_info.hours_go, 1, kDaysPerWeek * kHoursPerDay));
 }
 
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3) {
@@ -282,7 +281,7 @@ void calc_basic(int weather_type, int sky, int *rainlevel, int *snowlevel) {    
 	}
 }
 
-void weather_change(void) {
+void weather_change() {
 	int diff = 0, sky_change, temp_change, i,
 		grainlevel = 0, gsnowlevel = 0, icelevel = 0, snowdec = 0,
 		raincast = 0, snowcast = 0, avg_day_temp, avg_week_temp, cweather_type = 0, temp;
@@ -1068,6 +1067,25 @@ TimeInfoData *CalcCharAge(const CharData *ch) {
 	player_age.year += 17;    // All players start at 17 //
 
 	return (&player_age);
+}
+
+// * Calculate the REAL time passed over the last t2-t1 centuries (secs)
+TimeInfoData *CalcRealTimePassed(time_t time_to, time_t time_from) {
+	long secs;
+	static TimeInfoData now;
+
+	secs = (long) (time_to - time_from);
+
+	now.hours = (secs / kSecsPerRealHour) % 24;    // 0..23 hours //
+	secs -= kSecsPerRealHour * now.hours;
+
+	now.day = (secs / kSecsPerRealDay);    // 0..34 days  //
+	// secs -= SECS_PER_REAL_DAY * now.day; - Not used. //
+
+	now.month = -1;
+	now.year = -1;
+
+	return (&now);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
