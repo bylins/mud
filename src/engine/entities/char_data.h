@@ -842,7 +842,7 @@ class CharData : public ProtectedCharData {
 
 	int poisoner;
 
-	dead_load::OnDeadLoadList *dl_list;    // загружаемые в труп предметы
+	dead_load::OnDeadLoadList dl_list;    // загружаемые в труп предметы
 	bool agrobd;        // показывает, агробд или нет
 
 	std::map<ESpell, TemporarySpell> temp_spells;
