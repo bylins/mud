@@ -11,6 +11,12 @@
 
 class CharData;
 bool same_group(CharData *ch, CharData *tch);
+int perform_group(CharData *ch, CharData *vict);
+int max_group_size(CharData *ch);
+void GoGroup(CharData *ch, char *argument);
+void GoUngroup(CharData *ch, char *argument);
+void print_list_group(CharData *ch);
+void print_group(CharData *ch);
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_GROUPS_H_
 

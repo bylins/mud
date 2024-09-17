@@ -1363,7 +1363,7 @@ void SendSkillBalanceMsg(CharData *ch, const std::string &skill_name, int percen
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 }
 
-int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool need_log) {
+int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /* need_log */) {
 
 	if (MUD::Skills().IsInvalid(skill_id)) {
 		return 0;

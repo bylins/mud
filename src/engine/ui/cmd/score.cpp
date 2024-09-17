@@ -6,7 +6,6 @@
  слабовидящих.
  */
 
-#include "act_other.h"
 #include "engine/ui/color.h"
 #include "gameplay/communication/mail.h"
 #include "gameplay/communication/parcel.h"
@@ -24,6 +23,7 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/groups.h"
 
 #include <cmath>
 #include <third_party_libs/fmt/include/fmt/format.h>

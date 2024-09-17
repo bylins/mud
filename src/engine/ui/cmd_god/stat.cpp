@@ -451,7 +451,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				SendMsgToChar(ch, " '%s'", feat.GetCName());
 			}
 		}
-		SendMsgToChar(ch, kColorNrm);
+		SendMsgToChar(kColorNrm, ch);
 		SendMsgToChar(ch, "\r\n");
 		// информация о маршруте моба
 		if (k->mob_specials.dest_count > 0) {
@@ -942,7 +942,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kLiquidContainer:
 		case EObjType::kFountain:sprinttype(GET_OBJ_VAL(j, 2), drinks, smallBuf);
 			{
-				std::string spells = drinkcon::print_spells(ch, j);
+				std::string spells = drinkcon::print_spells(j);
 				utils::Trim(spells);
 				sprintf(buf, "Обьем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
 						GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3), smallBuf, spells.c_str());

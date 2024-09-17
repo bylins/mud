@@ -3,7 +3,6 @@
 #include <utils/utils.h>
 #include <chars/char.h>
 #include "engine/core/handler.h"
-#include <act_other.h>
 
 namespace test_utils
 {

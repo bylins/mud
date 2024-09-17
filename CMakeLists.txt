@@ -336,7 +336,12 @@ set(SOURCES
 		src/gameplay/statistics/zone_exp.cpp
 		src/gameplay/communication/talk.cpp
 		src/engine/ui/cmd_god/echo.cpp
-		src/gameplay/core/base_stats.cpp)
+		src/gameplay/core/base_stats.cpp
+		src/engine/ui/cmd/do_camouflage.cpp
+		src/engine/ui/cmd/do_hide.cpp
+		src/engine/ui/cmd/do_steal.cpp
+		src/engine/ui/cmd/do_group.cpp
+		src/engine/ui/cmd/do_ungroup.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -400,7 +405,6 @@ set(HEADERS
 		src/engine/db/obj_prototypes.h
 		src/engine/db/world_objects.h
 		src/utils/utils_string.h
-		src/act_other.h
 		src/gameplay/affects/affect_handler.h
 		src/gameplay/economics/auction.h
 		src/utils/backtrace.h
@@ -655,7 +659,12 @@ set(HEADERS
 		src/gameplay/statistics/zone_exp.h
 		src/gameplay/communication/talk.h
 		src/engine/ui/cmd_god/echo.h
-		src/gameplay/core/base_stats.h)
+		src/gameplay/core/base_stats.h
+		src/engine/ui/cmd/do_camouflage.h
+		src/engine/ui/cmd/do_hide.h
+		src/engine/ui/cmd/do_steal.h
+		src/engine/ui/cmd/do_group.h
+		src/engine/ui/cmd/do_ungroup.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
