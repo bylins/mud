@@ -291,20 +291,19 @@ int TabulateTrigsByObjLoad(char *searchname, CharData *ch) {
 }
 
 int TabulateMobsByDeadLoad(char *vnum, CharData *ch) {
-	auto mvn = atoi(vnum);
+	auto ovn = atoi(vnum);
 	int found = 0;
-	if (mvn == 0)
+	if (ovn == 0)
 		return 0;
 	for (auto i = 0; i <= top_of_mobt; i++) {
-		if (mob_proto[i].dl_list == nullptr) {
+		if (mob_proto[i].dl_list.empty()) {
 			continue;
 		}
-		auto predicate = [mvn](struct dead_load::LoadingItem *item) { return (item->obj_vnum == mvn); };
-		auto it = std::find_if(mob_proto[i].dl_list->begin(), mob_proto[i].dl_list->end(), predicate);
-		if (it != mob_proto[i].dl_list->end()) {
+		auto predicate = [ovn](struct dead_load::LoadingItem item) { return (item.obj_vnum == ovn); };
+		auto it = std::find_if(mob_proto[i].dl_list.begin(), mob_proto[i].dl_list.end(), predicate);
+		if (it != mob_proto[i].dl_list.end()) {
 			auto msg = fmt::format("{:<3}. [{:<5}] ({},{},{},{}) {}\r\n",
-								   ++found, mob_index[i].vnum, (*it)->obj_vnum, (*it)->load_prob,
-								   (*it)->load_type, (*it)->spec_param, mob_proto[i].get_npc_name());
+					++found, mob_index[i].vnum, (*it).obj_vnum, (*it).load_prob, (*it).load_type, (*it).spec_param, mob_proto[i].get_npc_name());
 			SendMsgToChar(msg, ch);
 		}
 	}

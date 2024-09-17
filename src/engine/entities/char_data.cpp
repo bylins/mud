@@ -350,7 +350,6 @@ void CharData::zero_init() {
 	battle_counter = 0;
 	round_counter = 0;
 	poisoner = 0;
-	dl_list = nullptr;
 	agrobd = false;
 
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
