@@ -523,7 +523,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		if (mob_index[i].func == shop_ext) {
 			AddDungeonShopSeller(i, mrn_to);
 		}
-		for (auto it : mob_proto[i].dl_list) {
+		for (auto &it : mob_proto[mrn_to].dl_list) {
 			if (it.obj_vnum / 100 != zone_table[zrn_from].vnum) {
 				continue;
 			}

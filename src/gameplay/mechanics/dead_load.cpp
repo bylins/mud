@@ -120,7 +120,7 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 	return true;
 }
 
-bool ParseDeadLoadLine(OnDeadLoadList dl_list, char *line) {
+bool ParseDeadLoadLine(OnDeadLoadList &dl_list, char *line) {
 	// Формат парсинга D {номер прототипа} {вероятность загрузки} {спец поле - тип загрузки}
 	int vnum, prob, type, spec;
 	if (sscanf(line, "%d %d %d %d", &vnum, &prob, &type, &spec) != 4) {

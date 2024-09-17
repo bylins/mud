@@ -36,7 +36,7 @@ struct LoadingItem {
 
 using OnDeadLoadList = std::list<struct LoadingItem>;
 
-bool ParseDeadLoadLine(OnDeadLoadList dl_list, char *line);
+bool ParseDeadLoadLine(OnDeadLoadList &dl_list, char *line);
 bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoadType load_type);
 int ResolveTagsInObjName(ObjData *obj, CharData *ch);
 } // namespace dead_load

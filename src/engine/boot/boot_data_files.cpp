@@ -10,6 +10,8 @@
 #include "engine/scripting/dg_db_scripts.h"
 #include "engine/db/global_objects.h"
 
+#include "third_party_libs/fmt/include/fmt/format.h"
+
 #include <regex>
 
 extern int scheck;                        // TODO: get rid of this line
