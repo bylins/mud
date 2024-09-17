@@ -42,7 +42,7 @@
 #include "engine/ui/cmd/bandage.h"
 #include "engine/ui/cmd/consider.h"
 #include "engine/ui/cmd/do_zone.h"
-#include "engine/ui/cmd/equip.h"
+#include "engine/ui/cmd/do_equip.h"
 #include "engine/ui/cmd/eat.h"
 #include "engine/ui/cmd/enter.h"
 #include "engine/ui/cmd/equipment.h"

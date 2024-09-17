@@ -6,7 +6,7 @@
 \detail Detail description.
 */
 
-#include "engine/grammar/cases.h"
+#include "cases.h"
 
 #include "utils/logger.h"
 #include "utils/parser_wrapper.h"

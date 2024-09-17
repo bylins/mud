@@ -18,6 +18,11 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 void message_str_need(CharData *ch, ObjData *obj, int type);
 
+bool CanBeTakenInBothHands(CharData *ch, ObjData *obj);
+bool CanBeTakenInMajorHand(CharData *ch, ObjData *obj);
+bool CanBeTakenInMinorHand(CharData *ch, ObjData *obj);
+bool CanBeWearedAsShield(CharData *ch, ObjData *obj);
+
 #endif //BYLINS_SRC_CMD_EQUIP_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

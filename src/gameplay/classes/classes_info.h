@@ -14,7 +14,7 @@
 #include "gameplay/magic/spells.h"
 #include "gameplay/skills/skills.h"
 #include "engine/structs/info_container.h"
-#include "engine/grammar/cases.h"
+#include "utils/grammar/cases.h"
 
 #include <optional>
 

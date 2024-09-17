@@ -256,7 +256,7 @@ set(SOURCES
 		src/gameplay/skills/sharpening.cpp
 		src/gameplay/skills/armoring.cpp
 		src/engine/ui/cmd/get.cpp
-		src/engine/ui/cmd/equip.cpp
+        src/engine/ui/cmd/do_equip.cpp
 		src/engine/ui/cmd/put.cpp
 		src/engine/ui/cmd/remove.cpp
 		src/engine/ui/cmd/eat.cpp
@@ -329,7 +329,7 @@ set(SOURCES
 		src/engine/ui/cmd_god/force.cpp
 		src/engine/ui/cmd_god/do_invisible.cpp
 		src/engine/ui/cmd_god/set_all.cpp
-		src/engine/grammar/cases.cpp
+        src/utils/grammar/cases.cpp
 		src/engine/core/iosystem.cpp
 		src/gameplay/mechanics/groups.cpp
 		src/gameplay/statistics/money_drop.cpp
@@ -573,7 +573,7 @@ set(HEADERS
 		src/gameplay/skills/sharpening.h
 		src/gameplay/skills/armoring.h
 		src/engine/ui/cmd/get.h
-		src/engine/ui/cmd/equip.h
+        src/engine/ui/cmd/do_equip.h
 		src/engine/ui/cmd/put.h
 		src/engine/ui/cmd/remove.h
 		src/engine/ui/cmd/eat.h
@@ -647,7 +647,7 @@ set(HEADERS
 		src/engine/ui/cmd_god/do_invisible.h
 		src/engine/ui/cmd_god/set_all.h
 		src/gameplay/ai/spec_procs.h
-		src/engine/grammar/cases.h
+        src/utils/grammar/cases.h
 		src/engine/structs/meta_enum.h
 		src/engine/core/iosystem.h
 		src/gameplay/mechanics/groups.h

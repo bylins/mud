@@ -31,6 +31,7 @@ class DataNode;
 
 namespace grammar {
 
+//! A class for describing individual object, containing declension for singular and plural cases.
 class ItemName {
  public:
   ItemName();

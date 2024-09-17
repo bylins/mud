@@ -27,6 +27,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
+#include "engine/ui/cmd/do_equip.h"
 
 extern CharData *get_player_of_name(const char *name);
 
@@ -543,19 +544,15 @@ void npc_wield(CharData *ch) {
 
 	for (obj = ch->carrying; obj; obj = next) {
 		next = obj->get_next_content();
-		if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
-			|| GET_OBJ_UNIQUE_ID(obj) != 0) {
+		if (obj->get_type() != EObjType::kWeapon || GET_OBJ_UNIQUE_ID(obj) != 0) {
 			continue;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::kHold)
-			&& OK_HELD(ch, obj)) {
+		if (CAN_WEAR(obj, EWearFlag::kHold) && CanBeTakenInMinorHand(ch, obj)) {
 			best_weapon(ch, obj, &left);
-		} else if (CAN_WEAR(obj, EWearFlag::kWield)
-			&& OK_WIELD(ch, obj)) {
+		} else if (CAN_WEAR(obj, EWearFlag::kWield) && CanBeTakenInMajorHand(ch, obj)) {
 			best_weapon(ch, obj, &right);
-		} else if (CAN_WEAR(obj, EWearFlag::kBoth)
-			&& OK_BOTH(ch, obj)) {
+		} else if (CAN_WEAR(obj, EWearFlag::kBoth) && CanBeTakenInBothHands(ch, obj)) {
 			best_weapon(ch, obj, &both);
 		}
 	}

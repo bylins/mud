@@ -1084,18 +1084,6 @@ void skip_spaces(T string) {
 
 std::string thousands_sep(long long n);
 
-#define OK_BOTH(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          str_bonus(GetRealStr(ch), STR_WIELD_W) + str_bonus(GetRealStr(ch), STR_HOLD_W))
-
-#define OK_WIELD(ch, obj) (GET_OBJ_WEIGHT(obj) <= \
-                          str_bonus(GetRealStr(ch), STR_WIELD_W))
-
-#define OK_HELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          str_bonus(GetRealStr(ch), STR_HOLD_W))
-
-#define OK_SHIELD(ch, obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          (2 * str_bonus(GetRealStr(ch), STR_HOLD_W)))
-
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
