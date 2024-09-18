@@ -1227,7 +1227,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMagus) && IS_MAGUS(ch))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::kBattle) && check_agrobd(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kColored) && IS_COLORED(ch))) {
+		|| (IS_OBJ_ANTI(obj, EAntiFlag::kColored) && pk_count(ch))) {
 		return (true);
 	}
 	return (false);
@@ -1268,7 +1268,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
 		|| (IS_OBJ_NO(obj, ENoFlag::kBattle) && check_agrobd(ch))
 		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
-		|| (IS_OBJ_NO(obj, ENoFlag::kColored) && IS_COLORED(ch))) {
+		|| (IS_OBJ_NO(obj, ENoFlag::kColored) && pk_count(ch))) {
 		return true;
 	}
 

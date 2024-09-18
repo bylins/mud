@@ -326,7 +326,7 @@ class CharacterRNum_ChangeObserver {
 	CharacterRNum_ChangeObserver() = default;
 	virtual ~CharacterRNum_ChangeObserver() = default;
 
-	virtual void notify(ProtectedCharData &character, const MobRnum old_rnum) = 0;
+	virtual void notify(ProtectedCharData &character, MobRnum old_rnum) = 0;
 };
 
 class ProtectedCharData : public PlayerI {
@@ -336,7 +336,7 @@ class ProtectedCharData : public PlayerI {
 	ProtectedCharData &operator=(const ProtectedCharData &rhv);
 
 	auto get_rnum() const { return m_rnum; }
-	void set_rnum(const MobRnum rnum);
+	void set_rnum(MobRnum rnum);
 
 	void subscribe_for_rnum_changes(const CharacterRNum_ChangeObserver::shared_ptr &observer) {
 		m_rnum_change_observers.insert(observer);
@@ -363,7 +363,7 @@ class CharData : public ProtectedCharData {
 	using followers_list_t = std::list<CharData *>;
 
 	CharData();
-	virtual ~CharData();
+	~CharData() override;
 
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharData *dst, CharData *src);
@@ -372,14 +372,14 @@ class CharData : public ProtectedCharData {
 	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); };
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
-	void set_skill(const ESkill skill_id, int percent);
+	void set_skill(ESkill skill_id, int percent);
 	void SetSkillAfterRemort(int remort);
 	void clear_skills();
-	int GetSkill(const ESkill skill_id) const;
-	int GetSkillWithoutEquip(const ESkill skill_id) const;
+	int GetSkill(ESkill skill_id) const;
+	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
-	int GetEquippedSkill(const ESkill skill_id) const;
-	int GetMorphSkill(const ESkill skill_id) const;
+	int GetEquippedSkill(ESkill skill_id) const;
+	int GetMorphSkill(ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 	int GetAddSkill(ESkill skill_id) const;
@@ -456,25 +456,25 @@ class CharData : public ProtectedCharData {
 	void set_last_exchange(time_t num);
 
 	EGender get_sex() const;
-	void set_sex(const EGender sex);
+	void set_sex(EGender sex);
 	ubyte get_weight() const;
-	void set_weight(const ubyte);
+	void set_weight(ubyte);
 	ubyte get_height() const;
-	void set_height(const ubyte);
+	void set_height(ubyte);
 	ubyte get_religion() const;
-	void set_religion(const ubyte);
+	void set_religion(ubyte);
 	ubyte get_kin() const;
-	void set_kin(const ubyte);
+	void set_kin(ubyte);
 	ubyte get_race() const;
-	void set_race(const ubyte);
+	void set_race(ubyte);
 	int get_hit() const;
-	void set_hit(const int);
+	void set_hit(int);
 	int get_max_hit() const;
-	void set_max_hit(const int);
+	void set_max_hit(int);
 	sh_int get_move() const;
-	void set_move(const sh_int);
+	void set_move(sh_int);
 	sh_int get_max_move() const;
-	void set_max_move(const sh_int);
+	void set_max_move(sh_int);
 
 	////////////////////////////////////////////////////////////////////////////
 	long get_gold() const;
@@ -555,26 +555,26 @@ class CharData : public ProtectedCharData {
 	bool know_morph(const std::string &morph_id) const;
 	void add_morph(const std::string &morph_id);
 	void clear_morphs();
-	void set_morph(MorphPtr morph);
+	void set_morph(const MorphPtr& morph);
 	void reset_morph();
 	size_t get_morphs_count() const;
 	const morphs_list_t &get_morphs();
 	bool is_morphed() const;
 	void set_normal_morph();
 
-	std::string get_title();
+	std::string GetTitle() const;
 	std::string get_morphed_name() const;
-	std::string get_pretitle();
-	std::string get_race_name();
-	std::string only_title();
-	std::string noclan_title();
+	std::string get_pretitle() const;
+	std::string get_race_name() const;
+	std::string GetTitleAndName();
+	std::string GetNameWithTitleOrRace();
 	std::string race_or_title();
 	std::string get_morphed_title() const;
 	std::string get_cover_desc();
 	std::string get_morph_desc() const;
-	int GetTrainedSkill(const ESkill skill_num) const;
-	void set_morphed_skill(const ESkill skill_num, int percent);
-	bool isAffected(const EAffect flag) const;
+	int GetTrainedSkill(ESkill skill_num) const;
+	void set_morphed_skill(ESkill skill_num, int percent);
+	bool isAffected(EAffect flag) const;
 	const IMorph::affects_list_t &GetMorphAffects();
 
 	void set_who_mana(unsigned int);
@@ -615,12 +615,12 @@ class CharData : public ProtectedCharData {
 	int getSkillCooldownInPulses(ESkill skillID);
 	unsigned getSkillCooldown(ESkill skillID);
 
-	virtual void reset();
+	void reset() override;
 
 	void set_abstinent();
 	char_affects_list_t::iterator AffectRemove(const char_affects_list_t::iterator &affect_i);
 	bool has_any_affect(const affects_list_t &affects);
-	size_t remove_random_affects(const size_t count);
+	size_t remove_random_affects(size_t count);
 
 	const role_t &get_role() const { return role_; }
 	void set_role(const role_t &new_role) { role_ = new_role; }
@@ -635,7 +635,7 @@ class CharData : public ProtectedCharData {
 	void add_follower_silently(CharData *ch);
 	followers_list_t get_followers_list() const;
 	const player_special_data::ignores_t &get_ignores() const;
-	void add_ignore(const ignore_data::shared_ptr ignore);
+	void add_ignore(const ignore_data::shared_ptr& ignore);
 	void clear_ignores();
 
 	template<typename T>
@@ -660,8 +660,8 @@ class CharData : public ProtectedCharData {
 	const auto &get_player_specials() const { return player_specials; }
 	auto &get_player_specials() { return player_specials; }
 
-	std::string clan_for_title();
-	std::string only_title_noclan();
+	std::string GetClanTitleAddition();
+	std::string GetTitleAndNameWithoutClan() const;
 	void zero_init();
 	void restore_mob();
 
@@ -757,7 +757,7 @@ class CharData : public ProtectedCharData {
 	RoomRnum in_room;    // Location (real room number)
 
  private:
-	void report_loop_error(const CharData::ptr_t master) const;
+	void report_loop_error(CharData::ptr_t master) const;
 	void print_leaders_chain(std::ostream &ss) const;
 
 	unsigned m_wait;            // wait for how many loops
@@ -768,6 +768,11 @@ class CharData : public ProtectedCharData {
 	std::string last_comm;        // последний приказ чармису перед окончанием лага
 
 	struct char_player_data player_data;        // Normal data
+
+	// Работа с полной строкой титула - титул+предтилул
+  	void SetTitleStr(std::string_view title) { player_data.title = title; };
+  	const std::string &GetTitleStr() const { return player_data.title; };
+
 	struct char_played_ability_data add_abils;        // Abilities that add to main
 	struct char_ability_data real_abils;        // Abilities without modifiers
 	struct char_point_data points;        // Points
@@ -854,7 +859,7 @@ class CharData : public ProtectedCharData {
 	CharData::ptr_t get_master() const { return m_master; }
 	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
-	bool makes_loop(const CharData::ptr_t master) const;
+	bool makes_loop(CharData::ptr_t master) const;
 	// MOUNTS
 	bool IsOnHorse() const;
 	bool has_horse(bool same_room) const;
@@ -881,7 +886,7 @@ inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	return ps->ignores;
 }
 
-inline void CharData::add_ignore(const ignore_data::shared_ptr ignore) {
+inline void CharData::add_ignore(const ignore_data::shared_ptr& ignore) {
 	const auto &ps = get_player_specials();
 	ps->ignores.push_back(ignore);
 }

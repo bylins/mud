@@ -17,7 +17,7 @@ namespace TitleSystem {
 struct waiting_title {
 	std::string title;     // титул
 	std::string pre_title; // предтитул
-	long unique;           // уид игрока (для лоада оффлайн)
+	long unique{};           // уид игрока (для лоада оффлайн)
 };
 
 const unsigned int MAX_TITLE_LENGTH = 80; // макс.длина строки титула (титул+предтитул)
@@ -46,7 +46,7 @@ TitleListType title_list;
 TitleListType temp_title_list;
 
 bool check_title(const std::string &text, CharData *ch);
-bool check_pre_title(std::string text, CharData *ch);
+bool check_pre_title(const std::string& text, CharData *ch);
 bool check_alphabet(const std::string &text, CharData *ch, const std::string &allowed);
 bool is_new_petition(CharData *ch);
 bool manage_title_list(std::string &name, bool action, CharData *ch);
@@ -92,18 +92,18 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 				SendMsgToChar("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}
-			if (GET_TITLE(vict) != "") {
+			if (!vict->GetTitleStr().empty()) {
 				sprintf(buf, "&c%s удалил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
 				send_to_gods(buf, true);
-				GET_TITLE(vict) = "";
+				vict->SetTitleStr("");
 				//SendMsgToChar("Титул удален.\r\n", ch);
 			} else
 				SendMsgToChar("У игрока нет титула.\r\n", ch);
 			return;
 		} else if (CompareParam(buffer, "одобрить"))
-			result = manage_title_list(buffer2, 1, ch);
+			result = manage_title_list(buffer2, true, ch);
 		else if (CompareParam(buffer, "запретить"))
-			result = manage_title_list(buffer2, 0, ch);
+			result = manage_title_list(buffer2, false, ch);
 		if (result == TITLE_FIND_CHAR)
 			return;
 	}
@@ -160,7 +160,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		out << print_title_string(ch, pre_title, title) << print_agree_string(new_petition);
 		SendMsgToChar(out.str(), ch);
 	} else if (CompareParam(buffer2, "согласен")) {
-		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
+		auto it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end()) {
 			if (ch->get_bank() < SET_TITLE_COST) {
 				SendMsgToChar("На вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
@@ -174,16 +174,16 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		} else
 			SendMsgToChar("В данный момент нет заявки, на которую требуется ваше согласие.\r\n", ch);
 	} else if (CompareParam(buffer2, "отменить")) {
-		TitleListType::iterator it = title_list.find(GET_NAME(ch));
+		auto it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			title_list.erase(it);
 			ch->add_bank(SET_TITLE_COST);
 			SendMsgToChar("Ваша заявка на титул отменена.\r\n", ch);
 		} else
 			SendMsgToChar("В данный момент вам нечего отменять.\r\n", ch);
-	} else if (CompareParam(buffer2, "удалить", 1)) {
-		if (GET_TITLE(ch) != "") {
-			GET_TITLE(ch) = "";
+	} else if (CompareParam(buffer2, "удалить", true)) {
+		if (!ch->GetTitleStr().empty()) {
+			ch->SetTitleStr("");
 		}
 		SendMsgToChar("Ваши титул и предтитул удалены.\r\n", ch);
 	} else {
@@ -201,14 +201,14 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 * \return 0 не сканало, 1 сканало
 */
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
-	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
+	if (!check_alphabet(text, ch, " ,.-?Ёё")) return false;
 
 	if (GetRealLevel(ch) < 25 && !GetRealRemort(ch) && !IS_GOD(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		SendMsgToChar(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 /**
@@ -217,20 +217,20 @@ bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 * до 3 букв - считаем как предлог. Не более 3 слов и 3 предлогов, иммов не касается.
 * \return 0 не сканало, 1 сканало
 */
-bool TitleSystem::check_pre_title(std::string text, CharData *ch) {
+bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 	if (!check_alphabet(text, ch, " .-?Ёё")) 
-		return 0;
+		return false;
 
 	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) 
-		return 1;
+		return true;
 
 	if (!GetRealRemort(ch)) {
 		SendMsgToChar(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
-		return 0;
+		return false;
 	}
 	std::vector<std::string> list = utils::Split(text);
 	int word = 0, prep = 0;
-	for (auto it : list) {
+	for (const auto& it : list) {
 		if (it.size() > 3)
 			++word;
 		else
@@ -238,14 +238,14 @@ bool TitleSystem::check_pre_title(std::string text, CharData *ch) {
 	}
 	if (word > 3 || prep > 3) {
 		SendMsgToChar(ch, "Слишком много слов в предтитуле.\r\n");
-		return 0;
+		return false;
 	}
 	if (word > GetRealRemort(ch)) {
 		SendMsgToChar(ch, "У вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 /**
@@ -261,10 +261,10 @@ bool TitleSystem::check_alphabet(const std::string &text, CharData *ch, const st
 		idx = allowed.find(*it);
 		if (c < 192 && idx == std::string::npos) {
 			SendMsgToChar(ch, "Недопустимый символ '%c' в позиции %d.\r\n", *it, ++i);
-			return 0;
+			return false;
 		}
 	}
-	return 1;
+	return true;
 }
 
 /**
@@ -287,7 +287,7 @@ DescriptorData *TitleSystem::send_result_message(long unique, bool action) {
 */
 bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch) {
 	name_convert(name);
-	TitleListType::iterator it = title_list.find(name);
+	auto it = title_list.find(name);
 	if (it != title_list.end()) {
 		if (action) {
 			DescriptorData *d = send_result_message(it->second->unique, action);
@@ -375,7 +375,7 @@ std::string TitleSystem::print_title_string(CharData *ch, const std::string &pre
 }
 
 /**
-* Установка поля титула (GET_TITLE(ch)) игроку
+* Установка поля титула игроку
 * \param ch - кому ставим
 * \param god - имя одобрившего титул имма
 */
@@ -388,7 +388,7 @@ void TitleSystem::set_player_title(CharData *ch,
 	if (!pre_title.empty())
 		out << ";" << pre_title;
 	out << "/Одобрен Богом: " << god << "/";
-	GET_TITLE(ch) = out.str();
+	ch->SetTitleStr(out.str());
 }
 
 // * Для распечатки разных подсказок имму и игроку
@@ -441,10 +441,10 @@ void TitleSystem::load_title_list() {
 * \return 0 от данного игрока в обработке уже есть заявка, 1 новая заявка
 */
 bool TitleSystem::is_new_petition(CharData *ch) {
-	TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
+	auto it = temp_title_list.find(GET_NAME(ch));
 	if (it != temp_title_list.end())
-		return 0;
-	return 1;
+		return false;
+	return true;
 }
 
 /**
@@ -466,7 +466,7 @@ void TitleSystem::do_title_empty(CharData *ch) {
 		show_title_list(ch);
 	else {
 		std::stringstream out;
-		TitleListType::iterator it = title_list.find(GET_NAME(ch));
+		auto it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			out << "Данная заявка находится в рассмотрении у Богов:\r\n"
 				<< print_title_string(ch, it->second->pre_title, it->second->title)

@@ -508,7 +508,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			free(bf);
 			break;
 
-		case 2:        // player
+		case 2: {
 			if (!*value) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
@@ -517,7 +517,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			sprintf(buf, "&WИнформация по игроку %s:&n (", GET_NAME(vict));
+			sprintf(buf, "&WИнформация по игроку %s:&n (", vict->get_name().c_str());
 			sprinttype(to_underlying(GET_SEX(vict)), genders, buf + strlen(buf));
 			sprintf(buf + strlen(buf), ")&n\r\n");
 			sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
@@ -540,13 +540,12 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(rem, "Перевоплощений: 3+\r\n");
 			sprintf(buf + strlen(buf), "%s", rem);
 			sprintf(buf + strlen(buf), "Уровень: %s\r\n", (GetRealLevel(vict) < 25 ? "ниже 25" : "25+"));
-			sprintf(buf + strlen(buf),
-					"Титул: %s\r\n",
-					(vict->player_data.title != "" ? vict->player_data.title.c_str() : "<Нет>"));
+			const auto &title = vict->GetTitleStr();
+			sprintf(buf + strlen(buf), "Титул: %s\r\n", (title.empty() ? "<Нет>" : title.c_str()));
 			sprintf(buf + strlen(buf), "Описание игрока:\r\n");
 			sprintf(buf + strlen(buf),
 					"%s\r\n",
-					(vict->player_data.description != "" ? vict->player_data.description.c_str() : "<Нет>"));
+					(vict->player_data.description.empty() ? "<Нет>" : vict->player_data.description.c_str()));
 			SendMsgToChar(buf, ch);
 			// Отображаем карму.
 			if (KARMA(vict)) {
@@ -554,6 +553,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar(buf, ch);
 			}
 			break;
+		}
 		case 3:
 			if (!*value) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
@@ -671,7 +671,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 				++i;
 				sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
-						character->noclan_title().c_str(), GET_ROOM_VNUM(character->in_room),
+						character->GetNameWithTitleOrRace().c_str(), GET_ROOM_VNUM(character->in_room),
 						GET_ROOM_VNUM(character->get_was_in_room()), character->char_specials.timer);
 				SendMsgToChar(buf, ch);
 			}

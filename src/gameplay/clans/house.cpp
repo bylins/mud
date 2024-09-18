@@ -4919,7 +4919,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (const auto &it : temp_list) {
 			buffer2 << fmt::format(fmt::runtime(memberFormat), (IS_MALE(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num]
 																			: (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num]),
-								   GetPkNameColor(it), (it)->noclan_title(),
+								   GetPkNameColor(it), (it)->GetNameWithTitleOrRace(),
 								   kColorNrm, kColorBoldRed,
 								   (it->IsFlagged(EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
 								   kColorNrm);
@@ -4938,7 +4938,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (const auto &it : temp_list) {
 				if (CLAN(it) == *clan_i) {
 					buffer2 << fmt::format(fmt::runtime(memberFormat), (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num],
-										   GetPkNameColor(it), it->noclan_title(),
+										   GetPkNameColor(it), it->GetNameWithTitleOrRace(),
 										   kColorNrm, kColorBoldRed,
 										   (it->IsFlagged(EPlrFlag::kKiller) ? "(ДУШЕГУБ)" : ""),
 										   kColorNrm);

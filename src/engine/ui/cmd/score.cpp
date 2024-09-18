@@ -698,7 +698,7 @@ void PrintScoreAll(CharData *ch) {
 void PrintScoreBase(CharData *ch) {
 	std::ostringstream out;
 
-	out << "Вы " << ch->only_title() << " ("
+	out << "Вы " << ch->GetTitleAndName() << " ("
 		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
 		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
 		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "

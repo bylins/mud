@@ -204,8 +204,6 @@ constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 #define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
 #define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
 
-#define IS_BITS(mask, bitno) (IS_SET(mask,(1 << (bitno))))
-
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
 #define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
@@ -373,14 +371,11 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define GET_AGE(ch)     (CalcCharAge((ch))->year)
 #define GET_REAL_AGE(ch) (CalcCharAge((ch))->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
-#define IS_COLORED(ch)    (pk_count (ch))
 
 #define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
 #define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
@@ -486,7 +481,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
-#define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
+#define GET_PR(ch)        ((ch)->add_abils.presist)
 #define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
 #define GET_UID(x)         ((x)->get_uid())
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
@@ -786,9 +781,7 @@ const int kNameLevel = 5;
 #define HERE(ch)  (((ch)->IsNpc() || (ch)->desc || NORENTABLE(ch)))
 
 // Can subject see character "obj" without light
-#define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && \
-                                     INVIS_OK(sub,obj) \
-                )
+#define MORT_CAN_SEE_CHAR(sub, obj) (HERE(obj) && INVIS_OK(sub,obj))
 
 #define IMM_CAN_SEE_CHAR(sub, obj) \
         (MORT_CAN_SEE_CHAR(sub, obj) || (!(sub)->IsNpc() && (sub)->IsFlagged(EPrf::kHolylight)))
