@@ -182,7 +182,7 @@ const char *GetWarmValueColor(int current, int max) {
 		case 2: [[fallthrough]];
 		case 3: return kColorBoldRed;
 		case 4: [[fallthrough]];
-		case 5: return kColorYel;
+		case 5: return kColorBoldYel;
 		case 6:
 		case 7: [[fallthrough]];
 		case 8: return kColorBoldGrn;
