@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "gameplay/ai/spec_procs.h"
 
 #include "act_movement.h"
 #include "engine/core/utils_char_obj.inl"
@@ -25,6 +26,8 @@
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/game_limits.h"
+#include "engine/ui/cmd/do_equip.h"
 
 extern CharData *get_player_of_name(const char *name);
 
@@ -541,19 +544,15 @@ void npc_wield(CharData *ch) {
 
 	for (obj = ch->carrying; obj; obj = next) {
 		next = obj->get_next_content();
-		if (GET_OBJ_TYPE(obj) != EObjType::kWeapon
-			|| GET_OBJ_UNIQUE_ID(obj) != 0) {
+		if (obj->get_type() != EObjType::kWeapon || GET_OBJ_UNIQUE_ID(obj) != 0) {
 			continue;
 		}
 
-		if (CAN_WEAR(obj, EWearFlag::kHold)
-			&& OK_HELD(ch, obj)) {
+		if (CAN_WEAR(obj, EWearFlag::kHold) && CanBeTakenInMinorHand(ch, obj)) {
 			best_weapon(ch, obj, &left);
-		} else if (CAN_WEAR(obj, EWearFlag::kWield)
-			&& OK_WIELD(ch, obj)) {
+		} else if (CAN_WEAR(obj, EWearFlag::kWield) && CanBeTakenInMajorHand(ch, obj)) {
 			best_weapon(ch, obj, &right);
-		} else if (CAN_WEAR(obj, EWearFlag::kBoth)
-			&& OK_BOTH(ch, obj)) {
+		} else if (CAN_WEAR(obj, EWearFlag::kBoth) && CanBeTakenInBothHands(ch, obj)) {
 			best_weapon(ch, obj, &both);
 		}
 	}
@@ -1463,12 +1462,12 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			ch->remove_bank(amount);
 			if (amount <= 100) ch->remove_bank(5);
 			else ch->remove_bank(((amount * 5) / 100));
-			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
-					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", kColorWht, amount,
+					GET_PAD(vict, 2), kColorNrm);
 			SendMsgToChar(buf, ch);
 			vict->add_bank(amount);
-			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
-					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", kColorWht, amount,
+					GET_PAD(ch, 1), kColorNrm);
 			SendMsgToChar(buf, vict);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
@@ -1490,8 +1489,8 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			ch->remove_bank(amount);
 			if (amount <= 100) ch->remove_bank(5);
 			else ch->remove_bank(((amount * 5) / 100));
-			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
-					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", kColorWht, amount,
+					GET_PAD(vict, 2), kColorNrm);
 			SendMsgToChar(buf, ch);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
@@ -1510,6 +1509,31 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("казна"))
 		return (Clan::BankManage(ch, argument));
 	return 0;
+}
+
+bool is_post(RoomRnum room) {
+	for (const auto ch : world[room]->people) {
+		if (ch->IsNpc() && IS_POSTKEEPER(ch)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool is_rent(RoomRnum room) {
+	if (ROOM_FLAGGED(room, ERoomFlag::kHouse)) {
+		const auto clan = Clan::GetClanByRoom(room);
+		if (!clan) {
+			return false;
+		}
+	}
+	// комната без рентера в ней
+	for (const auto ch : world[room]->people) {
+		if (ch->IsNpc() && IS_RENTKEEPER(ch)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

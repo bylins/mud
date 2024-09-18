@@ -29,11 +29,11 @@ set(SOURCES
 		src/utils/backtrace.cpp
 		src/administration/ban.cpp
 		src/gameplay/mechanics/birthplaces.cpp
-		src/gameplay/communication/boards_changelog_loaders.cpp
-		src/gameplay/communication/boards_constants.cpp
-		src/gameplay/communication/boards.cpp
-		src/gameplay/communication/boards_formatters.cpp
-		src/gameplay/communication/boards_types.cpp
+        src/gameplay/communication/boards/boards_changelog_loaders.cpp
+        src/gameplay/communication/boards/boards_constants.cpp
+        src/gameplay/communication/boards/boards.cpp
+        src/gameplay/communication/boards/boards_formatters.cpp
+        src/gameplay/communication/boards/boards_types.cpp
 		src/gameplay/mechanics/bonus.cpp
 		src/gameplay/mechanics/bonus_command_parser.cpp
 		src/engine/boot/boot_constants.cpp
@@ -152,7 +152,6 @@ set(SOURCES
 		src/gameplay/ai/spec_assign.cpp
 		src/gameplay/ai/spec_procs.cpp
 		src/engine/network/descriptor_data.cpp
-		src/engine/structs/structs.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
 		src/utils/id_converter.cpp
@@ -257,7 +256,7 @@ set(SOURCES
 		src/gameplay/skills/sharpening.cpp
 		src/gameplay/skills/armoring.cpp
 		src/engine/ui/cmd/get.cpp
-		src/engine/ui/cmd/equip.cpp
+        src/engine/ui/cmd/do_equip.cpp
 		src/engine/ui/cmd/put.cpp
 		src/engine/ui/cmd/remove.cpp
 		src/engine/ui/cmd/eat.cpp
@@ -320,7 +319,29 @@ set(SOURCES
 		src/engine/network/logon.cpp
 		src/engine/ui/cmd_god/do_ban.cpp
 		src/engine/ui/cmd_god/do_proxy.cpp
-		src/administration/proxy.cpp)
+		src/administration/proxy.cpp
+		src/engine/ui/cmd_god/print_armor.cpp
+		src/engine/ui/cmd_god/forcetime.cpp
+		src/engine/ui/cmd_god/liblist.cpp
+		src/engine/ui/cmd_god/wizutil.cpp
+		src/administration/punishments.cpp
+		src/engine/ui/cmd_god/wiznet.cpp
+		src/engine/ui/cmd_god/force.cpp
+		src/engine/ui/cmd_god/do_invisible.cpp
+		src/engine/ui/cmd_god/set_all.cpp
+        src/utils/grammar/cases.cpp
+		src/engine/core/iosystem.cpp
+		src/gameplay/mechanics/groups.cpp
+		src/gameplay/statistics/money_drop.cpp
+		src/gameplay/statistics/zone_exp.cpp
+		src/gameplay/communication/talk.cpp
+		src/engine/ui/cmd_god/echo.cpp
+		src/gameplay/core/base_stats.cpp
+		src/engine/ui/cmd/do_camouflage.cpp
+		src/engine/ui/cmd/do_hide.cpp
+		src/engine/ui/cmd/do_steal.cpp
+		src/engine/ui/cmd/do_group.cpp
+		src/engine/ui/cmd/do_ungroup.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -372,7 +393,6 @@ set(HEADERS
 		src/engine/core/heartbeat_commands.h
 		src/gameplay/mechanics/weather.h
 		src/gameplay/core/game_limits.h
-		src/act_wizard.h
 		src/engine/core/heartbeat.h
 		src/engine/db/world_characters.h
 		src/gameplay/economics/shops_implementation.h
@@ -385,18 +405,17 @@ set(HEADERS
 		src/engine/db/obj_prototypes.h
 		src/engine/db/world_objects.h
 		src/utils/utils_string.h
-		src/act_other.h
 		src/gameplay/affects/affect_handler.h
 		src/gameplay/economics/auction.h
 		src/utils/backtrace.h
 		src/administration/ban.h
 		src/gameplay/mechanics/birthplaces.h
-		src/gameplay/communication/boards_changelog_loaders.h
-		src/gameplay/communication/boards_constants.h
-		src/gameplay/communication/boards_formatters.h
-		src/gameplay/communication/boards.h
-		src/gameplay/communication/boards_message.h
-		src/gameplay/communication/boards_types.h
+        src/gameplay/communication/boards/boards_changelog_loaders.h
+        src/gameplay/communication/boards/boards_constants.h
+        src/gameplay/communication/boards/boards_formatters.h
+        src/gameplay/communication/boards/boards.h
+        src/gameplay/communication/boards/boards_message.h
+        src/gameplay/communication/boards/boards_types.h
 		src/gameplay/mechanics/bonus.h
 		src/gameplay/mechanics/bonus_command_parser.h
 		src/gameplay/mechanics/bonus_types.h
@@ -558,7 +577,7 @@ set(HEADERS
 		src/gameplay/skills/sharpening.h
 		src/gameplay/skills/armoring.h
 		src/engine/ui/cmd/get.h
-		src/engine/ui/cmd/equip.h
+        src/engine/ui/cmd/do_equip.h
 		src/engine/ui/cmd/put.h
 		src/engine/ui/cmd/remove.h
 		src/engine/ui/cmd/eat.h
@@ -621,7 +640,31 @@ set(HEADERS
 		src/engine/network/logon.h
 		src/engine/ui/cmd_god/do_ban.h
 		src/engine/ui/cmd_god/do_proxy.h
-		src/administration/proxy.h)
+		src/administration/proxy.h
+		src/engine/ui/cmd_god/print_armor.h
+		src/engine/ui/cmd_god/forcetime.h
+		src/engine/ui/cmd_god/liblist.h
+		src/engine/ui/cmd_god/wizutil.h
+		src/administration/punishments.h
+		src/engine/ui/cmd_god/wiznet.h
+		src/engine/ui/cmd_god/force.h
+		src/engine/ui/cmd_god/do_invisible.h
+		src/engine/ui/cmd_god/set_all.h
+		src/gameplay/ai/spec_procs.h
+        src/utils/grammar/cases.h
+		src/engine/structs/meta_enum.h
+		src/engine/core/iosystem.h
+		src/gameplay/mechanics/groups.h
+		src/gameplay/statistics/money_drop.h
+		src/gameplay/statistics/zone_exp.h
+		src/gameplay/communication/talk.h
+		src/engine/ui/cmd_god/echo.h
+		src/gameplay/core/base_stats.h
+		src/engine/ui/cmd/do_camouflage.h
+		src/engine/ui/cmd/do_hide.h
+		src/engine/ui/cmd/do_steal.h
+		src/engine/ui/cmd/do_group.h
+		src/engine/ui/cmd/do_ungroup.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -4,7 +4,7 @@
 
 #include "help.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "obj_prototypes.h"
 #include "engine/ui/modify.h"
@@ -76,11 +76,11 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 
 		sprintf(buf, "%s%s%s%s%d%s\r\n",
 				(activ ? " +    " : "   "),
-				KCYN,
+				kColorCyn,
 				MUD::Skill(skill.first).GetName(),
 				(skill.second < 0 ? " ухудшает на " : " улучшает на "),
 				abs(skill.second),
-				KNRM);
+				kColorNrm);
 		return buf;
 	}
 	return "";

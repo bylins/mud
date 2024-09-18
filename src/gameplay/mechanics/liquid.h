@@ -71,7 +71,7 @@ class CObjectPrototype;    // to avoit inclusion of "obj.hpp"
 namespace drinkcon {
 
 void identify(CharData *ch, const ObjData *obj);
-std::string print_spells(CharData *ch, const ObjData *obj);
+std::string print_spells(const ObjData *obj);
 void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
 char *daig_filling_drink(const ObjData *obj, const CharData *ch);
 const char *diag_liquid_timer(const ObjData *obj);

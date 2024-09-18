@@ -7,6 +7,8 @@
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "engine/core/handler.h"
+#include "gameplay/communication/talk.h"
+#include "gameplay/ai/spec_procs.h"
 
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 

@@ -6,6 +6,7 @@
 #include "gameplay/fight/common.h"
 #include "protect.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/base_stats.h"
 
 // ******************  KICK PROCEDURES
 void go_kick(CharData *ch, CharData *vict) {

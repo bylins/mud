@@ -130,6 +130,10 @@ void gettimeofday(struct timeval *t, void *dummy);
 #define BOOST_NO_MT
 #define BOOST_DISABLE_THREADS
 
+#ifndef HAVE_ZLIB
+struct z_stream;
+#endif
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

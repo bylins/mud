@@ -6,6 +6,7 @@
 
 #include <array>
 
+void advance_level(CharData *ch);
 int invalid_no_class(CharData *ch, const ObjData *obj);
 int GetExtraDamroll(ECharClass class_id, int level);
 long GetExpUntilNextLvl(CharData *ch, int level);

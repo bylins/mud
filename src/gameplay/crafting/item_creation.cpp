@@ -15,22 +15,21 @@
 #include "gameplay/fight/fight.h"
 #include "engine/entities/entities_constants.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/core/base_stats.h"
 
 #include <cmath>
 
 extern int material_value[];
-void die(CharData *ch, CharData *killer);
+char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj);
 
 constexpr auto WEAR_TAKE = to_underlying(EWearFlag::kTake);
-constexpr auto WEAR_TAKE_BOTHS_WIELD =
-	WEAR_TAKE | to_underlying(EWearFlag::kBoth) | to_underlying(EWearFlag::kWield);
+constexpr auto WEAR_TAKE_BOTHS_WIELD = WEAR_TAKE | to_underlying(EWearFlag::kBoth) | to_underlying(EWearFlag::kWield);
 constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::kBody);
 constexpr auto WEAR_TAKE_ARMS = WEAR_TAKE | to_underlying(EWearFlag::kArms);
 constexpr auto WEAR_TAKE_LEGS = WEAR_TAKE | to_underlying(EWearFlag::kLegs);
 constexpr auto WEAR_TAKE_HEAD = WEAR_TAKE | to_underlying(EWearFlag::kHead);
 constexpr auto WEAR_TAKE_BOTHS = WEAR_TAKE | to_underlying(EWearFlag::kBoth);
-constexpr auto
-	WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::kHold) | to_underlying(EWearFlag::kWield);
+constexpr auto WEAR_TAKE_DUAL = WEAR_TAKE | to_underlying(EWearFlag::kHold) | to_underlying(EWearFlag::kWield);
 constexpr auto WEAR_TAKE_HOLD = WEAR_TAKE | to_underlying(EWearFlag::kHold);
 struct create_item_type created_item[] =
 	{
@@ -134,8 +133,8 @@ const char *create_weapon_quality[] = {"RESERVED",
 };
 MakeReceptList make_recepts;
 // Функция вывода в поток //
-CharData *&operator<<(CharData *&ch, string p) {
-	SendMsgToChar(p.c_str(), ch);
+CharData *&operator<<(CharData *&ch, const string &p) {
+	SendMsgToChar(p, ch);
 	return ch;
 }
 
@@ -225,8 +224,7 @@ void mredit_parse(DescriptorData *d, char *arg) {
 			mredit_disp_menu(d);
 			break;
 
-		case MREDIT_OBJ_PROTO:
-			i = atoi(sagr.c_str());
+		case MREDIT_OBJ_PROTO: i = atoi(sagr.c_str());
 			if (GetObjRnum(i) < 0) {
 				SendMsgToChar("Прототип выбранного вами объекта не существует.\r\n", d->character.get());
 			} else {
@@ -517,7 +515,8 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	}
 	// Выдаем список рецептов всех рецептов как в магазине.
 	tmpstr = "###  Б  Умение  Предмет                                 Составляющие:                         \r\n";
-	tmpstr += "-------------------------------------------------------------------------------------------------------------------------------------------------------\r\n";
+	tmpstr +=
+		"-------------------------------------------------------------------------------------------------------------------------------------------------------\r\n";
 	for (size_t i = 0; i < make_recepts.size(); i++) {
 		int j = 0;
 		skill_name = "Нет";
@@ -833,14 +832,11 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 
 	ESkill skill_id{ESkill::kUndefined};
 	switch (subcmd) {
-		case SCMD_TRANSFORMWEAPON:
-			skill_id = ESkill::kReforging;
+		case SCMD_TRANSFORMWEAPON: skill_id = ESkill::kReforging;
 			break;
-		case SCMD_CREATEBOW:
-			skill_id = ESkill::kCreateBow;
+		case SCMD_CREATEBOW: skill_id = ESkill::kCreateBow;
 			break;
-		default:
-			break;
+		default: break;
 	}
 
 	if (ch->IsNpc() || !ch->GetSkill(skill_id)) {
@@ -1913,12 +1909,10 @@ int MakeRecept::make(CharData *ch) {
 //	i = GET_OBJ_WEIGHT(obj);
 	switch (skill) {
 		case ESkill::kMakeBow:;
-		case ESkill::kMakeWear:
-			obj->set_extra_flag(EObjFlag::kTransformed);
+		case ESkill::kMakeWear: obj->set_extra_flag(EObjFlag::kTransformed);
 			obj->set_extra_flag(EObjFlag::KLimitedTimer);
 			break;
-		default: 
-		break;
+		default: break;
 	}
 	int sign = -1;
 	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon
@@ -2168,7 +2162,7 @@ void MakeRecept::add_rnd_skills(CharData * /*ch*/, ObjData *obj_from, ObjData *o
 				auto skill_num = it.first;
 				percent = it.second;
 				// TODO: такого не должно быть?
-				if (percent == 0)  {
+				if (percent == 0) {
 					continue;
 				}
 				obj_to->set_skill(skill_num, percent);
@@ -2227,6 +2221,185 @@ int MakeRecept::add_affects(CharData *ch,
 		}
 	}
 	return (true);
+}
+
+// Форматирование вывода в соответствии с форматом act-a
+// output act format//
+char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj) {
+	const char *i = nullptr;
+	char *buf, *lbuf;
+	ubyte padis;
+	int stopbyte;
+//	CharacterData *dg_victim = nullptr;
+
+	buf = (char *) malloc(kMaxStringLength);
+	lbuf = buf;
+
+	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
+		if (*orig == '$') {
+			switch (*(++orig)) {
+				case 'n':
+					if (*(orig + 1) < '0' || *(orig + 1) > '5')
+						i = ch->get_name().c_str();
+					else {
+						padis = *(++orig) - '0';
+						i = GET_PAD(ch, padis);
+					}
+					break;
+				case 'N':
+					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, 0));
+					} else {
+						padis = *(++orig) - '0';
+						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, padis));
+					}
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'm': i = HMHR(ch);
+					break;
+				case 'M':
+					if (vict_obj)
+						i = HMHR((const CharData *) vict_obj);
+					else CHECK_NULL(obj, OMHR(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 's': i = HSHR(ch);
+					break;
+				case 'S':
+					if (vict_obj)
+						i = HSHR((const CharData *) vict_obj);
+					else CHECK_NULL(obj, OSHR(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'e': i = HSSH(ch);
+					break;
+				case 'E':
+					if (vict_obj)
+						i = HSSH((const CharData *) vict_obj);
+					else CHECK_NULL(obj, OSSH(obj));
+					break;
+
+				case 'o':
+					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+						CHECK_NULL(obj, obj->get_PName(0).c_str());
+					} else {
+						padis = *(++orig) - '0';
+						CHECK_NULL(obj, obj->get_PName(padis > 5 ? 0 : padis).c_str());
+					}
+					break;
+				case 'O':
+					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(0).c_str());
+					} else {
+						padis = *(++orig) - '0';
+						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
+					}
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 't': CHECK_NULL(obj, (const char *) obj);
+					break;
+
+				case 'T': CHECK_NULL(vict_obj, (const char *) vict_obj);
+					break;
+
+				case 'F': CHECK_NULL(vict_obj, (const char *) vict_obj);
+					break;
+
+				case '$': i = "$";
+					break;
+
+				case 'a': i = GET_CH_SUF_6(ch);
+					break;
+				case 'A':
+					if (vict_obj)
+						i = GET_CH_SUF_6((const CharData *) vict_obj);
+					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'g': i = GET_CH_SUF_1(ch);
+					break;
+				case 'G':
+					if (vict_obj)
+						i = GET_CH_SUF_1((const CharData *) vict_obj);
+					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'y': i = GET_CH_SUF_5(ch);
+					break;
+				case 'Y':
+					if (vict_obj)
+						i = GET_CH_SUF_5((const CharData *) vict_obj);
+					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'u': i = GET_CH_SUF_2(ch);
+					break;
+				case 'U':
+					if (vict_obj)
+						i = GET_CH_SUF_2((const CharData *) vict_obj);
+					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'w': i = GET_CH_SUF_3(ch);
+					break;
+				case 'W':
+					if (vict_obj)
+						i = GET_CH_SUF_3((const CharData *) vict_obj);
+					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+
+				case 'q': i = GET_CH_SUF_4(ch);
+					break;
+				case 'Q':
+					if (vict_obj)
+						i = GET_CH_SUF_4((const CharData *) vict_obj);
+					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
+					//dg_victim = (CharacterData *) vict_obj;
+					break;
+				case 'z':
+					if (obj)
+						i = OYOU(obj);
+					else CHECK_NULL(obj, OYOU(obj));
+					break;
+				case 'Z':
+					if (vict_obj)
+						i = HYOU((const CharData *) vict_obj);
+					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj));
+					break;
+				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
+					log("SYSERR: %s", orig);
+					i = "";
+					break;
+			}
+			while ((*buf = *(i++)))
+				buf++;
+			orig++;
+		} else if (*orig == '\\') {
+			if (*(orig + 1) == 'r') {
+				*(buf++) = '\r';
+				orig += 2;
+			} else if (*(orig + 1) == 'n') {
+				*(buf++) = '\n';
+				orig += 2;
+			} else
+				*(buf++) = *(orig++);
+		} else if (!(*(buf++) = *(orig++)))
+			break;
+	}
+
+	*(--buf) = '\r';
+	*(++buf) = '\n';
+	*(++buf) = '\0';
+	return (lbuf);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

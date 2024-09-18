@@ -6,7 +6,7 @@
 
 //#include "guilds.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "engine/ui/color.h"
 #include "glory_const.h"
@@ -193,9 +193,9 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 		}
 
 		++count;
-		table << (KCYN + std::to_string(count) + KNRM + ")" + KGRN)
+		table << (kColorCyn + std::to_string(count) + kColorNrm + ")" + kColorGrn)
 			  << talent->GetTalentTypeName()
-			  << ("'" + static_cast<std::string>(talent->GetName()) + "'" + KNRM);
+			  << ("'" + static_cast<std::string>(talent->GetName()) + "'" + kColorNrm);
 
 		auto price = talent->CalcPrice(ch);
 		if (price) {
@@ -310,7 +310,7 @@ void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) 
 		act(GetMsg(EMsg::kFailToRoom), false, ch, nullptr, trainer, kToRoom);
 	} else {
 		auto out = fmt::format(fmt::runtime(GetMsg(EMsg::kTalentEarned)),
-							   talent->GetTalentTypeName(), KIYEL, talent->GetName(), KNRM);
+							   talent->GetTalentTypeName(), kColorBoldYel, talent->GetName(), kColorNrm);
 		act(out, false, ch, nullptr, trainer, kToChar);
 		talent->SetTalent(ch);
 	}
@@ -340,17 +340,17 @@ void GuildInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 				    GetId(), GetTextId(), name_, fmt::arg("grn", KGRN), fmt::arg("nrm", KNRM));*/
 
 	buffer << "Print guild:" << "\n"
-		   << " Vnum: " << KGRN << GetId() << KNRM << "\n"
-		   << " TextId: " << KGRN << GetTextId() << KNRM << "\n"
-		   << " Name: " << KGRN << name_ << KNRM << "\n";
+		   << " Vnum: " << kColorGrn << GetId() << kColorNrm << "\n"
+		   << " TextId: " << kColorGrn << GetTextId() << kColorNrm << "\n"
+		   << " Name: " << kColorGrn << name_ << kColorNrm << "\n";
 
 	if (!trainers_.empty()) {
-		buffer << " Trainers vnums: " << KGRN;
+		buffer << " Trainers vnums: " << kColorGrn;
 		for (const auto vnum: trainers_) {
 			buffer << vnum << ", ";
 		}
 		buffer.seekp(-2, std::ios_base::end);
-		buffer << "." << KNRM << "\n";
+		buffer << "." << kColorNrm << "\n";
 	}
 
 	if (!learning_talents_.empty()) {

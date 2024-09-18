@@ -1,7 +1,14 @@
+/**
+\file weather.h - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Механики календаря и погоды. Календарь отсюжа по-хорошему надо вынести в отдельный модуль.
+*/
+
 #ifndef WEATHER_HPP_
 #define WEATHER_HPP_
 
-#include "engine/structs/structs.h"
+//#include "engine/structs/structs.h"
 #include "gameplay/skills/skills.h" // ABYRVALG - вынести в скиллз_константс
 
 const __uint8_t GAPPLY_NONE = 0;
@@ -115,12 +122,23 @@ struct Weather {
 
 extern Weather weather_info;
 
+struct TimeInfoData {
+  int hours = 0;
+  int day = 0;
+  int month = 0;
+  int year = 0;
+};
+
 void weather_and_time(int mode);
 int get_moon(int sky);
 int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value);
 int CalcDaySpellMod(CharData *ch, ESpell spell_id, int type, int value);
 int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value);
 int CalcComplexSpellMod(CharData *ch, ESpell spell_id, int type, int value);
+// \todo Совершенная похабень с передачей неконстантного указателя на static структуру. Переписать.
+TimeInfoData *CalcRealTimePassed(time_t time_to, time_t time_from);
+TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
+TimeInfoData *CalcCharAge(const CharData *ch);
 
 #endif // WEATHER_HPP_
 

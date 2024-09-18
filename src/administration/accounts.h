@@ -53,12 +53,12 @@ class Account {
 	bool quest_is_available(int id);
 	int zero_hryvn(CharData *ch, int val);
 	void complete_quest(int id);
-	static const std::shared_ptr<Account> get_account(const std::string &email);
+	static std::shared_ptr<Account> get_account(const std::string &email);
 	void show_players(CharData *ch);
 	void list_players(DescriptorData *d);
 	void add_player(long uid);
 	void remove_player(long uid);
-	time_t get_last_login();
+	time_t get_last_login() const;
 	void set_last_login();
 	void set_password(const std::string &password);
 	bool compare_password(const std::string &password);

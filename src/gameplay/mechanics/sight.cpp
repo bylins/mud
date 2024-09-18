@@ -23,6 +23,7 @@
 #include "gameplay/skills/pick.h"
 #include "engine/db/obj_prototypes.h"
 #include "stable_objs.h"
+#include "weather.h"
 
 #define TAG_NIGHT       "<night>"
 #define TAG_DAY         "<day>"
@@ -62,7 +63,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 bool quest_item(ObjData *obj);
 void look_at_char(CharData *i, CharData *ch);
 std::string AddLeadingStringSpace(const std::string& text);
-char *diag_obj_to_char(CharData *i, ObjData *obj, int mode);
+char *diag_obj_to_char(ObjData *obj, int mode);
 void diag_char_to_char(CharData *i, CharData *ch);
 void ListOneChar(CharData *i, CharData *ch, ESkill mode);
 
@@ -99,7 +100,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		ch->map_print_to_snooper(ch->desc->snoop_by->character.get());
 	}
 
-	SendMsgToChar(CCICYN(ch, C_NRM), ch);
+	SendMsgToChar(kColorBoldCyn, ch);
 
 	if (!ch->IsNpc() && (ch->IsFlagged(EPrf::kRoomFlags) || InTestZone(ch))) {
 		// иммам рандомная * во флагах ломает мапер грят
@@ -128,7 +129,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			SendMsgToChar(world[ch->in_room]->name, ch);
 	}
 
-	SendMsgToChar(CCNRM(ch, C_NRM), ch);
+	SendMsgToChar(kColorNrm, ch);
 	SendMsgToChar("\r\n", ch);
 
 	if (is_dark(ch->in_room) && !ch->IsFlagged(EPrf::kHolylight)) {
@@ -150,19 +151,19 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	// now list characters & objects
 	if (world[ch->in_room]->fires) {
-		sprintf(buf, "%sВ центре %s.%s\r\n",
-				CCRED(ch, C_NRM), Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВ центре %s.%s\r\n", kColorRed, Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
 				if (IS_GOD(ch)) {
-					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",  aff->duration,  world[aff->modifier]->vnum);
+					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",
+							aff->duration,  world[aff->modifier]->vnum);
 				} else {
 					if (world[ch->in_room]->pkPenterUnique) {
 						sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
-								CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+								kColorBoldBlu, kColorBoldRed, kColorBoldBlu, kColorNrm);
 					} else {
 						sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
 					}
@@ -175,7 +176,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (world[ch->in_room]->holes) {
 		const int ar = roundup(world[ch->in_room]->holes / kHolesTime);
 		sprintf(buf, "%sЗдесь выкопана ямка глубиной примерно в %i аршин%s.%s\r\n",
-				CCYEL(ch, C_NRM), ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (CCNRM(ch, C_NRM)));
+				kColorYel, ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (kColorNrm));
 		SendMsgToChar(buf, ch);
 	}
 
@@ -188,29 +189,29 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			case ESector::kHillsSnow:
 			case ESector::kMountainSnow:
 				sprintf(buf, "%sСнежный ковер лежит у вас под ногами.%s\r\n",
-						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+						kColorWht, kColorNrm);
 				break;
 			case ESector::kFieldRain:
 			case ESector::kForestRain:
 			case ESector::kHillsRain:
 				sprintf(buf,
 						"%sВы просто увязаете в грязи.%s\r\n",
-						CCIWHT(ch, C_NRM),
-						CCNRM(ch, C_NRM));
+						kColorBoldBlk,
+						kColorNrm);
 				break;
 			case ESector::kThickIce:
 				sprintf(buf,
 						"%sУ вас под ногами толстый лед.%s\r\n",
-						CCIBLU(ch, C_NRM),
-						CCNRM(ch, C_NRM));
+						kColorBoldBlu,
+						kColorNrm);
 				break;
 			case ESector::kNormalIce:
 				sprintf(buf, "%sУ вас под ногами достаточно толстый лед.%s\r\n",
-						CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+						kColorBoldBlu, kColorNrm);
 				break;
 			case ESector::kThinIce:
 				sprintf(buf, "%sТоненький ледок вот-вот проломится под вами.%s\r\n",
-						CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+						kColorBoldCyn, kColorNrm);
 				break;
 		};
 		if (*buf) {
@@ -219,10 +220,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 	SendMsgToChar("&Y&q", ch);
 	MUD::Runestones().ShowRunestone(ch);
-
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, false);
-	list_char_to_char_thing(world[ch->in_room]->people,
-							ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
+	list_char_to_char_thing(world[ch->in_room]->people, ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
 	SendMsgToChar("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	SendMsgToChar("&Q&n", ch);
@@ -812,7 +811,7 @@ void do_auto_exits(CharData *ch) {
 			}
 		}
 	}
-	sprintf(buf2, "%s[ Exits: %s]%s\r\n", CCCYN(ch, C_NRM), *buf ? buf : "None! ", CCNRM(ch, C_NRM));
+	sprintf(buf2, "%s[ Exits: %s]%s\r\n", kColorCyn, *buf ? buf : "None! ", kColorNrm);
 
 	SendMsgToChar(buf2, ch);
 }
@@ -896,7 +895,7 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room() != kNowhere)) {
 		rdata = EXIT(ch, dir);
-		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), dirs_rus[dir], CCNRM(ch, C_NRM));
+		count += sprintf(buf, "%s%s:%s ", kColorYel, dirs_rus[dir], kColorNrm);
 		if (EXIT_FLAGGED(rdata, EExitFlag::kClosed)) {
 			if (rdata->keyword) {
 				count += sprintf(buf + count, " закрыто (%s).\r\n", rdata->keyword);
@@ -909,10 +908,10 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 				if (EXIT_FLAGGED(rdata, EExitFlag::kPickroof)) {
 					count += sprintf(buf + count - 2,
 									 "%s вы никогда не сможете ЭТО взломать!%s\r\n",
-									 CCICYN(ch, C_NRM),
-									 CCNRM(ch, C_NRM));
+									 kColorBoldCyn,
+									 kColorNrm);
 				} else if (EXIT_FLAGGED(rdata, EExitFlag::kBrokenLock)) {
-					count += sprintf(buf + count - 2, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					count += sprintf(buf + count - 2, "%s Замок сломан... %s\r\n", kColorRed, kColorNrm);
 				} else {
 					const PickProbabilityInformation &pbi = get_pick_probability(ch, rdata->lock_complexity);
 					count += sprintf(buf + count - 2, "%s\r\n", pbi.text.c_str());
@@ -1019,10 +1018,10 @@ void look_in_obj(CharData *ch, char *arg) {
 					if (OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable))
 						count += sprintf(buf + count,
 										 "%s Вы никогда не сможете ЭТО взломать!%s\r\n",
-										 CCICYN(ch, C_NRM),
-										 CCNRM(ch, C_NRM));
+										 kColorBoldCyn,
+										 kColorNrm);
 					else if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken))
-						count += sprintf(buf + count, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+						count += sprintf(buf + count, "%s Замок сломан... %s\r\n", kColorRed, kColorNrm);
 					else {
 						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));
 						count += sprintf(buf + count, "%s\r\n", pbi.text.c_str());
@@ -1125,10 +1124,10 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 							GET_OBJ_VAL(object, 2), GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 			} else {
 				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
-					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM),
-							CCNRM(ch, C_NRM), diag_obj_to_char(ch, object, 1));
+					sprintf(buf2, " %s*%s%s", kColorGrn,
+							kColorNrm, diag_obj_to_char(object, 1));
 				} else {
-					sprintf(buf2, " %s ", diag_obj_to_char(ch, object, 1));
+					sprintf(buf2, " %s ", diag_obj_to_char(object, 1));
 					if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
 						char tmp2[128];
@@ -1161,7 +1160,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 				}
 			} else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object)) {
-				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(ch, object, 2));
+				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
 			}
 		}
 		strcat(buf, buf2);
@@ -1192,7 +1191,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		if (object->has_flag(EObjFlag::kFire))
 			strcat(buf, " ..горит!");
 		if (object->has_flag(EObjFlag::kBloody)) {
-			sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
+			sprintf(buf2, " %s..покрыт%s кровью!%s", kColorBoldRed, GET_OBJ_SUF_6(object), kColorNrm);
 			strcat(buf, buf2);
 		}
 	}
@@ -1282,7 +1281,7 @@ std::string AddLeadingStringSpace(const std::string& text) {
 	return "";
 }
 
-char *diag_obj_to_char(CharData *i, ObjData *obj, int mode) {
+char *diag_obj_to_char(ObjData *obj, int mode) {
 	static char out_str[80] = "\0";
 	const char *color;
 	int percent;
@@ -1294,32 +1293,32 @@ char *diag_obj_to_char(CharData *i, ObjData *obj, int mode) {
 
 	if (percent >= 100) {
 		percent = 7;
-		color = CCWHT(i, C_NRM);
+		color = kColorWht;
 	} else if (percent >= 90) {
 		percent = 6;
-		color = CCIGRN(i, C_NRM);
+		color = kColorBoldGrn;
 	} else if (percent >= 75) {
 		percent = 5;
-		color = CCGRN(i, C_NRM);
+		color = kColorGrn;
 	} else if (percent >= 50) {
 		percent = 4;
-		color = CCIYEL(i, C_NRM);
+		color = kColorBoldYel;
 	} else if (percent >= 30) {
 		percent = 3;
-		color = CCIRED(i, C_NRM);
+		color = kColorBoldRed;
 	} else if (percent >= 15) {
 		percent = 2;
-		color = CCIRED(i, C_NRM);
+		color = kColorBoldRed;
 	} else if (percent > 0) {
 		percent = 1;
-		color = CCRED(i, C_NRM);
+		color = kColorRed;
 	} else {
 		percent = 0;
-		color = CCINRM(i, C_NRM);
+		color = kColorBoldBlk;
 	}
 
 	if (mode == 1)
-		sprintf(out_str, " %s<%s>%s", color, ObjState[percent][0], CCNRM(i, C_NRM));
+		sprintf(out_str, " %s<%s>%s", color, ObjState[percent][0], kColorNrm);
 	else if (mode == 2)
 		strcpy(out_str, ObjState[percent][1]);
 	return out_str;
@@ -1403,9 +1402,9 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	int j;
 	if (CanUseFeat(ch, EFeat::kSkilledTrader) || ch->IsFlagged(EPrf::kHolylight) || ch->GetSkill(ESkill::kJewelry)) {
-		sprintf(buf + strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
+		sprintf(buf + strlen(buf), "Материал : %s", kColorCyn);
 		sprinttype(obj->get_material(), material_name, buf + strlen(buf));
-		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);
 	}
 
 	if (GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
@@ -1437,7 +1436,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 
 	//|| EPrf::FLAGGED(ch, EPrf::HOLYLIGHT)
 	if (CanUseFeat(ch, EFeat::kJeweller)) {
-		sprintf(buf + strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
+		sprintf(buf + strlen(buf), "Слоты : %s", kColorCyn);
 		if (obj->has_flag(EObjFlag::kHasThreeSlots)) {
 			strcat(buf, "доступно 3 слота\r\n");
 		} else if (obj->has_flag(EObjFlag::kHasTwoSlots)) {
@@ -1447,7 +1446,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		} else {
 			strcat(buf, "нет слотов\r\n");
 		}
-		sprintf(buf + strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);
 	}
 	if (AUTH_CUSTOM_LABEL(obj, ch) && obj->get_custom_label()->text_label) {
 		if (obj->get_custom_label()->clan_abbrev) {
@@ -1586,16 +1585,16 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			if (i->IsNpc()) {
 				if (NPC_FLAGGED(i, ENpcFlag::kAirCreature))
 					sprintf(buf + strlen(buf), "%s(аура воздуха)%s ",
-							CCIBLU(ch, C_CMP), CCIRED(ch, C_CMP));
+							kColorBoldBlu, kColorBoldRed);
 				else if (NPC_FLAGGED(i, ENpcFlag::kWaterCreature))
 					sprintf(buf + strlen(buf), "%s(аура воды)%s ",
-							CCICYN(ch, C_CMP), CCIRED(ch, C_CMP));
+							kColorBoldCyn, kColorBoldRed);
 				else if (NPC_FLAGGED(i, ENpcFlag::kFireCreature))
 					sprintf(buf + strlen(buf), "%s(аура огня)%s ",
-							CCIMAG(ch, C_CMP), CCIRED(ch, C_CMP));
+							kColorBoldMag, kColorBoldRed);
 				else if (NPC_FLAGGED(i, ENpcFlag::kEarthCreature))
 					sprintf(buf + strlen(buf), "%s(аура земли)%s ",
-							CCIGRN(ch, C_CMP), CCIRED(ch, C_CMP));
+							kColorBoldGrn, kColorBoldRed);
 			}
 		}
 		if (AFF_FLAGGED(i, EAffect::kInvisible))
@@ -1800,7 +1799,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 					strcat(buf, "(черная аура) ");
 			}
 		} else {
-			aura(ch, C_CMP, i, aura_txt);
+			AddPkAuraDescription(i, aura_txt);
 			strcat(buf, aura_txt);
 			strcat(buf, " ");
 		}
@@ -2064,7 +2063,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 		int i = -1;
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-					CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
+					kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -2106,6 +2105,22 @@ const char *diag_obj_timer(const ObjData *obj) {
 		return print_obj_state(tm);
 	}
 	return "";
+}
+
+const char *print_obj_state(int tm_pct) {
+	if (tm_pct < 20)
+		return "ужасно";
+	else if (tm_pct < 40)
+		return "скоро сломается";
+	else if (tm_pct < 60)
+		return "плоховато";
+	else if (tm_pct < 80)
+		return "средне";
+		//else if (tm_pct <=100) // у только что созданной шмотки значение 100% первый тик, потому <=
+		//	return "идеально";
+	else if (tm_pct < 1000) // проблема крафта, на хаймортах таймер больще прототипа
+		return "идеально";
+	else return "нерушимо";
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

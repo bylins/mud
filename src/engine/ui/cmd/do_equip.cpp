@@ -1,3 +1,13 @@
+/**
+\file equip.h - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 15.09.2024.
+\brief Команда "надать/экипировать".
+\detail Отсюда нужно вынести в механику собственно механику надевания, поиск слотов, требования к силе и все такие.
+*/
+
+#include "engine/ui/cmd/do_equip.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/core/utils_char_obj.inl"
@@ -257,7 +267,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 	}
 	// нельзя надеть щит, если недостаточно силы
-	if (!IS_IMMORTAL(ch) && (equip_pos == EEquipPos::kShield) && !OK_SHIELD(ch, obj)) {
+	if (!IS_IMMORTAL(ch) && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
 	}
 
 	if ((equip_pos == EEquipPos::kFingerR) || (equip_pos == EEquipPos::kNeck) || (equip_pos == EEquipPos::kWristR))
@@ -378,7 +388,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!str_cmp(arg, "обе")
 				&& CAN_WEAR(obj, EWearFlag::kBoth)) {
 				// иногда бывает надо
-				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
+				if (!IS_IMMORTAL(ch) && !CanBeTakenInBothHands(ch, obj)) {
 					act("Вам слишком тяжело держать $o3 двумя руками.",
 						false, ch, obj, nullptr, kToChar);
 					message_str_need(ch, obj, STR_BOTH_W);
@@ -394,7 +404,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				wear = EEquipPos::kBoths;
 			}
 
-			if (wear == EEquipPos::kWield && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj)) {
+			if (wear == EEquipPos::kWield && !IS_IMMORTAL(ch) && !CanBeTakenInMajorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в правой руке.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
@@ -406,7 +416,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			if (wear == EEquipPos::kBoths && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
+			if (wear == EEquipPos::kBoths && !IS_IMMORTAL(ch) && !CanBeTakenInBothHands(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 двумя руками.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
@@ -463,13 +473,13 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			if (!IS_IMMORTAL(ch)
-				&& !OK_HELD(ch, obj)) {
+				&& !CanBeTakenInMinorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в левой руке.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_HOLD_W);
 
 				if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-					if (!OK_BOTH(ch, obj)) {
+					if (!CanBeTakenInBothHands(ch, obj)) {
 						act("Вам слишком тяжело держать $o3 двумя руками.",
 							false, ch, obj, nullptr, kToChar);
 						message_str_need(ch, obj, STR_BOTH_W);
@@ -484,6 +494,45 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			perform_wear(ch, obj, equip_pos);
 		}
 	}
+}
+
+void message_str_need(CharData *ch, ObjData *obj, int type) {
+	if (ch->GetPosition() == EPosition::kDead)
+		return;
+	int need_str = 0;
+	switch (type) {
+		case STR_WIELD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W);
+			break;
+		case STR_HOLD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W);
+			break;
+		case STR_BOTH_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W);
+			break;
+		case STR_SHIELD_W: need_str = calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W);
+			break;
+		default:
+			log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",
+				GET_NAME(ch), GET_OBJ_WEIGHT(obj), type,
+				__FILE__, __func__, __LINE__);
+			return;
+	}
+	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
+				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
+}
+
+bool CanBeTakenInBothHands(CharData *ch, ObjData *obj) {
+	return (obj->get_weight() <= str_bonus(GetRealStr(ch), STR_WIELD_W) + str_bonus(GetRealStr(ch), STR_HOLD_W));
+}
+
+bool CanBeTakenInMajorHand(CharData *ch, ObjData *obj) {
+	return (obj->get_weight() <= str_bonus(GetRealStr(ch), STR_WIELD_W));
+}
+
+bool CanBeTakenInMinorHand(CharData *ch, ObjData *obj) {
+	return (obj->get_weight() <= str_bonus(GetRealStr(ch), STR_HOLD_W));
+}
+
+bool CanBeWearedAsShield(CharData *ch, ObjData *obj) {
+	return (obj->get_weight() <= (2 * str_bonus(GetRealStr(ch), STR_HOLD_W)));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

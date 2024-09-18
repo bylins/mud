@@ -83,7 +83,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						|| (world[door]->pkPenterUnique
 							&& (ROOM_FLAGGED(door, ERoomFlag::kArena) || ROOM_FLAGGED(door, ERoomFlag::kHouse))))) {
 					sprintf(smallBuf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
-							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+							kColorWht, kColorNrm);
 					act(smallBuf, true, ch, nullptr, nullptr, kToChar);
 					act(smallBuf, true, ch, nullptr, nullptr, kToRoom);
 
@@ -100,7 +100,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UID(ch)
 					&& !IS_IMMORTAL(ch)) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-								  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
+								  kColorBoldRed, kColorBoldBlk);
 					pkPortal(ch);
 				}
 				RemoveCharFromRoom(ch);

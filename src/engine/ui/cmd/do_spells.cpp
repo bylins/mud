@@ -6,6 +6,7 @@
 #include "gameplay/magic/magic_temp_spells.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/weather.h"
 
 #include <cmath>
 
@@ -126,7 +127,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		}
 		have_spells = true;
 	};
-	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", kColorCyn, kColorNrm);
 	if (have_spells) {
 		for (i = 0; i < max_slot; i++) {
 			if (slots[i] != 0) {

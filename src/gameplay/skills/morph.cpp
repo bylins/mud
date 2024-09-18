@@ -1,12 +1,12 @@
 //#include "gameplay/skills/morph.hpp"
 
-//#include "engine/entities/obj_data.h"
 #include "engine/ui/color.h"
 #include "engine/core/handler.h"
 #include "gameplay/magic/magic_utils.h"
+#include "gameplay/affects/affect_data.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 MorphListType IdToMorphMap;
 
@@ -59,8 +59,8 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent) {
 		{
 			sprintf(buf,
 					"%sВаши успехи сделали вас опытнее в оборотничестве.%s\r\n",
-					CCICYN(ch_, C_NRM),
-					CCINRM(ch_, C_NRM));
+					kColorBoldCyn,
+					kColorBoldBlk);
 			SendMsgToChar(buf, ch_);
 			skills_[ESkill::kMorph] += diff;
 		}

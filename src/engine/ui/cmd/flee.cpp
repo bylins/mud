@@ -2,6 +2,7 @@
 
 #include "act_movement.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/core/game_limits.h"
 
 EDirection SelectRndDirection(CharData *ch, int fail_chance);
 

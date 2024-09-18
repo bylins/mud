@@ -6,6 +6,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/groups.h"
 
 extern void CheckAutoNosummon(CharData *ch);
 
@@ -101,7 +102,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!(victim->IsFlagged(EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
-					  CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
+					  kColorBoldRed, kColorBoldBlk);
 		pkPortal(ch);
 		timed.time = 18 - MIN(GetRealRemort(ch), 15);
 		SetWaitState(ch, 3 * kBattleRound);

@@ -3,12 +3,14 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/mechanics/dead_load.h"
-#include "gameplay/communication/boards.h"
+#include "gameplay/communication/boards/boards.h"
 #include "gameplay/communication/social.h"
 #include "engine/db/description.h"
 #include "engine/db/help.h"
 #include "engine/scripting/dg_db_scripts.h"
 #include "engine/db/global_objects.h"
+
+#include "third_party_libs/fmt/include/fmt/format.h"
 
 #include <regex>
 
@@ -1063,7 +1065,7 @@ void MobileFile::parse_mobile(const int nr) {
 				break;
 
 			case 'L': get_line(file(), line);
-				dead_load::ParseDeadLoadLine(&mob_proto[i].dl_list, line + 1);
+				dead_load::ParseDeadLoadLine(mob_proto[i].dl_list, line + 1);
 				break;
 
 			case 'T': dg_read_trigger(&mob_proto[i], MOB_TRIGGER, nr);

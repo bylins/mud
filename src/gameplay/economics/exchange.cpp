@@ -21,12 +21,10 @@
 #include "engine/ui/color.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/core/constants.h"
-//#include "gameplay/skills/skills.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/ui/modify.h"
-//#include "engine/entities/room_data.h"
 #include "gameplay/communication/mail.h"
 #include "engine/db/obj_save.h"
 #include "gameplay/fight/pk.h"
@@ -35,7 +33,6 @@
 #include "utils/utils.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
-//#include "conf.h"
 #include "gameplay/mechanics/stable_objs.h"
 
 #include <stdexcept>
@@ -68,8 +65,6 @@ bool exchange_setfilter(CharData *ch, char *argument);
 
 int LoadExchange();
 int exchange_database_reload(bool loadbackup);
-void check_exchange(ObjData *obj);
-void extract_exchange_item(ExchangeItem *item);
 int get_unique_lot();
 void message_exchange(char *message, CharData *ch, ExchangeItem *j);
 void show_lots(char *filter, short int show_type, CharData *ch);
@@ -402,7 +397,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
-	act("Вы сняли $O3 с базара.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
+	act("Вы сняли $O3 с базара.", false, ch, nullptr, GET_EXCHANGE_ITEM(item), kToChar);
 	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
@@ -530,8 +525,8 @@ int exchange_identify(CharData *ch, char *arg) {
 	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200, full);    //200 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	SendMsgToChar(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
-				  CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY,
-				  GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), CCNRM(ch, C_NRM));
+				  kColorBoldGrn, EXCHANGE_IDENT_PAY,
+				  GetDeclensionInNumber(EXCHANGE_IDENT_PAY, EWhat::kMoneyU), kColorNrm);
 
 	return true;
 }

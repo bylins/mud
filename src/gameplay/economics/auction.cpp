@@ -15,6 +15,7 @@
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"
+#include "gameplay/ai/spec_procs.h"
 
 const int kMaxAuctionLot = 3;
 const int kMaxAuctionTactBuy = 5;
@@ -75,13 +76,13 @@ void showlots(CharData *ch) {
 		}
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect != ch) {
 			sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s (частный заказ).\r\n",
-					i, CCIYEL(ch, C_NRM), obj->get_PName(0).c_str(), CCNRM(ch, C_NRM));
+					i, kColorBoldYel, obj->get_PName(0).c_str(), kColorNrm);
 			SendMsgToChar(tmpbuf, ch);
 			continue;
 		}
 
 		sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s - ставка %d %s, попытка %d, владелец %s.\r\n",
-				i, CCIYEL(ch, C_NRM), obj->get_PName(0).c_str(), CCNRM(ch, C_NRM),
+				i, kColorBoldYel, obj->get_PName(0).c_str(), kColorNrm,
 				GET_LOT(i)->cost, GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA),
 				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
 
@@ -457,10 +458,10 @@ bool auction_drive(CharData *ch, char *argument) {
 			ch->remove_both_gold(AUCTION_IDENT_PAY);
 			SendMsgToChar(ch,
 						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
-						  CCIGRN(ch, C_NRM),
+						  kColorBoldGrn,
 						  AUCTION_IDENT_PAY,
 						  GetDeclensionInNumber(AUCTION_IDENT_PAY, EWhat::kMoneyU),
-						  CCNRM(ch, C_NRM));
+						  kColorNrm);
 
 			return true;
 			break;
@@ -479,15 +480,9 @@ void message_auction(char *message, CharData *ch) {
 			!i->character->IsFlagged(EPrf::kNoAuction) &&
 			!i->character->IsFlagged(EPlrFlag::kWriting) &&
 			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof) && i->character->GetPosition() > EPosition::kSleep) {
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				SendMsgToChar("&Y&q", i->character.get());
-			}
-
+			SendMsgToChar("&Y&q", i->character.get());
 			act(message, false, i->character.get(), 0, 0, kToChar | kToSleep);
-
-			if (COLOR_LEV(i->character) >= C_NRM) {
-				SendMsgToChar("&Q&n", i->character.get());
-			}
+			SendMsgToChar("&Q&n", i->character.get());
 		}
 	}
 }

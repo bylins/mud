@@ -218,15 +218,15 @@ bool check_stats(CharData *ch) {
 		snprintf(buf, kMaxStringLength, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
 										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
-				 CCIGRN(ch, C_SPR),
+				 kColorBoldGrn,
 				 ch->GetInbornStr() - GetRealRemort(ch),
 				 ch->GetInbornDex() - GetRealRemort(ch),
 				 ch->GetInbornInt() - GetRealRemort(ch),
 				 ch->GetInbornWis() - GetRealRemort(ch),
 				 ch->GetInbornCon() - GetRealRemort(ch),
 				 ch->GetInbornCha() - GetRealRemort(ch),
-				 CCNRM(ch, C_SPR));
-		SEND_TO_Q(buf, ch->desc);
+				 kColorNrm);
+	iosystem::write_to_output(buf, ch->desc);
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя

@@ -79,7 +79,7 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	std::ostringstream out;
-	out << KWHT << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << KNRM << "\r\n";
+	out << kColorWht << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << kColorNrm << "\r\n";
 
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {

@@ -1,6 +1,10 @@
-//
-// Created by Sventovit on 03.09.2024.
-//
+/**
+\file dungeons.cpp - a part of the Bylins engine.
+\authors Created by Stribog.
+\date 03.09.2024.
+\brief
+\detail
+*/
 
 #include "engine/ui/cmd/follow.h"
 #include "engine/db/db.h"
@@ -12,8 +16,10 @@
 #include "engine/db/global_objects.h"
 #include "sight.h"
 #include "engine/entities/char_data.h"
+#include "utils/utils_time.h"
+#include "gameplay/ai/spec_procs.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 
 extern void ExtractRepopDecayObject(const ObjData::shared_ptr &obj);
@@ -516,6 +522,12 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
 		if (mob_index[i].func == shop_ext) {
 			AddDungeonShopSeller(i, mrn_to);
+		}
+		for (auto &it : mob_proto[mrn_to].dl_list) {
+			if (it.obj_vnum / 100 != zone_table[zrn_from].vnum) {
+				continue;
+			}
+			it.obj_vnum = zone_table[zrn_to].vnum * 100 + it.obj_vnum % 100;
 		}
 		mob_proto[mrn_to].script->cleanup();
 		mob_proto[mrn_to].proto_script = std::make_shared<ObjData::triggers_list_t>();

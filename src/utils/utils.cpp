@@ -15,38 +15,12 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <iostream>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-#include "engine/db/world_characters.h"
-#include "engine/db/obj_prototypes.h"
 #include "logger.h"
-#include "engine/entities/obj_data.h"
-#include "engine/db/db.h"
-#include "engine/core/comm.h"
-#include "engine/ui/color.h"
-#include "gameplay/magic/spells.h"
-#include "engine/core/handler.h"
-#include "engine/ui/interpreter.h"
-#include "gameplay/core/constants.h"
-#include "gameplay/crafting/im.h"
-#include "engine/scripting/dg_scripts.h"
-#include "administration/privilege.h"
-#include "engine/entities/char_data.h"
-#include "engine/entities/room_data.h"
-#include "engine/ui/modify.h"
-#include "gameplay/clans/house.h"
-#include "gameplay/mechanics/player_races.h"
-#include "gameplay/mechanics/depot.h"
-#include "engine/db/obj_save.h"
-#include "gameplay/fight/fight.h"
-#include "gameplay/skills/skills.h"
-#include "gameplay/economics/exchange.h"
-#include "gameplay/mechanics/sets_drop.h"
-#include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
-#include "gameplay/mechanics/obj_sets.h"
-#include "utils_string.h"
 #include "backtrace.h"
 
 
@@ -63,18 +37,7 @@
 #include <sstream>
 #include <sstream>
 
-extern DescriptorData *descriptor_list;
-extern CharData *mob_proto;
-extern const char *weapon_class[];
 extern std::pair<int, int> TotalMemUse();
-
-// local functions
-TimeInfoData *real_time_passed(time_t t2, time_t t1);
-TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from);
-bool IsValidEmail(const char *address);
-
-// external functions
-void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 
 char AltToKoi[] = {
 		"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
@@ -96,25 +59,6 @@ char AltToLat[] = {
 	};
 
 const char *ACTNULL = "<NULL>";
-
-// return char with UID n
-CharData *find_char(long n) {
-	CharData *ch = chardata_by_uid[n];
-	if (ch) {
-		return ch;
-	}
-	return find_pc(n);
-}
-
-// return pc online with UID n
-CharData *find_pc(long n) {
-	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && GET_UID(d->character) == n) {
-			return d->character.get();
-		}
-	}
-	return nullptr;
-}
 
 int MIN(int a, int b) {
 	return (a < b ? a : b);
@@ -239,19 +183,6 @@ bool is_head(std::string name) {
 	if ((name == "Стрибог") || (name == "стрибог"))
 		return true;
 	return false;
-}
-
-int get_virtual_race(CharData *mob) {
-	if (mob->get_role(MOB_ROLE_BOSS)) {
-		return kNpcBoss;
-	}
-	std::map<int, int>::iterator it;
-	std::map<int, int> unique_mobs = SetsDrop::get_unique_mob();
-	for (it = unique_mobs.begin(); it != unique_mobs.end(); it++) {
-		if (GET_MOB_VNUM(mob) == it->first)
-			return kNpcUnique;
-	}
-	return -1;
 }
 
 /*
@@ -444,56 +375,6 @@ void sprinttype(int type, const char *names[], char *result) {
 		strcpy(result, "UNDEF");
 }
 
-// * Calculate the REAL time passed over the last t2-t1 centuries (secs)
-TimeInfoData *real_time_passed(time_t t2, time_t t1) {
-	long secs;
-	static TimeInfoData now;
-
-	secs = (long) (t2 - t1);
-
-	now.hours = (secs / kSecsPerRealHour) % 24;    // 0..23 hours //
-	secs -= kSecsPerRealHour * now.hours;
-
-	now.day = (secs / kSecsPerRealDay);    // 0..34 days  //
-	// secs -= SECS_PER_REAL_DAY * now.day; - Not used. //
-
-	now.month = -1;
-	now.year = -1;
-
-	return (&now);
-}
-
-// Calculate the MUD time passed over the last time_to-time_from centuries (secs) //
-TimeInfoData *CalcMudTimePassed(time_t time_to, time_t time_from) {
-	long secs;
-	static TimeInfoData now;
-
-	secs = (long) (time_to - time_from);
-
-	now.hours = (secs / (kSecsPerMudHour * kTimeKoeff)) % kHoursPerDay;    // 0..23 hours //
-	secs -= kSecsPerMudHour * kTimeKoeff * now.hours;
-
-	now.day = (secs / (kSecsPerMudDay * kTimeKoeff)) % kDaysPerMonth;    // 0..29 days  //
-	secs -= kSecsPerMudDay * kTimeKoeff * now.day;
-
-	now.month = (secs / (kSecsPerMudMonth * kTimeKoeff)) % kMonthsPerYear;    // 0..11 months //
-	secs -= kSecsPerMudMonth * kTimeKoeff * now.month;
-
-	now.year = (secs / (kSecsPerMudYear * kTimeKoeff));    // 0..XX? years //
-
-	return (&now);
-}
-
-TimeInfoData *age(const CharData *ch) {
-	static TimeInfoData player_age;
-
-	player_age = *CalcMudTimePassed(time(nullptr), ch->player_data.time.birth);
-
-	player_age.year += 17;    // All players start at 17 //
-
-	return (&player_age);
-}
-
 /*
  * get_line reads the next non-blank line off of the input stream.
  * The newline character is removed from the input.  Lines which begin
@@ -515,102 +396,6 @@ int get_line(FILE *fl, char *buf) {
 	temp[strlen(temp) - 1] = '\0';
 	strcpy(buf, temp);
 	return lines;
-}
-
-int get_filename(const char *orig_name, char *filename, int mode) {
-	const char *prefix, *middle, *suffix;
-	char name[64], *ptr;
-
-	if (orig_name == nullptr || *orig_name == '\0' || filename == nullptr) {
-		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
-		return (0);
-	}
-
-	switch (mode) {
-		case kAliasFile: prefix = LIB_PLRALIAS;
-			suffix = SUF_ALIAS;
-			break;
-		case kScriptVarsFile: prefix = LIB_PLRVARS;
-			suffix = SUF_MEM;
-			break;
-		case kPlayersFile: prefix = LIB_PLRS;
-			suffix = SUF_PLAYER;
-			break;
-		case kTextCrashFile: prefix = LIB_PLROBJS;
-			suffix = TEXT_SUF_OBJS;
-			break;
-		case kTimeCrashFile: prefix = LIB_PLROBJS;
-			suffix = TIME_SUF_OBJS;
-			break;
-		case kPersDepotFile: prefix = LIB_DEPOT;
-			suffix = SUF_PERS_DEPOT;
-			break;
-		case kShareDepotFile: prefix = LIB_DEPOT;
-			suffix = SUF_SHARE_DEPOT;
-			break;
-		case kPurgeDepotFile: prefix = LIB_DEPOT;
-			suffix = SUF_PURGE_DEPOT;
-			break;
-		default: return (0);
-	}
-
-	strcpy(name, orig_name);
-	for (ptr = name; *ptr; ptr++) {
-		if (*ptr == 'Ё' || *ptr == 'ё')
-			*ptr = '9';
-		else
-			*ptr = LOWER(AtoL(*ptr));
-	}
-
-	switch (LOWER(*name)) {
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e': middle = LIB_A;
-			break;
-		case 'f':
-		case 'g':
-		case 'h':
-		case 'i':
-		case 'j': middle = LIB_F;
-			break;
-		case 'k':
-		case 'l':
-		case 'm':
-		case 'n':
-		case 'o': middle = LIB_K;
-			break;
-		case 'p':
-		case 'q':
-		case 'r':
-		case 's':
-		case 't': middle = LIB_P;
-			break;
-		case 'u':
-		case 'v':
-		case 'w':
-		case 'x':
-		case 'y':
-		case 'z': middle = LIB_U;
-			break;
-		default: middle = LIB_Z;
-			break;
-	}
-
-	sprintf(filename, "%s%s" SLASH "%s.%s", prefix, middle, name, suffix);
-	return (1);
-}
-
-int num_pc_in_room(RoomData *room) {
-	int i = 0;
-	for (const auto ch : room->people) {
-		if (!ch->IsNpc()) {
-			i++;
-		}
-	}
-
-	return i;
 }
 
 void koi_to_win(char *str, int size) {
@@ -796,6 +581,7 @@ void format_text(const utils::AbstractStringWriter::shared_ptr &writer,
 
 /*
 \todo Переделать в нормальный вид с библиотекой склонений/спряжений или хотя бы полным списом падежей с индексацией через ECases.
+ и перенести в engine/grammar
 */
 using SomePads = std::array<std::string, 3>;
 using SomePadsMap = std::unordered_map<EWhat, SomePads>;
@@ -858,333 +644,6 @@ const char *GetDeclensionInNumber(long amount, EWhat of_what) {
 	}
 }
 
-int check_moves(CharData *ch, int how_moves) {
-	if (IS_IMMORTAL(ch) || ch->IsNpc())
-		return (true);
-	if (GET_MOVE(ch) < how_moves) {
-		SendMsgToChar("Вы слишком устали.\r\n", ch);
-		return (false);
-	}
-	GET_MOVE(ch) -= how_moves;
-	return (true);
-}
-
-int real_sector(int room) {
-	int sector = SECT(room);
-
-	if (ROOM_FLAGGED(room, ERoomFlag::kNoWeather))
-		return sector;
-	switch (sector) {
-		case ESector::kInside:
-		case ESector::kCity:
-		case ESector::kOnlyFlying:
-		case ESector::kUnderwater:
-		case ESector::kSecret:
-		case ESector::kStoneroad:
-		case ESector::kRoad:
-		case ESector::kWildroad: return sector;
-			break;
-		case ESector::kField:
-			if (world[room]->weather.snowlevel > 20)
-				return ESector::kFieldSnow;
-			else if (world[room]->weather.rainlevel > 20)
-				return ESector::kFieldRain;
-			else
-				return ESector::kField;
-			break;
-		case ESector::kForest:
-			if (world[room]->weather.snowlevel > 20)
-				return ESector::kForestSnow;
-			else if (world[room]->weather.rainlevel > 20)
-				return ESector::kForestRain;
-			else
-				return ESector::kForest;
-			break;
-		case ESector::kHills:
-			if (world[room]->weather.snowlevel > 20)
-				return ESector::kHillsSnow;
-			else if (world[room]->weather.rainlevel > 20)
-				return ESector::kHillsRain;
-			else
-				return ESector::kHills;
-			break;
-		case ESector::kMountain:
-			if (world[room]->weather.snowlevel > 20)
-				return ESector::kMountainSnow;
-			else
-				return ESector::kMountain;
-			break;
-		case ESector::kWaterSwim:
-		case ESector::kWaterNoswim:
-			if (world[room]->weather.icelevel > 30)
-				return ESector::kThickIce;
-			else if (world[room]->weather.icelevel > 20)
-				return ESector::kNormalIce;
-			else if (world[room]->weather.icelevel > 10)
-				return ESector::kThinIce;
-			else
-				return sector;
-			break;
-	}
-	return ESector::kInside;
-}
-
-bool same_group(CharData *ch, CharData *tch) {
-	if (!ch || !tch)
-		return false;
-
-	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (ch->IsNpc()
-		&& ch->has_master()
-		&& !ch->get_master()->IsNpc()
-		&& (IS_HORSE(ch)
-			|| AFF_FLAGGED(ch, EAffect::kCharmed)
-			|| ch->IsFlagged(EMobFlag::kTutelar)
-			|| ch->IsFlagged(EMobFlag::kMentalShadow))) {
-		ch = ch->get_master();
-	}
-
-	if (tch->IsNpc()
-		&& tch->has_master()
-		&& !tch->get_master()->IsNpc()
-		&& (IS_HORSE(tch)
-			|| AFF_FLAGGED(tch, EAffect::kCharmed)
-			|| tch->IsFlagged(EMobFlag::kTutelar)
-			|| tch->IsFlagged(EMobFlag::kMentalShadow))) {
-		tch = tch->get_master();
-	}
-
-	// NPC's always in same group
-	if ((ch->IsNpc() && tch->IsNpc())
-		|| ch == tch) {
-		return true;
-	}
-
-	if (!AFF_FLAGGED(ch, EAffect::kGroup)
-		|| !AFF_FLAGGED(tch, EAffect::kGroup)) {
-		return false;
-	}
-
-	if (ch->get_master() == tch
-		|| tch->get_master() == ch
-		|| (ch->has_master()
-			&& ch->get_master() == tch->get_master())) {
-		return true;
-	}
-
-	return false;
-}
-
-// Проверка является комната рентой.
-bool is_rent(RoomRnum room) {
-	// комната с флагом замок, но клан мертвый
-	if (ROOM_FLAGGED(room, ERoomFlag::kHouse)) {
-		const auto clan = Clan::GetClanByRoom(room);
-		if (!clan) {
-			return false;
-		}
-	}
-	// комната без рентера в ней
-	for (const auto ch : world[room]->people) {
-		if (ch->IsNpc()
-			&& IS_RENTKEEPER(ch)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-// Проверка является комната почтой.
-int is_post(RoomRnum room) {
-	for (const auto ch : world[room]->people) {
-		if (ch->IsNpc()
-			&& IS_POSTKEEPER(ch)) {
-			return (true);
-		}
-	}
-	return (false);
-
-}
-
-// Форматирование вывода в соответствии с форматом act-a
-// output act format//
-char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj) {
-	const char *i = nullptr;
-	char *buf, *lbuf;
-	ubyte padis;
-	int stopbyte;
-//	CharacterData *dg_victim = nullptr;
-
-	buf = (char *) malloc(kMaxStringLength);
-	lbuf = buf;
-
-	for (stopbyte = 0; stopbyte < kMaxStringLength; stopbyte++) {
-		if (*orig == '$') {
-			switch (*(++orig)) {
-				case 'n':
-					if (*(orig + 1) < '0' || *(orig + 1) > '5')
-						i = ch->get_name().c_str();
-					else {
-						padis = *(++orig) - '0';
-						i = GET_PAD(ch, padis);
-					}
-					break;
-				case 'N':
-					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, 0));
-					} else {
-						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, padis));
-					}
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'm': i = HMHR(ch);
-					break;
-				case 'M':
-					if (vict_obj)
-						i = HMHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OMHR(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 's': i = HSHR(ch);
-					break;
-				case 'S':
-					if (vict_obj)
-						i = HSHR((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OSHR(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'e': i = HSSH(ch);
-					break;
-				case 'E':
-					if (vict_obj)
-						i = HSSH((const CharData *) vict_obj);
-					else CHECK_NULL(obj, OSSH(obj));
-					break;
-
-				case 'o':
-					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(obj, obj->get_PName(0).c_str());
-					} else {
-						padis = *(++orig) - '0';
-						CHECK_NULL(obj, obj->get_PName(padis > 5 ? 0 : padis).c_str());
-					}
-					break;
-				case 'O':
-					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(0).c_str());
-					} else {
-						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, ((const ObjData *) vict_obj)->get_PName(padis > 5 ? 0 : padis).c_str());
-					}
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 't': CHECK_NULL(obj, (const char *) obj);
-					break;
-
-				case 'T': CHECK_NULL(vict_obj, (const char *) vict_obj);
-					break;
-
-				case 'F': CHECK_NULL(vict_obj, (const char *) vict_obj);
-					break;
-
-				case '$': i = "$";
-					break;
-
-				case 'a': i = GET_CH_SUF_6(ch);
-					break;
-				case 'A':
-					if (vict_obj)
-						i = GET_CH_SUF_6((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_6(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'g': i = GET_CH_SUF_1(ch);
-					break;
-				case 'G':
-					if (vict_obj)
-						i = GET_CH_SUF_1((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_1(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'y': i = GET_CH_SUF_5(ch);
-					break;
-				case 'Y':
-					if (vict_obj)
-						i = GET_CH_SUF_5((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_5(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'u': i = GET_CH_SUF_2(ch);
-					break;
-				case 'U':
-					if (vict_obj)
-						i = GET_CH_SUF_2((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_2(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'w': i = GET_CH_SUF_3(ch);
-					break;
-				case 'W':
-					if (vict_obj)
-						i = GET_CH_SUF_3((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_3(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-
-				case 'q': i = GET_CH_SUF_4(ch);
-					break;
-				case 'Q':
-					if (vict_obj)
-						i = GET_CH_SUF_4((const CharData *) vict_obj);
-					else CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
-					//dg_victim = (CharacterData *) vict_obj;
-					break;
-				case 'z':
-					if (obj)
-						i = OYOU(obj);
-					else CHECK_NULL(obj, OYOU(obj));
-					break;
-				case 'Z':
-					if (vict_obj)
-						i = HYOU((const CharData *) vict_obj);
-					else CHECK_NULL(vict_obj, HYOU((const CharData *) vict_obj));
-					break;
-				default: log("SYSERR: Illegal $-code to act(): %c", *orig);
-					log("SYSERR: %s", orig);
-					i = "";
-					break;
-			}
-			while ((*buf = *(i++)))
-				buf++;
-			orig++;
-		} else if (*orig == '\\') {
-			if (*(orig + 1) == 'r') {
-				*(buf++) = '\r';
-				orig += 2;
-			} else if (*(orig + 1) == 'n') {
-				*(buf++) = '\n';
-				orig += 2;
-			} else
-				*(buf++) = *(orig++);
-		} else if (!(*(buf++) = *(orig++)))
-			break;
-	}
-
-	*(--buf) = '\r';
-	*(++buf) = '\n';
-	*(++buf) = '\0';
-	return (lbuf);
-}
-
 char *rustime(const struct tm *timeptr) {
 	static char mon_name[12][10] =
 		{
@@ -1209,69 +668,6 @@ int roundup(float fl) {
 		return (int) fl + 1;
 	else
 		return (int) fl;
-}
-
-// Функция проверяет может ли ch нести предмет obj и загружает предмет
-// в инвентарь игрока или в комнату, где игрок находится
-void can_carry_obj(CharData *ch, ObjData *obj) {
-	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
-		SendMsgToChar("Вы не можете нести столько предметов.", ch);
-		PlaceObjToRoom(obj, ch->in_room);
-		CheckObjDecay(obj);
-	} else {
-		if (GET_OBJ_WEIGHT(obj) + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
-			SendMsgToChar(buf, ch);
-			PlaceObjToRoom(obj, ch->in_room);
-			// obj_decay(obj);
-		} else {
-			PlaceObjToInventory(obj, ch);
-		}
-	}
-}
-
-/**
- * Бывшее #define CAN_CARRY_OBJ(ch,obj)  \
-   (((ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
-    ((ch->GetCarryingQuantity() + 1) <= CAN_CARRY_N(ch)))
- */
-bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
-	// для анлимного лута мобами из трупов
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
-		return true;
-	}
-
-	if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)
-		&& ch->GetCarryingQuantity() + 1 <= CAN_CARRY_N(ch)) {
-		return true;
-	}
-
-	return false;
-}
-
-bool ignores(CharData *who, CharData *whom, unsigned int flag) {
-	if (who->IsNpc()) return false;
-
-	long ign_id;
-
-	if (IS_IMMORTAL(whom)) {
-		return false;
-	}
-
-// чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (whom->IsNpc()
-		&& AFF_FLAGGED(whom, EAffect::kCharmed)) {
-		return ignores(who, whom->get_master(), flag);
-	}
-
-	ign_id = GET_UID(whom);
-	for (const auto &ignore : who->get_ignores()) {
-		if ((ignore->id == ign_id || ignore->id == -1)
-			&& IS_SET(ignore->mode, flag)) {
-			return true;
-		}
-	}
-	return false;
 }
 
 bool IsValidEmail(const char *address) {
@@ -1500,159 +896,6 @@ size_t strl_cpy(char *dst, const char *src, size_t siz) {
 	return (s - src - 1);    // count does not include NUL
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// show money
-
-namespace MoneyDropStat {
-
-typedef std::map<int /* zone vnum */, long /* money count */> ZoneListType;
-ZoneListType zone_list;
-
-void add(int zone_vnum, long money) {
-	ZoneListType::iterator i = zone_list.find(zone_vnum);
-	if (i != zone_list.end()) {
-		i->second += money;
-	} else {
-		zone_list[zone_vnum] = money;
-	}
-}
-
-void print(CharData *ch) {
-	if (!IS_GRGOD(ch)) {
-		SendMsgToChar(ch, "Только для иммов 33+.\r\n");
-		return;
-	}
-
-	std::map<long, int> tmp_list;
-	for (ZoneListType::const_iterator i = zone_list.begin(), iend = zone_list.end(); i != iend; ++i) {
-		if (i->second > 0) {
-			tmp_list[i->second] = i->first;
-		}
-	}
-	if (!tmp_list.empty()) {
-		SendMsgToChar(ch,
-					  "Money drop stats:\r\n"
-					  "Total zones: %lu\r\n"
-					  "  vnum - money\r\n"
-					  "================\r\n", tmp_list.size());
-	} else {
-		SendMsgToChar(ch, "Empty.\r\n");
-		return;
-	}
-	std::stringstream out;
-	for (std::map<long, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i) {
-		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
-//		SendMsgToChar(ch, "  %4d - %ld\r\n", i->second, i->first);
-	}
-	page_string(ch->desc, out.str());
-}
-
-void print_log() {
-	for (ZoneListType::const_iterator i = zone_list.begin(), iend = zone_list.end(); i != iend; ++i) {
-		if (i->second > 0) {
-			log("ZoneDrop: %d %ld", i->first, i->second);
-		}
-	}
-}
-
-} // MoneyDropStat
-
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-// show exp
-namespace ZoneExpStat {
-
-struct zone_data {
-	zone_data() : gain(0), lose(0) {};
-
-	unsigned long gain;
-	unsigned long lose;
-};
-
-typedef std::map<int /* zone vnum */, zone_data> ZoneListType;
-ZoneListType zone_list;
-
-void add(int zone_vnum, long exp) {
-	if (!exp) {
-		return;
-	}
-
-	ZoneListType::iterator i = zone_list.find(zone_vnum);
-	if (i != zone_list.end()) {
-		if (exp > 0) {
-			i->second.gain += exp;
-		} else {
-			i->second.lose += -exp;
-		}
-	} else {
-		zone_data tmp_zone;
-		if (exp > 0) {
-			tmp_zone.gain = exp;
-		} else {
-			tmp_zone.lose = -exp;
-		}
-		zone_list[zone_vnum] = tmp_zone;
-	}
-}
-
-void MemLeakInfo() {
- 	static int last_pmem_used = 0;
-	auto get_mem = TotalMemUse();
-	int vmem_used = get_mem.first;
-	int pmem_used = get_mem.second;
-	char buf [256];
-
-	if (pmem_used != last_pmem_used) {
-		debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		last_pmem_used = pmem_used;
-		sprintf(buf, "Memory size mismatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		last_pmem_used = pmem_used;
-	}
-}
-
-void print_gain(CharData *ch) {
-	if (!ch->IsFlagged(EPrf::kCoderinfo)) {
-		SendMsgToChar(ch, "Пока в разработке.\r\n");
-		return;
-	}
-
-	std::map<unsigned long, int> tmp_list;
-	for (ZoneListType::const_iterator i = zone_list.begin(), iend = zone_list.end(); i != iend; ++i) {
-		if (i->second.gain > 0) {
-			tmp_list[i->second.gain] = i->first;
-		}
-	}
-	if (!tmp_list.empty()) {
-		SendMsgToChar(ch,
-					  "Gain exp stats:\r\n"
-					  "Total zones: %lu\r\n"
-					  "  vnum - exp\r\n"
-					  "================\r\n", tmp_list.size());
-	} else {
-		SendMsgToChar(ch, "Empty.\r\n");
-		return;
-	}
-	std::stringstream out;
-	for (std::map<unsigned long, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend;
-		 ++i) {
-		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
-	}
-	page_string(ch->desc, out.str());
-}
-
-void print_log() {
-	for (ZoneListType::const_iterator i = zone_list.begin(), iend = zone_list.end(); i != iend; ++i) {
-		if (i->second.gain > 0 || i->second.lose > 0) {
-			log("ZoneExp: %d %lu %lu", i->first, i->second.gain, i->second.lose);
-		}
-	}
-}
-
-} // ZoneExpStat
-////////////////////////////////////////////////////////////////////////////////
-
 std::string PrintNumberByDigits(long long num, const char separator) {
 	const int digits_num{3};
 
@@ -1732,287 +975,7 @@ std::string thousands_sep(long long n) {
 	return buffer;
 }
 
-int str_bonus(int str, int type) {
-	int bonus = 0;
-	str = MAX(1, str);
-
-	switch (type) {
-		case STR_TO_HIT:
-			// -5 ... 10
-			if (str < 10) {
-				bonus = (str - 11) / 2;
-			} else {
-				bonus = (str - 10) / 4;
-			}
-			break;
-		case STR_TO_DAM:
-			// -5 ... 36
-			if (str < 15) {
-				bonus = (str - 11) / 2;
-			} else {
-				bonus = str - 14;
-			}
-			break;
-		case STR_CARRY_W:
-			// 50 ... 2500
-			bonus = str * 50;
-			break;
-		case STR_WIELD_W:
-			if (str <= 20) {
-				// w 1 .. 20
-				bonus = str;
-			} else if (str < 30) {
-				// w 20,5 .. 24,5
-				bonus = 20 + (str - 20) / 2;
-			} else {
-				// w >= 25
-				bonus = 25 + (str - 30) / 4;
-			}
-			break;
-		case STR_HOLD_W:
-			if (str <= 29) {
-				// w 1 .. 15
-				bonus = (str + 1) / 2;
-			} else {
-				// w >= 16
-				bonus = 15 + (str - 29) / 4;
-			}
-			break;
-		default:
-			log("SYSERROR: str=%d, type=%d (%s %s %d)",
-				str, type, __FILE__, __func__, __LINE__);
-	}
-
-	return bonus;
-}
-
-int dex_bonus(int dex) {
-	int bonus = 0;
-	dex = MAX(1, dex);
-	// -5 ... 40
-	if (dex < 10) {
-		bonus = (dex - 11) / 2;
-	} else {
-		bonus = dex - 10;
-	}
-	return bonus;
-}
-
-int dex_ac_bonus(int dex) {
-	int bonus = 0;
-	dex = MAX(1, dex);
-	// -3 ... 35
-	if (dex <= 15) {
-		bonus = (dex - 10) / 3;
-	} else {
-		bonus = dex - 15;
-	}
-	return bonus;
-}
-
-int wis_bonus(int stat, int type) {
-	int bonus = 0;
-	stat = MAX(1, stat);
-
-	switch (type) {
-		case WIS_MAX_LEARN_L20:
-			// 28 .. 175
-			bonus = 28 + (stat - 1) * 3;
-			break;
-		case WIS_SPELL_SUCCESS:
-			// -80 .. 116
-			bonus = stat * 4 - 84;
-			break;
-		case WIS_MAX_SKILLS:
-			// 1 .. 15
-			if (stat <= 15) {
-				bonus = stat;
-			}
-				// 15 .. 32
-			else {
-				bonus = 15 + (stat - 15) / 2;
-			}
-			break;
-		case WIS_FAILS:
-			// 34 .. 66
-			if (stat <= 9) {
-				bonus = 30 + stat * 4;
-			}
-				// 140 .. 940
-			else {
-				bonus = 120 + (stat - 9) * 20;
-			}
-			break;
-		default:
-			log("SYSERROR: stat=%d, type=%d (%s %s %d)",
-				stat, type, __FILE__, __func__, __LINE__);
-	}
-
-	return bonus;
-}
-
-int calc_str_req(int weight, int type) {
-	int str = 0;
-	weight = MAX(1, weight);
-
-	switch (type) {
-		case STR_WIELD_W:
-			if (weight <= 20) {
-				str = weight;
-			} else if (weight <= 24) {
-				str = 2 * weight - 20;
-			} else {
-				str = 4 * weight - 70;
-			}
-			break;
-		case STR_HOLD_W:
-			if (weight <= 15) {
-				str = 2 * weight - 1;
-			} else {
-				str = 4 * weight - 31;
-			}
-			break;
-		case STR_BOTH_W:
-			if (weight <= 31) {
-				str = weight - (weight + 1) / 3;
-			} else if (weight <= 40) {
-				str = weight - 10;
-			} else {
-				str = (weight - 39) * 2 + 29 - (weight + 1) % 2;
-			}
-			break;
-		default:
-			log("SYSERROR: weight=%d, type=%d (%s %s %d)",
-				weight, type, __FILE__, __func__, __LINE__);
-	}
-
-	return str;
-}
-
-void message_str_need(CharData *ch, ObjData *obj, int type) {
-	if (ch->GetPosition() == EPosition::kDead)
-		return;
-	int need_str = 0;
-	switch (type) {
-		case STR_WIELD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W);
-			break;
-		case STR_HOLD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W);
-			break;
-		case STR_BOTH_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W);
-			break;
-		case STR_SHIELD_W: need_str = calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W);
-			break;
-		default:
-			log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",
-				GET_NAME(ch), GET_OBJ_WEIGHT(obj), type,
-				__FILE__, __func__, __LINE__);
-			return;
-	}
-	SendMsgToChar(ch, "Для этого требуется %d %s.\r\n",
-				  need_str, GetDeclensionInNumber(need_str, EWhat::kStr));
-}
-
-bool GetAffectNumByName(const std::string &affName, EAffect &result) {
-	int base = 0, offset = 0, counter = 0;
-	bool endOfArray = false;
-	while (!endOfArray) {
-		if (affName == std::string(affected_bits[counter])) {
-			result = static_cast<EAffect>((base << 30) | (1 << offset));
-			return true;
-		}
-		offset++;
-		if (*affected_bits[counter] == '\n') {
-			base++;
-			offset = 0;
-			if (*affected_bits[counter + 1] == '\n')
-				endOfArray = true;
-		}
-		counter++;
-	}
-	return false;
-}
-
-/// считает кол-во цветов &R и т.п. в строке
-/// size_t len = 0 - по дефолту считает strlen(str)
-size_t count_colors(const char *str, size_t len) {
-	unsigned int c, cc = 0;
-	len = len ? len : strlen(str);
-
-	for (c = 0; c < len - 1; c++) {
-		if (*(str + c) == '&' && *(str + c + 1) != '&')
-			cc++;
-	}
-	return cc;
-}
-
-//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
-//left_align выравнивание строки влево
-char *colored_name(const char *str, size_t len, const bool left_align) {
-	static char cstr[128];
-	static char fmt[6];
-	size_t cc = len + count_colors(str) * 2;
-
-	if (strlen(str) < cc) {
-		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align ? "-" : ""), static_cast<int>(cc));
-		snprintf(cstr, sizeof(cstr), fmt, str);
-	} else {
-		snprintf(cstr, sizeof(cstr), "%s", str);
-	}
-
-	return cstr;
-}
-
-/// длина строки без символов цвета из count_colors()
-size_t strlen_no_colors(const char *str) {
-	const size_t len = strlen(str);
-	return len - count_colors(str, len) * 2;
-}
-
-// Симуляция телла от моба
-void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
-	char local_buf[kMaxInputLength];
-	if (AFF_FLAGGED(ch, EAffect::kDeafness) || ch->IsFlagged(EPrf::kNoTell)) {
-		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
-		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
-		return;
-	}
-	snprintf(local_buf, kMaxInputLength,
-			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
-	SendMsgToChar(ch, "%s%s%s\r\n",
-				  CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
-}
-
-int CAN_CARRY_N(const CharData *ch) {
-	int n = 5 + GetRealDex(ch) / 2 + GetRealLevel(ch) / 2;
-	if (ch->HaveFeat(EFeat::kJuggler)) {
-		n += GetRealLevel(ch) / 2;
-		if (CanUseFeat(ch, EFeat::kThrifty)) {
-			n += 5;
-		}
-	}
-	if (CanUseFeat(ch, EFeat::kThrifty)) {
-		n += 5;
-	}
-	return std::max(n, 1);
-}
-
-const char *print_obj_state(int tm_pct) {
-	if (tm_pct < 20)
-		return "ужасно";
-	else if (tm_pct < 40)
-		return "скоро сломается";
-	else if (tm_pct < 60)
-		return "плоховато";
-	else if (tm_pct < 80)
-		return "средне";
-		//else if (tm_pct <=100) // у только что созданной шмотки значение 100% первый тик, потому <=
-		//	return "идеально";
-	else if (tm_pct < 1000) // проблема крафта, на хаймортах таймер больще прототипа
-		return "идеально";
-	else return "нерушимо";
-}
-
-void sanity_check(void) {
+void sanity_check() {
 	int ok = true;
 
 	// * If any line is false, 'ok' will become false also.
@@ -2037,42 +1000,9 @@ void sanity_check(void) {
 	}
 }
 
-int GetRealLevel(const CharData *ch) {
-
-	if (ch->IsNpc()) {
-		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
-	}
-
-	if (IS_IMMORTAL(ch)) {
-		return ch->GetLevel();
-	}
-
-	return std::clamp(ch->GetLevel() + ch->get_level_add(), 1, kLvlImmortal - 1);
-}
-
-int GetRealLevel(const std::shared_ptr<CharData> &ch) {
-	return GetRealLevel(ch.get());
-}
-
-short GetRealRemort(const CharData *ch) {
-	return std::clamp(ch->get_remort() + ch->get_remort_add(), 0, kMaxRemort);
-}
-
-short GetRealRemort(const std::shared_ptr<CharData> &ch) {
-	return GetRealRemort(ch.get());
-}
-
 /*short GetRealRemort(const std::shared_ptr<CharData> &ch) {
 	return GetRealRemort(ch.get());
 }*/
-
-bool IsNegativeApply(EApply location) {
-	for (auto elem : apply_negative) {
-		if (location == elem.location)
-			return true;
-	}
-	return false;
-}
 
 bool isname(const char *str, const char *namelist) {
 	bool once_ok = false;
@@ -2428,8 +1358,6 @@ const bool a_isspace_table[256] = {
 	false    //255
 };
 
-#include <iostream>
-
 void build_char_table(int(*func)(int c)) {
 	for (int c = 0; c < 256; c++) {
 		std::cout << (func(c) ? " true" : "false") << (255 > c ? ", " : "");
@@ -2764,10 +1692,6 @@ void koi_to_utf8(char *str_i, char *str_o) {
 
 #endif // HAVE_ICONV
 
-ZoneVnum GetZoneVnumByCharPlace(CharData *ch) {
-		return zone_table[world[ch->in_room]->zone_rn].vnum;
-}
-
 bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag) {
 
 	long nr = 0;
@@ -2831,6 +1755,22 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const c
 	}
 
 	return true;
+}
+
+void MemLeakInfo() {
+	static int last_pmem_used = 0;
+	auto get_mem = TotalMemUse();
+	int vmem_used = get_mem.first;
+	int pmem_used = get_mem.second;
+	char buf [256];
+
+	if (pmem_used != last_pmem_used) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		last_pmem_used = pmem_used;
+		sprintf(buf, "Memory size mismatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		last_pmem_used = pmem_used;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

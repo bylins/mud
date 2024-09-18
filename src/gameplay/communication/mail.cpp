@@ -16,7 +16,9 @@
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/ui/color.h"
-#include "third_party_libs/pugixml/pugixml.h"
+#include "engine/ui/modify.h"
+
+#include <third_party_libs/pugixml/pugixml.h>
 
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
@@ -398,7 +400,7 @@ void print_notices() {
 		if (d) {
 			SendMsgToChar(d->character.get(),
 						  "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-						  CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
+						  kColorWht, kColorNrm);
 		}
 	}
 	notice_list.clear();

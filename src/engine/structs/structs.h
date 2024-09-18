@@ -54,7 +54,7 @@ using ZoneRnum = Rnum;
 using TrgRnum = Rnum;
 
 #if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)    // Hm, sysdep.h?
-typedef char byte;
+using byte = char;
 #endif
 
 const int kMinRemort = 0;
@@ -62,18 +62,6 @@ const int kMaxRemort = 75;
 const int kMaxPlayerLevel = 30;
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
-
-extern const char *nothing_string;
-
-/*
- * If you want equipment to be automatically equipped to the same place
- * it was when players rented, set the define below to 1.  Please note
- * that this will require erasing or converting all of your rent files.
- * And of course, you have to recompile everything.  We need this feature
- * for CircleMUD 3.0 to be complete but we refuse to break binary file
- * compatibility.
- */
-#define USE_AUTOEQ 1
 
 const __uint8_t kMaxDest = 50;
 
@@ -96,29 +84,6 @@ const __uint8_t kCodePageWinzOld = 6;
 const __uint8_t kCodePageLast = 7;
 
 const int kKtSelectmenu = 255;
-
-template<typename T>
-struct Unimplemented {};
-
-template<typename E>
-const std::string &NAME_BY_ITEM(const E item) {
-	return Unimplemented<E>::FAIL;
-}
-
-template<typename E>
-E ITEM_BY_NAME(const std::string &name) {
-	return Unimplemented<E>::FAIL;
-}
-
-template<typename E>
-inline E ITEM_BY_NAME(const char *name) { return ITEM_BY_NAME<E>(std::string(name)); }
-
-// object-related defines ******************************************* //
-
-template<typename E>
-constexpr typename std::underlying_type<E>::type to_underlying(E e) {
-	return static_cast<typename std::underlying_type<E>::type>(e);
-}
 
 const int kLvlImplementator = 34;
 const int kLvlGreatGod = 33;
@@ -166,101 +131,10 @@ const int kMaxNpcResist = 100;
 constexpr int kMinResistance = -kMaxNpcResist;
 const int kStrongMobLevel = 30;
 
-struct TimeInfoData {
-	int hours = 0;
-	int day = 0;
-	int month = 0;
-	sh_int year = 0;
-};
-
-struct Punish {
-	long duration = 0;
-	char *reason = nullptr;
-	int level = 0;
-	long godid = 0;
-};
-
 struct FollowerType {
 	CharData *follower = nullptr;
 	struct FollowerType *next = nullptr;
 };
-
-struct TextBlock {
-	char *text = nullptr;
-	int aliased = 0;
-	struct TextBlock *next = nullptr;
-};
-
-struct TextBlocksQueue {
-	struct TextBlock *head = nullptr;
-	struct TextBlock *tail = nullptr;
-};
-// ===============================================================
-
-#ifndef HAVE_ZLIB
-struct z_stream;
-#endif
-
-struct IndexData {
-	IndexData() : vnum(0), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
-	explicit IndexData(int _vnum)
-		: vnum(_vnum), total_online(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
-
-	Vnum vnum;            // virtual number of this mob/obj       //
-	int total_online;        // number of existing units of this mob/obj //
-	int stored;        // number of things in rent file            //
-	int (*func)(CharData *, void *, int, char *);
-	char *farg;        // string argument for special function     //
-	Trigger *proto;    // for triggers... the trigger     //
-	int zone;            // mob/obj zone rnum //
-	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
-};
-
-// ===============================================================
-
-enum ECase {
-	kNom = 0,
-	kGen,
-	kDat,
-	kAcc,
-	kIns,
-	kPre,
-	kFirstCase = kNom,
-	kLastCase = kPre,
-};
-
-namespace parser_wrapper {
-// forward declaration
-class DataNode;
-}
-
-namespace base_structs {
-
-class ItemName {
- public:
-	ItemName();
-
-	using Ptr = std::unique_ptr<ItemName>;
-	using NameCases = std::array<std::string, ECase::kLastCase + 1>;
-	ItemName(ItemName &&i) noexcept;
-	ItemName &operator=(ItemName &&i) noexcept;
-
-	[[nodiscard]] const std::string &GetSingular(ECase name_case = ECase::kNom) const;
-	[[nodiscard]] const std::string &GetPlural(ECase name_case = ECase::kNom) const;
-	static Ptr Build(parser_wrapper::DataNode &node);
-
- private:
-	NameCases singular_names_;
-	NameCases plural_names_;
-};
-
-}
-//спецпроцедуры
-int exchange(CharData *ch, void *me, int cmd, char *argument);
-int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int torc(CharData *ch, void *me, int cmd, char *argument);
-int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
-int shop_ext(CharData *ch, void *me, int cmd, char *argument);
 
 #endif // STRUCTS_STRUCTS_H_
 

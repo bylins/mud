@@ -35,6 +35,10 @@
 #include "gameplay/magic/magic_items.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/slay.h"
+#include "gameplay/mechanics/groups.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/core/base_stats.h"
+#include "utils/utils_time.h"
 
 // Structures
 std::list<combat_list_element> combat_list;
@@ -1860,7 +1864,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
-		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
 		CLR_AF_BATTLE(ch, kEafStand);
 	}

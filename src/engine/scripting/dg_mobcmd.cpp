@@ -35,6 +35,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/core/game_limits.h"
 
 struct mob_command_info {
 	const char *command;

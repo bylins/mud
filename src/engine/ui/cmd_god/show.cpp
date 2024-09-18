@@ -26,12 +26,11 @@
 #include "engine/db/global_objects.h"
 #include "utils/file_crc.h"
 #include "engine/entities/char_player.h"
+#include "gameplay/statistics/money_drop.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/statistics/zone_exp.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
-
-extern int buf_switches, buf_largecount, buf_overflows;
-extern unsigned long int number_of_bytes_read;
-extern unsigned long int number_of_bytes_written;
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 extern void show_apply(CharData *ch, CharData *vict);
 extern void print_rune_stats(CharData *ch);
@@ -590,15 +589,15 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
 					world_objects.size(), obj_proto.size());
 			sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd, триггеров %d\r\n", top_of_world + 1, zone_table.size(), top_of_trigt);
-			sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
+			sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", iosystem::buf_largecount);
 			sprintf(buf + strlen(buf),
 					"  Переключенных буферов - %5d, переполненных - %5d\r\n",
-					buf_switches,
-					buf_overflows);
+					iosystem::buf_switches,
+					iosystem::buf_overflows);
 			auto getmem = TotalMemUse();
 			sprintf(buf + strlen(buf), "  PID процесса: %d, использовано памяти: виртуальной - %d kB, физической: - %d kB\r\n", getpid(), getmem.first, getmem.second);
-			sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
-			sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
+			sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", iosystem::number_of_bytes_written);
+			sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", iosystem::number_of_bytes_read);
 			sprintf(buf + strlen(buf), "  Максимальный Id - %ld\r\n", max_id.current());
 			sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
 					static_cast<unsigned long>((cmd_cnt * 60) / (time(nullptr) - shutdown_parameters.get_boot_time())));

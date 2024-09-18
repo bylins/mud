@@ -1,6 +1,10 @@
-//
-// Created by Sventovit on 03.09.2024.
-//
+/**
+\file dungeons.h - a part of the Bylins engine.
+\authors Created by Stribog.
+\date 03.09.2024.
+\brief
+\detail
+*/
 
 #ifndef BYLINS_SRC_GAME_MECHANICS_DUNGEONS_H_
 #define BYLINS_SRC_GAME_MECHANICS_DUNGEONS_H_

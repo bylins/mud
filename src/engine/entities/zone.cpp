@@ -61,4 +61,8 @@ ZoneData::~ZoneData() {
 
 ZoneTable &zone_table = GlobalObjects::zone_table();    // zone table
 
+ZoneVnum GetZoneVnumByCharPlace(CharData *ch) {
+	return zone_table[world[ch->in_room]->zone_rn].vnum;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -18,7 +18,7 @@
 #include "engine/ui/modify.h"
 #include "glory_misc.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <sstream>
 
@@ -654,49 +654,49 @@ void spend_glory_menu(CharData *ch) {
 	std::ostringstream out;
 	out << "\r\n                      -        +\r\n"
 		<< "  Сила     : ("
-		<< CCIGRN(ch, C_SPR) << "А" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "А" << kColorNrm
 		<< ") " << ch->desc->glory->olc_str << " ("
-		<< CCIGRN(ch, C_SPR) << "З" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "З" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_str)
 		out << "    (" << (ch->desc->glory->olc_add_str > 0 ? "+" : "") << ch->desc->glory->olc_add_str << ")";
 	out << "\r\n"
 		<< "  Ловкость : ("
-		<< CCIGRN(ch, C_SPR) << "Б" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Б" << kColorNrm
 		<< ") " << ch->desc->glory->olc_dex << " ("
-		<< CCIGRN(ch, C_SPR) << "И" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "И" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_dex)
 		out << "    (" << (ch->desc->glory->olc_add_dex > 0 ? "+" : "") << ch->desc->glory->olc_add_dex << ")";
 	out << "\r\n"
 		<< "  Ум       : ("
-		<< CCIGRN(ch, C_SPR) << "Г" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Г" << kColorNrm
 		<< ") " << ch->desc->glory->olc_int << " ("
-		<< CCIGRN(ch, C_SPR) << "К" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "К" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_int)
 		out << "    (" << (ch->desc->glory->olc_add_int > 0 ? "+" : "") << ch->desc->glory->olc_add_int << ")";
 	out << "\r\n"
 		<< "  Мудрость : ("
-		<< CCIGRN(ch, C_SPR) << "Д" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Д" << kColorNrm
 		<< ") " << ch->desc->glory->olc_wis << " ("
-		<< CCIGRN(ch, C_SPR) << "Л" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Л" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_wis)
 		out << "    (" << (ch->desc->glory->olc_add_wis > 0 ? "+" : "") << ch->desc->glory->olc_add_wis << ")";
 	out << "\r\n"
 		<< "  Здоровье : ("
-		<< CCIGRN(ch, C_SPR) << "Е" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Е" << kColorNrm
 		<< ") " << ch->desc->glory->olc_con << " ("
-		<< CCIGRN(ch, C_SPR) << "М" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "М" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_con)
 		out << "    (" << (ch->desc->glory->olc_add_con > 0 ? "+" : "") << ch->desc->glory->olc_add_con << ")";
 	out << "\r\n"
 		<< "  Обаяние  : ("
-		<< CCIGRN(ch, C_SPR) << "Ж" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Ж" << kColorNrm
 		<< ") " << ch->desc->glory->olc_cha << " ("
-		<< CCIGRN(ch, C_SPR) << "Н" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Н" << kColorNrm
 		<< ")";
 	if (ch->desc->glory->olc_add_cha)
 		out << "    (" << (ch->desc->glory->olc_add_cha > 0 ? "+" : "") << ch->desc->glory->olc_add_cha << ")";
@@ -717,12 +717,12 @@ void spend_glory_menu(CharData *ch) {
 		|| ch->desc->glory->olc_con != ch->GetInbornCon()
 		|| ch->desc->glory->olc_cha != ch->GetInbornCha()) {
 		out << "  "
-			<< CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
+			<< kColorBoldGrn << "В" << kColorNrm
 			<< ") Сохранить результаты\r\n";
 	}
 
 	out << "  "
-		<< CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR)
+		<< kColorBoldGrn << "Х" << kColorNrm
 		<< ") Выйти без сохранения\r\n"
 		<< " Ваш выбор: ";
 	SendMsgToChar(out.str(), ch);

@@ -1,6 +1,9 @@
-//
-// Created by Sventovit on 03.09.2024.
-//
+/**
+\file dead_load.cpp - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 03.09.2024.
+\brief Система загрузки предметов по списку DL непосредственно в мобе. Необходимо удалить после введения таблиц лута.
+*/
 
 #include "dead_load.h"
 #include "engine/entities/char_data.h"
@@ -10,7 +13,7 @@
 #include "engine/db/global_objects.h"
 #include "stable_objs.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 namespace dead_load {
 
@@ -31,16 +34,16 @@ void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src) {
 
 bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoadType load_type) {
 
-	if (mob_proto[ch->get_rnum()].dl_list == nullptr) {
+	if (mob_proto[ch->get_rnum()].dl_list.empty()) {
 		return false;
 	}
 
-	auto p = mob_proto[ch->get_rnum()].dl_list->begin();
+	auto p = mob_proto[ch->get_rnum()].dl_list.begin();
 
 	bool last_load{true};
 	bool load{false};
-	while (p != mob_proto[ch->get_rnum()].dl_list->end()) {
-		switch ((*p)->load_type) {
+	while (p != mob_proto[ch->get_rnum()].dl_list.end()) {
+		switch ((*p).load_type) {
 			case kAnyway: last_load = load;
 			case kAnywaySaveState: break;
 			case kPreviuosSuccess: last_load = load && last_load;
@@ -50,12 +53,12 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 		}
 
 		// Блокируем лоад в зависимости от значения смецпараметра
-		load = ((*p)->spec_param == load_type);
+		load = ((*p).spec_param == load_type);
 		if (load) {
-			const auto tobj = world_objects.create_from_prototype_by_vnum((*p)->obj_vnum);
+			const auto tobj = world_objects.create_from_prototype_by_vnum((*p).obj_vnum);
 			if (!tobj) {
 				auto msg = fmt::format("Попытка загрузки в труп (VNUM:{}) несуществующего объекта (VNUM:{}).",
-									   GET_MOB_VNUM(ch), (*p)->obj_vnum);
+									   GET_MOB_VNUM(ch), (*p).obj_vnum);
 				mudlog(msg, NRM, kLvlBuilder, ERRLOG, true);
 			} else {
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
@@ -70,15 +73,15 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 
 				switch (load_type) {
 					case kOrdinary:    //Обычная загрузка - без выкрутасов
-						load = (miw && (number(1, 100) <= (*p)->load_prob));
+						load = (miw && (number(1, 100) <= (*p).load_prob));
 						break;
 
 					case kProgression:    //Загрузка с убывающей до 0.01 вероятностью
-						load = ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1));
+						load = ((miw && (number(1, 100) <= (*p).load_prob)) || (number(1, 100) <= 1));
 						break;
 
 					case kSkin:    //Загрузка по применению "освежевать"
-						load = ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1));
+						load = ((miw && (number(1, 100) <= (*p).load_prob)) || (number(1, 100) <= 1));
 						load &= (chr != nullptr);
 						break;
 
@@ -117,7 +120,7 @@ bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoad
 	return true;
 }
 
-bool ParseDeadLoadLine(OnDeadLoadList **dl_list, char *line) {
+bool ParseDeadLoadLine(OnDeadLoadList &dl_list, char *line) {
 	// Формат парсинга D {номер прототипа} {вероятность загрузки} {спец поле - тип загрузки}
 	int vnum, prob, type, spec;
 	if (sscanf(line, "%d %d %d %d", &vnum, &prob, &type, &spec) != 4) {
@@ -125,18 +128,13 @@ bool ParseDeadLoadLine(OnDeadLoadList **dl_list, char *line) {
 		return false;
 	}
 
-	if (*dl_list == nullptr) {
-		*dl_list = new OnDeadLoadList;
-	}
+	struct LoadingItem new_item;
+	new_item.obj_vnum = vnum;
+	new_item.load_prob = prob;
+	new_item.load_type = type;
+	new_item.spec_param = spec;
 
-	struct LoadingItem *new_item;
-	CREATE(new_item, 1);
-	new_item->obj_vnum = vnum;
-	new_item->load_prob = prob;
-	new_item->load_type = type;
-	new_item->spec_param = spec;
-
-	(*dl_list)->push_back(new_item);
+	dl_list.push_back(new_item);
 	return true;
 }
 

@@ -1,12 +1,18 @@
-#include "structs.h"
+/**
+\file cases.cpp - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 15.09.2024.
+\brief Brief description.
+\detail Detail description.
+*/
+
+#include "cases.h"
 
 #include "utils/logger.h"
-#include "utils/parse.h"
 #include "utils/parser_wrapper.h"
+#include "utils/parse.h"
 
-const char* nothing_string = "ничего";
-
-namespace base_structs {
+namespace grammar {
 
 void ParseValueToNameCase(const char *value, std::string &name_case) {
 	try {
@@ -65,4 +71,3 @@ const std::string &ItemName::GetPlural(ECase name_case) const {
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-

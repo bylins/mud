@@ -14,13 +14,16 @@
 
 #include "magic_utils.h"
 
-//#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "magic.h"
+#include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/weather.h"
+#include "gameplay/core/base_stats.h"
 
 char cast_argument[kMaxStringLength];
 
@@ -88,12 +91,12 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		} else {
 			if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
 				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM),
-						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+						MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn,
+						MUD::Spell(spell_id).GetCName(), kColorNrm);
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM),
-						MUD::Spell(spell_id).GetCName(), CCNRM(ch, C_NRM));
+						MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn,
+						MUD::Spell(spell_id).GetCName(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
@@ -669,7 +672,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	int prob;
-	// Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
+	// \todo Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
 	switch (saving) {
 		case ESaving::kStability:
 			prob = wis_bonus(GetRealWis(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);

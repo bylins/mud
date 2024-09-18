@@ -211,7 +211,7 @@ bool ConversationHandler::handle_request(const Variable::shared_ptr &request) {
 	hexdump(buffer.get(), buffer_size, "MSDP response:");
 
 	int written = 0;
-	write_to_descriptor_with_options(m_descriptor, buffer.get(), buffer_size, written);
+	iosystem::write_to_descriptor_with_options(m_descriptor, buffer.get(), buffer_size, written);
 
 	return true;
 }

@@ -16,11 +16,11 @@
 #include "engine/core/utils_char_obj.inl"
 #include "named_stuff.h"
 #include "stable_objs.h"
+#include "weather.h"
 
 #include <cmath>
 
 extern int bank(CharData *, void *, int, char *);
-extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);
 namespace Depot {
 
@@ -228,10 +228,10 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 		if (GET_OBJ_UNIQUE_ID(obj) == obj_uid
 			&& obj->get_vnum() == obj_vnum) {
 			std::ostringstream text;
-			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
+			text << "[Персональное хранилище]: " << kColorBoldRed << "'"
 				 << obj->get_short_description() << char_get_custom_label(obj.get(), ch)
 				 << " рассыпал" << GET_OBJ_SUF_2(obj.get())
-				 << " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
+				 << " в прах'" << kColorNrm << "\r\n";
 			ExtractObjFromWorld(obj.get());
 			return text.str();
 		}
@@ -608,9 +608,9 @@ void CharNode::update_online_item() {
 				// входе в игру, чтобы уж точно увидел
 				if (ch->desc && STATE(ch->desc) == CON_PLAYING) {
 					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
-								  CCIRED(ch, C_NRM), (*obj_it)->get_short_description().c_str(),
+								  kColorBoldRed, (*obj_it)->get_short_description().c_str(),
 								  char_get_custom_label(obj_it->get(), ch).c_str(),
-								  GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
+								  GET_OBJ_SUF_2((*obj_it)), kColorNrm);
 				} else {
 					add_purged_message(GET_UID(ch), GET_OBJ_VNUM(obj_it->get()), GET_OBJ_UNIQUE_ID(obj_it->get()));
 				}
@@ -837,7 +837,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 	const long expired = rent_per_day ? (money / rent_per_day) : 0;
 
 	std::stringstream head;
-	head << CCWHT(ch, C_NRM)
+	head << kColorWht
 		 << "Ваше персональное хранилище. Рента в день: "
 		 << rent_per_day << " " << GetDeclensionInNumber(rent_per_day, EWhat::kMoneyA);
 	if (rent_per_day) {
@@ -849,7 +849,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 		 << s_cnt << "/" << get_max_pers_slots(ch)
 		 << ", отделения для ингредиентов: "
 		 << i_cnt << "/" << MAX_PERS_SLOTS(ch) * 2
-		 << CCNRM(ch, C_NRM) << "\r\n\r\n";
+		 << kColorNrm << "\r\n\r\n";
 
 	if (!found) {
 		head << "В данный момент хранилище абсолютно пусто.\r\n";
@@ -897,7 +897,7 @@ void show_depot(CharData *ch) {
 
 	if (NORENTABLE(ch)) {
 		SendMsgToChar(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					  kColorBoldRed, kColorNrm);
 		return;
 	}
 
@@ -982,7 +982,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 	if (NORENTABLE(ch)) {
 		SendMsgToChar(ch,
 					  "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					  CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					  kColorBoldRed, kColorNrm);
 		return 0;
 	}
 
@@ -1051,7 +1051,7 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 
 	if (NORENTABLE(vict)) {
 		SendMsgToChar(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-					  CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+					  kColorBoldRed, kColorNrm);
 		return;
 	}
 
@@ -1287,8 +1287,8 @@ void enter_char(CharData *ch) {
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0) {
 			SendMsgToChar(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
-						  CCWHT(ch, C_NRM), it->second.money_spend,
-						  GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), CCNRM(ch, C_NRM));
+						  kColorWht, it->second.money_spend,
+						  GetDeclensionInNumber(it->second.money_spend, EWhat::kMoneyA), kColorNrm);
 
 			long rest = ch->remove_both_gold(it->second.money_spend);
 			if (rest > 0) {
@@ -1300,7 +1300,7 @@ void enter_char(CharData *ch) {
 				// файл убьется позже при ребуте на пустом хране,
 				// даже если не будет никаких перезаписей по ходу игры
 				SendMsgToChar(ch, "%sХранилище: у вас не хватило денег на постой.%s\r\n\r\n",
-							  CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+							  kColorWht, kColorNrm);
 			}
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет

@@ -4,6 +4,7 @@
 
 #include "action_targeting.h"
 #include "gameplay/fight/pk.h"
+#include "gameplay/mechanics/groups.h"
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.

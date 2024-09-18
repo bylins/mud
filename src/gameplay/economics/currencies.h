@@ -11,6 +11,7 @@
 #include "engine/boot/cfg_manager.h"
 #include "engine/entities/entities_constants.h"
 #include "engine/structs/info_container.h"
+#include "utils/grammar/cases.h"
 
 // Старый неймспейс со старыми идами валют
 // Его необходимо удалить после доделывания системы валют
@@ -38,7 +39,7 @@ class CurrencyInfo : public info_container::BaseItem<int> {
 
 	EGender gender_{EGender::kFemale};
 	std::string name_{"!undefined!"};
-	std::unique_ptr<base_structs::ItemName> names_;
+	std::unique_ptr<grammar::ItemName> names_;
 
 	bool account_shared_{false};
 	bool locked_{true};

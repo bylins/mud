@@ -1,16 +1,14 @@
-/* ************************************************************************
-*   File: handler.h                                     Part of Bylins    *
-*  Usage: header file: prototypes of handling and utility functions       *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-* 									  *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                      *
-************************************************************************ */
+/**
+\file sight.cpp - a part of the Bylins engine.
+\authors Created by Sventovit.
+\date 11.09.2024.
+\brief Модуль оператора над игровыми сущностями - персонажами, предметами и комнатами.
+\details Тут должен размещаться код, который перемещает и размещает персонажей, предметы и мобов.
+ То есть, в комнату, из комнаты, в контейнер, в инвентарь и обратно и так далее. Либо сообщает их численность,
+ составляет списки и тому подобное. Что тут нужно сделать - удалить отсюда и перенести в соответствующие модули
+ код, который не относится к таким действиям. Если после этого модуль будет чересчур большим - раздеить его
+ на хендлеры объектов, персонажей и комнат/мира.
+*/
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
@@ -189,6 +187,11 @@ int get_object_low_rent(ObjData *obj);
 void InitUid(ObjData *object);
 
 void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id);
+
+void can_carry_obj(CharData *ch, ObjData *obj);
+int num_pc_in_room(RoomData *room);
+int check_moves(CharData *ch, int how_moves);
+int real_sector(int room);
 
 #endif // HANDLER_H_
 

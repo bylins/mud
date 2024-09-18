@@ -9,12 +9,12 @@ namespace talents_actions {
 
 void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Damage: " << "\r\n"
-		   << KGRN << "  " << dice_num_
+		   << kColorGrn << "  " << dice_num_
 		   << "d" << dice_size_
-		   << "+" << dice_add_ << KNRM
-		   << " Low skill bonus: " << KGRN << low_skill_bonus_ << KNRM
-		   << " Hi skill bonus: " << KGRN << hi_skill_bonus_ << KNRM
-		   << " Saving: " << KGRN << NAME_BY_ITEM<ESaving>(saving_) << KNRM << "\r\n";
+		   << "+" << dice_add_ << kColorNrm
+		   << " Low skill bonus: " << kColorGrn << low_skill_bonus_ << kColorNrm
+		   << " Hi skill bonus: " << kColorGrn << hi_skill_bonus_ << kColorNrm
+		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm << "\r\n";
 }
 
 int Damage::RollSkillDices() const {
@@ -69,13 +69,13 @@ double Heal::CalcNpcCoeff(const CharData* ch) const
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Area:" << "\r\n"
-		   << "  Cast decay: " << KGRN << cast_decay << KNRM
-		   << " Level decay: " << KGRN << level_decay << KNRM
-		   << " Free targets: " << KGRN << free_targets << KNRM << "\r\n"
-		   << "  Skill divisor: " << KGRN << skill_divisor << KNRM
-		   << " Targets dice: " << KGRN << targets_dice_size << KNRM
-		   << " Min targets: " << KGRN << min_targets << KNRM
-		   << " Max targets: " << KGRN << max_targets << KNRM << "\r\n";
+		   << "  Cast decay: " << kColorGrn << cast_decay << kColorNrm
+		   << " Level decay: " << kColorGrn << level_decay << kColorNrm
+		   << " Free targets: " << kColorGrn << free_targets << kColorNrm << "\r\n"
+		   << "  Skill divisor: " << kColorGrn << skill_divisor << kColorNrm
+		   << " Targets dice: " << kColorGrn << targets_dice_size << kColorNrm
+		   << " Min targets: " << kColorGrn << min_targets << kColorNrm
+		   << " Max targets: " << kColorGrn << max_targets << kColorNrm << "\r\n";
 }
 
 int Area::CalcTargetsQuantity(const int skill_level) const {

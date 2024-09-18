@@ -72,7 +72,7 @@ void update_char_times(CharData *ch, time_t now) {
 
 				sprintf(buf,
 						"Вы забыли заклинание \"%s%s%s\".\r\n",
-						CCIMAG(ch, C_NRM), MUD::Spell(it->first).GetCName(), CCNRM(ch, C_NRM));
+						kColorBoldMag, MUD::Spell(it->first).GetCName(), kColorNrm);
 				SendMsgToChar(buf, ch);
 			}
 

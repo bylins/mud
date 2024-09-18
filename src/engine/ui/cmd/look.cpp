@@ -8,6 +8,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/weather.h"
 
 void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[kMaxInputLength];
@@ -24,15 +25,15 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			sprintf(buf,
 					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
 					"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), ch->in_room,
-					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[ch->in_room]->light,
-					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[ch->in_room]->glight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->fires,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->ices,
-					CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[ch->in_room]->gdark,
-					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+					kColorNrm, kColorBoldBlk, ch->in_room,
+					kColorRed, kColorBoldRed, world[ch->in_room]->light,
+					kColorGrn, kColorBoldGrn, world[ch->in_room]->glight,
+					kColorYel, kColorBoldYel, world[ch->in_room]->fires,
+					kColorYel, kColorBoldYel, world[ch->in_room]->ices,
+					kColorBlu, kColorBoldBlu, world[ch->in_room]->gdark,
+					kColorMag, kColorBoldCyn, weather_info.sky,
+					kColorWht, kColorBoldBlk, weather_info.sunlight,
+					kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 		skip_hide_on_look(ch);

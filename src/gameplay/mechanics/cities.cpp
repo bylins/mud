@@ -4,10 +4,12 @@
 
 #include "cities.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/zone.h"
 
 #include <vector>
 
-#include "third_party_libs/pugixml/pugixml.h"
+#include <third_party_libs/pugixml/pugixml.h>
+
 
 extern pugi::xml_node XmlLoad(const char *PathToFile,
 							  const char *MainTag,
