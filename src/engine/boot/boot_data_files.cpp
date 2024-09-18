@@ -1016,7 +1016,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].player_data.long_descr = colorCAP(fread_string());
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = nullptr;
-	mob_proto[i].player_data.title = "";
+	mob_proto[i].SetTitleStr("");
 	mob_proto[i].set_level(1);
 
 	// *** Numeric data ***

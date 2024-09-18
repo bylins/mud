@@ -218,14 +218,15 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 	}
 
-	sprintf(buf, "Титул: %s\r\n", (k->player_data.title != "" ? k->player_data.title.c_str() : "<Нет>"));
+	const auto &title = k->GetTitleStr();
+	sprintf(buf, "Титул: %s\r\n", (title.empty() ? "<Нет>" : title.c_str()));
 	SendMsgToChar(buf, ch);
 	if (k->IsNpc())
-		sprintf(buf, "L-Des: %s", (k->player_data.long_descr != "" ? k->player_data.long_descr.c_str() : "<Нет>\r\n"));
+		sprintf(buf, "L-Des: %s", (!k->player_data.long_descr.empty() ? k->player_data.long_descr.c_str() : "<Нет>\r\n"));
 	else
 		sprintf(buf,
 				"L-Des: %s",
-				(k->player_data.description != "" ? k->player_data.description.c_str() : "<Нет>\r\n"));
+				(!k->player_data.description.empty() ? k->player_data.description.c_str() : "<Нет>\r\n"));
 	SendMsgToChar(buf, ch);
 
 	if (!k->IsNpc()) {

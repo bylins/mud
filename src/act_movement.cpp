@@ -686,7 +686,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		stop_fighting(ch, true);
 	}
 
-	if (!ch->IsNpc() && IS_BITS(ch->track_dirs, dir)) {
+	if (!ch->IsNpc() && IS_SET(ch->track_dirs, 1 << dir)) {
 		SendMsgToChar("Вы двинулись по следу.\r\n", ch);
 		ImproveSkill(ch, ESkill::kTrack, true, nullptr);
 	}

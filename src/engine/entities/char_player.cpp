@@ -1822,7 +1822,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				if (!strcmp(tag, "Thir"))
 					GET_COND(this, THIRST) = num;
 				else if (!strcmp(tag, "Titl"))
-					GET_TITLE(this) = std::string(str_dup(line));
+					this->SetTitleStr(line);
 				else if (!strcmp(tag, "TrcG"))
 					set_ext_money(ExtMoney::kTorcGold, num, false);
 				else if (!strcmp(tag, "TrcS"))

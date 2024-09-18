@@ -1556,25 +1556,23 @@ const CharData::morphs_list_t &CharData::get_morphs() {
 	return morphs_;
 };
 // обрезает строку и выдергивает из нее предтитул
-std::string CharData::get_title() {
+std::string CharData::GetTitle() const {
 	std::string tmp = this->player_data.title;
 	size_t pos = tmp.find('/');
 	if (pos == std::string::npos) {
-		return std::string();
+		return {};
 	}
 	tmp = tmp.substr(0, pos);
 	pos = tmp.find(';');
 
-	return pos == std::string::npos
-		   ? tmp
-		   : tmp.substr(0, pos);
+	return pos == std::string::npos ? tmp : tmp.substr(0, pos);
 };
 
-std::string CharData::get_pretitle() {
+std::string CharData::get_pretitle() const {
 	std::string tmp = std::string(this->player_data.title);
 	size_t pos = tmp.find('/');
 	if (pos == std::string::npos) {
-		return std::string();
+		return {};
 	}
 	tmp = tmp.substr(0, pos);
 	pos = tmp.find(';');
@@ -1583,7 +1581,7 @@ std::string CharData::get_pretitle() {
 		   : tmp.substr(pos + 1, tmp.length() - (pos + 1));
 }
 
-std::string CharData::get_race_name() {
+std::string CharData::get_race_name() const {
 	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), GET_SEX(this));
 }
 
@@ -1599,61 +1597,53 @@ std::string CharData::get_morphed_title() const {
 	return current_morph_->GetMorphTitle();
 };
 
-std::string CharData::only_title_noclan() {
-	std::string result = this->get_name();
-	std::string title = this->get_title();
-	std::string pre_title = this->get_pretitle();
-
-	if (!pre_title.empty())
-		result = pre_title + " " + result;
-
-	if (!title.empty() && this->GetLevel() >= MIN_TITLE_LEV)
-		result = result + ", " + title;
-
-	return result;
-}
-
-std::string CharData::clan_for_title() {
-	std::string result = std::string();
-
-	bool imm = IS_IMMORTAL(this) || this->IsFlagged(EPrf::kCoderinfo);
-
-	if (CLAN(this) && !imm)
-		result = result + "(" + GET_CLAN_STATUS(this) + ")";
-
-	return result;
-}
-
-std::string CharData::only_title() {
-	std::string result = this->clan_for_title();
-	if (!result.empty())
-		result = this->only_title_noclan() + " " + result;
-	else
-		result = this->only_title_noclan();
-
-	return result;
-}
-
-std::string CharData::noclan_title() {
-	std::string race = this->get_race_name();
-	std::string result = this->only_title_noclan();
-
-	if (result == this->get_name()) {
-		result = race + " " + result;
+std::string CharData::GetTitleAndNameWithoutClan() const {
+	auto pre_title = get_pretitle();
+	if (!pre_title.empty()) {
+		return fmt::format("{} {}", pre_title, get_name());
 	}
 
-	return result;
+	auto title = GetTitle();
+	if (!title.empty() && GetLevel() >= MIN_TITLE_LEV) {
+		return fmt::format("{}, {}", get_name(), title);
+	}
+
+	return get_name();
+}
+
+std::string CharData::GetClanTitleAddition() {
+	if (CLAN(this) && !IS_IMMORTAL(this)) {
+		return fmt::format("({})", GET_CLAN_STATUS(this));
+	}
+
+	return {};
+}
+
+std::string CharData::GetTitleAndName() {
+	std::string clan_title = GetClanTitleAddition();
+	if (!clan_title.empty()) {
+		return fmt::format("{} {}", GetTitleAndNameWithoutClan(), clan_title);
+	 } else {
+		return GetTitleAndNameWithoutClan();
+	}
+}
+
+std::string CharData::GetNameWithTitleOrRace() {
+	std::string title = GetTitleAndNameWithoutClan();
+	if (title == get_name()) {
+		return fmt::format("{} {}", get_race_name(), title);
+	}
+
+	return title;
 }
 
 std::string CharData::race_or_title() {
-	std::string result = this->clan_for_title();
-
-	if (!result.empty())
-		result = this->noclan_title() + " " + result;
-	else
-		result = this->noclan_title();
-
-	return result;
+	std::string clan_title = GetClanTitleAddition();
+	if (!clan_title.empty()) {
+		return fmt::format("{} {}", GetNameWithTitleOrRace(), clan_title);
+	} else {
+		return GetNameWithTitleOrRace();
+	}
 }
 
 size_t CharData::get_morphs_count() const {
@@ -1664,7 +1654,7 @@ std::string CharData::get_cover_desc() {
 	return current_morph_->CoverDesc();
 }
 
-void CharData::set_morph(MorphPtr morph) {
+void CharData::set_morph(const MorphPtr& morph) {
 	morph->SetChar(this);
 	morph->InitSkills(this->GetSkill(ESkill::kMorph));
 	morph->InitAbils();
