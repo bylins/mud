@@ -33,6 +33,7 @@
 #include "engine/ui/cmd_god/stat.h"
 #include "engine/ui/cmd_god/show.h"
 #include "engine/ui/cmd_god/liblist.h"
+#include "engine/ui/cmd_god/do_beep.h"
 #include "engine/ui/cmd_god/print_armor.h"
 #include "engine/ui/cmd_god/godtest.h"
 #include "engine/ui/cmd_god/tabulate.h"
@@ -63,10 +64,12 @@
 #include "engine/ui/cmd/levels.h"
 #include "engine/ui/cmd/listen.h"
 #include "engine/ui/cmd/look.h"
+#include "engine/ui/cmd/do_pray.h"
 #include "engine/ui/cmd/look_around.h"
 #include "engine/ui/cmd/order.h"
 #include "engine/ui/cmd/peer.h"
 #include "engine/ui/cmd/put.h"
+#include "engine/ui/cmd/do_recall.h"
 #include "engine/ui/cmd/retreat.h"
 #include "engine/ui/cmd/sleep.h"
 #include "engine/ui/cmd/telegram.h"
@@ -259,7 +262,6 @@ void do_antigods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
-void do_beep(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
 void do_courage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
@@ -294,7 +296,6 @@ void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_page(CharData *ch, char *argument, int cmd, int subcmd);
-void do_pray(CharData *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
@@ -349,7 +350,6 @@ void do_tlist(CharData *ch, char *argument, int cmd, int subcmd);
 void do_tstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CharData *ch, char *argument, int cmd, int subcmd);
 void do_identify(CharData *ch, char *argument, int cmd, int subcmd);
-void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void do_pray_gods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_recipes(CharData *ch, char *argument, int cmd, int subcmd);

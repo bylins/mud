@@ -341,7 +341,10 @@ set(SOURCES
 		src/engine/ui/cmd/do_hide.cpp
 		src/engine/ui/cmd/do_steal.cpp
 		src/engine/ui/cmd/do_group.cpp
-		src/engine/ui/cmd/do_ungroup.cpp)
+		src/engine/ui/cmd/do_ungroup.cpp
+		src/engine/ui/cmd_god/do_beep.cpp
+		src/engine/ui/cmd/do_pray.cpp
+		src/engine/ui/cmd/do_recall.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -664,7 +667,10 @@ set(HEADERS
 		src/engine/ui/cmd/do_hide.h
 		src/engine/ui/cmd/do_steal.h
 		src/engine/ui/cmd/do_group.h
-		src/engine/ui/cmd/do_ungroup.h)
+		src/engine/ui/cmd/do_ungroup.h
+		src/engine/ui/cmd_god/do_beep.h
+		src/engine/ui/cmd/do_pray.h
+		src/engine/ui/cmd/do_recall.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

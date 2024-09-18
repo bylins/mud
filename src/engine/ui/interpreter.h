@@ -223,10 +223,6 @@ struct alias_data {
 
 // do_drop
 #define SCMD_DROP 0
-#define SCMD_DONATE 1
-
-// do_pray
-#define SCMD_PRAY   0
 
 // do_look
 #define SCMD_LOOK    0
