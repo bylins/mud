@@ -1,4 +1,4 @@
-/**************************************************************************
+ /**************************************************************************
 * OasisOLC - medit.cpp					Part of Bylins    *
 * Copyright 1996 Harvey Gilpin.					  *
 * 									  *
@@ -196,10 +196,10 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 	auto proto_script_old = new ObjData::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
-	if (partial_copy && tmp.dl_list)
-		dead_load::CopyDeadLoadList(&dst->dl_list, tmp.dl_list);
+	if (partial_copy && !tmp.dl_list.empty())
+		dst->dl_list = tmp.dl_list;
 	else
-		dead_load::CopyDeadLoadList(&dst->dl_list, src->dl_list);
+		dst->dl_list = src->dl_list;
 }
 
 void medit_mobile_free(CharData *mob)
@@ -238,12 +238,6 @@ void medit_mobile_free(CharData *mob)
 		}
 	}
 	mob->summon_helpers.clear();
-	// Скрипт уже NULL
-	if (mob->dl_list) {
-		delete (mob->dl_list);
-		mob->dl_list = nullptr;
-	}
-
 }
 
 // ***********************************************************************
@@ -680,13 +674,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		fprintf(mob_file, "E\n");
 		script_save_to_disk(mob_file, mob, MOB_TRIGGER);
 		// Сохраняем список в файл
-		if (mob->dl_list) {
-			auto p = mob->dl_list->begin();
-			while (p != mob->dl_list->end()) {
-				fprintf(mob_file, "L %d %d %d %d\n",
-						(*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
-				p++;
-			}
+		for (auto p : mob->dl_list) {
+			fprintf(mob_file, "L %d %d %d %d\n", p.obj_vnum, p.load_prob, p.load_type, p.spec_param);
 		}
 	}
 	fprintf(mob_file, "$\n");
@@ -1210,7 +1199,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm, cyn, mob->mob_specials.extra_attack, nrm,
 			 grn, nrm, cyn, mob->get_remort(), nrm,
 			 grn, nrm, cyn, mob->mob_specials.like_work, nrm,
-			 grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
+			 grn, nrm, cyn, mob->dl_list.empty() ? "Нет" : "Есть",
 			 grn, nrm, cyn, roles_str.c_str(),
 			 grn, nrm,
 			 grn, nrm,
@@ -1248,22 +1237,22 @@ void disp_dl_list(DescriptorData *d) {
 
 	SendMsgToChar(buf, d->character.get());
 
-	if (mob->dl_list != nullptr) {
+	if (!mob->dl_list.empty()) {
 		i = 0;
-		auto p = mob->dl_list->begin();
-		while (p != mob->dl_list->end()) {
+		auto p = mob->dl_list.begin();
+		while (p != mob->dl_list.end()) {
 			i++;
 
-			auto tobj = GetObjectPrototype((*p)->obj_vnum);
+			auto tobj = GetObjectPrototype(p->obj_vnum);
 			const char *objname = nullptr;
-			if ((*p)->obj_vnum && tobj) {
+			if (p->obj_vnum && tobj) {
 				objname = tobj->get_PName(0).c_str();
 			} else {
 				objname = "Нет";
 			}
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
-					i, objname, (*p)->obj_vnum, (*p)->load_prob, (*p)->load_type, (*p)->spec_param);
+					i, objname, p->obj_vnum, p->load_prob, p->load_type, p->spec_param);
 
 			SendMsgToChar(buf, d->character.get());
 			p++;
@@ -2239,7 +2228,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 
 		case MEDIT_DLIST_ADD:
-			if (!dead_load::ParseDeadLoadLine(&OLC_MOB(d)->dl_list, arg))
+			if (!dead_load::ParseDeadLoadLine(OLC_MOB(d)->dl_list, arg))
 				SendMsgToChar("\r\nНеверный ввод.\r\n", d->character.get());
 			else {
 				SendMsgToChar("\r\nЗапись добавлена.\r\n", d->character.get());
@@ -2251,27 +2240,25 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 		case MEDIT_DLIST_DEL: number = atoi(arg);
 			if (number != 0) {
-				if (OLC_MOB(d)->dl_list == nullptr || OLC_MOB(d)->dl_list->empty()) {
+				if (OLC_MOB(d)->dl_list.empty()) {
 					SendMsgToChar("Список пуст!\r\n", d->character.get());
 					OLC_MODE(d) = MEDIT_DLIST_MENU;
 					disp_dl_list(d);
 					return;
 				}
 				// Удаляем указаный элемент.
+				
 				i = 0;
-				auto p = OLC_MOB(d)->dl_list->begin();
-				while (p != OLC_MOB(d)->dl_list->end() && i < number - 1) {
+				auto p = OLC_MOB(d)->dl_list.begin();
+			
+				while (p != OLC_MOB(d)->dl_list.end() && i < number - 1) {
 					p++;
 					i++;
 				}
 				if (i == number - 1) {
-					OLC_MOB(d)->dl_list->remove(*p);
+					OLC_MOB(d)->dl_list.erase(p);
 					SendMsgToChar("\r\nЗапись удалена.\r\n", d->character.get());
 					OLC_VAL(d) = 1;
-					if (OLC_MOB(d)->dl_list->empty()) {
-						delete (OLC_MOB(d)->dl_list);
-						OLC_MOB(d)->dl_list = nullptr;
-					}
 				} else
 					SendMsgToChar("\r\nЗапись не найдена.\r\n", d->character.get());
 			}

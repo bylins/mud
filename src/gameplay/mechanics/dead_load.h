@@ -34,12 +34,11 @@ struct LoadingItem {
   int spec_param{0};
 };
 
-using OnDeadLoadList = std::list<struct LoadingItem *>;
+using OnDeadLoadList = std::list<struct LoadingItem>;
 
-bool ParseDeadLoadLine(OnDeadLoadList **dl_list, char *line);
+bool ParseDeadLoadLine(OnDeadLoadList &dl_list, char *line);
 bool LoadObjFromDeadLoad(ObjData *corpse, CharData *ch, CharData *chr, EDeadLoadType load_type);
 int ResolveTagsInObjName(ObjData *obj, CharData *ch);
-void CopyDeadLoadList(OnDeadLoadList **pdst, OnDeadLoadList *src);
 } // namespace dead_load
 
 #endif //BYLINS_SRC_GAME_MECHANICS_DEAD_LOAD_H_
