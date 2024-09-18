@@ -11,7 +11,7 @@
 #include "engine/boot/cfg_manager.h"
 #include "engine/entities/entities_constants.h"
 #include "engine/structs/info_container.h"
-#include "engine/grammar/cases.h"
+#include "utils/grammar/cases.h"
 
 // Старый неймспейс со старыми идами валют
 // Его необходимо удалить после доделывания системы валют

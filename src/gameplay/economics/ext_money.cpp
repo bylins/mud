@@ -114,7 +114,7 @@ int check_input_amount(CharData *ch, int num1, int num2);
 bool check_equal_exch(CharData *ch);
 void torc_exch_parse(CharData *ch, const char *arg);
 // дроп гривн
-std::string create_message(CharData *ch, int gold, int silver, int bronze);
+std::string create_message(int gold, int silver, int bronze);
 bool has_connected_bosses(CharData *ch);
 unsigned calc_type_by_zone_lvl(int zone_lvl);
 int calc_drop_torc(int zone_lvl, int members);
@@ -346,7 +346,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 
 // формирование сообщения о награде гривнами при смерти босса
 // пишет в одну строку о нескольких видах гривен, если таковые были
-std::string create_message(CharData *ch, int gold, int silver, int bronze) {
+std::string create_message(int gold, int silver, int bronze) {
 	std::stringstream out;
 	int cnt = 0;
 
@@ -540,7 +540,7 @@ void gain_torc(CharData *ch, int drop) {
 	}
 	ch->set_ext_money(kTorcBronze, bronze + ch->get_ext_money(kTorcBronze));
 
-	std::string out = create_message(ch, gold, silver, bronze);
+	std::string out = create_message(gold, silver, bronze);
 	SendMsgToChar(ch, "В награду за свершенный подвиг вы получили от Богов %s.\r\n", out.c_str());
 
 }

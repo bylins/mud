@@ -1192,7 +1192,7 @@ void name_to_drinkcon(ObjData *obj, int type) {
 	}
 }
 
-std::string print_spell(CharData *ch, const ObjData *obj, int num) {
+std::string print_spell(const ObjData *obj, int num) {
 	const auto spell = init_spell_num(num);
 	const auto level = init_spell_lvl(num);
 
@@ -1212,12 +1212,12 @@ std::string print_spell(CharData *ch, const ObjData *obj, int num) {
 
 namespace drinkcon {
 
-std::string print_spells(CharData *ch, const ObjData *obj) {
+std::string print_spells(const ObjData *obj) {
 	std::string out;
 	char buf_[kMaxInputLength];
 
 	for (int i = 1; i <= 3; ++i) {
-		out += print_spell(ch, obj, i);
+		out += print_spell(obj, i);
 	}
 
 	if (!out.empty() && !is_potion(obj)) {
@@ -1262,7 +1262,7 @@ void identify(CharData *ch, const ObjData *obj) {
 						 drinks[GET_OBJ_VAL(obj, 2)]);
 			}
 			out += buf_;
-			out += print_spells(ch, obj);
+			out += print_spells(obj);
 		} else {
 			snprintf(buf_, sizeof(buf_), "Заполнен%s %s на %d%%\r\n",
 					 GET_OBJ_SUF_6(obj),
@@ -1271,7 +1271,7 @@ void identify(CharData *ch, const ObjData *obj) {
 			out += buf_;
 			// чтобы выдать варнинг на тему зелья без заклов
 			if (is_potion(obj)) {
-				out += print_spells(ch, obj);
+				out += print_spells(obj);
 			}
 		}
 	}

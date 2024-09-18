@@ -42,7 +42,12 @@
 #include "engine/ui/cmd/bandage.h"
 #include "engine/ui/cmd/consider.h"
 #include "engine/ui/cmd/do_zone.h"
-#include "engine/ui/cmd/equip.h"
+#include "engine/ui/cmd/do_hide.h"
+#include "engine/ui/cmd/do_group.h"
+#include "engine/ui/cmd/do_ungroup.h"
+#include "engine/ui/cmd/do_steal.h"
+#include "engine/ui/cmd/do_camouflage.h"
+#include "engine/ui/cmd/do_equip.h"
 #include "engine/ui/cmd/eat.h"
 #include "engine/ui/cmd/enter.h"
 #include "engine/ui/cmd/equipment.h"
@@ -280,9 +285,7 @@ void do_gen_ps(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gold(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
-void do_group(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
-void do_hide(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
@@ -314,7 +317,6 @@ void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
-void do_steal(CharData *ch, char *argument, int cmd, int subcmd);
 void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
@@ -322,7 +324,6 @@ void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
 void do_time(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
-void do_ungroup(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
@@ -332,7 +333,6 @@ void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_write(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
-void do_camouflage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dig(CharData *ch, char *argument, int cmd, int subcmd);

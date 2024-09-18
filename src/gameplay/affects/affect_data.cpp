@@ -13,7 +13,7 @@
 #include "gameplay/core/genchar.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/glory_const.h"
-#include "engine/ui/cmd/equip.h"
+#include "engine/ui/cmd/do_equip.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/fight/fight.h"
 
@@ -604,7 +604,7 @@ void affect_total(CharData *ch) {
 
 	// correctize all weapon
 	if (!IS_IMMORTAL(ch)) {
-		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !OK_BOTH(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !CanBeTakenInBothHands(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
@@ -613,7 +613,7 @@ void affect_total(CharData *ch) {
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !OK_WIELD(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !CanBeTakenInMajorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в правой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
@@ -622,7 +622,7 @@ void affect_total(CharData *ch) {
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlags()), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::kBoth)
-				&& OK_BOTH(ch, obj)
+				&& CanBeTakenInBothHands(ch, obj)
 				&& !GET_EQ(ch, EEquipPos::kHold)
 				&& !GET_EQ(ch, EEquipPos::kLight)
 				&& !GET_EQ(ch, EEquipPos::kShield)
@@ -632,7 +632,7 @@ void affect_total(CharData *ch) {
 			}
 			return;
 		}
-		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !OK_HELD(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !CanBeTakenInMinorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_HOLD_W);
@@ -641,7 +641,7 @@ void affect_total(CharData *ch) {
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 			return;
 		}
-		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !OK_SHIELD(ch, obj)) {
+		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !CanBeWearedAsShield(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 на левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_SHIELD_W);
@@ -651,7 +651,7 @@ void affect_total(CharData *ch) {
 			return;
 		}
 		if (!ch->IsNpc() && (obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
-			SendMsgToChar("Нету лука, нет и стрел.\r\n", ch);
+			SendMsgToChar("Нет лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 			return;

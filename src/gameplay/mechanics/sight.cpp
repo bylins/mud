@@ -63,7 +63,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 bool quest_item(ObjData *obj);
 void look_at_char(CharData *i, CharData *ch);
 std::string AddLeadingStringSpace(const std::string& text);
-char *diag_obj_to_char(CharData *i, ObjData *obj, int mode);
+char *diag_obj_to_char(ObjData *obj, int mode);
 void diag_char_to_char(CharData *i, CharData *ch);
 void ListOneChar(CharData *i, CharData *ch, ESkill mode);
 
@@ -1125,9 +1125,9 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			} else {
 				if (object->timed_spell().IsSpellPoisoned() != ESpell::kUndefined) {
 					sprintf(buf2, " %s*%s%s", kColorGrn,
-							kColorNrm, diag_obj_to_char(ch, object, 1));
+							kColorNrm, diag_obj_to_char(object, 1));
 				} else {
-					sprintf(buf2, " %s ", diag_obj_to_char(ch, object, 1));
+					sprintf(buf2, " %s ", diag_obj_to_char(object, 1));
 					if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
 						char tmp2[128];
@@ -1160,7 +1160,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 				}
 			} else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object)) {
-				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(ch, object, 2));
+				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
 			}
 		}
 		strcat(buf, buf2);
@@ -1281,7 +1281,7 @@ std::string AddLeadingStringSpace(const std::string& text) {
 	return "";
 }
 
-char *diag_obj_to_char(CharData *i, ObjData *obj, int mode) {
+char *diag_obj_to_char(ObjData *obj, int mode) {
 	static char out_str[80] = "\0";
 	const char *color;
 	int percent;

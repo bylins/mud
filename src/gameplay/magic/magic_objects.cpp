@@ -92,7 +92,7 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 }
 
 // * Распечатка строки с заклинанием и таймером при осмотре шмотки.
-std::string print_spell_str(CharData *ch, ESpell spell_id, int timer) {
+std::string print_spell_str(ESpell spell_id, int timer) {
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
 		log("SYSERROR: %s, spell = %d, time = %d", __func__, to_underlying(spell_id), timer);
 		return "";
@@ -164,7 +164,7 @@ std::string TimedSpell::diag_to_char(CharData *ch) {
 
 	std::string out;
 	for (auto & i : spell_list_) {
-		out += print_spell_str(ch, i.first, i.second);
+		out += print_spell_str(i.first, i.second);
 	}
 	return out;
 }
