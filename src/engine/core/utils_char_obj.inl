@@ -6,6 +6,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "gameplay/mechanics/named_stuff.h"
+#include "gameplay/mechanics/illumination.h"
 #include "utils/utils.h"
 #include "gameplay/core/base_stats.h"
 #include "engine/entities/zone.h"

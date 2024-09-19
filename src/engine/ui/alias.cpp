@@ -14,9 +14,7 @@
 *********************************************************************** */
 
 #include "engine/entities/char_data.h"
-
-void write_aliases(CharData *ch);
-void read_aliases(CharData *ch);
+#include "engine/ui/alias.h"
 
 void write_aliases(CharData *ch) {
 	FILE *file;

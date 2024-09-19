@@ -8,10 +8,12 @@
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/noob.h"
+#include "gameplay/mechanics/illumination.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/awake.h"
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);

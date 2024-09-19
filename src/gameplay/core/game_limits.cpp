@@ -34,6 +34,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/statistics/zone_exp.h"
+#include "gameplay/mechanics/illumination.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>

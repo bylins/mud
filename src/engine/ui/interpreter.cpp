@@ -42,13 +42,17 @@
 #include "engine/ui/cmd_god/wizutil.h"
 #include "engine/ui/cmd/bandage.h"
 #include "engine/ui/cmd/consider.h"
+#include "engine/ui/cmd/do_antigods.h"
 #include "engine/ui/cmd/do_zone.h"
 #include "engine/ui/cmd/do_hide.h"
 #include "engine/ui/cmd/do_group.h"
 #include "engine/ui/cmd/do_ungroup.h"
+#include "engine/ui/cmd/do_visible.h"
 #include "engine/ui/cmd/do_steal.h"
 #include "engine/ui/cmd/do_camouflage.h"
 #include "engine/ui/cmd/do_equip.h"
+#include "engine/ui/cmd/do_sneak.h"
+#include "engine/ui/cmd/do_quit.h"
 #include "engine/ui/cmd/eat.h"
 #include "engine/ui/cmd/enter.h"
 #include "engine/ui/cmd/equipment.h"
@@ -59,7 +63,12 @@
 #include "engine/ui/cmd/get.h"
 #include "engine/ui/cmd/give.h"
 #include "engine/ui/cmd/do_affects.h"
+#include "engine/ui/cmd/do_display.h"
 #include "engine/ui/cmd/do_mode.h"
+#include "engine/ui/cmd/do_courage.h"
+#include "engine/ui/cmd/do_save.h"
+#include "engine/ui/cmd/do_save.h"
+#include "engine/ui/cmd/do_wimpy.h"
 #include "engine/ui/cmd/mercenary.h"
 #include "engine/ui/cmd/levels.h"
 #include "engine/ui/cmd/listen.h"
@@ -263,12 +272,10 @@ void do_at(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
-void do_courage(CharData *ch, char *argument, int cmd, int subcmd);
 void do_commands(CharData *ch, char *argument, int cmd, int subcmd);
 void do_date(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CharData *ch, char *argument, int cmd, int subcmd);
-void do_display(CharData *ch, char *argument, int cmd, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
@@ -300,20 +307,17 @@ void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_statistic(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
-void do_quit(CharData *ch, char *argument, int /* cmd */, int subcmd);
 void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
-void do_save(CharData *ch, char *argument, int cmd, int subcmd);
 void do_say(CharData *ch, char *argument, int cmd, int subcmd);
 void DoScore(CharData *ch, char *argument, int, int);
 void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_sneak(CharData *ch, char *argument, int cmd, int subcmd);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd);
@@ -326,10 +330,8 @@ void do_time(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
-void do_visible(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_weather(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wimpy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_write(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
@@ -543,7 +545,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"кодер", EPosition::kDead, Boards::DoBoard, 1, Boards::CODER_BOARD, -1},
 		{"команды", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
 		{"коне", EPosition::kSleep, do_quit, 0, 0, 0},
-		{"конец", EPosition::kSleep, do_quit, 0, SCMD_QUIT, 0},
+		{"конец", EPosition::kSleep, do_quit, 0, kScmdQuit, 0},
 		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
 		{"копироватьзону", EPosition::kStand, dungeons::DoZoneCopy, kLvlImplementator, 0, 0},
@@ -909,7 +911,7 @@ cpp_extern const struct command_info cmd_info[] =
 //	{"python", EPosition::kDead, do_console, kLevelGod, 0, 0},
 		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
-		{"quit", EPosition::kSleep, do_quit, 0, SCMD_QUIT, -1},
+		{"quit", EPosition::kSleep, do_quit, 0, kScmdQuit, -1},
 		{"read", EPosition::kRest, DoLook, 0, SCMD_READ, 200},
 		{"receive", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"recipes", EPosition::kRest, do_recipes, 0, 0, 0},
@@ -4144,6 +4146,12 @@ void DeletePcByHimself(const char *name) {
 			free(player_table[id].last_ip);
 		player_table[id].last_ip = nullptr;
 	}
+}
+
+// generic function for commands which are normally overridden by
+// special procedures - i.e., shop commands, mail commands, etc.
+void do_not_here(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	SendMsgToChar("Эта команда недоступна в этом месте!\r\n", ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -17,6 +17,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/illumination.h"
 
 #include <cmath>
 

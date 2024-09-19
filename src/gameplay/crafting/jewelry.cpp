@@ -12,6 +12,7 @@
 #include "mining.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/illumination.h"
 
 skillvariables_insgem insgem_vars;
 insert_wanted_gem iwg;

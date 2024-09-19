@@ -132,7 +132,6 @@ template<typename T> inline std::string to_string(const T &t) {
 	return ss.str();
 };
 
-extern bool is_dark(RoomRnum room);
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -359,11 +358,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
 #define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
-#define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ERoomFlag::kDarked) || \
-                              (SECT(room) != ESector::kInside && \
-                               SECT(room) != ESector::kCity   && \
-                               ( weather_info.sunlight == kSunSet || \
-                                 weather_info.sunlight == kSunDark )) )
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
 #define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->vnum : kNowhere))
@@ -900,26 +894,6 @@ enum class EWhat : int  {
 };
 
 const char *GetDeclensionInNumber(long amount, EWhat of_what);
-
-//#undef AW_HIDE // конфликтует с winuser.h
-// some awaking cases
-const int kAwHide = 1 << 0;
-const int kAwInvis = 1 << 1;
-const int kAwCamouflage = 1 << 2;
-const int kAwSneak = 1 << 3;
-
-const int kAcheckAffects = 1 << 0;
-const int kAcheckLight = 1 << 1;
-const int kAcheckHumming = 1 << 2;
-const int kAcheckGlowing = 1 << 3;
-const int kAcheckWeight = 1 << 4;
-// \todo Удалить при распиливании act.other
-int check_awake(CharData *ch, int what);
-int awake_hide(CharData *ch);
-int awake_invis(CharData *ch);
-int awake_camouflage(CharData *ch);
-int awake_sneak(CharData *ch);
-int awaking(CharData *ch, int mode);
 std::string FormatTimeToStr(long in_timer, bool flag = 0);
 
 // defines for fseek

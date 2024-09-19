@@ -41,6 +41,7 @@
 #include "gameplay/ai/mob_memory.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/classes/classes.h"
+#include "gameplay/mechanics/illumination.h"
 
 // external structs
 extern int no_specials;
@@ -413,7 +414,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		if (!victim)
 			victim = vict;
 
-		if (IS_DEFAULTDARK(ch->in_room)
+		if (IsDefaultDark(ch->in_room)
 			&& ((GET_EQ(vict, EObjType::kLightSource)
 				&& GET_OBJ_VAL(GET_EQ(vict, EObjType::kLightSource), 2))
 				|| (!AFF_FLAGGED(vict, EAffect::kHolyDark)

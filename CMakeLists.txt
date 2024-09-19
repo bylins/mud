@@ -20,7 +20,6 @@ set(SOURCES
 		src/act_informative.cpp
 		src/engine/ui/cmd/sign.cpp
 		src/act_movement.cpp
-		src/act_other.cpp
 		src/gameplay/communication/social.cpp
 		src/act_wizard.cpp
 		src/gameplay/affects/affect_handler.cpp
@@ -344,7 +343,18 @@ set(SOURCES
 		src/engine/ui/cmd/do_ungroup.cpp
 		src/engine/ui/cmd_god/do_beep.cpp
 		src/engine/ui/cmd/do_pray.cpp
-		src/engine/ui/cmd/do_recall.cpp)
+		src/engine/ui/cmd/do_recall.cpp
+		src/engine/ui/cmd/do_display.cpp
+		src/engine/ui/cmd/do_wimpy.cpp
+		src/engine/ui/cmd/do_quit.cpp
+		src/engine/ui/cmd/do_courage.cpp
+		src/engine/ui/cmd/do_sneak.cpp
+		src/engine/ui/cmd/do_visible.cpp
+		src/engine/ui/cmd/do_save.cpp
+		src/engine/ui/cmd/do_summon.cpp
+		src/engine/ui/cmd/do_antigods.cpp
+		src/gameplay/mechanics/illumination.cpp
+		src/gameplay/mechanics/awake.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -670,7 +680,19 @@ set(HEADERS
 		src/engine/ui/cmd/do_ungroup.h
 		src/engine/ui/cmd_god/do_beep.h
 		src/engine/ui/cmd/do_pray.h
-		src/engine/ui/cmd/do_recall.h)
+		src/engine/ui/cmd/do_recall.h
+		src/engine/ui/cmd/do_display.h
+		src/engine/ui/cmd/do_wimpy.h
+		src/engine/ui/cmd/do_quit.h
+		src/engine/ui/cmd/do_courage.h
+		src/engine/ui/cmd/do_sneak.h
+		src/engine/ui/cmd/do_visible.h
+		src/engine/ui/cmd/do_save.h
+		src/engine/ui/alias.h
+		src/engine/ui/cmd/do_summon.h
+		src/engine/ui/cmd/do_antigods.h
+		src/gameplay/mechanics/illumination.h
+		src/gameplay/mechanics/awake.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

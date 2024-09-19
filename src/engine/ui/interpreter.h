@@ -208,9 +208,6 @@ struct alias_data {
 // do_shutdown
 #define SCMD_SHUTDOWN   1
 
-// do_quit
-#define SCMD_QUIT 1
-
 // do_date
 #define SCMD_DATE 0
 #define SCMD_UPTIME  1

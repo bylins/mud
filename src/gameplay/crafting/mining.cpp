@@ -11,6 +11,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/illumination.h"
 
 skillvariables_dig dig_vars;
 extern void split_or_clan_tax(CharData *ch, long amount);

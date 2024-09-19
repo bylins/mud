@@ -7,8 +7,8 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "engine/ui/cmd/do_visible.h"
 
-void perform_immort_vis(CharData *ch);
 void perform_immort_invis(CharData *ch, int level);
 
 extern void appear(CharData *ch);
@@ -42,19 +42,6 @@ void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			perform_immort_invis(ch, level);
 	}
-}
-
-void perform_immort_vis(CharData *ch) {
-	if (GET_INVIS_LEV(ch) == 0 &&
-		!AFF_FLAGGED(ch, EAffect::kHide) && !AFF_FLAGGED(ch, EAffect::kInvisible)
-		&& !AFF_FLAGGED(ch, EAffect::kDisguise)) {
-		SendMsgToChar("Ну вот вас и заметили. Стало ли вам легче от этого?\r\n", ch);
-		return;
-	}
-
-	SET_INVIS_LEV(ch, 0);
-	appear(ch);
-	SendMsgToChar("Вы теперь полностью видны.\r\n", ch);
 }
 
 void perform_immort_invis(CharData *ch, int level) {
