@@ -984,7 +984,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"turn undead", EPosition::kRest, do_turn_undead, 0, 0, -1},
 		{"typo", EPosition::kDead, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 		{"unaffect", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_UNAFFECT, 0},
-		{"Unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
+		{"unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
 		{"unfreeze", EPosition::kDead, do_unfreeze, kLvlImplementator, 0, 0},
 		{"ungroup", EPosition::kDead, do_ungroup, 0, 0, -1},
 		{"unlock", EPosition::kSit, do_gen_door, 0, kScmdUnlock, 500},
