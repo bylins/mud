@@ -110,6 +110,11 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		mudlog("Попытка склонировать двухзначную зону.", CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
 	}
+
+	if (zrn_from  == 0) {
+		mudlog("Попытка склонировать несуществующую зону.", CMP, kLvlGreatGod, SYSLOG, true);
+		return 0;
+	}
 	if (zvn_from >= kZoneStartDungeons) {
 		mudlog("Попытка склонировать данж.", CMP, kLvlGreatGod, SYSLOG, true);
 		return 0;
