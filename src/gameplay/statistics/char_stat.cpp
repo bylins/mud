@@ -17,7 +17,7 @@ void CharStat::Increase(ECategory category, ullong increment) {
 	try {
 		statistics_.at(category) += increment;
 	} catch (std::out_of_range &) {
-		log("SYSERROR : access to unknown statistic %d in CharStat.", category);
+		log("SYSERROR: access to unknown statistic %d in CharStat.", category);
 	}
 }
 
@@ -25,13 +25,13 @@ ullong CharStat::GetValue(ECategory category) const {
 	try {
 		return statistics_.at(category);
 	} catch (std::out_of_range &) {
-		log("SYSERROR : access to unknown statistic %d in CharStat.", category);
+		log("SYSERROR: access to unknown statistic %d in CharStat.", category);
+		return 0LL;
 	}
 }
 
 void CharStat::Clear() {
 	statistics_.fill(0LL);
-//	std::fill(statistics_.begin(), statistics_.end(), 0LL);
 }
 
 void CharStat::ClearThisRemort() {
