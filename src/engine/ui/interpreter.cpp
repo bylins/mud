@@ -47,6 +47,7 @@
 #include "engine/ui/cmd/do_hide.h"
 #include "engine/ui/cmd/do_group.h"
 #include "engine/ui/cmd/do_ungroup.h"
+#include "engine/ui/cmd/do_mystat.h"
 #include "engine/ui/cmd/do_visible.h"
 #include "engine/ui/cmd/do_steal.h"
 #include "engine/ui/cmd/do_camouflage.h"
@@ -360,7 +361,6 @@ void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
 void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
-void do_mystat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);

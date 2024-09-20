@@ -142,85 +142,6 @@ void process_mobmax(CharData *ch, CharData *killer) {
 	}
 }
 
-void update_die_counts(CharData *ch, CharData *killer, int dec_exp) {
-	//настоящий убийца мастер чармиса/коня/ангела
-	CharData *rkiller = killer;
-
-	if (rkiller
-		&& rkiller->IsNpc()
-		&& (IS_CHARMICE(rkiller)
-			|| IS_HORSE(rkiller)
-			|| killer->IsFlagged(EMobFlag::kTutelar)
-			|| killer->IsFlagged(EMobFlag::kMentalShadow))) {
-		if (rkiller->has_master()) {
-			rkiller = rkiller->get_master();
-		} else {
-			snprintf(buf, kMaxStringLength,
-					 "die: %s killed by %s (without master)",
-					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
-			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
-			rkiller = nullptr;
-		}
-	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		ch->player_specials->saved.rip_arena_dom++;
-	}
-	if (!ch->IsNpc()) {
-		if (rkiller && rkiller != ch) {
-			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
-				if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-					rkiller->player_specials->saved.kill_arena_dom = rkiller->player_specials->saved.kill_arena_dom + 1;
-				}
-				else {
-					GET_RIP_ARENA(ch) = GET_RIP_ARENA(ch) + 1;
-					GET_WIN_ARENA(killer) = GET_WIN_ARENA(killer) + 1;
-					if (dec_exp) {
-						GET_EXP_ARENA(ch) = GET_EXP_ARENA(ch) + dec_exp; //Если чар в бд
-					}
-				}
-			} else if (rkiller->IsNpc()) {
-				//Рип от моба
-				GET_RIP_MOB(ch) = GET_RIP_MOB(ch) + 1;
-				GET_RIP_MOBTHIS(ch) = GET_RIP_MOBTHIS(ch) + 1;
-				if (dec_exp) {
-					GET_EXP_MOB(ch) = GET_EXP_MOB(ch) + dec_exp;
-					GET_EXP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) + dec_exp;
-				}
-			} else if (!rkiller->IsNpc()) {
-				//Рип в ПК
-				GET_RIP_PK(ch) = GET_RIP_PK(ch) + 1;
-				GET_RIP_PKTHIS(ch) = GET_RIP_PKTHIS(ch) + 1;
-				if (dec_exp) {
-					GET_EXP_PK(ch) = GET_EXP_PK(ch) + dec_exp;
-					GET_EXP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) + dec_exp;
-				}
-			}
-		} else if ((!rkiller || (rkiller && rkiller == ch)) &&
-			(ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) ||
-				ROOM_FLAGGED(ch->in_room, ERoomFlag::kSlowDeathTrap) ||
-				ROOM_FLAGGED(ch->in_room, ERoomFlag::kIceTrap))) {
-			//Рип в дт
-			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
-			GET_RIP_DTTHIS(ch) = GET_RIP_DTTHIS(ch) + 1;
-			if (dec_exp) {
-				GET_EXP_DT(ch) = GET_EXP_DT(ch) + dec_exp;
-				GET_EXP_DTTHIS(ch) = GET_EXP_DTTHIS(ch) + dec_exp;
-			}
-		} else// if (!rkiller || (rkiller && rkiller == ch))
-		{
-			//Рип по стечению обстоятельств
-			GET_RIP_OTHER(ch) = GET_RIP_OTHER(ch) + 1;
-			GET_RIP_OTHERTHIS(ch) = GET_RIP_OTHERTHIS(ch) + 1;
-			if (dec_exp) {
-				GET_EXP_OTHER(ch) = GET_EXP_OTHER(ch) + dec_exp;
-				GET_EXP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) + dec_exp;
-			}
-		}
-	}
-}
-//end by WorM
-//конец правки (с) Василиса
-
 void update_leadership(CharData *ch, CharData *killer) {
 	// train LEADERSHIP
 	if (ch->IsNpc() && killer) // Убили моба
@@ -401,7 +322,7 @@ void die(CharData *ch, CharData *killer) {
 		}
 	}
 
-	update_die_counts(ch, killer, dec_exp);
+	CharStat::UpdateOnKill(ch, killer, dec_exp);
 	raw_kill(ch, killer);
 }
 

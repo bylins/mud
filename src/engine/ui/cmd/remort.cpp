@@ -9,7 +9,6 @@
 #include "engine/core/handler.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/fight/fight.h"
-#include "gameplay/skills/townportal.h"
 #include "engine/db/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -147,15 +146,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ch->remove_protecting();
 	}
 
-	//Обновляем статистику рипов для текущего перевоплощения
-	GET_RIP_DTTHIS(ch) = 0;
-	GET_EXP_DTTHIS(ch) = 0;
-	GET_RIP_MOBTHIS(ch) = 0;
-	GET_EXP_MOBTHIS(ch) = 0;
-	GET_RIP_PKTHIS(ch) = 0;
-	GET_EXP_PKTHIS(ch) = 0;
-	GET_RIP_OTHERTHIS(ch) = 0;
-	GET_EXP_OTHERTHIS(ch) = 0;
+	ch->ClearThisRemortStatistics();
 
 	// забываем всех чармисов
 	std::map<int, MERCDATA> *m;

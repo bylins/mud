@@ -354,7 +354,9 @@ set(SOURCES
 		src/engine/ui/cmd/do_summon.cpp
 		src/engine/ui/cmd/do_antigods.cpp
 		src/gameplay/mechanics/illumination.cpp
-		src/gameplay/mechanics/awake.cpp)
+		src/gameplay/mechanics/awake.cpp
+		src/gameplay/statistics/char_stat.cpp
+		src/engine/ui/cmd/do_mystat.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -692,7 +694,9 @@ set(HEADERS
 		src/engine/ui/cmd/do_summon.h
 		src/engine/ui/cmd/do_antigods.h
 		src/gameplay/mechanics/illumination.h
-		src/gameplay/mechanics/awake.h)
+		src/gameplay/mechanics/awake.h
+		src/gameplay/statistics/char_stat.h
+		src/engine/ui/cmd/do_mystat.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

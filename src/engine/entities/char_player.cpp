@@ -791,25 +791,31 @@ void Player::save_char() {
 
 	fprintf(saved, "Disp: %ld\n", disposable_flags_.to_ulong());
 
-	fprintf(saved, "Ripa: %d\n", GET_RIP_ARENA(this)); //Rip_arena
-	fprintf(saved, "Wina: %d\n", GET_WIN_ARENA(this)); //Win_arena
-	fprintf(saved, "Expa: %llu\n", GET_EXP_ARENA(this)); //Exp_arena
-	fprintf(saved, "Ripm: %d\n", GET_RIP_MOB(this)); //Rip_mob
-	fprintf(saved, "Expm: %llu\n", GET_EXP_MOB(this)); //Exp_mob
-	fprintf(saved, "Ripd: %d\n", GET_RIP_DT(this)); //Rip_dt
-	fprintf(saved, "Expd: %llu\n", GET_EXP_DT(this));//Exp_dt
-	fprintf(saved, "Ripo: %d\n", GET_RIP_OTHER(this));//Rip_other
-	fprintf(saved, "Expo: %llu\n", GET_EXP_OTHER(this));//Exp_other
-	fprintf(saved, "Ripp: %d\n", GET_RIP_PK(this));//Rip_pk
-	fprintf(saved, "Expp: %llu\n", GET_EXP_PK(this)); //Exp_pk
-	fprintf(saved, "Rimt: %d\n", GET_RIP_MOBTHIS(this)); //Rip_mob_this
-	fprintf(saved, "Exmt: %llu\n", GET_EXP_MOBTHIS(this));//Exp_mob_this
-	fprintf(saved, "Ridt: %d\n", GET_RIP_DTTHIS(this)); //Rip_dt_this
-	fprintf(saved, "Exdt: %llu\n", GET_EXP_DTTHIS(this)); //Exp_dt_this
-	fprintf(saved, "Riot: %d\n", GET_RIP_OTHERTHIS(this)); //Rip_other_this
-	fprintf(saved, "Exot: %llu\n", GET_EXP_OTHERTHIS(this)); ////Exp_other_this
-	fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
-	fprintf(saved, "Expt: %llu\n", GET_EXP_PKTHIS(this));//Exp_pk_this
+	fprintf(saved, "Ripa: %llu\n", GetStatistic(CharStat::ArenaRip));
+	fprintf(saved, "Wina: %llu\n", GetStatistic(CharStat::ArenaWin));
+	fprintf(saved, "Riar: %llu\n", GetStatistic(CharStat::ArenaRemortRip));
+	fprintf(saved, "Wiar: %llu\n", GetStatistic(CharStat::ArenaRemortWin));
+	fprintf(saved, "Riad: %llu\n", GetStatistic(CharStat::ArenaDomRip));
+	fprintf(saved, "Wida: %llu\n", GetStatistic(CharStat::ArenaDomWin));
+	fprintf(saved, "Ridr: %llu\n", GetStatistic(CharStat::ArenaDomRemortRip));
+	fprintf(saved, "Widr: %llu\n", GetStatistic(CharStat::ArenaDomRemortWin));
+	fprintf(saved, "Ripm: %llu\n", GetStatistic(CharStat::MobRip));
+	fprintf(saved, "Ripd: %llu\n", GetStatistic(CharStat::DtRip));
+	fprintf(saved, "Ripo: %llu\n", GetStatistic(CharStat::OtherRip));
+	fprintf(saved, "Ripp: %llu\n", GetStatistic(CharStat::PkRip));
+	fprintf(saved, "Rimt: %llu\n", GetStatistic(CharStat::MobRemortRip));
+	fprintf(saved, "Ridt: %llu\n", GetStatistic(CharStat::DtRemortRip));
+	fprintf(saved, "Riot: %llu\n", GetStatistic(CharStat::OtherRemortRip));
+	fprintf(saved, "Ript: %llu\n", GetStatistic(CharStat::PkRemortRip));
+	fprintf(saved, "Expa: %llu\n", GetStatistic(CharStat::ArenaExpLost));
+	fprintf(saved, "Expm: %llu\n", GetStatistic(CharStat::MobExpLost));
+	fprintf(saved, "Expd: %llu\n", GetStatistic(CharStat::DtExpLost));
+	fprintf(saved, "Expo: %llu\n", GetStatistic(CharStat::OtherExpLost));
+	fprintf(saved, "Expp: %llu\n", GetStatistic(CharStat::PkExpLost));
+	fprintf(saved, "Exmt: %llu\n", GetStatistic(CharStat::MobRemortExpLost));
+	fprintf(saved, "Exdt: %llu\n", GetStatistic(CharStat::DtRemortExpLost));
+	fprintf(saved, "Exot: %llu\n", GetStatistic(CharStat::OtherRemortExpLost));
+	fprintf(saved, "Expt: %llu\n", GetStatistic(CharStat::PkRemortExpLost));
 
 	// не забываем рестить ману и при сейве
 	this->set_who_mana(MIN(WHO_MANA_MAX,
@@ -979,12 +985,12 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_level(1);
 	set_class(ECharClass::kFirst);
 	set_uid(0);
-	set_last_logon(time(0));
+	set_last_logon(time(nullptr));
 	set_exp(0);
 	set_remort(0);
 	GET_LASTIP(this)[0] = 0;
 	GET_EMAIL(this)[0] = 0;
-	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
 
@@ -1237,11 +1243,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		lnum = atol(line1);
 		try {
 			llnum = std::stoull(line1, nullptr, 10);
-		}
-		catch (const std::invalid_argument &) {
+		} catch (const std::invalid_argument &) {
 			llnum = 0;
-		}
-		catch (const std::out_of_range &) {
+		} catch (const std::out_of_range &) {
 			llnum = 0;
 		}
 		switch (*tag) {
@@ -1390,23 +1394,23 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "EMal"))
 					strcpy(GET_EMAIL(this), line);
 				else if (!strcmp(tag, "Expa"))
-					GET_EXP_ARENA(this) = llnum;
+					IncreaseStatistic(CharStat::ArenaExpLost, llnum);
 				else if (!strcmp(tag, "Expm"))
-					GET_EXP_MOB(this) = llnum;
+					IncreaseStatistic(CharStat::MobExpLost, llnum);
 				else if (!strcmp(tag, "Exmt"))
-					GET_EXP_MOBTHIS(this) = llnum;
+					IncreaseStatistic(CharStat::MobRemortExpLost, llnum);
 				else if (!strcmp(tag, "Expp"))
-					GET_EXP_PK(this) = llnum;
+					IncreaseStatistic(CharStat::PkExpLost, llnum);
 				else if (!strcmp(tag, "Expt"))
-					GET_EXP_PKTHIS(this) = llnum;
+					IncreaseStatistic(CharStat::PkRemortExpLost, llnum);
 				else if (!strcmp(tag, "Expo"))
-					GET_EXP_OTHER(this) = llnum;
+					IncreaseStatistic(CharStat::OtherExpLost, llnum);
 				else if (!strcmp(tag, "Exot"))
-					GET_EXP_OTHERTHIS(this) = llnum;
+					IncreaseStatistic(CharStat::OtherRemortExpLost, llnum);
 				else if (!strcmp(tag, "Expd"))
-					GET_EXP_DT(this) = llnum;
+					IncreaseStatistic(CharStat::DtExpLost, llnum);
 				else if (!strcmp(tag, "Exdt"))
-					GET_EXP_DTTHIS(this) = llnum;
+					IncreaseStatistic(CharStat::DtRemortExpLost, llnum);
 				break;
 
 			case 'F':
@@ -1685,28 +1689,32 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			case 'R':
 				if (!strcmp(tag, "Room"))
 					GET_LOADROOM(this) = num;
-//29.11.09. (c) Василиса
 				else if (!strcmp(tag, "Ripa"))
-					GET_RIP_ARENA(this) = num;
+					IncreaseStatistic(CharStat::ArenaRip, num);
+				else if (!strcmp(tag, "Riar"))
+					IncreaseStatistic(CharStat::ArenaRemortRip, num);
+				else if (!strcmp(tag, "Riad"))
+					IncreaseStatistic(CharStat::ArenaDomRip, num);
+				else if (!strcmp(tag, "Ridr"))
+					IncreaseStatistic(CharStat::ArenaDomRemortRip, num);
 				else if (!strcmp(tag, "Ripm"))
-					GET_RIP_MOB(this) = num;
+					IncreaseStatistic(CharStat::MobRip, num);
 				else if (!strcmp(tag, "Rimt"))
-					GET_RIP_MOBTHIS(this) = num;
+					IncreaseStatistic(CharStat::MobRemortRip, num);
 				else if (!strcmp(tag, "Ruble"))
 					this->set_ruble(num);
 				else if (!strcmp(tag, "Ripp"))
-					GET_RIP_PK(this) = num;
+					IncreaseStatistic(CharStat::PkRip, num);
 				else if (!strcmp(tag, "Ript"))
-					GET_RIP_PKTHIS(this) = num;
+					IncreaseStatistic(CharStat::PkRemortRip, num);
 				else if (!strcmp(tag, "Ripo"))
-					GET_RIP_OTHER(this) = num;
+					IncreaseStatistic(CharStat::OtherRip, num);
 				else if (!strcmp(tag, "Riot"))
-					GET_RIP_OTHERTHIS(this) = num;
+					IncreaseStatistic(CharStat::OtherRemortRip, num);
 				else if (!strcmp(tag, "Ripd"))
-					GET_RIP_DT(this) = num;
+					IncreaseStatistic(CharStat::DtRip, num);
 				else if (!strcmp(tag, "Ridt"))
-					GET_RIP_DTTHIS(this) = num;
-//(с) Василиса
+					IncreaseStatistic(CharStat::DtRemortRip, num);
 				else if (!strcmp(tag, "Rmbr"))
 					this->remember_set_num(num);
 				else if (!strcmp(tag, "Reli"))
@@ -1859,10 +1867,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GET_WIMP_LEV(this) = num;
 				else if (!strcmp(tag, "Wis "))
 					this->set_wis(num);
-//29.11.09 (c) Василиса
 				else if (!strcmp(tag, "Wina"))
-					GET_WIN_ARENA(this) = num;
-//конец правки (с) Василиса
+					IncreaseStatistic(CharStat::ArenaWin, num);
+				else if (!strcmp(tag, "Wiar"))
+					IncreaseStatistic(CharStat::ArenaRemortWin, num);
+				else if (!strcmp(tag, "Wida"))
+					IncreaseStatistic(CharStat::ArenaDomWin, num);
+				else if (!strcmp(tag, "Widr"))
+					IncreaseStatistic(CharStat::ArenaDomRemortWin, num);
 				else if (!strcmp(tag, "Wman"))
 					this->set_who_mana(num);
 				break;
@@ -2092,7 +2104,7 @@ void Player::add_daily_quest(int id, int count) {
 	} else {
 		this->daily_quest.insert(std::pair<int, int>(id, count));
 	}
-	time_t now = time(0);
+	time_t now = time(nullptr);
 	if (this->daily_quest_timed.count(id)) {
 		this->daily_quest_timed[id] = now;
 	} else {

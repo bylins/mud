@@ -2345,16 +2345,6 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));
-		} else if (!str_cmp(field, "domination_kill")) {
-			if (*subfield)
-				c->player_specials->saved.kill_arena_dom = atoi(subfield);
-			else
-				sprintf(str, "%d", c->player_specials->saved.kill_arena_dom);
-		} else if (!str_cmp(field, "domination_rip")) {
-			if (*subfield)
-				c->player_specials->saved.rip_arena_dom = atoi(subfield);
-			else
-				sprintf(str, "%d", c->player_specials->saved.rip_arena_dom);
 		} else if (!str_cmp(field, "move")) {
 			if (*subfield)
 				GET_MOVE(c) = MAX(0, gm_char_field(c, field, subfield, GET_MOVE(c)));
