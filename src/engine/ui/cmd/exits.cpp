@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/illumination.h"
 
 void do_blind_exits(CharData *ch);
 

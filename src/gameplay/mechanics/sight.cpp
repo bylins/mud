@@ -24,6 +24,8 @@
 #include "engine/db/obj_prototypes.h"
 #include "stable_objs.h"
 #include "weather.h"
+#include "gameplay/mechanics/illumination.h"
+#include "gameplay/mechanics/awake.h"
 
 #define TAG_NIGHT       "<night>"
 #define TAG_DAY         "<day>"

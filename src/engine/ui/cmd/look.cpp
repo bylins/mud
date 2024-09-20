@@ -9,6 +9,7 @@
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/illumination.h"
 
 void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char arg2[kMaxInputLength];

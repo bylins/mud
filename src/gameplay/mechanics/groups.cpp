@@ -6,12 +6,16 @@
 \detail Группы, вступление, покидание, дележка опыта - должно быть тут.
 */
 
+#include "gameplay/mechanics/groups.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/magic/magic.h"
 #include "engine/network/msdp/msdp_constants.h"
+#include "gameplay/clans/house.h"
+#include "gameplay/economics/currencies.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -558,6 +562,171 @@ void GoUngroup(CharData *ch, char *argument) {
 		}
 	}
 	SendMsgToChar("Этот игрок не входит в состав вашей группы.\r\n", ch);
+}
+
+void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	CharData *k;
+	struct FollowerType *f;
+
+	if (!AFF_FLAGGED(ch, EAffect::kGroup) && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
+		return;
+	}
+	if (IS_MANA_CASTER(ch)) {
+		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch),
+				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
+				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
+				ch->mem_queue.stored, GET_MAX_MANA(ch));
+	} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		int loyalty = 0;
+		for (const auto &aff : ch->affected) {
+			if (aff->type == ESpell::kCharm) {
+				loyalty = aff->duration / 2;
+				break;
+			}
+		}
+		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch),
+				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
+				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
+				loyalty);
+	} else {
+		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch),
+				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
+				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
+	}
+	CAP(buf);
+	k = ch->has_master() ? ch->get_master() : ch;
+	for (f = k->followers; f; f = f->next) {
+		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+			&& f->follower != ch
+			&& !AFF_FLAGGED(f->follower, EAffect::kDeafness)) {
+			SendMsgToChar(buf, f->follower);
+		}
+	}
+
+	if (k != ch && !AFF_FLAGGED(k, EAffect::kDeafness)) {
+		SendMsgToChar(buf, k);
+	}
+	SendMsgToChar("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
+}
+
+void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	do_split(ch, argument, 0, 0, 0);
+}
+
+void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
+	int amount, num, share, rest;
+	CharData *k;
+	struct FollowerType *f;
+
+	if (ch->IsNpc())
+		return;
+
+	one_argument(argument, buf);
+
+	EWhat what_currency;
+
+	switch (currency) {
+		case currency::ICE : what_currency = EWhat::kIceU;
+			break;
+		default : what_currency = EWhat::kMoneyU;
+			break;
+	}
+
+	if (is_number(buf)) {
+		amount = atoi(buf);
+		if (amount <= 0) {
+			SendMsgToChar("И как вы это планируете сделать?\r\n", ch);
+			return;
+		}
+
+		if (amount > ch->get_gold() && currency == currency::GOLD) {
+			SendMsgToChar("И где бы взять вам столько денег?.\r\n", ch);
+			return;
+		}
+		k = ch->has_master() ? ch->get_master() : ch;
+
+		if (AFF_FLAGGED(k, EAffect::kGroup)
+			&& (k->in_room == ch->in_room)) {
+			num = 1;
+		} else {
+			num = 0;
+		}
+
+		for (f = k->followers; f; f = f->next) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+				&& !f->follower->IsNpc()
+				&& f->follower->in_room == ch->in_room) {
+				num++;
+			}
+		}
+
+		if (num && AFF_FLAGGED(ch, EAffect::kGroup)) {
+			share = amount / num;
+			rest = amount % num;
+		} else {
+			SendMsgToChar("С кем вы хотите разделить это добро?\r\n", ch);
+			return;
+		}
+		//MONEY_HACK
+
+		switch (currency) {
+			case currency::ICE : ch->sub_ice_currency(share * (num - 1));
+				break;
+			case currency::GOLD : ch->remove_gold(share * (num - 1));
+				break;
+		}
+
+		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
+		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
+			SendMsgToChar(buf, k);
+			switch (currency) {
+				case currency::ICE : {
+					k->add_ice_currency(share);
+					break;
+				}
+				case currency::GOLD : {
+					k->add_gold(share, true, true);
+					break;
+				}
+			}
+		}
+		for (f = k->followers; f; f = f->next) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+				&& !f->follower->IsNpc()
+				&& f->follower->in_room == ch->in_room
+				&& f->follower != ch) {
+				SendMsgToChar(buf, f->follower);
+				switch (currency) {
+					case currency::ICE : f->follower->add_ice_currency(share);
+						break;
+					case currency::GOLD : f->follower->add_gold(share, true, true);
+						break;
+				}
+			}
+		}
+		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
+				amount, GetDeclensionInNumber(amount, what_currency), num, share);
+		if (rest) {
+			sprintf(buf + strlen(buf),
+					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
+					rest, GetDeclensionInNumber(rest, what_currency));
+		}
+
+		SendMsgToChar(buf, ch);
+		// клан-налог лутера с той части, которая пошла каждому в группе
+		if (currency == currency::GOLD) {
+			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
+			ch->remove_gold(clan_tax);
+		}
+	} else {
+		SendMsgToChar("Сколько и чего вы хотите разделить?\r\n", ch);
+		return;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

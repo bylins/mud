@@ -29,6 +29,7 @@
 #include "gameplay/ai/mob_memory.h"
 #include "engine/entities/zone.h"
 #include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/illumination.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);

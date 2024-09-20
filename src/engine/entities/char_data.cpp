@@ -16,6 +16,7 @@
 #include "char_data.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/mechanics/illumination.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
@@ -768,6 +769,7 @@ ObjData *CharData::GetCastObj() const {
 	return cast_attack_.tobj;
 }
 
+// \todo Да-да, функциями типа "кто кого видит" - самое мместо в модуле персонажа. Вычистить это все отсюда.
 bool IS_CHARMICE(const CharData *ch) {
 	return ch->IsNpc()
 		&& (AFF_FLAGGED(ch, EAffect::kHelper)

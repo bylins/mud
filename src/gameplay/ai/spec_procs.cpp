@@ -28,6 +28,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
 #include "engine/ui/cmd/do_equip.h"
+#include "gameplay/mechanics/illumination.h"
 
 extern CharData *get_player_of_name(const char *name);
 

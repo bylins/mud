@@ -31,6 +31,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/treasure_cases.h"
 #include "gameplay/mechanics/sight.h"
+#include "gameplay/mechanics/awake.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
