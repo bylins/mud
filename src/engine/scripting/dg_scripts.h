@@ -9,8 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#ifndef _DG_SCRIPTS_H_
-#define _DG_SCRIPTS_H_
+#ifndef DG_SCRIPTS_H_
+#define DG_SCRIPTS_H_
 
 #include "gameplay/skills/skills.h"
 #include "engine/structs/structs.h"
@@ -18,6 +18,8 @@
 #include <optional>
 #include "gameplay/abilities/feats.h"
 #include "dg_event.h"
+
+#include <compare>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -113,13 +115,12 @@ const Bitvector kNoExtraAttack = 1 << 1;
 const Bitvector kNoLeftHandAttack = 1 << 2;
 const Bitvector kNoRightHandAttack = 1 << 3;
 
-const Bitvector kOtrigDropDefault = 0;
 const Bitvector kOtrigDropInroom = 1 << 0;
 const Bitvector kOtrigPutContainer = 1 << 1;
 
 /*
  * These are slightly off of kPulseMobile so
- * everything isnt happening at the same time
+ * everything isn't happening at the same time
  */
 constexpr long long PULSE_DG_SCRIPT = 13*kRealSec;
 const int kMaxScriptDepth = 512;					 // maximum depth triggers can recurse into each other
@@ -166,10 +167,10 @@ class Trigger {
 	[[nodiscard]] auto get_rnum() const { return nr; }
 	void set_rnum(const sh_int _) { nr = _; }
 	void set_attach_type(const byte _) { attach_type = _; }
-	auto get_attach_type() const { return attach_type; }
-	const auto &get_name() const { return name; }
+	[[nodiscard]] auto get_attach_type() const { return attach_type; }
+	[[nodiscard]] const auto &get_name() const { return name; }
 	void set_name(const std::string &_) { name = _; }
-	auto get_trigger_type() const { return trigger_type; }
+	[[nodiscard]] auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
 	void clear_var_list() {var_list.clear();}
 	cmdlist_ptr cmdlist;    // top of command list             //
@@ -197,7 +198,7 @@ class TriggerEventObserver {
  public:
 	using shared_ptr = std::shared_ptr<TriggerEventObserver>;
 
-	~TriggerEventObserver() {}
+	~TriggerEventObserver() = default;
 
 	virtual void notify(Trigger *trigger) = 0;
 };
@@ -223,10 +224,12 @@ class TriggersList {
 		Trigger *operator*() { return *m_iterator; }
 		Trigger *operator->() { return *m_iterator; }
 		iterator &operator++();
-		operator bool() const { return m_iterator != m_owner->m_list.end(); }
+	  	auto operator!=(const TriggersList::iterator &other) const { return this->m_iterator != other.m_iterator; };
+	  	bool operator==(const iterator &other) const { return this->m_iterator == other.m_iterator; };
+		explicit operator bool() const { return m_iterator != m_owner->m_list.end(); }
 
 	 private:
-		iterator(TriggersList *owner, const IteratorPosition position);
+		iterator(TriggersList *owner, IteratorPosition position);
 
 		friend class TriggerRemoveObserverI;
 		friend class TriggersList;
@@ -243,24 +246,24 @@ class TriggersList {
 	TriggersList();
 	~TriggersList();
 
-	bool add(Trigger *trigger, const bool to_front = false);
+	bool add(Trigger *trigger, bool to_front = false);
 	void remove(Trigger *trigger);
-	Trigger *find(const bool by_name, const char *name, const int vnum_or_position);
-	Trigger *find_by_name(const char *name, const int number);
-	Trigger *find_by_vnum_or_position(const int vnum_or_position);
-	Trigger *find_by_vnum(const int vnum);
-	Trigger *remove_by_name(const char *name, const int number);
-	Trigger *remove_by_vnum_or_position(const int vnum_or_position);
-	Trigger *remove_by_vnum(const int vnum);
+	Trigger *find(bool by_name, const char *name, int vnum_or_position);
+	Trigger *find_by_name(const char *name, int number);
+	Trigger *find_by_vnum_or_position(int vnum_or_position);
+	Trigger *find_by_vnum(int vnum);
+	Trigger *remove_by_name(const char *name, int number);
+	Trigger *remove_by_vnum_or_position(int vnum_or_position);
+	Trigger *remove_by_vnum(int vnum);
 	long get_type() const;
-	bool has_trigger(const Trigger *const trigger);
+	bool has_trigger(const Trigger *trigger);
 	void clear();
 	bool empty() const { return m_list.empty(); }
 
-	iterator begin() { return std::move(iterator(this, BEGIN)); }
-	iterator end() { return std::move(iterator(this, END)); }
+	iterator begin() { return {this, BEGIN}; }
+	iterator end() { return {this, END}; }
 
-	operator bool() const { return !m_list.empty(); }
+	explicit operator bool() const { return !m_list.empty(); }
 
 	std::ostream &dump(std::ostream &os) const;
 
@@ -289,6 +292,7 @@ class Script {
 	Script();
 	Script(const Script &script);
 	~Script();
+  	Script &operator=(const Script &script) = delete;
 
 	/*
 	*  removes the trigger specified by name, and the script of o if
@@ -304,8 +308,8 @@ class Script {
 	void clear_global_vars() {global_vars.clear();}
 	void cleanup();
 
-	bool has_triggers() { return !trig_list.empty(); }
-	bool is_purged() { return m_purged; }
+	bool has_triggers() const { return !trig_list.empty(); }
+	bool is_purged() const { return m_purged; }
 	void set_purged(bool purged = true) { m_purged = purged; }
 
 	long types;        // bitvector of trigger types //
@@ -314,14 +318,13 @@ class Script {
 	long context;        // current context for statics //
 
  private:
-	Script &operator=(const Script &script) = delete;
 
 	bool m_purged;
 };
 
 // used for actor memory triggers //
 struct script_memory {
-	long id;        // id of who to remember //
+	long id;        // id of whom to remember //
 	char *cmd;        // command, or NULL for generic //
 	struct script_memory *next;
 };
@@ -340,7 +343,7 @@ void greet_mtrigger(CharData *actor, int dir);
 int entry_mtrigger(CharData *ch);
 void income_mtrigger(CharData *actor, int dir);
 int enter_wtrigger(RoomData *room, CharData *actor, int dir);
-int drop_otrigger(ObjData *obj, CharData *actor, const Bitvector argument);
+int drop_otrigger(ObjData *obj, CharData *actor, Bitvector argument);
 void timer_otrigger(ObjData *obj);
 int get_otrigger(ObjData *obj, CharData *actor);
 int drop_wtrigger(ObjData *obj, CharData *actor);
@@ -373,8 +376,8 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id);
 void kill_pc_wtrigger(CharData *killer, CharData *victim);
 
 // function prototypes from scripts.cpp //
-void script_trigger_check(void);
-void script_timechange_trigger_check(const int time, const int time_day);
+void script_trigger_check();
+void script_timechange_trigger_check(int time, int time_day);
 bool add_trigger(Script *sc, Trigger *t, int loc);
 
 void do_stat_trigger(CharData *ch, Trigger *trig);
@@ -397,7 +400,7 @@ class GlobalTriggersStorage {
 
 	void add(Trigger *trigger);
 	void remove(Trigger *trigger);
-	void shift_rnums_from(const Rnum rnum);
+	void shift_rnums_from(Rnum rnum);
 	bool has_triggers_with_rnum(const Rnum rnum) const {
 		return m_rnum2triggers_set.find(rnum) != m_rnum2triggers_set.end();
 	}
@@ -422,7 +425,6 @@ extern GlobalTriggersStorage &trigger_list;
 void dg_obj_trigger(char *line, ObjData *obj);
 void assign_triggers(void *i, int type);
 int GetTriggerRnum(int vnum);
-void extract_script_mem(struct script_memory *sc);
 
 Trigger *read_trigger(int nr);
 // void add_var(struct TriggerVar **var_list, char *name, char *value, long id);
@@ -446,9 +448,7 @@ int remove_var_cntx(std::list<TriggerVar> &var_list, std::string name, long id);
 #define GET_TRIG_RNUM(t)          ((t)->get_rnum())
 #define GET_TRIG_VNUM(t)      (trig_index[(t)->get_rnum()]->vnum)
 #define GET_TRIG_TYPE(t)          ((t)->get_trigger_type())
-#define GET_TRIG_DATA_TYPE(t)      ((t)->get_data_type())
 #define GET_TRIG_NARG(t)          ((t)->narg)
-#define GET_TRIG_ARG(t)           ((t)->arglist)
 #define GET_TRIG_DEPTH(t)         ((t)->depth)
 #define GET_TRIG_LOOPS(t)         ((t)->loops)
 #define GET_TRIG_WAIT(t)      ((t)->wait_event)
@@ -460,9 +460,9 @@ const int kRoomToBase = 150000;
 
 #define GET_SHORT(ch)    ((ch)->get_npc_name().c_str())
 
-bool CheckSript(const ObjData *go, const long type);
-bool CheckScript(const CharData *go, const long type);
-bool CheckSript(const RoomData *go, const long type);
+bool CheckSript(const ObjData *go, long type);
+bool CheckScript(const CharData *go, long type);
+bool CheckSript(const RoomData *go, long type);
 
 #define TRIGGER_CHECK(t, type)   (IS_SET(GET_TRIG_TYPE(t), type) && \
                   !GET_TRIG_DEPTH(t))
@@ -471,19 +471,19 @@ bool CheckSript(const RoomData *go, const long type);
 
 // typedefs that the dg functions rely on //
 
-void timechange_mtrigger(CharData *ch, const int time, const int time_day);
+void timechange_mtrigger(CharData *ch, int time, int time_day);
 int pick_otrigger(ObjData *obj, CharData *actor);
 int open_otrigger(ObjData *obj, CharData *actor, int unlock);
 int close_otrigger(ObjData *obj, CharData *actor, int lock);
-int timechange_otrigger(ObjData *obj, const int time, const int time_day);
+int timechange_otrigger(ObjData *obj, int time, int time_day);
 int pick_wtrigger(RoomData *room, CharData *actor, int dir);
 int open_wtrigger(RoomData *room, CharData *actor, int dir, int unlock);
 int close_wtrigger(RoomData *room, CharData *actor, int dir, int lock);
-int timechange_wtrigger(RoomData *room, const int time, const int time_day);
+int timechange_wtrigger(RoomData *room, int time, int time_day);
 
 void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum);
-void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum);
-void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum);
+void trg_skillturn(CharData *ch, ESkill skill_id, int skilldiff, int vnum);
+void AddSkill(CharData *ch, ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum);
@@ -493,9 +493,7 @@ ObjData *get_obj(const char *name, int vnum = 0);
 // external vars from db.cpp //
 extern int top_of_trigt;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка
-extern int curr_trig_vnum;
 extern int last_trig_line_num;
-const int MAX_TRIG_USEC = 30000;
 
 void save_char_vars(CharData *ch);
 

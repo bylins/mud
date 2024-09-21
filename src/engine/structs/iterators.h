@@ -29,10 +29,9 @@ template<typename T, typename I>
 struct ConstIterator {
  private:
 	T it_;
-	//using I = decltype(*it_->second);
  public:
-	using iterator_category = std::input_iterator_tag;
-	using difference_type   = std::ptrdiff_t;
+//	using iterator_category = std::input_iterator_tag;
+//	using difference_type   = std::ptrdiff_t;
 	using value_type        = I;
 	using pointer           = const I*;
 	using reference         = const I&;
@@ -47,7 +46,7 @@ struct ConstIterator {
 		return *this;
 	};
 
-	const ConstIterator operator++(int) {
+	ConstIterator operator++(int) {
 		auto retval = *this;
 		++*this;
 		return retval;

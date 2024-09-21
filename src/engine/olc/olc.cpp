@@ -59,7 +59,12 @@ void olc_saveinfo(CharData *ch);
 
 // global data
 const char *save_info_msg[5] = {"Rooms", "Objects", "Zone info", "Mobiles", "Shops"};
-const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
+const char *nrm = kColorNrm;
+const char *grn = kColorGrn;
+const char *cyn = kColorCyn;
+const char *yel = kColorYel;
+const char *iyel = kColorBoldYel;
+const char *ired = kColorBoldRed;
 struct olc_save_info *olc_save_list = nullptr;
 
 struct olc_scmd_data {
@@ -168,7 +173,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		number = atoi(buf1);
 	}
 
-	// * Check that whatever it is isn't already being edited.
+	// * Check that whatever it isn't already being edited.
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->connected == olc_scmd_info[subcmd].con_type) {
 			if (d->olc && OLC_NUM(d) == number) {
@@ -372,18 +377,6 @@ void olc_remove_from_save_list(int zone, byte type) {
 		}
 }
 
-/*
-* Set the colour string pointers for that which this char will
-* see at color level NRM.  Changing the entries here will change
-* the colour scheme throughout the OLC. */
-void get_char_cols(CharData *ch) {
-	nrm = kColorNrm;
-	grn = kColorGrn;
-	cyn = kColorCyn;
-	yel = kColorYel;
-	iyel = kColorBoldYel;
-	ired = kColorBoldRed;
-}
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column) {
 	int counter, column = 0, plane = 0;
 	char c;
@@ -498,44 +491,6 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 		}
 		delete d->olc;
 	}
-}
-
-void xedit_disp_ing(DescriptorData *d, int *ping) {
-	char str[128];
-	int i = 0;
-
-	SendMsgToChar("Ингредиенты:\r\n", d->character.get());
-	for (; im_ing_dump(ping, str + 5); ping += 2) {
-		sprintf(str, "% 4d", i++);
-		str[4] = ' ';
-		SendMsgToChar(str, d->character.get());
-		SendMsgToChar("\r\n", d->character.get());
-	}
-	SendMsgToChar("у <номер> - [у]далить ингредиент\r\n"
-				 "у *       - [у]далить все ингредиенты\r\n"
-				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character.get());
-}
-
-int xparse_ing(DescriptorData * /*d*/, int **pping, char *arg) {
-	switch (*arg) {
-		case 'у':
-		case 'У': ++arg;
-			skip_spaces(&arg);
-			if (arg[0] == '*') {
-				if (*pping)
-					free(*pping);
-				*pping = nullptr;
-			} else if (a_isdigit(arg[0])) {
-				im_extract_ing(pping, atoi(arg));
-			}
-			break;
-		case 'д':
-		case 'Д': im_parse(pping, arg + 1);
-			break;
-		case 'в':
-		case 'В': return 0;
-	}
-	return 1;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

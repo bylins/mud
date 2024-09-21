@@ -859,7 +859,6 @@ void zedit_disp_menu(DescriptorData *d) {
 		sprintf(buf, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
 		snprintf(type2_zones, 1024, "%s", buf);
 	}
-	get_char_cols(d->character.get());
 
 	// Menu header
 	sprintf(buf,
@@ -987,7 +986,6 @@ void zedit_disp_menu(DescriptorData *d) {
 void zedit_disp_type_menu(DescriptorData *d) {
 	int counter, columns = 0;
 
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1005,7 +1003,6 @@ void zedit_disp_type_menu(DescriptorData *d) {
 // * Print the command type menu and setup response catch.
 void zedit_disp_comtype(DescriptorData *d) {
 	pzcmd item = SEEK_CMD(d);
-	get_char_cols(d->character.get());
 	SendMsgToChar("\r\n", d->character.get());
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)

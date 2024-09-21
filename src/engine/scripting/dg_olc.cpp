@@ -107,8 +107,6 @@ void trigedit_disp_menu(DescriptorData *d) {
 	const char *attach_type;
 	char trgtypes[256];
 
-	get_char_cols(d->character.get());
-
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		attach_type = "Mobiles";
 		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes);
@@ -152,8 +150,6 @@ void trigedit_disp_types(DescriptorData *d) {
 		default: types = trig_types;
 			break;
 	}
-
-	get_char_cols(d->character.get());
 
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);

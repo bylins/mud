@@ -17,6 +17,7 @@
 #include <string>
 #include <list>
 #include <new>
+#include <utility>
 #include <vector>
 #include <sstream>
 
@@ -894,7 +895,7 @@ enum class EWhat : int  {
 };
 
 const char *GetDeclensionInNumber(long amount, EWhat of_what);
-std::string FormatTimeToStr(long in_timer, bool flag = 0);
+std::string FormatTimeToStr(long in_timer, bool flag = false);
 
 // defines for fseek
 #ifndef SEEK_SET
@@ -978,8 +979,8 @@ class pred_separator {
 	bool l_not;
  public:
 	explicit
-	pred_separator(separator_mode __mode, bool __l_not = false) : l_not(__l_not) {
-		switch (__mode) {
+	pred_separator(separator_mode _mode, bool _l_not = false) : l_not(_l_not) {
+		switch (_mode) {
 			case A_ISSPACE: pred = a_isspace;
 				break;
 			case A_ISASCII: pred = a_isascii;
@@ -1090,9 +1091,6 @@ void print_bitset(const N &bits, const T &names,
 	}
 }
 
-#define _QUOTE(x) # x
-#define QUOTE(x) _QUOTE(x)
-
 #ifdef WIN32
 class CCheckTable
 {
@@ -1161,18 +1159,18 @@ std::string &format_news_message(std::string &text);
 template<typename T>
 class JoinRange {
  public:
-	JoinRange(const T &container, const std::string &delimiter = ", ") :
+	explicit JoinRange(const T &container, std::string delimiter = ", ") :
 		m_begin(container.begin()),
 		m_end(container.end()),
-		m_delimiter(delimiter) {
+		m_delimiter(std::move(delimiter)) {
 	}
 
 	JoinRange(const typename T::const_iterator &begin,
 			  const typename T::const_iterator &end,
-			  const std::string &delimiter = ", ") :
+			  std::string delimiter = ", ") :
 		m_begin(begin),
 		m_end(end),
-		m_delimiter(delimiter) {
+		m_delimiter(std::move(delimiter)) {
 	}
 
 	std::ostream &output(std::ostream &os) const {
@@ -1185,7 +1183,7 @@ class JoinRange {
 		return os;
 	}
 
-	std::string as_string() const;
+	[[nodiscard]] std::string as_string() const;
 
  private:
 	typename T::const_iterator m_begin;
@@ -1197,7 +1195,7 @@ template<typename T>
 std::string JoinRange<T>::as_string() const {
 	std::stringstream ss;
 	output(ss);
-	return std::move(ss.str());
+	return ss.str();
 }
 
 template<typename T>
@@ -1242,7 +1240,7 @@ inline int posi_value(int current, int max) {
 
 class StreamFlagsHolder {
  public:
-	StreamFlagsHolder(std::ostream &os) : m_stream(os), m_flags(os.flags()) {}
+	explicit StreamFlagsHolder(std::ostream &os) : m_stream(os), m_flags(os.flags()) {}
 	~StreamFlagsHolder() { m_stream.flags(m_flags); }
 
  private:

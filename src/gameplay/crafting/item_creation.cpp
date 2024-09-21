@@ -416,7 +416,6 @@ void mredit_disp_ingr_menu(DescriptorData *d) {
 	char tmpbuf[kMaxInputLength];
 	int index = OLC_NUM(d);
 	trec = OLC_MREC(d);
-	get_char_cols(d->character.get());
 	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
 		objname = tobj->get_PName(0);
@@ -455,7 +454,6 @@ void mredit_disp_menu(DescriptorData *d) {
 	char tmpbuf[kMaxInputLength];
 	string tmpstr, objname, skillname;
 	trec = OLC_MREC(d);
-	get_char_cols(d->character.get());
 	auto tobj = GetObjectPrototype(trec->obj_proto);
 	if (trec->obj_proto && tobj) {
 		objname = tobj->get_PName(0);

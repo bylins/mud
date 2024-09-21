@@ -416,7 +416,6 @@ void redit_disp_exit_menu(DescriptorData *d) {
 		strcat(buf2, " (Выход скрыт)");
 	}
 
-	get_char_cols(d->character.get());
 	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
@@ -444,7 +443,6 @@ void redit_disp_exit_menu(DescriptorData *d) {
 
 // * For exit flags.
 void redit_disp_exit_flag_menu(DescriptorData *d) {
-	get_char_cols(d->character.get());
 	sprintf(buf,
 			"%s1%s) [%c]Дверь\r\n"
 			"%s2%s) [%c]Невзламываемая\r\n"
@@ -495,10 +493,7 @@ void redit_disp_sector_menu(DescriptorData *d) {
 // * The main menu.
 void redit_disp_menu(DescriptorData *d) {
 	RoomData *room;
-
-	get_char_cols(d->character.get());
 	room = OLC_ROOM(d);
-
 	room->flags_sprint(buf1, ",");
 	sprinttype(room->sector_type, sector_types, buf2);
 	snprintf(buf, kMaxStringLength,

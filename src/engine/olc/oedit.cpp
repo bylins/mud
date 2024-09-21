@@ -417,7 +417,6 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 
 // * For container flags.
 void oedit_disp_container_flags_menu(DescriptorData *d) {
-	get_char_cols(d->character.get());
 	sprintbit(GET_OBJ_VAL(OLC_OBJ(d), 1), container_bits, buf1);
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -435,10 +434,7 @@ void oedit_disp_container_flags_menu(DescriptorData *d) {
 // * For extra descriptions.
 void oedit_disp_extradesc_menu(DescriptorData *d) {
 	auto extra_desc = OLC_DESC(d);
-
 	strcpy(buf1, !extra_desc->next ? "<Not set>\r\n" : "Set.");
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -459,8 +455,6 @@ void oedit_disp_extradesc_menu(DescriptorData *d) {
 // * Ask for *which* apply to edit.
 void oedit_disp_prompt_apply_menu(DescriptorData *d) {
 	int counter;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -482,8 +476,6 @@ void oedit_disp_prompt_apply_menu(DescriptorData *d) {
 // * Ask for liquid type.
 void oedit_liquid_type(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -499,8 +491,6 @@ void oedit_liquid_type(DescriptorData *d) {
 
 void show_apply_olc(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -521,8 +511,6 @@ void oedit_disp_apply_menu(DescriptorData *d) {
 // * Weapon type.
 void oedit_disp_weapon_menu(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -537,8 +525,6 @@ void oedit_disp_weapon_menu(DescriptorData *d) {
 // * Spell type.
 void oedit_disp_spells_menu(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -556,8 +542,6 @@ void oedit_disp_spells_menu(DescriptorData *d) {
 
 void oedit_disp_skills2_menu(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -576,8 +560,6 @@ void oedit_disp_skills2_menu(DescriptorData *d) {
 
 void oedit_disp_receipts_menu(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -592,8 +574,6 @@ void oedit_disp_receipts_menu(DescriptorData *d) {
 
 void oedit_disp_feats_menu(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -612,8 +592,6 @@ void oedit_disp_feats_menu(DescriptorData *d) {
 
 void oedit_disp_skills_mod_menu(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -919,8 +897,6 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 // * Object type.
 void oedit_disp_type_menu(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -984,8 +960,6 @@ void oedit_disp_affects_menu(DescriptorData *d) {
 // * Object wear flags.
 void oedit_disp_wear_menu(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1006,8 +980,6 @@ void oedit_disp_wear_menu(DescriptorData *d) {
 
 void oedit_disp_mater_menu(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1023,8 +995,6 @@ void oedit_disp_mater_menu(DescriptorData *d) {
 
 void oedit_disp_ingradient_menu(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1040,9 +1010,6 @@ void oedit_disp_ingradient_menu(DescriptorData *d) {
 
 void oedit_disp_magic_container_menu(DescriptorData *d) {
 	int counter, columns = 0;
-
-	get_char_cols(d->character.get());
-
 	for (counter = 0; counter < 32 && *magic_container_bits[counter] != '\n'; counter++) {
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter + 1, nrm,
 				magic_container_bits[counter], !(++columns % 2) ? "\r\n" : "");
@@ -1064,7 +1031,6 @@ std::string print_spell_value(ObjData *obj, const ObjVal::EValueKey key1, const 
 }
 
 void drinkcon_values_menu(DescriptorData *d) {
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1112,7 +1078,6 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 		oedit_disp_ingradient_menu(d);
 		return;
 	}
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1149,8 +1114,6 @@ void oedit_disp_menu(DescriptorData *d) {
 	ObjData *obj;
 
 	obj = OLC_OBJ(d);
-	get_char_cols(d->character.get());
-
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",", 4);
 
@@ -1321,8 +1284,6 @@ void parse_val_spell_lvl(DescriptorData *d, const ObjVal::EValueKey key, int val
 }
 
 void oedit_disp_clone_menu(DescriptorData *d) {
-	get_char_cols(d->character.get());
-
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
