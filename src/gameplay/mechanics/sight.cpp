@@ -230,10 +230,11 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->IsNpc()) {
 		ZoneRnum inroom = world[ch->in_room]->zone_rn;
 		if (zone_table[world[ch->get_from_room()]->zone_rn].vnum != zone_table[inroom].vnum) {
-			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
-				&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
-				dungeons::SwapObjectDungeon(ch);
-			}
+// пока перенесено на закрытие данжа
+//			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
+//				&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
+//				dungeons::SwapObjectDungeon(ch);
+//			}
 			if (ch->IsFlagged(EPrf::kShowZoneNameOnEnter))
 				print_zone_info(ch);
 			if ((ch->GetLevel() < kLvlImmortal) && !ch->get_master())

@@ -877,9 +877,11 @@ void ObjDataFree(ZoneRnum zrn) {
 		}
 	}
 	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
-	  if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
-		  ExtractRepopDecayObject(j);
-	  }
+		if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
+				ExtractRepopDecayObject(j);
+		} else {
+			SwapOriginalObject(j.get());
+		}
 	});
 }
 
