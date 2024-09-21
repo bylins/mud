@@ -101,4 +101,28 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+// для использования с чарами:
+// возвращает метки предмета, если они есть и смотрящий является их автором или является членом соотв. клана
+std::string char_get_custom_label(ObjData *obj, CharData *ch) {
+	const char *delim_l = nullptr;
+	const char *delim_r = nullptr;
+
+	// разные скобки для клановых и личных
+	if (obj->get_custom_label() && (ch->player_specials->clan && obj->get_custom_label()->clan_abbrev != nullptr &&
+		is_alliance_by_abbr(ch, obj->get_custom_label()->clan_abbrev))) {
+		delim_l = " *";
+		delim_r = "*";
+	} else {
+		delim_l = " (";
+		delim_r = ")";
+	}
+
+	std::stringstream buffer;
+	if (AUTH_CUSTOM_LABEL(obj, ch)) {
+		buffer << delim_l << obj->get_custom_label()->text_label << delim_r;
+	}
+
+	return buffer.str();
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

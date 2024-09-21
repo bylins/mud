@@ -17,7 +17,6 @@ set(SOURCES
 		src/administration/accounts.cpp
 		src/engine/core/action_targeting.cpp
 		src/act_comm.cpp
-		src/act_informative.cpp
 		src/engine/ui/cmd/sign.cpp
 		src/act_movement.cpp
 		src/gameplay/communication/social.cpp
@@ -356,7 +355,18 @@ set(SOURCES
 		src/gameplay/mechanics/illumination.cpp
 		src/gameplay/mechanics/awake.cpp
 		src/gameplay/statistics/char_stat.cpp
-		src/engine/ui/cmd/do_mystat.cpp)
+		src/engine/ui/cmd/do_mystat.cpp
+		src/engine/ui/cmd/do_weather.cpp
+		src/engine/ui/cmd/do_statistic.cpp
+		src/engine/ui/cmd/do_time.cpp
+		src/engine/ui/cmd/do_diagnose.cpp
+		src/engine/ui/cmd/do_commands.cpp
+		src/engine/ui/cmd/do_who_am_i.cpp
+		src/engine/ui/cmd/do_generic_page.cpp
+		src/engine/ui/cmd/do_gold.cpp
+		src/engine/ui/cmd/do_check_invoice.cpp
+		src/gameplay/communication/check_invoice.cpp
+		src/engine/ui/cmd/do_quest.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/flee.h
@@ -696,7 +706,18 @@ set(HEADERS
 		src/gameplay/mechanics/illumination.h
 		src/gameplay/mechanics/awake.h
 		src/gameplay/statistics/char_stat.h
-		src/engine/ui/cmd/do_mystat.h)
+		src/engine/ui/cmd/do_mystat.h
+		src/engine/ui/cmd/do_weather.h
+		src/engine/ui/cmd/do_statistic.h
+		src/engine/ui/cmd/do_time.h
+		src/engine/ui/cmd/do_diagnose.h
+		src/engine/ui/cmd/do_commands.h
+		src/engine/ui/cmd/do_who_am_i.h
+		src/engine/ui/cmd/do_generic_page.h
+		src/engine/ui/cmd/do_gold.h
+		src/engine/ui/cmd/do_check_invoice.h
+		src/gameplay/communication/check_invoice.h
+		src/engine/ui/cmd/do_quest.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

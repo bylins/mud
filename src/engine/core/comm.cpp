@@ -1264,7 +1264,6 @@ void game_loop(socket_t mother_desc)
 	{
 		if (descriptor_list == nullptr) {
 			log("No connections.  Going to sleep.");
-			//make_who2html();
 #ifdef HAS_EPOLL
 			if (epoll_wait(epoll, events, MAXEVENTS, -1) == -1)
 #else

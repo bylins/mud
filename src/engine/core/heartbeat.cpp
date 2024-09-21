@@ -32,6 +32,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "gameplay/statistics/zone_exp.h"
+#include "gameplay/communication/check_invoice.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"

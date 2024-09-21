@@ -9,8 +9,6 @@
 
 #include "engine/entities/entities_constants.h"
 
-class CHAR_DATE;
-
 struct SocialMessages {
 	EPosition ch_min_pos = EPosition::kDead;
 	EPosition ch_max_pos = EPosition::kDead;
@@ -35,6 +33,9 @@ struct SocialKeyword {
 
 extern struct SocialMessages *soc_mess_list;
 extern struct SocialKeyword *soc_keys_list;
+
+extern int number_of_social_commands;
+extern int number_of_social_messages;
 
 int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);

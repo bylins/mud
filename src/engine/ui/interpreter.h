@@ -48,7 +48,6 @@ bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
 void name_convert(std::string &text);
-void god_work_invoice();
 int special(CharData *ch, int cmd, char *argument, int fnum);
 int find_name(const char *name);
 
@@ -107,20 +106,6 @@ struct alias_data {
 #define SCMD_WEST 4
 #define SCMD_UP      5
 #define SCMD_DOWN 6
-
-// do_gen_ps
-#define SCMD_INFO       0
-#define SCMD_HANDBOOK   1
-#define SCMD_CREDITS    2
-// 3 free
-// 4 free
-#define SCMD_POLICIES   5
-#define SCMD_VERSION    6
-#define SCMD_IMMLIST    7
-#define SCMD_MOTD       8
-#define SCMD_RULES      9
-#define SCMD_CLEAR     10
-#define SCMD_WHOAMI    11
 
 // do_gen_tog
 #define SCMD_NOSUMMON   0
@@ -273,6 +258,14 @@ struct alias_data {
 #define SCMD_PHYSICAL_THROW 0
 #define SCMD_SHADOW_THROW    1
 
+struct SortStruct {
+  int sort_pos;
+  byte is_social;
+};
+
+extern SortStruct *cmd_sort_info;
+extern int num_of_cmds;
+
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'
 * to 'first_arg'; return a pointer to the remainder of the string.
@@ -324,8 +317,8 @@ void SplitArgument(const char *arguments, std::vector<int> &out);
 #define WHO_LISTNAME 1
 #define WHO_LISTCLAN 2
 
-bool login_change_invoice(CharData *ch);
 bool who_spamcontrol(CharData *, unsigned short int);
+void SortCommands();
 
 #endif // INTERPRETER_H_
 

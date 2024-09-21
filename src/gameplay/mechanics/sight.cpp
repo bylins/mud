@@ -66,7 +66,6 @@ bool quest_item(ObjData *obj);
 void look_at_char(CharData *i, CharData *ch);
 std::string AddLeadingStringSpace(const std::string& text);
 char *diag_obj_to_char(ObjData *obj, int mode);
-void diag_char_to_char(CharData *i, CharData *ch);
 void ListOneChar(CharData *i, CharData *ch, ESkill mode);
 
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);

@@ -136,7 +136,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
 	int stone_num, random_stone;
 	int vnum;
-	int old_wis, old_int;
+	int old_int;
 
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDigging)) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
@@ -243,7 +243,6 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, MUD::Skill(ESkill::kDigging).difficulty);
 	prob = ch->GetSkill(ESkill::kDigging);
 	old_int = ch->get_int();
-	old_wis = ch->get_wis();
 	ch->set_int(13);
 	ch->set_int_add(0);
 	ImproveSkill(ch, ESkill::kDigging, 0, nullptr);
