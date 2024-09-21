@@ -44,6 +44,7 @@
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/communication/ignores.h"
+#include "gameplay/core/constants.h"
 
 using namespace ClanSystem;
 
@@ -93,9 +94,6 @@ enum {
   CLAN_MAIN_MENU = 0, CLAN_PRIVILEGE_MENU, CLAN_SAVE_MENU,
   CLAN_ADDALL_MENU, CLAN_DELALL_MENU
 };
-
-#define SIELENCE ("Вы немы, как рыба об лед.\r\n")
-#define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
 void prepare_write_mod(CharData *ch, std::string &param) {
 	utils::Trim(param);

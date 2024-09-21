@@ -366,7 +366,11 @@ set(SOURCES
 		src/engine/ui/cmd/do_gold.cpp
 		src/engine/ui/cmd/do_check_invoice.cpp
 		src/gameplay/communication/check_invoice.cpp
-		src/engine/ui/cmd/do_quest.cpp)
+		src/engine/ui/cmd/do_quest.cpp
+		src/engine/ui/cmd/do_write.cpp
+		src/engine/ui/cmd/do_group_say.cpp
+		src/engine/ui/cmd/do_say.cpp
+		src/engine/ui/cmd/do_ignore.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -717,7 +721,11 @@ set(HEADERS
 		src/engine/ui/cmd/do_gold.h
 		src/engine/ui/cmd/do_check_invoice.h
 		src/gameplay/communication/check_invoice.h
-		src/engine/ui/cmd/do_quest.h)
+		src/engine/ui/cmd/do_quest.h
+		src/engine/ui/cmd/do_write.h
+		src/engine/ui/cmd/do_group_say.h
+		src/engine/ui/cmd/do_say.h
+		src/engine/ui/cmd/do_ignore.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

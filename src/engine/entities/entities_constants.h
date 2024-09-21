@@ -317,25 +317,6 @@ enum EGf : Bitvector {
 	kSkillTester = 1 << 7
 };
 
-/**
- *	Modes of ignoring
- *	\todo Перенести в модуль с собственно игнорированием каналов.
- */
-enum EIgnore : Bitvector {
-	kTell = 1 << 0,
-	kSay = 1 << 1,
-	kClan = 1 << 2,
-	kAlliance = 1 << 3,
-	kGossip = 1 << 4,
-	kShout = 1 << 5,
-	kHoller = 1 << 6,
-	kGroup = 1 << 7,
-	kWhisper = 1 << 8,
-	kAsk = 1 << 9,
-	kEmote = 1 << 10,
-	kOfftop = 1 << 11,
-};
-
 /*
  * ========================================================================================
  *  								NPC's constants

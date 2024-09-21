@@ -70,6 +70,7 @@
 #include "engine/ui/cmd/do_follow.h"
 #include "engine/ui/cmd/do_hire.h"
 #include "engine/ui/cmd/do_inventory.h"
+#include "engine/ui/cmd/do_ignore.h"
 #include "engine/ui/cmd/do_get.h"
 #include "engine/ui/cmd/do_give.h"
 #include "engine/ui/cmd/do_affects.h"
@@ -105,9 +106,12 @@
 #include "engine/ui/cmd/do_cast.h"
 #include "engine/ui/cmd/do_employ.h"
 #include "engine/ui/cmd/do_remort.h"
+#include "engine/ui/cmd/do_say.h"
+#include "engine/ui/cmd/do_group_say.h"
 #include "engine/ui/cmd/do_remove.h"
 #include "engine/ui/cmd/do_refill.h"
 #include "engine/ui/cmd/do_sign.h"
+#include "engine/ui/cmd/do_write.h"
 #include "engine/ui/cmd/do_trample.h"
 #include "engine/ui/cmd/do_where.h"
 #include "engine/ui/cmd/do_who.h"
@@ -301,7 +305,6 @@ void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mobshout(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
-void do_gsay(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
@@ -318,7 +321,6 @@ void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
-void do_say(CharData *ch, char *argument, int cmd, int subcmd);
 void DoScore(CharData *ch, char *argument, int, int);
 void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_send(CharData *ch, char *argument, int cmd, int subcmd);
@@ -337,14 +339,12 @@ void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
-void do_write(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dig(CharData *ch, char *argument, int cmd, int subcmd);
 void do_insertgem(CharData *ch, char *argument, int cmd, int subcmd);
-void do_ignore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_proxy(CharData *ch, char *argument, int cmd, int subcmd);
 void do_exchange(CharData *ch, char *argument, int cmd, int subcmd);
 // DG Script ACMD's
