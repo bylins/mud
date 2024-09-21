@@ -1,8 +1,8 @@
-#include "eat.h"
+#include "do_eat.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "hire.h"
+#include "do_hire.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/weather.h"

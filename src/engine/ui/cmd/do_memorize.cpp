@@ -1,4 +1,4 @@
-#include "memorize.h"
+#include "do_memorize.h"
 
 #include "gameplay/magic/spells_info.h"
 #include "engine/core/handler.h"

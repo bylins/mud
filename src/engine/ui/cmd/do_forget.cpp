@@ -1,4 +1,4 @@
-#include "forget.h"
+#include "do_forget.h"
 
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/mechanics/mem_queue.h"

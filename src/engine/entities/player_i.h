@@ -8,7 +8,7 @@
 #include <string>
 
 #include "gameplay/communication/boards/boards_types.h"
-#include "engine/ui/cmd/mercenary.h"
+#include "engine/ui/cmd/do_mercenary.h"
 #include "engine/core/conf.h"
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"

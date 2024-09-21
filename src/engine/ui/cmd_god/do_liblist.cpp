@@ -11,7 +11,7 @@
 #include "engine/olc/olc.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
-#include "engine/ui/cmd_god/stat.h"
+#include "engine/ui/cmd_god/do_stat.h"
 #include "administration/privilege.h"
 #include "engine/entities/zone.h"
 

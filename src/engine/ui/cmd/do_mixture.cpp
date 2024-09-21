@@ -1,4 +1,4 @@
-#include "mixture.h"
+#include "do_mixture.h"
 
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic_utils.h"

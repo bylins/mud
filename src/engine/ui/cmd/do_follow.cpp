@@ -1,4 +1,4 @@
-#include "follow.h"
+#include "do_follow.h"
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"

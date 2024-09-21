@@ -2,7 +2,7 @@
 // Created by Sventovit on 03.09.2024.
 //
 
-#include "follow.h"
+#include "do_follow.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/sight.h"

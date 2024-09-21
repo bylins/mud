@@ -17,7 +17,7 @@ set(SOURCES
 		src/administration/accounts.cpp
 		src/engine/core/action_targeting.cpp
 		src/act_comm.cpp
-		src/engine/ui/cmd/sign.cpp
+		src/engine/ui/cmd/do_sign.cpp
 		src/act_movement.cpp
 		src/gameplay/communication/social.cpp
 		src/act_wizard.cpp
@@ -45,7 +45,7 @@ set(SOURCES
 		src/gameplay/classes/classes_spell_slots.cpp
 		src/engine/ui/color.cpp
 		src/engine/core/comm.cpp
-		src/engine/ui/cmd_god/shutdown.cpp
+		src/engine/ui/cmd_god/do_shutdown.cpp
 		src/engine/ui/commands.cpp
 		src/engine/core/config.cpp
 		src/gameplay/core/constants.cpp
@@ -143,7 +143,7 @@ set(SOURCES
 		src/engine/entities/room_data.cpp
 		src/gameplay/mechanics/sets_drop.cpp
 		src/gameplay/economics/shop_ext.cpp
-		src/engine/ui/cmd_god/shutdown_parameters.cpp
+		src/administration/shutdown_parameters.cpp
 		src/gameplay/skills/skills.cpp
 		src/gameplay/skills/skills_info.cpp
 		src/gameplay/communication/spam.cpp
@@ -205,24 +205,24 @@ set(SOURCES
 		src/gameplay/fight/fight_start.cpp
 		src/gameplay/skills/styles.cpp
 		src/gameplay/fight/common.cpp
-		src/engine/ui/cmd/retreat.cpp
-		src/engine/ui/cmd/order.cpp
-		src/engine/ui/cmd/mercenary.cpp
+		src/engine/ui/cmd/do_retreat.cpp
+		src/engine/ui/cmd/do_order.cpp
+		src/engine/ui/cmd/do_mercenary.cpp
 		src/gameplay/affects/affect_data.cpp
 		src/gameplay/skills/track.cpp
-		src/engine/ui/cmd/flee.cpp
-		src/engine/ui/cmd/hire.cpp
-		src/engine/ui/cmd/telegram.cpp
-		src/engine/ui/cmd_god/stat.cpp
-		src/engine/ui/cmd_god/godtest.cpp
-		src/engine/ui/cmd/learn.cpp
-		src/engine/ui/cmd/forget.cpp
-		src/engine/ui/cmd/memorize.cpp
-		src/engine/ui/cmd/create.cpp
-		src/engine/ui/cmd/mixture.cpp
-		src/engine/ui/cmd/cast.cpp
-		src/engine/ui/cmd/employ.cpp
-		src/engine/ui/cmd/follow.cpp
+		src/engine/ui/cmd/do_flee.cpp
+		src/engine/ui/cmd/do_hire.cpp
+		src/engine/ui/cmd/do_telegram.cpp
+		src/engine/ui/cmd_god/do_stat.cpp
+		src/engine/ui/cmd_god/do_godtest.cpp
+		src/engine/ui/cmd/do_learn.cpp
+		src/engine/ui/cmd/do_forget.cpp
+		src/engine/ui/cmd/do_memorize.cpp
+		src/engine/ui/cmd/do_create.cpp
+		src/engine/ui/cmd/do_mixture.cpp
+		src/engine/ui/cmd/do_cast.cpp
+		src/engine/ui/cmd/do_employ.cpp
+		src/engine/ui/cmd/do_follow.cpp
 		src/engine/structs/flag_data.cpp
 		src/gameplay/crafting/jewelry.cpp
 		src/gameplay/crafting/mining.cpp
@@ -237,31 +237,31 @@ set(SOURCES
 		src/utils/parser_wrapper.cpp
 		src/engine/boot/cfg_manager.cpp
 		src/gameplay/affects/affect_contants.cpp
-		src/engine/ui/cmd_god/users.cpp
+		src/engine/ui/cmd_god/do_users.cpp
 		src/engine/ui/table_wrapper.cpp
-		src/engine/ui/cmd/score.cpp
+		src/engine/ui/cmd/do_score.cpp
 		src/gameplay/magic/spells_constants.cpp
 		src/gameplay/mechanics/mem_queue.cpp
-		src/engine/ui/cmd_god/show.cpp
-		src/engine/ui/cmd/drop.cpp
+		src/engine/ui/cmd_god/do_show.cpp
+		src/engine/ui/cmd/do_drop.cpp
 		src/gameplay/skills/skinning.cpp
 		src/gameplay/skills/repair.cpp
 		src/gameplay/skills/poisoning.cpp
-		src/engine/ui/cmd/give.cpp
-		src/engine/ui/cmd/trample.cpp
+		src/engine/ui/cmd/do_give.cpp
+		src/engine/ui/cmd/do_trample.cpp
 		src/gameplay/skills/campfire.cpp
 		src/gameplay/skills/firstaid.cpp
 		src/gameplay/skills/sharpening.cpp
 		src/gameplay/skills/armoring.cpp
-		src/engine/ui/cmd/get.cpp
+		src/engine/ui/cmd/do_get.cpp
         src/engine/ui/cmd/do_equip.cpp
-		src/engine/ui/cmd/put.cpp
-		src/engine/ui/cmd/remove.cpp
-		src/engine/ui/cmd/eat.cpp
-		src/engine/ui/cmd_god/inspect.cpp
-		src/engine/ui/cmd_god/mark.cpp
+		src/engine/ui/cmd/do_put.cpp
+		src/engine/ui/cmd/do_remove.cpp
+		src/engine/ui/cmd/do_eat.cpp
+		src/engine/ui/cmd_god/do_inspect.cpp
+		src/engine/ui/cmd_god/do_mark.cpp
 		src/gameplay/crafting/fry.cpp
-		src/engine/ui/cmd/refill.cpp
+		src/engine/ui/cmd/do_refill.cpp
 		src/gameplay/mechanics/guilds.cpp
 		src/engine/ui/cmd/do_features.cpp
 		src/engine/ui/cmd/do_spells.cpp
@@ -281,10 +281,10 @@ set(SOURCES
 		src/gameplay/communication/offtop.cpp
 		src/gameplay/mechanics/dead_load.cpp
 		src/gameplay/mechanics/city_guards.cpp
-		src/engine/ui/cmd/remort.cpp
+		src/engine/ui/cmd/do_remort.cpp
 		src/gameplay/mechanics/dungeons.cpp
-		src/engine/ui/cmd_god/tabulate.cpp
-		src/engine/ui/cmd_god/reload.cpp
+		src/engine/ui/cmd_god/do_tabulate.cpp
+		src/engine/ui/cmd_god/do_reload.cpp
 		src/gameplay/mechanics/mob_races.cpp
 		src/engine/ui/cmd_god/do_set.cpp
 		src/gameplay/mechanics/stable_objs.cpp
@@ -294,23 +294,23 @@ set(SOURCES
 		src/engine/ui/cmd/do_affects.cpp
 		src/engine/ui/cmd/do_toggle.cpp
 		src/engine/ui/cmd/do_mode.cpp
-		src/engine/ui/cmd/levels.cpp
-		src/engine/ui/cmd/where.cpp
-		src/engine/ui/cmd/who.cpp
-		src/engine/ui/cmd/enter.cpp
-		src/engine/ui/cmd/sleep.cpp
-		src/engine/ui/cmd/wake.cpp
-		src/engine/ui/cmd/bandage.cpp
-		src/engine/ui/cmd/consider.cpp
-		src/engine/ui/cmd/exits.cpp
+		src/engine/ui/cmd/do_levels.cpp
+		src/engine/ui/cmd/do_where.cpp
+		src/engine/ui/cmd/do_who.cpp
+		src/engine/ui/cmd/do_enter.cpp
+		src/engine/ui/cmd/do_sleep.cpp
+		src/engine/ui/cmd/do_wake.cpp
+        src/engine/ui/cmd/do_bandage.cpp
+		src/engine/ui/cmd/do_consider.cpp
+		src/engine/ui/cmd/do_exits.cpp
 		src/gameplay/mechanics/sight.cpp
-		src/engine/ui/cmd/look.cpp
-		src/engine/ui/cmd/examine.cpp
-		src/engine/ui/cmd/peer.cpp
-		src/engine/ui/cmd/look_around.cpp
-		src/engine/ui/cmd/inventory.cpp
-		src/engine/ui/cmd/equipment.cpp
-		src/engine/ui/cmd/listen.cpp
+		src/engine/ui/cmd/do_look.cpp
+		src/engine/ui/cmd/do_examine.cpp
+		src/engine/ui/cmd/do_peer.cpp
+		src/engine/ui/cmd/do_look_around.cpp
+		src/engine/ui/cmd/do_inventory.cpp
+		src/engine/ui/cmd/do_equipment.cpp
+		src/engine/ui/cmd/do_listen.cpp
 		src/engine/ui/cmd/do_zone.cpp
 		src/gameplay/skills/dazzle.cpp
 		src/gameplay/ai/mob_memory.cpp
@@ -318,22 +318,22 @@ set(SOURCES
 		src/engine/ui/cmd_god/do_ban.cpp
 		src/engine/ui/cmd_god/do_proxy.cpp
 		src/administration/proxy.cpp
-		src/engine/ui/cmd_god/print_armor.cpp
-		src/engine/ui/cmd_god/forcetime.cpp
-		src/engine/ui/cmd_god/liblist.cpp
-		src/engine/ui/cmd_god/wizutil.cpp
+		src/engine/ui/cmd_god/do_print_armor.cpp
+		src/engine/ui/cmd_god/do_forcetime.cpp
+		src/engine/ui/cmd_god/do_liblist.cpp
+		src/engine/ui/cmd_god/do_wizutil.cpp
 		src/administration/punishments.cpp
-		src/engine/ui/cmd_god/wiznet.cpp
-		src/engine/ui/cmd_god/force.cpp
+		src/engine/ui/cmd_god/do_wiznet.cpp
+		src/engine/ui/cmd_god/do_force.cpp
 		src/engine/ui/cmd_god/do_invisible.cpp
-		src/engine/ui/cmd_god/set_all.cpp
+		src/engine/ui/cmd_god/do_set_all.cpp
         src/utils/grammar/cases.cpp
 		src/engine/core/iosystem.cpp
 		src/gameplay/mechanics/groups.cpp
 		src/gameplay/statistics/money_drop.cpp
 		src/gameplay/statistics/zone_exp.cpp
 		src/gameplay/communication/talk.cpp
-		src/engine/ui/cmd_god/echo.cpp
+		src/engine/ui/cmd_god/do_echo.cpp
 		src/gameplay/core/base_stats.cpp
 		src/engine/ui/cmd/do_camouflage.cpp
 		src/engine/ui/cmd/do_hide.cpp
@@ -369,27 +369,27 @@ set(SOURCES
 		src/engine/ui/cmd/do_quest.cpp)
 
 set(HEADERS
-		src/engine/ui/cmd/flee.h
-		src/engine/ui/cmd/follow.h
-		src/engine/ui/cmd/learn.h
-		src/engine/ui/cmd/forget.h
-		src/engine/ui/cmd/create.h
-		src/engine/ui/cmd/memorize.h
-		src/engine/ui/cmd_god/stat.h
-		src/engine/ui/cmd_god/godtest.h
-		src/engine/ui/cmd/telegram.h
-		src/engine/ui/cmd/hire.h
-		src/engine/ui/cmd/mixture.h
-		src/engine/ui/cmd/cast.h
-		src/engine/ui/cmd/employ.h
+		src/engine/ui/cmd/do_flee.h
+		src/engine/ui/cmd/do_follow.h
+		src/engine/ui/cmd/do_learn.h
+		src/engine/ui/cmd/do_forget.h
+		src/engine/ui/cmd/do_create.h
+		src/engine/ui/cmd/do_memorize.h
+		src/engine/ui/cmd_god/do_stat.h
+		src/engine/ui/cmd_god/do_godtest.h
+		src/engine/ui/cmd/do_telegram.h
+		src/engine/ui/cmd/do_hire.h
+		src/engine/ui/cmd/do_mixture.h
+		src/engine/ui/cmd/do_cast.h
+		src/engine/ui/cmd/do_employ.h
 		src/gameplay/affects/affect_data.h
 		src/gameplay/skills/track.h
 		src/gameplay/fight/common.h
 		src/gameplay/fight/assist.h
 		src/gameplay/fight/fight_start.h
-		src/engine/ui/cmd/retreat.h
-		src/engine/ui/cmd/order.h
-		src/engine/ui/cmd/mercenary.h
+		src/engine/ui/cmd/do_retreat.h
+		src/engine/ui/cmd/do_order.h
+		src/engine/ui/cmd/do_mercenary.h
 		src/gameplay/skills/styles.h
 		src/gameplay/skills/manadrain.h
 		src/gameplay/skills/townportal.h
@@ -455,7 +455,7 @@ set(HEADERS
 		src/gameplay/classes/classes.h
 		src/gameplay/classes/classes_spell_slots.h
 		src/engine/core/comm.h
-		src/engine/ui/cmd_god/shutdown.h
+		src/engine/ui/cmd_god/do_shutdown.h
 		src/engine/ui/commands.h
 		src/engine/core/conf.h
 		src/engine/core/config.h
@@ -544,7 +544,7 @@ set(HEADERS
 		src/engine/ui/color.h
 		src/gameplay/mechanics/sets_drop.h
 		src/gameplay/economics/shop_ext.h
-		src/engine/ui/cmd_god/shutdown_parameters.h
+		src/administration/shutdown_parameters.h
 		src/gameplay/skills/skills.h
 		src/gameplay/skills/skills_info.h
 		src/gameplay/communication/spam.h
@@ -585,32 +585,32 @@ set(HEADERS
 		src/utils/parser_wrapper.h
 		src/engine/boot/cfg_manager.h
 		src/engine/structs/iterators.h
-		src/engine/ui/cmd_god/users.h
+		src/engine/ui/cmd_god/do_users.h
 		src/engine/ui/table_wrapper.h
-		src/engine/ui/cmd/score.h
+		src/engine/ui/cmd/do_score.h
 		src/gameplay/magic/spells_constants.h
 		src/gameplay/mechanics/mem_queue.h
-		src/engine/ui/cmd_god/show.h
-		src/engine/ui/cmd/drop.h
+		src/engine/ui/cmd_god/do_show.h
+		src/engine/ui/cmd/do_drop.h
 		src/gameplay/skills/skinning.h
 		src/gameplay/skills/repair.h
 		src/gameplay/skills/poisoning.h
-		src/engine/ui/cmd/give.h
-		src/engine/ui/cmd/trample.h
+		src/engine/ui/cmd/do_give.h
+		src/engine/ui/cmd/do_trample.h
 		src/gameplay/skills/campfire.h
 		src/gameplay/skills/firstaid.h
 		src/gameplay/skills/sharpening.h
 		src/gameplay/skills/armoring.h
-		src/engine/ui/cmd/get.h
+		src/engine/ui/cmd/do_get.h
         src/engine/ui/cmd/do_equip.h
-		src/engine/ui/cmd/put.h
-		src/engine/ui/cmd/remove.h
-		src/engine/ui/cmd/eat.h
-		src/engine/ui/cmd_god/inspect.h
-		src/engine/ui/cmd_god/mark.h
+		src/engine/ui/cmd/do_put.h
+		src/engine/ui/cmd/do_remove.h
+		src/engine/ui/cmd/do_eat.h
+		src/engine/ui/cmd_god/do_inspect.h
+		src/engine/ui/cmd_god/do_mark.h
 		src/gameplay/crafting/fry.h
-		src/engine/ui/cmd/refill.h
-		src/engine/ui/cmd/sign.h
+		src/engine/ui/cmd/do_refill.h
+		src/engine/ui/cmd/do_sign.h
 		src/gameplay/mechanics/guilds.h
 		src/engine/ui/cmd/do_features.h
 		src/engine/ui/cmd/do_spells.h
@@ -629,10 +629,10 @@ set(HEADERS
 		src/gameplay/communication/offtop.h
 		src/gameplay/mechanics/dead_load.h
 		src/gameplay/mechanics/city_guards.h
-		src/engine/ui/cmd/remort.h
+		src/engine/ui/cmd/do_remort.h
 		src/gameplay/mechanics/dungeons.h
-		src/engine/ui/cmd_god/tabulate.h
-		src/engine/ui/cmd_god/reload.h
+		src/engine/ui/cmd_god/do_tabulate.h
+		src/engine/ui/cmd_god/do_reload.h
 		src/gameplay/mechanics/mob_races.h
 		src/engine/ui/cmd_god/do_set.h
 		src/gameplay/mechanics/stable_objs.h
@@ -642,23 +642,23 @@ set(HEADERS
 		src/engine/ui/cmd/do_affects.h
 		src/engine/ui/cmd/do_toggle.h
 		src/engine/ui/cmd/do_mode.h
-		src/engine/ui/cmd/levels.h
-		src/engine/ui/cmd/where.h
-		src/engine/ui/cmd/who.h
-		src/engine/ui/cmd/wake.h
-		src/engine/ui/cmd/enter.h
-		src/engine/ui/cmd/sleep.h
-		src/engine/ui/cmd/bandage.h
-		src/engine/ui/cmd/consider.h
-		src/engine/ui/cmd/exits.h
+		src/engine/ui/cmd/do_levels.h
+		src/engine/ui/cmd/do_where.h
+		src/engine/ui/cmd/do_who.h
+		src/engine/ui/cmd/do_wake.h
+		src/engine/ui/cmd/do_enter.h
+		src/engine/ui/cmd/do_sleep.h
+        src/engine/ui/cmd/do_bandage.h
+		src/engine/ui/cmd/do_consider.h
+		src/engine/ui/cmd/do_exits.h
 		src/gameplay/mechanics/sight.h
-		src/engine/ui/cmd/look.h
-		src/engine/ui/cmd/examine.h
-		src/engine/ui/cmd/peer.h
-		src/engine/ui/cmd/look_around.h
-		src/engine/ui/cmd/inventory.h
-		src/engine/ui/cmd/equipment.h
-		src/engine/ui/cmd/listen.h
+		src/engine/ui/cmd/do_look.h
+		src/engine/ui/cmd/do_examine.h
+		src/engine/ui/cmd/do_peer.h
+		src/engine/ui/cmd/do_look_around.h
+		src/engine/ui/cmd/do_inventory.h
+		src/engine/ui/cmd/do_equipment.h
+		src/engine/ui/cmd/do_listen.h
 		src/engine/ui/cmd/do_zone.h
 		src/gameplay/ai/mob_memory.h
 		src/gameplay/skills/dazzle.h
@@ -666,15 +666,15 @@ set(HEADERS
 		src/engine/ui/cmd_god/do_ban.h
 		src/engine/ui/cmd_god/do_proxy.h
 		src/administration/proxy.h
-		src/engine/ui/cmd_god/print_armor.h
-		src/engine/ui/cmd_god/forcetime.h
-		src/engine/ui/cmd_god/liblist.h
-		src/engine/ui/cmd_god/wizutil.h
+		src/engine/ui/cmd_god/do_print_armor.h
+		src/engine/ui/cmd_god/do_forcetime.h
+		src/engine/ui/cmd_god/do_liblist.h
+		src/engine/ui/cmd_god/do_wizutil.h
 		src/administration/punishments.h
-		src/engine/ui/cmd_god/wiznet.h
-		src/engine/ui/cmd_god/force.h
+		src/engine/ui/cmd_god/do_wiznet.h
+		src/engine/ui/cmd_god/do_force.h
 		src/engine/ui/cmd_god/do_invisible.h
-		src/engine/ui/cmd_god/set_all.h
+		src/engine/ui/cmd_god/do_set_all.h
 		src/gameplay/ai/spec_procs.h
         src/utils/grammar/cases.h
 		src/engine/structs/meta_enum.h
@@ -683,7 +683,7 @@ set(HEADERS
 		src/gameplay/statistics/money_drop.h
 		src/gameplay/statistics/zone_exp.h
 		src/gameplay/communication/talk.h
-		src/engine/ui/cmd_god/echo.h
+		src/engine/ui/cmd_god/do_echo.h
 		src/gameplay/core/base_stats.h
 		src/engine/ui/cmd/do_camouflage.h
 		src/engine/ui/cmd/do_hide.h

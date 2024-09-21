@@ -14,7 +14,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/fight/fight_constants.h"
 #include "gameplay/fight/fight_hit.h"
-#include "get.h"
+#include "do_get.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/ai/spec_procs.h"
 

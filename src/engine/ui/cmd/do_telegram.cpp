@@ -1,4 +1,4 @@
-#include "telegram.h"
+#include "do_telegram.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 

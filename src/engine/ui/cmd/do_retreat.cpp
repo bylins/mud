@@ -1,4 +1,4 @@
-#include "retreat.h"
+#include "do_retreat.h"
 #include "gameplay/fight/fight.h"
 
 // ***************** STOPFIGHT

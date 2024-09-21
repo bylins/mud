@@ -1,4 +1,4 @@
-#include "stat.h"
+#include "do_stat.h"
 
 #include "administration/ban.h"
 #include "engine/entities/char_player.h"

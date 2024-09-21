@@ -6,8 +6,8 @@
 \detail Detail description.
 */
 
-#ifndef BYLINS_SRC_ENGINE_UI_CMD_GOD_SET_ALL_H_
-#define BYLINS_SRC_ENGINE_UI_CMD_GOD_SET_ALL_H_
+#ifndef BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_SET_ALL_H_
+#define BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_SET_ALL_H_
 
 #include <memory>
 #include <map>
@@ -33,6 +33,6 @@ extern SetAllInspReqListType &setall_inspect_list;
 void setall_inspect();
 void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
-#endif //BYLINS_SRC_ENGINE_UI_CMD_GOD_SET_ALL_H_
+#endif //BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_SET_ALL_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

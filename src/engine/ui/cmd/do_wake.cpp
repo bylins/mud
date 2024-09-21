@@ -2,7 +2,7 @@
 // Created by Sventovit on 08.09.2024.
 //
 
-#include "wake.h"
+#include "do_wake.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 

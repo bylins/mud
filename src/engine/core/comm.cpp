@@ -36,7 +36,7 @@
 #include "engine/db/world_objects.h"
 #include "engine/db/world_characters.h"
 #include "engine/entities/entities_constants.h"
-#include "engine/ui/cmd_god/shutdown_parameters.h"
+#include "administration/shutdown_parameters.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "gameplay/clans/house.h"

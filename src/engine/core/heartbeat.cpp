@@ -27,7 +27,7 @@
 #include "engine/scripting/dg_event.h"
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
-#include "engine/ui/cmd_god/set_all.h"
+#include "engine/ui/cmd_god/do_set_all.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"

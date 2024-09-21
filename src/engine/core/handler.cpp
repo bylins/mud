@@ -17,7 +17,7 @@
 #include "utils_char_obj.inl"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
-#include "engine/ui/cmd/follow.h"
+#include "engine/ui/cmd/do_follow.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/economics/ext_money.h"
 #include "gameplay/fight/fight.h"

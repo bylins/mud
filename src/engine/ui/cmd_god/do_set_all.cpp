@@ -6,7 +6,7 @@
 \detail Detail description.
 */
 
-#include "engine/ui/cmd_god/set_all.h"
+#include "engine/ui/cmd_god/do_set_all.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"

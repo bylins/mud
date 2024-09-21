@@ -1,6 +1,6 @@
-#include "hire.h"
+#include "do_hire.h"
 
-#include "follow.h"
+#include "do_follow.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"

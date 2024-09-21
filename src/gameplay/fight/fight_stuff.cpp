@@ -7,7 +7,7 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/ai/mobact.h"
 #include "engine/entities/obj_data.h"
-#include "engine/ui/cmd/flee.h"
+#include "engine/ui/cmd/do_flee.h"
 #include "engine/db/world_characters.h"
 #include "fight.h"
 #include "fight_penalties.h"

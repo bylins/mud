@@ -11,12 +11,9 @@
 #include "engine/core/handler.h"
 
 void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	ObjData *obj;
-	int prob, dur;
-	struct TimedSkill timed;
-	int i;
-	if (ch->IsNpc())        // Cannot use GET_COND() on mobs.
+	if (ch->IsNpc()) {
 		return;
+	}
 
 	if (!ch->GetSkill(ESkill::kCourage)) {
 		SendMsgToChar("Вам это не по силам.\r\n", ch);
@@ -28,11 +25,12 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
+	struct TimedSkill timed;
 	timed.skill = ESkill::kCourage;
 	timed.time = 6;
 	ImposeTimedSkill(ch, &timed);
-	prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
-	dur = 1 + MIN(5, ch->GetSkill(ESkill::kCourage) / 40);
+	auto prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
+	auto dur = 1 + std::min(5, ch->GetSkill(ESkill::kCourage) / 40);
 	Affect<EApply> af[4];
 	af[0].type = ESpell::kCourage;
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
@@ -42,13 +40,13 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[0].battleflag = 0;
 	af[1].type = ESpell::kCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
-	af[1].modifier = MAX(1, prob);
+	af[1].modifier = std::max(1, prob);
 	af[1].location = EApply::kDamroll;
 	af[1].bitvector = to_underlying(EAffect::kCourage);
 	af[1].battleflag = 0;
 	af[2].type = ESpell::kCourage;
 	af[2].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
-	af[2].modifier = MAX(1, prob * 7);
+	af[2].modifier = std::max(1, prob * 7);
 	af[2].location = EApply::kAbsorbe;
 	af[2].bitvector = to_underlying(EAffect::kCourage);
 	af[2].battleflag = 0;
@@ -59,16 +57,17 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[3].bitvector = to_underlying(EAffect::kCourage);
 	af[3].battleflag = 0;
 
-	for (i = 0; i < 4; i++) {
-		ImposeAffect(ch, af[i], false, false, false, false);
+	for (auto & i : af) {
+		ImposeAffect(ch, i, false, false, false, false);
 	}
 
 	SendMsgToChar("Вы пришли в ярость.\r\n", ch);
-
-	if ((obj = GET_EQ(ch, EEquipPos::kWield)) || (obj = GET_EQ(ch, EEquipPos::kBoths)))
+	ObjData *obj;
+	if ((obj = GET_EQ(ch, EEquipPos::kWield)) || (obj = GET_EQ(ch, EEquipPos::kBoths))) {
 		strcpy(buf, "Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3.");
-	else
+	} else {
 		strcpy(buf, "Глаза $n1 налились кровью.");
+	}
 	act(buf, false, ch, obj, nullptr, kToRoom | kToArenaListen);
 }
 
