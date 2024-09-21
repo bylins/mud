@@ -1599,17 +1599,19 @@ std::string CharData::get_morphed_title() const {
 };
 
 std::string CharData::GetTitleAndNameWithoutClan() const {
+	std::string result = get_name();
+
 	auto pre_title = get_pretitle();
 	if (!pre_title.empty()) {
-		return fmt::format("{} {}", pre_title, get_name());
+		result = fmt::format("{} {}", pre_title, get_name());
 	}
 
 	auto title = GetTitle();
 	if (!title.empty() && GetLevel() >= MIN_TITLE_LEV) {
-		return fmt::format("{}, {}", get_name(), title);
+		return fmt::format("{}, {}", result, title);
 	}
 
-	return get_name();
+	return result;
 }
 
 std::string CharData::GetClanTitleAddition() {

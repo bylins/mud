@@ -882,8 +882,8 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
-		snprintf(buf, kMaxStringLength, "&R%s воззвал%s к богам с сообщением : '%s'&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+		snprintf(buf, kMaxStringLength, "&R[%5d] %s воззвал%s к богам с сообщением : '%s'&n\r\n",
+				world[ch->in_room]->vnum, GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
