@@ -1192,7 +1192,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		next_d = d->next;
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
-			if (process_output(d) < 0)
+			if (iosystem::process_output(d) < 0)
 				close_socket(d, false);	// закрыл соединение
 			else
 				d->has_prompt = 1;	// признак того, что промпт уже выводил
