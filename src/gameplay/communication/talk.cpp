@@ -12,7 +12,7 @@
 void do_echo(CharData *ch, char *argument, int cmd, int subcmd);
 
 // Симуляция телла от моба
-void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
+void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 	char local_buf[kMaxInputLength];
 	if (AFF_FLAGGED(ch, EAffect::kDeafness) || ch->IsFlagged(EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
@@ -20,9 +20,17 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *arg) {
 		return;
 	}
 	snprintf(local_buf, kMaxInputLength,
-			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), argument);
 	SendMsgToChar(ch, "%s%s%s\r\n",
 				  kColorBoldCyn, CAP(local_buf), kColorNrm);
+}
+
+bool tell_can_see(CharData *ch, CharData *vict) {
+	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

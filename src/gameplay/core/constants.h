@@ -150,6 +150,9 @@ extern const ObjVnum kStartBread;
 extern const ObjVnum kCreateLight;
 extern const int kHorseCost;
 
+extern const char *SIELENCE;
+extern const char *SOUNDPROOF;
+
 #endif // CONSTANTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

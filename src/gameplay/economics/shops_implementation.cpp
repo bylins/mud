@@ -16,7 +16,7 @@
 #include "engine/entities/zone.h"
 #include "engine/ui/objects_filter.h"
 #include "gameplay/communication/talk.h"
-#include "engine/ui/cmd_god/echo.h"
+#include "engine/ui/cmd_god/do_echo.h"
 #include "gameplay/core/base_stats.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>

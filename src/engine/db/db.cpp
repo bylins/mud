@@ -54,6 +54,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/communication/social.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -107,15 +108,16 @@ RoomRnum r_named_start_room;
 RoomRnum r_unreg_start_room;
 
 char *credits{nullptr};        // game credits
+char *info{nullptr};        // info page
 char *motd{nullptr};        // message of the day - mortals
 char *rules{nullptr};        // rules for immorts
+char *immlist{nullptr};        // list of peon gods
+char *policies{nullptr};        // policies page
+char *handbook{nullptr};        // handbook for new immortals
+
 char *greetings{nullptr};        // opening credits screen
 char *help{nullptr};        // help screen
-char *info{nullptr};        // info page
-char *immlist{nullptr};        // list of peon gods
 char *background{nullptr};    // background story
-char *handbook{nullptr};        // handbook for new immortals
-char *policies{nullptr};        // policies page
 char *name_rules{nullptr};        // rules of character's names
 
 TimeInfoData time_info;
@@ -159,8 +161,6 @@ void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int
 void CalcEaster();
 
 // external
-extern int number_of_social_messages;
-extern int number_of_social_commands;
 extern int no_specials;
 extern RoomVnum mortal_start_room;
 extern RoomVnum immort_start_room;

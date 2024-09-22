@@ -2190,27 +2190,6 @@ player_special_data_saved::player_special_data_saved() :
 	GodsLike(0),
 	stringLength(0),
 	stringWidth(0),
-	Rip_arena(0),
-	rip_arena_dom(0),
-	kill_arena_dom(0),
-	Rip_mob(0),
-	Rip_pk(0),
-	Rip_dt(0),
-	Rip_other(0),
-	Win_arena(0),
-	Rip_mob_this(0),
-	Rip_pk_this(0),
-	Rip_dt_this(0),
-	Rip_other_this(0),
-	Exp_arena(0),
-	Exp_mob(0),
-	Exp_pk(0),
-	Exp_dt(0),
-	Exp_other(0),
-	Exp_mob_this(0),
-	Exp_pk_this(0),
-	Exp_dt_this(0),
-	Exp_other_this(0),
 	ntfyExchangePrice(0),
 	HiredCost(0),
 	who_mana(0),
@@ -2272,6 +2251,14 @@ void CharData::RemoveRunestone(const Runestone &stone) {
 	} else {
 		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", this);
 	}
+};
+
+void CharData::IncreaseStatistic(CharStat::ECategory category, ullong increment) {
+	player_specials->saved.personal_statistics_.Increase(category, increment);
+};
+
+ullong CharData::GetStatistic(CharStat::ECategory category) const {
+	return player_specials->saved.personal_statistics_.GetValue(category);
 };
 
 int GetRealLevel(const CharData *ch) {

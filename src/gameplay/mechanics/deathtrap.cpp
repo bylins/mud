@@ -121,10 +121,6 @@ int deathtrap::check_death_trap(CharData *ch) {
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
 			death_cry(ch, nullptr);
-			//29.11.09 Для счета количество рипов (с) Василиса
-			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
-			GET_RIP_DTTHIS(ch) = GET_RIP_DTTHIS(ch) + 1;
-			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
 			if (corpse != nullptr) {
 				RemoveObjFromRoom(corpse);    // для того, чтобы удалилость все содержимое
@@ -133,8 +129,10 @@ int deathtrap::check_death_trap(CharData *ch) {
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
 			if (NORENTABLE(ch)) {
 				die(ch, nullptr);
-			} else
+			} else {
+				CharStat::UpdateOnKill(ch, nullptr, 0);
 				ExtractCharFromWorld(ch, true);
+			}
 			return true;
 		}
 	}

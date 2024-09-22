@@ -7,7 +7,7 @@
 #include "engine/core/action_targeting.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/handler.h"
-#include "engine/ui/cmd/flee.h"
+#include "engine/ui/cmd/do_flee.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/weather.h"
 

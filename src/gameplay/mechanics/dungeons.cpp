@@ -6,7 +6,7 @@
 \detail
 */
 
-#include "engine/ui/cmd/follow.h"
+#include "engine/ui/cmd/do_follow.h"
 #include "engine/db/db.h"
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
