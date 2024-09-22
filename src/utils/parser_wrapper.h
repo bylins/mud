@@ -26,13 +26,10 @@
 
 namespace parser_wrapper {
 
-class DataNode : public std::iterator<
-	std::forward_iterator_tag,  // iterator_category
-	std::ptrdiff_t,             // difference
-	DataNode,                   // value_type
-	DataNode *,                 // pointer
-	DataNode &                  // reference
-> {
+class DataNode {
+  using value_type        = DataNode;
+  using pointer           = DataNode*;
+  using reference         = DataNode&;
  protected:
 	using DocPtr = std::shared_ptr<pugi::xml_document>;
 
@@ -52,12 +49,6 @@ class DataNode : public std::iterator<
 	~DataNode() = default;
 
 	class NameIterator {
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type   = std::ptrdiff_t;
-		using value_type        = DataNode;
-		using pointer           = DataNode*;
-		using reference         = DataNode&;
-
 		std::shared_ptr<DataNode> node_;
 	 public:
 		NameIterator() :

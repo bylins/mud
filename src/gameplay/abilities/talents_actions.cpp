@@ -61,8 +61,7 @@ Heal::Heal(parser_wrapper::DataNode &node) : Damage(node) {
 	npc_coeff_ = parse::ReadAsDouble(node.GetValue("npc_coeff"));
 }
 
-double Heal::CalcNpcCoeff(const CharData* ch) const
-{
+double Heal::GetNpcCoeff() const {
 	return npc_coeff_;
 }
 

@@ -916,12 +916,11 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
 if (UNIX AND NOT CYGWIN)
-	#add_definitions("--std=gnu++17")
-	add_definitions("-std=c++2a")
+	add_definitions("-std=c++20")
 elseif (CYGWIN)
 	add_definitions("-std=gnu++2a")
 else ()
-	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
+	set_target_properties(circle.library PROPERTIES CXX_STANDARD 20)
 endif ()
 add_dependencies(circle.library versioning changelog)
 
@@ -1153,7 +1152,7 @@ set(MAIN_EXECUTABLE src/main.cpp)
 
 add_executable(circle ${MAIN_EXECUTABLE})
 if (NOT UNIX)
-	set_target_properties(circle PROPERTIES CXX_STANDARD 14)
+	set_target_properties(circle PROPERTIES CXX_STANDARD 20)
 endif ()
 target_link_libraries(circle circle.library)
 

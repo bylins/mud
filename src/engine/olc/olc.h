@@ -58,7 +58,6 @@
 // * Utilities exported from olc.c.
 void strip_string(char *);
 void cleanup_olc(DescriptorData *d, byte cleanup_type);
-void get_char_cols(CharData *ch);
 void disp_planes_values(DescriptorData *d, const char *names[], short num_column);
 void olc_add_to_save_list(int zone, byte type);
 void olc_remove_from_save_list(int zone, byte type);
@@ -114,7 +113,12 @@ struct olc_save_info {
 };
 
 // * Exported globals.
-extern const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
+extern const char *nrm;
+extern const char *grn;
+extern const char *cyn;
+extern const char *yel;
+extern const char *iyel;
+extern const char *ired;
 extern struct olc_save_info *olc_save_list;
 
 // * Descriptor access macros.
@@ -388,8 +392,6 @@ extern struct olc_save_info *olc_save_list;
 #define MAX_MOB_DESC    512
 #define MAX_OBJ_DESC    512
 
-void xedit_disp_ing(DescriptorData *d, int *ping);
-int xparse_ing(DescriptorData *d, int **pping, char *arg);
 int zedit_count_cmdlist(pzcmd head);
 void CleanupRoomData(RoomData *room);
 

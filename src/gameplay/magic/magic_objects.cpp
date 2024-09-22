@@ -157,7 +157,7 @@ void TimedSpell::add(ObjData *obj, ESpell spell_id, int time) {
 }
 
 // * Вывод оставшегося времени яда на пушке при осмотре.
-std::string TimedSpell::diag_to_char(CharData *ch) {
+std::string TimedSpell::diag_to_char() {
 	if (spell_list_.empty()) {
 		return "";
 	}

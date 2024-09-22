@@ -622,7 +622,7 @@ class TimedSpell {
 	void dec_timer(ObjData *obj, int time = 1);
 	void add(ObjData *obj, ESpell spell_id, int time);
 	void del(ObjData *obj, ESpell spell_id, bool message);
-	std::string diag_to_char(CharData *ch);
+	std::string diag_to_char();
 
  private:
 	std::map<ESpell /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
@@ -687,7 +687,7 @@ class ObjData : public CObjectPrototype {
 
 	// wrappers to access to timed_spell
 	const TimedSpell &timed_spell() const { return m_timed_spell; }
-	std::string diag_ts_to_char(CharData *character) { return m_timed_spell.diag_to_char(character); }
+	std::string diag_ts_to_char() { return m_timed_spell.diag_to_char(); }
 	bool has_timed_spell() const { return !m_timed_spell.empty(); }
 	void add_timed_spell(const ESpell spell_id, const int time);
 	void del_timed_spell(const ESpell spell_id, const bool message);

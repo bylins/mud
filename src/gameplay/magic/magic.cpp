@@ -397,7 +397,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id) {
 	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	total_heal = static_cast<int>(base_heal + skill_mod + wis_mod);
 	total_heal += static_cast<int>(total_heal * bonus_mod);
-	double npc_heal = spell_heal.CalcNpcCoeff(ch);
+	double npc_heal = spell_heal.GetNpcCoeff();
 	if (ch->IsNpc()) {
 		total_heal += static_cast<int>(total_heal * npc_heal);
 	}

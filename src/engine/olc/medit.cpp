@@ -699,9 +699,6 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 // * Display positions. (sitting, standing, etc)
 void medit_disp_positions(DescriptorData *d) {
 	int i;
-
-	get_char_cols(d->character.get());
-
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -713,8 +710,6 @@ void medit_disp_positions(DescriptorData *d) {
 }
 
 void medit_disp_add_parameters(DescriptorData *d) {
-	get_char_cols(d->character.get());
-
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -746,7 +741,6 @@ void medit_disp_add_parameters(DescriptorData *d) {
 void medit_disp_resistances(DescriptorData *d) {
 	int i;
 
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -760,7 +754,6 @@ void medit_disp_resistances(DescriptorData *d) {
 
 // *  Display saves
 void medit_disp_saves(DescriptorData *d) {
-	get_char_cols(d->character.get());
 	int num = 1;
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
@@ -863,7 +856,6 @@ void medit_disp_mprog_types(DescriptorData * d)
 {
 	int i;
 
-	get_char_cols(d->character);
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("^[[H^[[J", d->character);
 #endif
@@ -883,9 +875,6 @@ void medit_disp_mprog_types(DescriptorData * d)
 // * Display the gender of the mobile.
 void medit_disp_sex(DescriptorData *d) {
 	int i;
-
-	get_char_cols(d->character.get());
-
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -897,8 +886,6 @@ void medit_disp_sex(DescriptorData *d) {
 }
 
 void medit_disp_role(DescriptorData *d) {
-	get_char_cols(d->character.get());
-
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -927,8 +914,6 @@ void medit_disp_role(DescriptorData *d) {
 
 void medit_disp_features(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -954,9 +939,6 @@ void medit_disp_features(DescriptorData *d) {
 
 void medit_disp_race(DescriptorData *d) {
 	int i;
-
-	get_char_cols(d->character.get());
-
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -970,8 +952,6 @@ void medit_disp_race(DescriptorData *d) {
 // * Display attack types menu.
 void medit_disp_attack_types(DescriptorData *d) {
 	int i;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -985,8 +965,6 @@ void medit_disp_attack_types(DescriptorData *d) {
 //-------------------------------------------------------------------
 void medit_disp_helpers(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1004,8 +982,6 @@ void medit_disp_helpers(DescriptorData *d) {
 
 void medit_disp_skills(DescriptorData *d) {
 	int columns = 0;
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1028,9 +1004,6 @@ void medit_disp_skills(DescriptorData *d) {
 }
 
 void medit_disp_spells(DescriptorData *d) {
-
-
-	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
@@ -1080,8 +1053,6 @@ void medit_disp_menu(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
-	get_char_cols(d->character.get());
-
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
@@ -1226,8 +1197,6 @@ void disp_dl_list(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
-	get_char_cols(d->character.get());
-
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
@@ -1274,8 +1243,6 @@ void disp_dl_list(DescriptorData *d) {
 }
 
 void medit_disp_clone_menu(DescriptorData *d) {
-	get_char_cols(d->character.get());
-
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 		"[H[J"

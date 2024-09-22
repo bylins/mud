@@ -6069,9 +6069,9 @@ void TriggersList::iterator::remove_event(Trigger *trigger) {
 
 class TriggerRemoveObserver : public TriggerEventObserver {
  public:
-	TriggerRemoveObserver(TriggersList *owner) : m_owner(owner) {}
+	explicit TriggerRemoveObserver(TriggersList *owner) : m_owner(owner) {}
 
-	virtual void notify(Trigger *trigger) override;
+	void notify(Trigger *trigger) override;
 
  private:
 	TriggersList *m_owner;

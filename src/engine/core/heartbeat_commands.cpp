@@ -31,7 +31,7 @@ class ClearStats : public commands::utils::CommonCommand {
  public:
 	ClearStats() { set_help_line("Clear heartbeat stats."); }
 
-	virtual void execute(const CommandContext::shared_ptr &context,
+	void execute(const CommandContext::shared_ptr &context,
 						 const arguments_t &path,
 						 const arguments_t &arguments) override;
 };
