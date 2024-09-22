@@ -1046,7 +1046,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kShieldBlock: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
 			bonus += GET_EQ(ch, EEquipPos::kShield) ?
-					 std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield - 20)), 0, 10) : 0;
+					 std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield)) - 20, 0, 10) : 0;
 			break;
 		}
 
