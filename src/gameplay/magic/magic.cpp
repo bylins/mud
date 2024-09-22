@@ -18,7 +18,7 @@
 #include "gameplay/affects/affect_handler.h"
 #include "gameplay/affects/affect_data.h"
 #include "engine/db/world_characters.h"
-#include "engine/ui/cmd/hire.h"
+#include "engine/ui/cmd/do_hire.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"

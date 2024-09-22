@@ -10,7 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
-#include "engine/ui/cmd/follow.h"
+#include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"

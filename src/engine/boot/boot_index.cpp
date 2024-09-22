@@ -2,6 +2,7 @@
 
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "gameplay/communication/social.h"
 
 class IndexFileImplementation : public IndexFile {
  public:
@@ -293,9 +294,6 @@ class WorldIndexFile : public IndexFileImplementation {
 	virtual EBootType mode() const { return DB_BOOT_WLD; }
 	virtual int process_line() { return 1; }
 };
-
-extern int number_of_social_messages;    // TODO: get rid of me
-extern int number_of_social_commands;    // TODO: get rid of me
 
 IndexFile::shared_ptr IndexFileFactory::get_index(const EBootType mode) {
 	switch (mode) {

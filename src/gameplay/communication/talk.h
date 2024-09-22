@@ -10,7 +10,8 @@
 #define BYLINS_SRC_GAMEPLAY_COMMUNICATION_TALK_H_
 
 class CharData;
-void tell_to_char(CharData *keeper, CharData *ch, const char *arg);
+void tell_to_char(CharData *keeper, CharData *ch, const char *argument);
+bool tell_can_see(CharData *ch, CharData *vict);
 
 #endif //BYLINS_SRC_GAMEPLAY_COMMUNICATION_TALK_H_
 

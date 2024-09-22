@@ -22,6 +22,7 @@
 #include "gameplay/mechanics/mem_queue.h"
 #include "gameplay/ai/mob_memory.h"
 #include "engine/network/logon.h"
+#include "gameplay/statistics/char_stat.h"
 
 #include <unordered_map>
 #include <bitset>
@@ -212,28 +213,7 @@ struct player_special_data_saved {
 	int stringLength;
 	int stringWidth;
 
-	int Rip_arena; //рипы на арене
-	int rip_arena_dom; //рипы на арене доминирования
-	int kill_arena_dom; //рипы на арене доминирования
-	int Rip_mob; // рипы от мобов всего
-	int Rip_pk; // рипы от чаров всего
-	int Rip_dt; // дт всего
-	int Rip_other; // рипы от триггеров и прочее всего
-	int Win_arena; //убито игроком на арене
-	int Rip_mob_this; // рипы от мобов на этом морте
-	int Rip_pk_this; // рипы от чаров на этом морте
-	int Rip_dt_this; // дт на этом морте
-	int Rip_other_this; // рипы от триггеров и прочее на этом морте
-	unsigned long long Exp_arena; //потеряно экспы за рипы на арене
-	unsigned long long Exp_mob; //потеряно экспы  рипы от мобов всего
-	unsigned long long Exp_pk; //потеряно экспы  рипы от чаров всего
-	unsigned long long Exp_dt; //потеряно экспы  дт всего
-	unsigned long long Exp_other; //потеряно экспы  рипы от триггеров и прочее всего
-	unsigned long long Exp_mob_this; //потеряно экспы  рипы от мобов на этом морте
-	unsigned long long Exp_pk_this; //потеряно экспы  рипы от чаров на этом морте
-	unsigned long long Exp_dt_this; //потеряно экспы  дт на этом морте
-	unsigned long long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
-	//конец правки (с) Василиса
+	CharStat personal_statistics_;
 	long ntfyExchangePrice;
 	int HiredCost;
 	unsigned int who_mana; // количество энергии для использования команды кто
@@ -805,6 +785,10 @@ class CharData : public ProtectedCharData {
   	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
 	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
   	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };
+  	void ClearStatistics() { player_specials->saved.personal_statistics_.Clear(); };
+  	void ClearThisRemortStatistics() { player_specials->saved.personal_statistics_.ClearThisRemort(); };
+  	void IncreaseStatistic(CharStat::ECategory category, ullong increment);
+  	ullong GetStatistic(CharStat::ECategory category) const;
 
   	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };
   	void UnsetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.unset(flag); }; };

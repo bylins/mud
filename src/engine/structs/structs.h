@@ -33,6 +33,7 @@ using sbyte = int8_t;
 using ubyte = uint8_t;
 using sh_int = int16_t ;
 using ush_int = uint16_t;
+using ullong = unsigned long long;
 
 using Bitvector = uint32_t;
 constexpr Bitvector kIntOne = 1u << 30;

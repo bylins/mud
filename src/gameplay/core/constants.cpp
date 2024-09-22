@@ -1859,4 +1859,7 @@ const char *weapon_class[] = {"луки",
 							  "копья и рогатины"
 };
 
+const char *SIELENCE{"Вы немы, как рыба об лед.\r\n"};
+const char *SOUNDPROOF{"Стены заглушили ваши слова.\r\n"};
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

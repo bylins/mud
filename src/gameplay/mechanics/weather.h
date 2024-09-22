@@ -130,6 +130,7 @@ struct TimeInfoData {
 };
 
 void weather_and_time(int mode);
+void gods_day_now(CharData *ch);
 int get_moon(int sky);
 int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value);
 int CalcDaySpellMod(CharData *ch, ESpell spell_id, int type, int value);

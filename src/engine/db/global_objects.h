@@ -11,8 +11,8 @@
 #include "gameplay/abilities/feats.h"
 #include "utils/logger.h"
 #include "engine/core/heartbeat.h"
-#include "engine/ui/cmd_god/shutdown_parameters.h"
-#include "engine/ui/cmd_god/inspect.h"
+#include "administration/shutdown_parameters.h"
+#include "engine/ui/cmd_god/do_inspect.h"
 #include "gameplay/economics/shops_implementation.h"
 #include "world_objects.h"
 #include "world_characters.h"
@@ -23,7 +23,7 @@
 #include "gameplay/skills/townportal.h"
 #include "gameplay/mechanics/strengthening.h"
 #include "engine/boot/cfg_manager.h"
-#include "engine/ui/cmd_god/set_all.h"
+#include "engine/ui/cmd_god/do_set_all.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
 

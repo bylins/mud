@@ -5,7 +5,7 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
-#include "engine/ui/cmd/telegram.h"
+#include "engine/ui/cmd/do_telegram.h"
 #include "engine/core/conf.h"
 #include "entities_constants.h"
 #include "engine/db/id.h"
