@@ -43,13 +43,13 @@ class BasicCompactTrie {
 
 		bool operator==(const Range &right) const { return m_trie == right.m_trie && m_root == right.m_root; }
 
-		iterator begin() const { return std::move(iterator(this)); }
-		iterator end() const { return std::move(iterator(this, NO_INDEX, true)); }
-		Range find(const std::string &prefix) const;
+		[[nodiscard]] iterator begin() const { return {this}; }
+		[[nodiscard]] iterator end() const { return {this, NO_INDEX, true}; }
+		[[nodiscard]] Range find(const std::string &prefix) const;
 
-		bool empty() const { return begin() == end(); }
+		[[nodiscard]] bool empty() const { return begin() == end(); }
 
-		const std::string &prefix() const { return m_prefix; }
+		[[nodiscard]] const std::string &prefix() const { return m_prefix; }
 
 	 private:
 		friend class BasicCompactTrie;
@@ -79,8 +79,8 @@ class BasicCompactTrie {
 
 	Range find_by_prefix(const std::string &prefix) const { return m_range.find(prefix); }
 
-	iterator begin() const { return std::move(m_range.begin()); }
-	iterator end() const { return std::move(m_range.end()); }
+	iterator begin() const { return m_range.begin(); }
+	iterator end() const { return m_range.end(); }
 	void clear() { m_contents = contents_t(1, Node('\0')); }
 
 	size_t size() const { return m_contents[0].subtree_size; }

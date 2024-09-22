@@ -202,7 +202,7 @@ InfoContainer<IdEnum, Item, ItemBuilder>::InfoContainer() {
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
 void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const NodeRange &data) {
-	auto new_items = std::move(RegisterBuilder::Build(data, true));
+	auto new_items = RegisterBuilder::Build(data, true);
 	if (new_items) {
 		items_ = std::move(new_items);
 	} else {
@@ -506,7 +506,7 @@ InfoContainer<int, Item, ItemBuilder>::InfoContainer() {
 
 template<typename Item, typename ItemBuilder>
 void InfoContainer<int, Item, ItemBuilder>::Reload(const NodeRange &data) {
-	auto new_items = std::move(RegisterBuilder::Build(data, true));
+	auto new_items = RegisterBuilder::Build(data, true);
 	if (new_items) {
 		items_ = std::move(new_items);
 		BuildTextIdsRegister();

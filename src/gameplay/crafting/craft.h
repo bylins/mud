@@ -44,9 +44,9 @@ class Cases {
 	void load_from_object(const CObjectPrototype::shared_ptr &object);
 	bool save_to_node(pugi::xml_node *node) const;
 
-	const auto &get_case(const size_t number) const { return m_cases[number]; }
-	const auto &aliases() const { return m_joined_aliases; }
-	ObjData::pnames_t build_pnames() const;
+	[[nodiscard]] const auto &get_case(const size_t number) const { return m_cases[number]; }
+	[[nodiscard]] const auto &aliases() const { return m_joined_aliases; }
+	[[nodiscard]] ObjData::pnames_t build_pnames() const;
 
  private:
 	cases_t m_cases;
@@ -59,9 +59,9 @@ class Cases {
 
 class CObject : public CObjectPrototype {
  public:
-	CObject(const CObjectPrototype &object) : CObjectPrototype(object) {}
-	CObject(const ObjVnum vnum) : CObjectPrototype(vnum) {}
-	~CObject() {}
+	explicit CObject(const CObjectPrototype &object) : CObjectPrototype(object) {}
+	explicit CObject(const ObjVnum vnum) : CObjectPrototype(vnum) {}
+	~CObject() override = default;
 
 	bool load_from_node(const pugi::xml_node *node);
 	void load_from_object(const CObjectPrototype::shared_ptr &object);
@@ -107,8 +107,8 @@ class CMaterialClass {
  public:
 	CMaterialClass(const std::string &id) : m_id(id) {}
 
-	const auto &id() const { return m_id; }
-	const auto &name() const { return m_item_cases.get_case(0); }
+	[[nodiscard]] const auto &id() const { return m_id; }
+	[[nodiscard]] const auto &name() const { return m_item_cases.get_case(0); }
 
  private:
 	bool load(const pugi::xml_node *node);
@@ -134,12 +134,12 @@ class CMaterial {
  public:
 	using shared_ptr = std::shared_ptr<CMaterial>;
 
-	CMaterial(const std::string &id) : m_id(id) {}
+	explicit CMaterial(const std::string &id) : m_id(id) {}
 
-	const auto &id() const { return m_id; }
-	const auto &classes() const { return m_classes; }
+	[[nodiscard]] const auto &id() const { return m_id; }
+	[[nodiscard]] const auto &classes() const { return m_classes; }
 
-	const auto &get_name() const { return m_name; }
+	[[nodiscard]] const auto &get_name() const { return m_name; }
 	void set_name(const std::string &_) { m_name = _; }
 
  private:
@@ -167,9 +167,9 @@ class CRecipe {
  public:
 	using shared_ptr = std::shared_ptr<CRecipe>;
 
-	CRecipe(const std::string &id) : m_id(id) {}
+	CRecipe(std::string id) : m_id(std::move(id)) {}
 
-	const auto &id() const { return m_id; }
+	[[nodiscard]] const auto &id() const { return m_id; }
 
 	bool satisfy(const CharData *) const { return false; }
 
@@ -200,7 +200,7 @@ class CSkillBase {
  public:
 	CSkillBase() : m_threshold(0) {}
 
-	const auto &id() const { return m_id; }
+	[[nodiscard]] const auto &id() const { return m_id; }
 
  private:
 	bool load(const pugi::xml_node *node);
@@ -219,7 +219,7 @@ class CCraft {
  public:
 	CCraft() : m_slots(0) {}
 
-	const auto &id() const { return m_id; }
+	[[nodiscard]] const auto &id() const { return m_id; }
 
  private:
 	bool load(const pugi::xml_node *node);
@@ -276,18 +276,18 @@ class CCraftModel {
 	*/
 	void create_item() const;
 
-	const crafts_t &crafts() const { return m_crafts; }
-	const skills_t &skills() const { return m_skills; }
-	const recipes_t &recipes() const { return m_recipes; }
-	const prototypes_t &prototypes() const { return m_prototypes; }
-	const materials_t &materials() const { return m_materials; }
+	[[nodiscard]] const crafts_t &crafts() const { return m_crafts; }
+	[[nodiscard]] const skills_t &skills() const { return m_skills; }
+	[[nodiscard]] const recipes_t &recipes() const { return m_recipes; }
+	[[nodiscard]] const prototypes_t &prototypes() const { return m_prototypes; }
+	[[nodiscard]] const materials_t &materials() const { return m_materials; }
 
-	const auto base_count() const { return m_base_count; }
-	const auto remort_for_count_bonus() const { return m_remort_for_count_bonus; }
+	[[nodiscard]]  auto base_count() const { return m_base_count; }
+	[[nodiscard]] const auto remort_for_count_bonus() const { return m_remort_for_count_bonus; }
 	const auto base_top() const { return m_base_top; }
 	const auto remorts_bonus() const { return m_remorts_bonus; }
 
-	bool export_object(const ObjVnum vnum, const char *filename);
+	bool export_object(ObjVnum vnum, const char *filename);
 
  private:
 	/**

@@ -27,8 +27,6 @@
 namespace parser_wrapper {
 
 class DataNode {
-//  using iterator_category = std::forward_iterator_tag;
-//  using difference_type   = std::ptrdiff_t;
   using value_type        = DataNode;
   using pointer           = DataNode*;
   using reference         = DataNode&;

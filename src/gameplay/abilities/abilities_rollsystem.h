@@ -34,7 +34,7 @@ class AbilityRoll {
 
 	AbilityRoll() = default;
 
-	virtual void Init(CharData *actor, abilities::EAbility ability_id);
+	void Init(CharData *actor, abilities::EAbility ability_id);
 	virtual void ProcessingResult(int result, int roll);
 	virtual void PerformAbilityTest();
 	virtual void DetermineBaseSkill();

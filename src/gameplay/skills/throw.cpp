@@ -23,7 +23,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 	// У персонажей пока нет абилок и надо как-то утанавливать соответствие абилки и фита
 	auto feat_id{EFeat::kUndefined};
 	std::string to_char, to_vict, to_room;
-	void (*DoSideAction)(abilities_roll::TechniqueRoll &technique);
+	void (*DoSideAction)(abilities_roll::TechniqueRoll &technique){nullptr};
 	auto mob_no_flag = EMobFlag::kMobDeleted;
 
 	switch (static_cast<ESkill>(weapon->get_spec_param())) {
@@ -88,7 +88,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 	};
 	abilities_roll::TechniqueRoll side_roll;
 	side_roll.Init(technique.GetActor(), ability_id, technique.GetRival());
-	if (side_roll.IsSuccess() && !technique.GetRival()->IsFlagged(mob_no_flag)) {
+	if (DoSideAction && side_roll.IsSuccess() && !technique.GetRival()->IsFlagged(mob_no_flag)) {
 		act(to_char.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToVict);
 		act(to_vict.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToChar);
 		act(to_room.c_str(), false, technique.GetRival(), nullptr, technique.GetActor(), kToNotVict | kToArenaListen);

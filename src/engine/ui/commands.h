@@ -105,7 +105,7 @@ class CommandWithHelp : public AbstractCommand, public Help {
 
 class CommonCommand : public CommandWithHelp {
  protected:
-	void send(const CommandContext::shared_ptr &context, const std::string &message) const;
+	static void send(const CommandContext::shared_ptr &context, const std::string &message) ;
 	void usage(const CommandContext::shared_ptr &context) const { send(context, get_help()); }
 };
 

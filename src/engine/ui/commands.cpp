@@ -6,8 +6,9 @@
 
 #include <iomanip>
 
-namespace commands {
-namespace utils {
+
+namespace commands::utils {
+
 class CommandEmbranchmentImplementation : public CommandEmbranchment {
  public:
 	static constexpr int SUGGESTIONS_COUNT = 4;
@@ -15,18 +16,18 @@ class CommandEmbranchmentImplementation : public CommandEmbranchment {
 	using branch_t = CommandWithHelp::shared_ptr;
 	using shared_ptr = std::shared_ptr<CommandEmbranchmentImplementation>;
 
-	CommandEmbranchmentImplementation() {}
+	CommandEmbranchmentImplementation() = default;
 
-	virtual CommandEmbranchment &add_command(const std::string &branch, const branch_t &command) override;
-	virtual CommandEmbranchment &set_noargs_handler(AbstractCommand::shared_ptr command) override;
-	virtual CommandEmbranchment &set_unexpected_command_handler(AbstractCommand::shared_ptr command) override;
-	virtual CommandEmbranchment &rebuild_help() override;
+	CommandEmbranchment &add_command(const std::string &branch, const branch_t &command) override;
+	CommandEmbranchment &set_noargs_handler(AbstractCommand::shared_ptr command) override;
+	CommandEmbranchment &set_unexpected_command_handler(AbstractCommand::shared_ptr command) override;
+	CommandEmbranchment &rebuild_help() override;
 
-	virtual void execute(const CommandContext::shared_ptr &context,
+	void execute(const CommandContext::shared_ptr &context,
 						 const arguments_t &path,
 						 const arguments_t &arguments) override;
 
-	virtual branch_t get_command(const std::string &command) const override { return std::move(get_handler(command)); }
+	branch_t get_command(const std::string &command) const override { return get_handler(command); }
 
 	void show_commands_list(const CommandContext::shared_ptr &context) const;
 
@@ -42,8 +43,8 @@ class CommandEmbranchmentImplementation : public CommandEmbranchment {
 		const auto &handlers() const { return m_handlers; }
 		auto max_length() const { return m_max_length; }
 
-		auto begin() const { return std::move(m_trie.begin()); }
-		auto end() const { return std::move(m_trie.end()); }
+		auto begin() const { return m_trie.begin(); }
+		auto end() const { return m_trie.end(); }
 
 	 private:
 		CompactTrie m_trie;
@@ -58,8 +59,8 @@ class CommandEmbranchmentImplementation : public CommandEmbranchment {
 						   const arguments_t &arguments) const;
 	branch_t get_handler(const std::string &prefix) const;
 	void make_suggestion(const CommandContext::shared_ptr &context, const std::string &wrong_subcommand) const;
-	bool replyable_context(const CommandContext::shared_ptr &context) const;
-	void reply(const CommandContext::shared_ptr &context, const std::string &message) const;
+	static bool replyable_context(const CommandContext::shared_ptr &context) ;
+	static void reply(const CommandContext::shared_ptr &context, const std::string &message) ;
 	void print_branches_list(std::stringstream &ss) const;
 
 	Branches m_branches;
@@ -160,7 +161,7 @@ void CommandEmbranchmentImplementation::unexpected_branch(const CommandContext::
 	}
 
 	const auto &subcommand = arguments.front();
-	if ("" == subcommand) {
+	if (subcommand.empty()) {
 		show_commands_list(context);
 		return;
 	}
@@ -211,12 +212,12 @@ void CommandEmbranchmentImplementation::make_suggestion(const CommandContext::sh
 	reply(context, ss.str());
 }
 
-bool CommandEmbranchmentImplementation::replyable_context(const CommandContext::shared_ptr &context) const {
+bool CommandEmbranchmentImplementation::replyable_context(const CommandContext::shared_ptr &context) {
 	return bool(std::dynamic_pointer_cast<AbstractReplyableContext>(context));
 }
 
 void CommandEmbranchmentImplementation::reply(const CommandContext::shared_ptr &context,
-											  const std::string &message) const {
+											  const std::string &message) {
 	const auto caller = std::dynamic_pointer_cast<AbstractReplyableContext>(context);
 	if (!caller) {
 		return;
@@ -341,13 +342,11 @@ AbstractCommand::Arguments::Arguments(char *arguments) {
 	}
 }
 
-void CommonCommand::send(const CommandContext::shared_ptr &context, const std::string &message) const {
+void CommonCommand::send(const CommandContext::shared_ptr &context, const std::string &message) {
 	const auto rcontext = std::dynamic_pointer_cast<AbstractReplyableContext>(context);
 	if (rcontext) {
 		rcontext->reply(message);
 	}
 }
 }
-}
 
-/* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

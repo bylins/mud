@@ -59,42 +59,18 @@ bool AbilityRoll::TryRevealWrongConditions() {
 // явно что-то не дописано, чтоб не углубляться в чужие мысли сделаем пока так
 EFeat ConvertFeat(abilities::EAbility new_enum) {
 	switch (new_enum) {
-		case abilities::EAbility::kScirmisher:
-			return EFeat::kScirmisher;
-		break;
-		case abilities::EAbility::kTactician:
-			return  EFeat::kTactician;
-		break;
-		case abilities::EAbility::kShadowThrower:
-			return  EFeat::kShadowThrower;
-		break;
-		case abilities::EAbility::kCutting:
-			return  EFeat::kCutting;
-		break;
-		case abilities::EAbility::kShadowDagger:
-			return  EFeat::kShadowDagger;
-		break;
-		case abilities::EAbility::kShadowSpear:
-			return  EFeat::kShadowSpear;
-		break;
-		case abilities::EAbility::kShadowClub:
-			return  EFeat::kShadowClub;
-		break;
-		case abilities::EAbility::kDoubleThrower:
-			return  EFeat::kDoubleThrower;
-		break;
-		case abilities::EAbility::kTripleThrower:
-			return  EFeat::kTripleThrower;
-		break;
-		case abilities::EAbility::kPowerThrow:
-			return  EFeat::kPowerThrow;
-		break;
-		case abilities::EAbility::kDeadlyThrow:
-			return  EFeat::kDeadlyThrow;
-		break;
-		default:
-			return EFeat::kUndefined;
-		break;
+		case abilities::EAbility::kScirmisher: return EFeat::kScirmisher;
+		case abilities::EAbility::kTactician: return  EFeat::kTactician;
+		case abilities::EAbility::kShadowThrower: return  EFeat::kShadowThrower;
+		case abilities::EAbility::kCutting: return  EFeat::kCutting;
+		case abilities::EAbility::kShadowDagger: return  EFeat::kShadowDagger;
+		case abilities::EAbility::kShadowSpear: return  EFeat::kShadowSpear;
+		case abilities::EAbility::kShadowClub: return  EFeat::kShadowClub;
+		case abilities::EAbility::kDoubleThrower: return  EFeat::kDoubleThrower;
+		case abilities::EAbility::kTripleThrower: return  EFeat::kTripleThrower;
+		case abilities::EAbility::kPowerThrow: return  EFeat::kPowerThrow;
+		case abilities::EAbility::kDeadlyThrow: return  EFeat::kDeadlyThrow;
+		default: return EFeat::kUndefined;
 	}
 }
 // второй костыль
@@ -174,7 +150,7 @@ bool AgainstRivalRoll::IsActorMoraleFailure() {
 	if (actor_morale <= 0 && rival_morale <= 0) {
 		return (actor_morale < rival_morale);
 	}
-	if (actor_morale <= 0 && rival_morale >= 0) {
+	if (actor_morale <= 0) {
 		return true;
 	}
 	return false;
@@ -194,7 +170,7 @@ void AgainstRivalRoll::TrainBaseSkill(bool success) {
 };
 
 int AgainstRivalRoll::CalcTargetRating() {
-	return std::max(0, CalcSaving(actor_, rival_, MUD::Ability(ability_).GetSaving(), 0));
+	return std::max(0, CalcSaving(actor_, rival_, MUD::Ability(ability_).GetSaving(), false));
 };
 
 //TODO: избавиться от target в calculate_skill и убрать обертку
