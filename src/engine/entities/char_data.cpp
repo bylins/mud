@@ -352,28 +352,34 @@ void CharData::zero_init() {
 	round_counter = 0;
 	poisoner = 0;
 	agrobd = false;
+	extra_attack_ = {};
+	cast_attack_ = {};
+	add_abils = {};
+	real_abils = {};
+	char_specials = {};
+	mob_specials = {};
+	mem_queue.Clear();
+	battle_affects.clear();
+	Temporary.clear();
+	char_specials.position = EPosition::kStand;
+	mob_specials.default_pos = EPosition::kStand;
+	memset(&points, 0, sizeof(char_point_data));
+	souls = 0;
 
-	memset(&extra_attack_, 0, sizeof(extra_attack_type));
-	memset(&cast_attack_, 0, sizeof(CastAttack));
+//	memset(&extra_attack_, 0, sizeof(extra_attack_type));
+//	memset(&cast_attack_, 0, sizeof(CastAttack));
 	//memset(&player_data, 0, sizeof(char_player_data));
 	//player_data char_player_data();
-	memset(&add_abils, 0, sizeof(char_played_ability_data));
-	memset(&real_abils, 0, sizeof(char_ability_data));
-	memset(&points, 0, sizeof(char_point_data));
-	memset(&char_specials, 0, sizeof(char_special_data));
-	memset(&mob_specials, 0, sizeof(mob_special_data));
+//	memset(&add_abils, 0, sizeof(char_played_ability_data));
+//	memset(&real_abils, 0, sizeof(char_ability_data));
+//	memset(&char_specials, 0, sizeof(char_special_data));
+//	memset(&mob_specials, 0, sizeof(mob_special_data));
+//	memset(&Temporary, 0, sizeof(FlagData));
+//	memset(&battle_affects, 0, sizeof(FlagData));
 
 	for (auto & i : equipment) {
 		i = nullptr;
 	}
-
-	mem_queue.Clear();
-
-	memset(&Temporary, 0, sizeof(FlagData));
-	memset(&battle_affects, 0, sizeof(FlagData));
-	char_specials.position = EPosition::kStand;
-	mob_specials.default_pos = EPosition::kStand;
-	souls = 0;
 }
 
 /**
@@ -602,7 +608,7 @@ void CharData::set_skill(const ESkill skill_id, int percent) {
 	}
 }
 
-void CharData::SetSkillAfterRemort(int remort) {
+void CharData::SetSkillAfterRemort() {
 	for (auto & it : skills) {
 		int maxSkillLevel = CalcSkillHardCap(this, it.first);
 
@@ -1512,7 +1518,8 @@ void CharData::SetAddSkill(ESkill skill_id, int value) {
 
 void CharData::clear_add_apply_affects() {
 	// Clear all affect, because recalc one
-	memset(&add_abils, 0, sizeof(char_played_ability_data));
+	add_abils = {};
+//	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	set_remort_add(0);
 	set_level_add(0);
 	set_str_add(0);
@@ -2057,7 +2064,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 	vsnprintf(tmpbuf, sizeof(tmpbuf), msg, args);
 	va_end(args);
 
-	if (!tmpbuf) {
+	if (tmpbuf[0] == '\0') {
 		sprintf(buf, "[WARNING] CharacterData::send_to_TC. Передано пустое сообщение");
 		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 		return;

@@ -76,7 +76,7 @@ struct char_played_ability_data {
 	int hitreg;
 	int movereg;
 	int manareg;
-	std::array<sbyte, MAX_ADD_SLOTS> obj_slot;
+	std::array<sbyte, MAX_ADD_SLOTS> obj_slot{};
 	int armour;
 	int ac_add;
 	int hr_add;
@@ -93,8 +93,8 @@ struct char_played_ability_data {
 	int percent_spellpower_add;
 	int percent_spell_blink_phys;
 	int percent_spell_blink_mag;
-	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw;	// Saving throw (Bonuses)
-	std::array<int, EResist::kLastResist + 1> apply_resistance;					// Сопротивления повреждениям
+	std::array<int, to_underlying(ESaving::kLast) + 1> apply_saving_throw{};	// Saving throw (Bonuses)
+	std::array<int, EResist::kLastResist + 1> apply_resistance{};					// Сопротивления повреждениям
 	int mresist;
 	int aresist;
 	int presist; // По просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
@@ -103,13 +103,13 @@ struct char_played_ability_data {
 
 // Char's abilities.
 struct char_ability_data {
-	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplMem; // array of MEMed SPELLS
-	std::bitset<to_underlying(EFeat::kLast) + 1> Feats;
-	sbyte size;
-	int hitroll;
-	int damroll;
-	short armor;
+	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplKnw{}; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, to_underlying(ESpell::kLast) + 1> SplMem{}; // array of MEMed SPELLS
+	std::bitset<to_underlying(EFeat::kLast) + 1> Feats{};
+	sbyte size{};
+	int hitroll{};
+	int damroll{};
+	short armor{};
 };
 
 // Char's points.
@@ -178,7 +178,7 @@ struct mob_special_data {
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type {
-	EExtraAttack used_attack;
+	EExtraAttack used_attack{};
 	CharData *victim{nullptr};
 };
 
@@ -373,7 +373,7 @@ class CharData : public ProtectedCharData {
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(ESkill skill_id, int percent);
-	void SetSkillAfterRemort(int remort);
+	void SetSkillAfterRemort();
 	void clear_skills();
 	int GetSkill(ESkill skill_id) const;
 	int GetSkillWithoutEquip(ESkill skill_id) const;
