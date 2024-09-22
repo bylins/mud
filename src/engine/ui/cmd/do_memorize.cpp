@@ -8,6 +8,8 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 using classes::CalcCircleSlotsAmount;
 
 void show_wizdom(CharData *ch, int bitset);
@@ -52,17 +54,13 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 void show_wizdom(CharData *ch, int bitset) {
-	char names[kMaxMemoryCircle][kMaxStringLength];
-	int slots[kMaxMemoryCircle], i, max_slot, count, slot_num, is_full, gcount = 0, imax_slot = 0;
-	for (i = 1; i <= kMaxMemoryCircle; i++) {
-		*names[i - 1] = '\0';
-		slots[i - 1] = 0;
-		if (CalcCircleSlotsAmount(ch, i))
-			imax_slot = i;
-	}
+	int slot_num;
+	std::map<int, std::list<ESpell>> list_spell;
+	std::stringstream ss;
+
 	if (bitset & 0x01) {
-		is_full = 0;
-		max_slot = 0;
+		int count = 0;
+
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			if (!GET_SPELL_TYPE(ch, spell_id)) {
 				continue;
@@ -76,41 +74,33 @@ void show_wizdom(CharData *ch, int bitset) {
 			if (!count)
 				continue;
 			slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
-			max_slot = std::max(slot_num, max_slot);
-			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-					"%2s|[%2d] %-35s|",
-					slots[slot_num] % 88 < 10 ? "\r\n" : "  ",
-					count,
-					MUD::Spell(spell_id).GetCName());
-			is_full++;
-		};
-		gcount += sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s", kColorBoldCyn, kColorNrm);
-		if (is_full) {
-			for (i = 0; i < max_slot + 1; i++) {
-				if (slots[i]) {
-					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
-					gcount += snprintf(buf2 + gcount, kMaxStringLength, "%s", names[i]);
+			list_spell[slot_num].push_back(spell_id);
+		}
+		if (!list_spell.empty()) {
+			ss << "  &CВы знаете следующие заклинания :&n";
+			for (auto i : list_spell) {
+				int columns = 0;
+				ss << "\r\nКруг: " << i.first + 1;
+				for (auto it : list_spell[i.first]) {
+					ss << fmt::format("{}|[{:>2}] {:<35}|", ((++columns % 2) ? "\r\n" : " "), GET_SPELL_MEM(ch, it), MUD::Spell(it).GetCName());
 				}
+				if (ss.str().back() == '\n')
+					ss.seekp(-2, std::ios_base::end);
 			}
 		} else {
-			gcount += sprintf(buf2 + gcount, "\r\nСейчас у вас нет заученных заклинаний.");
+			ss << "Сейчас у вас нет заученных заклинаний.";
 		}
-		gcount += sprintf(buf2 + gcount, "\r\n");
+		ss << "\r\n";
 	}
 	if (bitset & 0x02) {
 		struct SpellMemQueueItem *q;
 		char timestr[16];
-		is_full = 0;
-		for (i = 0; i < kMaxMemoryCircle; i++) {
-			*names[i] = '\0';
-			slots[i] = 0;
-		}
 
+		list_spell.clear();
 		if (!ch->mem_queue.Empty()) {
 			ESpell cnt [to_underlying(ESpell::kLast) + 1];
 			for (int i = 0; i < to_underlying(ESpell::kLast) + 1; i++)
 				cnt[i] = ESpell::kUndefined;
-//			memset(cnt, 0, to_underlying(ESpell::kLast) + 1);
 			timestr[0] = 0;
 			if (!IS_MANA_CASTER(ch)) {
 				int div, min, sec;
@@ -135,43 +125,50 @@ void show_wizdom(CharData *ch, int bitset) {
 
 			for (q = ch->mem_queue.queue; q; q = q->next) {
 				auto spell_id = q->spell_id;
-				auto index = to_underlying(spell_id);
-				if (cnt[index] == ESpell::kUndefined) {
-					continue;
-				}
-				slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
-				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-						"%2s|[%2d] %-30s%5s|",
-						slots[slot_num] % 88 < 10 ? "\r\n" : "  ",
-						to_underlying(cnt[index]),
-						MUD::Spell(spell_id).GetCName(), q == ch->mem_queue.queue ? timestr : "");
-				cnt[index] = ESpell::kUndefined;
-			}
 
-			gcount +=
-				sprintf(buf2 + gcount,
-						"  %sВы запоминаете следующие заклинания :%s", kColorCyn, kColorNrm);
-			for (i = 0; i < imax_slot; i++) {
-				if (slots[i]) {
-					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
-					gcount += sprintf(buf2 + gcount, "%s", names[i]);
+				slot_num = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
+				list_spell[slot_num].push_back(spell_id);
+			}
+			if (!list_spell.empty()) {	
+				ss << "  &cВы запоминаете следующие заклинания :&n";
+				for (auto i : list_spell) {
+					int columns = 0;
+					std::map<ESpell, int> spell_count;
+				
+					for (auto it : list_spell[i.first]) {
+						spell_count[it]++;
+					}
+					
+					ss << "\r\nКруг: " << i.first + 1;
+					for (auto it : spell_count) {
+						ss << fmt::format("{}|[{:>2}] {:<35} {:<5}|", ((++columns % 2) ? "\r\n" : " "), 
+								it.second, MUD::Spell(it.first).GetCName(), (ch->mem_queue.queue->spell_id == it.first ? timestr : ""));
+					}
+					if (ss.str().back() == '\n')
+						ss.seekp(-2, std::ios_base::end);
 				}
 			}
-		} else
-			gcount += sprintf(buf2 + gcount, "\r\nВы ничего не запоминаете.");
-		gcount += sprintf(buf2 + gcount, "\r\n");
+		} else {
+			ss << "\r\nВы ничего не запоминаете.";
+		}
+		ss << "\r\n";
 	}
 
+	int imax_slot = 0;
+
+	for (int i = 1; i <= kMaxMemoryCircle; i++) {
+		if (CalcCircleSlotsAmount(ch, i))
+			imax_slot = i;
+	}
 	if ((bitset & 0x04) && imax_slot) {
 		int *s = MemQ_slots(ch);
-		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", kColorCyn, kColorNrm);
-		for (i = 0; i < imax_slot; i++) {
+		ss << "  &CСвободно :&n\r\n";
+		for (int i = 0; i < imax_slot; i++) {
 			slot_num = std::max(0, CalcCircleSlotsAmount(ch, i + 1) - s[i]);
-			gcount += sprintf(buf2 + gcount, "%s%2d-%2d%s  ",
-							  slot_num ? kColorBoldCyn : "", i + 1, slot_num, slot_num ? kColorNrm : "");
+			ss << fmt::format("{}{:>2}-{:>2}{}  ",
+					(slot_num ? kColorBoldCyn : ""), i + 1, slot_num, (slot_num ? kColorNrm : ""));
 		}
-		sprintf(buf2 + gcount, "\r\n");
+		ss << "\r\n";
 	}
-	//page_string(ch->desc, buf2, 1);
-	SendMsgToChar(buf2, ch);
+	SendMsgToChar(ss.str(), ch);
 }
