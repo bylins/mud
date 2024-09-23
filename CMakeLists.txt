@@ -370,7 +370,10 @@ set(SOURCES
 		src/engine/ui/cmd/do_write.cpp
 		src/engine/ui/cmd/do_group_say.cpp
 		src/engine/ui/cmd/do_say.cpp
-		src/engine/ui/cmd/do_ignore.cpp)
+		src/engine/ui/cmd/do_ignore.cpp
+		src/engine/ui/cmd/do_reply.cpp
+		src/engine/ui/cmd/do_tell.cpp
+		src/engine/ui/cmd/do_offtop.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -725,7 +728,10 @@ set(HEADERS
 		src/engine/ui/cmd/do_write.h
 		src/engine/ui/cmd/do_group_say.h
 		src/engine/ui/cmd/do_say.h
-		src/engine/ui/cmd/do_ignore.h)
+		src/engine/ui/cmd/do_ignore.h
+		src/engine/ui/cmd/do_reply.h
+		src/engine/ui/cmd/do_tell.h
+		src/engine/ui/cmd/do_offtop.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

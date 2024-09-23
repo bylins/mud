@@ -12,6 +12,8 @@
 class CharData;
 void tell_to_char(CharData *keeper, CharData *ch, const char *argument);
 bool tell_can_see(CharData *ch, CharData *vict);
+int is_tell_ok(CharData *ch, CharData *vict);
+void perform_tell(CharData *ch, CharData *vict, char *arg);
 
 #endif //BYLINS_SRC_GAMEPLAY_COMMUNICATION_TALK_H_
 
