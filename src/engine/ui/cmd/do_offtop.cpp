@@ -8,6 +8,9 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/offtop.h"
+#include "gameplay/communication/spam.h"
+#include "engine/ui/color.h"
+#include "gameplay/communication/remember.h"
 
 void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kStopOfftop)) {

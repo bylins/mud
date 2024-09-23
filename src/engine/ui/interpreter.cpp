@@ -51,6 +51,8 @@
 #include "engine/ui/cmd/do_mystat.h"
 #include "engine/ui/cmd/do_visible.h"
 #include "engine/ui/cmd/do_statistic.h"
+#include "engine/ui/cmd/do_pray_gods.h"
+#include "engine/ui/cmd/do_mobshout.h"
 #include "engine/ui/cmd/do_commands.h"
 #include "engine/ui/cmd/do_gold.h"
 #include "engine/ui/cmd/do_generic_page.h"
@@ -60,6 +62,12 @@
 #include "engine/ui/cmd/do_steal.h"
 #include "engine/ui/cmd/do_camouflage.h"
 #include "engine/ui/cmd/do_weather.h"
+#include "engine/ui/cmd/do_offtop.h"
+#include "engine/ui/cmd/do_gen_comm.h"
+#include "engine/ui/cmd/do_spec_comm.h"
+#include "engine/ui/cmd/do_tell.h"
+#include "engine/ui/cmd/do_page.h"
+#include "engine/ui/cmd/do_reply.h"
 #include "engine/ui/cmd/do_equip.h"
 #include "engine/ui/cmd/do_sneak.h"
 #include "engine/ui/cmd/do_quit.h"
@@ -301,8 +309,6 @@ void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
 void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
-void do_gen_comm(CharData *ch, char *argument, int cmd, int subcmd);
-void do_mobshout(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
@@ -312,11 +318,9 @@ void do_load(CharData *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
-void do_page(CharData *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
-void do_reply(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
@@ -327,13 +331,11 @@ void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
-void do_spec_comm(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
 void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
-void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
@@ -354,13 +356,11 @@ void do_tlist(CharData *ch, char *argument, int cmd, int subcmd);
 void do_tstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CharData *ch, char *argument, int cmd, int subcmd);
 void do_identify(CharData *ch, char *argument, int cmd, int subcmd);
-void do_pray_gods(CharData *ch, char *argument, int cmd, int subcmd);
 void do_rset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_recipes(CharData *ch, char *argument, int cmd, int subcmd);
 void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
-void do_offtop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);

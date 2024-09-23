@@ -16,7 +16,6 @@ set(SOURCES
 		src/gameplay/abilities/abilities_rollsystem.cpp
 		src/administration/accounts.cpp
 		src/engine/core/action_targeting.cpp
-		src/act_comm.cpp
 		src/engine/ui/cmd/do_sign.cpp
 		src/act_movement.cpp
 		src/gameplay/communication/social.cpp
@@ -373,7 +372,12 @@ set(SOURCES
 		src/engine/ui/cmd/do_ignore.cpp
 		src/engine/ui/cmd/do_reply.cpp
 		src/engine/ui/cmd/do_tell.cpp
-		src/engine/ui/cmd/do_offtop.cpp)
+		src/engine/ui/cmd/do_offtop.cpp
+		src/engine/ui/cmd/do_pray_gods.cpp
+		src/engine/ui/cmd/do_gen_comm.cpp
+		src/engine/ui/cmd/do_spec_comm.cpp
+		src/engine/ui/cmd/do_mobshout.cpp
+		src/engine/ui/cmd/do_page.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -731,7 +735,12 @@ set(HEADERS
 		src/engine/ui/cmd/do_ignore.h
 		src/engine/ui/cmd/do_reply.h
 		src/engine/ui/cmd/do_tell.h
-		src/engine/ui/cmd/do_offtop.h)
+		src/engine/ui/cmd/do_offtop.h
+		src/engine/ui/cmd/do_pray_gods.h
+		src/engine/ui/cmd/do_gen_comm.h
+		src/engine/ui/cmd/do_spec_comm.h
+		src/engine/ui/cmd/do_mobshout.h
+		src/engine/ui/cmd/do_page.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
