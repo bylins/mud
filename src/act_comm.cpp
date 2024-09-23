@@ -503,7 +503,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			act(buf1, false, ch, 0, 0, kToChar | kToSleep);
 
 			if (!ch->IsNpc()) {
-				snprintf(buf1 + strlen(buf1), kMaxStringLength, "\r\n");
+				strcat(buf1, "\r\n");
 				ch->remember_add(buf1, Remember::ALL);
 			}
 		}
