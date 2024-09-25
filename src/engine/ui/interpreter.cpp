@@ -65,6 +65,10 @@
 #include "engine/ui/cmd/do_offtop.h"
 #include "engine/ui/cmd/do_gen_comm.h"
 #include "engine/ui/cmd/do_spec_comm.h"
+#include "engine/ui/cmd/do_rest.h"
+#include "engine/ui/cmd/do_gen_door.h"
+#include "engine/ui/cmd/do_sit.h"
+#include "engine/ui/cmd/do_stand.h"
 #include "engine/ui/cmd/do_tell.h"
 #include "engine/ui/cmd/do_page.h"
 #include "engine/ui/cmd/do_reply.h"
@@ -227,6 +231,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "administration/proxy.h"
 #include "gameplay/communication/check_invoice.h"
+#include "gameplay/mechanics/doors.h"
 
 #include <ctime>
 
