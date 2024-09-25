@@ -534,6 +534,16 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			}
 			it.obj_vnum = zone_table[zrn_to].vnum * 100 + it.obj_vnum % 100;
 		}
+		if (mob_proto[mrn_to].mob_specials.dest_count > 0) {
+			for (auto ds = 0; ds < mob_proto[mrn_to].mob_specials.dest_count; ds++) {
+				if (mob_proto[mrn_to].mob_specials.dest[ds] / 100 != zone_table[zrn_from].vnum) {
+					mudlog(fmt::format("Внимание!!! При копировании маршрута у моба {} [{}] клетка [{}] вне теущей зоны {}, пропускаю",  
+							mob_proto[i].get_name(),  mob_index[i].vnum, mob_proto[mrn_to].mob_specials.dest[ds], zone_table[zrn_from].vnum), CMP, kLvlGreatGod, SYSLOG, true);
+				} else {
+					mob_proto[mrn_to].mob_specials.dest[ds] = zone_table[zrn_to].vnum * 100 + mob_proto[mrn_to].mob_specials.dest[ds] % 100;
+				}
+			}
+		}
 		mob_proto[mrn_to].script->cleanup();
 		mob_proto[mrn_to].proto_script = std::make_shared<ObjData::triggers_list_t>();
 		if (!mob_proto[i].summon_helpers.empty()) {
