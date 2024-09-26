@@ -2816,6 +2816,10 @@ void find_replacement(void *go,
 					if (GetRoomRnum(pos) != kNowhere) {
 						GET_LOADROOM(c) = pos;
 						c->save_char();
+						return;
+					} else {
+						trig_log(trig, "ошибка в параметрах loadroom");
+						return;
 					}
 				}
 			}
