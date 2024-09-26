@@ -537,7 +537,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		if (mob_proto[mrn_to].mob_specials.dest_count > 0) {
 			for (auto ds = 0; ds < mob_proto[mrn_to].mob_specials.dest_count; ds++) {
 				if (mob_proto[mrn_to].mob_specials.dest[ds] / 100 != zone_table[zrn_from].vnum) {
-					mudlog(fmt::format("Внимание!!! При копировании маршрута у моба {} [{}] клетка [{}] вне теущей зоны {}, пропускаю",  
+					mudlog(fmt::format("Внимание!!! При копировании маршрута у моба {} [{}] клетка [{}] вне текущей зоны {}, пропускаю",  
 							mob_proto[i].get_name(),  mob_index[i].vnum, mob_proto[mrn_to].mob_specials.dest[ds], zone_table[zrn_from].vnum), CMP, kLvlGreatGod, SYSLOG, true);
 				} else {
 					mob_proto[mrn_to].mob_specials.dest[ds] = zone_table[zrn_to].vnum * 100 + mob_proto[mrn_to].mob_specials.dest[ds] % 100;
@@ -864,6 +864,18 @@ void ObjDataFree(ZoneRnum zrn) {
 //	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
 	ObjRnum orn;
 
+	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
+		if (j->get_parent_rnum() > -1) {
+			if (obj_proto[j->get_rnum()]->get_vnum() / 100 == zone_table[zrn].vnum) {
+				if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
+						ExtractRepopDecayObject(j);
+						return;
+				} else {
+					SwapOriginalObject(j.get());
+				}
+			}
+		}
+	});
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = GetObjRnum(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
@@ -886,18 +898,6 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->clear_proto_script();
 		}
 	}
-	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
-		if (j->get_parent_rnum() > -1) {
-			if (obj_proto[j->get_parent_rnum()]->get_vnum() / 100 == zone_table[zrn].vnum) {
-				if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
-						ExtractRepopDecayObject(j);
-						return;
-				} else {
-					SwapOriginalObject(j.get());
-				}
-			}
-		}
-	});
 }
 
 void TrigDataFree(ZoneRnum zrn) {
