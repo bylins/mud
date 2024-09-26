@@ -2230,7 +2230,10 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "unsetquest")) {
 				if (*subfield && (num = atoi(subfield)) > 0) {
 					c->quested_remove(num);
-					strcpy(str, "1");
+					return;
+				} else {
+					trig_log(trig, "Ошибка в параметрах unsetquest");
+					return;
 				}
 			}
 		} else if (!str_cmp(field, "iname")) {
