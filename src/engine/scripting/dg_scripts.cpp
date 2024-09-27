@@ -1497,7 +1497,7 @@ void find_replacement(void *go,
 					  char *subfield,
 					  char *str) {
 	TriggerVar vd;
-	CharData *ch = nullptr, *c = nullptr, *rndm;
+	CharData *c = nullptr, *rndm;
 	ObjData *obj = nullptr, *o = nullptr;
 	RoomData *room = nullptr, *r = nullptr;
 	std::string name;
@@ -1607,6 +1607,7 @@ void find_replacement(void *go,
 	}
 
 	if (IsUID(vd.value.c_str())) {
+		CharData *ch;
 		name = vd.value;
 		switch (type) {
 			case MOB_TRIGGER: ch = (CharData *) go;
@@ -1954,7 +1955,7 @@ void find_replacement(void *go,
 				rndm = nullptr;
 				count = 0;
 				if (type == MOB_TRIGGER) {
-					ch = (CharData *) go;
+					CharData *ch = (CharData *) go;
 					for (const auto c : world[ch->in_room]->people) {
 						if (GET_INVIS_LEV(c)
 							|| (c == ch)) {
@@ -2348,6 +2349,28 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "maxmana")) {
 			sprintf(str, "%d", GET_MAX_MANA(c));
+		} else if (!str_cmp(field, "getstat")) {
+			if (*subfield)  {
+				sprintf(str, "%lld", c->GetStatistic(static_cast<CharStat::ECategory>(atoi(subfield))));
+			}
+		} else if (!str_cmp(field, "addstat")) {
+			if (*subfield)  {
+				char *p = strchr(subfield, ',');
+				if (!p) {
+					c->IncreaseStatistic(static_cast<CharStat::ECategory>(atoi(subfield)), 1);
+					return;
+				}
+				*(p++) = '\0';
+				int n = atoi(p);
+				p = subfield;
+				c->IncreaseStatistic(static_cast<CharStat::ECategory>(atoi(p)), n);
+				return;
+			}
+		} else if (!str_cmp(field, "clearstat")) {
+			if (*subfield)  {
+				c->ClearStatisticElement(static_cast<CharStat::ECategory>(atoi(subfield)));
+				return;
+			}
 		} else if (!str_cmp(field, "move")) {
 			if (*subfield)
 				GET_MOVE(c) = MAX(0, gm_char_field(c, field, subfield, GET_MOVE(c)));
