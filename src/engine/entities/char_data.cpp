@@ -2264,6 +2264,10 @@ void CharData::IncreaseStatistic(CharStat::ECategory category, ullong increment)
 	player_specials->saved.personal_statistics_.Increase(category, increment);
 };
 
+void CharData::ClearStatisticElement(CharStat::ECategory category) {
+	player_specials->saved.personal_statistics_.ClearElement(category);
+};
+
 ullong CharData::GetStatistic(CharStat::ECategory category) const {
 	return player_specials->saved.personal_statistics_.GetValue(category);
 };
