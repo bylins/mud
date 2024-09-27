@@ -1362,21 +1362,21 @@ void obj_point_update() {
 			const auto clan = Clan::GetClanByRoom(j->get_in_obj()->get_in_room());
 			if (!clan)   // внутри замков даже и смотреть не будем
 			{
-				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no) {
-					if (zone_table[zone].cmd[cmd_no].command == 'O'
-						&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->get_in_obj())
-						&& zone_table[zone].cmd[cmd_no].arg3 == j->get_in_obj()->get_in_room()) {
-						find = true;
-						break;
+				if (zone_table[zone].cmd != nullptr) {
+					for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no) {
+						if (zone_table[zone].cmd[cmd_no].command == 'O'
+							&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->get_in_obj())
+							&& zone_table[zone].cmd[cmd_no].arg3 == j->get_in_obj()->get_in_room()) {
+							find = true;
+							break;
+						}
 					}
 				}
 			}
-
 			if (!find && j->get_timer() > 0) {
 				j->dec_timer();
 			}
 		}
-
 		// If this is a corpse
 		if (IS_CORPSE(j))    // timer count down
 		{
