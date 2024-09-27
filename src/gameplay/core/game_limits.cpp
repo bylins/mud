@@ -1353,8 +1353,6 @@ void obj_point_update() {
 			&& !j->get_in_obj()->get_carried_by()
 			&& !j->get_in_obj()->get_worn_by()) {
 				j->dec_timer();
-			mudlog(fmt::format("тикает таймер у шмотки {} [{}]  в сумке {} [{}]", 
-				j->get_PName(0), j->get_vnum(), j->get_in_obj()->get_PName(0), j->get_in_obj()->get_vnum()), CMP, kLvlGreatGod, SYSLOG, true);
 		}
 		// If this is a corpse
 		if (IS_CORPSE(j))    // timer count down
