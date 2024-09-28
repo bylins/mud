@@ -1348,34 +1348,11 @@ void obj_point_update() {
 			clan_chest_point_update(j.get());
 			return;
 		}
-		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
-		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
-		// не лезет, да и не так уж и много на самом деле таких предметов будет, условий порядочно
-		// а так привет любителям оставлять книги в клановых сумках или лоадить в замке столы
-		if (j->get_in_obj()
+		if (j->get_in_obj() 
+			&& j->has_flag(EObjFlag::kTicktimer)
 			&& !j->get_in_obj()->get_carried_by()
-			&& !j->get_in_obj()->get_worn_by()
-			&& j->get_in_obj()->has_flag(EObjFlag::kNodecay)
-			&& GET_ROOM_VNUM(j->get_in_obj()->get_in_room()) % 100 != 99) {
-			int zone = world[j->get_in_obj()->get_in_room()]->zone_rn;
-			auto find{false};
-			const auto clan = Clan::GetClanByRoom(j->get_in_obj()->get_in_room());
-			if (!clan)   // внутри замков даже и смотреть не будем
-			{
-				if (zone_table[zone].cmd != nullptr) {
-					for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no) {
-						if (zone_table[zone].cmd[cmd_no].command == 'O'
-							&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->get_in_obj())
-							&& zone_table[zone].cmd[cmd_no].arg3 == j->get_in_obj()->get_in_room()) {
-							find = true;
-							break;
-						}
-					}
-				}
-			}
-			if (!find && j->get_timer() > 0) {
+			&& !j->get_in_obj()->get_worn_by()) {
 				j->dec_timer();
-			}
 		}
 		// If this is a corpse
 		if (IS_CORPSE(j))    // timer count down
