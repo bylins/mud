@@ -821,6 +821,7 @@ void RoomDataFree(ZoneRnum zrn) {
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
 		room->cleanup_script();
+		room->sector_type = ESector::kSecret;
 		room->affected.clear();
 		room->vnum = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
