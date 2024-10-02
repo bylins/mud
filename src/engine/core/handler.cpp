@@ -1644,27 +1644,6 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 		log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
-void UpdateObject(ObjData *obj, int use) {
-	ObjData *obj_it = obj;
-
-	while (obj_it) {
-		// don't update objects with a timer trigger
-		const bool trig_timer = CheckSript(obj_it, OTRIG_TIMER);
-		const bool has_timer = obj_it->get_timer() > 0;
-		const bool tick_timer = 0 != obj_it->has_flag(EObjFlag::kTicktimer);
-
-		if (!trig_timer && has_timer && tick_timer) {
-			obj_it->dec_timer(use);
-		}
-
-		if (obj_it->get_contains()) {
-			UpdateObject(obj_it->get_contains(), use);
-		}
-
-		obj_it = obj_it->get_next_content();
-	}
-}
-
 void UpdateCharObjects(CharData *ch) {
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos) != nullptr) {
@@ -1683,7 +1662,6 @@ void UpdateCharObjects(CharData *ch) {
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
 						}
-
 						if (GET_EQ(ch, wear_pos)->has_flag(EObjFlag::kDecay)) {
 							ExtractObjFromWorld(GET_EQ(ch, wear_pos));
 						}
@@ -1691,16 +1669,6 @@ void UpdateCharObjects(CharData *ch) {
 				}
 			}
 		}
-	}
-
-	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
-			UpdateObject(GET_EQ(ch, i), 1);
-		}
-	}
-
-	if (ch->carrying) {
-		UpdateObject(ch->carrying, 1);
 	}
 }
 

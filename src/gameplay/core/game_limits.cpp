@@ -1047,22 +1047,9 @@ inline bool NO_DESTROY(const ObjData *obj) {
 inline bool NO_TIMER(const ObjData *obj) {
 	if (GET_OBJ_TYPE(obj) == EObjType::kFountain)
 		return true;
-// так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
-// полный вариан
-/*	ZoneRnum zrn = 0;
-	if (GET_OBJ_VNUM_ZONE_FROM(obj) > 0) {
-		for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size() - 1); zrn++) {
-			if (zone_table[zrn].vnum == GET_OBJ_VNUM_ZONE_FROM(obj))
-				break;
-		}
-
-		if (zone_table[zrn].under_construction && zone_table[world[obj->get_in_room()]->zone_rn].under_construction) {
-			return true;
-		}
-	}
-*/
-// а почему бы не так?
-	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !obj->has_flag(EObjFlag::kTicktimer))
+	if (!obj->has_flag(EObjFlag::kTicktimer))
+		return true;
+	if (obj->get_in_room() != kNowhere && zone_table[world[obj->get_in_room()]->zone_rn].under_construction)
 		return true;
 	return false;
 }
@@ -1207,9 +1194,6 @@ void exchange_point_update() {
 	ExchangeItem *exch_item, *next_exch_item;
 	for (exch_item = exchange_item_list; exch_item; exch_item = next_exch_item) {
 		next_exch_item = exch_item->next;
-		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() > 0) {
-			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true, true);
-		}
 
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0) {
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(0);
@@ -1264,17 +1248,6 @@ void clan_chest_invoice(ObjData *j) {
 
 // * Дикей шмоток в клан-хране.
 void clan_chest_point_update(ObjData *j) {
-	// если это шмотка из большого набора предметов и она такая одна в хране, то таймер тикает в 2 раза быстрее
-	if (SetSystem::is_big_set(j, true)) {
-		SetSystem::init_vnum_list(GET_OBJ_VNUM(j));
-		if (!SetSystem::find_set_item(j->get_in_obj()) && j->get_timer() > 0)
-			j->dec_timer();
-	}
-
-	if (j->get_timer() > 0) {
-		j->dec_timer();
-	}
-
 	if (j->get_timer() <= 0
 		|| (j->has_flag(EObjFlag::kZonedacay)
 			&& GET_OBJ_VNUM_ZONE_FROM(j)
@@ -1343,24 +1316,17 @@ void obj_point_update() {
 		if (CheckObjDecay(j.get())) {
 			return;
 		}
+		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
+				j->dec_timer();
+		}
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_point_update(j.get());
 			return;
 		}
-		if (j->get_in_obj() 
-			&& j->has_flag(EObjFlag::kTicktimer)
-			&& !j->get_in_obj()->get_carried_by()
-			&& !j->get_in_obj()->get_worn_by()) {
-				j->dec_timer();
-		}
 		// If this is a corpse
 		if (IS_CORPSE(j))    // timer count down
 		{
-			if (j->get_timer() > 0) {
-				j->dec_timer();
-			}
-
 			if (j->get_timer() <= 0) {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
@@ -1400,19 +1366,13 @@ void obj_point_update() {
 			}
 		} else {
 			if (CheckSript(j.get(), OTRIG_TIMER)) {
-				if (j->get_timer() > 0 && j->has_flag(EObjFlag::kTicktimer)) {
-					j->dec_timer();
-				}
-				if (!j->get_timer()) {
+				if (j->get_timer() <=0) {
 					timer_otrigger(j.get());
 					return;
 				}
 			} else if (GET_OBJ_DESTROY(j) > 0
 				&& !NO_DESTROY(j.get())) {
 				j->dec_destroyer();
-			}
-			if (j && (j->get_in_room() != kNowhere) && j->get_timer() > 0 && !NO_TIMER(j.get())) {
-				j->dec_timer();
 			}
 			if (j && ((j->has_flag(EObjFlag::kZonedacay)
 					&& GET_OBJ_VNUM_ZONE_FROM(j)

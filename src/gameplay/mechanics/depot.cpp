@@ -601,7 +601,6 @@ void save_char_by_uid(int uid) {
 // * Апдейт таймеров в онлайн списках с оповещением о пурже, если чар онлайн и расчетом общей ренты.
 void CharNode::update_online_item() {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();) {
-		(*obj_it)->dec_timer();
 		if ((*obj_it)->get_timer() <= 0) {
 			if (ch) {
 				// если чар в лд или еще чего - лучше записать и выдать это ему при след
@@ -1032,7 +1031,6 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 	RemoveObjFromChar(obj.get());
 	check_auction(nullptr, obj.get());
-	world_objects.remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 	return 1;
@@ -1071,7 +1069,6 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, Cha
 			  (*obj_it)->get_short_description().c_str(),
 			  GET_OBJ_UNIQUE_ID(obj_it->get()),
 			  GET_OBJ_VNUM(obj_it->get()));
-	world_objects.add(*obj_it);
 	PlaceObjToInventory(obj_it->get(), vict);
 	act("Вы взяли $o3 из персонального хранилища.", false, vict, obj_it->get(), 0, kToChar);
 	act("$n взял$g $o3 из персонального хранилища.", true, vict, obj_it->get(), 0, kToRoom);
@@ -1272,8 +1269,6 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 		// макс в мире и так увеличивается при чтении шмотки, а на постое ее и не было
 
 		pers_online.push_front(obj);
-		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		world_objects.remove(obj);
 	}
 	delete[] databuf;
 	offline_list.clear();

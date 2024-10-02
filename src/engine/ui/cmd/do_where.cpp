@@ -96,7 +96,7 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 		|| ch->IsFlagged(EPrf::kCoderinfo)) {
 		tmp_num = Clan::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
-		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
+//		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
 	}
 
 	if (!found
@@ -216,6 +216,13 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 				continue;
 			}
 			ss << fmt::format("можно купить в магазине: {}\r\n", shop->GetDictionaryName());
+			SendMsgToChar(ss.str().c_str(), ch);
+			return true;
+		}
+		std::string str = Parcel::FindParcelObj(obj);
+
+		if (!str.empty()) {
+			ss << str;
 			SendMsgToChar(ss.str().c_str(), ch);
 			return true;
 		}
