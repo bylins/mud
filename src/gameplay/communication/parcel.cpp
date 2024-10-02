@@ -745,7 +745,11 @@ void update_timers() {
 			for (std::list<Node>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3 = tmp_it) {
 				tmp_it = it3;
 				++tmp_it;
+				mudlog(fmt::format("чекнул посылку {}", it3->obj_->get_PName(0)), CMP, kLvlGod, SYSLOG, true);
+					mudlog(fmt::format("таймер посылки {} равен {}", it3->obj_->get_PName(0), it3->obj_->get_timer()), CMP, kLvlGod, SYSLOG, true);
+
 				if (it3->obj_->get_timer() <= 0) {
+					mudlog(fmt::format("таймер посылки равен 0 {}", it3->obj_->get_PName(0)), CMP, kLvlGod, SYSLOG, true);
 					extract_parcel(it2->first, it->first, it3);
 					it2->second.erase(it3);
 				} else {

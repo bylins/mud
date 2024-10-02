@@ -5,7 +5,7 @@
 #include "administration/proxy.h"
 #include "gameplay/economics/auction.h"
 #include "gameplay/mechanics/deathtrap.h"
-#include "gameplay/communication/parcel.h"
+//#include "gameplay/communication/parcel.h"
 #include "gameplay/fight/fight.h"
 #include "engine/db/help.h"
 #include "gameplay/mechanics/bonus.h"
@@ -431,10 +431,12 @@ Heartbeat::steps_t &pulse_steps() {
 							 kSecsPerMudHour * kPassesPerSec,
 							 25,
 							 std::make_shared<SimpleCall>(Depot::update_timers)),
-		Heartbeat::PulseStep("Parcel: timers updating",
+// перенесено в obj_point_update()
+/*		Heartbeat::PulseStep("Parcel: timers updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 24,
 							 std::make_shared<SimpleCall>(Parcel::update_timers)),
+*/
 		Heartbeat::PulseStep("Glory: timers updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 23,

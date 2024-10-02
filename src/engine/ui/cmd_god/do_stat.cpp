@@ -773,8 +773,11 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	sprintf(buf, "Таймер на земле: %d\r\n", GET_OBJ_DESTROY(j));
 	SendMsgToChar(buf, ch);
-	std::string str = Parcel::FindParcelObj(j);
+	std::string str;
 
+	if  (j->get_in_room() == kNowhere) {
+		str = Parcel::FindParcelObj(j);
+	}
 	if (!str.empty()) {
 		str[0] = UPPER(str[0]);
 		SendMsgToChar(ch, "&C%s&n", str.c_str());

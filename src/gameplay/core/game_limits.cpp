@@ -35,8 +35,10 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/communication/parcel.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <random>
 
 const int kRecallSpellsInterval = 28;
@@ -1310,6 +1312,8 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 
 void obj_point_update() {
 	int count;
+//тут воткнуть замер времени
+	Parcel::update_timers();
 
 	world_objects.foreach_on_copy([&count](const ObjData::shared_ptr &j) {
 		// Тонущие, падающие, и сыпящиеся обьекты.
@@ -1322,7 +1326,7 @@ void obj_point_update() {
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_point_update(j.get());
-			return;
+//			return;
 		}
 		// If this is a corpse
 		if (IS_CORPSE(j))    // timer count down
