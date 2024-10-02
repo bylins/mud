@@ -339,10 +339,6 @@ void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
-		if (i->has_flag(EObjFlag::k1inlaid)) {
-			i->unset_extraflag(EObjFlag::k1inlaid);
-			save = 1;
-		}
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;
