@@ -169,7 +169,7 @@ void init_EObjFlag_ITEM_NAMES() {
 	EObjFlag_name_by_value[EObjFlag::KNofail] = "KNofail";
 	EObjFlag_name_by_value[EObjFlag::kNamed] = "kNamed";
 	EObjFlag_name_by_value[EObjFlag::kBloody] = "kBloody";
-	EObjFlag_name_by_value[EObjFlag::k1inlaid] = "k1inlaid";
+	EObjFlag_name_by_value[EObjFlag::kQuestItem] = "kQuestItem";
 	EObjFlag_name_by_value[EObjFlag::k2inlaid] = "k2inlaid";
 	EObjFlag_name_by_value[EObjFlag::k3inlaid] = "k3inlaid";
 	EObjFlag_name_by_value[EObjFlag::kNopour] = "kNopour";
