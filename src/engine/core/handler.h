@@ -72,7 +72,7 @@ ObjData *GetObjByVnumInContent(int vnum, ObjData *list);
 //ObjData *get_obj(const char *name, int vnum = 0);
 ObjData *SearchObjByRnum(ObjRnum rnum);
 
-bool CheckObjDecay(ObjData *object);
+bool CheckObjDecay(ObjData *object, bool need_extract = true);
 bool PlaceObjToRoom(ObjData *object, RoomRnum room);
 void RemoveObjFromRoom(ObjData *object);
 void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to);

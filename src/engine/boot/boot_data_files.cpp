@@ -666,7 +666,7 @@ void ObjectFile::parse_object(const int nr) {
 	// не должно быть
 	if (timer == ObjData::UNLIMITED_TIMER) {
 		timer--;
-		tobj->set_extra_flag(EObjFlag::kTicktimer);
+//		tobj->set_extra_flag(EObjFlag::kTicktimer);
 	}
 	tobj->set_timer(timer);
 	tobj->set_spell(t[2]);
@@ -750,6 +750,8 @@ void ObjectFile::parse_object(const int nr) {
 		}
 	}
 	tobj->unset_extraflag(EObjFlag::kTransformed); //от шаловливых ручек
+	tobj->unset_extraflag(EObjFlag::kTicktimer);
+
 	// *** extra descriptions and affect fields ***
 	strcat(m_buffer, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
 	j = 0;
