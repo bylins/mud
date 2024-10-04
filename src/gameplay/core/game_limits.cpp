@@ -1196,7 +1196,7 @@ void exchange_point_update() {
 	for (exch_item = exchange_item_list; exch_item; exch_item = next_exch_item) {
 		next_exch_item = exch_item->next;
 
-		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0) {
+		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() == 0) {
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(0);
 			cap[0] = UPPER(cap[0]);
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
@@ -1336,6 +1336,7 @@ mudlog(fmt::format("предмет тамер запущен {} таймер {}"
 	}
 	Parcel::update_timers();
 	Depot::update_timers();
+	exchange_point_update();
 	for (auto j : obj_decay_timer) {
 		mudlog(fmt::format("удаляем предмет {}", j->get_vnum()), CMP, kLvlGod, SYSLOG, true);
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {

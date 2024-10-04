@@ -31,6 +31,8 @@
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
 std::string print_special(CharData *mob) {
@@ -781,6 +783,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 	if (str.empty()) {
 		str = Depot::print_imm_where_obj(j);
+	}
+	if (str.empty()) {
+		for (ExchangeItem *obj = exchange_item_list; obj; obj = obj->next) {
+			if (GET_EXCHANGE_ITEM(obj)->get_unique_id() == j->get_unique_id()) {
+				str =  fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(obj));
+				break;
+			}
+		}
 	}
 	if (!str.empty()) {
 		str[0] = UPPER(str[0]);

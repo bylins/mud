@@ -773,8 +773,6 @@ void extract_exchange_item(ExchangeItem *item) {
 		lot_usage[GET_EXCHANGE_ITEM_LOT(item) - 1] = false;
 	if (item->comment)
 		free(item->comment);
-	if (item->obj)
-		ExtractObjFromWorld(item->obj);
 	free(item);
 
 }
