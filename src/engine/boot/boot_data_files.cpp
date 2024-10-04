@@ -662,11 +662,8 @@ void ObjectFile::parse_object(const int nr) {
 	}
 	tobj->set_sex(static_cast<EGender>(t[0]));
 	int timer = t[1] > 0 ? t[1] : ObjData::SEVEN_DAYS;
-	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
-	// не должно быть
-	if (timer == ObjData::UNLIMITED_TIMER) {
-		timer--;
-//		tobj->set_extra_flag(EObjFlag::kTicktimer);
+	if (timer > 99999) {
+		timer = 99999;
 	}
 	tobj->set_timer(timer);
 	tobj->set_spell(t[2]);

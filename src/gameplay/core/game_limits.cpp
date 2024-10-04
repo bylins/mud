@@ -1247,19 +1247,6 @@ void clan_chest_invoice(ObjData *j) {
 	}
 }
 
-// * Дикей шмоток в клан-хране.
-void clan_chest_point_update(ObjData *j) {
-	if (j->get_timer() <= 0
-		|| (j->has_flag(EObjFlag::kZonedacay)
-			&& GET_OBJ_VNUM_ZONE_FROM(j)
-			&& up_obj_where(j->get_in_obj()) != kNowhere
-			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
-		clan_chest_invoice(j);
-		RemoveObjFromObj(j);
-		ExtractObjFromWorld(j);
-	}
-}
-
 enum class ECharmeeObjPos {
 	kHandsOrEquip = 0,
 	kInventory,
@@ -1323,8 +1310,8 @@ void obj_point_update() {
 mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
 		}
 		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
-mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
 			j->dec_timer();
+mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
 		}
 		if (j->get_destroyer() == 0
 				|| j->get_timer() == 0
@@ -1351,8 +1338,7 @@ mudlog(fmt::format("предмет тамер запущен {} таймер {}"
 	for (auto j : obj_decay_timer) {
 		mudlog(fmt::format("удаляем предмет {}", j->get_vnum()), CMP, kLvlGod, SYSLOG, true);
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
-			clan_chest_point_update(j);
-//			return;
+			clan_chest_invoice(j);
 		}
 		if (IS_CORPSE(j)) {
 				ObjData *jj, *next_thing2;
