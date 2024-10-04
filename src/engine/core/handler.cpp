@@ -1423,14 +1423,13 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
  * @param object - проверяемый объект.
  * @return - true - если посыпался, false - если остался
  */
-bool CheckObjDecay(ObjData *object) {
+bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	int room, sect;
 	room = object->get_in_room();
 
 	if (room == kNowhere) {
 		return false;
 	}
-
 	sect = real_sector(room);
 
 	if (((sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim) &&
@@ -1441,7 +1440,9 @@ bool CheckObjDecay(ObjData *object) {
 			false, world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
-		ExtractObjFromWorld(object);
+		if (need_extract) {
+			ExtractObjFromWorld(object);
+		}
 		return true;
 	}
 
@@ -1451,7 +1452,9 @@ bool CheckObjDecay(ObjData *object) {
 			false, world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
-		ExtractObjFromWorld(object);
+		if (need_extract) {
+			ExtractObjFromWorld(object);
+		}
 		return true;
 	}
 
@@ -1462,7 +1465,9 @@ bool CheckObjDecay(ObjData *object) {
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
-		ExtractObjFromWorld(object);
+		if (need_extract) {
+			ExtractObjFromWorld(object);
+		}
 		return true;
 	}
 
@@ -1563,11 +1568,13 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	char name[kMaxStringLength];
 	ObjData *temp;
+
+	
 	int roomload = get_room_where_obj(obj, false);
 	utils::CExecutionTimer timer;
 	strcpy(name, obj->get_PName(0).c_str());
 //	if (roomload == 0 && showlog)
-//			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	if (showlog) {
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
@@ -1644,27 +1651,6 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 		log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
-void UpdateObject(ObjData *obj, int use) {
-	ObjData *obj_it = obj;
-
-	while (obj_it) {
-		// don't update objects with a timer trigger
-		const bool trig_timer = CheckSript(obj_it, OTRIG_TIMER);
-		const bool has_timer = obj_it->get_timer() > 0;
-		const bool tick_timer = 0 != obj_it->has_flag(EObjFlag::kTicktimer);
-
-		if (!trig_timer && has_timer && tick_timer) {
-			obj_it->dec_timer(use);
-		}
-
-		if (obj_it->get_contains()) {
-			UpdateObject(obj_it->get_contains(), use);
-		}
-
-		obj_it = obj_it->get_next_content();
-	}
-}
-
 void UpdateCharObjects(CharData *ch) {
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos) != nullptr) {
@@ -1683,7 +1669,6 @@ void UpdateCharObjects(CharData *ch) {
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
 						}
-
 						if (GET_EQ(ch, wear_pos)->has_flag(EObjFlag::kDecay)) {
 							ExtractObjFromWorld(GET_EQ(ch, wear_pos));
 						}
@@ -1691,16 +1676,6 @@ void UpdateCharObjects(CharData *ch) {
 				}
 			}
 		}
-	}
-
-	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
-			UpdateObject(GET_EQ(ch, i), 1);
-		}
-	}
-
-	if (ch->carrying) {
-		UpdateObject(ch->carrying, 1);
 	}
 }
 

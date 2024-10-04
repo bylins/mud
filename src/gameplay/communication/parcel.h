@@ -22,8 +22,7 @@ void show_stats(CharData *ch);
 void load();
 void save();
 void bring_back(CharData *ch, CharData *mailman);
-
-int print_imm_where_obj(CharData *ch, char *arg, int num);
+std::string FindParcelObj(const ObjData *obj);
 ObjData *locate_object(const char *str);
 
 void olc_update_from_proto(int robj_num, ObjData *olc_proto);

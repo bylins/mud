@@ -15,6 +15,8 @@
 
 #include <iomanip>
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
@@ -259,7 +261,6 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(nullptr, obj);
-	world_objects.remove(obj);
 }
 
 // * Отправка предмета, дергается из спешиала почты ('отправить имя предмет)'.
@@ -524,7 +525,6 @@ void receive(CharData *ch, CharData *mailman) {
 			for (std::list<Node>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
 				money += it3->money_ - calculate_timer_cost(it3);
 				// добавляем в глоб.список и кладем в посылку
-				world_objects.add(it3->obj_);
 				PlaceObjIntoObj(it3->obj_.get(), obj);
 			}
 			return_money(name, money, RETURN_WITH_MONEY);
@@ -703,7 +703,6 @@ void load() {
 		}
 		add_parcel(node.target, node.sender, node.obj_node);
 		// из глобального списка изымаем
-		world_objects.remove(node.obj_node.obj_);
 	}
 
 	free(readdata);
@@ -746,16 +745,15 @@ void update_timers() {
 			for (std::list<Node>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3 = tmp_it) {
 				tmp_it = it3;
 				++tmp_it;
-
-				it3->obj_->dec_timer();
-				if (it3->obj_->get_timer() <= 0) {
+				if (it3->obj_->get_timer() == 0) {
 					extract_parcel(it2->first, it->first, it3);
 					it2->second.erase(it3);
 				} else {
 					if (it3->timer_ == RETURNED_TIMER) {
 						// шмотка уже развернута отправителю, рента не капает, но таймер идет два раза
-						it3->obj_->dec_timer();
-						if (it3->obj_->get_timer() <= 0) {
+						if (it3->obj_->get_timer() > 1)
+							it3->obj_->dec_timer();
+						if (it3->obj_->get_timer() == 0) {
 							extract_parcel(it2->first, it->first, it3);
 							it2->second.erase(it3);
 						}
@@ -820,14 +818,16 @@ int delete_obj(int vnum) {
 }
 
 // * Иммское 'где' для учета предметов на почте.
-int print_imm_where_obj(CharData *ch, char *arg, int num) {
+bool print_imm_where_obj(CharData *ch, const ObjData *arg, int num) {
+	bool found = false;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-				if (isname(arg, it3->obj_->get_aliases())) {
+				if (arg->get_aliases() == it3->obj_->get_aliases()) {
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
 
+					found = true;
 					SendMsgToChar(ch, "%2d. [%6d] %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
 								  num++,
 								  GET_OBJ_VNUM(it3->obj_.get()),
@@ -839,7 +839,31 @@ int print_imm_where_obj(CharData *ch, char *arg, int num) {
 			}
 		}
 	}
-	return num;
+	return found;
+}
+
+std::string FindParcelObj(const ObjData *obj) {
+	std::string str;
+
+	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
+		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
+				if (obj->get_id() == it3->obj_->get_id()) {
+					std::string target = GetNameByUnique(it->first);
+					std::string sender = GetNameByUnique(it2->first);
+					
+					target[0] = UPPER(target[0]);
+					sender[0] = UPPER(sender[0]);
+					str = fmt::format("наход{}ся на почте (отправитель: {}, получатель: {}).\r\n",
+							GET_OBJ_POLY_1(ch, it3->obj_),
+							sender.c_str(),
+							target.c_str());
+					return str;
+				}
+			}
+		}
+	}
+	return "";
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
@@ -866,7 +890,7 @@ ObjData *locate_object(const char *str) {
 			}
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 // * Возврат всех ждущих посылок их отправителю.
@@ -884,7 +908,6 @@ void bring_back(CharData *ch, CharData *mailman) {
 		fill_ex_desc(ch, obj, std::string("Отдел возвратов"));
 		for (std::list<Node>::iterator l = k->second.begin(); l != k->second.end(); ++l) {
 			money += l->money_ - calculate_timer_cost(l);
-			world_objects.add(l->obj_);
 			PlaceObjIntoObj(l->obj_.get(), obj);
 		}
 		PlaceObjToInventory(obj, ch);

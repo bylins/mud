@@ -27,6 +27,11 @@
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/game_limits.h"
+#include "gameplay/economics/exchange.h"
+#include "gameplay/mechanics/depot.h"
+#include "gameplay/communication/parcel.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
@@ -770,48 +775,71 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	sprintf(buf, "Таймер на земле: %d\r\n", GET_OBJ_DESTROY(j));
 	SendMsgToChar(buf, ch);
+	std::string str;
 
-	auto room = get_room_where_obj(j);
-	strcpy(buf, "Находится в комнате : ");
-	if (room == kNowhere || !is_grgod) {
-		strcat(buf, "нигде");
-	} else {
-		sprintf(buf2, "%d", room);
-		strcat(buf, buf2);
+	str = Parcel::FindParcelObj(j);
+	if (str.empty()) {
+		str = Clan::print_imm_where_obj(j);
 	}
-
-	strcat(buf, ", В контейнере: ");
-	if (j->get_in_obj() && is_grgod) {
-		sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
-		strcat(buf, buf2);
+	if (str.empty()) {
+		str = Depot::print_imm_where_obj(j);
+	}
+	if (str.empty()) {
+		for (ExchangeItem *tmp_obj = exchange_item_list; tmp_obj; tmp_obj = tmp_obj->next) {
+			if (GET_EXCHANGE_ITEM(tmp_obj)->get_unique_id() == j->get_unique_id()) {
+				str =  fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(tmp_obj));
+				break;
+			}
+		}
+	}
+	if (str.empty()) {
+		for (const auto &shop : GlobalObjects::Shops()) {
+			const auto tmp_obj = shop->GetObjFromShop(j->get_unique_id());
+			if (!tmp_obj) {
+				continue;
+			}
+			str = fmt::format("можно купить в магазине: {}\r\n", shop->GetDictionaryName());
+		}
+	}
+	if (!str.empty()) {
+		str[0] = UPPER(str[0]);
+		SendMsgToChar(ch, "&C%s&n", str.c_str());
 	} else {
-		const auto param = Depot::look_obj_depot(j);
-		if ( param != nullptr)
-			strcat(buf, param);
-		else
+		auto room = get_room_where_obj(j);
+
+		strcpy(buf, "&CНаходится в комнате : ");
+		if (room == kNowhere || !is_grgod) {
+			strcat(buf, "нигде");
+		} else {
+			sprintf(buf2, "%d", room);
+			strcat(buf, buf2);
+		}
+		strcat(buf, ", В контейнере: ");
+		if (j->get_in_obj() && is_grgod) {
+			sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
+			strcat(buf, buf2);
+		} else {
 			strcat(buf, "Нет");
+		}
+		strcat(buf, ", В инвентаре: ");
+		if (j->get_carried_by() && is_grgod) {
+			strcat(buf, GET_NAME(j->get_carried_by()));
+		} else if (j->get_in_obj() && j->get_in_obj()->get_carried_by() && is_grgod) {
+			strcat(buf, GET_NAME(j->get_in_obj()->get_carried_by()));
+		} else {
+			strcat(buf, "Нет");
+		}
+		strcat(buf, ", Надет: ");
+		if (j->get_worn_by() && is_grgod) {
+			strcat(buf, GET_NAME(j->get_worn_by()));
+		} else if (j->get_in_obj() && j->get_in_obj()->get_worn_by() && is_grgod) {
+			strcat(buf, GET_NAME(j->get_in_obj()->get_worn_by()));
+		} else {
+			strcat(buf, "Нет");
+		}
+		strcat(buf, "\r\n&n");
+		SendMsgToChar(buf, ch);
 	}
-
-	strcat(buf, ", В инвентаре: ");
-	if (j->get_carried_by() && is_grgod) {
-		strcat(buf, GET_NAME(j->get_carried_by()));
-	} else if (j->get_in_obj() && j->get_in_obj()->get_carried_by() && is_grgod) {
-		strcat(buf, GET_NAME(j->get_in_obj()->get_carried_by()));
-	} else {
-		strcat(buf, "Нет");
-	}
-
-	strcat(buf, ", Надет: ");
-	if (j->get_worn_by() && is_grgod) {
-		strcat(buf, GET_NAME(j->get_worn_by()));
-	} else if (j->get_in_obj() && j->get_in_obj()->get_worn_by() && is_grgod) {
-		strcat(buf, GET_NAME(j->get_in_obj()->get_worn_by()));
-	} else {
-		strcat(buf, "Нет");
-	}
-
-	strcat(buf, "\r\n");
-	SendMsgToChar(buf, ch);
 
 	switch (GET_OBJ_TYPE(j)) {
 		case EObjType::kBook:

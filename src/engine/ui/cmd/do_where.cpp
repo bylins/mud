@@ -91,21 +91,10 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 	  }
 	});
 
-	int tmp_num = num;
-	if (IS_GOD(ch)
-		|| ch->IsFlagged(EPrf::kCoderinfo)) {
-		tmp_num = Clan::print_imm_where_obj(ch, arg, tmp_num);
-		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
-		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
-	}
-
-	if (!found
-		&& tmp_num == num) {
-		return false;
-	} else {
-		num = tmp_num;
+	if (found) {
 		return true;
 	}
+	return false;
 }
 
 void perform_mortal_where(CharData *ch, char *arg) {
@@ -192,16 +181,11 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 						  world[obj->get_worn_by()->in_room]->vnum);
 		ss << "\r\n";
 		SendMsgToChar(ss.str().c_str(), ch);
-	} else if (obj->get_in_obj()) {
-		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
-		{
-			return false; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
-		} else {
-			ss << fmt::format("лежит в [{}] {}, который находится \r\n",
-							  GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
-			SendMsgToChar(ss.str().c_str(), ch);
-			print_object_location(0, obj->get_in_obj(), ch);
-		}
+	} else if (obj->get_in_obj() && !Clan::is_clan_chest(obj->get_in_obj())) {// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
+		ss << fmt::format("лежит в [{}] {}, который находится \r\n",
+				GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
+		SendMsgToChar(ss.str().c_str(), ch);
+		print_object_location(0, obj->get_in_obj(), ch);
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 			if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
@@ -216,6 +200,25 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 				continue;
 			}
 			ss << fmt::format("можно купить в магазине: {}\r\n", shop->GetDictionaryName());
+			SendMsgToChar(ss.str().c_str(), ch);
+			return true;
+		}
+		std::string str = Clan::print_imm_where_obj(obj);
+
+		if (!str.empty()) {
+			ss << str;
+			SendMsgToChar(ss.str().c_str(), ch);
+			return true;
+		}
+		str = Depot::print_imm_where_obj(obj);
+		if (!str.empty()) {
+			ss << str;
+			SendMsgToChar(ss.str().c_str(), ch);
+			return true;
+		}
+		str = Parcel::FindParcelObj(obj);
+		if (!str.empty()) {
+			ss << str;
 			SendMsgToChar(ss.str().c_str(), ch);
 			return true;
 		}

@@ -193,7 +193,7 @@ class Clan {
   static bool ChestShow(ObjData *list, CharData *ch);
   static void remove_from_clan(long unique);
   static int print_spell_locate_object(CharData *ch, int count, std::string name);
-  static int print_imm_where_obj(CharData *ch, const char *name, int count);
+  static std::string print_imm_where_obj(const ObjData *obj);
   static int GetClanWars(CharData *ch);
   static void init_chest_rnum();
   static bool is_clan_chest(ObjData *obj);
