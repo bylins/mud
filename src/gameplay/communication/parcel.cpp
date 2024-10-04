@@ -745,13 +745,15 @@ void update_timers() {
 			for (std::list<Node>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3 = tmp_it) {
 				tmp_it = it3;
 				++tmp_it;
-				if (it3->obj_->get_timer() <= 0) {
+				if (it3->obj_->get_timer() == 0) {
 					extract_parcel(it2->first, it->first, it3);
 					it2->second.erase(it3);
 				} else {
 					if (it3->timer_ == RETURNED_TIMER) {
 						// шмотка уже развернута отправителю, рента не капает, но таймер идет два раза
-						if (it3->obj_->get_timer() <= 0) {
+						if (it3->obj_->get_timer() > 1)
+							it3->obj_->dec_timer();
+						if (it3->obj_->get_timer() == 0) {
 							extract_parcel(it2->first, it->first, it3);
 							it2->second.erase(it3);
 						}

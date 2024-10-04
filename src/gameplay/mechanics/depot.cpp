@@ -18,6 +18,8 @@
 #include "stable_objs.h"
 #include "weather.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <cmath>
 
 extern int bank(CharData *, void *, int, char *);
@@ -601,7 +603,7 @@ void save_char_by_uid(int uid) {
 // * Апдейт таймеров в онлайн списках с оповещением о пурже, если чар онлайн и расчетом общей ренты.
 void CharNode::update_online_item() {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();) {
-		if ((*obj_it)->get_timer() <= 0) {
+		if ((*obj_it)->get_timer() == 0) {
 			if (ch) {
 				// если чар в лд или еще чего - лучше записать и выдать это ему при след
 				// входе в игру, чтобы уж точно увидел
@@ -620,7 +622,6 @@ void CharNode::update_online_item() {
 					  (*obj_it)->get_short_description().c_str(),
 					  GET_OBJ_UNIQUE_ID(obj_it->get()),
 					  GET_OBJ_VNUM(obj_it->get()));
-			ExtractObjFromWorld(obj_it->get());
 			pers_online.erase(obj_it++);
 			need_save = true;
 		} else {
@@ -1429,34 +1430,20 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 	return count;
 }
 
-int print_imm_where_obj(CharData *ch, char *arg, int num) {
+std::string print_imm_where_obj(const ObjData *obj) {
+	std::string str;
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
-			if (isname(arg, (*obj_it)->get_aliases())) {
-				SendMsgToChar(ch,
-							  "%2d. [%6d] %-25s - наход%sся в персональном хранилище (%s).\r\n",
-							  num++,
-							  GET_OBJ_VNUM((*obj_it).get()),
-							  (*obj_it)->get_short_description().c_str(),
-							  GET_OBJ_POLY_1(ch, (*obj_it)),
-							  it->second.name.c_str());
+			if (obj->get_id() ==  (*obj_it)->get_id()) {
+				str = fmt::format("наход{}ся в персональном хранилище ({}).\r\n",
+						GET_OBJ_POLY_1(ch, (*obj_it)),
+						it->second.name.c_str());
+				return str;
 			}
 		}
 	}
-	return num;
-}
-
-char *look_obj_depot(ObjData *obj) {
-	for (auto it = depot_list.begin(); it != depot_list.end(); ++it) {
-		for (auto obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it) {
-			if (obj->get_id() == (*obj_it)->get_id()) {
-				sprintf(buf1, "В хранилище игрока %s", it->second.name.c_str());
-				return buf1;
-			}
-		}
-	}
-	return nullptr;
+	return str;
 }
 
 ObjData *find_obj_from_depot_and_dec_number(char *arg, int &number) {

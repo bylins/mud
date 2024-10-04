@@ -775,8 +775,12 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	std::string str;
 
-	if  (j->get_in_room() == kNowhere) {
-		str = Parcel::FindParcelObj(j);
+	str = Parcel::FindParcelObj(j);
+	if (str.empty()) {
+		str = Clan::print_imm_where_obj(j);
+	}
+	if (str.empty()) {
+		str = Depot::print_imm_where_obj(j);
 	}
 	if (!str.empty()) {
 		str[0] = UPPER(str[0]);
@@ -796,12 +800,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
 			strcat(buf, buf2);
 		} else {
-			const auto param = Depot::look_obj_depot(j);
-
-			if ( param != nullptr)
-				strcat(buf, param);
-			else
-				strcat(buf, "Нет");
+			strcat(buf, "Нет");
 		}
 		strcat(buf, ", В инвентаре: ");
 		if (j->get_carried_by() && is_grgod) {

@@ -14,7 +14,6 @@
 #include "administration/ban.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/title.h"
-#include "gameplay/mechanics/depot.h"
 #include "gameplay/mechanics/glory.h"
 #include "utils/file_crc.h"
 #include "gameplay/mechanics/sets_drop.h"
@@ -32,6 +31,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/communication/check_invoice.h"
+#include "gameplay/mechanics/depot.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -426,16 +426,6 @@ Heartbeat::steps_t &pulse_steps() {
 							 kSecsPerMudHour * kPassesPerSec,
 							 27,
 							 std::make_shared<SimpleCall>([]() { world_objects.purge(); })),
-		Heartbeat::PulseStep("Depot: timers updating",
-							 kSecsPerMudHour * kPassesPerSec,
-							 25,
-							 std::make_shared<SimpleCall>(Depot::update_timers)),
-// перенесено в obj_point_update()
-/*		Heartbeat::PulseStep("Parcel: timers updating",
-							 kSecsPerMudHour * kPassesPerSec,
-							 24,
-							 std::make_shared<SimpleCall>(Parcel::update_timers)),
-*/
 		Heartbeat::PulseStep("Glory: timers updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 23,

@@ -91,20 +91,10 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 	  }
 	});
 
-	int tmp_num = num;
-	if (IS_GOD(ch)
-		|| ch->IsFlagged(EPrf::kCoderinfo)) {
-		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
-//		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
-	}
-
-	if (!found
-		&& tmp_num == num) {
-		return false;
-	} else {
-		num = tmp_num;
+	if (found) {
 		return true;
 	}
+	return false;
 }
 
 void perform_mortal_where(CharData *ch, char *arg) {
@@ -214,12 +204,18 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 			return true;
 		}
 		std::string str = Clan::print_imm_where_obj(obj);
+
 		if (!str.empty()) {
 			ss << str;
 			SendMsgToChar(ss.str().c_str(), ch);
 			return true;
 		}
-
+		str = Depot::print_imm_where_obj(obj);
+		if (!str.empty()) {
+			ss << str;
+			SendMsgToChar(ss.str().c_str(), ch);
+			return true;
+		}
 		str = Parcel::FindParcelObj(obj);
 		if (!str.empty()) {
 			ss << str;

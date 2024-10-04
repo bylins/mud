@@ -1335,6 +1335,7 @@ mudlog(fmt::format("предмет тамер запущен {} таймер {}"
 		ExtractObjFromWorld(it);
 	}
 	Parcel::update_timers();
+	Depot::update_timers();
 	for (auto j : obj_decay_timer) {
 		mudlog(fmt::format("удаляем предмет {}", j->get_vnum()), CMP, kLvlGod, SYSLOG, true);
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
