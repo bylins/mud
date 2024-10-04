@@ -785,11 +785,20 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		str = Depot::print_imm_where_obj(j);
 	}
 	if (str.empty()) {
-		for (ExchangeItem *obj = exchange_item_list; obj; obj = obj->next) {
-			if (GET_EXCHANGE_ITEM(obj)->get_unique_id() == j->get_unique_id()) {
-				str =  fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(obj));
+		for (ExchangeItem *tmp_obj = exchange_item_list; tmp_obj; tmp_obj = tmp_obj->next) {
+			if (GET_EXCHANGE_ITEM(tmp_obj)->get_unique_id() == j->get_unique_id()) {
+				str =  fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(tmp_obj));
 				break;
 			}
+		}
+	}
+	if (str.empty()) {
+		for (const auto &shop : GlobalObjects::Shops()) {
+			const auto tmp_obj = shop->GetObjFromShop(j->get_unique_id());
+			if (!tmp_obj) {
+				continue;
+			}
+			str = fmt::format("можно купить в магазине: {}\r\n", shop->GetDictionaryName());
 		}
 	}
 	if (!str.empty()) {
