@@ -4019,29 +4019,24 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 }
 
 // иммское где для кланхранилищ
-int Clan::print_imm_where_obj(CharData *ch, const char *name, int count) {
+std::string Clan::print_imm_where_obj(const ObjData *obj) {
+	std::string str;
 	for (Clan::shared_ptr ptr_clan : Clan::ClanList) {
 		for (ObjData *chest = world[GetRoomRnum(ptr_clan->chest_room)]->contents; chest;
 			 chest = chest->get_next_content()) {
 			if (Clan::is_clan_chest(chest)) {
-				for (ObjData *chest_content = chest->get_contains(); chest_content;
-					 chest_content = chest_content->get_next_content()) {
-					if (!isname(name, chest_content->get_aliases().c_str())) {
-						continue;
-					}
-					SendMsgToChar(ch,
-								  "%2d. [%6d] %-25s - наход%sся в хранилище дружины '%s'.\r\n",
-								  count++,
-								  GET_OBJ_VNUM(chest_content),
-								  chest_content->get_short_description().c_str(),
+				for (ObjData *chest_content = chest->get_contains(); chest_content; chest_content = chest_content->get_next_content()) {
+					if (obj->get_id() == chest_content->get_id()) {
+						str = fmt::format("наход{}ся в хранилище дружины '{}'.\r\n",
 								  GET_OBJ_POLY_1(ch, (chest_content)),
 								  ptr_clan->GetAbbrev());
+						return str;
+					}
 				}
 			}
 		}
 	}
-
-	return count;
+	return str;
 }
 
 int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {

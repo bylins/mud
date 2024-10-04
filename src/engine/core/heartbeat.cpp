@@ -5,7 +5,6 @@
 #include "administration/proxy.h"
 #include "gameplay/economics/auction.h"
 #include "gameplay/mechanics/deathtrap.h"
-//#include "gameplay/communication/parcel.h"
 #include "gameplay/fight/fight.h"
 #include "engine/db/help.h"
 #include "gameplay/mechanics/bonus.h"
