@@ -1305,6 +1305,18 @@ void obj_point_update() {
 			obj_destroy.push_back(j.get());
 			return;
 		}
+		if (j->get_where_obj() == EWhereObj::kSeller) {
+			return;
+		}
+		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
+			j->dec_destroyer();
+mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
+		}
+		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
+			j->dec_timer();
+mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
+		}
+
 		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
 			j->dec_destroyer();
 mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
