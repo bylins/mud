@@ -128,11 +128,19 @@ EResist& operator++(EResist &r);
 
 const int kMaxPcResist = 75;
 
-/*
- * Character equipment positions: used as index for char_data.equipment[]
- * MOTE: Don't confuse these constants with the ITEM_ bitvectors which control
- * the valid places you can wear a piece of equipment
- */
+enum class EWhereObj : int {
+	kNowhere = 0,
+	kCharEquip,
+	kCharInventory,
+	kRoom,
+	kBag,
+	kClanChest,
+	kDepotChest,
+	kExchange,
+	kPostal,
+	kSeller,
+};
+
 enum EEquipPos : int {
 	kLight = 0,
 	kFingerR = 1,

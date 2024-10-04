@@ -707,6 +707,7 @@ class ObjData : public CObjectPrototype {
 	auto get_unique_id() const { return m_unique_id; }
 	auto get_worn_by() const { return m_worn_by; }
 	auto get_worn_on() const { return m_worn_on; }
+	auto get_where_obj() const { return m_where_obj; }
 	auto get_vnum_zone_from() const { return m_zone_from; }
 	auto serialize_enchants() const { return m_enchants.print_to_file(); }
 	const auto &get_enchants() const { return m_enchants; }
@@ -737,6 +738,7 @@ class ObjData : public CObjectPrototype {
 	void set_unique_id(const long _);
 	void set_worn_by(CharData *_) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
+	void set_where_obj(const EWhereObj _) { m_where_obj = _; }
 	void set_vnum_zone_from(const int _) { m_zone_from = _; }
 	void update_enchants_set_bonus(const obj_sets::ench_type &_) { m_enchants.update_set_bonus(this, _); }
 	void set_enchant(int skill);
@@ -775,7 +777,7 @@ class ObjData : public CObjectPrototype {
 	int m_owner;
 	int m_zone_from;
 	bool m_is_rename;
-
+	EWhereObj m_where_obj;
 	CharData *m_carried_by;    // Carried by :NULL in room/conta   //
 	CharData *m_worn_by;    // Worn by?              //
 	short int m_worn_on;        // Worn where?          //
