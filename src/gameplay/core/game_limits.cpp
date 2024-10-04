@@ -1310,20 +1310,20 @@ void obj_point_update() {
 		}
 		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
 			j->dec_destroyer();
-mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
+//mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
 		}
 		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
 			j->dec_timer();
-mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
+//mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
 		}
 
 		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
 			j->dec_destroyer();
-mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
+//mudlog(fmt::format("предмет на земле дестроер запущен {} таймер {}", j->get_vnum(), j->get_destroyer()) , CMP, kLvlGod, SYSLOG, true);
 		}
 		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
 			j->dec_timer();
-mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
+//mudlog(fmt::format("предмет тамер запущен {} таймер {}", j->get_vnum(), j->get_timer()) , CMP, kLvlGod, SYSLOG, true);
 		}
 		if (j->get_destroyer() == 0
 				|| j->get_timer() == 0
@@ -1350,7 +1350,7 @@ mudlog(fmt::format("предмет тамер запущен {} таймер {}"
 	Depot::update_timers();
 	exchange_point_update();
 	for (auto j : obj_decay_timer) {
-		mudlog(fmt::format("удаляем предмет {}", j->get_vnum()), CMP, kLvlGod, SYSLOG, true);
+//		mudlog(fmt::format("удаляем предмет {}", j->get_vnum()), CMP, kLvlGod, SYSLOG, true);
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_invoice(j);
 		}
