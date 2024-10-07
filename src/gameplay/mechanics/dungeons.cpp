@@ -73,8 +73,7 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 	for(int i = trn_start; i <= trn_stop; i++) {
 		auto c = *trig_index[i]->proto->cmdlist;
 
-		while (c) {
-			utils::ReplaceAll(c->cmd, search, replacer);
+		while (c) {utils::ReplaceTrigerNumber(c->cmd, search, replacer);
 			c = c->next;
 		}
 	}

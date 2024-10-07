@@ -357,6 +357,20 @@ void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &
 	}
 }
 
+void ReplaceTrigerNumber(std::string &s, const std::string &toSearch, const std::string &replacer) {
+	size_t pos = s.find(toSearch);
+	if (pos == 0) {
+		s.replace(pos, toSearch.size(), replacer);
+		return;
+	}
+	while (pos != std::string::npos) {
+		if (!isdigit(s[pos - 1])) {
+			s.replace(pos, toSearch.size(), replacer);
+		}
+		pos = s.find(toSearch, pos + replacer.size());
+	}
+}
+
 void EraseAll(std::string &s, const std::string &toSearch) {
 	size_t pos = s.find(toSearch);
 	size_t len = toSearch.length();
