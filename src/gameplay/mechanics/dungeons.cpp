@@ -438,10 +438,24 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 					new_room->dir_option[dir]->set_vkeyword(from->vkeyword); //чистить
 				}
 				new_room->dir_option[dir]->exit_info = from->exit_info;
-				if (to_room >= rrn_start && to_room <= rrn_stop) {
-					new_room->dir_option[dir]->key = from->key;
-				} else {
-					new_room->dir_option[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
+				if (from->key > 0) {
+					if (from->key / 100 == zone_table[zrn_to].vnum) {
+						new_room->dir_option[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
+					} else if (!dungeon_list.empty()) {
+						auto from_key = from->key;
+						auto zrn_to_it = std::find_if(dungeon_list.begin(),
+												  dungeon_list.end(),
+												  [&from_key, &new_room](auto it) {
+														return zone_table[it.from].vnum == from_key / 100;
+												  });
+						if (zrn_to_it != dungeon_list.end()) {
+							new_room->dir_option[dir]->key = zone_table[zrn_to_it->to].vnum * 100 + from->key % 100;
+						} else {
+							new_room->dir_option[dir]->key = from->key;
+						}
+					} else {
+						new_room->dir_option[dir]->key = from->key;
+					}
 				}
 				new_room->dir_option[dir]->lock_complexity = from->lock_complexity;
 			}
