@@ -237,7 +237,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 				++zone_table[inroom].traffic;
 			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
 					&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
-				SendMsgToChar("&GВы покинули зазеркалье.\007&n", ch);
+				SendMsgToChar("&GВы покинули зазеркалье.\007\r\n&n", ch);
 //				dungeons::SwapObjectDungeon(ch); перенесено на закрытие данжа
 			}
 		}
