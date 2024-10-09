@@ -439,7 +439,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 				}
 				new_room->dir_option[dir]->exit_info = from->exit_info;
 				if (from->key > 0) {
-					if (from->key / 100 == zone_table[zrn_to].vnum) {
+					if (from->key / 100 == zone_table[zrn_from].vnum) {
 						new_room->dir_option[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
 					} else if (!dungeon_list.empty()) {
 						auto from_key = from->key;
