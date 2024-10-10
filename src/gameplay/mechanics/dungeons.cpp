@@ -842,10 +842,11 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->affected.clear();
 		room->vnum = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			if (room->dir_option[dir]) {
+			if (room->dir_option_proto[dir]) {
 //				room->dir_option[dir]->general_description.clear();
 //				room->dir_option[dir]->set_keyword("");
 //				room->dir_option[dir]->set_vkeyword("");
+				room->dir_option_proto[dir].reset();
 				room->dir_option[dir].reset();
 			}
 		}
