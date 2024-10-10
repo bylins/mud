@@ -407,7 +407,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		new_room->gdark = 0;
 		new_room->glight = 0;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			const auto &from = world[i]->dir_option[dir];
+			const auto &from = world[i]->dir_option_proto[dir];
 			if (from) {
 				RoomVnum rvn = 0;
 				int to_room = from->to_room();// - rrn_start + first_room_dungeon;
@@ -426,21 +426,21 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 						}
 					}
 				}
-				new_room->dir_option[dir] = std::make_shared<ExitData>();
-				new_room->dir_option[dir]->to_room(GetRoomRnum(rvn));
+				new_room->dir_option_proto[dir] = std::make_shared<ExitData>();
+				new_room->dir_option_proto[dir]->to_room(GetRoomRnum(rvn));
 				if (!from->general_description.empty()) {
-					new_room->dir_option[dir]->general_description = from->general_description; //чиcтить
+					new_room->dir_option_proto[dir]->general_description = from->general_description; //чиcтить
 				}
 				if (from->keyword) {
-					new_room->dir_option[dir]->set_keyword(from->keyword); //чистить
+					new_room->dir_option_proto[dir]->set_keyword(from->keyword); //чистить
 				}
 				if (from->vkeyword) {
-					new_room->dir_option[dir]->set_vkeyword(from->vkeyword); //чистить
+					new_room->dir_option_proto[dir]->set_vkeyword(from->vkeyword); //чистить
 				}
-				new_room->dir_option[dir]->exit_info = from->exit_info;
+				new_room->dir_option_proto[dir]->exit_info = from->exit_info;
 				if (from->key > 0) {
 					if (from->key / 100 == zone_table[zrn_from].vnum) {
-						new_room->dir_option[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
+						new_room->dir_option_proto[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
 					} else if (!dungeon_list.empty()) {
 						auto from_key = from->key;
 						auto zrn_to_it = std::find_if(dungeon_list.begin(),
@@ -449,15 +449,15 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 														return zone_table[it.from].vnum == from_key / 100;
 												  });
 						if (zrn_to_it != dungeon_list.end()) {
-							new_room->dir_option[dir]->key = zone_table[zrn_to_it->to].vnum * 100 + from->key % 100;
+							new_room->dir_option_proto[dir]->key = zone_table[zrn_to_it->to].vnum * 100 + from->key % 100;
 						} else {
-							new_room->dir_option[dir]->key = from->key;
+							new_room->dir_option_proto[dir]->key = from->key;
 						}
 					} else {
-						new_room->dir_option[dir]->key = from->key;
+						new_room->dir_option_proto[dir]->key = from->key;
 					}
 				}
-				new_room->dir_option[dir]->lock_complexity = from->lock_complexity;
+				new_room->dir_option_proto[dir]->lock_complexity = from->lock_complexity;
 			}
 		}
 		new_room->proto_script = std::make_shared<ObjData::triggers_list_t>();

@@ -143,7 +143,6 @@ void AddVirtualRoomsToAllZones();
 void CalculateFirstAndLastRooms();
 void CalculateFirstAndLastMobs();
 void RosolveWorldDoorToRoomVnumsToRnums();
-void PasteDirs();
 void ResolveZoneTableCmdVnumArgsToRnums();
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message);
 void ResetGameWorldTime();
@@ -385,10 +384,6 @@ void GameLoader::BootWorld() {
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
 	AddVirtualRoomsToAllZones();
-
-	boot_profiler.next_step("Adding dirs to  room.");
-	log("Adding dirs to room.");
-	PasteDirs();
 
 	boot_profiler.next_step("Calculate first end last room into zones");
 	log("Calculate first and last room into zones.");
@@ -1338,12 +1333,6 @@ void RestoreRoomExitData(RoomRnum rrn) {
 	}
 }
 
-void PasteDirs() {
-	for (int i = kFirstRoom; i <= top_of_world; i++) {
-		RestoreRoomExitData(i);
-	}
-}
-
 void CalculateFirstAndLastMobs() {
 }
 
@@ -1418,7 +1407,6 @@ void RosolveWorldDoorToRoomVnumsToRnums() {
 				if (world[room]->dir_option_proto[door]->to_room() != kNowhere) {
 					const auto to_room = GetRoomRnum(world[room]->dir_option_proto[door]->to_room());
 					world[room]->dir_option_proto[door]->to_room(to_room);
-					world[room]->dir_option[door]->to_room(to_room);
 				}
 			}
 		}
