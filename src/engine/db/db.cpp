@@ -1310,10 +1310,9 @@ void RestoreRoomExitData(RoomRnum rrn) {
 	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 		const auto &from = world[rrn]->dir_option_proto[dir];
 
-//		if (world[rrn]->dir_option[dir]) {
-//			world[rrn]->dir_option[dir]->to_room(kNowhere);
-//			world[rrn]->dir_option[dir].reset();
-//		}
+		if (world[rrn]->dir_option[dir]) {
+			world[rrn]->dir_option[dir].reset();
+		}
 		if (from) {
 			world[rrn]->dir_option[dir] = std::make_shared<ExitData>();
 			world[rrn]->dir_option[dir]->to_room(from->to_room());
