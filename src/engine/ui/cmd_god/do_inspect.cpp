@@ -574,12 +574,14 @@ void InspectRequestDeque::NewRequest(const CharData *ch, char *argument) {
 	if (IsQueueAvailable(ch)) {
 		std::vector<std::string> args;
 		SplitArgument(argument, args);
-		if (IsArgsValid(ch, args)) {
+		if (args.size() > 0 && IsArgsValid(ch, args)) {
 			auto request_ptr = CreateRequest(ch, args);
 			if (request_ptr) {
 				push_back(request_ptr);
 				SendMsgToChar("Запрос создан, ожидайте результата...\r\n", ch);
 			}
+		} else {
+			SendMsgToChar("Usage: inspect { mail | ip | char | all } <argument>\r\n", ch);
 		}
 	} else {
 		SendMsgToChar("Обрабатывается другой запрос, подождите...\r\n", ch);
