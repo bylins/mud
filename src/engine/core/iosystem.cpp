@@ -880,6 +880,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 #   define MSG_NOSIGNAL SO_NOSIGPIPE
 # endif
 #endif
+#include <sys/socket.h>
 
 // perform_socket_write for all Non-Windows platforms
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length) {
