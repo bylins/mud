@@ -377,7 +377,12 @@ set(SOURCES
 		src/engine/ui/cmd/do_gen_comm.cpp
 		src/engine/ui/cmd/do_spec_comm.cpp
 		src/engine/ui/cmd/do_mobshout.cpp
-		src/engine/ui/cmd/do_page.cpp)
+		src/engine/ui/cmd/do_page.cpp
+		src/engine/ui/cmd/do_rest.cpp
+		src/engine/ui/cmd/do_sit.cpp
+		src/engine/ui/cmd/do_stand.cpp
+		src/gameplay/mechanics/doors.cpp
+		src/engine/ui/cmd/do_gen_door.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -740,7 +745,12 @@ set(HEADERS
 		src/engine/ui/cmd/do_gen_comm.h
 		src/engine/ui/cmd/do_spec_comm.h
 		src/engine/ui/cmd/do_mobshout.h
-		src/engine/ui/cmd/do_page.h)
+		src/engine/ui/cmd/do_page.h
+		src/engine/ui/cmd/do_rest.h
+		src/engine/ui/cmd/do_sit.h
+		src/engine/ui/cmd/do_stand.h
+		src/gameplay/mechanics/doors.h
+		src/engine/ui/cmd/do_gen_door.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

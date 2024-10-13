@@ -21,6 +21,14 @@ void CharStat::Increase(ECategory category, ullong increment) {
 	}
 }
 
+void CharStat::ClearElement(ECategory category) {
+	try {
+		statistics_.at(category) = 0;
+	} catch (std::out_of_range &) {
+		log("SYSERROR: access to unknown statistic %d in CharStat.", category);
+	}
+}
+
 ullong CharStat::GetValue(ECategory category) const {
 	try {
 		return statistics_.at(category);

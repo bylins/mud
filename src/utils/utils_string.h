@@ -254,6 +254,8 @@ void ReplaceFirst(std::string &s, const std::string &toSearch, const std::string
  */
 void ReplaceAll(std::string &s, const std::string &toSearch, const std::string &replacer);
 
+// замена для триггеров, учитывает начало цифрового набора
+void ReplaceTrigerNumber(std::string &s, const std::string &toSearch, const std::string &replacer);
 /**
  * Удалить все вхождения указанной подстроки.
  * @param s - исходная строка.

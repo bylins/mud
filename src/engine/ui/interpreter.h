@@ -260,7 +260,7 @@ struct alias_data {
 
 struct SortStruct {
   int sort_pos;
-  byte is_social;
+  bool is_social;
 };
 
 extern SortStruct *cmd_sort_info;

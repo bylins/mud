@@ -50,6 +50,7 @@ class CharStat {
   CharStat() { Clear(); };
 // \todo Добавить проверку на переполнение
   void Increase(ECategory category, ullong increment);
+  void ClearElement(ECategory category);
   [[nodiscard]] ullong GetValue(ECategory category) const;
   void Clear();
   void ClearThisRemort();

@@ -788,6 +788,7 @@ class CharData : public ProtectedCharData {
   	void ClearStatistics() { player_specials->saved.personal_statistics_.Clear(); };
   	void ClearThisRemortStatistics() { player_specials->saved.personal_statistics_.ClearThisRemort(); };
   	void IncreaseStatistic(CharStat::ECategory category, ullong increment);
+  	void ClearStatisticElement(CharStat::ECategory category);
   	ullong GetStatistic(CharStat::ECategory category) const;
 
   	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };

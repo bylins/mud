@@ -342,7 +342,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 			uid = GetUniqueByName(buf);
 			//*buf = '\0';
 			if (uid > 0) {
-				strncpy(buf, player_table[GetPtableByUnique(uid)].mail, sizeof(buf));
+				strcpy(buf, player_table[GetPtableByUnique(uid)].mail);
 			}
 		}
 	}

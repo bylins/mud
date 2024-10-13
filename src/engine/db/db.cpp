@@ -143,7 +143,6 @@ void AddVirtualRoomsToAllZones();
 void CalculateFirstAndLastRooms();
 void CalculateFirstAndLastMobs();
 void RosolveWorldDoorToRoomVnumsToRnums();
-void PasteDirs();
 void ResolveZoneTableCmdVnumArgsToRnums();
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message);
 void ResetGameWorldTime();
@@ -339,10 +338,6 @@ void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
 		save = std::max(save, ConvertDrinkconSkillField(i.get(), true));
-		if (i->has_flag(EObjFlag::k1inlaid)) {
-			i->unset_extraflag(EObjFlag::k1inlaid);
-			save = 1;
-		}
 		if (i->has_flag(EObjFlag::k2inlaid)) {
 			i->unset_extraflag(EObjFlag::k2inlaid);
 			save = 1;
@@ -389,10 +384,6 @@ void GameLoader::BootWorld() {
 	boot_profiler.next_step("Adding virtual rooms to all zones");
 	log("Adding virtual rooms to all zones.");
 	AddVirtualRoomsToAllZones();
-
-	boot_profiler.next_step("Adding dirs to  room.");
-	log("Adding dirs to room.");
-	PasteDirs();
 
 	boot_profiler.next_step("Calculate first end last room into zones");
 	log("Calculate first and last room into zones.");
@@ -1319,10 +1310,9 @@ void RestoreRoomExitData(RoomRnum rrn) {
 	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 		const auto &from = world[rrn]->dir_option_proto[dir];
 
-//		if (world[rrn]->dir_option[dir]) {
-//			world[rrn]->dir_option[dir]->to_room(kNowhere);
-//			world[rrn]->dir_option[dir].reset();
-//		}
+		if (world[rrn]->dir_option[dir]) {
+			world[rrn]->dir_option[dir].reset();
+		}
 		if (from) {
 			world[rrn]->dir_option[dir] = std::make_shared<ExitData>();
 			world[rrn]->dir_option[dir]->to_room(from->to_room());
@@ -1339,12 +1329,6 @@ void RestoreRoomExitData(RoomRnum rrn) {
 			world[rrn]->dir_option[dir]->key = from->key;
 			world[rrn]->dir_option[dir]->lock_complexity = from->lock_complexity;
 		}
-	}
-}
-
-void PasteDirs() {
-	for (int i = kFirstRoom; i <= top_of_world; i++) {
-		RestoreRoomExitData(i);
 	}
 }
 
@@ -1422,7 +1406,6 @@ void RosolveWorldDoorToRoomVnumsToRnums() {
 				if (world[room]->dir_option_proto[door]->to_room() != kNowhere) {
 					const auto to_room = GetRoomRnum(world[room]->dir_option_proto[door]->to_room());
 					world[room]->dir_option_proto[door]->to_room(to_room);
-					world[room]->dir_option[door]->to_room(to_room);
 				}
 			}
 		}

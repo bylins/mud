@@ -1074,7 +1074,7 @@ void ClassSkillHelp() {
 
 	out << OutSkillsHelp(ECharClass::kSorcerer);
 	out << "\r\nСм. также: &CЛЕКАРЬ, ЗАКЛИНАНИЯЛЕКАРЯ, СПОСОБНОСТИЛЕКАРЯ, ОТВАРЫЛЕКАРЯ&n";
-	add_static("УМЕНИЯ ЛЕКАРЯ", out.str(), 0, true);
+	add_static("УМЕНИЯЛЕКАРЯ", out.str(), 0, true);
 
 	out.str("");
 	out << OutSkillsHelp(ECharClass::kConjurer);

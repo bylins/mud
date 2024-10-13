@@ -29,6 +29,7 @@
 #include "gameplay/core/game_limits.h"
 #include "engine/ui/cmd/do_equip.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/mechanics/doors.h"
 
 extern CharData *get_player_of_name(const char *name);
 
@@ -232,8 +233,8 @@ int npc_scavenge(CharData *ch) {
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
 					&& ch->GetSkill(ESkill::kPickLock)
-					&& ok_pick(ch, 0, obj, 0, kScmdPick)) {
-					do_doorcmd(ch, obj, 0, kScmdPick);
+					&& IsPickLockSucessdul(ch, 0, obj, EDirection::kUndefinedDir, kScmdPick)) {
+					do_doorcmd(ch, obj, EDirection::kUndefinedDir, kScmdPick);
 				}
 				// Все равно заперто, ну тогда фиг с ним
 				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)) {
@@ -366,7 +367,7 @@ int npc_loot(CharData *ch) {
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
 							&& ch->GetSkill(ESkill::kPickLock)
-							&& ok_pick(ch, 0, loot_obj, 0, kScmdPick)) {
+							&& IsPickLockSucessdul(ch, 0, loot_obj, EDirection::kUndefinedDir, kScmdPick)) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
 

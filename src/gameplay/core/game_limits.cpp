@@ -35,8 +35,10 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/communication/parcel.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <random>
 
 const int kRecallSpellsInterval = 28;
@@ -1033,7 +1035,7 @@ void check_idling(CharData *ch) {
 }
 
 // Update PCs, NPCs, and objects
-inline bool NO_DESTROY(const ObjData *obj) {
+bool NO_DESTROY(const ObjData *obj) {
 	return (obj->get_carried_by()
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
@@ -1044,27 +1046,13 @@ inline bool NO_DESTROY(const ObjData *obj) {
 			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
 }
 
-inline bool NO_TIMER(const ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kFountain)
+bool NO_TIMER(const ObjData *obj) {
+	if (GET_OBJ_TYPE(obj) == EObjType::kFountain
+			|| !obj->has_flag(EObjFlag::kTicktimer)
+			|| (obj->get_in_room() != kNowhere && zone_table[world[obj->get_in_room()]->zone_rn].under_construction))
 		return true;
-// так как таймер всего 30 шмот из тестовой зоны в своей зоне запретим тикать на земле
-// полный вариан
-/*	ZoneRnum zrn = 0;
-	if (GET_OBJ_VNUM_ZONE_FROM(obj) > 0) {
-		for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size() - 1); zrn++) {
-			if (zone_table[zrn].vnum == GET_OBJ_VNUM_ZONE_FROM(obj))
-				break;
-		}
-
-		if (zone_table[zrn].under_construction && zone_table[world[obj->get_in_room()]->zone_rn].under_construction) {
-			return true;
-		}
-	}
-*/
-// а почему бы не так?
-	if (zone_table[world[obj->get_in_room()]->zone_rn].under_construction && !obj->has_flag(EObjFlag::kTicktimer))
-		return true;
-	return false;
+	else
+		return false;
 }
 
 int up_obj_where(ObjData *obj) {
@@ -1207,11 +1195,8 @@ void exchange_point_update() {
 	ExchangeItem *exch_item, *next_exch_item;
 	for (exch_item = exchange_item_list; exch_item; exch_item = next_exch_item) {
 		next_exch_item = exch_item->next;
-		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() > 0) {
-			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true, true);
-		}
 
-		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0) {
+		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() == 0) {
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(0);
 			cap[0] = UPPER(cap[0]);
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
@@ -1259,30 +1244,6 @@ void clan_chest_invoice(ObjData *j) {
 			i->chest_log.add(log_text);
 			return;
 		}
-	}
-}
-
-// * Дикей шмоток в клан-хране.
-void clan_chest_point_update(ObjData *j) {
-	// если это шмотка из большого набора предметов и она такая одна в хране, то таймер тикает в 2 раза быстрее
-	if (SetSystem::is_big_set(j, true)) {
-		SetSystem::init_vnum_list(GET_OBJ_VNUM(j));
-		if (!SetSystem::find_set_item(j->get_in_obj()) && j->get_timer() > 0)
-			j->dec_timer();
-	}
-
-	if (j->get_timer() > 0) {
-		j->dec_timer();
-	}
-
-	if (j->get_timer() <= 0
-		|| (j->has_flag(EObjFlag::kZonedacay)
-			&& GET_OBJ_VNUM_ZONE_FROM(j)
-			&& up_obj_where(j->get_in_obj()) != kNowhere
-			&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j->get_in_obj())]->zone_rn].vnum)) {
-		clan_chest_invoice(j);
-		RemoveObjFromObj(j);
-		ExtractObjFromWorld(j);
 	}
 }
 
@@ -1336,55 +1297,52 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 }
 
 void obj_point_update() {
-	int count;
+	std::list<ObjData *> obj_destroy;
+	std::list<ObjData *> obj_decay_timer;
 
-	world_objects.foreach_on_copy([&count](const ObjData::shared_ptr &j) {
-		// Тонущие, падающие, и сыпящиеся обьекты.
-		if (CheckObjDecay(j.get())) {
+	world_objects.foreach([&obj_destroy, &obj_decay_timer](const ObjData::shared_ptr &j) {
+		if (j->get_where_obj() == EWhereObj::kSeller) {
 			return;
 		}
-		// смотрим клан-сундуки
-		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
-			clan_chest_point_update(j.get());
+		if (CheckObjDecay(j.get(), false)) {
+			obj_destroy.push_back(j.get());
 			return;
 		}
-		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
-		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
-		// не лезет, да и не так уж и много на самом деле таких предметов будет, условий порядочно
-		// а так привет любителям оставлять книги в клановых сумках или лоадить в замке столы
-		if (j->get_in_obj()
-			&& !j->get_in_obj()->get_carried_by()
-			&& !j->get_in_obj()->get_worn_by()
-			&& j->get_in_obj()->has_flag(EObjFlag::kNodecay)
-			&& GET_ROOM_VNUM(j->get_in_obj()->get_in_room()) % 100 != 99) {
-			int zone = world[j->get_in_obj()->get_in_room()]->zone_rn;
-			auto find{false};
-			const auto clan = Clan::GetClanByRoom(j->get_in_obj()->get_in_room());
-			if (!clan)   // внутри замков даже и смотреть не будем
-			{
-				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no) {
-					if (zone_table[zone].cmd[cmd_no].command == 'O'
-						&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->get_in_obj())
-						&& zone_table[zone].cmd[cmd_no].arg3 == j->get_in_obj()->get_in_room()) {
-						find = true;
-						break;
+		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
+			j->dec_destroyer();
+		}
+		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
+			j->dec_timer();
+		}
+		if (j->get_destroyer() == 0
+				|| j->get_timer() == 0
+				|| (j->has_flag(EObjFlag::kZonedacay)
+						&& GET_OBJ_VNUM_ZONE_FROM(j)
+						&& up_obj_where(j.get()) != kNowhere
+						&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
+			obj_decay_timer.push_back(j.get());
+		} else {
+			for (int count = 0; count < kMaxObjAffect; count++) {
+				if (j->get_affected(count).location == EApply::kPoison) {
+					j->dec_affected_value(count);
+					if (j->get_affected(count).modifier <= 0) {
+						j->set_affected(count, EApply::kNone, 0);
 					}
 				}
 			}
-
-			if (!find && j->get_timer() > 0) {
-				j->dec_timer();
-			}
 		}
-
-		// If this is a corpse
-		if (IS_CORPSE(j))    // timer count down
-		{
-			if (j->get_timer() > 0) {
-				j->dec_timer();
-			}
-
-			if (j->get_timer() <= 0) {
+	});
+	for (auto it : obj_destroy) {
+		ExtractObjFromWorld(it);
+	}
+	Parcel::update_timers();
+	Depot::update_timers();
+	exchange_point_update();
+	for (auto j : obj_decay_timer) {
+		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
+			clan_chest_invoice(j);
+		}
+		if (IS_CORPSE(j)) {
 				ObjData *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2) {
 					next_thing2 = jj->get_next_content();    // Next in inventory
@@ -1402,165 +1360,117 @@ void obj_point_update() {
 						ExtractObjFromWorld(jj);
 					}
 				}
-
 				if (j->get_carried_by()) {
 					act("$p рассыпал$U в ваших руках.",
-						false, j->get_carried_by(), j.get(), nullptr, kToChar);
-					RemoveObjFromChar(j.get());
+						false, j->get_carried_by(), j, nullptr, kToChar);
+					RemoveObjFromChar(j);
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
 						act("Черви полностью сожрали $o3.",
-							true, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToRoom);
+							true, world[j->get_in_room()]->first_character(), j, nullptr, kToRoom);
 						act("Черви не оставили от $o1 и следа.",
-							true, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToChar);
+							true, world[j->get_in_room()]->first_character(), j, nullptr, kToChar);
 					}
-
-					RemoveObjFromRoom(j.get());
+					RemoveObjFromRoom(j);
 				} else if (j->get_in_obj()) {
-					RemoveObjFromObj(j.get());
+					RemoveObjFromObj(j);
 				}
-				ExtractObjFromWorld(j.get());
-			}
+				ExtractObjFromWorld(j);
 		} else {
-			if (CheckSript(j.get(), OTRIG_TIMER)) {
-				if (j->get_timer() > 0 && j->has_flag(EObjFlag::kTicktimer)) {
-					j->dec_timer();
-				}
-				if (!j->get_timer()) {
-					timer_otrigger(j.get());
+			if (j->get_timer() == 0 && CheckSript(j, OTRIG_TIMER)) {
+					timer_otrigger(j);
 					return;
-				}
-			} else if (GET_OBJ_DESTROY(j) > 0
-				&& !NO_DESTROY(j.get())) {
-				j->dec_destroyer();
 			}
-			if (j && (j->get_in_room() != kNowhere) && j->get_timer() > 0 && !NO_TIMER(j.get())) {
-				j->dec_timer();
-			}
-			if (j && ((j->has_flag(EObjFlag::kZonedacay)
-					&& GET_OBJ_VNUM_ZONE_FROM(j)
-					&& up_obj_where(j.get()) != kNowhere
-					&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)
-					|| j->get_timer() <= 0
-					|| GET_OBJ_DESTROY(j) == 0)) {
-				// *** рассыпание объекта
-				ObjData *jj, *next_thing2;
-				for (jj = j->get_contains(); jj; jj = next_thing2) {
-					next_thing2 = jj->get_next_content();
-					RemoveObjFromObj(jj);
-					if (j->get_in_obj()) {
-						PlaceObjIntoObj(jj, j->get_in_obj());
-					} else if (j->get_worn_by()) {
-						PlaceObjToInventory(jj, j->get_worn_by());
-					} else if (j->get_carried_by()) {
-						PlaceObjToInventory(jj, j->get_carried_by());
-					} else if (j->get_in_room() != kNowhere) {
-						PlaceObjToRoom(jj, j->get_in_room());
-					} else {
-						log("SYSERR: extract %s from %s to kNothing !!!",
-							jj->get_PName(0).c_str(),
-							j->get_PName(0).c_str());
-						// core_dump();
-						ExtractObjFromWorld(jj);
-					}
-				}
-
-				// Конец Ладник
-				if (j->get_worn_by()) {
-					switch (j->get_worn_on()) {
-						case EEquipPos::kLight:
-						case EEquipPos::kShield:
-						case EEquipPos::kWield:
-						case EEquipPos::kHold:
-						case EEquipPos::kBoths:
-							if (IS_CHARMICE(j->get_worn_by())) {
-								charmee_obj_decay_tell(j->get_worn_by(), j.get(), ECharmeeObjPos::kHandsOrEquip);
-							} else {
-								snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
-										 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
-								act(buf, false, j->get_worn_by(), j.get(), nullptr, kToChar);
-							}
-							break;
-
-						default:
-							if (IS_CHARMICE(j->get_worn_by())) {
-								charmee_obj_decay_tell(j->get_worn_by(), j.get(), ECharmeeObjPos::kInventory);
-							} else {
-								snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
-										 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
-								act(buf, false, j->get_worn_by(), j.get(), nullptr, kToChar);
-							}
-							break;
-					}
-					UnequipChar(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
+			// *** рассыпание объекта
+			ObjData *jj, *next_thing2;
+			for (jj = j->get_contains(); jj; jj = next_thing2) {
+				next_thing2 = jj->get_next_content();
+				RemoveObjFromObj(jj);
+				if (j->get_in_obj()) {
+					PlaceObjIntoObj(jj, j->get_in_obj());
+				} else if (j->get_worn_by()) {
+					PlaceObjToInventory(jj, j->get_worn_by());
 				} else if (j->get_carried_by()) {
-					if (IS_CHARMICE(j->get_carried_by())) {
-						charmee_obj_decay_tell(j->get_carried_by(), j.get(), ECharmeeObjPos::kHandsOrEquip);
-					} else {
-						snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
-								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
-						act(buf, false, j->get_carried_by(), j.get(), nullptr, kToChar);
-					}
-					RemoveObjFromChar(j.get());
+					PlaceObjToInventory(jj, j->get_carried_by());
 				} else if (j->get_in_room() != kNowhere) {
-// билдер криво проставил таймер предмета на земле? Вякнем в мудлог
-					if (j->get_timer() <= 0 
-							&& j->has_flag(EObjFlag::kNodecay)
-							&& j->get_vnum_zone_from() == zone_table[world[j->get_in_room()]->zone_rn].vnum) {
-						snprintf(buf, kMaxStringLength, "ВНИМАНИЕ!!! Объект: %s VNUM: %d рассыпался по таймеру на земле в комнате: %d",
-								 GET_OBJ_PNAME(j.get(), 0).c_str(), GET_OBJ_VNUM(j.get()), world[j->get_in_room()]->vnum);
-						mudlog(buf, CMP, kLvlGreatGod, ERRLOG, true);
-
-					}
-					if (!world[j->get_in_room()]->people.empty()) {
-						act("$o рассыпал$U в прах, который был развеян ветром...",
-							false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToChar);
-						act("$o рассыпал$U в прах, который был развеян ветром...",
-							false, world[j->get_in_room()]->first_character(), j.get(), nullptr, kToRoom);
-					}
-
-					RemoveObjFromRoom(j.get());
-				} else if (j->get_in_obj()) {
-					// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
-					CharData *cont_owner = nullptr;
-					if (j->get_in_obj()->get_carried_by()) {
-						cont_owner = j->get_in_obj()->get_carried_by();
-					} else if (j->get_in_obj()->get_worn_by()) {
-						cont_owner = j->get_in_obj()->get_worn_by();
-					}
-
-					if (cont_owner) {
-						if (IS_CHARMICE(cont_owner)) {
-							charmee_obj_decay_tell(cont_owner, j.get(), ECharmeeObjPos::kContainer);
+					PlaceObjToRoom(jj, j->get_in_room());
+				} else {
+					log("SYSERR: extract %s from %s to kNothing !!!",
+						jj->get_PName(0).c_str(),
+						j->get_PName(0).c_str());
+					// core_dump();
+					ExtractObjFromWorld(jj);
+				}
+			}
+			// Конец Ладник
+			if (j->get_worn_by()) {
+				switch (j->get_worn_on()) {
+					case EEquipPos::kLight:
+					case EEquipPos::kShield:
+					case EEquipPos::kWield:
+					case EEquipPos::kHold:
+					case EEquipPos::kBoths:
+						if (IS_CHARMICE(j->get_worn_by())) {
+							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kHandsOrEquip);
 						} else {
+							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
+									 char_get_custom_label(j, j->get_worn_by()).c_str());
+							act(buf, false, j->get_worn_by(), j, nullptr, kToChar);
+						}
+						break;
+						default:
+						if (IS_CHARMICE(j->get_worn_by())) {
+							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kInventory);
+						} else {
+							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
+									 char_get_custom_label(j, j->get_worn_by()).c_str());
+							act(buf, false, j->get_worn_by(), j, nullptr, kToChar);
+						}
+						break;
+				}
+				UnequipChar(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
+			} else if (j->get_carried_by()) {
+				if (IS_CHARMICE(j->get_carried_by())) {
+					charmee_obj_decay_tell(j->get_carried_by(), j, ECharmeeObjPos::kHandsOrEquip);
+				} else {
+					snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
+							 char_get_custom_label(j, j->get_carried_by()).c_str());
+					act(buf, false, j->get_carried_by(), j, nullptr, kToChar);
+				}
+				RemoveObjFromChar(j);
+			} else if (j->get_in_room() != kNowhere) {
+				if (!world[j->get_in_room()]->people.empty()) {
+					act("$o рассыпал$U в прах, который был развеян ветром...",
+						false, world[j->get_in_room()]->first_character(), j, nullptr, kToChar);
+					act("$o рассыпал$U в прах, который был развеян ветром...",
+						false, world[j->get_in_room()]->first_character(), j, nullptr, kToRoom);
+				}
+				RemoveObjFromRoom(j);
+			} else if (j->get_in_obj()) {
+				// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
+				CharData *cont_owner = nullptr;
+				if (j->get_in_obj()->get_carried_by()) {
+					cont_owner = j->get_in_obj()->get_carried_by();
+				} else if (j->get_in_obj()->get_worn_by()) {
+					cont_owner = j->get_in_obj()->get_worn_by();
+				}
+				if (cont_owner) {
+					if (IS_CHARMICE(cont_owner)) {
+						charmee_obj_decay_tell(cont_owner, j, ECharmeeObjPos::kContainer);
+					} else {
 							char buf[kMaxStringLength];
 							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в %s%s...",
-									 char_get_custom_label(j.get(), cont_owner).c_str(),
+									 char_get_custom_label(j, cont_owner).c_str(),
 									 j->get_in_obj()->get_PName(5).c_str(),
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
-							act(buf, false, cont_owner, j.get(), nullptr, kToChar);
-						}
-					}
-					RemoveObjFromObj(j.get());
-				}
-				ExtractObjFromWorld(j.get());
-			} else {
-				if (!j) {
-					return;
-				}
-
-				// decay poison && other affects
-				for (count = 0; count < kMaxObjAffect; count++) {
-					if (j->get_affected(count).location == EApply::kPoison) {
-						j->dec_affected_value(count);
-						if (j->get_affected(count).modifier <= 0) {
-							j->set_affected(count, EApply::kNone, 0);
-						}
+							act(buf, false, cont_owner, j, nullptr, kToChar);
 					}
 				}
+				RemoveObjFromObj(j);
 			}
+			ExtractObjFromWorld(j);
 		}
-	});
+	}
 }
 
 void point_update() {

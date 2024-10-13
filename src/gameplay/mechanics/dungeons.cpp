@@ -73,8 +73,7 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 	for(int i = trn_start; i <= trn_stop; i++) {
 		auto c = *trig_index[i]->proto->cmdlist;
 
-		while (c) {
-			utils::ReplaceAll(c->cmd, search, replacer);
+		while (c) {utils::ReplaceTrigerNumber(c->cmd, search, replacer);
 			c = c->next;
 		}
 	}
@@ -408,7 +407,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		new_room->gdark = 0;
 		new_room->glight = 0;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			const auto &from = world[i]->dir_option[dir];
+			const auto &from = world[i]->dir_option_proto[dir];
 			if (from) {
 				RoomVnum rvn = 0;
 				int to_room = from->to_room();// - rrn_start + first_room_dungeon;
@@ -427,20 +426,38 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 						}
 					}
 				}
-				new_room->dir_option[dir] = std::make_shared<ExitData>();
-				new_room->dir_option[dir]->to_room(GetRoomRnum(rvn));
+				new_room->dir_option_proto[dir] = std::make_shared<ExitData>();
+				new_room->dir_option_proto[dir]->to_room(GetRoomRnum(rvn));
 				if (!from->general_description.empty()) {
-					new_room->dir_option[dir]->general_description = from->general_description; //чиcтить
+					new_room->dir_option_proto[dir]->general_description = from->general_description; //чиcтить
 				}
 				if (from->keyword) {
-					new_room->dir_option[dir]->set_keyword(from->keyword); //чистить
+					new_room->dir_option_proto[dir]->set_keyword(from->keyword); //чистить
 				}
 				if (from->vkeyword) {
-					new_room->dir_option[dir]->set_vkeyword(from->vkeyword); //чистить
+					new_room->dir_option_proto[dir]->set_vkeyword(from->vkeyword); //чистить
 				}
-				new_room->dir_option[dir]->exit_info = from->exit_info;
-				new_room->dir_option[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
-				new_room->dir_option[dir]->lock_complexity = from->lock_complexity;
+				new_room->dir_option_proto[dir]->exit_info = from->exit_info;
+				if (from->key > 0) {
+					if (from->key / 100 == zone_table[zrn_from].vnum) {
+						new_room->dir_option_proto[dir]->key = zone_table[zrn_to].vnum * 100 + from->key % 100;
+					} else if (!dungeon_list.empty()) {
+						auto from_key = from->key;
+						auto zrn_to_it = std::find_if(dungeon_list.begin(),
+												  dungeon_list.end(),
+												  [&from_key, &new_room](auto it) {
+														return zone_table[it.from].vnum == from_key / 100;
+												  });
+						if (zrn_to_it != dungeon_list.end()) {
+							new_room->dir_option_proto[dir]->key = zone_table[zrn_to_it->to].vnum * 100 + from->key % 100;
+						} else {
+							new_room->dir_option_proto[dir]->key = from->key;
+						}
+					} else {
+						new_room->dir_option_proto[dir]->key = from->key;
+					}
+				}
+				new_room->dir_option_proto[dir]->lock_complexity = from->lock_complexity;
 			}
 		}
 		new_room->proto_script = std::make_shared<ObjData::triggers_list_t>();
@@ -533,6 +550,16 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				continue;
 			}
 			it.obj_vnum = zone_table[zrn_to].vnum * 100 + it.obj_vnum % 100;
+		}
+		if (mob_proto[mrn_to].mob_specials.dest_count > 0) {
+			for (auto ds = 0; ds < mob_proto[mrn_to].mob_specials.dest_count; ds++) {
+				if (mob_proto[mrn_to].mob_specials.dest[ds] / 100 != zone_table[zrn_from].vnum) {
+					mudlog(fmt::format("Внимание!!! При копировании маршрута у моба {} [{}] клетка [{}] вне текущей зоны {}, пропускаю",  
+							mob_proto[i].get_name(),  mob_index[i].vnum, mob_proto[mrn_to].mob_specials.dest[ds], zone_table[zrn_from].vnum), CMP, kLvlGreatGod, SYSLOG, true);
+				} else {
+					mob_proto[mrn_to].mob_specials.dest[ds] = zone_table[zrn_to].vnum * 100 + mob_proto[mrn_to].mob_specials.dest[ds] % 100;
+				}
+			}
 		}
 		mob_proto[mrn_to].script->cleanup();
 		mob_proto[mrn_to].proto_script = std::make_shared<ObjData::triggers_list_t>();
@@ -811,13 +838,15 @@ void RoomDataFree(ZoneRnum zrn) {
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
 		room->cleanup_script();
+		room->sector_type = ESector::kSecret;
 		room->affected.clear();
 		room->vnum = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-			if (room->dir_option[dir]) {
+			if (room->dir_option_proto[dir]) {
 //				room->dir_option[dir]->general_description.clear();
 //				room->dir_option[dir]->set_keyword("");
 //				room->dir_option[dir]->set_vkeyword("");
+				room->dir_option_proto[dir].reset();
 				room->dir_option[dir].reset();
 			}
 		}
@@ -854,6 +883,18 @@ void ObjDataFree(ZoneRnum zrn) {
 //	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
 	ObjRnum orn;
 
+	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
+		if (j->get_parent_rnum() > -1) {
+			if (obj_proto[j->get_rnum()]->get_vnum() / 100 == zone_table[zrn].vnum) {
+				if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
+						ExtractRepopDecayObject(j);
+						return;
+				} else {
+					SwapOriginalObject(j.get());
+				}
+			}
+		}
+	});
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = GetObjRnum(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
@@ -876,13 +917,6 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->clear_proto_script();
 		}
 	}
-	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
-		if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
-				ExtractRepopDecayObject(j);
-		} else {
-			SwapOriginalObject(j.get());
-		}
-	});
 }
 
 void TrigDataFree(ZoneRnum zrn) {
