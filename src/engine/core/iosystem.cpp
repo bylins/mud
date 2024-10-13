@@ -876,11 +876,11 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 #endif
 
 #if defined(__APPLE__) || defined(__MACH__)
+#include <socket.h>
 # ifndef MSG_NOSIGNAL
 #   define MSG_NOSIGNAL SO_NOSIGPIPE
 # endif
 #endif
-#include <sys/socket.h>
 
 // perform_socket_write for all Non-Windows platforms
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length) {
