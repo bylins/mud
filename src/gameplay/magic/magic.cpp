@@ -2873,6 +2873,8 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 
 	if (spell_id == ESpell::kResurrection) {
 		ClearCharTalents(mob);
+		if (mob->IsFlagged(EMobFlag::kNoGroup))
+			mob->UnsetFlag(EMobFlag::kNoGroup);
 
 		sprintf(buf2, "умертвие %s %s", GET_PAD(mob, 1), GET_NAME(mob));
 		mob->SetCharAliases(buf2);
