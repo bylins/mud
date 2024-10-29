@@ -181,10 +181,6 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kKick)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
@@ -192,15 +188,29 @@ void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict == ch) {
-		SendMsgToChar("Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума...\r\n", ch);
-		return;
-	}
-
 	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
+
+	do_kick(ch, vict);
+}
+
+void do_kick(CharData *ch, CharData *vict) {
+	if (ch->GetSkill(ESkill::kKick) < 1) {
+		log("ERROR: вызов пинка для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
+	if (ch->HasCooldown(ESkill::kKick)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
+
+	if (vict == ch) {
+		SendMsgToChar("Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума...\r\n", ch);
+		return;
+	}
 
 	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_kick(ch, vict);

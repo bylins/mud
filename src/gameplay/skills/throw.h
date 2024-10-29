@@ -5,6 +5,7 @@ class CharData;
 
 void go_throw(CharData *ch, CharData *victim);
 void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd);
+void do_throw(CharData *ch, CharData *victim);
 
 #endif //BYLINS_THROW_H
 

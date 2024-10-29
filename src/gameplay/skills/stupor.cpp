@@ -45,10 +45,6 @@ void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kOverwhelm)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
@@ -56,15 +52,29 @@ void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (vict == ch) {
-		SendMsgToChar("Вы громко заорали, заглушая свой собственный голос.\r\n", ch);
-		return;
-	}
-
 	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
+
+    do_stupor(ch, vict);
+}
+
+void do_stupor(CharData *ch, CharData *vict) {
+	if (ch->GetSkill(ESkill::kOverwhelm) < 1) {
+		log("ERROR: вызов глуша для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
+	if (ch->HasCooldown(ESkill::kOverwhelm)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
+
+	if (vict == ch) {
+		SendMsgToChar("Вы громко заорали, заглушая свой собственный голос.\r\n", ch);
+		return;
+	}
 
 	parry_override(ch);
 

@@ -5,5 +5,6 @@ class CharData;
 
 void go_stupor(CharData *ch, CharData *victim);
 void do_stupor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_stupor(CharData *ch, CharData *victim);
 
 #endif //BYLINS_STUPOR_H

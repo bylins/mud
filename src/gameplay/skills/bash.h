@@ -4,6 +4,7 @@
 class CharData;
 
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_bash(CharData *ch, CharData *vict);
 void go_bash(CharData *ch, CharData *vict);
 
 #endif //BYLINS_BASH_H

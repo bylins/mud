@@ -181,15 +181,12 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kThrow)) {
-		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
-		return;
-	};
 
 	if (subcmd == SCMD_SHADOW_THROW && !CanUseFeat(ch, EFeat::kShadowThrower)) {
 		SendMsgToChar("Вы этого не умеете.\r\n", ch);
 		return;
 	};
+
 /*
 	if (!IS_IMPL(ch) && !can_use_feat(ch, EFeat::kThrowWeapon)) {
 			SendMsgToChar("Вы не умеете этого.\r\n", ch);
@@ -199,11 +196,6 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *victim = FindVictim(ch, argument);
 	if (!victim) {
 		SendMsgToChar("В кого мечем?\r\n", ch);
-		return;
-	}
-
-	if (ch == victim) {
-		SendMsgToChar("Вы начали метаться как белка в колесе.\r\n", ch);
 		return;
 	}
 
@@ -221,6 +213,25 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		ch->SetFlag(EPrf::kShadowThrow);
 	};
+
+	do_throw(ch, victim);
+}
+
+void do_throw(CharData *ch, CharData *victim) {
+	if (!ch->GetSkill(ESkill::kThrow)) {
+		log("ERROR: вызов метнуть для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
+	if (ch->HasCooldown(ESkill::kThrow)) {
+		SendMsgToChar("Так и рука отвалится, нужно передохнуть.\r\n", ch);
+		return;
+	};
+
+	if (ch == victim) {
+		SendMsgToChar("Вы начали метаться как белка в колесе.\r\n", ch);
+		return;
+	}
 
 	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_throw(ch, victim);

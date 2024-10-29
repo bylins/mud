@@ -23,6 +23,22 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
+	if (!may_kill_here(ch, vict, argument)) {
+		return;
+	}
+	if (!check_pkill(ch, vict, arg)) {
+		return;
+	}
+
+	do_strangle(ch, vict);
+}
+
+void do_strangle(CharData *ch, CharData *vict) {
+	if (!ch->GetSkill(ESkill::kStrangle)) {
+		log("ERROR: вызов удавки для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -44,13 +60,6 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict, argument)) {
-		return;
-	}
-
-	if (!check_pkill(ch, vict, arg)) {
-		return;
-	}
 	if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kStrangle)) {
 		act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 			false, ch, nullptr, vict, kToChar);

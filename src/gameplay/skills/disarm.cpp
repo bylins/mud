@@ -16,10 +16,6 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kDisarm)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
@@ -27,15 +23,29 @@ void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch == vict) {
-		SendMsgToChar("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
-		return;
-	}
-
 	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
+
+	do_disarm(ch, vict);
+}
+
+void do_disarm(CharData *ch, CharData *vict) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisarm)) {
+		log("ERROR: вызов дизарма для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+	
+	if (ch->HasCooldown(ESkill::kDisarm)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
+
+	if (ch == vict) {
+		SendMsgToChar("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
+		return;
+	}
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
 		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!vict->HasWeapon())) {
