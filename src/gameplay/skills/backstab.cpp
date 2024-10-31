@@ -15,6 +15,28 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
+
+	one_argument(argument, arg);
+	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
+	if (!vict) {
+		SendMsgToChar("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
+		return;
+	}
+
+	if (!may_kill_here(ch, vict, argument))
+		return;
+	if (!check_pkill(ch, vict, arg))
+		return;
+
+	do_backstab(ch, vict);
+}
+
+void do_backstab(CharData *ch, CharData *vict) {
+	if (ch->GetSkill(ESkill::kBackstab) < 1) {
+		log("ERROR: вызов стаба для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
 	if (ch->HasCooldown(ESkill::kBackstab)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -27,13 +49,6 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
-		return;
-	}
-
-	one_argument(argument, arg);
-	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
-	if (!vict) {
-		SendMsgToChar("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
 	}
 
@@ -62,10 +77,6 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict, argument))
-		return;
-	if (!check_pkill(ch, vict, arg))
-		return;
 	go_backstab(ch, vict);
 }
 

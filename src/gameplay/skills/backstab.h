@@ -5,6 +5,8 @@ class CharData;
 
 void go_backstab(CharData *ch, CharData *vict);
 void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_backstab(CharData *ch, CharData *vict);
+
 
 #endif //BYLINS_BACKSTAB_H
 

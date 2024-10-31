@@ -13,28 +13,42 @@ void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kBash)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	}
-	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
-		return;
-	}
-	CharData *vict = FindVictim(ch, argument);
 
+	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		SendMsgToChar("Кого же вы так сильно желаете сбить?\r\n", ch);
 		return;
 	}
-	if (vict == ch) {
-		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
-		return;
-	}
+
 	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
+	
+	do_bash(ch, vict);
+}
+
+void do_bash(CharData *ch, CharData *vict) {
+	if (!ch->GetSkill(ESkill::kBash)) {
+		log("ERROR: вызов баша для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
+	if (ch->HasCooldown(ESkill::kBash)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	}
+
+	if (ch->IsOnHorse()) {
+		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		return;
+	}
+
+	if (vict == ch) {
+		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		return;
+	}
+
 	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {

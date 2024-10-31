@@ -4,6 +4,7 @@
 #include "engine/entities/char_data.h"
 
 void go_chopoff(CharData *ch, CharData *vict);
+void do_chopoff(CharData *ch, CharData *vict);
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_CHOPOFF_H

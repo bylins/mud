@@ -50,16 +50,31 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kHammer)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		SendMsgToChar("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
 		return;
 	}
+
+	if (!may_kill_here(ch, vict, argument))
+		return;
+	if (!check_pkill(ch, vict, arg))
+		return;
+
+	do_mighthit(ch, vict);
+}
+
+void do_mighthit(CharData *ch, CharData *vict) {
+	if (ch->GetSkill(ESkill::kHammer) < 1) {
+		log("ERROR: вызов молота для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
+	if (ch->HasCooldown(ESkill::kHammer)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
 
 	if (vict == ch) {
 		SendMsgToChar("Вы СИЛЬНО ударили себя. Но вы и не спали.\r\n", ch);
@@ -80,11 +95,6 @@ void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Ваша экипировка мешает вам нанести удар.\r\n", ch);
 		return;
 	}
-
-	if (!may_kill_here(ch, vict, argument))
-		return;
-	if (!check_pkill(ch, vict, arg))
-		return;
 
 	parry_override(ch);
 

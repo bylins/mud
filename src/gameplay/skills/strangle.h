@@ -5,6 +5,8 @@ class CharData;
 
 void go_strangle(CharData *ch, CharData *vict);
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_strangle(CharData *ch, CharData *vict);
+
 
 #endif //BYLINS_STRANGLE_H
 

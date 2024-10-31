@@ -5,6 +5,7 @@ class CharData;
 
 void go_kick(CharData *ch, CharData *vict);
 void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void do_kick(CharData *ch, CharData *vict);
 
 #endif //BYLINS_KICK_H
 

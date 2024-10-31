@@ -121,6 +121,27 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
 	}
+
+	CharData *vict = FindVictim(ch, argument);
+	if (!vict) {
+		SendMsgToChar("Кого вы собираетесь подсечь?\r\n", ch);
+		return;
+	}
+
+	if (!may_kill_here(ch, vict, argument))
+		return;
+	if (!check_pkill(ch, vict, arg))
+		return;
+
+	do_chopoff(ch, vict);
+}
+
+void do_chopoff(CharData *ch, CharData *vict) {
+	if (ch->GetSkill(ESkill::kChopoff) < 1) {
+		log("ERROR: вызов подножки для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		return;
+	}
+
 	if (ch->HasCooldown(ESkill::kChopoff)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -131,21 +152,10 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = FindVictim(ch, argument);
-	if (!vict) {
-		SendMsgToChar("Кого вы собираетесь подсечь?\r\n", ch);
-		return;
-	}
-
 	if (vict == ch) {
 		SendMsgToChar("Вы можете воспользоваться командой <сесть>.\r\n", ch);
 		return;
 	}
-
-	if (!may_kill_here(ch, vict, argument))
-		return;
-	if (!check_pkill(ch, vict, arg))
-		return;
 
 	if (IS_IMPL(ch) || !ch->GetEnemy())
 		go_chopoff(ch, vict);

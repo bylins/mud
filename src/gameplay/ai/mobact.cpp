@@ -140,7 +140,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	if (victim) {
 		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
 			if (do_mode)
-				do_strangle(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_strangle(ch, victim);
 			else
 				go_strangle(ch, victim);
 			return (true);
@@ -151,7 +151,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 				&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
 
 			if (do_mode)
-				do_backstab(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_backstab(ch, victim);
 			else
 				go_backstab(ch, victim);
 			return (true);
@@ -161,28 +161,28 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 				&& !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))
 				&& ch->GetSkill(ESkill::kHammer))) {
 			if (do_mode)
-				do_mighthit(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_mighthit(ch, victim);
 			else
 				go_mighthit(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kOverwhelm)) {
 			if (do_mode)
-				do_stupor(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_stupor(ch, victim);
 			else
 				go_stupor(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kBash)) {
 			if (do_mode) {
-				do_bash(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_bash(ch, victim);
 			} else
 				go_bash(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kKick)) {
 			if (do_mode)
-				do_kick(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_kick(ch, victim);
 			else
 				go_kick(ch, victim);
 			return (true);
@@ -192,19 +192,19 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			if (do_mode)
-				do_throw(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_throw(ch, victim);
 			else
 				go_throw(ch, victim);
 		}
 		if (ch->GetSkill(ESkill::kDisarm)) {
 			if (do_mode)
-				do_disarm(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_disarm(ch, victim);
 			else
 				go_disarm(ch, victim);
 		}
 		if (ch->GetSkill(ESkill::kChopoff)) {
 			if (do_mode)
-				do_chopoff(ch, str_dup(GET_NAME(victim)), 0, 0);
+				do_chopoff(ch, victim);
 			else
 				go_chopoff(ch, victim);
 		}
