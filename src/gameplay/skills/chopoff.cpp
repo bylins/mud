@@ -138,7 +138,7 @@ void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_chopoff(CharData *ch, CharData *vict) {
 	if (ch->GetSkill(ESkill::kChopoff) < 1) {
-		log("ERROR: вызов подножки для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		log("ERROR: вызов подножки для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 

@@ -219,7 +219,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 void do_throw(CharData *ch, CharData *victim) {
 	if (!ch->GetSkill(ESkill::kThrow)) {
-		log("ERROR: вызов метнуть для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		log("ERROR: вызов метнуть для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 

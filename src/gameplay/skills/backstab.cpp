@@ -33,7 +33,7 @@ void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_backstab(CharData *ch, CharData *vict) {
 	if (ch->GetSkill(ESkill::kBackstab) < 1) {
-		log("ERROR: вызов стаба для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		log("ERROR: вызов стаба для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
