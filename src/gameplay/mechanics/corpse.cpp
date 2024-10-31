@@ -442,6 +442,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_extra_flag(EObjFlag::kNodonate);
 	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_extra_flag(EObjFlag::kNorent);
+	corpse->set_extra_flag(EObjFlag::kNodecay);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, ch->IsNpc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
