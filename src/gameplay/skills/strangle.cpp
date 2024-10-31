@@ -35,7 +35,7 @@ void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void do_strangle(CharData *ch, CharData *vict) {
 	if (!ch->GetSkill(ESkill::kStrangle)) {
-		log("ERROR: вызов удавки для персонажа %s (%d) без проверки умения", ch->get_name(), GET_MOB_VNUM(ch));
+		log("ERROR: вызов удавки для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
 	}
 
