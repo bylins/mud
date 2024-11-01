@@ -1409,7 +1409,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		object->set_destroyer(kMoneyDestroyTimer);
 	} else if (ROOM_FLAGGED(room, ERoomFlag::kDeathTrap)) {
 		object->set_destroyer(kDeathDestroyTimer);
-	} else {
+	} else if (!IS_CORPSE(object)) {
 		object->set_destroyer(kRoomDestroyTimer);
 	}
 	return true;
