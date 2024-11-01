@@ -442,7 +442,6 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_extra_flag(EObjFlag::kNodonate);
 	corpse->set_extra_flag(EObjFlag::kNosell);
 	corpse->set_extra_flag(EObjFlag::kNorent);
-	corpse->set_extra_flag(EObjFlag::kNodecay);
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, ch->IsNpc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
@@ -450,7 +449,9 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
+		corpse->set_destroyer(max_npc_corpse_time * 2);
 	} else {
+		corpse->set_destroyer(max_pc_corpse_time * 2);
 		corpse->set_timer(max_pc_corpse_time * 2);
 	}
 	// выбросим трупы
