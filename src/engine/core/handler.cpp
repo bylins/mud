@@ -1367,7 +1367,6 @@ CharData *SearchCharInRoomByName(const char *name, RoomRnum room) {
 const int kMoneyDestroyTimer = 60;
 const int kDeathDestroyTimer = 5;
 const int kRoomDestroyTimer = 10;
-const int kRoomNodestroyTimer = -1;
 const int kScriptDestroyTimer = 10; // * !!! Never set less than ONE * //
 
 /**
@@ -1406,8 +1405,6 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 	}
 	if (object->get_script()->has_triggers()) {
 		object->set_destroyer(kScriptDestroyTimer);
-	} else if (object->has_flag(EObjFlag::kNodecay)) {
-		object->set_destroyer(kRoomNodestroyTimer);
 	} else if (GET_OBJ_TYPE(object) == EObjType::kMoney) {
 		object->set_destroyer(kMoneyDestroyTimer);
 	} else if (ROOM_FLAGGED(room, ERoomFlag::kDeathTrap)) {
