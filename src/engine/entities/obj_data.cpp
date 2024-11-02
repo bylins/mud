@@ -17,6 +17,8 @@
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/mechanics/stable_objs.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 #include <cmath>
 #include <memory>
 
@@ -603,7 +605,8 @@ void ObjData::swap(ObjData &object) {
 
 	set_in_room(object.get_in_room());
 	object.set_in_room(tmpobj.get_in_room());
-
+	set_unique_id(object.get_unique_id());
+	object.set_unique_id(tmpobj.get_unique_id());
 	set_carried_by(object.get_carried_by());
 	object.set_carried_by(tmpobj.get_carried_by());
 	set_worn_by(object.get_worn_by());
