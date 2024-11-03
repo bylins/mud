@@ -746,7 +746,6 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 
 void DungeonReset(int zrn) {
 	utils::CExecutionTimer timer;
-	log("copy_from_zone %d", zone_table[zrn].copy_from_zone);
 
 	if (zrn == 0) {
 		sprintf(buf, "Неправильный номер зоны");
@@ -803,6 +802,7 @@ void DungeonReset(int zrn) {
 
 void RoomDataFree(ZoneRnum zrn) {
 	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
+	RoomRnum to_room;
 
 	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
 		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
@@ -814,6 +814,8 @@ void RoomDataFree(ZoneRnum zrn) {
 		auto people_copy = room->people;
 
 		for (const auto vict : people_copy) {
+			if (IS_CHARMICE(vict))
+				continue;
 			if (vict->IsNpc()) {
 				if (vict->followers
 					|| vict->has_master()) {
@@ -824,9 +826,17 @@ void RoomDataFree(ZoneRnum zrn) {
 				}
 			} else {
 				RemoveCharFromRoom(vict);
-				PlaceCharToRoom(vict, GetRoomRnum(calc_loadroom(vict)));
-				look_at_room(vict, GetRoomRnum(calc_loadroom(vict)));
+				if ((to_room = GetRoomRnum(GET_LOADROOM(vict))) == kNowhere)
+					to_room = GetRoomRnum(calc_loadroom(vict));
+				PlaceCharToRoom(vict, to_room);
+				look_at_room(vict, to_room);
 			}
+		}
+		people_copy = room->people;
+		for (const auto vict : people_copy) {
+			RemoveCharFromRoom(vict);
+			PlaceCharToRoom(vict, vict->get_master()->in_room);
+			act("$n появил$u, окутанн$w розовым туманом.", false, vict, nullptr, nullptr, kToRoom);
 		}
 		ObjData *obj, *next_o;
 
@@ -843,9 +853,6 @@ void RoomDataFree(ZoneRnum zrn) {
 		room->vnum = zone_table[zrn].vnum * 100 + rvn;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			if (room->dir_option_proto[dir]) {
-//				room->dir_option[dir]->general_description.clear();
-//				room->dir_option[dir]->set_keyword("");
-//				room->dir_option[dir]->set_vkeyword("");
 				room->dir_option_proto[dir].reset();
 				room->dir_option[dir].reset();
 			}
