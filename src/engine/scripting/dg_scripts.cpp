@@ -1835,21 +1835,30 @@ void find_replacement(void *go,
 
 			else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
 				const auto rnum = GetObjRnum(num);
-				if (rnum >= 0) {
-					// если у прототипа беск.таймер,
-					// то их оч много в мире
-					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
-						sprintf(str, "1");
-						return;
-					}
-					const auto count = obj_proto.actual_count(rnum);
-					if (count < GetObjMIW(rnum)) {
-						sprintf(str, "1");
-						return;
-					}
+				int count = 0;
+
+				if (rnum <= 0) {
+					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в canbeloaded", num).c_str());
 					sprintf(str, "0");
 					return;
 				}
+				if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get()) || (GetObjMIW(rnum) < 0)) {
+					sprintf(str, "1");
+					return;
+				}
+				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
+
+				if (orn > -1 && CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake)) {
+					count = ActualCountObjs(orn);
+				} else {
+					count = ActualCountObjs(rnum);
+				}
+				if (count < GetObjMIW(rnum)) {
+					sprintf(str, "1");
+					return;
+				}
+				sprintf(str, "0");
+					return;
 			}
 			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
 				num = GetObjRnum(num);
