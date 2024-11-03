@@ -21,6 +21,7 @@
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/dungeons.h"
 
 #ifdef _WIN32
 #else
@@ -1331,7 +1332,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					do {
 						fbgetline(fl, line);
 						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
-						if (this->charmeeHistory.find(num) == this->charmeeHistory.end() && num != 0) {
+						if (num / 100 < dungeons::kZoneStartDungeons && this->charmeeHistory.find(num) == this->charmeeHistory.end() && num != 0) {
 							MERCDATA md = {num2, num3, num4, num5, num6}; // num - key
 							this->charmeeHistory.insert(std::pair<int, MERCDATA>(num, md));
 							log("Load_char: Charmees: vnum: %d", num);
