@@ -50,7 +50,7 @@
 		
 		<syslog>
 			<filename>syslog</filename>
-			<buffered>LINE</buffered>
+			<buffered>NO</buffered>
 			<mode>APPEND</mode>
 			<umask>022</umask>
 		</syslog>
