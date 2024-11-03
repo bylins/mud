@@ -728,7 +728,8 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone == 0) {
 			zone_table[GetZoneRnum(zvn_to)].copy_from_zone = zvn_to;
 			sprintf(buf,
-					"Клонирую зону %d в %d, осталось мест: %d",
+					"Клонирую зону %s (%d) в %d, осталось мест: %d",
+					zone_table[zrn_from].name.c_str(),
 					zvn_from,
 					zvn_to,
 					kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
@@ -761,31 +762,38 @@ void DungeonReset(int zrn) {
 				zone_table[zrn].vnum,
 				timer1.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		utils::CExecutionTimer timer2;
+		timer1.restart();
 		MobDataFree(zrn);
 		sprintf(buf,
 				"Free mobs. zone %s %d, delta %f",
 				zone_table[zrn].name.c_str(),
 				zone_table[zrn].vnum,
-				timer2.delta().count());
+				timer1.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		utils::CExecutionTimer timer4;
+		timer1.restart();
 		ObjDataFree(zrn);
 		sprintf(buf,
 				"Free objs. zone %s %d, delta %f",
 				zone_table[zrn].name.c_str(),
 				zone_table[zrn].vnum,
-				timer4.delta().count());
+				timer1.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		utils::CExecutionTimer timer3;
+		timer1.restart();
 		ZoneDataFree(zrn);
 		sprintf(buf,
 				"Free zone data. zone %s %d, delta %f",
 				zone_table[zrn].name.c_str(),
 				zone_table[zrn].vnum,
-				timer3.delta().count());
+				timer1.delta().count());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		timer1.restart();
 		TrigDataFree(zrn);
+		sprintf(buf,
+				"Free trigs. zone %s %d, delta %f",
+				zone_table[zrn].name.c_str(),
+				zone_table[zrn].vnum,
+				timer1.delta().count());
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		sprintf(buf,
 				"Free all dungeons %s %d, delta %f",
 				zone_table[zrn].name.c_str(),
@@ -885,9 +893,8 @@ void MobDataFree(ZoneRnum zrn) {
 }
 
 void ObjDataFree(ZoneRnum zrn) {
+	utils::CExecutionTimer timer;
 // на земле удаляются в RoomDataFree
-//	ObjRnum orn_from = zone_table[zrn].RnumObjsLocation.first;
-//	ObjRnum orn_last = zone_table[zrn].RnumObjsLocation.second;
 	ObjRnum orn;
 
 	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
@@ -902,14 +909,13 @@ void ObjDataFree(ZoneRnum zrn) {
 			}
 		}
 	});
+	log("ObjDataFree marker 1 %f", timer.delta().count());
+	timer.restart();
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = GetObjRnum(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
-// перенесено в char_from_room
-//			world_objects.foreach_with_rnum(orn, [&](const ObjData::shared_ptr &obj) {
-//				SwapOriginalObject(obj);
-//			});
 			auto &obj = obj_proto[orn];
+
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
@@ -924,6 +930,7 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->clear_proto_script();
 		}
 	}
+	log("ObjDataFree marker 2 %f", timer.delta().count());
 }
 
 void TrigDataFree(ZoneRnum zrn) {
