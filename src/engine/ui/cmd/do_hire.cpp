@@ -6,6 +6,9 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/mechanics/dungeons.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <cmath>
 
@@ -337,8 +340,14 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			helpee->UnsetFlag(EPrf::kPunctual);
 			helpee->SetFlag(EMobFlag::kNoSkillTrain);
 			helpee->set_skill(ESkill::kPunctual, 0);
-			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
-				ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
+			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList)) {
+				MobVnum mvn = GET_MOB_VNUM(helpee);
+
+				if (mvn / 100 >=  dungeons::kZoneStartDungeons) {
+					mvn = zone_table[GetZoneRnum(mvn / 100)].copy_from_zone * 100 + mvn % 100;
+				}
+				ch->updateCharmee(mvn, cost);
+			}
 			Crash_crashsave(ch);
 			ch->save_char();
 		}

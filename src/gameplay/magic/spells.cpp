@@ -35,6 +35,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/dungeons.h"
 
 #include <cmath>
 
@@ -1439,8 +1440,14 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			victim->UnsetFlag(ENpcFlag::kWielding);
 			victim->UnsetFlag(ENpcFlag::kArmoring);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
-			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList))
-				ch->updateCharmee(GET_MOB_VNUM(victim), 0);
+			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList)) {
+				MobVnum mvn = GET_MOB_VNUM(victim);
+
+				if (mvn / 100 >=  dungeons::kZoneStartDungeons) {
+					mvn = zone_table[GetZoneRnum(mvn / 100)].copy_from_zone * 100 + mvn % 100;
+				}
+				ch->updateCharmee(mvn, 0);
+			}
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
