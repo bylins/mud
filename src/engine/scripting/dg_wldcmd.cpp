@@ -472,7 +472,6 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 	}
 	ExtractCharFromWorld(ch, false);
 }
-
 // loads a mobile or object into the room //
 void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char arg1[kMaxInputLength], arg2[kMaxInputLength];
@@ -502,7 +501,15 @@ void do_wload(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			wld_log(room, trig, "wload: bad object vnum");
 			return;
 		}
-		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
+		int count = 0;
+		ObjRnum orn = obj_proto[object->get_rnum()]->get_parent_rnum();
+
+		if (orn > -1 && CAN_WEAR(obj_proto[object->get_rnum()].get(), EWearFlag::kTake)) {
+			count = obj_proto.actual_count(orn);
+		} else {
+			count = obj_proto.actual_count(object->get_rnum());
+		}
+		if (GetObjMIW(object->get_rnum()) >= 0 && count > GetObjMIW(object->get_rnum())) {
 			if (!stable_objs::IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "wload: количество больше чем в MIW для #%d.", number);
 				wld_log(room, trig, buf);
