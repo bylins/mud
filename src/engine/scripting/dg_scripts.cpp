@@ -815,13 +815,7 @@ EVENT(trig_wait_event) {
 	trig = wait_event_obj->trigger;
 	go = wait_event_obj->go;
 	type = wait_event_obj->type;
-
 	GET_TRIG_WAIT(trig).time_remaining = 0;
-	if (GET_TRIG_VNUM(trig) == 99100) {
-		log("trigger wait event: start trigger %d GET_TRIG_LOOPS %d GET_TRIG_DEPTH(trig) %d wait line %d", 
-				GET_TRIG_VNUM(trig), GET_TRIG_LOOPS(trig), GET_TRIG_DEPTH(trig), trig->wait_line->line_num);
-	}
-
 	script_driver(go, trig, type, TRIG_CONTINUE);
 	free(wait_event_obj);
 }
