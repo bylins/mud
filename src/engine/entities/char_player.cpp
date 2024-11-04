@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 
 #include "utils/file_crc.h"
+#include "utils/backtrace.h"
+
 #include "gameplay/communication/ignores_loader.h"
 #include "engine/olc/olc.h"
 #include "utils/diskio.h"
@@ -1096,12 +1098,10 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 //	log("Add account %s player id %d  name %s", GET_EMAIL(this), this->get_uid(), name);
 	this->account->add_player(this->get_uid());
 
-
 	if (load_flags & ELoadCharFlags::kReboot) {
 		fbclose(fl);
 		return id;
 	}
-	this->str_to_cities(cities::default_str_cities);
 	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1109,7 +1109,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	// character init
 	// initializations necessary to keep some things straight
-
+	this->str_to_cities(cities::default_str_cities);
 	this->set_npc_name(0);
 	this->player_data.long_descr = "";
 
