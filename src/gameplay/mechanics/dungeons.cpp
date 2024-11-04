@@ -1093,7 +1093,7 @@ void SwapOriginalObject(ObjData *obj) {
 			in_obj = obj->get_in_obj();
 			RemoveObjFromObj(obj);
 		}
-		obj->swap(*obj_original.get());
+		obj->swap(*obj_original.get(), false); //поменяемся оставив триггера с original_get
 		if (obj_original->has_flag(EObjFlag::kTicktimer)) {
 			obj->set_extra_flag(EObjFlag::kTicktimer);
 		}
