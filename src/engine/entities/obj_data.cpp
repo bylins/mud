@@ -590,12 +590,13 @@ void ObjData::copy_from(const CObjectPrototype *src) {
 	}
 }
 
-void ObjData::swap(ObjData &object) {
+void ObjData::swap(ObjData &object, bool swap_trig) {
 	if (this == &object) {
 		return;
 	}
 
 	ObjData tmpobj(object);
+	tmpobj.set_script(object.get_script());
 	object = *this;
 	*this = tmpobj;
 
@@ -621,8 +622,10 @@ void ObjData::swap(ObjData &object) {
 	object.set_contains(tmpobj.get_contains());
 	set_id(object.get_id());
 	object.set_id(tmpobj.get_id());
-	set_script(object.get_script());
-	object.set_script(tmpobj.get_script());
+	if (swap_trig) {
+		set_script(object.get_script());
+		object.set_script(tmpobj.get_script());
+	}
 	set_next_content(object.get_next_content());
 	object.set_next_content(tmpobj.get_next_content());
 	set_next(object.get_next());

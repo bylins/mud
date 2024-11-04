@@ -749,7 +749,7 @@ class ObjData : public CObjectPrototype {
 	bool clone_olc_object_from_prototype(const ObjVnum vnum);
 	void copy_from(const CObjectPrototype *src);
 
-	void swap(ObjData &object);
+	void swap(ObjData &object, bool swap_trig = true);
 	void set_tag(const char *tag);
 
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr &observer) { m_id_change_observers.insert(observer); }
