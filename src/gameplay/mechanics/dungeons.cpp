@@ -893,23 +893,19 @@ void MobDataFree(ZoneRnum zrn) {
 }
 
 void ObjDataFree(ZoneRnum zrn) {
-	utils::CExecutionTimer timer;
 // на земле удаляются в RoomDataFree
 	ObjRnum orn;
 
 	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
 		if (j->get_parent_rnum() > -1) {
-			if (obj_proto[j->get_rnum()]->get_vnum() / 100 == zone_table[zrn].vnum) {
-				if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
-						ExtractRepopDecayObject(j);
-						return;
-				} else {
-					SwapOriginalObject(j.get());
-				}
+			if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
+					ExtractRepopDecayObject(j);
+					return;
+			} else {
+				SwapOriginalObject(j.get());
 			}
 		}
 	});
-	log("ObjDataFree marker 1 %f", timer.delta().count());
 	timer.restart();
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = GetObjRnum(counter)) >= 0) {
@@ -930,7 +926,6 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->clear_proto_script();
 		}
 	}
-	log("ObjDataFree marker 2 %f", timer.delta().count());
 }
 
 void TrigDataFree(ZoneRnum zrn) {
