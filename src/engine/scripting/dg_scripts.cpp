@@ -356,17 +356,6 @@ int GameCountObjs(ObjRnum orn) {
 	return obj_proto.total_online(orn);
 }
 
-int ActualCountObjs(ObjRnum orn) {
-	if (orn <= 0) {
-		return 0;
-	}
-
-	// Чот косячит таймер, решили переделать тригги, хоть и дольше
-	//	if (stable_objs::IsTimerUnlimited(obj_proto[i]))
-	//		return 0;
-	return obj_proto.actual_count(orn);
-}
-
 /************************************************************
  * search by number routines
  ************************************************************/
@@ -1680,27 +1669,16 @@ void find_replacement(void *go,
 			num = atoi(subfield);
 			if ((!str_cmp(field, "curobj") || !str_cmp(field, "curobjs")) && num > 0) {
 				auto rnum = GetObjRnum(num);
-				int count = 0;
 
 				if (rnum <= 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в curobjs", num).c_str());
 					sprintf(str, "0");
 					return;
 				}
-				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
-				if (orn > -1 && CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake)) {
-					count = ActualCountObjs(orn);
-				} else {
-					count = ActualCountObjs(rnum);
-				}
-				if (count > 0) {
-					if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) {
-						sprintf(str, "0");
-					} else {
-						sprintf(str, "%d", count);
-					}
-				} else {
+				if (stable_objs::IsTimerUnlimited(obj_proto[rnum].get())) {
 					sprintf(str, "0");
+				} else {
+					sprintf(str, "%d", obj_proto.actual_count(rnum));
 				}
 			} else if ((!str_cmp(field, "gameobj") || !str_cmp(field, "gameobjs")) && num > 0) {
 				auto rnum = GetObjRnum(num);
@@ -1825,11 +1803,8 @@ void find_replacement(void *go,
 					sprintf(str, "%c%d", UID_ROOM, num);
 				else
 					sprintf(str, "0");
-			}
-
-			else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
+			} else if (!str_cmp(field, "CanBeLoaded") && num > 0) {
 				const auto rnum = GetObjRnum(num);
-				int count = 0;
 
 				if (rnum <= 0) {
 					trig_log(trig, fmt::format("Указан неверный параметр vnum ({}) в canbeloaded", num).c_str());
@@ -1840,21 +1815,12 @@ void find_replacement(void *go,
 					sprintf(str, "1");
 					return;
 				}
-				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
-
-				if (orn > -1 && CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake)) {
-					count = ActualCountObjs(orn);
-				} else {
-					count = ActualCountObjs(rnum);
-				}
-				if (count < GetObjMIW(rnum)) {
+				if (obj_proto.actual_count(rnum) < GetObjMIW(rnum)) {
 					sprintf(str, "1");
-					return;
+				} else {
+					sprintf(str, "0");
 				}
-				sprintf(str, "0");
-					return;
-			}
-			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
+			} else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0) {
 				num = GetObjRnum(num);
 				if (num >= 0) {
 					// если у прототипа беск.таймер,

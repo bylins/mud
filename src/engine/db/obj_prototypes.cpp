@@ -22,6 +22,19 @@ void CObjectPrototypes::replace(CObjectPrototype *prototype, const ObjRnum orn, 
 	m_index[orn] = SPrototypeIndex();
 }
 
+int CObjectPrototypes::total_online(const size_t rnum) const {
+	if (is_index_safe(rnum)) {
+		ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
+
+		if (is_index_safe(orn) && CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake)) {
+			return m_index[orn].total_online;
+		} else {
+			return m_index[rnum].total_online;
+		}
+	}
+	return -1;
+}
+
 void CObjectPrototypes::dec_number(const size_t rnum) {
 	if (0 == m_index[rnum].total_online) {
 		log("SYSERR: Attempt to decrement number of objects that does not exist at all (0 == number).");

@@ -527,16 +527,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			obj_log(obj, trig, "oload: bad object vnum");
 			return;
 		}
-		int count = 0;
-		ObjRnum orn = obj_proto[object->get_rnum()]->get_parent_rnum();
-
-		if (orn > -1 && CAN_WEAR(obj_proto[object->get_rnum()].get(), EWearFlag::kTake)) {
-			count = obj_proto.actual_count(orn);
-		} else {
-			count = obj_proto.actual_count(object->get_rnum());
-		}
-
-		if (GetObjMIW(object->get_rnum()) >= 0 && count > GetObjMIW(object->get_rnum())) {
+		if (GetObjMIW(object->get_rnum()) >= 0 && obj_proto.actual_count(object->get_rnum()) > GetObjMIW(object->get_rnum())) {
 			if (!stable_objs::IsTimerUnlimited(obj_proto[object->get_rnum()].get())) {
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				obj_log(obj, trig, buf);
