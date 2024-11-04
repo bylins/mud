@@ -228,8 +228,8 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 
 	std::size_t Append(const PlayerIndexElement &element);
 	bool IsPlayerExists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
-	bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetRnumByName(name); }
-	std::size_t GetRnumByName(const char *name) const;
+	bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetIndexByName(name); }
+	std::size_t GetIndexByName(const char *name) const;
 	void SetName(std::size_t index, const char *name);
 
 	NameAdviser &GetNameAdviser() { return m_name_adviser; }

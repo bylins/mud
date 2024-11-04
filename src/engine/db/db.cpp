@@ -3361,7 +3361,7 @@ std::size_t PlayersIndex::Append(const PlayerIndexElement &element) {
 	return index;
 }
 
-std::size_t PlayersIndex::GetRnumByName(const char *name) const {
+std::size_t PlayersIndex::GetIndexByName(const char *name) const {
 	const auto i = m_name_to_index.find(name);
 	if (i != m_name_to_index.end()) {
 		return i->second;

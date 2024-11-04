@@ -1725,7 +1725,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 
 // locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name) {
-	const auto index = player_table.GetRnumByName(name);
+	const auto index = player_table.GetIndexByName(name);
 	return PlayersIndex::NOT_FOUND == index ? -1 : static_cast<int>(index);
 }
 
