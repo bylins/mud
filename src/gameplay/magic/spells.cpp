@@ -827,6 +827,10 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			} else {
 				return false;
 			}
+		} else if (Depot::ObjInDepot(i.get())) {
+				return false;
+		} else if (Parcel::ObjInParcel(i.get())) {
+				return false;
 		} else {
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 		}

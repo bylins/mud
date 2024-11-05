@@ -24,6 +24,7 @@ void save();
 void bring_back(CharData *ch, CharData *mailman);
 std::string FindParcelObj(const ObjData *obj);
 ObjData *locate_object(const char *str);
+bool ObjInParcel(const ObjData *obj);
 
 void olc_update_from_proto(int robj_num, ObjData *olc_proto);
 
