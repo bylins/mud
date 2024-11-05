@@ -1429,6 +1429,16 @@ int print_spell_locate_object(CharData *ch, int count, std::string name) {
 	}
 	return count;
 }
+bool ObjInDepot(const ObjData *obj) {
+	for (auto it : depot_list) {
+		for (auto obj_it : it.second.pers_online) {
+			if (obj->get_id() ==  obj_it->get_id()) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 std::string print_imm_where_obj(const ObjData *obj) {
 	std::string str;
