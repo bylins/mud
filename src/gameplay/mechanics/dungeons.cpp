@@ -906,7 +906,6 @@ void ObjDataFree(ZoneRnum zrn) {
 			}
 		}
 	});
-	timer.restart();
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = GetObjRnum(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
