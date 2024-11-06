@@ -1,6 +1,7 @@
 #include "obj_prototypes.h"
-
 #include "utils/logger.h"
+
+#include <third_party_libs/fmt/include/fmt/format.h>
 
 size_t CObjectPrototypes::add(CObjectPrototype *prototype, const ObjVnum vnum) {
 	return add(CObjectPrototype::shared_ptr(prototype, [&](auto ptr) { delete (ObjData *) ptr; }), vnum);
@@ -26,8 +27,11 @@ int CObjectPrototypes::total_online(const size_t rnum) const {
 	if (is_index_safe(rnum)) {
 		ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
 
-		if (is_index_safe(orn) && CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake)) {
-			return m_index[orn].total_online;
+		if (orn != -1) {
+			if (!CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) || obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem))
+				return m_index[rnum].total_online;
+			else
+				return m_index[orn].total_online;
 		} else {
 			return m_index[rnum].total_online;
 		}
@@ -35,12 +39,44 @@ int CObjectPrototypes::total_online(const size_t rnum) const {
 	return -1;
 }
 
-void CObjectPrototypes::dec_number(const size_t rnum) {
-	if (0 == m_index[rnum].total_online) {
-		log("SYSERR: Attempt to decrement number of objects that does not exist at all (0 == number).");
-		return;
+void CObjectPrototypes::inc_number(const size_t rnum) {
+	auto orn  = obj_proto[rnum]->get_parent_rnum();
+
+	if (orn != -1) {
+		if (!CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) || obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
+			++m_index[rnum].total_online;
+		} else {
+			++m_index[orn].total_online;
+		}
+	} else {
+		++m_index[rnum].total_online;
 	}
-	--m_index[rnum].total_online;
+}
+
+void CObjectPrototypes::dec_number(const size_t rnum) {
+	auto orn  = obj_proto[rnum]->get_parent_rnum();
+
+	if (orn != -1) {
+		if (!CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) || obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
+			if (0 == m_index[rnum].total_online) {
+				mudlog("SYSERR: Attempt to decrement number of dungeon objects that does not exist at all (0 == number).", CMP, kLvlGreatGod, SYSLOG, true);
+				return;
+			}
+			--m_index[rnum].total_online;
+		} else {
+			if (0 == m_index[orn].total_online) {
+				mudlog("SYSERR: Attempt to decrement number of parent objects that does not exist at all (0 == number).", CMP, kLvlGreatGod, SYSLOG, true);
+				return;
+			}
+			--m_index[orn].total_online;
+		}
+	} else {
+		if (0 == m_index[rnum].total_online) {
+			mudlog("SYSERR: Attempt to decrement number of real objects that does not exist at all (0 == number).", CMP, kLvlGreatGod, SYSLOG, true);
+			return;
+		}
+		--m_index[rnum].total_online;
+	}
 }
 
 int CObjectPrototypes::get_rnum(const ObjVnum vnum) const {
