@@ -713,7 +713,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 
 	int tmp_lvl = (IS_GOD(ch)) ? 300 : level;
 	int count = tmp_lvl;
-	const auto result = world_objects.find_if_and_dec_number([&](const ObjData::shared_ptr &i) {
+	const auto result = world_objects.find_if_and_dec_number([ch, name, &bloody_corpse](const ObjData::shared_ptr &i) {
 		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
 		if (!obj_ptr) {
 			sprintf(buf, "SYSERR: Illegal object iterator while locate");
@@ -827,16 +827,20 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			} else {
 				return false;
 			}
-		} else if (Depot::ObjInDepot(i.get())) {
-				return false;
-		} else if (Parcel::ObjInParcel(i.get())) {
-				return false;
-		} else {
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
+		} 
+		std::string locate_msg = Depot::PrintSpellLocateObject(ch, i.get());
+		if (!locate_msg.empty()) {
+			SendMsgToChar(locate_msg.c_str(), ch);
+			return true;
 		}
+		locate_msg = Parcel::PrintSpellLocateObject(ch, i.get());
+		if (!locate_msg.empty()) {
+			SendMsgToChar(locate_msg.c_str(), ch);
+			return true;
+		}
+		sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 
 //		CAP(buf); issue #59
-		SendMsgToChar(buf, ch);
 
 		return true;
 	}, count);
@@ -844,14 +848,6 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 	int j = count;
 	if (j > 0) {
 		j = Clan::print_spell_locate_object(ch, j, std::string(name));
-	}
-
-	if (j > 0) {
-		j = Depot::print_spell_locate_object(ch, j, std::string(name));
-	}
-
-	if (j > 0) {
-		j = Parcel::print_spell_locate_object(ch, j, std::string(name));
 	}
 
 	if (j == tmp_lvl) {

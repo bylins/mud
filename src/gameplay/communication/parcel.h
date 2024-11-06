@@ -14,7 +14,8 @@ namespace Parcel {
 int delete_obj(int vnum);
 void send(CharData *ch, CharData *mailman, long vict_uid, char *arg);
 void print_sending_stuff(CharData *ch);
-int print_spell_locate_object(CharData *ch, int count, std::string name);
+std::string PrintSpellLocateObject(CharData *ch, ObjData *obj);
+std::string FindParcelObj(const ObjData *obj);
 bool has_parcel(CharData *ch);
 void receive(CharData *ch, CharData *mailman);
 void update_timers();
@@ -22,10 +23,7 @@ void show_stats(CharData *ch);
 void load();
 void save();
 void bring_back(CharData *ch, CharData *mailman);
-std::string FindParcelObj(const ObjData *obj);
 ObjData *locate_object(const char *str);
-bool ObjInParcel(const ObjData *obj);
-
 void olc_update_from_proto(int robj_num, ObjData *olc_proto);
 
 } // namespace Parcel

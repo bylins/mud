@@ -35,9 +35,8 @@ void enter_char(CharData *ch);
 void exit_char(CharData *ch);
 void reload_char(long uid, CharData *ch);
 
-int print_spell_locate_object(CharData *ch, int count, std::string name);
+std::string PrintSpellLocateObject(CharData *ch, ObjData *obj);
 bool show_purged_message(CharData *ch);
-bool ObjInDepot(const ObjData *obj);
 std::string print_imm_where_obj(const ObjData *obj);
 ObjData *find_obj_from_depot_and_dec_number(char *arg, int &number);
 ObjData *locate_object(const char *str);
