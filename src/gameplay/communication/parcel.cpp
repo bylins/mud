@@ -385,37 +385,25 @@ void print_sending_stuff(CharData *ch) {
 }
 
 // * Для учитывания предметов на почте в локейте.
-int print_spell_locate_object(CharData *ch, int count, std::string name) {
-	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
-		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
+std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
+	for (auto i : parcel_list) {
+		for (auto k : i.second) {
+			for (auto o : k.second) {
 				if (!IS_GOD(ch)) {
 					if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 						continue;
 					}
 				}
-
-				if (it3->obj_->has_flag(EObjFlag::kNolocate)
-					&& !IS_GOD(ch)) {
+				if (o.obj_->has_flag(EObjFlag::kNolocate) && !IS_GOD(ch)) {
 					continue;
 				}
-
-				if (!isname(name.c_str(), it3->obj_->get_aliases())) {
-					continue;
-				}
-
-				snprintf(buf, kMaxStringLength, "%s наход%sся у почтового голубя в инвентаре.\r\n",
-						 it3->obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, it3->obj_));
-//				CAP(buf); issue #59
-				SendMsgToChar(buf, ch);
-
-				if (--count <= 0) {
-					return count;
+				if (obj->get_id() == o.obj_->get_id()) {
+					return fmt::format("{} наход{}ся у почтового голубя в инвентаре.\r\n", o.obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, o.obj_));
 				}
 			}
 		}
 	}
-	return count;
+	return {};
 }
 
 // * Есть ли на чара какие-нить посылки.
@@ -891,18 +879,6 @@ ObjData *locate_object(const char *str) {
 		}
 	}
 	return nullptr;
-}
-bool ObjInParcel(const ObjData *obj) {
-	for (auto i : parcel_list) {
-		for (auto k : i.second) {
-			for (auto o : k.second) {
-				if (obj->get_id() == o.obj_->get_id()) {
-					return true;
-				}
-			}
-		}
-	}
-	return false;
 }
 
 // * Возврат всех ждущих посылок их отправителю.

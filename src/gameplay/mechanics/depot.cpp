@@ -1399,45 +1399,24 @@ void reload_char(long uid, CharData *ch) {
 * Учет локейт в персональных хранилищах.
 * \param count - оставшееся кол-во возможных показываемых шмоток после прохода по основному обж-списку.
 */
-int print_spell_locate_object(CharData *ch, int count, std::string name) {
-	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
-		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
-			 ++obj_it) {
+std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
+	for (auto it : depot_list) {
+		for (auto obj_it : it.second.pers_online) {
 			if (!IS_GOD(ch)) {
 				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 					continue;
 				}
-				if ((*obj_it)->has_flag(EObjFlag::kNolocate)
+				if (obj_it->has_flag(EObjFlag::kNolocate)
 					&& !IS_GOD(ch)) {
 					continue;
 				}
 			}
-
-			if (!isname(name.c_str(), (*obj_it)->get_aliases())) {
-				continue;
-			}
-
-			snprintf(buf, kMaxStringLength, "%s наход%sся у кого-то в персональном хранилище.\r\n",
-					 (*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
-//			CAP(buf); issue #59
-			SendMsgToChar(buf, ch);
-
-			if (--count <= 0) {
-				return count;
+			if (obj->get_id() == obj_it->get_id()) {
+				return fmt::format("{} наход{}ся у кого-то в персональном хранилище.\r\n", obj_it->get_short_description().c_str(), GET_OBJ_POLY_1(ch, obj_it));
 			}
 		}
 	}
-	return count;
-}
-bool ObjInDepot(const ObjData *obj) {
-	for (auto it : depot_list) {
-		for (auto obj_it : it.second.pers_online) {
-			if (obj->get_id() ==  obj_it->get_id()) {
-				return true;
-			}
-		}
-	}
-	return false;
+	return {};
 }
 
 std::string print_imm_where_obj(const ObjData *obj) {
