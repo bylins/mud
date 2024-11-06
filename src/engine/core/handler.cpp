@@ -1633,15 +1633,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	check_auction(nullptr, obj);
 	check_exchange(obj);
 	const auto rnum = obj->get_rnum();
-	if (rnum >= 0) {
-		auto orn  = obj_proto[rnum]->get_parent_rnum();
-		if (orn > -1 && CAN_WEAR(obj, EWearFlag::kTake)) {
-			obj_proto.dec_number(orn);
-		} else {
-			obj_proto.dec_number(rnum);
-		}
-	}
-
+	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
 	if (showlog)

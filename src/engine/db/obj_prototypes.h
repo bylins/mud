@@ -67,7 +67,7 @@ class CObjectPrototypes {
 	int total_online(const size_t rnum) const;
 	auto total_online(const CObjectPrototype::shared_ptr &object) const { return total_online(object->get_rnum()); }
 	void dec_number(const size_t rnum);
-	void inc_number(const size_t rnum) { ++m_index[rnum].total_online; }
+	void inc_number(const size_t rnum);
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
 
