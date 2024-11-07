@@ -772,6 +772,8 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 		if (!isname(name, i->get_aliases())) {
 			return false;
 		}
+		std::string locate_msg;
+
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
@@ -827,21 +829,17 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			} else {
 				return false;
 			}
-		} 
-		std::string locate_msg = Depot::PrintSpellLocateObject(ch, i.get());
-		if (!locate_msg.empty()) {
+		} else if (!(locate_msg = Depot::PrintSpellLocateObject(ch, i.get())).empty()) {
 			SendMsgToChar(locate_msg.c_str(), ch);
 			return true;
-		}
-		locate_msg = Parcel::PrintSpellLocateObject(ch, i.get());
-		if (!locate_msg.empty()) {
+		} else if (!(locate_msg = Parcel::PrintSpellLocateObject(ch, i.get())).empty()) {
 			SendMsgToChar(locate_msg.c_str(), ch);
 			return true;
-		}
-		sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
-
+		} else {
+			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 //		CAP(buf); issue #59
-
+		}
+		SendMsgToChar(buf, ch);
 		return true;
 	}, count);
 
