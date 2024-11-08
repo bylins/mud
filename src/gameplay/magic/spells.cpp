@@ -1430,13 +1430,15 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 						PlaceObjToInventory(UnequipChar(victim, i, CharEquipFlag::show_msg), victim);
 					}
 				}
+			} else {
+				// запрещаем умке одевать шмот
+				victim->UnsetFlag(ENpcFlag::kWielding);
+				victim->UnsetFlag(ENpcFlag::kArmoring);
 			}
 			victim->UnsetFlag(EMobFlag::kAgressive);
 			victim->UnsetFlag(EMobFlag::kSpec);
 			victim->UnsetFlag(EPrf::kPunctual);
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
-			victim->UnsetFlag(ENpcFlag::kWielding);
-			victim->UnsetFlag(ENpcFlag::kArmoring);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList)) {
 				MobVnum mvn = GET_MOB_VNUM(victim);
