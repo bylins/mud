@@ -1626,19 +1626,19 @@ void point_update() {
 		}
 	});
 }
-void ExtractRepopDecayObject(const ObjData::shared_ptr &obj) {
+void ExtractRepopDecayObject(ObjData *obj) {
 	if (obj->get_worn_by()) {
 		act("$o рассыпал$U, вспыхнув ярким светом...",
-			false, obj->get_worn_by(), obj.get(), nullptr, kToChar);
+			false, obj->get_worn_by(), obj, nullptr, kToChar);
 	} else if (obj->get_carried_by()) {
 		act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-				false, obj->get_carried_by(), obj.get(), nullptr, kToChar);
+				false, obj->get_carried_by(), obj, nullptr, kToChar);
 	} else if (obj->get_in_room() != kNowhere) {
 		if (!world[obj->get_in_room()]->people.empty()) {
 			act("$o рассыпал$U, вспыхнув ярким светом...",
-					false, world[obj->get_in_room()]->first_character(), obj.get(), nullptr, kToChar);
+					false, world[obj->get_in_room()]->first_character(), obj, nullptr, kToChar);
 			act("$o рассыпал$U, вспыхнув ярким светом...",
-					false, world[obj->get_in_room()]->first_character(), obj.get(), nullptr, kToRoom);
+					false, world[obj->get_in_room()]->first_character(), obj, nullptr, kToRoom);
 		}
 	} else if (obj->get_in_obj()) {
 		CharData *owner = nullptr;
@@ -1650,10 +1650,10 @@ void ExtractRepopDecayObject(const ObjData::shared_ptr &obj) {
 
 		if (owner) {
 			const auto msg = fmt::format("$o рассыпал$U в {}...", obj->get_in_obj()->get_PName(5));
-			act(msg, false, owner, obj.get(), nullptr, kToChar);
+			act(msg, false, owner, obj, nullptr, kToChar);
 		}
 	}
-	ExtractObjFromWorld(obj.get());
+	ExtractObjFromWorld(obj);
 }
 
 void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list) {
@@ -1662,7 +1662,7 @@ void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list) {
 			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
 			for (int &it : zone_list) {
 				if (obj_zone_num == zone_table[it].vnum) {
-					ExtractRepopDecayObject(j);
+					ExtractRepopDecayObject(j.get());
 				}
 			}
 		}
