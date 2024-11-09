@@ -40,6 +40,8 @@
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 // Structures
 std::list<combat_list_element> combat_list;
 
@@ -1860,7 +1862,7 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
-	utils::CSteppedProfiler round_profiler("process player attack", 0.01);
+	utils::CSteppedProfiler round_profiler(fmt::format("process player attack for char {}", ch->get_name()), 0.01);
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
