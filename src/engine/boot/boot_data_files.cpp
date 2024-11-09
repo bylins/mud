@@ -246,7 +246,7 @@ class DataFileFactoryImpl : public DataFileFactory {
 	using regex_ptr_t = std::shared_ptr<std::regex>;
 
 	DataFileFactoryImpl() : m_load_obj_exp(std::make_shared<std::regex>(
-		"^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
+		"^\\s*(?:%load%|load|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
 
 	virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string &file_name) override;
 

@@ -22,7 +22,7 @@
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 
-extern void ExtractRepopDecayObject(const ObjData::shared_ptr &obj);
+extern void ExtractRepopDecayObject(ObjData *obj);
 
 namespace dungeons {
 
@@ -895,17 +895,27 @@ void MobDataFree(ZoneRnum zrn) {
 void ObjDataFree(ZoneRnum zrn) {
 // на земле удаляются в RoomDataFree
 	ObjRnum orn;
+	std::list<ObjData *> repop_list, swap_list;
 
-	world_objects.foreach_on_copy([&zrn](const ObjData::shared_ptr &j) {
+	world_objects.foreach([&zrn, &repop_list, &swap_list](const ObjData::shared_ptr &j) {
 		if (j->get_parent_rnum() > -1) {
-			if (j->has_flag(EObjFlag::kRepopDecay) && j->get_vnum() / 100 == zone_table[zrn].vnum) {
-					ExtractRepopDecayObject(j);
-					return;
-			} else {
-				SwapOriginalObject(j.get());
+			auto ovn = j->get_vnum();
+
+			if (ovn / 100 == zone_table[zrn].vnum) {
+				if (j->has_flag(EObjFlag::kRepopDecay)) {
+					repop_list.push_back(j.get());
+				} else {
+					swap_list.push_back(j.get());
+				}
 			}
 		}
 	});
+	for (auto it: repop_list) {
+		ExtractRepopDecayObject(it);
+	}
+	for (auto it: swap_list) {
+		SwapOriginalObject(it);
+	}
 	for (int counter = zone_table[zrn].vnum * 100; counter <= zone_table[zrn].top; counter++) {
 		if ((orn = GetObjRnum(counter)) >= 0) {
 			obj_proto[orn]->clear_proto_script();
