@@ -92,7 +92,6 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
-
 	if (IS_MANA_CASTER(ch)) {
 		if (GetRealLevel(ch) < MagusCastRequiredLevel(ch, spell_id)) {
 			SendMsgToChar("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
