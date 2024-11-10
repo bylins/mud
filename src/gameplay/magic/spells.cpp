@@ -96,9 +96,12 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 }
 
 int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id) {
-	auto min_lvl = spell_create[spell_id].runes.min_caster_level
-		- GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+	int min_lvl;
 
+	if (spell_create.contains(spell_id)) {
+		min_lvl = spell_create[spell_id].runes.min_caster_level - GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+	} else
+		return 999;
 	return std::max(1, min_lvl);
 }
 
@@ -2515,6 +2518,10 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 	struct SpellCreateItem *items;
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast) {
+		return (false);
+	}
+	if (!spell_create.contains(spell_id)) {
+		SendMsgToChar("Вам не доступно это заклинание.\r\n", ch);
 		return (false);
 	}
 	if (spell_type == ESpellType::kItemCast) {

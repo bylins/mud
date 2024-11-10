@@ -25,14 +25,20 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 char cast_argument[kMaxStringLength];
 
 extern int what_sky;
 
 
 int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
-	int required_level = spell_create[spell_id].runes.min_caster_level;
-
+	int required_level;
+	if (spell_create.contains(spell_id)) {
+		required_level = spell_create[spell_id].runes.min_caster_level;
+	} else {
+		return 999;
+	}
 	if (required_level >= kLvlGod)
 		return required_level;
 	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
