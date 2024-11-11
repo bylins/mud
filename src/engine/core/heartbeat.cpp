@@ -188,6 +188,15 @@ void ExchangeDatabaseSaveCall::perform(int, int) {
 	}
 }
 
+class ExtractListProcessingCall : public AbstractPulseAction {
+ public:
+	void perform(int, int) override;
+};
+
+void ExtractListProcessingCall::perform(int, int) {
+	character_list.PurgeExtractedList();
+}
+
 class ExchangeDatabaseBackupSaveCall : public AbstractPulseAction {
  public:
 	void perform(int, int) override;
@@ -483,6 +492,11 @@ Heartbeat::steps_t &pulse_steps() {
 							 EXCHANGE_AUTOSAVETIME * kPassesPerSec,
 							 9,
 							 std::make_shared<ExchangeDatabaseBackupSaveCall>()),
+		Heartbeat::PulseStep("Processing for extracted_list in triggers",
+							 1,
+							 11,
+							 std::make_shared<SimpleCall>([]() { character_list.PurgeExtractedList();})),
+//							 std::make_shared<ExtractListProcessingCall>()),
 		Heartbeat::PulseStep("Global UID saving", 60 * kPassesPerSec, 9, std::make_shared<GlobalSaveUIDCall>()),
 		Heartbeat::PulseStep("Crash save", 60 * kPassesPerSec, 11, std::make_shared<CrashSaveCall>()),
 		Heartbeat::PulseStep("Clan experience updating",

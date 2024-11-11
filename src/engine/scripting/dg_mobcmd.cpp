@@ -429,8 +429,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| victim->has_master()) {
 		die_follower(victim);
 	}
-
-	ExtractCharFromWorld(victim, false);
+	character_list.AddToExtratedList(victim);
 }
 
 // lets the mobile goto any location it wishes that is not private

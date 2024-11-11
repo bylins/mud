@@ -1,5 +1,5 @@
 #include "world_characters.h"
-
+#include "engine/core/handler.h"
 #include "gameplay/ai/mobact.h"
 #include "global_objects.h"
 #include "gameplay/ai/mob_memory.h"
@@ -83,6 +83,15 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 	list_t list;
 	std::copy_if(get_list().begin(), get_list().end(), std::back_inserter(list), predicate);
 	std::for_each(list.begin(), list.end(), function);
+}
+
+void Characters::PurgeExtractedList() {
+	for (auto it : m_extracted_list) {
+		if (it->purged())
+			continue;
+		ExtractCharFromWorld(it, false);
+	}
+	m_extracted_list.clear();
 }
 
 void Characters::remove(CharData *character) {
