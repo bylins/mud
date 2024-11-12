@@ -50,7 +50,7 @@ class Characters {
 	void purge();
 	bool has(const CharData *character) const;
 
-	void AddToExtratedList(CharData *_) {m_extracted_list.push_back(_);}
+	void AddToExtratedList(CharData *ch);
 	void PurgeExtractedList();
 
  private:

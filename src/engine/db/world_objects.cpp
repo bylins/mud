@@ -315,6 +315,11 @@ ObjData::shared_ptr WorldObjects::get_by_raw_ptr(ObjData *object) const {
 	return result;
 }
 
+void WorldObjects::AddToExtratedList(ObjData *obj) {
+	obj->get_script()->set_purged(true);
+	m_extracted_list.push_back(obj);
+}
+
 void WorldObjects::PurgeExtractedList() {
 	for (auto it : m_extracted_list) {
 		ExtractObjFromWorld(it, false);

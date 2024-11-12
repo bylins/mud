@@ -90,7 +90,7 @@ class WorldObjects {
 	ObjData::shared_ptr get_by_raw_ptr(ObjData *object) const;
 	auto size() const { return m_objects_list.size(); }
 	void purge() { m_purge_list.clear(); }
-	void AddToExtratedList(ObjData *_) {m_extracted_list.push_back(_);}
+	void AddToExtratedList(ObjData *obj);
 	void PurgeExtractedList();
 
  private:

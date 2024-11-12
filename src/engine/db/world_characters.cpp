@@ -85,6 +85,11 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 	std::for_each(list.begin(), list.end(), function);
 }
 
+void Characters::AddToExtratedList(CharData *ch) {
+	ch->script->set_purged(true);
+	m_extracted_list.push_back(ch);
+}
+
 void Characters::PurgeExtractedList() {
 	for (auto it : m_extracted_list) {
 		ExtractCharFromWorld(it, false);
