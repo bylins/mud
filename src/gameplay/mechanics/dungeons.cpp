@@ -40,7 +40,7 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from);
 void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list = {});
 void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
 void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
-void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
+void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list = {});
 void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
 void RoomDataFree(ZoneRnum zrn);
 void MobDataFree(ZoneRnum zrn);
@@ -445,7 +445,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 						auto from_key = from->key;
 						auto zrn_to_it = std::find_if(dungeon_list.begin(),
 												  dungeon_list.end(),
-												  [&from_key, &new_room](auto it) {
+												  [&from_key] (auto it) {
 														return zone_table[it.from].vnum == from_key / 100;
 												  });
 						if (zrn_to_it != dungeon_list.end()) {
@@ -485,7 +485,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 	}
 }
 
-void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
+void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list) {
 	ObjRnum orn_to, i;
 	ObjVnum new_ovn;
 	ObjData *new_obj;
@@ -515,10 +515,24 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				}
 			}
 			if (new_obj->get_type() == EObjType::kContainer) {
-				ObjVnum key = obj_original->get_val(2);
-				ObjVnum new_key = zone_table[zrn_to].vnum * 100 + key % 100;
-
-				new_obj->set_val(2, new_key);
+				ObjVnum from_key = obj_original->get_val(2);
+				
+				if (from_key > 0) {
+					if (from_key / 100 == zone_table[zrn_from].vnum) {
+						new_obj->set_val(2, zone_table[zrn_to].vnum * 100 + from_key % 100);
+					} else if (!dungeon_list.empty()) { //не тестировалось
+						auto zrn_to_it = std::find_if(dungeon_list.begin(), dungeon_list.end(), [&from_key](auto it) {
+							return zone_table[it.from].vnum == from_key / 100;
+						});
+						if (zrn_to_it != dungeon_list.end()) {
+							new_obj->set_val(2, zone_table[zrn_to_it->to].vnum * 100 + from_key % 100);
+						} else {
+							new_obj->set_val(2, from_key);
+						}
+					} else{
+						new_obj->set_val(2, from_key);
+					}
+				}
 			}
 			ExtractObjFromWorld(obj_original.get());
 		}
@@ -683,7 +697,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 		TrigDataCopy(it.from, it.to);
 		RoomDataCopy(it.from, it.to, zrn_list);
 		MobDataCopy(it.from, it.to);
-		ObjDataCopy(it.from, it.to);
+		ObjDataCopy(it.from, it.to, zrn_list);
 		ZoneDataCopy(it.from, it.to); //последним
 		zone_table[it.to].copy_from_zone = zone_table[it.from].vnum;
 	}
@@ -933,6 +947,10 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj->set_parent_rnum(-1);
 			obj->clear_proto_script();
+			obj->set_val(0, 0);
+			obj->set_val(1, 0);
+			obj->set_val(2, 0);
+			obj->set_val(3, 0);
 		}
 	}
 }
