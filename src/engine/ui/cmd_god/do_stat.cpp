@@ -400,9 +400,16 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	strcpy(buf, "Позиция по умолчанию: ");
 	sprinttype(static_cast<int>(k->mob_specials.default_pos), position_types, buf2);
 	strcat(buf, buf2);
-
-	sprintf(buf2, ", Таймер отсоединения (тиков) [%d]\r\n", k->char_specials.timer);
-	strcat(buf, buf2);
+	if (k->char_specials.timer > 0) {
+		sprintf(buf2, ", Таймер отсоединения (тиков) [%d]\r\n", k->char_specials.timer);
+		strcat(buf, buf2);
+	} else if (k->extract_timer > 0) {
+		sprintf(buf2, ", Extract timer [%d]\r\n", k->extract_timer);
+		strcat(buf, buf2);
+	} else {
+		sprintf(buf2, "\r\n");
+		strcat(buf, buf2);
+	}
 	SendMsgToChar(buf, ch);
 
 	if (k->IsNpc()) {

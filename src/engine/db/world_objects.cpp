@@ -1,5 +1,5 @@
 #include "world_objects.h"
-
+#include "engine/core/handler.h"
 #include "obj_prototypes.h"
 #include "db.h"
 #include "gameplay/mechanics/liquid.h"
@@ -313,6 +313,13 @@ ObjData::shared_ptr WorldObjects::get_by_raw_ptr(ObjData *object) const {
 	}
 
 	return result;
+}
+
+void WorldObjects::PurgeExtractedList() {
+	for (auto it : m_extracted_list) {
+		ExtractObjFromWorld(it, false);
+	}
+	m_extracted_list.clear();
 }
 
 void WorldObjects::add_to_index(const list_t::iterator &object_i) {

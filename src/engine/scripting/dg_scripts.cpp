@@ -670,91 +670,53 @@ ObjData *get_obj_by_char(CharData *ch, char *name) {
 }
 
 // checks every PLUSE_SCRIPT for random triggers
-void script_trigger_check() {
-	utils::CExecutionTimer timercheck;
-	std::stringstream buffer;
-	long amount, sum = 0;
-	long alarge_amount = 0;
-	CharData *who = nullptr;
-	ZoneVnum last_zone = -1;
-	bool IsEmpty;
+void script_trigger_check(int mode) {
+	utils::CExecutionTimer timer;
 
-	character_list.foreach_on_copy([&last_zone, &IsEmpty, &amount, &alarge_amount, &sum, &who](const CharData::shared_ptr &ch) {
-		if (ch->purged())
-			return;
-		if (!who)
-			who = ch.get();
-		if (SCRIPT(ch)->has_triggers()) {
-			auto sc = SCRIPT(ch).get();
-			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM_GLOBAL)) {
-				utils::CExecutionTimer timer;
-				random_mtrigger(ch.get());
-				amount = timer.delta().count();
-				sum += amount;
-				if (amount > alarge_amount) {
-					alarge_amount = amount;
-					who = ch.get();
-				}
-			}
-		}
-	});
-	buffer << "MOB random trigger: самый долгий у моба [" << GET_MOB_VNUM(who) << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
-	log("%s", buffer.str().c_str());
-	buffer.str("");
-	alarge_amount = 0;
-	sum = 0;
-	ObjData *what = nullptr;
-	last_zone = -1;
-	world_objects.foreach_on_copy([&last_zone, &IsEmpty, &amount, &alarge_amount, &sum, &what](const ObjData::shared_ptr &obj) {
-		if (!obj->get_in_obj()) {
-			if (!what)
-				what = obj.get();
-			if (obj.get()->has_flag(EObjFlag::kNamed)) {
-				if (obj->get_worn_by() && number(1, 100) <= 5) {
-					NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
-				}
-			} else if (obj->get_script()->has_triggers()) {
-				auto sc = obj->get_script().get();
-				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM_GLOBAL) || IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
-					utils::CExecutionTimer timer;
-					random_otrigger(obj.get());
-					amount = timer.delta().count();
-					sum += amount;
-					if (amount > alarge_amount) {
-						alarge_amount = amount;
-						what = obj.get();
+	switch (mode) {
+		case MOB_TRIGGER:
+			for (auto ch : character_list) {
+				if (ch->purged())
+					return;
+				if (SCRIPT(ch)->has_triggers()) {
+					auto sc = SCRIPT(ch).get();
+					if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM_GLOBAL)) {
+						random_mtrigger(ch.get());
 					}
 				}
 			}
-		}
-	});
-	buffer << "OBJ random trigger: самый долгий у объекта [" << GET_OBJ_VNUM(what) << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms.";
-	log("%s", buffer.str().c_str());
-	buffer.str("");
-	alarge_amount = 0;
-	sum = 0;
-	RoomData *where = nullptr;
-	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
-		if (SCRIPT(world[nr])->has_triggers()) {
-			auto room = world[nr];
-			auto sc = SCRIPT(room).get();
-			if (!where)
-				where = room;
-			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM_GLOBAL)) {
-				utils::CExecutionTimer timer;
-				random_wtrigger(room, sc->trig_list);
-				amount = timer.delta().count();
-				sum += amount;
-				if (amount > alarge_amount) {
-					alarge_amount = amount;
-					where = room;
+		break;
+		case OBJ_TRIGGER:
+			world_objects.foreach([](const ObjData::shared_ptr &obj) {
+				if (!obj->get_in_obj()) {
+					if (obj.get()->has_flag(EObjFlag::kNamed)) {
+						if (obj->get_worn_by() && number(1, 100) <= 5) {
+							NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
+						}
+					} else if (obj->get_script()->has_triggers()) {
+						auto sc = obj->get_script().get();
+						if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM_GLOBAL) || IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
+							random_otrigger(obj.get());
+						}
+					}
+				}
+			});
+		break;
+		case WLD_TRIGGER:
+			for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
+				if (SCRIPT(world[nr])->has_triggers()) {
+					auto room = world[nr];
+					auto sc = SCRIPT(room).get();
+					if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM_GLOBAL)) {
+						random_wtrigger(room, sc->trig_list);
+					}
 				}
 			}
-		}
+		break;
+		default:
+		break;
 	}
-	buffer << "WLD random trigger: самый долгий у комнаты [" << where->vnum << "] время выполнения - " << alarge_amount << " ms" << " сумма всего: " << sum << " ms." << "\r\n";
-	buffer << "script_trigger_check() всего: " << timercheck.delta().count() <<" ms.";
-	log("%s", buffer.str().c_str());
+	log("script_trigger_check() mode %d всего: %f ms.", mode, timer.delta().count());
 }
 
 // проверка каждый час на триги изменении времени

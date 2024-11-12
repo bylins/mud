@@ -87,8 +87,6 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 
 void Characters::PurgeExtractedList() {
 	for (auto it : m_extracted_list) {
-		if (it->purged())
-			continue;
 		ExtractCharFromWorld(it, false);
 	}
 	m_extracted_list.clear();

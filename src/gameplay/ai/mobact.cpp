@@ -905,8 +905,9 @@ void extract_charmice(CharData *ch) {
 		}
 		DropObjOnZoneReset(ch, charmice_box, true, false);
 	}
-
-	ExtractCharFromWorld(ch, false);
+	ch->script->set_purged(true);
+	character_list.AddToExtratedList(ch);
+//	ExtractCharFromWorld(ch, false);
 }
 }
 
@@ -914,8 +915,8 @@ void mobile_activity(int activity_level, int missed_pulses) {
 //	int door, max, was_in = -1, activity_lev, i, ch_activity;
 //	int std_lev = activity_level % kPulseMobile;
 
-//	for (auto &ch : character_list) {
-	character_list.foreach_on_copy([missed_pulses, &activity_level](const CharData::shared_ptr &ch) {
+	for (auto &ch : character_list) {
+//	character_list.foreach_on_copy([missed_pulses, &activity_level](const CharData::shared_ptr &ch) {
 	  int door, max, was_in = -1, activity_lev, i, ch_activity;
 	  auto std_lev = activity_level % kPulseMobile;
 	  if (!IS_MOB(ch)
@@ -1250,8 +1251,8 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (was_in != ch->in_room) {
 		  do_aggressive_room(ch.get(), false);
 	  }
-	});            // end for()
-//	}
+//	});            // end for()
+	}
 }
 
 } // namespace mob_ai

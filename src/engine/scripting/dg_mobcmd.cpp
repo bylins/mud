@@ -413,7 +413,8 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
-			ExtractObjFromWorld(obj, false);
+			obj->get_script()->set_purged(true);
+			world_objects.AddToExtratedList(obj);
 		} else {
 			mob_log(ch, trig, "mpurge: bad argument");
 		}
@@ -429,6 +430,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| victim->has_master()) {
 		die_follower(victim);
 	}
+	victim->script->set_purged(true);
 	character_list.AddToExtratedList(victim);
 }
 
@@ -880,7 +882,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		// для name_list
-		ExtractCharFromWorld(m, true);
+		m->script->set_purged(true);
+		character_list.AddToExtratedList(m);
+//		ExtractCharFromWorld(m, true);
 		chardata_by_uid[ch->get_uid()] = ch;
 		if (trig->curr_line->next) {
 			trig_copy->curr_line = trig->curr_line->next;

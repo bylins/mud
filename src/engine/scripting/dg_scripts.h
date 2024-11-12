@@ -376,7 +376,7 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id);
 void kill_pc_wtrigger(CharData *killer, CharData *victim);
 
 // function prototypes from scripts.cpp //
-void script_trigger_check();
+void script_trigger_check(int mode);
 void script_timechange_trigger_check(int time, int time_day);
 bool add_trigger(Script *sc, Trigger *t, int loc);
 

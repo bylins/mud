@@ -1011,11 +1011,12 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (victim->IsFlagged(EMobFlag::kNoGroup))
 			victim->UnsetFlag(EMobFlag::kNoGroup);
 		RemoveAffectFromChar(victim, ESpell::kCharm);
-		if (GetRealInt(victim) > GetRealInt(ch)) {
-			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
-		} else {
-			af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
-		}
+//		if (GetRealInt(victim) > GetRealInt(ch)) {
+////			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
+//		} else {
+//			af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
+//		}
+af.duration = 0;
 		af.modifier = 0;
 		af.location = EApply::kNone;
 		af.battleflag = 0;
