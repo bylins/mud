@@ -188,6 +188,16 @@ void ExchangeDatabaseSaveCall::perform(int, int) {
 	}
 }
 
+class ExtractListProcessingCall : public AbstractPulseAction {
+ public:
+	void perform(int, int) override;
+};
+
+void ExtractListProcessingCall::perform(int, int) {
+	character_list.PurgeExtractedList();
+	world_objects.PurgeExtractedList();
+}
+
 class ExchangeDatabaseBackupSaveCall : public AbstractPulseAction {
  public:
 	void perform(int, int) override;
@@ -281,7 +291,18 @@ Heartbeat::steps_t &pulse_steps() {
 							 0,
 							 std::make_shared<SimpleCall>(GlobalDrop::reload_tables)),
 		Heartbeat::PulseStep("Events processing", 1, 0, std::make_shared<SimpleCall>(process_events)),
-		Heartbeat::PulseStep("Triggers check", PULSE_DG_SCRIPT, 1, std::make_shared<SimpleCall>(script_trigger_check)),
+		Heartbeat::PulseStep("Triggers check mobile", 
+							PULSE_DG_SCRIPT, 
+							1, 
+							std::make_shared<SimpleCall>([]() { script_trigger_check(MOB_TRIGGER); })),
+		Heartbeat::PulseStep("Triggers check object", 
+							PULSE_DG_SCRIPT, 
+							5, 
+							std::make_shared<SimpleCall>([]() { script_trigger_check(OBJ_TRIGGER); })),
+		Heartbeat::PulseStep("Triggers check rooms", 
+							PULSE_DG_SCRIPT, 
+							10, 
+							std::make_shared<SimpleCall>([]() { script_trigger_check(WLD_TRIGGER); })),
 		Heartbeat::PulseStep("Sanity check", 60 * kPassesPerSec, 2, std::make_shared<SimpleCall>(sanity_check)),
 		Heartbeat::PulseStep("Check idle passwords",
 							 40 * kPassesPerSec,
@@ -483,6 +504,10 @@ Heartbeat::steps_t &pulse_steps() {
 							 EXCHANGE_AUTOSAVETIME * kPassesPerSec,
 							 9,
 							 std::make_shared<ExchangeDatabaseBackupSaveCall>()),
+		Heartbeat::PulseStep("Processing for extracted_list in triggers",
+							 1,
+							 11,
+							 std::make_shared<ExtractListProcessingCall>()),
 		Heartbeat::PulseStep("Global UID saving", 60 * kPassesPerSec, 9, std::make_shared<GlobalSaveUIDCall>()),
 		Heartbeat::PulseStep("Crash save", 60 * kPassesPerSec, 11, std::make_shared<CrashSaveCall>()),
 		Heartbeat::PulseStep("Clan experience updating",

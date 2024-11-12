@@ -331,7 +331,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		if (wearer) {
 			EquipObj(wearer, obj, pos, CharEquipFlags());
 		}
-		ExtractObjFromWorld(o.get(), false);
+		world_objects.AddToExtratedList(o.get());
 	}
 }
 
@@ -350,7 +350,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	if (!(ch = get_char_by_obj(obj, arg))) {
 		if ((o = get_obj_by_obj(obj, arg))) {
 			log("Purge obj #%d by %s (opurge)", GET_OBJ_VNUM(o), arg);
-			ExtractObjFromWorld(o, false);
+			world_objects.AddToExtratedList(o);
 		} else
 			obj_log(obj, trig, "opurge: bad argument");
 		return;
@@ -365,7 +365,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
-	ExtractCharFromWorld(ch, false);
+	character_list.AddToExtratedList(ch);
 }
 
 void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {

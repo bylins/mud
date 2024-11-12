@@ -413,7 +413,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
-			ExtractObjFromWorld(obj, false);
+			world_objects.AddToExtratedList(obj);
 		} else {
 			mob_log(ch, trig, "mpurge: bad argument");
 		}
@@ -429,8 +429,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| victim->has_master()) {
 		die_follower(victim);
 	}
-
-	ExtractCharFromWorld(victim, false);
+	character_list.AddToExtratedList(victim);
 }
 
 // lets the mobile goto any location it wishes that is not private
@@ -881,7 +880,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		// для name_list
-		ExtractCharFromWorld(m, true);
+		character_list.AddToExtratedList(m);
 		chardata_by_uid[ch->get_uid()] = ch;
 		if (trig->curr_line->next) {
 			trig_copy->curr_line = trig->curr_line->next;

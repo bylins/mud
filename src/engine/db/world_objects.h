@@ -90,6 +90,8 @@ class WorldObjects {
 	ObjData::shared_ptr get_by_raw_ptr(ObjData *object) const;
 	auto size() const { return m_objects_list.size(); }
 	void purge() { m_purge_list.clear(); }
+	void AddToExtratedList(ObjData *obj);
+	void PurgeExtractedList();
 
  private:
 	using objects_set_t = std::unordered_set<ObjData::shared_ptr>;
@@ -101,6 +103,7 @@ class WorldObjects {
 	void add_to_index(const list_t::iterator &object_i);
 
 	list_t m_objects_list;
+	std::list<ObjData *> m_extracted_list;
 	vnum_to_object_ptr_t m_vnum_to_object_ptr;
 	object_raw_ptr_to_object_ptr_t m_object_raw_ptr_to_object_ptr;
 	id_to_object_ptr_t m_id_to_object_ptr;

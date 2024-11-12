@@ -905,8 +905,8 @@ void extract_charmice(CharData *ch) {
 		}
 		DropObjOnZoneReset(ch, charmice_box, true, false);
 	}
-
-	ExtractCharFromWorld(ch, false);
+	character_list.AddToExtratedList(ch);
+//	ExtractCharFromWorld(ch, false);
 }
 }
 

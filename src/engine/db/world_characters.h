@@ -48,8 +48,10 @@ class Characters {
 	void remove(const CharData::shared_ptr &character) { remove(character.get()); }
 
 	void purge();
-
 	bool has(const CharData *character) const;
+
+	void AddToExtratedList(CharData *ch);
+	void PurgeExtractedList();
 
  private:
 	using character_raw_ptr_to_character_ptr_t = std::unordered_map<const void *, list_t::iterator>;
@@ -57,6 +59,7 @@ class Characters {
 	using vnum_to_characters_set_t = std::unordered_map<MobVnum, set_t>;
 
 	list_t m_list;
+	std::list<CharData *> m_extracted_list;
 	character_raw_ptr_to_character_ptr_t m_character_raw_ptr_to_character_ptr;
 	vnum_to_characters_set_t m_vnum_to_characters_set;
 	CharacterRNum_ChangeObserver::shared_ptr m_rnum_change_observer;
