@@ -11,6 +11,7 @@
 #include "administration/privilege.h"
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
+#include "engine/entities/zone.h"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
 
@@ -136,6 +137,8 @@ bool is_spamer(CharData *ch, const Board &board) {
 }
 
 void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+	RoomVnum rvn;
+
 	if (!ch->desc) {
 		return;
 	}
@@ -293,7 +296,12 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		// для ошибок опечаток впереди пишем комнату, где стоит отправитель
 		std::string subj;
 		if (subcmd == ERROR_BOARD || subcmd == MISPRINT_BOARD) {
-			subj += fmt::format("[{}]", GET_ROOM_VNUM(ch->in_room));
+			if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
+				rvn = zone_table[world[ch->in_room]->zone_rn].copy_from_zone * 100 + world[ch->in_room]->vnum % 100;
+			} else {
+				rvn =  world[ch->in_room]->vnum;
+			}
+			subj += fmt::format("[{}] ", rvn);
 		}
 		subj += buffer2;
 		tempMessage->subject = subj;
