@@ -91,10 +91,12 @@ void Characters::AddToExtratedList(CharData *ch) {
 }
 
 void Characters::PurgeExtractedList() {
-	for (auto it : m_extracted_list) {
-		ExtractCharFromWorld(it, false);
+	if (!m_extracted_list.empty()) {
+		for (auto it : m_extracted_list) {
+			ExtractCharFromWorld(it, false);
+		}
+		m_extracted_list.clear();
 	}
-	m_extracted_list.clear();
 }
 
 void Characters::remove(CharData *character) {

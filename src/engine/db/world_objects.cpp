@@ -321,10 +321,12 @@ void WorldObjects::AddToExtratedList(ObjData *obj) {
 }
 
 void WorldObjects::PurgeExtractedList() {
-	for (auto it : m_extracted_list) {
-		ExtractObjFromWorld(it, false);
+	if (!m_extracted_list.empty()) {
+		for (auto it : m_extracted_list) {
+			ExtractObjFromWorld(it, false);
+		}
+		m_extracted_list.clear();
 	}
-	m_extracted_list.clear();
 }
 
 void WorldObjects::add_to_index(const list_t::iterator &object_i) {
