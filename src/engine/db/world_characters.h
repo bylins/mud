@@ -59,7 +59,7 @@ class Characters {
 	using vnum_to_characters_set_t = std::unordered_map<MobVnum, set_t>;
 
 	list_t m_list;
-	std::list<CharData *> m_extracted_list;
+	std::unordered_set<CharData *>  m_extracted_list;
 	character_raw_ptr_to_character_ptr_t m_character_raw_ptr_to_character_ptr;
 	vnum_to_characters_set_t m_vnum_to_characters_set;
 	CharacterRNum_ChangeObserver::shared_ptr m_rnum_change_observer;

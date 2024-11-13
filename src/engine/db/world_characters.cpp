@@ -87,7 +87,7 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 
 void Characters::AddToExtratedList(CharData *ch) {
 	ch->script->set_purged(true);
-	m_extracted_list.push_back(ch);
+	m_extracted_list.insert(ch);
 }
 
 void Characters::PurgeExtractedList() {
