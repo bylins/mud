@@ -61,7 +61,7 @@ void CObjectPrototypes::dec_number(const size_t rnum) {
 		if (!CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) || obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
 			if (0 == m_index[rnum].total_online) {
 				debug::backtrace(runtime_config.logs(SYSLOG).handle());
-				mudlog(fmt::format("SYSERR: Attempt to decrement number of dungeon objects (vnum %d) that does not exist at all (0 == number).", obj_proto[rnum]->get_vnum()),
+				mudlog(fmt::format("SYSERR: Attempt to decrement number of dungeon objects (vnum {}) that does not exist at all (0 == number).", obj_proto[rnum]->get_vnum()),
 						CMP, kLvlGreatGod, SYSLOG, true);
 				return;
 			}
@@ -69,7 +69,7 @@ void CObjectPrototypes::dec_number(const size_t rnum) {
 		} else {
 			if (0 == m_index[orn].total_online) {
 				debug::backtrace(runtime_config.logs(SYSLOG).handle());
-				mudlog(fmt::format("SYSERR: Attempt to decrement number of parent objects (vnum %d) that does not exist at all (0 == number).", obj_proto[rnum]->get_vnum()),
+				mudlog(fmt::format("SYSERR: Attempt to decrement number of parent objects (vnum {}) that does not exist at all (0 == number).", obj_proto[rnum]->get_vnum()),
 						CMP, kLvlGreatGod, SYSLOG, true);
 				return;
 			}
@@ -78,7 +78,7 @@ void CObjectPrototypes::dec_number(const size_t rnum) {
 	} else {
 		if (0 == m_index[rnum].total_online) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-			mudlog(fmt::format("SYSERR: Attempt to decrement number of real objects (vnum %d) that does not exist at all (0 == number).", obj_proto[rnum]->get_vnum()),
+			mudlog(fmt::format("SYSERR: Attempt to decrement number of real objects (vnum {}) that does not exist at all (0 == number).", obj_proto[rnum]->get_vnum()),
 					CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 		}

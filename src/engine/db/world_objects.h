@@ -64,6 +64,8 @@ class WorldObjects {
 	ObjData::shared_ptr create_from_prototype_by_rnum(ObjRnum rnum);
 
 	ObjData::shared_ptr create_raw_from_prototype_by_rnum(ObjRnum rnum);
+	const auto begin() const { return  m_objects_list.begin(); }
+	const auto end() const { return  m_objects_list.end(); }
 
 	void add(const ObjData::shared_ptr &object);
 	void remove(ObjData *object);
@@ -103,7 +105,7 @@ class WorldObjects {
 	void add_to_index(const list_t::iterator &object_i);
 
 	list_t m_objects_list;
-	std::list<ObjData *> m_extracted_list;
+	std::unordered_set<ObjData *> m_extracted_list;
 	vnum_to_object_ptr_t m_vnum_to_object_ptr;
 	object_raw_ptr_to_object_ptr_t m_object_raw_ptr_to_object_ptr;
 	id_to_object_ptr_t m_id_to_object_ptr;
