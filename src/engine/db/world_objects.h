@@ -92,6 +92,7 @@ class WorldObjects {
 	ObjData::shared_ptr get_by_raw_ptr(ObjData *object) const;
 	auto size() const { return m_objects_list.size(); }
 	void purge() { m_purge_list.clear(); }
+	void GetObjListByRnum(const ObjRnum rnum, std::list<ObjData *> &result);
 	void AddToExtratedList(ObjData *obj);
 	void PurgeExtractedList();
 

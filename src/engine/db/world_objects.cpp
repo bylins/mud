@@ -314,8 +314,18 @@ ObjData::shared_ptr WorldObjects::get_by_raw_ptr(ObjData *object) const {
 
 	return result;
 }
+void WorldObjects::GetObjListByRnum(const ObjRnum rnum, std::list<ObjData *> &result) {
+	result.clear();
+	foreach_with_rnum(rnum, [&result](const ObjData::shared_ptr &obj) {
+		result.push_back(obj.get());
+	});
+}
 
 void WorldObjects::AddToExtratedList(ObjData *obj) {
+	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(obj);
+
+	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
+	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
 	obj->get_script()->set_purged(true);
 	m_extracted_list.insert(obj);
 }

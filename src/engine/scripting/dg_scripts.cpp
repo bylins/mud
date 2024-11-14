@@ -10,7 +10,7 @@
 
 #include "dg_scripts.h"
 #include "engine/db/global_objects.h"
-#include "engine/db/utils_find_obj_id_by_vnum.h"
+//#include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
 #include "dg_event.h"
@@ -319,33 +319,18 @@ ObjData *get_object_in_equip(CharData *ch, const char *name) {
 	return nullptr;
 }
 
-// * return number of object in world
-const char *get_objs_in_world(ObjData *obj) {
-	int i;
-	static char retval[16];
-	if (!obj)
-		return "";
-	if ((i = GET_OBJ_RNUM(obj)) < 0) {
-		log("DG_SCRIPTS : attemp count unknown object");
-		return "";
-	}
-	sprintf(retval, "%d", obj_proto.actual_count(i));
-	return retval;
-}
-
 int count_char_vnum(MobVnum mvn) {
-
 	Characters::list_t mobs;
+
 	character_list.get_mobs_by_vnum(mvn, mobs);
 	return mobs.size();
 }
 
-int GameCountObjs(ObjRnum orn) {
-	if (orn <= 0) {
-		return 0;
-	}
+int CountGameObjs(ObjRnum rnum) {
+	std::list<ObjData *> objs;
 
-	return obj_proto.total_online(orn);
+	world_objects.GetObjListByRnum(rnum, objs);
+	return objs.size();
 }
 
 /************************************************************
@@ -376,7 +361,7 @@ RoomData *find_room(long n) {
  * Возвращает id моба указанного внума.
  * \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
  */
-int find_char_vnum(int vnum, int num = 0) {
+int find_id_by_char_vnum(int vnum, int num = 0) {
 	int count = 0;
 	Characters::list_t mobs;
 	character_list.get_mobs_by_vnum(vnum, mobs);
@@ -385,6 +370,25 @@ int find_char_vnum(int vnum, int num = 0) {
 		for (auto it : mobs) {
 			if (count++ == num) {
 				return it->get_uid();
+			}
+		}
+	}
+	return -1;
+}
+
+/**
+ * Возвращает id объекта указанного внума.
+ * \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
+ */
+int find_id_by_obj_vnum(int vnum, int num = 0) {
+	int count = 0;
+	std::list<ObjData *> objs;
+	world_objects.GetObjListByRnum(GetObjRnum(vnum), objs);
+
+	if (!objs.empty()) {
+		for (auto it : objs) {
+			if (count++ == num) {
+				return it->get_id();
 			}
 		}
 	}
@@ -1605,7 +1609,7 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 					return;
 				}
-				num = GameCountObjs(rnum);
+				num = CountGameObjs(rnum);
 				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (auto d = descriptor_list; d; d = d->next) {
@@ -1645,9 +1649,9 @@ void find_replacement(void *go,
 				}
 				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
 				if (orn > -1) {
-					count = GameCountObjs(orn);
+					count = CountGameObjs(orn);
 				} else {
-					count = GameCountObjs(rnum);
+					count = CountGameObjs(rnum);
 				}
 				sprintf(str, "%d", count);
 			} else if (!str_cmp(field, "people") && num > 0) {
@@ -1738,14 +1742,14 @@ void find_replacement(void *go,
 				DecayObjectsOnRepop(zone_repop_list);
 				ResetZone(zrn);
 			} else if (!str_cmp(field, "mob") && num > 0) {
-				num = find_char_vnum(num);
+				num = find_id_by_char_vnum(num);
 
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_CHAR, num);
 				else
 					sprintf(str, "0");
 			} else if (!str_cmp(field, "obj") && num > 0) {
-				num = find_obj_by_id_vnum__find_replacement(num);
+				num = find_id_by_obj_vnum(num);
 
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
@@ -3374,8 +3378,6 @@ void find_replacement(void *go,
 			strcpy(str, GET_OBJ_SUF_5(o));
 		else if (!str_cmp(field, "a"))
 			strcpy(str, GET_OBJ_SUF_6(o));
-		else if (!str_cmp(field, "count"))
-			strcpy(str, get_objs_in_world(o));
 		else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int) GET_OBJ_SEX(o));
 		else if (!str_cmp(field, "room")) {
@@ -4813,7 +4815,7 @@ void makeuid_var(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 * calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
 * если порядковый не указан - возвращается первое вхождение.
 */
-void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) {
+void calcuid_var(Trigger *trig, char *cmd) {
 	char arg[kMaxInputLength], varname[kMaxInputLength];
 	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
 	char uid[kMaxInputLength], count[kMaxInputLength];
@@ -4856,10 +4858,10 @@ void calcuid_var(void *go, Script * /*sc*/, Trigger *trig, int type, char *cmd) 
 		result = find_room_uid(result);
 	} else if (!str_cmp(what, "mob")) {
 		uid_type = UID_CHAR;
-		result = find_char_vnum(result, count_num);
+		result = find_id_by_char_vnum(result, count_num);
 	} else if (!str_cmp(what, "obj")) {
 		uid_type = UID_OBJ;
-		result = find_obj_by_id_vnum__calcuid(result, count_num, type, go);
+		result = find_id_by_obj_vnum(result, count_num);
 	} else {
 		sprintf(buf2, "calcuid unknown TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
@@ -5640,7 +5642,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "makeuid ", 8)) {
 				makeuid_var(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "calcuid ", 8)) {
-				calcuid_var(go, sc, trig, type, cmd);
+				calcuid_var(trig, cmd);
 			} else if (!strn_cmp(cmd, "calcuidall ", 11)) {
 				calcuidall_var(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "charuid ", 8)) {
