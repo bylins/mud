@@ -37,7 +37,7 @@ class Characters {
 	const auto &get_list() const { return m_list; }
 	const auto get_character_by_address(const CharData *character) const;
 	void get_mobs_by_vnum(const MobVnum vnum, list_t &result);
-
+	void mobs_by_vnum_remove(CharData *character, MobVnum vnum);
 	const auto begin() const { return m_list.begin(); }
 	const auto end() const { return m_list.end(); }
 

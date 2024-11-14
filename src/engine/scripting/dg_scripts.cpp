@@ -333,19 +333,11 @@ const char *get_objs_in_world(ObjData *obj) {
 	return retval;
 }
 
-// * return number of obj|mob in world by vnum
-int gcount_char_vnum(MobVnum mvn) {
+int count_char_vnum(MobVnum mvn) {
 
 	Characters::list_t mobs;
 	character_list.get_mobs_by_vnum(mvn, mobs);
 	return mobs.size();
-}
-
-int count_char_vnum(long n) {
-	int i;
-	if ((i = GetMobRnum(n)) < 0)
-		return 0;
-	return (mob_index[i].total_online);
 }
 
 int GameCountObjs(ObjRnum orn) {
