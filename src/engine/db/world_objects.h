@@ -76,13 +76,11 @@ class WorldObjects {
 	void foreach_on_copy_while(const foreach_while_f &function) const;
 	void foreach_with_vnum(const ObjVnum vnum, const foreach_f &function) const;
 	void foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const;
-	void foreach_with_id(const object_id_t id, const foreach_f &function) const;
 	ObjData::shared_ptr find_if(const predicate_f &predicate) const;
 	ObjData::shared_ptr find_if(const predicate_f &predicate, int number) const;
 	ObjData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
 	ObjData::shared_ptr find_by_name(const char *name) const;
-	ObjData::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
-	ObjData::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
+	ObjData::shared_ptr find_by_id(const object_id_t id) const;
 	ObjData::shared_ptr find_by_vnum(const ObjVnum vnum, unsigned number) const;
 	ObjData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const;
 	ObjData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number, const object_id_set_t &except) const;
@@ -92,6 +90,8 @@ class WorldObjects {
 	ObjData::shared_ptr get_by_raw_ptr(ObjData *object) const;
 	auto size() const { return m_objects_list.size(); }
 	void purge() { m_purge_list.clear(); }
+	void GetObjListByRnum(const ObjRnum rnum, std::list<ObjData *> &result);
+	void GetObjListByVnum(const ObjVnum Vnum, std::list<ObjData *> &result);
 	void AddToExtratedList(ObjData *obj);
 	void PurgeExtractedList();
 
@@ -100,7 +100,7 @@ class WorldObjects {
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<void *, list_t::iterator>;
 	using vnum_to_object_ptr_t = std::unordered_map<ObjVnum, objects_set_t>;
 	using rnum_to_object_ptr_t = std::unordered_map<ObjRnum, objects_set_t>;
-	using id_to_object_ptr_t = std::unordered_map<object_id_t, objects_set_t>;
+	using id_to_object_ptr_t = std::unordered_map<object_id_t, ObjData::shared_ptr>;
 
 	void add_to_index(const list_t::iterator &object_i);
 

@@ -4,6 +4,8 @@
 #include "global_objects.h"
 #include "gameplay/ai/mob_memory.h"
 
+#include <third_party_libs/fmt/include/fmt/format.h>
+
 Characters &character_list = GlobalObjects::characters();    // global container of entities
 
 Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters &cl) : m_parent(cl) {
@@ -62,13 +64,12 @@ void Characters::push_front(const CharData::shared_ptr &character) {
 }
 
 void Characters::get_mobs_by_vnum(const MobVnum vnum, list_t &result) {
-	result.clear();
-
 	const auto i = m_vnum_to_characters_set.find(vnum);
+
+	result.clear();
 	if (i == m_vnum_to_characters_set.end()) {
 		return;
 	}
-
 	for (const auto &character : i->second) {
 		result.push_back(*m_character_raw_ptr_to_character_ptr[character]);
 	}
@@ -87,6 +88,7 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 
 void Characters::AddToExtratedList(CharData *ch) {
 	ch->script->set_purged(true);
+	mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	m_extracted_list.insert(ch);
 }
 
@@ -96,6 +98,15 @@ void Characters::PurgeExtractedList() {
 			ExtractCharFromWorld(it, false);
 		}
 		m_extracted_list.clear();
+	}
+}
+
+void Characters::mobs_by_vnum_remove(CharData *character, MobVnum vnum) {
+	if (!m_vnum_to_characters_set[vnum].empty()) {
+		m_vnum_to_characters_set[vnum].erase(character);
+		if (m_vnum_to_characters_set[vnum].empty()) {
+			m_vnum_to_characters_set.erase(vnum);
+		}
 	}
 }
 
@@ -116,11 +127,7 @@ void Characters::remove(CharData *character) {
 	character->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	if (kNobody != character->get_rnum()) {
 		const auto vnum = mob_index[character->get_rnum()].vnum;
-
-		m_vnum_to_characters_set[vnum].erase(character);
-		if (m_vnum_to_characters_set[vnum].empty()) {
-			m_vnum_to_characters_set.erase(vnum);
-		}
+		mobs_by_vnum_remove(character, vnum);
 	}
 
 	m_list.erase(index_i->second);

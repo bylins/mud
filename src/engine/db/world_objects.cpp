@@ -68,12 +68,12 @@ void WorldObjects::WO_IDChangeObserver::notify(ObjData &object, const object_id_
 		// remove old index entry
 		auto id_to_object_ptr_i = m_parent.m_id_to_object_ptr.find(old_id);
 		if (id_to_object_ptr_i != m_parent.m_id_to_object_ptr.end()) {
-			id_to_object_ptr_i->second.erase(object_ptr);
+			m_parent.m_id_to_object_ptr.erase(id_to_object_ptr_i);
 		}
 
 		// insert new entry to the index
 		const auto vnum = object_ptr->get_id();
-		m_parent.m_id_to_object_ptr[vnum].insert(object_ptr);
+		m_parent.m_id_to_object_ptr[vnum] = object_ptr;
 	}
 }
 
@@ -167,7 +167,7 @@ void WorldObjects::remove(ObjData *object) {
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	object_ptr->unsubscribe_from_vnum_changes(m_vnum_change_observer);
 
-	m_id_to_object_ptr[object_ptr->get_id()].erase(object_ptr);
+	m_id_to_object_ptr.erase(object_ptr->get_id());
 	m_vnum_to_object_ptr[object_ptr->get_vnum()].erase(object_ptr);
 	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
 	m_objects_list.erase(object_i->second);
@@ -209,13 +209,6 @@ void WorldObjects::foreach_with_rnum(const ObjRnum rnum, const foreach_f &functi
 	}
 }
 
-void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f &function) const {
-	const auto set_i = m_id_to_object_ptr.find(id);
-	if (set_i != m_id_to_object_ptr.end()) {
-		std::for_each(set_i->second.begin(), set_i->second.end(), function);
-	}
-}
-
 ObjData::shared_ptr WorldObjects::find_if(const predicate_f &predicate) const {
 	return find_if(predicate, 0);
 }
@@ -246,18 +239,11 @@ ObjData::shared_ptr WorldObjects::find_by_name(const char *name) const {
 	});
 }
 
-ObjData::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned number) const {
-	const auto set_i = m_id_to_object_ptr.find(id);
-	if (set_i != m_id_to_object_ptr.end()) {
-		for (const auto &object : set_i->second) {
-			if (0 == number) {
-				return object;
-			}
-
-			--number;
-		}
+ObjData::shared_ptr WorldObjects::find_by_id(const object_id_t id) const {
+	const auto it = m_id_to_object_ptr.find(id);
+	if (it != m_id_to_object_ptr.end()) {
+		return it->second;
 	}
-
 	return nullptr;
 }
 
@@ -315,7 +301,25 @@ ObjData::shared_ptr WorldObjects::get_by_raw_ptr(ObjData *object) const {
 	return result;
 }
 
+void WorldObjects::GetObjListByRnum(const ObjRnum rnum, std::list<ObjData *> &result) {
+	result.clear();
+	foreach_with_rnum(rnum, [&result](const ObjData::shared_ptr &obj) {
+		result.push_back(obj.get());
+	});
+}
+
+void WorldObjects::GetObjListByVnum(const ObjVnum vnum, std::list<ObjData *> &result) {
+	result.clear();
+	foreach_with_vnum(vnum, [&result](const ObjData::shared_ptr &obj) {
+		result.push_back(obj.get());
+	});
+}
+
 void WorldObjects::AddToExtratedList(ObjData *obj) {
+	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(obj);
+
+	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
+	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
 	obj->get_script()->set_purged(true);
 	m_extracted_list.insert(obj);
 }
@@ -333,7 +337,7 @@ void WorldObjects::add_to_index(const list_t::iterator &object_i) {
 	const auto object = *object_i;
 	const auto vnum = object->get_vnum();
 	m_vnum_to_object_ptr[vnum].insert(object);
-	m_id_to_object_ptr[object->get_id()].insert(object);
+	m_id_to_object_ptr[object->get_id()] = object;
 	m_rnum_to_object_ptr[object->get_rnum()].insert(object);
 	m_object_raw_ptr_to_object_ptr.emplace(object.get(), object_i);
 }
