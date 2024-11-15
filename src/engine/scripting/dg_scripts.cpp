@@ -339,7 +339,7 @@ int CountGameObjs(ObjRnum rnum) {
 
 // return object with UID n
 ObjData *find_obj_by_id(const object_id_t id) {
-	const auto result = world_objects.find_first_by_id(id);
+	const auto result = world_objects.find_by_id(id);
 	return result.get();
 }
 
@@ -383,7 +383,7 @@ int find_id_by_char_vnum(int vnum, int num = 0) {
 int find_id_by_obj_vnum(int vnum, int num = 0) {
 	int count = 0;
 	std::list<ObjData *> objs;
-	world_objects.GetObjListByRnum(GetObjRnum(vnum), objs);
+	world_objects.GetObjListByVnum(vnum, objs);
 
 	if (!objs.empty()) {
 		for (auto it : objs) {
@@ -592,7 +592,7 @@ ObjData *get_obj_by_obj(ObjData *obj, const char *name) {
 	if (*name == UID_OBJ) {
 		id = atoi(name + 1);
 
-		i = world_objects.find_first_by_id(id).get();
+		i = world_objects.find_by_id(id).get();
 	} else {
 		i = world_objects.find_by_name(name).get();
 	}
@@ -617,7 +617,7 @@ ObjData *get_obj_by_room(RoomData *room, const char *name) {
 			}
 		}
 
-		return world_objects.find_first_by_id(id).get();
+		return world_objects.find_by_id(id).get();
 	} else {
 		for (obj = room->contents; obj; obj = obj->get_next_content()) {
 			if (isname(name, obj->get_aliases())) {
@@ -649,7 +649,7 @@ ObjData *get_obj_by_char(CharData *ch, char *name) {
 			}
 		}
 
-		return world_objects.find_first_by_id(id).get();
+		return world_objects.find_by_id(id).get();
 	} else {
 		if (ch) {
 			for (obj = ch->carrying; obj; obj = obj->get_next_content()) {
