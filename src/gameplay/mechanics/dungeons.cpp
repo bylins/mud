@@ -41,7 +41,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
 void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list = {});
-void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to);
+void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list = {});
 void RoomDataFree(ZoneRnum zrn);
 void MobDataFree(ZoneRnum zrn);
 void ObjDataFree(ZoneRnum zrn);
@@ -49,7 +49,7 @@ void TrigDataFree(ZoneRnum zrn);
 void ZoneDataFree(ZoneRnum zrn);
 void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
 void RemoveShopSeller(MobRnum mrn);
-void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from);
+void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from, std::vector<ZrnComplexList> dungeon_list = {});
 void SwapOriginalObject(ObjData *obj);
 
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
@@ -275,7 +275,7 @@ void CreateBlankMobsDungeon() {
 
 }
 
-void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
+void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list) {
 	int count, subcmd;
 	auto &zone_from = zone_table[zrn_from];
 	auto &zone_to = zone_table[zrn_to];
@@ -340,7 +340,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		}
 		zone_to.cmd[subcmd].command = 'S';
 	}
-	ZoneTransformCMD(zrn_to, zrn_from);
+	ZoneTransformCMD(zrn_to, zrn_from, dungeon_list);
 
 /*
 	for (subcmd = 0; zone_from.cmd[subcmd].command != 'S'; ++subcmd) {
@@ -698,7 +698,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 		RoomDataCopy(it.from, it.to, zrn_list);
 		MobDataCopy(it.from, it.to);
 		ObjDataCopy(it.from, it.to, zrn_list);
-		ZoneDataCopy(it.from, it.to); //последним
+		ZoneDataCopy(it.from, it.to, zrn_list); //последним
 		zone_table[it.to].copy_from_zone = zone_table[it.from].vnum;
 	}
 	out_to.pop_back();
@@ -1027,7 +1027,7 @@ void RemoveShopSeller(MobRnum mrn) {
     if (world[zone_table[zrn_to].cmd[subcmd].arg]->vnum / 100 == zone_table[zrn_from].vnum) { \
         zone_table[zrn_to].cmd[subcmd].arg = GetRoomRnum(world[zone_table[zrn_from].cmd[subcmd].arg]->vnum % 100 + zone_table[zrn_to].vnum * 100); }
 
-void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
+void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from, std::vector<ZrnComplexList> dungeon_list) {
 	for (int subcmd = 0; zone_table[zrn_to].cmd[subcmd].command != 'S'; ++subcmd) {
 		if (zone_table[zrn_to].cmd[subcmd].command == '*')
 			continue;
@@ -1037,7 +1037,18 @@ void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from) {
 //		zone_table[zrn_to].cmd[subcmd].arg1, zone_table[zrn_to].cmd[subcmd].arg2,
 //		zone_table[zrn_to].cmd[subcmd].arg3, zone_table[zrn_to].cmd[subcmd].arg4);
 		switch (zone_table[zrn_to].cmd[subcmd].command) {
-			case 'M': TRANS_MOB(arg1)
+			case 'M': 
+				if (dungeon_list.empty()) {
+					TRANS_MOB(arg1)
+				} else {
+					auto mvn = mob_index[zone_table[zrn_to].cmd[subcmd].arg1].vnum;
+					auto zrn_to_it = std::find_if(dungeon_list.begin(), dungeon_list.end(), [&mvn](auto it) {
+						return zone_table[it.from].vnum == mvn / 100;
+					});
+					if (zrn_to_it != dungeon_list.end()) {
+						zone_table[zrn_to].cmd[subcmd].arg1 = GetMobRnum(zone_table[zrn_to_it->to].vnum * 100 + mvn % 100);
+					}
+				}
 				TRANS_ROOM(arg3)
 				break;
 			case 'F': TRANS_ROOM(arg1)

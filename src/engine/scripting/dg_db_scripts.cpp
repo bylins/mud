@@ -21,6 +21,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/dungeons.h"
 
 #include <stack>
 
@@ -315,6 +316,11 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	int skill = ch->GetMorphSkill(skillnum);
+
+	if (zone_table[ch->in_room].vnum >= dungeons::kZoneStartDungeons) {
+		SendMsgToChar(ch, "Халявы не будет, топай в основную зону.\r\n");
+		return;
+	}
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
 	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
