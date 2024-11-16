@@ -906,7 +906,6 @@ void extract_charmice(CharData *ch) {
 		DropObjOnZoneReset(ch, charmice_box, true, false);
 	}
 	character_list.AddToExtratedList(ch);
-//	ExtractCharFromWorld(ch, false);
 }
 }
 
@@ -914,13 +913,12 @@ void mobile_activity(int activity_level, int missed_pulses) {
 //	int door, max, was_in = -1, activity_lev, i, ch_activity;
 //	int std_lev = activity_level % kPulseMobile;
 
-//	for (auto &ch : character_list) {
-	character_list.foreach_on_copy([missed_pulses, &activity_level](const CharData::shared_ptr &ch) {
+	for (auto &ch : character_list) {
 	  int door, max, was_in = -1, activity_lev, i, ch_activity;
 	  auto std_lev = activity_level % kPulseMobile;
 	  if (!IS_MOB(ch)
 		  || !ch->in_used_zone()) {
-		  return;
+		  continue;
 	  }
 	  UpdateAffectOnPulse(ch.get(), missed_pulses);
 	  ch->wait_dec(missed_pulses);
@@ -949,7 +947,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (ch_activity != activity_lev
 		  || (was_in = ch->in_room) == kNowhere
 		  || GET_ROOM_VNUM(ch->in_room) % 100 == 99) {
-		  return;
+		  continue;
 	  }
 
 	  // Examine call for special procedure
@@ -961,20 +959,17 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  } else {
 			  buf2[0] = '\0';
 			  if ((mob_index[GET_MOB_RNUM(ch)].func)(ch.get(), ch.get(), 0, buf2)) {
-				  return;    // go to next char
+				  continue;    // go to next char
 			  }
 		  }
 	  }
 	  // Extract free horses
-	  if (AFF_FLAGGED(ch, EAffect::kHorse)
-		  && ch->IsFlagged(EMobFlag::kMounting)
-		  && !ch->has_master()) // если скакун, под седлом но нет хозяина
-	  {
-		  act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
-			  false, ch.get(), nullptr, nullptr, kToRoom);
-		  ExtractCharFromWorld(ch.get(), false);
-		  return;
-	  }
+	if (AFF_FLAGGED(ch, EAffect::kHorse) && ch->IsFlagged(EMobFlag::kMounting) && !ch->has_master()) {
+		act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
+		false, ch.get(), nullptr, nullptr, kToRoom);
+		character_list.AddToExtratedList(ch.get());
+		continue;
+	}
 	  // Extract uncharmed mobs
 	  if (ch->extract_timer > 0) {
 		  if (ch->has_master()) {
@@ -983,7 +978,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  --(ch->extract_timer);
 			  if (!(ch->extract_timer)) {
 				  extract_charmice(ch.get());
-				  return;
+				  continue;
 			  }
 		  }
 	  }
@@ -994,7 +989,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  AFF_FLAGGED(ch, EAffect::kCharmed) ||
 		  AFF_FLAGGED(ch, EAffect::kHold) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
 		  AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kSleep)) {
-		  return;
+		  continue;
 	  }
 
 	  if (IS_HORSE(ch)) {
@@ -1002,7 +997,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  ch->SetPosition(EPosition::kStand);
 		  }
 
-		  return;
+		  continue;
 	  }
 
 	  if (ch->GetPosition() == EPosition::kSleep && GET_DEFAULT_POS(ch) > EPosition::kSleep) {
@@ -1011,7 +1006,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  if (!AWAKE(ch)) {
-		  return;
+		  continue;
 	  }
 
 	  max = false;
@@ -1022,7 +1017,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  }
 
 		  if (vict->GetEnemy() == ch.get()) {
-			  return;        // Mob is under attack
+			  continue;        // Mob is under attack
 		  }
 
 		  if (!vict->IsNpc()
@@ -1040,7 +1035,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  ch->SetPosition(EPosition::kRest);
 	  }
 
-	  // Mob return to default pos if full rested or if it is an angel
+	  // Mob continue to default pos if full rested or if it is an angel
 	  if ((GET_HIT(ch) >= GET_REAL_MAX_HIT(ch)
 		  && ch->GetPosition() != GET_DEFAULT_POS(ch))
 		  || ((ch->IsFlagged(EMobFlag::kTutelar)
@@ -1066,7 +1061,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  // если моб ментальная тень или ангел он не должен проявлять активность
 	  if ((ch->IsFlagged(EMobFlag::kTutelar))
 		  || (ch->IsFlagged(EMobFlag::kMentalShadow))) {
-		  return;
+		  continue;
 	  }
 
 	  // look at room before moving
@@ -1075,7 +1070,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  // if mob attack something
 	  if (ch->GetEnemy()
 		  || ch->get_wait() > 0) {
-		  return;
+		  continue;
 	  }
 
 	  // Scavenger (picking up objects)
@@ -1194,7 +1189,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  if (door == kBfsAlreadyThere) {
 		  do_aggressive_mob(ch.get(), false);
-		  return;
+		  continue;
 	  }
 
 	  if (door == kBfsError) {
@@ -1219,7 +1214,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  npc_group(ch.get());
 			  npc_groupbattle(ch.get());
 		  } else {
-			  return;
+			  continue;
 		  }
 	  }
 	  npc_light(ch.get());
@@ -1250,8 +1245,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (was_in != ch->in_room) {
 		  do_aggressive_room(ch.get(), false);
 	  }
-	});            // end for()
-//	}
+	}
 }
 
 } // namespace mob_ai
