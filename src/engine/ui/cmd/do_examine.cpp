@@ -51,11 +51,6 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		}
 	}
-
-	if (isname(arg, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
-		return;
-	}
-
 	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
 	if (tmp_object) {
 		if (GET_OBJ_TYPE(tmp_object) == EObjType::kLiquidContainer
