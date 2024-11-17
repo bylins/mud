@@ -1378,7 +1378,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 					&& CLAN(d->character).get() == this
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)) {
 					SendMsgToChar(d->character.get(),
-								  "%s ВАШЕЙ ДРУЖИНЕ: %s'%s'%s\r\n",
+								  "%s ВАШЕЙ дружине: %s'%s'%s\r\n",
 								  GET_NAME(ch),
 								  kColorBoldRed,
 								  text.c_str(),
