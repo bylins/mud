@@ -183,6 +183,7 @@ class CObjectPrototype {
 										   m_rent_on(DEFAULT_RENT_ON),
 										   m_rent_off(DEFAULT_RENT_OFF),
 										   m_ilevel(0),
+										   m_extract_list(false),
 										   m_rnum(DEFAULT_RNUM) {}
 	virtual    ~CObjectPrototype() {};
 	ObjRnum get_parent_rnum() const {return m_parent_proto;}
@@ -339,7 +340,8 @@ class CObjectPrototype {
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
-
+	auto get_extracted_list() const { return m_extract_list; }
+	void set_extracted_list(bool _);
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
 		m_vnum_change_observers.insert(observer);
 	}
@@ -383,7 +385,6 @@ class CObjectPrototype {
 
 	vals_t m_vals;        // old values
 	ObjVal m_values;    // new values
-
 	int m_destroyer;
 	ESpell m_spell;
 	int m_level;
@@ -411,7 +412,8 @@ class CObjectPrototype {
 	int m_rent_on;    ///< стоимость ренты, если надета
 	int m_rent_off;    ///< стоимость ренты, если в инве
 
-  	double m_ilevel;    ///< расчетный уровень шмотки, не сохраняется
+	double m_ilevel;    ///< расчетный уровень шмотки, не сохраняется
+	bool m_extract_list;
 	ObjVnum m_rnum;    ///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;

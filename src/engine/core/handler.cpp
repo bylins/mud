@@ -2005,6 +2005,9 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool
 		return (nullptr);
 
 	for (i = list; i && (j <= number); i = i->get_next_content()) {
+		if (i->get_extracted_list()) {
+			continue;
+		}
 		if (isname(tmp, i->get_aliases())
 			|| CHECK_CUSTOM_LABEL(tmp, i, ch)) {
 			if (CAN_SEE_OBJ(ch, i)) {

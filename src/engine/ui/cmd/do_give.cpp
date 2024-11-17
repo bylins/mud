@@ -218,6 +218,8 @@ void do_give(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
+					if (obj->get_extracted_list())
+						continue;
 					if (CAN_SEE_OBJ(ch, obj)
 						&& (dotmode == kFindAll
 							|| isname(arg, obj->get_aliases())

@@ -128,6 +128,8 @@ void DoDrop(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			else
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->get_next_content();
+					if (obj->get_extracted_list())
+						continue;
 					PerformDrop(ch, obj);
 				}
 		} else if (dotmode == kFindAlldot) {
