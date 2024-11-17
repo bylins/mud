@@ -108,7 +108,9 @@ void ExtractedCharacterInfo::ExtractDataFromPtr(const CharData::shared_ptr &play
 }
 
 void ExtractedCharacterInfo::ExtractClanAbbrev(const CharData::shared_ptr &player_ptr) {
+	Clan::SetClanData(player_ptr.get());
 	const auto clan = player_ptr->player_specials->clan;
+
 	if (clan) {
 		clan_abbrev_ = clan->GetAbbrev();
 	} else {
