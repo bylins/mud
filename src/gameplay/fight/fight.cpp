@@ -92,15 +92,21 @@ void go_autoassist(CharData *ch) {
 // Добавил проверку на лаг, чтобы правильно работали Каменное проклятие и
 // Круг пустоты, ибо позицию делают меньше чем поз_станнед.
 void update_pos(CharData *victim) {
-	if ((GET_HIT(victim) > 0) && (victim->GetPosition() > EPosition::kStun))
+	if (AFF_FLAGGED(victim, EAffect::kSleep) && victim->GetPosition() != EPosition::kSleep) {
+		RemoveAffectFromChar(victim, ESpell::kSleep);
+		AFF_FLAGS(victim).unset(EAffect::kSleep);
+	}
+	if ((GET_HIT(victim) > 0) && (victim->GetPosition() > EPosition::kStun)) {
 		victim->SetPosition(victim->GetPosition());
-	else if (GET_HIT(victim) > 0
+		return;
+	} else if (GET_HIT(victim) > 0
 			&& victim->get_wait() <= 0
 			&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 			&& !AFF_FLAGGED(victim, EAffect::kHold)) {
 		victim->SetPosition(EPosition::kStand);
 		SendMsgToChar("Вы встали.\r\n", victim);
 		act("$n поднял$u.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+		return;
 	}
 	else if (GET_HIT(victim) <= -11)
 		victim->SetPosition(EPosition::kDead);
@@ -114,10 +120,6 @@ void update_pos(CharData *victim) {
 	else
 		victim->SetPosition(EPosition::kStun);
 
-	if (AFF_FLAGGED(victim, EAffect::kSleep) && victim->GetPosition() != EPosition::kSleep) {
-		RemoveAffectFromChar(victim, ESpell::kSleep);
-		AFF_FLAGS(victim).unset(EAffect::kSleep);
-	}
 	// поплохело седоку или лошади - сбрасываем седока
 	if (victim->IsOnHorse() && victim->GetPosition() < EPosition::kFight)
 		victim->DropFromHorse();
