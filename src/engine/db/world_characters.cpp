@@ -75,6 +75,11 @@ void Characters::get_mobs_by_vnum(const MobVnum vnum, list_t &result) {
 	}
 }
 
+void Characters::foreach(const foreach_f &function) const {
+	const list_t &list = get_list();
+	std::for_each(list.begin(), list.end(), function);
+}
+
 void Characters::foreach_on_copy(const foreach_f function) const {
 	const list_t list = get_list();
 	std::for_each(list.begin(), list.end(), function);
