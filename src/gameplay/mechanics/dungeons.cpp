@@ -844,8 +844,10 @@ void RoomDataFree(ZoneRnum zrn) {
 		auto people_copy = room->people;
 
 		for (const auto vict : people_copy) {
-			if (IS_CHARMICE(vict))
-				continue;
+			if (IS_CHARMICE(vict)) {
+				if (vict->get_master() && !vict->get_master()->IsNpc())
+					continue;
+			}
 			if (vict->IsNpc()) {
 				if (vict->followers
 					|| vict->has_master()) {
