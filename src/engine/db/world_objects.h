@@ -80,6 +80,7 @@ class WorldObjects {
 	ObjData::shared_ptr find_if(const predicate_f &predicate, int number) const;
 	ObjData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
 	ObjData::shared_ptr find_by_name(const char *name) const;
+	void swap_id(const object_id_t from_id, const object_id_t to_id);
 	ObjData::shared_ptr find_by_id(const object_id_t id) const;
 	ObjData::shared_ptr find_by_vnum(const ObjVnum vnum, unsigned number) const;
 	ObjData::shared_ptr find_by_vnum_and_dec_number(const ObjVnum vnum, unsigned &number) const;

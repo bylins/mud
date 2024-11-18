@@ -333,16 +333,6 @@ int CountGameObjs(ObjRnum rnum) {
 	return objs.size();
 }
 
-/************************************************************
- * search by number routines
- ************************************************************/
-
-// return object with UID n
-ObjData *find_obj_by_id(const object_id_t id) {
-	const auto result = world_objects.find_by_id(id);
-	return result.get();
-}
-
 // return room with UID n
 RoomData *find_room(long n) {
 	n = GetRoomRnum(n - kRoomToBase);
@@ -447,7 +437,8 @@ ObjData *get_obj(const char *name, int/* vnum*/) {
 
 	if (*name == UID_OBJ) {
 		id = atoi(name + 1);
-		return find_obj_by_id(id);
+		const auto result = world_objects.find_by_id(id);
+		return result.get();
 	} else {
 		const auto result = world_objects.find_by_name(name);
 		return result.get();
@@ -3400,7 +3391,7 @@ void find_replacement(void *go,
 				return;
 			}
 			if (*subfield == UID_OBJ) {
-				obj_to = find_obj_by_id(atoi(subfield + 1));
+				obj_to = world_objects.find_by_id(atoi(subfield + 1)).get();
 				if (!(obj_to
 					&& GET_OBJ_TYPE(obj_to) == EObjType::kContainer)) {
 					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");

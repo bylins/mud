@@ -321,9 +321,7 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			wearer = obj->get_worn_by();
 			UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
 		}
-
 		obj->swap(*o);
-
 		if (o->has_flag(EObjFlag::kTicktimer)) {
 			obj->set_extra_flag(EObjFlag::kTicktimer);
 		}
