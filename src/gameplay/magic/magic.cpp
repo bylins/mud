@@ -582,10 +582,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(victim))
 					victim->DropFromHorse();
+				victim->SetPosition(EPosition::kSit);
+				victim->DropFromHorse();
 				act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Огромная глыба камня свалила вас на землю!", false, victim, nullptr, nullptr, kToChar);
-				victim->SetPosition(EPosition::kSit);
-				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -639,12 +639,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
-				if (IS_HORSE(ch))
-					ch->DropFromHorse();
+				victim->SetPosition(EPosition::kSit);
+				victim->DropFromHorse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				victim->SetPosition(EPosition::kSit);
-				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -653,10 +651,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (victim->GetPosition() > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) 
 						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
+				victim->SetPosition(EPosition::kSit);
+				victim->DropFromHorse();
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				victim->SetPosition(EPosition::kSit);
-				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -671,7 +669,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					act("Ваше каменное проклятие отшибло сознание у $N1.", false, ch, nullptr, victim, kToChar);
 					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
 					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
+				if (victim->GetPosition() > EPosition::kStun) {
 					victim->SetPosition(EPosition::kStun);
+					victim->DropFromHorse();
+				}
 					SetWaitState(victim, (5 + (GetRealWis(ch) - 20) / 6) * kBattleRound);
 				}
 			}
@@ -696,7 +697,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					af.battleflag = kAfPulsedec;
 					af.location = EApply::kNone;
 					ImposeAffect(victim, af);
-					victim->SetPosition(EPosition::kStun);
+					if (victim->GetPosition() > EPosition::kStun) {
+						victim->SetPosition(EPosition::kStun);
+						victim->DropFromHorse();
+					}
 //			SetWaitState(victim, wait * kBattleRound);
 				}
 			}
