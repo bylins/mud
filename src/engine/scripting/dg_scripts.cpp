@@ -10,7 +10,6 @@
 
 #include "dg_scripts.h"
 #include "engine/db/global_objects.h"
-//#include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
 #include "dg_event.h"
