@@ -34,6 +34,7 @@ struct ZrnComplexList {
   ZoneRnum to;
 };
 
+const std::list<std::string> name_exclude = {"unsetquest", "questbodrich", "quested", "getquest", "setquest"};
 std::string WhoInZone(ZoneRnum zrn);
 ZoneVnum CheckDungionErrors(ZoneRnum zrn_from);
 
@@ -66,6 +67,7 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 	std::string search = to_string(zone_table[zrn_from].vnum);
 	size_t pos;
 	std::string s;
+	bool find;
 
 	if (zone_table[zrn_from].vnum < 100) {
 		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
@@ -76,10 +78,17 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 		auto c = *trig_index[i]->proto->cmdlist;
 
 		while (c) {
+			find = false;
 			s = c->cmd;
 			std::transform(s.begin(), s.end(), s.begin(), tolower);
-			pos = s.find("quest");
-			if (pos == std::string::npos) {
+			for (auto &it : name_exclude) {
+				pos = s.find(it);
+				if (pos != std::string::npos) {
+					find = true;
+					break;
+				}
+			}
+			if (!find) {
 				utils::ReplaceTrigerNumber(c->cmd, search, replacer);
 			}
 			c = c->next;
@@ -1137,6 +1146,15 @@ void SwapOriginalObject(ObjData *obj) {
 			RemoveObjFromObj(obj);
 		}
 		obj->swap(*obj_original.get(), false); //поменяемся оставив триггера с original_get
+	if (obj_original->get_custom_label()) {
+		obj->set_custom_label(new custom_label());
+		obj->get_custom_label()->text_label = str_dup(obj_original->get_custom_label()->text_label);
+		obj->get_custom_label()->author = obj_original->get_custom_label()->author;
+		if (obj_original->get_custom_label()->clan_abbrev != nullptr) {
+			obj->get_custom_label()->clan_abbrev = str_dup(obj_original->get_custom_label()->clan_abbrev);
+		}
+		obj->get_custom_label()->author_mail = str_dup(obj_original->get_custom_label()->author_mail);
+	}
 		if (obj_original->has_flag(EObjFlag::kTicktimer)) {
 			obj->set_extra_flag(EObjFlag::kTicktimer);
 		}
