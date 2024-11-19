@@ -114,9 +114,6 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 			new_object->set_extra_flag(EObjFlag::kNosell);
 		}
 		new_object->clear_proto_script();
-		const auto id = max_id.allocate();
-
-		new_object->set_id(id);
 		if (new_object->get_type() == EObjType::kLiquidContainer) {
 			if (new_object->get_val(1) > 0) {
 				name_from_drinkcon(new_object.get());
@@ -138,8 +135,10 @@ ObjData::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(ObjRnum rnum
 	}
 
 	auto new_object = std::make_shared<ObjData>(*obj_proto[rnum]);
+	const auto id = max_id.allocate();
 
 	obj_proto.inc_number(rnum);
+	new_object->set_id(id);
 	world_objects.add(new_object);
 
 	return new_object;
