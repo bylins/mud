@@ -63,6 +63,7 @@ void WorldObjects::WO_IDChangeObserver::notify(ObjData &object, const object_id_
 				old_id, object.get_id());
 			return;
 		}
+
 		ObjData::shared_ptr object_ptr = *i->second;
 
 		// remove old index entry
@@ -70,7 +71,6 @@ void WorldObjects::WO_IDChangeObserver::notify(ObjData &object, const object_id_
 		if (id_to_object_ptr_i != m_parent.m_id_to_object_ptr.end()) {
 			m_parent.m_id_to_object_ptr.erase(id_to_object_ptr_i);
 		}
-
 		// insert new entry to the index
 		const auto vnum = object_ptr->get_id();
 		m_parent.m_id_to_object_ptr[vnum] = object_ptr;
@@ -237,6 +237,10 @@ ObjData::shared_ptr WorldObjects::find_by_name(const char *name) const {
 	return find_if([&](const ObjData::shared_ptr &obj) -> bool {
 		return isname(name, obj->get_aliases());
 	});
+}
+
+void WorldObjects::swap_id(const object_id_t from_id, const object_id_t to_id) {
+	std::swap(m_id_to_object_ptr[from_id], m_id_to_object_ptr[to_id]);
 }
 
 ObjData::shared_ptr WorldObjects::find_by_id(const object_id_t id) const {

@@ -621,8 +621,11 @@ void ObjData::swap(ObjData &object, bool swap_trig) {
 	object.set_timer(tmpobj.get_timer());
 	set_contains(object.get_contains());
 	object.set_contains(tmpobj.get_contains());
+/* void ObjData::set_id(const long _) { не корректно работает  m_id_change_observer, меняем id ниже вручную
 	set_id(object.get_id());
 	object.set_id(tmpobj.get_id());
+*/ 
+	world_objects.swap_id(get_id(), object.get_id());
 	if (swap_trig) {
 		set_script(object.get_script());
 		object.set_script(tmpobj.get_script());

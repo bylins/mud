@@ -64,6 +64,8 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 	TrgRnum trn_stop = zone_table[zrn_to].RnumTrigsLocation.second;
 	std::string replacer = to_string(zone_table[replacer_zrn].vnum);
 	std::string search = to_string(zone_table[zrn_from].vnum);
+	size_t pos;
+	std::string s;
 
 	if (zone_table[zrn_from].vnum < 100) {
 		sprintf(buf, "Номер зоны меньше 100, текст триггера не изменяется!");
@@ -73,7 +75,13 @@ void TrigCommandsConvert(ZoneRnum zrn_from, ZoneRnum zrn_to, ZoneRnum replacer_z
 	for(int i = trn_start; i <= trn_stop; i++) {
 		auto c = *trig_index[i]->proto->cmdlist;
 
-		while (c) {utils::ReplaceTrigerNumber(c->cmd, search, replacer);
+		while (c) {
+			s = c->cmd;
+			std::transform(s.begin(), s.end(), s.begin(), tolower);
+			pos = s.find("quest");
+			if (pos == std::string::npos) {
+				utils::ReplaceTrigerNumber(c->cmd, search, replacer);
+			}
 			c = c->next;
 		}
 	}
@@ -836,8 +844,10 @@ void RoomDataFree(ZoneRnum zrn) {
 		auto people_copy = room->people;
 
 		for (const auto vict : people_copy) {
-			if (IS_CHARMICE(vict))
-				continue;
+			if (IS_CHARMICE(vict)) {
+				if (vict->get_master() && !vict->get_master()->IsNpc())
+					continue;
+			}
 			if (vict->IsNpc()) {
 				if (vict->followers
 					|| vict->has_master()) {
