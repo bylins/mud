@@ -2145,18 +2145,17 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 }
 
 void PasteMobiles() {
-	character_list.foreach_on_copy([](const CharData::shared_ptr &character) {
-	  paste_mob(character.get(), character->in_room);
-	});
-
-	world_objects.foreach_on_copy([](const ObjData::shared_ptr &object) {
-	  paste_obj(object.get(), object->get_in_room());
-	});
+	for (auto &it : character_list) {
+	  paste_mob(it.get(), it->in_room);
+	}
+	for (auto &it : world_objects) {
+	  paste_obj(it.get(), it->get_in_room());
+	}
 }
 
 void paste_on_reset(RoomData *to_room) {
 	const auto people_copy = to_room->people;
-	for (const auto ch : people_copy) {
+	for (const auto &ch : people_copy) {
 		paste_mob(ch, ch->in_room);
 	}
 
