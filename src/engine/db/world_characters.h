@@ -41,6 +41,7 @@ class Characters {
 	const auto begin() const { return m_list.begin(); }
 	const auto end() const { return m_list.end(); }
 
+	void foreach(const foreach_f &function) const;
 	void foreach_on_copy(const foreach_f function) const;
 	void foreach_on_filtered_copy(const foreach_f function, const predicate_f predicate) const;
 
