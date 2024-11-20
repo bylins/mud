@@ -739,10 +739,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (victim->GetPosition() > EPosition::kSit &&
 				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+				victim->DropFromHorse();
+				victim->SetPosition(EPosition::kSit);
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				victim->SetPosition(EPosition::kSit);
-				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -764,10 +764,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kWarcryOfThunder: {
 			if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
 				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
+				victim->DropFromHorse();
+				victim->SetPosition(EPosition::kSit);
 				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
-				victim->SetPosition(EPosition::kSit);
-				update_pos(victim);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
