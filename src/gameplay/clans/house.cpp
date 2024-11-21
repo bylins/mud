@@ -45,6 +45,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/communication/ignores.h"
 #include "gameplay/core/constants.h"
+#include "utils/utils_time.h"
 
 using namespace ClanSystem;
 
@@ -4248,18 +4249,21 @@ void Clan::init_ingr_chest() {
 // сохраняем храны ингров всех кланов в файлы
 void ClanSystem::save_ingr_chests() {
 	for (const auto &i : Clan::ClanList) {
+
 		if (!i->ingr_chest_active()) {
 			continue;
 		}
+		utils::CExecutionTimer timer;
 
 		std::string file_abbrev = i->get_file_abbrev();
 		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
 
-		for (ObjData *chest = world[i->get_ingr_chest_room_rnum()]->contents; chest;
-			 chest = chest->get_next_content()) {
+		for (ObjData *chest = world[i->get_ingr_chest_room_rnum()]->contents; chest; chest = chest->get_next_content()) {
+
 			if (!is_ingr_chest(chest)) {
 				continue;
 			}
+			utils::CExecutionTimer timer;
 
 			std::stringstream out;
 			out << "* Items file\n";
@@ -4267,7 +4271,6 @@ void ClanSystem::save_ingr_chests() {
 				write_one_object(out, temp, 0);
 			}
 			out << "\n$\n$\n";
-
 			std::ofstream file(filename.c_str());
 			if (!file.is_open()) {
 				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
@@ -4277,6 +4280,7 @@ void ClanSystem::save_ingr_chests() {
 			file.close();
 			break;
 		}
+		log(fmt::format("saving clan chest {} done, timer {:.10f}", i->GetAbbrev(), timer.delta().count()));
 	}
 }
 

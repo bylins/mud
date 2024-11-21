@@ -748,6 +748,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (GET_OBJ_MAKER(object) != ObjData::DEFAULT_MAKER) {
 			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
 		}
+
 		// Аффекты
 		for (j = 0; j < kMaxObjAffect; j++) {
 			const auto &oaff = object->get_affected(j);
