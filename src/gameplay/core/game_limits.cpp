@@ -1016,8 +1016,7 @@ void check_idling(CharData *ch) {
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-				ExtractCharFromWorld(ch, false);
-
+				character_list.AddToExtratedList(ch);
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
 					STATE(ch->desc) = CON_DISCONNECT;
