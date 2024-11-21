@@ -93,7 +93,7 @@ class WorldObjects {
 	void purge() { m_purge_list.clear(); }
 	void GetObjListByRnum(const ObjRnum rnum, std::list<ObjData *> &result);
 	void GetObjListByVnum(const ObjVnum Vnum, std::list<ObjData *> &result);
-	void AddToExtratedList(ObjData *obj);
+	void AddToExtractedList(ObjData *obj);
 	void PurgeExtractedList();
 
  private:

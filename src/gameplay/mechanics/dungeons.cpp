@@ -551,7 +551,8 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 					}
 				}
 			}
-			ExtractObjFromWorld(obj_original.get());
+			obj_proto.dec_number(obj_original->get_rnum());
+			world_objects.remove(obj_original);
 		}
 	}
 }
@@ -1164,7 +1165,8 @@ void SwapOriginalObject(ObjData *obj) {
 		if (wearer) {
 			EquipObj(wearer, obj, pos, CharEquipFlags());
 		}
-		ExtractObjFromWorld(obj_original.get());
+		obj_proto.dec_number(obj_original->get_rnum());
+		world_objects.remove(obj_original);
 	}
 }
 

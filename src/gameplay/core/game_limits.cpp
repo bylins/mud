@@ -1016,7 +1016,7 @@ void check_idling(CharData *ch) {
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, kLvlGod, SYSLOG, true);
-				character_list.AddToExtratedList(ch);
+				character_list.AddToExtractedList(ch);
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
 					STATE(ch->desc) = CON_DISCONNECT;
@@ -1652,13 +1652,14 @@ void ExtractRepopDecayObject(ObjData *obj) {
 		}
 	}
 	ExtractObjFromWorld(obj);
+//	world_objects.AddToExtractedList(obj);
 }
 
-void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list) {
+void DecayObjectsOnRepop(std::unordered_set<ZoneRnum> &zone_list) {
 	world_objects.foreach_on_copy([&zone_list](const ObjData::shared_ptr &j) {
 		if (j->has_flag(EObjFlag::kRepopDecay)) {
 			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
-			for (int &it : zone_list) {
+			for (auto &it : zone_list) {
 				if (obj_zone_num == zone_table[it].vnum) {
 					ExtractRepopDecayObject(j.get());
 				}

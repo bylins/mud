@@ -174,7 +174,7 @@ extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
 extern void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);
-extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);
+extern void DecayObjectsOnRepop(std::unordered_set<ZoneRnum> &zone_list);
 
 char *ReadActionMsgFromFile(FILE *fl, int nr) {
 	char local_buf[kMaxStringLength];
@@ -1869,12 +1869,12 @@ void ZoneUpdate() {
 			}
 		}
 	}
-	std::vector<ZoneRnum> zone_repop_list;
+	std::unordered_set<ZoneRnum> zone_repop_list;
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
 			|| CanBeReset(update_u->zone_to_reset)) {
-			zone_repop_list.push_back(update_u->zone_to_reset);
+			zone_repop_list.insert(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
 				<< zone_table[update_u->zone_to_reset].vnum << ")";
@@ -1884,7 +1884,7 @@ void ZoneUpdate() {
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
-							zone_repop_list.push_back(j);
+							zone_repop_list.insert(j);
 							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
 								<< zone_table[j].vnum << ")";
 							break;
@@ -1895,7 +1895,7 @@ void ZoneUpdate() {
 			std::stringstream ss;
 			DecayObjectsOnRepop(zone_repop_list);
 			ss << "В списке репопа: ";
-			for (int &it : zone_repop_list) {
+			for (auto &it : zone_repop_list) {
 				ss << zone_table[it].vnum << " ";
 				ResetZone(it);
 			}
@@ -2119,7 +2119,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 				return;
 			}
 			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
-				world_objects.AddToExtratedList(obj);
+				world_objects.AddToExtractedList(obj);
 				return;
 			}
 			RemoveObjFromRoom(obj);
@@ -2130,7 +2130,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			}
 			// зачем сезонные переносить в виртуалку? спуржить нафиг
 			if (!month_ok) {
-				world_objects.AddToExtratedList(obj);
+				world_objects.AddToExtractedList(obj);
 				return;
 			}
 			obj->set_room_was_in(GET_ROOM_VNUM(room));

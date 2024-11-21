@@ -905,7 +905,7 @@ void extract_charmice(CharData *ch) {
 		}
 		DropObjOnZoneReset(ch, charmice_box, true, false);
 	}
-	character_list.AddToExtratedList(ch);
+	character_list.AddToExtractedList(ch);
 }
 }
 
@@ -967,7 +967,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	if (AFF_FLAGGED(ch, EAffect::kHorse) && ch->IsFlagged(EMobFlag::kMounting) && !ch->has_master()) {
 		act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
 		false, ch.get(), nullptr, nullptr, kToRoom);
-		character_list.AddToExtratedList(ch.get());
+		character_list.AddToExtractedList(ch.get());
 		continue;
 	}
 	  // Extract uncharmed mobs

@@ -34,8 +34,8 @@ enum LogMode : int {
 	DEF = 5
 };
 
-void mudlog(const char *str, LogMode type = CMP, int level = 31, EOutputStream channel = SYSLOG, bool file = false);
-void mudlog(std::string str, LogMode type = CMP, int level = 31, EOutputStream channel = SYSLOG, bool file = false);
+void mudlog(const char *str, LogMode type = CMP, int level = 31, EOutputStream channel = SYSLOG, bool file = true);
+void mudlog(std::string str, LogMode type = CMP, int level = 31, EOutputStream channel = SYSLOG, bool file = true);
 
 void mudlog_python(const std::string &str, LogMode type, int level, const EOutputStream channel, int file);
 

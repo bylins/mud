@@ -51,7 +51,7 @@ class Characters {
 	void purge();
 	bool has(const CharData *character) const;
 
-	void AddToExtratedList(CharData *ch);
+	void AddToExtractedList(CharData *ch);
 	void PurgeExtractedList();
 
  private:
