@@ -2119,7 +2119,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 				return;
 			}
 			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
-				ExtractObjFromWorld(obj);
+				world_objects.AddToExtratedList(obj);
 				return;
 			}
 			RemoveObjFromRoom(obj);
@@ -2130,7 +2130,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			}
 			// зачем сезонные переносить в виртуалку? спуржить нафиг
 			if (!month_ok) {
-				ExtractObjFromWorld(obj);
+				world_objects.AddToExtratedList(obj);
 				return;
 			}
 			obj->set_room_was_in(GET_ROOM_VNUM(room));

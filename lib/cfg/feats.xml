@@ -44,7 +44,7 @@
     <feat id="kDodger" name="изворотливость" mode="kEnabled">
         <talent_effects>
             <applies>
-                <apply location="kSpelledBlink" val="5" affect="kBlink" lvl_bonus="0.2" remort_bonus="0.67" cap="30"/>
+                <apply location="kSpelledBlinkPhys" val="5" affect="kBlink" lvl_bonus="0.2" remort_bonus="0.67" cap="30"/>
                 <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
                 <apply location="kSavingReflex" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
                 <apply location="kSavingCritical" affect="kUndefinded" val="-10" lvl_bonus="1.0" remort_bonus="1.0" cap="-100"/>
