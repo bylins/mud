@@ -124,6 +124,10 @@ void vlog(const EOutputStream steam, const char *format, va_list rargs) {
 	va_end(args);
 }
 
+void log(std::string format) {
+	log("%s", format.c_str());
+} 
+
 void log(FILE *log, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
