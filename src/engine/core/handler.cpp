@@ -1565,13 +1565,14 @@ RoomVnum get_room_where_obj(ObjData *obj, bool deep) {
 void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	char name[kMaxStringLength];
 	ObjData *temp;
-
-	
 	int roomload = get_room_where_obj(obj, false);
+
+	if (roomload == kNowhere) {
+		mudlog(fmt::format("Попытка удалить предмет {} #{} из 0 комнаты", obj->get_PName(0), obj->get_vnum()));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle()); //потом убрать temp->set_in_room(obj->get_in_room)
+	}
 	utils::CExecutionTimer timer;
 	strcpy(name, obj->get_PName(0).c_str());
-//	if (roomload == 0 && showlog)
-//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	if (showlog) {
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
@@ -1584,6 +1585,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 		while (obj->get_contains()) {
 			temp = obj->get_contains();
 			RemoveObjFromObj(temp);
+			temp->set_in_room(obj->get_in_room()); //временно пока выше backtrace
 			if (obj->get_carried_by()) {
 				if (obj->get_carried_by()->IsNpc()
 					|| (obj->get_carried_by()->GetCarryingQuantity() >= CAN_CARRY_N(obj->get_carried_by()))) {
@@ -1677,9 +1679,10 @@ void UpdateCharObjects(CharData *ch) {
 * \param zone_reset - 1 - пуржим стаф без включенных таймеров, 0 - не пуржим ничего
 */
 void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset) {
-	if (zone_reset && !obj->has_flag(EObjFlag::kTicktimer))
+	if (zone_reset && !obj->has_flag(EObjFlag::kTicktimer)) {
+		obj->set_in_room(ch->in_room); // временно пока в ExtractObjFromWorld стоит backtrace
 		ExtractObjFromWorld(obj, false);
-	else {
+	} else {
 		if (inv)
 			act("Вы выбросили $o3 на землю.", false, ch, obj, nullptr, kToChar);
 		else

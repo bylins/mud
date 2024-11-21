@@ -1444,7 +1444,6 @@ void obj_point_update() {
 					act("$o рассыпал$U в прах, который был развеян ветром...",
 						false, world[j->get_in_room()]->first_character(), j, nullptr, kToRoom);
 				}
-				RemoveObjFromRoom(j);
 			} else if (j->get_in_obj()) {
 				// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
 				CharData *cont_owner = nullptr;
