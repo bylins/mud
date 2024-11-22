@@ -1931,9 +1931,13 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_A_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || GetZoneRnum(pos) == 0) {
-				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
-							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
+			if (!is_number(arg)) {
+				SendMsgToChar(d->character.get(), "Не нужно писать адакадабру, повторите ввод: ");
+			} else  if (zone_table[OLC_ZNUM(d)].vnum == pos) {
+				SendMsgToChar(d->character.get(), "Зачем добавлять саму себя? повторите ввод: ");
+			} else if (GetZoneRnum(pos) == 0) {
+				SendMsgToChar(d->character.get(), "Некорректны номер зоны, повторите ввод (2-%d) : ",
+						zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
 				for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
 					if (OLC_ZONE(d)->typeA_list[i] == pos)    // нашли совпадающий -- убираем элемент

@@ -28,6 +28,8 @@
 #include <map>
 #include <list>
 #include <memory>
+#include <vector>
+#include <deque>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -182,8 +184,26 @@ extern const int Reverse[];
 // external vars
 //extern std::list<CharData *> combat_list;
 
-#include <vector>
-#include <deque>
+
+template<typename T>
+class UniqueList: private std::list<T> {
+private:
+	using base_t = std::list<T>;
+public:
+	using iterator = base_t::iterator;
+	void push_back(const T& value) {
+		if (std::find(base_t::begin(), base_t::end(), value) == base_t::end()) {
+			base_t::push_back(value);
+		}
+	}
+	iterator begin() {
+		return base_t::begin();
+	}
+	iterator end() {
+		return base_t::end();
+	}
+};
+extern void DecayObjectsOnRepop(UniqueList<ZoneRnum> &zone_list);
 
 class Rooms : public std::vector<RoomData *> {
  public:
@@ -192,7 +212,6 @@ class Rooms : public std::vector<RoomData *> {
 };
 
 extern Rooms &world;
-
 extern IndexData *mob_index;
 extern MobRnum top_of_mobt;
 

@@ -63,7 +63,6 @@ extern const char *item_types[];
 extern const char *genders[];
 extern const char *exit_bits[];
 extern IndexData *mob_index;
-extern void DecayObjectsOnRepop(std::vector<ZoneRnum> &zone_list);    // рассыпание обьектов ITEM_REPOP_DECAY
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 
@@ -1726,7 +1725,7 @@ void find_replacement(void *go,
 					sprintf(str, "%s", zone_table[zrn].name.c_str());
 				}
 			} else if (!str_cmp(field, "zreset") && num > 0) {
-				std::vector<ZoneRnum> zone_repop_list;
+				UniqueList<ZoneRnum> zone_repop_list;
 				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);
 				zone_repop_list.push_back(zrn);
 				DecayObjectsOnRepop(zone_repop_list);

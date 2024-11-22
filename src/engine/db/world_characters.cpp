@@ -91,7 +91,7 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 	std::for_each(list.begin(), list.end(), function);
 }
 
-void Characters::AddToExtratedList(CharData *ch) {
+void Characters::AddToExtractedList(CharData *ch) {
 	if (ch->IsNpc()) {
 		ch->script->set_purged(true);
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);

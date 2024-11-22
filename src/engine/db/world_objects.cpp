@@ -6,6 +6,7 @@
 #include "engine/scripting/dg_scripts.h"
 #include "utils/utils.h"
 #include "global_objects.h"
+#include "utils/backtrace.h"
 
 #include <algorithm>
 
@@ -318,7 +319,7 @@ void WorldObjects::GetObjListByVnum(const ObjVnum vnum, std::list<ObjData *> &re
 	});
 }
 
-void WorldObjects::AddToExtratedList(ObjData *obj) {
+void WorldObjects::AddToExtractedList(ObjData *obj) {
 	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(obj);
 
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);

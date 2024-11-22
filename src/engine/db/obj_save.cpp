@@ -1552,7 +1552,6 @@ int Crash_load(CharData *ch) {
 			ExtractObjFromWorld(obj.get());
 			continue;
 		}
-		//очищаем DecayObjectsOnRepop объедки
 		if (obj->has_flag(EObjFlag::kRepopDecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			SendMsgToChar(buf, ch);
