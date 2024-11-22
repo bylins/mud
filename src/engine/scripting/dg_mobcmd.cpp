@@ -218,7 +218,7 @@ void do_mjunk(CharData *ch, char */*argument*/, int/* cmd*/, int/* subcmd*/, Tri
 		obj = GET_EQ(ch, pos);
 		if (obj) {
 			UnequipChar(ch, pos, CharEquipFlags());
-			ExtractObjFromWorld(obj, false);
+			world_objects.AddToExtractedList(obj);
 		}
 	}
 }

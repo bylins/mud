@@ -174,7 +174,6 @@ extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
 extern void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);
-extern void DecayObjectsOnRepop(std::unordered_set<ZoneRnum> &zone_list);
 
 char *ReadActionMsgFromFile(FILE *fl, int nr) {
 	char local_buf[kMaxStringLength];
@@ -1869,12 +1868,12 @@ void ZoneUpdate() {
 			}
 		}
 	}
-	std::unordered_set<ZoneRnum> zone_repop_list;
+	UniqueList<ZoneRnum> zone_repop_list;
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
 			|| CanBeReset(update_u->zone_to_reset)) {
-			zone_repop_list.insert(update_u->zone_to_reset);
+			zone_repop_list.push_back(update_u->zone_to_reset);
 			std::stringstream out;
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
 				<< zone_table[update_u->zone_to_reset].vnum << ")";
@@ -1884,7 +1883,7 @@ void ZoneUpdate() {
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
-							zone_repop_list.insert(j);
+							zone_repop_list.push_back(j);
 							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
 								<< zone_table[j].vnum << ")";
 							break;

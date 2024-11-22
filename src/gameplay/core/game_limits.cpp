@@ -1654,7 +1654,7 @@ void ExtractRepopDecayObject(ObjData *obj) {
 	ExtractObjFromWorld(obj);
 }
 
-void DecayObjectsOnRepop(std::unordered_set<ZoneRnum> &zone_list) {
+void DecayObjectsOnRepop(UniqueList<ZoneRnum> &zone_list) {
 	std::list<ObjData *> extract_list;
 
 	for (auto j : world_objects) {
