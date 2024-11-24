@@ -59,11 +59,10 @@ class CObjectPrototypes {
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
 
-	auto stored(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].stored : -1; }
+	int stored(const size_t rnum) const;
 	auto stored(const CObjectPrototype::shared_ptr &object) const { return stored(object->get_rnum()); }
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }
 	void inc_stored(const size_t rnum) { ++m_index[rnum].stored; }
-
 	int total_online(const size_t rnum) const;
 	auto total_online(const CObjectPrototype::shared_ptr &object) const { return total_online(object->get_rnum()); }
 	void dec_number(const size_t rnum);

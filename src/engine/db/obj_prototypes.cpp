@@ -24,6 +24,19 @@ void CObjectPrototypes::replace(CObjectPrototype *prototype, const ObjRnum orn, 
 	m_index[orn] = SPrototypeIndex();
 }
 
+int CObjectPrototypes::stored(const size_t rnum) const {
+	auto orn  = obj_proto[rnum]->get_parent_rnum();
+
+	if (!is_index_safe(rnum)) {
+		return -1;
+	}
+	if (orn != -1) {
+		return m_index[orn].stored;
+	} else {
+		return m_index[rnum].stored;
+	}
+}
+
 int CObjectPrototypes::total_online(const size_t rnum) const {
 	if (is_index_safe(rnum)) {
 		ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
