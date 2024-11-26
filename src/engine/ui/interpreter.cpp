@@ -347,6 +347,7 @@ void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
+void do_zclear(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -1021,6 +1022,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"wiznet", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
 		{"wizat", EPosition::kDead, do_at, kLvlGreatGod, 0, 0},
 		{"write", EPosition::kStand, do_write, 1, 0, -1},
+		{"zclear", EPosition::kDead, do_zclear, 0, 0, 0},
 		{"zedit", EPosition::kDead, do_olc, 0, SCMD_OLC_ZEDIT, 0},
 		{"zone", EPosition::kRest, DoZone, 0, 0, 0},
 		{"zreset", EPosition::kDead, do_zreset, 0, 0, 0},

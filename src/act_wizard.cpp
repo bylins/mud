@@ -66,6 +66,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/dungeons.h"
 
 //#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
@@ -122,6 +123,7 @@ void do_date(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_force(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
+void do_zclear(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizutil(CharData *ch, char *argument, int cmd, int subcmd);
 void do_show(CharData *ch, char *argument, int cmd, int subcmd);
@@ -1583,9 +1585,49 @@ void do_sdemigod(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
+void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
+	UniqueList<ZoneRnum> zone_repop_list;
+	RoomRnum rrn_start = 0;
+	ZoneRnum zrn;
+
+	one_argument(argument, arg);
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
+		SendMsgToChar("Чаво?\r\n", ch);
+		return;
+	}
+	if (!*arg) {
+		SendMsgToChar("Укажите зону.\r\n", ch);
+		return;
+	}
+	if (*arg == '.') {
+		zrn = world[ch->in_room]->zone_rn;
+	} else {
+		zrn = GetZoneRnum(atoi(arg));
+	}
+	if (zrn > 0 || *arg == '.' || *arg == '1') {
+		utils::CExecutionTimer timer;
+
+		rrn_start = zone_table[zrn].RnumRoomsLocation.first;
+		for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
+			auto &room = world[rrn_start + rvn];
+
+			dungeons::ClearRoom(room);
+		}
+		zone_repop_list.push_back(zrn);
+		DecayObjectsOnRepop(zone_repop_list);
+		ResetZone(zrn);
+		sprintf(buf, "Очищаю и перегружаю зону #%d: %s, delta %f\r\n", zone_table[zrn].vnum, zone_table[zrn].name.c_str(), timer.delta().count());
+		SendMsgToChar(buf, ch);
+		sprintf(buf, "(GC) %s clear and reset zone %d (%s)", GET_NAME(ch), zrn, zone_table[zrn].name.c_str());
+		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		imm_log("%s clear and reset zone %d (%s)", GET_NAME(ch), zrn, zone_table[zrn].name.c_str());
+	} else {
+		SendMsgToChar("Нет такой зоны.\r\n", ch);
+	}
+}
+
 void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	ZoneRnum i;
-	ZoneVnum j;
 	UniqueList<ZoneRnum> zone_repop_list;
 	one_argument(argument, arg);
 
@@ -1598,13 +1640,10 @@ void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Укажите зону.\r\n", ch);
 		return;
 	}
-	int first = atoi(arg);
-
-	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
+	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != atoi(arg)) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}
-
 	if (*arg == '*') {
 		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 			zone_repop_list.push_back(i);
@@ -1621,20 +1660,15 @@ void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else if (*arg == '.') {
 		i = world[ch->in_room]->zone_rn;
 	} else {
-		j = atoi(arg);
-		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-			if (zone_table[i].vnum == j) {
-				break;
-			}
-		}
+		i = GetZoneRnum(atoi(arg));
 	}
+	if (i > 0 || *arg == '.' || *arg == '1') {
+		utils::CExecutionTimer timer;
 
-	if (i >= 0 && i < static_cast<ZoneRnum>(zone_table.size())) {
 		zone_repop_list.push_back(i);
 		DecayObjectsOnRepop(zone_repop_list);
-		utils::CExecutionTimer timer;
 		ResetZone(i);
-		sprintf(buf, "Перегружаю зону %d (#%d): %s, delta %f\r\n", i, zone_table[i].vnum, zone_table[i].name.c_str(), timer.delta().count());
+		sprintf(buf, "Перегружаю зону #%d: %s, delta %f\r\n", zone_table[i].vnum, zone_table[i].name.c_str(), timer.delta().count());
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);

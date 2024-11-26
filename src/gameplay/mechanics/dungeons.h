@@ -10,6 +10,7 @@
 #define BYLINS_SRC_GAME_MECHANICS_DUNGEONS_H_
 
 #include "engine/structs/structs.h"
+#include "engine/db/db.h"
 
 class CharData;
 namespace dungeons {
@@ -22,7 +23,7 @@ void DoZoneCopy(CharData *, char *argument, int, int);
 ZoneRnum ZoneCopy(ZoneVnum zvn_from);
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/);
 void SwapObjectDungeon(CharData *ch);
-
+void ClearRoom(RoomData *room);
 void CreateBlankZoneDungeon();
 void CreateBlankTrigsDungeon();
 void CreateBlankRoomDungeon();

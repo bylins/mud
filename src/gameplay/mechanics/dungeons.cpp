@@ -7,7 +7,6 @@
 */
 
 #include "engine/ui/cmd/do_follow.h"
-#include "engine/db/db.h"
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
 #include "engine/core/handler.h"
@@ -839,19 +838,9 @@ void DungeonReset(int zrn) {
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 }
-
-void RoomDataFree(ZoneRnum zrn) {
-	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
-	RoomRnum to_room;
-
-	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
-		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
-			RemovePortalGate(rrn);
-		}
-	}
-	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
-		auto &room = world[rrn_start + rvn];
+void ClearRoom(RoomData *room) {
 		auto people_copy = room->people;
+		RoomRnum to_room;
 
 		for (const auto vict : people_copy) {
 			if (IS_CHARMICE(vict)) {
@@ -868,17 +857,20 @@ void RoomDataFree(ZoneRnum zrn) {
 				}
 			} else {
 				RemoveCharFromRoom(vict);
-				if ((to_room = GetRoomRnum(GET_LOADROOM(vict))) == kNowhere)
+				if ((to_room = GetRoomRnum(GET_LOADROOM(vict))) == kNowhere) {
 					to_room = GetRoomRnum(calc_loadroom(vict));
+				}
 				PlaceCharToRoom(vict, to_room);
 				look_at_room(vict, to_room);
 			}
 		}
 		people_copy = room->people;
 		for (const auto vict : people_copy) {
-			RemoveCharFromRoom(vict);
-			PlaceCharToRoom(vict, vict->get_master()->in_room);
-			act("$n появил$u, окутанн$w розовым туманом.", false, vict, nullptr, nullptr, kToRoom);
+			if (vict->get_master()) {
+				RemoveCharFromRoom(vict);
+				PlaceCharToRoom(vict, vict->get_master()->in_room);
+				act("$n появил$u, окутанн$w розовым туманом.", false, vict, nullptr, nullptr, kToRoom);
+			}
 		}
 		ObjData *obj, *next_o;
 
@@ -886,7 +878,19 @@ void RoomDataFree(ZoneRnum zrn) {
 			next_o = obj->get_next_content();
 			ExtractObjFromWorld(obj);
 		}
-		room->people.clear();
+}
+
+void RoomDataFree(ZoneRnum zrn) {
+	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
+
+	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
+		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
+			RemovePortalGate(rrn);
+		}
+	}
+	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
+		auto &room = world[rrn_start + rvn];
+		ClearRoom(room);
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
 		room->cleanup_script();
