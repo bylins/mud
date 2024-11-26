@@ -878,6 +878,11 @@ void ClearRoom(RoomData *room) {
 			next_o = obj->get_next_content();
 			ExtractObjFromWorld(obj);
 		}
+// вдруг лежала сумка с вещами игрока, пройдемся еще раз
+		for (obj = room->contents; obj; obj = next_o) {
+			next_o = obj->get_next_content();
+			ExtractObjFromWorld(obj);
+		}
 }
 
 void RoomDataFree(ZoneRnum zrn) {

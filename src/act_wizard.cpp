@@ -1591,7 +1591,7 @@ void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	ZoneRnum zrn;
 
 	one_argument(argument, arg);
-	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false))) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
@@ -1607,6 +1607,8 @@ void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	if (zrn > 0 || *arg == '.' || *arg == '1') {
 		utils::CExecutionTimer timer;
 
+		sprintf(buf, "Очищаю и перегружаю зону #%d: %s\r\n", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
+		SendMsgToChar(buf, ch);
 		rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 		for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
 			auto &room = world[rrn_start + rvn];
@@ -1616,9 +1618,7 @@ void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		zone_repop_list.push_back(zrn);
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(zrn);
-		sprintf(buf, "Очищаю и перегружаю зону #%d: %s, delta %f\r\n", zone_table[zrn].vnum, zone_table[zrn].name.c_str(), timer.delta().count());
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "(GC) %s clear and reset zone %d (%s)", GET_NAME(ch), zrn, zone_table[zrn].name.c_str());
+		sprintf(buf, "(GC) %s clear and reset zone %d (%s), delta %f", GET_NAME(ch), zrn, zone_table[zrn].name.c_str(), timer.delta().count());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s clear and reset zone %d (%s)", GET_NAME(ch), zrn, zone_table[zrn].name.c_str());
 	} else {
@@ -1665,12 +1665,12 @@ void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	if (i > 0 || *arg == '.' || *arg == '1') {
 		utils::CExecutionTimer timer;
 
+		sprintf(buf, "Перегружаю зону #%d: %s\r\n", zone_table[i].vnum, zone_table[i].name.c_str());
+		SendMsgToChar(buf, ch);
 		zone_repop_list.push_back(i);
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(i);
-		sprintf(buf, "Перегружаю зону #%d: %s, delta %f\r\n", zone_table[i].vnum, zone_table[i].name.c_str(), timer.delta().count());
-		SendMsgToChar(buf, ch);
-		sprintf(buf, "(GC) %s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
+		sprintf(buf, "(GC) %s reset zone %d (%s), delta %f", GET_NAME(ch), i, zone_table[i].name.c_str(), timer.delta().count());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 	} else {
