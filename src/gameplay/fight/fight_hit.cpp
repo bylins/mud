@@ -161,15 +161,19 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 				case 4:    // Hit genus, victim bashed, speed/2
 					SET_AF_BATTLE(victim, kEafSlow);
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 10);
-					if (victim->GetPosition() > EPosition::kSit)
+					if (victim->GetPosition() > EPosition::kSit) {
 						victim->SetPosition(EPosition::kSit);
+					}
+					victim->DropFromHorse();
 					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
 				case 5:    // victim bashed
-					if (victim->GetPosition() > EPosition::kSit)
+					if (victim->GetPosition() > EPosition::kSit) {
 						victim->SetPosition(EPosition::kSit);
+					}
+					victim->DropFromHorse();
 					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
@@ -342,6 +346,7 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 					SetWaitState(victim, number(2, 5) * kBattleRound);
 					if (victim->GetPosition() > EPosition::kSit)
 						victim->SetPosition(EPosition::kSit);
+					victim->DropFromHorse();
 					to_char = "повредило $N2 грудь, свалив $S с ног";
 					to_vict = "повредило вам грудь, свалив вас с ног";
 					break;
@@ -808,6 +813,7 @@ void might_hit_bash(CharData *ch, CharData *victim) {
 
 	if (victim->GetPosition() > EPosition::kSit) {
 		victim->SetPosition(EPosition::kSit);
+		victim->DropFromHorse();
 		SendMsgToChar(victim, "&R&qБогатырский удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 	}
 }
@@ -2780,6 +2786,7 @@ void HitData::try_stupor_dam(CharData *ch, CharData *victim) {
 		SetWaitState(victim, 3 * kBattleRound);
 		if (victim->GetPosition() > EPosition::kSit && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			victim->SetPosition(EPosition::kSit);
+			victim->DropFromHorse();
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		} else {

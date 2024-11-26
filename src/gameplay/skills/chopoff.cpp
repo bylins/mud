@@ -100,6 +100,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			SetWait(vict, 3, false);
 			if (ch->isInSameRoom(vict)) {
 				vict->SetPosition(EPosition::kSit);
+				vict->DropFromHorse();
 			}
 		}
 		prob = 1;

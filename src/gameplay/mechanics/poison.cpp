@@ -230,6 +230,7 @@ namespace {
 							act("$N0 зашатал$U и не смог$Q устоять на ногах.",
 								true, ch, nullptr, vict, kToNotVict);
 							vict->SetPosition(EPosition::kSit);
+							vict->DropFromHorse();
 							SetWaitState(vict, 3 * kBattleRound);
 						}
 						break;

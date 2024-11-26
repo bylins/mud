@@ -223,11 +223,11 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
 		damage = dmg.Process(ch, vict);
-		vict->DropFromHorse();
 		// Сам баш:
 		if (!IS_IMPL(vict)) {
 			if (vict->GetPosition() > EPosition::kSit) {
 				vict->SetPosition(EPosition::kSit);
+				vict->DropFromHorse();
 			}
 			SetWait(vict, 3, true);
 		}

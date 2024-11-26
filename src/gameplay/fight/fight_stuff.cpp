@@ -378,6 +378,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 	}
 	change_fighting(ch, true);
 	GET_HIT(ch) = 1;
+	ch->DropFromHorse();
 	ch->SetPosition(EPosition::kSit);
 	int to_room = GetRoomRnum(GET_LOADROOM(ch));
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
