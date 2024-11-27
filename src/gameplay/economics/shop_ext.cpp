@@ -12,7 +12,6 @@
 #include "gameplay/ai/spec_procs.h"
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp
-extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
 
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
 //std::map<int, int> items_list_for_checks;
@@ -510,8 +509,7 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				const auto obj = shop->GetObjFromShop(item_list.node(i)->uid());
 				if (isname(stufina, GET_OBJ_PNAME(obj, 0))) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
-					bool full = false;
-					mort_show_obj_values(obj, ch, 200, full);
+					mort_show_obj_values(obj, ch, 200);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
 								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",

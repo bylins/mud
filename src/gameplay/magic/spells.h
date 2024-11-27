@@ -131,6 +131,7 @@ int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id);
 ESkill GetMagicSkillId(ESpell spell_id);
 int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int showrecipe);
 int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
+void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness);
 
 typedef std::map<ESpell, int> SpellCountType;
 namespace SpellUsage {
