@@ -1320,7 +1320,9 @@ void obj_point_update() {
 						&& up_obj_where(j.get()) != kNowhere
 						&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
 			obj_decay_timer.push_back(j.get());
-		} else {
+		}
+// а с каких пор у нас на шмотку EApply::kPoison вешается?
+/*		else {
 			for (int count = 0; count < kMaxObjAffect; count++) {
 				if (j->get_affected(count).location == EApply::kPoison) {
 					j->dec_affected_value(count);
@@ -1330,6 +1332,7 @@ void obj_point_update() {
 				}
 			}
 		}
+*/
 	});
 	for (auto it : obj_destroy) {
 		ExtractObjFromWorld(it);
