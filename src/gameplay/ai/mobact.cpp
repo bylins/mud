@@ -1027,9 +1027,12 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // Mob attemp rest if it is not an angel
-	  if (!max && !ch->IsFlagged(EMobFlag::kNoRest) && !ch->IsFlagged(EMobFlag::kHorde) &&
-		  GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !ch->IsFlagged(EMobFlag::kTutelar)
+	  if (!max && !ch->IsFlagged(EMobFlag::kNoRest) 
+		  && !ch->IsFlagged(EMobFlag::kHorde) 
+		  && GET_HIT(ch) < GET_REAL_MAX_HIT(ch) 
+		  && !ch->IsFlagged(EMobFlag::kTutelar)
 		  && !ch->IsFlagged(EMobFlag::kMentalShadow)
+		  && !ch->IsOnHorse()
 		  && ch->GetPosition() > EPosition::kRest) {
 		  act("$n присел$g отдохнуть.", false, ch.get(), nullptr, nullptr, kToRoom);
 		  ch->SetPosition(EPosition::kRest);
