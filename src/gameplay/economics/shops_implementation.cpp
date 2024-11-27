@@ -29,7 +29,6 @@ extern char *diag_timer_to_char(const ObjData *obj);    // implemented in the ac
 extern int invalid_anti_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_unique(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_no_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
-extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);    // implemented in spells.cpp
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
@@ -790,8 +789,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			tell_to_char(keeper, ch, buf);
 
 			SendMsgToChar(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
-			bool full =  false;
-			mort_show_obj_values(ident_obj, ch, 200, full);
+			mort_show_obj_values(ident_obj, ch, 200);
 			ch->remove_gold(IDENTIFY_COST);
 		}
 	}

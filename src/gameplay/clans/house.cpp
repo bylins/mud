@@ -55,7 +55,6 @@ extern int AllocateBufferForFile(const char *name, char **destination_buf);
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
-extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
 extern bool char_to_pk_clan(CharData *ch);
 extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 
@@ -5431,8 +5430,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				ObjData *tmp_obj = get_obj_in_list_vis(ch, stufina, chest->get_contains());
 				if (tmp_obj) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
-					bool full = false;
-					mort_show_obj_values(tmp_obj, ch, 200, full);
+					mort_show_obj_values(tmp_obj, ch, 200);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
 								  "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",

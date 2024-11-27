@@ -31,7 +31,6 @@ extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 extern char *diag_timer_to_char(const ObjData *obj);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
-extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
 
 AuctionItem auction_lots[kMaxAuctionLot] = {{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
 											{-1, nullptr, -1, nullptr, -1, nullptr, -1, nullptr, 0, 0},
@@ -453,8 +452,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 				return false;
 			}
-			bool full = false;
-			mort_show_obj_values(iobj, ch, 200, full);    //200 - весь текст
+			mort_show_obj_values(iobj, ch, 200);    //200 - весь текст
 			ch->remove_both_gold(AUCTION_IDENT_PAY);
 			SendMsgToChar(ch,
 						  "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
