@@ -1002,8 +1002,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"version", EPosition::kDead, DoGenericPage, 0, kScmdVersion, 0},
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
 		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
-		{"вномер", EPosition::kDead, DoTabulate, kLvlGreatGod, 0,
-		 0},  //тупой копипаст для использования русского синтаксиса
+		{"вномер", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
 		{"vstat", EPosition::kDead, do_vstat, 0, 0, 0},
 		{"wake", EPosition::kSleep, do_wake, 0, 0, -1},
 		{"warcry", EPosition::kFight, do_warcry, 1, 0, -1},
@@ -1022,7 +1021,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"wiznet", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
 		{"wizat", EPosition::kDead, do_at, kLvlGreatGod, 0, 0},
 		{"write", EPosition::kStand, do_write, 1, 0, -1},
-		{"zclear", EPosition::kDead, do_zclear, 0, 0, 0},
+		{"zclear", EPosition::kDead, do_zclear, kLvlImplementator, 0, 0},
 		{"zedit", EPosition::kDead, do_olc, 0, SCMD_OLC_ZEDIT, 0},
 		{"zone", EPosition::kRest, DoZone, 0, 0, 0},
 		{"zreset", EPosition::kDead, do_zreset, 0, 0, 0},

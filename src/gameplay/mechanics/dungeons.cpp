@@ -656,13 +656,14 @@ void ListDungeons(CharData *ch) {
 	ZoneRnum zrn_start = GetZoneRnum(kZoneStartDungeons);
 	ZoneRnum zrn_stop = GetZoneRnum(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
 
-	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:<50} {:<}\r\n", "#", "предок", "вход", "название зоны", "игроки");
+	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:>6} {:<50} {:<}\r\n", "#", "предок", "вход", "прошло", "название зоны", "игроки");
 	for (int i = zrn_start; i <= zrn_stop; i++) {
 		if (zone_table[i].copy_from_zone > 0)
-			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:<50} {:<}\r\n",
+			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:>5}m {:<50} {:<}\r\n",
 								  i - zrn_start + 1,
 								  zone_table[i].copy_from_zone,
 								  zone_table[i].entrance,
+								  zone_table[i].age,
 								  zone_table[i].name,
 								  WhoInZone(i));
 	}
