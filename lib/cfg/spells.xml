@@ -436,7 +436,7 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
     </spell>
-    <spell id="kPoison" element="kLife" mode="kEnabled">
+    <spell id="kPoison" element="kDark" mode="kEnabled">
         <name rus="яд" eng="poison"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="55" change="1"/>
