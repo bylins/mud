@@ -49,7 +49,6 @@ extern int invalid_align(CharData *ch, const ObjData *obj);
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 extern const char *diag_obj_timer(const ObjData *obj);
 extern char *diag_timer_to_char(const ObjData *obj);
-extern void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern bool is_dig_stone(ObjData *obj);
 
@@ -521,8 +520,7 @@ int exchange_identify(CharData *ch, char *arg) {
 		SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
-	bool full = false;
-	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200, full);    //200 - полное опознание
+	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200);    //400 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	SendMsgToChar(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 				  kColorBoldGrn, EXCHANGE_IDENT_PAY,

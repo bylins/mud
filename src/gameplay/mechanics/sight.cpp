@@ -637,8 +637,8 @@ void look_at_char(CharData *i, CharData *ch) {
 				if (!push) {
 					push = tmp_obj;
 					push_count = 1;
-				} else if (GET_OBJ_VNUM(push) != GET_OBJ_VNUM(tmp_obj)
-					|| GET_OBJ_VNUM(push) == -1) {
+				} else if (!IsObjsStackable(tmp_obj, push)
+					|| GET_OBJ_VNUM(push) == 100) {
 					show_obj_to_char(push, ch, 1, ch == i, push_count);
 					push = tmp_obj;
 					push_count = 1;

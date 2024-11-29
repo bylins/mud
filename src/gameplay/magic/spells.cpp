@@ -1505,10 +1505,14 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 }
 
-void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness, bool enhansed_scroll) {
+void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
-
+	bool enhansed_scroll = false;
+	
+	if (fullness > 399) {
+		enhansed_scroll = true;
+	}
 	SendMsgToChar("Вы узнали следующее:\r\n", ch);
 	sprintf(buf, "Предмет \"%s\", тип : ", obj->get_short_description().c_str());
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
@@ -1990,9 +1994,8 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 }
 
 void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
-	bool full = false;
 	if (obj) {
-		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr), full);
+		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr));
 		TrainSkill(ch, ESkill::kIdentify, true, nullptr);
 	} else if (victim) {
 		if (GetRealLevel(victim) < 3) {
@@ -2006,9 +2009,8 @@ void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 
 
 void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
-	bool full = true;
 	if (obj)
-		mort_show_obj_values(obj, ch, 100, full);
+		mort_show_obj_values(obj, ch, 400);
 	else if (victim) {
 		SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
@@ -2016,9 +2018,8 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 }
 
 void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
-	bool full = false;
 	if (obj)
-		mort_show_obj_values(obj, ch, 100, full);
+		mort_show_obj_values(obj, ch, 100);
 	else if (victim) {
 		if (victim != ch) {
 			SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);

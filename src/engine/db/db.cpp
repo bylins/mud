@@ -1833,7 +1833,7 @@ void after_reset_zone(ZoneRnum nr_zone) {
 	}
 }
 
-const int ZO_DEAD{9999};
+const int ZO_DEAD{999999};
 
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void ZoneUpdate() {
@@ -1849,9 +1849,7 @@ void ZoneUpdate() {
 		 */
 		timer = 0;
 		for (std::size_t i = 0; i < zone_table.size(); i++) {
-			if (zone_table[i].age < zone_table[i].lifespan && zone_table[i].reset_mode &&
-				(zone_table[i].reset_idle || zone_table[i].used))
-				(zone_table[i].age)++;
+			zone_table[i].age++;
 			if (zone_table[i].age >= zone_table[i].lifespan &&
 				zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
 				(zone_table[i].reset_idle || zone_table[i].used)) {
@@ -2686,24 +2684,6 @@ void ZoneReset::ResetZoneEssential() {
 			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
 				RemovePortalGate(rnum);
 			}
-/*
-			while (room_spells::IsRoomAffected(world[rnum], ESpell::kPortalTimer)) {
-				auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
-				const RoomRnum to_room = (*aff)->modifier;
-
-				if (aff != world[rnum]->affected.end()) {
-					room_spells::RoomRemoveAffect(world[rnum], aff);
-					act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToRoom);
-					act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToChar);
-				}
-				aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
-				if (aff != world[to_room]->affected.end()) {
-					room_spells::RoomRemoveAffect(world[to_room], aff);
-					act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
-					act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
-				}
-			}
-*/
 			paste_on_reset(room);
 		}
 	}

@@ -1527,7 +1527,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					return;
 
 				case 'u':
-				case 'U': SendMsgToChar("Пол : ", d->character.get());
+				case 'U': SendMsgToChar("Пол (0-3) : ", d->character.get());
 					OLC_MODE(d) = OEDIT_SEXVALUE;
 					break;
 
