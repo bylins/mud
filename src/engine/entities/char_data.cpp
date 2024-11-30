@@ -832,6 +832,11 @@ bool CLEAR_MIND(const CharData *ch) {
 	return (!GET_AF_BATTLE(ch, kEafOverwhelm) && !GET_AF_BATTLE(ch, kEafHammer));
 }
 
+bool STRANGLE_IMMUNITY(CharData *ch) {
+	return (IS_UNDEAD(ch) || GET_RACE(ch) == ENpcRace::kFish ||
+		GET_RACE(ch) == ENpcRace::kPlant || GET_RACE(ch) == ENpcRace::kConstruct);
+}
+
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 	return !NAME_BAD(ch)
