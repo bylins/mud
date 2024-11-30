@@ -138,42 +138,41 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle) && !STRANGLE_IMMUNITY(victim)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else
 				go_strangle(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike))
-			&& !IS_CHARMICE(ch))
-			|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
-				&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
-
+		if (((ch->GetSkill(ESkill::kBackstab) && !victim->GetEnemy() && !IS_CHARMICE(ch))
+			|| ((IS_CHARMICE(ch) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) == fight::type_pierce) && ch->GetSkill(ESkill::kBackstab) && !victim->GetEnemy()))
+			&& !(victim->IsFlagged(EMobFlag::kAware) && AWAKE(victim))) {
 			if (do_mode)
 				do_backstab(ch, victim);
 			else
 				go_backstab(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kHammer) && !IS_CHARMICE(ch))
+		if (((ch->GetSkill(ESkill::kHammer) && !IS_CHARMICE(ch))
 			|| (IS_CHARMICE(ch)
 				&& !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))
-				&& ch->GetSkill(ESkill::kHammer))) {
+				&& ch->GetSkill(ESkill::kHammer)))
+			&& !victim->IsFlagged(EMobFlag::kNoHammer)) {
 			if (do_mode)
 				do_mighthit(ch, victim);
 			else
 				go_mighthit(ch, victim);
 			return (true);
 		}
-		if (ch->GetSkill(ESkill::kOverwhelm)) {
+		if (ch->GetSkill(ESkill::kOverwhelm) && !victim->IsFlagged(EMobFlag::kNoOverwhelm)) {
 			if (do_mode)
 				do_stupor(ch, victim);
 			else
 				go_stupor(ch, victim);
 			return (true);
 		}
-		if (ch->GetSkill(ESkill::kBash)) {
+		if (ch->GetSkill(ESkill::kBash ) && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			if (do_mode) {
 				do_bash(ch, victim);
 			} else
