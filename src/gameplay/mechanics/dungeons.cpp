@@ -662,7 +662,7 @@ void ListDungeons(CharData *ch) {
 								  i - zrn_start + 1,
 								  zone_table[i].copy_from_zone,
 								  zone_table[i].entrance,
-								  zone_table[i].age,
+								  zone_table[i].time_awake,
 								  zone_table[i].name,
 								  WhoInZone(i));
 	}

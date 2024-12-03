@@ -83,6 +83,8 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
+		if (it.remort_ == kMaxRemort - 1)
+			continue;
 		table
 			<< it.name_
 			<< it.remort_
@@ -94,6 +96,20 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(out, table);
+	out.clear();
+	out << kColorWht << "\r\nДостигшие максимум перевоплощений: " << kColorNrm << "\r\n";
+	table_wrapper::Table table2;
+
+	for (const auto &it: TopPlayer::chart_[id]) {
+		if (it.remort_ != kMaxRemort - 1)
+			continue;
+		table2
+			<< it.name_
+			<< it.remort_
+			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table2);
+	table_wrapper::PrintTableToStream(out, table2);
 
 	// если игрок участвует в данном топе - покажем ему, какой он неудачник
 	int count = 1;

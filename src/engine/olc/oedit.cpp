@@ -461,9 +461,13 @@ void oedit_disp_prompt_apply_menu(DescriptorData *d) {
 	for (counter = 0; counter < kMaxObjAffect; counter++) {
 		if (OLC_OBJ(d)->get_affected(counter).modifier) {
 			sprinttype(OLC_OBJ(d)->get_affected(counter).location, apply_types, buf2);
-			snprintf(buf, kMaxStringLength, " %s%d%s) %+d to %s\r\n", grn, counter + 1, nrm,
+			snprintf(buf, kMaxStringLength, " %s%d%s) %+d to %s", grn, counter + 1, nrm,
 					 OLC_OBJ(d)->get_affected(counter).modifier, buf2);
+			if (IsNegativeApply(OLC_OBJ(d)->get_affected(counter).location)) {
+				strcat(buf, "   &g(в + ухудшает)&n");
+			} 
 			SendMsgToChar(buf, d->character.get());
+			SendMsgToChar("\r\n", d->character.get());
 		} else {
 			sprintf(buf, " %s%d%s) Ничего.\r\n", grn, counter + 1, nrm);
 			SendMsgToChar(buf, d->character.get());
