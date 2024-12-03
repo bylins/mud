@@ -958,6 +958,9 @@ inline bool AWAKE(const CharData::shared_ptr &ch) { return AWAKE(ch.get()); }
 bool CLEAR_MIND(const CharData *ch);
 inline bool CLEAR_MIND(const CharData::shared_ptr &ch) { return CLEAR_MIND(ch.get()); }
 
+bool STRANGLE_IMMUNITY(CharData *ch);
+inline bool STRANGLE_IMMUNITY(CharData::shared_ptr &ch) { return STRANGLE_IMMUNITY(ch.get()); }
+
 inline bool CAN_START_MTRIG(const CharData *ch) {
 	return !AFF_FLAGGED(ch, EAffect::kCharmed);
 }
