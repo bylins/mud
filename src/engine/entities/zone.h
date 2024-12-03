@@ -35,6 +35,7 @@ class ZoneData {
 
 	int lifespan;        // how long between resets (minutes)
 	int age;        // current age of this zone (minutes)
+	long time_awake;
 	RoomVnum top;        // upper limit for rooms in this zone
 	/**
 	 * Conditions for reset.

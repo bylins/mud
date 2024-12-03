@@ -1849,10 +1849,16 @@ void ZoneUpdate() {
 		 */
 		timer = 0;
 		for (std::size_t i = 0; i < zone_table.size(); i++) {
-			zone_table[i].age++;
-			if (zone_table[i].age >= zone_table[i].lifespan &&
-				zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
-				(zone_table[i].reset_idle || zone_table[i].used)) {
+			zone_table[i].time_awake++;
+			if (zone_table[i].age < zone_table[i].lifespan 
+					&& zone_table[i].reset_mode 
+					&& (zone_table[i].reset_idle || zone_table[i].used)) {
+				zone_table[i].age++;
+			}
+			if (zone_table[i].age >= zone_table[i].lifespan 
+					&& zone_table[i].age < ZO_DEAD 
+					&& zone_table[i].reset_mode 
+					&& (zone_table[i].reset_idle || zone_table[i].used)) {
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
 				update_u->next = nullptr;
@@ -2667,6 +2673,7 @@ void ZoneReset::ResetZoneEssential() {
 
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
+	zone_table[m_zone_rnum].time_awake = 0;
 	celebrates::ProcessCelebrates(zone_table[m_zone_rnum].vnum);
 	int rnum_start = 0;
 	int rnum_stop = 0;
