@@ -49,7 +49,8 @@ void do_strangle(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (STRANGLE_IMMUNITY(vict)) {
+	if (IS_UNDEAD(vict) || GET_RACE(vict) == ENpcRace::kFish ||
+		GET_RACE(vict) == ENpcRace::kPlant || GET_RACE(vict) == ENpcRace::kConstruct) {
 		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
