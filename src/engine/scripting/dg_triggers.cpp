@@ -699,7 +699,6 @@ void load_mtrigger(CharData *ch) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
 		return;
 	}
-
 	if (!CheckScript(ch, MTRIG_LOAD))
 		return;
 

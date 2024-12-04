@@ -429,6 +429,9 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| victim->has_master()) {
 		die_follower(victim);
 	}
+	if(ch == victim) {
+		trig->halt();
+	}
 	character_list.AddToExtractedList(victim);
 }
 
