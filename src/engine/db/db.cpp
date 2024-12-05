@@ -2172,10 +2172,10 @@ void paste_on_reset(RoomData *to_room) {
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
 	char local_buf[256];
 
-	sprintf(buf, "SYSERR: zone file %d.zon: %s", zone_data.vnum, message);
+	sprintf(local_buf, "SYSERR: zone file %d.zon: %s", zone_data.vnum, message);
 	mudlog(local_buf, NRM, kLvlGod, SYSLOG, true);
 
-	sprintf(buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
+	sprintf(local_buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
 			zone_data.cmd[cmd_no].command, zone_data.vnum, zone_data.cmd[cmd_no].line);
 	mudlog(local_buf, NRM, kLvlGod, SYSLOG, true);
 }
