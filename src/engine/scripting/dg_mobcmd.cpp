@@ -887,13 +887,12 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		chardata_by_uid[ch->get_uid()] = ch;
 		trig_copy->cmdlist.reset();
 		*trig_copy = *trig_index[trig->get_rnum()]->proto;
-		auto c = *trig_copy->cmdlist;
-
+		trig_copy->curr_line = *trig_copy->cmdlist;
 		for (int num = 1; num < trig->curr_line->line_num; num ++) {
-			c = c->next;
+			trig_copy->curr_line = trig_copy->curr_line->next;
 		}
-		if (c->next) {
-			trig_copy->curr_line = c->next;
+		if (trig_copy->curr_line->next) {
+			trig_copy->curr_line = trig_copy->curr_line->next;
 			script_driver(ch, trig_copy, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
