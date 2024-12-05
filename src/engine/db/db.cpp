@@ -2278,6 +2278,7 @@ void ZoneReset::ResetZoneEssential() {
 
 	for (cmd_no = 0; zone_table[m_zone_rnum].cmd != nullptr; cmd_no++) {
 		const auto &zone_data = zone_table[m_zone_rnum];
+		zone_data.cmd[cmd_no].line = cmd_no + 1;
 		auto &reset_cmd = zone_table[m_zone_rnum].cmd[cmd_no];
 		if (reset_cmd.command == '*') {
 			continue;
