@@ -647,6 +647,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			}
 		}
 		trig_index[new_trn]->proto = trig;
+//		trig_index[new_trn]->proto = *trig_index[i]->proto;
 	}
 }
 

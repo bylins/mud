@@ -19,7 +19,7 @@
 #include "dg_event.h"
 #include "engine/db/global_objects.h"
 
-// remove a single trigger from a mob/obj/room
+// remove a single trigger from a mob/obj/room и остановить его выполнение
 void ExtractTrigger(Trigger *trig) {
 	if (GET_TRIG_WAIT(trig).time_remaining > 0) {
 		// см. объяснения в вызове trig_data_free()

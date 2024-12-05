@@ -885,8 +885,15 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		// для name_list
 		character_list.AddToExtractedList(m);
 		chardata_by_uid[ch->get_uid()] = ch;
-		if (trig->curr_line->next) {
-			trig_copy->curr_line = trig->curr_line->next;
+		trig_copy->cmdlist.reset();
+		*trig_copy = *trig_index[trig->get_rnum()]->proto;
+		auto c = *trig_copy->cmdlist;
+
+		for (int num = 1; num < trig->curr_line->line_num; num ++) {
+			c = c->next;
+		}
+		if (c->next) {
+			trig_copy->curr_line = c->next;
 			script_driver(ch, trig_copy, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
