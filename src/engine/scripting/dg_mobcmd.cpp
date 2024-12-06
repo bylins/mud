@@ -429,6 +429,9 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| victim->has_master()) {
 		die_follower(victim);
 	}
+	if(ch == victim) {
+		trig->halt();
+	}
 	character_list.AddToExtractedList(victim);
 }
 
@@ -879,11 +882,17 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->SetPosition(m->GetPosition());
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
-		// для name_list
+		trig->halt();
 		character_list.AddToExtractedList(m);
 		chardata_by_uid[ch->get_uid()] = ch;
-		if (trig->curr_line->next) {
-			trig_copy->curr_line = trig->curr_line->next;
+		trig_copy->cmdlist.reset();
+		*trig_copy = *trig_index[trig->get_rnum()]->proto;
+		trig_copy->curr_line = *trig_copy->cmdlist;
+		for (int num = 1; num < trig->curr_line->line_num; num ++) {
+			trig_copy->curr_line = trig_copy->curr_line->next;
+		}
+		if (trig_copy->curr_line->next) {
+			trig_copy->curr_line = trig_copy->curr_line->next;
 			script_driver(ch, trig_copy, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}

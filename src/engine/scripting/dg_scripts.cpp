@@ -5506,9 +5506,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		break;
 		
 	}
-	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig);
-		 cl = cl ? cl->next : cl)    //log("Drive go <%s>",cl->cmd);
-	{
+	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl) { //log("Drive go <%s>",cl->cmd.c_str());
 		last_trig_line_num = cl->line_num;
 		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
@@ -5723,7 +5721,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 						break;
 				}
 			}
-
+			if (trig && trig->is_halted())
+				break;
 			if (sc->is_purged() || (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged())) {
 				depth--;
 				cur_trig = prev_trig;
@@ -6288,7 +6287,8 @@ Trigger::Trigger() :
 	nr(kNothing),
 	attach_type(0),
 	name(DEFAULT_TRIGGER_NAME),
-	trigger_type(0) {
+	trigger_type(0),
+	halted(false) {
 }
 
 Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const long trigger_type) :
@@ -6301,7 +6301,8 @@ Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
-	trigger_type(trigger_type) {
+	trigger_type(trigger_type),
+	halted(false) {
 }
 
 Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, const long trigger_type) :
@@ -6314,7 +6315,8 @@ Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, con
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
-	trigger_type(trigger_type) {
+	trigger_type(trigger_type),
+	halted(false) {
 }
 
 Trigger::Trigger(const int rnum, const char *name, const long trigger_type) : Trigger(rnum, name, 0, trigger_type) {
@@ -6331,7 +6333,8 @@ Trigger::Trigger(const Trigger &from) :
 	nr(from.nr),
 	attach_type(from.attach_type),
 	name(from.name),
-	trigger_type(from.trigger_type) {
+	trigger_type(from.trigger_type),
+	halted(from.halted) {
 }
 
 void Trigger::reset() {
@@ -6362,7 +6365,7 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	narg = right.narg;
 	add_flag = right.add_flag;
 	arglist = right.arglist;
-
+	halted = right.halted;
 	return *this;
 }
 

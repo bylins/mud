@@ -348,6 +348,9 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	if (!(ch = get_char_by_obj(obj, arg))) {
 		if ((o = get_obj_by_obj(obj, arg))) {
 			log("Purge obj #%d by %s (opurge)", GET_OBJ_VNUM(o), arg);
+			if (o == obj) {
+				trig->halt();
+			}
 			world_objects.AddToExtractedList(o);
 		} else
 			obj_log(obj, trig, "opurge: bad argument");
@@ -363,6 +366,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
+	trig->halt();
 	character_list.AddToExtractedList(ch);
 }
 

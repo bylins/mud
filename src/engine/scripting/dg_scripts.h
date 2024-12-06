@@ -176,7 +176,8 @@ class Trigger {
 	cmdlist_ptr cmdlist;    // top of command list             //
 	cmdlist_element::shared_ptr wait_line;    // ptr to current line of trigger after wait  //
 	cmdlist_element::shared_ptr curr_line;    // ptr to current line of trigger //
-
+	void halt() { halted = true;}
+	bool is_halted() { return halted; }
 	int narg;        // numerical argument              //
 	bool add_flag;		//пока только мобам
 	std::string arglist;        // argument list                   //
@@ -192,6 +193,7 @@ class Trigger {
 	byte attach_type;    // mob/obj/wld intentions          //
 	std::string name;    // name of trigger
 	long trigger_type;    // type of trigger (for bitvector) //
+	bool halted;
 };
 
 class TriggerEventObserver {

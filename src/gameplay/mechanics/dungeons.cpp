@@ -140,7 +140,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		return 0;
 	}
 	utils::CExecutionTimer timer;
-	auto msg = fmt::format("Попытка создать dungeon, zone {} {}",
+	auto msg = fmt::format("Создаю dungeon, zone {} {}",
 						   zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum);
 	mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
 	TrigDataCopy(zrn_from, zrn_to);
@@ -149,13 +149,13 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	MobDataCopy(zrn_from, zrn_to);
 	ObjDataCopy(zrn_from, zrn_to);
 	ZoneDataCopy(zrn_from, zrn_to); //последним
-	msg = fmt::format("Сбрасываю зону {}, delta {:.3f}", zone_table[zrn_to].vnum, timer.delta().count());
-	mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
+	mudlog(fmt::format("Dungeon создан, delta {:.6f}, сбрасываю зону.",timer.delta().count()), LGH, kLvlGreatGod, SYSLOG, true);
 	ResetZone(zrn_to);
+	msg = fmt::format("Зона {} сброшена, delta {:.6f}", zone_table[zrn_to].vnum, timer.delta().count());
+	mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
 	zone_table[zrn_to].copy_from_zone = zone_table[zrn_from].vnum;
 //	zone_table[zrn_to].under_construction = true;
-	msg = fmt::format("Create dungeon, zone {} {}, delta {:.3f}",
-					  zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
+	msg = fmt::format("Create dungeon, zone {} {}, всего заняло delta {:.6f}", zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum, timer.delta().count());
 	mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
 	return zrn_to;
 }
@@ -647,6 +647,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 			}
 		}
 		trig_index[new_trn]->proto = trig;
+//		trig_index[new_trn]->proto = *trig_index[i]->proto;
 	}
 }
 
