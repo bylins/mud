@@ -26,8 +26,8 @@ namespace Rating {
 
 class TopPlayer {
  public:
-	TopPlayer(long unique, const char *name, long exp, int remort)
-		: unique_(unique), name_(name), exp_(exp), remort_(remort) {};
+	TopPlayer(long unique, const char *name, long exp, int remort, int number)
+		: unique_(unique), name_(name), exp_(exp), remort_(remort), number_(number) {};
 
 	~TopPlayer() = default;
 
@@ -40,6 +40,7 @@ class TopPlayer {
 	std::string name_;
 	long exp_;
 	int remort_;
+	int number_;
 
 	static PlayerChart chart_;
 
