@@ -6,6 +6,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
+#include "utils/utils_time.h"
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 
@@ -49,7 +50,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return; // у нас все может быть
 	}
-	TopPlayer temp_player(GET_UID(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GetRealRemort(short_ch));
+	TopPlayer temp_player(GET_UID(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GetRealRemort(short_ch), 0);
 
 	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
 		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);
@@ -78,48 +79,88 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 }
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
+	int count = 1;
 	std::ostringstream out;
 	out << kColorWht << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << kColorNrm << "\r\n";
 
+	for (auto &it: TopPlayer::chart_[id]) {
+		if (it.remort_ == kMaxRemort - 1)
+			continue;
+		it.number_ = count++;
+	}
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
 		if (it.remort_ == kMaxRemort - 1)
 			continue;
-		table
+		table << it.number_
 			<< it.name_
 			<< it.remort_
 			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
-
 		if (table.row_count() >= kPlayerChartSize) {
 			break;
 		}
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToStream(out, table);
-	out.clear();
-	out << kColorWht << "\r\nДостигшие максимум перевоплощений: " << kColorNrm << "\r\n";
-	table_wrapper::Table table2;
-
-	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ != kMaxRemort - 1)
-			continue;
-		table2
-			<< it.name_
-			<< it.remort_
-			<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
-	}
-	table_wrapper::DecorateNoBorderTable(ch, table2);
-	table_wrapper::PrintTableToStream(out, table2);
-
+	out << "\r\n";
 	// если игрок участвует в данном топе - покажем ему, какой он неудачник
-	int count = 1;
-	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.unique_ == ch->get_uid()) {
-			out.clear();
-			out << "\r\n" << "  Ваш текущий рейтинг: " << count << "\r\n";
-			break;
+	count = 1;
+	int deep = 0;
+	std::list<TopPlayer> upper;
+	for (const auto &it: reverse(TopPlayer::chart_[id])) {
+		if (deep == 0) {
+			if (it.unique_ == ch->get_uid()) {
+				out  << " Перед вами:\r\n";
+				deep = 1;
+				continue;
+			}
+		} else {
+			if (deep++ == 4)
+				break;
+			upper.push_front(it);
 		}
-		++count;
+	}
+	table_wrapper::Table table3;
+	for (auto &it : upper) {
+		table3 << it.number_ << it.name_ << it.remort_ << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table3);
+	table_wrapper::PrintTableToStream(out, table3);
+
+	deep = 0;
+	table_wrapper::Table table4;
+	for (const auto &it: TopPlayer::chart_[id]) {
+		if (deep == 0) {
+			if (it.unique_ == ch->get_uid()) {
+				out << "\r\n" << " Ваш текущий рейтинг: " << it.number_ << " - " << it.remort_ << " " << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << "\r\n";
+				out  << "\r\n После вас:\r\n";
+				deep = 1;
+				continue;
+			}
+		} else {
+			if (deep++ == 4)
+				break;
+			table4 << it.number_ << it.name_ << it.remort_ << GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+		}
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table4);
+	table_wrapper::PrintTableToStream(out, table4);
+	table_wrapper::Table table2;
+	upper.clear();
+	for (const auto &it: TopPlayer::chart_[id]) {
+		if (it.remort_ != kMaxRemort - 1) 
+			continue;
+		upper.push_back(it);
+	}
+	if (upper.size() > 0) {
+		out << kColorWht << "\r\n Достигшие максимум перевоплощений: " << kColorNrm << "\r\n";
+		for (auto &it : upper) {
+			table2 << it.name_
+				<< it.remort_
+				<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;
+		}
+		table_wrapper::DecorateNoBorderTable(ch, table2);
+		table_wrapper::PrintTableToStream(out, table2);
 	}
 	SendMsgToChar(out.str(), ch);
 }
