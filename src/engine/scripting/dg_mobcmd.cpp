@@ -882,7 +882,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->SetPosition(m->GetPosition());
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
-		// для name_list
+		trig->halt();
 		character_list.AddToExtractedList(m);
 		chardata_by_uid[ch->get_uid()] = ch;
 		trig_copy->cmdlist.reset();
