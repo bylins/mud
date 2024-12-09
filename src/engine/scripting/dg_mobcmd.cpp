@@ -885,6 +885,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		trig->halt();
 		character_list.AddToExtractedList(m);
 		chardata_by_uid[ch->get_uid()] = ch;
+/*
 		trig_copy->cmdlist.reset();
 		*trig_copy = *trig_index[trig->get_rnum()]->proto;
 		trig_copy->curr_line = *trig_copy->cmdlist;
@@ -893,6 +894,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 		if (trig_copy->curr_line->next) {
 			trig_copy->curr_line = trig_copy->curr_line->next;
+*/
+		if (trig->curr_line->next) { // тут возмьожен крешь так как переносим указатель который должен чиститься
+			trig_copy->curr_line = trig->curr_line->next;
 			script_driver(ch, trig_copy, MOB_TRIGGER, TRIG_FROM_LINE);
 		}
 	}
