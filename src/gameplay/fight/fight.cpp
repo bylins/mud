@@ -1647,14 +1647,17 @@ void using_mob_skills(CharData *ch) {
 				&& (CAN_SEE(ch, damager)
 					|| ch->GetEnemy() == damager)) {
 				if (sk_num == ESkill::kBash) {
-
 					if (damager->IsOnHorse()) {
 						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.
 						if (damager->get_horse() == ch) {
 							ch->DropFromHorse();
 						} else {
 							sk_use = 0;
-							go_bash(ch, damager->get_horse());
+							if (!damager->get_horse()->IsFlagged(EMobFlag::kNoFight)) {
+								go_bash(ch, damager->get_horse());
+							} else {
+								go_bash(ch, damager);
+							}
 						}
 					} else if (damager->GetPosition() >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kBash, damager) > number(50, 80)) {
@@ -1664,7 +1667,11 @@ void using_mob_skills(CharData *ch) {
 				} else if (sk_num == ESkill::kChopoff) {
 					if (damager->IsOnHorse()) {
 						sk_use = 0;
-						go_chopoff(ch, damager->get_horse());
+						if (!damager->get_horse()->IsFlagged(EMobFlag::kNoFight)) {
+							go_chopoff(ch, damager->get_horse());
+						} else {
+							go_chopoff(ch, damager);
+						}
 					} else if (damager->GetPosition() >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kChopoff, damager) > number(50, 80)) {
 						sk_use = 0;
