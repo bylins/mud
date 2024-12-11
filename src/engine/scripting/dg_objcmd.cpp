@@ -366,7 +366,6 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
-	trig->halt();
 	character_list.AddToExtractedList(ch);
 }
 
