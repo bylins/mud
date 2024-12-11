@@ -2117,9 +2117,6 @@ bool CharData::DropFromHorse() {
 	// вызвали для лошади
 	if (IS_HORSE(this) && this->get_master()->IsOnHorse()) {
 		plr = this->get_master();
-		if (plr->get_uid() == 805048) { //Родовит
-			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		}
 		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
 	} else	if (this->IsOnHorse()) {// вызвали для седока
 		plr = this;
