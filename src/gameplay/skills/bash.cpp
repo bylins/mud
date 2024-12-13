@@ -4,6 +4,7 @@
 #include "gameplay/fight/fight.h"
 #include "protect.h"
 #include "engine/db/global_objects.h"
+#include "utils/backtrace.h"
 
 #include <cmath>
 
@@ -58,7 +59,12 @@ void do_bash(CharData *ch, CharData *vict) {
 	}
 }
 
+
 void go_bash(CharData *ch, CharData *vict) {
+	if (vict->IsFlagged(EMobFlag::kNoFight)) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		mudlog(fmt::format("ERROR: попытка сбашить моба {} #{} с флагом !сражается", vict->get_name(), GET_MOB_VNUM(vict)));
+	}
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -153,7 +159,7 @@ void go_bash(CharData *ch, CharData *vict) {
 				false, ch, nullptr, vict, kToChar);
 			act("&r$N хотел$G завалить вас, но, не рассчитав сил, упал$G сам$G.&n",
 				false, vict, nullptr, ch, kToChar);
-			act("$n избежал$G попытки $N1 завалить $s.",
+			act("$n избежал$G попытки $N1 сбить $s.",
 				false, vict, nullptr, ch, kToNotVict | kToArenaListen);
 //Фейл баша, но успех удара щитом, наносим урон (сообщения про "ошарашил" уже прописаны выше):
 		} else if ((can_shield_bash && shield_bash_success)) {
