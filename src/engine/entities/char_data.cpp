@@ -2212,9 +2212,10 @@ player_special_data_saved::player_special_data_saved() :
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
-	return ch->IsNpc()
-		   ? std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap)
-		   : std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
+	if (ch->IsNpc() || IS_GOD(ch))
+		return std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap);
+	else
+		return std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
 }
 
 int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
