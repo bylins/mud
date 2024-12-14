@@ -3398,8 +3398,8 @@ void find_replacement(void *go,
 			}
 			if ((*subfield == UID_CHAR) || (*subfield == UID_CHAR_ALL)) {
 				char_to = find_char(atoi(subfield + 1));
-				if (!(char_to && CanTakeObj(char_to, o))) {
-					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
+				if (!char_to) {
+					trig_log(trig, "object.put: субъект-приемник не найден");
 					return;
 				}
 			}
@@ -3425,7 +3425,7 @@ void find_replacement(void *go,
 				return;
 			}
 			//finally, put it to destination
-			if (char_to)
+			if (char_to && CanTakeObj(char_to, o))
 				PlaceObjToInventory(o, char_to);
 			else if (obj_to)
 				PlaceObjIntoObj(o, obj_to);
