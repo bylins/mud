@@ -3425,7 +3425,7 @@ void find_replacement(void *go,
 				return;
 			}
 			//finally, put it to destination
-			if (char_to && !CanTakeObj(char_to, o))
+			if (char_to && CanTakeObj(char_to, o))
 				PlaceObjToInventory(o, char_to);
 			else if (obj_to)
 				PlaceObjIntoObj(o, obj_to);
