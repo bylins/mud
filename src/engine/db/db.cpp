@@ -2731,52 +2731,30 @@ int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
 // for use in ResetZone; return true if zone 'nr' is free of PC's
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 	int rnum_start, rnum_stop;
-	static ZoneRnum last_zone_nr = 0;
-	static bool result;
-	if (debug) {
-		sprintf(buf, "Is empty check. Зона %d", zone_table[zone_nr].vnum);
-		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-	}
-	if (last_zone_nr == zone_nr) {
-		if (debug) {
-			sprintf(buf,
-					"Is empty repeat. Зона %d, прошлый запрос %d",
-					zone_table[zone_nr].vnum,
-					zone_table[last_zone_nr].vnum);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		}
-		return result;
-	}
-	last_zone_nr = zone_nr;
+
 	for (auto i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING)
 			continue;
 		if (i->character->in_room == kNowhere)
 			continue;
-		if (GetRealLevel(i->character) >= kLvlImmortal)
+		if (GetRealLevel(i->character) >= kLvlImmortal && GET_INVIS_LEV(i->character) > 0)
 			continue;
 		if (world[i->character->in_room]->zone_rn != zone_nr)
 			continue;
-		result = false;
 		return false;
 	}
-
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!GetZoneRooms(zone_nr, &rnum_start, &rnum_stop)) {
-		result = true;
 		return true;    // в зоне нет комнат :)
 	}
-
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
 			if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
-				result = false;
 				return false;
 			}
 		}
 	}
-
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (const auto c : world[kStrangeRoom]->people) {
 		const int was = c->get_was_in_room();
@@ -2786,19 +2764,16 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}
-		result = false;
 		return false;
 	}
 
 	if (room_spells::IsZoneRoomAffected(zone_nr, ESpell::kRuneLabel)) {
-		result = false;
 		return false;
 	}
 	if (debug) {
 		sprintf(buf, "is_empty чек по клеткам зоны. Зона %d в зоне НИКОГО!!!", zone_table[zone_nr].vnum);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
-	result = true;
 	return true;
 }
 
