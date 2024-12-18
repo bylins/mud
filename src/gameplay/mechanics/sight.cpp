@@ -748,9 +748,11 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				}
 				break;
 			case room_spells::ERoomAffect::kNoPortalExit:
+			case room_spells::ERoomAffect::kPortalExit:
 				//выводится в look_at_room
 				break;
-			default: log("SYSERR: Unknown room (#%d) affect: %d", world[ch->in_room]->vnum, to_underlying(af->type));
+			default: log("SYSERR: Unknown room bitvector, room: #%d affect: %d, bitvector: %d", world[ch->in_room]->vnum, to_underlying(af->type), af->bitvector);
+				break;
 		}
 	}
 

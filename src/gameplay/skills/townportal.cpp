@@ -143,7 +143,7 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.bitvector = room_spells::ERoomAffect::kPortalExit;
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
