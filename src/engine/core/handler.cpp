@@ -333,7 +333,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 		stop_fighting(ch, true);
 	}
 
-	if (!ch->IsNpc()) {
+	if (!ch->IsNpc() && !GET_INVIS_LEV(ch)) {
 		zone_table[world[room]->zone_rn].used = true;
 		zone_table[world[room]->zone_rn].activity++;
 	} else {
