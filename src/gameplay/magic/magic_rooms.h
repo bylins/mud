@@ -23,7 +23,8 @@ enum ERoomAffect : Bitvector {
 	kBlackTentacles = 1 << 5, 	// Комната под SPELL_EVARDS_BLACK_TENTACLES //
 	kMeteorstorm= 1 << 6,       // Комната под SPELL_METEORSTORM //
 	kThunderstorm = 1 << 7,      // SPELL_THUNDERSTORM
-	kNoPortalExit = 1 << 8		// портал без входа\выхода
+	kNoPortalExit = 1 << 8,		// портал без входа\выхода
+	kPortalExit = 1 << 9		// портал
 };
 
 // Эффекты для комнат //
