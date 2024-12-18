@@ -747,7 +747,7 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 					SET_BIT(bitvector, room_spells::ERoomAffect::kThunderstorm);
 				}
 				break;
-			default: log("SYSERR: Unknown room affect: %d", to_underlying(af->type));
+			default: log("SYSERR: Unknown room (#%d) affect: %d", world[ch->in_room]->vnum, to_underlying(af->type));
 		}
 	}
 
