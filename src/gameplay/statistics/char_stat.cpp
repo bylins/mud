@@ -168,7 +168,7 @@ void CharStat::UpdateOnKill(CharData *ch, CharData *killer, ullong dec_exp) {
 				ch->IncreaseStatistic(MobRemortRip, 1);
 				if (dec_exp) {
 					ch->IncreaseStatistic(MobExpLost, dec_exp);
-					ch->IncreaseStatistic(MobExpLost, dec_exp);
+					ch->IncreaseStatistic(MobRemortExpLost, dec_exp);
 				}
 			} else if (!rkiller->IsNpc()) {
 				ch->IncreaseStatistic(PkRip, 1);
