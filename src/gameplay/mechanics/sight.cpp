@@ -665,93 +665,71 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 }
 
 void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]) {
-	Bitvector bitvector = 0;
 	std::ostringstream buffer;
-
+	
 	for (const auto &af : world[ch->in_room]->affected) {
-		switch (af->bitvector) {
-			case room_spells::ERoomAffect::kLight:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kLight)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[0] != '\0') {
-						buffer << name_self_affects[0] << "\r\n";
-					} else if (*name_affects[0] != '\0') {
-						buffer << name_affects[0] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kLight);
+		switch (af->type) {
+			case ESpell::kLight:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[0] != '\0') {
+					buffer << name_self_affects[0] << "\r\n";
+				} else if (*name_affects[0] != '\0') {
+					buffer << name_affects[0] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kDeadlyFog:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kDeadlyFog)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[1] != '\0') {
-						buffer << name_self_affects[1] << "\r\n";
-					} else if (*name_affects[1] != '\0') {
-						buffer << name_affects[1] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kDeadlyFog);
+			case ESpell::kDeadlyFog:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[1] != '\0') {
+					buffer << name_self_affects[1] << "\r\n";
+				} else if (*name_affects[1] != '\0') {
+					buffer << name_affects[1] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kRuneLabel:                // 1 << 2
+			case ESpell::kRuneLabel:                // 1 << 2
 				if (af->caster_id == ch->get_uid() && *name_self_affects[2] != '\0') {
 					buffer << name_self_affects[2] << "\r\n";
 				} else if (*name_affects[2] != '\0') {
 					buffer << name_affects[2] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kForbidden:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kForbidden)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[3] != '\0') {
-						buffer << name_self_affects[3] << "\r\n";
-					} else if (*name_affects[3] != '\0') {
-						buffer << name_affects[3] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kForbidden);
+			case ESpell::kForbidden:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[3] != '\0') {
+					buffer << name_self_affects[3] << "\r\n";
+				} else if (*name_affects[3] != '\0') {
+					buffer << name_affects[3] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kHypnoticPattern:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kHypnoticPattern)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[4] != '\0') {
-						buffer << name_self_affects[4] << "\r\n";
-					} else if (*name_affects[4] != '\0') {
-						buffer << name_affects[4] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kHypnoticPattern);
+			case ESpell::kHypnoticPattern:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[4] != '\0') {
+					buffer << name_self_affects[4] << "\r\n";
+				} else if (*name_affects[4] != '\0') {
+					buffer << name_affects[4] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kBlackTentacles:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kBlackTentacles)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[5] != '\0') {
-						buffer << name_self_affects[5] << "\r\n";
-					} else if (*name_affects[5] != '\0') {
-						buffer << name_affects[5] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kBlackTentacles);
+			case ESpell::kBlackTentacles:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[5] != '\0') {
+					buffer << name_self_affects[5] << "\r\n";
+				} else if (*name_affects[5] != '\0') {
+					buffer << name_affects[5] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kMeteorstorm:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kMeteorstorm)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[6] != '\0') {
-						buffer << name_self_affects[6] << "\r\n";
-					} else if (*name_affects[6] != '\0') {
-						buffer << name_affects[6] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kMeteorstorm);
+			case ESpell::kMeteorStorm:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[6] != '\0') {
+					buffer << name_self_affects[6] << "\r\n";
+				} else if (*name_affects[6] != '\0') {
+					buffer << name_affects[6] << "\r\n";
 				}
 				break;
-			case room_spells::ERoomAffect::kThunderstorm:
-				if (!IS_SET(bitvector, room_spells::ERoomAffect::kThunderstorm)) {
-					if (af->caster_id == ch->get_uid() && *name_self_affects[7] != '\0') {
-						buffer << name_self_affects[7] << "\r\n";
-					} else if (*name_affects[7] != '\0') {
+			case ESpell::kThunderstorm:
+				if (af->caster_id == ch->get_uid() && *name_self_affects[7] != '\0') {
+					buffer << name_self_affects[7] << "\r\n";
+				} else if (*name_affects[7] != '\0') {
 						buffer << name_affects[7] << "\r\n";
-					}
-					SET_BIT(bitvector, room_spells::ERoomAffect::kThunderstorm);
 				}
 				break;
-			case room_spells::ERoomAffect::kNoPortalExit:
-			case room_spells::ERoomAffect::kPortalExit:
+			case ESpell::kPortal:
 				//выводится в look_at_room
 				break;
-			default: log("SYSERR: Unknown room bitvector, room: #%d affect: %d, bitvector: %d", world[ch->in_room]->vnum, to_underlying(af->type), af->bitvector);
+			default: 
+				log("SYSERR: Unknown room (#%d) spell type: %d", world[ch->in_room]->vnum, to_underlying(af->type));
 				break;
 		}
 	}

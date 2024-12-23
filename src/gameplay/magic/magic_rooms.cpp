@@ -388,6 +388,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 		af[i].caster_id = 0;
 		af[i].must_handled = false;
 		af[i].apply_time = 0;
+		af[i].duration = 0;
 	}
 
 	switch (spell_id) {
@@ -395,7 +396,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kForbidden;
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = true;
@@ -420,7 +420,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].modifier = 0;
 			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kLight;
 			af[0].must_handled = false;
 			accum_duration = true;
 			update_spell = true;
@@ -432,7 +431,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].location = kNone;
 			af[0].modifier = 0;
 			af[0].duration = 8;
-			af[0].bitvector = ERoomAffect::kDeadlyFog;
 			af[0].caster_id = GET_UID(ch);
 			af[0].must_handled = true;
 			update_spell = false;
@@ -445,7 +443,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].modifier = 0;
 			af[0].duration = 3;
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kMeteorstorm;
 			af[0].must_handled = true;
 			accum_duration = false;
 			update_spell = false;
@@ -457,7 +454,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].duration = 7;
 			af[0].must_handled = true;
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kThunderstorm;
 			update_spell = false;
 			to_char = "Вы ощутили в небесах силу бури и призвали ее к себе.";
 			to_room = "$n проревел$g заклинание. Вы услышали раскаты далекой грозы.";
@@ -477,7 +473,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].modifier = 0;
 			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kRuneLabel;
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = true;
@@ -497,7 +492,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].modifier = 0;
 			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kHypnoticPattern;
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = false;
@@ -516,7 +510,6 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].modifier = 0;
 			af[0].duration = 1 + GetRealLevel(ch) / 7;
 			af[0].caster_id = GET_UID(ch);
-			af[0].bitvector = ERoomAffect::kBlackTentacles;
 			af[0].must_handled = true;
 			accum_duration = false;
 			update_spell = false;
@@ -550,7 +543,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
 	for (i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
-		if (af[i].bitvector
+		if (af[i].duration
 			|| af[i].location != kNone
 			|| af[i].must_handled) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);

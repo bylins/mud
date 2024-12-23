@@ -13,26 +13,14 @@ namespace room_spells {
 // Константа, определяющая скорость таймера аффектов
 const int kSecsPerRoomAffect = 2;
 
-// Битвекторы аффектов комнат - порождаются заклинаниями и не сохраняются в файле.
 enum ERoomAffect : Bitvector {
-	kLight = 1 << 0,
-	kDeadlyFog = 1 << 1,
-	kRuneLabel = 1 << 2,        // Комната помечена SPELL_MAGIC_LABEL //
-	kForbidden = 1 << 3,        // Комната помечена SPELL_FORBIDDEN //
-	kHypnoticPattern = 1 << 4,  // Комната под SPELL_HYPNOTIC_PATTERN //
-	kBlackTentacles = 1 << 5, 	// Комната под SPELL_EVARDS_BLACK_TENTACLES //
-	kMeteorstorm= 1 << 6,       // Комната под SPELL_METEORSTORM //
-	kThunderstorm = 1 << 7,      // SPELL_THUNDERSTORM
-	kNoPortalExit = 1 << 8,		// портал без входа\выхода
-	kPortalExit = 1 << 9		// портал
+	kNoPortalExit = 1 << 0		// портал без входа\выхода
 };
+
 
 // Эффекты для комнат //
 enum ERoomApply {
-	kNone = 0,
-	kPoison,						// Изменяет в комнате уровень ядности //
-	kFlame [[maybe_unused]],		// Изменяет в комнате уровень огня (для потомков) //
-	kNumApplies [[maybe_unused]]
+	kNone = 0
 };
 
 using RoomAffects = std::list<Affect<ERoomApply>::shared_ptr>;
