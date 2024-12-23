@@ -3425,9 +3425,15 @@ void find_replacement(void *go,
 				return;
 			}
 			//finally, put it to destination
-			if (char_to && CanTakeObj(char_to, o))
-				PlaceObjToInventory(o, char_to);
-			else if (obj_to)
+			if (char_to) {
+				if (CanTakeObj(char_to, o)) {
+					PlaceObjToInventory(o, char_to);
+				} else {
+					act("Вы не смогли удержать и выбросили $o3 на землю.", false, char_to, o, nullptr, kToChar);
+					act("$n не удержал$g $o3 и уронил$g на землю.", false, char_to, o, nullptr, kToRoom);
+					PlaceObjToRoom(o, char_to->in_room);
+				}
+			} else if (obj_to)
 				PlaceObjIntoObj(o, obj_to);
 			else if (room_to)
 				PlaceObjToRoom(o, GetRoomRnum(room_to->vnum));
