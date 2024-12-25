@@ -63,7 +63,8 @@ void do_bash(CharData *ch, CharData *vict) {
 void go_bash(CharData *ch, CharData *vict) {
 	if (vict->IsFlagged(EMobFlag::kNoFight)) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		mudlog(fmt::format("ERROR: попытка сбашить моба {} #{} с флагом !сражается", vict->get_name(), GET_MOB_VNUM(vict)));
+		mudlog(fmt::format("ERROR: попытка сбашить моба {} #{} с флагом !сражается, сброшен коредамп", vict->get_name(), GET_MOB_VNUM(vict)));
+		return;
 	}
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
