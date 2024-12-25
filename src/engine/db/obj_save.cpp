@@ -577,26 +577,26 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// Сохраняем UID
 		out << "Ouid: " << GET_OBJ_UNIQUE_ID(object) << "~\n";
 		// Алиасы
-		if (str_cmp(GET_OBJ_ALIAS(object), GET_OBJ_ALIAS(proto))) {
-			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
+		if (object->get_aliases() != proto->get_aliases()) {
+			out << "Alia: " << object->get_aliases() << "~\n";
 		}
 		// Падежи
 		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i))) {
-				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
+			if (object->get_PName(i) != proto->get_PName(i)) {
+				out << "Pad" << i << ": " << object->get_PName(i) << "~\n";
 			}
 		}
 		// Описание когда на земле
-		if (!GET_OBJ_DESC(proto).empty()
-			&& str_cmp(GET_OBJ_DESC(object), GET_OBJ_DESC(proto))) {
-			out << "Desc: " << GET_OBJ_DESC(object) << "~\n";
+		if (!proto->get_description().empty()
+			&& object->get_description() != proto->get_description()) {
+			out << "Desc: " << object->get_description() << "~\n";
 		}
 
 		// Описание при действии
-		if (!GET_OBJ_ACT(object).empty()
-			&& !GET_OBJ_ACT(proto).empty()) {
-			if (str_cmp(GET_OBJ_ACT(object), GET_OBJ_ACT(proto))) {
-				out << "ADsc: " << GET_OBJ_ACT(object) << "~\n";
+		if (!object->get_action_description().empty()
+			&& !proto->get_action_description().empty()) {
+			if (object->get_action_description() != proto->get_action_description()) {
+				out << "ADsc: " << object->get_action_description() << "~\n";
 			}
 		}
 
@@ -665,7 +665,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		*buf2 = '\0';
 		GET_OBJ_AFFECTS(object).tascii(FlagData::kPlanesNumber, buf);
 		GET_OBJ_AFFECTS(proto).tascii(FlagData::kPlanesNumber, buf2);
-		if (str_cmp(buf, buf2)) {
+		if (strcmp(buf, buf2)) {
 			out << "Affs: " << buf << "~\n";
 		}
 		// Анти флаги
@@ -673,7 +673,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		*buf2 = '\0';
 		GET_OBJ_ANTI(object).tascii(FlagData::kPlanesNumber, buf);
 		GET_OBJ_ANTI(proto).tascii(FlagData::kPlanesNumber, buf2);
-		if (str_cmp(buf, buf2)) {
+		if (strcmp(buf, buf2)) {
 			out << "Anti: " << buf << "~\n";
 		}
 		// Запрещающие флаги
@@ -681,7 +681,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		*buf2 = '\0';
 		GET_OBJ_NO(object).tascii(FlagData::kPlanesNumber, buf);
 		GET_OBJ_NO(proto).tascii(FlagData::kPlanesNumber, buf2);
-		if (str_cmp(buf, buf2)) {
+		if (strcmp(buf, buf2)) {
 			out << "Nofl: " << buf << "~\n";
 		}
 		// Экстра флаги
@@ -698,7 +698,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
 		}
-		if (str_cmp(buf, buf2)) {
+		if (strcmp(buf, buf2)) {
 			out << "Extr: " << buf << "~\n";
 		}
 		// Флаги слотов экипировки
@@ -711,7 +711,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		wear = proto->get_wear_flags();
 		tascii(&wear, 1, buf2);
 
-		if (str_cmp(buf, buf2)) {
+		if (strcmp(buf, buf2)) {
 			out << "Wear: " << buf << "~\n";
 		}
 		// Тип предмета
