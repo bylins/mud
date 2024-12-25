@@ -4231,16 +4231,19 @@ void Clan::init_ingr_chest() {
 	*(data + fsize) = '\0';
 
 	int error = 0;
+	std::list<ObjData *> obj_list;
 	for (fsize = 0; *data && *data != '$'; fsize++) {
 		const auto obj = read_one_object_new(&data, &error);
 		if (!obj) {
 			if (error) {
 				log("<Clan> Items reading fail for %s error %d.", filename.c_str(), error);
 			}
-
 			continue;
 		}
-		PlaceObjIntoObj(obj.get(), chest.get());
+		obj_list.push_front(obj.get());
+	}
+	for (auto it : obj_list) {
+		PlaceObjIntoObj(it, chest.get());
 	}
 	delete[] databuf;
 }
