@@ -713,7 +713,7 @@ int perform_best_horde_attack(CharData *ch, int extmode) {
 	}
 
 	for (const auto vict : world[ch->in_room]->people) {
-		if (!vict->IsNpc() || !MAY_SEE(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect)) {
+		if (!vict->IsNpc() || !MAY_SEE(ch, ch, vict) || vict->IsFlagged(EMobFlag::kProtect) || vict->IsFlagged(EMobFlag::kNoFight)) {
 			continue;
 		}
 		if (!SAME_ALIGN(ch, vict)) {
