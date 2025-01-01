@@ -10,7 +10,13 @@
 namespace msdp {
 void RoomReporter::get(Variable::shared_ptr &response) {
 	const auto rnum = descriptor()->character->in_room;
-	const auto vnum = GET_ROOM_VNUM(rnum);
+	RoomVnum vnum, to_vnum, from_vnum;
+
+	if (zone_table[world[rnum]->zone_rn].copy_from_zone > 0) {
+		vnum = zone_table[world[rnum]->zone_rn].copy_from_zone * 100 + world[rnum]->vnum % 100;
+	} else {
+		vnum = GET_ROOM_VNUM(rnum);
+	}
 	const auto from_rnum = descriptor()->character->get_from_room();
 	if ((from_rnum == vnum) || (kNowhere == vnum)) {
 		//добавил проверку если перемещаемся из неоткуда
@@ -35,9 +41,12 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 			if (to_rnum == from_rnum) {
 				from_direction = direction_commands[i];
 			}
-			const auto to_vnum = GET_ROOM_VNUM(to_rnum);
-			if (kNowhere
-				!= to_vnum)    // Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
+			if (zone_table[world[to_rnum]->zone_rn].copy_from_zone > 0) {
+				to_vnum = zone_table[world[to_rnum]->zone_rn].copy_from_zone * 100 + world[to_rnum]->vnum % 100;
+			} else {
+				to_vnum = GET_ROOM_VNUM(to_rnum);
+			}
+			if (kNowhere != to_vnum)    // Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
 			{
 				exits->add(std::make_shared<Variable>(direction_commands[i],
 						std::make_shared<StringValue>(std::to_string(to_vnum))));
@@ -60,7 +69,13 @@ void RoomReporter::get(Variable::shared_ptr &response) {
 	room_descriptor->add(std::make_shared<Variable>("AREA", std::make_shared<StringValue>(zone_name.get())));
 	room_descriptor->add(std::make_shared<Variable>("ZONE", std::make_shared<StringValue>(std::to_string(vnum / 100))));
 
-	const auto from_vnum = GET_ROOM_VNUM(from_rnum);
+
+	if (zone_table[world[from_rnum]->zone_rn].copy_from_zone > 0) {
+		from_vnum = zone_table[world[from_rnum]->zone_rn].copy_from_zone * 100 + world[from_rnum]->vnum % 100;
+	} else {
+		from_vnum = GET_ROOM_VNUM(from_rnum);
+	}
+
 	if (from_vnum != kNowhere) {
 		room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
 				std::make_shared<StringValue>(std::to_string(from_vnum))));
