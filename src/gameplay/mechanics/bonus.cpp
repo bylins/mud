@@ -39,8 +39,7 @@ bool can_get_bonus_exp(CharData *ch) {
 		return false;
 	}
 
-	// бонус опыта распространяется по 49 реморт включительно
-	const short MAX_REMORT_FOR_BONUS = 49;
+	const short MAX_REMORT_FOR_BONUS = 99;
 	return GetRealRemort(ch) <= MAX_REMORT_FOR_BONUS;
 }
 
