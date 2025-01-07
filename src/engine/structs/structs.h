@@ -59,7 +59,7 @@ using byte = char;
 #endif
 
 const int kMinRemort = 0;
-const int kMaxRemort = 75;
+const int kMaxRemort = 99;
 const int kMaxPlayerLevel = 30;
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
