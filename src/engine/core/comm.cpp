@@ -113,11 +113,7 @@
  * files that is included is controlled by conf.h for that platform.
  */
 
-#ifdef HAVE_ARPA_TELNET_H
-#include <arpa/telnet.h>
-#else
-#include "telnet.h"
-#endif
+#include "engine/network/telnet.h"
 
 #ifndef SOCKET_ERROR
 #define SOCKET_ERROR (-1)
