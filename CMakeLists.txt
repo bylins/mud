@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 project(bylins CXX)
 
@@ -1162,12 +1162,12 @@ endif ()
 
 message(STATUS "CXX compiler ID is ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "System processor is ${CMAKE_SYSTEM_PROCESSOR}")
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-	else ()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-	endif ()
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+    elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "i386|i686|x86")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+    endif ()
 endif ()
 
 # Main executable file.
