@@ -438,6 +438,7 @@ set(HEADERS
 		src/engine/db/world_characters.h
 		src/gameplay/economics/shops_implementation.h
 		src/engine/db/global_objects.h
+		src/engine/db/utils_find_obj_id_by_vnum.h
 		src/utils/id_converter.h
 		src/engine/db/utils_find_obj_id_by_vnum.h
 		src/engine/db/id.h

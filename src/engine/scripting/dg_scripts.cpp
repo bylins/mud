@@ -12,6 +12,7 @@
 #include "engine/db/global_objects.h"
 //#include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/core/handler.h"
 #include "dg_event.h"
 #include "engine/ui/color.h"
@@ -4811,7 +4812,7 @@ void makeuid_var(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 * calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
 * если порядковый не указан - возвращается первое вхождение.
 */
-void calcuid_var(Trigger *trig, char *cmd) {
+void calcuid_var(void *go, Trigger *trig, int type, char *cmd) {
 	char arg[kMaxInputLength], varname[kMaxInputLength];
 	char *t, vnum[kMaxInputLength], what[kMaxInputLength];
 	char uid[kMaxInputLength], count[kMaxInputLength];
@@ -4857,7 +4858,7 @@ void calcuid_var(Trigger *trig, char *cmd) {
 		result = find_id_by_char_vnum(result, count_num);
 	} else if (!str_cmp(what, "obj")) {
 		uid_type = UID_OBJ;
-		result = find_id_by_obj_vnum(result, count_num);
+		result = find_obj_by_id_vnum__calcuid(result, count_num, type, go);
 	} else {
 		sprintf(buf2, "calcuid unknown TYPE arg, команда: '%s'", cmd);
 		trig_log(trig, buf2);
@@ -5636,7 +5637,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "makeuid ", 8)) {
 				makeuid_var(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "calcuid ", 8)) {
-				calcuid_var(trig, cmd);
+				calcuid_var(go, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "calcuidall ", 11)) {
 				calcuidall_var(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "charuid ", 8)) {
