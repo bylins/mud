@@ -1470,27 +1470,22 @@ void using_mob_skills(CharData *ch) {
 		} else if (do_this <= 100) {
 			sk_num = ESkill::kOverwhelm;
 		}
-
 		if (ch->GetSkill(sk_num) <= 0) {
 			sk_num = ESkill::kUndefined;
 		}
-
+		if (ch->HasCooldown(sk_num)) {
+			continue;
+		}
 		////////////////////////////////////////////////////////////////////////
 		// для глуша и молота выставляем соотвествующие флаги
 		// цель не выбираем чтобы избежать переключения у мобов, которые не могут переключаться
 		if (sk_num == ESkill::kHammer) {
-			const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kHammer) <= 0;
-			if (skill_ready) {
-				sk_use = 0;
-				SET_AF_BATTLE(ch, kEafHammer);
-			}
+			sk_use = 0;
+			SET_AF_BATTLE(ch, kEafHammer);
 		}
 		if (sk_num == ESkill::kOverwhelm) {
-			const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kOverwhelm) <= 0;
-			if (skill_ready) {
-				sk_use = 0;
-				SET_AF_BATTLE(ch, kEafOverwhelm);
-			}
+			sk_use = 0;
+			SET_AF_BATTLE(ch, kEafOverwhelm);
 		}
 
 		////////////////////////////////////////////////////////////////////////
