@@ -163,6 +163,7 @@ set(SOURCES
 		src/engine/db/world_objects.cpp
 		src/engine/db/obj_prototypes.cpp
 		src/engine/db/id.cpp
+		src/engine/db/utils_find_obj_id_by_vnum.cpp
 		src/engine/db/global_objects.cpp
 		src/gameplay/economics/shops_implementation.cpp
 		src/engine/db/world_characters.cpp
@@ -437,7 +438,9 @@ set(HEADERS
 		src/engine/db/world_characters.h
 		src/gameplay/economics/shops_implementation.h
 		src/engine/db/global_objects.h
+		src/engine/db/utils_find_obj_id_by_vnum.h
 		src/utils/id_converter.h
+		src/engine/db/utils_find_obj_id_by_vnum.h
 		src/engine/db/id.h
 		src/engine/structs/compact_trie.h
 		src/engine/structs/radix_trie.h
