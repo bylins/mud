@@ -8,18 +8,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-	struct CooldownTimer {
-		ESkill skill;
-		sh_int timer;
-	};
-
-	struct CharPulseTimer {
-		sh_int wait_timer;
-		sh_int punctual_wait;
-		std::list<CooldownTimer> cooldown_timer;
-	};
-
-
 class Characters {
  public:
 	using foreach_f = std::function<void(const CharData::shared_ptr &)>;
@@ -65,24 +53,18 @@ class Characters {
 
 	void AddToExtractedList(CharData *ch);
 	void PurgeExtractedList();
-	void SetCoolDown(CharData *ch, ESkill skill, sh_int time);
-	void RemoveCoolDown(CharData *ch, ESkill skill);
-	void DecreaseCoolDown(CharData *ch, ESkill skill);
-	sh_int GetCoolDown(CharData *ch, ESkill skill);
- private:
-	using character_raw_ptr_to_character_ptr_t = std::map<const void *, list_t::iterator>;
-	using set_t = std::set<const CharData *>;
-	using vnum_to_characters_set_t = std::map<MobVnum, set_t>;
-	using character_timed_t = std::map<CharData *, CharPulseTimer>;
 
-	std::set<ESkill, sh_int> skill_cooldown;
+ private:
+	using character_raw_ptr_to_character_ptr_t = std::unordered_map<const void *, list_t::iterator>;
+	using set_t = std::unordered_set<const CharData *>;
+	using vnum_to_characters_set_t = std::unordered_map<MobVnum, set_t>;
+
 	list_t m_list;
 	std::unordered_set<CharData *>  m_extracted_list;
 	character_raw_ptr_to_character_ptr_t m_character_raw_ptr_to_character_ptr;
 	vnum_to_characters_set_t m_vnum_to_characters_set;
 	CharacterRNum_ChangeObserver::shared_ptr m_rnum_change_observer;
 	list_t m_purge_list;
-	character_timed_t character_timed;
 	set_t m_purge_set;
 };
 

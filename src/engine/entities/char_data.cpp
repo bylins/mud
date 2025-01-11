@@ -331,7 +331,7 @@ void CharData::zero_init() {
 	// char_data
 	set_rnum(kNobody);
 	in_room = 0;
-	set_wait(0u);
+	m_wait = 0u;
 	punctual_wait = 0;
 	last_comm.clear();
 	player_specials = nullptr;
@@ -2007,6 +2007,12 @@ void CharData::set_master(CharData::ptr_t master) {
 		return;
 	}
 	m_master = master;
+}
+
+void CharData::set_wait(const unsigned _) {
+	log("ставим вайт для %s (%d)", GET_NAME(this), GET_MOB_VNUM(this));
+	chardata_timer_list.insert(this);
+	m_wait = _; 
 }
 
 bool CharData::makes_loop(CharData::ptr_t master) const {

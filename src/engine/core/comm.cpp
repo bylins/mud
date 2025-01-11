@@ -1108,12 +1108,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		 * than 0 ever and don't require an 'if' bracket. -gg 2/27/99
 		 */
 		if (d->character) {
-			d->character->wait_dec();
 			d->character->decreaseSkillsCooldowns(1u);
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
 				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
 			if (IS_IMMORTAL(d->character)) {
-				d->character->set_wait(0u);
+				d->character->zero_wait();
 			}
 			if (IS_IMMORTAL(d->character)
 				|| GET_PUNCTUAL_WAIT_STATE(d->character) < 0) {

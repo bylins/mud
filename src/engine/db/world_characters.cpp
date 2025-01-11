@@ -96,6 +96,7 @@ void Characters::AddToExtractedList(CharData *ch) {
 //		ch->script->set_purged(true);
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}
+	log("add to extracted list %s %d", GET_NAME(ch), GET_MOB_VNUM(ch));
 	m_extracted_list.insert(ch);
 }
 
@@ -159,84 +160,6 @@ void Characters::purge() {
 bool Characters::has(const CharData *character) const {
 	return m_character_raw_ptr_to_character_ptr.find(character) != m_character_raw_ptr_to_character_ptr.end()
 		|| m_purge_set.find(character) != m_purge_set.end();
-}
-
-void Characters::SetCoolDown(CharData *ch, ESkill skill, sh_int time) {
-	if (MUD::Skills().IsValid(skill) || skill == ESkill::kGlobalCooldown) {
-		CharPulseTimer cp_timer;
-		CooldownTimer d_timer;
-		auto ch_it = character_timed.find(ch);
-
-		if (ch_it != character_timed.end()) {
-			cp_timer = character_timed[ch];
-			auto d_timer_it = cp_timer.cooldown_timer;
-			auto it = std::find_if(d_timer_it.begin(), d_timer_it.end(), [&skill](auto i) { return (i.skill == skill); });
-
-			if (it != d_timer_it.end()) {
-				(*it).timer = time;
-			} else {
-				d_timer.skill = skill;
-				d_timer.timer = time;
-				d_timer_it.push_back(d_timer);
-			}
-		} else {
-			d_timer.skill = skill;
-			d_timer.timer = time;
-			cp_timer.cooldown_timer.push_back(d_timer);
-			character_timed[ch] = cp_timer;
-		}
-	}
-}
-
-void Characters::RemoveCoolDown(CharData *ch, ESkill skill) {
-	if (MUD::Skills().IsValid(skill) || skill == ESkill::kGlobalCooldown) {
-		CharPulseTimer cp_timer;
-		auto ch_it = character_timed.find(ch);
-
-		if (ch_it != character_timed.end()) {
-			cp_timer = character_timed[ch];
-			auto d_timer_it = cp_timer.cooldown_timer;
-
-			std::erase_if(d_timer_it, [&skill](auto i) { return (i.skill == skill); });
-		}
-	}
-}
-
-void Characters::DecreaseCoolDown(CharData *ch, ESkill skill) {
-	if (MUD::Skills().IsValid(skill) || skill == ESkill::kGlobalCooldown) {
-		CharPulseTimer cp_timer;
-		auto ch_it = character_timed.find(ch);
-
-		if (ch_it != character_timed.end()) {
-			cp_timer = character_timed[ch];
-			auto d_timer_it = cp_timer.cooldown_timer;
-			auto it = std::find_if(d_timer_it.begin(), d_timer_it.end(), [&skill](auto i) { return (i.skill == skill); });
-
-			if (it != d_timer_it.end()) {
-				if ((*it).timer > 0) {
-					(*it).timer--;
-				}
-			}
-		}
-	}
-}
-
-sh_int Characters::GetCoolDown(CharData *ch, ESkill skill) {
-	if (MUD::Skills().IsValid(skill) || skill == ESkill::kGlobalCooldown) {
-		CharPulseTimer cp_timer;
-		auto ch_it = character_timed.find(ch);
-
-		if (ch_it != character_timed.end()) {
-			cp_timer = character_timed[ch];
-			auto d_timer_it = cp_timer.cooldown_timer;
-			auto it = std::find_if(d_timer_it.begin(), d_timer_it.end(), [&skill](auto i) { return (i.skill == skill); });
-
-			if (it != d_timer_it.end()) {
-				return (*it).timer;
-			}
-		}
-	}
-	return 0;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

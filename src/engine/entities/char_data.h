@@ -584,10 +584,9 @@ class CharData : public ProtectedCharData {
 	void set_type_charmice(int type);
 	int get_type_charmice();
 	unsigned get_wait() const { return m_wait; }
-	void set_wait(const unsigned _) { m_wait = _; }
+	void set_wait(const unsigned _);
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
-	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
-
+	void zero_wait() { m_wait = 0; }
 	void setSkillCooldown(ESkill skillID, unsigned cooldown);
 	void decreaseSkillsCooldowns(unsigned value);
 	bool haveSkillCooldown(ESkill skillID);
