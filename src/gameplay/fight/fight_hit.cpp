@@ -2497,6 +2497,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		} else if (dmg_type == fight::kMagicDmg) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 0, wielded))
 				return 0;
+		} else if (dmg_type == fight::kPoisonDmg) {
+			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 2, wielded))
+				return 0;
 		}
 	}
 	// расчет бэтл-экспы для чаров
