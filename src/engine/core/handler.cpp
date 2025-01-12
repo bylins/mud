@@ -1860,7 +1860,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			left_in_game = true;
 		}
 	}
-
+	
+	chardata_wait_list.erase(ch);
 	if (!left_in_game) {
 		character_list.remove(ch);
 	}

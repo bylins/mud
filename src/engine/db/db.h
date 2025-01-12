@@ -26,6 +26,7 @@
 #include "gameplay/mechanics/weather.h"
 
 #include <map>
+#include <set>
 #include <list>
 #include <memory>
 #include <vector>
@@ -67,6 +68,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
 int get_filename(const char *orig_name, char *filename, int mode);
 CharData *find_char(long n);
 CharData *find_pc(long n);
+void CharTimerUpdate();
 
 const int kReal		= 0;
 const int kVirtual	= 1 << 0;
@@ -170,7 +172,9 @@ class PlayerIndexElement {
 };
 
 extern RoomRnum top_of_world;
-extern std::unordered_map<long, CharData *> chardata_by_uid;
+extern std::map<long, CharData *> chardata_by_uid;
+extern std::set<CharData *> chardata_wait_list;
+extern std::set<CharData *> chardata_cooldown_list;
 
 void AddTrigIndexEntry(int nr, Trigger *trig);
 extern IndexData **trig_index;
