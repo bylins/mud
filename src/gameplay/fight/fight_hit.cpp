@@ -3335,7 +3335,11 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 	int damroll;
  	if (need_dice) {
-		damroll = RollDices(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
+		if (get_flags()[fight::kCritHit]) {
+			damroll = GET_OBJ_VAL(wielded, 1) *  GET_OBJ_VAL(wielded, 2);
+		} else {
+			damroll = RollDices(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
+		}
 	} else {
 		damroll = (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2) + GET_OBJ_VAL(wielded, 1)) / 2;
 	}
@@ -3344,8 +3348,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		damroll *= kMobDamageMult;
 	} else {
-		damroll = MIN(damroll,
-					  damroll * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
+		damroll = MIN(damroll, damroll * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 	}
 
 	damroll = calculate_strconc_damage(ch, wielded, damroll);
@@ -3356,14 +3359,22 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffect::kStoneHands)) {
-		dam += need_dice ? RollDices(2, 4) + GetRealRemort(ch) / 2  : 5 + GetRealRemort(ch) / 2;
+		if (get_flags()[fight::kCritHit]) {
+			dam += 8 + GetRealRemort(ch) / 2;
+		} else {
+			dam += need_dice ? RollDices(2, 4) + GetRealRemort(ch) / 2  : 5 + GetRealRemort(ch) / 2;
+		}
 		if (CanUseFeat(ch, EFeat::kBully)) {
 			dam += GetRealLevel(ch) / 5;
 			dam += MAX(0, GetRealStr(ch) - 25);
 		}
+	} else {
+		if (get_flags()[fight::kCritHit]) {
+			dam  += 3;
+		} else {
+			dam += need_dice? number(1, 3) : 2;
+		}
 	}
-	else
-		dam += need_dice? number(1, 3) : 2;
 	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
 	// <вес перчаток> <увеличение>
 	// 0  50%
