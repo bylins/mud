@@ -145,6 +145,12 @@ void Characters::remove(CharData *character) {
 	if (m_extracted_list.contains(character)) {
 		m_extracted_list.erase(character);
 	}
+	if (chardata_wait_list.contains(character)) {
+		chardata_wait_list.erase(character);
+	}
+	if (chardata_cooldown_list.contains(character)) {
+		chardata_cooldown_list.erase(character);
+	}
 	m_list.erase(index_i->second);
 	m_character_raw_ptr_to_character_ptr.erase(index_i);
 

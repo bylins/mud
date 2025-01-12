@@ -3509,6 +3509,7 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
+//		log("Считаем кулдаун для %s", GET_NAME(it));
 		if (!it->HaveDecreaseCooldowns()) {
 			cooldown_list.push_back(it);
 		}

@@ -642,8 +642,8 @@ void CharData::setSkillCooldown(ESkill skillID, unsigned cooldown) {
 	auto skillData = skills.find(skillID);
 	if (skillData != skills.end()) {
 		skillData->second.cooldown = cooldown;
+		chardata_cooldown_list.insert(this);
 	}
-	chardata_cooldown_list.insert(this);
 };
 
 unsigned CharData::getSkillCooldown(ESkill skillID) {
@@ -2022,9 +2022,11 @@ void CharData::set_master(CharData::ptr_t master) {
 }
 
 void CharData::set_wait(const unsigned _) {
-	log("ставим вайт для %s (%d)", GET_NAME(this), GET_MOB_VNUM(this));
-	chardata_wait_list.insert(this);
-	m_wait = _; 
+	if (_ > 0) {
+//		log("ставим вайт для %s (%d)", GET_NAME(this), GET_MOB_VNUM(this));
+		chardata_wait_list.insert(this);
+		m_wait = _;
+	}
 }
 
 bool CharData::makes_loop(CharData::ptr_t master) const {
