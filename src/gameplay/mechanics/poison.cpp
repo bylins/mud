@@ -56,7 +56,7 @@ namespace {
 			// урон 5 + левел/2, от 5 до 20 за стак
 			Affect<EApply> af[3];
 			af[0].location = EApply::kAconitumPoison;
-			af[0].modifier = 4;
+			af[0].modifier = ch->GetSkill(ESkill::kPoisoning);
 			af[0].bitvector = to_underlying(EAffect::kNoBattleSwitch);
 
 			af[1].location = EApply::kPhysicResist;
@@ -436,11 +436,8 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);
 	} else if (af->location == EApply::kAconitumPoison) {
-		int aconitum_dmg = GET_POISON(ch) * 8;
+		int aconitum_dmg = af->modifier / 4;
 
-		if (ch->IsNpc()) {
-			aconitum_dmg *= 30;
-		}
 		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kUndefDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
