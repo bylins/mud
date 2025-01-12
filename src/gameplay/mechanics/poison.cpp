@@ -432,13 +432,13 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 		if (!ch->IsNpc())
 			poison_dmg = poison_dmg / 30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
-		Damage dmg(SpellDmg(ESpell::kPoison), poison_dmg, fight::kUndefDmg);
+		Damage dmg(SpellDmg(ESpell::kPoison), poison_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		result = dmg.Process(ch, ch);
 	} else if (af->location == EApply::kAconitumPoison) {
 		int aconitum_dmg = af->modifier / 4;
 
-		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kUndefDmg);
+		Damage dmg(SpellDmg(ESpell::kPoison), aconitum_dmg, fight::kPoisonDmg);
 		dmg.flags.set(fight::kNoFleeDmg);
 		dmg.flags.set(fight::kIgnoreBlink);
 		result = dmg.Process(ch, ch);
