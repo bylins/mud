@@ -91,7 +91,8 @@ int top_of_trigt = 0;        // top of trigger index table
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
 std::map<long, CharData *> chardata_by_uid;
-std::set<CharData *> chardata_timer_list;
+std::set<CharData *> chardata_wait_list;
+std::set<CharData *> chardata_cooldown_list;
 int global_uid = 0;
 
 PlayersIndex &player_table = GlobalObjects::player_table();    // index to plr file
@@ -3504,16 +3505,25 @@ CharData *find_pc(long n) {
 	return nullptr;
 }
 void CharTimerUpdate() {
-	std::list<CharData *> delete_list;
+	std::list<CharData *> wait_list;
+	std::list<CharData *> cooldown_list;
 
-	for (auto it : chardata_timer_list) {
-		it->wait_dec();
-		if (it->get_wait() == 0) {
-			delete_list.push_back(it);
+	for (auto it : chardata_cooldown_list) {
+		if (!it->HaveDecreaseCooldowns()) {
+			cooldown_list.push_back(it);
 		}
 	}
-	for (auto it : delete_list) {
-		chardata_timer_list.erase(it);
+	for (auto it : chardata_wait_list) {
+		it->wait_dec();
+		if (it->get_wait() == 0) {
+			wait_list.push_back(it);
+		}
+	}
+	for (auto it : wait_list) {
+		chardata_wait_list.erase(it);
+	}
+	for (auto it : cooldown_list) {
+		chardata_cooldown_list.erase(it);
 	}
 }
 

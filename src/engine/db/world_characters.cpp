@@ -102,7 +102,7 @@ void Characters::AddToExtractedList(CharData *ch) {
 
 void Characters::PurgeExtractedList() {
 	if (!m_extracted_list.empty()) {
-		for (auto it : m_extracted_list) {
+		for (auto &it : m_extracted_list) {
 			ExtractCharFromWorld(it, false);
 		}
 		m_extracted_list.clear();
@@ -137,7 +137,10 @@ void Characters::remove(CharData *character) {
 		const auto vnum = mob_index[character->get_rnum()].vnum;
 		mobs_by_vnum_remove(character, vnum);
 	}
-
+// креш
+//	if (m_extracted_list.contains(character)) {
+//		m_extracted_list.erase(character);
+//	}
 	m_list.erase(index_i->second);
 	m_character_raw_ptr_to_character_ptr.erase(index_i);
 
