@@ -321,6 +321,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 0,
 							 std::make_shared<SimpleCall>(ClanSystem::check_player_in_house)),
 		Heartbeat::PulseStep("Violence performing", kBattleRound, 3, std::make_shared<SimpleCall>(perform_violence)),
+		Heartbeat::PulseStep("Char timer update", 1, 4, std::make_shared<SimpleCall>(CharTimerUpdate)),
 		Heartbeat::PulseStep("Scheduled reboot checking",
 							 30 * kPassesPerSec,
 							 0,

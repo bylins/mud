@@ -96,15 +96,20 @@ void Characters::AddToExtractedList(CharData *ch) {
 //		ch->script->set_purged(true);
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}
+	log("add to extracted list %s %d", GET_NAME(ch), GET_MOB_VNUM(ch));
 	m_extracted_list.insert(ch);
 }
 
 void Characters::PurgeExtractedList() {
 	if (!m_extracted_list.empty()) {
-		for (auto it : m_extracted_list) {
+		auto extracted_list_copy = m_extracted_list;  // чистится в Characters::remove
+
+		for (auto &it : extracted_list_copy) {
 			ExtractCharFromWorld(it, false);
 		}
-		m_extracted_list.clear();
+		if (!m_extracted_list.empty()) {
+			mudlog("SYSERROR: m_extracted_list не пуст");
+		}
 	}
 }
 
@@ -136,7 +141,9 @@ void Characters::remove(CharData *character) {
 		const auto vnum = mob_index[character->get_rnum()].vnum;
 		mobs_by_vnum_remove(character, vnum);
 	}
-
+	if (m_extracted_list.contains(character)) {
+		m_extracted_list.erase(character);
+	}
 	m_list.erase(index_i->second);
 	m_character_raw_ptr_to_character_ptr.erase(index_i);
 
