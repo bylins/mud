@@ -40,6 +40,11 @@ void do_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	}
+
 	if (ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
@@ -68,6 +73,15 @@ void go_bash(CharData *ch, CharData *vict) {
 	}
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+	if (ch->HasCooldown(ESkill::kBash)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		return;
+	}
+
+	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
+		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
 	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || AFF_FLAGGED(vict, EAffect::kHold)
@@ -258,7 +272,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			break;
 		case 1: SetSkillCooldownInFight(ch, ESkill::kBash, 1);
 			break;
-		case 2: SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
+		case 2: SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			break;
 	}
 
