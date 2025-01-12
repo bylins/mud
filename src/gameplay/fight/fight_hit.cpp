@@ -3335,7 +3335,7 @@ void HitData::check_defense_skills(CharData *ch, CharData *victim) {
 void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 	int damroll;
  	if (need_dice) {
-		if (get_flags()[fight::kCritHit]) {
+		if (get_flags()[fight::kCritLuck]) {
 			damroll = GET_OBJ_VAL(wielded, 1) *  GET_OBJ_VAL(wielded, 2);
 		} else {
 			damroll = RollDices(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
@@ -3359,7 +3359,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 
 	if (AFF_FLAGGED(ch, EAffect::kStoneHands)) {
-		if (get_flags()[fight::kCritHit]) {
+		if (get_flags()[fight::kCritLuck]) {
 			dam += 8 + GetRealRemort(ch) / 2;
 		} else {
 			dam += need_dice ? RollDices(2, 4) + GetRealRemort(ch) / 2  : 5 + GetRealRemort(ch) / 2;
@@ -3369,7 +3369,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 			dam += MAX(0, GetRealStr(ch) - 25);
 		}
 	} else {
-		if (get_flags()[fight::kCritHit]) {
+		if (get_flags()[fight::kCritLuck]) {
 			dam  += 3;
 		} else {
 			dam += need_dice? number(1, 3) : 2;
