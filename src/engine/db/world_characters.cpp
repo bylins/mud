@@ -104,6 +104,7 @@ void Characters::PurgeExtractedList() {
 	if (!m_extracted_list.empty()) {
 		auto extracted_list_copy = m_extracted_list;  // чистится в Characters::remove
 
+		log("Start PurgeExtractedList");
 		for (auto &it : extracted_list_copy) {
 			ExtractCharFromWorld(it, false);
 		}
