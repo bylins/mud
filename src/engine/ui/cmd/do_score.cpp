@@ -373,7 +373,7 @@ void PrintPostInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintProtectInfo(CharData *ch, std::ostringstream &out) {
-	if (ch->get_protecting()) {
+	if (ch->get_protecting() && !ch->get_protecting()->purged()) {
 		out << InfoStrPrefix(ch) << "Вы прикрываете " << GET_PAD(ch->get_protecting(), 3)
 			<< " от нападения.\r\n";
 	}
