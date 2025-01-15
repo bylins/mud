@@ -997,11 +997,13 @@ void mob_casting(CharData *ch) {
 	int spells = 0, sp_num;
 	ObjData *item;
 
+	utils::CSteppedProfiler round_profiler(fmt::format("mob casting for {} {}", ch->get_name(), GET_MOB_VNUM(ch)), 0.01);
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kSilence)
 		|| ch->get_wait() > 0)
 		return;
+	round_profiler.next_step("Start");
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
@@ -1009,7 +1011,7 @@ void mob_casting(CharData *ch) {
 			battle_spells[spells++] = spell_id;
 		}
 	}
-
+	round_profiler.next_step("Paste spell from obj");
 	item = ch->carrying;
 	while (spells < kMaxStringLength
 		&& item
@@ -1064,6 +1066,7 @@ void mob_casting(CharData *ch) {
 
 		item = item->get_next_content();
 	}
+	round_profiler.next_step("Find cure");
 
 	// перво-наперво  -  лечим себя
 	auto spell_id_2{ESpell::kUndefined};
@@ -1077,6 +1080,7 @@ void mob_casting(CharData *ch) {
 			return;
 		}
 	}
+	round_profiler.next_step("Find random spell");
 	// Ищем рандомную заклинашку и цель для нее
 	for (int i = 0; !victim && spells && i < GetRealInt(ch) / 5; i++) {
 		if (spell_id_2 == ESpell::kUndefined) {
@@ -1108,6 +1112,7 @@ void mob_casting(CharData *ch) {
 			}
 		}
 	}
+	round_profiler.next_step("Cast object spell");
 
 	// Is this object spell ?
 	if (spell_id_2 != ESpell::kUndefined && victim) {
@@ -1156,6 +1161,7 @@ void mob_casting(CharData *ch) {
 
 			item = item->get_next_content();
 		}
+		round_profiler.next_step("Cast direct spell");
 
 		CastSpell(ch, victim, 0, nullptr, spell_id_2, spell_id_2);
 	}
