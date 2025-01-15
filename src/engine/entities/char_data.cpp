@@ -649,6 +649,7 @@ void CharData::setSkillCooldown(ESkill skillID, unsigned cooldown) {
 unsigned CharData::getSkillCooldown(ESkill skillID) {
 	auto skillData = skills.find(skillID);
 	if (skillData != skills.end()) {
+		mudlog(fmt::format("запрос значения кулдауна {} равен {}", to_underlying(skillID), skillData->second.cooldown));
 		return skillData->second.cooldown;
 	}
 	return 0;
@@ -735,6 +736,7 @@ void CharData::remove_protecting() {
 		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
 		get_protecting()->who_protecting.erase(it);
 	}
+	SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", GET_PAD(get_protecting(), 1));
 	protecting_ = nullptr;
 }
 

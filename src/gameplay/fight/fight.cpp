@@ -1372,7 +1372,8 @@ void using_charmice_skills(CharData *ch) {
 	const int do_this = number(0, 100);
 	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
 	CharData *master = (ch->get_master() && !ch->get_master()->IsNpc()) ? ch->get_master() : nullptr;
-
+	
+	mudlog(fmt::format("кулдаун молота {}", ch->getSkillCooldown(ESkill::kHammer)));
 	if (charmice_wielded_for_stupor && ch->GetSkill(ESkill::kOverwhelm) > 0) { // оглушить
 		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kOverwhelm) <= 0;
 		if (master) {

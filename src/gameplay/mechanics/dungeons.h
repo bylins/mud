@@ -29,7 +29,7 @@ void CreateBlankTrigsDungeon();
 void CreateBlankRoomDungeon();
 void CreateBlankMobsDungeon();
 void CreateBlankObjsDungeon();
-
+void SwapOriginalObject(ObjData *obj);
 void DungeonReset(int zrn);
 
 std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string>& tokens);
