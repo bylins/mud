@@ -17,6 +17,7 @@
 #include "named_stuff.h"
 #include "stable_objs.h"
 #include "weather.h"
+#include "gameplay/mechanics/dungeons.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -1029,7 +1030,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 	act("Вы положили $o3 в персональное хранилище.", false, ch, obj.get(), 0, kToChar);
 	act("$n положил$g $o3 в персональное хранилище.", true, ch, obj.get(), 0, kToRoom);
-
+	dungeons::SwapOriginalObject(obj.get());
 	RemoveObjFromChar(obj.get());
 	check_auction(nullptr, obj.get());
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);

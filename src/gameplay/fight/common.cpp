@@ -40,8 +40,9 @@ void SetWait(CharData *ch, int waittime, int wait_if_fight) {
 
 void SetSkillCooldown(CharData *ch, ESkill skill, int pulses) {
 	if (ch->getSkillCooldownInPulses(skill) < pulses) {
-		ch->setSkillCooldown(skill, pulses * kBattleRound);
+		ch->setSkillCooldown(skill, pulses * kBattleRound + 0);
 	}
+	mudlog(fmt::format("установлен кулдаун для скилла {} значение  {}", to_underlying(skill), pulses * kBattleRound + 0));
 }
 
 void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {

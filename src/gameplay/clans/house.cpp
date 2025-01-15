@@ -46,6 +46,7 @@
 #include "gameplay/communication/ignores.h"
 #include "gameplay/core/constants.h"
 #include "utils/utils_time.h"
+#include "gameplay/mechanics/dungeons.h"
 
 using namespace ClanSystem;
 
@@ -2280,6 +2281,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				kToChar);
 			return false;
 		}
+		dungeons::SwapOriginalObject(obj);
 		RemoveObjFromChar(obj);
 		PlaceObjIntoObj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
@@ -4323,7 +4325,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 				kToChar);
 			return false;
 		}
-
+		dungeons::SwapOriginalObject(obj);
 		RemoveObjFromChar(obj);
 		PlaceObjIntoObj(obj, chest);
 		act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
