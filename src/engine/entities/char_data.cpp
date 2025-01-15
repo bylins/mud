@@ -649,6 +649,7 @@ void CharData::setSkillCooldown(ESkill skillID, unsigned cooldown) {
 unsigned CharData::getSkillCooldown(ESkill skillID) {
 	auto skillData = skills.find(skillID);
 	if (skillData != skills.end()) {
+		mudlog(fmt::format("запрос значения кулдауна {} равен {}", to_underlying(skillID), skillData->second.cooldown));
 		return skillData->second.cooldown;
 	}
 	return 0;
