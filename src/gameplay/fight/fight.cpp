@@ -1161,7 +1161,7 @@ void mob_casting(CharData *ch) {
 
 			item = item->get_next_content();
 		}
-		round_profiler.next_step("Cast direct spell");
+		round_profiler.next_step(fmt::format("Cast direct spell #{} victim {} ({})", to_underlying(spell_id_2), GET_NAME(victim), GET_MOB_VNUM(victim)));
 
 		CastSpell(ch, victim, 0, nullptr, spell_id_2, spell_id_2);
 	}
