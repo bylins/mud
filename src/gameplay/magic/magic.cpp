@@ -34,6 +34,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
+#include "utils/utils_time.h"
 
 extern int what_sky;
 extern int interpolate(int min_value, int pulse);
@@ -4184,7 +4185,10 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
+	utils::CSteppedProfiler profiler(fmt::format("CallMagicToArea char {} #{} victim {} #{} spell ",
+			ch->get_name(), GET_MOB_VNUM(ch), victim->get_name(), GET_MOB_VNUM(victim), MUD::Spell(spell_id).GetCName()), 0.01);
 
+	profiler.next_step("ActionTargeting");
 	try {
 		const auto params = MUD::Spell(spell_id).actions.GetArea();
 		ActionTargeting::FoesRosterType roster{ch, victim,
@@ -4192,6 +4196,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 												   return !IS_HORSE(target);
 											   }};
 		int msg_index = FindIndexOfMsg(spell_id);
+		profiler.next_step("TrySendCastMessages");
 		TrySendCastMessages(ch, victim, room, msg_index);
 		int targets_num = params.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)));
 		int targets_counter = 1;
@@ -4206,10 +4211,12 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
+		profiler.next_step("const auto &target: roster");
 		for (const auto &target: roster) {
 			if (mag_messages[msg_index].to_vict != nullptr && target->desc) {
 				act(mag_messages[msg_index].to_vict, false, ch, nullptr, target, kToVict);
 			}
+			profiler.next_step(fmt::format("CastToSingleTarget target {}", GET_NAME(target)));
 			CastToSingleTarget(level, ch, target, nullptr, spell_id);
 			if (ch->purged()) {
 				return 1;
