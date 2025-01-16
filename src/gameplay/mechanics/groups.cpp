@@ -232,6 +232,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		  || (GET_EQ(k, EEquipPos::kLight)
 			  && GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "&YС" : " ";
 	  affects += AFF_FLAGGED(k, EAffect::kFly) ? "&BЛ" : " ";
+	  affects += k->IsOnHorse() ? "&YВ" : " ";
 
 	  return affects;
 	};
@@ -279,7 +280,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	if (k->IsNpc()) {
 		std::ostringstream buffer;
 		if (!header)
-			buffer << "Персонаж            | Здоровье | Рядом | Аффект |  Дебаф  | Положение\r\n";
+			buffer << "Персонаж            | Здоровье | Рядом | Аффект  |  Дебаф  | Положение\r\n";
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
 
