@@ -1639,7 +1639,8 @@ void find_replacement(void *go,
 					return;
 				}
 				ObjRnum orn = obj_proto[rnum]->get_parent_rnum();
-				if (orn > -1) {
+
+				if (orn > -1 && CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) && !obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
 					count = CountGameObjs(orn);
 				} else {
 					count = CountGameObjs(rnum);
