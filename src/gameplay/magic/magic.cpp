@@ -472,11 +472,17 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rand = 0, count = 1, modi = 0;
 	ObjData *obj = nullptr;
 
+	utils::CSteppedProfiler profiler(fmt::format("CastDamage char {} #{} victim {}  spell {}",
+			ch->get_name(), GET_MOB_VNUM(ch), victim ? victim->get_name() : "null", MUD::Spell(spell_id).GetCName()), 0.005);
+
+
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return (0);
 
 	if (!pk_agro_action(ch, victim))
 		return (0);
+
+	profiler.next_step("Breath");
 
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 	// Magic glass
@@ -528,6 +534,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	auto ch_start_pos = ch->GetPosition();
 	auto victim_start_pos = victim->GetPosition();
 
+	profiler.next_step("alcAntiSavings");
+
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
@@ -537,6 +545,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 //		modi += (GetRealLevel(ch) - 10);
 
+	profiler.next_step("switch (spell_id)");
 	auto instant_death{false};
 	switch (spell_id) {
 		case ESpell::kMagicMissile: {
@@ -787,7 +796,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		default: break;
 	}
-
+	profiler.next_step("calc damage");
 	int total_dmg{0};
 	if (instant_death) {
 		total_dmg = std::max(1, GET_HIT(victim) + 1);
@@ -803,6 +812,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
 
+	profiler.next_step("damage process");
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& victim->in_room != kNowhere
