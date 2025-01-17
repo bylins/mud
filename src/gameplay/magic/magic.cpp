@@ -4185,8 +4185,8 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
-	utils::CSteppedProfiler profiler(fmt::format("CallMagicToArea char {} #{} victim {} #{} spell ",
-			ch->get_name(), GET_MOB_VNUM(ch), victim->get_name(), GET_MOB_VNUM(victim), MUD::Spell(spell_id).GetCName()), 0.01);
+	utils::CSteppedProfiler profiler(fmt::format("CallMagicToArea char {} #{} victim {}  spell ",
+			ch->get_name(), GET_MOB_VNUM(ch), victim ? victim->get_name() : "null", MUD::Spell(spell_id).GetCName()), 0.01);
 
 	profiler.next_step("ActionTargeting");
 	try {
