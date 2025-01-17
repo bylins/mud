@@ -403,14 +403,6 @@ void CharData::purge() {
 //	if (!get_name().empty()) {
 //		log("[FREE CHAR] (%s)", GET_NAME(this));
 //	}
-	if (this->get_protecting()) {
-		this->remove_protecting();
-	}
-	if (!this->who_protecting.empty()) {
-		for (auto it : this->who_protecting) {
-			it->remove_protecting();
-		}
-	}
 	int i, id = -1;
 	struct alias_data *a;
 
@@ -734,8 +726,9 @@ void CharData::remove_protecting() {
 		auto predicate = [this](auto p) { return (this  ==  p); };
 		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
 		get_protecting()->who_protecting.erase(it);
+		SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", GET_PAD(get_protecting(), 1));
+		SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
 	}
-	SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", GET_PAD(get_protecting(), 1));
 	protecting_ = nullptr;
 }
 
