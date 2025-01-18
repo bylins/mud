@@ -472,18 +472,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rand = 0, count = 1, modi = 0;
 	ObjData *obj = nullptr;
 
-	utils::CSteppedProfiler profiler(fmt::format("CastDamage char {} #{} victim {}  spell {}",
-			ch->get_name(), GET_MOB_VNUM(ch), victim ? victim->get_name() : "null", MUD::Spell(spell_id).GetCName()), 0.005);
-
-
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return (0);
 
 	if (!pk_agro_action(ch, victim))
 		return (0);
-
-	profiler.next_step("Breath");
-
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 	// Magic glass
 	if (!IsBreath(spell_id) || ch == victim) {
@@ -534,8 +527,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	auto ch_start_pos = ch->GetPosition();
 	auto victim_start_pos = victim->GetPosition();
 
-	profiler.next_step("alcAntiSavings");
-
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
@@ -545,7 +536,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 //		modi += (GetRealLevel(ch) - 10);
 
-	profiler.next_step("switch (spell_id)");
 	auto instant_death{false};
 	switch (spell_id) {
 		case ESpell::kMagicMissile: {
@@ -796,8 +786,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		default: break;
 	}
-	profiler.next_step("calc damage");
 	int total_dmg{0};
+
 	if (instant_death) {
 		total_dmg = std::max(1, GET_HIT(victim) + 1);
 		if (victim->IsNpc()) {
@@ -812,7 +802,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
 
-	profiler.next_step("damage process");
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& victim->in_room != kNowhere
@@ -4195,10 +4184,6 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
-	utils::CSteppedProfiler profiler(fmt::format("CallMagicToArea char {} #{} victim {}  spell {}",
-			ch->get_name(), GET_MOB_VNUM(ch), victim ? victim->get_name() : "null", MUD::Spell(spell_id).GetCName()), 0.01);
-
-	profiler.next_step("ActionTargeting");
 	try {
 		const auto params = MUD::Spell(spell_id).actions.GetArea();
 		ActionTargeting::FoesRosterType roster{ch, victim,
@@ -4206,7 +4191,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 												   return !IS_HORSE(target);
 											   }};
 		int msg_index = FindIndexOfMsg(spell_id);
-		profiler.next_step("TrySendCastMessages");
+
 		TrySendCastMessages(ch, victim, room, msg_index);
 		int targets_num = params.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)));
 		int targets_counter = 1;
@@ -4221,12 +4206,10 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		}
 		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
-		profiler.next_step("const auto &target: roster");
 		for (const auto &target: roster) {
 			if (mag_messages[msg_index].to_vict != nullptr && target->desc) {
 				act(mag_messages[msg_index].to_vict, false, ch, nullptr, target, kToVict);
 			}
-			profiler.next_step(fmt::format("CastToSingleTarget target {}", GET_NAME(target)));
 			CastToSingleTarget(level, ch, target, nullptr, spell_id);
 			if (ch->purged()) {
 				return 1;

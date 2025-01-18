@@ -21,6 +21,7 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
+#include "utils/utils_time.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -498,13 +499,11 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 }
 
 void pk_revenge_action(CharData *killer, CharData *victim) {
-
 	if (killer) {
 		pk_translate_pair(&killer, nullptr);
 		if (victim == nullptr) {
 			return;
 		}
-
 		if (!killer->IsNpc() && !victim->IsNpc()) {
 			// один флаг отработал
 			pk_decrement_kill(victim, killer);
@@ -512,15 +511,12 @@ void pk_revenge_action(CharData *killer, CharData *victim) {
 			pk_update_revenge(killer, victim, 0, REVENGE_UNRENTABLE);
 		}
 	}
-
 	// завершить все поединки, в которых участвовал victim
-	for (const auto &killer : character_list) {
-		if (killer->IsNpc()) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING)
 			continue;
-		}
-
-		pk_update_revenge(victim, killer.get(), 0, 0);
-		pk_update_revenge(killer.get(), victim, 0, 0);
+		pk_update_revenge(victim, d->character.get(), 0, 0);
+		pk_update_revenge(d->character.get(), victim, 0, 0);
 	}
 }
 

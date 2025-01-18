@@ -997,13 +997,11 @@ void mob_casting(CharData *ch) {
 	int spells = 0, sp_num;
 	ObjData *item;
 
-	utils::CSteppedProfiler round_profiler(fmt::format("mob casting for {} {}", ch->get_name(), GET_MOB_VNUM(ch)), 0.01);
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kSilence)
 		|| ch->get_wait() > 0)
 		return;
-	round_profiler.next_step("Start");
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
@@ -1011,7 +1009,6 @@ void mob_casting(CharData *ch) {
 			battle_spells[spells++] = spell_id;
 		}
 	}
-	round_profiler.next_step("Paste spell from obj");
 	item = ch->carrying;
 	while (spells < kMaxStringLength
 		&& item
@@ -1066,7 +1063,6 @@ void mob_casting(CharData *ch) {
 
 		item = item->get_next_content();
 	}
-	round_profiler.next_step("Find cure");
 
 	// перво-наперво  -  лечим себя
 	auto spell_id_2{ESpell::kUndefined};
@@ -1080,7 +1076,6 @@ void mob_casting(CharData *ch) {
 			return;
 		}
 	}
-	round_profiler.next_step("Find random spell");
 	// Ищем рандомную заклинашку и цель для нее
 	for (int i = 0; !victim && spells && i < GetRealInt(ch) / 5; i++) {
 		if (spell_id_2 == ESpell::kUndefined) {
@@ -1112,7 +1107,6 @@ void mob_casting(CharData *ch) {
 			}
 		}
 	}
-	round_profiler.next_step("Cast object spell");
 
 	// Is this object spell ?
 	if (spell_id_2 != ESpell::kUndefined && victim) {
@@ -1161,8 +1155,6 @@ void mob_casting(CharData *ch) {
 
 			item = item->get_next_content();
 		}
-		round_profiler.next_step(fmt::format("Cast direct spell #{} victim {} ({})", to_underlying(spell_id_2), GET_NAME(victim), GET_MOB_VNUM(victim)));
-
 		CastSpell(ch, victim, 0, nullptr, spell_id_2, spell_id_2);
 	}
 }
@@ -1872,7 +1864,6 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
-	utils::CSteppedProfiler round_profiler(fmt::format("process player attack for char {}", ch->get_name()), 0.01);
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& GET_AF_BATTLE(ch, kEafStand)) {
@@ -1885,7 +1876,6 @@ void process_player_attack(CharData *ch, int min_init) {
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
-	round_profiler.next_step("Cast spell");
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -1905,7 +1895,6 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	if (GET_AF_BATTLE(ch, kEafMultyparry))
 		return;
-	round_profiler.next_step("Use extra attack");
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
 	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->GetExtraVictim()
 		&& ch->get_wait() <= 0 && using_extra_attack(ch)) {
@@ -1919,7 +1908,6 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
 		return;
 	}
-	round_profiler.next_step("hit mainhand");
 	//**** удар основным оружием или рукой
 	if (GET_AF_BATTLE(ch, kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
@@ -1937,7 +1925,6 @@ void process_player_attack(CharData *ch, int min_init) {
 			else tmpSkilltype = ESkill::kUndefined;
 			exthit(ch, ch->GetEnemy(), tmpSkilltype, fight::AttackType::kMainHand);
 		}
-		round_profiler.next_step("hit add boths weapon");
 // допатака двуручем
 		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
@@ -1953,7 +1940,6 @@ void process_player_attack(CharData *ch, int min_init) {
 			return;
 		}
 	}
-	round_profiler.next_step("hit offhand");
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon
@@ -1979,7 +1965,6 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 		CLR_AF_BATTLE(ch, kEafSecond);
 	}
-	round_profiler.next_step("try angel");
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
 	try_angel_rescue(ch);
@@ -2133,7 +2118,7 @@ void perform_violence() {
 			} else {
 				process_player_attack(it.ch, min_init);
 			}
-			if (violence_timer.delta().count() > 0.01) {
+			if (violence_timer.delta().count() > 0.001) {
 				log("Process player attack, name %s, time %f", GET_NAME(it.ch), violence_timer.delta().count());
 			}
 		}
