@@ -499,13 +499,11 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 }
 
 void pk_revenge_action(CharData *killer, CharData *victim) {
-
 	if (killer) {
 		pk_translate_pair(&killer, nullptr);
 		if (victim == nullptr) {
 			return;
 		}
-
 		if (!killer->IsNpc() && !victim->IsNpc()) {
 			// один флаг отработал
 			pk_decrement_kill(victim, killer);
@@ -513,15 +511,12 @@ void pk_revenge_action(CharData *killer, CharData *victim) {
 			pk_update_revenge(killer, victim, 0, REVENGE_UNRENTABLE);
 		}
 	}
-
 	// завершить все поединки, в которых участвовал victim
-	for (const auto &killer : character_list) {
-		if (killer->IsNpc()) {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (STATE(d) != CON_PLAYING)
 			continue;
-		}
-
-		pk_update_revenge(victim, killer.get(), 0, 0);
-		pk_update_revenge(killer.get(), victim, 0, 0);
+		pk_update_revenge(victim, d->character.get(), 0, 0);
+		pk_update_revenge(d->character.get(), victim, 0, 0);
 	}
 }
 
@@ -1141,12 +1136,9 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 }
 
 void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
-	utils::CSteppedProfiler profiler("handle_corpse", 0.0005);
-	profiler.next_step("pk_translate_pair");
 	pk_translate_pair(&ch, &killer);
 	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб,
 	// то с него выпадает окровавленный стаф
-	profiler.next_step("set_bloody_flag");
 	if (ch && killer
 		&& ch != killer
 		&& !ch->IsNpc()
