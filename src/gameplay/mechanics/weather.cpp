@@ -13,6 +13,7 @@
 #include "utils/random.h"
 #include "celebrates.h"
 #include "engine/db/global_objects.h"
+#include "utils/utils_time.h"
 
 Weather weather_info;
 extern void script_timechange_trigger_check(int time);//Эксопрт тригеров смены времени
@@ -282,6 +283,9 @@ void calc_basic(int weather_type, int sky, int *rainlevel, int *snowlevel) {    
 }
 
 void weather_change() {
+	utils::CSteppedProfiler profiler("weather_change", 0.01);
+	profiler.next_step("Start");
+
 	int diff = 0, sky_change, temp_change, i,
 		grainlevel = 0, gsnowlevel = 0, icelevel = 0, snowdec = 0,
 		raincast = 0, snowcast = 0, avg_day_temp, avg_week_temp, cweather_type = 0, temp;
@@ -344,6 +348,7 @@ void weather_change() {
 	weather_info.snowlevel = MAX(0, MIN(120, weather_info.snowlevel + gsnowlevel));
 	weather_info.rainlevel = MAX(0, MIN(80, weather_info.rainlevel + grainlevel));
 
+	profiler.next_step("Change some values for world");
 
 	// Change some values for world
 	for (i = kFirstRoom; i <= top_of_world; i++) {
@@ -368,7 +373,7 @@ void weather_change() {
 		world[i]->weather.snowlevel = MAX(0, MIN(120, world[i]->weather.snowlevel + snowcast));
 		world[i]->weather.rainlevel = MAX(0, MIN(80, world[i]->weather.rainlevel + raincast));
 	}
-
+	profiler.next_step("weather");
 	switch (time_info.month) {
 		case 0:        // Jan
 			diff = (weather_info.pressure > 985 ? -2 : 2);

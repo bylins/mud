@@ -47,7 +47,7 @@ void remove_event(TriggerEvent event) {
 
 void process_events(void) {
 	int trig_vnum;
-	int timewarning = 50;
+	int timewarning = 10;
 
 	auto now = std::chrono::system_clock::now();
 	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
@@ -62,7 +62,7 @@ void process_events(void) {
 			e.func(e.info);
 //			e.time_remaining = 0;
 			e.deleted = true;;
-			// На отработку отложенных тригов выделяем всего 50 мсекунд
+			// На отработку отложенных тригов выделяем всего 10 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
 			now = std::chrono::system_clock::now();
