@@ -1850,7 +1850,7 @@ int perform_dupe_check(DescriptorData *d) {
 	   * duplicates, though theoretically none should be able to exist).
 	   */
 
-	character_list.foreach_on_copy([&](const CharData::shared_ptr &ch) {
+	character_list.foreach([&target, &mode, id](const CharData::shared_ptr &ch) {
 	  if (ch->IsNpc()) {
 		  return;
 	  }
@@ -1879,7 +1879,7 @@ int perform_dupe_check(DescriptorData *d) {
 		  char_from_room(ch);
 	  }
 	  char_to_room(ch, kStrangeRoom);
-	  ExtractCharFromWorld(ch.get(), false);
+	  character_list.AddToExtractedList(ch.get());
 	});
 
 	// no target for switching into was found - allow login to continue //
