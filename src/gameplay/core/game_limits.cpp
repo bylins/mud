@@ -1483,7 +1483,7 @@ void point_update() {
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
-	character_list.foreach_on_copy([&real_spell](const auto &character) {
+	character_list.foreach([&real_spell](const auto &character) {
 	mob_ai::MemoryRecord *mem, *nmem, *pmem;
 		const auto i = character.get();
 
