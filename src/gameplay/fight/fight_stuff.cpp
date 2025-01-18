@@ -517,11 +517,14 @@ bool change_rep(CharData *ch, CharData *killer) {
 void real_kill(CharData *ch, CharData *killer) {
 	const long local_gold = ch->get_gold();
 	ObjData *corpse = make_corpse(ch, killer);
+	utils::CSteppedProfiler round_profiler(fmt::format("real_kill"), 0.01);
 
+	round_profiler.next_step("handle_corpse");
 	bloody::handle_corpse(corpse, ch, killer);
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
 	if (ch->IsNpc() || !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) || NORENTABLE(ch)) {
+		round_profiler.next_step("pk_revenge_action");
 		pk_revenge_action(killer, ch);
 	}
 	if (!ch->IsNpc()) {
@@ -541,9 +544,11 @@ void real_kill(CharData *ch, CharData *killer) {
 			obj_load_on_death(corpse, ch);
 		}
 		if (ch->IsFlagged(EMobFlag::kCorpse)) {
+			round_profiler.next_step("PerformDropGold");
 			PerformDropGold(ch, local_gold);
 			ch->set_gold(0);
 		}
+		round_profiler.next_step("LoadObjFromDeadLoad");
 		dead_load::LoadObjFromDeadLoad(corpse, ch, nullptr, dead_load::kOrdinary);
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
@@ -566,6 +571,7 @@ void real_kill(CharData *ch, CharData *killer) {
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
 	// а здесь, после создания соответствующего трупа. Кроме того,
 	// если убил чармис и хозяин в комнате, то автолут происходит хозяину
+	round_profiler.next_step("auto_loot");
 	if ((ch != nullptr) && (killer != nullptr)) {
 		auto_loot(ch, killer, corpse, local_gold);
 	}
