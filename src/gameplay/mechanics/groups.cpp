@@ -302,7 +302,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	} else {
 		std::ostringstream buffer;
 		if (!header)
-			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект |  Дебаф  |  Кто  | Строй | Положение \r\n";
+			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект  |  Дебаф  |  Кто  | Строй | Положение \r\n";
 
 		std::string health_color = GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k));
 		std::string move_color = GetWarmValueColor(GET_MOVE(k), GET_REAL_MAX_MOVE(k));
