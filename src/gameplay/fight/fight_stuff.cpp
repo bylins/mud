@@ -30,6 +30,7 @@
 #include "engine/entities/zone.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/illumination.h"
+#include "utils/utils_time.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -266,7 +267,6 @@ void die(CharData *ch, CharData *killer) {
 		log("SYSERR: %s is dying in room kNowhere.", GET_NAME(ch));
 		return;
 	}
-
 	if (check_tester_death(ch, killer)) {
 		return;
 	}
@@ -321,7 +321,6 @@ void die(CharData *ch, CharData *killer) {
 			update_leadership(ch, killer);
 		}
 	}
-
 	CharStat::UpdateOnKill(ch, killer, dec_exp);
 	raw_kill(ch, killer);
 }
@@ -518,14 +517,13 @@ bool change_rep(CharData *ch, CharData *killer) {
 void real_kill(CharData *ch, CharData *killer) {
 	const long local_gold = ch->get_gold();
 	ObjData *corpse = make_corpse(ch, killer);
-	bloody::handle_corpse(corpse, ch, killer);
 
+	bloody::handle_corpse(corpse, ch, killer);
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
 	if (ch->IsNpc() || !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) || NORENTABLE(ch)) {
 		pk_revenge_action(killer, ch);
 	}
-
 	if (!ch->IsNpc()) {
 		forget_all_spells(ch);
 		clear_mobs_memory(ch);
@@ -575,15 +573,14 @@ void real_kill(CharData *ch, CharData *killer) {
 
 void raw_kill(CharData *ch, CharData *killer) {
 	check_spell_capable(ch, killer);
-	if (ch->GetEnemy())
+	if (ch->GetEnemy()) {
 		stop_fighting(ch, true);
-
+	}
 	for (auto &hitter : combat_list) {
 		if (hitter.ch->GetEnemy() == ch) {
 			SetWaitState(hitter.ch, 0);
 		}
 	}
-
 	if (!ch || ch->purged()) {
 //		debug::coredump();
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());

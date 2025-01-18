@@ -21,6 +21,7 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
+#include "utils/utils_time.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -1140,9 +1141,12 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 }
 
 void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
+	utils::CSteppedProfiler profiler("handle_corpse", 0.0005);
+	profiler.next_step("pk_translate_pair");
 	pk_translate_pair(&ch, &killer);
 	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб,
 	// то с него выпадает окровавленный стаф
+	profiler.next_step("set_bloody_flag");
 	if (ch && killer
 		&& ch != killer
 		&& !ch->IsNpc()

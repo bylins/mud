@@ -19,6 +19,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/affects/affect_data.h"
+#include "utils/utils_time.h"
 
 // extern
 int GetExtraAc0(ECharClass class_id, int level);
@@ -2105,7 +2106,6 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			killer = ch;
 		}
 	}
-
 	if (killer) {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
@@ -2138,7 +2138,6 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
 	// если чар убит палачем то тоже не спамим
-
 	if (!victim->IsNpc() && !(killer && killer->IsFlagged(EPrf::kExecutor))) {
 		update_pk_logs(ch, victim);
 
@@ -2160,7 +2159,6 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 	if (killer) {
 		ch = killer;
 	}
-
 	die(victim, ch);
 }
 
@@ -2272,13 +2270,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
 		return 0;
 	}
-
 	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
 		return 0;
 	}
-
 	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
@@ -2299,7 +2295,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			dam *= 2;
 		}
 	}
-
 	// запоминание мобами обидчиков и жертв
 	mob_ai::update_mob_memory(ch, victim);
 
@@ -2311,7 +2306,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	if (!same_group(ch, victim)) {
 		check_agro_follower(ch, victim);
 	}
-
 	if (victim != ch) {
 		if (ch->GetPosition() > EPosition::kStun && (ch->GetEnemy() == nullptr)) {
 			if (!pk_agro_action(ch, victim)) {
@@ -2365,7 +2359,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			dam *= Bonus::get_mult_bonus();
 		}
 	}
-
 	//учет резистов для магического урона
 	if (dmg_type == fight::kMagicDmg) {
 		if (spell_id > ESpell::kUndefined) {
@@ -2423,7 +2416,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-
 	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, msg_num);
@@ -2472,7 +2464,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 		return 0;
 	}
-
 	// внутри есть !боевое везение!, для какого типа дамага - не знаю
 	DamageActorParameters params(ch, victim, dam);
 	handle_affects(params);
@@ -2535,14 +2526,12 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			}
 		}
 	}
-
 	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
 	if (victim->IsNpc()) {
 		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
 	}
-
 	// попытка спасти жертву через ангела
 	try_angel_sacrifice(ch, victim);
 
@@ -2587,7 +2576,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				 flags.test(fight::kDrawBriefMagMirror) ? "&M*&n" : "");
 		brief_shields_ = buf_;
 	}
-
 	// сообщения об ударах //
 	if (MUD::Skills().IsValid(skill_id) || spell_id > ESpell::kUndefined || hit_type < 0) {
 		// скилл, спелл, необычный дамаг
@@ -2620,14 +2608,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	{
 		stop_fighting(victim, victim->GetPosition() <= EPosition::kDead);
 	} */
-
+	utils::CSteppedProfiler round_profiler(fmt::format("process death"), 0.01);
+	round_profiler.next_step("Start");
 
 	// жертва умирает //
 	if (victim->GetPosition() == EPosition::kDead) {
 		process_death(ch, victim);
 		return -1;
 	}
-
 	// обратка от огненного щита
 	if (fs_damage > 0
 		&& victim->GetEnemy()
@@ -2638,7 +2626,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dmg.flags.set(fight::kMagicReflect);
 		dmg.Process(victim, ch);
 	}
-
 	return dam;
 }
 
