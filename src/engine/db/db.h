@@ -175,6 +175,7 @@ extern RoomRnum top_of_world;
 extern std::map<long, CharData *> chardata_by_uid;
 extern std::set<CharData *> chardata_wait_list;
 extern std::set<CharData *> chardata_cooldown_list;
+extern std::set<CharData *> chardata_affect_list;
 
 void AddTrigIndexEntry(int nr, Trigger *trig);
 extern IndexData **trig_index;

@@ -25,6 +25,7 @@
 #include "engine/core/config.h"
 #include "utils/id_converter.h"
 #include "utils_string.h"
+#include "utils/utils_time.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
