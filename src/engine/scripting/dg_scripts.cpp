@@ -1600,7 +1600,7 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 					return;
 				}
-				num = CountGameObjs(rnum);
+				num = obj_proto.total_online(rnum);
 				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (auto d = descriptor_list; d; d = d->next) {
