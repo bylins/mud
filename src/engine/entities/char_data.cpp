@@ -76,7 +76,7 @@ CharData::CharData() :
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.Add(this);
-	this->set_skill(ESkill::kGlobalCooldown, 1);
+	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
 }
 
 CharData::~CharData() {
