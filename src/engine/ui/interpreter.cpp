@@ -374,6 +374,7 @@ void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
+void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
@@ -895,6 +896,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"news", EPosition::kDead, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 		{"nlist", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_LIST, 0},
 		{"notitle", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_NOTITLE, 0},
+		{"objfind", EPosition::kStand, DoFindObjByRnum, kLvlImplementator, 0, 0},
 		{"odelete", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
 		{"oedit", EPosition::kDead, do_olc, 0, SCMD_OLC_OEDIT, 0},
 		{"offer", EPosition::kStand, do_not_here, 1, 0, 0},
