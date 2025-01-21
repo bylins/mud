@@ -223,12 +223,52 @@ void AddKarma(CharData *ch, const char *punish, const char *reason) {
 
 extern bool print_object_location(int num, const ObjData *obj, CharData *ch);
 
+void FindErrorCountObj(CharData *ch) {
+	int num = 1;
+	size_t sum;
+	utils::CExecutionTimer timer;
+	ObjRnum start_dung = GetObjRnum(dungeons::kZoneStartDungeons * 100);
+
+	auto it_start = std::find_if(obj_proto.begin(), obj_proto.end(), [start_dung] (auto it) {return (it->get_rnum() == start_dung); });
+
+	for (auto it = it_start; it != obj_proto.end(); it++) {
+		if ((*it)->get_parent_rnum() == -1)
+			continue;
+		std::list<ObjData *> objs;
+		std::list<ObjData *> objs_orig;
+		ObjRnum orn = (*it)->get_rnum();
+		ObjRnum rnum = (*it)->get_parent_rnum();
+
+		world_objects.GetObjListByRnum(orn, objs);
+		sum = objs.size();
+		if (CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) && !obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
+
+			world_objects.GetObjListByRnum((*it)->get_parent_rnum(), objs_orig);
+			sum += objs_orig.size();
+		}
+		if (sum != (size_t)obj_proto.total_online(orn)) {
+			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d\r\n", GET_OBJ_PNAME(*it, 0).c_str(), (*it)->get_vnum());
+			for (auto object : objs) {
+				print_object_location(num++, object, ch);
+			}
+			for (auto object : objs_orig) {
+				print_object_location(num++, object, ch);
+			}
+		}
+	}
+	SendMsgToChar(ch, "Поиск ошибок занял %f\r\n", timer.delta().count());
+}
+
 void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ObjRnum orn;
 	int num = 1;
 	std::list<ObjData *> objs;
 
 	one_argument(argument, buf);
+	if (!str_cmp(buf, "error")) {
+		FindErrorCountObj(ch);
+		return;
+	}
 	if (!*buf || !a_isdigit(*buf)) {
 		SendMsgToChar("Usage: objfind <rnum number> - найти предметы по RNUM\r\n", ch);
 		return;
