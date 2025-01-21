@@ -133,6 +133,7 @@ void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
+void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
@@ -217,6 +218,32 @@ void AddKarma(CharData *ch, const char *punish, const char *reason) {
 		time_t nt = time(nullptr);
 		snprintf(smallbuf, kMaxInputLength, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
 		KARMA(ch) = str_add(KARMA(ch), smallbuf);
+	}
+}
+
+extern bool print_object_location(int num, const ObjData *obj, CharData *ch);
+
+void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	ObjRnum orn;
+	int num = 1;
+	std::list<ObjData *> objs;
+
+	one_argument(argument, buf);
+	if (!*buf || !a_isdigit(*buf)) {
+		SendMsgToChar("Usage: objfind <rnum number> - найти предметы по RNUM\r\n", ch);
+		return;
+	}
+	if ((orn = atoi(buf)) < 0 || (size_t)orn > (world_objects.size() - 1)) {
+		SendMsgToChar("Указан неверный RNUM объекта !\r\n", ch);
+		return;
+	}
+	world_objects.GetObjListByRnum(orn, objs);
+	if (objs.empty()) {
+		SendMsgToChar("Нет таких предметов в мире.\r\n", ch);
+		return;
+	}
+	for (auto object : objs) {
+		print_object_location(num++, object, ch);
 	}
 }
 
