@@ -55,10 +55,8 @@ class CObjectPrototypes {
 
 	size_t add(CObjectPrototype *prototype, const ObjVnum vnum);
 	size_t add(const CObjectPrototype::shared_ptr &prototype, const ObjVnum vnum);
-	void replace(CObjectPrototype *prototype, const ObjRnum orn, const ObjVnum ovn);
 
 	void zone(const size_t rnum, const size_t zone_rnum) { m_index[rnum].zone = static_cast<int>(zone_rnum); }
-
 	int stored(const size_t rnum) const;
 	auto stored(const CObjectPrototype::shared_ptr &object) const { return stored(object->get_rnum()); }
 	void dec_stored(const size_t rnum) { --m_index[rnum].stored; }

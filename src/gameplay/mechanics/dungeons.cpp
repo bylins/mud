@@ -512,14 +512,14 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 			NEWCREATE(new_obj, new_ovn);
 			const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
 			new_obj->copy_from(obj_original.get());
+			new_obj->set_rnum(orn_to);
 			if (new_obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(new_obj);
 			}
-			new_obj->set_parent_rnum(obj_original->get_rnum());
+			new_obj->set_parent_rnum(i);
 //			new_obj->set_extra_flag(EObjFlag::kNolocate);
 //			new_obj->set_extra_flag(EObjFlag::kNorent);
 			new_obj->set_extra_flag(EObjFlag::kNosell);
-			obj_proto.replace(new_obj, orn_to, new_ovn);
 			for (const auto tvn : obj_proto[i]->get_proto_script()) {
 				if (zone_table[zrn_from].vnum == tvn / 100) {
 					new_obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
@@ -549,6 +549,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 					}
 				}
 			}
+			obj_proto.set_rnum(orn_to, new_obj);
 			obj_proto.dec_number(obj_original->get_rnum());
 			world_objects.remove(obj_original);
 		}
