@@ -241,13 +241,22 @@ void FindErrorCountObj(CharData *ch) {
 
 		world_objects.GetObjListByRnum(orn, objs);
 		sum = objs.size();
+		std::for_each(it_start, obj_proto.end(), [&rnum, &sum, &objs, &it] (auto it2) {
+			if (it2 == *it)
+				return;
+			if (it2->get_parent_rnum() == rnum) {
+				if (CAN_WEAR(it2.get(), EWearFlag::kTake) && !it2->has_flag(EObjFlag::kQuestItem)) {
+					world_objects.GetObjListByRnum(it2->get_rnum(), objs);
+					sum += objs.size();
+				}
+			}
+		});
 		if (CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) && !obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
-
 			world_objects.GetObjListByRnum((*it)->get_parent_rnum(), objs_orig);
 			sum += objs_orig.size();
 		}
 		if (sum != (size_t)obj_proto.total_online(orn)) {
-			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d\r\n", GET_OBJ_PNAME(*it, 0).c_str(), (*it)->get_vnum());
+			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %ld \r\n", GET_OBJ_PNAME(*it, 0).c_str(), (*it)->get_vnum(), sum);
 			for (auto object : objs) {
 				print_object_location(num++, object, ch);
 			}
