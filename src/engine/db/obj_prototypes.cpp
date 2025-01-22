@@ -17,13 +17,6 @@ size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr &prototype, con
 	return index;
 }
 
-void CObjectPrototypes::replace(CObjectPrototype *prototype, const ObjRnum orn, const ObjVnum ovn) {
-	prototype->set_rnum(static_cast<int>(orn));
-	m_vnum2index[ovn] = orn;
-	m_prototypes[orn].reset(prototype);
-	m_index[orn] = SPrototypeIndex();
-}
-
 int CObjectPrototypes::stored(const size_t rnum) const {
 	auto orn  = obj_proto[rnum]->get_parent_rnum();
 
