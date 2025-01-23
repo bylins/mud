@@ -1,10 +1,10 @@
 # BRus MUD Engine readme.
 
-Для сборки под Ubuntu 20.04 или WSL (ubuntu под WIN10 установка https://docs.microsoft.com/ru-ru/windows/wsl/install) требуется ввести:
+Для сборки под Ubuntu 24.04 или WSL (ubuntu под WIN10 установка https://docs.microsoft.com/ru-ru/windows/wsl/install) требуется ввести:
 
 sudo apt update && sudo apt upgrade
 
-sudo apt install build-essential make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb
+sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb
 
 git clone --recurse-submodules https://github.com/bylins/mud
 
