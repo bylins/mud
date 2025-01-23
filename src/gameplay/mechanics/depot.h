@@ -24,7 +24,7 @@ void save_char_by_uid(int uid);
 
 bool is_depot(ObjData *obj);
 void show_depot(CharData *ch);
-bool put_depot(CharData *ch, const ObjData::shared_ptr &obj);
+bool put_depot(CharData *ch, ObjData::shared_ptr &obj);
 void take_depot(CharData *ch, char *arg, int howmany);
 int delete_obj(int vnum);
 

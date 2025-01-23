@@ -2281,7 +2281,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				kToChar);
 			return false;
 		}
-		dungeons::SwapOriginalObject(obj);
+		obj = dungeons::SwapOriginalObject(obj);
 		RemoveObjFromChar(obj);
 		PlaceObjIntoObj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
