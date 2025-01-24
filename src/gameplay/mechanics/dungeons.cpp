@@ -50,7 +50,7 @@ void ZoneDataFree(ZoneRnum zrn);
 void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to);
 void RemoveShopSeller(MobRnum mrn);
 void ZoneTransformCMD(ZoneRnum zrn_to, ZoneRnum zrn_from, std::vector<ZrnComplexList> dungeon_list = {});
-void SwapOriginalObject(ObjData *obj);
+ObjData *SwapOriginalObject(ObjData *obj);
 
 void DoDungeonReset(CharData * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/) {
 	DungeonReset(GetZoneRnum(atoi(argument)));
@@ -1138,47 +1138,66 @@ void SwapObjectDungeon(CharData *ch) {
 			}
 		}
 		SwapOriginalObject(obj);
+
 	}
 }
 
-void SwapOriginalObject(ObjData *obj) {
+ObjData *SwapOriginalObject(ObjData *obj) {
 	if (obj->get_parent_rnum() > -1 && !obj->has_flag(EObjFlag::kRepopDecay)) {
 		const auto obj_original = world_objects.create_from_prototype_by_rnum(obj->get_parent_rnum());
 		int pos = -1;
 		CharData *wearer = nullptr;
 		ObjData *in_obj = nullptr;
+		CharData *carrier = nullptr;
+		RoomRnum room = kNowhere;
+
+		if ((room = obj->get_in_room()) != kNowhere) {
+			RemoveObjFromRoom(obj);
+		}
 
 		if (obj->get_worn_by()) {
 			pos = obj->get_worn_on();
 			wearer = obj->get_worn_by();
 			UnequipChar(obj->get_worn_by(), pos, CharEquipFlags());
 		}
+		if (obj->get_carried_by()) {
+			carrier = obj->get_carried_by();
+			RemoveObjFromChar(obj);
+		}
 		if (obj->get_in_obj()) {
 			in_obj = obj->get_in_obj();
 			RemoveObjFromObj(obj);
 		}
-		obj->swap(*obj_original.get(), false); //поменяемся оставив триггера с original_get
-	if (obj_original->get_custom_label()) {
-		obj->set_custom_label(new custom_label());
-		obj->get_custom_label()->text_label = str_dup(obj_original->get_custom_label()->text_label);
-		obj->get_custom_label()->author = obj_original->get_custom_label()->author;
-		if (obj_original->get_custom_label()->clan_abbrev != nullptr) {
-			obj->get_custom_label()->clan_abbrev = str_dup(obj_original->get_custom_label()->clan_abbrev);
+		if (obj->get_custom_label()) {
+			obj_original->set_custom_label(new custom_label());
+			obj_original->get_custom_label()->text_label = str_dup(obj->get_custom_label()->text_label);
+			obj_original->get_custom_label()->author = obj->get_custom_label()->author;
+			if (obj->get_custom_label()->clan_abbrev != nullptr) {
+				obj_original->get_custom_label()->clan_abbrev = str_dup(obj->get_custom_label()->clan_abbrev);
+			}
+			obj_original->get_custom_label()->author_mail = str_dup(obj->get_custom_label()->author_mail);
 		}
-		obj->get_custom_label()->author_mail = str_dup(obj_original->get_custom_label()->author_mail);
-	}
-		if (obj_original->has_flag(EObjFlag::kTicktimer)) {
-			obj->set_extra_flag(EObjFlag::kTicktimer);
+		if (obj->has_flag(EObjFlag::kTicktimer)) {
+			obj_original->set_extra_flag(EObjFlag::kTicktimer);
+		}
+		obj_original->set_timer(obj->get_timer());
+		if (room != kNowhere) {
+			PlaceObjToRoom(obj_original.get(), room);
 		}
 		if (in_obj) {
-			PlaceObjIntoObj(obj, in_obj);
+			PlaceObjIntoObj(obj_original.get(), in_obj);
+		}
+		if (carrier) {
+			PlaceObjToInventory(obj_original.get(), carrier);
 		}
 		if (wearer) {
-			EquipObj(wearer, obj, pos, CharEquipFlags());
+			EquipObj(wearer, obj_original.get(), pos, CharEquipFlags());
 		}
-		obj_proto.dec_number(obj_original->get_rnum());
-		world_objects.remove(obj_original);
+		obj_proto.dec_number(obj->get_rnum());
+		world_objects.remove(obj);
+		return obj_original.get();
 	}
+	return obj;
 }
 
 } // namespace dungeons

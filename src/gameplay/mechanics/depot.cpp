@@ -970,7 +970,7 @@ unsigned count_inrg(const ObjListType &cont) {
 }
 
 // * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
-bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
+bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	if (ch->IsNpc()) return 0;
 
 #ifndef TEST_BUILD
@@ -1021,7 +1021,7 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 		SendMsgToChar(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n");
 		return 0;
 	}
-
+	obj = world_objects.get_by_raw_ptr(dungeons::SwapOriginalObject(obj.get()));
 	depot_log("put_depot %s %ld: %s %d %d",
 			  GET_NAME(ch), GET_UID(ch), obj->get_short_description().c_str(),
 			  GET_OBJ_UNIQUE_ID(obj), GET_OBJ_VNUM(obj.get()));
@@ -1030,7 +1030,6 @@ bool put_depot(CharData *ch, const ObjData::shared_ptr &obj) {
 
 	act("Вы положили $o3 в персональное хранилище.", false, ch, obj.get(), 0, kToChar);
 	act("$n положил$g $o3 в персональное хранилище.", true, ch, obj.get(), 0, kToRoom);
-	dungeons::SwapOriginalObject(obj.get());
 	RemoveObjFromChar(obj.get());
 	check_auction(nullptr, obj.get());
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
