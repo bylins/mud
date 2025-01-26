@@ -1868,7 +1868,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			it->remove_protecting();
 		}
 	}
-	ch->set_wait(0);
+	ch->zero_wait();
 	if (!left_in_game) {
 		character_list.remove(ch);
 	}
