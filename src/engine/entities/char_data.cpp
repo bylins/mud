@@ -726,7 +726,7 @@ void CharData::remove_protecting() {
 		auto predicate = [this](auto p) { return (this  ==  p); };
 		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
 		get_protecting()->who_protecting.erase(it);
-		SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", GET_PAD(get_protecting(), 1));
+		SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", GET_PAD(get_protecting(), 3));
 		SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
 	}
 	protecting_ = nullptr;
