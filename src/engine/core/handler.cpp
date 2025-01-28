@@ -1856,6 +1856,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		STATE(ch->desc) = CON_MENU;
 		iosystem::write_to_output(MENU, ch->desc);
 		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
+			ch->zero_wait();
 			do_entergame(ch->desc);
 			left_in_game = true;
 		}
@@ -1868,7 +1869,6 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 			it->remove_protecting();
 		}
 	}
-	ch->zero_wait();
 	if (!left_in_game) {
 		character_list.remove(ch);
 	}
