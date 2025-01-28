@@ -146,6 +146,7 @@ void Characters::remove(CharData *character) {
 		m_extracted_list.erase(character);
 	}
 	if (chardata_wait_list.contains(character)) {
+		character->zero_wait();
 		chardata_wait_list.erase(character);
 	}
 	if (chardata_cooldown_list.contains(character)) {
