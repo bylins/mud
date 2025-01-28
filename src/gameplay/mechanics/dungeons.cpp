@@ -99,6 +99,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ZoneVnum zvn_to;
 	RoomRnum rnum_start, rnum_stop;
 	ZoneRnum zrn_from = GetZoneRnum(zvn_from);
+	int count = kNumberOfZoneDungeons;
 
 	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
 		log(fmt::format("Нет комнат в зоне {}.", zvn_from));
@@ -109,9 +110,14 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
 	}
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
+		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone != 0) {
+			count--;
+		}
+	}
+	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
 		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone == 0) {
-			auto msg = fmt::format("Клонирую зону {} в {}, осталось мест: {}",
-					zvn_from, zvn_to, kZoneStartDungeons + kNumberOfZoneDungeons - zvn_to - 1);
+			auto msg = fmt::format("Пытаюсь склонировать зону {} в {}, осталось мест: {}",
+					zvn_from, zvn_to, count);
 			mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
 			break;
 		}
@@ -656,12 +662,13 @@ void ListDungeons(CharData *ch) {
 	std::ostringstream buffer;
 	ZoneRnum zrn_start = GetZoneRnum(kZoneStartDungeons);
 	ZoneRnum zrn_stop = GetZoneRnum(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
+	int count = 1;
 
 	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:>6} {:<50} {:<}\r\n", "#", "предок", "вход", "прошло", "название зоны", "игроки");
 	for (int i = zrn_start; i <= zrn_stop; i++) {
 		if (zone_table[i].copy_from_zone > 0)
 			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:>5}m {:<50} {:<}\r\n",
-								  i - zrn_start + 1,
+								  count++,
 								  zone_table[i].copy_from_zone,
 								  zone_table[i].entrance,
 								  zone_table[i].time_awake,
