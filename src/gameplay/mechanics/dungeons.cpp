@@ -1006,7 +1006,7 @@ void TrigDataFree(ZoneRnum zrn) {
 }
 
 void ZoneDataFree(ZoneRnum zrn) {
-	for (int subcmd = 0; zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
+	for (int subcmd = 0; zone_table[zrn].cmd != nullptr && zone_table[zrn].cmd[subcmd].command != 'S'; ++subcmd) {
 		if (zone_table[zrn].cmd[subcmd].command == 'V') {
 			free(zone_table[zrn].cmd[subcmd].sarg1);
 			free(zone_table[zrn].cmd[subcmd].sarg2);
