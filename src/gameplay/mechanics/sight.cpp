@@ -235,6 +235,9 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 				print_zone_info(ch);
 			if ((ch->GetLevel() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
+			if (zone_table[inroom].first_enter.empty()) {
+				zone_table[inroom].first_enter = ch->get_name();
+			}
 			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
 					&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
 				SendMsgToChar("&GВы покинули зазеркалье.\r\n&n", ch);

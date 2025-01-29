@@ -2677,6 +2677,7 @@ void ZoneReset::ResetZoneEssential() {
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
 	zone_table[m_zone_rnum].time_awake = 0;
+	zone_table[m_zone_rnum].first_enter.clear();
 	celebrates::ProcessCelebrates(zone_table[m_zone_rnum].vnum);
 	int rnum_start = 0;
 	int rnum_stop = 0;

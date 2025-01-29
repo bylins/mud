@@ -303,8 +303,14 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].traffic,
 			 zone_table[zone].entrance);
 	*bufptr = str_add(*bufptr, tmpstr);
+/*
+	if (!zone_table[zone].first_enter.empty()) {
+		snprintf(tmpstr, BUFFER_SIZE, "Первый вошедший после ресета: %s\r\n", zone_table[zone].first_enter.c_str());
+		*bufptr = str_add(*bufptr, tmpstr);
+	}
+*/
 	if (zone_table[zone].copy_from_zone > 0) {
-		snprintf(tmpstr, BUFFER_SIZE,"Зона прародитель: (%d) %s\r\n",
+		snprintf(tmpstr, BUFFER_SIZE, "Зона прародитель: (%d) %s\r\n",
 				 zone_table[zone].copy_from_zone, zone_table[GetZoneRnum(zone_table[zone].copy_from_zone)].name.c_str());
 		*bufptr = str_add(*bufptr, tmpstr);
 	}

@@ -32,7 +32,7 @@ class ZoneData {
 	int traffic;
 	int level;    // level of this zone (is used in ingredient loading)
 	int type;    // the surface type of this zone (is used in ingredient loading)
-
+	std::string first_enter;
 	int lifespan;        // how long between resets (minutes)
 	int age;        // current age of this zone (minutes)
 	long time_awake;

@@ -664,7 +664,7 @@ void ListDungeons(CharData *ch) {
 	ZoneRnum zrn_stop = GetZoneRnum(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
 	int count = 1;
 
-	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:>6} {:<50} {:<}\r\n", "#", "предок", "вход", "прошло", "название зоны", "игроки");
+	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:>6} {:<50} {:<10} {:<}\r\n", "#", "предок", "вход", "прошло", "название зоны", "первый", "игроки");
 	for (int i = zrn_start; i <= zrn_stop; i++) {
 		if (zone_table[i].copy_from_zone > 0)
 			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:>5}m {:<50} {:<}\r\n",
@@ -673,6 +673,7 @@ void ListDungeons(CharData *ch) {
 								  zone_table[i].entrance,
 								  zone_table[i].time_awake,
 								  zone_table[i].name,
+								  zone_table[i].first_enter,
 								  WhoInZone(i));
 	}
 	SendMsgToChar(buffer.str().c_str(), ch);
@@ -1028,6 +1029,7 @@ void ZoneDataFree(ZoneRnum zrn) {
 	zone_table[zrn].name = "Зона для данжей";
 	zone_table[zrn].reset_mode = 0;
 	zone_table[zrn].top = zone_table[zrn].vnum * 100 + 99;
+	zone_table[zrn].first_enter.clear();
 	zone_table[zrn].copy_from_zone = 0; //свободна для следующего данжа
 }
 
