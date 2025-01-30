@@ -236,7 +236,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 			if ((ch->GetLevel() < kLvlImmortal) && !ch->get_master())
 				++zone_table[inroom].traffic;
 			if (zone_table[inroom].first_enter.empty()) {
-				zone_table[inroom].first_enter = ch->get_name();
+				zone_table[inroom].first_enter = ch->get_master() ? ch->get_master()->get_name() : ch->get_name();
 			}
 			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
 					&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
