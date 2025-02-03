@@ -1920,6 +1920,7 @@ void ZoneUpdate() {
 			k++;
 			if (k >= kZonesReset)
 				break;
+		}
 }
 
 bool CanBeReset(ZoneRnum zone) {
