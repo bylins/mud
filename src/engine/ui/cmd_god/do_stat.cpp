@@ -925,7 +925,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kScroll:
 		case EObjType::kPotion: {
 			std::ostringstream out;
-			out << "Заклинания: (Уровень %d" << GET_OBJ_VAL(j, 0) << ") ";
+			out << "Заклинания: (Уровень - " << GET_OBJ_VAL(j, 0) << ") ";
 			for (auto val = 1; val < 4; ++val) {
 				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(j, val));
 				if (MUD::Spell(spell_id).IsValid()) {
