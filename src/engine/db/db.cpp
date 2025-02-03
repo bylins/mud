@@ -1881,6 +1881,7 @@ void ZoneUpdate() {
 			|| CanBeReset(update_u->zone_to_reset)) {
 			zone_repop_list.push_back(update_u->zone_to_reset);
 			std::stringstream out;
+
 			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
 				<< zone_table[update_u->zone_to_reset].vnum << ")";
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
@@ -1919,7 +1920,6 @@ void ZoneUpdate() {
 			k++;
 			if (k >= kZonesReset)
 				break;
-		}
 }
 
 bool CanBeReset(ZoneRnum zone) {
@@ -2716,8 +2716,12 @@ void ZoneReset::ResetZoneEssential() {
 }
 
 void ResetZone(ZoneRnum zone) {
-	ZoneReset zreset(zone);
-	zreset.Reset();
+	if (zone_table[zone].vnum < dungeons::kZoneStartDungeons) {
+		ZoneReset zreset(zone);
+		zreset.Reset();
+	} else {
+		dungeons::DungeonReset(zone);
+	}
 }
 
 // Ищет RNUM первой и последней комнаты зоны

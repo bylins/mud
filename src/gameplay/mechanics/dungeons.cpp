@@ -311,8 +311,8 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 	zone_to.mob_level = zone_from.mob_level;
 	zone_to.type = zone_from.type;
 	zone_to.top = zone_to.vnum * 100 + 99;
-	zone_to.reset_mode = 0; //самостоятельно не ресетится
-	zone_to.lifespan = zone_from.lifespan;
+	zone_to.reset_mode = 1; 
+	zone_to.lifespan = 240;
 	zone_to.reset_idle = true;
 	zone_to.typeA_count = 0;
 	zone_to.typeB_count = 0;
