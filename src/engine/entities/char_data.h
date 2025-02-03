@@ -593,6 +593,7 @@ class CharData : public ProtectedCharData {
 	bool HasCooldown(ESkill skillID);
 	bool HaveDecreaseCooldowns();
 	int getSkillCooldownInPulses(ESkill skillID);
+	void ZeroCooldowns();
 	unsigned getSkillCooldown(ESkill skillID);
 
 	void reset() override;

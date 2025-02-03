@@ -150,6 +150,7 @@ void Characters::remove(CharData *character) {
 		chardata_wait_list.erase(character);
 	}
 	if (chardata_cooldown_list.contains(character)) {
+		character->ZeroCooldowns();
 		chardata_cooldown_list.erase(character);
 	}
 	m_list.erase(index_i->second);

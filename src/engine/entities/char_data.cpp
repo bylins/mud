@@ -676,6 +676,12 @@ bool CharData::HaveDecreaseCooldowns() {
 	return has_cooldown;
 }
 
+void CharData::ZeroCooldowns() {
+	for (auto &skillData : skills) {
+		skillData.second.cooldown = 0u;
+	}
+}
+
 bool CharData::haveSkillCooldown(ESkill skillID) {
 	auto skillData = skills.find(skillID);
 	if (skillData != skills.end()) {
