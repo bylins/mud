@@ -899,13 +899,14 @@ void RoomDataFree(ZoneRnum zrn) {
 	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 
 	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
-		world[rrn]->clear_flags();
 		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
 			RemovePortalGate(rrn);
 		}
 	}
 	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
 		auto &room = world[rrn_start + rvn];
+
+		room->clear_flags();
 		ClearRoom(room);
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
