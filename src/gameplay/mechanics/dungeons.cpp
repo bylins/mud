@@ -905,6 +905,8 @@ void RoomDataFree(ZoneRnum zrn) {
 	}
 	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
 		auto &room = world[rrn_start + rvn];
+
+		room->clear_flags();
 		ClearRoom(room);
 		free(room->name);
 		room->name = str_dup("ДАНЖ!");
