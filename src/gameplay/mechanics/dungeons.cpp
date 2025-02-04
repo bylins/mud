@@ -899,6 +899,7 @@ void RoomDataFree(ZoneRnum zrn) {
 	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 
 	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
+		world[rrn]->clear_flags();
 		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
 			RemovePortalGate(rrn);
 		}
