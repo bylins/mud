@@ -1902,7 +1902,11 @@ void ZoneUpdate() {
 			ss << "В списке репопа: ";
 			for (auto &it : zone_repop_list) {
 				ss << zone_table[it].vnum << " ";
-				ResetZone(it);
+				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
+					ResetZone(it);
+				} else {
+					dungeons::DungeonReset(it);
+				}
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
