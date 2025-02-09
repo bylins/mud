@@ -546,10 +546,11 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	char buf[kMaxStringLength];
 	char buf2[kMaxStringLength];
 	int i, j;
+	ObjRnum orn = object->get_rnum();
 
 	// vnum
-	if (obj_proto[object->get_rnum()]->get_parent_rnum() > -1) {
-		out << "#" << obj_proto[object->get_rnum()]->get_parent_vnum();
+	if (obj_proto[orn]->get_parent_rnum() > -1) {
+		out << "#" << obj_proto[orn]->get_parent_vnum();
 	} else {
 		out << "#" << GET_OBJ_VNUM(object);
 	}
@@ -692,11 +693,20 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (blooded) {
 			object->unset_extraflag(EObjFlag::kBloody);
 		}
+		bool nosell = object->has_flag(EObjFlag::kNosell) && !obj_proto[orn]->has_flag(EObjFlag::kNosell);
+		if (nosell) {
+			object->unset_extraflag(EObjFlag::kNosell);
+		}
+		
 		GET_OBJ_EXTRA(object).tascii(FlagData::kPlanesNumber, buf);
 		GET_OBJ_EXTRA(proto).tascii(FlagData::kPlanesNumber, buf2);
 		if (blooded) //Возвращаем флаг назад
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
+		}
+		if (nosell) //Возвращаем флаг назад
+		{
+			object->set_extra_flag(EObjFlag::kNosell);
 		}
 		if (strcmp(buf, buf2)) {
 			out << "Extr: " << buf << "~\n";
