@@ -340,7 +340,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>(room_spells::UpdateRoomsAffects)),
 		Heartbeat::PulseStep("Player affect update",
 							 kSecsPerPlayerAffect * kPassesPerSec,
-							 0,
+							 kPassesPerSec - 3,
 							 std::make_shared<SimpleCall>(player_affect_update)),
 		Heartbeat::PulseStep("Hour update",
 							 kTimeKoeff * kSecsPerMudHour * kPassesPerSec,
