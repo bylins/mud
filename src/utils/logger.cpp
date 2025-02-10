@@ -3,6 +3,7 @@
 #include "backtrace.h"
 
 #include <iostream>
+#include <chrono>
 
 /**
 * Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
@@ -49,11 +50,9 @@ FILE *logfile = nullptr;
 
 std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
 	std::size_t result = ~0u;
-
-	const time_t ct = time(0);
-	const char *time_s = asctime(localtime(&ct));
-
-	const int timestamp_length = snprintf(buffer, buffer_size, "%-15.15s :: ", time_s + 4);
+	auto now = std::chrono::system_clock::now();
+	auto str = std::format("{}", now);
+	const int timestamp_length = snprintf(buffer, buffer_size, "%-25.26s :: ", str.c_str());
 
 	if (0 > timestamp_length) {
 		puts("SYSERR: failed to print timestamp inside log() function.");
