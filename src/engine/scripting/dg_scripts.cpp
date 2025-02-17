@@ -1656,36 +1656,44 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(tch));
 					}
 				}
+				utils::TrimRight(str);
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
 				int from = 0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
+					if (GET_INVIS_LEV(tch) > 0)
+						continue;
 					if ((IS_CHARMICE(tch) || !tch->IsNpc()) && (tch->in_room >= from && tch->in_room <= to)) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(tch));
 					}
 				}
+				utils::TrimRight(str);
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
-					if (STATE(d) != CON_PLAYING) 
+					if (STATE(d) != CON_PLAYING || GET_INVIS_LEV(d->character) > 0) 
 						continue;
 					if (d->character->in_room >= from && d->character->in_room <= to) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(d->character));
 					}
 				}
+				utils::TrimRight(str);
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if (!tch->IsNpc() && !tch->desc)
 						continue;
+					if (GET_INVIS_LEV(tch) > 0)
+						continue;
 					if (tch->in_room >= from && tch->in_room <= to) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(tch));
 					}
 				}
+				utils::TrimRight(str);
 			} else if (!str_cmp(field, "runestonevnums")) {
 				const auto &runestone_vnums = MUD::Runestones().GetVnumRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));

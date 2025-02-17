@@ -262,7 +262,7 @@ void Trim(std::string &s) {
 	TrimRight(s);
 }
 
-void skip_spaces_from_end(char* string) {
+void TrimRight(char* string) {
 	if (!string || !*string) {
 		return;
 	}
@@ -275,7 +275,7 @@ void skip_spaces_from_end(char* string) {
 
 void Trim(char *s) {
 	skip_spaces(&s);
-	skip_spaces_from_end(s);
+	TrimRight(s);
 }
 
 std::string TrimLeftCopy(std::string s) {
