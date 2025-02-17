@@ -146,7 +146,7 @@ void TrimLeft(std::string &s);
  *  Обрезать пробелы справа.
  */
 void TrimRight(std::string &s);
-
+void TrimRight(char* string);
 /**
  * Обрезать пробелы справа и слева.
  */
