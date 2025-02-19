@@ -3886,7 +3886,10 @@ void eval_op(const char *op,
 			sprintf(result, "%d", !atoi(rhs));
 		else
 			sprintf(result, "%d", !*rhs);
+	} else if (!strcmp("#", op)) {
+		sprintf(result, "%d", atoi(lhs) % atoi(rhs));
 	}
+
 }
 
 /*
@@ -3972,6 +3975,7 @@ int eval_lhs_op_rhs(const char *expr, char *result, void *go, Script *sc, Trigge
 			"/",
 			"*",
 			"!",
+			"#",
 			"\n"
 		};
 	if (strlen(expr) > kMaxTrglineLength - 1) {
