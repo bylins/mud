@@ -50,14 +50,17 @@ FILE *logfile = nullptr;
 
 std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
 	std::size_t result = ~0u;
+#if 0 // prool fool: dirty hack
 	auto now = std::chrono::system_clock::now();
 	auto str = std::format("{}", now);
 	const int timestamp_length = snprintf(buffer, buffer_size, "%-25.26s :: ", str.c_str());
-
 	if (0 > timestamp_length) {
 		puts("SYSERR: failed to print timestamp inside log() function.");
 		return result;
 	}
+#else
+	const int timestamp_length = snprintf(buffer, buffer_size, "proolfool/timestamp :: "); // prool fool!
+#endif
 
 	va_list args_copy;
 	va_copy(args_copy, args);
