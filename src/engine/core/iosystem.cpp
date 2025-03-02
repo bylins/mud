@@ -6,6 +6,9 @@
 \detail Сетевой ввод-вывод: получение команд от пользователей и отправка ответов сервера.
 */
 
+#include <sys/types.h>  // prool for wsl
+#include <sys/socket.h> //      //
+
 #include "engine/core/iosystem.h"
 
 #include "engine/entities/char_data.h"
