@@ -13,6 +13,8 @@
 
 #define INTERPRETER_CPP_
 
+#define TEST_BUILD // prool: no send code by e-mail, and 1st player is immortal
+
 #include "interpreter.h"
 
 #include "act_movement.h"
