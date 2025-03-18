@@ -6,6 +6,9 @@
 #include "password.h"
 #include "engine/entities/zone.h"
 #include <sstream>
+
+#include <crypt.h> // prool: for cygwin
+
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 
 #if defined(NOCRYPT)
