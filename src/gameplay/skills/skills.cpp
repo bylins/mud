@@ -2096,8 +2096,8 @@ int CalcSkillRemortCap(const CharData *ch) {
 
 int CalcSkillWisdomCap(const CharData *ch) {
 	// считаем требования по мудре для капа по скиллов по морту на текущий морт
-	int requirement = 10 + (GetRealRemort(ch) / 5 * 6);
-	// на 5 морте требуется 16 мудры, на 10- 22, на 15- 28 И так далее, на 75 морте 100
+	int requirement = 10 + (GetRealRemort(ch) / 10 * 9);
+	// на 10 морте требуется 19 мудры, на 20- 28, на 30- 37 И так далее, на 100 морте 100
 	// кап равномерно увеличивается с каждым левелом
 	float cap = CalcSkillRemortCap(ch) * GetRealLevel(ch) / 30;
 	int diff = requirement - GetRealWis(ch);
