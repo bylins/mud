@@ -1192,6 +1192,7 @@ ObjData *SwapOriginalObject(ObjData *obj) {
 			obj_original->set_extra_flag(EObjFlag::kTicktimer);
 		}
 		obj_original->set_timer(obj->get_timer());
+		obj_original->set_vnum_zone_from(obj->get_vnum_zone_from());
 		if (room != kNowhere) {
 			PlaceObjToRoom(obj_original.get(), room);
 		}
