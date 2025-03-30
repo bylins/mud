@@ -1,0 +1,12 @@
+For compiling in cygwin need delete or comment string #define HAVE_ICONV
+in file src/utils/utils.cpp
+
+Serhii "Prool" Pustovoitov
+
+Mart 2025, Duisburg, Germany
+
+http://mud.virtustan.net
+
+https://github.com/MUD-2025/mud
+
+putin huylo!
