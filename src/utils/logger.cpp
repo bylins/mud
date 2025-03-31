@@ -50,9 +50,21 @@ FILE *logfile = nullptr;
 
 std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
 	std::size_t result = ~0u;
-	auto now = std::chrono::system_clock::now();
-	auto str = std::format("{}", now);
-	const int timestamp_length = snprintf(buffer, buffer_size, "%-25.26s :: ", str.c_str());
+
+	const std::chrono::time_zone* time_zone;
+	try {
+		time_zone = std::chrono::current_zone();
+	}
+	catch(const std::runtime_error&) {
+		puts("SYSERR: failed to get local timezone.");
+		return result;
+	}
+
+	const auto utc_now = std::chrono::system_clock::now();
+	const auto now = std::chrono::zoned_time{time_zone, utc_now};
+
+	const auto str = std::format("{:%Y-%m-%d %T}", now);
+	const int timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
 
 	if (0 > timestamp_length) {
 		puts("SYSERR: failed to print timestamp inside log() function.");
