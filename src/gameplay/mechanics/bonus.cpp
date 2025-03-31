@@ -39,7 +39,7 @@ bool can_get_bonus_exp(CharData *ch) {
 		return false;
 	}
 
-	const short MAX_REMORT_FOR_BONUS = 99;
+	const short MAX_REMORT_FOR_BONUS = 50;
 	return GetRealRemort(ch) <= MAX_REMORT_FOR_BONUS;
 }
 
