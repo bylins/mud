@@ -15,17 +15,17 @@
 
 #include "dg_event.h"
 #include "engine/db/db.h"
+#include "engine/db/global_objects.h"
 #include "dg_scripts.h"
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 
-// * define statics
-std::list<TriggerEvent> event_list;
-
 // * Add an event to the current list
 TriggerEvent add_event(int time, EVENT(*func), void *info) {
 	TriggerEvent this_data;
+
+	TriggerEventList_t &event_list = GlobalObjects::trigger_event_list();
 
 	this_data.time_remaining = time;
 	this_data.func = func;
@@ -42,12 +42,15 @@ TriggerEvent add_event(int time, EVENT(*func), void *info) {
 }
 
 void remove_event(TriggerEvent event) {
+	TriggerEventList_t &event_list = GlobalObjects::trigger_event_list();
 	std::erase_if(event_list, [event](auto it) {return it.info == event.info;});
 }
 
 void process_events(void) {
 	int trig_vnum;
 	int timewarning = 10;
+
+	TriggerEventList_t &event_list = GlobalObjects::trigger_event_list();
 
 	auto now = std::chrono::system_clock::now();
 	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
@@ -86,6 +89,8 @@ void print_event_list(CharData *ch)
 {
 	sprintf(buf, "В данный момент выполняются следующие триггеры:\r\n");
 	SendMsgToChar(buf, ch);
+
+	TriggerEventList_t &event_list = GlobalObjects::trigger_event_list();
 
 	short trig_counter = 1;
 	for (auto &e : event_list) {
