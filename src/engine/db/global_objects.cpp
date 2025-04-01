@@ -20,6 +20,9 @@ struct GlobalObjectsStorage {
 	celebrates::CelebrateObjs attached_objs;
 	celebrates::CelebrateObjs loaded_objs;
 
+	// to be destroyed last to avoid crashes in other destructors during shutdown
+	TriggerEventList_t trigger_event_list;
+
 	GlobalTriggersStorage trigger_list;
 	Rooms world;
 	BloodyInfoMap bloody_map;
@@ -208,6 +211,10 @@ celebrates::CelebrateObjs &GlobalObjects::loaded_objs() {
 
 GlobalTriggersStorage &GlobalObjects::trigger_list() {
 	return global_objects().trigger_list;
+}
+
+TriggerEventList_t &GlobalObjects::trigger_event_list() {
+	return global_objects().trigger_event_list;
 }
 
 BloodyInfoMap &GlobalObjects::bloody_map() {
