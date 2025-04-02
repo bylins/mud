@@ -13,6 +13,7 @@
 #include "engine/core/heartbeat.h"
 #include "administration/shutdown_parameters.h"
 #include "engine/ui/cmd_god/do_inspect.h"
+#include "engine/scripting/dg_event.h"
 #include "gameplay/economics/shops_implementation.h"
 #include "world_objects.h"
 #include "world_characters.h"
@@ -78,6 +79,7 @@ class GlobalObjects {
 	static celebrates::CelebrateObjs &loaded_objs();
 
 	static GlobalTriggersStorage &trigger_list();
+	static TriggerEventList_t &trigger_event_list();
 	static BloodyInfoMap &bloody_map();
 	static Rooms &world();
 	static PlayersIndex &player_table();

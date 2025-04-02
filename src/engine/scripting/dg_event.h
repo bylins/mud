@@ -18,6 +18,8 @@
 #ifndef _DG_EVENT_H_
 #define _DG_EVENT_H_
 
+#include <list>
+
 // * how often will heartbeat() call our event function?
 #define PULSE_DG_EVENT 1
 
@@ -37,6 +39,8 @@ TriggerEvent () {
 	deleted = false;
 }
 };
+
+using TriggerEventList_t = std::list<TriggerEvent>;
 
 // * prototype event functions
 TriggerEvent add_event(int time, EVENT(*func), void *info);
