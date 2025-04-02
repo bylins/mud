@@ -50,7 +50,7 @@ FILE *logfile = nullptr;
 
 std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
 	std::size_t result = ~0u;
-
+#if 0 // prool fool: dirty hack, for compiling in Ubuntu 22
 	const std::chrono::time_zone* time_zone;
 	try {
 		time_zone = std::chrono::current_zone();
@@ -65,6 +65,9 @@ std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char 
 
 	const auto str = std::format("{:%Y-%m-%d %T}", now);
 	const int timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
+#else
+	const int timestamp_length = snprintf(buffer, buffer_size, "proolfool :: "); // prool fool!
+#endif
 
 	if (0 > timestamp_length) {
 		puts("SYSERR: failed to print timestamp inside log() function.");

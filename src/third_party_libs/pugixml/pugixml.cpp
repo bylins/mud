@@ -14,6 +14,8 @@
 #ifndef SOURCE_PUGIXML_CPP
 #define SOURCE_PUGIXML_CPP
 
+#include "../../utils/logger.h"  // prool fool
+
 #include "pugixml.h"
 
 //#include <stdlib.h>
@@ -6326,6 +6328,8 @@ PUGI__FN xml_parse_result xml_document::load_file(const char *path_, unsigned in
 
 	using impl::auto_deleter; // MSVC7 workaround
 	auto_deleter<FILE, int (*)(FILE *)> file(fopen(path_, "rb"), fclose);
+
+	log("prool debug: pugixml.cpp: load file: '%s'", path_); // prool debug
 
 	return impl::load_file_impl(static_cast<impl::xml_document_struct *>(_root),
 								file.data,
