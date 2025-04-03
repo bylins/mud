@@ -3200,7 +3200,6 @@ void ActualizePlayersIndex(char *name) {
 				log("Delete %s from account email: %s",
 					GET_NAME(short_ch),
 					short_ch->get_account()->get_email().c_str());
-				short_ch->get_account()->remove_player(short_ch->get_uid());
 			}
 		} else {
 			log("SYSERR: Failed to load player %s.", name);

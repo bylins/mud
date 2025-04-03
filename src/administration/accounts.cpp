@@ -59,21 +59,26 @@ void Account::complete_quest(int id) {
 	this->dquests.push_back(dq_tmp);
 }
 
-void Account::purge_erased() {
-	std::string uid;
-	for (size_t i = 0; i < this->players_list.size(); i++) {
-		uid = GetNameByUnique(this->players_list[i]);
-		if (uid.empty()) {
-			this->players_list.erase(this->players_list.begin() + i);
+std::vector<PlayerIndexElement> Account::all_chars_in_account() const
+{
+	std::vector<PlayerIndexElement> result_list;
+
+	const auto &player_list = GlobalObjects::player_table();
+	std::copy_if(player_list.begin(), player_list.end(), std::back_inserter(result_list),
+				 [this](const PlayerIndexElement &pie) {
+		if (!pie.mail) {
+			return false;
 		}
-	}
-	save_to_file();
+
+		return email.compare(pie.mail) == 0;
+	});
+
+	return result_list;
 }
 
 void Account::show_players(CharData *ch) {
 	int count = 1;
 	std::stringstream ss;
-	purge_erased();
 	ss << "Данные аккаунта: " << this->email << "\r\n";
 	for (auto &x : this->players_list) {
 		std::string name = GetNameByUnique(x);
@@ -87,11 +92,14 @@ void Account::show_players(CharData *ch) {
 void Account::list_players(DescriptorData *d) {
 	int count = 1;
 	std::stringstream ss;
-	purge_erased();
+	const auto &chars_in_account = all_chars_in_account();
 	ss << "Данные аккаунта: " << this->email << "\r\n";
 	iosystem::write_to_output(ss.str().c_str(), d);
-	for (auto &x : this->players_list) {
-		std::string name = GetNameByUnique(x);
+	for (auto &x : chars_in_account) {
+		if (!x.name()) {
+			continue;
+		}
+		std::string name(x.name());
 		iosystem::write_to_output((std::to_string(count) + ") ").c_str(), d);
 		name[0] = UPPER(name[0]);
 		iosystem::write_to_output(name.c_str(), d);
@@ -135,26 +143,6 @@ void Account::read_from_file() {
 				tmp_quest.time = atoi(tmp[3].c_str());
 				this->dquests.push_back(tmp_quest);
 			}
-/*			if (line.starts_with("hl: ")) {
-				utils::Split(tmp, line);
-				login_index tmp_li;
-				tmp_li.count = atoi(tmp[2].c_str());
-				tmp_li.last_login = atoi(tmp[3].c_str());
-				this->history_logins.insert(std::pair<std::string, login_index>(tmp[1].c_str(), tmp_li));
-			}
-			if (line.starts_with("p: ")) {
-				utils::Split(tmp, line);
-				this->add_player(atoi(tmp[1].c_str()));
-			}
-			if (line.starts_with("Pwd: ")) {
-				utils::Split(tmp, line);
-				this->hash_password = tmp[1];
-			}
-			if (line.starts_with("ll: ")) {
-				utils::Split(tmp, line);
-				this->last_login = atoi(tmp[1].c_str());
-			}
-*/
 		}
 		in.close();
 	}
@@ -162,26 +150,6 @@ void Account::read_from_file() {
 
 std::string Account::get_email() {
 	return this->email;
-}
-\
-void Account::add_player(long uid) {
-	// если уже есть, то не добавляем
-	for (auto &x : this->players_list) {
-		if (x == uid) {
-			return;
-		}
-	}
-	this->players_list.push_back(uid);
-}
-
-void Account::remove_player(long uid) {
-	for (size_t i = 0; i < this->players_list.size(); i++) {
-		if (this->players_list[i] == uid) {
-			this->players_list.erase(this->players_list.begin() + i);
-			return;
-		}
-	}
-	//mudlog("Функция Account::remove_player, uid  %d не был найден", uid);
 }
 
 time_t Account::get_last_login() const {
