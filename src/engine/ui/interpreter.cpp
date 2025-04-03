@@ -17,6 +17,7 @@
 
 #include "act_movement.h"
 #include "administration/ban.h"
+#include "administration/accounts.h"
 #include "gameplay/communication/boards/boards.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -2807,6 +2808,13 @@ void nanny(DescriptorData *d, char *argument) {
 				iosystem::write_to_output(ss.str().c_str(), d);
 				STATE(d) = CON_NEW_CHAR;
 				return;
+			} else if (std::string_view(argument).find("@") != std::string::npos) {
+				// имя содержит "@" - предполагаем имейл --> вход в аккаунт
+				STATE(d) = CON_ACC_PASSWORD;
+				// есть аккаунт/нет его - тут не важно. ответ будет после проверки пароля
+				d->account = Account::get_account(std::string(argument));
+				iosystem::write_to_output("Введите пароль от аккаунта : ", d);
+				return;
 			} else {
 				if (sscanf(argument, "%s %s", pwd_name, pwd_pwd) == 2) {
 					if (parse_exist_name(pwd_name, tmp_name)
@@ -3848,6 +3856,38 @@ void nanny(DescriptorData *d, char *argument) {
 			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 			STATE(d) = CON_RMOTD;
 
+			break;
+
+		case CON_ACC_PASSWORD:
+			iosystem::write_to_output("\r\n", d);
+
+			if (!*argument) {
+				STATE(d) = CON_CLOSE;
+				break;
+			}
+
+			if (!d->account) {
+				iosystem::write_to_output("Неверный пароль... Отсоединяемся.\r\n", d);
+				STATE(d) = CON_CLOSE;
+				break;
+			}
+
+			if (!d->account->compare_password(argument)) {
+				sprintf(buffer, "Bad PW: (account) %s [%s]", d->account->email().c_str(), d->host);
+				mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
+				iosystem::write_to_output("Неверный пароль... Отсоединяемся.\r\n", d);
+				STATE(d) = CON_CLOSE;
+				break;
+			}
+
+			iosystem::write_to_output("Тут будет Ваш аккаунт. Когда-нибудь.\r\n", d);
+			sprintf(buffer, "Успешный вход в аккаунт: %s [%s]", d->account->email().c_str(), d->host);
+			STATE(d) = CON_ACC_MAIN;
+			break;
+
+		case CON_ACC_MAIN:
+			iosystem::write_to_output("Может быть.\r\n", d);
+			STATE(d) = CON_CLOSE;
 			break;
 
 		default:

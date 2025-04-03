@@ -33,6 +33,8 @@ namespace  obj_sets_olc {
 	class sedit;
 }
 
+class Account;
+
 struct DescriptorData {
 	DescriptorData();
 
@@ -78,6 +80,7 @@ struct DescriptorData {
 
 	std::shared_ptr<CharData> character;    // linked to char       //
 	std::shared_ptr<CharData> original;    // original char if switched     //
+	std::shared_ptr<Account> account;      // аккаунт (при входе в игру)
 
 	DescriptorData *snooping;    // Who is this char snooping  //
 	DescriptorData *snoop_by;    // And who is snooping this char //
@@ -174,6 +177,8 @@ const __uint8_t CON_SEDIT = 54;            // sedit - редактировани
 const __uint8_t CON_RESET_RELIGION = 55;    // сброс религии из меню сброса статов
 const __uint8_t CON_RANDOM_NUMBER = 56;    // Verification code entry: where player enter the game from new location
 const __uint8_t CON_INIT = 57;                // just connected
+const __uint8_t CON_ACC_PASSWORD = 58;     // ввод пароля для аккаунта
+const __uint8_t CON_ACC_MAIN = 59;         // главное меню аккаунта
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 #endif //BYLINS_SRC_STRUCTS_DESCRIPTOR_DATA_H_

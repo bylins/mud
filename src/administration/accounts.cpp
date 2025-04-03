@@ -249,3 +249,8 @@ bool Account::quest_is_available(int id) {
 	}
 	return true;
 }
+
+std::string Account::email() const
+{
+	return email_;
+}

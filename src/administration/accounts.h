@@ -72,6 +72,7 @@ public:
 	bool compare_password(const std::string &password);
 	void show_history_logins(CharData *ch);
 	void add_login(const std::string &ip_addr);
+	std::string email() const;
 
 private:
 	std::vector<PlayerIndexElement> all_chars_in_account() const;
