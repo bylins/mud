@@ -20,6 +20,9 @@ std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	}
 	return nullptr;
 }
+
+// TODO логика никак не относится к аккаунту
+// убрать процессинг к валютам, когда они будут готовы
 int Account::zero_hryvn(CharData *ch, int val) {
 	const int zone_lvl = zone_table[world[ch->in_room]->zone_rn].mob_level;
 	for (auto &plr : this->players_list) {
@@ -146,10 +149,6 @@ void Account::read_from_file() {
 		}
 		in.close();
 	}
-}
-
-std::string Account::get_email() {
-	return this->email;
 }
 
 time_t Account::get_last_login() const {
