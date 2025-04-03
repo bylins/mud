@@ -3196,10 +3196,6 @@ void ActualizePlayersIndex(char *name) {
 
 				log("Adding new player %s", element.name());
 				player_table.Append(element);
-			} else {
-				log("Delete %s from account email: %s",
-					GET_NAME(short_ch),
-					short_ch->get_account()->get_email().c_str());
 			}
 		} else {
 			log("SYSERR: Failed to load player %s.", name);
