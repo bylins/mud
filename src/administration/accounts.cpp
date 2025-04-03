@@ -14,11 +14,50 @@ std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 #define CRYPT(a, b) ((char *) crypt((a),(b)))
 #endif
 
+DQuest::DQuest()
+	: id(0)
+	, count(0)
+	, time(0)
+{
+}
+
+
+DQuest::DQuest(int id, int count, time_t time)
+	: id(id)
+	, count(count)
+	, time(time)
+{
+}
+
+LoginIndex::LoginIndex()
+	: count(0)
+	, last_login(time(0))
+{
+}
+
+LoginIndex::LoginIndex(int count, time_t last_login)
+	: count(count)
+	, last_login(last_login)
+{
+}
+
 std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	if (accounts.contains(email)) {
 		return accounts[email];
 	}
 	return nullptr;
+}
+
+const std::string Account::config_parameter_daily_quest_ = "DaiQ: ";
+const std::string Account::config_parameter_password_ = "Pwd: ";
+const std::string Account::config_parameter_last_login_ = "ll: ";
+const std::string Account::config_parameter_history_login_ = "hl: ";
+
+Account::Account(const std::string &email)
+	: email_(email)
+	, last_login_(0)
+{
+	read_from_file();
 }
 
 // TODO логика никак не относится к аккаунту
@@ -47,7 +86,7 @@ int Account::zero_hryvn(CharData *ch, int val) {
 }
 
 void Account::complete_quest(int id) {
-	for (auto &x : this->dquests) {
+	for (auto &x : dquests_) {
 		if (x.id == id) {
 			x.count += 1;
 			x.time = time(nullptr);
@@ -58,7 +97,7 @@ void Account::complete_quest(int id) {
 	dq_tmp.id = id;
 	dq_tmp.count = 1;
 	dq_tmp.time = time(nullptr);
-	this->dquests.push_back(dq_tmp);
+	dquests_.push_back(dq_tmp);
 }
 
 std::vector<PlayerIndexElement> Account::all_chars_in_account() const
@@ -72,7 +111,7 @@ std::vector<PlayerIndexElement> Account::all_chars_in_account() const
 			return false;
 		}
 
-		return email.compare(pie.mail) == 0;
+		return email_.compare(pie.mail) == 0;
 	});
 
 	return result_list;
@@ -82,7 +121,7 @@ void Account::show_players(CharData *ch) {
 	int count = 1;
 	std::stringstream ss;
 	const auto &chars_in_account = all_chars_in_account();
-	ss << "Данные аккаунта: " << this->email << "\r\n";
+	ss << "Данные аккаунта: " << email_ << "\r\n";
 	for (auto &x : chars_in_account) {
 		if (!x.name()) {
 			continue;
@@ -99,7 +138,7 @@ void Account::list_players(DescriptorData *d) {
 	int count = 1;
 	std::stringstream ss;
 	const auto &chars_in_account = all_chars_in_account();
-	ss << "Данные аккаунта: " << this->email << "\r\n";
+	ss << "Данные аккаунта: " << email_ << "\r\n";
 	iosystem::write_to_output(ss.str().c_str(), d);
 	for (auto &x : chars_in_account) {
 		if (!x.name()) {
@@ -117,34 +156,40 @@ void Account::list_players(DescriptorData *d) {
 
 void Account::save_to_file() {
 	std::ofstream out;
-	out.open(LIB_ACCOUNTS + this->email);
+	out.open(LIB_ACCOUNTS + email_);
 	if (out.is_open()) {
-		for (const auto &x : this->dquests) {
-			out << "DaiQ: " << x.id << " " << x.count << " " << x.time << "\n";
+		for (const auto &x : dquests_) {
+			out << config_parameter_daily_quest_ << x.id << " " << x.count << " " << x.time << "\n";
 		}
-		for (const auto &x : this->history_logins) {
-			out << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
+		for (const auto &x : history_logins_) {
+			out << config_parameter_history_login_ << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
 		}
-		out << "Pwd: " << this->hash_password << "\n";
-		out << "ll: " << this->last_login << "\n";
+		if (hash_password_.has_value()) {
+			// пароля на аккаунте может и не быть, поэтому проверяем перед сохранением
+			out << config_parameter_password_ << hash_password_.value() << "\n";
+		}
+		out << config_parameter_last_login_ << last_login_ << "\n";
 	}
 	out.close();
 }
 
 void Account::read_from_file() {
 	std::string line;
-	std::ifstream in(LIB_ACCOUNTS + this->email);
-	std::vector<std::string> tmp;
+	std::ifstream in(LIB_ACCOUNTS + email_);
 
 	if (in.is_open()) {
 		while (getline(in, line)) {
-			tmp = utils::Split(line);
-			if (line.starts_with("DaiQ: ")) {
-				DQuest tmp_quest{};
-				tmp_quest.id = atoi(tmp[1].c_str());
-				tmp_quest.count = atoi(tmp[2].c_str());
-				tmp_quest.time = atoi(tmp[3].c_str());
-				this->dquests.push_back(tmp_quest);
+			const std::vector<std::string> splitted_line = utils::Split(line);
+			if (line.starts_with(config_parameter_daily_quest_)) {
+				const auto read_id = atoi(splitted_line[1].c_str());
+				const auto read_count = atoi(splitted_line[2].c_str());
+				const auto read_time = atoi(splitted_line[3].c_str());
+				dquests_.emplace_back(read_id, read_count, read_time);
+			} else if (line.starts_with(config_parameter_password_)) {
+				hash_password_ = line.substr(config_parameter_password_.length());
+				if (hash_password_->empty()) {
+					hash_password_ = std::nullopt;
+				}
 			}
 		}
 		in.close();
@@ -152,35 +197,30 @@ void Account::read_from_file() {
 }
 
 time_t Account::get_last_login() const {
-	return this->last_login;
+	return last_login_;
 }
 
 void Account::set_last_login() {
-	this->last_login = time(nullptr);
-}
-
-Account::Account(const std::string &email) {
-	this->email = email;
-	this->read_from_file();
-	this->hash_password = "";
-	this->last_login = 0;
+	last_login_ = time(nullptr);
 }
 
 void Account::add_login(const std::string &ip_addr) {
-	if (this->history_logins.count(ip_addr)) {
-		this->history_logins[ip_addr].last_login = time(nullptr);
-		this->history_logins[ip_addr].count += 1;
+	if (history_logins_.count(ip_addr)) {
+		history_logins_[ip_addr].last_login = time(nullptr);
+		history_logins_[ip_addr].count += 1;
 		return;
 	}
-	login_index tmp{};
-	tmp.last_login = time(nullptr);
-	tmp.count = 1;
-	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
+
+	const auto current_last_login = time(nullptr);
+	const int current_count = 1;
+	const LoginIndex ll{current_count, current_last_login};
+	history_logins_.insert(std::pair<std::string, LoginIndex>(ip_addr, ll));
 }
+
 /* Показ хистори логинов */
 void Account::show_history_logins(CharData *ch) {
 	std::stringstream ss;
-	for (auto &x : this->history_logins) {
+	for (auto &x : history_logins_) {
 		ss << "IP: " << x.first
 				<< " count: " << x.second.count 
 				<< " time: " << rustime(localtime(&x.second.last_login)) 
@@ -190,15 +230,15 @@ void Account::show_history_logins(CharData *ch) {
 }
 
 void Account::set_password(const std::string &password) {
-	this->hash_password = Password::generate_md5_hash(password);
+	hash_password_ = Password::generate_md5_hash(password);
 }
 
 bool Account::compare_password(const std::string &password) {
-	return CompareParam(this->hash_password, CRYPT(password.c_str(), this->hash_password.c_str()), true);
+	return hash_password_.has_value() ? (hash_password_.value(), CRYPT(password.c_str(), hash_password_->c_str()), true) : false;
 }
 
 bool Account::quest_is_available(int id) {
-	for (const auto &x : this->dquests) {
+	for (const auto &x : dquests_) {
 		if (x.id == id) {
 			if (x.time != 0 && (time(0) - x.time) < 82800) {
 				return false;
