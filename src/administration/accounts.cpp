@@ -25,21 +25,20 @@ std::shared_ptr<Account> Account::get_account(const std::string &email) {
 // убрать процессинг к валютам, когда они будут готовы
 int Account::zero_hryvn(CharData *ch, int val) {
 	const int zone_lvl = zone_table[world[ch->in_room]->zone_rn].mob_level;
-	for (auto &plr : this->players_list) {
-		std::string name = GetNameByUnique(plr);
-		if (name.empty()) {
+	const auto &chars_in_account = all_chars_in_account();
+	for (auto &plr : chars_in_account) {
+		if (!plr.name()) {
 			continue;
 		}
 
-		const auto &player = player_table[GetPtableByUnique(plr)];
-		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
+		if (zone_lvl <= 12 && (plr.level + plr.remorts / 5 >= 20)) {
 			if (ch->IsFlagged(EPrf::kTester)) {
 				SendMsgToChar(ch,
 							  "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n",
-							  player.name(),
+							  plr.name(),
 							  val,
-							  player.level,
-							  player.remorts);
+							  plr.level,
+							  plr.remorts);
 			}
 			val = 0;
 		}
@@ -66,8 +65,8 @@ std::vector<PlayerIndexElement> Account::all_chars_in_account() const
 {
 	std::vector<PlayerIndexElement> result_list;
 
-	const auto &player_list = GlobalObjects::player_table();
-	std::copy_if(player_list.begin(), player_list.end(), std::back_inserter(result_list),
+	const auto &player_table = GlobalObjects::player_table();
+	std::copy_if(player_table.begin(), player_table.end(), std::back_inserter(result_list),
 				 [this](const PlayerIndexElement &pie) {
 		if (!pie.mail) {
 			return false;
@@ -82,9 +81,13 @@ std::vector<PlayerIndexElement> Account::all_chars_in_account() const
 void Account::show_players(CharData *ch) {
 	int count = 1;
 	std::stringstream ss;
+	const auto &chars_in_account = all_chars_in_account();
 	ss << "Данные аккаунта: " << this->email << "\r\n";
-	for (auto &x : this->players_list) {
-		std::string name = GetNameByUnique(x);
+	for (auto &x : chars_in_account) {
+		if (!x.name()) {
+			continue;
+		}
+		std::string name(x.name());
 		name[0] = UPPER(name[0]);
 		ss << count << ") " << name << "\r\n";
 		count++;
@@ -121,9 +124,6 @@ void Account::save_to_file() {
 		}
 		for (const auto &x : this->history_logins) {
 			out << "hl: " << x.first << " " << x.second.count << " " << x.second.last_login << "\n";
-		}
-		for (const auto &x : this->players_list) {
-			out << "p: " << x << "\n";
 		}
 		out << "Pwd: " << this->hash_password << "\n";
 		out << "ll: " << this->last_login << "\n";

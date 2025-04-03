@@ -36,8 +36,6 @@ class Account {
 	std::vector<std::string> characters;
 	std::vector<DQuest> dquests;
 	std::string karma;
-	// список чаров на мыле (только уиды)
-	std::vector<long> players_list;
 	// пароль (а точнее его хеш) аккаунта
 	std::string hash_password;
 	// дата последнего входа в аккаунт
