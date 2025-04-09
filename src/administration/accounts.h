@@ -9,6 +9,7 @@
 #include "engine/structs/structs.h"
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
+#include "engine/db/global_objects.h"
 
 #include <string>
 #include <vector>
@@ -16,13 +17,25 @@
 #include <memory>
 #include <unordered_map>
 
-struct DQuest {
+class DQuest {
+public:
+	DQuest();
+	DQuest(int id, int count, time_t time);
+	virtual ~DQuest() = default;
+
+public:
 	int id;
 	int count;
 	time_t time;
 };
 
-struct login_index {
+class LoginIndex {
+public:
+	LoginIndex();
+	LoginIndex(int count, time_t last_login);
+	virtual ~LoginIndex() = default;
+
+public:
 	// количество заходов
 	int count;
 	// дата последнего захода с данного ip
@@ -30,40 +43,44 @@ struct login_index {
 };
 
 class Account {
- private:
-	std::string email;
-	std::vector<std::string> characters;
-	std::vector<DQuest> dquests;
-	std::string karma;
-	// список чаров на мыле (только уиды)
-	std::vector<long> players_list;
+private:
+	const std::string email_;
+	std::vector<DQuest> dquests_;
 	// пароль (а точнее его хеш) аккаунта
-	std::string hash_password;
+	std::optional<std::string> hash_password_;
 	// дата последнего входа в аккаунт
-	time_t last_login;
+	time_t last_login_;
 	// История логинов, ключ - айпи, в структуре количество раз, с которых был произведен заход с данного айпи-адреса + дата, когда последний раз выходили с данного айпишника
-	std::unordered_map<std::string, login_index> history_logins;
+	std::unordered_map<std::string, LoginIndex> history_logins_;
 
- public:
-	void purge_erased();
-	Account(const std::string &name);
+public:
+	static std::shared_ptr<Account> get_account(const std::string &email);
+	Account(const std::string &email);
+	virtual ~Account() = default;
+
+public:
 	void save_to_file();
 	void read_from_file();
-	std::string get_email();
 	bool quest_is_available(int id);
 	int zero_hryvn(CharData *ch, int val);
 	void complete_quest(int id);
-	static std::shared_ptr<Account> get_account(const std::string &email);
 	void show_players(CharData *ch);
 	void list_players(DescriptorData *d);
-	void add_player(long uid);
-	void remove_player(long uid);
 	time_t get_last_login() const;
 	void set_last_login();
 	void set_password(const std::string &password);
 	bool compare_password(const std::string &password);
 	void show_history_logins(CharData *ch);
 	void add_login(const std::string &ip_addr);
+
+private:
+	std::vector<PlayerIndexElement> all_chars_in_account() const;
+
+private:
+	static const std::string config_parameter_daily_quest_;
+	static const std::string config_parameter_password_;
+	static const std::string config_parameter_last_login_;
+	static const std::string config_parameter_history_login_;
 };
 
 extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
