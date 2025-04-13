@@ -10,6 +10,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/economics/currency_container.h"
 
 #include <string>
 #include <vector>
@@ -52,6 +53,8 @@ private:
 	time_t last_login_;
 	// История логинов, ключ - айпи, в структуре количество раз, с которых был произведен заход с данного айпи-адреса + дата, когда последний раз выходили с данного айпишника
 	std::unordered_map<std::string, LoginIndex> history_logins_;
+	// хранилище альтернативных валют на аккаунте
+	currencies::CurrencyContainer currency_container_;
 
 public:
 	static std::shared_ptr<Account> get_account(const std::string &email);
@@ -65,6 +68,7 @@ public:
 	int zero_hryvn(CharData *ch, int val);
 	void complete_quest(int id);
 	void show_players(CharData *ch);
+	void show_currencies(CharData *ch);
 	void list_players(DescriptorData *d);
 	time_t get_last_login() const;
 	void set_last_login();
@@ -81,6 +85,7 @@ private:
 	static const std::string config_parameter_password_;
 	static const std::string config_parameter_last_login_;
 	static const std::string config_parameter_history_login_;
+	static const std::string config_parameter_alt_currencies_;
 };
 
 extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;

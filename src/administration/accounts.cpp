@@ -52,10 +52,12 @@ const std::string Account::config_parameter_daily_quest_ = "DaiQ: ";
 const std::string Account::config_parameter_password_ = "Pwd: ";
 const std::string Account::config_parameter_last_login_ = "ll: ";
 const std::string Account::config_parameter_history_login_ = "hl: ";
+const std::string Account::config_parameter_alt_currencies_ = "AltCurr: ";
 
 Account::Account(const std::string &email)
 	: email_(email)
 	, last_login_(0)
+	, currency_container_(true)
 {
 	read_from_file();
 }
@@ -134,6 +136,22 @@ void Account::show_players(CharData *ch) {
 	SendMsgToChar(ss.str(), ch);
 }
 
+void Account::show_currencies(CharData *ch) {
+	std::stringstream ss;
+	ss << "Валюты на аккаунте: " << email_ << "\r\n";
+	if (currency_container_.empty()) {
+		ss << " * Не обнаружено\r\n";
+	} else {
+		int count = 1;
+		for (const auto &[currency_vnum, currrency_amount] : currency_container_) {
+			ss << " " << count << ") Vnum: " << currency_vnum << ", количество: " << currrency_amount << "\r\n";
+			++count;
+		}
+	}
+
+	SendMsgToChar(ss.str(), ch);
+}
+
 void Account::list_players(DescriptorData *d) {
 	int count = 1;
 	std::stringstream ss;
@@ -169,6 +187,11 @@ void Account::save_to_file() {
 			out << config_parameter_password_ << hash_password_.value() << "\n";
 		}
 		out << config_parameter_last_login_ << last_login_ << "\n";
+
+		const auto serialized_currencies = currency_container_.serialize();
+		if (serialized_currencies.has_value()) {
+			out << config_parameter_alt_currencies_ << serialized_currencies.value();
+		}
 	}
 	out.close();
 }
@@ -190,6 +213,8 @@ void Account::read_from_file() {
 				if (hash_password_->empty()) {
 					hash_password_ = std::nullopt;
 				}
+			} else if (line.starts_with(config_parameter_alt_currencies_)) {
+				currency_container_.deserealize(line.substr(config_parameter_alt_currencies_.length()));
 			}
 		}
 		in.close();

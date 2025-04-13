@@ -14,6 +14,32 @@ CurrencyContainer::CurrencyContainer(bool account_shared)
 {
 }
 
+void CurrencyContainer::SetCurrencyAmount(Vnum currency_vnum, int value)
+{
+	currency_storage_[currency_vnum] = std::clamp(value, 0, currency_amount_cap_);
+	Validate();
+}
+
+void CurrencyContainer::ModifyCurrencyAmount(Vnum currency_vnum, int value)
+{
+	if (!currency_storage_.contains(currency_vnum)) {
+		currency_storage_[currency_vnum] = value;
+	} else {
+		currency_storage_[currency_vnum] += value;
+	}
+	currency_storage_[currency_vnum] = std::clamp(currency_storage_[currency_vnum], 0, currency_amount_cap_);
+	Validate();
+}
+
+std::optional<int> CurrencyContainer::GetCurrencyAmount(Vnum currency_vnum) const
+{
+	if (!currency_storage_.contains(currency_vnum)) {
+		return std::nullopt;
+	}
+
+	return currency_storage_.at(currency_vnum);
+}
+
 void CurrencyContainer::Validate()
 {
 	std::erase_if(currency_storage_, [this](const auto &element) {
@@ -117,7 +143,7 @@ std::optional<std::reference_wrapper<const CurrencyInfo>> CurrencyContainer::Fin
 	return std::nullopt;
 }
 
-std::optional<std::reference_wrapper<const CurrencyInfo>> FindCurrencyByTextId(const std::string &text_id)
+std::optional<std::reference_wrapper<const CurrencyInfo>> CurrencyContainer::FindCurrencyByTextId(const std::string &text_id)
 {
 	for (const auto &currency : MUD::Currencies()) {
 		if (currency.GetTextId() == text_id) {
