@@ -11,12 +11,12 @@
 //#include "engine/structs/structs.h"
 #include "gameplay/skills/skills.h" // ABYRVALG - вынести в скиллз_константс
 
-const __uint8_t GAPPLY_NONE = 0;
-const __uint8_t GAPPLY_SKILL_SUCCESS = 1;
-const __uint8_t GAPPLY_SPELL_SUCCESS = 2;
-const __uint8_t GAPPLY_SPELL_EFFECT = 3;
-const __uint8_t GAPPLY_MODIFIER = 4;
-const __uint8_t GAPPLY_AFFECT = 5;
+const uint8_t GAPPLY_NONE = 0;
+const uint8_t GAPPLY_SKILL_SUCCESS = 1;
+const uint8_t GAPPLY_SPELL_SUCCESS = 2;
+const uint8_t GAPPLY_SPELL_EFFECT = 3;
+const uint8_t GAPPLY_MODIFIER = 4;
+const uint8_t GAPPLY_AFFECT = 5;
 
 enum class ESeason {
 	kWinter = 0,
@@ -51,29 +51,29 @@ constexpr int kSecsPerMudMonth = kDaysPerMonth*kSecsPerMudDay;
 constexpr int kSecsPerMudYear = kMonthsPerYear*kSecsPerMudMonth;
 
 // Sun state for Weather //
-const __uint8_t kSunDark = 1;
-const __uint8_t kSunRise = 2;
-const __uint8_t kSunLight = 3;
-const __uint8_t kSunSet = 4;
+const uint8_t kSunDark = 1;
+const uint8_t kSunRise = 2;
+const uint8_t kSunLight = 3;
+const uint8_t kSunSet = 4;
 
 // Moon change type //
-const __uint8_t kNewMoonStart = 27;
-const __uint8_t kNewMoonStop = 1;
-const __uint8_t kHalfMoonStart = 7;
-const __uint8_t kFullMoonStart = 13;
-const __uint8_t kFullMoonStop = 15;
-const __uint8_t kLastHalfMoonStart = 21;
-const __uint8_t kMoonCycle = 28;
-const __uint8_t kWeekCycle = 7;
-const __uint8_t kPolyWeekCycle = 9;
-const __uint8_t kMoonIncrease = 0;
-const __uint8_t kMoonDecrease = 1;
+const uint8_t kNewMoonStart = 27;
+const uint8_t kNewMoonStop = 1;
+const uint8_t kHalfMoonStart = 7;
+const uint8_t kFullMoonStart = 13;
+const uint8_t kFullMoonStop = 15;
+const uint8_t kLastHalfMoonStart = 21;
+const uint8_t kMoonCycle = 28;
+const uint8_t kWeekCycle = 7;
+const uint8_t kPolyWeekCycle = 9;
+const uint8_t kMoonIncrease = 0;
+const uint8_t kMoonDecrease = 1;
 
 // Sky conditions for Weather //
-const __uint8_t kSkyCloudless = 0;
-const __uint8_t kSkyCloudy = 1;
-const __uint8_t kSkyRaining = 2;
-const __uint8_t kSkyLightning = 3;
+const uint8_t kSkyCloudless = 0;
+const uint8_t kSkyCloudy = 1;
+const uint8_t kSkyRaining = 2;
+const uint8_t kSkyLightning = 3;
 
 constexpr Bitvector kWeatherQuickcool = 1 << 0;
 constexpr Bitvector kWeatherQuickhot = 1 << 1;
