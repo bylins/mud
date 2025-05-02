@@ -19,7 +19,6 @@ WORKDIR /mud
 RUN git clone --recurse-submodules https://github.com/bylins/mud mud
 
 WORKDIR /mud/mud
-RUN git checkout alpine
 RUN cp -r lib.template/* lib
 RUN mkdir build
 WORKDIR /mud/mud/build
