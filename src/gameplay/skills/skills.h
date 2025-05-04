@@ -61,7 +61,6 @@ enum class ESkill : int {
 	kSkinning = 11,
 	kMultiparry = 12,
 	kReforging = 13,
-	kShieldBash = 14,
 	kLeadership = 20,
 	kPunctual = 21,
 	kAwake = 22,
@@ -77,6 +76,7 @@ enum class ESkill : int {
 	kCampfire = 32,
 	kCreateBow = 33,
 	kSlay = 34,
+	kShieldBash = 128,
 	kCutting = 129,		// Скилл-заглушка для способности "порез", иначе некорректно выдаются сообщения
 	kThrow = 130,
 	kBackstab = 131,

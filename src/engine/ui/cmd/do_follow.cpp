@@ -2,6 +2,7 @@
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
+#include "engine/db/global_objects.h"
 
 void PerformDropGold(CharData *ch, int amount);
 
@@ -83,7 +84,8 @@ bool stop_follower(CharData *ch, int mode) {
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				PerformDropGold(ch, ch->get_gold());
 				ch->set_gold(0);
-				ExtractCharFromWorld(ch, false);
+				character_list.AddToExtractedList(ch);
+//				ExtractCharFromWorld(ch, false);
 				return (true);
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
 				AFF_FLAGS(ch).unset(EAffect::kHelper);
