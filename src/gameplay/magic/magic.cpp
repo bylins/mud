@@ -388,12 +388,18 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 	return base_dmg;
 }
 
-int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id) {
+int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 	auto spell_heal = MUD::Spell(spell_id).actions.GetHeal();
 	int total_heal{0};
+	double skill_mod;
 
 	double base_heal = spell_heal.RollSkillDices();
-	double skill_mod = base_heal * spell_heal.CalcSkillCoeff(ch);
+	if (level >= 0) {
+		skill_mod = base_heal * spell_heal.CalcSkillCoeff(ch);
+	} else {
+		skill_mod = base_heal * abs(level) / 0.25;
+	}
+//	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
 	double wis_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
 	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	total_heal = static_cast<int>(base_heal + skill_mod + wis_mod);
@@ -3168,21 +3174,21 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	switch (spell_id) {
 		case ESpell::kCureLight:
-			hit = CalcHeal(ch, victim, ESpell::kCureLight);
+			hit = CalcHeal(ch, victim, ESpell::kCureLight, level);
 			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case ESpell::kCureSerious:
-			hit = CalcHeal(ch, victim, ESpell::kCureSerious);
+			hit = CalcHeal(ch, victim, ESpell::kCureSerious, level);
 			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			break;
 		case ESpell::kCureCritic:
-			hit = CalcHeal(ch, victim, ESpell::kCureCritic);
+			hit = CalcHeal(ch, victim, ESpell::kCureCritic, level);
 			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
-		case ESpell::kHeal: hit = CalcHeal(ch, victim, ESpell::kHeal);
+		case ESpell::kHeal: hit = CalcHeal(ch, victim, ESpell::kHeal, level);
 			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
-		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, ESpell::kGroupHeal);
+		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, ESpell::kGroupHeal, level);
 			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			break;
 		case ESpell::kGreatHeal:
@@ -3195,7 +3201,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case ESpell::kExtraHits: extraHealing = true;
-			hit = RollDices(10, level / 3) + level;
+			hit = RollDices(10, abs(level) / 3) + level;
 			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case ESpell::kEviless:
@@ -3767,25 +3773,25 @@ int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ov
 			return (-1);    // Successful and target died, don't cast again.
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAffects))
-		CastAffect(level, caster, cvict, spell_id);
+		CastAffect(abs(level), caster, cvict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects))
-		CastUnaffects(level, caster, cvict, spell_id);
+		CastUnaffects(abs(level), caster, cvict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagPoints))
 		CastToPoints(level, caster, cvict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs))
-		CastToAlterObjs(level, caster, ovict, spell_id);
+		CastToAlterObjs(abs(level), caster, ovict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagSummons))
-		CastSummon(level, caster, ovict, spell_id, true);
+		CastSummon(abs(level), caster, ovict, spell_id, true);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagCreations))
-		CastCreation(level, caster, spell_id);
+		CastCreation(abs(level), caster, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagManual))
-		CastManual(level, caster, cvict, ovict, spell_id);
+		CastManual(abs(level), caster, cvict, ovict, spell_id);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagCharRelocate))
 		CastCharRelocate(caster, cvict, spell_id);

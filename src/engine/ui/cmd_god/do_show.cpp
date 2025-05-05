@@ -280,11 +280,12 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
 			 "%3d %s\r\n"
-			 "Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+			 "Уровнь зоны %2d, Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
 			 "First: %5d, Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; \r\n"
 			 "Автор: %s, количество репопов зоны (с перезагрузки): %d, всего посещений: %d, вход в зону: %d\r\n",
 			 zone_table[zone].vnum,
 			 zone_table[zone].name.c_str(),
+			 zone_table[zone].level,
 			 zone_table[zone].mob_level,
 			 zone_types[zone_table[zone].type].name,
 			 zone_table[zone].age, zone_table[zone].lifespan,
