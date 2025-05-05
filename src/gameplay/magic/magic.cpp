@@ -399,7 +399,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 	} else {
 		skill_mod = base_heal * abs(level) / 0.25;
 	}
-	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
+//	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
 	double wis_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
 	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	total_heal = static_cast<int>(base_heal + skill_mod + wis_mod);
