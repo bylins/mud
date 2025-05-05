@@ -20,7 +20,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	RoomData *troom = nullptr;
 
 	one_argument(argument, cast_argument);
-	level = GET_OBJ_VAL(obj, 0);
+	level = GET_OBJ_VAL(obj, 0) * -1;
 	if (level == 0) {
 		if (GET_OBJ_TYPE(obj) == EObjType::kStaff) {
 			level = kDefaultStaffLvl;

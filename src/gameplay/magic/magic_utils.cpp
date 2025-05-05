@@ -394,7 +394,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
-		return CallMagicToArea(caster, cvict, rvict, spell_id, level);
+		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
@@ -402,7 +402,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
-		return room_spells::CallMagicToRoom(level, caster, rvict, spell_id);
+		return room_spells::CallMagicToRoom(abs(level), caster, rvict, spell_id);
 	}
 
 	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);

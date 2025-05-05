@@ -924,8 +924,9 @@ void im_reset_room(RoomData *room, int level, int type) {
 			else
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
 			o = load_ingredient(indx, pow, -1);
-			if (o)
+			if (o) {
 				PlaceObjToRoom(o, GetRoomRnum(room->vnum));
+			}
 		}
 	}
 }
