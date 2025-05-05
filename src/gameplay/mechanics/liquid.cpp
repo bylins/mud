@@ -241,7 +241,7 @@ using namespace drinkcon;
 
 int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(init_spell_num(num)));
-	const int level = obj->GetPotionValueKey(init_spell_lvl(num));
+	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
 
 	if (spell_id > ESpell::kUndefined) {
 		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
