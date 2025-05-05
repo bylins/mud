@@ -93,6 +93,7 @@ MobRnum top_of_mobt = 0;    // top of mobile index table
 std::map<long, CharData *> chardata_by_uid;
 std::set<CharData *> chardata_wait_list;
 std::set<CharData *> chardata_cooldown_list;
+std::set<CharData *> chardata_affect_list;
 int global_uid = 0;
 
 PlayersIndex &player_table = GlobalObjects::player_table();    // index to plr file
