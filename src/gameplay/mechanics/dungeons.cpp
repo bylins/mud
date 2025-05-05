@@ -718,7 +718,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 		out_from << it << " ";
 	}
 	utils::CExecutionTimer timer;
-	trig_log(trig, fmt::format("Попытка создать комплекс: {}", out_from.str()).c_str());
+	log(fmt::format("Попытка создать комплекс: {}", out_from.str()).c_str());
 	for (auto it : zrn_list) {
 		out_to += to_string(zone_table[it.to].vnum) + " ";
 		TrigDataCopy(it.from, it.to);
@@ -735,9 +735,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 		}
 		ResetZone(it.to);
 	}
-	sprintf(buf, "Создан комплекс,  зоны %s delta %f", out_to.c_str(), timer.delta().count());
-	mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
-
+	log("Создан комплекс,  зоны %s delta %f", out_to.c_str(), timer.delta().count());
 	return out_to;
 }
 
