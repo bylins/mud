@@ -2594,7 +2594,6 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	}
 	d->character->save_char();
 	d->character->get_account()->set_last_login();
-	d->character->get_account()->add_player(d->character->get_uid());
 
 	// добавляем в список ждущих одобрения
 	if (!(int) NAME_FINE(d->character)) {
@@ -3592,7 +3591,6 @@ void nanny(DescriptorData *d, char *argument) {
 				iosystem::write_to_output(buffer, d);
 				sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-				d->character->get_account()->remove_player(d->character->get_uid());
 				STATE(d) = CON_CLOSE;
 				return;
 			} else {
