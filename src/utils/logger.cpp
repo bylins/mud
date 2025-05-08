@@ -4,6 +4,16 @@
 
 #include <iostream>
 #include <chrono>
+#include <cstdarg>
+#include <cstdio>
+#include <format>
+
+#if defined(__clang__)
+#define HAS_TIME_ZONE 0
+#else
+#define HAS_TIME_ZONE 1
+#include <ctime>
+#endif
 
 /**
 * Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
@@ -49,45 +59,65 @@ void pers_log(CharData *ch, const char *format, ...) {
 FILE *logfile = nullptr;
 
 std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
-	std::size_t result = ~0u;
+    std::size_t result = ~0u;
+    int timestamp_length = -1;
 
-	const std::chrono::time_zone* time_zone;
-	try {
-		time_zone = std::chrono::current_zone();
-	}
-	catch(const std::runtime_error&) {
-		puts("SYSERR: failed to get local timezone.");
-		return result;
-	}
+#if HAS_TIME_ZONE
+    // Реализация с использованием std::chrono::time_zone
+    const std::chrono::time_zone* time_zone;
+    try {
+        time_zone = std::chrono::current_zone();
+    }
+    catch(const std::runtime_error&) {
+        puts("SYSERR: failed to get local timezone.");
+        return result;
+    }
 
-	const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
-	const auto now = std::chrono::zoned_time{time_zone, utc_now};
+    const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    const auto now = std::chrono::zoned_time{time_zone, utc_now};
+    const auto str = std::format("{:%Y-%m-%d %T}", now);
+    timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
+#else
+    // Реализация без std::chrono::time_zone, используем std::chrono::local_time
+    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+        const auto time_t_now = std::chrono::system_clock::to_time_t(now);
+        auto* local_tm = std::localtime(&time_t_now);
 
-	const auto str = std::format("{:%Y-%m-%d %T}", now);
-	const int timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
+        if (!local_tm) {
+            puts("SYSERR: failed to get local time.");
+            return result;
+        }
 
-	if (0 > timestamp_length) {
-		puts("SYSERR: failed to print timestamp inside log() function.");
-		return result;
-	}
+        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+        char time_str[64];
+        std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", local_tm);
+        std::snprintf(time_str + std::strlen(time_str), sizeof(time_str) - std::strlen(time_str), ".%03ld", ms.count());
+        const std::string str = time_str;
+        timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
+    #endif
 
-	va_list args_copy;
-	va_copy(args_copy, args);
-	const int length = vsnprintf(buffer + timestamp_length, buffer_size - timestamp_length, format, args_copy);
-	va_end(args_copy);
+    if (0 > timestamp_length) {
+        puts("SYSERR: failed to print timestamp inside log() function.");
+        return result;
+    }
 
-	if (0 > length) {
-		puts("SYSERR: failed to print message contents inside log() function.");
-		return result;
-	}
+    va_list args_copy;
+    va_copy(args_copy, args);
+    const int length = vsnprintf(buffer + timestamp_length, buffer_size - timestamp_length, format, args_copy);
+    va_end(args_copy);
 
-	result = timestamp_length + length;
-	if (buffer_size <= result) {
-		const char truncated_suffix[] = "[TRUNCATED]";
-		snprintf(buffer, buffer_size - sizeof(truncated_suffix), "%s", truncated_suffix);
-	}
+    if (0 > length) {
+        puts("SYSERR: failed to print message contents inside log() function.");
+        return result;
+    }
 
-	return result;
+    result = timestamp_length + length;
+    if (buffer_size <= result) {
+        const char truncated_suffix[] = "[TRUNCATED]";
+        snprintf(buffer, buffer_size - sizeof(truncated_suffix), "%s", truncated_suffix);
+    }
+
+    return result;
 }
 
 void vlog(const char *format, va_list args, FILE *logfile) {

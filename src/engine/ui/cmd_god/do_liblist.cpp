@@ -241,14 +241,14 @@ std::string PrintFlag(CharData *mob, const std::string &options) {
 
 	for (const auto & i : option_list) {
 		if (isname(i, "race")) {
-			format_to(std::back_inserter(out), " [раса: {}{}{} ]",
+			fmt::format_to(std::back_inserter(out), " [раса: {}{}{} ]",
 					  kColorCyn, PrintRace(mob), kColorNrm);
 		}
 		if (isname(i, "role")) {
-			format_to(std::back_inserter(out), " [роли: {}{}{} ]",
+			fmt::format_to(std::back_inserter(out), " [роли: {}{}{} ]",
 					  kColorCyn, PrintRole(mob), kColorNrm);
 		}
-		format_to(std::back_inserter(out), " [спец-проц: {}{}{} ]",
+		fmt::format_to(std::back_inserter(out), " [спец-проц: {}{}{} ]",
 				  kColorCyn, print_special(mob), kColorNrm);
 	}
 	return to_string(out);
@@ -257,23 +257,23 @@ std::string PrintFlag(CharData *mob, const std::string &options) {
 void Print(CharData *ch, int first, int last, const std::string &options) {
 	auto out = fmt::memory_buffer();
 
-	format_to(std::back_inserter(out), "Список мобов от {} до {}\r\n", first, last);
+	fmt::format_to(std::back_inserter(out), "Список мобов от {} до {}\r\n", first, last);
 	int cnt = 0;
 	for (int i = 0; i <= top_of_mobt; ++i) {
 		if (mob_index[i].vnum >= first && mob_index[i].vnum <= last) {
-			format_to(std::back_inserter(out), "{:5}. {:<45} [{:<6}] [{:<2}]{}",
+			fmt::format_to(std::back_inserter(out), "{:5}. {:<45} [{:<6}] [{:<2}]{}",
 					  ++cnt, mob_proto[i].get_name_str().substr(0, 45),
 					  mob_index[i].vnum, mob_proto[i].GetLevel(),
 					  PrintFlag(mob_proto + i, options));
 			if (!mob_proto[i].proto_script->empty()) {
-				format_to(std::back_inserter(out), " - есть скрипты -");
+				fmt::format_to(std::back_inserter(out), " - есть скрипты -");
 				for (const auto trigger_vnum : *mob_proto[i].proto_script) {
-					format_to(std::back_inserter(out), " {}", trigger_vnum);
+					fmt::format_to(std::back_inserter(out), " {}", trigger_vnum);
 				}
 			} else {
-				format_to(std::back_inserter(out), " - нет скриптов -");
+				fmt::format_to(std::back_inserter(out), " - нет скриптов -");
 			}
-			format_to(std::back_inserter(out), " Загружено в мир: {}, максимально: {}.\r\n", mob_index[i].total_online, mob_index[i].total_online);
+			fmt::format_to(std::back_inserter(out), " Загружено в мир: {}, максимально: {}.\r\n", mob_index[i].total_online, mob_index[i].total_online);
 		}
 	}
 	if (cnt == 0) {
