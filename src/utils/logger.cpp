@@ -6,7 +6,7 @@
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
-//#include <format> // prool fool
+#include <format>
 
 #if defined(__clang__)
 #define HAS_TIME_ZONE 0
