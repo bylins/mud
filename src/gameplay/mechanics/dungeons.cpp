@@ -105,10 +105,6 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		log(fmt::format("Нет комнат в зоне {}.", zvn_from));
 		return 0;
 	}
-	if (world[rnum_start]->vnum % 100 != 0) {
-		auto msg = fmt::format("Нет 00 комнаты в зоне источнике {}.", zvn_from);
-		mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
-	}
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
 		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone != 0) {
 			count--;
@@ -718,7 +714,7 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 		out_from << it << " ";
 	}
 	utils::CExecutionTimer timer;
-	log(fmt::format("Попытка создать комплекс: {}", out_from.str()).c_str());
+	log("Попытка создать комплекс: %s", out_from.str().c_str());
 	for (auto it : zrn_list) {
 		out_to += to_string(zone_table[it.to].vnum) + " ";
 		TrigDataCopy(it.from, it.to);
