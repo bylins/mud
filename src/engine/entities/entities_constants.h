@@ -273,8 +273,8 @@ enum EPrf : Bitvector {
  * PC religions
  * \todo Все, связанное с религиями, нужно вынести в отдельный модуль.
  */
-const __uint8_t kReligionPoly = 0;
-const __uint8_t kReligionMono = 1;
+const uint8_t kReligionPoly = 0;
+const uint8_t kReligionMono = 1;
 
 typedef std::array<const char *, static_cast<std::size_t>(EGender::kLast)> religion_genders_t;
 typedef std::array<religion_genders_t, 3> religion_names_t;

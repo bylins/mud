@@ -921,20 +921,20 @@ std::string PrintNumberByDigits(long long num, const char separator) {
 	}
 
 	if (digits_num >= buffer.size()) {
-		format_to(std::back_inserter(out), "{}", buffer);
+		fmt::format_to(std::back_inserter(out), "{}", buffer);
 	} else {
 		auto modulo = buffer.size() % digits_num;
 		if (modulo != 0) {
-			format_to(std::back_inserter(out), "{}{}", buffer.substr(0, modulo), separator);
+			fmt::format_to(std::back_inserter(out), "{}{}", buffer.substr(0, modulo), separator);
 		}
 
 		unsigned pos = modulo;
 		while (pos < buffer.size() - digits_num) {
-			format_to(std::back_inserter(out), "{}{}", buffer.substr(pos, digits_num), separator);
+			fmt::format_to(std::back_inserter(out), "{}{}", buffer.substr(pos, digits_num), separator);
 			pos += digits_num;
 		}
 
-		format_to(std::back_inserter(out), "{}", buffer.substr(pos, digits_num));
+		fmt::format_to(std::back_inserter(out), "{}", buffer.substr(pos, digits_num));
 	}
 
 	return to_string(out);

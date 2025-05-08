@@ -386,12 +386,12 @@ std::string GuildInfo::IGuildTalent::GetClassesList() const {
 		auto out = fmt::memory_buffer();
 		for (const auto class_id: trained_classes_) {
 			if (out.size()) {
-				format_to(std::back_inserter(out), ", {}", NAME_BY_ITEM(class_id));
+				fmt::format_to(std::back_inserter(out), ", {}", NAME_BY_ITEM(class_id));
 			} else {
-				format_to(std::back_inserter(out), "{}", NAME_BY_ITEM(class_id));
+				fmt::format_to(std::back_inserter(out), "{}", NAME_BY_ITEM(class_id));
 			}
 		}
-		format_to(std::back_inserter(out), ".");
+		fmt::format_to(std::back_inserter(out), ".");
 		return to_string(out);
 	} else {
 		return "all";

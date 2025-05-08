@@ -10,6 +10,7 @@
 #define BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_SET_ALL_H_
 
 #include <memory>
+#include <sys/time.h>
 #include <map>
 
 struct setall_inspect_request {
