@@ -64,25 +64,25 @@ const int kMaxPlayerLevel = 30;
 const int kMaxAliasLehgt = 100;
 const std::nullptr_t NoArgument = nullptr;
 
-const __uint8_t kMaxDest = 50;
+const uint8_t kMaxDest = 50;
 
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 class Trigger;
 
-const __int8_t kNowhere = 0;        // nil reference for room-database
-const __int8_t kNothing = -1;        // nil reference for objects
-const __int8_t kNobody = -1;        // nil reference for mobiles
+const int8_t kNowhere = 0;        // nil reference for room-database
+const int8_t kNothing = -1;        // nil reference for objects
+const int8_t kNobody = -1;        // nil reference for mobiles
 
 constexpr int kFormatIndent = 1 << 0;
 
-const __uint8_t kCodePageAlt = 1;
-const __uint8_t kCodePageWin = 2;
-const __uint8_t kCodePageWinz = 3;
-const __uint8_t kCodePageWinzZ = 4;
-const __uint8_t kCodePageUTF8 = 5;
-const __uint8_t kCodePageWinzOld = 6;
-const __uint8_t kCodePageLast = 7;
+const uint8_t kCodePageAlt = 1;
+const uint8_t kCodePageWin = 2;
+const uint8_t kCodePageWinz = 3;
+const uint8_t kCodePageWinzZ = 4;
+const uint8_t kCodePageUTF8 = 5;
+const uint8_t kCodePageWinzOld = 6;
+const uint8_t kCodePageLast = 7;
 
 const int kKtSelectmenu = 255;
 
@@ -92,7 +92,7 @@ const int kLvlBuilder = 33;
 const int kLvlGod = 32;
 const int kLvlImmortal = 31;
 const int kLvlFreeze = kLvlGreatGod; // Level of the 'freeze' command //
-const __uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
+const uint8_t kMagicNumber = 0x06;    // Arbitrary number that won't be in a string //
 
 constexpr long long kOptUsec = 40000;    // 25 passes per second //
 constexpr long long kPassesPerSec = 1000000 / kOptUsec;
@@ -103,12 +103,12 @@ constexpr long long kBattleRound = (2*kRealSec);
 const int kZonesReset = 1;    // number of zones to reset at one time //
 
 // Variables for the output buffering system //
-constexpr __uint16_t kMaxSockBuf = 48 * 1024;	// Size of kernel's sock buf   //
-const __uint16_t kMaxPromptLength = 256;		// Max length of prompt        //
-const __uint8_t kGarbageSpace = 32;				// Space for **OVERFLOW** etc  //
-const __uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
+constexpr uint16_t kMaxSockBuf = 48 * 1024;	// Size of kernel's sock buf   //
+const uint16_t kMaxPromptLength = 256;		// Max length of prompt        //
+const uint8_t kGarbageSpace = 32;				// Space for **OVERFLOW** etc  //
+const uint16_t kSmallBufsize = 1024;			// Static output buffer size   //
 // Max amount of output that can be buffered //
-constexpr __uint16_t kLargeBufSize = kMaxSockBuf - kGarbageSpace - kMaxPromptLength;
+constexpr uint16_t kLargeBufSize = kMaxSockBuf - kGarbageSpace - kMaxPromptLength;
 
 const int kHistorySize = 5; // Keep last commands
 const int kMaxStringLength = 32768;
