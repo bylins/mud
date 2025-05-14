@@ -222,7 +222,7 @@ void GuildInfo::DisplayMenu(CharData *trainer, CharData *ch) const {
 }
 
 void GuildInfo::LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const {
-	talent_num = std::clamp(talent_num, 1UL, learning_talents_.size());
+	talent_num = std::clamp(talent_num, size_t(1), learning_talents_.size());
 
 	for (const auto &talent : learning_talents_) {
 		if (talent->IsUnlearnable(ch)) {

@@ -4049,7 +4049,7 @@ bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
 		return false;
 	}
 
-	uint cost{0};
+  	unsigned int cost{0};
 	switch (mode) {
 		case WHO_LISTALL:cost = WHO_COST;
 			break;

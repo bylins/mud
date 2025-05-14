@@ -54,8 +54,9 @@
 #if (_MSC_VER < 1900)
 #define snprintf _snprintf
 #endif
-
+#if _MSC_VER
 void gettimeofday(struct timeval *t, void *dummy);
+#endif
 #else // _WIN32
 // Define if you have <sys/wait.h> that is POSIX.1 compatible.
 #define HAVE_SYS_WAIT_H 1
