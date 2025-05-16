@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 #include "engine/core/conf.h"
 #include "engine/core/config.h"

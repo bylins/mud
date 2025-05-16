@@ -250,7 +250,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		auto hire_price = calc_hire_price(ch, helpee);
-		long cost = std::abs(times * hire_price);
+		long cost = times * hire_price;
 
 		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
 			(isname(isbank, "банк bank") && cost > ch->get_bank())) {

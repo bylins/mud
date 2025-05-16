@@ -558,7 +558,7 @@ const char will_msdp[] = {char(IAC), char(WILL), char(::msdp::constants::TELOPT_
 *  main game loop and related stuff                                    *
 ***********************************************************************/
 
-#if defined(CIRCLE_WINDOWS) || defined(CIRCLE_MACINTOSH)
+#if defined(_MSC_VER) || defined(CIRCLE_MACINTOSH)
 
 /*
  * Windows doesn't have gettimeofday, so we'll simulate it.
@@ -567,7 +567,7 @@ const char will_msdp[] = {char(IAC), char(WILL), char(::msdp::constants::TELOPT_
  */
 void gettimeofday(struct timeval *t, void *dummy)
 {
-#if defined(CIRCLE_WINDOWS)
+#if defined(_MSC_VER)
 	DWORD millisec = GetTickCount();
 #elif defined(CIRCLE_MACINTOSH)
 	unsigned long int millisec;
@@ -588,11 +588,8 @@ int main_function(int argc, char **argv) {
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
 
-#ifdef CIRCLE_WINDOWS        // Includes for Win32
-# ifdef __BORLANDC__
-# else				// MSVC
+#ifdef _MSC_VER        // Includes MSVC
 	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG); //assert in debug window
-# endif
 #endif
 
 #ifdef OS_UNIX

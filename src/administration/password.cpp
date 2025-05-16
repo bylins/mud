@@ -4,10 +4,6 @@
 
 #if defined(__APPLE__) || defined(__MACH__)
 #include <unistd.h>
-#else
-#	ifndef _MSC_VER
-#	include <crypt.h>
-#	endif
 #endif
 #include "password.h"
 #include "engine/ui/interpreter.h"
@@ -19,6 +15,7 @@
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
 #else
+#include <crypt.h>
 #define CRYPT(a, b) ((char *) crypt((a),(b)))
 #endif
 

@@ -120,6 +120,7 @@ class shop_node : public DictionaryItem {
  public:
 	using shared_ptr = std::shared_ptr<shop_node>;
 	using mob_vnums_t = std::list<MobVnum>;
+	using uid_t = unsigned;
 
 	shop_node() : waste_time_min(0), can_buy(true) {};
 
