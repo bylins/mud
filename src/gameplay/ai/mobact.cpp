@@ -66,7 +66,33 @@ const short kMiddleAi{30};
 const short kHighAi{40};
 const short kCharacterHpForMobPriorityAttack{100};
 
+struct Target {
+    CharData* victim;
+    int weight; 
+};
+
 // local functions
+
+CharData* weighted_random_choice(const std::vector<Target>& targets) {
+    if (targets.empty()) {
+        return nullptr;
+    }
+
+    int total_weight = 0;
+    for (const auto& target : targets) {
+        total_weight += target.weight;
+    }
+
+    int random = number(1, total_weight);
+    int current_weight = 0;
+    for (const auto& target : targets) {
+        current_weight += target.weight;
+        if (random <= current_weight) {
+            return target.victim;
+        }
+    }
+    return targets.back().victim; // На случай ошибок
+}
 
 int extra_aggressive(CharData *ch, CharData *victim) {
 	int time_ok = false, no_time = true, month_ok = false, no_month = true, agro = false;
@@ -481,19 +507,17 @@ bool find_master_charmice(CharData *charmice) {
 	return false;
 }
 
-// пока тестово
 CharData *find_best_mob_victim(CharData *ch, int extmode) {
-	CharData *currentVictim, *caster = nullptr, *best = nullptr;
-	CharData *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
-	int extra_aggr = 0;
-	bool kill_this;
-
 	int mobINT = GetRealInt(ch);
 	if (mobINT < kStupidMob) {
 		return find_best_stupidmob_victim(ch, extmode);
 	}
 
-	currentVictim = ch->GetEnemy();
+	CharData *currentVictim = ch->GetEnemy();
+  std::vector<Target> casters, druids, clers, charmmages, others;
+	int extra_aggr = 0;
+	bool kill_this;
+
 	if (currentVictim && !currentVictim->IsNpc()) {
 		if (IsCaster(currentVictim)) {
 			return currentVictim;
@@ -569,80 +593,75 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 		if (!kill_this)
 			continue;
-		// волхв
-		if (vict->GetClass() == ECharClass::kMagus) {
-			druid = vict;
-			caster = vict;
-			continue;
-		}
-		// лекарь
-		if (vict->GetClass() == ECharClass::kSorcerer) {
-			cler = vict;
-			caster = vict;
-			continue;
-		}
-		// кудес
-		if (vict->GetClass() == ECharClass::kCharmer) {
-			charmmage = vict;
-			caster = vict;
-			continue;
-		}
 
 		if (GET_HIT(vict) <= kCharacterHpForMobPriorityAttack) {
 			return vict;
 		}
-		if (IsCaster(vict)) {
-			caster = vict;
-			continue;
+		// Распределяем цели по категориям
+		int base_weight = 10; // Базовый вес
+		if (vict->GetClass() == ECharClass::kMagus) {
+			druids.push_back({vict, base_weight});
+		} else if (vict->GetClass() == ECharClass::kSorcerer) {
+			clers.push_back({vict, base_weight});
+		} else if (vict->GetClass() == ECharClass::kCharmer) {
+			charmmages.push_back({vict, base_weight});
+		} else if (IsCaster(vict)) {
+			casters.push_back({vict, base_weight});
+		} else {
+			others.push_back({vict, base_weight});
 		}
-		best = vict;
 	}
 
-	if (!best) {
-		best = currentVictim;
-	}
+// Определяем веса в зависимости от интеллекта моба
+	int druid_weight = 10;
+	int cler_weight = 10;
+	int charmmage_weight = 10;
+	int caster_weight = 10;
+	int other_weight = 10;
+
 	if (mobINT < kMiddleAi) {
-		int rand = number(0, 2);
-		if (caster) {
-			best = caster;
-		}
-		if ((rand == 0) && (druid)) {
-			best = druid;
-		}
-		if ((rand == 1) && (cler)) {
-			best = cler;
-		}
-		if ((rand == 2) && (charmmage)) {
-			best = charmmage;
-		}
-		return selectVictimDependingOnGroupFormation(ch, best);
+		// Глупый моб: равномерные веса
+	} else if (mobINT < kHighAi) {
+		druid_weight = 30;
+		cler_weight = 25;
+		charmmage_weight = 20;
+		caster_weight = 15;
+		other_weight = 10;
+	} else {
+		druid_weight = 50;
+		cler_weight = 40;
+		charmmage_weight = 30;
+		caster_weight = 20;
+		other_weight = 10;
 	}
 
-	if (mobINT < kHighAi) {
-		int rand = number(0, 1);
-		if (caster)
-			best = caster;
-		if (charmmage)
-			best = charmmage;
-		if ((rand == 0) && (druid))
-			best = druid;
-		if ((rand == 1) && (cler))
-			best = cler;
-
-		return selectVictimDependingOnGroupFormation(ch, best);
+	std::vector<Target> all_targets;
+	for (auto& target : druids) {
+		target.weight = druid_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : clers) {
+		target.weight = cler_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : charmmages) {
+		target.weight = charmmage_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : casters) {
+		target.weight = caster_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : others) {
+		target.weight = other_weight;
+		all_targets.push_back(target);
 	}
 
-	//  и если >= 40 инты
-	if (caster)
-		best = caster;
-	if (charmmage)
-		best = charmmage;
-	if (cler)
-		best = cler;
-	if (druid)
-		best = druid;
-
-	return selectVictimDependingOnGroupFormation(ch, best);
+	CharData* selected = weighted_random_choice(all_targets);
+	if (!selected) {
+		selected = currentVictim; 
+	}
+	return selectVictimDependingOnGroupFormation(ch, selected);
 }
 
 int perform_best_mob_attack(CharData *ch, int extmode) {
