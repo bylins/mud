@@ -507,6 +507,75 @@ bool find_master_charmice(CharData *charmice) {
 	return false;
 }
 
+bool filter_victim (CharData *ch, CharData *vict, int extmode) {
+	bool kill_this = false;
+	if ((vict->IsNpc() && !IS_CHARMICE(vict))
+		|| (IS_CHARMICE(vict) && !vict->GetEnemy()
+			&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+		|| vict->IsFlagged(EPrf::kNohassle)
+		|| !MAY_SEE(ch, ch, vict) // если не видим цель,
+		|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
+		|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+	{
+		return false;
+	}
+
+	// Mobile too damage //обработка флага ТРУС
+	if (IS_SET(extmode, CHECK_HITS)
+		&& ch->IsFlagged(EMobFlag::kWimpy)
+		&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch)) {
+		return false;
+	}
+
+	int extra_aggr = extra_aggressive(ch, vict);
+	// Mobile helpers... //ассист
+	if ((vict->GetEnemy())
+		&& (vict->GetEnemy() != ch)
+		&& vict->GetEnemy()->IsNpc()
+		&& (!AFF_FLAGGED(vict->GetEnemy(), EAffect::kCharmed))) {
+		kill_this = true;
+	} else {
+		// ... but no aggressive for this char
+		if (!extra_aggr && !IS_SET(extmode, GUARD_ATTACK)) {
+			return false;
+		}
+	}
+	if (IS_SET(extmode, SKIP_SNEAKING)) {
+		skip_sneaking(vict, ch);
+		if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
+			AFF_FLAGS(vict).unset(EAffect::kSneak);
+		}
+
+		if (AFF_FLAGGED(vict, EAffect::kSneak)) {
+			return false;
+		}
+	}
+	if (IS_SET(extmode, SKIP_HIDING)) {
+		skip_hiding(vict, ch);
+		if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
+			AFF_FLAGS(vict).unset(EAffect::kHide);
+		}
+	}
+
+	if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
+		skip_camouflage(vict, ch);
+		if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
+			AFF_FLAGS(vict).unset(EAffect::kDisguise);
+		}
+	}
+	if (!CAN_SEE(ch, vict)) {
+		return false;
+	}
+	if (!kill_this && extra_aggr) {
+		if (CanUseFeat(vict, EFeat::kSilverTongue)
+			&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
+			return false;
+		}
+		kill_this = true;
+	}
+	return kill_this;
+}
+
 CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	int mobINT = GetRealInt(ch);
 	if (mobINT < kStupidMob) {
@@ -515,8 +584,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 
 	CharData *currentVictim = ch->GetEnemy();
   std::vector<Target> casters, druids, clers, charmmages, others;
-	int extra_aggr = 0;
-	bool kill_this;
 
 	if (currentVictim && !currentVictim->IsNpc()) {
 		if (IsCaster(currentVictim)) {
@@ -525,77 +592,12 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	}
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people) {
-		if ((vict->IsNpc() && !IS_CHARMICE(vict))
-			|| (IS_CHARMICE(vict) && !vict->GetEnemy()
-				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
-			|| vict->IsFlagged(EPrf::kNohassle)
-			|| !MAY_SEE(ch, ch, vict) // если не видим цель,
-			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
-			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
-		{
+		if (!filter_victim(ch, vict, extmode)) {
 			continue;
 		}
-
-		kill_this = false;
-		// Mobile too damage //обработка флага ТРУС
-		if (IS_SET(extmode, CHECK_HITS)
-			&& ch->IsFlagged(EMobFlag::kWimpy)
-			&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch)) {
-			continue;
-		}
-
-		// Mobile helpers... //ассист
-		if ((vict->GetEnemy())
-			&& (vict->GetEnemy() != ch)
-			&& vict->GetEnemy()->IsNpc()
-			&& (!AFF_FLAGGED(vict->GetEnemy(), EAffect::kCharmed))) {
-			kill_this = true;
-		} else {
-			// ... but no aggressive for this char
-			if (!(extra_aggr = extra_aggressive(ch, vict))
-				&& !IS_SET(extmode, GUARD_ATTACK)) {
-				continue;
-			}
-		}
-		if (IS_SET(extmode, SKIP_SNEAKING)) {
-			skip_sneaking(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
-				AFF_FLAGS(vict).unset(EAffect::kSneak);
-			}
-
-			if (AFF_FLAGGED(vict, EAffect::kSneak)) {
-				continue;
-			}
-		}
-		if (IS_SET(extmode, SKIP_HIDING)) {
-			skip_hiding(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
-				AFF_FLAGS(vict).unset(EAffect::kHide);
-			}
-		}
-
-		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
-			skip_camouflage(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
-				AFF_FLAGS(vict).unset(EAffect::kDisguise);
-			}
-		}
-		if (!CAN_SEE(ch, vict)) {
-			continue;
-		}
-		if (!kill_this && extra_aggr) {
-			if (CanUseFeat(vict, EFeat::kSilverTongue)
-				&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
-				continue;
-			}
-			kill_this = true;
-		}
-
-		if (!kill_this)
-			continue;
 
 		if (GET_HIT(vict) <= kCharacterHpForMobPriorityAttack) {
-			return vict;
+			return selectVictimDependingOnGroupFormation(ch, vict);
 		}
 		// Распределяем цели по категориям
 		int base_weight = 10; // Базовый вес
