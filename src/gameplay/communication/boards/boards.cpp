@@ -12,6 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/zone.h"
+#include "engine/core/utils_char_obj.inl"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
 
@@ -439,6 +440,9 @@ int Static::Special(CharData *ch, void *me, int cmd, char *argument) {
 		// перехватываем запарки вида 'писать дрв' сидя на ренте с доской от вече
 		if ((CMD_IS("писать") || CMD_IS("write")) && !buffer2.empty()) {
 			for (auto i = board_list.begin(); i != board_list.end(); ++i) {
+				if (get_obj_in_list_vis(ch, buffer2, ch->carrying)) { //пишем записку
+					return 0;
+				}
 				if (isname(buffer2, (*i)->get_name())) {
 					SendMsgToChar(ch,
 								  "Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"
