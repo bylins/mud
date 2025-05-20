@@ -454,7 +454,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-		if (!(desc = find_exdesc(what, found_obj->get_ex_description()))) {
+		if (!(desc = find_exdesc(what, found_obj->get_ex_description())) 
+				|| ((GET_OBJ_TYPE(found_obj) == EObjType::kNote) && !found_obj->get_action_description().empty())) {
 			show_obj_to_char(found_obj, ch, 5, true, 1);    // Show no-description
 		} else {
 			SendMsgToChar(desc, ch);
@@ -1082,6 +1083,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 			if (!object->get_action_description().empty()) {
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
 				strcat(buf, AddLeadingStringSpace(object->get_action_description()).c_str());
+				strcat(buf, "\r\n");
 				page_string(ch->desc, buf, 1);
 			} else {
 				SendMsgToChar("Чисто.\r\n", ch);
@@ -1135,6 +1137,9 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
 						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
 				}
+			}
+			if ((GET_OBJ_TYPE(object) == EObjType::kNote) && !object->get_action_description().empty()) {
+					strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, 0);

@@ -22,7 +22,7 @@ int set_hit(CharData *ch, CharData *victim) {
 
 	bool message = false;
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
-	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD || STATE(victim->desc) == CON_WRITE_MOD)) {
+	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD || STATE(victim->desc) == CON_WRITE_MOD || STATE(victim->desc) == CON_WRITE_NOTE)) {
 		victim->desc->message.reset();
 		victim->desc->board.reset();
 		if (victim->desc->writer->get_string()) {

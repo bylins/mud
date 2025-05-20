@@ -1793,7 +1793,8 @@ void close_socket(DescriptorData * d, int direct)
 		if (!d->character->IsNpc()
 			&& (d->character->IsFlagged(EPlrFlag::kMailing)
 				|| STATE(d) == CON_WRITEBOARD
-				|| STATE(d) == CON_WRITE_MOD)
+				|| STATE(d) == CON_WRITE_MOD
+				|| STATE(d) == CON_WRITE_NOTE)
 			&& d->writer) {
 			d->writer->clear();
 			d->writer.reset();
@@ -1803,6 +1804,7 @@ void close_socket(DescriptorData * d, int direct)
 			|| STATE(d) == CON_CLANEDIT
 			|| STATE(d) == CON_SPEND_GLORY
 			|| STATE(d) == CON_WRITE_MOD
+			|| STATE(d) == CON_WRITE_NOTE
 			|| STATE(d) == CON_GLORY_CONST
 			|| STATE(d) == CON_NAMED_STUFF
 			|| STATE(d) == CON_MAP_MENU

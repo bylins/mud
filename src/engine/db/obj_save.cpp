@@ -206,7 +206,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_description(buffer);
 			} else if (!strcmp(read_line, "ADsc")) {
 				*error = 14;
-				if (strcmp(buffer, "NULL")) {
+				if (!strcmp(buffer, "NULL")) {
 					object->set_action_description("");
 				} else {
 					object->set_action_description(buffer);
@@ -594,8 +594,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		}
 
 		// Описание при действии
-		if (!object->get_action_description().empty()
-			&& !proto->get_action_description().empty()) {
+		if (!object->get_action_description().empty()) {
+//			&& !proto->get_action_description().empty()) {
 			if (object->get_action_description() != proto->get_action_description()) {
 				out << "ADsc: " << object->get_action_description() << "~\n";
 			}
@@ -1495,6 +1495,7 @@ int Crash_load(CharData *ch) {
 		 reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++) {
 		i++;
 		ObjData::shared_ptr obj;
+
 		obj = read_one_object_new(&data, &error);
 		if (!obj) {
 			//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
