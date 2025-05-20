@@ -594,8 +594,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		}
 
 		// Описание при действии
-		if (!object->get_action_description().empty()
-			&& !proto->get_action_description().empty()) {
+		if (!object->get_action_description().empty()) {
+//			&& !proto->get_action_description().empty()) {
 			if (object->get_action_description() != proto->get_action_description()) {
 				out << "ADsc: " << object->get_action_description() << "~\n";
 			}
