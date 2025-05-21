@@ -309,8 +309,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		// дату номер и текст пишем уже по факту сохранения
 		ch->desc->message = tempMessage;
 		ch->desc->board = board_ptr;
-
-		SendMsgToChar(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
+		SendMsgToChar(ch, "Вы пишете сообщение на доску объявлений: '%s'. (/s записать /h помощь)\r\n", board.get_name().c_str());
 		STATE(ch->desc) = CON_WRITEBOARD;
 		utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, nullptr);
