@@ -85,6 +85,7 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(paper->get_action_description().c_str(), ch);
 		}
 		act("$n начал$g писать.", true, ch, 0, 0, kToRoom);
+		STATE(ch->desc) = CON_WRITE_NOTE;
 		const utils::AbstractStringWriter::shared_ptr writer(new CActionDescriptionWriter(*paper));
 		string_write(ch->desc, writer, kMaxNoteLength, 0, nullptr);
 	}

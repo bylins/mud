@@ -719,6 +719,9 @@ void string_add(DescriptorData *d, char *str) {
 				case REDIT_EXTRADESC_DESCRIPTION: redit_disp_extradesc_menu(d);
 					break;
 			}
+		} else if (STATE(d) == CON_WRITE_NOTE) {
+			iosystem::write_to_output("Заметка сохранена.\r\n", d);
+			d->connected = CON_PLAYING;
 		} else if (STATE(d) == CON_WRITEBOARD) {
 			// добавление сообщения на доску
 			if (terminator == 1

@@ -12,6 +12,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/zone.h"
+#include "engine/core/utils_char_obj.inl"
 
 #include "third_party_libs/fmt/include/fmt/format.h"
 
@@ -308,8 +309,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		// дату номер и текст пишем уже по факту сохранения
 		ch->desc->message = tempMessage;
 		ch->desc->board = board_ptr;
-
-		SendMsgToChar(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
+		SendMsgToChar(ch, "Вы пишете сообщение на доску объявлений: '%s'. (/s записать /h помощь)\r\n", board.get_name().c_str());
 		STATE(ch->desc) = CON_WRITEBOARD;
 		utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, nullptr);
@@ -439,6 +439,9 @@ int Static::Special(CharData *ch, void *me, int cmd, char *argument) {
 		// перехватываем запарки вида 'писать дрв' сидя на ренте с доской от вече
 		if ((CMD_IS("писать") || CMD_IS("write")) && !buffer2.empty()) {
 			for (auto i = board_list.begin(); i != board_list.end(); ++i) {
+				if (get_obj_in_list_vis(ch, buffer2, ch->carrying)) { //пишем записку
+					return 0;
+				}
 				if (isname(buffer2, (*i)->get_name())) {
 					SendMsgToChar(ch,
 								  "Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"

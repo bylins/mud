@@ -349,6 +349,7 @@ int process_input(DescriptorData *t) {
 				&& (STATE(t) == CON_PLAYING
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_NOTE
 					|| STATE(t) == CON_WRITE_MOD)) {
 				// Иммам или морталам с EGodFlag::DEMIGOD разрешено использовать ";".
 				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, EGf::kDemigod))
@@ -358,6 +359,7 @@ int process_input(DescriptorData *t) {
 				&& (STATE(t) == CON_PLAYING
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_NOTE
 					|| STATE(t) == CON_WRITE_MOD)) {
 				if (GetRealLevel(t->character) < kLvlImplementator)
 					*ptr = '8';
@@ -365,6 +367,7 @@ int process_input(DescriptorData *t) {
 			if (*ptr == '$'
 				&& (STATE(t) == CON_PLAYING
 					|| STATE(t) == CON_EXDESC
+					|| STATE(t) == CON_WRITE_NOTE
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD)) {
 				if (GetRealLevel(t->character) < kLvlImplementator)
@@ -374,6 +377,7 @@ int process_input(DescriptorData *t) {
 				&& (STATE(t) == CON_PLAYING
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_NOTE
 					|| STATE(t) == CON_WRITE_MOD)) {
 				if (GetRealLevel(t->character) < kLvlGreatGod)
 					*ptr = '/';
