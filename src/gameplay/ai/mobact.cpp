@@ -66,7 +66,33 @@ const short kMiddleAi{30};
 const short kHighAi{40};
 const short kCharacterHpForMobPriorityAttack{100};
 
+struct Target {
+    CharData* ch;
+    int weight; 
+};
+
 // local functions
+
+CharData* weighted_random_choice(const std::vector<Target>& targets) {
+    if (targets.empty()) {
+        return nullptr;
+    }
+
+    int total_weight = 0;
+    for (const auto& target : targets) {
+        total_weight += target.weight;
+    }
+
+    int random = number(1, total_weight);
+    int current_weight = 0;
+    for (const auto& target : targets) {
+        current_weight += target.weight;
+        if (random <= current_weight) {
+            return target.ch;
+        }
+    }
+    return targets.back().ch; // На случай ошибок
+}
 
 int extra_aggressive(CharData *ch, CharData *victim) {
 	int time_ok = false, no_time = true, month_ok = false, no_month = true, agro = false;
@@ -481,168 +507,164 @@ bool find_master_charmice(CharData *charmice) {
 	return false;
 }
 
-// пока тестово
-CharData *find_best_mob_victim(CharData *ch, int extmode) {
-	CharData *currentVictim, *caster = nullptr, *best = nullptr;
-	CharData *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
-	int extra_aggr = 0;
-	bool kill_this;
+bool filter_victim (CharData *ch, CharData *vict, int extmode) {
+	bool kill_this = false;
+	if ((vict->IsNpc() && !IS_CHARMICE(vict))
+		|| (IS_CHARMICE(vict) && !vict->GetEnemy()
+			&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+		|| vict->IsFlagged(EPrf::kNohassle)
+		|| !MAY_SEE(ch, ch, vict) // если не видим цель,
+		|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
+		|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+	{
+		return false;
+	}
 
+	// Mobile too damage //обработка флага ТРУС
+	if (IS_SET(extmode, CHECK_HITS)
+		&& ch->IsFlagged(EMobFlag::kWimpy)
+		&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch)) {
+		return false;
+	}
+
+	int extra_aggr = extra_aggressive(ch, vict);
+	// Mobile helpers... //ассист
+	if ((vict->GetEnemy())
+		&& (vict->GetEnemy() != ch)
+		&& vict->GetEnemy()->IsNpc()
+		&& (!AFF_FLAGGED(vict->GetEnemy(), EAffect::kCharmed))) {
+		kill_this = true;
+	} else {
+		// ... but no aggressive for this char
+		if (!extra_aggr && !IS_SET(extmode, GUARD_ATTACK)) {
+			return false;
+		}
+	}
+	if (IS_SET(extmode, SKIP_SNEAKING)) {
+		skip_sneaking(vict, ch);
+		if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
+			AFF_FLAGS(vict).unset(EAffect::kSneak);
+		}
+
+		if (AFF_FLAGGED(vict, EAffect::kSneak)) {
+			return false;
+		}
+	}
+	if (IS_SET(extmode, SKIP_HIDING)) {
+		skip_hiding(vict, ch);
+		if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
+			AFF_FLAGS(vict).unset(EAffect::kHide);
+		}
+	}
+
+	if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
+		skip_camouflage(vict, ch);
+		if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
+			AFF_FLAGS(vict).unset(EAffect::kDisguise);
+		}
+	}
+	if (!CAN_SEE(ch, vict)) {
+		return false;
+	}
+	if (!kill_this && extra_aggr) {
+		if (CanUseFeat(vict, EFeat::kSilverTongue)
+			&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
+			return false;
+		}
+		kill_this = true;
+	}
+	return kill_this;
+}
+
+CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	int mobINT = GetRealInt(ch);
 	if (mobINT < kStupidMob) {
 		return find_best_stupidmob_victim(ch, extmode);
 	}
 
-	currentVictim = ch->GetEnemy();
+	CharData *currentVictim = ch->GetEnemy();
+  std::vector<Target> casters, druids, clers, charmmages, others;
+
 	if (currentVictim && !currentVictim->IsNpc()) {
 		if (IsCaster(currentVictim)) {
 			return currentVictim;
 		}
 	}
 	// проходим по всем чарам в комнате
+	int base_weight = 10; // Базовый вес
 	for (const auto vict : world[ch->in_room]->people) {
-		if ((vict->IsNpc() && !IS_CHARMICE(vict))
-			|| (IS_CHARMICE(vict) && !vict->GetEnemy()
-				&& find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
-			|| vict->IsFlagged(EPrf::kNohassle)
-			|| !MAY_SEE(ch, ch, vict) // если не видим цель,
-			|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->GetEnemy())
-			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
-		{
-			continue;
-		}
-
-		kill_this = false;
-		// Mobile too damage //обработка флага ТРУС
-		if (IS_SET(extmode, CHECK_HITS)
-			&& ch->IsFlagged(EMobFlag::kWimpy)
-			&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch)) {
-			continue;
-		}
-
-		// Mobile helpers... //ассист
-		if ((vict->GetEnemy())
-			&& (vict->GetEnemy() != ch)
-			&& vict->GetEnemy()->IsNpc()
-			&& (!AFF_FLAGGED(vict->GetEnemy(), EAffect::kCharmed))) {
-			kill_this = true;
-		} else {
-			// ... but no aggressive for this char
-			if (!(extra_aggr = extra_aggressive(ch, vict))
-				&& !IS_SET(extmode, GUARD_ATTACK)) {
-				continue;
-			}
-		}
-		if (IS_SET(extmode, SKIP_SNEAKING)) {
-			skip_sneaking(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
-				AFF_FLAGS(vict).unset(EAffect::kSneak);
-			}
-
-			if (AFF_FLAGGED(vict, EAffect::kSneak)) {
-				continue;
-			}
-		}
-		if (IS_SET(extmode, SKIP_HIDING)) {
-			skip_hiding(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
-				AFF_FLAGS(vict).unset(EAffect::kHide);
-			}
-		}
-
-		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
-			skip_camouflage(vict, ch);
-			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
-				AFF_FLAGS(vict).unset(EAffect::kDisguise);
-			}
-		}
-		if (!CAN_SEE(ch, vict)) {
-			continue;
-		}
-		if (!kill_this && extra_aggr) {
-			if (CanUseFeat(vict, EFeat::kSilverTongue)
-				&& number(1, GetRealLevel(vict) * GetRealCha(vict)) > number(1, GetRealLevel(ch) * GetRealInt(ch))) {
-				continue;
-			}
-			kill_this = true;
-		}
-
-		if (!kill_this)
-			continue;
-		// волхв
-		if (vict->GetClass() == ECharClass::kMagus) {
-			druid = vict;
-			caster = vict;
-			continue;
-		}
-		// лекарь
-		if (vict->GetClass() == ECharClass::kSorcerer) {
-			cler = vict;
-			caster = vict;
-			continue;
-		}
-		// кудес
-		if (vict->GetClass() == ECharClass::kCharmer) {
-			charmmage = vict;
-			caster = vict;
+		if (!filter_victim(ch, vict, extmode)) {
 			continue;
 		}
 
 		if (GET_HIT(vict) <= kCharacterHpForMobPriorityAttack) {
-			return vict;
+			return selectVictimDependingOnGroupFormation(ch, vict);
 		}
-		if (IsCaster(vict)) {
-			caster = vict;
-			continue;
+		// Распределяем цели по категориям
+		if (vict->GetClass() == ECharClass::kMagus) {
+			druids.push_back({vict, base_weight});
+		} else if (vict->GetClass() == ECharClass::kSorcerer) {
+			clers.push_back({vict, base_weight});
+		} else if (vict->GetClass() == ECharClass::kCharmer) {
+			charmmages.push_back({vict, base_weight});
+		} else if (IsCaster(vict)) {
+			casters.push_back({vict, base_weight});
+		} else {
+			others.push_back({vict, base_weight});
 		}
-		best = vict;
 	}
 
-	if (!best) {
-		best = currentVictim;
-	}
+// Определяем веса в зависимости от интеллекта моба
+	int druid_weight, cler_weight, charmmage_weight, caster_weight, other_weight = base_weight;
+
 	if (mobINT < kMiddleAi) {
-		int rand = number(0, 2);
-		if (caster) {
-			best = caster;
-		}
-		if ((rand == 0) && (druid)) {
-			best = druid;
-		}
-		if ((rand == 1) && (cler)) {
-			best = cler;
-		}
-		if ((rand == 2) && (charmmage)) {
-			best = charmmage;
-		}
-		return selectVictimDependingOnGroupFormation(ch, best);
+		// Глупый моб: равномерные веса
+	} else if (mobINT < kHighAi) {
+		druid_weight = 50;
+		cler_weight = 50;
+		charmmage_weight = 30;
+		caster_weight = 30;
+		other_weight = 10;
+	} else {
+		druid_weight = 900;
+		cler_weight = 400;
+		charmmage_weight = 200;
+		caster_weight = 125;
+		other_weight = 25;
 	}
 
-	if (mobINT < kHighAi) {
-		int rand = number(0, 1);
-		if (caster)
-			best = caster;
-		if (charmmage)
-			best = charmmage;
-		if ((rand == 0) && (druid))
-			best = druid;
-		if ((rand == 1) && (cler))
-			best = cler;
-
-		return selectVictimDependingOnGroupFormation(ch, best);
+	std::vector<Target> all_targets;
+	for (auto& target : druids) {
+		target.weight = druid_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : clers) {
+		target.weight = cler_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : charmmages) {
+		target.weight = charmmage_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : casters) {
+		target.weight = caster_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : others) {
+		target.weight = other_weight;
+		all_targets.push_back(target);
+	}
+	for (auto& target : all_targets) {
+		if (target.ch->IsLeader()) {
+			target.weight = target.weight * 3 / 2;
+		}
 	}
 
-	//  и если >= 40 инты
-	if (caster)
-		best = caster;
-	if (charmmage)
-		best = charmmage;
-	if (cler)
-		best = cler;
-	if (druid)
-		best = druid;
-
-	return selectVictimDependingOnGroupFormation(ch, best);
+	CharData* selected = weighted_random_choice(all_targets);
+	if (!selected) {
+		selected = currentVictim; 
+	}
+	return selectVictimDependingOnGroupFormation(ch, selected);
 }
 
 int perform_best_mob_attack(CharData *ch, int extmode) {
