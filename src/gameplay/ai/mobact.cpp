@@ -67,7 +67,7 @@ const short kHighAi{40};
 const short kCharacterHpForMobPriorityAttack{100};
 
 struct Target {
-    CharData* victim;
+    CharData* ch;
     int weight; 
 };
 
@@ -591,6 +591,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		}
 	}
 	// проходим по всем чарам в комнате
+	int base_weight = 10; // Базовый вес
 	for (const auto vict : world[ch->in_room]->people) {
 		if (!filter_victim(ch, vict, extmode)) {
 			continue;
@@ -600,7 +601,6 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			return selectVictimDependingOnGroupFormation(ch, vict);
 		}
 		// Распределяем цели по категориям
-		int base_weight = 10; // Базовый вес
 		if (vict->GetClass() == ECharClass::kMagus) {
 			druids.push_back({vict, base_weight});
 		} else if (vict->GetClass() == ECharClass::kSorcerer) {
@@ -615,20 +615,16 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	}
 
 // Определяем веса в зависимости от интеллекта моба
-	int druid_weight = 10;
-	int cler_weight = 10;
-	int charmmage_weight = 10;
-	int caster_weight = 10;
-	int other_weight = 10;
+	int druid_weight, cler_weight, charmage_weight, caster_weight, other_weight = base_weight;
 
 	if (mobINT < kMiddleAi) {
 		// Глупый моб: равномерные веса
 	} else if (mobINT < kHighAi) {
-		druid_weight = 30;
-		cler_weight = 25;
-		charmmage_weight = 20;
-		caster_weight = 15;
-		other_weight = 10;
+		druid_weight = 80;
+		cler_weight = 50;
+		charmmage_weight = 30;
+		caster_weight = 25;
+		other_weight = 5;
 	} else {
 		druid_weight = 50;
 		cler_weight = 40;
@@ -657,6 +653,9 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	for (auto& target : others) {
 		target.weight = other_weight;
 		all_targets.push_back(target);
+	}
+	for (auto& target : all_targets) {
+		target.weight = other_weight;
 	}
 
 	CharData* selected = weighted_random_choice(all_targets);
