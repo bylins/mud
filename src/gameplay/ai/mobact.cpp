@@ -88,10 +88,10 @@ CharData* weighted_random_choice(const std::vector<Target>& targets) {
     for (const auto& target : targets) {
         current_weight += target.weight;
         if (random <= current_weight) {
-            return target.victim;
+            return target.ch;
         }
     }
-    return targets.back().victim; // На случай ошибок
+    return targets.back().ch; // На случай ошибок
 }
 
 int extra_aggressive(CharData *ch, CharData *victim) {
@@ -615,22 +615,22 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	}
 
 // Определяем веса в зависимости от интеллекта моба
-	int druid_weight, cler_weight, charmage_weight, caster_weight, other_weight = base_weight;
+	int druid_weight, cler_weight, charmmage_weight, caster_weight, other_weight = base_weight;
 
 	if (mobINT < kMiddleAi) {
 		// Глупый моб: равномерные веса
 	} else if (mobINT < kHighAi) {
-		druid_weight = 80;
+		druid_weight = 50;
 		cler_weight = 50;
 		charmmage_weight = 30;
-		caster_weight = 25;
-		other_weight = 5;
-	} else {
-		druid_weight = 50;
-		cler_weight = 40;
-		charmmage_weight = 30;
-		caster_weight = 20;
+		caster_weight = 30;
 		other_weight = 10;
+	} else {
+		druid_weight = 900;
+		cler_weight = 400;
+		charmmage_weight = 200;
+		caster_weight = 125;
+		other_weight = 25;
 	}
 
 	std::vector<Target> all_targets;
@@ -655,7 +655,9 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 		all_targets.push_back(target);
 	}
 	for (auto& target : all_targets) {
-		target.weight = other_weight;
+		if (target.ch->IsLeader()) {
+			target.weight = target.weight * 3 / 2;
+		}
 	}
 
 	CharData* selected = weighted_random_choice(all_targets);
