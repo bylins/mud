@@ -795,6 +795,21 @@ bool IS_CHARMICE(const CharData *ch) {
 			|| AFF_FLAGGED(ch, EAffect::kCharmed));
 }
 
+bool CharData::IsLeader() {
+	if (this->IsNpc()) {
+		return false;
+	}
+	if (this->get_master() != this) {
+		return false;
+	}
+	for (FollowerType *f = this->followers; f; f = f->next) {
+		if (!f->follower->IsNpc()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)

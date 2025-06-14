@@ -853,6 +853,7 @@ class CharData : public ProtectedCharData {
 	bool DropFromHorse();
 	bool IsHorsePrevents();
 	void dismount();
+	bool IsLeader();
 };
 
 # define MAX_FIRSTAID_REMOVE 17
