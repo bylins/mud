@@ -101,6 +101,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 	ZoneRnum zrn_from = GetZoneRnum(zvn_from);
 	int count = kNumberOfZoneDungeons;
 
+	mudlog(fmt::format("Попытка создать dungeon, источник {} {}", zone_table[zrn_from].name.c_str(), zone_table[zrn_from].vnum));
 	if (!GetZoneRooms(zrn_from, &rnum_start, &rnum_stop)) {
 		log(fmt::format("Нет комнат в зоне {}.", zvn_from));
 		return 0;
@@ -142,7 +143,7 @@ ZoneRnum ZoneCopy(ZoneVnum zvn_from) {
 		return 0;
 	}
 	utils::CExecutionTimer timer;
-	auto msg = fmt::format("Создаю dungeon, zone {} {}",
+	auto msg = fmt::format("Создаю dungeon, источник {} {} номер данжа  {} {}", zone_table[zrn_from].name.c_str(), zone_table[zrn_from].vnum,
 						   zone_table[zrn_to].name.c_str(), zone_table[zrn_to].vnum);
 	mudlog(msg, LGH, kLvlGreatGod, SYSLOG, true);
 	TrigDataCopy(zrn_from, zrn_to);
@@ -789,6 +790,7 @@ void DungeonReset(int zrn) {
 		return;
 	}
 	if (zone_table[zrn].copy_from_zone > 0) {
+		log("Удаляю данж %s склонированный из %s", zone_table[zrn].name.c_str(), zone_table[zone_table[zrn].copy_from_zone].name.c_str());
 		utils::CExecutionTimer timer1;
 		RoomDataFree(zrn);
 		sprintf(buf,
