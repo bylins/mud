@@ -378,33 +378,6 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		mudlog("В зоне нет комнат, копируем остальное", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
-/* уже не нужна чистка комнаты реальны
-	for (auto room = rrn_to; room <= rrn_to + 98; room++) {
-		auto people_copy = world[room]->people;
-
-		for (const auto vict : people_copy) {
-			if (vict->IsNpc()) {
-				if (vict->followers
-					|| vict->has_master()) {
-					die_follower(vict);
-				}
-				if (!vict->purged()) {
-					ExtractCharFromWorld(vict, false);
-				}
-			} else {
-				RemoveCharFromRoom(vict);
-				PlaceCharToRoom(vict, GetRoomRnum(calc_loadroom(vict)));
-				look_at_room(vict, GetRoomRnum((calc_loadroom(vict)));
-			}
-		}
-		ObjData *obj, *next_o;
-
-		for ( obj = world[room]->contents; obj; obj = next_o) {
-			next_o = obj->get_next_content();
-			ExtractObjFromWorld(obj);
-		}
-	}
-*/
 	for (int i = rrn_start; i <= rrn_stop; i++) {
 		RoomRnum new_rnum = world[i]->vnum % 100 + rrn_to;
 		auto &new_room = world[new_rnum];
@@ -709,8 +682,12 @@ std::string CreateComplexDungeon(Trigger *trig, const std::vector<std::string> &
 			pair.from = zrn;
 			pair.to = GetZoneRnum(zvn);
 			zrn_list.push_back(pair);
-		} else
+		} else {
+			for (auto &i : zrn_list) {
+				zone_table[i.to].copy_from_zone = 0;
+			}
 			return "0";
+		}
 		out_from << it << " ";
 	}
 	utils::CExecutionTimer timer;
@@ -760,8 +737,9 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 		return 0;
 	}
 	for (zvn_to = kZoneStartDungeons; zvn_to < kZoneStartDungeons + kNumberOfZoneDungeons; zvn_to++) {
-		if (zone_table[GetZoneRnum(zvn_to)].copy_from_zone == 0) {
-			zone_table[GetZoneRnum(zvn_to)].copy_from_zone = zvn_to;
+		auto zrn_to = GetZoneRnum(zvn_to);
+		if (zone_table[zrn_to].copy_from_zone == 0) {
+			zone_table[zrn_to].copy_from_zone = zvn_from;
 			sprintf(buf,
 					"Клонирую зону %s (%d) в %d, осталось мест: %d",
 					zone_table[zrn_from].name.c_str(),

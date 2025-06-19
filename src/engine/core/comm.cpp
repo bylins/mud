@@ -1832,9 +1832,9 @@ void close_socket(DescriptorData * d, int direct)
 			if (!any_other_ch(d->character.get())) {
 				Depot::exit_char(d->character.get());
 			}
-			sprintf(buf, "Remove from character list to: %s.", GET_NAME(d->character));
-			log("%s", buf);
 			if (character_list.get_character_by_address(d->character.get())) {
+				sprintf(buf, "Remove from character list to: %s.", GET_NAME(d->character));
+				log("%s", buf);
 				character_list.remove(d->character);
 			}
 		}

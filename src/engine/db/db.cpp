@@ -1905,7 +1905,12 @@ void ZoneUpdate() {
 				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
 					ResetZone(it);
 				} else {
+					log("Закрываю брошенный dungeon %d", it);
 					dungeons::DungeonReset(it);
+					zone_table[it].age = 0;
+					zone_table[it].used = false;
+					zone_table[it].time_awake = 0;
+					zone_table[it].first_enter.clear();
 				}
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
