@@ -4593,7 +4593,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		  false  - trigger not runned
 */
 int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int *retval) {
-	char arg[kMaxInputLength], trignum_s[kMaxInputLength], *name, *cname;
+	char arg[kMaxInputLength], trignum_s[kMaxInputLength];
 	char result[kMaxInputLength], *id_p;
 	Trigger *runtrig = nullptr;
 	//	Script *runsc = NULL;
@@ -4602,7 +4602,6 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	RoomData *r = nullptr;
 	void *trggo = nullptr;
 	int trgtype = 0, num = 0;
-	bool is_string = false;
 
 	id_p = two_arguments(cmd, arg, trignum_s);
 	skip_spaces(&id_p);
@@ -4634,48 +4633,51 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 			}
 		}
 	}
-
-	name = trignum_s;
-	if ((cname = strchr(name, '.')) || (!a_isdigit(*name))) {
-		is_string = true;
-		if (cname) {
-			*cname = '\0';
-			num = atoi(name);
-			name = ++cname;
-		}
-	} else {
-		num = atoi(name);
-	}
-
-	if (c && SCRIPT(c)->has_triggers()) {
-		runtrig = SCRIPT(c)->trig_list.find(is_string, name, num);
-		trgtype = MOB_TRIGGER;
-		trggo = (void *) c;
-	} else if (o && o->get_script()->has_triggers()) {
-		runtrig = o->get_script()->trig_list.find(is_string, name, num);
-		trgtype = OBJ_TRIGGER;
-		trggo = (void *) o;
-	} else if (r && SCRIPT(r)->has_triggers()) {
-		runtrig = SCRIPT(r)->trig_list.find(is_string, name, num);
-		trgtype = WLD_TRIGGER;
-		trggo = (void *) r;
-	};
-
-	if (!runtrig) {
-		sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+	num = atoi(trignum_s);
+	if (num == 0) {
+		sprintf(buf2, "run invalid trignum, команда: '%s'", cmd);
 		trig_log(*trig, buf2);
 		return (false);
 	}
-
+	if (c && SCRIPT(c)->has_triggers()) {
+		auto tmp = SCRIPT(c)->trig_list.find_by_vnum(num);
+		if (!tmp) {
+			sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+			trig_log(*trig, buf2);
+			return (false);
+		}
+		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
+		trgtype = MOB_TRIGGER;
+		trggo = (void *) c;
+	} else if (o && o->get_script()->has_triggers()) {
+		auto tmp = o->get_script()->trig_list.find_by_vnum(num);
+		if (!tmp) {
+			sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+			trig_log(*trig, buf2);
+			return (false);
+		}
+		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
+		trgtype = OBJ_TRIGGER;
+		trggo = (void *) o;
+	} else if (r && SCRIPT(r)->has_triggers()) {
+		auto tmp = SCRIPT(r)->trig_list.find_by_vnum(num);
+		if (!tmp) {
+			sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+			trig_log(*trig, buf2);
+			return (false);
+		}
+		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
+		trgtype = WLD_TRIGGER;
+		trggo = (void *) r;
+	}
 	// copy variables
 	if (*trig && runtrig) {
 		runtrig->var_list = (*trig)->var_list;
 	}
-
 	if (!GET_TRIG_DEPTH(runtrig)) {
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
-
+/*
 	//TODO: Why only for char?
 	if (go && type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
 		*sc = nullptr;
@@ -4709,7 +4711,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	}
 
 	*trig = runtrig;
-
+*/
 	return (true);
 }
 
