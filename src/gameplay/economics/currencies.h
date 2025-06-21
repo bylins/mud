@@ -13,6 +13,9 @@
 #include "engine/structs/info_container.h"
 #include "utils/grammar/cases.h"
 
+#include <string>
+#include <optional>
+
 // Старый неймспейс со старыми идами валют
 // Его необходимо удалить после доделывания системы валют
 namespace currency {
