@@ -5383,6 +5383,9 @@ void process_context(Script *sc, Trigger *trig, char *cmd) {
 		trig_log(trig, buf2);
 		return;
 	}
+	if (trig_index[trig->get_rnum()]->vnum / 100 == 2) {
+		log("dungeon смена контекста с %ld на %ld номер триггера %d строка %d", sc->context, atol(var), trig_index[trig->get_rnum()]->vnum, trig->curr_line->line_num);
+	}
 
 	sc->context = atol(var);
 }
