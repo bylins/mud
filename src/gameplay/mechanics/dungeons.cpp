@@ -633,17 +633,22 @@ void ListDungeons(CharData *ch) {
 	ZoneRnum zrn_stop = GetZoneRnum(kZoneStartDungeons + kNumberOfZoneDungeons - 1);
 	int count = 1;
 
-	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:>6} {:<50} {:<10} {:<}\r\n", "#", "предок", "вход", "прошло", "название зоны", "первый", "игроки");
+	buffer << fmt::format("{:>3}  {:>7} [{:>9}] {:>20} {:<50} {:<10} {:<}\r\n", "#", "предок", "вход", "создана", "название зоны", "первый", "игроки");
 	for (int i = zrn_start; i <= zrn_stop; i++) {
-		if (zone_table[i].copy_from_zone > 0)
-			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:>5}m {:<50} {:<}\r\n",
+		if (zone_table[i].copy_from_zone > 0) {
+			const time_t ct = zone_table[i].time_awake;
+			char *time_s = asctime(localtime(&ct));
+			std::string str = time_s + 4;
+			str.pop_back();
+			buffer << fmt::format("{:>3}) {:>7} [{:>9}] {:>20} {:<50} {:<}\r\n",
 								  count++,
 								  zone_table[i].copy_from_zone,
 								  zone_table[i].entrance,
-								  zone_table[i].time_awake,
+								  str,
 								  zone_table[i].name,
 								  zone_table[i].first_enter,
 								  WhoInZone(i));
+		}
 	}
 	SendMsgToChar(buffer.str().c_str(), ch);
 }

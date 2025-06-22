@@ -1851,7 +1851,6 @@ void ZoneUpdate() {
 		 */
 		timer = 0;
 		for (std::size_t i = 0; i < zone_table.size(); i++) {
-			zone_table[i].time_awake++;
 			if (zone_table[i].age < zone_table[i].lifespan 
 					&& zone_table[i].reset_mode 
 					&& (zone_table[i].reset_idle || zone_table[i].used)) {
@@ -1909,7 +1908,7 @@ void ZoneUpdate() {
 					dungeons::DungeonReset(it);
 					zone_table[it].age = 0;
 					zone_table[it].used = false;
-					zone_table[it].time_awake = 0;
+					zone_table[it].time_awake = time(0);
 					zone_table[it].first_enter.clear();
 				}
 			}
@@ -2685,7 +2684,7 @@ void ZoneReset::ResetZoneEssential() {
 
 	zone_table[m_zone_rnum].age = 0;
 	zone_table[m_zone_rnum].used = false;
-	zone_table[m_zone_rnum].time_awake = 0;
+	zone_table[m_zone_rnum].time_awake = time(0);
 	zone_table[m_zone_rnum].first_enter.clear();
 	celebrates::ProcessCelebrates(zone_table[m_zone_rnum].vnum);
 	int rnum_start = 0;
