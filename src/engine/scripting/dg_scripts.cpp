@@ -4668,6 +4668,11 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		trgtype = WLD_TRIGGER;
 		trggo = (void *) r;
 	}
+	if (!runtrig) {
+		sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+		trig_log(*trig, buf2);
+		return false;
+	}
 	// copy variables
 	if (*trig && runtrig) {
 		runtrig->var_list = (*trig)->var_list;
