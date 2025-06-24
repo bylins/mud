@@ -185,6 +185,7 @@ class Trigger {
 	int loops;        // loop iteration counter          //
 	TriggerEvent wait_event;    // event to pause the trigger      //
 	std::list<TriggerVar> var_list;    // list of local vars for trigger  //
+	long context;
 
  private:
 	void reset();
@@ -317,10 +318,8 @@ class Script {
 	long types;        // bitvector of trigger types //
 	TriggersList trig_list;    // list of triggers           //
 	std::list<TriggerVar> global_vars;    // list of global variables   //
-	long context;        // current context for statics //
 
  private:
-
 	bool m_purged;
 };
 
