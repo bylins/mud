@@ -53,7 +53,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 
 	// дебажные сообщения в лог
-	auto vd_debug = find_var_cntx(trig->var_list, var_name_debug.c_str(), sc->context);
+	auto vd_debug = find_var_cntx(trig->var_list, var_name_debug.c_str(), trig->context);
 	dd.debug_mode = false;
 	if (!vd_debug.name.empty() && !vd_debug.value.empty()) {
 		dd.debug_mode = atoi(vd_debug.value.c_str());
@@ -71,7 +71,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 
 	// количество мобов
-	auto vd_mob_count = find_var_cntx(trig->var_list, var_name_counter.c_str(), sc->context);
+	auto vd_mob_count = find_var_cntx(trig->var_list, var_name_counter.c_str(), trig->context);
 	if (vd_mob_count.name.empty()) {
 		snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_counter.c_str());
 		trig_log(trig, buf2);
@@ -96,7 +96,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 	}
 
 	for (const auto &var_name_mob : var_name_mob_list) {
-		auto vd_mob = find_var_cntx(trig->var_list, var_name_mob.first.c_str(), sc->context);
+		auto vd_mob = find_var_cntx(trig->var_list, var_name_mob.first.c_str(), trig->context);
 		if (vd_mob.name.empty()) {
 			snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_mob.first.c_str());
 			trig_log(trig, buf2);
@@ -111,7 +111,7 @@ static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, 
 			return false;
 		}
 
-		auto vd_room = find_var_cntx(trig->var_list, var_name_mob.second.c_str(), sc->context);
+		auto vd_room = find_var_cntx(trig->var_list, var_name_mob.second.c_str(), trig->context);
 		if (vd_room.name.empty()) {
 			snprintf(buf2, kMaxStringLength, "local var '%s' not found", var_name_mob.second.c_str());
 			trig_log(trig, buf2);

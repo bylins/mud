@@ -869,8 +869,6 @@ void script_stat(CharData *ch, Script *sc) {
 
 	sprintf(buf, "Global Variables: %s\r\n", sc->global_vars.empty() ? "" : "None");
 	SendMsgToChar(buf, ch);
-	sprintf(buf, "Global context: %ld\r\n", sc->context);
-	SendMsgToChar(buf, ch);
 	for (auto tv : sc->global_vars) {
 		sprintf(namebuf, "%s:%ld", tv.name.c_str(), tv.context);
 		if (tv.value[0] == UID_CHAR || tv.value[0] == UID_ROOM || tv.value[0] == UID_OBJ || tv.value[0] == UID_CHAR_ALL) {
@@ -882,9 +880,9 @@ void script_stat(CharData *ch, Script *sc) {
 	}
 
 	for (auto t : sc->trig_list) {
-		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d]\r\n",
+		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d], Context: [%ld]\r\n",
 				kColorYel, GET_TRIG_NAME(t), kColorNrm,
-				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t));
+				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t), t->context);
 		SendMsgToChar(buf, ch);
 
 		if (t->get_attach_type() == MOB_TRIGGER) {
@@ -1463,10 +1461,10 @@ void find_replacement(void *go,
 	// X.global() will have a NULL trig
 	if (trig)
 		vd = find_var_cntx(trig->var_list, var, 0);
-	if (vd.name.empty())
-		vd = find_var_cntx(sc->global_vars, var, sc->context);
-	if (vd.name.empty())
-		vd = find_var_cntx(worlds_vars, var, sc->context);
+	if (trig && vd.name.empty())
+		vd = find_var_cntx(sc->global_vars, var, trig->context);
+	if (trig && vd.name.empty())
+		vd = find_var_cntx(worlds_vars, var, trig->context);
 
 	*str = '\0';
 
@@ -1497,7 +1495,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(var, "door"))
 				strcpy(str, door[type]);
 			else if (!str_cmp(var, "contextval"))
-				sprintf(str, "%ld", sc->context);
+				sprintf(str, "%ld", trig->context);
 			else if (!str_cmp(var, "force"))
 				strcpy(str, force[type]);
 			else if (!str_cmp(var, "load"))
@@ -2854,7 +2852,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "varexist") || !str_cmp(field, "varexists")) {
-			vd = find_var_cntx(SCRIPT(c)->global_vars, subfield, sc->context);
+			vd = find_var_cntx(SCRIPT(c)->global_vars, subfield, trig->context);
 			if (!vd.name.empty()) {
 				strcpy(str, "1");
 			} else {
@@ -3095,7 +3093,7 @@ void find_replacement(void *go,
 			std::string vnum_str = Noob::print_start_outfit(c);
 			snprintf(str, kMaxTrglineLength, "%s", vnum_str.c_str());
 		} else {
-			vd = find_var_cntx(SCRIPT(c)->global_vars, field, sc->context);
+			vd = find_var_cntx(SCRIPT(c)->global_vars, field, trig->context);
 			if (!vd.name.empty()) {
 				sprintf(str, "%s", vd.value.c_str());
 			}
@@ -3250,9 +3248,9 @@ void find_replacement(void *go,
 				if (trig) {
 					vd_tmp = find_var_cntx(trig->var_list, subfield, 0);
 					if (vd_tmp.name.empty())
-						vd_tmp = find_var_cntx(sc->global_vars, subfield, sc->context);
+						vd_tmp = find_var_cntx(sc->global_vars, subfield, trig->context);
 					if (vd_tmp.name.empty())
-						vd = find_var_cntx(worlds_vars, subfield, sc->context);
+						vd = find_var_cntx(worlds_vars, subfield, trig->context);
 				}
 				if (vd_tmp.name.empty()) {
 					sprintf(buf, "Не найдена переменная %s", subfield);
@@ -3504,7 +3502,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_OBJ_OWNER(o));
 			}
 		} else if (!str_cmp(field, "varexists")) {
-			auto vd = find_var_cntx(o->get_script()->global_vars, subfield, sc->context);
+			auto vd = find_var_cntx(o->get_script()->global_vars, subfield, trig->context);
 			if (!vd.name.empty())
 				strcpy(str, "1");
 			else
@@ -3550,7 +3548,7 @@ void find_replacement(void *go,
 			}
 		} else //get global var. obj.varname
 		{
-			auto vd = find_var_cntx(o->get_script()->global_vars, field, sc->context);
+			auto vd = find_var_cntx(o->get_script()->global_vars, field, trig->context);
 			if (!vd.name.empty()) {
 				sprintf(str, "%s", vd.value.c_str());
 			} else {
@@ -3700,14 +3698,14 @@ void find_replacement(void *go,
 			//mixaz - end
 		} else if (!str_cmp(field, "varexists")) {
 			//room.varexists<0;1>
-			auto vd = find_var_cntx(SCRIPT(r)->global_vars, subfield, sc->context);
+			auto vd = find_var_cntx(SCRIPT(r)->global_vars, subfield, trig->context);
 			if (!vd.name.empty())
 				strcpy(str, "1");
 			else
 				strcpy(str, "0");
 		} else //get global var. room.varname
 		{
-			auto vd = find_var_cntx(SCRIPT(r)->global_vars, field, sc->context);
+			auto vd = find_var_cntx(SCRIPT(r)->global_vars, field, trig->context);
 			if (vd.name.empty()) {
 				sprintf(str, "%s", vd.value.c_str());
 			} else {
@@ -4677,41 +4675,6 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	if (!GET_TRIG_DEPTH(runtrig)) {
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
-/*
-	//TODO: Why only for char?
-	if (go && type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
-		*sc = nullptr;
-		*trig = nullptr;
-		return (false);
-	}
-
-	runtrig = nullptr;
-	//TODO: How that possible?
-	if (!go || (type == MOB_TRIGGER ? SCRIPT((CharData *) go).get() :
-				type == OBJ_TRIGGER ? ((ObjData *) go)->get_script().get() :
-				type == WLD_TRIGGER ? SCRIPT((RoomData *) go).get() : nullptr) != *sc) {
-		*sc = nullptr;
-		*trig = nullptr;
-	} else {
-		TriggersList *triggers_list = nullptr;
-		switch (type) {
-			case MOB_TRIGGER: triggers_list = &SCRIPT((CharData *) go)->trig_list;
-				break;
-
-			case OBJ_TRIGGER: triggers_list = &((ObjData *) go)->get_script()->trig_list;
-				break;
-
-			case WLD_TRIGGER: triggers_list = &SCRIPT((RoomData *) go)->trig_list;
-				break;
-		}
-		if (triggers_list
-			&& triggers_list->has_trigger(*trig)) {
-			runtrig = *trig;
-		}
-	}
-
-	*trig = runtrig;
-*/
 	return (true);
 }
 
@@ -5116,8 +5079,8 @@ void process_unset(Script *sc, Trigger *trig, char *cmd) {
 		return;
 	}
 
-	if (!remove_var_cntx(worlds_vars, var, sc->context))
-		if (!remove_var_cntx(sc->global_vars, var, sc->context))
+	if (!remove_var_cntx(worlds_vars, var, trig->context))
+		if (!remove_var_cntx(sc->global_vars, var, trig->context))
 			remove_var_cntx(trig->var_list, var, 0);
 }
 
@@ -5150,7 +5113,7 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 	// find the locally owned variable
 	auto vd = find_var_cntx(trig->var_list, var, 0);
 	if (vd.name.empty())
-		vd = find_var_cntx(sc->global_vars, var, sc->context);
+		vd = find_var_cntx(sc->global_vars, var, trig->context);
 
 	if (vd.name.empty()) {
 		snprintf(buf2, kMaxStringLength, "local var '%s' not found in remote call", buf);
@@ -5179,7 +5142,7 @@ void process_remote(Script *sc, Trigger *trig, char *cmd) {
 // если есть желание перенести локальную переменную заранее установите
 // контекст в 0. Для глобальной переменной переменная с контекстом 0
 // "покрывает" отсутствующие контексты
-	context = sc->context;
+	context = trig->context;
 
 	if ((room = get_room(buf2))) {
 		sc_remote = SCRIPT(room).get();
@@ -5263,7 +5226,7 @@ void do_vdelete(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
  * delete a variable from the globals of another script
  *     'rdelete <variable_name> <uid>'
  */
-void process_rdelete(Script *sc, Trigger *trig, char *cmd) {
+void process_rdelete(Script * /*sc*/, Trigger *trig, char *cmd) {
 	//  struct TriggerVar *vd, *vd_prev=NULL;
 	Script *sc_remote = nullptr;
 	char *line, *var, *uid_p;
@@ -5315,7 +5278,7 @@ void process_rdelete(Script *sc, Trigger *trig, char *cmd) {
 	}
 
 	// find the global
-	remove_var_cntx(sc_remote->global_vars, var, sc->context);
+	remove_var_cntx(sc_remote->global_vars, var, trig->context);
 }
 
 // * makes a local variable into a global variable
@@ -5371,7 +5334,7 @@ void process_worlds(Script * /*sc*/, Trigger *trig, char *cmd, long id) {
 }
 
 // set the current context for a script
-void process_context(Script *sc, Trigger *trig, char *cmd) {
+void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
 	char arg[kMaxInputLength], *var;
 
 	var = any_one_arg(cmd, arg);
@@ -5384,10 +5347,10 @@ void process_context(Script *sc, Trigger *trig, char *cmd) {
 		return;
 	}
 	if (trig_index[trig->get_rnum()]->vnum / 100 == 2) {
-		log("dungeon смена контекста с %ld на %ld номер триггера %d строка %d", sc->context, atol(var), trig_index[trig->get_rnum()]->vnum, trig->curr_line->line_num);
+		log("dungeon смена контекста с %ld на %ld номер триггера %d строка %d", trig->context, atol(var), trig_index[trig->get_rnum()]->vnum, trig->curr_line->line_num);
 	}
 
-	sc->context = atol(var);
+	trig->context = atol(var);
 }
 
 void extract_value(Script * /*sc*/, Trigger *trig, char *cmd) {
@@ -5514,7 +5477,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	if (mode == TRIG_NEW) {
 		GET_TRIG_DEPTH(trig) = 1;
 		GET_TRIG_LOOPS(trig) = 0;
-		sc->context = 0;
+		trig->context = 0;
 	}
 	
 	cmdlist_element::shared_ptr cl;
@@ -5670,7 +5633,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "DgAffect ", 9)) {
 				do_dg_affect(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "global ", 7)) {
-				process_global(sc, trig, cmd, sc->context);
+				process_global(sc, trig, cmd, trig->context);
 			} else if (!strn_cmp(cmd, "addicecurrency ", 15)) {
 				do_dg_add_ice_currency(go, sc, trig, type, cmd);
 			} else if (!strn_cmp(cmd, "bonus ", 6)) {
@@ -5678,7 +5641,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "worldecho ", 10)) {
 				do_worldecho(cmd + 10);
 			} else if (!strn_cmp(cmd, "worlds ", 7)) {
-				process_worlds(sc, trig, cmd, sc->context);
+				process_worlds(sc, trig, cmd, trig->context);
 			} else if (!strn_cmp(cmd, "context ", 8)) {
 				process_context(sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "remote ", 7)) {
@@ -6233,14 +6196,12 @@ std::ostream &TriggersList::dump(std::ostream &os) const {
 
 Script::Script() :
 	types(0),
-	context(0),
 	m_purged(false) {
 }
 
 // don't copy anything for now
 Script::Script(const Script &) :
 	types(0),
-	context(0),
 	m_purged(false) {
 }
 
@@ -6306,6 +6267,7 @@ Trigger::Trigger() :
 	depth(0),
 	loops(-1),
 	var_list(),
+	context(0),
 	nr(kNothing),
 	attach_type(0),
 	name(DEFAULT_TRIGGER_NAME),
@@ -6320,6 +6282,7 @@ Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const
 	depth(0),
 	loops(-1),
 	var_list(),
+	context(0),
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
@@ -6334,6 +6297,7 @@ Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, con
 	depth(0),
 	loops(-1),
 	var_list(),
+	context(0),
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
@@ -6352,6 +6316,7 @@ Trigger::Trigger(const Trigger &from) :
 	depth(from.depth),
 	loops(from.loops),
 	var_list(from.var_list),
+	context(from.context),
 	nr(from.nr),
 	attach_type(from.attach_type),
 	name(from.name),

@@ -835,7 +835,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		trig_copy->var_list = trig->var_list;
 		ch->script->trig_list.add(trig_copy);
 		ch->script->global_vars = m->script->global_vars;
-		ch->script->context = m->script->context;
+		trig_copy->context = trig->context;
 		if (m->GetEnemy()) {
 			m->GetEnemy()->SetEnemy(ch);
 			SetFighting(ch, m->GetEnemy());
