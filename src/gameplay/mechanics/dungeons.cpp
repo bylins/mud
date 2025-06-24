@@ -622,6 +622,7 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 				c_copy = c_copy->next;
 			}
 		}
+		delete trig_index[new_trn]->proto;
 		trig_index[new_trn]->proto = trig;
 //		trig_index[new_trn]->proto = *trig_index[i]->proto;
 	}

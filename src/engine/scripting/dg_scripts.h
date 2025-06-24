@@ -186,6 +186,7 @@ class Trigger {
 	TriggerEvent wait_event;    // event to pause the trigger      //
 	std::list<TriggerVar> var_list;    // list of local vars for trigger  //
 	long context;
+	bool is_copy;
 
  private:
 	void reset();

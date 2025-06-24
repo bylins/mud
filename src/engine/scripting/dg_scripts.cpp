@@ -4672,6 +4672,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	if (*trig && runtrig) {
 		runtrig->var_list = (*trig)->var_list;
 	}
+	runtrig->is_copy = true;
 	if (!GET_TRIG_DEPTH(runtrig)) {
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
@@ -5717,6 +5718,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 
 	if (trig) {
+		if (trig->is_copy) {
+			delete trig;
+		}
 		trig->clear_var_list();
 		GET_TRIG_DEPTH(trig) = 0;
 	}
@@ -6268,6 +6272,7 @@ Trigger::Trigger() :
 	loops(-1),
 	var_list(),
 	context(0),
+	is_copy(0),
 	nr(kNothing),
 	attach_type(0),
 	name(DEFAULT_TRIGGER_NAME),
@@ -6283,6 +6288,7 @@ Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const
 	loops(-1),
 	var_list(),
 	context(0),
+	is_copy(0),
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
@@ -6298,6 +6304,7 @@ Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, con
 	loops(-1),
 	var_list(),
 	context(0),
+	is_copy(0),
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
@@ -6317,6 +6324,7 @@ Trigger::Trigger(const Trigger &from) :
 	loops(from.loops),
 	var_list(from.var_list),
 	context(from.context),
+	is_copy(from.is_copy),
 	nr(from.nr),
 	attach_type(from.attach_type),
 	name(from.name),
@@ -6339,6 +6347,8 @@ void Trigger::reset() {
 	loops = -1;
 	wait_event.time_remaining = 0;
 	var_list.clear();
+	context = 0;
+	is_copy = false;
 }
 
 Trigger &Trigger::operator=(const Trigger &right) {
