@@ -211,7 +211,7 @@ void CreateBlankTrigsDungeon() {
 		zone_table[GetZoneRnum(zvn)].RnumTrigsLocation.first = top_of_trigt;
 		zone_table[GetZoneRnum(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
 		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
-			auto *trig = new Trigger(top_of_trigt, "Blank trigger", MTRIG_GREET);
+			auto *trig = new Trigger(top_of_trigt, "Blank trigger", 0, MTRIG_GREET);
 			IndexData *index;
 			CREATE(index, 1);
 			index->vnum = zvn * 100 + tvn;
@@ -976,12 +976,12 @@ void ObjDataFree(ZoneRnum zrn) {
 
 void TrigDataFree(ZoneRnum zrn) {
 	TrgRnum rrn_start = zone_table[zrn].RnumTrigsLocation.first;
-	ZoneVnum zvn = zone_table[zrn].vnum;
 
 	for (TrgRnum trn = 0; trn <= 99; trn++) {
 		trig_index[rrn_start + trn]->proto->set_name("Blank trigger");
 		trig_index[rrn_start + trn]->proto->cmdlist->reset();
-		trig_index[rrn_start + trn]->vnum = zvn * 100 + trn;
+		trig_index[rrn_start + trn]->proto->set_trigger_type(0);
+		trig_index[rrn_start + trn]->proto->set_attach_type(0);
 		owner_trig[trig_index[rrn_start + trn]->vnum].clear();
 	}
 }

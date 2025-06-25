@@ -5718,11 +5718,11 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 
 	if (trig) {
+		trig->clear_var_list();
+		GET_TRIG_DEPTH(trig) = 0;
 		if (trig->is_copy) {
 			delete trig;
 		}
-		trig->clear_var_list();
-		GET_TRIG_DEPTH(trig) = 0;
 	}
 
 	depth--;
