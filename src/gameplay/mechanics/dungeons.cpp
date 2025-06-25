@@ -382,8 +382,8 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		RoomRnum new_rnum = world[i]->vnum % 100 + rrn_to;
 		auto &new_room = world[new_rnum];
 
-		free(new_room->name);
 		new_room->vnum = zone_table[zrn_to].vnum * 100 + world[i]->vnum % 100;
+		free(new_room->name);
 		new_room->name = str_dup(world[i]->name); //почистить
 		new_room->description_num = world[i]->description_num;
 		new_room->write_flags(world[i]->read_flags());
@@ -419,7 +419,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 				new_room->dir_option_proto[dir] = std::make_shared<ExitData>();
 				new_room->dir_option_proto[dir]->to_room(GetRoomRnum(rvn));
 				if (!from->general_description.empty()) {
-					new_room->dir_option_proto[dir]->general_description = from->general_description; //чиcтить
+					new_room->dir_option_proto[dir]->general_description = from->general_description;
 				}
 				if (from->keyword) {
 					new_room->dir_option_proto[dir]->set_keyword(from->keyword); //чистить
@@ -602,29 +602,15 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mudlog("В зоне нет триггеров, копируем остальное", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
+
 	for (int i = trn_start; i <= trn_stop; i++) {
 		auto *trig = new Trigger(*trig_index[i]->proto);
 		TrgRnum new_tvn = trig_index[i]->vnum % 100 + zvn_to * 100;
 		TrgRnum new_trn = GetTriggerRnum(new_tvn);
 
 		trig->set_rnum(new_trn);
-		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
-		*trig->cmdlist = std::make_shared<cmdlist_element>();
-		auto c_copy = *trig->cmdlist;
-		auto c = *trig_index[i]->proto->cmdlist;
-
-		while (c) {
-			c_copy->cmd = c->cmd;
-			c_copy->line_num = c->line_num;
-			c = c->next;
-			if (c) {
-				c_copy->next = std::make_shared<cmdlist_element>();
-				c_copy = c_copy->next;
-			}
-		}
 		delete trig_index[new_trn]->proto;
 		trig_index[new_trn]->proto = trig;
-//		trig_index[new_trn]->proto = *trig_index[i]->proto;
 	}
 }
 
