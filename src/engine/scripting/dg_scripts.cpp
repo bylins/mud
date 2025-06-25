@@ -4639,34 +4639,30 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	}
 	if (c && SCRIPT(c)->has_triggers()) {
 		auto tmp = SCRIPT(c)->trig_list.find_by_vnum(num);
-		if (!tmp) {
-			sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
-			trig_log(*trig, buf2);
-			return (false);
+		if (tmp) {
+			runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
+			trgtype = MOB_TRIGGER;
+			trggo = (void *) c;
 		}
-		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
-		trgtype = MOB_TRIGGER;
-		trggo = (void *) c;
 	} else if (o && o->get_script()->has_triggers()) {
 		auto tmp = o->get_script()->trig_list.find_by_vnum(num);
-		if (!tmp) {
-			sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
-			trig_log(*trig, buf2);
-			return (false);
-		}
+		if (tmp) {
 		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *) o;
+		}
 	} else if (r && SCRIPT(r)->has_triggers()) {
 		auto tmp = SCRIPT(r)->trig_list.find_by_vnum(num);
-		if (!tmp) {
-			sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
-			trig_log(*trig, buf2);
-			return (false);
+		if (tmp) {
+			runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
+			trgtype = WLD_TRIGGER;
+			trggo = (void *) r;
 		}
-		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
-		trgtype = WLD_TRIGGER;
-		trggo = (void *) r;
+	}
+	if (!runtrig) {
+		sprintf(buf2, "Не найден триггер, команда: '%s'", cmd);
+		trig_log(*trig, buf2);
+		return false;
 	}
 	// copy variables
 	if (*trig && runtrig) {
