@@ -1145,9 +1145,8 @@ void command_interpreter(CharData *ch, char *argument) {
 		return;
 
 	if (!ch->IsNpc()) {
-		log("<%s, %d> {%5d} [%s]",
+		log("<%s> {%5d} [%s]",
 			GET_NAME(ch),
-			GlobalObjects::heartbeat().pulse_number(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
 		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, EGf::kPerslog) || GET_GOD_FLAG(ch, EGf::kDemigod))
