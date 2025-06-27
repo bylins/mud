@@ -1138,7 +1138,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			room->cleanup_script();
 
 			SendMsgToChar("All triggers removed from room.\r\n", ch);
-		} else if (SCRIPT(room)->remove_trigger(arg2)) {
+		} else if (SCRIPT(room)->remove_trigger(atoi(arg2))) {
 				owner_trig[atoi(arg2)][-1].erase(world[ch->in_room]->vnum);
 			SendMsgToChar("Trigger removed.\r\n", ch);
 		} else {
@@ -1181,7 +1181,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf, "All triggers removed from %s.\r\n", GET_SHORT(victim));
 				SendMsgToChar(buf, ch);
 			} else if (trigger
-				&& SCRIPT(victim)->remove_trigger(trigger)) {
+				&& SCRIPT(victim)->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_MOB_VNUM(victim));
 				SendMsgToChar("Trigger removed.\r\n", ch);
 			} else {
@@ -1196,7 +1196,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!object->get_short_description().empty() ? object->get_short_description().c_str()
 																 : object->get_aliases().c_str());
 				SendMsgToChar(buf, ch);
-			} else if (object->get_script()->remove_trigger(trigger)) {
+			} else if (object->get_script()->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_OBJ_VNUM(object));
 				SendMsgToChar("Trigger removed.\r\n", ch);
 			} else {
@@ -4543,8 +4543,9 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		return retval;
 	}
 	int tvnum = atoi(trignum_s);
+
 	if (c && SCRIPT(c)->has_triggers()) {
-		SCRIPT(c)->remove_trigger(trignum_s, retval);
+		SCRIPT(c)->remove_trigger(tvnum, retval);
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_MOB_VNUM(c))) {
 				owner_trig[tvnum][it->first].erase(GET_MOB_VNUM(c));
@@ -4557,7 +4558,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		return retval;
 	}
 	if (o && o->get_script()->has_triggers()) {
-		o->get_script()->remove_trigger(trignum_s, retval);
+		o->get_script()->remove_trigger(tvnum, retval);
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_OBJ_VNUM(o))) {
 				owner_trig[tvnum][it->first].erase(GET_OBJ_VNUM(o));
@@ -4570,7 +4571,21 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		return retval;
 	}
 	if (r && SCRIPT(r)->has_triggers()) {
-		SCRIPT(r)->remove_trigger(trignum_s, retval);
+		SCRIPT(r)->remove_trigger(tvnum, retval);
+		auto exec_trig = trigger_list.exec_list.find(nr);
+
+		mudlog(fmt::format("удаляем {}", tvnum));
+		if (exec_trig != trigger_list.exec_list.end()) {
+			for (auto it : exec_trig->second){
+				mudlog(fmt::format("смотрим {}", trig_index[it->get_rnum()]->vnum));
+				if (trig_index[it->get_rnum()]->vnum == tvnum) {
+					mudlog(fmt::format("еще удаляем {}", trig_index[it->get_rnum()]->vnum));
+					it->halt();
+				}
+			}
+			trigger_list.exec_list.erase(tvnum);
+		}
+
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(r->vnum)) {
 				owner_trig[tvnum][it->first].erase(r->vnum);
@@ -4673,6 +4688,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		runtrig->var_list = (*trig)->var_list;
 	}
 	runtrig->is_copy = true;
+	trigger_list.exec_list[runtrig->get_rnum()].insert(runtrig);
 	if (!GET_TRIG_DEPTH(runtrig)) {
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
@@ -5492,7 +5508,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		break;
 		
 	}
-	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl) { //log("Drive go <%s>",cl->cmd.c_str());
+	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig) && !trig->is_halted(); cl = cl ? cl->next : cl) { //log("Drive go <%s>",cl->cmd.c_str());
 		last_trig_line_num = cl->line_num;
 		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
@@ -5684,9 +5700,10 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					depth--;
 					cur_trig = prev_trig;
 					return ret_val;
-				}
+				}\
+
 			} else if (!strn_cmp(cmd, "arena_round", 11)) {
-				process_arena_round(sc, trig, cmd);
+				process_arena_round(trig, cmd);
 			} else if (!strn_cmp(cmd, "version", 7)) {
 				mudlog(DG_SCRIPT_VERSION, BRF, kLvlBuilder, SYSLOG, true);
 			} else {
@@ -5710,6 +5727,13 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			if (trig && trig->is_halted())
 				break;
 			if (sc->is_purged() || (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged())) {
+				if (trig) {
+					auto exec_trig = trigger_list.exec_list.find(trig->get_rnum());
+
+					if (exec_trig != trigger_list.exec_list.end()) {
+						exec_trig->second.erase(trig);
+					}
+				}
 				depth--;
 				cur_trig = prev_trig;
 				return ret_val;
@@ -5718,6 +5742,11 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 
 	if (trig) {
+		auto exec_trig = trigger_list.exec_list.find(trig->get_rnum());
+
+		if (exec_trig != trigger_list.exec_list.end()) {
+			exec_trig->second.erase(trig);
+		}
 		trig->clear_var_list();
 		GET_TRIG_DEPTH(trig) = 0;
 		if (trig->is_copy) {
@@ -6073,49 +6102,8 @@ void TriggersList::unregister_observer(const TriggerEventObserver::shared_ptr &o
 	m_iterator_observers.erase(observer);
 }
 
-Trigger *TriggersList::find(const bool by_name, const char *name, const int vnum_or_position) {
-	if (by_name) {
-		return find_by_name(name, vnum_or_position);
-	} else {
-		return find_by_vnum_or_position(vnum_or_position);
-	}
-}
-
-Trigger *TriggersList::find_by_name(const char *name, const int number) {
-	Trigger *result = nullptr;
-
-	int n = 0;
-	for (const auto &i : m_list) {
-		if (isname(name, GET_TRIG_NAME(i))) {
-			++n;
-			if (n >= number) {
-				result = i;
-				break;
-			}
-		}
-	}
-
-	return result;
-}
-
-Trigger *TriggersList::find_by_vnum_or_position(const int vnum_or_position) {
-	Trigger *result = nullptr;
-
-	int n = 0;
-	for (const auto &i : m_list) {
-		++n;
-		if (n >= vnum_or_position) {
-			result = i;
-			break;
-		}
-
-		if (trig_index[i->get_rnum()]->vnum == vnum_or_position) {
-			result = i;
-			break;
-		}
-	}
-
-	return result;
+Trigger *TriggersList::find(const int vnum) {
+	return find_by_vnum(vnum);
 }
 
 Trigger *TriggersList::find_by_vnum(const int vnum) {
@@ -6129,26 +6117,6 @@ Trigger *TriggersList::find_by_vnum(const int vnum) {
 	}
 
 	return result;
-}
-
-Trigger *TriggersList::remove_by_name(const char *name, const int number) {
-	Trigger *to_remove = find_by_name(name, number);
-
-	if (to_remove) {
-		remove(to_remove);
-	}
-
-	return to_remove;
-}
-
-Trigger *TriggersList::remove_by_vnum_or_position(const int vnum_or_position) {
-	Trigger *to_remove = find_by_vnum_or_position(vnum_or_position);
-
-	if (to_remove) {
-		remove(to_remove);
-	}
-
-	return to_remove;
 }
 
 Trigger *TriggersList::remove_by_vnum(const int vnum) {
@@ -6214,29 +6182,10 @@ Script::~Script() {
 		clear_global_vars();
 }
 
-int Script::remove_trigger(char *name, Trigger *&trig_addr) {
-	int num = 0;
-	char *cname;
-
-	bool string = false;
-	if ((cname = strchr(name, '.')) || (!a_isdigit(*name))) {
-		string = true;
-		if (cname) {
-			*cname = '\0';
-			num = atoi(name);
-			name = ++cname;
-		}
-	} else {
-		num = atoi(name);
-	}
-
+int Script::remove_trigger(TrgVnum tvn, Trigger *&trig_addr) {
 	Trigger *address_of_removed_trigger = nullptr;
-	if (string) {
-		address_of_removed_trigger = trig_list.remove_by_name(name, num);
-	} else {
-		address_of_removed_trigger = trig_list.remove_by_vnum_or_position(num);
-	}
 
+	address_of_removed_trigger = trig_list.remove_by_vnum(tvn);
 	if (!address_of_removed_trigger) {
 		return 0;    // nothing has been removed
 	}
@@ -6252,9 +6201,9 @@ int Script::remove_trigger(char *name, Trigger *&trig_addr) {
 	return 1;
 }
 
-int Script::remove_trigger(char *name) {
+int Script::remove_trigger(TrgVnum tvn) {
 	Trigger *dummy = nullptr;
-	return remove_trigger(name, dummy);
+	return remove_trigger(tvn, dummy);
 }
 
 void Script::cleanup() {

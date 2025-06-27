@@ -252,12 +252,8 @@ class TriggersList {
 
 	bool add(Trigger *trigger, bool to_front = false);
 	void remove(Trigger *trigger);
-	Trigger *find(bool by_name, const char *name, int vnum_or_position);
-	Trigger *find_by_name(const char *name, int number);
-	Trigger *find_by_vnum_or_position(int vnum_or_position);
+	Trigger *find(int vnum);
 	Trigger *find_by_vnum(int vnum);
-	Trigger *remove_by_name(const char *name, int number);
-	Trigger *remove_by_vnum_or_position(int vnum_or_position);
 	Trigger *remove_by_vnum(int vnum);
 	long get_type() const;
 	bool has_trigger(const Trigger *trigger);
@@ -306,8 +302,8 @@ class Script {
 	*  you might need to check to see if all the triggers were removed after
 	*  this function returns, in order to remove the script.
 	*/
-	int remove_trigger(char *name, Trigger *&trig_addr);
-	int remove_trigger(char *name);
+	int remove_trigger(TrgVnum tvn, Trigger *&trig_addr);
+	int remove_trigger(TrgVnum tvn);
 
 	void clear_global_vars() {global_vars.clear();}
 	void cleanup();
@@ -409,7 +405,7 @@ class GlobalTriggersStorage {
 	const auto &get_triggers_with_rnum(const Rnum rnum) const { return m_rnum2triggers_set.at(rnum); }
 	void register_remove_observer(Trigger *trigger, const TriggerEventObserver::shared_ptr &observer);
 	void unregister_remove_observer(Trigger *trigger, const TriggerEventObserver::shared_ptr &observer);
-
+	std::map<TrgVnum, std::set<Trigger *>> exec_list;
  private:
 	using triggers_set_t = std::unordered_set<Trigger *>;
 	using storage_t = triggers_set_t;

@@ -406,8 +406,7 @@ int command_mtrigger(CharData *actor, char *cmd, const char *argument) {
 							 ch->get_name().c_str(),
 							 GET_MOB_VNUM(ch));
 					mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
-					snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
-					SCRIPT(ch)->remove_trigger(buf);
+					SCRIPT(ch)->remove_trigger(trig_index[(t)->get_rnum()]->vnum);
 
 					break;
 				}
@@ -910,8 +909,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 						 obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "undefined",
 						 GET_OBJ_VNUM(obj));
 				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
-				snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
-				obj->get_script()->remove_trigger(buf);
+				obj->get_script()->remove_trigger(trig_index[(t)->get_rnum()]->vnum);
 				break;
 			}
 
@@ -1282,9 +1280,7 @@ int command_wtrigger(CharData *actor, char *cmd, const char *argument) {
 					 room->name,
 					 room->vnum);
 			mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
-			snprintf(buf, kMaxInputLength, "%d", GET_TRIG_VNUM(t));
-			SCRIPT(room)->remove_trigger(buf);
-
+			SCRIPT(room)->remove_trigger(trig_index[(t)->get_rnum()]->vnum);
 			break;
 		}
 
