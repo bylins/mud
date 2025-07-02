@@ -3497,17 +3497,17 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 	return (1);
 }
 
-CharData *find_char(long n) {
-	CharData *ch = chardata_by_uid[n];
-	if (ch) {
-		return ch;
+CharData *find_char(long uid) {
+	auto it = chardata_by_uid.find(uid);
+	if (it != chardata_by_uid.end()) {
+		return it->second;
 	}
-	return find_pc(n);
+	return find_pc(uid);
 }
 
-CharData *find_pc(long n) {
+CharData *find_pc(long uid) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && GET_UID(d->character) == n) {
+		if (STATE(d) == CON_PLAYING && GET_UID(d->character) == uid) {
 			return d->character.get();
 		}
 	}
