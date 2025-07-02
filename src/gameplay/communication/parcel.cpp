@@ -12,6 +12,7 @@
 #include "engine/entities/char_player.h"
 #include "mail.h"
 #include "engine/db/obj_save.h"
+#include "gameplay/mechanics/dungeons.h"
 
 #include <iomanip>
 
@@ -248,7 +249,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 
 	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, GET_OBJ_PNAME(obj, 0).c_str(), kColorNrm);
 	send_buffer += buf;
-
+	obj = dungeons::SwapOriginalObject(obj);
 	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
 	Node tmp_node(reserved_cost, object_ptr);
 	add_parcel(vict_uid, GET_UID(ch), tmp_node);
