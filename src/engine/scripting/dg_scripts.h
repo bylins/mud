@@ -406,8 +406,7 @@ class GlobalTriggersStorage {
 	const auto &get_triggers_with_rnum(const Rnum rnum) const { return m_rnum2triggers_set.at(rnum); }
 	void register_remove_observer(Trigger *trigger, const TriggerEventObserver::shared_ptr &observer);
 	void unregister_remove_observer(Trigger *trigger, const TriggerEventObserver::shared_ptr &observer);
-	std::map<TrgVnum, std::set<Trigger *>> exec_list;
- private:
+private:
 	using triggers_set_t = std::unordered_set<Trigger *>;
 	using storage_t = triggers_set_t;
 	using rnum2triggers_set_t = std::unordered_map<Rnum, triggers_set_t>;
