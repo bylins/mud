@@ -609,6 +609,21 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		TrgRnum new_trn = GetTriggerRnum(new_tvn);
 
 		trig->set_rnum(new_trn);
+		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
+		*trig->cmdlist = std::make_shared<cmdlist_element>();
+// не совсем понимаю причину, но если не копировать текст триггеров мы портим у прото содердимое
+		auto c_copy = *trig->cmdlist;
+		auto c = *trig_index[i]->proto->cmdlist;
+
+		while (c) {
+			c_copy->cmd = c->cmd;
+			c_copy->line_num = c->line_num;
+			c = c->next;
+			if (c) {
+				c_copy->next = std::make_shared<cmdlist_element>();
+				c_copy = c_copy->next;
+			}
+		}
 		delete trig_index[new_trn]->proto;
 		trig_index[new_trn]->proto = trig;
 	}
