@@ -323,9 +323,7 @@ void TriggerDistribution(DescriptorData *d) {
 				auto sc = SCRIPT(ch);
 				for (auto t : sc->trig_list) {
 					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-						char smallbuf[32];
-						sprintf(smallbuf, "%d", OLC_NUM(d));
-						sc->remove_trigger(smallbuf);
+						sc->remove_trigger(OLC_NUM(d));
 						auto trig = read_trigger(GetTriggerRnum(OLC_NUM(d)));
 						if (!add_trigger(ch->script.get(), trig, -1)) {
 							ExtractTrigger(trig);
@@ -341,9 +339,7 @@ void TriggerDistribution(DescriptorData *d) {
 				auto sc = obj_ptr->get_script().get();
 				for (auto t : sc->trig_list) {
 					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
-						char smallbuf[32];
-						sprintf(smallbuf, "%d", OLC_NUM(d));
-						sc->remove_trigger(smallbuf);
+						sc->remove_trigger(OLC_NUM(d));
 						auto trig = read_trigger(GetTriggerRnum(OLC_NUM(d)));
 						if (!add_trigger(obj_ptr->get_script().get(), trig, -1)) {
 							ExtractTrigger(trig);

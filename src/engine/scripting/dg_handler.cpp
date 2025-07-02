@@ -27,7 +27,6 @@ void ExtractTrigger(Trigger *trig) {
 		remove_event(GET_TRIG_WAIT(trig));
 		GET_TRIG_WAIT(trig).time_remaining = 0;
 	}
-
 	trig_index[trig->get_rnum()]->total_online--;
 
 	// walk the trigger list and remove this one

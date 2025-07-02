@@ -211,7 +211,7 @@ void CreateBlankTrigsDungeon() {
 		zone_table[GetZoneRnum(zvn)].RnumTrigsLocation.first = top_of_trigt;
 		zone_table[GetZoneRnum(zvn)].RnumTrigsLocation.second = top_of_trigt + 99;
 		for (TrgVnum tvn = 0; tvn <= 99; tvn++) {
-			auto *trig = new Trigger(top_of_trigt, "Blank trigger", MTRIG_GREET);
+			auto *trig = new Trigger(top_of_trigt, "Blank trigger", 0, MTRIG_GREET);
 			IndexData *index;
 			CREATE(index, 1);
 			index->vnum = zvn * 100 + tvn;
@@ -382,8 +382,8 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		RoomRnum new_rnum = world[i]->vnum % 100 + rrn_to;
 		auto &new_room = world[new_rnum];
 
-		free(new_room->name);
 		new_room->vnum = zone_table[zrn_to].vnum * 100 + world[i]->vnum % 100;
+		free(new_room->name);
 		new_room->name = str_dup(world[i]->name); //почистить
 		new_room->description_num = world[i]->description_num;
 		new_room->write_flags(world[i]->read_flags());
@@ -419,7 +419,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 				new_room->dir_option_proto[dir] = std::make_shared<ExitData>();
 				new_room->dir_option_proto[dir]->to_room(GetRoomRnum(rvn));
 				if (!from->general_description.empty()) {
-					new_room->dir_option_proto[dir]->general_description = from->general_description; //чиcтить
+					new_room->dir_option_proto[dir]->general_description = from->general_description;
 				}
 				if (from->keyword) {
 					new_room->dir_option_proto[dir]->set_keyword(from->keyword); //чистить
@@ -602,28 +602,15 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mudlog("В зоне нет триггеров, копируем остальное", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
+
 	for (int i = trn_start; i <= trn_stop; i++) {
 		auto *trig = new Trigger(*trig_index[i]->proto);
 		TrgRnum new_tvn = trig_index[i]->vnum % 100 + zvn_to * 100;
 		TrgRnum new_trn = GetTriggerRnum(new_tvn);
 
 		trig->set_rnum(new_trn);
-		trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>();
-		*trig->cmdlist = std::make_shared<cmdlist_element>();
-		auto c_copy = *trig->cmdlist;
-		auto c = *trig_index[i]->proto->cmdlist;
-
-		while (c) {
-			c_copy->cmd = c->cmd;
-			c_copy->line_num = c->line_num;
-			c = c->next;
-			if (c) {
-				c_copy->next = std::make_shared<cmdlist_element>();
-				c_copy = c_copy->next;
-			}
-		}
+		delete trig_index[new_trn]->proto;
 		trig_index[new_trn]->proto = trig;
-//		trig_index[new_trn]->proto = *trig_index[i]->proto;
 	}
 }
 
@@ -975,12 +962,12 @@ void ObjDataFree(ZoneRnum zrn) {
 
 void TrigDataFree(ZoneRnum zrn) {
 	TrgRnum rrn_start = zone_table[zrn].RnumTrigsLocation.first;
-	ZoneVnum zvn = zone_table[zrn].vnum;
 
 	for (TrgRnum trn = 0; trn <= 99; trn++) {
 		trig_index[rrn_start + trn]->proto->set_name("Blank trigger");
 		trig_index[rrn_start + trn]->proto->cmdlist->reset();
-		trig_index[rrn_start + trn]->vnum = zvn * 100 + trn;
+		trig_index[rrn_start + trn]->proto->set_trigger_type(0);
+		trig_index[rrn_start + trn]->proto->set_attach_type(0);
 		owner_trig[trig_index[rrn_start + trn]->vnum].clear();
 	}
 }
