@@ -14,6 +14,6 @@
 // "bulls", "bulls_rooms"
 // "snakes", "snakes_rooms"
 // после чтения всех переменные загружает мобов по комнатам согласно mobs_count
-void process_arena_round(Script *sc, Trigger *trig, char *cmd);
+void process_arena_round(Trigger *trig, char *cmd);
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

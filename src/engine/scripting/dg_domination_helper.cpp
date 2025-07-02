@@ -42,7 +42,7 @@ static const std::string var_name_counter = "mobs_count";
 static const std::string var_name_debug = "debug_messages";
 static const short expected_round_count = 9;
 
-static bool read_local_variables(DominationData &dd, Script *sc, Trigger *trig, char *cmd)
+static bool read_local_variables(DominationData &dd, Trigger *trig, char *cmd)
 {
 	char local_buf[kMaxTrglineLength];
 
@@ -152,10 +152,10 @@ static bool load_arena_mob(Trigger *trig, MobVnum mob_vn, RoomVnum vnum, bool de
 	return true;
 }
 
-void process_arena_round(Script *sc, Trigger *trig, char *cmd)
+void process_arena_round(Trigger *trig, char *cmd)
 {
 	DominationData dd;
-	const bool load_status = read_local_variables(dd, sc, trig, cmd);
+	const bool load_status = read_local_variables(dd, trig, cmd);
 	if (!load_status) {
 		return;
 	}
