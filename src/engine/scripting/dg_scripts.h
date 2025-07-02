@@ -18,6 +18,7 @@
 #include <optional>
 #include "gameplay/abilities/feats.h"
 #include "dg_event.h"
+#include "utils/logger.h"
 
 #include <compare>
 
@@ -186,7 +187,7 @@ class Trigger {
 	TriggerEvent wait_event;    // event to pause the trigger      //
 	std::list<TriggerVar> var_list;    // list of local vars for trigger  //
 	long context;
-	bool is_copy;
+	bool is_runned;
 
  private:
 	void reset();

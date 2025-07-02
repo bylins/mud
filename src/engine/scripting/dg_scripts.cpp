@@ -199,6 +199,9 @@ void GlobalTriggersStorage::remove(Trigger *trigger) {
 	// then erase trigger
 	m_triggers.erase(trigger);
 	m_rnum2triggers_set[trigger->get_rnum()].erase(trigger);
+	if (m_rnum2triggers_set[trigger->get_rnum()].size() == 0) {
+		m_rnum2triggers_set.erase(trigger->get_rnum());
+	}
 }
 
 void GlobalTriggersStorage::shift_rnums_from(const Rnum rnum) {
@@ -4536,16 +4539,22 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 			}
 		}
 	}
-	int nr = GetTriggerRnum(atoi(trignum_s));
-	if (nr == -1) {
+	int tvnum = atoi(trignum_s);
+	int trn = GetTriggerRnum(tvnum);
+	if (trn == -1) {
 		sprintf(buf2, "detach попытка удалить несуществующий триггер, команда: '%s'", cmd);
 		trig_log(trig, buf2);
 		return retval;
 	}
-	int tvnum = atoi(trignum_s);
-
 	if (c && SCRIPT(c)->has_triggers()) {
 		SCRIPT(c)->remove_trigger(tvnum, retval);
+		if (trigger_list.has_triggers_with_rnum(trn)) { 
+			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
+			for (auto stop : stop_list) {
+				stop->halt();
+				trigger_list.remove(stop);
+			}
+		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_MOB_VNUM(c))) {
 				owner_trig[tvnum][it->first].erase(GET_MOB_VNUM(c));
@@ -4559,6 +4568,13 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (o && o->get_script()->has_triggers()) {
 		o->get_script()->remove_trigger(tvnum, retval);
+		if (trigger_list.has_triggers_with_rnum(trn)) { 
+			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
+			for (auto stop : stop_list) {
+				stop->halt();
+				trigger_list.remove(stop);
+			}
+		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_OBJ_VNUM(o))) {
 				owner_trig[tvnum][it->first].erase(GET_OBJ_VNUM(o));
@@ -4572,20 +4588,13 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (r && SCRIPT(r)->has_triggers()) {
 		SCRIPT(r)->remove_trigger(tvnum, retval);
-		auto exec_trig = trigger_list.exec_list.find(nr);
-
-		mudlog(fmt::format("удаляем {}", tvnum));
-		if (exec_trig != trigger_list.exec_list.end()) {
-			for (auto it : exec_trig->second){
-				mudlog(fmt::format("смотрим {}", trig_index[it->get_rnum()]->vnum));
-				if (trig_index[it->get_rnum()]->vnum == tvnum) {
-					mudlog(fmt::format("еще удаляем {}", trig_index[it->get_rnum()]->vnum));
-					it->halt();
-				}
+		if (trigger_list.has_triggers_with_rnum(trn)) { 
+			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
+			for (auto stop : stop_list) {
+				stop->halt();
+				trigger_list.remove(stop);
 			}
-			trigger_list.exec_list.erase(tvnum);
 		}
-
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(r->vnum)) {
 				owner_trig[tvnum][it->first].erase(r->vnum);
@@ -4687,8 +4696,9 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	if (*trig && runtrig) {
 		runtrig->var_list = (*trig)->var_list;
 	}
-	runtrig->is_copy = true;
-	trigger_list.exec_list[runtrig->get_rnum()].insert(runtrig);
+	runtrig->is_runned = true;
+	trig_index[runtrig->get_rnum()]->total_online++;
+	trigger_list.add(runtrig);
 	if (!GET_TRIG_DEPTH(runtrig)) {
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
@@ -5727,13 +5737,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			if (trig && trig->is_halted())
 				break;
 			if (sc->is_purged() || (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged())) {
-				if (trig) {
-					auto exec_trig = trigger_list.exec_list.find(trig->get_rnum());
-
-					if (exec_trig != trigger_list.exec_list.end()) {
-						exec_trig->second.erase(trig);
-					}
-				}
 				depth--;
 				cur_trig = prev_trig;
 				return ret_val;
@@ -5742,15 +5745,10 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 
 	if (trig) {
-		auto exec_trig = trigger_list.exec_list.find(trig->get_rnum());
-
-		if (exec_trig != trigger_list.exec_list.end()) {
-			exec_trig->second.erase(trig);
-		}
 		trig->clear_var_list();
 		GET_TRIG_DEPTH(trig) = 0;
-		if (trig->is_copy) {
-			delete trig;
+		if (trig->is_runed) {
+			ExtractTrigger(trig);
 		}
 	}
 
@@ -6082,13 +6080,11 @@ void TriggersList::remove(Trigger *const trigger) {
 TriggersList::triggers_list_t::iterator TriggersList::remove(const triggers_list_t::iterator &iterator) {
 	Trigger *trigger = *iterator;
 	trigger_list.unregister_remove_observer(trigger, m_observer);
-
 	for (const auto &observer : m_iterator_observers) {
 		observer->notify(trigger);
 	}
 
 	triggers_list_t::iterator result = m_list.erase(iterator);
-
 	ExtractTrigger(trigger);
 
 	return result;
@@ -6107,16 +6103,13 @@ Trigger *TriggersList::find(const int vnum) {
 }
 
 Trigger *TriggersList::find_by_vnum(const int vnum) {
-	Trigger *result = nullptr;
-
 	for (const auto &i : m_list) {
 		if (trig_index[i->get_rnum()]->vnum == vnum) {
-			result = i;
-			break;
+			return  i;
 		}
 	}
 
-	return result;
+	return nullptr;
 }
 
 Trigger *TriggersList::remove_by_vnum(const int vnum) {
@@ -6191,8 +6184,7 @@ int Script::remove_trigger(TrgVnum tvn, Trigger *&trig_addr) {
 	}
 
 	if (address_of_removed_trigger == trig_addr) {
-		trig_addr =
-			nullptr;    // mark that this trigger was removed: trig_addr is not null if trigger is still in the memory
+		trig_addr = nullptr;    // mark that this trigger was removed: trig_addr is not null if trigger is still in the memory
 	}
 
 	// update the script type bitvector
@@ -6221,7 +6213,7 @@ Trigger::Trigger() :
 	loops(-1),
 	var_list(),
 	context(0),
-	is_copy(0),
+	is_runned(0),
 	nr(kNothing),
 	attach_type(0),
 	name(DEFAULT_TRIGGER_NAME),
@@ -6237,7 +6229,7 @@ Trigger::Trigger(const int rnum, const char *name, const byte attach_type, const
 	loops(-1),
 	var_list(),
 	context(0),
-	is_copy(0),
+	is_runned(0),
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
@@ -6253,7 +6245,7 @@ Trigger::Trigger(const int rnum, std::string &&name, const byte attach_type, con
 	loops(-1),
 	var_list(),
 	context(0),
-	is_copy(0),
+	is_runned(0),
 	nr(rnum),
 	attach_type(attach_type),
 	name(name),
@@ -6273,7 +6265,7 @@ Trigger::Trigger(const Trigger &from) :
 	loops(from.loops),
 	var_list(from.var_list),
 	context(from.context),
-	is_copy(from.is_copy),
+	is_runned(from.is_runned),
 	nr(from.nr),
 	attach_type(from.attach_type),
 	name(from.name),
@@ -6297,7 +6289,7 @@ void Trigger::reset() {
 	wait_event.time_remaining = 0;
 	var_list.clear();
 	context = 0;
-	is_copy = false;
+	is_runned = false;
 }
 
 Trigger &Trigger::operator=(const Trigger &right) {
