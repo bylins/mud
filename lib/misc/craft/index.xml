@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<craftmodel>
+	<dependencies>dependencies.xml</dependencies>
+	<base_crafts>2</base_crafts>
+	<crafts_bonus>0</crafts_bonus>
+	<skills_cap>80</skills_cap>
+	<skills_bonus>10</skills_bonus>
+	<vnums>
+		<range>
+			<min>200000</min>
+			<max>200099</max>
+		</range>
+	</vnums>
+
+	<skills>
+		<skill id="skill1" filename="skill1.xml" />
+		<skill id="skill2">
+		</skill>
+	</skills>
+
+	<crafts>
+		<craft id="craft1" filename="craft1.xml">
+			<name>Craft 1</name>	<!-- crafts based of crafts from file craft1.xml but with overridden name -->
+		</craft>
+		<craft id="CRAFT_TAILOR">
+			<name>Портной</name>
+			<sockets required="4" additional="4" />
+
+			<skills>
+				<skill id="id of first required skill" base="yes" train_threshold="500" /> <!-- override skill parameter -->
+				<skill id="id of second required skill" base="yes" />
+
+				<skill id="id of first additional skill" train_threshold="1000" /> <!-- override skill parameter -->
+				<skill id="id of second additional skill" />
+			</skills>
+
+			<recipes>
+				<recipe id="id of available recipe" />
+			</recipes>
+		</craft>
+	</crafts>
+
+	<materials>
+		<!-- See material_template.xml for details. -->
+		<material id="MT_TOUGH_LEATHER" filename="tough_leather.xml" />
+		<material id="MT_SOFT_LEATHER" filename="soft_leather.xml" />
+		<material id="MT_INWROUGHT_FLAX" filename="inwrought_flax.xml" />
+		<material id="MT_THIN_SILK">
+			<name>тонкая шёлковая ткань</name>
+			<class id="MC_WISSON" vnum="200040">
+				<description>
+					<short>Отрез тончайшей ткани лежит тут.</short>
+					<long>Это тончайшая шёлковая ткань, кажется, немалый её отрез войдёт в крошечный напёрсток.</long>
+				</description>
+				<item>
+					<case1>отрез виссона</case1>
+					<case2>отреза виссона</case2>
+					<case3>отрезу висона</case3>
+					<case4>отрез виссона</case4>
+					<case5>отрезом виссона</case5>
+					<case6>отрезе виссона</case6>
+					<aliases> <!-- ??? what is this? how is this will be used -->
+						<alias>отрез</alias>
+						<alias>виссон</alias>
+					</aliases>
+				</item>
+				<names>
+					<case1>виссон</case1>
+					<case2>виссона</case2>
+					<case3>виссону</case3>
+					<case4>виссон</case4>
+					<case5>виссоном</case5>
+					<case6>виссоне</case6>
+					<aliases>
+						<alias>виссон</alias>	<!-- ??? what is this? -->
+					</aliases>
+				</names>
+				<adjectives>
+					<male>
+						<case1>виссоновый</case1>
+						<case2>виссонового</case2>
+						<case3>виссоновому</case3>
+						<case4>виссоновый</case4>
+						<case5>виссоновым</case5>
+						<case6>воссоновом</case6>
+					</male>
+					<female>
+						<case1>виссоновая</case1>
+						<case2>виссоновой</case2>
+						<case3>виссоновой</case3>
+						<case4>виссоновую</case4>
+						<case5>виссоновой</case5>
+						<case6>виссоновой</case6>
+					</female>
+					<neuter>
+						<case1>виссоновое</case1>
+						<case2>виссонового</case2>
+						<case3>виссоновому</case3>
+						<case4>виссоновое</case4>
+						<case5>виссоновым</case5>
+						<case6>виссоновом</case6>
+					</neuter>
+				</adjectives>
+				<bonuses>
+					<durability>20</durability>
+					<cost>300</cost>
+					<meta>
+						<applies>
+							<apply>
+								<location>kInt</location>
+								<modifier>1</modifier>
+							</apply>
+							<apply>
+								<location>kCha</location>
+								<modifier>2</modifier>
+							</apply>
+							<apply>
+								<location>kWis</location>
+								<modifier>2</modifier>
+							</apply>
+							<apply>
+								<location>kCastSuccess</location>
+								<modifier>5</modifier>
+							</apply>
+						</applies>
+						
+						<skills>
+							<skill>
+								<id>kFireMagic</id>
+								<value>10</value>
+							</skill>
+							<skill>
+								<id>kJinx</id>
+								<value>10</value>
+							</skill>
+						</skills>
+						
+						<weapon_affects>
+							<!-- For possible values see material/class/affects -->
+							<weapon_affect>kSanctuary</weapon_affect>
+								<weapon_affect>kFireAura</weapon_affect>
+						</weapon_affects>
+						
+						<extraflags>
+							<!-- For possible values see material/class/extraflags -->
+							<extraflag>kNorent</extraflag>
+							<extraflag>kHasOneSlot</extraflag>
+						</extraflags>
+						
+						<val1 /> <!-- has bonus to the first number value -->
+					</meta>
+				</bonuses>
+				<extraflags>
+					<extraflag>kNorent</extraflag>
+					<extraflag>kHasOneSlot</extraflag>
+				</extraflags>
+				<weapon_affects>
+					<weapon_affect>kSanctuary</weapon_affect>
+				</weapon_affects>
+			</class>
+			<class id="MC_ORGANDY" vnum="200041">
+				<description>
+					<short>Отрез прозрачной ткани лежит тут.</short>
+					<long>Это очень тонкая и прозрачная жёсткая ткань.</long>
+				</description>
+				<item>
+					<case1>отрез органди</case1>
+					<case2>отреза органди</case2>
+					<case3>отрезу органди</case3>
+					<case4>отрез органди</case4>
+					<case5>отрезом органди</case5>
+					<case6>отрезе органди</case6>
+					<aliases> <!-- ??? what is this? how is this will be used -->
+						<alias>отрез</alias>
+						<alias>органди</alias>
+					</aliases>
+				</item>
+				<names>
+					<case1>органди</case1>
+					<case2>органди</case2>
+					<case3>органди</case3>
+					<case4>органди</case4>
+					<case5>органди</case5>
+					<case6>органди</case6>
+					<aliases>
+						<alias>органди</alias>	<!-- ??? what is this? -->
+					</aliases>
+				</names>
+				<adjectives>
+					<male>
+						<case1>органдиевый</case1>
+						<case2>органдиевого</case2>
+						<case3>органдиевому</case3>
+						<case4>органдиевый</case4>
+						<case5>органдиевым</case5>
+						<case6>органдиевом</case6>
+					</male>
+					<female>
+						<case1>органдиевая</case1>
+						<case2>органдиевой</case2>
+						<case3>органдиевой</case3>
+						<case4>оргундиевую</case4>
+						<case5>органдиевой</case5>
+						<case6>органдиевой</case6>
+					</female>
+					<neuter>
+						<case1>органдиевое</case1>
+						<case2>органдиевого</case2>
+						<case3>органдиевому</case3>
+						<case4>органдиевое</case4>
+						<case5>органдиевым</case5>
+						<case6>органдиевом</case6>
+					</neuter>
+				</adjectives>
+				<extraflags>
+					<extraflag>kBless</extraflag>
+				</extraflags>
+				<bonuses>
+					<durability>100</durability>
+					<cost>500</cost>
+					<meta>
+						<applies>
+							<apply>
+								<location>kWis</location>
+								<modifier>2</modifier>
+							</apply>
+							<apply>
+								<location>kSixthCircle</location>
+								<modifier>1</modifier>
+							</apply>
+						</applies>
+						<skills>
+							<skill>
+								<id>kAirMagic</id>
+								<value>15</value>
+							</skill>
+						</skills>
+						<weapon_affects>
+							<weapon_affect>kFly</weapon_affect>
+						</weapon_affects>
+						<extraflags>
+							<extraflag>kNorent</extraflag>
+						</extraflags>
+						<val0 />
+						<val1 />
+					</meta>
+				</bonuses>
+			</class>
+		</material>
+		
+		<material filename="material3.xml" />	<!-- wrong material definition: without ID attribute -->
+	</materials>
+
+	<recipes>
+		<!-- See recipe_template.xml for details. -->
+		<recipe id="recipe1" filename="recipe1.xml" />
+		<recipe id="recipe2">
+			<name>Recipe 2</name>
+			
+			<training_cap>150</training_cap>
+
+			<outcome>
+				<prototype>200030</prototype>
+			</outcome>
+		</recipe>
+	</recipes>
+
+	<prototypes>
+		<prototype vnum="200000">
+			<description>
+				<short>Палка-выручалка</short>
+				<long>Палка-выручалка лежит, никому не нужная.</long>
+			</description>
+
+			<item>
+				<case1>палка-выручалка</case1>
+				<case2>палки-выручалки</case2>
+				<case3>палке-выручалке</case3>
+				<case4>палку-выручалку</case4>
+				<case5>палкой-выручалкой</case5>
+				<case6>палке-выручалке</case6>
+				<aliases>
+					<alias>палка</alias>
+					<alias>выручалка</alias>
+				</aliases>
+			</item>
+
+			<cost>1000</cost>
+			<rent>
+				<on>10</on>
+				<off>100</off>
+			</rent>
+
+			<global_maximum>1</global_maximum>
+			<minimum_remorts>0</minimum_remorts>
+
+			<type>kWeapon</type>
+
+			<durability>
+				<maximum>12000</maximum>
+				<current>12000</current>
+			</durability>
+
+			<sex>FEMALE</sex>
+			<level>12</level>
+			<weight>10</weight>
+			<timer>unlimited</timer>
+			<item_parameters>
+				<parameter>kClubs</parameter>
+			</item_parameters>
+			<material>kHardWood</material>
+			<spell>kSpellSleep</spell>
+
+			<extraflags>
+				<extraflag>kBless</extraflag>
+				<extraflag>kNosell</extraflag>
+				<extraflag>kNodisarm</extraflag>
+				<extraflag>kNodonate</extraflag>
+				<extraflag>kSwimming</extraflag>
+				<extraflag>kFly</extraflag>
+				<extraflag>kHasThreeSlots</extraflag>
+				<extraflag>kNodecay</extraflag>
+			</extraflags>
+
+			<weapon_affects>
+				<weapon_affect>kInvisibility</weapon_affect>
+				<weapon_affect>kDetectAlign</weapon_affect>
+				<weapon_affect>kDetectMagic</weapon_affect>
+				<weapon_affect>kDetectLife</weapon_affect>
+				<weapon_affect>kWaterWalk</weapon_affect>
+				<weapon_affect>kInfravision</weapon_affect>
+				<weapon_affect>kNoTrack</weapon_affect>
+				<weapon_affect>kFly</weapon_affect>
+				<weapon_affect>kSneak</weapon_affect>
+			</weapon_affects>
+
+			<wearflags>
+				<wearflag>kTake</wearflag>
+				<wearflag>kWield</wearflag>
+				<wearflag>kHold</wearflag>
+				<wearflag>kBoth</wearflag>
+			</wearflags>
+
+			<skills>
+				<skill>
+					<id>kIdentify</id>
+					<value>100</value>
+				</skill>
+			</skills>
+
+			<applies>
+				<apply>
+					<location>kStr</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>kDex</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>kInt</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>kWis</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>kAbsorbe</location>
+					<modifier>12</modifier>
+				</apply>
+				<apply>
+					<location>kAc</location>
+					<modifier>-120</modifier>
+				</apply>
+			</applies>
+
+			<val1>6</val1>
+			<val2>7</val2>
+		</prototype>
+	</prototypes>
+
+	<include filename="tailoring/index.xml" />
+</craftmodel>
+
+<!-- vim: set ts=4 sw=4 tw=0 noet syntax=xml : -->
