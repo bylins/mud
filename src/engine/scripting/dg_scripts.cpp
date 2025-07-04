@@ -4551,8 +4551,8 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		if (trigger_list.has_triggers_with_rnum(trn)) { 
 			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
 			for (auto stop : stop_list) {
-				stop->halt();
-				trigger_list.remove(stop);
+				if (stop->is_runned)
+					stop->halt();
 			}
 		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
@@ -4571,8 +4571,8 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		if (trigger_list.has_triggers_with_rnum(trn)) { 
 			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
 			for (auto stop : stop_list) {
-				stop->halt();
-				trigger_list.remove(stop);
+				if (stop->is_runned)
+					stop->halt();
 			}
 		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
@@ -4591,8 +4591,8 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 		if (trigger_list.has_triggers_with_rnum(trn)) { 
 			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
 			for (auto stop : stop_list) {
-				stop->halt();
-				trigger_list.remove(stop);
+				if (stop->is_runned)
+					stop->halt();
 			}
 		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {

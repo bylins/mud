@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<material>
+	<!-- This is a template for material description file.-->
+	<name></name>
+	<prototype></prototype>
+	<class id="MC_">
+		<description>
+			<short></short>
+			<long></long>
+			<action></action>
+		</description>
+		<item>
+			<case1></case1>
+			<case2></case2>
+			<case3></case3>
+			<case4></case4>
+			<case5></case5>
+			<case6></case6>
+			<aliases>
+				<alias></alias>
+			</aliases>
+		</item>
+		<names>
+			<case1></case1>
+			<case2></case2>
+			<case3></case3>
+			<case4></case4>
+			<case5></case5>
+			<case6></case6>
+			<aliases>
+				<alias></alias>
+			</aliases>
+		</names>
+		<adjectives>
+			<!--
+			Необязательный (до тех пор, пока нигде не используется) набор прилагательных,
+			производных от класса материала.
+			-->
+			<male>
+				<case1></case1>
+				<case2></case2>
+				<case3></case3>
+				<case4></case4>
+				<case5></case5>
+				<case6></case6>
+			</male>
+			<female>
+				<case1></case1>
+				<case2></case2>
+				<case3></case3>
+				<case4></case4>
+				<case5></case5>
+				<case6></case6>
+			</female>
+			<neuter>
+				<case1></case1>
+				<case2></case2>
+				<case3></case3>
+				<case4></case4>
+				<case5></case5>
+				<case6></case6>
+			</neuter>
+		</adjectives>
+		
+		<extraflags>
+			<!-- Possible values (see structs.h): ITEM_GLOW, ITEM_HUM, ITEM_NORENT, ITEM_NODONATE, ITEM_NOINVIS, ITEM_INVISIBLE, ITEM_MAGIC, ITEM_NODROP, ITEM_BLESS, ITEM_NOSELL, ITEM_DECAY, ITEM_ZONEDECAY, ITEM_NODISARM, ITEM_NODECAY, ITEM_POISONED, ITEM_SHARPEN, kArmorED, ITEM_DAY, ITEM_NIGHT, ITEM_FULLMOON, ITEM_WINTER, ITEM_SPRING, ITEM_SUMMER, ITEM_AUTUMN, ITEM_SWIMMING, ITEM_FLYING, ITEM_THROWING, ITEM_TICKTIMER, ITEM_FIRE, ITEM_REPOP_DECAY, ITEM_NOLOCATE, ITEM_TIMEDLVL, ITEM_NOALTER, ITEM_WITH1SLOT, ITEM_WITH2SLOTS, ITEM_WITH3SLOTS, ITEM_SETSTUFF, ITEM_NO_FAIL, ITEM_NAMED, ITEM_BLOODY, ITEM_1INLAID, ITEM_2INLAID, ITEM_3INLAID, ITEM_NOPOUR -->
+			<extraflag></extraflag>
+		</extraflags>
+		<weapon_affects>
+			<!-- Possible values (see structs.h): kBlindness, kInvisibility, kDetectAlign, kDetectInvisibility, kDetectMagic, kDetectLife, kWaterWalk, kSanctuary, kCurse, kInfravision, kPoison, kProtectedFromEvil, kProtectedFromGood, kSleep, kNoTrack, kBless, kSneak, kHide, kHold, kFly, kSilence, kAwareness, kBlink, kNoFlee, kSingleLight, kHolyLight, WAFF_HOL_YDARK, kDetectPoison, kSlow, kHaste, kWaterBreath, kHaemorrhage, kDisguising, kShield, kAirShield, kFireShield, kIceShield, kMagicGlass, kStoneHand, kPrismaticAura, kAirAura, kFireAura, kIceAura, kDeafness -->
+			<weapon_affect></weapon_affect>
+		</weapon_affects>
+		
+		<bonuses>
+			<durability></durability>
+			<cost></cost>
+			<meta>
+				<applies>
+					<apply>
+						<!-- Possible values (see structs.h): APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_CHA, APPLY_CLASS, APPLY_LEVEL, APPLY_AGE, APPLY_CHAR_WEIGHT, APPLY_CHAR_HEIGHT, APPLY_MANAREG, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_AC, APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_WILL, APPLY_RESIST_FIRE, APPLY_RESIST_AIR, APPLY_SAVING_CRITICAL, APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_MOVEREG, APPLY_C1, APPLY_C2, APPLY_C3, APPLY_C4, APPLY_C5, APPLY_C6, APPLY_C7, APPLY_C8, APPLY_C9, APPLY_SIZE, APPLY_ARMOUR, APPLY_POISON, APPLY_SAVING_REFLEX, APPLY_CAST_SUCCESS, APPLY_MORALE, APPLY_INITIATIVE, APPLY_RELIGION, APPLY_ABSORBE, APPLY_LIKES, APPLY_RESIST_WATER, APPLY_RESIST_EARTH, APPLY_RESIST_VITALITY, APPLY_RESIST_MIND, APPLY_RESIST_IMMUNITY, APPLY_AR, APPLY_MR, APPLY_ACONITUM_POISON, APPLY_SCOPOLIA_POISON, APPLY_BELENA_POISON, APPLY_DATURA_POISON, APPLY_HIT_GLORY, APPLY_BONUS_EXP, APPLY_BONUS_SKILLS -->
+						<location></location>
+						<modifier></modifier>
+					</apply>
+				</applies>
+				
+				<skills>
+					<!-- Possible values (see skills.h): kProtect, kIntercept, kLeftHit, kHammer, kOverwhelm, kPoisoning, kSense, kRiding, kHideTrack, kReligion, kSkinning, kMultiparry, kReforging, kLeadership, kPunctual, kAwake, kIdentify, kHearing, kCreatePotion, kCreateScroll, kCreateWand, kPry, kArmoring, kHangovering, kFirstAid, kCampfire, kCreateBow, kThrow, kBackstab, kBash, kHide, SKILL_KICK, kPickLock, kPunch, kRescue, kSneak, kSteal, kTrack, kClubs, kAxes, kLongBlades, kShortBlades, kNonstandart, kTwohands, kPicks, kSpades, kSideAttack, kDisarm, kParry, SKILL_HEAL, kMorph, kBows, kAddshot, kDisguise, kDodge, kShieldBlock, kLooking, kUndercut, kRepair, kSharpening, kCourage, kJinx, kNoParryHit, kTownportal, kMakeStaff, kMakeBow, kMakeWeapon, kMakeArmor, kMakeJewel, kMakeWear, kMakePotion, kDigging, kJewelry, kWarcry, kTurnUndead, kIronwind, kStrangle, kAirMagic, kFireMagic, kWaterMagic, kEarthMagic, kLightMagic, kDarkMagic, kMindMagic, kLifeMagic -->
+					<skill></skill>
+				</skills>
+				
+				<weapon_affects>
+					<!-- For possible values see material/class/affects -->
+					<weapon_affect></weapon_affect>
+				</weapon_affects>
+				
+				<extraflags>
+					<!-- For possible values see material/class/extraflags -->
+					<extraflag></extraflag>
+				</extraflags>
+
+				<!-- Remove unnecessary -->
+				<val0 />
+				<val1 />
+				<val2 />
+				<val3 />
+			</meta>
+		</bonuses>
+	</class>
+</material>
+
+<!-- vim: set ts=4 sw=4 tw=0 noet syntax=xml : -->
