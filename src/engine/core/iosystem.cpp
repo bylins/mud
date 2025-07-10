@@ -636,7 +636,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left) 
 	 * We don't know what happened, cut them off. This qualifies for
 	 * a SYSERR because we have no idea what happened at this point.
 	 */
-	perror("SYSERR: perform_socket_read: about to lose connection");
+	//perror("SYSERR: perform_socket_read: about to lose connection"); // prool
 	return (-1);
 }
 
