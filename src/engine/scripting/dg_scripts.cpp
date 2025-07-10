@@ -4548,13 +4548,6 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (c && SCRIPT(c)->has_triggers()) {
 		SCRIPT(c)->remove_trigger(tvnum, retval);
-		if (trigger_list.has_triggers_with_rnum(trn)) { 
-			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
-			for (auto stop : stop_list) {
-				if (stop->is_runned)
-					stop->halt();
-			}
-		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_MOB_VNUM(c))) {
 				owner_trig[tvnum][it->first].erase(GET_MOB_VNUM(c));
@@ -4568,13 +4561,6 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (o && o->get_script()->has_triggers()) {
 		o->get_script()->remove_trigger(tvnum, retval);
-		if (trigger_list.has_triggers_with_rnum(trn)) { 
-			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
-			for (auto stop : stop_list) {
-				if (stop->is_runned)
-					stop->halt();
-			}
-		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_OBJ_VNUM(o))) {
 				owner_trig[tvnum][it->first].erase(GET_OBJ_VNUM(o));
@@ -4588,13 +4574,6 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (r && SCRIPT(r)->has_triggers()) {
 		SCRIPT(r)->remove_trigger(tvnum, retval);
-		if (trigger_list.has_triggers_with_rnum(trn)) { 
-			auto stop_list = trigger_list.get_triggers_with_rnum(trn);
-			for (auto stop : stop_list) {
-				if (stop->is_runned)
-					stop->halt();
-			}
-		}
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(r->vnum)) {
 				owner_trig[tvnum][it->first].erase(r->vnum);
@@ -4608,6 +4587,36 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 
 	return retval;
+}
+
+bool process_halt(Trigger *trig, char *cmd) {
+	char *value;
+
+	value = one_argument(cmd, buf);
+	if (!*value) {
+		return true;
+	}
+	TrgVnum tvn = atoi(value);
+	TrgRnum trn = GetTriggerRnum(tvn);
+
+	if (tvn == 0) {
+		sprintf(buf2, "halt: кривой аргумент, команда: '%s'", cmd);
+		trig_log(trig, buf2);
+		return false;
+	}
+	if (trn == -1) {
+		sprintf(buf2, "halt: такой триггер не существует, команда: '%s'", cmd);
+		trig_log(trig, buf2);
+		return false;
+	}
+	if (trigger_list.has_triggers_with_rnum(trn)) { 
+		auto stop_list = trigger_list.get_triggers_with_rnum(trn);
+		for (auto stop : stop_list) {
+			if (stop->is_runned)
+				stop->halt();
+		}
+	}
+	return false;
 }
 
 /* script run a trigger for something
@@ -5645,7 +5654,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			} else if (!strn_cmp(cmd, "charuidall ", 11)) {
 				charuidall_var(go, sc, trig, cmd);
 			} else if (!strn_cmp(cmd, "halt", 4)) {
-				break;
+				if (process_halt(trig, cmd)) {
+					break;
+				}
 			} else if (!strn_cmp(cmd, "DgCast ", 7)) {
 				do_dg_cast(go, trig, type, cmd);
 				if (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
