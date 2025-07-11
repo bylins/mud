@@ -4700,12 +4700,13 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	// copy variables
 	if (*trig && runtrig) {
 		runtrig->var_list = (*trig)->var_list;
+		runtrig->context = (*trig)->context;
 	}
 	runtrig->is_runned = true;
 	trig_index[runtrig->get_rnum()]->total_online++;
 	trigger_list.add(runtrig);
 	if (!GET_TRIG_DEPTH(runtrig)) {
-		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
+		*retval = script_driver(trggo, runtrig, trgtype, TRIG_EXEC);
 	}
 	return (true);
 }
@@ -5511,11 +5512,16 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		GET_TRIG_LOOPS(trig) = 0;
 		trig->context = 0;
 	}
+	if (mode == TRIG_EXEC) {
+		GET_TRIG_DEPTH(trig) = 1;
+		GET_TRIG_LOOPS(trig) = 0;
+	}
 	
 	cmdlist_element::shared_ptr cl;
 
 	switch  (mode) {
-		case TRIG_NEW: cl = *trig->cmdlist;
+		case TRIG_NEW:
+		case TRIG_EXEC: cl = *trig->cmdlist;
 		break;
 		case TRIG_CONTINUE: cl =  trig->wait_line->next;
 		break;

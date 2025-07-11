@@ -107,8 +107,9 @@ const int DG_NO_TRIG = 256;    // don't check act trigger   //
 #define OCMD_ROOM              (1 << 2)    // obj must be in char's room  //
 
 #define TRIG_NEW                0    // trigger starts from top  //
-#define TRIG_CONTINUE            1    // trigger continue after wait       //
-#define TRIG_FROM_LINE            2    // trigger restarting       //
+#define TRIG_CONTINUE           1    // trigger continue after wait       //
+#define TRIG_FROM_LINE          2    // trigger restarting       //
+#define TRIG_EXEC               3    // trigger executing       //
 
 const Bitvector kNormalRound = 0;
 const Bitvector kNoCastMagic = 1 << 0;
