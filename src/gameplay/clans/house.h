@@ -247,11 +247,11 @@ class Clan {
 
   std::string get_web_url() const { return web_url_; };
 
-  void set_bank(unsigned num);
-  unsigned get_bank() const;
+  void set_bank(long num);
+  long get_bank() const;
 
-  void set_gold_tax_pct(unsigned num);
-  unsigned get_gold_tax_pct() const;
+  void set_gold_tax_pct(long num);
+  long get_gold_tax_pct() const;
 
   friend void ClanSystem::DoHouse(CharData *ch, char *argument, int cmd, int subcmd);
   friend void ClanSystem::DoClanChannel(CharData *ch, char *argument, int cmd, int subcmd);
@@ -316,7 +316,7 @@ class Clan {
   // адрес сайта дружины для 'справка сайтыдружин'
   std::string web_url_;
   // пока общий на всех налог на лут кун
-  unsigned gold_tax_pct_;
+  long gold_tax_pct_;
   // очки репутации
   int reputation;
   //no save
