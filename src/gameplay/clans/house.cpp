@@ -2652,7 +2652,7 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 
 		// на случай переполнения персонажа
 		if ((ch->get_gold() + gold) < 0) {
-			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
+			long over = std::numeric_limits<long>::max() - CLAN(ch)->bank;
 			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->m_members.sub_money(GET_UID(ch), over);
