@@ -394,7 +394,7 @@ void Clan::ClanLoadSingle(const std::string &index) {
 		} else if (buffer == "GoldTax:") {
 			file >> tempClan->gold_tax_pct_;
 			if (tempClan->gold_tax_pct_ > MAX_GOLD_TAX_PCT) {
-				log("Clan has invalid tax (%u), remove from list (%s).",
+				log("Clan has invalid tax (%ld), remove from list (%s).",
 					tempClan->gold_tax_pct_, filename.c_str());
 				break;
 			}
@@ -4544,7 +4544,7 @@ void tax_manage(CharData *ch, std::string &buffer) {
 			SendMsgToChar(GOLD_TAX_FORMAT, ch);
 		}
 	} else {
-		SendMsgToChar(ch, "Текущий налог для ратников дружины: %d%%\r\n%s",
+		SendMsgToChar(ch, "Текущий налог для ратников дружины: %ld%%\r\n%s",
 					  CLAN(ch)->get_gold_tax_pct(), GOLD_TAX_FORMAT);
 	}
 }
@@ -4675,19 +4675,19 @@ bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch) {
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch));
 }
 
-void Clan::set_gold_tax_pct(unsigned num) {
+void Clan::set_gold_tax_pct(long num) {
 	gold_tax_pct_ = num;
 }
 
-unsigned Clan::get_gold_tax_pct() const {
+long Clan::get_gold_tax_pct() const {
 	return gold_tax_pct_;
 }
 
-void Clan::set_bank(unsigned num) {
+void Clan::set_bank(long num) {
 	bank = num;
 }
 
-unsigned Clan::get_bank() const {
+long Clan::get_bank() const {
 	return bank;
 }
 
