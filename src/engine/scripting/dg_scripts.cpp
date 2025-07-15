@@ -5880,7 +5880,7 @@ void do_tstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	half_chop(argument, str, argument);
 
 	auto first = atoi(str);
-	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
+	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first / 100)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
