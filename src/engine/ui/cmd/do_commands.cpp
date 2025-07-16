@@ -40,10 +40,14 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			no++;
 		} else {
 			i = cmd_sort_info[cmd_num].sort_pos;
-			if (cmd_info[i].minimum_level >= 0
-				&& (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), i, 0))
-				&& (cmd_info[i].minimum_level >= kLvlImmortal) == wizhelp
-				&& (wizhelp || socials == cmd_sort_info[i].is_social)) {
+			if (wizhelp) {
+				if (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), 0, 0, 0)) {
+					sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
+					if (!(no % 5))
+						strcat(buf, "\r\n");
+					no++;
+				}
+			} else if (cmd_info[i].minimum_level >= 0 && (socials == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
 				if (!(no % 5))
 					strcat(buf, "\r\n");
