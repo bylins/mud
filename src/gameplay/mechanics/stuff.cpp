@@ -10,6 +10,7 @@
 #include "stuff.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "engine/db/world_objects.h"
 #include "engine/db/obj_prototypes.h"
@@ -445,7 +446,8 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_current_durability(5000);
 	obj->set_material(EObjMaterial::kCrystal);
 
-	obj->set_weight(floorf(diff/9.0));
+	int weight = std::min(70, static_cast<int>(floorf(diff/9.0)));
+	obj->set_weight(weight);
 
 	switch (skill_id) {
 	case ESkill::kClubs: // дубины

@@ -1156,10 +1156,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			victim->player_data.PNames[4] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
 			victim->player_data.PNames[5] = std::string(descr);
-				
-			// прибавка хитов по формуле: 1/3 хп_хозяина + 12*лвл_хоз + 4*обая_хоз + 1.5*%магии_хоз
-			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GetRealLevel(ch)*12 + r_cha*4 + perc*1.5);
-			GET_HIT(victim) = GET_MAX_HIT(victim);
+			victim->set_max_hit(victim->get_max_hit() + floorf( GetRealLevel(ch)*15 + r_cha*4 + perc*2));
+			victim->set_hit(victim->get_max_hit());
 			// статы
 			victim->set_int(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
 			victim->set_dex(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
@@ -1174,12 +1172,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			GET_AC(victim) = -floorf(r_cha/5.0 + perc/15.0); // АС
 			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
 			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
-			 // почему-то не работает
-			if (GetRealRemort(ch) > 12) {
-				GET_AR(victim) = (GET_AR(victim) + GetRealRemort(ch) - 12);
-				GET_MR(victim) = (GET_MR(victim) + GetRealRemort(ch) - 12);
-				GET_PR(victim) = (GET_PR(victim) + GetRealRemort(ch) - 12);
-			}
 			// спелы не работают пока 
 			// SET_SPELL_MEM(victim, SPELL_CURE_BLIND, 1); // -?
 			// SET_SPELL_MEM(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
