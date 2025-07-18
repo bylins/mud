@@ -106,8 +106,10 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 
 //   Инициализация моба по-умолчанию
 void medit_mobile_init(CharData *mob) {
-	GET_HIT(mob) = mob->mem_queue.total = 1;
-	mob->mem_queue.stored = GET_MAX_MOVE(mob) = 100;
+	mob->set_hit(1);
+	mob->mem_queue.total = 1;
+	mob->set_max_move(100);
+	mob->mem_queue.stored = 100;
 	GET_NDD(mob) = GET_SDD(mob) = 1;
 	GET_GOLD_NoDs(mob) = GET_GOLD_SiDs(mob) = 0;
 	GET_WEIGHT(mob) = 200;
@@ -575,7 +577,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 				buf2, GET_ALIGNMENT(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
-				mob->mem_queue.stored, GET_HIT(mob), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
+				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(mob->GetPosition()),
 				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
 		// * Deal with Extra stats in case they are there.
@@ -591,8 +593,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
 				GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
 				GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6), GET_RESIST(mob, 7));
-		if (GET_HITREG(mob) != 0)
-			fprintf(mob_file, "HPreg: %d\n", GET_HITREG(mob));
+		if (mob->get_hitreg() != 0)
+			fprintf(mob_file, "HPreg: %d\n", mob->get_hitreg());
 		if (GET_ARMOUR(mob) != 0)
 			fprintf(mob_file, "Armour: %d\n", GET_ARMOUR(mob));
 		if (GET_MANAREG(mob) != 0)
@@ -724,7 +726,7 @@ void medit_disp_add_parameters(DescriptorData *d) {
 			"%s8%s ) Иммунитет к магическим аффектам : %s%d%s\r\n"
 			"%s9%s ) Иммунитет к магическим повреждениям : %s%d%s\r\n"
 			"%s10%s) Иммунитет к физическим повреждениям : %s%d%s\r\n",
-			grn, nrm, cyn, GET_HITREG((OLC_MOB(d))), nrm,
+			grn, nrm, cyn, (OLC_MOB(d)->get_hitreg()), nrm,
 			grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm,
 			grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm,
 			grn, nrm, cyn, GET_CAST_SUCCESS((OLC_MOB(d))), nrm,
@@ -1093,7 +1095,7 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, GET_SDD(mob), nrm,
 			grn, nrm, cyn, mob->mem_queue.total, nrm,
 			grn, nrm, cyn, mob->mem_queue.stored, nrm,
-			grn, nrm, cyn, GET_HIT(mob), nrm,
+			grn, nrm, cyn, mob->get_hit(), nrm,
 			grn, nrm, cyn, GET_AC(mob), nrm,
 			grn, nrm, cyn, GET_EXP(mob), nrm,
 			grn, nrm, cyn, mob->get_gold(), nrm,
@@ -1288,7 +1290,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					medit_save_internally(d);
 					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					SendMsgToChar("Моб сохранен.\r\n", d->character.get());
@@ -1657,7 +1659,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			break;
 
-		case MEDIT_RACE: GET_RACE(OLC_MOB(d)) = MAX(ENpcRace::kBasic, MIN(ENpcRace::kLastNpcRace, atoi(arg) + ENpcRace::kBasic));
+		case MEDIT_RACE: GET_RACE(OLC_MOB(d)) = std::max(to_underlying(ENpcRace::kBasic), std::min(to_underlying(ENpcRace::kLastNpcRace), atoi(arg) + ENpcRace::kBasic));
 			break;
 
 		case MEDIT_ROLE: {
@@ -1711,34 +1713,34 @@ void medit_parse(DescriptorData *d, char *arg) {
 				SendMsgToChar("Не указана величина параметра.\r\n", d->character.get());
 			} else
 				switch (number) {
-					case MEDIT_HPREG: GET_HITREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+					case MEDIT_HPREG: OLC_MOB(d)->set_hitreg(std::clamp(bit, -200, 200));
 						break;
 
-					case MEDIT_ARMOUR: GET_ARMOUR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+					case MEDIT_ARMOUR: GET_ARMOUR(OLC_MOB(d)) = std::clamp(bit, 0, 100);
 						break;
 
-					case MEDIT_MANAREG: GET_MANAREG(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
+					case MEDIT_MANAREG: GET_MANAREG(OLC_MOB(d)) = std::clamp(bit, -400, 400);
 						break;
 
-					case MEDIT_CASTSUCCESS: GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(1000, MAX(-1000, bit));
+					case MEDIT_CASTSUCCESS: GET_CAST_SUCCESS(OLC_MOB(d)) = std::clamp(bit, -1000, 1000);
 						break;
 
-					case MEDIT_SUCCESS: GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(0, bit));
+					case MEDIT_SUCCESS: GET_MORALE(OLC_MOB(d)) = std::clamp(bit, 0, 200);
 						break;
 
-					case MEDIT_INITIATIVE: GET_INITIATIVE(OLC_MOB(d)) = MIN(100, MAX(-100, bit));
+					case MEDIT_INITIATIVE: GET_INITIATIVE(OLC_MOB(d)) = std::clamp(bit, -100, 100);
 						break;
 
-					case MEDIT_ABSORBE: GET_ABSORBE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+					case MEDIT_ABSORBE: GET_ABSORBE(OLC_MOB(d)) = std::clamp(bit, -200, 200);
 						break;
 
-					case MEDIT_AR: GET_AR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+					case MEDIT_AR: GET_AR(OLC_MOB(d)) = std::clamp(bit, 0, 100);
 						break;
 
-					case MEDIT_MR: GET_MR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+					case MEDIT_MR: GET_MR(OLC_MOB(d)) = std::clamp(bit, 0, 100);
 						break;
 
-					case MEDIT_PR: GET_PR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+					case MEDIT_PR: GET_PR(OLC_MOB(d)) = std::clamp(bit, 0, 100);
 						break;
 
 					default: SendMsgToChar("Неверный номер.\r\n", d->character.get());
@@ -1956,7 +1958,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			*/
 
 		case MEDIT_MPROG_TYPE:
-			OLC_MPROG(d)->type = (1 << MAX(0, MIN(atoi(arg), NUM_PROGS - 1)));
+			OLC_MPROG(d)->type = (1 << std::max(0, std::min(atoi(arg), NUM_PROGS - 1)));
 			OLC_VAL(d) = 1;
 			medit_change_mprog(d);
 			return;
@@ -1968,31 +1970,31 @@ void medit_parse(DescriptorData *d, char *arg) {
 			return;
 #endif
 
-		case MEDIT_SEX: OLC_MOB(d)->set_sex(static_cast<EGender>(MAX(0, MIN(NUM_GENDERS, atoi(arg)))));
+		case MEDIT_SEX: OLC_MOB(d)->set_sex(static_cast<EGender>(std::max(0, std::min(NUM_GENDERS, atoi(arg)))));
 			break;
 
-		case MEDIT_HITROLL: GET_HR(OLC_MOB(d)) = MAX(0, MIN(500, atoi(arg)));
+		case MEDIT_HITROLL: GET_HR(OLC_MOB(d)) = std::max(0, std::min(500, atoi(arg)));
 			break;
 
-		case MEDIT_DAMROLL: GET_DR(OLC_MOB(d)) = MAX(0, MIN(50000, atoi(arg)));
+		case MEDIT_DAMROLL: GET_DR(OLC_MOB(d)) = std::max(0, std::min(50000, atoi(arg)));
 			break;
 
-		case MEDIT_NDD: GET_NDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
+		case MEDIT_NDD: GET_NDD(OLC_MOB(d)) = std::max(0, std::min(127, atoi(arg)));
 			break;
 
-		case MEDIT_SDD: GET_SDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
+		case MEDIT_SDD: GET_SDD(OLC_MOB(d)) = std::max(0, std::min(127, atoi(arg)));
 			break;
 
-		case MEDIT_NUM_HP_DICE: OLC_MOB(d)->mem_queue.total = MAX(0, MIN(500, atoi(arg)));
+		case MEDIT_NUM_HP_DICE: OLC_MOB(d)->mem_queue.total = std::max(0, std::min(500, atoi(arg)));
 			break;
 
-		case MEDIT_SIZE_HP_DICE: OLC_MOB(d)->mem_queue.stored = MAX(0, MIN(100000, atoi(arg)));
+		case MEDIT_SIZE_HP_DICE: OLC_MOB(d)->mem_queue.stored = std::max(0, std::min(100000, atoi(arg)));
 			break;
 
-		case MEDIT_ADD_HP: GET_HIT(OLC_MOB(d)) = MAX(0, MIN(5000000, atoi(arg)));
+		case MEDIT_ADD_HP: OLC_MOB(d)->set_hit(std::max(0, std::min(5000000, atoi(arg))));
 			break;
 
-		case MEDIT_AC: GET_AC(OLC_MOB(d)) = MAX(-300, MIN(100, atoi(arg)));
+		case MEDIT_AC: GET_AC(OLC_MOB(d)) = std::max(-300, std::min(100, atoi(arg)));
 			break;
 
 		case MEDIT_EXP: OLC_MOB(d)->set_exp(atoi(arg));
@@ -2001,10 +2003,10 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_GOLD: OLC_MOB(d)->set_gold(atoi(arg));
 			break;
 
-		case MEDIT_GOLD_DICE: GET_GOLD_NoDs(OLC_MOB(d)) = MAX(0, atoi(arg));
+		case MEDIT_GOLD_DICE: GET_GOLD_NoDs(OLC_MOB(d)) = std::max(0, atoi(arg));
 			break;
 
-		case MEDIT_GOLD_SIZE: GET_GOLD_SiDs(OLC_MOB(d)) = MAX(0, atoi(arg));
+		case MEDIT_GOLD_SIZE: GET_GOLD_SiDs(OLC_MOB(d)) = std::max(0, atoi(arg));
 			break;
 
 		case MEDIT_POS: {
@@ -2016,13 +2018,13 @@ void medit_parse(DescriptorData *d, char *arg) {
 			GET_DEFAULT_POS(OLC_MOB(d)) =
 				std::clamp(static_cast<EPosition>(atoi(arg)), EPosition::kDead, --EPosition::kLast);
 			break;
-		case MEDIT_ATTACK: GET_ATTACK(OLC_MOB(d)) = MAX(0, MIN(NUM_ATTACK_TYPES - 1, atoi(arg)));
+		case MEDIT_ATTACK: GET_ATTACK(OLC_MOB(d)) = std::max(0, std::min(NUM_ATTACK_TYPES - 1, atoi(arg)));
 			break;
 
 		case MEDIT_LEVEL: OLC_MOB(d)->set_level(atoi(arg));
 			break;
 
-		case MEDIT_ALIGNMENT: GET_ALIGNMENT(OLC_MOB(d)) = MAX(-1000, MIN(1000, atoi(arg)));
+		case MEDIT_ALIGNMENT: GET_ALIGNMENT(OLC_MOB(d)) = std::max(-1000, std::min(1000, atoi(arg)));
 			break;
 
 		case MEDIT_DESTINATION: number = atoi(arg);
@@ -2109,46 +2111,46 @@ void medit_parse(DescriptorData *d, char *arg) {
 			} else if (sscanf(arg, "%d %d", &plane, &bit) < 2) {
 				SendMsgToChar("Не указано количество заклинаний.\r\n", d->character.get());
 			} else {
-				GET_SPELL_MEM(OLC_MOB(d), spell_id) = MIN(200, MAX(0, bit));
+				GET_SPELL_MEM(OLC_MOB(d), spell_id) = std::min(200, std::max(0, bit));
 			}
 			medit_disp_spells(d);
 			return;
 		}
 
-		case MEDIT_STR: OLC_MOB(d)->set_str(MIN(100, MAX(1, atoi(arg))));
+		case MEDIT_STR: OLC_MOB(d)->set_str(std::min(100, std::max(1, atoi(arg))));
 			break;
 
-		case MEDIT_DEX: OLC_MOB(d)->set_dex(MIN(100, MAX(1, atoi(arg))));
+		case MEDIT_DEX: OLC_MOB(d)->set_dex(std::min(100, std::max(1, atoi(arg))));
 			break;
 
-		case MEDIT_CON: OLC_MOB(d)->set_con(MIN(100, MAX(1, atoi(arg))));
+		case MEDIT_CON: OLC_MOB(d)->set_con(std::min(100, std::max(1, atoi(arg))));
 			break;
 
-		case MEDIT_WIS: OLC_MOB(d)->set_wis(MIN(100, MAX(1, atoi(arg))));
+		case MEDIT_WIS: OLC_MOB(d)->set_wis(std::min(100, std::max(1, atoi(arg))));
 			break;
 
-		case MEDIT_INT: OLC_MOB(d)->set_int(MIN(100, MAX(1, atoi(arg))));
+		case MEDIT_INT: OLC_MOB(d)->set_int(std::min(100, std::max(1, atoi(arg))));
 			break;
 
-		case MEDIT_CHA: OLC_MOB(d)->set_cha(MIN(100, MAX(1, atoi(arg))));
+		case MEDIT_CHA: OLC_MOB(d)->set_cha(std::min(100, std::max(1, atoi(arg))));
 			break;
 
-		case MEDIT_WEIGHT: GET_WEIGHT(OLC_MOB(d)) = MIN(200, MAX(1, atoi(arg)));
+		case MEDIT_WEIGHT: GET_WEIGHT(OLC_MOB(d)) = std::min(200, std::max(1, atoi(arg)));
 			break;
 
-		case MEDIT_HEIGHT: GET_HEIGHT(OLC_MOB(d)) = MIN(200, MAX(50, atoi(arg)));
+		case MEDIT_HEIGHT: GET_HEIGHT(OLC_MOB(d)) = std::min(200, std::max(50, atoi(arg)));
 			break;
 
-		case MEDIT_SIZE: GET_SIZE(OLC_MOB(d)) = MIN(100, MAX(1, atoi(arg)));
+		case MEDIT_SIZE: GET_SIZE(OLC_MOB(d)) = std::min(100, std::max(1, atoi(arg)));
 			break;
 
-		case MEDIT_EXTRA: OLC_MOB(d)->mob_specials.extra_attack = MIN(5, MAX(0, atoi(arg)));
+		case MEDIT_EXTRA: OLC_MOB(d)->mob_specials.extra_attack = std::min(5, std::max(0, atoi(arg)));
 			break;
 
-		case MEDIT_REMORT: OLC_MOB(d)->set_remort(MIN(100, MAX(0, atoi(arg))));
+		case MEDIT_REMORT: OLC_MOB(d)->set_remort(std::min(100, std::max(0, atoi(arg))));
 			break;
 
-		case MEDIT_LIKE: OLC_MOB(d)->mob_specials.like_work = MIN(100, MAX(0, atoi(arg)));
+		case MEDIT_LIKE: OLC_MOB(d)->mob_specials.like_work = std::min(100, std::max(0, atoi(arg)));
 			break;
 
 		case MEDIT_DLIST_MENU:
@@ -2299,7 +2301,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 
 			break;
 		}
-		case MEDIT_MAXFACTOR: OLC_MOB(d)->mob_specials.MaxFactor = MAX(0, atoi(arg));
+		case MEDIT_MAXFACTOR: OLC_MOB(d)->mob_specials.MaxFactor = std::max(0, atoi(arg));
 			break;
 
 		default:

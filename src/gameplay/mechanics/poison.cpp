@@ -138,7 +138,7 @@ namespace {
 			af[2].location = EApply::kHitroll;
 			af[2].modifier = -remove_hit;
 			// -хп-рег
-			int remove_hp = GET_HITREG(vict) * (percent / 100);
+			int remove_hp = vict->get_hitreg() * (percent / 100);
 			af[3].location = EApply::kHpRegen;
 			af[3].modifier = -remove_hp;
 

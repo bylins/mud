@@ -201,11 +201,11 @@ void CharData::reset() {
 	char_specials.carry_weight = 0;
 	char_specials.carry_items = 0;
 
-	if (GET_HIT(this) <= 0) {
-		GET_HIT(this) = 1;
+	if (this->get_hit() <= 0) {
+		this->set_hit(1);
 	}
-	if (GET_MOVE(this) <= 0) {
-		GET_MOVE(this) = 1;
+	if (this->get_move() <= 0) {
+		this->set_move(1);
 	}
 
 	this->caster_level = 0;
@@ -1185,24 +1185,64 @@ void CharData::set_max_hit(const int v) {
 	msdp_report(msdp::constants::MAX_HIT);
 }
 
-sh_int CharData::get_move() const {
+int CharData::get_hit_add() const {
+	return add_abils.hit_add;
+}
+
+void CharData::set_hit_add(const int v) {
+	add_abils.hit_add = v;
+}
+
+int CharData::get_real_max_hit() const {
+	return points.max_hit + add_abils.hit_add;
+}
+
+int CharData::get_hitreg() const {
+	return add_abils.hitreg;
+}
+
+void CharData::set_hitreg(const int v) {
+	add_abils.hitreg = v;
+}
+
+int CharData::get_move() const {
 	return points.move;
 }
 
-void CharData::set_move(const sh_int v) {
+void CharData::set_move(const int v) {
 	if (v >= 0)
 		points.move = v;
 }
 
-sh_int CharData::get_max_move() const {
+int CharData::get_max_move() const {
 	return points.max_move;
 }
 
-void CharData::set_max_move(const sh_int v) {
+void CharData::set_max_move(const int v) {
 	if (v >= 0) {
 		points.max_move = v;
 	}
 	msdp_report(msdp::constants::MAX_MOVE);
+}
+
+int CharData::get_move_add() const {
+	return add_abils.move_add;
+}
+
+void CharData::set_move_add(const int v) {
+	add_abils.move_add = v;
+}
+
+int CharData::get_real_max_move() const {
+	return points.max_move + add_abils.move_add;
+}
+
+int CharData::get_movereg() const {
+	return add_abils.movereg;
+}
+
+void CharData::set_movereg(const int v) {
+	add_abils.movereg = v;
 }
 
 long CharData::get_ruble() {
@@ -1900,8 +1940,8 @@ void CharData::restore_mob() {
 	restore_timer_ = 0;
 	attackers_.clear();
 
-	GET_HIT(this) = GET_REAL_MAX_HIT(this);
-	GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
+	this->set_hit(this->get_real_max_hit());
+	this->set_move(this->get_real_max_move());
 	update_pos(this);
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
@@ -1917,10 +1957,10 @@ void CharData::restore_npc() {
 	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
 	// ресторим хпшки / мувы
 		
-	GET_HIT(this) = 1 + GET_HIT(proto);
-	GET_MAX_HIT(this) = GET_HIT(this) + floorf(GET_MAX_HIT(proto));
+	this->set_hit(1 + proto->get_hit());
+	this->set_max_hit(this->get_hit() + floorf(proto->get_max_hit()));
 	
-	GET_MOVE(this) = GET_REAL_MAX_MOVE(proto);
+	this->set_move(proto->get_real_max_move());
 	update_pos(this);
 	// ресторим хиты / дамы / ас / армор
 	GET_WEIGHT(this) = GET_WEIGHT(proto);

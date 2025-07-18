@@ -66,7 +66,7 @@ void deathtrap::activity() {
 			}
 			std::string name = i->get_name_str();
 
-			Damage dmg(SimpleDmg(kTypeRoomdeath), MAX(1, GET_REAL_MAX_HIT(i) >> 2), fight::kUndefDmg);
+			Damage dmg(SimpleDmg(kTypeRoomdeath), std::max(1, i->get_real_max_hit() >> 2), fight::kUndefDmg);
 			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(i, i) < 0) {
@@ -126,7 +126,8 @@ int deathtrap::check_death_trap(CharData *ch) {
 				RemoveObjFromRoom(corpse);    // для того, чтобы удалилость все содержимое
 				ExtractObjFromWorld(corpse);
 			}
-			GET_HIT(ch) = GET_MOVE(ch) = 0;
+			ch->set_hit(0);
+			ch->set_move(0);
 			if (NORENTABLE(ch)) {
 				die(ch, nullptr);
 			} else {
@@ -153,7 +154,7 @@ int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 		&& !IS_IMMORTAL(ch)
 		&& NORENTABLE(ch)
 		&& ROOM_FLAGGED(room_rnum, ERoomFlag::kTunnel)) {
-		return std::max(20, GET_REAL_MAX_HIT(ch) >> 3);
+		return std::max(20, ch->get_real_max_hit() >> 3);
 	}
 	return 0;
 }
@@ -162,7 +163,7 @@ int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 /// предполагается не пускать чара на верную смерть
 bool deathtrap::check_tunnel_death(CharData *ch, int room_rnum) {
 	const int dam = calc_tunnel_dmg(ch, room_rnum);
-	if (dam > 0 && GET_HIT(ch) <= dam * 2) {
+	if (dam > 0 && ch->get_hit() <= dam * 2) {
 		return true;
 	}
 	return false;

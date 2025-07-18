@@ -11,7 +11,7 @@ void ReduceExpAfterFlee(CharData *ch, CharData *victim, RoomRnum room) {
 		return;
 	}
 
-	const auto loss = std::max(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GetRealLevel(victim);
+	const auto loss = std::max(1, victim->get_real_max_hit() - victim->get_hit()) * GetRealLevel(victim);
 	EndowExpToChar(ch, -loss);
 }
 

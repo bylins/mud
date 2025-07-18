@@ -600,8 +600,8 @@ void hitprcnt_mtrigger(CharData *ch) {
 		return;
 
 	for (auto t : SCRIPT(ch)->trig_list) {
-		if (TRIGGER_CHECK(t, MTRIG_HITPRCNT) && GET_MAX_HIT(ch) &&
-			(((GET_HIT(ch) * 100) / GET_MAX_HIT(ch)) <= GET_TRIG_NARG(t))) {
+		if (TRIGGER_CHECK(t, MTRIG_HITPRCNT) && ch->get_max_hit() &&
+			(((ch->get_hit() * 100) / ch->get_max_hit()) <= GET_TRIG_NARG(t))) {
 			ADD_UID_CHAR_VAR(buf, t, ch->GetEnemy(), "actor", 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;

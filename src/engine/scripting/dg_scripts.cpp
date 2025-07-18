@@ -2254,19 +2254,19 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GetRealRemort(c));
 		} else if (!str_cmp(field, "hitp")) {
 			if (*subfield)
-				GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
+				c->set_hit((int) std::max(long(1), gm_char_field(c, field, subfield, (long) c->get_hit())));
 			else
-				sprintf(str, "%d", GET_HIT(c));
+				sprintf(str, "%d", c->get_hit());
 		} else if (!str_cmp(field, "hitpadd")) {
 			if (*subfield)
-				GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
+				c->set_hit_add((int) gm_char_field(c, field, subfield, (long) c->get_hit_add()));
 			else
-				sprintf(str, "%d", GET_HIT_ADD(c));
+				sprintf(str, "%d", c->get_hit_add());
 		} else if (!str_cmp(field, "maxhitp")) {
 			if (*subfield && c->IsNpc()) // доступно тока мобам
-				GET_MAX_HIT(c) = (int) gm_char_field(c, field, subfield, (long) GET_MAX_HIT(c));
+				c->set_max_hit((int) gm_char_field(c, field, subfield, (long) c->get_max_hit()));
 			else
-				sprintf(str, "%d", GET_MAX_HIT(c));
+				sprintf(str, "%d", c->get_max_hit());
 		} else if (!str_cmp(field, "mana")) {
 			if (*subfield) {
 				if (!c->IsNpc()) {
@@ -2301,16 +2301,16 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "move")) {
 			if (*subfield)
-				GET_MOVE(c) = MAX(0, gm_char_field(c, field, subfield, GET_MOVE(c)));
+				c->set_move(std::max(long(0), gm_char_field(c, field, subfield, c->get_move())));
 			else
-				sprintf(str, "%d", GET_MOVE(c));
+				sprintf(str, "%d", c->get_move());
 		} else if (!str_cmp(field, "maxmove")) {
-			sprintf(str, "%d", GET_MAX_MOVE(c));
+			sprintf(str, "%d", c->get_max_move());
 		} else if (!str_cmp(field, "moveadd")) {
 			if (*subfield)
-				GET_MOVE_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_MOVE_ADD(c));
+				c->set_move_add((int) gm_char_field(c, field, subfield, (long) c->get_move_add()));
 			else
-				sprintf(str, "%d", GET_MOVE_ADD(c));
+				sprintf(str, "%d", c->get_move_add());
 		} else if (!str_cmp(field, "castsucc")) {
 			if (*subfield)
 				GET_CAST_SUCCESS(c) = (int) gm_char_field(c, field, subfield, (long) GET_CAST_SUCCESS(c));
@@ -2373,9 +2373,9 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
-					GET_ALIGNMENT(c) -= MAX(1, atoi(subfield + 1));
+					GET_ALIGNMENT(c) -= std::max(1, atoi(subfield + 1));
 				else if (*subfield == '+')
-					GET_ALIGNMENT(c) += MAX(1, atoi(subfield + 1));
+					GET_ALIGNMENT(c) += std::max(1, atoi(subfield + 1));
 			} else
 				sprintf(str, "%d", GET_ALIGNMENT(c));
 		} else if (!str_cmp(field, "religion")) {
@@ -2401,7 +2401,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				const long before = c->get_hryvn();
 				int value;
-				c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+				c->set_hryvn(std::max(long(0), gm_char_field(c, field, subfield, c->get_hryvn())));
 				value = c->get_hryvn() - before;
 				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
 						GET_PAD(c, 0),
@@ -2415,7 +2415,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", c->get_hryvn());
 		} else if (!str_cmp(field, "point_nogata")) {
 				if (*subfield) {
-					c->set_nogata(MAX(0, gm_char_field(c, field, subfield, c->get_nogata())));
+					c->set_nogata(std::max(long(0), gm_char_field(c, field, subfield, c->get_nogata())));
 				}
 				else
 					sprintf(str, "%d", c->get_nogata());
@@ -2425,7 +2425,7 @@ void find_replacement(void *go,
 				CharData *k;
 				if (*subfield == '-') {
 					val = atoi(subfield + 1);
-					c->set_nogata(MAX(0, c->get_nogata() - val));
+					c->set_nogata(std::max(0, c->get_nogata() - val));
 				}
 				else if (*subfield == '+') {
 					val = atoi(subfield + 1);
@@ -2476,7 +2476,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				const long before = c->get_gold();
 				int value;
-				c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
+				c->set_gold(std::max(long(0), gm_char_field(c, field, subfield, c->get_gold())));
 				value = c->get_gold() - before;
 				sprintf(buf,
 						"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
@@ -2500,7 +2500,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "bank")) {
 			if (*subfield) {
 				const long before = c->get_bank();
-				c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
+				c->set_bank(std::max(long(0), gm_char_field(c, field, subfield, c->get_bank())));
 				// клан-налог
 				const long diff = c->get_bank() - before;
 				split_or_clan_tax(c, diff);
@@ -2528,7 +2528,7 @@ void find_replacement(void *go,
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
 								GET_NAME(c),
-								MAX(1, atoi(subfield + 1)),
+								std::max(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else if (*subfield == '+') {
@@ -2536,7 +2536,7 @@ void find_replacement(void *go,
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
 								GET_NAME(c),
-								MAX(1, atoi(subfield + 1)),
+								std::max(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else {
@@ -2730,7 +2730,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "sizeadd")) {
 			if (*subfield)
 				GET_SIZE_ADD(c) =
-					(sbyte) MAX(1, gm_char_field(c, field, subfield, (long) GET_SIZE_ADD(c)));
+					(sbyte) std::max(long(1), gm_char_field(c, field, subfield, (long) GET_SIZE_ADD(c)));
 				else
 				sprintf(str, "%d", GET_SIZE_ADD(c));
 		} else if (!str_cmp(field, "realsize")) {

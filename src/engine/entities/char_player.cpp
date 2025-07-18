@@ -632,9 +632,9 @@ void Player::save_char() {
 	fprintf(saved, "Ac  : %d\n", GET_AC(this));
 	fprintf(saved, "Hry : %d\n", this->get_hryvn());
 	fprintf(saved, "Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
-	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
+	fprintf(saved, "Hit : %d/%d\n", this->get_hit(), this->get_max_hit());
 	fprintf(saved, "Mana: %d/%d\n", this->mem_queue.stored, (this)->mem_queue.total);
-	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
+	fprintf(saved, "Move: %d/%d\n", this->get_move(), this->get_max_move());
 	fprintf(saved, "Gold: %ld\n", get_gold());
 	fprintf(saved, "Bank: %ld\n", get_bank());
 	fprintf(saved, "ICur: %d\n", get_ice_currency());
@@ -1199,15 +1199,15 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_bank(0, false);
 	set_ruble(0);
 	this->player_specials->saved.GodsLike = 0;
-	GET_HIT(this) = 21;
-	GET_MAX_HIT(this) = 21;
+	this->set_hit(21);
+	this->set_max_hit(21);
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
 	GET_COND(this, FULL) = 0;
 	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
-	GET_MOVE(this) = 44;
-	GET_MAX_MOVE(this) = 44;
+	this->set_move(44);
+	this->set_max_move(44);
 	KARMA(this) = 0;
 	LOGON_LIST(this).clear();
 	NAME_GOD(this) = 0;
@@ -1462,8 +1462,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			case 'H':
 				if (!strcmp(tag, "Hit ")) {
 					sscanf(line, "%d/%d", &num, &num2);
-					GET_HIT(this) = num;
-					GET_MAX_HIT(this) = num2;
+					this->set_hit(num);
+					this->set_max_hit(num2);
 				} else if (!strcmp(tag, "Hite"))
 					GET_HEIGHT(this) = num;
 				else if (!strcmp(tag, "Hrol"))
@@ -1538,8 +1538,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					map_options_.bit_list_ = tmp;
 				} else if (!strcmp(tag, "Move")) {
 					sscanf(line, "%d/%d", &num, &num2);
-					GET_MOVE(this) = num;
-					GET_MAX_MOVE(this) = num2;
+					this->set_move(num);
+					this->set_max_move(num2);
 				} else if (!strcmp(tag, "Mobs")) {
 					do {
 						if (!fbgetline(fl, line))
@@ -1919,10 +1919,10 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	 * real time, we'll set your HMV back to full
 	 */
 	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - LAST_LOGON(this))) >= kSecsPerRealHour)) {
-		GET_HIT(this) = GET_REAL_MAX_HIT(this);
-		GET_MOVE(this) = GET_REAL_MAX_MOVE(this);
+		this->set_hit(this->get_real_max_hit());
+		this->set_move(this->get_real_max_move());
 	} else
-		GET_HIT(this) = MIN(GET_HIT(this), GET_REAL_MAX_HIT(this));
+		this->set_hit(std::min(this->get_hit(), this->get_real_max_hit()));
 
 	fbclose(fl);
 	// здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,

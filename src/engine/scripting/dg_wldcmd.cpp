@@ -565,7 +565,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			Damage mdamage(SimpleDmg(kTypeTriggerdeath), dam, type);
 			mdamage.Process(ch, ch);
 		} else {
-			GET_HIT(ch) -= dam;
+			ch->set_hit(ch->get_hit() - dam);
 			if (dam < 0) {
 				SendMsgToChar("Вы почувствовали себя лучше.\r\n", ch);
 				return;

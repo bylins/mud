@@ -154,7 +154,7 @@ CharData *find_renter(int room_rnum) {
 ///
 void check_help_message(CharData *ch) {
 	if (Noob::is_noob(ch)
-		&& GET_HIT(ch) <= 1
+		&& ch->get_hit() <= 1
 		&& ch->GetCarryingQuantity() <= 0
 		&& ch->GetCarryingWeight() <= 0) {
 		int birth_id = Birthplaces::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));

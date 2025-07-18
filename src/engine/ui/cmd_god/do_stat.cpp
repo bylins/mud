@@ -320,8 +320,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 
 	sprintf(buf, "Жизни :[%s%d/%d+%d%s]  Энергии :[%s%d/%d+%d%s]",
-			kColorGrn, GET_HIT(k), GET_REAL_MAX_HIT(k), hit_gain(k),
-			kColorNrm, kColorGrn, GET_MOVE(k), GET_REAL_MAX_MOVE(k), move_gain(k), kColorNrm);
+			kColorGrn, k->get_hit(), k->get_real_max_hit(), hit_gain(k),
+			kColorNrm, kColorGrn, k->get_move(), k->get_real_max_move(), move_gain(k), kColorNrm);
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		sprintf(buf, " Мана :[%s%d/%d+%d%s]\r\n",
@@ -375,8 +375,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			"Запом: [%d], УспехКолд: [%d], ВоссЖиз: [%d], ВоссСил: [%d], Поглощ: [%d], Удача: [%d], Иниц: [%d]\r\n",
 			GET_MANAREG(k),
 			GET_CAST_SUCCESS(k),
-			GET_HITREG(k),
-			GET_MOVEREG(k),
+			k->get_hitreg(),
+			k->get_movereg(),
 			GET_ABSORBE(k),
 			k->calc_morale(),
 			GET_INITIATIVE(k));

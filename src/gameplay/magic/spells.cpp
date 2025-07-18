@@ -1156,10 +1156,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			victim->player_data.PNames[4] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
 			victim->player_data.PNames[5] = std::string(descr);
-				
-			// прибавка хитов по формуле: 1/3 хп_хозяина + 12*лвл_хоз + 4*обая_хоз + 1.5*%магии_хоз
-			GET_MAX_HIT(victim) += floorf(GET_MAX_HIT(ch)*0.33 + GetRealLevel(ch)*12 + r_cha*4 + perc*1.5);
-			GET_HIT(victim) = GET_MAX_HIT(victim);
+			victim->set_max_hit(victim->get_max_hit() + floorf( GetRealLevel(ch)*15 + r_cha*4 + perc*2));
+			victim->set_hit(victim->get_max_hit());
 			// статы
 			victim->set_int(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
 			victim->set_dex(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
@@ -1174,12 +1172,6 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			GET_AC(victim) = -floorf(r_cha/5.0 + perc/15.0); // АС
 			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
 			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
-			 // почему-то не работает
-			if (GetRealRemort(ch) > 12) {
-				GET_AR(victim) = (GET_AR(victim) + GetRealRemort(ch) - 12);
-				GET_MR(victim) = (GET_MR(victim) + GetRealRemort(ch) - 12);
-				GET_PR(victim) = (GET_PR(victim) + GetRealRemort(ch) - 12);
-			}
 			// спелы не работают пока 
 			// SET_SPELL_MEM(victim, SPELL_CURE_BLIND, 1); // -?
 			// SET_SPELL_MEM(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
@@ -1927,8 +1919,8 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 		return;
 
 	val0 = GetRealLevel(victim);
-	val1 = GET_HIT(victim);
-	val2 = GET_REAL_MAX_HIT(victim);
+	val1 = victim->get_hit();
+	val2 = victim->get_real_max_hit();
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(ch, "Перевоплощений : %d\r\n", GetRealRemort(victim));
@@ -2128,13 +2120,13 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 }
 
 void do_sacrifice(CharData *ch, int dam) {
-	GET_HIT(ch) = std::max(GET_HIT(ch), std::min(GET_HIT(ch) + std::max(1, dam), GET_REAL_MAX_HIT(ch)
-		+ GET_REAL_MAX_HIT(ch) * GetRealLevel(ch) / 10));
+	ch->set_hit(std::max(ch->get_hit(), std::min(ch->get_hit() + std::max(1, dam), ch->get_real_max_hit()
+		+ ch->get_real_max_hit() * GetRealLevel(ch) / 10)));
 	update_pos(ch);
 }
 
 void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
-	int dam, d0 = GET_HIT(victim);
+	int dam, d0 = victim->get_hit();
 	struct FollowerType *f;
 
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
@@ -2351,8 +2343,8 @@ void SpellSummonAngel(CharData *ch) {
 
 	mob->set_exp(0);
 
-	GET_MAX_HIT(mob) = floorf(base_hp + additional_hp_for_charisma * eff_cha);
-	GET_HIT(mob) = GET_MAX_HIT(mob);
+	mob->set_max_hit(floorf(base_hp + additional_hp_for_charisma * eff_cha));
+	mob->set_hit(mob->get_max_hit());
 	mob->set_gold(0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
@@ -2434,8 +2426,8 @@ void SpellMentalShadow(CharData *ch) {
 	af.battleflag = 0;
 	affect_to_char(mob, af);
 	
-	GET_MAX_HIT(mob) = floorf(hp + hp_per_int * (eff_int - 20) + GET_HIT(ch)/4);
-	GET_HIT(mob) = GET_MAX_HIT(mob);
+	mob->set_max_hit(floorf(hp + hp_per_int * (eff_int - 20) + ch->get_hit()/4));
+	mob->set_hit(mob->get_max_hit());
 	GET_AC(mob) = floorf(base_ac + additional_ac * eff_int);
 	// Добавление заклов и аффектов в зависимости от интелекта кудеса
 	if (eff_int >= 28 && eff_int < 32) {

@@ -31,9 +31,9 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((wimp_lev = atoi(arg)) != 0) {
 			if (wimp_lev < 0)
 				SendMsgToChar("Да, перегрев похоже. С такими хитами вы и так помрете :)\r\n", ch);
-			else if (wimp_lev > GET_REAL_MAX_HIT(ch))
+			else if (wimp_lev > ch->get_real_max_hit())
 				SendMsgToChar("Осталось только дожить до такого количества ХП.\r\n", ch);
-			else if (wimp_lev > (GET_REAL_MAX_HIT(ch) / 2))
+			else if (wimp_lev > (ch->get_real_max_hit() / 2))
 				SendMsgToChar("Размечтались. Сбечь то можно, но не более половины максимальных ХП.\r\n", ch);
 			else {
 				sprintf(buf, "Ладушки. Вы сбегите (или сбежите) по достижению %d ХП.\r\n", wimp_lev);

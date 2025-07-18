@@ -47,15 +47,15 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto success = (prob >= percent);
 	bool need = false;
 	bool enough_skill = false;
-	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) ||
-		(GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict)) ||
-		(GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && CanUseFeat(ch, EFeat::kHealer))) {
+	if ((vict->get_real_max_hit() > 0 && (vict->get_hit() * 100 / vict->get_real_max_hit()) < 31) ||
+		(vict->get_real_max_hit() <= 0 && vict->get_hit() < vict->get_real_max_hit()) ||
+		(vict->get_hit() < vict->get_real_max_hit() && CanUseFeat(ch, EFeat::kHealer))) {
 		need = true;
 		enough_skill = true;
 		if (success) {
-			int dif = std::min(GET_REAL_MAX_HIT(vict), GET_REAL_MAX_HIT(vict) - GET_HIT(vict));
+			int dif = std::min(vict->get_real_max_hit(), vict->get_real_max_hit() - vict->get_hit());
 			int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
-			GET_HIT(vict) += add;
+			vict->set_hit(ch->get_hit() + add);
 		}
 	}
 	auto spell_id{ESpell::kUndefined};

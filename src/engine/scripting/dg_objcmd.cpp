@@ -551,7 +551,7 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 }
 
 void ApplyDamage(CharData* target, int damage) {
-	GET_HIT(target) -= damage;
+	target->set_hit(target->get_hit() - damage);
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
 	if (target->GetPosition() == EPosition::kDead) {

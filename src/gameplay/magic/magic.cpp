@@ -713,9 +713,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kDispelEvil: {
-			if (ch != victim && IS_EVIL(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
+			if (ch != victim && IS_EVIL(ch) && !IS_IMMORTAL(ch) && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
-				GET_HIT(ch) = 1;
+				ch->set_hit(1);
 			}
 			if (!IS_EVIL(victim)) {
 				if (victim != ch)
@@ -725,9 +725,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kDispelGood: {
-			if (ch != victim && IS_GOOD(ch) && !IS_IMMORTAL(ch) && GET_HIT(ch) > 1) {
+			if (ch != victim && IS_GOOD(ch) && !IS_IMMORTAL(ch) && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
-				GET_HIT(ch) = 1;
+				ch->set_hit(1);
 			}
 			if (!IS_GOOD(victim)) {
 				if (victim != ch)
@@ -795,7 +795,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int total_dmg{0};
 
 	if (instant_death) {
-		total_dmg = std::max(1, GET_HIT(victim) + 1);
+		total_dmg = std::max(1, victim->get_hit() + 1);
 		if (victim->IsNpc()) {
 			total_dmg += 99;
 		}
@@ -2083,7 +2083,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 			// иначе, при рекасте, модификатор суммируется с текущим аффектом.
 			if (!AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
-				af[2].modifier = GET_REAL_MAX_HIT(victim);
+				af[2].modifier = victim->get_real_max_hit();
 				// не очень красивый способ передать сигнал на лечение в mag_points
 				Affect<EApply> tmpaf;
 				tmpaf.type = ESpell::kEviless;
@@ -2188,7 +2188,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].modifier =
 				-1 * std::max(1,
 						 (std::min(29, GetRealLevel(ch)) - std::min(24, GetRealLevel(victim)) +
-							 GetRealRemort(ch) / 3) * GET_MAX_HIT(victim) / 100);
+							 GetRealRemort(ch) / 3) * victim->get_max_hit() / 100);
 			af[0].bitvector = to_underlying(EAffect::kCrying);
 			if (victim->IsNpc()) {
 				af[1].location = EApply::kLikes;
@@ -2907,8 +2907,8 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->SetFlag(EMobFlag::kResurrected);
 		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
-			GET_MAX_HIT(mob) = GET_MAX_HIT(mob) + GET_MAX_HIT(mob) * 0.20;
-			GET_HIT(mob) = GET_MAX_HIT(mob);
+			mob->set_max_hit(mob->get_max_hit() + mob->get_max_hit() * 0.20);
+			mob->set_hit(mob->get_max_hit());
 			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
 		}
 	}
@@ -3029,8 +3029,8 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		GET_AC(mob) = GET_AC(ch);
 		GET_DR(mob) = GET_DR(ch);
 
-		GET_MAX_HIT(mob) = GET_MAX_HIT(ch);
-		GET_HIT(mob) = GET_MAX_HIT(ch);
+		mob->set_max_hit(ch->get_max_hit());
+		mob->set_hit(ch->get_max_hit());
 		mob->mob_specials.damnodice = 0;
 		mob->mob_specials.damsizedice = 0;
 		mob->set_gold(0);
@@ -3099,7 +3099,9 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		// Svent TODO: не забыть перенести это в ability
 		mob->set_level(GetRealLevel(ch));
 		int rating = (ch->GetSkill(ESkill::kLightMagic) + GetRealCha(ch)) / 2;
-		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + RollDices(10, 10) + rating * 6;
+		int v = 50 + RollDices(10, 10) + rating * 6;
+		mob->set_hit(v);
+		mob->set_max_hit(v);
 		mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
 		mob->set_skill(ESkill::kRescue, 50 + rating);
 		mob->set_str(3 + rating / 5);
@@ -3131,7 +3133,9 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		GET_SDD(mob) = modifier / 5 + 1;
 		mob->mob_specials.extra_attack = 0;
 
-		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
+		int m = 300 + number(modifier * 12, modifier * 16);
+		mob->set_hit(m);
+		mob->set_max_hit(m);
 		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
 		mob->SetFlag(EPrf::kAwake);
 	}
@@ -3192,7 +3196,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			break;
 		case ESpell::kGreatHeal:
-			hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+			hit = victim->get_real_max_hit() - victim->get_hit();
 			SendMsgToChar("Вы почувствовали себя полностью здоровым.\r\n", victim);
 			break;
 		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
@@ -3210,12 +3214,12 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				return 1;
 			//при рекасте - не лечим
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
-				hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+				hit = victim->get_real_max_hit() - victim->get_hit();
 				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless); //сбрасываем аффект с хозяина
 			}
 			break;
 		case ESpell::kResfresh:
-		case ESpell::kGroupRefresh: move = GET_REAL_MAX_MOVE(victim) - GET_MOVE(victim);
+		case ESpell::kGroupRefresh: move = victim->get_real_max_move() - victim->get_move();
 			SendMsgToChar("Вы почувствовали себя полным сил.\r\n", victim);
 			break;
 		case ESpell::kFullFeed:
@@ -3240,28 +3244,28 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			return 0;
 	}
 	// лечение
-	if (GET_HIT(victim) < kMaxHits && hit != 0) {
-		if (!extraHealing && GET_HIT(victim) < GET_REAL_MAX_HIT(victim)) {
+	if (victim->get_hit() < kMaxHits && hit != 0) {
+		if (!extraHealing && victim->get_hit() < victim->get_real_max_hit()) {
 			if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
 //				log("HEAL: порез Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
-				GET_HIT(victim) = std::min(GET_HIT(victim) + hit / 2, GET_REAL_MAX_HIT(victim));
+				victim->set_hit(std::min(victim->get_hit() + hit / 2, victim->get_real_max_hit()));
 			} else {
 //				log("HEAL: Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
-				GET_HIT(victim) = std::min(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
+				victim->set_hit(std::min(victim->get_hit() + hit, victim->get_real_max_hit()));
 			}
 		}
 		if (extraHealing) {
 //			log("HEAL: наддув Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
-			if (GET_REAL_MAX_HIT(victim) <= 0) {
-				GET_HIT(victim) = std::max(GET_HIT(victim), std::min(GET_HIT(victim) + hit, 1));
+			if (victim->get_real_max_hit() <= 0) {
+				victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
 			} else {
-				GET_HIT(victim) = std::clamp(GET_HIT(victim) + hit, GET_HIT(victim),
-						GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100);
+				victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(),
+						victim->get_real_max_hit() + victim->get_real_max_hit() * 33 / 100));
 			}
 		}
 	}
-	if (move != 0 && GET_MOVE(victim) < GET_REAL_MAX_MOVE(victim)) {
-		GET_MOVE(victim) = std::min(GET_MOVE(victim) + move, GET_REAL_MAX_MOVE(victim));
+	if (move != 0 && victim->get_move() < victim->get_real_max_move()) {
+		victim->set_move(std::min(victim->get_move() + move, victim->get_real_max_move()));
 	}
 	update_pos(victim);
 

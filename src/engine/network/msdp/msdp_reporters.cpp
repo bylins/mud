@@ -124,13 +124,13 @@ void GoldReporter::get(Variable::shared_ptr &response) {
 }
 
 void MaxHitReporter::get(Variable::shared_ptr &response) {
-	const auto value = std::to_string(GET_REAL_MAX_HIT(descriptor()->character));
+	const auto value = std::to_string(descriptor()->character->get_real_max_hit());
 	response = std::make_shared<Variable>(constants::MAX_HIT,
 										  std::make_shared<StringValue>(value));
 }
 
 void MaxMoveReporter::get(Variable::shared_ptr &response) {
-	const auto value = std::to_string(GET_REAL_MAX_MOVE(descriptor()->character));
+	const auto value = std::to_string(descriptor()->character->get_real_max_move());
 	response = std::make_shared<Variable>(constants::MAX_MOVE,
 										  std::make_shared<StringValue>(value));
 }
@@ -156,10 +156,10 @@ void ExperienceReporter::get(Variable::shared_ptr &response) {
 void StateReporter::get(Variable::shared_ptr &response) {
 	const auto state = std::make_shared<TableValue>();
 
-	const auto current_hp = std::to_string(GET_HIT(descriptor()->character));
+	const auto current_hp = std::to_string(descriptor()->character->get_hit());
 	state->add(std::make_shared<Variable>("CURRENT_HP",
 										  std::make_shared<StringValue>(current_hp)));
-	const auto current_move = std::to_string(GET_MOVE(descriptor()->character));
+	const auto current_move = std::to_string(descriptor()->character->get_move());
 	state->add(std::make_shared<Variable>("CURRENT_MOVE",
 										  std::make_shared<StringValue>(current_move)));
 
@@ -189,11 +189,11 @@ void GroupReporter::append_char(const std::shared_ptr<ArrayValue> &group,
 	member->add(std::make_shared<Variable>("NAME",
 										   std::make_shared<StringValue>(buffer)));
 	const auto hp_percents =
-		std::to_string(posi_value(GET_HIT(character), GET_REAL_MAX_HIT(character)) * 10);    // *10 to show percents
+		std::to_string(posi_value(character->get_hit(), character->get_real_max_hit()) * 10);    // *10 to show percents
 	member->add(std::make_shared<Variable>("HEALTH", std::make_shared<StringValue>(hp_percents)));
 
 	const auto move_percents =
-		std::to_string(posi_value(GET_MOVE(character), GET_REAL_MAX_MOVE(character)) * 10);// *10 to show percents
+		std::to_string(posi_value(character->get_move(), character->get_real_max_move()) * 10);// *10 to show percents
 	member->add(std::make_shared<Variable>("MOVE", std::make_shared<StringValue>(move_percents)));
 
 	const bool same_room = ch->in_room == character->in_room;

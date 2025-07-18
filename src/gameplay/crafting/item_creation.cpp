@@ -1587,7 +1587,7 @@ int MakeRecept::make(CharData *ch) {
 		SendMsgToChar("У вас нет составляющих для этого.\r\n", ch);
 		return (false);
 	}
-	if (GET_MOVE(ch) < MIN_MAKE_MOVE) {
+	if (ch->get_move() < MIN_MAKE_MOVE) {
 		SendMsgToChar("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
 		return (false);
 	}
@@ -1769,15 +1769,15 @@ int MakeRecept::make(CharData *ch) {
 	int j;
 	int craft_move = MIN_MAKE_MOVE + (created_lev / 2) - 1;
 	// Снимаем мувы за умение
-	if (GET_MOVE(ch) < craft_move) {
-		GET_MOVE(ch) = 0;
+	if (ch->get_move() < craft_move) {
+		ch->set_move(0);
 		// Вам не хватило сил доделать.
 		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(3) + ".\r\n";
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
 		if (!IS_IMPL(ch)) {
-			GET_MOVE(ch) -= craft_move;
+			ch->set_move(ch->get_move() - craft_move);
 		}
 	}
 
@@ -1872,7 +1872,7 @@ int MakeRecept::make(CharData *ch) {
 				SendMsgToChar("Будучи бессмертным, вы избежали повреждения...", ch);
 				return (false);
 			}
-			GET_HIT(ch) -= dam;
+			ch->set_hit(ch->get_hit() - dam);
 			update_pos(ch);
 			char_dam_message(dam, ch, ch, 0);
 			if (ch->GetPosition() == EPosition::kDead) {
