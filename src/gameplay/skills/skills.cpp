@@ -911,7 +911,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		}
 
 		case ESkill::kCharge: {
-			bonus += calc_initiative(ch, false) + (GET_REAL_MAX_MOVE(ch) / 15);
+			bonus += calc_initiative(ch, false) + (ch->get_real_max_move() / 15);
 			break;
 		}
 

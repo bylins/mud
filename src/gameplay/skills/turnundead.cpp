@@ -56,7 +56,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		if (roll.IsSuccess()) {
 			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->GetLevel() + RollDices(1, 5)) {
 				SendMsgToChar(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
-				damage.dam = std::max(1, GET_HIT(target) + 11);
+				damage.dam = std::max(1, target->get_hit() + 11);
 			} else {
 				damage.dam = roll.CalcDamage();
 				victims_hp_amount -= damage.dam;

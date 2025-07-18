@@ -74,14 +74,14 @@ void DescriptorData::msdp_report_changed_vars() {
 		return;
 	}
 
-	if (m_msdp_last_max_hit != GET_REAL_MAX_HIT(character)) {
+	if (m_msdp_last_max_hit != character->get_real_max_hit()) {
 		msdp_report(msdp::constants::MAX_HIT);
-		m_msdp_last_max_hit = GET_REAL_MAX_HIT(character);
+		m_msdp_last_max_hit = character->get_real_max_hit();
 	}
 
-	if (m_msdp_last_max_move != GET_REAL_MAX_MOVE(character)) {
+	if (m_msdp_last_max_move != character->get_real_max_move()) {
 		msdp_report(msdp::constants::MAX_MOVE);
-		m_msdp_last_max_move = GET_REAL_MAX_MOVE(character);
+		m_msdp_last_max_move = character->get_real_max_move();
 	}
 }
 

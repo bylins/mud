@@ -2595,11 +2595,11 @@ int num_pc_in_room(RoomData *room) {
 int check_moves(CharData *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || ch->IsNpc())
 		return (true);
-	if (GET_MOVE(ch) < how_moves) {
+	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);
 		return (false);
 	}
-	GET_MOVE(ch) -= how_moves;
+	ch->set_move(ch->get_move() - how_moves);
 	return (true);
 }
 

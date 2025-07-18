@@ -423,8 +423,8 @@ void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)))
 		SendMsgToChar(NOPERSON, ch);
 	else {
-		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
-		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
+		vict->set_hit(vict->get_real_max_hit());
+		vict->set_move(vict->get_real_max_move());
 		if (IS_MANA_CASTER(vict)) {
 			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
@@ -1405,8 +1405,8 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		}
 
-		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
-		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
+		vict->set_hit(vict->get_real_max_hit());
+		vict->set_move(vict->get_real_max_move());
 		if (IS_MANA_CASTER(vict)) {
 			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {

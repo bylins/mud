@@ -1321,8 +1321,8 @@ char *diag_obj_to_char(ObjData *obj, int mode) {
 void diag_char_to_char(CharData *i, CharData *ch) {
 	int percent;
 
-	if (GET_REAL_MAX_HIT(i) > 0)
-		percent = (100 * GET_HIT(i)) / GET_REAL_MAX_HIT(i);
+	if (i->get_real_max_hit() > 0)
+		percent = (100 * i->get_hit()) / i->get_real_max_hit();
 	else
 		percent = -1;    // How could MAX_HIT be < 1??
 

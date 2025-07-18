@@ -1119,13 +1119,13 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	mob_proto[i].real_abils.armor = 10 * t[2];
 
 	// max hit = 0 is a flag that H, M, V is xdy+z
-	GET_MAX_HIT(mob_proto + i) = 0;
+	(mob_proto + i)->set_max_hit(0);
 	(mob_proto + i)->mem_queue.total = t[3];
 	(mob_proto + i)->mem_queue.stored = t[4];
-	mob_proto[i].points.hit = t[5];
+	(mob_proto + i)->set_hit(t[5]);
 
-	mob_proto[i].points.move = 100;
-	mob_proto[i].points.max_move = 100;
+	(mob_proto + i)->set_move(100);
+	(mob_proto + i)->set_max_move(100);
 
 	mob_proto[i].mob_specials.damnodice = t[6];
 	mob_proto[i].mob_specials.damsizedice = t[7];

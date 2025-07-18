@@ -41,7 +41,7 @@ float calc_cha_for_hire(CharData *victim) {
 	int i;
 	float reformed_hp = 0.0, needed_cha = 0.0;
 	for (i = 0; i < 50; i++) {
-		reformed_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) * cha_app[i].dam_to_hit_rate;
+		reformed_hp = victim->get_max_hit() + get_damage_per_round(victim) * cha_app[i].dam_to_hit_rate;
 		if (cha_app[i].charms >= reformed_hp)
 			break;
 	}
@@ -154,11 +154,11 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 
 	// Интерполяция между значениями для целых значений обаяния
 	if (eff_cha < stat_cap) {
-		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
+		r_hp = victim->get_max_hit() + get_damage_per_round(victim) *
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
 				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
 	} else {
-		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
+		r_hp = victim->get_max_hit() + get_damage_per_round(victim) *
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
 	}
 

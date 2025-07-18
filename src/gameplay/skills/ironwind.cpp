@@ -64,8 +64,8 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->GetSkill(ESkill::kIronwind)) / 15);
-	if (GET_MAX_MOVE(ch) < moves * 2) {
+	int moves = ch->get_max_move() / (2 + std::max(15, ch->GetSkill(ESkill::kIronwind)) / 15);
+	if (ch->get_max_move() < moves * 2) {
 		SendMsgToChar("Вы слишком устали...\r\n", ch);
 		return;
 	}

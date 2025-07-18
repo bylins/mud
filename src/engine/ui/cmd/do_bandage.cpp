@@ -13,7 +13,7 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
-	if (GET_HIT(ch) == GET_REAL_MAX_HIT(ch)) {
+	if (ch->get_hit() == ch->get_real_max_hit()) {
 		SendMsgToChar("Вы не нуждаетесь в перевязке!\r\n", ch);
 		return;
 	}

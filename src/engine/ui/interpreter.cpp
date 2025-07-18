@@ -2506,9 +2506,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		ch->player_data.height = number(150, 180);
 	}
 
-	ch->points.hit = GET_MAX_HIT(ch);
-	ch->points.max_move = 82;
-	ch->points.move = GET_MAX_MOVE(ch);
+	ch->set_hit(ch->get_max_hit());
+	ch->set_max_move(82);
+	ch->set_move(ch->get_max_move());
 	ch->real_abils.armor = 100;
 
 	ch->set_uid(++top_idnum);
