@@ -371,7 +371,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		if (IS_SET(extmode, CHECK_HITS)
 			&& ch->IsFlagged(EMobFlag::kWimpy)
 			&& AWAKE(vict)
-			&& GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch)) {
+			&& ch->get_hit() * 2 < ch->get_real_max_hit()) {
 			continue;
 		}
 
@@ -452,7 +452,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		}
 
 		if (!min_hp
-			|| GET_HIT(vict) + GetRealCha(vict) * 10 < GET_HIT(min_hp) + GetRealCha(min_hp) * 10) {
+			|| vict->get_hit() + GetRealCha(vict) * 10 < min_hp->get_hit() + GetRealCha(min_hp) * 10) {
 			min_hp = vict;
 		}
 
@@ -523,7 +523,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 	// Mobile too damage //обработка флага ТРУС
 	if (IS_SET(extmode, CHECK_HITS)
 		&& ch->IsFlagged(EMobFlag::kWimpy)
-		&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch)) {
+		&& AWAKE(vict) && ch->get_hit() * 2 < ch->get_real_max_hit()) {
 		return false;
 	}
 
@@ -597,7 +597,7 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 			continue;
 		}
 
-		if (GET_HIT(vict) <= kCharacterHpForMobPriorityAttack) {
+		if (vict->get_hit() <= kCharacterHpForMobPriorityAttack) {
 			return selectVictimDependingOnGroupFormation(ch, vict);
 		}
 		// Распределяем цели по категориям
@@ -1049,7 +1049,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  // Mob attemp rest if it is not an angel
 	  if (!max && !ch->IsFlagged(EMobFlag::kNoRest) 
 		  && !ch->IsFlagged(EMobFlag::kHorde) 
-		  && GET_HIT(ch) < GET_REAL_MAX_HIT(ch) 
+		  && ch->get_hit() < ch->get_real_max_hit() 
 		  && !ch->IsFlagged(EMobFlag::kTutelar)
 		  && !ch->IsFlagged(EMobFlag::kMentalShadow)
 		  && !ch->IsOnHorse()
@@ -1059,7 +1059,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // Mob continue to default pos if full rested or if it is an angel
-	  if ((GET_HIT(ch) >= GET_REAL_MAX_HIT(ch)
+	  if ((ch->get_hit() >= ch->get_real_max_hit()
 		  && ch->GetPosition() != GET_DEFAULT_POS(ch))
 		  || ((ch->IsFlagged(EMobFlag::kTutelar)
 			  || ch->IsFlagged(EMobFlag::kMentalShadow))

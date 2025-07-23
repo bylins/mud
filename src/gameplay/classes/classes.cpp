@@ -983,7 +983,7 @@ void init_warcry(CharData *ch) // проставление кличей в об�
 void DoPcInit(CharData *ch, bool is_newbie) {
 	ch->set_level(1);
 	ch->set_exp(1);
-	ch->points.max_hit = 10;
+	ch->set_max_hit(10);
 	if (is_newbie || (GetRealRemort(ch) >= 9 && GetRealRemort(ch) % 3 == 0)) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
@@ -1042,8 +1042,8 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
 	mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 
-	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
-	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
+	ch->set_hit(ch->get_real_max_hit());
+	ch->set_move(ch->get_real_max_move());
 
 	GET_COND(ch, THIRST) = 0;
 	GET_COND(ch, FULL) = 0;
@@ -1058,7 +1058,7 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 // * Перерасчет максимальных родных хп персонажа.
 // * При входе в игру, левеле/делевеле, добавлении/удалении славы.
 void check_max_hp(CharData *ch) {
-	GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
+	ch->set_max_hit(PlayerSystem::con_natural_hp(ch));
 }
 
 // * Обработка событий при левел-апе.
@@ -1108,7 +1108,7 @@ void advance_level(CharData *ch) {
 	}
 
 	check_max_hp(ch);
-	ch->points.max_move += std::max(1, add_move);
+	ch->set_max_move(ch->get_max_move() + std::max(1, add_move));
 
 	SetInbornAndRaceFeats(ch);
 
@@ -1149,9 +1149,9 @@ void decrease_level(CharData *ch) {
 	}
 
 	check_max_hp(ch);
-	ch->points.max_move -= std::clamp(add_move, 1, ch->points.max_move);
+	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
 
-	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, GET_REAL_MAX_HIT(ch)/2);
+	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
 	if (!IS_IMMORTAL(ch)) {
 		ch->UnsetFlag(EPrf::kHolylight);
 	}

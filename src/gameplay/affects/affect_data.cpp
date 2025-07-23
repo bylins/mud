@@ -525,7 +525,7 @@ void affect_total(CharData *ch) {
 				+ (ClampBaseStat(ch, EBaseStat::kCon, GetRealCon(ch)) - MUD::Class(ch->GetClass()).applies.base_con)
 				* MUD::Class(ch->GetClass()).applies.koef_con / 100.0 + 3;
 		double hiton30lvl = 10 + add_hp_per_level * 30;
-		GET_HIT_ADD(ch) = hiton30lvl - GET_MAX_HIT(ch);
+		ch->set_hit_add(hiton30lvl - ch->get_max_hit());
 //		SendMsgToChar(ch, "max_hit: %d, add per level: %f, hitadd: %d, start_con: %d, level: %d\r\n", 
 //			GET_REAL_MAX_HIT(ch), add_hp_per_level, GET_HIT_ADD(ch), ch->get_start_stat(G_CON), GetRealLevel(ch));
 	}
@@ -582,16 +582,16 @@ void affect_total(CharData *ch) {
 		}
 			GET_DR_ADD(ch) += GetExtraDamroll(ch->GetClass(), GetRealLevel(ch));
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
-			GET_HITREG(ch) += (GetRealLevel(ch) + 4) / 5 * 10;
+			ch->set_hitreg(ch->get_hitreg() + (GetRealLevel(ch) + 4) / 5 * 10);
 		}
 		if (CanUseFeat(ch, EFeat::kRegenOfDarkness)) {
-			GET_HITREG(ch) += GET_HITREG(ch) * 0.2;
+			ch->set_hitreg(ch->get_hitreg() + ch->get_hitreg() * 0.2);
 		}
 		if (GET_CON_ADD(ch)) {
-			GET_HIT_ADD(ch) += PlayerSystem::con_add_hp(ch);
-			int i = GET_MAX_HIT(ch) + GET_HIT_ADD(ch);
+			ch->set_hit_add(ch->get_hit_add() + PlayerSystem::con_add_hp(ch));
+			int i = ch->get_real_max_hit();
 			if (i < 1) {
-				GET_HIT_ADD(ch) -= (i - 1);
+				ch->set_hit_add(ch->get_hit_add() - (i - 1));
 			}
 		}
 		if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
@@ -817,9 +817,9 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kManaRegen: GET_MANAREG(ch) += mod;
 			break;
-		case EApply::kHp: GET_HIT_ADD(ch) += mod;
+		case EApply::kHp: ch->set_hit_add(ch->get_hit_add() + mod);
 			break;
-		case EApply::kMove: GET_MOVE_ADD(ch) += mod;
+		case EApply::kMove: ch->set_move_add(ch->get_move_add() + mod);
 			break;
 		case EApply::kGold:
 		case EApply::kExp: break;
@@ -843,9 +843,9 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kSavingReflex: SetSave(ch, ESaving::kReflex, GetSave(ch, ESaving::kReflex) +  mod);
 			break;
-		case EApply::kHpRegen: GET_HITREG(ch) += mod;
+		case EApply::kHpRegen:  ch->set_hitreg(ch->get_hitreg() + mod);
 			break;
-		case EApply::kMoveRegen: GET_MOVEREG(ch) += mod;
+		case EApply::kMoveRegen: ch->set_movereg(ch->get_movereg() + mod);
 			break;
 		case EApply::kFirstCircle:
 		case EApply::kSecondCircle:

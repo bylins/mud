@@ -123,8 +123,8 @@ void PrintScoreList(CharData *ch) {
 				  GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
 				  GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
 	SendMsgToChar(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
-				  GET_HIT(ch), GET_REAL_MAX_HIT(ch), GetDeclensionInNumber(GET_HIT(ch), EWhat::kOneU),
-				  GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
+				  ch->get_hit(), ch->get_real_max_hit(), GetDeclensionInNumber(ch->get_hit(), EWhat::kOneU),
+				  ch->get_move(), ch->get_real_max_move(), GetDeclensionInNumber(ch->get_move(), EWhat::kMoveU));
 	if (IS_MANA_CASTER(ch)) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
 					  ch->mem_queue.stored, GET_MAX_MANA(ch), CalcManaGain(ch));
@@ -172,9 +172,9 @@ void PrintScoreList(CharData *ch) {
 			GET_PR(ch),
 			GET_AR(ch));
 	SendMsgToChar(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
-				  GET_HITREG(ch),
+				  ch->get_hitreg(),
 				  hit_gain(ch),
-				  GET_MOVEREG(ch),
+				  ch->get_movereg(),
 				  move_gain(ch));
 	int ac = compute_armor_class(ch) / 10;
 	if (ac < 5) {
@@ -543,10 +543,10 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Рост";			table[row][col + 1] = std::to_string(GET_HEIGHT(ch)) + " (" + std::to_string(GET_REAL_HEIGHT(ch)) + ")";
 	table[++row][col] = "Вес";			table[row][col + 1] = std::to_string(GET_WEIGHT(ch)) + " (" + std::to_string(GET_REAL_WEIGHT(ch)) + ")";
 	table[++row][col] = "Размер";		table[row][col + 1] = std::to_string(GET_SIZE(ch)) + " (" + std::to_string(GET_REAL_SIZE(ch)) + ")";
-	table[++row][col] = "Жизнь";		table[row][col + 1] = std::to_string(GET_HIT(ch)) + "(" + std::to_string(GET_REAL_MAX_HIT(ch)) + ")";
-	table[++row][col] = "Восст. жизни";	table[row][col + 1] = "+" + std::to_string(GET_HITREG(ch)) + "% (" + std::to_string(hit_gain(ch)) + ")";
-	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(GET_MOVE(ch)) + "(" + std::to_string(GET_REAL_MAX_MOVE(ch)) + ")";
-	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(GET_MOVEREG(ch)) + "% (" + std::to_string(move_gain(ch)) + ")";
+	table[++row][col] = "Жизнь";		table[row][col + 1] = std::to_string(ch->get_hit()) + "(" + std::to_string(ch->get_real_max_hit()) + ")";
+	table[++row][col] = "Восст. жизни";	table[row][col + 1] = "+" + std::to_string(ch->get_hitreg()) + "% (" + std::to_string(hit_gain(ch)) + ")";
+	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(ch->get_move()) + "(" + std::to_string(ch->get_real_max_move()) + ")";
+	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(ch->get_movereg()) + "% (" + std::to_string(move_gain(ch)) + ")";
 	if (IS_MANA_CASTER(ch)) {
 		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(GET_MAX_MANA(ch)) + ")";
 		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(CalcManaGain(ch)) + " сек.";
@@ -718,9 +718,9 @@ void PrintScoreBase(CharData *ch) {
 
 	sprintf(buf,
 			"Вы можете выдержать %d(%d) %s повреждения, и пройти %d(%d) %s по ровной местности.\r\n",
-			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GetDeclensionInNumber(GET_HIT(ch),
+			ch->get_hit(), ch->get_real_max_hit(), GetDeclensionInNumber(ch->get_hit(),
 																	 EWhat::kOneU),
-			GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GetDeclensionInNumber(GET_MOVE(ch), EWhat::kMoveU));
+			ch->get_move(), ch->get_real_max_move(), GetDeclensionInNumber(ch->get_move(), EWhat::kMoveU));
 
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf + strlen(buf),

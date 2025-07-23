@@ -451,10 +451,20 @@ class CharData : public ProtectedCharData {
 	void set_hit(int);
 	int get_max_hit() const;
 	void set_max_hit(int);
-	sh_int get_move() const;
-	void set_move(sh_int);
-	sh_int get_max_move() const;
-	void set_max_move(sh_int);
+	int get_hit_add() const;
+	void set_hit_add(int);
+	int get_real_max_hit() const;
+	int get_hitreg() const;
+	void set_hitreg(int);
+	int get_move() const;
+	void set_move(int);
+	int get_max_move() const;
+	void set_max_move(int);
+	int get_move_add() const;
+	void set_move_add(int);
+	int get_real_max_move() const;
+	int get_movereg() const;
+	void set_movereg(int);
 
 	////////////////////////////////////////////////////////////////////////////
 	long get_gold() const;

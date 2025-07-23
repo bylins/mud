@@ -284,8 +284,8 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name().substr(0, 20));
 
-		buffer << fmt::format("{}", GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k)));
-		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
+		buffer << fmt::format("{}", GetWarmValueColor(k->get_hit(), k->get_real_max_hit()));
+		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(k->get_hit(), k->get_real_max_hit()) + 1]);
 		buffer << fmt::format(" {:^7} &n|", ch->in_room == k->in_room ? "&gДа" : "&rНет");
 
 		// АФФЕКТЫ
@@ -304,16 +304,16 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		if (!header)
 			buffer << "Персонаж            | Здоровье | Энергия | Рядом | Учить | Аффект  |  Дебаф  |  Кто  | Строй | Положение \r\n";
 
-		std::string health_color = GetWarmValueColor(GET_HIT(k), GET_REAL_MAX_HIT(k));
-		std::string move_color = GetWarmValueColor(GET_MOVE(k), GET_REAL_MAX_MOVE(k));
+		std::string health_color = GetWarmValueColor(k->get_hit(), k->get_real_max_hit());
+		std::string move_color = GetWarmValueColor(k->get_move(), k->get_real_max_move());
 
 		buffer << fmt::format("&B{:<20}&n|", k->get_name());
 
 		buffer << fmt::format("{}", health_color);
-		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1]);
+		buffer << fmt::format("{:<10}&n|", WORD_STATE[posi_value(k->get_hit(), k->get_real_max_hit()) + 1]);
 
 		buffer << fmt::format("{}", move_color);
-		buffer << fmt::format("{:^9}&n|", MOVE_STATE[posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) + 1]);
+		buffer << fmt::format("{:^9}&n|", MOVE_STATE[posi_value(k->get_move(), k->get_real_max_move()) + 1]);
 
 		buffer << fmt::format(" {:^7} &n|", ch->in_room == k->in_room ? "&gДа" : "&rНет");
 
@@ -576,8 +576,8 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_MANA_CASTER(ch)) {
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
-				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
-				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
+				ch->get_hit(), ch->get_real_max_hit(),
+				ch->get_move(), ch->get_real_max_move(),
 				ch->mem_queue.stored, GET_MAX_MANA(ch));
 	} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		int loyalty = 0;
@@ -589,14 +589,14 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		}
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
-				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
-				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
+				ch->get_hit(), ch->get_real_max_hit(),
+				ch->get_move(), ch->get_real_max_move(),
 				loyalty);
 	} else {
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
-				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
-				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
+				ch->get_hit(), ch->get_real_max_hit(),
+				ch->get_move(), ch->get_real_max_move());
 	}
 	CAP(buf);
 	k = ch->has_master() ? ch->get_master() : ch;

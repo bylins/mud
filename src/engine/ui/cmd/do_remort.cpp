@@ -124,8 +124,10 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
-	GET_MOVE(ch) = GET_MAX_MOVE(ch) = 82;
+	ch->set_max_hit(10);
+		ch->set_hit(10);
+	ch->set_max_move(82);
+	ch->set_move(82);
 	ch->mem_queue.total = ch->mem_queue.stored = 0;
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;

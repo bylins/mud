@@ -874,8 +874,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 		m->set_master(nullptr);
 		if (keep_hp) {
-			GET_HIT(ch) = GET_HIT(m);
-			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
+			ch->set_hit(m->get_hit());
+			ch->set_max_hit(m->get_max_hit());
 			ch->set_exp(m->get_exp());
 		}
 		ch->set_gold(m->get_gold());
@@ -1401,7 +1401,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			Damage mdamage(SimpleDmg(kTypeTriggerdeath), dam, type);
 			mdamage.Process(ch, victim);
 		} else {
-			GET_HIT(victim) -= dam;
+			victim->set_hit(victim->get_hit() - dam);
 			if (dam < 0) {
 				SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 				return;

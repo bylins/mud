@@ -228,7 +228,7 @@ int CalcManaGain(const CharData::shared_ptr &ch) { return CalcManaGain(ch.get())
 
 // Hitpoint gain pr. game hour
 int hit_gain(CharData *ch) {
-	int gain = 0, restore = MAX(10, GetRealCon(ch) * 3 / 2), percent = 100;
+	int gain = 0, restore = std::max(10, GetRealCon(ch) * 3 / 2), percent = 100;
 
 	if (ch->IsNpc())
 		gain = GetRealLevel(ch) + GetRealCon(ch);
@@ -256,7 +256,7 @@ int hit_gain(CharData *ch) {
 	}
 
 	if (world[ch->in_room]->fires)
-		percent += MAX(100, 10 + (world[ch->in_room]->fires * 5) * 2);
+		percent += std::max(100, 10 + (world[ch->in_room]->fires * 5) * 2);
 
 	// Skill/Spell calculations //
 
@@ -272,7 +272,7 @@ int hit_gain(CharData *ch) {
 			break;
 	}
 
-	percent += GET_HITREG(ch);
+	percent += ch->get_hitreg();
 
 	// TODO: перевоткнуть на apply_аффект
 	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
@@ -280,7 +280,7 @@ int hit_gain(CharData *ch) {
 
 	if (!ch->IsNpc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
-	percent = MAX(0, MIN(250, percent));
+	percent = std::max(0, std::min(250, percent));
 	gain = gain * percent / 100;
 	if (!ch->IsNpc()) {
 		if (ch->GetPosition() == EPosition::kIncap || ch->GetPosition() == EPosition::kPerish)
@@ -313,7 +313,7 @@ int move_gain(CharData *ch) {
 	}
 
 	if (world[ch->in_room]->fires)
-		percent += MAX(50, 10 + world[ch->in_room]->fires * 5);
+		percent += std::max(50, 10 + world[ch->in_room]->fires * 5);
 
 	// Class/Level calculations //
 
@@ -332,13 +332,13 @@ int move_gain(CharData *ch) {
 			break;
 	}
 
-	percent += GET_MOVEREG(ch);
+	percent += ch->get_movereg();
 	if (AFF_FLAGGED(ch, EAffect::kPoisoned) && percent > 0)
 		percent /= 4;
 
 	if (!ch->IsNpc())
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
-	percent = MAX(0, MIN(250, percent));
+	percent = std::max(0, std::min(250, percent));
 	gain = gain * percent / 100;
 	return (gain);
 }
@@ -668,14 +668,14 @@ void beat_points_update(int pulse) {
 		if (AFF_FLAGGED(d->character.get(), EAffect::kBandage)) {
 			for (const auto &aff : d->character->affected) {
 				if (aff->type == ESpell::kBandage) {
-					restore += std::min(GET_REAL_MAX_HIT(d->character.get()) / 10, aff->modifier);
+					restore += std::min(d->character.get()->get_real_max_hit() / 10, aff->modifier);
 					break;
 				}
 			}
 		}
 
-		if (GET_HIT(d->character.get()) < GET_REAL_MAX_HIT(d->character.get())) {
-			GET_HIT(d->character.get()) = std::min(GET_HIT(d->character.get()) + restore, GET_REAL_MAX_HIT(d->character.get()));
+		if (d->character.get()->get_hit() < d->character.get()->get_real_max_hit()) {
+			d->character.get()->set_hit(std::min(d->character.get()->get_hit() + restore, d->character.get()->get_real_max_hit()));
 		}
 
 		// Restore PC caster mem
@@ -729,8 +729,8 @@ void beat_points_update(int pulse) {
 		restore = interpolate(restore, pulse);
 
 		//MZ.overflow_fix
-		if (GET_MOVE(d->character.get()) < GET_REAL_MAX_MOVE(d->character.get())) {
-			GET_MOVE(d->character.get()) = MIN(GET_MOVE(d->character.get()) + restore, GET_REAL_MAX_MOVE(d->character.get()));
+		if (d->character.get()->get_move() < d->character.get()->get_real_max_move()) {
+			d->character.get()->set_move(std::min(d->character.get()->get_move() + restore, d->character.get()->get_real_max_move()));
 		}
 		//-MZ.overflow_fix
 	}
@@ -863,7 +863,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 			}
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
-			//			gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
+			//			gain = std::max(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
 			//			GET_EXP(ch) += gain;
 			//			if (GET_EXP(ch) < 0)
 			//				GET_EXP(ch) = 0;
@@ -976,7 +976,7 @@ void underwater_check() {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
-			Damage dmg(SimpleDmg(kTypeWaterdeath), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), fight::kUndefDmg);
+			Damage dmg(SimpleDmg(kTypeWaterdeath), std::max(1, d->character->get_real_max_hit() >> 2), fight::kUndefDmg);
 			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(d->character.get(), d->character.get()) < 0) {
@@ -1085,7 +1085,7 @@ void room_point_update() {
 					break;
 				default: mana = 1;
 			}
-			world[count]->fires -= MIN(mana, world[count]->fires);
+			world[count]->fires -= std::min(mana, int(world[count]->fires));
 			if (world[count]->fires <= 0) {
 				act("Костер затух.",
 					false, world[count]->first_character(), nullptr, nullptr, kToRoom);
@@ -1522,8 +1522,8 @@ void point_update() {
 			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
-				if (GET_HIT(i) < GET_REAL_MAX_HIT(i)) {
-					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
+				if (i->get_hit() < i->get_real_max_hit()) {
+					i->set_hit(std::min(i->get_hit() + count, i->get_real_max_hit()));
 				}
 			}
 			// Restore mobs
@@ -1608,8 +1608,8 @@ void point_update() {
 			// Restore moves
 			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
-				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i)) {
-					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
+				if (i->get_move() < i->get_real_max_move()) {
+					i->set_move(std::min(i->get_move() + move_gain(i), i->get_real_max_move()));
 				}
 			}
 		} else if (i->GetPosition() == EPosition::kIncap) {

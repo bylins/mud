@@ -6,14 +6,14 @@ void CheckDeathRage(CharData *ch) {
 	int prob;
 
 	if (IsAffectedBySpell(ch, ESpell::kBerserk) &&
-		(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
+		(ch->get_hit() > ch->get_real_max_hit() / 2)) {
 		RemoveAffectFromChar(ch, ESpell::kBerserk);
 		SendMsgToChar("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
 	if (CanUseFeat(ch, EFeat::kBerserker) && ch->GetEnemy() &&
 		!IsTimedByFeat(ch, EFeat::kBerserker) && !AFF_FLAGGED(ch, EAffect::kBerserk)
-		&& (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
+		&& (ch->get_hit() < ch->get_real_max_hit() / 4)) {
 		CharData *vict = ch->GetEnemy();
 		timed.feat = EFeat::kBerserker;
 		timed.time = 4;
