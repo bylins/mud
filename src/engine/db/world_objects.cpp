@@ -324,6 +324,7 @@ void WorldObjects::AddToExtractedList(ObjData *obj) {
 
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
+	log("add obj to extracted list %s %d", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 	obj->set_extracted_list(true);
 //	obj->get_script()->set_purged(true);
 	m_extracted_list.insert(obj);
@@ -331,6 +332,7 @@ void WorldObjects::AddToExtractedList(ObjData *obj) {
 
 void WorldObjects::PurgeExtractedList() {
 	if (!m_extracted_list.empty()) {
+		log("Start obj PurgeExtractedList");
 		for (auto it : m_extracted_list) {
 			ExtractObjFromWorld(it, false);
 		}

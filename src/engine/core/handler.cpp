@@ -1575,8 +1575,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	}
 	// Обработка содержимого контейнера при его уничтожении
 	purge_otrigger(obj);
-	if (showlog)
-		log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
+	log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
 	if (obj->get_contains()) {
 		while (obj->get_contains()) {
 			temp = obj->get_contains();
@@ -1633,8 +1632,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	if (showlog)
-		log("[Extract obj] Stop, delta %f", timer.delta().count());
+	log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
 void UpdateCharObjects(CharData *ch) {

@@ -5487,6 +5487,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 
 	switch (type) {
 		case MOB_TRIGGER: sc = SCRIPT((CharData *) go).get();
+			if (mode == TRIG_CONTINUE) {
+				log("running from wait trigger %d mob vnum %d", trig_index[trig->get_rnum()]->vnum, GET_MOB_VNUM((CharData *) go));
+			}
 			break;
 
 		case OBJ_TRIGGER: sc = ((ObjData *) go)->get_script().get();
