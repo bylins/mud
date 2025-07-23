@@ -96,10 +96,10 @@ void update_pos(CharData *victim) {
 		RemoveAffectFromChar(victim, ESpell::kSleep);
 		AFF_FLAGS(victim).unset(EAffect::kSleep);
 	}
-	if ((GET_HIT(victim) > 0) && (victim->GetPosition() > EPosition::kStun)) {
+	if ((victim->get_hit() > 0) && (victim->GetPosition() > EPosition::kStun)) {
 		victim->SetPosition(victim->GetPosition());
 		return;
-	} else if (GET_HIT(victim) > 0
+	} else if (victim->get_hit() > 0
 			&& victim->get_wait() <= 0
 			&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 			&& !AFF_FLAGGED(victim, EAffect::kHold)) {
@@ -108,11 +108,11 @@ void update_pos(CharData *victim) {
 		act("$n поднял$u.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 		return;
 	}
-	else if (GET_HIT(victim) <= -11)
+	else if (victim->get_hit() <= -11)
 		victim->SetPosition(EPosition::kDead);
-	else if (GET_HIT(victim) <= -6)
+	else if (victim->get_hit() <= -6)
 		victim->SetPosition(EPosition::kPerish);
-	else if (GET_HIT(victim) <= -1)
+	else if (victim->get_hit() <= -1)
 		victim->SetPosition(EPosition::kIncap);
 	else if (victim->GetPosition() == EPosition::kIncap
 				&& (victim->get_wait() > 0 || AFF_FLAGGED(victim, EAffect::kMagicStopFight)))
@@ -343,7 +343,10 @@ int GET_MAXCASTER(CharData *ch) {
 		return IS_IMMORTAL(ch) ? 1 : ch->caster_level;
 }
 
-#define GET_HP_PERC(ch) ((int)(GET_HIT(ch) * 100 / GET_MAX_HIT(ch)))
+int get_hp_perc(CharData *ch) {
+	return int(ch->get_hit() * 100 / ch->get_max_hit());
+}
+
 #define POOR_DAMAGE  15
 #define POOR_CASTER  5
 #define MAX_PROBES   0
@@ -428,13 +431,13 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar)
 		|| caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned)) // ()
 		&& AFF_FLAGGED(caster, EAffect::kHelper)) {
-		if (GET_HP_PERC(caster) < AFF_USED) {
+		if (get_hp_perc(caster) < AFF_USED) {
 			return caster;
 		} else if (caster->has_master()
 			&& CAN_SEE(caster, caster->get_master())
 			&& caster->get_master()->in_room == caster->in_room
 			&& caster->get_master()->GetEnemy()
-			&& GET_HP_PERC(caster->get_master()) < AFF_USED) {
+			&& get_hp_perc(caster->get_master()) < AFF_USED) {
 			return caster->get_master();
 		}
 		return nullptr;
@@ -454,9 +457,9 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 			continue;
 		}
 
-		if (GET_HP_PERC(vict) < AFF_USED && (!victim || vict_val > GET_HP_PERC(vict))) {
+		if (get_hp_perc(vict) < AFF_USED && (!victim || vict_val > get_hp_perc(vict))) {
 			victim = vict;
-			vict_val = GET_HP_PERC(vict);
+			vict_val = get_hp_perc(vict);
 			if (GetRealInt(caster) < number(10, 20)) {
 				break;
 			}
@@ -875,7 +878,7 @@ CharData *find_target(CharData *ch) {
 			continue;
 		}
 
-		if (GET_HIT(vict) <= mob_ai::kCharacterHpForMobPriorityAttack) {
+		if (vict->get_hit() <= mob_ai::kCharacterHpForMobPriorityAttack) {
 			return vict;
 		}
 
@@ -952,9 +955,9 @@ CharData *find_minhp(CharData *caster) {
 				continue;
 			}
 
-			if (!victim || vict_val > GET_HIT(vict)) {
+			if (!victim || vict_val > vict->get_hit()) {
 				victim = vict;
-				vict_val = GET_HIT(vict);
+				vict_val = vict->get_hit();
 			}
 		}
 	}
@@ -967,7 +970,7 @@ CharData *find_minhp(CharData *caster) {
 }
 
 CharData *find_cure(CharData *caster, CharData *patient, ESpell &spell_id) {
-	if (GET_HP_PERC(patient) <= number(20, 33)) {
+	if (get_hp_perc(patient) <= number(20, 33)) {
 		if (GET_SPELL_MEM(caster, ESpell::kExtraHits))
 			spell_id = ESpell::kExtraHits;
 		else if (GET_SPELL_MEM(caster, ESpell::kHeal))
@@ -976,7 +979,7 @@ CharData *find_cure(CharData *caster, CharData *patient, ESpell &spell_id) {
 			spell_id = ESpell::kCureCritic;
 		else if (GET_SPELL_MEM(caster, ESpell::kGroupHeal))
 			spell_id = ESpell::kGroupHeal;
-	} else if (GET_HP_PERC(patient) <= number(50, 65)) {
+	} else if (get_hp_perc(patient) <= number(50, 65)) {
 		if (GET_SPELL_MEM(caster, ESpell::kCureCritic))
 			spell_id = ESpell::kCureCritic;
 		else if (GET_SPELL_MEM(caster, ESpell::kCureSerious))
@@ -1553,7 +1556,7 @@ void using_mob_skills(CharData *ch) {
 
 				// Буду спасать vict от attacker
 				if (!caster    // еще пока никого не спасаю
-					|| (GET_HIT(vict) < GET_HIT(caster)))    // этому мобу хуже
+					|| (vict->get_hit() < caster->get_hit()))    // этому мобу хуже
 				{
 					caster = vict;
 					damager = attacker;
@@ -1855,7 +1858,7 @@ void process_npc_attack(CharData *ch) {
 		}
 		// если хп пробиты - уходим
 		if (ch->IsFlagged(EMobFlag::kDecreaseAttack)) {
-			if (ch->mob_specials.extra_attack * GET_HIT(ch) * 2 < i * GET_REAL_MAX_HIT(ch)) {
+			if (ch->mob_specials.extra_attack * ch->get_hit() * 2 < i * ch->get_real_max_hit()) {
 				return;
 			}
 		}

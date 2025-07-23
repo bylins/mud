@@ -574,8 +574,8 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	void restore() {
 		Ensurer vict(*this);
-		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
-		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
+		vict->set_hit(vict->get_real_max_hit());
+		vict->set_move(vict->get_real_max_move());
 		if (IS_MANA_CASTER(vict)) {
 			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
