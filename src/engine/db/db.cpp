@@ -2274,7 +2274,7 @@ void ZoneReset::ResetZoneEssential() {
 	ObjData *tobj = nullptr;    // for trigger assignment
 	int last_state, curr_state;    // статус завершения последней и текущей команды
 
-	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name.c_str());
+	log("[Reset] Start zone (%d) %s", zone_table[m_zone_rnum].vnum, zone_table[m_zone_rnum].name.c_str());
 	if (!zone_table[m_zone_rnum].cmd) {
 		log("No cmd, skiped");
 		return;
@@ -2719,7 +2719,7 @@ void ZoneReset::ResetZoneEssential() {
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = false;
-	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name.c_str());
+	log("[Reset] Stop zone (%d) %s", zone_table[m_zone_rnum].vnum, zone_table[m_zone_rnum].name.c_str());
 	after_reset_zone(m_zone_rnum);
 }
 

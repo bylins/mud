@@ -1575,8 +1575,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	}
 	// Обработка содержимого контейнера при его уничтожении
 	purge_otrigger(obj);
-	if (showlog)
-		log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
+	log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
 	if (obj->get_contains()) {
 		while (obj->get_contains()) {
 			temp = obj->get_contains();
@@ -1633,8 +1632,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	if (showlog)
-		log("[Extract obj] Stop, delta %f", timer.delta().count());
+	log("[Extract obj] Stop, delta %f", timer.delta().count());
 }
 
 void UpdateCharObjects(CharData *ch) {
@@ -2595,11 +2593,11 @@ int num_pc_in_room(RoomData *room) {
 int check_moves(CharData *ch, int how_moves) {
 	if (IS_IMMORTAL(ch) || ch->IsNpc())
 		return (true);
-	if (GET_MOVE(ch) < how_moves) {
+	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);
 		return (false);
 	}
-	GET_MOVE(ch) -= how_moves;
+	ch->set_move(ch->get_move() - how_moves);
 	return (true);
 }
 

@@ -82,7 +82,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GET_MOVE(ch) < MUD::Spell(spell_id).GetMaxMana()) {
+	if (ch->get_move() < MUD::Spell(spell_id).GetMaxMana()) {
 		SendMsgToChar("У вас не хватит сил для этого.\r\n", ch);
 		return;
 	}
@@ -95,7 +95,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SetWaitState(ch, kBattleRound);
 			}
 			ImposeTimedSkill(ch, &timed);
-			GET_MOVE(ch) -= MUD::Spell(spell_id).GetMaxMana();
+			ch->set_move(ch->get_move() - MUD::Spell(spell_id).GetMaxMana());
 		}
 		TrainSkill(ch, ESkill::kWarcry, true, nullptr);
 	}

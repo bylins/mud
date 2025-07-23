@@ -410,7 +410,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 		}
 
 		const auto need_movement = calculate_move_cost(ch, dir);
-		if (GET_MOVE(ch) < need_movement) {
+		if (ch->get_move() < need_movement) {
 			if (check_specials
 				&& ch->has_master()) {
 				if (show_msg) {
@@ -595,7 +595,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 
 	// Now we know we're allowed to go into the room.
 	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
-		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
+		ch->set_move(ch->get_move() - calculate_move_cost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
 	if (AFF_FLAGGED(ch, EAffect::kSneak) && !is_flee) {

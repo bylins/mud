@@ -1097,12 +1097,12 @@ std::string MakePrompt(DescriptorData *d) {
 
 		if (ch->IsFlagged(EPrf::kDispHp)) {
 			fmt::format_to(std::back_inserter(out), "{}{}H{} ",
-					  GetWarmValueColor(GET_HIT(ch), GET_REAL_MAX_HIT(ch)), GET_HIT(ch), kColorNrm);
+					  GetWarmValueColor(ch->get_hit(), ch->get_real_max_hit()), ch->get_hit(), kColorNrm);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispMove)) {
 			fmt::format_to(std::back_inserter(out), "{}{}M{} ",
-					  GetWarmValueColor(GET_MOVE(ch), GET_REAL_MAX_MOVE(ch)), GET_MOVE(ch), kColorNrm);
+					  GetWarmValueColor(ch->get_move(), ch->get_real_max_move()), ch->get_move(), kColorNrm);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
@@ -1230,9 +1230,9 @@ char *show_state(CharData *ch, CharData *victim) {
 										 "Невредим"
 	};
 
-	const int ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
+	const int ch_hp = posi_value(victim->get_hit(), victim->get_real_max_hit()) + 1;
 	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
-			GetWarmValueColor(GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
+			GetWarmValueColor(victim->get_hit(), victim->get_real_max_hit()),
 			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), kColorNrm);
 	return buf;
 }

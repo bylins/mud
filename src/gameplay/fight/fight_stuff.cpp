@@ -198,7 +198,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
 					ch->dismount();
-					GET_HIT(ch) = 1;
+					ch->set_hit(1);
 					update_pos(ch);
 					while (!ch->affected.empty()) {
 						ch->AffectRemove(ch->affected.begin());
@@ -245,7 +245,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, rent_room);
 	ch->dismount();
-	GET_HIT(ch) = 1;
+	ch->set_hit(1);
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 	while (!ch->affected.empty()) {
@@ -280,7 +280,7 @@ void die(CharData *ch, CharData *killer) {
 		RemoveCharFromRoom(ch);
 		PlaceCharToRoom(ch, GetRoomRnum(75989));
 		ch->dismount();
-		GET_HIT(ch) = 1;
+		ch->set_hit(1);
 		update_pos(ch);
 		act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
 		look_at_room(ch, 0);
@@ -300,11 +300,11 @@ void die(CharData *ch, CharData *killer) {
 		{
 			if (!NORENTABLE(ch))
 				dec_exp =
-					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + MIN(3, GetRealRemort(ch) / 5))
+					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, GetRealRemort(ch) / 5))
 						/ ch->death_player_count();
 			else
 				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
-					/ (3 + MIN(3, GetRealRemort(ch) / 5));
+					/ (3 + std::min(3, GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
 			dec_exp = char_exp - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
@@ -376,7 +376,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 		ch->set_gold(0);
 	}
 	change_fighting(ch, true);
-	GET_HIT(ch) = 1;
+	ch->set_hit(1);
 	ch->DropFromHorse();
 	ch->SetPosition(EPosition::kSit);
 	int to_room = GetRoomRnum(GET_LOADROOM(ch));
@@ -540,7 +540,7 @@ void real_kill(CharData *ch, CharData *killer) {
 #endif
 	} else {
 		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))) {
-			log("Killed: %d %d %ld", GetRealLevel(ch), GET_MAX_HIT(ch), GET_EXP(ch));
+			log("Killed: %d %d %ld", GetRealLevel(ch), ch->get_max_hit(), GET_EXP(ch));
 			obj_load_on_death(corpse, ch);
 		}
 		if (ch->IsFlagged(EMobFlag::kCorpse)) {
@@ -725,7 +725,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 
 	// 1. Опыт делится поровну на всех
-	long long exp = GET_EXP(victim) / MAX(members, 1);
+	long long exp = GET_EXP(victim) / std::max(members, 1);
 	int long_live_exp_bounus_miltiplier = 1;
 
 	if (victim->get_zone_group() > 1 && members < victim->get_zone_group()) {
@@ -876,7 +876,7 @@ void group_gain(CharData *killer, CharData *victim) {
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = MAX(maxlevel, GetRealLevel(f->follower));
+			maxlevel = std::max(maxlevel, GetRealLevel(f->follower));
 			if (!f->follower->IsNpc()) {
 				partner_count++;
 			}
@@ -886,7 +886,7 @@ void group_gain(CharData *killer, CharData *victim) {
 	GroupPenaltyCalculator group_penalty(killer, leader, maxlevel, grouping);
 	koef -= group_penalty.get();
 
-	koef = MAX(0, koef);
+	koef = std::max(0, koef);
 
 	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
 	// из группы из PC (последователи типа лошади или чармисов не считаются)
@@ -946,10 +946,10 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 	}
 	// получение игроками экспы
 	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
-		int max_exp = MIN(max_exp_gain_pc(ch), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
-			(5 * MAX(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
-		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
-		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
+		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
+			(5 * std::max(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
+		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
+		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
 		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
 			battle_exp *= Bonus::get_mult_bonus();
 		}
@@ -963,11 +963,11 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 		CharData *master = ch->get_master();
 		// проверяем что есть мастер и он может получать экспу с данной цели
 		if (master && OK_GAIN_EXP(master, victim)) {
-			int max_exp = MIN(max_exp_gain_pc(master), (GetRealLevel(victim) * GET_MAX_HIT(victim) + 4) /
-				(5 * MAX(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
+			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
+				(5 * std::max(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
 
-			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
-			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
+			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
+			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
 			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
 				battle_exp *= Bonus::get_mult_bonus();
 			}
@@ -982,7 +982,7 @@ void alterate_object(ObjData *obj, int dam, int chance) {
 	if (!obj)
 		return;
 	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
-		MAX(1, GET_OBJ_MAX(obj) *
+		std::max(1, GET_OBJ_MAX(obj) *
 			(obj->has_flag(EObjFlag::kNodrop) ? 5 :
 			 obj->has_flag(EObjFlag::kBless) ? 15 : 10)
 			 * (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows ? 3 : 1)));
@@ -1139,12 +1139,12 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 			}
 			break;
 		default:        // >= POSITION SLEEPING
-			if (dam > (GET_REAL_MAX_HIT(victim) / 4)) {
+			if (dam > (victim->get_real_max_hit() / 4)) {
 				SendMsgToChar("Это действительно БОЛЬНО!\r\n", victim);
 			}
 
 			if (dam > 0
-				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)) {
+				&& victim->get_hit() < (victim->get_real_max_hit() / 4)) {
 				sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
 						kColorRed, kColorNrm);
 				SendMsgToChar(buf2, victim);
@@ -1152,7 +1152,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 
 			if (ch != victim
 				&& victim->IsNpc()
-				&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
+				&& victim->get_hit() < (victim->get_real_max_hit() / 4)
 				&& victim->IsFlagged(EMobFlag::kWimpy)
 				&& !noflee
 				&& victim->GetPosition() > EPosition::kSit) {
@@ -1164,7 +1164,7 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				&& !victim->IsNpc()
 				&& HERE(victim)
 				&& GET_WIMP_LEV(victim)
-				&& GET_HIT(victim) < GET_WIMP_LEV(victim)
+				&& victim->get_hit() < GET_WIMP_LEV(victim)
 				&& !noflee) {
 				SendMsgToChar("Вы запаниковали и попытались убежать!\r\n", victim);
 				DoFlee(victim, nullptr, 0, 0);

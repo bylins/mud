@@ -48,7 +48,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	if (number(1, 100) < chance_to_eat) {
 		act("$N подавил$U и начал$G сильно кашлять.", true, ch, nullptr, ch, kToRoom | kToArenaListen);
-		GET_HIT(ch) -= 3 * mob_level;
+		ch->set_hit(ch->get_hit() - 3 * mob_level);
 		update_pos(ch);
 		// Подавился насмерть.
 		if (ch->GetPosition() == EPosition::kDead) {
@@ -82,11 +82,11 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	act("От омерзительного зрелища вас едва не вывернуло.",
 		true, ch, nullptr, ch->get_master(), kToNotVict | kToArenaListen);
 
-	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
-		GET_HIT(ch) = std::min(GET_HIT(ch) + std::min(max_heal_hp, GET_MAX_HIT(ch)), GET_MAX_HIT(ch));
+	if (ch->get_hit() < ch->get_max_hit()) {
+		ch->set_hit(std::min(ch->get_hit() + std::min(max_heal_hp, ch->get_max_hit()), ch->get_max_hit()));
 	}
 
-	if (GET_HIT(ch) >= GET_MAX_HIT(ch)) {
+	if (ch->get_hit() >= ch->get_max_hit()) {
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", true, ch, nullptr, ch->get_master(), kToVict);
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.",
 			true, ch, nullptr, ch->get_master(), kToNotVict | kToArenaListen);
