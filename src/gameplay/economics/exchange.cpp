@@ -1128,10 +1128,15 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 
 	std::string buffer;
 	SendMsgToChar(ch, "Ваш фильтр: %s\r\n", params.print().c_str());
-	buffer =
-		" Лот     Предмет                                                     Цена  Состояние\r\n"
-		"--------------------------------------------------------------------------------------------\r\n";
-
+	if (IS_GOD(ch)) {
+		buffer =
+			"vnum    Лот      Предмет                                                     Цена  Состояние\r\n"
+			"--------------------------------------------------------------------------------------------\r\n";
+	} else {
+		buffer =
+			"Лот      Предмет                                                     Цена  Состояние\r\n"
+			"--------------------------------------------------------------------------------------------\r\n";
+	}
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 		if (show_type == 1 && !isname(GET_NAME(ch), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
@@ -1194,7 +1199,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		tmstr = (char *) asctime(localtime(&(j->time)));
 		if (IS_GOD(ch)) {//asctime добавляет перевод строки лишний
 			sprintf(tmpbuf,
-					"%s %9d  %-s %s",
+					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
 					colored_name(tmpbuf, 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
 					diag_obj_timer(GET_EXCHANGE_ITEM(j)),

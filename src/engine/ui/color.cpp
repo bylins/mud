@@ -229,7 +229,7 @@ size_t count_colors(const char *str, size_t len) {
 //left_align выравнивание строки влево
 char *colored_name(const char *str, size_t len, const bool left_align) {
 	static char cstr[128];
-	static char fmt[6];
+	static char fmt[7];
 	size_t cc = len + count_colors(str) * 2;
 
 	if (strlen(str) < cc) {
