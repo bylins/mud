@@ -455,7 +455,6 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_val(3, 12);
 		obj->set_spec_param(141);
 		obj->set_extra_flag(EObjFlag::kThrowing);
-		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
 		obj->set_affected(1, EApply::kSavingStability, -floorf(diff/4.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
@@ -473,8 +472,6 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 11);
 		obj->set_spec_param(147);
-		obj->set_affected(0, EApply::kStr, floorf(diff/16.0));
-		obj->set_affected(1, EApply::kDex, floorf(diff/10.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
@@ -482,10 +479,8 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 8);
 		obj->set_spec_param(142);
-		obj->set_affected(0, EApply::kStr, floorf(diff/12.0));
-		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
-		obj->set_affected(2, EApply::kDamroll, floorf(diff/10.0));
-		obj->set_affected(3, EApply::kHp, 5*(diff));
+		obj->set_affected(0, EApply::kDamroll, floorf(diff/10.0));
+		obj->set_affected(1, EApply::kHp, 5*(diff));
 		create_charmice_stuff(ch, ESkill::kShieldBlock, diff);
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
@@ -494,8 +489,6 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 2);
 		obj->set_spec_param(154);
-		obj->set_affected(0, EApply::kStr, floorf(diff/20.0));
-		obj->set_affected(1, EApply::kDex, floorf(diff/15.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 18;
 		break;
@@ -504,7 +497,6 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_val(3, 1);
 		obj->set_spec_param(146);
 		obj->set_weight(std::min(70, int(floorf(diff/4.0)))); // 50 вес при 200% скила
-		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
 		obj->set_affected(1, EApply::kDamroll, floorf(diff/13.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 18;
@@ -519,9 +511,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 10);
 		obj->set_spec_param(143);
-		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
-		obj->set_affected(1, EApply::kDex, floorf(diff/12.0));
-		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff/3.5));
+		obj->set_affected(0, EApply::kSavingReflex, -floorf(diff/3.5));
 		create_charmice_stuff(ch, ESkill::kUndefined, -1); // так изощренно создаем обувку(-1), итак кэйсов наплодил
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
@@ -581,8 +571,6 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_affected(1, EApply::kSavingCritical, -floorf(diff*0.7));
 		obj->set_affected(2, EApply::kSavingReflex, -floorf(diff*0.7));
 		obj->set_affected(3, EApply::kSavingWill, -floorf(diff*0.6));
-		obj->set_affected(4, EApply::kMagicResist, floorf(diff*0.16));
-		obj->set_affected(5, EApply::kPhysicResist, floorf(diff*0.15));
 		position = 5; // слот тело
 		break;
 	}
