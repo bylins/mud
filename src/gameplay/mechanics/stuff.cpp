@@ -446,7 +446,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	obj->set_current_durability(5000);
 	obj->set_material(EObjMaterial::kCrystal);
 
-	int weight = std::min(70, static_cast<int>(floorf(diff/9.0)));
+	int weight = std::min(70, int(floorf(diff/9.0)));
 	obj->set_weight(weight);
 
 	switch (skill_id) {
@@ -503,7 +503,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_type(EObjType::kWeapon);
 		obj->set_val(3, 1);
 		obj->set_spec_param(146);
-		obj->set_weight(floorf(diff/4.0)); // 50 вес при 200% скила
+		obj->set_weight(std::min(70, int(floorf(diff/4.0)))); // 50 вес при 200% скила
 		obj->set_affected(0, EApply::kStr, floorf(diff/15.0));
 		obj->set_affected(1, EApply::kDamroll, floorf(diff/13.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
@@ -589,10 +589,5 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 	// одеваем шмотки
 	EquipObj(ch, obj.get(), position, CharEquipFlags());
 }
-
-
-
-
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
