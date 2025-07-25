@@ -455,7 +455,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_val(3, 12);
 		obj->set_spec_param(141);
 		obj->set_extra_flag(EObjFlag::kThrowing);
-		obj->set_affected(1, EApply::kSavingStability, -floorf(diff/4.0));
+		obj->set_affected(0, EApply::kSavingStability, -floorf(diff/4.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 16;
 		break;
@@ -497,7 +497,7 @@ void create_charmice_stuff(CharData *ch, const ESkill skill_id, int diff) {
 		obj->set_val(3, 1);
 		obj->set_spec_param(146);
 		obj->set_weight(std::min(70, int(floorf(diff/4.0)))); // 50 вес при 200% скила
-		obj->set_affected(1, EApply::kDamroll, floorf(diff/13.0));
+		obj->set_affected(0, EApply::kDamroll, floorf(diff/13.0));
 		create_charmice_stuff(ch, ESkill::kUndefined, diff);
 		position = 18;
 		break;
