@@ -55,7 +55,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (success) {
 			int dif = std::min(vict->get_real_max_hit(), vict->get_real_max_hit() - vict->get_hit());
 			int add = std::min(dif, (dif * (prob - percent) / 100) + 1);
-			vict->set_hit(ch->get_hit() + add);
+			vict->set_hit(vict->get_hit() + add);
 		}
 	}
 	auto spell_id{ESpell::kUndefined};
