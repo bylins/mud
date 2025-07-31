@@ -28,7 +28,8 @@ while ( : ) do
   fgrep "Bad PW" syslog >> log/badpws
 
   bzip2 syslog
-  mv syslog.gz archive/syslog.$(date +%d%m%y-%H%M%S).bz2
+  rm syslog
+  mv syslog.bz2 archive/syslog.$(date +%d%m%y-%H%M%S).bz2
   mv core.2 core.3
   mv core.1 core.2
   mv lib/core* core.1
