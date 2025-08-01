@@ -953,8 +953,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	unsigned long long llnum = 0;
 	FBFILE *fl = nullptr;
 	char filename[40];
-	char buf[kMaxRawInputLength], line[kMaxRawInputLength], tag[6];
-	char line1[kMaxRawInputLength];
+	char line[kMaxStringLength], tag[6];
+	char line1[kMaxStringLength];
 	TimedSkill timed;
 	TimedFeat timed_feat;
 	*filename = '\0';
