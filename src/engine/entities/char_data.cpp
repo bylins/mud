@@ -1170,8 +1170,7 @@ int CharData::get_hit() const {
 }
 
 void CharData::set_hit(const int v) {
-	if (v >= -10)
-		points.hit = v;
+	points.hit = v;
 }
 
 int CharData::get_max_hit() const {

@@ -37,6 +37,8 @@
 #include "utils/utils_time.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/core/game_limits.h"
+#include "utils/backtrace.h"
+
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -5488,7 +5490,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	switch (type) {
 		case MOB_TRIGGER: sc = SCRIPT((CharData *) go).get();
 			if (mode == TRIG_CONTINUE) {
-				log("running from wait trigger %d mob vnum %d", trig_index[trig->get_rnum()]->vnum, GET_MOB_VNUM((CharData *) go));
+				log("SCRIPTDRIVERWAIT: running from wait trigger %d mob vnum %d", trig_index[trig->get_rnum()]->vnum, 
+					GET_MOB_VNUM((CharData *) go));
 			}
 			break;
 
@@ -5497,6 +5500,14 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 
 		case WLD_TRIGGER: sc = SCRIPT((RoomData *) go).get();
 			break;
+	}
+	if (trig->get_attach_type() != type) {
+		log("SCRIPTDRIVER: типы триггеров отличаются, триггер %d ", trig_index[trig->get_rnum()]->vnum);
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+	}
+	if (!sc) {
+		log("SCRIPTDRIVER: SC отсутсвует триггер %d ", trig_index[trig->get_rnum()]->vnum);
+		return ret_val;
 	}
 
 	if (sc->is_purged()) {

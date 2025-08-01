@@ -6,6 +6,8 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
+extern std::list<combat_list_element> combat_list;
+
 Characters &character_list = GlobalObjects::characters();    // global container of entities
 
 Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters &cl) : m_parent(cl) {
@@ -155,7 +157,13 @@ void Characters::remove(CharData *character) {
 	}
 	m_list.erase(index_i->second);
 	m_character_raw_ptr_to_character_ptr.erase(index_i);
-
+	std::erase_if(combat_list, [character](auto it) {
+		if (it.ch == character) {
+			log("удаляю из комбатлиста (%d) %s", GET_MOB_VNUM(character), character->get_name().c_str());
+			return true;
+		}
+		return false;
+	});
 	character->set_purged();
 }
 
