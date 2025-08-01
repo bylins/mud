@@ -2123,7 +2123,7 @@ void perform_violence() {
 				process_player_attack(it.ch, min_init);
 			}
 			if (violence_timer.delta().count() > 0.001) {
-				log("Process player attack, name %s, time %f", it.ch->get_mame().c_str(), violence_timer.delta().count());
+				log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
 			}
 		}
 	}
