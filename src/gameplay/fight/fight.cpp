@@ -1700,7 +1700,8 @@ void add_attackers_round(CharData *ch) {
 }
 
 void update_round_affs() {
-	for (auto &it : combat_list) {
+	auto combat_list_copy = combat_list;
+	for (auto &it : combat_list_copy) {
 		if (it.deleted)
 			continue;
 		if (it.ch->in_room == kNowhere)
@@ -2092,7 +2093,8 @@ void perform_violence() {
 	round_profiler.next_step("Round check");
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
-		for (auto &it : combat_list) {
+		auto combat_list_copy = combat_list;
+		for (auto &it : combat_list_copy) {
 			if (it.deleted) 
 				continue;
 			size++;
@@ -2122,7 +2124,7 @@ void perform_violence() {
 				process_player_attack(it.ch, min_init);
 			}
 			if (violence_timer.delta().count() > 0.001) {
-				log("Process player attack, name %s, time %f", GET_NAME(it.ch), violence_timer.delta().count());
+				log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
 			}
 		}
 	}
