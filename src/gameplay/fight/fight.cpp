@@ -1700,8 +1700,7 @@ void add_attackers_round(CharData *ch) {
 }
 
 void update_round_affs() {
-	auto combat_list_copy = combat_list;
-	for (auto &it : combat_list_copy) {
+	for (auto &it : combat_list) {
 		if (it.deleted)
 			continue;
 		if (it.ch->in_room == kNowhere)
@@ -2093,8 +2092,7 @@ void perform_violence() {
 	round_profiler.next_step("Round check");
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
-		auto combat_list_copy = combat_list;
-		for (auto &it : combat_list_copy) {
+		for (auto &it : combat_list) {
 			if (it.deleted) 
 				continue;
 			size++;
