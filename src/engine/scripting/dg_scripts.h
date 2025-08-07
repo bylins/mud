@@ -162,8 +162,8 @@ class Trigger {
 	Trigger(int rnum, const char *name, long trigger_type);
 	Trigger(int rnum, const char *name, byte attach_type, long trigger_type);
 	Trigger(int rnum, std::string &&name, byte attach_type, long trigger_type);
-
-	virtual ~Trigger() = default;    // make constructor virtual to be able to create a mock for this class
+	~Trigger();
+//	virtual ~Trigger() = default;    // make constructor virtual to be able to create a mock for this class
 
 	[[nodiscard]] auto get_rnum() const { return nr; }
 	void set_rnum(const sh_int _) { nr = _; }

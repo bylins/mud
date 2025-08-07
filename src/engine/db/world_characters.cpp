@@ -171,7 +171,8 @@ void Characters::purge() {
 		if (character->IsNpc()) {
 			mob_ai::clearMemory(character.get());
 		}
-
+		if (4094 == mob_index[character->get_rnum()].vnum)
+			mudlog(fmt::format("Purged character {}", mob_index[character->get_rnum()].vnum));
 		character->SetFlag(EMobFlag::kMobFreed);
 	}
 

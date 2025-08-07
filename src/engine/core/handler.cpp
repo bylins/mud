@@ -1515,7 +1515,7 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
 void RemoveObjFromObj(ObjData *obj) {
 	if (obj->get_in_obj() == nullptr) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: (%s): trying to illegally extract obj from obj.", __FILE__);
+		mudlog("SYSERR: trying to illegally extract obj from obj.");
 		return;
 	}
 	auto obj_from = obj->get_in_obj();

@@ -5511,6 +5511,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 
 	if (sc->is_purged()) {
+		if (type == MOB_TRIGGER) {
+			log("скрипт у моба спуржен триггер %d моб %d", trig_index[trig->get_rnum()]->vnum, GET_MOB_VNUM((CharData *) go));
+		}
 		return ret_val;
 	}
 
@@ -6225,6 +6228,14 @@ void Script::cleanup() {
 }
 
 const char *Trigger::DEFAULT_TRIGGER_NAME = "no name";
+#include "utils/backtrace.h"
+
+Trigger::~Trigger() {
+	if (4043 == trig_index[this->get_rnum()]->vnum) {
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+	}
+	log("Trigger destructor, vnum %d", trig_index[this->get_rnum()]->vnum);
+}
 
 Trigger::Trigger() :
 	cmdlist(new cmdlist_element::shared_ptr()),
