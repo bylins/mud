@@ -86,8 +86,9 @@ bool stop_follower(CharData *ch, int mode) {
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				PerformDropGold(ch, ch->get_gold());
 				ch->set_gold(0);
-//				character_list.AddToExtractedList(ch);
-				ExtractCharFromWorld(ch, false);
+				if (!IS_SET(mode, kSfFollowerdie)) {
+					ExtractCharFromWorld(ch, false);
+				}
 				return (true);
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
 				AFF_FLAGS(ch).unset(EAffect::kHelper);
