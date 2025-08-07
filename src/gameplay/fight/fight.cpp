@@ -267,6 +267,8 @@ void stop_fighting(CharData *ch, int switch_others) {
 	std::list<combat_list_element>::iterator found;
 
 	for (auto &it : combat_list) {
+		if (it.deleted)
+			continue;
 		if (it.ch  == ch) {
 			it.deleted = true;
 		}

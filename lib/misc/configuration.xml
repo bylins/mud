@@ -60,6 +60,7 @@
 		
 		<errlog>
 			<buffered>NO</buffered>
+			<mode>APPEND</mode>
 		</errlog>
 			
 		<imlog>
