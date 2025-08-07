@@ -1820,7 +1820,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	if ((ch->followers || ch->has_master())
 		&& die_follower(ch)) {
 		// TODO: странно все это с пуржем в stop_follower
-		return;
+		//закостылил чтоб экстракт тут не делался для ch->has_master()
 	}
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);

@@ -1234,16 +1234,7 @@ void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					vict->desc = nullptr;
 				}
 			}
-			// TODO: честно говоря дублирование куска из экстракта не ясно
-			// смену лидера пока сюду не сую, над вникнуть будет...
-			if (vict->followers
-				|| vict->has_master()) {
-				die_follower(vict);
-			}
-
-			if (!vict->purged()) {
-				ExtractCharFromWorld(vict, false);
-			}
+			ExtractCharFromWorld(vict, false);
 		} else if ((obj = get_obj_in_list_vis(ch, buf, world[ch->in_room]->contents)) != nullptr) {
 			act("$n просто разметал$g $o3 на молекулы.", false, ch, obj, nullptr, kToRoom);
 			ExtractObjFromWorld(obj);
