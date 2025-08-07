@@ -159,7 +159,7 @@ void Characters::remove(CharData *character) {
 	m_character_raw_ptr_to_character_ptr.erase(index_i);
 	auto tmp_it = std::find_if(combat_list.begin(), combat_list.end(), [character] (auto it) {return (it.ch == character); });
 	if (tmp_it != combat_list.end()) {
-		log("удаляю из комбатлиста (%d) %s", GET_MOB_VNUM(character), character->get_name().c_str());
+//		log("удаляю из комбатлиста (%d) %s", GET_MOB_VNUM(character), character->get_name().c_str());
 		tmp_it->deleted = true;
 	}
 	character->set_purged();

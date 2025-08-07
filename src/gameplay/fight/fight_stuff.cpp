@@ -583,6 +583,8 @@ void raw_kill(CharData *ch, CharData *killer) {
 		stop_fighting(ch, true);
 	}
 	for (auto &hitter : combat_list) {
+		if (hitter.deleted)
+			continue;
 		if (hitter.ch->GetEnemy() == ch) {
 			SetWaitState(hitter.ch, 0);
 		}
