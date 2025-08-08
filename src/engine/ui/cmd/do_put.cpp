@@ -72,6 +72,8 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
 	else {
+		ObjData *temp = nullptr;
+
 		if (!drop_otrigger(obj.get(), ch, kOtrigPutContainer)) {
 			return 2;
 		}
@@ -81,28 +83,25 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		RemoveObjFromChar(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
 		if (obj->get_type() == EObjType::kMoney && obj->get_rnum() == 0) {
-			ObjData *temp, *obj_next;
+			ObjData *obj_next;
+			int money = GET_OBJ_VAL(obj, 0);
+
 			for (temp = cont->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
 				if (GET_OBJ_TYPE(temp) == EObjType::kMoney) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
-					int money = GET_OBJ_VAL(temp, 0);
-					money += GET_OBJ_VAL(obj, 0);
-					RemoveObjFromObj(temp);
+					money += GET_OBJ_VAL(temp, 0);
 					ExtractObjFromWorld(temp);
-					RemoveObjFromObj(obj.get());
-					ExtractObjFromWorld(obj.get());
-					obj = CreateCurrencyObj(money);
-					if (!obj) {
-						return 0;
-					}
+					temp = CreateCurrencyObj(money).get();
 					break;
 				}
 			}
 		}
-
-		PlaceObjIntoObj(obj.get(), cont);
-
+		if (temp) {
+			PlaceObjIntoObj(temp, cont);
+		} else {
+			PlaceObjIntoObj(obj.get(), cont);
+		}
 		act("$n положил$g $o3 в $O3.", true, ch, obj.get(), cont, kToRoom | kToArenaListen);
 
 		// Yes, I realize this is strange until we have auto-equip on rent. -gg
