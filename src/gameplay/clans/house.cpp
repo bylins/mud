@@ -1965,6 +1965,12 @@ void Clan::HcontrolBuild(CharData *ch, std::string &buffer) {
 	}
 	long unique = 0;
 	if (!(unique = GetUniqueByName(owner))) {
+		long l;
+		l=GetUniqueByName(owner);
+		printf("prooldebug unikal nummer=%li\r\n", l); // prool
+		/* Здесь выводится 0, то есть существующего игрока муд не находит и дружину не создает.
+		а на старом коде (zerkalo-foolish-repo) все работает. Это серьезный баг и что дальше делать
+		с этой веткой - х.е.з. Пруль */
 		SendMsgToChar(ch, "Персонажа %s не существует.\r\n", owner.c_str());
 		return;
 	}
