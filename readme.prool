@@ -1,0 +1,21 @@
+Это исследовательский проект по экспериментам с актуальной кодовой базой МПМ Былины.
+Былины сейчас постоянно модифицируются, рефакторятся и так далее. А мой проект синхронизируется
+с ними, тоже постоянно, почти каждый день. Ветка мастер это оригинальные Былины, ветка prool
+это тот же код с минимальными сервисными модификациями.
+
+10 августа 25 года обнаружен серьезный баг - дружины не создаются.
+
+----
+
+For compiling in cygwin need delete or comment string #define HAVE_ICONV
+in file src/utils/utils.cpp
+
+Serhii "Prool" Pustovoitov
+
+Year of 2025, Duisburg, Germany
+
+http://mud.virtustan.net
+
+https://github.com/MUD-2025/mud
+
+putin huylo!
