@@ -1,3 +1,8 @@
+Prool comments see in file readme.prool.
+10 Aug 2025 - bug found!
+
+----
+
 # BRus MUD Engine readme.
 
 Для сборки под Ubuntu 24.04 или WSL (ubuntu под WIN10 установка https://docs.microsoft.com/ru-ru/windows/wsl/install) требуется ввести:
