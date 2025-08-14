@@ -39,7 +39,7 @@ void ExtractTrigger(Trigger *trig) {
 
 // remove all triggers from a mob/obj/room
 void extract_script(Script *sc) {
-	sc->trig_list.clear();
+	sc->script_trig_list.clear();
 }
 
 // erase the script memory of a mob

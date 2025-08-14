@@ -822,18 +822,18 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_uid(m->get_uid());
 		m->set_uid(tmp);
 		ch->script->types = m->script->types;
-		ch->script->trig_list.clear();
-	 	for (auto t_tmp : m->script->trig_list) {
+		ch->script->script_trig_list.clear();
+	 	for (auto t_tmp : m->script->script_trig_list) {
 			if (t_tmp->get_rnum() != trig->get_rnum()) {
 				auto *t = new Trigger(*trig_index[t_tmp->get_rnum()]->proto);
-				ch->script->trig_list.add(t);
+				ch->script->script_trig_list.add(t);
 			}
 		}
 		// продолжать работать будем по копии
 		auto *trig_copy = new Trigger(*trig_index[trig->get_rnum()]->proto);
 		GET_TRIG_DEPTH(trig_copy) = GET_TRIG_DEPTH(trig);
 		trig_copy->var_list = trig->var_list;
-		ch->script->trig_list.add(trig_copy);
+		ch->script->script_trig_list.add(trig_copy);
 		ch->script->global_vars = m->script->global_vars;
 		trig_copy->context = trig->context;
 		if (m->GetEnemy()) {

@@ -700,7 +700,7 @@ void script_trigger_check(int mode) {
 					auto room = world[nr];
 					auto sc = SCRIPT(room).get();
 					if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM) || IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM_GLOBAL)) {
-						random_wtrigger(room, sc->trig_list);
+						random_wtrigger(room, sc->script_trig_list);
 					}
 				}
 			}
@@ -884,7 +884,7 @@ void script_stat(CharData *ch, Script *sc) {
 		SendMsgToChar(buf, ch);
 	}
 
-	for (auto t : sc->trig_list) {
+	for (auto t : sc->script_trig_list) {
 		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d], Context: [%ld]\r\n",
 				kColorYel, GET_TRIG_NAME(t), kColorNrm,
 				kColorGrn, GET_TRIG_VNUM(t), kColorNrm, GET_TRIG_RNUM(t), t->context);
@@ -1010,7 +1010,7 @@ bool add_trigger(Script *sc, Trigger *t, int loc) {
 		return false;
 	}
 
-	const bool added = sc->trig_list.add(t, 0 == loc);
+	const bool added = sc->script_trig_list.add(t, 0 == loc);
 	if (added) {
 		SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 		trigger_list.add(t);
@@ -4673,21 +4673,21 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		return (false);
 	}
 	if (c && SCRIPT(c)->has_triggers()) {
-		auto tmp = SCRIPT(c)->trig_list.find_by_vnum(num);
+		auto tmp = SCRIPT(c)->script_trig_list.find_by_vnum(num);
 		if (tmp) {
 			runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 			trgtype = MOB_TRIGGER;
 			trggo = (void *) c;
 		}
 	} else if (o && o->get_script()->has_triggers()) {
-		auto tmp = o->get_script()->trig_list.find_by_vnum(num);
+		auto tmp = o->get_script()->script_trig_list.find_by_vnum(num);
 		if (tmp) {
 		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *) o;
 		}
 	} else if (r && SCRIPT(r)->has_triggers()) {
-		auto tmp = SCRIPT(r)->trig_list.find_by_vnum(num);
+		auto tmp = SCRIPT(r)->script_trig_list.find_by_vnum(num);
 		if (tmp) {
 			runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 			trgtype = WLD_TRIGGER;
@@ -6192,14 +6192,14 @@ Script::Script(const Script &) :
 }
 
 Script::~Script() {
-		trig_list.clear();
+		script_trig_list.clear();
 		clear_global_vars();
 }
 
 int Script::remove_trigger(TrgVnum tvn, Trigger *&trig_addr) {
 	Trigger *address_of_removed_trigger = nullptr;
 
-	address_of_removed_trigger = trig_list.remove_by_vnum(tvn);
+	address_of_removed_trigger = script_trig_list.remove_by_vnum(tvn);
 	if (!address_of_removed_trigger) {
 		return 0;    // nothing has been removed
 	}
@@ -6209,7 +6209,7 @@ int Script::remove_trigger(TrgVnum tvn, Trigger *&trig_addr) {
 	}
 
 	// update the script type bitvector
-	types = trig_list.get_type();
+	types = script_trig_list.get_type();
 
 	return 1;
 }
@@ -6220,7 +6220,7 @@ int Script::remove_trigger(TrgVnum tvn) {
 }
 
 void Script::cleanup() {
-	trig_list.clear();
+	script_trig_list.clear();
 	clear_global_vars();
 }
 

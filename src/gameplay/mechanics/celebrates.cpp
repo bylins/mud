@@ -413,10 +413,10 @@ void RemoveTriggers(const TrigList &trigs, Script *sc) {
 			return;
 		}
 
-		Trigger *removed = sc->trig_list.remove_by_vnum(trig);
+		Trigger *removed = sc->script_trig_list.remove_by_vnum(trig);
 		if (removed) {
 			ExtractTrigger(removed);
-			SCRIPT_TYPES(sc) = sc->trig_list.get_type();
+			SCRIPT_TYPES(sc) = sc->script_trig_list.get_type();
 		}
 	}
 }
