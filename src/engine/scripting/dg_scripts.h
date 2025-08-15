@@ -309,12 +309,12 @@ class Script {
 	void clear_global_vars() {global_vars.clear();}
 	void cleanup();
 
-	bool has_triggers() const { return !trig_list.empty(); }
+	bool has_triggers() const { return !script_trig_list.empty(); }
 	bool is_purged() const { return m_purged; }
 	void set_purged(bool purged = true) { m_purged = purged; }
 
 	long types;        // bitvector of trigger types //
-	TriggersList trig_list;    // list of triggers           //
+	TriggersList script_trig_list;    // list of triggers           //
 	std::list<TriggerVar> global_vars;    // list of global variables   //
 
  private:

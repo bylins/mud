@@ -106,9 +106,9 @@ void load_item_desc() {
 			desc_node.sex = static_cast<EGender>(atoi(child.child_value()));
 
 			// парсим список триггеров
-			pugi::xml_node trig_list = item.child("triggers");
+			pugi::xml_node script_trig_list = item.child("triggers");
 			CObjectPrototype::triggers_list_t trig_vnums;
-			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig")) {
+			for (pugi::xml_node trig = script_trig_list.child("trig"); trig; trig = trig.next_sibling("trig")) {
 				int trig_vnum;
 				std::string tmp_value = trig.child_value();
 				utils::Trim(tmp_value);
