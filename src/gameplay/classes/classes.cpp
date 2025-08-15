@@ -263,7 +263,7 @@ const ClassSavings std_saving[] = {
 	{ECharClass::kVigilant, {sav_04, sav_12, sav_04, sav_16}},
 	{ECharClass::kPaladine, {sav_05, sav_12, sav_05, sav_17}},
 	{ECharClass::kRanger, {sav_05, sav_12, sav_05, sav_17}},
-	{ECharClass::kMob, {sav_06, sav_13, sav_06, sav_18}},
+	{ECharClass::kNpcBase, {sav_06, sav_13, sav_06, sav_18}},
 	{ECharClass::kUndefined, {sav_02, sav_12, sav_02, sav_16}}
 };
 
@@ -276,11 +276,10 @@ byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level) {
 	if (save < ESaving::kFirst || save > ESaving::kLast) {
 		return 100; // Что за 100? Почему 100? kMaxSaving равен 400. Идиотизм.
 	}
-	if (level <= 0 || level > 100) {
+	if (level <= 0 || level > kMaxMobLevel) {
 		return 100;
 	}
 	--level;
-
 	for (i = 0; std_saving[i].chclass != ECharClass::kUndefined && std_saving[i].chclass != class_id; ++i);
 
 	return std_saving[i].saves[to_underlying(save)][level];

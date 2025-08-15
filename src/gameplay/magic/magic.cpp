@@ -116,16 +116,9 @@ int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 
 
 int GetBasicSave(CharData *ch, ESaving saving, bool log) {
-	auto class_sav = ch->GetClass();
 //	std::stringstream ss;
-	int save = (100 - GetExtendSavingThrows(class_sav, saving, GetRealLevel(ch))) * -1; // Базовые спасброски профессии/уровня
-	if (ch->IsNpc()) {
-		class_sav = ECharClass::kMob;    // неизвестный класс моба
-	} else {
-		if (class_sav < ECharClass::kFirst || class_sav > ECharClass::kLast) {
-			class_sav = ECharClass::kWarrior;
-		}
-	}
+	int save = (100 - GetExtendSavingThrows(ch->GetClass(), saving, GetRealLevel(ch))) * -1; // Базовые спасброски профессии/уровня
+
 //	ss << "Базовый save персонажа " << GET_NAME(ch) << " (" << saving_name.find(saving)->second << "): " << save;
 	switch (saving) {
 		case ESaving::kReflex:
