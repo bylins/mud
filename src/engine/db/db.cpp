@@ -2327,7 +2327,7 @@ void ZoneReset::ResetZoneEssential() {
 						if (!mob_proto[mob->get_rnum()].get_role_bits().any()) {
 							int rndlev = mob->GetLevel();
 							rndlev += number(-2, +2);
-							mob->set_level(std::max(1, rndlev));
+							mob->set_level(std::clamp(rndlev, 1, kMaxMobLevel));
 						}
 						PlaceCharToRoom(mob, reset_cmd.arg3);
 						load_mtrigger(mob);

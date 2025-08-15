@@ -26,7 +26,7 @@ enum class ECharClass {
 	kMagus,
 	kFirst = kSorcerer,
 	kLast = kMagus, // Не забываем менять при изменении числа классов
-	kMob = 20,
+	kMob = 20, // не используется
 	kNpcBase = 100,
 	kNpcLast = kNpcBase
 };

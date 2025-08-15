@@ -309,7 +309,7 @@ void TriggerDistribution(DescriptorData *d) {
 				if (!SCRIPT(world[nr])->has_triggers())
 					continue;
 				auto sc = SCRIPT(world[nr]); 
-				for (auto t : sc->trig_list) {
+				for (auto t : sc->script_trig_list) {
 					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
 						SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 					}
@@ -321,7 +321,7 @@ void TriggerDistribution(DescriptorData *d) {
 				if (!SCRIPT(ch)->has_triggers())
 					continue;
 				auto sc = SCRIPT(ch);
-				for (auto t : sc->trig_list) {
+				for (auto t : sc->script_trig_list) {
 					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
 						sc->remove_trigger(OLC_NUM(d));
 						auto trig = read_trigger(GetTriggerRnum(OLC_NUM(d)));
@@ -337,7 +337,7 @@ void TriggerDistribution(DescriptorData *d) {
 				if (!obj_ptr->get_script()->has_triggers())
 					return;
 				auto sc = obj_ptr->get_script().get();
-				for (auto t : sc->trig_list) {
+				for (auto t : sc->script_trig_list) {
 					if (GET_TRIG_VNUM(t) == OLC_NUM(d)) {
 						sc->remove_trigger(OLC_NUM(d));
 						auto trig = read_trigger(GetTriggerRnum(OLC_NUM(d)));
