@@ -926,7 +926,7 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 // для команды wat
 void WldDgCast(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
 	char *dg_arg = str_dup("DgCast ");
-	strcat(dg_arg, argument);
+	sprintf(dg_arg, "%s", argument);
 	do_dg_cast(room, trig, WLD_TRIGGER, dg_arg);
 	free(dg_arg);
 }
