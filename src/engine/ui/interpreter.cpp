@@ -3959,6 +3959,9 @@ DescriptorData *DescriptorByUid(long uid) {
 * \param god по умолчанию = 0
 * \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
 */
+
+/* Вот в этой функции глюк, она была переписана с классами и не работает. Предыдущий ее вариант со сравнением
+строк (например в zerkalo-foolish-repo) работает норм. prool. 19 aug 2025 */
 int GetUniqueByName(std::string_view name, bool god) {
 	for (auto &i : player_table) {
 		if (!name.compare(i.name()) && i.uid() != -1) {
