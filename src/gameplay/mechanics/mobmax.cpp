@@ -110,7 +110,9 @@ void MobMax::refresh(int level) {
 // * Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
 void MobMax::add(CharData *ch, int vnum, int count, int level) {
 	if (vnum >= dungeons::kZoneStartDungeons * 100) {
-		return;
+		ZoneVnum zvn = vnum / 100;
+		MobVnum  mvn = vnum % 100;
+		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
 	}
 	if (ch->IsNpc() || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > kMaxMobLevel) return;
 
@@ -139,7 +141,9 @@ void MobMax::load(CharData *ch, int vnum, int count, int level) {
 // * Удаление замакса по указанному мобу vnum.
 void MobMax::remove(int vnum) {
 	if (vnum >= dungeons::kZoneStartDungeons * 100) {
-		return;
+		ZoneVnum zvn = vnum / 100;
+		MobVnum  mvn = vnum % 100;
+		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
 	}
 	auto it = std::find_if(mobmax_.begin(), mobmax_.end(), [&](const mobmax_data &data) {
 		return data.vnum == vnum;
