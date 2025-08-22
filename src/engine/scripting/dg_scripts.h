@@ -305,6 +305,7 @@ class Script {
 	*/
 	int remove_trigger(TrgVnum tvn, Trigger *&trig_addr);
 	int remove_trigger(TrgVnum tvn);
+	void remove_trigger(Trigger *trig);
 
 	void clear_global_vars() {global_vars.clear();}
 	void cleanup();
