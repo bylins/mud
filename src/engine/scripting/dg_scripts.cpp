@@ -1118,7 +1118,6 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Please specify 'mtr', otr', or 'wtr'.\r\n", ch);
 	}
 }
-
 void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim = nullptr;
 	ObjData *object = nullptr;
@@ -1201,7 +1200,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!object->get_short_description().empty() ? object->get_short_description().c_str()
 																 : object->get_aliases().c_str());
 				SendMsgToChar(buf, ch);
-			} else if (object->get_script()->remove_trigger(atoi(trigger))) {
+			} else if (trigger &&  object->get_script()->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_OBJ_VNUM(object));
 				SendMsgToChar("Trigger removed.\r\n", ch);
 			} else {
@@ -4678,6 +4677,8 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 			runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 			trgtype = MOB_TRIGGER;
 			trggo = (void *) c;
+			runtrig->is_runned = true;
+			SCRIPT(c)->script_trig_list.add(runtrig, -1);
 		}
 	} else if (o && o->get_script()->has_triggers()) {
 		auto tmp = o->get_script()->script_trig_list.find_by_vnum(num);
@@ -4685,6 +4686,8 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *) o;
+		runtrig->is_runned = true;
+		o->get_script()->script_trig_list.add(runtrig, -1);
 		}
 	} else if (r && SCRIPT(r)->has_triggers()) {
 		auto tmp = SCRIPT(r)->script_trig_list.find_by_vnum(num);
@@ -4692,6 +4695,8 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 			runtrig = new Trigger(*trig_index[tmp->get_rnum()]->proto); 
 			trgtype = WLD_TRIGGER;
 			trggo = (void *) r;
+			runtrig->is_runned = true;
+			SCRIPT(r)->script_trig_list.add(runtrig, -1);
 		}
 	}
 	if (!runtrig) {
@@ -4703,7 +4708,6 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	if (*trig && runtrig) {
 		runtrig->var_list = (*trig)->var_list;
 	}
-	runtrig->is_runned = true;
 	trig_index[runtrig->get_rnum()]->total_online++;
 	trigger_list.add(runtrig);
 	if (!GET_TRIG_DEPTH(runtrig)) {
@@ -5769,7 +5773,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		trig->clear_var_list();
 		GET_TRIG_DEPTH(trig) = 0;
 		if (trig->is_runned) {
-			ExtractTrigger(trig);
+			sc->remove_trigger(trig);
 		}
 	}
 
@@ -6073,13 +6077,12 @@ TriggersList::~TriggersList() {
 // Return false if trigger with same rnum already exists and can not be added
 bool TriggersList::add(Trigger *trigger, const bool to_front /*= false*/) {
 	for (const auto &i : m_list) {
-		if (trigger->get_rnum() == i->get_rnum()) {
+		if (trigger->get_rnum() == i->get_rnum() && !trigger->is_runned) {
 			//Мы не можем здесь заменить имеющийся триггер на новый
 			//т.к. имеющийся триггер может уже использоваться или быть в ожидание (wait command)
 			return false;
 		}
 	}
-
 	trigger_list.register_remove_observer(trigger, m_observer);
 
 	if (to_front) {
@@ -6125,7 +6128,7 @@ Trigger *TriggersList::find(const int vnum) {
 
 Trigger *TriggersList::find_by_vnum(const int vnum) {
 	for (const auto &i : m_list) {
-		if (trig_index[i->get_rnum()]->vnum == vnum) {
+		if (trig_index[i->get_rnum()]->vnum == vnum && !i->is_runned) {
 			return  i;
 		}
 	}
@@ -6217,6 +6220,10 @@ int Script::remove_trigger(TrgVnum tvn, Trigger *&trig_addr) {
 int Script::remove_trigger(TrgVnum tvn) {
 	Trigger *dummy = nullptr;
 	return remove_trigger(tvn, dummy);
+}
+
+void Script::remove_trigger(Trigger *trig) {
+	script_trig_list.remove(trig);
 }
 
 void Script::cleanup() {
