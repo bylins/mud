@@ -5493,10 +5493,6 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 
 	switch (type) {
 		case MOB_TRIGGER: sc = SCRIPT((CharData *) go).get();
-			if (mode == TRIG_CONTINUE) {
-				log("SCRIPTDRIVERWAIT: running from wait trigger %d mob vnum %d", trig_index[trig->get_rnum()]->vnum, 
-					GET_MOB_VNUM((CharData *) go));
-			}
 			break;
 
 		case OBJ_TRIGGER: sc = ((ObjData *) go)->get_script().get();
@@ -5507,7 +5503,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 	}
 	if (trig->get_attach_type() != type) {
 		log("SCRIPTDRIVER: типы триггеров отличаются, триггер %d ", trig_index[trig->get_rnum()]->vnum);
-		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	}
 	if (!sc) {
 		log("SCRIPTDRIVER: SC отсутсвует триггер %d ", trig_index[trig->get_rnum()]->vnum);

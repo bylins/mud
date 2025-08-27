@@ -60,8 +60,8 @@ void process_events(void) {
 		const auto time_remaining = e.time_remaining;
 		if (time_remaining == 0) {
 			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e.info))->trigger);
-				sprintf(buf, "[TrigVNum: %d]: process_events удаляю", trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, true);
+//				sprintf(buf, "[TrigVNum: %d]: process_events удаляю", trig_vnum);
+//				mudlog(buf, BRF, -1, ERRLOG, true);
 			e.func(e.info);
 //			e.time_remaining = 0;
 			e.deleted = true;;
