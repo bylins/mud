@@ -66,6 +66,7 @@ ObjData::ObjData(const CObjectPrototype &other) :
 	m_owner(DEFAULT_OWNER),
 	m_zone_from(0),
 	m_is_rename(false),
+	m_where_obj(EWhereObj::kNowhere),
 	m_carried_by(nullptr),
 	m_worn_by(nullptr),
 	m_worn_on(0),
