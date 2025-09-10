@@ -26,6 +26,7 @@ int koef_skill_magic(int percent_skill) {
 }
 
 float druid_manacost_modifier[] {
+	0.,
 	9.875,	
 	9.750,	
 	9.625,	
