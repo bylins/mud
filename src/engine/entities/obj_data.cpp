@@ -30,33 +30,6 @@ extern double CalcRemortRequirements(const CObjectPrototype *obj);
 
 id_to_set_info_map ObjData::set_table;
 
-ObjData::ObjData(const ObjVnum vnum) :
-	CObjectPrototype(vnum),
-	m_unique_id(0),
-	m_in_room(0),
-	m_room_was_in(0),
-	m_maker(DEFAULT_MAKER),
-	m_owner(DEFAULT_OWNER),
-	m_zone_from(0),
-	m_is_rename(false),
-	m_where_obj(EWhereObj::kNowhere),
-	m_carried_by(nullptr),
-	m_worn_by(nullptr),
-	m_worn_on(0),
-	m_in_obj(nullptr),
-	m_contains(nullptr),
-	m_next_content(nullptr),
-	m_next(nullptr),
-	m_craft_timer(0),
-	m_id(0),
-	m_script(new Script()),
-	m_serial_number(0),
-	m_purged(false),
-	m_activator(false, 0) {
-	this->zero_init();
-	caching::obj_cache.Add(this);
-}
-
 ObjData::ObjData(const CObjectPrototype &other) :
 	CObjectPrototype(other),
 	m_unique_id(0),
@@ -81,14 +54,7 @@ ObjData::ObjData(const CObjectPrototype &other) :
 	m_purged(false),
 	m_activator(false, 0) {
 	caching::obj_cache.Add(this);
-}
-
-ObjData::ObjData(const ObjData &other) : CObjectPrototype(other.get_vnum()) {
-	*this = other;
-
-	m_script = std::make_shared<Script>(*other.m_script);    // each object must have its own script. Just copy it
-
-	caching::obj_cache.Add(this);
+	set_weight(0);
 }
 
 ObjData::~ObjData() {
