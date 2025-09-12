@@ -666,8 +666,6 @@ class ObjData : public CObjectPrototype {
 	constexpr static const int DEFAULT_OWNER = 0;
 	constexpr static const int DEFAULT_PARENT = 0;
 
-	ObjData(const ObjVnum vnum);
-	ObjData(const ObjData &);
 	ObjData(const CObjectPrototype &);
 	~ObjData();
 

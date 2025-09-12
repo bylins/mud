@@ -78,7 +78,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!ch->IsOnHorse()) {
-		SendMsgToChar("Вы ведь и так не на лошади.", ch);
+		SendMsgToChar("Вы ведь и так не на лошади.\r\n", ch);
 		return;
 	}
 	ch->dismount();
