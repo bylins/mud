@@ -323,7 +323,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
 		buffer << fmt::format(" {:^5} &n|", k->IsFlagged(EPrf::kSkirmisher) ? " &gДа  " : "Нет");
-		buffer << fmt::format(" {:<10}\r\n", k->IsOnHorse() ? "Верхом" : POS_STATE[(int) k->GetPosition()]);
+		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 	}
