@@ -3648,7 +3648,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		} else {
 			CastDamage(1, ch, victim, ESpell::kMagicMissile);
 		}
-		if (ch->purged() || victim->purged()) {
+		if (ch->purged() || victim->purged()) { // вдруг помер
+			return;
+		}
+		if (ch->in_room != victim->in_room) {  //если сбег по трусости
 			return;
 		}
 		auto skillnum = GetMagicSkillId(ESpell::kCloudOfArrows);
