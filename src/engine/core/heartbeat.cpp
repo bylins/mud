@@ -612,7 +612,7 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	static int last_pmem_used = 0;
 	label.clear();
 	advance_pulse_numbers();
-	log("Heartbeat pulse #%d", m_pulse_number);
+	log("Heartbeat pulse");
 
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];

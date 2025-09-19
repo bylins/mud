@@ -54,7 +54,6 @@ ObjData::ObjData(const CObjectPrototype &other) :
 	m_purged(false),
 	m_activator(false, 0) {
 	caching::obj_cache.Add(this);
-	set_weight(0);
 }
 
 ObjData::~ObjData() {

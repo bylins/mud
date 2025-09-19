@@ -1948,13 +1948,14 @@ void Damage::send_critical_message(CharData *ch, CharData *victim) {
 void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 	if (!ch->IsNpc()) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
-		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
+/*		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
 			GET_NAME(ch),
 			to_underlying(ch->GetClass()),
 			GetRealRemort(ch),
 			GetRealLevel(ch),
 			real_dam,
 			over_dam);
+*/
 		if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
@@ -1962,12 +1963,12 @@ void update_dps_stats(CharData *ch, int real_dam, int over_dam) {
 	} else if (IS_CHARMICE(ch)
 		&& ch->has_master()) {
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
-		if (!ch->get_master()->IsNpc()) {
+/*		if (!ch->get_master()->IsNpc()) {
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
 				ch->get_name().c_str(), ch->get_master()->get_name().c_str(), to_underlying(ch->get_master()->GetClass()),
 				GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
 		}
-
+*/
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
 			CharData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
 			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
