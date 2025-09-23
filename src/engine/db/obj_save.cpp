@@ -280,7 +280,10 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_val(3, atoi(buffer));
 			} else if (!strcmp(read_line, "Weig")) {
 				*error = 33;
-				object->set_weight(atoi(buffer));
+				int wt = atoi(buffer);
+				if (wt != 0) { //временно 17,09,25
+					object->set_weight(wt);
+				}
 			} else if (!strcmp(read_line, "Cost")) {
 				*error = 34;
 				object->set_cost(atoi(buffer));

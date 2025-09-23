@@ -1576,7 +1576,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	}
 	// Обработка содержимого контейнера при его уничтожении
 	purge_otrigger(obj);
-	log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
+//	log("[Extract obj] purge_otrigger, delta %f", timer.delta().count());
 	if (obj->get_contains()) {
 		while (obj->get_contains()) {
 			temp = obj->get_contains();
