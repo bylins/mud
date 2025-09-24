@@ -90,7 +90,9 @@ int perform_group(CharData *ch, CharData *vict) {
 		|| AFF_FLAGGED(vict, EAffect::kCharmed)
 		|| vict->IsFlagged(EMobFlag::kTutelar)
 		|| vict->IsFlagged(EMobFlag::kMentalShadow)
-		|| IS_HORSE(vict)) {
+		|| IS_HORSE(vict)
+		|| AFF_FLAGGED(vict, EAffect::kCourage)
+		|| AFF_FLAGGED(ch, EAffect::kCourage)) {
 		return (false);
 	}
 
@@ -452,18 +454,22 @@ void GoGroup(CharData *ch, char *argument) {
 	CharData *vict;
 	if (!str_cmp(buf, "all")
 		|| !str_cmp(buf, "все")) {
-		perform_group(ch, ch);
 		int found;
 		for (found = 0, f = ch->followers; f; f = f->next) {
 			if ((f_number + found) >= max_group_size(ch)) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
+			if (AFF_FLAGGED(f->follower, EAffect::kCourage)) {
+				continue;
+			}
 			found += perform_group(ch, f->follower);
 		}
 
 		if (!found) {
 			SendMsgToChar("Все, кто за вами следуют, уже включены в вашу группу.\r\n", ch);
+		} else {
+			perform_group(ch, ch);
 		}
 
 		return;
@@ -501,6 +507,8 @@ void GoGroup(CharData *ch, char *argument) {
 		SendMsgToChar(NOPERSON, ch);
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
+	} else if (AFF_FLAGGED(vict, EAffect::kCourage)) {
+		act("$N2 слишком агрессивен и непредсказуем! Нельзя брать $s!", false, ch, nullptr, vict, kToChar);
 	} else {
 		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {
 			if (AFF_FLAGGED(vict, EAffect::kCharmed) || vict->IsFlagged(EMobFlag::kTutelar)
