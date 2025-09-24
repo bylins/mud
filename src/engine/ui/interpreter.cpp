@@ -191,6 +191,7 @@
 #include "gameplay/skills/stun.h"
 #include "gameplay/skills/stupor.h"
 #include "gameplay/skills/throw.h"
+#include "gameplay/skills/throwout.h"
 #include "gameplay/skills/track.h"
 #include "gameplay/skills/turnundead.h"
 #include "gameplay/skills/warcry.h"
@@ -480,6 +481,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"выследить", EPosition::kStand, do_track, 0, 0, 500},
 		{"вылить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
 		{"выходы", EPosition::kRest, DoExits, 0, 0, 0},
+		{"вышвырнуть", EPosition::kFight, do_throwout, 0, 0, 0},
 
 		{"говорить", EPosition::kRest, do_say, 0, 0, -1},
 		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
@@ -984,6 +986,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
 		{"teleport", EPosition::kDead, do_teleport, kLvlGreatGod, 0, -1},
 		{"tell", EPosition::kRest, do_tell, 0, 0, -1},
+		{"throwout", EPosition::kFight, do_throwout, 0, 0, 0},
 		{"time", EPosition::kDead, do_time, 0, 0, 0},
 		{"title", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
 		{"touch", EPosition::kFight, do_touch, 0, 0, -1},

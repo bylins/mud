@@ -53,7 +53,7 @@ void go_charge(CharData *ch, int direction) {
 	if (IsCorrectDirection(ch, direction, true, false)) {
 		act("$n истошно завопил$g и ринул$u в бой, лихо размахивая своим оружием.",
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		if (DoSimpleMove(ch, direction, true, nullptr, false)) {
+		if (DoSimpleMove(ch, direction, true, nullptr, Default)) {
 			SendMsgToChar("С криком \"За дружину!\" Вы ринулись в бой!\r\n", ch);
 			act("Разъярённ$w $n прибежал$g сюда, явно с намерениями кого-нибудь поколотить!",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
