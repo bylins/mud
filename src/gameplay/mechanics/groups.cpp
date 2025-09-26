@@ -211,16 +211,6 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 								"Отдохн.",
 								" Полон "
 	};
-	const char *POS_STATE[] = {"Умер",
-							   "Истекает кровью",
-							   "При смерти",
-							   "Без сознания",
-							   "Спит",
-							   "Отдыхает",
-							   "Сидит",
-							   "Сражается",
-							   "Стоит"
-	};
 
 	auto generate_affects_string = [](CharData *k) -> std::string {
 	  std::string affects;
@@ -295,7 +285,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 		// ДЕБАФЫ
 		buffer << fmt::format(" {:<7} &n|", generate_debuf_string(k));
 
-		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
+		buffer << fmt::format(" {:<10}\r\n", position_types[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 
@@ -323,7 +313,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 		buffer << fmt::format(" {:^5} &n|", leader ? "Лидер" : "");
 		buffer << fmt::format(" {:^5} &n|", k->IsFlagged(EPrf::kSkirmisher) ? " &gДа  " : "Нет");
-		buffer << fmt::format(" {:<10}\r\n", POS_STATE[(int) k->GetPosition()]);
+		buffer << fmt::format(" {:<10}\r\n", k->GetEnemy()  ? "Сражается" : k->IsOnHorse() ? "Верхом" : position_types[(int) k->GetPosition()]);
 
 		SendMsgToChar(buffer.str().c_str(), ch);
 	}
