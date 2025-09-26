@@ -13,6 +13,12 @@ int skip_hiding(CharData *ch, CharData *vict);
 int skip_sneaking(CharData *ch, CharData *vict);
 int skip_camouflage(CharData *ch, CharData *vict);
 
+enum kSimpleMove : int {
+    Default = 0,
+    IsFlee  = 1,
+    ThrowOut = 2
+};
+
 #endif // ACT_MOVEMENT_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
