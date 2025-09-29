@@ -1881,8 +1881,9 @@ int perform_dupe_check(DescriptorData *d) {
 	  if (ch->in_room != kNowhere) {
 		  char_from_room(ch);
 	  }
-	  char_to_room(ch, kStrangeRoom);
-	  character_list.AddToExtractedList(ch.get());
+		char_to_room(ch, kStrangeRoom);
+		mudlog(fmt::format("Обнаружен дубликат игрока %s, перемещен в ад и очищен.", ch->get_name().c_str()));
+		character_list.AddToExtractedList(ch.get());
 	});
 
 	// no target for switching into was found - allow login to continue //
@@ -1919,7 +1920,7 @@ int perform_dupe_check(DescriptorData *d) {
 			break;
 
 		case UNSWITCH: iosystem::write_to_output("Пересоединяемся для перевключения игрока.", d);
-			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
+			sprintf(buf, "%s [%s] has reconnected (UNSWITCH).", GET_NAME(d->character), d->host);
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
