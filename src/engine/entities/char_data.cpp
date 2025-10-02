@@ -720,6 +720,7 @@ CharData *CharData::get_touching() const {
 
 void CharData::set_protecting(CharData *vict) {
 	if (protecting_) {
+		log("%s удаляем прикрыть на чара %s", this->get_name().c_str(), protecting_->get_name().c_str());
 		remove_protecting();
 	}
 	protecting_ = vict;
@@ -731,12 +732,16 @@ void CharData::remove_protecting() {
 
 	if (protecting_) {
 		auto predicate = [this](auto p) { return (this  ==  p); };
-		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
-		get_protecting()->who_protecting.erase(it);
-		SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
-			GET_PAD(protecting_, 3));
-		SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
-		log("%s перестал прикрывать %s", this->get_name().c_str(), get_protecting()->get_name().c_str());
+		auto it = std::find_if(protecting_->who_protecting.begin(), protecting_->who_protecting.end(), predicate);
+		if (it != protecting_->who_protecting.end()) {
+			protecting_->who_protecting.erase(it);
+			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
+				GET_PAD(protecting_, 3));
+			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
+			log("%s перестал прикрывать %s", this->get_name().c_str(), protecting_->get_name().c_str());
+		} else {
+			log("%s не найден прикрывающим у игрока %s", this->get_name().c_str(), protecting_->get_name().c_str());
+		}
 	}
 	protecting_ = nullptr;
 }
