@@ -468,8 +468,11 @@ void load_chests() {
 			if (!pers_chest) {
 				return;
 			}
-
-			PlaceObjToRoom(pers_chest.get(), ch->in_room);
+			if (world[ch->in_room]->vnum % 100 == 99) {
+				PlaceObjToRoom(pers_chest.get(), GET_LASTROOM(ch));
+			} else {
+				PlaceObjToRoom(pers_chest.get(), ch->in_room);
+			}
 		}
 	}
 }
