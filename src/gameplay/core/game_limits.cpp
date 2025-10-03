@@ -673,10 +673,9 @@ void beat_points_update(int pulse) {
 				}
 			}
 		}
-
-		if (AFF_FLAGGED(d->character.get(), EAffect::kCourage)) {
+		if (AFF_FLAGGED(d->character.get(), EAffect::kFrenzy)) {
 			for (const auto &aff : d->character->affected) {
-				if (aff->type == ESpell::kCourage & aff->location == EApply::kHpRegen) {
+				if (aff->type == ESpell::kFrenzy & aff->location == EApply::kHpRegen) {
 					restore += aff->modifier;
 					break;
 				}

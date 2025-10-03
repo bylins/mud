@@ -104,6 +104,7 @@ mode - режим умения.
     <skill id="kCharge"			name="натиск"		    abbr="Нт"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kDazzle"			name="ослепить"		    abbr="Осл"	saving="kReflex"	difficulty="200"	cap="1000"/>
     <skill id="kThrowout"		name="вышвырнуть"	    abbr="Выш"	saving="kStability"	difficulty="200"	cap="1000"/>
+    <skill id="kFrenzy" 		name="исступление"	    abbr="Ис"	saving="kWill"  	difficulty="200"	cap="1000"/>
     <skill id="kMakeAmulet"		name="смастерить оберег"	abbr="Со"	saving="kReflex"	difficulty="200"	cap="200"/>
     <skill id="kCutting"		name="!порез!"			abbr="Пр"	saving="kStability"	difficulty="200"	cap="200"	mode="kDisabled"/>
     <skill id="kCreateBow"		name="!отключено"		abbr="!error"	saving="kWill"		difficulty="1"		cap="1"		mode="kDisabled"/>

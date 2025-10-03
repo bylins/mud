@@ -522,6 +522,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kLifeMagic] = "kLifeMagic";
 	ESkill_name_by_value[ESkill::kMakeAmulet] = "kMakeAmulet";
 	ESkill_name_by_value[ESkill::kStun] = "kStun";
+	ESkill_name_by_value[ESkill::kFrenzy] = "kFrenzy";
 	ESkill_name_by_value[ESkill::kSlay] = "kSlay";
 
 	for (const auto &i: ESkill_name_by_value) {
