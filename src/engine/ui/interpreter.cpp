@@ -233,6 +233,7 @@
 #include "administration/proxy.h"
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/doors.h"
+#include "gameplay/skills/frenzy.h"
 
 #include <ctime>
 
@@ -545,6 +546,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"информация", EPosition::kSleep, DoGenericPage, 0, kScmdInfo, 0},
 		{"испить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
+		{"исступление", EPosition::kFight, do_frenzy, 0, 0, -1},
 		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
 		{"колдовать", EPosition::kSit, DoCast, 1, 0, -1},
@@ -839,6 +841,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"force", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
 		{"forcetime", EPosition::kDead, DoForcetime, kLvlImplementator, 0, 0},
 		{"freeze", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
+		{"frenzy", EPosition::kFight, do_frenzy, 0, 0, -1},
 		{"gecho", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
 		{"get", EPosition::kRest, do_get, 0, 0, 500},
 		{"give", EPosition::kRest, do_give, 0, 0, 500},

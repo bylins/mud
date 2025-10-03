@@ -275,8 +275,9 @@ enum class ESpell {
 	kNoCharge = 355,
 	kDazzle = 356,
 	kGreatHeal = 357,
+	kFrenzy = 358,
 	kFirst = kArmor,
-	kLast = 357	// Не забываем менять
+	kLast = 358	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);
