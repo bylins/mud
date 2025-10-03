@@ -39,7 +39,8 @@
         <skill id="kIntercept"		level="10"	remort="0"	improve="3000"/>
         <skill id="kProtect"		level="10"	remort="0"	improve="3000"/>
         <skill id="kWarcry"		level="10"	remort="0"	improve="14000"/>
-        <skill id="kThrowout"		level="10"	remort="0"	improve="3500"/>
+        <skill id="kThrowout"		level="10"	remort="0"	improve="5000"/>
+        <skill id="kFrenzy"		level="10"	remort="0"	improve="5000"/>
     </skills>
     <spells level_decrement="3">
         <!-- This class has no spells. -->

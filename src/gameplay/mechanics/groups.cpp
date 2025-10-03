@@ -91,8 +91,8 @@ int perform_group(CharData *ch, CharData *vict) {
 		|| vict->IsFlagged(EMobFlag::kTutelar)
 		|| vict->IsFlagged(EMobFlag::kMentalShadow)
 		|| IS_HORSE(vict)
-		|| AFF_FLAGGED(vict, EAffect::kCourage)
-		|| AFF_FLAGGED(ch, EAffect::kCourage)) {
+		|| IsAffectedBySpell(ch, ESpell::kFrenzy)
+		|| IsAffectedBySpell(vict, ESpell::kFrenzy)) {
 		return (false);
 	}
 
@@ -460,7 +460,7 @@ void GoGroup(CharData *ch, char *argument) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
-			if (AFF_FLAGGED(f->follower, EAffect::kCourage)) {
+			if (IsAffectedBySpell(f->follower, ESpell::kFrenzy)) {
 				continue;
 			}
 			found += perform_group(ch, f->follower);
@@ -507,8 +507,8 @@ void GoGroup(CharData *ch, char *argument) {
 		SendMsgToChar(NOPERSON, ch);
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
-	} else if (AFF_FLAGGED(vict, EAffect::kCourage)) {
-		act("$N2 слишком агрессивен и непредсказуем! Нельзя брать $s!", false, ch, nullptr, vict, kToChar);
+	} else if (IsAffectedBySpell(vict, ESpell::kFrenzy)) {
+		act("$N слишком агрессивн$W и непредсказуем$W! Нельзя брать $s!", false, ch, nullptr, vict, kToChar);
 	} else {
 		if (!AFF_FLAGGED(vict, EAffect::kGroup)) {
 			if (AFF_FLAGGED(vict, EAffect::kCharmed) || vict->IsFlagged(EMobFlag::kTutelar)

@@ -1,5 +1,5 @@
 //
-// Created by Iluha on 20.09.2025.
+// Created by Svetodar on 20.09.2025.
 //
 
 #ifndef BYLINS_THROWOUT_H

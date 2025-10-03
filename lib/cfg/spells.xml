@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="koi8r"?>
+<?xml version="1.0" encoding="koi8-r"?>
 <!--
 Формат (пример):
     <spell id="kPowerDeafness" element="kTypeMind" mode="kEnabled">
@@ -1243,6 +1243,20 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kCourage" element="kUndefined" mode="kService">
         <name rus="!ярость!" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
+        <mana max="0" min="0" change="0"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFrenzy" element="kUndefined" mode="kService">
+        <name rus="исступление" eng="!set by programm!"/>
+        <misc pos="kFight" violent="N" danger="0"/>
+        <mana max="5" min="0" change="0"/>
+        <targets val="kTarNone"/>
+        <flags val="kMagManual"/>
+    </spell>
+    <spell id="kFrenzyTimer" element="kUndefined" mode="kService">
+        <name rus="исступление" eng="!set by programm!"/>
+        <misc pos="kFight" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
