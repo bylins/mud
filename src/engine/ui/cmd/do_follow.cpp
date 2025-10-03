@@ -83,7 +83,7 @@ bool stop_follower(CharData *ch, int mode) {
 		if (ch->IsNpc()) {
 			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
-				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
+				GET_LASTROOM(ch) = ch->in_room;
 				PerformDropGold(ch, ch->get_gold());
 				ch->set_gold(0);
 				if (!IS_SET(mode, kSfFollowerdie)) {
