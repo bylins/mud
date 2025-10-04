@@ -2040,17 +2040,17 @@ void paste_mob(CharData *ch, RoomRnum room) {
 			}
 
 			RemoveCharFromRoom(ch);
-			PlaceCharToRoom(ch, GetRoomRnum(GET_LASTROOM(ch)));
+			PlaceCharToRoom(ch, GET_LASTROOM(ch));
 		} else {
 			if (world[room]->vnum == zone_table[world[room]->zone_rn].top)
 				return;
 
-			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
+			GET_LASTROOM(ch) = room;
 			RemoveCharFromRoom(ch);
 			room = GetRoomRnum(zone_table[world[room]->zone_rn].top);
 
 			if (room == kNowhere)
-				room = GetRoomRnum(GET_LASTROOM(ch));
+				room = GET_LASTROOM(ch);
 
 			PlaceCharToRoom(ch, room);
 		}

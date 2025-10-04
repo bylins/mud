@@ -1630,7 +1630,9 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	log("[Extract obj] Stop, delta %f", timer.delta().count());
+	if (showlog) {
+		log("[Extract obj] Stop, delta %f", timer.delta().count());
+	}
 }
 
 void UpdateCharObjects(CharData *ch) {
