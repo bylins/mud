@@ -29,6 +29,8 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
+#include "act_movement.h"
+
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 struct DescriptorData;
@@ -177,7 +179,7 @@ char *CAP(char *txt);
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
 // in act.movmement.cpp //
-int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is_flee);
+int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimpleMove);
 int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 
 

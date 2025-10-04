@@ -48,7 +48,7 @@ void GoFlee(CharData *ch) {
 		const auto was_fighting = ch->GetEnemy();
 		const auto was_in = ch->in_room;
 
-		if (DoSimpleMove(ch, direction, true, nullptr, true)) {
+		if (DoSimpleMove(ch, direction, true, nullptr, IsFlee)) {
 			act("$n запаниковал$g и пытал$u сбежать!",
 				true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			if (ch->IsOnHorse()) {
@@ -91,7 +91,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 
 	if (IsCorrectDirection(ch, direction, true, false)
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
-		if (DoSimpleMove(ch, direction, true, nullptr, true)) {
+		if (DoSimpleMove(ch, direction, true, nullptr, IsFlee)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->GetEnemy();
 

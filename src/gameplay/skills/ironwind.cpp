@@ -69,10 +69,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы слишком устали...\r\n", ch);
 		return;
 	}
-	if (!AFF_FLAGGED(ch, EAffect::kCourage) && !IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
-		SendMsgToChar("Вы слишком здравомыслящи для этого...\r\n", ch);
-		return;
-	};
+
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
 		SendMsgToChar("Кого вам угодно изрубить в капусту?\r\n", ch);
