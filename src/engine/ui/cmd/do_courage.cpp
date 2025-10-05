@@ -25,24 +25,12 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
-		SendMsgToChar("Сперва уединитесь! В беспамятстве и ярости можно и добрый люд покалечить!\r\n", ch);
-		return;
-	}
-
-	if (IsAffectedBySpell(ch, ESpell::kCourage)) {
-		SendMsgToChar("Сперва успокойтесь!\r\n", ch);
-		return;
-	}
-
 	struct TimedSkill timed;
 	timed.skill = ESkill::kCourage;
 	timed.time = 6;
 	ImposeTimedSkill(ch, &timed);
 	auto prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
 	auto dur = 1 + std::min(5, ch->GetSkill(ESkill::kCourage) / 40);
-	auto hp_regen = 10 + ch->GetSkill(ESkill::kCourage) / 2;
-	auto dmg_multiplier = ch->GetSkill(ESkill::kCourage) / 2.5;
 	Affect<EApply> af[4];
 	af[0].type = ESpell::kCourage;
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
@@ -52,8 +40,8 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[0].battleflag = 0;
 	af[1].type = ESpell::kCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
-	af[1].modifier = dmg_multiplier;
-	af[1].location = EApply::kPhysicDamagePercent;
+	af[1].modifier = std::max(1, prob);
+	af[1].location = EApply::kDamroll;
 	af[1].bitvector = to_underlying(EAffect::kCourage);
 	af[1].battleflag = 0;
 	af[2].type = ESpell::kCourage;
@@ -64,7 +52,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[2].battleflag = 0;
 	af[3].type = ESpell::kCourage;
 	af[3].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
-	af[3].modifier = hp_regen;
+	af[3].modifier = 50;
 	af[3].location = EApply::kHpRegen;
 	af[3].bitvector = to_underlying(EAffect::kCourage);
 	af[3].battleflag = 0;
