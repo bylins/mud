@@ -262,6 +262,7 @@ std::string GetAffExpiredText(ESpell spell_id) {
 		{ESpell::kConfuse, ""},
 		{ESpell::kDazzle, ""},
 		{ESpell::kGreatHeal, "!Great Heal!"},
+		{ESpell::kFrenzy, "Жажда крови отступила и Вы пришли в себя."},
 		{ESpell::kPortalTimer, "Пентаграмма медленно растаяла."}
 	};
 
@@ -834,6 +835,7 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kNoCharge] = "kNoCharge";
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
 	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
+	ESpell_name_by_value[ESpell::kFrenzy] = "kFrenzy";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
