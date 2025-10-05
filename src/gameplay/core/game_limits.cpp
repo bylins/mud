@@ -673,6 +673,14 @@ void beat_points_update(int pulse) {
 				}
 			}
 		}
+		if (AFF_FLAGGED(d->character.get(), EAffect::kFrenzy)) {
+			for (const auto &aff : d->character->affected) {
+				if (aff->type == ESpell::kFrenzy & aff->location == EApply::kHpRegen) {
+					restore += aff->modifier;
+					break;
+				}
+			}
+		}
 
 		if (d->character.get()->get_hit() < d->character.get()->get_real_max_hit()) {
 			d->character.get()->set_hit(std::min(d->character.get()->get_hit() + restore, d->character.get()->get_real_max_hit()));

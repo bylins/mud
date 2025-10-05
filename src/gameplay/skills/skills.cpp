@@ -493,6 +493,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kChopoff] = "kChopoff";
 	ESkill_name_by_value[ESkill::kRepair] = "kRepair";
 	ESkill_name_by_value[ESkill::kDazzle] = "kDazzle";
+	ESkill_name_by_value[ESkill::kThrowout] = "kThrowout";
 	ESkill_name_by_value[ESkill::kSharpening] = "kSharpening";
 	ESkill_name_by_value[ESkill::kCourage] = "kCourage";
 	ESkill_name_by_value[ESkill::kJinx] = "kJinx";
@@ -521,6 +522,7 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kLifeMagic] = "kLifeMagic";
 	ESkill_name_by_value[ESkill::kMakeAmulet] = "kMakeAmulet";
 	ESkill_name_by_value[ESkill::kStun] = "kStun";
+	ESkill_name_by_value[ESkill::kFrenzy] = "kFrenzy";
 	ESkill_name_by_value[ESkill::kSlay] = "kSlay";
 
 	for (const auto &i: ESkill_name_by_value) {
