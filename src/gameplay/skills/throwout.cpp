@@ -36,6 +36,12 @@ void do_throwout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
+	if (AFF_FLAGGED(vict, EAffect::kTethered)
+		||AFF_FLAGGED(vict, EAffect::kNoTeleport)) {
+			act("$N3 вышвырнуть невозможно!",
+			false, ch, nullptr,vict, kToChar);
+		return;
+	}
 	if (!IS_IMMORTAL(ch) && ch->HasCooldown(ESkill::kThrowout)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -107,12 +113,13 @@ void go_throwout(CharData *ch, CharData *vict) {
 	    			SetWait(vict, 2, false);
 	    			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 	    		}
+	    	stop_fighting(vict, false);
 			DoSimpleMove(vict, direction, false, nullptr, ThrowOut);
 	    	if (!IS_IMMORTAL(ch)) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}
 	    } else if (!IsCorrectDirection(vict, direction, false, false)) {
-	    	act("Вам некуда вышвырнуть $N3!",
+	    	act("Вы не можете вышвырнуть $N3 отсюда!",
 					false, ch, nullptr,vict, kToChar);
 	    }
 	}

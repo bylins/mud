@@ -52,8 +52,8 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af[1].location = EApply::kPhysicDamagePercent;
 	af[1].bitvector = to_underlying(EAffect::kNoFlee);
 	af[1].battleflag = kAfPulsedec;
-
 	bool has_frenzy = false;
+	bool can_be_angrier = false;
 
 	for (auto it = ch->affected.begin(); it != ch->affected.end(); ++it) {
 		auto& aptr = *it;
@@ -64,9 +64,11 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 			if (a.location == EApply::kHpRegen && a.modifier < af[0].modifier * 5) {
 				a.modifier += af[0].modifier;
+				can_be_angrier = true;
 			}
 			if (a.location == EApply::kPhysicDamagePercent && a.modifier < af[1].modifier * 5) {
 				a.modifier += af[1].modifier;
+				can_be_angrier = true;
 			}
 			a.duration = duration;
 		}
@@ -79,8 +81,12 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		for (auto & i : af) {
 			ImposeAffect(ch, i, false, false, false, false);
 		}
-	} else {
-		SendMsgToChar("&RВы разъярились ещё сильнее!&n\r\n", ch);
+	} else  {
+		if (can_be_angrier) {
+			SendMsgToChar("&RВы разъярились ещё сильнее!&n\r\n", ch);
+		} else {
+			SendMsgToChar("&RВы жаждете крови своих соперников!&n\r\n", ch);
+		}
 	}
 	if (!IS_IMMORTAL(ch)) {
 		SetSkillCooldown(ch, ESkill::kFrenzy, cooldown);
