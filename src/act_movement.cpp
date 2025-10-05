@@ -567,7 +567,7 @@ int SelectDrunkDirection(CharData *ch, int direction) {
 	return drunk_dir;
 }
 
-int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is_flee) {
+int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimpleMove move_type) {
 	struct TrackData *track;
 	RoomRnum was_in, go_to;
 	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
@@ -598,7 +598,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		ch->set_move(ch->get_move() - calculate_move_cost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
-	if (AFF_FLAGGED(ch, EAffect::kSneak) && !is_flee) {
+	if (AFF_FLAGGED(ch, EAffect::kSneak) && move_type != IsFlee) {
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_sneak(ch)) {
@@ -609,7 +609,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	}
 
 	i = MUD::Skill(ESkill::kDisguise).difficulty;
-	if (AFF_FLAGGED(ch, EAffect::kDisguise) && !is_flee) {
+	if (AFF_FLAGGED(ch, EAffect::kDisguise) && move_type != IsFlee) {
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_camouflage(ch)) {
@@ -619,8 +619,12 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			invis = 1;
 	}
 
-	if (!is_flee) {
+	if (move_type == Default) {
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
+		act(buf, false, ch, nullptr, leader, kToChar);
+	}
+	if (move_type == ThrowOut) {
+		sprintf(buf, "Вы со свистом улетели %s.", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
@@ -637,8 +641,10 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 			|| ch->get_master()->in_room == go_to);
 
 	if (!invis && !is_horse) {
-		if (is_flee)
+		if (move_type == IsFlee)
 			strcpy(smallBuf, "сбежал$g");
+		if (move_type == ThrowOut)
+			strcpy(smallBuf, "со свистом полетел$g");
 		else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveRun))
 			strcpy(smallBuf, "убежал$g");
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
@@ -667,7 +673,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		} else
 			strcpy(smallBuf, "уш$y");
 
-		if (is_flee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
+		if (move_type != IsFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
 			sprintf(buf2, "$n %s.", smallBuf);
 		else
 			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
@@ -682,7 +688,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 		horse = ch->get_horse();
 
 	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
-	if (is_flee) {
+	if (move_type == IsFlee) {
 		stop_fighting(ch, true);
 	}
 
@@ -693,7 +699,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 
 	RemoveCharFromRoom(ch);
 	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
-	if (is_flee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
+	if (move_type == IsFlee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
 		FleeToRoom(ch, go_to);
 	else
 		PlaceCharToRoom(ch, go_to);
@@ -717,11 +723,13 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	}
 
 	if (!invis && !is_horse) {
-		if (is_flee
+		if (move_type == IsFlee
 			|| (ch->IsNpc()
 				&& NPC_FLAGGED(ch, ENpcFlag::kMoveRun))) {
 			strcpy(smallBuf, "прибежал$g");
-		} else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
+		} if (move_type == ThrowOut)
+			strcpy(smallBuf, "со свистом прилетел$g");
+		else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
 			|| (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
 			strcpy(smallBuf, "прилетел$g");
 		} else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveSwim)
@@ -760,7 +768,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 	}
 
 	if (ch->desc != nullptr)
-		look_at_room(ch, 0, !is_flee);
+		look_at_room(ch, 0, move_type != IsFlee);
 
 	if (!ch->IsNpc())
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
@@ -875,7 +883,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, bool is
 
 	// If flee - go agressive mobs
 	if (!ch->IsNpc()
-		&& is_flee) {
+		&& move_type == IsFlee) {
 		mob_ai::do_aggressive_room(ch, false);
 	}
 
@@ -905,13 +913,13 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 			SendMsgToChar("Закрыто.\r\n", ch);
 	} else {
 		if (!ch->followers) {
-			if (!DoSimpleMove(ch, dir, need_specials_check, master, false))
+			if (!DoSimpleMove(ch, dir, need_specials_check, master, Default))
 				return false;
 		} else {
 			was_in = ch->in_room;
 			// When leader mortally drunked - he changes direction
 			// So returned value set to false or DIR + 1
-			if (!(dir = DoSimpleMove(ch, dir, need_specials_check, master, false)))
+			if (!(dir = DoSimpleMove(ch, dir, need_specials_check, master, Default)))
 				return false;
 
 			--dir;

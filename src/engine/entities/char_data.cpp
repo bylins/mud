@@ -720,12 +720,10 @@ CharData *CharData::get_touching() const {
 
 void CharData::set_protecting(CharData *vict) {
 	if (protecting_) {
-		log("%s удаляем прикрыть на чара %s", this->get_name().c_str(), protecting_->get_name().c_str());
 		remove_protecting();
 	}
 	protecting_ = vict;
 	vict->who_protecting.push_back(this);
-	log("%s начал прикрывать %s", this->get_name().c_str(), vict->get_name().c_str());
 }
 
 void CharData::remove_protecting() {
@@ -738,9 +736,6 @@ void CharData::remove_protecting() {
 			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
 				GET_PAD(protecting_, 3));
 			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
-			log("%s перестал прикрывать %s", this->get_name().c_str(), protecting_->get_name().c_str());
-		} else {
-			log("%s не найден прикрывающим у игрока %s", this->get_name().c_str(), protecting_->get_name().c_str());
 		}
 	}
 	protecting_ = nullptr;

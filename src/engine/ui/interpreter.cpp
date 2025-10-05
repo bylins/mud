@@ -191,6 +191,7 @@
 #include "gameplay/skills/stun.h"
 #include "gameplay/skills/stupor.h"
 #include "gameplay/skills/throw.h"
+#include "gameplay/skills/throwout.h"
 #include "gameplay/skills/track.h"
 #include "gameplay/skills/turnundead.h"
 #include "gameplay/skills/warcry.h"
@@ -232,6 +233,7 @@
 #include "administration/proxy.h"
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/doors.h"
+#include "gameplay/skills/frenzy.h"
 
 #include <ctime>
 
@@ -480,6 +482,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"выследить", EPosition::kStand, do_track, 0, 0, 500},
 		{"вылить", EPosition::kStand, do_pour, 0, SCMD_POUR, 500},
 		{"выходы", EPosition::kRest, DoExits, 0, 0, 0},
+		{"вышвырнуть", EPosition::kFight, do_throwout, 0, 0, 0},
 
 		{"говорить", EPosition::kRest, do_say, 0, 0, -1},
 		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
@@ -543,6 +546,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"информация", EPosition::kSleep, DoGenericPage, 0, kScmdInfo, 0},
 		{"испить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
+		{"исступление", EPosition::kFight, do_frenzy, 0, 0, -1},
 		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
 		{"колдовать", EPosition::kSit, DoCast, 1, 0, -1},
@@ -837,6 +841,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"force", EPosition::kSleep, do_force, kLvlGreatGod, 0, 0},
 		{"forcetime", EPosition::kDead, DoForcetime, kLvlImplementator, 0, 0},
 		{"freeze", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
+		{"frenzy", EPosition::kFight, do_frenzy, 0, 0, -1},
 		{"gecho", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
 		{"get", EPosition::kRest, do_get, 0, 0, 500},
 		{"give", EPosition::kRest, do_give, 0, 0, 500},
@@ -984,6 +989,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
 		{"teleport", EPosition::kDead, do_teleport, kLvlGreatGod, 0, -1},
 		{"tell", EPosition::kRest, do_tell, 0, 0, -1},
+		{"throwout", EPosition::kFight, do_throwout, 0, 0, 0},
 		{"time", EPosition::kDead, do_time, 0, 0, 0},
 		{"title", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
 		{"touch", EPosition::kFight, do_touch, 0, 0, -1},

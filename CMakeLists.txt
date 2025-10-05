@@ -382,7 +382,9 @@ set(SOURCES
 		src/engine/ui/cmd/do_sit.cpp
 		src/engine/ui/cmd/do_stand.cpp
 		src/gameplay/mechanics/doors.cpp
-		src/engine/ui/cmd/do_gen_door.cpp)
+		src/engine/ui/cmd/do_gen_door.cpp
+		src/gameplay/skills/throwout.cpp
+		src/gameplay/skills/frenzy.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -751,7 +753,9 @@ set(HEADERS
 		src/engine/ui/cmd/do_sit.h
 		src/engine/ui/cmd/do_stand.h
 		src/gameplay/mechanics/doors.h
-		src/engine/ui/cmd/do_gen_door.h)
+		src/engine/ui/cmd/do_gen_door.h
+		src/gameplay/skills/throwout.h
+		src/gameplay/skills/frenzy.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
