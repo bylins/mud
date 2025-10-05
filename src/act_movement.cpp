@@ -643,7 +643,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 	if (!invis && !is_horse) {
 		if (move_type == IsFlee)
 			strcpy(smallBuf, "сбежал$g");
-		if (move_type == ThrowOut)
+		else if (move_type == ThrowOut)
 			strcpy(smallBuf, "со свистом полетел$g");
 		else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveRun))
 			strcpy(smallBuf, "убежал$g");
@@ -727,7 +727,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 			|| (ch->IsNpc()
 				&& NPC_FLAGGED(ch, ENpcFlag::kMoveRun))) {
 			strcpy(smallBuf, "прибежал$g");
-		} if (move_type == ThrowOut)
+		} else if (move_type == ThrowOut)
 			strcpy(smallBuf, "со свистом прилетел$g");
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
 			|| (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
