@@ -28,6 +28,11 @@ struct HitData {
 	void add_hand_damage(CharData *ch, bool need_dice = true);
 	void check_defense_skills(CharData *ch, CharData *victim);
 	void calc_crit_chance(CharData *ch);
+	void hit_deviate(CharData *ch, CharData *victim, int *dam);
+	void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam);
+	void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam);
+	void hit_block(CharData *ch, CharData *victim, int *dam);
+
 	int calc_damage(CharData *ch, bool need_dice = true);
 	double crit_backstab_multiplier(CharData *ch, CharData *victim);
 
