@@ -69,6 +69,17 @@ void do_throwout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	go_throwout(ch, vict);
 }
 
+void do_fail(CharData *ch,CharData *vict) {
+	act("&rВам не удалось вышвырнуть $N3!&n",
+	false, ch, nullptr,vict, kToChar);
+	act("$N попытал$U вышвырнуть Вас отсюда, но это оказалось не так просто!",
+		false,vict, nullptr, ch, kToChar);
+	act("$N попытал$U вышвырнуть $n3 отсюда, но только рассмешил$G всех в округе.",
+		false,vict, nullptr, ch, kToNotVict | kToArenaListen);
+	hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
+	SetSkillCooldown(ch, ESkill::kThrowout, 2);
+}
+
 void go_throwout(CharData *ch, CharData *vict) {
 //Если у моба 30 или выше уровня больше 75% хп - вышвырнуть нельзя.
 	int vict_hp_limit = 0.75 * vict->get_real_max_hit();
@@ -81,14 +92,7 @@ void go_throwout(CharData *ch, CharData *vict) {
 	bool success = result.success;
 
 	if (!success) {
-		act("&rВам не удалось вышвырнуть $N3!&n",
-			false, ch, nullptr,vict, kToChar);
-		act("$N попытал$U вышвырнуть Вас отсюда, но это оказалось не так просто!",
-			false,vict, nullptr, ch, kToChar);
-		act("$N попытал$U вышвырнуть $n3 отсюда, но только рассмешил$G всех в округе.",
-			false,vict, nullptr, ch, kToNotVict | kToArenaListen);
-		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
-		SetSkillCooldown(ch, ESkill::kThrowout, 2);
+		do_fail(ch, vict);
 	} else {
 		//Поскольку это соло-умение, запрещаем использование если в клетке есть другие игроки.
 		ActionTargeting::FoesRosterType roster{ch};
@@ -123,8 +127,7 @@ void go_throwout(CharData *ch, CharData *vict) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}
 	    } else if (!IsCorrectDirection(vict, direction, false, false)) {
-	    	act("Вы не можете вышвырнуть $N3 отсюда!",
-					false, ch, nullptr,vict, kToChar);
+	    	do_fail(ch, vict);
 	    }
 	}
 	TrainSkill(ch, ESkill::kThrowout, success, vict);
