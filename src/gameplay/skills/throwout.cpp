@@ -2,7 +2,6 @@
 // Created by Svetodar on 20.09.2025.
 //
 
-#include "act_movement.cpp"
 #include "act_movement.h"
 #include "engine/core/action_targeting.h"
 #include "gameplay/fight/pk.h"
