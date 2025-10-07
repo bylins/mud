@@ -730,11 +730,13 @@ void CharData::remove_protecting() {
 
 	if (protecting_) {
 		auto predicate = [this](auto p) { return (this  ==  p); };
-		auto it = std::find_if(get_protecting()->who_protecting.begin(), get_protecting()->who_protecting.end(), predicate);
-		get_protecting()->who_protecting.erase(it);
-		SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
-			GET_PAD(protecting_, 3));
-		SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
+		auto it = std::find_if(protecting_->who_protecting.begin(), protecting_->who_protecting.end(), predicate);
+		if (it != protecting_->who_protecting.end()) {
+			protecting_->who_protecting.erase(it);
+			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
+				GET_PAD(protecting_, 3));
+			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
+		}
 	}
 	protecting_ = nullptr;
 }

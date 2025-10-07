@@ -1377,10 +1377,6 @@ const int kScriptDestroyTimer = 10; // * !!! Never set less than ONE * //
 */
 bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 //	int sect = 0;
-	if (world[room]->vnum == 7699) {
-		debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		log("SYSERR: какая то хрень опять лоад в виртуалке");
-	}
 	if (!object || room < kFirstRoom || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to PlaceObjToRoom. (Room #%d/%d, obj %p)",
@@ -1392,7 +1388,8 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
 				|| object->has_flag(EObjFlag::kAppearsNight))) {
-			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d", 
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+			sprintf(buf, "Попытка поместить объект в виртуальную комнату: objvnum %d, objname %s, roomvnum %d, создан coredump", 
 					object->get_vnum(), object->get_PName(0).c_str(), world[room]->vnum);
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		}
@@ -1633,7 +1630,9 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	log("[Extract obj] Stop, delta %f", timer.delta().count());
+	if (showlog) {
+		log("[Extract obj] Stop, delta %f", timer.delta().count());
+	}
 }
 
 void UpdateCharObjects(CharData *ch) {
@@ -1864,7 +1863,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		ch->remove_protecting();
 	}
 	if (!ch->who_protecting.empty()) {
-		for (auto it : ch->who_protecting) {
+		auto protecting_copy = ch->who_protecting;
+		for (auto &it : protecting_copy) {
 			it->remove_protecting();
 		}
 	}
