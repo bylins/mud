@@ -448,7 +448,7 @@ void GoGroup(CharData *ch, char *argument) {
 		for (found = 0, f = ch->followers; f; f = f->next) {
 			if ((f_number + found) >= max_group_size(ch)) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
-				return;
+				break;
 			}
 			if (IsAffectedBySpell(f->follower, ESpell::kFrenzy)) {
 				continue;
