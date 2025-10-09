@@ -2138,7 +2138,7 @@ void perform_violence() {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (STATE(d) == CON_PLAYING && d->character) {
 			for (const auto &ch : msdp_report_chars) {
-				if (same_group(ch, d->character.get()) && ch->in_room == d->character->in_room) {
+				if (group::same_group(ch, d->character.get()) && ch->in_room == d->character->in_room) {
 					msdp_report_chars.insert(d->character.get());
 					break;
 				}

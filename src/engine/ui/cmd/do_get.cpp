@@ -4,12 +4,11 @@
 #include "engine/core/handler.h"
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
+#include "gameplay/economics/currencies.h"
+#include "gameplay/mechanics/groups.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include "gameplay/economics/currencies.h"
 
-extern void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency);
-extern void do_split(CharData *ch, char *argument, int cmd, int subcmd);
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);
 
@@ -32,7 +31,7 @@ void split_or_clan_tax(CharData *ch, long amount) {
 		ch->IsFlagged(EPrf::kAutosplit)) {
 		char buf_[kMaxInputLength];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
-		do_split(ch, buf_, 0, 0);
+		group::do_split(ch, buf_, 0, 0);
 	} else {
 		long tax = ClanSystem::do_gold_tax(ch, amount);
 		ch->remove_gold(tax);
@@ -61,7 +60,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		if (AFF_FLAGGED(ch, EAffect::kGroup) && other_pc_in_group(ch) > 0) {
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
-			do_split(ch, local_buf, 0, 0, curr_type);
+			group::do_split(ch, local_buf, 0, 0, curr_type);
 		}
 		ExtractObjFromWorld(obj);
 		return;
@@ -94,7 +93,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
-		do_split(ch, local_buf, 0, 0);
+		group::do_split(ch, local_buf, 0, 0);
 	} else if (cont && system_obj::is_purse(cont)) {
 		// лут кошелька с баблом
 		// налогом не облагается, т.к. уже все уплочено

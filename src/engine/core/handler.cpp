@@ -262,7 +262,7 @@ void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
 	if (affect_on_room != world[room]->affected.end()) {
 		CharData *caster = find_char((*affect_on_room)->caster_id);
 		// если не в гопе, и не слепой
-		if (!same_group(ch, caster)
+		if (!group::same_group(ch, caster)
 			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
 			// отсекаем всяких непонятных личностей типо двойников и проч
 			// \todo Пальцы себе отсеки за такой код. Переделать на константы, а еще лучше - сделать где-то enum или вообще конфиг с внумами мобов для спеллов

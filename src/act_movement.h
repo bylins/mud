@@ -2,6 +2,7 @@
 #define ACT_MOVEMENT_HPP_
 
 #include "engine/structs/structs.h"
+#include "engine/entities/entities_constants.h"
 
 class CharData;
 class ObjData;
@@ -12,6 +13,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 int skip_hiding(CharData *ch, CharData *vict);
 int skip_sneaking(CharData *ch, CharData *vict);
 int skip_camouflage(CharData *ch, CharData *vict);
+EDirection SelectRndDirection(CharData *ch, int fail_chance);
 
 enum kSimpleMove : int {
     Default = 0,
