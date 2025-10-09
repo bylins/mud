@@ -227,7 +227,7 @@ void PrintScoreList(CharData *ch) {
 						  ch))], EWhat::kLvl)
 						  + std::string(" без потерь для опыта.")).substr(0, 76).c_str()));
 
-	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", max_group_size(ch));
+	SendMsgToChar(ch, "Вы можете принять в группу максимум %d соратников.\r\n", group::max_group_size(ch));
 	std::ostringstream out;
 	out.str("");
 	PrintRentableInfo(ch, out);
@@ -334,7 +334,7 @@ void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 			<< " без потерь для опыта." << "\r\n";
 
 		out << InfoStrPrefix(ch) << "Вы можете принять в группу максимум "
-			<< max_group_size(ch) << " соратников." << "\r\n";
+			<< group::max_group_size(ch) << " соратников." << "\r\n";
 	}
 }
 

@@ -263,7 +263,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 
 	if (victim != ch) {
-		if (same_group(ch, victim)) {
+		if (group::same_group(ch, victim)) {
 			if (number(1, 100) <= 5) {
 				SendMsgToChar(SUMMON_FAIL, ch);
 				return;
@@ -454,7 +454,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 	if (victim == nullptr)
 		return;
-	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -495,7 +495,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
 		|| pkPortal || ((!victim->IsNpc() || IS_CHARMICE(ch)) && victim->IsFlagged(EPrf::KSummonable))
-		|| same_group(ch, victim)) {
+		|| group::same_group(ch, victim)) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);
 		}
@@ -600,7 +600,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 				SendMsgToChar(SUMMON_FAIL3, ch);
 				return;
 			}
-			if (!victim->IsFlagged(EPrf::KSummonable) && !same_group(ch, victim)) {
+			if (!victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
 				ch->send_to_TC(true, true, true, "Чармис не в вашей группе\r\n");
 				SendMsgToChar(SUMMON_FAIL2, ch);
 				return;
@@ -630,7 +630,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 			|| ROOM_FLAGGED(ch_room, ERoomFlag::kNoBattle)
 			|| ROOM_FLAGGED(ch_room, ERoomFlag::kGodsRoom)
 			|| SECT(ch->in_room) == ESector::kSecret
-			|| (!same_group(ch, victim)
+			|| (!group::same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
 			SendMsgToChar(SUMMON_FAIL, ch);
@@ -648,7 +648,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 				|| ROOM_FLAGGED(vic_room, ERoomFlag::kGodsRoom)
 				|| !Clan::MayEnter(ch, vic_room, kHousePortal)
 				|| AFF_FLAGGED(victim, EAffect::kNoTeleport)
-				|| (!same_group(ch, victim)
+				|| (!group::same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
 				ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
 				SendMsgToChar(SUMMON_FAIL, ch);

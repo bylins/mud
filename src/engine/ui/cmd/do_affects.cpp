@@ -7,15 +7,23 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/groups.h"
 
-std::array<EAffect, 3> hiding = {EAffect::kSneak,
-								 EAffect::kHide,
-								 EAffect::kDisguise};
+std::array<EAffect, 3> hiding = {EAffect::kSneak, EAffect::kHide, EAffect::kDisguise};
 
 
-void do_affects(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char sp_name[kMaxStringLength];
+	const size_t agr_length = strlen(argument);
 
+	if (*argument && !strn_cmp(argument, "краткий", agr_length)) {
+		if (!ch->get_master()) {
+			group::print_one_line(ch, ch, true, 0);
+		} else {
+			group::print_one_line(ch, ch, false, 0);
+		}
+		return;
+	}
 	// Show the bitset without "hiding" etc.
 	auto aff_copy = ch->char_specials.saved.affected_by;
 	for (auto j : hiding) {

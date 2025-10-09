@@ -130,7 +130,7 @@ void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// группе хозянина спасющего и спасаемого.
 		if (AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
-			&& !same_group(vict->get_master(), ch->get_master())) {
+			&& !group::same_group(vict->get_master(), ch->get_master())) {
 			act("Спасали бы вы лучше другов своих.", false, ch, 0, vict, kToChar);
 			act("Вы не можете спасти весь мир.", false, ch->get_master(), 0, vict, kToChar);
 			return;

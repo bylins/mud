@@ -46,7 +46,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (GetRealLevel(victim) > GetRealLevel(ch) && !same_group(ch, victim)) {
+	if (GetRealLevel(victim) > GetRealLevel(ch) && !group::same_group(ch, victim)) {
 		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
 		return;
 	}
@@ -99,7 +99,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	if (!(victim->IsFlagged(EPrf::KSummonable) || same_group(ch, victim) || IS_IMMORTAL(ch)
+	if (!(victim->IsFlagged(EPrf::KSummonable) || group::same_group(ch, victim) || IS_IMMORTAL(ch)
 		|| ROOM_FLAGGED(fnd_room, ERoomFlag::kArena))) {
 		SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 					  kColorBoldRed, kColorBoldBlk);

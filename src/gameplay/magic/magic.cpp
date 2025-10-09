@@ -1385,7 +1385,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kGroupPrismaticAura:
 		case ESpell::kPrismaticAura:
-			if (!ch->IsNpc() && !same_group(ch, victim)) {
+			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -1721,7 +1721,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kProtectFromEvil:
 		case ESpell::kGroupProtectFromEvil:
-			if (!ch->IsNpc() && !same_group(ch, victim)) {
+			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -1743,7 +1743,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 		case ESpell::kGroupSanctuary:
 		case ESpell::kSanctuary:
-			if (!ch->IsNpc() && !same_group(ch, victim)) {
+			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -2027,7 +2027,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kLight:
-			if (!ch->IsNpc() && !same_group(ch, victim)) {
+			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -2039,7 +2039,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 
 		case ESpell::kDarkness:
-			if (!ch->IsNpc() && !same_group(ch, victim)) {
+			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
@@ -3311,7 +3311,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 			break;
 		case ESpell::kDispellMagic:
 			if (!ch->IsNpc()
-				&& !same_group(ch, victim)) {
+				&& !group::same_group(ch, victim)) {
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 
 				return 0;
