@@ -925,7 +925,7 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	for (f = leader->followers; f; f = f->next) {
 		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == killer->in_room) {
+				&& f->follower->in_room == killer->in_room) {
 			perform_group_gain(f->follower, victim, inroom_members, koef);
 		}
 	}

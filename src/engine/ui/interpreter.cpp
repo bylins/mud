@@ -234,6 +234,7 @@
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
+#include "gameplay/mechanics/groups.h"
 
 #include <ctime>
 
@@ -338,8 +339,6 @@ void do_send(CharData *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
-void do_split(CharData *ch, char *argument, int cmd, int subcmd);
-void do_split(CharData *ch, char *argument, int cmd, int subcmd, int currency);
 void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
 void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
@@ -499,7 +498,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"дать", EPosition::kRest, do_give, 0, 0, 500},
 		{"дата", EPosition::kDead, do_date, 0, SCMD_DATE, 0},
-		{"делить", EPosition::kRest, do_split, 1, 0, 200},
+		{"делить", EPosition::kRest, group::do_split, 1, 0, 200},
 		{"держать", EPosition::kRest, do_grab, 0, 0, 300},
 		{"дметр", EPosition::kDead, do_dmeter, 0, 0, 0},
 		{"доложить", EPosition::kRest, do_report, 0, 0, 500},
@@ -695,7 +694,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"разбудить", EPosition::kRest, do_wake, 0, kScmdWakeUp, -1},
 		{"разгруппировать", EPosition::kDead, do_ungroup, 0, 0, 500},
-		{"разделить", EPosition::kRest, do_split, 1, 0, 500},
+		{"разделить", EPosition::kRest, group::do_split, 1, 0, 500},
 		{"разделы", EPosition::kRest, do_help, 1, 0, 500},
 		{"разжечь", EPosition::kStand, DoCampfire, 0, 0, -1},
 		{"распустить", EPosition::kDead, do_ungroup, 0, 0, 500},
@@ -970,7 +969,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"snoop", EPosition::kDead, do_snoop, kLvlGreatGod, 0, 0},
 		{"socials", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
 		{"spells", EPosition::kRest, DoSpells, 0, 0, 0},
-		{"split", EPosition::kRest, do_split, 1, 0, 0},
+		{"split", EPosition::kRest, group::do_split, 1, 0, 0},
 		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
 		{"stat", EPosition::kDead, do_stat, 0, 0, 0},
 		{"steal", EPosition::kStand, do_steal, 1, 0, 300},

@@ -2142,7 +2142,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			}
 			// else
 			// А хозяина то рядом не оказалось, все чармису - убрано
-			// нефиг абьюзить чарм  perform_group_gain( killer, victim, 1, 100 );
+			// нефиг абьюзить чарм  group::perform_group_gain( killer, victim, 1, 100 );
 		} else {
 			// Просто NPC или PC сам по себе
 			perform_group_gain(killer, victim, 1, 100);
@@ -2317,7 +2317,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	appear(victim);
 
 	// If you attack a pet, it hates your guts
-	if (!same_group(ch, victim)) {
+	if (!group::same_group(ch, victim)) {
 		check_agro_follower(ch, victim);
 	}
 	if (victim != ch) {
@@ -3610,7 +3610,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				for (const auto &tch : people) {
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
-					if (tch != ch && !same_group(ch, tch)) {
+					if (tch != ch && !group::same_group(ch, tch)) {
 						CastDamage(GetRealLevel(ch), ch, tch, spell_id);
 					}
 				}

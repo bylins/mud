@@ -207,7 +207,7 @@ void pk_update_revenge(CharData *agressor, CharData *victim, int attime, int ren
 		agressor->pk_list = pk;
 	}
 	pk->battle_exp = time(nullptr) + attime * 60;
-	if (!same_group(agressor, victim)) {
+	if (!group::same_group(agressor, victim)) {
 		agressor->player_specials->may_rent = MAX(NORENTABLE(agressor), time(nullptr) + renttime * 60);
 	}
 	return;

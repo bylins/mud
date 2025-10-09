@@ -13,12 +13,12 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, buf);
 
 	if (!*buf) {
-		print_group(ch);
+		group::print_group(ch);
 		return;
 	}
 
 	if (!str_cmp(buf, "список")) {
-		print_list_group(ch);
+		group::print_list_group(ch);
 		return;
 	}
 
@@ -37,7 +37,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	GoGroup(ch, argument);
+	group::GoGroup(ch, argument);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
