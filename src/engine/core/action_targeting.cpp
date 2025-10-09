@@ -40,14 +40,14 @@ const FilterType isCorrectFriend = [](CharData *actor, CharData *target) {
 	if (isNotCorrectTarget(actor, target)) {
 		return false;
 	};
-	return (same_group(actor, target));
+	return (group::same_group(actor, target));
 };
 
 const FilterType isCorrectVictim = [](CharData *actor, CharData *target) {
 	if (isNotCorrectTarget(actor, target)) {
 		return false;
 	};
-	if (same_group(actor, target) || IS_IMMORTAL(target)) {
+	if (group::same_group(actor, target) || IS_IMMORTAL(target)) {
 		return false;
 	};
 	if (!may_kill_here(actor, target, NoArgument)) {

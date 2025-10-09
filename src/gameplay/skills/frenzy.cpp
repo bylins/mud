@@ -34,7 +34,6 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	constexpr int cooldown = 7;
 	const int duration = CalcDuration(ch, 23, 0, 0, 0, 0);;
 	const int hp_regen = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 	const int dmg_multiplier = ch->GetSkill(ESkill::kFrenzy) / 12.5;
@@ -52,23 +51,29 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af[1].location = EApply::kPhysicDamagePercent;
 	af[1].bitvector = to_underlying(EAffect::kNoFlee);
 	af[1].battleflag = kAfPulsedec;
-
 	bool has_frenzy = false;
+	bool can_be_angrier = false;
 
-	for (auto it = ch->affected.begin(); it != ch->affected.end(); ++it) {
-		auto& aptr = *it;
-		auto& a = *aptr;
+	for (auto it = ch->affected.begin(); it != ch->affected.end();) {
+		auto a = *(*it);  // копия данных эффекта (НЕ ссылка!)
 
 		if (a.type == ESpell::kFrenzy) {
 			has_frenzy = true;
 
 			if (a.location == EApply::kHpRegen && a.modifier < af[0].modifier * 5) {
 				a.modifier += af[0].modifier;
+				can_be_angrier = true;
 			}
 			if (a.location == EApply::kPhysicDamagePercent && a.modifier < af[1].modifier * 5) {
 				a.modifier += af[1].modifier;
+				can_be_angrier = true;
 			}
 			a.duration = duration;
+			it = ch->AffectRemove(it);
+			affect_to_char(ch, a);
+			// continue не обязателен: it уже установлен на следующий
+		} else {
+			++it;
 		}
 	}
 
@@ -79,10 +84,15 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		for (auto & i : af) {
 			ImposeAffect(ch, i, false, false, false, false);
 		}
-	} else {
-		SendMsgToChar("&RВы разъярились ещё сильнее!&n\r\n", ch);
+	} else  {
+		if (can_be_angrier) {
+			SendMsgToChar("&RВы разъярились ещё сильнее!&n\r\n", ch);
+		} else {
+			SendMsgToChar("&RВы жаждете крови своих соперников!&n\r\n", ch);
+		}
 	}
 	if (!IS_IMMORTAL(ch)) {
+		constexpr int cooldown = 7;
 		SetSkillCooldown(ch, ESkill::kFrenzy, cooldown);
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 		ch->set_move(ch->get_move() - MUD::Spell(ESpell::kFrenzy).GetMaxMana());

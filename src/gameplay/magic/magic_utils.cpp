@@ -339,7 +339,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 			continue;
 		if (!HERE(ch_vict))
 			continue;
-		if (MUD::Spell(spell_id).IsViolent() && same_group(caster, ch_vict))
+		if (MUD::Spell(spell_id).IsViolent() && group::same_group(caster, ch_vict))
 			continue;
 		if (ignore && ch_vict != victim)
 			continue;
@@ -640,7 +640,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 					return false;
 				}
 			} else {
-				if (ch_vict == tch && !same_group(ch, ch_vict)) {
+				if (ch_vict == tch && !group::same_group(ch, ch_vict)) {
 					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return false;
 				}

@@ -21,7 +21,7 @@
 
 #include <ranges>
 
-bool same_group(CharData *ch, CharData *tch) {
+bool group::same_group(CharData *ch, CharData *tch) {
 	if (!ch || !tch)
 		return false;
 
@@ -67,7 +67,7 @@ bool same_group(CharData *ch, CharData *tch) {
 	return false;
 }
 
-int max_group_size(CharData *ch) {
+int group::max_group_size(CharData *ch) {
 	int bonus_commander = 0;
 //	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
 //		bonus_commander = VPOSI((ch->get_skill(ESkill::kLeadership) - 120) / 10, 0, 8);
@@ -85,7 +85,7 @@ bool is_group_member(CharData *ch, CharData *vict) {
 	}
 }
 
-int perform_group(CharData *ch, CharData *vict) {
+int group::perform_group(CharData *ch, CharData *vict) {
 	if (AFF_FLAGGED(vict, EAffect::kGroup)
 		|| AFF_FLAGGED(vict, EAffect::kCharmed)
 		|| vict->IsFlagged(EMobFlag::kTutelar)
@@ -173,11 +173,11 @@ void change_leader(CharData *ch, CharData *vict) {
 	}
 
 	ch->dps_copy(leader);
-	perform_group(leader, leader);
+	group::perform_group(leader, leader);
 	int followers = 0;
 	for (struct FollowerType *f = leader->followers; f; f = f->next) {
-		if (followers < max_group_size(leader)) {
-			if (perform_group(leader, f->follower))
+		if (followers < group::max_group_size(leader)) {
+			if (group::perform_group(leader, f->follower))
 				++followers;
 		} else {
 			SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
@@ -186,7 +186,7 @@ void change_leader(CharData *ch, CharData *vict) {
 	}
 }
 
-void print_one_line(CharData *ch, CharData *k, int leader, int header) {
+void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	const char *WORD_STATE[] = {"При смерти",
 								"Оч.тяж.ран",
 								"Оч.тяж.ран",
@@ -321,7 +321,7 @@ void print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	}
 }
 
-void print_list_group(CharData *ch) {
+void group::print_list_group(CharData *ch) {
 	CharData *k;
 	struct FollowerType *f;
 	int count = 1;
@@ -346,7 +346,7 @@ void print_list_group(CharData *ch) {
 	}
 }
 
-void print_group(CharData *ch) {
+void group::print_group(CharData *ch) {
 	int gfound = 0, cfound = 0;
 	CharData *k;
 	struct FollowerType *f, *g;
@@ -358,7 +358,7 @@ void print_group(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		SendMsgToChar("Ваша группа состоит из:\r\n", ch);
 		if (AFF_FLAGGED(k, EAffect::kGroup)) {
-			print_one_line(ch, k, true, gfound++);
+			group::print_one_line(ch, k, true, gfound++);
 		}
 
 		for (f = k->followers; f; f = f->next) {
@@ -406,7 +406,7 @@ void print_group(CharData *ch) {
 				if (!cfound) {
 					SendMsgToChar("Последователи членов вашей группы:\r\n", ch);
 				}
-				print_one_line(ch, f->follower, false, cfound++);
+				group::print_one_line(ch, f->follower, false, cfound++);
 			}
 
 			if (ch->has_master()) {
@@ -426,13 +426,13 @@ void print_group(CharData *ch) {
 				if (!cfound) {
 					SendMsgToChar("Последователи членов вашей группы:\r\n", ch);
 				}
-				print_one_line(ch, g->follower, false, cfound++);
+				group::print_one_line(ch, g->follower, false, cfound++);
 			}
 		}
 	}
 }
 
-void GoGroup(CharData *ch, char *argument) {
+void group::GoGroup(CharData *ch, char *argument) {
 	int f_number;
 	struct FollowerType *f;
 	for (f_number = 0, f = ch->followers; f; f = f->next) {
@@ -446,20 +446,20 @@ void GoGroup(CharData *ch, char *argument) {
 		|| !str_cmp(buf, "все")) {
 		int found;
 		for (found = 0, f = ch->followers; f; f = f->next) {
-			if ((f_number + found) >= max_group_size(ch)) {
+			if ((f_number + found) >= group::max_group_size(ch)) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
-				return;
+				break;
 			}
 			if (IsAffectedBySpell(f->follower, ESpell::kFrenzy)) {
 				continue;
 			}
-			found += perform_group(ch, f->follower);
+			found += group::perform_group(ch, f->follower);
 		}
 
 		if (!found) {
 			SendMsgToChar("Все, кто за вами следуют, уже включены в вашу группу.\r\n", ch);
 		} else {
-			perform_group(ch, ch);
+			group::perform_group(ch, ch);
 		}
 
 		return;
@@ -506,12 +506,12 @@ void GoGroup(CharData *ch, char *argument) {
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				SendMsgToChar("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
 			};
-			if (f_number >= max_group_size(ch)) {
+			if (f_number >= group::max_group_size(ch)) {
 				SendMsgToChar("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
-			perform_group(ch, ch);
-			perform_group(ch, vict);
+			group::perform_group(ch, ch);
+			group::perform_group(ch, vict);
 		} else if (ch != vict) {
 			act("$N исключен$A из состава вашей группы.", false, ch, nullptr, vict, kToChar);
 			act("Вы исключены из группы $n1!", false, ch, nullptr, vict, kToVict);
@@ -522,7 +522,7 @@ void GoGroup(CharData *ch, char *argument) {
 	}
 }
 
-void GoUngroup(CharData *ch, char *argument) {
+void group::GoUngroup(CharData *ch, char *argument) {
 	struct FollowerType *f, *next_fol;
 	CharData *tch;
 	if (!*argument) {
@@ -612,11 +612,11 @@ void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
-void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	do_split(ch, argument, 0, 0, 0);
 }
 
-void do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
+void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, int currency) {
 	int amount, num, share, rest;
 	CharData *k;
 	struct FollowerType *f;

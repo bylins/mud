@@ -16,7 +16,7 @@ void do_ungroup(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы же не лидер группы!\r\n", ch);
 		return;
 	}
-	GoUngroup(ch, buf);
+	group::GoUngroup(ch, buf);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

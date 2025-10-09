@@ -86,7 +86,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				const auto &aff = *aff_i;
 				if (GET_UID(ch) != aff->caster_id) {
 					caster = find_char(aff->caster_id);
-					if (caster && !same_group(ch, caster)) {
+					if (caster && !group::same_group(ch, caster)) {
 						pk_thiefs_action(ch, caster);
 						sprintf(buf,
 								"Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n",

@@ -48,9 +48,8 @@ void GoFlee(CharData *ch) {
 		const auto was_fighting = ch->GetEnemy();
 		const auto was_in = ch->in_room;
 
+		act("$n запаниковал$g и попытал$u сбежать!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (DoSimpleMove(ch, direction, true, nullptr, IsFlee)) {
-			act("$n запаниковал$g и пытал$u сбежать!",
-				true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			if (ch->IsOnHorse()) {
 				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, ch->get_horse(), kToChar);
 			} else {
@@ -61,8 +60,7 @@ void GoFlee(CharData *ch) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 		} else {
-			act("$n запаниковал$g и попытал$u убежать, но не смог$q!",
-				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			act("Но не смог$q!", false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 			SendMsgToChar("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 		}
 	} else {

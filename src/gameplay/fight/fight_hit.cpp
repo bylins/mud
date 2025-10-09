@@ -1374,7 +1374,7 @@ void hit_touching(CharData *ch, CharData *vict, int *dam) {
 	}
 }
 
-void hit_deviate(CharData *ch, CharData *victim, int *dam) {
+void HitData::hit_deviate(CharData *ch, CharData *victim, int *dam) {
 	int range = number(1, MUD::Skill(ESkill::kDodge).difficulty);
 	int prob = CalcCurrentSkill(victim, ESkill::kDodge, ch);
 	if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
@@ -1385,6 +1385,9 @@ void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 		prob /= 3;
 	}
 	TrainSkill(victim, ESkill::kDodge, prob < 100, ch);
+	if (get_flags()[fight::kCritLuck]) {
+		prob = 0;
+	}
 	if (prob < 60) {
 		act("Вы не смогли уклониться от атаки $N1.", false, victim, 0, ch, kToChar);
 		act("$N не сумел$G уклониться от вашей атаки.", false, ch, 0, victim, kToChar);
@@ -1412,7 +1415,7 @@ void hit_deviate(CharData *ch, CharData *victim, int *dam) {
 	++(victim->battle_counter);
 }
 
-void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
+void HitData::hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
 	if (!((GET_EQ(victim, EEquipPos::kWield)
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::kWeapon
 		&& GET_EQ(victim, EEquipPos::kHold)
@@ -1427,6 +1430,9 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 		prob = prob * 100 / range;
 		TrainSkill(victim, ESkill::kParry, prob < 100, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kParry).name, range, prob, prob >= 70);
+		if (get_flags()[fight::kCritLuck]) {
+			prob = 0;
+		}
 		if (prob < 70
 			|| ((skill == ESkill::kBows || hit_type == fight::type_maul)
 				&& !IS_IMMORTAL(victim)
@@ -1473,7 +1479,8 @@ void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *
 	}
 }
 
-void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
+void HitData::hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
+
 	if (!((GET_EQ(victim, EEquipPos::kWield)
 		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::kWeapon
 		&& GET_EQ(victim, EEquipPos::kHold)
@@ -1497,6 +1504,9 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 
 		TrainSkill(victim, ESkill::kMultiparry, prob >= 50, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kMultiparry).name, range, prob, prob >= 50);
+		if (get_flags()[fight::kCritLuck]) {
+			prob = 0;
+		}
 		if (prob < 50) {
 			act("Вы не смогли отбить атаку $N1.", false, victim, 0, ch, kToChar);
 			act("$N не сумел$G отбить вашу атаку.", false, ch, 0, victim, kToChar);
@@ -1523,7 +1533,7 @@ void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, 
 	}
 }
 
-void hit_block(CharData *ch, CharData *victim, int *dam) {
+void HitData::hit_block(CharData *ch, CharData *victim, int *dam) {
 	if (!(GET_EQ(victim, EEquipPos::kShield)
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
@@ -1535,6 +1545,9 @@ void hit_block(CharData *ch, CharData *victim, int *dam) {
 		++(victim->battle_counter);
 		TrainSkill(victim, ESkill::kShieldBlock, prob > 99, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kShieldBlock).name, range, prob, prob > 99);
+		if (get_flags()[fight::kCritLuck]) {
+			prob = 0;
+		}
 		if (prob < 100) {
 			act("Вы не смогли отразить атаку $N1.", false, victim, 0, ch, kToChar);
 			act("$N не сумел$G отразить вашу атаку.", false, ch, 0, victim, kToChar);
@@ -2129,7 +2142,7 @@ void Damage::process_death(CharData *ch, CharData *victim) {
 			}
 			// else
 			// А хозяина то рядом не оказалось, все чармису - убрано
-			// нефиг абьюзить чарм  perform_group_gain( killer, victim, 1, 100 );
+			// нефиг абьюзить чарм  group::perform_group_gain( killer, victim, 1, 100 );
 		} else {
 			// Просто NPC или PC сам по себе
 			perform_group_gain(killer, victim, 1, 100);
@@ -2304,7 +2317,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	appear(victim);
 
 	// If you attack a pet, it hates your guts
-	if (!same_group(ch, victim)) {
+	if (!group::same_group(ch, victim)) {
 		check_agro_follower(ch, victim);
 	}
 	if (victim != ch) {
@@ -2924,37 +2937,18 @@ void HitData::init(CharData *ch, CharData *victim) {
 		weap_skill = ESkill::kPunch;
 	}
 	if (skill_num == ESkill::kUndefined) {
-/*		if (ch == victim) {
-			sprintf(buf, "АВТОАТАКА: victim == ch, сброшен стек");
-			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
-			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		}
-*/
 		TrainSkill(ch, weap_skill, true, victim);
-//		if (!ch->IsFlagged(EPrf::kTester) && ch != victim) {
-			SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
-			weap_skill_is = result.SkillRate;
-			if (result.CritLuck) {
-				SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
-				act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
-				act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
-				set_flag(fight::kCritLuck);
-				set_flag(fight::kIgnoreSanct);
-				set_flag(fight::kHalfIgnoreArmor);
-				set_flag(fight::kIgnoreAbsorbe);
-			}
-/*		} else {
-			weap_skill_is = CalcCurrentSkill(ch, weap_skill, victim);
-			if (weap_skill_is == MUD::Skill(weap_skill).cap && ch != victim) {
-				SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
-				act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
-				act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
-				set_flag(fight::kCritLuck);
-				set_flag(fight::kIgnoreSanct);
-				set_flag(fight::kIgnoreArmor);
-				set_flag(fight::kIgnoreAbsorbe);
-			}
-		}*/
+		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
+		weap_skill_is = result.SkillRate;
+		if (result.CritLuck) {
+			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
+			act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
+			act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
+			set_flag(fight::kCritLuck);
+			set_flag(fight::kIgnoreSanct);
+			set_flag(fight::kHalfIgnoreArmor);
+			set_flag(fight::kIgnoreAbsorbe);
+		}
 	}
 	//* обработка ESkill::kNoParryHit //
 	if (skill_num == ESkill::kUndefined && ch->GetSkill(ESkill::kNoParryHit)) {
@@ -3616,7 +3610,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				for (const auto &tch : people) {
 					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
-					if (tch != ch && !same_group(ch, tch)) {
+					if (tch != ch && !group::same_group(ch, tch)) {
 						CastDamage(GetRealLevel(ch), ch, tch, spell_id);
 					}
 				}
