@@ -50,10 +50,6 @@ void do_throwout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
-	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
-		return;
-	}
 	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
@@ -121,7 +117,7 @@ void go_throwout(CharData *ch, CharData *vict) {
 	    			SetWait(vict, 2, false);
 	    			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 	    		}
-	    	stop_fighting(vict, false);
+	    	stop_fighting(vict, true);
 			DoSimpleMove(vict, direction, false, nullptr, ThrowOut);
 	    	if (!IS_IMMORTAL(ch)) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
