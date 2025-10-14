@@ -488,8 +488,8 @@ void do_drink_drunk(CharData *ch, ObjData *jar, int amount) {
 			// **** Increase DR ***** //
 			af.type = ESpell::kDrunked;
 			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
-			af.modifier = (GetRealLevel(ch) + 4) / 5;
-			af.location = EApply::kDamroll;
+			af.modifier = GetRealLevel(ch) / 5 + GetRealRemort(ch) / 5;
+			af.location = EApply::kPhysicDamagePercent;
 			af.bitvector = to_underlying(EAffect::kDrunked);
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);

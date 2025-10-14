@@ -613,6 +613,10 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(ch, "Персонажи имеют разные email адреса.\r\n");
 			return;
 		}
+		if (ch->getGloryRespecTime() != 0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
+			SendMsgToChar("Операцию со славой можно делать только раз в сутки.\r\n", ch);
+			return;
+		}
 
 		int amount = 0;
 		try {
@@ -654,10 +658,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		SendMsgToChar(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
 					  GET_PAD(vict, 2), total_amount, tax);
-
-		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
-		// на трансфер ставить, чтобы не заспамили.
-		// а без отдельных логов потом фик поймешь откуда на чаре слава
+		ch->setGloryRespecTime(time(nullptr));
 		return;
 	}
 	if (CompareParam(buffer2, "изменить")) {
@@ -666,7 +667,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		if (ch->getGloryRespecTime() != 0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
-			SendMsgToChar("Не прошло и суток, а вам неймется...\r\n", ch);
+			SendMsgToChar("Операцию со славой можно делать только раз в сутки.\r\n", ch);
 			return;
 		}
 		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
