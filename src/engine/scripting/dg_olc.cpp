@@ -466,6 +466,10 @@ void trigedit_save(DescriptorData *d) {
 		trig_index = new_index;
 		top_of_trigt++;
 		zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second++;
+		for (ZoneRnum zrn = OLC_ZNUM(d) + 1; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
+			zone_table[zrn].RnumTrigsLocation.first++;
+			zone_table[zrn].RnumTrigsLocation.second++;
+		}
 
 		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
 		trigger_list.shift_rnums_from(trig_rnum);
