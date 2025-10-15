@@ -280,16 +280,14 @@ void TriggersFile::read_entry(const int nr) {
 
 void TriggersFile::parse_trigger(int vnum) {
 	int t, add_flag, k;
-	static int count = 0;
-
 	char line[256], flags[256];
 
 	ZoneRnum zrn = GetZoneRnum(vnum / 100);
 
 	if (zone_table[zrn].RnumTrigsLocation.first == -1) {
-		zone_table[zrn].RnumTrigsLocation.first = count;
+		zone_table[zrn].RnumTrigsLocation.first = top_of_trigt;
 	}
-	zone_table[zrn].RnumTrigsLocation.second = count;
+	zone_table[zrn].RnumTrigsLocation.second = top_of_trigt;
 
 	sprintf(buf2, "trig vnum %d", vnum);
 	std::string name(fread_string());
@@ -362,7 +360,6 @@ void TriggersFile::parse_trigger(int vnum) {
 	}
 
 	AddTrigIndexEntry(vnum, trig);
-	count++;
 }
 
 class WorldFile : public DiscreteFile {
