@@ -602,7 +602,6 @@ void TrigDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mudlog("В зоне нет триггеров, копируем остальное", LGH, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
-
 	for (int i = trn_start; i <= trn_stop; i++) {
 		auto *trig = new Trigger(*trig_index[i]->proto);
 		TrgRnum new_tvn = trig_index[i]->vnum % 100 + zvn_to * 100;
