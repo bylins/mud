@@ -16,6 +16,7 @@
 #include "engine/network/msdp/msdp_constants.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/currencies.h"
+#include "engine/db/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -563,53 +564,83 @@ void group::GoUngroup(CharData *ch, char *argument) {
 	SendMsgToChar("Этот игрок не входит в состав вашей группы.\r\n", ch);
 }
 
-void do_report(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
 	struct FollowerType *f;
 
-	if (!AFF_FLAGGED(ch, EAffect::kGroup) && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
-		SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
-		return;
-	}
-	if (IS_MANA_CASTER(ch)) {
-		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch),
-				ch->get_hit(), ch->get_real_max_hit(),
-				ch->get_move(), ch->get_real_max_move(),
-				ch->mem_queue.stored, GET_MAX_MANA(ch));
-	} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
-		int loyalty = 0;
-		for (const auto &aff : ch->affected) {
-			if (aff->type == ESpell::kCharm) {
-				loyalty = aff->duration / 2;
-				break;
+	if (!*argument) {
+		if (!AFF_FLAGGED(ch, EAffect::kGroup) && !AFF_FLAGGED(ch, EAffect::kCharmed)) {
+			SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
+			return;
+		}
+		if (IS_MANA_CASTER(ch)) {
+			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
+					GET_NAME(ch), GET_CH_SUF_1(ch),
+					ch->get_hit(), ch->get_real_max_hit(),
+					ch->get_move(), ch->get_real_max_move(),
+					ch->mem_queue.stored, GET_MAX_MANA(ch));
+		} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
+			int loyalty = 0;
+
+			for (const auto &aff : ch->affected) {
+				if (aff->type == ESpell::kCharm) {
+					loyalty = aff->duration / 2;
+					break;
+				}
+			}
+			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
+					GET_NAME(ch), GET_CH_SUF_1(ch),
+					ch->get_hit(), ch->get_real_max_hit(),
+					ch->get_move(), ch->get_real_max_move(),
+					loyalty);
+		} else {
+			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
+					GET_NAME(ch), GET_CH_SUF_1(ch),
+					ch->get_hit(), ch->get_real_max_hit(),
+					ch->get_move(), ch->get_real_max_move());
+		}
+		CAP(buf);
+		k = ch->has_master() ? ch->get_master() : ch;
+		for (f = k->followers; f; f = f->next) {
+			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
+				&& f->follower != ch
+				&& !AFF_FLAGGED(f->follower, EAffect::kDeafness)) {
+				SendMsgToChar(buf, f->follower);
 			}
 		}
-		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch),
-				ch->get_hit(), ch->get_real_max_hit(),
-				ch->get_move(), ch->get_real_max_move(),
-				loyalty);
+		if (k != ch && !AFF_FLAGGED(k, EAffect::kDeafness)) {
+			SendMsgToChar(buf, k);
+		}
+		SendMsgToChar("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 	} else {
-		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch),
-				ch->get_hit(), ch->get_real_max_hit(),
-				ch->get_move(), ch->get_real_max_move());
-	}
-	CAP(buf);
-	k = ch->has_master() ? ch->get_master() : ch;
-	for (f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower != ch
-			&& !AFF_FLAGGED(f->follower, EAffect::kDeafness)) {
-			SendMsgToChar(buf, f->follower);
+		if (CompareParam(argument, "умения")) {
+			std::string str;
+
+			if (!ch->followers) {
+				SendMsgToChar(ch, "За вами никто не следует.");
+				return;
+			}
+			for (f = ch->followers; f; f = f->next) {
+				if (IS_CHARMICE(f->follower)) {
+					SendMsgToChar(ch, "%s доложил%s свои умения:", CAP(f->follower->get_name()).c_str(), GET_CH_SUF_1(f->follower));
+					for (const auto &skill : MUD::Skills()) {
+						if (skill.IsValid() && f->follower->GetSkill(skill.GetId())) {
+							str += fmt::format(" {},", skill.GetName());
+						}
+					}
+					if (str.back() == ',') {
+						str.pop_back();
+						str.push_back('.');
+					}
+					SendMsgToChar(ch, "&C%s&n\r\n", str.c_str());
+				} else {
+					SendMsgToChar(ch, "%s не подчиняется вам, и не хочет ничего докладывать.\r\n", CAP(f->follower->get_name()).c_str());
+				}
+			}
+		} else {
+			SendMsgToChar(ch, "Кому чего доложить?\r\n");
 		}
 	}
-
-	if (k != ch && !AFF_FLAGGED(k, EAffect::kDeafness)) {
-		SendMsgToChar(buf, k);
-	}
-	SendMsgToChar("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
 void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
