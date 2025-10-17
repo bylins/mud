@@ -170,6 +170,7 @@ char *colorCAP(char *txt);
 std::string &colorCAP(std::string &txt);
 std::string &colorCAP(std::string &&txt);
 char *CAP(char *txt);
+std::string CAP(const std::string txt);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
 #define KtoW2(c) ((ubyte)(c) < 128 ? (c) : KoiToWin2[(ubyte)(c)-128])
