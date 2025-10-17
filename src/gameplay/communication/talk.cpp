@@ -23,7 +23,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 	snprintf(local_buf, kMaxInputLength,
 			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), argument);
 	SendMsgToChar(ch, "%s%s%s\r\n",
-				  kColorBoldCyn, CAP(local_buf), kColorNrm);
+				  kColorBoldCyn, utils::CAP(local_buf), kColorNrm);
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
@@ -89,7 +89,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	} else {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
-	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, CAP(buf), kColorNrm);
+	snprintf(buf1, kMaxStringLength, "%s%s%s\r\n", kColorBoldCyn, utils::CAP(buf), kColorNrm);
 	SendMsgToChar(buf1, vict);
 	if (!vict->IsNpc()) {
 		vict->remember_add(buf1, Remember::ALL);

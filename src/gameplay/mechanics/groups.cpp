@@ -599,7 +599,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move());
 		}
-		CAP(buf);
+		utils::CAP(buf);
 		k = ch->has_master() ? ch->get_master() : ch;
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
@@ -622,7 +622,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			for (f = ch->followers; f; f = f->next) {
 				if (IS_CHARMICE(f->follower)) {
-					SendMsgToChar(ch, "%s доложил%s свои умения:", CAP(f->follower->get_name()).c_str(), GET_CH_SUF_1(f->follower));
+					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->follower->get_name()).c_str(), GET_CH_SUF_1(f->follower));
 					for (const auto &skill : MUD::Skills()) {
 						if (skill.IsValid() && f->follower->GetSkill(skill.GetId())) {
 							str += fmt::format(" {},", skill.GetName());
@@ -634,7 +634,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					SendMsgToChar(ch, "&C%s&n\r\n", str.c_str());
 				} else {
-					SendMsgToChar(ch, "%s не подчиняется вам, и не хочет ничего докладывать.\r\n", CAP(f->follower->get_name()).c_str());
+					SendMsgToChar(ch, "%s не подчиняется вам, и не хочет ничего докладывать.\r\n", utils::CAP(f->follower->get_name()).c_str());
 				}
 			}
 		} else {

@@ -223,7 +223,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	} else if (SetSystem::is_big_set(obj, true)) {
 		snprintf(buf, kMaxStringLength, "%s является частью большого набора предметов.\r\n",
 				 obj->get_PName(0).c_str());
-		SendMsgToChar(CAP(buf), ch);
+		SendMsgToChar(utils::CAP(buf), ch);
 		return false;
 	}
 

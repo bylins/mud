@@ -2137,25 +2137,25 @@ void find_replacement(void *go,
 				strcpy(str, GET_CH_SUF_2(c));
 			} else if (!str_cmp(field, "UPiname")) {
 				std::string tmpname = GET_PAD(c, 0);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPrname")) {
 				std::string tmpname = GET_PAD(c, 1);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPdname")) {
 				std::string tmpname = GET_PAD(c, 2);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPvname")) {
 				std::string tmpname = GET_PAD(c, 3);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPtname")) {
 				std::string tmpname = GET_PAD(c, 4);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPpname")) {
 				std::string tmpname = GET_PAD(c, 5);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPname")) {
 				std::string tmpname = GET_NAME(c);
-				strcpy(str, colorCAP(tmpname).c_str());
+				strcpy(str, utils::colorCAP(tmpname).c_str());
 				CharacterLinkDrop = false;
 			} else if (!str_cmp(field, "unsetquest")) {
 				if (*subfield && (num = atoi(subfield)) > 0) {

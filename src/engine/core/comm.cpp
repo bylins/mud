@@ -2419,9 +2419,9 @@ void perform_act(const char *orig,
 			tmp = lbuf;
 			while ((tmp - lbuf < (int) strlen(lbuf) - 2) && (*tmp == '&'))
 				tmp += 2;
-			CAP(tmp);
+			utils::CAP(tmp);
 		}
-		iosystem::write_to_output(CAP(lbuf), to->desc);
+		iosystem::write_to_output(utils::CAP(lbuf), to->desc);
 	}
 
 	if ((to->IsNpc() && dg_act_check) && (to != ch))

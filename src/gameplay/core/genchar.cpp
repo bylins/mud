@@ -319,7 +319,7 @@ void GetCase(std::string name, const EGender sex, int caseNum, char *data) {
 		result = name;
 	}
 	strcpy(data, result.c_str());
-	CAP(data);
+	utils::CAP(data);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

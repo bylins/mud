@@ -612,16 +612,16 @@ void ObjectFile::parse_object(const int nr) {
 		exit(1);
 	}
 	tobj->set_aliases(aliases);
-	tobj->set_short_description(colorLOW(fread_string()));
+	tobj->set_short_description(utils::colorLOW(fread_string()));
 
 	strcpy(buf, tobj->get_short_description().c_str());
-	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
+	tobj->set_PName(0, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
 
 	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
-		tobj->set_PName(j, colorLOW(fread_string()));
+		tobj->set_PName(j, utils::colorLOW(fread_string()));
 	}
 
-	tobj->set_description(colorCAP(fread_string()));
+	tobj->set_description(utils::colorCAP(fread_string()));
 	tobj->set_action_description(fread_string());
 
 	if (!get_line(file(), m_line)) {
@@ -1011,7 +1011,7 @@ void MobileFile::parse_mobile(const int nr) {
 	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
 		mob_proto[i].player_data.PNames[j] = fread_string();
 	}
-	mob_proto[i].player_data.long_descr = colorCAP(fread_string());
+	mob_proto[i].player_data.long_descr = utils::colorCAP(fread_string());
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = nullptr;
 	mob_proto[i].SetTitleStr("");

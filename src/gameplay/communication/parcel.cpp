@@ -239,7 +239,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UID(ch)))) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
-		SendMsgToChar(CAP(buf), ch);
+		SendMsgToChar(utils::CAP(buf), ch);
 		return;
 	}
 	name_convert(name);

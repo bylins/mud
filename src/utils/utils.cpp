@@ -93,55 +93,6 @@ const char *first_letter(const char *txt) {
 	return txt;
 }
 
-char *colorCAP(char *txt) {
-	char *letter = const_cast<char *>(first_letter(txt));
-	if (letter && *letter) {
-		*letter = UPPER(*letter);
-	}
-	return txt;
-}
-
-std::string &colorCAP(std::string &txt) {
-	size_t pos = first_letter(txt.c_str()) - txt.c_str();
-	txt[pos] = UPPER(txt[pos]);
-	return txt;
-}
-
-// rvalue variant
-std::string &colorCAP(std::string &&txt) {
-	return colorCAP(txt);
-}
-
-char *colorLOW(char *txt) {
-	char *letter = const_cast<char *>(first_letter(txt));
-	if (letter && *letter) {
-		*letter = LOWER(*letter);
-	}
-	return txt;
-}
-
-std::string &colorLOW(std::string &txt) {
-	size_t pos = first_letter(txt.c_str()) - txt.c_str();
-	txt[pos] = LOWER(txt[pos]);
-	return txt;
-}
-
-// rvalue variant
-std::string &colorLOW(std::string &&txt) {
-	return colorLOW(txt);
-}
-
-char *CAP(char *txt) {
-	*txt = UPPER(*txt);
-	return (txt);
-}
-
-std::string CAP(const std::string txt) {
-	std::string tmp_str = txt;
-	tmp_str[0] = UPPER(tmp_str[0]);
-	return (tmp_str);
-}
-
 // Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src) {
 	if (dst == nullptr) {

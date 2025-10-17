@@ -2881,8 +2881,8 @@ void nanny(DescriptorData *d, char *argument) {
 						}
 
 						CreateChar(d);
-						d->character->SetCharAliases(CAP(tmp_name));
-						d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
+						d->character->SetCharAliases(utils::CAP(tmp_name));
+						d->character->player_data.PNames[0] = std::string(utils::CAP(tmp_name));
 						d->character->set_pfilepos(player_i);
 						sprintf(buffer, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
 						log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
@@ -2927,8 +2927,8 @@ void nanny(DescriptorData *d, char *argument) {
 						return;
 					}
 
-					d->character->SetCharAliases(CAP(tmp_name));
-					d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
+					d->character->SetCharAliases(utils::CAP(tmp_name));
+					d->character->player_data.PNames[0] = std::string(utils::CAP(tmp_name));
 					iosystem::write_to_output(name_rules, d);
 					sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
 					log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
@@ -3032,8 +3032,8 @@ void nanny(DescriptorData *d, char *argument) {
 				return;
 			}
 
-			d->character->SetCharAliases(CAP(tmp_name));
-			d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
+			d->character->SetCharAliases(utils::CAP(tmp_name));
+			d->character->player_data.PNames[0] = std::string(utils::CAP(tmp_name));
 			if (is_player_deleted) {
 				d->character->set_pfilepos(player_i);
 			}
@@ -3617,7 +3617,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[1] = std::string(CAP(tmp_name));
+				d->character->player_data.PNames[1] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3642,7 +3642,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[2] = std::string(CAP(tmp_name));
+				d->character->player_data.PNames[2] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3667,7 +3667,7 @@ void nanny(DescriptorData *d, char *argument) {
 				&& !strn_cmp(tmp_name,
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
-				d->character->player_data.PNames[3] = std::string(CAP(tmp_name));
+				d->character->player_data.PNames[3] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3689,7 +3689,7 @@ void nanny(DescriptorData *d, char *argument) {
 						  GET_PC_NAME(d->character),
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
-				d->character->player_data.PNames[4] = std::string(CAP(tmp_name));
+				d->character->player_data.PNames[4] = std::string(utils::CAP(tmp_name));
 				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
@@ -3711,7 +3711,7 @@ void nanny(DescriptorData *d, char *argument) {
 						  GET_PC_NAME(d->character),
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
-				d->character->player_data.PNames[5] = std::string(CAP(tmp_name));
+				d->character->player_data.PNames[5] = std::string(utils::CAP(tmp_name));
 				sprintf(buffer,
 						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 						GET_PAD(d->character, 1));

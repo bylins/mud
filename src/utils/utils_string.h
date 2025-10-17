@@ -273,6 +273,18 @@ std::string EraseAllAny(const std::string s, const std::string any);
 // убрать в строке s повторяющиеся подряд символы ch
 std::string CompressSymbol(std::string s, const char ch);
 
+// даункейс первой буквы цветного текста 
+char *colorLOW(char *txt);
+std::string &colorLOW(std::string &txt);
+std::string &colorLOW(std::string &&txt);
+// апперкейс первой буквы цветного текста
+char *colorCAP(char *txt);
+std::string &colorCAP(std::string &txt);
+std::string &colorCAP(std::string &&txt);
+// апперкейс первой букв
+char *CAP(char *txt);
+std::string CAP(const std::string txt);
+
 } // namespace utils
 
 #endif // UTILS_STRING_HPP_
