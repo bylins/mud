@@ -111,7 +111,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (*name && calc_track > number(1, 40)) {
-				CAP(name);
+				utils::CAP(name);
 				for (track_t = i = 0; i < EDirection::kMaxDirNum; i++) {
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
@@ -158,7 +158,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	ch->track_dirs = 0;
-	CAP(name);
+	utils::CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
 	for (int c = 0; c < EDirection::kMaxDirNum; c++) {

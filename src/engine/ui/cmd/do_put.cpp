@@ -286,7 +286,7 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 
 		sprintf(buf, "Здесь лежит %s.",
 				MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
-		obj->set_description(CAP(buf));
+		obj->set_description(utils::CAP(buf));
 
 		new_descr->keyword = str_dup("coins gold кун денег");
 	}

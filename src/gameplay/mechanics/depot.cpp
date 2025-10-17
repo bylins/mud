@@ -955,7 +955,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
-		SendMsgToChar(CAP(buf), ch);
+		SendMsgToChar(utils::CAP(buf), ch);
 		return 0;
 	}
 	return 1;

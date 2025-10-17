@@ -24,7 +24,7 @@ void do_gen_door(CharData *ch, char *argument, int, int subcmd) {
 	skip_spaces(&argument);
 	if (!*argument) {
 		sprintf(buf, "%s что?\r\n", a_cmd_door[subcmd]);
-		SendMsgToChar(CAP(buf), ch);
+		SendMsgToChar(utils::CAP(buf), ch);
 		return;
 	}
 	char type[kMaxInputLength], dir[kMaxInputLength];

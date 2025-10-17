@@ -964,7 +964,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	}
 
 	strcat(output, "\r\n");
-	SendMsgToChar(CAP(output), ch);
+	SendMsgToChar(utils::CAP(output), ch);
 	return (return_code);
 }
 
