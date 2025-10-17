@@ -138,6 +138,12 @@ char *CAP(char *txt) {
 	return (txt);
 }
 
+std::string CAP(const std::string txt) {
+	std::string tmp_str = txt;
+	tmp_str[0] = UPPER(tmp_str[0]);
+	return (tmp_str);
+}
+
 // Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src) {
 	if (dst == nullptr) {
