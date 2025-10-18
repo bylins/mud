@@ -2274,7 +2274,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
 		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
-		SendMsgToChar(CAP(buf), ch);
+		SendMsgToChar(utils::CAP(buf), ch);
 		return false;
 	} else {
 		if ((GET_OBJ_WEIGHT(chest) + GET_OBJ_WEIGHT(obj)) > CLAN(ch)->ChestMaxWeight()

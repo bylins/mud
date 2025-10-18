@@ -1323,16 +1323,16 @@ void Crash_listrent(CharData *ch, char *name) {
 			sprintf(buf, "Ubable to read %s timer file.\r\n", name);
 			SendMsgToChar(buf, ch);
 		} else if (!SAVEINFO(index)) {
-			sprintf(buf, "%s не имеет файла ренты.\r\n", CAP(name));
+			sprintf(buf, "%s не имеет файла ренты.\r\n", utils::CAP(name));
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", CAP(name));
+			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", utils::CAP(name));
 			SendMsgToChar(buf, ch);
 			Crash_list_objects(ch, index);
 			ClearSaveinfo(index);
 		}
 	} else {
-		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", CAP(name));
+		sprintf(buf, "%s находится в ренте. Содержимое файла ренты:\r\n", utils::CAP(name));
 		SendMsgToChar(buf, ch);
 		Crash_list_objects(ch, index);
 	}

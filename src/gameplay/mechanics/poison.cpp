@@ -345,18 +345,18 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 							  PERS(vict, ch, 1));
 			} else if (spell_id == ESpell::kScopolaPoison) {
 				strcpy(buf1, PERS(vict, ch, 0));
-				CAP(buf1);
+				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
 							  buf1, GET_CH_VIS_SUF_2(vict, ch));
 				SET_AF_BATTLE(vict, kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
 				strcpy(buf1, PERS(vict, ch, 3));
-				CAP(buf1);
+				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s перестали слушаться руки.\r\n", buf1);
 				SET_AF_BATTLE(vict, kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
 				strcpy(buf1, PERS(vict, ch, 2));
-				CAP(buf1);
+				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s стало труднее плести заклинания.\r\n", buf1);
 				SET_AF_BATTLE(vict, kEafFirstPoison);
 			} else {
