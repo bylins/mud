@@ -163,15 +163,6 @@ constexpr int kSfSilence = 1 << 4;
 int MAX(int a, int b);
 int MIN(int a, int b);
 
-char *colorLOW(char *txt);
-std::string &colorLOW(std::string &txt);
-std::string &colorLOW(std::string &&txt);
-char *colorCAP(char *txt);
-std::string &colorCAP(std::string &txt);
-std::string &colorCAP(std::string &&txt);
-char *CAP(char *txt);
-std::string CAP(const std::string txt);
-
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
 #define KtoW2(c) ((ubyte)(c) < 128 ? (c) : KoiToWin2[(ubyte)(c)-128])
 #define KtoA(c) ((ubyte)(c) < 128 ? (c) : KoiToAlt[(ubyte)(c)-128])

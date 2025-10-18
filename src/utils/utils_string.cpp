@@ -399,6 +399,81 @@ std::string CompressSymbol(std::string s, const char ch) {
 	return s;
 }
 
+const char *first_letter(const char *txt) {
+	if (txt) {
+		while (*txt && !a_isalpha(*txt)) {
+			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
+			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
+			//но он не используется (см. CLEAR_SCREEN)
+			if ('\x1B' == *txt) {
+				while (*txt && 'm' != *txt) {
+					++txt;
+				}
+				if (!*txt) {
+					return txt;
+				}
+			} else if ('&' == *txt) {
+				++txt;
+				if (!*txt) {
+					return txt;
+				}
+			}
+			++txt;
+		}
+	}
+	return txt;
 }
+
+char *colorCAP(char *txt) {
+	char *letter = const_cast<char *>(first_letter(txt));
+	if (letter && *letter) {
+		*letter = UPPER(*letter);
+	}
+	return txt;
+}
+
+std::string &colorCAP(std::string &txt) {
+	size_t pos = first_letter(txt.c_str()) - txt.c_str();
+	txt[pos] = UPPER(txt[pos]);
+	return txt;
+}
+
+// rvalue variant
+std::string &colorCAP(std::string &&txt) {
+	return colorCAP(txt);
+}
+
+char *colorLOW(char *txt) {
+	char *letter = const_cast<char *>(first_letter(txt));
+	if (letter && *letter) {
+		*letter = LOWER(*letter);
+	}
+	return txt;
+}
+
+std::string &colorLOW(std::string &txt) {
+	size_t pos = first_letter(txt.c_str()) - txt.c_str();
+	txt[pos] = LOWER(txt[pos]);
+	return txt;
+}
+
+// rvalue variant
+std::string &colorLOW(std::string &&txt) {
+	return colorLOW(txt);
+}
+
+char *CAP(char *txt) {
+	*txt = UPPER(*txt);
+	return (txt);
+}
+
+std::string CAP(const std::string txt) {
+	std::string tmp_str = txt;
+	tmp_str[0] = UPPER(tmp_str[0]);
+	return (tmp_str);
+}
+
+
+} //namespace utils
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

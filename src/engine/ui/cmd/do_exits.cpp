@@ -44,7 +44,7 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 					strcat(buf2, "\r\n");
 				}
 			}
-			strcat(buf, CAP(buf2));
+			strcat(buf, utils::CAP(buf2));
 		}
 	SendMsgToChar("Видимые выходы:\r\n", ch);
 	if (*buf)
@@ -83,7 +83,7 @@ void do_blind_exits(CharData *ch) {
 					strcat(buf2, "");
 				}
 			}
-			strcat(buf, CAP(buf2));
+			strcat(buf, utils::CAP(buf2));
 		}
 	SendMsgToChar("Видимые выходы:\r\n", ch);
 	if (*buf)

@@ -1299,7 +1299,7 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 	SendMsgToChar(charmee->get_master(),
 				  "%s%s%s\r\n",
 				  kColorBoldCyn,
-				  CAP(local_buf),
+				  utils::CAP(local_buf),
 				  kColorNrm);
 }
 

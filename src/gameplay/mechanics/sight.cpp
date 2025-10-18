@@ -1327,7 +1327,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 		percent = -1;    // How could MAX_HIT be < 1??
 
 	strcpy(buf, PERS(i, ch, 0));
-	CAP(buf);
+	utils::CAP(buf);
 
 	if (percent >= 100) {
 		sprintf(buf2, " невредим%s", GET_CH_SUF_6(i));
@@ -1554,7 +1554,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			sprintf(buf + strlen(buf), "бряцание металла%s", mode_flags ? ", " : " ");
 		}
 		strcat(buf, "выдает чье-то присутствие.\r\n");
-		SendMsgToChar(CAP(buf), ch);
+		SendMsgToChar(utils::CAP(buf), ch);
 		return;
 	}
 
@@ -1704,7 +1704,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(buf1, " ");
 		if (AFF_FLAGGED(i, EAffect::kHorse))
 			strcat(buf1, "(под седлом) ");
-		CAP(buf1);
+		utils::CAP(buf1);
 	} else {
 		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
