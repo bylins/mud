@@ -139,6 +139,7 @@ void PrintScoreList(CharData *ch) {
 
 	HitData hit_params;
 	hit_params.weapon = fight::kMainHand;
+	hit_params.skill_num = ESkill::kAny; 
 	hit_params.init(ch, ch);
 	bool need_dice = false;
 	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
@@ -565,6 +566,7 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	HitData hit_params;
 	hit_params.weapon = fight::kMainHand;
+	hit_params.skill_num = ESkill::kAny; 
 	hit_params.init(ch, ch);
 	auto max_dam = hit_params.calc_damage(ch, false);
 
@@ -622,6 +624,7 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 	HitData hit;
 	hit.weapon = fight::AttackType::kMainHand;
+	hit.skill_num = ESkill::kAny; 
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
 	hit.calc_stat_hr(ch);
@@ -629,6 +632,7 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 
 	HitData hit2;
 	hit2.weapon = fight::AttackType::kOffHand;
+	hit2.skill_num = ESkill::kAny; 
 	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);
