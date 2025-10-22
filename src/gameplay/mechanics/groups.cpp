@@ -614,14 +614,14 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 	} else {
 		if (CompareParam(argument, "умения")) {
-			std::string str;
-
 			if (!ch->followers) {
 				SendMsgToChar(ch, "За вами никто не следует.");
 				return;
 			}
 			for (f = ch->followers; f; f = f->next) {
 				if (IS_CHARMICE(f->follower)) {
+					std::string str;
+					
 					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->follower->get_name()).c_str(), GET_CH_SUF_1(f->follower));
 					for (const auto &skill : MUD::Skills()) {
 						if (skill.IsValid() && f->follower->GetSkill(skill.GetId())) {
