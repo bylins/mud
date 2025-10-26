@@ -8,6 +8,7 @@
 
 #include "engine/ui/cmd_god/do_set_all.h"
 
+#include "administration/karma.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
@@ -22,8 +23,6 @@ enum ESetAllKind {
   kSetallPwd,
   kSetallHell
 };
-
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 
 void setall_inspect() {
 	if (setall_inspect_list.empty()) {

@@ -28,20 +28,14 @@
 #include "engine/ui/cmd_god/do_shutdown.h"
 #include "engine/core/config.h"
 #include "gameplay/core/constants.h"
-#include "gameplay/mechanics/corpse.h"
 #include "engine/db/db.h"
 #include "gameplay/mechanics/depot.h"
 #include "engine/db/description.h"
-#include "engine/scripting/dg_scripts.h"
 #include "engine/db/global_objects.h"
-#include "gameplay/classes/classes.h"
-#include "gameplay/mechanics/glory.h"
-#include "gameplay/mechanics/glory_misc.h"
 #include "gameplay/mechanics/mem_queue.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/handler.h"
 #include "gameplay/clans/house.h"
-#include "gameplay/crafting/im.h"
 #include "engine/ui/interpreter.h"
 #include "gameplay/mechanics/liquid.h"
 #include "utils/logger.h"
@@ -58,17 +52,14 @@
 #include "engine/structs/structs.h"
 #include "engine/core/sysdep.h"
 #include "utils/utils.h"
-#include "utils/id_converter.h"
 #include "engine/db/world_objects.h"
 #include "engine/entities/zone.h"
 #include "gameplay/classes/classes_constants.h"
 #include "gameplay/magic/magic_rooms.h"
 #include "utils/utils_time.h"
-#include "gameplay/core/game_limits.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/dungeons.h"
 
-//#include <third_party_libs/fmt/include/fmt/format.h>
 #include <sstream>
 #include <iomanip>
 #include <fstream>
@@ -80,7 +71,6 @@ using std::fstream;
 // external vars
 extern FILE *player_fl;
 extern int circle_restrict;
-extern int load_into_inventory;
 extern time_t zones_stat_date;
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 
@@ -91,9 +81,6 @@ void do_recall(CharData *ch, char *argument, int cmd, int subcmd);
 void log_zone_count_reset();
 // extern functions
 void appear(CharData *ch);
-//void ResetZone(ZoneRnum zone);
-//extern CharData *find_char(long n);
-//int _parse_name(char *arg, char *name);
 int reserved_word(const char *name);
 // local functions
 void perform_immort_invis(CharData *ch, int level);
@@ -107,24 +94,22 @@ void stop_snooping(CharData *ch);
 void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
 void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_return(CharData *ch, char *argument, int cmd, int subcmd);
-void do_load(CharData *ch, char *argument, int cmd, int subcmd);
+void DoLoad(CharData *ch, char *argument, int cmd, int);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
-void do_advance(CharData *ch, char *argument, int cmd, int subcmd);
+void DoAdvance(CharData *ch, char *argument, int, int);
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void perform_immort_vis(CharData *ch);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
 void do_date(CharData *ch, char *argument, int cmd, int subcmd);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_force(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zclear(CharData *ch, char *argument, int cmd, int subcmd);
-void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizutil(CharData *ch, char *argument, int cmd, int subcmd);
 void do_show(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
@@ -134,7 +119,7 @@ void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
-void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
+void DoArenaRestore(CharData *ch, char *argument, int, int);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_send_text_to_char(CharData *ch, char *, int, int);
@@ -209,17 +194,6 @@ void send_to_gods(char *text, bool demigod) {
 }
 
 extern const char *deaf_social;
-
-// Adds karma string to KARMA
-// \TODO Move to PlayerData
-void AddKarma(CharData *ch, const char *punish, const char *reason) {
-	if (reason && (reason[0] != '.')) {
-		char smallbuf[kMaxInputLength];
-		time_t nt = time(nullptr);
-		snprintf(smallbuf, kMaxInputLength, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
-		KARMA(ch) = str_add(KARMA(ch), smallbuf);
-	}
-}
 
 extern bool print_object_location(int num, const ObjData *obj, CharData *ch);
 
@@ -414,63 +388,6 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
 
-void do_arena_restore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharData *vict;
-
-	one_argument(argument, buf);
-	if (!*buf)
-		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)))
-		SendMsgToChar(NOPERSON, ch);
-	else {
-		vict->set_hit(vict->get_real_max_hit());
-		vict->set_move(vict->get_real_max_move());
-		if (IS_MANA_CASTER(vict)) {
-			vict->mem_queue.stored = GET_MAX_MANA(vict);
-		} else {
-			vict->mem_queue.stored = vict->mem_queue.total;
-		}
-		if (vict->GetSkill(ESkill::kWarcry) > 0) {
-			struct TimedSkill wctimed;
-			wctimed.skill = ESkill::kWarcry;
-			wctimed.time = 0;
-			ImposeTimedSkill(vict, &wctimed);
-		}
-		if (IS_GRGOD(ch) && IS_IMMORTAL(vict)) {
-			vict->set_str(25);
-			vict->set_int(25);
-			vict->set_wis(25);
-			vict->set_dex(25);
-			vict->set_con(25);
-			vict->set_cha(25);
-		}
-		update_pos(vict);
-		RemoveAffectFromChar(vict, ESpell::kDrunked);
-		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
-		RemoveAffectFromChar(vict, ESpell::kAbstinent);
-
-		//сброс таймеров скиллов и фитов
-		while (vict->timed)
-			ExpireTimedSkill(vict, vict->timed);
-		while (vict->timed_feat)
-			ExpireTimedFeat(vict, vict->timed_feat);
-		reset_affects(vict);
-		for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-			if (GET_EQ(vict, i)) {
-				remove_otrigger(GET_EQ(vict, i), vict);
-				ExtractObjFromWorld(UnequipChar(vict, i, CharEquipFlags()));
-			}
-		}
-		ObjData *obj;
-		for (obj = vict->carrying; obj; obj = vict->carrying) {
-			RemoveObjFromChar(obj);
-			ExtractObjFromWorld(obj);
-		}
-		act("Все ваши вещи были удалены и все аффекты сняты $N4!",
-			false, vict, nullptr, ch, kToChar);
-	}
-}
-
 void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 	DescriptorData *i;
 	int rnum_start, rnum_stop;
@@ -574,130 +491,6 @@ void do_check_occupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 	if (!is_found) {
 		SendMsgToChar("Такой зоны нет.\r\n", ch);
 	}
-}
-
-#define SHOW_GLORY    0
-#define ADD_GLORY    1
-#define SUB_GLORY    2
-#define SUB_STATS    3
-#define SUB_TRANS    4
-#define SUB_HIDE    5
-
-void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	// Команда простановки славы (оффлайн/онлайн)
-	// Без параметров выводит славу у игрока
-	// + cлава прибавляет славу
-	// - cлава убавляет славу
-	char num[kMaxInputLength];
-	char arg1[kMaxInputLength];
-	int mode = 0;
-	char *reason;
-
-	if (!*argument) {
-		SendMsgToChar("Формат команды : \r\n"
-					 "   glory <имя> +|-<кол-во славы> причина\r\n"
-					 "   glory <имя> remove <кол-во статов> причина (снимание уже вложенной чаром славы)\r\n"
-					 "   glory <имя> transfer <имя принимаюего славу> причина (переливание славы на другого чара)\r\n"
-					 "   glory <имя> hide on|off причина (показывать или нет чара в топе славы)\r\n", ch);
-		return;
-	}
-	reason = two_arguments(argument, arg, num);
-	skip_spaces(&reason);
-
-	if (!*num)
-		mode = SHOW_GLORY;
-	else if (*num == '+')
-		mode = ADD_GLORY;
-	else if (*num == '-')
-		mode = SUB_GLORY;
-	else if (utils::IsAbbr(num, "remove")) {
-		// тут у нас в num получается remove, в arg1 кол-во и в reason причина
-		reason = one_argument(reason, arg1);
-		skip_spaces(&reason);
-		mode = SUB_STATS;
-	} else if (utils::IsAbbr(num, "transfer")) {
-		// а тут в num transfer, в arg1 имя принимающего славу и в reason причина
-		reason = one_argument(reason, arg1);
-		skip_spaces(&reason);
-		mode = SUB_TRANS;
-	} else if (utils::IsAbbr(num, "hide")) {
-		// а тут в num hide, в arg1 on|off и в reason причина
-		reason = any_one_arg(reason, arg1);
-		skip_spaces(&reason);
-		mode = SUB_HIDE;
-	}
-
-	// точки убираем, чтобы карма всегда писалась
-	skip_dots(&reason);
-
-	if (mode != SHOW_GLORY) {
-		if ((reason == nullptr) || (*reason == 0)) {
-			SendMsgToChar("Укажите причину изменения славы?\r\n", ch);
-			return;
-		}
-	}
-
-	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
-	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
-	if (!vict) {
-		if (LoadPlayerCharacter(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {
-			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
-			return;
-		}
-		vict = &t_vict;
-	}
-
-	switch (mode) {
-		case ADD_GLORY: {
-			int amount = atoi((num + 1));
-			Glory::add_glory(GET_UID(vict), amount);
-			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UID(vict)));
-			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			// запись в карму
-			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
-			break;
-		}
-		case SUB_GLORY: {
-			int amount = Glory::remove_glory(GET_UID(vict), atoi((num + 1)));
-			if (amount <= 0) {
-				SendMsgToChar(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
-				break;
-			}
-			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UID(vict)));
-			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			// запись в карму
-			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
-			break;
-		}
-		case SUB_STATS: {
-			if (Glory::remove_stats(vict, ch, atoi(arg1))) {
-				sprintf(buf, "Remove stats %s by %s", arg1, GET_NAME(ch));
-				AddKarma(vict, buf, reason);
-				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
-			}
-			break;
-		}
-		case SUB_TRANS: {
-			Glory::transfer_stats(vict, ch, arg1, reason);
-			break;
-		}
-		case SUB_HIDE: {
-			Glory::hide_char(vict, ch, arg1);
-			sprintf(buf, "Hide %s by %s", arg1, GET_NAME(ch));
-			AddKarma(vict, buf, reason);
-			GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
-			break;
-		}
-		default: Glory::show_glory(vict, ch);
-	}
-
-	vict->save_char();
 }
 
 void do_send(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1048,108 +841,6 @@ void do_return(CharData *ch, char *argument, int cmd, int subcmd) {
 	}
 }
 
-void do_load(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
-	CharData *mob;
-	MobVnum number;
-	MobRnum r_num;
-	char *iname;
-
-	iname = two_arguments(argument, buf, buf2);
-
-	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
-		SendMsgToChar("Чаво?\r\n", ch);
-		return;
-	}
-	int first = atoi(buf2) / 100;
-
-	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
-		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
-		return;
-	}
-	if (!*buf || !*buf2 || !a_isdigit(*buf2)) {
-		SendMsgToChar("Usage: load { obj | mob } <number>\r\n"
-					  "       load ing { <сила> | <VNUM> } <имя>\r\n", ch);
-		return;
-	}
-	if ((number = atoi(buf2)) < 0) {
-		SendMsgToChar("Отрицательный моб опасен для вашего здоровья!\r\n", ch);
-		return;
-	}
-	if (utils::IsAbbr(buf, "mob")) {
-		if ((r_num = GetMobRnum(number)) < 0) {
-			SendMsgToChar("Нет такого моба в этом МУДе.\r\n", ch);
-			return;
-		}
-		if ((zone_table[get_zone_rnum_by_mob_vnum(number)].locked) && (GetRealLevel(ch) != kLvlImplementator)) {
-			SendMsgToChar("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
-			return;
-		}
-		mob = ReadMobile(r_num, kReal);
-		PlaceCharToRoom(mob, ch->in_room);
-		act("$n порыл$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
-		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
-		act("Вы создали $N3.", false, ch, nullptr, mob, kToChar);
-		load_mtrigger(mob);
-		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
-	} else if (utils::IsAbbr(buf, "obj")) {
-		if ((r_num = GetObjRnum(number)) < 0) {
-			SendMsgToChar("Господи, да изучи ты номера объектов.\r\n", ch);
-			return;
-		}
-		if ((zone_table[get_zone_rnum_by_obj_vnum(number)].locked) && (GetRealLevel(ch) != kLvlImplementator)) {
-			SendMsgToChar("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
-			return;
-		}
-		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-		obj->set_crafter_uid(GET_UID(ch));
-		obj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
-
-		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM
-			|| number == GlobalDrop::MAGIC2_ENCHANT_VNUM
-			|| number == GlobalDrop::MAGIC3_ENCHANT_VNUM) {
-			generate_magic_enchant(obj.get());
-		}
-
-		if (load_into_inventory) {
-			PlaceObjToInventory(obj.get(), ch);
-		} else {
-			PlaceObjToRoom(obj.get(), ch->in_room);
-		}
-
-		act("$n покопал$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
-		act("$n создал$g $o3!", false, ch, obj.get(), nullptr, kToRoom);
-		act("Вы создали $o3.", false, ch, obj.get(), nullptr, kToChar);
-		load_otrigger(obj.get());
-		CheckObjDecay(obj.get());
-		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
-	} else if (utils::IsAbbr(buf, "ing")) {
-		int power, i;
-		power = atoi(buf2);
-		skip_spaces(&iname);
-		i = im_get_type_by_name(iname, 0);
-		if (i < 0) {
-			SendMsgToChar("Неверное имя типа\r\n", ch);
-			return;
-		}
-		const auto obj = load_ingredient(i, power, power);
-		if (!obj) {
-			SendMsgToChar("Ошибка загрузки ингредиента\r\n", ch);
-			return;
-		}
-		PlaceObjToInventory(obj, ch);
-		act("$n покопал$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
-		act("$n создал$g $o3!", false, ch, obj, nullptr, kToRoom);
-		act("Вы создали $o3.", false, ch, obj, nullptr, kToChar);
-		sprintf(buf, "%s load ing %d %s", GET_NAME(ch), power, iname);
-		mudlog(buf, NRM, kLvlBuilder, IMLOG, true);
-		load_otrigger(obj);
-		CheckObjDecay(obj);
-		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), power);
-	} else {
-		SendMsgToChar("Нет уж. Ты создай че-нить нормальное.\r\n", ch);
-	}
-}
-
 // отправка сообщения вообще всем
 void send_to_all(char *buffer) {
 	DescriptorData *pt;
@@ -1315,69 +1006,6 @@ void do_syslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	SendMsgToChar(buf, ch);
 }
 
-void do_advance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	CharData *victim;
-	char *name = arg, *level = buf2;
-	int newlevel, oldlevel;
-
-	two_arguments(argument, name, level);
-
-	if (*name) {
-		if (!(victim = get_player_vis(ch, name, EFind::kCharInWorld))) {
-			SendMsgToChar("Не найду такого игрока.\r\n", ch);
-			return;
-		}
-	} else {
-		SendMsgToChar("Повысить кого?\r\n", ch);
-		return;
-	}
-
-	if (GetRealLevel(ch) <= GetRealLevel(victim) && !ch->IsFlagged(EPrf::kCoderinfo)) {
-		SendMsgToChar("Нелогично.\r\n", ch);
-		return;
-	}
-	if (!*level || (newlevel = atoi(level)) <= 0) {
-		SendMsgToChar("Это не похоже на уровень.\r\n", ch);
-		return;
-	}
-	if (newlevel > kLvlImplementator) {
-		sprintf(buf, "%d - максимальный возможный уровень.\r\n", kLvlImplementator);
-		SendMsgToChar(buf, ch);
-		return;
-	}
-	if (newlevel > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
-		SendMsgToChar("Вы не можете установить уровень выше собственного.\r\n", ch);
-		return;
-	}
-	if (newlevel == GetRealLevel(victim)) {
-		act("$E и так этого уровня.", false, ch, nullptr, victim, kToChar);
-		return;
-	}
-	oldlevel = GetRealLevel(victim);
-	if (newlevel < oldlevel) {
-		SendMsgToChar("Вас окутало облако тьмы.\r\n" "Вы почувствовали себя лишенным чего-то.\r\n", victim);
-	} else {
-		act("$n сделал$g несколько странных пасов.\r\n"
-			"Вам показалось, будто неземное тепло разлилось по каждой клеточке\r\n"
-			"Вашего тела, наполняя его доселе невиданными вами ощущениями.\r\n",
-			false, ch, nullptr, victim, kToVict);
-	}
-
-	SendMsgToChar(OK, ch);
-	if (newlevel < oldlevel) {
-		log("(GC) %s demoted %s from level %d to %d.", GET_NAME(ch), GET_NAME(victim), oldlevel, newlevel);
-		imm_log("%s demoted %s from level %d to %d.", GET_NAME(ch), GET_NAME(victim), oldlevel, newlevel);
-	} else {
-		log("(GC) %s has advanced %s to level %d (from %d)",
-			GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
-		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
-	}
-
-	gain_exp_regardless(victim, GetExpUntilNextLvl(victim, newlevel)
-		- GET_EXP(victim));
-	victim->save_char();
-}
-
 void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict;
 
@@ -1485,64 +1113,6 @@ void do_poofset(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		*msg = str_dup(argument);
 
 	SendMsgToChar(OK, ch);
-}
-
-void do_dc(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	DescriptorData *d;
-	int num_to_dc;
-	one_argument(argument, arg);
-	if (!(num_to_dc = atoi(arg))) {
-		SendMsgToChar("Usage: DC <user number> (type USERS for a list)\r\n", ch);
-		return;
-	}
-	for (d = descriptor_list; d && d->desc_num != num_to_dc; d = d->next);
-
-	if (!d) {
-		SendMsgToChar("Нет такого соединения.\r\n", ch);
-		return;
-	}
-
-	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
-	{
-		int victim_level = d->character->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(d->character);
-		int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
-		if (victim_level >= god_level) {
-			if (!CAN_SEE(ch, d->character))
-				SendMsgToChar("Нет такого соединения.\r\n", ch);
-			else
-				SendMsgToChar("Да уж.. Это не есть праффильная идея...\r\n", ch);
-			return;
-		}
-	}
-
-	/* We used to just close the socket here using close_socket(), but
-	 * various people pointed out this could cause a crash if you're
-	 * closing the person below you on the descriptor list.  Just setting
-	 * to CON_CLOSE leaves things in a massively inconsistent state so I
-	 * had to add this new flag to the descriptor.
-	 *
-	 * It is a much more logical extension for a CON_DISCONNECT to be used
-	 * for in-game socket closes and CON_CLOSE for out of game closings.
-	 * This will retain the stability of the close_me hack while being
-	 * neater in appearance. -gg 12/1/97
-	 */
-	if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
-		SendMsgToChar("Соединение уже разорвано.\r\n", ch);
-	else {
-		/*
-		 * Remember that we can disconnect people not in the game and
-		 * that rather confuses the code when it expected there to be
-		 * a character context.
-		 */
-		if (STATE(d) == CON_PLAYING)
-			STATE(d) = CON_DISCONNECT;
-		else
-			STATE(d) = CON_CLOSE;
-
-		sprintf(buf, "Соединение #%d закрыто.\r\n", num_to_dc);
-		SendMsgToChar(buf, ch);
-		imm_log("Connect closed by %s.", GET_NAME(ch));
-	}
 }
 
 void do_wizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1688,58 +1258,6 @@ void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		sprintf(buf, "(GC) %s clear and reset zone %d (%s), delta %f", GET_NAME(ch), zrn, zone_table[zrn].name.c_str(), timer.delta().count());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s clear and reset zone %d (%s)", GET_NAME(ch), zrn, zone_table[zrn].name.c_str());
-	} else {
-		SendMsgToChar("Нет такой зоны.\r\n", ch);
-	}
-}
-
-void do_zreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
-	ZoneRnum i;
-	UniqueList<ZoneRnum> zone_repop_list;
-	one_argument(argument, arg);
-
-	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) <= 0)) {
-		SendMsgToChar("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (!*arg) {
-		SendMsgToChar("Укажите зону.\r\n", ch);
-		return;
-	}
-	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != atoi(arg)) {
-		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
-		return;
-	}
-	if (*arg == '*') {
-		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-			zone_repop_list.push_back(i);
-		}
-		DecayObjectsOnRepop(zone_repop_list);
-		for (i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
-			ResetZone(i);
-		}
-		SendMsgToChar("Перезагружаю мир.\r\n", ch);
-		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset entire world.", GET_NAME(ch));
-		return;
-	} else if (*arg == '.') {
-		i = world[ch->in_room]->zone_rn;
-	} else {
-		i = GetZoneRnum(atoi(arg));
-	}
-	if (i > 0 || *arg == '.' || *arg == '1') {
-		utils::CExecutionTimer timer;
-
-		sprintf(buf, "Перегружаю зону #%d: %s\r\n", zone_table[i].vnum, zone_table[i].name.c_str());
-		SendMsgToChar(buf, ch);
-		zone_repop_list.push_back(i);
-		DecayObjectsOnRepop(zone_repop_list);
-		ResetZone(i);
-		sprintf(buf, "(GC) %s reset zone %d (%s), delta %f", GET_NAME(ch), i, zone_table[i].name.c_str(), timer.delta().count());
-		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 	} else {
 		SendMsgToChar("Нет такой зоны.\r\n", ch);
 	}

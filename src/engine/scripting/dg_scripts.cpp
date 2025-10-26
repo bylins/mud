@@ -88,7 +88,7 @@ void ResetZone(int znum);
 void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mpurge(CharData *ch, char *argument, int cmd, int subcmd);
 void do_mjunk(CharData *ch, char *argument, int cmd, int subcmd);
-void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
+void DoArenaRestore(CharData *ch, char *argument, int, int);
 // function protos from this file
 void extract_value(Script *sc, Trigger *trig, char *cmd);
 int script_driver(void *go, Trigger *trig, int type, int mode);
@@ -2386,8 +2386,8 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_RELIGION(c));
 		} else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore"))) {
 			if (!str_cmp(field, "fullrestore")) {
-				do_arena_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
-				trig_log(trig, "был произведен вызов do_arena_restore!");
+				DoArenaRestore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
+				trig_log(trig, "был произведен вызов DoArenaRestore!");
 			} else {
 				do_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_restore!");

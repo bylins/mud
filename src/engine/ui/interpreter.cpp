@@ -17,22 +17,28 @@
 
 #include "act_movement.h"
 #include "administration/ban.h"
+#include "administration/karma.h"
 #include "gameplay/communication/boards/boards.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/communication/insult.h"
 #include "gameplay/communication/offtop.h"
+#include "engine/ui/cmd_god/do_advance.h"
+#include "engine/ui/cmd_god/do_arena_restore.h"
+#include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_set.h"
 #include "engine/ui/cmd_god/do_invisible.h"
 #include "engine/ui/cmd_god/do_echo.h"
 #include "engine/ui/cmd_god/do_force.h"
 #include "engine/ui/cmd_god/do_forcetime.h"
+#include "engine/ui/cmd_god/do_glory.h"
 #include "engine/ui/cmd_god/do_show.h"
 #include "engine/ui/cmd_god/do_reload.h"
 #include "engine/ui/cmd_god/do_stat.h"
 #include "engine/ui/cmd_god/do_show.h"
 #include "engine/ui/cmd_god/do_liblist.h"
+#include "engine/ui/cmd_god/do_load.h"
 #include "engine/ui/cmd_god/do_beep.h"
 #include "engine/ui/cmd_god/do_print_armor.h"
 #include "engine/ui/cmd_god/do_godtest.h"
@@ -40,6 +46,7 @@
 #include "engine/ui/cmd_god/do_mark.h"
 #include "engine/ui/cmd_god/do_wiznet.h"
 #include "engine/ui/cmd_god/do_wizutil.h"
+#include "engine/ui/cmd_god/do_zreset.h"
 #include "engine/ui/cmd/do_bandage.h"
 #include "engine/ui/cmd/do_consider.h"
 #include "engine/ui/cmd/do_antigods.h"
@@ -265,7 +272,6 @@ extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern const char *default_race[];
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
@@ -297,14 +303,13 @@ int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);
 void init_warcry(CharData *ch);
 
-void do_advance(CharData *ch, char *argument, int cmd, int subcmd);
+void DoAdvance(CharData *ch, char *argument, int, int);
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
 void do_at(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
 void do_date(CharData *ch, char *argument, int cmd, int subcmd);
-void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
@@ -315,14 +320,12 @@ void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
-void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_last(CharData *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
-void do_load(CharData *ch, char *argument, int cmd, int subcmd);
 void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
@@ -347,7 +350,6 @@ void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
-void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
 void do_zclear(CharData *ch, char *argument, int cmd, int subcmd);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
@@ -376,7 +378,6 @@ void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
 void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
-void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CharData *, char *, int, int);
 void do_overstuff(CharData *ch, char *, int, int);
 void do_send_text_to_char(CharData *ch, char *, int, int);
@@ -783,14 +784,14 @@ cpp_extern const struct command_info cmd_info[] =
 		{"'", EPosition::kRest, do_say, 0, 0, -1},
 		{":", EPosition::kRest, do_echo, 1, SCMD_EMOTE, -1},
 		{";", EPosition::kDead, do_wiznet, kLvlImmortal, 0, -1},
-		{"advance", EPosition::kDead, do_advance, kLvlImplementator, 0, 0},
+		{"advance", EPosition::kDead, DoAdvance, kLvlImplementator, 0, 0},
 		{"alias", EPosition::kDead, do_alias, 0, 0, 0},
 		{"alter", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"ask", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
 		{"assist", EPosition::kFight, do_assist, 1, 0, -1},
 		{"attack", EPosition::kFight, do_hit, 0, SCMD_MURDER, -1},
 		{"auction", EPosition::kRest, do_gen_comm, 0, SCMD_AUCTION, -1},
-		{"arenarestore", EPosition::kSleep, do_arena_restore, kLvlGod, 0, 0},
+		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, do_backstab, 1, 0, 1},
 		{"balance", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
@@ -812,7 +813,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"credits", EPosition::kDead, DoGenericPage, 0, kScmdCredits, 0},
 		{"date", EPosition::kDead, do_date, kLvlImmortal, SCMD_DATE, 0},
 		{"dazzle", EPosition::kFight, DoDazzle, 1, 0, -1},
-		{"dc", EPosition::kDead, do_dc, kLvlGreatGod, 0, 0},
+		{"dc", EPosition::kDead, DoDropConnect, kLvlGreatGod, 0, 0},
 		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
 		{"deviate", EPosition::kFight, do_deviate, 0, 0, -1},
 		{"diagnose", EPosition::kRest, do_diagnose, 0, 0, 500},
@@ -848,7 +849,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"gold", EPosition::kRest, do_gold, 0, 0, 0},
 		{"glide", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"glory", EPosition::kRest, GloryConst::do_glory, kLvlImplementator, 0, 0},
-		{"glorytemp", EPosition::kRest, do_glory, kLvlBuilder, 0, 0},
+		{"glorytemp", EPosition::kRest, DoGlory, kLvlBuilder, 0, 0},
 		{"gossip", EPosition::kRest, do_gen_comm, 0, SCMD_GOSSIP, -1},
 		{"goto", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
 		{"grab", EPosition::kRest, do_grab, 0, 0, 500},
@@ -881,7 +882,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"last", EPosition::kDead, do_last, kLvlGod, 0, 0},
 		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
 		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"load", EPosition::kDead, do_load, 0, 0, 0},
+		{"load", EPosition::kDead, DoLoad, 0, 0, 0},
 		{"loadstat", EPosition::kDead, do_loadstat, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, DoLook, 0, SCMD_LOOK, 200},
 		{"lock", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
@@ -1031,7 +1032,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"zclear", EPosition::kDead, do_zclear, kLvlImplementator, 0, 0},
 		{"zedit", EPosition::kDead, do_olc, 0, SCMD_OLC_ZEDIT, 0},
 		{"zone", EPosition::kRest, DoZone, 0, 0, 0},
-		{"zreset", EPosition::kDead, do_zreset, 0, 0, 0},
+		{"zreset", EPosition::kDead, DoZreset, 0, 0, 0},
 
 		// test command for gods
 		{"godtest", EPosition::kDead, do_godtest, kLvlGreatGod, 0, 0},

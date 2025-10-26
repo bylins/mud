@@ -37,6 +37,7 @@ class oload_class : public oload_map {
 
 extern oload_class oload_table;
 
+void generate_magic_enchant(ObjData *obj);
 void obj_load_on_death(ObjData *corpse, CharData *ch);
 void create_charmice_stuff(CharData *ch, ESkill skill_id, int diff);
 

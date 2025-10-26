@@ -384,7 +384,14 @@ set(SOURCES
 		src/gameplay/mechanics/doors.cpp
 		src/engine/ui/cmd/do_gen_door.cpp
 		src/gameplay/skills/throwout.cpp
-		src/gameplay/skills/frenzy.cpp)
+		src/gameplay/skills/frenzy.cpp
+		src/engine/ui/cmd_god/do_zreset.cpp
+		src/engine/ui/cmd_god/do_dc.cpp
+		src/engine/ui/cmd_god/do_advance.cpp
+		src/engine/ui/cmd_god/do_glory.cpp
+		src/administration/karma.cpp
+		src/engine/ui/cmd_god/do_arena_restore.cpp
+		src/engine/ui/cmd_god/do_load.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -755,7 +762,14 @@ set(HEADERS
 		src/gameplay/mechanics/doors.h
 		src/engine/ui/cmd/do_gen_door.h
 		src/gameplay/skills/throwout.h
-		src/gameplay/skills/frenzy.h)
+		src/gameplay/skills/frenzy.h
+		src/engine/ui/cmd_god/do_zreset.h
+		src/engine/ui/cmd_god/do_dc.h
+		src/engine/ui/cmd_god/do_advance.h
+		src/engine/ui/cmd_god/do_glory.h
+		src/administration/karma.h
+		src/engine/ui/cmd_god/do_arena_restore.h
+		src/engine/ui/cmd_god/do_load.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

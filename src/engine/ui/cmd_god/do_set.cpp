@@ -2,6 +2,7 @@
 // Created by Sventovit on 05.09.2024.
 //
 
+#include "administration/karma.h"
 #include "administration/names.h"
 #include "administration/privilege.h"
 #include "administration/punishments.h"
@@ -122,7 +123,6 @@ SetCmdStruct set_fields[] =
 int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg);
 void RenamePlayer(CharData *ch, char *oname);
 
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern int _parse_name(char *arg, char *name);
 extern int reserved_word(const char *argument);
 

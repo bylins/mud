@@ -1,12 +1,13 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "administration/karma.h"
 #include "genchar.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
+
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern bool ValidateStats(DescriptorData *d);
 extern int check_dupes_email(DescriptorData *d);
 extern void do_entergame(DescriptorData *d);

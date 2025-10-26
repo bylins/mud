@@ -16,6 +16,7 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
+#include "administration/karma.h"
 #include "engine/db/world_objects.h"
 #include "engine/db/world_characters.h"
 #include "engine/db/obj_prototypes.h"
@@ -57,7 +58,6 @@ extern int AllocateBufferForFile(const char *name, char **destination_buf);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_state, int how);
 extern bool char_to_pk_clan(CharData *ch);
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
@@ -2887,9 +2887,9 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 					}
 
 					if (d->clan_olc->all_ranks[parse_num]) {
-						d->clan_olc->all_ranks[parse_num] = 0;
+						d->clan_olc->all_ranks[parse_num] = false;
 					} else {
-						d->clan_olc->all_ranks[parse_num] = 1;
+						d->clan_olc->all_ranks[parse_num] = true;
 					}
 
 					d->clan_olc->clan->AllMenu(d, 0);
