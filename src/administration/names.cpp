@@ -20,7 +20,7 @@ namespace NewNames {
 static void save();
 static void cache_add(CharData *ch);
 }
-extern void send_to_gods(char *text, bool demigod);
+extern void SendMsgToGods(char *text, bool demigod);
 
 // Check if name agree (name must be parsed)
 int was_agree_name(DescriptorData *d) {
@@ -382,7 +382,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
-		send_to_gods(buf, true);
+		SendMsgToGods(buf, true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
@@ -393,7 +393,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
 		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
-		send_to_gods(buf, true);
+		SendMsgToGods(buf, true);
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	}

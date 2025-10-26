@@ -52,7 +52,7 @@ bool IsWearingLight(CharData *ch);
 void PerformDropGold(CharData *ch, int amount);
 int invalid_unique(CharData *ch, const ObjData *obj);
 void do_entergame(DescriptorData *d);
-void do_return(CharData *ch, char *argument, int cmd, int subcmd);
+void DoReturn(CharData *ch, char *argument, int cmd, int subcmd);
 //extern std::vector<City> Cities;
 extern int global_uid;
 extern void change_leader(CharData *ch, CharData *vict);
@@ -1755,7 +1755,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
 			if (t_desc->original.get() == ch) {
-				do_return(t_desc->character.get(), nullptr, 0, 0);
+				DoReturn(t_desc->character.get(), nullptr, 0, 0);
 			}
 		}
 	}
@@ -1831,7 +1831,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	ch->SetFlag(EMobFlag::kMobDeleted);
 
 	if (ch->desc && ch->desc->original) {
-		do_return(ch, nullptr, 0, 0);
+		DoReturn(ch, nullptr, 0, 0);
 	}
 
 	const bool is_npc = ch->IsNpc();

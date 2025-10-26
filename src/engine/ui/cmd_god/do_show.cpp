@@ -32,9 +32,24 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-extern void show_apply(CharData *ch, CharData *vict);
 extern void print_rune_stats(CharData *ch);
 void do_shops_list(CharData *ch);
+
+void show_apply(CharData *ch, CharData *vict) {
+	ObjData *obj = nullptr;
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
+		if ((obj = GET_EQ(vict, i))) {
+			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
+			// Update weapon applies
+			for (int j = 0; j < kMaxObjAffect; j++) {
+				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
+					SendMsgToChar(ch, "Добавляет (apply): %s, модификатор: %d\r\n",
+								  apply_types[(int) GET_EQ(vict, i)->get_affected(j).location], GET_EQ(vict, i)->get_affected(j).modifier);
+				}
+			}
+		}
+	}
+}
 
 void ShowClassInfo(CharData *ch, const std::string &class_name, const std::string &params) {
 	if (class_name.empty()) {

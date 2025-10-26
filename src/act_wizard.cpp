@@ -84,45 +84,45 @@ void appear(CharData *ch);
 int reserved_word(const char *name);
 // local functions
 void perform_immort_invis(CharData *ch, int level);
-void do_send(CharData *ch, char *argument, int cmd, int subcmd);
-RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig);
-void do_at(CharData *ch, char *argument, int cmd, int subcmd);
-void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
-void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
-void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
-void stop_snooping(CharData *ch);
-void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
-void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
-void do_return(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSendMsgToChar(CharData *ch, char *argument, int, int);
+RoomRnum FindTargetInRoom(CharData *ch, char *rawroomstr, int trig);
+void DoAtRoom(CharData *ch, char *argument, int, int);
+void DoGoto(CharData *ch, char *argument, int, int);
+void DoTeleport(CharData *ch, char *argument, int, int);
+void DoShutdown(CharData *ch, char *argument, int, int);
+void StopSnooping(CharData *ch);
+void DoSnoop(CharData *ch, char *argument, int, int);
+void DoSwitch(CharData *ch, char *argument, int, int);
+void DoReturn(CharData *ch, char *argument, int cmd, int subcmd);
 void DoLoad(CharData *ch, char *argument, int cmd, int);
-void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
-void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
-void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
+void DoVstat(CharData *ch, char *argument, int cmd, int);
+void DoPurge(CharData *ch, char *argument, int, int);
+void DoSyslog(CharData *ch, char *argument, int, int subcmd);
 void DoAdvance(CharData *ch, char *argument, int, int);
-void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
+void DoRestore(CharData *ch, char *argument, int, int subcmd);
 void perform_immort_vis(CharData *ch);
 void do_invis(CharData *ch, char *argument, int cmd, int subcmd);
-void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
-void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
-void do_date(CharData *ch, char *argument, int cmd, int subcmd);
-void do_last(CharData *ch, char *argument, int cmd, int subcmd);
+void DoGlobalEcho(CharData *ch, char *argument, int, int);
+void DoSetPoofMsg(CharData *ch, char *argument, int, int subcmd);
+void DoWizlock(CharData *ch, char *argument, int, int);
+void DoPageDateTime(CharData *ch, char *, int, int subcmd);
+void DoPageLastLogins(CharData *ch, char *argument, int, int);
 void do_force(CharData *ch, char *argument, int cmd, int subcmd);
 void do_wiznet(CharData *ch, char *argument, int cmd, int subcmd);
-void do_zclear(CharData *ch, char *argument, int cmd, int subcmd);
+void DoClearZone(CharData *ch, char *argument, int cmd, int);
 void do_wizutil(CharData *ch, char *argument, int cmd, int subcmd);
 void do_show(CharData *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CharData *ch, char *argument, int cmd, int subcmd);
 //
-void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
-void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
-void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
-void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSendMsgToDemigods(CharData *ch, char *argument, int, int);
+void DoUnfreeze(CharData *ch, char *, int, int);
+void DoCheckZoneOccupation(CharData *ch, char *argument, int, int);
+void DoDeleteObj(CharData *ch, char *argument, int, int);
 void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
 void DoArenaRestore(CharData *ch, char *argument, int, int);
-void do_showzonestats(CharData *, char *, int, int);
-void do_overstuff(CharData *ch, char *, int, int);
-void do_send_text_to_char(CharData *ch, char *, int, int);
+void DoShowZoneStat(CharData *ch, char *argument, int, int);
+void DoPageClanOverstuff(CharData *ch, char *, int, int);
+void DoSendTextToChar(CharData *ch, char *argument, int, int);
 void generate_magic_enchant(ObjData *obj);
 
 void log_zone_count_reset() {
@@ -132,8 +132,7 @@ void log_zone_count_reset() {
 	}
 }
 
-// Отправляет любой текст выбранному чару
-void do_send_text_to_char(CharData *ch, char *argument, int, int) {
+void DoSendTextToChar(CharData *ch, char *argument, int, int) {
 	CharData *vict = nullptr;
 
 	half_chop(argument, buf, buf2);
@@ -151,7 +150,7 @@ void do_send_text_to_char(CharData *ch, char *argument, int, int) {
 }
 
 // показывает количество вещей (чтобы носить которые, нужно больше 8 ремортов) в хранах кланов
-void do_overstuff(CharData *ch, char *, int, int) {
+void DoPageClanOverstuff(CharData *ch, char *, int, int) {
 	std::map<std::string, int> objects;
 	for (const auto & clan : Clan::ClanList) {
 		for (ObjData *chest = world[GetRoomRnum(clan->get_chest_room())]->contents; chest;
@@ -178,7 +177,7 @@ void do_overstuff(CharData *ch, char *, int, int) {
 
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
-void send_to_gods(char *text, bool demigod) {
+void SendMsgToGods(char *text, bool demigod) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
 		// Чар должен быть в игре
@@ -270,7 +269,7 @@ void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	}
 }
 
-void do_delete_obj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	one_argument(argument, buf);
 	int num = 0;
@@ -347,7 +346,7 @@ void PrintZoneStat(CharData *ch, int start, int end, bool sort) {
 	page_string(ch->desc, ss.str());
 }
 
-void do_showzonestats(CharData *ch, char *argument, int, int) {
+void DoShowZoneStat(CharData *ch, char *argument, int, int) {
 	std::string buffer;
 	char arg1[kMaxInputLength], arg2[kMaxInputLength], arg3[kMaxInputLength];
 	bool sort = false;
@@ -388,7 +387,7 @@ void do_showzonestats(CharData *ch, char *argument, int, int) {
 	SendMsgToChar(ch, "Зоныстат формат: 'все' или диапазон через пробел, -s в конце для сортировки. 'очистить' новая таблица\r\n");
 }
 
-void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
+void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 	DescriptorData *i;
 	int rnum_start, rnum_stop;
 	bool found = false;
@@ -464,7 +463,7 @@ void is_empty_ch(ZoneRnum zone_nr, CharData *ch) {
 	}
 }
 
-void do_check_occupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoCheckZoneOccupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int number;
 	ZoneRnum zrn;
 	one_argument(argument, buf);
@@ -482,7 +481,7 @@ void do_check_occupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 	// что-то по другому не нашел, как проверить существует такая зона или нет
 	for (zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); zrn++) {
 		if (zone_table[zrn].vnum == number) {
-			is_empty_ch(zrn, ch);
+			CheckCharactersInZone(zrn, ch);
 			is_found = true;
 			break;
 		}
@@ -493,7 +492,7 @@ void do_check_occupation(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 	}
 }
 
-void do_send(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoSendMsgToChar(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 
 	half_chop(argument, arg, buf);
@@ -517,7 +516,7 @@ void do_send(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 }
 
 // Take a string, and return a rnum. Used for goto, at, etc.  -je 4/6/93
-RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
+RoomRnum FindTargetInRoom(CharData *ch, char *rawroomstr, int trig) {
 	RoomVnum tmp;
 	RoomRnum location;
 	CharData *target_mob;
@@ -568,7 +567,7 @@ RoomRnum find_target_room(CharData *ch, char *rawroomstr, int trig) {
 	return (location);
 }
 
-void do_at(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoAtRoom(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char command[kMaxInputLength];
 	RoomRnum location, original_loc;
 
@@ -583,7 +582,7 @@ void do_at(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if ((location = find_target_room(ch, buf, 0)) == kNowhere)
+	if ((location = FindTargetInRoom(ch, buf, 0)) == kNowhere)
 		return;
 
 	// a location has been found.
@@ -600,7 +599,7 @@ void do_at(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->dismount();
 }
 
-void do_unfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	/*Формат файл unfreeze.lst
 	Первая строка email
 	Вторая строка причина по которой разфриз
@@ -649,10 +648,10 @@ void do_unfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 }
 
-void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoGoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum location;
 
-	if ((location = find_target_room(ch, argument, 0)) == kNowhere)
+	if ((location = FindTargetInRoom(ch, argument, 0)) == kNowhere)
 		return;
 
 	if (POOFOUT(ch))
@@ -673,7 +672,7 @@ void do_goto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	look_at_room(ch, 0);
 }
 
-void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
 	RoomRnum target;
 
@@ -689,7 +688,7 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
 		act("Куда вы хотите $S переместить?", false, ch, nullptr, victim, kToChar);
-	else if ((target = find_target_room(ch, buf2, 0)) != kNowhere) {
+	else if ((target = FindTargetInRoom(ch, buf2, 0)) != kNowhere) {
 		SendMsgToChar(OK, ch);
 		act("$n растворил$u в клубах дыма.", false, victim, nullptr, nullptr, kToRoom);
 		RemoveCharFromRoom(victim);
@@ -702,14 +701,14 @@ void do_teleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_shutdown(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoShutdown(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	commands::Shutdown command(ch, argument, shutdown_parameters);
 	if (command.parse_arguments()) {
 		command.execute();
 	}
 }
 
-void stop_snooping(CharData *ch) {
+void StopSnooping(CharData *ch) {
 	if (!ch->desc->snooping)
 		SendMsgToChar("Вы не подслушиваете.\r\n", ch);
 	else {
@@ -719,7 +718,7 @@ void stop_snooping(CharData *ch) {
 	}
 }
 
-void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoSnoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim, *tch;
 
 	if (!ch->desc)
@@ -728,14 +727,14 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
-		stop_snooping(ch);
+		StopSnooping(ch);
 	else if (!(victim = get_player_vis(ch, arg, EFind::kCharInWorld)))
 		SendMsgToChar("Нет такого создания в игре.\r\n", ch);
 	else if (!victim->desc)
 		act("Вы не можете $S подслушать - он$G потерял$G связь..\r\n",
 			false, ch, nullptr, victim, kToChar);
 	else if (victim == ch)
-		stop_snooping(ch);
+		StopSnooping(ch);
 	else if (victim->desc->snooping == ch->desc)
 		SendMsgToChar("Вы уже подслушиваете.\r\n", ch);
 	else if (victim->desc->snoop_by && victim->desc->snoop_by != ch->desc)
@@ -771,7 +770,7 @@ void do_snoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (ch->desc->original) {
@@ -814,7 +813,7 @@ void do_switch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_return(CharData *ch, char *argument, int cmd, int subcmd) {
+void DoReturn(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (ch->desc && ch->desc->original) {
 		SendMsgToChar("Вы вернулись в свое тело.\r\n", ch);
 
@@ -851,7 +850,7 @@ void send_to_all(char *buffer) {
 	}
 }
 
-void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
+void DoVstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	CharData *mob;
 	MobVnum number;    // or ObjVnum ...
 	MobRnum r_num;        // or ObjRnum ...
@@ -902,7 +901,7 @@ void do_vstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 }
 
 // clean a room of all mobiles and objects
-void do_purge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
 	ObjData *obj, *next_o;
 
@@ -963,7 +962,7 @@ const char *logtypes[] =
 	};
 
 // subcmd - канал
-void do_syslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+void DoSyslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int tp;
 
 	if (subcmd < 0 || subcmd > LAST_LOG) {
@@ -1006,7 +1005,7 @@ void do_syslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	SendMsgToChar(buf, ch);
 }
 
-void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict;
 
 	one_argument(argument, buf);
@@ -1065,7 +1064,7 @@ void do_restore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 }
 
-void do_gecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoGlobalEcho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *pt;
 
 	skip_spaces(&argument);
@@ -1091,7 +1090,7 @@ void do_gecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_poofset(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+void DoSetPoofMsg(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char **msg;
 
 	switch (subcmd) {
@@ -1115,7 +1114,7 @@ void do_poofset(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	SendMsgToChar(OK, ch);
 }
 
-void do_wizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoWizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int value;
 	const char *when;
 
@@ -1148,7 +1147,7 @@ void do_wizlock(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 extern void PrintUptime(std::ostringstream &out);
 
-void do_date(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
+void DoPageDateTime(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	time_t mytime;
 	std::ostringstream out;
 
@@ -1166,7 +1165,7 @@ void do_date(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	SendMsgToChar(out.str(), ch);
 }
 
-void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if (!*arg) {
 		SendMsgToChar("Кого вы хотите найти?\r\n", ch);
@@ -1191,7 +1190,7 @@ void do_last(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_sdemigod(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoSendMsgToDemigods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
 	// убираем пробелы
 	skip_spaces(&argument);
@@ -1222,7 +1221,7 @@ void do_sdemigod(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
+void DoClearZone(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	UniqueList<ZoneRnum> zone_repop_list;
 	RoomRnum rrn_start = 0;
 	ZoneRnum zrn;
@@ -1263,27 +1262,6 @@ void do_zclear(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 }
 
-// Функции установки разных наказаний.
-
-// *  General fn for wizcommands of the sort: cmd <player>
-
-
-void show_apply(CharData *ch, CharData *vict) {
-	ObjData *obj = nullptr;
-	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if ((obj = GET_EQ(vict, i))) {
-			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
-			// Update weapon applies
-			for (int j = 0; j < kMaxObjAffect; j++) {
-				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
-						SendMsgToChar(ch, "Добавляет (apply): %s, модификатор: %d\r\n",
-							apply_types[(int) GET_EQ(vict, i)->get_affected(j).location], GET_EQ(vict, i)->get_affected(j).modifier);
-				}
-			}
-		}
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 namespace SpellUsage {
 bool is_active = false;
@@ -1300,7 +1278,7 @@ void SpellUsage::clear() {
 	start = time(nullptr);
 }
 
-std::string statToPrint() {
+std::string StatToPrint() {
 	std::stringstream out;
 	time_t now = time(nullptr);
 	char *end_time = str_dup(rustime(localtime(&now)));
@@ -1324,7 +1302,7 @@ void SpellUsage::save() {
 		log("Error open file: %s! (%s %s %d)", SPELL_STAT_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << statToPrint();
+	file << StatToPrint();
 	file.close();
 }
 
@@ -1338,7 +1316,7 @@ void SpellUsage::AddSpellStat(ECharClass char_class, ESpell spell_id) {
 	++usage[char_class][spell_id];
 }
 
-void do_spellstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoPageSpellStat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (!*argument) {
@@ -1366,7 +1344,7 @@ void do_spellstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!str_cmp(argument, "показать")) {
-		page_string(ch->desc, statToPrint());
+		page_string(ch->desc, StatToPrint());
 		return;
 	}
 
@@ -1383,12 +1361,12 @@ void do_spellstat(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("заклстат: неизвестный аргумент\r\n", ch);
 }
 
-void do_sanitize(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void DoSanitize(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	SendMsgToChar("Запущена процедура сбора мусора после праздника...\r\n", ch);
 	celebrates::Sanitize();
 }
 
-void do_loadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void DoLoadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	std::ifstream istream(LOAD_LOG_FOLDER LOAD_LOG_FILE, std::ifstream::in);
 	int length;
 
