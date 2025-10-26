@@ -1,8 +1,6 @@
 //#include "heartbeat.h"
 
 #include <utility>
-#include <thread>
-#include <chrono>
 
 #include "administration/proxy.h"
 #include "gameplay/economics/auction.h"
@@ -85,10 +83,6 @@ void record_usage() {
 
 // pulse steps
 namespace {
-void parallel_function(const char* name, int count) {
-	std::cout << "Hello " << name << " " << count << " times" << std::endl;
-}
-
 class SimpleCall : public AbstractPulseAction {
  public:
 	using call_t = std::function<void()>;
@@ -140,7 +134,7 @@ void CheckScheduledRebootCall::perform(int, int) {
 	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 60)
 		&& shutdown_parameters.get_shutdown_timeout() == 0) {
 		//reboot after 60 minutes minimum. Auto reboot cannot run earlier.
-		SendMsgToAll("�������������� ������������ ����� 60 �����.\r\n");
+		SendMsgToAll("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 60 МИНУТ.\r\n");
 		shutdown_parameters.reboot(3600);
 	}
 }
@@ -161,7 +155,7 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 	if (m_external_trigger_checker
 		&& m_external_trigger_checker->check()) {
-		mudlog("�������� ������� ������� ������������.", DEF, kLvlImplementator, SYSLOG, true);
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLvlImplementator, SYSLOG, true);
 		shutdown_parameters.reboot();
 	}
 }
@@ -532,19 +526,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
 		Heartbeat::PulseStep("Spells usage saving", 60 * 60 * kPassesPerSec, 0, std::make_shared<SpellUsageCall>()),
 		Heartbeat::PulseStep("Zone traffic statistic saving", 30 * 60 * kPassesPerSec, 37, 
-							std::make_shared<SimpleCall>(ZoneTrafficSave),
-		Heartbeat::PulseStep("Schedule parallel work", 
-					1, 
-					12, 
-					std::make_shared<SimpleCall>([]()
-					{
-						static int last_run = 0;
-						const auto now = std::chrono::system_clock::now();
-						if (now - last_run > 30*60 /* 30 minutes * 60 seconds */) {
-							last_run = now;
-							std::thread(parallel_function, "Stribog", 5);.detach();
-						}
-					}))
+							std::make_shared<SimpleCall>(ZoneTrafficSave))
 	};
 
 	return pulse_steps_storage;
