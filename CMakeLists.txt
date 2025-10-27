@@ -19,7 +19,6 @@ set(SOURCES
 		src/engine/ui/cmd/do_sign.cpp
 		src/act_movement.cpp
 		src/gameplay/communication/social.cpp
-		src/act_wizard.cpp
 		src/gameplay/affects/affect_handler.cpp
 		src/engine/ui/alias.cpp
 		src/gameplay/economics/auction.cpp
@@ -384,7 +383,41 @@ set(SOURCES
 		src/gameplay/mechanics/doors.cpp
 		src/engine/ui/cmd/do_gen_door.cpp
 		src/gameplay/skills/throwout.cpp
-		src/gameplay/skills/frenzy.cpp)
+		src/gameplay/skills/frenzy.cpp
+		src/engine/ui/cmd_god/do_zreset.cpp
+		src/engine/ui/cmd_god/do_dc.cpp
+		src/engine/ui/cmd_god/do_advance.cpp
+		src/engine/ui/cmd_god/do_glory.cpp
+		src/administration/karma.cpp
+		src/engine/ui/cmd_god/do_arena_restore.cpp
+		src/engine/ui/cmd_god/do_load.cpp
+		src/engine/ui/cmd_god/do_overstuff.cpp
+		src/engine/ui/cmd_god/do_zclear.cpp
+		src/engine/ui/cmd_god/do_delete_obj.cpp
+		src/engine/ui/cmd_god/do_show_zone_stat.cpp
+		src/engine/ui/cmd_god/do_occupation.cpp
+		src/engine/ui/cmd_god/do_send.cpp
+		src/engine/ui/cmd_god/do_at_room.cpp
+		src/engine/ui/cmd_god/do_unfreeze.cpp
+		src/engine/ui/cmd_god/do_goto.cpp
+		src/engine/ui/cmd_god/do_teleport.cpp
+		src/engine/ui/cmd_god/do_snoop.cpp
+		src/engine/ui/cmd_god/do_switch.cpp
+		src/engine/ui/cmd_god/do_vstat.cpp
+		src/engine/ui/cmd_god/do_purge.cpp
+		src/engine/ui/cmd_god/do_syslog.cpp
+		src/engine/ui/cmd_god/do_restore.cpp
+		src/engine/ui/cmd_god/do_gecho.cpp
+		src/engine/ui/cmd_god/do_poof_msg.cpp
+		src/engine/ui/cmd_god/do_wizlock.cpp
+		src/engine/ui/cmd_god/do_date.cpp
+		src/engine/ui/cmd_god/do_last.cpp
+		src/engine/ui/cmd_god/do_sdemigods.cpp
+		src/engine/ui/cmd_god/do_spellstat.cpp
+		src/gameplay/statistics/spell_usage.cpp
+		src/engine/ui/cmd_god/do_loadstat.cpp
+		src/engine/ui/cmd_god/do_sanitize.cpp
+		src/engine/ui/cmd/do_alias.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -755,7 +788,41 @@ set(HEADERS
 		src/gameplay/mechanics/doors.h
 		src/engine/ui/cmd/do_gen_door.h
 		src/gameplay/skills/throwout.h
-		src/gameplay/skills/frenzy.h)
+		src/gameplay/skills/frenzy.h
+		src/engine/ui/cmd_god/do_zreset.h
+		src/engine/ui/cmd_god/do_dc.h
+		src/engine/ui/cmd_god/do_advance.h
+		src/engine/ui/cmd_god/do_glory.h
+		src/administration/karma.h
+		src/engine/ui/cmd_god/do_arena_restore.h
+		src/engine/ui/cmd_god/do_load.h
+		src/engine/ui/cmd_god/do_overstuff.h
+		src/engine/ui/cmd_god/do_zclear.h
+        src/engine/ui/cmd_god/do_delete_obj.h
+		src/engine/ui/cmd_god/do_show_zone_stat.h
+		src/engine/ui/cmd_god/do_occupation.h
+		src/engine/ui/cmd_god/do_send.h
+		src/engine/ui/cmd_god/do_at_room.h
+		src/engine/ui/cmd_god/do_unfreeze.h
+		src/engine/ui/cmd_god/do_goto.h
+		src/engine/ui/cmd_god/do_teleport.h
+		src/engine/ui/cmd_god/do_snoop.h
+		src/engine/ui/cmd_god/do_switch.h
+		src/engine/ui/cmd_god/do_vstat.h
+		src/engine/ui/cmd_god/do_purge.h
+		src/engine/ui/cmd_god/do_syslog.h
+		src/engine/ui/cmd_god/do_restore.h
+		src/engine/ui/cmd_god/do_gecho.h
+		src/engine/ui/cmd_god/do_poof_msg.h
+		src/engine/ui/cmd_god/do_wizlock.h
+		src/engine/ui/cmd_god/do_date.h
+		src/engine/ui/cmd_god/do_last.h
+		src/engine/ui/cmd_god/do_sdemigods.h
+		src/engine/ui/cmd_god/do_spellstat.h
+		src/gameplay/statistics/spell_usage.h
+		src/engine/ui/cmd_god/do_loadstat.h
+		src/engine/ui/cmd_god/do_sanitize.h
+		src/engine/ui/cmd/do_alias.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

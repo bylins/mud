@@ -2,6 +2,7 @@
 // Created by Sventovit on 03.09.2024.
 //
 
+#include "administration/karma.h"
 #include "do_follow.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/player_races.h"
@@ -17,8 +18,6 @@
 extern RoomRnum r_frozen_start_room;
 const char *remort_msg =
 	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
-
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 
 void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i;

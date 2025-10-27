@@ -2,6 +2,8 @@
 // Created by Sventovit on 08.09.2024.
 //
 
+#include "engine/ui/cmd/do_who.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
@@ -17,7 +19,7 @@ const char *MORT_WHO_FORMAT = "Формат: кто [имя] [-?]\r\n";
 
 } // namespace
 
-void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char name_search[kMaxInputLength];
 	name_search[0] = '\0';
 
@@ -99,7 +101,7 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}            // end while (parser)
 
-	if (who_spamcontrol(ch, strlen(name_search) ? WHO_LISTNAME : WHO_LISTALL))
+	if (PerformWhoSpamcontrol(ch, strlen(name_search) ? kWhoListname : kWhoListall))
 		return;
 
 	// Строки содержащие имена
@@ -299,6 +301,48 @@ void do_who(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	out += ".\r\n";
 	page_string(ch->desc, out);
+}
+
+// спам-контроль для команды кто и списка по дружинам
+// работает аналогично восстановлению и расходованию маны у волхвов
+// константы пока определены через #define в interpreter.h
+// возвращает истину, если спамконтроль сработал и игроку придется подождать
+bool PerformWhoSpamcontrol(CharData *ch, unsigned short int mode) {
+	if (IS_IMMORTAL(ch)) {
+		return false;
+	}
+
+	unsigned int cost{0};
+	switch (mode) {
+		case kWhoListall: cost = kWhoCost;
+			break;
+		case kWhoListname: cost = kWhoCostName;
+			break;
+		case kWhoListclan: cost = kWhoCostClan;
+			break;
+		default: cost = kWhoCost;
+			break;
+	}
+
+	auto who_cost_mana = ch->get_who_mana();
+	auto last = ch->get_who_last();
+
+	// рестим ману, в БД скорость реста маны удваивается
+	time_t ctime = time(nullptr);
+	who_cost_mana = MIN(kWhoManaMax,
+						who_cost_mana + (ctime - last) * kWhoManaRestPerSecond
+							+ (ctime - last) * kWhoManaRestPerSecond * (NORENTABLE(ch) ? 1 : 0));
+	ch->set_who_mana(who_cost_mana);
+	ch->set_who_last(ctime);
+
+	if (who_cost_mana < cost) {
+		SendMsgToChar("Запрос обрабатывается, ожидайте...\r\n", ch);
+		return true;
+	} else {
+		who_cost_mana -= cost;
+		ch->set_who_mana(who_cost_mana);
+	}
+	return false;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

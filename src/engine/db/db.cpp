@@ -2,6 +2,7 @@
 
 #include "administration/accounts.h"
 #include "administration/ban.h"
+#include "administration/karma.h"
 #include "gameplay/communication/boards/boards.h"
 #include "engine/boot/boot_data_files.h"
 #include "engine/boot/boot_index.h"
@@ -172,7 +173,6 @@ extern RoomVnum unreg_start_room;
 extern struct MonthTemperature year_temp[];
 extern struct PCCleanCriteria pclean_criteria[];
 
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
 extern void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);

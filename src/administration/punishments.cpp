@@ -8,6 +8,7 @@
 
 #include "administration/punishments.h"
 
+#include "administration/karma.h"
 #include "administration/proxy.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -16,7 +17,6 @@
 #include "gameplay/mechanics/sight.h"
 
 extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 
 namespace punishments {
 

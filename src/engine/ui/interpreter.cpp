@@ -17,29 +17,59 @@
 
 #include "act_movement.h"
 #include "administration/ban.h"
+#include "administration/karma.h"
 #include "gameplay/communication/boards/boards.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/communication/insult.h"
 #include "gameplay/communication/offtop.h"
+#include "engine/ui/cmd_god/do_advance.h"
+#include "engine/ui/cmd_god/do_arena_restore.h"
+#include "engine/ui/cmd_god/do_at_room.h"
+#include "engine/ui/cmd_god/do_occupation.h"
+#include "engine/ui/cmd_god/do_date.h"
+#include "engine/ui/cmd_god/do_dc.h"
+#include "engine/ui/cmd_god/do_delete_obj.h"
+#include "engine/ui/cmd_god/do_goto.h"
 #include "engine/ui/cmd_god/do_set.h"
 #include "engine/ui/cmd_god/do_invisible.h"
 #include "engine/ui/cmd_god/do_echo.h"
 #include "engine/ui/cmd_god/do_force.h"
 #include "engine/ui/cmd_god/do_forcetime.h"
+#include "engine/ui/cmd_god/do_gecho.h"
+#include "engine/ui/cmd_god/do_glory.h"
 #include "engine/ui/cmd_god/do_show.h"
+#include "engine/ui/cmd_god/do_shutdown.h"
 #include "engine/ui/cmd_god/do_reload.h"
 #include "engine/ui/cmd_god/do_stat.h"
 #include "engine/ui/cmd_god/do_show.h"
+#include "engine/ui/cmd_god/do_spellstat.h"
 #include "engine/ui/cmd_god/do_liblist.h"
+#include "engine/ui/cmd_god/do_last.h"
+#include "engine/ui/cmd_god/do_load.h"
+#include "engine/ui/cmd_god/do_loadstat.h"
 #include "engine/ui/cmd_god/do_beep.h"
+#include "engine/ui/cmd_god/do_overstuff.h"
 #include "engine/ui/cmd_god/do_print_armor.h"
+#include "engine/ui/cmd_god/do_purge.h"
 #include "engine/ui/cmd_god/do_godtest.h"
+#include "engine/ui/cmd_god/do_sdemigods.h"
+#include "engine/ui/cmd_god/do_restore.h"
+#include "engine/ui/cmd_god/do_sanitize.h"
+#include "engine/ui/cmd_god/do_send.h"
+#include "engine/ui/cmd_god/do_snoop.h"
+#include "engine/ui/cmd_god/do_switch.h"
 #include "engine/ui/cmd_god/do_tabulate.h"
+#include "engine/ui/cmd_god/do_teleport.h"
 #include "engine/ui/cmd_god/do_mark.h"
+#include "engine/ui/cmd_god/do_unfreeze.h"
+#include "engine/ui/cmd_god/do_vstat.h"
+#include "engine/ui/cmd_god/do_wizlock.h"
 #include "engine/ui/cmd_god/do_wiznet.h"
 #include "engine/ui/cmd_god/do_wizutil.h"
+#include "engine/ui/cmd_god/do_zclear.h"
+#include "engine/ui/cmd_god/do_zreset.h"
 #include "engine/ui/cmd/do_bandage.h"
 #include "engine/ui/cmd/do_consider.h"
 #include "engine/ui/cmd/do_antigods.h"
@@ -235,6 +265,7 @@
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
+#include "alias.h"
 
 #include <ctime>
 
@@ -265,7 +296,6 @@ extern int circle_restrict;
 extern int no_specials;
 extern int max_bad_pws;
 extern const char *default_race[];
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern struct PCCleanCriteria pclean_criteria[];
 extern int rent_file_timeout;
 
@@ -276,8 +306,6 @@ extern char *name_rules;
 void DeletePcByHimself(const char *name);
 
 // external functions
-void read_aliases(CharData *ch);
-void write_aliases(CharData *ch);
 void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
 void redit_parse(DescriptorData *d, char *arg);
@@ -288,23 +316,17 @@ extern int CheckProxy(DescriptorData *ch);
 extern void check_max_hp(CharData *ch);
 // local functions
 int perform_dupe_check(DescriptorData *d);
-struct alias_data *find_alias(struct alias_data *alias_list, char *str);
-void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a);
-int perform_alias(DescriptorData *d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *argument, char *name);
 int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);
 void init_warcry(CharData *ch);
 
-void do_advance(CharData *ch, char *argument, int cmd, int subcmd);
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
-void do_at(CharData *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
-void do_date(CharData *ch, char *argument, int cmd, int subcmd);
-void do_dc(CharData *ch, char *argument, int cmd, int subcmd);
+void DoPageDateTime(CharData *ch, char *, int, int subcmd);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoDrop(CharData *ch, char *argument, int, int);
 void do_examine(CharData *ch, char *argument, int cmd, int subcmd);
@@ -315,40 +337,28 @@ void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
-void do_glory(CharData *ch, char *argument, int cmd, int subcmd);
-void do_gecho(CharData *ch, char *argument, int cmd, int subcmd);
+void DoGlobalEcho(CharData *ch, char *argument, int, int);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
-void do_goto(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
-void do_last(CharData *ch, char *argument, int cmd, int subcmd);
+void DoPageLastLogins(CharData *ch, char *argument, int, int);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
-void do_load(CharData *ch, char *argument, int cmd, int subcmd);
-void do_loadstat(CharData *ch, char *argument, int cmd, int subbcmd);
+void DoLoadstat(CharData *ch, char *, int, int);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
-void do_poofset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_spellstat(CharData *ch, char *argument, int cmd, int subcmd);
-void do_purge(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSetPoofMsg(CharData *ch, char *argument, int, int subcmd);
+void DoPageSpellStat(CharData *ch, char *argument, int, int);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
-void do_restore(CharData *ch, char *argument, int cmd, int subcmd);
-void do_return(CharData *ch, char *argument, int cmd, int subcmd);
+void DoRestore(CharData *ch, char *argument, int, int subcmd);
 void DoScore(CharData *ch, char *argument, int, int);
-void do_sdemigod(CharData *ch, char *argument, int cmd, int subcmd);
-void do_send(CharData *ch, char *argument, int cmd, int subcmd);
-void do_shutdown(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSendMsgToDemigods(CharData *ch, char *argument, int, int);
+void DoShutdown(CharData *ch, char *argument, int, int);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_snoop(CharData *ch, char *argument, int cmd, int subcmd);
-void do_switch(CharData *ch, char *argument, int cmd, int subcmd);
-void do_syslog(CharData *ch, char *argument, int cmd, int subcmd);
-void do_teleport(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSyslog(CharData *ch, char *argument, int, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
-void do_vstat(CharData *ch, char *argument, int cmd, int subcmd);
-void do_wizlock(CharData *ch, char *argument, int cmd, int subcmd);
-void do_zreset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_zclear(CharData *ch, char *argument, int cmd, int subcmd);
+void DoWizlock(CharData *ch, char *argument, int, int);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -369,17 +379,10 @@ void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
-void do_sanitize(CharData *ch, char *argument, int cmd, int subcmd);
+void DoSanitize(CharData *ch, char *, int, int);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
-void do_unfreeze(CharData *ch, char *argument, int cmd, int subcmd);
-void do_check_occupation(CharData *ch, char *argument, int cmd, int subcmd);
-void do_delete_obj(CharData *ch, char *argument, int cmd, int subcmd);
-void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
-void do_arena_restore(CharData *ch, char *argument, int cmd, int subcmd);
-void do_showzonestats(CharData *, char *, int, int);
-void do_overstuff(CharData *ch, char *, int, int);
-void do_send_text_to_char(CharData *ch, char *, int, int);
+void DoShowZoneStat(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
 /* This is the Master Command List(tm).
@@ -423,18 +426,18 @@ cpp_extern const struct command_info cmd_info[] =
 		{"RESERVED", EPosition::kDead, nullptr, 0, 0, 0},    // this must be first -- for specprocs
 
 		// directions must come before other commands but after RESERVED
-		{"север", EPosition::kStand, do_move, 0, SCMD_NORTH, -2},
-		{"восток", EPosition::kStand, do_move, 0, SCMD_EAST, -2},
-		{"юг", EPosition::kStand, do_move, 0, SCMD_SOUTH, -2},
-		{"запад", EPosition::kStand, do_move, 0, SCMD_WEST, -2},
-		{"вверх", EPosition::kStand, do_move, 0, SCMD_UP, -2},
-		{"вниз", EPosition::kStand, do_move, 0, SCMD_DOWN, -2},
-		{"north", EPosition::kStand, do_move, 0, SCMD_NORTH, -2},
-		{"east", EPosition::kStand, do_move, 0, SCMD_EAST, -2},
-		{"south", EPosition::kStand, do_move, 0, SCMD_SOUTH, -2},
-		{"west", EPosition::kStand, do_move, 0, SCMD_WEST, -2},
-		{"up", EPosition::kStand, do_move, 0, SCMD_UP, -2},
-		{"down", EPosition::kStand, do_move, 0, SCMD_DOWN, -2},
+		{"север", EPosition::kStand, do_move, 0, EDirection::kNorth, -2},
+		{"восток", EPosition::kStand, do_move, 0, EDirection::kEast, -2},
+		{"юг", EPosition::kStand, do_move, 0, EDirection::kSouth, -2},
+		{"запад", EPosition::kStand, do_move, 0, EDirection::kWest, -2},
+		{"вверх", EPosition::kStand, do_move, 0, EDirection::kUp, -2},
+		{"вниз", EPosition::kStand, do_move, 0, EDirection::kDown, -2},
+		{"north", EPosition::kStand, do_move, 0, EDirection::kNorth, -2},
+		{"east", EPosition::kStand, do_move, 0, EDirection::kEast, -2},
+		{"south", EPosition::kStand, do_move, 0, EDirection::kSouth, -2},
+		{"west", EPosition::kStand, do_move, 0, EDirection::kWest, -2},
+		{"up", EPosition::kStand, do_move, 0, EDirection::kUp, -2},
+		{"down", EPosition::kStand, do_move, 0, EDirection::kDown, -2},
 
 		{"аффекты", EPosition::kDead, do_affects, 0, SCMD_AUCTION, 0},
 		{"авторы", EPosition::kDead, DoGenericPage, 0, kScmdCredits, 0},
@@ -465,7 +468,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"вихрь", EPosition::kFight, do_iron_wind, 0, 0, -1},
 		{"вложить", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"вернуть", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"вернуться", EPosition::kDead, do_return, 0, 0, -1},
+		{"вернуться", EPosition::kDead, DoReturn, 0, 0, -1},
 		{"войти", EPosition::kStand, do_enter, 0, 0, -2},
 		{"война", EPosition::kRest, ClanSystem::DoShowWars, 0, 0, 0},
 		{"вооружиться", EPosition::kRest, do_wield, 0, 0, 200},
@@ -487,17 +490,17 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
 		{"гговорить", EPosition::kSleep, do_gsay, 0, 0, 500},
 		{"гдругам", EPosition::kSleep, ClanSystem::DoClanChannel, 0, SCMD_CHANNEL, 0},
-		{"где", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
+		{"где", EPosition::kRest, DoWhere, kLvlImmortal, 0, 0},
 		{"гдея", EPosition::kRest, DoZone, 0, 0, 0},
 		{"глоток", EPosition::kRest, do_drink, 0, SCMD_SIP, 200},
 		{"города", EPosition::kDead, cities::DoCities, 0, 0, 0},
 		{"группа", EPosition::kSleep, do_group, 1, 0, -1},
 		{"гсоюзникам", EPosition::kSleep, ClanSystem::DoClanChannel, 0, SCMD_ACHANNEL, 0},
-		{"гэхо", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
+		{"гэхо", EPosition::kDead, DoGlobalEcho, kLvlGod, 0, 0},
 		{"гбогам", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
 
 		{"дать", EPosition::kRest, do_give, 0, 0, 500},
-		{"дата", EPosition::kDead, do_date, 0, SCMD_DATE, 0},
+		{"дата", EPosition::kDead, DoPageDateTime, 0, SCMD_DATE, 0},
 		{"делить", EPosition::kRest, group::do_split, 1, 0, 200},
 		{"держать", EPosition::kRest, do_grab, 0, 0, 300},
 		{"дметр", EPosition::kDead, do_dmeter, 0, 0, 0},
@@ -515,13 +518,13 @@ cpp_extern const struct command_info cmd_info[] =
 		{"забыть", EPosition::kRest, do_forget, 0, 0, 0},
 		{"задержать", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"заклинания", EPosition::kSleep, DoSpells, 0, 0, 0},
-		{"заклстат", EPosition::kDead, do_spellstat, kLvlGreatGod, 0, 0},
+		{"заклстат", EPosition::kDead, DoPageSpellStat, kLvlGreatGod, 0, 0},
 		{"закрыть", EPosition::kSit, do_gen_door, 0, kScmdClose, 500},
 		{"замакс", EPosition::kRest, do_show_mobmax, 1, 0, -1},
 		{"замести", EPosition::kStand, do_hidetrack, 1, 0, -1},
 		{"замолчать", EPosition::kDead, do_wizutil, kLvlGod, SCMD_MUTE, 0},
 		{"заморозить", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
-		{"занятость", EPosition::kDead, do_check_occupation, kLvlGod, 0, 0},
+		{"занятость", EPosition::kDead, DoCheckZoneOccupation, kLvlGod, 0, 0},
 		{"запомнить", EPosition::kRest, do_memorize, 0, 0, 0},
 		{"запереть", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"запрет", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
@@ -533,10 +536,10 @@ cpp_extern const struct command_info cmd_info[] =
 		{"заучить", EPosition::kRest, do_memorize, 0, 0, 0},
 		{"зачитать", EPosition::kRest, do_employ, 0, SCMD_RECITE, 500},
 		{"зачаровать", EPosition::kStand, DoSpellCapable, 1, 0, 0},
-		{"зачистить", EPosition::kDead, do_sanitize, kLvlGreatGod, 0, 0},
+		{"зачистить", EPosition::kDead, DoSanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
 		{"зона", EPosition::kRest, DoZone, 0, 0, 0},
-		{"зоныстат", EPosition::kDead, do_showzonestats, kLvlImmortal, 0, 0},
+		{"зоныстат", EPosition::kDead, DoShowZoneStat, kLvlImmortal, 0, 0},
 		{"инвентарь", EPosition::kSleep, DoInventory, 0, 0, 0},
 		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
 		{"идеи", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
@@ -561,7 +564,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
 		{"копироватьзону", EPosition::kStand, dungeons::DoZoneCopy, kLvlImplementator, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
-		{"кто", EPosition::kRest, do_who, 0, 0, 0},
+		{"кто", EPosition::kRest, DoWho, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, ClanSystem::DoWhoClan, 0, 0, 0},
 		{"ктоя", EPosition::kDead, DoWhoAmI, 0, 0, 0},
 		{"купить", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -690,7 +693,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"сожрать", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
 		{"продать", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"прыжок", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
+		{"прыжок", EPosition::kSleep, DoGoto, kLvlGod, 0, 0},
 
 		{"разбудить", EPosition::kRest, do_wake, 0, kScmdWakeUp, -1},
 		{"разгруппировать", EPosition::kDead, do_ungroup, 0, 0, 500},
@@ -712,7 +715,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"сглазить", EPosition::kFight, do_manadrain, 0, 0, -1},
 		{"сесть", EPosition::kRest, do_sit, 0, 0, -1},
 		{"синоним", EPosition::kDead, do_alias, 0, 0, 0},
-		{"сдемигодам", EPosition::kDead, do_sdemigod, kLvlImmortal, 0, 0},
+		{"сдемигодам", EPosition::kDead, DoSendMsgToDemigods, kLvlImmortal, 0, 0},
 		{"сказать", EPosition::kRest, do_tell, 0, 0, -1},
 		{"скользить", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"следовать", EPosition::kRest, do_follow, 0, 0, 500},
@@ -755,7 +758,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"убрать", EPosition::kRest, do_remove, 0, 0, 400},
 		{"ударить", EPosition::kFight, do_hit, 0, SCMD_HIT, -1},
 		{"удавить", EPosition::kFight, do_strangle, 0, 0, -1},
-		{"удалитьпредмет", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
+		{"удалитьпредмет", EPosition::kStand, DoDeleteObj, kLvlImplementator, 0, 0},
 		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
 		{"укрепить", EPosition::kRest, DoArmoring, 0, 0, -1},
@@ -783,14 +786,14 @@ cpp_extern const struct command_info cmd_info[] =
 		{"'", EPosition::kRest, do_say, 0, 0, -1},
 		{":", EPosition::kRest, do_echo, 1, SCMD_EMOTE, -1},
 		{";", EPosition::kDead, do_wiznet, kLvlImmortal, 0, -1},
-		{"advance", EPosition::kDead, do_advance, kLvlImplementator, 0, 0},
+		{"advance", EPosition::kDead, DoAdvance, kLvlImplementator, 0, 0},
 		{"alias", EPosition::kDead, do_alias, 0, 0, 0},
 		{"alter", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"ask", EPosition::kRest, do_spec_comm, 0, SCMD_ASK, -1},
 		{"assist", EPosition::kFight, do_assist, 1, 0, -1},
 		{"attack", EPosition::kFight, do_hit, 0, SCMD_MURDER, -1},
 		{"auction", EPosition::kRest, do_gen_comm, 0, SCMD_AUCTION, -1},
-		{"arenarestore", EPosition::kSleep, do_arena_restore, kLvlGod, 0, 0},
+		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, do_backstab, 1, 0, 1},
 		{"balance", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
@@ -810,9 +813,9 @@ cpp_extern const struct command_info cmd_info[] =
 		{"commands", EPosition::kDead, do_commands, 0, SCMD_COMMANDS, 0},
 		{"consider", EPosition::kRest, DoConsider, 0, 0, 500},
 		{"credits", EPosition::kDead, DoGenericPage, 0, kScmdCredits, 0},
-		{"date", EPosition::kDead, do_date, kLvlImmortal, SCMD_DATE, 0},
+		{"date", EPosition::kDead, DoPageDateTime, kLvlImmortal, SCMD_DATE, 0},
 		{"dazzle", EPosition::kFight, DoDazzle, 1, 0, -1},
-		{"dc", EPosition::kDead, do_dc, kLvlGreatGod, 0, 0},
+		{"dc", EPosition::kDead, DoDropConnect, kLvlGreatGod, 0, 0},
 		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
 		{"deviate", EPosition::kFight, do_deviate, 0, 0, -1},
 		{"diagnose", EPosition::kRest, do_diagnose, 0, 0, 500},
@@ -841,16 +844,16 @@ cpp_extern const struct command_info cmd_info[] =
 		{"forcetime", EPosition::kDead, DoForcetime, kLvlImplementator, 0, 0},
 		{"freeze", EPosition::kDead, do_wizutil, kLvlFreeze, SCMD_FREEZE, 0},
 		{"frenzy", EPosition::kFight, do_frenzy, 0, 0, -1},
-		{"gecho", EPosition::kDead, do_gecho, kLvlGod, 0, 0},
+		{"gecho", EPosition::kDead, DoGlobalEcho, kLvlGod, 0, 0},
 		{"get", EPosition::kRest, do_get, 0, 0, 500},
 		{"give", EPosition::kRest, do_give, 0, 0, 500},
 		{"godnews", EPosition::kDead, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
 		{"gold", EPosition::kRest, do_gold, 0, 0, 0},
 		{"glide", EPosition::kStand, DoLightwalk, 0, 0, 0},
 		{"glory", EPosition::kRest, GloryConst::do_glory, kLvlImplementator, 0, 0},
-		{"glorytemp", EPosition::kRest, do_glory, kLvlBuilder, 0, 0},
+		{"glorytemp", EPosition::kRest, DoGlory, kLvlBuilder, 0, 0},
 		{"gossip", EPosition::kRest, do_gen_comm, 0, SCMD_GOSSIP, -1},
-		{"goto", EPosition::kSleep, do_goto, kLvlGod, 0, 0},
+		{"goto", EPosition::kSleep, DoGoto, kLvlGod, 0, 0},
 		{"grab", EPosition::kRest, do_grab, 0, 0, 500},
 		{"group", EPosition::kRest, do_group, 1, 0, 500},
 		{"gsay", EPosition::kSleep, do_gsay, 0, 0, -1},
@@ -878,11 +881,11 @@ cpp_extern const struct command_info cmd_info[] =
 		{"invis", EPosition::kDead, do_invis, kLvlGod, 0, -1},
 		{"kick", EPosition::kFight, do_kick, 1, 0, -1},
 		{"kill", EPosition::kFight, do_kill, 0, 0, -1},
-		{"last", EPosition::kDead, do_last, kLvlGod, 0, 0},
+		{"last", EPosition::kDead, DoPageLastLogins, kLvlGod, 0, 0},
 		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
 		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"load", EPosition::kDead, do_load, 0, 0, 0},
-		{"loadstat", EPosition::kDead, do_loadstat, kLvlImplementator, 0, 0},
+		{"load", EPosition::kDead, DoLoad, 0, 0, 0},
+		{"loadstat", EPosition::kDead, DoLoadstat, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, DoLook, 0, SCMD_LOOK, 200},
 		{"lock", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"map", EPosition::kRest, do_map, 0, 0, 0},
@@ -901,25 +904,25 @@ cpp_extern const struct command_info cmd_info[] =
 		{"nlist", EPosition::kRest, NamedStuff::do_named, kLvlBuilder, SCMD_NAMED_LIST, 0},
 		{"notitle", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_NOTITLE, 0},
 		{"objfind", EPosition::kStand, DoFindObjByRnum, kLvlImplementator, 0, 0},
-		{"odelete", EPosition::kStand, do_delete_obj, kLvlImplementator, 0, 0},
+		{"odelete", EPosition::kStand, DoDeleteObj, kLvlImplementator, 0, 0},
 		{"oedit", EPosition::kDead, do_olc, 0, SCMD_OLC_OEDIT, 0},
 		{"offer", EPosition::kStand, do_not_here, 1, 0, 0},
 		{"olc", EPosition::kDead, do_olc, kLvlGod, SCMD_OLC_SAVEINFO, 0},
 		{"open", EPosition::kSit, do_gen_door, 0, kScmdOpen, 500},
 		{"order", EPosition::kRest, do_order, 1, 0, -1},
-		{"overstuff", EPosition::kDead, do_overstuff, kLvlGreatGod, 0, 0},
+		{"overstuff", EPosition::kDead, DoPageClanOverstuff, kLvlGreatGod, 0, 0},
 		{"page", EPosition::kDead, do_page, kLvlGod, 0, 0},
 		{"parry", EPosition::kFight, do_parry, 0, 0, -1},
 		{"pick", EPosition::kStand, do_gen_door, 1, kScmdPick, -1},
 		{"poisoned", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"policy", EPosition::kDead, DoGenericPage, 0, kScmdPolicies, 0},
-		{"poofin", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFIN, 0},
-		{"poofout", EPosition::kDead, do_poofset, kLvlGod, SCMD_POOFOUT, 0},
+		{"poofin", EPosition::kDead, DoSetPoofMsg, kLvlGod, SCMD_POOFIN, 0},
+		{"poofout", EPosition::kDead, DoSetPoofMsg, kLvlGod, SCMD_POOFOUT, 0},
 		{"pour", EPosition::kStand, do_pour, 0, SCMD_POUR, -1},
 		{"practice", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"prompt", EPosition::kDead, do_display, 0, 0, 0},
 		{"proxy", EPosition::kDead, do_proxy, kLvlGreatGod, 0, 0},
-		{"purge", EPosition::kDead, do_purge, kLvlGod, 0, 0},
+		{"purge", EPosition::kDead, DoPurge, kLvlGod, 0, 0},
 		{"put", EPosition::kRest, do_put, 0, 0, 500},
 //	{"python", EPosition::kDead, do_console, kLevelGod, 0, 0},
 		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
@@ -940,8 +943,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"reroll", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_REROLL, 0},
 		{"rescue", EPosition::kFight, do_rescue, 1, 0, -1},
 		{"rest", EPosition::kRest, do_rest, 0, 0, -1},
-		{"restore", EPosition::kDead, do_restore, kLvlGreatGod, SCMD_RESTORE_GOD, 0},
-		{"return", EPosition::kDead, do_return, 0, 0, -1},
+		{"restore", EPosition::kDead, DoRestore, kLvlGreatGod, SCMD_RESTORE_GOD, 0},
+		{"return", EPosition::kDead, DoReturn, 0, 0, -1},
 		{"rset", EPosition::kSleep, do_rset, kLvlBuilder, 0, 0},
 		{"rules", EPosition::kDead, DoGenericPage, kLvlImmortal, kScmdRules, 0},
 		{"runes", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
@@ -950,13 +953,13 @@ cpp_extern const struct command_info cmd_info[] =
 		{"scan", EPosition::kRest, DoLookAround, 0, 0, 500},
 		{"score", EPosition::kDead, DoScore, 0, 0, 0},
 		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"send", EPosition::kSleep, do_send, kLvlGreatGod, 0, 0},
+		{"send", EPosition::kSleep, DoSendMsgToChar, kLvlGreatGod, 0, 0},
 		{"sense", EPosition::kStand, do_sense, 0, 0, 500},
 		{"set", EPosition::kDead, DoSet, kLvlImmortal, 0, 0},
 		{"settle", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"shout", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
 		{"show", EPosition::kDead, do_show, kLvlImmortal, 0, 0},
-		{"shutdown", EPosition::kDead, do_shutdown, kLvlImplementator, SCMD_SHUTDOWN, 0},
+		{"shutdown", EPosition::kDead, DoShutdown, kLvlImplementator, SCMD_SHUTDOWN, 0},
 		{"sip", EPosition::kRest, do_drink, 0, SCMD_SIP, 500},
 		{"sit", EPosition::kRest, do_sit, 0, 0, -1},
 		{"skills", EPosition::kRest, DoSkills, 0, 0, 0},
@@ -966,7 +969,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},
 		{"sleep", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"sneak", EPosition::kStand, do_sneak, 1, 0, -2},
-		{"snoop", EPosition::kDead, do_snoop, kLvlGreatGod, 0, 0},
+		{"snoop", EPosition::kDead, DoSnoop, kLvlGreatGod, 0, 0},
 		{"socials", EPosition::kDead, do_commands, 0, SCMD_SOCIALS, 0},
 		{"spells", EPosition::kRest, DoSpells, 0, 0, 0},
 		{"split", EPosition::kRest, group::do_split, 1, 0, 0},
@@ -975,18 +978,17 @@ cpp_extern const struct command_info cmd_info[] =
 		{"steal", EPosition::kStand, do_steal, 1, 0, 300},
 		{"strangle", EPosition::kFight, do_strangle, 0, 0, -1},
 		{"stupor", EPosition::kFight, do_stupor, 0, 0, -1},
-		{"switch", EPosition::kDead, do_switch, kLvlGreatGod, 0, 0},
-		{"syslog", EPosition::kDead, do_syslog, kLvlImmortal, SYSLOG, 0},
+		{"switch", EPosition::kDead, DoSwitch, kLvlGreatGod, 0, 0},
+		{"syslog", EPosition::kDead, DoSyslog, kLvlImmortal, SYSLOG, 0},
 		{"suggest", EPosition::kDead, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 		{"slist", EPosition::kDead, do_slist, kLvlImplementator, 0, 0},
 		{"sedit", EPosition::kDead, do_sedit, kLvlImplementator, 0, 0},
-		{"errlog", EPosition::kDead, do_syslog, kLvlBuilder, ERRLOG, 0},
-		{"imlog", EPosition::kDead, do_syslog, kLvlBuilder, IMLOG, 0},
+		{"errlog", EPosition::kDead, DoSyslog, kLvlBuilder, ERRLOG, 0},
+		{"imlog", EPosition::kDead, DoSyslog, kLvlBuilder, IMLOG, 0},
 		{"take", EPosition::kRest, do_get, 0, 0, 500},
 		{"taste", EPosition::kRest, do_eat, 0, kScmdTaste, 500},
-		{"t2c", EPosition::kRest, do_send_text_to_char, kLvlGreatGod, 0, -1},
 		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
-		{"teleport", EPosition::kDead, do_teleport, kLvlGreatGod, 0, -1},
+		{"teleport", EPosition::kDead, DoTeleport, kLvlGreatGod, 0, -1},
 		{"tell", EPosition::kRest, do_tell, 0, 0, -1},
 		{"throwout", EPosition::kFight, do_throwout, 0, 0, 0},
 		{"time", EPosition::kDead, do_time, 0, 0, 0},
@@ -999,10 +1001,10 @@ cpp_extern const struct command_info cmd_info[] =
 		{"typo", EPosition::kDead, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 		{"unaffect", EPosition::kDead, do_wizutil, kLvlGreatGod, SCMD_UNAFFECT, 0},
 		{"unban", EPosition::kDead, do_unban, kLvlGreatGod, 0, 0},
-		{"unfreeze", EPosition::kDead, do_unfreeze, kLvlImplementator, 0, 0},
+		{"unfreeze", EPosition::kDead, DoUnfreeze, kLvlImplementator, 0, 0},
 		{"ungroup", EPosition::kDead, do_ungroup, 0, 0, -1},
 		{"unlock", EPosition::kSit, do_gen_door, 0, kScmdUnlock, 500},
-		{"uptime", EPosition::kDead, do_date, kLvlImmortal, SCMD_UPTIME, 0},
+		{"uptime", EPosition::kDead, DoPageDateTime, kLvlImmortal, SCMD_UPTIME, 0},
 		{"use", EPosition::kSit, do_employ, 1, SCMD_USE, 500},
 		{"users", EPosition::kDead, do_users, kLvlImmortal, 0, 0},
 		{"value", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -1010,28 +1012,28 @@ cpp_extern const struct command_info cmd_info[] =
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
 		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
 		{"вномер", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},  //тупой копипаст для использования русского синтаксиса
-		{"vstat", EPosition::kDead, do_vstat, 0, 0, 0},
+		{"vstat", EPosition::kDead, DoVstat, 0, 0, 0},
 		{"wake", EPosition::kSleep, do_wake, 0, 0, -1},
 		{"warcry", EPosition::kFight, do_warcry, 1, 0, -1},
 		{"wear", EPosition::kRest, do_wear, 0, 0, 500},
 		{"weather", EPosition::kRest, do_weather, 0, 0, 0},
-		{"where", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
+		{"where", EPosition::kRest, DoWhere, kLvlImmortal, 0, 0},
 		{"whirl", EPosition::kFight, do_iron_wind, 0, 0, -1},
 		{"whisper", EPosition::kRest, do_spec_comm, 0, SCMD_WHISPER, -1},
-		{"who", EPosition::kRest, do_who, 0, 0, 0},
+		{"who", EPosition::kRest, DoWho, 0, 0, 0},
 		{"whoami", EPosition::kDead, DoWhoAmI, 0, 0, 0},
 		{"wield", EPosition::kRest, do_wield, 0, 0, 500},
 		{"wimpy", EPosition::kDead, do_wimpy, 0, 0, 0},
 		{"withdraw", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"wizhelp", EPosition::kSleep, do_commands, kLvlImmortal, SCMD_WIZHELP, 0},
-		{"wizlock", EPosition::kDead, do_wizlock, kLvlImplementator, 0, 0},
+		{"wizlock", EPosition::kDead, DoWizlock, kLvlImplementator, 0, 0},
 		{"wiznet", EPosition::kDead, do_wiznet, kLvlImmortal, 0, 0},
-		{"wizat", EPosition::kDead, do_at, kLvlGreatGod, 0, 0},
+		{"wizat", EPosition::kDead, DoAtRoom, kLvlGreatGod, 0, 0},
 		{"write", EPosition::kStand, do_write, 1, 0, -1},
-		{"zclear", EPosition::kDead, do_zclear, kLvlImplementator, 0, 0},
+		{"zclear", EPosition::kDead, DoClearZone, kLvlImplementator, 0, 0},
 		{"zedit", EPosition::kDead, do_olc, 0, SCMD_OLC_ZEDIT, 0},
 		{"zone", EPosition::kRest, DoZone, 0, 0, 0},
-		{"zreset", EPosition::kDead, do_zreset, 0, 0, 0},
+		{"zreset", EPosition::kDead, DoZreset, 0, 0, 0},
 
 		// test command for gods
 		{"godtest", EPosition::kDead, do_godtest, kLvlGreatGod, 0, 0},
@@ -1288,186 +1290,6 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 }
-
-// ************************************************************************
-// * Routines to handle aliasing                                          *
-// ************************************************************************
-struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
-	while (alias_list != nullptr) {
-		if (*str == *alias_list->alias)    // hey, every little bit counts :-)
-			if (!strcmp(str, alias_list->alias))
-				return (alias_list);
-
-		alias_list = alias_list->next;
-	}
-
-	return (nullptr);
-}
-
-void FreeAlias(struct alias_data *a) {
-	if (a->alias)
-		free(a->alias);
-	if (a->replacement)
-		free(a->replacement);
-	free(a);
-}
-
-// The interface to the outside world: do_alias
-void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char *repl;
-	struct alias_data *a;
-
-	if (ch->IsNpc())
-		return;
-
-	repl = any_one_arg(argument, arg);
-
-	if (!*arg)        // no argument specified -- list currently defined aliases
-	{
-		SendMsgToChar("Определены следующие алиасы:\r\n", ch);
-		if ((a = GET_ALIASES(ch)) == nullptr)
-			SendMsgToChar(" Нет алиасов.\r\n", ch);
-		else {
-			while (a != nullptr) {
-				sprintf(buf, "%-15s %s\r\n", a->alias, a->replacement);
-				SendMsgToChar(buf, ch);
-				a = a->next;
-			}
-		}
-	} else        // otherwise, add or remove aliases
-	{
-		// is this an alias we've already defined?
-		if ((a = find_alias(GET_ALIASES(ch), arg)) != nullptr) {
-			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
-			FreeAlias(a);
-		}
-		// if no replacement string is specified, assume we want to delete
-		if (!*repl) {
-			if (a == nullptr)
-				SendMsgToChar("Такой алиас не определен.\r\n", ch);
-			else
-				SendMsgToChar("Алиас успешно удален.\r\n", ch);
-		} else {
-			if (!str_cmp(arg, "alias")) {
-				SendMsgToChar("Вы не можете определить алиас 'alias'.\r\n", ch);
-				return;
-			}
-			CREATE(a, 1);
-			a->alias = str_dup(arg);
-			delete_doubledollar(repl);
-			a->replacement = str_dup(repl);
-			if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
-				a->type = ALIAS_COMPLEX;
-			else
-				a->type = ALIAS_SIMPLE;
-			a->next = GET_ALIASES(ch);
-			GET_ALIASES(ch) = a;
-			SendMsgToChar("Алиас успешно добавлен.\r\n", ch);
-		}
-		SetWaitState(ch, 1 * kBattleRound);
-		write_aliases(ch);
-	}
-}
-
-/*
- * Valid numeric replacements are only $1 ... $9 (makes parsing a little
- * easier, and it's not that much of a limitation anyway.) Also, valid
- * is "$*", which stands for the entire original line after the alias.
- * ";" is used to delimit commands.
- */
-#define NUM_TOKENS       9
-
-void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
-	struct iosystem::TextBlocksQueue temp_queue;
-	char *tokens[NUM_TOKENS], *temp, *write_point;
-	int num_of_tokens = 0, num;
-
-	// First, parse the original string
-	temp = strtok(strcpy(buf2, orig), " ");
-	while (temp != nullptr && num_of_tokens < NUM_TOKENS) {
-		tokens[num_of_tokens++] = temp;
-		temp = strtok(nullptr, " ");
-	}
-
-	// initialize
-	write_point = buf;
-	temp_queue.head = temp_queue.tail = nullptr;
-
-	// now parse the alias
-	for (temp = a->replacement; *temp; temp++) {
-		if (*temp == ALIAS_SEP_CHAR) {
-			*write_point = '\0';
-			buf[kMaxInputLength - 1] = '\0';
-			write_to_q(buf, &temp_queue, 1);
-			write_point = buf;
-		} else if (*temp == ALIAS_VAR_CHAR) {
-			temp++;
-			if ((num = *temp - '1') < num_of_tokens && num >= 0) {
-				strcpy(write_point, tokens[num]);
-				write_point += strlen(tokens[num]);
-			} else if (*temp == ALIAS_GLOB_CHAR) {
-				strcpy(write_point, orig);
-				write_point += strlen(orig);
-			} else if ((*(write_point++) = *temp) == '$')    // redouble $ for act safety
-				*(write_point++) = '$';
-		} else
-			*(write_point++) = *temp;
-	}
-
-	*write_point = '\0';
-	buf[kMaxInputLength - 1] = '\0';
-	write_to_q(buf, &temp_queue, 1);
-
-	// push our temp_queue on to the _front_ of the input queue
-	if (input_q->head == nullptr)
-		*input_q = temp_queue;
-	else {
-		temp_queue.tail->next = input_q->head;
-		input_q->head = temp_queue.head;
-	}
-}
-
-/*
- * Given a character and a string, perform alias replacement on it.
- *
- * Return values:
- *   0: String was modified in place; call command_interpreter immediately.
- *   1: String was _not_ modified in place; rather, the expanded aliases
- *      have been placed at the front of the character's input queue.
- */
-int perform_alias(DescriptorData *d, char *orig) {
-	char first_arg[kMaxInputLength], *ptr;
-	struct alias_data *a, *tmp;
-
-	// Mobs don't have alaises. //
-	if (d->character->IsNpc())
-		return (0);
-
-	// bail out immediately if the guy doesn't have any aliases //
-	if ((tmp = GET_ALIASES(d->character)) == nullptr)
-		return (0);
-
-	// find the alias we're supposed to match //
-	ptr = any_one_arg(orig, first_arg);
-
-	// bail out if it's null //
-	if (!*first_arg)
-		return (0);
-
-	// if the first arg is not an alias, return without doing anything //
-	if ((a = find_alias(tmp, first_arg)) == nullptr)
-		return (0);
-
-	if (a->type == ALIAS_SIMPLE) {
-		strcpy(orig, a->replacement);
-		return (0);
-	} else {
-		perform_complex_alias(&d->input, ptr, a);
-		return (1);
-	}
-}
-
-
 
 // ***************************************************************************
 // * Various other parsing utilities                                         *
@@ -2050,7 +1872,7 @@ void do_entergame(DescriptorData *d) {
 	int load_room, cmd, flag = 0;
 
 	d->character->reset();
-	read_aliases(d->character.get());
+	ReadAliases(d->character.get());
 
 	if (GetRealLevel(d->character) == kLvlImmortal) {
 		d->character->set_level(kLvlGod);
@@ -4043,48 +3865,6 @@ void name_convert(std::string &text) {
 		utils::ConvertToLow(text);
 		*text.begin() = UPPER(*text.begin());
 	}
-}
-
-// спам-контроль для команды кто и списка по дружинам
-// работает аналогично восстановлению и расходованию маны у волхвов
-// константы пока определены через #define в interpreter.h
-// возвращает истину, если спамконтроль сработал и игроку придется подождать
-bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
-	if (IS_IMMORTAL(ch)) {
-		return false;
-	}
-
-  	unsigned int cost{0};
-	switch (mode) {
-		case WHO_LISTALL:cost = WHO_COST;
-			break;
-		case WHO_LISTNAME:cost = WHO_COST_NAME;
-			break;
-		case WHO_LISTCLAN:cost = WHO_COST_CLAN;
-			break;
-		default:cost = WHO_COST;
-			break;
-	}
-
-	auto who_cost_mana = ch->get_who_mana();
-	auto last = ch->get_who_last();
-
-	// рестим ману, в БД скорость реста маны удваивается
-	time_t ctime = time(nullptr);
-	who_cost_mana = MIN(WHO_MANA_MAX,
-						who_cost_mana + (ctime - last) * WHO_MANA_REST_PER_SECOND
-							+ (ctime - last) * WHO_MANA_REST_PER_SECOND * (NORENTABLE(ch) ? 1 : 0));
-	ch->set_who_mana(who_cost_mana);
-	ch->set_who_last(ctime);
-
-	if (who_cost_mana < cost) {
-		SendMsgToChar("Запрос обрабатывается, ожидайте...\r\n", ch);
-		return true;
-	} else {
-		who_cost_mana -= cost;
-		ch->set_who_mana(who_cost_mana);
-	}
-	return false;
 }
 
 // * Добровольное удаление персонажа через игровое меню.

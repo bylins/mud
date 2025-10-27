@@ -52,7 +52,7 @@ bool IsWearingLight(CharData *ch);
 void PerformDropGold(CharData *ch, int amount);
 int invalid_unique(CharData *ch, const ObjData *obj);
 void do_entergame(DescriptorData *d);
-void do_return(CharData *ch, char *argument, int cmd, int subcmd);
+void DoReturn(CharData *ch, char *argument, int cmd, int subcmd);
 //extern std::vector<City> Cities;
 extern int global_uid;
 extern void change_leader(CharData *ch, CharData *vict);
@@ -1755,7 +1755,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
 			if (t_desc->original.get() == ch) {
-				do_return(t_desc->character.get(), nullptr, 0, 0);
+				DoReturn(t_desc->character.get(), nullptr, 0, 0);
 			}
 		}
 	}
@@ -1831,7 +1831,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	ch->SetFlag(EMobFlag::kMobDeleted);
 
 	if (ch->desc && ch->desc->original) {
-		do_return(ch, nullptr, 0, 0);
+		DoReturn(ch, nullptr, 0, 0);
 	}
 
 	const bool is_npc = ch->IsNpc();
@@ -2396,6 +2396,57 @@ int find_all_dots(char *arg) {
 	} else {
 		return (kFindIndiv);
 	}
+}
+
+RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
+	RoomVnum tmp;
+	RoomRnum location;
+	CharData *target_mob;
+	ObjData *target_obj;
+	char roomstr[kMaxInputLength];
+
+	one_argument(rawroomstr, roomstr);
+
+	if (!*roomstr) {
+		SendMsgToChar("Укажите номер или название комнаты.\r\n", ch);
+		return (kNowhere);
+	}
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.')) {
+		tmp = atoi(roomstr);
+		if ((location = GetRoomRnum(tmp)) == kNowhere) {
+			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
+			return (kNowhere);
+		}
+	} else if ((target_mob = get_char_vis(ch, roomstr, EFind::kCharInWorld)) != nullptr) {
+		location = target_mob->in_room;
+	} else if ((target_obj = get_obj_vis(ch, roomstr)) != nullptr) {
+		if (target_obj->get_in_room() != kNowhere) {
+			location = target_obj->get_in_room();
+		} else {
+			SendMsgToChar("Этот объект вам недоступен.\r\n", ch);
+			return (kNowhere);
+		}
+	} else {
+		SendMsgToChar("В округе нет похожего предмета или создания.\r\n", ch);
+		return (kNowhere);
+	}
+
+	// a location has been found -- if you're < GRGOD, check restrictions.
+	if (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
+		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
+			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
+			return (kNowhere);
+		}
+		if (ROOM_FLAGGED(location, ERoomFlag::kNoTeleportIn) && trig != 1) {
+			SendMsgToChar("В комнату не телепортировать!\r\n", ch);
+			return (kNowhere);
+		}
+		if (!Clan::MayEnter(ch, location, kHousePortal)) {
+			SendMsgToChar("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+			return (kNowhere);
+		}
+	}
+	return (location);
 }
 
 float get_effective_cha(CharData *ch) {

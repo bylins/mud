@@ -32,6 +32,8 @@ class Shutdown {
 };
 }
 
+void DoShutdown(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+
 #endif // __COMMAND_SHUTDOWN_HPP__
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

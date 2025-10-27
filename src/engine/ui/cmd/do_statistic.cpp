@@ -10,12 +10,12 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
 #include "gameplay/statistics/mob_stat.h"
+#include "engine/ui/cmd_god/do_date.h"
 
 #include <map>
 
 void PrintPair(std::ostringstream &out, int column_width, int val1, int val2);
 void PrintValue(std::ostringstream &out, int column_width, int val);
-void PrintUptime(std::ostringstream &out);
 
 void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	static std::unordered_map<ECharClass, std::pair<int, int>> players;
@@ -116,16 +116,6 @@ void PrintPair(std::ostringstream &out, int column_width, int val1, int val2) {
 
 void PrintValue(std::ostringstream &out, int column_width, int val) {
 	out << kColorBoldRed << "[" << kColorBoldCyn << std::right << std::setw(column_width) << val << kColorBoldRed << "]" << kColorNrm << "\r\n";
-}
-
-void PrintUptime(std::ostringstream &out) {
-	auto uptime = time(nullptr) - shutdown_parameters.get_boot_time();
-	auto d = uptime / 86400;
-	auto h = (uptime / 3600) % 24;
-	auto m = (uptime / 60) % 60;
-	auto s = uptime % 60;
-
-	out << std::setprecision(2) << d << "д " << h << ":" << m << ":" << s << "\r\n";
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

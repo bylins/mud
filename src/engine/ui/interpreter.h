@@ -25,7 +25,6 @@ class CharData;    // to avoid inclusion of "char.hpp"
 
 void do_move(CharData *ch, char *argument, int cmd, int subcmd);
 
-#define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
 
 void command_interpreter(CharData *ch, char *argument);
@@ -75,37 +74,10 @@ extern const struct command_info cmd_info[];
 #endif
 
 /*
- * Alert! Changed from 'struct alias' to 'struct alias_data' in bpl15
- * because a Windows 95 compiler gives a warning about it having similiar
- * named member.
- */
-struct alias_data {
-	char *alias;
-	char *replacement;
-	int type;
-	struct alias_data *next;
-};
-
-#define ALIAS_SIMPLE 0
-#define ALIAS_COMPLEX   1
-
-#define ALIAS_SEP_CHAR  '+'
-#define ALIAS_VAR_CHAR  '='
-#define ALIAS_GLOB_CHAR '*'
-
-/*
  * SUBCOMMANDS
  *   You can define these however you want to, and the definitions of the
  *   subcommands are independent of function to function.
  */
-
-// directions
-#define SCMD_NORTH   1
-#define SCMD_EAST 2
-#define SCMD_SOUTH   3
-#define SCMD_WEST 4
-#define SCMD_UP      5
-#define SCMD_DOWN 6
 
 // do_gen_tog
 #define SCMD_NOSUMMON   0
@@ -299,25 +271,6 @@ void SplitArgument(const char *arguments, std::vector<std::string> &out);
 void SplitArgument(const char *arguments, std::vector<short> &out);
 void SplitArgument(const char *arguments, std::vector<int> &out);
 
-// константы для спам-контроля команды кто
-// если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава
-
-// максимум маны
-#define WHO_MANA_MAX  6000
-// расход на одно выполнение с выводом полного списка
-#define WHO_COST  180
-// расход на одно выполнение с поиском по имени
-#define WHO_COST_NAME  30
-// расход на вывод списка по кланам
-#define WHO_COST_CLAN  120
-// скорость восстановления
-#define WHO_MANA_REST_PER_SECOND  9
-// режимы выполнения
-#define WHO_LISTALL 0
-#define WHO_LISTNAME 1
-#define WHO_LISTCLAN 2
-
-bool who_spamcontrol(CharData *, unsigned short int);
 void SortCommands();
 
 #endif // INTERPRETER_H_
