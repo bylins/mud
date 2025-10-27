@@ -27,8 +27,8 @@
 #include "engine/ui/cmd_god/do_advance.h"
 #include "engine/ui/cmd_god/do_arena_restore.h"
 #include "engine/ui/cmd_god/do_at_room.h"
-#include "engine/ui/cmd_god/do_check_zone_occupation.h"
-#include "engine/ui/cmd_god/do_clear_zone.h"
+#include "engine/ui/cmd_god/do_occupation.h"
+#include "engine/ui/cmd_god/do_date.h"
 #include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_delete_obj.h"
 #include "engine/ui/cmd_god/do_goto.h"
@@ -37,25 +37,38 @@
 #include "engine/ui/cmd_god/do_echo.h"
 #include "engine/ui/cmd_god/do_force.h"
 #include "engine/ui/cmd_god/do_forcetime.h"
+#include "engine/ui/cmd_god/do_gecho.h"
 #include "engine/ui/cmd_god/do_glory.h"
 #include "engine/ui/cmd_god/do_show.h"
+#include "engine/ui/cmd_god/do_shutdown.h"
 #include "engine/ui/cmd_god/do_reload.h"
 #include "engine/ui/cmd_god/do_stat.h"
 #include "engine/ui/cmd_god/do_show.h"
+#include "engine/ui/cmd_god/do_spellstat.h"
 #include "engine/ui/cmd_god/do_liblist.h"
+#include "engine/ui/cmd_god/do_last.h"
 #include "engine/ui/cmd_god/do_load.h"
+#include "engine/ui/cmd_god/do_loadstat.h"
 #include "engine/ui/cmd_god/do_beep.h"
-#include "engine/ui/cmd_god/do_page_clan_overstuff.h"
+#include "engine/ui/cmd_god/do_overstuff.h"
 #include "engine/ui/cmd_god/do_print_armor.h"
+#include "engine/ui/cmd_god/do_purge.h"
 #include "engine/ui/cmd_god/do_godtest.h"
-#include "engine/ui/cmd_god/do_send_msg_to_char.h"
+#include "engine/ui/cmd_god/do_sdemigods.h"
+#include "engine/ui/cmd_god/do_restore.h"
+#include "engine/ui/cmd_god/do_sanitize.h"
+#include "engine/ui/cmd_god/do_send.h"
 #include "engine/ui/cmd_god/do_snoop.h"
+#include "engine/ui/cmd_god/do_switch.h"
 #include "engine/ui/cmd_god/do_tabulate.h"
 #include "engine/ui/cmd_god/do_teleport.h"
 #include "engine/ui/cmd_god/do_mark.h"
 #include "engine/ui/cmd_god/do_unfreeze.h"
+#include "engine/ui/cmd_god/do_vstat.h"
+#include "engine/ui/cmd_god/do_wizlock.h"
 #include "engine/ui/cmd_god/do_wiznet.h"
 #include "engine/ui/cmd_god/do_wizutil.h"
+#include "engine/ui/cmd_god/do_zclear.h"
 #include "engine/ui/cmd_god/do_zreset.h"
 #include "engine/ui/cmd/do_bandage.h"
 #include "engine/ui/cmd/do_consider.h"
@@ -314,7 +327,6 @@ int do_social(CharData *ch, char *argument);
 void init_warcry(CharData *ch);
 
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
-void DoAtRoom(CharData *ch, char *argument, int, int);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
@@ -331,7 +343,6 @@ void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
 void DoGlobalEcho(CharData *ch, char *argument, int, int);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
-void DoGoto(CharData *ch, char *argument, int, int);
 void DoStoreShop(CharData *ch, char *argument, int, int);
 void DoPageLastLogins(CharData *ch, char *argument, int, int);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
@@ -340,24 +351,17 @@ void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
 void DoSetPoofMsg(CharData *ch, char *argument, int, int subcmd);
 void DoPageSpellStat(CharData *ch, char *argument, int, int);
-void DoPurge(CharData *ch, char *argument, int, int);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
 void DoRestore(CharData *ch, char *argument, int, int subcmd);
-void DoReturn(CharData *ch, char *argument, int cmd, int subcmd);
 void DoScore(CharData *ch, char *argument, int, int);
 void DoSendMsgToDemigods(CharData *ch, char *argument, int, int);
-void DoSendMsgToChar(CharData *ch, char *argument, int, int);
 void DoShutdown(CharData *ch, char *argument, int, int);
 void do_skillset(CharData *ch, char *argument, int cmd, int subcmd);
-void DoSnoop(CharData *ch, char *argument, int, int);
-void DoSwitch(CharData *ch, char *argument, int, int);
 void DoSyslog(CharData *ch, char *argument, int, int subcmd);
-void DoTeleport(CharData *ch, char *argument, int, int);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
-void DoVstat(CharData *ch, char *argument, int cmd, int);
 void DoWizlock(CharData *ch, char *argument, int, int);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
@@ -382,10 +386,6 @@ void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void DoSanitize(CharData *ch, char *, int, int);
 void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
 void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
-void DoUnfreeze(CharData *ch, char *, int, int);
-void DoCheckZoneOccupation(CharData *ch, char *argument, int, int);
-void DoDeleteObj(CharData *ch, char *argument, int, int);
-void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
 void DoShowZoneStat(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 

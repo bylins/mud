@@ -118,4 +118,11 @@ char const *Shutdown::HELP_MESSAGE =
 	"               shutdown now|cancel|schedule";
 }
 
+void DoShutdown(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	commands::Shutdown command(ch, argument, shutdown_parameters);
+	if (command.parse_arguments()) {
+		command.execute();
+	}
+}
+
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

@@ -1011,6 +1011,13 @@ int shutting_down(void) {
 	return (false);
 }
 
+void log_zone_count_reset() {
+	for (auto & i : zone_table) {
+		sprintf(buf, "Zone: %d, count_reset: %d", i.vnum, i.count_reset);
+		log("%s", buf);
+	}
+}
+
 #ifdef HAS_EPOLL
 inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *events)
 #else

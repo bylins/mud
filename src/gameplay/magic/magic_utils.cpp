@@ -24,6 +24,7 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/statistics/spell_usage.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
