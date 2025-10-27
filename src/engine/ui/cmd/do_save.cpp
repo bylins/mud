@@ -19,7 +19,7 @@ void do_save(CharData *ch, char * /*argument*/, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Сохраняю игрока, синонимы и вещи.\r\n", ch);
 		SetWaitState(ch, 3 * kBattleRound);
 	}
-	write_aliases(ch);
+	WriteAliases(ch);
 	ch->save_char();
 	Crash_crashsave(ch);
 }

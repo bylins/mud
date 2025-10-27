@@ -265,6 +265,7 @@
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
+#include "alias.h"
 
 #include <ctime>
 
@@ -305,8 +306,6 @@ extern char *name_rules;
 void DeletePcByHimself(const char *name);
 
 // external functions
-void read_aliases(CharData *ch);
-void write_aliases(CharData *ch);
 void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
 void redit_parse(DescriptorData *d, char *arg);
@@ -317,9 +316,6 @@ extern int CheckProxy(DescriptorData *ch);
 extern void check_max_hp(CharData *ch);
 // local functions
 int perform_dupe_check(DescriptorData *d);
-struct alias_data *find_alias(struct alias_data *alias_list, char *str);
-void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a);
-int perform_alias(DescriptorData *d, char *orig);
 int reserved_word(const char *argument);
 int _parse_name(char *argument, char *name);
 int find_action(char *cmd);
@@ -430,18 +426,18 @@ cpp_extern const struct command_info cmd_info[] =
 		{"RESERVED", EPosition::kDead, nullptr, 0, 0, 0},    // this must be first -- for specprocs
 
 		// directions must come before other commands but after RESERVED
-		{"север", EPosition::kStand, do_move, 0, SCMD_NORTH, -2},
-		{"восток", EPosition::kStand, do_move, 0, SCMD_EAST, -2},
-		{"юг", EPosition::kStand, do_move, 0, SCMD_SOUTH, -2},
-		{"запад", EPosition::kStand, do_move, 0, SCMD_WEST, -2},
-		{"вверх", EPosition::kStand, do_move, 0, SCMD_UP, -2},
-		{"вниз", EPosition::kStand, do_move, 0, SCMD_DOWN, -2},
-		{"north", EPosition::kStand, do_move, 0, SCMD_NORTH, -2},
-		{"east", EPosition::kStand, do_move, 0, SCMD_EAST, -2},
-		{"south", EPosition::kStand, do_move, 0, SCMD_SOUTH, -2},
-		{"west", EPosition::kStand, do_move, 0, SCMD_WEST, -2},
-		{"up", EPosition::kStand, do_move, 0, SCMD_UP, -2},
-		{"down", EPosition::kStand, do_move, 0, SCMD_DOWN, -2},
+		{"север", EPosition::kStand, do_move, 0, EDirection::kNorth, -2},
+		{"восток", EPosition::kStand, do_move, 0, EDirection::kEast, -2},
+		{"юг", EPosition::kStand, do_move, 0, EDirection::kSouth, -2},
+		{"запад", EPosition::kStand, do_move, 0, EDirection::kWest, -2},
+		{"вверх", EPosition::kStand, do_move, 0, EDirection::kUp, -2},
+		{"вниз", EPosition::kStand, do_move, 0, EDirection::kDown, -2},
+		{"north", EPosition::kStand, do_move, 0, EDirection::kNorth, -2},
+		{"east", EPosition::kStand, do_move, 0, EDirection::kEast, -2},
+		{"south", EPosition::kStand, do_move, 0, EDirection::kSouth, -2},
+		{"west", EPosition::kStand, do_move, 0, EDirection::kWest, -2},
+		{"up", EPosition::kStand, do_move, 0, EDirection::kUp, -2},
+		{"down", EPosition::kStand, do_move, 0, EDirection::kDown, -2},
 
 		{"аффекты", EPosition::kDead, do_affects, 0, SCMD_AUCTION, 0},
 		{"авторы", EPosition::kDead, DoGenericPage, 0, kScmdCredits, 0},
@@ -568,7 +564,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
 		{"копироватьзону", EPosition::kStand, dungeons::DoZoneCopy, kLvlImplementator, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, SCMD_SHOUT, -1},
-		{"кто", EPosition::kRest, do_who, 0, 0, 0},
+		{"кто", EPosition::kRest, DoWho, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, ClanSystem::DoWhoClan, 0, 0, 0},
 		{"ктоя", EPosition::kDead, DoWhoAmI, 0, 0, 0},
 		{"купить", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -1024,7 +1020,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"where", EPosition::kRest, DoWhere, kLvlImmortal, 0, 0},
 		{"whirl", EPosition::kFight, do_iron_wind, 0, 0, -1},
 		{"whisper", EPosition::kRest, do_spec_comm, 0, SCMD_WHISPER, -1},
-		{"who", EPosition::kRest, do_who, 0, 0, 0},
+		{"who", EPosition::kRest, DoWho, 0, 0, 0},
 		{"whoami", EPosition::kDead, DoWhoAmI, 0, 0, 0},
 		{"wield", EPosition::kRest, do_wield, 0, 0, 500},
 		{"wimpy", EPosition::kDead, do_wimpy, 0, 0, 0},
@@ -1294,186 +1290,6 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 }
-
-// ************************************************************************
-// * Routines to handle aliasing                                          *
-// ************************************************************************
-struct alias_data *find_alias(struct alias_data *alias_list, char *str) {
-	while (alias_list != nullptr) {
-		if (*str == *alias_list->alias)    // hey, every little bit counts :-)
-			if (!strcmp(str, alias_list->alias))
-				return (alias_list);
-
-		alias_list = alias_list->next;
-	}
-
-	return (nullptr);
-}
-
-void FreeAlias(struct alias_data *a) {
-	if (a->alias)
-		free(a->alias);
-	if (a->replacement)
-		free(a->replacement);
-	free(a);
-}
-
-// The interface to the outside world: do_alias
-void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char *repl;
-	struct alias_data *a;
-
-	if (ch->IsNpc())
-		return;
-
-	repl = any_one_arg(argument, arg);
-
-	if (!*arg)        // no argument specified -- list currently defined aliases
-	{
-		SendMsgToChar("Определены следующие алиасы:\r\n", ch);
-		if ((a = GET_ALIASES(ch)) == nullptr)
-			SendMsgToChar(" Нет алиасов.\r\n", ch);
-		else {
-			while (a != nullptr) {
-				sprintf(buf, "%-15s %s\r\n", a->alias, a->replacement);
-				SendMsgToChar(buf, ch);
-				a = a->next;
-			}
-		}
-	} else        // otherwise, add or remove aliases
-	{
-		// is this an alias we've already defined?
-		if ((a = find_alias(GET_ALIASES(ch), arg)) != nullptr) {
-			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
-			FreeAlias(a);
-		}
-		// if no replacement string is specified, assume we want to delete
-		if (!*repl) {
-			if (a == nullptr)
-				SendMsgToChar("Такой алиас не определен.\r\n", ch);
-			else
-				SendMsgToChar("Алиас успешно удален.\r\n", ch);
-		} else {
-			if (!str_cmp(arg, "alias")) {
-				SendMsgToChar("Вы не можете определить алиас 'alias'.\r\n", ch);
-				return;
-			}
-			CREATE(a, 1);
-			a->alias = str_dup(arg);
-			delete_doubledollar(repl);
-			a->replacement = str_dup(repl);
-			if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
-				a->type = ALIAS_COMPLEX;
-			else
-				a->type = ALIAS_SIMPLE;
-			a->next = GET_ALIASES(ch);
-			GET_ALIASES(ch) = a;
-			SendMsgToChar("Алиас успешно добавлен.\r\n", ch);
-		}
-		SetWaitState(ch, 1 * kBattleRound);
-		write_aliases(ch);
-	}
-}
-
-/*
- * Valid numeric replacements are only $1 ... $9 (makes parsing a little
- * easier, and it's not that much of a limitation anyway.) Also, valid
- * is "$*", which stands for the entire original line after the alias.
- * ";" is used to delimit commands.
- */
-#define NUM_TOKENS       9
-
-void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
-	struct iosystem::TextBlocksQueue temp_queue;
-	char *tokens[NUM_TOKENS], *temp, *write_point;
-	int num_of_tokens = 0, num;
-
-	// First, parse the original string
-	temp = strtok(strcpy(buf2, orig), " ");
-	while (temp != nullptr && num_of_tokens < NUM_TOKENS) {
-		tokens[num_of_tokens++] = temp;
-		temp = strtok(nullptr, " ");
-	}
-
-	// initialize
-	write_point = buf;
-	temp_queue.head = temp_queue.tail = nullptr;
-
-	// now parse the alias
-	for (temp = a->replacement; *temp; temp++) {
-		if (*temp == ALIAS_SEP_CHAR) {
-			*write_point = '\0';
-			buf[kMaxInputLength - 1] = '\0';
-			write_to_q(buf, &temp_queue, 1);
-			write_point = buf;
-		} else if (*temp == ALIAS_VAR_CHAR) {
-			temp++;
-			if ((num = *temp - '1') < num_of_tokens && num >= 0) {
-				strcpy(write_point, tokens[num]);
-				write_point += strlen(tokens[num]);
-			} else if (*temp == ALIAS_GLOB_CHAR) {
-				strcpy(write_point, orig);
-				write_point += strlen(orig);
-			} else if ((*(write_point++) = *temp) == '$')    // redouble $ for act safety
-				*(write_point++) = '$';
-		} else
-			*(write_point++) = *temp;
-	}
-
-	*write_point = '\0';
-	buf[kMaxInputLength - 1] = '\0';
-	write_to_q(buf, &temp_queue, 1);
-
-	// push our temp_queue on to the _front_ of the input queue
-	if (input_q->head == nullptr)
-		*input_q = temp_queue;
-	else {
-		temp_queue.tail->next = input_q->head;
-		input_q->head = temp_queue.head;
-	}
-}
-
-/*
- * Given a character and a string, perform alias replacement on it.
- *
- * Return values:
- *   0: String was modified in place; call command_interpreter immediately.
- *   1: String was _not_ modified in place; rather, the expanded aliases
- *      have been placed at the front of the character's input queue.
- */
-int perform_alias(DescriptorData *d, char *orig) {
-	char first_arg[kMaxInputLength], *ptr;
-	struct alias_data *a, *tmp;
-
-	// Mobs don't have alaises. //
-	if (d->character->IsNpc())
-		return (0);
-
-	// bail out immediately if the guy doesn't have any aliases //
-	if ((tmp = GET_ALIASES(d->character)) == nullptr)
-		return (0);
-
-	// find the alias we're supposed to match //
-	ptr = any_one_arg(orig, first_arg);
-
-	// bail out if it's null //
-	if (!*first_arg)
-		return (0);
-
-	// if the first arg is not an alias, return without doing anything //
-	if ((a = find_alias(tmp, first_arg)) == nullptr)
-		return (0);
-
-	if (a->type == ALIAS_SIMPLE) {
-		strcpy(orig, a->replacement);
-		return (0);
-	} else {
-		perform_complex_alias(&d->input, ptr, a);
-		return (1);
-	}
-}
-
-
 
 // ***************************************************************************
 // * Various other parsing utilities                                         *
@@ -2056,7 +1872,7 @@ void do_entergame(DescriptorData *d) {
 	int load_room, cmd, flag = 0;
 
 	d->character->reset();
-	read_aliases(d->character.get());
+	ReadAliases(d->character.get());
 
 	if (GetRealLevel(d->character) == kLvlImmortal) {
 		d->character->set_level(kLvlGod);
@@ -4049,48 +3865,6 @@ void name_convert(std::string &text) {
 		utils::ConvertToLow(text);
 		*text.begin() = UPPER(*text.begin());
 	}
-}
-
-// спам-контроль для команды кто и списка по дружинам
-// работает аналогично восстановлению и расходованию маны у волхвов
-// константы пока определены через #define в interpreter.h
-// возвращает истину, если спамконтроль сработал и игроку придется подождать
-bool who_spamcontrol(CharData *ch, unsigned short int mode = WHO_LISTALL) {
-	if (IS_IMMORTAL(ch)) {
-		return false;
-	}
-
-  	unsigned int cost{0};
-	switch (mode) {
-		case WHO_LISTALL:cost = WHO_COST;
-			break;
-		case WHO_LISTNAME:cost = WHO_COST_NAME;
-			break;
-		case WHO_LISTCLAN:cost = WHO_COST_CLAN;
-			break;
-		default:cost = WHO_COST;
-			break;
-	}
-
-	auto who_cost_mana = ch->get_who_mana();
-	auto last = ch->get_who_last();
-
-	// рестим ману, в БД скорость реста маны удваивается
-	time_t ctime = time(nullptr);
-	who_cost_mana = MIN(WHO_MANA_MAX,
-						who_cost_mana + (ctime - last) * WHO_MANA_REST_PER_SECOND
-							+ (ctime - last) * WHO_MANA_REST_PER_SECOND * (NORENTABLE(ch) ? 1 : 0));
-	ch->set_who_mana(who_cost_mana);
-	ch->set_who_last(ctime);
-
-	if (who_cost_mana < cost) {
-		SendMsgToChar("Запрос обрабатывается, ожидайте...\r\n", ch);
-		return true;
-	} else {
-		who_cost_mana -= cost;
-		ch->set_who_mana(who_cost_mana);
-	}
-	return false;
 }
 
 // * Добровольное удаление персонажа через игровое меню.

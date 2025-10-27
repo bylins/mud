@@ -48,6 +48,7 @@
 #include "gameplay/core/constants.h"
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "engine/ui/cmd/do_who.h"
 
 using namespace ClanSystem;
 
@@ -4888,7 +4889,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// спам-контроль применяем только если запросили полный список или не свою дружину
 	if (all || !ch->player_specials->clan || !CompareParam(ch->player_specials->clan->GetAbbrev(), (*clan)->abbrev)) {
-		if (who_spamcontrol(ch, WHO_LISTCLAN)) {
+		if (PerformWhoSpamcontrol(ch, kWhoListclan)) {
 			return;
 		}
 	}

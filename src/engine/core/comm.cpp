@@ -67,6 +67,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/core/iosystem.h"
+#include "engine/ui/alias.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -521,7 +522,6 @@ socket_t init_socket(ush_int port);
 int get_max_players();
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
 void nonblock(socket_t s);
-int perform_alias(DescriptorData *d, char *orig);
 struct in_addr *get_bind_addr();
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -1163,7 +1163,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		{
 			if (aliased)    // To prevent recursive aliases.
 				d->has_prompt = 1;    // To get newline before next cmd output.
-			else if (perform_alias(d, comm))    // Run it through aliasing system
+			else if (PerformAlias(d, comm))    // Run it through aliasing system
 				get_from_q(&d->input, comm, &aliased);
 			command_interpreter(d->character.get(), comm);    // Send it to interpreter
 			cmd_cnt++;

@@ -17,6 +17,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
+#include "engine/ui/alias.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>

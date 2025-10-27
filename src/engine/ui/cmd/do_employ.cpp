@@ -12,7 +12,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 	two_arguments(argument, arg, buf);
 	char *buf_temp = str_dup(buf);
 	if (!*arg) {
-		sprintf(buf2, "Что вы хотите %s?\r\n", CMD_NAME);
+		sprintf(buf2, "Что вы хотите %s?\r\n", cmd_info[cmd].command);
 		SendMsgToChar(buf2, ch);
 		return;
 	}
