@@ -26,7 +26,12 @@
 #include "gameplay/communication/offtop.h"
 #include "engine/ui/cmd_god/do_advance.h"
 #include "engine/ui/cmd_god/do_arena_restore.h"
+#include "engine/ui/cmd_god/do_at_room.h"
+#include "engine/ui/cmd_god/do_check_zone_occupation.h"
+#include "engine/ui/cmd_god/do_clear_zone.h"
 #include "engine/ui/cmd_god/do_dc.h"
+#include "engine/ui/cmd_god/do_delete_obj.h"
+#include "engine/ui/cmd_god/do_goto.h"
 #include "engine/ui/cmd_god/do_set.h"
 #include "engine/ui/cmd_god/do_invisible.h"
 #include "engine/ui/cmd_god/do_echo.h"
@@ -40,10 +45,15 @@
 #include "engine/ui/cmd_god/do_liblist.h"
 #include "engine/ui/cmd_god/do_load.h"
 #include "engine/ui/cmd_god/do_beep.h"
+#include "engine/ui/cmd_god/do_page_clan_overstuff.h"
 #include "engine/ui/cmd_god/do_print_armor.h"
 #include "engine/ui/cmd_god/do_godtest.h"
+#include "engine/ui/cmd_god/do_send_msg_to_char.h"
+#include "engine/ui/cmd_god/do_snoop.h"
 #include "engine/ui/cmd_god/do_tabulate.h"
+#include "engine/ui/cmd_god/do_teleport.h"
 #include "engine/ui/cmd_god/do_mark.h"
+#include "engine/ui/cmd_god/do_unfreeze.h"
 #include "engine/ui/cmd_god/do_wiznet.h"
 #include "engine/ui/cmd_god/do_wizutil.h"
 #include "engine/ui/cmd_god/do_zreset.h"
@@ -303,7 +313,6 @@ int find_action(char *cmd);
 int do_social(CharData *ch, char *argument);
 void init_warcry(CharData *ch);
 
-void DoAdvance(CharData *ch, char *argument, int, int);
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
 void DoAtRoom(CharData *ch, char *argument, int, int);
 void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
@@ -350,7 +359,6 @@ void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
 void DoVstat(CharData *ch, char *argument, int cmd, int);
 void DoWizlock(CharData *ch, char *argument, int, int);
-void DoClearZone(CharData *ch, char *argument, int cmd, int);
 void do_style(CharData *ch, char *argument, int cmd, int subcmd);
 void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
@@ -379,8 +387,6 @@ void DoCheckZoneOccupation(CharData *ch, char *argument, int, int);
 void DoDeleteObj(CharData *ch, char *argument, int, int);
 void DoFindObjByRnum(CharData *ch, char *argument, int cmd, int subcmd);
 void DoShowZoneStat(CharData *ch, char *argument, int, int);
-void DoPageClanOverstuff(CharData *ch, char *, int, int);
-void DoSendTextToChar(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
 /* This is the Master Command List(tm).
@@ -488,7 +494,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
 		{"гговорить", EPosition::kSleep, do_gsay, 0, 0, 500},
 		{"гдругам", EPosition::kSleep, ClanSystem::DoClanChannel, 0, SCMD_CHANNEL, 0},
-		{"где", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
+		{"где", EPosition::kRest, DoWhere, kLvlImmortal, 0, 0},
 		{"гдея", EPosition::kRest, DoZone, 0, 0, 0},
 		{"глоток", EPosition::kRest, do_drink, 0, SCMD_SIP, 200},
 		{"города", EPosition::kDead, cities::DoCities, 0, 0, 0},
@@ -985,7 +991,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"imlog", EPosition::kDead, DoSyslog, kLvlBuilder, IMLOG, 0},
 		{"take", EPosition::kRest, do_get, 0, 0, 500},
 		{"taste", EPosition::kRest, do_eat, 0, kScmdTaste, 500},
-		{"t2c", EPosition::kRest, DoSendTextToChar, kLvlGreatGod, 0, -1},
 		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
 		{"teleport", EPosition::kDead, DoTeleport, kLvlGreatGod, 0, -1},
 		{"tell", EPosition::kRest, do_tell, 0, 0, -1},
@@ -1016,7 +1021,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"warcry", EPosition::kFight, do_warcry, 1, 0, -1},
 		{"wear", EPosition::kRest, do_wear, 0, 0, 500},
 		{"weather", EPosition::kRest, do_weather, 0, 0, 0},
-		{"where", EPosition::kRest, do_where, kLvlImmortal, 0, 0},
+		{"where", EPosition::kRest, DoWhere, kLvlImmortal, 0, 0},
 		{"whirl", EPosition::kFight, do_iron_wind, 0, 0, -1},
 		{"whisper", EPosition::kRest, do_spec_comm, 0, SCMD_WHISPER, -1},
 		{"who", EPosition::kRest, do_who, 0, 0, 0},

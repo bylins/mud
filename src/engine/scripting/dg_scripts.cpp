@@ -71,7 +71,7 @@ extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern void split_or_clan_tax(CharData *ch, long amount);
 
 // external functions
-RoomRnum FindTargetInRoom(CharData *ch, char *rawroomstr, int trig);
+RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
 void free_varlist(struct TriggerVar *vd);
 int obj_room(ObjData *obj);
 Trigger *read_trigger(int nr);
@@ -1095,7 +1095,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("That object does not exist.\r\n", ch);
 	} else if (utils::IsAbbr(arg, "wtr")) {
 		if (a_isdigit(*targ_name) && !strchr(targ_name, '.')) {
-			if ((room = FindTargetInRoom(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
+			if ((room = FindRoomRnum(ch, targ_name, 0)) != kNowhere)    // have a valid room, now get trigger
 			{
 				rn = GetTriggerRnum(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn))) {

@@ -391,7 +391,18 @@ set(SOURCES
 		src/engine/ui/cmd_god/do_glory.cpp
 		src/administration/karma.cpp
 		src/engine/ui/cmd_god/do_arena_restore.cpp
-		src/engine/ui/cmd_god/do_load.cpp)
+		src/engine/ui/cmd_god/do_load.cpp
+		src/engine/ui/cmd_god/do_page_clan_overstuff.cpp
+		src/engine/ui/cmd_god/do_clear_zone.cpp
+		src/engine/ui/cmd_god/do_delete_obj.cpp
+		src/engine/ui/cmd_god/do_show_zone_stat.cpp
+		src/engine/ui/cmd_god/do_check_zone_occupation.cpp
+		src/engine/ui/cmd_god/do_send_msg_to_char.cpp
+		src/engine/ui/cmd_god/do_at_room.cpp
+		src/engine/ui/cmd_god/do_unfreeze.cpp
+		src/engine/ui/cmd_god/do_goto.cpp
+		src/engine/ui/cmd_god/do_teleport.cpp
+		src/engine/ui/cmd_god/do_snoop.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -769,7 +780,18 @@ set(HEADERS
 		src/engine/ui/cmd_god/do_glory.h
 		src/administration/karma.h
 		src/engine/ui/cmd_god/do_arena_restore.h
-		src/engine/ui/cmd_god/do_load.h)
+		src/engine/ui/cmd_god/do_load.h
+		src/engine/ui/cmd_god/do_page_clan_overstuff.h
+		src/engine/ui/cmd_god/do_clear_zone.h
+        src/engine/ui/cmd_god/do_delete_obj.h
+		src/engine/ui/cmd_god/do_show_zone_stat.h
+		src/engine/ui/cmd_god/do_check_zone_occupation.h
+		src/engine/ui/cmd_god/do_send_msg_to_char.h
+		src/engine/ui/cmd_god/do_at_room.h
+		src/engine/ui/cmd_god/do_unfreeze.h
+		src/engine/ui/cmd_god/do_goto.h
+		src/engine/ui/cmd_god/do_teleport.h
+		src/engine/ui/cmd_god/do_snoop.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

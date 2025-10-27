@@ -2398,6 +2398,57 @@ int find_all_dots(char *arg) {
 	}
 }
 
+RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
+	RoomVnum tmp;
+	RoomRnum location;
+	CharData *target_mob;
+	ObjData *target_obj;
+	char roomstr[kMaxInputLength];
+
+	one_argument(rawroomstr, roomstr);
+
+	if (!*roomstr) {
+		SendMsgToChar("Укажите номер или название комнаты.\r\n", ch);
+		return (kNowhere);
+	}
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.')) {
+		tmp = atoi(roomstr);
+		if ((location = GetRoomRnum(tmp)) == kNowhere) {
+			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
+			return (kNowhere);
+		}
+	} else if ((target_mob = get_char_vis(ch, roomstr, EFind::kCharInWorld)) != nullptr) {
+		location = target_mob->in_room;
+	} else if ((target_obj = get_obj_vis(ch, roomstr)) != nullptr) {
+		if (target_obj->get_in_room() != kNowhere) {
+			location = target_obj->get_in_room();
+		} else {
+			SendMsgToChar("Этот объект вам недоступен.\r\n", ch);
+			return (kNowhere);
+		}
+	} else {
+		SendMsgToChar("В округе нет похожего предмета или создания.\r\n", ch);
+		return (kNowhere);
+	}
+
+	// a location has been found -- if you're < GRGOD, check restrictions.
+	if (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
+		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
+			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
+			return (kNowhere);
+		}
+		if (ROOM_FLAGGED(location, ERoomFlag::kNoTeleportIn) && trig != 1) {
+			SendMsgToChar("В комнату не телепортировать!\r\n", ch);
+			return (kNowhere);
+		}
+		if (!Clan::MayEnter(ch, location, kHousePortal)) {
+			SendMsgToChar("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
+			return (kNowhere);
+		}
+	}
+	return (location);
+}
+
 float get_effective_cha(CharData *ch) {
 	int key_value, key_value_add;
 
