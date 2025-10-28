@@ -446,4 +446,27 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	return result;
 }
 
+void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
+	if ((GET_OBJ_VAL(jar, 3) == 1) && !IS_GOD(ch)) {
+		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
+		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
+		Affect<EApply> af;
+		af.type = ESpell::kPoison;
+		//если объем 0 -
+		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
+		af.modifier = -2;
+		af.location = EApply::kStr;
+		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.battleflag = kAfSameTime;
+		ImposeAffect(ch, af, false, false, false, false);
+		af.type = ESpell::kPoison;
+		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
+		af.location = EApply::kPoison;
+		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.battleflag = kAfSameTime;
+		ImposeAffect(ch, af, false, false, false, false);
+		ch->poisoner = 0;
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

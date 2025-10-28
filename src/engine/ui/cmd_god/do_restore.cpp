@@ -61,7 +61,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		while (vict->timed_feat)
 			ExpireTimedFeat(vict, vict->timed_feat);
 
-		if (subcmd == SCMD_RESTORE_GOD) {
+		if (subcmd == kScmdRestoreGod) {
 			SendMsgToChar(OK, ch);
 			act("Вы были полностью восстановлены $N4!",
 				false, vict, nullptr, ch, kToChar);

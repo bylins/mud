@@ -1371,7 +1371,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 	}
 	switch (subcmd) {
 		// большой БОГ говорит какой-то дружине
-		case SCMD_CHANNEL:
+		case kScmdChannel:
 			for (DescriptorData *d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& CLAN(d->character)
@@ -1391,7 +1391,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 			break;
 
 			// он же в канал союзников этой дружины, если они вообще есть
-		case SCMD_ACHANNEL:
+		case kScmdAchannel:
 			for (DescriptorData *d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& CLAN(d->character)
@@ -1444,7 +1444,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 
 	switch (subcmd) {
 		// своей дружине
-		case SCMD_CHANNEL:
+		case kScmdChannel:
 			// вспомнить
 			snprintf(buf, kMaxStringLength, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 			CLAN(ch)->add_remember(buf, Remember::CLAN);
@@ -1480,7 +1480,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 			break;
 
 			// союзникам
-		case SCMD_ACHANNEL:
+		case kScmdAchannel:
 			// вспомнить
 			snprintf(buf, kMaxStringLength, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 			for (auto &clan : Clan::ClanList) {

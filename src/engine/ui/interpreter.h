@@ -80,79 +80,38 @@ extern const struct command_info cmd_info[];
  */
 
 // do_spec_com
-inline constexpr int SCMD_WHISPER{0};
-inline constexpr int SCMD_ASK{1};
-
-// do_gen_com
-inline constexpr int SCMD_HOLLER{0};
-inline constexpr int SCMD_SHOUT{1};
-inline constexpr int SCMD_GOSSIP{2};
-inline constexpr int SCMD_AUCTION{3};
+inline constexpr int kScmdWhisper{0};
+inline constexpr int kScmdAsk{1};
 
 // do_date
-inline constexpr int SCMD_DATE{0};
-inline constexpr int SCMD_UPTIME{1};
-
+inline constexpr int kScmdDate{0};
+inline constexpr int kScmdUptime{1};
 
 // do_commands
-inline constexpr int SCMD_COMMANDS{0};
-inline constexpr int SCMD_SOCIALS{1};
-inline constexpr int SCMD_WIZHELP{2};
-
-// do_drop
-inline constexpr int SCMD_DROP{0};
+inline constexpr int kScmdCommands{0};
+inline constexpr int kScmdSocials{1};
+inline constexpr int kScmdWizhelp{2};
 
 // do_look
-inline constexpr int SCMD_LOOK{0};
-inline constexpr int SCMD_READ{1};
-inline constexpr int SCMD_LOOK_HIDE{2};
-
-// do_pour
-inline constexpr int SCMD_POUR{0};
-inline constexpr int SCMD_FILL{1};
-
-// do_poof
-inline constexpr int SCMD_POOFIN{0};
-inline constexpr int SCMD_POOFOUT{1};
+inline constexpr int kScmdLook{0};
+inline constexpr int kScmdRead{1};
+inline constexpr int kScmdLookHide{2};
 
 // do_hit
-inline constexpr int SCMD_HIT{0};
-inline constexpr int SCMD_MURDER{1};
-
-// do_drink
-inline constexpr int SCMD_DRINK{2};
-inline constexpr int SCMD_SIP{3};
+inline constexpr int kScmdHit{0};
+inline constexpr int kScmdMurder{1};
 
 // do_echo
-inline constexpr int SCMD_ECHO{0};
-inline constexpr int SCMD_EMOTE{1};
-
-//. do_olc .
-inline constexpr int SCMD_OLC_REDIT{0};
-inline constexpr int SCMD_OLC_OEDIT{1};
-inline constexpr int SCMD_OLC_ZEDIT{2};
-inline constexpr int SCMD_OLC_MEDIT{3};
-inline constexpr int SCMD_OLC_TRIGEDIT{4};
-inline constexpr int SCMD_OLC_SAVEINFO{5};
-
-//. do_liblist .
-inline constexpr int SCMD_OLIST{0};
-inline constexpr int SCMD_MLIST{1};
-inline constexpr int SCMD_RLIST{2};
-inline constexpr int SCMD_ZLIST{3};
-inline constexpr int SCMD_CLIST{4};
+inline constexpr int kScmdEcho{0};
+inline constexpr int kScmdEmote{1};
 
 // do_hchannel
-inline constexpr int SCMD_CHANNEL{0};
-inline constexpr int SCMD_ACHANNEL{1};
+inline constexpr int kScmdChannel{0};
+inline constexpr int kScmdAchannel{1};
 
 // do_restore
-inline constexpr int SCMD_RESTORE_GOD{0};
-inline constexpr int SCMD_RESTORE_TRIGGER{1};
-
-// do_throw
-inline constexpr int SCMD_PHYSICAL_THROW{0};
-inline constexpr int SCMD_SHADOW_THROW{1};
+inline constexpr int kScmdRestoreGod{0};
+inline constexpr int kScmdRestoreTrigger{1};
 
 struct SortStruct {
   int sort_pos;

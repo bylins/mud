@@ -417,7 +417,10 @@ set(SOURCES
 		src/gameplay/statistics/spell_usage.cpp
 		src/engine/ui/cmd_god/do_loadstat.cpp
 		src/engine/ui/cmd_god/do_sanitize.cpp
-		src/engine/ui/cmd/do_alias.cpp)
+		src/engine/ui/cmd/do_alias.cpp
+		src/engine/ui/cmd/do_drink.cpp
+		src/engine/ui/cmd/do_drunkoff.cpp
+		src/engine/ui/cmd/do_pour.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -822,7 +825,10 @@ set(HEADERS
 		src/gameplay/statistics/spell_usage.h
 		src/engine/ui/cmd_god/do_loadstat.h
 		src/engine/ui/cmd_god/do_sanitize.h
-		src/engine/ui/cmd/do_alias.h)
+		src/engine/ui/cmd/do_alias.h
+		src/engine/ui/cmd/do_drink.h
+		src/engine/ui/cmd/do_drunkoff.h
+		src/engine/ui/cmd/do_pour.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -1521,7 +1521,7 @@ void using_mob_skills(CharData *ch) {
 
 			// Метаем
 			if (caster) {
-				go_throw(ch, caster);
+				GoThrow(ch, caster);
 			}
 		}
 
@@ -1744,7 +1744,7 @@ bool using_extra_attack(CharData *ch) {
 	bool used = false;
 
 	switch (ch->get_extra_attack_mode()) {
-		case kExtraAttackThrow: go_throw(ch, ch->GetExtraVictim());
+		case kExtraAttackThrow: GoThrow(ch, ch->GetExtraVictim());
 			used = true;
 			break;
 		case kExtraAttackBash: go_bash(ch, ch->GetExtraVictim());

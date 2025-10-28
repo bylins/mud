@@ -15,7 +15,7 @@ void DoPageDateTime(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) 
 	time_t mytime;
 	std::ostringstream out;
 
-	if (subcmd == SCMD_DATE) {
+	if (subcmd == kScmdDate) {
 		mytime = time(nullptr);
 		out << "Текущее время сервера: " << asctime(localtime(&mytime)) << "\r\n";
 	} else {

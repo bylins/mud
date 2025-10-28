@@ -125,7 +125,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (ch->IsNpc())
 		return;
 
-	if (subcmd == SCMD_OLC_SAVEINFO) {
+	if (subcmd == kScmdOlcSaveinfo) {
 		olc_saveinfo(ch);
 		return;
 	}
@@ -135,12 +135,12 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (!*buf1)        // No argument given.
 	{
 		switch (subcmd) {
-			case SCMD_OLC_ZEDIT:
-			case SCMD_OLC_REDIT: number = world[ch->in_room]->vnum;
+			case kScmdOlcZedit:
+			case kScmdOlcRedit: number = world[ch->in_room]->vnum;
 				break;
-			case SCMD_OLC_TRIGEDIT:
-			case SCMD_OLC_OEDIT:
-			case SCMD_OLC_MEDIT: sprintf(buf, "Укажите %s VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text);
+			case kScmdOlcTrigedit:
+			case kScmdOlcOedit:
+			case kScmdOlcMedit: sprintf(buf, "Укажите %s VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text);
 				SendMsgToChar(buf, ch);
 				return;
 		}
@@ -160,7 +160,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GetRealLevel(ch) >= kLvlBuilder || ch->IsFlagged(EPrf::kCoderinfo))) {
+		} else if (subcmd == kScmdOlcZedit && (GetRealLevel(ch) >= kLvlBuilder || ch->IsFlagged(EPrf::kCoderinfo))) {
 			SendMsgToChar("Создание новых зон отключено.\r\n", ch);
 			return;
 		} else {
@@ -244,13 +244,13 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (save) {
 		const char *type = nullptr;
 		switch (subcmd) {
-			case SCMD_OLC_REDIT: type = "room";
+			case kScmdOlcRedit: type = "room";
 				break;
-			case SCMD_OLC_ZEDIT: type = "zone";
+			case kScmdOlcZedit: type = "zone";
 				break;
-			case SCMD_OLC_MEDIT: type = "mobile";
+			case kScmdOlcMedit: type = "mobile";
 				break;
-			case SCMD_OLC_OEDIT: type = "object";
+			case kScmdOlcOedit: type = "object";
 				break;
 		}
 		if (!type) {
@@ -264,13 +264,13 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		mudlog(buf, LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		switch (subcmd) {
-			case SCMD_OLC_REDIT: redit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcRedit: redit_save_to_disk(OLC_ZNUM(d));
 				break;
-			case SCMD_OLC_ZEDIT: zedit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcZedit: zedit_save_to_disk(OLC_ZNUM(d));
 				break;
-			case SCMD_OLC_OEDIT: oedit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcOedit: oedit_save_to_disk(OLC_ZNUM(d));
 				break;
-			case SCMD_OLC_MEDIT: medit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcMedit: medit_save_to_disk(OLC_ZNUM(d));
 				break;
 		}
 		delete d->olc;
@@ -280,21 +280,21 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	// * Steal player's descriptor start up subcommands.
 	switch (subcmd) {
-		case SCMD_OLC_TRIGEDIT:
+		case kScmdOlcTrigedit:
 			if ((real_num = GetTriggerRnum(number)) >= 0)
 				trigedit_setup_existing(d, real_num);
 			else
 				trigedit_setup_new(d);
 			STATE(d) = CON_TRIGEDIT;
 			break;
-		case SCMD_OLC_REDIT:
+		case kScmdOlcRedit:
 			if ((real_num = GetRoomRnum(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
 				redit_setup(d, kNowhere);
 			STATE(d) = CON_REDIT;
 			break;
-		case SCMD_OLC_ZEDIT:
+		case kScmdOlcZedit:
 			if ((real_num = GetRoomRnum(number)) == kNowhere) {
 				SendMsgToChar("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 				delete d->olc;
@@ -303,14 +303,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			zedit_setup(d, real_num);
 			STATE(d) = CON_ZEDIT;
 			break;
-		case SCMD_OLC_MEDIT:
+		case kScmdOlcMedit:
 			if ((real_num = GetMobRnum(number)) >= 0)
 				medit_setup(d, real_num);
 			else
 				medit_setup(d, -1);
 			STATE(d) = CON_MEDIT;
 			break;
-		case SCMD_OLC_OEDIT: real_num = GetObjRnum(number);
+		case kScmdOlcOedit: real_num = GetObjRnum(number);
 			if (real_num >= 0) {
 				oedit_setup(d, real_num);
 			} else {

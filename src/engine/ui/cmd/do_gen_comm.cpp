@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include "do_gen_comm.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/core/handler.h"
@@ -24,6 +26,9 @@ struct communication_type {
   int move_cost;
   EPrf noflag;
 };
+
+std::string format_gossip_name(CharData *ch, CharData *vict);
+std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument);
 
 // \todo Тут в одну команду свалено вообще все крики и до кучи аукцион.
 // По-хорошему, надо распилить на несколько команд, а саму посылку сообщения всем вытащить в communication
@@ -100,7 +105,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (ch->IsFlagged(EPlrFlag::kMuted) && subcmd != SCMD_AUCTION) {
+	if (ch->IsFlagged(EPlrFlag::kMuted) && subcmd != kScmdAuction) {
 		SendMsgToChar(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
@@ -128,7 +133,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	skip_spaces(&argument);
 
 	// make sure that there is something there to say!
-	if (!*argument && subcmd != SCMD_AUCTION) {
+	if (!*argument && subcmd != kScmdAuction) {
 		sprintf(buf1, "ЛЕГКО! Но, Ярило вас побери, ЧТО %s???\r\n", com_msgs[subcmd].action);
 		SendMsgToChar(buf1, ch);
 		return;
@@ -142,7 +147,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
 
-	if ((subcmd != SCMD_AUCTION) && (!IS_IMMORTAL(ch)) && (!ch->IsNpc())) {
+	if ((subcmd != kScmdAuction) && (!IS_IMMORTAL(ch)) && (!ch->IsNpc())) {
 		const unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
@@ -174,7 +179,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char out_str[kMaxStringLength];
 
 	// first, set up strings to be given to the communicator
-	if (subcmd == SCMD_AUCTION) {
+	if (subcmd == kScmdAuction) {
 		*buf = '\0';
 		auction_drive(ch, argument);
 		return;
@@ -199,14 +204,14 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 		}
 		switch (subcmd) {
-			case SCMD_SHOUT: ign_flag = EIgnore::kShout;
+			case kScmdShout: ign_flag = EIgnore::kShout;
 				break;
-			case SCMD_GOSSIP:
+			case kScmdGossip:
 				if (ch->IsFlagged(EPlrFlag::kSpamer))
 					return;
 				ign_flag = EIgnore::kGossip;
 				break;
-			case SCMD_HOLLER:
+			case kScmdHoller:
 				if (ch->IsFlagged(EPlrFlag::kSpamer))
 					return;
 				ign_flag = EIgnore::kHoller;
@@ -215,20 +220,20 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		snprintf(out_str, kMaxStringLength, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 		if (IS_FEMALE(ch)) {
-			if (!ch->IsNpc() && (subcmd == SCMD_GOSSIP)) {
+			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
 				snprintf(buf1, kMaxStringLength, "%s%s заметила :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
-			if (!ch->IsNpc() && (subcmd == SCMD_HOLLER)) {
+			if (!ch->IsNpc() && (subcmd == kScmdHoller)) {
 				snprintf(buf1, kMaxStringLength, "%s%s заорала :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 		} else {
-			if (!ch->IsNpc() && (subcmd == SCMD_GOSSIP)) {
+			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
 				snprintf(buf1, kMaxStringLength, "%s%s заметил :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
-			if (!ch->IsNpc() && (subcmd == SCMD_HOLLER)) {
+			if (!ch->IsNpc() && (subcmd == kScmdHoller)) {
 				snprintf(buf1, kMaxStringLength, "%s%s заорал :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
@@ -245,7 +250,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				continue;
 			}
 
-			if (subcmd == SCMD_SHOUT
+			if (subcmd == kScmdShout
 				&& ((world[ch->in_room]->zone_rn != world[i->character->in_room]->zone_rn)
 					|| !AWAKE(i->character))) {
 				continue;
@@ -254,10 +259,38 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(color_on, i->character.get());
 			act(out_str, false, ch, nullptr, i->character.get(), kToVict | kToSleep | kToNotDeaf);
 			SendMsgToChar(kColorNrm, i->character.get());
-			const std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
+			const std::string text = format_gossip(ch, i->character.get(), subcmd, argument);
 			i->character->remember_add(text, Remember::ALL);
 		}
 	}
+}
+
+/**
+* Болтовня ch, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
+* систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
+*/
+std::string format_gossip(CharData *ch, CharData *vict, int cmd, const char *argument) {
+	return fmt::format("{}{} {}{} : '{}'{}\r\n",
+					   (cmd == kScmdGossip ? kColorYel : kColorBoldYel),
+					   format_gossip_name(ch, vict).c_str(),
+					   (cmd == kScmdGossip ? "заметил" : "заорал"),
+					   GET_CH_VIS_SUF_1(ch, vict),
+					   argument,
+					   kColorNrm);
+}
+
+/**
+* Формирование имени болтающего/орущего при записе во 'вспом все' в обход act().
+* Иммы видны всегда, кто-ты с большой буквы.
+*/
+std::string format_gossip_name(CharData *ch, CharData *vict) {
+	if (ch->get_name().empty()) {
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		return "";
+	}
+	std::string name = IS_IMMORTAL(ch) ? GET_NAME(ch) : PERS(ch, vict, 0);
+	name[0] = UPPER(name[0]);
+	return name;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

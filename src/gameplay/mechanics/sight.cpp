@@ -368,11 +368,11 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	// Is the target a character?
 	if (found_char != nullptr) {
-		if (subcmd == SCMD_LOOK_HIDE && !check_moves(ch, kLookhideMoves))
+		if (subcmd == kScmdLookHide && !check_moves(ch, kLookhideMoves))
 			return false;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == SCMD_LOOK_HIDE && ch->GetSkill(ESkill::kPry) > 0) {
+			if (subcmd == kScmdLookHide && ch->GetSkill(ESkill::kPry) > 0) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);

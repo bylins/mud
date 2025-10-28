@@ -10,7 +10,6 @@
 
 #include "dg_scripts.h"
 #include "engine/db/global_objects.h"
-//#include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/core/handler.h"
@@ -2386,10 +2385,10 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_RELIGION(c));
 		} else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore"))) {
 			if (!str_cmp(field, "fullrestore")) {
-				DoArenaRestore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
+				DoArenaRestore(c, (char *) c->get_name().c_str(), 0, kScmdRestoreTrigger);
 				trig_log(trig, "был произведен вызов DoArenaRestore!");
 			} else {
-				DoRestore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
+				DoRestore(c, (char *) c->get_name().c_str(), 0, kScmdRestoreTrigger);
 				trig_log(trig, "был произведен вызов DoRestore!");
 			}
 		} else if (!str_cmp(field, "dispel")) {
