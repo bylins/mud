@@ -79,156 +79,80 @@ extern const struct command_info cmd_info[];
  *   subcommands are independent of function to function.
  */
 
-// do_gen_tog
-#define SCMD_NOSUMMON   0
-#define SCMD_NOHASSLE   1
-#define SCMD_BRIEF      2
-#define SCMD_COMPACT    3
-#define SCMD_NOTELL  4
-#define SCMD_NOAUCTION  5
-#define SCMD_NOHOLLER   6
-#define SCMD_NOGOSSIP   7
-#define SCMD_NOGRATZ 8
-#define SCMD_NOWIZ   9
-#define SCMD_QUEST      10
-#define SCMD_ROOMFLAGS  11
-#define SCMD_NOREPEAT   12
-#define SCMD_HOLYLIGHT  13
-#define SCMD_SLOWNS  14
-#define SCMD_AUTOEXIT   15
-#define SCMD_TRACK   16
-// 17  теперь свободно
-#define SCMD_CODERINFO  18
-#define SCMD_AUTOMEM    19
-#define SCMD_COMPRESS   20
-//  21
-#define SCMD_NOSHOUT    22
-#define SCMD_GOAHEAD    23
-#define SCMD_SHOWGROUP  24
-#define SCMD_AUTOASSIST 25
-#define SCMD_AUTOLOOT   26
-#define SCMD_AUTOSPLIT  27
-#define SCMD_AUTOMONEY  28
-#define SCMD_NOARENA    29
-#define SCMD_NOEXCHANGE 30
-#define SCMD_NOCLONES    31
-#define SCMD_NOINVISTELL 32
-#define SCMD_LENGTH      33
-#define SCMD_WIDTH       34
-#define SCMD_SCREEN      35
-#define SCMD_NEWS_MODE   36
-#define SCMD_BOARD_MODE  37
-#define SCMD_CHEST_MODE  38
-#define SCMD_PKL_MODE    39
-#define SCMD_POLIT_MODE  40
-#define SCMD_PKFORMAT_MODE 41
-#define SCMD_WORKMATE_MODE 42
-#define SCMD_OFFTOP_MODE   43
-#define SCMD_ANTIDC_MODE   44
-#define SCMD_NOINGR_MODE   45
-#define SCMD_REMEMBER      46
-#define SCMD_NOTIFY_EXCH   47
-#define SCMD_DRAW_MAP      48
-#define SCMD_ENTER_ZONE    49
-#define SCMD_MISPRINT      50
-#define SCMD_BRIEF_SHIELDS 51
-#define SCMD_AUTO_NOSUMMON 52
-#define SCMD_SDEMIGOD 53
-#define SCMD_BLIND 54
-#define SCMD_MAPPER 55
-#define SCMD_TESTER 56
-#define SCMD_IPCONTROL 57
-
-// do_wizutil
-#define SCMD_REROLL     0
-#define SCMD_NOTITLE    1
-#define SCMD_SQUELCH    2
-#define SCMD_FREEZE     3
-#define SCMD_UNAFFECT   4
-#define SCMD_HELL       5
-#define SCMD_NAME       6
-#define SCMD_REGISTER   7
-#define SCMD_MUTE       8
-#define SCMD_DUMB       9
-#define SCMD_UNREGISTER 10
-
 // do_spec_com
-#define SCMD_WHISPER 0
-#define SCMD_ASK  1
+inline constexpr int SCMD_WHISPER{0};
+inline constexpr int SCMD_ASK{1};
 
 // do_gen_com
-#define SCMD_HOLLER  0
-#define SCMD_SHOUT   1
-#define SCMD_GOSSIP  2
-#define SCMD_AUCTION 3
-
-// do_shutdown
-#define SCMD_SHUTDOWN   1
+inline constexpr int SCMD_HOLLER{0};
+inline constexpr int SCMD_SHOUT{1};
+inline constexpr int SCMD_GOSSIP{2};
+inline constexpr int SCMD_AUCTION{3};
 
 // do_date
-#define SCMD_DATE 0
-#define SCMD_UPTIME  1
+inline constexpr int SCMD_DATE{0};
+inline constexpr int SCMD_UPTIME{1};
 
 
 // do_commands
-#define SCMD_COMMANDS   0
-#define SCMD_SOCIALS 1
-#define SCMD_WIZHELP 2
+inline constexpr int SCMD_COMMANDS{0};
+inline constexpr int SCMD_SOCIALS{1};
+inline constexpr int SCMD_WIZHELP{2};
 
 // do_drop
-#define SCMD_DROP 0
+inline constexpr int SCMD_DROP{0};
 
 // do_look
-#define SCMD_LOOK    0
-#define SCMD_READ    1
-#define SCMD_LOOK_HIDE 2
+inline constexpr int SCMD_LOOK{0};
+inline constexpr int SCMD_READ{1};
+inline constexpr int SCMD_LOOK_HIDE{2};
 
 // do_pour
-#define SCMD_POUR 0
-#define SCMD_FILL 1
+inline constexpr int SCMD_POUR{0};
+inline constexpr int SCMD_FILL{1};
 
 // do_poof
-#define SCMD_POOFIN  0
-#define SCMD_POOFOUT 1
+inline constexpr int SCMD_POOFIN{0};
+inline constexpr int SCMD_POOFOUT{1};
 
 // do_hit
-#define SCMD_HIT  0
-#define SCMD_MURDER  1
+inline constexpr int SCMD_HIT{0};
+inline constexpr int SCMD_MURDER{1};
 
 // do_drink
-#define SCMD_DRINK   2
-#define SCMD_SIP  3
+inline constexpr int SCMD_DRINK{2};
+inline constexpr int SCMD_SIP{3};
 
 // do_echo
-#define SCMD_ECHO 0
-#define SCMD_EMOTE   1
+inline constexpr int SCMD_ECHO{0};
+inline constexpr int SCMD_EMOTE{1};
 
 //. do_olc .
-#define SCMD_OLC_REDIT  0
-#define SCMD_OLC_OEDIT  1
-#define SCMD_OLC_ZEDIT  2
-#define SCMD_OLC_MEDIT  3
-#define SCMD_OLC_TRIGEDIT  4
-#define SCMD_OLC_SAVEINFO  5
+inline constexpr int SCMD_OLC_REDIT{0};
+inline constexpr int SCMD_OLC_OEDIT{1};
+inline constexpr int SCMD_OLC_ZEDIT{2};
+inline constexpr int SCMD_OLC_MEDIT{3};
+inline constexpr int SCMD_OLC_TRIGEDIT{4};
+inline constexpr int SCMD_OLC_SAVEINFO{5};
 
 //. do_liblist .
-#define SCMD_OLIST      0
-#define SCMD_MLIST      1
-#define SCMD_RLIST      2
-#define SCMD_ZLIST      3
-#define SCMD_CLIST        4
+inline constexpr int SCMD_OLIST{0};
+inline constexpr int SCMD_MLIST{1};
+inline constexpr int SCMD_RLIST{2};
+inline constexpr int SCMD_ZLIST{3};
+inline constexpr int SCMD_CLIST{4};
 
 // do_hchannel
-#define SCMD_CHANNEL 0
-#define SCMD_ACHANNEL 1
+inline constexpr int SCMD_CHANNEL{0};
+inline constexpr int SCMD_ACHANNEL{1};
 
 // do_restore
-#define SCMD_RESTORE_GOD 0
-#define SCMD_RESTORE_TRIGGER 1
+inline constexpr int SCMD_RESTORE_GOD{0};
+inline constexpr int SCMD_RESTORE_TRIGGER{1};
 
 // do_throw
-#define SCMD_PHYSICAL_THROW 0
-#define SCMD_SHADOW_THROW    1
+inline constexpr int SCMD_PHYSICAL_THROW{0};
+inline constexpr int SCMD_SHADOW_THROW{1};
 
 struct SortStruct {
   int sort_pos;

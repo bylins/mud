@@ -387,7 +387,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0); // return(0) обходит запись в файл в do_set
 			}
 			if (!strcmp(num, "0")) {
-				if (!punishments::set_punish(ch, vict, SCMD_FREEZE, reason, times)) {
+				if (!punishments::SetFreeze(ch, vict, reason, times)) {
 					return (0);
 				}
 				return (1);
@@ -397,7 +397,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar(ch, "Срок указан не верно.\r\n");
 				return (0);
 			} else {
-				if (!punishments::set_punish(ch, vict, SCMD_FREEZE, reason, times))
+				if (!punishments::SetFreeze(ch, vict, reason, times))
 					return (0);
 			}
 			break;
@@ -726,17 +726,17 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0); // return(0) обходит запись в файл в do_set
 			}
 			if (!str_cmp(num, "0")) {
-				if (!punishments::set_punish(ch, vict, SCMD_HELL, reason, times)) {
+				if (!punishments::SetHell(ch, vict, reason, times)) {
 					return (0);
 				}
 				return (1);
 			}
 			times = atol(num);
 			if (times == 0) {
-				SendMsgToChar(ch, "Срок указан не верно.\r\n");
+				SendMsgToChar(ch, "Срок указан неверно.\r\n");
 				return (0);
 			} else {
-				if (!punishments::set_punish(ch, vict, SCMD_HELL, reason, times))
+				if (!punishments::SetHell(ch, vict, reason, times))
 					return (0);
 			}
 			break;
@@ -780,7 +780,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0); // return(0) обходит запись в файл в do_set
 			}
 			if (!str_cmp(num, "0")) {
-				if (!punishments::set_punish(ch, vict, SCMD_MUTE, reason, times)) {
+				if (!punishments::SetMute(ch, vict, reason, times)) {
 					return (0);
 				}
 				return (1);
@@ -790,7 +790,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar(ch, "Срок указан не верно.\r\n");
 				return (0);
 			} else {
-				if (!punishments::set_punish(ch, vict, SCMD_MUTE, reason, times))
+				if (!punishments::SetMute(ch, vict, reason, times))
 					return (0);
 			}
 			break;
@@ -801,7 +801,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return (0); // return(0) обходит запись в файл в do_set
 			}
 			if (!str_cmp(num, "0")) {
-				if (!punishments::set_punish(ch, vict, SCMD_DUMB, reason, times)) {
+				if (!punishments::SetDumb(ch, vict, reason, times)) {
 					return (0);
 				}
 				return (1);
@@ -811,7 +811,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				SendMsgToChar(ch, "Срок указан не верно.\r\n");
 				return (0);
 			} else {
-				if (!punishments::set_punish(ch, vict, SCMD_DUMB, reason, times))
+				if (!punishments::SetDumb(ch, vict, reason, times))
 					return (0);
 			}
 			break;
@@ -842,7 +842,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 		case 56:      // Разрегистрация персонажа
 			reason = one_argument(val_arg, num);
-			if (!punishments::set_punish(ch, vict, SCMD_UNREGISTER, reason, 0)) return (0);
+			if (!punishments::SetUnregister(ch, vict, reason, 0)) return (0);
 			break;
 
 		case 57:      // Установка флага палач

@@ -14,9 +14,68 @@ extern int nameserver_is_slow; //config.cpp
 
 void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 void SetScreen(CharData *ch, char *argument, int flag);
-void setNotifyEchange(CharData *ch, char *argument);
-void set_autoloot_mode(CharData *ch, char *argument);
+void SetNotifyEchange(CharData *ch, char *argument);
+void SetAutolootMode(CharData *ch, char *argument);
 bool TogglePrfFlag(CharData *ch, EPrf flag);
+
+enum EScmd {
+  kScmdNosummon,
+  kScmdNohassle,
+  kScmdBrief,
+  kScmdCompact,
+  kScmdNotell,
+  kScmdNoauction,
+  kScmdNoholler,
+  kScmdNogossip,
+  kScmdNogratz,
+  kScmdNowiz,
+  kScmdQuest,
+  kScmdRoomflags,
+  kScmdNorepeat,
+  kScmdHolylight,
+  kScmdSlowns,
+  kScmdAutoexit,
+  kScmdTrack,
+  kScmdCoderinfo,
+  kScmdAutomem,
+  kScmdCompress,
+  kScmdNoshout,
+  kScmdGoahead,
+  kScmdShowgroup,
+  kScmdAutoassist,
+  kScmdAutoloot,
+  kScmdAutosplit,
+  kScmdAutomoney,
+  kScmdNoarena,
+  kScmdNoexchange,
+  kScmdNoclones,
+  kScmdNoinvistell,
+  kScmdLength,
+  kScmdWidth,
+  kScmdScreen,
+  kScmdNewsMode,
+  kScmdBoardMode,
+  kScmdChestMode,
+  kScmdPklMode,
+  kScmdPolitMode,
+  kScmdPkformatMode,
+  kScmdWorkmateMode,
+  kScmdOfftopMode,
+  kScmdAntidcMode,
+  kScmdNoingrMode,
+  kScmdRemember,
+  kScmdNotifyExch,
+  kScmdDrawMap,
+  kScmdEnterZone,
+  kScmdMisprint,
+  kScmdBriefShields,
+  kScmdAutoNosummon,
+  kScmdSdemigod,
+  kScmdBlind,
+  kScmdMapper,
+  kScmdTester,
+  kScmdIpcontrol
+};
 
 const char *gen_tog_type[] = {"автовыходы", "autoexits",
 							  "краткий", "brief",
@@ -83,64 +142,64 @@ struct gen_tog_param_type {
 } gen_tog_param[] =
 	{
 		{
-			0, SCMD_AUTOEXIT, false}, {
-			0, SCMD_BRIEF, false}, {
-			0, SCMD_COMPACT, false}, {
-			0, SCMD_NOREPEAT, false}, {
-			0, SCMD_NOTELL, false}, {
-			0, SCMD_NOINVISTELL, false}, {
-			0, SCMD_NOGOSSIP, false}, {
-			0, SCMD_NOSHOUT, false}, {
-			0, SCMD_NOHOLLER, false}, {
-			0, SCMD_NOGRATZ, false}, {
-			0, SCMD_NOAUCTION, false}, {
-			0, SCMD_NOEXCHANGE, false}, {
-			0, SCMD_QUEST, false}, {
-			0, SCMD_AUTOMEM, false}, {
-			kLvlGreatGod, SCMD_NOHASSLE, false}, {
-			0, SCMD_NOSUMMON, false}, {
-			kLvlGod, SCMD_NOWIZ, false}, {
-			kLvlGreatGod, SCMD_ROOMFLAGS, false}, {
-			kLvlImplementator, SCMD_SLOWNS, false}, {
-			kLvlGod, SCMD_TRACK, false}, {
-			kLvlGod, SCMD_HOLYLIGHT, false}, {
-			kLvlImplementator, SCMD_CODERINFO, false}, {
-			0, SCMD_GOAHEAD, false}, {
-			0, SCMD_SHOWGROUP, false}, {
-			0, SCMD_NOCLONES, false}, {
-			0, SCMD_AUTOASSIST, false}, {
-			0, SCMD_AUTOLOOT, false}, {
-			0, SCMD_AUTOSPLIT, false}, {
-			0, SCMD_AUTOMONEY, false}, {
-			0, SCMD_NOARENA, false}, {
-			0, SCMD_LENGTH, false}, {
-			0, SCMD_WIDTH, false}, {
-			0, SCMD_SCREEN, false}, {
-			0, SCMD_NEWS_MODE, false}, {
-			0, SCMD_BOARD_MODE, false}, {
-			0, SCMD_CHEST_MODE, false}, {
-			0, SCMD_PKL_MODE, false}, {
-			0, SCMD_POLIT_MODE, false}, {
-			0, SCMD_PKFORMAT_MODE, false}, {
-			0, SCMD_WORKMATE_MODE, false}, {
-			0, SCMD_OFFTOP_MODE, false}, {
-			0, SCMD_ANTIDC_MODE, false}, {
-			0, SCMD_NOINGR_MODE, false}, {
-			0, SCMD_REMEMBER, false}, {
-			0, SCMD_NOTIFY_EXCH, false}, {
-			0, SCMD_DRAW_MAP, false}, {
-			0, SCMD_ENTER_ZONE, false}, {
-			kLvlGod, SCMD_MISPRINT, false}, {
-			0, SCMD_BRIEF_SHIELDS, false}, {
-			0, SCMD_AUTO_NOSUMMON, false}, {
-			kLvlImplementator, SCMD_SDEMIGOD, false}, {
-			0, SCMD_BLIND, false}, {
-			0, SCMD_MAPPER, false}, {
-			0, SCMD_TESTER, true}, {
-			0, SCMD_IPCONTROL, false}
+			0, kScmdAutoexit, false}, {
+			0, kScmdBrief, false}, {
+			0, kScmdCompact, false}, {
+			0, kScmdNorepeat, false}, {
+			0, kScmdNotell, false}, {
+			0, kScmdNoinvistell, false}, {
+			0, kScmdNogossip, false}, {
+			0, kScmdNoshout, false}, {
+			0, kScmdNoholler, false}, {
+			0, kScmdNogratz, false}, {
+			0, kScmdNoauction, false}, {
+			0, kScmdNoexchange, false}, {
+			0, kScmdQuest, false}, {
+			0, kScmdAutomem, false}, {
+			kLvlGreatGod, kScmdNohassle, false}, {
+			0, kScmdNosummon, false}, {
+			kLvlGod, kScmdNowiz, false}, {
+			kLvlGreatGod, kScmdRoomflags, false}, {
+			kLvlImplementator, kScmdSlowns, false}, {
+			kLvlGod, kScmdTrack, false}, {
+			kLvlGod, kScmdHolylight, false}, {
+			kLvlImplementator, kScmdCoderinfo, false}, {
+			0, kScmdGoahead, false}, {
+			0, kScmdShowgroup, false}, {
+			0, kScmdNoclones, false}, {
+			0, kScmdAutoassist, false}, {
+			0, kScmdAutoloot, false}, {
+			0, kScmdAutosplit, false}, {
+			0, kScmdAutomoney, false}, {
+			0, kScmdNoarena, false}, {
+			0, kScmdLength, false}, {
+			0, kScmdWidth, false}, {
+			0, kScmdScreen, false}, {
+			0, kScmdNewsMode, false}, {
+			0, kScmdBoardMode, false}, {
+			0, kScmdChestMode, false}, {
+			0, kScmdPklMode, false}, {
+			0, kScmdPolitMode, false}, {
+			0, kScmdPkformatMode, false}, {
+			0, kScmdWorkmateMode, false}, {
+			0, kScmdOfftopMode, false}, {
+			0, kScmdAntidcMode, false}, {
+			0, kScmdNoingrMode, false}, {
+			0, kScmdRemember, false}, {
+			0, kScmdNotifyExch, false}, {
+			0, kScmdDrawMap, false}, {
+			0, kScmdEnterZone, false}, {
+			kLvlGod, kScmdMisprint, false}, {
+			0, kScmdBriefShields, false}, {
+			0, kScmdAutoNosummon, false}, {
+			kLvlImplementator, kScmdSdemigod, false}, {
+			0, kScmdBlind, false}, {
+			0, kScmdMapper, false}, {
+			0, kScmdTester, true}, {
+			0, kScmdIpcontrol, false}
 	};
 
-void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()) {
 		return;
 	}
@@ -298,126 +357,126 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	switch (subcmd) {
-		case SCMD_NOSUMMON: result = TogglePrfFlag(ch, EPrf::KSummonable);
+		case kScmdNosummon: result = TogglePrfFlag(ch, EPrf::KSummonable);
 			break;
-		case SCMD_NOHASSLE: result = TogglePrfFlag(ch, EPrf::kNohassle);
+		case kScmdNohassle: result = TogglePrfFlag(ch, EPrf::kNohassle);
 			break;
-		case SCMD_BRIEF: result = TogglePrfFlag(ch, EPrf::kBrief);
+		case kScmdBrief: result = TogglePrfFlag(ch, EPrf::kBrief);
 			break;
-		case SCMD_COMPACT: result = TogglePrfFlag(ch, EPrf::kCompact);
+		case kScmdCompact: result = TogglePrfFlag(ch, EPrf::kCompact);
 			break;
-		case SCMD_NOTELL: result = TogglePrfFlag(ch, EPrf::kNoTell);
+		case kScmdNotell: result = TogglePrfFlag(ch, EPrf::kNoTell);
 			break;
-		case SCMD_NOAUCTION: result = TogglePrfFlag(ch, EPrf::kNoAuction);
+		case kScmdNoauction: result = TogglePrfFlag(ch, EPrf::kNoAuction);
 			break;
-		case SCMD_NOHOLLER: result = TogglePrfFlag(ch, EPrf::kNoHoller);
+		case kScmdNoholler: result = TogglePrfFlag(ch, EPrf::kNoHoller);
 			break;
-		case SCMD_NOGOSSIP: result = TogglePrfFlag(ch, EPrf::kNoGossip);
+		case kScmdNogossip: result = TogglePrfFlag(ch, EPrf::kNoGossip);
 			break;
-		case SCMD_NOSHOUT: result = TogglePrfFlag(ch, EPrf::kNoShout);
+		case kScmdNoshout: result = TogglePrfFlag(ch, EPrf::kNoShout);
 			break;
-		case SCMD_NOGRATZ: result = TogglePrfFlag(ch, EPrf::kNoGossip);
+		case kScmdNogratz: result = TogglePrfFlag(ch, EPrf::kNoGossip);
 			break;
-		case SCMD_NOWIZ: result = TogglePrfFlag(ch, EPrf::kNoWiz);
+		case kScmdNowiz: result = TogglePrfFlag(ch, EPrf::kNoWiz);
 			break;
-		case SCMD_QUEST: result = TogglePrfFlag(ch, EPrf::kQuest);
+		case kScmdQuest: result = TogglePrfFlag(ch, EPrf::kQuest);
 			break;
-		case SCMD_ROOMFLAGS: result = TogglePrfFlag(ch, EPrf::kRoomFlags);
+		case kScmdRoomflags: result = TogglePrfFlag(ch, EPrf::kRoomFlags);
 			break;
-		case SCMD_NOREPEAT: result = TogglePrfFlag(ch, EPrf::kNoRepeat);
+		case kScmdNorepeat: result = TogglePrfFlag(ch, EPrf::kNoRepeat);
 			break;
-		case SCMD_HOLYLIGHT: result = TogglePrfFlag(ch, EPrf::kHolylight);
+		case kScmdHolylight: result = TogglePrfFlag(ch, EPrf::kHolylight);
 			break;
-		case SCMD_SLOWNS: result = (nameserver_is_slow = !nameserver_is_slow);
+		case kScmdSlowns: result = (nameserver_is_slow = !nameserver_is_slow);
 			break;
-		case SCMD_AUTOEXIT:
+		case kScmdAutoexit:
 			if (ch->IsFlagged(EPlrFlag::kScriptWriter)) {
 				SendMsgToChar("Скриптерам запрещено видеть автовыходы.\r\n", ch);
 				return;
 			}
 			result = TogglePrfFlag(ch, EPrf::kAutoexit);
 			break;
-		case SCMD_CODERINFO: result = TogglePrfFlag(ch, EPrf::kCoderinfo);
+		case kScmdCoderinfo: result = TogglePrfFlag(ch, EPrf::kCoderinfo);
 			break;
-		case SCMD_AUTOMEM: result = TogglePrfFlag(ch, EPrf::kAutomem);
+		case kScmdAutomem: result = TogglePrfFlag(ch, EPrf::kAutomem);
 			break;
-		case SCMD_SDEMIGOD: result = TogglePrfFlag(ch, EPrf::kDemigodChat);
+		case kScmdSdemigod: result = TogglePrfFlag(ch, EPrf::kDemigodChat);
 			break;
-		case SCMD_BLIND: break;
-		case SCMD_MAPPER:
+		case kScmdBlind: break;
+		case kScmdMapper:
 			if (ch->IsFlagged(EPlrFlag::kScriptWriter)) {
 				SendMsgToChar("Скриптерам запрещено видеть vnum комнаты.\r\n", ch);
 				return;
 			}
 			result = TogglePrfFlag(ch, EPrf::kMapper);
 			break;
-		case SCMD_TESTER:
+		case kScmdTester:
 			//if (GET_GOD_FLAG(ch, EGodFlag::TESTER))
 			//{
 			result = TogglePrfFlag(ch, EPrf::kTester);
 			//return;
 			//}
 			break;
-		case SCMD_IPCONTROL: result = TogglePrfFlag(ch, EPrf::kIpControl);
+		case kScmdIpcontrol: result = TogglePrfFlag(ch, EPrf::kIpControl);
 			break;
 #if defined(HAVE_ZLIB)
-		case SCMD_COMPRESS: result = iosystem::toggle_compression(ch->desc);
+		case kScmdCompress: result = iosystem::toggle_compression(ch->desc);
 			break;
 #else
 			case SCMD_COMPRESS:
 				SendMsgToChar("Compression not supported.\r\n", ch);
 				return;
 #endif
-		case SCMD_GOAHEAD: result = TogglePrfFlag(ch, EPrf::kGoAhead);
+		case kScmdGoahead: result = TogglePrfFlag(ch, EPrf::kGoAhead);
 			break;
-		case SCMD_SHOWGROUP: result = TogglePrfFlag(ch, EPrf::kShowGroup);
+		case kScmdShowgroup: result = TogglePrfFlag(ch, EPrf::kShowGroup);
 			break;
-		case SCMD_AUTOASSIST: result = TogglePrfFlag(ch, EPrf::kAutoassist);
+		case kScmdAutoassist: result = TogglePrfFlag(ch, EPrf::kAutoassist);
 			break;
-		case SCMD_AUTOLOOT: set_autoloot_mode(ch, argument);
+		case kScmdAutoloot: SetAutolootMode(ch, argument);
 			return;
-		case SCMD_AUTOSPLIT: result = TogglePrfFlag(ch, EPrf::kAutosplit);
+		case kScmdAutosplit: result = TogglePrfFlag(ch, EPrf::kAutosplit);
 			break;
-		case SCMD_AUTOMONEY: result = TogglePrfFlag(ch, EPrf::kAutomoney);
+		case kScmdAutomoney: result = TogglePrfFlag(ch, EPrf::kAutomoney);
 			break;
-		case SCMD_NOARENA: result = TogglePrfFlag(ch, EPrf::kNoArena);
+		case kScmdNoarena: result = TogglePrfFlag(ch, EPrf::kNoArena);
 			break;
-		case SCMD_NOEXCHANGE: result = TogglePrfFlag(ch, EPrf::kNoExchange);
+		case kScmdNoexchange: result = TogglePrfFlag(ch, EPrf::kNoExchange);
 			break;
-		case SCMD_NOCLONES: result = TogglePrfFlag(ch, EPrf::kNoClones);
+		case kScmdNoclones: result = TogglePrfFlag(ch, EPrf::kNoClones);
 			break;
-		case SCMD_NOINVISTELL: result = TogglePrfFlag(ch, EPrf::kNoInvistell);
+		case kScmdNoinvistell: result = TogglePrfFlag(ch, EPrf::kNoInvistell);
 			break;
-		case SCMD_LENGTH: SetScreen(ch, argument, 0);
+		case kScmdLength: SetScreen(ch, argument, 0);
 			return;
-		case SCMD_WIDTH: SetScreen(ch, argument, 1);
+		case kScmdWidth: SetScreen(ch, argument, 1);
 			return;
-		case SCMD_SCREEN: SetScreen(ch, argument, 2);
+		case kScmdScreen: SetScreen(ch, argument, 2);
 			return;
-		case SCMD_NEWS_MODE: result = TogglePrfFlag(ch, EPrf::kNewsMode);
+		case kScmdNewsMode: result = TogglePrfFlag(ch, EPrf::kNewsMode);
 			break;
-		case SCMD_BOARD_MODE: result = TogglePrfFlag(ch, EPrf::kBoardMode);
+		case kScmdBoardMode: result = TogglePrfFlag(ch, EPrf::kBoardMode);
 			break;
-		case SCMD_CHEST_MODE: {
+		case kScmdChestMode: {
 			std::string buffer = argument;
 			SetChestMode(ch, buffer);
 			break;
 		}
-		case SCMD_PKL_MODE: result = TogglePrfFlag(ch, EPrf::kPklMode);
+		case kScmdPklMode: result = TogglePrfFlag(ch, EPrf::kPklMode);
 			break;
-		case SCMD_POLIT_MODE: result = TogglePrfFlag(ch, EPrf::kPolitMode);
+		case kScmdPolitMode: result = TogglePrfFlag(ch, EPrf::kPolitMode);
 			break;
-		case SCMD_PKFORMAT_MODE: result = TogglePrfFlag(ch, EPrf::kPkFormatMode);
+		case kScmdPkformatMode: result = TogglePrfFlag(ch, EPrf::kPkFormatMode);
 			break;
-		case SCMD_WORKMATE_MODE: result = TogglePrfFlag(ch, EPrf::kClanmembersMode);
+		case kScmdWorkmateMode: result = TogglePrfFlag(ch, EPrf::kClanmembersMode);
 			break;
-		case SCMD_OFFTOP_MODE: result = TogglePrfFlag(ch, EPrf::kOfftopMode);
+		case kScmdOfftopMode: result = TogglePrfFlag(ch, EPrf::kOfftopMode);
 			break;
-		case SCMD_ANTIDC_MODE: result = TogglePrfFlag(ch, EPrf::kAntiDcMode);
+		case kScmdAntidcMode: result = TogglePrfFlag(ch, EPrf::kAntiDcMode);
 			break;
-		case SCMD_NOINGR_MODE: result = TogglePrfFlag(ch, EPrf::kNoIngrMode);
+		case kScmdNoingrMode: result = TogglePrfFlag(ch, EPrf::kNoIngrMode);
 			break;
-		case SCMD_REMEMBER: {
+		case kScmdRemember: {
 			skip_spaces(&argument);
 			if (!*argument) {
 				SendMsgToChar("Формат команды: режим вспомнить <число строк от 1 до 100>.\r\n", ch);
@@ -434,11 +493,11 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			}
 			return;
 		}
-		case SCMD_NOTIFY_EXCH: {
-			setNotifyEchange(ch, argument);
+		case kScmdNotifyExch: {
+			SetNotifyEchange(ch, argument);
 			return;
 		}
-		case SCMD_DRAW_MAP: {
+		case kScmdDrawMap: {
 			if (ch->IsFlagged(EPrf::kBlindMode)) {
 				SendMsgToChar("В режиме слепого игрока карта недоступна.\r\n", ch);
 				return;
@@ -446,13 +505,13 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			result = TogglePrfFlag(ch, EPrf::kDrawMap);
 			break;
 		}
-		case SCMD_ENTER_ZONE: result = TogglePrfFlag(ch, EPrf::kShowZoneNameOnEnter);
+		case kScmdEnterZone: result = TogglePrfFlag(ch, EPrf::kShowZoneNameOnEnter);
 			break;
-		case SCMD_MISPRINT: result = TogglePrfFlag(ch, EPrf::kShowUnread);
+		case kScmdMisprint: result = TogglePrfFlag(ch, EPrf::kShowUnread);
 			break;
-		case SCMD_BRIEF_SHIELDS: result = TogglePrfFlag(ch, EPrf::kBriefShields);
+		case kScmdBriefShields: result = TogglePrfFlag(ch, EPrf::kBriefShields);
 			break;
-		case SCMD_AUTO_NOSUMMON: result = TogglePrfFlag(ch, EPrf::kAutonosummon);
+		case kScmdAutoNosummon: result = TogglePrfFlag(ch, EPrf::kAutonosummon);
 			break;
 		default: SendMsgToChar(ch, "Введите параметр режима полностью.\r\n");
 //		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
@@ -491,7 +550,7 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 	}
 }
 
-void setNotifyEchange(CharData *ch, char *argument) {
+void SetNotifyEchange(CharData *ch, char *argument) {
 	skip_spaces(&argument);
 	if (!*argument) {
 		SendMsgToChar(ch, "Формат команды: режим уведомления <минимальная цена, число от 0 до %d>.\r\n", 0x7fffffff);
@@ -516,7 +575,7 @@ void setNotifyEchange(CharData *ch, char *argument) {
 
 }
 
-void set_autoloot_mode(CharData *ch, char *argument) {
+void SetAutolootMode(CharData *ch, char *argument) {
 	static const char *message_on = "Автоматический грабеж трупов включен.\r\n";
 	static const char
 		*message_no_ingr = "Автоматический грабеж трупов, исключая ингредиенты и магические компоненты, включен.\r\n";
