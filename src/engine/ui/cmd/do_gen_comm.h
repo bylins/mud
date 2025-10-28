@@ -9,6 +9,11 @@
 #ifndef BYLINS_SRC_ENGINE_UI_CMD_DO_GEN_COMM_H_
 #define BYLINS_SRC_ENGINE_UI_CMD_DO_GEN_COMM_H_
 
+inline constexpr int kScmdHoller{0};
+inline constexpr int kScmdShout{1};
+inline constexpr int kScmdGossip{2};
+inline constexpr int kScmdAuction{3};
+
 class CharData;
 void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 

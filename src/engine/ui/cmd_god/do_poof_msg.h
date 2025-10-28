@@ -9,6 +9,9 @@
 #ifndef BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_POOF_MSG_H_
 #define BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_POOF_MSG_H_
 
+inline constexpr int kScmdPoofin{0};
+inline constexpr int kScmdPoofout{1};
+
 class CharData;
 void DoSetPoofMsg(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 

@@ -6,6 +6,8 @@
 \detail Detail description.
 */
 
+#include "do_liblist.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/olc/olc.h"
@@ -35,23 +37,23 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
-	if (!*buf || (!*buf2 && (subcmd == SCMD_ZLIST))) {
+	if (!*buf || (!*buf2 && (subcmd == kScmdZlist))) {
 		switch (subcmd) {
-			case SCMD_RLIST:
+			case kScmdRlist:
 				SendMsgToChar("Использование: ксписок <начальный номер или номер зоны> [<конечный номер>]\r\n",
 							  ch);
 				break;
-			case SCMD_OLIST:
+			case kScmdOlist:
 				SendMsgToChar("Использование: осписок <начальный номер или номер зоны> [<конечный номер>]\r\n",
 							  ch);
 				break;
-			case SCMD_MLIST:
+			case kScmdMlist:
 				SendMsgToChar("Использование: мсписок <начальный номер или номер зоны> [<конечный номер>] [role race]\r\n",
 							  ch);
 				break;
-			case SCMD_ZLIST: SendMsgToChar("Использование: зсписок <начальный номер> <конечный номер>\r\n", ch);
+			case kScmdZlist: SendMsgToChar("Использование: зсписок <начальный номер> <конечный номер>\r\n", ch);
 				break;
-			case SCMD_CLIST:
+			case kScmdClist:
 				SendMsgToChar("Использование: ксписок <начальный номер или номер зоны> [<конечный номер>]\r\n",
 							  ch);
 				break;
@@ -88,7 +90,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 	std::string out;
 
 	switch (subcmd) {
-		case SCMD_RLIST:
+		case kScmdRlist:
 			snprintf(buf_, sizeof(buf_),
 					 "Список комнат от Vnum %d до %d\r\n", first, last);
 			out += buf_;
@@ -110,10 +112,10 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 				}
 			}
 			break;
-		case SCMD_OLIST: found = PrintOlist(ch, first, last, out);
+		case kScmdOlist: found = PrintOlist(ch, first, last, out);
 			break;
 
-		case SCMD_MLIST: {
+		case kScmdMlist: {
 			std::string option;
 			if (*buf2 && !a_isdigit(buf2[0])) {
 				option = buf2;
@@ -123,7 +125,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			mob_list::Print(ch, first, last, option);
 			return;
 		}
-		case SCMD_ZLIST:
+		case kScmdZlist:
 			snprintf(buf_, sizeof(buf_),
 					 "Список зон от %d до %d\r\n"
 					 "(флаги, номер, резет, уровень/средний уровень мобов, группа, имя)\r\n",
@@ -148,7 +150,7 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 			}
 			break;
 
-		case SCMD_CLIST: out = "Заглушка. Возможно, будет использоваться в будущем\r\n";
+		case kScmdClist: out = "Заглушка. Возможно, будет использоваться в будущем\r\n";
 			break;
 
 		default: sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");
@@ -158,11 +160,11 @@ void do_liblist(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	if (!found) {
 		switch (subcmd) {
-			case SCMD_RLIST: SendMsgToChar("Нет комнат в этом промежутке.\r\n", ch);
+			case kScmdRlist: SendMsgToChar("Нет комнат в этом промежутке.\r\n", ch);
 				break;
-			case SCMD_OLIST: SendMsgToChar("Нет объектов в этом промежутке.\r\n", ch);
+			case kScmdOlist: SendMsgToChar("Нет объектов в этом промежутке.\r\n", ch);
 				break;
-			case SCMD_ZLIST: SendMsgToChar("Нет зон в этом промежутке.\r\n", ch);
+			case kScmdZlist: SendMsgToChar("Нет зон в этом промежутке.\r\n", ch);
 				break;
 			default: sprintf(buf, "SYSERR:: invalid SCMD passed to do_build_list!");
 				mudlog(buf, BRF, kLvlGod, SYSLOG, true);

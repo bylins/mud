@@ -218,9 +218,9 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			if (do_mode)
-				do_throw(ch, victim);
+				DoThrow(ch, victim);
 			else
-				go_throw(ch, victim);
+				GoThrow(ch, victim);
 		}
 		if (ch->GetSkill(ESkill::kDisarm)) {
 			if (do_mode)

@@ -22,7 +22,7 @@ void do_echo(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*argument) {
 		SendMsgToChar("И что вы хотите выразить столь красочно?\r\n", ch);
 	} else {
-		if (subcmd == SCMD_EMOTE) {
+		if (subcmd == kScmdEmote) {
 			if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
 				if (ch->get_master()->IsFlagged(EPlrFlag::kDumbed)) {
 					SendMsgToChar("Ваши последователи так же немы, как и вы!\r\n", ch->get_master());

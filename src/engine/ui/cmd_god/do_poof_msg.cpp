@@ -6,15 +6,17 @@
 \detail Detail description.
 */
 
+#include "do_poof_msg.h"
+
 #include "engine/entities/char_data.h"
 
 void DoSetPoofMsg(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char **msg;
 
 	switch (subcmd) {
-		case SCMD_POOFIN: msg = &(POOFIN(ch));
+		case kScmdPoofin: msg = &(POOFIN(ch));
 			break;
-		case SCMD_POOFOUT: msg = &(POOFOUT(ch));
+		case kScmdPoofout: msg = &(POOFOUT(ch));
 			break;
 		default: return;
 	}

@@ -25,7 +25,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (subcmd == SCMD_WHISPER) {
+	if (subcmd == kScmdWhisper) {
 		action_sing = "шепнуть";
 		vict1 = "кому";
 		vict2 = "вам";
@@ -48,11 +48,11 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar(NOPERSON, ch);
 	else if (vict == ch)
 		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
-	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? EIgnore::kWhisper : EIgnore::kAsk)) {
+	else if (ignores(vict, ch, subcmd == kScmdWhisper ? EIgnore::kWhisper : EIgnore::kAsk)) {
 		sprintf(buf, "%s не желает вас слышать.\r\n", GET_NAME(vict));
 		SendMsgToChar(buf, ch);
 	} else {
-		if (subcmd == SCMD_WHISPER)
+		if (subcmd == kScmdWhisper)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
 		else
 			sprintf(vict3, "у %s", GET_PAD(vict, 1));

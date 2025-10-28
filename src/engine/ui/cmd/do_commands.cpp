@@ -17,9 +17,9 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	one_argument(argument, arg);
 
-	if (subcmd == SCMD_SOCIALS)
+	if (subcmd == kScmdSocials)
 		socials = 1;
-	else if (subcmd == SCMD_WIZHELP)
+	else if (subcmd == kScmdWizhelp)
 		wizhelp = 1;
 
 	sprintf(buf, "Следующие %s%s доступны %s:\r\n",

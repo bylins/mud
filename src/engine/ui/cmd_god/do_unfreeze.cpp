@@ -51,7 +51,7 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			SendMsgToChar(buf, ch);
 			continue;
 		}
-		punishments::set_punish(ch, vict, SCMD_FREEZE, reason_c, 0);
+		punishments::SetFreeze(ch, vict, reason_c, 0);
 		vict->save_char();
 		sprintf(buf, "Чар %s разморожен.\r\n", name_buffer.c_str());
 		SendMsgToChar(buf, ch);
