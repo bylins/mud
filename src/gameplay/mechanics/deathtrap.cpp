@@ -12,6 +12,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_stuff.h"
 #include "engine/core/char_movement.h"
+#include "boat.h"
 
 extern void death_cry(CharData *ch, CharData *killer);
 
@@ -99,8 +100,9 @@ void deathtrap::log_death_trap(CharData *ch) {
 int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !IS_IMMORTAL(ch))
-			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc() && !IS_GOD(ch) && !AFF_FLAGGED(ch, EAffect::kFly))
-			|| (real_sector(ch->in_room) == ESector::kWaterNoswim && !ch->IsNpc() && !IS_GOD(ch) && !HasBoat(ch))) {
+			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc() &&
+			!IS_GOD(ch) && !AFF_FLAGGED(ch, EAffect::kFly))
+			|| IsCharCanDrownThere(ch, ch->in_room)) {
 			ObjData *corpse;
 			deathtrap::log_death_trap(ch);
 

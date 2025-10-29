@@ -14,6 +14,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/awake.h"
+#include "gameplay/mechanics/boat.h"
 
 namespace Noob {
 int outfit(CharData *ch, void *me, int cmd, char *argument);
@@ -489,7 +490,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}
 			// можно утонуть
-			if (next_room->sector_type == ESector::kWaterNoswim) {
+			if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
 				if (!HasBoat(ch)) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
 				} else {

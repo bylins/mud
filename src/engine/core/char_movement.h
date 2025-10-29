@@ -13,7 +13,6 @@ enum EMoveType : int {
 class CharData;
 int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master);
 int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EMoveType move_type);
-bool HasBoat(CharData *ch);
 bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_msg);
 EDirection SelectRndDirection(CharData *ch, int fail_chance);
 

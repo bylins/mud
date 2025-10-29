@@ -32,38 +32,12 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/awake.h"
+#include "gameplay/mechanics/boat.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
 const int Reverse[EDirection::kMaxDirNum] = {2, 3, 0, 1, 5, 4};
-
-/**
- * Return true if char can walk on water
- */
-bool HasBoat(CharData *ch) {
-	if (IS_IMMORTAL(ch)) {
-		return true;
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kWaterWalk) || AFF_FLAGGED(ch, EAffect::kFly)) {
-		return true;
-	}
-
-	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
-		if (GET_OBJ_TYPE(obj) == EObjType::kBoat && (find_eq_pos(ch, obj, nullptr) < 0)) {
-			return true;
-		}
-	}
-
-	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i) && GET_OBJ_TYPE(GET_EQ(ch, i)) == EObjType::kBoat) {
-			return true;
-		}
-	}
-
-	return false;
-}
 
 inline int GetForestPathsSect(int sect) {
 	switch (sect) {
@@ -152,15 +126,8 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return true;
 		}
 
-		//  if this room or the one we're going to needs a boat, check for one */
-		if (!ch->IsFlagged(EMobFlag::kSwimming)
-			&& !ch->IsFlagged(EMobFlag::kFlying)
-			&& !AFF_FLAGGED(ch, EAffect::kFly)
-			&& (real_sector(ch->in_room) == ESector::kWaterNoswim
-				|| real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim)) {
-			if (!HasBoat(ch)) {
-				return false;
-			}
+		if (IsCharNeedBoatToMove(ch, dir)) {
+			return false;
 		}
 
 		// Добавляем проверку на то что моб может вскрыть дверь
@@ -198,17 +165,15 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), kHouseAtrium)) {
 				if (show_msg)
 					SendMsgToChar("Частная собственность! Вход воспрещен!\r\n", ch);
-				return (false);
+				return false;
 			}
 		}
 
-		if (real_sector(ch->in_room) == ESector::kWaterNoswim ||
-			real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim) {
-			if (!HasBoat(ch)) {
-				if (show_msg)
-					SendMsgToChar("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
-				return (false);
+		if (IsCharNeedBoatToMove(ch, dir)) {
+			if (show_msg) {
+				SendMsgToChar("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
 			}
+			return false;
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
 			&& !IS_GOD(ch)
