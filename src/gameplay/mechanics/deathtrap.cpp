@@ -11,7 +11,8 @@
 #include "corpse.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_stuff.h"
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
+#include "boat.h"
 
 extern void death_cry(CharData *ch, CharData *killer);
 
@@ -98,14 +99,10 @@ void deathtrap::log_death_trap(CharData *ch) {
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !ch->IsFlagged(EPrf::kCoderinfo)) {
-		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
-			&& !IS_IMMORTAL(ch))
-			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc()
-				&& !IS_GOD(ch)
-				&& !AFF_FLAGGED(ch, EAffect::kFly))
-			|| (real_sector(ch->in_room) == ESector::kWaterNoswim && !ch->IsNpc()
-				&& !IS_GOD(ch)
-				&& !HasBoat(ch))) {
+		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !IS_IMMORTAL(ch))
+			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc() &&
+			!IS_GOD(ch) && !AFF_FLAGGED(ch, EAffect::kFly))
+			|| IsCharCanDrownThere(ch, ch->in_room)) {
 			ObjData *corpse;
 			deathtrap::log_death_trap(ch);
 
@@ -188,6 +185,41 @@ bool deathtrap::tunnel_damage(CharData *ch) {
 			return true;
 		}
 	}
+	return false;
+}
+
+bool deathtrap::CheckIceDeathTrap(RoomRnum room_rnum, CharData * /*ch*/) {
+	if (room_rnum == kNowhere) {
+		return false;
+	}
+	auto sector = world[room_rnum]->sector_type;
+	if (sector != ESector::kWaterSwim && sector != ESector::kWaterNoswim) {
+		return false;
+	}
+	if ((sector = real_sector(room_rnum)) != ESector::kThinIce && sector != ESector::kNormalIce) {
+		return false;
+	}
+
+	int mass{0};
+	for (const auto vict : world[room_rnum]->people) {
+		if (!vict->IsNpc()
+			&& !AFF_FLAGGED(vict, EAffect::kFly)) {
+			mass += GET_WEIGHT(vict) + vict->GetCarryingWeight();
+		}
+	}
+
+	if ((sector == ESector::kThinIce && mass > 500) || (sector == ESector::kNormalIce && mass > 1500)) {
+		const auto first_in_room = world[room_rnum]->first_character();
+		act("Лед проломился под вашей тяжестью.", false, first_in_room, nullptr, nullptr, kToRoom);
+		act("Лед проломился под вашей тяжестью.", false, first_in_room, nullptr, nullptr, kToChar);
+		auto room = world[room_rnum];
+		room->weather.icelevel = 0;
+		room->ices = 2;
+		room->set_flag(ERoomFlag::kIceTrap);
+		deathtrap::add(room);
+		return true;
+	}
+
 	return false;
 }
 

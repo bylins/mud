@@ -17,7 +17,7 @@ set(SOURCES
 		src/administration/accounts.cpp
 		src/engine/core/action_targeting.cpp
 		src/engine/ui/cmd/do_sign.cpp
-		src/act_movement.cpp
+		src/engine/core/char_movement.cpp
 		src/gameplay/communication/social.cpp
 		src/gameplay/affects/affect_handler.cpp
 		src/engine/ui/alias.cpp
@@ -420,7 +420,11 @@ set(SOURCES
 		src/engine/ui/cmd/do_alias.cpp
 		src/engine/ui/cmd/do_drink.cpp
 		src/engine/ui/cmd/do_drunkoff.cpp
-		src/engine/ui/cmd/do_pour.cpp)
+		src/engine/ui/cmd/do_pour.cpp
+		src/engine/ui/cmd/do_hidemove.cpp
+		src/engine/ui/cmd/do_move.cpp
+		src/gameplay/mechanics/hide.cpp
+		src/gameplay/mechanics/boat.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -460,7 +464,7 @@ set(HEADERS
 		src/gameplay/skills/warcry.h
 		src/gameplay/skills/identify.h
 		src/gameplay/skills/relocate.h
-		src/act_movement.h
+		src/engine/core/char_movement.h
 		src/gameplay/mechanics/strengthening.h
 		src/gameplay/abilities/abilities_constants.h
 		src/gameplay/abilities/abilities_rollsystem.h
@@ -828,7 +832,11 @@ set(HEADERS
 		src/engine/ui/cmd/do_alias.h
 		src/engine/ui/cmd/do_drink.h
 		src/engine/ui/cmd/do_drunkoff.h
-		src/engine/ui/cmd/do_pour.h)
+		src/engine/ui/cmd/do_pour.h
+		src/engine/ui/cmd/do_hidemove.h
+		src/engine/ui/cmd/do_move.h
+		src/gameplay/mechanics/hide.h
+		src/gameplay/mechanics/boat.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

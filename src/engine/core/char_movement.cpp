@@ -11,9 +11,10 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
-#include "act_movement.h"
+#include "char_movement.h"
 
 #include "gameplay/mechanics/deathtrap.h"
+#include "gameplay/mechanics/hide.h"
 #include "engine/entities/entities_constants.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/pk.h"
@@ -31,224 +32,14 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/awake.h"
+#include "gameplay/mechanics/boat.h"
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg);
-// local functions
-void check_ice(int room);
-
 const int Reverse[EDirection::kMaxDirNum] = {2, 3, 0, 1, 5, 4};
 
-// check ice in room
-int check_death_ice(int room, CharData * /*ch*/) {
-	int sector, mass = 0, result = false;
-
-	if (room == kNowhere)
-		return false;
-	sector = SECT(room);
-	if (sector != ESector::kWaterSwim && sector != ESector::kWaterNoswim)
-		return false;
-	if ((sector = real_sector(room)) != ESector::kThinIce && sector != ESector::kNormalIce)
-		return false;
-
-	for (const auto vict : world[room]->people) {
-		if (!vict->IsNpc()
-			&& !AFF_FLAGGED(vict, EAffect::kFly)) {
-			mass += GET_WEIGHT(vict) + vict->GetCarryingWeight();
-		}
-	}
-
-	if (!mass) {
-		return false;
-	}
-
-	if ((sector == ESector::kThinIce && mass > 500) || (sector == ESector::kNormalIce && mass > 1500)) {
-		const auto first_in_room = world[room]->first_character();
-
-		act("Лед проломился под вашей тяжестью.", false, first_in_room, nullptr, nullptr, kToRoom);
-		act("Лед проломился под вашей тяжестью.", false, first_in_room, nullptr, nullptr, kToChar);
-
-		world[room]->weather.icelevel = 0;
-		world[room]->ices = 2;
-		world[room]->set_flag(ERoomFlag::kIceTrap);
-		deathtrap::add(world[room]);
-	} else {
-		return false;
-	}
-
-	return (result);
-}
-
-/**
- * Return true if char can walk on water
- */
-bool HasBoat(CharData *ch) {
-	if (IS_IMMORTAL(ch)) {
-		return true;
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kWaterWalk) || AFF_FLAGGED(ch, EAffect::kFly)) {
-		return true;
-	}
-
-	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
-		if (GET_OBJ_TYPE(obj) == EObjType::kBoat && (find_eq_pos(ch, obj, nullptr) < 0)) {
-			return true;
-		}
-	}
-
-	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i) && GET_OBJ_TYPE(GET_EQ(ch, i)) == EObjType::kBoat) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void make_visible(CharData *ch, const EAffect affect) {
-	char to_room[kMaxStringLength], to_char[kMaxStringLength];
-
-	*to_room = *to_char = 0;
-
-	switch (affect) {
-		case EAffect::kHide: strcpy(to_char, "Вы прекратили прятаться.\r\n");
-			strcpy(to_room, "$n прекратил$g прятаться.");
-			break;
-
-		case EAffect::kDisguise: strcpy(to_char, "Вы прекратили маскироваться.\r\n");
-			strcpy(to_room, "$n прекратил$g маскироваться.");
-			break;
-
-		default: break;
-	}
-	AFF_FLAGS(ch).unset(affect);
-	ch->check_aggressive = true;
-	if (*to_char)
-		SendMsgToChar(to_char, ch);
-	if (*to_room)
-		act(to_room, false, ch, nullptr, nullptr, kToRoom);
-}
-
-int skip_hiding(CharData *ch, CharData *vict) {
-	int percent, prob;
-
-	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kHide)) {
-		if (awake_hide(ch)) {
-			SendMsgToChar("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
-			RemoveAffectFromChar(ch, ESpell::kHide);
-			make_visible(ch, EAffect::kHide);
-			EXTRA_FLAGS(ch).set(EXTRA_FAILHIDE);
-		} else if (IsAffectedBySpell(ch, ESpell::kHide)) {
-			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
-				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
-				return false;
-			}
-			percent = number(1, 82 + GetRealInt(vict));
-			prob = CalcCurrentSkill(ch, ESkill::kHide, vict);
-			if (percent > prob) {
-				RemoveAffectFromChar(ch, ESpell::kHide);
-				AFF_FLAGS(ch).unset(EAffect::kHide);
-				act("Вы не сумели остаться незаметным.", false, ch, nullptr, vict, kToChar);
-			} else {
-				ImproveSkill(ch, ESkill::kHide, true, vict);
-				act("Вам удалось остаться незаметным.", false, ch, nullptr, vict, kToChar);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-int skip_camouflage(CharData *ch, CharData *vict) {
-	int percent, prob;
-
-	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kCamouflage)) {
-		if (awake_camouflage(ch)) {
-			SendMsgToChar("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
-			RemoveAffectFromChar(ch, ESpell::kCamouflage);
-			make_visible(ch, EAffect::kDisguise);
-			EXTRA_FLAGS(ch).set(EXTRA_FAILCAMOUFLAGE);
-		} else if (IsAffectedBySpell(ch, ESpell::kCamouflage)) {
-			if (AFF_FLAGGED(vict, EAffect::kDetectLife)) {
-				act("$N почувствовал$G ваше присутствие.", false, ch, nullptr, vict, kToChar);
-				return false;
-			}
-			percent = number(1, 82 + GetRealInt(vict));
-			prob = CalcCurrentSkill(ch, ESkill::kDisguise, vict);
-			if (percent > prob) {
-				RemoveAffectFromChar(ch, ESpell::kCamouflage);
-				AFF_FLAGS(ch).unset(EAffect::kDisguise);
-				ImproveSkill(ch, ESkill::kDisguise, false, vict);
-				act("Вы не сумели правильно замаскироваться.", false, ch, nullptr, vict, kToChar);
-			} else {
-				ImproveSkill(ch, ESkill::kDisguise, true, vict);
-				act("Ваша маскировка оказалась на высоте.", false, ch, nullptr, vict, kToChar);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-int skip_sneaking(CharData *ch, CharData *vict) {
-	int percent, prob, absolute_fail;
-	bool try_fail;
-
-	if (MAY_SEE(ch, vict, ch) && IsAffectedBySpell(ch, ESpell::kSneak)) {
-		if (awake_sneak(ch))    //if (affected_by_spell(ch,SPELL_SNEAK))
-		{
-			SendMsgToChar("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
-			RemoveAffectFromChar(ch, ESpell::kSneak);
-			make_visible(ch, EAffect::kSneak);
-			RemoveAffectFromChar(ch, ESpell::kHide);
-			AFF_FLAGS(ch).unset(EAffect::kHide);
-			AFF_FLAGS(ch).unset(EAffect::kSneak);
-		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-			percent = number(1, 112 + (GetRealInt(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
-				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
-			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
-
-			int catch_level = (GetRealLevel(vict) - GetRealLevel(ch));
-			if (catch_level > 5) {
-				//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
-				absolute_fail = ((200 - prob) / 20 + 5) * (vict->get_role(MOB_ROLE_BOSS) ? 5 : 1);
-				try_fail = number(1, 100) < absolute_fail;
-			} else
-				try_fail = false;
-
-			if ((percent > prob) || try_fail) {
-				RemoveAffectFromChar(ch, ESpell::kSneak);
-				RemoveAffectFromChar(ch, ESpell::kHide);
-				AFF_FLAGS(ch).unset(EAffect::kHide);
-				AFF_FLAGS(ch).unset(EAffect::kSneak);
-				ImproveSkill(ch, ESkill::kSneak, false, vict);
-				act("Вы не сумели пробраться незаметно.", false, ch, nullptr, vict, kToChar);
-			} else {
-				ImproveSkill(ch, ESkill::kSneak, true, vict);
-				act("Вам удалось прокрасться незаметно.", false, ch, nullptr, vict, kToChar);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/* do_simple_move assumes
- *    1. That there is no master and no followers.
- *    2. That the direction exists.
- *
- *   Returns :
- *   1 : If succes.
- *   0 : If fail
- */
-/*
- * Check for special routines (North is 1 in command list, but 0 here) Note
- * -- only check if following; this avoids 'double spec-proc' bug
- */
-
-int real_forest_paths_sect(int sect) {
+inline int GetForestPathsSect(int sect) {
 	switch (sect) {
 		case ESector::kForest:		return ESector::kField;
 		case ESector::kForestSnow:	return ESector::kFieldSnow;
@@ -257,7 +48,7 @@ int real_forest_paths_sect(int sect) {
 	}
 }
 
-int real_mountains_paths_sect(int sect) {
+inline int GetMountainsPathsSect(int sect) {
 	switch (sect) {
 		case ESector::kHills:			[[fallthrough]];
 		case ESector::kMountain:		return ESector::kField;
@@ -268,19 +59,19 @@ int real_mountains_paths_sect(int sect) {
 	}
 }
 
-int calculate_move_cost(CharData *ch, int dir) {
+int CalcMoveCost(CharData *ch, int dir) {
 	// move points needed is avg. move loss for src and destination sect type
 	auto ch_inroom = real_sector(ch->in_room);
 	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room());
 
 	if (CanUseFeat(ch, EFeat::kForestPath)) {
-		ch_inroom = real_forest_paths_sect(ch_inroom);
-		ch_toroom = real_forest_paths_sect(ch_toroom);
+		ch_inroom = GetForestPathsSect(ch_inroom);
+		ch_toroom = GetForestPathsSect(ch_toroom);
 	}
 
 	if (CanUseFeat(ch, EFeat::kMountainPath)) {
-		ch_inroom = real_mountains_paths_sect(ch_inroom);
-		ch_toroom = real_mountains_paths_sect(ch_toroom);
+		ch_inroom = GetMountainsPathsSect(ch_inroom);
+		ch_toroom = GetMountainsPathsSect(ch_toroom);
 	}
 
 	int need_movement = (IS_FLY(ch) || ch->IsOnHorse()) ? 1 :
@@ -335,15 +126,8 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return true;
 		}
 
-		//  if this room or the one we're going to needs a boat, check for one */
-		if (!ch->IsFlagged(EMobFlag::kSwimming)
-			&& !ch->IsFlagged(EMobFlag::kFlying)
-			&& !AFF_FLAGGED(ch, EAffect::kFly)
-			&& (real_sector(ch->in_room) == ESector::kWaterNoswim
-				|| real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim)) {
-			if (!HasBoat(ch)) {
-				return false;
-			}
+		if (IsCharNeedBoatToMove(ch, dir)) {
+			return false;
 		}
 
 		// Добавляем проверку на то что моб может вскрыть дверь
@@ -381,17 +165,15 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), kHouseAtrium)) {
 				if (show_msg)
 					SendMsgToChar("Частная собственность! Вход воспрещен!\r\n", ch);
-				return (false);
+				return false;
 			}
 		}
 
-		if (real_sector(ch->in_room) == ESector::kWaterNoswim ||
-			real_sector(EXIT(ch, dir)->to_room()) == ESector::kWaterNoswim) {
-			if (!HasBoat(ch)) {
-				if (show_msg)
-					SendMsgToChar("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
-				return (false);
+		if (IsCharNeedBoatToMove(ch, dir)) {
+			if (show_msg) {
+				SendMsgToChar("Вам нужна лодка, чтобы попасть туда.\r\n", ch);
 			}
+			return false;
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
 			&& !IS_GOD(ch)
@@ -409,7 +191,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		const auto need_movement = calculate_move_cost(ch, dir);
+		const auto need_movement = CalcMoveCost(ch, dir);
 		if (ch->get_move() < need_movement) {
 			if (check_specials
 				&& ch->has_master()) {
@@ -567,7 +349,7 @@ int SelectDrunkDirection(CharData *ch, int direction) {
 	return drunk_dir;
 }
 
-int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimpleMove move_type) {
+int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EMoveType move_type) {
 	struct TrackData *track;
 	RoomRnum was_in, go_to;
 	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
@@ -595,10 +377,10 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 
 	// Now we know we're allowed to go into the room.
 	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
-		ch->set_move(ch->get_move() - calculate_move_cost(ch, dir));
+		ch->set_move(ch->get_move() - CalcMoveCost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
-	if (AFF_FLAGGED(ch, EAffect::kSneak) && move_type != IsFlee) {
+	if (AFF_FLAGGED(ch, EAffect::kSneak) && move_type != EMoveType::kFlee) {
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_sneak(ch)) {
@@ -609,25 +391,27 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 	}
 
 	i = MUD::Skill(ESkill::kDisguise).difficulty;
-	if (AFF_FLAGGED(ch, EAffect::kDisguise) && move_type != IsFlee) {
+	if (AFF_FLAGGED(ch, EAffect::kDisguise) && move_type != EMoveType::kFlee) {
 		if (ch->IsNpc())
 			invis = 1;
 		else if (awake_camouflage(ch)) {
 			RemoveAffectFromChar(ch, ESpell::kCamouflage);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
-		} else if (!IsAffectedBySpell(ch, ESpell::kCamouflage) || CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
+		} else if (!IsAffectedBySpell(ch, ESpell::kCamouflage) ||
+		CalcCurrentSkill(ch, ESkill::kDisguise, nullptr) >= number(1, i))
 			invis = 1;
 	}
 
-	if (move_type == Default) {
+	if (move_type == EMoveType::kDefault) {
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
-	if (move_type == ThrowOut) {
+	if (move_type == EMoveType::kThrowOut) {
 		sprintf(buf, "Вы со свистом улетели %s.", DirsTo[dir]);
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
-	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) && !IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) &&
+	!IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
@@ -641,9 +425,9 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 			|| ch->get_master()->in_room == go_to);
 
 	if (!invis && !is_horse) {
-		if (move_type == IsFlee)
+		if (move_type == EMoveType::kFlee)
 			strcpy(smallBuf, "сбежал$g");
-		else if (move_type == ThrowOut)
+		else if (move_type == EMoveType::kThrowOut)
 			strcpy(smallBuf, "со свистом полетел$g");
 		else if (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveRun))
 			strcpy(smallBuf, "убежал$g");
@@ -673,7 +457,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 		} else
 			strcpy(smallBuf, "уш$y");
 
-		if (move_type != IsFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
+		if (move_type != EMoveType::kFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
 			sprintf(buf2, "$n %s.", smallBuf);
 		else
 			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
@@ -688,7 +472,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 		horse = ch->get_horse();
 
 	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
-	if (move_type == IsFlee) {
+	if (move_type == EMoveType::kFlee) {
 		stop_fighting(ch, true);
 	}
 
@@ -699,7 +483,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 
 	RemoveCharFromRoom(ch);
 	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
-	if (move_type == IsFlee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
+	if (move_type == EMoveType::kFlee && !ch->IsNpc() && !CanUseFeat(ch, EFeat::kCalmness))
 		FleeToRoom(ch, go_to);
 	else
 		PlaceCharToRoom(ch, go_to);
@@ -723,11 +507,11 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 	}
 
 	if (!invis && !is_horse) {
-		if (move_type == IsFlee
+		if (move_type == EMoveType::kFlee
 			|| (ch->IsNpc()
 				&& NPC_FLAGGED(ch, ENpcFlag::kMoveRun))) {
 			strcpy(smallBuf, "прибежал$g");
-		} else if (move_type == ThrowOut)
+		} else if (move_type == EMoveType::kThrowOut)
 			strcpy(smallBuf, "со свистом прилетел$g");
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffect::kFly))
 			|| (ch->IsNpc() && NPC_FLAGGED(ch, ENpcFlag::kMoveFly))) {
@@ -768,7 +552,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 	}
 
 	if (ch->desc != nullptr)
-		look_at_room(ch, 0, move_type != IsFlee);
+		look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
 	if (!ch->IsNpc())
 		ProcessRoomAffectsOnEntry(ch, ch->in_room);
@@ -780,7 +564,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 		return false;
 	}
 
-	if (check_death_ice(go_to, ch)) {
+	if (deathtrap::CheckIceDeathTrap(go_to, ch)) {
 		return false;
 	}
 
@@ -845,7 +629,7 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 	if (ch->IsNpc()) {
 		for (const auto vict : world[ch->in_room]->people) {
 			if (!vict->IsNpc()) {
-				skip_hiding(vict, ch);
+				SkipHiding(vict, ch);
 			}
 		}
 	}
@@ -881,16 +665,14 @@ int DoSimpleMove(CharData *ch, int dir, int following, CharData *leader, kSimple
 		}
 	}
 
-	// If flee - go agressive mobs
-	if (!ch->IsNpc()
-		&& move_type == IsFlee) {
+	if (!ch->IsNpc() && move_type == EMoveType::kFlee) {
 		mob_ai::do_aggressive_room(ch, false);
 	}
 
 	return direction;
 }
 
-int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master) {
+int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master) {
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
 		RemoveAffectFromChar(ch, ESpell::kBandage);
@@ -913,13 +695,13 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 			SendMsgToChar("Закрыто.\r\n", ch);
 	} else {
 		if (!ch->followers) {
-			if (!DoSimpleMove(ch, dir, need_specials_check, master, Default))
+			if (!PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault))
 				return false;
 		} else {
 			was_in = ch->in_room;
 			// When leader mortally drunked - he changes direction
 			// So returned value set to false or DIR + 1
-			if (!(dir = DoSimpleMove(ch, dir, need_specials_check, master, Default)))
+			if (!(dir = PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault)))
 				return false;
 
 			--dir;
@@ -948,8 +730,7 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 							continue;
 						}
 					}
-//                   act("Вы поплелись следом за $N4.",false,k->ch,0,ch,TO_CHAR);
-					perform_move(k->follower, dir, 1, false, ch);
+					PerformMove(k->follower, dir, 1, false, ch);
 				}
 			}
 		}
@@ -959,56 +740,6 @@ int perform_move(CharData *ch, int dir, int need_specials_check, int checkmob, C
 		return true;
 	}
 	return false;
-}
-
-void do_move(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
-	/*
-	 * This is basically a mapping of cmd numbers to perform_move indices.
-	 * It cannot be done in perform_move because perform_move is called
-	 * by other functions which do not require the remapping.
-	 */
-	perform_move(ch, subcmd - 1, 0, true, nullptr);
-}
-
-void do_hidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	int dir = 0, sneaking = IsAffectedBySpell(ch, ESpell::kSneak);
-
-	skip_spaces(&argument);
-	if (!ch->GetSkill(ESkill::kSneak)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
-		return;
-	}
-
-	if (!*argument) {
-		SendMsgToChar("И куда это вы направляетесь?\r\n", ch);
-		return;
-	}
-
-	if ((dir = search_block(argument, dirs, false)) < 0 && (dir = search_block(argument, dirs_rus, false)) < 0) {
-		SendMsgToChar("Неизвестное направление.\r\n", ch);
-		return;
-	}
-	if (ch->IsOnHorse()) {
-		act("Вам мешает $N.", false, ch, nullptr, ch->get_horse(), kToChar);
-		return;
-	}
-	if (!sneaking) {
-		Affect<EApply> af;
-		af.type = ESpell::kSneak;
-		af.location = EApply::kNone;
-		af.modifier = 0;
-		af.duration = 1;
-		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
-		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
-		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
-		af.battleflag = 0;
-		ImposeAffect(ch, af, false, false, false, false);
-	}
-	perform_move(ch, dir, 0, true, nullptr);
-	if (!sneaking || IsAffectedBySpell(ch, ESpell::kGlitterDust)) {
-		RemoveAffectFromChar(ch, ESpell::kSneak);
-		AFF_FLAGS(ch).unset(EAffect::kSneak);
-	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

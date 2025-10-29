@@ -7,8 +7,8 @@
 
 class CharData;
 
-void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void go_charge(CharData *ch, int direction);
+void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void GoCharge(CharData *ch, int direction);
 
 
 #endif //BYLINS_CHARGE_H
