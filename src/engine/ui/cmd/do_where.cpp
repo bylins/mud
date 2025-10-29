@@ -9,24 +9,27 @@
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/communication/parcel.h"
+#include "utils/utils_time.h"
+#include "gameplay/mechanics/dungeons.h"
+#include "engine/db/obj_prototypes.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-void perform_immort_where(CharData *ch, char *arg);
-void perform_mortal_where(CharData *ch, char *arg);
-bool print_imm_where_obj(CharData *ch, char *arg, int num);
-bool print_object_location(int num, const ObjData *obj, CharData *ch);
+void PerformImmortWhere(CharData *ch, char *arg);
+void PerformMortalWhere(CharData *ch, char *arg);
+bool PrintImmWhereObj(CharData *ch, char *arg, int num);
+bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch);
 
-void do_where(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
-		perform_immort_where(ch, arg);
+		PerformImmortWhere(ch, arg);
 	else
-		perform_mortal_where(ch, arg);
+		PerformMortalWhere(ch, arg);
 }
 
-void perform_immort_where(CharData *ch, char *arg) {
+void PerformImmortWhere(CharData *ch, char *arg) {
 	DescriptorData *d;
 	int num = 1, found = 0;
 	std::stringstream ss;
@@ -68,7 +71,7 @@ void perform_immort_where(CharData *ch, char *arg) {
 			}
 		}
 		SendMsgToChar(ss.str(), ch);
-		if (!print_imm_where_obj(ch, arg, num) && !found) {
+		if (!PrintImmWhereObj(ch, arg, num) && !found) {
 			SendMsgToChar("Нет ничего похожего.\r\n", ch);
 		}
 	}
@@ -78,13 +81,13 @@ void perform_immort_where(CharData *ch, char *arg) {
 * Иммский поиск шмоток по 'где' с проходом как по глобальному списку, так
 * и по спискам хранилищ и почты.
 */
-bool print_imm_where_obj(CharData *ch, char *arg, int num) {
+bool PrintImmWhereObj(CharData *ch, char *arg, int num) {
 	bool found = false;
 
 	/* maybe it is possible to create some index instead of linear search */
 	world_objects.foreach([&](const ObjData::shared_ptr& object) {
 	  if (isname(arg, object->get_aliases())) {
-		  if (print_object_location(num, object.get(), ch)) {
+		  if (PrintObjectLocation(num, object.get(), ch)) {
 			  found = true;
 			  num++;
 		  }
@@ -97,7 +100,7 @@ bool print_imm_where_obj(CharData *ch, char *arg, int num) {
 	return false;
 }
 
-void perform_mortal_where(CharData *ch, char *arg) {
+void PerformMortalWhere(CharData *ch, char *arg) {
 	DescriptorData *d;
 
 	SendMsgToChar("Кто много знает, тот плохо спит.\r\n", ch);
@@ -154,7 +157,7 @@ void perform_mortal_where(CharData *ch, char *arg) {
 }
 
 // возвращает true если объект был выведен
-bool print_object_location(int num, const ObjData *obj, CharData *ch) {
+bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch) {
 	std::stringstream ss;
 	if (num > 0) {
 		ss << fmt::format("{:>2}. ", num);
@@ -185,7 +188,7 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 		ss << fmt::format("лежит в [{}] {}, который находится \r\n",
 				GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
 		SendMsgToChar(ss.str().c_str(), ch);
-		print_object_location(0, obj->get_in_obj(), ch);
+		PrintObjectLocation(0, obj->get_in_obj(), ch);
 	} else {
 		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 			if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
@@ -233,6 +236,79 @@ bool print_object_location(int num, const ObjData *obj, CharData *ch) {
 	}
 
 	return true;
+}
+
+void FindErrorCountObj(CharData *ch) {
+	int num = 1;
+	size_t sum;
+	utils::CExecutionTimer timer;
+	ObjRnum start_dung = GetObjRnum(dungeons::kZoneStartDungeons * 100);
+
+	auto it_start = std::find_if(obj_proto.begin(), obj_proto.end(), [start_dung] (auto it) {return (it->get_rnum() == start_dung); });
+
+	for (auto it = it_start; it != obj_proto.end(); it++) {
+		if ((*it)->get_parent_rnum() == -1)
+			continue;
+		std::list<ObjData *> objs;
+		std::list<ObjData *> objs_orig;
+		ObjRnum orn = (*it)->get_rnum();
+		ObjRnum rnum = (*it)->get_parent_rnum();
+
+		world_objects.GetObjListByRnum(orn, objs);
+		sum = objs.size();
+		std::for_each(it_start, obj_proto.end(), [&rnum, &sum, &objs, &it] (auto it2) {
+		  if (it2 == *it)
+			  return;
+		  if (it2->get_parent_rnum() == rnum) {
+			  if (CAN_WEAR(it2.get(), EWearFlag::kTake) && !it2->has_flag(EObjFlag::kQuestItem)) {
+				  world_objects.GetObjListByRnum(it2->get_rnum(), objs);
+				  sum += objs.size();
+			  }
+		  }
+		});
+		if (CAN_WEAR(obj_proto[rnum].get(), EWearFlag::kTake) && !obj_proto[rnum].get()->has_flag(EObjFlag::kQuestItem)) {
+			world_objects.GetObjListByRnum((*it)->get_parent_rnum(), objs_orig);
+			sum += objs_orig.size();
+		}
+		if (sum != (size_t)obj_proto.total_online(orn)) {
+			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %ld \r\n", GET_OBJ_PNAME(*it, 0).c_str(), (*it)->get_vnum(), sum);
+			for (auto object : objs) {
+				PrintObjectLocation(num++, object, ch);
+			}
+			for (auto object : objs_orig) {
+				PrintObjectLocation(num++, object, ch);
+			}
+		}
+	}
+	SendMsgToChar(ch, "Поиск ошибок занял %f\r\n", timer.delta().count());
+}
+
+void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	ObjRnum orn;
+	int num = 1;
+	std::list<ObjData *> objs;
+
+	one_argument(argument, buf);
+	if (!str_cmp(buf, "error")) {
+		FindErrorCountObj(ch);
+		return;
+	}
+	if (!*buf || !a_isdigit(*buf)) {
+		SendMsgToChar("Usage: objfind <rnum number> - найти предметы по RNUM\r\n", ch);
+		return;
+	}
+	if ((orn = atoi(buf)) < 0 || (size_t)orn > (world_objects.size() - 1)) {
+		SendMsgToChar("Указан неверный RNUM объекта !\r\n", ch);
+		return;
+	}
+	world_objects.GetObjListByRnum(orn, objs);
+	if (objs.empty()) {
+		SendMsgToChar("Нет таких предметов в мире.\r\n", ch);
+		return;
+	}
+	for (auto object : objs) {
+		PrintObjectLocation(num++, object, ch);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

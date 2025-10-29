@@ -4,6 +4,7 @@
 
 #include "glory.h"
 
+#include "administration/karma.h"
 #include "engine/core/conf.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -22,7 +23,6 @@
 
 #include <sstream>
 
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void check_max_hp(CharData *ch);
 
 namespace Glory {

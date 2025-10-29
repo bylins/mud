@@ -19,7 +19,13 @@ struct Punish {
   long godid = 0;
 };
 
-int set_punish(CharData *ch, CharData *vict, int punish, char *reason, long times);
+bool SetMute(CharData *ch, CharData *vict, char *reason, long times);
+bool SetDumb(CharData *ch, CharData *vict, char *reason, long times);
+bool SetHell(CharData *ch, CharData *vict, char *reason, long times);
+bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times);
+bool SetNameRoom(CharData *ch, CharData *vict, char *reason, long times);
+bool SetUnregister(CharData *ch, CharData *vict, char *reason, long times);
+bool SetRegister(CharData *ch, CharData *vict, char *reason);
 
 }
 

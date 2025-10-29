@@ -125,7 +125,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 	damage.Process(technique.GetActor(), technique.GetRival());
 };
 
-void go_throw(CharData *ch, CharData *victim) {
+void GoThrow(CharData *ch, CharData *victim) {
 
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -175,24 +175,18 @@ void go_throw(CharData *ch, CharData *victim) {
 	}
 }
 
-void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
 	if (!ch->GetSkill(ESkill::kThrow)) {
 		SendMsgToChar("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_SHADOW_THROW && !CanUseFeat(ch, EFeat::kShadowThrower)) {
+	if (subcmd == kScmdShadowThrow && !CanUseFeat(ch, EFeat::kShadowThrower)) {
 		SendMsgToChar("Вы этого не умеете.\r\n", ch);
 		return;
 	};
 
-/*
-	if (!IS_IMPL(ch) && !can_use_feat(ch, EFeat::kThrowWeapon)) {
-			SendMsgToChar("Вы не умеете этого.\r\n", ch);
-			return;
-	}
-*/
 	CharData *victim = FindVictim(ch, argument);
 	if (!victim) {
 		SendMsgToChar("В кого мечем?\r\n", ch);
@@ -206,7 +200,7 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (subcmd == SCMD_SHADOW_THROW) {
+	if (subcmd == kScmdShadowThrow) {
 		if (IsTimedByFeat(ch, EFeat::kShadowThrower)) {
 			SendMsgToChar("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
@@ -214,10 +208,10 @@ void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ch->SetFlag(EPrf::kShadowThrow);
 	};
 
-	do_throw(ch, victim);
+	DoThrow(ch, victim);
 }
 
-void do_throw(CharData *ch, CharData *victim) {
+void DoThrow(CharData *ch, CharData *victim) {
 	if (!ch->GetSkill(ESkill::kThrow)) {
 		log("ERROR: вызов метнуть для персонажа %s (%d) без проверки умения", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 		return;
@@ -234,11 +228,10 @@ void do_throw(CharData *ch, CharData *victim) {
 	}
 
 	if (IS_IMPL(ch) || !ch->GetEnemy()) {
-		go_throw(ch, victim);
+		GoThrow(ch, victim);
 	} else {
 		if (IsHaveNoExtraAttack(ch)) {
-			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.",
-				false, ch, nullptr, victim, kToChar);
+			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", false, ch, nullptr, victim, kToChar);
 			ch->SetExtraAttack(kExtraAttackThrow, victim);
 		}
 	}

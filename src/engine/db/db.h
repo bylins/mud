@@ -237,7 +237,6 @@ extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
 long GetPlayerTablePosByName(const char *name);
-void FreeAlias(struct alias_data *a);
 
 class PlayersIndex : public std::vector<PlayerIndexElement> {
  public:

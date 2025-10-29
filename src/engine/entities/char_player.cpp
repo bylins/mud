@@ -24,6 +24,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "engine/ui/cmd/do_who.h"
 
 #ifdef _WIN32
 #else
@@ -821,8 +822,8 @@ void Player::save_char() {
 	fprintf(saved, "Expt: %llu\n", GetStatistic(CharStat::PkRemortExpLost));
 
 	// не забываем рестить ману и при сейве
-	this->set_who_mana(MIN(WHO_MANA_MAX,
-						   this->get_who_mana() + (time(0) - this->get_who_last()) * WHO_MANA_REST_PER_SECOND));
+	this->set_who_mana(MIN(kWhoManaMax,
+						   this->get_who_mana() + (time(0) - this->get_who_last()) * kWhoManaRestPerSecond));
 	fprintf(saved, "Wman: %u\n", this->get_who_mana());
 
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
@@ -1231,7 +1232,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
-	this->set_who_mana(WHO_MANA_MAX);
+	this->set_who_mana(kWhoManaMax);
 	this->set_who_last(time(0));
 
 	while (fbgetline(fl, line)) {

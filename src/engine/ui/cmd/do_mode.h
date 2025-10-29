@@ -6,8 +6,7 @@
 #define BYLINS_SRC_CMD_DO_MODE_H_
 
 class CharData;
-
-void do_mode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CMD_DO_MODE_H_
 

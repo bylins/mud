@@ -3,9 +3,12 @@
 
 class CharData;
 
-void go_throw(CharData *ch, CharData *victim);
-void do_throw(CharData *ch, char *argument, int/* cmd*/, int subcmd);
-void do_throw(CharData *ch, CharData *victim);
+inline constexpr int kScmdPhysicalThrow{0};
+inline constexpr int kScmdShadowThrow{1};
+
+void GoThrow(CharData *ch, CharData *victim);
+void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd);
+void DoThrow(CharData *ch, CharData *victim);
 
 #endif //BYLINS_THROW_H
 

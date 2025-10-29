@@ -1,10 +1,8 @@
 #include "do_flee.h"
 
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/core/game_limits.h"
-
-EDirection SelectRndDirection(CharData *ch, int fail_chance);
 
 void ReduceExpAfterFlee(CharData *ch, CharData *victim, RoomRnum room) {
 	if (CanUseFeat(ch, EFeat::kRetreat) || ROOM_FLAGGED(room, ERoomFlag::kArena)) {
@@ -49,7 +47,7 @@ void GoFlee(CharData *ch) {
 		const auto was_in = ch->in_room;
 
 		act("$n запаниковал$g и попытал$u сбежать!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		if (DoSimpleMove(ch, direction, true, nullptr, IsFlee)) {
+		if (PerformSimpleMove(ch, direction, true, nullptr, EMoveType::kFlee)) {
 			if (ch->IsOnHorse()) {
 				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, ch->get_horse(), kToChar);
 			} else {
@@ -89,7 +87,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 
 	if (IsCorrectDirection(ch, direction, true, false)
 		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ERoomFlag::kDeathTrap)) {
-		if (DoSimpleMove(ch, direction, true, nullptr, IsFlee)) {
+		if (PerformSimpleMove(ch, direction, true, nullptr, EMoveType::kFlee)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->GetEnemy();
 

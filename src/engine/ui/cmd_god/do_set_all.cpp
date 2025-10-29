@@ -8,6 +8,7 @@
 
 #include "engine/ui/cmd_god/do_set_all.h"
 
+#include "administration/karma.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"
@@ -22,8 +23,6 @@ enum ESetAllKind {
   kSetallPwd,
   kSetallHell
 };
-
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 
 void setall_inspect() {
 	if (setall_inspect_list.empty()) {
@@ -68,9 +67,8 @@ void setall_inspect() {
 							it->second->out += buf1;
 							continue;
 						}
-						punishments::set_punish(imm_d->character.get(),
+						punishments::SetFreeze(imm_d->character.get(),
 												d_vict->character.get(),
-												SCMD_FREEZE,
 												it->second->reason,
 												it->second->freeze_time);
 					} else {
@@ -86,9 +84,8 @@ void setall_inspect() {
 								it->second->out += buf1;
 								continue;
 							}
-							punishments::set_punish(imm_d->character.get(),
+							punishments::SetFreeze(imm_d->character.get(),
 													vict,
-													SCMD_FREEZE,
 													it->second->reason,
 													it->second->freeze_time);
 							vict->save_char();
@@ -178,9 +175,8 @@ void setall_inspect() {
 							it->second->out += buf1;
 							continue;
 						}
-						punishments::set_punish(imm_d->character.get(),
+						punishments::SetHell(imm_d->character.get(),
 												d_vict->character.get(),
-												SCMD_HELL,
 												it->second->reason,
 												it->second->freeze_time);
 					} else {
@@ -196,9 +192,8 @@ void setall_inspect() {
 								it->second->out += buf1;
 								continue;
 							}
-							punishments::set_punish(imm_d->character.get(),
+							punishments::SetHell(imm_d->character.get(),
 													vict,
-													SCMD_HELL,
 													it->second->reason,
 													it->second->freeze_time);
 							vict->save_char();

@@ -27,7 +27,7 @@
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/action_targeting.h"
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
 #include "engine/core/handler.h"
@@ -42,6 +42,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/mechanics/hide.h"
 
 // external structs
 extern int no_specials;
@@ -218,9 +219,9 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			if (do_mode)
-				do_throw(ch, victim);
+				DoThrow(ch, victim);
 			else
-				go_throw(ch, victim);
+				GoThrow(ch, victim);
 		}
 		if (ch->GetSkill(ESkill::kDisarm)) {
 			if (do_mode)
@@ -393,7 +394,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 
 		// skip sneaking, hiding and camouflaging pc
 		if (IS_SET(extmode, SKIP_SNEAKING)) {
-			skip_sneaking(vict, ch);
+			SkipSneaking(vict, ch);
 			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))) {
 				AFF_FLAGS(vict).unset(EAffect::kSneak);
 			}
@@ -402,14 +403,14 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		}
 
 		if (IS_SET(extmode, SKIP_HIDING)) {
-			skip_hiding(vict, ch);
+			SkipHiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
 				AFF_FLAGS(vict).unset(EAffect::kHide);
 			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
-			skip_camouflage(vict, ch);
+			SkipCamouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
@@ -541,7 +542,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 		}
 	}
 	if (IS_SET(extmode, SKIP_SNEAKING)) {
-		skip_sneaking(vict, ch);
+		SkipSneaking(vict, ch);
 		if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
 			AFF_FLAGS(vict).unset(EAffect::kSneak);
 		}
@@ -551,14 +552,14 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 		}
 	}
 	if (IS_SET(extmode, SKIP_HIDING)) {
-		skip_hiding(vict, ch);
+		SkipHiding(vict, ch);
 		if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
 			AFF_FLAGS(vict).unset(EAffect::kHide);
 		}
 	}
 
 	if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
-		skip_camouflage(vict, ch);
+		SkipCamouflage(vict, ch);
 		if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
 			AFF_FLAGS(vict).unset(EAffect::kDisguise);
 		}
