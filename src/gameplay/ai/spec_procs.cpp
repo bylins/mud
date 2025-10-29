@@ -14,7 +14,7 @@
 
 #include "gameplay/ai/spec_procs.h"
 
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "engine/core/utils_char_obj.inl"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/mount.h"
@@ -439,7 +439,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 		}
 	}
 
-	retval = perform_move(ch, dir, 1, false, 0);
+	retval = PerformMove(ch, dir, 1, false, 0);
 
 	if (need_close) {
 		const int close_direction = retval ? rev_dir[dir] : dir;

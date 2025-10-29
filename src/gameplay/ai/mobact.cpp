@@ -27,7 +27,7 @@
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/action_targeting.h"
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
 #include "engine/core/handler.h"
@@ -393,7 +393,7 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 
 		// skip sneaking, hiding and camouflaging pc
 		if (IS_SET(extmode, SKIP_SNEAKING)) {
-			skip_sneaking(vict, ch);
+			SkipSneaking(vict, ch);
 			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))) {
 				AFF_FLAGS(vict).unset(EAffect::kSneak);
 			}
@@ -402,14 +402,14 @@ CharData *find_best_stupidmob_victim(CharData *ch, int extmode) {
 		}
 
 		if (IS_SET(extmode, SKIP_HIDING)) {
-			skip_hiding(vict, ch);
+			SkipHiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
 				AFF_FLAGS(vict).unset(EAffect::kHide);
 			}
 		}
 
 		if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
-			skip_camouflage(vict, ch);
+			SkipCamouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
 				AFF_FLAGS(vict).unset(EAffect::kDisguise);
 			}
@@ -541,7 +541,7 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 		}
 	}
 	if (IS_SET(extmode, SKIP_SNEAKING)) {
-		skip_sneaking(vict, ch);
+		SkipSneaking(vict, ch);
 		if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
 			AFF_FLAGS(vict).unset(EAffect::kSneak);
 		}
@@ -551,14 +551,14 @@ bool filter_victim (CharData *ch, CharData *vict, int extmode) {
 		}
 	}
 	if (IS_SET(extmode, SKIP_HIDING)) {
-		skip_hiding(vict, ch);
+		SkipHiding(vict, ch);
 		if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
 			AFF_FLAGS(vict).unset(EAffect::kHide);
 		}
 	}
 
 	if (IS_SET(extmode, SKIP_CAMOUFLAGE)) {
-		skip_camouflage(vict, ch);
+		SkipCamouflage(vict, ch);
 		if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
 			AFF_FLAGS(vict).unset(EAffect::kDisguise);
 		}

@@ -3,13 +3,11 @@
 //
 
 #include "gameplay/fight/fight.h"
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "engine/core/action_targeting.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
-#include "engine/core/handler.h"
-#include "engine/db/global_objects.h"
 #include "throwout.h"
 
 void do_throwout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -118,7 +116,7 @@ void go_throwout(CharData *ch, CharData *vict) {
 	    			SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);
 	    		}
 	    	stop_fighting(vict, true);
-			DoSimpleMove(vict, direction, false, nullptr, ThrowOut);
+			PerformSimpleMove(vict, direction, false, nullptr, EMoveType::kThrowOut);
 	    	if (!IS_IMMORTAL(ch)) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}

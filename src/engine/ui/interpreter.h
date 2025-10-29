@@ -23,7 +23,7 @@
 
 class CharData;    // to avoid inclusion of "char.hpp"
 
-void do_move(CharData *ch, char *argument, int cmd, int subcmd);
+void DoMove(CharData *ch, char *, int, int subcmd);
 
 #define CMD_IS(cmd_name) (!strn_cmp(cmd_name, cmd_info[cmd].command, strlen(cmd_name)))
 

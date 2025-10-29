@@ -4,7 +4,7 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/noob.h"

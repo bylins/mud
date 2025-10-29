@@ -17,7 +17,7 @@ set(SOURCES
 		src/administration/accounts.cpp
 		src/engine/core/action_targeting.cpp
 		src/engine/ui/cmd/do_sign.cpp
-		src/act_movement.cpp
+		src/engine/core/char_movement.cpp
 		src/gameplay/communication/social.cpp
 		src/gameplay/affects/affect_handler.cpp
 		src/engine/ui/alias.cpp
@@ -460,7 +460,7 @@ set(HEADERS
 		src/gameplay/skills/warcry.h
 		src/gameplay/skills/identify.h
 		src/gameplay/skills/relocate.h
-		src/act_movement.h
+		src/engine/core/char_movement.h
 		src/gameplay/mechanics/strengthening.h
 		src/gameplay/abilities/abilities_constants.h
 		src/gameplay/abilities/abilities_rollsystem.h

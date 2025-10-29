@@ -15,7 +15,7 @@
 
 #include "interpreter.h"
 
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 #include "administration/ban.h"
 #include "administration/karma.h"
 #include "gameplay/communication/boards/boards.h"
@@ -338,13 +338,12 @@ void do_horseoff(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
-void do_hidemove(CharData *ch, char *argument, int cmd, int subcmd);
+void DoHidemove(CharData *ch, char *argument, int, int);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
-void DoSetPoofMsg(CharData *ch, char *argument, int, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CharData *ch, char *argument, int cmd, int subcmd);
 void DoScore(CharData *ch, char *argument, int, int);
@@ -419,18 +418,18 @@ cpp_extern const struct command_info cmd_info[] =
 		{"RESERVED", EPosition::kDead, nullptr, 0, 0, 0},    // this must be first -- for specprocs
 
 		// directions must come before other commands but after RESERVED
-		{"север", EPosition::kStand, do_move, 0, EDirection::kNorth, -2},
-		{"восток", EPosition::kStand, do_move, 0, EDirection::kEast, -2},
-		{"юг", EPosition::kStand, do_move, 0, EDirection::kSouth, -2},
-		{"запад", EPosition::kStand, do_move, 0, EDirection::kWest, -2},
-		{"вверх", EPosition::kStand, do_move, 0, EDirection::kUp, -2},
-		{"вниз", EPosition::kStand, do_move, 0, EDirection::kDown, -2},
-		{"north", EPosition::kStand, do_move, 0, EDirection::kNorth, -2},
-		{"east", EPosition::kStand, do_move, 0, EDirection::kEast, -2},
-		{"south", EPosition::kStand, do_move, 0, EDirection::kSouth, -2},
-		{"west", EPosition::kStand, do_move, 0, EDirection::kWest, -2},
-		{"up", EPosition::kStand, do_move, 0, EDirection::kUp, -2},
-		{"down", EPosition::kStand, do_move, 0, EDirection::kDown, -2},
+		{"север", EPosition::kStand, DoMove, 0, EDirection::kNorth, -2},
+		{"восток", EPosition::kStand, DoMove, 0, EDirection::kEast, -2},
+		{"юг", EPosition::kStand, DoMove, 0, EDirection::kSouth, -2},
+		{"запад", EPosition::kStand, DoMove, 0, EDirection::kWest, -2},
+		{"вверх", EPosition::kStand, DoMove, 0, EDirection::kUp, -2},
+		{"вниз", EPosition::kStand, DoMove, 0, EDirection::kDown, -2},
+		{"north", EPosition::kStand, DoMove, 0, EDirection::kNorth, -2},
+		{"east", EPosition::kStand, DoMove, 0, EDirection::kEast, -2},
+		{"south", EPosition::kStand, DoMove, 0, EDirection::kSouth, -2},
+		{"west", EPosition::kStand, DoMove, 0, EDirection::kWest, -2},
+		{"up", EPosition::kStand, DoMove, 0, EDirection::kUp, -2},
+		{"down", EPosition::kStand, DoMove, 0, EDirection::kDown, -2},
 
 		{"аффекты", EPosition::kDead, do_affects, 0, kScmdAuction, 0},
 		{"авторы", EPosition::kDead, DoGenericPage, 0, kScmdCredits, 0},
@@ -554,7 +553,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"коне", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"конец", EPosition::kSleep, do_quit, 0, kScmdQuit, 0},
 		{"копать", EPosition::kStand, do_dig, 0, 0, -1},
-		{"красться", EPosition::kStand, do_hidemove, 1, 0, -2},
+		{"красться", EPosition::kStand, DoHidemove, 1, 0, -2},
 		{"копироватьзону", EPosition::kStand, dungeons::DoZoneCopy, kLvlImplementator, 0, 0},
 		{"кричать", EPosition::kRest, do_gen_comm, 0, kScmdShout, -1},
 		{"кто", EPosition::kRest, DoWho, 0, 0, 0},

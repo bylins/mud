@@ -11,7 +11,7 @@
 #include "corpse.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_stuff.h"
-#include "act_movement.h"
+#include "engine/core/char_movement.h"
 
 extern void death_cry(CharData *ch, CharData *killer);
 
