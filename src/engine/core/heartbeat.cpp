@@ -32,6 +32,7 @@
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/depot.h"
+#include "gameplay/statistics/spell_usage.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -278,8 +279,8 @@ class SpellUsageCall : public AbstractPulseAction {
 
 		time_t tmp_time = time(nullptr);
 		if ((tmp_time - SpellUsage::start) >= (60 * 60 * 24)) {
-			SpellUsage::save();
-			SpellUsage::clear();
+			SpellUsage::Save();
+			SpellUsage::Clear();
 		}
 	}
 };

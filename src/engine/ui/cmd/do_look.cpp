@@ -48,7 +48,7 @@ void DoLook(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		skip_hide_on_look(ch);
 
-		if (subcmd == SCMD_READ) {
+		if (subcmd == kScmdRead) {
 			if (!*arg)
 				SendMsgToChar("Что вы хотите прочитать?\r\n", ch);
 			else

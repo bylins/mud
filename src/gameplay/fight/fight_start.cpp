@@ -107,7 +107,7 @@ void do_hit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (subcmd != SCMD_MURDER && !check_pkill(ch, vict, arg)) {
+	if (subcmd != kScmdMurder && !check_pkill(ch, vict, arg)) {
 		return;
 	}
 

@@ -10,6 +10,7 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
+#include "gameplay/magic/spells_constants.h"
 
 extern const int kDrunked;
 extern const int kMortallyDrunked;
@@ -58,13 +59,10 @@ extern const char *drinknames[];
 extern const int drink_aff[][3];
 extern const char *color_liquid[];
 
-void do_drink(CharData *ch, char *argument, int cmd, int subcmd);
-void do_drunkoff(CharData *ch, char *argument, int cmd, int subcmd);
-void do_pour(CharData *ch, char *argument, int cmd, int subcmd);
-
 void name_from_drinkcon(ObjData *obj);
 void name_to_drinkcon(ObjData *obj, int type);
 bool is_potion(const ObjData *obj);
+int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar);
 
 class CObjectPrototype;    // to avoit inclusion of "obj.hpp"
 
@@ -75,6 +73,11 @@ std::string print_spells(const ObjData *obj);
 void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_obj);
 char *daig_filling_drink(const ObjData *obj, const CharData *ch);
 const char *diag_liquid_timer(const ObjData *obj);
+void reset_potion_values(CObjectPrototype *obj);
+int check_equal_potions(ObjData *from_obj, ObjData *to_obj);
+void generate_drinkcon_name(ObjData *to_obj, ESpell spell_id);
+int check_equal_drinkcon(ObjData *from_obj, ObjData *to_obj);
+void spells_to_drinkcon(ObjData *from_obj, ObjData *to_obj);
 
 } // namespace drinkcon
 

@@ -33,6 +33,8 @@ bool IsSlowDeathtrap(int rnum);
 bool check_tunnel_death(CharData *ch, int room_rnum);
 // Дамаг чаров с бд в ван-румах, \return true - чара убили
 bool tunnel_damage(CharData *ch);
+// Проверка на ледяное слоу-ДТ
+bool CheckIceDeathTrap(RoomRnum room_rnum, CharData * /*ch*/);
 
 } // namespace DeathTrap
 

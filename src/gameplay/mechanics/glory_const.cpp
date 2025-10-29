@@ -13,6 +13,7 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
+#include "administration/karma.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "third_party_libs/pugixml/pugixml.h"
@@ -28,7 +29,6 @@
 #include "gameplay/statistics/top.h"
 #include "engine/db/global_objects.h"
 
-extern void AddKarma(CharData *ch, const char *punish, const char *reason);
 extern void check_max_hp(CharData *ch);
 
 namespace GloryConst {

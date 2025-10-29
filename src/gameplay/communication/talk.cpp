@@ -17,7 +17,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 	char local_buf[kMaxInputLength];
 	if (AFF_FLAGGED(ch, EAffect::kDeafness) || ch->IsFlagged(EPrf::kNoTell)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
-		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
+		do_echo(keeper, local_buf, 0, kScmdEmote);
 		return;
 	}
 	snprintf(local_buf, kMaxInputLength,

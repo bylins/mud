@@ -400,7 +400,8 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				}
 			}
 			if (!found) {
-				sprintf(buf, "Нет таких именных вещей.\r\nСинтаксис %s [vnum [vnum] | имя | email]\r\n", CMD_NAME);
+				sprintf(buf, "Нет таких именных вещей.\r\nСинтаксис %s [vnum [vnum] | имя | email]\r\n",
+						cmd_info[cmd].command);
 				out += buf;
 			}
 			SendMsgToChar(out.c_str(), ch);
@@ -472,7 +473,8 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				} else
 					tmp_node.reset();
 			}
-			SendMsgToChar(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n", CMD_NAME);
+			SendMsgToChar(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n",
+						  cmd_info[cmd].command);
 			//SendMsgToChar("Укажите VNUM для редактирования.\r\n", ch);
 			break;
 	}

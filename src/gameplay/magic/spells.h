@@ -133,15 +133,6 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
 void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness);
 
-typedef std::map<ESpell, int> SpellCountType;
-namespace SpellUsage {
-	extern bool is_active;
-	extern time_t start;
-	void AddSpellStat(ECharClass char_class, ESpell spell_id);
-	void save();
-	void clear();
-};
-
 //#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 
 const int kHoursPerWarcry = 4;

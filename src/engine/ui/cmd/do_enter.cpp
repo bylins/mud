@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "engine/core/char_movement.h"
 #include "engine/ui/color.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/pk.h"
@@ -14,7 +15,7 @@
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/sight.h"
 
-void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum door = kNowhere;
 	RoomRnum from_room;
 	int fnum;
@@ -151,7 +152,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (EXIT(ch, door)
 					&& (isname(smallBuf, EXIT(ch, door)->keyword)
 						|| isname(smallBuf, EXIT(ch, door)->vkeyword))) {
-					perform_move(ch, door, 1, true, nullptr);
+					PerformMove(ch, door, 1, true, nullptr);
 					return;
 				}
 			}
@@ -167,7 +168,7 @@ void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (EXIT(ch, door)->to_room() != kNowhere)
 					if (!EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed) &&
 						ROOM_FLAGGED(EXIT(ch, door)->to_room(), ERoomFlag::kIndoors)) {
-						perform_move(ch, door, 1, true, nullptr);
+						PerformMove(ch, door, 1, true, nullptr);
 						return;
 					}
 		SendMsgToChar("Вы не можете найти вход.\r\n", ch);

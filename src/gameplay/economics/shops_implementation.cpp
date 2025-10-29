@@ -313,7 +313,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				snprintf(local_buf, kMaxInputLength,
 						 "отхлебнул$g немелкий глоток %s",
 						 IS_MALE(keeper) ? "водки" : "медовухи");
-				do_echo(keeper, local_buf, 0, SCMD_EMOTE);
+				do_echo(keeper, local_buf, 0, kScmdEmote);
 				break;
 		}
 		return;
@@ -779,7 +779,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 					snprintf(local_buf, kMaxInputLength,
 							 "отхлебнул$g немелкий глоток %s",
 							 IS_MALE(keeper) ? "водки" : "медовухи");
-					do_echo(keeper, local_buf, 0, SCMD_EMOTE);
+					do_echo(keeper, local_buf, 0, kScmdEmote);
 					break;
 			}
 		} else {

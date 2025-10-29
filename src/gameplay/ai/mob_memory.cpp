@@ -12,9 +12,9 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
-#include "act_movement.h"
 #include "gameplay/fight/fight_constants.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/hide.h"
 
 namespace mob_ai {
 
@@ -115,18 +115,18 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak) {
 					continue;
 				}
 				if (check_sneak) {
-					skip_sneaking(vict, mob);
+					SkipSneaking(vict, mob);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)) {
 						AFF_FLAGS(vict).unset(EAffect::kSneak);
 					}
 					if (AFF_FLAGGED(vict, EAffect::kSneak))
 						continue;
 				}
-				skip_hiding(vict, mob);
+				SkipHiding(vict, mob);
 				if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE)) {
 					AFF_FLAGS(vict).unset(EAffect::kHide);
 				}
-				skip_camouflage(vict, mob);
+				SkipCamouflage(vict, mob);
 				if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE)) {
 					AFF_FLAGS(vict).unset(EAffect::kDisguise);
 				}

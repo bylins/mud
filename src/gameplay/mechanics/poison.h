@@ -15,6 +15,7 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id);
 
 bool poison_in_vessel(int liquid_num);
 void set_weap_poison(ObjData *weapon, int liquid_num);
+void TryDrinkPoison(CharData *ch, ObjData *jar, int amount);
 
 std::string GetPoisonName(ESpell spell_id);
 bool IsSpellPoison(ESpell spell_id);

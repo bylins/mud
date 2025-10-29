@@ -167,6 +167,8 @@ enum EFind : Bitvector {
 	kObjExtraDesc = 1 << 7
 };
 
+RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig);
+
 // prototypes from crash save system //
 int Crash_delete_crashfile(CharData *ch);
 void Crash_listrent(CharData *ch, char *name);

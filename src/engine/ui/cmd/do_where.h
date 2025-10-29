@@ -7,7 +7,8 @@
 
 class CharData;
 
-void do_where(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void DoFindObjByRnum(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CMD_WHERE_H_
 

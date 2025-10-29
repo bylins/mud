@@ -9,8 +9,22 @@
 #ifndef BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_WIZUTIL_H_
 #define BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_WIZUTIL_H_
 
+enum EWizutilScmd {
+  kScmdReroll,
+  kScmdNotitle,
+  kScmdSquelch,
+  kScmdFreeze,
+  kScmdUnaffect,
+  kScmdHell,
+  kScmdName,
+  kScmdRegister,
+  kScmdMute,
+  kScmdDumb,
+  kScmdUnregister
+};
+
 class CharData;
-void do_wizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd);
+void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd);
 
 #endif //BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_WIZUTIL_H_
 

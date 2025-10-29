@@ -9,7 +9,7 @@
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
 
-extern void send_to_gods(char *text, bool demigod);
+extern void SendMsgToGods(char *text, bool demigod);
 
 namespace TitleSystem {
 
@@ -94,7 +94,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			}
 			if (!vict->GetTitleStr().empty()) {
 				sprintf(buf, "&c%s удалил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-				send_to_gods(buf, true);
+				SendMsgToGods(buf, true);
 				vict->SetTitleStr("");
 				//SendMsgToChar("Титул удален.\r\n", ch);
 			} else
@@ -295,7 +295,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 			if (d) {
 				set_player_title(d->character.get(), it->second->pre_title, it->second->title, GET_NAME(ch));
 				sprintf(buf, "&c%s одобрил титул игрока %s!&n\r\n", GET_NAME(ch), GET_NAME(d->character));
-				send_to_gods(buf, true);
+				SendMsgToGods(buf, true);
 			} else {
 				Player victim;
 				if (LoadPlayerCharacter(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
@@ -305,7 +305,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 				}
 				set_player_title(&victim, it->second->pre_title, it->second->title, GET_NAME(ch));
 				sprintf(buf, "&c%s одобрил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim));
-				send_to_gods(buf, true);
+				SendMsgToGods(buf, true);
 				victim.save_char();
 			}
 		} else {
@@ -314,7 +314,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 			DescriptorData *d = send_result_message(it->second->unique, action);
 			if (d) {
 				sprintf(buf, "&c%s запретил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(d->character));
-				send_to_gods(buf, true);
+				SendMsgToGods(buf, true);
 			} else {
 				Player victim;
 				if (LoadPlayerCharacter(it->first.c_str(), &victim, ELoadCharFlags::kFindId) < 0) {
@@ -323,7 +323,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CharData *ch
 					return TITLE_FIND_CHAR;
 				}
 				sprintf(buf, "&c%s запретил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim));
-				send_to_gods(buf, true);
+				SendMsgToGods(buf, true);
 				victim.save_char();
 			}
 		}

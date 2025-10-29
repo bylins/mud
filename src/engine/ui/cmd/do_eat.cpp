@@ -8,6 +8,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/affects/affect_data.h"
+#include "do_drink.h"
 
 extern void die(CharData *ch, CharData *killer);
 
@@ -134,7 +135,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (subcmd == kScmdTaste
 		&& ((GET_OBJ_TYPE(food) == EObjType::kLiquidContainer)
 			|| (GET_OBJ_TYPE(food) == EObjType::kFountain))) {
-		do_drink(ch, argument, 0, SCMD_SIP);
+		DoDrink(ch, argument, 0, kScmdSip);
 		return;
 	}
 

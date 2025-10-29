@@ -55,6 +55,13 @@
 // * Define this to how many MobProg scripts you have.
 #define NUM_PROGS        12
 
+inline constexpr int kScmdOlcRedit{0};
+inline constexpr int kScmdOlcOedit{1};
+inline constexpr int kScmdOlcZedit{2};
+inline constexpr int kScmdOlcMedit{3};
+inline constexpr int kScmdOlcTrigedit{4};
+inline constexpr int kScmdOlcSaveinfo{5};
+
 // * Utilities exported from olc.c.
 void strip_string(char *);
 void cleanup_olc(DescriptorData *d, byte cleanup_type);

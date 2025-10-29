@@ -67,6 +67,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/core/iosystem.h"
+#include "engine/ui/alias.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -521,7 +522,6 @@ socket_t init_socket(ush_int port);
 int get_max_players();
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
 void nonblock(socket_t s);
-int perform_alias(DescriptorData *d, char *orig);
 struct in_addr *get_bind_addr();
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -1011,6 +1011,13 @@ int shutting_down(void) {
 	return (false);
 }
 
+void log_zone_count_reset() {
+	for (auto & i : zone_table) {
+		sprintf(buf, "Zone: %d, count_reset: %d", i.vnum, i.count_reset);
+		log("%s", buf);
+	}
+}
+
 #ifdef HAS_EPOLL
 inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *events)
 #else
@@ -1156,7 +1163,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		{
 			if (aliased)    // To prevent recursive aliases.
 				d->has_prompt = 1;    // To get newline before next cmd output.
-			else if (perform_alias(d, comm))    // Run it through aliasing system
+			else if (PerformAlias(d, comm))    // Run it through aliasing system
 				get_from_q(&d->input, comm, &aliased);
 			command_interpreter(d->character.get(), comm);    // Send it to interpreter
 			cmd_cnt++;
@@ -2051,7 +2058,6 @@ void SendMsgToChar(const char *msg, const CharData *ch) {
 		iosystem::write_to_output(msg, ch->desc);
 }
 
-// New edition :)
 void SendMsgToChar(const CharData *ch, const char *msg, ...) {
 	va_list args;
 	char tmpbuf[kMaxStringLength];
@@ -2062,7 +2068,6 @@ void SendMsgToChar(const CharData *ch, const char *msg, ...) {
 	SendMsgToChar(tmpbuf, ch);
 }
 
-// а вот те еще одна едишн Ж)
 void SendMsgToChar(const std::string &msg, const CharData *ch) {
 	if (ch->desc && !msg.empty())
 		SendMsgToChar(msg.c_str(), ch);
@@ -2103,6 +2108,18 @@ void SendMsgToOutdoor(const char *msg, int control) {
 				&& !ROOM_FLAGGED(room, ERoomFlag::kNoWeather)
 				&& world[i->character->in_room]->weather.duration <= 0)) {
 			iosystem::write_to_output(msg, i);
+		}
+	}
+}
+
+void SendMsgToGods(char *text, bool include_demigod) {
+	DescriptorData *d;
+	for (d = descriptor_list; d; d = d->next) {
+		if (STATE(d) == CON_PLAYING) {
+			if ((GetRealLevel(d->character) >= kLvlGod) ||
+				(GET_GOD_FLAG(d->character, EGf::kDemigod) && include_demigod)) {
+				SendMsgToChar(text, d->character.get());
+			}
 		}
 	}
 }
