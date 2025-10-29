@@ -42,6 +42,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/illumination.h"
+#include "gameplay/mechanics/hide.h"
 
 // external structs
 extern int no_specials;

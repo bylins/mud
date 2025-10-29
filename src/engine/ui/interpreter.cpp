@@ -88,9 +88,11 @@
 #include "engine/ui/cmd/do_mobshout.h"
 #include "engine/ui/cmd/do_commands.h"
 #include "engine/ui/cmd/do_gold.h"
+#include "engine/ui/cmd/do_hidemove.h"
 #include "engine/ui/cmd/do_generic_page.h"
 #include "engine/ui/cmd/do_check_invoice.h"
 #include "engine/ui/cmd/do_who_am_i.h"
+#include "engine/ui/cmd/do_move.h"
 #include "engine/ui/cmd/do_diagnose.h"
 #include "engine/ui/cmd/do_steal.h"
 #include "engine/ui/cmd/do_camouflage.h"
@@ -338,7 +340,6 @@ void do_horseoff(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
-void DoHidemove(CharData *ch, char *argument, int, int);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
@@ -461,7 +462,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"вложить", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"вернуть", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"вернуться", EPosition::kDead, DoReturn, 0, 0, -1},
-		{"войти", EPosition::kStand, do_enter, 0, 0, -2},
+		{"войти", EPosition::kStand, DoEnter, 0, 0, -2},
 		{"война", EPosition::kRest, ClanSystem::DoShowWars, 0, 0, 0},
 		{"вооружиться", EPosition::kRest, do_wield, 0, 0, 200},
 		{"возврат", EPosition::kRest, do_recall, 0, 0, -1},
@@ -476,7 +477,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"выследить", EPosition::kStand, do_track, 0, 0, 500},
 		{"вылить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
 		{"выходы", EPosition::kRest, DoExits, 0, 0, 0},
-		{"вышвырнуть", EPosition::kFight, do_throwout, 0, 0, 0},
+		{"вышвырнуть", EPosition::kFight, DoThrowout, 0, 0, 0},
 
 		{"говорить", EPosition::kRest, do_say, 0, 0, -1},
 		{"ггруппа", EPosition::kSleep, do_gsay, 0, 0, 500},
@@ -582,7 +583,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"наказания", EPosition::kDead, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
 		{"налить", EPosition::kStand, do_pour, 0, kScmdFill, 500},
 		{"наполнить", EPosition::kStand, do_pour, 0, kScmdFill, 500},
-		{"натиск", EPosition::kStand, do_charge, 0, 0, 0},
+		{"натиск", EPosition::kStand, DoCharge, 0, 0, 0},
 		{"найти", EPosition::kStand, do_sense, 0, 0, 500},
 		{"нанять", EPosition::kStand, do_findhelpee, 0, 0, -1},
 		{"новичок", EPosition::kSleep, DoGenericPage, 0, kScmdInfo, 0},
@@ -796,7 +797,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"best", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
-		{"charge", EPosition::kStand, do_charge, 0, 0, 0},
+		{"charge", EPosition::kStand, DoCharge, 0, 0, 0},
 		{"check", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"chopoff", EPosition::kFight, do_chopoff, 0, 0, 500},
 		{"clear", EPosition::kDead, DoGenericPage, 0, kScmdClear, 0},
@@ -821,7 +822,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"devour", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
 		{"echo", EPosition::kSleep, do_echo, kLvlImmortal, kScmdEcho, 0},
 		{"emote", EPosition::kRest, do_echo, 1, kScmdEmote, -1},
-		{"enter", EPosition::kStand, do_enter, 0, 0, -2},
+		{"enter", EPosition::kStand, DoEnter, 0, 0, -2},
 		{"equipment", EPosition::kSleep, DoEquipment, 0, 0, 0},
 		{"examine", EPosition::kRest, do_examine, 0, 0, 500},
 		{"exchange", EPosition::kRest, do_exchange, 1, 0, -1},
@@ -982,7 +983,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"telegram", EPosition::kDead, do_telegram, kLvlImmortal, 0, -1},
 		{"teleport", EPosition::kDead, DoTeleport, kLvlGreatGod, 0, -1},
 		{"tell", EPosition::kRest, do_tell, 0, 0, -1},
-		{"throwout", EPosition::kFight, do_throwout, 0, 0, 0},
+		{"throwout", EPosition::kFight, DoThrowout, 0, 0, 0},
 		{"time", EPosition::kDead, do_time, 0, 0, 0},
 		{"title", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
 		{"touch", EPosition::kFight, do_touch, 0, 0, -1},

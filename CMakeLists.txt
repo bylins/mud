@@ -420,7 +420,10 @@ set(SOURCES
 		src/engine/ui/cmd/do_alias.cpp
 		src/engine/ui/cmd/do_drink.cpp
 		src/engine/ui/cmd/do_drunkoff.cpp
-		src/engine/ui/cmd/do_pour.cpp)
+		src/engine/ui/cmd/do_pour.cpp
+		src/engine/ui/cmd/do_hidemove.cpp
+		src/engine/ui/cmd/do_move.cpp
+		src/gameplay/mechanics/hide.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -828,7 +831,10 @@ set(HEADERS
 		src/engine/ui/cmd/do_alias.h
 		src/engine/ui/cmd/do_drink.h
 		src/engine/ui/cmd/do_drunkoff.h
-		src/engine/ui/cmd/do_pour.h)
+		src/engine/ui/cmd/do_pour.h
+		src/engine/ui/cmd/do_hidemove.h
+		src/engine/ui/cmd/do_move.h
+		src/gameplay/mechanics/hide.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

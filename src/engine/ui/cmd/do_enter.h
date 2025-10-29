@@ -9,7 +9,7 @@
 
 class CharData;
 
-void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 #endif //BYLINS_SRC_CMD_ENTER_H_
 

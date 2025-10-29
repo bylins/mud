@@ -2,15 +2,16 @@
 // Created by Svetodar on 20.09.2025.
 //
 
+#include "throwout.h"
+
 #include "gameplay/fight/fight.h"
 #include "engine/core/char_movement.h"
 #include "engine/core/action_targeting.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
-#include "throwout.h"
 
-void do_throwout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kThrowout) < 1) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
@@ -60,10 +61,10 @@ void do_throwout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	go_throwout(ch, vict);
+	GoThrowout(ch, vict);
 }
 
-void do_fail(CharData *ch,CharData *vict) {
+void ProcessThrowoutFail(CharData *ch, CharData *vict) {
 	act("&rВам не удалось вышвырнуть $N3!&n",
 	false, ch, nullptr,vict, kToChar);
 	act("$N попытал$U вышвырнуть Вас отсюда, но это оказалось не так просто!",
@@ -74,7 +75,7 @@ void do_fail(CharData *ch,CharData *vict) {
 	SetSkillCooldown(ch, ESkill::kThrowout, 2);
 }
 
-void go_throwout(CharData *ch, CharData *vict) {
+void GoThrowout(CharData *ch, CharData *vict) {
 //Если у моба 30 или выше уровня больше 75% хп - вышвырнуть нельзя.
 	int vict_hp_limit = 0.75 * vict->get_real_max_hit();
 	if (!IS_IMMORTAL(ch) && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
@@ -86,7 +87,7 @@ void go_throwout(CharData *ch, CharData *vict) {
 	bool success = result.success;
 
 	if (!success) {
-		do_fail(ch, vict);
+		ProcessThrowoutFail(ch, vict);
 	} else {
 		//Поскольку это соло-умение, запрещаем использование если в клетке есть другие игроки.
 		ActionTargeting::FoesRosterType roster{ch};
@@ -121,7 +122,7 @@ void go_throwout(CharData *ch, CharData *vict) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}
 	    } else if (!IsCorrectDirection(vict, direction, false, false)) {
-	    	do_fail(ch, vict);
+			ProcessThrowoutFail(ch, vict);
 	    }
 	}
 	TrainSkill(ch, ESkill::kThrowout, success, vict);

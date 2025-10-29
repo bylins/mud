@@ -15,7 +15,7 @@
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/sight.h"
 
-void do_enter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum door = kNowhere;
 	RoomRnum from_room;
 	int fnum;

@@ -12,9 +12,9 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
-#include "engine/core/char_movement.h"
 #include "gameplay/fight/fight_constants.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/hide.h"
 
 namespace mob_ai {
 

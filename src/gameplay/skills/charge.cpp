@@ -14,9 +14,7 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/ai/mobact.h"
 
-// ********************* CHARGE PROCEDURE
-
-void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;
 
 	if (!ch->GetSkill(ESkill::kCharge)) {
@@ -43,13 +41,13 @@ void do_charge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 	if ((direction = search_block(arg, dirs, false)) >= 0 ||
 		(direction = search_block(arg, dirs_rus, false)) >= 0) {
-		go_charge(ch, direction);
+		GoCharge(ch, direction);
 	} else {
 		SendMsgToChar("В каком направлении Вы желаете ринуться в бой?\r\n", ch);
 	}
 }
 
-void go_charge(CharData *ch, int direction) {
+void GoCharge(CharData *ch, int direction) {
 	if (IsCorrectDirection(ch, direction, true, false)) {
 		act("$n истошно завопил$g и ринул$u в бой, лихо размахивая своим оружием.",
 			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
