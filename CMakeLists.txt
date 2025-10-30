@@ -265,6 +265,7 @@ set(SOURCES
 		src/engine/ui/cmd/do_spells.cpp
 		src/engine/ui/cmd/do_skills.cpp
 		src/gameplay/economics/currencies.cpp
+		src/gameplay/economics/currency_container.cpp
 		src/gameplay/skills/spell_capable.cpp
 		src/gameplay/skills/lightwalk.cpp
 		src/gameplay/skills/death_rage.cpp
@@ -675,6 +676,7 @@ set(HEADERS
 		src/engine/ui/cmd/do_spells.h
 		src/engine/ui/cmd/do_skills.h
 		src/gameplay/economics/currencies.h
+		src/gameplay/economics/currency_container.h
 		src/gameplay/skills/spell_capable.h
 		src/gameplay/skills/lightwalk.h
 		src/gameplay/skills/death_rage.h

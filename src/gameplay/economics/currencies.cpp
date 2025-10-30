@@ -93,6 +93,7 @@ void CurrencyInfo::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Can be stored in bank: " << kColorGrn << (bankable_ ? "Y" : "N") << kColorNrm << "\r\n"
 		   << " Can be transfered: " << kColorGrn << (transferable_ ? "Y" : "N") << kColorNrm << "\r\n"
 		   << " Can be transfered to other account: " << kColorGrn << (transferable_to_other_ ? "Y" : "N") << kColorNrm << "\r\n"
+		   << " Account shared: " << kColorGrn << (account_shared_ ? "Y" : "N") << kColorNrm << "\r\n"
 		   << " Transfer tax: " << kColorGrn << transfer_tax_ << kColorNrm << "\r\n"
 		   << " Drop on death: " << kColorGrn << drop_on_death_ << kColorNrm << "\r\n"
 		   << " Max clan tax: " << kColorGrn << max_clan_tax_ << kColorNrm << "\r\n"

@@ -1097,7 +1097,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		this->account = temp_account;
 	}
 //	log("Add account %s player id %d  name %s", GET_EMAIL(this), this->get_uid(), name);
-	this->account->add_player(this->get_uid());
 
 	if (load_flags & ELoadCharFlags::kReboot) {
 		fbclose(fl);

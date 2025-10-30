@@ -911,6 +911,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			chdata->get_account()->show_players(ch);
 			chdata->get_account()->show_history_logins(ch);
+			chdata->get_account()->show_currencies(ch);
 			break;
 		}
 		case 36: // shops
