@@ -32,6 +32,7 @@ int awake_hide(CharData *ch);
 int awake_camouflage(CharData *ch);
 int awake_sneak(CharData *ch);
 int awaking(CharData *ch, int mode);
+bool IsAwakeOthers(CharData *ch);
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_AWAKE_H_
 

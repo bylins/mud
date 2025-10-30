@@ -11,9 +11,9 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/economics/ext_money.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include "gameplay/economics/ext_money.h"
 
 extern RoomRnum r_frozen_start_room;
 const char *remort_msg =
@@ -182,7 +182,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	PlaceCharToRoom(ch, load_room);
 	look_at_room(ch, 0);
 	ch->SetFlag(EPlrFlag::kNoDelete);
-	RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
+	room_spells::RemoveSingleAffectFromWorld(ch, ESpell::kRuneLabel);
 
 	// сброс всего, связанного с гривнами (замакс сохраняем)
 	ch->UnsetFlag(EPrf::kCanRemort);
