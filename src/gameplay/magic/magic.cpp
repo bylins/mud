@@ -35,6 +35,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
+#include "gameplay/mechanics/minions.h"
 
 extern int what_sky;
 extern int interpolate(int min_value, int pulse);

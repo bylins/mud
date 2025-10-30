@@ -93,4 +93,20 @@ int awaking(CharData *ch, int mode) {
 	return (false);
 }
 
+bool IsAwakeOthers(CharData *ch) {
+	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
+		return false;
+	}
+
+	if (AFF_FLAGGED(ch, EAffect::kStairs)
+		|| AFF_FLAGGED(ch, EAffect::kSanctuary)
+		|| AFF_FLAGGED(ch, EAffect::kGlitterDust)
+		|| AFF_FLAGGED(ch, EAffect::kSingleLight)
+		|| AFF_FLAGGED(ch, EAffect::kHolyLight)) {
+		return true;
+	}
+
+	return false;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

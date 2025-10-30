@@ -1013,7 +1013,7 @@ void check_idling(CharData *ch) {
 				Crash_crashsave(ch);
 				RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
-				RemoveRuneLabelFromWorld(ch, ESpell::kRuneLabel);
+				room_spells::RemoveSingleAffectFromWorld(ch, ESpell::kRuneLabel);
 			} else if (ch->char_specials.timer > idle_rent_time) {
 				if (ch->in_room != kNowhere)
 					RemoveCharFromRoom(ch);

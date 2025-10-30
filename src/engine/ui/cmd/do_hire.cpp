@@ -7,6 +7,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/minions.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -16,7 +17,7 @@ constexpr short kMaxHireTime = 10080 / 2; // Неделя в минутах по
 constexpr long kMaxHirePrice = LONG_MAX / (kMaxHireTime + 1);
 
 //Функции для модифицированного чарма
-float get_damage_per_round(CharData *victim) {
+float CalcDamagePerRound(CharData *victim) {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
@@ -37,11 +38,11 @@ float get_damage_per_round(CharData *victim) {
 	return dam_per_round;
 }
 
-float calc_cha_for_hire(CharData *victim) {
+float CalcChaForHire(CharData *victim) {
 	int i;
 	float reformed_hp = 0.0, needed_cha = 0.0;
 	for (i = 0; i < 50; i++) {
-		reformed_hp = victim->get_max_hit() + get_damage_per_round(victim) * cha_app[i].dam_to_hit_rate;
+		reformed_hp = victim->get_max_hit() + CalcDamagePerRound(victim) * cha_app[i].dam_to_hit_rate;
 		if (cha_app[i].charms >= reformed_hp)
 			break;
 	}
@@ -50,7 +51,7 @@ float calc_cha_for_hire(CharData *victim) {
 	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
-long calc_hire_price(CharData *ch, CharData *victim) {
+long CalcHirePrice(CharData *ch, CharData *victim) {
 	float price = 0; // стоимость найма
 	int m_str = victim->get_str() * 20;
 	int m_int = victim->get_int() * 20;
@@ -154,11 +155,11 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 
 	// Интерполяция между значениями для целых значений обаяния
 	if (eff_cha < stat_cap) {
-		r_hp = victim->get_max_hit() + get_damage_per_round(victim) *
+		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
 				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
 	} else {
-		r_hp = victim->get_max_hit() + get_damage_per_round(victim) *
+		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
 			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
 	}
 
@@ -167,7 +168,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 	return (int) r_hp;
 }
 
-void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
@@ -232,7 +233,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		unsigned int times = 0;
 		times = atoi(arg);
 		if (!*arg || times == 0) {
-			const auto cost = calc_hire_price(ch, helpee);
+			const auto cost = CalcHirePrice(ch, helpee);
 			sprintf(buf, "$n сказал$g вам : \"Один час моих услуг стоит %ld %s\".\r\n",
 					cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
 			act(buf, false, helpee, 0, ch, kToVict | kToNotDeaf);
@@ -249,7 +250,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			times = kMaxHireTime;
 		}
 
-		auto hire_price = calc_hire_price(ch, helpee);
+		auto hire_price = CalcHirePrice(ch, helpee);
 		long cost = times * hire_price;
 
 		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
@@ -354,7 +355,7 @@ void do_findhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 }
 
-void do_freehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
+void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);

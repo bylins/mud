@@ -23,8 +23,6 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/db/obj_prototypes.h"
-#include "administration/privilege.h"
-#include "gameplay/skills/pick.h"
 #include "gameplay/skills/track.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
@@ -33,6 +31,12 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/awake.h"
 #include "gameplay/mechanics/boat.h"
+#include "gameplay/magic/magic_rooms.h"
+#include "engine/ui/color.h"
+#include "gameplay/mechanics/cities.h"
+#include "utils/backtrace.h"
+
+void FleeToRoom(CharData *ch, RoomRnum room);
 
 // external functs
 void SetWait(CharData *ch, int waittime, int victim_in_room);
@@ -555,7 +559,7 @@ int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EM
 		look_at_room(ch, 0, move_type != EMoveType::kFlee);
 
 	if (!ch->IsNpc())
-		ProcessRoomAffectsOnEntry(ch, ch->in_room);
+		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 
 	if (deathtrap::check_death_trap(ch)) {
 		if (horse) {
@@ -682,8 +686,27 @@ int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, Ch
 
 	RoomRnum was_in;
 	struct FollowerType *k, *next;
+//	{
+//		std::ostringstream out;
+//		out << "Двигаемся по направлению: " << dir << "\r\n";
+//		out << "В текущей комнате есть следующие выходы:\r\n";
+//		for (auto direction = EDirection::kFirstDir; direction < EDirection::kLastDir; ++direction) {
+//			if (EXIT(ch, direction)) {
+//				out << "Выход: " << direction << "\r\n";
+//				auto to_room = EXIT(ch, dir)->to_room();
+//				out << "В направлении " << direction << ". ";
+//				if (to_room == kNowhere) {
+//					out << "Вникуда!\r\n";
+//				} else {
+//					const auto room = world[to_room];
+//					out << "В комнату " << room->name << ".\r\n";
+//				}
+//			}
+//		}
+//		SendMsgToChar(out.str(), ch);
+//	}
 
-	if (ch == nullptr || dir < 0 || dir >= EDirection::kMaxDirNum || ch->GetEnemy())
+	if (ch == nullptr || dir < EDirection::kFirstDir || dir > EDirection::kLastDir || ch->GetEnemy())
 		return false;
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere)
 		SendMsgToChar("Вы не сможете туда пройти...\r\n", ch);
@@ -740,6 +763,60 @@ int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, Ch
 		return true;
 	}
 	return false;
+}
+
+void FleeToRoom(CharData *ch, RoomRnum room) {
+	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
+
+	if (!ch->IsNpc() && !Clan::MayEnter(ch, room, kHousePortal)) {
+		room = ch->get_from_room();
+	}
+
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		room = ch->get_from_room();
+	}
+	world[room]->people.push_front(ch);
+
+	ch->in_room = room;
+	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
+	if (ch->IsFlagged(EPrf::kCoderinfo)) {
+		sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				kColorNrm, kColorBoldBlk, room,
+				kColorRed, kColorBoldRed, world[room]->light,
+				kColorGrn, kColorBoldGrn, world[room]->glight,
+				kColorYel, kColorBoldYel, world[room]->fires,
+				kColorYel, kColorBoldYel, world[room]->ices,
+				kColorBlu, kColorBoldBlu, world[room]->gdark,
+				kColorMag, kColorBoldCyn, weather_info.sky,
+				kColorWht, kColorBoldBlk, weather_info.sunlight,
+				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
+		SendMsgToChar(buf, ch);
+	}
+	// Stop fighting now, if we left.
+	if (ch->GetEnemy() && ch->in_room != ch->GetEnemy()->in_room) {
+		stop_fighting(ch->GetEnemy(), false);
+		stop_fighting(ch, true);
+	}
+
+	if (!ch->IsNpc()) {
+		zone_table[world[room]->zone_rn].used = true;
+		zone_table[world[room]->zone_rn].activity++;
+	} else {
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
+	}
+
+	cities::CheckCityVisit(ch, room);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

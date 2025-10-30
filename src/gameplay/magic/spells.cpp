@@ -36,6 +36,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "gameplay/mechanics/minions.h"
 
 #include <cmath>
 
