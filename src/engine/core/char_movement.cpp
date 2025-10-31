@@ -353,10 +353,10 @@ int SelectDrunkDirection(CharData *ch, int direction) {
 	return drunk_dir;
 }
 
-int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EMoveType move_type) {
+bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EMoveType move_type) {
 	struct TrackData *track;
 	RoomRnum was_in, go_to;
-	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
+	int i, invis = 0, use_horse = 0, is_horse = 0;
 	int mob_rnum = -1;
 	CharData *horse = nullptr;
 
@@ -419,7 +419,6 @@ int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EM
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
-	direction = dir + 1;
 	use_horse = ch->IsOnHorse() && ch->has_horse(false)
 		&& (ch->get_horse()->in_room == was_in || ch->get_horse()->in_room == go_to);
 	is_horse = IS_HORSE(ch)
@@ -638,7 +637,7 @@ int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EM
 		}
 	}
 
-	income_mtrigger(ch, direction - 1);
+	income_mtrigger(ch, dir);
 
 	if (ch->purged())
 		return false;
@@ -673,10 +672,10 @@ int PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, EM
 		mob_ai::do_aggressive_room(ch, false);
 	}
 
-	return direction;
+	return true;
 }
 
-int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master) {
+bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, CharData *master) {
 	if (AFF_FLAGGED(ch, EAffect::kBandage)) {
 		SendMsgToChar("Перевязка была прервана!\r\n", ch);
 		RemoveAffectFromChar(ch, ESpell::kBandage);
@@ -686,26 +685,13 @@ int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, Ch
 
 	RoomRnum was_in;
 	struct FollowerType *k, *next;
-//	{
-//		std::ostringstream out;
-//		out << "Двигаемся по направлению: " << dir << "\r\n";
-//		out << "В текущей комнате есть следующие выходы:\r\n";
-//		for (auto direction = EDirection::kFirstDir; direction < EDirection::kLastDir; ++direction) {
-//			if (EXIT(ch, direction)) {
-//				out << "Выход: " << direction << "\r\n";
-//				auto to_room = EXIT(ch, dir)->to_room();
-//				out << "В направлении " << direction << ". ";
-//				if (to_room == kNowhere) {
-//					out << "Вникуда!\r\n";
-//				} else {
-//					const auto room = world[to_room];
-//					out << "В комнату " << room->name << ".\r\n";
-//				}
-//			}
-//		}
-//		SendMsgToChar(out.str(), ch);
-//	}
-
+/*
+	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
+		std::ostringstream out;
+		out << "Двигаемся по направлению: " << dir << "\r\n";
+		mudlog(out.str());
+	}
+*/
 	if (ch == nullptr || dir < EDirection::kFirstDir || dir > EDirection::kLastDir || ch->GetEnemy())
 		return false;
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == kNowhere)
@@ -724,10 +710,9 @@ int PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, Ch
 			was_in = ch->in_room;
 			// When leader mortally drunked - he changes direction
 			// So returned value set to false or DIR + 1
-			if (!(dir = PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault)))
+			if (!PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault)) {
 				return false;
-
-			--dir;
+			}
 			for (k = ch->followers; k && k->follower->get_master(); k = next) {
 				next = k->next;
 				if (k->follower->in_room == was_in
