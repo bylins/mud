@@ -7,6 +7,7 @@
 #include "utils/utils.h"
 #include "global_objects.h"
 #include "utils/backtrace.h"
+#include "gameplay/mechanics/dungeons.h"
 
 #include <algorithm>
 
@@ -141,7 +142,10 @@ ObjData::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(ObjRnum rnum
 	obj_proto.inc_number(rnum);
 	new_object->set_id(id);
 	world_objects.add(new_object);
-
+	if (new_object->get_vnum() / 100  >= dungeons::kZoneStartDungeons && new_object->get_parent_rnum() == -1) {
+		ZoneVnum zvn = new_object->get_vnum() / 100;
+		mudlog(fmt::format("ERROR: в данж #{} оригинал #{} загружен несуществующий в оригинале предмет #{}", zvn, zone_table[GetZoneRnum(zvn)].copy_from_zone, new_object->get_vnum()));
+	}
 	return new_object;
 }
 
