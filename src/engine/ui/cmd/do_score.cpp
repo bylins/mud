@@ -107,9 +107,9 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out);
 
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
-	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)).c_str());
+	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()).c_str());
 	buf[0] = LOWER(buf[0]);
-	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))]);
+	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())]);
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
@@ -501,8 +501,8 @@ void PrintMorphInfo(CharData *ch, std::ostringstream &out) {
  */
 int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch));
-	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))];
+	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex());
+	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GetRealRemort(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(CalcCharAge(ch)->year);
@@ -703,9 +703,9 @@ void PrintScoreBase(CharData *ch) {
 	std::ostringstream out;
 
 	out << "Вы " << ch->GetTitleAndName() << " ("
-		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), GET_SEX(ch)) << ", "
-		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), GET_SEX(ch)) << ", "
-		<< religion_name[GET_RELIGION(ch)][static_cast<int>(GET_SEX(ch))] << ", "
+		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()) << ", "
+		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex()) << ", "
+		<< religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())] << ", "
 		<< MUD::Class(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << "\r\n";
 

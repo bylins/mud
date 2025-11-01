@@ -2555,7 +2555,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "TnlExp")) {
 			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex")) {
-			sprintf(str, "%d", (int) GET_SEX(c));
+			sprintf(str, "%d", (int) c->get_sex());
 		} else if (!str_cmp(field, "clan")) {
 			if (CLAN(c)) {
 				sprintf(str, "%s", CLAN(c)->GetAbbrev());

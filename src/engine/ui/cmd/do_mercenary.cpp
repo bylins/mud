@@ -125,7 +125,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 				ch->remove_gold(cost);
 		}
 		if (NPC_FLAGGED(mob, ENpcFlag::kNoMercList)) {
-			if (GET_SEX(mob) == EGender::kMale)
+			if (mob->get_sex() == EGender::kMale)
 				SendMsgToChar(ch, "%s показал большую дулю и свалил от вас подальше.\r\n", mob->get_npc_name().c_str());
 			else
 				SendMsgToChar(ch, "%s показала большую дулю и свалила от вас подальше.\r\n", mob->get_npc_name().c_str());

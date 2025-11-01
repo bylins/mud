@@ -113,9 +113,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
 		k_room = GET_ROOM_VNUM(k->in_room);
 	}
-	// пишем пол  (мужчина)
-	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
-	// пишем расу (Человек)
+
+	sprinttype(to_underlying(k->get_sex()), genders, tmpbuf);
 	if (k->IsNpc()) {
 		sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
@@ -160,7 +159,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			SendMsgToChar(buf, ch);
 		}
 
-		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) GET_RELIGION(k)][(int) GET_SEX(k)]);
+		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) GET_RELIGION(k)][(int) k->get_sex()]);
 		SendMsgToChar(buf, ch);
 
 		std::string file_name = GET_NAME(k);
@@ -237,7 +236,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (!k->IsNpc()) {
 		strcpy(smallBuf, MUD::Class(k->GetClass()).GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
-				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
+				PlayerRace::GetKinNameByNum(GET_KIN(k), k->get_sex()).c_str(),
 				k->get_race_name().c_str(),
 				smallBuf);
 		SendMsgToChar(buf, ch);

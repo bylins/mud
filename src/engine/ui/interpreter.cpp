@@ -2133,7 +2133,7 @@ void do_entergame(DescriptorData *d) {
 		CLR_GOD_FLAG(d->character, EGf::kDemigod);
 	}
 
-	switch (GET_SEX(d->character)) {
+	switch (d->character->get_sex()) {
 		case EGender::kLast: [[fallthrough]];
 		case EGender::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
 			break;
@@ -2174,7 +2174,7 @@ bool ValidateStats(DescriptorData *d) {
 	}
 
 	//Некорректный номер расы
-	if (PlayerRace::GetKinNameByNum(GET_KIN(d->character), GET_SEX(d->character)) == KIN_NAME_UNDEFINED) {
+	if (PlayerRace::GetKinNameByNum(GET_KIN(d->character), d->character->get_sex()) == KIN_NAME_UNDEFINED) {
 		iosystem::write_to_output("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
 		iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 		iosystem::write_to_output("\r\nВыберите племя: ", d);
@@ -2183,7 +2183,7 @@ bool ValidateStats(DescriptorData *d) {
 	}
 
 	//Некорректный номер рода
-	if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character), GET_RACE(d->character), GET_SEX(d->character))
+	if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character), GET_RACE(d->character), d->character->get_sex())
 		== RACE_NAME_UNDEFINED) {
 		iosystem::write_to_output("\r\nКакого роду-племени вы будете?\r\n", d);
 		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
@@ -2424,7 +2424,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 				GET_PAD(d->character, 1), GET_PAD(d->character, 2),
 				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
 				GET_PAD(d->character, 5), GET_EMAIL(d->character),
-				genders[(int) GET_SEX(d->character)], GET_NAME(d->character));
+				genders[(int) d->character->get_sex()], GET_NAME(d->character));
 		NewNames::add(d->character.get());
 	}
 
@@ -2996,7 +2996,7 @@ void nanny(DescriptorData *d, char *argument) {
 					return;
 			}
 			iosystem::write_to_output("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
-			GetCase(d->character->GetCharAliases(), GET_SEX(d->character), 1, tmp_name);
+			GetCase(d->character->GetCharAliases(), d->character->get_sex(), 1, tmp_name);
 			sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 			iosystem::write_to_output(buffer, d);
 			STATE(d) = CON_NAME2;
@@ -3424,7 +3424,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case CON_NAME2: skip_spaces(&argument);
 			if (strlen(argument) == 0) {
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, argument);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, argument);
 			}
 			if (!_parse_name(argument, tmp_name)
 				&& strlen(tmp_name) >= kMinNameLength
@@ -3433,13 +3433,13 @@ void nanny(DescriptorData *d, char *argument) {
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[1] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				STATE(d) = CON_NAME3;
 			} else {
 				iosystem::write_to_output("Некорректно.\r\n", d);
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, tmp_name);
 				sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3448,7 +3448,7 @@ void nanny(DescriptorData *d, char *argument) {
 		case CON_NAME3: skip_spaces(&argument);
 
 			if (strlen(argument) == 0) {
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, argument);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, argument);
 			}
 
 			if (!_parse_name(argument, tmp_name)
@@ -3458,13 +3458,13 @@ void nanny(DescriptorData *d, char *argument) {
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[2] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				STATE(d) = CON_NAME4;
 			} else {
 				iosystem::write_to_output("Некорректно.\r\n", d);
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3473,7 +3473,7 @@ void nanny(DescriptorData *d, char *argument) {
 		case CON_NAME4: skip_spaces(&argument);
 
 			if (strlen(argument) == 0) {
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, argument);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, argument);
 			}
 
 			if (!_parse_name(argument, tmp_name)
@@ -3483,13 +3483,13 @@ void nanny(DescriptorData *d, char *argument) {
 							 GET_PC_NAME(d->character),
 							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
 				d->character->player_data.PNames[3] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				STATE(d) = CON_NAME5;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3497,7 +3497,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case CON_NAME5: skip_spaces(&argument);
 			if (strlen(argument) == 0)
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, argument);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, argument);
 			if (!_parse_name(argument, tmp_name) &&
 				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
@@ -3505,13 +3505,13 @@ void nanny(DescriptorData *d, char *argument) {
 						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
 				) {
 				d->character->player_data.PNames[4] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				STATE(d) = CON_NAME6;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3519,7 +3519,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case CON_NAME6: skip_spaces(&argument);
 			if (strlen(argument) == 0)
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, argument);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, argument);
 			if (!_parse_name(argument, tmp_name) &&
 				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
@@ -3534,7 +3534,7 @@ void nanny(DescriptorData *d, char *argument) {
 				STATE(d) = CON_NEWPASSWD;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
-				GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
+				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}

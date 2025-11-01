@@ -174,7 +174,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		return 0;
 	}
 	if (invalid_anti_class(&t_vict, obj)) {
-		switch (GET_SEX(&t_vict)) {
+		switch ((&t_vict)->get_sex()) {
 			case EGender::kMale:
 				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
 					false, mailman, 0, ch, kToVict);

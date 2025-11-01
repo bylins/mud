@@ -498,8 +498,8 @@ void Player::save_char() {
 		fprintf(saved, "PfIn: %s\n", POOFIN(this));
 	if (POOFOUT(this))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
-	fprintf(saved, "Sex : %d %s\n", static_cast<int>(GET_SEX(this)), genders[(int) GET_SEX(this)]);
-	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this), GET_SEX(this)).c_str());
+	fprintf(saved, "Sex : %d %s\n", static_cast<int>(this->get_sex()), genders[(int) this->get_sex()]);
+	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this), this->get_sex()).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
@@ -663,11 +663,11 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal)
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
-	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
+	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) this->get_sex()]);
 	fprintf(saved,
 			"Race: %d %s\n",
 			GET_RACE(this),
-			PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), GET_SEX(this)).c_str());
+			PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex()).c_str());
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';

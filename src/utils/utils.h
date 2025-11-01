@@ -394,7 +394,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_WEIGHT(ch)  ((ch)->player_data.weight)
 #define GET_WEIGHT_ADD(ch) ((ch)->add_abils.weight_add)
 #define GET_REAL_WEIGHT(ch) (GET_WEIGHT(ch) + GET_WEIGHT_ADD(ch))
-#define GET_SEX(ch)  ((ch)->get_sex())
 
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
@@ -720,10 +719,10 @@ const int kNameLevel = 5;
 
 // compound utilities and other macros *********************************
 
-#define HSHR(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
 #define OSHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "его": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ее" : "их")) :"его")
 #define OSSH(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "он": (GET_OBJ_SEX(ch) == EGender::kFemale ? "она" : "они")) :"оно")

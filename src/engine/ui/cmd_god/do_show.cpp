@@ -540,7 +540,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			sprintf(buf, "&WИнформация по игроку %s:&n (", vict->get_name().c_str());
-			sprinttype(to_underlying(GET_SEX(vict)), genders, buf + strlen(buf));
+			sprinttype(to_underlying(vict->get_sex()), genders, buf + strlen(buf));
 			sprintf(buf + strlen(buf), ")&n\r\n");
 			sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
 					GET_PAD(vict, 0), GET_PAD(vict, 1), GET_PAD(vict, 2),
