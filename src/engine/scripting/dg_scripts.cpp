@@ -1226,6 +1226,9 @@ void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string
 	vd.name = name;
 	vd.value = value;
 	vd.context = id;
+	if (name == "dungeon_entrance") {
+		log(fmt::format("установлен dungeon_entrance, context '{}' значение '{}'", id, value));
+	}
 	auto it = std::find_if(var_list.begin(), var_list.end(), [&name, id](TriggerVar vd) { return (vd.name == name) && (vd.context == id); });
 	if (it != var_list.end()) {
 		*it = vd;
@@ -1466,8 +1469,12 @@ void find_replacement(void *go,
 		vd = find_var_cntx(trig->var_list, var, 0);
 	if (trig && vd.name.empty())
 		vd = find_var_cntx(sc->global_vars, var, trig->context);
-	if (trig && vd.name.empty())
+	if (trig && vd.name.empty()) {
 		vd = find_var_cntx(worlds_vars, var, trig->context);
+		if (!str_cmp(var, "dungeon_entrance")) {
+			trig_log(trig, fmt::format("запрошен dungeon_entrance, context '{}' значение '{}'", trig->context, vd.value));
+		}
+	}
 
 	*str = '\0';
 
@@ -1726,6 +1733,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "isdungeon") && num > 0) {
 				sprintf(str, "%d", zone_table[GetZoneRnum(num)].copy_from_zone);
 			} else if (!str_cmp(field, "zoneentrance") && num > 0) {
+				trig_log(trig, fmt::format("запрошен entrance для зоны '{}', значение '{}'", num, zone_table[GetZoneRnum(num)].entrance));
 				sprintf(str, "%d", zone_table[GetZoneRnum(num)].entrance);
 			} else if (!str_cmp(field, "deletedungeon") && num > 0) {
 				dungeons::DungeonReset(GetZoneRnum(num));
