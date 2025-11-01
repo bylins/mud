@@ -22,13 +22,13 @@ int set_hit(CharData *ch, CharData *victim) {
 
 	bool message = false;
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
-	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD || STATE(victim->desc) == CON_WRITE_MOD || STATE(victim->desc) == CON_WRITE_NOTE)) {
+	if (victim->desc && (victim->desc->connected == CON_WRITEBOARD || victim->desc->connected == CON_WRITE_MOD || victim->desc->connected == CON_WRITE_NOTE)) {
 		victim->desc->message.reset();
 		victim->desc->board.reset();
 		if (victim->desc->writer->get_string()) {
 			victim->desc->writer->clear();
 		}
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->connected = CON_PLAYING;
 		if (!victim->IsNpc()) {
 			victim->UnsetFlag(EPlrFlag::kWriting);
 		}
@@ -38,29 +38,29 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		victim->desc->writer.reset();
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_CLANEDIT)) {
+	} else if (victim->desc && (victim->desc->connected == CON_CLANEDIT)) {
 		// аналогично, если жерва правит свою дружину в олц
 		victim->desc->clan_olc.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->connected = CON_PLAYING;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_SPEND_GLORY)) {
+	} else if (victim->desc && (victim->desc->connected == CON_SPEND_GLORY)) {
 		// или вливает-переливает славу
 		victim->desc->glory.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->connected = CON_PLAYING;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_GLORY_CONST)) {
+	} else if (victim->desc && (victim->desc->connected == CON_GLORY_CONST)) {
 		// или вливает-переливает славу
 		victim->desc->glory_const.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->connected = CON_PLAYING;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_MAP_MENU)) {
+	} else if (victim->desc && (victim->desc->connected == CON_MAP_MENU)) {
 		// или ковыряет опции карты
 		victim->desc->map_options.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->connected = CON_PLAYING;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_TORC_EXCH)) {
+	} else if (victim->desc && (victim->desc->connected == CON_TORC_EXCH)) {
 		// или меняет гривны (чистить особо и нечего)
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->connected = CON_PLAYING;
 		message = true;
 	}
 

@@ -390,7 +390,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, attack_hit_text[k->mob_specials.attack_type].singular);
 	}
 	if (k->desc) {
-		sprinttype(STATE(k->desc), connected_types, buf2);
+		sprinttype(k->desc->connected, connected_types, buf2);
 		strcat(buf, ", Соединение: ");
 		strcat(buf, buf2);
 	}

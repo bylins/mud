@@ -19,7 +19,7 @@ void DoGlobalEcho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		sprintf(buf, "%s\r\n", argument);
 		for (pt = descriptor_list; pt; pt = pt->next) {
-			if (STATE(pt) == CON_PLAYING
+			if (pt->connected == CON_PLAYING
 				&& pt->character
 				&& pt->character.get() != ch) {
 				SendMsgToChar(buf, pt->character.get());

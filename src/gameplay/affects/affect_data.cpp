@@ -190,7 +190,7 @@ void player_affect_update() {
 	int count = 0;
 //	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING)
+		if (d->connected != CON_PLAYING)
 			continue;
 		const auto i = d->get_character();
 					

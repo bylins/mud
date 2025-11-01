@@ -1157,7 +1157,7 @@ boost::python::list get_players() {
 	boost::python::list tmp_list;
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING) {
+		if (d->connected == CON_PLAYING) {
 			tmp_list.append(CharacterWrapper(d->character.get()));
 		}
 	}
@@ -1167,7 +1167,7 @@ boost::python::list get_players() {
 bool check_ingame(std::string name) {
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING) {
+		if (d->connected == CON_PLAYING) {
 			if (d->character->get_name_str() == name) {
 				return true;
 			}

@@ -285,14 +285,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				trigedit_setup_existing(d, real_num);
 			else
 				trigedit_setup_new(d);
-			STATE(d) = CON_TRIGEDIT;
+			d->connected = CON_TRIGEDIT;
 			break;
 		case kScmdOlcRedit:
 			if ((real_num = GetRoomRnum(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
 				redit_setup(d, kNowhere);
-			STATE(d) = CON_REDIT;
+			d->connected = CON_REDIT;
 			break;
 		case kScmdOlcZedit:
 			if ((real_num = GetRoomRnum(number)) == kNowhere) {
@@ -301,14 +301,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				return;
 			}
 			zedit_setup(d, real_num);
-			STATE(d) = CON_ZEDIT;
+			d->connected = CON_ZEDIT;
 			break;
 		case kScmdOlcMedit:
 			if ((real_num = GetMobRnum(number)) >= 0)
 				medit_setup(d, real_num);
 			else
 				medit_setup(d, -1);
-			STATE(d) = CON_MEDIT;
+			d->connected = CON_MEDIT;
 			break;
 		case kScmdOlcOedit: real_num = GetObjRnum(number);
 			if (real_num >= 0) {
@@ -316,7 +316,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			} else {
 				oedit_setup(d, -1);
 			}
-			STATE(d) = CON_OEDIT;
+			d->connected = CON_OEDIT;
 			break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
@@ -485,7 +485,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 		// Restore descriptor playing status.
 		if (d->character) {
 			d->character->UnsetFlag(EPlrFlag::kWriting);
-			STATE(d) = CON_PLAYING;
+			d->connected = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				true, d->character.get(), 0, 0, kToRoom);
 		}

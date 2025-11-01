@@ -601,7 +601,7 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				// пустое может получиться например если с него в этот момент трансфернули славу
 				// остальное - за время сидения в олц что-то изменилось, дали славу, просрочились статы и т.п.
 				ch->desc->glory.reset();
-				STATE(ch->desc) = CON_PLAYING;
+				ch->desc->connected = CON_PLAYING;
 				SendMsgToChar("Редактирование отменено из-за внешних изменений.\r\n", ch);
 				return true;
 			}
@@ -634,14 +634,14 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 			save_glory();
 
 			ch->desc->glory.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->connected = CON_PLAYING;
 			check_max_hp(ch);
 			SendMsgToChar("Ваши изменения сохранены.\r\n", ch);
 			return true;
 		}
 		case 'Х':
 		case 'х': ch->desc->glory.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->connected = CON_PLAYING;
 			SendMsgToChar("Редактирование прервано.\r\n", ch);
 			return true;
 		default: break;
@@ -820,7 +820,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	ch->desc->glory = temp_glory;
-	STATE(ch->desc) = CON_SPEND_GLORY;
+	ch->desc->connected = CON_SPEND_GLORY;
 	spend_glory_menu(ch);
 }
 
@@ -884,7 +884,7 @@ void timers_update() {
 	// тут еще есть момент, что в меню таймеры не идут, в случае последующей записи изменений
 	// в принципе фигня канеш, но тем не менее - хорошо бы учесть
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_SPEND_GLORY || !d->glory) continue;
+		if (d->connected != CON_SPEND_GLORY || !d->glory) continue;
 		for (auto d_it = d->glory->olc_node->timers.begin();
 			 d_it != d->glory->olc_node->timers.end(); ++d_it) {
 			// здесь мы не тикаем denial и не удаляем просроченные статы, а просто вываливаем из олц
@@ -894,7 +894,7 @@ void timers_update() {
 				(*d_it)->timer -= 1;
 				if ((*d_it)->timer <= 0) {
 					d->glory.reset();
-					STATE(d) = CON_PLAYING;
+					d->connected = CON_PLAYING;
 					SendMsgToChar("Редактирование отменено из-за внешних изменений.\r\n", d->character.get());
 					return;
 				}

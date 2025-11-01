@@ -860,13 +860,13 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 		olc_menu(ch);
 	} else if (num == TOTAL_MAP_OPTIONS + 2) {
 		ch->desc->map_options.reset();
-		STATE(ch->desc) = CON_PLAYING;
+		ch->desc->connected = CON_PLAYING;
 		SendMsgToChar("Редактирование отменено.\r\n", ch);
 		return;
 	} else if (num == TOTAL_MAP_OPTIONS + 3) {
 		ch->map_olc_save();
 		ch->desc->map_options.reset();
-		STATE(ch->desc) = CON_PLAYING;
+		ch->desc->connected = CON_PLAYING;
 		SendMsgToChar("Изменения сохранены.\r\n", ch);
 		return;
 	} else {

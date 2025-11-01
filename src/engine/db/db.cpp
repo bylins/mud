@@ -1818,7 +1818,7 @@ CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type) {
 void after_reset_zone(ZoneRnum nr_zone) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		// Чар должен быть в игре
-		if (STATE(d) == CON_PLAYING) {
+		if (d->connected == CON_PLAYING) {
 			if (world[d->character->in_room]->zone_rn == nr_zone) {
 				zone_table[nr_zone].used = true;
 				return;
@@ -2744,7 +2744,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 	int rnum_start, rnum_stop;
 
 	for (auto i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING)
+		if  (i->connected != CON_PLAYING)
 			continue;
 		if (i->character->in_room == kNowhere)
 			continue;
@@ -3507,7 +3507,7 @@ CharData *find_char(long uid) {
 
 CharData *find_pc(long uid) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && GET_UID(d->character) == uid) {
+		if (d->connected == CON_PLAYING && GET_UID(d->character) == uid) {
 			return d->character.get();
 		}
 	}

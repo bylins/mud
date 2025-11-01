@@ -142,7 +142,7 @@ int CalcManaGain(const CharData *ch) {
 	if (ch->IsNpc()) {
 		gain = GetRealLevel(ch);
 	} else {
-		if (!ch->desc || STATE(ch->desc) != CON_PLAYING) {
+		if (!ch->desc || ch->desc->connected != CON_PLAYING) {
 			return 0;
 		}
 
@@ -232,7 +232,7 @@ int hit_gain(CharData *ch) {
 	if (ch->IsNpc())
 		gain = GetRealLevel(ch) + GetRealCon(ch);
 	else {
-		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
+		if (!ch->desc || ch->desc->connected != CON_PLAYING)
 			return (0);
 
 		if (!AFF_FLAGGED(ch, EAffect::kNoobRegen)) {
@@ -296,7 +296,7 @@ int move_gain(CharData *ch) {
 	if (ch->IsNpc())
 		gain = GetRealLevel(ch);
 	else {
-		if (!ch->desc || STATE(ch->desc) != CON_PLAYING)
+		if (!ch->desc || ch->desc->connected != CON_PLAYING)
 			return (0);
 		gain =
 			graf(CalcCharAge(ch)->year, 15 + restore, 20 + restore, 25 + restore,
@@ -577,7 +577,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 				i->set_was_in_room(kNowhere);
 			};
 		};
-	} else if (!RegisterSystem::IsRegistered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING) {
+	} else if (!RegisterSystem::IsRegistered(i.get()) && i->desc && i->desc->connected == CON_PLAYING) {
 		if (restore != r_unreg_start_room
 			&& !NORENTABLE(i)
 			&& !deathtrap::IsSlowDeathtrap(i->in_room)
@@ -625,7 +625,7 @@ void beat_points_update(int pulse) {
 
 	// only for PC's
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING) 
+		if (d->connected != CON_PLAYING)
 			continue;
 //	character_list.foreach_on_copy([&](const auto &i) {
 //		if (d->character.get()->IsNpc())
@@ -1026,7 +1026,7 @@ void check_idling(CharData *ch) {
 				character_list.AddToExtractedList(ch);
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc) {
-					STATE(ch->desc) = CON_DISCONNECT;
+					ch->desc->connected = CON_DISCONNECT;
 					/*
 					* For the 'if (d->character)' test in close_socket().
 					* -gg 3/1/98 (Happy anniversary.)
@@ -1073,7 +1073,7 @@ void hour_update() {
 	DescriptorData *i;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
+		if  (i->connected != CON_PLAYING || i->character == nullptr || i->character->IsFlagged(EPlrFlag::kWriting))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", kColorBoldRed, kColorNrm);
 		iosystem::write_to_output(buf, i);
@@ -1227,7 +1227,7 @@ void clan_chest_invoice(ObjData *j) {
 
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
-			&& STATE(d) == CON_PLAYING
+			&& d->connected == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 			&& d->character->IsFlagged(EPrf::kDecayMode)
 			&& CLAN(d->character)

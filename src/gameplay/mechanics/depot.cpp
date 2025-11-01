@@ -611,7 +611,7 @@ void CharNode::update_online_item() {
 			if (ch) {
 				// если чар в лд или еще чего - лучше записать и выдать это ему при след
 				// входе в игру, чтобы уж точно увидел
-				if (ch->desc && STATE(ch->desc) == CON_PLAYING) {
+				if (ch->desc && ch->desc->connected == CON_PLAYING) {
 					SendMsgToChar(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 								  kColorBoldRed, (*obj_it)->get_short_description().c_str(),
 								  char_get_custom_label(obj_it->get(), ch).c_str(),

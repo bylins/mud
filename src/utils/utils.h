@@ -673,25 +673,17 @@ const int kNameLevel = 5;
 // New, preferred macro
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
-
-// descriptor-based utils ***********************************************
-
-// Hrm, not many.  We should make more. -gg 3/4/99
-#define STATE(d)  ((d)->connected)
-
+//#define STATE(d)  ((d)->connected)
 
 // object utils *********************************************************
 #define GET_OBJ_UNIQUE_ID(obj)    ((obj)->get_unique_id())
 
-#define GET_OBJ_ALIAS(obj)      ((obj)->get_aliases())
 #define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))
-#define GET_OBJ_DESC(obj)       ((obj)->get_description())
 #define GET_OBJ_SPELL(obj)      ((obj)->get_spell())
 #define GET_OBJ_LEVEL(obj)      ((obj)->get_level())
 #define GET_OBJ_AFFECTS(obj)    ((obj)->get_affect_flags())
 #define GET_OBJ_ANTI(obj)       ((obj)->get_anti_flags())
 #define GET_OBJ_NO(obj)         ((obj)->get_no_flags())
-#define GET_OBJ_ACT(obj)        ((obj)->get_action_description())
 #define GET_OBJ_TYPE(obj)       ((obj)->get_type())
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())

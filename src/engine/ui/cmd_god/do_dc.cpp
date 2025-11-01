@@ -48,7 +48,7 @@ void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	 * This will retain the stability of the close_me hack while being
 	 * neater in appearance. -gg 12/1/97
 	 */
-	if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
+	if (d->connected == CON_DISCONNECT || d->connected == CON_CLOSE)
 		SendMsgToChar("Соединение уже разорвано.\r\n", ch);
 	else {
 		/*
@@ -56,10 +56,10 @@ void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		 * that rather confuses the code when it expected there to be
 		 * a character context.
 		 */
-		if (STATE(d) == CON_PLAYING)
-			STATE(d) = CON_DISCONNECT;
+		if (d->connected == CON_PLAYING)
+			d->connected = CON_DISCONNECT;
 		else
-			STATE(d) = CON_CLOSE;
+			d->connected = CON_CLOSE;
 
 		sprintf(buf, "Соединение #%d закрыто.\r\n", num_to_dc);
 		SendMsgToChar(buf, ch);

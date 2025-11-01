@@ -145,7 +145,7 @@ void process(DescriptorData *d, Type type) {
 	if (ch->get_total_gold() < price) {
 	iosystem::write_to_output("\r\nУ вас нет такой суммы!\r\n", d);
 	iosystem::write_to_output(MENU, d);
-		STATE(d) = CON_MENU;
+		d->connected = CON_MENU;
 	} else {
 		char buf_[kMaxInputLength];
 		reset_stats(ch.get(), type);
@@ -156,7 +156,7 @@ void process(DescriptorData *d, Type type) {
 			// после проверки в ValidateStats()
 		iosystem::write_to_output("Произошла какая-то ошибка, сообщите богам!\r\n", d);
 		iosystem::write_to_output(MENU, d);
-			STATE(d) = CON_MENU;
+			d->connected = CON_MENU;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
 					 d->character->get_name().c_str(), reset_prices.at(type).log_text.c_str());
 			mudlog(buf_, NRM, kLvlImmortal, SYSLOG, true);
@@ -179,7 +179,7 @@ void process(DescriptorData *d, Type type) {
 			const char *message = "\r\nИзменение характеристик выполнено!\r\n";
 			if (!check_dupes_email(d)) {
 			iosystem::write_to_output(message, d);
-				STATE(d) = CON_CLOSE;
+				d->connected = CON_CLOSE;
 				return;
 			}
 			do_entergame(d);
@@ -216,7 +216,7 @@ void parse_menu(DescriptorData *d, const char *arg) {
 	if (!result) {
 	iosystem::write_to_output("Изменение параметров персонажа было отменено.\r\n", d);
 	iosystem::write_to_output(MENU, d);
-		STATE(d) = CON_MENU;
+		d->connected = CON_MENU;
 	}
 }
 

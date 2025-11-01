@@ -68,7 +68,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			next_desc = i->next;
 
 			const auto vict = i->character;
-			if (STATE(i) != CON_PLAYING
+			if  (i->connected != CON_PLAYING
 				|| !vict
 				|| (!vict->IsNpc() && GetRealLevel(vict) >= GetRealLevel(ch)
 					&& !ch->IsFlagged(EPrf::kCoderinfo))) {

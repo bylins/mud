@@ -538,7 +538,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 					ch->get_name().c_str(), __FILE__, __LINE__);
 				SendMsgToChar("Ошибка сохранения, сообщите Богам!\r\n", ch);
 				ch->desc->glory_const.reset();
-				STATE(ch->desc) = CON_PLAYING;
+				ch->desc->connected = CON_PLAYING;
 				return 1;
 			}
 			// слава перед редактированием (для расчета комиса)
@@ -561,7 +561,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			}
 			// выход из олц с обновлением хп
 			ch->desc->glory_const.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->connected = CON_PLAYING;
 			check_max_hp(ch);
 			SendMsgToChar("Ваши изменения сохранены.\r\n", ch);
 			ch->setGloryRespecTime(time(nullptr));
@@ -570,7 +570,7 @@ bool parse_spend_glory_menu(CharData *ch, char *arg) {
 			return 1;
 		}
 		case 'я': ch->desc->glory_const.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->connected = CON_PLAYING;
 			SendMsgToChar("Редактирование прервано.\r\n", ch);
 			return 1;
 		default: break;
@@ -699,7 +699,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
 
 		ch->desc->glory_const = tmp_glory_olc;
-		STATE(ch->desc) = CON_GLORY_CONST;
+		ch->desc->connected = CON_GLORY_CONST;
 		spend_glory_menu(ch);
 	} else {
 		SendMsgToChar(GLORY_CONST_FORMAT, ch);
@@ -786,7 +786,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
-	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST) {
+	if (vict && vict->desc && vict->desc->connected == CON_GLORY_CONST) {
 		SendMsgToChar("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;
 	}

@@ -239,7 +239,7 @@ bool check_stats(CharData *ch) {
 		ch->set_cha(ch_class.GetBaseStatGenMin(EBaseStat::kCha));
 
 		genchar_disp_menu(ch);
-		STATE(ch->desc) = CON_RESET_STATS;
+		ch->desc->connected = CON_RESET_STATS;
 		return false;
 	}
 	// стартовые статы в поряде, но слава не сходится (снялась по времени или иммом)

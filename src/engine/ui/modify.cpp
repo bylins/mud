@@ -624,7 +624,7 @@ void string_add(DescriptorData *d, char *str) {
 			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
 			strcpy(&str[d->max_str - 3], "\r\n");
 			d->writer->set_string(str);
-		} else if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80) {
+		} else if (CON_WRITE_MOD == d->connected && strlen(str) + 3 > 80) {
 			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 			d->writer->set_string(str);
@@ -632,7 +632,7 @@ void string_add(DescriptorData *d, char *str) {
 			d->writer->set_string(str);
 		}
 	} else {
-		if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80) {
+		if (CON_WRITE_MOD == d->connected && strlen(str) + 3 > 80) {
 			SendMsgToChar("Слишком длинная строка - усечена.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 		}
@@ -660,7 +660,7 @@ void string_add(DescriptorData *d, char *str) {
 #if defined(OASIS_MPROG)
 		extern void medit_change_mprog(DescriptorData * d);
 
-		if (STATE(d) == CON_MEDIT)
+		if (d->connected == CON_MEDIT)
 		{
 			switch (OLC_MODE(d))
 			{
@@ -676,9 +676,9 @@ void string_add(DescriptorData *d, char *str) {
 
 		// * Here we check for the abort option and reset the pointers.
 		if ((terminator == 2)
-			&& ((STATE(d) == CON_REDIT) || (STATE(d) == CON_MEDIT) || (STATE(d) == CON_OEDIT)
-				|| (STATE(d) == CON_TRIGEDIT)
-				|| (STATE(d) == CON_EXDESC)))    //log("[SA] 2s");
+			&& ((d->connected == CON_REDIT) || (d->connected == CON_MEDIT) || (d->connected == CON_OEDIT)
+				|| (d->connected == CON_TRIGEDIT)
+				|| (d->connected == CON_EXDESC)))    //log("[SA] 2s");
 		{
 			if (d->backstr) {
 				d->writer->set_string(d->backstr);
@@ -697,20 +697,20 @@ void string_add(DescriptorData *d, char *str) {
 			d->writer->set_string("\r\n");
 		}
 
-		if (STATE(d) == CON_MEDIT)
+		if (d->connected == CON_MEDIT)
 			medit_disp_menu(d);
 
-		if (STATE(d) == CON_TRIGEDIT)
+		if (d->connected == CON_TRIGEDIT)
 			trigedit_disp_menu(d);
 
-		if (STATE(d) == CON_OEDIT) {
+		if (d->connected == CON_OEDIT) {
 			switch (OLC_MODE(d)) {
 				case OEDIT_ACTDESC: oedit_disp_menu(d);
 					break;
 				case OEDIT_EXTRADESC_DESCRIPTION: oedit_disp_extradesc_menu(d);
 					break;
 			}
-		} else if (STATE(d) == CON_REDIT) {
+		} else if (d->connected == CON_REDIT) {
 			switch (OLC_MODE(d)) {
 				case REDIT_DESC: redit_disp_menu(d);
 					break;
@@ -719,10 +719,10 @@ void string_add(DescriptorData *d, char *str) {
 				case REDIT_EXTRADESC_DESCRIPTION: redit_disp_extradesc_menu(d);
 					break;
 			}
-		} else if (STATE(d) == CON_WRITE_NOTE) {
+		} else if (d->connected == CON_WRITE_NOTE) {
 			iosystem::write_to_output("Заметка сохранена.\r\n", d);
 			d->connected = CON_PLAYING;
-		} else if (STATE(d) == CON_WRITEBOARD) {
+		} else if (d->connected == CON_WRITEBOARD) {
 			// добавление сообщения на доску
 			if (terminator == 1
 				&& d->writer->get_string()
@@ -748,7 +748,7 @@ void string_add(DescriptorData *d, char *str) {
 				d->writer.reset();
 			}
 			d->connected = CON_PLAYING;
-		} else if (STATE(d) == CON_WRITE_MOD) {
+		} else if (d->connected == CON_WRITE_MOD) {
 			// писали клановое сообщение дня
 			if (terminator == 1
 				&& d->writer->get_string()) {
@@ -799,7 +799,7 @@ void string_add(DescriptorData *d, char *str) {
 				d->writer->clear();
 				d->writer.reset();
 			}
-		} else if (STATE(d) == CON_EXDESC)    //log("[SA] 7s");
+		} else if (d->connected == CON_EXDESC)    //log("[SA] 7s");
 		{
 			if (terminator != 1) {
 				iosystem::write_to_output("Создание описания прервано.\r\n", d);
@@ -1293,7 +1293,7 @@ void print_con_prompt(DescriptorData *d) {
 	if (d->showstr_count) {
 		return;
 	}
-	if (STATE(d) == CON_RESET_STATS) {
+	if (d->connected == CON_RESET_STATS) {
 		genchar_disp_menu(d->character.get());
 	}
 }

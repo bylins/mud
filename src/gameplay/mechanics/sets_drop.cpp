@@ -1001,7 +1001,7 @@ void reload_by_timer() {
 
 void message_for_players() {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
-		if (STATE(i) == CON_PLAYING && i->character) {
+		if  (i->connected == CON_PLAYING && i->character) {
 			SendMsgToChar(i->character.get(), "%s%s%s\r\n",
 						  kColorBoldCyn, RESET_MESSAGE,
 						  kColorNrm);

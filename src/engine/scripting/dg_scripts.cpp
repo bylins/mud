@@ -1605,7 +1605,7 @@ void find_replacement(void *go,
 				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (auto d = descriptor_list; d; d = d->next) {
-					if (STATE(d) != CON_PLAYING) 
+					if (d->connected != CON_PLAYING)
 						continue;
 					if (!str_cmp(subfield, GET_NAME(d->character))) {
 						sprintf(str, "1");
@@ -1675,7 +1675,7 @@ void find_replacement(void *go,
 				int from = 0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
-					if (STATE(d) != CON_PLAYING || GET_INVIS_LEV(d->character) > 0) 
+					if (d->connected != CON_PLAYING || GET_INVIS_LEV(d->character) > 0)
 						continue;
 					if (d->character->in_room >= from && d->character->in_room <= to) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(d->character));
@@ -4914,7 +4914,7 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		return;
 	}
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING)
+		if (d->connected != CON_PLAYING)
 			continue;
 		if (!HERE(d->character) || !isname(who, d->character->get_name())) {
 			continue;
@@ -5779,7 +5779,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 
 void do_worldecho(char *msg) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING) {
+		if (d->connected == CON_PLAYING) {
 			SendMsgToChar(d->character.get(), "%s\r\n", msg);
 		}
 	}

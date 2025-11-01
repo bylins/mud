@@ -28,7 +28,7 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				mudlog(buf, CMP, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s has purged %s.", GET_NAME(ch), GET_NAME(vict));
 				if (vict->desc) {
-					STATE(vict->desc) = CON_CLOSE;
+					vict->desc->connected = CON_CLOSE;
 					vict->desc->character = nullptr;
 					vict->desc = nullptr;
 				}

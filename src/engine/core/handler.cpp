@@ -1762,7 +1762,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	bool left_in_game = false;
 	if (!is_npc
 		&& ch->desc != nullptr) {
-		STATE(ch->desc) = CON_MENU;
+		ch->desc->connected = CON_MENU;
 		iosystem::write_to_output(MENU, ch->desc);
 		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
 			ch->zero_wait();
@@ -1808,7 +1808,7 @@ CharData *get_player_of_name(const char *name) {
 CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING) {
+		if (d->connected != CON_PLAYING) {
 			continue;
 		}
 		if (!HERE(d->character))

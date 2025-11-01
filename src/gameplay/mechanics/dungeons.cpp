@@ -660,7 +660,7 @@ std::string WhoInZone(ZoneRnum zrn) {
 
 	GetZoneRooms(zrn, &from, &to);
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING)
+		if (d->connected != CON_PLAYING)
 			continue;
 		if (d->character->in_room >= from && d->character->in_room <= to) {
 			pc += d->character->get_name() + " ";

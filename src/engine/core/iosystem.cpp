@@ -343,39 +343,39 @@ int process_input(DescriptorData *t) {
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
 			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
 			if (*ptr == ';'
-				&& (STATE(t) == CON_PLAYING
-					|| STATE(t) == CON_EXDESC
-					|| STATE(t) == CON_WRITEBOARD
-					|| STATE(t) == CON_WRITE_NOTE
-					|| STATE(t) == CON_WRITE_MOD)) {
+				&&  (t->connected == CON_PLAYING
+					||  t->connected == CON_EXDESC
+					||  t->connected == CON_WRITEBOARD
+					||  t->connected == CON_WRITE_NOTE
+					||  t->connected == CON_WRITE_MOD)) {
 				// Иммам или морталам с EGodFlag::DEMIGOD разрешено использовать ";".
 				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, EGf::kDemigod))
 					*ptr = ',';
 			}
 			if (*ptr == '&'
-				&& (STATE(t) == CON_PLAYING
-					|| STATE(t) == CON_EXDESC
-					|| STATE(t) == CON_WRITEBOARD
-					|| STATE(t) == CON_WRITE_NOTE
-					|| STATE(t) == CON_WRITE_MOD)) {
+				&&  (t->connected == CON_PLAYING
+					||  t->connected == CON_EXDESC
+					||  t->connected == CON_WRITEBOARD
+					||  t->connected == CON_WRITE_NOTE
+					||  t->connected == CON_WRITE_MOD)) {
 				if (GetRealLevel(t->character) < kLvlImplementator)
 					*ptr = '8';
 			}
 			if (*ptr == '$'
-				&& (STATE(t) == CON_PLAYING
-					|| STATE(t) == CON_EXDESC
-					|| STATE(t) == CON_WRITE_NOTE
-					|| STATE(t) == CON_WRITEBOARD
-					|| STATE(t) == CON_WRITE_MOD)) {
+				&&  (t->connected == CON_PLAYING
+					||  t->connected == CON_EXDESC
+					||  t->connected == CON_WRITE_NOTE
+					||  t->connected == CON_WRITEBOARD
+					||  t->connected == CON_WRITE_MOD)) {
 				if (GetRealLevel(t->character) < kLvlImplementator)
 					*ptr = '4';
 			}
 			if (*ptr == '\\'
-				&& (STATE(t) == CON_PLAYING
-					|| STATE(t) == CON_EXDESC
-					|| STATE(t) == CON_WRITEBOARD
-					|| STATE(t) == CON_WRITE_NOTE
-					|| STATE(t) == CON_WRITE_MOD)) {
+				&&  (t->connected == CON_PLAYING
+					||  t->connected == CON_EXDESC
+					||  t->connected == CON_WRITEBOARD
+					||  t->connected == CON_WRITE_NOTE
+					||  t->connected == CON_WRITE_MOD)) {
 				if (GetRealLevel(t->character) < kLvlGreatGod)
 					*ptr = '/';
 			}
@@ -391,7 +391,7 @@ int process_input(DescriptorData *t) {
 			} else if (isascii(*ptr) && isprint(*ptr)) {
 				*(write_point++) = *ptr;
 				space_left--;
-				if (*ptr == '$' && STATE(t) != CON_SEDIT)    // copy one character
+				if (*ptr == '$' &&  t->connected != CON_SEDIT)    // copy one character
 				{
 					*(write_point++) = '$';    // if it's a $, double it
 					space_left--;
@@ -419,7 +419,7 @@ int process_input(DescriptorData *t) {
 
 			// Для того чтобы работали все триги в старом zMUD, заменяем все вводимые 'z' на 'я'
 			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
-			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC)) {
+			if  (t->connected == CON_PLAYING ||  (t->connected == CON_EXDESC)) {
 				if (t->keytable == kCodePageWinzZ || t->keytable == kCodePageWinzOld) {
 					if (*(write_point - 1) == 'z') {
 						*(write_point - 1) = 'я';
@@ -730,10 +730,10 @@ int process_output(DescriptorData *t) {
 	}
 
 	// add the extra CRLF if the person isn't in compact mode
-	if (STATE(t) == CON_PLAYING && t->character && !t->character->IsNpc()
+	if  (t->connected == CON_PLAYING && t->character && !t->character->IsNpc()
 		&& !t->character->IsFlagged(EPrf::kCompact)) {
 		strcat(i, "\r\n");
-	} else if (STATE(t) == CON_PLAYING && t->character && !t->character->IsNpc()
+	} else if  (t->connected == CON_PLAYING && t->character && !t->character->IsNpc()
 		&& t->character->IsFlagged(EPrf::kCompact)) {
 		// added by WorM (Видолюб)
 		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
@@ -750,7 +750,7 @@ int process_output(DescriptorData *t) {
 		}
 	}// end by WorM
 
-	if (STATE(t) == CON_PLAYING && t->character)
+	if  (t->connected == CON_PLAYING && t->character)
 		t->msdp_report_changed_vars();
 
 	// add a prompt

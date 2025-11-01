@@ -47,14 +47,14 @@ void check_idle_passwords() {
 
 	for (d = descriptor_list; d; d = next_d) {
 		next_d = d->next;
-		if (STATE(d) != CON_PASSWORD && STATE(d) != CON_GET_NAME && STATE(d) != CON_GET_KEYTABLE)
+		if (d->connected != CON_PASSWORD && d->connected != CON_GET_NAME && d->connected != CON_GET_KEYTABLE)
 			continue;
 		if (!d->idle_tics) {
 			d->idle_tics++;
 			continue;
 		} else {
 			iosystem::write_to_output("\r\nTimed out... goodbye.\r\n", d);
-			STATE(d) = CON_CLOSE;
+			d->connected = CON_CLOSE;
 		}
 	}
 }
@@ -65,7 +65,7 @@ void record_usage() {
 
 	for (d = descriptor_list; d; d = d->next) {
 		sockets_connected++;
-		if (STATE(d) == CON_PLAYING)
+		if (d->connected == CON_PLAYING)
 			sockets_playing++;
 	}
 

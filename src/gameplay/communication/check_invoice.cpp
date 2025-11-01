@@ -55,7 +55,7 @@ bool single_god_invoice(CharData *ch) {
 // * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
 void god_work_invoice() {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
-		if (d->character && STATE(d) == CON_PLAYING) {
+		if (d->character && d->connected == CON_PLAYING) {
 			if (IS_IMMORTAL(d->character)
 				|| GET_GOD_FLAG(d->character, EGf::kDemigod)) {
 				single_god_invoice(d->character.get());

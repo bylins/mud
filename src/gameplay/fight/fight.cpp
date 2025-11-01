@@ -2136,7 +2136,7 @@ void perform_violence() {
 
 	round_profiler.next_step("MSDP reports");
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && d->character) {
+		if (d->connected == CON_PLAYING && d->character) {
 			for (const auto &ch : msdp_report_chars) {
 				if (group::same_group(ch, d->character.get()) && ch->in_room == d->character->in_room) {
 					msdp_report_chars.insert(d->character.get());

@@ -1093,7 +1093,7 @@ int get_unique_lot(void) {
 
 void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
-		if (STATE(i) == CON_PLAYING
+		if  (i->connected == CON_PLAYING
 			&& (!ch || i != ch->desc)
 			&& i->character
 			&& !i->character->IsFlagged(EPrf::kNoExchange)

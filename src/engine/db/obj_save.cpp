@@ -2454,7 +2454,7 @@ void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
+		if ((d->connected == CON_PLAYING) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
 
 			utils::CExecutionTimer timer;
 			Crash_crashsave(d->character.get());
@@ -2473,7 +2473,7 @@ void Crash_frac_save_all(int frac_part) {
 void Crash_save_all(void) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if ((STATE(d) == CON_PLAYING) && d->character->IsFlagged(EPlrFlag::kCrashSave)) {
+		if ((d->connected == CON_PLAYING) && d->character->IsFlagged(EPlrFlag::kCrashSave)) {
 			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			d->character->UnsetFlag(EPlrFlag::kCrashSave);

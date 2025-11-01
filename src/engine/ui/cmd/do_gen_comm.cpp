@@ -241,7 +241,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
+		if  (i->connected == CON_PLAYING && i != ch->desc && i->character &&
 			!i->character->IsFlagged(com_msgs[subcmd].noflag) &&
 			!i->character->IsFlagged(EPlrFlag::kWriting) &&
 			!ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof)
