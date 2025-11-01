@@ -551,14 +551,14 @@ void BanList::DisconnectBannedIp(const std::string &Ip) {
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->host == Ip) {
-			if (d->connected == CON_DISCONNECT || d->connected == CON_CLOSE)
+			if (d->state == EConState::kDisconnect || d->state == EConState::kClose)
 				return;
 			//SendMsgToChar will crash if character has not been loaded/created yet.
 			iosystem::write_to_output("Your IP has been banned, disconnecting...\r\n", d);
-			if (d->connected == CON_PLAYING)
-				d->connected = CON_DISCONNECT;
+			if (d->state == EConState::kPlaying)
+				d->state = EConState::kDisconnect;
 			else
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 		}
 	}
 }

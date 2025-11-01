@@ -262,7 +262,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			if (!ch->desc->old_vnum)
 				return false;
 			stuff_list.erase(ch->desc->old_vnum);
-			ch->desc->connected = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(OK, ch);
 			save();
 			return true;
@@ -278,12 +278,12 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 			if (ch->desc->old_vnum)
 				stuff_list.erase(ch->desc->old_vnum);
 			stuff_list[ch->desc->cur_vnum] = tmp_node;
-			ch->desc->connected = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(OK, ch);
 			save();
 			return true;
 
-		case 'х': ch->desc->connected = CON_PLAYING;
+		case 'х': ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(OK, ch);
 			return true;
 
@@ -466,7 +466,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 				}
 				if (found) {
 					ch->desc->named_obj = tmp_node;
-					ch->desc->connected = CON_NAMED_STUFF;
+					ch->desc->state = EConState::kNamedStuff;
 
 					nedit_menu(ch);
 					return;

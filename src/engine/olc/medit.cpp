@@ -477,7 +477,7 @@ void medit_save_internally(DescriptorData *d) {
 		// 4. Другие редактируемые мобы
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
-			if (dsc->connected == CON_MEDIT) {
+			if (dsc->state == EConState::kMedit) {
 				if (GET_MOB_RNUM(OLC_MOB(dsc)) >= new_mob_num) {
 					OLC_MOB(dsc)->set_rnum(1 + OLC_MOB(dsc)->get_rnum());
 				}

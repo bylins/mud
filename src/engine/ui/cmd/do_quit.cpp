@@ -73,7 +73,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			if (d == ch->desc)
 				continue;
 			if (d->character && (GET_UID(d->character) == GET_UID(ch)))
-				d->connected = CON_DISCONNECT;
+				d->state = EConState::kDisconnect;
 		}
 		ExtractCharFromWorld(ch, false);
 	}

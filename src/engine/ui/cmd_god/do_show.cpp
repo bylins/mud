@@ -668,7 +668,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->snooping
 					&& d->character
-					&& d->connected == CON_PLAYING
+					&& d->state == EConState::kPlaying
 					&& d->character->in_room != kNowhere
 					&& ((CAN_SEE(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
@@ -705,7 +705,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->snooping != nullptr && d->character != nullptr)
 					continue;
-				if (d->connected != CON_PLAYING
+				if (d->state != EConState::kPlaying
 					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !ch->IsFlagged(EPrf::kCoderinfo)))
 					continue;
 				if (!CAN_SEE(ch, d->character) || d->character->in_room == kNowhere)

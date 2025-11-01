@@ -673,8 +673,6 @@ const int kNameLevel = 5;
 // New, preferred macro
 #define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
 
-//#define STATE(d)  ((d)->connected)
-
 // object utils *********************************************************
 #define GET_OBJ_UNIQUE_ID(obj)    ((obj)->get_unique_id())
 

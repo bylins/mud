@@ -58,7 +58,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
 		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
-		if  (i->connected == CON_PLAYING
+		if  (i->state == EConState::kPlaying
 			&& i->character
 // оффтоп видят все, временно
 //			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))

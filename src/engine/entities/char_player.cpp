@@ -1966,7 +1966,7 @@ void Player::map_olc() {
 
 	*(this->desc->map_options) = map_options_;
 
-	this->desc->connected = CON_MAP_MENU;
+	this->desc->state = EConState::kMapMenu;
 	this->desc->map_options->olc_menu(this);
 }
 

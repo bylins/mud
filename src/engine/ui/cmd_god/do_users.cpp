@@ -176,11 +176,11 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (cycle_i = 0; cycle_i < count_pl; cycle_i++) {
 		d = list_players[cycle_i];
 
-		if (d->connected != CON_PLAYING && playing)
+		if (d->state != EConState::kPlaying && playing)
 			continue;
-		if (d->connected == CON_PLAYING && deadweight)
+		if (d->state == EConState::kPlaying && deadweight)
 			continue;
-		if (d->connected == CON_PLAYING) {
+		if (d->state == EConState::kPlaying) {
 			const auto character = d->get_character();
 			if (!character) {
 				continue;
@@ -242,14 +242,14 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timeptr += 11;
 		*(timeptr + 8) = '\0';
 
-		if (d->connected == CON_PLAYING && d->original) {
+		if (d->state == EConState::kPlaying && d->original) {
 			strcpy(state, "Switched");
 		} else {
-			sprinttype(d->connected, connected_types, state);
+			sprinttype(d->state, connected_types, state);
 		}
 
 		if (d->character
-			&& d->connected == CON_PLAYING
+			&& d->state == EConState::kPlaying
 			&& !IS_GOD(d->character)) {
 			sprintf(idletime, "%-3d", d->character->char_specials.timer *
 				kSecsPerMudHour / kSecsPerRealMin);
@@ -296,7 +296,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (locating && (*name_search || *host_by_name)) {
-			if (d->connected == CON_PLAYING) {
+			if (d->state == EConState::kPlaying) {
 				const auto ci = d->get_character();
 				if (ci
 					&& CAN_SEE(ch, ci)
@@ -316,12 +316,12 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		strcat(line, "\r\n");
-		if (d->connected != CON_PLAYING) {
+		if (d->state != EConState::kPlaying) {
 			snprintf(line2, sizeof(line2), "%s%s%s", kColorGrn, line, kColorNrm);
 			strcpy(line, line2);
 		}
 
-		if (d->connected != CON_PLAYING || (d->connected == CON_PLAYING && d->character && CAN_SEE(ch, d->character))) {
+		if (d->state != EConState::kPlaying || (d->state == EConState::kPlaying && d->character && CAN_SEE(ch, d->character))) {
 			SendMsgToChar(line, ch);
 			num_can_see++;
 		}

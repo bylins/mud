@@ -1127,8 +1127,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 		// Шоб в меню долго не сидели !
 		if (!get_from_q(&d->input, comm, &aliased)) {
-			if (d->connected != CON_PLAYING &&
-				d->connected != CON_DISCONNECT &&
+			if (d->state != EConState::kPlaying &&
+				d->state != EConState::kDisconnect &&
 				time(nullptr) - d->input_time > 300 && d->character && !IS_GOD(d->character))
 #ifdef HAS_EPOLL
 				close_socket(d, true, epoll, events, n);
@@ -1141,7 +1141,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character)    // Reset the idle timer & pull char back from void if necessary
 		{
 			d->character->char_specials.timer = 0;
-			if (d->connected == CON_PLAYING && d->character->get_was_in_room() != kNowhere) {
+			if (d->state == EConState::kPlaying && d->character->get_was_in_room() != kNowhere) {
 				if (d->character->in_room != kNowhere)
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
@@ -1151,12 +1151,12 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			}
 		}
 		d->has_prompt = 0;
-		if (d->showstr_count && d->connected != CON_DISCONNECT && d->connected != CON_CLOSE)    // Reading something w/ pager
+		if (d->showstr_count && d->state != EConState::kDisconnect && d->state != EConState::kClose)    // Reading something w/ pager
 		{
 			show_string(d, comm);
-		} else if (d->writer && d->connected != CON_DISCONNECT && d->connected != CON_CLOSE) {
+		} else if (d->writer && d->state != EConState::kDisconnect && d->state != EConState::kClose) {
 			string_add(d, comm);
-		} else if (d->connected != CON_PLAYING)    // In menus, etc.
+		} else if (d->state != EConState::kPlaying)    // In menus, etc.
 		{
 			nanny(d, comm);
 		} else    // else: we're playing normally.
@@ -1206,7 +1206,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	// Kick out folks in the CON_CLOSE or CON_DISCONNECT state
 	for (d = descriptor_list; d; d = next_d) {
 		next_d = d->next;
-		if (d->connected == CON_CLOSE || d->connected == CON_DISCONNECT)
+		if (d->state == EConState::kClose || d->state == EConState::kDisconnect)
 #ifdef HAS_EPOLL
 			close_socket(d, false, epoll, events, n);
 #else
@@ -1690,7 +1690,7 @@ int new_descriptor(socket_t s)
 	newd->mxp = false;
 	newd->has_prompt = 1;    // prompt is part of greetings
 	newd->keytable = kKtSelectmenu;
-	newd->connected = CON_INIT;
+	newd->state = EConState::kInit;
 	/*
 	 * This isn't exactly optimal but allows us to make a design choice.
 	 * Do we embed the history in descriptor_data or keep it dynamically
@@ -1781,13 +1781,13 @@ void close_socket(DescriptorData * d, int direct)
 		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
-	switch (d->connected) {
-		case CON_OEDIT:
-		case CON_REDIT:
-		case CON_ZEDIT:
-		case CON_MEDIT:
-		case CON_MREDIT:
-		case CON_TRIGEDIT: cleanup_olc(d, CLEANUP_ALL);
+	switch (d->state) {
+		case EConState::kOedit:
+		case EConState::kRedit:
+		case EConState::kZedit:
+		case EConState::kMedit:
+		case EConState::kMredit:
+		case EConState::kTrigedit: cleanup_olc(d, CLEANUP_ALL);
 			break;
 			/*case CON_CONSOLE:
 				d->console.reset();
@@ -1799,28 +1799,28 @@ void close_socket(DescriptorData * d, int direct)
 		// Plug memory leak, from Eric Green.
 		if (!d->character->IsNpc()
 			&& (d->character->IsFlagged(EPlrFlag::kMailing)
-				|| d->connected == CON_WRITEBOARD
-				|| d->connected == CON_WRITE_MOD
-				|| d->connected == CON_WRITE_NOTE)
+				|| d->state == EConState::kWriteboard
+				|| d->state == EConState::kWriteMod
+				|| d->state == EConState::kWriteNote)
 			&& d->writer) {
 			d->writer->clear();
 			d->writer.reset();
 		}
 
-		if (d->connected == CON_WRITEBOARD
-			|| d->connected == CON_CLANEDIT
-			|| d->connected == CON_SPEND_GLORY
-			|| d->connected == CON_WRITE_MOD
-			|| d->connected == CON_WRITE_NOTE
-			|| d->connected == CON_GLORY_CONST
-			|| d->connected == CON_NAMED_STUFF
-			|| d->connected == CON_MAP_MENU
-			|| d->connected == CON_TORC_EXCH
-			|| d->connected == CON_SEDIT || d->connected == CON_CONSOLE) {
-			d->connected = CON_PLAYING;
+		if (d->state == EConState::kWriteboard
+			|| d->state == EConState::kClanedit
+			|| d->state == EConState::kSpendGlory
+			|| d->state == EConState::kWriteMod
+			|| d->state == EConState::kWriteNote
+			|| d->state == EConState::kGloryConst
+			|| d->state == EConState::kNamedStuff
+			|| d->state == EConState::kMapMenu
+			|| d->state == EConState::kTorcExch
+			|| d->state == EConState::kSedit || d->state == EConState::kConsole) {
+			d->state = EConState::kPlaying;
 		}
 
-		if (d->connected == CON_PLAYING || d->connected == CON_DISCONNECT) {
+		if (d->state == EConState::kPlaying || d->state == EConState::kDisconnect) {
 			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 			if (d->character->GetEnemy() && d->character->IsFlagged(EPrf::kAntiDcMode)) {
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
@@ -2078,7 +2078,7 @@ void SendMsgToAll(const char *msg) {
 		return;
 	}
 	for (auto i = descriptor_list; i; i = i->next) {
-		if  (i->connected == CON_PLAYING) {
+		if  (i->state == EConState::kPlaying) {
 			iosystem::write_to_output(msg, i);
 		}
 	}
@@ -2092,7 +2092,7 @@ void SendMsgToOutdoor(const char *msg, int control) {
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if  (i->connected != CON_PLAYING || i->character == nullptr)
+		if  (i->state != EConState::kPlaying || i->character == nullptr)
 			continue;
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
@@ -2115,7 +2115,7 @@ void SendMsgToOutdoor(const char *msg, int control) {
 void SendMsgToGods(char *text, bool include_demigod) {
 	DescriptorData *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->connected == CON_PLAYING) {
+		if (d->state == EConState::kPlaying) {
 			if ((GetRealLevel(d->character) >= kLvlGod) ||
 				(GET_GOD_FLAG(d->character, EGf::kDemigod) && include_demigod)) {
 				SendMsgToChar(text, d->character.get());
@@ -2132,7 +2132,7 @@ void SendMsgToGods(const char *msg) {
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
-		if  (i->connected != CON_PLAYING || i->character == nullptr || !IS_GOD(i->character)) {
+		if  (i->state != EConState::kPlaying || i->character == nullptr || !IS_GOD(i->character)) {
 			continue;
 		}
 		iosystem::write_to_output(msg, i);

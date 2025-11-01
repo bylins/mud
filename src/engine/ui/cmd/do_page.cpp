@@ -27,7 +27,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
 			if (IS_GRGOD(ch)) {
 				for (d = descriptor_list; d; d = d->next) {
-					if (d->connected == CON_PLAYING && d->character) {
+					if (d->state == EConState::kPlaying && d->character) {
 						act(buf, false, ch, nullptr, d->character.get(), kToVict);
 					}
 				}

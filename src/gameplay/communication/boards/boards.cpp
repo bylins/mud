@@ -310,7 +310,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ch->desc->message = tempMessage;
 		ch->desc->board = board_ptr;
 		SendMsgToChar(ch, "Вы пишете сообщение на доску объявлений: '%s'. (/s записать /h помощь)\r\n", board.get_name().c_str());
-		ch->desc->connected = CON_WRITEBOARD;
+		ch->desc->state = EConState::kWriteboard;
 		utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 		string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, nullptr);
 	} else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove")) {
@@ -597,7 +597,7 @@ void Static::new_message_notify(const Board::shared_ptr board) {
 		// оповещаем весь мад кто с правами чтения
 		for (DescriptorData *f = descriptor_list; f; f = f->next) {
 			if (f->character
-				&&  f->connected == CON_PLAYING
+				&&  f->state == EConState::kPlaying
 				&& f->character->IsFlagged(EPrf::kBoardMode)
 				&& can_read(f->character.get(), board)
 				&& (board->get_type() != MISPRINT_BOARD

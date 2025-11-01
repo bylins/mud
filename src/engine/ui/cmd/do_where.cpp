@@ -36,7 +36,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 	if (!*arg) {
 		ss << "ИГРОКИ\r\n------\r\n";
 		for (d = descriptor_list; d; d = d->next) {
-			if (d->connected == CON_PLAYING) {
+			if (d->state == EConState::kPlaying) {
 				const auto i = d->get_character();
 				if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
 					if (d->original) {
@@ -109,7 +109,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 	if (!*arg) {
 		SendMsgToChar("Игроки, находящиеся в зоне\r\n--------------------\r\n", ch);
 		for (d = descriptor_list; d; d = d->next) {
-			if (d->connected != CON_PLAYING
+			if (d->state != EConState::kPlaying
 				|| d->character.get() == ch) {
 				continue;
 			}

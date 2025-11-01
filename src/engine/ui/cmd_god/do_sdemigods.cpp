@@ -20,7 +20,7 @@ void DoSendMsgToDemigods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 	sprintf(buf1, "&c%s демигодам: '%s'&n\r\n", GET_NAME(ch), argument);
 
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->connected == CON_PLAYING) {
+		if (d->state == EConState::kPlaying) {
 			if ((GET_GOD_FLAG(d->character, EGf::kDemigod)) || (GetRealLevel(d->character) == kLvlImplementator)) {
 				if ((!d->character->IsFlagged(EPlrFlag::kWriting)) &&
 					(!d->character->IsFlagged(EPlrFlag::kMailing)) &&

@@ -19,7 +19,7 @@ void DoGlobalEcho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		sprintf(buf, "%s\r\n", argument);
 		for (pt = descriptor_list; pt; pt = pt->next) {
-			if (pt->connected == CON_PLAYING
+			if (pt->state == EConState::kPlaying
 				&& pt->character
 				&& pt->character.get() != ch) {
 				SendMsgToChar(buf, pt->character.get());

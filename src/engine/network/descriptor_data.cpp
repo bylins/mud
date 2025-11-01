@@ -13,7 +13,7 @@
 
 DescriptorData::DescriptorData() : bad_pws(0),
 								   idle_tics(0),
-								   connected(0),
+								   state(EConState::kPlaying),
 								   desc_num(0),
 								   input_time(0),
 								   login_time(0),

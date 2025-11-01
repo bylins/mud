@@ -74,11 +74,11 @@ struct olc_scmd_data {
 
 struct olc_scmd_data olc_scmd_info[5] =
 	{
-		{"room", CON_REDIT},
-		{"object", CON_OEDIT},
-		{"room", CON_ZEDIT},
-		{"mobile", CON_MEDIT},
-		{"trigger", CON_TRIGEDIT}
+		{"room", EConState::kRedit},
+		{"object", EConState::kOedit},
+		{"room", EConState::kZedit},
+		{"mobile", EConState::kMedit},
+		{"trigger", EConState::kTrigedit}
 	};
 
 olc_data::olc_data()
@@ -175,7 +175,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 
 	// * Check that whatever it isn't already being edited.
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->connected == olc_scmd_info[subcmd].con_type) {
+		if (d->state == olc_scmd_info[subcmd].con_type) {
 			if (d->olc && OLC_NUM(d) == number) {
 				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
 						olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
@@ -285,14 +285,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				trigedit_setup_existing(d, real_num);
 			else
 				trigedit_setup_new(d);
-			d->connected = CON_TRIGEDIT;
+			d->state = EConState::kTrigedit;
 			break;
 		case kScmdOlcRedit:
 			if ((real_num = GetRoomRnum(number)) != kNowhere)
 				redit_setup(d, real_num);
 			else
 				redit_setup(d, kNowhere);
-			d->connected = CON_REDIT;
+			d->state = EConState::kRedit;
 			break;
 		case kScmdOlcZedit:
 			if ((real_num = GetRoomRnum(number)) == kNowhere) {
@@ -301,14 +301,14 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 				return;
 			}
 			zedit_setup(d, real_num);
-			d->connected = CON_ZEDIT;
+			d->state = EConState::kZedit;
 			break;
 		case kScmdOlcMedit:
 			if ((real_num = GetMobRnum(number)) >= 0)
 				medit_setup(d, real_num);
 			else
 				medit_setup(d, -1);
-			d->connected = CON_MEDIT;
+			d->state = EConState::kMedit;
 			break;
 		case kScmdOlcOedit: real_num = GetObjRnum(number);
 			if (real_num >= 0) {
@@ -316,7 +316,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 			} else {
 				oedit_setup(d, -1);
 			}
-			d->connected = CON_OEDIT;
+			d->state = EConState::kOedit;
 			break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
@@ -485,7 +485,7 @@ void cleanup_olc(DescriptorData *d, byte cleanup_type) {
 		// Restore descriptor playing status.
 		if (d->character) {
 			d->character->UnsetFlag(EPlrFlag::kWriting);
-			d->connected = CON_PLAYING;
+			d->state = EConState::kPlaying;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				true, d->character.get(), 0, 0, kToRoom);
 		}

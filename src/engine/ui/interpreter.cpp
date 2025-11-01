@@ -1628,7 +1628,7 @@ int perform_dupe_check(DescriptorData *d) {
 			}
 
 			iosystem::write_to_output("\r\nПопытка второго входа - отключаемся.\r\n", k);
-			k->connected = CON_CLOSE;
+			k->state = EConState::kClose;
 
 			if (!target) {
 				target = k->original;
@@ -1649,7 +1649,7 @@ int perform_dupe_check(DescriptorData *d) {
 				//send_to_gods(buf);
 			}
 
-			if (!target &&  k->connected == CON_PLAYING) {
+			if (!target &&  k->state == EConState::kPlaying) {
 				iosystem::write_to_output("\r\nВаше тело уже кем-то занято!\r\n", k);
 				target = k->character;
 				mode = USURP;
@@ -1658,7 +1658,7 @@ int perform_dupe_check(DescriptorData *d) {
 			k->character = nullptr;
 			k->original = nullptr;
 			iosystem::write_to_output("\r\nПопытка второго входа - отключаемся.\r\n", k);
-			k->connected = CON_CLOSE;
+			k->state = EConState::kClose;
 		}
 	}
 
@@ -1717,7 +1717,7 @@ int perform_dupe_check(DescriptorData *d) {
 	d->character->char_specials.timer = 0;
 	d->character->UnsetFlag(EPlrFlag::kMailing);
 	d->character->UnsetFlag(EPlrFlag::kWriting);
-	d->connected = CON_PLAYING;
+	d->state = EConState::kPlaying;
 
 	switch (mode) {
 		case RECON: iosystem::write_to_output("Пересоединяемся.\r\n", d);
@@ -1789,8 +1789,8 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 			&& i->ip == d->ip
 			&& i->character
 			&& !IS_IMMORTAL(i->character)
-			&&  (i->connected == CON_PLAYING
-				||  i->connected == CON_MENU)) {
+			&&  (i->state == EConState::kPlaying
+				||  i->state == EConState::kMenu)) {
 			switch (CheckProxy(d)) {
 				case 0:
 					// если уже сидим в проксе, то смысла спамить никакого
@@ -2097,7 +2097,7 @@ void do_entergame(DescriptorData *d) {
 	enter_wtrigger(world[d->character->in_room], d->character.get(), -1);
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
-	d->connected = CON_PLAYING;
+	d->state = EConState::kPlaying;
 	d->character->SetFlag(EPrf::kColor2); // цвет всегда полный
 // режимы по дефолту у нового чара
 	const bool new_char = d->character->GetLevel() <= 0;
@@ -2178,7 +2178,7 @@ bool ValidateStats(DescriptorData *d) {
 		iosystem::write_to_output("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
 		iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 		iosystem::write_to_output("\r\nВыберите племя: ", d);
-		d->connected = CON_RESET_KIN;
+		d->state = EConState::kResetKin;
 		return false;
 	}
 
@@ -2188,7 +2188,7 @@ bool ValidateStats(DescriptorData *d) {
 		iosystem::write_to_output("\r\nКакого роду-племени вы будете?\r\n", d);
 		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 		iosystem::write_to_output("\r\nИз чьих вы будете: ", d);
-		d->connected = CON_RESET_RACE;
+		d->state = EConState::kResetRace;
 		return false;
 	}
 
@@ -2196,7 +2196,7 @@ bool ValidateStats(DescriptorData *d) {
 	if (GET_RELIGION(d->character) > kReligionMono) {
 		iosystem::write_to_output(religion_menu, d);
 		iosystem::write_to_output("\n\rРелигия :", d);
-		d->connected = CON_RESET_RELIGION;
+		d->state = EConState::kResetReligion;
 		return false;
 	}
 
@@ -2213,21 +2213,21 @@ void DoAfterPassword(DescriptorData *d) {
 
 	if (ban->IsBanned(d->host) == BanList::BAN_SELECT && !d->character->IsFlagged(EPlrFlag::kSiteOk)) {
 		iosystem::write_to_output("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
-		d->connected = CON_CLOSE;
+		d->state = EConState::kClose;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (GetRealLevel(d->character) < circle_restrict) {
 		iosystem::write_to_output("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
-		d->connected = CON_CLOSE;
+		d->state = EConState::kClose;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
 		iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-		d->connected = CON_RANDOM_NUMBER;
+		d->state = EConState::kRandomNumber;
 		return;
 	}
 	// нам нужен массив сетей с маской /24
@@ -2251,7 +2251,7 @@ void DoAfterPassword(DescriptorData *d) {
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
 				iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-				d->connected = CON_RANDOM_NUMBER;
+				d->state = EConState::kRandomNumber;
 				return;
 			}
 		}
@@ -2285,7 +2285,7 @@ void DoAfterPassword(DescriptorData *d) {
 	}
 
 	iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-	d->connected = CON_RMOTD;
+	d->state = EConState::kRmotd;
 }
 
 void CreateChar(DescriptorData *d) {
@@ -2433,7 +2433,7 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 
 	iosystem::write_to_output(motd, d);
 	iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-	d->connected = CON_RMOTD;
+	d->state = EConState::kRmotd;
 	d->character->set_who_mana(0);
 	d->character->set_who_last(time(nullptr));
 
@@ -2509,11 +2509,11 @@ void nanny(DescriptorData *d, char *argument) {
 	int player_i = 0, load_result;
 	char tmp_name[kMaxInputLength], pwd_name[kMaxInputLength], pwd_pwd[kMaxInputLength];
 	bool is_player_deleted;
-	if (d->connected != CON_CONSOLE)
+	if (d->state != EConState::kConsole)
 		skip_spaces(&argument);
 
-	switch (d->connected) {
-		case CON_INIT:
+	switch (d->state) {
+		case EConState::kInit:
 			// just connected
 		{
 			int online_players = 0;
@@ -2525,69 +2525,69 @@ void nanny(DescriptorData *d, char *argument) {
 
 			iosystem::write_to_output(buffer, d);
 			ShowEncodingPrompt(d, false);
-			d->connected = CON_GET_KEYTABLE;
+			d->state = EConState::kGetKeytable;
 			break;
 
 			//. OLC states .
-		case CON_OEDIT: oedit_parse(d, argument);
+		case EConState::kOedit: oedit_parse(d, argument);
 			break;
 
-		case CON_REDIT: redit_parse(d, argument);
+		case EConState::kRedit: redit_parse(d, argument);
 			break;
 
-		case CON_ZEDIT: zedit_parse(d, argument);
+		case EConState::kZedit: zedit_parse(d, argument);
 			break;
 
-		case CON_MEDIT: medit_parse(d, argument);
+		case EConState::kMedit: medit_parse(d, argument);
 			break;
 
-		case CON_TRIGEDIT: trigedit_parse(d, argument);
+		case EConState::kTrigedit: trigedit_parse(d, argument);
 			break;
 
-		case CON_MREDIT: mredit_parse(d, argument);
+		case EConState::kMredit: mredit_parse(d, argument);
 			break;
 
-		case CON_CLANEDIT: d->clan_olc->clan->Manage(d, argument);
+		case EConState::kClanedit: d->clan_olc->clan->Manage(d, argument);
 			break;
 
-		case CON_SPEND_GLORY:
+		case EConState::kSpendGlory:
 			if (!Glory::parse_spend_glory_menu(d->character.get(), argument)) {
 				Glory::spend_glory_menu(d->character.get());
 			}
 			break;
 
-		case CON_GLORY_CONST:
+		case EConState::kGloryConst:
 			if (!GloryConst::parse_spend_glory_menu(d->character.get(), argument)) {
 				GloryConst::spend_glory_menu(d->character.get());
 			}
 			break;
 
-		case CON_NAMED_STUFF:
+		case EConState::kNamedStuff:
 			if (!NamedStuff::parse_nedit_menu(d->character.get(), argument)) {
 				NamedStuff::nedit_menu(d->character.get());
 			}
 			break;
 
-		case CON_MAP_MENU: d->map_options->parse_menu(d->character.get(), argument);
+		case EConState::kMapMenu: d->map_options->parse_menu(d->character.get(), argument);
 			break;
 
-		case CON_TORC_EXCH: ExtMoney::torc_exch_parse(d->character.get(), argument);
+		case EConState::kTorcExch: ExtMoney::torc_exch_parse(d->character.get(), argument);
 			break;
 
-		case CON_SEDIT: {
+		case EConState::kSedit: {
 			try {
 				obj_sets_olc::parse_input(d->character.get(), argument);
 			}
 			catch (const std::out_of_range &e) {
 				SendMsgToChar(d->character.get(), "Редактирование прервано: %s", e.what());
 				d->sedit.reset();
-				d->connected = CON_PLAYING;
+				d->state = EConState::kPlaying;
 			}
 			break;
 		}
 			//. End of OLC states .*/
 
-		case CON_GET_KEYTABLE:
+		case EConState::kGetKeytable:
 			if (strlen(argument) > 0)
 				argument[0] = argument[strlen(argument) - 1];
 			if (*argument == '9') {
@@ -2601,16 +2601,16 @@ void nanny(DescriptorData *d, char *argument) {
 			d->keytable = (ubyte) *argument - (ubyte) '0';
 			ip_log(d->host);
 			iosystem::write_to_output(greetings, d);
-			d->connected = CON_GET_NAME;
+			d->state = EConState::kGetName;
 			break;
 
-		case CON_GET_NAME:    // wait for input of name
+		case EConState::kGetName:    // wait for input of name
 			if (!d->character) {
 				CreateChar(d);
 			}
 
 			if (!*argument) {
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 			} else if (!str_cmp("новый", argument)) {
 				iosystem::write_to_output(name_rules, d);
 
@@ -2626,7 +2626,7 @@ void nanny(DescriptorData *d, char *argument) {
 				ss << ": ";
 
 				iosystem::write_to_output(ss.str().c_str(), d);
-				d->connected = CON_NEW_CHAR;
+				d->state = EConState::kNewChar;
 				return;
 			} else {
 				if (sscanf(argument, "%s %s", pwd_name, pwd_pwd) == 2) {
@@ -2702,7 +2702,7 @@ void nanny(DescriptorData *d, char *argument) {
 						sprintf(buffer, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
 						log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
 						iosystem::write_to_output(buffer, d);
-						d->connected = CON_NAME_CNFRM;
+						d->state = EConState::kNameConfirm;
 					} else    // undo it just in case they are set
 					{
 						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
@@ -2719,7 +2719,7 @@ void nanny(DescriptorData *d, char *argument) {
 						d->character->UnsetFlag(EPlrFlag::kCryo);
 						iosystem::write_to_output("Персонаж с таким именем уже существует. Введите пароль : ", d);
 						d->idle_tics = 0;
-						d->connected = CON_PASSWORD;
+						d->state = EConState::kPassword;
 					}
 				} else    // player unknown -- make new character
 				{
@@ -2748,19 +2748,19 @@ void nanny(DescriptorData *d, char *argument) {
 					sprintf(buffer, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
 					log("New player %s ip %s", d->character->player_data.PNames[0].c_str(), d->host);
 					iosystem::write_to_output(buffer, d);
-					d->connected = CON_NAME_CNFRM;
+					d->state = EConState::kNameConfirm;
 				}
 			}
 			break;
 
-		case CON_NAME_CNFRM:    // wait for conf. of new name
+		case EConState::kNameConfirm:    // wait for conf. of new name
 			if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
 				if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 					sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 							GET_PC_NAME(d->character), d->host);
 					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 					iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
-					d->connected = CON_CLOSE;
+					d->state = EConState::kClose;
 					return;
 				}
 
@@ -2769,7 +2769,7 @@ void nanny(DescriptorData *d, char *argument) {
 					sprintf(buffer, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 							GET_PC_NAME(d->character), d->host);
 					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-					d->connected = CON_CLOSE;
+					d->state = EConState::kClose;
 					return;
 				}
 
@@ -2779,31 +2779,31 @@ void nanny(DescriptorData *d, char *argument) {
 								"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 								GET_PAD(d->character, 1));
 						iosystem::write_to_output(buffer, d);
-						d->connected = CON_NEWPASSWD;
+						d->state = EConState::kNewpasswd;
 						return;
 
-					case NewNames::AUTO_BAN: d->connected = CON_CLOSE;
+					case NewNames::AUTO_BAN: d->state = EConState::kClose;
 						return;
 
 					default: break;
 				}
 
 				iosystem::write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
-				d->connected = CON_QSEX;
+				d->state = EConState::kQsex;
 				return;
 
 			} else if (UPPER(*argument) == 'N' || UPPER(*argument) == 'Н') {
 				iosystem::write_to_output("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
 				d->character->SetCharAliases(nullptr);
-				d->connected = CON_GET_NAME;
+				d->state = EConState::kGetName;
 			} else {
 				iosystem::write_to_output("Ответьте Yes(Да) or No(Нет) : ", d);
 			}
 			break;
 
-		case CON_NEW_CHAR:
+		case EConState::kNewChar:
 			if (!*argument) {
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 				return;
 			}
 
@@ -2857,7 +2857,7 @@ void nanny(DescriptorData *d, char *argument) {
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 				iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 				return;
 			}
 
@@ -2867,7 +2867,7 @@ void nanny(DescriptorData *d, char *argument) {
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 				return;
 			}
 
@@ -2877,7 +2877,7 @@ void nanny(DescriptorData *d, char *argument) {
 							"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 							GET_PAD(d->character, 1));
 					iosystem::write_to_output(buffer, d);
-					d->connected = CON_NEWPASSWD;
+					d->state = EConState::kNewpasswd;
 					return;
 
 				case NewNames::AUTO_BAN: d->character.reset();
@@ -2888,10 +2888,10 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			iosystem::write_to_output("Ваш пол [ М(M)/Ж(F) ]? ", d);
-			d->connected = CON_QSEX;
+			d->state = EConState::kQsex;
 			return;
 
-		case CON_PASSWORD:    // get pwd for known player
+		case EConState::kPassword:    // get pwd for known player
 			/*
 				   * To really prevent duping correctly, the player's record should
 				   * be reloaded from disk at this point (after the password has been
@@ -2905,7 +2905,7 @@ void nanny(DescriptorData *d, char *argument) {
 			iosystem::write_to_output("\r\n", d);
 
 			if (!*argument) {
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 			} else {
 				if (!Password::compare_password(d->character.get(), argument)) {
 					sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
@@ -2915,7 +2915,7 @@ void nanny(DescriptorData *d, char *argument) {
 					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
 					{
 						iosystem::write_to_output("Неверный пароль... Отсоединяемся.\r\n", d);
-						d->connected = CON_CLOSE;
+						d->state = EConState::kClose;
 					} else {
 						iosystem::write_to_output("Неверный пароль.\r\nПароль : ", d);
 					}
@@ -2925,8 +2925,8 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			break;
 
-		case CON_NEWPASSWD:
-		case CON_CHPWD_GETNEW:
+		case EConState::kNewpasswd:
+		case EConState::kChpwdGetNew:
 			if (!Password::check_password(d->character.get(), argument)) {
 				sprintf(buffer, "\r\n%s\r\n", Password::BAD_PASSWORD);
 				iosystem::write_to_output(buffer, d);
@@ -2937,49 +2937,49 @@ void nanny(DescriptorData *d, char *argument) {
 			Password::set_password(d->character.get(), argument);
 
 			iosystem::write_to_output("\r\nПовторите пароль, пожалуйста : ", d);
-			if (d->connected == CON_NEWPASSWD) {
-				d->connected = CON_CNFPASSWD;
+			if (d->state == EConState::kNewpasswd) {
+				d->state = EConState::kCnfpasswd;
 			} else {
-				d->connected = CON_CHPWD_VRFY;
+				d->state = EConState::kChpwdVrfy;
 			}
 
 			break;
 
-		case CON_CNFPASSWD:
-		case CON_CHPWD_VRFY:
+		case EConState::kCnfpasswd:
+		case EConState::kChpwdVrfy:
 			if (!Password::compare_password(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nПароли не соответствуют... повторим.\r\n", d);
 				iosystem::write_to_output("Пароль: ", d);
-				if (d->connected == CON_CNFPASSWD) {
-					d->connected = CON_NEWPASSWD;
+				if (d->state == EConState::kCnfpasswd) {
+					d->state = EConState::kNewpasswd;
 				} else {
-					d->connected = CON_CHPWD_GETNEW;
+					d->state = EConState::kChpwdGetNew;
 				}
 				return;
 			}
 
-			if (d->connected == CON_CNFPASSWD) {
+			if (d->state == EConState::kCnfpasswd) {
 				GET_KIN(d->character) = 0;
 				DisplaySelectCharClassMenu(d);
 				iosystem::write_to_output(
 					"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
 					d);
-				d->connected = CON_QCLASS;
+				d->state = EConState::kQclass;
 			} else {
 				sprintf(buffer, "%s заменил себе пароль.", GET_NAME(d->character));
 				AddKarma(d->character.get(), buffer, "");
 				d->character->save_char();
 				iosystem::write_to_output("\r\nГотово.\r\n", d);
 				iosystem::write_to_output(MENU, d);
-				d->connected = CON_MENU;
+				d->state = EConState::kMenu;
 			}
 
 			break;
 
-		case CON_QSEX:        // query sex of new user
+		case EConState::kQsex:        // query sex of new user
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
-				d->connected = CON_QSEX;
+				d->state = EConState::kQsex;
 				return;
 			}
 
@@ -2999,15 +2999,15 @@ void nanny(DescriptorData *d, char *argument) {
 			GetCase(d->character->GetCharAliases(), d->character->get_sex(), 1, tmp_name);
 			sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 			iosystem::write_to_output(buffer, d);
-			d->connected = CON_NAME2;
+			d->state = EConState::kName2;
 			return;
 
-		case CON_QKIN:        // query rass
+		case EConState::kQkin:        // query rass
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nКакой народ вам ближе по духу:\r\n", d);
 				iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 				iosystem::write_to_output("\r\nПлемя: ", d);
-				d->connected = CON_QKIN;
+				d->state = EConState::kQkin;
 				return;
 			}
 
@@ -3023,14 +3023,14 @@ void nanny(DescriptorData *d, char *argument) {
 			iosystem::write_to_output(
 				"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
 				d);
-			d->connected = CON_QCLASS;
+			d->state = EConState::kQclass;
 			break;
 
-		case CON_RELIGION:    // query religion of new user
+		case EConState::kQreligion:    // query religion of new user
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output(religion_menu, d);
 				iosystem::write_to_output("\n\rРелигия :", d);
-				d->connected = CON_RELIGION;
+				d->state = EConState::kQreligion;
 				return;
 			}
 
@@ -3066,15 +3066,15 @@ void nanny(DescriptorData *d, char *argument) {
 					default_race[to_underlying(d->character->GetClass())]);
 			iosystem::write_to_output(buffer, d);
 			iosystem::write_to_output("\r\nИз чьих вы будете : ", d);
-			d->connected = CON_RACE;
+			d->state = EConState::kRace;
 
 			break;
 
-		case CON_QCLASS: {
+		case EConState::kQclass: {
 			if (pre_help(d->character.get(), argument)) {
 				DisplaySelectCharClassMenu(d);
 				iosystem::write_to_output("\r\nВаша профессия : ", d);
-				d->connected = CON_QCLASS;
+				d->state = EConState::kQclass;
 				return;
 			}
 
@@ -3098,16 +3098,16 @@ void nanny(DescriptorData *d, char *argument) {
 
 			iosystem::write_to_output(religion_menu, d);
 			iosystem::write_to_output("\n\rРелигия :", d);
-			d->connected = CON_RELIGION;
+			d->state = EConState::kQreligion;
 			break;
 		}
 
-		case CON_RACE:        // query race
+		case EConState::kRace:        // query race
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
 				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
-				d->connected = CON_RACE;
+				d->state = EConState::kRace;
 				return;
 			}
 
@@ -3122,17 +3122,17 @@ void nanny(DescriptorData *d, char *argument) {
 			iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
 																				  GET_RACE(d->character)))).c_str(), d);
 			iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
-			d->connected = CON_BIRTHPLACE;
+			d->state = EConState::kBirthplace;
 
 			break;
 
-		case CON_BIRTHPLACE:
+		case EConState::kBirthplace:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
 																					  GET_RACE(d->character)))).c_str(),
 						  d);
 				iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
-				d->connected = CON_BIRTHPLACE;
+				d->state = EConState::kBirthplace;
 				return;
 			}
 
@@ -3146,14 +3146,14 @@ void nanny(DescriptorData *d, char *argument) {
 			GET_LOADROOM(d->character) = calc_loadroom(d->character.get(), load_result);
 			iosystem::write_to_output(genchar_help, d);
 			iosystem::write_to_output("\r\n\r\nНажмите любую клавишу.\r\n", d);
-			d->connected = CON_ROLL_STATS;
+			d->state = EConState::kRollStats;
 			SetStartAbils(d->character.get());
 			break;
 
-		case CON_ROLL_STATS:
+		case EConState::kRollStats:
 			if (pre_help(d->character.get(), argument)) {
 				genchar_disp_menu(d->character.get());
-				d->connected = CON_ROLL_STATS;
+				d->state = EConState::kRollStats;
 				return;
 			}
 
@@ -3163,12 +3163,12 @@ void nanny(DescriptorData *d, char *argument) {
 				default: iosystem::write_to_output("\r\nВведите ваш E-mail"
 								   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
 								   "\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
-					d->connected = CON_GET_EMAIL;
+					d->state = EConState::kGetEmail;
 					break;
 			}
 			break;
 
-		case CON_GET_EMAIL:
+		case EConState::kGetEmail:
 			if (!*argument) {
 				iosystem::write_to_output("\r\nВаш E-mail : ", d);
 				return;
@@ -3194,13 +3194,13 @@ void nanny(DescriptorData *d, char *argument) {
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
 				iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
-				d->connected = CON_RANDOM_NUMBER;
+				d->state = EConState::kRandomNumber;
 			}
 			break;
 
-		case CON_RMOTD:    // read CR after printing motd
+		case EConState::kRmotd:    // read CR after printing motd
 			if (!check_dupes_email(d)) {
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 				break;
 			}
 
@@ -3208,7 +3208,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 			break;
 
-		case CON_RANDOM_NUMBER: {
+		case EConState::kRandomNumber: {
 			int code_rand = atoi(argument);
 
 			if (new_char_codes.count(d->character->GetCharAliases()) != 0) {
@@ -3227,7 +3227,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 			if (new_loc_codes[GET_EMAIL(d->character)] != code_rand) {
 				iosystem::write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 				break;
 			}
 
@@ -3238,7 +3238,7 @@ void nanny(DescriptorData *d, char *argument) {
 			break;
 		}
 
-		case CON_MENU:        // get selection from main menu
+		case EConState::kMenu:        // get selection from main menu
 			switch (*argument) {
 				case '0': iosystem::write_to_output("\r\nДо встречи на земле Киевской.\r\n", d);
 
@@ -3259,13 +3259,13 @@ void nanny(DescriptorData *d, char *argument) {
 						}
 					}
 
-					d->connected = CON_CLOSE;
+					d->state = EConState::kClose;
 
 					break;
 
 				case '1':
 					if (!check_dupes_email(d)) {
-						d->connected = CON_CLOSE;
+						d->state = EConState::kClose;
 						break;
 					}
 
@@ -3294,16 +3294,16 @@ void nanny(DescriptorData *d, char *argument) {
 					d->writer =
 						std::make_shared<utils::DelegatedStdStringWriter>(d->character->player_data.description);
 					d->max_str = kExdscrLength;
-					d->connected = CON_EXDESC;
+					d->state = EConState::kExdesc;
 
 					break;
 
 				case '3': page_string(d, background, 0);
-					d->connected = CON_RMOTD;
+					d->state = EConState::kRmotd;
 					break;
 
 				case '4': iosystem::write_to_output("\r\nВведите СТАРЫЙ пароль : ", d);
-					d->connected = CON_CHPWD_GETOLD;
+					d->state = EConState::kChpwdGetOld;
 					break;
 
 				case '5':
@@ -3327,7 +3327,7 @@ void nanny(DescriptorData *d, char *argument) {
 					}
 
 					iosystem::write_to_output("\r\nДля подтверждения введите свой пароль : ", d);
-					d->connected = CON_DELCNF1;
+					d->state = EConState::kDelcnf1;
 
 					break;
 
@@ -3335,10 +3335,10 @@ void nanny(DescriptorData *d, char *argument) {
 					if (IS_IMMORTAL(d->character)) {
 						iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
 						iosystem::write_to_output(MENU, d);
-						d->connected = CON_MENU;
+						d->state = EConState::kMenu;
 					} else {
 						stats_reset::print_menu(d);
-						d->connected = CON_MENU_STATS;
+						d->state = EConState::kMenuStats;
 					}
 					break;
 
@@ -3347,12 +3347,12 @@ void nanny(DescriptorData *d, char *argument) {
 						d->character->SetFlag(EPrf::kBlindMode);
 						iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВКЛЮЧЕН.\r\n", d);
 						iosystem::write_to_output(MENU, d);
-						d->connected = CON_MENU;
+						d->state = EConState::kMenu;
 					} else {
 						d->character->UnsetFlag(EPrf::kBlindMode);
 						iosystem::write_to_output("\r\nСпециальный режим слепого игрока ВЫКЛЮЧЕН.\r\n", d);
 						iosystem::write_to_output(MENU, d);
-						d->connected = CON_MENU;
+						d->state = EConState::kMenu;
 					}
 
 					break;
@@ -3367,33 +3367,33 @@ void nanny(DescriptorData *d, char *argument) {
 
 			break;
 
-		case CON_CHPWD_GETOLD:
+		case EConState::kChpwdGetOld:
 			if (!Password::compare_password(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
 				iosystem::write_to_output(MENU, d);
-				d->connected = CON_MENU;
+				d->state = EConState::kMenu;
 			} else {
 				iosystem::write_to_output("\r\nВведите НОВЫЙ пароль : ", d);
-				d->connected = CON_CHPWD_GETNEW;
+				d->state = EConState::kChpwdGetNew;
 			}
 
 			return;
 
-		case CON_DELCNF1:
+		case EConState::kDelcnf1:
 			if (!Password::compare_password(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nНеверный пароль.\r\n", d);
 				iosystem::write_to_output(MENU, d);
-				d->connected = CON_MENU;
+				d->state = EConState::kMenu;
 			} else {
 				iosystem::write_to_output("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
 						  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
 						  "Наберите \"YES / ДА\" для подтверждения: ", d);
-				d->connected = CON_DELCNF2;
+				d->state = EConState::kDelcnf2;
 			}
 
 			break;
 
-		case CON_DELCNF2:
+		case EConState::kDelcnf2:
 			if (!strcmp(argument, "yes")
 				|| !strcmp(argument, "YES")
 				|| !strcmp(argument, "да")
@@ -3401,7 +3401,7 @@ void nanny(DescriptorData *d, char *argument) {
 				if (d->character->IsFlagged(EPlrFlag::kFrozen)) {
 					iosystem::write_to_output("Вы решились на суицид, но Боги остановили вас.\r\n", d);
 					iosystem::write_to_output("Персонаж не удален.\r\n", d);
-					d->connected = CON_CLOSE;
+					d->state = EConState::kClose;
 					return;
 				}
 				if (GetRealLevel(d->character) >= kLvlGreatGod) {
@@ -3413,16 +3413,16 @@ void nanny(DescriptorData *d, char *argument) {
 				sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 				d->character->get_account()->remove_player(d->character->get_uid());
-				d->connected = CON_CLOSE;
+				d->state = EConState::kClose;
 				return;
 			} else {
 				iosystem::write_to_output("\r\nПерсонаж не удален.\r\n", d);
 				iosystem::write_to_output(MENU, d);
-				d->connected = CON_MENU;
+				d->state = EConState::kMenu;
 			}
 			break;
 
-		case CON_NAME2: skip_spaces(&argument);
+		case EConState::kName2: skip_spaces(&argument);
 			if (strlen(argument) == 0) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, argument);
 			}
@@ -3436,7 +3436,7 @@ void nanny(DescriptorData *d, char *argument) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
-				d->connected = CON_NAME3;
+				d->state = EConState::kName3;
 			} else {
 				iosystem::write_to_output("Некорректно.\r\n", d);
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, tmp_name);
@@ -3445,7 +3445,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			break;
 
-		case CON_NAME3: skip_spaces(&argument);
+		case EConState::kName3: skip_spaces(&argument);
 
 			if (strlen(argument) == 0) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, argument);
@@ -3461,7 +3461,7 @@ void nanny(DescriptorData *d, char *argument) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
-				d->connected = CON_NAME4;
+				d->state = EConState::kName4;
 			} else {
 				iosystem::write_to_output("Некорректно.\r\n", d);
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
@@ -3470,7 +3470,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			break;
 
-		case CON_NAME4: skip_spaces(&argument);
+		case EConState::kName4: skip_spaces(&argument);
 
 			if (strlen(argument) == 0) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, argument);
@@ -3486,7 +3486,7 @@ void nanny(DescriptorData *d, char *argument) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
-				d->connected = CON_NAME5;
+				d->state = EConState::kName5;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
@@ -3495,7 +3495,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			break;
 
-		case CON_NAME5: skip_spaces(&argument);
+		case EConState::kName5: skip_spaces(&argument);
 			if (strlen(argument) == 0)
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, argument);
 			if (!_parse_name(argument, tmp_name) &&
@@ -3508,7 +3508,7 @@ void nanny(DescriptorData *d, char *argument) {
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
-				d->connected = CON_NAME6;
+				d->state = EConState::kName6;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
@@ -3517,7 +3517,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			break;
 
-		case CON_NAME6: skip_spaces(&argument);
+		case EConState::kName6: skip_spaces(&argument);
 			if (strlen(argument) == 0)
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, argument);
 			if (!_parse_name(argument, tmp_name) &&
@@ -3531,7 +3531,7 @@ void nanny(DescriptorData *d, char *argument) {
 						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 						GET_PAD(d->character, 1));
 				iosystem::write_to_output(buffer, d);
-				d->connected = CON_NEWPASSWD;
+				d->state = EConState::kNewpasswd;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
 				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
@@ -3540,9 +3540,9 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			break;
 
-		case CON_CLOSE: break;
+		case EConState::kClose: break;
 
-		case CON_RESET_STATS:
+		case EConState::kResetStats:
 			if (pre_help(d->character.get(), argument)) {
 				return;
 			}
@@ -3565,17 +3565,17 @@ void nanny(DescriptorData *d, char *argument) {
 					}
 
 					iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-					d->connected = CON_RMOTD;
+					d->state = EConState::kRmotd;
 			}
 
 			break;
 
-		case CON_RESET_KIN:
+		case EConState::kResetKin:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("\r\nКакой народ вам ближе по духу:\r\n", d);
 				iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 				iosystem::write_to_output("\r\nПлемя: ", d);
-				d->connected = CON_RESET_KIN;
+				d->state = EConState::kResetKin;
 				return;
 			}
 
@@ -3594,15 +3594,15 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-			d->connected = CON_RMOTD;
+			d->state = EConState::kRmotd;
 			break;
 
-		case CON_RESET_RACE:
+		case EConState::kResetRace:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
 				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
-				d->connected = CON_RESET_RACE;
+				d->state = EConState::kResetRace;
 				return;
 			}
 
@@ -3621,14 +3621,14 @@ void nanny(DescriptorData *d, char *argument) {
 
 			// способности нового рода проставятся дальше в do_entergame
 			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-			d->connected = CON_RMOTD;
+			d->state = EConState::kRmotd;
 
 			break;
 
-		case CON_MENU_STATS: stats_reset::parse_menu(d, argument);
+		case EConState::kMenuStats: stats_reset::parse_menu(d, argument);
 			break;
 
-		case CON_RESET_RELIGION:
+		case EConState::kResetReligion:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output(religion_menu, d);
 				iosystem::write_to_output("\n\rРелигия :", d);
@@ -3668,14 +3668,14 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-			d->connected = CON_RMOTD;
+			d->state = EConState::kRmotd;
 
 			break;
 
 		default:
 			log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
-				d->connected, d->character ? GET_NAME(d->character) : "<unknown>");
-			d->connected = CON_DISCONNECT;    // Safest to do.
+				d->state, d->character ? GET_NAME(d->character) : "<unknown>");
+			d->state = EConState::kDisconnect;    // Safest to do.
 
 			break;
 	}

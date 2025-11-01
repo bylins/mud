@@ -372,7 +372,7 @@ void do_edit_make(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// Проверяем не правит ли кто-то рецепты для исключения конфликтов
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->olc && d->connected == CON_MREDIT) {
+		if (d->olc && d->state == EConState::kMredit) {
 			sprintf(tmpbuf, "Рецепты в настоящий момент редактируются %s.\r\n", GET_PAD(d->character, 4));
 			SendMsgToChar(tmpbuf, ch);
 			return;
@@ -387,7 +387,7 @@ void do_edit_make(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		make_recepts.add(trec);
 		ch->desc->olc = new olc_data;
 		// входим в состояние правки рецепта.
-		ch->desc->connected = CON_MREDIT;
+		ch->desc->state = EConState::kMredit;
 		OLC_MREC(ch->desc) = trec;
 		OLC_VAL(ch->desc) = 0;
 		mredit_disp_menu(ch->desc);
@@ -402,7 +402,7 @@ void do_edit_make(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	i -= 1;
 	ch->desc->olc = new olc_data;
-	ch->desc->connected = CON_MREDIT;
+	ch->desc->state = EConState::kMredit;
 	OLC_MREC(ch->desc) = make_recepts[i];
 	mredit_disp_menu(ch->desc);
 	return;

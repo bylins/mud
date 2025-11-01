@@ -54,7 +54,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case '@':
 			// Обнаруживаем всех кто может (теоретически) нас услышать
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->connected == CON_PLAYING &&
+				if (d->state == EConState::kPlaying &&
 					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
 					!d->character->IsFlagged(EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || IS_IMPL(ch))) {
 					if (!bookmark1) {
@@ -72,7 +72,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->connected == CON_PLAYING &&
+				if (d->state == EConState::kPlaying &&
 					(IS_IMMORTAL(d->character) || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
 					d->character->IsFlagged(EPrf::kNoWiz) && CAN_SEE(ch, d->character)) {
 					if (!bookmark2) {
@@ -114,7 +114,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
 	for (d = descriptor_list; d; d = d->next) {
-		if ((d->connected == CON_PLAYING) &&    // персонаж должен быть в игре
+		if ((d->state == EConState::kPlaying) &&    // персонаж должен быть в игре
 			((GetRealLevel(d->character) >= level) ||    // уровень равным или выше level
 				(GET_GOD_FLAG(d->character, EGf::kDemigod) && level == 31)) &&    // демигоды видят 31 канал
 			(!d->character->IsFlagged(EPrf::kNoWiz)) &&    // игрок с режимом NOWIZ не видит имм канала

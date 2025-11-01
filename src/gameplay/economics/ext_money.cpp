@@ -324,7 +324,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 	} else if (num1 == 3 || num1 == 4) {
 		parse_dec_exch(ch, amount, num1);
 	} else if (num1 == 5) {
-		ch->desc->connected = CON_PLAYING;
+		ch->desc->state = EConState::kPlaying;
 		SendMsgToChar("Обмен отменен.\r\n", ch);
 		return;
 	} else if (num1 == 6) {
@@ -334,7 +334,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 			for (unsigned i = 0; i < kTotalTypes; ++i) {
 				ch->set_ext_money(i, ch->desc->ext_money[i]);
 			}
-			ch->desc->connected = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Обмен произведен.\r\n", ch);
 		}
 		return;
@@ -807,7 +807,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	}
 	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять")) {
 		// олц для обмена гривен в обе стороны
-		ch->desc->connected = CON_TORC_EXCH;
+		ch->desc->state = EConState::kTorcExch;
 		for (unsigned i = 0; i < kTotalTypes; ++i) {
 			ch->desc->ext_money[i] = ch->get_ext_money(i);
 		}

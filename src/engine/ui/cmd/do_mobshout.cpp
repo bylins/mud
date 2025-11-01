@@ -24,7 +24,7 @@ void do_mobshout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next) {
-		if  (i->connected == CON_PLAYING
+		if  (i->state == EConState::kPlaying
 			&& i->character
 			&& !i->character->IsFlagged(EPlrFlag::kWriting)
 			&& i->character->GetPosition() > EPosition::kSleep) {

@@ -513,7 +513,7 @@ void pk_revenge_action(CharData *killer, CharData *victim) {
 	}
 	// завершить все поединки, в которых участвовал victim
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (d->connected != CON_PLAYING)
+		if (d->state != EConState::kPlaying)
 			continue;
 		pk_update_revenge(victim, d->character.get(), 0, 0);
 		pk_update_revenge(d->character.get(), victim, 0, 0);
