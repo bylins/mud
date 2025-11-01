@@ -305,6 +305,11 @@ void CObjectPrototype::tag_ex_description(const char *tag) {
 }
 
 CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
+	MakeShallowCopy(from);
+	return *this;
+}
+
+void CObjectPrototype::MakeShallowCopy(const CObjectPrototype &from) {
 	if (this != &from) {
 		m_type = from.m_type;
 		m_weight = from.m_weight;
@@ -343,8 +348,10 @@ CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
 		m_ilevel = from.m_ilevel;
 		m_rnum = from.m_rnum;
 	}
+}
 
-	return *this;
+CObjectPrototype::CObjectPrototype(const CObjectPrototype &other) {
+	MakeShallowCopy(other);
 }
 
 int CObjectPrototype::get_skill(ESkill skill_num) const {
