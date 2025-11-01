@@ -89,11 +89,8 @@ CharData *SearchCharInRoomByName(const char *name, RoomRnum room);
 void RemoveCharFromRoom(CharData *ch);
 inline void char_from_room(const CharData::shared_ptr &ch) { RemoveCharFromRoom(ch.get()); }
 void PlaceCharToRoom(CharData *ch, RoomRnum room);
-void FleeToRoom(CharData *ch, RoomRnum room);
 inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
-inline void char_flee_to_room(const CharData::shared_ptr &ch, RoomRnum room) { FleeToRoom(ch.get(), room); }
 void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = false);
-void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 // find if character can see //
 CharData *get_char_room_vis(CharData *ch, const char *name);
@@ -178,17 +175,9 @@ void Crash_idlesave(CharData *ch);
 
 bool stop_follower(CharData *ch, int mode);
 
-// charm //
-
-float get_effective_cha(CharData *ch);
-float CalcEffectiveWis(CharData *ch, ESpell spell_id);
-float get_effective_int(CharData *ch);
-int CalcCharmPoint(CharData *ch, ESpell spell_id);
 
 int get_object_low_rent(ObjData *obj);
 void InitUid(ObjData *object);
-
-void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id);
 
 void can_carry_obj(CharData *ch, ObjData *obj);
 int num_pc_in_room(RoomData *room);

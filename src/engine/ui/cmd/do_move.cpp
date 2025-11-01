@@ -10,7 +10,7 @@
 #include "engine/core/char_movement.h"
 
 void DoMove(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
-	PerformMove(ch, subcmd - 1, 0, true, nullptr);
+	PerformMove(ch, subcmd, 0, true, nullptr);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
