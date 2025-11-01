@@ -579,7 +579,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto) {
 		// Сохраняем UID
-		out << "Ouid: " << GET_OBJ_UNIQUE_ID(object) << "~\n";
+		out << "Ouid: " << object->get_unique_id() << "~\n";
 		// Алиасы
 		if (object->get_aliases() != proto->get_aliases()) {
 			out << "Alia: " << object->get_aliases() << "~\n";

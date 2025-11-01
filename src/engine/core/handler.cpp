@@ -408,7 +408,7 @@ void ArrangeObjs(ObjData *obj, ObjData **list_start) {
 // * Инициализация уида для нового объекта.
 void InitUid(ObjData *object) {
 	if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
-		GET_OBJ_UNIQUE_ID(object) == 0)   // У объекта точно нет уида
+		object->get_unique_id() == 0)   // У объекта точно нет уида
 	{
 		global_uid++; // Увеличиваем глобальный счетчик уидов
 		global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
@@ -444,12 +444,12 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 		if (!ch->IsNpc()
 			|| (ch->has_master()
 				&& !ch->get_master()->IsNpc())) {
-			if (object && GET_OBJ_UNIQUE_ID(object) != 0 && object->get_timer() > 0) {
-				tuid = GET_OBJ_UNIQUE_ID(object);
+			if (object && object->get_unique_id() != 0 && object->get_timer() > 0) {
+				tuid = object->get_unique_id();
 				inworld = 1;
 				// Объект готов для проверки. Ищем в мире такой же.
 				world_objects.foreach_with_vnum(GET_OBJ_VNUM(object), [&inworld, tuid, object](const ObjData::shared_ptr &i) {
-					if (GET_OBJ_UNIQUE_ID(i) == tuid // UID совпадает
+					if (i->get_unique_id() == tuid // UID совпадает
 						&& i->get_timer() > 0  // Целенький
 						&& object != i.get()) // Не оно же
 					{
@@ -462,7 +462,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 					sprintf(buf,
 							"Copy detected and prepared to extract! Object %s (UID=%ld, VNUM=%d), holder %s. In world %d.",
 							object->get_PName(0).c_str(),
-							GET_OBJ_UNIQUE_ID(object),
+							object->get_unique_id(),
 							GET_OBJ_VNUM(object),
 							GET_NAME(ch),
 							inworld);

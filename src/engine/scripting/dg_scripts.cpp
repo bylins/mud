@@ -3149,10 +3149,10 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "id")) {
 			sprintf(str, "%c%ld", UID_OBJ, o->get_id());
 		} else if (!str_cmp(field, "unique")) {
-			if (!GET_OBJ_UNIQUE_ID(o)) {
+			if (!o->get_unique_id()) {
 				InitUid(o);
 			}
-			sprintf(str, "%ld", GET_OBJ_UNIQUE_ID(o));
+			sprintf(str, "%ld", o->get_unique_id());
 		} else if (!str_cmp(field, "shortdesc")) {
 			strcpy(str, o->get_short_description().c_str());
 		} else if (!str_cmp(field, "vnum")) {

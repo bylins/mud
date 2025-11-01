@@ -667,14 +667,9 @@ const int kNameLevel = 5;
 
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")
 
-#define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
-#define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
-
-// New, preferred macro
-#define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
+#define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
 
 // object utils *********************************************************
-#define GET_OBJ_UNIQUE_ID(obj)    ((obj)->get_unique_id())
 
 #define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))
 #define GET_OBJ_SPELL(obj)      ((obj)->get_spell())

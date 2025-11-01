@@ -699,7 +699,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 
 	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
-				  kColorGrn, vnum, kColorNrm, GET_OBJ_RNUM(j), GET_OBJ_UNIQUE_ID(j), j->get_id());
+				  kColorGrn, vnum, kColorNrm, GET_OBJ_RNUM(j), j->get_unique_id(), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
