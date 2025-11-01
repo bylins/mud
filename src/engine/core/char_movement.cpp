@@ -460,7 +460,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		} else
 			strcpy(smallBuf, "уш$y");
 
-		if (move_type != EMoveType::kFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
+		if (move_type == EMoveType::kFlee && !ch->IsNpc() && CanUseFeat(ch, EFeat::kWriggler))
 			sprintf(buf2, "$n %s.", smallBuf);
 		else
 			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
