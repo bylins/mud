@@ -43,11 +43,11 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == EObjType::kPen)    // oops, a pen..
+		if (paper->get_type() == EObjType::kPen)    // oops, a pen..
 		{
 			pen = paper;
 			paper = nullptr;
-		} else if (GET_OBJ_TYPE(paper) != EObjType::kNote) {
+		} else if (paper->get_type() != EObjType::kNote) {
 			SendMsgToChar("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
 		}
@@ -67,9 +67,9 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			pen = GET_EQ(ch, kHold);
 	}
 
-	if (GET_OBJ_TYPE(pen) != EObjType::kPen) {
+	if (pen->get_type() != EObjType::kPen) {
 		act("Вы не умеете писать $o4.", false, ch, pen, 0, kToChar);
-	} else if (GET_OBJ_TYPE(paper) != EObjType::kNote) {
+	} else if (paper->get_type() != EObjType::kNote) {
 		act("Вы не можете писать на $o5.", false, ch, paper, 0, kToChar);
 	} else if (!paper->get_action_description().empty()) {
 		SendMsgToChar("Там уже что-то записано.\r\n", ch);

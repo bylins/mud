@@ -168,7 +168,7 @@ bool verify_wear_flag(const CObjectPrototype::shared_ptr & /*obj*/) {
 /*	if (CAN_WEAR(obj, kFinger)
 		|| CAN_WEAR(obj, kNeck)
 		|| CAN_WEAR(obj, kWrist)
-		|| GET_OBJ_TYPE(obj) == kLight)
+		|| obj->get_type() == kLight)
 	{
 		return false;
 	}

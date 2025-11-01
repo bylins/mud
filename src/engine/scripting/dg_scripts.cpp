@@ -3158,7 +3158,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "vnum")) {
 			sprintf(str, "%d", GET_OBJ_VNUM(o));
 		} else if (!str_cmp(field, "type")) {
-			sprintf(str, "%d", (int) GET_OBJ_TYPE(o));
+			sprintf(str, "%d", (int) o->get_type());
 		} else if (!str_cmp(field, "timer")) {
 			sprintf(str, "%d", o->get_timer());
 		} else if (!str_cmp(field, "objmax")) {
@@ -3403,7 +3403,7 @@ void find_replacement(void *go,
 			if (*subfield == UID_OBJ) {
 				obj_to = world_objects.find_by_id(atoi(subfield + 1)).get();
 				if (!(obj_to
-					&& GET_OBJ_TYPE(obj_to) == EObjType::kContainer)) {
+					&& obj_to->get_type() == EObjType::kContainer)) {
 					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
 					return;
 				}

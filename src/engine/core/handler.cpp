@@ -75,7 +75,7 @@ bool IsWearingLight(CharData *ch) {
 	bool wear_light = false;
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos)
-			&& GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == EObjType::kLightSource
+			&& GET_EQ(ch, wear_pos)->get_type() == EObjType::kLightSource
 			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2)) {
 			wear_light = true;
 		}
@@ -343,12 +343,12 @@ bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
 		|| strcmp(obj_one->get_short_description().c_str(), obj_two->get_short_description().c_str())
-		|| (GET_OBJ_TYPE(obj_one) == EObjType::kLiquidContainer
+		|| (obj_one->get_type() == EObjType::kLiquidContainer
 			&& GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
-		|| (GET_OBJ_TYPE(obj_one) == EObjType::kContainer
+		|| (obj_one->get_type() == EObjType::kContainer
 			&& (obj_one->get_contains() || obj_two->get_contains()))
 		|| GET_OBJ_VNUM(obj_two) == -1
-		|| (GET_OBJ_TYPE(obj_one) == EObjType::kBook
+		|| (obj_one->get_type() == EObjType::kBook
 			&& GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
 		|| !IsLabelledObjsStackable(obj_one, obj_two)) {
 		return false;
@@ -746,19 +746,19 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 }
 
 bool CheckArmorType(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kLightArmor && !CanUseFeat(ch, EFeat::kWearingLightArmor)) {
+	if (obj->get_type() == EObjType::kLightArmor && !CanUseFeat(ch, EFeat::kWearingLightArmor)) {
 		act("Для использования $o1 требуется способность 'легкие доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kMediumArmor && !CanUseFeat(ch, EFeat::kWearingMediumArmor)) {
+	if (obj->get_type() == EObjType::kMediumArmor && !CanUseFeat(ch, EFeat::kWearingMediumArmor)) {
 		act("Для использования $o1 требуется способность 'средние доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kHeavyArmor && !CanUseFeat(ch, EFeat::kWearingHeavyArmor)) {
+	if (obj->get_type() == EObjType::kHeavyArmor && !CanUseFeat(ch, EFeat::kWearingHeavyArmor)) {
 		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
 			false, ch, obj, nullptr, kToChar);
 		return false;
@@ -926,7 +926,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 	// Раз показываем сообщение, значит, предмет надевает сам персонаж
 	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
-	if (show_msg && ch->GetEnemy() && (GET_OBJ_TYPE(obj) == EObjType::kWeapon || pos == kShield)) {
+	if (show_msg && ch->GetEnemy() && (obj->get_type() == EObjType::kWeapon || pos == kShield)) {
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 2);
 	}
 }
@@ -1313,7 +1313,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 	}
 	if (object->get_script()->has_triggers()) {
 		object->set_destroyer(kScriptDestroyTimer);
-	} else if (GET_OBJ_TYPE(object) == EObjType::kMoney) {
+	} else if (object->get_type() == EObjType::kMoney) {
 		object->set_destroyer(kMoneyDestroyTimer);
 	} else if (ROOM_FLAGGED(room, ERoomFlag::kDeathTrap)) {
 		object->set_destroyer(kDeathDestroyTimer);
@@ -1549,7 +1549,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 void UpdateCharObjects(CharData *ch) {
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
 		if (GET_EQ(ch, wear_pos) != nullptr) {
-			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == EObjType::kLightSource) {
+			if (GET_EQ(ch, wear_pos)->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
 					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1) {

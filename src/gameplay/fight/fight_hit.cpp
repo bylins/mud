@@ -1417,9 +1417,9 @@ void HitData::hit_deviate(CharData *ch, CharData *victim, int *dam) {
 
 void HitData::hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
 	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::kWeapon
+		&& GET_EQ(victim, EEquipPos::kWield)->get_type() == EObjType::kWeapon
 		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::kWeapon)
+		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
@@ -1482,9 +1482,9 @@ void HitData::hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_ty
 void HitData::hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam) {
 
 	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kWield)) == EObjType::kWeapon
+		&& GET_EQ(victim, EEquipPos::kWield)->get_type() == EObjType::kWeapon
 		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(victim, EEquipPos::kHold)) == EObjType::kWeapon)
+		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отклонять атаки противников.\r\n", victim);
@@ -2929,7 +2929,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 	}
 
 	if (wielded
-		&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon) {
+		&& wielded->get_type() == EObjType::kWeapon) {
 		// для всех типов атак скилл берется из пушки, если она есть
 		weap_skill = static_cast<ESkill>(wielded->get_spec_param());
 	} else {
@@ -2964,7 +2964,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		hit_no_parry = true;
 	}
 
-	if (wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon) {
+	if (wielded && wielded->get_type() == EObjType::kWeapon) {
 		hit_type = GET_OBJ_VAL(wielded, 3);
 	} else {
 		weapon_pos = 0;
@@ -2987,7 +2987,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 void HitData::calc_base_hr(CharData *ch) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		if (wielded
-			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
+			&& wielded->get_type() == EObjType::kWeapon
 			&& !ch->IsNpc()) {
 			// Apply HR for light weapon
 			int percent = 0;
@@ -3082,7 +3082,7 @@ void HitData::calc_base_hr(CharData *ch) {
 	if ((skill_num == ESkill::kThrow
 		|| skill_num == ESkill::kBackstab)
 		&& wielded
-		&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon) {
+		&& wielded->get_type() == EObjType::kWeapon) {
 		if (skill_num == ESkill::kBackstab) {
 			calc_thaco -= std::max(0, (ch->GetSkill(ESkill::kSneak) + ch->GetSkill(ESkill::kHide) - 100) / 30);
 		}
@@ -3112,7 +3112,7 @@ void HitData::calc_rand_hr(CharData *ch, CharData *victim) {
 	if (weapon == fight::AttackType::kOffHand
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab
-		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon)
+		&& !(wielded && wielded->get_type() == EObjType::kWeapon)
 		&& !ch->IsNpc()) {
 			calc_thaco += std::max(0, (CalcSkillMinCap(victim, ESkill::kLeftHit) - CalcCurrentSkill(ch, ESkill::kLeftHit, victim)) / 10);
 	}
@@ -3186,7 +3186,7 @@ void HitData::calc_stat_hr(CharData *ch) {
 	if (weapon == fight::AttackType::kOffHand
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab
-		&& !(wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon)
+		&& !(wielded && wielded->get_type() == EObjType::kWeapon)
 		&& !ch->IsNpc()) {
 		calc_thaco += (MUD::Skill(ESkill::kLeftHit).difficulty - ch->GetSkill(ESkill::kLeftHit)) / 10;
 	}
@@ -3468,7 +3468,7 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 						  GetRealStr(ch), STR_TO_DAM),
 					  GetRealStr(ch));
 	// оружие/руки и модификаторы урона скилов, с ними связанных
-	if (wielded && GET_OBJ_TYPE(wielded) == EObjType::kWeapon) {
+	if (wielded && wielded->get_type() == EObjType::kWeapon) {
 		add_weapon_damage(ch, need_dice);
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));

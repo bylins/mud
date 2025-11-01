@@ -775,8 +775,8 @@ bool is_depot(ObjData *obj) {
 // * Распечатка отдельного предмета при осмотре хранилища.
 void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 			   ObjData *obj, int count, CharData *ch) {
-	const bool output_to_i = GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
-		|| GET_OBJ_TYPE(obj) == EObjType::kCraftMaterial;
+	const bool output_to_i = obj->get_type() == EObjType::kMagicIngredient
+		|| obj->get_type() == EObjType::kCraftMaterial;
 	std::stringstream &out = output_to_i ? i_out : s_out;
 
 	out << obj->get_short_description();
@@ -813,8 +813,8 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 
 	auto prev_obj_it = cont.cend();
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it) {
-		if (GET_OBJ_TYPE(*obj_it) == EObjType::kMagicIngredient
-			|| GET_OBJ_TYPE(*obj_it) == EObjType::kCraftMaterial) {
+		if ((*obj_it)->get_type() == EObjType::kMagicIngredient
+			|| (*obj_it)->get_type() == EObjType::kCraftMaterial) {
 			++i_cnt;
 		} else {
 			++s_cnt;
@@ -922,7 +922,7 @@ void show_depot(CharData *ch) {
 * На руках при возврате переполняться уже некуда, т.к. вложение идет с этих самых рук.
 */
 void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
-	if (GET_OBJ_TYPE(obj) != EObjType::kMoney) {
+	if (obj->get_type() != EObjType::kMoney) {
 		return;
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
@@ -949,7 +949,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 //		|| (NamedStuff::check_named(ch, obj, 0) && GET_UID(ch) != GET_OBJ_OWNER(obj))) {
 		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
 		return 0;
-	} else if (GET_OBJ_TYPE(obj) == EObjType::kContainer
+	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
 		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 		return 0;
@@ -964,8 +964,8 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 unsigned count_inrg(const ObjListType &cont) {
 	unsigned ingr_cnt = 0;
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it) {
-		if (GET_OBJ_TYPE(*obj_it) == EObjType::kMagicIngredient
-			|| GET_OBJ_TYPE(*obj_it) == EObjType::kCraftMaterial) {
+		if ((*obj_it)->get_type() == EObjType::kMagicIngredient
+			|| (*obj_it)->get_type() == EObjType::kCraftMaterial) {
 			++ingr_cnt;
 		}
 	}
@@ -990,7 +990,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
+	if (obj->get_type() == EObjType::kMoney) {
 		put_gold_chest(ch, obj);
 		return 1;
 	}
@@ -1009,8 +1009,8 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 
 	const size_t ingr_cnt = count_inrg(it->second.pers_online);
 	const size_t staff_cnt = it->second.pers_online.size() - ingr_cnt;
-	const bool is_ingr = GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
-		|| GET_OBJ_TYPE(obj) == EObjType::kCraftMaterial;
+	const bool is_ingr = obj->get_type() == EObjType::kMagicIngredient
+		|| obj->get_type() == EObjType::kCraftMaterial;
 
 	if (is_ingr && ingr_cnt >= (MAX_PERS_SLOTS(ch) * 2)) {
 		SendMsgToChar("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);

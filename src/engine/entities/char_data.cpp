@@ -2243,11 +2243,11 @@ obj_sets::activ_sum &CharData::obj_bonus() {
 
 bool CharData::HasWeapon() {
 	if ((GET_EQ(this, EEquipPos::kWield)
-	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kWield)) != EObjType::kLightSource)
+	  && GET_EQ(this, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
 	  || (GET_EQ(this, EEquipPos::kHold)
-	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kHold)) != EObjType::kLightSource)
+	  && GET_EQ(this, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
 	  || (GET_EQ(this, EEquipPos::kBoths)
-	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kBoths)) != EObjType::kLightSource)) {
+	  && GET_EQ(this, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
 		return true;
 	}
 	return false;

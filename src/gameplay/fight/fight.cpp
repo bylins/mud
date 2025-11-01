@@ -1019,7 +1019,7 @@ void mob_casting(CharData *ch) {
 		&& item
 		&& GET_RACE(ch) == ENpcRace::kHuman
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
-		switch (GET_OBJ_TYPE(item)) {
+		switch (item->get_type()) {
 			case EObjType::kWand:
 			case EObjType::kStaff: {
 				const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, 3));
@@ -1120,7 +1120,7 @@ void mob_casting(CharData *ch) {
 			&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
 			&& item
 			&& GET_RACE(ch) == ENpcRace::kHuman) {
-			switch (GET_OBJ_TYPE(item)) {
+			switch (item->get_type()) {
 				case EObjType::kWand:
 				case EObjType::kStaff:
 					if (GET_OBJ_VAL(item, 2) > 0
@@ -1947,7 +1947,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon
+		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
 		&& GET_AF_BATTLE(ch, kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
 		&& (IS_IMMORTAL(ch)

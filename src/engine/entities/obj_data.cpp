@@ -466,9 +466,9 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 		::set_obj_aff(this, negative_list[number(0, static_cast<int>(negative_list.size() - 1))]);
 	}
 
-	add_affect_flags(GET_OBJ_AFFECTS(obj));
+	add_affect_flags(obj->get_affect_flags());
 	add_extra_flags(GET_OBJ_EXTRA(obj));
-	add_no_flags(GET_OBJ_NO(obj));
+	add_no_flags(obj->get_no_flags());
 }
 
 void ObjData::unset_enchant() {
@@ -648,10 +648,10 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 	}
 	std::stringstream buffer;
 
-	if (get_timer() > 100000 && (GET_OBJ_TYPE(this) == EObjType::kArmor
-		|| GET_OBJ_TYPE(this) == EObjType::kStaff
-		|| GET_OBJ_TYPE(this) == EObjType::kWorm
-		|| GET_OBJ_TYPE(this) == EObjType::kWeapon)) {
+	if (get_timer() > 100000 && (this->get_type() == EObjType::kArmor
+		|| this->get_type() == EObjType::kStaff
+		|| this->get_type() == EObjType::kWorm
+		|| this->get_type() == EObjType::kWeapon)) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
 			   << "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " << get_id() << ", таймер > 100к равен: "
 			   << get_timer();
@@ -675,8 +675,8 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		set_timer(get_timer() - time);
 	}
 	if (!exchange) {
-		if (((GET_OBJ_TYPE(this) == EObjType::kLiquidContainer)
-			|| (GET_OBJ_TYPE(this) == EObjType::kFood))
+		if (((this->get_type() == EObjType::kLiquidContainer)
+			|| (this->get_type() == EObjType::kFood))
 			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
 		{
 			dec_val(3);
@@ -882,7 +882,7 @@ float count_affect_weight(const CObjectPrototype * /*obj*/, int num, int mod) {
 }
 
 bool is_armor_type(const CObjectPrototype *obj) {
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (obj->get_type()) {
 		case EObjType::kArmor:
 		case EObjType::kLightArmor:
 		case EObjType::kMediumArmor:

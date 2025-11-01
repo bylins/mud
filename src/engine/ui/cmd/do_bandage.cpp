@@ -32,7 +32,7 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	ObjData *bandage = nullptr;
 	for (ObjData *i = ch->carrying; i; i = i->get_next_content()) {
-		if (GET_OBJ_TYPE(i) == EObjType::kBandage) {
+		if (i->get_type() == EObjType::kBandage) {
 			bandage = i;
 			break;
 		}

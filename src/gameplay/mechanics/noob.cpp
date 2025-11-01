@@ -176,7 +176,7 @@ void check_help_message(CharData *ch) {
 /// Богатырям при надевании перчаток сетится кулачный бой.
 ///
 void equip_start_outfit(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kArmor) {
+	if (obj->get_type() == EObjType::kArmor) {
 		int where = find_eq_pos(ch, obj, nullptr);
 		if (where >= 0) {
 			EquipObj(ch, obj, where, CharEquipFlags());
@@ -185,7 +185,7 @@ void equip_start_outfit(CharData *ch, ObjData *obj) {
 				ch->set_skill(ESkill::kPunch, 10);
 			}
 		}
-	} else if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+	} else if (obj->get_type() == EObjType::kWeapon) {
 		if (CAN_WEAR(obj, EWearFlag::kWield)
 			&& !GET_EQ(ch, EEquipPos::kWield)) {
 			EquipObj(ch, obj, EEquipPos::kWield, CharEquipFlags());

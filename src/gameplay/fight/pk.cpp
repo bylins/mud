@@ -1039,7 +1039,7 @@ void set_bloody_flag(ObjData *list, const CharData *ch) {
 	}
 	set_bloody_flag(list->get_contains(), ch);
 	set_bloody_flag(list->get_next_content(), ch);
-	const int t = GET_OBJ_TYPE(list);
+	const int t = list->get_type();
 	if (!list->has_flag(EObjFlag::kBloody)
 		&& (t == EObjType::kLightSource
 			|| t == EObjType::kWand

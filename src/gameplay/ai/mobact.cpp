@@ -216,7 +216,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 		}
 		if (ch->GetSkill(ESkill::kThrow)
 			&& wielded
-			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
+			&& wielded->get_type() == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			if (do_mode)
 				DoThrow(ch, victim);

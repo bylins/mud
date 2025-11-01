@@ -264,7 +264,7 @@ int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
 		jar->dec_val(1);
 
 		if (GET_OBJ_VAL(jar, 1) <= 0
-			&& GET_OBJ_TYPE(jar) != EObjType::kFountain) {
+			&& jar->get_type() != EObjType::kFountain) {
 			name_from_drinkcon(jar);
 			jar->set_spec_param(0);
 			reset_potion_values(jar);

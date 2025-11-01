@@ -78,8 +78,8 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Вы должны пожертвовать что-то стоящее.\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(obj) != EObjType::kFood
-			&& GET_OBJ_TYPE(obj) != EObjType::kTreasure) {
+		if (obj->get_type() != EObjType::kFood
+			&& obj->get_type() != EObjType::kTreasure) {
 			SendMsgToChar("Богам неугодна эта жертва.\r\n", ch);
 			return;
 		}

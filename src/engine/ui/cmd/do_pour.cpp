@@ -31,8 +31,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("У вас нет этого!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != EObjType::kLiquidContainer
-			&& GET_OBJ_TYPE(from_obj) != EObjType::kPotion) {
+		if (from_obj->get_type() != EObjType::kLiquidContainer
+			&& from_obj->get_type() != EObjType::kPotion) {
 			SendMsgToChar("Вы не можете из этого переливать!\r\n", ch);
 			return;
 		}
@@ -47,7 +47,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("У вас этого нет!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != EObjType::kLiquidContainer) {
+		if (to_obj->get_type() != EObjType::kLiquidContainer) {
 			act("Вы не можете наполнить $o3!", false, ch, to_obj, 0, kToChar);
 			return;
 		}
@@ -61,7 +61,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != EObjType::kFountain) {
+		if (from_obj->get_type() != EObjType::kFountain) {
 			act("Вы не сможете ничего наполнить из $o1.", false, ch, from_obj, 0, kToChar);
 			return;
 		}
@@ -95,8 +95,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Вы не можете этого найти!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != EObjType::kLiquidContainer
-			&& GET_OBJ_TYPE(to_obj) != EObjType::kFountain) {
+		if (to_obj->get_type() != EObjType::kLiquidContainer
+			&& to_obj->get_type() != EObjType::kFountain) {
 			SendMsgToChar("Вы не сможете в это налить.\r\n", ch);
 			return;
 		}
@@ -107,7 +107,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (GET_OBJ_VAL(to_obj, 1) != 0
-		&& GET_OBJ_TYPE(from_obj) != EObjType::kPotion
+		&& from_obj->get_type() != EObjType::kPotion
 		&& GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2)) {
 		SendMsgToChar("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
 		return;
@@ -123,7 +123,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	//Переливает из бутылки с зельем в емкость
-	if (GET_OBJ_TYPE(from_obj) == EObjType::kPotion) {
+	if (from_obj->get_type() == EObjType::kPotion) {
 		int result = drinkcon::check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
 			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
@@ -160,8 +160,8 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	//Переливает из емкости или колодца с зельем куда-то
-	if ((GET_OBJ_TYPE(from_obj) == EObjType::kLiquidContainer
-		|| GET_OBJ_TYPE(from_obj) == EObjType::kFountain)
+	if ((from_obj->get_type() == EObjType::kLiquidContainer
+		|| from_obj->get_type() == EObjType::kFountain)
 		&& is_potion(from_obj)) {
 		if (GET_OBJ_VAL(to_obj, 1) == 0) {
 			drinkcon::spells_to_drinkcon(from_obj, to_obj);
@@ -206,7 +206,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
 	// Then how much to pour //
 	amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1));
-	if (GET_OBJ_TYPE(from_obj) != EObjType::kFountain
+	if (from_obj->get_type() != EObjType::kFountain
 		|| GET_OBJ_VAL(from_obj, 1) != 999) {
 		from_obj->sub_val(1, amount);
 	}
@@ -227,7 +227,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// And the weight boogie //
-	if (GET_OBJ_TYPE(from_obj) != EObjType::kFountain) {
+	if (from_obj->get_type() != EObjType::kFountain) {
 		weight_change_object(from_obj, -amount);
 	}
 	weight_change_object(to_obj, amount);    // Add weight //

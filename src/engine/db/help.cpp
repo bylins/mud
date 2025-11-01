@@ -112,20 +112,20 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+	if (obj->get_type() == EObjType::kWeapon) {
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
 		out << fmt::format("Наносимые повреждения '{}D{}' среднее {:.1}\r\n",
 			drndice, drsdice, (drsdice + 1) * drndice / 2.0);
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon
+	if (obj->get_type() == EObjType::kWeapon
 		|| CAN_WEAR(obj, EWearFlag::kShield)
 		|| CAN_WEAR(obj, EWearFlag::kHands)) {
 		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
 	}
 
-	if (GET_OBJ_AFFECTS(obj).sprintbits(weapon_affects, buf2, ",")) {
+	if (obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",")) {
 		out << "Аффекты : " << buf2 << "\r\n";
 	}
 
@@ -192,7 +192,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		out << " + Свойства :\r\n" << tmp_str;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+	if (obj->get_type() == EObjType::kWeapon) {
 		int drndice = 0, drsdice = 0;
 		activ->second.get_dices(drsdice, drndice);
 		if (drsdice > 0 && drndice > 0) {
@@ -354,8 +354,8 @@ std::string print_fullset_stats(const set_info &set) {
 		const auto &obj = obj_proto[rnum];
 
 		// суммируем родные статы со шмоток
-		activ.native_no_flag += GET_OBJ_NO(obj);
-		activ.native_affects += GET_OBJ_AFFECTS(obj);
+		activ.native_no_flag += obj->get_no_flags();
+		activ.native_affects += obj->get_affect_flags();
 		sum_apply(activ.native_affected, obj->get_all_affected());
 		sum_skills(activ.native_skills, obj.get());
 

@@ -1046,14 +1046,14 @@ bool NO_DESTROY(const ObjData *obj) {
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
 //		|| (obj->get_script()->has_triggers())
-		|| GET_OBJ_TYPE(obj) == EObjType::kFountain
+		|| obj->get_type() == EObjType::kFountain
 		|| obj->get_in_room() == kNowhere
 		|| (obj->has_flag(EObjFlag::kNodecay)
 			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
 }
 
 bool NO_TIMER(const ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kFountain
+	if (obj->get_type() == EObjType::kFountain
 			|| !obj->has_flag(EObjFlag::kTicktimer)
 			|| (obj->get_in_room() != kNowhere && zone_table[world[obj->get_in_room()]->zone_rn].under_construction))
 		return true;

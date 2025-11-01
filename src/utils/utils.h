@@ -672,12 +672,6 @@ const int kNameLevel = 5;
 // object utils *********************************************************
 
 #define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))
-#define GET_OBJ_SPELL(obj)      ((obj)->get_spell())
-#define GET_OBJ_LEVEL(obj)      ((obj)->get_level())
-#define GET_OBJ_AFFECTS(obj)    ((obj)->get_affect_flags())
-#define GET_OBJ_ANTI(obj)       ((obj)->get_anti_flags())
-#define GET_OBJ_NO(obj)         ((obj)->get_no_flags())
-#define GET_OBJ_TYPE(obj)       ((obj)->get_type())
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_on())
@@ -993,7 +987,7 @@ void skip_spaces(T string) {
 
 std::string thousands_sep(long long n);
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::kContainer && \
+#define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 

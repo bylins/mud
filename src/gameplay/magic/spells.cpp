@@ -173,7 +173,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
 
 	if (obj
-		&& GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer) {
+		&& obj->get_type() == EObjType::kLiquidContainer) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
 			SendMsgToChar("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
@@ -1462,7 +1462,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 }
 
 void show_weapon(CharData *ch, ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
@@ -1508,7 +1508,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	}
 	SendMsgToChar("Вы узнали следующее:\r\n", ch);
 	sprintf(buf, "Предмет \"%s\", тип : ", obj->get_short_description().c_str());
-	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
+	sprinttype(obj->get_type(), item_types, buf2);
 	strcat(buf, buf2);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
@@ -1590,7 +1590,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	if (fullness < 75)
 		return;
 
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (obj->get_type()) {
 		case EObjType::kScroll:
 		case EObjType::kPotion: {
 			std::ostringstream out;
@@ -1828,7 +1828,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 		}
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kEnchant
+	if (obj->get_type() == EObjType::kEnchant
 		&& GET_OBJ_VAL(obj, 0) != 0) {
 		if (!found) {
 			SendMsgToChar("Дополнительные свойства :\r\n", ch);
@@ -2592,11 +2592,11 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	int num = 0;
 
 	if (spelltype == ESpellType::kRunes
-		&& GET_OBJ_TYPE(obj) != EObjType::kIngredient) {
+		&& obj->get_type() != EObjType::kIngredient) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient) {
+	if (obj->get_type() == EObjType::kIngredient) {
 		if ((!IS_SET(obj->get_spec_param(), kItemRunes) && spelltype == ESpellType::kRunes)
 			|| (IS_SET(obj->get_spec_param(), kItemRunes) && spelltype != ESpellType::kRunes)) {
 			return false;

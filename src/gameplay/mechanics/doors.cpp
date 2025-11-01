@@ -74,7 +74,7 @@ ObjVnum GetDoorKeyVnum(CharData *ch, ObjData *obj, EDirection dir) {
 
 bool IsdoorOpenable(CharData *ch, ObjData *obj, EDirection dir) {
 	if (obj) {
-		return (GET_OBJ_TYPE(obj) == EObjType::kContainer) && OBJVAL_FLAGGED(obj, EContainerFlag::kCloseable);
+		return (obj->get_type() == EObjType::kContainer) && OBJVAL_FLAGGED(obj, EContainerFlag::kCloseable);
 	} else {
 		return EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kHasDoor);
 	}

@@ -502,21 +502,21 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	*error = 0;
 
 	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer
-		|| GET_OBJ_TYPE(object) == EObjType::kFountain) {
+	if (object->get_type() == EObjType::kLiquidContainer
+		|| object->get_type() == EObjType::kFountain) {
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
 	}
 	// проставляем имя жидкости
-	if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer) {
+	if (object->get_type() == EObjType::kLiquidContainer) {
 		name_from_drinkcon(object.get());
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2)) {
 			name_to_drinkcon(object.get(), GET_OBJ_VAL(object, 2));
 		}
 	}
 	// Проверка на ингры
-	if (GET_OBJ_TYPE(object) == EObjType::kMagicIngredient) {
+	if (object->get_type() == EObjType::kMagicIngredient) {
 		int err = im_assign_power(object.get());
 		if (err) {
 			*error = 100 + err;
@@ -527,7 +527,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 		object->cleanup_script();
 	}
 	ConvertDrinkconSkillField(object.get(), false);
-	object->remove_incorrect_values_keys(GET_OBJ_TYPE(object));
+	object->remove_incorrect_values_keys(object->get_type());
 
 	return (object);
 }
@@ -645,12 +645,12 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			}
 		}
 		// Сложность замкА
-		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto)) {
-			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
+		if (object->get_spell() != proto->get_spell()) {
+			out << "Spll: " << object->get_spell() << "~\n";
 		}
 		// Уровень заклинания
-		if (GET_OBJ_LEVEL(object) != GET_OBJ_LEVEL(proto)) {
-			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
+		if (object->get_level() != proto->get_level()) {
+			out << "Levl: " << object->get_level() << "~\n";
 		}
 		// была ли шмотка ренейм
 		if (GET_OBJ_RENAME(object) != false) {
@@ -667,24 +667,24 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
-		GET_OBJ_AFFECTS(object).tascii(FlagData::kPlanesNumber, buf);
-		GET_OBJ_AFFECTS(proto).tascii(FlagData::kPlanesNumber, buf2);
+		object->get_affect_flags().tascii(FlagData::kPlanesNumber, buf);
+		proto->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2);
 		if (strcmp(buf, buf2)) {
 			out << "Affs: " << buf << "~\n";
 		}
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		GET_OBJ_ANTI(object).tascii(FlagData::kPlanesNumber, buf);
-		GET_OBJ_ANTI(proto).tascii(FlagData::kPlanesNumber, buf2);
+		object->get_anti_flags().tascii(FlagData::kPlanesNumber, buf);
+		proto->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2);
 		if (strcmp(buf, buf2)) {
 			out << "Anti: " << buf << "~\n";
 		}
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		GET_OBJ_NO(object).tascii(FlagData::kPlanesNumber, buf);
-		GET_OBJ_NO(proto).tascii(FlagData::kPlanesNumber, buf2);
+		object->get_no_flags().tascii(FlagData::kPlanesNumber, buf);
+		proto->get_no_flags().tascii(FlagData::kPlanesNumber, buf2);
 		if (strcmp(buf, buf2)) {
 			out << "Nofl: " << buf << "~\n";
 		}
@@ -728,8 +728,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Wear: " << buf << "~\n";
 		}
 		// Тип предмета
-		if (GET_OBJ_TYPE(object) != GET_OBJ_TYPE(proto)) {
-			out << "Type: " << GET_OBJ_TYPE(object) << "~\n";
+		if (object->get_type() != proto->get_type()) {
+			out << "Type: " << object->get_type() << "~\n";
 		}
 		// Значение 0, Значение 1, Значение 2, Значение 3.
 		for (i = 0; i < 4; i++) {
@@ -1602,7 +1602,7 @@ int Crash_load(CharData *ch) {
 		{
 			if (obj2
 				&& obj2->get_worn_on() < 0
-				&& GET_OBJ_TYPE(obj) == EObjType::kContainer)    // This is container and it is not free
+				&& obj->get_type() == EObjType::kContainer)    // This is container and it is not free
 			{
 				CREATE(tank, 1);
 				tank->next = tank_list;
@@ -1625,7 +1625,7 @@ int Crash_load(CharData *ch) {
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
-				&& GET_OBJ_TYPE(obj) == EObjType::kContainer)    // This is container and it is not free
+				&& obj->get_type() == EObjType::kContainer)    // This is container and it is not free
 			{
 				tank_to = tank_list;
 				CREATE(tank, 1);
@@ -1702,8 +1702,8 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| (GET_OBJ_RNUM(obj) <= kNothing
-			&& GET_OBJ_TYPE(obj) != EObjType::kMoney)
-		|| GET_OBJ_TYPE(obj) == EObjType::kKey
+			&& obj->get_type() != EObjType::kMoney)
+		|| obj->get_type() == EObjType::kKey
 		|| SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}

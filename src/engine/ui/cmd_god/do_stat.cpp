@@ -691,7 +691,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 	sprintf(buf, "\r\n");
 	SendMsgToChar(buf, ch);
-	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
+	sprinttype(j->get_type(), item_types, buf1);
 	if (rnum >= 0) {
 		strcpy(buf2, (obj_proto.func(j->get_rnum()) ? "Есть" : "Нет"));
 	} else {
@@ -847,7 +847,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		SendMsgToChar(buf, ch);
 	}
 
-	switch (GET_OBJ_TYPE(j)) {
+	switch (j->get_type()) {
 		case EObjType::kBook:
 
 			switch (GET_OBJ_VAL(j, 0)) {

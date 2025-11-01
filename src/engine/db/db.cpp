@@ -309,15 +309,15 @@ pugi::xml_node XmlLoad(const char *PathToFile, const char *MainTag, const char *
 /// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
-		&& (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
-			|| GET_OBJ_TYPE(obj) == EObjType::kFountain)) {
+		&& (obj->get_type() == EObjType::kLiquidContainer
+			|| obj->get_type() == EObjType::kFountain)) {
 		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
 			const auto potion = world_objects.create_from_prototype_by_vnum(obj->get_spec_param());
 			if (potion
-				&& GET_OBJ_TYPE(potion) == EObjType::kPotion) {
+				&& potion->get_type() == EObjType::kPotion) {
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto) {
 					// copy_potion_values сетит до кучи и внум из пошена,
@@ -2449,7 +2449,7 @@ void ZoneReset::ResetZoneEssential() {
 								break;
 							}
 						}
-						if (GET_OBJ_TYPE(obj_to) != EObjType::kContainer) {
+						if (obj_to->get_type() != EObjType::kContainer) {
 							LogZoneError(zone_data, cmd_no, "attempt put obj to non container, omited");
 							reset_cmd.command = '*';
 							break;

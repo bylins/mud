@@ -446,7 +446,7 @@ void sedit::show_activ_edit(CharData *ch) {
 		const int rnum = GetObjRnum(activ.enchant.first);
 		const char *name =
 			(rnum >= 0 ? obj_proto[rnum]->get_short_description().c_str() : "<null>");
-		if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
+		if (obj_proto[rnum]->get_type() == EObjType::kWeapon) {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
 					 kColorGrn, cnt++, kColorNrm, kColorCyn,
@@ -1039,7 +1039,7 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
 
 	if (rnum >= 0
-		&& GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
+		&& obj_proto[rnum]->get_type() == EObjType::kWeapon) {
 		state = STATE_ACTIV_ENCH_NDICE;
 		SendMsgToChar("Укажите изменение бросков кубика (0 - без изменений) :", ch);
 	} else {

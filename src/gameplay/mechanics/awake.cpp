@@ -40,7 +40,7 @@ int check_awake(CharData *ch, int what) {
 
 			if (IS_SET(what, kAcheckLight)
 				&& IsDefaultDark(ch->in_room)
-				&& GET_OBJ_TYPE(GET_EQ(ch, i)) == EObjType::kLightSource
+				&& GET_EQ(ch, i)->get_type() == EObjType::kLightSource
 				&& GET_OBJ_VAL(GET_EQ(ch, i), 2)) {
 				SET_BIT(retval, kAcheckLight);
 			}
