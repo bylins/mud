@@ -9,6 +9,7 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/affects/affect_data.h"
 #include "do_drink.h"
+#include "gameplay/mechanics/minions.h"
 
 extern void die(CharData *ch, CharData *killer);
 

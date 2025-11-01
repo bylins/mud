@@ -42,6 +42,8 @@ void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
 void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
+void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id);
+void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
 
 } // namespace room_spells
 

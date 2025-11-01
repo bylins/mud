@@ -8,8 +8,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
 #include "gameplay/mechanics/weather.h"
-
-//#include <iomanip>
+#include "gameplay/mechanics/groups.h"
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
@@ -24,11 +23,8 @@ std::list<RoomData *> affected_rooms;
 void RemoveSingleRoomAffect(long caster_id, ESpell spell_id);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
-void AddRoomToAffected(RoomData *room);
-void affect_room_join_fspell(RoomData *room, const Affect<ERoomApply> &af);
-void affect_room_join(RoomData *room, Affect<ERoomApply> &af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
-void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
+
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
@@ -210,7 +206,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 					break;
 				case 0: 
 				default: 
-					SendMsgToChar("Вы решили проклясть всех на последок!\r\n", ch);
+					SendMsgToChar("Вы решили проклясть всех напоследок!\r\n", ch);
 					act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 						CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kMassCurse, GetRealLevel(ch));
@@ -661,7 +657,56 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af) {
 	room->affected.push_front(new_affect);
 }
 
-} // namespace room_spells
+/**
+ * Removing room affect from first affected room.
+ * @param ch - affect caster.
+ * @param spell_id - removing spell affect.
+ */
+void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
+	auto affected_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), spell_id);
+	if (affected_room) {
+		const auto aff = room_spells::FindAffect(affected_room, spell_id);
+		if (aff != affected_room->affected.end()) {
+			room_spells::RoomRemoveAffect(affected_room, aff);
+			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
+		}
+	}
+}
 
+void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
+	if (IS_IMMORTAL(ch)) {
+		return;
+	}
+
+	const auto affect_on_room = room_spells::FindAffect(world[room], ESpell::kHypnoticPattern);
+	if (affect_on_room != world[room]->affected.end()) {
+		CharData *caster = find_char((*affect_on_room)->caster_id);
+		// если не в гопе, и не слепой
+		if (!group::same_group(ch, caster)
+			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
+			// отсекаем всяких непонятных личностей типо двойников и проч
+			// \todo Пальцы себе отсеки за такой код. Переделать на константы, а еще лучше - сделать где-то enum или вообще конфиг с внумами мобов для спеллов
+			// Клон вообще по флагу клона проверяется
+			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
+			if (ch->has_master() && !ch->get_master()->IsNpc() && ch->IsNpc()) {
+				return;
+			}
+			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
+			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
+			// иначе пве, и просто кастим сон на входящего
+			float mkof = CalcModCoef(ESpell::kHypnoticPattern,
+									 caster->GetSkill(GetMagicSkillId(ESpell::kHypnoticPattern)));
+			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
+				return;
+			}
+			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
+			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
+				true, ch, nullptr, ch, kToRoom | kToArenaListen);
+			CallMagic(caster, ch, nullptr, nullptr, ESpell::kSleep, GetRealLevel(caster));
+		}
+	}
+}
+
+} // namespace room_spells
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

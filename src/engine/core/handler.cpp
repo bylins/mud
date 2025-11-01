@@ -33,7 +33,7 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/cities.h"
 #include "gameplay/mechanics/player_races.h"
-#include "gameplay/mechanics/groups.h"
+#include "gameplay/magic/magic_rooms.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
@@ -253,40 +253,6 @@ void RemoveCharFromRoom(CharData *ch) {
 	ch->track_dirs = 0;
 }
 
-void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
-	if (IS_IMMORTAL(ch)) {
-		return;
-	}
-
-	const auto affect_on_room = room_spells::FindAffect(world[room], ESpell::kHypnoticPattern);
-	if (affect_on_room != world[room]->affected.end()) {
-		CharData *caster = find_char((*affect_on_room)->caster_id);
-		// если не в гопе, и не слепой
-		if (!group::same_group(ch, caster)
-			&& !AFF_FLAGGED(ch, EAffect::kBlind)){
-			// отсекаем всяких непонятных личностей типо двойников и проч
-			// \todo Пальцы себе отсеки за такой код. Переделать на константы, а еще лучше - сделать где-то enum или вообще конфиг с внумами мобов для спеллов
-			// Клон вообще по флагу клона проверяется
-			if  ((GET_MOB_VNUM(ch) >= 3000 && GET_MOB_VNUM(ch) < 4000) || GET_MOB_VNUM(ch) == 108 ) return;
-			if (ch->has_master() && !ch->get_master()->IsNpc() && ch->IsNpc()) {
-				return;
-			}
-			// если вошел игрок - ПвП - делаем проверку на шанс в зависимости от % магии кастующего
-			// без магии и ниже 80%: шанс 25%, на 100% - 27%, на 200% - 37% ,при 300% - 47%
-			// иначе пве, и просто кастим сон на входящего
-			float mkof = CalcModCoef(ESpell::kHypnoticPattern,
-									 caster->GetSkill(GetMagicSkillId(ESpell::kHypnoticPattern)));
-			if (!ch->IsNpc() && (number (1, 100) > (23 + 2*mkof))) {
-				return;
-			}
-			SendMsgToChar("Вы уставились на огненный узор, как баран на новые ворота.", ch);
-			act("$n0 уставил$u на огненный узор, как баран на новые ворота.",
-				true, ch, nullptr, ch, kToRoom | kToArenaListen);
-			CallMagic(caster, ch, nullptr, nullptr, ESpell::kSleep, GetRealLevel(caster));
-		}
-	}
-}
-
 void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
@@ -339,63 +305,8 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	} else {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-		ProcessRoomAffectsOnEntry(ch, ch->in_room);
+		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
-	cities::CheckCityVisit(ch, room);
-}
-// place a character in a room
-void FleeToRoom(CharData *ch, RoomRnum room) {
-	if (ch == nullptr || room < kNowhere + 1 || room > top_of_world) {
-		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
-		return;
-	}
-
-	if (!ch->IsNpc() && !Clan::MayEnter(ch, room, kHousePortal)) {
-		room = ch->get_from_room();
-	}
-
-	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
-		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-		room = ch->get_from_room();
-	}
-	world[room]->people.push_front(ch);
-
-	ch->in_room = room;
-	CheckLight(ch, kLightNo, kLightNo, kLightNo, kLightNo, 1);
-	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-	if (ch->IsFlagged(EPrf::kCoderinfo)) {
-		sprintf(buf,
-				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
-				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-				kColorNrm, kColorBoldBlk, room,
-				kColorRed, kColorBoldRed, world[room]->light,
-				kColorGrn, kColorBoldGrn, world[room]->glight,
-				kColorYel, kColorBoldYel, world[room]->fires,
-				kColorYel, kColorBoldYel, world[room]->ices,
-				kColorBlu, kColorBoldBlu, world[room]->gdark,
-				kColorMag, kColorBoldCyn, weather_info.sky,
-				kColorWht, kColorBoldBlk, weather_info.sunlight,
-				kColorYel, kColorBoldYel, weather_info.moon_day, kColorNrm);
-		SendMsgToChar(buf, ch);
-	}
-	// Stop fighting now, if we left.
-	if (ch->GetEnemy() && ch->in_room != ch->GetEnemy()->in_room) {
-		stop_fighting(ch->GetEnemy(), false);
-		stop_fighting(ch, true);
-	}
-
-	if (!ch->IsNpc()) {
-		zone_table[world[room]->zone_rn].used = true;
-		zone_table[world[room]->zone_rn].activity++;
-	} else {
-		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
-		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
-		ProcessRoomAffectsOnEntry(ch, ch->in_room);
-	}
-
 	cities::CheckCityVisit(ch, room);
 }
 
@@ -2449,108 +2360,6 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 	return (location);
 }
 
-float get_effective_cha(CharData *ch) {
-	int key_value, key_value_add;
-
-	key_value = ch->get_cha();
-	auto max_cha = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
-	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch)); // до переделки формул ограничим кап так
-
-	float eff_cha = 0.0;
-	if (GetRealLevel(ch) <= 14) {
-		eff_cha = key_value
-			- 6 * (float) (14 - GetRealLevel(ch)) / 13.0 + key_value_add
-			* (0.2 + 0.3 * (float) (GetRealLevel(ch) - 1) / 13.0);
-	} else if (GetRealLevel(ch) <= 26) {
-		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float) (GetRealLevel(ch) - 14) / 12.0);
-	} else {
-		eff_cha = key_value + key_value_add;
-	}
-
-	return VPOSI<float>(eff_cha, 1.0f, static_cast<float>(max_cha));
-}
-
-float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
-	int key_value, key_value_add;
-	auto max_wis = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
-
-	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
-		key_value = ch->get_wis();
-		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
-	} else {
-		//если гдето вылезет косяком
-		key_value = 0;
-		key_value_add = 0;
-	}
-
-	float eff_wis = 0.0;
-	if (GetRealLevel(ch) <= 14) {
-		eff_wis = key_value
-			- 6 * (float) (14 - GetRealLevel(ch)) / 13.0 + key_value_add
-			* (0.4 + 0.6 * (float) (GetRealLevel(ch) - 1) / 13.0);
-	} else if (GetRealLevel(ch) <= 26) {
-		eff_wis = key_value + key_value_add * (0.5 + 0.5 * (float) (GetRealLevel(ch) - 14) / 12.0);
-	} else {
-		eff_wis = key_value + key_value_add;
-	}
-
-	return VPOSI<float>(eff_wis, 1.0f, static_cast<float>(max_wis));
-}
-
-float get_effective_int(CharData *ch) {
-	int key_value, key_value_add;
-
-	key_value = ch->get_int();
-	auto max_int = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
-	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
-
-	float eff_int = 0.0;
-	if (GetRealLevel(ch) <= 14) {
-		eff_int = key_value
-			- 6 * (float) (14 - GetRealLevel(ch)) / 13.0 + key_value_add
-			* (0.2 + 0.3 * (float) (GetRealLevel(ch) - 1) / 13.0);
-	} else if (GetRealLevel(ch) <= 26) {
-		eff_int = key_value + key_value_add * (0.5 + 0.5 * (float) (GetRealLevel(ch) - 14) / 12.0);
-	} else {
-		eff_int = key_value + key_value_add;
-	}
-
-	return VPOSI<float>(eff_int, 1.0f, static_cast<float>(max_int));
-}
-
-int CalcCharmPoint(CharData *ch, ESpell spell_id) {
-	float r_hp = 0;
-	auto eff_cha{0.0};
-	auto stat_cap{0.0};
-
-	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
-		eff_cha = CalcEffectiveWis(ch, spell_id);
-		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
-	} else {
-		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
-		eff_cha = get_effective_cha(ch);
-	}
-
-	if (spell_id != ESpell::kCharm) {
-		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
-	}
-
-	if (eff_cha < stat_cap) {
-		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms +
-			(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].charms;
-	} else {
-		r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms;
-	}
-	float remort_coeff = 1.0 + (((float) GetRealRemort(ch) - 9.0) * 1.2) / 100.0;
-	if (remort_coeff > 1.0f) {
-		r_hp *= remort_coeff;
-	}
-
-	if (ch->IsFlagged(EPrf::kTester))
-		SendMsgToChar(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
-	return (int) r_hp;
-}
-
 int IsEquipInMetall(CharData *ch) {
 	int i, wgt = 0;
 
@@ -2573,43 +2382,10 @@ int IsEquipInMetall(CharData *ch) {
 	return (false);
 }
 
-bool IsAwakeOthers(CharData *ch) {
-	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
-		return false;
-	}
-
-	if (AFF_FLAGGED(ch, EAffect::kStairs)
-		|| AFF_FLAGGED(ch, EAffect::kSanctuary)
-		|| AFF_FLAGGED(ch, EAffect::kGlitterDust)
-		|| AFF_FLAGGED(ch, EAffect::kSingleLight)
-		|| AFF_FLAGGED(ch, EAffect::kHolyLight)) {
-		return true;
-	}
-
-	return false;
-}
-
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 int get_object_low_rent(ObjData *obj) {
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
 	return rent;
-}
-
-/**
- * Removing room affect from first affected room.
- * \todo Переделать на использование функций из модуля спеллов на комнаты. Удалить из habdler.cpp
- * @param ch - affect caster.
- * @param spell_id - removing spell affect.
- */
-void RemoveRuneLabelFromWorld(CharData *ch, ESpell spell_id) {
-	auto affected_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), spell_id);
-	if (affected_room) {
-		const auto aff = room_spells::FindAffect(affected_room, spell_id);
-		if (aff != affected_room->affected.end()) {
-			room_spells::RoomRemoveAffect(affected_room, aff);
-			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
-		}
-	}
 }
 
 // Функция проверяет может ли ch нести предмет obj и загружает предмет
