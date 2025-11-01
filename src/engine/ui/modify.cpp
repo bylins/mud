@@ -784,7 +784,7 @@ void string_add(DescriptorData *d, char *str) {
 				d->writer.reset();
 			}
 			d->state = EConState::kPlaying;
-		} else if (!d->state && (d->character->IsFlagged(EPlrFlag::kMailing))) {
+		} else if (d->state == EConState::kPlaying && (d->character->IsFlagged(EPlrFlag::kMailing))) {
 			if ((terminator == 1) && d->writer->get_string()) {
 				mail::add(d->mail_to, d->character->get_uid(), d->writer->get_string());
 				iosystem::write_to_output("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
@@ -807,7 +807,7 @@ void string_add(DescriptorData *d, char *str) {
 			iosystem::write_to_output(MENU, d);
 			d->state = EConState::kMenu;
 			//log("[SA] 7f");
-		} else if (!d->state && d->character && !d->character->IsNpc()) {
+		} else if (d->state == EConState::kPlaying && d->character && !d->character->IsNpc()) {
 			if (terminator == 1)    //log("[SA] 8s");
 			{
 				if (d->writer) {

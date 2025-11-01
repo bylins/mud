@@ -33,9 +33,7 @@ namespace  obj_sets_olc {
 	class sedit;
 }
 
-// 		Modes of connectedness: used by descriptor_data.state	//
-// 		ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!				//
-enum EConState : uint8_t {
+enum class EConState : uint8_t {
   kPlaying = 0,        // Playing - Nominal state //
   kClose = 1,            // Disconnecting     //
   kGetName = 2,        // By what name ..?     //
@@ -95,7 +93,10 @@ enum EConState : uint8_t {
   kRandomNumber = 56,    // Verification code entry: where player enter the game from new location
   kInit = 57                // just connected
 };
-// не забываем отражать новые состояния в connected_types -- Krodo
+// Номера оставлены, чтобы было удобней ориентироваться в списке описаний -- Svent
+// не забываем отражать новые состояния в connection_descriptions -- Krodo
+
+const char *GetConDescription(EConState state);
 
 struct DescriptorData {
 	DescriptorData();

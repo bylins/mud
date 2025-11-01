@@ -245,7 +245,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (d->state == EConState::kPlaying && d->original) {
 			strcpy(state, "Switched");
 		} else {
-			sprinttype(d->state, connected_types, state);
+			strcpy(state, GetConDescription(d->state));
 		}
 
 		if (d->character
