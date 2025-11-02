@@ -657,7 +657,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 								< obj_proto[current_obj_rnum]->get_max_in_world()) {
 								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj_in
-									&& GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+									&& obj->get_type() == EObjType::kContainer) {
 									PlaceObjIntoObj(obj_in.get(), obj.get());
 									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
 

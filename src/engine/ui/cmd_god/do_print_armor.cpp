@@ -243,7 +243,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 		// тип
-		if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(i)) {
+		if (filter.type >= 0 && filter.type != i->get_type()) {
 			continue;
 		}
 		// куда можно одеть

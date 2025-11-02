@@ -219,7 +219,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 							GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch, 2),
 							GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5),
 							GET_GOD_FLAG(ch, EGf::kDemigod) ? "скрыто" : GET_EMAIL(tch),
-							genders[static_cast<int>(GET_SEX(tch))]);
+							genders[static_cast<int>(tch->get_sex())]);
 				}
 			}
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))

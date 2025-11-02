@@ -1039,7 +1039,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 				bonus += ch->GetSkill(ESkill::kAwake);
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
-				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
+				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
 				bonus += weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold)), 0, 50)].parrying;
 			}
 			break;
@@ -1576,7 +1576,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			}
 
 			if (GET_EQ(ch, EEquipPos::kHold)
-				&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
+				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
 				bonus +=
 					weapon_app[std::clamp(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold)), 0, 50)].parrying;
 			}

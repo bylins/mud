@@ -244,7 +244,7 @@ ObjData *FindBook(CharData *ch, char *argument) {
 		return nullptr;
 	}
 
-	if (GET_OBJ_TYPE(book) != EObjType::kBook) {
+	if (book->get_type() != EObjType::kBook) {
 		act("Вы уставились на $o3, как баран на новые ворота.",
 			false, ch, book, nullptr, kToChar);
 		act("$n начал$g внимательно изучать устройство $o1.",

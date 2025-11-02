@@ -69,7 +69,7 @@ void DoReturn(CharData *ch, char *argument, int cmd, int subcmd) {
 		 */
 		if (ch->desc->original->desc) {
 			ch->desc->original->desc->character = nullptr;
-			STATE(ch->desc->original->desc) = CON_DISCONNECT;
+			ch->desc->original->desc->state = EConState::kDisconnect;
 		}
 		ch->desc->character = ch->desc->original;
 		ch->desc->original = nullptr;

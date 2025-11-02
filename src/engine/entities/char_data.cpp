@@ -879,19 +879,19 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 }
 
 bool IS_MALE(const CharData *ch) {
-	return GET_SEX(ch) == EGender::kMale;
+	return ch->get_sex() == EGender::kMale;
 }
 
 bool IS_FEMALE(const CharData *ch) {
-	return GET_SEX(ch) == EGender::kFemale;
+	return ch->get_sex() == EGender::kFemale;
 }
 
 bool IS_NOSEXY(const CharData *ch) {
-	return GET_SEX(ch) == EGender::kNeutral;
+	return ch->get_sex() == EGender::kNeutral;
 }
 
 bool IS_POLY(const CharData *ch) {
-	return GET_SEX(ch) == EGender::kPoly;
+	return ch->get_sex() == EGender::kPoly;
 }
 
 bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
@@ -1660,7 +1660,7 @@ std::string CharData::get_pretitle() const {
 }
 
 std::string CharData::get_race_name() const {
-	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), GET_SEX(this));
+	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex());
 }
 
 std::string CharData::get_morph_desc() const {
@@ -2243,11 +2243,11 @@ obj_sets::activ_sum &CharData::obj_bonus() {
 
 bool CharData::HasWeapon() {
 	if ((GET_EQ(this, EEquipPos::kWield)
-	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kWield)) != EObjType::kLightSource)
+	  && GET_EQ(this, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
 	  || (GET_EQ(this, EEquipPos::kHold)
-	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kHold)) != EObjType::kLightSource)
+	  && GET_EQ(this, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
 	  || (GET_EQ(this, EEquipPos::kBoths)
-	  && GET_OBJ_TYPE(GET_EQ(this, EEquipPos::kBoths)) != EObjType::kLightSource)) {
+	  && GET_EQ(this, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
 		return true;
 	}
 	return false;

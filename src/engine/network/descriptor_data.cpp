@@ -11,9 +11,86 @@
 #include "engine/network/msdp/msdp.h"
 #include "engine/network/msdp/msdp_constants.h"
 
+#include <vector>
+
+static const std::vector<const char*> connection_descriptions = 	{
+	// 0-9
+	"В игре",
+	"Disconnecting",
+	"Get name",
+	"Confirm name",
+	"Get password",
+	"Get new PW",
+	"Confirm new PW",
+	"Select sex",
+	"Select class",
+	"Reading MOTD",
+	// 10-19
+	"Main Menu",
+	"Get descript.",
+	"Changing PW 1",
+	"Changing PW 2",
+	"Changing PW 3",
+	"Self-Delete 1",
+	"Self-Delete 2",
+	"Disconnecting",
+	"Object edit",
+	"Room edit",
+	// 20-29
+	"Zone edit",
+	"Mobile edit",
+	"Trigger edit",
+	"Get name2",
+	"Get name3",
+	"Get name4",
+	"Get name5",
+	"Get name6",
+	"Select religion",
+	"Select race",
+	// 30-39
+	"ERROR",		// удалено, не используется
+	"Select keytable",
+	"Get email",
+	"Roll stats",
+	"Recept edit",
+	"Select kin",
+	"Write note",		// удалено, можно использовать
+	"ERROR",		// удалено, можно использовать
+	"map olc",
+	"ERROR",		// удалено, можно использовать
+	// 40-49
+	"Board message edit",
+	"House edit",
+	"Generate new name",
+	"Glory OLC",
+	"Base stats reroll",
+	"Select place of birth",
+	"Clan MoD edit",
+	"GloryConst OLC",
+	"NamedStuff OLC",
+	"Select new kin",
+	// 50-57
+	"Select new race",
+	"Interactive console",
+	"обмен гривен",
+	"меню сброса параметров",
+	"sedit",
+	"select new religion",
+	"Verification",
+	"Just connected"
+};
+
+const char *GetConDescription(EConState state) {
+	auto index = static_cast<size_t>(state);
+	if (index < connection_descriptions.size()) {
+		return connection_descriptions[index];
+	}
+	return "Unknown state";
+}
+
 DescriptorData::DescriptorData() : bad_pws(0),
 								   idle_tics(0),
-								   connected(0),
+								   state(EConState::kPlaying),
 								   desc_num(0),
 								   input_time(0),
 								   login_time(0),

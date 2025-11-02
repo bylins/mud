@@ -485,8 +485,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 			new_ovn = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
 			orn_to = GetObjRnum(new_ovn);
 			NEWCREATE(new_obj, new_ovn);
-			const auto obj_original = world_objects.create_from_prototype_by_rnum(i);
-			new_obj->copy_from(obj_original.get());
+			new_obj->copy_from(obj_proto[i].get());
 			new_obj->set_rnum(orn_to);
 			if (new_obj->get_type() == EObjType::kLiquidContainer) {
 				name_from_drinkcon(new_obj);
@@ -505,7 +504,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 				}
 			}
 			if (new_obj->get_type() == EObjType::kContainer) {
-				ObjVnum from_key = obj_original->get_val(2);
+				ObjVnum from_key = obj_proto[i]->get_val(2);
 				
 				if (from_key > 0) {
 					if (from_key / 100 == zone_table[zrn_from].vnum) {
@@ -525,8 +524,6 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 				}
 			}
 			obj_proto.set_rnum(orn_to, new_obj);
-			obj_proto.dec_number(obj_original->get_rnum());
-			world_objects.remove(obj_original);
 		}
 	}
 }
@@ -660,7 +657,7 @@ std::string WhoInZone(ZoneRnum zrn) {
 
 	GetZoneRooms(zrn, &from, &to);
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING)
+		if (d->state != EConState::kPlaying)
 			continue;
 		if (d->character->in_room >= from && d->character->in_room <= to) {
 			pc += d->character->get_name() + " ";
@@ -1120,7 +1117,7 @@ void SwapObjectDungeon(CharData *ch) {
 
 	for (auto obj = ch->carrying; obj; obj = obj_next) {
 		obj_next = obj->get_next_content();
-		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+		if (obj->get_type() == EObjType::kContainer) {
 			for (auto obj2 = obj->get_contains(); obj2; obj2 = next_obj) {
 				next_obj = obj2->get_next_content();
 				SwapOriginalObject(obj2);

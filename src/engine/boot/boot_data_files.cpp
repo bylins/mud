@@ -879,7 +879,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 			obj->get_short_description().c_str());
 	}
 
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (obj->get_type()) {
 		case EObjType::kLiquidContainer:
 		case EObjType::kFountain:
 			if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0)) {
@@ -911,7 +911,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 
 		default: break;
 	}
-	obj->remove_incorrect_values_keys(GET_OBJ_TYPE(obj));
+	obj->remove_incorrect_values_keys(obj->get_type());
 	return error;
 }
 

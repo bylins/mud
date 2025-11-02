@@ -26,10 +26,10 @@ enchant::enchant(ObjData *obj) {
 		}
 	}
 
-	affects_flags_ = GET_OBJ_AFFECTS(obj);
+	affects_flags_ = obj->get_affect_flags();
 	extra_flags_ = GET_OBJ_EXTRA(obj);
 	extra_flags_.unset(EObjFlag::kTicktimer);
-	no_flags_ = GET_OBJ_NO(obj);
+	no_flags_ = obj->get_no_flags();
 	weight_ = GET_OBJ_VAL(obj, 0);
 	ndice_ = 0;
 	sdice_ = 0;
@@ -131,7 +131,7 @@ void enchant::apply_to_obj(ObjData *obj) const {
 	obj->add_no_flags(no_flags_);
 	obj->add_weight(weight_);
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+	if (obj->get_type() == EObjType::kWeapon) {
 		obj->add_val(1, ndice_);
 		obj->add_val(2, sdice_);
 	}
@@ -180,7 +180,7 @@ void Enchants::update_set_bonus(ObjData *obj, const obj_sets::ench_type &set_enc
 				// вес
 				obj->add_weight(set_ench.weight - i->weight_);
 				// дайсы пушек
-				if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+				if (obj->get_type() == EObjType::kWeapon) {
 					obj->add_val(1, set_ench.ndice - i->ndice_);
 					obj->add_val(2, set_ench.sdice - i->sdice_);
 				}

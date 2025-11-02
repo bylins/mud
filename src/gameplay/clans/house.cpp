@@ -106,7 +106,7 @@ void prepare_write_mod(CharData *ch, std::string &param) {
 		return;
 	}
 	SendMsgToChar("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
-	STATE(ch->desc) = CON_WRITE_MOD;
+	ch->desc->state = EConState::kWriteMod;
 	utils::AbstractStringWriter::shared_ptr writer(new utils::StdStringWriter());
 	string_write(ch->desc, writer, MAX_MOD_LENGTH, 0, nullptr);
 }
@@ -793,9 +793,9 @@ void Clan::SetClanData(CharData *ch) {
 	CLAN(ch).reset();
 	CLAN_MEMBER(ch).reset();
 	// если правит свою дружину в олц, то радостно его выкидываем
-	if (ch->desc && STATE(ch->desc) == CON_CLANEDIT) {
+	if (ch->desc && ch->desc->state == EConState::kClanedit) {
 		ch->desc->clan_olc.reset();
-		STATE(ch->desc) = CON_PLAYING;
+		ch->desc->state = EConState::kPlaying;
 		SendMsgToChar("Редактирование отменено из-за обновления ваших данных в дружине.\r\n", ch);
 	}
 
@@ -1376,7 +1376,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 				if (d->character
 					&& CLAN(d->character)
 					&& ch != d->character.get()
-					&& STATE(d) == CON_PLAYING
+					&& d->state == EConState::kPlaying
 					&& CLAN(d->character).get() == this
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)) {
 					SendMsgToChar(d->character.get(),
@@ -1395,7 +1395,7 @@ void Clan::GodToChannel(CharData *ch, std::string text, int subcmd) {
 			for (DescriptorData *d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& CLAN(d->character)
-					&& STATE(d) == CON_PLAYING
+					&& d->state == EConState::kPlaying
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& d->character.get() != ch) {
 					if (CheckPolitics(CLAN(d->character)->GetRent()) == kPoliticsAlliance
@@ -1452,7 +1452,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 			for (auto d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& d->character.get() != ch
-					&& STATE(d) == CON_PLAYING
+					&& d->state == EConState::kPlaying
 					&& CLAN(d->character) == CLAN(ch)
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kClan)) {
@@ -1494,7 +1494,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 			for (auto d = descriptor_list; d; d = d->next) {
 				if (d->character
 					&& CLAN(d->character)
-					&& STATE(d) == CON_PLAYING
+					&& d->state == EConState::kPlaying
 					&& d->character.get() != ch
 					&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 					&& !ignores(d->character.get(), ch, EIgnore::kAlliance)) {
@@ -1627,7 +1627,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 		// уведомляем обе дружины
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->character
-				&& STATE(d) == CON_PLAYING
+				&& d->state == EConState::kPlaying
 				&& d->character->IsFlagged(EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					SendMsgToChar(d->character.get(), "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n",
@@ -1656,7 +1656,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->character
-				&& STATE(d) == CON_PLAYING
+				&& d->state == EConState::kPlaying
 				&& d->character->IsFlagged(EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					SendMsgToChar(d->character.get(),
@@ -1689,7 +1689,7 @@ void Clan::ManagePolitics(CharData *ch, std::string &buffer) {
 
 		// тож самое
 		for (d = descriptor_list; d; d = d->next) {
-			if (d->character && STATE(d) == CON_PLAYING && d->character->IsFlagged(EPrf::kPolitMode)) {
+			if (d->character && d->state == EConState::kPlaying && d->character->IsFlagged(EPrf::kPolitMode)) {
 				if (CLAN(d->character) == *vict) {
 					SendMsgToChar(d->character.get(),
 								  "%sДружина %s заключила с вашей дружиной альянс!%s\r\n",
@@ -2229,7 +2229,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
+	if (obj->get_type() == EObjType::kMoney) {
 		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch)) {
 			RemoveObjFromChar(obj);
@@ -2263,14 +2263,14 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 	} else if (obj->has_flag(EObjFlag::kNodrop)
 		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| obj->has_flag(EObjFlag::kRepopDecay)
-		|| GET_OBJ_TYPE(obj) == EObjType::kKey
+		|| obj->get_type() == EObjType::kKey
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| obj->has_flag(EObjFlag::kNamed)
 		|| GET_OBJ_OWNER(obj)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
-	} else if (GET_OBJ_TYPE(obj) == EObjType::kContainer
+	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
@@ -2300,7 +2300,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		// канал хранилища
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character
-				&& STATE(d) == CON_PLAYING
+				&& d->state == EConState::kPlaying
 				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
@@ -2344,7 +2344,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		// канал хранилища
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
 			if (d->character
-				&& STATE(d) == CON_PLAYING
+				&& d->state == EConState::kPlaying
 				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == CLAN(ch)
@@ -2707,7 +2707,7 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 							"Редактирование отменено.\r\n",
 							d->character.get());
 						d->clan_olc.reset();
-						STATE(d) = CON_PLAYING;
+						d->state = EConState::kPlaying;
 						return;
 					}
 
@@ -2829,7 +2829,7 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 					d->clan_olc->clan->privileges = d->clan_olc->privileges;
 					d->clan_olc.reset();
 					// Clan::ClanSave();
-					STATE(d) = CON_PLAYING;
+					d->state = EConState::kPlaying;
 					SendMsgToChar("Изменения сохранены.\r\n", d->character.get());
 					return;
 
@@ -2837,7 +2837,7 @@ void Clan::Manage(DescriptorData *d, const char *arg) {
 				case 'N':
 				case 'н':
 				case 'Н': d->clan_olc.reset();
-					STATE(d) = CON_PLAYING;
+					d->state = EConState::kPlaying;
 					SendMsgToChar("Редактирование отменено.\r\n", d->character.get());
 					return;
 
@@ -3025,7 +3025,7 @@ void Clan::PrivilegeMenu(DescriptorData *d, unsigned num) {
 		log("Different size clan->ranks and clan->privileges! (%s %s %d)", __FILE__, __func__, __LINE__);
 		if (d->character) {
 			d->clan_olc.reset();
-			STATE(d) = CON_PLAYING;
+			d->state = EConState::kPlaying;
 			SendMsgToChar(d->character.get(), "Случилось что-то страшное, сообщите Богам!");
 		}
 		return;
@@ -3379,7 +3379,7 @@ void Clan::ClanAddMember(CharData *ch, int rank, std::string invite_name) {
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& CLAN(d->character)
-			&& STATE(d) == CON_PLAYING
+			&& d->state == EConState::kPlaying
 			&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 			&& this->GetRent() == CLAN(d->character)->GetRent()
 			&& ch != d->character.get()) {
@@ -3746,7 +3746,7 @@ void Clan::ChestInvoice() {
 		}
 
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
-			if (d->character && STATE(d) == CON_PLAYING
+			if (d->character && d->state == EConState::kPlaying
 				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character) == *clan) {
@@ -3830,7 +3830,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 		&& this->clan_level < kMaxClanlevel) {
 		this->clan_level++;
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
-			if (d->character && STATE(d) == CON_PLAYING
+			if (d->character && d->state == EConState::kPlaying
 				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent) {
@@ -3843,7 +3843,7 @@ void Clan::SetClanExp(CharData *ch, int add) {
 		&& this->clan_level > 0) {
 		this->clan_level--;
 		for (DescriptorData *d = descriptor_list; d; d = d->next) {
-			if (d->character && STATE(d) == CON_PLAYING
+			if (d->character && d->state == EConState::kPlaying
 				&& !AFF_FLAGGED(d->character, EAffect::kDeafness)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent) {
@@ -4014,7 +4014,7 @@ void Clan::clan_invoice(CharData *ch, bool enter) {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& d->character.get() != ch
-			&& STATE(d) == CON_PLAYING
+			&& d->state == EConState::kPlaying
 			&& CLAN(d->character) == CLAN(ch)
 			&& d->character->IsFlagged(EPrf::kClanmembersMode)) {
 			if (enter) {
@@ -4306,12 +4306,12 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient
-		&& GET_OBJ_TYPE(obj) != EObjType::kCraftMaterial) {
+	if (obj->get_type() != EObjType::kMagicIngredient
+		&& obj->get_type() != EObjType::kCraftMaterial) {
 		SendMsgToChar(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 					  GET_OBJ_PNAME(obj, 0).c_str());
 
-		if (GET_OBJ_TYPE(obj) == EObjType::kMoney) {
+		if (obj->get_type() == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
 			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
@@ -5269,7 +5269,7 @@ void DoHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		temp_clan_olc->clan = CLAN(ch);
 		temp_clan_olc->privileges = CLAN(ch)->privileges;
 		ch->desc->clan_olc = temp_clan_olc;
-		STATE(ch->desc) = CON_CLANEDIT;
+		ch->desc->state = EConState::kClanedit;
 		CLAN(ch)->MainMenu(ch->desc);
 	} else if (CompareParam(buffer2, "воевода") && !CLAN_MEMBER(ch)->rank_num)
 		CLAN(ch)->HouseOwner(ch, buffer);
@@ -5328,7 +5328,7 @@ void DoWhoClan(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int num = 0;
 
 	for (d = descriptor_list, num = 0; d; d = d->next)
-		if (d->character && STATE(d) == CON_PLAYING && CLAN(d->character) == CLAN(ch)) {
+		if (d->character && d->state == EConState::kPlaying && CLAN(d->character) == CLAN(ch)) {
 			buffer << "    " << d->character->race_or_title().c_str() << "\r\n";
 			++num;
 		}

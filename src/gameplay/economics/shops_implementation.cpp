@@ -184,7 +184,7 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 
 	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
 
-	if ((GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer)
+	if ((obj->get_type() == EObjType::kLiquidContainer)
 		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
 	{
 		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
@@ -366,7 +366,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			obj->set_where_obj(EWhereObj::kCharInventory);
 			if (currency == "слава") {
 				// книги за славу не фейлим
-				if (EObjType::kBook == GET_OBJ_TYPE(obj)) {
+				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				// снятие и логирование славы
@@ -376,18 +376,18 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 										 GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
 			} else if (currency == "лед") {
 				// книги за лед, как и за славу, не фейлим
-				if (EObjType::kBook == GET_OBJ_TYPE(obj)) {
+				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_ice_currency(price);
 			} else if (currency == "ногаты") {
 				// книги за лед, как и за славу, не фейлим
-				if (EObjType::kBook == GET_OBJ_TYPE(obj)) {
+				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_nogata(price);
 			} else if (currency == "гривны") {
-				if (EObjType::kBook == GET_OBJ_TYPE(obj)) {
+				if (EObjType::kBook == obj->get_type()) {
 					obj->set_extra_flag(EObjFlag::KNofail);
 				}
 				ch->sub_hryvn(price);
@@ -482,7 +482,7 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 		if (item->empty()) {
 			print_value = item->get_item_name(keeper_vnum);
 			const auto rnum = obj_proto.get_rnum(item->vnum());
-			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
+			if (obj_proto[rnum]->get_type() == EObjType::kLiquidContainer) {
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 		} else {
@@ -546,7 +546,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 		if (item->empty()) {
 			print_value = item->get_item_name(keeper_vnum);
 			const auto rnum = obj_proto.get_rnum(item->vnum());
-			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
+			if (obj_proto[rnum]->get_type() == EObjType::kLiquidContainer) {
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 			auto tmp_obj = world_objects.create_from_prototype_by_rnum(rnum);
@@ -734,7 +734,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 	if (cmd == "Рассмотреть") {
 		std::stringstream tell;
 		tell << "Предмет " << ident_obj->get_short_description() << ": ";
-		tell << item_types[GET_OBJ_TYPE(ident_obj)] << "\r\n";
+		tell << item_types[ident_obj->get_type()] << "\r\n";
 		tell << diag_weapon_to_char(ident_obj, true);
 		tell << diag_timer_to_char(ident_obj);
 
@@ -860,7 +860,7 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum) const 
 		if (item->empty()) {
 			name_value = utils::RemoveColors(item->get_item_name(keeper_vnum));
 			const auto rnum = obj_proto.get_rnum(item->vnum());
-			if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kLiquidContainer) {
+			if (obj_proto[rnum]->get_type() == EObjType::kLiquidContainer) {
 				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 		} else {
@@ -916,7 +916,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 					continue;
 				}
 
-				if (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient //а у них всех один рнум
+				if (obj->get_type() != EObjType::kMagicIngredient //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description()) {
 					item->add_uid(obj->get_unique_id());
 					put_to_storage(obj);
@@ -962,13 +962,13 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	}
 
 	if (GET_OBJ_VAL(obj, 2) == 0
-		&& (GET_OBJ_TYPE(obj) == EObjType::kWand
-			|| GET_OBJ_TYPE(obj) == EObjType::kStaff)) {
+		&& (obj->get_type() == EObjType::kWand
+			|| obj->get_type() == EObjType::kStaff)) {
 		tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
 		return;
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kContainer
+	if (obj->get_type() == EObjType::kContainer
 		&& cmd != "Чинить") {
 		if (obj->get_contains()) {
 			tell_to_char(keeper, ch, "Не надо предлагать мне кота в мешке.");

@@ -62,7 +62,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", false, ch, obj.get(), cont, kToChar);
 	}
-	else if (GET_OBJ_TYPE(obj) == EObjType::kContainer && obj->get_contains()) {
+	else if (obj->get_type() == EObjType::kContainer && obj->get_contains()) {
 		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
 	}
 	else if (obj->has_flag(EObjFlag::kNodrop)) {
@@ -88,7 +88,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 
 			for (temp = cont->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				if (GET_OBJ_TYPE(temp) == EObjType::kMoney) {
+				if (temp->get_type() == EObjType::kMoney) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					money += GET_OBJ_VAL(temp, 0);
 					ExtractObjFromWorld(temp);
@@ -176,7 +176,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!cont) {
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
 			SendMsgToChar(buf, ch);
-		} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
+		} else if (cont->get_type() != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, nullptr, kToChar);
 		} else if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted)) {
 			act("$o0 закрыт$A!", false, ch, cont, nullptr, kToChar);

@@ -883,7 +883,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 
 	for (o = room->contents; o; o = next) {
 		next = o->get_next_content();
-		if (GET_OBJ_TYPE(o) == EObjType::kMagicIngredient) {
+		if (o->get_type() == EObjType::kMagicIngredient) {
 			ExtractObjFromWorld(o, false);
 		}
 	}
@@ -1204,7 +1204,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			snprintf(buf, kMaxInputLength, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (GET_OBJ_TYPE(o) != EObjType::kMagicIngredient) {
+		if (o->get_type() != EObjType::kMagicIngredient) {
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
 		}
@@ -1361,7 +1361,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	switch (GET_OBJ_TYPE(obj_proto[tgt])) {
+	switch (obj_proto[tgt]->get_type()) {
 		case EObjType::kScroll:
 		case EObjType::kPotion: param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);    // уровень
 			param[1] = 1;    // количество
@@ -1482,7 +1482,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		imlog(CMP, "Создание результата");
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result) {
-			switch (GET_OBJ_TYPE(result)) {
+			switch (result->get_type()) {
 				case EObjType::kScroll:
 				case EObjType::kPotion:
 					if (val[0] > 0) {

@@ -113,9 +113,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
 		k_room = GET_ROOM_VNUM(k->in_room);
 	}
-	// пишем пол  (мужчина)
-	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
-	// пишем расу (Человек)
+
+	sprinttype(to_underlying(k->get_sex()), genders, tmpbuf);
 	if (k->IsNpc()) {
 		sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
@@ -160,7 +159,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			SendMsgToChar(buf, ch);
 		}
 
-		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) GET_RELIGION(k)][(int) GET_SEX(k)]);
+		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) GET_RELIGION(k)][(int) k->get_sex()]);
 		SendMsgToChar(buf, ch);
 
 		std::string file_name = GET_NAME(k);
@@ -237,7 +236,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (!k->IsNpc()) {
 		strcpy(smallBuf, MUD::Class(k->GetClass()).GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
-				PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
+				PlayerRace::GetKinNameByNum(GET_KIN(k), k->get_sex()).c_str(),
 				k->get_race_name().c_str(),
 				smallBuf);
 		SendMsgToChar(buf, ch);
@@ -391,7 +390,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, attack_hit_text[k->mob_specials.attack_type].singular);
 	}
 	if (k->desc) {
-		sprinttype(STATE(k->desc), connected_types, buf2);
+		strcpy(buf2, GetConDescription(k->desc->state));
 		strcat(buf, ", Соединение: ");
 		strcat(buf, buf2);
 	}
@@ -692,7 +691,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 	sprintf(buf, "\r\n");
 	SendMsgToChar(buf, ch);
-	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
+	sprinttype(j->get_type(), item_types, buf1);
 	if (rnum >= 0) {
 		strcpy(buf2, (obj_proto.func(j->get_rnum()) ? "Есть" : "Нет"));
 	} else {
@@ -700,7 +699,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 
 	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
-				  kColorGrn, vnum, kColorNrm, GET_OBJ_RNUM(j), GET_OBJ_UNIQUE_ID(j), j->get_id());
+				  kColorGrn, vnum, kColorNrm, GET_OBJ_RNUM(j), j->get_unique_id(), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
@@ -848,7 +847,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		SendMsgToChar(buf, ch);
 	}
 
-	switch (GET_OBJ_TYPE(j)) {
+	switch (j->get_type()) {
 		case EObjType::kBook:
 
 			switch (GET_OBJ_VAL(j, 0)) {

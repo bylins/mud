@@ -64,7 +64,7 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (GET_OBJ_TYPE(jar) != EObjType::kFountain) {
+	if (jar->get_type() != EObjType::kFountain) {
 		weight_change_object(jar, -std::min(amount, GET_OBJ_WEIGHT(jar)));
 	}
 
@@ -98,7 +98,7 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	TryDrinkPoison(ch, jar, amount);
 
 	// empty the container, and no longer poison. 999 - whole fountain //
-	if (GET_OBJ_TYPE(jar) != EObjType::kFountain || GET_OBJ_VAL(jar, 1) != 999) {
+	if (jar->get_type() != EObjType::kFountain || GET_OBJ_VAL(jar, 1) != 999) {
 		jar->sub_val(1, amount);
 	}
 	if (!GET_OBJ_VAL(jar, 1))    // The last bit //
@@ -117,7 +117,7 @@ ObjData *GetDrinkingJar(CharData *ch, char *jar_name) {
 			return jar;
 		}
 
-		if (GET_OBJ_TYPE(jar) == EObjType::kLiquidContainer) {
+		if (jar->get_type() == EObjType::kLiquidContainer) {
 			SendMsgToChar("Прежде это стоит поднять.\r\n", ch);
 			return nullptr;
 		}
@@ -131,13 +131,13 @@ int CanDrink(CharData *ch, ObjData *jar) {
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(jar) == EObjType::kMagicIngredient) {
+	if (jar->get_type() == EObjType::kMagicIngredient) {
 		SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(jar) != EObjType::kLiquidContainer
-		&& GET_OBJ_TYPE(jar) != EObjType::kFountain) {
+	if (jar->get_type() != EObjType::kLiquidContainer
+		&& jar->get_type() != EObjType::kFountain) {
 		SendMsgToChar("Не стоит. Козлят и так много!\r\n", ch);
 		return 0;
 	}

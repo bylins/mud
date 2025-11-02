@@ -232,7 +232,7 @@ void redit_save_internally(DescriptorData *d) {
 
 		// * Update any rooms being edited.
 		for (auto dsc = descriptor_list; dsc; dsc = dsc->next) {
-			if (dsc->connected == CON_REDIT) {
+			if (dsc->state == EConState::kRedit) {
 				for (j = 0; j < EDirection::kMaxDirNum; j++) {
 					if (OLC_ROOM(dsc)->dir_option[j]) {
 						const auto to_room = OLC_ROOM(dsc)->dir_option[j]->to_room();

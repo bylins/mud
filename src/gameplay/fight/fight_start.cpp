@@ -22,13 +22,13 @@ int set_hit(CharData *ch, CharData *victim) {
 
 	bool message = false;
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
-	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD || STATE(victim->desc) == CON_WRITE_MOD || STATE(victim->desc) == CON_WRITE_NOTE)) {
+	if (victim->desc && (victim->desc->state == EConState::kWriteboard || victim->desc->state == EConState::kWriteMod || victim->desc->state == EConState::kWriteNote)) {
 		victim->desc->message.reset();
 		victim->desc->board.reset();
 		if (victim->desc->writer->get_string()) {
 			victim->desc->writer->clear();
 		}
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->state = EConState::kPlaying;
 		if (!victim->IsNpc()) {
 			victim->UnsetFlag(EPlrFlag::kWriting);
 		}
@@ -38,29 +38,29 @@ int set_hit(CharData *ch, CharData *victim) {
 		}
 		victim->desc->writer.reset();
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_CLANEDIT)) {
+	} else if (victim->desc && (victim->desc->state == EConState::kClanedit)) {
 		// аналогично, если жерва правит свою дружину в олц
 		victim->desc->clan_olc.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->state = EConState::kPlaying;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_SPEND_GLORY)) {
+	} else if (victim->desc && (victim->desc->state == EConState::kSpendGlory)) {
 		// или вливает-переливает славу
 		victim->desc->glory.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->state = EConState::kPlaying;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_GLORY_CONST)) {
+	} else if (victim->desc && (victim->desc->state == EConState::kGloryConst)) {
 		// или вливает-переливает славу
 		victim->desc->glory_const.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->state = EConState::kPlaying;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_MAP_MENU)) {
+	} else if (victim->desc && (victim->desc->state == EConState::kMapMenu)) {
 		// или ковыряет опции карты
 		victim->desc->map_options.reset();
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->state = EConState::kPlaying;
 		message = true;
-	} else if (victim->desc && (STATE(victim->desc) == CON_TORC_EXCH)) {
+	} else if (victim->desc && (victim->desc->state == EConState::kTorcExch)) {
 		// или меняет гривны (чистить особо и нечего)
-		STATE(victim->desc) = CON_PLAYING;
+		victim->desc->state = EConState::kPlaying;
 		message = true;
 	}
 

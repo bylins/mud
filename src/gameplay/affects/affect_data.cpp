@@ -190,7 +190,7 @@ void player_affect_update() {
 	int count = 0;
 //	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING)
+		if (d->state != EConState::kPlaying)
 			continue;
 		const auto i = d->get_character();
 					
@@ -662,16 +662,16 @@ void affect_total(CharData *ch) {
 	// походу для выбора цели переключения в бою
 	ch->damage_level = (str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
-		&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+		&& obj->get_type() == EObjType::kWeapon) {
 		ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
 			>> 1; // правильный расчет среднего у оружия
 	} else {
 		if ((obj = GET_EQ(ch, EEquipPos::kWield))
-			&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+			&& obj->get_type() == EObjType::kWeapon) {
 			ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold))
-			&& GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+			&& obj->get_type() == EObjType::kWeapon) {
 			ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
 		}
 	}

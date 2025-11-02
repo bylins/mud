@@ -150,7 +150,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
-		|| GET_OBJ_TYPE(obj) == EObjType::kKey
+		|| obj->get_type() == EObjType::kKey
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| GET_OBJ_OWNER(obj)) {
@@ -158,7 +158,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 				 obj->get_PName(0).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
-	} else if (GET_OBJ_TYPE(obj) == EObjType::kContainer
+	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
@@ -174,7 +174,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		return 0;
 	}
 	if (invalid_anti_class(&t_vict, obj)) {
-		switch (GET_SEX(&t_vict)) {
+		switch ((&t_vict)->get_sex()) {
 			case EGender::kMale:
 				act("$n сказал$g вам : 'Знаю я такого добра молодца - эта вещь явно на него не налезет.'\r\n",
 					false, mailman, 0, ch, kToVict);

@@ -26,13 +26,13 @@ bool HasBoat(CharData *ch) {
 	}
 
 	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
-		if (GET_OBJ_TYPE(obj) == EObjType::kBoat && (find_eq_pos(ch, obj, nullptr) < 0)) {
+		if (obj->get_type() == EObjType::kBoat && (find_eq_pos(ch, obj, nullptr) < 0)) {
 			return true;
 		}
 	}
 
 	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i) && GET_OBJ_TYPE(GET_EQ(ch, i)) == EObjType::kBoat) {
+		if (GET_EQ(ch, i) && GET_EQ(ch, i)->get_type() == EObjType::kBoat) {
 			return true;
 		}
 	}
