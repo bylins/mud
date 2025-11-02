@@ -1605,7 +1605,7 @@ void find_replacement(void *go,
 				sprintf(str, "%c", num > 0 ? '1' : '0');
 			} else if (!str_cmp(field, "pc")) {
 				for (auto d = descriptor_list; d; d = d->next) {
-					if (STATE(d) != CON_PLAYING) 
+					if (d->state != EConState::kPlaying)
 						continue;
 					if (!str_cmp(subfield, GET_NAME(d->character))) {
 						sprintf(str, "1");
@@ -1675,7 +1675,7 @@ void find_replacement(void *go,
 				int from = 0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (auto d = descriptor_list; d; d = d->next) {
-					if (STATE(d) != CON_PLAYING || GET_INVIS_LEV(d->character) > 0) 
+					if (d->state != EConState::kPlaying || GET_INVIS_LEV(d->character) > 0)
 						continue;
 					if (d->character->in_room >= from && d->character->in_room <= to) {
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(d->character));
@@ -2555,7 +2555,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "TnlExp")) {
 			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
 		} else if (!str_cmp(field, "sex")) {
-			sprintf(str, "%d", (int) GET_SEX(c));
+			sprintf(str, "%d", (int) c->get_sex());
 		} else if (!str_cmp(field, "clan")) {
 			if (CLAN(c)) {
 				sprintf(str, "%s", CLAN(c)->GetAbbrev());
@@ -3149,16 +3149,16 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "id")) {
 			sprintf(str, "%c%ld", UID_OBJ, o->get_id());
 		} else if (!str_cmp(field, "unique")) {
-			if (!GET_OBJ_UNIQUE_ID(o)) {
+			if (!o->get_unique_id()) {
 				InitUid(o);
 			}
-			sprintf(str, "%ld", GET_OBJ_UNIQUE_ID(o));
+			sprintf(str, "%ld", o->get_unique_id());
 		} else if (!str_cmp(field, "shortdesc")) {
 			strcpy(str, o->get_short_description().c_str());
 		} else if (!str_cmp(field, "vnum")) {
 			sprintf(str, "%d", GET_OBJ_VNUM(o));
 		} else if (!str_cmp(field, "type")) {
-			sprintf(str, "%d", (int) GET_OBJ_TYPE(o));
+			sprintf(str, "%d", (int) o->get_type());
 		} else if (!str_cmp(field, "timer")) {
 			sprintf(str, "%d", o->get_timer());
 		} else if (!str_cmp(field, "objmax")) {
@@ -3403,7 +3403,7 @@ void find_replacement(void *go,
 			if (*subfield == UID_OBJ) {
 				obj_to = world_objects.find_by_id(atoi(subfield + 1)).get();
 				if (!(obj_to
-					&& GET_OBJ_TYPE(obj_to) == EObjType::kContainer)) {
+					&& obj_to->get_type() == EObjType::kContainer)) {
 					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
 					return;
 				}
@@ -4914,7 +4914,7 @@ void charuid_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		return;
 	}
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) != CON_PLAYING)
+		if (d->state != EConState::kPlaying)
 			continue;
 		if (!HERE(d->character) || !isname(who, d->character->get_name())) {
 			continue;
@@ -5779,7 +5779,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 
 void do_worldecho(char *msg) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING) {
+		if (d->state == EConState::kPlaying) {
 			SendMsgToChar(d->character.get(), "%s\r\n", msg);
 		}
 	}

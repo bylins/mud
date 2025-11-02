@@ -25,7 +25,7 @@ void PerformDropGold(CharData *ch, int amount) {
 		ObjData *next_obj;
 		for (ObjData *existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj) {
 			next_obj = existing_obj->get_next_content();
-			if (GET_OBJ_TYPE(existing_obj) == EObjType::kMoney && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD) {
+			if (existing_obj->get_type() == EObjType::kMoney && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD) {
 				//Запоминаем стоимость существующей кучки и удаляем ее
 				additional_amount = GET_OBJ_VAL(existing_obj, 0);
 				RemoveObjFromRoom(existing_obj);

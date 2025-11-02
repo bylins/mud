@@ -321,7 +321,7 @@ InspectRequest::InspectRequest(const CharData *author, const std::vector<std::st
 
 void InspectRequest::Execute() {
 	DescriptorData *author_descriptor = DescriptorByUid(author_uid_);
-	if (!author_descriptor || (author_descriptor->connected != CON_PLAYING)) {
+	if (!author_descriptor || (author_descriptor->state != EConState::kPlaying)) {
 		status_ = kFinished;
 		return;
 	}

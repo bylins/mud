@@ -405,8 +405,8 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
-		|| GET_OBJ_TYPE(obj) == EObjType::kIngredient)
+	} else if ((obj->get_type() == EObjType::kMagicIngredient
+		|| obj->get_type() == EObjType::kIngredient)
 		&& GET_OBJ_RNUM(obj) >= 0
 		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
 		result = true;
@@ -421,7 +421,7 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 
 bool ParseFilter::check_type(ObjData *obj) const {
 	if (type < 0
-		|| type == GET_OBJ_TYPE(obj)) {
+		|| type == obj->get_type()) {
 		return true;
 	}
 

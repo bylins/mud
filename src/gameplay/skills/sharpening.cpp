@@ -25,7 +25,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
+	if (obj->get_type() != EObjType::kWeapon) {
 		SendMsgToChar("Вы можете заточить только оружие.\r\n", ch);
 		return;
 	}

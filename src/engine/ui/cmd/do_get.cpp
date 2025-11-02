@@ -48,7 +48,7 @@ void get_check_money(CharData *ch, ObjData *obj, ObjData *cont) {
 	const int value = GET_OBJ_VAL(obj, 0);
 	const int curr_type = GET_OBJ_VAL(obj, 1);
 
-	if (GET_OBJ_TYPE(obj) != EObjType::kMoney || value <= 0) {
+	if (obj->get_type() != EObjType::kMoney || value <= 0) {
 		return;
 	}
 
@@ -198,8 +198,8 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
 				if (autoloot
-					&& (GET_OBJ_TYPE(obj) == EObjType::kIngredient
-						|| GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient)
+					&& (obj->get_type() == EObjType::kIngredient
+						|| obj->get_type() == EObjType::kMagicIngredient)
 					&& ch->IsFlagged(EPrf::kNoIngrLoot)) {
 					continue;
 				}
@@ -342,7 +342,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!cont) {
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
 				SendMsgToChar(buf, ch);
-			} else if (GET_OBJ_TYPE(cont) != EObjType::kContainer) {
+			} else if (cont->get_type() != EObjType::kContainer) {
 				act("$o - не контейнер.", false, ch, cont, nullptr, kToChar);
 			} else {
 				get_from_container(ch, cont, theobj, mode, amount, false);
@@ -358,7 +358,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
-					if (GET_OBJ_TYPE(cont) == EObjType::kContainer) {
+					if (cont->get_type() == EObjType::kContainer) {
 						found = 1;
 						get_from_container(ch, cont, theobj, EFind::kObjInventory, amount, false);
 					} else if (cont_dotmode == kFindAlldot) {
@@ -373,7 +373,7 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
 						|| CHECK_CUSTOM_LABEL(thecont, cont, ch))) {
-					if (GET_OBJ_TYPE(cont) == EObjType::kContainer) {
+					if (cont->get_type() == EObjType::kContainer) {
 						get_from_container(ch, cont, theobj, EFind::kObjRoom, amount, false);
 						found = 1;
 					} else if (cont_dotmode == kFindAlldot) {

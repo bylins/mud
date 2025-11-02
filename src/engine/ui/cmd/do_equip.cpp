@@ -238,7 +238,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		if (ch->GetEnemy() && (equip_pos == EEquipPos::kShield || GET_OBJ_TYPE(obj) == EObjType::kWeapon)) {
+		if (ch->GetEnemy() && (equip_pos == EEquipPos::kShield || obj->get_type() == EObjType::kWeapon)) {
 			SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 			return;
 		}
@@ -261,7 +261,7 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 	}
 	if ((equip_pos == EEquipPos::kQuiver && !(GET_EQ(ch, EEquipPos::kBoths) // не может одеть колчан если одет не лук
-				&& (GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths)) == EObjType::kWeapon)
+				&& (GET_EQ(ch, EEquipPos::kBoths)->get_type() == EObjType::kWeapon)
 				&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))) {
 		SendMsgToChar("А стрелять чем будете?\r\n", ch);
 		return;
@@ -377,7 +377,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!CAN_WEAR(obj, EWearFlag::kWield)
 			&& !CAN_WEAR(obj, EWearFlag::kBoth)) {
 			SendMsgToChar("Вы не можете вооружиться этим.\r\n", ch);
-		} else if (GET_OBJ_TYPE(obj) != EObjType::kWeapon) {
+		} else if (obj->get_type() != EObjType::kWeapon) {
 			SendMsgToChar("Это не оружие.\r\n", ch);
 		} else if (ch->IsNpc()
 			&& AFF_FLAGGED(ch, EAffect::kCharmed)
@@ -446,19 +446,19 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		snprintf(buf, kMaxInputLength, "У вас нет ничего похожего на '%s'.\r\n", arg);
 		SendMsgToChar(buf, ch);
 	} else {
-		if (GET_OBJ_TYPE(obj) == EObjType::kLightSource) {
+		if (obj->get_type() == EObjType::kLightSource) {
 			perform_wear(ch, obj, EEquipPos::kLight);
 		} else {
 			if (!CAN_WEAR(obj, EWearFlag::kHold)
-				&& GET_OBJ_TYPE(obj) != EObjType::kWand
-				&& GET_OBJ_TYPE(obj) != EObjType::kStaff
-				&& GET_OBJ_TYPE(obj) != EObjType::kScroll
-				&& GET_OBJ_TYPE(obj) != EObjType::kPotion) {
+				&& obj->get_type() != EObjType::kWand
+				&& obj->get_type() != EObjType::kStaff
+				&& obj->get_type() != EObjType::kScroll
+				&& obj->get_type() != EObjType::kPotion) {
 				SendMsgToChar("Вы не можете это держать.\r\n", ch);
 				return;
 			}
 
-			if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+			if (obj->get_type() == EObjType::kWeapon) {
 				if (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kTwohands
 					|| static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows) {
 					SendMsgToChar("Данный тип оружия держать невозможно.", ch);

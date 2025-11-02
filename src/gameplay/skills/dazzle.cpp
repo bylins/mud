@@ -71,7 +71,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	bool has_pepper = false;
 
 	for (auto i = ch->carrying;i; i = i->get_next_content()) {
-		if (GET_OBJ_TYPE(i) == EObjType::kWand && GET_OBJ_VAL(i,3) == 356 && GET_OBJ_VAL(i,2) > 0) {
+		if (i->get_type() == EObjType::kWand && GET_OBJ_VAL(i,3) == 356 && GET_OBJ_VAL(i,2) > 0) {
 			int charges = GET_OBJ_VAL(i,2);
 			if (charges > 0) {
 				i->set_val(2, charges - 1);

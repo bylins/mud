@@ -540,7 +540,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			sprintf(buf, "&WИнформация по игроку %s:&n (", vict->get_name().c_str());
-			sprinttype(to_underlying(GET_SEX(vict)), genders, buf + strlen(buf));
+			sprinttype(to_underlying(vict->get_sex()), genders, buf + strlen(buf));
 			sprintf(buf + strlen(buf), ")&n\r\n");
 			sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
 					GET_PAD(vict, 0), GET_PAD(vict, 1), GET_PAD(vict, 2),
@@ -668,7 +668,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->snooping
 					&& d->character
-					&& STATE(d) == CON_PLAYING
+					&& d->state == EConState::kPlaying
 					&& d->character->in_room != kNowhere
 					&& ((CAN_SEE(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
@@ -705,7 +705,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->snooping != nullptr && d->character != nullptr)
 					continue;
-				if (STATE(d) != CON_PLAYING
+				if (d->state != EConState::kPlaying
 					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !ch->IsFlagged(EPrf::kCoderinfo)))
 					continue;
 				if (!CAN_SEE(ch, d->character) || d->character->in_room == kNowhere)

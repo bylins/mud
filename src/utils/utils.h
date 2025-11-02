@@ -394,7 +394,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_WEIGHT(ch)  ((ch)->player_data.weight)
 #define GET_WEIGHT_ADD(ch) ((ch)->add_abils.weight_add)
 #define GET_REAL_WEIGHT(ch) (GET_WEIGHT(ch) + GET_WEIGHT_ADD(ch))
-#define GET_SEX(ch)  ((ch)->get_sex())
 
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
@@ -668,32 +667,11 @@ const int kNameLevel = 5;
 
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")
 
-#define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
-#define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
-
-// New, preferred macro
-#define GET_PUNCTUAL_WAIT_STATE(ch)    ((ch)->punctual_wait)
-
-
-// descriptor-based utils ***********************************************
-
-// Hrm, not many.  We should make more. -gg 3/4/99
-#define STATE(d)  ((d)->connected)
-
+#define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
 
 // object utils *********************************************************
-#define GET_OBJ_UNIQUE_ID(obj)    ((obj)->get_unique_id())
 
-#define GET_OBJ_ALIAS(obj)      ((obj)->get_aliases())
 #define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))
-#define GET_OBJ_DESC(obj)       ((obj)->get_description())
-#define GET_OBJ_SPELL(obj)      ((obj)->get_spell())
-#define GET_OBJ_LEVEL(obj)      ((obj)->get_level())
-#define GET_OBJ_AFFECTS(obj)    ((obj)->get_affect_flags())
-#define GET_OBJ_ANTI(obj)       ((obj)->get_anti_flags())
-#define GET_OBJ_NO(obj)         ((obj)->get_no_flags())
-#define GET_OBJ_ACT(obj)        ((obj)->get_action_description())
-#define GET_OBJ_TYPE(obj)       ((obj)->get_type())
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_on())
@@ -720,10 +698,10 @@ const int kNameLevel = 5;
 
 // compound utilities and other macros *********************************
 
-#define HSHR(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (EGender::kNeutral != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
+#define HSSH(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
+#define HMHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
 
 #define OSHR(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "его": (GET_OBJ_SEX(ch) == EGender::kFemale ? "ее" : "их")) :"его")
 #define OSSH(ch) (EGender::kNeutral != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == EGender::kMale ? "он": (GET_OBJ_SEX(ch) == EGender::kFemale ? "она" : "они")) :"оно")
@@ -1009,7 +987,7 @@ void skip_spaces(T string) {
 
 std::string thousands_sep(long long n);
 
-#define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == EObjType::kContainer && \
+#define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 

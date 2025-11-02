@@ -48,18 +48,19 @@ void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	 * This will retain the stability of the close_me hack while being
 	 * neater in appearance. -gg 12/1/97
 	 */
-	if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
+	if (d->state == EConState::kDisconnect || d->state == EConState::kClose) {
 		SendMsgToChar("Соединение уже разорвано.\r\n", ch);
-	else {
+	} else {
 		/*
 		 * Remember that we can disconnect people not in the game and
 		 * that rather confuses the code when it expected there to be
 		 * a character context.
 		 */
-		if (STATE(d) == CON_PLAYING)
-			STATE(d) = CON_DISCONNECT;
-		else
-			STATE(d) = CON_CLOSE;
+		if (d->state == EConState::kPlaying) {
+			d->state = EConState::kDisconnect;
+		} else {
+			d->state = EConState::kClose;
+		}
 
 		sprintf(buf, "Соединение #%d закрыто.\r\n", num_to_dc);
 		SendMsgToChar(buf, ch);

@@ -89,7 +89,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (spell_id != ESpell::kUndefined) {
 					RemoveAffectFromCharAndRecalculate(vict, spell_id);
 				}
-				if (GET_SEX(ch) == EGender::kMale)
+				if (ch->get_sex() == EGender::kMale)
 					sprintf(buf, "%s оказал вам первую помощь.\r\n", ch->get_name().c_str());
 				else 
 					sprintf(buf, "%s оказала вам первую помощь.\r\n", ch->get_name().c_str());

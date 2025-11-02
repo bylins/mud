@@ -34,7 +34,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$o в ремонте не нуждается.", false, ch, obj, nullptr, kToChar);
 		return;
 	}
-	if ((GET_OBJ_TYPE(obj) != EObjType::kWeapon) && !ObjSystem::is_armor_type(obj)) {
+	if ((obj->get_type() != EObjType::kWeapon) && !ObjSystem::is_armor_type(obj)) {
 		SendMsgToChar("Вы можете отремонтировать только оружие или броню.\r\n", ch);
 		return;
 	}

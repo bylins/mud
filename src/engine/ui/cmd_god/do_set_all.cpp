@@ -34,7 +34,7 @@ void setall_inspect() {
 
 	DescriptorData *imm_d = DescriptorByUid(player_table[it->first].uid());
 	if (!imm_d
-		|| (STATE(imm_d) != CON_PLAYING)
+		|| (imm_d->state != EConState::kPlaying)
 		|| !(ch = imm_d->character.get())) {
 		setall_inspect_list.erase(it->first);
 		return;

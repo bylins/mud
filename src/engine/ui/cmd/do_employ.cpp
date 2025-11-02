@@ -36,7 +36,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 				break;
 			case SCMD_USE: mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
 				if (!mag_item
-					|| GET_OBJ_TYPE(mag_item) != EObjType::kEnchant) {
+					|| mag_item->get_type() != EObjType::kEnchant) {
 					snprintf(buf2, kMaxStringLength, "Возьмите в руку '%s' перед применением!\r\n", arg);
 					SendMsgToChar(buf2, ch);
 					return;
@@ -52,26 +52,26 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 				SendMsgToChar("Не стоит отвлекаться в бою!\r\n", ch);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != EObjType::kPotion) {
+			if (mag_item->get_type() != EObjType::kPotion) {
 				SendMsgToChar("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 				return;
 			}
 			do_hold = 1;
 			break;
 		case SCMD_RECITE:
-			if (GET_OBJ_TYPE(mag_item) != EObjType::kScroll) {
+			if (mag_item->get_type() != EObjType::kScroll) {
 				SendMsgToChar("Пригодны для зачитывания только свитки.\r\n", ch);
 				return;
 			}
 			do_hold = 1;
 			break;
 		case SCMD_USE:
-			if (GET_OBJ_TYPE(mag_item) == EObjType::kEnchant) {
+			if (mag_item->get_type() == EObjType::kEnchant) {
 				apply_enchant(ch, mag_item, buf);
 				return;
 			}
-			if (GET_OBJ_TYPE(mag_item) != EObjType::kWand
-				&& GET_OBJ_TYPE(mag_item) != EObjType::kStaff) {
+			if (mag_item->get_type() != EObjType::kWand
+				&& mag_item->get_type() != EObjType::kStaff) {
 				SendMsgToChar("Применять можно только магические предметы!\r\n", ch);
 				return;
 			}
@@ -127,7 +127,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		SendMsgToChar(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
-	if (GET_OBJ_TYPE(target) == EObjType::kEnchant) {
+	if (target->get_type() == EObjType::kEnchant) {
 		SendMsgToChar(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
 		return;
 	}

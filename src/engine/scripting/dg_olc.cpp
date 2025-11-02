@@ -476,7 +476,7 @@ void trigedit_save(DescriptorData *d) {
 
 		// * Update other trigs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
-			if (dsc->connected == CON_TRIGEDIT) {
+			if (dsc->state == EConState::kTrigedit) {
 				if (GET_TRIG_RNUM(OLC_TRIG(dsc)) >= trig_rnum) {
 					OLC_TRIG(dsc)->set_rnum(1 + OLC_TRIG(dsc)->get_rnum());
 				}

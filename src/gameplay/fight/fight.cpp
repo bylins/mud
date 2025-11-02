@@ -1019,7 +1019,7 @@ void mob_casting(CharData *ch) {
 		&& item
 		&& GET_RACE(ch) == ENpcRace::kHuman
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
-		switch (GET_OBJ_TYPE(item)) {
+		switch (item->get_type()) {
 			case EObjType::kWand:
 			case EObjType::kStaff: {
 				const auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(item, 3));
@@ -1120,7 +1120,7 @@ void mob_casting(CharData *ch) {
 			&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
 			&& item
 			&& GET_RACE(ch) == ENpcRace::kHuman) {
-			switch (GET_OBJ_TYPE(item)) {
+			switch (item->get_type()) {
 				case EObjType::kWand:
 				case EObjType::kStaff:
 					if (GET_OBJ_VAL(item, 2) > 0
@@ -1947,7 +1947,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
-		&& GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon
+		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
 		&& GET_AF_BATTLE(ch, kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
 		&& (IS_IMMORTAL(ch)
@@ -2136,7 +2136,7 @@ void perform_violence() {
 
 	round_profiler.next_step("MSDP reports");
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (STATE(d) == CON_PLAYING && d->character) {
+		if (d->state == EConState::kPlaying && d->character) {
 			for (const auto &ch : msdp_report_chars) {
 				if (group::same_group(ch, d->character.get()) && ch->in_room == d->character->in_room) {
 					msdp_report_chars.insert(d->character.get());

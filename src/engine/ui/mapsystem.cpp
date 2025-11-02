@@ -330,13 +330,13 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (!ch->map_check_option(MAP_MODE_INGREDIENTS)
-				&& (GET_OBJ_TYPE(obj) == EObjType::kIngredient
-					|| GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient)) {
+				&& (obj->get_type() == EObjType::kIngredient
+					|| obj->get_type() == EObjType::kMagicIngredient)) {
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& GET_OBJ_TYPE(obj) != EObjType::kIngredient
-				&& GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient
+				&& obj->get_type() != EObjType::kIngredient
+				&& obj->get_type() != EObjType::kMagicIngredient
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}
@@ -860,13 +860,13 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 		olc_menu(ch);
 	} else if (num == TOTAL_MAP_OPTIONS + 2) {
 		ch->desc->map_options.reset();
-		STATE(ch->desc) = CON_PLAYING;
+		ch->desc->state = EConState::kPlaying;
 		SendMsgToChar("Редактирование отменено.\r\n", ch);
 		return;
 	} else if (num == TOTAL_MAP_OPTIONS + 3) {
 		ch->map_olc_save();
 		ch->desc->map_options.reset();
-		STATE(ch->desc) = CON_PLAYING;
+		ch->desc->state = EConState::kPlaying;
 		SendMsgToChar("Изменения сохранены.\r\n", ch);
 		return;
 	} else {

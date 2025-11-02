@@ -131,7 +131,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar("У вас этого нет.\r\n", ch);
 				return false;
 			}
-			if (GET_OBJ_TYPE(obj) != EObjType::kBook) {
+			if (obj->get_type() != EObjType::kBook) {
 				if (obj->has_flag(EObjFlag::kNorent)
 					|| obj->has_flag(EObjFlag::kNosell)) {
 					SendMsgToChar("Этот предмет не предназначен для аукциона.\r\n", ch);
@@ -383,14 +383,14 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 			obj = GET_LOT(lot)->item;
 			sprintf(buf, "Предмет \"%s\", ", obj->get_short_description().c_str());
-			if ((GET_OBJ_TYPE(obj) == EObjType::kWand)
-				|| (GET_OBJ_TYPE(obj) == EObjType::kStaff)) {
+			if ((obj->get_type() == EObjType::kWand)
+				|| (obj->get_type() == EObjType::kStaff)) {
 				if (GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1)) {
 					strcat(buf, "(б/у), ");
 				}
 			}
 			strcat(buf, " тип ");
-			sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
+			sprinttype(obj->get_type(), item_types, buf2);
 			if (*buf2) {
 				strcat(buf, buf2);
 				strcat(buf, "\n");
@@ -472,7 +472,7 @@ void message_auction(char *message, CharData *ch) {
 
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) == CON_PLAYING &&
+		if  (i->state == EConState::kPlaying &&
 			(!ch || i != ch->desc) &&
 			i->character &&
 			!i->character->IsFlagged(EPrf::kNoAuction) &&

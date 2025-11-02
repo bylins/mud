@@ -48,7 +48,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		for (obj = ch->carrying; obj; obj = obj->get_next_content()) {
-			if (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer) {
+			if (obj->get_type() == EObjType::kLiquidContainer) {
 				break;
 			}
 		}
@@ -65,13 +65,13 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (GET_OBJ_TYPE(obj) != EObjType::kLiquidContainer
-		&& GET_OBJ_TYPE(obj) != EObjType::kFountain) {
+	if (obj->get_type() != EObjType::kLiquidContainer
+		&& obj->get_type() != EObjType::kFountain) {
 		SendMsgToChar("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
-	if (on_ground && (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer)) {
+	if (on_ground && (obj->get_type() == EObjType::kLiquidContainer)) {
 		SendMsgToChar("Прежде это стоит поднять.\r\n", ch);
 		return;
 	}

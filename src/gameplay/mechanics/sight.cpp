@@ -455,7 +455,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
 		if (!(desc = find_exdesc(what, found_obj->get_ex_description())) 
-				|| ((GET_OBJ_TYPE(found_obj) == EObjType::kNote) && !found_obj->get_action_description().empty())) {
+				|| ((found_obj->get_type() == EObjType::kNote) && !found_obj->get_action_description().empty())) {
 			show_obj_to_char(found_obj, ch, 5, true, 1);    // Show no-description
 		} else {
 			SendMsgToChar(desc, ch);
@@ -983,9 +983,9 @@ void look_in_obj(CharData *ch, char *arg) {
 	if ((obj == nullptr) || !bits) {
 		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 		SendMsgToChar(buf, ch);
-	} else if (GET_OBJ_TYPE(obj) != EObjType::kLiquidContainer
-		&& GET_OBJ_TYPE(obj) != EObjType::kFountain
-		&& GET_OBJ_TYPE(obj) != EObjType::kContainer) {
+	} else if (obj->get_type() != EObjType::kLiquidContainer
+		&& obj->get_type() != EObjType::kFountain
+		&& obj->get_type() != EObjType::kContainer) {
 		SendMsgToChar("Ничего в нем нет!\r\n", ch);
 	} else {
 		if (Clan::ChestShow(obj, ch)) {
@@ -999,7 +999,7 @@ void look_in_obj(CharData *ch, char *arg) {
 			return;
 		}
 
-		if (GET_OBJ_TYPE(obj) == EObjType::kContainer) {
+		if (obj->get_type() == EObjType::kContainer) {
 			if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
 				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
@@ -1079,7 +1079,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		strcat(buf, object->get_short_description().c_str());
 		strcat(buf, char_get_custom_label(object, ch).c_str());
 	} else if (mode == 5) {
-		if (GET_OBJ_TYPE(object) == EObjType::kNote) {
+		if (object->get_type() == EObjType::kNote) {
 			if (!object->get_action_description().empty()) {
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
 				strcat(buf, AddLeadingStringSpace(object->get_action_description()).c_str());
@@ -1089,12 +1089,12 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				SendMsgToChar("Чисто.\r\n", ch);
 			}
 			return nullptr;
-		} else if (GET_OBJ_TYPE(object) == EObjType::kBandage) {
+		} else if (object->get_type() == EObjType::kBandage) {
 			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
 			snprintf(buf2, kMaxStringLength, "Осталось применений: %d, восстановление: %d",
 					 GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
 			strcat(buf, buf2);
-		} else if (GET_OBJ_TYPE(object) != EObjType::kLiquidContainer) {
+		} else if (object->get_type() != EObjType::kLiquidContainer) {
 			strcpy(buf, "Вы не видите ничего необычного.");
 		} else        // ITEM_TYPE == kLiquidContainer||FOUNTAIN
 		{
@@ -1105,7 +1105,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 	if (show_state && show_state != 3 && show_state != 4) {
 		*buf2 = '\0';
 		if (mode == 1 && how <= 1) {
-			if (GET_OBJ_TYPE(object) == EObjType::kLightSource) {
+			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1)
 					strcpy(buf2, " (вечный свет)");
 				else if (GET_OBJ_VAL(object, 2) == 0)
@@ -1119,7 +1119,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 							kColorNrm, diag_obj_to_char(object, 1));
 				} else {
 					sprintf(buf2, " %s ", diag_obj_to_char(object, 1));
-					if (GET_OBJ_TYPE(object) == EObjType::kLiquidContainer) {
+					if (object->get_type() == EObjType::kLiquidContainer) {
 						char *tmp = drinkcon::daig_filling_drink(object, ch);
 						char tmp2[128];
 						*tmp = LOWER(*tmp);
@@ -1128,7 +1128,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					}
 				}
 			}
-			if ((GET_OBJ_TYPE(object) == EObjType::kContainer)
+			if ((object->get_type() == EObjType::kContainer)
 				&& !OBJVAL_FLAGGED(object, EContainerFlag::kShutted)) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains()) {
@@ -1138,13 +1138,13 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
 				}
 			}
-			if ((GET_OBJ_TYPE(object) == EObjType::kNote) && !object->get_action_description().empty()) {
+			if ((object->get_type() == EObjType::kNote) && !object->get_action_description().empty()) {
 					strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, 0);
 			obj_name[0] = UPPER(obj_name[0]);
-			if (GET_OBJ_TYPE(object) == EObjType::kLightSource) {
+			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
 					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
 				} else if (GET_OBJ_VAL(object, 2) == 0) {
@@ -1401,7 +1401,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);
 	}
 
-	if (GET_OBJ_TYPE(obj) == EObjType::kMagicIngredient
+	if (obj->get_type() == EObjType::kMagicIngredient
 		&& (CanUseFeat(ch, EFeat::kHerbalist)
 			|| ch->IsFlagged(EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
@@ -1456,9 +1456,9 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
 	}
 
-	if (((GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer)
+	if (((obj->get_type() == EObjType::kLiquidContainer)
 		&& (GET_OBJ_VAL(obj, 1) > 0))
-		|| (GET_OBJ_TYPE(obj) == EObjType::kFood)) {
+		|| (obj->get_type() == EObjType::kFood)) {
 		sprintf(buf1, "Качество: %s\r\n", drinkcon::diag_liquid_timer(obj));
 		strcat(buf, buf1);
 	}
@@ -1916,7 +1916,7 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 	int need_str = 0;
 
 	*out_str = '\0';
-	if (GET_OBJ_TYPE(obj) == EObjType::kWeapon) {
+	if (obj->get_type() == EObjType::kWeapon) {
 		switch (static_cast<ESkill>(obj->get_spec_param())) {
 			case ESkill::kBows: skill = 1;
 				break;
@@ -2028,13 +2028,13 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 }
 
 std::string diag_armor_type_to_char(const ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kLightArmor) {
+	if (obj->get_type() == EObjType::kLightArmor) {
 		return "Легкий тип доспехов.\r\n";
 	}
-	if (GET_OBJ_TYPE(obj) == EObjType::kMediumArmor) {
+	if (obj->get_type() == EObjType::kMediumArmor) {
 		return "Средний тип доспехов.\r\n";
 	}
-	if (GET_OBJ_TYPE(obj) == EObjType::kHeavyArmor) {
+	if (obj->get_type() == EObjType::kHeavyArmor) {
 		return "Тяжелый тип доспехов.\r\n";
 	}
 	return "";
@@ -2051,7 +2051,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
-	if (GET_OBJ_TYPE(obj) == EObjType::kIngredient
+	if (obj->get_type() == EObjType::kIngredient
 		&& IS_SET(obj->get_spec_param(), kItemCheckUses)
 		&& IS_MANA_CASTER(ch)) {
 		int i = -1;
@@ -2069,7 +2069,7 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
-	if (GET_OBJ_TYPE(obj) == EObjType::kMagicContaner
+	if (obj->get_type() == EObjType::kMagicContaner
 		&& (ch->GetClass() == ECharClass::kRanger || ch->GetClass() == ECharClass::kCharmer || IS_MANA_CASTER(ch))) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
