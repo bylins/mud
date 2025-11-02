@@ -28,7 +28,7 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!weapon || !result) {
 		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", arg);
 		return;
-	} else if (GET_OBJ_TYPE(weapon) != EObjType::kWeapon) {
+	} else if (weapon->get_type() != EObjType::kWeapon) {
 		SendMsgToChar("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
 	}
@@ -37,7 +37,7 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!cont) {
 		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
-	} else if (GET_OBJ_TYPE(cont) != EObjType::kLiquidContainer) {
+	} else if (cont->get_type() != EObjType::kLiquidContainer) {
 		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
 		return;
 	} else if (GET_OBJ_VAL(cont, 1) <= 0) {

@@ -30,7 +30,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		die(ch, nullptr);
 	}
 	else if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-		if (GET_SEX(ch) == EGender::kMale)
+		if (ch->get_sex() == EGender::kMale)
 			SendMsgToChar("Сдался салага? Не выйдет...", ch);
 		else
 			SendMsgToChar("Сдалась салага? Не выйдет...", ch);
@@ -73,7 +73,7 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			if (d == ch->desc)
 				continue;
 			if (d->character && (GET_UID(d->character) == GET_UID(ch)))
-				STATE(d) = CON_DISCONNECT;
+				d->state = EConState::kDisconnect;
 		}
 		ExtractCharFromWorld(ch, false);
 	}

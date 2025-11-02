@@ -17,7 +17,7 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("У вас нет этого!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_TYPE(from_obj) != EObjType::kMagicArrow) {
+	if (from_obj->get_type() != EObjType::kMagicArrow) {
 		SendMsgToChar("И как вы себе это представляете?\r\n", ch);
 		return;
 	}
@@ -33,8 +33,8 @@ void do_refill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете этого найти!\r\n", ch);
 		return;
 	}
-	if (!((GET_OBJ_TYPE(to_obj) == EObjType::kMagicContaner)
-		|| GET_OBJ_TYPE(to_obj) == EObjType::kMagicArrow)) {
+	if (!((to_obj->get_type() == EObjType::kMagicContaner)
+		|| to_obj->get_type() == EObjType::kMagicArrow)) {
 		SendMsgToChar("Вы не сможете в это сложить стрелы.\r\n", ch);
 		return;
 	}

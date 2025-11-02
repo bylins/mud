@@ -184,7 +184,7 @@ static void NewNames::cache_add(CharData *ch) {
 	name->name4 = GET_PAD(ch, 4);
 	name->name5 = GET_PAD(ch, 5);
 	name->email = GET_EMAIL(ch);
-	name->sex = GET_SEX(ch);
+	name->sex = ch->get_sex();
 
 	NewNameList[GET_NAME(ch)] = name;
 }
@@ -317,7 +317,7 @@ static void add_agree_name(CharData *d, const char *immname, int immlev) {
 			GET_PAD(d, 3),
 			GET_PAD(d, 4),
 			GET_PAD(d, 5),
-			static_cast<int>(GET_SEX(d)),
+			static_cast<int>(d->get_sex()),
 			immname,
 			immlev);
 	fclose(fl);

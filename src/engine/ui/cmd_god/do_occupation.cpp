@@ -19,7 +19,7 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING)
+		if  (i->state != EConState::kPlaying)
 			continue;
 		if (i->character->in_room == kNowhere)
 			continue;

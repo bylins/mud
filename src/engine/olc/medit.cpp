@@ -477,7 +477,7 @@ void medit_save_internally(DescriptorData *d) {
 		// 4. Другие редактируемые мобы
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
-			if (dsc->connected == CON_MEDIT) {
+			if (dsc->state == EConState::kMedit) {
 				if (GET_MOB_RNUM(OLC_MOB(dsc)) >= new_mob_num) {
 					OLC_MOB(dsc)->set_rnum(1 + OLC_MOB(dsc)->get_rnum());
 				}
@@ -579,7 +579,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
 				mob->mem_queue.stored, mob->get_hit(), GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob), static_cast<int>(mob->GetPosition()),
-				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(GET_SEX(mob)));
+				static_cast<int>(GET_DEFAULT_POS(mob)), static_cast<int>(mob->get_sex()));
 		// * Deal with Extra stats in case they are there.
 		sum = 0;
 		for (ESaving save = ESaving::kFirst; save <= ESaving::kLast; ++save) {
@@ -1077,7 +1077,7 @@ void medit_disp_menu(DescriptorData *d) {
 			"%sK%s) Класс защиты: [%s%4d%s],%sL%s) Опыт        : [%s%9ld%s],\r\n"
 			"%sM%s) Куны        : [%s%4ld%s],%sN%s) NumGoldDice : [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
+			grn, nrm, yel, genders[(int) mob->get_sex()], nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
 			grn, GET_PAD(mob, 0),
 			grn, GET_PAD(mob, 1),

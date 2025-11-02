@@ -185,7 +185,7 @@ class CObjectPrototype {
 										   m_ilevel(0),
 										   m_extract_list(false),
 										   m_rnum(DEFAULT_RNUM) {}
-	virtual    ~CObjectPrototype() {};
+	virtual ~CObjectPrototype() = default;
 	ObjRnum get_parent_rnum() const {return m_parent_proto;}
 	ObjVnum get_parent_vnum();
 	void set_parent_rnum(ObjRnum _) {m_parent_proto = _;}
@@ -360,6 +360,7 @@ class CObjectPrototype {
  protected:
 	void zero_init();
 	CObjectPrototype &operator=(const CObjectPrototype &from);    ///< makes shallow copy of all fields except VNUM
+	CObjectPrototype(const CObjectPrototype &other);
 	void set_vnum(const ObjVnum vnum);        ///< allow inherited classes change VNUM (to make possible objects transformations)
 	void tag_ex_description(const char *tag);
 
@@ -418,6 +419,8 @@ class CObjectPrototype {
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
 	std::unordered_set<ObjectRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
+
+	void MakeShallowCopy(const CObjectPrototype &from);
 };
 
 inline auto GET_OBJ_VAL(const CObjectPrototype *obj, size_t index) {

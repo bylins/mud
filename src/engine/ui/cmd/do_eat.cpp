@@ -134,33 +134,33 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 	if (subcmd == kScmdTaste
-		&& ((GET_OBJ_TYPE(food) == EObjType::kLiquidContainer)
-			|| (GET_OBJ_TYPE(food) == EObjType::kFountain))) {
+		&& ((food->get_type() == EObjType::kLiquidContainer)
+			|| (food->get_type() == EObjType::kFountain))) {
 		DoDrink(ch, argument, 0, kScmdSip);
 		return;
 	}
 
 	if (!IS_GOD(ch)) {
-		if (GET_OBJ_TYPE(food) == EObjType::kMagicIngredient) //Сообщение на случай попытки проглотить ингры
+		if (food->get_type() == EObjType::kMagicIngredient) //Сообщение на случай попытки проглотить ингры
 		{
 			SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(food) != EObjType::kFood
-			&& GET_OBJ_TYPE(food) != EObjType::kNote) {
+		if (food->get_type() != EObjType::kFood
+			&& food->get_type() != EObjType::kNote) {
 			SendMsgToChar("Это несъедобно!\r\n", ch);
 			return;
 		}
 	}
 	if (GET_COND(ch, FULL) == 0
-		&& GET_OBJ_TYPE(food) != EObjType::kNote)    // Stomach full
+		&& food->get_type() != EObjType::kNote)    // Stomach full
 	{
 		SendMsgToChar("Вы слишком сыты для этого!\r\n", ch);
 		return;
 	}
 	if (subcmd == kScmdEat
 		|| (subcmd == kScmdTaste
-			&& GET_OBJ_TYPE(food) == EObjType::kNote)) {
+			&& food->get_type() == EObjType::kNote)) {
 		act("Вы съели $o3.", false, ch, food, nullptr, kToChar);
 		act("$n съел$g $o3.", true, ch, food, nullptr, kToRoom | kToArenaListen);
 	} else {
@@ -169,7 +169,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			true, ch, food, nullptr, kToRoom | kToArenaListen);
 	}
 
-	amount = ((subcmd == kScmdEat && GET_OBJ_TYPE(food) != EObjType::kNote)
+	amount = ((subcmd == kScmdEat && food->get_type() != EObjType::kNote)
 			  ? GET_OBJ_VAL(food, 0)
 			  : 1);
 
@@ -218,7 +218,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (subcmd == kScmdEat
 		|| (subcmd == kScmdTaste
-			&& GET_OBJ_TYPE(food) == EObjType::kNote)) {
+			&& food->get_type() == EObjType::kNote)) {
 		ExtractObjFromWorld(food);
 	} else {
 		food->set_val(0, food->get_val(0) - 1);

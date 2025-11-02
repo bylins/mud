@@ -124,9 +124,10 @@ void AssignObjects(void) {
 }
 
 // assign special procedures to rooms //
-void AssignRooms(void) {
-	RoomRnum i;
+void AssignRooms() {
 /*
+	RoomRnum i;
+
 	if (dts_are_dumps)
 		for (i = kFirstRoom; i <= top_of_world; i++)
 			if (ROOM_FLAGGED(i, ERoomFlag::kDeathTrap))

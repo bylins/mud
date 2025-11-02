@@ -242,7 +242,7 @@ BasicCompactTrie::Range BasicCompactTrie::Range::find(const std::string &relativ
 
 	if (!go_to_child(current))    // root without subtree
 	{
-		return std::move(Range(m_trie, current, m_prefix));
+		return {m_trie, current, m_prefix};
 	}
 
 	do {
@@ -253,17 +253,17 @@ BasicCompactTrie::Range BasicCompactTrie::Range::find(const std::string &relativ
 
 		if (NO_INDEX == current) {
 			// next sibling not found
-			return std::move(Range(m_trie, NO_INDEX));
+			return {m_trie, NO_INDEX};
 		}
 
 		++pos;
 		if (pos == relative_prefix.size()) {
 			// reached end of prefix and NO_INDEX != current
-			return std::move(Range(m_trie, current, m_prefix + relative_prefix));
+			return {m_trie, current, m_prefix + relative_prefix};
 		}
 	} while (go_to_child(current));
 
-	return std::move(Range(m_trie, NO_INDEX));    // couldn't find child
+	return {m_trie, NO_INDEX};    // couldn't find child
 }
 
 bool BasicCompactTrie::Range::go_to_child(size_t &node) const {

@@ -182,7 +182,7 @@ void send_to_zone(char *messg, int zone_rnum) {
 		return;
 
 	for (i = descriptor_list; i; i = i->next)
-		if (!i->connected && i->character && AWAKE(i->character) &&
+		if (i->state == EConState::kPlaying && i->character && AWAKE(i->character) &&
 			(i->character->in_room != kNowhere) && (world[i->character->in_room]->zone_rn == zone_rnum))
 		iosystem::write_to_output(messg, i);
 }

@@ -282,7 +282,7 @@ void sedit::show_main(CharData *ch) {
 		if (idx >= sets_list.size()) {
 			SendMsgToChar("Редактирование прервано: набор был удален.\r\n", ch);
 			ch->desc->sedit.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			return;
 		}
 		snprintf(buf_, sizeof(buf_),
@@ -446,7 +446,7 @@ void sedit::show_activ_edit(CharData *ch) {
 		const int rnum = GetObjRnum(activ.enchant.first);
 		const char *name =
 			(rnum >= 0 ? obj_proto[rnum]->get_short_description().c_str() : "<null>");
-		if (GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
+		if (obj_proto[rnum]->get_type() == EObjType::kWeapon) {
 			snprintf(buf_, sizeof(buf_),
 					 "%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
 					 kColorGrn, cnt++, kColorNrm, kColorCyn,
@@ -528,7 +528,7 @@ void parse_main_exit(CharData *ch, const char *arg) {
 		case 'y':
 		case 'Y':
 		case 'д':
-		case 'Д': STATE(ch->desc) = CON_PLAYING;
+		case 'Д': ch->desc->state = EConState::kPlaying;
 			ch->desc->sedit->save_olc(ch);
 			ch->desc->sedit.reset();
 			SendMsgToChar("Изменения сохранены.\r\n", ch);
@@ -537,7 +537,7 @@ void parse_main_exit(CharData *ch, const char *arg) {
 		case 'N':
 		case 'н':
 		case 'Н': ch->desc->sedit.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			break;
 		default:
@@ -564,7 +564,7 @@ void parse_set_remove(CharData *ch, const char *arg) {
 					break;
 				}
 			}
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			ch->desc->sedit.reset();
 			break;
 		}
@@ -677,7 +677,7 @@ void sedit::parse_global_msg(CharData *ch, const char *arg) {
 				} else {
 					SendMsgToChar("Редактирование отменено.\r\n", ch);
 					ch->desc->sedit.reset();
-					STATE(ch->desc) = CON_PLAYING;
+					ch->desc->state = EConState::kPlaying;
 				}
 				break;
 			default: SendMsgToChar("Неверный выбор!\r\n", ch);
@@ -709,7 +709,7 @@ void sedit::parse_global_msg(CharData *ch, const char *arg) {
 			} else {
 				SendMsgToChar("Редактирование отменено.\r\n", ch);
 				ch->desc->sedit.reset();
-				STATE(ch->desc) = CON_PLAYING;
+				ch->desc->state = EConState::kPlaying;
 			}
 			break;
 		default: SendMsgToChar("Неверный выбор!\r\n", ch);
@@ -724,7 +724,7 @@ void parse_global_msg_exit(CharData *ch, const char *arg) {
 		case 'y':
 		case 'Y':
 		case 'д':
-		case 'Д': STATE(ch->desc) = CON_PLAYING;
+		case 'Д': ch->desc->state = EConState::kPlaying;
 			global_msg = ch->desc->sedit->msg_edit;
 			save();
 			ch->desc->sedit.reset();
@@ -734,7 +734,7 @@ void parse_global_msg_exit(CharData *ch, const char *arg) {
 		case 'N':
 		case 'н':
 		case 'Н': ch->desc->sedit.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			break;
 		default:
@@ -764,7 +764,7 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 				} else {
 					SendMsgToChar("Редактирование отменено.\r\n", ch);
 					ch->desc->sedit.reset();
-					STATE(ch->desc) = CON_PLAYING;
+					ch->desc->state = EConState::kPlaying;
 				}
 				break;
 			default: SendMsgToChar("Неверный выбор!\r\n", ch);
@@ -857,7 +857,7 @@ void sedit::parse_main(CharData *ch, const char *arg) {
 		} else {
 			SendMsgToChar("Редактирование отменено.\r\n", ch);
 			ch->desc->sedit.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 		}
 	} else {
 		SendMsgToChar("Неверный выбор!\r\n", ch);
@@ -1039,7 +1039,7 @@ void sedit::parse_activ_ench_vnum(CharData *ch, const char *arg) {
 	olc_set.activ_list.at(activ_edit).enchant.first = vnum;
 
 	if (rnum >= 0
-		&& GET_OBJ_TYPE(obj_proto[rnum]) == EObjType::kWeapon) {
+		&& obj_proto[rnum]->get_type() == EObjType::kWeapon) {
 		state = STATE_ACTIV_ENCH_NDICE;
 		SendMsgToChar("Укажите изменение бросков кубика (0 - без изменений) :", ch);
 	} else {
@@ -1597,7 +1597,7 @@ void parse_input(CharData *ch, const char *arg) {
 		case STATE_GLOBAL_MSG_EXIT: parse_global_msg_exit(ch, arg);
 			break;
 		default: ch->desc->sedit.reset();
-			STATE(ch->desc) = CON_PLAYING;
+			ch->desc->state = EConState::kPlaying;
 			SendMsgToChar(ch,
 						  "Ошибка: не найден STATE, редактирование отменено %s:%d (%s).\r\n",
 						  __FILE__, __LINE__, __func__);
@@ -1612,7 +1612,7 @@ using namespace obj_sets_olc;
 namespace {
 
 void start_sedit(CharData *ch, size_t idx) {
-	STATE(ch->desc) = CON_SEDIT;
+	ch->desc->state = EConState::kSedit;
 	ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();
 	if (idx == static_cast<size_t>(-1)) {
 		ch->desc->sedit->new_entry = true;
@@ -1667,7 +1667,7 @@ void do_sedit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (!str_cmp(argument, "msg_set") || !str_cmp(argument, "messages")) {
 		// редактирование глобальных сообщений
-		STATE(ch->desc) = CON_SEDIT;
+		ch->desc->state = EConState::kSedit;
 		ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();
 		ch->desc->sedit->msg_edit = global_msg;
 		ch->desc->sedit->show_global_msg(ch);

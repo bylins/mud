@@ -200,7 +200,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		SendMsgToChar("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}
-	if (GET_OBJ_TYPE(obj) != EObjType::kBook) {
+	if (obj->get_type() != EObjType::kBook) {
 		if (obj->has_flag(EObjFlag::kNorent)
 			|| obj->has_flag(EObjFlag::kNosell)
 			|| obj->has_flag(EObjFlag::kZonedacay)
@@ -231,7 +231,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		item_cost = std::max(1, GET_OBJ_COST(obj));
 	}
 
-	tax = (GET_OBJ_TYPE(obj) != EObjType::kMagicIngredient)
+	tax = (obj->get_type() != EObjType::kMagicIngredient)
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
@@ -244,8 +244,8 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_UID(ch)) {
-			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kMagicIngredient
-				&& GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != EObjType::kIngredient) {
+			if (GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kMagicIngredient
+				&& GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kIngredient) {
 				counter++;
 			} else {
 				counter_ming++;
@@ -445,14 +445,14 @@ int exchange_information(CharData *ch, char *arg) {
 	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
 	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
-	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::kWand
-		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == EObjType::kStaff) {
+	if (GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kWand
+		|| GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kStaff) {
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
 			strcat(buf, "(б/у), ");
 		}
 	}
 	strcat(buf, " тип ");
-	sprinttype(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)), item_types, buf2);
+	sprinttype(GET_EXCHANGE_ITEM(item)->get_type(), item_types, buf2);
 	if (*buf2) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
@@ -1093,7 +1093,7 @@ int get_unique_lot(void) {
 
 void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
-		if (STATE(i) == CON_PLAYING
+		if  (i->state == EConState::kPlaying
 			&& (!ch || i != ch->desc)
 			&& i->character
 			&& !i->character->IsFlagged(EPrf::kNoExchange)
@@ -1101,8 +1101,8 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			&& !ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof)
 			&& i->character->GetPosition() > EPosition::kSleep) {
 			if (!i->character->IsFlagged(EPrf::kNoIngrMode)
-				&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kIngredient
-					|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == EObjType::kMagicIngredient)) {
+				&& (GET_EXCHANGE_ITEM(j)->get_type() == EObjType::kIngredient
+					|| GET_EXCHANGE_ITEM(j)->get_type() == EObjType::kMagicIngredient)) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);

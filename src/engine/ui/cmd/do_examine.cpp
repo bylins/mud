@@ -53,9 +53,9 @@ void do_examine(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	generic_find(arg, where_bits, ch, &tmp_char, &tmp_object);
 	if (tmp_object) {
-		if (GET_OBJ_TYPE(tmp_object) == EObjType::kLiquidContainer
-			|| GET_OBJ_TYPE(tmp_object) == EObjType::kFountain
-			|| GET_OBJ_TYPE(tmp_object) == EObjType::kContainer) {
+		if (tmp_object->get_type() == EObjType::kLiquidContainer
+			|| tmp_object->get_type() == EObjType::kFountain
+			|| tmp_object->get_type() == EObjType::kContainer) {
 			look_in_obj(ch, argument);
 		}
 	}

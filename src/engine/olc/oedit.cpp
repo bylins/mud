@@ -187,8 +187,8 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		obj->set_timer(tmp.get_timer());
 	}
 	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
-	if (GET_OBJ_TYPE(&tmp) == EObjType::kLiquidContainer
-		&& GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer) {
+	if (tmp.get_type() == EObjType::kLiquidContainer
+		&& obj->get_type() == EObjType::kLiquidContainer) {
 		obj->set_val(1, GET_OBJ_VAL(&tmp, 1)); //кол-во глотков
 		if (is_potion(&tmp)) {
 			obj->set_val(2, GET_OBJ_VAL(&tmp, 2)); //описание жидкости
@@ -301,10 +301,10 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 				*buf1 = '\0';
 			}
 			*buf2 = '\0';
-			GET_OBJ_AFFECTS(obj).tascii(FlagData::kPlanesNumber, buf2);
-			GET_OBJ_ANTI(obj).tascii(FlagData::kPlanesNumber, buf2);
-			GET_OBJ_NO(obj).tascii(FlagData::kPlanesNumber, buf2);
-			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
+			obj->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2);
+			obj->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2);
+			obj->get_no_flags().tascii(FlagData::kPlanesNumber, buf2);
+			sprintf(buf2 + strlen(buf2), "\n%d ", obj->get_type());
 			GET_OBJ_EXTRA(obj).tascii(FlagData::kPlanesNumber, buf2);
 			const auto wear_flags = GET_OBJ_WEAR(obj);
 			tascii(&wear_flags, 1, buf2);
@@ -337,8 +337,8 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 					buf1,
 					obj->get_spec_param(), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
 					GET_OBJ_MATER(obj), to_underlying(GET_OBJ_SEX(obj)),
-					obj->get_timer(), to_underlying(GET_OBJ_SPELL(obj)),
-					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
+					obj->get_timer(), to_underlying(obj->get_spell()),
+					obj->get_level(), buf2, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
 					GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
@@ -621,7 +621,7 @@ void oedit_disp_skills_mod_menu(DescriptorData *d) {
 // * Object value #1
 void oedit_disp_val1_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_1;
-	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+	switch (OLC_OBJ(d)->get_type()) {
 		case EObjType::kLightSource:
 			// * values 0 and 1 are unused.. jump to 2
 			oedit_disp_val3_menu(d);
@@ -715,7 +715,7 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 // * Object value #2
 void oedit_disp_val2_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_2;
-	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+	switch (OLC_OBJ(d)->get_type()) {
 		case EObjType::kScroll:
 		case EObjType::kPotion: oedit_disp_spells_menu(d);
 			break;
@@ -800,7 +800,7 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 // * Object value #3
 void oedit_disp_val3_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_3;
-	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+	switch (OLC_OBJ(d)->get_type()) {
 		case EObjType::kLightSource:
 			SendMsgToChar("Длительность горения (0 = погасла, -1 - вечный свет) : ",
 						 d->character.get());
@@ -854,7 +854,7 @@ void oedit_disp_val3_menu(DescriptorData *d) {
 // * Object value #4
 void oedit_disp_val4_menu(DescriptorData *d) {
 	OLC_MODE(d) = OEDIT_VALUE_4;
-	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+	switch (OLC_OBJ(d)->get_type()) {
 		case EObjType::kScroll:
 		case EObjType::kPotion:
 		case EObjType::kWand:
@@ -1078,7 +1078,7 @@ std::array<const char *, 9> wskill_bits =
 	 }};
 
 void oedit_disp_skills_menu(DescriptorData *d) {
-	if (GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kIngredient) {
+	if (OLC_OBJ(d)->get_type() == EObjType::kIngredient) {
 		oedit_disp_ingradient_menu(d);
 		return;
 	}
@@ -1103,8 +1103,8 @@ void oedit_disp_skills_menu(DescriptorData *d) {
 }
 
 std::string print_values2_menu(ObjData *obj) {
-	if (GET_OBJ_TYPE(obj) == EObjType::kLiquidContainer
-		|| GET_OBJ_TYPE(obj) == EObjType::kFountain) {
+	if (obj->get_type() == EObjType::kLiquidContainer
+		|| obj->get_type() == EObjType::kFountain) {
 		return "Спец. параметры";
 	}
 
@@ -1118,7 +1118,7 @@ void oedit_disp_menu(DescriptorData *d) {
 	ObjData *obj;
 
 	obj = OLC_OBJ(d);
-	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
+	sprinttype(obj->get_type(), item_types, buf1);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",", 4);
 
 	snprintf(buf, kMaxStringLength,
@@ -1316,7 +1316,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 'Y':
 				case 'д':
 				case 'Д': SendMsgToChar("Объект сохранен.\r\n", d->character.get());
-					OLC_OBJ(d)->remove_incorrect_values_keys(GET_OBJ_TYPE(OLC_OBJ(d)));
+					OLC_OBJ(d)->remove_incorrect_values_keys(OLC_OBJ(d)->get_type());
 					oedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
@@ -1482,12 +1482,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 				case 'n':
 				case 'N':
-					if (GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kWeapon
-						|| GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kIngredient) {
+					if (OLC_OBJ(d)->get_type() == EObjType::kWeapon
+						|| OLC_OBJ(d)->get_type() == EObjType::kIngredient) {
 						oedit_disp_skills_menu(d);
 						OLC_MODE(d) = OEDIT_SKILL;
-					} else if (GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kLiquidContainer
-						|| GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kFountain) {
+					} else if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
+						|| OLC_OBJ(d)->get_type() == EObjType::kFountain) {
 						drinkcon_values_menu(d);
 						OLC_MODE(d) = OEDIT_DRINKCON_VALUES;
 					} else {
@@ -1717,12 +1717,12 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kIngredient) {
+			if (OLC_OBJ(d)->get_type() == EObjType::kIngredient) {
 				OLC_OBJ(d)->toggle_skill(1 << (number - 1));
 				oedit_disp_skills_menu(d);
 				return;
 			}
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kWeapon)
+			if (OLC_OBJ(d)->get_type() == EObjType::kWeapon)
 				switch (number) {
 					case 1: number = 141;
 						break;
@@ -1755,7 +1755,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			// * Hmm, I'm not so sure - Rv
 			number = atoi(arg);
 
-			if (GET_OBJ_TYPE(OLC_OBJ(d)) == EObjType::kBook
+			if (OLC_OBJ(d)->get_type() == EObjType::kBook
 				&& (number < 0
 					|| number > 4)) {
 				SendMsgToChar("Неправильный тип книги, повторите.\r\n", d->character.get());
@@ -1771,7 +1771,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_VALUE_2:
 			// * Here, I do need to check for out of range values.
 			number = atoi(arg);
-			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+			switch (OLC_OBJ(d)->get_type()) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: {
 					if (number == 0) {
@@ -1869,7 +1869,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 
 		case OEDIT_VALUE_3: number = atoi(arg);
 						// * Quick'n'easy error checking.
-			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+			switch (OLC_OBJ(d)->get_type()) {
 				case EObjType::kScroll:
 				case EObjType::kPotion: 
 					if (number == 0) {
@@ -1912,7 +1912,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			number = atoi(arg);
 			min_val = -999999;
 			max_val = 999999;
-			switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
+			switch (OLC_OBJ(d)->get_type()) {
 				case EObjType::kScroll:
 				case EObjType::kPotion:
 					if (number == 0) {

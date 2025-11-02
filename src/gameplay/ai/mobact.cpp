@@ -216,7 +216,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 		}
 		if (ch->GetSkill(ESkill::kThrow)
 			&& wielded
-			&& GET_OBJ_TYPE(wielded) == EObjType::kWeapon
+			&& wielded->get_type() == EObjType::kWeapon
 			&& wielded->has_flag(EObjFlag::kThrowing)) {
 			if (do_mode)
 				DoThrow(ch, victim);
@@ -944,13 +944,13 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		continue;
 	  }
 	  UpdateAffectOnPulse(ch.get(), missed_pulses);
-	  if (GET_PUNCTUAL_WAIT(ch) > 0)
-		  GET_PUNCTUAL_WAIT(ch) -= missed_pulses;
+	  if (ch->punctual_wait > 0)
+		  ch->punctual_wait -= missed_pulses;
 	  else
-		  GET_PUNCTUAL_WAIT(ch) = 0;
+		  ch->punctual_wait = 0;
 
-	  if (GET_PUNCTUAL_WAIT(ch) < 0)
-		  GET_PUNCTUAL_WAIT(ch) = 0;
+	  if (ch->punctual_wait < 0)
+		  ch->punctual_wait = 0;
 
 	  if (ch->mob_specials.speed <= 0) {
 		  activity_lev = std_lev;

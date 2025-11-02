@@ -22,9 +22,9 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0) * -1;
 	if (level == 0) {
-		if (GET_OBJ_TYPE(obj) == EObjType::kStaff) {
+		if (obj->get_type() == EObjType::kStaff) {
 			level = kDefaultStaffLvl;
-		} else if (GET_OBJ_TYPE(obj) == EObjType::kWand) {
+		} else if (obj->get_type() == EObjType::kWand) {
 			level = kDefaultWandLvl;
 		}
 	}
@@ -37,7 +37,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 	}
 
 	auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 3));
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (obj->get_type()) {
 		case EObjType::kStaff:
 			if (!obj->get_action_description().empty()) {
 				act(obj->get_action_description().c_str(), false, ch, obj, nullptr, kToChar);
@@ -196,7 +196,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 			ExtractObjFromWorld(obj);
 			break;
 
-		default: log("SYSERR: Unknown object_type %d in EmployMagicItem.", GET_OBJ_TYPE(obj));
+		default: log("SYSERR: Unknown object_type %d in EmployMagicItem.", obj->get_type());
 			break;
 	}
 }

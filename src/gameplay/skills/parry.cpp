@@ -32,9 +32,9 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield), *offhand = GET_EQ(ch, EEquipPos::kHold);
 	if (!(ch->IsNpc()
 		|| (primary
-			&& GET_OBJ_TYPE(primary) == EObjType::kWeapon
+			&& primary->get_type() == EObjType::kWeapon
 			&& offhand
-			&& GET_OBJ_TYPE(offhand) == EObjType::kWeapon)
+			&& offhand->get_type() == EObjType::kWeapon)
 		|| IS_IMMORTAL(ch)
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("Вы не можете отражать атаки безоружным.\r\n", ch);
@@ -80,10 +80,10 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, EEquipPos::kWield) && GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kWield)) == EObjType::kWeapon) {
+		if (GET_EQ(ch, EEquipPos::kWield) && GET_EQ(ch, EEquipPos::kWield)->get_type() == EObjType::kWeapon) {
 			prim = 1;
 		}
-		if (GET_EQ(ch, EEquipPos::kHold) && GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kHold)) == EObjType::kWeapon) {
+		if (GET_EQ(ch, EEquipPos::kHold) && GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
 			offh = 1;
 		}
 

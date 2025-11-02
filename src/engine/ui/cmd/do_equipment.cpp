@@ -32,7 +32,7 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if ((i == EEquipPos::kWield) || (i == EEquipPos::kHold))
 						continue;
 				if ((i == EEquipPos::kQuiver) && (GET_EQ(ch, EEquipPos::kBoths))) {
-					if (!(((GET_OBJ_TYPE(GET_EQ(ch, EEquipPos::kBoths))) == EObjType::kWeapon)
+					if (!((GET_EQ(ch, EEquipPos::kBoths)->get_type() == EObjType::kWeapon)
 						&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))
 						continue;
 				} else if (i == EEquipPos::kQuiver)
