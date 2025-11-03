@@ -70,20 +70,20 @@ void PrepareSpellRemoving(ObjData *obj, ESpell spell_id, bool send_message) {
 			case ESpell::kBelenaPoison:
 			case ESpell::kDaturaPoison:
 				SendMsgToChar(ch, "С %s испарились последние капельки яда.\r\n",
-							  GET_OBJ_PNAME(obj, 1).c_str());
+							  obj->get_PName(ECase::kGen).c_str());
 				break;
 
 			case ESpell::kFly:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
 							  GET_OBJ_VIS_SUF_7(obj, ch),
-							  GET_OBJ_PNAME(obj, 0).c_str(),
+							  obj->get_PName(ECase::kNom).c_str(),
 							  GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
 
 			case ESpell::kLight:
 				SendMsgToChar(ch, "Ваш%s %s перестал%s светиться.\r\n",
 							  GET_OBJ_VIS_SUF_7(obj, ch),
-							  GET_OBJ_PNAME(obj, 0).c_str(),
+							  obj->get_PName(ECase::kNom).c_str(),
 							  GET_OBJ_VIS_SUF_1(obj, ch));
 				break;
 			default: break;

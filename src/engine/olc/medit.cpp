@@ -1217,7 +1217,7 @@ void disp_dl_list(DescriptorData *d) {
 			auto tobj = GetObjectPrototype(p->obj_vnum);
 			const char *objname = nullptr;
 			if (p->obj_vnum && tobj) {
-				objname = tobj->get_PName(0).c_str();
+				objname = tobj->get_PName(ECase::kNom).c_str();
 			} else {
 				objname = "Нет";
 			}

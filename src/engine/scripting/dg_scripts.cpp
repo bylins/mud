@@ -3109,38 +3109,38 @@ void find_replacement(void *go,
 		if (text_processed(field, subfield, vd, str)) {
 			return;
 		} else if (!str_cmp(field, "iname")) {
-			if (!o->get_PName(0).empty()) {
-				strcpy(str, o->get_PName(0).c_str());
+			if (!o->get_PName(ECase::kNom).empty()) {
+				strcpy(str, o->get_PName(ECase::kNom).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "rname")) {
-			if (!o->get_PName(1).empty()) {
-				strcpy(str, o->get_PName(1).c_str());
+			if (!o->get_PName(ECase::kGen).empty()) {
+				strcpy(str, o->get_PName(ECase::kGen).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "dname")) {
-			if (!o->get_PName(2).empty()) {
-				strcpy(str, o->get_PName(2).c_str());
+			if (!o->get_PName(ECase::kDat).empty()) {
+				strcpy(str, o->get_PName(ECase::kDat).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "vname")) {
-			if (!o->get_PName(3).empty()) {
-				strcpy(str, o->get_PName(3).c_str());
+			if (!o->get_PName(ECase::kAcc).empty()) {
+				strcpy(str, o->get_PName(ECase::kAcc).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "tname")) {
-			if (!o->get_PName(4).empty()) {
-				strcpy(str, o->get_PName(4).c_str());
+			if (!o->get_PName(ECase::kIns).empty()) {
+				strcpy(str, o->get_PName(ECase::kIns).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "pname")) {
-			if (!o->get_PName(5).empty()) {
-				strcpy(str, o->get_PName(5).c_str());
+			if (!o->get_PName(ECase::kPre).empty()) {
+				strcpy(str, o->get_PName(ECase::kPre).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}

@@ -2268,7 +2268,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		&& obj->get_contains()) {
 		act("В $o5 что-то лежит.", false, ch, obj, nullptr, kToChar);
 	} else if (SetSystem::is_norent_set(ch, obj, true) && obj->has_flag(EObjFlag::kNotOneInClanChest)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return false;
 	} else {
@@ -2288,7 +2288,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 		CLAN(ch)->chest_log.add(fmt::format("{} сдал{} {}{}\r\n",
-											ch->get_name(), GET_CH_SUF_1(ch), obj->get_PName(3),
+											ch->get_name(), GET_CH_SUF_1(ch), obj->get_PName(ECase::kAcc),
 											clan_get_custom_label(obj, CLAN(ch))));
 
 		// канал хранилища
@@ -2300,7 +2300,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& CLAN(d->character) == CLAN(ch)
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
-							  kColorBoldRed, GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(3).c_str(),
+							  kColorBoldRed, GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(ECase::kAcc).c_str(),
 							  clan_get_custom_label(obj, CLAN(ch)).c_str(), kColorNrm);
 			}
 		}
@@ -2331,7 +2331,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 	if (obj->get_carried_by() == ch) {
 		std::string log_text = fmt::format("{} забрал{} {}{}\r\n",
-										   GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(3),
+										   GET_NAME(ch), GET_CH_SUF_1(ch), obj->get_PName(ECase::kAcc),
 										   clan_get_custom_label(obj, CLAN(ch)));
 		CLAN(ch)->chest_log.add(log_text);
 
@@ -2345,7 +2345,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 				&& d->character->IsFlagged(EPrf::kTakeMode)) {
 				SendMsgToChar(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
 							  kColorBoldRed, GET_NAME(ch), GET_CH_SUF_1(ch),
-							  obj->get_PName(3).c_str(),
+							  obj->get_PName(ECase::kAcc).c_str(),
 							  clan_get_custom_label(obj, CLAN(d->character)).c_str(),
 							  kColorNrm);
 			}
@@ -4300,7 +4300,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if (obj->get_type() != EObjType::kMagicIngredient
 		&& obj->get_type() != EObjType::kCraftMaterial) {
 		SendMsgToChar(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
-					  GET_OBJ_PNAME(obj, 0).c_str());
+					  obj->get_PName(ECase::kNom).c_str());
 
 		if (obj->get_type() == EObjType::kMoney) {
 			int howmany = GET_OBJ_VAL(obj, 0);
@@ -5519,8 +5519,8 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		obj->set_aliases(buf);
 		obj->set_short_description(it->PNames[0] + " " + title);
 
-		for (int i = 0; i < 6; i++) {
-			obj->set_PName(i, it->PNames[i] + " " + title);
+		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
+			obj->set_PName(static_cast<ECase>(i), it->PNames[i] + " " + title);
 		}
 
 		obj->set_description(it->desc);
@@ -5551,8 +5551,8 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		PlaceObjToInventory(obj.get(), ch);
 		cnt++;
 
-		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(0).c_str());
-		sprintf(buf2, "Вы взяли %s из сундука", obj->get_PName(0).c_str());
+		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(ECase::kNom).c_str());
+		sprintf(buf2, "Вы взяли %s из сундука", obj->get_PName(ECase::kNom).c_str());
 		act(buf, false, ch, 0, 0, kToRoom);
 		act(buf2, false, ch, 0, 0, kToChar);
 	}

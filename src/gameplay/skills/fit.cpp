@@ -66,7 +66,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& GET_OBJ_MATER(obj) != EObjMaterial::kHardWood
 				&& GET_OBJ_MATER(obj) != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -77,7 +77,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				&& GET_OBJ_MATER(obj) != EObjMaterial::kSkin
 				&& GET_OBJ_MATER(obj) != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -90,7 +90,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
-			GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
+			obj->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1));
 
 	SendMsgToChar(buf, ch);
 }

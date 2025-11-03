@@ -184,23 +184,23 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			// 13.05.2024 можно удалить через месяц
 			} else if (!strcmp(read_line, "Pad0")) {
 				*error = 7;
-				object->set_PName(0, buffer);
+				object->set_PName(ECase::kNom, buffer);
 				object->set_short_description(buffer);
 			} else if (!strcmp(read_line, "Pad1")) {
 				*error = 8;
-				object->set_PName(1, buffer);
+				object->set_PName(ECase::kGen, buffer);
 			} else if (!strcmp(read_line, "Pad2")) {
 				*error = 9;
-				object->set_PName(2, buffer);
+				object->set_PName(ECase::kDat, buffer);
 			} else if (!strcmp(read_line, "Pad3")) {
 				*error = 10;
-				object->set_PName(3, buffer);
+				object->set_PName(ECase::kAcc, buffer);
 			} else if (!strcmp(read_line, "Pad4")) {
 				*error = 11;
-				object->set_PName(4, buffer);
+				object->set_PName(ECase::kIns, buffer);
 			} else if (!strcmp(read_line, "Pad5")) {
 				*error = 12;
-				object->set_PName(5, buffer);
+				object->set_PName(ECase::kPre, buffer);
 			} else if (!strcmp(read_line, "Desc")) {
 				*error = 13;
 				object->set_description(buffer);
@@ -575,7 +575,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		//return;
 	}
 */
-//	log("Write one object: %s", object->get_PName(0).c_str());
+//	log("Write one object: %s", object->get_PName(ECase::kNom).c_str());
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto) {
 		// Сохраняем UID
@@ -586,8 +586,9 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		}
 		// Падежи
 		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			if (object->get_PName(i) != proto->get_PName(i)) {
-				out << "Pad" << i << ": " << object->get_PName(i) << "~\n";
+			auto name_case = static_cast<ECase>(i);
+			if (object->get_PName(name_case) != proto->get_PName(name_case)) {
+				out << "Pad" << i << ": " << object->get_PName(name_case) << "~\n";
 			}
 		}
 		// Описание когда на земле
@@ -1239,7 +1240,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 					idelete++;
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
-						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(0).c_str());
+						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(ECase::kNom).c_str());
 					}
 				}
 			}
@@ -1519,7 +1520,7 @@ int Crash_load(CharData *ch) {
 		}
 /*
 		if (SAVEINFO(index)->time[fsize].vnum >= dungeons::kZoneStartDungeons * 100) {
-			SendMsgToChar(ch, "Предмет из данжа: %s, заменяем на оригинал.\r\n", obj->get_PName(0).c_str());
+			SendMsgToChar(ch, "Предмет из данжа: %s, заменяем на оригинал.\r\n", obj->get_PName(ECase::kNom).c_str());
 			SAVEINFO(index)->time[fsize].vnum = obj->get_vnum();
 		}
 */
@@ -1543,7 +1544,7 @@ int Crash_load(CharData *ch) {
 			obj->dec_timer(timer_dec);
 		}
 
-		std::string cap = obj->get_PName(0);
+		std::string cap = obj->get_PName(ECase::kNom);
 		cap[0] = UPPER(cap[0]);
 
 		// Предмет разваливается от старости
@@ -2071,10 +2072,10 @@ int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
 			if (SetSystem::is_norent_set(ch, obj)) {
 				snprintf(buf, sizeof(buf),
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj, ch, 3));
+						 OBJN(obj, ch, ECase::kAcc));
 			} else {
 				snprintf(buf, sizeof(buf),
-						 "$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
+						 "$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, ECase::kAcc));
 			}
 			act(buf, false, recep, 0, ch, kToVict);
 		}
@@ -2117,7 +2118,7 @@ void Crash_report_rent_item(CharData *ch,
 					factor * count,
 				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
 									  EWhat::kMoneyA),
-				bf, OBJN(obj, ch, 3), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
+				bf, OBJN(obj, ch, ECase::kAcc), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
 		act(buf, false, recep, 0, ch, kToVict);
 	}
 }
@@ -2156,7 +2157,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 						factor,
 						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
 									GET_OBJ_RENT(obj)) * factor,
-								   EWhat::MONEYa), bf, OBJN(obj, ch, 3),
+								   EWhat::MONEYa), bf, OBJN(obj, ch, ECase::kAcc),
 						recursive ? "" : KNRM;
 				act(buf, false, recep, 0, ch, TO_VICT);
 			}*/

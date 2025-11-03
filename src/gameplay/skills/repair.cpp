@@ -74,7 +74,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(std::min(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n",
-					  obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
+					  obj->get_PName(ECase::kNom).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 	}
 }

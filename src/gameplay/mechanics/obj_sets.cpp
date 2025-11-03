@@ -858,7 +858,7 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench) {
 			snprintf(buf_, sizeof(buf_),
 					 " +    %s%s вес %s на %d%s\r\n",
 					 kColorCyn, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
-					 GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+					 obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
 					 abs(ench.second.weight), kColorNrm);
 			out += buf_;
 		}
@@ -866,17 +866,17 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench) {
 			if (ench.second.ndice >= 0 && ench.second.sdice >= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sувеличивает урон %s на %dD%d%s\r\n",
-						 kColorCyn, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+						 kColorCyn, obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
 						 abs(ench.second.ndice), abs(ench.second.sdice), kColorNrm);
 			} else if (ench.second.ndice <= 0 && ench.second.sdice <= 0) {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sуменьшает урон %s на %dD%d%s\r\n",
-						 kColorCyn, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+						 kColorCyn, obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
 						 abs(ench.second.ndice), abs(ench.second.sdice), kColorNrm);
 			} else {
 				snprintf(buf_, sizeof(buf_),
 						 " +    %sизменяет урон %s на %+dD%+d%s\r\n",
-						 kColorCyn, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
+						 kColorCyn, obj_proto[rnum]->get_PName(ECase::kGen).c_str(),
 						 ench.second.ndice, ench.second.sdice, kColorNrm);
 			}
 			out += buf_;

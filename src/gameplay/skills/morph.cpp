@@ -210,15 +210,15 @@ void do_morph(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	ch->set_morph(newMorph);
 	if (ch->equipment[EEquipPos::kBoths]) {
-		SendMsgToChar("Вы не можете держать в лапах " + ch->equipment[EEquipPos::kBoths]->get_PName(3) + ".\r\n", ch);
+		SendMsgToChar("Вы не можете держать в лапах " + ch->equipment[EEquipPos::kBoths]->get_PName(ECase::kAcc) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kBoths);
 	}
 	if (ch->equipment[EEquipPos::kWield]) {
-		SendMsgToChar("Ваша правая лапа бессильно опустила " + ch->equipment[EEquipPos::kWield]->get_PName(3) + ".\r\n", ch);
+		SendMsgToChar("Ваша правая лапа бессильно опустила " + ch->equipment[EEquipPos::kWield]->get_PName(ECase::kAcc) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kWield);
 	}
 	if (ch->equipment[EEquipPos::kHold]) {
-		SendMsgToChar("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(3) + ".\r\n", ch);
+		SendMsgToChar("Ваша левая лапа не удержала " + ch->equipment[EEquipPos::kHold]->get_PName(ECase::kAcc) + ".\r\n", ch);
 		RemoveEquipment(ch, EEquipPos::kHold);
 	}
 	SetWaitState(ch, 3 * kBattleRound);

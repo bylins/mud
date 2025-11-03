@@ -72,7 +72,7 @@ class ItemNode {
 	ItemNode(const ObjVnum vnum, const long price) : m_vnum(vnum), m_price(price) {}
 	ItemNode(const ObjVnum vnum, const long price, const uid_t uid) : m_vnum(vnum), m_price(price) { add_uid(uid); }
 
-	const std::string &get_item_name(int keeper_vnum, int pad = 0) const;
+	const std::string &get_item_name(int keeper_vnum, ECase name_case = ECase::kNom) const;
 
 	void add_desc(const MobVnum vnum, const item_desc_node &desc) { m_descs[vnum] = desc; }
 	void replace_descs(ObjData *obj, const int vnum) const;

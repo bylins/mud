@@ -2249,14 +2249,14 @@ void perform_act(const char *orig,
 
 				case 'o':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, AOBJN(obj, to, 0, arena)));
+						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, AOBJN(obj, to, ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(obj, AOBJN(obj, to, padis > 5 ? 0 : padis, arena)));
+								 CHK_NULL(obj, AOBJN(obj, to, padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis), arena)));
 						i = nbuf;
 					}
 					break;
@@ -2265,14 +2265,14 @@ void perform_act(const char *orig,
 						snprintf(nbuf,
 								 sizeof(nbuf),
 								 "&q%s&Q",
-								 CHK_NULL(vict_obj, AOBJN((const ObjData *) vict_obj, to, 0, arena)));
+								 CHK_NULL(vict_obj, AOBJN((const ObjData *) vict_obj, to, ECase::kNom, arena)));
 						i = nbuf;
 					} else {
 						padis = *(++orig) - '0';
 						snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
 																		AOBJN((const ObjData *) vict_obj,
 																			  to,
-																			  padis > 5 ? 0 : padis,
+																			  padis > ECase::kLastCase ? ECase::kNom : static_cast<ECase>(padis),
 																			  arena)));
 						i = nbuf;
 					}

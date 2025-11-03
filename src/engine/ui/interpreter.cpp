@@ -3674,7 +3674,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		default:
 			log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
-				d->state, d->character ? GET_NAME(d->character) : "<unknown>");
+				static_cast<int>(d->state), d->character ? GET_NAME(d->character) : "<unknown>");
 			d->state = EConState::kDisconnect;    // Safest to do.
 
 			break;

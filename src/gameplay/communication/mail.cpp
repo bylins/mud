@@ -502,12 +502,12 @@ void receive(CharData *ch, CharData *mailman) {
 		obj->set_aliases("mail paper letter письмо почта бумага");
 		obj->set_short_description("письмо");
 		obj->set_description("Кто-то забыл здесь свое письмо.");
-		obj->set_PName(0, "письмо");
-		obj->set_PName(1, "письма");
-		obj->set_PName(2, "письма");
-		obj->set_PName(3, "письмо");
-		obj->set_PName(4, "письмом");
-		obj->set_PName(5, "письме");
+		obj->set_PName(ECase::kNom, "письмо");
+		obj->set_PName(ECase::kGen, "письма");
+		obj->set_PName(ECase::kDat, "письма");
+		obj->set_PName(ECase::kAcc, "письмо");
+		obj->set_PName(ECase::kIns, "письмом");
+		obj->set_PName(ECase::kPre, "письме");
 		obj->set_sex(EGender::kNeutral);
 		obj->set_type(EObjType::kNote);
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake) | to_underlying(EWearFlag::kHold));

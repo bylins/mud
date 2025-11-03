@@ -615,10 +615,10 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_short_description(utils::colorLOW(fread_string()));
 
 	strcpy(buf, tobj->get_short_description().c_str());
-	tobj->set_PName(0, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
+	tobj->set_PName(ECase::kNom, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
 
 	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
-		tobj->set_PName(j, utils::colorLOW(fread_string()));
+		tobj->set_PName(static_cast<ECase>(j), utils::colorLOW(fread_string()));
 	}
 
 	tobj->set_description(utils::colorCAP(fread_string()));

@@ -671,7 +671,6 @@ const int kNameLevel = 5;
 
 // object utils *********************************************************
 
-#define GET_OBJ_PNAME(obj, pad)  ((obj)->get_PName(pad))
 #define GET_OBJ_COST(obj)       ((obj)->get_cost())
 #define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())
 #define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_on())

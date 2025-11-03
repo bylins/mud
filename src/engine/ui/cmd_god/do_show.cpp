@@ -39,7 +39,7 @@ void show_apply(CharData *ch, CharData *vict) {
 	ObjData *obj = nullptr;
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if ((obj = GET_EQ(vict, i))) {
-			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
+			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
 			// Update weapon applies
 			for (int j = 0; j < kMaxObjAffect; j++) {
 				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {

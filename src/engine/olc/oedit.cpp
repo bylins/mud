@@ -105,12 +105,12 @@ void oedit_setup(DescriptorData *d, int real_num)
 		obj->set_aliases("новый предмет");
 		obj->set_description("что-то новое лежит здесь");
 		obj->set_short_description("новый предмет");
-		obj->set_PName(0, "это что");
-		obj->set_PName(1, "нету чего");
-		obj->set_PName(2, "привязать к чему");
-		obj->set_PName(3, "взять что");
-		obj->set_PName(4, "вооружиться чем");
-		obj->set_PName(5, "говорить о чем");
+		obj->set_PName(ECase::kNom, "это что");
+		obj->set_PName(ECase::kGen, "нету чего");
+		obj->set_PName(ECase::kDat, "привязать к чему");
+		obj->set_PName(ECase::kAcc, "взять что");
+		obj->set_PName(ECase::kIns, "вооружиться чем");
+		obj->set_PName(ECase::kPre, "говорить о чем");
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	} else {
 		obj->clone_olc_object_from_prototype(vnum);
@@ -327,12 +327,12 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 						"%d %d %d %d\n",
 					obj->get_vnum(),
 					!obj->get_aliases().empty() ? obj->get_aliases().c_str() : "undefined",
-					!obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "что-то",
-					!obj->get_PName(1).empty() ? obj->get_PName(1).c_str() : "чего-то",
-					!obj->get_PName(2).empty() ? obj->get_PName(2).c_str() : "чему-то",
-					!obj->get_PName(3).empty() ? obj->get_PName(3).c_str() : "что-то",
-					!obj->get_PName(4).empty() ? obj->get_PName(4).c_str() : "чем-то",
-					!obj->get_PName(5).empty() ? obj->get_PName(5).c_str() : "о чем-то",
+					!obj->get_PName(ECase::kNom).empty() ? obj->get_PName(ECase::kNom).c_str() : "что-то",
+					!obj->get_PName(ECase::kGen).empty() ? obj->get_PName(ECase::kGen).c_str() : "чего-то",
+					!obj->get_PName(ECase::kDat).empty() ? obj->get_PName(ECase::kDat).c_str() : "чему-то",
+					!obj->get_PName(ECase::kAcc).empty() ? obj->get_PName(ECase::kAcc).c_str() : "что-то",
+					!obj->get_PName(ECase::kIns).empty() ? obj->get_PName(ECase::kIns).c_str() : "чем-то",
+					!obj->get_PName(ECase::kPre).empty() ? obj->get_PName(ECase::kPre).c_str() : "о чем-то",
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 					buf1,
 					obj->get_spec_param(), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
@@ -1139,12 +1139,12 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
 			 cyn, OLC_NUM(d), nrm,
 			 grn, nrm, yel, not_empty(obj->get_aliases()),
-			 grn, not_empty(obj->get_PName(0)),
-			 grn, not_empty(obj->get_PName(1)),
-			 grn, not_empty(obj->get_PName(2)),
-			 grn, not_empty(obj->get_PName(3)),
-			 grn, not_empty(obj->get_PName(4)),
-			 grn, not_empty(obj->get_PName(5)),
+			 grn, not_empty(obj->get_PName(ECase::kNom)),
+			 grn, not_empty(obj->get_PName(ECase::kGen)),
+			 grn, not_empty(obj->get_PName(ECase::kDat)),
+			 grn, not_empty(obj->get_PName(ECase::kAcc)),
+			 grn, not_empty(obj->get_PName(ECase::kIns)),
+			 grn, not_empty(obj->get_PName(ECase::kPre)),
 			 grn, not_empty(obj->get_description()),
 			 grn, yel, not_empty(obj->get_action_description(), "<not set>\r\n"),
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
@@ -1357,41 +1357,41 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case '2':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nИменительный падеж [это ЧТО] : ",
-								  OLC_OBJ(d)->get_PName(0).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kNom).c_str());
 					OLC_MODE(d) = OEDIT_PAD0;
 					break;
 
 				case '3':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ",
-								  OLC_OBJ(d)->get_PName(1).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kGen).c_str());
 					OLC_MODE(d) = OEDIT_PAD1;
 					break;
 
 				case '4':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ",
-								  OLC_OBJ(d)->get_PName(2).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kDat).c_str());
 					OLC_MODE(d) = OEDIT_PAD2;
 					break;
 
 				case '5':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nВинительный падеж [держать ЧТО] : ",
-								  OLC_OBJ(d)->get_PName(3).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kAcc).c_str());
 					OLC_MODE(d) = OEDIT_PAD3;
 					break;
 
 				case '6':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ",
-								  OLC_OBJ(d)->get_PName(4).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kIns).c_str());
 					OLC_MODE(d) = OEDIT_PAD4;
 					break;
 				case '7':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ",
-								  OLC_OBJ(d)->get_PName(5).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kPre).c_str());
 					OLC_MODE(d) = OEDIT_PAD5;
 					break;
 
@@ -1575,22 +1575,22 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			break;
 
 		case OEDIT_PAD0: OLC_OBJ(d)->set_short_description(not_null(arg, "что-то"));
-			OLC_OBJ(d)->set_PName(0, not_null(arg, "что-то"));
+			OLC_OBJ(d)->set_PName(ECase::kNom, not_null(arg, "что-то"));
 			break;
 
-		case OEDIT_PAD1: OLC_OBJ(d)->set_PName(1, not_null(arg, "-чего-то"));
+		case OEDIT_PAD1: OLC_OBJ(d)->set_PName(ECase::kGen, not_null(arg, "-чего-то"));
 			break;
 
-		case OEDIT_PAD2: OLC_OBJ(d)->set_PName(2, not_null(arg, "-чему-то"));
+		case OEDIT_PAD2: OLC_OBJ(d)->set_PName(ECase::kDat, not_null(arg, "-чему-то"));
 			break;
 
-		case OEDIT_PAD3: OLC_OBJ(d)->set_PName(3, not_null(arg, "-что-то"));
+		case OEDIT_PAD3: OLC_OBJ(d)->set_PName(ECase::kAcc, not_null(arg, "-что-то"));
 			break;
 
-		case OEDIT_PAD4: OLC_OBJ(d)->set_PName(4, not_null(arg, "-чем-то"));
+		case OEDIT_PAD4: OLC_OBJ(d)->set_PName(ECase::kIns, not_null(arg, "-чем-то"));
 			break;
 
-		case OEDIT_PAD5: OLC_OBJ(d)->set_PName(5, not_null(arg, "-чем-то"));
+		case OEDIT_PAD5: OLC_OBJ(d)->set_PName(ECase::kPre, not_null(arg, "-чем-то"));
 			break;
 
 		case OEDIT_LONGDESC: OLC_OBJ(d)->set_description(not_null(arg, "неопределено"));

@@ -236,12 +236,12 @@ void CreateBlankObjsDungeon() {
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
-			obj->set_PName(0, "это что");
-			obj->set_PName(1, "нету чего");
-			obj->set_PName(2, "привязать к чему");
-			obj->set_PName(3, "взять что");
-			obj->set_PName(4, "вооружиться чем");
-			obj->set_PName(5, "говорить о чем");
+			obj->set_PName(ECase::kNom, "это что");
+			obj->set_PName(ECase::kGen, "нету чего");
+			obj->set_PName(ECase::kDat, "привязать к чему");
+			obj->set_PName(ECase::kAcc, "взять что");
+			obj->set_PName(ECase::kIns, "вооружиться чем");
+			obj->set_PName(ECase::kPre, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj_proto.add(obj, obj_vnum);
 		}
@@ -954,12 +954,12 @@ void ObjDataFree(ZoneRnum zrn) {
 			obj->set_aliases("новый предмет");
 			obj->set_description("что-то новое лежит здесь");
 			obj->set_short_description("новый предмет");
-			obj->set_PName(0, "это что");
-			obj->set_PName(1, "нету чего");
-			obj->set_PName(2, "привязать к чему");
-			obj->set_PName(3, "взять что");
-			obj->set_PName(4, "вооружиться чем");
-			obj->set_PName(5, "говорить о чем");
+			obj->set_PName(ECase::kNom, "это что");
+			obj->set_PName(ECase::kGen, "нету чего");
+			obj->set_PName(ECase::kDat, "привязать к чему");
+			obj->set_PName(ECase::kAcc, "взять что");
+			obj->set_PName(ECase::kIns, "вооружиться чем");
+			obj->set_PName(ECase::kPre, "говорить о чем");
 			obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 			obj->set_parent_rnum(-1);
 			obj->clear_proto_script();

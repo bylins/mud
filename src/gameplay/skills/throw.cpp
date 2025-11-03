@@ -118,7 +118,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 			ObjData *weapon = UnequipChar(technique.GetActor(), technique.GetWeaponEquipPosition(), CharEquipFlags());
 			if (weapon) {
 				PlaceObjToInventory(weapon, technique.GetActor());
-				SendMsgToChar(technique.GetActor(), "&BВы выронили %s!&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
+				SendMsgToChar(technique.GetActor(), "&BВы выронили %s!&n\r\n", weapon->get_PName(ECase::kAcc).c_str());
 			};
 		};
 	};

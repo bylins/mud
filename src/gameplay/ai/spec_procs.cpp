@@ -273,7 +273,7 @@ int npc_scavenge(CharData *ch) {
 					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
-				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
+				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(ECase::kGen).c_str());
 				act(buf, false, ch, best_obj, 0, kToRoom);
 				if (best_obj->get_type() == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
@@ -307,7 +307,7 @@ int npc_loot(CharData *ch) {
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
 						act(buf, false, ch, loot_obj, 0, kToRoom);
 						if (loot_obj->get_type() == EObjType::kMoney) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
@@ -334,7 +334,7 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
@@ -380,7 +380,7 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));

@@ -16,7 +16,7 @@ enchant::enchant()
 }
 
 enchant::enchant(ObjData *obj) {
-	name_ = !GET_OBJ_PNAME(obj, 4).empty() ? GET_OBJ_PNAME(obj, 4).c_str() : "<null>";
+	name_ = !obj->get_PName(ECase::kIns).empty() ? obj->get_PName(ECase::kIns).c_str() : "<null>";
 	type_ = ENCHANT_FROM_OBJ;
 
 	for (int i = 0; i < kMaxObjAffect; i++) {

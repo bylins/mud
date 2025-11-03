@@ -142,18 +142,18 @@ int ResolveTagsInObjName(ObjData *obj, CharData *ch) {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
 	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
+		auto name_case = static_cast<ECase>(i);
+		std::string obj_pad = obj_proto[GET_OBJ_RNUM(obj)]->get_PName(name_case);
 		size_t j = obj_pad.find("@p");
 		if (std::string::npos != j && 0 < j) {
 			// Родитель найден прописываем его.
 			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
 			obj_pad.replace(j, 3, GET_PAD(ch, k));
 
-			obj->set_PName(i, obj_pad);
-			// Если имя в именительном то дублируем запись
-			if (i == 0) {
+			obj->set_PName(name_case, obj_pad);
+			if (i == ECase::kNom) {
 				obj->set_short_description(obj_pad);
-				obj->set_aliases(obj_pad); // ставим алиасы
+				obj->set_aliases(obj_pad);
 			}
 		}
 	}

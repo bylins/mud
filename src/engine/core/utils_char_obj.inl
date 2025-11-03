@@ -53,12 +53,12 @@ inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 			&& (sub)->IsFlagged(EPrf::kHolylight)));
 }
 
-inline const char *OBJN(const ObjData *obj, const CharData *vict, const size_t pad) {
+inline const char *OBJN(const ObjData *obj, const CharData *vict, const ECase name_case) {
 	return CAN_SEE_OBJ(vict, obj)
-		   ? (!obj->get_PName(pad).empty()
-			  ? obj->get_PName(pad).c_str()
+		   ? (!obj->get_PName(name_case).empty()
+			  ? obj->get_PName(name_case).c_str()
 			  : obj->get_short_description().c_str())
-		   : GET_PAD_OBJ(pad);
+		   : GET_PAD_OBJ(name_case);
 }
 
 inline const char *OBJS(const ObjData *obj, const CharData *vict) {

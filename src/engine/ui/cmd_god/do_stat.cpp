@@ -1028,7 +1028,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 
 			if ((i = GetObjRnum(GET_OBJ_VAL(j, 1))) >= 0) {
 				sprintf(buf + strlen(buf), "\r\nпрототип %s%s%s.",
-						kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
+						kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
 			}
 			break;
 		case EObjType::kMagicContaner:

@@ -822,7 +822,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 				sprintf(buf, "%s наход%sся в %s.\r\n",
 						i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i),
-						i->get_in_obj()->get_PName(5).c_str());
+						i->get_in_obj()->get_PName(ECase::kPre).c_str());
 			}
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
@@ -840,7 +840,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			SendMsgToChar(locate_msg.c_str(), ch);
 			return true;
 		} else {
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
+			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, ECase::kGen));
 //		CAP(buf); issue #59
 		}
 		SendMsgToChar(buf, ch);
@@ -1465,15 +1465,15 @@ void show_weapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
-			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
+			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kHold)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, 3));
+			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, 3));
+			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, ECase::kAcc));
 		}
 
 		if (*buf) {
@@ -1744,7 +1744,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 				sprintf(buf, "прототип %s%s%s.\r\n",
-						kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
+						kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
 				SendMsgToChar(buf, ch);
 			}
 			break;
@@ -2546,22 +2546,22 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 		strcpy(buf, "Вам потребуется :\r\n");
 		if (item0 >= 0) {
 			strcat(buf, kColorBoldRed);
-			strcat(buf, obj_proto[item0]->get_PName(0).c_str());
+			strcat(buf, obj_proto[item0]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item1 >= 0) {
 			strcat(buf, kColorBoldYel);
-			strcat(buf, obj_proto[item1]->get_PName(0).c_str());
+			strcat(buf, obj_proto[item1]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item2 >= 0) {
 			strcat(buf, kColorBoldGrn);
-			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
+			strcat(buf, obj_proto[item2]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (obj_num >= 0 && (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes)) {
 			strcat(buf, kColorBoldBlu);
-			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
+			strcat(buf, obj_proto[obj_num]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 
@@ -2572,7 +2572,7 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 			strcat(buf, "'.");
 		} else {
 			strcat(buf, "для создания ");
-			strcat(buf, obj_proto[obj_num]->get_PName(1).c_str());
+			strcat(buf, obj_proto[obj_num]->get_PName(ECase::kGen).c_str());
 		}
 		act(buf, false, ch, nullptr, nullptr, kToChar);
 	}
@@ -2758,28 +2758,28 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 
 		if (item0 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj0->get_PName(3).c_str());
+			strcat(buf, obj0->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj1->get_PName(3).c_str());
+			strcat(buf, obj1->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj2->get_PName(3).c_str());
+			strcat(buf, obj2->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj3->get_PName(3).c_str());
+			strcat(buf, obj3->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}

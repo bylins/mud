@@ -79,7 +79,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			weight = +1;
 			break;
 
-		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
+		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, ECase::kNom));
 			SendMsgToChar(buf, ch);
 			return;
 	}

@@ -114,9 +114,9 @@ void dig_obj(CharData *ch, ObjData *obj) {
 
 	if (GetObjMIW(obj->get_rnum()) >= obj_proto.actual_count(obj->get_rnum())
 		|| GetObjMIW(obj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
-		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
+		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
 		SendMsgToChar(textbuf, ch);
-		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
+		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);

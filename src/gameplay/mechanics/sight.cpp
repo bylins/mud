@@ -1019,7 +1019,7 @@ void look_in_obj(CharData *ch, char *arg) {
 					SendMsgToChar(buf, ch);
 				}
 			} else {
-				SendMsgToChar(OBJN(obj, ch, 0), ch);
+				SendMsgToChar(OBJN(obj, ch, ECase::kNom), ch);
 				switch (bits) {
 					case EFind::kObjInventory: SendMsgToChar("(в руках)\r\n", ch);
 						break;
@@ -1142,7 +1142,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
-			std::string obj_name = OBJN(object, ch, 0);
+			std::string obj_name = OBJN(object, ch, ECase::kNom);
 			obj_name[0] = UPPER(obj_name[0]);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
@@ -2057,7 +2057,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 		int i = -1;
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-					kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
+					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));

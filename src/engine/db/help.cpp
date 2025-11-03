@@ -106,7 +106,7 @@ std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, b
 std::string print_obj_affects(const CObjectPrototype *const obj) {
 	std::stringstream out;
 
-	out << GET_OBJ_PNAME(obj, 0) << "\r\n";
+	out << obj->get_PName(ECase::kNom) << "\r\n";
 
 	if (obj->get_no_flags().sprintbits(no_bits, buf2, ",")) {
 		out << "Неудобства : " << buf2 << "\r\n";

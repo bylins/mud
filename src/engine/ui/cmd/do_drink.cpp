@@ -56,7 +56,7 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (subcmd == kScmdDrink) {
 		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(jar, 2)]);
 		act(buf, true, ch, jar, nullptr, kToRoom);
-		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)], OBJN(jar, ch, 1));
+		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(jar, 2)], OBJN(jar, ch, ECase::kGen));
 		SendMsgToChar(buf, ch);
 	} else {
 		act("$n отхлебнул$g из $o1.", true, ch, jar, nullptr, kToRoom);
