@@ -144,7 +144,6 @@ int calc_initiative(CharData *ch, bool mode);
 // fight_hit.cpp
 
 int CalcAC(CharData *ch);
-bool IsArmedWithMighthitWeapon(CharData *ch);
 void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
 
 // fight_stuff.cpp
@@ -152,8 +151,6 @@ void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, in
 void die(CharData *ch, CharData *killer);
 void raw_kill(CharData *ch, CharData *killer);
 void update_pos(CharData *victim);
-void alterate_object(ObjData *obj, int dam, int chance);
-void alt_equip(CharData *ch, int pos, int dam, int chance);
 
 void char_dam_message(int dam, CharData *ch, CharData *victim, bool mayflee);
 void TestSelfHitroll(CharData *ch);

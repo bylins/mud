@@ -40,7 +40,6 @@ int max_exp_loss_pc(CharData *ch);
 void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
-extern int material_value[];
 extern int max_exp_gain_npc;
 extern std::list<combat_list_element> combat_list;
 
@@ -939,75 +938,6 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 			master->dps_add_exp(battle_exp, true);
 		}
 	}
-}
-
-// * Alterate equipment
-void alterate_object(ObjData *obj, int dam, int chance) {
-	if (!obj)
-		return;
-	dam = number(0, dam * (material_value[obj->get_material()] + 30) /
-		std::max(1, obj->get_maximum_durability() *
-			(obj->has_flag(EObjFlag::kNodrop) ? 5 :
-			 obj->has_flag(EObjFlag::kBless) ? 15 : 10)
-			 * (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows ? 3 : 1)));
-
-	if (dam > 0 && chance >= number(1, 100)) {
-		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), EEquipPos::kShield) == obj) {
-			dam /= 2;
-		}
-
-		obj->sub_current(dam);
-		if (obj->get_current_durability() <= 0) {
-			if (obj->get_worn_by()) {
-				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
-						 char_get_custom_label(obj, obj->get_worn_by()).c_str());
-				act(buf, false, obj->get_worn_by(), obj, nullptr, kToChar);
-			} else if (obj->get_carried_by()) {
-				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
-						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
-				act(buf, false, obj->get_carried_by(), obj, nullptr, kToChar);
-			}
-			ExtractObjFromWorld(obj);
-		}
-	}
-}
-
-void alt_equip(CharData *ch, int pos, int dam, int chance) {
-	// calculate drop_chance if
-	if (pos == kNowhere) {
-		pos = number(0, 100);
-		if (pos < 3)
-			pos = EEquipPos::kFingerR + number(0, 1);
-		else if (pos < 6)
-			pos = EEquipPos::kNeck + number(0, 1);
-		else if (pos < 20)
-			pos = EEquipPos::kBody;
-		else if (pos < 30)
-			pos = EEquipPos::kHead;
-		else if (pos < 45)
-			pos = EEquipPos::kLegs;
-		else if (pos < 50)
-			pos = EEquipPos::kFeet;
-		else if (pos < 58)
-			pos = EEquipPos::kHands;
-		else if (pos < 66)
-			pos = EEquipPos::kArms;
-		else if (pos < 76)
-			pos = EEquipPos::kShield;
-		else if (pos < 86)
-			pos = EEquipPos::kShoulders;
-		else if (pos < 90)
-			pos = EEquipPos::kWaist;
-		else if (pos < 94)
-			pos = EEquipPos::kWristR + number(0, 1);
-		else
-			pos = EEquipPos::kHold;
-	}
-
-	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield)) {
-		return;
-	}
-	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
 
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural) {

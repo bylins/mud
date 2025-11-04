@@ -181,7 +181,7 @@ set(SOURCES
 		src/gameplay/skills/strangle.cpp
 		src/gameplay/skills/chopoff.cpp
 		src/gameplay/skills/disarm.cpp
-		src/gameplay/skills/stupor.cpp
+		src/gameplay/skills/overhelm.cpp
 		src/gameplay/skills/ironwind.cpp
 		src/gameplay/skills/throw.cpp
 		src/gameplay/skills/mighthit.cpp
@@ -427,7 +427,11 @@ set(SOURCES
 		src/gameplay/mechanics/boat.cpp
 		src/gameplay/mechanics/minions.cpp
 		src/gameplay/mechanics/armor.cpp
-		src/gameplay/skills/leadership.cpp)
+		src/gameplay/skills/leadership.cpp
+		src/gameplay/skills/punctual_style.cpp
+		src/gameplay/mechanics/equipment.cpp
+		src/gameplay/skills/intercept.cpp
+		src/gameplay/skills/deviate.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -630,7 +634,7 @@ set(HEADERS
 		src/gameplay/skills/kick.h
 		src/gameplay/skills/strangle.h
 		src/gameplay/skills/chopoff.h
-		src/gameplay/skills/stupor.h
+		src/gameplay/skills/overhelm.h
 		src/gameplay/ai/graph.h
 		src/engine/structs/flag_data.h
 		src/engine/entities/entities_constants.h
@@ -842,7 +846,11 @@ set(HEADERS
 		src/gameplay/mechanics/boat.h
 		src/gameplay/mechanics/minions.h
 		src/gameplay/mechanics/armor.h
-		src/gameplay/skills/leadership.h)
+		src/gameplay/skills/leadership.h
+		src/gameplay/skills/punctual_style.h
+		src/gameplay/mechanics/equipment.h
+		src/gameplay/skills/intercept.h
+		src/gameplay/skills/deviate.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

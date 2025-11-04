@@ -28,7 +28,6 @@ struct HitData {
 	void AddBareHandsDmg(CharData *ch, bool need_dice = true);
 	void ProcessDefensiveAbilities(CharData *ch, CharData *victim);
 	void CalcCritHitChance(CharData *ch);
-	void ProcessDeviate(CharData *ch, CharData *victim, int *damage) const;
 	void ProcessParry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const;
 	void ProcessMultyparry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const;
 	void ProcessShieldBlock(CharData *ch, CharData *victim, int *damage) const;
@@ -38,9 +37,6 @@ struct HitData {
 
 	// extdamage
 	int ProcessExtradamage(CharData *ch, CharData *victim);
-	void ProcessMighthit(CharData *ch, CharData *victim);
-	void ProcessOverhelm(CharData *ch, CharData *victim);
-	void ProcessPunctualHit(CharData *ch, CharData *victim);
 
 	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),

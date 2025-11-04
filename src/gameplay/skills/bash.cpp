@@ -5,6 +5,7 @@
 #include "protect.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
+#include "gameplay/mechanics/equipment.h"
 
 #include <cmath>
 
@@ -224,7 +225,7 @@ void go_bash(CharData *ch, CharData *vict) {
 						false, ch, nullptr, vict, kToChar);
 					act("$n блокировал$g попытку $N1 сбить $s.",
 						true, vict, nullptr, ch, kToNotVict | kToArenaListen);
-					alt_equip(vict, kShield, 30, 10);
+					DamageEquipment(vict, kShield, 30, 10);
 					if (!ch->GetEnemy()) {
 						SetFighting(ch, vict);
 						SetWait(ch, 1, true);

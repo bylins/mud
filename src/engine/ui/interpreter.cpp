@@ -209,8 +209,10 @@
 #include "gameplay/skills/campfire.h"
 #include "gameplay/skills/chopoff.h"
 #include "gameplay/skills/disarm.h"
+#include "gameplay/skills/deviate.h"
 #include "gameplay/skills/fit.h"
 #include "gameplay/skills/firstaid.h"
+#include "gameplay/skills/intercept.h"
 #include "gameplay/skills/ironwind.h"
 #include "gameplay/skills/kick.h"
 #include "gameplay/skills/lightwalk.h"
@@ -224,7 +226,7 @@
 #include "gameplay/skills/sharpening.h"
 #include "gameplay/skills/strangle.h"
 #include "gameplay/skills/stun.h"
-#include "gameplay/skills/stupor.h"
+#include "gameplay/skills/overhelm.h"
 #include "gameplay/skills/throw.h"
 #include "gameplay/skills/throwout.h"
 #include "gameplay/skills/track.h"
@@ -342,7 +344,6 @@ void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
 void DoStoreShop(CharData *ch, char *argument, int, int);
-void do_deviate(CharData *ch, char *argument, int cmd, int subcmd);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
@@ -353,8 +354,7 @@ void DoSyslog(CharData *ch, char *argument, int, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
-void do_style(CharData *ch, char *argument, int cmd, int subcmd);
-void do_touch(CharData *ch, char *argument, int cmd, int subcmd);
+void DoStyle(CharData *ch, char *argument, int, int);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dig(CharData *ch, char *argument, int cmd, int subcmd);
 void do_insertgem(CharData *ch, char *argument, int cmd, int subcmd);
@@ -540,7 +540,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"изучить", EPosition::kSit, DoLearn, 0, 0, 0},
 		{"информация", EPosition::kSleep, DoGenericPage, 0, kScmdInfo, 0},
 		{"испить", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
-		{"использовать", EPosition::kRest, do_style, 0, 0, 0},
+		{"использовать", EPosition::kRest, DoStyle, 0, 0, 0},
 		{"исступление", EPosition::kFight, do_frenzy, 0, 0, -1},
 		{"имя", EPosition::kSleep, do_name, kLvlImmortal, 0, 0},
 
@@ -573,7 +573,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"метнуть", EPosition::kFight, DoThrow, 0, kScmdPhysicalThrow, -1},
 		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"месть", EPosition::kRest, do_revenge, 0, 0, 0},
-		{"молот", EPosition::kFight, do_mighthit, 0, 0, -1},
+		{"молот", EPosition::kFight, DoMighthit, 0, 0, -1},
 		{"молиться", EPosition::kStand, do_pray, 1, SCMD_PRAY, -1},
 		{"моястатистика", EPosition::kDead, do_mystat, 0, 0, 0},
 		{"мысл", EPosition::kDead, do_quit, 0, 0, 0},
@@ -597,7 +597,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"обмен", EPosition::kStand, do_not_here, 0, 0, 0},
 		{"обменять", EPosition::kStand, do_not_here, 0, 0, 0},
 		{"оглядеться", EPosition::kRest, DoLookAround, 0, 0, 0},
-		{"оглушить", EPosition::kFight, do_stupor, 0, 0, -1},
+		{"оглушить", EPosition::kFight, DoOverhelm, 0, 0, -1},
 		{"одеть", EPosition::kRest, do_wear, 0, 0, 500},
 		{"опознать", EPosition::kRest, do_identify, 0, 0, 500},
 		{"опохмелиться", EPosition::kRest, do_drunkoff, 0, 0, -1},
@@ -632,7 +632,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ошибка", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 
 		{"парировать", EPosition::kFight, do_parry, 0, 0, -1},
-		{"перехватить", EPosition::kFight, do_touch, 0, 0, -1},
+		{"перехватить", EPosition::kFight, DoIntercept, 0, 0, -1},
 		{"перековать", EPosition::kStand, do_transform_weapon, 0, SCMD_TRANSFORMWEAPON, -1},
 		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
 		{"перевести", EPosition::kStand, do_not_here, 1, 0, -1},
@@ -740,7 +740,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"статус", EPosition::kDead, do_display, 0, 0, 0},
 		{"статистика", EPosition::kDead, do_statistic, 0, 0, 0},
 		{"стереть", EPosition::kDead, DoGenericPage, 0, kScmdClear, 0},
-		{"стиль", EPosition::kRest, do_style, 0, 0, 0},
+		{"стиль", EPosition::kRest, DoStyle, 0, 0, 0},
 		{"строка", EPosition::kDead, do_display, 0, 0, 0},
 		{"счет", EPosition::kDead, DoScore, 0, 0, 0},
 		{"телега", EPosition::kDead, do_telegram, 0, 0, -1},
@@ -752,7 +752,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ударить", EPosition::kFight, do_hit, 0, kScmdHit, -1},
 		{"удавить", EPosition::kFight, do_strangle, 0, 0, -1},
 		{"удалитьпредмет", EPosition::kStand, DoDeleteObj, kLvlImplementator, 0, 0},
-		{"уклониться", EPosition::kFight, do_deviate, 1, 0, -1},
+		{"уклониться", EPosition::kFight, DoDeviate, 1, 0, -1},
 		{"украсть", EPosition::kStand, do_steal, 1, 0, 0},
 		{"укрепить", EPosition::kRest, DoArmoring, 0, 0, -1},
 		{"умения", EPosition::kSleep, DoSkills, 0, 0, 0},
@@ -810,7 +810,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"dazzle", EPosition::kFight, DoDazzle, 1, 0, -1},
 		{"dc", EPosition::kDead, DoDropConnect, kLvlGreatGod, 0, 0},
 		{"deposit", EPosition::kStand, do_not_here, 1, 0, 500},
-		{"deviate", EPosition::kFight, do_deviate, 0, 0, -1},
+		{"deviate", EPosition::kFight, DoDeviate, 0, 0, -1},
 		{"diagnose", EPosition::kRest, do_diagnose, 0, 0, 500},
 		{"dig", EPosition::kStand, do_dig, 0, 0, -1},
 		{"disarm", EPosition::kFight, do_disarm, 0, 0, -1},
@@ -861,7 +861,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"holler", EPosition::kRest, do_gen_comm, 1, kScmdHoller, -1},
 		{"horse", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"house", EPosition::kRest, ClanSystem::DoHouse, 0, 0, 0},
-		{"huk", EPosition::kFight, do_mighthit, 0, 0, -1},
+		{"huk", EPosition::kFight, DoMighthit, 0, 0, -1},
 		{"idea", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
 		{"ignore", EPosition::kDead, do_ignore, 0, 0, 0},
 		{"immlist", EPosition::kDead, DoGenericPage, 0, kScmdImmlist, 0},
@@ -970,7 +970,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"stat", EPosition::kDead, do_stat, 0, 0, 0},
 		{"steal", EPosition::kStand, do_steal, 1, 0, 300},
 		{"strangle", EPosition::kFight, do_strangle, 0, 0, -1},
-		{"stupor", EPosition::kFight, do_stupor, 0, 0, -1},
+		{"stupor", EPosition::kFight, DoOverhelm, 0, 0, -1},
 		{"switch", EPosition::kDead, DoSwitch, kLvlGreatGod, 0, 0},
 		{"syslog", EPosition::kDead, DoSyslog, kLvlImmortal, SYSLOG, 0},
 		{"suggest", EPosition::kDead, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
@@ -986,7 +986,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"throwout", EPosition::kFight, DoThrowout, 0, 0, 0},
 		{"time", EPosition::kDead, do_time, 0, 0, 0},
 		{"title", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
-		{"touch", EPosition::kFight, do_touch, 0, 0, -1},
+		{"touch", EPosition::kFight, DoIntercept, 0, 0, -1},
 		{"track", EPosition::kStand, do_track, 0, 0, -1},
 		{"transfer", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"trigedit", EPosition::kDead, do_olc, 0, kScmdOlcTrigedit, 0},

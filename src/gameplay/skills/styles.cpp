@@ -4,118 +4,7 @@
 
 #include "styles.h"
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/common.h"
-#include "parry.h"
-
-// ************* TOUCH PROCEDURES
-void go_touch(CharData *ch, CharData *vict) {
-	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
-		return;
-	}
-	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, kToChar);
-	ch->battle_affects.set(kEafTouch);
-	ch->set_touching(vict);
-}
-
-void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIntercept)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
-		return;
-	}
-	if (ch->HasCooldown(ESkill::kIntercept)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
-
-	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
-		SendMsgToChar("У вас заняты руки.\r\n", ch);
-		return;
-	}
-
-	CharData *vict = nullptr;
-	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
-		for (const auto i : world[ch->in_room]->people) {
-			if (i->GetEnemy() == ch) {
-				vict = i;
-				break;
-			}
-		}
-
-		if (!vict) {
-			if (!ch->GetEnemy()) {
-				SendMsgToChar("Но вы ни с кем не сражаетесь.\r\n", ch);
-				return;
-			} else {
-				vict = ch->GetEnemy();
-			}
-		}
-	}
-
-	if (ch == vict) {
-		SendMsgToChar(GET_NAME(ch), ch);
-		SendMsgToChar(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
-		return;
-	}
-	if (vict->GetEnemy() != ch && ch->GetEnemy() != vict) {
-		act("Но вы не сражаетесь с $N4.", false, ch, nullptr, vict, kToChar);
-		return;
-	}
-	if (ch->battle_affects.get(kEafHammer)) {
-		SendMsgToChar("Невозможно. Вы приготовились к богатырскому удару.\r\n", ch);
-		return;
-	}
-
-	if (!check_pkill(ch, vict, arg))
-		return;
-
-	parry_override(ch);
-
-	go_touch(ch, vict);
-}
-
-// ************* DEVIATE PROCEDURES
-void go_deviate(CharData *ch) {
-	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
-		return;
-	}
-	if (ch->IsHorsePrevents()) {
-		return;
-	};
-	ch->battle_affects.set(kEafDodge);
-	SendMsgToChar("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
-}
-
-void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDodge)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
-		return;
-	}
-	if (ch->HasCooldown(ESkill::kDodge)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
-
-	if (!(ch->GetEnemy())) {
-		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
-		return;
-	}
-
-	if (ch->IsHorsePrevents()) {
-		return;
-	}
-
-	if (ch->battle_affects.get(kEafDodge)) {
-		SendMsgToChar("Вы и так вертитесь, как волчок.\r\n", ch);
-		return;
-	};
-	go_deviate(ch);
-}
 
 const char *cstyles[] = {"normal",
 						 "обычный",
@@ -126,7 +15,7 @@ const char *cstyles[] = {"normal",
 						 "\n"
 };
 
-void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void DoStyle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;

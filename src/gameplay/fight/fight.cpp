@@ -53,7 +53,7 @@ extern DescriptorData *descriptor_list;
 // void do_assist(CharacterData *ch, char *argument, int cmd, int subcmd);
 void battle_affect_update(CharData *ch);
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch);
-void go_touch(CharData *ch, CharData *vict);
+void GoIntercept(CharData *ch, CharData *vict);
 int npc_battle_scavenge(CharData *ch);
 void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
@@ -1495,7 +1495,7 @@ void using_mob_skills(CharData *ch) {
 		////////////////////////////////////////////////////////////////////////
 		if (sk_num == ESkill::kIntercept) {
 			sk_use = 0;
-			go_touch(ch, ch->GetEnemy());
+			GoIntercept(ch, ch->GetEnemy());
 		}
 
 		////////////////////////////////////////////////////////////////////////
