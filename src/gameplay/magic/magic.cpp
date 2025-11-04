@@ -516,7 +516,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			(victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) &&
 			CanUseFeat(victim, EFeat::kMagicalShield) &&
 			(number(1, 100)	<
-			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
+			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_EQ(victim, kShield)->get_weight() / 2))) {
 			act("Ловким движением щита $N отразил вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Ловким движением щита $N отразил магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
@@ -969,7 +969,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
 		&& CanUseFeat(victim, EFeat::kMagicalShield)
 		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
-			+ GET_OBJ_WEIGHT(GET_EQ(victim, EEquipPos::kShield)) / 2))) {
+			+ GET_EQ(victim, EEquipPos::kShield)->get_weight() / 2))) {
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
 		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
 		act("Ваш щит уберег вас от злых чар $n1.", false, ch, nullptr, victim, kToVict);

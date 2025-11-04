@@ -1457,7 +1457,7 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
-			if (GET_OBJ_RNUM(*obj_it) == robj_num) {
+			if ((*obj_it)->get_rnum() == robj_num) {
 				olc_update_object(robj_num, obj_it->get(), olc_proto);
 			}
 		}

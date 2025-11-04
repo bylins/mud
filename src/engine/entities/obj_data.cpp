@@ -612,8 +612,8 @@ void ObjData::swap(ObjData &object, bool swap_trig) {
 	object.set_serial_num(tmpobj.get_serial_num());
 	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
 	// см ZONE_DECAY (c) Стрибог
-	set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(&object));
-	object.set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(&tmpobj));
+	set_vnum_zone_from((&object)->get_vnum_zone_from());
+	object.set_vnum_zone_from((&tmpobj)->get_vnum_zone_from());
 }
 
 void ObjData::set_tag(const char *tag) {

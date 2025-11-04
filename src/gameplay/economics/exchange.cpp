@@ -406,7 +406,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 	}
 	message_exchange(tmpbuf, ch, item);
 	if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
-		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
+		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_EXCHANGE_ITEM(item)->get_rnum())->get_timer());
 	PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
 
@@ -593,7 +593,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 
 			message_exchange(tmpbuf, ch, item);
 			if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
-				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
+				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_EXCHANGE_ITEM(item)->get_rnum())->get_timer());
 			PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
 			if (EXCHANGE_SAVEONEVERYOPERATION) {
@@ -623,7 +623,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 				GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyU));
 		message_exchange(tmpbuf, ch, item);
 		if (stable_objs::IsTimerUnlimited(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
-			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
+			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_EXCHANGE_ITEM(item)->get_rnum())->get_timer());
 		PlaceObjToInventory(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
 		if (EXCHANGE_SAVEONEVERYOPERATION) {
@@ -1183,7 +1183,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 						 GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str(), buf);
 			}
 		} else if (is_dig_stone(GET_EXCHANGE_ITEM(j))
-			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == EObjMaterial::kGlass) {
+			&& GET_EXCHANGE_ITEM(j)->get_material() == EObjMaterial::kGlass) {
 			sprintf(tmpbuf,
 					"[%4d]   %s (стекло)",
 					GET_EXCHANGE_ITEM_LOT(j),

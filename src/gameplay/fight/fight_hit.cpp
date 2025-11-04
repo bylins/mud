@@ -87,13 +87,13 @@ int compute_armor_class(CharData *ch) {
 			if (GET_EQ(ch, EEquipPos::kHold))
 				armorclass +=
 					10 * std::max(-1,
-							 (GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield)) +
-								 GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) / 5 - 6);
+							 (GET_EQ(ch, EEquipPos::kWield)->get_weight() +
+								 GET_EQ(ch, EEquipPos::kHold)->get_weight()) / 5 - 6);
 			else
-				armorclass += 10 * std::max(-1, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield)) / 5 - 6);
+				armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kWield)->get_weight() / 5 - 6);
 		}
 		if (GET_EQ(ch, EEquipPos::kBoths))
-			armorclass += 10 * std::max(-1, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths)) / 5 - 6);
+			armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kBoths)->get_weight() / 5 - 6);
 	}
 
 	// Bonus for leadership
@@ -3367,7 +3367,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	if (!GET_AF_BATTLE(ch, kEafHammer)
 		|| get_flags()[fight::kCritHit]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? std::min(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHands)), 18)
+		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? std::min(GET_EQ(ch, EEquipPos::kHands)->get_weight(), 18)
 															: 0)); //вес перчаток больше 18 не учитывается
 		if (ch->IsNpc() || CanUseFeat(ch, EFeat::kBully)) {
 			modi = std::max(100, modi);

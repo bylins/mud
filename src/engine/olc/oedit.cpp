@@ -181,7 +181,7 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 	obj->set_script(tmp.get_script());
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	obj->set_current_durability(GET_OBJ_CUR(&tmp));
+	obj->set_current_durability((&tmp)->get_current_durability());
 //	если таймер шмота в текущем мире меньше чем установленный, восстанавливаем его.
 	if (tmp.get_timer() < olc_obj->get_timer()) {
 		obj->set_timer(tmp.get_timer());
@@ -241,7 +241,7 @@ void olc_update_objects(int robj_num, ObjData *olc_obj) {
 void oedit_save_internally(DescriptorData *d) {
 	int robj_num;
 
-	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
+	robj_num = OLC_OBJ(d)->get_rnum();
 	ObjSystem::init_ilvl(OLC_OBJ(d));
 	// * Write object to internal tables.
 	if (robj_num >= 0) {    /*
@@ -915,7 +915,7 @@ void oedit_disp_type_menu(DescriptorData *d) {
 // * Object extra flags.
 void oedit_disp_extra_menu(DescriptorData *d) {
 	disp_planes_values(d, extra_bits, 2);
-	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
+	OLC_OBJ(d)->get_extra_flags().sprintbits(extra_bits, buf1, ",", 5);
 	snprintf(buf,
 			 kMaxStringLength,
 			 "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ",
@@ -972,7 +972,7 @@ void oedit_disp_wear_menu(DescriptorData *d) {
 				wear_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
-	sprintbit(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, buf1);
+	sprintbit(OLC_OBJ(d)->get_wear_flags(), wear_bits, buf1);
 	snprintf(buf,
 			 kMaxStringLength,
 			 "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ",
@@ -993,7 +993,7 @@ void oedit_disp_mater_menu(DescriptorData *d) {
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\nСделан из : %s%s%s\r\n"
-				 "Выберите материал (0 - выход) : ", cyn, material_name[GET_OBJ_MATER(OLC_OBJ(d))], nrm);
+				 "Выберите материал (0 - выход) : ", cyn, material_name[OLC_OBJ(d)->get_material()], nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
@@ -1672,7 +1672,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_MAXVALUE: OLC_OBJ(d)->set_maximum_durability(atoi(arg));
 			break;
 
-		case OEDIT_CURVALUE: OLC_OBJ(d)->set_current_durability(MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg)));
+		case OEDIT_CURVALUE: OLC_OBJ(d)->set_current_durability(MIN(OLC_OBJ(d)->get_maximum_durability(), atoi(arg)));
 			break;
 
 		case OEDIT_SEXVALUE:

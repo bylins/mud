@@ -79,7 +79,7 @@ void break_inst(CharData *ch) {
 		if (GET_EQ(ch, i)
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
-			if (GET_OBJ_CUR(GET_EQ(ch, i)) > 1) {
+			if (GET_EQ(ch, i)->get_current_durability() > 1) {
 				if (number(1, dig_vars.instr_crash_chance) == 1) {
 					const auto current = GET_EQ(ch, i)->get_current_durability();
 					GET_EQ(ch, i)->set_current_durability(current - 1);
@@ -87,7 +87,7 @@ void break_inst(CharData *ch) {
 			} else {
 				GET_EQ(ch, i)->set_timer(0);
 			}
-			if (GET_OBJ_CUR(GET_EQ(ch, i)) <= 1 && number(1, 3) == 1) {
+			if (GET_EQ(ch, i)->get_current_durability() <= 1 && number(1, 3) == 1) {
 				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->get_short_description().c_str());
 				SendMsgToChar(buf, ch);
 			}
