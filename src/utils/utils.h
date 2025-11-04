@@ -673,14 +673,16 @@ const int kNameLevel = 5;
 
 //#define GET_OBJ_EXTRA(obj)  ((obj)->get_extra_flags())
 //#define GET_OBJ_WEAR(obj)  ((obj)->get_wear_flags())
-#define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
-#define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
-#define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
+//#define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
+
+//#define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
+//#define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
+//#define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
+
 #define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
 #define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
 #define GET_OBJ_MATER(obj)  ((obj)->get_material())
 #define GET_OBJ_VNUM_ZONE_FROM(obj)   ((obj)->get_vnum_zone_from())
-//#define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
 #define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : \

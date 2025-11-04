@@ -710,8 +710,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 //	if (GET_OBJ_ZONE(j))
 	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));
-	if (GET_OBJ_MAKER(j)) {
-		const char *to_name = GetPlayerNameByUnique(GET_OBJ_MAKER(j));
+	if (j->get_crafter_uid()) {
+		const char *to_name = GetPlayerNameByUnique(j->get_crafter_uid());
 		if (to_name)
 			SendMsgToChar(ch, ", Создатель : %s", to_name);
 		else
@@ -720,8 +720,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	if (obj_proto[j->get_rnum()]->get_parent_rnum() > -1) {
 		SendMsgToChar(ch, ", Родитель(VNum) : [%d]", obj_proto[j->get_rnum()]->get_parent_vnum());
 	}
-	if (GET_OBJ_CRAFTIMER(j) > 0) {
-		SendMsgToChar(ch, ", &Yскрафчена с таймером : [%d]&n", GET_OBJ_CRAFTIMER(j));
+	if (j->get_craft_timer() > 0) {
+		SendMsgToChar(ch, ", &Yскрафчена с таймером : [%d]&n", j->get_craft_timer());
 	}
 	if (j->get_is_rename()) // изменены падежи
 	{

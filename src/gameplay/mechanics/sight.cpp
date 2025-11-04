@@ -2085,8 +2085,8 @@ const char *diag_obj_timer(const ObjData *obj) {
 			return "нерушимо";
 		}
 
-		if (GET_OBJ_CRAFTIMER(obj) > 0) {
-			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
+		if (obj->get_craft_timer() > 0) {
+			prot_timer = obj->get_craft_timer();// если вещь скрафчена, смотрим ее таймер а не у прототипа
 		} else {
 			prot_timer = obj_proto[obj->get_rnum()]->get_timer();
 		}

@@ -654,12 +654,12 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Levl: " << object->get_level() << "~\n";
 		}
 		// была ли шмотка ренейм
-		if (GET_OBJ_RENAME(object) != false) {
+		if (object->get_is_rename() != false) {
 			out << "Rnme: 1~\n";
 		}
 		// скрафчено с таймером
-		if ((GET_OBJ_CRAFTIMER(object) > 0)) {
-			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
+		if ((object->get_craft_timer() > 0)) {
+			out << "Ctmr: " << object->get_craft_timer() << "~\n";
 		}
 		// в какой зоне было загружено в мир
 		if (GET_OBJ_VNUM_ZONE_FROM(object)) {
@@ -759,8 +759,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Ownr: " << object->get_owner() << "~\n";
 		}
 		// Создатель
-		if (GET_OBJ_MAKER(object) != ObjData::DEFAULT_MAKER) {
-			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
+		if (object->get_crafter_uid() != ObjData::DEFAULT_MAKER) {
+			out << "Mker: " << object->get_crafter_uid() << "~\n";
 		}
 
 		// Аффекты

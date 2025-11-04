@@ -3292,7 +3292,7 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 			}
 		} else if (!str_cmp(field, "maker")) {
-			sprintf(str, "%d", GET_OBJ_MAKER(o));
+			sprintf(str, "%d", o->get_crafter_uid());
 		} else if (!str_cmp(field, "effect")) {
 			o->gm_extra_flag(subfield, extra_bits, str);
 		} else if (!str_cmp(field, "affect")) {
