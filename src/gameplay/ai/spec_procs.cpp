@@ -467,7 +467,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 int has_curse(ObjData *obj) {
 	for (const auto &i : weapon_affect) {
 		// Замена выражения на макрос
-		if (i.aff_spell <= ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
+		if (i.aff_spell <= ESpell::kUndefined || !obj->GetEWeaponAffect(i.aff_pos)) {
 			continue;
 		}
 		if (MUD::Spell(i.aff_spell).AllowTarget(kNpcAffectPc | kNpcDamagePc)){

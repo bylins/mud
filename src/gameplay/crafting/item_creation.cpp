@@ -1403,7 +1403,7 @@ float MakeRecept::count_mort_requred(ObjData *obj) {
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto &m : weapon_affect) {
-		if (IS_OBJ_AFF(obj, m.aff_pos)) {
+		if (obj->GetEWeaponAffect(m.aff_pos)) {
 			if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kAirShield) {
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 			} else if (static_cast<EAffect>(m.aff_bitvector) == EAffect::kFireShield) {

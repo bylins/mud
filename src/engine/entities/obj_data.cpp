@@ -898,65 +898,65 @@ bool is_armor_type(const CObjectPrototype *obj) {
 }
 
 bool is_mob_item(const CObjectPrototype *obj) {
-	if (IS_OBJ_NO(obj, ENoFlag::kMale)
-		&& IS_OBJ_NO(obj, ENoFlag::kFemale)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kMale)
+		&& obj->has_no_flag(ENoFlag::kFemale)
+		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kMono)
-		&& IS_OBJ_NO(obj, ENoFlag::kPoly)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kMono)
+		&& obj->has_no_flag(ENoFlag::kPoly)
+		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kSorcerer)
-		&& IS_OBJ_NO(obj, ENoFlag::kThief)
-		&& IS_OBJ_NO(obj, ENoFlag::kWarrior)
-		&& IS_OBJ_NO(obj, ENoFlag::kAssasine)
-		&& IS_OBJ_NO(obj, ENoFlag::kGuard)
-		&& IS_OBJ_NO(obj, ENoFlag::kPaladine)
-		&& IS_OBJ_NO(obj, ENoFlag::kRanger)
-		&& IS_OBJ_NO(obj, ENoFlag::kVigilant)
-		&& IS_OBJ_NO(obj, ENoFlag::kMerchant)
-		&& IS_OBJ_NO(obj, ENoFlag::kMagus)
-		&& IS_OBJ_NO(obj, ENoFlag::kConjurer)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmer)
-		&& IS_OBJ_NO(obj, ENoFlag::kWIzard)
-		&& IS_OBJ_NO(obj, ENoFlag::kNecromancer)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kSorcerer)
+		&& obj->has_no_flag(ENoFlag::kThief)
+		&& obj->has_no_flag(ENoFlag::kWarrior)
+		&& obj->has_no_flag(ENoFlag::kAssasine)
+		&& obj->has_no_flag(ENoFlag::kGuard)
+		&& obj->has_no_flag(ENoFlag::kPaladine)
+		&& obj->has_no_flag(ENoFlag::kRanger)
+		&& obj->has_no_flag(ENoFlag::kVigilant)
+		&& obj->has_no_flag(ENoFlag::kMerchant)
+		&& obj->has_no_flag(ENoFlag::kMagus)
+		&& obj->has_no_flag(ENoFlag::kConjurer)
+		&& obj->has_no_flag(ENoFlag::kCharmer)
+		&& obj->has_no_flag(ENoFlag::kWIzard)
+		&& obj->has_no_flag(ENoFlag::kNecromancer)
+		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kMale)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kFemale)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
+	if (obj->has_anti_flag(EAntiFlag::kMale)
+		&& obj->has_anti_flag(EAntiFlag::kFemale)
+		&& obj->has_anti_flag(EAntiFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kPoly)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
+	if (obj->has_anti_flag(EAntiFlag::kMono)
+		&& obj->has_anti_flag(EAntiFlag::kPoly)
+		&& obj->has_anti_flag(EAntiFlag::kCharmice)) {
 		return true;
 	}
 
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kThief)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kWarrior)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kAssasine)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kGuard)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kPaladine)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kRanger)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kVigilant)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kMerchant)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kMagus)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kConjurer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kWizard)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
+	if (obj->has_anti_flag(EAntiFlag::kSorcerer)
+		&& obj->has_anti_flag(EAntiFlag::kThief)
+		&& obj->has_anti_flag(EAntiFlag::kWarrior)
+		&& obj->has_anti_flag(EAntiFlag::kAssasine)
+		&& obj->has_anti_flag(EAntiFlag::kGuard)
+		&& obj->has_anti_flag(EAntiFlag::kPaladine)
+		&& obj->has_anti_flag(EAntiFlag::kRanger)
+		&& obj->has_anti_flag(EAntiFlag::kVigilant)
+		&& obj->has_anti_flag(EAntiFlag::kMerchant)
+		&& obj->has_anti_flag(EAntiFlag::kMagus)
+		&& obj->has_anti_flag(EAntiFlag::kConjurer)
+		&& obj->has_anti_flag(EAntiFlag::kCharmer)
+		&& obj->has_anti_flag(EAntiFlag::kWizard)
+		&& obj->has_anti_flag(EAntiFlag::kNecromancer)
+		&& obj->has_anti_flag(EAntiFlag::kCharmice)) {
 		return true;
 	}
 
@@ -1580,7 +1580,7 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto &m : weapon_affect) {
-		if (IS_OBJ_AFF(obj, m.aff_pos)) {
+		if (obj->GetEWeaponAffect(m.aff_pos)) {
 			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
 			if (obj_affects == EAffect::kAirShield ||
 				obj_affects == EAffect::kFireShield ||

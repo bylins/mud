@@ -547,7 +547,7 @@ void affect_total(CharData *ch) {
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
 				// То же самое, но переформулировал
-				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
+				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
 					continue;
 				}
 				affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first, GetApplyByWeaponAffect(j.aff_pos, ch).second, static_cast<EAffect>(j.aff_bitvector), true);

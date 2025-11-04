@@ -688,9 +688,9 @@ const int kNameLevel = 5;
 //#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : \
 //                        (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
 
-#define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
-#define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
-#define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))
+//#define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
+//#define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
+//#define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))
 
 // compound utilities and other macros *********************************
 

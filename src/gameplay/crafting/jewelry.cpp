@@ -146,7 +146,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	for (const auto &i : weapon_affect) {
-		if (IS_OBJ_AFF(itemobj, i.aff_pos)) {
+		if (itemobj->GetEWeaponAffect(i.aff_pos)) {
 			prob -= insgem_vars.minus_for_affect;
 		}
 	}

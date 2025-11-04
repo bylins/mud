@@ -533,10 +533,10 @@ bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
 	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		return false;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
+	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly) {
+	if (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly) {
 		return true;
 	}
 	return false;
@@ -718,7 +718,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 
 				if (ch->in_room != kNowhere) {
 					for (const auto &i : weapon_affect) {
-						if (i.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
+						if (i.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(i.aff_pos)) {
 							continue;
 						}
 						if (!no_cast) {
@@ -898,7 +898,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 
 		if (ch->in_room != kNowhere) {
 			for (const auto &j : weapon_affect) {
-				if (j.aff_spell == ESpell::kUndefined || !IS_OBJ_AFF(obj, j.aff_pos)) {
+				if (j.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(j.aff_pos)) {
 					continue;
 				}
 
@@ -1073,7 +1073,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 				if (ch->in_room != kNowhere) {
 					for (const auto &i : weapon_affect) {
 						if (i.aff_bitvector == 0
-							|| !IS_OBJ_AFF(obj, i.aff_pos)) {
+							|| !obj->GetEWeaponAffect(i.aff_pos)) {
 							continue;
 						}
 						affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
@@ -1140,7 +1140,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 
 		if (ch->in_room != kNowhere) {
 			for (const auto &j : weapon_affect) {
-				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
+				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
 					continue;
 				}
 				if (ch->IsNpc()
