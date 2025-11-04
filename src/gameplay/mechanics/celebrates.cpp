@@ -659,7 +659,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 								if (obj_in
 									&& obj->get_type() == EObjType::kContainer) {
 									PlaceObjIntoObj(obj_in.get(), obj.get());
-									obj_in->set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(obj));
+									obj_in->set_vnum_zone_from(obj->get_vnum_zone_from());
 
 									for (int &trigger : (*load_in)->triggers) {
 										auto trig = read_trigger(GetTriggerRnum(trigger));

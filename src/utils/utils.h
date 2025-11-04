@@ -683,11 +683,11 @@ const int kNameLevel = 5;
 //#define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
 //#define GET_OBJ_MATER(obj)  ((obj)->get_material())
 
-#define GET_OBJ_VNUM_ZONE_FROM(obj)   ((obj)->get_vnum_zone_from())
+//#define GET_OBJ_VNUM_ZONE_FROM(obj)   ((obj)->get_vnum_zone_from())
+//#define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
+//#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : \
+//                        (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
 
-#define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : \
-                        (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
 #define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
 #define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
 #define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))

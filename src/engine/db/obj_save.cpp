@@ -662,8 +662,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Ctmr: " << object->get_craft_timer() << "~\n";
 		}
 		// в какой зоне было загружено в мир
-		if (GET_OBJ_VNUM_ZONE_FROM(object)) {
-			out << "Ozne: " << GET_OBJ_VNUM_ZONE_FROM(object) << "~\n";
+		if (object->get_vnum_zone_from()) {
+			out << "Ozne: " << object->get_vnum_zone_from() << "~\n";
 		}
 		// Наводимые аффекты
 		*buf = '\0';

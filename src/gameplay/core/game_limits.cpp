@@ -1065,7 +1065,8 @@ int up_obj_where(ObjData *obj) {
 	if (obj->get_in_obj()) {
 		return up_obj_where(obj->get_in_obj());
 	} else {
-		return OBJ_WHERE(obj);
+		return (obj->get_worn_by() ? obj->get_worn_by()->in_room :
+				(obj->get_carried_by() ? obj->get_carried_by()->in_room : obj->get_in_room()));
 	}
 }
 
@@ -1323,9 +1324,9 @@ void obj_point_update() {
 		if (j->get_destroyer() == 0
 				|| j->get_timer() == 0
 				|| (j->has_flag(EObjFlag::kZonedacay)
-						&& GET_OBJ_VNUM_ZONE_FROM(j)
+						&& j->get_vnum_zone_from()
 						&& up_obj_where(j.get()) != kNowhere
-						&& GET_OBJ_VNUM_ZONE_FROM(j) != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
+						&& j->get_vnum_zone_from() != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
 			obj_decay_timer.push_back(j.get());
 		}
 // а с каких пор у нас на шмотку EApply::kPoison вешается?

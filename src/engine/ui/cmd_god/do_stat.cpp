@@ -709,7 +709,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		SendMsgToChar(ch, ", Владелец : %s", tmpstr == nullptr ? "УДАЛЕН": tmpstr);
 	}
 //	if (GET_OBJ_ZONE(j))
-	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", GET_OBJ_VNUM_ZONE_FROM(j));
+	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", j->get_vnum_zone_from());
 	if (j->get_crafter_uid()) {
 		const char *to_name = GetPlayerNameByUnique(j->get_crafter_uid());
 		if (to_name)

@@ -2131,12 +2131,12 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			if (world[room]->vnum != zone_table[world[room]->zone_rn].top) {
 				return;
 			}
-			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
+			if (obj->get_room_was_in() == kNowhere) {
 				world_objects.AddToExtractedList(obj);
 				return;
 			}
 			RemoveObjFromRoom(obj);
-			PlaceObjToRoom(obj, GetRoomRnum(OBJ_GET_LASTROOM(obj)));
+			PlaceObjToRoom(obj, GetRoomRnum(obj->get_room_was_in()));
 		} else {
 			if (world[room]->vnum == zone_table[world[room]->zone_rn].top) {
 				return;
@@ -2150,7 +2150,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			RemoveObjFromRoom(obj);
 			room = GetRoomRnum(zone_table[world[room]->zone_rn].top);
 			if (room == kNowhere) {
-				room = GetRoomRnum(OBJ_GET_LASTROOM(obj));
+				room = GetRoomRnum(obj->get_room_was_in());
 			}
 			PlaceObjToRoom(obj, room);
 		}
