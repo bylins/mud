@@ -3507,7 +3507,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			break;
 		}
 		case ESpell::kRemovePoison:
-			if (GET_OBJ_RNUM(obj) < 0) {
+			if (obj->get_rnum() < 0) {
 				to_char = "Ничего не случилось.";
 				char message[100];
 				sprintf(message,
@@ -3517,7 +3517,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
 				break;
 			}
-			if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
+			if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
 				to_char = "Содержимое $o1 протухло и не поддается магии.";
 				break;
 			}
@@ -3543,9 +3543,9 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			break;
 
 		case ESpell::kTimerRestore:
-			if (GET_OBJ_RNUM(obj) != kNothing) {
+			if (obj->get_rnum() != kNothing) {
 				obj->set_current_durability(GET_OBJ_MAX(obj));
-				obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
+				obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
 				to_char = "Вы полностью восстановили $o3.";
 				log("%s used magic repair", GET_NAME(ch));
 			} else {
@@ -3555,8 +3555,8 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 
 		case ESpell::kRestoration: {
 			if (obj->has_flag(EObjFlag::kMagic)
-				&& (GET_OBJ_RNUM(obj) != kNothing)) {
-				if (obj_proto.at(GET_OBJ_RNUM(obj))->has_flag(EObjFlag::kMagic)) {
+				&& (obj->get_rnum() != kNothing)) {
+				if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {
 					return 0;
 				}
 				obj->unset_enchant();

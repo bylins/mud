@@ -27,7 +27,7 @@ enchant::enchant(ObjData *obj) {
 	}
 
 	affects_flags_ = obj->get_affect_flags();
-	extra_flags_ = GET_OBJ_EXTRA(obj);
+	extra_flags_ = obj->get_extra_flags();
 	extra_flags_.unset(EObjFlag::kTicktimer);
 	no_flags_ = obj->get_no_flags();
 	weight_ = GET_OBJ_VAL(obj, 0);

@@ -635,8 +635,8 @@ void print_msg(CharData *ch, ObjData *obj, size_t set_idx, bool activated) {
 
 /// сообщение деактивации предмета
 void print_off_msg(CharData *ch, ObjData *obj) {
-	const auto set_idx = GET_OBJ_RNUM(obj) >= 0
-						 ? obj_proto.set_idx(GET_OBJ_RNUM(obj))
+	const auto set_idx = obj->get_rnum() >= 0
+						 ? obj_proto.set_idx(obj->get_rnum())
 						 : ~0ull;
 	if (set_idx != ~0ull) {
 		obj_sets::print_msg(ch, obj, set_idx, false);
@@ -730,8 +730,8 @@ std::string print_obj_list(const SetNode &set) {
 
 /// опознание сетового предмета
 void print_identify(CharData *ch, const ObjData *obj) {
-	const size_t set_idx = GET_OBJ_RNUM(obj) >= 0
-						   ? obj_proto.set_idx(GET_OBJ_RNUM(obj))
+	const size_t set_idx = obj->get_rnum() >= 0
+						   ? obj_proto.set_idx(obj->get_rnum())
 						   : sets_list.size();
 	if (set_idx < sets_list.size()) {
 		const SetNode &cur_set = *(sets_list.at(set_idx));
@@ -1051,7 +1051,7 @@ void WornSets::clear() {
 /// одновременно сразу же считается кол-во активированных шмоток в каждом сете
 void WornSets::add(ObjData *obj) {
 	if (obj && is_set_item(obj)) {
-		const size_t cur_idx = obj_proto.set_idx(GET_OBJ_RNUM(obj));
+		const size_t cur_idx = obj_proto.set_idx(obj->get_rnum());
 		for (auto & i : idx_list_) {
 			if (i.set_idx == static_cast<size_t>(-1)) {
 				i.set_idx = cur_idx;
@@ -1249,8 +1249,8 @@ int activ_sum::get_skill(const ESkill num) const {
 }
 
 bool is_set_item(ObjData *obj) {
-	if (GET_OBJ_RNUM(obj) >= 0
-		&& obj_proto.set_idx(GET_OBJ_RNUM(obj)) != static_cast<size_t>(-1)) {
+	if (obj->get_rnum() >= 0
+		&& obj_proto.set_idx(obj->get_rnum()) != static_cast<size_t>(-1)) {
 		return true;
 	}
 	return false;

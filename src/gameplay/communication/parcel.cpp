@@ -152,7 +152,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_type() == EObjType::kKey
 		|| obj->get_rent_off() < 0
-		|| GET_OBJ_RNUM(obj) <= kNothing
+		|| obj->get_rnum() <= kNothing
 		|| obj->get_owner()) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
 				 obj->get_PName(ECase::kNom).c_str());
@@ -860,7 +860,7 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-				if (GET_OBJ_RNUM(it3->obj_) == robj_num) {
+				if (it3->obj_->get_rnum() == robj_num) {
 					olc_update_object(robj_num, it3->obj_.get(), olc_proto);
 				}
 			}

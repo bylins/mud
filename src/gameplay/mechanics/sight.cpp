@@ -2080,7 +2080,7 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 // Чтобы можно было получить только строку состяния
 const char *diag_obj_timer(const ObjData *obj) {
 	int prot_timer;
-	if (GET_OBJ_RNUM(obj) != kNothing) {
+	if (obj->get_rnum() != kNothing) {
 		if (stable_objs::IsTimerUnlimited(obj)) {
 			return "нерушимо";
 		}
@@ -2088,7 +2088,7 @@ const char *diag_obj_timer(const ObjData *obj) {
 		if (GET_OBJ_CRAFTIMER(obj) > 0) {
 			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
 		} else {
-			prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+			prot_timer = obj_proto[obj->get_rnum()]->get_timer();
 		}
 
 		if (!prot_timer) {

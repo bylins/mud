@@ -301,16 +301,16 @@ int im_assign_power(ObjData *obj)
 	// Падежи, описание, alias
 	for (j = ECase::kFirstCase; j <= ECase::kLastCase; ++j) {
 		auto name_case = static_cast<ECase>(j);
-		const char *ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_PName(name_case).c_str();
+		const char *ptr = obj_proto[obj->get_rnum()]->get_PName(name_case).c_str();
 		obj->set_PName(name_case, replace_alias(ptr, sample, rnum, def_alias[j]));
 	}
-	const char *ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_description().c_str();
+	const char *ptr = obj_proto[obj->get_rnum()]->get_description().c_str();
 	obj->set_description(replace_alias(ptr, sample, rnum, "s"));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_short_description().c_str();
+	ptr = obj_proto[obj->get_rnum()]->get_short_description().c_str();
 	obj->set_short_description(replace_alias(ptr, sample, rnum, def_alias[0]));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str();
+	ptr = obj_proto[obj->get_rnum()]->get_aliases().c_str();
 	obj->set_aliases(replace_alias(ptr, sample, rnum, "m"));
 	obj->set_is_rename(true); // чтоб в олц не портилось имя
 

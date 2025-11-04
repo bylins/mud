@@ -1567,16 +1567,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Имеет экстрафлаги: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
+	obj->get_extra_flags().sprintbits(extra_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
 		if (stable_objs::IsTimerUnlimited(obj))
-			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[obj->get_rnum()]->get_timer());
 		else
-			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
+			sprintf(buf2, "Таймер: %d/%d.", obj_proto[obj->get_rnum()]->get_timer(), obj->get_timer());
 		char miw[128];
 		if (GetObjMIW(obj->get_rnum()) < 0) {
 			sprintf(miw, "%s", "бесконечно");
@@ -1584,7 +1584,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 			sprintf(miw, "%d", GetObjMIW(obj->get_rnum()));
 		}
 		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
-				 obj_proto.total_online(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
+				 obj_proto.total_online(obj->get_rnum()), obj_proto.stored(obj->get_rnum()), miw, buf2);
 		SendMsgToChar(buf, ch);
 	}
 	if (fullness < 75)

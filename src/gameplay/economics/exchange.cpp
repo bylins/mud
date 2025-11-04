@@ -205,7 +205,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 			|| obj->has_flag(EObjFlag::kNosell)
 			|| obj->has_flag(EObjFlag::kZonedacay)
 			|| obj->has_flag(EObjFlag::kRepopDecay)
-			|| GET_OBJ_RNUM(obj) < 0) {
+			|| obj->get_rnum() < 0) {
 			SendMsgToChar("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
 		}

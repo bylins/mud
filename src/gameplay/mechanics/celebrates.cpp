@@ -630,7 +630,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 				int obj_in_room = 0;
 
 				for (obj_room = world[rn]->contents; obj_room; obj_room = obj_room->get_next_content()) {
-					if (rnum == GET_OBJ_RNUM(obj_room)) {
+					if (rnum == obj_room->get_rnum()) {
 						obj_in_room++;
 					}
 				}

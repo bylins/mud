@@ -677,7 +677,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	bool is_grgod = (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
-	rnum = GET_OBJ_RNUM(j);
+	rnum = j->get_rnum();
 
 	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: '&c%s&n',",
 			kColorYel,
@@ -699,7 +699,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	}
 
 	SendMsgToChar(ch, "VNum: [%s%5d%s], RNum: [%5d], UniqueID: [%ld], Id: [%ld]\r\n",
-				  kColorGrn, vnum, kColorNrm, GET_OBJ_RNUM(j), j->get_unique_id(), j->get_id());
+				  kColorGrn, vnum, kColorNrm, j->get_rnum(), j->get_unique_id(), j->get_id());
 
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
@@ -767,7 +767,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 
 	SendMsgToChar("Дополнительные флаги  : ", ch);
-	GET_OBJ_EXTRA(j).sprintbits(extra_bits, buf, ",", 4);
+	j->get_extra_flags().sprintbits(extra_bits, buf, ",", 4);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
 

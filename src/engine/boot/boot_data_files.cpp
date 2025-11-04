@@ -856,13 +856,13 @@ bool ObjectFile::check_object(ObjData *obj) {
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), obj->get_rent_off());
 	}
 */
-	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf);
+	sprintbit(obj->get_wear_flags(), wear_bits, buf);
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",", 4);
+	obj->get_extra_flags().sprintbits(extra_bits, buf, ",", 4);
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.",

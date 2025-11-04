@@ -470,7 +470,7 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 	}
 
 	add_affect_flags(obj->get_affect_flags());
-	add_extra_flags(GET_OBJ_EXTRA(obj));
+	add_extra_flags(obj->get_extra_flags());
 	add_no_flags(obj->get_no_flags());
 }
 

@@ -212,7 +212,7 @@ void assign_triggers(void *i, int type) {
 			break;
 
 		case OBJ_TRIGGER: obj = (ObjData *) i;
-			for (const auto trigger_vnum : obj_proto.proto_script(GET_OBJ_RNUM(obj))) {
+			for (const auto trigger_vnum : obj_proto.proto_script(obj->get_rnum())) {
 				rnum = GetTriggerRnum(trigger_vnum);
 				if (rnum == -1) {
 					sprintf(buf, "SYSERR: trigger #%d non-existent, for obj #%d",

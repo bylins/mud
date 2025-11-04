@@ -143,7 +143,7 @@ int ResolveTagsInObjName(ObjData *obj, CharData *ch) {
 	int i, k;
 	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
 		auto name_case = static_cast<ECase>(i);
-		std::string obj_pad = obj_proto[GET_OBJ_RNUM(obj)]->get_PName(name_case);
+		std::string obj_pad = obj_proto[obj->get_rnum()]->get_PName(name_case);
 		size_t j = obj_pad.find("@p");
 		if (std::string::npos != j && 0 < j) {
 			// Родитель найден прописываем его.

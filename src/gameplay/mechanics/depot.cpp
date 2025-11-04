@@ -944,7 +944,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_type() == EObjType::kKey
 		|| obj->get_rent_off() < 0
-		|| GET_OBJ_RNUM(obj) <= kNothing
+		|| obj->get_rnum() <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
 //		|| (NamedStuff::check_named(ch, obj, 0) && GET_UID(ch) != obj->get_owner())) {
 		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(ECase::kAcc).c_str());

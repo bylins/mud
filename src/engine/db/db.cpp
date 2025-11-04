@@ -2394,7 +2394,7 @@ void ZoneReset::ResetZoneEssential() {
 					// Теперь считаем склько их на текущей клетке
 					for (obj_room = world[reset_cmd.arg3]->contents, obj_in_room = 0; obj_room;
 						 obj_room = obj_room->get_next_content()) {
-						if (reset_cmd.arg1 == GET_OBJ_RNUM(obj_room)) {
+						if (reset_cmd.arg1 == obj_room->get_rnum()) {
 							obj_in_room++;
 						}
 					}

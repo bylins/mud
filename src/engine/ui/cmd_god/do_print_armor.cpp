@@ -284,7 +284,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!filter.affect3.empty()) {
 			for (auto it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it) {
 				//find = true;
-				if (!CompareBits(GET_OBJ_EXTRA(i), extra_bits, *it)) {
+				if (!CompareBits(i->get_extra_flags(), extra_bits, *it)) {
 					find = false;
 					break;
 				}
@@ -299,7 +299,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto vnum = i->get_vnum() / 100;
 			for (auto & nr : zone_table) {
 				if (vnum == nr.vnum) {
-					tmp_list.insert(std::make_pair(nr.mob_level, GET_OBJ_RNUM(i)));
+					tmp_list.insert(std::make_pair(nr.mob_level, i->get_rnum()));
 				}
 			}
 		}

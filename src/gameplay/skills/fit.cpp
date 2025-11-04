@@ -48,7 +48,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	};
 
-	if ((GET_OBJ_WEAR(obj) <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
+	if ((obj->get_wear_flags() <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
 		SendMsgToChar("Этот предмет невозможно переделать.\r\n", ch);
 		return;
 	}

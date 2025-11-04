@@ -640,7 +640,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			if (!stable_objs::IsObjFromSystemZone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
 			{
 				// на тот случай, если есть объекты с таймером, больше таймера прототипа
-				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+				int temp_timer = obj_proto[object->get_rnum()]->get_timer();
 				if (object->get_timer() > temp_timer)
 					object->set_timer(temp_timer);
 			}
@@ -702,8 +702,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
 		
-		GET_OBJ_EXTRA(object).tascii(FlagData::kPlanesNumber, buf);
-		GET_OBJ_EXTRA(proto).tascii(FlagData::kPlanesNumber, buf2);
+		object->get_extra_flags().tascii(FlagData::kPlanesNumber, buf);
+		proto->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2);
 		if (blooded) //Возвращаем флаг назад
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
@@ -1686,8 +1686,8 @@ void Crash_extract_objs(ObjData *obj) {
 	for (; obj; obj = next) {
 		next = obj->get_next_content();
 		Crash_extract_objs(obj->get_contains());
-		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0) {
-			obj_proto.inc_stored(GET_OBJ_RNUM(obj));
+		if (obj->get_rnum() >= 0 && obj->get_timer() >= 0) {
+			obj_proto.inc_stored(obj->get_rnum());
 		}
 		ExtractObjFromWorld(obj);
 	}
@@ -1702,7 +1702,7 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 		|| obj->get_rent_off() < 0
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| (GET_OBJ_RNUM(obj) <= kNothing
+		|| (obj->get_rnum() <= kNothing
 			&& obj->get_type() != EObjType::kMoney)
 		|| obj->get_type() == EObjType::kKey
 		|| SetSystem::is_norent_set(ch, obj)) {

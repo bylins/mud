@@ -407,8 +407,8 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 		result = true;
 	} else if ((obj->get_type() == EObjType::kMagicIngredient
 		|| obj->get_type() == EObjType::kIngredient)
-		&& GET_OBJ_RNUM(obj) >= 0
-		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
+		&& obj->get_rnum() >= 0
+		&& isname(name, obj_proto[obj->get_rnum()]->get_aliases().c_str())) {
 		result = true;
 	} else if (ch
 		&& filter_type == CLAN
@@ -432,12 +432,12 @@ bool ParseFilter::check_state(ObjData *obj) const {
 	bool result = false;
 	if (state < 0) {
 		result = true;
-	} else if (GET_OBJ_RNUM(obj) >= 0) {
-		int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
+	} else if (obj->get_rnum() >= 0) {
+		int proto_tm = obj_proto.at(obj->get_rnum())->get_timer();
 		if (proto_tm <= 0) {
 			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
-					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
+					 proto_tm, obj_proto.at(obj->get_rnum())->get_rnum(), __func__, __FILE__, __LINE__);
 			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
@@ -600,7 +600,7 @@ bool ParseFilter::check_affect_apply(ObjData *obj) const {
 bool ParseFilter::check_affect_extra(ObjData *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
-			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it)) {
+			if (!CompareBits(obj->get_extra_flags(), extra_bits, *it)) {
 				return false;
 			}
 		}

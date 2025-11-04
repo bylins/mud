@@ -933,7 +933,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 long get_sell_price(ObjData *obj) {
 	long cost = obj->get_cost();
 	long cost_obj = obj->get_cost();
-	int timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+	int timer = obj_proto[obj->get_rnum()]->get_timer();
 	if (timer < obj->get_timer()) {
 		obj->set_timer(timer);
 	}
@@ -952,7 +952,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		return;
 	}
 
-	int rnum = GET_OBJ_RNUM(obj);
+	int rnum = obj->get_rnum();
 	if (rnum < 0
 		|| obj->has_flag(EObjFlag::kArmored)
 		|| obj->has_flag(EObjFlag::kSharpen)

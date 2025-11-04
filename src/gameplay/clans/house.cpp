@@ -2260,7 +2260,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		|| obj->get_type() == EObjType::kKey
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_rent_off() < 0
-		|| GET_OBJ_RNUM(obj) <= kNothing
+		|| obj->get_rnum() <= kNothing
 		|| obj->has_flag(EObjFlag::kNamed)
 		|| obj->get_owner()) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
@@ -4314,7 +4314,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_rent_off() < 0
-		|| GET_OBJ_RNUM(obj) <= kNothing) {
+		|| obj->get_rnum() <= kNothing) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
 	} else {
 		if (CLAN(ch)->ingr_chest_objcount_ >= CLAN(ch)->ingr_chest_max_objects()) {
@@ -5505,7 +5505,7 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!obj) {
 			continue;
 		}
-		rnum = GET_OBJ_RNUM(obj);
+		rnum = obj->get_rnum();
 
 		if (rnum == kNothing) {
 			continue;

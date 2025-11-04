@@ -305,8 +305,8 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 			obj->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2);
 			obj->get_no_flags().tascii(FlagData::kPlanesNumber, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", obj->get_type());
-			GET_OBJ_EXTRA(obj).tascii(FlagData::kPlanesNumber, buf2);
-			const auto wear_flags = GET_OBJ_WEAR(obj);
+			obj->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2);
+			const auto wear_flags = obj->get_wear_flags();
 			tascii(&wear_flags, 1, buf2);
 			strcat(buf2, "\n");
 
@@ -1119,7 +1119,7 @@ void oedit_disp_menu(DescriptorData *d) {
 
 	obj = OLC_OBJ(d);
 	sprinttype(obj->get_type(), item_types, buf1);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",", 4);
+	obj->get_extra_flags().sprintbits(extra_bits, buf2, ",", 4);
 
 	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
@@ -1151,7 +1151,7 @@ void oedit_disp_menu(DescriptorData *d) {
 	// * Send first half.
 	SendMsgToChar(buf, d->character.get());
 
-	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
+	sprintbit(obj->get_wear_flags(), wear_bits, buf1);
 	obj->get_no_flags().sprintbits(no_bits, buf2, ",");
 	snprintf(buf, kMaxStringLength,
 			 "%sC%s) Одевается  : %s%s\r\n"

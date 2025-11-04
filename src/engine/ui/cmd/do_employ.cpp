@@ -138,7 +138,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		return;
 	}
 
-	auto check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
+	auto check_slots = obj->get_wear_flags() & target->get_wear_flags();
 	if (check_slots > 0
 		&& check_slots != to_underlying(EWearFlag::kTake)) {
 		SendMsgToChar(ch, "Вы успешно зачаровали %s.\r\n", target->get_PName(ECase::kNom).c_str());

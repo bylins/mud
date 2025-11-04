@@ -1517,7 +1517,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 	obj->SetWeaponAffectFlags(temp_flags);
 	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
 	temp_flags = obj->get_extra_flags();
-	add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
+	add_flags(ch, &temp_flags, &ingrs[0]->get_extra_flags(), get_ingr_pow(ingrs[0]));
 	obj->set_extra_flags(temp_flags);
 	auto temp_affected = obj->get_all_affected();
 	add_affects(ch, temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
@@ -1565,7 +1565,7 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		obj->SetWeaponAffectFlags(temp_flags);
 		// перносим эффекты ... с ингров на прототип.
 		temp_flags = obj->get_extra_flags();
-		add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
+		add_flags(ch, &temp_flags, &ingrs[j]->get_extra_flags(), get_ingr_pow(ingrs[j]));
 		obj->set_extra_flags(temp_flags);
 		// переносим 1 рандом аффект
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
@@ -1997,7 +1997,7 @@ int MakeRecept::make(CharData *ch) {
 			obj->SetWeaponAffectFlags(temp_flags);
 			temp_flags = obj->get_extra_flags();
 			// перносим эффекты ... с ингров на прототип.
-			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			add_flags(ch, &temp_flags, &ingrs[j]->get_extra_flags(), ingr_pow);
 			obj->set_extra_flags(temp_flags);
 			auto temp_affected = obj->get_all_affected();
 			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
