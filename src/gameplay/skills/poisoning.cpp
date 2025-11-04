@@ -38,13 +38,13 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
 	} else if (cont->get_type() != EObjType::kLiquidContainer) {
-		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(0).c_str());
+		SendMsgToChar(ch, "%s не является емкостью.\r\n", cont->get_PName(ECase::kNom).c_str());
 		return;
 	} else if (GET_OBJ_VAL(cont, 1) <= 0) {
-		SendMsgToChar(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s нет никакой жидкости.\r\n", cont->get_PName(ECase::kPre).c_str());
 		return;
 	} else if (!poison_in_vessel(GET_OBJ_VAL(cont, 2))) {
-		SendMsgToChar(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s нет подходящего яда.\r\n", cont->get_PName(ECase::kPre).c_str());
 		return;
 	}
 

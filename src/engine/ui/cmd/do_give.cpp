@@ -38,7 +38,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 		act("У $N1 заняты руки.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (GET_OBJ_WEIGHT(obj) + vict->GetCarryingWeight() > CAN_CARRY_W(vict)) {
+	if (obj->get_weight() + vict->GetCarryingWeight() > CAN_CARRY_W(vict)) {
 		act("$E не может нести такой вес.", false, ch, nullptr, vict, kToChar);
 		return;
 	}

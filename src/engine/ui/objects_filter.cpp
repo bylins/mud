@@ -400,15 +400,15 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
-	strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
+	strcpy(name_obj, obj->get_PName(ECase::kNom).c_str());
 	utils::RemoveColors(name_obj);
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
 	} else if ((obj->get_type() == EObjType::kMagicIngredient
 		|| obj->get_type() == EObjType::kIngredient)
-		&& GET_OBJ_RNUM(obj) >= 0
-		&& isname(name, obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str())) {
+		&& obj->get_rnum() >= 0
+		&& isname(name, obj_proto[obj->get_rnum()]->get_aliases().c_str())) {
 		result = true;
 	} else if (ch
 		&& filter_type == CLAN
@@ -432,12 +432,12 @@ bool ParseFilter::check_state(ObjData *obj) const {
 	bool result = false;
 	if (state < 0) {
 		result = true;
-	} else if (GET_OBJ_RNUM(obj) >= 0) {
-		int proto_tm = obj_proto.at(GET_OBJ_RNUM(obj))->get_timer();
+	} else if (obj->get_rnum() >= 0) {
+		int proto_tm = obj_proto.at(obj->get_rnum())->get_timer();
 		if (proto_tm <= 0) {
 			char buf_[kMaxInputLength];
 			snprintf(buf_, sizeof(buf_), "SYSERROR: wrong obj-proto timer %d, vnum=%d (%s %s:%d)",
-					 proto_tm, obj_proto.at(GET_OBJ_RNUM(obj))->get_rnum(), __func__, __FILE__, __LINE__);
+					 proto_tm, obj_proto.at(obj->get_rnum())->get_rnum(), __func__, __FILE__, __LINE__);
 			mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
 		} else {
 			int tm_pct;
@@ -600,7 +600,7 @@ bool ParseFilter::check_affect_apply(ObjData *obj) const {
 bool ParseFilter::check_affect_extra(ObjData *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
-			if (!CompareBits(GET_OBJ_EXTRA(obj), extra_bits, *it)) {
+			if (!CompareBits(obj->get_extra_flags(), extra_bits, *it)) {
 				return false;
 			}
 		}
@@ -638,8 +638,8 @@ bool ParseFilter::check(ObjData *obj, CharData *ch) {
 		&& check_state(obj)
 		&& check_wear(obj)
 		&& check_weap_class(obj)
-		&& check_cost(GET_OBJ_COST(obj))
-		&& check_rent(GET_OBJ_RENTEQ(obj) * kClanStorehouseCoeff / 100)
+		&& check_cost(obj->get_cost())
+		&& check_rent(obj->get_rent_on() * kClanStorehouseCoeff / 100)
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj)

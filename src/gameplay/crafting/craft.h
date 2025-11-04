@@ -31,9 +31,7 @@ bool start();
 using id_t = std::string;    ///< Common type for IDs.
 
 class Cases {
-	constexpr static int CASES_COUNT = ECase::kLastCase + 1;
-
-	using cases_t = std::array<std::string, CASES_COUNT>;
+	using cases_t = std::array<std::string, ECase::kLastCase + 1>;
 
  public:
 	using shared_ptr = std::shared_ptr<Cases>;

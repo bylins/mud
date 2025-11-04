@@ -239,7 +239,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
 	for (const auto &i : obj_proto) {
 		// материал
-		if (filter.material >= 0 && filter.material != GET_OBJ_MATER(i)) {
+		if (filter.material >= 0 && filter.material != i->get_material()) {
 			continue;
 		}
 		// тип
@@ -284,7 +284,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!filter.affect3.empty()) {
 			for (auto it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it) {
 				//find = true;
-				if (!CompareBits(GET_OBJ_EXTRA(i), extra_bits, *it)) {
+				if (!CompareBits(i->get_extra_flags(), extra_bits, *it)) {
 					find = false;
 					break;
 				}
@@ -299,7 +299,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			const auto vnum = i->get_vnum() / 100;
 			for (auto & nr : zone_table) {
 				if (vnum == nr.vnum) {
-					tmp_list.insert(std::make_pair(nr.mob_level, GET_OBJ_RNUM(i)));
+					tmp_list.insert(std::make_pair(nr.mob_level, i->get_rnum()));
 				}
 			}
 		}
@@ -311,8 +311,8 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		out << "   "
 			<< std::setw(2) << it->first << " | "
 			<< std::setw(7) << obj->get_vnum() << " | "
-			<< std::setw(14) << material_name[GET_OBJ_MATER(obj)] << " | "
-			<< GET_OBJ_PNAME(obj, 0) << "\r\n";
+			<< std::setw(14) << material_name[obj->get_material()] << " | "
+			<< obj->get_PName(ECase::kNom) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {
 			auto drndice = obj->get_affected(i).location;

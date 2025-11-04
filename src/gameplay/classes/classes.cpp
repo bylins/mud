@@ -1193,47 +1193,47 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 			}
 		}
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)
+	if (obj->has_anti_flag(EAntiFlag::kCharmice)
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
 	if ((ch->IsNpc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
+	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
 		return (true);
 	}
 
-	if ((IS_OBJ_ANTI(obj, EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMage) && IsMage(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kConjurer) && IS_CONJURER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kCharmer) && IS_CHARMER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWizard) && IS_WIZARD(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFighter) && IsFighter(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMale) && IS_MALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kFemale) && IS_FEMALE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer) && IS_SORCERER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kWarrior) && IS_WARRIOR(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kGuard) && IS_GUARD(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kThief) && IS_THIEF(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kAssasine) && IS_ASSASINE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kPaladine) && IS_PALADINE(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kRanger) && IS_RANGER(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kVigilant) && IS_VIGILANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMerchant) && IS_MERCHANT(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kMagus) && IS_MAGUS(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kBattle) && check_agrobd(ch))
-		|| (IS_OBJ_ANTI(obj, EAntiFlag::kColored) && pk_count(ch))) {
+	if ((obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (obj->has_anti_flag(EAntiFlag::kMage) && IsMage(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kConjurer) && IS_CONJURER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kCharmer) && IS_CHARMER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kWizard) && IS_WIZARD(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFighter) && IsFighter(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMale) && IS_MALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kGuard) && IS_GUARD(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kThief) && IS_THIEF(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kPaladine) && IS_PALADINE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kRanger) && IS_RANGER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMagus) && IS_MAGUS(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
+		|| (obj->has_anti_flag(EAntiFlag::kBattle) && check_agrobd(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kColored) && pk_count(ch))) {
 		return (true);
 	}
 	return (false);
 }
 
 int invalid_no_class(CharData *ch, const ObjData *obj) {
-	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)
+	if (obj->has_no_flag(ENoFlag::kCharmice)
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return true;
 	}
@@ -1244,30 +1244,30 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		return false;
 	}
 
-	if ((IS_OBJ_NO(obj, ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
-		|| (IS_OBJ_NO(obj, ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
-		|| (IS_OBJ_NO(obj, ENoFlag::kMage) && IsMage(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kConjurer) && IS_CONJURER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kCharmer) && IS_CHARMER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kWIzard) && IS_WIZARD(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kFighter) && IsFighter(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kMale) && IS_MALE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kFemale) && IS_FEMALE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kSorcerer) && IS_SORCERER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kWarrior) && IS_WARRIOR(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kGuard) && IS_GUARD(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kThief) && IS_THIEF(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kAssasine) && IS_ASSASINE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kPaladine) && IS_PALADINE(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kRanger) && IS_RANGER(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kVigilant) && IS_VIGILANT(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kMerchant) && IS_MERCHANT(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kMagus) && IS_MAGUS(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
-		|| (IS_OBJ_NO(obj, ENoFlag::kBattle) && check_agrobd(ch))
+	if ((obj->has_no_flag(ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (obj->has_no_flag(ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (obj->has_no_flag(ENoFlag::kMage) && IsMage(ch))
+		|| (obj->has_no_flag(ENoFlag::kConjurer) && IS_CONJURER(ch))
+		|| (obj->has_no_flag(ENoFlag::kCharmer) && IS_CHARMER(ch))
+		|| (obj->has_no_flag(ENoFlag::kWIzard) && IS_WIZARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (obj->has_no_flag(ENoFlag::kFighter) && IsFighter(ch))
+		|| (obj->has_no_flag(ENoFlag::kMale) && IS_MALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (obj->has_no_flag(ENoFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (obj->has_no_flag(ENoFlag::kGuard) && IS_GUARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kThief) && IS_THIEF(ch))
+		|| (obj->has_no_flag(ENoFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (obj->has_no_flag(ENoFlag::kPaladine) && IS_PALADINE(ch))
+		|| (obj->has_no_flag(ENoFlag::kRanger) && IS_RANGER(ch))
+		|| (obj->has_no_flag(ENoFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (obj->has_no_flag(ENoFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (obj->has_no_flag(ENoFlag::kMagus) && IS_MAGUS(ch))
+		|| (obj->has_no_flag(ENoFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
+		|| (obj->has_no_flag(ENoFlag::kBattle) && check_agrobd(ch))
 		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
-		|| (IS_OBJ_NO(obj, ENoFlag::kColored) && pk_count(ch))) {
+		|| (obj->has_no_flag(ENoFlag::kColored) && pk_count(ch))) {
 		return true;
 	}
 

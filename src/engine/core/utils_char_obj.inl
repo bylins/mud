@@ -19,7 +19,7 @@ inline bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 		return true;
 	}
 
-	if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)
+	if (ch->GetCarryingWeight() + obj->get_weight() <= CAN_CARRY_W(ch)
 		&& ch->GetCarryingQuantity() + 1 <= CAN_CARRY_N(ch)) {
 		return true;
 	}
@@ -53,12 +53,12 @@ inline bool CAN_SEE_OBJ(const CharData *sub, const ObjData *obj) {
 			&& (sub)->IsFlagged(EPrf::kHolylight)));
 }
 
-inline const char *OBJN(const ObjData *obj, const CharData *vict, const size_t pad) {
+inline const char *OBJN(const ObjData *obj, const CharData *vict, const ECase name_case) {
 	return CAN_SEE_OBJ(vict, obj)
-		   ? (!obj->get_PName(pad).empty()
-			  ? obj->get_PName(pad).c_str()
+		   ? (!obj->get_PName(name_case).empty()
+			  ? obj->get_PName(name_case).c_str()
 			  : obj->get_short_description().c_str())
-		   : GET_PAD_OBJ(pad);
+		   : GET_PAD_OBJ(name_case);
 }
 
 inline const char *OBJS(const ObjData *obj, const CharData *vict) {
@@ -78,7 +78,7 @@ inline bool CanTakeObj(CharData *ch, ObjData *obj) {
 		&& obj->get_type() != EObjType::kMoney) {
 		act("$p: Вы не могете нести столько вещей.", false, ch, obj, nullptr, kToChar);
 		return false;
-	} else if ((ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)
+	} else if ((ch->GetCarryingWeight() + obj->get_weight()) > CAN_CARRY_W(ch)
 		&& obj->get_type() != EObjType::kMoney) {
 		act("$p: Вы не в состоянии нести еще и $S.", false, ch, obj, nullptr, kToChar);
 		return false;
@@ -101,14 +101,14 @@ inline void weight_change_object(ObjData *obj, int weight) {
 	CharData *tmp_ch;
 
 	if (obj->get_in_room() != kNowhere) {
-		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, obj->get_weight() + weight));
 	} else if ((tmp_ch = obj->get_carried_by())) {
 		RemoveObjFromChar(obj);
-		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, obj->get_weight() + weight));
 		PlaceObjToInventory(obj, tmp_ch);
 	} else if ((tmp_obj = obj->get_in_obj())) {
 		RemoveObjFromObj(obj);
-		obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj) + weight));
+		obj->set_weight(std::max(1, obj->get_weight() + weight));
 		PlaceObjIntoObj(obj, tmp_obj);
 	} else {
 		log("SYSERR: Unknown attempt to subtract weight from an object.");

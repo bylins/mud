@@ -311,7 +311,7 @@ int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
 		&& (obj->get_type() == EObjType::kLiquidContainer
 			|| obj->get_type() == EObjType::kFountain)) {
-		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
+		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
 		// если емскости уже просетили какие-то заклы, то зелье
 		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
@@ -2131,12 +2131,12 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			if (world[room]->vnum != zone_table[world[room]->zone_rn].top) {
 				return;
 			}
-			if (OBJ_GET_LASTROOM(obj) == kNowhere) {
+			if (obj->get_room_was_in() == kNowhere) {
 				world_objects.AddToExtractedList(obj);
 				return;
 			}
 			RemoveObjFromRoom(obj);
-			PlaceObjToRoom(obj, GetRoomRnum(OBJ_GET_LASTROOM(obj)));
+			PlaceObjToRoom(obj, GetRoomRnum(obj->get_room_was_in()));
 		} else {
 			if (world[room]->vnum == zone_table[world[room]->zone_rn].top) {
 				return;
@@ -2150,7 +2150,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			RemoveObjFromRoom(obj);
 			room = GetRoomRnum(zone_table[world[room]->zone_rn].top);
 			if (room == kNowhere) {
-				room = GetRoomRnum(OBJ_GET_LASTROOM(obj));
+				room = GetRoomRnum(obj->get_room_was_in());
 			}
 			PlaceObjToRoom(obj, room);
 		}
@@ -2394,7 +2394,7 @@ void ZoneReset::ResetZoneEssential() {
 					// Теперь считаем склько их на текущей клетке
 					for (obj_room = world[reset_cmd.arg3]->contents, obj_in_room = 0; obj_room;
 						 obj_room = obj_room->get_next_content()) {
-						if (reset_cmd.arg1 == GET_OBJ_RNUM(obj_room)) {
+						if (reset_cmd.arg1 == obj_room->get_rnum()) {
 							obj_in_room++;
 						}
 					}
@@ -2419,7 +2419,7 @@ void ZoneReset::ResetZoneEssential() {
 
 						if (!obj->has_flag(EObjFlag::kNodecay)) {
 							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
-									GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
+									obj->get_PName(ECase::kNom).c_str(), obj->get_vnum());
 							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 						}
 					}

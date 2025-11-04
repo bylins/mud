@@ -2169,7 +2169,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[0] = subfield;
+				c->player_data.PNames[ECase::kNom] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 0));
@@ -2178,7 +2178,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[1] = subfield;
+				c->player_data.PNames[ECase::kGen] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 1));
@@ -2187,7 +2187,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[2] = subfield;
+				c->player_data.PNames[ECase::kDat] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 2));
@@ -2196,7 +2196,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[3] = subfield;
+				c->player_data.PNames[ECase::kAcc] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 3));
@@ -2205,7 +2205,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[4] = subfield;
+				c->player_data.PNames[ECase::kIns] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 4));
@@ -2214,7 +2214,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[5] = subfield;
+				c->player_data.PNames[ECase::kPre] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 5));
@@ -3109,38 +3109,38 @@ void find_replacement(void *go,
 		if (text_processed(field, subfield, vd, str)) {
 			return;
 		} else if (!str_cmp(field, "iname")) {
-			if (!o->get_PName(0).empty()) {
-				strcpy(str, o->get_PName(0).c_str());
+			if (!o->get_PName(ECase::kNom).empty()) {
+				strcpy(str, o->get_PName(ECase::kNom).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "rname")) {
-			if (!o->get_PName(1).empty()) {
-				strcpy(str, o->get_PName(1).c_str());
+			if (!o->get_PName(ECase::kGen).empty()) {
+				strcpy(str, o->get_PName(ECase::kGen).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "dname")) {
-			if (!o->get_PName(2).empty()) {
-				strcpy(str, o->get_PName(2).c_str());
+			if (!o->get_PName(ECase::kDat).empty()) {
+				strcpy(str, o->get_PName(ECase::kDat).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "vname")) {
-			if (!o->get_PName(3).empty()) {
-				strcpy(str, o->get_PName(3).c_str());
+			if (!o->get_PName(ECase::kAcc).empty()) {
+				strcpy(str, o->get_PName(ECase::kAcc).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "tname")) {
-			if (!o->get_PName(4).empty()) {
-				strcpy(str, o->get_PName(4).c_str());
+			if (!o->get_PName(ECase::kIns).empty()) {
+				strcpy(str, o->get_PName(ECase::kIns).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
 		} else if (!str_cmp(field, "pname")) {
-			if (!o->get_PName(5).empty()) {
-				strcpy(str, o->get_PName(5).c_str());
+			if (!o->get_PName(ECase::kPre).empty()) {
+				strcpy(str, o->get_PName(ECase::kPre).c_str());
 			} else {
 				strcpy(str, o->get_aliases().c_str());
 			}
@@ -3168,14 +3168,14 @@ void find_replacement(void *go,
 				skip_spaces(&subfield);
 				o->set_current_durability(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_CUR(o));
+				sprintf(str, "%d", o->get_current_durability());
 			}
 		} else if (!str_cmp(field, "cost")) {
 			if (*subfield) {
 				skip_spaces(&subfield);
 				o->set_cost(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_COST(o));
+				sprintf(str, "%d", o->get_cost());
 			}
 		} else if (!str_cmp(field, "val0")) {
 			if (*subfield) {
@@ -3292,7 +3292,7 @@ void find_replacement(void *go,
 				trig_log(trig, buf);
 			}
 		} else if (!str_cmp(field, "maker")) {
-			sprintf(str, "%d", GET_OBJ_MAKER(o));
+			sprintf(str, "%d", o->get_crafter_uid());
 		} else if (!str_cmp(field, "effect")) {
 			o->gm_extra_flag(subfield, extra_bits, str);
 		} else if (!str_cmp(field, "affect")) {
@@ -3502,7 +3502,7 @@ void find_replacement(void *go,
 				// Понадобилась возможность обнулить владельца из трига.
 				o->set_owner(num);
 			} else {
-				sprintf(str, "%d", GET_OBJ_OWNER(o));
+				sprintf(str, "%d", o->get_owner());
 			}
 		} else if (!str_cmp(field, "varexists")) {
 			auto vd = find_var_cntx(o->get_script()->global_vars, subfield, trig->context);
@@ -3515,21 +3515,21 @@ void find_replacement(void *go,
 				skip_spaces(&subfield);
 				o->set_cost(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_COST(o));
+				sprintf(str, "%d", o->get_cost());
 			}
 		} else if (!str_cmp(field, "rent")) {
 			if (*subfield && a_isdigit(*subfield)) {
 				skip_spaces(&subfield);
 				o->set_rent_off(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_RENT(o));
+				sprintf(str, "%d", o->get_rent_off());
 			}
 		} else if (!str_cmp(field, "renteq")) {
 			if (*subfield && a_isdigit(*subfield)) {
 				skip_spaces(&subfield);
 				o->set_rent_on(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_RENTEQ(o));
+				sprintf(str, "%d", o->get_rent_on());
 			}
 		} else if (!str_cmp(field, "objs")) {
 			if (o->get_type() == EObjType::kContainer) {

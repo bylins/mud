@@ -105,12 +105,12 @@ void oedit_setup(DescriptorData *d, int real_num)
 		obj->set_aliases("новый предмет");
 		obj->set_description("что-то новое лежит здесь");
 		obj->set_short_description("новый предмет");
-		obj->set_PName(0, "это что");
-		obj->set_PName(1, "нету чего");
-		obj->set_PName(2, "привязать к чему");
-		obj->set_PName(3, "взять что");
-		obj->set_PName(4, "вооружиться чем");
-		obj->set_PName(5, "говорить о чем");
+		obj->set_PName(ECase::kNom, "это что");
+		obj->set_PName(ECase::kGen, "нету чего");
+		obj->set_PName(ECase::kDat, "привязать к чему");
+		obj->set_PName(ECase::kAcc, "взять что");
+		obj->set_PName(ECase::kIns, "вооружиться чем");
+		obj->set_PName(ECase::kPre, "говорить о чем");
 		obj->set_wear_flags(to_underlying(EWearFlag::kTake));
 	} else {
 		obj->clone_olc_object_from_prototype(vnum);
@@ -181,7 +181,7 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 	obj->set_script(tmp.get_script());
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	obj->set_current_durability(GET_OBJ_CUR(&tmp));
+	obj->set_current_durability((&tmp)->get_current_durability());
 //	если таймер шмота в текущем мире меньше чем установленный, восстанавливаем его.
 	if (tmp.get_timer() < olc_obj->get_timer()) {
 		obj->set_timer(tmp.get_timer());
@@ -241,7 +241,7 @@ void olc_update_objects(int robj_num, ObjData *olc_obj) {
 void oedit_save_internally(DescriptorData *d) {
 	int robj_num;
 
-	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
+	robj_num = OLC_OBJ(d)->get_rnum();
 	ObjSystem::init_ilvl(OLC_OBJ(d));
 	// * Write object to internal tables.
 	if (robj_num >= 0) {    /*
@@ -305,8 +305,8 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 			obj->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2);
 			obj->get_no_flags().tascii(FlagData::kPlanesNumber, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", obj->get_type());
-			GET_OBJ_EXTRA(obj).tascii(FlagData::kPlanesNumber, buf2);
-			const auto wear_flags = GET_OBJ_WEAR(obj);
+			obj->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2);
+			const auto wear_flags = obj->get_wear_flags();
 			tascii(&wear_flags, 1, buf2);
 			strcat(buf2, "\n");
 
@@ -327,21 +327,21 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 						"%d %d %d %d\n",
 					obj->get_vnum(),
 					!obj->get_aliases().empty() ? obj->get_aliases().c_str() : "undefined",
-					!obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "что-то",
-					!obj->get_PName(1).empty() ? obj->get_PName(1).c_str() : "чего-то",
-					!obj->get_PName(2).empty() ? obj->get_PName(2).c_str() : "чему-то",
-					!obj->get_PName(3).empty() ? obj->get_PName(3).c_str() : "что-то",
-					!obj->get_PName(4).empty() ? obj->get_PName(4).c_str() : "чем-то",
-					!obj->get_PName(5).empty() ? obj->get_PName(5).c_str() : "о чем-то",
+					!obj->get_PName(ECase::kNom).empty() ? obj->get_PName(ECase::kNom).c_str() : "что-то",
+					!obj->get_PName(ECase::kGen).empty() ? obj->get_PName(ECase::kGen).c_str() : "чего-то",
+					!obj->get_PName(ECase::kDat).empty() ? obj->get_PName(ECase::kDat).c_str() : "чему-то",
+					!obj->get_PName(ECase::kAcc).empty() ? obj->get_PName(ECase::kAcc).c_str() : "что-то",
+					!obj->get_PName(ECase::kIns).empty() ? obj->get_PName(ECase::kIns).c_str() : "чем-то",
+					!obj->get_PName(ECase::kPre).empty() ? obj->get_PName(ECase::kPre).c_str() : "о чем-то",
 					!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 					buf1,
-					obj->get_spec_param(), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-					GET_OBJ_MATER(obj), to_underlying(GET_OBJ_SEX(obj)),
+					obj->get_spec_param(), obj->get_maximum_durability(), obj->get_current_durability(),
+					obj->get_material(), to_underlying(GET_OBJ_SEX(obj)),
 					obj->get_timer(), to_underlying(obj->get_spell()),
 					obj->get_level(), buf2, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
-					GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+					GET_OBJ_VAL(obj, 3), obj->get_weight(),
+					obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
 
 			script_save_to_disk(fp, obj.get(), OBJ_TRIGGER);
 
@@ -915,7 +915,7 @@ void oedit_disp_type_menu(DescriptorData *d) {
 // * Object extra flags.
 void oedit_disp_extra_menu(DescriptorData *d) {
 	disp_planes_values(d, extra_bits, 2);
-	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
+	OLC_OBJ(d)->get_extra_flags().sprintbits(extra_bits, buf1, ",", 5);
 	snprintf(buf,
 			 kMaxStringLength,
 			 "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг: (помеченное '*' пользоваться вдумчиво. 0 - выход) : ",
@@ -972,7 +972,7 @@ void oedit_disp_wear_menu(DescriptorData *d) {
 				wear_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
-	sprintbit(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, buf1);
+	sprintbit(OLC_OBJ(d)->get_wear_flags(), wear_bits, buf1);
 	snprintf(buf,
 			 kMaxStringLength,
 			 "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ",
@@ -993,7 +993,7 @@ void oedit_disp_mater_menu(DescriptorData *d) {
 		SendMsgToChar(buf, d->character.get());
 	}
 	sprintf(buf, "\r\nСделан из : %s%s%s\r\n"
-				 "Выберите материал (0 - выход) : ", cyn, material_name[GET_OBJ_MATER(OLC_OBJ(d))], nrm);
+				 "Выберите материал (0 - выход) : ", cyn, material_name[OLC_OBJ(d)->get_material()], nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
@@ -1119,7 +1119,7 @@ void oedit_disp_menu(DescriptorData *d) {
 
 	obj = OLC_OBJ(d);
 	sprinttype(obj->get_type(), item_types, buf1);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",", 4);
+	obj->get_extra_flags().sprintbits(extra_bits, buf2, ",", 4);
 
 	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
@@ -1139,19 +1139,19 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
 			 cyn, OLC_NUM(d), nrm,
 			 grn, nrm, yel, not_empty(obj->get_aliases()),
-			 grn, not_empty(obj->get_PName(0)),
-			 grn, not_empty(obj->get_PName(1)),
-			 grn, not_empty(obj->get_PName(2)),
-			 grn, not_empty(obj->get_PName(3)),
-			 grn, not_empty(obj->get_PName(4)),
-			 grn, not_empty(obj->get_PName(5)),
+			 grn, not_empty(obj->get_PName(ECase::kNom)),
+			 grn, not_empty(obj->get_PName(ECase::kGen)),
+			 grn, not_empty(obj->get_PName(ECase::kDat)),
+			 grn, not_empty(obj->get_PName(ECase::kAcc)),
+			 grn, not_empty(obj->get_PName(ECase::kIns)),
+			 grn, not_empty(obj->get_PName(ECase::kPre)),
 			 grn, not_empty(obj->get_description()),
 			 grn, yel, not_empty(obj->get_action_description(), "<not set>\r\n"),
 			 grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	// * Send first half.
 	SendMsgToChar(buf, d->character.get());
 
-	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
+	sprintbit(obj->get_wear_flags(), wear_bits, buf1);
 	obj->get_no_flags().sprintbits(no_bits, buf2, ",");
 	snprintf(buf, kMaxStringLength,
 			 "%sC%s) Одевается  : %s%s\r\n"
@@ -1181,13 +1181,13 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "%sQ%s) Quit\r\n"
 			 "Ваш выбор : ",
 			 grn, nrm, cyn, buf1,
-			 grn, nrm, cyn, GET_OBJ_WEIGHT(obj),
-			 grn, nrm, cyn, GET_OBJ_COST(obj),
-			 grn, nrm, cyn, GET_OBJ_RENT(obj),
-			 grn, nrm, cyn, GET_OBJ_RENTEQ(obj),
-			 grn, nrm, cyn, GET_OBJ_MAX(obj),
-			 grn, nrm, cyn, GET_OBJ_CUR(obj),
-			 grn, nrm, cyn, material_name[GET_OBJ_MATER(obj)],
+			 grn, nrm, cyn, obj->get_weight(),
+			 grn, nrm, cyn, obj->get_cost(),
+			 grn, nrm, cyn, obj->get_rent_off(),
+			 grn, nrm, cyn, obj->get_rent_on(),
+			 grn, nrm, cyn, obj->get_maximum_durability(),
+			 grn, nrm, cyn, obj->get_current_durability(),
+			 grn, nrm, cyn, material_name[obj->get_material()],
 			 grn, nrm, cyn, obj->get_timer(),
 			 grn, nrm, print_values2_menu(obj).c_str(),
 			 grn, nrm, cyn,
@@ -1357,41 +1357,41 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case '2':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nИменительный падеж [это ЧТО] : ",
-								  OLC_OBJ(d)->get_PName(0).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kNom).c_str());
 					OLC_MODE(d) = OEDIT_PAD0;
 					break;
 
 				case '3':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ",
-								  OLC_OBJ(d)->get_PName(1).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kGen).c_str());
 					OLC_MODE(d) = OEDIT_PAD1;
 					break;
 
 				case '4':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ",
-								  OLC_OBJ(d)->get_PName(2).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kDat).c_str());
 					OLC_MODE(d) = OEDIT_PAD2;
 					break;
 
 				case '5':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nВинительный падеж [держать ЧТО] : ",
-								  OLC_OBJ(d)->get_PName(3).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kAcc).c_str());
 					OLC_MODE(d) = OEDIT_PAD3;
 					break;
 
 				case '6':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ",
-								  OLC_OBJ(d)->get_PName(4).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kIns).c_str());
 					OLC_MODE(d) = OEDIT_PAD4;
 					break;
 				case '7':
 					SendMsgToChar(d->character.get(),
 								  "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ",
-								  OLC_OBJ(d)->get_PName(5).c_str());
+								  OLC_OBJ(d)->get_PName(ECase::kPre).c_str());
 					OLC_MODE(d) = OEDIT_PAD5;
 					break;
 
@@ -1575,22 +1575,22 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			break;
 
 		case OEDIT_PAD0: OLC_OBJ(d)->set_short_description(not_null(arg, "что-то"));
-			OLC_OBJ(d)->set_PName(0, not_null(arg, "что-то"));
+			OLC_OBJ(d)->set_PName(ECase::kNom, not_null(arg, "что-то"));
 			break;
 
-		case OEDIT_PAD1: OLC_OBJ(d)->set_PName(1, not_null(arg, "-чего-то"));
+		case OEDIT_PAD1: OLC_OBJ(d)->set_PName(ECase::kGen, not_null(arg, "-чего-то"));
 			break;
 
-		case OEDIT_PAD2: OLC_OBJ(d)->set_PName(2, not_null(arg, "-чему-то"));
+		case OEDIT_PAD2: OLC_OBJ(d)->set_PName(ECase::kDat, not_null(arg, "-чему-то"));
 			break;
 
-		case OEDIT_PAD3: OLC_OBJ(d)->set_PName(3, not_null(arg, "-что-то"));
+		case OEDIT_PAD3: OLC_OBJ(d)->set_PName(ECase::kAcc, not_null(arg, "-что-то"));
 			break;
 
-		case OEDIT_PAD4: OLC_OBJ(d)->set_PName(4, not_null(arg, "-чем-то"));
+		case OEDIT_PAD4: OLC_OBJ(d)->set_PName(ECase::kIns, not_null(arg, "-чем-то"));
 			break;
 
-		case OEDIT_PAD5: OLC_OBJ(d)->set_PName(5, not_null(arg, "-чем-то"));
+		case OEDIT_PAD5: OLC_OBJ(d)->set_PName(ECase::kPre, not_null(arg, "-чем-то"));
 			break;
 
 		case OEDIT_LONGDESC: OLC_OBJ(d)->set_description(not_null(arg, "неопределено"));
@@ -1672,7 +1672,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_MAXVALUE: OLC_OBJ(d)->set_maximum_durability(atoi(arg));
 			break;
 
-		case OEDIT_CURVALUE: OLC_OBJ(d)->set_current_durability(MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg)));
+		case OEDIT_CURVALUE: OLC_OBJ(d)->set_current_durability(MIN(OLC_OBJ(d)->get_maximum_durability(), atoi(arg)));
 			break;
 
 		case OEDIT_SEXVALUE:
