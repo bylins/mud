@@ -834,7 +834,7 @@ enum ft_text_style {
     FT_TSTYLE_DIM        = (1U << 2), /**< Dim */
     FT_TSTYLE_ITALIC     = (1U << 3), /**< Italic */
     FT_TSTYLE_UNDERLINED = (1U << 4), /**< Underlined */
-    FT_TSTYLE_BLINK      = (1U << 5), /**< Blink */
+    FT_TSTYLE_BLINK      = (1U << 5), /**< ProcessBlink */
     FT_TSTYLE_INVERTED   = (1U << 6), /**< Reverse (invert the foreground and background colors) */
     FT_TSTYLE_HIDDEN     = (1U << 7)  /**< Hidden (useful for passwords)  */
 };

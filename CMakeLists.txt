@@ -425,7 +425,8 @@ set(SOURCES
 		src/engine/ui/cmd/do_move.cpp
 		src/gameplay/mechanics/hide.cpp
 		src/gameplay/mechanics/boat.cpp
-		src/gameplay/mechanics/minions.cpp)
+		src/gameplay/mechanics/minions.cpp
+		src/gameplay/mechanics/armor.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -838,7 +839,8 @@ set(HEADERS
 		src/engine/ui/cmd/do_move.h
 		src/gameplay/mechanics/hide.h
 		src/gameplay/mechanics/boat.h
-		src/gameplay/mechanics/minions.h)
+		src/gameplay/mechanics/minions.h
+		src/gameplay/mechanics/armor.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

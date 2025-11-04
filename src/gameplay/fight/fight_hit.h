@@ -19,28 +19,28 @@ struct HitData {
 	};
 
 	// hit
-	void init(CharData *ch, CharData *victim);
-	void calc_base_hr(CharData *ch);
-	void calc_rand_hr(CharData *ch, CharData *victim);
-	void calc_stat_hr(CharData *ch);
-	void calc_ac(CharData *victim);
-	void add_weapon_damage(CharData *ch, bool need_dice = true);
-	void add_hand_damage(CharData *ch, bool need_dice = true);
-	void check_defense_skills(CharData *ch, CharData *victim);
-	void calc_crit_chance(CharData *ch);
-	void hit_deviate(CharData *ch, CharData *victim, int *dam);
-	void hit_parry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam);
-	void hit_multyparry(CharData *ch, CharData *victim, ESkill skill, int hit_type, int *dam);
-	void hit_block(CharData *ch, CharData *victim, int *dam);
+	void Init(CharData *ch, CharData *victim);
+	void CalcBaseHitroll(CharData *ch);
+	void CalcCircumstantialHitroll(CharData *ch, CharData *victim);
+	void CalcStaticHitroll(CharData *ch);
+	void CalcAc(CharData *victim);
+	void AddWeaponDmg(CharData *ch, bool need_dice = true);
+	void AddBareHandsDmg(CharData *ch, bool need_dice = true);
+	void ProcessDefensiveAbilities(CharData *ch, CharData *victim);
+	void CalcCritHitChance(CharData *ch);
+	void ProcessDeviate(CharData *ch, CharData *victim, int *damage) const;
+	void ProcessParry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const;
+	void ProcessMultyparry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const;
+	void ProcessShieldBlock(CharData *ch, CharData *victim, int *damage) const;
 
-	int calc_damage(CharData *ch, bool need_dice = true);
-	double crit_backstab_multiplier(CharData *ch, CharData *victim);
+	int CalcDmg(CharData *ch, bool need_dice = true);
+	static double CalcCritBackstabMultiplier(CharData *ch, CharData *victim);
 
 	// extdamage
-	int extdamage(CharData *ch, CharData *victim);
-	void try_mighthit_dam(CharData *ch, CharData *victim);
-	void try_stupor_dam(CharData *ch, CharData *victim);
-	void compute_critical(CharData *ch, CharData *victim);
+	int ProcessExtradamage(CharData *ch, CharData *victim);
+	void ProcessMighthit(CharData *ch, CharData *victim);
+	void ProcessOverhelm(CharData *ch, CharData *victim);
+	void ProcessCritHit(CharData *ch, CharData *victim);
 
 	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
@@ -84,16 +84,16 @@ struct HitData {
  public:
 	using HitFlags = std::bitset<fight::kHitFlagsNum>;
 
-	const HitFlags &get_flags() const { return m_flags; }
-	void set_flag(const size_t flag) { m_flags.set(flag); }
-	void reset_flag(const size_t flag) { m_flags.reset(flag); }
+	[[nodiscard]] const HitFlags &GetFlags() const { return m_flags; }
+	void SetFlag(const size_t flag) { m_flags.set(flag); }
+	void ResetFlag(const size_t flag) { m_flags.reset(flag); }
 	static void CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_thaco, int &dam);
  private:
 	// какой-никакой набор флагов, так же передается в damage()
 	HitFlags m_flags;
 };
 
-int compute_armor_class(CharData *ch);
+int CalcAC(CharData *ch);
 
 int check_agro_follower(CharData *ch, CharData *victim);
 void set_battle_pos(CharData *ch);
@@ -105,10 +105,10 @@ void group_gain(CharData *ch, CharData *victim);
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line);
 
-void exthit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
+void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 
-void appear(CharData *ch);
+void Appear(CharData *ch);
 
 int GetRealDamroll(CharData *ch);
 int GetAutoattackDamroll(CharData *ch, int weapon_skill);

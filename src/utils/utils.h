@@ -669,28 +669,6 @@ const int kNameLevel = 5;
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
 
-// object utils *********************************************************
-
-//#define GET_OBJ_EXTRA(obj)  ((obj)->get_extra_flags())
-//#define GET_OBJ_WEAR(obj)  ((obj)->get_wear_flags())
-//#define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
-
-//#define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
-//#define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
-//#define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
-
-//#define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
-//#define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
-//#define GET_OBJ_MATER(obj)  ((obj)->get_material())
-
-//#define GET_OBJ_VNUM_ZONE_FROM(obj)   ((obj)->get_vnum_zone_from())
-//#define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-//#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
-
-//#define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
-//#define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
-//#define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))
-
 // compound utilities and other macros *********************************
 
 #define HSHR(ch) (EGender::kNeutral != ((ch)->get_sex()) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")

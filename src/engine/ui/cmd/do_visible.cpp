@@ -10,7 +10,7 @@
 
 #include "engine/entities/char_data.h"
 
-extern void appear(CharData *ch);
+extern void Appear(CharData *ch);
 
 void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_IMMORTAL(ch)) {
@@ -22,7 +22,7 @@ void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		|| AFF_FLAGGED(ch, EAffect::kDisguise)
 		|| AFF_FLAGGED(ch, EAffect::kHide)
 		|| AFF_FLAGGED(ch, EAffect::kSneak)) {
-		appear(ch);
+		Appear(ch);
 		SendMsgToChar("Вы перестали быть невидимым.\r\n", ch);
 	} else
 		SendMsgToChar("Вы и так видимы.\r\n", ch);
@@ -37,7 +37,7 @@ void perform_immort_vis(CharData *ch) {
 	}
 
 	SET_INVIS_LEV(ch, 0);
-	appear(ch);
+	Appear(ch);
 	SendMsgToChar("Вы теперь полностью видны.\r\n", ch);
 }
 

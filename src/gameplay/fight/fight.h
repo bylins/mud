@@ -51,11 +51,11 @@ struct SimpleDmg {
 class Damage {
  public:
 	// полностью ручное создание объекта
-	Damage() { zero_init(); };
+	Damage() { ZeroInit(); };
 
 	// скилы
 	Damage(SkillDmg obj, int in_dam, fight::DmgType in_dmg_type, ObjData *wielded_obj) {
-		zero_init();
+		ZeroInit();
 		skill_id = obj.skill_id;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
@@ -64,7 +64,7 @@ class Damage {
 
 	// заклинания
 	Damage(SpellDmg obj, int in_dam, fight::DmgType in_dmg_type) {
-		zero_init();
+		ZeroInit();
 		spell_id = obj.spell_id;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
@@ -72,7 +72,7 @@ class Damage {
 
 	// прочий дамаг
 	Damage(SimpleDmg obj, int in_dam, fight::DmgType in_dmg_type) {
-		zero_init();
+		ZeroInit();
 		msg_num = obj.msg_num;
 		dam = in_dam;
 		dmg_type = in_dmg_type;
@@ -111,19 +111,19 @@ class Damage {
 
  private:
 	// инит всех полей дефолтными значениями для конструкторов
-	void zero_init();
+	void ZeroInit();
 	// инит msg_num, ch_start_pos, victim_start_pos
 	// дергается в начале process, когда все уже заполнено
-	void post_init(CharData *ch, CharData *victim);
-	void post_init_shields(CharData *victim);
+	void PerformPostInit(CharData *ch, CharData *victim);
+	void SetPostInitShieldFlags(CharData *victim);
 	// process()
-	bool magic_shields_dam(CharData *ch, CharData *victim);
-	void armor_dam_reduce(CharData *victim);
-	bool dam_absorb(CharData *ch, CharData *victim);
-	void process_death(CharData *ch, CharData *victim);
-	void send_critical_message(CharData *ch, CharData *victim);
-	void dam_message(CharData *ch, CharData *victim) const;
-	void Blink(CharData *ch, CharData *victim);
+	bool CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim);
+	void CalcArmorDmgAbsorption(CharData *victim);
+	bool CalcDmgAbsorption(CharData *ch, CharData *victim);
+	void ProcessDeath(CharData *ch, CharData *victim) const;
+	void SendCritHitMsg(CharData *ch, CharData *victim);
+	void SendDmgMsg(CharData *ch, CharData *victim) const;
+	void ProcessBlink(CharData *ch, CharData *victim);
 
 	// обратный дамаг от огненного щита
 	int fs_damage;
@@ -143,8 +143,8 @@ int calc_initiative(CharData *ch, bool mode);
 
 // fight_hit.cpp
 
-int compute_armor_class(CharData *ch);
-bool check_mighthit_weapon(CharData *ch);
+int CalcAC(CharData *ch);
+bool IsArmedWithMighthitWeapon(CharData *ch);
 void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
 
 // fight_stuff.cpp

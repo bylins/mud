@@ -74,8 +74,8 @@ int set_hit(CharData *ch, CharData *victim) {
 	}
 
 	if (!IS_CHARMICE(ch) || (AFF_FLAGGED(ch, EAffect::kCharmed) && !mob_ai::attack_best(ch, victim, true))) {
-		exthit(ch, victim, ESkill::kUndefined,
-			AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
+		ProcessExtrahits(ch, victim, ESkill::kUndefined,
+						 AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
 	SetWait(ch, 1, true);
 	//ch->setSkillCooldown(kGlobalCooldown, 2);

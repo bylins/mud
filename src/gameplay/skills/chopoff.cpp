@@ -105,7 +105,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		}
 		prob = 1;
 	}
-	appear(ch);
+	Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
 		if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && CLEAR_MIND(vict) && !vict->GetEnemy()) {

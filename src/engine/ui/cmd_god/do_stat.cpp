@@ -336,7 +336,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GloryConst::get_glory(GET_UID(k)),
 			GET_AC(k),
 			GET_REAL_AC(k),
-			compute_armor_class(k),
+			CalcAC(k),
 			GET_ARMOUR(k),
 			GET_HR(k),
 			GET_REAL_HR(k),

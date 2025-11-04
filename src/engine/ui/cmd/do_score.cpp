@@ -140,9 +140,9 @@ void PrintScoreList(CharData *ch) {
 	HitData hit_params;
 	hit_params.weapon = fight::kMainHand;
 	hit_params.skill_num = ESkill::kAny; 
-	hit_params.init(ch, ch);
+	hit_params.Init(ch, ch);
 	bool need_dice = false;
-	int max_dam = hit_params.calc_damage(ch, need_dice); // без кубиков
+	int max_dam = hit_params.CalcDmg(ch, need_dice); // без кубиков
 
 	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d.\r\n",
 				  CalcHitroll(ch),
@@ -177,7 +177,7 @@ void PrintScoreList(CharData *ch) {
 				  hit_gain(ch),
 				  ch->get_movereg(),
 				  move_gain(ch));
-	int ac = compute_armor_class(ch) / 10;
+	int ac = CalcAC(ch) / 10;
 	if (ac < 5) {
 		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
@@ -567,8 +567,8 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	HitData hit_params;
 	hit_params.weapon = fight::kMainHand;
 	hit_params.skill_num = ESkill::kAny; 
-	hit_params.init(ch, ch);
-	auto max_dam = hit_params.calc_damage(ch, false);
+	hit_params.Init(ch, ch);
+	auto max_dam = hit_params.CalcDmg(ch, false);
 
 	std::size_t row{0};
 	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
@@ -597,7 +597,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
  */
 int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	int ac = compute_armor_class(ch) / 10;
+	int ac = CalcAC(ch) / 10;
 	if (ac < 5) {
 		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
@@ -625,17 +625,17 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 	HitData hit;
 	hit.weapon = fight::AttackType::kMainHand;
 	hit.skill_num = ESkill::kAny; 
-	hit.init(ch, ch);
-	hit.calc_base_hr(ch);
-	hit.calc_stat_hr(ch);
-	hit.calc_ac(ch);
+	hit.Init(ch, ch);
+	hit.CalcBaseHitroll(ch);
+	hit.CalcStaticHitroll(ch);
+	hit.CalcAc(ch);
 
 	HitData hit2;
 	hit2.weapon = fight::AttackType::kOffHand;
 	hit2.skill_num = ESkill::kAny; 
-	hit2.init(ch, ch);
-	hit2.calc_base_hr(ch);
-	hit2.calc_stat_hr(ch);
+	hit2.Init(ch, ch);
+	hit2.CalcBaseHitroll(ch);
+	hit2.CalcStaticHitroll(ch);
 
 	out << InfoStrPrefix(ch) << kColorBoldCyn
 		<< "RIGHT_WEAPON: hitroll=" << -hit.calc_thaco
@@ -757,10 +757,10 @@ void PrintScoreBase(CharData *ch) {
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"
 				"  DR   : %4d(%4d)%s\r\n",
-				kColorBoldGrn, GET_AC(ch), compute_armor_class(ch),
+				kColorBoldGrn, GET_AC(ch), CalcAC(ch),
 				GET_DR(ch), GetRealDamroll(ch), kColorNrm);
 	} else {
-		int ac = compute_armor_class(ch) / 10;
+		int ac = CalcAC(ch) / 10;
 
 		if (ac < 5) {
 			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;

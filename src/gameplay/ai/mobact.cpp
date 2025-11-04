@@ -773,7 +773,7 @@ int perform_mob_switch(CharData *ch) {
 	SetWait(ch, 2, false);
 
 	if (ch->GetSkill(ESkill::kHammer)
-		&& check_mighthit_weapon(ch)) {
+		&& IsArmedWithMighthitWeapon(ch)) {
 		SET_AF_BATTLE(ch, kEafHammer);
 	} else if (ch->GetSkill(ESkill::kOverwhelm)) {
 		SET_AF_BATTLE(ch, ESkill::kOverwhelm);
