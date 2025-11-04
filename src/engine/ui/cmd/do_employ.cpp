@@ -134,14 +134,14 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 
 	if (target->get_enchants().check(ObjectEnchant::ENCHANT_FROM_OBJ)) {
 		SendMsgToChar(ch, "На %s уже наложено зачарование.\r\n",
-					  target->get_PName(3).c_str());
+					  target->get_PName(ECase::kAcc).c_str());
 		return;
 	}
 
-	auto check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
+	auto check_slots = obj->get_wear_flags() & target->get_wear_flags();
 	if (check_slots > 0
 		&& check_slots != to_underlying(EWearFlag::kTake)) {
-		SendMsgToChar(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
+		SendMsgToChar(ch, "Вы успешно зачаровали %s.\r\n", target->get_PName(ECase::kNom).c_str());
 		ObjectEnchant::enchant ench(obj);
 		ench.apply_to_obj(target);
 		ExtractObjFromWorld(obj);

@@ -350,7 +350,10 @@ void CObjectPrototype::MakeShallowCopy(const CObjectPrototype &from) {
 	}
 }
 
-CObjectPrototype::CObjectPrototype(const CObjectPrototype &other) {
+CObjectPrototype::CObjectPrototype(const CObjectPrototype &other)
+	: CObjectPrototype(other.m_vnum)
+{
+	m_vnum = 0;
 	MakeShallowCopy(other);
 }
 
@@ -467,7 +470,7 @@ void ObjData::set_enchant(int skill, ObjData *obj) {
 	}
 
 	add_affect_flags(obj->get_affect_flags());
-	add_extra_flags(GET_OBJ_EXTRA(obj));
+	add_extra_flags(obj->get_extra_flags());
 	add_no_flags(obj->get_no_flags());
 }
 
@@ -528,8 +531,10 @@ void ObjData::copy_name_from(const CObjectPrototype *src) {
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 
 	//Копируем имя по падежам
-	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
-		set_PName(i, src->get_PName(i));
+	for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
+		auto name_case = static_cast<ECase>(i);
+		set_PName(name_case, src->get_PName(name_case));
+	}
 }
 
 void ObjData::copy_from(const CObjectPrototype *src) {
@@ -607,8 +612,8 @@ void ObjData::swap(ObjData &object, bool swap_trig) {
 	object.set_serial_num(tmpobj.get_serial_num());
 	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
 	// см ZONE_DECAY (c) Стрибог
-	set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(&object));
-	object.set_vnum_zone_from(GET_OBJ_VNUM_ZONE_FROM(&tmpobj));
+	set_vnum_zone_from((&object)->get_vnum_zone_from());
+	object.set_vnum_zone_from((&tmpobj)->get_vnum_zone_from());
 }
 
 void ObjData::set_tag(const char *tag) {
@@ -653,7 +658,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		|| this->get_type() == EObjType::kWorm
 		|| this->get_type() == EObjType::kWeapon)) {
 		buffer << "У предмета [" << GET_OBJ_VNUM(this)
-			   << "] имя: " << GET_OBJ_PNAME(this, 0).c_str() << ", id: " << get_id() << ", таймер > 100к равен: "
+			   << "] имя: " << this->get_PName(ECase::kNom).c_str() << ", id: " << get_id() << ", таймер > 100к равен: "
 			   << get_timer();
 		if (get_in_room() != kNowhere) {
 			buffer << ", находится в комнате vnum: " << world[get_in_room()]->vnum;
@@ -666,7 +671,7 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 				   << "] в комнате: ["
 				   << world[get_worn_by()->in_room]->vnum << "]";
 		} else if (get_in_obj()) {
-			buffer << ", находится в сумке: " << GET_OBJ_PNAME(get_in_obj(), 0) << " в комнате: ["
+			buffer << ", находится в сумке: " << get_in_obj()->get_PName(ECase::kNom) << " в комнате: ["
 				   << world[get_in_obj()->get_in_room()]->vnum << "]";
 		}
 		mudlog(buffer.str(), BRF, kLvlGod, SYSLOG, true);
@@ -720,18 +725,18 @@ void CObjectPrototype::set_extracted_list(bool _) {
 		m_extract_list = _;
 }
 
-std::string CObjectPrototype::item_count_message(int num, int pad) {
+std::string CObjectPrototype::item_count_message(int num, ECase name_case) {
 	if (num <= 0
-		|| pad < 0
-		|| pad > 5
-		|| get_PName(pad).empty()) {
-		log("SYSERROR : num=%d, pad=%d, pname=%s (%s:%d)", num, pad, get_PName(pad).c_str(), __FILE__, __LINE__);
+		|| name_case < ECase::kFirstCase
+		|| name_case > ECase::kLastCase
+		|| get_PName(name_case).empty()) {
+		log("SYSERROR : num=%d, pad=%d, pname=%s (%s:%d)", num, name_case, get_PName(name_case).c_str(), __FILE__, __LINE__);
 
 		return "<ERROR>";
 	}
 
 	std::stringstream out;
-	out << get_PName(pad);
+	out << get_PName(name_case);
 	if (num > 1) {
 		out << " (x " << num << " " << GetDeclensionInNumber(num, EWhat::kThingA) << ")";
 	}
@@ -893,65 +898,65 @@ bool is_armor_type(const CObjectPrototype *obj) {
 }
 
 bool is_mob_item(const CObjectPrototype *obj) {
-	if (IS_OBJ_NO(obj, ENoFlag::kMale)
-		&& IS_OBJ_NO(obj, ENoFlag::kFemale)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kMale)
+		&& obj->has_no_flag(ENoFlag::kFemale)
+		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kMono)
-		&& IS_OBJ_NO(obj, ENoFlag::kPoly)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kMono)
+		&& obj->has_no_flag(ENoFlag::kPoly)
+		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kSorcerer)
-		&& IS_OBJ_NO(obj, ENoFlag::kThief)
-		&& IS_OBJ_NO(obj, ENoFlag::kWarrior)
-		&& IS_OBJ_NO(obj, ENoFlag::kAssasine)
-		&& IS_OBJ_NO(obj, ENoFlag::kGuard)
-		&& IS_OBJ_NO(obj, ENoFlag::kPaladine)
-		&& IS_OBJ_NO(obj, ENoFlag::kRanger)
-		&& IS_OBJ_NO(obj, ENoFlag::kVigilant)
-		&& IS_OBJ_NO(obj, ENoFlag::kMerchant)
-		&& IS_OBJ_NO(obj, ENoFlag::kMagus)
-		&& IS_OBJ_NO(obj, ENoFlag::kConjurer)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmer)
-		&& IS_OBJ_NO(obj, ENoFlag::kWIzard)
-		&& IS_OBJ_NO(obj, ENoFlag::kNecromancer)
-		&& IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kSorcerer)
+		&& obj->has_no_flag(ENoFlag::kThief)
+		&& obj->has_no_flag(ENoFlag::kWarrior)
+		&& obj->has_no_flag(ENoFlag::kAssasine)
+		&& obj->has_no_flag(ENoFlag::kGuard)
+		&& obj->has_no_flag(ENoFlag::kPaladine)
+		&& obj->has_no_flag(ENoFlag::kRanger)
+		&& obj->has_no_flag(ENoFlag::kVigilant)
+		&& obj->has_no_flag(ENoFlag::kMerchant)
+		&& obj->has_no_flag(ENoFlag::kMagus)
+		&& obj->has_no_flag(ENoFlag::kConjurer)
+		&& obj->has_no_flag(ENoFlag::kCharmer)
+		&& obj->has_no_flag(ENoFlag::kWIzard)
+		&& obj->has_no_flag(ENoFlag::kNecromancer)
+		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_NO(obj, ENoFlag::kCharmice)) {
+	if (obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kMale)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kFemale)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
+	if (obj->has_anti_flag(EAntiFlag::kMale)
+		&& obj->has_anti_flag(EAntiFlag::kFemale)
+		&& obj->has_anti_flag(EAntiFlag::kCharmice)) {
 		return true;
 	}
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kMono)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kPoly)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
+	if (obj->has_anti_flag(EAntiFlag::kMono)
+		&& obj->has_anti_flag(EAntiFlag::kPoly)
+		&& obj->has_anti_flag(EAntiFlag::kCharmice)) {
 		return true;
 	}
 
-	if (IS_OBJ_ANTI(obj, EAntiFlag::kSorcerer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kThief)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kWarrior)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kAssasine)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kGuard)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kPaladine)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kRanger)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kVigilant)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kMerchant)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kMagus)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kConjurer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kWizard)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kNecromancer)
-		&& IS_OBJ_ANTI(obj, EAntiFlag::kCharmice)) {
+	if (obj->has_anti_flag(EAntiFlag::kSorcerer)
+		&& obj->has_anti_flag(EAntiFlag::kThief)
+		&& obj->has_anti_flag(EAntiFlag::kWarrior)
+		&& obj->has_anti_flag(EAntiFlag::kAssasine)
+		&& obj->has_anti_flag(EAntiFlag::kGuard)
+		&& obj->has_anti_flag(EAntiFlag::kPaladine)
+		&& obj->has_anti_flag(EAntiFlag::kRanger)
+		&& obj->has_anti_flag(EAntiFlag::kVigilant)
+		&& obj->has_anti_flag(EAntiFlag::kMerchant)
+		&& obj->has_anti_flag(EAntiFlag::kMagus)
+		&& obj->has_anti_flag(EAntiFlag::kConjurer)
+		&& obj->has_anti_flag(EAntiFlag::kCharmer)
+		&& obj->has_anti_flag(EAntiFlag::kWizard)
+		&& obj->has_anti_flag(EAntiFlag::kNecromancer)
+		&& obj->has_anti_flag(EAntiFlag::kCharmice)) {
 		return true;
 	}
 
@@ -1003,12 +1008,12 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 	obj->set_aliases("тугой кошелек");
 	obj->set_short_description("тугой кошелек");
 	obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
-	obj->set_PName(0, "тугой кошелек");
-	obj->set_PName(1, "тугого кошелька");
-	obj->set_PName(2, "тугому кошельку");
-	obj->set_PName(3, "тугой кошелек");
-	obj->set_PName(4, "тугим кошельком");
-	obj->set_PName(5, "тугом кошельке");
+	obj->set_PName(ECase::kNom, "тугой кошелек");
+	obj->set_PName(ECase::kGen, "тугого кошелька");
+	obj->set_PName(ECase::kDat, "тугому кошельку");
+	obj->set_PName(ECase::kAcc, "тугой кошелек");
+	obj->set_PName(ECase::kIns, "тугим кошельком");
+	obj->set_PName(ECase::kPre, "тугом кошельке");
 
 	char buf_[kMaxInputLength];
 	snprintf(buf_, sizeof(buf_),
@@ -1016,7 +1021,7 @@ ObjData *create_purse(CharData *ch, int/* gold*/) {
 			 "Владелец: %s\r\n"
 			 "В случае потери просьба вернуть за вознаграждение.\r\n"
 			 "--------------------------------------------------\r\n", ch->get_name().c_str());
-	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
+	obj->set_ex_description(obj->get_PName(ECase::kNom).c_str(), buf_);
 
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
@@ -1575,7 +1580,7 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto &m : weapon_affect) {
-		if (IS_OBJ_AFF(obj, m.aff_pos)) {
+		if (obj->GetEWeaponAffect(m.aff_pos)) {
 			auto obj_affects = static_cast<EAffect>(m.aff_bitvector);
 			if (obj_affects == EAffect::kAirShield ||
 				obj_affects == EAffect::kFireShield ||

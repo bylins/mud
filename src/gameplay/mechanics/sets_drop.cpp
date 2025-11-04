@@ -759,7 +759,7 @@ std::string print_solo_list(const std::set<int> &node) {
 					solo_obj_names << "\r\n   ";
 					new_line = 0;
 				}
-				solo_obj_names << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0);
+				solo_obj_names << obj_proto[k->second.obj_rnum]->get_PName(ECase::kNom);
 				std::stringstream solo_out;
 				solo_out.precision(1);
 				solo_out << "    - " << mob_proto[k->first].get_name()
@@ -796,7 +796,7 @@ std::string print_current_set(const HelpNode &node) {
 	for (const auto l : node.group_list) {
 		for (const auto &k : drop_list) {
 			if (obj_proto[k.second.obj_rnum]->get_vnum() == l && k.second.chance > 0) {
-				out << "   " << GET_OBJ_PNAME(obj_proto[k.second.obj_rnum], 0)
+				out << "   " << obj_proto[k.second.obj_rnum]->get_PName(ECase::kNom)
 					<< " - " << mob_proto[k.first].get_name()
 					<< " (" << zone_table[mob_index[k.first].zone].name << ")"
 					<< " - " << std::fixed << k.second.chance / 10.0 << "%\r\n";

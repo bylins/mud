@@ -198,9 +198,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	} else {
 		wielded = GET_EQ(vict, pos);
 		SendMsgToChar(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
-					  kColorBoldBlu, wielded->get_PName(3).c_str(), GET_PAD(vict, 1), kColorNrm);
+					  kColorBoldBlu, wielded->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1), kColorNrm);
 		SendMsgToChar(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
-					  GET_PAD(ch, 1), wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
+					  GET_PAD(ch, 1), wielded->get_PName(ECase::kAcc).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		UnequipChar(vict, pos, CharEquipFlags());
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->IsNpc() ? 1 : 2);

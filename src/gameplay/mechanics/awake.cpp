@@ -46,8 +46,8 @@ int check_awake(CharData *ch, int what) {
 			}
 
 			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
-				&& GET_OBJ_MATER(GET_EQ(ch, i)) <= EObjMaterial::kPreciousMetel) {
-				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
+				&& GET_EQ(ch, i)->get_material() <= EObjMaterial::kPreciousMetel) {
+				wgt += GET_EQ(ch, i)->get_weight();
 			}
 		}
 

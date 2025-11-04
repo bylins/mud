@@ -822,7 +822,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 				sprintf(buf, "%s наход%sся в %s.\r\n",
 						i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i),
-						i->get_in_obj()->get_PName(5).c_str());
+						i->get_in_obj()->get_PName(ECase::kPre).c_str());
 			}
 		} else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
@@ -840,7 +840,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			SendMsgToChar(locate_msg.c_str(), ch);
 			return true;
 		} else {
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
+			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, ECase::kGen));
 //		CAP(buf); issue #59
 		}
 		SendMsgToChar(buf, ch);
@@ -1146,17 +1146,17 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
 			victim->set_npc_name(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
-			victim->player_data.PNames[0] = std::string(descr);
+			victim->player_data.PNames[ECase::kNom] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][1], GET_PAD(victim, 1));
-			victim->player_data.PNames[1] = std::string(descr);
+			victim->player_data.PNames[ECase::kGen] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][2], GET_PAD(victim, 2));
-			victim->player_data.PNames[2] = std::string(descr);
+			victim->player_data.PNames[ECase::kDat] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][3], GET_PAD(victim, 3));
-			victim->player_data.PNames[3] = std::string(descr);
+			victim->player_data.PNames[ECase::kAcc] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][4], GET_PAD(victim, 4));
-			victim->player_data.PNames[4] = std::string(descr);
+			victim->player_data.PNames[ECase::kIns] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
-			victim->player_data.PNames[5] = std::string(descr);
+			victim->player_data.PNames[ECase::kPre] = std::string(descr);
 			victim->set_max_hit(victim->get_max_hit() + floorf( GetRealLevel(ch)*15 + r_cha*4 + perc*2));
 			victim->set_hit(victim->get_max_hit());
 			// статы
@@ -1465,15 +1465,15 @@ void show_weapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
-			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
+			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kHold)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, 3));
+			sprintf(buf + strlen(buf), "Можно взять %s в левую руку.\r\n", OBJN(obj, ch, ECase::kAcc));
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, 3));
+			sprintf(buf + strlen(buf), "Можно взять %s в обе руки.\r\n", OBJN(obj, ch, ECase::kAcc));
 		}
 
 		if (*buf) {
@@ -1523,7 +1523,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	//show_weapon(ch, obj);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-			GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+			obj->get_weight(), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
 	SendMsgToChar(buf, ch);
 
 	if (fullness < 30)
@@ -1567,16 +1567,16 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Имеет экстрафлаги: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
+	obj->get_extra_flags().sprintbits(extra_bits, buf, ",", IS_IMMORTAL(ch) ? 4 : 0);
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
 	if (enhansed_scroll) {
 		if (stable_objs::IsTimerUnlimited(obj))
-			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer());
+			sprintf(buf2, "Таймер: %d/нерушимо.", obj_proto[obj->get_rnum()]->get_timer());
 		else
-			sprintf(buf2, "Таймер: %d/%d.", obj_proto[GET_OBJ_RNUM(obj)]->get_timer(), obj->get_timer());
+			sprintf(buf2, "Таймер: %d/%d.", obj_proto[obj->get_rnum()]->get_timer(), obj->get_timer());
 		char miw[128];
 		if (GetObjMIW(obj->get_rnum()) < 0) {
 			sprintf(miw, "%s", "бесконечно");
@@ -1584,7 +1584,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 			sprintf(miw, "%d", GetObjMIW(obj->get_rnum()));
 		}
 		snprintf(buf, kMaxStringLength, "&GСейчас в мире : %d. На постое : %d. Макс. в мире : %s. %s&n\r\n",
-				 obj_proto.total_online(GET_OBJ_RNUM(obj)), obj_proto.stored(GET_OBJ_RNUM(obj)), miw, buf2);
+				 obj_proto.total_online(obj->get_rnum()), obj_proto.stored(obj->get_rnum()), miw, buf2);
 		SendMsgToChar(buf, ch);
 	}
 	if (fullness < 75)
@@ -1744,7 +1744,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 				sprintf(buf, "прототип %s%s%s.\r\n",
-						kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
+						kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
 				SendMsgToChar(buf, ch);
 			}
 			break;
@@ -2292,24 +2292,24 @@ void SpellSummonAngel(CharData *ch) {
 	if (IS_FEMALE(ch)) {
 		mob->set_sex(EGender::kMale);
 		mob->SetCharAliases("Небесный защитник");
-		mob->player_data.PNames[0] = "Небесный защитник";
-		mob->player_data.PNames[1] = "Небесного защитника";
-		mob->player_data.PNames[2] = "Небесному защитнику";
-		mob->player_data.PNames[3] = "Небесного защитника";
-		mob->player_data.PNames[4] = "Небесным защитником";
-		mob->player_data.PNames[5] = "Небесном защитнике";
+		mob->player_data.PNames[ECase::kNom] = "Небесный защитник";
+		mob->player_data.PNames[ECase::kGen] = "Небесного защитника";
+		mob->player_data.PNames[ECase::kDat] = "Небесному защитнику";
+		mob->player_data.PNames[ECase::kAcc] = "Небесного защитника";
+		mob->player_data.PNames[ECase::kIns] = "Небесным защитником";
+		mob->player_data.PNames[ECase::kPre] = "Небесном защитнике";
 		mob->set_npc_name("Небесный защитник");
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
 		mob->set_sex(EGender::kFemale);
 		mob->SetCharAliases("Небесная защитница");
-		mob->player_data.PNames[0] = "Небесная защитница";
-		mob->player_data.PNames[1] = "Небесной защитницы";
-		mob->player_data.PNames[2] = "Небесной защитнице";
-		mob->player_data.PNames[3] = "Небесную защитницу";
-		mob->player_data.PNames[4] = "Небесной защитницей";
-		mob->player_data.PNames[5] = "Небесной защитнице";
+		mob->player_data.PNames[ECase::kNom] = "Небесная защитница";
+		mob->player_data.PNames[ECase::kGen] = "Небесной защитницы";
+		mob->player_data.PNames[ECase::kDat] = "Небесной защитнице";
+		mob->player_data.PNames[ECase::kAcc] = "Небесную защитницу";
+		mob->player_data.PNames[ECase::kIns] = "Небесной защитницей";
+		mob->player_data.PNames[ECase::kPre] = "Небесной защитнице";
 		mob->set_npc_name("Небесная защитница");
 		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
@@ -2546,22 +2546,22 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 		strcpy(buf, "Вам потребуется :\r\n");
 		if (item0 >= 0) {
 			strcat(buf, kColorBoldRed);
-			strcat(buf, obj_proto[item0]->get_PName(0).c_str());
+			strcat(buf, obj_proto[item0]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item1 >= 0) {
 			strcat(buf, kColorBoldYel);
-			strcat(buf, obj_proto[item1]->get_PName(0).c_str());
+			strcat(buf, obj_proto[item1]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (item2 >= 0) {
 			strcat(buf, kColorBoldGrn);
-			strcat(buf, obj_proto[item2]->get_PName(0).c_str());
+			strcat(buf, obj_proto[item2]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 		if (obj_num >= 0 && (spell_type == ESpellType::kItemCast || spell_type == ESpellType::kRunes)) {
 			strcat(buf, kColorBoldBlu);
-			strcat(buf, obj_proto[obj_num]->get_PName(0).c_str());
+			strcat(buf, obj_proto[obj_num]->get_PName(ECase::kNom).c_str());
 			strcat(buf, "\r\n");
 		}
 
@@ -2572,7 +2572,7 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 			strcat(buf, "'.");
 		} else {
 			strcat(buf, "для создания ");
-			strcat(buf, obj_proto[obj_num]->get_PName(1).c_str());
+			strcat(buf, obj_proto[obj_num]->get_PName(ECase::kGen).c_str());
 		}
 		act(buf, false, ch, nullptr, nullptr, kToChar);
 	}
@@ -2758,28 +2758,28 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 
 		if (item0 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj0->get_PName(3).c_str());
+			strcat(buf, obj0->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj1->get_PName(3).c_str());
+			strcat(buf, obj1->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj2->get_PName(3).c_str());
+			strcat(buf, obj2->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
 			strcat(buf, kColorWht);
-			strcat(buf, obj3->get_PName(3).c_str());
+			strcat(buf, obj3->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}

@@ -79,7 +79,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			weight = +1;
 			break;
 
-		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
+		default: sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, ECase::kNom));
 			SendMsgToChar(buf, ch);
 			return;
 	}
@@ -128,7 +128,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// если шмотка перестала быть нерушимой ставим таймер из прототипа
 	if (oldstate && !stable_objs::IsTimerUnlimited(obj)) {
-		obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
+		obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
 	}
 	//Вес меняется только если шмотка еще не была заточена
 	//Также вес НЕ меняется если он уже нулевой и должен снизиться

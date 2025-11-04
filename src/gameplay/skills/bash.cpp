@@ -130,7 +130,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			affect_to_char(vict, af);
 			const auto shield_bash = ch->GetSkill(ESkill::kShieldBash);
 			const auto char_size = GET_REAL_SIZE(ch);
-			const auto shield_weight = GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kShield));
+			const auto shield_weight = GET_EQ(ch, EEquipPos::kShield)->get_weight();
 			const auto skill_base = (char_size * shield_weight * 1.5) / 5 + shield_bash * 3 + shield_bash * 2;
 			damage = number(ceil(skill_base / 1.25), ceil(skill_base * 1.25)) * GetRealLevel(ch) / 30;
 			if (GetRealStr(ch) < 55) {

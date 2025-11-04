@@ -105,7 +105,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 		SendMsgToChar(OK, ch);
 	} else {
 		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", kColorBoldCyn,
-				 tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, kColorNrm);
+				 tell_can_see(vict, ch) ? vict->player_data.PNames[ECase::kDat].c_str() : "кому-то", arg, kColorNrm);
 		SendMsgToChar(buf, ch);
 		if (!ch->IsNpc()) {
 			ch->remember_add(buf, Remember::ALL);

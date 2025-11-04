@@ -184,23 +184,23 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 			// 13.05.2024 можно удалить через месяц
 			} else if (!strcmp(read_line, "Pad0")) {
 				*error = 7;
-				object->set_PName(0, buffer);
+				object->set_PName(ECase::kNom, buffer);
 				object->set_short_description(buffer);
 			} else if (!strcmp(read_line, "Pad1")) {
 				*error = 8;
-				object->set_PName(1, buffer);
+				object->set_PName(ECase::kGen, buffer);
 			} else if (!strcmp(read_line, "Pad2")) {
 				*error = 9;
-				object->set_PName(2, buffer);
+				object->set_PName(ECase::kDat, buffer);
 			} else if (!strcmp(read_line, "Pad3")) {
 				*error = 10;
-				object->set_PName(3, buffer);
+				object->set_PName(ECase::kAcc, buffer);
 			} else if (!strcmp(read_line, "Pad4")) {
 				*error = 11;
-				object->set_PName(4, buffer);
+				object->set_PName(ECase::kIns, buffer);
 			} else if (!strcmp(read_line, "Pad5")) {
 				*error = 12;
-				object->set_PName(5, buffer);
+				object->set_PName(ECase::kPre, buffer);
 			} else if (!strcmp(read_line, "Desc")) {
 				*error = 13;
 				object->set_description(buffer);
@@ -504,7 +504,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	// Проверить вес фляг и т.п.
 	if (object->get_type() == EObjType::kLiquidContainer
 		|| object->get_type() == EObjType::kFountain) {
-		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
+		if (object->get_weight() < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
 	}
@@ -575,7 +575,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		//return;
 	}
 */
-//	log("Write one object: %s", object->get_PName(0).c_str());
+//	log("Write one object: %s", object->get_PName(ECase::kNom).c_str());
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto) {
 		// Сохраняем UID
@@ -586,8 +586,9 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		}
 		// Падежи
 		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			if (object->get_PName(i) != proto->get_PName(i)) {
-				out << "Pad" << i << ": " << object->get_PName(i) << "~\n";
+			auto name_case = static_cast<ECase>(i);
+			if (object->get_PName(name_case) != proto->get_PName(name_case)) {
+				out << "Pad" << i << ": " << object->get_PName(name_case) << "~\n";
 			}
 		}
 		// Описание когда на земле
@@ -618,16 +619,16 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			}
 		}
 		// Макс. прочность
-		if (GET_OBJ_MAX(object) != GET_OBJ_MAX(proto)) {
-			out << "Maxx: " << GET_OBJ_MAX(object) << "~\n";
+		if (object->get_maximum_durability() != proto->get_maximum_durability()) {
+			out << "Maxx: " << object->get_maximum_durability() << "~\n";
 		}
 		// Текущая прочность
-		if (GET_OBJ_CUR(object) != GET_OBJ_CUR(proto)) {
-			out << "Curr: " << GET_OBJ_CUR(object) << "~\n";
+		if (object->get_current_durability() != proto->get_current_durability()) {
+			out << "Curr: " << object->get_current_durability() << "~\n";
 		}
 		// Материал
-		if (GET_OBJ_MATER(object) != GET_OBJ_MATER(proto)) {
-			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
+		if (object->get_material() != proto->get_material()) {
+			out << "Mter: " << object->get_material() << "~\n";
 		}
 		// Пол
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto)) {
@@ -639,7 +640,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			if (!stable_objs::IsObjFromSystemZone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
 			{
 				// на тот случай, если есть объекты с таймером, больше таймера прототипа
-				int temp_timer = obj_proto[GET_OBJ_RNUM(object)]->get_timer();
+				int temp_timer = obj_proto[object->get_rnum()]->get_timer();
 				if (object->get_timer() > temp_timer)
 					object->set_timer(temp_timer);
 			}
@@ -653,16 +654,16 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Levl: " << object->get_level() << "~\n";
 		}
 		// была ли шмотка ренейм
-		if (GET_OBJ_RENAME(object) != false) {
+		if (object->get_is_rename() != false) {
 			out << "Rnme: 1~\n";
 		}
 		// скрафчено с таймером
-		if ((GET_OBJ_CRAFTIMER(object) > 0)) {
-			out << "Ctmr: " << GET_OBJ_CRAFTIMER(object) << "~\n";
+		if ((object->get_craft_timer() > 0)) {
+			out << "Ctmr: " << object->get_craft_timer() << "~\n";
 		}
 		// в какой зоне было загружено в мир
-		if (GET_OBJ_VNUM_ZONE_FROM(object)) {
-			out << "Ozne: " << GET_OBJ_VNUM_ZONE_FROM(object) << "~\n";
+		if (object->get_vnum_zone_from()) {
+			out << "Ozne: " << object->get_vnum_zone_from() << "~\n";
 		}
 		// Наводимые аффекты
 		*buf = '\0';
@@ -701,8 +702,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
 		
-		GET_OBJ_EXTRA(object).tascii(FlagData::kPlanesNumber, buf);
-		GET_OBJ_EXTRA(proto).tascii(FlagData::kPlanesNumber, buf2);
+		object->get_extra_flags().tascii(FlagData::kPlanesNumber, buf);
+		proto->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2);
 		if (blooded) //Возвращаем флаг назад
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
@@ -738,28 +739,28 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			}
 		}
 		// Вес
-		if (GET_OBJ_WEIGHT(object) != GET_OBJ_WEIGHT(proto)) {
-			out << "Weig: " << GET_OBJ_WEIGHT(object) << "~\n";
+		if (object->get_weight() != proto->get_weight()) {
+			out << "Weig: " << object->get_weight() << "~\n";
 		}
 		// Цена
-		if (GET_OBJ_COST(object) != GET_OBJ_COST(proto)) {
-			out << "Cost: " << GET_OBJ_COST(object) << "~\n";
+		if (object->get_cost() != proto->get_cost()) {
+			out << "Cost: " << object->get_cost() << "~\n";
 		}
 		// Рента (снято)
-		if (GET_OBJ_RENT(object) != GET_OBJ_RENT(proto)) {
-			out << "Rent: " << GET_OBJ_RENT(object) << "~\n";
+		if (object->get_rent_off() != proto->get_rent_off()) {
+			out << "Rent: " << object->get_rent_off() << "~\n";
 		}
 		// Рента (одето)
-		if (GET_OBJ_RENTEQ(object) != GET_OBJ_RENTEQ(proto)) {
-			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
+		if (object->get_rent_on() != proto->get_rent_on()) {
+			out << "RntQ: " << object->get_rent_on() << "~\n";
 		}
 		// Владелец
-		if (GET_OBJ_OWNER(object) != ObjData::DEFAULT_OWNER) {
-			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
+		if (object->get_owner() != ObjData::DEFAULT_OWNER) {
+			out << "Ownr: " << object->get_owner() << "~\n";
 		}
 		// Создатель
-		if (GET_OBJ_MAKER(object) != ObjData::DEFAULT_MAKER) {
-			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
+		if (object->get_crafter_uid() != ObjData::DEFAULT_MAKER) {
+			out << "Mker: " << object->get_crafter_uid() << "~\n";
 		}
 
 		// Аффекты
@@ -1239,7 +1240,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 					idelete++;
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
-						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(0).c_str());
+						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(ECase::kNom).c_str());
 					}
 				}
 			}
@@ -1298,7 +1299,7 @@ void Crash_list_objects(CharData *ch, int index) {
 				tmr = MAX(-1, data.timer - timer_dec);
 			}
 			ss << fmt::format(" [{:>7}] ({:>5}au) <{:>6}> {:<20}\r\n",
-					data.vnum, GET_OBJ_RENT(obj), tmr, obj->get_short_description().c_str());
+					data.vnum, obj->get_rent_off(), tmr, obj->get_short_description().c_str());
 		}
 	}
 	SendMsgToChar(ss.str().c_str(), ch);
@@ -1519,7 +1520,7 @@ int Crash_load(CharData *ch) {
 		}
 /*
 		if (SAVEINFO(index)->time[fsize].vnum >= dungeons::kZoneStartDungeons * 100) {
-			SendMsgToChar(ch, "Предмет из данжа: %s, заменяем на оригинал.\r\n", obj->get_PName(0).c_str());
+			SendMsgToChar(ch, "Предмет из данжа: %s, заменяем на оригинал.\r\n", obj->get_PName(ECase::kNom).c_str());
 			SAVEINFO(index)->time[fsize].vnum = obj->get_vnum();
 		}
 */
@@ -1543,7 +1544,7 @@ int Crash_load(CharData *ch) {
 			obj->dec_timer(timer_dec);
 		}
 
-		std::string cap = obj->get_PName(0);
+		std::string cap = obj->get_PName(ECase::kNom);
 		cap[0] = UPPER(cap[0]);
 
 		// Предмет разваливается от старости
@@ -1675,7 +1676,7 @@ void Crash_restore_weight(ObjData *obj) {
 	for (; obj; obj = obj->get_next_content()) {
 		Crash_restore_weight(obj->get_contains());
 		if (obj->get_in_obj()) {
-			obj->get_in_obj()->add_weight(GET_OBJ_WEIGHT(obj));
+			obj->get_in_obj()->add_weight(obj->get_weight());
 		}
 	}
 }
@@ -1685,8 +1686,8 @@ void Crash_extract_objs(ObjData *obj) {
 	for (; obj; obj = next) {
 		next = obj->get_next_content();
 		Crash_extract_objs(obj->get_contains());
-		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0) {
-			obj_proto.inc_stored(GET_OBJ_RNUM(obj));
+		if (obj->get_rnum() >= 0 && obj->get_timer() >= 0) {
+			obj_proto.inc_stored(obj->get_rnum());
 		}
 		ExtractObjFromWorld(obj);
 	}
@@ -1698,10 +1699,10 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 	}
 
 	if (obj->has_flag(EObjFlag::kNorent)
-		|| GET_OBJ_RENT(obj) < 0
+		|| obj->get_rent_off() < 0
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| (GET_OBJ_RNUM(obj) <= kNothing
+		|| (obj->get_rnum() <= kNothing
 			&& obj->get_type() != EObjType::kMoney)
 		|| obj->get_type() == EObjType::kKey
 		|| SetSystem::is_norent_set(ch, obj)) {
@@ -1763,7 +1764,7 @@ int Crash_calculate_rent(ObjData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
-		cost += MAX(0, GET_OBJ_RENT(obj));
+		cost += MAX(0, obj->get_rent_off());
 	}
 	return (cost);
 }
@@ -1772,7 +1773,7 @@ int Crash_calculate_rent_eq(ObjData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
-		cost += MAX(0, GET_OBJ_RENTEQ(obj));
+		cost += MAX(0, obj->get_rent_on());
 	}
 	return (cost);
 }
@@ -1821,7 +1822,7 @@ int Crash_calc_charmee_items(CharData *ch) {
 void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int location, int savetype) {
 	for (; obj; obj = obj->get_next_content()) {
 		if (obj->get_in_obj()) {
-			obj->get_in_obj()->sub_weight(GET_OBJ_WEIGHT(obj));
+			obj->get_in_obj()->sub_weight(obj->get_weight());
 		}
 		Crash_save(write_buffer, iplayer, obj->get_contains(), MIN(0, location) - 1, savetype);
 		if (iplayer >= 0) {
@@ -2071,10 +2072,10 @@ int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
 			if (SetSystem::is_norent_set(ch, obj)) {
 				snprintf(buf, sizeof(buf),
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj, ch, 3));
+						 OBJN(obj, ch, ECase::kAcc));
 			} else {
 				snprintf(buf, sizeof(buf),
-						 "$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
+						 "$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, ECase::kAcc));
 			}
 			act(buf, false, recep, 0, ch, kToVict);
 		}
@@ -2099,9 +2100,9 @@ void Crash_report_rent_item(CharData *ch,
 	if (obj) {
 		if (CAN_WEAR_ANY(obj)) {
 			if (equip) {
-				sprintf(bf, " (%d если снять)", GET_OBJ_RENT(obj) * factor * count);
+				sprintf(bf, " (%d если снять)", obj->get_rent_off() * factor * count);
 			} else {
-				sprintf(bf, " (%d если надеть)", GET_OBJ_RENTEQ(obj) * factor * count);
+				sprintf(bf, " (%d если надеть)", obj->get_rent_on() * factor * count);
 			}
 		} else {
 			*bf = '\0';
@@ -2113,11 +2114,11 @@ void Crash_report_rent_item(CharData *ch,
 
 		sprintf(buf, "%s - %d %s%s за %s%s %s",
 				recursive ? "" : kColorWht,
-				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
+				(equip ? obj->get_rent_on() * count : obj->get_rent_off()) *
 					factor * count,
-				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
+				GetDeclensionInNumber((equip ? obj->get_rent_on() * count : obj->get_rent_off()) * factor * count,
 									  EWhat::kMoneyA),
-				bf, OBJN(obj, ch, 3), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
+				bf, OBJN(obj, ch, ECase::kAcc), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
 		act(buf, false, recep, 0, ch, kToVict);
 	}
 }
@@ -2131,7 +2132,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 	if (obj) {
 		if (!Crash_is_unrentable(ch, obj)) {
 			/*(*nitems)++;
-			*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) * factor));
+			*cost += MAX(0, ((equip ? obj->get_rent_on() : obj->get_rent_off()) * factor));
 			if (rentshow)
 			{
 				if (*nitems == 1)
@@ -2144,19 +2145,19 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 				if (CAN_WEAR_ANY(obj))
 				{
 					if (equip)
-						sprintf(bf, " (%d если снять)", GET_OBJ_RENT(obj) * factor);
+						sprintf(bf, " (%d если снять)", obj->get_rent_off() * factor);
 					else
-						sprintf(bf, " (%d если надеть)", GET_OBJ_RENTEQ(obj) * factor);
+						sprintf(bf, " (%d если надеть)", obj->get_rent_on() * factor);
 				}
 				else
 					*bf = '\0';
 				sprintf(buf, "%s - %d %s%s за %s %s",
 						recursive ? "" : KWHT,
-						(equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) *
+						(equip ? obj->get_rent_on() : obj->get_rent_off()) *
 						factor,
-						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
-									GET_OBJ_RENT(obj)) * factor,
-								   EWhat::MONEYa), bf, OBJN(obj, ch, 3),
+						desc_count((equip ? obj->get_rent_on() :
+									obj->get_rent_off()) * factor,
+								   EWhat::MONEYa), bf, OBJN(obj, ch, ECase::kAcc),
 						recursive ? "" : KNRM;
 				act(buf, false, recep, 0, ch, TO_VICT);
 			}*/
@@ -2165,7 +2166,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 			// - 2700 кун (900 если надеть) за красный пузырек [9]
 			for (i = obj; i; i = i->get_next_content()) {
 				(*nitems)++;
-				*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(i) : GET_OBJ_RENT(i)) * factor));
+				*cost += MAX(0, ((equip ? i->get_rent_on() : i->get_rent_off()) * factor));
 				if (rentshow) {
 					if (*nitems == 1) {
 						if (!recursive) {

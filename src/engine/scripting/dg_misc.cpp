@@ -175,28 +175,28 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 		// take select pieces from char_to_room();
 		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(1).c_str());
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(1).c_str());
-			caster->player_data.PNames[0] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(1).c_str());
-			caster->player_data.PNames[1] = std::string(buf);
-			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(1).c_str());
-			caster->player_data.PNames[2] = std::string(buf);
-			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(1).c_str());
-			caster->player_data.PNames[3] = std::string(buf);
-			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(1).c_str());
-			caster->player_data.PNames[4] = std::string(buf);
-			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(1).c_str());
-			caster->player_data.PNames[5] = std::string(buf);
+			sprintf(buf, "дух %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			caster->player_data.PNames[ECase::kNom] = std::string(buf);
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			caster->player_data.PNames[ECase::kGen] = std::string(buf);
+			sprintf(buf, "духу %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			caster->player_data.PNames[ECase::kDat] = std::string(buf);
+			sprintf(buf, "духа %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			caster->player_data.PNames[ECase::kAcc] = std::string(buf);
+			sprintf(buf, "духом %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			caster->player_data.PNames[ECase::kIns] = std::string(buf);
+			sprintf(buf, "духе %s", ((ObjData *) go)->get_PName(ECase::kGen).c_str());
+			caster->player_data.PNames[ECase::kPre] = std::string(buf);
 		} else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
-			caster->player_data.PNames[0] = "Боги";
-			caster->player_data.PNames[1] = "Богов";
-			caster->player_data.PNames[2] = "Богам";
-			caster->player_data.PNames[3] = "Богов";
-			caster->player_data.PNames[4] = "Богами";
-			caster->player_data.PNames[5] = "Богах";
+			caster->player_data.PNames[ECase::kNom] = "Боги";
+			caster->player_data.PNames[ECase::kGen] = "Богов";
+			caster->player_data.PNames[ECase::kDat] = "Богам";
+			caster->player_data.PNames[ECase::kAcc] = "Богов";
+			caster->player_data.PNames[ECase::kIns] = "Богами";
+			caster->player_data.PNames[ECase::kPre] = "Богах";
 		}
 		caster_room->people.push_front(caster);
 		caster->in_room = GetRoomRnum(caster_room->vnum);

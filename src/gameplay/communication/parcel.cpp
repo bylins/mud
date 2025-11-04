@@ -151,21 +151,21 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_type() == EObjType::kKey
-		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= kNothing
-		|| GET_OBJ_OWNER(obj)) {
+		|| obj->get_rent_off() < 0
+		|| obj->get_rnum() <= kNothing
+		|| obj->get_owner()) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
-				 obj->get_PName(0).c_str());
+				 obj->get_PName(ECase::kNom).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
-		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(5).c_str());
+		snprintf(buf, kMaxStringLength, "$n сказал$g вам : 'В %s что-то лежит.'\r\n", obj->get_PName(ECase::kPre).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
 	} else if (SetSystem::is_big_set(obj)) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
-				 obj->get_PName(0).c_str());
+				 obj->get_PName(ECase::kNom).c_str());
 		act(buf, false, mailman, 0, ch, kToVict);
 		return 0;
 	}
@@ -238,7 +238,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	}
 	if (SetSystem::is_norent_set(ch, obj)
 		&& SetSystem::is_norent_set(GET_OBJ_VNUM(obj), get_objs(GET_UID(ch)))) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return;
 	}
@@ -247,7 +247,7 @@ void send_object(CharData *ch, CharData *mailman, long vict_uid, ObjData *obj) {
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
 
-	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, GET_OBJ_PNAME(obj, 0).c_str(), kColorNrm);
+	snprintf(buf, sizeof(buf), "%s%s%s\r\n", kColorWht, obj->get_PName(ECase::kNom).c_str(), kColorNrm);
 	send_buffer += buf;
 	obj = dungeons::SwapOriginalObject(obj);
 	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
@@ -374,7 +374,7 @@ void print_sending_stuff(CharData *ch) {
 
 			int money = 0;
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-				out << GET_OBJ_PNAME(it3->obj_, 0) << "\r\n";
+				out << it3->obj_->get_PName(ECase::kNom) << "\r\n";
 				money += it3->money_;
 			}
 			out << kColorNrm
@@ -471,12 +471,12 @@ ObjData *create_parcel() {
 	obj->set_aliases("посылка бандероль пакет ящик parcel box case chest");
 	obj->set_short_description("посылка");
 	obj->set_description("Кто-то забыл здесь свою посылку.");
-	obj->set_PName(0, "посылка");
-	obj->set_PName(1, "посылки");
-	obj->set_PName(2, "посылке");
-	obj->set_PName(3, "посылку");
-	obj->set_PName(4, "посылкой");
-	obj->set_PName(5, "посылке");
+	obj->set_PName(ECase::kNom, "посылка");
+	obj->set_PName(ECase::kGen, "посылки");
+	obj->set_PName(ECase::kDat, "посылке");
+	obj->set_PName(ECase::kAcc, "посылку");
+	obj->set_PName(ECase::kIns, "посылкой");
+	obj->set_PName(ECase::kPre, "посылке");
 	obj->set_sex(EGender::kFemale);
 	obj->set_type(EObjType::kContainer);
 	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
@@ -860,7 +860,7 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it) {
 		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-				if (GET_OBJ_RNUM(it3->obj_) == robj_num) {
+				if (it3->obj_->get_rnum() == robj_num) {
 					olc_update_object(robj_num, it3->obj_.get(), olc_proto);
 				}
 			}

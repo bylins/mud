@@ -79,7 +79,7 @@ void break_inst(CharData *ch) {
 		if (GET_EQ(ch, i)
 			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
 				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
-			if (GET_OBJ_CUR(GET_EQ(ch, i)) > 1) {
+			if (GET_EQ(ch, i)->get_current_durability() > 1) {
 				if (number(1, dig_vars.instr_crash_chance) == 1) {
 					const auto current = GET_EQ(ch, i)->get_current_durability();
 					GET_EQ(ch, i)->set_current_durability(current - 1);
@@ -87,7 +87,7 @@ void break_inst(CharData *ch) {
 			} else {
 				GET_EQ(ch, i)->set_timer(0);
 			}
-			if (GET_OBJ_CUR(GET_EQ(ch, i)) <= 1 && number(1, 3) == 1) {
+			if (GET_EQ(ch, i)->get_current_durability() <= 1 && number(1, 3) == 1) {
 				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->get_short_description().c_str());
 				SendMsgToChar(buf, ch);
 			}
@@ -114,14 +114,14 @@ void dig_obj(CharData *ch, ObjData *obj) {
 
 	if (GetObjMIW(obj->get_rnum()) >= obj_proto.actual_count(obj->get_rnum())
 		|| GetObjMIW(obj->get_rnum()) == ObjData::UNLIMITED_GLOBAL_MAXIMUM) {
-		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(3).c_str());
+		sprintf(textbuf, "Вы нашли %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
 		SendMsgToChar(textbuf, ch);
-		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(3).c_str());
+		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->get_PName(ECase::kAcc).c_str());
 		act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
-		} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+		} else if (ch->GetCarryingWeight() + obj->get_weight() > CAN_CARRY_W(ch)) {
 			SendMsgToChar("Вы не смогли унести такой веc.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
 		} else {
@@ -202,9 +202,9 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
 				mob->SetFlag(EMobFlag::kAgressive);
-				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
+				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
 				SendMsgToChar(textbuf, ch);
-				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
+				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 				PlaceCharToRoom(mob, ch->in_room);
 				return;

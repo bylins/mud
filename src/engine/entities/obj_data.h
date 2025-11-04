@@ -229,7 +229,7 @@ class CObjectPrototype {
 	const auto &get_no_flags() const { return m_no_flags; }
 	const auto &get_proto_script() const { return *m_proto_script; }
 	const auto &get_proto_script_ptr() const { return m_proto_script; }
-	const std::string &get_PName(const size_t index) const { return m_pnames[index]; }
+	const std::string &get_PName(const ECase name_case = ECase::kNom) const { return m_pnames[name_case]; }
 	const std::string &get_short_description() const { return m_short_description; }
 	void add_affect_flags(const FlagData &flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
@@ -286,8 +286,8 @@ class CObjectPrototype {
 	void set_no_flag(const ENoFlag flag) { m_no_flags.set(flag); }
 	void set_no_flags(const FlagData &flags) { m_no_flags = flags; }
 	void set_obj_aff(const Bitvector packed_flag) { m_waffect_flags.set(packed_flag); }
-	void set_PName(const size_t index, const char *_) { m_pnames[index] = _; }
-	void set_PName(const size_t index, const std::string &_) { m_pnames[index] = _; }
+	void set_PName(const ECase index, const char *_) { m_pnames[index] = _; }
+	void set_PName(const ECase index, const std::string &_) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t &_) { m_pnames = _; }
 	void set_proto_script(const triggers_list_t &_) { *m_proto_script = _; }
 	void set_short_description(const char *_) { m_short_description = _; }
@@ -355,7 +355,7 @@ class CObjectPrototype {
 		m_rnum_change_observers.erase(observer);
 	}
 
-	std::string item_count_message(int num, int pad);
+	std::string item_count_message(int num, ECase name_case);
 
  protected:
 	void zero_init();

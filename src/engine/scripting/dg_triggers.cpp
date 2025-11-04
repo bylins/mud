@@ -906,7 +906,7 @@ int cmd_otrig(ObjData *obj, CharData *actor, char *cmd, const char *argument, in
 						 GET_TRIG_VNUM(t),
 						 attach_name[(int) t->get_attach_type()],
 						 attach_name[OBJ_TRIGGER],
-						 obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "undefined",
+						 obj->get_PName(ECase::kNom).empty() ? obj->get_PName(ECase::kNom).c_str() : "undefined",
 						 GET_OBJ_VNUM(obj));
 				mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 				obj->get_script()->remove_trigger(trig_index[(t)->get_rnum()]->vnum);

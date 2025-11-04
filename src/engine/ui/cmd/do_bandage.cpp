@@ -37,7 +37,7 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 	}
-	if (!bandage || GET_OBJ_WEIGHT(bandage) <= 0) {
+	if (!bandage || bandage->get_weight() <= 0) {
 		SendMsgToChar("В вашем инвентаре нет подходящих для перевязки бинтов!\r\n", ch);
 		return;
 	}
@@ -63,7 +63,7 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;
-	if (GET_OBJ_WEIGHT(bandage) <= 0) {
+	if (bandage->get_weight() <= 0) {
 		SendMsgToChar("Очередная пачка бинтов подошла к концу.\r\n", ch);
 		ExtractObjFromWorld(bandage);
 	}
