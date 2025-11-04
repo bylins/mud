@@ -1038,7 +1038,7 @@ void look_in_obj(CharData *ch, char *arg) {
 						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
-						amt = std::clamp((GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
+						amt = std::clamp((obj->get_weight() * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
 						SendMsgToChar(buf, ch);
 					}
@@ -1092,7 +1092,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		} else if (object->get_type() == EObjType::kBandage) {
 			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
 			snprintf(buf2, kMaxStringLength, "Осталось применений: %d, восстановление: %d",
-					 GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
+					 object->get_weight(), GET_OBJ_VAL(object, 0) * 10);
 			strcat(buf, buf2);
 		} else if (object->get_type() != EObjType::kLiquidContainer) {
 			strcpy(buf, "Вы не видите ничего необычного.");
@@ -1982,28 +1982,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 		}
 		if (show_wear > 1) {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
-				need_str = std::max(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
+				need_str = std::max(0, calc_str_req((obj->get_weight() + 1) / 2, STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
-				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
+				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
-				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
+				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
+				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,

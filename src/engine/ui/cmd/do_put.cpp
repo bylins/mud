@@ -59,7 +59,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		return 0;
 	}
 
-	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
+	if (cont->get_weight() + obj->get_weight() > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", false, ch, obj.get(), cont, kToChar);
 	}
 	else if (obj->get_type() == EObjType::kContainer && obj->get_contains()) {

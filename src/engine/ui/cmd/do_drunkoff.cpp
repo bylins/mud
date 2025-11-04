@@ -107,7 +107,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);
 	TrainSkill(ch, ESkill::kHangovering, percent <= prob, nullptr);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
-	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
+	weight = MIN(amount, obj->get_weight());
 	weight_change_object(obj, -weight);    // Subtract amount //
 	obj->sub_val(1, amount);
 	if (!GET_OBJ_VAL(obj, 1))    // The last bit //

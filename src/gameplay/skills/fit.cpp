@@ -42,7 +42,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 
-	if (GET_OBJ_OWNER(obj)) {
+	if (obj->get_owner()) {
 		SendMsgToChar("У этой вещи уже есть владелец.\r\n", ch);
 		return;
 

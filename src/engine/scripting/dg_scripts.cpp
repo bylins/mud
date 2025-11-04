@@ -3502,7 +3502,7 @@ void find_replacement(void *go,
 				// Понадобилась возможность обнулить владельца из трига.
 				o->set_owner(num);
 			} else {
-				sprintf(str, "%d", GET_OBJ_OWNER(o));
+				sprintf(str, "%d", o->get_owner());
 			}
 		} else if (!str_cmp(field, "varexists")) {
 			auto vd = find_var_cntx(o->get_script()->global_vars, subfield, trig->context);

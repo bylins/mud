@@ -1523,7 +1523,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	//show_weapon(ch, obj);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-			GET_OBJ_WEIGHT(obj), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
+			obj->get_weight(), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
 	SendMsgToChar(buf, ch);
 
 	if (fullness < 30)

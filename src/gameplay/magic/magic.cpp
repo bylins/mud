@@ -3405,7 +3405,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 	switch (spell_id) {
 		case ESpell::kBless:
 			if (!obj->has_flag(EObjFlag::kBless)
-				&& (GET_OBJ_WEIGHT(obj) <= 5 * GetRealLevel(ch))) {
+				&& (obj->get_weight() <= 5 * GetRealLevel(ch))) {
 				obj->set_extra_flag(EObjFlag::kBless);
 				if (obj->has_flag(EObjFlag::kNodrop)) {
 					obj->unset_extraflag(EObjFlag::kNodrop);
@@ -3624,7 +3624,7 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(tobj.get(), ch->in_room);
 		CheckObjDecay(tobj.get());
-	} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
+	} else if (ch->GetCarryingWeight() + tobj->get_weight() > CAN_CARRY_W(ch)) {
 		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(tobj.get(), ch->in_room);
 		CheckObjDecay(tobj.get());

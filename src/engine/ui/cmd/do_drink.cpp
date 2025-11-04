@@ -65,7 +65,7 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (jar->get_type() != EObjType::kFountain) {
-		weight_change_object(jar, -std::min(amount, GET_OBJ_WEIGHT(jar)));
+		weight_change_object(jar, -std::min(amount, jar->get_weight()));
 	}
 
 	if (

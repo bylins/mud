@@ -320,7 +320,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	}
 
 	if ((ch->GetCarryingQuantity() + 1 > CAN_CARRY_N(ch))
-		|| ((ch->GetCarryingWeight() + GET_OBJ_WEIGHT(proto)) > CAN_CARRY_W(ch))) {
+		|| ((ch->GetCarryingWeight() + proto->get_weight()) > CAN_CARRY_W(ch))) {
 		const auto &name = obj_from_proto
 						   ? item->get_item_name(GET_MOB_VNUM(keeper), ECase::kAcc).c_str()
 						   : tmp_obj->get_short_description().c_str();
@@ -340,7 +340,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	while (bought < item_count
 		&& check_money(ch, price, currency)
 		&& ch->GetCarryingQuantity() < CAN_CARRY_N(ch)
-		&& ch->GetCarryingWeight() + GET_OBJ_WEIGHT(proto) <= CAN_CARRY_W(ch)
+		&& ch->GetCarryingWeight() + proto->get_weight() <= CAN_CARRY_W(ch)
 		&& (bought < sell_count || sell_count == -1)) {
 		if (!item->empty()) {
 			obj = get_from_shelve(item_index);
@@ -417,7 +417,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 					 IS_MALE(ch) ? "к" : "ца", bought);
 		} else if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			snprintf(buf, kMaxStringLength, "Ты сможешь унести только %d.", bought);
-		} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(proto) > CAN_CARRY_W(ch)) {
+		} else if (ch->GetCarryingWeight() + proto->get_weight() > CAN_CARRY_W(ch)) {
 			snprintf(buf, kMaxStringLength, "Ты сможешь поднять только %d.", bought);
 		} else if (bought > 0) {
 			snprintf(buf, kMaxStringLength, "Я продам тебе только %d.", bought);

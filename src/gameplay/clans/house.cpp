@@ -2262,7 +2262,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		|| obj->get_rent_off() < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| obj->has_flag(EObjFlag::kNamed)
-		|| GET_OBJ_OWNER(obj)) {
+		|| obj->get_owner()) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
@@ -2272,7 +2272,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		SendMsgToChar(utils::CAP(buf), ch);
 		return false;
 	} else {
-		if ((GET_OBJ_WEIGHT(chest) + GET_OBJ_WEIGHT(obj)) > CLAN(ch)->ChestMaxWeight()
+		if ((chest->get_weight() + obj->get_weight()) > CLAN(ch)->ChestMaxWeight()
 			|| CLAN(ch)->chest_objcount == CLAN(ch)->ChestMaxObjects()) {
 			act("Вы попытались запихнуть $o3 в $O3, но не смогли - там просто нет места.",
 				false,
@@ -3764,7 +3764,7 @@ int Clan::ChestTax() {
 				cost += temp->get_rent_on();
 				++count;
 			}
-			this->chest_weight = GET_OBJ_WEIGHT(chest);
+			this->chest_weight = chest->get_weight();
 			break;
 		}
 	}

@@ -671,17 +671,14 @@ const int kNameLevel = 5;
 
 // object utils *********************************************************
 
-#define GET_OBJ_COST(obj)       ((obj)->get_cost())
-#define GET_OBJ_RENT(obj)       ((obj)->get_rent_off())
-#define GET_OBJ_RENTEQ(obj)     ((obj)->get_rent_on())
 #define GET_OBJ_EXTRA(obj)  ((obj)->get_extra_flags())
 #define GET_OBJ_WEAR(obj)  ((obj)->get_wear_flags())
-#define GET_OBJ_OWNER(obj)      ((obj)->get_owner())
+//#define GET_OBJ_OWNER(obj)      ((obj)->get_owner())
 #define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
 #define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
 #define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
-#define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
-#define GET_OBJ_DESTROY(obj) ((obj)->get_destroyer())
+//#define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
+//#define GET_OBJ_DESTROY(obj) ((obj)->get_destroyer())
 #define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
 #define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
 #define GET_OBJ_MATER(obj)  ((obj)->get_material())

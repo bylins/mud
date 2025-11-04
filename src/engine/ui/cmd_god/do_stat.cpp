@@ -704,8 +704,8 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
-	if (GET_OBJ_OWNER(j)) {
-		auto *tmpstr = GetPlayerNameByUnique(GET_OBJ_OWNER(j));
+	if (j->get_owner()) {
+		auto *tmpstr = GetPlayerNameByUnique(j->get_owner());
 		SendMsgToChar(ch, ", Владелец : %s", tmpstr == nullptr ? "УДАЛЕН": tmpstr);
 	}
 //	if (GET_OBJ_ZONE(j))
@@ -772,14 +772,14 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
-			GET_OBJ_WEIGHT(j), j->get_cost(), j->get_rent_on(), j->get_rent_off());
+			j->get_weight(), j->get_cost(), j->get_rent_on(), j->get_rent_off());
 	SendMsgToChar(buf, ch);
 	if (stable_objs::IsTimerUnlimited(j))
 		sprintf(buf, "Таймер: нерушимо, ");
 	else
 		sprintf(buf, "Таймер: %d, ", j->get_timer());
 	SendMsgToChar(buf, ch);
-	sprintf(buf, "Таймер на земле: %d\r\n", GET_OBJ_DESTROY(j));
+	sprintf(buf, "Таймер на земле: %d\r\n", j->get_destroyer());
 	SendMsgToChar(buf, ch);
 	std::string str;
 

@@ -656,7 +656,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 		percent = number(1, MUD::Skill(skill).difficulty);
 		prob = CalcCurrentSkill(ch, skill, nullptr);
 		TrainSkill(ch, skill, true, nullptr);
-		weight = MIN(GET_OBJ_WEIGHT(obj) - 2, GET_OBJ_WEIGHT(obj) * prob / percent);
+		weight = MIN(obj->get_weight() - 2, obj->get_weight() * prob / percent);
 	}
 	if (weight < created_item[obj_type].min_weight) {
 		SendMsgToChar("У вас не хватило материала.\r\n", ch);
@@ -713,16 +713,16 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					ndice = MAX(2, MIN(4, prob / percent));
-					ndice += GET_OBJ_WEIGHT(tobj) / 10;
+					ndice += tobj->get_weight() / 10;
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					sdice = MAX(2, MIN(5, prob / percent));
-					sdice += GET_OBJ_WEIGHT(tobj) / 10;
+					sdice += tobj->get_weight() / 10;
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
 					//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
 					if (skill != ESkill::kCreateBow) {
-						if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob) {
+						if (tobj->get_weight() < 14 && percent * 4 > prob) {
 							tobj->set_wear_flag(EWearFlag::kHold);
 						}
 						to_room = "$n выковал$g $o3.";
@@ -746,9 +746,9 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					tobj->set_maximum_durability(50);
 					tobj->set_current_durability(50);
 					ndice = MAX(2, MIN(4, GetRealLevel(ch) / number(6, 8)));
-					ndice += (GET_OBJ_WEIGHT(tobj) / 10);
+					ndice += (tobj->get_weight() / 10);
 					sdice = MAX(2, MIN(5, GetRealLevel(ch) / number(4, 5)));
-					sdice += (GET_OBJ_WEIGHT(tobj) / 10);
+					sdice += (tobj->get_weight() / 10);
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
 					tobj->set_extra_flag(EObjFlag::kNorent);
@@ -807,7 +807,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 				SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
-			} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
+			} else if (ch->GetCarryingWeight() + tobj->get_weight() > CAN_CARRY_W(ch)) {
 				SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 				PlaceObjToRoom(tobj.get(), ch->in_room);
 				CheckObjDecay(tobj.get());
@@ -1006,7 +1006,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			}
 			for (i = 1; i < MAX_PROTO; i++) {
 				if (proto[i]) {
-					proto[0]->add_weight(GET_OBJ_WEIGHT(proto[i]));
+					proto[0]->add_weight(proto[i]->get_weight());
 					proto[0]->set_cost(proto[0]->get_cost() + proto[i]->get_cost());
 					ExtractObjFromWorld(proto[i]);
 				}
@@ -1761,7 +1761,7 @@ int MakeRecept::make(CharData *ch) {
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
 			//чтобы не крешило дальше в обработке фейла (Купала)
-			IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+			IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 			ingrs[i]->set_weight(0);
 			make_fail = true;
 		}
@@ -1788,7 +1788,7 @@ int MakeRecept::make(CharData *ch) {
 		for (i = 0; i < ingr_cnt; i++) {
 			if (skill == ESkill::kMakeWear && i == 0) //для шитья всегда раскраиваем шкуру
 			{
-				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
+				IS_CARRYING_W(ch) -= ingrs[0]->get_weight();
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
 				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(ECase::kAcc) + ".\r\n";
 				SendMsgToChar(tmpstr.c_str(), ch);
@@ -1812,20 +1812,20 @@ int MakeRecept::make(CharData *ch) {
 			// если не хватает то удаляем игридиент и фейлим.
 			int state = craft_weight;
 			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
-			//SendMsgToChar(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
+			//SendMsgToChar(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, ingrs[i]->get_weight(), ingr_cnt);
 			int obj_vnum_tmp = GET_OBJ_VNUM(ingrs[i]);
 			while (state > 0) {
 				//Переделаем слегка логику итераций
 				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
-				if (GET_OBJ_WEIGHT(ingrs[i]) > state) {
+				if (ingrs[i]->get_weight() > state) {
 					ingrs[i]->sub_weight(state);
 					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
 					IS_CARRYING_W(ch) -= state;
 					break;
 				}
 					//Если вес ингра ровно столько, сколько требуется, вычитаем вес, ломаем ингр и останавливаем итерацию.
-				else if (GET_OBJ_WEIGHT(ingrs[i]) == state) {
-					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+				else if (ingrs[i]->get_weight() == state) {
+					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
 					//extract_obj(ingrs[i]);
@@ -1833,12 +1833,12 @@ int MakeRecept::make(CharData *ch) {
 				}
 					//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
 				else {
-					state = state - GET_OBJ_WEIGHT(ingrs[i]);
+					state = state - ingrs[i]->get_weight();
 					SendMsgToChar(ch,
 								  "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
 								  ingrs[i]->get_PName(ECase::kAcc).c_str());
 					std::string tmpname = std::string(ingrs[i]->get_PName(ECase::kGen).c_str());
-					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					ExtractObjFromWorld(ingrs[i]);
 					ingrs[i] = nullptr;
@@ -1888,7 +1888,7 @@ int MakeRecept::make(CharData *ch) {
 			}
 		}
 		for (i = 0; i < ingr_cnt; i++) {
-			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0) {
+			if (ingrs[i] && ingrs[i]->get_weight() <= 0) {
 				ExtractObjFromWorld(ingrs[i]);
 			}
 		}
@@ -1905,7 +1905,7 @@ int MakeRecept::make(CharData *ch) {
 	// Т.к. сделать мы можем практически любой предмет.
 	// Модифицируем вес предмета и его таймер.
 	// Для маг предметов надо в сторону облегчения.
-//	i = GET_OBJ_WEIGHT(obj);
+//	i = obj->get_weight();
 	switch (skill) {
 		case ESkill::kMakeBow:;
 		case ESkill::kMakeWear: obj->set_extra_flag(EObjFlag::kTransformed);
@@ -1918,7 +1918,7 @@ int MakeRecept::make(CharData *ch) {
 		|| obj->get_type() == EObjType::kIngredient) {
 		sign = 1;
 	}
-	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
+	obj->set_weight(stat_modify(ch, obj->get_weight(), 20 * sign));
 
 	i = obj->get_timer();
 	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
@@ -2006,7 +2006,7 @@ int MakeRecept::make(CharData *ch) {
 	}
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++) {
-		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0) {
+		if (ingrs[i]->get_weight() <= 0) {
 			ExtractObjFromWorld(ingrs[i]);
 		}
 	}
@@ -2049,7 +2049,7 @@ int MakeRecept::make(CharData *ch) {
 	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
-	} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+	} else if (ch->GetCarryingWeight() + obj->get_weight() > CAN_CARRY_W(ch)) {
 		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(obj.get(), ch->in_room);
 	} else {

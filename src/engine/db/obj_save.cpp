@@ -504,7 +504,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	// Проверить вес фляг и т.п.
 	if (object->get_type() == EObjType::kLiquidContainer
 		|| object->get_type() == EObjType::kFountain) {
-		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1)) {
+		if (object->get_weight() < GET_OBJ_VAL(object, 1)) {
 			object->set_weight(GET_OBJ_VAL(object, 1) + 5);
 		}
 	}
@@ -739,8 +739,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			}
 		}
 		// Вес
-		if (GET_OBJ_WEIGHT(object) != GET_OBJ_WEIGHT(proto)) {
-			out << "Weig: " << GET_OBJ_WEIGHT(object) << "~\n";
+		if (object->get_weight() != proto->get_weight()) {
+			out << "Weig: " << object->get_weight() << "~\n";
 		}
 		// Цена
 		if (object->get_cost() != proto->get_cost()) {
@@ -755,8 +755,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "RntQ: " << object->get_rent_on() << "~\n";
 		}
 		// Владелец
-		if (GET_OBJ_OWNER(object) != ObjData::DEFAULT_OWNER) {
-			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
+		if (object->get_owner() != ObjData::DEFAULT_OWNER) {
+			out << "Ownr: " << object->get_owner() << "~\n";
 		}
 		// Создатель
 		if (GET_OBJ_MAKER(object) != ObjData::DEFAULT_MAKER) {
@@ -1676,7 +1676,7 @@ void Crash_restore_weight(ObjData *obj) {
 	for (; obj; obj = obj->get_next_content()) {
 		Crash_restore_weight(obj->get_contains());
 		if (obj->get_in_obj()) {
-			obj->get_in_obj()->add_weight(GET_OBJ_WEIGHT(obj));
+			obj->get_in_obj()->add_weight(obj->get_weight());
 		}
 	}
 }
@@ -1822,7 +1822,7 @@ int Crash_calc_charmee_items(CharData *ch) {
 void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int location, int savetype) {
 	for (; obj; obj = obj->get_next_content()) {
 		if (obj->get_in_obj()) {
-			obj->get_in_obj()->sub_weight(GET_OBJ_WEIGHT(obj));
+			obj->get_in_obj()->sub_weight(obj->get_weight());
 		}
 		Crash_save(write_buffer, iplayer, obj->get_contains(), MIN(0, location) - 1, savetype);
 		if (iplayer >= 0) {

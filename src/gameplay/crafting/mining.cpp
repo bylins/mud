@@ -121,7 +121,7 @@ void dig_obj(CharData *ch, ObjData *obj) {
 		if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 			SendMsgToChar("Вы не смогли унести столько предметов.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
-		} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+		} else if (ch->GetCarryingWeight() + obj->get_weight() > CAN_CARRY_W(ch)) {
 			SendMsgToChar("Вы не смогли унести такой веc.\r\n", ch);
 			PlaceObjToRoom(obj, ch->in_room);
 		} else {

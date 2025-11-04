@@ -501,17 +501,17 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 		return;
 	int need_str = 0;
 	switch (type) {
-		case STR_WIELD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W);
+		case STR_WIELD_W: need_str = calc_str_req(obj->get_weight(), STR_WIELD_W);
 			break;
-		case STR_HOLD_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W);
+		case STR_HOLD_W: need_str = calc_str_req(obj->get_weight(), STR_HOLD_W);
 			break;
-		case STR_BOTH_W: need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W);
+		case STR_BOTH_W: need_str = calc_str_req(obj->get_weight(), STR_BOTH_W);
 			break;
-		case STR_SHIELD_W: need_str = calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W);
+		case STR_SHIELD_W: need_str = calc_str_req((obj->get_weight() + 1) / 2, STR_HOLD_W);
 			break;
 		default:
 			log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",
-				GET_NAME(ch), GET_OBJ_WEIGHT(obj), type,
+				GET_NAME(ch), obj->get_weight(), type,
 				__FILE__, __func__, __LINE__);
 			return;
 	}

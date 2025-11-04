@@ -495,7 +495,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 
 		object->set_carried_by(ch);
 		object->set_in_room(kNowhere);
-		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
+		IS_CARRYING_W(ch) += object->get_weight();
 		IS_CARRYING_N(ch)++;
 
 		if (!ch->IsNpc()) {
@@ -523,7 +523,7 @@ void RemoveObjFromChar(ObjData *object) {
 		log("obj_from_char: %s -> %d", object->get_carried_by()->get_name().c_str(), GET_OBJ_VNUM(object));
 	}
 
-	IS_CARRYING_W(object->get_carried_by()) -= GET_OBJ_WEIGHT(object);
+	IS_CARRYING_W(object->get_carried_by()) -= object->get_weight();
 	IS_CARRYING_N(object->get_carried_by())--;
 	object->set_carried_by(nullptr);
 	object->set_next_content(nullptr);
@@ -1409,13 +1409,13 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
 	obj->set_in_obj(obj_to);
 
 	for (tmp_obj = obj->get_in_obj(); tmp_obj->get_in_obj(); tmp_obj = tmp_obj->get_in_obj()) {
-		tmp_obj->add_weight(GET_OBJ_WEIGHT(obj));
+		tmp_obj->add_weight(obj->get_weight());
 	}
 
 	// top level object.  Subtract weight from inventory if necessary.
-	tmp_obj->add_weight(GET_OBJ_WEIGHT(obj));
+	tmp_obj->add_weight(obj->get_weight());
 	if (tmp_obj->get_carried_by()) {
-		IS_CARRYING_W(tmp_obj->get_carried_by()) += GET_OBJ_WEIGHT(obj);
+		IS_CARRYING_W(tmp_obj->get_carried_by()) += obj->get_weight();
 	}
 }
 
@@ -1435,13 +1435,13 @@ void RemoveObjFromObj(ObjData *obj) {
 	// Subtract weight from containers container
 	auto temp = obj->get_in_obj();
 	for (; temp->get_in_obj(); temp = temp->get_in_obj()) {
-		temp->set_weight(std::max(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
+		temp->set_weight(std::max(1, temp->get_weight() - obj->get_weight()));
 	}
 
 	// Subtract weight from char that carries the object
-	temp->set_weight(std::max(1, GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj)));
+	temp->set_weight(std::max(1, temp->get_weight() - obj->get_weight()));
 	if (temp->get_carried_by()) {
-		IS_CARRYING_W(temp->get_carried_by()) = std::max(1, temp->get_carried_by()->GetCarryingWeight() - GET_OBJ_WEIGHT(obj));
+		IS_CARRYING_W(temp->get_carried_by()) = std::max(1, temp->get_carried_by()->GetCarryingWeight() - obj->get_weight());
 	}
 
 	obj->set_in_obj(nullptr);
@@ -2396,7 +2396,7 @@ void can_carry_obj(CharData *ch, ObjData *obj) {
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
 	} else {
-		if (GET_OBJ_WEIGHT(obj) + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
+		if (obj->get_weight() + ch->GetCarryingWeight() > CAN_CARRY_W(ch)) {
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(ECase::kAcc).c_str());
 			SendMsgToChar(buf, ch);
 			PlaceObjToRoom(obj, ch->in_room);

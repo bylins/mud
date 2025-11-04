@@ -839,7 +839,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 		if (ch->GetCarryingQuantity() < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
-				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)
+				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + obj->get_weight()
 					<= CAN_CARRY_W(ch) && (!best || obj->get_cost() > best->get_cost()))
 					best = obj;
 			if (best) {

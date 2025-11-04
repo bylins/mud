@@ -108,7 +108,7 @@ std::string enchant::print_to_file() const {
 }
 
 void correct_values(ObjData *obj) {
-	obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj)));
+	obj->set_weight(std::max(1, obj->get_weight()));
 	obj->set_val(1, std::max(0, GET_OBJ_VAL(obj, 1)));
 	obj->set_val(2, std::max(0, GET_OBJ_VAL(obj, 2)));
 }

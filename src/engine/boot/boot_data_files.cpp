@@ -844,10 +844,10 @@ void ObjectFile::parse_object(const int nr) {
 bool ObjectFile::check_object(ObjData *obj) {
 	bool error = false;
 
-	if (GET_OBJ_WEIGHT(obj) < 0) {
+	if (obj->get_weight() < 0) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative weight (%d).",
-			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_WEIGHT(obj));
+			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), obj->get_weight());
 	}
 /* спам от антуражных шмоток
 	if (obj->get_rent_off() <= 0) {

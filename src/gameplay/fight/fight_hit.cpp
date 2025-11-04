@@ -1172,7 +1172,7 @@ int do_punctual(CharData *ch, CharData * /*victim*/, ObjData *wielded) {
 
 	if (wielded) {
 		wapp = (int) ((static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) && GET_EQ(ch, EEquipPos::kBoths)) ?
-			GET_OBJ_WEIGHT(wielded) * 1 / 3 : GET_OBJ_WEIGHT(wielded);
+			wielded->get_weight() * 1 / 3 : wielded->get_weight();
 	}
 	if (wapp < 10)
 		dam_critic = RollDices(1, 6);
@@ -2838,7 +2838,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 			if (AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) {
 				// проверка оружия для глуша чармисов
 				const bool wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
-				const bool weapon_weigth_ok = wielded && (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth);
+				const bool weapon_weigth_ok = wielded && (wielded->get_weight() >= minimum_weapon_weigth);
 				if (wielded_for_stupor && !wielded_with_bow && weapon_weigth_ok) {
 					try_stupor_dam(ch, victim);
 				}
@@ -2852,7 +2852,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 			if (static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) {
 				SendMsgToChar("Луком оглушить нельзя.\r\n", ch);
 			} else if (!GET_AF_BATTLE(ch, kEafParry) && !GET_AF_BATTLE(ch, kEafMultyparry)) {
-				if (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth) {
+				if (wielded->get_weight() >= minimum_weapon_weigth) {
 					try_stupor_dam(ch, victim);
 				} else {
 					SendMsgToChar("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
@@ -2992,13 +2992,13 @@ void HitData::calc_base_hr(CharData *ch) {
 			// Apply HR for light weapon
 			int percent = 0;
 			switch (weapon_pos) {
-				case EEquipPos::kWield: percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kWield: percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) - wielded->get_weight() + 1) / 2;
 					break;
-				case EEquipPos::kHold: percent = (str_bonus(GetRealStr(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kHold: percent = (str_bonus(GetRealStr(ch), STR_HOLD_W) - wielded->get_weight() + 1) / 2;
 					break;
 				case EEquipPos::kBoths:
 					percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) +
-						str_bonus(GetRealStr(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+						str_bonus(GetRealStr(ch), STR_HOLD_W) - wielded->get_weight() + 1) / 2;
 					break;
 			}
 			calc_thaco -= std::min(3, std::max(percent, 0));
