@@ -943,7 +943,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_type() == EObjType::kKey
-		|| GET_OBJ_RENT(obj) < 0
+		|| obj->get_rent_off() < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
 //		|| (NamedStuff::check_named(ch, obj, 0) && GET_UID(ch) != GET_OBJ_OWNER(obj))) {

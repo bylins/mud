@@ -743,16 +743,16 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Weig: " << GET_OBJ_WEIGHT(object) << "~\n";
 		}
 		// Цена
-		if (GET_OBJ_COST(object) != GET_OBJ_COST(proto)) {
-			out << "Cost: " << GET_OBJ_COST(object) << "~\n";
+		if (object->get_cost() != proto->get_cost()) {
+			out << "Cost: " << object->get_cost() << "~\n";
 		}
 		// Рента (снято)
-		if (GET_OBJ_RENT(object) != GET_OBJ_RENT(proto)) {
-			out << "Rent: " << GET_OBJ_RENT(object) << "~\n";
+		if (object->get_rent_off() != proto->get_rent_off()) {
+			out << "Rent: " << object->get_rent_off() << "~\n";
 		}
 		// Рента (одето)
-		if (GET_OBJ_RENTEQ(object) != GET_OBJ_RENTEQ(proto)) {
-			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
+		if (object->get_rent_on() != proto->get_rent_on()) {
+			out << "RntQ: " << object->get_rent_on() << "~\n";
 		}
 		// Владелец
 		if (GET_OBJ_OWNER(object) != ObjData::DEFAULT_OWNER) {
@@ -1299,7 +1299,7 @@ void Crash_list_objects(CharData *ch, int index) {
 				tmr = MAX(-1, data.timer - timer_dec);
 			}
 			ss << fmt::format(" [{:>7}] ({:>5}au) <{:>6}> {:<20}\r\n",
-					data.vnum, GET_OBJ_RENT(obj), tmr, obj->get_short_description().c_str());
+					data.vnum, obj->get_rent_off(), tmr, obj->get_short_description().c_str());
 		}
 	}
 	SendMsgToChar(ss.str().c_str(), ch);
@@ -1699,7 +1699,7 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 	}
 
 	if (obj->has_flag(EObjFlag::kNorent)
-		|| GET_OBJ_RENT(obj) < 0
+		|| obj->get_rent_off() < 0
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| (GET_OBJ_RNUM(obj) <= kNothing
@@ -1764,7 +1764,7 @@ int Crash_calculate_rent(ObjData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
-		cost += MAX(0, GET_OBJ_RENT(obj));
+		cost += MAX(0, obj->get_rent_off());
 	}
 	return (cost);
 }
@@ -1773,7 +1773,7 @@ int Crash_calculate_rent_eq(ObjData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
-		cost += MAX(0, GET_OBJ_RENTEQ(obj));
+		cost += MAX(0, obj->get_rent_on());
 	}
 	return (cost);
 }
@@ -2100,9 +2100,9 @@ void Crash_report_rent_item(CharData *ch,
 	if (obj) {
 		if (CAN_WEAR_ANY(obj)) {
 			if (equip) {
-				sprintf(bf, " (%d если снять)", GET_OBJ_RENT(obj) * factor * count);
+				sprintf(bf, " (%d если снять)", obj->get_rent_off() * factor * count);
 			} else {
-				sprintf(bf, " (%d если надеть)", GET_OBJ_RENTEQ(obj) * factor * count);
+				sprintf(bf, " (%d если надеть)", obj->get_rent_on() * factor * count);
 			}
 		} else {
 			*bf = '\0';
@@ -2114,9 +2114,9 @@ void Crash_report_rent_item(CharData *ch,
 
 		sprintf(buf, "%s - %d %s%s за %s%s %s",
 				recursive ? "" : kColorWht,
-				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
+				(equip ? obj->get_rent_on() * count : obj->get_rent_off()) *
 					factor * count,
-				GetDeclensionInNumber((equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) * factor * count,
+				GetDeclensionInNumber((equip ? obj->get_rent_on() * count : obj->get_rent_off()) * factor * count,
 									  EWhat::kMoneyA),
 				bf, OBJN(obj, ch, ECase::kAcc), count > 1 ? bf2 : "", recursive ? "" : kColorNrm);
 		act(buf, false, recep, 0, ch, kToVict);
@@ -2132,7 +2132,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 	if (obj) {
 		if (!Crash_is_unrentable(ch, obj)) {
 			/*(*nitems)++;
-			*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) * factor));
+			*cost += MAX(0, ((equip ? obj->get_rent_on() : obj->get_rent_off()) * factor));
 			if (rentshow)
 			{
 				if (*nitems == 1)
@@ -2145,18 +2145,18 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 				if (CAN_WEAR_ANY(obj))
 				{
 					if (equip)
-						sprintf(bf, " (%d если снять)", GET_OBJ_RENT(obj) * factor);
+						sprintf(bf, " (%d если снять)", obj->get_rent_off() * factor);
 					else
-						sprintf(bf, " (%d если надеть)", GET_OBJ_RENTEQ(obj) * factor);
+						sprintf(bf, " (%d если надеть)", obj->get_rent_on() * factor);
 				}
 				else
 					*bf = '\0';
 				sprintf(buf, "%s - %d %s%s за %s %s",
 						recursive ? "" : KWHT,
-						(equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) *
+						(equip ? obj->get_rent_on() : obj->get_rent_off()) *
 						factor,
-						desc_count((equip ? GET_OBJ_RENTEQ(obj) :
-									GET_OBJ_RENT(obj)) * factor,
+						desc_count((equip ? obj->get_rent_on() :
+									obj->get_rent_off()) * factor,
 								   EWhat::MONEYa), bf, OBJN(obj, ch, ECase::kAcc),
 						recursive ? "" : KNRM;
 				act(buf, false, recep, 0, ch, TO_VICT);
@@ -2166,7 +2166,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 			// - 2700 кун (900 если надеть) за красный пузырек [9]
 			for (i = obj; i; i = i->get_next_content()) {
 				(*nitems)++;
-				*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(i) : GET_OBJ_RENT(i)) * factor));
+				*cost += MAX(0, ((equip ? i->get_rent_on() : i->get_rent_off()) * factor));
 				if (rentshow) {
 					if (*nitems == 1) {
 						if (!recursive) {

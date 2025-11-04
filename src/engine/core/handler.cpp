@@ -2384,7 +2384,7 @@ int IsEquipInMetall(CharData *ch) {
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 int get_object_low_rent(ObjData *obj) {
-	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
+	int rent = obj->get_rent_off() > obj->get_rent_on() ? obj->get_rent_on() : obj->get_rent_off();
 	return rent;
 }
 

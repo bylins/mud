@@ -1146,17 +1146,17 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
 			victim->set_npc_name(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
-			victim->player_data.PNames[0] = std::string(descr);
+			victim->player_data.PNames[ECase::kNom] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][1], GET_PAD(victim, 1));
-			victim->player_data.PNames[1] = std::string(descr);
+			victim->player_data.PNames[ECase::kGen] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][2], GET_PAD(victim, 2));
-			victim->player_data.PNames[2] = std::string(descr);
+			victim->player_data.PNames[ECase::kDat] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][3], GET_PAD(victim, 3));
-			victim->player_data.PNames[3] = std::string(descr);
+			victim->player_data.PNames[ECase::kAcc] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][4], GET_PAD(victim, 4));
-			victim->player_data.PNames[4] = std::string(descr);
+			victim->player_data.PNames[ECase::kIns] = std::string(descr);
 			sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
-			victim->player_data.PNames[5] = std::string(descr);
+			victim->player_data.PNames[ECase::kPre] = std::string(descr);
 			victim->set_max_hit(victim->get_max_hit() + floorf( GetRealLevel(ch)*15 + r_cha*4 + perc*2));
 			victim->set_hit(victim->get_max_hit());
 			// статы
@@ -1523,7 +1523,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	//show_weapon(ch, obj);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-			GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+			GET_OBJ_WEIGHT(obj), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
 	SendMsgToChar(buf, ch);
 
 	if (fullness < 30)
@@ -2292,24 +2292,24 @@ void SpellSummonAngel(CharData *ch) {
 	if (IS_FEMALE(ch)) {
 		mob->set_sex(EGender::kMale);
 		mob->SetCharAliases("Небесный защитник");
-		mob->player_data.PNames[0] = "Небесный защитник";
-		mob->player_data.PNames[1] = "Небесного защитника";
-		mob->player_data.PNames[2] = "Небесному защитнику";
-		mob->player_data.PNames[3] = "Небесного защитника";
-		mob->player_data.PNames[4] = "Небесным защитником";
-		mob->player_data.PNames[5] = "Небесном защитнике";
+		mob->player_data.PNames[ECase::kNom] = "Небесный защитник";
+		mob->player_data.PNames[ECase::kGen] = "Небесного защитника";
+		mob->player_data.PNames[ECase::kDat] = "Небесному защитнику";
+		mob->player_data.PNames[ECase::kAcc] = "Небесного защитника";
+		mob->player_data.PNames[ECase::kIns] = "Небесным защитником";
+		mob->player_data.PNames[ECase::kPre] = "Небесном защитнике";
 		mob->set_npc_name("Небесный защитник");
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	} else {
 		mob->set_sex(EGender::kFemale);
 		mob->SetCharAliases("Небесная защитница");
-		mob->player_data.PNames[0] = "Небесная защитница";
-		mob->player_data.PNames[1] = "Небесной защитницы";
-		mob->player_data.PNames[2] = "Небесной защитнице";
-		mob->player_data.PNames[3] = "Небесную защитницу";
-		mob->player_data.PNames[4] = "Небесной защитницей";
-		mob->player_data.PNames[5] = "Небесной защитнице";
+		mob->player_data.PNames[ECase::kNom] = "Небесная защитница";
+		mob->player_data.PNames[ECase::kGen] = "Небесной защитницы";
+		mob->player_data.PNames[ECase::kDat] = "Небесной защитнице";
+		mob->player_data.PNames[ECase::kAcc] = "Небесную защитницу";
+		mob->player_data.PNames[ECase::kIns] = "Небесной защитницей";
+		mob->player_data.PNames[ECase::kPre] = "Небесной защитнице";
 		mob->set_npc_name("Небесная защитница");
 		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");

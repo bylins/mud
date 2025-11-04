@@ -250,16 +250,16 @@ int npc_scavenge(CharData *ch) {
 				}
 
 				for (cobj = obj->get_contains(); cobj; cobj = cobj->get_next_content()) {
-					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && GET_OBJ_COST(cobj) > max) {
+					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && cobj->get_cost() > max) {
 						cont = obj;
 						best_cont = best_obj = cobj;
-						max = GET_OBJ_COST(cobj);
+						max = cobj->get_cost();
 					}
 				}
 			} else if (!IS_CORPSE(obj) &&
-				CAN_GET_OBJ(ch, obj) && GET_OBJ_COST(obj) > max && !item_nouse(obj)) {
+				CAN_GET_OBJ(ch, obj) && obj->get_cost() > max && !item_nouse(obj)) {
 				best_obj = obj;
-				max = GET_OBJ_COST(obj);
+				max = obj->get_cost();
 			}
 		}
 		if (best_obj != nullptr) {
@@ -840,7 +840,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
 				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)
-					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
+					<= CAN_CARRY_W(ch) && (!best || obj->get_cost() > best->get_cost()))
 					best = obj;
 			if (best) {
 				RemoveObjFromChar(best);
@@ -1006,7 +1006,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
-		value += MAX(1, MIN(1, GET_OBJ_COST(k) / 10));
+		value += MAX(1, MIN(1, k->get_cost() / 10));
 		ExtractObjFromWorld(k);
 	}
 
@@ -1255,7 +1255,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		}
 
 		if (i->get_type() != EObjType::kLiquidContainer
-			&& GET_OBJ_COST(i) >= 15) {
+			&& i->get_cost() >= 15) {
 			continue;
 		}
 

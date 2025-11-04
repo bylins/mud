@@ -140,7 +140,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 			if (obj->has_flag(EObjFlag::kDecay)
 				|| obj->has_flag(EObjFlag::kNodrop)
-				|| GET_OBJ_COST(obj) <= 0
+				|| obj->get_cost() <= 0
 				|| obj->get_owner() > 0) {
 				SendMsgToChar("Этот предмет не предназначен для аукциона.\r\n", ch);
 				return false;
@@ -161,7 +161,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			}
 */
 			if (value <= 0) {
-				value = std::max(1, GET_OBJ_COST(obj));
+				value = std::max(1, obj->get_cost());
 			};
 			if (*whom) {
 				if (!(tch = get_player_vis(ch, whom, EFind::kCharInWorld))) {

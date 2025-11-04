@@ -202,9 +202,9 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		if (mob) {
 			if (GetRealLevel(mob) <= GetRealLevel(ch)) {
 				mob->SetFlag(EMobFlag::kAgressive);
-				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
+				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
 				SendMsgToChar(textbuf, ch);
-				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
+				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[ECase::kAcc].c_str());
 				act(textbuf, false, ch, nullptr, nullptr, kToRoom);
 				PlaceCharToRoom(mob, ch->in_room);
 				return;

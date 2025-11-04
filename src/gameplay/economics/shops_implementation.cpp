@@ -170,12 +170,12 @@ void ItemNode::replace_descs(ObjData *obj, const int vnum) const {
 	obj->set_description(desc.description);
 	obj->set_aliases(desc.name);
 	obj->set_short_description(desc.short_description.c_str());
-	obj->set_PName(ECase::kNom, desc.PNames[0].c_str());
-	obj->set_PName(ECase::kGen, desc.PNames[1].c_str());
-	obj->set_PName(ECase::kDat, desc.PNames[2].c_str());
-	obj->set_PName(ECase::kAcc, desc.PNames[3].c_str());
-	obj->set_PName(ECase::kIns, desc.PNames[4].c_str());
-	obj->set_PName(ECase::kPre, desc.PNames[5].c_str());
+	obj->set_PName(ECase::kNom, desc.PNames[ECase::kNom].c_str());
+	obj->set_PName(ECase::kGen, desc.PNames[ECase::kGen].c_str());
+	obj->set_PName(ECase::kDat, desc.PNames[ECase::kDat].c_str());
+	obj->set_PName(ECase::kAcc, desc.PNames[ECase::kAcc].c_str());
+	obj->set_PName(ECase::kIns, desc.PNames[ECase::kIns].c_str());
+	obj->set_PName(ECase::kPre, desc.PNames[ECase::kPre].c_str());
 	obj->set_sex(desc.sex);
 
 	if (!desc.trigs.empty()) {
@@ -441,7 +441,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	tell_to_char(keeper, ch, buf);
 
 	if (obj) {
-		if ((GET_OBJ_COST(obj) * bought) > total_money) {
+		if ((obj->get_cost() * bought) > total_money) {
 
 			snprintf(buf,
 					 kMaxStringLength,
@@ -449,7 +449,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 					 ch->get_name().c_str(),
 					 GET_OBJ_VNUM(obj),
 					 total_money,
-					 GET_OBJ_COST(obj),
+					 obj->get_cost(),
 					 price);
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 		}
@@ -490,7 +490,7 @@ void shop_node::print_shop_list(CharData *ch, const std::string &arg, int keeper
 			if (tmp_obj) {
 				print_value = tmp_obj->get_short_description();
 				name_value = tmp_obj->get_aliases();
-				item->set_price(GET_OBJ_COST(tmp_obj));
+				item->set_price(tmp_obj->get_cost());
 			}
 		}
 
@@ -564,7 +564,7 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 				if (filter.check(tmp_obj, ch)) {
 					print_value = tmp_obj->get_short_description();
 					name_value = tmp_obj->get_aliases();
-					item->set_price(GET_OBJ_COST(tmp_obj));
+					item->set_price(tmp_obj->get_cost());
 					out << fmt::format("{:>4})  {:>10}  {:<47} {:>8}\r\n",
 							   num, numToShow, print_value, item->get_price());
 				}
@@ -931,8 +931,8 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 }
 
 long get_sell_price(ObjData *obj) {
-	long cost = GET_OBJ_COST(obj);
-	long cost_obj = GET_OBJ_COST(obj);
+	long cost = obj->get_cost();
+	long cost_obj = obj->get_cost();
 	int timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 	if (timer < obj->get_timer()) {
 		obj->set_timer(timer);
@@ -976,11 +976,11 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		}
 	}
 
-	long buy_price = GET_OBJ_COST(obj);
+	long buy_price = obj->get_cost();
 	long buy_price_old = get_sell_price(obj);
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
-	int repair_price = std::max(1, GET_OBJ_COST(obj) * std::max(0, repair) / std::max(1, GET_OBJ_MAX(obj)));
+	int repair_price = std::max(1, obj->get_cost() * std::max(0, repair) / std::max(1, GET_OBJ_MAX(obj)));
 
 	// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
 	if (!CanUseFeat(ch, EFeat::kSkilledTrader)) {

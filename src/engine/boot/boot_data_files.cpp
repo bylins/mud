@@ -850,10 +850,10 @@ bool ObjectFile::check_object(ObjData *obj) {
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_WEIGHT(obj));
 	}
 /* спам от антуражных шмоток
-	if (GET_OBJ_RENT(obj) <= 0) {
+	if (obj->get_rent_off() <= 0) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
-			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), GET_OBJ_RENT(obj));
+			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), obj->get_rent_off());
 	}
 */
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf);
@@ -1007,7 +1007,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].set_npc_name(fread_string());
 
 	// real name
-	mob_proto[i].player_data.PNames[0] = mob_proto[i].get_npc_name();
+	mob_proto[i].player_data.PNames[ECase::kNom] = mob_proto[i].get_npc_name();
 	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
 		mob_proto[i].player_data.PNames[j] = fread_string();
 	}

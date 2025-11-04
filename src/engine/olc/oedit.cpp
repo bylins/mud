@@ -341,7 +341,7 @@ void oedit_save_to_disk(ZoneRnum zone_num) {
 					obj->get_level(), buf2, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
-					GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+					obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
 
 			script_save_to_disk(fp, obj.get(), OBJ_TRIGGER);
 
@@ -1182,9 +1182,9 @@ void oedit_disp_menu(DescriptorData *d) {
 			 "Ваш выбор : ",
 			 grn, nrm, cyn, buf1,
 			 grn, nrm, cyn, GET_OBJ_WEIGHT(obj),
-			 grn, nrm, cyn, GET_OBJ_COST(obj),
-			 grn, nrm, cyn, GET_OBJ_RENT(obj),
-			 grn, nrm, cyn, GET_OBJ_RENTEQ(obj),
+			 grn, nrm, cyn, obj->get_cost(),
+			 grn, nrm, cyn, obj->get_rent_off(),
+			 grn, nrm, cyn, obj->get_rent_on(),
 			 grn, nrm, cyn, GET_OBJ_MAX(obj),
 			 grn, nrm, cyn, GET_OBJ_CUR(obj),
 			 grn, nrm, cyn, material_name[GET_OBJ_MATER(obj)],

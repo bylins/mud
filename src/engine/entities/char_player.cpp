@@ -1556,17 +1556,17 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'N':
 				if (!strcmp(tag, "NmI "))
-					this->player_data.PNames[0] = std::string(line);
+					this->player_data.PNames[ECase::kNom] = std::string(line);
 				else if (!strcmp(tag, "NmR "))
-					this->player_data.PNames[1] = std::string(line);
+					this->player_data.PNames[ECase::kGen] = std::string(line);
 				else if (!strcmp(tag, "NmD "))
-					this->player_data.PNames[2] = std::string(line);
+					this->player_data.PNames[ECase::kDat] = std::string(line);
 				else if (!strcmp(tag, "NmV "))
-					this->player_data.PNames[3] = std::string(line);
+					this->player_data.PNames[ECase::kAcc] = std::string(line);
 				else if (!strcmp(tag, "NmT "))
-					this->player_data.PNames[4] = std::string(line);
+					this->player_data.PNames[ECase::kIns] = std::string(line);
 				else if (!strcmp(tag, "NmP "))
-					this->player_data.PNames[5] = std::string(line);
+					this->player_data.PNames[ECase::kPre] = std::string(line);
 				else if (!strcmp(tag, "NamD"))
 					NAME_DURATION(this) = lnum;
 				else if (!strcmp(tag, "NamG"))

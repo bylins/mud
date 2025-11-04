@@ -2259,7 +2259,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->get_type() == EObjType::kKey
 		|| obj->has_flag(EObjFlag::kNorent)
-		|| GET_OBJ_RENT(obj) < 0
+		|| obj->get_rent_off() < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| obj->has_flag(EObjFlag::kNamed)
 		|| GET_OBJ_OWNER(obj)) {
@@ -3761,7 +3761,7 @@ int Clan::ChestTax() {
 		if (Clan::is_clan_chest(chest)) {
 			// перебираем шмот
 			for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-				cost += GET_OBJ_RENTEQ(temp);
+				cost += temp->get_rent_on();
 				++count;
 			}
 			this->chest_weight = GET_OBJ_WEIGHT(chest);
@@ -4313,7 +4313,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		|| obj->has_flag(EObjFlag::kZonedacay)
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
-		|| GET_OBJ_RENT(obj) < 0
+		|| obj->get_rent_off() < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
 	} else {
@@ -4384,7 +4384,7 @@ int Clan::ingr_chest_tax() {
 	for (ObjData *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->get_next_content()) {
 		if (is_ingr_chest(chest)) {
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-				cost += GET_OBJ_RENT(temp);
+				cost += temp->get_rent_off();
 				++count;
 			}
 			break;
@@ -5538,7 +5538,7 @@ void do_clanstuff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			act("Вы открыли крышку сундука со стандартной экипировкой\r\n", false, ch, nullptr, nullptr, kToChar);
 		}
 
-		int gold = GET_OBJ_COST(obj);
+		int gold = obj->get_cost();
 
 		if (ch->get_gold() >= gold) {
 			ch->remove_gold(gold);

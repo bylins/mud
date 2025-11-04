@@ -151,7 +151,7 @@ bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_type() == EObjType::kKey
-		|| GET_OBJ_RENT(obj) < 0
+		|| obj->get_rent_off() < 0
 		|| GET_OBJ_RNUM(obj) <= kNothing
 		|| GET_OBJ_OWNER(obj)) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",

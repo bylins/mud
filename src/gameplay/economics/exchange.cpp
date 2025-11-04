@@ -211,7 +211,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		}
 	}
 	if (obj->has_flag(EObjFlag::kDecay) || obj->has_flag(EObjFlag::kNodrop)
-		|| GET_OBJ_COST(obj) <= 0
+		|| obj->get_cost() <= 0
 		|| obj->get_owner() > 0) {
 		SendMsgToChar("Этот предмет не предназначен для базара.\r\n", ch);
 		return false;
@@ -228,7 +228,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 
 	if (item_cost <= 0) {
-		item_cost = std::max(1, GET_OBJ_COST(obj));
+		item_cost = std::max(1, obj->get_cost());
 	}
 
 	tax = (obj->get_type() != EObjType::kMagicIngredient)

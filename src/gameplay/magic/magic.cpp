@@ -2886,17 +2886,17 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->set_npc_name(buf2);
 		mob->player_data.long_descr = "";
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[0] = std::string(buf2);
+		mob->player_data.PNames[ECase::kNom] = std::string(buf2);
 		sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[2] = std::string(buf2);
+		mob->player_data.PNames[ECase::kDat] = std::string(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[3] = std::string(buf2);
+		mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
 		sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[4] = std::string(buf2);
+		mob->player_data.PNames[ECase::kIns] = std::string(buf2);
 		sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[5] = std::string(buf2);
+		mob->player_data.PNames[ECase::kPre] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[1] = std::string(buf2);
+		mob->player_data.PNames[ECase::kGen] = std::string(buf2);
 		mob->set_sex(EGender::kNeutral);
 		mob->SetFlag(EMobFlag::kResurrected);
 		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
@@ -2999,17 +2999,17 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->set_npc_name(buf2);
 		mob->player_data.long_descr = "";
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[0] = std::string(buf2);
+		mob->player_data.PNames[ECase::kNom] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[1] = std::string(buf2);
+		mob->player_data.PNames[ECase::kGen] = std::string(buf2);
 		sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[2] = std::string(buf2);
+		mob->player_data.PNames[ECase::kDat] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[3] = std::string(buf2);
+		mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
 		sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[4] = std::string(buf2);
+		mob->player_data.PNames[ECase::kIns] = std::string(buf2);
 		sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[5] = std::string(buf2);
+		mob->player_data.PNames[ECase::kPre] = std::string(buf2);
 
 		mob->set_str(ch->get_str());
 		mob->set_dex(ch->get_dex());

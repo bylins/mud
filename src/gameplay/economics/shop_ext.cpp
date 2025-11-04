@@ -91,17 +91,17 @@ void load_item_desc() {
 			child = item.child("short_description");
 			desc_node.short_description = child.child_value();
 			child = item.child("PNames0");
-			desc_node.PNames[0] = child.child_value();
+			desc_node.PNames[ECase::kNom] = child.child_value();
 			child = item.child("PNames1");
-			desc_node.PNames[1] = child.child_value();
+			desc_node.PNames[ECase::kGen] = child.child_value();
 			child = item.child("PNames2");
-			desc_node.PNames[2] = child.child_value();
+			desc_node.PNames[ECase::kDat] = child.child_value();
 			child = item.child("PNames3");
-			desc_node.PNames[3] = child.child_value();
+			desc_node.PNames[ECase::kAcc] = child.child_value();
 			child = item.child("PNames4");
-			desc_node.PNames[4] = child.child_value();
+			desc_node.PNames[ECase::kIns] = child.child_value();
 			child = item.child("PNames5");
-			desc_node.PNames[5] = child.child_value();
+			desc_node.PNames[ECase::kPre] = child.child_value();
 			child = item.child("sex");
 			desc_node.sex = static_cast<EGender>(atoi(child.child_value()));
 
@@ -278,7 +278,7 @@ void load(bool reload) {
 			}
 
 			// иним ее в магазе
-			const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum])
+			const auto item_price = price == 0 ? obj_proto[item_rnum]->get_cost()
 											   : price; //если не указана цена - берем цену из прототипа
 			tmp_shop->add_item(item_vnum, item_price);
 		}
@@ -303,7 +303,7 @@ void load(bool reload) {
 						// иним ее в магазе
 						const auto item_vnum = (*it)->item_list[i].item_vnum;
 						const int price = (*it)->item_list[i].item_price;
-						const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price;
+						const auto item_price = price == 0 ? obj_proto[item_rnum]->get_cost() : price;
 						tmp_shop->add_item(item_vnum, item_price);
 						/*
 						Список инится но нигде не используется. к удалению

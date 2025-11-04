@@ -169,12 +169,12 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 		dst->set_npc_name(tmp.get_npc_name());
 		dst->player_data.long_descr = tmp.player_data.long_descr;
 		dst->player_data.description = tmp.player_data.description;
-		dst->player_data.PNames[0] = tmp.player_data.PNames[0];
-		dst->player_data.PNames[1] = tmp.player_data.PNames[1];
-		dst->player_data.PNames[2] = tmp.player_data.PNames[2];
-		dst->player_data.PNames[3] = tmp.player_data.PNames[3];
-		dst->player_data.PNames[4] = tmp.player_data.PNames[4];
-		dst->player_data.PNames[5] = tmp.player_data.PNames[5];
+		dst->player_data.PNames[ECase::kNom] = tmp.player_data.PNames[ECase::kNom];
+		dst->player_data.PNames[ECase::kGen] = tmp.player_data.PNames[ECase::kGen];
+		dst->player_data.PNames[ECase::kDat] = tmp.player_data.PNames[ECase::kDat];
+		dst->player_data.PNames[ECase::kAcc] = tmp.player_data.PNames[ECase::kAcc];
+		dst->player_data.PNames[ECase::kIns] = tmp.player_data.PNames[ECase::kIns];
+		dst->player_data.PNames[ECase::kPre] = tmp.player_data.PNames[ECase::kPre];
 		if (tmp.mob_specials.dest_count > 0) { // ели был маршрут оставим
 			dst->mob_specials.dest_count = tmp.mob_specials.dest_count;
 			for (auto plane = 0; plane < tmp.mob_specials.dest_count; plane++) {
@@ -262,12 +262,12 @@ void medit_setup(DescriptorData *d, int real_num)
 		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
 		mob->player_data.description = "Выглядит достаточно незавершенно.\r\n";
 
-		mob->player_data.PNames[0] = "неоконченный моб";
-		mob->player_data.PNames[1] = "неоконченного моба";
-		mob->player_data.PNames[2] = "неоконченному мобу";
-		mob->player_data.PNames[3] = "неоконченного моба";
-		mob->player_data.PNames[4] = "неоконченным мобом";
-		mob->player_data.PNames[5] = "неоконченном мобе";
+		mob->player_data.PNames[ECase::kNom] = "неоконченный моб";
+		mob->player_data.PNames[ECase::kGen] = "неоконченного моба";
+		mob->player_data.PNames[ECase::kDat] = "неоконченному мобу";
+		mob->player_data.PNames[ECase::kAcc] = "неоконченного моба";
+		mob->player_data.PNames[ECase::kIns] = "неоконченным мобом";
+		mob->player_data.PNames[ECase::kPre] = "неоконченном мобе";
 		mob->mob_specials.Questor = nullptr;
 		mob->summon_helpers.clear();
 #if defined(OASIS_MPROG)
@@ -1767,23 +1767,23 @@ void medit_parse(DescriptorData *d, char *arg) {
 		case MEDIT_ALIAS: OLC_MOB(d)->SetCharAliases(not_null(arg, "неопределен"));
 			break;
 
-		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[0] = std::string(not_null(arg, "кто-то"));
+		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[ECase::kNom] = std::string(not_null(arg, "кто-то"));
 			OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
 			break;
 
-		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[1] = std::string(not_null(arg, "кого-то"));
+		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[ECase::kGen] = std::string(not_null(arg, "кого-то"));
 			break;
 
-		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[2] = std::string(not_null(arg, "кому-то"));
+		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[ECase::kDat] = std::string(not_null(arg, "кому-то"));
 			break;
 
-		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[3] = std::string(not_null(arg, "кого-то"));
+		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[ECase::kAcc] = std::string(not_null(arg, "кого-то"));
 			break;
 
-		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[4] = std::string(not_null(arg, "кем-то"));
+		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[ECase::kIns] = std::string(not_null(arg, "кем-то"));
 			break;
 
-		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[5] = std::string(not_null(arg, "о ком-то"));
+		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[ECase::kPre] = std::string(not_null(arg, "о ком-то"));
 			break;
 			//-------------------------------------------------------------------
 		case MEDIT_L_DESC:

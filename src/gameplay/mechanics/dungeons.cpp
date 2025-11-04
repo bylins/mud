@@ -269,7 +269,7 @@ void CreateBlankMobsDungeon() {
 			new_index[rnum].vnum = mvn + zvn * 100;
 			new_proto[rnum].set_npc_name("пустой моб");
 			new_proto[rnum].SetCharAliases("моб");
-			new_proto[rnum].player_data.PNames[0] = "пустой моб";
+			new_proto[rnum].player_data.PNames[ECase::kNom] = "пустой моб";
 			new_index[rnum].total_online = 0;
 			new_index[rnum].stored = 0;
 			new_index[rnum].func = nullptr;

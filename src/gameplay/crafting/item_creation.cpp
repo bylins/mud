@@ -668,7 +668,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			SendMsgToChar("Образец был невозвратимо утерян.\r\n", ch);
 		} else {
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
-			tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
+			tobj->set_cost(2 * obj->get_cost() / 3);
 			tobj->set_owner(GET_UID(ch));
 			tobj->set_extra_flag(EObjFlag::kTransformed);
 			// ковка объектов со слотами.
@@ -968,7 +968,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			}
 			for (i = 0; i < MAX_PROTO; i++) {
 				if (proto[i] && proto[i] != obj) {
-					obj->set_cost(GET_OBJ_COST(obj) + GET_OBJ_COST(proto[i]));
+					obj->set_cost(obj->get_cost() + proto[i]->get_cost());
 					ExtractObjFromWorld(proto[i]);
 				}
 			}
@@ -1007,7 +1007,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			for (i = 1; i < MAX_PROTO; i++) {
 				if (proto[i]) {
 					proto[0]->add_weight(GET_OBJ_WEIGHT(proto[i]));
-					proto[0]->set_cost(GET_OBJ_COST(proto[0]) + GET_OBJ_COST(proto[i]));
+					proto[0]->set_cost(proto[0]->get_cost() + proto[i]->get_cost());
 					ExtractObjFromWorld(proto[i]);
 				}
 			}

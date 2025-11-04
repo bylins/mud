@@ -2169,7 +2169,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[0] = subfield;
+				c->player_data.PNames[ECase::kNom] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 0));
@@ -2178,7 +2178,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[1] = subfield;
+				c->player_data.PNames[ECase::kGen] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 1));
@@ -2187,7 +2187,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[2] = subfield;
+				c->player_data.PNames[ECase::kDat] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 2));
@@ -2196,7 +2196,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[3] = subfield;
+				c->player_data.PNames[ECase::kAcc] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 3));
@@ -2205,7 +2205,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[4] = subfield;
+				c->player_data.PNames[ECase::kIns] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 4));
@@ -2214,7 +2214,7 @@ void find_replacement(void *go,
 			if (*subfield) {
 				if (strlen(subfield) > MAX_MOB_NAME)
 					subfield[MAX_MOB_NAME - 1] = '\0';
-				c->player_data.PNames[5] = subfield;
+				c->player_data.PNames[ECase::kPre] = subfield;
 			}
 			else
 				strcpy(str, GET_PAD(c, 5));
@@ -3175,7 +3175,7 @@ void find_replacement(void *go,
 				skip_spaces(&subfield);
 				o->set_cost(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_COST(o));
+				sprintf(str, "%d", o->get_cost());
 			}
 		} else if (!str_cmp(field, "val0")) {
 			if (*subfield) {
@@ -3515,21 +3515,21 @@ void find_replacement(void *go,
 				skip_spaces(&subfield);
 				o->set_cost(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_COST(o));
+				sprintf(str, "%d", o->get_cost());
 			}
 		} else if (!str_cmp(field, "rent")) {
 			if (*subfield && a_isdigit(*subfield)) {
 				skip_spaces(&subfield);
 				o->set_rent_off(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_RENT(o));
+				sprintf(str, "%d", o->get_rent_off());
 			}
 		} else if (!str_cmp(field, "renteq")) {
 			if (*subfield && a_isdigit(*subfield)) {
 				skip_spaces(&subfield);
 				o->set_rent_on(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_RENTEQ(o));
+				sprintf(str, "%d", o->get_rent_on());
 			}
 		} else if (!str_cmp(field, "objs")) {
 			if (o->get_type() == EObjType::kContainer) {

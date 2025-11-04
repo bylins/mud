@@ -828,7 +828,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 				if (clan_chest) {
 					buffer << show_obj_to_char(push, ch, mode, show, push_count);
 					count += push_count;
-					cost += GET_OBJ_RENTEQ(push) * push_count;
+					cost += push->get_rent_on() * push_count;
 				} else
 					show_obj_to_char(push, ch, mode, show, push_count);
 				push = i;
@@ -842,7 +842,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 		if (clan_chest) {
 			buffer << show_obj_to_char(push, ch, mode, show, push_count);
 			count += push_count;
-			cost += GET_OBJ_RENTEQ(push) * push_count;
+			cost += push->get_rent_on() * push_count;
 		} else
 			show_obj_to_char(push, ch, mode, show, push_count);
 	}
@@ -1194,14 +1194,14 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		// клан-сундук, выводим список разом постранично
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
-					GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100,
-					GetDeclensionInNumber(GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
+					object->get_rent_on() * kClanStorehouseCoeff / 100,
+					GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
 			return buf;
 		}
 			// ингры
 		else if (show_state == 4) {
-			sprintf(buf + strlen(buf), " [%d %s]\r\n", GET_OBJ_RENT(object),
-					GetDeclensionInNumber(GET_OBJ_RENT(object), EWhat::kMoneyA));
+			sprintf(buf + strlen(buf), " [%d %s]\r\n", object->get_rent_off(),
+					GetDeclensionInNumber(object->get_rent_off(), EWhat::kMoneyA));
 			return buf;
 		}
 	}
