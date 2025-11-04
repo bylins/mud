@@ -16,7 +16,7 @@ enchant::enchant()
 }
 
 enchant::enchant(ObjData *obj) {
-	name_ = !GET_OBJ_PNAME(obj, 4).empty() ? GET_OBJ_PNAME(obj, 4).c_str() : "<null>";
+	name_ = !obj->get_PName(ECase::kIns).empty() ? obj->get_PName(ECase::kIns).c_str() : "<null>";
 	type_ = ENCHANT_FROM_OBJ;
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
@@ -27,7 +27,7 @@ enchant::enchant(ObjData *obj) {
 	}
 
 	affects_flags_ = obj->get_affect_flags();
-	extra_flags_ = GET_OBJ_EXTRA(obj);
+	extra_flags_ = obj->get_extra_flags();
 	extra_flags_.unset(EObjFlag::kTicktimer);
 	no_flags_ = obj->get_no_flags();
 	weight_ = GET_OBJ_VAL(obj, 0);
@@ -108,7 +108,7 @@ std::string enchant::print_to_file() const {
 }
 
 void correct_values(ObjData *obj) {
-	obj->set_weight(std::max(1, GET_OBJ_WEIGHT(obj)));
+	obj->set_weight(std::max(1, obj->get_weight()));
 	obj->set_val(1, std::max(0, GET_OBJ_VAL(obj, 1)));
 	obj->set_val(2, std::max(0, GET_OBJ_VAL(obj, 2)));
 }

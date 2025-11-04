@@ -516,7 +516,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			(victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) &&
 			CanUseFeat(victim, EFeat::kMagicalShield) &&
 			(number(1, 100)	<
-			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_OBJ_WEIGHT(GET_EQ(victim, kShield)) / 2))) {
+			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_EQ(victim, kShield)->get_weight() / 2))) {
 			act("Ловким движением щита $N отразил вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Ловким движением щита $N отразил магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
@@ -969,7 +969,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
 		&& CanUseFeat(victim, EFeat::kMagicalShield)
 		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
-			+ GET_OBJ_WEIGHT(GET_EQ(victim, EEquipPos::kShield)) / 2))) {
+			+ GET_EQ(victim, EEquipPos::kShield)->get_weight() / 2))) {
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
 		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
 		act("Ваш щит уберег вас от злых чар $n1.", false, ch, nullptr, victim, kToVict);
@@ -2886,17 +2886,17 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->set_npc_name(buf2);
 		mob->player_data.long_descr = "";
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[0] = std::string(buf2);
+		mob->player_data.PNames[ECase::kNom] = std::string(buf2);
 		sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[2] = std::string(buf2);
+		mob->player_data.PNames[ECase::kDat] = std::string(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[3] = std::string(buf2);
+		mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
 		sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[4] = std::string(buf2);
+		mob->player_data.PNames[ECase::kIns] = std::string(buf2);
 		sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[5] = std::string(buf2);
+		mob->player_data.PNames[ECase::kPre] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[1] = std::string(buf2);
+		mob->player_data.PNames[ECase::kGen] = std::string(buf2);
 		mob->set_sex(EGender::kNeutral);
 		mob->SetFlag(EMobFlag::kResurrected);
 		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
@@ -2999,17 +2999,17 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->set_npc_name(buf2);
 		mob->player_data.long_descr = "";
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[0] = std::string(buf2);
+		mob->player_data.PNames[ECase::kNom] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[1] = std::string(buf2);
+		mob->player_data.PNames[ECase::kGen] = std::string(buf2);
 		sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[2] = std::string(buf2);
+		mob->player_data.PNames[ECase::kDat] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[3] = std::string(buf2);
+		mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
 		sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[4] = std::string(buf2);
+		mob->player_data.PNames[ECase::kIns] = std::string(buf2);
 		sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[5] = std::string(buf2);
+		mob->player_data.PNames[ECase::kPre] = std::string(buf2);
 
 		mob->set_str(ch->get_str());
 		mob->set_dex(ch->get_dex());
@@ -3405,7 +3405,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 	switch (spell_id) {
 		case ESpell::kBless:
 			if (!obj->has_flag(EObjFlag::kBless)
-				&& (GET_OBJ_WEIGHT(obj) <= 5 * GetRealLevel(ch))) {
+				&& (obj->get_weight() <= 5 * GetRealLevel(ch))) {
 				obj->set_extra_flag(EObjFlag::kBless);
 				if (obj->has_flag(EObjFlag::kNodrop)) {
 					obj->unset_extraflag(EObjFlag::kNodrop);
@@ -3413,8 +3413,8 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 						obj->inc_val(2);
 					}
 				}
-				obj->add_maximum(std::max(GET_OBJ_MAX(obj) >> 2, 1));
-				obj->set_current_durability(GET_OBJ_MAX(obj));
+				obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
+				obj->set_current_durability(obj->get_maximum_durability());
 				to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
 				obj->add_timed_spell(ESpell::kBless, -1);
 			}
@@ -3507,17 +3507,17 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			break;
 		}
 		case ESpell::kRemovePoison:
-			if (GET_OBJ_RNUM(obj) < 0) {
+			if (obj->get_rnum() < 0) {
 				to_char = "Ничего не случилось.";
 				char message[100];
 				sprintf(message,
 						"неизвестный прототип объекта : %s (VNUM=%d)",
-						GET_OBJ_PNAME(obj, 0).c_str(),
+						obj->get_PName(ECase::kNom).c_str(),
 						obj->get_vnum());
 				mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
 				break;
 			}
-			if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
+			if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
 				to_char = "Содержимое $o1 протухло и не поддается магии.";
 				break;
 			}
@@ -3538,14 +3538,14 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 		case ESpell::kAcid: alterate_object(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
 			break;
 
-		case ESpell::kRepair: obj->set_current_durability(GET_OBJ_MAX(obj));
+		case ESpell::kRepair: obj->set_current_durability(obj->get_maximum_durability());
 			to_char = "Вы полностью восстановили $o3.";
 			break;
 
 		case ESpell::kTimerRestore:
-			if (GET_OBJ_RNUM(obj) != kNothing) {
-				obj->set_current_durability(GET_OBJ_MAX(obj));
-				obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
+			if (obj->get_rnum() != kNothing) {
+				obj->set_current_durability(obj->get_maximum_durability());
+				obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
 				to_char = "Вы полностью восстановили $o3.";
 				log("%s used magic repair", GET_NAME(ch));
 			} else {
@@ -3555,8 +3555,8 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 
 		case ESpell::kRestoration: {
 			if (obj->has_flag(EObjFlag::kMagic)
-				&& (GET_OBJ_RNUM(obj) != kNothing)) {
-				if (obj_proto.at(GET_OBJ_RNUM(obj))->has_flag(EObjFlag::kMagic)) {
+				&& (obj->get_rnum() != kNothing)) {
+				if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {
 					return 0;
 				}
 				obj->unset_enchant();
@@ -3624,7 +3624,7 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 		PlaceObjToRoom(tobj.get(), ch->in_room);
 		CheckObjDecay(tobj.get());
-	} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
+	} else if (ch->GetCarryingWeight() + tobj->get_weight() > CAN_CARRY_W(ch)) {
 		SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 		PlaceObjToRoom(tobj.get(), ch->in_room);
 		CheckObjDecay(tobj.get());

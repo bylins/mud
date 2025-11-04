@@ -250,16 +250,16 @@ int npc_scavenge(CharData *ch) {
 				}
 
 				for (cobj = obj->get_contains(); cobj; cobj = cobj->get_next_content()) {
-					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && GET_OBJ_COST(cobj) > max) {
+					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && cobj->get_cost() > max) {
 						cont = obj;
 						best_cont = best_obj = cobj;
-						max = GET_OBJ_COST(cobj);
+						max = cobj->get_cost();
 					}
 				}
 			} else if (!IS_CORPSE(obj) &&
-				CAN_GET_OBJ(ch, obj) && GET_OBJ_COST(obj) > max && !item_nouse(obj)) {
+				CAN_GET_OBJ(ch, obj) && obj->get_cost() > max && !item_nouse(obj)) {
 				best_obj = obj;
-				max = GET_OBJ_COST(obj);
+				max = obj->get_cost();
 			}
 		}
 		if (best_obj != nullptr) {
@@ -273,7 +273,7 @@ int npc_scavenge(CharData *ch) {
 					PlaceObjToInventory(best_obj, ch);
 				}
 			} else {
-				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
+				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(ECase::kGen).c_str());
 				act(buf, false, ch, best_obj, 0, kToRoom);
 				if (best_obj->get_type() == EObjType::kMoney) {
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
@@ -307,7 +307,7 @@ int npc_loot(CharData *ch) {
 						|| system_obj::is_purse(loot_obj))
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj)) {
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
 						act(buf, false, ch, loot_obj, 0, kToRoom);
 						if (loot_obj->get_type() == EObjType::kMoney) {
 							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
@@ -334,7 +334,7 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
@@ -380,7 +380,7 @@ int npc_loot(CharData *ch) {
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj) {
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(ECase::kGen).c_str());
 								act(buf, false, ch, cobj, 0, kToRoom);
 								if (cobj->get_type() == EObjType::kMoney) {
 									ch->add_gold(GET_OBJ_VAL(cobj, 0));
@@ -467,7 +467,7 @@ int npc_move(CharData *ch, int dir, int/* need_specials_check*/) {
 int has_curse(ObjData *obj) {
 	for (const auto &i : weapon_affect) {
 		// Замена выражения на макрос
-		if (i.aff_spell <= ESpell::kUndefined || !IS_OBJ_AFF(obj, i.aff_pos)) {
+		if (i.aff_spell <= ESpell::kUndefined || !obj->GetEWeaponAffect(i.aff_pos)) {
 			continue;
 		}
 		if (MUD::Spell(i.aff_spell).AllowTarget(kNpcAffectPc | kNpcDamagePc)){
@@ -839,8 +839,8 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 		if (ch->GetCarryingQuantity() < CAN_CARRY_N(ch) && CalcCurrentSkill(ch, ESkill::kSteal, victim)
 			>= number(1, 100) - (AWAKE(victim) ? 100 : 0)) {
 			for (obj = victim->carrying; obj; obj = obj->get_next_content())
-				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj)
-					<= CAN_CARRY_W(ch) && (!best || GET_OBJ_COST(obj) > GET_OBJ_COST(best)))
+				if (CAN_SEE_OBJ(ch, obj) && ch->GetCarryingWeight() + obj->get_weight()
+					<= CAN_CARRY_W(ch) && (!best || obj->get_cost() > best->get_cost()))
 					best = obj;
 			if (best) {
 				RemoveObjFromChar(best);
@@ -1006,7 +1006,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
-		value += MAX(1, MIN(1, GET_OBJ_COST(k) / 10));
+		value += MAX(1, MIN(1, k->get_cost() / 10));
 		ExtractObjFromWorld(k);
 	}
 
@@ -1255,7 +1255,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 		}
 
 		if (i->get_type() != EObjType::kLiquidContainer
-			&& GET_OBJ_COST(i) >= 15) {
+			&& i->get_cost() >= 15) {
 			continue;
 		}
 

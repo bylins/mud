@@ -87,13 +87,13 @@ int compute_armor_class(CharData *ch) {
 			if (GET_EQ(ch, EEquipPos::kHold))
 				armorclass +=
 					10 * std::max(-1,
-							 (GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield)) +
-								 GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHold))) / 5 - 6);
+							 (GET_EQ(ch, EEquipPos::kWield)->get_weight() +
+								 GET_EQ(ch, EEquipPos::kHold)->get_weight()) / 5 - 6);
 			else
-				armorclass += 10 * std::max(-1, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kWield)) / 5 - 6);
+				armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kWield)->get_weight() / 5 - 6);
 		}
 		if (GET_EQ(ch, EEquipPos::kBoths))
-			armorclass += 10 * std::max(-1, GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kBoths)) / 5 - 6);
+			armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kBoths)->get_weight() / 5 - 6);
 	}
 
 	// Bonus for leadership
@@ -714,34 +714,34 @@ void HitData::compute_critical(CharData *ch, CharData *victim) {
 		obj = UnequipChar(victim, unequip_pos, CharEquipFlags());
 		switch (unequip_pos) {
 			case 6:        //WEAR_HEAD
-				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей головы.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToVict);
-				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с головы $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToChar);
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
 
 			case 11:    //WEAR_SHIELD
-				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с вашей руки.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToVict);
-				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s слетел%s с руки $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToChar);
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
 
 			case 16:    //WEAR_WIELD
 			case 17:    //WEAR_HOLD
-				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из вашей руки.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToVict);
-				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из руки $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToChar);
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
 
 			case 18:    //WEAR_BOTHS
-				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из ваших рук.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToVict);
-				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(0).c_str(), GET_OBJ_SUF_1(obj));
+				sprintf(buf, "%s выпал%s из рук $N1.", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_1(obj));
 				act(buf, false, ch, 0, victim, kToChar);
 				act(buf, true, ch, 0, victim, kToNotVict | kToArenaListen);
 				break;
@@ -1172,7 +1172,7 @@ int do_punctual(CharData *ch, CharData * /*victim*/, ObjData *wielded) {
 
 	if (wielded) {
 		wapp = (int) ((static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) && GET_EQ(ch, EEquipPos::kBoths)) ?
-			GET_OBJ_WEIGHT(wielded) * 1 / 3 : GET_OBJ_WEIGHT(wielded);
+			wielded->get_weight() * 1 / 3 : wielded->get_weight();
 	}
 	if (wapp < 10)
 		dam_critic = RollDices(1, 6);
@@ -2838,7 +2838,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 			if (AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) {
 				// проверка оружия для глуша чармисов
 				const bool wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
-				const bool weapon_weigth_ok = wielded && (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth);
+				const bool weapon_weigth_ok = wielded && (wielded->get_weight() >= minimum_weapon_weigth);
 				if (wielded_for_stupor && !wielded_with_bow && weapon_weigth_ok) {
 					try_stupor_dam(ch, victim);
 				}
@@ -2852,7 +2852,7 @@ int HitData::extdamage(CharData *ch, CharData *victim) {
 			if (static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) {
 				SendMsgToChar("Луком оглушить нельзя.\r\n", ch);
 			} else if (!GET_AF_BATTLE(ch, kEafParry) && !GET_AF_BATTLE(ch, kEafMultyparry)) {
-				if (GET_OBJ_WEIGHT(wielded) >= minimum_weapon_weigth) {
+				if (wielded->get_weight() >= minimum_weapon_weigth) {
 					try_stupor_dam(ch, victim);
 				} else {
 					SendMsgToChar("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
@@ -2941,7 +2941,7 @@ void HitData::init(CharData *ch, CharData *victim) {
 		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
 		weap_skill_is = result.SkillRate;
 		if (result.CritLuck) {
-			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[3].c_str());
+			SendMsgToChar(ch, "Вы удачно поразили %s в уязвимое место.\r\n", victim->player_data.PNames[ECase::kAcc].c_str());
 			act("$n поразил$g вас в уязвимое место.", true, ch, nullptr, victim, kToVict);
 			act("$n поразил$g $N3 в уязвимое место.", true, ch, nullptr, victim, kToNotVict);
 			set_flag(fight::kCritLuck);
@@ -2992,13 +2992,13 @@ void HitData::calc_base_hr(CharData *ch) {
 			// Apply HR for light weapon
 			int percent = 0;
 			switch (weapon_pos) {
-				case EEquipPos::kWield: percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kWield: percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) - wielded->get_weight() + 1) / 2;
 					break;
-				case EEquipPos::kHold: percent = (str_bonus(GetRealStr(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				case EEquipPos::kHold: percent = (str_bonus(GetRealStr(ch), STR_HOLD_W) - wielded->get_weight() + 1) / 2;
 					break;
 				case EEquipPos::kBoths:
 					percent = (str_bonus(GetRealStr(ch), STR_WIELD_W) +
-						str_bonus(GetRealStr(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+						str_bonus(GetRealStr(ch), STR_HOLD_W) - wielded->get_weight() + 1) / 2;
 					break;
 			}
 			calc_thaco -= std::min(3, std::max(percent, 0));
@@ -3330,7 +3330,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		damroll *= kMobDamageMult;
 	} else {
-		damroll = std::min(damroll, damroll * GET_OBJ_CUR(wielded) / std::max(1, GET_OBJ_MAX(wielded)));
+		damroll = std::min(damroll, damroll * wielded->get_current_durability() / std::max(1, wielded->get_maximum_durability()));
 	}
 
 	damroll = calculate_strconc_damage(ch, wielded, damroll);
@@ -3367,7 +3367,7 @@ void HitData::add_hand_damage(CharData *ch, bool need_dice) {
 	if (!GET_AF_BATTLE(ch, kEafHammer)
 		|| get_flags()[fight::kCritHit]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? std::min(GET_OBJ_WEIGHT(GET_EQ(ch, EEquipPos::kHands)), 18)
+		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? std::min(GET_EQ(ch, EEquipPos::kHands)->get_weight(), 18)
 															: 0)); //вес перчаток больше 18 не учитывается
 		if (ch->IsNpc() || CanUseFeat(ch, EFeat::kBully)) {
 			modi = std::max(100, modi);
@@ -3471,7 +3471,8 @@ int HitData::calc_damage(CharData *ch, bool need_dice) {
 	if (wielded && wielded->get_type() == EObjType::kWeapon) {
 		add_weapon_damage(ch, need_dice);
 		if (ch->IsFlagged(EPrf::kExecutor))
-			SendMsgToChar(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam, GET_OBJ_PNAME(wielded,1).c_str(), GET_OBJ_VNUM(wielded));
+			SendMsgToChar(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam,
+						  wielded->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(wielded));
 		if (GET_EQ(ch, EEquipPos::kBoths) && weap_skill != ESkill::kBows) { //двуруч множим на 2
 			dam *= 2;
 		if (ch->IsFlagged(EPrf::kExecutor))

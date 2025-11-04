@@ -59,11 +59,11 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 		return 0;
 	}
 
-	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
+	if (cont->get_weight() + obj->get_weight() > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", false, ch, obj.get(), cont, kToChar);
 	}
 	else if (obj->get_type() == EObjType::kContainer && obj->get_contains()) {
-		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(ECase::kPre).c_str());
 	}
 	else if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
@@ -272,8 +272,9 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		new_descr->keyword = str_dup("coin gold монет кун денег");
 		new_descr->description = str_dup("Всего лишь одна куна.");
 		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			obj->set_PName(i,
-						   MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
+			auto name_case = static_cast<ECase>(i);
+			obj->set_PName(name_case,
+						   MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, name_case));
 		}
 	} else {
 		sprintf(buf, "coins gold кун денег %s",
@@ -281,7 +282,8 @@ ObjData::shared_ptr CreateCurrencyObj(long quantity) {
 		obj->set_aliases(buf);
 		obj->set_short_description(MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, ECase::kNom));
 		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			obj->set_PName(i, MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, static_cast<ECase>(i)));
+			auto name_case = static_cast<ECase>(i);
+			obj->set_PName(name_case, MUD::Currency(currencies::kKunaVnum).GetObjCName(quantity, name_case));
 		}
 
 		sprintf(buf, "Здесь лежит %s.",

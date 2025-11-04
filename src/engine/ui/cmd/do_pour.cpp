@@ -118,7 +118,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	if (from_obj->has_flag(EObjFlag::kNopour)) {
 		SendMsgToChar(ch, "Вы перевернули %s, потрусили, но ничего перелить не удалось.\r\n",
-					  GET_OBJ_PNAME(from_obj, 3).c_str());
+					  from_obj->get_PName(ECase::kAcc).c_str());
 		return;
 	}
 
@@ -126,7 +126,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (from_obj->get_type() == EObjType::kPotion) {
 		int result = drinkcon::check_equal_potions(from_obj, to_obj);
 		if (GET_OBJ_VAL(to_obj, 1) == 0 || result > 0) {
-			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
+			SendMsgToChar(ch, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, ECase::kAcc));
 			int n1 = GET_OBJ_VAL(from_obj, 1);
 			int n2 = GET_OBJ_VAL(to_obj, 1);
 			int t1 = GET_OBJ_VAL(from_obj, 3);
@@ -136,7 +136,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 								/ (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
 //				SendMsgToChar(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 //				sprintf(buf, "Игрок %s наполняет емкость. Первая емкость: %s (%d) Вторая емкость %s (%d). SCMD %d",
-//						GET_NAME(ch), GET_OBJ_PNAME(from_obj, 1).c_str(), GET_OBJ_VNUM(from_obj), GET_OBJ_PNAME(to_obj, 1).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
+//						GET_NAME(ch), from_obj->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(from_obj), to_obj->get_PName(ECase::kGen).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
 //				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 //				sprintf(buf, "кол1 == %d, кол2 == %d, time1 == %d, time2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 //				mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
@@ -180,7 +180,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (subcmd == kScmdPour) {
 		SendMsgToChar(ch, "Вы занялись переливанием %s в %s.\r\n",
-					  drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
+					  drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, ECase::kAcc));
 	}
 	if (subcmd == kScmdFill) {
 		act("Вы наполнили $o3 из $O1.", false, ch, to_obj, from_obj, kToChar);
@@ -196,7 +196,7 @@ void do_pour(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int t2 = GET_OBJ_VAL(to_obj, 3);
 	to_obj->set_val(3, (n1 * t1 + n2 * t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
 //	sprintf(buf, "Игрок %s переливает жижку. Первая емкость: %s (%d) Вторая емкость %s (%d). SCMD %d",
-//		GET_NAME(ch), GET_OBJ_PNAME(from_obj, 1).c_str(), GET_OBJ_VNUM(from_obj), GET_OBJ_PNAME(to_obj, 1).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
+//		GET_NAME(ch), from_obj->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(from_obj), to_obj->get_PName(ECase::kGen).c_str(),  GET_OBJ_VNUM(to_obj), subcmd);
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 //	sprintf(buf, "кол1 == %d, кол2 == %d, time1 == %d, time2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);

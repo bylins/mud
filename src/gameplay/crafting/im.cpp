@@ -299,17 +299,18 @@ int im_assign_power(ObjData *obj)
 
 	// Замена описаний
 	// Падежи, описание, alias
-	for (j = 0; j < 6; ++j) {
-		const char *ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_PName(j).c_str();
-		obj->set_PName(j, replace_alias(ptr, sample, rnum, def_alias[j]));
+	for (j = ECase::kFirstCase; j <= ECase::kLastCase; ++j) {
+		auto name_case = static_cast<ECase>(j);
+		const char *ptr = obj_proto[obj->get_rnum()]->get_PName(name_case).c_str();
+		obj->set_PName(name_case, replace_alias(ptr, sample, rnum, def_alias[j]));
 	}
-	const char *ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_description().c_str();
+	const char *ptr = obj_proto[obj->get_rnum()]->get_description().c_str();
 	obj->set_description(replace_alias(ptr, sample, rnum, "s"));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_short_description().c_str();
+	ptr = obj_proto[obj->get_rnum()]->get_short_description().c_str();
 	obj->set_short_description(replace_alias(ptr, sample, rnum, def_alias[0]));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str();
+	ptr = obj_proto[obj->get_rnum()]->get_aliases().c_str();
 	obj->set_aliases(replace_alias(ptr, sample, rnum, "m"));
 	obj->set_is_rename(true); // чтоб в олц не портилось имя
 
@@ -1209,7 +1210,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			break;
 		}
 		if (im_type_rnum(GET_OBJ_VAL(o, IM_TYPE_SLOT)) < 0) {
-			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(1).c_str());
+			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(ECase::kGen).c_str());
 			break;
 		}
 		for (i = 0; i < n; ++i) {
@@ -1339,7 +1340,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		// минимальное качество ингров для варки рецепта (REQ рецепта/2)
 		int min_osk = osk / 2;
 		if (itype < min_osk) {
-			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
+			SendMsgToChar(ch, "Качество %s ниже минимально допустимого.\r\n", objs[i]->get_PName(ECase::kGen).c_str());
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);

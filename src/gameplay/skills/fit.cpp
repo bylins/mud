@@ -42,42 +42,42 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	};
 
-	if (GET_OBJ_OWNER(obj)) {
+	if (obj->get_owner()) {
 		SendMsgToChar("У этой вещи уже есть владелец.\r\n", ch);
 		return;
 
 	};
 
-	if ((GET_OBJ_WEAR(obj) <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
+	if ((obj->get_wear_flags() <= 1) || obj->has_flag(EObjFlag::KSetItem)) {
 		SendMsgToChar("Этот предмет невозможно переделать.\r\n", ch);
 		return;
 	}
 
 	switch (subcmd) {
 		case kScmdDoAdapt:
-			if (GET_OBJ_MATER(obj) != EObjMaterial::kMaterialUndefined
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kBulat
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kBronze
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kIron
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kSteel
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kForgedSteel
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kPreciousMetel
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kWood
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kHardWood
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kGlass) {
+			if (obj->get_material() != EObjMaterial::kMaterialUndefined
+				&& obj->get_material() != EObjMaterial::kBulat
+				&& obj->get_material() != EObjMaterial::kBronze
+				&& obj->get_material() != EObjMaterial::kIron
+				&& obj->get_material() != EObjMaterial::kSteel
+				&& obj->get_material() != EObjMaterial::kForgedSteel
+				&& obj->get_material() != EObjMaterial::kPreciousMetel
+				&& obj->get_material() != EObjMaterial::kWood
+				&& obj->get_material() != EObjMaterial::kHardWood
+				&& obj->get_material() != EObjMaterial::kGlass) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
 				SendMsgToChar(buf, ch);
 				return;
 			}
 			break;
 		case kScmdMakeOver:
-			if (GET_OBJ_MATER(obj) != EObjMaterial::kBone
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kCloth
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kSkin
-				&& GET_OBJ_MATER(obj) != EObjMaterial::kOrganic) {
+			if (obj->get_material() != EObjMaterial::kBone
+				&& obj->get_material() != EObjMaterial::kCloth
+				&& obj->get_material() != EObjMaterial::kSkin
+				&& obj->get_material() != EObjMaterial::kOrganic) {
 				sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-						GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
+						obj->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(obj));
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -90,7 +90,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
 	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
 	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
-			GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
+			obj->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1));
 
 	SendMsgToChar(buf, ch);
 }

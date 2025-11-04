@@ -32,7 +32,7 @@ void do_fry(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	const auto meet_vnum = GET_OBJ_VNUM(meet);
 	if (!meat_mapping.has(meet_vnum)) // не нашлось в массиве
 	{
-		SendMsgToChar(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet, 0).c_str());
+		SendMsgToChar(ch, "%s не подходит для жарки.\r\n", meet->get_PName(ECase::kNom).c_str());
 		return;
 	}
 

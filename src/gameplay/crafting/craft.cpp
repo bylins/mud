@@ -52,7 +52,7 @@ const char *END_PREFIX = "> ";
 const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "index.xml";
 
 bool Cases::load_from_node(const pugi::xml_node *node) {
-	for (int c = 0; c < CASES_COUNT; ++c) {
+	for (int c = 0; c <= ECase::kLastCase; ++c) {
 		const std::string node_name = std::string("case") + std::to_string(1 + c);
 		const pugi::xml_node case_node = node->child(node_name.c_str());
 		if (!case_node) {
@@ -77,8 +77,9 @@ bool Cases::load_from_node(const pugi::xml_node *node) {
 void Cases::load_from_object(const CObjectPrototype::shared_ptr &object) {
 	const std::string &aliases = object->get_aliases();
 	m_aliases = utils::Split(aliases);
-	for (size_t n = 0; n < CASES_COUNT; ++n) {
-		m_cases[n] = object->get_PName(n);
+	for (size_t n = ECase::kFirstCase; n <= ECase::kLastCase; ++n) {
+		auto name_case = static_cast<ECase>(n);
+		m_cases[name_case] = object->get_PName(name_case);
 	}
 }
 
@@ -112,7 +113,7 @@ bool Cases::save_to_node(pugi::xml_node *node) const {
 
 ObjData::pnames_t Cases::build_pnames() const {
 	ObjData::pnames_t result;
-	for (size_t n = 0; n < CASES_COUNT; ++n) {
+	for (size_t n = 0; n <= ECase::kLastCase; ++n) {
 		result[n] = str_dup(m_cases[n].c_str());
 	}
 	return result;

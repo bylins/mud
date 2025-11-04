@@ -937,24 +937,24 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 * FIXME с кланами копипаст.
 */
 bool can_put_chest(CharData *ch, ObjData *obj) {
-	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
+	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), obj->get_PName(ECase::kNom));
 	if (obj->has_flag(EObjFlag::kZonedacay)
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_type() == EObjType::kKey
-		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= kNothing
+		|| obj->get_rent_off() < 0
+		|| obj->get_rnum() <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
-//		|| (NamedStuff::check_named(ch, obj, 0) && GET_UID(ch) != GET_OBJ_OWNER(obj))) {
-		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
+//		|| (NamedStuff::check_named(ch, obj, 0) && GET_UID(ch) != obj->get_owner())) {
+		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(ECase::kAcc).c_str());
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
 		&& obj->get_contains()) {
-		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
+		SendMsgToChar(ch, "В %s что-то лежит.\r\n", obj->get_PName(ECase::kPre).c_str());
 		return 0;
 	} else if (SetSystem::is_norent_set(ch, obj)) {
-		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, kMaxStringLength, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(ECase::kNom).c_str());
 		SendMsgToChar(utils::CAP(buf), ch);
 		return 0;
 	}
@@ -1457,7 +1457,7 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end();
 			 ++obj_it) {
-			if (GET_OBJ_RNUM(*obj_it) == robj_num) {
+			if ((*obj_it)->get_rnum() == robj_num) {
 				olc_update_object(robj_num, obj_it->get(), olc_proto);
 			}
 		}
@@ -1515,7 +1515,7 @@ int report_unrentables(CharData *ch, CharData *recep) {
 			if (SetSystem::is_norent_set(ch, obj_it->get())) {
 				snprintf(buf, kMaxStringLength,
 						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj_it->get(), ch, 3));
+						 OBJN(obj_it->get(), ch, ECase::kAcc));
 				act(buf, false, recep, 0, ch, kToVict);
 				return 1;
 			}

@@ -828,7 +828,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 				if (clan_chest) {
 					buffer << show_obj_to_char(push, ch, mode, show, push_count);
 					count += push_count;
-					cost += GET_OBJ_RENTEQ(push) * push_count;
+					cost += push->get_rent_on() * push_count;
 				} else
 					show_obj_to_char(push, ch, mode, show, push_count);
 				push = i;
@@ -842,7 +842,7 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 		if (clan_chest) {
 			buffer << show_obj_to_char(push, ch, mode, show, push_count);
 			count += push_count;
-			cost += GET_OBJ_RENTEQ(push) * push_count;
+			cost += push->get_rent_on() * push_count;
 		} else
 			show_obj_to_char(push, ch, mode, show, push_count);
 	}
@@ -1019,7 +1019,7 @@ void look_in_obj(CharData *ch, char *arg) {
 					SendMsgToChar(buf, ch);
 				}
 			} else {
-				SendMsgToChar(OBJN(obj, ch, 0), ch);
+				SendMsgToChar(OBJN(obj, ch, ECase::kNom), ch);
 				switch (bits) {
 					case EFind::kObjInventory: SendMsgToChar("(в руках)\r\n", ch);
 						break;
@@ -1038,7 +1038,7 @@ void look_in_obj(CharData *ch, char *arg) {
 						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
-						amt = std::clamp((GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
+						amt = std::clamp((obj->get_weight() * 100) / (GET_OBJ_VAL(obj, 0) * 20), 0, 5);
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
 						SendMsgToChar(buf, ch);
 					}
@@ -1092,7 +1092,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		} else if (object->get_type() == EObjType::kBandage) {
 			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
 			snprintf(buf2, kMaxStringLength, "Осталось применений: %d, восстановление: %d",
-					 GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
+					 object->get_weight(), GET_OBJ_VAL(object, 0) * 10);
 			strcat(buf, buf2);
 		} else if (object->get_type() != EObjType::kLiquidContainer) {
 			strcpy(buf, "Вы не видите ничего необычного.");
@@ -1142,7 +1142,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
-			std::string obj_name = OBJN(object, ch, 0);
+			std::string obj_name = OBJN(object, ch, ECase::kNom);
 			obj_name[0] = UPPER(obj_name[0]);
 			if (object->get_type() == EObjType::kLightSource) {
 				if (GET_OBJ_VAL(object, 2) == -1) {
@@ -1153,7 +1153,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
 							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 				}
-			} else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object)) {
+			} else if (object->get_current_durability() < object->get_maximum_durability()) {
 				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
 			}
 		}
@@ -1194,14 +1194,14 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 		// клан-сундук, выводим список разом постранично
 		if (show_state == 3) {
 			sprintf(buf + strlen(buf), " [%d %s]\r\n",
-					GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100,
-					GetDeclensionInNumber(GET_OBJ_RENTEQ(object) * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
+					object->get_rent_on() * kClanStorehouseCoeff / 100,
+					GetDeclensionInNumber(object->get_rent_on() * kClanStorehouseCoeff / 100, EWhat::kMoneyA));
 			return buf;
 		}
 			// ингры
 		else if (show_state == 4) {
-			sprintf(buf + strlen(buf), " [%d %s]\r\n", GET_OBJ_RENT(object),
-					GetDeclensionInNumber(GET_OBJ_RENT(object), EWhat::kMoneyA));
+			sprintf(buf + strlen(buf), " [%d %s]\r\n", object->get_rent_off(),
+					GetDeclensionInNumber(object->get_rent_off(), EWhat::kMoneyA));
 			return buf;
 		}
 	}
@@ -1280,8 +1280,8 @@ char *diag_obj_to_char(ObjData *obj, int mode) {
 	const char *color;
 	int percent;
 
-	if (GET_OBJ_MAX(obj) > 0)
-		percent = 100 * GET_OBJ_CUR(obj) / GET_OBJ_MAX(obj);
+	if (obj->get_maximum_durability() > 0)
+		percent = 100 * obj->get_current_durability() / obj->get_maximum_durability();
 	else
 		percent = -1;
 
@@ -1982,28 +1982,28 @@ char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 		}
 		if (show_wear > 1) {
 			if (CAN_WEAR(obj, EWearFlag::kShield)) {
-				need_str = std::max(0, calc_str_req((GET_OBJ_WEIGHT(obj) + 1) / 2, STR_HOLD_W));
+				need_str = std::max(0, calc_str_req((obj->get_weight() + 1) / 2, STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно использовать как щит (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kWield)) {
-				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
+				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_WIELD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в правую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kHold)) {
-				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
+				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_HOLD_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в левую руку (требуется %d %s).\r\n",
 						need_str,
 						GetDeclensionInNumber(need_str, EWhat::kStr));
 			}
 			if (CAN_WEAR(obj, EWearFlag::kBoth)) {
-				need_str = std::max(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
+				need_str = std::max(0, calc_str_req(obj->get_weight(), STR_BOTH_W));
 				sprintf(out_str + strlen(out_str),
 						"Можно взять в обе руки (требуется %d %s).\r\n",
 						need_str,
@@ -2057,7 +2057,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 		int i = -1;
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
-					kColorBoldCyn, obj_proto[i]->get_PName(0).c_str(), kColorNrm);
+					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -2080,15 +2080,15 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 // Чтобы можно было получить только строку состяния
 const char *diag_obj_timer(const ObjData *obj) {
 	int prot_timer;
-	if (GET_OBJ_RNUM(obj) != kNothing) {
+	if (obj->get_rnum() != kNothing) {
 		if (stable_objs::IsTimerUnlimited(obj)) {
 			return "нерушимо";
 		}
 
-		if (GET_OBJ_CRAFTIMER(obj) > 0) {
-			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
+		if (obj->get_craft_timer() > 0) {
+			prot_timer = obj->get_craft_timer();// если вещь скрафчена, смотрим ее таймер а не у прототипа
 		} else {
-			prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+			prot_timer = obj_proto[obj->get_rnum()]->get_timer();
 		}
 
 		if (!prot_timer) {

@@ -30,7 +30,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	if (GET_OBJ_MAX(obj) <= GET_OBJ_CUR(obj)) {
+	if (obj->get_maximum_durability() <= obj->get_current_durability()) {
 		act("$o в ремонте не нуждается.", false, ch, obj, nullptr, kToChar);
 		return;
 	}
@@ -52,9 +52,9 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				false, ch, obj, nullptr, kToChar);
 			act("$n попытал$u починить $o3, но сломал$g $S еще больше.",
 				false, ch, obj, nullptr, kToRoom | kToArenaListen);
-			auto decay = (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 10;
-			decay = std::clamp(decay, 1, GET_OBJ_MAX(obj)/20);
-			if (GET_OBJ_MAX(obj) > decay) {
+			auto decay = (obj->get_maximum_durability() - obj->get_current_durability()) / 10;
+			decay = std::clamp(decay, 1, obj->get_maximum_durability()/20);
+			if (obj->get_maximum_durability() > decay) {
 				obj->set_maximum_durability(obj->get_maximum_durability() - decay);
 			} else {
 				obj->set_maximum_durability(1);
@@ -72,9 +72,9 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		auto modif = ch->GetSkill(ESkill::kRepair) / 7 + number(1, 5);
 		timed.time = std::max(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
-		obj->set_current_durability(std::min(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
+		obj->set_current_durability(std::min(obj->get_maximum_durability(), obj->get_current_durability() * percent / prob + 1));
 		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n",
-					  obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
+					  obj->get_PName(ECase::kNom).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", false, ch, obj, nullptr, kToRoom | kToArenaListen);
 	}
 }

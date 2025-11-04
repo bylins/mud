@@ -35,7 +35,7 @@ void SendSuccessLearningMessage(CharData *ch, ObjData *book, const std::string &
 	static const std::string stype2[] = {"заклинания", "умения", "умения", "рецепта", "способности"};
 
 	std::ostringstream out;
-	out << "Вы взяли в руки " << book->get_PName(3) << " и начали изучать." << "\r\n" <<
+	out << "Вы взяли в руки " << book->get_PName(ECase::kAcc) << " и начали изучать." << "\r\n" <<
 		"Постепенно, незнакомые доселе, буквы стали складываться в понятные слова и фразы." << "\r\n" <<
 		"Буквально через несколько минут вы узнали " <<
 		((GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) ? stype0[0] : stype0[1]) <<
@@ -269,7 +269,7 @@ void ProcessLowRemortOrLevelException(CharData *ch, ObjData *book) {
 			"- \"Какие интересные буковки! Особенно %s, похожая на %s\".\r\n"
 			"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
 			"долга закрыли %s. До %s вы еще не доросли.\r\n",
-			positon, what, book->get_PName(3).c_str(), whom);
+			positon, what, book->get_PName(ECase::kAcc).c_str(), whom);
 	SendMsgToChar(buf, ch);
 	act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
 		false, ch, book, nullptr, kToRoom);
@@ -279,7 +279,7 @@ void ProcessLearningFailException(CharData *ch, ObjData *book) {
 	sprintf(buf, "Вы взяли в руки %s и начали изучать.\r\n"
 				 "Непослушные буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
 				 "Промучившись несколько минут, вы бросили это унылое занятие, с удивлением отметив исчезновение %s.\r\n",
-			book->get_PName(3).c_str(), book->get_PName(1).c_str());
+			book->get_PName(ECase::kAcc).c_str(), book->get_PName(ECase::kGen).c_str());
 	SendMsgToChar(buf, ch);
 	act("$n взял$g в руки $o3 и принял$u изучать, но промучившись несколько минут, бросил$g это занятие.\r\n"
 		"Вы с удивлением увидели, как $o замерцал$G и растаял$G.",
@@ -290,7 +290,7 @@ void ProcessLearningFailException(CharData *ch, ObjData *book) {
 void ProcessLearningNotAvailable(CharData *ch, ObjData *book) {
 	sprintf(buf, "Вы взяли в руки %s и начали изучать.\r\n"
 			"Какая-то бормотуха получится, решили вы.\r\n",
-			book->get_PName(3).c_str());
+			book->get_PName(ECase::kAcc).c_str());
 	SendMsgToChar(buf, ch);
 	act("$n взял$g в руки $o3 и принял$u изучать, но почесав макушку, бросил$g это занятие.\r\n",
 			false, ch, book, nullptr, kToRoom);
@@ -300,10 +300,10 @@ void ProcessAlreadyKnownException(CharData *ch, ObjData *book, const AlreadyKnow
 	static const std::string talent_type[] = {"заклинание", "умение", "умение", "рецепт", "рецепт", "способность"};
 
 	std::ostringstream out;
-	out << "Вы открыли " << book->get_PName(3) << " и принялись с интересом изучать." << "\r\n" <<
+	out << "Вы открыли " << book->get_PName(ECase::kAcc) << " и принялись с интересом изучать." << "\r\n" <<
 		"Каким же было разочарование, когда ";
 	if (GET_OBJ_VAL(book, 0) == EBook::kSkillUpgrade) {
-		out << "изучив " << book->get_PName(3).c_str() << " от корки до корки вы так и не узнали ничего нового.";
+		out << "изучив " << book->get_PName(ECase::kAcc).c_str() << " от корки до корки вы так и не узнали ничего нового.";
 	} else {
 		out << "прочитав " <<
 			(number(0, 1) ? "несколько страниц, " : number(0, 1) ? "пару строк," : "почти до конца,") <<

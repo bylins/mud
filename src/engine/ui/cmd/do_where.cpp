@@ -186,7 +186,7 @@ bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch) {
 		SendMsgToChar(ss.str().c_str(), ch);
 	} else if (obj->get_in_obj() && !Clan::is_clan_chest(obj->get_in_obj())) {// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		ss << fmt::format("лежит в [{}] {}, который находится \r\n",
-				GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
+				GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(ECase::kPre).c_str());
 		SendMsgToChar(ss.str().c_str(), ch);
 		PrintObjectLocation(0, obj->get_in_obj(), ch);
 	} else {
@@ -271,7 +271,8 @@ void FindErrorCountObj(CharData *ch) {
 			sum += objs_orig.size();
 		}
 		if (sum != (size_t)obj_proto.total_online(orn)) {
-			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %ld \r\n", GET_OBJ_PNAME(*it, 0).c_str(), (*it)->get_vnum(), sum);
+			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %ld \r\n",
+						  (*it)->get_PName(ECase::kNom).c_str(), (*it)->get_vnum(), sum);
 			for (auto object : objs) {
 				PrintObjectLocation(num++, object, ch);
 			}

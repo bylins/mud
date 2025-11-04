@@ -76,7 +76,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 				} else if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 					SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
 					return;
-				} else if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+				} else if (ch->GetCarryingWeight() + obj->get_weight() > CAN_CARRY_W(ch)) {
 					SendMsgToChar("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				} else if (obj->has_flag(EObjFlag::kBloody)) {
@@ -98,7 +98,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 					ch);
 				return;
 			}
-			percent += GET_OBJ_WEIGHT(obj);    // Make heavy harder
+			percent += obj->get_weight();    // Make heavy harder
 			prob = CalcCurrentSkill(ch, ESkill::kSteal, vict);
 
 			if (AFF_FLAGGED(ch, EAffect::kHide))
@@ -119,7 +119,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			} else    // Steal the item
 			{
 				if (ch->GetCarryingQuantity() + 1 < CAN_CARRY_N(ch)) {
-					if (ch->GetCarryingWeight() + GET_OBJ_WEIGHT(obj) < CAN_CARRY_W(ch)) {
+					if (ch->GetCarryingWeight() + obj->get_weight() < CAN_CARRY_W(ch)) {
 						RemoveObjFromChar(obj);
 						PlaceObjToInventory(obj, ch);
 						act("Вы украли $o3 у $N1!", false, ch, obj, vict, kToChar);
