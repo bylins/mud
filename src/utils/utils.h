@@ -679,9 +679,10 @@ const int kNameLevel = 5;
 //#define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
 //#define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
 
-#define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
-#define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
-#define GET_OBJ_MATER(obj)  ((obj)->get_material())
+//#define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
+//#define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
+//#define GET_OBJ_MATER(obj)  ((obj)->get_material())
+
 #define GET_OBJ_VNUM_ZONE_FROM(obj)   ((obj)->get_vnum_zone_from())
 
 #define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())

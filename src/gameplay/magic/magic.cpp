@@ -3413,8 +3413,8 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 						obj->inc_val(2);
 					}
 				}
-				obj->add_maximum(std::max(GET_OBJ_MAX(obj) >> 2, 1));
-				obj->set_current_durability(GET_OBJ_MAX(obj));
+				obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
+				obj->set_current_durability(obj->get_maximum_durability());
 				to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
 				obj->add_timed_spell(ESpell::kBless, -1);
 			}
@@ -3538,13 +3538,13 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 		case ESpell::kAcid: alterate_object(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
 			break;
 
-		case ESpell::kRepair: obj->set_current_durability(GET_OBJ_MAX(obj));
+		case ESpell::kRepair: obj->set_current_durability(obj->get_maximum_durability());
 			to_char = "Вы полностью восстановили $o3.";
 			break;
 
 		case ESpell::kTimerRestore:
 			if (obj->get_rnum() != kNothing) {
-				obj->set_current_durability(GET_OBJ_MAX(obj));
+				obj->set_current_durability(obj->get_maximum_durability());
 				obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
 				to_char = "Вы полностью восстановили $o3.";
 				log("%s used magic repair", GET_NAME(ch));

@@ -239,7 +239,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
 	for (const auto &i : obj_proto) {
 		// материал
-		if (filter.material >= 0 && filter.material != GET_OBJ_MATER(i)) {
+		if (filter.material >= 0 && filter.material != i->get_material()) {
 			continue;
 		}
 		// тип
@@ -311,7 +311,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		out << "   "
 			<< std::setw(2) << it->first << " | "
 			<< std::setw(7) << obj->get_vnum() << " | "
-			<< std::setw(14) << material_name[GET_OBJ_MATER(obj)] << " | "
+			<< std::setw(14) << material_name[obj->get_material()] << " | "
 			<< obj->get_PName(ECase::kNom) << "\r\n";
 
 		for (int i = 0; i < kMaxObjAffect; i++) {

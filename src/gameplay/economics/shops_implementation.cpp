@@ -979,8 +979,8 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 	long buy_price = obj->get_cost();
 	long buy_price_old = get_sell_price(obj);
 
-	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
-	int repair_price = std::max(1, obj->get_cost() * std::max(0, repair) / std::max(1, GET_OBJ_MAX(obj)));
+	int repair = obj->get_maximum_durability() - obj->get_current_durability();
+	int repair_price = std::max(1, obj->get_cost() * std::max(0, repair) / std::max(1, obj->get_maximum_durability()));
 
 	// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
 	if (!CanUseFeat(ch, EFeat::kSkilledTrader)) {
@@ -1100,7 +1100,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 
 		act("$n сноровисто починил$g $o3.", false, keeper, obj, 0, kToRoom);
 
-		obj->set_current_durability(GET_OBJ_MAX(obj));
+		obj->set_current_durability(obj->get_maximum_durability());
 	}
 }
 }

@@ -983,8 +983,8 @@ void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
 void alterate_object(ObjData *obj, int dam, int chance) {
 	if (!obj)
 		return;
-	dam = number(0, dam * (material_value[GET_OBJ_MATER(obj)] + 30) /
-		std::max(1, GET_OBJ_MAX(obj) *
+	dam = number(0, dam * (material_value[obj->get_material()] + 30) /
+		std::max(1, obj->get_maximum_durability() *
 			(obj->has_flag(EObjFlag::kNodrop) ? 5 :
 			 obj->has_flag(EObjFlag::kBless) ? 15 : 10)
 			 * (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows ? 3 : 1)));

@@ -619,16 +619,16 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			}
 		}
 		// Макс. прочность
-		if (GET_OBJ_MAX(object) != GET_OBJ_MAX(proto)) {
-			out << "Maxx: " << GET_OBJ_MAX(object) << "~\n";
+		if (object->get_maximum_durability() != proto->get_maximum_durability()) {
+			out << "Maxx: " << object->get_maximum_durability() << "~\n";
 		}
 		// Текущая прочность
-		if (GET_OBJ_CUR(object) != GET_OBJ_CUR(proto)) {
-			out << "Curr: " << GET_OBJ_CUR(object) << "~\n";
+		if (object->get_current_durability() != proto->get_current_durability()) {
+			out << "Curr: " << object->get_current_durability() << "~\n";
 		}
 		// Материал
-		if (GET_OBJ_MATER(object) != GET_OBJ_MATER(proto)) {
-			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
+		if (object->get_material() != proto->get_material()) {
+			out << "Mter: " << object->get_material() << "~\n";
 		}
 		// Пол
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto)) {

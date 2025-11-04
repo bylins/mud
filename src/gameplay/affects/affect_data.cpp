@@ -96,8 +96,8 @@ int apply_armour(CharData *ch, int eq_pos) {
 		factor *= kMobArmourMult;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
-	int cur_dur = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj));
-	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, GET_OBJ_MAX(obj)));
+	int cur_dur = MIN(obj->get_maximum_durability(), obj->get_current_durability());
+	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, obj->get_maximum_durability()));
 }
 
 ///

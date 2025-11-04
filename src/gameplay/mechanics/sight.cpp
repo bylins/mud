@@ -1153,7 +1153,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
 							GetDeclensionInNumber(GET_OBJ_VAL(object, 2), EWhat::kHour));
 				}
-			} else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object)) {
+			} else if (object->get_current_durability() < object->get_maximum_durability()) {
 				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(object, 2));
 			}
 		}
@@ -1280,8 +1280,8 @@ char *diag_obj_to_char(ObjData *obj, int mode) {
 	const char *color;
 	int percent;
 
-	if (GET_OBJ_MAX(obj) > 0)
-		percent = 100 * GET_OBJ_CUR(obj) / GET_OBJ_MAX(obj);
+	if (obj->get_maximum_durability() > 0)
+		percent = 100 * obj->get_current_durability() / obj->get_maximum_durability();
 	else
 		percent = -1;
 

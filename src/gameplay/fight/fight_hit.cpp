@@ -3330,7 +3330,7 @@ void HitData::add_weapon_damage(CharData *ch, bool need_dice) {
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		damroll *= kMobDamageMult;
 	} else {
-		damroll = std::min(damroll, damroll * GET_OBJ_CUR(wielded) / std::max(1, GET_OBJ_MAX(wielded)));
+		damroll = std::min(damroll, damroll * wielded->get_current_durability() / std::max(1, wielded->get_maximum_durability()));
 	}
 
 	damroll = calculate_strconc_damage(ch, wielded, damroll);

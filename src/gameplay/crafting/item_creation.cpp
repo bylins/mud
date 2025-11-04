@@ -702,14 +702,14 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					tobj->set_timer(timer);
 					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 					act(buf, false, ch, tobj.get(), 0, kToChar);
-					tobj->set_material(GET_OBJ_MATER(obj));
+					tobj->set_material(obj->get_material());
 					// Карачун. Так логичнее.
-					// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
 					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
 						MAX(20000, 35000 / 100 * ch->GetSkill(skill) - number(0, 35000 / 100 * 25)) / 100);
-					tobj->set_current_durability(GET_OBJ_MAX(tobj));
+					tobj->set_current_durability(tobj->get_maximum_durability());
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
 					ndice = MAX(2, MIN(4, prob / percent));
@@ -772,20 +772,20 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 					tobj->set_timer(timer);
 					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 					act(buf, false, ch, tobj.get(), 0, kToChar);
-					tobj->set_material(GET_OBJ_MATER(obj));
+					tobj->set_material(obj->get_material());
 					// Карачун. Так логичнее.
-					// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
 					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
 						MAX(20000, 10000 / 100 * ch->GetSkill(skill) - number(0, 15000 / 100 * 25)) / 100);
-					tobj->set_current_durability(GET_OBJ_MAX(tobj));
+					tobj->set_current_durability(tobj->get_maximum_durability());
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
-					ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));
+					ndice = MAX(2, MIN((105 - material_value[tobj->get_material()]) / 10, prob / percent));
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
-					sdice = MAX(1, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 15, prob / percent));
+					sdice = MAX(1, MIN((105 - material_value[tobj->get_material()]) / 15, prob / percent));
 					tobj->set_val(0, ndice);
 					tobj->set_val(1, sdice);
 					tobj->set_wear_flags(created_item[obj_type].wear);
@@ -917,7 +917,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		}
 	} else {
 		if (created_item[obj_type].material_bits
-			&& !IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj)))) {
+			&& !IS_SET(created_item[obj_type].material_bits, (1 << obj->get_material()))) {
 			act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 			return;
 		}
@@ -927,7 +927,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			// Проверяем повторно из чего сделан объект
 			// Чтобы не было абъюза с перековкой из угля.
 			if (created_item[obj_type].material_bits &&
-				!IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj)))) {
+				!IS_SET(created_item[obj_type].material_bits, (1 << obj->get_material()))) {
 				act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 				return;
 			}

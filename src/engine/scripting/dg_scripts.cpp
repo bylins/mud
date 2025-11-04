@@ -3168,7 +3168,7 @@ void find_replacement(void *go,
 				skip_spaces(&subfield);
 				o->set_current_durability(atoi(subfield));
 			} else {
-				sprintf(str, "%d", GET_OBJ_CUR(o));
+				sprintf(str, "%d", o->get_current_durability());
 			}
 		} else if (!str_cmp(field, "cost")) {
 			if (*subfield) {
