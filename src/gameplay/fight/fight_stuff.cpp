@@ -31,6 +31,7 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
+#include "gameplay/skills/leadership.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -140,42 +141,6 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GetRealLevel(ch));
 		}
-	}
-}
-
-void update_leadership(CharData *ch, CharData *killer) {
-	// train LEADERSHIP
-	if (ch->IsNpc() && killer) // Убили моба
-	{
-		if (!killer->IsNpc() // Убил загрупленный чар
-			&& AFF_FLAGGED(killer, EAffect::kGroup)
-			&& killer->has_master()
-			&& killer->get_master()->GetSkill(ESkill::kLeadership) > 0
-			&& killer->in_room == killer->get_master()->in_room) {
-			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
-		} else if (killer->IsNpc() // Убил чармис загрупленного чара
-			&& IS_CHARMICE(killer)
-			&& killer->has_master()
-			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
-			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->GetSkill(ESkill::kLeadership) > 0
-				&& killer->in_room == killer->get_master()->in_room
-				&& killer->in_room == killer->get_master()->get_master()->in_room) {
-				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
-			}
-		}
-	}
-
-	// decrease LEADERSHIP
-	if (!ch->IsNpc() // Член группы убит мобом
-		&& killer
-		&& killer->IsNpc()
-		&& AFF_FLAGGED(ch, EAffect::kGroup)
-		&& ch->has_master()
-		&& ch->in_room == ch->get_master()->in_room
-		&& ch->get_master()->GetTrainedSkill(ESkill::kLeadership) > 1) {
-		const auto current_skill = ch->get_master()->GetMorphSkill(ESkill::kLeadership);
-		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
 	}
 }
 
@@ -318,7 +283,7 @@ void die(CharData *ch, CharData *killer) {
 			process_mobmax(ch, killer);
 		}
 		if (killer) {
-			update_leadership(ch, killer);
+			UpdateLeadership(ch, killer);
 		}
 	}
 	CharStat::UpdateOnKill(ch, killer, dec_exp);
@@ -890,14 +855,11 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	koef = std::max(0, koef);
 
-	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
-	// из группы из PC (последователи типа лошади или чармисов не считаются)
-	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(leader)) {
-		koef += 20;
+	if (leader_inroom) {
+		koef += CalcLeadershipGroupExpKoeff(leader, inroom_members, koef);
 	}
 
 	// Раздача опыта
-
 	// если групповой уровень зоны равняется единице
 	if (zone_table[world[killer->in_room]->zone_rn].group < 2) {
 		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше

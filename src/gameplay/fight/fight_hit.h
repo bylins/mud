@@ -40,7 +40,7 @@ struct HitData {
 	int ProcessExtradamage(CharData *ch, CharData *victim);
 	void ProcessMighthit(CharData *ch, CharData *victim);
 	void ProcessOverhelm(CharData *ch, CharData *victim);
-	void ProcessCritHit(CharData *ch, CharData *victim);
+	void ProcessPunctualHit(CharData *ch, CharData *victim);
 
 	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),

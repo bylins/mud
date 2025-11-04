@@ -16,7 +16,7 @@ void go_touch(CharData *ch, CharData *vict) {
 		return;
 	}
 	act("Вы попытаетесь перехватить следующую атаку $N1.", false, ch, nullptr, vict, kToChar);
-	SET_AF_BATTLE(ch, kEafTouch);
+	ch->battle_affects.set(kEafTouch);
 	ch->set_touching(vict);
 }
 
@@ -65,7 +65,7 @@ void do_touch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Но вы не сражаетесь с $N4.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, kEafHammer)) {
+	if (ch->battle_affects.get(kEafHammer)) {
 		SendMsgToChar("Невозможно. Вы приготовились к богатырскому удару.\r\n", ch);
 		return;
 	}
@@ -87,7 +87,7 @@ void go_deviate(CharData *ch) {
 	if (ch->IsHorsePrevents()) {
 		return;
 	};
-	SET_AF_BATTLE(ch, kEafDodge);
+	ch->battle_affects.set(kEafDodge);
 	SendMsgToChar("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
 }
 
@@ -110,7 +110,7 @@ void do_deviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, kEafDodge)) {
+	if (ch->battle_affects.get(kEafDodge)) {
 		SendMsgToChar("Вы и так вертитесь, как волчок.\r\n", ch);
 		return;
 	};
@@ -168,12 +168,12 @@ void do_style(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (ch->GetEnemy() && !(AFF_FLAGGED(ch, EAffect::kCourage) ||
 				AFF_FLAGGED(ch, EAffect::kDrunked) || AFF_FLAGGED(ch, EAffect::kAbstinent))) {
-				CLR_AF_BATTLE(ch, kEafPunctual);
-				CLR_AF_BATTLE(ch, kEafAwake);
+				ch->battle_affects.unset(kEafPunctual);
+				ch->battle_affects.unset(kEafAwake);
 				if (tp == 1)
-					SET_AF_BATTLE(ch, kEafPunctual);
+					ch->battle_affects.set(kEafPunctual);
 				else if (tp == 2)
-					SET_AF_BATTLE(ch, kEafAwake);
+					ch->battle_affects.set(kEafAwake);
 			}
 			SendMsgToChar(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
 						  kColorBoldRed, tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", kColorNrm);

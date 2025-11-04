@@ -337,7 +337,7 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	bool success = result.success;
 
 	if (((success) && (number(1, 100) <= 25)) ||
-		(!GET_AF_BATTLE(vict, kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
+		(!vict->battle_affects.get(kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
 		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (PoisonVictWithWeapon(ch, vict, spell_id)) {
 			if (spell_id == ESpell::kAconitumPoison) {
@@ -348,17 +348,17 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
 							  buf1, GET_CH_VIS_SUF_2(vict, ch));
-				SET_AF_BATTLE(vict, kEafFirstPoison);
+				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
 				strcpy(buf1, PERS(vict, ch, 3));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s перестали слушаться руки.\r\n", buf1);
-				SET_AF_BATTLE(vict, kEafFirstPoison);
+				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
 				strcpy(buf1, PERS(vict, ch, 2));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s стало труднее плести заклинания.\r\n", buf1);
-				SET_AF_BATTLE(vict, kEafFirstPoison);
+				vict->battle_affects.set(kEafFirstPoison);
 			} else {
 				SendMsgToChar(ch, "Вы отравили %s.\r\n", PERS(ch, vict, 3));
 			}

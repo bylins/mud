@@ -40,14 +40,14 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 
 	if (!ch->GetEnemy()) {
 		ch->SetFlag(EPrf::kIronWind);
-		SET_AF_BATTLE(ch, kEafIronWind);
+		ch->battle_affects.set(kEafIronWind);
 		hit(ch, victim, ESkill::kUndefined, fight::kMainHand);
 		SetWait(ch, 2, true);
 		//ch->setSkillCooldown(ESkill::kGlobalCooldown, 2);
 		//ch->setSkillCooldown(ESkill::kIronwind, 2);
 	} else {
 		ch->SetFlag(EPrf::kIronWind);
-		SET_AF_BATTLE(ch, kEafIronWind);
+		ch->battle_affects.set(kEafIronWind);
 	}
 }
 
@@ -60,7 +60,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	};
-	if (GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) {
+	if (ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) {
 		SendMsgToChar("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};

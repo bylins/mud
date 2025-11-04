@@ -22,87 +22,8 @@
 #include "utils/utils_time.h"
 
 // extern
-int GetExtraAc0(ECharClass class_id, int level);
 void npc_groupbattle(CharData *ch);
 int CalculateSkillRate(CharData *ch, ESkill skill_id, CharData *vict);
-
-int GetClaccAcLimit(CharData *ch) {
-	if (IS_CHARMICE(ch)) {
-		return -200;
-	};
-	if (ch->IsNpc()) {
-		return -300;
-	};
-	switch (ch->GetClass()) {
-		case ECharClass::kPaladine: return -270;
-			break;
-		case ECharClass::kAssasine:
-		case ECharClass::kThief:
-		case ECharClass::kGuard: return -250;
-			break;
-		case ECharClass::kMerchant:
-		case ECharClass::kWarrior:
-		case ECharClass::kRanger:
-		case ECharClass::kVigilant: return -200;
-			break;
-		case ECharClass::kSorcerer:
-		case ECharClass::kMagus: return -170;
-			break;
-		case ECharClass::kConjurer:
-		case ECharClass::kWizard:
-		case ECharClass::kCharmer:
-		case ECharClass::kNecromancer: return -150;
-			break;
-			default: return -300;
-	}
-	return -300;
-}
-
-int CalcAC(CharData *ch) {
-	int armorclass = GET_REAL_AC(ch);
-
-	if (AWAKE(ch)) {
-		int high_stat = GetRealDex(ch);
-		// у игроков для ац берется макс стат: ловкость или 3/4 инты
-		if (!ch->IsNpc()) {
-			high_stat = std::max(high_stat, GetRealInt(ch) * 3 / 4);
-		}
-		armorclass -= dex_ac_bonus(high_stat) * 10;
-		armorclass += GetExtraAc0(ch->GetClass(), GetRealLevel(ch));
-	};
-
-	if (AFF_FLAGGED(ch, EAffect::kBerserk)) {
-		armorclass -= (240 * ((ch->get_real_max_hit() / 2) - ch->get_hit()) / ch->get_real_max_hit());
-	}
-
-	if (ch->IsFlagged(EPrf::kIronWind)) {
-		armorclass += ch->GetSkill(ESkill::kIronwind) / 2;
-	}
-
-	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
-
-	if (GET_AF_BATTLE(ch, kEafPunctual)) {
-		if (GET_EQ(ch, EEquipPos::kWield)) {
-			if (GET_EQ(ch, EEquipPos::kHold))
-				armorclass +=
-					10 * std::max(-1,
-							 (GET_EQ(ch, EEquipPos::kWield)->get_weight() +
-								 GET_EQ(ch, EEquipPos::kHold)->get_weight()) / 5 - 6);
-			else
-				armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kWield)->get_weight() / 5 - 6);
-		}
-		if (GET_EQ(ch, EEquipPos::kBoths))
-			armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kBoths)->get_weight() / 5 - 6);
-	}
-
-	// Bonus for leadership
-	if (calc_leadership(ch)) {
-		armorclass -= 20;
-	}
-
-	armorclass = std::min(100, armorclass);
-	return (std::max(GetClaccAcLimit(ch), armorclass));
-}
 
 void ImposeHaemorrhage(CharData *ch, int percent) {
 	Affect<EApply> af[3];
@@ -132,7 +53,7 @@ void ImposeHaemorrhage(CharData *ch, int percent) {
 	}
 }
 
-void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
+void HitData::ProcessPunctualHit(CharData *ch, CharData *victim) {
 	const char *to_char = nullptr, *to_vict = nullptr;
 	Affect<EApply> af[4];
 	ObjData *obj;
@@ -159,7 +80,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					// Nothing
 					return;
 				case 4:    // Hit genus, victim bashed, speed/2
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 10);
 					if (victim->GetPosition() > EPosition::kSit) {
 						victim->SetPosition(EPosition::kSit);
@@ -182,7 +103,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 9);
 					to_char = "замедлило движения $N1";
 					to_vict = "сломало вам лодыжку";
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 7:
 				case 9:    // armor damaged else foot damaged, speed/4
@@ -194,7 +115,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 						to_vict = "сломало вам ногу";
 						af[0].type = ESpell::kBattle;
 						af[0].bitvector = to_underlying(EAffect::kNoFlee);
-						SET_AF_BATTLE(victim, kEafSlow);
+						victim->battle_affects.set(kEafSlow);
 					}
 					break;
 				case 8:    // femor damaged, no speed
@@ -204,7 +125,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 20);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 10:    // genus damaged, no speed, -2HR
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 7);
@@ -214,7 +135,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 11:    // femor damaged, no speed, no attack
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 7);
@@ -227,7 +148,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 20);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				default:    // femor damaged, no speed, no attack
 					if (dam_critic > 12)
@@ -243,7 +164,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 50);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 			}
 			break;
@@ -265,7 +186,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					SetWaitState(victim, 2 * kBattleRound);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 6:    // armor damaged else dam*3, waits 1d6
 					SetWaitState(victim, number(2, 6) * kBattleRound);
@@ -285,7 +206,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 9:    // armor damaged, abdomin damaged, speed/2, HR-2
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 5);
@@ -297,7 +218,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 20);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 10:    // abdomin damaged, no speed, no attack
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 4);
@@ -310,7 +231,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 20);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 11:    // abdomin damaged, no speed, no attack
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 3);
@@ -323,14 +244,14 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 40);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				default:    // abdomin damaged, hits = 0
 					dam *= ch->GetSkill(ESkill::kPunctual) / 2;
 					to_char = "размозжило $N2 живот";
 					to_vict = "размозжило вам живот";
 					ImposeHaemorrhage(victim, 60);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 			}
 			break;
@@ -357,7 +278,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 6:    // shield damaged, chest damaged, speed/2
 					alt_equip(victim, EEquipPos::kShield, 100, 100);
@@ -366,7 +287,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 7:    // srmor damaged, chest damaged, speed/2, HR-2
 					alt_equip(victim, EEquipPos::kBody, 100, 100);
@@ -377,7 +298,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					af[0].bitvector = to_underlying(EAffect::kNoFlee);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 8:    // chest damaged, no speed, no attack
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 5);
@@ -390,7 +311,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 20);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 9:    // chest damaged, speed/2, HR-2
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 4);
@@ -402,7 +323,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 20);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 10:    // chest damaged, no speed, no attack
 					dam *= (ch->GetSkill(ESkill::kPunctual) / 4);
@@ -415,7 +336,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					af[1].type = ESpell::kBattle;
 					af[1].bitvector = to_underlying(EAffect::kNoFlee);
 					ImposeHaemorrhage(victim, 40);
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 				case 11:    // chest crushed, hits 0
 					af[0].type = ESpell::kBattle;
@@ -561,7 +482,7 @@ void HitData::ProcessCritHit(CharData *ch, CharData *victim) {
 					ImposeHaemorrhage(victim, 30);
 					if (dam_critic >= 13)
 						dam *= ch->GetSkill(ESkill::kPunctual) / 5;
-					SET_AF_BATTLE(victim, kEafSlow);
+					victim->battle_affects.set(kEafSlow);
 					break;
 			}
 			break;
@@ -776,8 +697,8 @@ int CalcStrCondensationDamage(CharData *ch, ObjData * /*wielded*/, int damage) {
 	if (ch->IsNpc()
 		|| GetRealStr(ch) <= 25
 		|| !CanUseFeat(ch, EFeat::kStrengthConcentration)
-		|| GET_AF_BATTLE(ch, kEafIronWind)
-		|| GET_AF_BATTLE(ch, kEafOverwhelm)) {
+		|| ch->battle_affects.get(kEafIronWind)
+		|| ch->battle_affects.get(kEafOverwhelm)) {
 		return damage;
 	}
 	double str_mod = (GetRealStr(ch) - 25.0) * 0.4;
@@ -1065,7 +986,7 @@ double HitData::CalcCritBackstabMultiplier(CharData *ch, CharData *victim) {
 
 // * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
 bool CanPerformAutoblock(CharData *ch) {
-	return (GET_EQ(ch, EEquipPos::kShield) && GET_AF_BATTLE(ch, kEafAwake) && GET_AF_BATTLE(ch, kEafAutoblock));
+	return (GET_EQ(ch, EEquipPos::kShield) && ch->battle_affects.get(kEafAwake) && ch->battle_affects.get(kEafAutoblock));
 }
 
 // * Проверка на фит "любимое оружие".
@@ -1156,8 +1077,8 @@ void ProcessIntercept(CharData *ch, CharData *vict, int *dam) {
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
 			percent = 0;
 		}
-		CLR_AF_BATTLE(vict, kEafTouch);
-		SET_AF_BATTLE(vict, kEafUsedright);
+		vict->battle_affects.unset(kEafTouch);
+		vict->battle_affects.set(kEafUsedright);
 		vict->set_touching(nullptr);
 		if (prob < percent) {
 			act("Вы не смогли перехватить атаку $N1.", false, vict, nullptr, ch, kToChar);
@@ -1199,25 +1120,25 @@ void HitData::ProcessDeviate(CharData *ch, CharData *victim, int *damage) const 
 		act("Вы не смогли уклониться от атаки $N1.", false, victim, nullptr, ch, kToChar);
 		act("$N не сумел$G уклониться от вашей атаки.", false, ch, nullptr, victim, kToChar);
 		act("$n не сумел$g уклониться от атаки $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-		SET_AF_BATTLE(victim, kEafDodge);
+		victim->battle_affects.set(kEafDodge);
 	} else if (prob < 100) {
 		act("Вы немного уклонились от атаки $N1.", false, victim, nullptr, ch, kToChar);
 		act("$N немного уклонил$U от вашей атаки.", false, ch, nullptr, victim, kToChar);
 		act("$n немного уклонил$u от атаки $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
 		*damage = *damage * 10 / 15;
-		SET_AF_BATTLE(victim, kEafDodge);
+		victim->battle_affects.set(kEafDodge);
 	} else if (prob < 200) {
 		act("Вы частично уклонились от атаки $N1.", false, victim, nullptr, ch, kToChar);
 		act("$N частично уклонил$U от вашей атаки.", false, ch, nullptr, victim, kToChar);
 		act("$n частично уклонил$u от атаки $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
 		*damage = *damage / 2;
-		SET_AF_BATTLE(victim, kEafDodge);
+		victim->battle_affects.set(kEafDodge);
 	} else {
 		act("Вы уклонились от атаки $N1.", false, victim, nullptr, ch, kToChar);
 		act("$N уклонил$U от вашей атаки.", false, ch, nullptr, victim, kToChar);
 		act("$n уклонил$u от атаки $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
 		*damage = -1;
-		SET_AF_BATTLE(victim, kEafDodge);
+		victim->battle_affects.set(kEafDodge);
 	}
 	++(victim->battle_counter);
 }
@@ -1230,7 +1151,7 @@ void HitData::ProcessParry(CharData *ch, CharData *victim, ESkill skill, int att
 		|| victim->IsNpc()
 		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
-		CLR_AF_BATTLE(victim, kEafParry);
+		victim->battle_affects.unset(kEafParry);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kParry).difficulty);
 		int prob = CalcCurrentSkill(victim, ESkill::kParry, ch);
@@ -1249,7 +1170,7 @@ void HitData::ProcessParry(CharData *ch, CharData *victim, ESkill skill, int att
 			act("$N не сумел$G отбить вашу атаку.", false, ch, nullptr, victim, kToChar);
 			act("$n не сумел$g отбить атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
 			prob = 2;
-			SET_AF_BATTLE(victim, kEafUsedleft);
+			victim->battle_affects.set(kEafUsedleft);
 		} else if (prob < 100) {
 			act("Вы немного отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
 			act("$N немного отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
@@ -1257,7 +1178,7 @@ void HitData::ProcessParry(CharData *ch, CharData *victim, ESkill skill, int att
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 10);
 			prob = 1;
 			*damage = *damage * 10 / 15;
-			SET_AF_BATTLE(victim, kEafUsedleft);
+			victim->battle_affects.set(kEafUsedleft);
 		} else if (prob < 170) {
 			act("Вы частично отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
 			act("$N частично отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
@@ -1265,7 +1186,7 @@ void HitData::ProcessParry(CharData *ch, CharData *victim, ESkill skill, int att
 			alt_equip(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 15);
 			prob = 0;
 			*damage = *damage / 2;
-			SET_AF_BATTLE(victim, kEafUsedleft);
+			victim->battle_affects.set(kEafUsedleft);
 		} else {
 			act("Вы полностью отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
 			act("$N полностью отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
@@ -1282,7 +1203,7 @@ void HitData::ProcessParry(CharData *ch, CharData *victim, ESkill skill, int att
 			WAIT_STATE(victim, kBattleRound * prob);
 		}
 */
-		CLR_AF_BATTLE(victim, kEafParry);
+		victim->battle_affects.unset(kEafParry);
 	}
 }
 
@@ -2613,17 +2534,17 @@ int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
 	//* богатырский молот //
 	// в эти условия ничего добавлять не надо, иначе EAF_MIGHTHIT не снимется
 	// с моба по ходу боя, если он не может по каким-то причинам смолотить
-	if (GET_AF_BATTLE(ch, kEafHammer) && ch->get_wait() <= 0) {
-		CLR_AF_BATTLE(ch, kEafHammer);
+	if (ch->battle_affects.get(kEafHammer) && ch->get_wait() <= 0) {
+		ch->battle_affects.unset(kEafHammer);
 		SetFlag(fight::kIgnoreBlink);
-		if (IsArmedWithMighthitWeapon(ch) && !GET_AF_BATTLE(ch, kEafTouch)) {
+		if (IsArmedWithMighthitWeapon(ch) && !ch->battle_affects.get(kEafTouch)) {
 			ProcessMighthit(ch, victim);
 		}
 	}
 		//* оглушить //
 		// аналогично молоту, все доп условия добавляются внутри
-	else if (GET_AF_BATTLE(ch, kEafOverwhelm) && ch->get_wait() <= 0) {
-		CLR_AF_BATTLE(ch, kEafOverwhelm);
+	else if (ch->battle_affects.get(kEafOverwhelm) && ch->get_wait() <= 0) {
+		ch->battle_affects.unset(kEafOverwhelm);
 		SetFlag(fight::kIgnoreBlink);
 		const int minimum_weapon_weigth = 19;
 		if (IS_IMMORTAL(ch)) {
@@ -2646,7 +2567,7 @@ int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
 		} else if (wielded) {
 			if (static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) {
 				SendMsgToChar("Луком оглушить нельзя.\r\n", ch);
-			} else if (!GET_AF_BATTLE(ch, kEafParry) && !GET_AF_BATTLE(ch, kEafMultyparry)) {
+			} else if (!ch->battle_affects.get(kEafParry) && !ch->battle_affects.get(kEafMultyparry)) {
 				if (wielded->get_weight() >= minimum_weapon_weigth) {
 					ProcessOverhelm(ch, victim);
 				} else {
@@ -2682,7 +2603,7 @@ int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
 	}
 		//* точный стиль //
 	else if (dam && GetFlags()[fight::kCritHit] && dam_critic) {
-		ProcessCritHit(ch, victim);
+		ProcessPunctualHit(ch, victim);
 		SetFlag(fight::kIgnoreBlink);
 
 	}
@@ -2755,7 +2676,7 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		}
 	}
 
-	if (GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) {
+	if (ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) {
 		hit_no_parry = true;
 	}
 
@@ -2808,12 +2729,12 @@ void HitData::CalcBaseHitroll(CharData *ch) {
 
 	CheckWeapFeats(ch, weap_skill, calc_thaco, dam);
 
-	if (GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) {
+	if (ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) {
 		calc_thaco -= std::max(0, (ch->GetSkill(weap_skill) - 70) / 8);
 	}
 
 	//    AWAKE style - decrease hitroll
-	if (GET_AF_BATTLE(ch, kEafAwake)
+	if (ch->battle_affects.get(kEafAwake)
 		&& !CanUseFeat(ch, EFeat::kShadowStrike)
 		&& skill_num != ESkill::kThrow
 		&& skill_num != ESkill::kBackstab) {
@@ -2939,8 +2860,8 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		int prob = (ch->GetSkill(weap_skill) + cha_app[GetRealCha(ch)].illusive) -
 			(victim->GetSkill(weap_skill) + int_app[GetRealInt(victim)].observation);
-		if (prob >= 30 && !GET_AF_BATTLE(victim, kEafAwake)
-			&& (ch->IsNpc() || !GET_AF_BATTLE(ch, kEafPunctual))) {
+		if (prob >= 30 && !victim->battle_affects.get(kEafAwake)
+			&& (ch->IsNpc() || !ch->battle_affects.get(kEafPunctual))) {
 			calc_thaco -= static_cast<int>((ch->GetSkill(weap_skill) -
 				victim->GetSkill(weap_skill) > 60 ? 2 : 1) * p_hitroll);
 			if (!victim->IsNpc())
@@ -2949,7 +2870,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	}
 
 	// AWAKE style for victim
-	if (GET_AF_BATTLE(victim, kEafAwake)
+	if (victim->battle_affects.get(kEafAwake)
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kHold)) {
@@ -3017,8 +2938,6 @@ void HitData::CalcStaticHitroll(CharData *ch) {
 
 // * Подсчет армор класса жертвы.
 void HitData::CalcAc(CharData *victim) {
-
-
 	// Calculate the raw armor including magic armor.  Lower AC is better.
 	victim_ac += CalcAC(victim);
 	victim_ac /= 10;
@@ -3057,7 +2976,7 @@ void HitData::ProcessDefensiveAbilities(CharData *ch, CharData *victim) {
 
 	if (dam > 0
 		&& !hit_no_parry
-		&& GET_AF_BATTLE(victim, kEafDodge)
+		&& victim->battle_affects.get(kEafDodge)
 		&& victim->get_wait() <= 0
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
@@ -3066,7 +2985,7 @@ void HitData::ProcessDefensiveAbilities(CharData *ch, CharData *victim) {
 		ProcessDeviate(ch, victim, &dam);
 	} else if (dam > 0
 		&& !hit_no_parry
-		&& GET_AF_BATTLE(victim, kEafParry)
+		&& victim->battle_affects.get(kEafParry)
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kStopRight)
@@ -3076,7 +2995,7 @@ void HitData::ProcessDefensiveAbilities(CharData *ch, CharData *victim) {
 		ProcessParry(ch, victim, weap_skill, hit_type, &dam);
 	} else if (dam > 0
 		&& !hit_no_parry
-		&& GET_AF_BATTLE(victim, kEafMultyparry)
+		&& victim->battle_affects.get(kEafMultyparry)
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kStopRight)
@@ -3087,7 +3006,7 @@ void HitData::ProcessDefensiveAbilities(CharData *ch, CharData *victim) {
 		ProcessMultyparry(ch, victim, weap_skill, hit_type, &dam);
 	} else if (dam > 0
 		&& !hit_no_parry
-		&& ((GET_AF_BATTLE(victim, kEafBlock) || CanPerformAutoblock(victim)) && victim->GetPosition() > EPosition::kSit)
+		&& ((victim->battle_affects.get(kEafBlock) || CanPerformAutoblock(victim)) && victim->GetPosition() > EPosition::kSit)
 		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
 		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
@@ -3152,7 +3071,7 @@ void HitData::AddBareHandsDmg(CharData *ch, bool need_dice) {
 	// 10 150%
 	// 15 200%
 	// НА МОЛОТ НЕ ВЛИЯЕТ
-	if (!GET_AF_BATTLE(ch, kEafHammer)
+	if (!ch->battle_affects.get(kEafHammer)
 		|| GetFlags()[fight::kCritHit]) //в метком молоте идет учет перчаток
 	{
 		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? std::min(GET_EQ(ch, EEquipPos::kHands)->get_weight(), 18)
@@ -3292,7 +3211,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 	if (ch->IsFlagged(EPrf::kExecutor))
 		SendMsgToChar(ch, "&YДамага после расчета руки или оружия == %d&n\r\n", dam);
 
-	if (GET_AF_BATTLE(ch, kEafIronWind)) {
+	if (ch->battle_affects.get(kEafIronWind)) {
 		dam += ch->GetSkill(ESkill::kIronwind) / 2;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага после расчета железного ветра == %d&n\r\n", dam);
@@ -3424,7 +3343,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (AFF_FLAGGED(ch, EAffect::kCloudOfArrows)
 		&& hit_params.skill_num == ESkill::kUndefined
 		&& (ch->GetEnemy() 
-		|| (!GET_AF_BATTLE(ch, kEafHammer) && !GET_AF_BATTLE(ch, kEafOverwhelm)))) {
+		|| (!ch->battle_affects.get(kEafHammer) && !ch->battle_affects.get(kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
 		if (ch->IsNpc()) {
 			CastDamage(GetRealLevel(ch), ch, victim, ESpell::kMagicMissile);
@@ -3563,7 +3482,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 	//Рассчёт шанса точного стиля:
-	if (!IS_CHARMICE(ch) && GET_AF_BATTLE(ch, kEafPunctual) && ch->punctual_wait <= 0 && ch->get_wait() <= 0
+	if (!IS_CHARMICE(ch) && ch->battle_affects.get(kEafPunctual) && ch->punctual_wait <= 0 && ch->get_wait() <= 0
 		&& (hit_params.diceroll >= 18 - AFF_FLAGGED(victim, EAffect::kHold))) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kPunctual, victim);
 		bool success = result.success;
@@ -3585,9 +3504,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	}
 
 	// обнуляем флаги, если у нападающего есть лаг
-	if ((GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->get_wait() > 0) {
-		CLR_AF_BATTLE(ch, kEafOverwhelm);
-		CLR_AF_BATTLE(ch, kEafHammer);
+	if ((ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->get_wait() > 0) {
+		ch->battle_affects.unset(kEafOverwhelm);
+		ch->battle_affects.unset(kEafHammer);
 	}
 
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
@@ -3635,14 +3554,14 @@ void ProcessIronWindHits(CharData *ch, fight::AttackType weapon) {
 	if (ch->IsFlagged(EPrf::kIronWind)) {
 		percent = ch->GetSkill(ESkill::kIronwind);
 		moves = ch->get_max_move() / (6 + std::max(10, percent) / 10);
-		prob = GET_AF_BATTLE(ch, kEafIronWind);
+		prob = ch->battle_affects.get(kEafIronWind);
 		if (prob && !check_moves(ch, moves)) {
-			CLR_AF_BATTLE(ch, kEafIronWind);
+			ch->battle_affects.unset(kEafIronWind);
 		} else if (!prob && (ch->get_move() > moves)) {
-			SET_AF_BATTLE(ch, kEafIronWind);
+			ch->battle_affects.set(kEafIronWind);
 		};
 	};
-	if (GET_AF_BATTLE(ch, kEafIronWind)) {
+	if (ch->battle_affects.get(kEafIronWind)) {
 		TrainSkill(ch, ESkill::kIronwind, true, ch->GetEnemy());
 		if (weapon == fight::kMainHand) {
 			div = 100 + std::min(80, std::max(1, percent - 80));

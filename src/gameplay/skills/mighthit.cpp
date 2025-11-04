@@ -22,7 +22,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 	victim = TryToFindProtector(victim, ch);
 
 	if (!ch->GetEnemy()) {
-		SET_AF_BATTLE(ch, kEafHammer);
+		ch->battle_affects.set(kEafHammer);
 		hit(ch, victim, ESkill::kHammer, fight::kMainHand);
 		if (ch->getSkillCooldown(ESkill::kHammer) > 0) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
@@ -41,7 +41,7 @@ void go_mighthit(CharData *ch, CharData *victim) {
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 			//set_wait(ch, 2, true);
 		}
-		SET_AF_BATTLE(ch, kEafHammer);
+		ch->battle_affects.set(kEafHammer);
 	}
 }
 
@@ -81,7 +81,7 @@ void do_mighthit(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, kEafTouch)) {
+	if (ch->battle_affects.get(kEafTouch)) {
 		if (!ch->IsNpc())
 			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;

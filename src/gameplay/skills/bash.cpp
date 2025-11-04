@@ -190,7 +190,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	} else {
 //делаем блокирование баша
-		if ((GET_AF_BATTLE(vict, kEafBlock)
+		if ((vict->battle_affects.get(kEafBlock)
 			|| (CanUseFeat(vict, EFeat::kDefender)
 				&& GET_EQ(vict, kShield)
 				&& vict->IsFlagged(EPrf::kAwake)

@@ -362,10 +362,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 
-#define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
-#define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
-#define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
-#define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
@@ -416,7 +412,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_AC(ch)         ((ch)->real_abils.armor)
 #define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
-#define GET_REAL_AC(ch)      (GET_AC(ch)+GET_AC_ADD(ch))
 #define GET_MORALE(ch)       ((ch)->add_abils.morale)
 #define GET_INITIATIVE(ch)   ((ch)->add_abils.initiative_add)
 #define GET_POISON(ch)      ((ch)->add_abils.poison_add)

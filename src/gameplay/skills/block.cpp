@@ -9,7 +9,7 @@ void go_block(CharData *ch) {
 		SendMsgToChar("Ваша рука парализована.\r\n", ch);
 		return;
 	}
-	SET_AF_BATTLE(ch, kEafBlock);
+	ch->battle_affects.set(kEafBlock);
 	SendMsgToChar("Хорошо, вы попробуете отразить щитом следующую атаку.\r\n", ch);
 }
 
@@ -33,7 +33,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете сделать это без щита.\r\n", ch);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, kEafBlock)) {
+	if (ch->battle_affects.get(kEafBlock)) {
 		SendMsgToChar("Вы уже прикрываетесь щитом!\r\n", ch);
 		return;
 	}

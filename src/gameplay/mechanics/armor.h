@@ -9,6 +9,10 @@
 #ifndef BYLINS_SRC_GAMEPLAY_MECHANICS_ARMOR_H_
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_ARMOR_H_
 
+class CharData;
+int CalcAC(CharData *ch);
+int GetRealAc(CharData *ch);
+
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_ARMOR_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

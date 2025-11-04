@@ -11,7 +11,7 @@ void go_multyparry(CharData *ch) {
 		return;
 	}
 
-	SET_AF_BATTLE(ch, kEafMultyparry);
+	ch->battle_affects.set(kEafMultyparry);
 	SendMsgToChar("Вы попробуете использовать веерную защиту.\r\n", ch);
 }
 
@@ -40,7 +40,7 @@ void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		SendMsgToChar("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, kEafOverwhelm)) {
+	if (ch->battle_affects.get(kEafOverwhelm)) {
 		SendMsgToChar("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
@@ -54,7 +54,7 @@ void go_parry(CharData *ch) {
 		return;
 	}
 
-	SET_AF_BATTLE(ch, kEafParry);
+	ch->battle_affects.set(kEafParry);
 	SendMsgToChar("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
@@ -96,7 +96,7 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (GET_AF_BATTLE(ch, kEafOverwhelm)) {
+	if (ch->battle_affects.get(kEafOverwhelm)) {
 		SendMsgToChar("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
@@ -105,17 +105,17 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 void parry_override(CharData *ch) {
 	std::string message = "";
-	if (GET_AF_BATTLE(ch, kEafBlock)) {
+	if (ch->battle_affects.get(kEafBlock)) {
 		message = "Вы прекратили прятаться за щит и бросились в бой.";
-		CLR_AF_BATTLE(ch, kEafBlock);
+		ch->battle_affects.unset(kEafBlock);
 	}
-	if (GET_AF_BATTLE(ch, kEafParry)) {
+	if (ch->battle_affects.get(kEafParry)) {
 		message = "Вы прекратили парировать атаки и бросились в бой.";
-		CLR_AF_BATTLE(ch, kEafParry);
+		ch->battle_affects.unset(kEafParry);
 	}
-	if (GET_AF_BATTLE(ch, kEafMultyparry)) {
+	if (ch->battle_affects.get(kEafMultyparry)) {
 		message = "Вы забыли о защите и бросились в бой.";
-		CLR_AF_BATTLE(ch, kEafMultyparry);
+		ch->battle_affects.unset(kEafMultyparry);
 	}
 	act(message.c_str(), false, ch, 0, 0, kToChar);
 }

@@ -22,7 +22,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 	victim = TryToFindProtector(victim, ch);
 
 	if (!ch->GetEnemy()) {
-		SET_AF_BATTLE(ch, kEafOverwhelm);
+		ch->battle_affects.set(kEafOverwhelm);
 		hit(ch, victim, ESkill::kOverwhelm, fight::kMainHand);
 		//set_wait(ch, 2, true);
 		if (ch->getSkillCooldown(ESkill::kOverwhelm) > 0) {
@@ -36,7 +36,7 @@ void go_stupor(CharData *ch, CharData *victim) {
 			//set_wait(ch, 2, true);
 			SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 		}
-		SET_AF_BATTLE(ch, kEafOverwhelm);
+		ch->battle_affects.set(kEafOverwhelm);
 	}
 }
 
