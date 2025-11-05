@@ -29,6 +29,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]);
 void print_zone_info(CharData *ch);
 const char *print_obj_state(int tm_pct);
 void diag_char_to_char(CharData *i, CharData *ch);
+void Appear(CharData *ch);
 
 #endif //BYLINS_SRC_GAME_MECHANICS_SIGHT_H_
 

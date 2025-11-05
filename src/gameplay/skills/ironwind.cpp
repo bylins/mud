@@ -2,9 +2,9 @@
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "parry.h"
+#include "engine/core/handler.h"
 
 void go_iron_wind(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
@@ -89,6 +89,41 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	go_iron_wind(ch, vict);
+}
+
+void ProcessIronWindHits(CharData *ch, fight::AttackType weapon) {
+	int percent = 0, prob = 0, div = 0, moves = 0;
+	/*
+	первая дополнительная атака правой наносится 100%
+	вторая дополнительная атака правой начинает наноситься с 80%+ скилла, но не более чем с 80% вероятностью
+	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
+	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
+	*/
+	if (ch->IsFlagged(EPrf::kIronWind)) {
+		percent = ch->GetSkill(ESkill::kIronwind);
+		moves = ch->get_max_move() / (6 + std::max(10, percent) / 10);
+		prob = ch->battle_affects.get(kEafIronWind);
+		if (prob && !check_moves(ch, moves)) {
+			ch->battle_affects.unset(kEafIronWind);
+		} else if (!prob && (ch->get_move() > moves)) {
+			ch->battle_affects.set(kEafIronWind);
+		};
+	};
+	if (ch->battle_affects.get(kEafIronWind)) {
+		TrainSkill(ch, ESkill::kIronwind, true, ch->GetEnemy());
+		if (weapon == fight::kMainHand) {
+			div = 100 + std::min(80, std::max(1, percent - 80));
+			prob = 100;
+		} else {
+			div = std::min(80, percent + 10);
+			prob = 80 - std::min(30, std::max(0, percent - 170));
+		};
+		while (div > 0) {
+			if (number(1, 100) < div)
+				hit(ch, ch->GetEnemy(), ESkill::kUndefined, weapon);
+			div -= prob;
+		};
+	};
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp

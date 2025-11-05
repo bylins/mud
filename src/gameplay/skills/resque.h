@@ -4,6 +4,7 @@
 class CharData;
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch);
 
 #endif //BYLINS_RESQUE_H
 

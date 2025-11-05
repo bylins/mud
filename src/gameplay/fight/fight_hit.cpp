@@ -1,6 +1,5 @@
 #include "fight_hit.h"
 
-#include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic.h"
 #include "pk.h"
@@ -25,9 +24,7 @@
 #include "gameplay/skills/multyparry.h"
 #include "gameplay/skills/shield_block.h"
 #include "gameplay/skills/backstab.h"
-
-// extern
-void npc_groupbattle(CharData *ch);
+#include "gameplay/skills/ironwind.h"
 
 /**
 * Расчет множителя дамаги пушки с концентрацией силы.
@@ -262,31 +259,6 @@ void HitData::CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_th
 	}
 }
 
-void Appear(CharData *ch) {
-	const bool appear_msg = AFF_FLAGGED(ch, EAffect::kInvisible)
-		|| AFF_FLAGGED(ch, EAffect::kDisguise)
-		|| AFF_FLAGGED(ch, EAffect::kHide);
-
-	RemoveAffectFromChar(ch, ESpell::kInvisible);
-	RemoveAffectFromChar(ch, ESpell::kHide);
-	RemoveAffectFromChar(ch, ESpell::kSneak);
-	RemoveAffectFromChar(ch, ESpell::kCamouflage);
-
-	AFF_FLAGS(ch).unset(EAffect::kInvisible);
-	AFF_FLAGS(ch).unset(EAffect::kHide);
-	AFF_FLAGS(ch).unset(EAffect::kSneak);
-	AFF_FLAGS(ch).unset(EAffect::kDisguise);
-
-	if (appear_msg) {
-		if (ch->IsNpc() || GetRealLevel(ch) < kLvlImmortal) {
-			act("$n медленно появил$u из пустоты.", false, ch, nullptr, nullptr, kToRoom);
-		} else {
-			act("Вы почувствовали странное присутствие $n1.",
-				false, ch, nullptr, nullptr, kToRoom);
-		}
-	}
-}
-
 ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
 	ObjData *UsedWeapon = nullptr;
 
@@ -310,7 +282,7 @@ int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
 	ProcessOverhelm(ch, victim, *this);
 	ProcessPoisonedWeapom(ch, victim, *this);
 	ProcessToxicMob(ch, victim, *this);
-	ProcessPunctualHit(ch, victim, *this);
+	ProcessPunctualStyle(ch, victim, *this);
 	auto dmg = GenerateExtradamage(memorized_dam);
 	return dmg.Process(ch, victim);
 }
@@ -1139,41 +1111,6 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		// victim is not dead after hit
 		hitprcnt_mtrigger(victim);
 	}
-}
-
-void ProcessIronWindHits(CharData *ch, fight::AttackType weapon) {
-	int percent = 0, prob = 0, div = 0, moves = 0;
-	/*
-	первая дополнительная атака правой наносится 100%
-	вторая дополнительная атака правой начинает наноситься с 80%+ скилла, но не более чем с 80% вероятностью
-	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
-	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
-	*/
-	if (ch->IsFlagged(EPrf::kIronWind)) {
-		percent = ch->GetSkill(ESkill::kIronwind);
-		moves = ch->get_max_move() / (6 + std::max(10, percent) / 10);
-		prob = ch->battle_affects.get(kEafIronWind);
-		if (prob && !check_moves(ch, moves)) {
-			ch->battle_affects.unset(kEafIronWind);
-		} else if (!prob && (ch->get_move() > moves)) {
-			ch->battle_affects.set(kEafIronWind);
-		};
-	};
-	if (ch->battle_affects.get(kEafIronWind)) {
-		TrainSkill(ch, ESkill::kIronwind, true, ch->GetEnemy());
-		if (weapon == fight::kMainHand) {
-			div = 100 + std::min(80, std::max(1, percent - 80));
-			prob = 100;
-		} else {
-			div = std::min(80, percent + 10);
-			prob = 80 - std::min(30, std::max(0, percent - 170));
-		};
-		while (div > 0) {
-			if (number(1, 100) < div)
-				hit(ch, ch->GetEnemy(), ESkill::kUndefined, weapon);
-			div -= prob;
-		};
-	};
 }
 
 // Обработка доп.атак

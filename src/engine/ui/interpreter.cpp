@@ -92,6 +92,7 @@
 #include "engine/ui/cmd/do_generic_page.h"
 #include "engine/ui/cmd/do_check_invoice.h"
 #include "engine/ui/cmd/do_who_am_i.h"
+#include "engine/ui/cmd/do_kill.h"
 #include "engine/ui/cmd/do_move.h"
 #include "engine/ui/cmd/do_diagnose.h"
 #include "engine/ui/cmd/do_steal.h"
@@ -176,7 +177,7 @@
 #include "gameplay/fight/assist.h"
 #include "gameplay/ai/mobact.h"
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight_start.h"
+#include "engine/ui/cmd/do_kill.h"
 #include "gameplay/core/genchar.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/glory.h"
@@ -435,7 +436,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"аффекты", EPosition::kDead, do_affects, 0, kScmdAuction, 0},
 		{"авторы", EPosition::kDead, DoGenericPage, 0, kScmdCredits, 0},
-		{"атаковать", EPosition::kFight, do_hit, 0, kScmdMurder, -1},
+		{"атаковать", EPosition::kFight, DoHit, 0, kScmdMurder, -1},
 		{"аукцион", EPosition::kRest, do_gen_comm, 0, kScmdAuction, 100},
 		{"анонсы", EPosition::kDead, Boards::DoBoard, 1, Boards::NOTICE_BOARD, -1},
 
@@ -748,9 +749,9 @@ cpp_extern const struct command_info cmd_info[] =
 		{"тень", EPosition::kFight, DoThrow, 0, kScmdShadowThrow, -1},
 		{"титул", EPosition::kDead, TitleSystem::do_title, 0, 0, 0},
 		{"трусость", EPosition::kDead, do_wimpy, 0, 0, 0},
-		{"убить", EPosition::kFight, do_kill, 0, 0, -1},
+		{"убить", EPosition::kFight, DoKill, 0, 0, -1},
 		{"убрать", EPosition::kRest, do_remove, 0, 0, 400},
-		{"ударить", EPosition::kFight, do_hit, 0, kScmdHit, -1},
+		{"ударить", EPosition::kFight, DoHit, 0, kScmdHit, -1},
 		{"удавить", EPosition::kFight, do_strangle, 0, 0, -1},
 		{"удалитьпредмет", EPosition::kStand, DoDeleteObj, kLvlImplementator, 0, 0},
 		{"уклониться", EPosition::kFight, DoDeviate, 1, 0, -1},
@@ -785,7 +786,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"alter", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"ask", EPosition::kRest, do_spec_comm, 0, kScmdAsk, -1},
 		{"assist", EPosition::kFight, do_assist, 1, 0, -1},
-		{"attack", EPosition::kFight, do_hit, 0, kScmdMurder, -1},
+		{"attack", EPosition::kFight, DoHit, 0, kScmdMurder, -1},
 		{"auction", EPosition::kRest, do_gen_comm, 0, kScmdAuction, -1},
 		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, DoBackstab, 1, 0, 1},
@@ -857,7 +858,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"help", EPosition::kDead, do_help, 0, 0, 0},
 		{"hell", EPosition::kDead, DoWizutil, kLvlGod, kScmdHell, 0},
 		{"hide", EPosition::kStand, do_hide, 1, 0, 0},
-		{"hit", EPosition::kFight, do_hit, 0, kScmdHit, -1},
+		{"hit", EPosition::kFight, DoHit, 0, kScmdHit, -1},
 		{"hold", EPosition::kRest, do_grab, 1, 0, 500},
 		{"holler", EPosition::kRest, do_gen_comm, 1, kScmdHoller, -1},
 		{"horse", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -874,7 +875,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"inventory", EPosition::kSleep, DoInventory, 0, 0, 0},
 		{"invis", EPosition::kDead, do_invis, kLvlGod, 0, -1},
 		{"kick", EPosition::kFight, do_kick, 1, 0, -1},
-		{"kill", EPosition::kFight, do_kill, 0, 0, -1},
+		{"kill", EPosition::kFight, DoKill, 0, 0, -1},
 		{"last", EPosition::kDead, DoPageLastLogins, kLvlGod, 0, 0},
 		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
 		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
@@ -888,7 +889,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"mode", EPosition::kDead, DoMode, 0, 0, 0},
 		{"mshout", EPosition::kRest, do_mobshout, 0, 0, -1},
 		{"motd", EPosition::kDead, DoGenericPage, 0, kScmdMotd, 0},
-		{"murder", EPosition::kFight, do_hit, 0, kScmdMurder, -1},
+		{"murder", EPosition::kFight, DoHit, 0, kScmdMurder, -1},
 		{"mute", EPosition::kDead, DoWizutil, kLvlImmortal, kScmdMute, 0},
 		{"medit", EPosition::kDead, do_olc, 0, kScmdOlcMedit, 0},
 		{"name", EPosition::kDead, DoWizutil, kLvlGod, kScmdName, 0},

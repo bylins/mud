@@ -19,7 +19,7 @@
 void ImposeHaemorrhage(CharData *ch, int percent);
 void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data);
 
-void ProcessPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
+void ProcessPunctualStyle(CharData *ch, CharData *victim, HitData &hit_data) {
 	if (hit_data.dam && hit_data.GetFlags()[fight::kCritHit] && hit_data.dam_critic) {
 		PerformPunctualHit(ch, victim, hit_data);
 		hit_data.SetFlag(fight::kIgnoreBlink);

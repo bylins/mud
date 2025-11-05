@@ -9,6 +9,7 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 
+int set_hit(CharData *ch, CharData *victim);
 void SetFighting(CharData *ch, CharData *vict);
 inline void set_fighting(const CharData::shared_ptr &ch, CharData *victim) { SetFighting(ch.get(), victim); }
 

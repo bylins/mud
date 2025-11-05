@@ -200,7 +200,7 @@ set(SOURCES
 		src/gameplay/skills/relocate.cpp
 		src/gameplay/mechanics/mount.cpp
 		src/gameplay/fight/assist.cpp
-		src/gameplay/fight/fight_start.cpp
+		src/engine/ui/cmd/do_kill.cpp
 		src/gameplay/skills/styles.cpp
 		src/gameplay/fight/common.cpp
 		src/engine/ui/cmd/do_retreat.cpp
@@ -433,7 +433,8 @@ set(SOURCES
 		src/gameplay/skills/intercept.cpp
 		src/gameplay/skills/deviate.cpp
 		src/gameplay/skills/multyparry.cpp
-		src/gameplay/mechanics/damage.cpp)
+		src/gameplay/mechanics/damage.cpp
+		src/gameplay/mechanics/tutelar.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -453,7 +454,7 @@ set(HEADERS
 		src/gameplay/skills/track.h
 		src/gameplay/fight/common.h
 		src/gameplay/fight/assist.h
-		src/gameplay/fight/fight_start.h
+		src/engine/ui/cmd/do_kill.h
 		src/engine/ui/cmd/do_retreat.h
 		src/engine/ui/cmd/do_order.h
 		src/engine/ui/cmd/do_mercenary.h
@@ -854,7 +855,8 @@ set(HEADERS
 		src/gameplay/skills/intercept.h
 		src/gameplay/skills/deviate.h
 		src/gameplay/skills/multyparry.h
-		src/gameplay/mechanics/damage.h)
+		src/gameplay/mechanics/damage.h
+		src/gameplay/mechanics/tutelar.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

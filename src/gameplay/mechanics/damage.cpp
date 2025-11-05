@@ -18,7 +18,6 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/clans/house_exp.h"
-#include "engine/core/handler.h"
 #include "gameplay/statistics/dps.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
@@ -27,14 +26,10 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/mechanics/tutelar.h"
+#include "gameplay/mechanics/sight.h"
 
-// Эти функции нужно вынести в соответствующие им модули
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
-void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam);
-void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim);
-void UpdatePkLogs(CharData *ch, CharData *victim);
-void gain_battle_exp(CharData *ch, CharData *victim, int dam);
-void Appear(CharData *ch);
 
 // Estern - нужно разобраться, почему функции работы с опытом распиханы по всем углам
 int max_exp_gain_pc(CharData *ch);
@@ -525,21 +520,6 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	die(victim, ch);
 }
 
-void Damage::ZeroInit() {
-	dam = 0;
-	dam_critic = 0;
-	fs_damage = 0;
-	element = EElement::kUndefined;
-	dmg_type = -1;
-	skill_id = ESkill::kUndefined;
-	spell_id = ESpell::kUndefined;
-	hit_type = -1;
-	msg_num = -1;
-	ch_start_pos = EPosition::kUndefined;
-	victim_start_pos = EPosition::kUndefined;
-	wielded = nullptr;
-}
-
 /**
  * Разный инит щитов у мобов и чаров.
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
@@ -836,7 +816,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 				return 0;
 		}
 	}
-	gain_battle_exp(ch, victim, dam);
+	if (!InTestZone(ch)) {
+		gain_battle_exp(ch, victim, dam);
+	}
 
 	// real_dam так же идет в обратку от огн.щита
 	int real_dam = dam;
@@ -869,7 +851,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	// запись в дметр фактического и овер дамага
-	UpdateDpsStatistics(ch, real_dam, over_dam);
+	DpsSystem::UpdateDpsStatistics(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
 	if (victim->IsNpc()) {
 		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
@@ -971,8 +953,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	return dam;
 }
 
-// \TODO Дальнейшее нужно выносить в отдельные механики. Не забыть убрать из начала файла.
-
 // * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
 void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 	if (((!ch->IsNpc() && ch != victim)
@@ -989,145 +969,6 @@ void TryRemoveExtrahits(CharData *ch, CharData *victim) {
 					  kColorWht, GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), kColorNrm);
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToChar);
 		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", false, ch, nullptr, victim, kToNotVict | kToArenaListen);
-	}
-}
-
-void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
-	if (!ch->IsNpc()) {
-		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
-/*		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
-			GET_NAME(ch),
-			to_underlying(ch->GetClass()),
-			GetRealRemort(ch),
-			GetRealLevel(ch),
-			real_dam,
-			over_dam);
-*/
-		if (AFF_FLAGGED(ch, EAffect::kGroup)) {
-			CharData *leader = ch->has_master() ? ch->get_master() : ch;
-			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
-		}
-	} else if (IS_CHARMICE(ch)
-		&& ch->has_master()) {
-		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
-/*		if (!ch->get_master()->IsNpc()) {
-			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
-				ch->get_name().c_str(), ch->get_master()->get_name().c_str(), to_underlying(ch->get_master()->GetClass()),
-				GetRealRemort(ch->get_master()), GetRealLevel(ch->get_master()), real_dam, over_dam);
-		}
-*/
-		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
-			CharData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
-			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
-		}
-	}
-}
-
-void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {
-	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
-	if (victim->get_hit() <= 0
-		&& !victim->IsNpc()
-		&& AFF_FLAGGED(victim, EAffect::kGroup)) {
-		const auto people =
-			world[victim->in_room]->people;    // make copy of people because keeper might be removed from this list inside the loop
-		for (const auto keeper : people) {
-			if (keeper->IsNpc()
-				&& keeper->IsFlagged(EMobFlag::kTutelar)
-				&& keeper->has_master()
-				&& AFF_FLAGGED(keeper->get_master(), EAffect::kGroup)) {
-				CharData *keeper_leader = keeper->get_master()->has_master()
-										  ? keeper->get_master()->get_master()
-										  : keeper->get_master();
-				CharData *victim_leader = victim->has_master()
-										  ? victim->get_master()
-										  : victim;
-
-				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->get_master(), ch, nullptr))) {
-					if (!pk_agro_action(keeper->get_master(), ch)) {
-						return;
-					}
-					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
-
-					SendMsgToChar(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
-								  GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
-					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
-							 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
-					act(buf, false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-
-					ExtractCharFromWorld(keeper, 0);
-					victim->set_hit(std::min(300, victim->get_max_hit() / 2));
-				}
-			}
-		}
-	}
-}
-
-void UpdatePkLogs(CharData *ch, CharData *victim) {
-	ClanPkLog::check(ch, victim);
-	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
-			victim->in_room != kNowhere ? world[victim->in_room]->name : "kNowhere", GET_ROOM_VNUM(victim->in_room));
-	mudlog(buf2, CMP, kLvlImmortal, SYSLOG, true);
-
-	if ((!ch->IsNpc()
-		|| (ch->has_master()
-			&& !ch->get_master()->IsNpc()))
-		&& NORENTABLE(victim)
-		&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
-		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, false);
-		if (ch->IsNpc()
-			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
-			&& ch->has_master()
-			&& !ch->get_master()->IsNpc()) {
-			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
-			mudlog(buf2, BRF, kLvlImplementator, SYSLOG, true);
-		}
-	}
-}
-
-void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
-	// не даем получать батлу с себя по зеркалу?
-	if (ch == victim) {
-		return;
-	}
-	if (!victim->IsNpc()) { return; }
-	// не даем получать экспу с !эксп мобов
-	if (victim->IsFlagged(EMobFlag::kNoBattleExp) || InTestZone(ch)) {
-		return;
-	}
-	// если цель не нпс то тоже не даем экспы
-	// если цель под чармом не даем экспу
-	if (AFF_FLAGGED(victim, EAffect::kCharmed)) {
-		return;
-	}
-	// получение игроками экспы
-	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
-		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-			(5 * std::max(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
-		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
-		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
-			battle_exp *= Bonus::get_mult_bonus();
-		}
-		EndowExpToChar(ch, battle_exp);
-		ch->dps_add_exp(battle_exp, true);
-	}
-
-	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
-	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
-		CharData *master = ch->get_master();
-		// проверяем что есть мастер и он может получать экспу с данной цели
-		if (master && OK_GAIN_EXP(master, victim)) {
-			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-				(5 * std::max(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
-
-			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
-			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
-			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
-				battle_exp *= Bonus::get_mult_bonus();
-			}
-			EndowExpToChar(master, battle_exp);
-			master->dps_add_exp(battle_exp, true);
-		}
 	}
 }
 

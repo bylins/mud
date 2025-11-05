@@ -13,7 +13,7 @@
 
 class CharData;
 class ObjData;
-void ProcessPunctualHit(CharData *ch, CharData *victim, HitData &hit_data);
+void ProcessPunctualStyle(CharData *ch, CharData *victim, HitData &hit_data);
 [[nodiscard]] int CalcPunctualCritDmg(CharData *ch, CharData * /*victim*/, ObjData *wielded);
 
 #endif //BYLINS_SRC_GAMEPLAY_SKILLS_PUNCTUAL_STYLE_H_

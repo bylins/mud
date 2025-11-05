@@ -40,18 +40,20 @@
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
 #include "gameplay/skills/leadership.h"
+#include "gameplay/mechanics/tutelar.h"
+#include "common.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 // Structures
 std::list<combat_list_element> combat_list;
 
-extern int r_helled_start_room;
-extern CharData *mob_proto;
-extern DescriptorData *descriptor_list;
+//extern int r_helled_start_room;
+//extern CharData *mob_proto;
+//extern DescriptorData *descriptor_list;
 // External procedures
 // void do_assist(CharacterData *ch, char *argument, int cmd, int subcmd);
-void battle_affect_update(CharData *ch);
+//void battle_affect_update(CharData *ch);
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch);
 void GoIntercept(CharData *ch, CharData *vict);
 int npc_battle_scavenge(CharData *ch);
@@ -1168,9 +1170,6 @@ void mob_casting(CharData *ch) {
 #define  MAY_LIKES(ch)   ((!AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) && \
                           AWAKE(ch) && ch->get_wait() <= 0)
 
-#define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) || \
-							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
-
 void summon_mob_helpers(CharData *ch) {
 	if (ch->summon_helpers.empty()) {
 		return;
@@ -1235,34 +1234,6 @@ void check_mob_helpers() {
 			continue;
 		}
 		summon_mob_helpers(it.ch);
-	}
-}
-
-void try_angel_rescue(CharData *ch) {
-	struct FollowerType *k, *k_next;
-
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
-		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-			&& k->follower->IsFlagged(EMobFlag::kTutelar)
-			&& !k->follower->GetEnemy()
-			&& k->follower->in_room == ch->in_room
-			&& CAN_SEE(k->follower, ch)
-			&& AWAKE(k->follower)
-			&& MAY_ACT(k->follower)
-			&& k->follower->GetPosition() >= EPosition::kFight) {
-			for (const auto vict : world[ch->in_room]->people) {
-				if (vict->GetEnemy() == ch
-					&& vict != ch
-					&& vict != k->follower) {
-					if (k->follower->GetSkill(ESkill::kRescue)) {
-						go_rescue(k->follower, ch, vict);
-					}
-
-					break;
-				}
-			}
-		}
 	}
 }
 
@@ -1812,7 +1783,7 @@ void process_npc_attack(CharData *ch) {
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || ch->IsFlagged(EMobFlag::kTutelar))
 		&& ch->has_master() && ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
-		&& AWAKE(ch) && MAY_ACT(ch) && ch->GetPosition() >= EPosition::kFight) {
+		&& AWAKE(ch) && !IsUnableToAct(ch) && ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			for (const auto vict : world[ch->in_room]->people) {
@@ -1973,7 +1944,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
-	try_angel_rescue(ch);
+	TryToRescueWithTutelar(ch);
 }
 
 // * \return false - чар не участвует в расчете инициативы
@@ -1996,7 +1967,7 @@ bool stuff_before_round(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kStopFight)
 		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
-		try_angel_rescue(ch);
+		TryToRescueWithTutelar(ch);
 		return false;
 	}
 
@@ -2263,5 +2234,78 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	}
 	return return_value;
 }
+
+int set_hit(CharData *ch, CharData *victim) {
+	if (IsUnableToAct(ch)) {
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		return (false);
+	}
+
+	if (ch->GetEnemy() || AFF_FLAGGED(ch, EAffect::kHold)) {
+		return (false);
+	}
+	victim = TryToFindProtector(victim, ch);
+
+	bool message = false;
+	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
+	if (victim->desc && (victim->desc->state == EConState::kWriteboard || victim->desc->state == EConState::kWriteMod || victim->desc->state == EConState::kWriteNote)) {
+		victim->desc->message.reset();
+		victim->desc->board.reset();
+		if (victim->desc->writer->get_string()) {
+			victim->desc->writer->clear();
+		}
+		victim->desc->state = EConState::kPlaying;
+		if (!victim->IsNpc()) {
+			victim->UnsetFlag(EPlrFlag::kWriting);
+		}
+		if (victim->desc->backstr) {
+			free(victim->desc->backstr);
+			victim->desc->backstr = nullptr;
+		}
+		victim->desc->writer.reset();
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kClanedit)) {
+		// аналогично, если жерва правит свою дружину в олц
+		victim->desc->clan_olc.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kSpendGlory)) {
+		// или вливает-переливает славу
+		victim->desc->glory.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kGloryConst)) {
+		// или вливает-переливает славу
+		victim->desc->glory_const.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kMapMenu)) {
+		// или ковыряет опции карты
+		victim->desc->map_options.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kTorcExch)) {
+		// или меняет гривны (чистить особо и нечего)
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	}
+
+	if (message) {
+		SendMsgToChar(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
+	}
+
+	if (ch->IsFlagged(EMobFlag::kMemory) && ch->get_wait() > 0) {
+		mob_ai::update_mob_memory(ch, victim);
+		return false;
+	}
+
+	if (!IS_CHARMICE(ch) || (AFF_FLAGGED(ch, EAffect::kCharmed) && !mob_ai::attack_best(ch, victim, true))) {
+		ProcessExtrahits(ch, victim, ESkill::kUndefined,
+						 AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
+	}
+	SetWait(ch, 1, true);
+	//ch->setSkillCooldown(kGlobalCooldown, 2);
+	return (true);
+};
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

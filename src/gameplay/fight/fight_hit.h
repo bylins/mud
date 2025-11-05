@@ -89,12 +89,8 @@ int CalcAC(CharData *ch);
 
 void set_battle_pos(CharData *ch);
 
-void gain_battle_exp(CharData *ch, CharData *victim, int dam);
-
 void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
-
-void Appear(CharData *ch);
 
 int GetRealDamroll(CharData *ch);
 int GetAutoattackDamroll(CharData *ch, int weapon_skill);

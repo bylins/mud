@@ -41,7 +41,7 @@ struct SpellDmg {
  * obj.process(ch, victim);
  */
 struct SimpleDmg {
-  SimpleDmg(int num) : msg_num(num) {};
+  explicit SimpleDmg(int num) : msg_num(num) {};
   int msg_num;
 };
 
@@ -57,67 +57,60 @@ struct SimpleDmg {
 class Damage {
  public:
   // полностью ручное создание объекта
-  Damage() { ZeroInit(); };
+  Damage() = default;
 
   // скилы
-  Damage(SkillDmg obj, int in_dam, fight::DmgType in_dmg_type, ObjData *wielded_obj) {
-	  ZeroInit();
-	  skill_id = obj.skill_id;
-	  dam = in_dam;
-	  dmg_type = in_dmg_type;
-	  wielded = wielded_obj;
-  };
+  Damage(SkillDmg obj, int in_dam, fight::DmgType in_dmg_type, ObjData *wielded_obj)
+	  : dam(in_dam),
+		dmg_type(in_dmg_type),
+		skill_id(obj.skill_id),
+		wielded(wielded_obj) {};
 
   // заклинания
-  Damage(SpellDmg obj, int in_dam, fight::DmgType in_dmg_type) {
-	  ZeroInit();
-	  spell_id = obj.spell_id;
-	  dam = in_dam;
-	  dmg_type = in_dmg_type;
-  };
+  Damage(SpellDmg obj, int in_dam, fight::DmgType in_dmg_type)
+	  : dam(in_dam),
+		dmg_type(in_dmg_type),
+		spell_id(obj.spell_id) {};
 
   // прочий дамаг
-  Damage(SimpleDmg obj, int in_dam, fight::DmgType in_dmg_type) {
-	  ZeroInit();
-	  msg_num = obj.msg_num;
-	  dam = in_dam;
-	  dmg_type = in_dmg_type;
-  };
+  Damage(SimpleDmg obj, int in_dam, fight::DmgType in_dmg_type)
+	  : dam(in_dam),
+		dmg_type(in_dmg_type),
+		msg_num(obj.msg_num) {};
 
   int Process(CharData *ch, CharData *victim);
 
   // дамаг атакующего
-  int dam;
+  int dam{0};
   // flags[CRIT_HIT] = true, dam_critic = 0 - критический удар
   // flags[CRIT_HIT] = true, dam_critic > 0 - удар точным стилем
-  int dam_critic;
+  int dam_critic{0};
   // тип урона (физ/маг/обычный)
-  int dmg_type;
+  int dmg_type{-1};
   // см. описание в HitData
-  ESkill skill_id;
+  ESkill skill_id{ESkill::kUndefined};
   // номер заклинания, если >= 0
-  ESpell spell_id;
+  ESpell spell_id{ESpell::kUndefined};
   // Какой стихией наносится урон.
   // Применяется, если урон магический, но наносится не спеллом.
   // Если спеллом - стихия берется из самого спелла.
-  EElement element;
+  EElement element{EElement::kUndefined};
   // см. описание в HitData, но здесь может быть -1
-  int hit_type;
+  int hit_type{-1};
   // номер сообщения об ударе из файла messages
   // инится только начиная с вызова process
-  int msg_num;
+  int msg_num{-1};
   // набор флагов из HitType
   std::bitset<fight::kHitFlagsNum> flags;
   // позиция атакующего на начало атаки (по дефолту будет = текущему положению)
-  EPosition ch_start_pos;
+  EPosition ch_start_pos{EPosition::kUndefined};
   // позиция жертвы на начало атаки (по дефолту будет = текущему положению)
-  EPosition victim_start_pos;
+  EPosition victim_start_pos{EPosition::kUndefined};
   // Оружие которым нанесли дамаг
-  ObjData *wielded;
+  ObjData *wielded{nullptr};
 
  private:
   // инит всех полей дефолтными значениями для конструкторов
-  void ZeroInit();
   // инит msg_num, ch_start_pos, victim_start_pos
   // дергается в начале process, когда все уже заполнено
   void PerformPostInit(CharData *ch, CharData *victim);
@@ -132,7 +125,7 @@ class Damage {
   void ProcessBlink(CharData *ch, CharData *victim);
 
   // обратный дамаг от огненного щита
-  int fs_damage;
+  int fs_damage{0};
   // строка для краткого режима щитов, дописывается после ударов и прочего
   // если во flags были соответствующие флаги
   std::string brief_shields_;

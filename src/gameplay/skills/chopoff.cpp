@@ -3,10 +3,11 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
-#include "gameplay/fight/fight_start.h"
+#include "engine/ui/cmd/do_kill.h"
 #include "utils/random.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/sight.h"
 
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
