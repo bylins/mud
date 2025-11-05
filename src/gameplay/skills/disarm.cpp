@@ -6,7 +6,7 @@
 #include "engine/core/handler.h"
 #include "utils/random.h"
 #include "engine/ui/color.h"
-#include "gameplay/fight/fight.h"
+#include "gameplay/mechanics/damage.h"
 
 #include <cmath>
 

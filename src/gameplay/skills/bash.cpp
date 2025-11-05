@@ -1,11 +1,12 @@
 #include "bash.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
-#include "gameplay/fight/fight.h"
 #include "protect.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/damage.h"
+#include "gameplay/fight/fight.h"
 
 #include <cmath>
 

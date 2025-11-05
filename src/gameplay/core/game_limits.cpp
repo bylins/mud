@@ -36,6 +36,7 @@
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/communication/parcel.h"
+#include "gameplay/mechanics/damage.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 

@@ -1,7 +1,6 @@
 #include "backstab.h"
 
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
@@ -9,6 +8,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/magic.h"
+#include "gameplay/mechanics/damage.h"
 
 int GetBackstabMultiplier(int level);
 int CalcCritBackstabPercent(CharData *ch);

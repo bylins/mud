@@ -10,6 +10,7 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 #include "fight.h"
+#include "gameplay/mechanics/damage.h"
 
 struct HitData {
 	HitData() : weapon(fight::kMainHand), wielded(nullptr), weapon_pos(EEquipPos::kWield), weap_skill(ESkill::kUndefined),
@@ -86,15 +87,9 @@ struct HitData {
 
 int CalcAC(CharData *ch);
 
-int check_agro_follower(CharData *ch, CharData *victim);
 void set_battle_pos(CharData *ch);
 
 void gain_battle_exp(CharData *ch, CharData *victim, int dam);
-void perform_group_gain(CharData *ch, CharData *victim, int members, int koef);
-void group_gain(CharData *ch, CharData *victim);
-
-char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
-bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int line);
 
 void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);

@@ -18,7 +18,7 @@ void GoParry(CharData *ch) {
 	SendMsgToChar("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
-void DoParry(CharData *ch, char /* *argument*/, int /* cmd*/, int/* subcmd*/) {
+void DoParry(CharData *ch, char */* argument*/, int /* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kParry)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;

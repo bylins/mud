@@ -8,9 +8,9 @@
 #include "engine/entities/char_data.h"
 #include "liquid.h"
 #include "engine/ui/color.h"
-#include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"
+#include "gameplay/mechanics/damage.h"
 
 void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id);
 void PerformToxicate(CharData *ch, CharData *vict, int modifier);
