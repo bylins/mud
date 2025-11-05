@@ -10,8 +10,13 @@
 #include "engine/ui/color.h"
 #include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/magic/magic.h"
+
+void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id);
+void PerformToxicate(CharData *ch, CharData *vict, int modifier);
 
 namespace {
+
 // * Наложение ядов с пушек, аффект стакается до трех раз.
 	bool poison_affect_join(CharData *ch, CharData *vict, Affect<EApply> &af) {
 		bool is_poisoned_by_me = false;
@@ -284,8 +289,20 @@ namespace {
 
 } // namespace
 
-// * Отравление с заклинания 'яд'.
-void poison_victim(CharData *ch, CharData *vict, int modifier) {
+void ProcessToxicMob(CharData *ch, CharData *victim, HitData &hit_data) {
+	if (hit_data.dam
+		&& ch->IsNpc()
+		&& NPC_FLAGGED(ch, ENpcFlag::kToxic)
+		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
+		&& ch->get_wait() <= 0
+		&& !AFF_FLAGGED(victim, EAffect::kPoisoned)
+		&& number(0, 100) < GET_LIKES(ch) + GetRealLevel(ch) - GetRealLevel(victim)
+		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GetRealCon(victim))) {
+		PerformToxicate(ch, victim, std::max(1, GetRealLevel(ch) - GetRealLevel(victim)) * 10);
+	}
+}
+
+void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	Affect<EApply> af[4];
 
 	// change strength
@@ -328,8 +345,18 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	act(buf, false, ch, nullptr, vict, kToVict);
 }
 
+void ProcessPoisonedWeapom(CharData *ch, CharData *victim, HitData &hit_data) {
+	if (!victim->IsFlagged(EMobFlag::kProtect)
+		&& hit_data.dam
+		&& hit_data.wielded
+		&& hit_data.wielded->has_timed_spell()
+		&& ch->GetSkill(ESkill::kPoisoning)) {
+		PerformPoisonedWeapom(ch, victim, hit_data.wielded->timed_spell().IsSpellPoisoned());
+	}
+}
+
 // * Попытка травануть с пушки при ударе.
-void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
+void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	if (spell_id < ESpell::kFirst) {
 		return;
 	}

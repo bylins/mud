@@ -104,10 +104,14 @@ void DoMighthit(CharData *ch, CharData *victim) {
 }
 
 void ProcessMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
-	ch->battle_affects.unset(kEafHammer);
-	hit_data.SetFlag(fight::kIgnoreBlink);
-	if (IsArmedWithMighthitWeapon(ch) && !ch->battle_affects.get(kEafTouch)) {
-		PerformMighthit(ch, victim, hit_data);
+	// в эти условия ничего добавлять не надо, иначе kEafHammer не снимется
+	// с моба по ходу боя, если он не может по каким-то причинам смолотить
+	if (ch->battle_affects.get(kEafHammer) && ch->get_wait() <= 0) {
+		ch->battle_affects.unset(kEafHammer);
+		hit_data.SetFlag(fight::kIgnoreBlink);
+		if (IsArmedWithMighthitWeapon(ch) && !ch->battle_affects.get(kEafTouch)) {
+			PerformMighthit(ch, victim, hit_data);
+		}
 	}
 }
 

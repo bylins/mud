@@ -8,6 +8,7 @@
 #include "protect.h"
 #include "engine/db/global_objects.h"
 
+void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data);
 [[nodiscard]] int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg);
 
 void GoOverhelm(CharData *ch, CharData *victim) {
@@ -83,6 +84,14 @@ void DoOverhelm(CharData *ch, CharData *victim) {
 }
 
 void ProcessOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
+	// в эти условия ничего добавлять не надо, иначе kEafOverwhelm не снимется
+	// с моба по ходу боя, если он не может по каким-то причинам смолотить
+	if (ch->battle_affects.get(kEafOverwhelm) && ch->get_wait() <= 0) {
+		PerformOverhelm(ch, victim, hit_data);
+	}
+}
+
+void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 	ch->battle_affects.unset(kEafOverwhelm);
 	hit_data.SetFlag(fight::kIgnoreBlink);
 	const int minimum_weapon_weigth = 19;

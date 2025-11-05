@@ -9,15 +9,11 @@
 #ifndef BYLINS_SRC_GAMEPLAY_SKILLS_PUNCTUAL_STYLE_H_
 #define BYLINS_SRC_GAMEPLAY_SKILLS_PUNCTUAL_STYLE_H_
 
+#include "gameplay/fight/fight_hit.h"
+
 class CharData;
 class ObjData;
-
-struct PunctualStyleResult {
-  int dmg;
-  int dmg_critical;
-};
-
-[[nodiscard]] PunctualStyleResult ProcessPunctualHit(CharData *ch, CharData *victim, int dam, int dam_critic);
+void ProcessPunctualHit(CharData *ch, CharData *victim, HitData &hit_data);
 [[nodiscard]] int CalcPunctualCritDmg(CharData *ch, CharData * /*victim*/, ObjData *wielded);
 
 #endif //BYLINS_SRC_GAMEPLAY_SKILLS_PUNCTUAL_STYLE_H_

@@ -1350,60 +1350,28 @@ int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
 		return 0;
 	}
 
-	const int mem_dam = dam;
-	if (dam < 0) {
-		dam = 0;
-	}
+	const int memorized_dam = dam;
+	dam = std::max(0, dam);
+	ProcessMighthit(ch, victim, *this);
+	ProcessOverhelm(ch, victim, *this);
+	ProcessPoisonedWeapom(ch, victim, *this);
+	ProcessToxicMob(ch, victim, *this);
+	ProcessPunctualHit(ch, victim, *this);
+	auto dmg = GenerateExtradamage(memorized_dam);
+	return dmg.Process(ch, victim);
+}
 
-	if (ch->battle_affects.get(kEafHammer) && ch->get_wait() <= 0) {
-		//* богатырский молот //
-		// в эти условия ничего добавлять не надо, иначе kEafHammer не снимется
-		// с моба по ходу боя, если он не может по каким-то причинам смолотить
-		ProcessMighthit(ch, victim, *this);
-	} else if (ch->battle_affects.get(kEafOverwhelm) && ch->get_wait() <= 0) {
-		//* оглушить  аналогично молоту, все доп условия добавляются внутри
-		ProcessOverhelm(ch, victim, *this);
-	}
-		//* яды со скила отравить //
-	else if (!victim->IsFlagged(EMobFlag::kProtect)
-		&& dam
-		&& wielded
-		&& wielded->has_timed_spell()
-		&& ch->GetSkill(ESkill::kPoisoning)) {
-		TryPoisonWithWeapom(ch, victim, wielded->timed_spell().IsSpellPoisoned());
-	}
-		//* травящий ядом моб //
-	else if (dam
-		&& ch->IsNpc()
-		&& NPC_FLAGGED(ch, ENpcFlag::kToxic)
-		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
-		&& ch->get_wait() <= 0
-		&& !AFF_FLAGGED(victim, EAffect::kPoisoned)
-		&& number(0, 100) < GET_LIKES(ch) + GetRealLevel(ch) - GetRealLevel(victim)
-		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GetRealCon(victim))) {
-		poison_victim(ch, victim, std::max(1, GetRealLevel(ch) - GetRealLevel(victim)) * 10);
-	}
-		//* точный стиль //
-	else if (dam && GetFlags()[fight::kCritHit] && dam_critic) {
-		auto punctual_result = ProcessPunctualHit(ch, victim, dam, dam_critic);
-		dam = punctual_result.dmg;
-		dam_critic = punctual_result.dmg_critical;
-		SetFlag(fight::kIgnoreBlink);
-
-	}
-
+Damage HitData::GenerateExtradamage(int initial_dmg) {
 	// Если удар парирован, необходимо все равно ввязаться в драку.
 	// Вызывается damage с отрицательным уроном
-	dam = mem_dam >= 0 ? dam : -1;
-
+	dam = (initial_dmg >= 0 ? dam : -1);
 	Damage dmg(SkillDmg(skill_num), dam, fight::kPhysDmg, wielded);
 	dmg.hit_type = hit_type;
 	dmg.dam_critic = dam_critic;
 	dmg.flags = GetFlags();
 	dmg.ch_start_pos = ch_start_pos;
 	dmg.victim_start_pos = victim_start_pos;
-
-	return dmg.Process(ch, victim);
+	return dmg;
 }
 
 /**
@@ -1428,8 +1396,7 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		}
 	}
 
-	if (wielded
-		&& wielded->get_type() == EObjType::kWeapon) {
+	if (wielded && wielded->get_type() == EObjType::kWeapon) {
 		// для всех типов атак скилл берется из пушки, если она есть
 		weap_skill = static_cast<ESkill>(wielded->get_spec_param());
 	} else {
@@ -1503,11 +1470,11 @@ void HitData::CalcBaseHitroll(CharData *ch) {
 			}
 			calc_thaco -= std::min(3, std::max(percent, 0));
 		} else if (!ch->IsNpc()) {
-			// кулаками у нас полагается бить только богатырям :)
-			if (!CanUseFeat(ch, EFeat::kBully))
+			if (!CanUseFeat(ch, EFeat::kBully)) {
 				calc_thaco += 4;
-			else    // а богатырям положен бонус за отсутствие оружия
+			} else {
 				calc_thaco -= 3;
+			}
 		}
 	}
 

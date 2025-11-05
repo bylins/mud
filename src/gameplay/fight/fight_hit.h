@@ -9,6 +9,7 @@
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
+#include "fight.h"
 
 struct HitData {
 	HitData() : weapon(fight::kMainHand), wielded(nullptr), weapon_pos(EEquipPos::kWield), weap_skill(ESkill::kUndefined),
@@ -79,6 +80,8 @@ struct HitData {
  private:
 	// какой-никакой набор флагов, так же передается в damage()
 	HitFlags m_flags;
+
+  [[nodiscard]] Damage GenerateExtradamage(int initial_dmg);
 };
 
 int CalcAC(CharData *ch);

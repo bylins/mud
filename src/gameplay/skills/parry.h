@@ -4,7 +4,7 @@
 #include "gameplay/fight/fight_hit.h"
 
 class CharData;
-void DoParry(CharData *ch, char *argument, int cmd, int subcmd);
+void DoParry(CharData *ch, char /**argument*/, int /*cmd*/, int /*subcmd*/);
 void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data);
 void CheckParryOverride(CharData *ch);
 
