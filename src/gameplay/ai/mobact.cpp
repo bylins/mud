@@ -180,7 +180,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 			if (do_mode)
 				do_backstab(ch, victim);
 			else
-				go_backstab(ch, victim);
+				GoBackstab(ch, victim);
 			return (true);
 		}
 		if ((ch->GetSkill(ESkill::kHammer) && !IS_CHARMICE(ch))

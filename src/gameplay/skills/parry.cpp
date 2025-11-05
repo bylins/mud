@@ -3,52 +3,12 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/common.h"
+#include "engine/db/global_objects.h"
+#include "gameplay/mechanics/equipment.h"
 
-// **************** MULTYPARRY PROCEDURES
-void go_multyparry(CharData *ch) {
-	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
-		return;
-	}
+bool CanPerformParry(CharData *victim, const HitData &hit_data);
 
-	ch->battle_affects.set(kEafMultyparry);
-	SendMsgToChar("Вы попробуете использовать веерную защиту.\r\n", ch);
-}
-
-void do_multyparry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || !ch->GetSkill(ESkill::kMultiparry)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
-		return;
-	}
-	if (ch->HasCooldown(ESkill::kMultiparry)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
-		return;
-	};
-	if (!ch->GetEnemy()) {
-		SendMsgToChar("Но вы ни с кем не сражаетесь?\r\n", ch);
-		return;
-	}
-
-	ObjData *primary = GET_EQ(ch, EEquipPos::kWield), *offhand = GET_EQ(ch, EEquipPos::kHold);
-	if (!(ch->IsNpc()
-		|| (primary
-			&& primary->get_type() == EObjType::kWeapon
-			&& offhand
-			&& offhand->get_type() == EObjType::kWeapon)
-		|| IS_IMMORTAL(ch)
-		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
-		SendMsgToChar("Вы не можете отражать атаки безоружным.\r\n", ch);
-		return;
-	}
-	if (ch->battle_affects.get(kEafOverwhelm)) {
-		SendMsgToChar("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
-		return;
-	}
-	go_multyparry(ch);
-}
-
-// **************** PARRY PROCEDURES
-void go_parry(CharData *ch) {
+void GoParry(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -58,7 +18,7 @@ void go_parry(CharData *ch) {
 	SendMsgToChar("Вы попробуете отклонить следующую атаку.\r\n", ch);
 }
 
-void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
+void DoParry(CharData *ch, char *argument /*argument*/, int/* cmd*/cmd, int/* subcmd*/subcmd) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kParry)) {
 		SendMsgToChar("Вы не знаете как.\r\n", ch);
 		return;
@@ -100,11 +60,11 @@ void do_parry(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
-	go_parry(ch);
+	GoParry(ch);
 }
 
-void parry_override(CharData *ch) {
-	std::string message = "";
+void CheckParryOverride(CharData *ch) {
+	std::string message;
 	if (ch->battle_affects.get(kEafBlock)) {
 		message = "Вы прекратили прятаться за щит и бросились в бой.";
 		ch->battle_affects.unset(kEafBlock);
@@ -120,5 +80,79 @@ void parry_override(CharData *ch) {
 	act(message.c_str(), false, ch, 0, 0, kToChar);
 }
 
+void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
+	if (!CanPerformParry(victim, hit_data)) {
+		return;
+	}
+	if (!((GET_EQ(victim, EEquipPos::kWield)
+		&& GET_EQ(victim, EEquipPos::kWield)->get_type() == EObjType::kWeapon
+		&& GET_EQ(victim, EEquipPos::kHold)
+		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
+		|| victim->IsNpc()
+		|| IS_IMMORTAL(victim))) {
+		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
+		victim->battle_affects.unset(kEafParry);
+	} else {
+		int range = number(1, MUD::Skill(ESkill::kParry).difficulty);
+		int prob = CalcCurrentSkill(victim, ESkill::kParry, ch);
+		prob = prob * 100 / range;
+		TrainSkill(victim, ESkill::kParry, prob < 100, ch);
+		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kParry).name, range, prob, prob >= 70);
+		if (hit_data.GetFlags()[fight::kCritLuck]) {
+			prob = 0;
+		}
+		if (prob < 70
+			|| ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == fight::type_maul)
+				&& !IS_IMMORTAL(victim)
+				&& (!CanUseFeat(victim, EFeat::kParryArrow)
+					|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35)))) {
+			act("Вы не смогли отбить атаку $N1.", false, victim, nullptr, ch, kToChar);
+			act("$N не сумел$G отбить вашу атаку.", false, ch, nullptr, victim, kToChar);
+			act("$n не сумел$g отбить атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
+			prob = 2;
+			victim->battle_affects.set(kEafUsedleft);
+		} else if (prob < 100) {
+			act("Вы немного отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
+			act("$N немного отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
+			act("$n немного отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
+			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, hit_data.dam, 10);
+			prob = 1;
+			hit_data.dam *= 10 / 15;
+			victim->battle_affects.set(kEafUsedleft);
+		} else if (prob < 170) {
+			act("Вы частично отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
+			act("$N частично отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
+			act("$n частично отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
+			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, hit_data.dam, 15);
+			prob = 0;
+			hit_data.dam /= 2;
+			victim->battle_affects.set(kEafUsedleft);
+		} else {
+			act("Вы полностью отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
+			act("$N полностью отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
+			act("$n полностью отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
+			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, hit_data.dam, 25);
+			prob = 0;
+			hit_data.dam = -1;
+		}
+		if (prob > 0) {
+			SetSkillCooldownInFight(victim, ESkill::kGlobalCooldown, 1);
+		}
+		SetSkillCooldownInFight(victim, ESkill::kParry, prob);
+		victim->battle_affects.unset(kEafParry);
+	}
+}
+
+bool CanPerformParry(CharData *victim, const HitData &hit_data) {
+	return (hit_data.dam > 0
+		&& !hit_data.hit_no_parry
+		&& victim->battle_affects.get(kEafParry)
+		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
+		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
+		&& !AFF_FLAGGED(victim, EAffect::kStopRight)
+		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
+		&& victim->get_wait() <= 0
+		&& AFF_FLAGGED(victim, EAffect::kHold) == 0);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

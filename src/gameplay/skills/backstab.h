@@ -1,12 +1,13 @@
 #ifndef BYLINS_BACKSTAB_H
 #define BYLINS_BACKSTAB_H
 
+#include "gameplay/fight/fight_hit.h"
+
 class CharData;
-
-void go_backstab(CharData *ch, CharData *vict);
-void do_backstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void GoBackstab(CharData *ch, CharData *vict);
+void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_backstab(CharData *ch, CharData *vict);
-
+bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data);
 
 #endif //BYLINS_BACKSTAB_H
 

@@ -10,7 +10,6 @@
 #include "gameplay/mechanics/poison.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/ai/mobact.h"
-#include "common.h"
 #include "fight.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
@@ -26,10 +25,13 @@
 #include "gameplay/skills/overhelm.h"
 #include "gameplay/skills/mighthit.h"
 #include "gameplay/skills/deviate.h"
+#include "gameplay/skills/parry.h"
+#include "gameplay/skills/multyparry.h"
+#include "gameplay/skills/shield_block.h"
+#include "gameplay/skills/backstab.h"
 
 // extern
 void npc_groupbattle(CharData *ch);
-int CalculateSkillRate(CharData *ch, ESkill skill_id, CharData *vict);
 
 /**
 * Расчет множителя дамаги пушки с концентрацией силы.
@@ -216,72 +218,6 @@ void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, in
 	*hitroll = calc_thaco;
 }
 
-// * Умножение дамаги при стабе.
-int GetBackstabMultiplier(int level) {
-	if (level <= 0)
-		return 1;    // level 0 //
-	else if (level <= 5)
-		return 2;    // level 1 - 5 //
-	else if (level <= 10)
-		return 3;    // level 6 - 10 //
-	else if (level <= 15)
-		return 4;    // level 11 - 15 //
-	else if (level <= 20)
-		return 5;    // level 16 - 20 //
-	else if (level <= 25)
-		return 6;    // level 21 - 25 //
-	else if (level <= 30)
-		return 7;    // level 26 - 30 //
-	else
-		return 10;
-}
-
-/**
-* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30) для вовровского удара,
-* для остального в учет только ловку
-* при 74х мортах максимальный скилл заколоть будет около 500. декса 90 ессно - получается 75% критстабов.
-* попробуем скилл/15 + (декса - 20) / (декса/20) - получается около 50% критстабов.
-* TO DO.. еще удачу есть план добавить в расчет шанса критстаба
-*/
-int CalcCritBackstabPercent(CharData *ch) {
-	double percent = ((GetRealDex(ch) -20) / (GetRealDex(ch) / 20.0));
-	if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-		percent += (ch->GetSkill(ESkill::kBackstab) / 15.0);
-	}
-	return static_cast<int>(percent);
-}
-
-/*
- *  Расчет множителя критстаба.
-* против игроков только у воров.
- */
-double HitData::CalcCritBackstabMultiplier(CharData *ch, CharData *victim) {
-	double bs_coeff = 1.0;
-	if (victim->IsNpc()) {
-		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			bs_coeff *= ch->GetSkill(ESkill::kBackstab) / 15.0;
-		} else {
-			bs_coeff *= ch->GetSkill(ESkill::kBackstab) / 25.0;
-		}
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && (ch->GetSkill(ESkill::kNoParryHit))) {
-			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.00125));
-		}
-	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-		if (victim->GetEnemy()) {
-			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00225));
-		} else {
-			bs_coeff *= (1.0 + (ch->GetSkill(ESkill::kBackstab) * 0.00350));
-		}
-	}
-
-	return std::max(1.0, bs_coeff);
-}
-
-// * Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
-bool CanPerformAutoblock(CharData *ch) {
-	return (GET_EQ(ch, EEquipPos::kShield) && ch->battle_affects.get(kEafAwake) && ch->battle_affects.get(kEafAutoblock));
-}
-
 // * Проверка на фит "любимое оружие".
 void HitData::CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_thaco, int &dam) {
 	switch (weap_skill) {
@@ -346,163 +282,6 @@ void HitData::CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_th
 			}
 			break;
 		default: break;
-	}
-}
-
-void HitData::ProcessParry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const {
-	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_EQ(victim, EEquipPos::kWield)->get_type() == EObjType::kWeapon
-		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
-		|| victim->IsNpc()
-		|| IS_IMMORTAL(victim))) {
-		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
-		victim->battle_affects.unset(kEafParry);
-	} else {
-		int range = number(1, MUD::Skill(ESkill::kParry).difficulty);
-		int prob = CalcCurrentSkill(victim, ESkill::kParry, ch);
-		prob = prob * 100 / range;
-		TrainSkill(victim, ESkill::kParry, prob < 100, ch);
-		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kParry).name, range, prob, prob >= 70);
-		if (GetFlags()[fight::kCritLuck]) {
-			prob = 0;
-		}
-		if (prob < 70
-			|| ((skill == ESkill::kBows || attack_type == fight::type_maul)
-				&& !IS_IMMORTAL(victim)
-				&& (!CanUseFeat(victim, EFeat::kParryArrow)
-					|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35)))) {
-			act("Вы не смогли отбить атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N не сумел$G отбить вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n не сумел$g отбить атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			prob = 2;
-			victim->battle_affects.set(kEafUsedleft);
-		} else if (prob < 100) {
-			act("Вы немного отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N немного отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n немного отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 10);
-			prob = 1;
-			*damage = *damage * 10 / 15;
-			victim->battle_affects.set(kEafUsedleft);
-		} else if (prob < 170) {
-			act("Вы частично отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N частично отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n частично отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 15);
-			prob = 0;
-			*damage = *damage / 2;
-			victim->battle_affects.set(kEafUsedleft);
-		} else {
-			act("Вы полностью отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N полностью отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n полностью отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 25);
-			prob = 0;
-			*damage = -1;
-		}
-		if (prob > 0)
-			SetSkillCooldownInFight(victim, ESkill::kGlobalCooldown, 1);
-		SetSkillCooldownInFight(victim, ESkill::kParry, prob);
-/*
-		if (!IS_IMMORTAL(ch) && prob) {
-			WAIT_STATE(victim, kBattleRound * prob);
-		}
-*/
-		victim->battle_affects.unset(kEafParry);
-	}
-}
-
-void HitData::ProcessMultyparry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const {
-
-	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_EQ(victim, EEquipPos::kWield)->get_type() == EObjType::kWeapon
-		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
-		|| victim->IsNpc()
-		|| IS_IMMORTAL(victim))) {
-		SendMsgToChar("У вас нечем отклонять атаки противников.\r\n", victim);
-	} else {
-		int range = number(1, MUD::Skill(ESkill::kMultiparry).difficulty) + 15*victim->battle_counter;
-		int prob = CalcCurrentSkill(victim, ESkill::kMultiparry, ch);
-		prob = prob * 100 / range;
-
-		if ((skill == ESkill::kBows || attack_type == fight::type_maul)
-			&& !IS_IMMORTAL(victim)
-			&& (!CanUseFeat(victim, EFeat::kParryArrow)
-				|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35))) {
-			prob = 0;
-		} else {
-			++(victim->battle_counter);
-		}
-
-		TrainSkill(victim, ESkill::kMultiparry, prob >= 50, ch);
-		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kMultiparry).name, range, prob, prob >= 50);
-		if (GetFlags()[fight::kCritLuck]) {
-			prob = 0;
-		}
-		if (prob < 50) {
-			act("Вы не смогли отбить атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N не сумел$G отбить вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n не сумел$g отбить атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-		} else if (prob < 90) {
-			act("Вы немного отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N немного отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n немного отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 10);
-			*damage = *damage * 10 / 15;
-		} else if (prob < 180) {
-			act("Вы частично отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N частично отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n частично отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 15);
-			*damage = *damage / 2;
-		} else {
-			act("Вы полностью отклонили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N полностью отклонил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n полностью отклонил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, number(0, 2) ? EEquipPos::kWield : EEquipPos::kHold, *damage, 25);
-			*damage = -1;
-		}
-	}
-}
-
-void HitData::ProcessShieldBlock(CharData *ch, CharData *victim, int *damage) const {
-	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || IS_IMMORTAL(victim))) {
-		SendMsgToChar("У вас нечем отразить атаку противника.\r\n", victim);
-	} else {
-		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);
-		int prob = CalcCurrentSkill(victim, ESkill::kShieldBlock, ch);
-		prob = prob * 100 / range;
-		++(victim->battle_counter);
-		TrainSkill(victim, ESkill::kShieldBlock, prob > 99, ch);
-		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kShieldBlock).name, range, prob, prob > 99);
-		if (GetFlags()[fight::kCritLuck]) {
-			prob = 0;
-		}
-		if (prob < 100) {
-			act("Вы не смогли отразить атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N не сумел$G отразить вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n не сумел$g отразить атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-		} else if (prob < 150) {
-			act("Вы немного отразили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N немного отразил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n немного отразил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, EEquipPos::kShield, *damage, 10);
-			*damage = *damage * 10 / 15;
-		} else if (prob < 250) {
-			act("Вы частично отразили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N частично отразил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n частично отразил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, EEquipPos::kShield, *damage, 15);
-			*damage = *damage / 2;
-		} else {
-			act("Вы полностью отразили атаку $N1.", false, victim, nullptr, ch, kToChar);
-			act("$N полностью отразил$G вашу атаку.", false, ch, nullptr, victim, kToChar);
-			act("$n полностью отразил$g атаку $N1.", true, victim, nullptr, ch, kToNotVict | kToArenaListen);
-			DamageEquipment(victim, EEquipPos::kShield, *damage, 25);
-			*damage = -1;
-		}
 	}
 }
 
@@ -1766,11 +1545,9 @@ void HitData::CalcBaseHitroll(CharData *ch) {
 		}
 	}
 
-	// bless
 	if (AFF_FLAGGED(ch, EAffect::kBless)) {
 		calc_thaco -= 4;
 	}
-	// curse
 	if (AFF_FLAGGED(ch, EAffect::kCurse)) {
 		calc_thaco += 6;
 		dam -= 5;
@@ -1969,49 +1746,11 @@ void HitData::CalcAc(CharData *victim) {
 }
 
 void HitData::ProcessDefensiveAbilities(CharData *ch, CharData *victim) {
-	if (!hit_no_parry) {
-		const auto &people = world[ch->in_room]->people;
-		for (const auto vict : people) {
-			if (dam < 0) {
-				break;
-			}
-			ProcessIntercept(ch, vict, &dam);
-		}
-	}
+	ProcessIntercept(ch, *this);
 	ProcessDeviate(ch, victim, *this);
-
-if (dam > 0
-		&& !hit_no_parry
-		&& victim->battle_affects.get(kEafParry)
-		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
-		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
-		&& !AFF_FLAGGED(victim, EAffect::kStopRight)
-		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
-		&& victim->get_wait() <= 0
-		&& AFF_FLAGGED(victim, EAffect::kHold) == 0) {
-		ProcessParry(ch, victim, weap_skill, hit_type, &dam);
-	} else if (dam > 0
-		&& !hit_no_parry
-		&& victim->battle_affects.get(kEafMultyparry)
-		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
-		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
-		&& !AFF_FLAGGED(victim, EAffect::kStopRight)
-		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
-		&& victim->battle_counter < (GetRealLevel(victim) + 4) / 5
-		&& victim->get_wait() <= 0
-		&& AFF_FLAGGED(victim, EAffect::kHold) == 0) {
-		ProcessMultyparry(ch, victim, weap_skill, hit_type, &dam);
-	} else if (dam > 0
-		&& !hit_no_parry
-		&& ((victim->battle_affects.get(kEafBlock) || CanPerformAutoblock(victim)) && victim->GetPosition() > EPosition::kSit)
-		&& !AFF_FLAGGED(victim, EAffect::kStopFight)
-		&& !AFF_FLAGGED(victim, EAffect::kMagicStopFight)
-		&& !AFF_FLAGGED(victim, EAffect::kStopLeft)
-		&& victim->get_wait() <= 0
-		&& AFF_FLAGGED(victim, EAffect::kHold) == 0
-		&& victim->battle_counter < (GetRealLevel(victim) + 8) / 9) {
-		ProcessShieldBlock(ch, victim, &dam);
-	}
+	ProcessParry(ch, victim, *this);
+	ProcessMultyparry(ch, victim, *this);
+	ProcessShieldBlock(ch, victim, *this);
 }
 
 /**
@@ -2404,66 +2143,8 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	if (hit_params.weapon_pos) {
 		DamageEquipment(ch, hit_params.weapon_pos, hit_params.dam, 10);
 	}
-	if (hit_params.skill_num == ESkill::kBackstab) {
-		hit_params.ResetFlag(fight::kCritHit);
-		hit_params.SetFlag(fight::kIgnoreFireShield);
-		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			hit_params.SetFlag(fight::kIgnoreSanct);
-			hit_params.SetFlag(fight::kIgnoreBlink);
-			hit_params.SetFlag(fight::kIgnoreArmor);
-		} else if (CanUseFeat(ch, EFeat::kShadowStrike)) {
-			hit_params.SetFlag(fight::kIgnoreArmor);
-		} else {
-			hit_params.SetFlag(fight::kHalfIgnoreArmor);
-		}
-		if (CanUseFeat(ch, EFeat::kShadowStrike)) {
-			hit_params.dam *=
-				GetBackstabMultiplier(GetRealLevel(ch)) * (1.0 + ch->GetSkill(ESkill::kNoParryHit) / 200.0);
-		} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			if (victim->GetEnemy()) {
-				hit_params.dam *= GetBackstabMultiplier(GetRealLevel(ch));
-			} else {
-				hit_params.dam *= GetBackstabMultiplier(GetRealLevel(ch)) * 1.3;
-			}
-		} else {
-			hit_params.dam *= GetBackstabMultiplier(GetRealLevel(ch));
-		}
 
-		if (!ch->IsNpc() 
-				&& CanUseFeat(ch, EFeat::kShadowStrike)
-				&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-				&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(victim->IsFlagged(EMobFlag::kProtect)))
-				&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
-				&& !victim->get_role(MOB_ROLE_BOSS)) {
-			victim->set_hit(1);
-			hit_params.dam = victim->get_hit() + fight::kLethalDmg;
-			SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
-			hit_params.SetFlag(fight::kIgnoreBlink);
-			hit_params.ProcessExtradamage(ch, victim);
-			return;
-		}
-
-		if (!ch->IsNpc()
-				&& (number(1, 100) < CalcCritBackstabPercent(ch) * ch->get_cond_penalty(P_HITROLL))
-				&& (!CalcGeneralSaving(ch, victim, ESaving::kCritical, CalculateSkillRate(ch, ESkill::kBackstab, victim)))) {
-			hit_params.dam = static_cast<int>(hit_params.dam * HitData::CalcCritBackstabMultiplier(ch, victim));
-			if ((hit_params.dam > 0)
-				&& !AFF_FLAGGED(victim, EAffect::kGodsShield)
-				&& !(victim->IsFlagged(EMobFlag::kProtect))) {
-				SendMsgToChar("&GПрямо в сердце!&n\r\n", ch);
-				hit_params.SetFlag(fight::kIgnoreBlink);
-			}
-		}
-
-		hit_params.dam = ApplyResist(victim, EResist::kVitality, hit_params.dam);
-		// режем стаб
-		if (CanUseFeat(ch, EFeat::kShadowStrike) && !ch->IsNpc()) {
-			hit_params.dam = std::min(8000 + GetRealRemort(ch) * 20 * GetRealLevel(ch), hit_params.dam);
-		}
-
-		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
-		victim->send_to_TC(false, true, false, "&RДамага стаба  равна = %d&n\r\n", hit_params.dam);
-		hit_params.ProcessExtradamage(ch, victim);
+	if (ProcessBackstab(ch, victim, hit_params)) {
 		return;
 	}
 

@@ -18,7 +18,6 @@ struct HitData {
 		diceroll = number(100, 2099) / 100;
 	};
 
-	// hit
 	void Init(CharData *ch, CharData *victim);
 	void CalcBaseHitroll(CharData *ch);
 	void CalcCircumstantialHitroll(CharData *ch, CharData *victim);
@@ -28,14 +27,7 @@ struct HitData {
 	void AddBareHandsDmg(CharData *ch, bool need_dice = true);
 	void ProcessDefensiveAbilities(CharData *ch, CharData *victim);
 	void CalcCritHitChance(CharData *ch);
-	void ProcessParry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const;
-	void ProcessMultyparry(CharData *ch, CharData *victim, ESkill skill, int attack_type, int *damage) const;
-	void ProcessShieldBlock(CharData *ch, CharData *victim, int *damage) const;
-
 	int CalcDmg(CharData *ch, bool need_dice = true);
-	static double CalcCritBackstabMultiplier(CharData *ch, CharData *victim);
-
-	// extdamage
 	int ProcessExtradamage(CharData *ch, CharData *victim);
 
 	// init()

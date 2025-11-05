@@ -78,7 +78,7 @@ void DoOverhelm(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	parry_override(ch);
+	CheckParryOverride(ch);
 	GoOverhelm(ch, victim);
 }
 

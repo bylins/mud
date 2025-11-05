@@ -204,8 +204,9 @@
 #include "engine/ui/color.h"
 #include "gameplay/skills/armoring.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/skills/backstab.h"
 #include "gameplay/skills/bash.h"
-#include "gameplay/skills/block.h"
+#include "gameplay/skills/shield_block.h"
 #include "gameplay/skills/campfire.h"
 #include "gameplay/skills/chopoff.h"
 #include "gameplay/skills/disarm.h"
@@ -218,6 +219,7 @@
 #include "gameplay/skills/lightwalk.h"
 #include "gameplay/skills/manadrain.h"
 #include "gameplay/skills/mighthit.h"
+#include "gameplay/skills/multyparry.h"
 #include "gameplay/skills/parry.h"
 #include "gameplay/skills/poisoning.h"
 #include "gameplay/skills/protect.h"
@@ -330,7 +332,6 @@ int do_social(CharData *ch, char *argument);
 void init_warcry(CharData *ch);
 
 void do_alias(CharData *ch, char *argument, int cmd, int subcmd);
-void do_backstab(CharData *ch, char *argument, int cmd, int subcmd);
 void do_ban(CharData *ch, char *argument, int cmd, int subcmd);
 void DoExpedientCut(CharData *ch, char *argument, int, int);
 void do_featset(CharData *ch, char *argument, int cmd, int subcmd);
@@ -507,7 +508,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 		{"жертвовать", EPosition::kStand, do_pray, 1, SCMD_DONATE, -1},
 
-		{"заколоть", EPosition::kStand, do_backstab, 1, 0, 1},
+		{"заколоть", EPosition::kStand, DoBackstab, 1, 0, 1},
 		{"забыть", EPosition::kRest, do_forget, 0, 0, 0},
 		{"задержать", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"заклинания", EPosition::kSleep, DoSpells, 0, 0, 0},
@@ -631,7 +632,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"ошибк", EPosition::kDead, do_quit, 0, 0, 0},
 		{"ошибка", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 
-		{"парировать", EPosition::kFight, do_parry, 0, 0, -1},
+		{"парировать", EPosition::kFight, DoParry, 0, 0, -1},
 		{"перехватить", EPosition::kFight, DoIntercept, 0, 0, -1},
 		{"перековать", EPosition::kStand, do_transform_weapon, 0, SCMD_TRANSFORMWEAPON, -1},
 		{"передать", EPosition::kStand, do_givehorse, 0, 0, -1},
@@ -787,7 +788,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"attack", EPosition::kFight, do_hit, 0, kScmdMurder, -1},
 		{"auction", EPosition::kRest, do_gen_comm, 0, kScmdAuction, -1},
 		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
-		{"backstab", EPosition::kStand, do_backstab, 1, 0, 1},
+		{"backstab", EPosition::kStand, DoBackstab, 1, 0, 1},
 		{"balance", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bash", EPosition::kFight, do_bash, 1, 0, -1},
@@ -905,7 +906,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"order", EPosition::kRest, do_order, 1, 0, -1},
 		{"overstuff", EPosition::kDead, DoPageClanOverstuff, kLvlGreatGod, 0, 0},
 		{"page", EPosition::kDead, do_page, kLvlGod, 0, 0},
-		{"parry", EPosition::kFight, do_parry, 0, 0, -1},
+		{"parry", EPosition::kFight, DoParry, 0, 0, -1},
 		{"pick", EPosition::kStand, do_gen_door, 1, kScmdPick, -1},
 		{"poisoned", EPosition::kFight, DoPoisoning, 0, 0, -1},
 		{"policy", EPosition::kDead, DoGenericPage, 0, kScmdPolicies, 0},

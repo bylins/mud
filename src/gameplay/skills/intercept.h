@@ -11,7 +11,7 @@
 
 class CharData;
 void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void ProcessIntercept(CharData *ch, CharData *vict, int *dam);
+void ProcessIntercept(CharData *ch, HitData &hit_data);
 
 #endif //BYLINS_SRC_GAMEPLAY_SKILLS_INTERCEPT_H_
 

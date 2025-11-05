@@ -24,7 +24,7 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	parry_override(ch);
+	CheckParryOverride(ch);
 
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", false, ch, nullptr, victim, kToChar);
 	ObjData *weapon;

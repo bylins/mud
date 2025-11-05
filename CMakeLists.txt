@@ -186,7 +186,7 @@ set(SOURCES
 		src/gameplay/skills/throw.cpp
 		src/gameplay/skills/mighthit.cpp
 		src/gameplay/skills/morph.cpp
-		src/gameplay/skills/block.cpp
+		src/gameplay/skills/shield_block.cpp
 		src/gameplay/skills/parry.cpp
 		src/gameplay/skills/pick.cpp
 		src/gameplay/mechanics/poison.cpp
@@ -431,7 +431,8 @@ set(SOURCES
 		src/gameplay/skills/punctual_style.cpp
 		src/gameplay/mechanics/equipment.cpp
 		src/gameplay/skills/intercept.cpp
-		src/gameplay/skills/deviate.cpp)
+		src/gameplay/skills/deviate.cpp
+		src/gameplay/skills/multyparry.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -461,7 +462,7 @@ set(HEADERS
 		src/gameplay/skills/turnundead.h
 		src/gameplay/skills/mighthit.h
 		src/gameplay/skills/expendientcut.h
-		src/gameplay/skills/block.h
+		src/gameplay/skills/shield_block.h
 		src/gameplay/skills/protect.h
 		src/gameplay/skills/parry.h
 		src/gameplay/skills/pick.h
@@ -850,7 +851,8 @@ set(HEADERS
 		src/gameplay/skills/punctual_style.h
 		src/gameplay/mechanics/equipment.h
 		src/gameplay/skills/intercept.h
-		src/gameplay/skills/deviate.h)
+		src/gameplay/skills/deviate.h
+		src/gameplay/skills/multyparry.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

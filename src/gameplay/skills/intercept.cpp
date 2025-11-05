@@ -13,6 +13,7 @@
 #include "engine/core/handler.h"
 
 void GoIntercept(CharData *ch, CharData *vict);
+void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
 
 void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIntercept)) {
@@ -30,7 +31,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = nullptr;
+	CharData *vict{nullptr};
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		for (const auto i : world[ch->in_room]->people) {
@@ -67,7 +68,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	parry_override(ch);
+	CheckParryOverride(ch);
 	GoIntercept(ch, vict);
 }
 
@@ -81,7 +82,19 @@ void GoIntercept(CharData *ch, CharData *vict) {
 	ch->set_touching(vict);
 }
 
-void ProcessIntercept(CharData *ch, CharData *vict, int *dam) {
+void ProcessIntercept(CharData *ch, HitData &hit_data) {
+	if (!hit_data.hit_no_parry) {
+		const auto &people = world[ch->in_room]->people;
+		for (const auto vict : people) {
+			if (hit_data.dam < 0) {
+				break;
+			}
+			PerformIntercept(ch, vict, hit_data);
+		}
+	}
+}
+
+void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data) {
 	if (vict->get_touching() == ch
 		&& !AFF_FLAGGED(vict, EAffect::kStopFight)
 		&& !AFF_FLAGGED(vict, EAffect::kMagicStopFight)
@@ -113,16 +126,11 @@ void ProcessIntercept(CharData *ch, CharData *vict, int *dam) {
 			act("Вы перехватили атаку $N1.", false, vict, nullptr, ch, kToChar);
 			act("$N перехватил$G вашу атаку.", false, ch, nullptr, vict, kToChar);
 			act("$n перехватил$g атаку $N1.", true, vict, nullptr, ch, kToNotVict | kToArenaListen);
-			*dam = -1;
+			hit_data.dam = -1;
 			prob = 1;
 		}
 		SetSkillCooldownInFight(vict, ESkill::kGlobalCooldown, 1);
 		SetSkillCooldownInFight(vict, ESkill::kIntercept, prob);
-/*
-		if (!IS_IMMORTAL(vict)) {
-			WAIT_STATE(vict, prob * kBattleRound);
-		}
-*/
 	}
 }
 

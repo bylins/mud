@@ -99,7 +99,7 @@ void DoMighthit(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	parry_override(ch);
+	CheckParryOverride(ch);
 	GoMighthit(ch, victim);
 }
 
