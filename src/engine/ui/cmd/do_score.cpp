@@ -177,7 +177,7 @@ void PrintScoreList(CharData *ch) {
 				  hit_gain(ch),
 				  ch->get_movereg(),
 				  move_gain(ch));
-	int ac = CalcAC(ch) / 10;
+	int ac = CalcBaseAc(ch) / 10;
 	if (ac < 5) {
 		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
@@ -597,7 +597,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
  */
 int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	int ac = CalcAC(ch) / 10;
+	int ac = CalcBaseAc(ch) / 10;
 	if (ac < 5) {
 		const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
 		ac = ac + mod > 5 ? 5 : ac + mod;
@@ -628,7 +628,7 @@ void PrintSelfHitrollInfo(CharData *ch, std::ostringstream &out) {
 	hit.Init(ch, ch);
 	hit.CalcBaseHitroll(ch);
 	hit.CalcStaticHitroll(ch);
-	hit.CalcAc(ch);
+	hit.CalcCircumstantialAc(ch);
 
 	HitData hit2;
 	hit2.weapon = fight::AttackType::kOffHand;
@@ -757,10 +757,10 @@ void PrintScoreBase(CharData *ch) {
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"
 				"  DR   : %4d(%4d)%s\r\n",
-				kColorBoldGrn, GET_AC(ch), CalcAC(ch),
+				kColorBoldGrn, GET_AC(ch), CalcBaseAc(ch),
 				GET_DR(ch), GetRealDamroll(ch), kColorNrm);
 	} else {
-		int ac = CalcAC(ch) / 10;
+		int ac = CalcBaseAc(ch) / 10;
 
 		if (ac < 5) {
 			const int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;

@@ -15,7 +15,7 @@
 
 int GetClaccAcLimit(CharData *ch);
 
-int CalcAC(CharData *ch) {
+int CalcBaseAc(CharData *ch) {
 	int armorclass = GetRealAc(ch);
 
 	if (AWAKE(ch)) {
@@ -88,6 +88,34 @@ int GetClaccAcLimit(CharData *ch) {
 		case ECharClass::kNecromancer: return -150;
 		default: return -300;
 	}
+}
+
+int CalcTotalAc(CharData *victim, int base_ac) {
+	// Calculate the raw armor including magic armor.  Lower AC is better.
+	base_ac += CalcBaseAc(victim);
+	base_ac /= 10;
+	//считаем штраф за голод
+	if (!victim->IsNpc() && base_ac < 5) { //для голодных
+		int p_ac = static_cast<int>((1 - victim->get_cond_penalty(P_AC)) * 40);
+		if (p_ac) {
+			if (base_ac + p_ac > 5) {
+				base_ac = 5;
+			} else {
+				base_ac += p_ac;
+			}
+		}
+	}
+
+	if (victim->GetPosition() < EPosition::kFight)
+		base_ac += 4;
+	if (victim->GetPosition() < EPosition::kRest)
+		base_ac += 3;
+	if (AFF_FLAGGED(victim, EAffect::kHold))
+		base_ac += 4;
+	if (AFF_FLAGGED(victim, EAffect::kCrying))
+		base_ac += 4;
+
+	return base_ac;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

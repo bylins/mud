@@ -105,6 +105,7 @@
 #include "engine/ui/cmd/do_gen_door.h"
 #include "engine/ui/cmd/do_sit.h"
 #include "engine/ui/cmd/do_stand.h"
+#include "engine/ui/cmd/do_style.h"
 #include "engine/ui/cmd/do_tell.h"
 #include "engine/ui/cmd/do_page.h"
 #include "engine/ui/cmd/do_pour.h"
@@ -356,7 +357,6 @@ void DoSyslog(CharData *ch, char *argument, int, int subcmd);
 void do_sense(CharData *ch, char *argument, int cmd, int subcmd);
 void do_unban(CharData *ch, char *argument, int cmd, int subcmd);
 void do_users(CharData *ch, char *argument, int cmd, int subcmd);
-void DoStyle(CharData *ch, char *argument, int, int);
 void do_transform_weapon(CharData *ch, char *argument, int cmd, int subcmd);
 void do_dig(CharData *ch, char *argument, int cmd, int subcmd);
 void do_insertgem(CharData *ch, char *argument, int cmd, int subcmd);

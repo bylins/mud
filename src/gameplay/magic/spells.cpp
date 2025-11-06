@@ -45,7 +45,7 @@ extern im_type *imtypes;
 extern int top_imtypes;
 
 void weight_change_object(ObjData *obj, int weight);
-int CalcAC(CharData *ch);
+int CalcBaseAc(CharData *ch);
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int CalcAntiSavings(CharData *ch);
@@ -1940,7 +1940,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	SendMsgToChar(ch, "Атака : %d, Повреждения : %d\r\n",
 				  GET_HR(victim), GET_DR(victim));
 	SendMsgToChar(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
-				  CalcAC(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
+				  CalcBaseAc(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
 
 	if (fullness < 100 || (ch != victim && !victim->IsNpc()))
 		return;

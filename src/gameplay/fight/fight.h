@@ -17,7 +17,7 @@ void stop_fighting(CharData *ch, int switch_others);
 void perform_violence();
 int calc_initiative(CharData *ch, bool mode);
 
-int CalcAC(CharData *ch);
+int CalcBaseAc(CharData *ch);
 void GetClassWeaponMod(ECharClass class_id, const ESkill skill, int *damroll, int *hitroll);
 
 void die(CharData *ch, CharData *killer);
@@ -31,6 +31,7 @@ bool check_valid_chars(CharData *ch, CharData *victim, const char *fname, int li
 void perform_group_gain(CharData *ch, CharData *victim, int members, int koef);
 void group_gain(CharData *ch, CharData *victim);
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
+ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType);
 
 #endif
 

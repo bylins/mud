@@ -24,7 +24,7 @@ struct HitData {
 	void CalcBaseHitroll(CharData *ch);
 	void CalcCircumstantialHitroll(CharData *ch, CharData *victim);
 	void CalcStaticHitroll(CharData *ch);
-	void CalcAc(CharData *victim);
+	void CalcCircumstantialAc(CharData *victim);
 	void AddWeaponDmg(CharData *ch, bool need_dice = true);
 	void AddBareHandsDmg(CharData *ch, bool need_dice = true);
 	void ProcessDefensiveAbilities(CharData *ch, CharData *victim);
@@ -85,13 +85,9 @@ struct HitData {
   [[nodiscard]] Damage GenerateExtradamage(int initial_dmg);
 };
 
-int CalcAC(CharData *ch);
-
 void set_battle_pos(CharData *ch);
-
 void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon);
-
 int GetRealDamroll(CharData *ch);
 int GetAutoattackDamroll(CharData *ch, int weapon_skill);
 

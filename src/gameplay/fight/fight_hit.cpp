@@ -25,6 +25,8 @@
 #include "gameplay/skills/shield_block.h"
 #include "gameplay/skills/backstab.h"
 #include "gameplay/skills/ironwind.h"
+#include "gameplay/mechanics/armor.h"
+#include "gameplay/skills/addshot.h"
 
 /**
 * Расчет множителя дамаги пушки с концентрацией силы.
@@ -62,31 +64,6 @@ int CalcNoparryhitDmg(CharData *ch, ObjData *wielded) {
 	double skill_mod = static_cast<double>(ch->GetSkill(ESkill::kNoParryHit)) / 5.0;
 
 	return static_cast<int>((skill_mod + GetRealRemort(ch) * 3.0) * weap_mod * level_mod);
-}
-
-void ProcessAddshotHits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
-	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->GetEnemy());
-	int dex_mod = std::max(GetRealDex(ch) - 25, 0) * 10;
-	int pc_mod =IS_CHARMICE(ch) ? 0 : 1;
-	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty * 5;
-	int percent = number(1, difficulty);
-
-	TrainSkill(ch, ESkill::kAddshot, true, ch->GetEnemy());
-	if (percent <= prob * 9 + dex_mod) {
-		hit(ch, victim, type, weapon);
-	}
-	percent = number(1, difficulty);
-	if (percent <= (prob * 6 + dex_mod) && ch->GetEnemy()) {
-		hit(ch, victim, type, weapon);
-	}
-	percent = number(1, difficulty);
-	if (percent <= (prob * 4 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
-		hit(ch, victim, type, weapon);
-	}
-	percent = number(1, difficulty);
-	if (percent <= (prob * 19 / 8 + dex_mod / 2) * pc_mod && ch->GetEnemy()) {
-		hit(ch, victim, type, weapon);
-	}
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия (редкостный бред)
@@ -257,18 +234,6 @@ void HitData::CheckWeapFeats(const CharData *ch, ESkill weap_skill, int &calc_th
 			break;
 		default: break;
 	}
-}
-
-ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
-	ObjData *UsedWeapon = nullptr;
-
-	if (AttackType == fight::AttackType::kMainHand) {
-		if (!(UsedWeapon = GET_EQ(ch, EEquipPos::kWield)))
-			UsedWeapon = GET_EQ(ch, EEquipPos::kBoths);
-	} else if (AttackType == fight::AttackType::kOffHand)
-		UsedWeapon = GET_EQ(ch, EEquipPos::kHold);
-
-	return UsedWeapon;
 }
 
 int HitData::ProcessExtradamage(CharData *ch, CharData *victim) {
@@ -612,30 +577,8 @@ void HitData::CalcStaticHitroll(CharData *ch) {
 }
 
 // * Подсчет армор класса жертвы.
-void HitData::CalcAc(CharData *victim) {
-	// Calculate the raw armor including magic armor.  Lower AC is better.
-	victim_ac += CalcAC(victim);
-	victim_ac /= 10;
-	//считаем штраф за голод
-	if (!victim->IsNpc() && victim_ac < 5) { //для голодных
-		int p_ac = static_cast<int>((1 - victim->get_cond_penalty(P_AC)) * 40);
-		if (p_ac) {
-			if (victim_ac + p_ac > 5) {
-				victim_ac = 5;
-			} else {
-				victim_ac += p_ac;
-			}
-		}
-	}
-
-	if (victim->GetPosition() < EPosition::kFight)
-		victim_ac += 4;
-	if (victim->GetPosition() < EPosition::kRest)
-		victim_ac += 3;
-	if (AFF_FLAGGED(victim, EAffect::kHold))
-		victim_ac += 4;
-	if (AFF_FLAGGED(victim, EAffect::kCrying))
-		victim_ac += 4;
+void HitData::CalcCircumstantialAc(CharData *victim) {
+	victim_ac = CalcTotalAc(victim, victim_ac);
 }
 
 void HitData::ProcessDefensiveAbilities(CharData *ch, CharData *victim) {
@@ -990,7 +933,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	// вычисление хитролов/ац
 	hit_params.CalcBaseHitroll(ch);
 	hit_params.CalcCircumstantialHitroll(ch, victim);
-	hit_params.CalcAc(victim);
+	hit_params.CalcCircumstantialAc(victim);
 	hit_params.CalcDmg(ch); // попытка все собрать в кучу
 	// рандом разброс базового дамага для красоты
 	if (hit_params.dam > 0) {
@@ -1119,23 +1062,9 @@ void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::Attack
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
 	}
-	// обрабатываем доп.атаки от железного ветра
-	ProcessIronWindHits(ch, weapon);
 
-	ObjData *wielded = nullptr;
-	wielded = GetUsedWeapon(ch, weapon);
-	if (wielded
-		&& !GET_EQ(ch, EEquipPos::kShield)
-		&& static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows
-		&& GET_EQ(ch, EEquipPos::kBoths)) {
-		// Лук в обеих руках - юзаем доп. или двойной выстрел
-		if (CanUseFeat(ch, EFeat::kDoubleShot) && !ch->GetSkill(ESkill::kAddshot)
-			&& std::min(850, 200 + ch->GetSkill(ESkill::kBows) * 4 + GetRealDex(ch) * 5) >= number(1, 1000)) {
-			hit(ch, ch->GetEnemy(), type, weapon);
-		} else if (ch->GetSkill(ESkill::kAddshot) > 0) {
-			ProcessAddshotHits(ch, victim, type, weapon);
-		}
-	}
+	ProcessIronWindHits(ch, weapon);
+	ProcessMultyShotHits(ch, victim, type, weapon);
 	hit(ch, victim, type, weapon);
 }
 
@@ -1147,9 +1076,11 @@ int CalcPcDamrollBonus(CharData *ch) {
 	if (IS_VIGILANT(ch) || IS_GUARD(ch) || IS_RANGER(ch)) {
 		bonus = kRemortDamrollBonus[std::min(kMaxRemortForDamrollBonus, GetRealRemort(ch))];
 	}
-	if (CanUseFeat(ch, EFeat::kBowsFocus) && ch->GetSkill(ESkill::kAddshot)) {
-		bonus *= 3;
-	}
+	// И с чего бы такое счастье именно обладателям луков и допа?
+	// Кстати, к ремортам оно каким боком?
+//	if (CanUseFeat(ch, EFeat::kBowsFocus) && ch->GetSkill(ESkill::kAddshot)) {
+//		bonus *= 3;
+//	}
 	return bonus;
 }
 

@@ -10,8 +10,9 @@
 #define BYLINS_SRC_GAMEPLAY_MECHANICS_ARMOR_H_
 
 class CharData;
-int CalcAC(CharData *ch);
+int CalcBaseAc(CharData *ch);
 int GetRealAc(CharData *ch);
+int CalcTotalAc(CharData *victim, int base_ac);
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_ARMOR_H_
 

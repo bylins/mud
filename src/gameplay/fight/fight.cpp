@@ -2308,4 +2308,16 @@ int set_hit(CharData *ch, CharData *victim) {
 	return (true);
 };
 
+ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
+	ObjData *UsedWeapon = nullptr;
+
+	if (AttackType == fight::AttackType::kMainHand) {
+		if (!(UsedWeapon = GET_EQ(ch, EEquipPos::kWield)))
+			UsedWeapon = GET_EQ(ch, EEquipPos::kBoths);
+	} else if (AttackType == fight::AttackType::kOffHand)
+		UsedWeapon = GET_EQ(ch, EEquipPos::kHold);
+
+	return UsedWeapon;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
