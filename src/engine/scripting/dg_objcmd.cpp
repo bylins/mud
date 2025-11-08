@@ -22,6 +22,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/core/game_limits.h"
+#include "gameplay/mechanics/damage.h"
 
 extern const char *dirs[];
 extern int up_obj_where(ObjData *obj);

@@ -36,6 +36,8 @@
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/minions.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/tutelar.h"
 
 extern int what_sky;
 extern int interpolate(int min_value, int pulse);
@@ -573,7 +575,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				// лучше потом реалиховать нормальную механику модификацию урона от обстоятельств
 				// spell_dmg.value().dice_size = spell_dmg.value().dice_size * 2 / 3;
 				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
-				alterate_object(obj, number(level * 2, level * 4), 100);
+				DamageObj(obj, number(level * 2, level * 4), 100);
 			}
 			break;
 		}
@@ -2735,7 +2737,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		return 0;
 	}
 	if (spell_id == ESpell::kSumonAngel) {
-		SpellSummonAngel(ch);
+		SummonTutelar(ch);
 		return 1;
 	}
 	if (spell_id == ESpell::kMentalShadow) {
@@ -2876,7 +2878,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 
 	if (spell_id == ESpell::kResurrection) {
-		ClearCharTalents(mob);
+		ClearMinionTalents(mob);
 		if (mob->IsFlagged(EMobFlag::kNoGroup))
 			mob->UnsetFlag(EMobFlag::kNoGroup);
 
@@ -3149,15 +3151,6 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment; //выровняем алигмент чтоб не агрили вдруг
 	return 1;
-}
-
-void ClearCharTalents(CharData *ch) {
-	ch->real_abils.Feats.reset();
-	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_TYPE(ch, spell_id) = 0;
-		GET_SPELL_MEM(ch, spell_id) = 0;
-	}
-	ch->clear_skills();
 }
 
 int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
@@ -3535,7 +3528,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
 			break;
 
-		case ESpell::kAcid: alterate_object(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
+		case ESpell::kAcid: DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
 			break;
 
 		case ESpell::kRepair: obj->set_current_durability(obj->get_maximum_durability());

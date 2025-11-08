@@ -2117,4 +2117,31 @@ const char *print_obj_state(int tm_pct) {
 	else return "нерушимо";
 }
 
+// Это не совсем механика зрения, нужен отдельный модуль на тему "кто кого (не)видит"
+// Но пока эти функции распиханы по всему коду, начиная с handler, по этому временно - тут
+void Appear(CharData *ch) {
+	const bool appear_msg = AFF_FLAGGED(ch, EAffect::kInvisible)
+		|| AFF_FLAGGED(ch, EAffect::kDisguise)
+		|| AFF_FLAGGED(ch, EAffect::kHide);
+
+	RemoveAffectFromChar(ch, ESpell::kInvisible);
+	RemoveAffectFromChar(ch, ESpell::kHide);
+	RemoveAffectFromChar(ch, ESpell::kSneak);
+	RemoveAffectFromChar(ch, ESpell::kCamouflage);
+
+	AFF_FLAGS(ch).unset(EAffect::kInvisible);
+	AFF_FLAGS(ch).unset(EAffect::kHide);
+	AFF_FLAGS(ch).unset(EAffect::kSneak);
+	AFF_FLAGS(ch).unset(EAffect::kDisguise);
+
+	if (appear_msg) {
+		if (ch->IsNpc() || GetRealLevel(ch) < kLvlImmortal) {
+			act("$n медленно появил$u из пустоты.", false, ch, nullptr, nullptr, kToRoom);
+		} else {
+			act("Вы почувствовали странное присутствие $n1.",
+				false, ch, nullptr, nullptr, kToRoom);
+		}
+	}
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

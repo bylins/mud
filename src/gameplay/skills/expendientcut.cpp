@@ -3,10 +3,10 @@
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/ui/color.h"
 #include "gameplay/fight/common.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/pk.h"
 #include "protect.h"
+#include "gameplay/mechanics/damage.h"
 
 void ApplyNoFleeAffect(CharData *ch, int duration) {
 	Affect<EApply> noflee;

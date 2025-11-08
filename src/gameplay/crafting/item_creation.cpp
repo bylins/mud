@@ -16,10 +16,10 @@
 #include "engine/entities/entities_constants.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/core/constants.h"
 
 #include <cmath>
 
-extern int material_value[];
 char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_obj);
 
 constexpr auto WEAR_TAKE = to_underlying(EWearFlag::kTake);

@@ -1,9 +1,12 @@
 #ifndef BYLINS_BLOCK_H
 #define BYLINS_BLOCK_H
 
-class CharData;
+#include "gameplay/fight/fight_hit.h"
 
+class CharData;
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/);
+void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data);
+bool CanPerformAutoblock(CharData *ch);
 
 #endif //BYLINS_BLOCK_H
 

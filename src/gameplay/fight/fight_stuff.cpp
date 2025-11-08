@@ -31,6 +31,7 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
+#include "gameplay/skills/leadership.h"
 
 // extern
 void PerformDropGold(CharData *ch, int amount);
@@ -39,7 +40,6 @@ int max_exp_loss_pc(CharData *ch);
 void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, int amount, bool autoloot);
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
-extern int material_value[];
 extern int max_exp_gain_npc;
 extern std::list<combat_list_element> combat_list;
 
@@ -140,42 +140,6 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GetRealLevel(ch));
 		}
-	}
-}
-
-void update_leadership(CharData *ch, CharData *killer) {
-	// train LEADERSHIP
-	if (ch->IsNpc() && killer) // Убили моба
-	{
-		if (!killer->IsNpc() // Убил загрупленный чар
-			&& AFF_FLAGGED(killer, EAffect::kGroup)
-			&& killer->has_master()
-			&& killer->get_master()->GetSkill(ESkill::kLeadership) > 0
-			&& killer->in_room == killer->get_master()->in_room) {
-			ImproveSkill(killer->get_master(), ESkill::kLeadership, number(0, 1), ch);
-		} else if (killer->IsNpc() // Убил чармис загрупленного чара
-			&& IS_CHARMICE(killer)
-			&& killer->has_master()
-			&& AFF_FLAGGED(killer->get_master(), EAffect::kGroup)) {
-			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->GetSkill(ESkill::kLeadership) > 0
-				&& killer->in_room == killer->get_master()->in_room
-				&& killer->in_room == killer->get_master()->get_master()->in_room) {
-				ImproveSkill(killer->get_master()->get_master(), ESkill::kLeadership, number(0, 1), ch);
-			}
-		}
-	}
-
-	// decrease LEADERSHIP
-	if (!ch->IsNpc() // Член группы убит мобом
-		&& killer
-		&& killer->IsNpc()
-		&& AFF_FLAGGED(ch, EAffect::kGroup)
-		&& ch->has_master()
-		&& ch->in_room == ch->get_master()->in_room
-		&& ch->get_master()->GetTrainedSkill(ESkill::kLeadership) > 1) {
-		const auto current_skill = ch->get_master()->GetMorphSkill(ESkill::kLeadership);
-		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
 	}
 }
 
@@ -318,7 +282,7 @@ void die(CharData *ch, CharData *killer) {
 			process_mobmax(ch, killer);
 		}
 		if (killer) {
-			update_leadership(ch, killer);
+			UpdateLeadership(ch, killer);
 		}
 	}
 	CharStat::UpdateOnKill(ch, killer, dec_exp);
@@ -890,14 +854,11 @@ void group_gain(CharData *killer, CharData *victim) {
 
 	koef = std::max(0, koef);
 
-	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
-	// из группы из PC (последователи типа лошади или чармисов не считаются)
-	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(leader)) {
-		koef += 20;
+	if (leader_inroom) {
+		koef += CalcLeadershipGroupExpKoeff(leader, inroom_members, koef);
 	}
 
 	// Раздача опыта
-
 	// если групповой уровень зоны равняется единице
 	if (zone_table[world[killer->in_room]->zone_rn].group < 2) {
 		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше
@@ -929,123 +890,6 @@ void group_gain(CharData *killer, CharData *victim) {
 			perform_group_gain(f->follower, victim, inroom_members, koef);
 		}
 	}
-}
-
-void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
-	// не даем получать батлу с себя по зеркалу?
-	if (ch == victim) { 
-		return;
-	}
-	if (!victim->IsNpc()) { return; }
-	// не даем получать экспу с !эксп мобов
-	if (victim->IsFlagged(EMobFlag::kNoBattleExp) || InTestZone(ch)) {
-		return;
-	}
-	// если цель не нпс то тоже не даем экспы
-	// если цель под чармом не даем экспу
-	if (AFF_FLAGGED(victim, EAffect::kCharmed)) { 
-		return; 
-	}
-	// получение игроками экспы
-	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
-		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-			(5 * std::max(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
-		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
-		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
-			battle_exp *= Bonus::get_mult_bonus();
-		}
-		EndowExpToChar(ch, battle_exp);
-		ch->dps_add_exp(battle_exp, true);
-	}
-
-
-	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
-	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
-		CharData *master = ch->get_master();
-		// проверяем что есть мастер и он может получать экспу с данной цели
-		if (master && OK_GAIN_EXP(master, victim)) {
-			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
-				(5 * std::max(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
-
-			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
-			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
-			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
-				battle_exp *= Bonus::get_mult_bonus();
-			}
-			EndowExpToChar(master, battle_exp);
-			master->dps_add_exp(battle_exp, true);
-		}
-	}
-}
-
-// * Alterate equipment
-void alterate_object(ObjData *obj, int dam, int chance) {
-	if (!obj)
-		return;
-	dam = number(0, dam * (material_value[obj->get_material()] + 30) /
-		std::max(1, obj->get_maximum_durability() *
-			(obj->has_flag(EObjFlag::kNodrop) ? 5 :
-			 obj->has_flag(EObjFlag::kBless) ? 15 : 10)
-			 * (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows ? 3 : 1)));
-
-	if (dam > 0 && chance >= number(1, 100)) {
-		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), EEquipPos::kShield) == obj) {
-			dam /= 2;
-		}
-
-		obj->sub_current(dam);
-		if (obj->get_current_durability() <= 0) {
-			if (obj->get_worn_by()) {
-				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
-						 char_get_custom_label(obj, obj->get_worn_by()).c_str());
-				act(buf, false, obj->get_worn_by(), obj, nullptr, kToChar);
-			} else if (obj->get_carried_by()) {
-				snprintf(buf, kMaxStringLength, "$o%s рассыпал$U, не выдержав повреждений.",
-						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
-				act(buf, false, obj->get_carried_by(), obj, nullptr, kToChar);
-			}
-			ExtractObjFromWorld(obj);
-		}
-	}
-}
-
-void alt_equip(CharData *ch, int pos, int dam, int chance) {
-	// calculate drop_chance if
-	if (pos == kNowhere) {
-		pos = number(0, 100);
-		if (pos < 3)
-			pos = EEquipPos::kFingerR + number(0, 1);
-		else if (pos < 6)
-			pos = EEquipPos::kNeck + number(0, 1);
-		else if (pos < 20)
-			pos = EEquipPos::kBody;
-		else if (pos < 30)
-			pos = EEquipPos::kHead;
-		else if (pos < 45)
-			pos = EEquipPos::kLegs;
-		else if (pos < 50)
-			pos = EEquipPos::kFeet;
-		else if (pos < 58)
-			pos = EEquipPos::kHands;
-		else if (pos < 66)
-			pos = EEquipPos::kArms;
-		else if (pos < 76)
-			pos = EEquipPos::kShield;
-		else if (pos < 86)
-			pos = EEquipPos::kShoulders;
-		else if (pos < 90)
-			pos = EEquipPos::kWaist;
-		else if (pos < 94)
-			pos = EEquipPos::kWristR + number(0, 1);
-		else
-			pos = EEquipPos::kHold;
-	}
-
-	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield)) {
-		return;
-	}
-	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
 
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural) {

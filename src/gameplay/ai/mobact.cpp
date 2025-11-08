@@ -18,7 +18,7 @@
 #include "gameplay/skills/strangle.h"
 #include "gameplay/skills/chopoff.h"
 #include "gameplay/skills/disarm.h"
-#include "gameplay/skills/stupor.h"
+#include "gameplay/skills/overhelm.h"
 #include "gameplay/skills/throw.h"
 #include "gameplay/skills/mighthit.h"
 #include "gameplay/skills/protect.h"
@@ -180,7 +180,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 			if (do_mode)
 				do_backstab(ch, victim);
 			else
-				go_backstab(ch, victim);
+				GoBackstab(ch, victim);
 			return (true);
 		}
 		if ((ch->GetSkill(ESkill::kHammer) && !IS_CHARMICE(ch))
@@ -188,16 +188,16 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 				&& !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))
 				&& ch->GetSkill(ESkill::kHammer))) {
 			if (do_mode)
-				do_mighthit(ch, victim);
+				DoMighthit(ch, victim);
 			else
-				go_mighthit(ch, victim);
+				GoMighthit(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kOverwhelm)) {
 			if (do_mode)
-				do_stupor(ch, victim);
+				DoOverhelm(ch, victim);
 			else
-				go_stupor(ch, victim);
+				GoOverhelm(ch, victim);
 			return (true);
 		}
 		if (ch->GetSkill(ESkill::kBash)) {
@@ -772,11 +772,10 @@ int perform_mob_switch(CharData *ch) {
 	SetFighting(ch, best);
 	SetWait(ch, 2, false);
 
-	if (ch->GetSkill(ESkill::kHammer)
-		&& check_mighthit_weapon(ch)) {
-		SET_AF_BATTLE(ch, kEafHammer);
+	if (ch->GetSkill(ESkill::kHammer) && IsArmedWithMighthitWeapon(ch)) {
+		ch->battle_affects.set(kEafHammer);
 	} else if (ch->GetSkill(ESkill::kOverwhelm)) {
-		SET_AF_BATTLE(ch, ESkill::kOverwhelm);
+		ch->battle_affects.set(ESkill::kOverwhelm);
 	}
 
 	return true;

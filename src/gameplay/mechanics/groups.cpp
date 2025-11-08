@@ -17,6 +17,7 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/skills/leadership.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -69,11 +70,7 @@ bool group::same_group(CharData *ch, CharData *tch) {
 }
 
 int group::max_group_size(CharData *ch) {
-	int bonus_commander = 0;
-//	if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER))
-//		bonus_commander = VPOSI((ch->get_skill(ESkill::kLeadership) - 120) / 10, 0, 8);
-	bonus_commander = VPOSI((ch->GetSkill(ESkill::kLeadership) - 200) / 8, 0, 8);
-	return kMaxGroupedFollowers + (int) VPOSI((ch->GetSkill(ESkill::kLeadership) - 80) / 5, 0, 4) + bonus_commander;
+	return kMaxGroupedFollowers + CalcLeadershipGroupSizeBonus(ch);
 }
 
 bool is_group_member(CharData *ch, CharData *vict) {

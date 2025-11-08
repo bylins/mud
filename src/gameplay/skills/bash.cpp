@@ -1,10 +1,12 @@
 #include "bash.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
-#include "gameplay/fight/fight.h"
 #include "protect.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
+#include "gameplay/mechanics/equipment.h"
+#include "gameplay/mechanics/damage.h"
+#include "gameplay/fight/fight.h"
 
 #include <cmath>
 
@@ -190,7 +192,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	} else {
 //делаем блокирование баша
-		if ((GET_AF_BATTLE(vict, kEafBlock)
+		if ((vict->battle_affects.get(kEafBlock)
 			|| (CanUseFeat(vict, EFeat::kDefender)
 				&& GET_EQ(vict, kShield)
 				&& vict->IsFlagged(EPrf::kAwake)
@@ -224,7 +226,7 @@ void go_bash(CharData *ch, CharData *vict) {
 						false, ch, nullptr, vict, kToChar);
 					act("$n блокировал$g попытку $N1 сбить $s.",
 						true, vict, nullptr, ch, kToNotVict | kToArenaListen);
-					alt_equip(vict, kShield, 30, 10);
+					DamageEquipment(vict, kShield, 30, 10);
 					if (!ch->GetEnemy()) {
 						SetFighting(ch, vict);
 						SetWait(ch, 1, true);

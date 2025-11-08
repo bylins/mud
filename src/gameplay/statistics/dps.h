@@ -17,6 +17,7 @@
 namespace DpsSystem {
 
 void check_round(CharData *ch);
+void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam);
 
 // режимы, чтобы не плодить оберток (себя, своих чармисов, чары из группы, чармисы чаров из группы)
 enum { PERS_DPS, PERS_CHARM_DPS, GROUP_DPS, GROUP_CHARM_DPS };

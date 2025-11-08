@@ -3,10 +3,11 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
-#include "gameplay/fight/fight_start.h"
+#include "engine/ui/cmd/do_kill.h"
 #include "utils/random.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/sight.h"
 
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
@@ -105,7 +106,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 		}
 		prob = 1;
 	}
-	appear(ch);
+	Appear(ch);
 	if (!success) {
 		SetWait(ch, prob, false);
 		if (vict->IsNpc() && CAN_SEE(vict, ch) && vict->have_mind() && CLEAR_MIND(vict) && !vict->GetEnemy()) {

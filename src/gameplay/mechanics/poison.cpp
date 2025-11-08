@@ -8,10 +8,15 @@
 #include "engine/entities/char_data.h"
 #include "liquid.h"
 #include "engine/ui/color.h"
-#include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/magic/magic.h"
+#include "gameplay/mechanics/damage.h"
+
+void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id);
+void PerformToxicate(CharData *ch, CharData *vict, int modifier);
 
 namespace {
+
 // * Наложение ядов с пушек, аффект стакается до трех раз.
 	bool poison_affect_join(CharData *ch, CharData *vict, Affect<EApply> &af) {
 		bool is_poisoned_by_me = false;
@@ -284,8 +289,20 @@ namespace {
 
 } // namespace
 
-// * Отравление с заклинания 'яд'.
-void poison_victim(CharData *ch, CharData *vict, int modifier) {
+void ProcessToxicMob(CharData *ch, CharData *victim, HitData &hit_data) {
+	if (hit_data.dam
+		&& ch->IsNpc()
+		&& NPC_FLAGGED(ch, ENpcFlag::kToxic)
+		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
+		&& ch->get_wait() <= 0
+		&& !AFF_FLAGGED(victim, EAffect::kPoisoned)
+		&& number(0, 100) < GET_LIKES(ch) + GetRealLevel(ch) - GetRealLevel(victim)
+		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GetRealCon(victim))) {
+		PerformToxicate(ch, victim, std::max(1, GetRealLevel(ch) - GetRealLevel(victim)) * 10);
+	}
+}
+
+void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	Affect<EApply> af[4];
 
 	// change strength
@@ -328,8 +345,18 @@ void poison_victim(CharData *ch, CharData *vict, int modifier) {
 	act(buf, false, ch, nullptr, vict, kToVict);
 }
 
+void ProcessPoisonedWeapom(CharData *ch, CharData *victim, HitData &hit_data) {
+	if (!victim->IsFlagged(EMobFlag::kProtect)
+		&& hit_data.dam
+		&& hit_data.wielded
+		&& hit_data.wielded->has_timed_spell()
+		&& ch->GetSkill(ESkill::kPoisoning)) {
+		PerformPoisonedWeapom(ch, victim, hit_data.wielded->timed_spell().IsSpellPoisoned());
+	}
+}
+
 // * Попытка травануть с пушки при ударе.
-void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
+void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	if (spell_id < ESpell::kFirst) {
 		return;
 	}
@@ -337,7 +364,7 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	bool success = result.success;
 
 	if (((success) && (number(1, 100) <= 25)) ||
-		(!GET_AF_BATTLE(vict, kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
+		(!vict->battle_affects.get(kEafFirstPoison) && !AFF_FLAGGED(vict, EAffect::kPoisoned))) {
 		ImproveSkill(ch, ESkill::kPoisoning, true, vict);
 		if (PoisonVictWithWeapon(ch, vict, spell_id)) {
 			if (spell_id == ESpell::kAconitumPoison) {
@@ -348,17 +375,17 @@ void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s скрючил%s от нестерпимой боли.\r\n",
 							  buf1, GET_CH_VIS_SUF_2(vict, ch));
-				SET_AF_BATTLE(vict, kEafFirstPoison);
+				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kBelenaPoison) {
 				strcpy(buf1, PERS(vict, ch, 3));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s перестали слушаться руки.\r\n", buf1);
-				SET_AF_BATTLE(vict, kEafFirstPoison);
+				vict->battle_affects.set(kEafFirstPoison);
 			} else if (spell_id == ESpell::kDaturaPoison) {
 				strcpy(buf1, PERS(vict, ch, 2));
 				utils::CAP(buf1);
 				SendMsgToChar(ch, "%s стало труднее плести заклинания.\r\n", buf1);
-				SET_AF_BATTLE(vict, kEafFirstPoison);
+				vict->battle_affects.set(kEafFirstPoison);
 			} else {
 				SendMsgToChar(ch, "Вы отравили %s.\r\n", PERS(ch, vict, 3));
 			}

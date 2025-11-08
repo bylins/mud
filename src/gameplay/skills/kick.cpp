@@ -1,11 +1,11 @@
 #include "kick.h"
 
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/common.h"
 #include "protect.h"
 #include "gameplay/core/base_stats.h"
+#include "gameplay/mechanics/damage.h"
 
 // ******************  KICK PROCEDURES
 void go_kick(CharData *ch, CharData *vict) {
@@ -142,7 +142,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			ImposeAffect(vict, af, true, false, true, false);
 		}
 
-		if (GET_AF_BATTLE(vict, kEafAwake)) {
+		if (vict->battle_affects.get(kEafAwake)) {
 			dam >>= (2 - (ch->IsOnHorse() ? 1 : 0));
 		}
 		if (result.CritLuck && !ch->IsOnHorse()) {

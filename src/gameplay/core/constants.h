@@ -121,6 +121,7 @@ extern const char *material_name[];
 extern struct AttackHitType attack_hit_text[];
 extern const char *godslike_bits[];
 extern const char *weapon_class[];
+extern const int material_value[];
 
 //The number of changing coefficients (the others are unchanged)
 const int kMaxExpCoefficientsUsed = 15;

@@ -25,6 +25,7 @@ int postmaster(CharData *, void *, int, char *);
 int bank(CharData *, void *, int, char *);
 int shop_ext(CharData *, void *, int, char *);
 int mercenary(CharData *, void *, int, char *);
+void npc_groupbattle(CharData *ch);
 
 #endif //BYLINS_SRC_GAMEPLAY_AI_SPEC_PROCS_H_
 

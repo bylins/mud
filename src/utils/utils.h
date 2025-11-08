@@ -362,10 +362,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 
-#define GET_AF_BATTLE(ch, flag) ((ch)->battle_affects.get(flag))
-#define SET_AF_BATTLE(ch, flag) ((ch)->battle_affects.set(flag))
-#define CLR_AF_BATTLE(ch, flag) ((ch)->battle_affects.unset(flag))
-#define NUL_AF_BATTLE(ch)      ((ch)->battle_affects.clear())
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
@@ -416,7 +412,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_AC(ch)         ((ch)->real_abils.armor)
 #define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
-#define GET_REAL_AC(ch)      (GET_AC(ch)+GET_AC_ADD(ch))
 #define GET_MORALE(ch)       ((ch)->add_abils.morale)
 #define GET_INITIATIVE(ch)   ((ch)->add_abils.initiative_add)
 #define GET_POISON(ch)      ((ch)->add_abils.poison_add)
@@ -668,28 +663,6 @@ const int kNameLevel = 5;
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { (ch)->punctual_wait = (cycle); } while(0)
-
-// object utils *********************************************************
-
-//#define GET_OBJ_EXTRA(obj)  ((obj)->get_extra_flags())
-//#define GET_OBJ_WEAR(obj)  ((obj)->get_wear_flags())
-//#define GET_OBJ_RNUM(obj)  ((obj)->get_rnum())
-
-//#define GET_OBJ_MAKER(obj)      ((obj)->get_crafter_uid())
-//#define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
-//#define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
-
-//#define GET_OBJ_CUR(obj)    ((obj)->get_current_durability())
-//#define GET_OBJ_MAX(obj)    ((obj)->get_maximum_durability())
-//#define GET_OBJ_MATER(obj)  ((obj)->get_material())
-
-//#define GET_OBJ_VNUM_ZONE_FROM(obj)   ((obj)->get_vnum_zone_from())
-//#define OBJ_GET_LASTROOM(obj) ((obj)->get_room_was_in())
-//#define OBJ_WHERE(obj) ((obj)->get_worn_by() ? (obj)->get_worn_by()->in_room : (obj)->get_carried_by() ? (obj)->get_carried_by()->in_room : (obj)->get_in_room())
-
-//#define IS_OBJ_ANTI(obj, stat) ((obj)->has_anti_flag(stat))
-//#define IS_OBJ_NO(obj, stat) ((obj)->has_no_flag(stat))
-//#define IS_OBJ_AFF(obj, stat) ((obj)->GetEWeaponAffect(stat))
 
 // compound utilities and other macros *********************************
 

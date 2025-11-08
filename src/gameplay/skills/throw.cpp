@@ -3,11 +3,11 @@
 #include "engine/core/action_targeting.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
 #include "protect.h"
 #include "gameplay/fight/common.h"
+#include "gameplay/mechanics/damage.h"
 
 // ************* THROW PROCEDURES
 
