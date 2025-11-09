@@ -32,7 +32,7 @@
 #include "gameplay/ai/mob_memory.h"
 #include "administration/proxy.h"
 #include "gameplay/mechanics/weather.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/communication/parcel.h"

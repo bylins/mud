@@ -215,7 +215,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 		int pct = 6;
 		if (victim->IsNpc() && !IS_CHARMICE(victim)) {
 			pct += 2;
-			if (victim->get_role(MOB_ROLE_BOSS)) {
+			if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 				pct += 2;
 			}
 		}
@@ -241,7 +241,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 			int pct = 15;
 			if (victim->IsNpc() && !IS_CHARMICE(victim)) {
 				pct += 5;
-				if (victim->get_role(MOB_ROLE_BOSS)) {
+				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 					pct += 5;
 				}
 			}

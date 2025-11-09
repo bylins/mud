@@ -1821,7 +1821,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				OLC_MOB(d)->char_specials.saved.act.toggle_flag(plane, 1 << bit);
 				medit_disp_mob_flags(d);
 				if (OLC_MOB(d)->IsFlagged(EMobFlag::kIgnoresFormation)) {
-					OLC_MOB(d)->set_role(MOB_ROLE_ROGUE, true);
+					OLC_MOB(d)->set_role(static_cast<unsigned>(EMobClass::kRogue), true);
 				}
 				return;
 			}

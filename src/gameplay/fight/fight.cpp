@@ -36,7 +36,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/slay.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
 #include "gameplay/skills/leadership.h"

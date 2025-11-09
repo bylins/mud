@@ -17,7 +17,7 @@
 #include "utils/utils.h"
 #include "engine/db/global_objects.h"
 #include "engine/network/msdp/msdp_constants.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/weather.h"
 

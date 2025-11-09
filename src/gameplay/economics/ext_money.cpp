@@ -399,7 +399,7 @@ bool has_connected_bosses(CharData *ch) {
 		if (i != ch
 			&& i->IsNpc()
 			&& !IS_CHARMICE(i)
-			&& i->get_role(MOB_ROLE_BOSS)) {
+			&& i->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 			return true;
 		}
 	}
@@ -409,12 +409,12 @@ bool has_connected_bosses(CharData *ch) {
 			&& i->follower->IsNpc()
 			&& !IS_CHARMICE(i->follower)
 			&& i->follower->get_master() == ch
-			&& i->follower->get_role(MOB_ROLE_BOSS)) {
+			&& i->follower->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 			return true;
 		}
 	}
 	// если он сам следует за каким-то боссом
-	if (ch->has_master() && ch->get_master()->get_role(MOB_ROLE_BOSS)) {
+	if (ch->has_master() && ch->get_master()->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return true;
 	}
 
@@ -550,7 +550,7 @@ void gain_torc(CharData *ch, int drop) {
 // кому раскидывать (флаг EGodFlag::REMORT, проверка на делимость гривен, проверка на
 // то, что чар находился в комнате с мобом не менее половины раундов дамагера)
 void drop_torc(CharData *mob) {
-	if (!mob->get_role(MOB_ROLE_BOSS)
+	if (!mob->get_role(static_cast<unsigned>(EMobClass::kBoss))
 		|| has_connected_bosses(mob)) {
 		return;
 	}

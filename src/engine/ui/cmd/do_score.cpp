@@ -20,7 +20,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/weather.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/groups.h"

@@ -37,7 +37,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 
 using classes::CalcCircleSlotsAmount;
 

@@ -535,7 +535,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 }
 
 int get_virtual_race(CharData *mob) {
-	if (mob->get_role(MOB_ROLE_BOSS)) {
+	if (mob->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return kNpcBoss;
 	}
 	std::map<int, int>::iterator it;

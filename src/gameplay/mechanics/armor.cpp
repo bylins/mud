@@ -10,7 +10,7 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/core/base_stats.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/skills/leadership.h"
 
 int GetClaccAcLimit(CharData *ch);
