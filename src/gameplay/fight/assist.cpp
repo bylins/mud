@@ -3,7 +3,9 @@
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "pk.h"
-#include "fight_start.h"
+#include "fight.h"
+
+// \TODO Надо разобраться, как сделать ассист в файте, не подключая туда этот файл, а assist перенести в команды
 
 void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetEnemy()) {

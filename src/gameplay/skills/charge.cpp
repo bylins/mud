@@ -7,12 +7,12 @@
 #include "engine/core/char_movement.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "protect.h"
 #include "bash.h"
 #include "engine/core/action_targeting.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/ai/mobact.h"
+#include "gameplay/mechanics/damage.h"
 
 void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;

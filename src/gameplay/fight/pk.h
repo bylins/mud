@@ -102,6 +102,7 @@ inline const char *GetPkNameColor(const CharData::shared_ptr &victim) {
 }
 void pk_list_sprintf(CharData *ch, char *buff);
 void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void UpdatePkLogs(CharData *ch, CharData *victim);
 
 //*************************************************************************
 // Системные функции сохранения/загрузки ПК флагов

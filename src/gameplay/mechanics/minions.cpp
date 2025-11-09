@@ -115,4 +115,13 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 	return (int) r_hp;
 }
 
+void ClearMinionTalents(CharData *ch) {
+	ch->real_abils.Feats.reset();
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		GET_SPELL_TYPE(ch, spell_id) = 0;
+		GET_SPELL_MEM(ch, spell_id) = 0;
+	}
+	ch->clear_skills();
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,11 +1,14 @@
 #ifndef BYLINS_MIGHTHIT_H
 #define BYLINS_MIGHTHIT_H
 
-class CharData;
+#include "gameplay/fight/fight_hit.h"
 
-void go_mighthit(CharData *ch, CharData *victim);
-void do_mighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_mighthit(CharData *ch, CharData *victim);
+class CharData;
+bool IsArmedWithMighthitWeapon(CharData *ch);
+void GoMighthit(CharData *ch, CharData *victim);
+void DoMighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+void DoMighthit(CharData *ch, CharData *victim);
+void ProcessMighthit(CharData *ch, CharData *victim, HitData &hit_data);
 
 #endif //BYLINS_MIGHTHIT_H
 

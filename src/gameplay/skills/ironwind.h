@@ -1,10 +1,12 @@
 #ifndef BYLINS_IRONWIND_H
 #define BYLINS_IRONWIND_H
 
-class CharData;
+#include "gameplay/fight/fight_constants.h"
 
+class CharData;
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void go_iron_wind(CharData *ch, CharData *victim);
+void ProcessIronWindHits(CharData *ch, fight::AttackType weapon);
 
 #endif //BYLINS_IRONWIND_H
 

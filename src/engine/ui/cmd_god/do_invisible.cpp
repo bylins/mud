@@ -11,8 +11,6 @@
 
 void perform_immort_invis(CharData *ch, int level);
 
-extern void appear(CharData *ch);
-
 void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int level;
 

@@ -113,7 +113,6 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/);
 void SpellMentalShadow(CharData *ch);
-void SpellSummonAngel(CharData *ch);
 void RemovePortalGate(RoomRnum rnum);
 // basic magic calling functions
 

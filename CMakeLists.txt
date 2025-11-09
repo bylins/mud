@@ -181,12 +181,12 @@ set(SOURCES
 		src/gameplay/skills/strangle.cpp
 		src/gameplay/skills/chopoff.cpp
 		src/gameplay/skills/disarm.cpp
-		src/gameplay/skills/stupor.cpp
+		src/gameplay/skills/overhelm.cpp
 		src/gameplay/skills/ironwind.cpp
 		src/gameplay/skills/throw.cpp
 		src/gameplay/skills/mighthit.cpp
 		src/gameplay/skills/morph.cpp
-		src/gameplay/skills/block.cpp
+		src/gameplay/skills/shield_block.cpp
 		src/gameplay/skills/parry.cpp
 		src/gameplay/skills/pick.cpp
 		src/gameplay/mechanics/poison.cpp
@@ -200,8 +200,8 @@ set(SOURCES
 		src/gameplay/skills/relocate.cpp
 		src/gameplay/mechanics/mount.cpp
 		src/gameplay/fight/assist.cpp
-		src/gameplay/fight/fight_start.cpp
-		src/gameplay/skills/styles.cpp
+		src/engine/ui/cmd/do_kill.cpp
+		src/engine/ui/cmd/do_style.cpp
 		src/gameplay/fight/common.cpp
 		src/engine/ui/cmd/do_retreat.cpp
 		src/engine/ui/cmd/do_order.cpp
@@ -425,7 +425,17 @@ set(SOURCES
 		src/engine/ui/cmd/do_move.cpp
 		src/gameplay/mechanics/hide.cpp
 		src/gameplay/mechanics/boat.cpp
-		src/gameplay/mechanics/minions.cpp)
+		src/gameplay/mechanics/minions.cpp
+		src/gameplay/mechanics/armor.cpp
+		src/gameplay/skills/leadership.cpp
+		src/gameplay/skills/punctual_style.cpp
+		src/gameplay/mechanics/equipment.cpp
+		src/gameplay/skills/intercept.cpp
+		src/gameplay/skills/deviate.cpp
+		src/gameplay/skills/multyparry.cpp
+		src/gameplay/mechanics/damage.cpp
+		src/gameplay/mechanics/tutelar.cpp
+		src/gameplay/skills/addshot.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -445,17 +455,17 @@ set(HEADERS
 		src/gameplay/skills/track.h
 		src/gameplay/fight/common.h
 		src/gameplay/fight/assist.h
-		src/gameplay/fight/fight_start.h
+		src/engine/ui/cmd/do_kill.h
 		src/engine/ui/cmd/do_retreat.h
 		src/engine/ui/cmd/do_order.h
 		src/engine/ui/cmd/do_mercenary.h
-		src/gameplay/skills/styles.h
+		src/engine/ui/cmd/do_style.h
 		src/gameplay/skills/manadrain.h
 		src/gameplay/skills/townportal.h
 		src/gameplay/skills/turnundead.h
 		src/gameplay/skills/mighthit.h
 		src/gameplay/skills/expendientcut.h
-		src/gameplay/skills/block.h
+		src/gameplay/skills/shield_block.h
 		src/gameplay/skills/protect.h
 		src/gameplay/skills/parry.h
 		src/gameplay/skills/pick.h
@@ -628,7 +638,7 @@ set(HEADERS
 		src/gameplay/skills/kick.h
 		src/gameplay/skills/strangle.h
 		src/gameplay/skills/chopoff.h
-		src/gameplay/skills/stupor.h
+		src/gameplay/skills/overhelm.h
 		src/gameplay/ai/graph.h
 		src/engine/structs/flag_data.h
 		src/engine/entities/entities_constants.h
@@ -838,7 +848,17 @@ set(HEADERS
 		src/engine/ui/cmd/do_move.h
 		src/gameplay/mechanics/hide.h
 		src/gameplay/mechanics/boat.h
-		src/gameplay/mechanics/minions.h)
+		src/gameplay/mechanics/minions.h
+		src/gameplay/mechanics/armor.h
+		src/gameplay/skills/leadership.h
+		src/gameplay/skills/punctual_style.h
+		src/gameplay/mechanics/equipment.h
+		src/gameplay/skills/intercept.h
+		src/gameplay/skills/deviate.h
+		src/gameplay/skills/multyparry.h
+		src/gameplay/mechanics/damage.h
+		src/gameplay/mechanics/tutelar.h
+		src/gameplay/skills/addshot.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

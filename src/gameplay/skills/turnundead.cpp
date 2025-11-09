@@ -1,7 +1,6 @@
 #include "turnundead.h"
 
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/common.h"
 #include "engine/core/action_targeting.h"
@@ -10,6 +9,7 @@
 #include "engine/ui/cmd/do_flee.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/mechanics/damage.h"
 
 //using namespace abilities;
 

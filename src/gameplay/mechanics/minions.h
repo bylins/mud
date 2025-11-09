@@ -16,6 +16,7 @@ float get_effective_cha(CharData *ch);
 float CalcEffectiveWis(CharData *ch, ESpell spell_id);
 float get_effective_int(CharData *ch);
 int CalcCharmPoint(CharData *ch, ESpell spell_id);
+void ClearMinionTalents(CharData *ch);
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_MINIONS_H_
 

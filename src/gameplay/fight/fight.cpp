@@ -39,20 +39,23 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
+#include "gameplay/skills/leadership.h"
+#include "gameplay/mechanics/tutelar.h"
+#include "common.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 // Structures
 std::list<combat_list_element> combat_list;
 
-extern int r_helled_start_room;
-extern CharData *mob_proto;
-extern DescriptorData *descriptor_list;
+//extern int r_helled_start_room;
+//extern CharData *mob_proto;
+//extern DescriptorData *descriptor_list;
 // External procedures
 // void do_assist(CharacterData *ch, char *argument, int cmd, int subcmd);
-void battle_affect_update(CharData *ch);
+//void battle_affect_update(CharData *ch);
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch);
-void go_touch(CharData *ch, CharData *vict);
+void GoIntercept(CharData *ch, CharData *vict);
 int npc_battle_scavenge(CharData *ch);
 void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
@@ -219,8 +222,8 @@ void SetFighting(CharData *ch, CharData *vict) {
 	}
 	ch->SetEnemy(vict);
 
-	NUL_AF_BATTLE(ch);
-	ch->set_touching(0);
+	ch->battle_affects.clear();
+	ch->set_touching(nullptr);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
 	ch->round_counter = 0;
@@ -249,13 +252,13 @@ void SetFighting(CharData *ch, CharData *vict) {
 	if (!AFF_FLAGGED(ch, EAffect::kCourage) && !AFF_FLAGGED(ch, EAffect::kDrunked)
 		&& !AFF_FLAGGED(ch, EAffect::kAbstinent)) {
 		if (ch->IsFlagged(EPrf::kPunctual))
-			SET_AF_BATTLE(ch, kEafPunctual);
+			ch->battle_affects.set(kEafPunctual);
 		else if (ch->IsFlagged(EPrf::kAwake))
-			SET_AF_BATTLE(ch, kEafAwake);
+			ch->battle_affects.set(kEafAwake);
 	}
 
 	if (CanUseFeat(ch, EFeat::kDefender) && ch->GetSkill(ESkill::kShieldBlock)) {
-		SET_AF_BATTLE(ch, kEafAutoblock);
+		ch->battle_affects.set(kEafAutoblock);
 	}
 
 
@@ -279,10 +282,10 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->initiative = 0;
 	ch->battle_counter = 0;
 	ch->round_counter = 0;
-	ch->SetExtraAttack(kExtraAttackUnused, 0);
-	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
+	ch->SetExtraAttack(kExtraAttackUnused, nullptr);
+	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	restore_battle_pos(ch);
-	NUL_AF_BATTLE(ch);
+	ch->battle_affects.clear();
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
 	handle_affects(params);
@@ -292,7 +295,7 @@ void stop_fighting(CharData *ch, int switch_others) {
 				continue;
 			if (temp.ch->get_touching() == ch) {
 				temp.ch->set_touching(nullptr);
-				CLR_AF_BATTLE(temp.ch, kEafTouch);
+				temp.ch->battle_affects.unset(kEafTouch);
 			}
 			if (temp.ch->GetExtraVictim() == ch)
 				temp.ch->SetExtraAttack(kExtraAttackUnused, nullptr);
@@ -1167,9 +1170,6 @@ void mob_casting(CharData *ch) {
 #define  MAY_LIKES(ch)   ((!AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) && \
                           AWAKE(ch) && ch->get_wait() <= 0)
 
-#define    MAY_ACT(ch)    (!(AFF_FLAGGED(ch, EAffect::kStopFight) || AFF_FLAGGED(ch, EAffect::kMagicStopFight) || \
-							AFF_FLAGGED(ch, EAffect::kHold) || (ch)->get_wait()))
-
 void summon_mob_helpers(CharData *ch) {
 	if (ch->summon_helpers.empty()) {
 		return;
@@ -1237,34 +1237,6 @@ void check_mob_helpers() {
 	}
 }
 
-void try_angel_rescue(CharData *ch) {
-	struct FollowerType *k, *k_next;
-
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
-		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-			&& k->follower->IsFlagged(EMobFlag::kTutelar)
-			&& !k->follower->GetEnemy()
-			&& k->follower->in_room == ch->in_room
-			&& CAN_SEE(k->follower, ch)
-			&& AWAKE(k->follower)
-			&& MAY_ACT(k->follower)
-			&& k->follower->GetPosition() >= EPosition::kFight) {
-			for (const auto vict : world[ch->in_room]->people) {
-				if (vict->GetEnemy() == ch
-					&& vict != ch
-					&& vict != k->follower) {
-					if (k->follower->GetSkill(ESkill::kRescue)) {
-						go_rescue(k->follower, ch, vict);
-					}
-
-					break;
-				}
-			}
-		}
-	}
-}
-
 void stand_up_or_sit(CharData *ch) {
 	if (ch->IsNpc()) {
 		act("$n поднял$u.", true, ch, 0, 0, kToRoom | kToArenaListen);
@@ -1285,39 +1257,39 @@ void set_mob_skills_flags(CharData *ch) {
 	// 1) parry
 	int do_this = number(0, 100);
 	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kParry)) {
-		SET_AF_BATTLE(ch, kEafParry);
+		ch->battle_affects.set(kEafParry);
 		sk_use = true;
 	}
 	// 2) blocking
 	do_this = number(0, 100);
 	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kShieldBlock)) {
-		SET_AF_BATTLE(ch, kEafBlock);
+		ch->battle_affects.set(kEafBlock);
 		sk_use = true;
 	}
 	// 3) multyparry
 	do_this = number(0, 100);
 	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kMultiparry)) {
-		SET_AF_BATTLE(ch, kEafMultyparry);
+		ch->battle_affects.set(kEafMultyparry);
 		sk_use = true;
 	}
 	// 4) deviate
 	do_this = number(0, 100);
 	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kDodge)) {
-		SET_AF_BATTLE(ch, kEafDodge);
+		ch->battle_affects.set(kEafDodge);
 		sk_use = true;
 	}
 	// 5) styles
 	do_this = number(0, 100);
 	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kAwake) > number(1, 101)) {
-		SET_AF_BATTLE(ch, kEafAwake);
+		ch->battle_affects.set(kEafAwake);
 	} else {
-		CLR_AF_BATTLE(ch, kEafAwake);
+		ch->battle_affects.unset(kEafAwake);
 	}
 	do_this = number(0, 100);
 	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kPunctual) > number(1, 101)) {
-		SET_AF_BATTLE(ch, kEafPunctual);
+		ch->battle_affects.set(kEafPunctual);
 	} else {
-		CLR_AF_BATTLE(ch, kEafPunctual);
+		ch->battle_affects.unset(kEafPunctual);
 	}
 }
 
@@ -1347,15 +1319,15 @@ int calc_initiative(CharData *ch, bool mode) {
 		}
 	}
 
-	if (GET_AF_BATTLE(ch, kEafAwake))
+	if (ch->battle_affects.get(kEafAwake))
 		initiative -= 20;
-	if (GET_AF_BATTLE(ch, kEafPunctual))
+	if (ch->battle_affects.get(kEafPunctual))
 		initiative -= 10;
 	if (ch->get_wait() > 0)
 		initiative -= 1;
-	if (calc_leadership(ch))
+	if (CalcLeadership(ch))
 		initiative += 5;
-	if (GET_AF_BATTLE(ch, kEafSlow))
+	if (ch->battle_affects.get(kEafSlow))
 		initiative = 1;
 
 // indra
@@ -1386,7 +1358,7 @@ void using_charmice_skills(CharData *ch) {
 			master->send_to_TC(true, true, true, msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
-			SET_AF_BATTLE(ch, kEafOverwhelm);
+			ch->battle_affects.set(kEafOverwhelm);
 		}
 	} else if (charmice_not_wielded && ch->GetSkill(ESkill::kHammer) > 0) { // молот
 		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kHammer) <= 0;
@@ -1398,7 +1370,7 @@ void using_charmice_skills(CharData *ch) {
 			master->send_to_TC(true, true, true, msg.str().c_str());
 		}
 		if (do_skill_without_command && skill_ready) {
-			SET_AF_BATTLE(ch, kEafHammer);
+			ch->battle_affects.set(kEafHammer);
 		}
 	} else if(charmice_wielded_for_throw && (ch->GetSkill(ESkill::kThrow) > ch->GetSkill(ESkill::kOverwhelm))) { // метнуть ()
 			const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kThrow) <= 0;
@@ -1413,7 +1385,7 @@ void using_charmice_skills(CharData *ch) {
 			ch->SetExtraAttack(kExtraAttackThrow, ch->GetEnemy());
 		}
 	} else if (!charmice_wielded_for_throw && (ch->get_extra_attack_mode() != kExtraAttackThrow)
-			&& !(GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->GetSkill(ESkill::kChopoff) > 0) { // подножка ()
+			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->GetSkill(ESkill::kChopoff) > 0) { // подножка ()
 		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kChopoff) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1427,7 +1399,7 @@ void using_charmice_skills(CharData *ch) {
 			ch->SetExtraAttack(kExtraAttackChopoff, ch->GetEnemy());
 		} 
 	}   else if (((ch->get_extra_attack_mode() != kExtraAttackThrow) || (ch->get_extra_attack_mode() != kExtraAttackChopoff))
-			&& !(GET_AF_BATTLE(ch, kEafOverwhelm) || GET_AF_BATTLE(ch, kEafHammer)) && ch->GetSkill(ESkill::kIronwind) > 0) {  // вихрь ()
+			&& !(ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) && ch->GetSkill(ESkill::kIronwind) > 0) {  // вихрь ()
 		const bool skill_ready = ch->getSkillCooldown(ESkill::kGlobalCooldown) <= 0 && ch->getSkillCooldown(ESkill::kIronwind) <= 0;
 		if (master) {
 			std::stringstream msg;
@@ -1484,17 +1456,17 @@ void using_mob_skills(CharData *ch) {
 		// цель не выбираем чтобы избежать переключения у мобов, которые не могут переключаться
 		if (sk_num == ESkill::kHammer) {
 			sk_use = 0;
-			SET_AF_BATTLE(ch, kEafHammer);
+			ch->battle_affects.set(kEafHammer);
 		}
 		if (sk_num == ESkill::kOverwhelm) {
 			sk_use = 0;
-			SET_AF_BATTLE(ch, kEafOverwhelm);
+			ch->battle_affects.set(kEafOverwhelm);
 		}
 
 		////////////////////////////////////////////////////////////////////////
 		if (sk_num == ESkill::kIntercept) {
 			sk_use = 0;
-			go_touch(ch, ch->GetEnemy());
+			GoIntercept(ch, ch->GetEnemy());
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -1708,28 +1680,28 @@ void update_round_affs() {
 		if (it.ch->in_room == kNowhere)
 			continue;
 
-		CLR_AF_BATTLE(it.ch, kEafFirst);
-		CLR_AF_BATTLE(it.ch, kEafSecond);
-		CLR_AF_BATTLE(it.ch, kEafUsedleft);
-		CLR_AF_BATTLE(it.ch, kEafUsedright);
-		CLR_AF_BATTLE(it.ch, kEafMultyparry);
-		CLR_AF_BATTLE(it.ch, kEafDodge);
-		CLR_AF_BATTLE(it.ch, kEafTouch);
+		it.ch->battle_affects.unset(kEafFirst);
+		it.ch->battle_affects.unset(kEafSecond);
+		it.ch->battle_affects.unset(kEafUsedleft);
+		it.ch->battle_affects.unset(kEafUsedright);
+		it.ch->battle_affects.unset(kEafMultyparry);
+		it.ch->battle_affects.unset(kEafDodge);
+		it.ch->battle_affects.unset(kEafTouch);
 		if (it.ch->get_touching())
 			it.ch->set_touching(0);
 
-		if (GET_AF_BATTLE(it.ch, kEafSleep)) {
+		if (it.ch->battle_affects.get(kEafSleep)) {
 			RemoveAffectFromChar(it.ch, ESpell::kSleep);
 			AFF_FLAGS(it.ch).unset(EAffect::kSleep);
 		}
-		if (GET_AF_BATTLE(it.ch, kEafBlock)) {
-			CLR_AF_BATTLE(it.ch, kEafBlock);
+		if (it.ch->battle_affects.get(kEafBlock)) {
+			it.ch->battle_affects.unset(kEafBlock);
 			if (!IS_IMMORTAL(it.ch) && it.ch->get_wait() < kBattleRound)
 				SetWaitState(it.ch, 1 * kBattleRound);
 		}
 
-		if (GET_AF_BATTLE(it.ch, kEafPoisoned)) {
-			CLR_AF_BATTLE(it.ch, kEafPoisoned);
+		if (it.ch->battle_affects.get(kEafPoisoned)) {
+			it.ch->battle_affects.unset(kEafPoisoned);
 		}
 
 		battle_affect_update(it.ch);
@@ -1811,7 +1783,7 @@ void process_npc_attack(CharData *ch) {
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
 	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || ch->IsFlagged(EMobFlag::kTutelar))
 		&& ch->has_master() && ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
-		&& AWAKE(ch) && MAY_ACT(ch) && ch->GetPosition() >= EPosition::kFight) {
+		&& AWAKE(ch) && !IsUnableToAct(ch) && ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			for (const auto vict : world[ch->in_room]->people) {
@@ -1850,7 +1822,7 @@ void process_npc_attack(CharData *ch) {
 
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffect::kStopRight) && !IS_SET(trigger_code, kNoRightHandAttack)) {
-		exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
+		ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 	}
 
 	//**** экстраатаки мобов. Первая - оффхэнд
@@ -1864,17 +1836,17 @@ void process_npc_attack(CharData *ch) {
 				return;
 			}
 		}
-		exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
+		ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
 	}
 }
 
 void process_player_attack(CharData *ch, int min_init) {
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
-		&& GET_AF_BATTLE(ch, kEafStand)) {
+		&& ch->battle_affects.get(kEafStand)) {
 		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
-		CLR_AF_BATTLE(ch, kEafStand);
+		ch->battle_affects.unset(kEafStand);
 	}
 
 	// Срабатывание батл-триггеров амуниции
@@ -1898,7 +1870,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 	}
 
-	if (GET_AF_BATTLE(ch, kEafMultyparry))
+	if (ch->battle_affects.get(kEafMultyparry))
 		return;
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
 	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->GetExtraVictim()
@@ -1914,21 +1886,21 @@ void process_player_attack(CharData *ch, int min_init) {
 		return;
 	}
 	//**** удар основным оружием или рукой
-	if (GET_AF_BATTLE(ch, kEafFirst)) {
+	if (ch->battle_affects.get(kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
-			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || !GET_AF_BATTLE(ch, kEafUsedright))) {
+			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
 			//или молотить, по баттл-аффекту узнать получиться
 			//не во всех частях процедуры, а параметр type
 			//хранит значение до её конца.
 			ESkill tmpSkilltype;
-			if (GET_AF_BATTLE(ch, kEafOverwhelm))
+			if (ch->battle_affects.get(kEafOverwhelm))
 				tmpSkilltype = ESkill::kOverwhelm;
-			else if (GET_AF_BATTLE(ch, kEafHammer))
+			else if (ch->battle_affects.get(kEafHammer))
 				tmpSkilltype = ESkill::kHammer;
 			else tmpSkilltype = ESkill::kUndefined;
-			exthit(ch, ch->GetEnemy(), tmpSkilltype, fight::AttackType::kMainHand);
+			ProcessExtrahits(ch, ch->GetEnemy(), tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
 		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
@@ -1938,8 +1910,8 @@ void process_player_attack(CharData *ch, int min_init) {
 			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}
-		CLR_AF_BATTLE(ch, kEafFirst);
-		SET_AF_BATTLE(ch, kEafSecond);
+		ch->battle_affects.unset(kEafFirst);
+		ch->battle_affects.set(kEafSecond);
 		if (ch->initiative > min_init) {
 			--(ch->initiative);
 			return;
@@ -1948,31 +1920,31 @@ void process_player_attack(CharData *ch, int min_init) {
 	//**** удар вторым оружием если оно есть и умение позволяет
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
-		&& GET_AF_BATTLE(ch, kEafSecond)
+		&& ch->battle_affects.get(kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
 		&& (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| ch->GetSkill(ESkill::kSideAttack) > number(1, 101))) {
 		if (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
-			|| !GET_AF_BATTLE(ch, kEafUsedleft)) {
-			exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
+			|| !ch->battle_affects.get(kEafUsedleft)) {
+			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
-		CLR_AF_BATTLE(ch, kEafSecond);
+		ch->battle_affects.unset(kEafSecond);
 	}
 		//**** удар второй рукой если она свободна и умение позволяет
 	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, EEquipPos::kHold)
 		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
-		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && GET_AF_BATTLE(ch, kEafSecond)
+		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && ch->battle_affects.get(kEafSecond)
 		&& ch->GetSkill(ESkill::kLeftHit)) {
-		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, kEafUsedleft)) {
-			exthit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
+		if (IS_IMMORTAL(ch) || !ch->battle_affects.get(kEafUsedleft)) {
+			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
-		CLR_AF_BATTLE(ch, kEafSecond);
+		ch->battle_affects.unset(kEafSecond);
 	}
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
-	try_angel_rescue(ch);
+	TryToRescueWithTutelar(ch);
 }
 
 // * \return false - чар не участвует в расчете инициативы
@@ -1986,16 +1958,16 @@ bool stuff_before_round(CharData *ch) {
 	handle_affects(params);
 	round_num_mtrigger(ch, ch->GetEnemy());
 
-	SET_AF_BATTLE(ch, kEafStand);
+	ch->battle_affects.set(kEafStand);
 	if (IsAffectedBySpell(ch, ESpell::kSleep))
-		SET_AF_BATTLE(ch, kEafSleep);
+		ch->battle_affects.set(kEafSleep);
 	if (ch->in_room == kNowhere)
 		return false;
 
 	if (AFF_FLAGGED(ch, EAffect::kHold)
 		|| AFF_FLAGGED(ch, EAffect::kStopFight)
 		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
-		try_angel_rescue(ch);
+		TryToRescueWithTutelar(ch);
 		return false;
 	}
 
@@ -2085,7 +2057,7 @@ void perform_violence() {
 			it.ch->initiative = initiative;
 		}
 
-		SET_AF_BATTLE(it.ch, kEafFirst);
+		it.ch->battle_affects.set(kEafFirst);
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
 	}
@@ -2263,37 +2235,89 @@ int check_agro_follower(CharData *ch, CharData *victim) {
 	return return_value;
 }
 
-int calc_leadership(CharData *ch) {
-	int prob, percent;
-	CharData *leader = 0;
+int set_hit(CharData *ch, CharData *victim) {
+	if (IsUnableToAct(ch)) {
+		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		return (false);
+	}
 
-	if (ch->IsNpc()
-		|| !AFF_FLAGGED(ch, EAffect::kGroup)
-		|| (!ch->has_master()
-			&& !ch->followers)) {
+	if (ch->GetEnemy() || AFF_FLAGGED(ch, EAffect::kHold)) {
+		return (false);
+	}
+	victim = TryToFindProtector(victim, ch);
+
+	bool message = false;
+	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
+	if (victim->desc && (victim->desc->state == EConState::kWriteboard || victim->desc->state == EConState::kWriteMod || victim->desc->state == EConState::kWriteNote)) {
+		victim->desc->message.reset();
+		victim->desc->board.reset();
+		if (victim->desc->writer->get_string()) {
+			victim->desc->writer->clear();
+		}
+		victim->desc->state = EConState::kPlaying;
+		if (!victim->IsNpc()) {
+			victim->UnsetFlag(EPlrFlag::kWriting);
+		}
+		if (victim->desc->backstr) {
+			free(victim->desc->backstr);
+			victim->desc->backstr = nullptr;
+		}
+		victim->desc->writer.reset();
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kClanedit)) {
+		// аналогично, если жерва правит свою дружину в олц
+		victim->desc->clan_olc.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kSpendGlory)) {
+		// или вливает-переливает славу
+		victim->desc->glory.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kGloryConst)) {
+		// или вливает-переливает славу
+		victim->desc->glory_const.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kMapMenu)) {
+		// или ковыряет опции карты
+		victim->desc->map_options.reset();
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	} else if (victim->desc && (victim->desc->state == EConState::kTorcExch)) {
+		// или меняет гривны (чистить особо и нечего)
+		victim->desc->state = EConState::kPlaying;
+		message = true;
+	}
+
+	if (message) {
+		SendMsgToChar(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
+	}
+
+	if (ch->IsFlagged(EMobFlag::kMemory) && ch->get_wait() > 0) {
+		mob_ai::update_mob_memory(ch, victim);
 		return false;
 	}
 
-	if (ch->has_master()) {
-		if (ch->in_room != ch->get_master()->in_room) {
-			return false;
-		}
-		leader = ch->get_master();
-	} else {
-		leader = ch;
+	if (!IS_CHARMICE(ch) || (AFF_FLAGGED(ch, EAffect::kCharmed) && !mob_ai::attack_best(ch, victim, true))) {
+		ProcessExtrahits(ch, victim, ESkill::kUndefined,
+						 AFF_FLAGGED(ch, EAffect::kStopRight) ? fight::kOffHand : fight::kMainHand);
 	}
+	SetWait(ch, 1, true);
+	//ch->setSkillCooldown(kGlobalCooldown, 2);
+	return (true);
+};
 
-	if (!leader->GetSkill(ESkill::kLeadership)) {
-		return (false);
-	}
+ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
+	ObjData *UsedWeapon = nullptr;
 
-	percent = number(1, 101);
-	prob = CalcCurrentSkill(leader, ESkill::kLeadership, 0);
-	if (percent > prob) {
-		return (false);
-	} else {
-		return (true);
-	}
+	if (AttackType == fight::AttackType::kMainHand) {
+		if (!(UsedWeapon = GET_EQ(ch, EEquipPos::kWield)))
+			UsedWeapon = GET_EQ(ch, EEquipPos::kBoths);
+	} else if (AttackType == fight::AttackType::kOffHand)
+		UsedWeapon = GET_EQ(ch, EEquipPos::kHold);
+
+	return UsedWeapon;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

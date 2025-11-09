@@ -21,7 +21,6 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
-#include "utils/utils_time.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -1165,6 +1164,28 @@ bool bloody::is_bloody(const ObjData *obj) {
 		result = is_bloody(nobj);
 	}
 	return result;
+}
+
+void UpdatePkLogs(CharData *ch, CharData *victim) {
+	ClanPkLog::check(ch, victim);
+	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),
+			victim->in_room != kNowhere ? world[victim->in_room]->name : "kNowhere", GET_ROOM_VNUM(victim->in_room));
+	mudlog(buf2, CMP, kLvlImmortal, SYSLOG, true);
+
+	if ((!ch->IsNpc()
+		|| (ch->has_master()
+			&& !ch->get_master()->IsNpc()))
+		&& NORENTABLE(victim)
+		&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
+		mudlog(buf2, BRF, kLvlImplementator, SYSLOG, false);
+		if (ch->IsNpc()
+			&& (AFF_FLAGGED(ch, EAffect::kCharmed) || IS_HORSE(ch))
+			&& ch->has_master()
+			&& !ch->get_master()->IsNpc()) {
+			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
+			mudlog(buf2, BRF, kLvlImplementator, SYSLOG, true);
+		}
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
