@@ -87,6 +87,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
+	} else if (!str_cmp(arg, "mob_classes")) {
+		MUD::CfgManager().ReloadCfg("mob_classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
 	} else if (!str_cmp(arg, "currencies")) {

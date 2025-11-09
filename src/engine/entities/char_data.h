@@ -262,19 +262,6 @@ struct player_special_data {
 	static player_special_data::shared_ptr s_for_mobiles;
 };
 
-enum {
-	MOB_ROLE_BOSS,
-	MOB_ROLE_MINION,
-	MOB_ROLE_TANK,
-	MOB_ROLE_MELEE_DMG,
-	MOB_ROLE_ARCHER,
-	MOB_ROLE_ROGUE,
-	MOB_ROLE_MAGE_DMG,
-	MOB_ROLE_MAGE_BUFF,
-	MOB_ROLE_HEALER,
-	MOB_ROLE_TOTAL_NUM
-};
-
 struct attacker_node {
 	attacker_node() : damage(0), rounds(0) {};
 	// влитый дамаг

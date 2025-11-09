@@ -928,6 +928,10 @@ void BootMudDataBase() {
 	log("Assigning guilds info.");
 	MUD::CfgManager().LoadCfg("guilds");
 
+	boot_profiler.next_step("Assigning mob classes info.");
+	log("Assigning mob classes info.");
+	MUD::CfgManager().LoadCfg("mob_classes");
+
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
 	MUD::Runestones().LoadRunestones();

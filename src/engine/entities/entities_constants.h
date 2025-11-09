@@ -126,6 +126,11 @@ enum EResist {
 
 EResist& operator++(EResist &r);
 
+template<>
+const std::string &NAME_BY_ITEM<EResist>(EResist item);
+template<>
+EResist ITEM_BY_NAME<EResist>(const std::string &name);
+
 const int kMaxPcResist = 75;
 
 enum class EWhereObj : int {

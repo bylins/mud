@@ -435,7 +435,11 @@ set(SOURCES
 		src/gameplay/skills/multyparry.cpp
 		src/gameplay/mechanics/damage.cpp
 		src/gameplay/mechanics/tutelar.cpp
-		src/gameplay/skills/addshot.cpp)
+		src/gameplay/skills/addshot.cpp
+		src/gameplay/classes/mob_classes_info.cpp
+		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
+		src/gameplay/classes/mob_params_setter.cpp
+		src/gameplay/classes/mob_classes_info.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h

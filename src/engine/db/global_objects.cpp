@@ -33,6 +33,7 @@ struct GlobalObjectsStorage {
 	feats::FeatsInfo feats_info;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
+	mob_classes::MobClassesInfo mob_classes_info;
 	guilds::GuildsInfo guilds_info;
 	currencies::CurrenciesInfo currencies_info;
   	RunestoneRoster runestone_roster;
@@ -106,6 +107,14 @@ classes::ClassesInfo &GlobalObjects::Classes() {
 
 const classes::CharClassInfo &GlobalObjects::Class(ECharClass class_id) {
 	return global_objects().classes_info[class_id];
+}
+
+mob_classes::MobClassesInfo &GlobalObjects::MobClasses() {
+	return global_objects().mob_classes_info;
+}
+
+const mob_classes::MobClassInfo &GlobalObjects::MobClass(EMobClass mob_class_id) {
+	return global_objects().mob_classes_info[mob_class_id];
 }
 
 guilds::GuildsInfo &GlobalObjects::Guilds() {
