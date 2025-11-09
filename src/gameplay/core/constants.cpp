@@ -837,7 +837,7 @@ const char *material_name[] = {"НЕИЗВЕСТЕН",
 							   "\n"
 };
 
-int material_value[] = {100,
+const int material_value[] = {100,
 						5,
 						50,
 						35,

@@ -5,10 +5,10 @@
 #include "slay.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "protect.h"
 #include "engine/entities/obj_data.h"
+#include "gameplay/mechanics/damage.h"
 
 #include <cmath>
 

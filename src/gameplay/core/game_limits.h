@@ -14,6 +14,7 @@ void exchange_point_update();
 void room_point_update();
 void point_update();
 void EndowExpToChar(CharData *ch, int gain);
+void gain_battle_exp(CharData *ch, CharData *victim, int dam);
 void gain_condition(CharData *ch, unsigned condition, int value);
 int hit_gain(CharData *ch);
 int move_gain(CharData *ch);

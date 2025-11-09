@@ -4,10 +4,10 @@
 #include "chopoff.h"
 
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/common.h"
 #include "utils/random.h"
 #include "protect.h"
+#include "gameplay/mechanics/damage.h"
 
 #include <cmath>
 

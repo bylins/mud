@@ -2,10 +2,10 @@
 
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
-#include "gameplay/fight/fight.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/db/global_objects.h"
+#include "gameplay/mechanics/damage.h"
 
 extern bool CritLuckTest(CharData *ch, CharData *vict);
 

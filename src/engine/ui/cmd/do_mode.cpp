@@ -423,7 +423,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		case kScmdCompress: result = iosystem::toggle_compression(ch->desc);
 			break;
 #else
-			case SCMD_COMPRESS:
+			case kScmdCompress:
 				SendMsgToChar("Compression not supported.\r\n", ch);
 				return;
 #endif

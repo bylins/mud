@@ -36,6 +36,8 @@
 #include "gameplay/statistics/zone_exp.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/communication/parcel.h"
+#include "gameplay/mechanics/damage.h"
+#include "gameplay/mechanics/bonus.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -1680,6 +1682,53 @@ void DecayObjectsOnRepop(UniqueList<ZoneRnum> &zone_list) {
 	}
 	for (auto it : extract_list) {
 		ExtractRepopDecayObject(it);
+	}
+}
+
+void gain_battle_exp(CharData *ch, CharData *victim, int dam) {
+	// не даем получать батлу с себя по зеркалу?
+	if (ch == victim) {
+		return;
+	}
+	if (!victim->IsNpc()) { return; }
+	// не даем получать экспу с !эксп мобов
+	if (victim->IsFlagged(EMobFlag::kNoBattleExp)) {
+		return;
+	}
+	// если цель не нпс то тоже не даем экспы
+	// если цель под чармом не даем экспу
+	if (AFF_FLAGGED(victim, EAffect::kCharmed)) {
+		return;
+	}
+	// получение игроками экспы
+	if (!ch->IsNpc() && OK_GAIN_EXP(ch, victim)) {
+		int max_exp = std::min(max_exp_gain_pc(ch), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
+			(5 * std::max(1, GetRealRemort(ch) - kMaxExpCoefficientsUsed - 1)));
+		double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
+		int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
+		if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(ch)) {
+			battle_exp *= Bonus::get_mult_bonus();
+		}
+		EndowExpToChar(ch, battle_exp);
+		ch->dps_add_exp(battle_exp, true);
+	}
+
+	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
+	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		CharData *master = ch->get_master();
+		// проверяем что есть мастер и он может получать экспу с данной цели
+		if (master && OK_GAIN_EXP(master, victim)) {
+			int max_exp = std::min(max_exp_gain_pc(master), (GetRealLevel(victim) * victim->get_max_hit() + 4) /
+				(5 * std::max(1, GetRealRemort(master) - kMaxExpCoefficientsUsed - 1)));
+
+			double coeff = std::min(dam, victim->get_hit()) / static_cast<double>(victim->get_max_hit());
+			int battle_exp = std::max(1, static_cast<int>(max_exp * coeff));
+			if (Bonus::is_bonus_active(Bonus::EBonusType::BONUS_WEAPON_EXP) && Bonus::can_get_bonus_exp(master)) {
+				battle_exp *= Bonus::get_mult_bonus();
+			}
+			EndowExpToChar(master, battle_exp);
+			master->dps_add_exp(battle_exp, true);
+		}
 	}
 }
 

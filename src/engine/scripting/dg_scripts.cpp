@@ -37,7 +37,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/core/game_limits.h"
 #include "utils/backtrace.h"
-
+#include "gameplay/mechanics/armor.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -2345,7 +2345,7 @@ void find_replacement(void *go,
 			else
 				sprintf(str, "%d", GET_AC_ADD(c));
 		} else if (!str_cmp(field, "ac")) {
-			sprintf(str, "%d", GET_REAL_AC(c));
+			sprintf(str, "%d", GetRealAc(c));
 		} else if (!str_cmp(field, "morale")) { // общая сумма морали
 			sprintf(str, "%d", c->calc_morale());
 		} else if (!str_cmp(field, "moraleadd")) {// добавочная мораль

@@ -30,6 +30,7 @@
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
+#include "gameplay/mechanics/armor.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -335,8 +336,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			Glory::get_glory(GET_UID(k)),
 			GloryConst::get_glory(GET_UID(k)),
 			GET_AC(k),
-			GET_REAL_AC(k),
-			compute_armor_class(k),
+			GetRealAc(k),
+			CalcBaseAc(k),
 			GET_ARMOUR(k),
 			GET_HR(k),
 			GET_REAL_HR(k),

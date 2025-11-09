@@ -9,9 +9,10 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/fight/fight_hit.h"
 
-void poison_victim(CharData *ch, CharData *vict, int modifier);
-void TryPoisonWithWeapom(CharData *ch, CharData *vict, ESpell spell_id);
+void ProcessToxicMob(CharData *ch, CharData *victim, HitData &hit_data);
+void ProcessPoisonedWeapom(CharData *ch, CharData *victim, HitData &hit_data);
 
 bool poison_in_vessel(int liquid_num);
 void set_weap_poison(ObjData *weapon, int liquid_num);

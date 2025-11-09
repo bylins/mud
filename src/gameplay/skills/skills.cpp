@@ -1035,7 +1035,7 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 		case ESkill::kMultiparry:
 		case ESkill::kParry: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
-			if (GET_AF_BATTLE(ch, kEafAwake)) {
+			if (ch->battle_affects.get(kEafAwake)) {
 				bonus += ch->GetSkill(ESkill::kAwake);
 			}
 			if (GET_EQ(ch, EEquipPos::kHold)
@@ -1571,7 +1571,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kParry: {
 			victim_sav = dex_bonus(GetRealDex(vict));
 			bonus = dex_bonus(GetRealDex(ch));
-			if (GET_AF_BATTLE(ch, kEafAwake)) {
+			if (ch->battle_affects.get(kEafAwake)) {
 				bonus += ch->GetSkill(ESkill::kAwake);
 			}
 
