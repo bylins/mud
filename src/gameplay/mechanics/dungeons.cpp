@@ -478,18 +478,14 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList> dungeon_list) {
 	ObjRnum orn_to, i;
 	ObjVnum new_ovn;
-	ObjData *new_obj;
 
 	for (int counter = zone_table[zrn_from].vnum * 100; counter <= zone_table[zrn_from].top; counter++) {
 		if ((i = GetObjRnum(counter)) >= 0) {
 			new_ovn = zone_table[zrn_to].vnum * 100 + obj_proto[i]->get_vnum() % 100;
 			orn_to = GetObjRnum(new_ovn);
-			NEWCREATE(new_obj, new_ovn);
-			new_obj->copy_from(obj_proto[i].get());
+			obj_proto[orn_to]->DungeonProtoCopy(*obj_proto[i]);
+			auto new_obj = obj_proto[orn_to];
 			new_obj->set_rnum(orn_to);
-			if (new_obj->get_type() == EObjType::kLiquidContainer) {
-				name_from_drinkcon(new_obj);
-			}
 			new_obj->set_parent_rnum(i);
 //			new_obj->set_extra_flag(EObjFlag::kNolocate);
 //			new_obj->set_extra_flag(EObjFlag::kNorent);
@@ -509,7 +505,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 				if (from_key > 0) {
 					if (from_key / 100 == zone_table[zrn_from].vnum) {
 						new_obj->set_val(2, zone_table[zrn_to].vnum * 100 + from_key % 100);
-					} else if (!dungeon_list.empty()) { //не тестировалось
+					} else if (!dungeon_list.empty()) {
 						auto zrn_to_it = std::find_if(dungeon_list.begin(), dungeon_list.end(), [&from_key](auto it) {
 							return zone_table[it.from].vnum == from_key / 100;
 						});
@@ -523,7 +519,6 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 					}
 				}
 			}
-			obj_proto.set_rnum(orn_to, new_obj);
 		}
 	}
 }

@@ -356,6 +356,7 @@ class CObjectPrototype {
 	}
 
 	std::string item_count_message(int num, ECase name_case);
+	void DungeonProtoCopy(const CObjectPrototype &from);
 
  protected:
 	void zero_init();
