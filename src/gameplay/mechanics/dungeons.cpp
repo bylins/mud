@@ -490,6 +490,7 @@ void ObjDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList>
 //			new_obj->set_extra_flag(EObjFlag::kNolocate);
 //			new_obj->set_extra_flag(EObjFlag::kNorent);
 			new_obj->set_extra_flag(EObjFlag::kNosell);
+			new_obj->clear_proto_script();
 			for (const auto tvn : obj_proto[orn_from]->get_proto_script()) {
 				if (zone_table[zrn_from].vnum == tvn / 100) {
 					new_obj->add_proto_script(zone_table[zrn_to].vnum * 100 + tvn % 100);
