@@ -350,10 +350,7 @@ void CObjectPrototype::MakeShallowCopy(const CObjectPrototype &from) {
 	}
 }
 
-CObjectPrototype::CObjectPrototype(const CObjectPrototype &other)
-	: CObjectPrototype(other.m_vnum)
-{
-	m_vnum = 0;
+CObjectPrototype::CObjectPrototype(const CObjectPrototype &other): CObjectPrototype(other.m_vnum) {
 	MakeShallowCopy(other);
 }
 
