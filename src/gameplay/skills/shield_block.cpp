@@ -44,7 +44,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 }
 
 void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data) {
-	if (CanPerformShieldBlock(victim, hit_data)) {
+	if (!CanPerformShieldBlock(victim, hit_data)) {
 		return;
 	}
 	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || IS_IMMORTAL(victim))) {
