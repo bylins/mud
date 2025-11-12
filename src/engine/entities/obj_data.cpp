@@ -309,6 +309,10 @@ CObjectPrototype &CObjectPrototype::operator=(const CObjectPrototype &from) {
 	return *this;
 }
 
+void CObjectPrototype::DungeonProtoCopy(const CObjectPrototype &from) {
+	MakeShallowCopy(from);
+}
+
 void CObjectPrototype::MakeShallowCopy(const CObjectPrototype &from) {
 	if (this != &from) {
 		m_type = from.m_type;
@@ -347,13 +351,11 @@ void CObjectPrototype::MakeShallowCopy(const CObjectPrototype &from) {
 		m_rent_off = from.m_rent_off;
 		m_ilevel = from.m_ilevel;
 		m_rnum = from.m_rnum;
+		m_parent_proto = from.m_parent_proto;
 	}
 }
 
-CObjectPrototype::CObjectPrototype(const CObjectPrototype &other)
-	: CObjectPrototype(other.m_vnum)
-{
-	m_vnum = 0;
+CObjectPrototype::CObjectPrototype(const CObjectPrototype &other): CObjectPrototype(other.m_vnum) {
 	MakeShallowCopy(other);
 }
 
