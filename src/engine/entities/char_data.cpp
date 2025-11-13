@@ -505,10 +505,10 @@ void CharData::purge() {
  * Умение с учетом всех бонусов и штрафов (экипировка, таланты, яд).
  */
 int CharData::GetSkill(const ESkill skill_id) const {
-	int skill = GetMorphSkill(skill_id) + GetEquippedSkill(skill_id);
+	int skill = GetMorphSkill(skill_id);
 
-	if (skill) {
-		skill += GetAddSkill(skill_id);
+	if (skill > 0) {
+		skill += GetAddSkill(skill_id) + GetEquippedSkill(skill_id);
 	}
 
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
@@ -539,6 +539,7 @@ int CharData::GetSkillWithoutEquip(const ESkill skill_id) const {
  */
 int CharData::GetEquippedSkill(const ESkill skill_id) const {
 	int skill = 0;
+
 	bool is_native = this->IsNpc() || MUD::Class(chclass_).skills[skill_id].IsValid();
 	for (const auto item : equipment) {
 		if (item && is_native) {
