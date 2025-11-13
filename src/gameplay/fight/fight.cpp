@@ -1827,16 +1827,17 @@ void process_npc_attack(CharData *ch) {
 
 	//**** экстраатаки мобов. Первая - оффхэнд
 	for (int i = 1; i <= ch->mob_specials.extra_attack; i++) {
-		if (i == 1 && (AFF_FLAGGED(ch, EAffect::kStopLeft) || IS_SET(trigger_code, kNoLeftHandAttack))) {
-			continue;
-		}
 		// если хп пробиты - уходим
 		if (ch->IsFlagged(EMobFlag::kDecreaseAttack)) {
 			if (ch->mob_specials.extra_attack * ch->get_hit() * 2 < i * ch->get_real_max_hit()) {
 				return;
 			}
 		}
-		ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
+		if (i == 1 && !(AFF_FLAGGED(ch, EAffect::kStopLeft) || IS_SET(trigger_code, kNoLeftHandAttack))) {
+			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
+		} else {
+			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
+		}
 	}
 }
 
