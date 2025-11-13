@@ -1836,7 +1836,7 @@ void process_npc_attack(CharData *ch) {
 				return;
 			}
 		}
-		ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
+		ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 	}
 }
 
