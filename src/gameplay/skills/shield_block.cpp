@@ -52,10 +52,10 @@ void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data) {
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);
 		int prob = CalcCurrentSkill(victim, ESkill::kShieldBlock, ch);
-		prob = prob * 100 / range;
 		++(victim->battle_counter);
 		TrainSkill(victim, ESkill::kShieldBlock, prob > 99, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kShieldBlock).name, range, prob, prob > 99);
+		prob = prob * 100 / range;
 		if (hit_data.GetFlags()[fight::kCritLuck]) {
 			prob = 0;
 		}
