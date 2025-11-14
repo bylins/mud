@@ -8,6 +8,7 @@
 #include "engine/ui/table_wrapper.h"
 #include "utils/utils_time.h"
 
+
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
 
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
@@ -33,7 +34,6 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 		|| IS_IMMORTAL(short_ch)) {
 		return;
 	}
-
 	if (!reboot) {
 		TopPlayer::Remove(short_ch);
 	}
@@ -76,21 +76,23 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
+
 }
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	int count = 1;
+
 	std::ostringstream out;
 	out << kColorWht << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << kColorNrm << "\r\n";
 
 	for (auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ == kMaxRemort - 1)
+		if (it.remort_ == kMaxRemort)
 			continue;
 		it.number_ = count++;
 	}
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ == kMaxRemort - 1)
+		if (it.remort_ == kMaxRemort)
 			continue;
 		table << it.number_
 			<< it.name_
@@ -148,7 +150,7 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	table_wrapper::Table table2;
 	upper.clear();
 	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ != kMaxRemort - 1) 
+		if (it.remort_ != kMaxRemort) 
 			continue;
 		upper.push_back(it);
 	}
