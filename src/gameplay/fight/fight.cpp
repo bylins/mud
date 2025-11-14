@@ -1833,7 +1833,9 @@ void process_npc_attack(CharData *ch) {
 				return;
 			}
 		}
-		if (i == 1 && !(AFF_FLAGGED(ch, EAffect::kStopLeft) || IS_SET(trigger_code, kNoLeftHandAttack))) {
+		if (i == 1) {
+			if (AFF_FLAGGED(ch, EAffect::kStopLeft) || IS_SET(trigger_code, kNoLeftHandAttack))
+				continue;
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		} else {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMobAdd);
