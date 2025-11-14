@@ -165,17 +165,20 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle) 
+				&& !(IS_UNDEAD(victim) 
+						|| victim->player_data.Race == ENpcRace::kFish
+						|| victim->player_data.Race == ENpcRace::kPlant
+						|| victim->player_data.Race == ENpcRace::kConstruct)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else
 				go_strangle(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike))
-			&& !IS_CHARMICE(ch))
-			|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
-				&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
+		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IS_CHARMICE(ch))
+				|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
+						&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
 
 			if (do_mode)
 				do_backstab(ch, victim);
@@ -616,7 +619,10 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	}
 
 // Определяем веса в зависимости от интеллекта моба
-	int druid_weight, cler_weight, charmmage_weight, caster_weight, other_weight = base_weight;
+	int druid_weight = 0;
+	int cler_weight = 0;
+	int charmmage_weight = 0;
+	int caster_weight = 0, other_weight = base_weight;
 
 	if (mobINT < kMiddleAi) {
 		// Глупый моб: равномерные веса
