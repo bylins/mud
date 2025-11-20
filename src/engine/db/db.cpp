@@ -3160,6 +3160,7 @@ void ActualizePlayersIndex(char *name) {
 	int deleted;
 	char filename[kMaxStringLength];
 
+	for (int i = 0; (name[i] = LOWER(name[i])); i++);
 	if (get_filename(name, filename, kPlayersFile)) {
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
