@@ -419,7 +419,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_CAST_SUCCESS(ch) ((ch)->add_abils.cast_success)
 #define GET_PRAY(ch)         ((ch)->add_abils.pray_add)
 
-#define GET_EXP(ch)           ((ch)->get_exp())
 #define GET_MANAREG(ch)   ((ch)->add_abils.manareg)
 #define GET_ARMOUR(ch)    ((ch)->add_abils.armour)
 #define GET_ABSORBE(ch)   ((ch)->add_abils.absorb)
@@ -429,7 +428,6 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_PR(ch)        ((ch)->add_abils.presist)
 #define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
-#define GET_UID(x)         ((x)->get_uid())
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 

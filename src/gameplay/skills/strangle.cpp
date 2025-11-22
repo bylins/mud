@@ -106,7 +106,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	af.duration = strangle_duration;
 	af.battleflag = kNone;
 	af.bitvector = to_underlying(EAffect::kStrangled);
-	af.caster_id = GET_UID(ch);
+	af.caster_id = ch->get_uid();
 
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
 	if (!success) {

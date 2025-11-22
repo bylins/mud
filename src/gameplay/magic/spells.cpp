@@ -426,7 +426,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 	af.modifier = to_room;
 	af.battleflag = 0;
 	af.location = room_spells::ERoomApply::kNone;
-	af.caster_id = ch? GET_UID(ch) : 0;
+	af.caster_id = ch? ch->get_uid() : 0;
 	af.must_handled = false;
 	af.apply_time = 0;
 	room_spells::affect_to_room(from_room, af);
@@ -504,7 +504,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			bool remove = false;
 			for (const auto &aff : world[ch->in_room]->affected) {
 				if (aff->type == ESpell::kPortalTimer ) {
-					if (aff->caster_id == GET_UID(ch) && aff->modifier == fnd_room) {
+					if (aff->caster_id == ch->get_uid() && aff->modifier == fnd_room) {
 						remove = true;
 						break;
 					}
@@ -515,7 +515,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		}
 		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29);
 		if (pkPortal) 
-			world[fnd_room]->pkPenterUnique = GET_UID(ch);
+			world[fnd_room]->pkPenterUnique = ch->get_uid();
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
@@ -537,7 +537,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29);
 		if (pkPortal) 
-			world[ch->in_room]->pkPenterUnique = GET_UID(ch);
+			world[ch->in_room]->pkPenterUnique = ch->get_uid();
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",

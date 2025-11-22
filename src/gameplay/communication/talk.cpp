@@ -113,7 +113,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	}
 
 	if (!vict->IsNpc() && !ch->IsNpc()) {
-		vict->set_answer_id(GET_UID(ch));
+		vict->set_answer_id(ch->get_uid());
 	}
 }
 

@@ -523,7 +523,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 		FREEZE_GODID(i) = 0;
 		FREEZE_DURATION(i) = 0;
 		SendMsgToChar("Вы оттаяли.\r\n", i.get());
-		Glory::remove_freeze(GET_UID(i));
+		Glory::remove_freeze(i->get_uid());
 		if ((restore = GET_LOADROOM(i)) == kNowhere) {
 			restore = calc_loadroom(i.get());
 		}
@@ -797,7 +797,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			}
 		}
 		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
-		while (GetRealLevel(ch) < kLvlImmortal && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+		while (GetRealLevel(ch) < kLvlImmortal && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 			ch->set_level(ch->GetLevel() + 1);
 			num_levels++;
 			sprintf(local_buf, "%sВы достигли следующего уровня!%s\r\n", kColorWht, kColorNrm);
@@ -814,7 +814,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 	} else if (gain < 0 && GetRealLevel(ch) < kLvlImmortal) {
 		gain = std::max(-max_exp_loss_pc(ch), gain);    // Cap max exp lost per death
 		ch->set_exp(ch->get_exp() + gain);
-		while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+		while (GetRealLevel(ch) > 1 && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 			ch->set_level(ch->GetLevel() - 1);
 			num_levels++;
 			sprintf(local_buf,
@@ -830,7 +830,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			mudlog(local_buf, BRF, kLvlImplementator, SYSLOG, true);
 		}
 	}
-	if ((GET_EXP(ch) < GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
+	if ((ch->get_exp() < GetExpUntilNextLvl(ch, kLvlImmortal) - 1)
 		&& GET_GOD_FLAG(ch, EGf::kRemort)
 		&& gain
 		&& (GetRealLevel(ch) < kLvlImmortal)) {
@@ -854,7 +854,7 @@ void gain_exp_regardless(CharData *ch, int gain) {
 	ch->set_exp(ch->get_exp() + gain);
 	if (!ch->IsNpc()) {
 		if (gain > 0) {
-			while (GetRealLevel(ch) < kLvlImplementator && GET_EXP(ch) >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
+			while (GetRealLevel(ch) < kLvlImplementator && ch->get_exp() >= GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1)) {
 				ch->set_level(ch->GetLevel() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
@@ -873,10 +873,10 @@ void gain_exp_regardless(CharData *ch, int gain) {
 		} else if (gain < 0) {
 			// Pereplut: глупый участок кода.
 			//			gain = std::max(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-			//			GET_EXP(ch) += gain;
-			//			if (GET_EXP(ch) < 0)
-			//				GET_EXP(ch) = 0;
-			while (GetRealLevel(ch) > 1 && GET_EXP(ch) < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
+			//			ch->get_exp() += gain;
+			//			if (ch->get_exp() < 0)
+			//				ch->get_exp() = 0;
+			while (GetRealLevel(ch) > 1 && ch->get_exp() < GetExpUntilNextLvl(ch, GetRealLevel(ch))) {
 				ch->set_level(ch->GetLevel() - 1);
 				num_levels++;
 				sprintf(buf,
