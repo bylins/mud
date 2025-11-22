@@ -2085,11 +2085,9 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 			continue;
 		}
 
-		for (tch = descriptor_list; tch; tch = tch->next) // чары онлайн
-		{
-			if (nullptr
-				== tch->character)    // it is possible to have character == nullptr because character is being created later than descriptor
-			{
+		for (tch = descriptor_list; tch; tch = tch->next) {
+			// it is possible to have character == nullptr because character is being created later than descriptor
+			if (nullptr == tch->character) {
 				continue;
 			}
 
@@ -2102,17 +2100,16 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan) {
 			}
 		}
 
-		if (!tch) // если нет онлайн
-		{
+		if (!tch) {
 			cbuf = new Player;
-			if (LoadPlayerCharacter(player_table[i].name(), cbuf, ELoadCharFlags::kFindId) > -1) {
+			if (LoadPlayerCharacter(player_table[i].name().c_str(), cbuf, ELoadCharFlags::kFindId) > -1) {
 				GET_LOADROOM(cbuf) = mortal_start_room;
 				cbuf->save_char();
 			}
 			delete cbuf;
 		}
 
-		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name(), clan->name.c_str());
+		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name().c_str(), clan->name.c_str());
 		log("%s", buf);
 	}
 }

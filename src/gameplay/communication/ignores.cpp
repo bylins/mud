@@ -71,13 +71,8 @@ int ign_find_id(char *name, long *id) {
 }
 
 const char *ign_find_name(long id) {
-	for (const auto &i : player_table) {
-		if (id == i.uid()) {
-			return i.name();
-		}
-	}
-
-	return "кто-то";
+	static const auto name = GetNameById(id);
+	return (name.empty() ? "кто-то" : name.c_str());
 }
 
 /* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/

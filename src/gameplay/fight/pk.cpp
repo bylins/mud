@@ -607,8 +607,9 @@ void pk_list_sprintf(CharData *ch, char *buff) {
 	strcat(buff, "ПК список:\r\n");
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (pk = ch->pk_list; pk; pk = pk->next) {
-		const char *temp = GetPlayerNameByUnique(pk->unique);
-		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp ? temp : "<УДАЛЕН>", pk->kill_num, pk->revenge_num);
+		auto temp = GetPlayerNameByUnique(pk->unique);
+		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp.empty() ? "<УДАЛЕН>" : temp.c_str(),
+				pk->kill_num, pk->revenge_num);
 
 		if (pk->clan_exp > time(nullptr)) {
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->clan_exp - time(nullptr)));
@@ -662,12 +663,12 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			const char *temp = GetPlayerNameByUnique(pk->unique);
-			if (!temp) {
+			auto temp = GetPlayerNameByUnique(pk->unique);
+			if (temp.empty()) {
 				continue;
 			}
 
-			const_cast<char *>(temp)[0] = UPPER(temp[0]);
+			temp[0] = UPPER(temp[0]);
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly) {
 				for (const auto &tch : character_list) {
@@ -678,9 +679,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (tch->get_uid() == pk->unique) {
 						found = true;
 						if (pk->battle_exp > time(nullptr)) {
-							sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
+							sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp.c_str());
 						} else {
-							sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp, pk->kill_num, pk->revenge_num);
+							sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp.c_str(), pk->kill_num, pk->revenge_num);
 						}
 						break;
 					}
@@ -688,9 +689,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				found = true;
 				if (pk->battle_exp > time(nullptr)) {
-					sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
+					sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp.c_str());
 				} else {
-					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp, pk->kill_num, pk->revenge_num);
+					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp.c_str(), pk->kill_num, pk->revenge_num);
 				}
 			}
 		}

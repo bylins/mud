@@ -226,7 +226,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo)) && NAME_BAD(tch)) {
-				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById(NAME_ID_GOD(tch)));
+				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById(NAME_ID_GOD(tch)).c_str());
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");

@@ -38,12 +38,13 @@ CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index) {
 		return d_vict->character;
 	} else {
 		auto player_ptr = std::make_shared<Player>();
-		if (LoadPlayerCharacter(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+		if (LoadPlayerCharacter(index.name().c_str(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
 			return player_ptr;
 		}
 	}
+	auto char_name = index.name();
 	const auto error_msg = fmt::format("Не удалось загрузить файл персонажа '{}'.\r\n",
-				(index.name() ? index.name() : "unknown"));
+				(char_name.empty() ? "unknown" : char_name));
 	mudlog(error_msg, DEF, kLvlImplementator, ERRLOG, true);
 	return {};
 }
@@ -94,7 +95,8 @@ class ExtractedCharacterInfo {
 
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
 	online_ = (DescriptorByUid(index.uid()) != nullptr);
-	name_ = (index.name() ? index.name() : kUndefined);
+	auto player_name = index.name();
+	name_ = (player_name.empty() ? kUndefined : player_name);
 	mail_ = (index.mail ? index.mail : kUndefined);
 	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
 	class_name_ = MUD::Class(index.plr_class).GetName();

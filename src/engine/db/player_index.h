@@ -18,7 +18,7 @@
 
 class PlayerIndexElement {
  public:
-  explicit PlayerIndexElement(const char *name);
+  explicit PlayerIndexElement(std::string_view name);
 
   char *mail{nullptr};
   char *last_ip{nullptr};
@@ -29,14 +29,14 @@ class PlayerIndexElement {
   int activity{0};        // When player be saved and checked
   SaveInfo *timer{nullptr};
 
-  [[nodiscard]] const char *name() const { return m_name; }
-  [[nodiscard]] long uid() const { return m_uid_; }
+  [[nodiscard]] const std::string &name() const { return name_; }
+  [[nodiscard]] long uid() const { return uid_; }
 
-  void set_name(const char *name);
-  void set_uid(const long _) { m_uid_ = _; }
+  void set_name(std::string_view name);
+  void set_uid(const long uid) { uid_ = uid; }
  private:
-  int m_uid_{0};
-  const char *m_name{nullptr};
+  long uid_{0L};
+  std::string name_;
 };
 
 class PlayersIndex : public std::vector<PlayerIndexElement> {
@@ -50,7 +50,7 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
   ~PlayersIndex();
 
   std::size_t Append(const PlayerIndexElement &element);
-  [[nodiscard]] bool IsPlayerExists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
+  [[nodiscard]] bool IsPlayerExists(long id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
   bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetIndexByName(name); }
   std::size_t GetIndexByName(const char *name) const;
   void SetName(std::size_t index, const char *name);
@@ -68,27 +68,26 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 	bool operator()(const std::string &left, const std::string &right) const;
   };
 
-  using id_to_index_t = std::unordered_map<int, std::size_t>;
+  using id_to_index_t = std::unordered_map<long, std::size_t>;
   using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
 
-  void AddNameToIndex(const char *name, std::size_t index);
+  void AddNameToIndex(const std::string &name, std::size_t index);
 
   id_to_index_t m_id_to_index;
   name_to_index_t m_name_to_index;
-  // contains free names which are available for new players
-  NameAdviser m_name_adviser;
+  NameAdviser m_name_adviser; // contains free names which are available for new players
 };
 
 extern PlayersIndex &player_table;
-// #include "engine/db/player_index.h"
+
 bool IsPlayerExists(long id);
-const char *GetNameById(long id);
+std::string GetNameById(long id);
+std::string GetPlayerNameByUnique(int unique);
 long CmpPtableByName(char *name, int len);
 long GetPlayerTablePosByName(const char *name);
 long GetPtableByUnique(long unique);
 long GetPlayerIdByName(char *name);
 int GetPlayerUidByName(int id);
-const char *GetPlayerNameByUnique(int unique);
 int GetLevelByUnique(long unique);
 long GetLastlogonByUnique(long unique);
 int IsCorrectUnique(int unique);

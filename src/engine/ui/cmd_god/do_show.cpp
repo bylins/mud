@@ -549,11 +549,11 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!NAME_GOD(vict)) {
 				sprintf(buf + strlen(buf), "Имя никем не одобрено!\r\n");
 			} else if (NAME_GOD(vict) < 1000) {
-				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)));
+				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)).c_str());
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
-				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)));
+				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)).c_str());
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}

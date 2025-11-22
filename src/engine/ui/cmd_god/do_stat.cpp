@@ -153,10 +153,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
 			SendMsgToChar(buf, ch);
 		} else if (NAME_GOD(k) < 1000) {
-			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)));
+			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)));
+			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
 			SendMsgToChar(buf, ch);
 		}
 
@@ -706,17 +706,18 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
 	if (j->get_owner()) {
-		auto *tmpstr = GetPlayerNameByUnique(j->get_owner());
-		SendMsgToChar(ch, ", Владелец : %s", tmpstr == nullptr ? "УДАЛЕН": tmpstr);
+		auto tmpstr = GetPlayerNameByUnique(j->get_owner());
+		SendMsgToChar(ch, ", Владелец : %s", tmpstr.empty() ? "УДАЛЕН": tmpstr.c_str());
 	}
 //	if (GET_OBJ_ZONE(j))
 	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", j->get_vnum_zone_from());
 	if (j->get_crafter_uid()) {
-		const char *to_name = GetPlayerNameByUnique(j->get_crafter_uid());
-		if (to_name)
-			SendMsgToChar(ch, ", Создатель : %s", to_name);
-		else
+		auto to_name = GetPlayerNameByUnique(j->get_crafter_uid());
+		if (to_name.empty()) {
 			SendMsgToChar(ch, ", Создатель : не найден");
+		} else {
+			SendMsgToChar(ch, ", Создатель : %s", to_name.c_str());
+		}
 	}
 	if (obj_proto[j->get_rnum()]->get_parent_rnum() > -1) {
 		SendMsgToChar(ch, ", Родитель(VNum) : [%d]", obj_proto[j->get_rnum()]->get_parent_vnum());

@@ -18,15 +18,13 @@ PlayersIndex &player_table = GlobalObjects::player_table();
 
 bool MustBeDeleted(CharData *short_ch);
 
-PlayerIndexElement::PlayerIndexElement(const char *name) {
+PlayerIndexElement::PlayerIndexElement(std::string_view name) {
 	set_name(name);
 }
 
-void PlayerIndexElement::set_name(const char *name) {
-	delete[] m_name;
-	char *new_name = new char[strlen(name) + 1];
-	for (int i = 0; (new_name[i] = LOWER(name[i])); i++);
-	m_name = new_name;
+void PlayerIndexElement::set_name(std::string_view name) {
+	name_ = name;
+	utils::ConvertToLow(name_);
 }
 
 // ===============================================================================
@@ -63,7 +61,7 @@ void PlayersIndex::SetName(const std::size_t index, const char *name) {
 	AddNameToIndex(name, index);
 }
 
-void PlayersIndex::AddNameToIndex(const char *name, const std::size_t index) {
+void PlayersIndex::AddNameToIndex(const std::string &name, const std::size_t index) {
 	if (m_name_to_index.find(name) != m_name_to_index.end()) {
 		log("SYSERR: Detected attempt to create player with duplicate name.");
 		abort();
@@ -113,8 +111,8 @@ long CmpPtableByName(char *name, int len) {
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here.
 	 * TODO: make map helper (MAPHELPER). */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
-		const char *pname = player_table[i].name();
-		if (!strn_cmp(pname, arg, std::min(len, static_cast<int>(strlen(pname))))) {
+		std::string_view pname = player_table[i].name();
+		if (!strn_cmp(pname.data(), arg, std::min(len, static_cast<int>(pname.length())))) {
 			return static_cast<long>(i);
 		}
 	}
@@ -123,10 +121,11 @@ long CmpPtableByName(char *name, int len) {
 
 long GetPlayerTablePosByName(const char *name) {
 	one_argument(name, arg);
+	std::string_view search_arg(arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++) {
-		const char *pname = player_table[i].name();
-		if (!str_cmp(pname, arg)) {
+		std::string_view pname = player_table[i].name();
+		if (pname == search_arg) {
 			return static_cast<long>(i);
 		}
 	}
@@ -170,24 +169,24 @@ int GetPlayerUidByName(int id) {
 	return -1;
 }
 
-const char *GetNameById(long id) {
+std::string GetNameById(long id) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (const auto &i : player_table) {
 		if (i.uid() == id) {
 			return i.name();
 		}
 	}
-	return "";
+	return {};
 }
 
-const char *GetPlayerNameByUnique(int unique) {
+std::string GetPlayerNameByUnique(int unique) {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (auto &i : player_table) {
 		if (i.uid() == unique) {
 			return i.name();
 		}
 	}
-	return nullptr;
+	return {};
 }
 
 int GetLevelByUnique(long unique) {
@@ -275,7 +274,7 @@ void ActualizePlayersIndex(char *name) {
 				top_idnum = std::max(top_idnum, short_ch->get_uid());
 				TopPlayer::Refresh(short_ch, true);
 
-				log("Adding new player %s", element.name());
+				log("Adding new player %s", element.name().c_str());
 				player_table.Append(element);
 			} else {
 				log("Delete %s from account email: %s",
@@ -346,13 +345,13 @@ void FlushPlayerIndex() {
 
 	std::size_t saved = 0;
 	for (auto &i : player_table) {
-		if (!i.name() || !*i.name()) {
+		if (i.name().empty()) {
 			continue;
 		}
 
 		++saved;
 		sprintf(name, "%s %ld %d %d\n",
-				i.name(),
+				i.name().c_str(),
 				i.uid(), i.level, i.last_logon);
 		fputs(name, players);
 	}
