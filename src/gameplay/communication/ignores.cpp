@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "engine/db/player_index.h"
 
 bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 	if (who->IsNpc()) return false;

@@ -37,6 +37,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include "engine/db/player_index.h"
 
 //Используемые внешние ф-ии.
 extern int get_buf_line(char **source, char *target);

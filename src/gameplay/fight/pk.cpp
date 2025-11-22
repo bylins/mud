@@ -21,6 +21,7 @@
 #include "gameplay/classes/classes.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
+#include "engine/db/player_index.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 

@@ -17,6 +17,7 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
+#include "engine/db/player_index.h"
 
 #include <third_party_libs/pugixml/pugixml.h>
 

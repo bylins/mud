@@ -435,7 +435,8 @@ set(SOURCES
 		src/gameplay/skills/multyparry.cpp
 		src/gameplay/mechanics/damage.cpp
 		src/gameplay/mechanics/tutelar.cpp
-		src/gameplay/skills/addshot.cpp)
+		src/gameplay/skills/addshot.cpp
+		src/engine/db/player_index.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -858,7 +859,8 @@ set(HEADERS
 		src/gameplay/skills/multyparry.h
 		src/gameplay/mechanics/damage.h
 		src/gameplay/mechanics/tutelar.h
-		src/gameplay/skills/addshot.h)
+		src/gameplay/skills/addshot.h
+		src/engine/db/player_index.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

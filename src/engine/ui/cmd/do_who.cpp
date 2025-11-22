@@ -9,6 +9,7 @@
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "gameplay/classes/classes.h"
+#include "engine/db/player_index.h"
 
 namespace {
 

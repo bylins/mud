@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <memory>
+#include "engine/db/player_index.h"
 
 //#include <sstream>
 

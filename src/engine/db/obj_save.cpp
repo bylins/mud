@@ -24,6 +24,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
+#include "player_index.h"
 
 #include <sys/stat.h>
 #include <third_party_libs/fmt/include/fmt/format.h>

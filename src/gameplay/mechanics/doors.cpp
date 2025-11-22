@@ -20,6 +20,7 @@
 #include "gameplay/skills/pick.h"
 #include "administration/privilege.h"
 #include "named_stuff.h"
+#include "engine/db/player_index.h"
 
 enum EDoorError : int {
   kWrongDir = -1,

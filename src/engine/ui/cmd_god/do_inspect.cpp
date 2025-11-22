@@ -11,6 +11,7 @@
 #include "fmt/format.h"
 #include "fmt/chrono.h"
 #include "utils/utils_time.h"
+#include "engine/db/player_index.h"
 
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
@@ -285,7 +286,7 @@ class InspectRequest {
   InspectRequest &operator=(const InspectRequest &) = delete;
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
-  int GetAuthorUid() const { return author_uid_; }
+  long GetAuthorUid() const { return author_uid_; }
   bool IsActive() { return status_; };
   void Execute();
 
@@ -302,7 +303,7 @@ class InspectRequest {
   virtual void ProcessMatchedIndex(const PlayerIndexElement &index);
 
  private:
-  int author_uid_{0};
+  long author_uid_{0};
   int author_level_{0};
   std::size_t current_player_table_pos_{0};
   std::string request_text_;
@@ -470,7 +471,7 @@ class InspectRequestAll : public InspectRequest {
   explicit InspectRequestAll(const CharData *author, const std::vector<std::string> &args);
 
  private:
-  int vict_uid_{0};
+  long vict_uid_{0};
   std::set<std::string> victim_ip_log_;
   std::ostringstream current_char_intercesting_logons_;
 

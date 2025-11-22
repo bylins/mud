@@ -44,14 +44,6 @@ void ExtractTagFromArgument(char *argument, char *tag);
 void BootMudDataBase();
 void ZoneUpdate();
 bool CanBeReset(ZoneRnum zone);
-long GetPlayerIdByName(char *name);
-int GetPlayerUidByName(int id);
-long CmpPtableByName(char *name, int len);
-const char *GetNameById(long id);
-const char *GetPlayerNameByUnique(int unique);
-int GetLevelByUnique(long unique);
-long GetLastlogonByUnique(long unique);
-long GetPtableByUnique(long unique);
 int GetZoneRooms(int, int *, int *);
 void ZoneTrafficSave();
 void ResetZone(ZoneRnum zone);
@@ -61,7 +53,6 @@ void InitZoneTypes();
 int AllocateBufferForFile(const char *name, char **destination_buf);
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags);
 CharData *ReadMobile(MobVnum nr, int type);
-int IsCorrectUnique(int unique);
 void SaveGlobalUID();
 void FlushPlayerIndex();
 bool IsZoneEmpty(ZoneRnum zone_nr, bool debug = false);
@@ -148,29 +139,6 @@ struct IndexData {
 
 // =====================================================================================================================
 
-class PlayerIndexElement {
- public:
-	explicit PlayerIndexElement(const char *name);
-
-	char *mail;
-	char *last_ip;
-	int level;
-	int remorts;
-	ECharClass plr_class;
-	int last_logon;
-	int activity;        // When player be saved and checked
-	SaveInfo *timer;
-
-	[[nodiscard]] const char *name() const { return m_name; }
-	[[nodiscard]] long uid() const { return m_uid_; }
-
-	void set_name(const char *name);
-	void set_uid(const long _) { m_uid_ = _; }
- private:
-	int m_uid_;
-	const char *m_name;
-};
-
 extern RoomRnum top_of_world;
 extern std::map<long, CharData *> chardata_by_uid;
 extern std::set<CharData *> chardata_wait_list;
@@ -236,64 +204,8 @@ extern RoomRnum r_immort_start_room;
 extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
-long GetPlayerTablePosByName(const char *name);
-
-class PlayersIndex : public std::vector<PlayerIndexElement> {
- public:
-	using parent_t = std::vector<PlayerIndexElement>;
-	using parent_t::operator[];
-	using parent_t::size;
-
-	static const std::size_t NOT_FOUND;
-
-	~PlayersIndex();
-
-	std::size_t Append(const PlayerIndexElement &element);
-	bool IsPlayerExists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
-	bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetIndexByName(name); }
-	std::size_t GetIndexByName(const char *name) const;
-	void SetName(std::size_t index, const char *name);
-
-	NameAdviser &GetNameAdviser() { return m_name_adviser; }
-
- private:
-	class hasher {
-	 public:
-		std::size_t operator()(const std::string &value) const;
-	};
-
-	class equal_to {
-	 public:
-		bool operator()(const std::string &left, const std::string &right) const;
-	};
-
-	using id_to_index_t = std::unordered_map<int, std::size_t>;
-	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
-
-	void AddNameToIndex(const char *name, std::size_t index);
-
-	id_to_index_t m_id_to_index;
-	name_to_index_t m_name_to_index;
-	// contains free names which are available for new players
-	NameAdviser m_name_adviser;
-};
-
-extern PlayersIndex &player_table;
-
 extern long top_idnum;
 
-bool IsPlayerExists(long id);
-
-inline SaveInfo *SAVEINFO(const size_t number) {
-	return player_table[number].timer;
-}
-
-inline void ClearSaveinfo(const size_t number) {
-	delete player_table[number].timer;
-	player_table[number].timer = nullptr;
-}
-
-void RecreateSaveinfo(size_t number);
 void SetGodSkills(CharData *ch);
 void CheckRoomForIncompatibleFlags(int rnum);
 void SetTestData(CharData *mob);

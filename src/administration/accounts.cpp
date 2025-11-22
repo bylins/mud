@@ -6,6 +6,8 @@
 #include "password.h"
 #include "engine/entities/zone.h"
 #include <sstream>
+#include "engine/db/player_index.h"
+
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 
 #if defined(NOCRYPT)

@@ -29,6 +29,7 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/classes/classes.h"
 #include "gameplay/statistics/zone_exp.h"
+#include "engine/db/player_index.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 

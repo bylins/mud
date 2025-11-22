@@ -28,9 +28,9 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/economics/exchange.h"
-#include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/armor.h"
+#include "engine/db/player_index.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
