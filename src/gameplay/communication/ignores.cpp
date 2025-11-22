@@ -15,7 +15,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 		return ignores(who, whom->get_master(), flag);
 	}
 
-	ign_id = GET_UID(whom);
+	ign_id = whom->get_uid();
 	for (const auto &ignore : who->get_ignores()) {
 		if ((ignore->id == ign_id || ignore->id == -1)
 			&& IS_SET(ignore->mode, flag)) {

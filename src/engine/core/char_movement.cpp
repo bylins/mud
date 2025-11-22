@@ -584,7 +584,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0)) {
 		for (track = world[go_to]->track; track; track = track->next) {
 			if ((ch->IsNpc() && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
-				|| (!ch->IsNpc() && !IS_SET(track->track_info, TRACK_NPC) && track->who == GET_UID(ch))) {
+				|| (!ch->IsNpc() && !IS_SET(track->track_info, TRACK_NPC) && track->who == ch->get_uid())) {
 				break;
 			}
 		}
@@ -592,7 +592,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		if (!track && !ROOM_FLAGGED(go_to, ERoomFlag::kNoTrack)) {
 			CREATE(track, 1);
 			track->track_info = ch->IsNpc() ? TRACK_NPC : 0;
-			track->who = ch->IsNpc() ? mob_rnum : GET_UID(ch);
+			track->who = ch->IsNpc() ? mob_rnum : ch->get_uid();
 			track->next = world[go_to]->track;
 			world[go_to]->track = track;
 		}
@@ -609,13 +609,13 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			if ((ch->IsNpc() && IS_SET(track->track_info, TRACK_NPC)
 				&& track->who == mob_rnum) || (!ch->IsNpc()
 				&& !IS_SET(track->track_info, TRACK_NPC)
-				&& track->who == GET_UID(ch)))
+				&& track->who == ch->get_uid()))
 				break;
 
 		if (!track && !ROOM_FLAGGED(was_in, ERoomFlag::kNoTrack)) {
 			CREATE(track, 1);
 			track->track_info = ch->IsNpc() ? TRACK_NPC : 0;
-			track->who = ch->IsNpc() ? mob_rnum : GET_UID(ch);
+			track->who = ch->IsNpc() ? mob_rnum : ch->get_uid();
 			track->next = world[was_in]->track;
 			world[was_in]->track = track;
 		}

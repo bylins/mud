@@ -1479,7 +1479,7 @@ void find_replacement(void *go,
 				long uid;
 				// заменить на UID
 				switch (type) {
-					case MOB_TRIGGER: uid = GET_UID((CharData *) go);
+					case MOB_TRIGGER: uid = ((CharData *) go)->get_uid();
 						uid_type = UID_CHAR;
 						break;
 
@@ -1654,7 +1654,7 @@ void find_replacement(void *go,
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
 				for (const auto &tch : character_list) {
 					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(tch));
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
 					}
 				}
 				utils::TrimRight(str);
@@ -1667,7 +1667,7 @@ void find_replacement(void *go,
 					if (GET_INVIS_LEV(tch) > 0)
 						continue;
 					if ((IS_CHARMICE(tch) || !tch->IsNpc()) && (tch->in_room >= from && tch->in_room <= to)) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(tch));
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
 					}
 				}
 				utils::TrimRight(str);
@@ -1678,7 +1678,7 @@ void find_replacement(void *go,
 					if (d->state != EConState::kPlaying || GET_INVIS_LEV(d->character) > 0)
 						continue;
 					if (d->character->in_room >= from && d->character->in_room <= to) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(d->character));
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, d->character->get_uid());
 					}
 				}
 				utils::TrimRight(str);
@@ -1691,7 +1691,7 @@ void find_replacement(void *go,
 					if (GET_INVIS_LEV(tch) > 0)
 						continue;
 					if (tch->in_room >= from && tch->in_room <= to) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(tch));
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
 					}
 				}
 				utils::TrimRight(str);
@@ -1938,7 +1938,7 @@ void find_replacement(void *go,
 				}
 
 				if (rndm) {
-					sprintf(str, "%c%ld", UID_CHAR, GET_UID(rndm));
+					sprintf(str, "%c%ld", UID_CHAR, rndm->get_uid());
 				}
 			} else {
 				if (!str_cmp(field, "num")) {
@@ -2247,7 +2247,7 @@ void find_replacement(void *go,
 			}
 		}
 		else if (!str_cmp(field, "id"))
-			sprintf(str, "%c%ld", UID_CHAR, GET_UID(c));
+			sprintf(str, "%c%ld", UID_CHAR, c->get_uid());
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GetRealLevel(c));
 		else if (!str_cmp(field, "remort")) {
@@ -2548,12 +2548,12 @@ void find_replacement(void *go,
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					}
 				} else
-					sprintf(str, "%ld", GET_EXP(c));
+					sprintf(str, "%ld", c->get_exp());
 			}
 		} else if (!str_cmp(field, "MaxGainExp")) {
 			sprintf(str, "%ld", (long) max_exp_gain_pc(c));
 		} else if (!str_cmp(field, "TnlExp")) {
-			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - GET_EXP(c));
+			sprintf(str, "%ld", GetExpUntilNextLvl(c, c->GetLevel() + 1) - c->get_exp());
 		} else if (!str_cmp(field, "sex")) {
 			sprintf(str, "%d", (int) c->get_sex());
 		} else if (!str_cmp(field, "clan")) {
@@ -2611,7 +2611,7 @@ void find_replacement(void *go,
 			sprintf(str, "%d", (int) GET_RACE(c));
 		} else if (!str_cmp(field, "fighting")) {
 			if (c->GetEnemy()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(c->GetEnemy()));
+				sprintf(str, "%c%ld", UID_CHAR, (c->GetEnemy())->get_uid());
 			}
 		} else if (!str_cmp(field, "iskiller")) {
 			if (c->IsFlagged(EPlrFlag::kKiller)) {
@@ -2750,11 +2750,12 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "riding")) {
 			if (c->has_horse(false)) {
-				sprintf(str, "%c%ld", uid_type, GET_UID(c->get_horse()));
+				sprintf(str, "%c%ld", uid_type, (c->get_horse())->get_uid());
 			}
 		} else if (!str_cmp(field, "riddenby")) {
-			if (IS_HORSE(c) && c->get_master()->IsOnHorse() && (GET_UID(c->get_master()->get_horse()) == GET_UID(c))) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(c->get_master()));
+			if (IS_HORSE(c) && c->get_master()->IsOnHorse()
+				&& ((c->get_master()->get_horse())->get_uid() == c->get_uid())) {
+				sprintf(str, "%c%ld", UID_CHAR, (c->get_master())->get_uid());
 			}
 		} else if (!str_cmp(field, "realroom")) {
 			sprintf(str, "%d", world[c->in_room]->vnum);
@@ -2877,7 +2878,7 @@ void find_replacement(void *go,
 			}
 
 			if (next) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(next));
+				sprintf(str, "%c%ld", UID_CHAR, next->get_uid());
 			} else {
 				strcpy(str, "");
 			}
@@ -2985,7 +2986,7 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
-				sprintf(str, "%c%ld", uid_type, GET_UID(c->get_master()));
+				sprintf(str, "%c%ld", uid_type, (c->get_master())->get_uid());
 			}
 		} else if (!str_cmp(field, "group")) {
 			CharData *l;
@@ -2998,12 +2999,12 @@ void find_replacement(void *go,
 				l = c;
 			}
 			// l - лидер группы
-			sprintf(str + strlen(str), "%c%ld ", uid_type, GET_UID(l));
+			sprintf(str + strlen(str), "%c%ld ", uid_type, l->get_uid());
 			for (f = l->followers; f; f = f->next) {
 				if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", uid_type, GET_UID(f->follower));
+				sprintf(str + strlen(str), "%c%ld ", uid_type, f->follower->get_uid());
 			}
 		} else if (!str_cmp(field, "attackers")) {
 			size_t str_length = strlen(str);
@@ -3013,7 +3014,7 @@ void find_replacement(void *go,
 				if (it.ch->GetEnemy() != c) {
 					continue;
 				}
-				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(it.ch));
+				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, it.ch->get_uid());
 				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
@@ -3030,7 +3031,7 @@ void find_replacement(void *go,
 			});
 
 			if (first_char != room.end()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(*first_char));
+				sprintf(str, "%c%ld", UID_CHAR, (*first_char)->get_uid());
 			} else {
 				strcpy(str, "");
 			}
@@ -3078,7 +3079,7 @@ void find_replacement(void *go,
 					|| (rndm->IsNpc()
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(rndm));
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, rndm->get_uid());
 					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
@@ -3357,13 +3358,13 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "carriedby")) {
 			if (o->get_carried_by()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(o->get_carried_by()));
+				sprintf(str, "%c%ld", UID_CHAR, (o->get_carried_by())->get_uid());
 			} else {
 				strcpy(str, "");
 			}
 		} else if (!str_cmp(field, "wornby")) {
 			if (o->get_worn_by()) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(o->get_worn_by()));
+				sprintf(str, "%c%ld", UID_CHAR, (o->get_worn_by())->get_uid());
 			} else {
 				strcpy(str, "");
 			}
@@ -3482,7 +3483,7 @@ void find_replacement(void *go,
 					|| (rndm->IsNpc()
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(rndm));
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, rndm->get_uid());
 					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
@@ -3618,7 +3619,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "people")) {
 			const auto first_char = r->first_character();
 			if (first_char) {
-				sprintf(str, "%c%ld", UID_CHAR, GET_UID(first_char));
+				sprintf(str, "%c%ld", UID_CHAR, first_char->get_uid());
 			}
 		} else if (!str_cmp(field, "firstvnum")) {
 			int x,y;
@@ -3664,7 +3665,7 @@ void find_replacement(void *go,
 					|| (rndm->IsNpc()
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n')) {
-					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, GET_UID(rndm));
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, rndm->get_uid());
 					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
@@ -4963,7 +4964,7 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 			continue;
 		}
 		if (tch->in_room != kNowhere) {
-			result = GET_UID(tch);
+			result = tch->get_uid();
 			break;
 		}
 	}
@@ -4989,7 +4990,7 @@ std::string ListAllMobsByVnum(MobVnum vnum) {
 		return "";
 	} else {
 		for (const auto &mob : mobs) {
-			ss << UID_CHAR << GET_UID(mob) << " ";
+			ss << UID_CHAR << mob->get_uid() << " ";
 		}
 	}
 	str = ss.str();

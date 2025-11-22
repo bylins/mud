@@ -1593,18 +1593,18 @@ void SetTestData(CharData *mob) {
 		log("SYSERROR: null mob (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
 	}
-	if (GET_EXP(mob) == 0) {
+	if (mob->get_exp() == 0) {
 		return;
 	}
 
 	if (GetRealLevel(mob) <= 50) {
-		if (GET_EXP(mob) > test_levels[49]) {
+		if (mob->get_exp() > test_levels[49]) {
 			// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
 			mob->set_level(50);
 		} else {
 			if (mob->GetLevel() == 0) {
 				for (int i = 0; i < 50; ++i) {
-					if (test_levels[i] >= GET_EXP(mob)) {
+					if (test_levels[i] >= mob->get_exp()) {
 						// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
 						mob->set_level(i + 1);
 
@@ -1751,7 +1751,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	}
 
 	int mob_test_hp = get_test_hp(GetRealLevel(mob));
-	if (GET_EXP(mob) > 0 && mob->points.max_hit < mob_test_hp) {
+	if (mob->get_exp() > 0 && mob->points.max_hit < mob_test_hp) {
 		mob->points.max_hit = mob_test_hp;
 	}
 
@@ -3179,7 +3179,7 @@ void ActualizePlayersIndex(char *name) {
 				CREATE(element.last_ip, strlen(GET_LASTIP(short_ch)) + 1);
 				for (int i = 0; (element.last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
 
-				element.set_uid(GET_UID(short_ch));
+				element.set_uid(short_ch->get_uid());
 				element.level = GetRealLevel(short_ch);
 				element.remorts = short_ch->get_remort();
 				element.timer = nullptr;
@@ -3196,7 +3196,7 @@ void ActualizePlayersIndex(char *name) {
 				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 #endif
 
-				top_idnum = std::max(top_idnum, GET_UID(short_ch));
+				top_idnum = std::max(top_idnum, short_ch->get_uid());
 				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name());
@@ -3508,7 +3508,7 @@ CharData *find_char(long uid) {
 
 CharData *find_pc(long uid) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		if (d->state == EConState::kPlaying && GET_UID(d->character) == uid) {
+		if (d->state == EConState::kPlaying && d->character->get_uid() == uid) {
 			return d->character.get();
 		}
 	}

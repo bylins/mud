@@ -669,7 +669,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 		} else {
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * obj->get_cost() / 3);
-			tobj->set_owner(GET_UID(ch));
+			tobj->set_owner(ch->get_uid());
 			tobj->set_extra_flag(EObjFlag::kTransformed);
 			// ковка объектов со слотами.
 			// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
@@ -2044,7 +2044,7 @@ int MakeRecept::make(CharData *ch) {
 	}
 
 	// Пишем производителя в поле.
-	obj->set_crafter_uid(GET_UID(ch));
+	obj->set_crafter_uid(ch->get_uid());
 	// 9. Проверяем минимум 2
 	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
 		SendMsgToChar("Вы не сможете унести столько предметов.\r\n", ch);
