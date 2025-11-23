@@ -138,7 +138,7 @@ void go_injure(CharData *ch, CharData *vict) {
 		af2.type = ESpell::kNoInjure;
 		af2.duration = no_injure_duration;
 		af2.battleflag = kNone;
-		af2.caster_id = GET_UID(ch);
+		af2.caster_id = ch->get_uid();
 		affect_to_char(vict, af2);
 
 		if (!vict->HasWeapon()) {

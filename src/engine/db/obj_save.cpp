@@ -1476,7 +1476,7 @@ int Crash_load(CharData *ch) {
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata) {
 		fclose(fl);
-		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UID(ch));
+		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, ch->get_uid());
 		SendMsgToChar("\r\n** Ошибка чтения файла описания вещей **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1486,7 +1486,7 @@ int Crash_load(CharData *ch) {
 		return (1);
 	};
 	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UID(ch));
+	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, ch->get_uid());
 
 	data = readdata;
 	*(data + fsize) = '\0';
@@ -1995,7 +1995,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
-		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UID(ch));
+		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, ch->get_uid());
 	} else {
 		Crash_delete_files(iplayer);
 		return false;

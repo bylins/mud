@@ -70,7 +70,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
-		obj->set_crafter_uid(GET_UID(ch));
+		obj->set_crafter_uid(ch->get_uid());
 		obj->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 
 		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM

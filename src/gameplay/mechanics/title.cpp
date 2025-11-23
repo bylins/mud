@@ -152,7 +152,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		WaitingTitlePtr temp(new waiting_title);
 		temp->title = title;
 		temp->pre_title = pre_title;
-		temp->unique = GET_UID(ch);
+		temp->unique = ch->get_uid();
 		temp_title_list[GET_NAME(ch)] = temp;
 
 		std::stringstream out;

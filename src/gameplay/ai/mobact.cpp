@@ -275,7 +275,7 @@ int find_door(CharData *ch, const bool track_method) {
 	for (const auto &vict : character_list) {
 		if (CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
-				if (GET_UID(vict) == names->id
+				if (vict->get_uid() == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
 						|| world[ch->in_room]->zone_rn == world[vict->in_room]->zone_rn)) {
 					if (!msg) {
@@ -285,7 +285,7 @@ int find_door(CharData *ch, const bool track_method) {
 					}
 
 					const auto door = track_method
-									  ? check_room_tracks(ch->in_room, GET_UID(vict))
+									  ? check_room_tracks(ch->in_room, vict->get_uid())
 									  : go_track(ch, vict.get(), ESkill::kTrack);
 
 					if (kBfsError != door) {
@@ -1257,7 +1257,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 			  for (const auto &vict : character_list) {
-				  if (names->id == GET_UID(vict)
+				  if (names->id == vict->get_uid()
 					  && CAN_SEE(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
 					  if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
 						  CastSpell(ch.get(), vict.get(), nullptr, nullptr, ESpell::kSummon, ESpell::kSummon);

@@ -871,7 +871,7 @@ bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
 			|| !(GetRealLevel(ch) == kNameLevel))
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& victim->IsNpc()
-		&& (GET_EXP(victim) > 0)
+		&& (victim->get_exp() > 0)
 		&& (!victim->IsNpc()
 			|| !ch->IsNpc()
 			|| AFF_FLAGGED(ch, EAffect::kCharmed))

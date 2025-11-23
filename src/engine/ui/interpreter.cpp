@@ -1608,7 +1608,7 @@ int perform_dupe_check(DescriptorData *d) {
 	DescriptorData *k, *next_k;
 	Mode mode = UNDEFINED;
 
-	int id = GET_UID(d->character);
+	int id = d->character->get_uid();
 
 	/*
 	   * Now that this descriptor has successfully logged in, disconnect all
@@ -1622,11 +1622,11 @@ int perform_dupe_check(DescriptorData *d) {
 			continue;
 		}
 
-		if (k->original && (GET_UID(k->original) == id))    // switched char
+		if (k->original && (k->original->get_uid() == id))    // switched char
 		{
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
-						GET_UID(d->character), GET_NAME(d->character), k->host, d->host);
+						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
@@ -1645,10 +1645,10 @@ int perform_dupe_check(DescriptorData *d) {
 
 			k->character = nullptr;
 			k->original = nullptr;
-		} else if (k->character && (GET_UID(k->character) == id)) {
+		} else if (k->character && (k->character->get_uid() == id)) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
-						GET_UID(d->character), GET_NAME(d->character), k->host, d->host);
+						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
@@ -1680,7 +1680,7 @@ int perform_dupe_check(DescriptorData *d) {
 		  return;
 	  }
 
-	  if (GET_UID(ch) != id) {
+	  if (ch->get_uid() != id) {
 		  return;
 	  }
 
@@ -2088,7 +2088,7 @@ void do_entergame(DescriptorData *d) {
 	chardata_by_uid[d->character->get_uid()] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
 	d->character->set_last_logon(time(nullptr));
-//	player_table[GetPtableByUnique(GET_UID(d->character))].last_logon = LAST_LOGON(d->character);
+//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = LAST_LOGON(d->character);
 	player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
 	network::add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
@@ -2128,7 +2128,7 @@ void do_entergame(DescriptorData *d) {
 	init_warcry(d->character.get());
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (privilege::IsContainedInGodsList(GET_NAME(d->character), GET_UID(d->character))
+	if (privilege::IsContainedInGodsList(GET_NAME(d->character), d->character->get_uid())
 		&& (GetRealLevel(d->character) < kLvlGod)) {
 		SET_GOD_FLAG(d->character, EGf::kDemigod);
 	}
@@ -3879,7 +3879,7 @@ void DeletePcByHimself(const char *name) {
 		if (NAME_FINE(st)) {
 			player_table.GetNameAdviser().add(GET_NAME(st));
 		}
-		Clan::remove_from_clan(GET_UID(st));
+		Clan::remove_from_clan(st->get_uid());
 		st->save_char();
 
 		ClearCrashSavedObjects(id);

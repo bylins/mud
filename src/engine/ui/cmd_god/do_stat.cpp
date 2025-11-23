@@ -254,14 +254,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	char tmp_buf[256];
 	if (k->get_zone_group() > 1) {
 		snprintf(tmp_buf, sizeof(tmp_buf), " : групповой %ldx%d",
-				 GET_EXP(k) / k->get_zone_group(), k->get_zone_group());
+				 k->get_exp() / k->get_zone_group(), k->get_zone_group());
 	} else {
 		tmp_buf[0] = '\0';
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
 			kColorYel, GetRealLevel(k), kColorNrm, kColorYel,
-			GET_EXP(k), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
+			k->get_exp(), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
 
 	SendMsgToChar(buf, ch);
 
@@ -271,7 +271,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
-		time_t ltime = GetLastlogonByUnique(GET_UID(k));
+		time_t ltime = GetLastlogonByUnique(k->get_uid());
 		char t1[11];
 		char t2[11];
 		strftime(t1, sizeof(t1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
@@ -333,8 +333,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf,
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
-			Glory::get_glory(GET_UID(k)),
-			GloryConst::get_glory(GET_UID(k)),
+			Glory::get_glory(k->get_uid()),
+			GloryConst::get_glory(k->get_uid()),
 			GET_AC(k),
 			GetRealAc(k),
 			CalcBaseAc(k),

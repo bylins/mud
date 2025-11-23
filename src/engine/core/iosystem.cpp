@@ -1116,7 +1116,7 @@ std::string MakePrompt(DescriptorData *d) {
 				fmt::format_to(std::back_inserter(out), "??? ");
 			} else {
 				fmt::format_to(std::back_inserter(out), "{}o ",
-						  GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - GET_EXP(ch));
+						  GetExpUntilNextLvl(ch.get(), GetRealLevel(ch) + 1) - ch->get_exp());
 			}
 		}
 

@@ -29,12 +29,12 @@ namespace {
 				 || affect->type == ESpell::kBelenaPoison
 				 || affect->type == ESpell::kDaturaPoison)
 				 && af.type == affect->type
-				 && affect->caster_id != GET_UID(ch)) {
+				 && affect->caster_id != ch->get_uid()) {
 				// если уже есть другой яд - борода
 				return false;
 			}
 
-			if ((affect->type == af.type) && (affect->caster_id == GET_UID(ch)) && (affect->location == af.location)) {
+			if ((affect->type == af.type) && (affect->caster_id == ch->get_uid()) && (affect->location == af.location)) {
 				if (abs(affect->modifier / 3) < abs(af.modifier)) {
 					affect->modifier += af.modifier;
 				}
@@ -74,7 +74,7 @@ namespace {
 
 			for (auto & i : af) {
 				i.type = ESpell::kAconitumPoison;
-				i.caster_id = GET_UID(ch);
+				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
@@ -86,7 +86,7 @@ namespace {
 				}
 			}
 			if (was_poisoned) {
-				vict->poisoner = GET_UID(ch);
+				vict->poisoner = ch->get_uid();
 				return true;
 			}
 
@@ -105,7 +105,7 @@ namespace {
 
 			for (auto & i : af) {
 				i.type = ESpell::kScopolaPoison;
-				i.caster_id = GET_UID(ch);
+				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
@@ -150,7 +150,7 @@ namespace {
 			bool was_poisoned = true;
 			for (auto & i : af) {
 				i.type = ESpell::kBelenaPoison;
-				i.caster_id = GET_UID(ch);
+				i.caster_id = ch->get_uid();
 				i.duration = 7;
 				if (!vict->IsNpc()) {
 					i.duration *= 30;
@@ -198,7 +198,7 @@ namespace {
 				if (!ch->IsNpc()) {
 					i.duration *= 30;
 				}
-				i.caster_id = GET_UID(ch);
+				i.caster_id = ch->get_uid();
 				i.battleflag = kAfSameTime;
 
 				if (!poison_affect_join(ch, vict, i)) {
@@ -337,7 +337,7 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	for (auto & i : af) {
 		ImposeAffect(vict, i, false, false, false, false);
 	}
-	vict->poisoner = GET_UID(ch);
+	vict->poisoner = ch->get_uid();
 
 	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", kColorBoldGrn, kColorCyn);
 	act(buf, false, ch, nullptr, vict, kToChar);
