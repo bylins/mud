@@ -279,10 +279,10 @@ void delete_purged_entry(long uid) {
 }
 
 bool show_purged_message(CharData *ch) {
-	auto it = purged_list.find(GET_UID(ch));
+	auto it = purged_list.find(ch->get_uid());
 	if (it != purged_list.end()) {
 		// имя у нас канеш и так есть, но че зря код дублировать
-		std::string name = generate_purged_filename(GET_UID(ch));
+		std::string name = generate_purged_filename(ch->get_uid());
 		if (name.empty()) {
 			log("Хранилище: show_purged_message пустое имя файла %ld.", ch->get_uid());
 			return true;
@@ -348,7 +348,7 @@ void remove_char_entry(long uid, CharNode &node) {
 	if (!node.name.empty() && (node.money_spend || node.buffer_cost)) {
 		Player t_victim;
 		Player *victim = &t_victim;
-		if (LoadPlayerCharacter(node.name.c_str(), victim, ELoadCharFlags::kFindId) > -1 && GET_UID(victim) == uid) {
+		if (LoadPlayerCharacter(node.name.c_str(), victim, ELoadCharFlags::kFindId) > -1 && victim->get_uid() == uid) {
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
 			victim->remove_both_gold(total_pay);
 			victim->save_char();
@@ -617,7 +617,7 @@ void CharNode::update_online_item() {
 								  char_get_custom_label(obj_it->get(), ch).c_str(),
 								  GET_OBJ_SUF_2((*obj_it)), kColorNrm);
 				} else {
-					add_purged_message(GET_UID(ch), GET_OBJ_VNUM(obj_it->get()), (*obj_it)->get_unique_id());
+					add_purged_message(ch->get_uid(), GET_OBJ_VNUM(obj_it->get()), (*obj_it)->get_unique_id());
 				}
 			}
 
@@ -905,7 +905,7 @@ void show_depot(CharData *ch) {
 		return;
 	}
 
-	DepotListType::iterator it = create_depot(GET_UID(ch), ch);
+	DepotListType::iterator it = create_depot(ch->get_uid(), ch);
 	if (it == depot_list.end()) {
 		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
 		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid(), GET_NAME(ch));
@@ -946,7 +946,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 		|| obj->get_rent_off() < 0
 		|| obj->get_rnum() <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
-//		|| (NamedStuff::check_named(ch, obj, 0) && GET_UID(ch) != obj->get_owner())) {
+//		|| (NamedStuff::check_named(ch, obj, 0) && ch->get_uid() != obj->get_owner())) {
 		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(ECase::kAcc).c_str());
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
@@ -1000,7 +1000,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 		return 1;
 	}
 
-	DepotListType::iterator it = create_depot(GET_UID(ch), ch);
+	DepotListType::iterator it = create_depot(ch->get_uid(), ch);
 	if (it == depot_list.end()) {
 		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
 		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid(), GET_NAME(ch));
@@ -1026,7 +1026,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	}
 	obj = world_objects.get_by_raw_ptr(dungeons::SwapOriginalObject(obj.get()));
 	depot_log("put_depot %s %ld: %s %d %d",
-			  GET_NAME(ch), GET_UID(ch), obj->get_short_description().c_str(),
+			  GET_NAME(ch), ch->get_uid(), obj->get_short_description().c_str(),
 			  obj->get_unique_id(), GET_OBJ_VNUM(obj.get()));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
@@ -1057,7 +1057,7 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 		return;
 	}
 
-	DepotListType::iterator it = depot_list.find(GET_UID(vict));
+	DepotListType::iterator it = depot_list.find(vict->get_uid());
 	if (it == depot_list.end()) {
 		SendMsgToChar("В данный момент ваше хранилище абсолютно пусто.\r\n", vict);
 		return;
@@ -1150,7 +1150,7 @@ void CharNode::take_item(CharData *vict, char *arg, int howmany) {
 * Эта функция зовется ДО того, как поизройдет перекидывание шиота в оффлайн список.
 */
 int get_total_cost_per_day(CharData *ch) {
-	DepotListType::iterator it = depot_list.find(GET_UID(ch));
+	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
 		int cost = 0;
 		if (!it->second.pers_online.empty())
@@ -1281,7 +1281,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 
 // * Вход чара в игру - снятие за хранилище, пурж шмоток, оповещение о кол-ве снятых денег, перевод списков в онлайн.
 void enter_char(CharData *ch) {
-	DepotListType::iterator it = depot_list.find(GET_UID(ch));
+	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0) {
@@ -1294,7 +1294,7 @@ void enter_char(CharData *ch) {
 				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
 				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно
 				// поэтому мы просто готовы, если что, все технично спуржить при входе
-				depot_log("no money %s %ld: reset depot", GET_NAME(ch), GET_UID(ch));
+				depot_log("no money %s %ld: reset depot", GET_NAME(ch), ch->get_uid());
 				it->second.reset();
 				// файл убьется позже при ребуте на пустом хране,
 				// даже если не будет никаких перезаписей по ходу игры
@@ -1345,7 +1345,7 @@ void CharNode::online_to_offline(ObjListType &cont) {
 * TODO: так же мы сейчас дергаем эту функцию для пустых чаров, у которых уид заведомо нулевой.
 */
 void exit_char(CharData *ch) {
-	DepotListType::iterator it = depot_list.find(GET_UID(ch));
+	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
 		// тут лучше дернуть сейв руками до тика, т.к. есть вариант зайти и тут же выйти
 		// в итоге к моменту сейва онлайн список будет пустой и все похерится
@@ -1466,7 +1466,7 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 
 // * Обработка ренейма персонажа.
 void rename_char(CharData *ch) {
-	DepotListType::iterator it = depot_list.find(GET_UID(ch));
+	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
 		it->second.name = GET_NAME(ch);
 	}
@@ -1494,7 +1494,7 @@ void add_offline_money(long uid, int money) {
 
 // * Поиск в хранилище внума из списка vnum_list.
 bool find_set_item(CharData *ch, const std::set<int> &vnum_list) {
-	DepotListType::iterator it = depot_list.find(GET_UID(ch));
+	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 				 obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it) {
@@ -1508,7 +1508,7 @@ bool find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 
 // * Запрет на ренту при наличии единственной сетины в хранилище с сообщением от рент-кипера.
 int report_unrentables(CharData *ch, CharData *recep) {
-	DepotListType::iterator it = depot_list.find(GET_UID(ch));
+	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 				 obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it) {

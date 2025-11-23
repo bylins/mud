@@ -228,7 +228,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it = setall_inspect_list.find(GET_UID(ch));
+	auto it = setall_inspect_list.find(ch->get_uid());
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (MUD::InspectRequests().IsBusy(ch) && it != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");

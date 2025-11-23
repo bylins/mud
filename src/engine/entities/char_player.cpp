@@ -465,7 +465,7 @@ void Player::save_char() {
 	free(player_table[this->get_pfilepos()].last_ip);
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
 	fprintf(saved, "Id  : %ld\n", this->get_uid());
-	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
+	fprintf(saved, "Exp : %ld\n", this->get_exp());
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
 	// флаги
 	*buf = '\0';
@@ -906,7 +906,7 @@ void Player::save_char() {
 		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
-	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UID(this));
+	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, this->get_uid());
 
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
@@ -1086,7 +1086,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (GET_EXP(this) < GetExpUntilNextLvl(this, GetRealLevel(this))) {
+	if (this->get_exp() < GetExpUntilNextLvl(this, GetRealLevel(this))) {
 		set_exp(GetExpUntilNextLvl(this, GetRealLevel(this)));
 	}
 	this->account = Account::get_account(GET_EMAIL(this));
@@ -1930,7 +1930,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UID(this));
+		FileCRC::check_crc(filename, FileCRC::PLAYER, this->get_uid());
 	}
 
 	return (id);
