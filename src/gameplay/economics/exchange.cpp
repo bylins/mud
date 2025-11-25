@@ -37,6 +37,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include "engine/db/player_index.h"
 
 //Используемые внешние ф-ии.
 extern int get_buf_line(char **source, char *target);
@@ -473,9 +474,8 @@ int exchange_information(CharData *ch, char *arg) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
-	sprintf(buf2, "%s",
-			GetNameById(GET_EXCHANGE_ITEM_SELLERID(item)) ?
-			GetNameById(GET_EXCHANGE_ITEM_SELLERID(item)) : "(null)");
+	auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
+	sprintf(buf2, "%s", seller_name.empty() ? "(сожран долгоносиком)" : seller_name.c_str());
 	*buf2 = UPPER(*buf2);
 	strcat(buf, "Продавец ");
 	strcat(buf, buf2);
@@ -578,12 +578,12 @@ int exchange_purchase(CharData *ch, char *arg) {
 	seller = get_char_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
 	if (seller == nullptr) {
-		const char *seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
+		auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 
 		auto seller_ptr = std::make_unique<Player>();
 		seller = seller_ptr.get(); // TODO: переделать на стек
-		if (seller_name == nullptr
-			|| LoadPlayerCharacter(seller_name, seller, ELoadCharFlags::kFindId) < 0) {
+		if (seller_name.empty()
+			|| LoadPlayerCharacter(seller_name.c_str(), seller, ELoadCharFlags::kFindId) < 0) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
@@ -1141,14 +1141,14 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		if (show_type == 1 && !isname(GET_NAME(ch), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
 		// ну идиотизм сидеть статить 5-10 страниц резных
+		// Идиотизм - это тупым хардком по названию предмета вот так проверять.
+		// Использовать флаг или добавить новый - лапки, да?
 		if (utils::IsAbbr("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())
 			|| utils::IsAbbr("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())
 			|| utils::IsAbbr("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())) {
 			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
-			if (!strcmp(buf,
-						"ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
-			{
+			if (!strcmp(buf, "ничего")) {
 				bool found = false;
 				for (int n = 0; n < kMaxObjAffect; n++) {
 					auto drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;

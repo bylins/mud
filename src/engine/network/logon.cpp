@@ -10,6 +10,7 @@
 #include "administration/accounts.h"
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
+#include "engine/db/player_index.h"
 
 namespace network {
 

@@ -12,6 +12,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/stable_objs.h"
+#include "engine/db/player_index.h"
 
 extern ESkill FixNameAndFindSkillId(char *name);
 extern const char *print_obj_state(int tm_pct);

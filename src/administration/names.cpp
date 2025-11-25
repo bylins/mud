@@ -9,12 +9,12 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-//#include "interpreter.h"
+#include "names.h"
+
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
-
-#include "names.h"
+#include "engine/db/player_index.h"
 
 namespace NewNames {
 static void save();

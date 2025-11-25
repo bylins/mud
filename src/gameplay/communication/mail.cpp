@@ -17,6 +17,7 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
+#include "engine/db/player_index.h"
 
 #include <third_party_libs/pugixml/pugixml.h>
 
@@ -484,12 +485,12 @@ std::string get_author_name(int uid) {
 	} else if (uid < 0) {
 		out = "Неизвестно";
 	} else {
-		const char *name = GetPlayerNameByUnique(uid);
-		if (name) {
+		auto name = GetPlayerNameByUnique(uid);
+		if (name.empty()) {
+			out = "<персонаж был удален>";
+		} else {
 			out = name;
 			name_convert(out);
-		} else {
-			out = "<персонаж был удален>";
 		}
 	}
 	return out;
@@ -606,23 +607,21 @@ void load() {
 				header.c_str());
 			continue;
 		}
-		const char *to_name = GetPlayerNameByUnique(to_uid);
-		// проверяем, чего распарсили в хедере
-		if (!to_name) {
-			// адресата больше нет
+		auto to_name = GetPlayerNameByUnique(to_uid);
+		if (to_name.empty()) {
 			continue;
 		}
 		if (message.from == -1 && time(0) - message.date > 60 * 60 * 24 * 365) {
 			// технические сообщения старше года
 			continue;
 		}
-		if (message.from > 0 && !GetPlayerNameByUnique(message.from)) {
+		if (message.from > 0 && !GetPlayerNameByUnique(message.from).empty()) {
 			// убираем левые уиды, чтобы потом с кем-нить другим не совпало
 			message.from = -2;
 		}
 		mail_list.insert(std::make_pair(to_uid, message));
 		add_poster(message.from);
-		add_undelivered(message.from, to_name, to_uid);
+		add_undelivered(message.from, to_name.c_str(), to_uid);
 	}
 	need_save = true;
 }

@@ -29,7 +29,7 @@ struct setall_inspect_request {
 
 class CharData;
 using SetAllInspReqPtr = std::shared_ptr<setall_inspect_request>;
-using SetAllInspReqListType = std::map<int, SetAllInspReqPtr>;
+using SetAllInspReqListType = std::map<long, SetAllInspReqPtr>;
 extern SetAllInspReqListType &setall_inspect_list;
 void setall_inspect();
 void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
