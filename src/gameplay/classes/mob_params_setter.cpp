@@ -1,3 +1,11 @@
+/**
+* \file mob_params_setter.cpp - a part of the Bylins engine.
+ * \authors Created by Svetodar.
+ * \date 25.11.2025.
+ * \brief Brief description.
+ * \details Detailed description.
+ */
+
 #include "mob_params_setter.h"
 #include <algorithm>
 #include <cstdarg>

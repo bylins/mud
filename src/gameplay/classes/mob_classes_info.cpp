@@ -1,6 +1,10 @@
-//
-// Created by Iluha on 23.10.2025.
-//
+/**
+* \file mob_classes_info.cpp - a part of the Bylins engine.
+ * \authors Created by Svetodar.
+ * \date 25.11.2025.
+ * \brief Brief description.
+ * \details Detailed description.
+ */
 
 #include "gameplay/classes/mob_classes_info.h"
 #include "engine/ui/color.h"

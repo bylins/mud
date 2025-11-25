@@ -1,3 +1,11 @@
+/**
+* \file mob_classes_info.h - a part of the Bylins engine.
+ * \authors Created by Svetodar.
+ * \date 25.11.2025.
+ * \brief Brief description.
+ * \details Detailed description.
+ */
+
 #pragma once
 #include <functional>
 #include <unordered_map>
