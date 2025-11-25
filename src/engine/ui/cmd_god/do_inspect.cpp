@@ -78,7 +78,7 @@ class ExtractedCharacterInfo {
   int last_logon_time_{0};
   std::string clan_abbrev_;
   std::string class_name_;
-  std::string_view name_;
+  std::string name_;
   std::string_view mail_;
   std::string_view last_ip_;
   std::ostringstream punishments_;
@@ -95,8 +95,7 @@ class ExtractedCharacterInfo {
 
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
 	online_ = (DescriptorByUid(index.uid()) != nullptr);
-	auto player_name = index.name();
-	name_ = (player_name.empty() ? kUndefined : player_name);
+	name_ = (index.name().empty() ? kUndefined : index.name());
 	mail_ = (index.mail ? index.mail : kUndefined);
 	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
 	class_name_ = MUD::Class(index.plr_class).GetName();
@@ -187,7 +186,7 @@ void ExtractedCharacterInfo::Clear() {
 	last_logon_time_ = 0;
 	level_ = 0;
 	remort_ = 0;
-	name_ = kUndefined;
+	name_.clear();
 	mail_ = kUndefined;
 	last_ip_ = kUndefined;
 	class_name_.clear();
