@@ -436,7 +436,7 @@ set(SOURCES
 		src/gameplay/mechanics/damage.cpp
 		src/gameplay/mechanics/tutelar.cpp
 		src/gameplay/skills/addshot.cpp
-		src/engine/db/player_index.cpp)
+		src/engine/db/player_index.cpp
 		src/gameplay/skills/addshot.cpp
 		src/gameplay/classes/mob_classes_info.cpp
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
