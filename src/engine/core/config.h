@@ -52,6 +52,8 @@ struct PCCleanCriteria {
 	int days = 0;	// временной лимит в днях        //
 };
 
+extern struct PCCleanCriteria pclean_criteria[];
+
 class CLogInfo {
  private:
 	CLogInfo() {}

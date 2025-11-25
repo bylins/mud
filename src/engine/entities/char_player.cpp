@@ -25,6 +25,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/ui/cmd/do_who.h"
+#include "engine/db/player_index.h"
 
 #ifdef _WIN32
 #else
@@ -930,9 +931,9 @@ void Player::save_char() {
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GetRealRemort(this);
-		//added by WorM 2010.08.27 в индексе добавляем мыло
-		if (player_table[i].mail)
+		if (player_table[i].mail) {
 			free(player_table[i].mail);
+		}
 		player_table[i].mail = str_dup(GET_EMAIL(this));
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();

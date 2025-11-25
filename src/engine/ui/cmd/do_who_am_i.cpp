@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
+#include "engine/db/player_index.h"
 
 void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
@@ -26,7 +27,7 @@ void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar(buf, ch);
 	} else {
 		const int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
-		sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(ch)));
+		sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(ch)).c_str());
 		*buf1 = UPPER(*buf1);
 
 		static const char *by_rank_god = "Богом";

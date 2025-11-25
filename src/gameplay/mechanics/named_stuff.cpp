@@ -24,6 +24,7 @@
 #include <string>
 #include <iomanip>
 #include <vector>
+#include "engine/db/player_index.h"
 
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;

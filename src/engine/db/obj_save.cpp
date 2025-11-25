@@ -24,6 +24,7 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
+#include "player_index.h"
 
 #include <sys/stat.h>
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -963,7 +964,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 }
 
 int Crash_delete_files(const std::size_t index) {
-	char filename[kMaxStringLength + 1], name[kMaxNameLength + 1];
+	char filename[kMaxStringLength + 1];
 	FILE *fl;
 	int retcode = false;
 
@@ -971,11 +972,11 @@ int Crash_delete_files(const std::size_t index) {
 		return retcode;
 	}
 
-	strcpy(name, player_table[index].name());
+	auto name = player_table[index].name();
 
 	//удаляем файл описания объектов
-	if (!get_filename(name, filename, kTextCrashFile)) {
-		log("SYSERR: Error deleting objects file for %s - unable to resolve file name.", name);
+	if (!get_filename(name.c_str(), filename, kTextCrashFile)) {
+		log("SYSERR: Error deleting objects file for %s - unable to resolve file name.", name.c_str());
 		retcode = false;
 	} else {
 		if (!(fl = fopen(filename, "rb"))) {
@@ -994,8 +995,8 @@ int Crash_delete_files(const std::size_t index) {
 	}
 
 	//удаляем файл таймеров
-	if (!get_filename(name, filename, kTimeCrashFile)) {
-		log("SYSERR: Error deleting timer file for %s - unable to resolve file name.", name);
+	if (!get_filename(name.c_str(), filename, kTimeCrashFile)) {
+		log("SYSERR: Error deleting timer file for %s - unable to resolve file name.", name.c_str());
 		retcode = false;
 	} else {
 		if (!(fl = fopen(filename, "rb"))) {
@@ -1050,14 +1051,13 @@ void Crash_create_timer(const std::size_t index, int/* num*/) {
 int ReadCrashTimerFile(std::size_t index, int temp) {
 	FILE *fl;
 	char fname[kMaxInputLength];
-	char name[kMaxNameLength + 1];
 	int size = 0, count = 0, rnum, num = 0;
 	struct SaveRentInfo rent;
 	struct SaveTimeInfo info;
 
-	strcpy(name, player_table[index].name());
-	if (!get_filename(name, fname, kTimeCrashFile)) {
-		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name);
+	auto name = player_table[index].name();
+	if (!get_filename(name.c_str(), fname, kTimeCrashFile)) {
+		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name.c_str());
 		return false;
 	}
 	if (!(fl = fopen(fname, "rb"))) {
@@ -1076,7 +1076,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 		return false;
 	}
 
-	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name);
+	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name.c_str());
 	size_t dummy = fread(&rent, sizeof(struct SaveRentInfo), 1, fl);
 	switch (rent.rentcode) {
 		case RENT_RENTED: strcat(buf, " Rent ");
@@ -1092,7 +1092,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			break;
 		case RENT_FORCED: strcat(buf, " Forced ");
 			break;
-		default: log("[ReadTimer] Error reading %s timer file - undefined rent code.", name);
+		default: log("[ReadTimer] Error reading %s timer file - undefined rent code.", name.c_str());
 			return false;
 			//strcat(buf, " Undef ");
 			//rent.rentcode = RENT_CRASH;
@@ -1105,7 +1105,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	for (; count < rent.nitems && !feof(fl); count++) {
 		dummy = fread(&info, sizeof(struct SaveTimeInfo), 1, fl);
 		if (ferror(fl)) {
-			log("SYSERR: I/O Error reading %s timer file.", name);
+			log("SYSERR: I/O Error reading %s timer file.", name.c_str());
 			fclose(fl);
 			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
 			ClearSaveinfo(index);
@@ -1116,7 +1116,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			++num;
 		} else {
 			log("[ReadTimer] Warning: incorrect vnum (%d) or timer (%d) while reading %s timer file.",
-				info.vnum, info.timer, name);
+				info.vnum, info.timer, name.c_str());
 		}
 		if (info.timer >= 0 && (rnum = GetObjRnum(info.vnum)) >= 0 && !temp) {
 			obj_proto.inc_stored(rnum);
@@ -1148,7 +1148,7 @@ void Crash_reload_timer(int index) {
 	}
 
 	if (!ReadCrashTimerFile(index, false)) {
-		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name());
+		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name().c_str());
 		mudlog(buf, BRF, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 	}
 }
@@ -1156,19 +1156,18 @@ void Crash_reload_timer(int index) {
 int Crash_write_timer(const std::size_t index) {
 	FILE *fl;
 	char fname[kMaxStringLength];
-	char name[kMaxNameLength + 1];
 
-	strcpy(name, player_table[index].name());
+	auto name = player_table[index].name();
 	if (!SAVEINFO(index)) {
-		log("SYSERR: Error writing %s timer file - no data.", name);
+		log("SYSERR: Error writing %s timer file - no data.", name.c_str());
 		return false;
 	}
-	if (!get_filename(name, fname, kTimeCrashFile)) {
-		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name);
+	if (!get_filename(name.c_str(), fname, kTimeCrashFile)) {
+		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name.c_str());
 		return false;
 	}
 	if (!(fl = fopen(fname, "wb"))) {
-		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name, fname);
+		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name.c_str(), fname);
 		return false;
 	}
 	fwrite(&(SAVEINFO(index)->rent), sizeof(SaveRentInfo), 1, fl);
@@ -1186,14 +1185,12 @@ int Crash_write_timer(const std::size_t index) {
 }
 
 void Crash_timer_obj(const std::size_t index, long time) {
-	char name[kMaxNameLength + 1];
 	int nitems = 0, idelete = 0, ideleted = 0, rnum, timer, i;
 	int rentcode, timer_dec;
 
-	strcpy(name, player_table[index].name());
-
+	auto name = player_table[index].name();
 	if (!player_table[index].timer) {
-		log("[TO] %s has no save data.", name);
+		log("[TO] %s has no save data.", name.c_str());
 		return;
 	}
 	rentcode = SAVEINFO(index)->rent.rentcode;
@@ -1202,19 +1199,19 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	//удаляем просроченные файлы ренты
 	if (rentcode == RENT_RENTED && timer_dec > rent_file_timeout * kSecsPerRealDay) {
 		ClearCrashSavedObjects(index);
-		log("[TO] Deleting %s's rent info - time outed.", name);
+		log("[TO] Deleting %s's rent info - time outed.", name.c_str());
 		return;
 	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * kSecsPerRealDay) {
 		ClearCrashSavedObjects(index);
 		strcpy(buf, "");
 		switch (rentcode) {
-			case RENT_CRASH: log("[TO] Deleting crash rent info for %s  - time outed.", name);
+			case RENT_CRASH: log("[TO] Deleting crash rent info for %s  - time outed.", name.c_str());
 				break;
-			case RENT_FORCED: log("[TO] Deleting forced rent info for %s  - time outed.", name);
+			case RENT_FORCED: log("[TO] Deleting forced rent info for %s  - time outed.", name.c_str());
 				break;
-			case RENT_TIMEDOUT: log("[TO] Deleting autorent info for %s  - time outed.", name);
+			case RENT_TIMEDOUT: log("[TO] Deleting autorent info for %s  - time outed.", name.c_str());
 				break;
-			default: log("[TO] Deleting UNKNOWN rent info for %s  - time outed.", name);
+			default: log("[TO] Deleting UNKNOWN rent info for %s  - time outed.", name.c_str());
 				break;
 		}
 		return;
@@ -1240,7 +1237,8 @@ void Crash_timer_obj(const std::size_t index, long time) {
 					idelete++;
 					if (rnum >= 0) {
 						obj_proto.dec_stored(rnum);
-						log("[TO] Player %s : item %s deleted - time outted", name, obj_proto[rnum]->get_PName(ECase::kNom).c_str());
+						log("[TO] Player %s : item %s deleted - time outted", name.c_str(),
+							obj_proto[rnum]->get_PName(ECase::kNom).c_str());
 					}
 				}
 			}
@@ -1254,7 +1252,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	//если появились новые просроченные объекты, обновляем файл таймеров
 	if (idelete) {
 		if (!Crash_write_timer(index)) {
-			sprintf(buf, "SYSERR: [TO] Error writing timer file for %s.", name);
+			sprintf(buf, "SYSERR: [TO] Error writing timer file for %s.", name.c_str());
 			mudlog(buf, CMP, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
 		}
 	}
@@ -1837,7 +1835,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 			SAVEINFO(iplayer)->time.push_back(tmp_node);
 
 			if (savetype != RENT_CRASH) {
-				log("%s save_char_obj %d %ld %u", player_table[iplayer].name(),
+				log("%s save_char_obj %d %ld %u", player_table[iplayer].name().c_str(),
 					GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 			}
 		}
