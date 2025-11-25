@@ -26,6 +26,7 @@
 #include "engine/boot/cfg_manager.h"
 #include "engine/ui/cmd_god/do_set_all.h"
 #include "gameplay/classes/mob_classes_info.h"
+#include "engine/db/player_index.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
 

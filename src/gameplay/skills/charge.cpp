@@ -82,7 +82,7 @@ void GoCharge(CharData *ch, int direction) {
 	af.duration = 4;
 	af.battleflag = kNone;
 	af.bitvector = to_underlying(EAffect::kNoCharge);
-	af.caster_id = GET_UID(ch);
+	af.caster_id = ch->get_uid();
 
 	Affect<EApply> af2;
 	af2.type = ESpell::kUndefined;

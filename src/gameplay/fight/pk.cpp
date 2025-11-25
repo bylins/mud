@@ -21,6 +21,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
+#include "engine/db/player_index.h"
 
 void SetWait(CharData *ch, int waittime, int victim_in_room);
 
@@ -67,7 +68,7 @@ bool check_agrobd(CharData *ch) {
 PK_Memory_type *findPKEntry(CharData *agressor, CharData *victim) {
 //	struct PK_Memory_type* pk;
 	for (auto pk = agressor->pk_list; pk; pk = pk->next) {
-		if (pk->unique == GET_UID(victim)) {
+		if (pk->unique == victim->get_uid()) {
 			return pk;
 		}
 	}
@@ -156,7 +157,7 @@ void pk_update_clanflag(CharData *agressor, CharData *victim) {
 
 	if (!pk && (!IS_GOD(victim))) {
 		CREATE(pk, 1);
-		pk->unique = GET_UID(victim);
+		pk->unique = victim->get_uid();
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
 	}
@@ -201,7 +202,7 @@ void pk_update_revenge(CharData *agressor, CharData *victim, int attime, int ren
 	}
 	if (!pk) {
 		CREATE(pk, 1);
-		pk->unique = GET_UID(victim);
+		pk->unique = victim->get_uid();
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
 	}
@@ -229,7 +230,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		struct PK_Memory_type *pk = findPKEntry(agressor, victim);
 		if (!pk && (!IS_GOD(victim))) {
 			CREATE(pk, 1);
-			pk->unique = GET_UID(victim);
+			pk->unique = victim->get_uid();
 			pk->next = agressor->pk_list;
 			agressor->pk_list = pk;
 		}
@@ -312,7 +313,7 @@ int pk_increment_revenge(CharData *agressor, CharData *victim) {
 	struct PK_Memory_type *pk;
 
 	for (pk = victim->pk_list; pk; pk = pk->next) {
-		if (pk->unique == GET_UID(agressor)) {
+		if (pk->unique == agressor->get_uid()) {
 			break;
 		}
 	}
@@ -434,14 +435,14 @@ int pk_action_type_summon(CharData *agressor, CharData *victim) {
 	}
 
 	for (pk = agressor->pk_list; pk; pk = pk->next) {
-		if (pk->unique != GET_UID(victim))
+		if (pk->unique != victim->get_uid())
 			continue;
 		if (pk->battle_exp > time(nullptr))
 			return PK_ACTION_FIGHT;
 	}
 
 	for (pk = victim->pk_list; pk; pk = pk->next) {
-		if (pk->unique != GET_UID(agressor))
+		if (pk->unique != agressor->get_uid())
 			continue;
 		if (pk->battle_exp > time(nullptr))
 			return PK_ACTION_FIGHT;
@@ -477,11 +478,11 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 		case PK_ACTION_KILL:
 			// продлить/установить флаг воровства
 			for (pk = thief->pk_list; pk; pk = pk->next)
-				if (pk->unique == GET_UID(victim))
+				if (pk->unique == victim->get_uid())
 					break;
 			if (!pk && (!IS_GOD(victim)) && (!IS_GOD(thief))) {
 				CREATE(pk, 1);
-				pk->unique = GET_UID(victim);
+				pk->unique = victim->get_uid();
 				pk->next = thief->pk_list;
 				thief->pk_list = pk;
 			} else
@@ -536,14 +537,14 @@ int pk_action_type(CharData *agressor, CharData *victim) {
 		return PK_ACTION_FIGHT;
 
 	for (pk = agressor->pk_list; pk; pk = pk->next) {
-		if (pk->unique != GET_UID(victim))
+		if (pk->unique != victim->get_uid())
 			continue;
 		if (pk->battle_exp > time(nullptr))
 			return PK_ACTION_FIGHT;
 	}
 
 	for (pk = victim->pk_list; pk; pk = pk->next) {
-		if (pk->unique != GET_UID(agressor))
+		if (pk->unique != agressor->get_uid())
 			continue;
 		if (pk->battle_exp > time(nullptr))
 			return PK_ACTION_FIGHT;
@@ -606,8 +607,9 @@ void pk_list_sprintf(CharData *ch, char *buff) {
 	strcat(buff, "ПК список:\r\n");
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (pk = ch->pk_list; pk; pk = pk->next) {
-		const char *temp = GetPlayerNameByUnique(pk->unique);
-		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp ? temp : "<УДАЛЕН>", pk->kill_num, pk->revenge_num);
+		auto temp = GetPlayerNameByUnique(pk->unique);
+		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp.empty() ? "<УДАЛЕН>" : temp.c_str(),
+				pk->kill_num, pk->revenge_num);
 
 		if (pk->clan_exp > time(nullptr)) {
 			sprintf(buff + strlen(buff), " %4ld", static_cast<long>(pk->clan_exp - time(nullptr)));
@@ -661,12 +663,12 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				continue;
 			}
 
-			const char *temp = GetPlayerNameByUnique(pk->unique);
-			if (!temp) {
+			auto temp = GetPlayerNameByUnique(pk->unique);
+			if (temp.empty()) {
 				continue;
 			}
 
-			const_cast<char *>(temp)[0] = UPPER(temp[0]);
+			temp[0] = UPPER(temp[0]);
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly) {
 				for (const auto &tch : character_list) {
@@ -674,12 +676,12 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						continue;
 					}
 
-					if (GET_UID(tch) == pk->unique) {
+					if (tch->get_uid() == pk->unique) {
 						found = true;
 						if (pk->battle_exp > time(nullptr)) {
-							sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
+							sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp.c_str());
 						} else {
-							sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp, pk->kill_num, pk->revenge_num);
+							sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp.c_str(), pk->kill_num, pk->revenge_num);
 						}
 						break;
 					}
@@ -687,9 +689,9 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				found = true;
 				if (pk->battle_exp > time(nullptr)) {
-					sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
+					sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp.c_str());
 				} else {
-					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp, pk->kill_num, pk->revenge_num);
+					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp.c_str(), pk->kill_num, pk->revenge_num);
 				}
 			}
 		}
@@ -714,7 +716,7 @@ void do_revenge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		for (pk = tch->pk_list; pk; pk = pk->next) {
-			if (pk->unique == GET_UID(ch)) {
+			if (pk->unique == ch->get_uid()) {
 				if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(nullptr)) {
 					pk_decrement_kill(tch.get(), ch);
 				}
@@ -782,7 +784,7 @@ void do_forgive(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		found = tch.get();
 		for (pk = tch->pk_list; pk; pk = pk->next) {
-			if (pk->unique == GET_UID(ch)) {
+			if (pk->unique == ch->get_uid()) {
 				// может нам нечего прощать?
 				if (pk->kill_num != 0) {
 					bForgive = true;
@@ -839,7 +841,7 @@ void save_pkills(CharData *ch, FILE *saved) {
 			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(nullptr)) {
 				CharData *result = nullptr;
 				for (const auto &tch : character_list) {
-					if (!tch->IsNpc() && GET_UID(tch) == pk->unique) {
+					if (!tch->IsNpc() && tch->get_uid() == pk->unique) {
 						result = tch.get();
 						break;
 					}
@@ -1053,7 +1055,7 @@ void set_bloody_flag(ObjData *list, const CharData *ch) {
 			|| t == EObjType::kIngredient
 			|| t == EObjType::kWorm)) {
 		list->set_extra_flag(EObjFlag::kBloody);
-		bloody_map[list].owner_unique = GET_UID(ch);
+		bloody_map[list].owner_unique = ch->get_uid();
 		bloody_map[list].kill_at = time(nullptr);
 		bloody_map[list].object = list;
 	}
@@ -1092,7 +1094,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 	} else {
 		//Если отдаем владельцу или берет владелец
 		if (victim
-			&& (GET_UID(victim) == it->second.owner_unique
+			&& (victim->get_uid() == it->second.owner_unique
 				|| (CLAN(victim)
 					&& (CLAN(victim)->is_clan_member(it->second.owner_unique)
 						|| CLAN(victim)->is_alli_member(it->second.owner_unique)))
@@ -1148,7 +1150,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
 		for (pk = ch->pk_list; pk; pk = pk->next)
-			if (pk->unique == GET_UID(killer) && (pk->thief_exp > time(nullptr) || pk->kill_num))
+			if (pk->unique == killer->get_uid() && (pk->thief_exp > time(nullptr) || pk->kill_num))
 				break;
 		if (!pk && corpse) //не нашли мести
 			set_bloody_flag(corpse->get_contains(), ch);

@@ -27,7 +27,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (GET_EXP(ch) < GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
+	if (ch->get_exp() < GetExpUntilNextLvl(ch, kLvlImmortal) - 1) {
 		SendMsgToChar("ЧАВО???\r\n", ch);
 		return;
 	}

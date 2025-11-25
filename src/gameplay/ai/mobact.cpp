@@ -165,17 +165,20 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)) {
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle) 
+				&& !(IS_UNDEAD(victim) 
+						|| victim->player_data.Race == ENpcRace::kFish
+						|| victim->player_data.Race == ENpcRace::kPlant
+						|| victim->player_data.Race == ENpcRace::kConstruct)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else
 				go_strangle(ch, victim);
 			return (true);
 		}
-		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike))
-			&& !IS_CHARMICE(ch))
-			|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
-				&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
+		if ((ch->GetSkill(ESkill::kBackstab) && (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)) && !IS_CHARMICE(ch))
+				|| (IS_CHARMICE(ch) && GET_EQ(ch, EEquipPos::kWield) && ch->GetSkill(ESkill::kBackstab)
+						&& (!victim->GetEnemy() || CanUseFeat(ch, EFeat::kThieveStrike)))) {
 
 			if (do_mode)
 				do_backstab(ch, victim);
@@ -272,7 +275,7 @@ int find_door(CharData *ch, const bool track_method) {
 	for (const auto &vict : character_list) {
 		if (CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
-				if (GET_UID(vict) == names->id
+				if (vict->get_uid() == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
 						|| world[ch->in_room]->zone_rn == world[vict->in_room]->zone_rn)) {
 					if (!msg) {
@@ -282,7 +285,7 @@ int find_door(CharData *ch, const bool track_method) {
 					}
 
 					const auto door = track_method
-									  ? check_room_tracks(ch->in_room, GET_UID(vict))
+									  ? check_room_tracks(ch->in_room, vict->get_uid())
 									  : go_track(ch, vict.get(), ESkill::kTrack);
 
 					if (kBfsError != door) {
@@ -616,7 +619,10 @@ CharData *find_best_mob_victim(CharData *ch, int extmode) {
 	}
 
 // Определяем веса в зависимости от интеллекта моба
-	int druid_weight, cler_weight, charmmage_weight, caster_weight, other_weight = base_weight;
+	int druid_weight = 0;
+	int cler_weight = 0;
+	int charmmage_weight = 0;
+	int caster_weight = 0, other_weight = base_weight;
 
 	if (mobINT < kMiddleAi) {
 		// Глупый моб: равномерные веса
@@ -1251,7 +1257,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
 			  for (const auto &vict : character_list) {
-				  if (names->id == GET_UID(vict)
+				  if (names->id == vict->get_uid()
 					  && CAN_SEE(ch, vict) && !vict->IsFlagged(EPrf::kNohassle)) {
 					  if (GET_SPELL_MEM(ch, ESpell::kSummon) > 0) {
 						  CastSpell(ch.get(), vict.get(), nullptr, nullptr, ESpell::kSummon, ESpell::kSummon);

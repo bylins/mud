@@ -20,6 +20,7 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/weather.h"
+#include "engine/db/player_index.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 

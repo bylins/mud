@@ -46,7 +46,7 @@ void do_reply(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		bool found = false;
 		for (const auto &i : character_list) {
 			if (!i->IsNpc()
-				&& GET_UID(i) == ch->get_answer_id()) {
+				&& i->get_uid() == ch->get_answer_id()) {
 				if (is_tell_ok(ch, i.get())) {
 					perform_tell(ch, i.get(), argument);
 				}

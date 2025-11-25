@@ -436,6 +436,8 @@ set(SOURCES
 		src/gameplay/mechanics/damage.cpp
 		src/gameplay/mechanics/tutelar.cpp
 		src/gameplay/skills/addshot.cpp
+		src/engine/db/player_index.cpp)
+		src/gameplay/skills/addshot.cpp
 		src/gameplay/classes/mob_classes_info.cpp
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
 		src/gameplay/classes/mob_params_setter.cpp
@@ -862,7 +864,8 @@ set(HEADERS
 		src/gameplay/skills/multyparry.h
 		src/gameplay/mechanics/damage.h
 		src/gameplay/mechanics/tutelar.h
-		src/gameplay/skills/addshot.h)
+		src/gameplay/skills/addshot.h
+		src/engine/db/player_index.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

@@ -59,7 +59,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			//Find own rune label or first run label in room
 			for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it) {
 				if (affect_it->get()->type == ESpell::kRuneLabel) {
-					if (affect_it->get()->caster_id == GET_UID(ch)) {
+					if (affect_it->get()->caster_id == ch->get_uid()) {
 						aff_i = affect_it;
 						break;
 					}
@@ -84,7 +84,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 
 				const auto &aff = *aff_i;
-				if (GET_UID(ch) != aff->caster_id) {
+				if (ch->get_uid() != aff->caster_id) {
 					caster = find_char(aff->caster_id);
 					if (caster && !group::same_group(ch, caster)) {
 						pk_thiefs_action(ch, caster);

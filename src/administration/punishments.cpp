@@ -157,7 +157,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 			return false;
 		};
 		vict->UnsetFlag(EPlrFlag::kFrozen);
-		Glory::remove_freeze(GET_UID(vict));
+		Glory::remove_freeze(vict->get_uid());
 		if (vict->IsFlagged(EPlrFlag::kHelled)) {
 			vict->UnsetFlag(EPlrFlag::kHelled);
 		}
@@ -176,7 +176,7 @@ bool SetFreeze(CharData *ch, CharData *vict, char *reason, long times) {
 		sprintf(buf2, "$n освободил$u из ледяного плена.");
 	} else {
 		vict->SetFlag(EPlrFlag::kFrozen);
-		Glory::set_freeze(GET_UID(vict));
+		Glory::set_freeze(vict->get_uid());
 		pundata->duration = (times > 0) ? time(nullptr) + times * 60 * 60 : MAX_TIME;
 		sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 		mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);

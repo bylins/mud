@@ -63,7 +63,7 @@ void setall_inspect() {
 				if (it->second->type_req == kSetallFreeze) {
 					if (is_online) {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							continue;
 						}
@@ -72,15 +72,15 @@ void setall_inspect() {
 												it->second->reason,
 												it->second->freeze_time);
 					} else {
-						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+						if (LoadPlayerCharacter(player_table[it->second->pos].name().c_str(), vict,
 												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name().c_str());
 							delete vict;
 							it->second->out += buf1;
 							continue;
 						} else {
 							if (GetRealLevel(vict) >= kLvlGod) {
-								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 								it->second->out += buf1;
 								continue;
 							}
@@ -94,7 +94,7 @@ void setall_inspect() {
 				} else if (it->second->type_req == kSetallEmail) {
 					if (is_online) {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							continue;
 						}
@@ -102,16 +102,16 @@ void setall_inspect() {
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
 						sprintf(buf2,
 								"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
-								player_table[it->second->pos].name(),
+								player_table[it->second->pos].name().c_str(),
 								player_table[it->second->pos].mail,
 								it->second->newmail);
 						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 
 					} else {
-						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+						if (LoadPlayerCharacter(player_table[it->second->pos].name().c_str(), vict,
 												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							delete vict;
 							continue;
@@ -124,7 +124,7 @@ void setall_inspect() {
 							*(GET_EMAIL(vict) + 127) = '\0';
 							sprintf(buf2,
 									"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
-									player_table[it->second->pos].name(),
+									player_table[it->second->pos].name().c_str(),
 									player_table[it->second->pos].mail,
 									it->second->newmail);
 							it->second->out += buf2;
@@ -135,33 +135,33 @@ void setall_inspect() {
 				} else if (it->second->type_req == kSetallPwd) {
 					if (is_online) {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(d_vict->character.get(), std::string(it->second->pwd));
-						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name());
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name().c_str());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
 						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					} else {
-						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+						if (LoadPlayerCharacter(player_table[it->second->pos].name().c_str(), vict,
 												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							delete vict;
 							continue;
 						}
 						if (GetRealLevel(vict) >= kLvlGod) {
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
 						std::string str = player_table[it->second->pos].name();
 						str[0] = UPPER(str[0]);
-						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name());
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name().c_str());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
@@ -171,7 +171,7 @@ void setall_inspect() {
 				} else if (it->second->type_req == kSetallHell) {
 					if (is_online) {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
 							continue;
 						}
@@ -180,15 +180,15 @@ void setall_inspect() {
 												it->second->reason,
 												it->second->freeze_time);
 					} else {
-						if (LoadPlayerCharacter(player_table[it->second->pos].name(), vict,
+						if (LoadPlayerCharacter(player_table[it->second->pos].name().c_str(), vict,
 												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name().c_str());
 							delete vict;
 							it->second->out += buf1;
 							continue;
 						} else {
 							if (GetRealLevel(vict) >= kLvlGod) {
-								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 								it->second->out += buf1;
 								continue;
 							}
@@ -228,7 +228,7 @@ void do_setall(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->get_pfilepos() < 0)
 		return;
 
-	auto it = setall_inspect_list.find(GET_UID(ch));
+	auto it = setall_inspect_list.find(ch->get_uid());
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (MUD::InspectRequests().IsBusy(ch) && it != setall_inspect_list.end()) {
 		SendMsgToChar(ch, "Обрабатывается другой запрос, подождите...\r\n");

@@ -28,9 +28,9 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/economics/exchange.h"
-#include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/armor.h"
+#include "engine/db/player_index.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -153,10 +153,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
 			SendMsgToChar(buf, ch);
 		} else if (NAME_GOD(k) < 1000) {
-			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)));
+			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)));
+			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
 			SendMsgToChar(buf, ch);
 		}
 
@@ -254,14 +254,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	char tmp_buf[256];
 	if (k->get_zone_group() > 1) {
 		snprintf(tmp_buf, sizeof(tmp_buf), " : групповой %ldx%d",
-				 GET_EXP(k) / k->get_zone_group(), k->get_zone_group());
+				 k->get_exp() / k->get_zone_group(), k->get_zone_group());
 	} else {
 		tmp_buf[0] = '\0';
 	}
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
 			kColorYel, GetRealLevel(k), kColorNrm, kColorYel,
-			GET_EXP(k), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
+			k->get_exp(), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
 
 	SendMsgToChar(buf, ch);
 
@@ -271,7 +271,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
-		time_t ltime = GetLastlogonByUnique(GET_UID(k));
+		time_t ltime = GetLastlogonByUnique(k->get_uid());
 		char t1[11];
 		char t2[11];
 		strftime(t1, sizeof(t1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
@@ -333,8 +333,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf,
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
-			Glory::get_glory(GET_UID(k)),
-			GloryConst::get_glory(GET_UID(k)),
+			Glory::get_glory(k->get_uid()),
+			GloryConst::get_glory(k->get_uid()),
 			GET_AC(k),
 			GetRealAc(k),
 			CalcBaseAc(k),
@@ -706,17 +706,18 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	SendMsgToChar(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
 	if (j->get_owner()) {
-		auto *tmpstr = GetPlayerNameByUnique(j->get_owner());
-		SendMsgToChar(ch, ", Владелец : %s", tmpstr == nullptr ? "УДАЛЕН": tmpstr);
+		auto tmpstr = GetPlayerNameByUnique(j->get_owner());
+		SendMsgToChar(ch, ", Владелец : %s", tmpstr.empty() ? "УДАЛЕН": tmpstr.c_str());
 	}
 //	if (GET_OBJ_ZONE(j))
 	SendMsgToChar(ch, ", Принадлежит зоне VNUM : %d", j->get_vnum_zone_from());
 	if (j->get_crafter_uid()) {
-		const char *to_name = GetPlayerNameByUnique(j->get_crafter_uid());
-		if (to_name)
-			SendMsgToChar(ch, ", Создатель : %s", to_name);
-		else
+		auto to_name = GetPlayerNameByUnique(j->get_crafter_uid());
+		if (to_name.empty()) {
 			SendMsgToChar(ch, ", Создатель : не найден");
+		} else {
+			SendMsgToChar(ch, ", Создатель : %s", to_name.c_str());
+		}
 	}
 	if (obj_proto[j->get_rnum()]->get_parent_rnum() > -1) {
 		SendMsgToChar(ch, ", Родитель(VNum) : [%d]", obj_proto[j->get_rnum()]->get_parent_vnum());

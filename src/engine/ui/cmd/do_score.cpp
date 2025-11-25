@@ -190,8 +190,8 @@ void PrintScoreList(CharData *ch) {
 				  ch->get_gold(),
 				  ch->get_bank(),
 				  ch->get_hryvn(),
-				  GET_EXP(ch),
-				  IS_IMMORTAL(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
+				  ch->get_exp(),
+				  IS_IMMORTAL(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
@@ -202,9 +202,9 @@ void PrintScoreList(CharData *ch) {
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
 	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
-		const int timer_room_label = room_spells::GetUniqueAffectDuration(GET_UID(ch), ESpell::kRuneLabel);
+		const int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), ESpell::kRuneLabel);
 		if (timer_room_label > 0) {
 			*buf2 = '\0';
 			(timer_room_label + 1) / kSecsPerMudHour ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / kSecsPerMudHour + 1,
@@ -261,9 +261,9 @@ void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
-		int timer_room_label = room_spells::GetUniqueAffectDuration(GET_UID(ch), ESpell::kRuneLabel);
+		int timer_room_label = room_spells::GetUniqueAffectDuration(ch->get_uid(), ESpell::kRuneLabel);
 		out << InfoStrPrefix(ch) << kColorBoldGrn << "Вы поставили рунную метку в комнате \'"
 			<< label_room->name << "\' ";
 		if (timer_room_label > 0) {
@@ -280,7 +280,7 @@ void PrintRuneLabelInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
-	auto glory = GloryConst::get_glory(GET_UID(ch));
+	auto glory = GloryConst::get_glory(ch->get_uid());
 	if (glory > 0) {
 		out << InfoStrPrefix(ch) << "Вы заслужили "
 			<< glory << " " << GetDeclensionInNumber(glory, EWhat::kPoint) << " постоянной славы." << "\r\n";
@@ -507,9 +507,9 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GetRealRemort(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(CalcCharAge(ch)->year);
 	if (ch->GetLevel() < kLvlImmortal) {
-		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(GET_EXP(ch));
+		table[++row][col] = std::string("Опыт: ") + PrintNumberByDigits(ch->get_exp());
 		table[++row][col] = std::string("ДСУ: ") + PrintNumberByDigits(
-			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch));
+			GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	}
 	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
@@ -773,16 +773,16 @@ void PrintScoreBase(CharData *ch) {
 								   "  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d %c. ", GET_EXP(ch),
-			GetDeclensionInNumber(GET_EXP(ch), EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d %c. ", ch->get_exp(),
+			GetDeclensionInNumber(ch->get_exp(), EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		if (ch->IsFlagged(EPrf::kBlindMode)) {
 			sprintf(buf + strlen(buf), "\r\n");
 		}
 		sprintf(buf + strlen(buf),
 				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
-				GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch),
-				GetDeclensionInNumber(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GET_EXP(ch), EWhat::kPoint));
+				GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(),
+				GetDeclensionInNumber(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp(), EWhat::kPoint));
 	} else
 		sprintf(buf + strlen(buf), "\r\n");
 
@@ -807,18 +807,18 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	//Напоминаем о метке, если она есть.
-	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(GET_UID(ch), ESpell::kRuneLabel);
+	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
 		sprintf(buf + strlen(buf),
 				"&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
 				std::string(label_room->name).c_str());
 	}
 
-	int glory = Glory::get_glory(GET_UID(ch));
+	int glory = Glory::get_glory(ch->get_uid());
 	if (glory) {
 	//	sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n", glory, GetDeclensionInNumber(glory, EWhat::kPoint));
 	}
-	glory = GloryConst::get_glory(GET_UID(ch));
+	glory = GloryConst::get_glory(ch->get_uid());
 	if (glory) {
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
 				glory, GetDeclensionInNumber(glory, EWhat::kPoint));

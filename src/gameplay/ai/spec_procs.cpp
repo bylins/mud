@@ -1502,7 +1502,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 					GET_PAD(vict, 2));
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			vict->add_bank(amount);
-			Depot::add_offline_money(GET_UID(vict), amount);
+			Depot::add_offline_money(vict->get_uid(), amount);
 			vict->save_char();
 
 			delete vict;

@@ -804,7 +804,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 	}
 
 	if (ch->GetSkill(ESkill::kRiding) > 100 && ch->IsOnHorse()) {
-		dam *= static_cast<int>(1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0);
+		dam *= 1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
 	}

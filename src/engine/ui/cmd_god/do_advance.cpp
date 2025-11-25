@@ -70,7 +70,7 @@ void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	gain_exp_regardless(victim, GetExpUntilNextLvl(victim, newlevel)
-		- GET_EXP(victim));
+		- victim->get_exp());
 	victim->save_char();
 }
 

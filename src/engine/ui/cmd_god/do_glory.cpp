@@ -90,9 +90,9 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	switch (mode) {
 		case kAddGlory: {
 			int amount = atoi((num + 1));
-			Glory::add_glory(GET_UID(vict), amount);
+			Glory::add_glory(vict->get_uid(), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(GET_UID(vict)));
+						  GET_PAD(vict, 2), amount, Glory::get_glory(vict->get_uid()));
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
@@ -101,13 +101,13 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 		case kSubGlory: {
-			int amount = Glory::remove_glory(GET_UID(vict), atoi((num + 1)));
+			int amount = Glory::remove_glory(vict->get_uid(), atoi((num + 1)));
 			if (amount <= 0) {
 				SendMsgToChar(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, Glory::get_glory(GET_UID(vict)));
+						  GET_PAD(vict, 1), amount, Glory::get_glory(vict->get_uid()));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
 			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));

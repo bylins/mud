@@ -270,7 +270,7 @@ void die(CharData *ch, CharData *killer) {
 				dec_exp = (GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch)))
 					/ (3 + std::min(3, GetRealRemort(ch) / 5));
 			EndowExpToChar(ch, -dec_exp);
-			dec_exp = char_exp - GET_EXP(ch);
+			dec_exp = char_exp - ch->get_exp();
 			sprintf(buf, "Вы потеряли %ld %s опыта.\r\n", dec_exp, GetDeclensionInNumber(dec_exp, EWhat::kPoint));
 			SendMsgToChar(buf, ch);
 		}
@@ -504,7 +504,7 @@ void real_kill(CharData *ch, CharData *killer) {
 #endif
 	} else {
 		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))) {
-			log("Killed: %d %d %ld", GetRealLevel(ch), ch->get_max_hit(), GET_EXP(ch));
+			log("Killed: %d %d %ld", GetRealLevel(ch), ch->get_max_hit(), ch->get_exp());
 			obj_load_on_death(corpse, ch);
 		}
 		if (ch->IsFlagged(EMobFlag::kCorpse)) {
@@ -526,7 +526,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		if (rnum >= 0)
 		{
 			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
-			o->set_owner(GET_UID(ch));
+			o->set_owner(ch->get_uid());
 			obj_to_obj(o.get(), corpse);
 		}
 
@@ -569,11 +569,11 @@ void raw_kill(CharData *ch, CharData *killer) {
 	}
 
 	if (killer && killer->IsNpc() && !ch->IsNpc() && kill_mtrigger(killer, ch)) {
-		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), GET_UID(ch));
+		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), ch->get_uid());
 		if (it != killer->kill_list.end()) {
 			killer->kill_list.erase(it);
 		}
-		killer->kill_list.push_back(GET_UID(ch));
+		killer->kill_list.push_back(ch->get_uid());
 	}
 
 	// добавляем одну душу киллеру
@@ -691,12 +691,12 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	}
 
 	// 1. Опыт делится поровну на всех
-	long long exp = GET_EXP(victim) / std::max(members, 1);
+	long long exp = victim->get_exp() / std::max(members, 1);
 	int long_live_exp_bounus_miltiplier = 1;
 
 	if (victim->get_zone_group() > 1 && members < victim->get_zone_group()) {
 		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
-		exp = GET_EXP(victim) / victim->get_zone_group();
+		exp = victim->get_exp() / victim->get_zone_group();
 	}
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,

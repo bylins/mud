@@ -447,7 +447,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 			if (spell_id == ESpell::kPoison) {
 				for (const auto poisoner : world[victim->in_room]->people) {
 					if (poisoner != victim
-						&& GET_UID(poisoner) == victim->poisoner) {
+						&& poisoner->get_uid() == victim->poisoner) {
 						killer = poisoner;
 					}
 				}

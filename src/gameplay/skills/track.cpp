@@ -104,7 +104,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				for (const auto & c : player_table) {
 					if (c.uid() == track->who) {
-						strcpy(name, c.name());
+						strcpy(name, c.name().c_str());
 						break;
 					}
 				}
@@ -140,7 +140,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			for (std::size_t c = 0; c < player_table.size(); c++) {
 				if (player_table[c].uid() == track->who) {
-					strcpy(name, player_table[c].name());
+					strcpy(name, player_table[c].name().c_str());
 					break;
 				}
 			}
@@ -210,7 +210,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			EXITDATA(EXITDATA(croom, dir)->to_room(), rdir)->to_room() == croom) {
 			for (temp = world[EXITDATA(croom, dir)->to_room()]->track; temp; temp = temp->next)
 				if (!IS_SET(temp->track_info, TRACK_NPC)
-					&& GET_UID(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
+					&& ch->get_uid() == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
 					&& IS_SET(temp->time_outgone[rdir], 3)) {
 					found = true;
 					track[dir] = temp;
@@ -222,7 +222,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	track[EDirection::kMaxDirNum] = nullptr;
 	for (temp = world[ch->in_room]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
-			GET_UID(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
+			ch->get_uid() == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
 			found = true;
 			track[EDirection::kMaxDirNum] = temp;
 			break;

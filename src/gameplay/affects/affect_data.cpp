@@ -965,7 +965,7 @@ bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type) {
 	}
 
 	for (const auto &affect : vict->affected) {
-		if (affect->type == type && affect->caster_id == GET_UID(ch)) {
+		if (affect->type == type && affect->caster_id == ch->get_uid()) {
 			return true;
 		}
 	}

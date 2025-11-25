@@ -37,6 +37,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include "engine/db/player_index.h"
 
 //Используемые внешние ф-ии.
 extern int get_buf_line(char **source, char *target);
@@ -243,7 +244,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		 j && (counter + (counter_ming / 20) <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GetRealRemort(ch) * 2));
 		 j = next_thing) {
 		next_thing = j->next;
-		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_UID(ch)) {
+		if (GET_EXCHANGE_ITEM_SELLERID(j) == ch->get_uid()) {
 			if (GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kMagicIngredient
 				&& GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kIngredient) {
 				counter++;
@@ -264,7 +265,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 	item = create_exchange_item();
 	GET_EXCHANGE_ITEM_LOT(item) = lot;
-	GET_EXCHANGE_ITEM_SELLERID(item) = GET_UID(ch);
+	GET_EXCHANGE_ITEM_SELLERID(item) = ch->get_uid();
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
 	item->time = time(0);
 	skip_spaces(&arg);
@@ -322,7 +323,7 @@ int exchange_change_cost(CharData *ch, char *arg) {
 		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != ch->get_uid()) && (GetRealLevel(ch) < kLvlImplementator)) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
@@ -392,12 +393,12 @@ int exchange_withdraw(CharData *ch, char *arg) {
 		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) && (GetRealLevel(ch) < kLvlImplementator)) {
+	if ((GET_EXCHANGE_ITEM_SELLERID(item) != ch->get_uid()) && (GetRealLevel(ch) < kLvlImplementator)) {
 		SendMsgToChar("Это не ваш лот.\r\n", ch);
 		return false;
 	}
 	act("Вы сняли $O3 с базара.", false, ch, nullptr, GET_EXCHANGE_ITEM(item), kToChar);
-	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_UID(ch)) {
+	if (GET_EXCHANGE_ITEM_SELLERID(item) != ch->get_uid()) {
 		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	} else {
@@ -473,9 +474,8 @@ int exchange_information(CharData *ch, char *arg) {
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
-	sprintf(buf2, "%s",
-			GetNameById(GET_EXCHANGE_ITEM_SELLERID(item)) ?
-			GetNameById(GET_EXCHANGE_ITEM_SELLERID(item)) : "(null)");
+	auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
+	sprintf(buf2, "%s", seller_name.empty() ? "(сожран долгоносиком)" : seller_name.c_str());
 	*buf2 = UPPER(*buf2);
 	strcat(buf, "Продавец ");
 	strcat(buf, buf2);
@@ -531,7 +531,7 @@ int exchange_identify(CharData *ch, char *arg) {
 
 CharData *get_char_by_id(int id) {
 	for (const auto &i : character_list) {
-		if (!i->IsNpc() && GET_UID(i) == id) {
+		if (!i->IsNpc() && i->get_uid() == id) {
 			return i.get();
 		}
 	}
@@ -566,7 +566,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		SendMsgToChar("Неверный номер лота.\r\n", ch);
 		return false;
 	}
-	if (GET_EXCHANGE_ITEM_SELLERID(item) == GET_UID(ch)) {
+	if (GET_EXCHANGE_ITEM_SELLERID(item) == ch->get_uid()) {
 		SendMsgToChar("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
@@ -578,12 +578,12 @@ int exchange_purchase(CharData *ch, char *arg) {
 	seller = get_char_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
 	if (seller == nullptr) {
-		const char *seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
+		auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 
 		auto seller_ptr = std::make_unique<Player>();
 		seller = seller_ptr.get(); // TODO: переделать на стек
-		if (seller_name == nullptr
-			|| LoadPlayerCharacter(seller_name, seller, ELoadCharFlags::kFindId) < 0) {
+		if (seller_name.empty()
+			|| LoadPlayerCharacter(seller_name.c_str(), seller, ELoadCharFlags::kFindId) < 0) {
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			act("Вы купили $O3 на базаре.", false, ch, 0, GET_EXCHANGE_ITEM(item), kToChar);
@@ -1141,14 +1141,14 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		if (show_type == 1 && !isname(GET_NAME(ch), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
 		// ну идиотизм сидеть статить 5-10 страниц резных
+		// Идиотизм - это тупым хардком по названию предмета вот так проверять.
+		// Использовать флаг или добавить новый - лапки, да?
 		if (utils::IsAbbr("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())
 			|| utils::IsAbbr("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())
 			|| utils::IsAbbr("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())) {
 			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
-			if (!strcmp(buf,
-						"ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
-			{
+			if (!strcmp(buf, "ничего")) {
 				bool found = false;
 				for (int n = 0; n < kMaxObjAffect; n++) {
 					auto drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;

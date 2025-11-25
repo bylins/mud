@@ -11,6 +11,7 @@
 #include "fmt/format.h"
 #include "fmt/chrono.h"
 #include "utils/utils_time.h"
+#include "engine/db/player_index.h"
 
 const int kMaxRequestLength{65};
 const int kMinRequestLength{3};
@@ -37,12 +38,13 @@ CharData::shared_ptr GetCharPtr(const PlayerIndexElement &index) {
 		return d_vict->character;
 	} else {
 		auto player_ptr = std::make_shared<Player>();
-		if (LoadPlayerCharacter(index.name(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
+		if (LoadPlayerCharacter(index.name().c_str(), player_ptr.get(), ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) > -1) {
 			return player_ptr;
 		}
 	}
+	auto char_name = index.name();
 	const auto error_msg = fmt::format("Не удалось загрузить файл персонажа '{}'.\r\n",
-				(index.name() ? index.name() : "unknown"));
+				(char_name.empty() ? "unknown" : char_name));
 	mudlog(error_msg, DEF, kLvlImplementator, ERRLOG, true);
 	return {};
 }
@@ -76,7 +78,7 @@ class ExtractedCharacterInfo {
   int last_logon_time_{0};
   std::string clan_abbrev_;
   std::string class_name_;
-  std::string_view name_;
+  std::string name_;
   std::string_view mail_;
   std::string_view last_ip_;
   std::ostringstream punishments_;
@@ -93,7 +95,7 @@ class ExtractedCharacterInfo {
 
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
 	online_ = (DescriptorByUid(index.uid()) != nullptr);
-	name_ = (index.name() ? index.name() : kUndefined);
+	name_ = (index.name().empty() ? kUndefined : index.name());
 	mail_ = (index.mail ? index.mail : kUndefined);
 	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
 	class_name_ = MUD::Class(index.plr_class).GetName();
@@ -184,7 +186,7 @@ void ExtractedCharacterInfo::Clear() {
 	last_logon_time_ = 0;
 	level_ = 0;
 	remort_ = 0;
-	name_ = kUndefined;
+	name_.clear();
 	mail_ = kUndefined;
 	last_ip_ = kUndefined;
 	class_name_.clear();
@@ -285,7 +287,7 @@ class InspectRequest {
   InspectRequest &operator=(const InspectRequest &) = delete;
   InspectRequest &operator=(InspectRequest &&) = delete;
   virtual ~InspectRequest() = default;
-  int GetAuthorUid() const { return author_uid_; }
+  long GetAuthorUid() const { return author_uid_; }
   bool IsActive() { return status_; };
   void Execute();
 
@@ -302,7 +304,7 @@ class InspectRequest {
   virtual void ProcessMatchedIndex(const PlayerIndexElement &index);
 
  private:
-  int author_uid_{0};
+  long author_uid_{0};
   int author_level_{0};
   std::size_t current_player_table_pos_{0};
   std::string request_text_;
@@ -470,7 +472,7 @@ class InspectRequestAll : public InspectRequest {
   explicit InspectRequestAll(const CharData *author, const std::vector<std::string> &args);
 
  private:
-  int vict_uid_{0};
+  long vict_uid_{0};
   std::set<std::string> victim_ip_log_;
   std::ostringstream current_char_intercesting_logons_;
 

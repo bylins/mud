@@ -7,6 +7,7 @@
 #include "utils/logger.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/boards/boards.h"
+#include "engine/db/player_index.h"
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.
@@ -352,7 +353,7 @@ bool HasPrivilege(CharData *ch, const std::string &cmd_name, int cmd_number, int
 bool CheckFlag(const CharData *ch, int flag) {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
-	const auto it = god_list.find(GET_UID(ch));
+	const auto it = god_list.find(ch->get_uid());
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), true))
 		if (it->second.flags[flag])
 			result = true;

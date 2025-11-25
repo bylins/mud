@@ -376,7 +376,7 @@ bool parse_denial_check(CharData *ch, int stat) {
 				if (ch->GetInbornCha() == ch->desc->glory->olc_cha)
 					stop = true;
 				break;
-			default: log("Glory: невалидный номер стат: %d (uid: %ld, name: %s)", stat, GET_UID(ch), GET_NAME(ch));
+			default: log("Glory: невалидный номер стат: %d (uid: %ld, name: %s)", stat, ch->get_uid(), GET_NAME(ch));
 				stop = true;
 		}
 		if (stop) {
@@ -427,7 +427,7 @@ bool parse_remove_stat(CharData *ch, int stat) {
 			return true;
 		}
 	}
-	log("Glory: не найден стат при вычитании в олц (stat: %d, uid: %ld, name: %s)", stat, GET_UID(ch), GET_NAME(ch));
+	log("Glory: не найден стат при вычитании в олц (stat: %d, uid: %ld, name: %s)", stat, ch->get_uid(), GET_NAME(ch));
 	return true;
 }
 
@@ -592,7 +592,7 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 				return false;
 			}
 
-			auto it = glory_list.find(GET_UID(ch));
+			auto it = glory_list.find(ch->get_uid());
 			if (it == glory_list.end()
 				|| ch->desc->glory->check_spend_glory != it->second->spend_glory
 				|| ch->desc->glory->check_free_glory != it->second->free_glory
@@ -754,7 +754,7 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 
 // * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	auto it = glory_list.find(GET_UID(ch));
+	auto it = glory_list.find(ch->get_uid());
 	if (it == glory_list.end() || IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
@@ -908,7 +908,7 @@ void timers_update() {
 * \return 0 - ничего не снято, 1 - снято сколько просили
 */
 bool remove_stats(CharData *ch, CharData *god, int amount) {
-	auto it = glory_list.find(GET_UID(ch));
+	auto it = glory_list.find(ch->get_uid());
 	if (it == glory_list.end()) {
 		SendMsgToChar(god, "У %s нет вложенной славы.\r\n", GET_PAD(ch, 1));
 		return false;
@@ -968,7 +968,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 		return;
 	}
 
-	auto it = glory_list.find(GET_UID(ch));
+	auto it = glory_list.find(ch->get_uid());
 	if (it == glory_list.end()) {
 		SendMsgToChar(god, "У %s нет славы.\r\n", GET_PAD(ch, 1));
 		return;
@@ -1065,7 +1065,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 	glory_list.erase(it);
 	// и выставляем ему новые статы (он то полюбому уже загружен канеш,
 	// но тут стройная картина через дескриптор везде) и если он был оффлайн - обнулится при входе
-	DescriptorData *k = DescriptorByUid(GET_UID(ch));
+	DescriptorData *k = DescriptorByUid(ch->get_uid());
 	if (k) {
 		GloryMisc::recalculate_stats(k->character.get());
 	}
@@ -1075,7 +1075,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 
 // * Показ свободной и вложенной славы у чара (glory имя).
 void show_glory(CharData *ch, CharData *god) {
-	auto it = glory_list.find(GET_UID(ch));
+	auto it = glory_list.find(ch->get_uid());
 	if (it == glory_list.end()) {
 		SendMsgToChar(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
 		return;
@@ -1102,7 +1102,7 @@ void hide_char(CharData *vict, CharData *god, char const *const mode) {
 		return;
 	}
 	bool ok = true;
-	auto it = glory_list.find(GET_UID(vict));
+	auto it = glory_list.find(vict->get_uid());
 	if (it != glory_list.end()) {
 		if (!str_cmp(mode, "on") || !str_cmp(mode, "off")) {
 			it->second->hide = true;
@@ -1137,13 +1137,13 @@ void remove_freeze(long uid) {
 
 // * Во избежание разного рода недоразумений с фризом таймеров - проверяем эту тему при входе в игру.
 void check_freeze(CharData *ch) {
-	auto it = glory_list.find(GET_UID(ch));
+	auto it = glory_list.find(ch->get_uid());
 	if (it != glory_list.end())
 		it->second->freeze = ch->IsFlagged(EPlrFlag::kFrozen) ? true : false;
 }
 
 void set_stats(CharData *ch) {
-	auto it = glory_list.find(GET_UID(ch));
+	auto it = glory_list.find(ch->get_uid());
 	if (it == glory_list.end()) {
 		return;
 	}
@@ -1170,7 +1170,7 @@ void set_stats(CharData *ch) {
 }
 
 int get_spend_glory(CharData *ch) {
-	auto i = glory_list.find(GET_UID(ch));
+	auto i = glory_list.find(ch->get_uid());
 	if (i != glory_list.end()) {
 		return i->second->spend_glory;
 	}

@@ -148,7 +148,7 @@ void LevelReporter::get(Variable::shared_ptr &response) {
 }
 
 void ExperienceReporter::get(Variable::shared_ptr &response) {
-	const auto experience = std::to_string(GET_EXP(descriptor()->character));
+	const auto experience = std::to_string(descriptor()->character->get_exp());
 	response = std::make_shared<Variable>(constants::EXPERIENCE,
 										  std::make_shared<StringValue>(experience));
 }
