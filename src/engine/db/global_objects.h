@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/strengthening.h"
 #include "engine/boot/cfg_manager.h"
 #include "engine/ui/cmd_god/do_set_all.h"
+#include "engine/db/player_index.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
 

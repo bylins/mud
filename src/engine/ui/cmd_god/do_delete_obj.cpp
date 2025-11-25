@@ -11,6 +11,7 @@
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/db/player_index.h"
 
 void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int vnum;

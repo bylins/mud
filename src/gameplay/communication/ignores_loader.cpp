@@ -1,6 +1,7 @@
 #include "ignores_loader.h"
 
 #include "engine/entities/char_data.h"
+#include "engine/db/player_index.h"
 
 class IgnoreParser {
  public:

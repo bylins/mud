@@ -7,6 +7,7 @@
 #include "utils/logger.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/boards/boards.h"
+#include "engine/db/player_index.h"
 
 #define TEST_BUILD // prool: система привилегий сделана простой, как в тестовых сборках: 34 уровень может всё
 

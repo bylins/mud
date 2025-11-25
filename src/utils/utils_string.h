@@ -16,7 +16,7 @@ class Padding {
 		m_padding(padding) {
 	}
 
-	auto length() const { return m_length; }
+	[[nodiscard]] auto length() const { return m_length; }
 	std::ostream &output(std::ostream &os) const;
 
  protected:

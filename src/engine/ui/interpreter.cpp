@@ -279,6 +279,7 @@
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
 #include "alias.h"
+#include "engine/db/player_index.h"
 
 #include <ctime>
 

@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <memory>
+#include "engine/db/player_index.h"
 
 //#include <sstream>
 
@@ -1309,7 +1310,7 @@ void delete_item(const std::size_t pt_num, int vnum) {
 		for (std::vector<SaveTimeInfo>::iterator i = player_table[pt_num].timer->time.begin(),
 				 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
 			if (i->vnum == vnum) {
-				log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name(), i->vnum);
+				log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name().c_str(), i->vnum);
 				i->timer = -1;
 				int rnum = GetObjRnum(i->vnum);
 				if (rnum >= 0) {
@@ -1321,7 +1322,7 @@ void delete_item(const std::size_t pt_num, int vnum) {
 	}
 	if (need_save) {
 		if (!Crash_write_timer(pt_num)) {
-			log("SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name());
+			log("SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name().c_str());
 		}
 		return;
 	}

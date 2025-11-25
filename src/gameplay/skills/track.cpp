@@ -104,7 +104,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				for (const auto & c : player_table) {
 					if (c.uid() == track->who) {
-						strcpy(name, c.name());
+						strcpy(name, c.name().c_str());
 						break;
 					}
 				}
@@ -140,7 +140,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			for (std::size_t c = 0; c < player_table.size(); c++) {
 				if (player_table[c].uid() == track->who) {
-					strcpy(name, player_table[c].name());
+					strcpy(name, player_table[c].name().c_str());
 					break;
 				}
 			}

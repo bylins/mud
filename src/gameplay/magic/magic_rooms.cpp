@@ -9,6 +9,7 @@
 #include "gameplay/skills/townportal.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/groups.h"
+#include "engine/db/player_index.h"
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 

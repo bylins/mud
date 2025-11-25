@@ -20,6 +20,7 @@
 #include "gameplay/skills/pick.h"
 #include "administration/privilege.h"
 #include "named_stuff.h"
+#include "engine/db/player_index.h"
 
 enum EDoorError : int {
   kWrongDir = -1,
@@ -308,7 +309,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 						"<%s> {%d} открыл трупный кошелек %s.",
 						ch->get_name().c_str(),
 						GET_ROOM_VNUM(ch->in_room),
-						GetPlayerNameByUnique(GET_OBJ_VAL(obj, 3)));
+						GetPlayerNameByUnique(GET_OBJ_VAL(obj, 3)).c_str());
 				mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 				system_obj::process_open_purse(ch, obj);
 				return;
