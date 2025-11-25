@@ -6,8 +6,7 @@
 #include "password.h"
 #include "engine/entities/zone.h"
 #include <sstream>
-
-#include <crypt.h> // prool: for cygwin
+#include "engine/db/player_index.h"
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 
@@ -36,7 +35,7 @@ int Account::zero_hryvn(CharData *ch, int val) {
 			if (ch->IsFlagged(EPrf::kTester)) {
 				SendMsgToChar(ch,
 							  "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n",
-							  player.name(),
+							  player.name().c_str(),
 							  val,
 							  player.level,
 							  player.remorts);
