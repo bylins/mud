@@ -536,7 +536,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"зачистить", EPosition::kDead, DoSanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
 		{"зона", EPosition::kRest, DoZone, 0, 0, 0},
-		{ "зонапересчитать", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0 },
+		{ "зонапересчитать", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"зоныстат", EPosition::kDead, DoShowZoneStat, kLvlImmortal, 0, 0},
 		{"инвентарь", EPosition::kSleep, DoInventory, 0, 0, 0},
 		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
