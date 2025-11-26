@@ -58,7 +58,7 @@ void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (need_save) {
 			if (!Crash_write_timer(pt_num)) {
-				sprintf(buf, "SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name().c+str());
+				sprintf(buf, "SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name().c_str());
 				SendMsgToChar(buf2, ch);
 			}
 		}
