@@ -18,7 +18,7 @@
  * you should go through this entire file from beginning to end and add
  * the appropriate new special cases for your new class.
  */
-#include "classes.h"
+#include "pc_classes.h"
 
 #include "gameplay/magic/magic_utils.h"
 #include "engine/core/handler.h"

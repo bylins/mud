@@ -2,7 +2,7 @@
 
 #include "engine/core/handler.h"
 #include "gameplay/classes/classes_spell_slots.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/db/global_objects.h"
 

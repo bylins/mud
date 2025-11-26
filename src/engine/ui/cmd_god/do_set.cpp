@@ -17,7 +17,7 @@
 #include "administration/password.h"
 #include "gameplay/statistics/top.h"
 #include "gameplay/fight/fight.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/weather.h"
 #include "engine/db/player_index.h"

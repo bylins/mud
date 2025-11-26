@@ -39,7 +39,7 @@ set(SOURCES
 		src/gameplay/mechanics/celebrates.cpp
 		src/engine/entities/char_data.cpp
 		src/engine/entities/char_player.cpp
-		src/gameplay/classes/classes.cpp
+		src/gameplay/classes/pc_classes.cpp
 		src/gameplay/classes/classes_spell_slots.cpp
 		src/engine/ui/color.cpp
 		src/engine/core/comm.cpp
@@ -229,7 +229,7 @@ set(SOURCES
 		src/gameplay/communication/insult.cpp
 		src/gameplay/abilities/abilities_info.cpp
 		src/gameplay/abilities/abilities_constants.cpp
-		src/gameplay/classes/classes_info.cpp
+		src/gameplay/classes/pc_classes_info.cpp
 		src/engine/ui/objects_filter.cpp
 		src/engine/structs/info_container.cpp
 		src/utils/parser_wrapper.cpp
@@ -436,7 +436,12 @@ set(SOURCES
 		src/gameplay/mechanics/damage.cpp
 		src/gameplay/mechanics/tutelar.cpp
 		src/gameplay/skills/addshot.cpp
-		src/engine/db/player_index.cpp)
+		src/engine/db/player_index.cpp
+		src/gameplay/skills/addshot.cpp
+		src/gameplay/classes/mob_classes_info.cpp
+		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
+		src/gameplay/classes/mob_params_setter.cpp
+		src/gameplay/classes/mob_classes_info.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -523,7 +528,7 @@ set(HEADERS
 		src/engine/entities/char_data.h
 		src/engine/core/utils_char_obj.inl
 		src/engine/entities/char_player.h
-		src/gameplay/classes/classes.h
+		src/gameplay/classes/pc_classes.h
 		src/gameplay/classes/classes_spell_slots.h
 		src/engine/core/comm.h
 		src/engine/ui/cmd_god/do_shutdown.h
@@ -650,7 +655,7 @@ set(HEADERS
 		src/gameplay/communication/insult.h
 		src/gameplay/communication/social.h
 		src/gameplay/abilities/abilities_info.h
-		src/gameplay/classes/classes_info.h
+		src/gameplay/classes/pc_classes_info.h
 		src/engine/ui/objects_filter.h
 		src/engine/structs/info_container.h
 		src/utils/parser_wrapper.h

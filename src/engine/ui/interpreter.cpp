@@ -180,7 +180,7 @@
 #include "gameplay/fight/pk.h"
 #include "engine/ui/cmd/do_kill.h"
 #include "gameplay/core/genchar.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/glory_const.h"
@@ -276,6 +276,7 @@
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/classes/recalc_mob_params_by_vnum.cpp"
 #include "alias.h"
 #include "engine/db/player_index.h"
 
@@ -535,6 +536,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"зачистить", EPosition::kDead, DoSanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
 		{"зона", EPosition::kRest, DoZone, 0, 0, 0},
+		{ "зонапересчитать", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0 },
 		{"зоныстат", EPosition::kDead, DoShowZoneStat, kLvlImmortal, 0, 0},
 		{"инвентарь", EPosition::kSleep, DoInventory, 0, 0, 0},
 		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
@@ -642,6 +644,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
 		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
 		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
+		//{ "пересчитать", EPosition::kDead, do_recalc_mob, kLvlImmortal, 0 },
 		{"перелить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
 		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, DoDrink, 0, kScmdDrink, 400},
@@ -924,6 +927,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"quit", EPosition::kSleep, do_quit, 0, kScmdQuit, -1},
+		//{"recalc_mob", EPosition::kDead, do_recalc_mob, kLvlImmortal, 0 },
+		{"recalc_zone", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0 },
 		{"read", EPosition::kRest, DoLook, 0, kScmdRead, 200},
 		{"receive", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"recipes", EPosition::kRest, do_recipes, 0, 0, 0},

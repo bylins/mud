@@ -2,7 +2,7 @@
 #define GLOBAL_OBJECTS_HPP_
 
 #include "gameplay/abilities/abilities_info.h"
-#include "gameplay/classes/classes_info.h"
+#include "gameplay/classes/pc_classes_info.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/magic/spells_info.h"
@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/strengthening.h"
 #include "engine/boot/cfg_manager.h"
 #include "engine/ui/cmd_god/do_set_all.h"
+#include "gameplay/classes/mob_classes_info.h"
 #include "engine/db/player_index.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
@@ -54,6 +55,8 @@ class GlobalObjects {
 	static const feats::FeatInfo &Feat(EFeat feat_id);
 	static classes::ClassesInfo &Classes();
 	static const classes::CharClassInfo &Class(ECharClass class_id);
+	static mob_classes::MobClassesInfo &MobClasses();
+	static const mob_classes:: MobClassInfo &MobClass(EMobClass mob_class_id);
 	static guilds::GuildsInfo &Guilds();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static currencies::CurrenciesInfo &Currencies();

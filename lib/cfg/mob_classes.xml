@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<mob_classes>
+    <global_vars low_skill_lvl="19"/>
+    <mobclass id="kUndefined" mode="kEnabled">
+        <name rus="не.определён" eng="Undefined"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kBoss" mode="kEnabled">
+        <name rus="босс" eng="Boss"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="1.1" deviation="0"/>
+            <saving id="kWill" base="1" increment="1.1" deviation="0"/>
+            <saving id="kStability" base="1" increment="1.1" deviation="0"/>
+            <saving id="kCritical" base="1" increment="1.1" deviation="0"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kPunctual" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kAxes" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kCharge" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kAdd" mode="kEnabled">
+        <name rus="помощник" eng="Add"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="3" deviation="0"/>
+            <saving id="kWill" base="1" increment="3" deviation="0"/>
+            <saving id="kStability" base="1" increment="3" deviation="0"/>
+            <saving id="kCritical" base="1" increment="3" deviation="0"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kPunctual" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kAxes" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kCharge" base="1"  increment="3" deviation="1" low_increment="1"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="1" deviation="2"/>
+            <resistance id="kAir" base="1" increment="1" deviation="2"/>
+            <resistance id="kWater" base="1" increment="1" deviation="2"/>
+            <resistance id="kEarth" base="1" increment="1" deviation="2"/>
+            <resistance id="kVitality" base="1" increment="1" deviation="2"/>
+            <resistance id="kMind" base="1" increment="1" deviation="2"/>
+            <resistance id="kImmunity" base="1" increment="1" deviation="2"/>
+            <resistance id="kDark" base="1" increment="1" deviation="2"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kTank" mode="kEnabled">
+        <name rus="танк" eng="Tank"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kMelleeDmg" mode="kEnabled">
+        <name rus="физ.дамаг" eng="MelleeDmg"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kArcher" mode="kEnabled">
+        <name rus="лучник" eng="Archer"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kRogue" mode="kEnabled">
+        <name rus="разбойник" eng="Rogue"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kMageDmg" mode="kEnabled">
+        <name rus="маг.дамаг" eng="MageDmg"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kMageBuff" mode="kEnabled">
+        <name rus="маг.ассист" eng="MageBuff"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+    <mobclass id="kHealer" mode="kEnabled">
+        <name rus="танк" eng="Healer"/>
+        <savings>
+            <saving id="kReflex" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+        </savings>
+        <skills>
+            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+        </skills>
+        <resistances>
+            <resistance id="kFire" base="1" increment="2" deviation="3"/>
+            <resistance id="kAir" base="4" increment="5" deviation="6"/>
+            <resistance id="kWater" base="7" increment="8" deviation="9"/>
+            <resistance id="kEarth" base="10" increment="11" deviation="12"/>
+            <resistance id="kVitality" base="13" increment="14" deviation="15"/>
+            <resistance id="kMind" base="16" increment="16" deviation="18"/>
+            <resistance id="kImmunity" base="19" increment="20" deviation="21"/>
+            <resistance id="kDark" base="22" increment="23" deviation="24"/>
+        </resistances>
+    </mobclass>
+</mob_classes>

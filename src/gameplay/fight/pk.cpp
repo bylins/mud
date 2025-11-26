@@ -18,7 +18,7 @@
 #include "gameplay/clans/house.h"
 #include "engine/core/handler.h"
 #include "fight.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/player_index.h"

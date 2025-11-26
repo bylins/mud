@@ -8,7 +8,7 @@
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/handler.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/ext_money.h"

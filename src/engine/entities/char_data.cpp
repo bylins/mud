@@ -67,7 +67,7 @@ ProtectedCharData &ProtectedCharData::operator=(const ProtectedCharData &rhv) {
 
 CharData::CharData() :
 	chclass_(ECharClass::kUndefined),
-	role_(MOB_ROLE_TOTAL_NUM),
+	role_(MOB_ROLE_COUNT),
 	in_room(Rooms::UNDEFINED_ROOM_VNUM),
 	m_wait(~0u),
 	m_master(nullptr),
@@ -1867,7 +1867,7 @@ const CharData::role_t &CharData::get_role_bits() const {
 // добавляет указанного ch чара в список атакующих босса с параметром type
 // или обновляет его данные в этом списке
 void CharData::add_attacker(CharData *ch, unsigned type, int num) {
-	if (!this->IsNpc() || ch->IsNpc() || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->IsNpc() || ch->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return;
 	}
 
@@ -1899,7 +1899,7 @@ void CharData::add_attacker(CharData *ch, unsigned type, int num) {
 // возвращает количественный параметр по флагу type указанного ch чара
 // из списка атакующих данного босса
 int CharData::get_attacker(CharData *ch, unsigned type) const {
-	if (!this->IsNpc() || ch->IsNpc() || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->IsNpc() || ch->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return -1;
 	}
 	auto i = attackers_.find(ch->get_uid());
@@ -1917,7 +1917,7 @@ int CharData::get_attacker(CharData *ch, unsigned type) const {
 std::pair<int /* uid */, int /* rounds */> CharData::get_max_damager_in_room() const {
 	std::pair<int, int> damager(-1, 0);
 
-	if (!this->IsNpc() || !get_role(MOB_ROLE_BOSS)) {
+	if (!this->IsNpc() || !get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		return damager;
 	}
 
@@ -2105,7 +2105,7 @@ bool CharData::makes_loop(CharData::ptr_t master) const {
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
 void CharData::inc_restore_timer(int num) {
-	if (get_role(MOB_ROLE_BOSS) && !attackers_.empty() && !GetEnemy()) {
+		if (get_role(static_cast<unsigned>(EMobClass::kBoss)) && !attackers_.empty() && !GetEnemy()) {
 		restore_timer_ += num;
 		if (restore_timer_ > num) {
 			restore_mob();

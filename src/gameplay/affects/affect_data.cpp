@@ -2,7 +2,7 @@
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/fight/fight_hit.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/poison.h"

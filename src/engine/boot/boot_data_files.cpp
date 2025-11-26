@@ -1246,7 +1246,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 
 /*		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
-		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
+		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(kBoss)) // жизнь и не боссы
 		{
 			if (zone_table[world[&mob_proto[i]->in_room]->zone].group < 3) // в зонах 0-2 группы
 				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GetRealLevel(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
