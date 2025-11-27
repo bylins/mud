@@ -40,7 +40,7 @@
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/ai/mob_memory.h"
 #include "gameplay/mechanics/weather.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/illumination.h"
 #include "gameplay/mechanics/hide.h"
 

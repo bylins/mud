@@ -7,7 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "engine/core/handler.h"
 #include "gameplay/core/game_limits.h"
 

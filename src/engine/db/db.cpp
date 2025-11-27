@@ -53,7 +53,7 @@
 #include "gameplay/mechanics/cities.h"
 #include "administration/proxy.h"
 #include "utils/utils_time.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/communication/social.h"
 #include "player_index.h"
@@ -920,6 +920,10 @@ void BootMudDataBase() {
 	log("Assigning guilds info.");
 	MUD::CfgManager().LoadCfg("guilds");
 
+	boot_profiler.next_step("Assigning mob classes info.");
+	log("Assigning mob classes info.");
+	MUD::CfgManager().LoadCfg("mob_classes");
+
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
 	MUD::Runestones().LoadRunestones();
@@ -1569,7 +1573,7 @@ int test_levels[] = {
 } // namespace
 
 int calc_boss_value(CharData *mob, int num) {
-	if (mob->get_role(MOB_ROLE_BOSS)) {
+	if (mob->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		num += num * 25 / 100;
 	}
 	return num;

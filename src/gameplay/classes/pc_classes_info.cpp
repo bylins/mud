@@ -5,12 +5,13 @@
 \details Вся информация о лимитах статов, доступных скиллах и спеллах должна лежать здесь.
 */
 
-#include "classes_info.h"
+#include "pc_classes_info.h"
 
 #include "engine/ui/color.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "engine/db/global_objects.h"
 //#include "utils/table_wrapper.h"
+#include "engine/entities/entities_constants.h"
 
 namespace classes {
 

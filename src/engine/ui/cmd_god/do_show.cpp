@@ -27,7 +27,7 @@
 #include "utils/file_crc.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/statistics/money_drop.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/db/player_index.h"
 
@@ -118,6 +118,23 @@ void ShowFeatInfo(CharData *ch, const std::string &name) {
 	page_string(ch->desc, out.str());
 }
 
+void ShowMobClassInfo(CharData *ch, const std::string &mob_class_name) {
+	if (mob_class_name.empty()) {
+		SendMsgToChar("Формат: show mobclass [название класса моба]", ch);
+		return;
+	}
+
+	auto mob_class_id = FindAvailableMobClassId(ch, mob_class_name);
+	if (mob_class_id == EMobClass::kUndefined) {
+		SendMsgToChar("Неизвестное название класса моба.", ch);
+		return;
+	}
+
+	std::ostringstream out;
+	MUD::MobClass(mob_class_id).Print(ch, out);
+	page_string(ch->desc, out.str());
+}
+
 void ShowAbilityInfo(CharData *ch, const std::string &name) {
 	if (name.empty()) {
 		SendMsgToChar("Формат: show abilityinfo [название навыка]", ch);
@@ -196,7 +213,7 @@ bool sort_by_zone_mob_level(int rnum1, int rnum2) {
 void print_mob_bosses(CharData *ch, bool lvl_sort) {
 	std::vector<int> tmp_list;
 	for (int i = 0; i <= top_of_mobt; ++i) {
-		if (mob_proto[i].get_role(MOB_ROLE_BOSS)) {
+		if (mob_proto[i].get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 			tmp_list.push_back(i);
 		}
 	}
@@ -378,6 +395,7 @@ struct show_struct show_fields[] = {
 	{"shops", kLvlGod},
 	{"runeslist", kLvlGod},
 	{"dungeons", kLvlGod},
+	{"mobclass", kLvlGod},
 	{"\n", 0}
 };
 
@@ -922,6 +940,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		case 38: // dungeons
 			dungeons::ListDungeons(ch);
+			break;
+		case 39: // mob class
+			ShowMobClassInfo(ch, value);
 			break;
 		default: SendMsgToChar("Извините, неверная команда.\r\n", ch);
 			break;

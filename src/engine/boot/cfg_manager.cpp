@@ -10,7 +10,8 @@
 
 //#include  "feats.h"
 #include "gameplay/abilities/abilities_info.h"
-#include "gameplay/classes/classes_info.h"
+#include "gameplay/classes/pc_classes_info.h"
+#include "gameplay/classes/mob_classes_info.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
@@ -34,6 +35,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
+	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
+								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
 }
 
 void CfgManager::ReloadCfg(const std::string &id) {

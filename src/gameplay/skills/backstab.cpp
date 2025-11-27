@@ -186,7 +186,7 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(victim->IsFlagged(EMobFlag::kProtect)))
 		&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
-		&& !victim->get_role(MOB_ROLE_BOSS)) {
+		&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 		victim->set_hit(1);
 		hit_data.dam = victim->get_hit() + fight::kLethalDmg;
 		SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");

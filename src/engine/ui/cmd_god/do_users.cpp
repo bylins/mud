@@ -3,7 +3,7 @@
 //
 
 #include "engine/ui/color.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"

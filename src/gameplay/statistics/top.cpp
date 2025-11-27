@@ -1,6 +1,6 @@
 #include "top.h"
 
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/glory_const.h"
 #include "engine/entities/char_data.h"

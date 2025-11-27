@@ -45,7 +45,7 @@ void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 iend = player_table[pt_num].timer->time.end(); i != iend; ++i) {
 				if (i->vnum == vnum && i->timer > 0) {
 					num++;
-					sprintf(buf2, "Player %s : item [%d] deleted\r\n", player_table[pt_num].name(), i->vnum);;
+					sprintf(buf2, "Player %s : item [%d] deleted\r\n", player_table[pt_num].name().c_str(), i->vnum);;
 					SendMsgToChar(buf2, ch);
 					i->timer = -1;
 					int rnum = GetObjRnum(i->vnum);
@@ -58,7 +58,7 @@ void DoDeleteObj(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		if (need_save) {
 			if (!Crash_write_timer(pt_num)) {
-				sprintf(buf, "SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name());
+				sprintf(buf, "SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name().c_str());
 				SendMsgToChar(buf2, ch);
 			}
 		}

@@ -21,7 +21,7 @@
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
 #include "magic.h"
-#include "gameplay/classes/classes.h"
+#include "gameplay/classes/pc_classes.h"
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/statistics/spell_usage.h"

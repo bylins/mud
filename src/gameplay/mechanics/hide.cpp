@@ -89,14 +89,14 @@ int SkipSneaking(CharData *ch, CharData *vict) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 		} else if (IsAffectedBySpell(ch, ESpell::kSneak)) {
-			percent = number(1, 112 + (GetRealInt(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) +
+			percent = number(1, 112 + (GetRealInt(vict) * (vict->get_role(static_cast<unsigned>(EMobClass::kBoss)) ? 3 : 1)) +
 				(GetRealLevel(vict) > 30 ? GetRealLevel(vict) : 0));
 			prob = CalcCurrentSkill(ch, ESkill::kSneak, vict);
 
 			int catch_level = (GetRealLevel(vict) - GetRealLevel(ch));
 			if (catch_level > 5) {
 				//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
-				absolute_fail = ((200 - prob) / 20 + 5) * (vict->get_role(MOB_ROLE_BOSS) ? 5 : 1);
+				absolute_fail = ((200 - prob) / 20 + 5) * (vict->get_role(static_cast<unsigned>(EMobClass::kBoss)) ? 5 : 1);
 				try_fail = number(1, 100) < absolute_fail;
 			} else
 				try_fail = false;
