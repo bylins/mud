@@ -2786,7 +2786,7 @@ void nanny(DescriptorData *d, char *argument) {
 				switch (NewNames::auto_authorize(d)) {
 					case NewNames::AUTO_ALLOW:
 						sprintf(buffer,
-								"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+								"Введите пароль для %s : ",
 								GET_PAD(d->character, 1));
 						iosystem::write_to_output(buffer, d);
 						d->state = EConState::kNewpasswd;
@@ -2884,7 +2884,7 @@ void nanny(DescriptorData *d, char *argument) {
 			switch (NewNames::auto_authorize(d)) {
 				case NewNames::AUTO_ALLOW:
 					sprintf(buffer,
-							"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+							"Введите пароль для %s : ",
 							GET_PAD(d->character, 1));
 					iosystem::write_to_output(buffer, d);
 					d->state = EConState::kNewpasswd;
@@ -3538,7 +3538,7 @@ void nanny(DescriptorData *d, char *argument) {
 				) {
 				d->character->player_data.PNames[ECase::kPre] = std::string(utils::CAP(tmp_name));
 				sprintf(buffer,
-						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+						"Введите пароль для %s : ",
 						GET_PAD(d->character, 1));
 				iosystem::write_to_output(buffer, d);
 				d->state = EConState::kNewpasswd;
