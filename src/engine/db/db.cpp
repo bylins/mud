@@ -1265,8 +1265,27 @@ void CheckRoomForIncompatibleFlags(int rnum) {
 	}
 }
 
+int anprobieren(int room) // prool
+{
+mortal_start_room=room;
+if ((r_mortal_start_room = GetRoomRnum(mortal_start_room)) == kNowhere) return 0;
+return 1;
+}
+
 // make sure the start rooms exist & resolve their vnums to rnums
 void CheckStartRooms() {
+
+	if (anprobieren(mortal_start_room)) {}
+	else if (anprobieren(9900)) {}
+	else if (anprobieren(100)) {}
+	else if (anprobieren(4056)) {}
+	else if (anprobieren(4000)) {}
+	else
+		{
+		log("prool debug: ne mogu nayti nikakuyui mortal start room :(");
+		exit(1);
+		}
+
 	if ((r_mortal_start_room = GetRoomRnum(mortal_start_room)) == kNowhere) {
 		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 		exit(1);
