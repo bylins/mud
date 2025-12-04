@@ -44,7 +44,7 @@ struct mob_command_info {
 	typedef void(*handler_f)(CharData *ch, char *argument, int cmd, int subcmd, Trigger *trig);
 	handler_f command_pointer;
 	int subcmd;                ///< Subcommand. See SCMD_* constants.
-	bool use_in_lag;
+	bool use_in_stoped;
 };
 
 extern int reloc_target;
@@ -1516,7 +1516,7 @@ const struct mob_command_info mob_cmd_info[] =
 
 bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig) {
 	char *line, arg[kMaxInputLength];
-	bool use_in_lag = false;
+	bool use_in_stoped = false;
 
 	// just drop to next line for hitting CR
 	skip_spaces(&argument);
@@ -1532,7 +1532,7 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 	while (*mob_cmd_info[cmd].command != '\n') {
 		if (arg[0] == '!') {
 			if (!strcmp(mob_cmd_info[cmd].command, arg + 1)) {
-				use_in_lag =  true;
+				use_in_stoped = true;
 				break;
 			}
 		}
@@ -1543,8 +1543,8 @@ bool mob_script_command_interpreter(CharData *ch, char *argument, Trigger *trig)
 		cmd++;
 	}
 // damage mtrigger срабатывает всегда
-	if (!(CheckScript(ch, MTRIG_DAMAGE))) {
-		if (!use_in_lag && !mob_cmd_info[cmd].use_in_lag
+	if (!(CheckScript(ch, MTRIG_DAMAGE) || CheckScript(ch, MTRIG_DEATH))) {
+		if (!use_in_stoped && !mob_cmd_info[cmd].use_in_stoped
 				&& (AFF_FLAGGED(ch, EAffect::kHold)
 						|| AFF_FLAGGED(ch, EAffect::kStopFight)
 						|| AFF_FLAGGED(ch, EAffect::kMagicStopFight))
