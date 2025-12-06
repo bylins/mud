@@ -85,7 +85,6 @@ CharData::~CharData() {
 
 
 CharData::CharData(const CharData &rhv) : ProtectedCharData(rhv) {
-	set_normal_morph();
 	*this = rhv;
 }
 CharData &CharData::operator=(const CharData &rhv) {
@@ -121,7 +120,6 @@ CharData &CharData::operator=(const CharData &rhv) {
 		int_add_ = rhv.int_add_;
 		cha_ = rhv.cha_;
 		cha_add_ = rhv.cha_add_;
-		morphs_ = rhv.morphs_;
 		role_ = rhv.role_;
 		restore_timer_ = rhv.restore_timer_;
 		count_score = rhv.count_score;
@@ -139,9 +137,6 @@ CharData &CharData::operator=(const CharData &rhv) {
 		points = rhv.points;
 		char_specials = rhv.char_specials;
 		mob_specials = rhv.mob_specials;
-
-		// Fix the morph pointer: create new NormalMorph pointing to this object
-		set_normal_morph();
 	}
 	return *this;
 }
