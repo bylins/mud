@@ -40,8 +40,9 @@ TEST(Utils_String, ProcedureStdString)
 	for (const auto& test : test_data)
 	{
 		std::string string = test.data;
-		EXPECT_NO_FATAL_FAILURE(utils::RemoveColors(string));
-		EXPECT_EQ(test.result, string)
+		std::string result;
+		EXPECT_NO_FATAL_FAILURE(result = utils::RemoveColors(string));
+		EXPECT_EQ(test.result, result)
 			<< "Failed test case '" << test.description << "'";
 	}
 }

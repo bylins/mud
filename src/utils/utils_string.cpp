@@ -23,8 +23,9 @@ std::string RemoveColors(char *string) {
 		int new_length = 0;
 		remove_colors_template<char *>(string, new_length);
 		string[new_length] = '\0';
+		return string;
 	}
-	return string;
+	return {};
 }
 
 std::string RemoveColors(std::string string) {
@@ -53,11 +54,7 @@ shared_string_ptr GetStringWithoutColors(const char *string) {
 }
 
 std::string GetStringWithoutColors(const std::string &string) {
-	std::string result = string;
-
-	RemoveColors(result);
-
-	return result;
+	return RemoveColors(string);
 }
 
 std::ostream &Padding::output(std::ostream &os) const {
@@ -166,10 +163,10 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 		TrimLeft(token);
 		tokens.push_back(token);
 	}
-	return tokens; //если разделитель не найден вернется 1 элемент содержащий полную строку
+	return tokens; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1 О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 }
 
-// первое слово разделенное маской
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 std::string FirstWordOnString(std::string s, std::string mask) {
 	int pos = s.find_first_of(mask);
 	if (pos > 0)
@@ -177,7 +174,7 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 	return s;
 }
 
-// аналог one_argument для string
+// О©╫О©╫О©╫О©╫О©╫О©╫ one_argument О©╫О©╫О©╫ string
 std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
 	std::string word;
 
@@ -402,9 +399,9 @@ std::string CompressSymbol(std::string s, const char ch) {
 const char *first_letter(const char *txt) {
 	if (txt) {
 		while (*txt && !a_isalpha(*txt)) {
-			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
-			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
-			//но он не используется (см. CLEAR_SCREEN)
+			//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+			//О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,
+			//О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫. CLEAR_SCREEN)
 			if ('\x1B' == *txt) {
 				while (*txt && 'm' != *txt) {
 					++txt;
