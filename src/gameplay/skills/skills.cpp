@@ -483,7 +483,6 @@ void init_ESkill_ITEM_NAMES() {
 	ESkill_name_by_value[ESkill::kDisarm] = "kDisarm";
 	ESkill_name_by_value[ESkill::kParry] = "kParry";
 	ESkill_name_by_value[ESkill::kCharge] = "kCharge";
-	ESkill_name_by_value[ESkill::kMorph] = "kMorph";
 	ESkill_name_by_value[ESkill::kBows] = "kBows";
 	ESkill_name_by_value[ESkill::kAddshot] = "kAddshot";
 	ESkill_name_by_value[ESkill::kDisguise] = "kDisguise";
@@ -1940,7 +1939,7 @@ void RemoveAllSkills(CharData *ch) {
 }
 
 void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victim) {
-	const int trained_skill = ch->GetMorphSkill(skill);
+	const int trained_skill = ch->GetTrainedSkill(skill);
 
 	if (trained_skill <= 0 || trained_skill >= CalcSkillMinCap(ch, skill)) {
 		return;
@@ -1971,7 +1970,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
-	int INT_PLAYER = (ch->GetMorphSkill(skill) < 51
+	int INT_PLAYER = (ch->GetTrainedSkill(skill) < 51
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GetRealInt(ch);
 
 	long div = int_app[INT_PLAYER].improve;
@@ -1997,10 +1996,10 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
 		}
 		SendMsgToChar(buf, ch);
-		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
+		ch->set_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
-			ch->set_morphed_skill(skill,
-								  (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetMorphSkill(skill))));
+			ch->set_skill(skill,
+								  (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetTrainedSkill(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
@@ -2011,7 +2010,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) {
 	if (!ch->IsNpc()) {
 		if (skill != ESkill::kSideAttack
-			&& ch->GetMorphSkill(skill) > 0
+			&& ch->GetTrainedSkill(skill) > 0
 			&& (!vict
 				|| (vict->IsNpc()
 					&& !vict->IsFlagged(EMobFlag::kProtect)
@@ -2024,7 +2023,7 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 		if (ch->GetSkill(skill) > 0
 			&& GetRealInt(ch) <= number(0, 1000 - 20 * GetRealWis(ch))
 			&& ch->GetSkill(skill) < MUD::Skill(skill).difficulty) {
-			ch->set_skill(skill, ch->GetMorphSkill(skill) + 1);
+			ch->set_skill(skill, ch->GetTrainedSkill(skill) + 1);
 		}
 	}
 }

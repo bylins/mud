@@ -1,52 +1,56 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
 enable_testing()
 
-option(MANUAL_GTEST_LOCATION "Ifset then you have to provide proper value of environment value GTEST_ROOT" ON)
-
+# Поиск GTest: сначала пробуем find_package (работает на большинстве дистрибутивов),
+# затем ручной поиск для нестандартных установок
 if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
-	if (MANUAL_GTEST_LOCATION)
-		set(GTEST_LIBRARY_NAME "gtest")
-		set(GTEST_LIBRARY_SUBDIR_NAME "lib")
-		set(GTEST_INCLUDE_FILE "include/gtest/gtest.h")
-
-		find_path(GTEST_ROOT ${GTEST_INCLUDE_FILE} PATHS $ENV{GTEST_ROOT} /usr/ NO_DEFAULT_PATH)
-		set(GTEST_INCLUDE ${GTEST_ROOT}/include)
-		find_library(GTEST_LIB ${GTEST_LIBRARY_NAME} PATHS ${GTEST_ROOT}/${GTEST_LIBRARY_SUBDIR_NAME} NO_DEFAULT_PATH)
-
-		if (NOT GTEST_LIB OR NOT GTEST_INCLUDE)
-			set(MISSING_FILES "")
-			if (NOT GTEST_LIB)
-				set(MISSING_FILES "\n  - ${GTEST_LIBRARY_NAME} library in subdirectory '${GTEST_LIBRARY_SUBDIR_NAME}'")
-			endif ()
-
-			if (NOT GTEST_INCLUDE)
-				set(MISSING_FILES "${MISSING_FILES}\n  - ${GTEST_INCLUDE_FILE}")
-			endif ()
-
-			message(WARNING "Value of GTEST_ROOT is incorrect. At least the following files weren't found "
-				"in the GTest root directory ${GTEST_ROOT}:${MISSING_FILES}\nTrying to find package automatically.")
-
-			find_package(GTest)
-			if (NOT GTEST_FOUND)
-				message(FATAL_ERROR "Automatic search for GTest package failed as well.")
-			else ()
-				set(GTEST_LIB "${GTEST_LIBRARIES}")
-				set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
-			endif ()
-		endif ()
-	else ()
-		find_package(GTest)
-		if (NOT GTEST_FOUND)
-			message(FATAL_ERROR "Automatic search for GTest package failed as well.")
+	# Сначала пробуем стандартный поиск через find_package
+	find_package(GTest QUIET)
+	if (GTest_FOUND OR GTEST_FOUND)
+		message(STATUS "GTest found via find_package")
+		# Современный CMake (3.20+) использует GTest::gtest target
+		if (TARGET GTest::gtest)
+			set(GTEST_LIB GTest::gtest)
+			get_target_property(GTEST_INCLUDE GTest::gtest INTERFACE_INCLUDE_DIRECTORIES)
 		else ()
 			set(GTEST_LIB "${GTEST_LIBRARIES}")
 			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
 		endif ()
+	else ()
+		# Ручной поиск для нестандартных установок
+		message(STATUS "GTest not found via find_package, trying manual search...")
+
+		# Ищем заголовочные файлы
+		find_path(GTEST_INCLUDE_DIR gtest/gtest.h
+			PATHS
+				$ENV{GTEST_ROOT}/include
+				/usr/include
+				/usr/local/include
+		)
+
+		# Ищем библиотеку в стандартных путях для разных дистрибутивов
+		find_library(GTEST_LIB gtest
+			PATHS
+				$ENV{GTEST_ROOT}/lib
+				/usr/lib
+				/usr/lib64
+				/usr/local/lib
+				/usr/local/lib64
+		)
+
+		if (GTEST_INCLUDE_DIR AND GTEST_LIB)
+			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIR}")
+			message(STATUS "GTest found manually: ${GTEST_LIB}")
+		else ()
+			message(FATAL_ERROR "GTest not found. Install libgtest-dev (Debian/Ubuntu), gtest-devel (Fedora/RHEL), or gtest (Arch)")
+		endif ()
 	endif ()
 endif ()
 
-include_directories(system ${GTEST_INCLUDE})
+if (GTEST_INCLUDE)
+	include_directories(SYSTEM ${GTEST_INCLUDE})
+endif ()
 
 if (UNIX)
 	add_definitions("-Wno-conversion-null -Wno-sign-compare")
@@ -61,6 +65,7 @@ set(TESTS
 		msdp.builder.cpp
 		char.affects.cpp
 		char.leaders.cpp
+		char.morph.copy.cpp
 		obj.copy.cpp
 		act.makefood.cpp
 		utils.editor.cpp
@@ -97,19 +102,23 @@ add_test(all tests)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
+# Копируем тестовые данные в корень проекта (откуда запускаются тесты)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_CURRENT_BINARY_DIR}/misc/grouping
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/misc
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_SOURCE_DIR}/misc/grouping
 		COMMENT "Copy lib/misc/grouping for tests.")
 set_target_properties(tests.misc.grouping PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.changelog_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/changelog.sample
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/data/boards
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_SOURCE_DIR}/data/boards/changelog.sample
 		COMMENT "Copy tests/data/boards/changelog.sample for tests.")
 set_target_properties(tests.data.boards.changelog_sample PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.news_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/news.sample
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/data/boards
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_SOURCE_DIR}/data/boards/news.sample
 		COMMENT "Copy tests/data/boards/news.sample for tests.")
 set_target_properties(tests.data.boards.news_sample PROPERTIES FOLDER "Utility targets/Tests data")
 

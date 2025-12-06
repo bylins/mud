@@ -28,13 +28,13 @@ MapSystem::Options PlayerI::empty_map_options;
 namespace {
 
 // * На перспективу - втыкать во все методы character.
-void check_purged(const CharData *ch, const char *fnc) {
+/*void check_purged(const CharData *ch, const char *fnc) {
 	if (ch->purged()) {
 		log("SYSERR: Using purged character (%s).", fnc);
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	}
 }
-
+*/
 } // namespace
 
 
@@ -75,13 +75,70 @@ CharData::CharData() :
 	script(new Script()),
 	followers(nullptr) {
 	this->zero_init();
-	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.Add(this);
 	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
 }
 
 CharData::~CharData() {
 	this->purge();
+}
+
+
+CharData::CharData(const CharData &rhv) : ProtectedCharData(rhv) {
+	*this = rhv;
+}
+CharData &CharData::operator=(const CharData &rhv) {
+	if (this != &rhv) {
+		// Copy base class
+		ProtectedCharData::operator=(rhv);
+
+		// Copy members
+		name_ = rhv.name_;
+		short_descr_ = rhv.short_descr_;
+		chclass_ = rhv.chclass_;
+		is_npc_ = rhv.is_npc_;
+		level_ = rhv.level_;
+		level_add_ = rhv.level_add_;
+		uid_ = rhv.uid_;
+		exp_ = rhv.exp_;
+		remorts_ = rhv.remorts_;
+		remorts_add_ = rhv.remorts_add_;
+		last_logon_ = rhv.last_logon_;
+		last_exchange_ = rhv.last_exchange_;
+		gold_ = rhv.gold_;
+		bank_gold_ = rhv.bank_gold_;
+		ruble = rhv.ruble;
+		str_ = rhv.str_;
+		str_add_ = rhv.str_add_;
+		dex_ = rhv.dex_;
+		dex_add_ = rhv.dex_add_;
+		con_ = rhv.con_;
+		con_add_ = rhv.con_add_;
+		wis_ = rhv.wis_;
+		wis_add_ = rhv.wis_add_;
+		int_ = rhv.int_;
+		int_add_ = rhv.int_add_;
+		cha_ = rhv.cha_;
+		cha_add_ = rhv.cha_add_;
+		role_ = rhv.role_;
+		restore_timer_ = rhv.restore_timer_;
+		count_score = rhv.count_score;
+		souls = rhv.souls;
+		skill_bonus_ = rhv.skill_bonus_;
+		type_charmice_ = rhv.type_charmice_;
+		skills = rhv.skills;
+		skills_add_ = rhv.skills_add_;
+		attackers_ = rhv.attackers_;
+		obj_bonus_ = rhv.obj_bonus_;
+		in_room = rhv.in_room;
+		player_data = rhv.player_data;
+		add_abils = rhv.add_abils;
+		real_abils = rhv.real_abils;
+		points = rhv.points;
+		char_specials = rhv.char_specials;
+		mob_specials = rhv.mob_specials;
+	}
+	return *this;
 }
 void CharData::set_type_charmice(int type) {
 	this->type_charmice_ = type;
@@ -279,12 +336,14 @@ size_t CharData::remove_random_affects(const size_t count) {
 	}
 
 	const auto to_remove = std::min(count, removable_affects.size());
-	std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
-	for (auto counter = 0u; counter < to_remove; ++counter) {
-		const auto affect_i = removable_affects[counter];
-		RemoveAffectFromCharAndRecalculate(this, affect_i->get()->type);    //count тут не сработает, удаляются все аффекты а не первый
+	if (to_remove > 0) {
+		std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
+		for (auto counter = 0u; counter < to_remove; ++counter) {
+			const auto affect_i = removable_affects[counter];
+			AffectRemove(affect_i);    //count тут не сработает, удаляются все аффекты а не первый
+		}
+		affect_total(this);
 	}
-
 	return to_remove;
 }
 
@@ -505,7 +564,7 @@ void CharData::purge() {
  * Умение с учетом всех бонусов и штрафов (экипировка, таланты, яд).
  */
 int CharData::GetSkill(const ESkill skill_id) const {
-	int skill = GetMorphSkill(skill_id);
+	int skill = GetTrainedSkill(skill_id);
 
 	if (skill > 0) {
 		skill += GetAddSkill(skill_id) + GetEquippedSkill(skill_id);
@@ -549,7 +608,7 @@ int CharData::GetEquippedSkill(const ESkill skill_id) const {
 	if (is_native) {
 		skill += obj_bonus_.get_skill(skill_id);
 	}
-	if(GetMorphSkill(skill_id) > 0) {
+	if(GetTrainedSkill(skill_id) > 0) {
 		skill += get_skill_bonus();
 	}
 	
@@ -560,6 +619,11 @@ int CharData::GetEquippedSkill(const ESkill skill_id) const {
  * Уровень умения без учета каких-либо бонусов.
  */
 int CharData::GetTrainedSkill(const ESkill skill_num) const {
+	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
+		if (MUD::Class(chclass_).skills[skill_num].IsAvailable()) {
+			return 100;
+		}
+	}
 	if (privilege::CheckSkills(this)) {
 		auto it = skills.find(skill_num);
 		if (it != skills.end()) {
@@ -568,21 +632,6 @@ int CharData::GetTrainedSkill(const ESkill skill_num) const {
 	}
 	return 0;
 }
-/*
- * Умение с учетом формы превращения и т.п.
- */
-int CharData::GetMorphSkill(const ESkill skill_id) const {
-	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
-		if (MUD::Class(chclass_).skills[skill_id].IsAvailable()) {
-			return 100;
-		}
-	}
-	if (privilege::CheckSkills(this)) {
-		return std::clamp(current_morph_->get_trained_skill(skill_id), 0, MUD::Skill(skill_id).cap);
-	}
-	return 0;
-}
-
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
 void CharData::set_skill(const ESkill skill_id, int percent) {
 	if (MUD::Skills().IsInvalid(skill_id)) {
@@ -606,15 +655,11 @@ void CharData::SetSkillAfterRemort() {
 	for (auto & it : skills) {
 		int maxSkillLevel = CalcSkillHardCap(this, it.first);
 
-		if (GetMorphSkill(it.first) > maxSkillLevel) {
+		if (GetTrainedSkill(it.first) > maxSkillLevel) {
 			set_skill(it.first, maxSkillLevel);
 		};
 	}
 }
-
-void CharData::set_morphed_skill(const ESkill skill_num, int percent) {
-	current_morph_->set_skill(skill_num, percent);
-};
 
 void CharData::clear_skills() {
 	skills.clear();
@@ -1403,11 +1448,6 @@ int CharData::calc_morale() const {
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_str() const {
-	check_purged(this, "get_str");
-	return current_morph_->GetStr();
-}
-
-int CharData::GetInbornStr() const {
 	return str_;
 }
 
@@ -1428,11 +1468,6 @@ void CharData::set_str_add(int param) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_dex() const {
-	check_purged(this, "get_dex");
-	return current_morph_->GetDex();
-}
-
-int CharData::GetInbornDex() const {
 	return dex_;
 }
 
@@ -1453,11 +1488,6 @@ void CharData::set_dex_add(int param) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_con() const {
-	check_purged(this, "get_con");
-	return current_morph_->GetCon();
-}
-
-int CharData::GetInbornCon() const {
 	return con_;
 }
 
@@ -1478,11 +1508,6 @@ void CharData::set_con_add(int param) {
 //////////////////////////////////////
 
 int CharData::get_int() const {
-	check_purged(this, "get_int");
-	return current_morph_->GetIntel();
-}
-
-int CharData::GetInbornInt() const {
 	return int_;
 }
 
@@ -1503,11 +1528,6 @@ void CharData::set_int_add(int param) {
 }
 ////////////////////////////////////////
 int CharData::get_wis() const {
-	check_purged(this, "get_wis");
-	return current_morph_->GetWis();
-}
-
-int CharData::GetInbornWis() const {
 	return wis_;
 }
 
@@ -1544,11 +1564,6 @@ void CharData::set_wis_add(int param) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_cha() const {
-	check_purged(this, "get_cha");
-	return current_morph_->GetCha();
-}
-
-int CharData::GetInbornCha() const {
 	return cha_;
 }
 
@@ -1619,21 +1634,6 @@ int CharData::get_zone_group() const {
 // формы и все что с ними связано
 //===================================
 
-bool CharData::know_morph(const std::string &morph_id) const {
-	return std::find(morphs_.begin(), morphs_.end(), morph_id) != morphs_.end();
-}
-
-void CharData::add_morph(const std::string &morph_id) {
-	morphs_.push_back(morph_id);
-};
-
-void CharData::clear_morphs() {
-	morphs_.clear();
-};
-
-const CharData::morphs_list_t &CharData::get_morphs() {
-	return morphs_;
-};
 // обрезает строку и выдергивает из нее предтитул
 std::string CharData::GetTitle() const {
 	std::string tmp = this->player_data.title;
@@ -1663,18 +1663,6 @@ std::string CharData::get_pretitle() const {
 std::string CharData::get_race_name() const {
 	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex());
 }
-
-std::string CharData::get_morph_desc() const {
-	return current_morph_->GetMorphDesc();
-};
-
-std::string CharData::get_morphed_name() const {
-	return current_morph_->GetMorphDesc() + " - " + this->get_name();
-};
-
-std::string CharData::get_morphed_title() const {
-	return current_morph_->GetMorphTitle();
-};
 
 std::string CharData::GetTitleAndNameWithoutClan() const {
 	std::string result = get_name();
@@ -1725,48 +1713,6 @@ std::string CharData::race_or_title() {
 	} else {
 		return GetNameWithTitleOrRace();
 	}
-}
-
-size_t CharData::get_morphs_count() const {
-	return morphs_.size();
-};
-
-std::string CharData::get_cover_desc() {
-	return current_morph_->CoverDesc();
-}
-
-void CharData::set_morph(const MorphPtr& morph) {
-	morph->SetChar(this);
-	morph->InitSkills(this->GetSkill(ESkill::kMorph));
-	morph->InitAbils();
-	this->current_morph_ = morph;
-};
-
-void CharData::reset_morph() {
-	int value = this->GetMorphSkill(ESkill::kMorph);
-	auto msg_to_char = fmt::format(fmt::runtime(current_morph_->GetMessageToRoom()), "человеком") + "\r\n";
-	SendMsgToChar(msg_to_char, this);
-	auto msg_to_room = fmt::format(fmt::runtime(current_morph_->GetMessageToRoom()), "человеком");
-	act(msg_to_room, true, this, 0, 0, kToRoom);
-	this->current_morph_ = GetNormalMorphNew(this);
-	this->set_morphed_skill(ESkill::kMorph, (std::min(kZeroRemortSkillCap + GetRealRemort(this) * 5, value)));
-//	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
-};
-
-bool CharData::is_morphed() const {
-	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffect::kMorphing);
-};
-
-void CharData::set_normal_morph() {
-	current_morph_ = GetNormalMorphNew(this);
-}
-
-bool CharData::isAffected(const EAffect flag) const {
-	return current_morph_->isAffected(flag);
-}
-
-const IMorph::affects_list_t &CharData::GetMorphAffects() {
-	return current_morph_->GetAffects();
 }
 
 //===================================
@@ -2002,7 +1948,6 @@ void CharData::restore_npc() {
 		this->remove_protecting();
 	}
 	// ресторим статы
-	proto->set_normal_morph();
 	this->set_str(GetRealStr(proto));
 	this->set_int(GetRealInt(proto));
 	this->set_wis(GetRealWis(proto));

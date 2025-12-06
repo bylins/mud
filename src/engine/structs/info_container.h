@@ -197,6 +197,9 @@ template<typename IdEnum, typename Item, typename ItemBuilder>
 InfoContainer<IdEnum, Item, ItemBuilder>::InfoContainer() {
 	if (!items_) {
 		items_ = std::make_unique<Register>();
+		// Create default undefined item for safe fallback before Init() is called
+		auto default_item = std::make_shared<Item>();
+		items_->try_emplace(IdEnum::kUndefined, std::move(default_item));
 	}
 }
 
@@ -498,6 +501,9 @@ template<typename Item, typename ItemBuilder>
 InfoContainer<int, Item, ItemBuilder>::InfoContainer() {
 	if (!items_) {
 		items_ = std::make_unique<Register>();
+		// Create default undefined item for safe fallback before Init() is called
+		auto default_item = std::make_shared<Item>();
+		items_->try_emplace(kUndefinedVnum, std::move(default_item));
 	}
 	if (!text_ids_register_) {
 		text_ids_register_ = std::make_unique<TextIdRegister>();

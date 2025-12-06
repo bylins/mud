@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <dg_script/dg_scripts.h>
+#include "engine/scripting/dg_scripts.h"
 #include "engine/db/db.h"
 
 class TriggersList_F : public ::testing::Test
@@ -48,7 +48,7 @@ void TriggersList_F::SetUp()
 
 		trigger->set_rnum(i);
 
-		add_trig_index_entry(i, trigger);
+		AddTrigIndexEntry(i, trigger);
 	}
 }
 
@@ -73,7 +73,7 @@ TEST_F(TriggersList_F, AddBack)
 	}
 
 	test_triggers_list_t::const_iterator i = m_test_triggers.begin();
-	for (auto t : m_script.trig_list)
+	for (auto t : m_script.script_trig_list)
 	{
 		ASSERT_NE(m_test_triggers.end(), i);
 		EXPECT_EQ((*i)->get_rnum(), t->get_rnum());
@@ -91,7 +91,7 @@ TEST_F(TriggersList_F, AddFront)
 	}
 
 	test_triggers_list_t::const_reverse_iterator i = m_test_triggers.rbegin();
-	for (auto t : m_script.trig_list)
+	for (auto t : m_script.script_trig_list)
 	{
 		ASSERT_NE(m_test_triggers.rend(), i);
 		EXPECT_EQ((*i)->get_rnum(), t->get_rnum());
@@ -104,14 +104,14 @@ TEST_F(TriggersList_F, RemoveOneWhenIterating)
 	populate_tests_triggers_list();
 
 	int counter = 0;
-	for (auto t : m_script.trig_list)
+	for (auto t : m_script.script_trig_list)
 	{
 		++counter;
-		m_script.trig_list.remove(t);
+		m_script.script_trig_list.remove(t);
 	}
 
 	EXPECT_EQ(counter, TRIGGERS_NUMBER);
-	EXPECT_TRUE(m_script.trig_list.empty());
+	EXPECT_TRUE(m_script.script_trig_list.empty());
 }
 
 TEST_F(TriggersList_F, RemoveAllWhenIterating)
@@ -119,18 +119,18 @@ TEST_F(TriggersList_F, RemoveAllWhenIterating)
 	populate_tests_triggers_list();
 
 	int counter = 0;
-	for (auto t : m_script.trig_list)
+	for (auto t : m_script.script_trig_list)
 	{
 		UNUSED_ARG(t);
 		++counter;
 		for (auto to_remove : m_test_triggers)
 		{
-			m_script.trig_list.remove(to_remove);
+			m_script.script_trig_list.remove(to_remove);
 		}
 	}
 
 	EXPECT_EQ(1, counter);
-	EXPECT_TRUE(m_script.trig_list.empty());
+	EXPECT_TRUE(m_script.script_trig_list.empty());
 }
 
 TEST_F(TriggersList_F, NestedLoops)
@@ -139,11 +139,11 @@ TEST_F(TriggersList_F, NestedLoops)
 
 	int inner_counter = 0;
 	int outer_counter = 0;
-	for (auto to : m_script.trig_list)
+	for (auto to : m_script.script_trig_list)
 	{
 		++outer_counter;
 		UNUSED_ARG(to);
-		for (auto ti : m_script.trig_list)
+		for (auto ti : m_script.script_trig_list)
 		{
 			UNUSED_ARG(ti);
 			++inner_counter;
@@ -158,16 +158,16 @@ void TriggersList_F::remove_in_nested_loop()
 {
 	int inner_counter = 0;
 	int outer_counter = 0;
-	for (auto t : m_script.trig_list)
+	for (auto t : m_script.script_trig_list)
 	{
 		++outer_counter;
 		UNUSED_ARG(t);
-		for (auto t : m_script.trig_list)
+		for (auto t : m_script.script_trig_list)
 		{
 			++inner_counter;
 			if (0 == inner_counter % 2)
 			{
-				m_script.trig_list.remove(t);
+				m_script.script_trig_list.remove(t);
 			}
 		}
 	}

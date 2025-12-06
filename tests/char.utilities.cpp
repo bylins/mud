@@ -1,8 +1,11 @@
 #include "char.utilities.hpp"
 
-#include <utils/utils.h>
-#include <chars/char.h>
+#include "utils/utils.h"
+#include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_contants.h"
+#include "gameplay/mechanics/groups.h"
 
 namespace test_utils
 {
@@ -10,7 +13,7 @@ void CharacterBuilder::create_new()
 {
 	const auto result = std::make_shared<character_t>();
 	result->player_specials = std::make_shared<player_special_data>();
-	result->set_class(CLASS_DRUID);
+	result->set_class(ECharClass::kFirst);
 	result->set_level(1);
 	m_result = result;
 }
@@ -44,56 +47,60 @@ void CharacterBuilder::add_poison()
 {
 	check_character_existance();
 
-	Affect<EApply> poison;
-	poison.type = SPELL_POISON;
-	poison.modifier = 0;
-	poison.location = APPLY_STR;
-	poison.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	poison.bitvector = to_underlying(EAffectFlag::AFF_POISON);
-	poison.battleflag = AF_SAME_TIME;
-	affect_join(m_result.get(), poison, false, false, false, false);
+	auto poison = std::make_shared<Affect<EApply>>();
+	poison->type = ESpell::kPoison;
+	poison->modifier = 0;
+	poison->location = EApply::kStr;
+	poison->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
+	poison->bitvector = to_underlying(EAffect::kPoisoned);
+	poison->battleflag = kAfSameTime;
+	// Add directly to avoid affect_total() which requires global state
+	m_result->affected.push_front(poison);
 }
 
 void CharacterBuilder::add_sleep()
 {
 	check_character_existance();
 
-	Affect<EApply> sleep;
-	sleep.type = SPELL_SLEEP;
-	sleep.modifier = 0;
-	sleep.location = APPLY_AC;
-	sleep.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	sleep.bitvector = to_underlying(EAffectFlag::AFF_SLEEP);
-	sleep.battleflag = AF_SAME_TIME;
-	affect_join(m_result.get(), sleep, false, false, false, false);
+	auto sleep = std::make_shared<Affect<EApply>>();
+	sleep->type = ESpell::kSleep;
+	sleep->modifier = 0;
+	sleep->location = EApply::kAc;
+	sleep->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
+	sleep->bitvector = to_underlying(EAffect::kSleep);
+	sleep->battleflag = kAfSameTime;
+	// Add directly to avoid affect_total() which requires global state
+	m_result->affected.push_front(sleep);
 }
 
 void CharacterBuilder::add_detect_invis()
 {
 	check_character_existance();
 
-	Affect<EApply> detect_invis;
-	detect_invis.type = SPELL_DETECT_INVIS;
-	detect_invis.modifier = 0;
-	detect_invis.location = APPLY_AC;
-	detect_invis.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	detect_invis.bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
-	detect_invis.battleflag = AF_SAME_TIME;
-	affect_join(m_result.get(), detect_invis, false, false, false, false);
+	auto detect_invis = std::make_shared<Affect<EApply>>();
+	detect_invis->type = ESpell::kDetectInvis;
+	detect_invis->modifier = 0;
+	detect_invis->location = EApply::kAc;
+	detect_invis->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
+	detect_invis->bitvector = to_underlying(EAffect::kDetectInvisible);
+	detect_invis->battleflag = kAfSameTime;
+	// Add directly to avoid affect_total() which requires global state
+	m_result->affected.push_front(detect_invis);
 }
 
 void CharacterBuilder::add_detect_align()
 {
 	check_character_existance();
 
-	Affect<EApply> detect_align;
-	detect_align.type = SPELL_DETECT_ALIGN;
-	detect_align.modifier = 0;
-	detect_align.location = APPLY_AC;
-	detect_align.duration = pc_duration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	detect_align.bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
-	detect_align.battleflag = AF_SAME_TIME;
-	affect_join(m_result.get(), detect_align, false, false, false, false);
+	auto detect_align = std::make_shared<Affect<EApply>>();
+	detect_align->type = ESpell::kDetectAlign;
+	detect_align->modifier = 0;
+	detect_align->location = EApply::kAc;
+	detect_align->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
+	detect_align->bitvector = to_underlying(EAffect::kDetectAlign);
+	detect_align->battleflag = kAfSameTime;
+	// Add directly to avoid affect_total() which requires global state
+	m_result->affected.push_front(detect_align);
 }
 
 void CharacterBuilder::set_level(const int level)
@@ -103,7 +110,7 @@ void CharacterBuilder::set_level(const int level)
 
 void CharacterBuilder::set_class(const short player_class)
 {
-	m_result->set_class(player_class);
+	m_result->set_class(static_cast<ECharClass>(player_class));
 }
 
 void CharacterBuilder::make_group(CharacterBuilder& character_builder)
@@ -115,8 +122,8 @@ void CharacterBuilder::make_group(CharacterBuilder& character_builder)
 
 	m_result->add_follower_silently(character.get());
 
-	perform_group(m_result.get(), m_result.get());
-	perform_group(m_result.get(), character.get());
+	group::perform_group(m_result.get(), m_result.get());
+	group::perform_group(m_result.get(), character.get());
 }
 
 void CharacterBuilder::check_character_existance() const

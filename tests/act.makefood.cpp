@@ -7,7 +7,7 @@
 TEST(Act_MakeFood, Skinned)
 {
 	constexpr int NUMBER_OF_RUNS = 100;
-	std::unordered_set<obj_vnum> returned;
+	std::unordered_set<ObjVnum> returned;
 
 	for (auto i = 0; i < NUMBER_OF_RUNS; ++i)
 	{
@@ -15,7 +15,7 @@ TEST(Act_MakeFood, Skinned)
 		returned.insert(key);
 	}
 
-	std::unordered_set<obj_vnum> expected;
+	std::unordered_set<ObjVnum> expected;
 	for (const auto& mapping : MeatMapping::RAW_MAPPING)
 	{
 		EXPECT_TRUE(returned.find(mapping.first) != returned.end())

@@ -1,4 +1,5 @@
 #include "gameplay/fight/fight_penalties.h"
+#include "gameplay/classes/classes_constants.h"
 
 #include "char.utilities.hpp"
 
@@ -31,7 +32,7 @@ TEST_F(FightPenalties, TheSameLevels)
 	leader_builder.create_new();
 	leader_builder.make_group(killer_builder);
 
-	for (int level = 1; level < kLevelImmortal; ++level)
+	for (int level = 1; level < kLvlImmortal; ++level)
 	{
 		killer_builder.set_level(level);
 		leader_builder.set_level(level);
@@ -48,7 +49,7 @@ TEST_F(FightPenalties, TheSameLevels)
 TEST_F(FightPenalties, UndefinedKillerClass_SameLevels)
 {
 	test_utils::CharacterBuilder killer_builder;
-	killer_builder.create_new_with_class(CLASS_UNDEFINED);
+	killer_builder.create_new_with_class(to_underlying(ECharClass::kUndefined));
 
 	test_utils::CharacterBuilder leader_builder;
 	leader_builder.create_new();
@@ -57,7 +58,7 @@ TEST_F(FightPenalties, UndefinedKillerClass_SameLevels)
 
 	auto killer = killer_builder.get();
 	auto leader = leader_builder.get();
-	const auto max_level = std::max(killer->get_level(), leader->get_level());
+	const auto max_level = std::max(killer->GetLevel(), leader->GetLevel());
 	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, penalties());
 
 	EXPECT_EQ(penalty.get(), 100);
@@ -69,13 +70,13 @@ TEST_F(FightPenalties, UndefinedLeaderClass_SameLevels)
 	killer_builder.create_new();
 
 	test_utils::CharacterBuilder leader_builder;
-	leader_builder.create_new_with_class(CLASS_UNDEFINED);
+	leader_builder.create_new_with_class(to_underlying(ECharClass::kUndefined));
 
 	leader_builder.make_group(killer_builder);
 
 	auto killer = killer_builder.get();
 	auto leader = leader_builder.get();
-	const auto max_level = std::max(killer->get_level(), leader->get_level());
+	const auto max_level = std::max(killer->GetLevel(), leader->GetLevel());
 	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
 
 	EXPECT_EQ(penalty.get(), 100);
@@ -84,7 +85,7 @@ TEST_F(FightPenalties, UndefinedLeaderClass_SameLevels)
 TEST_F(FightPenalties, MobKillerClass_SameLevels)
 {
 	test_utils::CharacterBuilder killer_builder;
-	killer_builder.create_new_with_class(CLASS_MOB);
+	killer_builder.create_new_with_class(to_underlying(ECharClass::kMob));
 
 	test_utils::CharacterBuilder leader_builder;
 	leader_builder.create_new();
@@ -93,7 +94,7 @@ TEST_F(FightPenalties, MobKillerClass_SameLevels)
 
 	auto killer = killer_builder.get();
 	auto leader = leader_builder.get();
-	const auto max_level = std::max(killer->get_level(), leader->get_level());
+	const auto max_level = std::max(killer->GetLevel(), leader->GetLevel());
 	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
 
 	EXPECT_EQ(penalty.get(), 100);
@@ -105,13 +106,13 @@ TEST_F(FightPenalties, MobLeaderClass_SameLevels)
 	killer_builder.create_new();
 
 	test_utils::CharacterBuilder leader_builder;
-	leader_builder.create_new_with_class(CLASS_MOB);
+	leader_builder.create_new_with_class(to_underlying(ECharClass::kMob));
 
 	leader_builder.make_group(killer_builder);
 
 	auto killer = killer_builder.get();
 	auto leader = leader_builder.get();
-	const auto max_level = std::max(killer->get_level(), leader->get_level());
+	const auto max_level = std::max(killer->GetLevel(), leader->GetLevel());
 	GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, FightPenalties::penalties());
 
 	EXPECT_EQ(penalty.get(), 100);
@@ -120,9 +121,9 @@ TEST_F(FightPenalties, MobLeaderClass_SameLevels)
 template <typename HeaderHandler, typename NewRowHandler, typename EndOfRowHandler, typename ItemHandler>
 void iterate_over_group_penalties_ext(HeaderHandler header_handler, NewRowHandler new_row_handler, EndOfRowHandler end_of_row_handler, ItemHandler item_handler)
 {
-	for (int killer_class = CLASS_CLERIC; killer_class < NUM_PLAYER_CLASSES; ++killer_class)
+	for (int killer_class = to_underlying(ECharClass::kFirst); killer_class < kNumPlayerClasses; ++killer_class)
 	{
-		for (int leader_class = CLASS_CLERIC; leader_class < NUM_PLAYER_CLASSES; ++leader_class)
+		for (int leader_class = to_underlying(ECharClass::kFirst); leader_class < kNumPlayerClasses; ++leader_class)
 		{
 			test_utils::CharacterBuilder killer_builder;
 			killer_builder.create_new_with_class(killer_class);
@@ -133,11 +134,11 @@ void iterate_over_group_penalties_ext(HeaderHandler header_handler, NewRowHandle
 			leader_builder.make_group(killer_builder);
 
 			header_handler(killer_class, leader_class);
-			for (int killer_level = 1; killer_level < kLevelImmortal; ++killer_level)
+			for (int killer_level = 1; killer_level < kLvlImmortal; ++killer_level)
 			{
 				killer_builder.set_level(killer_level);
 				new_row_handler(killer_level);
-				for (int leader_level = 1; leader_level < kLevelImmortal; ++leader_level)
+				for (int leader_level = 1; leader_level < kLvlImmortal; ++leader_level)
 				{
 					leader_builder.set_level(leader_level);
 
@@ -168,8 +169,8 @@ TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 	iterate_over_group_penalties(
 		[&](const auto killer, const auto leader)
 		{
-			const auto killer_level = killer->get_level();
-			const auto leader_level = leader->get_level();
+			const auto killer_level = killer->GetLevel();
+			const auto leader_level = leader->GetLevel();
 
 			if (5 >= std::abs(killer_level - leader_level))
 			{
@@ -186,8 +187,8 @@ TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
 	iterate_over_group_penalties(
 		[&](const auto killer, const auto leader)
 		{
-			const auto killer_level = killer->get_level();
-			const auto leader_level = leader->get_level();
+			const auto killer_level = killer->GetLevel();
+			const auto leader_level = leader->GetLevel();
 
 			if (5 < std::abs(killer_level - leader_level))
 			{
@@ -209,12 +210,12 @@ TEST_F(FightPenalties, DISABLED_PrintTable)
 		{
 			std::cout << "Combination: " << killer_class << "/" << leader_class << std::endl
 				<< "===================" << std::endl << std::setw(1 + PLACEHOLDER_LENGTH) << "|";
-			for (int leader_level = 1; leader_level < kLevelImmortal; ++leader_level)
+			for (int leader_level = 1; leader_level < kLvlImmortal; ++leader_level)
 			{
 				std::cout << std::setw(PLACEHOLDER_LENGTH) << leader_level;
 			}
 			std::cout << std::endl << "----+";
-			for (int i = 1; i < kLevelImmortal; ++i)
+			for (int i = 1; i < kLvlImmortal; ++i)
 			{
 				std::cout << "----";
 			}
@@ -224,8 +225,8 @@ TEST_F(FightPenalties, DISABLED_PrintTable)
 	const auto end_of_row_handler = [] { std::cout << std::endl; };
 	const auto item_handler = [&](const auto killer, const auto leader)
 	{
-		const auto killer_level = killer->get_level();
-		const auto leader_level = leader->get_level();
+		const auto killer_level = killer->GetLevel();
+		const auto leader_level = leader->GetLevel();
 		const auto max_level = std::max(killer_level, leader_level);
 		GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 		std::cout << std::setw(PLACEHOLDER_LENGTH) << penalty.get();

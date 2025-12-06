@@ -10,7 +10,7 @@ Prool comments see in file readme.prool.
 ## Подготовка
 ```bash
 sudo apt update && sudo apt upgrade
-sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb
+sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev
 
 git clone --recurse-submodules https://github.com/bylins/mud
 cd mud
@@ -27,6 +27,17 @@ make -j2
 
 cd ..
 build/circle 4000
+```
+
+## Сборка с тестами
+```bash
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Test ..
+make tests -j2
+
+# Запуск тестов
+./tests/tests
 ```
 
 ## Запуск в docker
