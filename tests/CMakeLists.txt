@@ -61,6 +61,7 @@ set(TESTS
 		msdp.builder.cpp
 		char.affects.cpp
 		char.leaders.cpp
+		char.morph.copy.cpp
 		obj.copy.cpp
 		act.makefood.cpp
 		utils.editor.cpp
