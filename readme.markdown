@@ -16,7 +16,7 @@ cp --update=none -r lib.template/* lib
 ```bash
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Test ..
+cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
 make -j2
 #2 это количество ядер в компьютере
 
@@ -25,7 +25,6 @@ build/circle 4000
 ```
 
 ## Сборка с тестами
-Для сборки тестов используйте:
 ```bash
 mkdir build
 cd build
@@ -34,15 +33,6 @@ make tests -j2
 
 # Запуск тестов
 ./tests/tests
-```
-
-## Сборка без тестов
-Если тесты не нужны, можно полностью отключить их сборку:
-```bash
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Test -DBUILD_TESTS=OFF ..
-make -j2
 ```
 
 ## Запуск в docker
