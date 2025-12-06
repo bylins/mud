@@ -64,15 +64,6 @@ Player::Player() :
 	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		start_stats_.at(i) = 0;
 	}
-
-	// на 64 битном центосе с оптимизацией - падает или прямо здесь,
-	// или в деструкторе чар-даты на делете самого класса в недрах шареда
-	// при сборке без оптимизаций - не падает
-	// и я не очень в теме, чем этот инит отличается от инита в чар-дате,
-	// с учетом того, что здесь у нас абсолютно пустой плеер и внутри set_morph
-	// на деле инит ровно тоже самое, может на перспективу это все было
-	//set_morph(NormalMorph::GetNormalMorph(this));
-
 	for (unsigned i = 0; i < ext_money_.size(); ++i) {
 		ext_money_[i] = 0;
 	}
@@ -520,12 +511,12 @@ void Player::save_char() {
 
 	// дальше не по порядку
 	// статсы
-	fprintf(saved, "Str : %d\n", this->GetInbornStr());
-	fprintf(saved, "Int : %d\n", this->GetInbornInt());
-	fprintf(saved, "Wis : %d\n", this->GetInbornWis());
-	fprintf(saved, "Dex : %d\n", this->GetInbornDex());
-	fprintf(saved, "Con : %d\n", this->GetInbornCon());
-	fprintf(saved, "Cha : %d\n", this->GetInbornCha());
+	fprintf(saved, "Str : %d\n", this->get_str());
+	fprintf(saved, "Int : %d\n", this->get_int());
+	fprintf(saved, "Wis : %d\n", this->get_wis());
+	fprintf(saved, "Dex : %d\n", this->get_dex());
+	fprintf(saved, "Con : %d\n", this->get_con());
+	fprintf(saved, "Cha : %d\n", this->get_cha());
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Feat:\n");
@@ -863,7 +854,6 @@ void Player::save_char() {
 	this->quested_save(saved);
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
-	morphs_save(this, saved);
 
 	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
 
@@ -1551,9 +1541,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						sscanf(line, "%d %d", &num, &num2);
 						this->mobmax_load(this, num, num2, MobMax::get_level_by_vnum(num));
 					} while (true);
-				} else if (!strcmp(tag, "Mrph")) {
-					morphs_load(this, std::string(line));
-				}
+				} 
 				break;
 			case 'N':
 				if (!strcmp(tag, "NmI "))
@@ -1889,7 +1877,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
-		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
 		GET_COND(this, THIRST) = -1;
 		GET_COND(this, DRUNK) = -1;

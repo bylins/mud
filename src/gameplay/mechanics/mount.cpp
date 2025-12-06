@@ -171,12 +171,6 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Зачем вам столько скакунов?\r\n", ch);
 		return;
 	}
-
-	if (ch->is_morphed()) {
-		SendMsgToChar("И как вы собираетесь это проделать без рук и без ног, одними лапами?\r\n", ch);
-		return;
-	}
-
 	one_argument(argument, arg);
 	if (*arg) {
 		horse = get_char_vis(ch, arg, EFind::kCharInRoom);

@@ -362,10 +362,6 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		&& (!NPC_FLAGGED(ch, ENpcFlag::kWielding) || ch->IsFlagged(EMobFlag::kResurrected))))
 		return;
 
-	if (ch->is_morphed()) {
-		SendMsgToChar("Лапами неудобно держать оружие.\r\n", ch);
-		return;
-	}
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
@@ -434,12 +430,6 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (ch->IsNpc() && !NPC_FLAGGED(ch, ENpcFlag::kWielding))
 		return;
-
-	if (ch->is_morphed()) {
-		SendMsgToChar("Лапами неудобно это держать.\r\n", ch);
-		return;
-	}
-
 	if (!*arg)
 		SendMsgToChar("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {

@@ -485,9 +485,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			SendMsgToChar(ch, "*\r\n%s*\r\n", AddLeadingStringSpace(i->player_data.description).c_str());
 	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
-		if (i->is_morphed())
-			strcat(buf, std::string(" " + i->get_morph_desc() + ".\r\n").c_str());
-		else if (IS_FEMALE(i)) {
+		if (IS_FEMALE(i)) {
 			if (GET_HEIGHT(i) <= 151) {
 				if (GET_WEIGHT(i) >= 140)
 					strcat(buf, " маленькая плотная дамочка.\r\n");
@@ -605,34 +603,26 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	diag_char_to_char(i, ch);
 
-	if (i->is_morphed()) {
+	found = false;
+	for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++) {
+		if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+			found = true;
+	}
+	if (found) {
 		SendMsgToChar("\r\n", ch);
-		std::string coverDesc = "$n покрыт$a " + i->get_cover_desc() + ".";
-		act(coverDesc.c_str(), false, i, nullptr, ch, kToVict);
-		SendMsgToChar("\r\n", ch);
-	} else {
-		found = false;
-		for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++)
-			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
-				found = true;
-
-		if (found) {
-			SendMsgToChar("\r\n", ch);
-			act("$n одет$a :", false, i, nullptr, ch, kToVict);
-			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
-					SendMsgToChar(where[j], ch);
-					if (i->has_master()
-						&& i->IsNpc()) {
-						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
-					} else {
-						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
-					}
+		act("$n одет$a :", false, i, nullptr, ch, kToVict);
+		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
+			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
+				SendMsgToChar(where[j], ch);
+				if (i->has_master()
+					&& i->IsNpc()) {
+					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
+				} else {
+					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
 				}
 			}
 		}
 	}
-
 	if (ch != i && (ch->GetSkill(ESkill::kPry) || IS_IMMORTAL(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
@@ -1706,7 +1696,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf1, "(под седлом) ");
 		utils::CAP(buf1);
 	} else {
-		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
+		sprintf(buf1, "%s%s ", i->race_or_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
 	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);
@@ -1892,22 +1882,6 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " ...реет стяг над головой");
 	if (*aura_txt)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
-/*	if (IS_MANA_CASTER(i)) {
-		*aura_txt = '\0';
-		if (i->GetMorphSkill(ESkill::kDarkMagic) > 0)
-			strcat(aura_txt, "...все сферы магии кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kAirMagic) > 0)
-			strcat(aura_txt, "...сферы четырех магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kEarthMagic) > 0)
-			strcat(aura_txt, "...сферы трех магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kWaterMagic) > 0)
-			strcat(aura_txt, "...сферы двух магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kFireMagic) > 0)
-			strcat(aura_txt, "...сфера огня кружит над головой");
-		if (*aura_txt)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-	}
-*/
 }
 
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
