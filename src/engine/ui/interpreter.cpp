@@ -377,8 +377,6 @@ void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
-void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
-void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoShowZoneStat(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
@@ -597,7 +595,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"нацарапать", EPosition::kRest, DoSign, 0, 0, 0},
 
 		{"обезоружить", EPosition::kFight, do_disarm, 0, 0, -1},
-		{"обернуться", EPosition::kStand, do_morph, 0, 0, -1},
 		{"облачить", EPosition::kRest, do_wear, 0, 0, 500},
 		{"обмен", EPosition::kStand, do_not_here, 0, 0, 0},
 		{"обменять", EPosition::kStand, do_not_here, 0, 0, 0},
@@ -966,8 +963,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"skills", EPosition::kRest, DoSkills, 0, 0, 0},
 		{"skillset", EPosition::kSleep, do_skillset, kLvlImplementator, 0, 0},
 		{"slay", EPosition::kFight, do_slay, 1, 0, -1},
-		{"morphset", EPosition::kSleep, do_morphset, kLvlImplementator, 0, 0},
-		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},
 		{"sleep", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"sneak", EPosition::kStand, do_sneak, 1, 0, -2},
 		{"snoop", EPosition::kDead, DoSnoop, kLvlGreatGod, 0, 0},
@@ -2349,7 +2344,6 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	if (GetRealLevel(ch) > kLvlGod) {
 		SetGodSkills(ch);
-		set_god_morphs(ch);
 	}
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {

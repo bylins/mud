@@ -2786,7 +2786,6 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			else {
 				const int real_mob_num = GetMobRnum(mob_num);
 				tmp_mob = (mob_proto + real_mob_num);
-				tmp_mob->set_normal_morph();
 				pfail = 10 + tmp_mob->get_con() * 2
 					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
 
@@ -2842,8 +2841,6 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			fmsg = number(2, 6);
 
 			tmp_mob = mob_proto + GetMobRnum(mob_num);
-			tmp_mob->set_normal_morph();
-
 			pfail = 10 + tmp_mob->get_con() * 2
 				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
 			break;

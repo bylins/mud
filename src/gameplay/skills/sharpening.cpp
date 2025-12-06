@@ -106,7 +106,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	//При 200% заточки шмотка будет точиться на 4-5 хитролов и 4-5 дамролов
-	min_mod = ch->GetMorphSkill(ESkill::kSharpening) / 50;
+	min_mod = ch->GetTrainedSkill(ESkill::kSharpening) / 50;
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = std::clamp((GetRealLevel(ch) + 5 + GetRealRemort(ch)/4)/6, 1, 5);
 	oldstate = stable_objs::IsTimerUnlimited(obj); // запомним какая шмотка была до заточки
