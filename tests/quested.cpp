@@ -1,6 +1,6 @@
 #include "char.utilities.hpp"
 
-#include <quests/quested.h>
+#include "gameplay/quests/quested.h"
 
 #include <gtest/gtest.h>
 

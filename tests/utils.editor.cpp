@@ -1,41 +1,42 @@
 #include <gtest/gtest.h>
 
-#include <structs/structs.h>
-#include <utils/utils.h>
+#include "engine/structs/structs.h"
+#include "utils/utils.h"
+#include "utils/utils_string.h"
 
-#define PIECE_A_OLD	"   Вели"
-#define PIECE_A_NEW	"   Вели"
-#define PIECE_B_OLD	"редчайшими"
+#define PIECE_A_OLD	"   О©╫О©╫О©╫О©╫"
+#define PIECE_A_NEW	"   О©╫О©╫О©╫О©╫"
+#define PIECE_B_OLD	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
 #define PIECE_B_NEW	"bla-bla-bla"
-#define PIECE_C_OLD	"зверски\nизрубленного "
+#define PIECE_C_OLD	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫\nО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ "
 #define PIECE_C_NEW	"bla-bla-bla"
-#define PIECE_D_OLD	"самобранкой."
+#define PIECE_D_OLD	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫."
 #define PIECE_D_NEW	"tail"
-#define SAMPLE_PIECE PIECE_A_OLD "чественные мраморные колонны уходят ввысь, подпирая самое небо.  На стенах,\n" \
-	"отделанных " PIECE_B_OLD " сортами мрамора красуются барельефы, изображающие бытие\n" \
-	"обитателей замка - охоту на Жар - Птицу, воскрешение Змея Горыныча, " PIECE_C_OLD \
-	"Ильей Муромцем после очередной попойки, пленение Змея Тугарина и\n" \
-	"многое другое.В центре зала - огромный дубовый стол, покрытый скатертью - " PIECE_D_OLD
-#define SAMPLE_PIECE_R1 PIECE_A_NEW "чественные мраморные колонны уходят ввысь, подпирая самое небо.  На стенах,\n" \
-	"отделанных " PIECE_B_OLD " сортами мрамора красуются барельефы, изображающие бытие\n" \
-	"обитателей замка - охоту на Жар - Птицу, воскрешение Змея Горыныча, " PIECE_C_OLD \
-	"Ильей Муромцем после очередной попойки, пленение Змея Тугарина и\n" \
-	"многое другое.В центре зала - огромный дубовый стол, покрытый скатертью - " PIECE_D_OLD
-#define SAMPLE_PIECE_R2 PIECE_A_NEW "чественные мраморные колонны уходят ввысь, подпирая самое небо.  На стенах,\n" \
-	"отделанных " PIECE_B_NEW " сортами мрамора красуются барельефы, изображающие бытие\n" \
-	"обитателей замка - охоту на Жар - Птицу, воскрешение Змея Горыныча, " PIECE_C_OLD \
-	"Ильей Муромцем после очередной попойки, пленение Змея Тугарина и\n" \
-	"многое другое.В центре зала - огромный дубовый стол, покрытый скатертью - " PIECE_D_OLD
-#define SAMPLE_PIECE_R3 PIECE_A_NEW "чественные мраморные колонны уходят ввысь, подпирая самое небо.  На стенах,\n" \
-	"отделанных " PIECE_B_NEW " сортами мрамора красуются барельефы, изображающие бытие\n" \
-	"обитателей замка - охоту на Жар - Птицу, воскрешение Змея Горыныча, " PIECE_C_NEW \
-	"Ильей Муромцем после очередной попойки, пленение Змея Тугарина и\n" \
-	"многое другое.В центре зала - огромный дубовый стол, покрытый скатертью - " PIECE_D_OLD
-#define SAMPLE_PIECE_R4 PIECE_A_NEW "чественные мраморные колонны уходят ввысь, подпирая самое небо.  На стенах,\n" \
-	"отделанных " PIECE_B_NEW " сортами мрамора красуются барельефы, изображающие бытие\n" \
-	"обитателей замка - охоту на Жар - Птицу, воскрешение Змея Горыныча, " PIECE_C_NEW \
-	"Ильей Муромцем после очередной попойки, пленение Змея Тугарина и\n" \
-	"многое другое.В центре зала - огромный дубовый стол, покрытый скатертью - " PIECE_D_NEW
+#define SAMPLE_PIECE PIECE_A_OLD "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.  О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ " PIECE_B_OLD " О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, " PIECE_C_OLD \
+	"О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - " PIECE_D_OLD
+#define SAMPLE_PIECE_R1 PIECE_A_NEW "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.  О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ " PIECE_B_OLD " О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, " PIECE_C_OLD \
+	"О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - " PIECE_D_OLD
+#define SAMPLE_PIECE_R2 PIECE_A_NEW "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.  О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ " PIECE_B_NEW " О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, " PIECE_C_OLD \
+	"О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - " PIECE_D_OLD
+#define SAMPLE_PIECE_R3 PIECE_A_NEW "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.  О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ " PIECE_B_NEW " О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, " PIECE_C_NEW \
+	"О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - " PIECE_D_OLD
+#define SAMPLE_PIECE_R4 PIECE_A_NEW "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.  О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ " PIECE_B_NEW " О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, " PIECE_C_NEW \
+	"О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫\n" \
+	"О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - " PIECE_D_NEW
 
 #define SAMPLE_NUMBERS_PIECE "123456789012345678901"
 #define SAMPLE_NUMBERS_PATTERN_PIECE_FROM_1 "1"
@@ -62,15 +63,15 @@ const char* SAMPLE_NUMBERS_PATTERN_FROM_2 = SAMPLE_NUMBERS_PATTERN_PIECE_FROM_2;
 const char* SAMPLE_NUMBERS_PATTERN_TO_2 = SAMPLE_NUMBERS_PATTERN_PIECE_TO_2;
 const char* SAMPLE_NUMBERS_STRING_R2 = SAMPLE_NUMBERS_PIECE;
 
-AbstractStringWriter::shared_ptr create_delegated_string_writer(char*& delegated_string)
+utils::AbstractStringWriter::shared_ptr create_delegated_string_writer(char*& delegated_string)
 {
-	const auto result = AbstractStringWriter::shared_ptr(new utils::DelegatedStringWriter(delegated_string));
+	const auto result = utils::AbstractStringWriter::shared_ptr(new utils::DelegatedStringWriter(delegated_string));
 	return result;
 }
 
-AbstractStringWriter::shared_ptr create_std_string_writer()
+utils::AbstractStringWriter::shared_ptr create_std_string_writer()
 {
-	const auto result = AbstractStringWriter::shared_ptr(new StdStringWriter());
+	const auto result = utils::AbstractStringWriter::shared_ptr(new utils::StdStringWriter());
 	return result;
 }
 
@@ -157,19 +158,19 @@ TEST(Utils_Editor_DelegatedStringWriter, ReplaceOne)
 	const auto writer = create_delegated_string_writer(string);
 	writer->set_string(SAMPLE_STRING);
 
-	const auto replace_result1 = replace_str(writer, PIECE_A_OLD, PIECE_A_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result1 = replace_str(writer, PIECE_A_OLD, PIECE_A_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result1);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R1));
 
-	const auto replace_result2 = replace_str(writer, PIECE_B_OLD, PIECE_B_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result2 = replace_str(writer, PIECE_B_OLD, PIECE_B_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result2);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R2));
 
-	const auto replace_result3 = replace_str(writer, PIECE_C_OLD, PIECE_C_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result3 = replace_str(writer, PIECE_C_OLD, PIECE_C_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result3);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R3));
 
-	const auto replace_result4 = replace_str(writer, PIECE_D_OLD, PIECE_D_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result4 = replace_str(writer, PIECE_D_OLD, PIECE_D_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result4);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R4));
 	free(string);
@@ -180,19 +181,19 @@ TEST(Utils_Editor_StdStringWriter, ReplaceOne)
 	const auto writer = create_std_string_writer();
 	writer->set_string(SAMPLE_STRING);
 
-	const auto replace_result1 = replace_str(writer, PIECE_A_OLD, PIECE_A_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result1 = replace_str(writer, PIECE_A_OLD, PIECE_A_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result1);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R1));
 
-	const auto replace_result2 = replace_str(writer, PIECE_B_OLD, PIECE_B_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result2 = replace_str(writer, PIECE_B_OLD, PIECE_B_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result2);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R2));
 
-	const auto replace_result3 = replace_str(writer, PIECE_C_OLD, PIECE_C_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result3 = replace_str(writer, PIECE_C_OLD, PIECE_C_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result3);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R3));
 
-	const auto replace_result4 = replace_str(writer, PIECE_D_OLD, PIECE_D_NEW, 0, MAX_STRING_LENGTH);
+	const auto replace_result4 = replace_str(writer, PIECE_D_OLD, PIECE_D_NEW, 0, kMaxStringLength);
 	EXPECT_EQ(1, replace_result4);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R4));
 }
@@ -202,7 +203,7 @@ TEST(Utils_Editor_DelegatedStringWriter, ReplaceMany)
 	char* string = nullptr;
 	const auto writer = create_delegated_string_writer(string);
 	writer->set_string(SAMPLE_NUMBERS_STRING);
-	const auto result = replace_str(writer, SAMPLE_NUMBERS_PATTERN_FROM_1, SAMPLE_NUMBERS_PATTERN_TO_1, 1, MAX_STRING_LENGTH);
+	const auto result = replace_str(writer, SAMPLE_NUMBERS_PATTERN_FROM_1, SAMPLE_NUMBERS_PATTERN_TO_1, 1, kMaxStringLength);
 
 	EXPECT_EQ(SAMPLE_NUMBERS_SUBSTRINGS_COUNT, result);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_NUMBERS_PIECE_R1));
@@ -213,7 +214,7 @@ TEST(Utils_Editor_StdStringWriter, ReplaceMany)
 {
 	const auto writer = create_std_string_writer();
 	writer->set_string(SAMPLE_NUMBERS_STRING);
-	const auto result = replace_str(writer, SAMPLE_NUMBERS_PATTERN_FROM_1, SAMPLE_NUMBERS_PATTERN_TO_1, 1, MAX_STRING_LENGTH);
+	const auto result = replace_str(writer, SAMPLE_NUMBERS_PATTERN_FROM_1, SAMPLE_NUMBERS_PATTERN_TO_1, 1, kMaxStringLength);
 
 	EXPECT_EQ(SAMPLE_NUMBERS_SUBSTRINGS_COUNT, result);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_NUMBERS_PIECE_R1));

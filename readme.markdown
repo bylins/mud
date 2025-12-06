@@ -5,7 +5,7 @@
 ## Подготовка
 ```bash
 sudo apt update && sudo apt upgrade
-sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb
+sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev
 
 git clone --recurse-submodules https://github.com/bylins/mud
 cd mud
@@ -16,7 +16,7 @@ cp --update=none -r lib.template/* lib
 ```bash
 mkdir build
 cd build
-cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+cmake -DCMAKE_BUILD_TYPE=Test ..
 make -j2
 #2 это количество ядер в компьютере
 

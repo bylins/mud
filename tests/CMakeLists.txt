@@ -1,52 +1,56 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
 enable_testing()
 
-option(MANUAL_GTEST_LOCATION "Ifset then you have to provide proper value of environment value GTEST_ROOT" ON)
-
+# п÷п╬п╦я│п╨ GTest: я│п╫п╟я┤п╟п╩п╟ п©я─п╬п╠я┐п╣п╪ find_package (я─п╟п╠п╬я┌п╟п╣я┌ п╫п╟ п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╣ п╢п╦я│я┌я─п╦п╠я┐я┌п╦п╡п╬п╡),
+# п╥п╟я┌п╣п╪ я─я┐я┤п╫п╬п╧ п©п╬п╦я│п╨ п╢п╩я▐ п╫п╣я│я┌п╟п╫п╢п╟я─я┌п╫я▀я┘ я┐я│я┌п╟п╫п╬п╡п╬п╨
 if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
-	if (MANUAL_GTEST_LOCATION)
-		set(GTEST_LIBRARY_NAME "gtest")
-		set(GTEST_LIBRARY_SUBDIR_NAME "lib")
-		set(GTEST_INCLUDE_FILE "include/gtest/gtest.h")
-
-		find_path(GTEST_ROOT ${GTEST_INCLUDE_FILE} PATHS $ENV{GTEST_ROOT} /usr/ NO_DEFAULT_PATH)
-		set(GTEST_INCLUDE ${GTEST_ROOT}/include)
-		find_library(GTEST_LIB ${GTEST_LIBRARY_NAME} PATHS ${GTEST_ROOT}/${GTEST_LIBRARY_SUBDIR_NAME} NO_DEFAULT_PATH)
-
-		if (NOT GTEST_LIB OR NOT GTEST_INCLUDE)
-			set(MISSING_FILES "")
-			if (NOT GTEST_LIB)
-				set(MISSING_FILES "\n  - ${GTEST_LIBRARY_NAME} library in subdirectory '${GTEST_LIBRARY_SUBDIR_NAME}'")
-			endif ()
-
-			if (NOT GTEST_INCLUDE)
-				set(MISSING_FILES "${MISSING_FILES}\n  - ${GTEST_INCLUDE_FILE}")
-			endif ()
-
-			message(WARNING "Value of GTEST_ROOT is incorrect. At least the following files weren't found "
-				"in the GTest root directory ${GTEST_ROOT}:${MISSING_FILES}\nTrying to find package automatically.")
-
-			find_package(GTest)
-			if (NOT GTEST_FOUND)
-				message(FATAL_ERROR "Automatic search for GTest package failed as well.")
-			else ()
-				set(GTEST_LIB "${GTEST_LIBRARIES}")
-				set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
-			endif ()
-		endif ()
-	else ()
-		find_package(GTest)
-		if (NOT GTEST_FOUND)
-			message(FATAL_ERROR "Automatic search for GTest package failed as well.")
+	# п║п╫п╟я┤п╟п╩п╟ п©я─п╬п╠я┐п╣п╪ я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╧ п©п╬п╦я│п╨ я┤п╣я─п╣п╥ find_package
+	find_package(GTest QUIET)
+	if (GTest_FOUND OR GTEST_FOUND)
+		message(STATUS "GTest found via find_package")
+		# п║п╬п╡я─п╣п╪п╣п╫п╫я▀п╧ CMake (3.20+) п╦я│п©п╬п╩я▄п╥я┐п╣я┌ GTest::gtest target
+		if (TARGET GTest::gtest)
+			set(GTEST_LIB GTest::gtest)
+			get_target_property(GTEST_INCLUDE GTest::gtest INTERFACE_INCLUDE_DIRECTORIES)
 		else ()
 			set(GTEST_LIB "${GTEST_LIBRARIES}")
 			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
 		endif ()
+	else ()
+		# п═я┐я┤п╫п╬п╧ п©п╬п╦я│п╨ п╢п╩я▐ п╫п╣я│я┌п╟п╫п╢п╟я─я┌п╫я▀я┘ я┐я│я┌п╟п╫п╬п╡п╬п╨
+		message(STATUS "GTest not found via find_package, trying manual search...")
+
+		# п≤я┴п╣п╪ п╥п╟пЁп╬п╩п╬п╡п╬я┤п╫я▀п╣ я└п╟п╧п╩я▀
+		find_path(GTEST_INCLUDE_DIR gtest/gtest.h
+			PATHS
+				$ENV{GTEST_ROOT}/include
+				/usr/include
+				/usr/local/include
+		)
+
+		# п≤я┴п╣п╪ п╠п╦п╠п╩п╦п╬я┌п╣п╨я┐ п╡ я│я┌п╟п╫п╢п╟я─я┌п╫я▀я┘ п©я┐я┌я▐я┘ п╢п╩я▐ я─п╟п╥п╫я▀я┘ п╢п╦я│я┌я─п╦п╠я┐я┌п╦п╡п╬п╡
+		find_library(GTEST_LIB gtest
+			PATHS
+				$ENV{GTEST_ROOT}/lib
+				/usr/lib
+				/usr/lib64
+				/usr/local/lib
+				/usr/local/lib64
+		)
+
+		if (GTEST_INCLUDE_DIR AND GTEST_LIB)
+			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIR}")
+			message(STATUS "GTest found manually: ${GTEST_LIB}")
+		else ()
+			message(FATAL_ERROR "GTest not found. Install libgtest-dev (Debian/Ubuntu), gtest-devel (Fedora/RHEL), or gtest (Arch)")
+		endif ()
 	endif ()
 endif ()
 
-include_directories(system ${GTEST_INCLUDE})
+if (GTEST_INCLUDE)
+	include_directories(SYSTEM ${GTEST_INCLUDE})
+endif ()
 
 if (UNIX)
 	add_definitions("-Wno-conversion-null -Wno-sign-compare")
