@@ -537,6 +537,8 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 	for (int i = mrn_from; i <= mrn_last; i++) {
 		MobRnum mrn_to = rrn_first + mob_index[i].vnum % 100;
 		auto old_rnum = mob_proto[mrn_to].get_rnum();
+
+		zone_table[zrn_to].RnumMobsLocation.second = mrn_to;
 		mob_proto[mrn_to] = mob_proto[i];
 		mob_proto[mrn_to].set_rnum(old_rnum);
 		mob_index[mrn_to] = mob_index[i];
