@@ -37,12 +37,12 @@ make tests -j2
 ```
 
 ## Сборка без тестов
-Если тесты не нужны, можно собрать только сервер:
+Если тесты не нужны, можно полностью отключить их сборку:
 ```bash
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Test ..
-make circle -j2
+cmake -DCMAKE_BUILD_TYPE=Test -DBUILD_TESTS=OFF ..
+make -j2
 ```
 
 ## Запуск в docker

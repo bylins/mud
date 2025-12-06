@@ -15,7 +15,7 @@ std::string remove_colors_template(T string, int &new_length) {
 		}
 		++pos;
 	}
-	return string;
+	return {};
 }
 
 std::string RemoveColors(char *string) {
@@ -163,10 +163,10 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 		TrimLeft(token);
 		tokens.push_back(token);
 	}
-	return tokens; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1 О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	return tokens; //если разделитель не найден вернется 1 элемент содержащий полную строку
 }
 
-// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+// первое слово разделенное маской
 std::string FirstWordOnString(std::string s, std::string mask) {
 	int pos = s.find_first_of(mask);
 	if (pos > 0)
@@ -174,7 +174,7 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 	return s;
 }
 
-// О©╫О©╫О©╫О©╫О©╫О©╫ one_argument О©╫О©╫О©╫ string
+// аналог one_argument для string
 std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
 	std::string word;
 
@@ -399,9 +399,9 @@ std::string CompressSymbol(std::string s, const char ch) {
 const char *first_letter(const char *txt) {
 	if (txt) {
 		while (*txt && !a_isalpha(*txt)) {
-			//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
-			//О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,
-			//О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫. CLEAR_SCREEN)
+			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
+			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
+			//но он не используется (см. CLEAR_SCREEN)
 			if ('\x1B' == *txt) {
 				while (*txt && 'm' != *txt) {
 					++txt;

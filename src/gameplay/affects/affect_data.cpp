@@ -95,16 +95,16 @@ int apply_armour(CharData *ch, int eq_pos) {
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		factor *= kMobArmourMult;
 
-	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
 	int cur_dur = MIN(obj->get_maximum_durability(), obj->get_current_durability());
 	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, obj->get_maximum_durability()));
 }
 
 ///
-/// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫ affect_total)
+/// Сет чару аффектов, которые должны висеть постоянно (через affect_total)
 ///
-// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ 50, О©╫О©╫О©╫О©╫ О©╫ 26 О©╫О©╫ 30, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ 60.
-// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 3 О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+// Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
+// Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
 	if (GetRealRemort(ch) <= 3 && !IS_IMMORTAL(ch)) {
 		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
@@ -147,7 +147,7 @@ bool Affect<EApply>::removable() const {
 		|| type == ESpell::kBattle;
 }
 // 
-// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ 10 О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// для мобов раз в 10 пульсов
 void UpdateAffectOnPulse(CharData *ch, int count) {
 	bool pulse_aff = false;
 
@@ -169,7 +169,7 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		}
 		pulse_aff = true;
 
-		if (affect->duration == 0) { //-1 О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		if (affect->duration == 0) { //-1 вечный таймер по задумке
 			affect_i = ch->AffectRemove(affect_i);
 		} else {
 			if (affect->duration > 0) {
@@ -183,7 +183,7 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		affect_total(ch);
 	}
 }
-// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ 2 О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// игроки раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
@@ -193,9 +193,9 @@ void player_affect_update() {
 			continue;
 		const auto i = d->get_character();
 					
-		// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
-		// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫
-		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫-О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
+		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
+		// добавлялись в чар-лист в начало списка и идут до самого чара
 		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
@@ -207,7 +207,7 @@ void player_affect_update() {
 		while (affect_i != i->affected.end()) {
 			const auto &affect = *affect_i;
 
-			// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
+			// нечего тикать аффектам вне раунда боя
 			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
 				++affect_i;
 				continue;
@@ -217,11 +217,11 @@ void player_affect_update() {
 					auto next_affect_i = affect_i;
 
 					++next_affect_i;
-					if (next_affect_i == i->affected.end()	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1 О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+					if (next_affect_i == i->affected.end()	//костыль на спадение 1 закла накладывающего несколько аффектов
 							|| (*next_affect_i)->type != affect->type
 							|| (*next_affect_i)->duration > 0) {
-						//О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫",
-						//О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ :)
+						//чтобы не выдавалось, "что теперь вы можете сражаться",
+						//хотя на самом деле не можете :)
 						if (!(affect->type == ESpell::kMagicBattle
 								&& AFF_FLAGGED(i, EAffect::kStopFight))) {
 							if (!(affect->type == ESpell::kBattle
@@ -238,13 +238,13 @@ void player_affect_update() {
 			} else {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
-						// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+						// здесь плеера могут спуржить
 						if (ProcessPoisonDmg(i.get(), affect) == -1) {
 							was_purged = true;
 							break;
 						}
 					}
-//					sprintf(buf, "О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
+//					sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
 //					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
 						for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
@@ -272,7 +272,7 @@ void player_affect_update() {
 			i->set_abstinent();
 		}
 		if (!was_purged) {
-			MemQ_slots(i.get());    // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫)
+			MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
 			affect_total(i.get());
 		}
 	}
@@ -317,11 +317,11 @@ void battle_affect_update(CharData *ch) {
 		} else {
 			if (affect->duration > 0) {
 				if (IS_SET(affect->battleflag, kAfSameTime)) {
-					if (ProcessPoisonDmg(ch, affect) == -1) {// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+					if (ProcessPoisonDmg(ch, affect) == -1) {// жертва умерла
 						return;
 					}
 					if (ch->purged()) {
-						mudlog("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.",   BRF, kLvlImplementator, SYSLOG, true);
+						mudlog("Некому обновлять аффект, чар уже спуржен.",   BRF, kLvlImplementator, SYSLOG, true);
 						return;
 					}
 				}
@@ -338,7 +338,7 @@ void battle_affect_update(CharData *ch) {
 	affect_total(ch);
 }
 
-// О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+// раз в минуту
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0, count2 = 0, count3 = 0;
@@ -377,7 +377,7 @@ void mobile_affect_update() {
 					if (affect->duration > 0) {
 						if (IS_SET(affect->battleflag, kAfSameTime)
 							&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
-							// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+							// здесь плеера могут спуржить
 							if (ProcessPoisonDmg(i.get(), affect) == -1) {
 								was_purged = true;
 								break;
@@ -385,7 +385,7 @@ void mobile_affect_update() {
 						}
 						affect->duration--;
 						if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
-							act("$n О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.",
+							act("$n начал$g растерянно оглядываться по сторонам.",
 									false, i.get(), nullptr, nullptr, kToRoom | kToArenaListen);
 						charmed_msg = true;
 						}
@@ -396,7 +396,7 @@ void mobile_affect_update() {
 		}
 		if (!was_purged) {
 			affect_total(i.get());
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+// обработка таймеров скилов фитов игрока
 			decltype(i->timed) timed_skill;
 			for (auto timed = i->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;
@@ -446,13 +446,13 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	}
 	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
 		ch->extract_timer = 5;
-		ch->mob_specials.hire_price = 0;// added by WorM (О©╫О©╫О©╫О©╫О©╫О©╫О©╫) 2010.06.04 О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
 	}
 }
 
 std::pair<EApply, int>  GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch) {
 	int value;
-	if (ch) //О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, ch О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	if (ch) //чтоб не было варнинга, ch передаю на будущее
 		value = 2;
 	switch (element) {
 		case EWeaponAffect::kFireAura:
@@ -547,7 +547,7 @@ void affect_total(CharData *ch) {
 			}
 			// Update weapon bitvectors
 			for (const auto &j : weapon_affect) {
-				// О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+				// То же самое, но переформулировал
 				if (j.aff_bitvector == 0 || !obj->GetEWeaponAffect(j.aff_pos)) {
 					continue;
 				}
@@ -565,7 +565,7 @@ void affect_total(CharData *ch) {
 	}
 
 	if (!ch->IsNpc()) {
-		if (!domination) // О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫ О©╫О©╫
+		if (!domination) // мы не на новой арене и не ПК
 			GloryConst::apply_modifiers(ch);
 		apply_natural_affects(ch);
 	}
@@ -607,21 +607,21 @@ void affect_total(CharData *ch) {
 	if (!IS_IMMORTAL(ch)) {
 		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !CanBeTakenInBothHands(ch, obj)) {
 			if (!ch->IsNpc()) {
-				act("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3 О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫!", false, ch, obj, nullptr, kToChar);
+				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
-			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3.", false, ch, obj, nullptr, kToRoom);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !CanBeTakenInMajorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
-				act("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3 О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫!", false, ch, obj, nullptr, kToChar);
+				act("Вам слишком тяжело держать $o3 в правой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
-			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3.", false, ch, obj, nullptr, kToRoom);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlags()), ch);
-			// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::kBoth)
 				&& CanBeTakenInBothHands(ch, obj)
 				&& !GET_EQ(ch, EEquipPos::kHold)
@@ -635,37 +635,37 @@ void affect_total(CharData *ch) {
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !CanBeTakenInMinorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
-				act("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3 О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫!", false, ch, obj, nullptr, kToChar);
+				act("Вам слишком тяжело держать $o3 в левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
-			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3.", false, ch, obj, nullptr, kToRoom);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !CanBeWearedAsShield(ch, obj)) {
 			if (!ch->IsNpc()) {
-				act("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3 О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫!", false, ch, obj, nullptr, kToChar);
+				act("Вам слишком тяжело держать $o3 на левой руке!", false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
-			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3.", false, ch, obj, nullptr, kToRoom);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlags()), ch);
 			return;
 		}
 		if (!ch->IsNpc() && (obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
-			SendMsgToChar("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫.\r\n", ch);
-			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $o3.", false, ch, obj, nullptr, kToRoom);
+			SendMsgToChar("Нет лука, нет и стрел.\r\n", ch);
+			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
 			return;
 		}
 	}
 
 	// calculate DAMAGE value
-	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫
+	// походу для выбора цели переключения в бою
 	ch->damage_level = (str_bonus(GetRealStr(ch), STR_TO_DAM) + GetRealDamroll(ch)) * 2;
 	if ((obj = GET_EQ(ch, EEquipPos::kBoths))
 		&& obj->get_type() == EObjType::kWeapon) {
 		ch->damage_level += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1)))
-			>> 1; // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+			>> 1; // правильный расчет среднего у оружия
 	} else {
 		if ((obj = GET_EQ(ch, EEquipPos::kWield))
 			&& obj->get_type() == EObjType::kWeapon) {
@@ -677,13 +677,13 @@ void affect_total(CharData *ch) {
 		}
 	}
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	// бонусы от морта
 	if (GetRealRemort(ch) >= 20) {
 		ch->add_abils.mresist += GetRealRemort(ch) - 19;
 		ch->add_abils.presist += GetRealRemort(ch) - 19;
 	}
 
-	//О©╫О©╫О©╫О©╫
+	//капы
 	ch->add_abils.mresist = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, ch->add_abils.mresist);
 	ch->add_abils.presist = std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, ch->add_abils.presist);
 
@@ -703,7 +703,7 @@ void affect_total(CharData *ch) {
 			if (saved.get(i)
 				&& !AFF_FLAGS(ch).get(i)) {
 				char small_buf [128];
-				sprintf(small_buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ check_aggressive ch=%s room%d", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+				sprintf(small_buf, "Установка check_aggressive ch=%s room%d", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 				mudlog(small_buf, LGH, kLvlImplementator, SYSLOG, true);
 				ch->check_aggressive = true;
 			}
@@ -901,7 +901,7 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 			break;
 		case EApply::kDaturaPoison: GET_SKILL_REDUCE(ch) += mod;
 			break;
-		case EApply::kPhysicResist: GET_PR(ch) += mod; //О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		case EApply::kPhysicResist: GET_PR(ch) += mod; //скиллрезист
 			break;
 		case EApply::kPhysicDamagePercent: ch->add_abils.percent_physdam_add += mod;
 			break;
@@ -921,7 +921,7 @@ void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool a
 	}            // switch
 }
 
-// * О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫.
+// * Снятие аффектов с чара при смерти/уходе в дт.
 void reset_affects(CharData *ch) {
 	auto af = ch->affected.begin();
 
@@ -934,7 +934,7 @@ void reset_affects(CharData *ch) {
 			++af;
 		}
 	}
-	GET_COND(ch, DRUNK) = 0; // О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫"
+	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
 	affect_total(ch);
 }
 
