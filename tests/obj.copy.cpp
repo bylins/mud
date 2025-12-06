@@ -1,25 +1,32 @@
 #include <gtest/gtest.h>
 
-#include <entities/obj_data.h>
-#include <dg_script/dg_scripts.h>
+#include "engine/entities/obj_data.h"
+#include "engine/scripting/dg_scripts.h"
 
-constexpr obj_vnum OBJECT_VNUM = 100500;
-constexpr obj_vnum PROTOTYPE_VNUM = 100501;
+constexpr ObjVnum OBJECT_VNUM = 100500;
+constexpr ObjVnum PROTOTYPE_VNUM = 100501;
 
-constexpr obj_rnum OBJECT_RNUM = 100510;
-constexpr obj_rnum PROTOTYPE_RNUM = 100511;
+constexpr ObjRnum OBJECT_RNUM = 100510;
+constexpr ObjRnum PROTOTYPE_RNUM = 100511;
 
 const std::string ACTION_DESCRIPTION = "action description";
 const std::string CASE_PREFIX = "case ";
 const CObjectPrototype::triggers_list_t TRIGGERS_LIST = { 1, 2, 3 };
 
-auto create_empty_object(const obj_vnum vnum)
+auto create_empty_prototype(const ObjVnum vnum)
 {
-	auto result = std::make_shared<ObjectData>(vnum);
+	auto result = std::make_shared<CObjectPrototype>(vnum);
 	return result;
 }
 
-auto create_object(const obj_vnum vnum)
+auto create_empty_object(const ObjVnum vnum)
+{
+	auto prototype = create_empty_prototype(vnum);
+	auto result = std::make_shared<ObjData>(*prototype);
+	return result;
+}
+
+auto create_object(const ObjVnum vnum)
 {
 	auto result = create_empty_object(vnum);
 	result->set_rnum(OBJECT_RNUM);
@@ -35,8 +42,7 @@ auto create_object()
 
 auto create_empty_prototype()
 {
-	auto result = std::make_shared<CObjectPrototype>(PROTOTYPE_VNUM);
-	return result;
+	return create_empty_prototype(PROTOTYPE_VNUM);
 }
 
 auto create_prototype()
@@ -45,10 +51,10 @@ auto create_prototype()
 
 	result->set_action_description(ACTION_DESCRIPTION);
 
-	for (auto i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
+	for (auto i = to_underlying(ECase::kFirstCase); i <= to_underlying(ECase::kLastCase); ++i)
 	{
 		const std::string case_name = CASE_PREFIX + std::to_string(i);
-		result->set_PName(i, case_name);
+		result->set_PName(static_cast<ECase>(i), case_name);
 	}
 
 	result->set_proto_script(TRIGGERS_LIST);
@@ -107,9 +113,9 @@ TEST(Object_Copy, Assignment_Operator)
 	//ASSERT_NE(object->get_ilevel(), prototype->get_ilevel());
 	ASSERT_NE(object->get_rnum(), prototype->get_rnum());
 
-	for (auto i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
+	for (auto i = to_underlying(ECase::kFirstCase); i <= to_underlying(ECase::kLastCase); ++i)
 	{
-		ASSERT_NE(object->get_PName(i), prototype->get_PName(i));
+		ASSERT_NE(object->get_PName(static_cast<ECase>(i)), prototype->get_PName(static_cast<ECase>(i)));
 	}
 
 	//for (auto i = 0u; i < CObjectPrototype::VALS_COUNT; ++i)
@@ -154,9 +160,9 @@ TEST(Object_Copy, Assignment_Operator)
 	//EXPECT_EQ(object->get_ilevel(), prototype->get_ilevel());
 	EXPECT_EQ(object->get_rnum(), prototype->get_rnum());
 
-	for (auto i = ECase::kFirstCase; i <= ECase::kLastCase; i++)
+	for (auto i = to_underlying(ECase::kFirstCase); i <= to_underlying(ECase::kLastCase); ++i)
 	{
-		EXPECT_EQ(object->get_PName(i), prototype->get_PName(i));
+		EXPECT_EQ(object->get_PName(static_cast<ECase>(i)), prototype->get_PName(static_cast<ECase>(i)));
 	}
 
 	//for (auto i = 0u; i < CObjectPrototype::VALS_COUNT; ++i)
@@ -165,14 +171,10 @@ TEST(Object_Copy, Assignment_Operator)
 	//}
 }
 
-/*
-При обмене содержимого двух объектов, важно, чтобы VNUM'ы обхектов обменялись.
-При этом список триггеров первого объекта получает 
-*/
 TEST(Object_Copy, Swap)
 {
-	constexpr obj_vnum VNUM1 = 1;
-	constexpr obj_vnum VNUM2 = 2;
+	constexpr ObjVnum VNUM1 = 1;
+	constexpr ObjVnum VNUM2 = 2;
 	auto object1 = create_object(VNUM1);
 	object1->set_proto_script({1, 2, 3});
 	auto object2 = create_object(VNUM2);

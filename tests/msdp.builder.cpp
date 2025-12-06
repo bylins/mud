@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "engine/network/telnet.h"
-#include <msdp/msdp_senders.h>
-#include <msdp/msdp_constants.h>
+#include "engine/network/msdp/msdp_senders.h"
+#include "engine/network/msdp/msdp_constants.h"
 
 #include <memory>
 #include <utility>

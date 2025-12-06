@@ -128,8 +128,7 @@ std::array<EAffect, 3> char_stealth_aff =
 
 template<>
 bool Affect<EApply>::removable() const {
-	return MUD::Spell(type).IsInvalid()
-		|| type == ESpell::kSleep
+	return type == ESpell::kSleep
 		|| type == ESpell::kPoison
 		|| type == ESpell::kWeaknes
 		|| type == ESpell::kCurse
@@ -488,7 +487,9 @@ void affect_total(CharData *ch) {
 	}
 	bool domination = false;
 
-	if (!ch->IsNpc() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+	if (!ch->IsNpc() && ch->in_room != kNowhere && ch->in_room >= 0
+			&& static_cast<size_t>(ch->in_room) < world.size()
+			&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		domination = true;
 	}
 	ObjData *obj;

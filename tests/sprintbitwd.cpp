@@ -1,4 +1,5 @@
-#include <structs/structs.h>
+#include "engine/structs/structs.h"
+#include "utils/utils.h"
 
 #include <gtest/gtest.h>
 
@@ -137,12 +138,12 @@ const int PLANE_BITS = 2;
 
 TEST(sprintbitwd, PrintZero_SimpleBitNames_NoPrintFlags)
 {
-	bitvector_t bitvector = 0;
+	Bitvector bitvector = 0;
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
 
-	EXPECT_EQ(0, strcmp(result, "ничего"));
+	EXPECT_EQ(0, strcmp(result, "ничего"));  // "ничего" (KOI8-R)
 }
 
 TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)
@@ -150,14 +151,14 @@ TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	bitvector_t bitvector = 0;
+	Bitvector bitvector = 0;
 	for (int plane = 0; plane < 1 << PLANE_BITS; ++plane)
 	{
-		constexpr int VALUES_IN_PLANE = 8 * sizeof(bitvector_t) - PLANE_BITS;
+		constexpr int VALUES_IN_PLANE = 8 * sizeof(Bitvector) - PLANE_BITS;
 		for (int i = 0; i < VALUES_IN_PLANE; ++i)
 		{
-			bitvector = plane << (8*sizeof(bitvector_t) - PLANE_BITS)
-				| bitvector_t(1) << i;
+			bitvector = plane << (8*sizeof(Bitvector) - PLANE_BITS)
+				| Bitvector(1) << i;
 			sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
 			const int result_index = i + plane*(VALUES_IN_PLANE + 1);
 			EXPECT_EQ(std::string(BIT_NAMES[result_index]), result);
@@ -168,7 +169,7 @@ TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)
 TEST(sprintbitwd, AllBits_NoPrintFlags)
 {
 	const char* BIT_NAMES[] = { "bit1", "bit2", "\n"};
-	bitvector_t bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
+	Bitvector bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
 	const std::string EXPECTED = "bit1, bit2, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, "
 		"UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, "
 		"UNDEF, UNDEF, UNDEF, UNDEF";
@@ -184,7 +185,7 @@ TEST(sprintbitwd, AllBits_NoPrintFlags)
 TEST(sprintbitwd, AllBits_PrintFlag_0x01)
 {
 	const char* BIT_NAMES[] = { "bit1", "bit2", "\n" };
-	bitvector_t bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
+	Bitvector bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
 	const std::string EXPECTED = "a0:bit1, b0:bit2, c0:UNDEF, d0:UNDEF, e0:UNDEF, f0:UNDEF, g0:UNDEF, "
 		"h0:UNDEF, i0:UNDEF, j0:UNDEF, k0:UNDEF, l0:UNDEF, m0:UNDEF, n0:UNDEF, o0:UNDEF, "
 		"p0:UNDEF, q0:UNDEF, r0:UNDEF, s0:UNDEF, t0:UNDEF, u0:UNDEF, v0:UNDEF, w0:UNDEF, "
@@ -201,7 +202,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x01)
 TEST(sprintbitwd, AllBits_PrintFlag_0x02)
 {
 	const char* BIT_NAMES[] = { "bit1", "bit2", "\n" };
-	bitvector_t bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
+	Bitvector bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
 	const std::string EXPECTED = "bit1, bit2, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, "
 		"3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, "
 		"3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, "
@@ -218,7 +219,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x02)
 TEST(sprintbitwd, AllBits_PrintFlag_0x03)
 {
 	const char* BIT_NAMES[] = { "bit1", "bit2", "\n" };
-	bitvector_t bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
+	Bitvector bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
 	const std::string EXPECTED = "a0:bit1, b0:bit2, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, "
 		"3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, "
 		"3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, 3:UNDEF, "
@@ -235,7 +236,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x03)
 TEST(sprintbitwd, AllBits_PrintFlag_0x04)	// corresponds to NoPrintFlags result if there are no names leading by star
 {
 	const char* BIT_NAMES[] = { "bit1", "bit2", "\n" };
-	bitvector_t bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
+	Bitvector bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
 	const std::string EXPECTED = "bit1, bit2, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, "
 		"UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, "
 		"UNDEF, UNDEF, UNDEF, UNDEF";
@@ -251,7 +252,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x04)	// corresponds to NoPrintFlags result 
 TEST(sprintbitwd, AllBits_PrintFlag_0x05)	// corresponds to PrintFlag_0x01 if there are no names leading by star
 {
 	const char* BIT_NAMES[] = { "bit1", "bit2", "\n" };
-	bitvector_t bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
+	Bitvector bitvector = 0x3fffffff;	// 00111111 11111111 11111111 11111111
 	const std::string EXPECTED = "a0:bit1, b0:bit2, c0:UNDEF, d0:UNDEF, e0:UNDEF, f0:UNDEF, g0:UNDEF, "
 		"h0:UNDEF, i0:UNDEF, j0:UNDEF, k0:UNDEF, l0:UNDEF, m0:UNDEF, n0:UNDEF, o0:UNDEF, "
 		"p0:UNDEF, q0:UNDEF, r0:UNDEF, s0:UNDEF, t0:UNDEF, u0:UNDEF, v0:UNDEF, w0:UNDEF, "
@@ -268,7 +269,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x05)	// corresponds to PrintFlag_0x01 if th
 TEST(sprintbitwd, StarBitName_NoPrintFlags)
 {
 	const char* BIT_NAMES[] = { "bit1", "*bit2", "bit3", "\n" };
-	bitvector_t bitvector = 7;
+	Bitvector bitvector = 7;
 	const std::string EXPECTED = "bit1, bit3";
 
 	constexpr std::size_t BUFFER_SIZE = 1024;
@@ -282,7 +283,7 @@ TEST(sprintbitwd, StarBitName_NoPrintFlags)
 TEST(sprintbitwd, StarBitName_PrintFlag_0x04)
 {
 	const char* BIT_NAMES[] = { "bit1", "*bit2", "bit3", "\n" };
-	bitvector_t bitvector = 7;
+	Bitvector bitvector = 7;
 	const std::string EXPECTED = "bit1, bit2, bit3";
 
 	constexpr std::size_t BUFFER_SIZE = 1024;
@@ -296,7 +297,7 @@ TEST(sprintbitwd, StarBitName_PrintFlag_0x04)
 TEST(sprintbitwd, UNUSED_bit_NoPrintFlags)
 {
 	const char* BIT_NAMES[] = { "bit1", "UNUSED", "bit3", "*UNUSED", "bit5", "UNUSED", "\n" };
-	bitvector_t bitvector = 0x3f;
+	Bitvector bitvector = 0x3f;
 	const std::string EXPECTED = "bit1, UNUSED, bit3, bit5, UNUSED";
 
 	constexpr std::size_t BUFFER_SIZE = 1024;
@@ -310,7 +311,7 @@ TEST(sprintbitwd, UNUSED_bit_NoPrintFlags)
 TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x02)
 {
 	const char* BIT_NAMES[] = { "bit1", "UNUSED", "bit3", "*UNUSED", "bit5", "UNUSED", "\n" };
-	bitvector_t bitvector = 0x3f;
+	Bitvector bitvector = 0x3f;
 	const std::string EXPECTED = "bit1, 2:UNUSED, bit3, bit5, 6:UNUSED";
 
 	constexpr std::size_t BUFFER_SIZE = 1024;
@@ -324,7 +325,7 @@ TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x02)
 TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x03)
 {
 	const char* BIT_NAMES[] = { "bit1", "UNUSED", "bit3", "*UNUSED", "bit5", "UNUSED", "\n" };
-	bitvector_t bitvector = 0x3f;
+	Bitvector bitvector = 0x3f;
 	const std::string EXPECTED = "a0:bit1, b0:2:UNUSED, c0:bit3d0:, e0:bit5, f0:6:UNUSED";
 
 	constexpr std::size_t BUFFER_SIZE = 1024;

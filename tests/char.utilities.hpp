@@ -1,14 +1,14 @@
 #ifndef __CHAR__UTILITIES_HPP__
 #define __CHAR__UTILITIES_HPP__
 
-#include <chars/char.h>
+#include "engine/entities/char_data.h"
 
 namespace test_utils
 {
 	class CharacterBuilder
 	{
 	public:
-		using character_t = CHAR_DATA;
+		using character_t = CharData;
 		using result_t = character_t::shared_ptr;
 
 		void create_new();

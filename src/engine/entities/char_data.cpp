@@ -278,12 +278,14 @@ size_t CharData::remove_random_affects(const size_t count) {
 	}
 
 	const auto to_remove = std::min(count, removable_affects.size());
-	std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
-	for (auto counter = 0u; counter < to_remove; ++counter) {
-		const auto affect_i = removable_affects[counter];
-		RemoveAffectFromCharAndRecalculate(this, affect_i->get()->type);    //count тут не сработает, удаляются все аффекты а не первый
+	if (to_remove > 0) {
+		std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(std::random_device()()));
+		for (auto counter = 0u; counter < to_remove; ++counter) {
+			const auto affect_i = removable_affects[counter];
+			AffectRemove(affect_i);    //count тут не сработает, удаляются все аффекты а не первый
+		}
+		affect_total(this);
 	}
-
 	return to_remove;
 }
 

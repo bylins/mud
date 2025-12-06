@@ -15,7 +15,7 @@ std::string remove_colors_template(T string, int &new_length) {
 		}
 		++pos;
 	}
-	return string;
+	return {};
 }
 
 std::string RemoveColors(char *string) {
@@ -23,8 +23,9 @@ std::string RemoveColors(char *string) {
 		int new_length = 0;
 		remove_colors_template<char *>(string, new_length);
 		string[new_length] = '\0';
+		return string;
 	}
-	return string;
+	return {};
 }
 
 std::string RemoveColors(std::string string) {
@@ -53,11 +54,7 @@ shared_string_ptr GetStringWithoutColors(const char *string) {
 }
 
 std::string GetStringWithoutColors(const std::string &string) {
-	std::string result = string;
-
-	RemoveColors(result);
-
-	return result;
+	return RemoveColors(string);
 }
 
 std::ostream &Padding::output(std::ostream &os) const {
