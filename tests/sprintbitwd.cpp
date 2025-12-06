@@ -143,7 +143,7 @@ TEST(sprintbitwd, PrintZero_SimpleBitNames_NoPrintFlags)
 	char result[BUFFER_SIZE];
 	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
 
-	EXPECT_EQ(0, strcmp(result, "О©╫О©╫О©╫О©╫О©╫О©╫"));
+	EXPECT_EQ(0, strcmp(result, "ничего"));  // "ничего" (KOI8-R)
 }
 
 TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)

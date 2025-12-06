@@ -425,7 +425,9 @@ int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const cha
 
 	if (0 < source_remained) {
 		strncpy(replace_buffer, from, std::min(remains, source_remained));
+		replace_buffer += std::min(remains, source_remained);
 	}
+	*replace_buffer = '\0';
 	writer->set_string(guard.get());
 
 	return count;

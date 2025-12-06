@@ -24,6 +24,27 @@ cd ..
 build/circle 4000
 ```
 
+## Сборка с тестами
+Для сборки тестов используйте:
+```bash
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Test ..
+make tests -j2
+
+# Запуск тестов
+./tests/tests
+```
+
+## Сборка без тестов
+Если тесты не нужны, можно собрать только сервер:
+```bash
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Test ..
+make circle -j2
+```
+
 ## Запуск в docker
 ``` bash
 docker build -t mud-server --build-arg BUILD_TYPE=Test .

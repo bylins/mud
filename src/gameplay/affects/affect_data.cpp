@@ -128,8 +128,7 @@ std::array<EAffect, 3> char_stealth_aff =
 
 template<>
 bool Affect<EApply>::removable() const {
-	return MUD::Spell(type).IsInvalid()
-		|| type == ESpell::kSleep
+	return type == ESpell::kSleep
 		|| type == ESpell::kPoison
 		|| type == ESpell::kWeaknes
 		|| type == ESpell::kCurse
