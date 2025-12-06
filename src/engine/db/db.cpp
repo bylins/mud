@@ -2311,6 +2311,7 @@ void ZoneReset::ResetZoneEssential() {
 							mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 							return;
 						}
+						auto abc = mob_proto[mob->get_rnum()].get_wis();
 						if (!(mob_proto[mob->get_rnum()].get_role_bits().any() || ROOM_FLAGGED(reset_cmd.arg3, ERoomFlag::kArena))) {
 							int rndlev = mob->GetLevel();
 							rndlev += number(-2, +2);
