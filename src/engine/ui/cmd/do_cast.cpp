@@ -61,6 +61,10 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			}
 		}
 	}
+	if (ch->is_morphed()) {
+		SendMsgToChar("Вы не можете произносить заклинания в звериной форме.\r\n", ch);
+		return;
+	}
 	if (!*argument) {
 		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;

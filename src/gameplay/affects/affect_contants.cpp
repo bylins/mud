@@ -188,6 +188,7 @@ void init_EAffectFlag_ITEM_NAMES() {
 	EAffectFlag_name_by_value[EAffect::kCombatLuck] = "kCombatLuck";
 	EAffectFlag_name_by_value[EAffect::kBandage] = "kBandage";
 	EAffectFlag_name_by_value[EAffect::kCannotBeBandaged] = "kCannotBeBandaged";
+	EAffectFlag_name_by_value[EAffect::kMorphing] = "kMorphing";
 	EAffectFlag_name_by_value[EAffect::kStrangled] = "kStrangled";
 	EAffectFlag_name_by_value[EAffect::kMemorizeSpells] = "kMemorizeSpells";
 	EAffectFlag_name_by_value[EAffect::kNoobRegen] = "kNoobRegen";

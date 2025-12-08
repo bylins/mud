@@ -671,12 +671,12 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
-		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_str();
-		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_dex();
-		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_int();
-		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_wis();
-		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_con();
-		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_cha();
+		tmp_glory_olc->stat_cur[GLORY_STR] = ch->GetInbornStr();
+		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->GetInbornDex();
+		tmp_glory_olc->stat_cur[GLORY_INT] = ch->GetInbornInt();
+		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->GetInbornWis();
+		tmp_glory_olc->stat_cur[GLORY_CON] = ch->GetInbornCon();
+		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->GetInbornCha();
 		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
 		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
 		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
