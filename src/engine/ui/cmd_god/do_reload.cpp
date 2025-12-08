@@ -65,6 +65,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		oload_table.init();
 		ObjData::InitSetTable();
 		mob_races::LoadMobraces();
+		load_morphs();
 		GlobalDrop::init();
 		offtop_system::Init();
 		celebrates::Load();
@@ -158,6 +159,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		privilege::Load();
 	else if (!str_cmp(arg, "mobraces"))
 		mob_races::LoadMobraces();
+	else if (!str_cmp(arg, "morphs"))
+		load_morphs();
 	else if (!str_cmp(arg, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {

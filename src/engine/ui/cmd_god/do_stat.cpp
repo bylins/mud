@@ -310,12 +310,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	sprintf(buf,
 			"Сила: [%s%d/%d%s]  Инт : [%s%d/%d%s]  Мудр : [%s%d/%d%s] \r\n"
 			"Ловк: [%s%d/%d%s]  Тело:[%s%d/%d%s]  Обаян:[%s%d/%d%s] Размер: [%s%d/%d%s]\r\n",
-			kColorCyn, k->get_str(), GetRealStr(k), kColorNrm,
-			kColorCyn, k->get_int(), GetRealInt(k), kColorNrm,
-			kColorCyn, k->get_wis(), GetRealWis(k), kColorNrm,
-			kColorCyn, k->get_dex(), GetRealDex(k), kColorNrm,
-			kColorCyn, k->get_con(), GetRealCon(k), kColorNrm,
-			kColorCyn, k->get_cha(), GetRealCha(k), kColorNrm,
+			kColorCyn, k->GetInbornStr(), GetRealStr(k), kColorNrm,
+			kColorCyn, k->GetInbornInt(), GetRealInt(k), kColorNrm,
+			kColorCyn, k->GetInbornWis(), GetRealWis(k), kColorNrm,
+			kColorCyn, k->GetInbornDex(), GetRealDex(k), kColorNrm,
+			kColorCyn, k->GetInbornCon(), GetRealCon(k), kColorNrm,
+			kColorCyn, k->GetInbornCha(), GetRealCha(k), kColorNrm,
 			kColorCyn, GET_SIZE(k), GET_REAL_SIZE(k), kColorNrm);
 	SendMsgToChar(buf, ch);
 

@@ -847,6 +847,7 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		for (struct FollowerType *l = ch->followers; l; l = l->next) {
 			l->follower->set_master(ch);
 		}
+		ch->set_normal_morph();
 		for (const auto &af : m->affected) {
 			const auto &affect = *af;
 

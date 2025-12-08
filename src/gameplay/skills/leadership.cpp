@@ -87,7 +87,7 @@ void UpdateLeadership(CharData *ch, CharData *killer) {
 		&& ch->has_master()
 		&& ch->in_room == ch->get_master()->in_room
 		&& ch->get_master()->GetTrainedSkill(ESkill::kLeadership) > 1) {
-		const auto current_skill = ch->get_master()->GetTrainedSkill(ESkill::kLeadership);
+		const auto current_skill = ch->get_master()->GetMorphSkill(ESkill::kLeadership);
 		ch->get_master()->set_skill(ESkill::kLeadership, current_skill - 1);
 	}
 }

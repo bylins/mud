@@ -102,7 +102,7 @@ enum class ESkill : int {
 	kDisarm = 150,
 	kParry = 151,
 	kCharge = 152,
-//	kMorph = 153, пусто
+	kMorph = 153,
 	kBows = 154,
 	kAddshot = 155,
 	kDisguise = 156,

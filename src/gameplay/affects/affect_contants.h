@@ -99,7 +99,7 @@ enum class EAffect : Bitvector {
 	kCombatLuck = kIntTwo | (1u << 13),
 	kBandage = kIntTwo | (1u << 14),
 	kCannotBeBandaged = kIntTwo | (1u << 15),
-//	kMorphing = kIntTwo | (1u << 16), пусто
+	kMorphing = kIntTwo | (1u << 16),
 	kStrangled = kIntTwo | (1u << 17),
 	kMemorizeSpells = kIntTwo | (1u << 18),
 	kNoobRegen = kIntTwo | (1u << 19),

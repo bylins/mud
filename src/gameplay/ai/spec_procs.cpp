@@ -55,6 +55,11 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 	if (!CMD_IS("лошадь") && !CMD_IS("horse"))
 		return (0);
 
+	if (ch->is_morphed()) {
+		SendMsgToChar("Лошадка испугается вас в таком виде... \r\n", ch);
+		return (true);
+	}
+
 	skip_spaces(&argument);
 
 	if (!*argument) {
