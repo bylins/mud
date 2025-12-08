@@ -353,27 +353,27 @@ bool parse_denial_check(CharData *ch, int stat) {
 		bool stop = false;
 		switch (stat) {
 			case G_STR:
-				if (ch->get_str() == ch->desc->glory->olc_str)
+				if (ch->GetInbornStr() == ch->desc->glory->olc_str)
 					stop = true;
 				break;
 			case G_DEX:
-				if (ch->get_dex() == ch->desc->glory->olc_dex)
+				if (ch->GetInbornDex() == ch->desc->glory->olc_dex)
 					stop = true;
 				break;
 			case G_INT:
-				if (ch->get_int() == ch->desc->glory->olc_int)
+				if (ch->GetInbornInt() == ch->desc->glory->olc_int)
 					stop = true;
 				break;
 			case G_WIS:
-				if (ch->get_wis() == ch->desc->glory->olc_wis)
+				if (ch->GetInbornWis() == ch->desc->glory->olc_wis)
 					stop = true;
 				break;
 			case G_CON:
-				if (ch->get_con() == ch->desc->glory->olc_con)
+				if (ch->GetInbornCon() == ch->desc->glory->olc_con)
 					stop = true;
 				break;
 			case G_CHA:
-				if (ch->get_cha() == ch->desc->glory->olc_cha)
+				if (ch->GetInbornCha() == ch->desc->glory->olc_cha)
 					stop = true;
 				break;
 			default: log("Glory: невалидный номер стат: %d (uid: %ld, name: %s)", stat, ch->get_uid(), GET_NAME(ch));
@@ -582,12 +582,12 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 		case 'в': {
 			// проверка, чтобы не записывать зря, а только при изменения
 			// и чтобы нельзя было из стата славу вытащить
-			if ((ch->desc->glory->olc_str == ch->get_str()
-				&& ch->desc->glory->olc_dex == ch->get_dex()
-				&& ch->desc->glory->olc_int == ch->get_int()
-				&& ch->desc->glory->olc_wis == ch->get_wis()
-				&& ch->desc->glory->olc_con == ch->get_con()
-				&& ch->desc->glory->olc_cha == ch->get_cha())
+			if ((ch->desc->glory->olc_str == ch->GetInbornStr()
+				&& ch->desc->glory->olc_dex == ch->GetInbornDex()
+				&& ch->desc->glory->olc_int == ch->GetInbornInt()
+				&& ch->desc->glory->olc_wis == ch->GetInbornWis()
+				&& ch->desc->glory->olc_con == ch->GetInbornCon()
+				&& ch->desc->glory->olc_cha == ch->GetInbornCha())
 				|| ch->desc->glory->olc_add_spend_glory < ch->desc->glory->olc_node->spend_glory) {
 				return false;
 			}
@@ -607,12 +607,12 @@ bool parse_spend_glory_menu(CharData *ch, const char *arg) {
 			}
 
 			// включаем таймер, если было переливание статов
-			if (ch->get_str() < ch->desc->glory->olc_str
-				|| ch->get_dex() < ch->desc->glory->olc_dex
-				|| ch->get_int() < ch->desc->glory->olc_int
-				|| ch->get_wis() < ch->desc->glory->olc_wis
-				|| ch->get_con() < ch->desc->glory->olc_con
-				|| ch->get_cha() < ch->desc->glory->olc_cha) {
+			if (ch->GetInbornStr() < ch->desc->glory->olc_str
+				|| ch->GetInbornDex() < ch->desc->glory->olc_dex
+				|| ch->GetInbornInt() < ch->desc->glory->olc_int
+				|| ch->GetInbornWis() < ch->desc->glory->olc_wis
+				|| ch->GetInbornCon() < ch->desc->glory->olc_con
+				|| ch->GetInbornCha() < ch->desc->glory->olc_cha) {
 				ch->desc->glory->olc_node->denial = DISPLACE_TIMER;
 			}
 
@@ -710,12 +710,12 @@ void spend_glory_menu(CharData *ch) {
 	if (diff > 0) {
 		out << "  Вы должны распределить вложенные ранее " << diff << " " << GetDeclensionInNumber(diff, EWhat::kPoint) << "\r\n";
 	} else if (ch->desc->glory->olc_add_spend_glory > ch->desc->glory->olc_node->spend_glory
-		|| ch->desc->glory->olc_str != ch->get_str()
-		|| ch->desc->glory->olc_dex != ch->get_dex()
-		|| ch->desc->glory->olc_int != ch->get_int()
-		|| ch->desc->glory->olc_wis != ch->get_wis()
-		|| ch->desc->glory->olc_con != ch->get_con()
-		|| ch->desc->glory->olc_cha != ch->get_cha()) {
+		|| ch->desc->glory->olc_str != ch->GetInbornStr()
+		|| ch->desc->glory->olc_dex != ch->GetInbornDex()
+		|| ch->desc->glory->olc_int != ch->GetInbornInt()
+		|| ch->desc->glory->olc_wis != ch->GetInbornWis()
+		|| ch->desc->glory->olc_con != ch->GetInbornCon()
+		|| ch->desc->glory->olc_cha != ch->GetInbornCha()) {
 		out << "  "
 			<< kColorBoldGrn << "В" << kColorNrm
 			<< ") Сохранить результаты\r\n";
@@ -784,12 +784,12 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	std::shared_ptr<class spend_glory> temp_glory(new spend_glory);
-	temp_glory->olc_str = ch->get_str();
-	temp_glory->olc_dex = ch->get_dex();
-	temp_glory->olc_int = ch->get_int();
-	temp_glory->olc_wis = ch->get_wis();
-	temp_glory->olc_con = ch->get_con();
-	temp_glory->olc_cha = ch->get_cha();
+	temp_glory->olc_str = ch->GetInbornStr();
+	temp_glory->olc_dex = ch->GetInbornDex();
+	temp_glory->olc_int = ch->GetInbornInt();
+	temp_glory->olc_wis = ch->GetInbornWis();
+	temp_glory->olc_con = ch->GetInbornCon();
+	temp_glory->olc_cha = ch->GetInbornCha();
 
 	// я не помню уже, как там этот шаред-птр ведет себя при дефолтном копировании
 	// а т.к. внутри есть список таймеров на них - скопирую вручную и пофигу на все

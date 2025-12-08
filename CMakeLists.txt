@@ -112,6 +112,7 @@ set(SOURCES
 		src/gameplay/mechanics/mobmax.cpp
 		src/gameplay/statistics/mob_stat.cpp
 		src/engine/ui/modify.cpp
+		src/gameplay/skills/morph.cpp
         src/administration/name_adviser.cpp
 		src/gameplay/mechanics/named_stuff.cpp
 		src/administration/names.cpp
@@ -184,6 +185,7 @@ set(SOURCES
 		src/gameplay/skills/ironwind.cpp
 		src/gameplay/skills/throw.cpp
 		src/gameplay/skills/mighthit.cpp
+		src/gameplay/skills/morph.cpp
 		src/gameplay/skills/shield_block.cpp
 		src/gameplay/skills/parry.cpp
 		src/gameplay/skills/pick.cpp

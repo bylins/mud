@@ -485,6 +485,13 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 	}
 }
 
+void PrintMorphInfo(CharData *ch, std::ostringstream &out) {
+	if (ch->is_morphed()) {
+		out << InfoStrPrefix(ch) << kColorBoldYel << "Вы находитесь в звериной форме - "
+			<< ch->get_morph_desc() << "." << kColorNrm << "\r\n";
+	}
+}
+
 /**
  * Вывести в таблицу основную информацию персонажа, начиная с указанного столбца.
  * @param ch  - персонаж, для которого выводится статистика.
@@ -651,6 +658,7 @@ void PrintTesterModeInfo(CharData *ch, std::ostringstream &out) {
 void PrintAdditionalInfo(CharData *ch, std::ostringstream &out) {
 	/* Плюс-минус игровая информация */
 	PrintHorseInfo(ch, out);
+	PrintMorphInfo(ch, out);
 	PrintRuneLabelInfo(ch, out);
 	PrintProtectInfo(ch, out);
 	PrintBonusStateInfo(ch, out);
@@ -941,6 +949,11 @@ void PrintScoreBase(CharData *ch) {
 		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins, EWhat::kMinU));
+		SendMsgToChar(buf, ch);
+	}
+
+	if (ch->is_morphed()) {
+		sprintf(buf, "Вы находитесь в звериной форме - %s.\r\n", ch->get_morph_desc().c_str());
 		SendMsgToChar(buf, ch);
 	}
 	if (CanUseFeat(ch, EFeat::kSoulsCollector)) {
