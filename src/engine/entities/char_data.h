@@ -330,9 +330,7 @@ class CharData : public ProtectedCharData {
 	using followers_list_t = std::list<CharData *>;
 
 	CharData();
-	CharData(const CharData &rhv);
 	~CharData() override;
-    CharData &operator=(const CharData &rhv);
 
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharData *dst, CharData *src);
