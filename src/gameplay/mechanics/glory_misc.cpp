@@ -210,7 +210,8 @@ bool check_stats(CharData *ch) {
 		return 1;
 	}
 
-	int have_stats = ch->get_str() + ch->get_dex() + ch->get_int() + ch->get_wis() + ch->get_con() + ch->get_cha();
+	int have_stats = ch->GetInbornStr() + ch->GetInbornDex() + ch->GetInbornInt() + ch->GetInbornWis()
+		+ ch->GetInbornCon() + ch->GetInbornCha();
 
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch)) {
@@ -218,12 +219,12 @@ bool check_stats(CharData *ch) {
 										 "Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 										 "Просим вас заново распределить основные параметры персонажа.%s\r\n",
 				 kColorBoldGrn,
-				 ch->get_str() - GetRealRemort(ch),
-				 ch->get_dex() - GetRealRemort(ch),
-				 ch->get_int() - GetRealRemort(ch),
-				 ch->get_wis() - GetRealRemort(ch),
-				 ch->get_con() - GetRealRemort(ch),
-				 ch->get_cha() - GetRealRemort(ch),
+				 ch->GetInbornStr() - GetRealRemort(ch),
+				 ch->GetInbornDex() - GetRealRemort(ch),
+				 ch->GetInbornInt() - GetRealRemort(ch),
+				 ch->GetInbornWis() - GetRealRemort(ch),
+				 ch->GetInbornCon() - GetRealRemort(ch),
+				 ch->GetInbornCha() - GetRealRemort(ch),
 				 kColorNrm);
 	iosystem::write_to_output(buf, ch->desc);
 

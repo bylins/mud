@@ -164,66 +164,43 @@ bool RecalcMobParamsByVnum(int vnum, bool apply_to_instances = true) {
 
 // Только проставить уровень всем инстансам зоны (опционально ? только конкретному vnum).
 // НИЧЕГО больше (single responsibility).
-static bool SetLevelsForInstancesInZone(int zone_vnum,
-                                        int set_level,
-                                        int mob_vnum_filter = -1) {
-  SysInfo("SYSINFO: SetLevelsInZone start (zone=%d, set_level=%d, mob_filter=%d).",
-          zone_vnum, set_level, mob_vnum_filter);
+void SetLevelsForInstancesInZone(int zone_vnum, int set_level, int mob_vnum_filter = -1) {
+	SysInfo("SYSINFO: SetLevelsInZone start (zone=%d, set_level=%d, mob_filter=%d).", zone_vnum, set_level, mob_vnum_filter);
+	ZoneRnum zrn = GetZoneRnum(zone_vnum);
+	MobRnum mrn_first = zone_table[zrn].RnumMobsLocation.first;
+	MobRnum mrn_last = zone_table[zrn].RnumMobsLocation.second;
 
-  size_t touched = 0;
+	for (MobRnum mrn = mrn_first; mrn <= mrn_last; mrn++) {
+		const int mob_vnum = mob_index[mrn].vnum;
 
-  for (const auto& node : character_list) {
-    CharData* ch = node.get();
-    if (!ch || !ch->IsNpc()) continue;
-
-    const int mob_vnum = GET_MOB_VNUM(ch);
-    if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter) continue;
-
-    const int room_vnum = GetRoomVnumFromChar(ch);
-    const int mob_zone = GetZoneVnumFromRoomVnum(room_vnum);
-    if (mob_zone != zone_vnum) continue;
-
-    SetMobLevel(ch, set_level);
-    ++touched;
-    SysInfo("SYSINFO: SetLevelsInZone: room=%d zone=%d mob_vnum=%d level=%d.",
-            room_vnum, mob_zone, mob_vnum, GetMobLevel(ch));
-  }
-
-  SysInfo("SYSINFO: SetLevelsInZone done (zone=%d). instances_touched=%zu.",
-          zone_vnum, touched);
-  return touched > 0;
+	 	if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter)
+			continue;
+		mob_proto[mrn].set_level(set_level);
+		SysInfo("SYSINFO: SetLevelsInZone: mob_vnum=%d level=%d.", mob_vnum, set_level);
+	}
+	SysInfo("SYSINFO: SetLevelsInZone done (zone=%d)", zone_vnum);
 }
 
 // --------------------- Пересчитать инстансы в зоне ---------------------------
 
 // Только применить роли/конфиг ко всем инстансам зоны (опционально ? фильтр по vnum).
 // НИЧЕГО больше (single responsibility).
-bool RecalcMobParamsInZone(int zone_vnum, int mob_vnum_filter = -1) {
-  SysInfo("SYSINFO: RecalcInZone start (zone_vnum=%d, mob_filter=%d).",
-          zone_vnum, mob_vnum_filter);
+void RecalcMobParamsInZone(int zone_vnum, int mob_vnum_filter = -1) {
+	SysInfo("SYSINFO: RecalcInZone start (zone_vnum=%d, mob_filter=%d).", zone_vnum, mob_vnum_filter);
+	ZoneRnum zrn = GetZoneRnum(zone_vnum);
+	MobRnum mrn_first = zone_table[zrn].RnumMobsLocation.first;
+	MobRnum mrn_last = zone_table[zrn].RnumMobsLocation.second;
 
-  size_t touched = 0;
+	for (MobRnum mrn = mrn_first; mrn <= mrn_last; mrn++) {
+		const int mob_vnum = mob_index[mrn].vnum;
 
-  for (const auto& node : character_list) {
-    CharData* ch = node.get();
-    if (!ch || !ch->IsNpc()) continue;
-
-    const int mob_vnum = GET_MOB_VNUM(ch);
-    if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter) continue;
-
-    const int room_vnum = GetRoomVnumFromChar(ch);
-    const int mob_zone = GetZoneVnumFromRoomVnum(room_vnum);
-    if (mob_zone != zone_vnum) continue;
-
-    ++touched;
-    const bool ok = ApplyMobParams(ch);
-    SysInfo("SYSINFO: zone recalc: room_vnum=%d zone=%d mob_vnum=%d -> applied=%s.",
-            room_vnum, mob_zone, mob_vnum, ok ? "true" : "false");
-  }
-
-  SysInfo("SYSINFO: RecalcInZone done (zone_vnum=%d). instances_touched=%zu.",
-          zone_vnum, touched);
-  return touched > 0;
+	 	if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter)
+			continue;
+		ApplyMobParams(&mob_proto[mrn]);
+//    SysInfo("SYSINFO: zone recalc: room_vnum=%d zone=%d mob_vnum=%d -> applied=%s.",
+//          room_vnum, mob_zone, mob_vnum, ok ? "true" : "false");
+	}
+	SysInfo("SYSINFO: RecalcInZone done");
 }
 
 // --------------------- Оркестратор: уровень -> пересчёт ----------------------
@@ -231,23 +208,12 @@ bool RecalcMobParamsInZone(int zone_vnum, int mob_vnum_filter = -1) {
 // Последовательность из двух одноцелевых шагов:
 //   1) SetLevelsForInstancesInZone(...)
 //   2) RecalcMobParamsInZone(...)
-bool RecalcMobParamsInZoneWithLevel(int zone_vnum,
-                                    int set_level,
-                                    int mob_vnum_filter = -1) {
-  SysInfo("SYSINFO: RecalcInZoneWithLevel start (zone=%d, set_level=%d, mob_filter=%d).",
-          zone_vnum, set_level, mob_vnum_filter);
-
-  const bool leveled =
-      SetLevelsForInstancesInZone(zone_vnum, set_level, mob_vnum_filter);
-
-  const bool recalced =
-      RecalcMobParamsInZone(zone_vnum, mob_vnum_filter);
-
-  SysInfo(
-      "SYSINFO: RecalcInZoneWithLevel done (zone=%d). leveled=%s, recalced=%s.",
-      zone_vnum, leveled ? "true" : "false", recalced ? "true" : "false");
-
-  return leveled || recalced;
+bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int set_level, int mob_vnum_filter = -1) {
+	SysInfo("SYSINFO: RecalcInZoneWithLevel start (zone=%d, set_level=%d, mob_filter=%d).", zone_vnum, set_level, mob_vnum_filter);
+	SetLevelsForInstancesInZone(zone_vnum, set_level, mob_vnum_filter);
+	RecalcMobParamsInZone(zone_vnum, mob_vnum_filter);
+	SysInfo("SYSINFO: RecalcInZoneWithLevel done.");
+	return true;
 }
 
 
