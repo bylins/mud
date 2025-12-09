@@ -84,68 +84,6 @@ CharData::~CharData() {
 	this->purge();
 }
 
-CharData::CharData(const CharData &rhv) : ProtectedCharData(rhv) {
-	set_normal_morph();
-	*this = rhv;
-}
-CharData &CharData::operator=(const CharData &rhv) {
-	if (this != &rhv) {
-		// Copy base class
-		ProtectedCharData::operator=(rhv);
-
-		// Copy members
-		name_ = rhv.name_;
-		short_descr_ = rhv.short_descr_;
-		chclass_ = rhv.chclass_;
-		is_npc_ = rhv.is_npc_;
-		level_ = rhv.level_;
-		level_add_ = rhv.level_add_;
-		uid_ = rhv.uid_;
-		exp_ = rhv.exp_;
-		remorts_ = rhv.remorts_;
-		remorts_add_ = rhv.remorts_add_;
-		last_logon_ = rhv.last_logon_;
-		last_exchange_ = rhv.last_exchange_;
-		gold_ = rhv.gold_;
-		bank_gold_ = rhv.bank_gold_;
-		ruble = rhv.ruble;
-		str_ = rhv.str_;
-		str_add_ = rhv.str_add_;
-		dex_ = rhv.dex_;
-		dex_add_ = rhv.dex_add_;
-		con_ = rhv.con_;
-		con_add_ = rhv.con_add_;
-		wis_ = rhv.wis_;
-		wis_add_ = rhv.wis_add_;
-		int_ = rhv.int_;
-		int_add_ = rhv.int_add_;
-		cha_ = rhv.cha_;
-		cha_add_ = rhv.cha_add_;
-		morphs_ = rhv.morphs_;
-		role_ = rhv.role_;
-		restore_timer_ = rhv.restore_timer_;
-		count_score = rhv.count_score;
-		souls = rhv.souls;
-		skill_bonus_ = rhv.skill_bonus_;
-		type_charmice_ = rhv.type_charmice_;
-		skills = rhv.skills;
-		skills_add_ = rhv.skills_add_;
-		attackers_ = rhv.attackers_;
-		obj_bonus_ = rhv.obj_bonus_;
-		in_room = rhv.in_room;
-		player_data = rhv.player_data;
-		add_abils = rhv.add_abils;
-		real_abils = rhv.real_abils;
-		points = rhv.points;
-		char_specials = rhv.char_specials;
-		mob_specials = rhv.mob_specials;
-
-		// Fix the morph pointer: create new NormalMorph pointing to this object
-		set_normal_morph();
-	}
-	return *this;
-}
-
 void CharData::set_type_charmice(int type) {
 	this->type_charmice_ = type;
 }
