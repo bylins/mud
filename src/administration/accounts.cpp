@@ -8,6 +8,8 @@
 #include <sstream>
 #include "engine/db/player_index.h"
 
+#include <crypt.h> // prool for cygwin
+
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 
 #if defined(NOCRYPT)
