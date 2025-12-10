@@ -41,7 +41,7 @@ void GetOneParam(std::string &buffer, std::string &buffer2);
 bool CompareParam(const std::string &buffer, const char *str, bool full = false);
 bool CompareParam(const std::string &buffer, const std::string &buffer2, bool full = false);
 DescriptorData *DescriptorByUid(long uid);
-int GetUniqueByName(std::string_view name, bool god = false);
+int GetUniqueByName(std::string name, bool god = false);
 std::string GetNameByUnique(long unique, bool god = false);
 bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
