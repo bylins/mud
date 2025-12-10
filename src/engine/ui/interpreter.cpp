@@ -3786,6 +3786,7 @@ DescriptorData *DescriptorByUid(long uid) {
 * \param god по умолчанию = 0
 * \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
 */
+
 int GetUniqueByName(std::string name, bool god) {
 	for (auto &i : player_table) {
 		if (i.uid() != -1 && CompareParam(name, i.name(), true)) {
