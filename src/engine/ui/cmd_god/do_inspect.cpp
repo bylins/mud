@@ -23,7 +23,9 @@ const char *kUndefined{"undefined"};
 const std::set<std::string_view> kIgnoredIpChecklist = {"135.181.219.76"};
 
 const PlayerIndexElement &GetCharIndex(std::string_view char_name) {
-	auto vict_uid = GetUniqueByName(char_name);
+	std::string name {char_name};
+
+	auto vict_uid = GetUniqueByName(name);
 	if (vict_uid <= 0) {
 		throw std::runtime_error(fmt::format("Неизвестное имя персонажа '{}'.\r\n", char_name));
 	} else {
