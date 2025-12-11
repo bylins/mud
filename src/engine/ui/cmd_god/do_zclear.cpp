@@ -14,7 +14,6 @@
 
 void DoClearZone(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	UniqueList<ZoneRnum> zone_repop_list;
-	RoomRnum rrn_start = 0;
 	ZoneRnum zrn;
 
 	one_argument(argument, arg);
@@ -36,12 +35,10 @@ void DoClearZone(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 		sprintf(buf, "Очищаю и перегружаю зону #%d: %s\r\n", zone_table[zrn].vnum, zone_table[zrn].name.c_str());
 		SendMsgToChar(buf, ch);
-		rrn_start = zone_table[zrn].RnumRoomsLocation.first;
-		for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
-			auto &room = world[rrn_start + rvn];
-
-			dungeons::ClearRoom(room);
+		for (auto rrn = zone_table[zrn].RnumRoomsLocation.first; rrn <= zone_table[zrn].RnumRoomsLocation.second; rrn++) {
+			dungeons::ClearRoom(world[rrn]);
 		}
+		dungeons::ClearRoom(world[zone_table[zrn].RnumRoomsLocation.second + 1]); //виртуалку
 		zone_repop_list.push_back(zrn);
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(zrn);
