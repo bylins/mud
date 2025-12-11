@@ -38,7 +38,7 @@ void DoClearZone(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		for (auto rrn = zone_table[zrn].RnumRoomsLocation.first; rrn <= zone_table[zrn].RnumRoomsLocation.second; rrn++) {
 			dungeons::ClearRoom(world[rrn]);
 		}
-		dungeons::ClearRoom(world[GetRoomRnum(zone_table[zrn].RnumRoomsLocation.second + 1)]); //виртуалку
+		dungeons::ClearRoom(world[zone_table[zrn].RnumRoomsLocation.second + 1]); //виртуалку
 		zone_repop_list.push_back(zrn);
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(zrn);
