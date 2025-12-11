@@ -439,9 +439,7 @@ set(SOURCES
 		src/engine/db/player_index.cpp
 		src/gameplay/skills/addshot.cpp
 		src/gameplay/classes/mob_classes_info.cpp
-		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
-		src/gameplay/classes/mob_params_setter.cpp
-		src/gameplay/classes/mob_classes_info.cpp)
+		src/gameplay/classes/recalc_mob_params_by_vnum.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
