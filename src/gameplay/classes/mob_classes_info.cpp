@@ -30,10 +30,32 @@ EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_cla
     return EMobClass::kUndefined;
 }
 
+namespace {
+
+// глобальная настройка: сколько уровней моба добавлять за один реморт игрока
+int g_mob_lvl_per_mort = 0;
+
+} // namespace
+
 namespace mob_classes {
 
 using DataNode = parser_wrapper::DataNode;
 using MobItemPtr = MobClassInfoBuilder::ItemPtr;
+
+// ------- Глобальный доступ к mob_lvl_per_mort -------
+
+int GetMobLvlPerMort() {
+    return g_mob_lvl_per_mort;
+}
+
+void SetMobLvlPerMort(int v) {
+    if (v < 0) {
+        v = 0;
+    }
+    g_mob_lvl_per_mort = v;
+}
+
+// ------- Loader -------
 
 void MobClassesLoader::Load(DataNode data) {
     ParseGlobalVarsFromRoot(data);
@@ -49,12 +71,24 @@ void MobClassesLoader::ParseGlobalVarsFromRoot(DataNode &data) {
     if (!data.GoToChild("global_vars")) {
         return;
     }
+
+    // low_skill_lvl
     try {
         const int lvl = parse::ReadAsInt(data.GetValue("low_skill_lvl"));
         MobClassInfoBuilder::SetDefaultLowSkillLvl(lvl);
     } catch (const std::exception &e) {
-        err_log("Incorrect 'global_vars' at root (value: %s).", e.what());
+        err_log("Incorrect 'global_vars.low_skill_lvl' at root (value: %s).", e.what());
     }
+
+    // Новый параметр: mob_lvl_per_mort (может быть не задан)
+    try {
+        const int per = parse::ReadAsInt(data.GetValue("mob_lvl_per_mort"));
+        SetMobLvlPerMort(per);
+    } catch (const std::exception &e) {
+        // Если атрибут отсутствует или некорректен ? просто залогируем, но игру не уронем.
+        err_log("Incorrect 'global_vars.mob_lvl_per_mort' at root (value: %s).", e.what());
+    }
+
     data.GoToParent();
 }
 
@@ -63,7 +97,7 @@ void MobClassesLoader::ParseGlobalVarsFromRoot(DataNode &data) {
 int MobClassInfoBuilder::s_default_low_skill_lvl = 0;
 
 void MobClassInfoBuilder::SetDefaultLowSkillLvl(int v) {
-	s_default_low_skill_lvl = v;
+    s_default_low_skill_lvl = v;
 }
 
 MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::Build(DataNode &node) {
@@ -88,6 +122,7 @@ MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::ParseMobClass(DataNode node) {
     ParseResistances(info, node);
     ParseName(info, node);
     ParseMobSkills(info, node);
+    ParseMobSpells(info, node);
     return info;
 }
 
@@ -103,7 +138,7 @@ MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::ParseHeader(DataNode &node) {
     auto info = std::make_shared<MobClassInfo>(id, mode);
 
     // применяем дефолт из корня
-	info->low_skill_lvl = s_default_low_skill_lvl;
+    info->low_skill_lvl = s_default_low_skill_lvl;
     return info;
 }
 
@@ -199,57 +234,101 @@ void MobClassInfoBuilder::ParseMobSkillsData(ItemPtr &info, DataNode &node) {
     }
 }
 
+void MobClassInfoBuilder::ParseMobSpells(ItemPtr &info, DataNode &node) {
+    if (!node.GoToChild("spells")) {
+        return;
+    }
+
+    // обходим всех <spell .../>
+    for (const auto &spell_node : node.Children("spell")) {
+        try {
+            ESpell id = parse::ReadAsConstant<ESpell>(spell_node.GetValue("id"));
+            info->mob_spells.push_back(id);
+        } catch (const std::exception &e) {
+            std::ostringstream out;
+            out << "Incorrect spell format (wrong value: " << e.what() << ").";
+            throw std::runtime_error(out.str());
+        }
+    }
+
+    node.GoToParent();
+}
+
+
+
 // ----- Print -----
-	void MobClassInfo::PrintSavingsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "\r\n" << kColorGrn << " Savings:" << kColorNrm << "\r\n";
 
-	table_wrapper::Table table;
-	table << table_wrapper::kHeader
-		  << "Saving" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
-	for (const auto &saving : savings_map) {
-		table << NAME_BY_ITEM<ESaving>(saving.first)
-			  << saving.second.base
-			  << saving.second.increment
-			  << saving.second.deviation
-			  << table_wrapper::kEndRow;
-	}
-	table_wrapper::DecorateNoBorderTable(ch, table);
-	table_wrapper::PrintTableToStream(buffer, table);
+void MobClassInfo::PrintSavingsTable(CharData *ch, std::ostringstream &buffer) const {
+    buffer << "\r\n" << kColorGrn << " Savings:" << kColorNrm << "\r\n";
+
+    table_wrapper::Table table;
+    table << table_wrapper::kHeader
+          << "Saving" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+    for (const auto &saving : savings_map) {
+        table << NAME_BY_ITEM<ESaving>(saving.first)
+              << saving.second.base
+              << saving.second.increment
+              << saving.second.deviation
+              << table_wrapper::kEndRow;
+    }
+    table_wrapper::DecorateNoBorderTable(ch, table);
+    table_wrapper::PrintTableToStream(buffer, table);
 }
 
-	void MobClassInfo::PrintResistancesTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "\r\n" << kColorGrn << " Resistances:" << kColorNrm << "\r\n";
+void MobClassInfo::PrintResistancesTable(CharData *ch, std::ostringstream &buffer) const {
+    buffer << "\r\n" << kColorGrn << " Resistances:" << kColorNrm << "\r\n";
 
-	table_wrapper::Table table;
-	table << table_wrapper::kHeader
-		  << "Resistance" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
-	for (const auto &resistance : resists_map) {
-		table << NAME_BY_ITEM<EResist>(resistance.first)
-			  << resistance.second.base
-			  << resistance.second.increment
-			  << resistance.second.deviation
-			  << table_wrapper::kEndRow;
-	}
-	table_wrapper::DecorateNoBorderTable(ch, table);
-	table_wrapper::PrintTableToStream(buffer, table);
+    table_wrapper::Table table;
+    table << table_wrapper::kHeader
+          << "Resistance" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+    for (const auto &resistance : resists_map) {
+        table << NAME_BY_ITEM<EResist>(resistance.first)
+              << resistance.second.base
+              << resistance.second.increment
+              << resistance.second.deviation
+              << table_wrapper::kEndRow;
+    }
+    table_wrapper::DecorateNoBorderTable(ch, table);
+    table_wrapper::PrintTableToStream(buffer, table);
 }
 
-	void MobClassInfo::PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "\r\n" << kColorGrn << " Skills:" << kColorNrm << "\r\n";
+void MobClassInfo::PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer) const {
+    buffer << "\r\n" << kColorGrn << " Skills:" << kColorNrm << "\r\n";
 
-	table_wrapper::Table table;
-	table << table_wrapper::kHeader
-		  << "Skill" << "Base" << "Increment" << "Deviation" << "Low-Lvl-Increment" << table_wrapper::kEndRow;
-	for (const auto &mob_skill : mob_skills_map) {
-		table << NAME_BY_ITEM<ESkill>(mob_skill.first)
-			  << mob_skill.second.base
-			  << mob_skill.second.increment
-			  << mob_skill.second.deviation
-			  << mob_skill.second.low_increment
-			  << table_wrapper::kEndRow;
-	}
-	table_wrapper::DecorateNoBorderTable(ch, table);
-	table_wrapper::PrintTableToStream(buffer, table);
+    table_wrapper::Table table;
+    table << table_wrapper::kHeader
+          << "Skill" << "Base" << "Increment" << "Deviation" << "Low-Lvl-Increment" << table_wrapper::kEndRow;
+    for (const auto &mob_skill : mob_skills_map) {
+        table << NAME_BY_ITEM<ESkill>(mob_skill.first)
+              << mob_skill.second.base
+              << mob_skill.second.increment
+              << mob_skill.second.deviation
+              << mob_skill.second.low_increment
+              << table_wrapper::kEndRow;
+    }
+    table_wrapper::DecorateNoBorderTable(ch, table);
+    table_wrapper::PrintTableToStream(buffer, table);
+}
+
+void MobClassInfo::PrintMobSpellsTable(CharData *ch, std::ostringstream &buffer) const {
+    if (mob_spells.empty()) {
+        return;
+    }
+
+    buffer << "\r\n" << kColorGrn << " Spells:" << kColorNrm << "\r\n";
+
+    table_wrapper::Table table;
+    table << table_wrapper::kHeader
+          << "Spell"
+          << table_wrapper::kEndRow;
+
+    for (std::size_t i = 0; i < mob_spells.size(); ++i) {
+        table << NAME_BY_ITEM<ESpell>(mob_spells[i])
+              << table_wrapper::kEndRow;
+    }
+
+    table_wrapper::DecorateNoBorderTable(ch, table);
+    table_wrapper::PrintTableToStream(buffer, table);
 }
 
 
@@ -263,6 +342,7 @@ void MobClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
     PrintSavingsTable(ch, buffer);
     PrintResistancesTable(ch, buffer);
     PrintMobSkillsTable(ch, buffer);
+    PrintMobSpellsTable(ch, buffer);
 }
 
-}
+} // namespace mob_classes

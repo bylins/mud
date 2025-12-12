@@ -1,192 +1,241 @@
 /**
-* \file recalc_mob_params_by_vnum.cpp - a part of the Bylins engine.
+ * \file recalc_mob_params_by_vnum.cpp - a part of the Bylins engine.
  * \authors Created by Svetodar.
- * \date 25.11.2025.
- * \brief Brief description.
- * \details Detailed description.
+ * \date 10.11.2025.
+ * \brief Пересчёт параметров мобов по зонам/ролям.
  */
 
-// ============================================================================
-// Пересчёт параметров мобов:
-//   1) RecalcMobParamsByVnum(vnum, [apply_to_instances])  ? прототип и/или все инстансы
-//   2) RecalcMobParamsInZone(zone_vnum, [mob_vnum_filter]) ? только инстансы в зоне
-//   3) RecalcMobParamsInZoneWithLevel(zone_vnum, set_level, [mob_vnum_filter])
-// Команды:
-//   - recalc_mob (пересчитать)  <vnum> [proto] (временно отключил, так как затрагивает прототипы - при необходимости раскоментить)
-//   - recalc_zone (зонапересчитать) <zone_vnum> <level> [mob_vnum]
-// ============================================================================
-
-#include "mob_params_setter.h"
+#include "gameplay/classes/mob_classes_info.h"
 #include "engine/entities/char_data.h"
-#include "utils/utils.h"                // one_argument, two_arguments, three_arguments, str_cmp, GET_ROOM_VNUM
-#include "engine/core/comm.h"           // SendMsgToChar, mudlog
-
-// ---------------------------- SYSLOG helper ----------------------------------
-
-static inline void SysInfo(const char* fmt, ...) {
-  char buf[512];
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, args);
-  va_end(args);
-  mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-}
-
-// ------------------------ rnum <- vnum (без real_mobile) ---------------------
-
-extern CharData* mob_proto;  // массив прототипов
-extern int top_of_mobt;      // последний индекс прототипов (включительно)
-
-static inline int ResolveMobRnumByVnum(int vnum) {
-  for (int r = 0; r <= top_of_mobt; ++r) {
-    if (GET_MOB_VNUM(&mob_proto[r]) == vnum) {
-      return r;
-    }
-  }
-  return -1;
-}
+#include "engine/db/global_objects.h"
+#include "utils/utils.h"
 
 // ------------------------ Роли и уровень -------------------------------------
 
 inline bool HasRole(const CharData* ch, EMobClass role) {
-  if (!ch) return false;
-  if (role <= EMobClass::kUndefined || role >= EMobClass::kTotal) return false;
-  const unsigned base = static_cast<unsigned>(EMobClass::kBoss);
-  const unsigned index = static_cast<unsigned>(role) - base;  // сдвиг к битсету
-  return ch->get_role(index);
+	if (!ch) {
+		return false;
+	}
+	if (role <= EMobClass::kUndefined || role >= EMobClass::kTotal) {
+		return false;
+	}
+	const unsigned base  = (unsigned)EMobClass::kBoss;
+	const unsigned index = (unsigned)role - base;  // сдвиг к битсету
+	return ch->get_role(index);
 }
 
-static inline std::vector<EMobClass> EnumRoles(const CharData* ch) {
-  std::vector<EMobClass> out;
-  if (!ch) return out;
-  for (int u = static_cast<int>(EMobClass::kBoss);
-       u < static_cast<int>(EMobClass::kTotal); ++u) {
-    const auto role = static_cast<EMobClass>(u);
-    if (HasRole(ch, role)) out.push_back(role);
-  }
-  return out;
+// Заполняет массив ролей, возвращает количество в *count
+static void EnumRoles(const CharData* ch, EMobClass* roles, int* count) {
+	*count = 0;
+	if (!ch) {
+		return;
+	}
+
+	for (int u = (int)EMobClass::kBoss; u < (int)EMobClass::kTotal; ++u) {
+		EMobClass role = (EMobClass)u;
+		if (HasRole(ch, role)) {
+			roles[*count] = role;
+			(*count)++;
+			if (*count >= MOB_ROLE_COUNT) {
+				break;  // защитимся от выхода за границу массива
+			}
+		}
+	}
 }
 
 static inline int GetMobLevel(const CharData* ch) {
-  return std::max(1, GetRealLevel(ch));
-}
-
-// Установка уровня NPC-инстансу (единоразовая ответственность).
-static inline void SetMobLevel(CharData* ch, int level) {
-  if (!ch || !ch->IsNpc()) return;
-  const int lvl = std::max(1, level);
-  ch->set_level(lvl);
-  SysInfo("SYSINFO: SetMobLevel: mob_vnum=%d -> level=%d.", GET_MOB_VNUM(ch), lvl);
-}
-
-// --------------------- Комнаты / Зоны ----------------------------------------
-
-// Получить комнатный VNUM по указателю персонажа
-static inline int GetRoomVnumFromChar(const CharData* ch) {
-  if (!ch || ch->in_room < 0) return -1;
-  return GET_ROOM_VNUM(ch->in_room);  // макрос из utils.h
-}
-
-// Получить VNUM зоны по VNUM комнаты (классика: 30001..30099 -> зона 300).
-static inline int GetZoneVnumFromRoomVnum(int room_vnum) {
-  if (room_vnum < 0) return -1;
-  return room_vnum / 100;
-}
-
-// Применить параметры по ролям/конфигу к одному CharData (proto или instance).
-static inline bool ApplyMobParams(CharData* ch) {
-  if (!ch) return false;
-
-  auto result = mob_classes::MobParamsSetter(*ch)
-      .WithIsMob([](const CharData* x) { return x && x->IsNpc(); })
-      .WithGetLevel([](const CharData* x) { return GetMobLevel(x); })
-      .WithEnumerateRoles([](const CharData* x) { return EnumRoles(x); })
-      .OnSetSaving([](CharData* x, ESaving id, int v) { SetSave(x, id, v); })
-      .OnSetResist([](CharData* x, EResist id, int v) { GET_RESIST(x, id) = v; })
-      .OnSetSkill([](CharData* x, ESkill id, int v) { x->set_skill(id, v); })
-      .UseDeviation(true)                  // при необходимости можно выключить
-      .UseFallbackIfNoRoles(true)
-      .WithFallbackRole(EMobClass::kUndefined)
-      .Apply();
-
-  SysInfo(
-      "SYSINFO: ApplyMobParams: vnum=%d applied=%s (savings=%zu, resists=%zu, skills=%zu).",
-      ch->IsNpc() ? GET_MOB_VNUM(ch) : -1,
-      result.applied ? "true" : "false",
-      result.savings.size(), result.resists.size(), result.skills.size());
-
-  return result.applied;
-}
-
-// -------------------------- Пересчёт по VNUM ---------------------------------
-
-// Пересчитать параметры для ПРОТОТИПА моба по vnum.
-// apply_to_instances = true -> также применить ко всем живым инстансам с этим vnum.
-/* ============================================================
-bool RecalcMobParamsByVnum(int vnum, bool apply_to_instances = true) {
-  SysInfo("SYSINFO: RecalcMobParams start (vnum=%d).", vnum);
-
-  const int rnum = ResolveMobRnumByVnum(vnum);
-  if (rnum < 0) {
-    SysInfo("SYSERROR: RecalcMobParams: vnum %d not found (rnum<0).", vnum);
-    return false;
-  }
-
-  CharData* proto = &mob_proto[rnum];
-  if (!proto) {
-    SysInfo("SYSERROR: RecalcMobParams: vnum %d has null proto.", vnum);
-    return false;
-  }
-
-  // Применяем к прототипу (single responsibility внутри ApplyMobParams).
-  SysInfo("SYSINFO: RecalcMobParams: applying to proto (vnum=%d, rnum=%d).", vnum, rnum);
-  const bool proto_ok = ApplyMobParams(proto);
-
-  size_t touched = 0;
-  if (apply_to_instances) {
-    for (const auto& node : character_list) {
-      CharData* ch = node.get();
-      if (!ch || !ch->IsNpc() || GET_MOB_VNUM(ch) != vnum) continue;
-      ++touched;
-      const bool ok = ApplyMobParams(ch);
-      SysInfo("SYSINFO: instance recalc: vnum=%d -> applied=%s.",
-              vnum, ok ? "true" : "false");
-    }
-  }
-
-  SysInfo("SYSINFO: RecalcMobParams done (vnum=%d). instances_touched=%zu.",
-          vnum, touched);
-  return proto_ok || touched > 0;
-}
-============================================================ */
-
-// --------------------- Проставить уровни инстансам (мобам) в зоне --------------------
-
-// Только проставить уровень всем инстансам зоны (опционально ? только конкретному vnum).
-// НИЧЕГО больше (single responsibility).
-void SetLevelsForInstancesInZone(int zone_vnum, int set_level, int mob_vnum_filter = -1) {
-	SysInfo("SYSINFO: SetLevelsInZone start (zone=%d, set_level=%d, mob_filter=%d).", zone_vnum, set_level, mob_vnum_filter);
-	ZoneRnum zrn = GetZoneRnum(zone_vnum);
-	MobRnum mrn_first = zone_table[zrn].RnumMobsLocation.first;
-	MobRnum mrn_last = zone_table[zrn].RnumMobsLocation.second;
-
-	for (MobRnum mrn = mrn_first; mrn <= mrn_last; mrn++) {
-		const int mob_vnum = mob_index[mrn].vnum;
-
-	 	if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter)
-			continue;
-		mob_proto[mrn].set_level(set_level);
-		SysInfo("SYSINFO: SetLevelsInZone: mob_vnum=%d level=%d.", mob_vnum, set_level);
+	int lvl = GetRealLevel(ch);
+	if (lvl < 1) {
+		lvl = 1;
 	}
-	SysInfo("SYSINFO: SetLevelsInZone done (zone=%d)", zone_vnum);
+	return lvl;
 }
 
-// --------------------- Пересчитать инстансы в зоне ---------------------------
+static inline void SetMobLevel(CharData* ch, int level) {
+	if (!ch || !ch->IsNpc()) {
+		return;
+	}
+	if (level < 1) {
+		level = 1;
+	}
+	ch->set_level(level);
+}
 
-// Только применить роли/конфиг ко всем инстансам зоны (опционально ? фильтр по vnum).
-// НИЧЕГО больше (single responsibility).
+// ------------------------ Комнаты / Зоны -------------------------------------
+
+static inline int GetRoomVnumFromChar(const CharData* ch) {
+	if (!ch || ch->in_room < 0) {
+		return -1;
+	}
+	return GET_ROOM_VNUM(ch->in_room);
+}
+
+static inline int GetZoneVnumFromRoomVnum(int room_vnum) {
+	if (room_vnum < 0) {
+		return -1;
+	}
+	return room_vnum / 100;
+}
+
+// =====================================
+//      ПРИМЕНЕНИЕ ПАРАМЕТРОВ
+// =====================================
+
+static const int kMaxMobResist = 75;
+
+static inline int clamp_nonneg_plain(int v) {
+	return v < 0 ? 0 : v;
+}
+
+static inline int clamp_resist_plain(int v) {
+	v = clamp_nonneg_plain(v);
+	if (v > kMaxMobResist) {
+		v = kMaxMobResist;
+	}
+	return v;
+}
+
+static inline int round_to_int_plain(double x) {
+	return (int)(x >= 0.0 ? x + 0.5 : x - 0.5);
+}
+
+static int CalcBaseValue(
+	const mob_classes::MobClassInfo::ParametersData *p,
+	int level,
+	int low_skill_lvl,
+	int apply_low_inc) {
+	if (level < 1) {
+		level = 1;
+	}
+
+	const int steps = level - 1;
+	const int use_low = apply_low_inc && p->low_increment > 0.0f && level <= low_skill_lvl;
+	const double inc = use_low ? (double)p->low_increment
+	                           : (double)p->increment;
+	const double raw = (double)p->base + inc * (double)steps;
+	return round_to_int_plain(raw);
+}
+
+// применение deviation (случайная дельта из [-deviation; deviation])
+static int ApplyDeviationPlain(int v, int deviation) {
+	if (deviation <= 0) {
+		return v;
+	}
+	int delta = number(-deviation, deviation);
+	return v + delta;
+}
+
+// найти описание класса моба
+static const mob_classes::MobClassInfo *FindMobClassInfoPlain(EMobClass id) {
+	for (auto it = MUD::MobClasses().begin(); it != MUD::MobClasses().end(); ++it) {
+		const mob_classes::MobClassInfo &info = *it;
+		if (info.GetId() == id && info.IsAvailable()) {
+			return &info;
+		}
+	}
+	return nullptr;
+}
+
+// ------------------------ Основное применение к одному мобу ------------------
+//
+// Возвращает true, если хоть что-то было применено.
+//
+static bool ApplyMobParams(CharData* ch) {
+	if (!ch || !ch->IsNpc()) {
+		return false;
+	}
+
+	int level = GetMobLevel(ch);
+
+	// Собираем роли в статический массив
+	EMobClass roles[MOB_ROLE_COUNT];
+	int role_count = 0;
+	EnumRoles(ch, roles, &role_count);
+
+	// Fallback-роль, если ролей нет
+	if (role_count == 0) {
+		const mob_classes::MobClassInfo *fb = FindMobClassInfoPlain(EMobClass::kUndefined);
+		if (fb != nullptr) {
+			roles[0] = EMobClass::kUndefined;
+			role_count = 1;
+		}
+	}
+
+	if (role_count == 0) {
+		return false;
+	}
+
+	int applied_any = 0;
+
+	// Обходим роли
+	for (int r = 0; r < role_count; ++r) {
+		EMobClass role = roles[r];
+		const mob_classes::MobClassInfo *info = FindMobClassInfoPlain(role);
+		if (!info) {
+			continue;
+		}
+
+		const mob_classes::MobClassInfo::ParametersData *p_data;
+
+		// -------- Savings --------
+		for (auto it = info->savings_map.begin(); it != info->savings_map.end(); ++it) {
+			ESaving id = it->first;
+			p_data = &it->second;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = clamp_nonneg_plain(v);
+			v = -v;	// <<< вот это добавляем: применяем сейв как уменьшение
+
+			SetSave(ch, id, v);
+			applied_any = 1;
+		}
+
+		// -------- Resists --------
+		for (auto it = info->resists_map.begin(); it != info->resists_map.end(); ++it) {
+			EResist id = it->first;
+			p_data = &it->second;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = clamp_resist_plain(v);
+
+			GET_RESIST(ch, id) = v;
+			applied_any = 1;
+		}
+
+		// -------- Skills --------
+		for (auto it = info->mob_skills_map.begin(); it != info->mob_skills_map.end(); ++it) {
+			ESkill id = it->first;
+			p_data = &it->second;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 1);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = clamp_nonneg_plain(v);
+
+			ch->set_skill(id, v);
+			applied_any = 1;
+		}
+
+		// -------- Spells --------
+		for (std::size_t i = 0; i < info->mob_spells.size(); ++i) {
+			ESpell spell_id = info->mob_spells[i];
+
+			//Выдаём мобу спелл:
+			ch->mob_specials.have_spell = true;
+			SET_SPELL_MEM(ch, spell_id, 6);
+
+			applied_any = true;
+		}
+	}
+
+	return applied_any != 0;
+}
+
+
+// --------------------- Пересчёт в зоне ---------------------------------------
+
 void RecalcMobParamsInZone(int zone_vnum, int mob_vnum_filter = -1) {
-	SysInfo("SYSINFO: RecalcInZone start (zone_vnum=%d, mob_filter=%d).", zone_vnum, mob_vnum_filter);
 	ZoneRnum zrn = GetZoneRnum(zone_vnum);
 	MobRnum mrn_first = zone_table[zrn].RnumMobsLocation.first;
 	MobRnum mrn_last = zone_table[zrn].RnumMobsLocation.second;
@@ -194,80 +243,67 @@ void RecalcMobParamsInZone(int zone_vnum, int mob_vnum_filter = -1) {
 	for (MobRnum mrn = mrn_first; mrn <= mrn_last; mrn++) {
 		const int mob_vnum = mob_index[mrn].vnum;
 
-	 	if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter)
+		if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter)
 			continue;
 		ApplyMobParams(&mob_proto[mrn]);
-//    SysInfo("SYSINFO: zone recalc: room_vnum=%d zone=%d mob_vnum=%d -> applied=%s.",
-//          room_vnum, mob_zone, mob_vnum, ok ? "true" : "false");
 	}
-	SysInfo("SYSINFO: RecalcInZone done");
 }
 
-// --------------------- Оркестратор: уровень -> пересчёт ----------------------
 
-// Последовательность из двух одноцелевых шагов:
-//   1) SetLevelsForInstancesInZone(...)
-//   2) RecalcMobParamsInZone(...)
+// --------------------- Проставить уровни инстансам ---------------------------
+
+void SetLevelsForInstancesInZone(int zone_vnum, int set_level, int mob_vnum_filter = -1) {
+	ZoneRnum zrn = GetZoneRnum(zone_vnum);
+	MobRnum mrn_first = zone_table[zrn].RnumMobsLocation.first;
+	MobRnum mrn_last = zone_table[zrn].RnumMobsLocation.second;
+
+	for (MobRnum mrn = mrn_first; mrn <= mrn_last; mrn++) {
+		const int mob_vnum = mob_index[mrn].vnum;
+
+		if (mob_vnum_filter > 0 && mob_vnum != mob_vnum_filter)
+			continue;
+		mob_proto[mrn].set_level(set_level);
+	}
+}
+
+// --------------------- Комбинированный пересчёт ------------------------------
+
 bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int set_level, int mob_vnum_filter = -1) {
-	SysInfo("SYSINFO: RecalcInZoneWithLevel start (zone=%d, set_level=%d, mob_filter=%d).", zone_vnum, set_level, mob_vnum_filter);
 	SetLevelsForInstancesInZone(zone_vnum, set_level, mob_vnum_filter);
 	RecalcMobParamsInZone(zone_vnum, mob_vnum_filter);
-	SysInfo("SYSINFO: RecalcInZoneWithLevel done.");
 	return true;
 }
 
-
-//void do_recalc_mob(CharData* ch, char* argument, int /*cmd*/, int /*subcmd*/) {
-//  constexpr size_t kCmdBuf = 512;
-//  char arg[kCmdBuf]{};
-//  char arg2[kCmdBuf]{};
-//  two_arguments(argument, arg, arg2);
-//
-//  if (!*arg) {
-//    SendMsgToChar(ch, "Usage: recalc_mob <vnum> [proto]\r\n");
-//    return;
-//  }
-//
-//  const int vnum = atoi(arg);
-//  const bool proto_only = (*arg2 && !str_cmp(arg2, "proto"));
-//
-//
-//  const bool ok = RecalcMobParamsByVnum(vnum, /*apply_to_instances=*/!proto_only);
-//  SendMsgToChar(ch, "Recalc for mob %d %s.\r\n", vnum, ok ? "done" : "failed");
-//}
+// --------------------- Команда recalc_zone -----------------------------------
 
 void do_recalc_zone(CharData* ch, char* argument, int /*cmd*/, int /*subcmd*/) {
-  constexpr size_t kBuf = 256;
-  char arg1[kBuf]{};  // zone_vnum
-  char arg2[kBuf]{};  // level
-  char arg3[kBuf]{};  // [mob_vnum]
-  three_arguments(argument, arg1, arg2, arg3);  // <zone_vnum> <level> [mob_vnum]
+	const size_t kBuf = 256;
+	char arg1[kBuf]{};  // zone_vnum
+	char arg2[kBuf]{};  // level
+	char arg3[kBuf]{};  // [mob_vnum]
 
-  if (!*arg1 || !*arg2) {
-    SendMsgToChar(ch, "Usage: recalc_zone <zone_vnum> <level> [mob_vnum]\r\n");
-    return;
-  }
+	// <zone_vnum> <total_level_with_remorts> [mob_vnum]
+	three_arguments(argument, arg1, arg2, arg3);
 
-  const int zone_vnum = atoi(arg1);
-  const int set_level = atoi(arg2);
-  const int mob_vnum = (*arg3 ? atoi(arg3) : -1);
+	if (!*arg1 || !*arg2) {
+		SendMsgToChar(ch,
+			"Usage: recalc_zone <zone_vnum> <total_level_with_remorts> [mob_vnum]\r\n");
+		return;
+	}
 
-  if (set_level <= 0) {
-    SendMsgToChar(ch, "Level must be positive.\r\n");
-    return;
-  }
+	const int zone_vnum = atoi(arg1);
+	const int set_level = atoi(arg2);
+	const int mob_vnum  = (*arg3 ? atoi(arg3) : -1);
 
-  SysInfo("SYSINFO: do_recalc_zone called (zone=%d, level=%d, mob_filter=%d).",
-          zone_vnum, set_level, mob_vnum);
+	if (set_level <= 0) {
+		SendMsgToChar(ch, "Level must be positive.\r\n");
+		return;
+	}
 
-  const bool ok = RecalcMobParamsInZoneWithLevel(zone_vnum, set_level, mob_vnum);
-  if (mob_vnum > 0) {
-    SendMsgToChar(ch,
-                  "Zone recalc %s. (zone=%d, level=%d, mob=%d)\r\n",
-                  ok ? "done" : "no targets", zone_vnum, set_level, mob_vnum);
-  } else {
-    SendMsgToChar(ch,
-                  "Zone recalc %s. (zone=%d, level=%d)\r\n",
-                  ok ? "done" : "no targets", zone_vnum, set_level);
-  }
+	const bool ok = RecalcMobParamsInZoneWithLevel(zone_vnum, set_level, mob_vnum);
+	SendMsgToChar(ch, "Zone recalc %s. (zone=%d, level=%d%s%s)\r\n",
+		ok ? "done" : "no targets",
+		zone_vnum, set_level,
+		mob_vnum > 0 ? ", mob=" : "",
+		mob_vnum > 0 ? arg3 : "");
 }

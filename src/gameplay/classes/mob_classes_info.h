@@ -21,6 +21,10 @@ EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_cla
 
 namespace mob_classes {
 
+// Глобальный параметр: сколько уровней моба добавлять за 1 реморт (30 уровней) игрока.
+int  GetMobLvlPerMort();
+void SetMobLvlPerMort(int v);
+
 class MobClassesLoader : virtual public cfg_manager::ICfgLoader {
 public:
     void Load(parser_wrapper::DataNode data) final;
@@ -59,6 +63,17 @@ public:
     std::unordered_map<ESkill, ParametersData>   mob_skills_map;
     void PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer) const;
 
+    std::vector<ESpell> mob_spells;
+    void PrintMobSpellsTable(CharData *ch, std::ostringstream &buffer) const;
+    inline bool HasMobSpell(ESpell id) const {
+        for (std::size_t i = 0; i < mob_spells.size(); ++i) {
+            if (mob_spells[i] == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     auto GetSavingBase(ESaving id) const { return savings_map.at(id).base; }
     auto GetSavingIncrement(ESaving id) const { return savings_map.at(id).increment; }
     auto GetSavingDeviation(ESaving id) const { return savings_map.at(id).deviation; }
@@ -90,11 +105,13 @@ private:
     static void ParseResistances(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSkillsData(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSkills(ItemPtr &info, parser_wrapper::DataNode &node);
+    static void ParseMobSpells(ItemPtr &info, parser_wrapper::DataNode &node);
 
     static int s_default_low_skill_lvl;
 };
 
 using MobClassesInfo = info_container::InfoContainer<EMobClass, MobClassInfo, MobClassInfoBuilder>;
 
-}
+} // namespace mob_classes
+
 #endif //BYLINS_MOB_CLASSES_INFO_H
