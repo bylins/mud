@@ -76,10 +76,17 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				punishments::SetNameRoom(ch, vict, reason, times);
 				break;
 
-			case kScmdRegister: punishments::SetRegister(ch, vict, reason);
+			case kScmdRegister: 
+					punishments::SetRegister(ch, vict, reason);
 				break;
 
-			case kScmdUnregister: punishments::SetUnregister(ch, vict, reason, 0);
+			case kScmdUnregister: 
+					if (!*reason) {
+						punishments::SetUnregister(ch, vict, num, 0);
+					}
+					else {
+						punishments::SetUnregister(ch, vict, reason, 0);
+					}
 				break;
 
 			case kScmdUnaffect:
