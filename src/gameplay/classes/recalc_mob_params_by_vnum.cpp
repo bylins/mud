@@ -52,7 +52,7 @@ static inline int GetMobLevel(const CharData* ch) {
 }
 
 static inline void SetMobLevel(CharData* ch, int level) {
-	if (!ch || !ch->IsNpc()) {
+	if (!ch || !ch->IsNpc() || IS_CHARMICE(ch)) {
 		return;
 	}
 	if (level < 1) {
@@ -62,7 +62,6 @@ static inline void SetMobLevel(CharData* ch, int level) {
 }
 
 // ------------------------ Комнаты / Зоны -------------------------------------
-
 static inline int GetRoomVnumFromChar(const CharData* ch) {
 	if (!ch || ch->in_room < 0) {
 		return -1;
@@ -82,22 +81,7 @@ static inline int GetZoneVnumFromRoomVnum(int room_vnum) {
 // =====================================
 
 static const int kMaxMobResist = 75;
-
-static inline int clamp_nonneg_plain(int v) {
-	return v < 0 ? 0 : v;
-}
-
-static inline int clamp_resist_plain(int v) {
-	v = clamp_nonneg_plain(v);
-	if (v > kMaxMobResist) {
-		v = kMaxMobResist;
-	}
-	return v;
-}
-
-static inline int round_to_int_plain(double x) {
-	return (int)(x >= 0.0 ? x + 0.5 : x - 0.5);
-}
+static const int kMaxMobMorale = 200;
 
 static int CalcBaseValue(
 	const mob_classes::MobClassInfo::ParametersData *p,
@@ -108,13 +92,22 @@ static int CalcBaseValue(
 		level = 1;
 	}
 
-	const int steps = level - 1;
+	const int start_lvl = std::max(1, p->min_lvl);
+
+	if (level < start_lvl) {
+		return p->base;
+	}
+
+	const int steps = level - start_lvl;
+
 	const int use_low = apply_low_inc && p->low_increment > 0.0f && level <= low_skill_lvl;
 	const double inc = use_low ? (double)p->low_increment
-	                           : (double)p->increment;
+							   : (double)p->increment;
 	const double raw = (double)p->base + inc * (double)steps;
-	return round_to_int_plain(raw);
+
+	return static_cast<int>(std::lround(raw));
 }
+
 
 // применение deviation (случайная дельта из [-deviation; deviation])
 static int ApplyDeviationPlain(int v, int deviation) {
@@ -136,14 +129,75 @@ static const mob_classes::MobClassInfo *FindMobClassInfoPlain(EMobClass id) {
 	return nullptr;
 }
 
+static void RemoveAllMobSpells(CharData *ch) {
+	if (!ch) {
+		return;
+	}
+
+	ch->mob_specials.have_spell = false;
+
+	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
+		if (MUD::Spells().IsValid(spell_id)) {
+			SET_SPELL_MEM(ch, spell_id, 0);
+		}
+	}
+}
+
+// ------------------------ Base stats helpers ------------------------
+static void ApplyBaseStatToChar(CharData *ch, EBaseStat stat, int value) {
+	if (!ch) {
+		return;
+	}
+
+	// Ограничения: минимум 1, максимум 100
+	if (value < 1) {
+		value = 1;
+	} else if (value > 100) {
+		value = 100;
+	}
+
+	switch (stat) {
+	case EBaseStat::kStr:
+		ch->set_str(value);
+		break;
+	case EBaseStat::kDex:
+		ch->set_dex(value);
+		break;
+	case EBaseStat::kCon:
+		ch->set_con(value);
+		break;
+	case EBaseStat::kWis:
+		ch->set_wis(value);
+		break;
+	case EBaseStat::kInt:
+		ch->set_int(value);
+		break;
+	case EBaseStat::kCha:
+		ch->set_cha(value);
+		break;
+	default:
+		break;
+	}
+}
+
+
 // ------------------------ Основное применение к одному мобу ------------------
 //
 // Возвращает true, если хоть что-то было применено.
 //
 static bool ApplyMobParams(CharData* ch) {
-	if (!ch || !ch->IsNpc()) {
+	if (!ch || !ch->IsNpc() || IS_CHARMICE(ch)) {
 		return false;
 	}
+
+	// Количество атак всегда фиксируем в 1
+	ch->mob_specials.extra_attack = 0;
+
+	//Очищаем ненужное
+	RemoveAllSkills(ch);
+	RemoveAllMobSpells(ch);
+	AFF_FLAGS(ch).unset(EAffect::kFireShield);
+	AFF_FLAGS(ch).unset(EAffect::kMagicGlass);
 
 	int level = GetMobLevel(ch);
 
@@ -177,6 +231,21 @@ static bool ApplyMobParams(CharData* ch) {
 
 		const mob_classes::MobClassInfo::ParametersData *p_data;
 
+		// -------- Base stats --------
+		for (auto it = info->base_stats_map.begin();
+			it != info->base_stats_map.end(); ++it) {
+			EBaseStat id = it->first;
+			p_data = &it->second;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, v);
+
+			ApplyBaseStatToChar(ch, id, v);
+			applied_any = 1;
+			}
+
+
 		// -------- Savings --------
 		for (auto it = info->savings_map.begin(); it != info->savings_map.end(); ++it) {
 			ESaving id = it->first;
@@ -184,7 +253,7 @@ static bool ApplyMobParams(CharData* ch) {
 
 			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
 			v = ApplyDeviationPlain(v, p_data->deviation);
-			v = clamp_nonneg_plain(v);
+			v = std::max(0, v);
 			v = -v;	// <<< вот это добавляем: применяем сейв как уменьшение
 
 			SetSave(ch, id, v);
@@ -198,40 +267,239 @@ static bool ApplyMobParams(CharData* ch) {
 
 			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
 			v = ApplyDeviationPlain(v, p_data->deviation);
-			v = clamp_resist_plain(v);
+			v = std::max(0, std::min(v, kMaxMobResist));
 
 			GET_RESIST(ch, id) = v;
 			applied_any = 1;
 		}
+
+		// -------- Extra resists (MR / PR / AR) --------
+		if (info->has_magic_resist) {
+			p_data = &info->magic_resist;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, std::min(v, kMaxMobResist));
+
+			GET_MR(ch) = v;
+			applied_any = 1;
+		}
+
+		if (info->has_physical_resist) {
+			p_data = &info->physical_resist;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, std::min(v, kMaxMobResist));
+
+			GET_PR(ch) = v;
+			applied_any = 1;
+		}
+
+		if (info->has_affect_resist) {
+			p_data = &info->affect_resist;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, std::min(v, kMaxMobResist));
+
+			GET_AR(ch) = v;
+			applied_any = 1;
+		}
+
+		// -------- Combat stats (armour / absorb) --------
+		if (info->has_armour) {
+			p_data = &info->armour;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, v);
+
+			GET_ARMOUR(ch) = v;
+			applied_any = 1;
+		}
+
+		if (info->has_absorb) {
+			p_data = &info->absorb;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, v);
+
+			GET_ABSORBE(ch) = v;
+			applied_any = 1;
+		}
+
+		// -------- Damage dice (ndd / sdd) --------
+		if (info->has_dam_n_dice) {
+			p_data = &info->dam_n_dice;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			if (v < 1) {
+				v = 1;
+			}
+
+			GET_NDD(ch) = v;
+			applied_any = 1;
+		}
+
+		if (info->has_dam_s_dice) {
+			p_data = &info->dam_s_dice;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			if (v < 1) {
+				v = 1;
+			}
+
+			GET_SDD(ch) = v;
+			applied_any = 1;
+		}
+
+		// -------- Hitroll / morale / cast success --------
+		if (info->has_hitroll) {
+			p_data = &info->hitroll;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+
+			GET_HR(ch) = v;
+			applied_any = 1;
+		}
+
+		if (info->has_morale) {
+			p_data = &info->morale;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+
+			GET_MORALE(ch) = v;
+			applied_any = 1;
+		}
+
+		if (info->has_cast_success) {
+			p_data = &info->cast_success;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+
+			GET_CAST_SUCCESS(ch) = v;
+			applied_any = 1;
+		}
+
+		// -------- HP / size / exp / likes_work --------
+
+		if (info->has_hit_points) {
+			p_data = &info->hit_points;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, v);
+			if (v < 1) {
+				v = 1;
+			}
+
+			ch->set_hit(v);
+			applied_any = 1;
+		}
+
+		if (info->has_size) {
+			p_data = &info->size;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, std::min(v, 100));
+
+			GET_SIZE(ch) = v;
+			applied_any = 1;
+		}
+
+
+		if (info->has_exp) {
+			p_data = &info->exp;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, v);
+
+			ch->set_exp((long)v);
+			applied_any = 1;
+		}
+
+		if (info->has_likes_work) {
+			p_data = &info->likes_work;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+			v = std::max(0, std::min(v, 100));
+
+			GET_LIKES(ch) = v;
+			applied_any = 1;
+		}
+
+		// -------- Percent phys / spell damage --------
+
+		if (info->has_phys_damage) {
+			p_data = &info->phys_damage;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+
+			ch->add_abils.percent_physdam_add = v;
+			applied_any = 1;
+		}
+
+		if (info->has_spell_power) {
+			p_data = &info->spell_power;
+
+			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			v = ApplyDeviationPlain(v, p_data->deviation);
+
+			ch->add_abils.percent_spellpower_add = v;
+			applied_any = 1;
+		}
+
 
 		// -------- Skills --------
 		for (auto it = info->mob_skills_map.begin(); it != info->mob_skills_map.end(); ++it) {
 			ESkill id = it->first;
 			p_data = &it->second;
 
+			if (level < p_data->min_lvl) {
+				continue;
+			}
+
 			int v = CalcBaseValue(p_data, level, info->low_skill_lvl, 1);
 			v = ApplyDeviationPlain(v, p_data->deviation);
-			v = clamp_nonneg_plain(v);
+			v = std::max(0, v);
 
 			ch->set_skill(id, v);
 			applied_any = 1;
 		}
 
-		// -------- Spells --------
-		for (std::size_t i = 0; i < info->mob_spells.size(); ++i) {
-			ESpell spell_id = info->mob_spells[i];
+		// ------- Spells --------
+		for (auto it = info->mob_spells_map.begin(); it != info->mob_spells_map.end(); ++it) {
+			ESpell spell_id = it->first;
+			p_data = &it->second;
 
-			//Выдаём мобу спелл:
-			ch->mob_specials.have_spell = true;
-			SET_SPELL_MEM(ch, spell_id, 6);
+			if (level < p_data->min_lvl) {
+				continue;
+			}
 
-			applied_any = true;
+			int charges = CalcBaseValue(p_data, level, info->low_skill_lvl, 0);
+			charges = ApplyDeviationPlain(charges, p_data->deviation);
+			charges = std::max(0, charges);
+
+			if (charges > 0) {
+				ch->mob_specials.have_spell = true;
+				SET_SPELL_MEM(ch, spell_id, charges);
+				applied_any = 1;
+			}
 		}
 	}
-
 	return applied_any != 0;
 }
-
 
 // --------------------- Пересчёт в зоне ---------------------------------------
 
@@ -267,7 +535,6 @@ void SetLevelsForInstancesInZone(int zone_vnum, int set_level, int mob_vnum_filt
 }
 
 // --------------------- Комбинированный пересчёт ------------------------------
-
 bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int set_level, int mob_vnum_filter = -1) {
 	SetLevelsForInstancesInZone(zone_vnum, set_level, mob_vnum_filter);
 	RecalcMobParamsInZone(zone_vnum, mob_vnum_filter);
@@ -275,8 +542,8 @@ bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int set_level, int mob_vnum_f
 }
 
 // --------------------- Команда recalc_zone -----------------------------------
-
 void do_recalc_zone(CharData* ch, char* argument, int /*cmd*/, int /*subcmd*/) {
+
 	const size_t kBuf = 256;
 	char arg1[kBuf]{};  // zone_vnum
 	char arg2[kBuf]{};  // level
@@ -294,6 +561,14 @@ void do_recalc_zone(CharData* ch, char* argument, int /*cmd*/, int /*subcmd*/) {
 	const int zone_vnum = atoi(arg1);
 	const int set_level = atoi(arg2);
 	const int mob_vnum  = (*arg3 ? atoi(arg3) : -1);
+
+
+	if (zone_vnum < 30000) {
+		SendMsgToChar(ch,
+			"Zone %d is not a dungeon. Recalc is allowed only for zones 30000+.\r\n",
+			zone_vnum);
+		return;
+	}
 
 	if (set_level <= 0) {
 		SendMsgToChar(ch, "Level must be positive.\r\n");

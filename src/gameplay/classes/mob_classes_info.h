@@ -17,6 +17,8 @@
 #include "engine/structs/info_container.h"
 #include "utils/grammar/cases.h"
 
+enum class EBaseStat;
+
 EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_class_name);
 
 namespace mob_classes {
@@ -47,6 +49,7 @@ public:
 
     struct ParametersData {
         int   base{0};
+        int min_lvl{1};
         float increment{0.f};
         int   deviation{0};
         float low_increment{0.f};
@@ -54,25 +57,75 @@ public:
 
     int low_skill_lvl{0};
 
+    // Base stats (Str/Dex/Con/Wis/Int/Cha)
+    std::unordered_map<EBaseStat, ParametersData> base_stats_map;
+    void PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer) const;
+
     std::unordered_map<ESaving, ParametersData>  savings_map;
     void PrintSavingsTable(CharData *ch, std::ostringstream &buffer) const;
 
     std::unordered_map<EResist, ParametersData>  resists_map;
     void PrintResistancesTable(CharData *ch, std::ostringstream &buffer) const;
 
+    // Combat stats (armour / absorb)
+    ParametersData armour;
+    ParametersData absorb;
+    bool has_armour{false};
+    bool has_absorb{false};
+
+    // Damage dice (ndd / sdd)
+    ParametersData dam_n_dice;
+    ParametersData dam_s_dice;
+    bool has_dam_n_dice{false};
+    bool has_dam_s_dice{false};
+
+    // Hitroll / luck(morale) / cast success
+    ParametersData hitroll;
+    ParametersData morale;
+    ParametersData cast_success;
+    bool has_hitroll{false};
+    bool has_morale{false};
+    bool has_cast_success{false};
+
+    // HP / size / exp / likes_work
+    ParametersData hit_points;
+    ParametersData size;
+    ParametersData exp;
+    ParametersData likes_work;
+    bool has_hit_points{false};
+    bool has_size{false};
+    bool has_exp{false};
+    bool has_likes_work{false};
+
+    // Percent damage bonuses
+    ParametersData phys_damage;
+    ParametersData spell_power;
+    bool has_phys_damage{false};
+    bool has_spell_power{false};
+
+    void PrintCombatStatsTable(CharData *ch, std::ostringstream &buffer) const;
+
+
+    // Extra resists: MR / PR / AR
+    ParametersData magic_resist;
+    ParametersData physical_resist;
+    ParametersData affect_resist;
+    bool has_magic_resist{false};
+    bool has_physical_resist{false};
+    bool has_affect_resist{false};
+
     std::unordered_map<ESkill, ParametersData>   mob_skills_map;
     void PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer) const;
 
-    std::vector<ESpell> mob_spells;
+    std::unordered_map<ESpell, ParametersData> mob_spells_map;
     void PrintMobSpellsTable(CharData *ch, std::ostringstream &buffer) const;
     inline bool HasMobSpell(ESpell id) const {
-        for (std::size_t i = 0; i < mob_spells.size(); ++i) {
-            if (mob_spells[i] == id) {
-                return true;
-            }
-        }
-        return false;
+        return mob_spells_map.find(id) != mob_spells_map.end();
     }
+
+    auto GetBaseStatBase(EBaseStat id) const { return base_stats_map.at(id).base; }
+    auto GetBaseStatIncrement(EBaseStat id) const { return base_stats_map.at(id).increment; }
+    auto GetBaseStatDeviation(EBaseStat id) const { return base_stats_map.at(id).deviation; }
 
     auto GetSavingBase(ESaving id) const { return savings_map.at(id).base; }
     auto GetSavingIncrement(ESaving id) const { return savings_map.at(id).increment; }
@@ -86,6 +139,11 @@ public:
     auto GetMobSkillIncrement(ESkill id) const { return mob_skills_map.at(id).increment; }
     auto GetMobSkillDeviation(ESkill id) const { return mob_skills_map.at(id).deviation; }
     auto GetMobLowSkillIncrement(ESkill id) const { return mob_skills_map.at(id).low_increment; }
+
+    auto GetMobSpellBase(ESpell id) const { return mob_spells_map.at(id).base; }
+    auto GetMobSpellIncrement(ESpell id) const { return mob_spells_map.at(id).increment; }
+    auto GetMobSpellDeviation(ESpell id) const { return mob_spells_map.at(id).deviation; }
+
 };
 
 class MobClassInfoBuilder : public info_container::IItemBuilder<MobClassInfo> {
@@ -99,10 +157,14 @@ private:
     static ItemPtr ParseMobClass(parser_wrapper::DataNode node);
     static ItemPtr ParseHeader(parser_wrapper::DataNode &node);
     static void ParseName(ItemPtr &info, parser_wrapper::DataNode &node);
+    static void ParseBaseStatsData(ItemPtr &info, parser_wrapper::DataNode &node);
+    static void ParseBaseStats(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseSavingsData(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseSavings(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseResistanceData(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseResistances(ItemPtr &info, parser_wrapper::DataNode &node);
+    static void ParseCombatStatsData(ItemPtr &info, parser_wrapper::DataNode &node);
+    static void ParseCombatStats(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSkillsData(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSkills(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSpells(ItemPtr &info, parser_wrapper::DataNode &node);

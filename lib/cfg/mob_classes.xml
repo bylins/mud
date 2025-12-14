@@ -3,266 +3,447 @@
     <global_vars low_skill_lvl="19"/>
     <mobclass id="kUndefined" mode="kEnabled">
         <name rus="не.определён" eng="Undefined"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="1" deviation="3"/>
-            <saving id="kWill" base="1" increment="1" deviation="1"/>
-            <saving id="kStability" base="1" increment="1" deviation="1"/>
-            <saving id="kCritical" base="1" increment="1" deviation="1"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="1" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="1" increment="1" deviation="1"/>
+            <saving id="kStability" min_lvl="1" base="1" increment="1" deviation="1"/>
+            <saving id="kCritical" min_lvl="1" base="1" increment="1" deviation="1"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
         <spells>
-            <spell id="kMentalShadow"/>
-            <spell id="kRoomLight"/>
-            <spell id="kSumonAngel"/>
-            <spell id="kCureLight"/>
-            <spell id="kVacuum"/>
+            <spell id="kMentalShadow" min_lvl="1" base="1" increment="0" deviation="0"/>
+            <spell id="kRoomLight" min_lvl="1"    base="2" increment="0" deviation="1"/>
+            <spell id="kSumonAngel" min_lvl="1"   base="3" increment="0.5" deviation="1"/>
+            <spell id="kCureLight" min_lvl="1"    base="4" increment="1" deviation="2"/>
+            <spell id="kVacuum" min_lvl="1"       base="1" increment="0" deviation="0"/>
         </spells>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMagicResist" min_lvl="1"   base="1" increment="2" deviation="2"/>
+            <resistance id="kPhysicResist" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAffectResist" min_lvl="1"   base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="1" increment="2" deviation="5"/>
+            <param id="kAbsorb" min_lvl="1" base="1" increment="2" deviation="5"/>
+            <param id="kDamNoDice" min_lvl="1" base="1" increment="2" deviation="1"/>
+            <param id="kDamSizeDice" min_lvl="1" base="4" increment="2" deviation="1"/>
+            <param id="kHitroll" min_lvl="1" base="0" increment="2" deviation="0"/>
+            <param id="kMorale" min_lvl="1" base="0" increment="2" deviation="0"/>
+            <param id="kCastSuccess" min_lvl="1" base="0" increment="2" deviation="0"/>
+            <param id="kHitPoints" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kSize" min_lvl="1" base="0" increment="3" deviation="0"/>
+            <param id="kExp" min_lvl="1" base="0" increment="3" deviation="0"/>
+            <param id="kLikesWork" min_lvl="1" base="0" increment="2" deviation="0"/>
+            <param id="kPhysDamage" min_lvl="1" base="10" increment="1" deviation="0"/>
+            <param id="kSpellPower" min_lvl="1" base="10" increment="1" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kBoss" mode="kEnabled">
         <name rus="босс" eng="Boss"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="1.1" deviation="0"/>
-            <saving id="kWill" base="1" increment="1.1" deviation="0"/>
-            <saving id="kStability" base="1" increment="1.1" deviation="0"/>
-            <saving id="kCritical" base="1" increment="1.1" deviation="0"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="1.1" deviation="0"/>
+            <saving id="kWill" min_lvl="1" base="1" increment="1.1" deviation="0"/>
+            <saving id="kStability" min_lvl="1" base="1" increment="1.1" deviation="0"/>
+            <saving id="kCritical" min_lvl="1" base="1" increment="1.1" deviation="0"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="1.1" deviation="1" low_increment="1"/>
-            <skill id="kPunctual" base="1"  increment="1.1" deviation="1" low_increment="1"/>
-            <skill id="kAxes" base="1"  increment="1.1" deviation="1" low_increment="1"/>
-            <skill id="kCharge" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kPunctual" min_lvl="1" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kAxes" min_lvl="1" base="1"  increment="1.1" deviation="1" low_increment="1"/>
+            <skill id="kCharge" min_lvl="1" base="1"  increment="1.1" deviation="1" low_increment="1"/>
         </skills>
         <spells>
-            <spell id="kMentalShadow"/>
-            <spell id="kRoomLight"/>
-            <spell id="kSumonAngel"/>
-            <spell id="kCureLight"/>
-            <spell id="kVacuum"/>
+            <spell id="kMentalShadow" min_lvl="1" base="1" increment="0" deviation="0"/>
+            <spell id="kRoomLight" min_lvl="1"    base="2" increment="0" deviation="1"/>
+            <spell id="kSumonAngel" min_lvl="1"   base="3" increment="0.5" deviation="1"/>
+            <spell id="kCureLight" min_lvl="1"    base="4" increment="1" deviation="2"/>
+            <spell id="kVacuum" min_lvl="1"       base="1" increment="0" deviation="0"/>
         </spells>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMagicResist" min_lvl="1"   base="1" increment="2" deviation="2"/>
+            <resistance id="kPhysicResist" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAffectResist" min_lvl="1"   base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="1" increment="2" deviation="5"/>
+            <param id="kAbsorb" min_lvl="1" base="1" increment="2" deviation="5"/>
+            <param id="kDamNoDice" min_lvl="1" base="1" increment="0.05" deviation="1"/>
+            <param id="kDamSizeDice" min_lvl="1" base="4" increment="0.00" deviation="1"/>
+            <param id="kHitroll" min_lvl="1" base="10" increment="0" deviation="0"/>
+            <param id="kMorale" min_lvl="1" base="10" increment="0" deviation="0"/>
+            <param id="kCastSuccess" min_lvl="1" base="10" increment="0" deviation="0"/>
+            <param id="kHitPoints" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kSize" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kExp" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kLikesWork" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kPhysDamage" min_lvl="1" base="0" increment="2" deviation="0"/>
+            <param id="kSpellPower" min_lvl="1" base="0" increment="2" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kAdd" mode="kEnabled">
         <name rus="помощник" eng="Add"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="3" deviation="0"/>
-            <saving id="kWill" base="1" increment="3" deviation="0"/>
-            <saving id="kStability" base="1" increment="3" deviation="0"/>
-            <saving id="kCritical" base="1" increment="3" deviation="0"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="3" deviation="0"/>
+            <saving id="kWill" min_lvl="1" base="1" increment="3" deviation="0"/>
+            <saving id="kStability" min_lvl="1" base="1" increment="3" deviation="0"/>
+            <saving id="kCritical" min_lvl="1" base="1" increment="3" deviation="0"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="3" deviation="1" low_increment="1"/>
-            <skill id="kPunctual" base="1"  increment="3" deviation="1" low_increment="1"/>
-            <skill id="kAxes" base="1"  increment="3" deviation="1" low_increment="1"/>
-            <skill id="kCharge" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kPunctual" min_lvl="1" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kAxes" min_lvl="1" base="1"  increment="3" deviation="1" low_increment="1"/>
+            <skill id="kCharge" min_lvl="1" base="1"  increment="3" deviation="1" low_increment="1"/>
         </skills>
+        <spells>
+            <spell id="kMentalShadow" min_lvl="1" base="1" increment="0" deviation="0"/>
+            <spell id="kRoomLight" min_lvl="1"    base="2" increment="0" deviation="1"/>
+            <spell id="kSumonAngel" min_lvl="1"   base="3" increment="0.5" deviation="1"/>
+            <spell id="kCureLight" min_lvl="1"    base="4" increment="1" deviation="2"/>
+            <spell id="kVacuum" min_lvl="1"       base="1" increment="0" deviation="0"/>
+        </spells>
         <resistances>
-            <resistance id="kFire" base="1" increment="1" deviation="2"/>
-            <resistance id="kAir" base="1" increment="1" deviation="2"/>
-            <resistance id="kWater" base="1" increment="1" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="1" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="1" deviation="2"/>
-            <resistance id="kMind" base="1" increment="1" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="1" deviation="2"/>
-            <resistance id="kDark" base="1" increment="1" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="1" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="1" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="1" increment="2" deviation="5"/>
+            <param id="kAbsorb" min_lvl="1" base="1" increment="2" deviation="5"/>
+            <param id="kDamNoDice" min_lvl="1" base="1" increment="0.05" deviation="1"/>
+            <param id="kDamSizeDice" min_lvl="1" base="4" increment="0.00" deviation="1"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kTank" mode="kEnabled">
         <name rus="танк" eng="Tank"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
+        <spells>
+            <spell id="kMentalShadow" min_lvl="1" base="1" increment="0" deviation="0"/>
+            <spell id="kRoomLight" min_lvl="1"    base="2" increment="0" deviation="1"/>
+            <spell id="kSumonAngel" min_lvl="1"   base="3" increment="0.5" deviation="1"/>
+            <spell id="kCureLight" min_lvl="1"    base="4" increment="1" deviation="2"/>
+            <spell id="kVacuum" min_lvl="1"       base="1" increment="0" deviation="0"/>
+        </spells>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMagicResist" min_lvl="1"   base="50" increment="2" deviation="2"/>
+            <resistance id="kPhysicResist" min_lvl="1" base="50" increment="2" deviation="2"/>
+            <resistance id="kAffectResist" min_lvl="1"   base="50" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kMelleeDmg" mode="kEnabled">
         <name rus="физ.дамаг" eng="MelleeDmg"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
+        <spells>
+            <spell id="kMentalShadow" min_lvl="1" base="1" increment="0" deviation="0"/>
+            <spell id="kRoomLight" min_lvl="1"    base="2" increment="0" deviation="1"/>
+            <spell id="kSumonAngel" min_lvl="1"   base="3" increment="0.5" deviation="1"/>
+            <spell id="kCureLight" min_lvl="1"    base="4" increment="1" deviation="2"/>
+            <spell id="kVacuum" min_lvl="1"       base="1" increment="0" deviation="0"/>
+        </spells>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kArcher" mode="kEnabled">
         <name rus="лучник" eng="Archer"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
+        <spells>
+            <spell id="kMentalShadow" min_lvl="1" base="1" increment="0" deviation="0"/>
+            <spell id="kRoomLight" min_lvl="1"    base="2" increment="0" deviation="1"/>
+            <spell id="kSumonAngel" min_lvl="1"   base="3" increment="0.5" deviation="1"/>
+            <spell id="kCureLight" min_lvl="1"    base="4" increment="1" deviation="2"/>
+            <spell id="kVacuum" min_lvl="1"       base="1" increment="0" deviation="0"/>
+        </spells>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kRogue" mode="kEnabled">
         <name rus="разбойник" eng="Rogue"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kMageDmg" mode="kEnabled">
         <name rus="маг.дамаг" eng="MageDmg"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kMageBuff" mode="kEnabled">
         <name rus="маг.ассист" eng="MageBuff"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
     <mobclass id="kHealer" mode="kEnabled">
         <name rus="танк" eng="Healer"/>
+        <base_stats>
+            <stat id="kStr" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kDex" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCon" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kWis" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kInt" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+            <stat id="kCha" min_lvl="1" base="1" increment="0.1" deviation="2"/>
+        </base_stats>
         <savings>
-            <saving id="kReflex" base="1" increment="2" deviation="3"/>
-            <saving id="kWill" base="4" increment="5" deviation="6"/>
-            <saving id="kStability" base="7" increment="8" deviation="9"/>
-            <saving id="kCritical" base="10" increment="11" deviation="12"/>
+            <saving id="kReflex" min_lvl="1" base="1" increment="2" deviation="3"/>
+            <saving id="kWill" min_lvl="1" base="4" increment="5" deviation="6"/>
+            <saving id="kStability" min_lvl="1" base="7" increment="8" deviation="9"/>
+            <saving id="kCritical" min_lvl="1" base="10" increment="11" deviation="12"/>
         </savings>
         <skills>
-            <skill id="kPunch" base="1"  increment="2" deviation="3" low_increment="2.1"/>
-            <skill id="kPunctual" base="4"  increment="5" deviation="6" low_increment="2.2"/>
-            <skill id="kAxes" base="7"  increment="8" deviation="9" low_increment="2.3"/>
-            <skill id="kCharge" base="10"  increment="11" deviation="12" low_increment="2.4"/>
+            <skill id="kPunch" min_lvl="1" base="1"  increment="2" deviation="3" low_increment="2.1"/>
+            <skill id="kPunctual" min_lvl="1" base="4"  increment="5" deviation="6" low_increment="2.2"/>
+            <skill id="kAxes" min_lvl="1" base="7"  increment="8" deviation="9" low_increment="2.3"/>
+            <skill id="kCharge" min_lvl="1" base="10"  increment="11" deviation="12" low_increment="2.4"/>
         </skills>
         <resistances>
-            <resistance id="kFire" base="1" increment="2" deviation="2"/>
-            <resistance id="kAir" base="1" increment="2" deviation="2"/>
-            <resistance id="kWater" base="1" increment="2" deviation="2"/>
-            <resistance id="kEarth" base="1" increment="2" deviation="2"/>
-            <resistance id="kVitality" base="1" increment="2" deviation="2"/>
-            <resistance id="kMind" base="1" increment="2" deviation="2"/>
-            <resistance id="kImmunity" base="1" increment="2" deviation="2"/>
-            <resistance id="kDark" base="1" increment="2" deviation="2"/>
+            <resistance id="kFire" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kAir" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kWater" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kEarth" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kVitality" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kMind" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kImmunity" min_lvl="1" base="1" increment="2" deviation="2"/>
+            <resistance id="kDark" min_lvl="1" base="1" increment="2" deviation="2"/>
         </resistances>
+        <combat_stats>
+            <param id="kArmour" min_lvl="1" base="0" increment="0" deviation="0"/>
+            <param id="kAbsorb" min_lvl="1" base="0" increment="0" deviation="0"/>
+        </combat_stats>
     </mobclass>
 </mob_classes>
