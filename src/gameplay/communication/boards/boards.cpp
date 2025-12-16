@@ -896,6 +896,8 @@ void DoBoardList(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
+	RoomVnum rvn;
+
 	if (ch->IsNpc()) return;
 	skip_spaces(&argument);
 	delete_doubledollar(argument);
@@ -928,7 +930,13 @@ void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
 	temp_message->level = GetRealLevel(ch);
 	temp_message->rank = 0;
-	temp_message->subject = fmt::format("[{}]", GET_ROOM_VNUM(ch->in_room));
+
+	if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
+		rvn = zone_table[world[ch->in_room]->zone_rn].copy_from_zone * 100 + world[ch->in_room]->vnum % 100;
+	} else {
+		rvn =  world[ch->in_room]->vnum;
+	}
+	temp_message->subject = fmt::format("[{}]", rvn);
 	temp_message->text = argument;
 	temp_message->date = time(nullptr);
 
