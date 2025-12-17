@@ -169,23 +169,21 @@ void SummonTutelar(CharData *ch) {
 	mob->set_skill(ESkill::kMultiparry, floorf(base_multiparry + additional_multiparry_for_charisma * eff_cha));
 
 	int base_spell = 2 + count_shields;
+
 	SET_SPELL_MEM(mob, ESpell::kCureBlind, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kRemoveHold, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kRemovePoison, base_spell);
 	SET_SPELL_MEM(mob, ESpell::kHeal, floorf(base_heal + additional_heal_for_charisma * eff_cha));
-
+	mob->mob_specials.have_spell = true;
 	if (mob->GetSkill(ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
 	}
-
 	GET_LIKES(mob) = 100;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
-
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kTutelar);
 	mob->SetFlag(EMobFlag::kLightingBreath);
-
 	mob->set_level(GetRealLevel(ch));
 	PlaceCharToRoom(mob, ch->in_room);
 	if (IS_FEMALE(mob)) {
