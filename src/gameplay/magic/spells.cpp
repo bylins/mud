@@ -2255,18 +2255,20 @@ void SpellMentalShadow(CharData *ch) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
-
+		mob->mob_specials.have_spell = true;
 	} else if(eff_int >= 38 && eff_int < 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 2);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
-		
+		mob->mob_specials.have_spell = true;
+	
 	} else if(eff_int >= 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 3);
 		af.bitvector = to_underlying(EAffect::kShadowCloak);
 		affect_to_char(mob, af);
 		af.bitvector = to_underlying(EAffect::kBrokenChains);
 		affect_to_char(mob, af);
+		mob->mob_specials.have_spell = true;
 	}
 	if (mob->GetSkill(ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
