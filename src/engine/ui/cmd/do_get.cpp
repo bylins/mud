@@ -7,7 +7,7 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/groups.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);

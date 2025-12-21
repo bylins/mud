@@ -1,0 +1,14 @@
+option('testbuild', type: 'boolean', value: false, description: 'Build in test mode.')
+option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
+option('boost', type: 'boolean', value: false, description: 'Enable Boost usage')
+option('zlib', type: 'boolean', value: true, description: 'Enable MCCP support via ZLib')
+option('iconv', type: 'boolean', value: false, description: 'Detect and use iconv')
+option('telegram', type: 'boolean', value: true, description: 'Enable Telegram integration (requires CURL + OpenSSL)')
+option('nocrypt', type: 'boolean', value: false, description: 'Disable use of crypt()')
+option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux only)')
+option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
+
+# Options for libfort
+option('fort_wchar', type: 'boolean', value: false, description: 'Enable wchar support in libfort')
+option('fort_utf8', type: 'boolean', value: false, description: 'Enable UTF-8 support in libfort')
+option('fort_test', type: 'boolean', value: false, description: 'Export internal symbols for testing')

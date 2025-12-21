@@ -32,7 +32,7 @@
 #include "gameplay/mechanics/armor.h"
 #include "engine/db/player_index.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 

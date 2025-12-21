@@ -31,7 +31,7 @@
 #include "gameplay/statistics/zone_exp.h"
 #include "engine/db/player_index.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern void print_rune_stats(CharData *ch);
 void do_shops_list(CharData *ch);

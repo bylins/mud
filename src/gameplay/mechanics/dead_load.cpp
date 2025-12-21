@@ -13,7 +13,7 @@
 #include "engine/db/global_objects.h"
 #include "stable_objs.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 namespace dead_load {
 

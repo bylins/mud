@@ -43,7 +43,7 @@
 #include "gameplay/mechanics/tutelar.h"
 #include "common.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 // Structures
 std::list<combat_list_element> combat_list;

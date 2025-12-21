@@ -1069,7 +1069,7 @@ add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
 
 #fmt inegration
-add_subdirectory(src/third_party_libs/fmt EXCLUDE_FROM_ALL)
+add_subdirectory(subprojects/fmt EXCLUDE_FROM_ALL)
 target_link_libraries(circle.library fmt::fmt)
 
 # Boost
@@ -1206,7 +1206,7 @@ set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 set(ASAN_FLAGS)
 if (UNIX AND NOT CYGWIN)
 	set(DEFAULT_WITH_ASAN YES)
-elseif ()
+else ()
 	set(DEFAULT_WITH_ASAN NO)
 endif ()
 option(WITH_ASAN "Compile with ASAN" ${DEFAULT_WITH_ASAN})

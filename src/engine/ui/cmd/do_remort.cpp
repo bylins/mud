@@ -13,7 +13,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/ext_money.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern RoomRnum r_frozen_start_room;
 const char *remort_msg =

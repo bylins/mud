@@ -17,7 +17,7 @@
 #include "administration/privilege.h"
 #include "engine/entities/zone.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 int PrintOlist(const CharData *ch, int first, int last, std::string &out);
 

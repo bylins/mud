@@ -10,7 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "utils/utils_string.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 int TabulateMobsByName(char *searchname, CharData *ch);
 int TabulateObjsByAliases(char *searchname, CharData *ch);

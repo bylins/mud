@@ -19,7 +19,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/leadership.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include <ranges>
 

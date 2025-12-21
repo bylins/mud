@@ -7,7 +7,7 @@
 #include "gameplay/communication/talk.h"
 #include "gameplay/ai/spec_procs.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 int do_social(CharData *ch, char *argument);
 

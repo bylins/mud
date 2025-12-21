@@ -58,7 +58,7 @@
 #include "gameplay/communication/social.h"
 #include "player_index.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include <sys/stat.h>
 
 #include <memory>

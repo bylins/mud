@@ -16,7 +16,7 @@
 
 #include <iomanip>
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;

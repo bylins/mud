@@ -18,7 +18,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/ai/spec_procs.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 
 extern void ExtractRepopDecayObject(ObjData *obj);

@@ -8,7 +8,7 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 void GoTownportal(CharData *ch, char *argument);
 void TryOpenTownportal(CharData *ch, const Runestone &stone);

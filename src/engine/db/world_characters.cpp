@@ -4,7 +4,7 @@
 #include "global_objects.h"
 #include "gameplay/ai/mob_memory.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern std::list<combat_list_element> combat_list;
 

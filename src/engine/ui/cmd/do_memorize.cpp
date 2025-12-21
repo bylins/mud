@@ -8,7 +8,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/game_limits.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 using classes::CalcCircleSlotsAmount;
 

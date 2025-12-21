@@ -9,7 +9,7 @@
 #include "gameplay/clans/house.h"
 #include "utils/logger.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 namespace city_guards {
 

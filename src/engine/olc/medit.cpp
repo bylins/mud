@@ -40,7 +40,7 @@
 #include "gameplay/ai/spec_procs.h"
 #include <sys/stat.h>
 
-//#include <third_party_libs/fmt/include/fmt/format.h>
+//#include "../subprojects/fmt/include/fmt/format.h"
 #include <stack>
 #include <sstream>
 

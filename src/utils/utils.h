@@ -27,7 +27,7 @@
 #include "utils/id_converter.h"
 #include "utils_string.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.

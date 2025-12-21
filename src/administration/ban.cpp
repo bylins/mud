@@ -11,7 +11,7 @@
 #include "engine/ui/modify.h"
 #include "engine/db/global_objects.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 const char *const BanList::ban_filename = "etc/badsites";
 const char *const BanList::proxy_ban_filename = "etc/badproxy";

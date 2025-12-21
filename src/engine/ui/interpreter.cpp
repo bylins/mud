@@ -286,7 +286,7 @@
 #include "scripting.hpp"
 #endif
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include <memory>
 #include <stdexcept>
