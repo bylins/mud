@@ -72,8 +72,6 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	log("Remort %s", GET_NAME(ch));
 	ch->remort();
 	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
-
-	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, EGf::kRemort);
 	ch->inc_str(1);

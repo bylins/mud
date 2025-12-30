@@ -1010,10 +1010,6 @@ void BootMudDataBase() {
 	log("Load mob races.");
 	mob_races::LoadMobraces();
 
-	boot_profiler.next_step("Loading morphs");
-	log("Load morphs.");
-	load_morphs();
-
 	boot_profiler.next_step("Initializing global drop list");
 	log("Init global drop list.");
 	GlobalDrop::init();
@@ -1730,7 +1726,6 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		return (nullptr);
 	}
 	CharData *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
-	mob->set_normal_morph();
 	mob->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	mob->script = std::make_shared<Script>();    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);

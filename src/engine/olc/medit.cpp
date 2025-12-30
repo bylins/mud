@@ -163,7 +163,6 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 
 	// Копирую все поверх
 	*dst = *src;
-	dst->set_normal_morph();//вот это копировать не нада
 	if (partial_copy) {
 		dst->SetCharAliases(tmp.GetCharAliases());
 		dst->set_npc_name(tmp.get_npc_name());
@@ -548,7 +547,6 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			return;
 		}
 		mob = (mob_proto + rmob_num);
-		mob->set_normal_morph();
 			// * Clean up strings.
 		if (mob->player_data.long_descr.empty())
 			mob->player_data.long_descr = "неопределен";
