@@ -599,7 +599,8 @@ void raw_kill(CharData *ch, CharData *killer) {
 			arena_kill(ch, killer);
 		} else {
 			real_kill(ch, killer);
-			ExtractCharFromWorld(ch, true);
+			character_list.AddToExtractedList(ch);
+//			ExtractCharFromWorld(ch, true);
 		}
 	}
 }
