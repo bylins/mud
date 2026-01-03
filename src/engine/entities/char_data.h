@@ -6,7 +6,6 @@
 
 #include "player_i.h"
 #include "administration/punishments.h"
-#include "gameplay/skills/morph.hpp"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
@@ -325,7 +324,6 @@ class CharData : public ProtectedCharData {
 	using ptr_t = CharData *;
 	using shared_ptr = std::shared_ptr<CharData>;
 	using char_affects_list_t = std::list<Affect<EApply>::shared_ptr>;
-	using morphs_list_t = std::list<std::string>;
 	using role_t = std::bitset<9>;
 	using followers_list_t = std::list<CharData *>;
 
@@ -346,7 +344,6 @@ class CharData : public ProtectedCharData {
 	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
 	int GetEquippedSkill(ESkill skill_id) const;
-	int GetMorphSkill(ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
 	int GetAddSkill(ESkill skill_id) const;
@@ -528,31 +525,15 @@ class CharData : public ProtectedCharData {
 	 * Возвращает коэффициент штрафа за состояние
 	**/
 	float get_cond_penalty(int type) const;
-
-	bool know_morph(const std::string &morph_id) const;
-	void add_morph(const std::string &morph_id);
-	void clear_morphs();
-	void set_morph(const MorphPtr& morph);
-	void reset_morph();
-	size_t get_morphs_count() const;
-	const morphs_list_t &get_morphs();
-	bool is_morphed() const;
-	void set_normal_morph();
-
 	std::string GetTitle() const;
-	std::string get_morphed_name() const;
 	std::string get_pretitle() const;
 	std::string get_race_name() const;
 	std::string GetTitleAndName();
 	std::string GetNameWithTitleOrRace();
 	std::string race_or_title();
-	std::string get_morphed_title() const;
-	std::string get_cover_desc();
-	std::string get_morph_desc() const;
+	int GetSkillBonus(const ESkill skill_id) const;
 	int GetTrainedSkill(ESkill skill_num) const;
-	void set_morphed_skill(ESkill skill_num, int percent);
 	bool isAffected(EAffect flag) const;
-	const IMorph::affects_list_t &GetMorphAffects();
 
 	void set_who_mana(unsigned int);
 	void set_who_last(time_t);
@@ -711,10 +692,6 @@ class CharData : public ProtectedCharData {
 	int cha_;
 	// плюсы на харизму
 	int cha_add_;
-	//изученные формы
-	morphs_list_t morphs_;
-	//текущая форма
-	MorphPtr current_morph_;
 	// аналог класса у моба
 	role_t role_;
 	// для боссов: список атакующих (и им сочувствующих), uid->attacker

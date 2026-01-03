@@ -299,7 +299,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 }
 
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum) {
-	if (ch->GetMorphSkill(skill_id)) {
+	if (ch->GetSkillBonus(skill_id)) {
 		if (skilldiff) {
 			return;
 		}
@@ -314,26 +314,26 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 }
 
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
-	int skill = ch->GetMorphSkill(skillnum);
+	int skill = ch->GetSkillBonus(skillnum);
 
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
 	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
-	if (skill > ch->GetMorphSkill(skillnum)) {
+	if (skill > ch->GetSkillBonus(skillnum)) {
 		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetMorphSkill(skillnum), skilldiff, vnum);
-	} else if (skill < ch->GetMorphSkill(skillnum)) {
+			ch->GetSkillBonus(skillnum), skilldiff, vnum);
+	} else if (skill < ch->GetSkillBonus(skillnum)) {
 		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skill(skillnum).GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetMorphSkill(skillnum), skilldiff, vnum);
+			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	} else {
 		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetMorphSkill(skillnum), skilldiff, vnum);
+			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	}
 }
 

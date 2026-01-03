@@ -863,10 +863,7 @@ void Player::save_char() {
 	this->quested_save(saved);
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
-	morphs_save(this, saved);
-
 	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
-
 	fprintf(saved, "TrcG: %d\n", ext_money_[ExtMoney::kTorcGold]);
 	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::kTorcSilver]);
 	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::kTorcBronze]);
@@ -1551,8 +1548,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						sscanf(line, "%d %d", &num, &num2);
 						this->mobmax_load(this, num, num2, MobMax::get_level_by_vnum(num));
 					} while (true);
-				} else if (!strcmp(tag, "Mrph")) {
-					morphs_load(this, std::string(line));
 				}
 				break;
 			case 'N':
@@ -1889,7 +1884,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
-		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
 		GET_COND(this, THIRST) = -1;
 		GET_COND(this, DRUNK) = -1;
