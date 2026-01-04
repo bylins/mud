@@ -1475,7 +1475,7 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 using namespace HelpSystem;
 
 void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	std::string arg_str(argument);
+	char temp_arg[kMaxInputLength];
 
 	if (!ch->desc) {
 		return;
@@ -1491,19 +1491,12 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
 	utils::ConvertToLow(argument);
 	// Парсинг topic_num
-	size_t dot_pos = arg_str.find('.');
-    
-	if (dot_pos != std::string::npos) {
-		try {
-			user_search.topic_num = std::stoi(arg_str.substr(0, dot_pos));
-			arg_str = arg_str.substr(dot_pos + 1);
-		} catch (...) {
-			user_search.topic_num = 0;
-		}
+	// Читаем во временный буфер
+	if (sscanf(argument, "%d.%255s", &user_search.topic_num, temp_arg) == 2) {
+	// Копируем обратно
+		strncpy(argument, temp_arg, kMaxInputLength - 1);
+		argument[kMaxInputLength - 1] = '\0';
 	}
-	// Копируем обратно в argument для совместимости
-	strncpy(argument, arg_str.c_str(), kMaxInputLength - 1);
-	argument[kMaxInputLength - 1] = '\0';
 	// если последний символ аргумента '!' -- включаем строгий поиск
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		user_search.strong = true;
