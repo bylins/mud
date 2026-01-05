@@ -2998,6 +2998,12 @@ void find_replacement(void *go,
 					return;
 				}
 			}
+		} else if (!str_cmp(field, "role")) {
+			std::string out;
+			if (c->get_role_bits().any()) {
+				print_bitset(c->get_role_bits(), npc_role_types, " ", out);
+				sprintf(str, "%s", out.c_str());
+			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
 				sprintf(str, "%c%ld", uid_type, (c->get_master())->get_uid());
