@@ -2983,12 +2983,20 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "mobflag")) {
 			if (c->IsNpc()) {
 //				mudlog(fmt::format("mob flag {}", subfield));
-				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+				bool val = c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+				if (!val) {
+					trig_log(trig, fmt::format("mobflag: неправильный параметр в скобках - ({})", subfield));
+					return;
+				}
 			}
 		} else if (!str_cmp(field, "npcflag")) {
 			if (c->IsNpc()) {
 //				mudlog(fmt::format("npc flag {}", subfield));
-				c->mob_specials.npc_flags.gm_flag(subfield, function_bits, str);
+				bool val = c->mob_specials.npc_flags.gm_flag(subfield, function_bits, str);
+				if (!val) {
+					trig_log(trig, fmt::format("npcflag: неправильный параметр в скобках - ({})", subfield));
+					return;
+				}
 			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
