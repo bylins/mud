@@ -2980,9 +2980,29 @@ void find_replacement(void *go,
 				}
 				sprintf(str, "%s", "0");
 			}
-		} else if (!str_cmp(field, "action")) {
+		} else if (!str_cmp(field, "mobflag")) {
 			if (c->IsNpc()) {
-				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+//				mudlog(fmt::format("mob flag {}", subfield));
+				bool val = c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+				if (!val) {
+					trig_log(trig, fmt::format("mobflag: неправильный параметр в скобках - ({})", subfield));
+					return;
+				}
+			}
+		} else if (!str_cmp(field, "npcflag")) {
+			if (c->IsNpc()) {
+//				mudlog(fmt::format("npc flag {}", subfield));
+				bool val = c->mob_specials.npc_flags.gm_flag(subfield, function_bits, str);
+				if (!val) {
+					trig_log(trig, fmt::format("npcflag: неправильный параметр в скобках - ({})", subfield));
+					return;
+				}
+			}
+		} else if (!str_cmp(field, "role")) {
+			std::string out;
+			if (c->get_role_bits().any()) {
+				print_bitset(c->get_role_bits(), npc_role_types, " ", out);
+				sprintf(str, "%s", out.c_str());
 			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
