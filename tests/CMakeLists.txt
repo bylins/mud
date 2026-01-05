@@ -100,6 +100,11 @@ endif ()
 
 add_test(all tests)
 
+# Configure LeakSanitizer to use suppression file
+set_tests_properties(all PROPERTIES
+	ENVIRONMENT "LSAN_OPTIONS=suppressions=${CMAKE_CURRENT_SOURCE_DIR}/lsan.supp"
+)
+
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
 # Копируем тестовые данные в корень проекта (откуда запускаются тесты)
