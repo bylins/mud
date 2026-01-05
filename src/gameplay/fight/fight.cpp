@@ -95,10 +95,6 @@ void go_autoassist(CharData *ch) {
 // Добавил проверку на лаг, чтобы правильно работали Каменное проклятие и
 // Круг пустоты, ибо позицию делают меньше чем поз_станнед.
 void update_pos(CharData *victim) {
-	if (AFF_FLAGGED(victim, EAffect::kSleep) && victim->GetPosition() != EPosition::kSleep) {
-		RemoveAffectFromChar(victim, ESpell::kSleep);
-		AFF_FLAGS(victim).unset(EAffect::kSleep);
-	}
 	if ((victim->get_hit() > 0) && (victim->GetPosition() > EPosition::kStun)) {
 		victim->SetPosition(victim->GetPosition());
 		return;
