@@ -2980,9 +2980,15 @@ void find_replacement(void *go,
 				}
 				sprintf(str, "%s", "0");
 			}
+		} else if (!str_cmp(field, "mobflag")) {
+			if (c->IsNpc()) {
+//				mudlog(fmt::format("mob flag {}", subfield));
+				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+			}
 		} else if (!str_cmp(field, "npcflag")) {
 			if (c->IsNpc()) {
-				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+//				mudlog(fmt::format("npc flag {}", subfield));
+				c->mob_specials.npc_flags.gm_flag(subfield, function_bits, str);
 			}
 		} else if (!str_cmp(field, "leader")) {
 			if (c->has_master()) {
