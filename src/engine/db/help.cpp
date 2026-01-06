@@ -1475,6 +1475,8 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 using namespace HelpSystem;
 
 void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	char temp_arg[kMaxInputLength];
+
 	if (!ch->desc) {
 		return;
 	}
@@ -1488,8 +1490,13 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// trust_level справки для демигодов - kLevelImmortal
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
 	utils::ConvertToLow(argument);
-	// Получаем topic_num для индексации топика
-	sscanf(argument, "%d.%s", &user_search.topic_num, argument);
+	// Парсинг topic_num
+	// Читаем во временный буфер
+	if (sscanf(argument, "%d.%255s", &user_search.topic_num, temp_arg) == 2) {
+	// Копируем обратно
+		strncpy(argument, temp_arg, kMaxInputLength - 1);
+		argument[kMaxInputLength - 1] = '\0';
+	}
 	// если последний символ аргумента '!' -- включаем строгий поиск
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		user_search.strong = true;
