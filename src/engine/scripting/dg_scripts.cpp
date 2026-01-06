@@ -3145,9 +3145,8 @@ void find_replacement(void *go,
 			char *p = strchr(subfield, ',');
 			if (p) {
 				*p++ = '\0';
-				std::string mstr{p};
-				utils::Trim(mstr);
-				add_var_cntx(o->get_script()->global_vars, subfield, mstr.c_str(), trig->context);
+				utils::Trim(p);
+				add_var_cntx(o->get_script()->global_vars, subfield, p, trig->context);
 			} else {
 				vd = find_var_cntx(o->get_script()->global_vars, subfield, trig->context);
 				if (!vd.name.empty()) {

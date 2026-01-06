@@ -141,6 +141,7 @@ std::string FirstWordOnString(std::string s, std::string mask);
  * Обрезать пробелы слева.
  */
 void TrimLeft(std::string &s);
+void TrimLeft(char *s);
 
 /**
  *  Обрезать пробелы справа.

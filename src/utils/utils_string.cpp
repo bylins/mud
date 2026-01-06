@@ -247,6 +247,9 @@ void TrimLeft(std::string &s) {
 		return !std::isspace(ch);
 	}));
 }
+void TrimLeft(char *s) {
+	for (; *s && a_isspace(*s); s++);
+}
 
 void TrimRight(std::string &s) {
 	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
@@ -271,7 +274,7 @@ void TrimRight(char* string) {
 }
 
 void Trim(char *s) {
-	skip_spaces(&s);
+	TrimLeft(s);
 	TrimRight(s);
 }
 
