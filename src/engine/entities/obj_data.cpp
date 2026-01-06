@@ -329,7 +329,7 @@ void CObjectPrototype::MakeShallowCopy(const CObjectPrototype &from) {
 		m_max_in_world = from.m_max_in_world;
 		m_vals = from.m_vals;
 		m_values = from.m_values;
-		m_extract_list = from.m_extract_list;
+		m_in_extracted_list = from.m_in_extracted_list;
 		m_destroyer = from.m_destroyer;
 		m_spell = from.m_spell;
 		m_level = from.m_level;
@@ -725,7 +725,7 @@ void CObjectPrototype::set_rnum(const ObjRnum _) {
 }
 
 void CObjectPrototype::set_extracted_list(bool _) {
-		m_extract_list = _;
+		m_in_extracted_list = _;
 }
 
 std::string CObjectPrototype::item_count_message(int num, ECase name_case) {

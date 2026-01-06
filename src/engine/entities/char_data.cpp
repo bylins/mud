@@ -295,6 +295,7 @@ size_t CharData::remove_random_affects(const size_t count) {
 * вынесено в отдельную функцию, чтобы дергать из purge().
 */
 void CharData::zero_init() {
+	m_in_extracted_list = false;
 	set_sex(EGender::kMale);
 	is_npc_ = false;
 	set_race(0);
