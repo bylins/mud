@@ -99,6 +99,7 @@ void Characters::AddToExtractedList(CharData *ch) {
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}
 	log("add mob to extracted list %s %d", GET_NAME(ch), GET_MOB_VNUM(ch));
+	ch->set_extracted_list(true);
 	m_extracted_list.insert(ch);
 }
 
