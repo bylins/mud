@@ -2124,9 +2124,20 @@ void find_replacement(void *go,
 		if (text_processed(field, subfield, vd, str)) {
 			return;
 		}
-		if (!str_cmp(field, "global")) {    // get global of something else
+		if (!str_cmp(field, "global")) {
 			if (c->IsNpc()) {
-				find_replacement(go, c->script.get(), nullptr, MOB_TRIGGER, subfield, nullptr, nullptr, str);
+				char *p = strchr(subfield, ',');
+				if (p) {
+					*p++ = '\0';
+					std::string mstr{p};
+					utils::Trim(mstr);
+					add_var_cntx(c->script->global_vars, subfield, mstr.c_str(), trig->context);
+				} else {
+					vd = find_var_cntx(c->script->global_vars, subfield, trig->context);
+					if (!vd.name.empty()) {
+						sprintf(str, "%s", vd.value.c_str());
+					}
+				}
 			}
 		} else if (*field == 'u' || *field == 'U') {
 			if (!str_cmp(field, "uniq")) {
@@ -3129,6 +3140,20 @@ void find_replacement(void *go,
 	} else if (o) {
 		if (text_processed(field, subfield, vd, str)) {
 			return;
+		} 
+		if (!str_cmp(field, "global")) {
+			char *p = strchr(subfield, ',');
+			if (p) {
+				*p++ = '\0';
+				std::string mstr{p};
+				utils::Trim(mstr);
+				add_var_cntx(o->get_script()->global_vars, subfield, mstr.c_str(), trig->context);
+			} else {
+				vd = find_var_cntx(o->get_script()->global_vars, subfield, trig->context);
+				if (!vd.name.empty()) {
+					sprintf(str, "%s", vd.value.c_str());
+				}
+			}
 		} else if (!str_cmp(field, "iname")) {
 			if (!o->get_PName(ECase::kNom).empty()) {
 				strcpy(str, o->get_PName(ECase::kNom).c_str());
@@ -3583,6 +3608,20 @@ void find_replacement(void *go,
 	} else if (r) {
 		if (text_processed(field, subfield, vd, str)) {
 			return;
+		}
+		if (!str_cmp(field, "global")) {
+			char *p = strchr(subfield, ',');
+			if (p) {
+				*p++ = '\0';
+				std::string mstr{p};
+				utils::Trim(mstr);
+				add_var_cntx(r->script->global_vars, subfield, mstr.c_str(), trig->context);
+			} else {
+				vd = find_var_cntx(r->script->global_vars, subfield, trig->context);
+				if (!vd.name.empty()) {
+					sprintf(str, "%s", vd.value.c_str());
+				}
+			}
 		} else if (!str_cmp(field, "name")) {
 			if (*subfield) {
 				if (r->name)
