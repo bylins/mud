@@ -606,8 +606,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			GET_NAME(victim), GET_NAME(ch));
 		return 0;
 	}
-	if (victim->get_extracted_list()) //уже раз убит и в списке на удаление
+	if (victim->get_extracted_list()) { //уже раз убит и в списке на удаление
+		log("SYSERR: Attempt to damage mobs in extracted list '%s' in room #%d by '%s'.",
+			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
 		return 0;
+	}
 	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));

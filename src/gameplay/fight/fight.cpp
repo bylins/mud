@@ -298,13 +298,14 @@ void stop_fighting(CharData *ch, int switch_others) {
 			if (temp.ch->GetCastChar() == ch)
 				temp.ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 			if (temp.ch->GetEnemy() == ch && switch_others) {
-				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp.ch));
 				for (found = combat_list.begin(); found != combat_list.end(); found++) {
 					if ((*found).deleted)
 						continue;
 					if ((*found).ch != ch && (*found).ch->GetEnemy() == temp.ch) {
-						if (!temp.ch->IsNpc())
+						if (!temp.ch->IsNpc()) {
 							act("Вы переключили свое внимание на $N3.", false, temp.ch, 0, (*found).ch, kToChar);
+						}
+						log("[Stop fighting] %s : Change victim for fighting on %s", GET_NAME(temp.ch), (*found).ch->get_name().c_str());
 						temp.ch->SetEnemy((*found).ch);
 						break;
 					}

@@ -945,7 +945,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  int door, max, was_in = -1, activity_lev, i, ch_activity;
 	  auto std_lev = activity_level % kPulseMobile;
 
-	  if (!IS_MOB(ch) || ch->purged() || !ch->in_used_zone()) {
+	  if (ch->purged()  || !IS_MOB(ch) || !ch->in_used_zone()) {
 		continue;
 	  }
 	  UpdateAffectOnPulse(ch.get(), missed_pulses);
