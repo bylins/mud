@@ -698,7 +698,7 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (blooded) {
 			object->unset_extraflag(EObjFlag::kBloody);
 		}
-		bool nosell = object->has_flag(EObjFlag::kNosell) && !obj_proto[obj_proto[orn]->get_parent_rnum()]->has_flag(EObjFlag::kNosell);
+		bool nosell = object->has_flag(EObjFlag::kNosell) && !obj_proto[orn]->has_flag(EObjFlag::kNosell);
 		if (nosell) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
