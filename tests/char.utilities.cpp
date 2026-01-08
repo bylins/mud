@@ -15,7 +15,6 @@ void CharacterBuilder::create_new()
 	result->player_specials = std::make_shared<player_special_data>();
 	result->set_class(ECharClass::kFirst);
 	result->set_level(1);
-	result->char_specials.position = EPosition::kSleep;
 	m_result = result;
 }
 
