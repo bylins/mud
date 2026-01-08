@@ -1671,7 +1671,7 @@ void find_replacement(void *go,
 				}
 				for (RoomRnum rrn = from; rrn <= to; rrn++) {
 					for (const auto ch : world[rrn]->people) {
-						if (!ch->IsNpc() && !ch->desc)
+						if (ch->IsNpc() && !IS_CHARMICE(ch))
 							continue;
 						if (GET_INVIS_LEV(ch) > 0)
 							continue;
