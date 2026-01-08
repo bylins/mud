@@ -1650,27 +1650,35 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
-				int from = 0, to = 0;
-				GetZoneRooms(GetZoneRnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
+				int from =0, to = 0;
+				auto result = GetZoneRooms(GetZoneRnum(num), &from , &to);
+				if (result == 0) {
+					trig_log(trig, fmt::format("В зоне {} нет комнат", num));
+				}
+				for (RoomRnum rrn = from; rrn <= to; rrn++) {
+					for (const auto ch : world[rrn]->people) {
+						if (!ch->IsNpc() || IS_CHARMICE(ch))
+							continue;
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
-				int from = 0, to = 0;
-				GetZoneRooms(GetZoneRnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if (!tch->IsNpc() && !tch->desc)
-						continue;
-					if (GET_INVIS_LEV(tch) > 0)
-						continue;
-					if ((IS_CHARMICE(tch) || !tch->IsNpc()) && (tch->in_room >= from && tch->in_room <= to)) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
+				int from =0, to = 0;
+				auto result = GetZoneRooms(GetZoneRnum(num), &from , &to);
+				if (result == 0) {
+					trig_log(trig, fmt::format("В зоне {} нет комнат", num));
+				}
+				for (RoomRnum rrn = from; rrn <= to; rrn++) {
+					for (const auto ch : world[rrn]->people) {
+						if (!ch->IsNpc() && !ch->desc)
+							continue;
+						if (GET_INVIS_LEV(ch) > 0)
+							continue;
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
@@ -1681,20 +1689,19 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, d->character->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				GetZoneRooms(GetZoneRnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if (!tch->IsNpc() && !tch->desc)
-						continue;
-					if (GET_INVIS_LEV(tch) > 0)
-						continue;
-					if (tch->in_room >= from && tch->in_room <= to) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
+				auto result = GetZoneRooms(GetZoneRnum(num), &from , &to);
+				if (result == 0) {
+					trig_log(trig, fmt::format("В зоне {} нет комнат", num));
+				}
+				for (RoomRnum rrn = from; rrn <= to; rrn++) {
+					for (const auto ch : world[rrn]->people) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "runestonevnums")) {
 				const auto &runestone_vnums = MUD::Runestones().GetVnumRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));
