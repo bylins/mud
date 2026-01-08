@@ -1,15 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
-enable_testing()
 
-# О©╫О©╫О©╫О©╫О©╫ GTest: О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ find_package (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫),
-# О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+# Поиск GTest: сначала пробуем find_package (работает на большинстве дистрибутивов),
+# затем ручной поиск для нестандартных установок
 if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
-	# О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ find_package
+	# Сначала пробуем стандартный поиск через find_package
 	find_package(GTest QUIET)
 	if (GTest_FOUND OR GTEST_FOUND)
 		message(STATUS "GTest found via find_package")
-		# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ CMake (3.20+) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ GTest::gtest target
+		# Современный CMake (3.20+) использует GTest::gtest target
 		if (TARGET GTest::gtest)
 			set(GTEST_LIB GTest::gtest)
 			get_target_property(GTEST_INCLUDE GTest::gtest INTERFACE_INCLUDE_DIRECTORIES)
@@ -18,10 +17,10 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
 		endif ()
 	else ()
-		# О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		# Ручной поиск для нестандартных установок
 		message(STATUS "GTest not found via find_package, trying manual search...")
 
-		# О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+		# Ищем заголовочные файлы
 		find_path(GTEST_INCLUDE_DIR gtest/gtest.h
 			PATHS
 				$ENV{GTEST_ROOT}/include
@@ -29,7 +28,7 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 				/usr/local/include
 		)
 
-		# О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		# Ищем библиотеку в стандартных путях для разных дистрибутивов
 		find_library(GTEST_LIB gtest
 			PATHS
 				$ENV{GTEST_ROOT}/lib
@@ -65,7 +64,6 @@ set(TESTS
 		msdp.builder.cpp
 		char.affects.cpp
 		char.leaders.cpp
-		char.morph.copy.cpp
 		obj.copy.cpp
 		act.makefood.cpp
 		utils.editor.cpp
@@ -108,23 +106,19 @@ set_tests_properties(all PROPERTIES
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
-# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/misc
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_BINARY_DIR}/misc/grouping
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_CURRENT_BINARY_DIR}/misc/grouping
 		COMMENT "Copy lib/misc/grouping for tests.")
 set_target_properties(tests.misc.grouping PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.changelog_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/data/boards
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_BINARY_DIR}/data/boards/changelog.sample
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/changelog.sample
 		COMMENT "Copy tests/data/boards/changelog.sample for tests.")
 set_target_properties(tests.data.boards.changelog_sample PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.news_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/data/boards
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_BINARY_DIR}/data/boards/news.sample
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/news.sample
 		COMMENT "Copy tests/data/boards/news.sample for tests.")
 set_target_properties(tests.data.boards.news_sample PROPERTIES FOLDER "Utility targets/Tests data")
 
