@@ -858,6 +858,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
 	}
+	if (victim->get_extracted_list()) { //уже раз убит и в списке на удаление
+		return;
+	}
+
 	// Do some sanity checking, in case someone flees, etc.
 	if (ch->in_room != victim->in_room || ch->in_room == kNowhere) {
 		if (ch->GetEnemy() && ch->GetEnemy() == victim) {
@@ -926,6 +930,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (ch->purged() || victim->purged()) { // вдруг помер
 			return;
 		}
+		if (victim->get_extracted_list()) { //уже раз убит и в списке на удаление
+			return;
+		}
+
 		if (ch->in_room != victim->in_room) {  //если сбег по трусости
 			return;
 		}
@@ -1062,6 +1070,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
 	if (!ch || ch->purged()) {
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
+		return;
+	}
+	if (victim->get_extracted_list()) { //уже раз убит и в списке на удаление
 		return;
 	}
 
