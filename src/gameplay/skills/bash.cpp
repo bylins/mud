@@ -68,6 +68,9 @@ void do_bash(CharData *ch, CharData *vict) {
 
 
 void go_bash(CharData *ch, CharData *vict) {
+	if (vict->get_extracted_list()) { //уже раз убит и в списке на удаление
+		return;
+	}
 	if (vict->IsFlagged(EMobFlag::kNoFight)) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		mudlog(fmt::format("ERROR: попытка сбашить моба {} #{} с флагом !сражается, сброшен коредамп", vict->get_name(), GET_MOB_VNUM(vict)));
