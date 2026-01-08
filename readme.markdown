@@ -31,9 +31,17 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=Test ..
 make tests -j2
 
-# Запуск тестов
+# Запуск тестов через ctest (с автоматическим подавлением утечек libcurl)
+ctest --output-on-failure
+
+# Или напрямую (утечки libcurl не подавляются):
 ./tests/tests
+
+# Запуск конкретных тестов:
+./tests/tests --gtest_filter="TriggersList_F.*"
 ```
+
+**Примечание**: `ctest` автоматически настраивает LeakSanitizer для подавления известных false positives от libcurl (32 байта глобальных аллокаций). Файл подавления: `tests/lsan.supp`.
 
 ## Запуск в docker
 ``` bash

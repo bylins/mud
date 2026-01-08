@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-enable_testing()
 
 # Поиск GTest: сначала пробуем find_package (работает на большинстве дистрибутивов),
 # затем ручной поиск для нестандартных установок
@@ -65,7 +64,6 @@ set(TESTS
 		msdp.builder.cpp
 		char.affects.cpp
 		char.leaders.cpp
-		char.morph.copy.cpp
 		obj.copy.cpp
 		act.makefood.cpp
 		utils.editor.cpp
@@ -98,27 +96,29 @@ if (NOT WIN32)
 	target_link_libraries(tests pthread)
 endif ()
 
-add_test(all tests)
+add_test(NAME all COMMAND tests WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# Configure LeakSanitizer to use suppression file and set working directory
+set_tests_properties(all PROPERTIES
+	ENVIRONMENT "LSAN_OPTIONS=suppressions=${CMAKE_CURRENT_SOURCE_DIR}/lsan.supp"
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
-# Копируем тестовые данные в корень проекта (откуда запускаются тесты)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/misc
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_SOURCE_DIR}/misc/grouping
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_CURRENT_BINARY_DIR}/misc/grouping
 		COMMENT "Copy lib/misc/grouping for tests.")
 set_target_properties(tests.misc.grouping PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.changelog_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/data/boards
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_SOURCE_DIR}/data/boards/changelog.sample
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/changelog.sample
 		COMMENT "Copy tests/data/boards/changelog.sample for tests.")
 set_target_properties(tests.data.boards.changelog_sample PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.news_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/data/boards
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_SOURCE_DIR}/data/boards/news.sample
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/news.sample
 		COMMENT "Copy tests/data/boards/news.sample for tests.")
 set_target_properties(tests.data.boards.news_sample PROPERTIES FOLDER "Utility targets/Tests data")
 

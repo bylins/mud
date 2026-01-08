@@ -245,7 +245,7 @@ class TriggersList {
 		TriggersList *m_owner;
 		triggers_list_t::const_iterator m_iterator;
 		TriggerEventObserver::shared_ptr m_observer;
-		bool m_removed;
+		Trigger *m_removed_trigger;
 	};
 
 	TriggersList();

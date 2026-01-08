@@ -6075,13 +6075,13 @@ void TriggerRemoveObserverI::notify(Trigger *trigger) {
 }
 
 TriggersList::iterator::iterator(TriggersList *owner, const IteratorPosition position)
-	: m_owner(owner), m_removed(false) {
+	: m_owner(owner), m_removed_trigger(nullptr) {
 	m_iterator = position == BEGIN ? m_owner->m_list.begin() : m_owner->m_list.end();
 	setup_observer();
 }
 
 TriggersList::iterator::iterator(const iterator &rhv)
-	: m_owner(rhv.m_owner), m_iterator(rhv.m_iterator), m_removed(rhv.m_removed) {
+	: m_owner(rhv.m_owner), m_iterator(rhv.m_iterator), m_removed_trigger(nullptr) {
 	setup_observer();
 }
 
@@ -6090,10 +6090,10 @@ TriggersList::iterator::~iterator() {
 }
 
 TriggersList::TriggersList::iterator &TriggersList::iterator::operator++() {
-	if (!m_removed) {
+	if (!m_removed_trigger) {
 		++m_iterator;
 	} else {
-		m_removed = false;
+		m_removed_trigger = nullptr;
 	}
 
 	return *this;
@@ -6108,7 +6108,7 @@ void TriggersList::iterator::remove_event(Trigger *trigger) {
 	if (m_iterator != m_owner->m_list.end()
 		&& *m_iterator == trigger) {
 		++m_iterator;
-		m_removed = true;
+		m_removed_trigger = trigger;
 	}
 }
 

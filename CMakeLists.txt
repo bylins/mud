@@ -1299,6 +1299,7 @@ target_link_libraries(circle circle.library)
 # Testing part
 option(BUILD_TESTS "Build and run tests." YES)
 if (BUILD_TESTS)
+	enable_testing()
 	add_subdirectory(tests)
 endif ()
 
