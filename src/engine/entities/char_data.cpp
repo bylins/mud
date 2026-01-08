@@ -21,7 +21,6 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <random>
-#include <unordered_set>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -269,10 +268,12 @@ bool CharData::has_any_affect(const affects_list_t &affects) {
 
 size_t CharData::remove_random_affects(const size_t count) {
 	auto last_type{ESpell::kUndefined};
-	std::vector<std::shared_ptr<Affect<EApply>>> removable_affects;
-	for (const auto &affect : affected) {
+	std::deque<char_affects_list_t::iterator> removable_affects;
+	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i) {
+		const auto &affect = *affect_i;
+
 		if (affect->type != last_type && affect->removable()) {
-			removable_affects.push_back(affect);
+			removable_affects.push_back(affect_i);
 			last_type = affect->type;
 		}
 	}
@@ -280,18 +281,9 @@ size_t CharData::remove_random_affects(const size_t count) {
 	const auto to_remove = std::min(count, removable_affects.size());
 	if (to_remove > 0) {
 		std::shuffle(removable_affects.begin(), removable_affects.end(), std::mt19937(42));
-
-		std::unordered_set<std::shared_ptr<Affect<EApply>>> affects_to_remove;
 		for (auto counter = 0u; counter < to_remove; ++counter) {
-			affects_to_remove.insert(removable_affects[counter]);
-		}
-
-		for (auto affect_i = affected.begin(); affect_i != affected.end(); ) {
-			if (affects_to_remove.count(*affect_i)) {
-				affect_i = AffectRemove(affect_i);
-			} else {
-				++affect_i;
-			}
+			const auto affect_i = removable_affects[counter];
+			AffectRemove(affect_i);
 		}
 		affect_total(this);
 	}
