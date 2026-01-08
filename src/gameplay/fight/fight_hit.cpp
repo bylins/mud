@@ -1072,7 +1072,7 @@ void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::Attack
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
 	}
-	if (victim->get_extracted_list()) { //уже раз убит и в списке на удаление
+	if (ch->get_extracted_list()) { //уже раз убит и в списке на удаление
 		return;
 	}
 
