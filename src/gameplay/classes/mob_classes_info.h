@@ -23,9 +23,9 @@ EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_cla
 
 namespace mob_classes {
 
-// Глобальный параметр: сколько уровней моба добавлять за 1 реморт (30 уровней) игрока.
-int  GetMobLvlPerMort();
-void SetMobLvlPerMort(int v);
+// Глобальные параметры перерасчёта сложности/уровня мобов, читаются из mob_classes.xml
+int GetLvlPerDifficulty();
+int GetBossAddLvl();
 
 class MobClassesLoader : virtual public cfg_manager::ICfgLoader {
 public:
@@ -49,13 +49,15 @@ public:
 
     struct ParametersData {
         int   base{0};
-        int min_lvl{1};
-        float increment{0.f};
-        int   deviation{0};
         float low_increment{0.f};
+        int   threshold_mort{1};
+        float increment{0.f};
+        // это показывает какой тип отклонения использовать
+        // 0 - прибавление/вычитание, 1 - умножение
+        int deviation_type{0};
+        // на сколько отклоняемся
+        float deviation{0.f};
     };
-
-    int low_skill_lvl{0};
 
     // Base stats (Str/Dex/Con/Wis/Int/Cha)
     std::unordered_map<EBaseStat, ParametersData> base_stats_map;
@@ -82,10 +84,13 @@ public:
     // Hitroll / luck(morale) / cast success
     ParametersData hitroll;
     ParametersData morale;
+    ParametersData initiative;
     ParametersData cast_success;
     bool has_hitroll{false};
     bool has_morale{false};
+    bool has_initiative{false};
     bool has_cast_success{false};
+
 
     // HP / size / exp / likes_work
     ParametersData hit_points;
@@ -105,7 +110,6 @@ public:
 
     void PrintCombatStatsTable(CharData *ch, std::ostringstream &buffer) const;
 
-
     // Extra resists: MR / PR / AR
     ParametersData magic_resist;
     ParametersData physical_resist;
@@ -122,6 +126,10 @@ public:
     inline bool HasMobSpell(ESpell id) const {
         return mob_spells_map.find(id) != mob_spells_map.end();
     }
+
+    // Feats (binary: has / not has)
+    std::unordered_map<EFeat, int> mob_feats_map;
+    void PrintMobFeatsTable(CharData *ch, std::ostringstream &buffer) const;
 
     auto GetBaseStatBase(EBaseStat id) const { return base_stats_map.at(id).base; }
     auto GetBaseStatIncrement(EBaseStat id) const { return base_stats_map.at(id).increment; }
@@ -144,14 +152,16 @@ public:
     auto GetMobSpellIncrement(ESpell id) const { return mob_spells_map.at(id).increment; }
     auto GetMobSpellDeviation(ESpell id) const { return mob_spells_map.at(id).deviation; }
 
+    inline bool IsFeatConfigured(EFeat feat_id) const {
+        return mob_feats_map.find(feat_id) != mob_feats_map.end();
+    }
+
+
 };
 
 class MobClassInfoBuilder : public info_container::IItemBuilder<MobClassInfo> {
 public:
     ItemPtr Build(parser_wrapper::DataNode &node) final;
-
-    // дефолт из <mob_classes><global_vars .../>
-    static void SetDefaultLowSkillLvl(int v);
 
 private:
     static ItemPtr ParseMobClass(parser_wrapper::DataNode node);
@@ -168,12 +178,14 @@ private:
     static void ParseMobSkillsData(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSkills(ItemPtr &info, parser_wrapper::DataNode &node);
     static void ParseMobSpells(ItemPtr &info, parser_wrapper::DataNode &node);
-
-    static int s_default_low_skill_lvl;
-};
+    static void ParseMobFeats(ItemPtr &info, parser_wrapper::DataNode &node);
+    static void ParseMobFeatsData(ItemPtr &info, parser_wrapper::DataNode &node);
+    };
 
 using MobClassesInfo = info_container::InfoContainer<EMobClass, MobClassInfo, MobClassInfoBuilder>;
 
 } // namespace mob_classes
 
 #endif //BYLINS_MOB_CLASSES_INFO_H
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

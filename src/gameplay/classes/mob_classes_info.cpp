@@ -14,10 +14,7 @@
 EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_class_name) {
     for (const auto &it: MUD::MobClasses()) {
         if (it.IsAvailable()) {
-            SendMsgToChar(ch, "Нашёл доступный класс! ID класса: %d!\r\n", int(it.GetId()));
-            SendMsgToChar(ch, "Имя класса: %s!\r\n", it.GetName());
             if (CompareParam(mob_class_name, it.GetName()) || CompareParam(mob_class_name, it.GetAbbr())) {
-                SendMsgToChar("Название класса совпадает!\r\n", ch);
                 return it.GetId();
             }
         } else {
@@ -30,29 +27,27 @@ EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_cla
     return EMobClass::kUndefined;
 }
 
-namespace {
-
-// глобальная настройка: сколько уровней моба добавлять за один реморт игрока
-int g_mob_lvl_per_mort = 0;
-
-} // namespace
-
 namespace mob_classes {
 
 using DataNode = parser_wrapper::DataNode;
 using MobItemPtr = MobClassInfoBuilder::ItemPtr;
 
-// ------- Глобальный доступ к mob_lvl_per_mort -------
+namespace {
 
-int GetMobLvlPerMort() {
-    return g_mob_lvl_per_mort;
+    // Сколько уровней добавляет 1 единица difficulty
+    int g_lvl_per_difficulty = 0;
+
+    // Сколько уровней дополнительно получает моб с ролью kBoss
+    int g_boss_add_lvl = 0;
+
+} // namespace
+
+int GetLvlPerDifficulty() {
+    return g_lvl_per_difficulty;
 }
 
-void SetMobLvlPerMort(int v) {
-    if (v < 0) {
-        v = 0;
-    }
-    g_mob_lvl_per_mort = v;
+int GetBossAddLvl() {
+    return g_boss_add_lvl;
 }
 
 // ------- Loader -------
@@ -72,33 +67,28 @@ void MobClassesLoader::ParseGlobalVarsFromRoot(DataNode &data) {
         return;
     }
 
-    // low_skill_lvl
+    // Читаем атрибуты global_vars, если их нет/битые ? оставляем текущие значения
     try {
-        const int lvl = parse::ReadAsInt(data.GetValue("low_skill_lvl"));
-        MobClassInfoBuilder::SetDefaultLowSkillLvl(lvl);
-    } catch (const std::exception &e) {
-        err_log("Incorrect 'global_vars.low_skill_lvl' at root (value: %s).", e.what());
+        g_lvl_per_difficulty = parse::ReadAsInt(data.GetValue("lvl_per_difficulty"));
+    } catch (...) {
+        err_log("mob_classes.xml: некорректный lvl_per_difficulty, оставляю прежнее значение (%d).",
+                g_lvl_per_difficulty);
     }
 
-    // Новый параметр: mob_lvl_per_mort (может быть не задан)
     try {
-        const int per = parse::ReadAsInt(data.GetValue("mob_lvl_per_mort"));
-        SetMobLvlPerMort(per);
-    } catch (const std::exception &e) {
-        // Если атрибут отсутствует или некорректен ? просто залогируем, но игру не уронем.
-        err_log("Incorrect 'global_vars.mob_lvl_per_mort' at root (value: %s).", e.what());
+        g_boss_add_lvl = parse::ReadAsInt(data.GetValue("boss_add_lvl"));
+    } catch (...) {
+        err_log("mob_classes.xml: некорректный boss_add_lvl, оставляю прежнее значение (%d).",
+                g_boss_add_lvl);
     }
+
+    if (g_lvl_per_difficulty < 0) g_lvl_per_difficulty = 0;
+    if (g_boss_add_lvl < 0) g_boss_add_lvl = 0;
 
     data.GoToParent();
 }
 
 // ---------- Builder ----------
-
-int MobClassInfoBuilder::s_default_low_skill_lvl = 0;
-
-void MobClassInfoBuilder::SetDefaultLowSkillLvl(int v) {
-    s_default_low_skill_lvl = v;
-}
 
 MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::Build(DataNode &node) {
     // Быстрый фильтр: у mobclass есть атрибут id; у global_vars его нет.
@@ -125,6 +115,7 @@ MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::ParseMobClass(DataNode node) {
     ParseName(info, node);
     ParseMobSkills(info, node);
     ParseMobSpells(info, node);
+    ParseMobFeats(info, node);
     return info;
 }
 
@@ -140,7 +131,6 @@ MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::ParseHeader(DataNode &node) {
     auto info = std::make_shared<MobClassInfo>(id, mode);
 
     // применяем дефолт из корня
-    info->low_skill_lvl = s_default_low_skill_lvl;
     return info;
 }
 
@@ -176,9 +166,11 @@ void MobClassInfoBuilder::ParseBaseStats(ItemPtr &info, DataNode &node) {
         try {
             id = parse::ReadAsConstant<EBaseStat>(stat_node.GetValue("id"));
             stat_data.base = parse::ReadAsInt(stat_node.GetValue("base"));
+            stat_data.low_increment = parse::ReadAsFloat(stat_node.GetValue("low_increment"));
+            stat_data.threshold_mort = parse::ReadAsInt(stat_node.GetValue("threshold_mort"));
             stat_data.increment = parse::ReadAsFloat(stat_node.GetValue("increment"));
-            stat_data.deviation = parse::ReadAsInt(stat_node.GetValue("deviation"));
-            stat_data.min_lvl = parse::ReadAsInt(stat_node.GetValue("min_lvl"));
+            stat_data.deviation_type = parse::ReadAsInt(stat_node.GetValue("deviation_type"));
+            stat_data.deviation = parse::ReadAsFloat(stat_node.GetValue("deviation"));
         } catch (const std::exception &e) {
             std::ostringstream out;
             out << "Incorrect base stat format (wrong value: " << e.what() << ").";
@@ -204,9 +196,11 @@ void MobClassInfoBuilder::ParseSavingsData(ItemPtr &info, DataNode &node) {
         try {
             id = parse::ReadAsConstant<ESaving>(stat_node.GetValue("id"));
             saving_data.base = parse::ReadAsInt(stat_node.GetValue("base"));
+            saving_data.low_increment = parse::ReadAsFloat(stat_node.GetValue("low_increment"));
+            saving_data.threshold_mort = parse::ReadAsInt(stat_node.GetValue("threshold_mort"));
             saving_data.increment = parse::ReadAsFloat(stat_node.GetValue("increment"));
-            saving_data.deviation = parse::ReadAsInt(stat_node.GetValue("deviation"));
-            saving_data.min_lvl = parse::ReadAsInt(stat_node.GetValue("min_lvl"));
+            saving_data.deviation_type = parse::ReadAsInt(stat_node.GetValue("deviation_type"));
+            saving_data.deviation = parse::ReadAsFloat(stat_node.GetValue("deviation"));
         } catch (const std::exception &e) {
             std::ostringstream out;
             out << "Incorrect base saving format (wrong value: " << e.what() << ").";
@@ -236,9 +230,11 @@ void MobClassInfoBuilder::ParseResistanceData(ItemPtr &info, DataNode &node) {
 
         try {
             resistance_data.base = parse::ReadAsInt(stat_node.GetValue("base"));
+            resistance_data.low_increment = parse::ReadAsFloat(stat_node.GetValue("low_increment"));
+            resistance_data.threshold_mort = parse::ReadAsInt(stat_node.GetValue("threshold_mort"));
             resistance_data.increment = parse::ReadAsFloat(stat_node.GetValue("increment"));
-            resistance_data.deviation = parse::ReadAsInt(stat_node.GetValue("deviation"));
-            resistance_data.min_lvl = parse::ReadAsInt(stat_node.GetValue("min_lvl"));
+            resistance_data.deviation_type = parse::ReadAsInt(stat_node.GetValue("deviation_type"));
+            resistance_data.deviation = parse::ReadAsFloat(stat_node.GetValue("deviation"));
         } catch (const std::exception &e) {
             std::ostringstream out;
             out << "Incorrect resistance format (wrong value: " << e.what() << ").";
@@ -276,8 +272,7 @@ void MobClassInfoBuilder::ParseResistanceData(ItemPtr &info, DataNode &node) {
 
 
 
-// ----- Combat stats (armour / absorb) -----
-
+// ----- Combat stats -----
 void MobClassInfoBuilder::ParseCombatStats(ItemPtr &info, DataNode &node) {
     if (!node.GoToChild("combat_stats")) {
         return;
@@ -290,15 +285,17 @@ void MobClassInfoBuilder::ParseCombatStats(ItemPtr &info, DataNode &node) {
 void MobClassInfoBuilder::ParseCombatStatsData(ItemPtr &info, DataNode &node) {
     MobClassInfo::ParametersData data;
 
-    for (const auto &param_node : node.Children("param")) {
-        const char *id_cstr = param_node.GetValue("id");
+    for (const auto &stat_node : node.Children("param")) {
+        const char *id_cstr = stat_node.GetValue("id");
         const std::string id_str{id_cstr};
 
         try {
-            data.base = parse::ReadAsInt(param_node.GetValue("base"));
-            data.increment = parse::ReadAsFloat(param_node.GetValue("increment"));
-            data.deviation = parse::ReadAsInt(param_node.GetValue("deviation"));
-            data.min_lvl = parse::ReadAsInt(param_node.GetValue("min_lvl"));
+            data.base = parse::ReadAsInt(stat_node.GetValue("base"));
+            data.low_increment = parse::ReadAsFloat(stat_node.GetValue("low_increment"));
+            data.threshold_mort = parse::ReadAsInt(stat_node.GetValue("threshold_mort"));
+            data.increment = parse::ReadAsFloat(stat_node.GetValue("increment"));
+            data.deviation_type = parse::ReadAsInt(stat_node.GetValue("deviation_type"));
+            data.deviation = parse::ReadAsFloat(stat_node.GetValue("deviation"));
         } catch (const std::exception &e) {
             std::ostringstream out;
             out << "Incorrect combat stat format (wrong value: " << e.what() << ").";
@@ -344,6 +341,9 @@ void MobClassInfoBuilder::ParseCombatStatsData(ItemPtr &info, DataNode &node) {
         } else if (id_str == "kSpellPower") {
             info->spell_power = data;
             info->has_spell_power = true;
+        } else if (id_str == "kInitiative") {
+            info->initiative = data;
+            info->has_initiative = true;
         } else {
             std::ostringstream out;
             out << "Incorrect combat stat id (wrong value: " << id_str << ").";
@@ -351,8 +351,6 @@ void MobClassInfoBuilder::ParseCombatStatsData(ItemPtr &info, DataNode &node) {
         }
     }
 }
-
-
 
 // ----- Skills -----
 
@@ -369,10 +367,11 @@ void MobClassInfoBuilder::ParseMobSkillsData(ItemPtr &info, DataNode &node) {
         try {
             id = parse::ReadAsConstant<ESkill>(stat_node.GetValue("id"));
             mob_skills_data.base = parse::ReadAsInt(stat_node.GetValue("base"));
-            mob_skills_data.increment = parse::ReadAsFloat(stat_node.GetValue("increment"));
-            mob_skills_data.deviation = parse::ReadAsInt(stat_node.GetValue("deviation"));
             mob_skills_data.low_increment = parse::ReadAsFloat(stat_node.GetValue("low_increment"));
-            mob_skills_data.min_lvl = parse::ReadAsInt(stat_node.GetValue("min_lvl"));
+            mob_skills_data.threshold_mort = parse::ReadAsInt(stat_node.GetValue("threshold_mort"));
+            mob_skills_data.increment = parse::ReadAsFloat(stat_node.GetValue("increment"));
+            mob_skills_data.deviation_type = parse::ReadAsInt(stat_node.GetValue("deviation_type"));
+            mob_skills_data.deviation = parse::ReadAsFloat(stat_node.GetValue("deviation"));
         } catch (const std::exception &e) {
             std::ostringstream out;
             out << "Incorrect skill format (wrong value: " << e.what() << ").";
@@ -394,10 +393,13 @@ void MobClassInfoBuilder::ParseMobSpells(ItemPtr &info, DataNode &node) {
 
         try {
             id = parse::ReadAsConstant<ESpell>(spell_node.GetValue("id"));
+
             spell_data.base = parse::ReadAsInt(spell_node.GetValue("base"));
+            spell_data.low_increment = parse::ReadAsFloat(spell_node.GetValue("low_increment"));
+            spell_data.threshold_mort = parse::ReadAsInt(spell_node.GetValue("threshold_mort"));
             spell_data.increment = parse::ReadAsFloat(spell_node.GetValue("increment"));
-            spell_data.deviation = parse::ReadAsInt(spell_node.GetValue("deviation"));
-            spell_data.min_lvl = parse::ReadAsInt(spell_node.GetValue("min_lvl"));
+            spell_data.deviation_type = parse::ReadAsInt(spell_node.GetValue("deviation_type"));
+            spell_data.deviation = parse::ReadAsFloat(spell_node.GetValue("deviation"));
         } catch (const std::exception &e) {
             std::ostringstream out;
             out << "Incorrect spell format (wrong value: " << e.what() << ").";
@@ -410,8 +412,41 @@ void MobClassInfoBuilder::ParseMobSpells(ItemPtr &info, DataNode &node) {
     node.GoToParent();
 }
 
+void MobClassInfoBuilder::ParseMobFeats(ItemPtr &info, DataNode &node) {
+    if (!node.GoToChild("feats")) {
+        return;
+    }
+    ParseMobFeatsData(info, node);
+    node.GoToParent();
+}
+
+    void MobClassInfoBuilder::ParseMobFeatsData(ItemPtr &info, DataNode &node) {
+    for (const auto &feat_node : node.Children("feat")) {
+        EFeat feat_id{};
+        int threshold_mort = 1;
+
+        try {
+            feat_id = parse::ReadAsConstant<EFeat>(feat_node.GetValue("id"));
+            threshold_mort = parse::ReadAsInt(feat_node.GetValue("threshold_mort"));
+        } catch (const std::exception &e) {
+            std::ostringstream out;
+            out << "Incorrect feat format (wrong value: " << e.what() << ").";
+            throw std::runtime_error(out.str());
+        }
+
+        if (threshold_mort < 1) {
+            threshold_mort = 1;
+        }
+
+        info->mob_feats_map[feat_id] = threshold_mort;
+    }
+}
 
 
+static const char *DeviationTypeToString(int deviation_type) {
+    // 0 - additive, 1 - multiplicative (percent)
+    return (deviation_type == 0) ? "add" : "mul%";
+}
 
 // ----- Print -----
 
@@ -424,14 +459,18 @@ void MobClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer)
 
     table_wrapper::Table table;
     table << table_wrapper::kHeader
-          << "Stat" << "MinLvl" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+          << "Stat" << "Base" << "LowInc" << "IncThLvl" << "Inc" << "Grad" << "Deviation"
+          << table_wrapper::kEndRow;
+
 
     for (const auto &stat_pair : base_stats_map) {
         const auto &data = stat_pair.second;
         table << NAME_BY_ITEM<EBaseStat>(stat_pair.first)
-              << data.min_lvl
               << data.base
+              << data.low_increment
+              << data.threshold_mort
               << data.increment
+              << DeviationTypeToString(data.deviation_type)
               << data.deviation
               << table_wrapper::kEndRow;
     }
@@ -445,12 +484,15 @@ void MobClassInfo::PrintSavingsTable(CharData *ch, std::ostringstream &buffer) c
 
     table_wrapper::Table table;
     table << table_wrapper::kHeader
-          << "Saving" << "MinLvl" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+    << "Saving" << "Base" << "LowInc" << "IncThLvl" << "Inc" << "Grad" << "Deviation"
+    << table_wrapper::kEndRow;
     for (const auto &saving : savings_map) {
         table << NAME_BY_ITEM<ESaving>(saving.first)
-              << saving.second.min_lvl
               << saving.second.base
+              << saving.second.low_increment
+              << saving.second.threshold_mort
               << saving.second.increment
+              << DeviationTypeToString(saving.second.deviation_type)
               << saving.second.deviation
               << table_wrapper::kEndRow;
     }
@@ -463,14 +505,16 @@ void MobClassInfo::PrintResistancesTable(CharData *ch, std::ostringstream &buffe
 
     table_wrapper::Table table;
     table << table_wrapper::kHeader
-          << "Resistance" << "MinLvl" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+          << "Resistance" << "Base" << "LowInc" << "IncThLvl" << "Inc" << "Grad" << "Deviation" << table_wrapper::kEndRow;
 
     // Обычные резисты
     for (const auto &resistance : resists_map) {
         table << NAME_BY_ITEM<EResist>(resistance.first)
-              << resistance.second.min_lvl
               << resistance.second.base
+              << resistance.second.low_increment
+              << resistance.second.threshold_mort
               << resistance.second.increment
+              << DeviationTypeToString(resistance.second.deviation_type)
               << resistance.second.deviation
               << table_wrapper::kEndRow;
     }
@@ -478,25 +522,31 @@ void MobClassInfo::PrintResistancesTable(CharData *ch, std::ostringstream &buffe
     // Доп. резисты
     if (has_magic_resist) {
         table << "MagicResist"
-              << magic_resist.min_lvl
               << magic_resist.base
+              << magic_resist.low_increment
+              << magic_resist.threshold_mort
               << magic_resist.increment
+              << DeviationTypeToString(magic_resist.deviation_type)
               << magic_resist.deviation
               << table_wrapper::kEndRow;
     }
     if (has_physical_resist) {
         table << "PhysicResist"
-              << physical_resist.min_lvl
               << physical_resist.base
+              << physical_resist.low_increment
+              << physical_resist.threshold_mort
               << physical_resist.increment
+              << DeviationTypeToString(physical_resist.deviation_type)
               << physical_resist.deviation
               << table_wrapper::kEndRow;
     }
     if (has_affect_resist) {
         table << "AffectResist"
-              << affect_resist.min_lvl
               << affect_resist.base
+              << affect_resist.low_increment
+              << affect_resist.threshold_mort
               << affect_resist.increment
+              << DeviationTypeToString(affect_resist.deviation_type)
               << affect_resist.deviation
               << table_wrapper::kEndRow;
     }
@@ -520,7 +570,8 @@ void MobClassInfo::PrintCombatStatsTable(CharData *ch, std::ostringstream &buffe
         && !has_exp
         && !has_likes_work
         && !has_phys_damage
-        && !has_spell_power) {
+        && !has_spell_power
+        && !has_initiative) {
         return;
         }
 
@@ -528,121 +579,158 @@ void MobClassInfo::PrintCombatStatsTable(CharData *ch, std::ostringstream &buffe
 
     table_wrapper::Table table;
     table << table_wrapper::kHeader
-          << "Param" << "MinLvl" << "Base" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+          << "Param" << "Base" << "LowInc" << "IncThLvl" << "Inc" << "Grad" << "Deviation" << table_wrapper::kEndRow;
 
     if (has_armour) {
         table << "Armour"
-              << armour.min_lvl
               << armour.base
+              << armour.low_increment
+              << armour.threshold_mort
               << armour.increment
+              << DeviationTypeToString(armour.deviation_type)
               << armour.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_absorb) {
         table << "Absorb"
-              << absorb.min_lvl
               << absorb.base
+              << absorb.low_increment
+              << absorb.threshold_mort
               << absorb.increment
+              << DeviationTypeToString(absorb.deviation_type)
               << absorb.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_dam_n_dice) {
         table << "DamNoDice"
-              << dam_n_dice.min_lvl
               << dam_n_dice.base
+              << dam_n_dice.low_increment
+              << dam_n_dice.threshold_mort
               << dam_n_dice.increment
+              << DeviationTypeToString(dam_n_dice.deviation_type)
               << dam_n_dice.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_dam_s_dice) {
         table << "DamSizeDice"
-              << dam_s_dice.min_lvl
               << dam_s_dice.base
+              << dam_s_dice.low_increment
+              << dam_s_dice.threshold_mort
               << dam_s_dice.increment
+              << DeviationTypeToString(dam_s_dice.deviation_type)
               << dam_s_dice.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_hitroll) {
         table << "Hitroll"
-              << hitroll.min_lvl
               << hitroll.base
+              << hitroll.low_increment
+              << hitroll.threshold_mort
               << hitroll.increment
+              << DeviationTypeToString(hitroll.deviation_type)
               << hitroll.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_morale) {
         table << "Morale"
-              << morale.min_lvl
               << morale.base
+              << morale.low_increment
+              << morale.threshold_mort
               << morale.increment
+              << DeviationTypeToString(morale.deviation_type)
               << morale.deviation
+              << table_wrapper::kEndRow;
+    }
+
+    if (has_initiative) {
+        table << "Initiative"
+              << initiative.base
+              << initiative.low_increment
+              << initiative.threshold_mort
+              << initiative.increment
+              << DeviationTypeToString(initiative.deviation_type)
+              << initiative.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_cast_success) {
         table << "CastSuccess"
-              << cast_success.min_lvl
               << cast_success.base
+              << cast_success.low_increment
+              << cast_success.threshold_mort
               << cast_success.increment
+              << DeviationTypeToString(cast_success.deviation_type)
               << cast_success.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_hit_points) {
         table << "HitPoints"
-              << hit_points.min_lvl
               << hit_points.base
+              << hit_points.low_increment
+              << hit_points.threshold_mort
               << hit_points.increment
+              << DeviationTypeToString(hit_points.deviation_type)
               << hit_points.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_size) {
         table << "Size"
-              << size.min_lvl
               << size.base
+              << size.low_increment
+              << size.threshold_mort
               << size.increment
+              << DeviationTypeToString(size.deviation_type)
               << size.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_exp) {
         table << "Exp"
-              << exp.min_lvl
               << exp.base
+              << exp.low_increment
+              << exp.threshold_mort
               << exp.increment
+              << DeviationTypeToString(exp.deviation_type)
               << exp.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_likes_work) {
         table << "LikesWork"
-              << likes_work.min_lvl
               << likes_work.base
+              << likes_work.low_increment
+              << likes_work.threshold_mort
               << likes_work.increment
+              << DeviationTypeToString(likes_work.deviation_type)
               << likes_work.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_phys_damage) {
         table << "+PhysDamage%"
-              << phys_damage.min_lvl
               << phys_damage.base
+              << phys_damage.low_increment
+              << phys_damage.threshold_mort
               << phys_damage.increment
+              << DeviationTypeToString(phys_damage.deviation_type)
               << phys_damage.deviation
               << table_wrapper::kEndRow;
     }
 
     if (has_spell_power) {
         table << "+SpellPower%"
-              << spell_power.min_lvl
               << spell_power.base
+              << spell_power.low_increment
+              << spell_power.threshold_mort
               << spell_power.increment
+              << DeviationTypeToString(spell_power.deviation_type)
               << spell_power.deviation
               << table_wrapper::kEndRow;
     }
@@ -657,14 +745,15 @@ void MobClassInfo::PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer)
 
     table_wrapper::Table table;
     table << table_wrapper::kHeader
-          << "Skill" << "MinLvl" << "Base" << "Increment" << "Deviation" << "Low-Lvl-Increment" << table_wrapper::kEndRow;
+          << "Skill" << "Base" << "LowInc" << "IncThLvl" << "Inc" << "Grad" << "Deviation" << table_wrapper::kEndRow;
     for (const auto &mob_skill : mob_skills_map) {
         table << NAME_BY_ITEM<ESkill>(mob_skill.first)
-              << mob_skill.second.min_lvl
               << mob_skill.second.base
-              << mob_skill.second.increment
-              << mob_skill.second.deviation
               << mob_skill.second.low_increment
+              << mob_skill.second.threshold_mort
+              << mob_skill.second.increment
+              << DeviationTypeToString(mob_skill.second.deviation_type)
+              << mob_skill.second.deviation
               << table_wrapper::kEndRow;
     }
     table_wrapper::DecorateNoBorderTable(ch, table);
@@ -680,15 +769,39 @@ void MobClassInfo::PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer)
 
     table_wrapper::Table table;
     table << table_wrapper::kHeader
-          << "Spell" << "MinLvl" << "Charges" << "Increment" << "Deviation" << table_wrapper::kEndRow;
+          << "Spell" << "Charges" << "LowInc" << "IncThLvl" << "Inc" << "Grad" << "Deviation" << table_wrapper::kEndRow;
 
     for (const auto &spell_pair : mob_spells_map) {
         const auto &data = spell_pair.second;
         table << NAME_BY_ITEM<ESpell>(spell_pair.first)
-              << data.min_lvl
               << data.base
+              << data.low_increment
+              << data.threshold_mort
               << data.increment
+              << DeviationTypeToString(data.deviation_type)
               << data.deviation
+              << table_wrapper::kEndRow;
+    }
+
+    table_wrapper::DecorateNoBorderTable(ch, table);
+    table_wrapper::PrintTableToStream(buffer, table);
+}
+
+void MobClassInfo::PrintMobFeatsTable(CharData *ch, std::ostringstream &buffer) const {
+    if (mob_feats_map.empty()) {
+        return;
+    }
+
+    buffer << "\r\n" << kColorGrn << " Feats:" << kColorNrm << "\r\n";
+
+    table_wrapper::Table table;
+    table << table_wrapper::kHeader
+          << "Feat" << "ThresholdMort"
+          << table_wrapper::kEndRow;
+
+    for (const auto &feat_pair : mob_feats_map) {
+        table << NAME_BY_ITEM<EFeat>(feat_pair.first)
+              << feat_pair.second
               << table_wrapper::kEndRow;
     }
 
@@ -699,7 +812,6 @@ void MobClassInfo::PrintMobSkillsTable(CharData *ch, std::ostringstream &buffer)
 
 void MobClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
     buffer << "Print mob class:\r\n"
-           << " Low-skill-lvl: " << kColorGrn << low_skill_lvl << kColorNrm << "\r\n"
            << " Id: " << kColorGrn << NAME_BY_ITEM<EMobClass>(GetId()) << kColorNrm << "\r\n"
            << " Название: " << kColorGrn << name << kColorNrm << "\r\n"
            << " Англ.: " << kColorGrn << eng_name << kColorNrm << "\r\n"
@@ -710,6 +822,9 @@ void MobClassInfo::Print(CharData *ch, std::ostringstream &buffer) const {
     PrintCombatStatsTable(ch, buffer);
     PrintMobSkillsTable(ch, buffer);
     PrintMobSpellsTable(ch, buffer);
+    PrintMobFeatsTable(ch, buffer);
 }
 
 } // namespace mob_classes
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
