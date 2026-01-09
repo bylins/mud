@@ -5674,7 +5674,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		} else if (!strn_cmp("done", p, 4) || !strn_cmp("continue", p, 8)) {
 			if (*p == 'c') {
 				const auto temp = find_done(trig, cl);
-				cl->original = temp->original;
+				if (temp) {
+					cl->original = temp->original;
+				}
 			}
 			if (cl->original) {
 				auto orig_cmd = cl->original->cmd.c_str();
