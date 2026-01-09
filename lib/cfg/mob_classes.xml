@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <mob_classes>
-    <global_vars lvl_per_difficulty="1" boss_add_lvl="5"/>
+    <global_vars lvl_per_difficulty="5" boss_add_lvl="5"/>
     <mobclass id="kUndefined" mode="kEnabled">
         <name rus="не.определён" eng="Undefined"/>
         <base_stats>
