@@ -89,7 +89,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -184,7 +184,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -279,7 +279,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -374,7 +374,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -469,7 +469,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -564,7 +564,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -592,6 +592,7 @@
         <skills>
             <skill id="kUndefined" base="120" low_increment="0" threshold_mort="0" increment="6" deviation_type="0" deviation="10"/>
             <skill id="kPunch" base="120" low_increment="0" threshold_mort="0" increment="6" deviation_type="0" deviation="10"/>
+            <skill id="kBackstab" base="50" low_increment="0" threshold_mort="0" increment="5" deviation_type="0" deviation="10"/>
             <skill id="kAirMagic" base="120" low_increment="0" threshold_mort="0" increment="6" deviation_type="0" deviation="10"/>
             <skill id="kFireMagic" base="120" low_increment="0" threshold_mort="0" increment="6" deviation_type="0" deviation="10"/>
             <skill id="kWaterMagic" base="120" low_increment="0" threshold_mort="0" increment="6" deviation_type="0" deviation="10"/>
@@ -659,7 +660,6 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -754,7 +754,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -849,7 +849,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
@@ -944,7 +944,7 @@
             <feat id="kMobility" threshold_mort="50"/>
             <feat id="kInjure" threshold_mort="40"/>
             <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kThieveStrike" threshold_mort="30"/>
+
             <feat id="kCutting" threshold_mort="30"/>
             <feat id="kLiveShield" threshold_mort="30"/>
             <feat id="kSlashMaster" threshold_mort="50"/>
