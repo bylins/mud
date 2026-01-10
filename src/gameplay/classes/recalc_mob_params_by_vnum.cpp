@@ -17,6 +17,8 @@ static constexpr int kMaxMobResist = 95;
 static constexpr int kMaxMobMorale = 200;
 
 // ------------------------ Роли и уровень -------------------------------------
+
+// Проверяет есть ли конкретная роль у моба
 inline bool HasRole(const CharData* ch, EMobClass role) {
 	if (!ch) {
 		return false;
@@ -33,8 +35,8 @@ inline bool HasRole(const CharData* ch, EMobClass role) {
 static void EnumRoles(const CharData* ch, EMobClass* roles, int* count) {
 	*count = 0;
 
-	for (int u = (int)EMobClass::kBoss; u < (int)EMobClass::kTotal; ++u) {
-		auto role = (EMobClass)u;
+	for (int role_index = (int)EMobClass::kBoss; role_index < (int)EMobClass::kTotal; ++role_index) {
+		auto role = (EMobClass)role_index;
 		if (HasRole(ch, role)) {
 			roles[*count] = role;
 			(*count)++;
@@ -45,6 +47,7 @@ static void EnumRoles(const CharData* ch, EMobClass* roles, int* count) {
 	}
 }
 
+// Проверяет есть ли моба вообще какая-либо роль
 static bool HasAnyMobRole(const CharData *ch) {
 	for (int u = (int)EMobClass::kBoss; u < (int)EMobClass::kTotal; ++u) {
 		if (HasRole(ch, (EMobClass)u)) {
@@ -54,6 +57,7 @@ static bool HasAnyMobRole(const CharData *ch) {
 	return false;
 }
 
+// Проставляет роль треша, если у моба вообще нет никакой роли
 static void EnsureTrashRole(CharData *ch) {
 	if (HasAnyMobRole(ch)) {
 		return;
@@ -61,14 +65,16 @@ static void EnsureTrashRole(CharData *ch) {
 
 	// role_.bitset index = role - kBoss (как в HasRole())
 	constexpr auto base = (unsigned)EMobClass::kBoss;
-	const unsigned idx = (unsigned)EMobClass::kTrash - base;
+	const unsigned index = (unsigned)EMobClass::kTrash - base;
 
-	ch->set_role(idx, true);
+	ch->set_role(index, true);
 }
 
 // =====================================
 //      ПРИМЕНЕНИЕ ПАРАМЕТРОВ
 // =====================================
+
+// Расчёт базового значения проставляемого параметра
 static int CalcBaseValue(const mob_classes::MobClassInfo::ParametersData *param_data, int level, int remorts) {
 	if (level < 1) level = 1;
 
@@ -90,6 +96,7 @@ static int CalcBaseValue(const mob_classes::MobClassInfo::ParametersData *param_
 	return (int)std::lround(raw);
 }
 
+// --- Отклонение ---
 static int ApplyDeviation(const mob_classes::MobClassInfo::ParametersData *param, int base_value) {
 	if (!param) {
 		return base_value;
@@ -97,7 +104,6 @@ static int ApplyDeviation(const mob_classes::MobClassInfo::ParametersData *param
 
 	int value = base_value;
 
-	// --- отклонение ---
 	if (param->deviation != 0.f) {
 		if (param->deviation_type == 0) {
 			const int dev = (int)param->deviation;
@@ -116,7 +122,7 @@ static int ApplyDeviation(const mob_classes::MobClassInfo::ParametersData *param
 	return value;
 }
 
-// найти описание класса моба
+// Находит описание класса моба
 static const mob_classes::MobClassInfo *FindMobClassInfoPlain(EMobClass id) {
 	for (const auto & info : MUD::MobClasses()) {
 			if (info.GetId() == id && info.IsAvailable()) {
@@ -274,7 +280,12 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	GET_ARMOUR(ch) = 0;
 	GET_INITIATIVE(ch) = 0;
 
-	// Если ролей нет - реально проставляем kTrash (бывший kAdd)
+	// Если есть стаб - проставляем роль разбойника
+	if (ch->GetSkill(ESkill::kBackstab) > 0) {
+		ch->set_role(static_cast<unsigned>(EMobClass::kRogue) -1, true);
+	}
+
+	// Если ролей нет - реально проставляем kTrash
 	EnsureTrashRole(ch);
 
 	// Собираем роли в статический массив
