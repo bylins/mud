@@ -995,6 +995,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
+//	log("plrname %s bool %d", get_name().c_str(), get_extracted_list());
 
 	do {
 		if (!fbgetline(fl, line)) {
