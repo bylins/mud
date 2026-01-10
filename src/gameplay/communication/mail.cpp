@@ -615,7 +615,7 @@ void load() {
 			// технические сообщения старше года
 			continue;
 		}
-		if (message.from > 0 && !GetPlayerNameByUnique(message.from).empty()) {
+		if (message.from > 0 && GetPlayerNameByUnique(message.from).empty()) {
 			// убираем левые уиды, чтобы потом с кем-нить другим не совпало
 			message.from = -2;
 		}
