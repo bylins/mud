@@ -110,6 +110,7 @@ void Characters::PurgeExtractedList() {
 		log("Start mob PurgeExtractedList");
 		for (auto &it : extracted_list_copy) {
 			ExtractCharFromWorld(it, false);
+			it->set_extracted_list(false);
 		}
 		if (!m_extracted_list.empty()) {
 			mudlog("SYSERROR: m_extracted_list не пуст");
