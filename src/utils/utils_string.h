@@ -55,7 +55,6 @@ class AbstractStringWriter {
 class DelegatedStringWriter : public AbstractStringWriter {
  public:
 	explicit DelegatedStringWriter(char *&managed) : m_delegated_string_(managed) {}
-	~DelegatedStringWriter() override { clear(); }
 	[[nodiscard]] const char *get_string() const final { return m_delegated_string_; }
 	void set_string(const char *string) final;
 	void append_string(const char *string) final;

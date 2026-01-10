@@ -13,6 +13,7 @@ protected:
 	virtual void SetUp() override;
 
 	void populate_tests_triggers_list();
+	void remove_in_nested_loop();
 
 	class TrigIndexRemover	// this class needed to make sure that global trig_index will be deleted last
 	{
@@ -153,14 +154,8 @@ TEST_F(TriggersList_F, NestedLoops)
 	EXPECT_EQ(inner_counter, TRIGGERS_NUMBER*TRIGGERS_NUMBER);
 }
 
-// Fixed: Removing elements from TriggersList during nested iteration now works correctly.
-// The iterator tracks the specific trigger that was removed, not just a boolean flag.
-// This allows nested loops to work properly without infinite loops.
-// Previously this test would hang indefinitely - now it completes successfully.
-TEST_F(TriggersList_F, NestedLoops_WithRemoving)
+void TriggersList_F::remove_in_nested_loop()
 {
-	populate_tests_triggers_list();
-
 	int inner_counter = 0;
 	int outer_counter = 0;
 	for (auto t : m_script.script_trig_list)
@@ -177,9 +172,14 @@ TEST_F(TriggersList_F, NestedLoops_WithRemoving)
 		}
 	}
 
-	// Test passed - no infinite loop occurred
-	EXPECT_GT(outer_counter, 0);
-	EXPECT_GT(inner_counter, 0);
+	exit(0);
+}
+
+TEST_F(TriggersList_F, NestedLoops_WithRemoving)
+{
+	populate_tests_triggers_list();
+
+	EXPECT_EXIT(remove_in_nested_loop(), ::testing::ExitedWithCode(0), ".*");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,5 +1,0 @@
-# LeakSanitizer suppression file for known false positives
-# See: https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
-
-# libcurl global allocations that are never freed (known issue)
-leak:libcurl.so

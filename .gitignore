@@ -21,7 +21,3 @@ cmake-build-release-wsl/
 log/
 syslog
 cmake-build-*
-# Test data directories (should only exist in build/)
-data/
-misc/
-Testing/
