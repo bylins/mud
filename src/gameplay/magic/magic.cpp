@@ -806,6 +806,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
+			&& !ch->purged()
 			&& victim->in_room != kNowhere
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
@@ -4200,6 +4201,8 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
 		for (const auto &target: roster) {
+			if (target->purged())
+				continue;
 			if (mag_messages[msg_index].to_vict != nullptr && target->desc) {
 				act(mag_messages[msg_index].to_vict, false, ch, nullptr, target, kToVict);
 			}
