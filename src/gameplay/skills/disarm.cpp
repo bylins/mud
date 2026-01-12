@@ -46,6 +46,9 @@ void do_disarm(CharData *ch, CharData *vict) {
 		SendMsgToChar("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
 		return;
 	}
+	if (vict->purged()) {
+		return;
+	}
 
 	if (CanUseFeat(ch, EFeat::kInjure)) {
 		if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (!vict->HasWeapon())) {

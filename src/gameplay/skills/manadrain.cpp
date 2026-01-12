@@ -31,6 +31,9 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Кого вы столь сильно ненавидите?\r\n", ch);
 		return;
 	}
+	if (vict->purged()) {
+		return;
+	}
 
 	if (ch == vict) {
 		SendMsgToChar("Вы укусили себя за левое ухо.\r\n", ch);
@@ -46,7 +49,6 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("На живом человеке? Креста не вас нет!\r\n", ch);
 		return;
 	}
-
 	if (IsAffectedBySpell(vict, ESpell::kGodsShield) || vict->IsFlagged(EMobFlag::kProtect)) {
 		SendMsgToChar("Боги хранят вашу жертву.\r\n", ch);
 		return;

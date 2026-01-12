@@ -95,11 +95,10 @@ void Characters::foreach_on_filtered_copy(const foreach_f function, const predic
 
 void Characters::AddToExtractedList(CharData *ch) {
 	if (ch->IsNpc()) {
-//		ch->script->set_purged(true);
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}
 	log("add mob to extracted list %s %d", GET_NAME(ch), GET_MOB_VNUM(ch));
-	ch->set_extracted_list(true);
+	ch->set_purged(true);
 	m_extracted_list.insert(ch);
 }
 
@@ -109,8 +108,8 @@ void Characters::PurgeExtractedList() {
 
 		log("Start mob PurgeExtractedList");
 		for (auto &it : extracted_list_copy) {
+			it->set_purged(false);  // игрок может остаться в игре
 			ExtractCharFromWorld(it, false);
-			it->set_extracted_list(false);
 		}
 		if (!m_extracted_list.empty()) {
 			mudlog("SYSERROR: m_extracted_list не пуст");

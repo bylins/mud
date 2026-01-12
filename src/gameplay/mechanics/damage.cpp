@@ -28,6 +28,8 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/mechanics/tutelar.h"
 #include "gameplay/mechanics/sight.h"
+#include "utils/backtrace.h"
+
 
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
@@ -598,17 +600,18 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
 	PerformPostInit(ch, victim);
+	if (victim->purged()) { //будем мониторить коредамп
+		log("SYSERR: Attempt to damage purged char/mob '%s' in room #%d by '%s'.",
+			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		return 0;
+	}
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
 		return 0;
 	}
 	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
-		return 0;
-	}
-	if (victim->get_extracted_list()) { //уже раз убит и в списке на удаление
-		log("SYSERR: Attempt to damage mobs in extracted list '%s' in room #%d by '%s'.",
-			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
 		return 0;
 	}
 	if (victim->GetPosition() <= EPosition::kDead) {

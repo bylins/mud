@@ -51,6 +51,8 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	abilities_roll::TechniqueRoll roll;
 	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
 	for (const auto target: roster) {
+		if (target->purged() || target->in_room == kNowhere)
+			continue;
 		damage.dam = fight::kZeroDmg;
 		roll.Init(ch, abilities::EAbility::kTurnUndead, target);
 		if (roll.IsSuccess()) {

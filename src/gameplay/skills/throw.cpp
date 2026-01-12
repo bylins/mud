@@ -131,7 +131,6 @@ void GoThrow(CharData *ch, CharData *victim) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
 	int victims_amount = 1 + ch->IsFlagged(EPrf::kDoubleThrow) + 2 * ch->IsFlagged(EPrf::kTripleThrow);
 
@@ -156,6 +155,8 @@ void GoThrow(CharData *ch, CharData *victim) {
 	ActionTargeting::FoesRosterType
 		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
 	for (auto target : roster) {
+		if (target->purged() || target->in_room == kNowhere)
+			continue;
 		target = TryToFindProtector(target, ch);
 		roll.Init(ch, technique_id, target);
 		if (roll.IsWrongConditions()) {
