@@ -1736,7 +1736,9 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	change_fighting(ch, true);
 
 //	log("[Extract char] Remove char from room");
-	RemoveCharFromRoom(ch);
+	if (ch->in_room != kNowhere) {
+		RemoveCharFromRoom(ch);
+	}
 
 	// pull the char from the list
 	ch->SetFlag(EMobFlag::kMobDeleted);

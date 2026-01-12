@@ -74,7 +74,7 @@ void redit_setup(DescriptorData *d, int real_num)
 {
 	RoomData *room = new RoomData;
 	if (real_num == kNowhere) {
-		room->name = str_dup("Недоделанная комната.\r\n");
+		room->name = str_dup("Недоделанная комната.");
 		room->temp_description =
 			str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
 	} else {
