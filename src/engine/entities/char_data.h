@@ -615,8 +615,6 @@ class CharData : public ProtectedCharData {
 	bool IsPlayer() const { return !IsNpc(); }
 	bool have_mind() const;
 	bool HasWeapon();
-	auto get_extracted_list() const { return m_in_extracted_list; }
-	void set_extracted_list(bool _) {m_in_extracted_list = _;}
 
  private:
 	const auto &get_player_specials() const { return player_specials; }
@@ -640,7 +638,6 @@ class CharData : public ProtectedCharData {
 	////////////////////////////////////////////////////////////////////////////
 	// true - чар очищен и ждет вызова delete для оболочки
 	bool purged_;
-	bool m_in_extracted_list;
 
 // * TODO: пока сюда скидывается, чтобы поля private были
 	// имя чара или алиасы моба

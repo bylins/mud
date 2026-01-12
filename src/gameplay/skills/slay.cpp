@@ -13,22 +13,21 @@
 #include <cmath>
 
 void go_slay(CharData *ch, CharData *vict) {
-
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopRight)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-
 	if (ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
-
 	if (ch->GetPosition() < EPosition::kFight) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-
+	if (vict->purged()) {
+		return;
+	}
 	vict = TryToFindProtector(vict, ch);
 
 	ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType);

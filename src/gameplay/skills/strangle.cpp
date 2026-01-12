@@ -78,7 +78,9 @@ void go_strangle(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-
+	if (vict->purged()) {
+		return;
+	}
 	vict = TryToFindProtector(vict, ch);
 	if (!pk_agro_action(ch, vict)) {
 		return;
