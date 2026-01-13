@@ -31,9 +31,9 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Кого вы столь сильно ненавидите?\r\n", ch);
 		return;
 	}
-	if (vict->purged()) {
-		return;
-	}
+//	if (vict->purged()) {
+//		return;
+//	}
 
 	if (ch == vict) {
 		SendMsgToChar("Вы укусили себя за левое ухо.\r\n", ch);

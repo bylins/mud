@@ -107,9 +107,9 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-	if (vict->purged()) {
-		return;
-	}
+//	if (vict->purged()) {
+//		return;
+//	}
 	int lag;
 
 	int damage = number(ch->GetSkill(ESkill::kBash) / 1.25, ch->GetSkill(ESkill::kBash) * 1.25);

@@ -19,9 +19,9 @@ void go_kick(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
-	if (vict->purged()) {
-		return;
-	}
+//	if (vict->purged()) {
+//		return;
+//	}
 
 	vict = TryToFindProtector(vict, ch);
 

@@ -91,9 +91,9 @@ void GoBackstab(CharData *ch, CharData *vict) {
 
 	if (ch->IsHorsePrevents())
 		return;
-	if (vict->purged()) {
-		return;
-	}
+//	if (vict->purged()) {
+//		return;
+//	}
 
 	vict = TryToFindProtector(vict, ch);
 

@@ -25,9 +25,9 @@ void go_slay(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-	if (vict->purged()) {
-		return;
-	}
+//	if (vict->purged()) {
+//		return;
+//	}
 	vict = TryToFindProtector(vict, ch);
 
 	ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType);
