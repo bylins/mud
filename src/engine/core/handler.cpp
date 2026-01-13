@@ -1643,6 +1643,25 @@ void change_npc_leader(CharData *ch) {
 
 } // namespace
 
+void DropEquipment(CharData *ch, bool zone_reset) {
+	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
+		if (GET_EQ(ch, i)) {
+			ObjData *obj_eq = UnequipChar(ch, i, CharEquipFlags());
+			if (!obj_eq) {
+				continue;
+			}
+			remove_otrigger(obj_eq, ch);
+			DropObjOnZoneReset(ch, obj_eq, false, zone_reset);
+		}
+	}
+}
+void DropInventory(CharData *ch, bool zone_reset) {
+	while (ch->carrying) {
+		ObjData *obj = ch->carrying;
+		RemoveObjFromChar(obj);
+		DropObjOnZoneReset(ch, obj, true, zone_reset);
+	}
+}
 /**
 * Extract a ch completely from the world, and leave his stuff behind
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
@@ -1652,7 +1671,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
-
+	
 	if (ch->IsFlagged(EMobFlag::kMobFreed) || ch->IsFlagged(EMobFlag::kMobDeleted)) {
 		return;
 	}
@@ -1687,24 +1706,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	}
 
 	// transfer equipment to room, if any
-//	log("[Extract char] Drop equipment");
-	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
-			ObjData *obj_eq = UnequipChar(ch, i, CharEquipFlags());
-			if (!obj_eq) {
-				continue;
-			}
-			remove_otrigger(obj_eq, ch);
-			DropObjOnZoneReset(ch, obj_eq, false, zone_reset);
-		}
-	}
-
-	// transfer objects to room, if any
-//	log("[Extract char] Drop objects");
-	while (ch->carrying) {
-		ObjData *obj = ch->carrying;
-		RemoveObjFromChar(obj);
-		DropObjOnZoneReset(ch, obj, true, zone_reset);
+//	log("[Extract char] Drop equipment & inventory");
+	if (ch->in_room != kNowhere) {
+		DropEquipment(ch, zone_reset);
+		DropInventory(ch, zone_reset);
 	}
 
 	if (ch->IsNpc()) {

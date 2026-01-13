@@ -644,7 +644,7 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 		|| AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return 1;
 	}
-
+	
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_DEATH)) {
 			if (actor) {
