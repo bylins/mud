@@ -1869,15 +1869,14 @@ void process_player_attack(CharData *ch, int min_init) {
 			return;
 		}
 	}
-
 	if (ch->battle_affects.get(kEafMultyparry))
 		return;
-	if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
-		return;
-	}
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
-	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->GetExtraVictim()
-		&& ch->get_wait() <= 0 && using_extra_attack(ch)) {
+	if (!IS_SET(trigger_code, kNoExtraAttack) 
+			&& ch->GetExtraVictim()
+			&& ch->in_room == ch->GetExtraVictim()->in_room
+			&& ch->get_wait() <= 0 
+			&& using_extra_attack(ch)) {
 		ch->SetExtraAttack(kExtraAttackUnused, nullptr);
 		if (ch->initiative > min_init) {
 			--(ch->initiative);
