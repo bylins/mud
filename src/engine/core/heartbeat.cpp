@@ -189,16 +189,6 @@ void ExchangeDatabaseSaveCall::perform(int, int) {
 	}
 }
 
-class ExtractListProcessingCall : public AbstractPulseAction {
- public:
-	void perform(int, int) override;
-};
-
-void ExtractListProcessingCall::perform(int, int) {
-	character_list.PurgeExtractedList();
-	world_objects.PurgeExtractedList();
-}
-
 class ExchangeDatabaseBackupSaveCall : public AbstractPulseAction {
  public:
 	void perform(int, int) override;
@@ -506,10 +496,6 @@ Heartbeat::steps_t &pulse_steps() {
 							 EXCHANGE_AUTOSAVETIME * kPassesPerSec,
 							 9,
 							 std::make_shared<ExchangeDatabaseBackupSaveCall>()),
-		Heartbeat::PulseStep("Processing for extracted_list in triggers",
-							 1,
-							 11,
-							 std::make_shared<ExtractListProcessingCall>()),
 		Heartbeat::PulseStep("Global UID saving", 60 * kPassesPerSec, 9, std::make_shared<GlobalSaveUIDCall>()),
 		Heartbeat::PulseStep("Crash save", 60 * kPassesPerSec, 11, std::make_shared<CrashSaveCall>()),
 		Heartbeat::PulseStep("Clan experience updating",
@@ -611,10 +597,12 @@ void Heartbeat::advance_pulse_numbers() {
 
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	static int last_pmem_used = 0;
+
 	label.clear();
 	advance_pulse_numbers();
 	log("Heartbeat pulse");
-
+	character_list.PurgeExtractedList();
+	world_objects.PurgeExtractedList();
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
 		auto get_mem = TotalMemUse();
