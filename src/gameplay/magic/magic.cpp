@@ -807,6 +807,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& victim->in_room != kNowhere
+			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
 			// инит полей для дамага

@@ -70,9 +70,9 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
-	if (vict->purged()) {
-		return;
-	}
+//	if (vict->purged()) {
+//		return;
+//	}
 
 	vict = TryToFindProtector(vict, ch);
 

@@ -155,8 +155,8 @@ void GoThrow(CharData *ch, CharData *victim) {
 	ActionTargeting::FoesRosterType
 		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
 	for (auto target : roster) {
-		if (target->purged() || target->in_room == kNowhere)
-			continue;
+//		if (target->purged() || target->in_room == kNowhere)
+//			continue;
 		target = TryToFindProtector(target, ch);
 		roll.Init(ch, technique_id, target);
 		if (roll.IsWrongConditions()) {

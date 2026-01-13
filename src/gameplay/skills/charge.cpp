@@ -95,8 +95,8 @@ void GoCharge(CharData *ch, int direction) {
 
 	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
-		if (target->purged() || target->in_room == kNowhere)
-			continue;
+//		if (target->purged() || target->in_room == kNowhere)
+//			continue;
 		if (target->IsFlagged(EMobFlag::kProtect) || !may_kill_here(ch,target, arg) ||target == ch || !CAN_SEE(ch,target)) {
 			--victims_amount;
 		} else {
