@@ -1475,6 +1475,10 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 using namespace HelpSystem;
 
 void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	std::string arg_str(argument);
+
+	log("1%s", arg_str.c_str());
+
 	if (!ch->desc) {
 		return;
 	}
@@ -1487,18 +1491,27 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
-	utils::ConvertToLow(argument);
-	// Получаем topic_num для индексации топика
-	sscanf(argument, "%d.%s", &user_search.topic_num, argument);
-	// если последний символ аргумента '!' -- включаем строгий поиск
-	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
-		user_search.strong = true;
-		*(argument + strlen(argument) - 1) = '\0';
-		user_search.arg_str = argument;
-	} else {
-		user_search.arg_str = utils::FixDot(argument);
+	utils::ConvertToLow(arg_str);
+	// Парсинг topic_num
+	size_t dot_pos = arg_str.find('.');
+    
+	if (dot_pos != std::string::npos) {
+		try {
+			user_search.topic_num = std::stoi(arg_str.substr(0, dot_pos));
+			arg_str = arg_str.substr(dot_pos + 1);
+			log("2%s", arg_str.c_str());
+		} catch (...) {
+			user_search.topic_num = 0;
+		}
 	}
-
+	// если последний символ аргумента '!' -- включаем строгий поиск
+	if (arg_str.size() > 1 && arg_str.back() == '!') {
+		user_search.strong = true;
+		user_search.arg_str = arg_str;
+	} else {
+		user_search.arg_str = utils::FixDot(arg_str);
+	}
+	log("size = %ld", arg_str.size());
 	// поиск по всем массивам или до стопа по флагу
 	for (int i = STATIC; i < TOTAL_NUM && !user_search.stop; ++i) {
 		user_search.process(i);
