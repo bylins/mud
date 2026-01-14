@@ -106,11 +106,13 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
 	damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
 	damage.Process(roll.GetActor(), roll.GetRival());
-	damage.dam = dmg;
-	damage.wielded = GET_EQ(ch, EEquipPos::kHold);
-	damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
-	damage.Process(roll.GetActor(), roll.GetRival());
-	ApplyNoFleeAffect(ch, no_flee_duration);
+	if (roll.GetActor()->in_room == roll.GetRival()->in_room) {
+		damage.dam = dmg;
+		damage.wielded = GET_EQ(ch, EEquipPos::kHold);
+		damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
+		damage.Process(roll.GetActor(), roll.GetRival());
+		ApplyNoFleeAffect(ch, no_flee_duration);
+	}
 	SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 2);
 }
 
