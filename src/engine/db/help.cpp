@@ -1477,8 +1477,6 @@ using namespace HelpSystem;
 void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string arg_str(argument);
 
-	log("1%s", arg_str.c_str());
-
 	if (!ch->desc) {
 		return;
 	}
@@ -1487,7 +1485,10 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		page_string(ch->desc, help, 0);
 		return;
 	}
-
+	if (arg_str.size() > 100) {
+		SendMsgToChar(ch, "Слишком длинная строка в запросе справки.\r\n");
+		return;
+	}
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
