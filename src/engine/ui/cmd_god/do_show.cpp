@@ -83,6 +83,10 @@ void ShowClassInfo(CharData *ch, const std::string &class_name, const std::strin
 }
 
 void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
+	if (spell_name.size() > 100) {
+		SendMsgToChar("Превышена максимальная длина строки в запросе.\r\n", ch);
+		return;
+	}
 	if (spell_name.empty()) {
 		SendMsgToChar("Формат: show spellinfo [название заклинания]", ch);
 		return;
@@ -102,6 +106,10 @@ void ShowSpellInfo(CharData *ch, const std::string &spell_name) {
 }
 
 void ShowFeatInfo(CharData *ch, const std::string &name) {
+	if (name.size() > 100) {
+		SendMsgToChar("Превышена максимальная длина строки в запросе.\r\n", ch);
+		return;
+	}
 	if (name.empty()) {
 		SendMsgToChar("Формат: show featinfo [название способности]", ch);
 		return;
@@ -119,6 +127,10 @@ void ShowFeatInfo(CharData *ch, const std::string &name) {
 }
 
 void ShowMobClassInfo(CharData *ch, const std::string &mob_class_name) {
+	if (mob_class_name.size() > 100) {
+		SendMsgToChar("Превышена максимальная длина строки в запросе.\r\n", ch);
+		return;
+	}
 	if (mob_class_name.empty()) {
 		SendMsgToChar("Формат: show mobclass [название класса моба]", ch);
 		return;
@@ -136,6 +148,10 @@ void ShowMobClassInfo(CharData *ch, const std::string &mob_class_name) {
 }
 
 void ShowAbilityInfo(CharData *ch, const std::string &name) {
+	if (name.size() > 100) {
+		SendMsgToChar("Превышена максимальная длина строки в запросе.\r\n", ch);
+		return;
+	}
 	if (name.empty()) {
 		SendMsgToChar("Формат: show abilityinfo [название навыка]", ch);
 		return;

@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/statistics/spell_usage.h"
+#include "utils/backtrace.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -231,11 +232,13 @@ bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
 
 bool IsEquivalent(const char *first_str, const char *second_str) {
 	char const *temp, *temp2;
-//	char first[kMaxInputLength], first2[kMaxInputLength];
 	char first[256], first2[256];
 
-	std::string abc;
-
+	if (strlen(first_str) > 256 && strlen(first_str) > 256) {
+		mudlog("Превышена максимальная длина строки в запросе IsEquivalent, сделан coredump");
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		return false;
+	}
 	if (utils::IsAbbr(first_str, second_str)) {
 		return true;
 	}
