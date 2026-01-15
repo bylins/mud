@@ -1349,7 +1349,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong) 
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return arg == text;
 	}
-	return IsEquivalent(name, text);
+	return utils::IsAbbr(name, text);
 }
 
 void UserSearch::process(int flag) {
@@ -1499,7 +1499,6 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		try {
 			user_search.topic_num = std::stoi(arg_str.substr(0, dot_pos));
 			arg_str = arg_str.substr(dot_pos + 1);
-			log("2%s", arg_str.c_str());
 		} catch (...) {
 			user_search.topic_num = 0;
 		}
@@ -1509,9 +1508,8 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		user_search.strong = true;
 		user_search.arg_str = arg_str;
 	} else {
-		user_search.arg_str = utils::FixDot(arg_str);
+		user_search.arg_str = arg_str;
 	}
-	log("size = %ld", arg_str.size());
 	// поиск по всем массивам или до стопа по флагу
 	for (int i = STATIC; i < TOTAL_NUM && !user_search.stop; ++i) {
 		user_search.process(i);
