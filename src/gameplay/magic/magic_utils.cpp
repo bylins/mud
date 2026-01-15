@@ -226,35 +226,26 @@ ESpell FindSpellIdWithName(const std::string &name) {
 	return ESpell::kUndefined;
 }
 
-bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
-	return IsEquivalent(first_str.c_str(), second_str.c_str());
-};
+bool IsEquivalent(const std::string &abbr, const std::string &words) {
+	std::vector<std::string> words_list = utils::Split(words);
+	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
+	auto it = words_list.begin();
+
+	for (auto abr : abbr_list) {
+		for (; it != words_list.end(); it++) {
+			if (utils::IsAbbr(abr.c_str(), (*it).c_str())) {
+				break;
+			}
+		}
+		if (it == words_list.end())
+			return false;
+	}
+	return true;
+}
 
 bool IsEquivalent(const char *first_str, const char *second_str) {
-	char const *temp, *temp2;
-	char first[256], first2[256];
-
-	if (strlen(first_str) > 256 && strlen(first_str) > 256) {
-		mudlog("Превышена максимальная длина строки в запросе IsEquivalent, сделан coredump");
-		debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		return false;
-	}
-	if (utils::IsAbbr(first_str, second_str)) {
-		return true;
-	}
-	auto ok{true};
-	temp = one_argument(second_str, first);
-	temp2 = one_argument(first_str, first2);
-	while (*first && *first2 && ok) {
-		if (!utils::IsAbbr(first2, first))
-			ok = false;
-		temp = one_argument(temp, first);
-		temp2 = one_argument(temp2, first2);
-	}
-	if (ok && !*first2) {
-		return true;
-	}
-	return false;
+	std::string abbr{first_str}, words{second_str};
+	return IsEquivalent(abbr, words);
 }
 
 template<typename T>
