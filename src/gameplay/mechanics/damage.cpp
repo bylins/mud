@@ -318,6 +318,10 @@ void Damage::CalcArmorDmgAbsorption(CharData *victim) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
+			if (CanUseFeat(victim, EFeat::kShadowStrike) && victim->IsFlagged(EPrf::kAwake)) {
+				// танцующая тень в осторожке - до 60 брони
+				max_armour = 60;
+			}
 			int tmp_dam = dam * std::max(0, std::min(max_armour, GET_ARMOUR(victim))) / 100;
 			// ополовинивание брони по флагу скила
 			if (tmp_dam >= 2 && flags[fight::kHalfIgnoreArmor]) {

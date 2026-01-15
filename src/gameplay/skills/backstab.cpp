@@ -242,16 +242,21 @@ int GetBackstabMultiplier(int level) {
 }
 
 /**
-* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30) для вовровского удара,
+* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30) для воровского удара,
 * для остального в учет только ловку
 * при 74х мортах максимальный скилл заколоть будет около 500. декса 90 ессно - получается 75% критстабов.
 * попробуем скилл/15 + (декса - 20) / (декса/20) - получается около 50% критстабов.
-* TO DO.. еще удачу есть план добавить в расчет шанса критстаба
+* маленькие проценты от удачи, максимум 5% если сильно повезёт при 500 удачи.
 */
 int CalcCritBackstabPercent(CharData *ch) {
-	double percent = ((GetRealDex(ch) -20) / (GetRealDex(ch) / 20.0));
+	int luck = std::max(ch->calc_morale(), 0);
+
+	double percent = std::min(number(0, luck), 500) * 0.01;
+
 	if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-		percent += (ch->GetSkill(ESkill::kBackstab) / 15.0);
+		percent += ((GetRealDex(ch) - 20) / (GetRealDex(ch) * 0.05)) + (ch->GetSkill(ESkill::kBackstab) * 0.066);
+	} else {
+		percent += (GetRealDex(ch) - 20) / (GetRealDex(ch) * 0.033);
 	}
 	return static_cast<int>(percent);
 }
@@ -264,12 +269,12 @@ double CalcCritBackstabMultiplier(CharData *ch, CharData *victim) {
 	double bs_coeff = 1.0;
 	if (victim->IsNpc()) {
 		if (CanUseFeat(ch, EFeat::kThieveStrike)) {
-			bs_coeff *= ch->GetSkill(ESkill::kBackstab) / 15.0;
+			bs_coeff *= ch->GetSkill(ESkill::kBackstab) * 0.066;
 		} else {
-			bs_coeff *= ch->GetSkill(ESkill::kBackstab) / 25.0;
+			bs_coeff *= ch->GetSkill(ESkill::kBackstab) * 0.04;
 		}
 		if (CanUseFeat(ch, EFeat::kShadowStrike) && (ch->GetSkill(ESkill::kNoParryHit))) {
-			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.00125));
+			bs_coeff *= (1 + (ch->GetSkill(ESkill::kNoParryHit) * 0.0025));
 		}
 	} else if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 		if (victim->GetEnemy()) {

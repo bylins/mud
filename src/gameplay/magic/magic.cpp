@@ -168,7 +168,11 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	if (victim->IsFlagged(EPrf::kAwake)) {
 		if (CanUseFeat(victim, EFeat::kImpregnable)) {
 			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
+		// справка танцующая: "Осторожный стиль" добавочно увеличивает спас-броски персонажа. почему-то было давно убрано с комментом "фикс осторожки дружинника"
+		} else if (CanUseFeat(victim, EFeat::kShadowStrike)) {
+			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2.5;
 		}
+
 		save -= victim->GetSkill(ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
 	}
 	save += GetSave(victim, saving);    // одежда бафы и слава

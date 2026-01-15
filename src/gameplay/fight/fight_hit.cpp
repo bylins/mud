@@ -296,6 +296,9 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		// удар голыми руками
 		weap_skill = ESkill::kPunch;
 	}
+	if (skill_num == ESkill::kBackstab || skill_num == ESkill::kThrow) {
+		TrainSkill(ch, weap_skill, true, victim);
+	}
 	if (skill_num == ESkill::kUndefined) {
 		TrainSkill(ch, weap_skill, true, victim);
 		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
@@ -311,7 +314,7 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		}
 	}
 	//* обработка ESkill::kNoParryHit //
-	if (skill_num == ESkill::kUndefined && ch->GetSkill(ESkill::kNoParryHit)) {
+	if ((skill_num == ESkill::kUndefined || skill_num == ESkill::kBackstab) && ch->GetSkill(ESkill::kNoParryHit)) {
 		int tmp_skill = CalcCurrentSkill(ch, ESkill::kNoParryHit, victim);
 		bool success = tmp_skill >= number(1, MUD::Skill(ESkill::kNoParryHit).difficulty);
 		TrainSkill(ch, ESkill::kNoParryHit, success, victim);
@@ -502,6 +505,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		int prob = (ch->GetSkill(weap_skill) + cha_app[GetRealCha(ch)].illusive) -
 			(victim->GetSkill(weap_skill) + int_app[GetRealInt(victim)].observation);
+
 		if (prob >= 30 && !victim->battle_affects.get(kEafAwake)
 			&& (ch->IsNpc() || !ch->battle_affects.get(kEafPunctual))) {
 			calc_thaco -= static_cast<int>((ch->GetSkill(weap_skill) -
