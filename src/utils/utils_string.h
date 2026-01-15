@@ -105,7 +105,8 @@ shared_string_ptr GetStringWithoutColors(const char *string);
 std::string GetStringWithoutColors(const std::string &string);
 
 bool IsAbbr(const char *arg1, const char *arg2);
-inline int IsAbbrev(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
+inline int IsAbbr(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
+inline int IsAbbr(const std::string &arg1, const std::string &arg2) { return IsAbbr(arg1.c_str(), arg2.c_str()); }
 
 
 // строку в нижний регистр

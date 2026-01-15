@@ -170,7 +170,7 @@ void GuildInfo::Process(CharData *trainer, CharData *ch, std::string &argument) 
 
 	act(GetMsg(EMsg::kInquiry), false, ch, nullptr, trainer, kToRoom);
 
-	if (utils::IsAbbrev(argument, "все") || utils::IsAbbrev(argument, "all")) {
+	if (utils::IsAbbr(argument, "все") || utils::IsAbbr(argument, "all")) {
 		LearnAll(trainer, ch);
 		return;
 	}
