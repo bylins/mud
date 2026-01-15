@@ -2266,6 +2266,8 @@ void find_replacement(void *go,
 		}
 		else if (!str_cmp(field, "id"))
 			sprintf(str, "%c%ld", UID_CHAR, c->get_uid());
+		else if (!str_cmp(field, "uid"))
+			sprintf(str, "%c%ld", UID_CHAR, c->get_uid());
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GetRealLevel(c));
 		else if (!str_cmp(field, "remort")) {
