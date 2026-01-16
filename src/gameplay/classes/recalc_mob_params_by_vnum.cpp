@@ -949,10 +949,11 @@ void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	const int player_level  = atoi(arg3);
 	const int difficulty    = atoi(arg4);
 
-//	if (player_level > 30) {
-//		SendMsgToChar(ch, "Player level must be <= 30.\r\n");
-//		return;
-//	}
+	if (zone_vnum < 30000) {
+		SendMsgToChar(ch,
+			"Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
+		return;
+	}
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
 	const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
