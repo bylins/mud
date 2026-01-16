@@ -1343,7 +1343,7 @@ void CalculateFirstAndLastRooms() {
 		zone_data.RnumRoomsLocation.second--; //уберем виртуалки
 		if (zone_data.entrance == 0) {  //если в зонфайле не указана стартовая комната
 			log("Отсутствует стартовая комната для зоны %d", zone_data.vnum);
-			zone_data.entrance = zone_data.RnumRoomsLocation.first;
+			zone_data.entrance = world[zone_data.RnumRoomsLocation.first]->vnum;
 		}
 	}
 }
