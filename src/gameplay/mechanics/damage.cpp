@@ -600,23 +600,27 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
 	PerformPostInit(ch, victim);
-	if (victim->purged()) { //будем мониторить коредамп
-		log("SYSERR: Attempt to damage purged char/mob '%s' in room #%d by '%s'.",
-			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
-			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		return 0;
-	}
-	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
-		return 0;
-	}
 	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		return 0;
+	}
+	if (victim->purged()) { //будем мониторить коредамп
+		log("SYSERR: Attempt to damage purged char/mob '%s' in room #%d by '%s'.",
+			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		return 0;
+	}
+	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
+		log("SYSERR: Attempt to damage purged char/mob ch or vict");
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		return 0;
 	}
 	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		die(victim, nullptr);
 		return 0;
 	}
