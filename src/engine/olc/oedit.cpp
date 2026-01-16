@@ -891,7 +891,7 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 		case EObjType::kCraftMaterial: SendMsgToChar("Введите условный уровень: ", d->character.get());
 			break;
 
-		case EObjType::kContainer: SendMsgToChar("Введите сложность замка (0-255): ", d->character.get());
+		case EObjType::kContainer: SendMsgToChar("Введите сложность замка (0-1000): ", d->character.get());
 			break;
 
 		default: oedit_disp_menu(d);
