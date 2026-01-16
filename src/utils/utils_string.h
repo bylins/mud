@@ -104,6 +104,11 @@ std::string RemoveColors(std::string string);
 shared_string_ptr GetStringWithoutColors(const char *string);
 std::string GetStringWithoutColors(const std::string &string);
 
+// Аналог isstring для std::string
+// поиск аббревиатур по тексту с пропуском слов
+// abbr - список кратких аббревиатур, words текст\фраза
+bool IsEquivalent(const std::string &abbr, const std::string &words);
+// arg1 аббревиатура в arg2 тексте\фразе
 bool IsAbbr(const char *arg1, const char *arg2);
 inline int IsAbbr(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
 inline int IsAbbr(const std::string &arg1, const std::string &arg2) { return IsAbbr(arg1.c_str(), arg2.c_str()); }

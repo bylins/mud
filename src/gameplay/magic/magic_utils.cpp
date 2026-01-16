@@ -166,7 +166,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 abilities::EAbility FindAbilityId(const char *name) {
 	for (const auto &ability : MUD::Abilities()) {
-		if (ability.IsValid() && IsEquivalent(name, ability.GetName())) {
+		if (ability.IsValid() && utils::IsEquivalent(name, ability.GetName())) {
 			return ability.GetId();
 		}
 	}
@@ -175,7 +175,7 @@ abilities::EAbility FindAbilityId(const char *name) {
 
 EFeat FindFeatId(const char *name) {
 	for (const auto &feat : MUD::Feats()) {
-		if (feat.IsValid() && IsEquivalent(name, feat.GetName())) {
+		if (feat.IsValid() && utils::IsEquivalent(name, feat.GetName())) {
 			return feat.GetId();
 		}
 	}
@@ -184,7 +184,7 @@ EFeat FindFeatId(const char *name) {
 
 ESkill FindSkillId(const char *name) {
 	for (const auto &skill : MUD::Skills()) {
-		if (skill.IsValid() && IsEquivalent(name, skill.GetName())) {
+		if (skill.IsValid() && utils::IsEquivalent(name, skill.GetName())) {
 			return skill.GetId();
 		}
 	}
@@ -206,7 +206,7 @@ ESpell FindSpellId(const char *name) {
 		if (!realname || !*realname) {
 			continue;
 		}
-		if (IsEquivalent(name, realname)) {
+		if (utils::IsEquivalent(name, realname)) {
 			return spell_id;
 		}
 	}
@@ -218,43 +218,12 @@ ESpell FindSpellIdWithName(const std::string &name) {
 		if (spell.IsInvalid()) {
 			continue;
 		}
-		if (IsEquivalent(name, spell.GetName())) {
+		if (utils::IsEquivalent(name, spell.GetName())) {
 			return spell.GetId();
 		}
 	}
 
 	return ESpell::kUndefined;
-}
-
-bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
-	return IsEquivalent(first_str.c_str(), second_str.c_str());
-};
-
-bool IsEquivalent(const char *first_str, const char *second_str) {
-	char const *temp, *temp2;
-	char first[256], first2[256];
-
-	if (strlen(first_str) > 256 && strlen(first_str) > 256) {
-		mudlog("Превышена максимальная длина строки в запросе IsEquivalent, сделан coredump");
-		debug::backtrace(runtime_config.logs(SYSLOG).handle());
-		return false;
-	}
-	if (utils::IsAbbr(first_str, second_str)) {
-		return true;
-	}
-	auto ok{true};
-	temp = one_argument(second_str, first);
-	temp2 = one_argument(first_str, first2);
-	while (*first && *first2 && ok) {
-		if (!utils::IsAbbr(first2, first))
-			ok = false;
-		temp = one_argument(temp, first);
-		temp2 = one_argument(temp2, first2);
-	}
-	if (ok && !*first2) {
-		return true;
-	}
-	return false;
 }
 
 template<typename T>

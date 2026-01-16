@@ -250,7 +250,7 @@ void GuildInfo::LearnWithTalentName(CharData *trainer, CharData *ch, const std::
 								   if (talent->IsUnlearnable(ch)) {
 									   return false;
 								   }
-								   if (IsEquivalent(talent_name,
+								   if (utils::IsEquivalent(talent_name,
 													static_cast<std::string>(talent->GetName()))) {
 									   return true;
 								   }
