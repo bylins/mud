@@ -1341,6 +1341,10 @@ void CalculateFirstAndLastRooms() {
 	zone_table[zrn].RnumRoomsLocation.second = rn - 1;
 	for (auto &zone_data : zone_table) {
 		zone_data.RnumRoomsLocation.second--; //уберем виртуалки
+		if (zone_data.entrance == 0) {  //если в зонфайле не указана стартовая комната
+			log("Отсутствует стартовая комната для зоны %d", zone_data.vnum);
+			zone_data.entrance = zone_data.RnumRoomsLocation.first;
+		}
 	}
 }
 

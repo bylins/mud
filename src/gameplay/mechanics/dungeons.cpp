@@ -172,6 +172,7 @@ void CreateBlankZoneDungeon() {
 		new_zone.name = "Зона для данжей";
 		new_zone.under_construction = true;
 		new_zone.top = zone_vnum * 100 + 99;
+		new_zone.entrance = zone_vnum * 100;
 		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
 		zone_table.push_back(std::move(new_zone));
 		zone_vnum++;
