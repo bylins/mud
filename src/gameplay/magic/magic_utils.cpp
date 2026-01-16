@@ -166,7 +166,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 abilities::EAbility FindAbilityId(const char *name) {
 	for (const auto &ability : MUD::Abilities()) {
-		if (ability.IsValid() && IsEquivalent(name, ability.GetName())) {
+		if (ability.IsValid() && utils::IsEquivalent(name, ability.GetName())) {
 			return ability.GetId();
 		}
 	}
@@ -175,7 +175,7 @@ abilities::EAbility FindAbilityId(const char *name) {
 
 EFeat FindFeatId(const char *name) {
 	for (const auto &feat : MUD::Feats()) {
-		if (feat.IsValid() && IsEquivalent(name, feat.GetName())) {
+		if (feat.IsValid() && utils::IsEquivalent(name, feat.GetName())) {
 			return feat.GetId();
 		}
 	}
@@ -184,7 +184,7 @@ EFeat FindFeatId(const char *name) {
 
 ESkill FindSkillId(const char *name) {
 	for (const auto &skill : MUD::Skills()) {
-		if (skill.IsValid() && IsEquivalent(name, skill.GetName())) {
+		if (skill.IsValid() && utils::IsEquivalent(name, skill.GetName())) {
 			return skill.GetId();
 		}
 	}
@@ -206,7 +206,7 @@ ESpell FindSpellId(const char *name) {
 		if (!realname || !*realname) {
 			continue;
 		}
-		if (IsEquivalent(name, realname)) {
+		if (utils::IsEquivalent(name, realname)) {
 			return spell_id;
 		}
 	}
@@ -218,34 +218,12 @@ ESpell FindSpellIdWithName(const std::string &name) {
 		if (spell.IsInvalid()) {
 			continue;
 		}
-		if (IsEquivalent(name, spell.GetName())) {
+		if (utils::IsEquivalent(name, spell.GetName())) {
 			return spell.GetId();
 		}
 	}
 
 	return ESpell::kUndefined;
-}
-
-bool IsEquivalent(const std::string &abbr, const std::string &words) {
-	std::vector<std::string> words_list = utils::Split(words);
-	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
-	auto it = words_list.begin();
-
-	for (auto abr : abbr_list) {
-		for (; it != words_list.end(); it++) {
-			if (utils::IsAbbr(abr.c_str(), (*it).c_str())) {
-				break;
-			}
-		}
-		if (it == words_list.end())
-			return false;
-	}
-	return true;
-}
-
-bool IsEquivalent(const char *first_str, const char *second_str) {
-	std::string abbr{first_str}, words{second_str};
-	return IsEquivalent(abbr, words);
 }
 
 template<typename T>
