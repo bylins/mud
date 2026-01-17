@@ -551,34 +551,22 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	char buf2[kMaxStringLength];
 	int i, j;
 	ObjRnum orn = object->get_rnum();
+	CObjectPrototype::shared_ptr proto;
 
-	// vnum
-	if (obj_proto[orn]->get_parent_rnum() > -1) {
-		out << "#" << obj_proto[orn]->get_parent_vnum();
+	if (object->get_parent_rnum() > -1) {
+		proto = obj_proto[object->get_parent_rnum()];
+		out << "#" << object->get_parent_vnum();
 	} else {
+		proto = obj_proto[orn];
 		out << "#" << GET_OBJ_VNUM(object);
 	}
-
 	out << "\n";
 	// Положение в экипировке (сохраняем только если > 0)
 	if (location) {
 		out << "Lctn: " << location << "~\n";
 	}
-
-	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
-	// придется сохранять все статсы шмотки.
-	auto proto = GetObjectPrototype(GET_OBJ_VNUM(object));
-
-/*	auto obj_ptr = world_objects.get_by_raw_ptr(object);
-	if (!obj_ptr)
-	{
-		log("Object was purged.");
-		//return;
-	}
-*/
 //	log("Write one object: %s", object->get_PName(ECase::kNom).c_str());
-
-	if (GET_OBJ_VNUM(object) >= 0 && proto) {
+	if (GET_OBJ_VNUM(object) >= 0) {
 		// Сохраняем UID
 		out << "Ouid: " << object->get_unique_id() << "~\n";
 		// Алиасы
@@ -698,7 +686,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (blooded) {
 			object->unset_extraflag(EObjFlag::kBloody);
 		}
-		bool nosell = object->has_flag(EObjFlag::kNosell) && !obj_proto[orn]->has_flag(EObjFlag::kNosell);
+		auto nosell = object->has_flag(EObjFlag::kNosell) && !proto->has_flag(EObjFlag::kNosell);
+
 		if (nosell) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
