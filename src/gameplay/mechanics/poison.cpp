@@ -99,8 +99,14 @@ namespace {
 			af[3].location = EApply::kSavingStability;
 			af[3].bitvector = to_underlying(EAffect::kScopolaPoison)
 							  | to_underlying(EAffect::kNoBattleSwitch);
+			int affect_modifier = 10;
 
-			int affect_modifier = 10 + std::min((ch->GetSkill(ESkill::kPoisoning) / 20), 10);
+			if (vict->IsNpc()) {
+				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.1), 40);
+			} else {
+				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.05), 10);
+			}
+
 			bool was_poisoned = true;
 
 			for (auto & i : af) {
@@ -126,24 +132,24 @@ namespace {
 			// -хитролы/хп-рег/дамаг-физ.атак/скилы
 
 			Affect<EApply> af[4];
-			// -скиллы
-			af[0].location = EApply::kBelenaPoison;
-			af[0].modifier = 10;
-			// -дамаг физ.атак
-			af[1].location = EApply::kPhysicDamagePercent;
-			af[1].modifier = -10;
 			af[1].bitvector = to_underlying(EAffect::kBelenaPoison)
 							  | to_underlying(EAffect::kSkillReduce)
 							  | to_underlying(EAffect::kNoBattleSwitch);
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
+			// -скиллы
+			af[0].location = EApply::kBelenaPoison;
+			af[0].modifier = std::max(percent, 10);
+			// -дамаг физ.атак
+			af[1].location = EApply::kPhysicDamagePercent;
+			af[1].modifier = -std::max(percent, 10);
 			// -хитролы
-			int remove_hit = GET_REAL_HR(vict) * (percent / 100);
+			int remove_hit = (GET_REAL_HR(vict) * percent) * 0.01;
 			af[2].location = EApply::kHitroll;
 			af[2].modifier = -remove_hit;
 			// -хп-рег
-			int remove_hp = vict->get_hitreg() * (percent / 100);
+			int remove_hp = (vict->get_hitreg() * percent) * 0.01;
 			af[3].location = EApply::kHpRegen;
 			af[3].modifier = -remove_hp;
 
@@ -171,23 +177,23 @@ namespace {
 			// AFF_DATURA_POISON - флаг на снижение дамага с заклов
 
 			Affect<EApply> af[3];
-			// -скиллы
-			af[0].location = EApply::kDaturaPoison;
-			af[0].modifier = 10;
-			// -маг.дамаг
-			af[0].location = EApply::kMagicDamagePercent;
-			af[0].modifier = -10;
 			af[0].bitvector = to_underlying(EAffect::kDaturaPoison)
 							  | to_underlying(EAffect::kSkillReduce)
 							  | to_underlying(EAffect::kNoBattleSwitch);
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
+			// -скиллы
+			af[0].location = EApply::kDaturaPoison;
+			af[0].modifier = std::max(percent, 10);;
+			// -маг.дамаг
+			af[0].location = EApply::kMagicDamagePercent;
+			af[0].modifier = -std::max(percent, 10);;
 			// -каст
 			af[1].location = EApply::kCastSuccess;
-			af[1].modifier = -GET_CAST_SUCCESS(vict) * (percent / 100);
+			af[1].modifier = -(GET_CAST_SUCCESS(vict) * percent) * 0.01;
 			// -мем
-			int remove_mem = GET_MANAREG(vict) * (percent / 100);
+			int remove_mem = (GET_MANAREG(vict) * percent) * 0.01;
 			af[2].location = EApply::kManaRegen;
 			af[2].modifier = -remove_mem;
 
@@ -360,7 +366,7 @@ void PerformPoisonedWeapom(CharData *ch, CharData *vict, ESpell spell_id) {
 	if (spell_id < ESpell::kFirst) {
 		return;
 	}
-	SkillRollResult result = MakeSkillTest(ch, ESkill::kPoisoning,vict);
+	SkillRollResult result = MakeSkillTest(ch, ESkill::kPoisoning, vict);
 	bool success = result.success;
 
 	if (((success) && (number(1, 100) <= 25)) ||
