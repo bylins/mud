@@ -949,7 +949,7 @@ void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	const int player_level  = atoi(arg3);
 	const int difficulty    = atoi(arg4);
 
-	if (zone_vnum < 30000) {
+	if (zone_vnum < dungeons::kZoneStartDungeons) {
 		SendMsgToChar(ch,
 			"Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
 		return;
