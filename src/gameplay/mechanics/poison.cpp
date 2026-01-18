@@ -102,9 +102,9 @@ namespace {
 			int affect_modifier = 10;
 
 			if (vict->IsNpc()) {
-				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.1), 40);
+				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.1), 40.0);
 			} else {
-				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.05), 10);
+				affect_modifier += std::min((ch->GetSkill(ESkill::kPoisoning) * 0.05), 10.0);
 			}
 
 			bool was_poisoned = true;
