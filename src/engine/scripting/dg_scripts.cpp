@@ -38,6 +38,7 @@
 #include "gameplay/core/game_limits.h"
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/armor.h"
+#include "gameplay/classes/recalc_mob_params_by_vnum.cpp"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -1714,6 +1715,28 @@ void find_replacement(void *go,
 				num = count_char_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%d", num);
+		} else if (!str_cmp(field, "recalczone")) {
+			auto param = utils::Split(subfield, ',');
+			if (param.size() != 4) {
+				trig_log(trig, "recalc: несоответствие параметров");
+				return;
+			}
+			ZoneRnum zrn = GetZoneRnum(atoi(param[0].c_str()));
+			if (zrn == 0) {
+				trig_log(trig, "recalc: нет такой зоны");
+				return;
+			}
+			trig_log(trig, fmt::format("Пересчитываю зону {} {} {} {}", param[0], param[1], param[2], param[3]));
+			auto value = param[0] + " " +  param[1]+ " " + param[2] + " " +param[3];
+			do_recalc_zone(value.c_str());
+			UniqueList<ZoneRnum> zone_repop_list;
+			for (auto rrn = zone_table[zrn].RnumRoomsLocation.first; rrn <= zone_table[zrn].RnumRoomsLocation.second; rrn++) {
+				dungeons::ClearRoom(world[rrn]);
+			}
+			dungeons::ClearRoom(world[zone_table[zrn].RnumRoomsLocation.second + 1]); //виртуалку
+			zone_repop_list.push_back(zrn);
+			DecayObjectsOnRepop(zone_repop_list);
+			ResetZone(zrn);
 			} else if (!str_cmp(field, "createdungeon")) {
 				utils::Trim(subfield);
 				std::string arg = subfield;
@@ -1966,7 +1989,7 @@ void find_replacement(void *go,
 				int y = atoi(s2.c_str());
 				sprintf(str, "%d", number(x, y));
 			}
-		return;
+			return;
 		} else if (!str_cmp(var, "what")) {
 			if (*subfield == UID_CHAR || *subfield == UID_CHAR_ALL)
 				sprintf(str, "%s", "char");
