@@ -926,7 +926,7 @@ bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int remorts, int set_level, i
 }
 
 // --------------------- Команда recalc_zone -----------------------------------
-void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
+void do_recalc_zone(const char *argument) {
 	constexpr size_t kBuf = 256;
 
 	char arg1[kBuf]{}; // zone_vnum
@@ -938,11 +938,11 @@ void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	argument = three_arguments(argument, arg1, arg2, arg3);
 	one_argument(argument, arg4);
 
-	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
-		SendMsgToChar(ch,
-			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
-		return;
-	}
+//	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
+//		SendMsgToChar(ch,
+//			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
+//		return;
+//	}
 
 	const int zone_vnum		= atoi(arg1);
 	const int remorts		= atoi(arg2);
@@ -957,9 +957,9 @@ void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
 	const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
-	SendMsgToChar(ch,
-		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
-		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);
+//	SendMsgToChar(ch,
+//		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
+//		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);
 
 }
 
