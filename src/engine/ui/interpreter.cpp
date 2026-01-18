@@ -276,7 +276,6 @@
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/classes/recalc_mob_params_by_vnum.cpp"
 #include "alias.h"
 #include "engine/db/player_index.h"
 
@@ -640,9 +639,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
 		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
 		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
-		//{ "пересчитать", EPosition::kDead, do_recalc_mob, kLvlImmortal, 0 },
 		{"перелить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
-		{ "пересчитатьзону", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, DoDrink, 0, kScmdDrink, 400},
 		{"писать", EPosition::kStand, do_write, 1, 0, -1},
@@ -924,8 +921,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"quit", EPosition::kSleep, do_quit, 0, kScmdQuit, -1},
-		//{"recalc_mob", EPosition::kDead, do_recalc_mob, kLvlImmortal, 0, 0},
-		{"recalc_zone", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"read", EPosition::kRest, DoLook, 0, kScmdRead, 200},
 		{"receive", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"recipes", EPosition::kRest, do_recipes, 0, 0, 0},
