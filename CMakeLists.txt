@@ -164,6 +164,9 @@ set(SOURCES
 		src/engine/db/world_data_source.h
 		src/engine/db/legacy_world_data_source.h
 		src/engine/db/legacy_world_data_source.cpp
+		# SQLite world data source (conditional)
+		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.h>
+		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.cpp>
 		src/engine/db/id.cpp
 		src/engine/db/utils_find_obj_id_by_vnum.cpp
 		src/engine/db/global_objects.cpp
@@ -1137,6 +1140,7 @@ else ()
 	set(DEFAULT_HAVE_ZLIB "YES")
 endif ()
 option(HAVE_ZLIB "Should ZLib be compiled in. It is required to support MCCP." ${DEFAULT_HAVE_ZLIB})
+option(HAVE_SQLITE "Enable SQLite world data source for faster world loading." OFF)
 
 if (HAVE_ZLIB)
 	set(ZLIB_ROOT $ENV{ZLIB_ROOT})
@@ -1147,6 +1151,17 @@ if (HAVE_ZLIB)
 	message(STATUS "ZLib is turned ON. Circle will be compiled with MCCP support.")
 else ()
 	message(STATUS "ZLib is turned off. Circle will NOT support MCCP.")
+endif ()
+
+# SQLite support
+if (HAVE_SQLITE)
+	find_package(SQLite3 REQUIRED)
+	add_definitions(-DHAVE_SQLITE)
+	include_directories(system ${SQLite3_INCLUDE_DIRS})
+	target_link_libraries(circle.library SQLite::SQLite3)
+	message(STATUS "SQLite is turned ON. Circle will support SQLite world data source.")
+else ()
+	message(STATUS "SQLite is turned off.")
 endif ()
 
 # Iconv
