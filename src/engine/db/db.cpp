@@ -58,6 +58,7 @@
 #include "gameplay/communication/social.h"
 #include "player_index.h"
 #include "world_checksum.h"
+#include "legacy_world_data_source.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -129,7 +130,7 @@ const FlagData clear_flags;
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
-GameLoader world_loader;
+GameLoader game_loader;
 
 // local functions
 void LoadGlobalUid();
@@ -349,28 +350,32 @@ void ConvertObjValues() {
 	}
 }
 
-void GameLoader::BootWorld() {
+void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
+	// Create default data source if none provided
+	if (!data_source)
+	{
+		data_source = world_loader::CreateLegacyDataSource();
+	}
+	log("Using data source: %s", data_source->GetName().c_str());
+
 	boot_profiler.next_step("Loading zone table");
-	log("Loading zone table.");
-	GameLoader::BootIndex(DB_BOOT_ZON);
+	data_source->LoadZones();
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	log("Loading triggers and generating index.");
-	GameLoader::BootIndex(DB_BOOT_TRG);
+	data_source->LoadTriggers();
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	log("Loading rooms.");
-	GameLoader::BootIndex(DB_BOOT_WLD);
+	data_source->LoadRooms();
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -393,8 +398,7 @@ void GameLoader::BootWorld() {
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	log("Loading mobs and generating index.");
-	GameLoader::BootIndex(DB_BOOT_MOB);
+	data_source->LoadMobs();
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -409,8 +413,7 @@ void GameLoader::BootWorld() {
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	log("Loading objs and generating index.");
-	GameLoader::BootIndex(DB_BOOT_OBJ);
+	data_source->LoadObjects();
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");

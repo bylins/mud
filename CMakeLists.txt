@@ -161,6 +161,9 @@ set(SOURCES
 		src/engine/db/world_objects.cpp
 		src/engine/db/obj_prototypes.cpp
 		src/engine/db/world_checksum.cpp
+		src/engine/db/world_data_source.h
+		src/engine/db/legacy_world_data_source.h
+		src/engine/db/legacy_world_data_source.cpp
 		src/engine/db/id.cpp
 		src/engine/db/utils_find_obj_id_by_vnum.cpp
 		src/engine/db/global_objects.cpp

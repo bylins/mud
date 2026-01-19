@@ -1,0 +1,39 @@
+// Part of Bylins http://www.mud.ru
+// World data source interface for pluggable world loading
+
+#ifndef WORLD_DATA_SOURCE_H_
+#define WORLD_DATA_SOURCE_H_
+
+#include <memory>
+#include <string>
+
+namespace world_loader
+{
+
+// Abstract interface for world data sources
+// Allows different implementations (legacy files, YAML, database, etc.)
+class IWorldDataSource
+{
+public:
+	virtual ~IWorldDataSource() = default;
+
+	// Returns the name/description of this data source for logging
+	virtual std::string GetName() const = 0;
+
+	// Load world data in the correct order
+	// Each method populates the global data structures
+	virtual void LoadZones() = 0;
+	virtual void LoadTriggers() = 0;
+	virtual void LoadRooms() = 0;
+	virtual void LoadMobs() = 0;
+	virtual void LoadObjects() = 0;
+};
+
+// Factory function type for creating data sources
+using DataSourceFactory = std::unique_ptr<IWorldDataSource>(*)();
+
+} // namespace world_loader
+
+#endif // WORLD_DATA_SOURCE_H_
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
