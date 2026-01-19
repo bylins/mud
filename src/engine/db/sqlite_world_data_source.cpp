@@ -5,12 +5,385 @@
 
 #include "sqlite_world_data_source.h"
 #include "db.h"
+#include "obj_prototypes.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
+#include "engine/entities/zone.h"
+#include "engine/entities/room_data.h"
+#include "engine/entities/char_data.h"
+#include "engine/entities/entities_constants.h"
+#include "engine/scripting/dg_scripts.h"
+#include "engine/db/description.h"
+#include "engine/structs/extra_description.h"
+#include "gameplay/mechanics/dungeons.h"
+#include "gameplay/affects/affect_contants.h"
+#include "gameplay/skills/skills.h"
 
 #include <cstring>
+#include <sstream>
+#include <map>
+#include <unordered_map>
+
+// External declarations
+extern ZoneTable &zone_table;
+extern IndexData **trig_index;
+extern int top_of_trigt;
+extern Rooms &world;
+extern RoomRnum top_of_world;
+extern IndexData *mob_index;
+extern MobRnum top_of_mobt;
+extern CharData *mob_proto;
 
 namespace world_loader
 {
+
+// ============================================================================
+// Flag name to value mappings
+// ============================================================================
+
+// Room flags mapping
+static std::unordered_map<std::string, Bitvector> room_flag_map = {
+	{"kDarked", ERoomFlag::kDarked},
+	{"kDeathTrap", ERoomFlag::kDeathTrap},
+	{"kNoMob", ERoomFlag::kNoEntryMob},
+	{"kNoEntryMob", ERoomFlag::kNoEntryMob},
+	{"kIndoors", ERoomFlag::kIndoors},
+	{"kPeaceful", ERoomFlag::kPeaceful},
+	{"kPeaceFul", ERoomFlag::kPeaceful},
+	{"kSoundproof", ERoomFlag::kSoundproof},
+	{"kNoTrack", ERoomFlag::kNoTrack},
+	{"kNoMagic", ERoomFlag::kNoMagic},
+	{"kTunnel", ERoomFlag::kTunnel},
+	{"kNoTeleportIn", ERoomFlag::kNoTeleportIn},
+	{"kGodRoom", ERoomFlag::kGodsRoom},
+	{"kGodsRoom", ERoomFlag::kGodsRoom},
+	{"kHouse", ERoomFlag::kHouse},
+	{"kHouseCrash", ERoomFlag::kHouseCrash},
+	{"kHouseEntry", ERoomFlag::kHouseEntry},
+	{"kBfsMark", ERoomFlag::kBfsMark},
+	{"kForMages", ERoomFlag::kForMages},
+	{"kForSorcerers", ERoomFlag::kForSorcerers},
+	{"kForThieves", ERoomFlag::kForThieves},
+	{"kForWarriors", ERoomFlag::kForWarriors},
+	{"kForAssasines", ERoomFlag::kForAssasines},
+	{"kForGuards", ERoomFlag::kForGuards},
+	{"kForPaladines", ERoomFlag::kForPaladines},
+	{"kForRangers", ERoomFlag::kForRangers},
+	{"kForPoly", ERoomFlag::kForPoly},
+	{"kForMono", ERoomFlag::kForMono},
+	{"kForge", ERoomFlag::kForge},
+	{"kForMerchants", ERoomFlag::kForMerchants},
+	{"kForMaguses", ERoomFlag::kForMaguses},
+	{"kArena", ERoomFlag::kArena},
+	{"kNoSummonOut", ERoomFlag::kNoSummonOut},
+	{"kNoSummon", ERoomFlag::kNoSummonOut},
+	{"kNoTeleportOut", ERoomFlag::kNoTeleportOut},
+	{"kNohorse", ERoomFlag::kNohorse},
+	{"kNoWeather", ERoomFlag::kNoWeather},
+	{"kSlowDeathTrap", ERoomFlag::kSlowDeathTrap},
+	{"kIceTrap", ERoomFlag::kIceTrap},
+	{"kNoRelocateIn", ERoomFlag::kNoRelocateIn},
+	{"kTribune", ERoomFlag::kTribune},
+	{"kArenaSend", ERoomFlag::kArenaSend},
+	{"kNoBattle", ERoomFlag::kNoBattle},
+	{"kAlwaysLit", ERoomFlag::kAlwaysLit},
+	{"kMoMapper", ERoomFlag::kMoMapper},
+	{"kNoItem", ERoomFlag::kNoItem},
+	{"kDominationArena", ERoomFlag::kDominationArena},
+	// Additional aliases from database
+	{"kNoPk", ERoomFlag::kPeaceful},
+	{"kExchangeRoom", ERoomFlag::kHouse},
+	{"kNoBirdArrival", ERoomFlag::kNoTeleportIn},
+	{"kMoOnlyRoom", ERoomFlag::kGodsRoom},
+	{"kDeathIceTrap", ERoomFlag::kIceTrap},
+	{"kForestTrap", ERoomFlag::kSlowDeathTrap},
+	{"kArenaTrap", ERoomFlag::kArena},
+	{"kNoArmor", ERoomFlag::kForge},
+	{"kAtrium", ERoomFlag::kHouseEntry},
+	{"kAutoQuest", ERoomFlag::kBfsMark},
+	{"kDecayedDeathTrap", ERoomFlag::kDeathTrap},
+	{"kHoleInTheSky", ERoomFlag::kNoTeleportIn},
+};
+
+// Mob action flags mapping
+static std::unordered_map<std::string, Bitvector> mob_action_flag_map = {
+	{"kSpec", EMobFlag::kSpec},
+	{"kSentinel", EMobFlag::kSentinel},
+	{"kScavenger", EMobFlag::kScavenger},
+	{"kIsNpc", EMobFlag::kNpc},
+	{"kNpc", EMobFlag::kNpc},
+	{"kAware", EMobFlag::kAware},
+	{"kAggressive", EMobFlag::kAgressive},
+	{"kAgressive", EMobFlag::kAgressive},
+	{"kStayZone", EMobFlag::kStayZone},
+	{"kWimpy", EMobFlag::kWimpy},
+	{"kAgressiveDay", EMobFlag::kAgressiveDay},
+	{"kAggressiveNight", EMobFlag::kAggressiveNight},
+	{"kAgressiveFullmoon", EMobFlag::kAgressiveFullmoon},
+	{"kMemory", EMobFlag::kMemory},
+	{"kHelper", EMobFlag::kHelper},
+	{"kNoCharm", EMobFlag::kNoCharm},
+	{"kNoSummoned", EMobFlag::kNoSummon},
+	{"kNoSummon", EMobFlag::kNoSummon},
+	{"kNoSleep", EMobFlag::kNoSleep},
+	{"kNoBash", EMobFlag::kNoBash},
+	{"kNoBlind", EMobFlag::kNoBlind},
+	{"kMounting", EMobFlag::kMounting},
+	{"kNoHolder", EMobFlag::kNoHold},
+	{"kNoHold", EMobFlag::kNoHold},
+	{"kNoSilence", EMobFlag::kNoSilence},
+	{"kAgressiveMono", EMobFlag::kAgressiveMono},
+	{"kAgressivePoly", EMobFlag::kAgressivePoly},
+	{"kNoFear", EMobFlag::kNoFear},
+	{"kIgnoresFear", EMobFlag::kNoFear},
+	{"kNoGroup", EMobFlag::kNoGroup},
+	{"kCorpse", EMobFlag::kCorpse},
+	{"kLooter", EMobFlag::kLooter},
+	{"kLooting", EMobFlag::kLooter},
+	{"kProtected", EMobFlag::kProtect},
+	{"kProtect", EMobFlag::kProtect},
+	{"kDeleted", EMobFlag::kMobDeleted},
+	{"kSwimming", EMobFlag::kSwimming},
+	{"kFlying", EMobFlag::kFlying},
+	{"kOnlySwimming", EMobFlag::kOnlySwimming},
+	{"kAgressiveWinter", EMobFlag::kAgressiveWinter},
+	{"kAgressiveSpring", EMobFlag::kAgressiveSpring},
+	{"kAgressiveSummer", EMobFlag::kAgressiveSummer},
+	{"kAgressiveAutumn", EMobFlag::kAgressiveAutumn},
+	{"kAppearsDay", EMobFlag::kAppearsDay},
+	{"kAppearsNight", EMobFlag::kAppearsNight},
+	{"kAppearsFullmoon", EMobFlag::kAppearsFullmoon},
+	{"kAppearsWinter", EMobFlag::kAppearsWinter},
+	{"kAppearsSpring", EMobFlag::kAppearsSpring},
+	{"kAppearsSummer", EMobFlag::kAppearsSummer},
+	{"kAppearsAutumn", EMobFlag::kAppearsAutumn},
+	{"kNoFight", EMobFlag::kNoFight},
+	{"kHorde", EMobFlag::kHorde},
+	{"kClone", EMobFlag::kClone},
+	{"kTutelar", EMobFlag::kTutelar},
+	{"kMentalShadow", EMobFlag::kMentalShadow},
+	{"kSummoner", EMobFlag::kSummoned},
+	{"kFireCreature", EMobFlag::kFireBreath},
+	{"kWaterCreature", EMobFlag::kSwimming},
+	{"kEarthCreature", EMobFlag::kNoBash},
+	{"kAirCreature", EMobFlag::kFlying},
+	{"kNoTrack", EMobFlag::kAware},
+	{"kNoTerrainAttack", EMobFlag::kNoFight},
+	{"kFreemaker", EMobFlag::kSpec},
+	{"kProgrammedLootGroup", EMobFlag::kLooter},
+	{"kScrStay", EMobFlag::kSentinel},
+	{"kRacing", EMobFlag::kSwimming},
+	{"kAggressive_Mob", EMobFlag::kAgressive},
+};
+
+// Mob affect flags mapping (EAffect values)
+static std::unordered_map<std::string, Bitvector> mob_affect_flag_map = {
+	{"kBlind", to_underlying(EAffect::kBlind)},
+	{"kInvisible", to_underlying(EAffect::kInvisible)},
+	{"kDetectAlign", to_underlying(EAffect::kDetectAlign)},
+	{"kDetectInvisible", to_underlying(EAffect::kDetectInvisible)},
+	{"kDetectMagic", to_underlying(EAffect::kDetectMagic)},
+	{"kDetectLife", to_underlying(EAffect::kDetectLife)},
+	{"kWaterWalk", to_underlying(EAffect::kWaterWalk)},
+	{"kSanctuary", to_underlying(EAffect::kSanctuary)},
+	{"kGroup", to_underlying(EAffect::kGroup)},
+	{"kCurse", to_underlying(EAffect::kCurse)},
+	{"kInfravision", to_underlying(EAffect::kInfravision)},
+	{"kPoisoned", to_underlying(EAffect::kPoisoned)},
+	{"kProtectFromDark", to_underlying(EAffect::kProtectFromDark)},
+	{"kProtectFromMind", to_underlying(EAffect::kProtectFromMind)},
+	{"kSleep", to_underlying(EAffect::kSleep)},
+	{"kNoTrack", to_underlying(EAffect::kNoTrack)},
+	{"kSneak", to_underlying(EAffect::kSneak)},
+	{"kHide", to_underlying(EAffect::kHide)},
+	{"kCharmed", to_underlying(EAffect::kCharmed)},
+	{"kHold", to_underlying(EAffect::kHold)},
+	{"kFly", to_underlying(EAffect::kFly)},
+	{"kFlying", to_underlying(EAffect::kFly)},
+	{"kSilence", to_underlying(EAffect::kSilence)},
+	{"kAwarness", to_underlying(EAffect::kAwarness)},
+	{"kBlink", to_underlying(EAffect::kBlink)},
+	{"kHorse", to_underlying(EAffect::kHorse)},
+	{"kNoFlee", to_underlying(EAffect::kNoFlee)},
+	{"kHelper", to_underlying(EAffect::kHelper)},
+	// Aliases from database to appropriate flags
+	{"kAggressive", to_underlying(EAffect::kNoFlee)},
+	{"kScavenger", to_underlying(EAffect::kDetectLife)},
+	{"kIsNpc", 0},  // Not an affect
+	{"kProtected", to_underlying(EAffect::kSanctuary)},
+	{"kNoFear", to_underlying(EAffect::kNoFlee)},
+	{"kAware", to_underlying(EAffect::kAwarness)},
+	{"kScrStay", 0},
+	{"kStayZone", 0},
+	{"kWimpy", 0},
+	{"kNoSummoned", 0},
+	{"kNoSleep", 0},
+	{"kNoBlind", 0},
+	{"kNoCharm", 0},
+	{"kSentinel", 0},
+	{"kSpec", 0},
+	{"kDeleted", 0},
+	{"kSwimming", to_underlying(EAffect::kWaterWalk)},
+	{"kWaterCreature", to_underlying(EAffect::kWaterWalk)},
+	{"kFireCreature", 0},
+	{"kEarthCreature", 0},
+	{"kAirCreature", to_underlying(EAffect::kFly)},
+	{"kMounting", to_underlying(EAffect::kHorse)},
+	{"kMemory", 0},
+	{"kNoHolder", 0},
+	{"kNoSilence", 0},
+	{"kClone", 0},
+	{"kFreemaker", 0},
+	{"kProgrammedLootGroup", 0},
+	{"kNoMagicTerrainAttack", 0},
+	{"kRacing", 0},
+	{"kAggressive_Mob", 0},
+	{"kIgnoresFear", 0},
+};
+
+// Object extra flags mapping
+static std::unordered_map<std::string, EObjFlag> obj_extra_flag_map = {
+	{"kGlow", EObjFlag::kGlow},
+	{"kHum", EObjFlag::kHum},
+	{"kNorent", EObjFlag::kNorent},
+	{"kNodonate", EObjFlag::kNodonate},
+	{"kNoinvis", EObjFlag::kNoinvis},
+	{"kInvisible", EObjFlag::kInvisible},
+	{"kMagic", EObjFlag::kMagic},
+	{"kNodrop", EObjFlag::kNodrop},
+	{"kBless", EObjFlag::kBless},
+	{"kNosell", EObjFlag::kNosell},
+	{"kDecay", EObjFlag::kDecay},
+	{"kZonedecay", EObjFlag::kZonedacay},
+	{"kNodisarm", EObjFlag::kNodisarm},
+	{"kNodecay", EObjFlag::kNodecay},
+	{"kPoisoned", EObjFlag::kPoisoned},
+	{"kSharpen", EObjFlag::kSharpen},
+	{"kArmored", EObjFlag::kArmored},
+	{"kAppearsDay", EObjFlag::kAppearsDay},
+	{"kAppearsNight", EObjFlag::kAppearsNight},
+	{"kAppearsFullmoon", EObjFlag::kAppearsFullmoon},
+	{"kAppearsWinter", EObjFlag::kAppearsWinter},
+	{"kAppearsSpring", EObjFlag::kAppearsSpring},
+	{"kAppearsSummer", EObjFlag::kAppearsSummer},
+	{"kAppearsAutumn", EObjFlag::kAppearsAutumn},
+};
+
+// Object wear flags mapping
+static std::unordered_map<std::string, EWearFlag> obj_wear_flag_map = {
+	{"kTake", EWearFlag::kTake},
+	{"kFinger", EWearFlag::kFinger},
+	{"kNeck", EWearFlag::kNeck},
+	{"kBody", EWearFlag::kBody},
+	{"kHead", EWearFlag::kHead},
+	{"kLegs", EWearFlag::kLegs},
+	{"kFeet", EWearFlag::kFeet},
+	{"kHands", EWearFlag::kHands},
+	{"kArms", EWearFlag::kArms},
+	{"kShield", EWearFlag::kShield},
+	{"kShoulders", EWearFlag::kShoulders},
+	{"kWaist", EWearFlag::kWaist},
+	{"kWrist", EWearFlag::kWrist},
+	{"kWield", EWearFlag::kWield},
+	{"kHold", EWearFlag::kHold},
+	{"kBoth", EWearFlag::kBoth},
+	{"kQuiver", EWearFlag::kQuiver},
+};
+
+// Object type mapping
+static std::unordered_map<std::string, EObjType> obj_type_map = {
+	{"kUndefined", kItemUndefined},
+	{"kLightSource", kLightSource},
+	{"kScroll", kScroll},
+	{"kWand", kWand},
+	{"kStaff", kStaff},
+	{"kWeapon", kWeapon},
+	{"kTreasure", kTreasure},
+	{"kArmor", kArmor},
+	{"kPotion", kPotion},
+	{"kOther", kOther},
+	{"kTrash", kTrash},
+	{"kContainer", kContainer},
+	{"kNote", kNote},
+	{"kLiquidContainer", kLiquidContainer},
+	{"kKey", kKey},
+	{"kFood", kFood},
+	{"kMoney", kMoney},
+	{"kPen", kPen},
+	{"kBoat", kBoat},
+	{"kFountain", kFountain},
+	{"kBook", kBook},
+	{"kIngredient", kIngredient},
+	{"kMagicIngredient", kMagicIngredient},
+	{"kCraftMaterial", kCraftMaterial},
+	{"kBandage", kBandage},
+	{"kLightArmor", kLightArmor},
+	{"kMediumArmor", kMediumArmor},
+	{"kHeavyArmor", kHeavyArmor},
+	{"kEnchant", kEnchant},
+	{"kMagicMaterial", kMagicMaterial},
+	{"kMagicArrow", kMagicArrow},
+	{"kMagicContaner", kMagicContaner},
+};
+
+// Sector type mapping
+static std::unordered_map<std::string, int> sector_map = {
+	{"Inside", ESector::kInside},
+	{"kInside", ESector::kInside},
+	{"City", ESector::kCity},
+	{"kCity", ESector::kCity},
+	{"Field", ESector::kField},
+	{"kField", ESector::kField},
+	{"Forest", ESector::kForest},
+	{"kForest", ESector::kForest},
+	{"Hills", ESector::kHills},
+	{"kHills", ESector::kHills},
+	{"Mountain", ESector::kMountain},
+	{"kMountain", ESector::kMountain},
+	{"WaterSwim", ESector::kWaterSwim},
+	{"kWaterSwim", ESector::kWaterSwim},
+	{"WaterNoswim", ESector::kWaterNoswim},
+	{"kWaterNoswim", ESector::kWaterNoswim},
+	{"OnlyFlying", ESector::kOnlyFlying},
+	{"kOnlyFlying", ESector::kOnlyFlying},
+	{"Underwater", ESector::kUnderwater},
+	{"kUnderwater", ESector::kUnderwater},
+	{"Secret", ESector::kSecret},
+	{"kSecret", ESector::kSecret},
+	{"Stoneroad", ESector::kStoneroad},
+	{"kStoneroad", ESector::kStoneroad},
+	{"Road", ESector::kRoad},
+	{"kRoad", ESector::kRoad},
+	{"Wildroad", ESector::kWildroad},
+	{"kWildroad", ESector::kWildroad},
+};
+
+// Position mapping
+static std::unordered_map<std::string, int> position_map = {
+	{"kDead", static_cast<int>(EPosition::kDead)},
+	{"kPerish", static_cast<int>(EPosition::kPerish)},
+	{"kMortallyw", static_cast<int>(EPosition::kPerish)},
+	{"kIncap", static_cast<int>(EPosition::kIncap)},
+	{"kStun", static_cast<int>(EPosition::kStun)},
+	{"kSleep", static_cast<int>(EPosition::kSleep)},
+	{"kRest", static_cast<int>(EPosition::kRest)},
+	{"kSit", static_cast<int>(EPosition::kSit)},
+	{"kFight", static_cast<int>(EPosition::kFight)},
+	{"kStanding", static_cast<int>(EPosition::kStand)},
+	{"kStand", static_cast<int>(EPosition::kStand)},
+};
+
+// Gender mapping
+static std::unordered_map<std::string, int> gender_map = {
+	{"kMale", static_cast<int>(EGender::kMale)},
+	{"kFemale", static_cast<int>(EGender::kFemale)},
+	{"kNeutral", static_cast<int>(EGender::kNeutral)},
+	{"kPoly", static_cast<int>(EGender::kPoly)},
+};
+
+// ============================================================================
+// SqliteWorldDataSource implementation
+// ============================================================================
 
 SqliteWorldDataSource::SqliteWorldDataSource(const std::string &db_path)
 	: m_db_path(db_path)
@@ -52,18 +425,33 @@ void SqliteWorldDataSource::CloseDatabase()
 	}
 }
 
-bool SqliteWorldDataSource::ExecuteQuery(const char *sql, int (*callback)(void*, int, char**, char**), void *data)
+int SqliteWorldDataSource::GetCount(const char *table)
 {
-	char *err_msg = nullptr;
-	int rc = sqlite3_exec(m_db, sql, callback, data, &err_msg);
-	if (rc != SQLITE_OK)
+	std::string sql = "SELECT COUNT(*) FROM ";
+	sql += table;
+
+	sqlite3_stmt *stmt;
+	int count = 0;
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
 	{
-		log("SYSERR: SQLite error: %s (query: %s)", err_msg, sql);
-		sqlite3_free(err_msg);
-		return false;
+		if (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			count = sqlite3_column_int(stmt, 0);
+		}
+		sqlite3_finalize(stmt);
 	}
-	return true;
+	return count;
 }
+
+const char *SqliteWorldDataSource::GetText(sqlite3_stmt *stmt, int col)
+{
+	const char *text = reinterpret_cast<const char*>(sqlite3_column_text(stmt, col));
+	return text ? text : "";
+}
+
+// ============================================================================
+// Zone Loading
+// ============================================================================
 
 void SqliteWorldDataSource::LoadZones()
 {
@@ -75,10 +463,297 @@ void SqliteWorldDataSource::LoadZones()
 		return;
 	}
 
-	// TODO: Implement zone loading from SQLite
-	// For now, fall back to legacy loading
-	log("SYSERR: SQLite zone loading not yet implemented. Use legacy loader.");
+	int zone_count = GetCount("zones");
+	if (zone_count == 0)
+	{
+		log("No zones found in SQLite database.");
+		return;
+	}
+
+	// Allocate zone_table like PrepareGlobalStructures does
+	zone_table.reserve(zone_count + dungeons::kNumberOfZoneDungeons);
+	zone_table.resize(zone_count);
+	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
+
+	// Load zones
+	const char *sql = "SELECT vnum, name, comment, location, author, description, "
+					  "top_room, lifespan, reset_mode, reset_idle, zone_type, mode, entrance "
+					  "FROM zones ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare zone query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	int zone_idx = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW && zone_idx < zone_count)
+	{
+		ZoneData &zone = zone_table[zone_idx];
+
+		zone.vnum = sqlite3_column_int(stmt, 0);
+		zone.name = GetText(stmt, 1);
+		zone.comment = GetText(stmt, 2);
+		zone.location = GetText(stmt, 3);
+		zone.author = GetText(stmt, 4);
+		zone.description = GetText(stmt, 5);
+		zone.top = sqlite3_column_int(stmt, 6);
+		zone.lifespan = sqlite3_column_int(stmt, 7);
+		zone.reset_mode = sqlite3_column_int(stmt, 8);
+		zone.reset_idle = sqlite3_column_int(stmt, 9) != 0;
+		zone.type = sqlite3_column_int(stmt, 10);
+		zone.level = sqlite3_column_int(stmt, 11);
+		zone.entrance = sqlite3_column_int(stmt, 12);
+
+		// Initialize runtime fields
+		zone.age = 0;
+		zone.time_awake = 0;
+		zone.traffic = 0;
+		zone.under_construction = 0;
+		zone.locked = false;
+		zone.used = false;
+		zone.activity = 0;
+		zone.group = 1;
+		zone.mob_level = 0;
+		zone.is_town = false;
+		zone.count_reset = 0;
+		zone.typeA_count = 0;
+		zone.typeA_list = nullptr;
+		zone.typeB_count = 0;
+		zone.typeB_list = nullptr;
+		zone.typeB_flag = nullptr;
+		zone.cmd = nullptr;
+		zone.RnumTrigsLocation.first = -1;
+		zone.RnumTrigsLocation.second = -1;
+		zone.RnumMobsLocation.first = -1;
+		zone.RnumMobsLocation.second = -1;
+		zone.RnumRoomsLocation.first = -1;
+		zone.RnumRoomsLocation.second = -1;
+
+		// Load zone commands
+		LoadZoneCommands(zone);
+
+		// Load zone groups
+		LoadZoneGroups(zone);
+
+		zone_idx++;
+	}
+	sqlite3_finalize(stmt);
+
+	log("Loaded %d zones from SQLite.", zone_idx);
 }
+
+void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
+{
+	// Count commands for this zone
+	std::string count_sql = "SELECT COUNT(*) FROM zone_commands WHERE zone_vnum = " + std::to_string(zone.vnum);
+	sqlite3_stmt *stmt;
+	int cmd_count = 0;
+
+	if (sqlite3_prepare_v2(m_db, count_sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		if (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			cmd_count = sqlite3_column_int(stmt, 0);
+		}
+		sqlite3_finalize(stmt);
+	}
+
+	// Always need at least one command for 'S' terminator
+	CREATE(zone.cmd, cmd_count + 1);
+
+	if (cmd_count == 0)
+	{
+		zone.cmd[0].command = 'S';
+		return;
+	}
+
+	// Load commands
+	std::string sql = "SELECT cmd_type, if_flag, arg_mob_vnum, arg_obj_vnum, arg_room_vnum, "
+					  "arg_max, arg_max_world, arg_max_room, arg_load_prob, arg_wear_pos, "
+					  "arg_direction, arg_state, arg_trigger_vnum, arg_trigger_type, "
+					  "arg_context, arg_var_name, arg_var_value, arg_container_vnum, "
+					  "arg_leader_mob_vnum, arg_follower_mob_vnum "
+					  "FROM zone_commands WHERE zone_vnum = " + std::to_string(zone.vnum) +
+					  " ORDER BY cmd_order";
+
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		zone.cmd[0].command = 'S';
+		return;
+	}
+
+	int idx = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW && idx < cmd_count)
+	{
+		const char *cmd_type = GetText(stmt, 0);
+		struct reset_com &cmd = zone.cmd[idx];
+
+		// Initialize
+		cmd.command = '*';
+		cmd.if_flag = sqlite3_column_int(stmt, 1);
+		cmd.arg1 = 0;
+		cmd.arg2 = 0;
+		cmd.arg3 = 0;
+		cmd.arg4 = -1;
+		cmd.sarg1 = nullptr;
+		cmd.sarg2 = nullptr;
+		cmd.line = 0;
+
+		// Map command type
+		if (strcmp(cmd_type, "LOAD_MOB") == 0)
+		{
+			cmd.command = 'M';
+			cmd.arg1 = sqlite3_column_int(stmt, 2);  // mob_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 6);  // max_world
+			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
+			cmd.arg4 = sqlite3_column_int(stmt, 7);  // max_room
+		}
+		else if (strcmp(cmd_type, "LOAD_OBJ") == 0)
+		{
+			cmd.command = 'O';
+			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
+			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
+			cmd.arg4 = sqlite3_column_int(stmt, 8);  // load_prob
+		}
+		else if (strcmp(cmd_type, "GIVE_OBJ") == 0)
+		{
+			cmd.command = 'G';
+			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
+			cmd.arg3 = -1;
+		}
+		else if (strcmp(cmd_type, "EQUIP_MOB") == 0)
+		{
+			cmd.command = 'E';
+			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
+			const char *wear_pos = GetText(stmt, 9);
+			cmd.arg3 = wear_pos[0] ? atoi(wear_pos) : 0;
+		}
+		else if (strcmp(cmd_type, "PUT_OBJ") == 0)
+		{
+			cmd.command = 'P';
+			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
+			cmd.arg3 = sqlite3_column_int(stmt, 17); // container_vnum
+		}
+		else if (strcmp(cmd_type, "DOOR") == 0)
+		{
+			cmd.command = 'D';
+			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
+			const char *dir = GetText(stmt, 10);
+			cmd.arg2 = dir[0] ? atoi(dir) : 0;
+			cmd.arg3 = sqlite3_column_int(stmt, 11); // state
+		}
+		else if (strcmp(cmd_type, "REMOVE_OBJ") == 0)
+		{
+			cmd.command = 'R';
+			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 3);  // obj_vnum
+		}
+		else if (strcmp(cmd_type, "TRIGGER") == 0)
+		{
+			cmd.command = 'T';
+			const char *trig_type = GetText(stmt, 13);
+			cmd.arg1 = trig_type[0] ? atoi(trig_type) : 0;
+			cmd.arg2 = sqlite3_column_int(stmt, 12); // trigger_vnum
+			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum (or -1 for mob/obj)
+		}
+		else if (strcmp(cmd_type, "VARIABLE") == 0)
+		{
+			cmd.command = 'V';
+			const char *trig_type = GetText(stmt, 13);
+			cmd.arg1 = trig_type[0] ? atoi(trig_type) : 0;
+			cmd.arg2 = sqlite3_column_int(stmt, 14); // context
+			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
+			const char *var_name = GetText(stmt, 15);
+			const char *var_value = GetText(stmt, 16);
+			if (var_name[0]) cmd.sarg1 = str_dup(var_name);
+			if (var_value[0]) cmd.sarg2 = str_dup(var_value);
+		}
+		else if (strcmp(cmd_type, "EXTRACT_MOB") == 0)
+		{
+			cmd.command = 'Q';
+			cmd.arg1 = sqlite3_column_int(stmt, 2);  // mob_vnum
+		}
+		else if (strcmp(cmd_type, "FOLLOW") == 0)
+		{
+			cmd.command = 'F';
+			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
+			cmd.arg2 = sqlite3_column_int(stmt, 18); // leader_mob_vnum
+			cmd.arg3 = sqlite3_column_int(stmt, 19); // follower_mob_vnum
+		}
+
+		idx++;
+	}
+	sqlite3_finalize(stmt);
+
+	// Add terminating command
+	zone.cmd[idx].command = 'S';
+}
+
+void SqliteWorldDataSource::LoadZoneGroups(ZoneData &zone)
+{
+	sqlite3_stmt *stmt;
+
+	// Count and load typeA
+	std::string sql = "SELECT linked_zone_vnum FROM zone_groups WHERE zone_vnum = " +
+					  std::to_string(zone.vnum) + " AND group_type = 'A'";
+
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		// First count
+		std::vector<int> typeA_zones;
+		while (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			typeA_zones.push_back(sqlite3_column_int(stmt, 0));
+		}
+		sqlite3_finalize(stmt);
+
+		if (!typeA_zones.empty())
+		{
+			zone.typeA_count = typeA_zones.size();
+			CREATE(zone.typeA_list, zone.typeA_count);
+			for (int i = 0; i < zone.typeA_count; i++)
+			{
+				zone.typeA_list[i] = typeA_zones[i];
+			}
+		}
+	}
+
+	// Count and load typeB
+	sql = "SELECT linked_zone_vnum FROM zone_groups WHERE zone_vnum = " +
+		  std::to_string(zone.vnum) + " AND group_type = 'B'";
+
+	if (sqlite3_prepare_v2(m_db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+	{
+		std::vector<int> typeB_zones;
+		while (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			typeB_zones.push_back(sqlite3_column_int(stmt, 0));
+		}
+		sqlite3_finalize(stmt);
+
+		if (!typeB_zones.empty())
+		{
+			zone.typeB_count = typeB_zones.size();
+			CREATE(zone.typeB_list, zone.typeB_count);
+			CREATE(zone.typeB_flag, zone.typeB_count);
+			for (int i = 0; i < zone.typeB_count; i++)
+			{
+				zone.typeB_list[i] = typeB_zones[i];
+				zone.typeB_flag[i] = false;
+			}
+		}
+	}
+}
+
+// ============================================================================
+// Trigger Loading
+// ============================================================================
 
 void SqliteWorldDataSource::LoadTriggers()
 {
@@ -90,9 +765,103 @@ void SqliteWorldDataSource::LoadTriggers()
 		return;
 	}
 
-	// TODO: Implement trigger loading from SQLite
-	log("SYSERR: SQLite trigger loading not yet implemented. Use legacy loader.");
+	int trig_count = GetCount("triggers");
+	if (trig_count == 0)
+	{
+		log("No triggers found in SQLite database.");
+		return;
+	}
+
+	// Allocate trig_index
+	CREATE(trig_index, trig_count);
+	log("   %d triggers.", trig_count);
+
+	const char *sql = "SELECT vnum, name, attach_type, trigger_types, narg, arglist, script "
+					  "FROM triggers ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare trigger query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	top_of_trigt = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int vnum = sqlite3_column_int(stmt, 0);
+		const char *name = GetText(stmt, 1);
+		const char *attach_type_str = GetText(stmt, 2);
+		const char *trigger_types_str = GetText(stmt, 3);
+		int narg = sqlite3_column_int(stmt, 4);
+		const char *arglist = GetText(stmt, 5);
+		const char *script = GetText(stmt, 6);
+
+		// Parse attach_type
+		byte attach_type = MOB_TRIGGER;
+		if (strstr(attach_type_str, "Obj") || strstr(attach_type_str, "OBJ"))
+			attach_type = OBJ_TRIGGER;
+		else if (strstr(attach_type_str, "Room") || strstr(attach_type_str, "WLD"))
+			attach_type = WLD_TRIGGER;
+
+		// Parse trigger_types - try as number first
+		long trigger_type = 0;
+		char *endptr;
+		trigger_type = strtol(trigger_types_str, &endptr, 10);
+		(void)endptr; // suppress unused warning
+
+		// Create trigger with proper constructor
+		auto trig = new Trigger(vnum, name[0] ? name : "unnamed", attach_type, trigger_type);
+		GET_TRIG_NARG(trig) = narg;
+		trig->arglist = arglist;
+
+		// Parse script into cmdlist
+		if (script[0])
+		{
+			std::istringstream ss(script);
+			std::string line;
+			cmdlist_element::shared_ptr head = nullptr;
+			cmdlist_element::shared_ptr tail = nullptr;
+
+			while (std::getline(ss, line))
+			{
+				auto cmd = std::make_shared<cmdlist_element>();
+				cmd->cmd = line;
+				cmd->next = nullptr;
+
+				if (!head)
+				{
+					head = cmd;
+					tail = cmd;
+				}
+				else
+				{
+					tail->next = cmd;
+					tail = cmd;
+				}
+			}
+
+			trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>(head);
+		}
+
+		// Create index entry
+		IndexData *index;
+		CREATE(index, 1);
+		index->vnum = vnum;
+		index->total_online = 0;
+		index->func = nullptr;
+		index->proto = trig;
+
+		trig_index[top_of_trigt++] = index;
+	}
+	sqlite3_finalize(stmt);
+
+	log("Loaded %d triggers from SQLite.", top_of_trigt);
 }
+
+// ============================================================================
+// Room Loading
+// ============================================================================
 
 void SqliteWorldDataSource::LoadRooms()
 {
@@ -104,9 +873,271 @@ void SqliteWorldDataSource::LoadRooms()
 		return;
 	}
 
-	// TODO: Implement room loading from SQLite
-	log("SYSERR: SQLite room loading not yet implemented. Use legacy loader.");
+	int room_count = GetCount("rooms");
+	if (room_count == 0)
+	{
+		log("No rooms found in SQLite database.");
+		return;
+	}
+
+	// Create kNowhere room first
+	world.push_back(new RoomData);
+	top_of_world = kNowhere;
+
+	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
+
+	// Build vnum to zone_rnum map
+	std::map<int, int> zone_vnum_to_rnum;
+	for (size_t i = 0; i < zone_table.size(); i++)
+	{
+		zone_vnum_to_rnum[zone_table[i].vnum] = i;
+	}
+
+	const char *sql = "SELECT vnum, zone_vnum, name, description, sector FROM rooms ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare room query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int vnum = sqlite3_column_int(stmt, 0);
+		int zone_vnum = sqlite3_column_int(stmt, 1);
+		const char *name = GetText(stmt, 2);
+		const char *description = GetText(stmt, 3);
+		const char *sector_str = GetText(stmt, 4);
+
+		auto room = new RoomData;
+		room->vnum = vnum;
+		room->set_name(name);
+
+		// Set description
+		if (description[0])
+		{
+			room->description_num = RoomDescription::add_desc(description);
+		}
+
+		// Set zone_rn
+		auto it = zone_vnum_to_rnum.find(zone_vnum);
+		if (it != zone_vnum_to_rnum.end())
+		{
+			room->zone_rn = it->second;
+			// Update zone room locations
+			if (zone_table[it->second].RnumRoomsLocation.first == -1)
+			{
+				zone_table[it->second].RnumRoomsLocation.first = top_of_world + 1;
+			}
+			zone_table[it->second].RnumRoomsLocation.second = top_of_world + 1;
+		}
+
+		// Parse sector type
+		auto sector_it = sector_map.find(sector_str);
+		if (sector_it != sector_map.end())
+		{
+			room->sector_type = sector_it->second;
+		}
+		else
+		{
+			room->sector_type = ESector::kCity;
+		}
+
+		world.push_back(room);
+		top_of_world++;
+	}
+	sqlite3_finalize(stmt);
+
+	// Build room vnum to rnum map for exits
+	std::map<int, int> room_vnum_to_rnum;
+	for (RoomRnum i = kFirstRoom; i <= top_of_world; i++)
+	{
+		room_vnum_to_rnum[world[i]->vnum] = i;
+	}
+
+	// Load room flags
+	LoadRoomFlags(room_vnum_to_rnum);
+
+	// Load room exits
+	LoadRoomExits(room_vnum_to_rnum);
+
+	// Load room triggers
+	LoadRoomTriggers(room_vnum_to_rnum);
+
+	// Load room extra descriptions
+	LoadRoomExtraDescriptions(room_vnum_to_rnum);
+
+	log("Loaded %d rooms from SQLite.", top_of_world);
 }
+
+void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum)
+{
+	const char *sql = "SELECT room_vnum, flag_name FROM room_flags";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare room flags query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	int flags_set = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int room_vnum = sqlite3_column_int(stmt, 0);
+		const char *flag_name = GetText(stmt, 1);
+
+		auto room_it = vnum_to_rnum.find(room_vnum);
+		if (room_it == vnum_to_rnum.end()) continue;
+
+		auto flag_it = room_flag_map.find(flag_name);
+		if (flag_it != room_flag_map.end())
+		{
+			world[room_it->second]->set_flag(flag_it->second);
+			flags_set++;
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Set %d room flags.", flags_set);
+}
+
+void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum)
+{
+	const char *sql = "SELECT room_vnum, direction, description, keywords, exit_flags, "
+					  "key_vnum, to_room, lock_complexity FROM room_exits";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare room exits query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	int exits_loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int room_vnum = sqlite3_column_int(stmt, 0);
+		const char *direction = GetText(stmt, 1);
+		const char *desc = GetText(stmt, 2);
+		const char *keywords = GetText(stmt, 3);
+		const char *exit_flags_str = GetText(stmt, 4);
+		int exit_flags = exit_flags_str[0] ? atoi(exit_flags_str) : 0;
+		int key_vnum = sqlite3_column_int(stmt, 5);
+		int to_room_vnum = sqlite3_column_int(stmt, 6);
+		int lock_complexity = sqlite3_column_int(stmt, 7);
+
+		auto it = vnum_to_rnum.find(room_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		RoomData *room = world[it->second];
+
+		// Parse direction
+		int dir = -1;
+		if (strcmp(direction, "north") == 0) dir = 0;
+		else if (strcmp(direction, "east") == 0) dir = 1;
+		else if (strcmp(direction, "south") == 0) dir = 2;
+		else if (strcmp(direction, "west") == 0) dir = 3;
+		else if (strcmp(direction, "up") == 0) dir = 4;
+		else if (strcmp(direction, "down") == 0) dir = 5;
+
+		if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
+
+		auto exit_data = std::make_shared<ExitData>();
+
+		// Resolve to_room vnum to rnum
+		auto to_it = vnum_to_rnum.find(to_room_vnum);
+		if (to_it != vnum_to_rnum.end())
+		{
+			exit_data->to_room(to_it->second);
+		}
+		else
+		{
+			exit_data->to_room(kNowhere);
+		}
+
+		exit_data->key = key_vnum;
+		exit_data->lock_complexity = lock_complexity;
+		if (desc[0]) exit_data->general_description = desc;
+		if (keywords[0]) exit_data->set_keywords(keywords);
+
+		// Set exit flags (stored as string in database, parse as integer)
+		exit_data->exit_info = exit_flags;
+
+		room->dir_option_proto[dir] = exit_data;
+		exits_loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Loaded %d room exits.", exits_loaded);
+}
+
+void SqliteWorldDataSource::LoadRoomTriggers(const std::map<int, int> &vnum_to_rnum)
+{
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'room'";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int room_vnum = sqlite3_column_int(stmt, 0);
+		int trigger_vnum = sqlite3_column_int(stmt, 1);
+
+		auto it = vnum_to_rnum.find(room_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		if (!world[it->second]->proto_script)
+		{
+			world[it->second]->proto_script = std::make_shared<ObjData::triggers_list_t>();
+		}
+		world[it->second]->proto_script->push_back(trigger_vnum);
+	}
+	sqlite3_finalize(stmt);
+}
+
+void SqliteWorldDataSource::LoadRoomExtraDescriptions(const std::map<int, int> &vnum_to_rnum)
+{
+	const char *sql = "SELECT entity_vnum, keywords, description FROM extra_descriptions WHERE entity_type = 'room'";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int room_vnum = sqlite3_column_int(stmt, 0);
+		const char *keywords = GetText(stmt, 1);
+		const char *description = GetText(stmt, 2);
+
+		auto it = vnum_to_rnum.find(room_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		auto ex_desc = std::make_shared<ExtraDescription>();
+		ex_desc->set_keyword(keywords);
+		ex_desc->set_description(description);
+		ex_desc->next = world[it->second]->ex_description;
+		world[it->second]->ex_description = ex_desc;
+		loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	if (loaded > 0)
+	{
+		log("   Loaded %d room extra descriptions.", loaded);
+	}
+}
+
+// ============================================================================
+// Mob Loading
+// ============================================================================
 
 void SqliteWorldDataSource::LoadMobs()
 {
@@ -118,9 +1149,299 @@ void SqliteWorldDataSource::LoadMobs()
 		return;
 	}
 
-	// TODO: Implement mob loading from SQLite
-	log("SYSERR: SQLite mob loading not yet implemented. Use legacy loader.");
+	int mob_count = GetCount("mobs");
+	if (mob_count == 0)
+	{
+		log("No mobs found in SQLite database.");
+		return;
+	}
+
+	// Allocate like PrepareGlobalStructures
+	mob_proto = new CharData[mob_count];
+	CREATE(mob_index, mob_count);
+	log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.",
+		mob_count, sizeof(IndexData) * mob_count, sizeof(CharData) * mob_count);
+
+	// Build zone vnum to rnum map
+	std::map<int, int> zone_vnum_to_rnum;
+	for (size_t i = 0; i < zone_table.size(); i++)
+	{
+		zone_vnum_to_rnum[zone_table[i].vnum] = i;
+	}
+
+	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+					  "short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor, "
+					  "hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus, "
+					  "gold_dice_count, gold_dice_size, gold_bonus, experience, default_pos, start_pos, "
+					  "sex, size, height, weight, mob_class, race, "
+					  "attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha "
+					  "FROM mobs ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare mob query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	top_of_mobt = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int vnum = sqlite3_column_int(stmt, 0);
+		CharData &mob = mob_proto[top_of_mobt];
+
+		// Initialize mob
+		mob.player_specials = player_special_data::s_for_mobiles;
+
+		// Names
+		mob.SetCharAliases(GetText(stmt, 1));
+		mob.set_npc_name(GetText(stmt, 2));
+		mob.player_data.PNames[ECase::kNom] = GetText(stmt, 2);
+		mob.player_data.PNames[ECase::kGen] = GetText(stmt, 3);
+		mob.player_data.PNames[ECase::kDat] = GetText(stmt, 4);
+		mob.player_data.PNames[ECase::kAcc] = GetText(stmt, 5);
+		mob.player_data.PNames[ECase::kIns] = GetText(stmt, 6);
+		mob.player_data.PNames[ECase::kPre] = GetText(stmt, 7);
+
+		// Descriptions
+		mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 9));
+		mob.player_data.description = GetText(stmt, 8);
+
+		// Base parameters
+		GET_ALIGNMENT(&mob) = sqlite3_column_int(stmt, 10);
+
+		// Stats
+		mob.set_level(sqlite3_column_int(stmt, 12));
+		GET_HR(&mob) = sqlite3_column_int(stmt, 13);
+		GET_AC(&mob) = sqlite3_column_int(stmt, 14);
+
+		// HP dice
+		mob.mem_queue.total = sqlite3_column_int(stmt, 15);  // hp_dice_count
+		mob.mem_queue.stored = sqlite3_column_int(stmt, 16);  // hp_dice_size
+		int hp_bonus = sqlite3_column_int(stmt, 17);
+		mob.set_hit(hp_bonus);
+		mob.set_max_hit(hp_bonus);
+
+		// Damage dice
+		mob.mob_specials.damnodice = sqlite3_column_int(stmt, 18);
+		mob.mob_specials.damsizedice = sqlite3_column_int(stmt, 19);
+		mob.real_abils.damroll = sqlite3_column_int(stmt, 20);
+
+		// Gold dice
+		mob.mob_specials.GoldNoDs = sqlite3_column_int(stmt, 21);
+		mob.mob_specials.GoldSiDs = sqlite3_column_int(stmt, 22);
+		mob.set_gold(sqlite3_column_int(stmt, 23));
+
+		// Experience
+		mob.set_exp(sqlite3_column_int(stmt, 24));
+
+		// Position
+		const char *default_pos = GetText(stmt, 25);
+		const char *start_pos = GetText(stmt, 26);
+		auto pos_it = position_map.find(default_pos);
+		mob.mob_specials.default_pos = pos_it != position_map.end() ?
+			static_cast<EPosition>(pos_it->second) : EPosition::kStand;
+		pos_it = position_map.find(start_pos);
+		mob.SetPosition(pos_it != position_map.end() ?
+			static_cast<EPosition>(pos_it->second) : EPosition::kStand);
+
+		// Sex
+		const char *sex_str = GetText(stmt, 27);
+		auto gender_it = gender_map.find(sex_str);
+		mob.set_sex(gender_it != gender_map.end() ?
+			static_cast<EGender>(gender_it->second) : EGender::kMale);
+
+		// Physical attributes
+		GET_SIZE(&mob) = sqlite3_column_int(stmt, 28);
+		GET_HEIGHT(&mob) = sqlite3_column_int(stmt, 29);
+		GET_WEIGHT(&mob) = sqlite3_column_int(stmt, 30);
+
+		// Attributes (E-spec)
+		mob.set_str(sqlite3_column_int(stmt, 33));
+		mob.set_dex(sqlite3_column_int(stmt, 34));
+		mob.set_int(sqlite3_column_int(stmt, 35));
+		mob.set_wis(sqlite3_column_int(stmt, 36));
+		mob.set_con(sqlite3_column_int(stmt, 37));
+		mob.set_cha(sqlite3_column_int(stmt, 38));
+
+		// Set NPC flag
+		mob.SetNpcAttribute(true);
+
+		// Setup index
+		int zone_vnum = vnum / 100;
+		auto zone_it = zone_vnum_to_rnum.find(zone_vnum);
+		if (zone_it != zone_vnum_to_rnum.end())
+		{
+			if (zone_table[zone_it->second].RnumMobsLocation.first == -1)
+			{
+				zone_table[zone_it->second].RnumMobsLocation.first = top_of_mobt;
+			}
+			zone_table[zone_it->second].RnumMobsLocation.second = top_of_mobt;
+		}
+
+		mob_index[top_of_mobt].vnum = vnum;
+		mob_index[top_of_mobt].total_online = 0;
+		mob_index[top_of_mobt].stored = 0;
+		mob_index[top_of_mobt].func = nullptr;
+		mob_index[top_of_mobt].farg = nullptr;
+		mob_index[top_of_mobt].proto = nullptr;
+		mob_index[top_of_mobt].set_idx = -1;
+
+		mob.set_rnum(top_of_mobt);
+
+		top_of_mobt++;
+	}
+	sqlite3_finalize(stmt);
+
+	// Load mob flags
+	LoadMobFlags();
+
+	// Load mob skills
+	LoadMobSkills();
+
+	// Load mob triggers
+	LoadMobTriggers();
+
+	log("Loaded %d mobs from SQLite.", top_of_mobt);
 }
+
+void SqliteWorldDataSource::LoadMobFlags()
+{
+	const char *sql = "SELECT mob_vnum, flag_category, flag_name FROM mob_flags";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	// Build vnum to rnum map
+	std::map<int, int> vnum_to_rnum;
+	for (MobRnum i = 0; i < top_of_mobt; i++)
+	{
+		vnum_to_rnum[mob_index[i].vnum] = i;
+	}
+
+	int flags_set = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int mob_vnum = sqlite3_column_int(stmt, 0);
+		const char *category = GetText(stmt, 1);
+		const char *flag_name = GetText(stmt, 2);
+
+		auto it = vnum_to_rnum.find(mob_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		CharData &mob = mob_proto[it->second];
+
+		if (strcmp(category, "action") == 0)
+		{
+			auto flag_it = mob_action_flag_map.find(flag_name);
+			if (flag_it != mob_action_flag_map.end() && flag_it->second != 0)
+			{
+				mob.SetFlag(static_cast<EMobFlag>(flag_it->second));
+				flags_set++;
+			}
+		}
+		else if (strcmp(category, "affect") == 0)
+		{
+			auto flag_it = mob_affect_flag_map.find(flag_name);
+			if (flag_it != mob_affect_flag_map.end() && flag_it->second != 0)
+			{
+				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_it->second));
+				flags_set++;
+			}
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Set %d mob flags.", flags_set);
+}
+
+void SqliteWorldDataSource::LoadMobSkills()
+{
+	const char *sql = "SELECT mob_vnum, skill_name, value FROM mob_skills";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	// Build vnum to rnum map
+	std::map<int, int> vnum_to_rnum;
+	for (MobRnum i = 0; i < top_of_mobt; i++)
+	{
+		vnum_to_rnum[mob_index[i].vnum] = i;
+	}
+
+	int skills_set = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int mob_vnum = sqlite3_column_int(stmt, 0);
+		const char *skill_name = GetText(stmt, 1);
+		int value = sqlite3_column_int(stmt, 2);
+
+		auto it = vnum_to_rnum.find(mob_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		// Parse skill name
+		try
+		{
+			auto skill = ITEM_BY_NAME<ESkill>(skill_name);
+			mob_proto[it->second].set_skill(skill, value);
+			skills_set++;
+		}
+		catch (...)
+		{
+			// Unknown skill name
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	if (skills_set > 0)
+	{
+		log("   Set %d mob skills.", skills_set);
+	}
+}
+
+void SqliteWorldDataSource::LoadMobTriggers()
+{
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'mob'";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	// Build vnum to rnum map
+	std::map<int, int> vnum_to_rnum;
+	for (MobRnum i = 0; i < top_of_mobt; i++)
+	{
+		vnum_to_rnum[mob_index[i].vnum] = i;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int mob_vnum = sqlite3_column_int(stmt, 0);
+		int trigger_vnum = sqlite3_column_int(stmt, 1);
+
+		auto it = vnum_to_rnum.find(mob_vnum);
+		if (it == vnum_to_rnum.end()) continue;
+
+		if (!mob_proto[it->second].proto_script)
+		{
+			mob_proto[it->second].proto_script = std::make_shared<ObjData::triggers_list_t>();
+		}
+		mob_proto[it->second].proto_script->push_back(trigger_vnum);
+	}
+	sqlite3_finalize(stmt);
+}
+
+// ============================================================================
+// Object Loading
+// ============================================================================
 
 void SqliteWorldDataSource::LoadObjects()
 {
@@ -132,11 +1453,295 @@ void SqliteWorldDataSource::LoadObjects()
 		return;
 	}
 
-	// TODO: Implement object loading from SQLite
-	log("SYSERR: SQLite object loading not yet implemented. Use legacy loader.");
+	int obj_count = GetCount("objects");
+	if (obj_count == 0)
+	{
+		log("No objects found in SQLite database.");
+		return;
+	}
+
+	log("   %d objs.", obj_count);
+
+	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+					  "short_desc, action_desc, obj_type, material, value0, value1, value2, value3, "
+					  "weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
+					  "timer, spell, level, max_in_world "
+					  "FROM objects ORDER BY vnum";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare object query: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int vnum = sqlite3_column_int(stmt, 0);
+
+		auto obj = std::make_shared<CObjectPrototype>(vnum);
+
+		// Names
+		obj->set_aliases(GetText(stmt, 1));
+		obj->set_short_description(GetText(stmt, 2));
+		obj->set_PName(ECase::kNom, GetText(stmt, 2));
+		obj->set_PName(ECase::kGen, GetText(stmt, 3));
+		obj->set_PName(ECase::kDat, GetText(stmt, 4));
+		obj->set_PName(ECase::kAcc, GetText(stmt, 5));
+		obj->set_PName(ECase::kIns, GetText(stmt, 6));
+		obj->set_PName(ECase::kPre, GetText(stmt, 7));
+		obj->set_description(GetText(stmt, 8));
+		obj->set_action_description(GetText(stmt, 9));
+
+		// Type
+		const char *obj_type_str = GetText(stmt, 10);
+		auto type_it = obj_type_map.find(obj_type_str);
+		if (type_it != obj_type_map.end())
+		{
+			obj->set_type(type_it->second);
+		}
+		else
+		{
+			// Try as number
+			char *endptr;
+			long type_num = strtol(obj_type_str, &endptr, 10);
+			if (*endptr == '\0' && type_num > 0)
+			{
+				obj->set_type(static_cast<EObjType>(type_num));
+			}
+			else
+			{
+				obj->set_type(kItemUndefined);
+			}
+		}
+
+		// Material
+		obj->set_material(static_cast<EObjMaterial>(sqlite3_column_int(stmt, 11)));
+
+		// Values
+		const char *val0 = GetText(stmt, 12);
+		const char *val1 = GetText(stmt, 13);
+		const char *val2 = GetText(stmt, 14);
+		const char *val3 = GetText(stmt, 15);
+
+		// Parse values - try as numbers
+		char *endptr;
+		obj->set_val(0, strtol(val0, &endptr, 10));
+		obj->set_val(1, strtol(val1, &endptr, 10));
+		obj->set_val(2, strtol(val2, &endptr, 10));
+		obj->set_val(3, strtol(val3, &endptr, 10));
+
+		// Physical properties
+		obj->set_weight(sqlite3_column_int(stmt, 16));
+		obj->set_cost(sqlite3_column_int(stmt, 17));
+		obj->set_rent_off(sqlite3_column_int(stmt, 18));
+		obj->set_rent_on(sqlite3_column_int(stmt, 19));
+		obj->set_spec_param(sqlite3_column_int(stmt, 20));
+		obj->set_maximum_durability(sqlite3_column_int(stmt, 21));
+		obj->set_current_durability(sqlite3_column_int(stmt, 22));
+		obj->set_timer(sqlite3_column_int(stmt, 23));
+		obj->set_spell(sqlite3_column_int(stmt, 24));
+		obj->set_minimum_remorts(sqlite3_column_int(stmt, 25));
+		obj->set_max_in_world(sqlite3_column_int(stmt, 26));
+
+		obj_proto.add(obj, vnum);
+	}
+	sqlite3_finalize(stmt);
+
+	// Load object flags
+	LoadObjectFlags();
+
+	// Load object applies
+	LoadObjectApplies();
+
+	// Load object triggers
+	LoadObjectTriggers();
+
+	// Load object extra descriptions
+	LoadObjectExtraDescriptions();
+
+	log("Loaded %zu objects from SQLite.", obj_proto.size());
 }
 
-// Save methods - SQLite is read-only for now
+void SqliteWorldDataSource::LoadObjectFlags()
+{
+	const char *sql = "SELECT obj_vnum, flag_category, flag_name FROM obj_flags";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int flags_set = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		const char *category = GetText(stmt, 1);
+		const char *flag_name = GetText(stmt, 2);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0) continue;
+
+		if (strcmp(category, "extra") == 0)
+		{
+			auto flag_it = obj_extra_flag_map.find(flag_name);
+			if (flag_it != obj_extra_flag_map.end())
+			{
+				obj_proto[rnum]->set_extra_flag(flag_it->second);
+				flags_set++;
+			}
+		}
+		else if (strcmp(category, "wear") == 0)
+		{
+			auto flag_it = obj_wear_flag_map.find(flag_name);
+			if (flag_it != obj_wear_flag_map.end())
+			{
+				int wear_flags = obj_proto[rnum]->get_wear_flags();
+				wear_flags |= to_underlying(flag_it->second);
+				obj_proto[rnum]->set_wear_flags(wear_flags);
+				flags_set++;
+			}
+		}
+		else if (strcmp(category, "no") == 0)
+		{
+			try
+			{
+				auto flag = ITEM_BY_NAME<ENoFlag>(flag_name);
+				obj_proto[rnum]->set_no_flag(flag);
+				flags_set++;
+			}
+			catch (...) {}
+		}
+		else if (strcmp(category, "anti") == 0)
+		{
+			try
+			{
+				auto flag = ITEM_BY_NAME<EAntiFlag>(flag_name);
+				obj_proto[rnum]->set_anti_flag(flag);
+				flags_set++;
+			}
+			catch (...) {}
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Set %d object flags.", flags_set);
+}
+
+void SqliteWorldDataSource::LoadObjectApplies()
+{
+	const char *sql = "SELECT obj_vnum, location, modifier FROM obj_applies";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int applies_loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		const char *location_str = GetText(stmt, 1);
+		int modifier = sqlite3_column_int(stmt, 2);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0) continue;
+
+		// Parse location - try ITEM_BY_NAME first, fall back to number
+		int location = 0;
+		try
+		{
+			auto apply_loc = ITEM_BY_NAME<EApply>(location_str);
+			location = to_underlying(apply_loc);
+		}
+		catch (...)
+		{
+			// Try as number
+			char *endptr;
+			location = strtol(location_str, &endptr, 10);
+		}
+
+		// Find first empty apply slot
+		for (int i = 0; i < kMaxObjAffect; i++)
+		{
+			if (obj_proto[rnum]->get_affected(i).location == EApply::kNone)
+			{
+				obj_proto[rnum]->set_affected(i, static_cast<EApply>(location), modifier);
+				applies_loaded++;
+				break;
+			}
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Loaded %d object applies.", applies_loaded);
+}
+
+void SqliteWorldDataSource::LoadObjectTriggers()
+{
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'obj'";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		int trigger_vnum = sqlite3_column_int(stmt, 1);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum >= 0)
+		{
+			obj_proto[rnum]->add_proto_script(trigger_vnum);
+		}
+	}
+	sqlite3_finalize(stmt);
+}
+
+void SqliteWorldDataSource::LoadObjectExtraDescriptions()
+{
+	const char *sql = "SELECT entity_vnum, keywords, description FROM extra_descriptions WHERE entity_type = 'obj'";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		const char *keywords = GetText(stmt, 1);
+		const char *description = GetText(stmt, 2);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0) continue;
+
+		auto ex_desc = std::make_shared<ExtraDescription>();
+		ex_desc->set_keyword(keywords);
+		ex_desc->set_description(description);
+		ex_desc->next = obj_proto[rnum]->get_ex_description();
+		obj_proto[rnum]->set_ex_description(ex_desc);
+		loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	if (loaded > 0)
+	{
+		log("   Loaded %d object extra descriptions.", loaded);
+	}
+}
+
+// ============================================================================
+// Save Methods (read-only)
+// ============================================================================
+
 void SqliteWorldDataSource::SaveZone(int)
 {
 	log("SYSERR: SQLite data source does not support saving zones.");

@@ -10,6 +10,9 @@
 
 #include <sqlite3.h>
 #include <string>
+#include <map>
+
+class ZoneData;
 
 namespace world_loader
 {
@@ -39,7 +42,29 @@ public:
 private:
 	bool OpenDatabase();
 	void CloseDatabase();
-	bool ExecuteQuery(const char *sql, int (*callback)(void*, int, char**, char**), void *data);
+	int GetCount(const char *table);
+	const char *GetText(sqlite3_stmt *stmt, int col);
+
+	// Zone loading helpers
+	void LoadZoneCommands(ZoneData &zone);
+	void LoadZoneGroups(ZoneData &zone);
+
+	// Room loading helpers
+	void LoadRoomExits(const std::map<int, int> &vnum_to_rnum);
+	void LoadRoomFlags(const std::map<int, int> &vnum_to_rnum);
+	void LoadRoomTriggers(const std::map<int, int> &vnum_to_rnum);
+	void LoadRoomExtraDescriptions(const std::map<int, int> &vnum_to_rnum);
+
+	// Mob loading helpers
+	void LoadMobFlags();
+	void LoadMobSkills();
+	void LoadMobTriggers();
+
+	// Object loading helpers
+	void LoadObjectFlags();
+	void LoadObjectApplies();
+	void LoadObjectTriggers();
+	void LoadObjectExtraDescriptions();
 
 	std::string m_db_path;
 	sqlite3 *m_db;
