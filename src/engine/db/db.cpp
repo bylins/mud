@@ -59,6 +59,9 @@
 #include "player_index.h"
 #include "world_checksum.h"
 #include "legacy_world_data_source.h"
+#ifdef HAVE_SQLITE
+#include "sqlite_world_data_source.h"
+#endif
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -102,6 +105,9 @@ long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
 bool no_world_checksum = false;    // disable world checksum calculation
+#ifdef HAVE_SQLITE
+extern const char *sqlite_db_path;    // SQLite database path (defined in comm.cpp)
+#endif
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -835,7 +841,16 @@ void BootMudDataBase() {
 	city_guards::LoadGuardians();
 
 	boot_profiler.next_step("Loading world");
-	GameLoader::BootWorld();
+#ifdef HAVE_SQLITE
+	if (sqlite_db_path)
+	{
+		GameLoader::BootWorld(world_loader::CreateSqliteDataSource(sqlite_db_path));
+	}
+	else
+#endif
+	{
+		GameLoader::BootWorld();
+	}
 
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");

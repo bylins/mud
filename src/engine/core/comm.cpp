@@ -61,6 +61,9 @@
 #include "engine/network/msdp/msdp_constants.h"
 #include "engine/entities/zone.h"
 #include "engine/db/db.h"
+#ifdef HAVE_SQLITE
+#include "engine/db/sqlite_world_data_source.h"
+#endif
 #include "utils/utils.h"
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
@@ -372,7 +375,8 @@ DescriptorData *descriptor_list = nullptr;    // master desc list
 int no_specials = 0;        // Suppress ass. of special routines
 int max_players = 0;        // max descriptors available
 int tics = 0;            // for extern checkpointing
-int scheck = 0;            // for syntax checking mode
+int scheck = 0;
+const char *sqlite_db_path = nullptr;  // SQLite database path for world loading
 struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
@@ -640,6 +644,19 @@ int main_function(int argc, char **argv) {
 				no_world_checksum = true;
 				puts("World checksum calculation disabled.");
 				break;
+#ifdef HAVE_SQLITE
+			case 'S':
+				if (*(argv[pos] + 2))
+					sqlite_db_path = argv[pos] + 2;
+				else if (++pos < argc)
+					sqlite_db_path = argv[pos];
+				else {
+					puts("SYSERR: SQLite database path expected after option -S.");
+					exit(1);
+				}
+				printf("Using SQLite database: %s\n", sqlite_db_path);
+				break;
+#endif
 			case 'd':
 				if (*(argv[pos] + 2))
 					dir = argv[pos] + 2;
@@ -658,7 +675,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+				   "\n"
+				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -668,7 +687,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+				   "\n"
+				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -707,7 +728,16 @@ int main_function(int argc, char **argv) {
 	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
-		game_loader.BootWorld();
+#ifdef HAVE_SQLITE
+		if (sqlite_db_path)
+		{
+			game_loader.BootWorld(world_loader::CreateSqliteDataSource(sqlite_db_path));
+		}
+		else
+#endif
+		{
+			game_loader.BootWorld();
+		}
 		printf("Done.");
 	} else {
 		printf("Running game on port %d.\r\n", port);
