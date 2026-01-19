@@ -403,7 +403,7 @@ int replace_str(const utils::AbstractStringWriter::shared_ptr &writer, const cha
 			strncpy(replace_buffer, from, pos - from);
 			replace_buffer += pos - from;
 
-			strncpy(replace_buffer, replacement, replacement_length);
+			memcpy(replace_buffer, replacement, replacement_length);
 			replace_buffer += replacement_length;
 			remains -= replacement_length;
 
@@ -1523,7 +1523,7 @@ void utf8_to_koi(char *str_i, char *str_o) {
 						0xB0, 0xB1, 0xB2, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD,
 						0xBE        // koi8-r ╟╠╡╢╣╤╥╦╧╨╩╪╫╬
 					};
-					*str_o = static_cast<char>(Utf8ToKoiPg[u - 0x2500]);
+					*str_o = static_cast<char>(Utf8ToKoiPg[u - 0x2550]);
 				} else // random non-sequencitial bits and pieces (other pseudographics and some math symbols)
 				{
 					switch (u) {

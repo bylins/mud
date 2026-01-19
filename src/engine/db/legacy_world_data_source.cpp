@@ -5,6 +5,13 @@
 #include "db.h"
 #include "utils/logger.h"
 
+// Forward declarations for OLC save functions
+void zedit_save_to_disk(int zone_rnum);
+void redit_save_to_disk(int zone_rnum);
+void medit_save_to_disk(int zone_rnum);
+void oedit_save_to_disk(int zone_rnum);
+void trigedit_save_to_disk(int zone_rnum);
+
 namespace world_loader
 {
 
@@ -36,6 +43,31 @@ void LegacyWorldDataSource::LoadObjects()
 {
 	log("Loading objs and generating index.");
 	GameLoader::BootIndex(DB_BOOT_OBJ);
+}
+
+void LegacyWorldDataSource::SaveZone(int zone_rnum)
+{
+	zedit_save_to_disk(zone_rnum);
+}
+
+void LegacyWorldDataSource::SaveTriggers(int zone_rnum)
+{
+	trigedit_save_to_disk(zone_rnum);
+}
+
+void LegacyWorldDataSource::SaveRooms(int zone_rnum)
+{
+	redit_save_to_disk(zone_rnum);
+}
+
+void LegacyWorldDataSource::SaveMobs(int zone_rnum)
+{
+	medit_save_to_disk(zone_rnum);
+}
+
+void LegacyWorldDataSource::SaveObjects(int zone_rnum)
+{
+	oedit_save_to_disk(zone_rnum);
 }
 
 std::unique_ptr<IWorldDataSource> CreateLegacyDataSource()

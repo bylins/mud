@@ -27,6 +27,14 @@ public:
 	virtual void LoadRooms() = 0;
 	virtual void LoadMobs() = 0;
 	virtual void LoadObjects() = 0;
+
+	// Save world data per zone (used by OLC)
+	// zone_rnum is the runtime zone index
+	virtual void SaveZone(int zone_rnum) = 0;
+	virtual void SaveTriggers(int zone_rnum) = 0;
+	virtual void SaveRooms(int zone_rnum) = 0;
+	virtual void SaveMobs(int zone_rnum) = 0;
+	virtual void SaveObjects(int zone_rnum) = 0;
 };
 
 // Factory function type for creating data sources

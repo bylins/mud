@@ -301,3 +301,36 @@ The heartbeat system includes built-in profiling:
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
 - **Script Depth**: DG Scripts limited to 512 recursion depth to prevent stack overflow
 - **Runtime Encoding**: While source files are KOI8-R, runtime text can be multiple encodings (Alt, Win, UTF-8, KOI8-R) based on client settings
+
+## Claude Code Workflow Rules
+
+### Build Directory Convention
+Use separate build directories for different CMake configurations to avoid lengthy rebuilds:
+```
+build/        - default build (without optional features)
+build_sqlite/ - build with -DHAVE_SQLITE=ON
+build_debug/  - debug build with -DCMAKE_BUILD_TYPE=Debug
+build_test/   - test data and converted worlds (not for compilation)
+```
+**Always warn the user when changing build directories or running cmake/make in a different directory.**
+
+### File Encoding - CRITICAL
+The Edit tool corrupts KOI8-R encoding in source files. To safely modify existing source files:
+```bash
+# Use sed with LANG=C to preserve encoding
+LANG=C sed -i 's/old_text/new_text/' file.cpp
+
+# For multi-line changes, use sed with address ranges
+LANG=C sed -i '/pattern/a\
+new line here' file.cpp
+```
+**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.** 
+Only use Edit for newly created files or files known to be pure ASCII.
+
+### Directory Change Notifications
+Always explicitly notify the user before:
+- Running cmake in a different build directory
+- Running make in a different build directory  
+- Changing the working directory for any build operation
+
+Example: "Switching to build_sqlite/ directory for SQLite-enabled build."

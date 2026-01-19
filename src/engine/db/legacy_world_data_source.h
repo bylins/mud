@@ -24,6 +24,12 @@ public:
 	void LoadRooms() override;
 	void LoadMobs() override;
 	void LoadObjects() override;
+
+	void SaveZone(int zone_rnum) override;
+	void SaveTriggers(int zone_rnum) override;
+	void SaveRooms(int zone_rnum) override;
+	void SaveMobs(int zone_rnum) override;
+	void SaveObjects(int zone_rnum) override;
 };
 
 // Factory function for creating legacy data source
