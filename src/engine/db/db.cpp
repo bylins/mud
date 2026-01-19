@@ -57,6 +57,7 @@
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/communication/social.h"
 #include "player_index.h"
+#include "world_checksum.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -99,6 +100,7 @@ int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
+bool no_world_checksum = false;    // disable world checksum calculation
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -439,6 +441,15 @@ void GameLoader::BootWorld() {
 	system_obj::init();
 
 	log("Init global_drop_obj.");
+
+	if (!no_world_checksum)
+	{
+		boot_profiler.next_step("Calculating world checksums");
+		log("Calculating world checksums...");
+		auto checksums = WorldChecksum::Calculate();
+		WorldChecksum::LogResult(checksums);
+		WorldChecksum::SaveDetailedChecksums("checksums_detailed.txt");
+	}
 }
 
 void InitZoneTypes() {

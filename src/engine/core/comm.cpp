@@ -351,6 +351,7 @@ extern int num_invalid;
 extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
+extern bool no_world_checksum;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -634,6 +635,10 @@ int main_function(int argc, char **argv) {
 
 			case 's': no_specials = 1;
 				puts("Suppressing assignment of special routines.");
+				break;
+			case 'C':
+				no_world_checksum = true;
+				puts("World checksum calculation disabled.");
 				break;
 			case 'd':
 				if (*(argv[pos] + 2))
