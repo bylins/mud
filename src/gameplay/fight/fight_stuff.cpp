@@ -658,7 +658,7 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
 				   victim->mob_specials.MaxFactor,
 				   exp,
-				   ch->mobmax_get(GET_MOB_VNUM(victim)));
+				   ch->mobmax_get(vnum));
 
 	exp += static_cast<int>(exp * (ch->add_abils.percent_exp_add) / 100.0);
 	for (koef = 100, base = 0, diff =
