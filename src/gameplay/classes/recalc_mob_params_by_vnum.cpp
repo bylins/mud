@@ -956,7 +956,7 @@ void do_recalc_zone(const char *argument) {
 //	}
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
-	const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
+	//const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
 //	SendMsgToChar(ch,
 //		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
 //		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);

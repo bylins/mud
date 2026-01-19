@@ -707,7 +707,7 @@ int main_function(int argc, char **argv) {
 	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
-		world_loader.BootWorld();
+		game_loader.BootWorld();
 		printf("Done.");
 	} else {
 		printf("Running game on port %d.\r\n", port);

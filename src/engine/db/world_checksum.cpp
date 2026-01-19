@@ -114,7 +114,7 @@ std::string SerializeRoom(const RoomData *room)
 	std::ostringstream oss;
 
 	oss << room->vnum << "|";
-	oss << room->zone_rn << "|";
+	// zone_rn excluded - runtime index
 	oss << room->sector_type << "|";
 	if (room->name)
 	{
