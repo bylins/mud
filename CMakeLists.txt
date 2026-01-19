@@ -160,6 +160,7 @@ set(SOURCES
 		src/utils/utils_string.cpp
 		src/engine/db/world_objects.cpp
 		src/engine/db/obj_prototypes.cpp
+		src/engine/db/world_checksum.cpp
 		src/engine/db/id.cpp
 		src/engine/db/utils_find_obj_id_by_vnum.cpp
 		src/engine/db/global_objects.cpp
@@ -501,6 +502,7 @@ set(HEADERS
 		src/engine/structs/radix_trie.h
 		src/engine/db/obj_prototypes.h
 		src/engine/db/world_objects.h
+		src/engine/db/world_checksum.h
 		src/utils/utils_string.h
 		src/gameplay/affects/affect_handler.h
 		src/gameplay/economics/auction.h
@@ -1304,3 +1306,54 @@ endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
 
+# =============================================================================
+# Data directories setup for running server from build directory
+# =============================================================================
+
+option(FULL_WORLD_PATH "Path to full world data directory (e.g., /path/to/full.world/lib)" "")
+
+# Only set up data directories if building out-of-source
+if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    # Setup small world directory (lib + lib.template)
+    set(SMALL_WORLD_DIR "${CMAKE_BINARY_DIR}/small")
+    
+    # Create small world directory with symlinks
+    file(MAKE_DIRECTORY "${SMALL_WORLD_DIR}")
+    
+    # List of subdirectories to symlink from lib and lib.template
+    set(LIB_SUBDIRS cfg etc misc text world plralias plrobjs plrs plrstuff plrvars stat log)
+    
+    foreach(subdir ${LIB_SUBDIRS})
+        set(LINK_PATH "${SMALL_WORLD_DIR}/${subdir}")
+        # Prefer lib.template if exists, otherwise use lib
+        if (EXISTS "${CMAKE_SOURCE_DIR}/lib.template/${subdir}")
+            set(TARGET_PATH "${CMAKE_SOURCE_DIR}/lib.template/${subdir}")
+        elseif (EXISTS "${CMAKE_SOURCE_DIR}/lib/${subdir}")
+            set(TARGET_PATH "${CMAKE_SOURCE_DIR}/lib/${subdir}")
+        else()
+            set(TARGET_PATH "")
+        endif()
+        
+        if (TARGET_PATH AND NOT EXISTS "${LINK_PATH}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${TARGET_PATH}" "${LINK_PATH}")
+            message(STATUS "Created symlink: ${LINK_PATH} -> ${TARGET_PATH}")
+        endif()
+    endforeach()
+    
+    message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
+    
+    # Setup full world directory if path is specified
+    if (FULL_WORLD_PATH)
+        set(FULL_WORLD_DIR "${CMAKE_BINARY_DIR}/full")
+        if (EXISTS "${FULL_WORLD_PATH}" AND NOT EXISTS "${FULL_WORLD_DIR}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${FULL_WORLD_PATH}" "${FULL_WORLD_DIR}")
+            message(STATUS "Full world directory configured at: ${FULL_WORLD_DIR} -> ${FULL_WORLD_PATH}")
+        elseif (NOT EXISTS "${FULL_WORLD_PATH}")
+            message(WARNING "FULL_WORLD_PATH specified but does not exist: ${FULL_WORLD_PATH}")
+        endif()
+    endif()
+else()
+    message(STATUS "In-source build detected, skipping data directory setup")
+endif()
+
+# vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
