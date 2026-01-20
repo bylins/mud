@@ -1611,7 +1611,9 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_spec_param(sqlite3_column_int(stmt, 20));
 		obj->set_maximum_durability(sqlite3_column_int(stmt, 21));
 		obj->set_current_durability(sqlite3_column_int(stmt, 22));
-		obj->set_timer(sqlite3_column_int(stmt, 23));
+		int timer = sqlite3_column_int(stmt, 23);
+		if (timer > 0 && timer > 99999) timer = 99999;  // Cap timer like Legacy
+		obj->set_timer(timer);
 		obj->set_spell(sqlite3_column_int(stmt, 24));
 		obj->set_level(sqlite3_column_int(stmt, 25));
 		obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
