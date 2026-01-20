@@ -966,17 +966,18 @@ void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	char arg2[kBuf]{}; // remorts
 	char arg3[kBuf]{}; // player_level
 	char arg4[kBuf]{}; // difficulty
-
+	std::string full_arg{argument};
 	// <zone_vnum> <remorts> <player_level> <difficulty>
 	argument = three_arguments(argument, arg1, arg2, arg3);
 	one_argument(argument, arg4);
+	
 	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
 		SendMsgToChar(ch,
 			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
 		return;
 	}
-	DGRecalcZone(argument);
-	SendMsgToChar(ch, "Zone recalc done. %s", argument);
+	DGRecalcZone(full_arg.c_str());
+	SendMsgToChar(ch, "Zone recalc done. %s", full_arg.c_str());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
