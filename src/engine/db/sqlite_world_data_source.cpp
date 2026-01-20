@@ -941,13 +941,6 @@ void SqliteWorldDataSource::LoadRooms()
 
 	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
-	// Build vnum to zone_rnum map
-	std::map<int, int> zone_vnum_to_rnum;
-	for (size_t i = 0; i < zone_table.size(); i++)
-	{
-		zone_vnum_to_rnum[zone_table[i].vnum] = i;
-	}
-
 	const char *sql = "SELECT vnum, zone_vnum, name, description, sector FROM rooms ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
@@ -957,10 +950,13 @@ void SqliteWorldDataSource::LoadRooms()
 		return;
 	}
 
+	// Zone rnum - increments as we process rooms in vnum order (same as Legacy)
+	ZoneRnum zone_rn = 0;
+
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int vnum = sqlite3_column_int(stmt, 0);
-		int zone_vnum = sqlite3_column_int(stmt, 1);
+		[[maybe_unused]] int zone_vnum = sqlite3_column_int(stmt, 1);
 		std::string name = GetText(stmt, 2);
 		std::string description = GetText(stmt, 3);
 		std::string sector_str = GetText(stmt, 4);
@@ -975,17 +971,23 @@ void SqliteWorldDataSource::LoadRooms()
 			room->description_num = RoomDescription::add_desc(description);
 		}
 
-		// Set zone_rn
-		auto it = zone_vnum_to_rnum.find(zone_vnum);
-		if (it != zone_vnum_to_rnum.end())
+		// Set zone_rn by finding zone that contains this vnum (same as Legacy)
+		while (vnum > zone_table[zone_rn].top)
 		{
-			room->zone_rn = it->second;
-			// Update zone room locations
-			if (zone_table[it->second].RnumRoomsLocation.first == -1)
+			if (++zone_rn >= static_cast<ZoneRnum>(zone_table.size()))
 			{
-				zone_table[it->second].RnumRoomsLocation.first = top_of_world + 1;
+				log("SYSERR: Room %d is outside of any zone.", vnum);
+				break;
 			}
-			zone_table[it->second].RnumRoomsLocation.second = top_of_world + 1;
+		}
+		if (zone_rn < static_cast<ZoneRnum>(zone_table.size()))
+		{
+			room->zone_rn = zone_rn;
+			if (zone_table[zone_rn].RnumRoomsLocation.first == -1)
+			{
+				zone_table[zone_rn].RnumRoomsLocation.first = top_of_world + 1;
+			}
+			zone_table[zone_rn].RnumRoomsLocation.second = top_of_world + 1;
 		}
 
 		// Parse sector type

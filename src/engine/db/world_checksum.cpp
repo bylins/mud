@@ -9,6 +9,7 @@
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
 #include "utils/logger.h"
+#include "engine/structs/extra_description.h"
 
 #include <sstream>
 #include <vector>
@@ -264,6 +265,26 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	oss << obj->get_minimum_remorts() << "|";
 	oss << obj->get_wear_flags() << "|";
 
+	// Extra flags (all 4 planes)
+	const auto &extra = obj->get_extra_flags();
+	oss << extra.get_plane(0) << "," << extra.get_plane(1) << ","
+	    << extra.get_plane(2) << "," << extra.get_plane(3) << "|";
+
+	// Anti flags (all 4 planes)
+	const auto &anti = obj->get_anti_flags();
+	oss << anti.get_plane(0) << "," << anti.get_plane(1) << ","
+	    << anti.get_plane(2) << "," << anti.get_plane(3) << "|";
+
+	// No flags (all 4 planes)
+	const auto &no = obj->get_no_flags();
+	oss << no.get_plane(0) << "," << no.get_plane(1) << ","
+	    << no.get_plane(2) << "," << no.get_plane(3) << "|";
+
+	// Affect flags (all 4 planes)
+	const auto &waff = obj->get_affect_flags();
+	oss << waff.get_plane(0) << "," << waff.get_plane(1) << ","
+	    << waff.get_plane(2) << "," << waff.get_plane(3) << "|";
+
 	// Values
 	for (int i = 0; i < CObjectPrototype::VALS_COUNT; ++i)
 	{
@@ -286,6 +307,21 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	for (int i = 0; i <= ECase::kLastCase; ++i)
 	{
 		oss << obj->get_PName(static_cast<ECase>(i)) << ",";
+	}
+	oss << "|";
+
+	// Extra descriptions
+	for (auto ed = obj->get_ex_description(); ed; ed = ed->next)
+	{
+		if (ed->keyword)
+		{
+			oss << ed->keyword << ":";
+		}
+		if (ed->description)
+		{
+			oss << ed->description;
+		}
+		oss << ";";
 	}
 	oss << "|";
 
