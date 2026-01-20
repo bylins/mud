@@ -2164,19 +2164,17 @@ void PasteMobiles() {
 }
 
 void paste_on_reset(RoomData *to_room) {
-	utils::CExecutionTimer time;
-
 	const auto people_copy = to_room->people;
+
 	for (const auto &ch : people_copy) {
 		paste_mob(ch, ch->in_room);
 	}
-
 	ObjData *obj_next;
+
 	for (ObjData *obj = to_room->contents; obj; obj = obj_next) {
 		obj_next = obj->get_next_content();
 		paste_obj(obj, obj->get_in_room());
 	}
-	log("Paste on reset finished, time %f", time.delta().count());
 }
 
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
