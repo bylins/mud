@@ -2005,8 +2005,11 @@ void CharData::set_master(CharData::ptr_t master) {
 void CharData::set_wait(const unsigned _) {
 
 	if (_ > 0) {
-//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-//		log("ставим вайт для %s (%d)", GET_NAME(this), GET_MOB_VNUM(this));
+/*		if (!this->IsNpc()) {
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+			mudlog(fmt::format("ставим вайт для {} {}", GET_NAME(this), _));
+		}
+*/
 		chardata_wait_list.insert(this);
 		m_wait = _;
 	}
