@@ -108,6 +108,8 @@ std::string GetStringWithoutColors(const std::string &string);
 // поиск аббревиатур по тексту с пропуском слов
 // abbr - список кратких аббревиатур, words текст\фраза
 bool IsEquivalent(const std::string &abbr, const std::string &words);
+// поиск abbr  без пропусков слов в строке words
+bool IsEqual(const std::string &abbr, const std::string &words);
 // arg1 аббревиатура в arg2 тексте\фразе
 bool IsAbbr(const char *arg1, const char *arg2);
 inline int IsAbbr(const std::string &arg1, const char *arg2) { return IsAbbr(arg1.c_str(), arg2); }
