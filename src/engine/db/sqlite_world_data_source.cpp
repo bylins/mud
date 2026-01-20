@@ -324,6 +324,7 @@ static std::unordered_map<std::string, EObjType> obj_type_map = {
 	{"kMagicMaterial", kMagicMaterial},
 	{"kMagicArrow", kMagicArrow},
 	{"kMagicContaner", kMagicContaner},
+	{"kTrap", kTrap},
 };
 
 // Sector type mapping
@@ -1614,7 +1615,7 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_spell(sqlite3_column_int(stmt, 24));
 		obj->set_level(sqlite3_column_int(stmt, 25));
 		obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
-		obj->set_max_in_world(sqlite3_column_int(stmt, 27));
+		obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
 
 		obj_proto.add(obj, vnum);
 	}
@@ -1691,6 +1692,16 @@ void SqliteWorldDataSource::LoadObjectFlags()
 			{
 				auto flag = ITEM_BY_NAME<EAntiFlag>(flag_name);
 				obj_proto[rnum]->set_anti_flag(flag);
+				flags_set++;
+			}
+			catch (...) {}
+		}
+		else if (strcmp(category.c_str(), "affect") == 0)
+		{
+			try
+			{
+				auto flag = ITEM_BY_NAME<EWeaponAffect>(flag_name);
+				obj_proto[rnum]->SetEWeaponAffectFlag(flag);
 				flags_set++;
 			}
 			catch (...) {}
