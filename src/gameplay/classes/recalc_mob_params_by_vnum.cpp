@@ -259,6 +259,8 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	// Очищаем ненужные флаги и аффекты
 	AFF_FLAGS(ch).unset(EAffect::kFireShield);
+	AFF_FLAGS(ch).unset(EAffect::kIceShield);
+	AFF_FLAGS(ch).unset(EAffect::kAirShield);
 	AFF_FLAGS(ch).unset(EAffect::kMagicGlass);
 	ch->UnsetFlag(EMobFlag::kNotKillPunctual);
 	ch->UnsetFlag(EMobFlag::kNoBash);
