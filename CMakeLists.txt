@@ -439,6 +439,8 @@ set(SOURCES
 		src/gameplay/classes/mob_classes_info.cpp
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp)
 
+
+
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
 		src/engine/ui/cmd/do_follow.h
@@ -861,7 +863,8 @@ set(HEADERS
 		src/gameplay/mechanics/damage.h
 		src/gameplay/mechanics/tutelar.h
 		src/gameplay/skills/addshot.h
-		src/engine/db/player_index.h)
+		src/engine/db/player_index.h
+		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

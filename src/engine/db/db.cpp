@@ -2149,17 +2149,22 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 }
 
 void PasteMobiles() {
-	log("PasteMobiles()");
+	utils::CExecutionTimer time;
+
 	for (auto &it : character_list) {
 	  paste_mob(it.get(), it->in_room);
 	}
+	log("Paste Mobiles() finished, time %f", time.delta().count());
 	for (auto &it : world_objects) {
 	  paste_obj(it.get(), it->get_in_room());
 	}
+	log("Paste obj() finished, time %f", time.delta().count());
+
 }
 
 void paste_on_reset(RoomData *to_room) {
-	log("Paste on reset");
+	utils::CExecutionTimer time;
+
 	const auto people_copy = to_room->people;
 	for (const auto &ch : people_copy) {
 		paste_mob(ch, ch->in_room);
@@ -2170,6 +2175,7 @@ void paste_on_reset(RoomData *to_room) {
 		obj_next = obj->get_next_content();
 		paste_obj(obj, obj->get_in_room());
 	}
+	log("Paste on reset finished, time %f", time.delta().count());
 }
 
 void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {

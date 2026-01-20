@@ -926,9 +926,9 @@ bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int remorts, int set_level, i
 	RecalcMobParamsInZone(zone_vnum, remorts, set_level, difficulty);
 	return true;
 }
-
 // --------------------- Команда recalc_zone -----------------------------------
-void do_recalc_zone(const char *argument) {
+
+void DGRecalcZone(const char *argument) {
 	constexpr size_t kBuf = 256;
 
 	char arg1[kBuf]{}; // zone_vnum
@@ -940,22 +940,17 @@ void do_recalc_zone(const char *argument) {
 	argument = three_arguments(argument, arg1, arg2, arg3);
 	one_argument(argument, arg4);
 
-//	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
-//		SendMsgToChar(ch,
-//			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
-//		return;
-//	}
 
 	const int zone_vnum		= atoi(arg1);
 	const int remorts		= atoi(arg2);
 	const int player_level  = atoi(arg3);
 	const int difficulty    = atoi(arg4);
 
-//	if (zone_vnum < dungeons::kZoneStartDungeons) {
+	if (zone_vnum < dungeons::kZoneStartDungeons) {
 //		SendMsgToChar(ch,
-//			"Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
-//		return;
-//	}
+			mudlog("Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
+		return;
+	}
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
 	const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
@@ -963,6 +958,25 @@ void do_recalc_zone(const char *argument) {
 //		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
 //		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);
 
+}
+
+void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
+	constexpr size_t kBuf = 256;
+	char arg1[kBuf]{}; // zone_vnum
+	char arg2[kBuf]{}; // remorts
+	char arg3[kBuf]{}; // player_level
+	char arg4[kBuf]{}; // difficulty
+
+	// <zone_vnum> <remorts> <player_level> <difficulty>
+	argument = three_arguments(argument, arg1, arg2, arg3);
+	one_argument(argument, arg4);
+	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
+		SendMsgToChar(ch,
+			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
+		return;
+	}
+	DGRecalcZone(argument);
+	SendMsgToChar(ch, "Zone recalc done. %s", argument);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
