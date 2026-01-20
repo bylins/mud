@@ -1122,7 +1122,7 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 
 void SqliteWorldDataSource::LoadRoomTriggers(const std::map<int, int> &vnum_to_rnum)
 {
-	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'room'";
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'room' ORDER BY rowid";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1142,7 +1142,15 @@ void SqliteWorldDataSource::LoadRoomTriggers(const std::map<int, int> &vnum_to_r
 		{
 			world[it->second]->proto_script = std::make_shared<ObjData::triggers_list_t>();
 		}
-		world[it->second]->proto_script->push_back(trigger_vnum);
+		// Only add trigger if it exists
+		if (GetTriggerRnum(trigger_vnum) >= 0)
+		{
+			world[it->second]->proto_script->push_back(trigger_vnum);
+		}
+		else
+		{
+			log("SYSERR: Room %d references non-existent trigger %d, skipping.", room_vnum, trigger_vnum);
+		}
 	}
 	sqlite3_finalize(stmt);
 }
@@ -1239,6 +1247,7 @@ void SqliteWorldDataSource::LoadMobs()
 
 		// Initialize mob
 		mob.player_specials = player_special_data::s_for_mobiles;
+		mob.SetNpcAttribute(true);
 
 		// Names
 		mob.SetCharAliases(GetText(stmt, 1));
@@ -1251,8 +1260,8 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.player_data.PNames[ECase::kPre] = GetText(stmt, 7);
 
 		// Descriptions
-		mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 9));
-		mob.player_data.description = GetText(stmt, 8);
+		mob.player_data.long_descr = utils::colorCAP(GetText(stmt, 8));
+		mob.player_data.description = GetText(stmt, 9);
 
 		// Base parameters
 		GET_ALIGNMENT(&mob) = sqlite3_column_int(stmt, 10);
@@ -1267,7 +1276,7 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.mem_queue.stored = sqlite3_column_int(stmt, 16);  // hp_dice_size
 		int hp_bonus = sqlite3_column_int(stmt, 17);
 		mob.set_hit(hp_bonus);
-		mob.set_max_hit(hp_bonus);
+		mob.set_max_hit(0);  // 0 = flag that HP is xdy+z
 
 		// Damage dice
 		mob.mob_specials.damnodice = sqlite3_column_int(stmt, 18);
@@ -1312,7 +1321,6 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.set_cha(sqlite3_column_int(stmt, 38));
 
 		// Set NPC flag
-		mob.SetNpcAttribute(true);
 
 		// Setup index
 		int zone_vnum = vnum / 100;
@@ -1460,7 +1468,7 @@ void SqliteWorldDataSource::LoadMobSkills()
 
 void SqliteWorldDataSource::LoadMobTriggers()
 {
-	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'mob'";
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'mob' ORDER BY rowid";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1487,7 +1495,15 @@ void SqliteWorldDataSource::LoadMobTriggers()
 		{
 			mob_proto[it->second].proto_script = std::make_shared<ObjData::triggers_list_t>();
 		}
-		mob_proto[it->second].proto_script->push_back(trigger_vnum);
+		// Only add trigger if it exists
+		if (GetTriggerRnum(trigger_vnum) >= 0)
+		{
+			mob_proto[it->second].proto_script->push_back(trigger_vnum);
+		}
+		else
+		{
+			log("SYSERR: Mob %d references non-existent trigger %d, skipping.", mob_vnum, trigger_vnum);
+		}
 	}
 	sqlite3_finalize(stmt);
 }
@@ -1734,7 +1750,7 @@ void SqliteWorldDataSource::LoadObjectApplies()
 
 void SqliteWorldDataSource::LoadObjectTriggers()
 {
-	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'obj'";
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'obj' ORDER BY rowid";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1750,7 +1766,15 @@ void SqliteWorldDataSource::LoadObjectTriggers()
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum >= 0)
 		{
-			obj_proto[rnum]->add_proto_script(trigger_vnum);
+			// Only add trigger if it exists
+			if (GetTriggerRnum(trigger_vnum) >= 0)
+			{
+				obj_proto[rnum]->add_proto_script(trigger_vnum);
+			}
+			else
+			{
+				log("SYSERR: Object %d references non-existent trigger %d, skipping.", obj_vnum, trigger_vnum);
+			}
 		}
 	}
 	sqlite3_finalize(stmt);
