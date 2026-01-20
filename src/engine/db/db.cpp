@@ -65,6 +65,7 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <memory>
 
@@ -105,9 +106,6 @@ long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
 bool no_world_checksum = false;    // disable world checksum calculation
-#ifdef HAVE_SQLITE
-extern const char *sqlite_db_path;    // SQLite database path (defined in comm.cpp)
-#endif
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -362,7 +360,21 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Create default data source if none provided
 	if (!data_source)
 	{
+#ifdef HAVE_SQLITE
+		const char *world_db_path = "world.db";
+		if (access(world_db_path, F_OK) == 0)
+		{
+			data_source = world_loader::CreateSqliteDataSource(world_db_path);
+		}
+		else
+		{
+			log("INFO: world.db not found, falling back to legacy loader.");
+			data_source = world_loader::CreateLegacyDataSource();
+		}
+#else
+		// No SQLite support, use legacy loader
 		data_source = world_loader::CreateLegacyDataSource();
+#endif
 	}
 	log("Using data source: %s", data_source->GetName().c_str());
 
@@ -841,17 +853,7 @@ void BootMudDataBase() {
 	city_guards::LoadGuardians();
 
 	boot_profiler.next_step("Loading world");
-#ifdef HAVE_SQLITE
-	if (sqlite_db_path)
-	{
-		GameLoader::BootWorld(world_loader::CreateSqliteDataSource(sqlite_db_path));
-	}
-	else
-#endif
-	{
-		GameLoader::BootWorld();
-	}
-
+	GameLoader::BootWorld();
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
 	oload_table.init();

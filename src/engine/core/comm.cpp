@@ -376,7 +376,6 @@ int no_specials = 0;        // Suppress ass. of special routines
 int max_players = 0;        // max descriptors available
 int tics = 0;            // for extern checkpointing
 int scheck = 0;
-const char *sqlite_db_path = nullptr;  // SQLite database path for world loading
 struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
@@ -644,19 +643,6 @@ int main_function(int argc, char **argv) {
 				no_world_checksum = true;
 				puts("World checksum calculation disabled.");
 				break;
-#ifdef HAVE_SQLITE
-			case 'S':
-				if (*(argv[pos] + 2))
-					sqlite_db_path = argv[pos] + 2;
-				else if (++pos < argc)
-					sqlite_db_path = argv[pos];
-				else {
-					puts("SYSERR: SQLite database path expected after option -S.");
-					exit(1);
-				}
-				printf("Using SQLite database: %s\n", sqlite_db_path);
-				break;
-#endif
 			case 'd':
 				if (*(argv[pos] + 2))
 					dir = argv[pos] + 2;
@@ -714,6 +700,10 @@ int main_function(int argc, char **argv) {
 	printf("%s\r\n", DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
 	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
+	if (chdir(dir) < 0) {
+		perror("\r\nSYSERR: Fatal error changing to data directory");
+		exit(1);
+	}
 	runtime_config.load();
 	if (runtime_config.msdp_debug()) {
 		msdp::debug(true);
@@ -722,22 +712,9 @@ int main_function(int argc, char **argv) {
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();
 	log_code_date();
-	if (chdir(dir) < 0) {
-		perror("\r\nSYSERR: Fatal error changing to data directory");
-		exit(1);
-	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
-#ifdef HAVE_SQLITE
-		if (sqlite_db_path)
-		{
-			game_loader.BootWorld(world_loader::CreateSqliteDataSource(sqlite_db_path));
-		}
-		else
-#endif
-		{
-			game_loader.BootWorld();
-		}
+		game_loader.BootWorld();
 		printf("Done.");
 	} else {
 		printf("Running game on port %d.\r\n", port);
