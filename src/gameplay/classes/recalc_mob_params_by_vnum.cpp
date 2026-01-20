@@ -235,6 +235,19 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	// Количество атак всегда фиксируем в 1
 	ch->mob_specials.extra_attack = 0;
 
+	// Замакс делаем большой
+	ch->mob_specials.MaxFactor = 100;
+
+	// Проверяем бризит ли моб
+	bool is_breathing = false;
+	if (ch->IsFlagged(EMobFlag::kFireBreath) ||
+		ch->IsFlagged(EMobFlag::kGasBreath) ||
+		ch->IsFlagged(EMobFlag::kFrostBreath) ||
+		ch->IsFlagged(EMobFlag::kAcidBreath) ||
+		ch->IsFlagged(EMobFlag::kLightingBreath)) {
+		is_breathing = true;
+	}
+
 	// --- Сохранить текущие идентификаторы навыков/заклинаний (чтобы мы могли их сохранить и применить значения по умолчанию, если они не указаны в конфиге). ---
 	std::vector<ESkill> old_skills;
 	old_skills.reserve(ch->get_skills_count());
@@ -242,7 +255,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (id == ESkill::kUndefined) {
 			continue;
 		}
-		if (ch->GetTrainedSkill(id) > 0) {
+		if (ch->GetSkill(id) > 0) {
 			old_skills.push_back(id);
 		}
 	}
@@ -516,6 +529,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 					GET_NDD(ch) = base_value;
 				}
 			}
+
+			if (is_breathing) {
+				GET_NDD(ch) *= 0.5;
+			}
 			applied_any = 1;
 		}
 
@@ -534,6 +551,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 				if (base_value > GET_SDD(ch)) {
 					GET_SDD(ch) = base_value;
 				}
+			}
+
+			if (is_breathing) {
+				GET_SDD(ch) *= 0.5;
 			}
 			applied_any = 1;
 		}
