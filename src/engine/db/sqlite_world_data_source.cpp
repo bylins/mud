@@ -443,10 +443,53 @@ int SqliteWorldDataSource::GetCount(const char *table)
 	return count;
 }
 
-const char *SqliteWorldDataSource::GetText(sqlite3_stmt *stmt, int col)
+// Helper function to safely convert string to int
+static int SafeStoi(const std::string &str, int default_val = 0)
+{
+	if (str.empty())
+	{
+		return default_val;
+	}
+	try
+	{
+		return std::stoi(str);
+	}
+	catch (...)
+	{
+		return default_val;
+	}
+}
+
+// Helper function to safely convert string to long
+static long SafeStol(const std::string &str, long default_val = 0)
+{
+	if (str.empty())
+	{
+		return default_val;
+	}
+	try
+	{
+		return std::stol(str);
+	}
+	catch (...)
+	{
+		return default_val;
+	}
+}
+
+std::string SqliteWorldDataSource::GetText(sqlite3_stmt *stmt, int col)
 {
 	const char *text = reinterpret_cast<const char*>(sqlite3_column_text(stmt, col));
-	return text ? text : "";
+	if (!text || !*text)
+	{
+		return "";
+	}
+	// Convert UTF-8 from SQLite to KOI8-R
+	static char buffer[65536];
+	char *input = const_cast<char*>(text);
+	char *output = buffer;
+	utf8_to_koi(input, output);
+	return buffer;
 }
 
 // ============================================================================
@@ -587,7 +630,7 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 	int idx = 0;
 	while (sqlite3_step(stmt) == SQLITE_ROW && idx < cmd_count)
 	{
-		const char *cmd_type = GetText(stmt, 0);
+		std::string cmd_type = GetText(stmt, 0);
 		struct reset_com &cmd = zone.cmd[idx];
 
 		// Initialize
@@ -602,7 +645,7 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 		cmd.line = 0;
 
 		// Map command type
-		if (strcmp(cmd_type, "LOAD_MOB") == 0)
+		if (strcmp(cmd_type.c_str(), "LOAD_MOB") == 0)
 		{
 			cmd.command = 'M';
 			cmd.arg1 = sqlite3_column_int(stmt, 2);  // mob_vnum
@@ -610,7 +653,7 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
 			cmd.arg4 = sqlite3_column_int(stmt, 7);  // max_room
 		}
-		else if (strcmp(cmd_type, "LOAD_OBJ") == 0)
+		else if (strcmp(cmd_type.c_str(), "LOAD_OBJ") == 0)
 		{
 			cmd.command = 'O';
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
@@ -618,68 +661,68 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
 			cmd.arg4 = sqlite3_column_int(stmt, 8);  // load_prob
 		}
-		else if (strcmp(cmd_type, "GIVE_OBJ") == 0)
+		else if (strcmp(cmd_type.c_str(), "GIVE_OBJ") == 0)
 		{
 			cmd.command = 'G';
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
 			cmd.arg3 = -1;
 		}
-		else if (strcmp(cmd_type, "EQUIP_MOB") == 0)
+		else if (strcmp(cmd_type.c_str(), "EQUIP_MOB") == 0)
 		{
 			cmd.command = 'E';
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
-			const char *wear_pos = GetText(stmt, 9);
-			cmd.arg3 = wear_pos[0] ? atoi(wear_pos) : 0;
+			std::string wear_pos = GetText(stmt, 9);
+			cmd.arg3 = !wear_pos.empty() ? SafeStoi(wear_pos) : 0;
 		}
-		else if (strcmp(cmd_type, "PUT_OBJ") == 0)
+		else if (strcmp(cmd_type.c_str(), "PUT_OBJ") == 0)
 		{
 			cmd.command = 'P';
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
 			cmd.arg3 = sqlite3_column_int(stmt, 17); // container_vnum
 		}
-		else if (strcmp(cmd_type, "DOOR") == 0)
+		else if (strcmp(cmd_type.c_str(), "DOOR") == 0)
 		{
 			cmd.command = 'D';
 			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
-			const char *dir = GetText(stmt, 10);
-			cmd.arg2 = dir[0] ? atoi(dir) : 0;
+			std::string dir = GetText(stmt, 10);
+			cmd.arg2 = !dir.empty() ? SafeStoi(dir) : 0;
 			cmd.arg3 = sqlite3_column_int(stmt, 11); // state
 		}
-		else if (strcmp(cmd_type, "REMOVE_OBJ") == 0)
+		else if (strcmp(cmd_type.c_str(), "REMOVE_OBJ") == 0)
 		{
 			cmd.command = 'R';
 			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 3);  // obj_vnum
 		}
-		else if (strcmp(cmd_type, "TRIGGER") == 0)
+		else if (strcmp(cmd_type.c_str(), "TRIGGER") == 0)
 		{
 			cmd.command = 'T';
-			const char *trig_type = GetText(stmt, 13);
-			cmd.arg1 = trig_type[0] ? atoi(trig_type) : 0;
+			std::string trig_type = GetText(stmt, 13);
+			cmd.arg1 = !trig_type.empty() ? SafeStoi(trig_type) : 0;
 			cmd.arg2 = sqlite3_column_int(stmt, 12); // trigger_vnum
 			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum (or -1 for mob/obj)
 		}
-		else if (strcmp(cmd_type, "VARIABLE") == 0)
+		else if (strcmp(cmd_type.c_str(), "VARIABLE") == 0)
 		{
 			cmd.command = 'V';
-			const char *trig_type = GetText(stmt, 13);
-			cmd.arg1 = trig_type[0] ? atoi(trig_type) : 0;
+			std::string trig_type = GetText(stmt, 13);
+			cmd.arg1 = !trig_type.empty() ? SafeStoi(trig_type) : 0;
 			cmd.arg2 = sqlite3_column_int(stmt, 14); // context
 			cmd.arg3 = sqlite3_column_int(stmt, 4);  // room_vnum
-			const char *var_name = GetText(stmt, 15);
-			const char *var_value = GetText(stmt, 16);
-			if (var_name[0]) cmd.sarg1 = str_dup(var_name);
-			if (var_value[0]) cmd.sarg2 = str_dup(var_value);
+			std::string var_name = GetText(stmt, 15);
+			std::string var_value = GetText(stmt, 16);
+			if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
+			if (!var_value.empty()) cmd.sarg2 = str_dup(var_value.c_str());
 		}
-		else if (strcmp(cmd_type, "EXTRACT_MOB") == 0)
+		else if (strcmp(cmd_type.c_str(), "EXTRACT_MOB") == 0)
 		{
 			cmd.command = 'Q';
 			cmd.arg1 = sqlite3_column_int(stmt, 2);  // mob_vnum
 		}
-		else if (strcmp(cmd_type, "FOLLOW") == 0)
+		else if (strcmp(cmd_type.c_str(), "FOLLOW") == 0)
 		{
 			cmd.command = 'F';
 			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
@@ -790,33 +833,33 @@ void SqliteWorldDataSource::LoadTriggers()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int vnum = sqlite3_column_int(stmt, 0);
-		const char *name = GetText(stmt, 1);
-		const char *attach_type_str = GetText(stmt, 2);
-		const char *trigger_types_str = GetText(stmt, 3);
+		std::string name = GetText(stmt, 1);
+		std::string attach_type_str = GetText(stmt, 2);
+		std::string trigger_types_str = GetText(stmt, 3);
 		int narg = sqlite3_column_int(stmt, 4);
-		const char *arglist = GetText(stmt, 5);
-		const char *script = GetText(stmt, 6);
+		std::string arglist = GetText(stmt, 5);
+		std::string script = GetText(stmt, 6);
 
 		// Parse attach_type
 		byte attach_type = MOB_TRIGGER;
-		if (strstr(attach_type_str, "Obj") || strstr(attach_type_str, "OBJ"))
+		if (attach_type_str.find("Obj") != std::string::npos || attach_type_str.find("OBJ") != std::string::npos)
 			attach_type = OBJ_TRIGGER;
-		else if (strstr(attach_type_str, "Room") || strstr(attach_type_str, "WLD"))
+		else if (attach_type_str.find("Room") != std::string::npos || attach_type_str.find("WLD") != std::string::npos)
 			attach_type = WLD_TRIGGER;
 
 		// Parse trigger_types - try as number first
 		long trigger_type = 0;
-		char *endptr;
-		trigger_type = strtol(trigger_types_str, &endptr, 10);
-		(void)endptr; // suppress unused warning
+		
+		trigger_type = SafeStol(trigger_types_str);
+		
 
 		// Create trigger with proper constructor
-		auto trig = new Trigger(vnum, name[0] ? name : "unnamed", attach_type, trigger_type);
+		auto trig = new Trigger(vnum, !name.empty() ? name : "unnamed", attach_type, trigger_type);
 		GET_TRIG_NARG(trig) = narg;
 		trig->arglist = arglist;
 
 		// Parse script into cmdlist
-		if (script[0])
+		if (!script.empty())
 		{
 			std::istringstream ss(script);
 			std::string line;
@@ -906,16 +949,16 @@ void SqliteWorldDataSource::LoadRooms()
 	{
 		int vnum = sqlite3_column_int(stmt, 0);
 		int zone_vnum = sqlite3_column_int(stmt, 1);
-		const char *name = GetText(stmt, 2);
-		const char *description = GetText(stmt, 3);
-		const char *sector_str = GetText(stmt, 4);
+		std::string name = GetText(stmt, 2);
+		std::string description = GetText(stmt, 3);
+		std::string sector_str = GetText(stmt, 4);
 
 		auto room = new RoomData;
 		room->vnum = vnum;
 		room->set_name(name);
 
 		// Set description
-		if (description[0])
+		if (!description.empty())
 		{
 			room->description_num = RoomDescription::add_desc(description);
 		}
@@ -986,7 +1029,7 @@ void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int room_vnum = sqlite3_column_int(stmt, 0);
-		const char *flag_name = GetText(stmt, 1);
+		std::string flag_name = GetText(stmt, 1);
 
 		auto room_it = vnum_to_rnum.find(room_vnum);
 		if (room_it == vnum_to_rnum.end()) continue;
@@ -1019,11 +1062,11 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int room_vnum = sqlite3_column_int(stmt, 0);
-		const char *direction = GetText(stmt, 1);
-		const char *desc = GetText(stmt, 2);
-		const char *keywords = GetText(stmt, 3);
-		const char *exit_flags_str = GetText(stmt, 4);
-		int exit_flags = exit_flags_str[0] ? atoi(exit_flags_str) : 0;
+		std::string direction = GetText(stmt, 1);
+		std::string desc = GetText(stmt, 2);
+		std::string keywords = GetText(stmt, 3);
+		std::string exit_flags_str = GetText(stmt, 4);
+		int exit_flags = !exit_flags_str.empty() ? SafeStoi(exit_flags_str) : 0;
 		int key_vnum = sqlite3_column_int(stmt, 5);
 		int to_room_vnum = sqlite3_column_int(stmt, 6);
 		int lock_complexity = sqlite3_column_int(stmt, 7);
@@ -1035,32 +1078,24 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 
 		// Parse direction
 		int dir = -1;
-		if (strcmp(direction, "north") == 0) dir = 0;
-		else if (strcmp(direction, "east") == 0) dir = 1;
-		else if (strcmp(direction, "south") == 0) dir = 2;
-		else if (strcmp(direction, "west") == 0) dir = 3;
-		else if (strcmp(direction, "up") == 0) dir = 4;
-		else if (strcmp(direction, "down") == 0) dir = 5;
+		if (direction == "north") dir = 0;
+		else if (direction == "east") dir = 1;
+		else if (direction == "south") dir = 2;
+		else if (direction == "west") dir = 3;
+		else if (direction == "up") dir = 4;
+		else if (direction == "down") dir = 5;
 
 		if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
 
 		auto exit_data = std::make_shared<ExitData>();
 
-		// Resolve to_room vnum to rnum
-		auto to_it = vnum_to_rnum.find(to_room_vnum);
-		if (to_it != vnum_to_rnum.end())
-		{
-			exit_data->to_room(to_it->second);
-		}
-		else
-		{
-			exit_data->to_room(kNowhere);
-		}
+		// Store vnum - RosolveWorldDoorToRoomVnumsToRnums() will convert to rnum later
+		exit_data->to_room(to_room_vnum);
 
 		exit_data->key = key_vnum;
 		exit_data->lock_complexity = lock_complexity;
-		if (desc[0]) exit_data->general_description = desc;
-		if (keywords[0]) exit_data->set_keywords(keywords);
+		if (!desc.empty()) exit_data->general_description = desc;
+		if (!keywords.empty()) exit_data->set_keywords(keywords);
 
 		// Set exit flags (stored as string in database, parse as integer)
 		exit_data->exit_info = exit_flags;
@@ -1114,8 +1149,8 @@ void SqliteWorldDataSource::LoadRoomExtraDescriptions(const std::map<int, int> &
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int room_vnum = sqlite3_column_int(stmt, 0);
-		const char *keywords = GetText(stmt, 1);
-		const char *description = GetText(stmt, 2);
+		std::string keywords = GetText(stmt, 1);
+		std::string description = GetText(stmt, 2);
 
 		auto it = vnum_to_rnum.find(room_vnum);
 		if (it == vnum_to_rnum.end()) continue;
@@ -1236,8 +1271,8 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.set_exp(sqlite3_column_int(stmt, 24));
 
 		// Position
-		const char *default_pos = GetText(stmt, 25);
-		const char *start_pos = GetText(stmt, 26);
+		std::string default_pos = GetText(stmt, 25);
+		std::string start_pos = GetText(stmt, 26);
 		auto pos_it = position_map.find(default_pos);
 		mob.mob_specials.default_pos = pos_it != position_map.end() ?
 			static_cast<EPosition>(pos_it->second) : EPosition::kStand;
@@ -1246,7 +1281,7 @@ void SqliteWorldDataSource::LoadMobs()
 			static_cast<EPosition>(pos_it->second) : EPosition::kStand);
 
 		// Sex
-		const char *sex_str = GetText(stmt, 27);
+		std::string sex_str = GetText(stmt, 27);
 		auto gender_it = gender_map.find(sex_str);
 		mob.set_sex(gender_it != gender_map.end() ?
 			static_cast<EGender>(gender_it->second) : EGender::kMale);
@@ -1293,6 +1328,12 @@ void SqliteWorldDataSource::LoadMobs()
 	}
 	sqlite3_finalize(stmt);
 
+	// top_of_mobt should be last valid index, not count
+	if (top_of_mobt > 0)
+	{
+		top_of_mobt--;
+	}
+
 	// Load mob flags
 	LoadMobFlags();
 
@@ -1302,7 +1343,7 @@ void SqliteWorldDataSource::LoadMobs()
 	// Load mob triggers
 	LoadMobTriggers();
 
-	log("Loaded %d mobs from SQLite.", top_of_mobt);
+	log("Loaded %d mobs from SQLite.", top_of_mobt + 1);
 }
 
 void SqliteWorldDataSource::LoadMobFlags()
@@ -1317,7 +1358,7 @@ void SqliteWorldDataSource::LoadMobFlags()
 
 	// Build vnum to rnum map
 	std::map<int, int> vnum_to_rnum;
-	for (MobRnum i = 0; i < top_of_mobt; i++)
+	for (MobRnum i = 0; i <= top_of_mobt; i++)
 	{
 		vnum_to_rnum[mob_index[i].vnum] = i;
 	}
@@ -1326,15 +1367,15 @@ void SqliteWorldDataSource::LoadMobFlags()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
-		const char *category = GetText(stmt, 1);
-		const char *flag_name = GetText(stmt, 2);
+		std::string category = GetText(stmt, 1);
+		std::string flag_name = GetText(stmt, 2);
 
 		auto it = vnum_to_rnum.find(mob_vnum);
 		if (it == vnum_to_rnum.end()) continue;
 
 		CharData &mob = mob_proto[it->second];
 
-		if (strcmp(category, "action") == 0)
+		if (strcmp(category.c_str(), "action") == 0)
 		{
 			auto flag_it = mob_action_flag_map.find(flag_name);
 			if (flag_it != mob_action_flag_map.end() && flag_it->second != 0)
@@ -1343,7 +1384,7 @@ void SqliteWorldDataSource::LoadMobFlags()
 				flags_set++;
 			}
 		}
-		else if (strcmp(category, "affect") == 0)
+		else if (strcmp(category.c_str(), "affect") == 0)
 		{
 			auto flag_it = mob_affect_flag_map.find(flag_name);
 			if (flag_it != mob_affect_flag_map.end() && flag_it->second != 0)
@@ -1370,7 +1411,7 @@ void SqliteWorldDataSource::LoadMobSkills()
 
 	// Build vnum to rnum map
 	std::map<int, int> vnum_to_rnum;
-	for (MobRnum i = 0; i < top_of_mobt; i++)
+	for (MobRnum i = 0; i <= top_of_mobt; i++)
 	{
 		vnum_to_rnum[mob_index[i].vnum] = i;
 	}
@@ -1379,7 +1420,7 @@ void SqliteWorldDataSource::LoadMobSkills()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
-		const char *skill_name = GetText(stmt, 1);
+		std::string skill_name = GetText(stmt, 1);
 		int value = sqlite3_column_int(stmt, 2);
 
 		auto it = vnum_to_rnum.find(mob_vnum);
@@ -1417,7 +1458,7 @@ void SqliteWorldDataSource::LoadMobTriggers()
 
 	// Build vnum to rnum map
 	std::map<int, int> vnum_to_rnum;
-	for (MobRnum i = 0; i < top_of_mobt; i++)
+	for (MobRnum i = 0; i <= top_of_mobt; i++)
 	{
 		vnum_to_rnum[mob_index[i].vnum] = i;
 	}
@@ -1494,7 +1535,7 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_action_description(GetText(stmt, 9));
 
 		// Type
-		const char *obj_type_str = GetText(stmt, 10);
+		std::string obj_type_str = GetText(stmt, 10);
 		auto type_it = obj_type_map.find(obj_type_str);
 		if (type_it != obj_type_map.end())
 		{
@@ -1503,9 +1544,9 @@ void SqliteWorldDataSource::LoadObjects()
 		else
 		{
 			// Try as number
-			char *endptr;
-			long type_num = strtol(obj_type_str, &endptr, 10);
-			if (*endptr == '\0' && type_num > 0)
+			
+			long type_num = SafeStol(obj_type_str);
+			if (type_num > 0)
 			{
 				obj->set_type(static_cast<EObjType>(type_num));
 			}
@@ -1519,17 +1560,17 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_material(static_cast<EObjMaterial>(sqlite3_column_int(stmt, 11)));
 
 		// Values
-		const char *val0 = GetText(stmt, 12);
-		const char *val1 = GetText(stmt, 13);
-		const char *val2 = GetText(stmt, 14);
-		const char *val3 = GetText(stmt, 15);
+		std::string val0 = GetText(stmt, 12);
+		std::string val1 = GetText(stmt, 13);
+		std::string val2 = GetText(stmt, 14);
+		std::string val3 = GetText(stmt, 15);
 
 		// Parse values - try as numbers
-		char *endptr;
-		obj->set_val(0, strtol(val0, &endptr, 10));
-		obj->set_val(1, strtol(val1, &endptr, 10));
-		obj->set_val(2, strtol(val2, &endptr, 10));
-		obj->set_val(3, strtol(val3, &endptr, 10));
+		
+		obj->set_val(0, SafeStol(val0));
+		obj->set_val(1, SafeStol(val1));
+		obj->set_val(2, SafeStol(val2));
+		obj->set_val(3, SafeStol(val3));
 
 		// Physical properties
 		obj->set_weight(sqlite3_column_int(stmt, 16));
@@ -1577,13 +1618,13 @@ void SqliteWorldDataSource::LoadObjectFlags()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
-		const char *category = GetText(stmt, 1);
-		const char *flag_name = GetText(stmt, 2);
+		std::string category = GetText(stmt, 1);
+		std::string flag_name = GetText(stmt, 2);
 
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum < 0) continue;
 
-		if (strcmp(category, "extra") == 0)
+		if (strcmp(category.c_str(), "extra") == 0)
 		{
 			auto flag_it = obj_extra_flag_map.find(flag_name);
 			if (flag_it != obj_extra_flag_map.end())
@@ -1592,7 +1633,7 @@ void SqliteWorldDataSource::LoadObjectFlags()
 				flags_set++;
 			}
 		}
-		else if (strcmp(category, "wear") == 0)
+		else if (strcmp(category.c_str(), "wear") == 0)
 		{
 			auto flag_it = obj_wear_flag_map.find(flag_name);
 			if (flag_it != obj_wear_flag_map.end())
@@ -1603,7 +1644,7 @@ void SqliteWorldDataSource::LoadObjectFlags()
 				flags_set++;
 			}
 		}
-		else if (strcmp(category, "no") == 0)
+		else if (strcmp(category.c_str(), "no") == 0)
 		{
 			try
 			{
@@ -1613,7 +1654,7 @@ void SqliteWorldDataSource::LoadObjectFlags()
 			}
 			catch (...) {}
 		}
-		else if (strcmp(category, "anti") == 0)
+		else if (strcmp(category.c_str(), "anti") == 0)
 		{
 			try
 			{
@@ -1643,7 +1684,7 @@ void SqliteWorldDataSource::LoadObjectApplies()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
-		const char *location_str = GetText(stmt, 1);
+		std::string location_str = GetText(stmt, 1);
 		int modifier = sqlite3_column_int(stmt, 2);
 
 		int rnum = obj_proto.get_rnum(obj_vnum);
@@ -1659,8 +1700,8 @@ void SqliteWorldDataSource::LoadObjectApplies()
 		catch (...)
 		{
 			// Try as number
-			char *endptr;
-			location = strtol(location_str, &endptr, 10);
+			
+			location = SafeStol(location_str);
 		}
 
 		// Find first empty apply slot
@@ -1717,8 +1758,8 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
-		const char *keywords = GetText(stmt, 1);
-		const char *description = GetText(stmt, 2);
+		std::string keywords = GetText(stmt, 1);
+		std::string description = GetText(stmt, 2);
 
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum < 0) continue;

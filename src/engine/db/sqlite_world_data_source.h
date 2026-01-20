@@ -43,7 +43,7 @@ private:
 	bool OpenDatabase();
 	void CloseDatabase();
 	int GetCount(const char *table);
-	const char *GetText(sqlite3_stmt *stmt, int col);
+	std::string GetText(sqlite3_stmt *stmt, int col);
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone);
