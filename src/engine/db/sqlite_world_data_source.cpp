@@ -381,6 +381,16 @@ static std::unordered_map<std::string, int> gender_map = {
 	{"kPoly", static_cast<int>(EGender::kPoly)},
 };
 
+// Direction string to number mapping
+static std::unordered_map<std::string, int> direction_map = {
+	{"north", 0},
+	{"east", 1},
+	{"south", 2},
+	{"west", 3},
+	{"up", 4},
+	{"down", 5},
+};
+
 // ============================================================================
 // SqliteWorldDataSource implementation
 // ============================================================================
@@ -667,6 +677,7 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
 			cmd.arg3 = -1;
+			cmd.arg4 = sqlite3_column_int(stmt, 8);  // load_prob
 		}
 		else if (strcmp(cmd_type.c_str(), "EQUIP_MOB") == 0)
 		{
@@ -688,7 +699,8 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.command = 'D';
 			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
 			std::string dir = GetText(stmt, 10);
-			cmd.arg2 = !dir.empty() ? SafeStoi(dir) : 0;
+			auto dir_it = direction_map.find(dir);
+			cmd.arg2 = dir_it != direction_map.end() ? dir_it->second : 0;
 			cmd.arg3 = sqlite3_column_int(stmt, 11); // state
 		}
 		else if (strcmp(cmd_type.c_str(), "REMOVE_OBJ") == 0)
