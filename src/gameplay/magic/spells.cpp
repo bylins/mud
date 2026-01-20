@@ -2000,7 +2000,6 @@ void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 	}
 }
 
-
 void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
 		mort_show_obj_values(obj, ch, 400);
@@ -2010,10 +2009,15 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 	}
 }
 
+extern void do_stat_character(CharData *ch, CharData *k, const int virt = 0);
 void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
 		mort_show_obj_values(obj, ch, 100);
 	else if (victim) {
+		if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && (world[ch->in_room]->vnum / 100 >= dungeons::kZoneStartDungeons)) {
+			do_stat_character(ch, victim);
+			return;
+		}
 		if (victim != ch) {
 			SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
