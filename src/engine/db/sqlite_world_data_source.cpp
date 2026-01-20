@@ -1534,7 +1534,7 @@ void SqliteWorldDataSource::LoadObjects()
 	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
 					  "short_desc, action_desc, obj_type, material, value0, value1, value2, value3, "
 					  "weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
-					  "timer, spell, level, max_in_world "
+					  "timer, spell, level, sex, max_in_world "
 					  "FROM objects ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
@@ -1610,8 +1610,9 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_current_durability(sqlite3_column_int(stmt, 22));
 		obj->set_timer(sqlite3_column_int(stmt, 23));
 		obj->set_spell(sqlite3_column_int(stmt, 24));
-		obj->set_minimum_remorts(sqlite3_column_int(stmt, 25));
-		obj->set_max_in_world(sqlite3_column_int(stmt, 26));
+		obj->set_level(sqlite3_column_int(stmt, 25));
+		obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
+		obj->set_max_in_world(sqlite3_column_int(stmt, 27));
 
 		obj_proto.add(obj, vnum);
 	}
