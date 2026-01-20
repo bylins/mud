@@ -1487,6 +1487,9 @@ void utf8_to_koi(char *str_i, char *str_o) {
 				} else if (c == 0xC2) // 0x0080 - 0x00BF
 				{
 					// 0x00B0, 0x00B2, 0x00B7, 0x00F7
+					if (c1 == 0xA0) {
+						*str_o = '\x9A'; // NO-BREAK SPACE
+					} else
 					if (c1 == 0xA9) {
 						*str_o = '\xBF';
 					} else if (c1 == 0xB0) {

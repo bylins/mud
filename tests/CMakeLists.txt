@@ -70,6 +70,7 @@ set(TESTS
 		act.makefood.cpp
 		utils.editor.cpp
 		utils.string.cpp
+		utils.encoding.cpp
 		fight.penalties.cpp
 		bonus.command.parser.cpp
 		quested.cpp
