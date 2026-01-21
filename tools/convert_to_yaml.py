@@ -684,8 +684,8 @@ class SqliteSaver(BaseSaver):
                 hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus,
                 gold_dice_count, gold_dice_size, gold_bonus, experience,
                 default_pos, start_pos, sex, size, height, weight, mob_class, race,
-                attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             names.get('aliases'),
@@ -726,6 +726,7 @@ class SqliteSaver(BaseSaver):
             attrs.get('wisdom', 11),
             attrs.get('constitution', 11),
             attrs.get('charisma', 11),
+            mob.get('enabled', 1),
         ))
 
         # Insert flags
@@ -769,8 +770,9 @@ class SqliteSaver(BaseSaver):
                 short_desc, action_desc, obj_type_id, material,
                 value0, value1, value2, value3,
                 weight, cost, rent_off, rent_on, spec_param,
-                max_durability, cur_durability, timer, spell, level, sex, max_in_world
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                max_durability, cur_durability, timer, spell, level, sex, max_in_world,
+                minimum_remorts, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             names.get('aliases'),
@@ -800,6 +802,8 @@ class SqliteSaver(BaseSaver):
             obj.get('level', 0),
             obj.get('sex', 0),
             obj.get('max_in_world'),
+            obj.get('minimum_remorts', 0),
+            obj.get('enabled', 1),
         ))
 
         # Insert flags
@@ -862,14 +866,15 @@ class SqliteSaver(BaseSaver):
 
         # Insert main room record
         cursor.execute('''
-            INSERT OR REPLACE INTO rooms (vnum, zone_vnum, name, description, sector_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT OR REPLACE INTO rooms (vnum, zone_vnum, name, description, sector_id, enabled)
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             room.get('zone'),
             room.get('name'),
             room.get('description'),
             room.get('sector_id'),
+            room.get('enabled', 1),
         ))
 
         # Insert flags
@@ -931,8 +936,8 @@ class SqliteSaver(BaseSaver):
         cursor.execute('''
             INSERT OR REPLACE INTO zones (
                 vnum, name, comment, location, author, description, builders,
-                first_room, top_room, mode, zone_type, zone_group, entrance, lifespan, reset_mode, reset_idle
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                first_room, top_room, mode, zone_type, zone_group, entrance, lifespan, reset_mode, reset_idle, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             zone.get('name'),
@@ -950,6 +955,7 @@ class SqliteSaver(BaseSaver):
             zone.get('lifespan', 10),
             zone.get('reset_mode', 2),
             zone.get('reset_idle', 0),
+            zone.get('enabled', 1),
         ))
 
         # Insert zone groups
@@ -1015,8 +1021,8 @@ class SqliteSaver(BaseSaver):
         # Insert main trigger record (without trigger_types - normalized)
         cursor.execute('''
             INSERT OR REPLACE INTO triggers (
-                vnum, name, attach_type_id, narg, arglist, script
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                vnum, name, attach_type_id, narg, arglist, script, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             trigger.get('name'),
@@ -1024,6 +1030,7 @@ class SqliteSaver(BaseSaver):
             trigger.get('narg', 0),
             trigger.get('arglist'),
             trigger.get('script'),
+            trigger.get('enabled', 1),
         ))
 
         # Insert trigger type bindings (normalized many-to-many)
@@ -1823,6 +1830,8 @@ def parse_obj_file(filepath):
                         obj['extra_descs'].append(ed)
                 elif line.startswith('M '):
                     obj['max_in_world'] = int(line[2:].strip())
+                elif line.startswith('R '):
+                    obj['minimum_remorts'] = int(line[2:].strip())
                 elif line.startswith('T '):
                     obj['triggers'].append(int(line[2:].strip()))
 
@@ -2755,6 +2764,35 @@ def zon_to_yaml(zone):
     return yaml_dump_to_string(data)
 
 
+def read_index_file(index_path):
+    """Read an index file and return set of enabled filenames.
+
+    Index file format:
+        - One filename per line
+        - Lines starting with $ indicate end of index
+        - Empty lines are ignored
+
+    Returns:
+        set of filenames (e.g., {'1.zon', '2.zon', ...}) or None if index doesn't exist
+    """
+    if not index_path.exists():
+        return None
+
+    enabled_files = set()
+    try:
+        with open(index_path, 'r', encoding='koi8-r', errors='replace') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('$'):
+                    break
+                enabled_files.add(line)
+    except Exception as e:
+        log_warning(f"Failed to read index file: {e}", filepath=str(index_path))
+        return None
+
+    return enabled_files
+
+
 def convert_file(input_path, output_path, file_type):
     """Convert a single file from old format to YAML (legacy function for single file mode)."""
     input_path = Path(input_path)
@@ -2887,13 +2925,25 @@ def convert_directory(input_dir, output_dir, delete_source=False, max_workers=No
             if not source_dir.exists():
                 continue
 
+            # Read index file to determine which files are enabled
+            index_path = source_dir / 'index'
+            enabled_files = read_index_file(index_path)
+
             # Find all files
             files = list(source_dir.glob(f'*{extension}'))
             if not files:
                 continue
 
+            # Count enabled files
+            if enabled_files is not None:
+                enabled_count = sum(1 for f in files if f.name in enabled_files)
+                disabled_count = len(files) - enabled_count
+                index_info = f", {enabled_count} indexed, {disabled_count} extra"
+            else:
+                index_info = ", no index"
+
             lib_info = f", {_yaml_library}" if output_format == 'yaml' else ""
-            print(f"Converting {len(files)} {file_type} files ({max_workers} parsers{lib_info})...")
+            print(f"Converting {len(files)} {file_type} files ({max_workers} parsers{lib_info}{index_info})...")
 
             # Parallel parsing
             all_entities = []
@@ -2904,6 +2954,10 @@ def convert_directory(input_dir, output_dir, delete_source=False, max_workers=No
                     f = futures[future]
                     try:
                         entities = future.result()
+                        # Mark entities as enabled/disabled based on index
+                        is_enabled = 1 if (enabled_files is None or f.name in enabled_files) else 0
+                        for etype, entity in entities:
+                            entity['enabled'] = is_enabled
                         all_entities.extend(entities)
                         if entities and delete_source:
                             source_files_to_delete.append(f)

@@ -2,27 +2,46 @@
 # Script to compare world checksums between Legacy and SQLite builds
 # and dump detailed field differences for differing objects
 #
-# Usage: ./compare_world_checksums.sh [--rebuild] [--dump-count N]
-#   --rebuild     Force rebuild of both versions
-#   --dump-count  Number of objects to dump (default: 5)
+# Usage: ./compare_world_checksums.sh [OPTIONS]
+#   --rebuild-legacy   Force rebuild of Legacy version
+#   --rebuild-sqlite   Force rebuild of SQLite version
+#   --rebuild          Force rebuild of both versions
+#   --reconvert        Reconvert world from legacy files to SQLite
+#   --dump-count N     Number of objects to dump (default: 5)
 
 set -e
 
 MUD_DIR="/home/kvirund/repos/mud"
+MUD_DOCS_DIR="/home/kvirund/repos/mud-docs"
 BUILD_TEST="$MUD_DIR/build_test"
 BUILD_SQLITE="$MUD_DIR/build_sqlite"
-WORLD_DIR="small"
+WORLD_DIR="${WORLD_DIR:-small}"
 PORT=4000
-WAIT_TIME=15
+WAIT_TIME="${WAIT_TIME:-15}"
 DUMP_DIR="/tmp/world_compare"
 DUMP_COUNT=5
-REBUILD=0
+REBUILD_LEGACY=0
+REBUILD_SQLITE=0
+RECONVERT=0
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         --rebuild)
-            REBUILD=1
+            REBUILD_LEGACY=1
+            REBUILD_SQLITE=1
+            shift
+            ;;
+        --rebuild-legacy)
+            REBUILD_LEGACY=1
+            shift
+            ;;
+        --rebuild-sqlite)
+            REBUILD_SQLITE=1
+            shift
+            ;;
+        --reconvert)
+            RECONVERT=1
             shift
             ;;
         --dump-count)
@@ -45,13 +64,27 @@ echo "World Checksum Comparison Tool"
 echo "========================================"
 echo ""
 
-# Build if requested or if binaries don't exist
-if [ $REBUILD -eq 1 ] || [ ! -f "$BUILD_TEST/circle" ] || [ ! -f "$BUILD_SQLITE/circle" ]; then
+# Build Legacy if requested or if binary doesn't exist
+if [ $REBUILD_LEGACY -eq 1 ] || [ ! -f "$BUILD_TEST/circle" ]; then
     echo "=== Building Legacy version ==="
     cd "$BUILD_TEST"
     make -j$(nproc) circle 2>&1 | tail -3
-
     echo ""
+fi
+
+# Reconvert world if requested
+if [ $RECONVERT -eq 1 ]; then
+    echo "=== Reconverting world to SQLite ==="
+    WORLD_PATH="$BUILD_SQLITE/$WORLD_DIR"
+    DB_PATH="$BUILD_SQLITE/$WORLD_DIR/world.db"
+    rm -f "$DB_PATH"
+    cd "$MUD_DIR"
+    python3 tools/convert_to_yaml.py -i "$WORLD_PATH" -o "$WORLD_PATH" -f sqlite 2>&1 | tail -10
+    echo ""
+fi
+
+# Build SQLite if requested or if binary doesn't exist
+if [ $REBUILD_SQLITE -eq 1 ] || [ ! -f "$BUILD_SQLITE/circle" ]; then
     echo "=== Building SQLite version ==="
     cd "$BUILD_SQLITE"
     make -j$(nproc) circle 2>&1 | tail -3
@@ -76,11 +109,18 @@ kill $LEGACY_PID 2>/dev/null || true
 wait $LEGACY_PID 2>/dev/null || true
 sleep 2
 
-# Run SQLite server
+# Copy Legacy checksums to temp location (needed when both builds use same world symlink)
+LEGACY_BASELINE="/tmp/legacy_baseline_$$"
+mkdir -p "$LEGACY_BASELINE"
+cp -r "$BUILD_TEST/$WORLD_DIR/checksums_detailed.txt" "$LEGACY_BASELINE/" 2>/dev/null || true
+cp -r "$BUILD_TEST/$WORLD_DIR/checksums_buffers" "$LEGACY_BASELINE/" 2>/dev/null || true
+echo "Legacy baseline copied to $LEGACY_BASELINE"
+
+# Run SQLite server with baseline for comparison
 echo "=== Running SQLite server ==="
 cd "$BUILD_SQLITE"
 rm -f "$WORLD_DIR/checksums_detailed.txt"
-./circle -d "$WORLD_DIR" &
+BASELINE_DIR="$LEGACY_BASELINE" ./circle -d "$WORLD_DIR" &
 SQLITE_PID=$!
 sleep $WAIT_TIME
 
@@ -94,7 +134,7 @@ echo "========================================"
 echo "Checksum Comparison Results"
 echo "========================================"
 
-LEGACY_CHECKSUMS="$BUILD_TEST/$WORLD_DIR/checksums_detailed.txt"
+LEGACY_CHECKSUMS="$LEGACY_BASELINE/checksums_detailed.txt"
 SQLITE_CHECKSUMS="$BUILD_SQLITE/$WORLD_DIR/checksums_detailed.txt"
 
 if [ ! -f "$LEGACY_CHECKSUMS" ]; then

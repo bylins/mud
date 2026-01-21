@@ -98,7 +98,8 @@ CREATE TABLE zones (
     entrance INTEGER,
     lifespan INTEGER DEFAULT 10,
     reset_mode INTEGER DEFAULT 2,
-    reset_idle INTEGER DEFAULT 0
+    reset_idle INTEGER DEFAULT 0,
+    enabled INTEGER DEFAULT 1
 );
 
 -- Zone grouping (typeA/typeB)
@@ -162,7 +163,8 @@ CREATE TABLE mobs (
     attr_int INTEGER DEFAULT 11,
     attr_wis INTEGER DEFAULT 11,
     attr_con INTEGER DEFAULT 11,
-    attr_cha INTEGER DEFAULT 11
+    attr_cha INTEGER DEFAULT 11,
+    enabled INTEGER DEFAULT 1
 );
 
 -- Mob flags (action_flags, affect_flags)
@@ -218,7 +220,9 @@ CREATE TABLE objects (
     spell INTEGER DEFAULT -1,
     level INTEGER DEFAULT 0,
     sex INTEGER DEFAULT 0,
-    max_in_world INTEGER DEFAULT -1
+    max_in_world INTEGER DEFAULT -1,
+    minimum_remorts INTEGER DEFAULT 0,
+    enabled INTEGER DEFAULT 1
 );
 
 -- Object flags
@@ -245,7 +249,8 @@ CREATE TABLE rooms (
     zone_vnum INTEGER REFERENCES zones(vnum),
     name TEXT,
     description TEXT,
-    sector_id INTEGER REFERENCES sectors(id)
+    sector_id INTEGER REFERENCES sectors(id),
+    enabled INTEGER DEFAULT 1
 );
 
 -- Room flags
@@ -278,7 +283,8 @@ CREATE TABLE triggers (
     attach_type_id INTEGER REFERENCES trigger_attach_types(id),
     narg INTEGER DEFAULT 0,
     arglist TEXT,
-    script TEXT
+    script TEXT,
+    enabled INTEGER DEFAULT 1
 );
 
 -- Trigger type bindings (many-to-many: trigger can have multiple types)
