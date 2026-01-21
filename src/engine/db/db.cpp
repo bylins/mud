@@ -368,8 +368,8 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		}
 		else
 		{
-			log("INFO: world.db not found, falling back to legacy loader.");
-			data_source = world_loader::CreateLegacyDataSource();
+			log("SYSERR: HAVE_SQLITE is defined but world.db not found. Exiting.");
+			exit(1);
 		}
 #else
 		// No SQLite support, use legacy loader
