@@ -105,7 +105,7 @@ int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
-bool no_world_checksum = false;    // disable world checksum calculation
+bool no_world_checksum = false;	// disable world checksum calculation
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -284,7 +284,7 @@ void LoadSheduledReboot() {
 	log("Setting up reboot_uptime: %i", shutdown_parameters.get_reboot_uptime());
 }
 
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ XML О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// Базовая функция загрузки XML конфигов
 pugi::xml_node XmlLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document &Doc) {
 	std::ostringstream buffer;
 	pugi::xml_parse_result Result;
@@ -305,23 +305,23 @@ pugi::xml_node XmlLoad(const char *PathToFile, const char *MainTag, const char *
 	return NodeList;
 }
 
-/// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ GET_OBJ_SKILL О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ TODO: 12.2013
+/// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
 int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	if (obj->get_spec_param() > 0
 		&& (obj->get_type() == EObjType::kLiquidContainer
 			|| obj->get_type() == EObjType::kFountain)) {
 		log("obj_skill: %d - %s (%d)", obj->get_spec_param(), obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
-		// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
-		// О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		// если емскости уже просетили какие-то заклы, то зелье
+		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0) {
 			const auto potion = world_objects.create_from_prototype_by_vnum(obj->get_spec_param());
 			if (potion
 				&& potion->get_type() == EObjType::kPotion) {
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto) {
-					// copy_potion_values О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫,
-					// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
-					// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ read_one_object_new О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+					// copy_potion_values сетит до кучи и внум из пошена,
+					// поэтому уточним здесь, что зелье не перелито
+					// емкости из read_one_object_new идут как перелитые
 					obj->SetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 				}
 			}
@@ -333,7 +333,7 @@ int ConvertDrinkconSkillField(CObjectPrototype *obj, bool proto) {
 	return 0;
 }
 
-/// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+/// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
 void ConvertObjValues() {
 	int save = 0;
 	for (const auto &i : obj_proto) {
@@ -507,7 +507,7 @@ void InitZoneTypes() {
 	}
 
 	while (get_line(zt_file, tmp)) {
-		if (!strn_cmp(tmp, "О©╫О©╫О©╫", 3)) {
+		if (!strn_cmp(tmp, "ИМЯ", 3)) {
 			if (sscanf(tmp, "%s %s", dummy, name) != 2) {
 				log("Corrupted file : ztypes.lst");
 				return;
@@ -516,7 +516,7 @@ void InitZoneTypes() {
 				log("Corrupted file : ztypes.lst");
 				return;
 			}
-			if (!strn_cmp(tmp, "О©╫О©╫О©╫О©╫", 4)) {
+			if (!strn_cmp(tmp, "ТИПЫ", 4)) {
 				if (tmp[4] != ' ' && tmp[4] != '\0') {
 					log("Corrupted file : ztypes.lst");
 					return;
@@ -671,7 +671,7 @@ void LoadMessages() {
 			log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
 			exit(1);
 		}
-		//log("BATTLE MESSAGE %d(%d)", i, type); О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+		//log("BATTLE MESSAGE %d(%d)", i, type); Лишний спам
 		CREATE(messages, 1);
 		fight_messages[i].number_of_attacks++;
 		fight_messages[i].attack_type = type;
@@ -737,7 +737,7 @@ void zone_traffic_load() {
 		int num = atoi(node.attribute("traffic").value());
 		if (zrn == 0 && zone_vnum != 1) {
 			snprintf(buf, kMaxStringLength,
-					 "zone_traffic: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ %d О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %d ",
+					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
 					 zone_vnum, num);
 			mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 			continue;
@@ -863,6 +863,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading world");
 	GameLoader::BootWorld();
+
 	boot_profiler.next_step("Loading stuff load table");
 	log("Booting stuff load table.");
 	oload_table.init();
@@ -887,7 +888,7 @@ void BootMudDataBase() {
 	log("Generating player index.");
 	BuildPlayerIndexNew();
 
-	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// хэши читать после генерации плеер-таблицы
 	boot_profiler.next_step("Loading CRC system");
 	log("Loading file crc system.");
 	FileCRC::load();
@@ -928,7 +929,7 @@ void BootMudDataBase() {
 		ReadCrashTimerFile(i, false);
 	}
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	// последовательность лоада кланов/досок не менять
 	boot_profiler.next_step("Loading boards");
 	log("Booting boards");
 	Boards::Static::BoardInit();
@@ -937,7 +938,7 @@ void BootMudDataBase() {
 	log("Booting clans");
 	Clan::ClanLoad();
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	// загрузка списка именных вещей
 	boot_profiler.next_step("Loading named stuff");
 	log("Load named stuff");
 	NamedStuff::load();
@@ -1008,7 +1009,7 @@ void BootMudDataBase() {
 	log("Load privilege and god list.");
 	privilege::Load();
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
+	// должен идти до резета зон
 	boot_profiler.next_step("Initializing depot system");
 	log("Init Depot system.");
 	Depot::init_depot();
@@ -1021,7 +1022,7 @@ void BootMudDataBase() {
 	log("Load Celebrates.");
 	celebrates::Load();
 
-	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫.О©╫.)
+	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name.c_str(),
@@ -1030,7 +1031,7 @@ void BootMudDataBase() {
 	}
 	reset_q.head = reset_q.tail = nullptr;
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// делается после резета зон, см камент к функции
 	boot_profiler.next_step("Loading depot chests");
 	log("Load depot chests.");
 	Depot::load_chests();
@@ -1088,7 +1089,7 @@ void BootMudDataBase() {
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+	// сначала сеты, стата мобов, потом дроп сетов
 	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
 	obj_sets::load();
 	log("Load mob_stat.xml");
@@ -1112,12 +1113,12 @@ void BootMudDataBase() {
 	log("Load mail.xml");
 	mail::load();
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	// загрузка кейсов
 	boot_profiler.next_step("Loading treasure cases");
 	log("Loading treasure cases.");
 	treasure_cases::LoadTreasureCases();
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");
 	log("Loading help system.");
 	HelpSystem::reload_all();
@@ -1250,7 +1251,7 @@ void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_cou
 			break;
 
 		case DB_BOOT_MOB: {
-			mob_proto = new CharData[rec_count]; // TODO: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (+О©╫ medit)
+			mob_proto = new CharData[rec_count]; // TODO: переваять на вектор (+в medit)
 			CREATE(mob_index, rec_count);
 			const size_t index_size = sizeof(IndexData) * rec_count;
 			const size_t characters_size = sizeof(CharData) * rec_count;
@@ -1289,14 +1290,14 @@ void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_cou
 
 void CheckRoomForIncompatibleFlags(int rnum) {
 	if (deathtrap::IsSlowDeathtrap(rnum)) {
-		// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫
+		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
 		world[rnum]->unset_flag(ERoomFlag::kNoMagic);
 		world[rnum]->unset_flag(ERoomFlag::kNoTeleportOut);
 		world[rnum]->unset_flag(ERoomFlag::kNoSummonOut);
 	}
 	if (world[rnum]->get_flag(ERoomFlag::kHouse)
 		&& (SECT(rnum) == ESector::kMountain || SECT(rnum) == ESector::kHills)) {
-		// О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+		// шоб в замках умные не копали
 		SECT(rnum) = ESector::kInside;
 	}
 }
@@ -1380,9 +1381,9 @@ void CalculateFirstAndLastRooms() {
 	zone_table[zrn].RnumRoomsLocation.first = zone_table[zrn - 1].RnumRoomsLocation.second + 1;
 	zone_table[zrn].RnumRoomsLocation.second = rn - 1;
 	for (auto &zone_data : zone_table) {
-		zone_data.RnumRoomsLocation.second--; //О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
-		if (zone_data.entrance == 0) {  //О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
-			log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ %d", zone_data.vnum);
+		zone_data.RnumRoomsLocation.second--; //уберем виртуалки
+		if (zone_data.entrance == 0) {  //если в зонфайле не указана стартовая комната
+			log("Отсутствует стартовая комната для зоны %d", zone_data.vnum);
 			zone_data.entrance = world[zone_data.RnumRoomsLocation.first]->vnum;
 		}
 	}
@@ -1403,7 +1404,7 @@ void AddVirtualRoomsToAllZones() {
 		}
 		const auto rnum = static_cast<ZoneRnum>(std::distance(zone_table.begin(), it));
 
-		// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1 О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		// ищем место для вставки новой комнаты с конца, чтобы потом не вычитать 1 из результата
 		auto insert_reverse_position = std::find_if(world.rbegin(), world.rend(), [rnum](RoomData *room) {
 		  return rnum >= room->zone_rn;
 		});
@@ -1415,8 +1416,8 @@ void AddVirtualRoomsToAllZones() {
 		world.insert(insert_position, new_room);
 		new_room->zone_rn = rnum;
 		new_room->vnum = last_room;
-		new_room->set_name(std::string("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫"));
-		new_room->description_num = RoomDescription::add_desc(std::string("О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫."));
+		new_room->set_name(std::string("Виртуальная комната"));
+		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
 		new_room->sector_type = ESector::kSecret;
 
@@ -1464,7 +1465,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	for (i = 0; i < zone_data.typeA_count; i++) {
 		if (GetZoneRnum(zone_data.typeA_list[i]) == 0) {
 			sprintf(local_buf,
-					"SYSERROR: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ typeA (%d) О©╫О©╫О©╫ О©╫О©╫О©╫О©╫: %d",
+					"SYSERROR: некорректное значение в typeA (%d) для зоны: %d",
 					zone_data.typeA_list[i],
 					zone_data.vnum);
 			mudlog(local_buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -1473,7 +1474,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	for (i = 0; i < zone_data.typeB_count; i++) {
 		if (GetZoneRnum(zone_data.typeB_list[i]) == 0) {
 			sprintf(local_buf,
-					"SYSERROR: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ typeB (%d) О©╫О©╫О©╫ О©╫О©╫О©╫О©╫: %d",
+					"SYSERROR: некорректное значение в typeB (%d) для зоны: %d",
 					zone_data.typeB_list[i],
 					zone_data.vnum);
 			mudlog(local_buf, CMP, kLvlGreatGod, SYSLOG, true);
@@ -1769,7 +1770,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		log("WARNING: Mobile rnum %d is above the list 'top of mobt' (%s %s %d)", i, __FILE__, __func__, __LINE__);
 		return (nullptr);
 	}
-	CharData *mob = new CharData(mob_proto[i]); //О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫...
+	CharData *mob = new CharData(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	mob->script = std::make_shared<Script>();    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
@@ -1811,7 +1812,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	chardata_by_uid[mob->get_uid()] = mob;
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction) {
-		// mobile О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+		// mobile принадлежит тестовой зоне
 		mob->SetFlag(EMobFlag::kNoSummon);
 	}
 
@@ -1823,9 +1824,9 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 }
 
 /**
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
-// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
- * \param type О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ VIRTUAL
+// никакая это не копия, строковые и остальные поля с выделением памяти остаются общими
+// мы просто отдаем константный указатель на прототип
+ * \param type по дефолту VIRTUAL
  */
 CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type) {
 	unsigned i = nr;
@@ -1847,7 +1848,7 @@ CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type) {
 
 void after_reset_zone(ZoneRnum nr_zone) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
+		// Чар должен быть в игре
 		if (d->state == EConState::kPlaying) {
 			if (world[d->character->in_room]->zone_rn == nr_zone) {
 				zone_table[nr_zone].used = true;
@@ -1914,7 +1915,7 @@ void ZoneUpdate() {
 				<< zone_table[update_u->zone_to_reset].vnum << ")";
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
-					//О©╫О©╫О©╫О©╫ ZoneRnum О©╫О©╫ vnum
+					//Ищем ZoneRnum по vnum
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
@@ -1928,13 +1929,13 @@ void ZoneUpdate() {
 			}
 			std::stringstream ss;
 			DecayObjectsOnRepop(zone_repop_list);
-			ss << "О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫: ";
+			ss << "В списке репопа: ";
 			for (auto &it : zone_repop_list) {
 				ss << zone_table[it].vnum << " ";
 				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
 					ResetZone(it);
 				} else {
-					log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ dungeon %d", it);
+					log("Закрываю брошенный dungeon %d", it);
 					dungeons::DungeonReset(it);
 					zone_table[it].age = 0;
 					zone_table[it].used = false;
@@ -1963,12 +1964,12 @@ void ZoneUpdate() {
 bool CanBeReset(ZoneRnum zone) {
 	if (zone_table[zone].reset_mode != 3)
 		return false;
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+// проверяем себя
 	if (!IsZoneEmpty(zone))
 		return false;
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ B
+// проверяем список B
 	for (auto i = 0; i < zone_table[zone].typeB_count; i++) {
-		//О©╫О©╫О©╫О©╫ ZoneRnum О©╫О©╫ vnum
+		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeB_list[i]) {
 				if (!zone_table[zone].typeB_flag[i] || !IsZoneEmpty(j)) {
@@ -1978,9 +1979,9 @@ bool CanBeReset(ZoneRnum zone) {
 			}
 		}
 	}
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ A
+// проверяем список A
 	for (auto i = 0; i < zone_table[zone].typeA_count; i++) {
-		//О©╫О©╫О©╫О©╫ ZoneRnum О©╫О©╫ vnum
+		//Ищем ZoneRnum по vnum
 		for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 			if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
 				if (!IsZoneEmpty(j)) {
@@ -2171,7 +2172,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 			if (world[room]->vnum == zone_table[world[room]->zone_rn].top) {
 				return;
 			}
-			// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫? О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+			// зачем сезонные переносить в виртуалку? спуржить нафиг
 			if (!month_ok) {
 //				ExtractObjFromWorld(obj);
 				world_objects.AddToExtractedList(obj);
@@ -2227,8 +2228,8 @@ void LogZoneError(const ZoneData &zone_data, int cmd_no, const char *message) {
 	mudlog(local_buf, NRM, kLvlGod, SYSLOG, true);
 }
 
-const int CHECK_SUCCESS{1};	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
-const int FLAG_PERSIST{2};	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+const int CHECK_SUCCESS{1};	// Выполить команду, только если предыдущая успешна
+const int FLAG_PERSIST{2};	// Команда не должна изменить флаг
 
 class ZoneReset {
  public:
@@ -2309,7 +2310,7 @@ void ZoneReset::ResetZoneEssential() {
 	ObjData *obj_to, *obj_room;
 	CharData *tmob = nullptr;    // for trigger assignment
 	ObjData *tobj = nullptr;    // for trigger assignment
-	int last_state, curr_state;    // О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	int last_state, curr_state;    // статус завершения последней и текущей команды
 
 	log("[Reset] Start zone (%d) %s", zone_table[m_zone_rnum].vnum, zone_table[m_zone_rnum].name.c_str());
 	if (!zone_table[m_zone_rnum].cmd) {
@@ -2321,7 +2322,7 @@ void ZoneReset::ResetZoneEssential() {
 		RestoreRoomExitData(rrn);
 	}
 	//----------------------------------------------------------------------------
-	last_state = 1;        // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫
+	last_state = 1;        // для первой команды считаем, что все ок
 
 	for (cmd_no = 0; zone_table[m_zone_rnum].cmd != nullptr; cmd_no++) {
 		const auto &zone_data = zone_table[m_zone_rnum];
@@ -2334,28 +2335,28 @@ void ZoneReset::ResetZoneEssential() {
 			break;
 		}
 
-		curr_state = 0;    // О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		curr_state = 0;    // по умолчанию - неудачно
 		if (!(reset_cmd.if_flag & CHECK_SUCCESS) || last_state) {
-			// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			// Выполняем команду, если предыдущая успешна или не нужно проверять
 			switch (reset_cmd.command) {
 				case 'M':
 					// read a mobile
 					// 'M' <flag> <MobVnum> <max_in_world> <RoomVnum> <max_in_room|-1>
 
 					if (reset_cmd.arg3 < kFirstRoom) {
-						sprintf(buf, "&YО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫&G О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ 0 О©╫О©╫О©╫О©╫О©╫О©╫О©╫. (VNUM = %d, ZONE = %d)",
+						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
 								mob_index[reset_cmd.arg1].vnum, zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
 					}
 
-					mob = nullptr;    //О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+					mob = nullptr;    //Добавлено Ладником
 					if (mob_index[reset_cmd.arg1].total_online < reset_cmd.arg2 &&
 						(reset_cmd.arg4 < 0 || CountMobsInRoom(reset_cmd.arg1, reset_cmd.arg3) < reset_cmd.arg4)) {
 						mob = ReadMobile(reset_cmd.arg1, kReal);
 						if (!mob) {
 							sprintf(buf,
-									"ZRESET: О©╫О©╫О©╫О©╫О©╫О©╫! О©╫О©╫О©╫ %d  О©╫ О©╫О©╫О©╫О©╫ %d О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫",
+									"ZRESET: ошибка! моб %d  в зоне %d не существует",
 									reset_cmd.arg1,
 									zone_table[m_zone_rnum].vnum);
 							mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
@@ -2416,9 +2417,9 @@ void ZoneReset::ResetZoneEssential() {
 				case 'O':
 					// read an object
 					// 'O' <flag> <ObjVnum> <max_in_world> <RoomVnum|-1> <load%|-1>
-					// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫  - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+					// Проверка  - сколько всего таких же обьектов надо на эту клетку
 					if (reset_cmd.arg3 < kFirstRoom) {
-						sprintf(buf, "&YО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫&G О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ 0 О©╫О©╫О©╫О©╫О©╫О©╫О©╫. (VNUM = %d, ZONE = %d)",
+						sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
 								obj_proto[reset_cmd.arg1]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
@@ -2428,14 +2429,14 @@ void ZoneReset::ResetZoneEssential() {
 							&& (reset_cmd.arg1 == zone_data.cmd[cmd_tmp].arg1)
 							&& (reset_cmd.arg3 == zone_data.cmd[cmd_tmp].arg3))
 							obj_in_room_max++;
-					// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+					// Теперь считаем склько их на текущей клетке
 					for (obj_room = world[reset_cmd.arg3]->contents, obj_in_room = 0; obj_room;
 						 obj_room = obj_room->get_next_content()) {
 						if (reset_cmd.arg1 == obj_room->get_rnum()) {
 							obj_in_room++;
 						}
 					}
-					// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+					// Теперь грузим обьект если надо
 					if ((obj_proto.actual_count(reset_cmd.arg1) < GetObjMIW(reset_cmd.arg1)
 						|| GetObjMIW(reset_cmd.arg1) == ObjData::UNLIMITED_GLOBAL_MAXIMUM
 						|| stable_objs::IsTimerUnlimited(obj_proto[reset_cmd.arg1].get()))
@@ -2455,7 +2456,7 @@ void ZoneReset::ResetZoneEssential() {
 						curr_state = 1;
 
 						if (!obj->has_flag(EObjFlag::kNodecay)) {
-							sprintf(buf, "&YО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫&G О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ NODECAY : %s (VNUM=%d)",
+							sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
 									obj->get_PName(ECase::kNom).c_str(), obj->get_vnum());
 							mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 						}
@@ -2511,7 +2512,7 @@ void ZoneReset::ResetZoneEssential() {
 					// obj_to_char
 					// 'G' <flag> <ObjVnum> <max_in_world> <-> <load%|-1>
 					if (!mob)
-						//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+						//Изменено Ладником
 					{
 						// ZONE_ERROR("attempt to give obj to non-existant mob, command disabled");
 						// reset_cmd.command = '*';
@@ -2535,7 +2536,7 @@ void ZoneReset::ResetZoneEssential() {
 				case 'E':
 					// object to equipment list
 					// 'E' <flag> <ObjVnum> <max_in_world> <wear_pos> <load%|-1>
-					//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+					//Изменено Ладником
 					if (!mob) {
 						//ZONE_ERROR("trying to equip non-existant mob, command disabled");
 						// reset_cmd.command = '*';
@@ -2577,7 +2578,7 @@ void ZoneReset::ResetZoneEssential() {
 					// 'R' <flag> <RoomVnum> <ObjVnum>
 
 					if (reset_cmd.arg1 < kFirstRoom) {
-						sprintf(buf, "&YО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫&G О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ 0 О©╫О©╫О©╫О©╫О©╫О©╫О©╫. (VNUM = %d, ZONE = %d)",
+						sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
 								obj_proto[reset_cmd.arg2]->get_vnum(), zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
@@ -2596,7 +2597,7 @@ void ZoneReset::ResetZoneEssential() {
 					// 'D' <flag> <RoomVnum> <door_pos> <door_state>
 
 					if (reset_cmd.arg1 < kFirstRoom) {
-						sprintf(buf, "&YО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫&G О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ 0 О©╫О©╫О©╫О©╫О©╫О©╫О©╫. (ZONE = %d)",
+						sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
 								zone_table[m_zone_rnum].vnum);
 						mudlog(buf, BRF, kLvlBuilder, SYSLOG, true);
 						break;
@@ -2644,7 +2645,7 @@ void ZoneReset::ResetZoneEssential() {
 
 				case 'T':
 					// trigger command; details to be filled in later
-					// 'T' <flag> <trigger_type> <trigger_vnum> <RoomVnum, О©╫О©╫О©╫ WLD_TRIGGER>
+					// 'T' <flag> <trigger_type> <trigger_vnum> <RoomVnum, для WLD_TRIGGER>
 					if (reset_cmd.arg1 == MOB_TRIGGER && tmob) {
 						auto trig = read_trigger(reset_cmd.arg2);
 						if (!add_trigger(SCRIPT(tmob).get(), trig, -1)) {
@@ -2711,7 +2712,7 @@ void ZoneReset::ResetZoneEssential() {
 		}
 
 		if (!(reset_cmd.if_flag & FLAG_PERSIST)) {
-			// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+			// команда изменяет флаг
 			last_state = curr_state;
 		}
 	}
@@ -2745,7 +2746,7 @@ void ZoneReset::ResetZoneEssential() {
 		}
 	}
 	for (rnum_start = 0; rnum_start < static_cast<int>(zone_table.size()); rnum_start++) {
-		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫ typeB_list
+		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--) {
 			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[m_zone_rnum].vnum) {
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = true;
@@ -2754,7 +2755,7 @@ void ZoneReset::ResetZoneEssential() {
 			}
 		}
 	}
-	//О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ typeB_flag
+	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = false;
 	log("[Reset] Stop zone (%d) %s", zone_table[m_zone_rnum].vnum, zone_table[m_zone_rnum].name.c_str());
@@ -2766,8 +2767,8 @@ void ResetZone(ZoneRnum zone) {
 	zreset.Reset();
 }
 
-// О©╫О©╫О©╫О©╫ RNUM О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
-// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 0 - О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+// Ищет RNUM первой и последней комнаты зоны
+// Еси возвращает 0 - комнат в зоне нету
 int GetZoneRooms(ZoneRnum zrn, int *first, int *last) {
 	*first = zone_table[zrn].RnumRoomsLocation.first;
 	*last = zone_table[zrn].RnumRoomsLocation.second;
@@ -2792,19 +2793,19 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 			continue;
 		return false;
 	}
-	// О©╫О©╫О©╫О©╫О©╫ link-dead О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ zone_nr
+	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!GetZoneRooms(zone_nr, &rnum_start, &rnum_stop)) {
-		return true;    // О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ :)
+		return true;    // в зоне нет комнат :)
 	}
 	for (; rnum_start <= rnum_stop; rnum_start++) {
-// num_pc_in_room() О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫.О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
+// num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
 			if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
 				return false;
 			}
 		}
 	}
-// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ void О©╫О©╫О©╫О©╫О©╫О©╫О©╫ STRANGE_ROOM
+// теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (const auto c : world[kStrangeRoom]->people) {
 		const int was = c->get_was_in_room();
 
@@ -2820,7 +2821,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 		return false;
 	}
 	if (debug) {
-		sprintf(buf, "is_empty О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫ %d О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫!!!", zone_table[zone_nr].vnum);
+		sprintf(buf, "is_empty чек по клеткам зоны. Зона %d в зоне НИКОГО!!!", zone_table[zone_nr].vnum);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	}
 	return true;
@@ -2839,8 +2840,8 @@ int CountMobsInRoom(int m_num, int r_num) {
 }
 
 /**
-* О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ get_skill О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 100 О©╫О©╫О©╫ О©╫О©╫О©╫ 200, О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
-* О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫-О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫.
+* Можно канеш просто в get_skill иммам возвращать 100 или там 200, но тут зато можно
+* потестить че-нить с возможностью покачать скилл во время игры иммом.
 */
 void SetGodSkills(CharData *ch) {
 	for (auto i = ESkill::kFirst; i <= ESkill::kLast; ++i) {
@@ -2850,7 +2851,7 @@ void SetGodSkills(CharData *ch) {
 	}
 }
 
-// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ reboot = 0 (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫)
+// по умолчанию reboot = 0 (пользуется только при ребуте)
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags) {
 	const auto player_i = char_element->load_char_ascii(name, load_flags);
 	if (player_i > -1) {
@@ -3104,7 +3105,7 @@ int get_filename(const char *orig_name, char *filename, int mode) {
 
 	strcpy(name, orig_name);
 	for (ptr = name; *ptr; ptr++) {
-		if (*ptr == 'О©╫' || *ptr == 'О©╫')
+		if (*ptr == 'Ё' || *ptr == 'ё')
 			*ptr = '9';
 		else
 			*ptr = LOWER(AtoL(*ptr));
@@ -3171,7 +3172,7 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
-//		log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ %s", GET_NAME(it));
+//		log("Считаем кулдаун для %s", GET_NAME(it));
 		if (!it->HaveDecreaseCooldowns()) {
 			cooldown_list.push_back(it);
 		}
