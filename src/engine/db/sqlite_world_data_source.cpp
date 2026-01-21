@@ -388,7 +388,14 @@ void SqliteWorldDataSource::CloseDatabase()
 int SqliteWorldDataSource::GetCount(const char *table)
 {
 	std::string sql = "SELECT COUNT(*) FROM ";
+	static const char* enabled_tables[] = {"zones", "rooms", "mobs", "objects", "triggers", nullptr};
 	sql += table;
+	for (const char** t = enabled_tables; *t; ++t) {
+		if (strcmp(table, *t) == 0) {
+			sql += " WHERE enabled = 1";
+			break;
+		}
+	}
 
 	sqlite3_stmt *stmt;
 	int count = 0;
@@ -481,7 +488,7 @@ void SqliteWorldDataSource::LoadZones()
 	// Load zones
 	const char *sql = "SELECT vnum, name, comment, location, author, description, "
 					  "top_room, lifespan, reset_mode, reset_idle, zone_type, mode, entrance "
-					  "FROM zones ORDER BY vnum";
+					  "FROM zones WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -782,7 +789,7 @@ void SqliteWorldDataSource::LoadTriggers()
 	log("   %d triggers.", trig_count);
 
 	const char *sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script "
-					  "FROM triggers t LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum GROUP BY t.vnum ORDER BY t.vnum";
+					  "FROM triggers t LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum WHERE t.enabled = 1 GROUP BY t.vnum ORDER BY t.vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -895,7 +902,7 @@ void SqliteWorldDataSource::LoadRooms()
 
 	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
-	const char *sql = "SELECT vnum, zone_vnum, name, description, sector_id FROM rooms ORDER BY vnum";
+	const char *sql = "SELECT vnum, zone_vnum, name, description, sector_id FROM rooms WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1169,7 +1176,7 @@ void SqliteWorldDataSource::LoadMobs()
 					  "gold_dice_count, gold_dice_size, gold_bonus, experience, default_pos, start_pos, "
 					  "sex, size, height, weight, mob_class, race, "
 					  "attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha "
-					  "FROM mobs ORDER BY vnum";
+					  "FROM mobs WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1465,8 +1472,8 @@ void SqliteWorldDataSource::LoadObjects()
 	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
 					  "short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
 					  "weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
-					  "timer, spell, level, sex, max_in_world "
-					  "FROM objects ORDER BY vnum";
+					  "timer, spell, level, sex, max_in_world, minimum_remorts "
+					  "FROM objects WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1530,6 +1537,7 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_level(sqlite3_column_int(stmt, 25));
 		obj->set_sex(static_cast<EGender>(sqlite3_column_int(stmt, 26)));
 		obj->set_max_in_world(sqlite3_column_type(stmt, 27) == SQLITE_NULL ? -1 : sqlite3_column_int(stmt, 27));
+		obj->set_minimum_remorts(sqlite3_column_int(stmt, 28));
 
 		obj_proto.add(obj, vnum);
 	}

@@ -14,6 +14,9 @@
 #include <sstream>
 #include <vector>
 
+#include <fstream>
+#include <iomanip>
+
 namespace
 {
 
@@ -139,7 +142,11 @@ std::string SerializeRoom(const RoomData *room)
 		if (exit)
 		{
 			oss << dir << ":";
-			oss << exit->to_room() << ":";
+			// Use vnum instead of rnum to make checksum independent of loading order
+			auto to_rnum = exit->to_room();
+			int to_vnum = (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
+				? world[to_rnum]->vnum : -1;
+			oss << to_vnum << ":";
 			oss << exit->general_description << ":";
 			if (exit->keyword)
 			{
@@ -529,6 +536,245 @@ void SaveDetailedChecksums(const char *filename)
 
 	fclose(f);
 	log("Detailed checksums saved to %s", filename);
+}
+
+void SaveDetailedBuffers(const char *dir)
+{
+	std::string cmd = "mkdir -p ";
+	cmd += dir;
+	system(cmd.c_str());
+
+	auto save_buffer = [](const char *filepath, const std::string &buffer, uint32_t crc) {
+		FILE *f = fopen(filepath, "w");
+		if (!f) return;
+		fprintf(f, "CRC32: %08X\n", crc);
+		fprintf(f, "Length: %zu\n", buffer.size());
+		fprintf(f, "---RAW---\n%s\n", buffer.c_str());
+		fprintf(f, "---HEX---\n");
+		for (size_t i = 0; i < buffer.size(); ++i)
+		{
+			fprintf(f, "%02X ", static_cast<unsigned char>(buffer[i]));
+			if ((i + 1) % 32 == 0) fprintf(f, "\n");
+		}
+		fprintf(f, "\n");
+		fclose(f);
+	};
+
+	std::string zones_dir = std::string(dir) + "/zones";
+	system((std::string("mkdir -p ") + zones_dir).c_str());
+	for (const auto &zone : zone_table)
+	{
+		std::string serialized = SerializeZone(zone);
+		uint32_t crc = CRC32String(serialized);
+		std::string filepath = zones_dir + "/" + std::to_string(zone.vnum) + ".txt";
+		save_buffer(filepath.c_str(), serialized, crc);
+	}
+
+	std::string rooms_dir = std::string(dir) + "/rooms";
+	system((std::string("mkdir -p ") + rooms_dir).c_str());
+	for (RoomRnum i = 0; i <= top_of_world; ++i)
+	{
+		if (world[i])
+		{
+			std::string serialized = SerializeRoom(world[i]);
+			uint32_t crc = CRC32String(serialized);
+			std::string filepath = rooms_dir + "/" + std::to_string(world[i]->vnum) + ".txt";
+			save_buffer(filepath.c_str(), serialized, crc);
+		}
+	}
+
+	std::string mobs_dir = std::string(dir) + "/mobs";
+	system((std::string("mkdir -p ") + mobs_dir).c_str());
+	for (MobRnum i = 0; i <= top_of_mobt; ++i)
+	{
+		std::string serialized = SerializeMob(i);
+		uint32_t crc = CRC32String(serialized);
+		std::string filepath = mobs_dir + "/" + std::to_string(mob_index[i].vnum) + ".txt";
+		save_buffer(filepath.c_str(), serialized, crc);
+	}
+
+	std::string objs_dir = std::string(dir) + "/objects";
+	system((std::string("mkdir -p ") + objs_dir).c_str());
+	for (size_t i = 0; i < obj_proto.size(); ++i)
+	{
+		if (obj_proto[i])
+		{
+			std::string serialized = SerializeObject(obj_proto[i]);
+			uint32_t crc = CRC32String(serialized);
+			std::string filepath = objs_dir + "/" + std::to_string(obj_proto[i]->get_vnum()) + ".txt";
+			save_buffer(filepath.c_str(), serialized, crc);
+		}
+	}
+
+	std::string trigs_dir = std::string(dir) + "/triggers";
+	system((std::string("mkdir -p ") + trigs_dir).c_str());
+	for (int i = 0; i < top_of_trigt; ++i)
+	{
+		if (trig_index[i])
+		{
+			std::string serialized = SerializeTrigger(i);
+			uint32_t crc = CRC32String(serialized);
+			std::string filepath = trigs_dir + "/" + std::to_string(trig_index[i]->vnum) + ".txt";
+			save_buffer(filepath.c_str(), serialized, crc);
+		}
+	}
+
+	log("Detailed buffers saved to %s", dir);
+}
+
+std::map<std::string, uint32_t> LoadBaselineChecksums(const char *filename)
+{
+	std::map<std::string, uint32_t> result;
+	std::ifstream f(filename);
+	if (!f.is_open())
+	{
+		log("SYSERR: Cannot open baseline checksums file: %s", filename);
+		return result;
+	}
+
+	std::string line;
+	while (std::getline(f, line))
+	{
+		if (line.empty() || line[0] == '#') continue;
+		std::istringstream iss(line);
+		std::string type;
+		int vnum;
+		std::string crc_str;
+		if (iss >> type >> vnum >> crc_str)
+		{
+			uint32_t crc = std::stoul(crc_str, nullptr, 16);
+			std::string key = type + " " + std::to_string(vnum);
+			result[key] = crc;
+		}
+	}
+
+	log("Loaded %zu baseline checksums from %s", result.size(), filename);
+	return result;
+}
+
+void CompareWithBaseline(const char *baseline_dir, int max_mismatches_per_type)
+{
+	std::string checksums_file = std::string(baseline_dir) + "/checksums_detailed.txt";
+	auto baseline = LoadBaselineChecksums(checksums_file.c_str());
+	if (baseline.empty())
+	{
+		log("No baseline checksums loaded, skipping comparison");
+		return;
+	}
+
+	log("=== Comparing with baseline from %s ===", baseline_dir);
+
+	int zone_mismatches = 0;
+	int room_mismatches = 0;
+	int mob_mismatches = 0;
+	int obj_mismatches = 0;
+	int trig_mismatches = 0;
+
+	for (const auto &zone : zone_table)
+	{
+		std::string key = "ZONE " + std::to_string(zone.vnum);
+		std::string serialized = SerializeZone(zone);
+		uint32_t crc = CRC32String(serialized);
+		auto it = baseline.find(key);
+		if (it != baseline.end() && it->second != crc)
+		{
+			++zone_mismatches;
+			if (zone_mismatches <= max_mismatches_per_type)
+			{
+				log("MISMATCH ZONE %d: baseline=%08X current=%08X", zone.vnum, it->second, crc);
+				std::string baseline_file = std::string(baseline_dir) + "/zones/" + std::to_string(zone.vnum) + ".txt";
+				log("  Baseline: %s", baseline_file.c_str());
+				log("  Current buffer: %s", serialized.c_str());
+			}
+		}
+	}
+
+	for (RoomRnum i = 0; i <= top_of_world; ++i)
+	{
+		if (!world[i]) continue;
+		std::string key = "ROOM " + std::to_string(world[i]->vnum);
+		std::string serialized = SerializeRoom(world[i]);
+		uint32_t crc = CRC32String(serialized);
+		auto it = baseline.find(key);
+		if (it != baseline.end() && it->second != crc)
+		{
+			++room_mismatches;
+			if (room_mismatches <= max_mismatches_per_type)
+			{
+				log("MISMATCH ROOM %d: baseline=%08X current=%08X", world[i]->vnum, it->second, crc);
+				std::string baseline_file = std::string(baseline_dir) + "/rooms/" + std::to_string(world[i]->vnum) + ".txt";
+				log("  Baseline: %s", baseline_file.c_str());
+				log("  Current buffer: %s", serialized.c_str());
+			}
+		}
+	}
+
+	for (MobRnum i = 0; i <= top_of_mobt; ++i)
+	{
+		std::string key = "MOB " + std::to_string(mob_index[i].vnum);
+		std::string serialized = SerializeMob(i);
+		uint32_t crc = CRC32String(serialized);
+		auto it = baseline.find(key);
+		if (it != baseline.end() && it->second != crc)
+		{
+			++mob_mismatches;
+			if (mob_mismatches <= max_mismatches_per_type)
+			{
+				log("MISMATCH MOB %d: baseline=%08X current=%08X", mob_index[i].vnum, it->second, crc);
+				std::string baseline_file = std::string(baseline_dir) + "/mobs/" + std::to_string(mob_index[i].vnum) + ".txt";
+				log("  Baseline: %s", baseline_file.c_str());
+				log("  Current buffer: %s", serialized.c_str());
+			}
+		}
+	}
+
+	for (size_t i = 0; i < obj_proto.size(); ++i)
+	{
+		if (!obj_proto[i]) continue;
+		std::string key = "OBJ " + std::to_string(obj_proto[i]->get_vnum());
+		std::string serialized = SerializeObject(obj_proto[i]);
+		uint32_t crc = CRC32String(serialized);
+		auto it = baseline.find(key);
+		if (it != baseline.end() && it->second != crc)
+		{
+			++obj_mismatches;
+			if (obj_mismatches <= max_mismatches_per_type)
+			{
+				log("MISMATCH OBJ %d: baseline=%08X current=%08X", obj_proto[i]->get_vnum(), it->second, crc);
+				std::string baseline_file = std::string(baseline_dir) + "/objects/" + std::to_string(obj_proto[i]->get_vnum()) + ".txt";
+				log("  Baseline: %s", baseline_file.c_str());
+				log("  Current buffer: %s", serialized.c_str());
+			}
+		}
+	}
+
+	for (int i = 0; i < top_of_trigt; ++i)
+	{
+		if (!trig_index[i]) continue;
+		std::string key = "TRIG " + std::to_string(trig_index[i]->vnum);
+		std::string serialized = SerializeTrigger(i);
+		uint32_t crc = CRC32String(serialized);
+		auto it = baseline.find(key);
+		if (it != baseline.end() && it->second != crc)
+		{
+			++trig_mismatches;
+			if (trig_mismatches <= max_mismatches_per_type)
+			{
+				log("MISMATCH TRIG %d: baseline=%08X current=%08X", trig_index[i]->vnum, it->second, crc);
+				std::string baseline_file = std::string(baseline_dir) + "/triggers/" + std::to_string(trig_index[i]->vnum) + ".txt";
+				log("  Baseline: %s", baseline_file.c_str());
+				log("  Current buffer: %s", serialized.c_str());
+			}
+		}
+	}
+
+	log("=== Comparison Summary ===");
+	log("Zone mismatches: %d", zone_mismatches);
+	log("Room mismatches: %d", room_mismatches);
+	log("Mob mismatches:  %d", mob_mismatches);
+	log("Obj mismatches:  %d", obj_mismatches);
+	log("Trig mismatches: %d", trig_mismatches);
+	log("Total mismatches: %d", zone_mismatches + room_mismatches + mob_mismatches + obj_mismatches + trig_mismatches);
 }
 
 } // namespace WorldChecksum

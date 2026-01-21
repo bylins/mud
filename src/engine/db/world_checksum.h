@@ -6,6 +6,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
+#include <map>
 
 namespace WorldChecksum
 {
@@ -29,6 +31,18 @@ struct ChecksumResult
 ChecksumResult Calculate();
 void LogResult(const ChecksumResult &result);
 void SaveDetailedChecksums(const char *filename);
+
+// Extended functions for debugging SQLite vs Legacy differences
+// Save buffers with labeled fields for comparison
+void SaveDetailedBuffers(const char *dir);
+
+// Load baseline checksums from file
+// Returns map of "TYPE VNUM" -> checksum
+std::map<std::string, uint32_t> LoadBaselineChecksums(const char *filename);
+
+// Compare current state with baseline and print first N mismatches per type
+// baseline_dir contains files from SaveDetailedBuffers()
+void CompareWithBaseline(const char *baseline_dir, int max_mismatches_per_type = 3);
 
 }
 
