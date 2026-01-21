@@ -17,6 +17,7 @@
 #include "engine/db/description.h"
 #include "engine/structs/extra_description.h"
 #include "gameplay/mechanics/dungeons.h"
+#include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
 
@@ -863,8 +864,8 @@ void SqliteWorldDataSource::LoadTriggers()
 	CREATE(trig_index, trig_count);
 	log("   %d triggers.", trig_count);
 
-	const char *sql = "SELECT vnum, name, attach_type, trigger_types, narg, arglist, script "
-					  "FROM triggers ORDER BY vnum";
+	const char *sql = "SELECT t.vnum, t.name, t.attach_type, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script "
+					  "FROM triggers t LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum GROUP BY t.vnum ORDER BY t.vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -879,7 +880,7 @@ void SqliteWorldDataSource::LoadTriggers()
 		int vnum = sqlite3_column_int(stmt, 0);
 		std::string name = GetText(stmt, 1);
 		std::string attach_type_str = GetText(stmt, 2);
-		std::string trigger_types_str = GetText(stmt, 3);
+		std::string type_chars = GetText(stmt, 3);
 		int narg = sqlite3_column_int(stmt, 4);
 		std::string arglist = GetText(stmt, 5);
 		std::string script = GetText(stmt, 6);
@@ -891,10 +892,16 @@ void SqliteWorldDataSource::LoadTriggers()
 		else if (attach_type_str.find("Room") != std::string::npos || attach_type_str.find("WLD") != std::string::npos)
 			attach_type = WLD_TRIGGER;
 
-		// Parse trigger_types - try as number first
+		// Compute trigger_type bitmask from type_chars
 		long trigger_type = 0;
 		
-		trigger_type = SafeStol(trigger_types_str);
+		for (char ch : type_chars)
+		{
+			if (ch >= 'a' && ch <= 'z')
+				trigger_type |= (1L << (ch - 'a'));
+			else if (ch >= 'A' && ch <= 'Z')
+				trigger_type |= (1L << (26 + ch - 'A'));
+		}
 		
 
 		// Create trigger with proper constructor
@@ -906,6 +913,7 @@ void SqliteWorldDataSource::LoadTriggers()
 		if (!script.empty())
 		{
 			std::istringstream ss(script);
+			int indlev = 0;
 			std::string line;
 			cmdlist_element::shared_ptr head = nullptr;
 			cmdlist_element::shared_ptr tail = nullptr;
@@ -913,6 +921,8 @@ void SqliteWorldDataSource::LoadTriggers()
 			while (std::getline(ss, line))
 			{
 				auto cmd = std::make_shared<cmdlist_element>();
+				utils::TrimRight(line);
+				indent_trigger(line, &indlev);
 				cmd->cmd = line;
 				cmd->next = nullptr;
 
