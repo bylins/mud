@@ -1640,8 +1640,10 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_rent_off(sqlite3_column_int(stmt, 18));
 		obj->set_rent_on(sqlite3_column_int(stmt, 19));
 		obj->set_spec_param(sqlite3_column_int(stmt, 20));
-		obj->set_maximum_durability(sqlite3_column_int(stmt, 21));
-		obj->set_current_durability(sqlite3_column_int(stmt, 22));
+		int max_dur = sqlite3_column_int(stmt, 21);
+		int cur_dur = sqlite3_column_int(stmt, 22);
+		obj->set_maximum_durability(max_dur);
+		obj->set_current_durability(std::min(max_dur, cur_dur));  // Match Legacy: MIN(max, cur)
 		int timer = sqlite3_column_int(stmt, 23);
 		if (timer > 0 && timer > 99999) timer = 99999;  // Cap timer like Legacy
 		obj->set_timer(timer);
@@ -1859,6 +1861,21 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 	if (loaded > 0)
 	{
 		log("   Loaded %d object extra descriptions.", loaded);
+	}
+
+	// Post-processing to match Legacy loader behavior
+	for (size_t i = 0; i < obj_proto.size(); ++i)
+	{
+		// Clear runtime flags that should not be in prototypes
+		obj_proto[i]->unset_extraflag(EObjFlag::kTransformed);
+		obj_proto[i]->unset_extraflag(EObjFlag::kTicktimer);
+
+		// Objects with zone decay flags should have unlimited max_in_world
+		if (obj_proto[i]->has_flag(EObjFlag::kZonedacay)
+			|| obj_proto[i]->has_flag(EObjFlag::kRepopDecay))
+		{
+			obj_proto[i]->set_max_in_world(-1);
+		}
 	}
 }
 
