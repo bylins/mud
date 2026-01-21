@@ -8,6 +8,7 @@
 #include "obj_prototypes.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "utils/utils_string.h"
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
@@ -267,6 +268,32 @@ static std::unordered_map<std::string, EObjFlag> obj_extra_flag_map = {
 	{"kAppearsSpring", EObjFlag::kAppearsSpring},
 	{"kAppearsSummer", EObjFlag::kAppearsSummer},
 	{"kAppearsAutumn", EObjFlag::kAppearsAutumn},
+	{"kSwimming", EObjFlag::kSwimming},
+	{"kFlying", EObjFlag::kFlying},
+	{"kThrowing", EObjFlag::kThrowing},
+	{"kTicktimer", EObjFlag::kTicktimer},
+	{"kFire", EObjFlag::kFire},
+	{"kRepopDecay", EObjFlag::kRepopDecay},
+	{"kNolocate", EObjFlag::kNolocate},
+	{"kTimedLvl", EObjFlag::kTimedLvl},
+	{"kNoalter", EObjFlag::kNoalter},
+	{"kHasOneSlot", EObjFlag::kHasOneSlot},
+	{"kHasTwoSlots", EObjFlag::kHasTwoSlots},
+	{"kHasThreeSlots", EObjFlag::kHasThreeSlots},
+	{"kSetItem", EObjFlag::KSetItem},
+	{"kNofail", EObjFlag::KNofail},
+	{"kNamed", EObjFlag::kNamed},
+	{"kBloody", EObjFlag::kBloody},
+	{"kQuestItem", EObjFlag::kQuestItem},
+	{"k2inlaid", EObjFlag::k2inlaid},
+	{"k3inlaid", EObjFlag::k3inlaid},
+	{"kNopour", EObjFlag::kNopour},
+	{"kUnique", EObjFlag::kUnique},
+	{"kTransformed", EObjFlag::kTransformed},
+	{"kNoRentTimer", EObjFlag::kNoRentTimer},
+	{"kLimitedTimer", EObjFlag::KLimitedTimer},
+	{"kBindOnPurchase", EObjFlag::kBindOnPurchase},
+	{"kNotOneInClanChest", EObjFlag::kNotOneInClanChest},
 };
 
 // Object wear flags mapping
@@ -325,6 +352,10 @@ static std::unordered_map<std::string, EObjType> obj_type_map = {
 	{"kMagicArrow", kMagicArrow},
 	{"kMagicContaner", kMagicContaner},
 	{"kTrap", kTrap},
+	{"kElementWeapon", kElementWeapon},
+	{"kMissile", kMissile},
+	{"kWorm", kWorm},
+	{"kCraftMaterial2", kCraftMaterial2},
 };
 
 // Sector type mapping
@@ -1555,14 +1586,14 @@ void SqliteWorldDataSource::LoadObjects()
 
 		// Names
 		obj->set_aliases(GetText(stmt, 1));
-		obj->set_short_description(GetText(stmt, 2));
-		obj->set_PName(ECase::kNom, GetText(stmt, 2));
-		obj->set_PName(ECase::kGen, GetText(stmt, 3));
-		obj->set_PName(ECase::kDat, GetText(stmt, 4));
-		obj->set_PName(ECase::kAcc, GetText(stmt, 5));
-		obj->set_PName(ECase::kIns, GetText(stmt, 6));
-		obj->set_PName(ECase::kPre, GetText(stmt, 7));
-		obj->set_description(GetText(stmt, 8));
+		obj->set_short_description(utils::colorLOW(GetText(stmt, 2)));
+		obj->set_PName(ECase::kNom, utils::colorLOW(GetText(stmt, 2)));
+		obj->set_PName(ECase::kGen, utils::colorLOW(GetText(stmt, 3)));
+		obj->set_PName(ECase::kDat, utils::colorLOW(GetText(stmt, 4)));
+		obj->set_PName(ECase::kAcc, utils::colorLOW(GetText(stmt, 5)));
+		obj->set_PName(ECase::kIns, utils::colorLOW(GetText(stmt, 6)));
+		obj->set_PName(ECase::kPre, utils::colorLOW(GetText(stmt, 7)));
+		obj->set_description(utils::colorCAP(GetText(stmt, 8)));
 		obj->set_action_description(GetText(stmt, 9));
 
 		// Type

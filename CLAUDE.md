@@ -334,3 +334,42 @@ Always explicitly notify the user before:
 - Changing the working directory for any build operation
 
 Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
+
+### SQLite World Database
+The project supports loading world data from SQLite database instead of legacy text files.
+
+**Related repositories:**
+- `../mud-docs/` - Contains world conversion tools and SQLite schema:
+  - `convert_to_yaml.py` - Script to convert Legacy world files to SQLite database
+  - `world_schema.sql` - SQLite schema for world database
+  - `sqlite-world-schema.md` - Schema documentation
+  - `legacy-world-format.md` - Legacy file format documentation
+
+**To regenerate world.db:**
+```bash
+cd ../mud-docs
+python3 convert_to_yaml.py --sqlite ../mud/build_sqlite/small/world.db ../mud/build_sqlite/small/world
+```
+
+**Important:**
+- Schema changes should be made in `../mud-docs/world_schema.sql` (primary source)
+- Copy to `tools/world_schema.sql` is for reference only
+- When fixing loader issues, check if the problem is in the converter or loader
+- String enum values (like "kWorm") are intentional for human readability - map them in loader
+
+### Editing Files with Patches
+For complex or multi-line changes to KOI8-R encoded files, generate unified patches instead of using sed:
+```bash
+# Create patch and apply
+cat > /tmp/fix.patch << 'PATCH'
+--- a/src/file.cpp
++++ b/src/file.cpp
+@@ -10,3 +10,4 @@
+ existing line
+-old line
++new line
++added line
+PATCH
+patch -p1 < /tmp/fix.patch
+```
+This is more reliable than sed for complex edits and preserves encoding.
