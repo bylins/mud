@@ -318,79 +318,6 @@ static std::unordered_map<std::string, EWearFlag> obj_wear_flag_map = {
 	{"kQuiver", EWearFlag::kQuiver},
 };
 
-// Object type mapping
-static std::unordered_map<std::string, EObjType> obj_type_map = {
-	{"kUndefined", kItemUndefined},
-	{"kLightSource", kLightSource},
-	{"kScroll", kScroll},
-	{"kWand", kWand},
-	{"kStaff", kStaff},
-	{"kWeapon", kWeapon},
-	{"kTreasure", kTreasure},
-	{"kArmor", kArmor},
-	{"kPotion", kPotion},
-	{"kOther", kOther},
-	{"kTrash", kTrash},
-	{"kContainer", kContainer},
-	{"kNote", kNote},
-	{"kLiquidContainer", kLiquidContainer},
-	{"kKey", kKey},
-	{"kFood", kFood},
-	{"kMoney", kMoney},
-	{"kPen", kPen},
-	{"kBoat", kBoat},
-	{"kFountain", kFountain},
-	{"kBook", kBook},
-	{"kIngredient", kIngredient},
-	{"kMagicIngredient", kMagicIngredient},
-	{"kCraftMaterial", kCraftMaterial},
-	{"kBandage", kBandage},
-	{"kLightArmor", kLightArmor},
-	{"kMediumArmor", kMediumArmor},
-	{"kHeavyArmor", kHeavyArmor},
-	{"kEnchant", kEnchant},
-	{"kMagicMaterial", kMagicMaterial},
-	{"kMagicArrow", kMagicArrow},
-	{"kMagicContaner", kMagicContaner},
-	{"kTrap", kTrap},
-	{"kElementWeapon", kElementWeapon},
-	{"kMissile", kMissile},
-	{"kWorm", kWorm},
-	{"kCraftMaterial2", kCraftMaterial2},
-};
-
-// Sector type mapping
-static std::unordered_map<std::string, int> sector_map = {
-	{"Inside", ESector::kInside},
-	{"kInside", ESector::kInside},
-	{"City", ESector::kCity},
-	{"kCity", ESector::kCity},
-	{"Field", ESector::kField},
-	{"kField", ESector::kField},
-	{"Forest", ESector::kForest},
-	{"kForest", ESector::kForest},
-	{"Hills", ESector::kHills},
-	{"kHills", ESector::kHills},
-	{"Mountain", ESector::kMountain},
-	{"kMountain", ESector::kMountain},
-	{"WaterSwim", ESector::kWaterSwim},
-	{"kWaterSwim", ESector::kWaterSwim},
-	{"WaterNoswim", ESector::kWaterNoswim},
-	{"kWaterNoswim", ESector::kWaterNoswim},
-	{"OnlyFlying", ESector::kOnlyFlying},
-	{"kOnlyFlying", ESector::kOnlyFlying},
-	{"Underwater", ESector::kUnderwater},
-	{"kUnderwater", ESector::kUnderwater},
-	{"Secret", ESector::kSecret},
-	{"kSecret", ESector::kSecret},
-	{"Stoneroad", ESector::kStoneroad},
-	{"kStoneroad", ESector::kStoneroad},
-	{"Road", ESector::kRoad},
-	{"kRoad", ESector::kRoad},
-	{"Wildroad", ESector::kWildroad},
-	{"kWildroad", ESector::kWildroad},
-};
-
 // Position mapping
 static std::unordered_map<std::string, int> position_map = {
 	{"kDead", static_cast<int>(EPosition::kDead)},
@@ -412,16 +339,6 @@ static std::unordered_map<std::string, int> gender_map = {
 	{"kFemale", static_cast<int>(EGender::kFemale)},
 	{"kNeutral", static_cast<int>(EGender::kNeutral)},
 	{"kPoly", static_cast<int>(EGender::kPoly)},
-};
-
-// Direction string to number mapping
-static std::unordered_map<std::string, int> direction_map = {
-	{"north", 0},
-	{"east", 1},
-	{"south", 2},
-	{"west", 3},
-	{"up", 4},
-	{"down", 5},
 };
 
 // ============================================================================
@@ -657,8 +574,8 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 
 	// Load commands
 	std::string sql = "SELECT cmd_type, if_flag, arg_mob_vnum, arg_obj_vnum, arg_room_vnum, "
-					  "arg_max, arg_max_world, arg_max_room, arg_load_prob, arg_wear_pos, "
-					  "arg_direction, arg_state, arg_trigger_vnum, arg_trigger_type, "
+					  "arg_max, arg_max_world, arg_max_room, arg_load_prob, arg_wear_pos_id, "
+					  "arg_direction_id, arg_state, arg_trigger_vnum, arg_trigger_type, "
 					  "arg_context, arg_var_name, arg_var_value, arg_container_vnum, "
 					  "arg_leader_mob_vnum, arg_follower_mob_vnum "
 					  "FROM zone_commands WHERE zone_vnum = " + std::to_string(zone.vnum) +
@@ -717,8 +634,8 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.command = 'E';
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
-			std::string wear_pos = GetText(stmt, 9);
-			cmd.arg3 = !wear_pos.empty() ? SafeStoi(wear_pos) : 0;
+			int wear_pos = sqlite3_column_int(stmt, 9);
+			cmd.arg3 = wear_pos;
 		}
 		else if (strcmp(cmd_type.c_str(), "PUT_OBJ") == 0)
 		{
@@ -731,9 +648,9 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 		{
 			cmd.command = 'D';
 			cmd.arg1 = sqlite3_column_int(stmt, 4);  // room_vnum
-			std::string dir = GetText(stmt, 10);
-			auto dir_it = direction_map.find(dir);
-			cmd.arg2 = dir_it != direction_map.end() ? dir_it->second : 0;
+			int zone_dir = sqlite3_column_int(stmt, 10);
+			
+			cmd.arg2 = zone_dir;
 			cmd.arg3 = sqlite3_column_int(stmt, 11); // state
 		}
 		else if (strcmp(cmd_type.c_str(), "REMOVE_OBJ") == 0)
@@ -864,7 +781,7 @@ void SqliteWorldDataSource::LoadTriggers()
 	CREATE(trig_index, trig_count);
 	log("   %d triggers.", trig_count);
 
-	const char *sql = "SELECT t.vnum, t.name, t.attach_type, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script "
+	const char *sql = "SELECT t.vnum, t.name, t.attach_type_id, GROUP_CONCAT(ttb.type_char, '') AS type_chars, t.narg, t.arglist, t.script "
 					  "FROM triggers t LEFT JOIN trigger_type_bindings ttb ON t.vnum = ttb.trigger_vnum GROUP BY t.vnum ORDER BY t.vnum";
 
 	sqlite3_stmt *stmt;
@@ -879,18 +796,13 @@ void SqliteWorldDataSource::LoadTriggers()
 	{
 		int vnum = sqlite3_column_int(stmt, 0);
 		std::string name = GetText(stmt, 1);
-		std::string attach_type_str = GetText(stmt, 2);
+		int attach_type_id = sqlite3_column_int(stmt, 2);
 		std::string type_chars = GetText(stmt, 3);
 		int narg = sqlite3_column_int(stmt, 4);
 		std::string arglist = GetText(stmt, 5);
 		std::string script = GetText(stmt, 6);
 
-		// Parse attach_type
-		byte attach_type = MOB_TRIGGER;
-		if (attach_type_str.find("Obj") != std::string::npos || attach_type_str.find("OBJ") != std::string::npos)
-			attach_type = OBJ_TRIGGER;
-		else if (attach_type_str.find("Room") != std::string::npos || attach_type_str.find("WLD") != std::string::npos)
-			attach_type = WLD_TRIGGER;
+		byte attach_type = static_cast<byte>(attach_type_id);
 
 		// Compute trigger_type bitmask from type_chars
 		long trigger_type = 0;
@@ -983,7 +895,7 @@ void SqliteWorldDataSource::LoadRooms()
 
 	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
-	const char *sql = "SELECT vnum, zone_vnum, name, description, sector FROM rooms ORDER BY vnum";
+	const char *sql = "SELECT vnum, zone_vnum, name, description, sector_id FROM rooms ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1001,7 +913,7 @@ void SqliteWorldDataSource::LoadRooms()
 		[[maybe_unused]] int zone_vnum = sqlite3_column_int(stmt, 1);
 		std::string name = GetText(stmt, 2);
 		std::string description = GetText(stmt, 3);
-		std::string sector_str = GetText(stmt, 4);
+		int sector_id = sqlite3_column_int(stmt, 4);
 
 		auto room = new RoomData;
 		room->vnum = vnum;
@@ -1032,16 +944,7 @@ void SqliteWorldDataSource::LoadRooms()
 			zone_table[zone_rn].RnumRoomsLocation.second = top_of_world + 1;
 		}
 
-		// Parse sector type
-		auto sector_it = sector_map.find(sector_str);
-		if (sector_it != sector_map.end())
-		{
-			room->sector_type = sector_it->second;
-		}
-		else
-		{
-			room->sector_type = ESector::kCity;
-		}
+		room->sector_type = static_cast<ESector>(sector_id);
 
 		world.push_back(room);
 		top_of_world++;
@@ -1104,7 +1007,7 @@ void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum
 
 void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum)
 {
-	const char *sql = "SELECT room_vnum, direction, description, keywords, exit_flags, "
+	const char *sql = "SELECT room_vnum, direction_id, description, keywords, exit_flags, "
 					  "key_vnum, to_room, lock_complexity FROM room_exits";
 
 	sqlite3_stmt *stmt;
@@ -1118,7 +1021,7 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int room_vnum = sqlite3_column_int(stmt, 0);
-		std::string direction = GetText(stmt, 1);
+		int dir = sqlite3_column_int(stmt, 1);
 		std::string desc = GetText(stmt, 2);
 		std::string keywords = GetText(stmt, 3);
 		std::string exit_flags_str = GetText(stmt, 4);
@@ -1132,14 +1035,6 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 
 		RoomData *room = world[it->second];
 
-		// Parse direction
-		int dir = -1;
-		if (direction == "north") dir = 0;
-		else if (direction == "east") dir = 1;
-		else if (direction == "south") dir = 2;
-		else if (direction == "west") dir = 3;
-		else if (direction == "up") dir = 4;
-		else if (direction == "down") dir = 5;
 
 		if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
 
@@ -1465,7 +1360,7 @@ void SqliteWorldDataSource::LoadMobFlags()
 
 void SqliteWorldDataSource::LoadMobSkills()
 {
-	const char *sql = "SELECT mob_vnum, skill_name, value FROM mob_skills";
+	const char *sql = "SELECT mob_vnum, skill_id, value FROM mob_skills";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1484,23 +1379,15 @@ void SqliteWorldDataSource::LoadMobSkills()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int mob_vnum = sqlite3_column_int(stmt, 0);
-		std::string skill_name = GetText(stmt, 1);
+		int skill_id = sqlite3_column_int(stmt, 1);
 		int value = sqlite3_column_int(stmt, 2);
 
 		auto it = vnum_to_rnum.find(mob_vnum);
 		if (it == vnum_to_rnum.end()) continue;
 
-		// Parse skill name
-		try
-		{
-			auto skill = ITEM_BY_NAME<ESkill>(skill_name);
-			mob_proto[it->second].set_skill(skill, value);
-			skills_set++;
-		}
-		catch (...)
-		{
-			// Unknown skill name
-		}
+		auto skill = static_cast<ESkill>(skill_id);
+		mob_proto[it->second].set_skill(skill, value);
+		skills_set++;
 	}
 	sqlite3_finalize(stmt);
 
@@ -1576,7 +1463,7 @@ void SqliteWorldDataSource::LoadObjects()
 	log("   %d objs.", obj_count);
 
 	const char *sql = "SELECT vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
-					  "short_desc, action_desc, obj_type, material, value0, value1, value2, value3, "
+					  "short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
 					  "weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
 					  "timer, spell, level, sex, max_in_world "
 					  "FROM objects ORDER BY vnum";
@@ -1607,26 +1494,8 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_action_description(GetText(stmt, 9));
 
 		// Type
-		std::string obj_type_str = GetText(stmt, 10);
-		auto type_it = obj_type_map.find(obj_type_str);
-		if (type_it != obj_type_map.end())
-		{
-			obj->set_type(type_it->second);
-		}
-		else
-		{
-			// Try as number
-			
-			long type_num = SafeStol(obj_type_str);
-			if (type_num > 0)
-			{
-				obj->set_type(static_cast<EObjType>(type_num));
-			}
-			else
-			{
-				obj->set_type(kItemUndefined);
-			}
-		}
+		int obj_type_id = sqlite3_column_int(stmt, 10);
+		obj->set_type(static_cast<EObjType>(obj_type_id));
 
 		// Material
 		obj->set_material(static_cast<EObjMaterial>(sqlite3_column_int(stmt, 11)));
@@ -1759,7 +1628,7 @@ void SqliteWorldDataSource::LoadObjectFlags()
 
 void SqliteWorldDataSource::LoadObjectApplies()
 {
-	const char *sql = "SELECT obj_vnum, location, modifier FROM obj_applies";
+	const char *sql = "SELECT obj_vnum, location_id, modifier FROM obj_applies";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1771,25 +1640,13 @@ void SqliteWorldDataSource::LoadObjectApplies()
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
 		int obj_vnum = sqlite3_column_int(stmt, 0);
-		std::string location_str = GetText(stmt, 1);
+		int location_id = sqlite3_column_int(stmt, 1);
 		int modifier = sqlite3_column_int(stmt, 2);
 
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum < 0) continue;
 
-		// Parse location - try ITEM_BY_NAME first, fall back to number
-		int location = 0;
-		try
-		{
-			auto apply_loc = ITEM_BY_NAME<EApply>(location_str);
-			location = to_underlying(apply_loc);
-		}
-		catch (...)
-		{
-			// Try as number
-			
-			location = SafeStol(location_str);
-		}
+		int location = location_id;
 
 		// Find first empty apply slot
 		for (int i = 0; i < kMaxObjAffect; i++)
