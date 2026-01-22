@@ -318,6 +318,115 @@ static std::unordered_map<std::string, EWearFlag> obj_wear_flag_map = {
 	{"kQuiver", EWearFlag::kQuiver},
 };
 
+// Object affect flags mapping (EWeaponAffect values)
+static std::unordered_map<std::string, EWeaponAffect> obj_affect_flag_map = {
+	{"kBlindness", EWeaponAffect::kBlindness},
+	{"kInvisibility", EWeaponAffect::kInvisibility},
+	{"kDetectAlign", EWeaponAffect::kDetectAlign},
+	{"kDetectInvisibility", EWeaponAffect::kDetectInvisibility},
+	{"kDetectMagic", EWeaponAffect::kDetectMagic},
+	{"kDetectLife", EWeaponAffect::kDetectLife},
+	{"kWaterWalk", EWeaponAffect::kWaterWalk},
+	{"kSanctuary", EWeaponAffect::kSanctuary},
+	{"kCurse", EWeaponAffect::kCurse},
+	{"kInfravision", EWeaponAffect::kInfravision},
+	{"kPoison", EWeaponAffect::kPoison},
+	{"kProtectFromDark", EWeaponAffect::kProtectFromDark},
+	{"kProtectFromMind", EWeaponAffect::kProtectFromMind},
+	{"kSleep", EWeaponAffect::kSleep},
+	{"kNoTrack", EWeaponAffect::kNoTrack},
+	{"kBless", EWeaponAffect::kBless},
+	{"kSneak", EWeaponAffect::kSneak},
+	{"kHide", EWeaponAffect::kHide},
+	{"kHold", EWeaponAffect::kHold},
+	{"kFly", EWeaponAffect::kFly},
+	{"kSilence", EWeaponAffect::kSilence},
+	{"kAwareness", EWeaponAffect::kAwareness},
+	{"kBlink", EWeaponAffect::kBlink},
+	{"kNoFlee", EWeaponAffect::kNoFlee},
+	{"kSingleLight", EWeaponAffect::kSingleLight},
+	{"kHolyLight", EWeaponAffect::kHolyLight},
+	{"kHolyDark", EWeaponAffect::kHolyDark},
+	{"kDetectPoison", EWeaponAffect::kDetectPoison},
+	{"kSlow", EWeaponAffect::kSlow},
+	{"kHaste", EWeaponAffect::kHaste},
+	{"kWaterBreath", EWeaponAffect::kWaterBreath},
+	{"kHaemorrhage", EWeaponAffect::kHaemorrhage},
+	{"kDisguising", EWeaponAffect::kDisguising},
+	{"kShield", EWeaponAffect::kShield},
+	{"kAirShield", EWeaponAffect::kAirShield},
+	{"kFireShield", EWeaponAffect::kFireShield},
+	{"kIceShield", EWeaponAffect::kIceShield},
+	{"kMagicGlass", EWeaponAffect::kMagicGlass},
+	{"kStoneHand", EWeaponAffect::kStoneHand},
+	{"kPrismaticAura", EWeaponAffect::kPrismaticAura},
+	{"kAirAura", EWeaponAffect::kAirAura},
+	{"kFireAura", EWeaponAffect::kFireAura},
+	{"kIceAura", EWeaponAffect::kIceAura},
+	{"kDeafness", EWeaponAffect::kDeafness},
+	{"kComamnder", EWeaponAffect::kComamnder},
+	{"kEarthAura", EWeaponAffect::kEarthAura},
+};
+
+// Object anti flags mapping (EAntiFlag values)
+static std::unordered_map<std::string, EAntiFlag> obj_anti_flag_map = {
+	{"kMono", EAntiFlag::kMono},
+	{"kPoly", EAntiFlag::kPoly},
+	{"kNeutral", EAntiFlag::kNeutral},
+	{"kMage", EAntiFlag::kMage},
+	{"kSorcerer", EAntiFlag::kSorcerer},
+	{"kThief", EAntiFlag::kThief},
+	{"kWarrior", EAntiFlag::kWarrior},
+	{"kAssasine", EAntiFlag::kAssasine},
+	{"kGuard", EAntiFlag::kGuard},
+	{"kPaladine", EAntiFlag::kPaladine},
+	{"kRanger", EAntiFlag::kRanger},
+	{"kVigilant", EAntiFlag::kVigilant},
+	{"kMerchant", EAntiFlag::kMerchant},
+	{"kMagus", EAntiFlag::kMagus},
+	{"kConjurer", EAntiFlag::kConjurer},
+	{"kCharmer", EAntiFlag::kCharmer},
+	{"kWizard", EAntiFlag::kWizard},
+	{"kNecromancer", EAntiFlag::kNecromancer},
+	{"kFighter", EAntiFlag::kFighter},
+	{"kKiller", EAntiFlag::kKiller},
+	{"kColored", EAntiFlag::kColored},
+	{"kBattle", EAntiFlag::kBattle},
+	{"kMale", EAntiFlag::kMale},
+	{"kFemale", EAntiFlag::kFemale},
+	{"kCharmice", EAntiFlag::kCharmice},
+	{"kNoPkClan", EAntiFlag::kNoPkClan},
+};
+
+// Object no flags mapping (ENoFlag values)
+static std::unordered_map<std::string, ENoFlag> obj_no_flag_map = {
+	{"kMono", ENoFlag::kMono},
+	{"kPoly", ENoFlag::kPoly},
+	{"kNeutral", ENoFlag::kNeutral},
+	{"kMage", ENoFlag::kMage},
+	{"kSorcerer", ENoFlag::kSorcerer},
+	{"kThief", ENoFlag::kThief},
+	{"kWarrior", ENoFlag::kWarrior},
+	{"kAssasine", ENoFlag::kAssasine},
+	{"kGuard", ENoFlag::kGuard},
+	{"kPaladine", ENoFlag::kPaladine},
+	{"kRanger", ENoFlag::kRanger},
+	{"kVigilant", ENoFlag::kVigilant},
+	{"kMerchant", ENoFlag::kMerchant},
+	{"kMagus", ENoFlag::kMagus},
+	{"kConjurer", ENoFlag::kConjurer},
+	{"kCharmer", ENoFlag::kCharmer},
+	{"kWizard", ENoFlag::kWIzard},
+	{"kNecromancer", ENoFlag::kNecromancer},
+	{"kFighter", ENoFlag::kFighter},
+	{"kKiller", ENoFlag::kKiller},
+	{"kColored", ENoFlag::kColored},
+	{"kBattle", ENoFlag::kBattle},
+	{"kMale", ENoFlag::kMale},
+	{"kFemale", ENoFlag::kFemale},
+	{"kCharmice", ENoFlag::kCharmice},
+};
+
 // Position mapping
 static std::unordered_map<std::string, int> position_map = {
 	{"kDead", static_cast<int>(EPosition::kDead)},
@@ -1068,7 +1177,7 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 
 void SqliteWorldDataSource::LoadRoomTriggers(const std::map<int, int> &vnum_to_rnum)
 {
-	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'room' ORDER BY rowid";
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'room' ORDER BY trigger_order";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1406,7 +1515,7 @@ void SqliteWorldDataSource::LoadMobSkills()
 
 void SqliteWorldDataSource::LoadMobTriggers()
 {
-	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'mob' ORDER BY rowid";
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'mob' ORDER BY trigger_order";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
@@ -1600,33 +1709,30 @@ void SqliteWorldDataSource::LoadObjectFlags()
 		}
 		else if (strcmp(category.c_str(), "no") == 0)
 		{
-			try
+			auto flag_it = obj_no_flag_map.find(flag_name);
+			if (flag_it != obj_no_flag_map.end())
 			{
-				auto flag = ITEM_BY_NAME<ENoFlag>(flag_name);
-				obj_proto[rnum]->set_no_flag(flag);
+				obj_proto[rnum]->set_no_flag(flag_it->second);
 				flags_set++;
 			}
-			catch (...) {}
 		}
 		else if (strcmp(category.c_str(), "anti") == 0)
 		{
-			try
+			auto flag_it = obj_anti_flag_map.find(flag_name);
+			if (flag_it != obj_anti_flag_map.end())
 			{
-				auto flag = ITEM_BY_NAME<EAntiFlag>(flag_name);
-				obj_proto[rnum]->set_anti_flag(flag);
+				obj_proto[rnum]->set_anti_flag(flag_it->second);
 				flags_set++;
 			}
-			catch (...) {}
 		}
 		else if (strcmp(category.c_str(), "affect") == 0)
 		{
-			try
+			auto flag_it = obj_affect_flag_map.find(flag_name);
+			if (flag_it != obj_affect_flag_map.end())
 			{
-				auto flag = ITEM_BY_NAME<EWeaponAffect>(flag_name);
-				obj_proto[rnum]->SetEWeaponAffectFlag(flag);
+				obj_proto[rnum]->SetEWeaponAffectFlag(flag_it->second);
 				flags_set++;
 			}
-			catch (...) {}
 		}
 	}
 	sqlite3_finalize(stmt);
@@ -1674,7 +1780,7 @@ void SqliteWorldDataSource::LoadObjectApplies()
 
 void SqliteWorldDataSource::LoadObjectTriggers()
 {
-	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'obj' ORDER BY rowid";
+	const char *sql = "SELECT entity_vnum, trigger_vnum FROM entity_triggers WHERE entity_type = 'obj' ORDER BY trigger_order";
 
 	sqlite3_stmt *stmt;
 	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
