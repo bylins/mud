@@ -99,6 +99,7 @@ CREATE TABLE zones (
     lifespan INTEGER DEFAULT 10,
     reset_mode INTEGER DEFAULT 2,
     reset_idle INTEGER DEFAULT 0,
+    under_construction INTEGER DEFAULT 0,
     enabled INTEGER DEFAULT 1
 );
 
