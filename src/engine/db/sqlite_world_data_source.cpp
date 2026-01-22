@@ -366,6 +366,7 @@ static std::unordered_map<std::string, EWeaponAffect> obj_affect_flag_map = {
 	{"kDeafness", EWeaponAffect::kDeafness},
 	{"kComamnder", EWeaponAffect::kComamnder},
 	{"kEarthAura", EWeaponAffect::kEarthAura},
+	{"kCloudly", EWeaponAffect::kCloudly},
 };
 
 // Object anti flags mapping (EAntiFlag values)
@@ -1651,7 +1652,10 @@ void SqliteWorldDataSource::LoadObjects()
 		obj->set_maximum_durability(max_dur);
 		obj->set_current_durability(std::min(max_dur, cur_dur));  // Match Legacy: MIN(max, cur)
 		int timer = sqlite3_column_int(stmt, 23);
-		if (timer > 0 && timer > 99999) timer = 99999;  // Cap timer like Legacy
+		if (timer <= 0) {
+			timer = ObjData::SEVEN_DAYS;  // Match Legacy: default timer is 7 days
+		}
+		if (timer > 99999) timer = 99999;  // Cap timer like Legacy
 		obj->set_timer(timer);
 		obj->set_spell(sqlite3_column_int(stmt, 24));
 		obj->set_level(sqlite3_column_int(stmt, 25));
@@ -1704,6 +1708,15 @@ void SqliteWorldDataSource::LoadObjectFlags()
 			if (flag_it != obj_extra_flag_map.end())
 			{
 				obj_proto[rnum]->set_extra_flag(flag_it->second);
+				flags_set++;
+			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				// Handle UNUSED_XX flags - extract bit number and set directly
+				int bit = std::stoi(flag_name.substr(7));
+				size_t plane = bit / 30;
+				int bit_in_plane = bit % 30;
+				obj_proto[rnum]->toggle_extra_flag(plane, 1 << bit_in_plane);
 				flags_set++;
 			}
 		}
