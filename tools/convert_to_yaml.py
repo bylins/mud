@@ -1322,7 +1322,7 @@ def parse_mob_file(filepath):
     mobs = []
 
     with open(filepath, 'r', encoding='koi8-r') as f:
-        content = f.read()
+        content = f.read().replace('\r', '')
 
     # Split by mob separators (lines starting with #)
     mob_blocks = re.split(r'\n(?=#\d)', content)
@@ -1350,7 +1350,7 @@ def parse_mob_file(filepath):
                 idx += 1
             if idx < len(lines):
                 names_parts.append(lines[idx].rstrip('~'))
-            mob['names'] = {'aliases': ' '.join(names_parts).strip()}
+            mob['names'] = {'aliases': '\r\n'.join(names_parts)}
             idx += 1
 
             # Parse 6 case forms (each ending with ~)
@@ -1364,7 +1364,7 @@ def parse_mob_file(filepath):
                     idx += 1
                 if idx < len(lines):
                     case_parts.append(lines[idx].rstrip('~'))
-                mob['names'][case_name] = ' '.join(case_parts).strip()
+                mob['names'][case_name] = '\r\n'.join(case_parts)
                 idx += 1
 
             # Short description (until ~)
@@ -1405,7 +1405,7 @@ def parse_mob_file(filepath):
                     mob['stats'] = {
                         'level': int(parts[0]) if parts[0].isdigit() else 1,
                         'hitroll_penalty': int(parts[1]) if parts[1].lstrip('-').isdigit() else 20,
-                        'armor': int(parts[2]) if parts[2].isdigit() else 100
+                        'armor': int(parts[2]) if parts[2].lstrip('-').isdigit() else 100
                     }
                     # Parse HP dice (format: XdY+Z)
                     hp_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[3])
@@ -1648,7 +1648,7 @@ def parse_obj_file(filepath):
     objs = []
 
     with open(filepath, 'r', encoding='koi8-r') as f:
-        content = f.read()
+        content = f.read().replace('\r', '')
 
     # Split by object separators (lines starting with #)
     obj_blocks = re.split(r'\n(?=#\d)', content)
@@ -1677,7 +1677,7 @@ def parse_obj_file(filepath):
                 idx += 1
             if idx < len(lines):
                 names_parts.append(lines[idx].rstrip('~'))
-            obj['names'] = {'aliases': ' '.join(names_parts).strip()}
+            obj['names'] = {'aliases': '\r\n'.join(names_parts)}
             idx += 1
 
             # Parse 6 case forms (each ending with ~)
@@ -1691,7 +1691,7 @@ def parse_obj_file(filepath):
                     idx += 1
                 if idx < len(lines):
                     case_parts.append(lines[idx].rstrip('~'))
-                obj['names'][case_name] = ' '.join(case_parts).strip()
+                obj['names'][case_name] = '\r\n'.join(case_parts)
                 idx += 1
 
             # Short description (room desc, until ~)
@@ -1956,7 +1956,7 @@ def parse_wld_file(filepath):
     rooms = []
 
     with open(filepath, 'r', encoding='koi8-r') as f:
-        content = f.read()
+        content = f.read().replace('\r', '')
 
     # Split by room separators (lines starting with #)
     room_blocks = re.split(r'\n(?=#\d)', content)
@@ -2208,7 +2208,7 @@ def parse_trg_file(filepath):
     triggers = []
 
     with open(filepath, 'r', encoding='koi8-r') as f:
-        content = f.read()
+        content = f.read().replace('\r', '')
 
     # Split by trigger separators (lines starting with #)
     trg_blocks = re.split(r'\n(?=#\d)', content)
@@ -2280,7 +2280,7 @@ def parse_trg_file(filepath):
                 last_line = lines[idx].rstrip('~')
                 if last_line:
                     script_parts.append(last_line)
-            trigger['script'] = '\n'.join(script_parts)
+            trigger['script'] = '\r\n'.join(script_parts)
 
             triggers.append(trigger)
 
@@ -2930,7 +2930,10 @@ def convert_directory(input_dir, output_dir, delete_source=False, max_workers=No
             enabled_files = read_index_file(index_path)
 
             # Find all files
-            files = list(source_dir.glob(f'*{extension}'))
+            all_files = list(source_dir.glob(f"*{extension}"))
+            # Filter to only files matching pattern: <number>.<ext> (ignores backup files like 16.old.obj)
+            valid_pattern = re.compile(r"^\d+" + re.escape(extension) + r"$")
+            files = [f for f in all_files if valid_pattern.match(f.name)]
             if not files:
                 continue
 
