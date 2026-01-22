@@ -752,6 +752,7 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
 			int wear_pos = sqlite3_column_int(stmt, 9);
 			cmd.arg3 = wear_pos;
+			cmd.arg4 = sqlite3_column_int(stmt, 8);  // load_prob
 		}
 		else if (strcmp(cmd_type.c_str(), "PUT_OBJ") == 0)
 		{
@@ -759,6 +760,7 @@ void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
 			cmd.arg1 = sqlite3_column_int(stmt, 3);  // obj_vnum
 			cmd.arg2 = sqlite3_column_int(stmt, 5);  // max
 			cmd.arg3 = sqlite3_column_int(stmt, 17); // container_vnum
+			cmd.arg4 = sqlite3_column_int(stmt, 8);  // load_prob
 		}
 		else if (strcmp(cmd_type.c_str(), "DOOR") == 0)
 		{
