@@ -130,17 +130,12 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 bool IsEqual(const std::string &abbr, const std::string &words) {
 	std::vector<std::string> words_list = utils::Split(words);
 	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
-	std::vector<std::string>::iterator it;
-	size_t count = 0;
+	auto it = words_list.begin();
 
 	for (auto abr : abbr_list) {
-			it = words_list.begin() + count++; 
-			if (it == words_list.end()) {
-				return false;
-			}
-			if (!utils::IsAbbr(abr.c_str(), (*it).c_str())) {
-				return false;
-			}
+		if (it == words_list.end() || !utils::IsAbbr(abr.c_str(), (*it).c_str()))
+			return false;
+		++it;
 	}
 	return true;
 }
