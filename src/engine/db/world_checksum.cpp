@@ -9,6 +9,7 @@
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
 #include "utils/logger.h"
+#include "utils/utils_string.h"
 #include "engine/structs/extra_description.h"
 
 #include <sstream>
@@ -131,7 +132,17 @@ std::string SerializeRoom(const RoomData *room)
 	flag_buf[0] = '\0';
 	if (room->flags_sprint(flag_buf.data(), ","))
 	{
-		oss << flag_buf.data();
+		// Filter out UNDEF flags for consistent checksums
+		// (UNDEF flags are undefined bits that Legacy loads but SQLite does not preserve)
+		std::string flags_str(flag_buf.data());
+		std::string filtered;
+		for (const auto& flag : utils::Split(flags_str, ',')) {
+			if (flag != "UNDEF") {
+				if (!filtered.empty()) filtered += ",";
+				filtered += flag;
+			}
+		}
+		oss << filtered;
 	}
 	oss << "|";
 
