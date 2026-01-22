@@ -23,3 +23,5 @@ syslog
 cmake-build-*
 build/
 build_*/
+test/
+magic.mgc
