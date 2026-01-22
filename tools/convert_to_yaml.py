@@ -313,7 +313,11 @@ EXTRA_FLAGS = [
 WEAR_FLAGS = [
     "kTake", "kFinger", "kNeck", "kBody", "kHead", "kLegs", "kFeet",
     "kHands", "kArms", "kShield", "kShoulders", "kWaist", "kWrist",
-    "kWield", "kHold", "kBoth", "kQuiver"
+    "kWield", "kHold", "kBoth", "kQuiver",
+    # UNUSED bits 17-29 (used in some old files)
+    "UNUSED_17", "UNUSED_18", "UNUSED_19", "UNUSED_20", "UNUSED_21",
+    "UNUSED_22", "UNUSED_23", "UNUSED_24", "UNUSED_25", "UNUSED_26",
+    "UNUSED_27", "UNUSED_28", "UNUSED_29"
 ]
 
 # No flags (ENoFlag) - restrictions by class/other criteria
@@ -326,12 +330,13 @@ NO_FLAGS = [
     # Padding for plane 0 remainder (19-29) - unnamed but used in files
     "UNUSED_19", "UNUSED_20", "UNUSED_21", "UNUSED_22", "UNUSED_23",
     "UNUSED_24", "UNUSED_25", "UNUSED_26", "UNUSED_27", "UNUSED_28", "UNUSED_29",
-    # Plane 1 (30-32)
+    # Plane 1 (30-59)
     "kKiller", "kColored", "kBattle",
-    # Padding for plane 1 remainder (33-59)
-    None, None, None, None, None, None, None, None, None, None, None,
-    None, None, None, None, None, None, None, None, None, None, None,
-    None, None, None, None, None,
+    "UNUSED_33", "UNUSED_34", "UNUSED_35", "UNUSED_36", "UNUSED_37", "UNUSED_38",
+    "UNUSED_39", "UNUSED_40", "UNUSED_41", "UNUSED_42", "UNUSED_43", "UNUSED_44",
+    "UNUSED_45", "UNUSED_46", "UNUSED_47", "UNUSED_48", "UNUSED_49", "UNUSED_50",
+    "UNUSED_51", "UNUSED_52", "UNUSED_53", "UNUSED_54", "UNUSED_55", "UNUSED_56",
+    "UNUSED_57", "UNUSED_58", "UNUSED_59",
     # Plane 2 (60-89)
     "UNUSED_60", "UNUSED_61", "UNUSED_62", "UNUSED_63", "UNUSED_64", "UNUSED_65",
     "kMale", "kFemale", "kCharmice",
@@ -1809,9 +1814,21 @@ def parse_obj_file(filepath):
                 idx += 1
 
             # Line 5: values (val[0], val[1], val[2], val[3])
+            # val0 is parsed with asciiflag_conv in Legacy, which treats
+            # negative numbers as 0 (doesn't recognize "-" as valid)
             if idx < len(lines):
                 parts = lines[idx].split()
-                obj['values'] = [p for p in parts[:4]]
+                values = []
+                for i, p in enumerate(parts[:4]):
+                    if i == 0 and p.startswith('-') and not p[1:].isdigit():
+                        # asciiflag_conv doesn't handle negative, returns 0
+                        values.append('0')
+                    elif i == 0 and p.startswith('-'):
+                        # asciiflag_conv treats "-N" as 0 because "-" is not a digit
+                        values.append('0')
+                    else:
+                        values.append(p)
+                obj['values'] = values
                 idx += 1
 
             # Line 6: weight, cost, rent_off, rent_on
