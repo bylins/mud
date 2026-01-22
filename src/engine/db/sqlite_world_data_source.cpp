@@ -1726,6 +1726,15 @@ void SqliteWorldDataSource::LoadObjectFlags()
 				obj_proto[rnum]->set_no_flag(flag_it->second);
 				flags_set++;
 			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				// Handle UNUSED_XX flags - extract bit number and set directly
+				int bit = std::stoi(flag_name.substr(7));
+				size_t plane = bit / 30;
+				int bit_in_plane = bit % 30;
+				obj_proto[rnum]->toggle_no_flag(plane, 1 << bit_in_plane);
+				flags_set++;
+			}
 		}
 		else if (strcmp(category.c_str(), "anti") == 0)
 		{
@@ -1735,6 +1744,15 @@ void SqliteWorldDataSource::LoadObjectFlags()
 				obj_proto[rnum]->set_anti_flag(flag_it->second);
 				flags_set++;
 			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				// Handle UNUSED_XX flags - extract bit number and set directly
+				int bit = std::stoi(flag_name.substr(7));
+				size_t plane = bit / 30;
+				int bit_in_plane = bit % 30;
+				obj_proto[rnum]->toggle_anti_flag(plane, 1 << bit_in_plane);
+				flags_set++;
+			}
 		}
 		else if (strcmp(category.c_str(), "affect") == 0)
 		{
@@ -1742,6 +1760,15 @@ void SqliteWorldDataSource::LoadObjectFlags()
 			if (flag_it != obj_affect_flag_map.end())
 			{
 				obj_proto[rnum]->SetEWeaponAffectFlag(flag_it->second);
+				flags_set++;
+			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				// Handle UNUSED_XX flags - extract bit number and set directly
+				int bit = std::stoi(flag_name.substr(7));
+				size_t plane = bit / 30;
+				int bit_in_plane = bit % 30;
+				obj_proto[rnum]->toggle_affect_flag(plane, 1 << bit_in_plane);
 				flags_set++;
 			}
 		}

@@ -310,8 +310,9 @@ NO_FLAGS = [
     "kWarrior", "kAssasine", "kGuard", "kPaladine", "kRanger", "kVigilant",
     "kMerchant", "kMagus", "kConjurer", "kCharmer", "kWizard",
     "kNecromancer", "kFighter",
-    # Padding for plane 0 remainder (19-29)
-    None, None, None, None, None, None, None, None, None, None, None,
+    # Padding for plane 0 remainder (19-29) - unnamed but used in files
+    "UNUSED_19", "UNUSED_20", "UNUSED_21", "UNUSED_22", "UNUSED_23",
+    "UNUSED_24", "UNUSED_25", "UNUSED_26", "UNUSED_27", "UNUSED_28", "UNUSED_29",
     # Plane 1 (30-32)
     "kKiller", "kColored", "kBattle",
     # Padding for plane 1 remainder (33-59)
@@ -376,6 +377,18 @@ AFFECT_FLAGS = [
     "kComamnder",           # 44
     "kEarthAura",           # 45
     "kCloudly",             # 46
+    # Padding for plane 1 remainder (47-59)
+    "UNUSED_47", "UNUSED_48", "UNUSED_49", "UNUSED_50", "UNUSED_51", "UNUSED_52",
+    "UNUSED_53", "UNUSED_54", "UNUSED_55", "UNUSED_56", "UNUSED_57", "UNUSED_58", "UNUSED_59",
+    # Padding for plane 2 (60-89)
+    "UNUSED_60", "UNUSED_61", "UNUSED_62", "UNUSED_63", "UNUSED_64", "UNUSED_65",
+    "UNUSED_66", "UNUSED_67", "UNUSED_68", "UNUSED_69", "UNUSED_70", "UNUSED_71",
+    "UNUSED_72", "UNUSED_73", "UNUSED_74", "UNUSED_75", "UNUSED_76", "UNUSED_77",
+    "UNUSED_78", "UNUSED_79", "UNUSED_80", "UNUSED_81", "UNUSED_82", "UNUSED_83",
+    "UNUSED_84", "UNUSED_85", "UNUSED_86", "UNUSED_87", "UNUSED_88", "UNUSED_89",
+    # Plane 3 (90+) - rarely used but exists in some files
+    "UNUSED_90", "UNUSED_91", "UNUSED_92", "UNUSED_93", "UNUSED_94", "UNUSED_95",
+    "UNUSED_96", "UNUSED_97", "UNUSED_98", "UNUSED_99",
 ]
 
 # Genders
