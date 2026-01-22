@@ -219,6 +219,10 @@ ACTION_FLAGS = [
 ]
 
 # Room flags (room_bits[])
+# Each plane has 30 bits, so:
+#   Plane 0: indices 0-29
+#   Plane 1: indices 30-59
+#   Plane 2: indices 60+
 ROOM_FLAGS = [
     # Plane 0 (bits 0-29)
     "kDarked", "kDeathTrap", "kNoEntryMob", "kIndoors", "kPeaceful", "kSoundproof",
@@ -226,10 +230,13 @@ ROOM_FLAGS = [
     "kHouseCrash", "kHouseEntry", "UNUSED_14", "kBfsMark", "kForMages", "kForSorcerers",
     "kForThieves", "kForWarriors", "kForAssasines", "kForGuards", "kForPaladines", "kForRangers",
     "kForPoly", "kForMono", "kForge", "kForMerchants", "kForMaguses", "kArena",
-    # Plane 1 (bits 0-12)
+    # Plane 1 (bits 0-29, only 0-12 used)
     "kNoSummonOut", "kNoTeleportOut", "kNohorse", "kNoWeather", "kSlowDeathTrap", "kIceTrap",
-    "kNoRelocateIn", "kTribune", "kArenaSend", "kNoBattle", "UNUSED_41", "kAlwaysLit", "kMoMapper",
-    # Plane 2 (bits 0-1)
+    "kNoRelocateIn", "kTribune", "kArenaSend", "kNoBattle", "UNUSED_40", "kAlwaysLit", "kMoMapper",
+    "UNUSED_43", "UNUSED_44", "UNUSED_45", "UNUSED_46", "UNUSED_47", "UNUSED_48", "UNUSED_49",
+    "UNUSED_50", "UNUSED_51", "UNUSED_52", "UNUSED_53", "UNUSED_54", "UNUSED_55", "UNUSED_56",
+    "UNUSED_57", "UNUSED_58", "UNUSED_59",
+    # Plane 2 (bits 0-29, only 0-1 used)
     "kNoItem", "kDominationArena"
 ]
 
