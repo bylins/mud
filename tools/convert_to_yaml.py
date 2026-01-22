@@ -943,8 +943,8 @@ class SqliteSaver(BaseSaver):
         cursor.execute('''
             INSERT OR REPLACE INTO zones (
                 vnum, name, comment, location, author, description, builders,
-                first_room, top_room, mode, zone_type, zone_group, entrance, lifespan, reset_mode, reset_idle, enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                first_room, top_room, mode, zone_type, zone_group, entrance, lifespan, reset_mode, reset_idle, under_construction, enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             zone.get('name'),
@@ -962,6 +962,7 @@ class SqliteSaver(BaseSaver):
             zone.get('lifespan', 10),
             zone.get('reset_mode', 2),
             zone.get('reset_idle', 0),
+            zone.get('under_construction', 0),
             zone.get('enabled', 1),
         ))
 
@@ -2484,6 +2485,10 @@ def parse_zon_file(filepath):
                         zone['reset_mode'] = int(params[2]) if params[2].isdigit() else 0
                     if len(params) >= 4:
                         zone['reset_idle'] = int(params[3]) if params[3].isdigit() else 0
+                    # Check for 'test' flag (under_construction)
+                    for p in params[4:]:
+                        if p.lower() == 'test':
+                            zone['under_construction'] = 1
                 break
             idx += 1
         idx += 1

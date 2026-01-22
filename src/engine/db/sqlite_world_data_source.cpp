@@ -595,8 +595,8 @@ void SqliteWorldDataSource::LoadZones()
 	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
 
 	// Load zones
-	const char *sql = "SELECT vnum, name, comment, location, author, description, "
-					  "top_room, lifespan, reset_mode, reset_idle, zone_type, mode, entrance "
+	const char *sql = "SELECT vnum, name, comment, location, author, description, zone_group, "
+					  "top_room, lifespan, reset_mode, reset_idle, zone_type, mode, entrance, under_construction "
 					  "FROM zones WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
@@ -613,27 +613,28 @@ void SqliteWorldDataSource::LoadZones()
 
 		zone.vnum = sqlite3_column_int(stmt, 0);
 		zone.name = GetText(stmt, 1);
+		int zone_group = sqlite3_column_int(stmt, 6);
+		zone.group = (zone_group == 0) ? 1 : zone_group;
 		zone.comment = GetText(stmt, 2);
 		zone.location = GetText(stmt, 3);
 		zone.author = GetText(stmt, 4);
 		zone.description = GetText(stmt, 5);
-		zone.top = sqlite3_column_int(stmt, 6);
-		zone.lifespan = sqlite3_column_int(stmt, 7);
-		zone.reset_mode = sqlite3_column_int(stmt, 8);
-		zone.reset_idle = sqlite3_column_int(stmt, 9) != 0;
-		zone.type = sqlite3_column_int(stmt, 10);
-		zone.level = sqlite3_column_int(stmt, 11);
-		zone.entrance = sqlite3_column_int(stmt, 12);
+		zone.top = sqlite3_column_int(stmt, 7);
+		zone.lifespan = sqlite3_column_int(stmt, 8);
+		zone.reset_mode = sqlite3_column_int(stmt, 9);
+		zone.reset_idle = sqlite3_column_int(stmt, 10) != 0;
+		zone.type = sqlite3_column_int(stmt, 11);
+		zone.level = sqlite3_column_int(stmt, 12);
+		zone.entrance = sqlite3_column_int(stmt, 13);
 
 		// Initialize runtime fields
 		zone.age = 0;
 		zone.time_awake = 0;
 		zone.traffic = 0;
-		zone.under_construction = 0;
+		zone.under_construction = sqlite3_column_int(stmt, 14);
 		zone.locked = false;
 		zone.used = false;
 		zone.activity = 0;
-		zone.group = 1;
 		zone.mob_level = 0;
 		zone.is_town = false;
 		zone.count_reset = 0;
