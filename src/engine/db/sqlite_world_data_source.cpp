@@ -1634,6 +1634,14 @@ void SqliteWorldDataSource::LoadObjects()
 
 		// Physical properties
 		obj->set_weight(sqlite3_column_int(stmt, 16));
+		// Match Legacy: weight of containers must exceed current quantity
+		if (obj->get_type() == EObjType::kLiquidContainer || obj->get_type() == EObjType::kFountain)
+		{
+			if (obj->get_weight() < obj->get_val(1))
+			{
+				obj->set_weight(obj->get_val(1) + 5);
+			}
+		}
 		obj->set_cost(sqlite3_column_int(stmt, 17));
 		obj->set_rent_off(sqlite3_column_int(stmt, 18));
 		obj->set_rent_on(sqlite3_column_int(stmt, 19));
