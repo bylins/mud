@@ -824,7 +824,7 @@ void SqliteWorldDataSource::LoadTriggers()
 		
 
 		// Create trigger with proper constructor
-		auto trig = new Trigger(vnum, !name.empty() ? name : "unnamed", attach_type, trigger_type);
+		auto trig = new Trigger(top_of_trigt, !name.empty() ? name : "unnamed", attach_type, trigger_type);
 		GET_TRIG_NARG(trig) = narg;
 		trig->arglist = arglist;
 
