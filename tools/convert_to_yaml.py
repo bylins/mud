@@ -2044,7 +2044,7 @@ def parse_wld_file(filepath):
                 idx += 1
             if idx < len(lines):
                 name_parts.append(lines[idx].rstrip('~'))
-            room['name'] = ' '.join(name_parts).rstrip()  # Use rstrip to preserve leading whitespace (e.g., NO-BREAK SPACE)
+            room['name'] = '\r\n'.join(name_parts)  # Preserve newlines in multi-line names
             idx += 1
 
             # Description (until ~)
