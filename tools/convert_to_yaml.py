@@ -2550,12 +2550,14 @@ def parse_zon_file(filepath):
                 if len(parts) >= 6:
                     cmd['load_prob'] = int(parts[5]) if parts[5].lstrip('-').isdigit() else -1
             elif cmd_type == 'E' and len(parts) >= 5:
-                # E if_flag obj_vnum max wear_pos
+                # E if_flag obj_vnum max wear_pos [load_prob]
                 cmd['type'] = 'EQUIP_MOB'
                 cmd['if_flag'] = int(parts[1]) if parts[1].isdigit() else 0
                 cmd['obj_vnum'] = int(parts[2]) if parts[2].isdigit() else 0
                 cmd['max'] = int(parts[3]) if parts[3].lstrip('-').isdigit() else -1
                 cmd['wear_pos'] = int(parts[4]) if parts[4].isdigit() else 0
+                if len(parts) >= 6:
+                    cmd['load_prob'] = int(parts[5]) if parts[5].lstrip('-').isdigit() else -1
             elif cmd_type == 'P' and len(parts) >= 6:
                 # P if_flag obj_vnum max container_vnum load_prob
                 cmd['type'] = 'PUT_OBJ'
