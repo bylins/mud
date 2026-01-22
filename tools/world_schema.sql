@@ -311,7 +311,7 @@ CREATE TABLE entity_triggers (
     entity_type TEXT NOT NULL,  -- 'mob', 'obj', 'room'
     entity_vnum INTEGER NOT NULL,
     trigger_vnum INTEGER NOT NULL,
-    UNIQUE(entity_type, entity_vnum, trigger_vnum),
+    trigger_order INTEGER DEFAULT 0,
     FOREIGN KEY (trigger_vnum) REFERENCES triggers(vnum)
 );
 

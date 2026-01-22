@@ -750,11 +750,11 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, skill['skill_id'], skill['value']))
 
         # Insert triggers
-        for trig_vnum in mob.get('triggers', []):
+        for trig_order, trig_vnum in enumerate(mob.get('triggers', [])):
             cursor.execute('''
-                INSERT OR IGNORE INTO entity_triggers (entity_type, entity_vnum, trigger_vnum)
-                VALUES ('mob', ?, ?)
-            ''', (vnum, trig_vnum))
+                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
+                VALUES ('mob', ?, ?, ?)
+            ''', (vnum, trig_vnum, trig_order))
 
     def save_object(self, obj):
         """Save object dictionary to database."""
@@ -853,11 +853,11 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, ed['keywords'], ed['description']))
 
         # Insert triggers
-        for trig_vnum in obj.get('triggers', []):
+        for trig_order, trig_vnum in enumerate(obj.get('triggers', [])):
             cursor.execute('''
-                INSERT OR IGNORE INTO entity_triggers (entity_type, entity_vnum, trigger_vnum)
-                VALUES ('obj', ?, ?)
-            ''', (vnum, trig_vnum))
+                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
+                VALUES ('obj', ?, ?, ?)
+            ''', (vnum, trig_vnum, trig_order))
 
     def save_room(self, room):
         """Save room dictionary to database."""
@@ -920,11 +920,11 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, ed['keywords'], ed['description']))
 
         # Insert triggers
-        for trig_vnum in room.get('triggers', []):
+        for trig_order, trig_vnum in enumerate(room.get('triggers', [])):
             cursor.execute('''
-                INSERT OR IGNORE INTO entity_triggers (entity_type, entity_vnum, trigger_vnum)
-                VALUES ('room', ?, ?)
-            ''', (vnum, trig_vnum))
+                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
+                VALUES ('room', ?, ?, ?)
+            ''', (vnum, trig_vnum, trig_order))
 
     def save_zone(self, zone):
         """Save zone dictionary to database."""
@@ -1299,15 +1299,15 @@ def parse_ascii_flags(flags_str, flag_names, planes=4):
         else:
             continue
 
-        # Calculate flag index based on actual plane sizes
-        # ROOM_FLAGS: plane 0 = 30 flags, plane 1 = 13 flags, plane 2 = 2 flags
-        # Other flag arrays may have different structures
+        # Calculate flag index - each plane has 30 bits
+        # For consistency, all flag arrays use 30-bit planes
+        
         if plane == 0:
             flag_index = bit_pos
         elif plane == 1:
             flag_index = 30 + bit_pos
         elif plane == 2:
-            flag_index = 43 + bit_pos  # 30 + 13 = 43
+            flag_index = 60 + bit_pos  # 30 + 30 = 60
         else:
             flag_index = plane * 30 + bit_pos  # fallback
 
