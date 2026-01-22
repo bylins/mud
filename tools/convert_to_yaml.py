@@ -293,7 +293,20 @@ EXTRA_FLAGS = [
     "kHasThreeSlots", "kSetItem", "kNofail", "kNamed", "kBloody",
     "kQuestItem", "k2inlaid", "k3inlaid", "kNopour", "kUnique",
     "kTransformed", "kNoRentTimer", "kLimitedTimer", "kBindOnPurchase",
-    "kNotOneInClanChest"
+    "kNotOneInClanChest",
+    # Padding for plane 1 remainder (50-59)
+    "UNUSED_50", "UNUSED_51", "UNUSED_52", "UNUSED_53", "UNUSED_54",
+    "UNUSED_55", "UNUSED_56", "UNUSED_57", "UNUSED_58", "UNUSED_59",
+    # Padding for plane 2 (60-89)
+    "UNUSED_60", "UNUSED_61", "UNUSED_62", "UNUSED_63", "UNUSED_64",
+    "UNUSED_65", "UNUSED_66", "UNUSED_67", "UNUSED_68", "UNUSED_69",
+    "UNUSED_70", "UNUSED_71", "UNUSED_72", "UNUSED_73", "UNUSED_74",
+    "UNUSED_75", "UNUSED_76", "UNUSED_77", "UNUSED_78", "UNUSED_79",
+    "UNUSED_80", "UNUSED_81", "UNUSED_82", "UNUSED_83", "UNUSED_84",
+    "UNUSED_85", "UNUSED_86", "UNUSED_87", "UNUSED_88", "UNUSED_89",
+    # Padding for plane 3 (90-99) - rarely used
+    "UNUSED_90", "UNUSED_91", "UNUSED_92", "UNUSED_93", "UNUSED_94",
+    "UNUSED_95", "UNUSED_96", "UNUSED_97", "UNUSED_98", "UNUSED_99"
 ]
 
 # Wear flags (wear_bits[])
@@ -319,8 +332,16 @@ NO_FLAGS = [
     None, None, None, None, None, None, None, None, None, None, None,
     None, None, None, None, None, None, None, None, None, None, None,
     None, None, None, None, None,
-    # Plane 2 (60-68)
-    None, None, None, None, None, None, "kMale", "kFemale", "kCharmice"
+    # Plane 2 (60-89)
+    "UNUSED_60", "UNUSED_61", "UNUSED_62", "UNUSED_63", "UNUSED_64", "UNUSED_65",
+    "kMale", "kFemale", "kCharmice",
+    "UNUSED_69", "UNUSED_70", "UNUSED_71", "UNUSED_72", "UNUSED_73", "UNUSED_74",
+    "UNUSED_75", "UNUSED_76", "UNUSED_77", "UNUSED_78", "UNUSED_79", "UNUSED_80",
+    "UNUSED_81", "UNUSED_82", "UNUSED_83", "UNUSED_84", "UNUSED_85", "UNUSED_86",
+    "UNUSED_87", "UNUSED_88", "UNUSED_89",
+    # Plane 3 (90-99) - UNUSED but found in files
+    "UNUSED_90", "UNUSED_91", "UNUSED_92", "UNUSED_93", "UNUSED_94",
+    "UNUSED_95", "UNUSED_96", "UNUSED_97", "UNUSED_98", "UNUSED_99"
 ]
 
 # Anti flags (EAntiFlag) - same structure as NO_FLAGS
@@ -1756,7 +1777,7 @@ def parse_obj_file(filepath):
                     obj['sex'] = int(parts[0]) if parts[0].isdigit() else 0
                 if len(parts) >= 2:
                     timer_val = int(parts[1]) if parts[1].lstrip('-').isdigit() else -1
-                    obj['timer'] = timer_val if timer_val > 0 else 604800
+                    obj['timer'] = timer_val if timer_val > 0 else 10080  # 7 days in minutes
                 if len(parts) >= 3:
                     obj['spell'] = int(parts[2]) if parts[2].lstrip('-').isdigit() else -1
                 if len(parts) >= 4:
@@ -1837,7 +1858,7 @@ def parse_obj_file(filepath):
                             idx += 1
                         if idx < len(lines):
                             kw_parts.append(lines[idx].rstrip('~'))
-                        ed['keywords'] = ' '.join(kw_parts).strip()
+                        ed['keywords'] = ' '.join(kw_parts)  # Preserve all whitespace
                         idx += 1
 
                         # Description until ~
@@ -2102,7 +2123,7 @@ def parse_wld_file(filepath):
                         idx += 1
                     if idx < len(lines):
                         kw_parts.append(lines[idx].rstrip('~'))
-                    ed['keywords'] = ' '.join(kw_parts).strip()
+                    ed['keywords'] = ' '.join(kw_parts)  # Preserve all whitespace
                     idx += 1
 
                     # Description until ~
