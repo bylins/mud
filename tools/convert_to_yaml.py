@@ -2308,11 +2308,15 @@ def parse_trg_file(filepath):
                     trigger['attach_type'] = ATTACH_TYPES.get(attach_type, attach_type)
 
                     # Parse trigger types (letters)
+                    # Note: Letter-to-bit mapping is handled by asciiflag_conv in C++ code:
+                    # lowercase a-z → bits 0-25, uppercase A-Z → bits 26-51
+                    # We save ALL valid letters, as meanings differ by attach_type (mob/obj/room)
                     trig_types = []
                     type_chars = []
                     for ch in parts[1]:
-                        if ch in TRIGGER_TYPES:
-                            trig_types.append(TRIGGER_TYPES[ch])
+                        if ch.isalpha():  # Accept all letters a-z and A-Z
+                            if ch in TRIGGER_TYPES:
+                                trig_types.append(TRIGGER_TYPES[ch])
                             type_chars.append(ch)
                     trigger['trigger_types'] = trig_types
                     trigger['type_chars'] = type_chars  # Original letters for normalized DB
@@ -2411,7 +2415,7 @@ def parse_zon_file(filepath):
             idx += 1
         if idx < len(lines):
             name_parts.append(lines[idx].rstrip('\n').rstrip('~'))
-        zone['name'] = ' '.join(name_parts).strip()
+        zone['name'] = ' '.join(name_parts)
         idx += 1
 
         # Parse metadata lines (^, &, !, $) and optional builders until next #
@@ -2429,7 +2433,7 @@ def parse_zon_file(filepath):
                 # Comment - check if ~ is on same line
                 content = stripped[1:]
                 if '~' in content:
-                    zone['metadata']['comment'] = content.rstrip('~').strip()
+                    zone['metadata']['comment'] = content.rstrip('~')
                 else:
                     meta_parts = [content]
                     idx += 1
@@ -2438,14 +2442,14 @@ def parse_zon_file(filepath):
                         idx += 1
                     if idx < len(lines):
                         meta_parts.append(lines[idx].rstrip('\n').rstrip('~'))
-                    zone['metadata']['comment'] = ' '.join(meta_parts).strip()
+                    zone['metadata']['comment'] = ' '.join(meta_parts)
                 idx += 1
                 continue
             elif stripped.startswith('&'):
                 # Location - check if ~ is on same line
                 content = stripped[1:]
                 if '~' in content:
-                    zone['metadata']['location'] = content.rstrip('~').strip()
+                    zone['metadata']['location'] = content.rstrip('~')
                 else:
                     meta_parts = [content]
                     idx += 1
@@ -2454,14 +2458,14 @@ def parse_zon_file(filepath):
                         idx += 1
                     if idx < len(lines):
                         meta_parts.append(lines[idx].rstrip('\n').rstrip('~'))
-                    zone['metadata']['location'] = ' '.join(meta_parts).strip()
+                    zone['metadata']['location'] = ' '.join(meta_parts)
                 idx += 1
                 continue
             elif stripped.startswith('!'):
                 # Author - check if ~ is on same line
                 content = stripped[1:]
                 if '~' in content:
-                    zone['metadata']['author'] = content.rstrip('~').strip()
+                    zone['metadata']['author'] = content.rstrip('~')
                 else:
                     meta_parts = [content]
                     idx += 1
@@ -2470,14 +2474,14 @@ def parse_zon_file(filepath):
                         idx += 1
                     if idx < len(lines):
                         meta_parts.append(lines[idx].rstrip('\n').rstrip('~'))
-                    zone['metadata']['author'] = ' '.join(meta_parts).strip()
+                    zone['metadata']['author'] = ' '.join(meta_parts)
                 idx += 1
                 continue
             elif stripped.startswith('$') and not stripped.startswith('$~'):
                 # Description (not end of file marker) - check if ~ is on same line
                 content = stripped[1:]
                 if '~' in content:
-                    zone['metadata']['description'] = content.rstrip('~').strip()
+                    zone['metadata']['description'] = content.rstrip('~')
                 else:
                     meta_parts = [content]
                     idx += 1
@@ -2486,7 +2490,7 @@ def parse_zon_file(filepath):
                         idx += 1
                     if idx < len(lines):
                         meta_parts.append(lines[idx].rstrip('\n').rstrip('~'))
-                    zone['metadata']['description'] = ' '.join(meta_parts).strip()
+                    zone['metadata']['description'] = ' '.join(meta_parts)
                 idx += 1
                 continue
             elif '~' in stripped and not stripped.startswith('#'):
@@ -2593,9 +2597,9 @@ def parse_zon_file(filepath):
                 cmd['type'] = 'LOAD_MOB'
                 cmd['if_flag'] = int(parts[1]) if parts[1].isdigit() else 0
                 cmd['mob_vnum'] = int(parts[2]) if parts[2].isdigit() else 0
-                cmd['max_world'] = int(parts[3]) if parts[3].isdigit() else 1
-                cmd['room_vnum'] = int(parts[4]) if parts[4].isdigit() else 0
-                cmd['max_room'] = int(parts[5]) if parts[5].isdigit() else 1
+                cmd['max_world'] = int(parts[3]) if parts[3].lstrip('-').isdigit() else 1
+                cmd['room_vnum'] = int(parts[4]) if parts[4].lstrip('-').isdigit() else 0
+                cmd['max_room'] = int(parts[5]) if parts[5].lstrip('-').isdigit() else -1
             elif cmd_type == 'O' and len(parts) >= 6:
                 # O if_flag obj_vnum max room_vnum load_prob
                 cmd['type'] = 'LOAD_OBJ'
@@ -2642,13 +2646,16 @@ def parse_zon_file(filepath):
                 cmd['if_flag'] = int(parts[1]) if parts[1].isdigit() else 0
                 cmd['room_vnum'] = int(parts[2]) if parts[2].isdigit() else 0
                 cmd['obj_vnum'] = int(parts[3]) if parts[3].isdigit() else 0
-            elif cmd_type == 'T' and len(parts) >= 5:
-                # T if_flag trigger_type id trigger_vnum
+            elif cmd_type == 'T' and len(parts) >= 4:
+                # T if_flag trigger_type trigger_vnum [room_vnum]
+                # room_vnum is only present for WLD_TRIGGER (type=2)
                 cmd['type'] = 'TRIGGER'
                 cmd['if_flag'] = int(parts[1]) if parts[1].isdigit() else 0
                 cmd['trigger_type'] = int(parts[2]) if parts[2].isdigit() else 0
-                cmd['entity_vnum'] = int(parts[3]) if parts[3].isdigit() else 0
-                cmd['trigger_vnum'] = int(parts[4]) if parts[4].isdigit() else 0
+                cmd['trigger_vnum'] = int(parts[3]) if parts[3].lstrip('-').isdigit() else 0
+                # For WLD_TRIGGER, parts[4] contains room_vnum
+                if len(parts) > 4 and parts[4].lstrip('-').isdigit():
+                    cmd['room_vnum'] = int(parts[4])
             elif cmd_type == 'V' and len(parts) >= 6:
                 # V if_flag trigger_type id context var_name var_value
                 cmd['type'] = 'VARIABLE'
