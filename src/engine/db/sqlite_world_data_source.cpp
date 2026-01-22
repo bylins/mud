@@ -1730,6 +1730,14 @@ void SqliteWorldDataSource::LoadObjectFlags()
 				obj_proto[rnum]->set_wear_flags(wear_flags);
 				flags_set++;
 			}
+			else if (flag_name.rfind("UNUSED_", 0) == 0)
+			{
+				// Handle UNUSED_XX flags - extract bit number and set directly
+				int bit = std::stoi(flag_name.substr(7));
+				int wear_flags = obj_proto[rnum]->get_wear_flags();
+				wear_flags |= (1 << bit);
+				obj_proto[rnum]->set_wear_flags(wear_flags);
+			}
 		}
 		else if (strcmp(category.c_str(), "no") == 0)
 		{
