@@ -936,8 +936,8 @@ void SqliteWorldDataSource::LoadTriggers()
 		}
 		
 
-		// Create trigger with proper constructor
-		auto trig = new Trigger(top_of_trigt, !name.empty() ? name : "unnamed", attach_type, trigger_type);
+		// Create trigger with proper constructor (keep empty name same as Legacy)
+		auto trig = new Trigger(top_of_trigt, std::move(name), attach_type, trigger_type);
 		GET_TRIG_NARG(trig) = narg;
 		trig->arglist = arglist;
 
@@ -952,8 +952,15 @@ void SqliteWorldDataSource::LoadTriggers()
 
 			while (std::getline(ss, line))
 			{
-				auto cmd = std::make_shared<cmdlist_element>();
+				// Skip empty lines BEFORE trim (same as Legacy loader)
+				// Lines with whitespace are not considered empty - they become "" after trim
+				if (line.empty() || line == "\r")
+				{
+					continue;
+				}
+
 				utils::TrimRight(line);
+				auto cmd = std::make_shared<cmdlist_element>();
 				indent_trigger(line, &indlev);
 				cmd->cmd = line;
 				cmd->next = nullptr;
