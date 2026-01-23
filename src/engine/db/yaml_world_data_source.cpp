@@ -248,10 +248,15 @@ void YamlWorldDataSource::LoadZones()
 			zone.name = GetText(root, "name", "Unknown Zone");
 			zone.group = GetInt(root, "zone_group", 1);
 			if (zone.group == 0) zone.group = 1;
-			zone.comment = GetText(root, "comment");
-			zone.location = GetText(root, "location");
-			zone.author = GetText(root, "author");
-			zone.description = GetText(root, "description");
+
+			// Read metadata subfields
+			if (root["metadata"])
+			{
+				zone.comment = GetText(root["metadata"], "comment");
+				zone.location = GetText(root["metadata"], "location");
+				zone.author = GetText(root["metadata"], "author");
+				zone.description = GetText(root["metadata"], "description");
+			}
 			zone.top = GetInt(root, "top_room", zone.vnum * 100 + 99);
 			zone.lifespan = GetInt(root, "lifespan", 30);
 			zone.reset_mode = GetInt(root, "reset_mode", 2);
