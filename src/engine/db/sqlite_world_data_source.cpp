@@ -1037,6 +1037,8 @@ void SqliteWorldDataSource::LoadRooms()
 
 		auto room = new RoomData;
 		room->vnum = vnum;
+		// Apply UPPER to first character (same as Legacy loader)
+		if (!name.empty()) { name[0] = UPPER(name[0]); }
 		room->set_name(name);
 
 		// Set description
