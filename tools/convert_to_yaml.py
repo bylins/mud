@@ -448,6 +448,18 @@ TRIGGER_TYPES = {
     'k': 'kKill', 'Q': 'kCast', 'N': 'kNumber'
 }
 
+
+def numeric_flags_to_letters(n):
+    """Convert numeric trigger_type to letter flags (same as asciiflag_conv inverse)."""
+    result = []
+    for i in range(26):
+        if n & (1 << i):
+            result.append(chr(ord('a') + i))
+    for i in range(26):
+        if n & (1 << (26 + i)):
+            result.append(chr(ord('A') + i))
+    return ''.join(result)
+
 # Attach types
 ATTACH_TYPES = {0: 'kMob', 1: 'kObj', 2: 'kRoom'}
 
@@ -1437,7 +1449,7 @@ def parse_mob_file(filepath):
             # Action/affect flags and alignment line
             if idx < len(lines):
                 parts = lines[idx].split()
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     mob['action_flags'] = parse_ascii_flags(parts[0], ACTION_FLAGS)
                     mob['affect_flags'] = parse_ascii_flags(parts[1], ACTION_FLAGS)  # Using same for now
                     mob['alignment'] = int(parts[2]) if parts[2].lstrip('-').isdigit() else 0
@@ -1490,7 +1502,7 @@ def parse_mob_file(filepath):
             # Position and sex line
             if idx < len(lines):
                 parts = lines[idx].split()
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     pos_default = int(parts[0]) if parts[0].isdigit() else 8
                     pos_start = int(parts[1]) if parts[1].isdigit() else 8
                     sex = int(parts[2]) if parts[2].isdigit() else 0
@@ -1769,7 +1781,7 @@ def parse_obj_file(filepath):
                     obj['spec_param'] = ascii_flags_to_int(parts[0])
                 if len(parts) >= 2:
                     obj['max_durability'] = int(parts[1]) if parts[1].lstrip('-').isdigit() else 100
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     obj['cur_durability'] = int(parts[2]) if parts[2].lstrip('-').isdigit() else 100
                 if len(parts) >= 4:
                     obj['material'] = int(parts[3]) if parts[3].isdigit() else 0
@@ -1783,7 +1795,7 @@ def parse_obj_file(filepath):
                 if len(parts) >= 2:
                     timer_val = int(parts[1]) if parts[1].lstrip('-').isdigit() else -1
                     obj['timer'] = timer_val if timer_val > 0 else 10080  # 7 days in minutes
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     obj['spell'] = int(parts[2]) if parts[2].lstrip('-').isdigit() else -1
                 if len(parts) >= 4:
                     obj['level'] = int(parts[3]) if parts[3].isdigit() else 1
@@ -1796,7 +1808,7 @@ def parse_obj_file(filepath):
                     obj['affect_flags'] = parse_ascii_flags(parts[0], AFFECT_FLAGS) if len(parts) >= 1 else []
                 if len(parts) >= 2:
                     obj['anti_flags'] = parse_ascii_flags(parts[1], ANTI_FLAGS) if len(parts) >= 2 else []
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     obj['no_flags'] = parse_ascii_flags(parts[2], NO_FLAGS) if len(parts) >= 3 else []
                 idx += 1
 
@@ -1809,7 +1821,7 @@ def parse_obj_file(filepath):
                     obj['type'] = OBJ_TYPES[obj_type] if obj_type < len(OBJ_TYPES) else obj_type
                 if len(parts) >= 2:
                     obj['extra_flags'] = parse_ascii_flags(parts[1], EXTRA_FLAGS)
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     obj['wear_flags'] = parse_ascii_flags(parts[2], WEAR_FLAGS)
                 idx += 1
 
@@ -1838,7 +1850,7 @@ def parse_obj_file(filepath):
                     obj['weight'] = int(parts[0]) if parts[0].isdigit() else 0
                 if len(parts) >= 2:
                     obj['cost'] = int(parts[1]) if parts[1].isdigit() else 0
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     obj['rent_off'] = int(parts[2]) if parts[2].isdigit() else 0
                 if len(parts) >= 4:
                     obj['rent_on'] = int(parts[3]) if parts[3].isdigit() else 0
@@ -2060,7 +2072,7 @@ def parse_wld_file(filepath):
             # Zone/flags/sector line
             if idx < len(lines):
                 parts = lines[idx].split()
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     room['zone'] = int(parts[0]) if parts[0].isdigit() else 0
                     room['room_flags'] = parse_ascii_flags(parts[1], ROOM_FLAGS)
                     sector = int(parts[2]) if parts[2].isdigit() else 0
@@ -2106,7 +2118,7 @@ def parse_wld_file(filepath):
                         # Exit info line
                         if idx < len(lines):
                             parts = lines[idx].split()
-                            if len(parts) >= 3:
+                            if len(parts) >= 2:
                                 raw_flags = int(parts[0]) if parts[0].isdigit() else 0
                                 exit_data['key'] = int(parts[1]) if parts[1].lstrip('-').isdigit() else -1
                                 exit_data['to_room'] = int(parts[2]) if parts[2].lstrip('-').isdigit() else -1
@@ -2302,26 +2314,28 @@ def parse_trg_file(filepath):
             # Attach type, trigger type, narg line
             if idx < len(lines):
                 parts = lines[idx].split()
-                if len(parts) >= 3:
+                if len(parts) >= 2:
                     attach_type = int(parts[0]) if parts[0].isdigit() else 0
                     trigger['attach_type_id'] = attach_type
                     trigger['attach_type'] = ATTACH_TYPES.get(attach_type, attach_type)
 
-                    # Parse trigger types (letters)
-                    # Note: Letter-to-bit mapping is handled by asciiflag_conv in C++ code:
-                    # lowercase a-z → bits 0-25, uppercase A-Z → bits 26-51
-                    # We save ALL valid letters, as meanings differ by attach_type (mob/obj/room)
+                    # Parse trigger types (letters or numeric)
+                    # If numeric, convert to letters (same as asciiflag_conv inverse)
+                    flags_str = parts[1]
+                    if flags_str.isdigit():
+                        flags_str = numeric_flags_to_letters(int(flags_str))
+                    
                     trig_types = []
                     type_chars = []
-                    for ch in parts[1]:
-                        if ch.isalpha():  # Accept all letters a-z and A-Z
+                    for ch in flags_str:
+                        if ch.isalpha():
                             if ch in TRIGGER_TYPES:
                                 trig_types.append(TRIGGER_TYPES[ch])
                             type_chars.append(ch)
                     trigger['trigger_types'] = trig_types
-                    trigger['type_chars'] = type_chars  # Original letters for normalized DB
+                    trigger['type_chars'] = type_chars
 
-                    trigger['narg'] = int(parts[2]) if parts[2].isdigit() else 0
+                    trigger['narg'] = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 0
                 idx += 1
 
             # Argument until ~
