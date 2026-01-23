@@ -12,18 +12,25 @@ MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TEST_DIR="$MUD_DIR/test"
 LEGACY_BIN="$MUD_DIR/build_test/circle"
 SQLITE_BIN="$MUD_DIR/build_sqlite/circle"
+YAML_BIN="$MUD_DIR/build_yaml/circle"
 
 # Check prerequisites
 if [ ! -x "$LEGACY_BIN" ]; then
-    echo "ERROR: Legacy binary not found: $LEGACY_BIN"
+    echo "WARNING: Legacy binary not found: $LEGACY_BIN"
     echo "Run: cd build_test && make circle -j\$(nproc)"
-    exit 1
+    LEGACY_BIN=""
 fi
 
 if [ ! -x "$SQLITE_BIN" ]; then
-    echo "ERROR: SQLite binary not found: $SQLITE_BIN"
+    echo "WARNING: SQLite binary not found: $SQLITE_BIN"
     echo "Run: cd build_sqlite && make circle -j\$(nproc)"
-    exit 1
+    SQLITE_BIN=""
+fi
+
+if [ ! -x "$YAML_BIN" ]; then
+    echo "WARNING: YAML binary not found: $YAML_BIN"
+    echo "Run: cd build_yaml && cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test .. && make circle -j\$(nproc)"
+    YAML_BIN=""
 fi
 
 if [ ! -d "$TEST_DIR/small_legacy" ]; then
@@ -111,18 +118,22 @@ echo ""
 # Small World Tests
 echo "=== SMALL WORLD ==="
 echo ""
-run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$TEST_DIR/small_legacy" ""
-run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$TEST_DIR/small_legacy" "-C"
-run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$TEST_DIR/small_sqlite" ""
-run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$TEST_DIR/small_sqlite" "-C"
+[ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$TEST_DIR/small_legacy" ""
+[ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$TEST_DIR/small_legacy" "-C"
+[ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$TEST_DIR/small_sqlite" ""
+[ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$TEST_DIR/small_sqlite" "-C"
+[ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/small_yaml" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$TEST_DIR/small_yaml" ""
+[ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/small_yaml" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$TEST_DIR/small_yaml" "-C"
 
 # Full World Tests
 echo "=== FULL WORLD ==="
 echo ""
-run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$TEST_DIR/full_legacy" ""
-run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$TEST_DIR/full_legacy" "-C"
-run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$TEST_DIR/full_sqlite" ""
-run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$TEST_DIR/full_sqlite" "-C"
+[ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$TEST_DIR/full_legacy" ""
+[ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$TEST_DIR/full_legacy" "-C"
+[ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$TEST_DIR/full_sqlite" ""
+[ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$TEST_DIR/full_sqlite" "-C"
+[ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/full_yaml" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$TEST_DIR/full_yaml" ""
+[ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/full_yaml" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$TEST_DIR/full_yaml" "-C"
 
 # Compare checksums
 echo "=== CHECKSUM COMPARISON ==="
@@ -146,8 +157,16 @@ compare_checksums() {
     fi
 }
 
+echo "Small world:"
 compare_checksums "Small_Legacy_checksums" "Small_SQLite_checksums"
+compare_checksums "Small_Legacy_checksums" "Small_YAML_checksums"
+compare_checksums "Small_SQLite_checksums" "Small_YAML_checksums"
+
+echo ""
+echo "Full world:"
 compare_checksums "Full_Legacy_checksums" "Full_SQLite_checksums"
+compare_checksums "Full_Legacy_checksums" "Full_YAML_checksums"
+compare_checksums "Full_SQLite_checksums" "Full_YAML_checksums"
 
 echo ""
 echo "=============================================="

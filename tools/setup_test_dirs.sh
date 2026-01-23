@@ -38,7 +38,7 @@ fi
 setup_test_dir() {
     local name="$1"
     local world_src="$2"
-    local use_sqlite="$3"
+    local world_format="$3"
 
     local dir="$TEST_DIR/$name"
 
@@ -61,7 +61,7 @@ setup_test_dir() {
     # Self-symlink for lib directory (server expects to chdir to lib)
     ln -sf . "$dir/lib"
 
-    if [ "$use_sqlite" = "sqlite" ]; then
+    if [ "$world_format" = "sqlite" ]; then
         # Convert to SQLite
         echo "  Converting to SQLite..."
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
@@ -69,6 +69,14 @@ setup_test_dir() {
             --output "$dir" \
             --format sqlite \
             --db "$dir/world.db" \
+            2>&1 | tail -5
+    elif [ "$world_format" = "yaml" ]; then
+        # Convert to YAML with zone-based structure
+        echo "  Converting to YAML..."
+        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            --input "$world_src" \
+            --output "$dir" \
+            --format yaml \
             2>&1 | tail -5
     else
         # Symlink world directory for legacy
@@ -83,8 +91,10 @@ echo ""
 echo "=== Creating test directories ==="
 setup_test_dir "small_legacy" "$SMALL_WORLD_SRC" "legacy"
 setup_test_dir "small_sqlite" "$SMALL_WORLD_SRC" "sqlite"
+setup_test_dir "small_yaml" "$SMALL_WORLD_SRC" "yaml"
 setup_test_dir "full_legacy" "$FULL_WORLD_SRC" "legacy"
 setup_test_dir "full_sqlite" "$FULL_WORLD_SRC" "sqlite"
+setup_test_dir "full_yaml" "$FULL_WORLD_SRC" "yaml"
 
 echo ""
 echo "=== Test directories ready ==="
@@ -97,11 +107,14 @@ ls -lh "$TEST_DIR"/*/world.db 2>/dev/null || echo "No SQLite databases yet"
 echo ""
 echo "Done. Now rebuild binaries:"
 echo ""
-echo "  # Legacy build (no SQLite)"
+echo "  # Legacy build (no SQLite or YAML)"
 echo "  cd build_test && make circle -j\$(nproc)"
 echo ""
 echo "  # SQLite build"
 echo "  cd build_sqlite && make circle -j\$(nproc)"
+echo ""
+echo "  # YAML build"
+echo "  cd build_yaml && cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test .. && make circle -j\$(nproc)"
 echo ""
 echo "Then run tests:"
 echo "  ./tools/run_load_tests.sh"

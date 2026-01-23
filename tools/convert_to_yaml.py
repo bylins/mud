@@ -556,73 +556,149 @@ class BaseSaver:
 
 
 class YamlSaver(BaseSaver):
-    """Save world data to YAML files."""
+    """Save world data to YAML files with zone-based structure.
+
+    Creates:
+        world/dictionaries/*.yaml - Dictionary files
+        world/zones/{zone_vnum}/zone.yaml - Zone definition
+        world/zones/{zone_vnum}/rooms/{NN}.yaml - Room files (NN = 00-99)
+        world/mobs/{vnum}.yaml - Mob files
+        world/objects/{vnum}.yaml - Object files
+        world/triggers/{vnum}.yaml - Trigger files
+        world/zones/index.yaml - List of zones to load
+    """
 
     def __init__(self, output_dir):
         self.output_dir = Path(output_dir) / 'world'
-        self._saved_files = {'mob': [], 'obj': [], 'wld': [], 'zon': [], 'trg': []}
+        self._zone_vnums = set()
 
-    def _ensure_dir(self, subdir):
-        dir_path = self.output_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        return dir_path
+    def __enter__(self):
+        self._generate_dictionaries()
+        return self
+
+    def _generate_dictionaries(self):
+        """Generate dictionary YAML files from the hardcoded constants."""
+        dict_dir = self.output_dir / 'dictionaries'
+        dict_dir.mkdir(parents=True, exist_ok=True)
+
+        def write_dict_from_list(filename, items):
+            data = {name: i for i, name in enumerate(items) if not name.startswith('UNUSED')}
+            with open(dict_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
+                for name, idx in sorted(data.items(), key=lambda x: x[1]):
+                    f.write(f"{name}: {idx}\n")
+
+        def write_dict_from_map(filename, mapping):
+            """Write dict with format {str_name: int_value}."""
+            with open(dict_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
+                for name, idx in sorted(mapping.items(), key=lambda x: x[1]):
+                    f.write(f"{name}: {idx}\n")
+
+        def write_dict_inverted(filename, mapping):
+            """Write dict that has {int: str} as {str: int}."""
+            inverted = {v: k for k, v in mapping.items()}
+            with open(dict_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
+                for name, idx in sorted(inverted.items(), key=lambda x: x[1]):
+                    f.write(f"{name}: {idx}\n")
+
+        def letter_to_bit(letter):
+            """Convert trigger type letter to bit position."""
+            if 'a' <= letter <= 'z':
+                return ord(letter) - ord('a')
+            elif 'A' <= letter <= 'Z':
+                return 26 + ord(letter) - ord('A')
+            return 0
+
+        write_dict_from_list('room_flags.yaml', ROOM_FLAGS)
+        write_dict_from_list('sectors.yaml', SECTORS)
+        write_dict_from_list('obj_types.yaml', OBJ_TYPES)
+        write_dict_from_list('positions.yaml', POSITIONS)
+        write_dict_from_list('genders.yaml', GENDERS)
+        write_dict_from_list('extra_flags.yaml', EXTRA_FLAGS)
+        write_dict_from_list('wear_flags.yaml', WEAR_FLAGS)
+        write_dict_from_list('action_flags.yaml', ACTION_FLAGS)
+        write_dict_from_list('anti_flags.yaml', ANTI_FLAGS)
+        write_dict_from_list('no_flags.yaml', NO_FLAGS)
+        write_dict_from_list('affect_flags.yaml', AFFECT_FLAGS)
+        write_dict_inverted('apply_locations.yaml', APPLY_LOCATIONS)
+        # TRIGGER_TYPES is {letter: kName}, convert to {kName: bit_position}
+        trigger_types_dict = {name: letter_to_bit(letter) for letter, name in TRIGGER_TYPES.items()}
+        write_dict_from_map('trigger_types.yaml', trigger_types_dict)
+        write_dict_from_map('directions.yaml', {name: id_ for id_, name in DIRECTION_NAMES.items()})
+        write_dict_from_map('attach_types.yaml', {'kMobTrigger': 0, 'kObjTrigger': 1, 'kRoomTrigger': 2})
+
+        print(f"Generated dictionaries in {dict_dir.relative_to(self.output_dir.parent)}")
+
+    def _ensure_root_dir(self, subdir):
+        """Ensure root-level directory exists."""
+        out_dir = self.output_dir / subdir
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return out_dir
+
+    def _ensure_zone_dir(self, zone_vnum, subdir):
+        """Ensure zone subdirectory exists."""
+        out_dir = self.output_dir / 'zones' / str(zone_vnum) / subdir
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return out_dir
 
     def save_mob(self, mob):
         yaml_content = mob_to_yaml(mob)
-        out_dir = self._ensure_dir('mob')
+        out_dir = self._ensure_root_dir('mobs')
         out_file = out_dir / f"{mob['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['mob'].append(out_file.name)
 
     def save_object(self, obj):
         yaml_content = obj_to_yaml(obj)
-        out_dir = self._ensure_dir('obj')
+        out_dir = self._ensure_root_dir('objects')
         out_file = out_dir / f"{obj['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['obj'].append(out_file.name)
 
     def save_room(self, room):
         yaml_content = room_to_yaml(room)
-        out_dir = self._ensure_dir('wld')
-        out_file = out_dir / f"{room['vnum']}.yaml"
+        zone_vnum = room['vnum'] // 100
+        rel_num = room['vnum'] % 100
+        self._zone_vnums.add(zone_vnum)
+        out_dir = self._ensure_zone_dir(zone_vnum, 'rooms')
+        out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['wld'].append(out_file.name)
 
     def save_zone(self, zone):
         yaml_content = zon_to_yaml(zone)
-        out_dir = self._ensure_dir('zon')
-        out_file = out_dir / f"{zone['vnum']}.yaml"
+        zone_vnum = zone['vnum']
+        self._zone_vnums.add(zone_vnum)
+        zone_dir = self.output_dir / 'zones' / str(zone_vnum)
+        zone_dir.mkdir(parents=True, exist_ok=True)
+        out_file = zone_dir / 'zone.yaml'
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['zon'].append(out_file.name)
 
     def save_trigger(self, trigger):
         yaml_content = trg_to_yaml(trigger)
-        out_dir = self._ensure_dir('trg')
+        out_dir = self._ensure_root_dir('triggers')
         out_file = out_dir / f"{trigger['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['trg'].append(out_file.name)
 
     def finalize(self):
-        """Create index files for each entity type."""
-        for subdir, files in self._saved_files.items():
-            if not files:
-                continue
-            dir_path = self.output_dir / subdir
-            if not dir_path.exists():
-                continue
+        """Create zone index file."""
+        if not self._zone_vnums:
+            return
 
-            index_data = CommentedMap()
-            index_data['vnums'] = CommentedSeq(sorted(files))
+        zones_dir = self.output_dir / 'zones'
+        zones_dir.mkdir(parents=True, exist_ok=True)
 
-            with open(dir_path / 'index.yaml', 'w', encoding='koi8-r') as f:
-                get_main_yaml().dump(index_data, f)
+        index_data = CommentedMap()
+        index_data['zones'] = CommentedSeq(sorted(self._zone_vnums))
 
-            print(f"Created {subdir}/index.yaml with {len(files)} entries")
+        with open(zones_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+            get_main_yaml().dump(index_data, f)
+
+        print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
 
 
 class SqliteSaver(BaseSaver):

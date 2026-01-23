@@ -62,6 +62,9 @@
 #ifdef HAVE_SQLITE
 #include "sqlite_world_data_source.h"
 #endif
+#ifdef HAVE_YAML
+#include "yaml_world_data_source.h"
+#endif
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -360,7 +363,18 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Create default data source if none provided
 	if (!data_source)
 	{
-#ifdef HAVE_SQLITE
+#ifdef HAVE_YAML
+		const char *yaml_world_dir = "world";
+		if (access(yaml_world_dir, F_OK) == 0 && access((std::string(yaml_world_dir) + "/dictionaries").c_str(), F_OK) == 0)
+		{
+			data_source = world_loader::CreateYamlDataSource(yaml_world_dir);
+		}
+		else
+		{
+			log("SYSERR: HAVE_YAML is defined but world/dictionaries not found. Exiting.");
+			exit(1);
+		}
+#elif defined(HAVE_SQLITE)
 		const char *world_db_path = "world.db";
 		if (access(world_db_path, F_OK) == 0)
 		{

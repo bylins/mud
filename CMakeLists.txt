@@ -167,6 +167,11 @@ set(SOURCES
 		# SQLite world data source (conditional)
 		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.h>
 		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.cpp>
+		# YAML world data source (conditional)
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/dictionary_loader.h>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/dictionary_loader.cpp>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/yaml_world_data_source.h>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/yaml_world_data_source.cpp>
 		src/engine/db/id.cpp
 		src/engine/db/utils_find_obj_id_by_vnum.cpp
 		src/engine/db/global_objects.cpp
@@ -1138,6 +1143,7 @@ else ()
 endif ()
 option(HAVE_ZLIB "Should ZLib be compiled in. It is required to support MCCP." ${DEFAULT_HAVE_ZLIB})
 option(HAVE_SQLITE "Enable SQLite world data source for faster world loading." OFF)
+option(HAVE_YAML "Enable YAML world data source for human-readable world files." OFF)
 
 if (HAVE_ZLIB)
 	set(ZLIB_ROOT $ENV{ZLIB_ROOT})
@@ -1159,6 +1165,17 @@ if (HAVE_SQLITE)
 	message(STATUS "SQLite is turned ON. Circle will support SQLite world data source.")
 else ()
 	message(STATUS "SQLite is turned off.")
+endif ()
+
+# YAML support
+if (HAVE_YAML)
+	find_package(yaml-cpp REQUIRED)
+	add_definitions(-DHAVE_YAML)
+	include_directories(system ${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(circle.library yaml-cpp)
+	message(STATUS "YAML is turned ON. Circle will support YAML world data source.")
+else ()
+	message(STATUS "YAML is turned off.")
 endif ()
 
 # Iconv
