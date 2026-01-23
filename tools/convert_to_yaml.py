@@ -1875,7 +1875,7 @@ def parse_obj_file(filepath):
                             idx += 1
                         if idx < len(lines):
                             kw_parts.append(lines[idx].rstrip('~'))
-                        ed['keywords'] = ' '.join(kw_parts)  # Preserve all whitespace
+                        ed['keywords'] = '\r\n'.join(kw_parts)  # Preserve all whitespace
                         idx += 1
 
                         # Description until ~
@@ -2100,7 +2100,7 @@ def parse_wld_file(filepath):
                             idx += 1
                         if idx < len(lines):
                             kw_parts.append(lines[idx].rstrip('~'))
-                        exit_data['keywords'] = ' '.join(kw_parts).strip()
+                        exit_data['keywords'] = '\r\n'.join(kw_parts)
                         idx += 1
 
                         # Exit info line
@@ -2140,7 +2140,7 @@ def parse_wld_file(filepath):
                         idx += 1
                     if idx < len(lines):
                         kw_parts.append(lines[idx].rstrip('~'))
-                    ed['keywords'] = ' '.join(kw_parts)  # Preserve all whitespace
+                    ed['keywords'] = '\r\n'.join(kw_parts)  # Preserve all whitespace
                     idx += 1
 
                     # Description until ~
@@ -2296,7 +2296,7 @@ def parse_trg_file(filepath):
                 idx += 1
             if idx < len(lines):
                 name_parts.append(lines[idx].rstrip('~'))
-            trigger['name'] = ' '.join(name_parts)
+            trigger['name'] = '\r\n'.join(name_parts)
             idx += 1
 
             # Attach type, trigger type, narg line
@@ -2331,19 +2331,19 @@ def parse_trg_file(filepath):
                 idx += 1
             if idx < len(lines):
                 arg_parts.append(lines[idx].rstrip('~'))
-            trigger['arglist'] = ' '.join(arg_parts).strip()
+            trigger['arglist'] = '\r\n'.join(arg_parts)
             idx += 1
 
             # Script until ~
             script_parts = []
-            while idx < len(lines) and '~' not in lines[idx]:
-                script_parts.append(lines[idx])
+            while idx < len(lines) and not lines[idx].rstrip().endswith('~'):
+                script_parts.append(lines[idx].rstrip('\n'))
                 idx += 1
             if idx < len(lines):
                 last_line = lines[idx].rstrip('~')
                 if last_line:
                     script_parts.append(last_line)
-            trigger['script'] = '\r\n'.join(script_parts)
+            trigger['script'] = '\r\n'.join(script_parts).replace('~~', '~')
 
             triggers.append(trigger)
 
@@ -2502,7 +2502,7 @@ def parse_zon_file(filepath):
                     idx += 1
                 if idx < len(lines):
                     builder_parts.append(lines[idx].rstrip('\n').rstrip('~'))
-                zone['builders'] = ' '.join(builder_parts).strip()
+                zone['builders'] = '\r\n'.join(builder_parts)
                 idx += 1
                 continue
             else:
