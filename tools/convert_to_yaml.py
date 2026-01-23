@@ -2291,7 +2291,7 @@ def room_to_yaml(room):
     # Room flags
     if room.get('room_flags'):
         flags = CommentedSeq(room['room_flags'])
-        data['room_flags'] = flags
+        data['flags'] = flags
 
     # Sector
     if 'sector' in room:

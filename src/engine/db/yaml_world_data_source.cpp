@@ -790,7 +790,11 @@ void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_
 	for (const auto &exit_node : exits_node)
 	{
 		int dir = ParseEnum(exit_node["direction"], "directions", 0);
-		if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
+		if (dir < 0 || dir >= EDirection::kMaxDirNum)
+		{
+			log("SYSERR: Room %d has invalid exit direction %d, skipping.", room_vnum, dir);
+			continue;
+		}
 
 		auto exit_data = std::make_shared<ExitData>();
 
@@ -980,10 +984,16 @@ void YamlWorldDataSource::LoadMobs()
 			GET_HEIGHT(&mob) = GetInt(root, "height", 0);
 			GET_WEIGHT(&mob) = GetInt(root, "weight", 0);
 
-			// E-spec attributes
-			YAML::Node attrs = root["attributes"];
-			if (attrs)
+			// E-spec attributes - set defaults, then override if attributes section exists
+			mob.set_str(11);
+			mob.set_dex(11);
+			mob.set_int(11);
+			mob.set_wis(11);
+			mob.set_con(11);
+			mob.set_cha(11);
+			if (root["attributes"])
 			{
+				YAML::Node attrs = root["attributes"];
 				mob.set_str(GetInt(attrs, "strength", 11));
 				mob.set_dex(GetInt(attrs, "dexterity", 11));
 				mob.set_int(GetInt(attrs, "intelligence", 11));
