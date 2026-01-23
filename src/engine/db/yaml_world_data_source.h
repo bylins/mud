@@ -61,7 +61,7 @@ private:
 	FlagData ParseFlags(const YAML::Node &node, const std::string &dict_name) const;
 	int ParseEnum(const YAML::Node &node, const std::string &dict_name, int default_val = 0) const;
 	int ParsePosition(const YAML::Node &node) const;
-	int ParseGender(const YAML::Node &node) const;
+	int ParseGender(const YAML::Node &node, int default_val = 1) const;
 
 	// Utility functions
 	std::string GetText(const YAML::Node &node, const std::string &key, const std::string &default_val = "") const;

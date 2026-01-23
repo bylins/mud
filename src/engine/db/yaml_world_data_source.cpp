@@ -203,9 +203,9 @@ int YamlWorldDataSource::ParsePosition(const YAML::Node &node) const
 	return ParseEnum(node, "positions", static_cast<int>(EPosition::kStand));
 }
 
-int YamlWorldDataSource::ParseGender(const YAML::Node &node) const
+int YamlWorldDataSource::ParseGender(const YAML::Node &node, int default_val) const
 {
-	return ParseEnum(node, "genders", static_cast<int>(EGender::kMale));
+	return ParseEnum(node, "genders", default_val);
 }
 
 // ============================================================================
@@ -738,9 +738,9 @@ void YamlWorldDataSource::LoadRooms()
 			}
 
 			// Load extra descriptions
-			if (root["extra_descs"])
+			if (root["extra_descriptions"])
 			{
-				LoadRoomExtraDescriptions(room, root["extra_descs"]);
+				LoadRoomExtraDescriptions(room, root["extra_descriptions"]);
 			}
 
 			// Load triggers
@@ -1260,7 +1260,7 @@ void YamlWorldDataSource::LoadObjects()
 				for (const auto &flag_node : root["wear_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("obj_wear_flags", flag_name, -1);
+					long flag_val = dm.Lookup("wear_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						wear_flags |= (1 << flag_val);
@@ -1320,9 +1320,9 @@ void YamlWorldDataSource::LoadObjects()
 			}
 
 			// Extra descriptions
-			if (root["extra_descs"] && root["extra_descs"].IsSequence())
+			if (root["extra_descriptions"] && root["extra_descriptions"].IsSequence())
 			{
-				for (const auto &ed_node : root["extra_descs"])
+				for (const auto &ed_node : root["extra_descriptions"])
 				{
 					std::string keywords = GetText(ed_node, "keywords");
 					std::string description = GetText(ed_node, "description");
