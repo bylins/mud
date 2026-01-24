@@ -667,28 +667,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (info->has_exp) {
 			p_data = &info->exp;
 
-			// --- 30-й уровень: полный опыт из конфига + вклад мортов (low до порога, high после) ---
-			int threshold = p_data->threshold_mort;
-			if (threshold < 0) threshold = 0;
-
-			const int remorts = std::max(0, effective_remorts);
-			const int low_morts  = std::min(remorts, threshold);
-			const int high_morts = std::max(0, remorts - threshold);
-
-			const double inc_sum =
-				(double)p_data->low_increment * (double)low_morts +
-				(double)p_data->increment      * (double)high_morts;
-
-			const double exp_full_30 = (double)p_data->base + inc_sum;
-
-			// --- кривая по уровню: lvl1=1%, lvl30=100% ---
-			const int lvl = std::max(1, calc);
-			const double koeff = (double)(lvl - 1) / 29.0;          // 0..1
-			const double exp_scale = 0.01 + 0.99 * (koeff * koeff);      // можно koeff^3, если нужно жёстче
-
-			int base_value = (int)std::lround(exp_full_30 * exp_scale);
-
-			// deviation применяем ПОСЛЕ кривой, чтобы ?% было относительно итогового exp на этом уровне
+			int base_value = CalcBaseValue(p_data, calc, effective_remorts);
 			base_value = ApplyDeviation(p_data, base_value);
 			base_value = std::max(0, base_value);
 
