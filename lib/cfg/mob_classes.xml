@@ -4,960 +4,960 @@
     <mobclass id="kUndefined" mode="kEnabled">
         <name rus="не.определён" eng="Undefined"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kBoss" mode="kEnabled">
         <name rus="босс" eng="Boss"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kTrash" mode="kEnabled">
         <name rus="треш" eng="Trash"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kTank" mode="kEnabled">
         <name rus="танк" eng="Tank"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kMelleeDmg" mode="kEnabled">
         <name rus="физ.дамаг" eng="MelleeDmg"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kArcher" mode="kEnabled">
         <name rus="лучник" eng="Archer"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kRogue" mode="kEnabled">
         <name rus="разбойник" eng="Rogue"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kBackstab" base="20" low_increment="5" threshold_mort="45" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kBackstab" base="20" low_increment="5" threshold_mort="45" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kMageDmg" mode="kEnabled">
         <name rus="маг.дамаг" eng="MageDmg"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kMageBuff" mode="kEnabled">
         <name rus="маг.ассист" eng="MageBuff"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 
     <mobclass id="kHealer" mode="kEnabled">
         <name rus="хилер" eng="Healer"/>
         <base_stats>
-            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kInt" base="20" low_increment="1" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
+            <stat id="kStr" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kDex" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCon" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kWis" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kInt" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <stat id="kCha" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
         </base_stats>
 
         <savings>
-            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
-            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="10"/>
+            <saving id="kReflex" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kWill" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kStability" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
+            <saving id="kCritical" base="0" low_increment="-0" threshold_mort="5" increment="-4.3" deviation_type="0" deviation="0"/>
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kPunch" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kUndefined" base="40" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kPunch" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kFireMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kWaterMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kEarthMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLightMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kDarkMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kMindMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
-            <skill id="kLifeMagic" base="80" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="10"/>
+            <skill id="kAirMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="50" low_increment="5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="20"/>
+            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
-            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="4"/>
-            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="4"/>
-            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="4"/>
+            <resistance id="kFire" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kAir" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kWater" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kEarth" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kVitality" base="0" low_increment="0" threshold_mort="10" increment="0.6" deviation_type="0" deviation="0"/>
+            <resistance id="kMind" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kImmunity" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kDark" base="0" low_increment="0" threshold_mort="20" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kMagicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kPhysicResist" base="0" low_increment="0" threshold_mort="50" increment="0.5" deviation_type="0" deviation="0"/>
+            <resistance id="kAffectResist" base="0" low_increment="0" threshold_mort="40" increment="0.3" deviation_type="0" deviation="0"/>
         </resistances>
 
         <combat_stats>
-            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="3"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="10"/>
-            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="20"/>
-            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="15"/>
-            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="5"/>
-            <param id="kExp" base="150000" low_increment="0" threshold_mort="17" increment="25000" deviation_type="1" deviation="0"/>
-            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="5"/>
-            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
-            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="5"/>
+            <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="8" low_increment="0" threshold_mort="0" increment="0.8" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="0" threshold_mort="0" increment="3" deviation_type="0" deviation="0"/>
+            <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
+            <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
+            <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
         </combat_stats>
 
         <feats>
-            <feat id="kBerserker" threshold_mort="20"/>
-            <feat id="kBlindFight" threshold_mort="20"/>
-            <feat id="kParryArrow" threshold_mort="20"/>
-            <feat id="kImpregnable" threshold_mort="20"/>
-            <feat id="kWoodenSkin" threshold_mort="20"/>
-            <feat id="kIronSkin" threshold_mort="40"/>
-            <feat id="kPowerAttack" threshold_mort="25"/>
-            <feat id="kLightingReflex" threshold_mort="30"/>
-            <feat id="kWarriorSpirit" threshold_mort="30"/>
-            <feat id="kGreatFortitude" threshold_mort="30"/>
-            <feat id="kSplendidHealth" threshold_mort="20"/>
-            <feat id="kCombatCasting" threshold_mort="10"/>
-            <feat id="kPunchFocus" threshold_mort="10"/>
-            <feat id="kPunchMaster" threshold_mort="30"/>
-            <feat id="kLuckyGuy" threshold_mort="30"/>
-            <feat id="kBestDestiny" threshold_mort="30"/>
-            <feat id="kGreatPowerAttack" threshold_mort="50"/>
-            <feat id="kStrongImmunity" threshold_mort="30"/>
-            <feat id="kMobility" threshold_mort="50"/>
-            <feat id="kInjure" threshold_mort="40"/>
-            <feat id="kStrengthConcentration" threshold_mort="40"/>
+            <feat id="kBerserker" threshold_mort="100"/>
+            <feat id="kBlindFight" threshold_mort="100"/>
+            <feat id="kParryArrow" threshold_mort="100"/>
+            <feat id="kImpregnable" threshold_mort="100"/>
+            <feat id="kWoodenSkin" threshold_mort="100"/>
+            <feat id="kIronSkin" threshold_mort="100"/>
+            <feat id="kPowerAttack" threshold_mort="100"/>
+            <feat id="kLightingReflex" threshold_mort="100"/>
+            <feat id="kWarriorSpirit" threshold_mort="100"/>
+            <feat id="kGreatFortitude" threshold_mort="100"/>
+            <feat id="kSplendidHealth" threshold_mort="100"/>
+            <feat id="kCombatCasting" threshold_mort="100"/>
+            <feat id="kPunchFocus" threshold_mort="100"/>
+            <feat id="kPunchMaster" threshold_mort="100"/>
+            <feat id="kLuckyGuy" threshold_mort="100"/>
+            <feat id="kBestDestiny" threshold_mort="100"/>
+            <feat id="kGreatPowerAttack" threshold_mort="100"/>
+            <feat id="kStrongImmunity" threshold_mort="100"/>
+            <feat id="kMobility" threshold_mort="100"/>
+            <feat id="kInjure" threshold_mort="100"/>
+            <feat id="kStrengthConcentration" threshold_mort="100"/>
 
-            <feat id="kCutting" threshold_mort="30"/>
-            <feat id="kLiveShield" threshold_mort="30"/>
-            <feat id="kSlashMaster" threshold_mort="50"/>
+            <feat id="kCutting" threshold_mort="100"/>
+            <feat id="kLiveShield" threshold_mort="100"/>
+            <feat id="kSlashMaster" threshold_mort="100"/>
         </feats>
     </mobclass>
 </mob_classes>
