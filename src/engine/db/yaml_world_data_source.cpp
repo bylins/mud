@@ -1009,7 +1009,7 @@ void YamlWorldDataSource::LoadMobs()
 				for (const auto &flag_node : root["action_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("mob_action_flags", flag_name, -1);
+					long flag_val = dm.Lookup("action_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						mob.SetFlag(static_cast<EMobFlag>(flag_val));
@@ -1022,7 +1022,7 @@ void YamlWorldDataSource::LoadMobs()
 				for (const auto &flag_node : root["affect_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("mob_affect_flags", flag_name, -1);
+					long flag_val = dm.Lookup("affect_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_val));
@@ -1239,7 +1239,7 @@ void YamlWorldDataSource::LoadObjects()
 				for (const auto &flag_node : root["extra_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("obj_extra_flags", flag_name, -1);
+					long flag_val = dm.Lookup("extra_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						obj->set_extra_flag(static_cast<EObjFlag>(flag_val));
@@ -1274,7 +1274,7 @@ void YamlWorldDataSource::LoadObjects()
 				for (const auto &flag_node : root["no_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("obj_no_flags", flag_name, -1);
+					long flag_val = dm.Lookup("no_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						obj->set_no_flag(static_cast<ENoFlag>(flag_val));
@@ -1287,7 +1287,7 @@ void YamlWorldDataSource::LoadObjects()
 				for (const auto &flag_node : root["anti_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("obj_anti_flags", flag_name, -1);
+					long flag_val = dm.Lookup("anti_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						obj->set_anti_flag(static_cast<EAntiFlag>(flag_val));
@@ -1300,7 +1300,7 @@ void YamlWorldDataSource::LoadObjects()
 				for (const auto &flag_node : root["affect_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("obj_affect_flags", flag_name, -1);
+					long flag_val = dm.Lookup("affect_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
 						obj->SetEWeaponAffectFlag(static_cast<EWeaponAffect>(flag_val));
