@@ -124,7 +124,11 @@ should_run_test() {
     # Extract components from test name (e.g., "Small_YAML_checksums")
     local world=$(echo "$test_name" | cut -d_ -f1 | tr 'A-Z' 'a-z')
     local loader=$(echo "$test_name" | cut -d_ -f2 | tr 'A-Z' 'a-z')
-    local has_checksums=$(echo "$test_name" | grep -q "checksums$" && echo "yes" || echo "no")
+    if echo "$test_name" | grep -q "checksums$"; then
+        local has_checksums="yes"
+    else
+        local has_checksums="no"
+    fi
     
     # Apply filters
     if [ -n "$FILTER_LOADER" ] && [ "$loader" != "$FILTER_LOADER" ]; then

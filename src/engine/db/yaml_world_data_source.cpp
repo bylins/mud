@@ -1309,13 +1309,15 @@ void YamlWorldDataSource::LoadObjects()
 			}
 
 			// Applies
+			int apply_idx = 0;
 			if (root["applies"] && root["applies"].IsSequence())
 			{
 				for (const auto &apply_node : root["applies"])
 				{
+					if (apply_idx >= kMaxObjAffect) break;
 					int location = GetInt(apply_node, "location", 0);
 					int modifier = GetInt(apply_node, "modifier", 0);
-					obj->set_affected(0, static_cast<EApply>(location), modifier);
+					obj->set_affected(apply_idx++, static_cast<EApply>(location), modifier);
 				}
 			}
 
