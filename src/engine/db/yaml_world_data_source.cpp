@@ -1242,7 +1242,7 @@ void YamlWorldDataSource::LoadObjects()
 					long flag_val = dm.Lookup("extra_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
-						obj->set_extra_flag(static_cast<EObjFlag>(flag_val));
+						obj->set_extra_flag(static_cast<EObjFlag>(IndexToBitvector(flag_val)));
 					}
 					else if (flag_name.rfind("UNUSED_", 0) == 0)
 					{
@@ -1277,7 +1277,7 @@ void YamlWorldDataSource::LoadObjects()
 					long flag_val = dm.Lookup("no_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
-						obj->set_no_flag(static_cast<ENoFlag>(flag_val));
+						obj->set_no_flag(static_cast<ENoFlag>(IndexToBitvector(flag_val)));
 					}
 				}
 			}
@@ -1290,7 +1290,7 @@ void YamlWorldDataSource::LoadObjects()
 					long flag_val = dm.Lookup("anti_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
-						obj->set_anti_flag(static_cast<EAntiFlag>(flag_val));
+						obj->set_anti_flag(static_cast<EAntiFlag>(IndexToBitvector(flag_val)));
 					}
 				}
 			}
@@ -1303,7 +1303,7 @@ void YamlWorldDataSource::LoadObjects()
 					long flag_val = dm.Lookup("affect_flags", flag_name, -1);
 					if (flag_val >= 0)
 					{
-						obj->SetEWeaponAffectFlag(static_cast<EWeaponAffect>(flag_val));
+						obj->SetEWeaponAffectFlag(static_cast<EWeaponAffect>(IndexToBitvector(flag_val)));
 					}
 				}
 			}

@@ -2025,6 +2025,15 @@ def obj_to_yaml(obj):
     if obj.get('wear_flags'):
         flags = CommentedSeq(obj['wear_flags'])
         data['wear_flags'] = flags
+    if obj.get('no_flags'):
+        flags = CommentedSeq(obj['no_flags'])
+        data['no_flags'] = flags
+    if obj.get('anti_flags'):
+        flags = CommentedSeq(obj['anti_flags'])
+        data['anti_flags'] = flags
+    if obj.get('affect_flags'):
+        flags = CommentedSeq(obj['affect_flags'])
+        data['affect_flags'] = flags
     if 'material' in obj:
         data['material'] = obj['material']
 
