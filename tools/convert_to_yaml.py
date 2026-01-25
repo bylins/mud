@@ -461,7 +461,7 @@ def numeric_flags_to_letters(n):
     return ''.join(result)
 
 # Attach types
-ATTACH_TYPES = {0: 'kMob', 1: 'kObj', 2: 'kRoom'}
+ATTACH_TYPES = {0: 'kMobTrigger', 1: 'kObjTrigger', 2: 'kRoomTrigger'}
 
 # Skill names from ESkill enum (for mob skills comments)
 SKILL_NAMES = {
@@ -2050,13 +2050,15 @@ def obj_to_yaml(obj):
     if 'cur_durability' in obj:
         data['cur_durability'] = obj['cur_durability']
 
-    # Timer/spell/level
+    # Timer/spell/level/sex
     if 'timer' in obj:
         data['timer'] = obj['timer']
     if 'spell' in obj:
         data['spell'] = obj['spell']
     if 'level' in obj:
         data['level'] = obj['level']
+    if 'sex' in obj:
+        data['sex'] = GENDERS[obj['sex']] if obj['sex'] < len(GENDERS) else obj['sex']
 
     # Applies with location name comments
     if obj.get('applies'):
