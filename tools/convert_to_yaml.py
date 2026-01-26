@@ -661,7 +661,8 @@ class YamlSaver(BaseSaver):
         yaml_content = room_to_yaml(room)
         zone_vnum = room['vnum'] // 100
         rel_num = room['vnum'] % 100
-        self._zone_vnums.add(zone_vnum)
+        if room.get('enabled', 1):
+            self._zone_vnums.add(zone_vnum)
         out_dir = self._ensure_zone_dir(zone_vnum, 'rooms')
         out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
@@ -670,7 +671,8 @@ class YamlSaver(BaseSaver):
     def save_zone(self, zone):
         yaml_content = zon_to_yaml(zone)
         zone_vnum = zone['vnum']
-        self._zone_vnums.add(zone_vnum)
+        if zone.get('enabled', 1):
+            self._zone_vnums.add(zone_vnum)
         zone_dir = self.output_dir / 'zones' / str(zone_vnum)
         zone_dir.mkdir(parents=True, exist_ok=True)
         out_file = zone_dir / 'zone.yaml'
