@@ -10,7 +10,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
 		src/engine/structs/blocking_queue.cpp
-		src/engine/db/influxdb.cpp
 		src/engine/core/heartbeat.cpp
 		src/engine/core/heartbeat_commands.cpp
 		src/gameplay/abilities/abilities_rollsystem.cpp
@@ -97,6 +96,8 @@ set(SOURCES
 		src/utils/levenshtein.cpp
 		src/gameplay/mechanics/liquid.cpp
 		src/utils/logger.cpp
+		src/utils/logging/file_log_sender.cpp
+		src/utils/logging/log_manager.cpp
 		src/gameplay/magic/magic.cpp
 		src/gameplay/magic/magic_items.cpp
 		src/gameplay/magic/magic_rooms.cpp
@@ -444,7 +445,11 @@ set(SOURCES
 		src/engine/db/player_index.cpp
 		src/gameplay/skills/addshot.cpp
 		src/gameplay/classes/mob_classes_info.cpp
-		src/gameplay/classes/recalc_mob_params_by_vnum.cpp)
+		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
+		src/engine/observability/otel_provider.cpp
+		src/engine/observability/otel_traces.cpp
+		src/engine/observability/otel_metrics.cpp
+		src/engine/observability/otel_log_sender.cpp)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -492,7 +497,6 @@ set(HEADERS
 		src/administration/accounts.h
 		src/engine/core/action_targeting.h
 		src/engine/structs/blocking_queue.h
-		src/engine/db/influxdb.h
 		src/engine/core/heartbeat_commands.h
 		src/gameplay/mechanics/weather.h
 		src/gameplay/core/game_limits.h
@@ -584,6 +588,9 @@ set(HEADERS
 		src/utils/levenshtein.h
 		src/gameplay/mechanics/liquid.h
 		src/utils/logger.h
+		src/utils/logging/log_sender.h
+		src/utils/logging/file_log_sender.h
+		src/utils/logging/log_manager.h
 		src/gameplay/magic/magic.h
 		src/gameplay/magic/magic_items.h
 		src/gameplay/magic/magic_rooms.h
@@ -869,7 +876,12 @@ set(HEADERS
 		src/gameplay/mechanics/damage.h
 		src/gameplay/mechanics/tutelar.h
 		src/gameplay/skills/addshot.h
-		src/engine/db/player_index.h)
+		src/engine/db/player_index.h
+		src/engine/observability/otel_provider.h
+		src/engine/observability/otel_traces.h
+		src/engine/observability/otel_metrics.h
+		src/engine/observability/otel_log_sender.h
+		src/utils/logging/log_sender.h)
 
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
@@ -1161,6 +1173,30 @@ else ()
 	message(STATUS "SQLite is turned off.")
 endif ()
 
+# OpenTelemetry support
+if (WITH_OTEL)
+	message(STATUS "OpenTelemetry integration: ENABLED")
+
+	# Find OpenTelemetry from vcpkg
+	find_package(opentelemetry-cpp CONFIG REQUIRED)
+
+	# Define WITH_OTEL for preprocessor
+	add_definitions(-DWITH_OTEL)
+
+	# Link OpenTelemetry libraries
+	target_link_libraries(circle.library
+		opentelemetry-cpp::api
+		opentelemetry-cpp::sdk
+		opentelemetry-cpp::ext
+		opentelemetry-cpp::otlp_http_exporter
+		opentelemetry-cpp::otlp_http_metric_exporter
+		opentelemetry-cpp::otlp_http_log_record_exporter
+		opentelemetry-cpp::resources
+	)
+else()
+	message(STATUS "OpenTelemetry integration: DISABLED")
+endif()
+
 # Iconv
 option(HAVE_ICONV "Allows to enable search of iconv." OFF)
 if (HAVE_ICONV)
@@ -1321,6 +1357,8 @@ option(BUILD_TESTS "Build and run tests." YES)
 if (BUILD_TESTS)
 	add_subdirectory(tests)
 endif ()
+
+option(WITH_OTEL "Enable OpenTelemetry integration" OFF)
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
 

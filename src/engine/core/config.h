@@ -176,6 +176,15 @@ class RuntimeConfiguration {
 
 	const auto &statistics() const { return m_statistics; }
 
+	bool telemetry_enabled() const { return m_telemetry_enabled; }
+	const std::string &telemetry_endpoint() const { return m_telemetry_endpoint; }
+	const std::string &telemetry_service_name() const { return m_telemetry_service_name; }
+	const std::string &telemetry_service_version() const { return m_telemetry_service_version; }
+	enum class ETelemetryLogMode { kFileOnly, kOtelOnly, kDuplicate, kUndefined };
+	ETelemetryLogMode telemetry_log_mode() const { return m_telemetry_log_mode; }
+	
+	void load_telemetry_configuration(const pugi::xml_node *root);
+
  private:
 	static const char *CONFIGURATION_FILE_NAME;
 
@@ -193,6 +202,7 @@ class RuntimeConfiguration {
 	void load_boards_configuration(const pugi::xml_node *root);
 	void load_external_triggers(const pugi::xml_node *root);
 	void load_statistics_configuration(const pugi::xml_node *root);
+	void load_telemetry_configuration_impl(const pugi::xml_node *root);
 
 	logs_t m_logs;
 	std::string m_log_stderr;
@@ -207,6 +217,12 @@ class RuntimeConfiguration {
 	std::string m_external_reboot_trigger_file_name;
 
 	StatisticsConfiguration m_statistics;
+	
+	bool m_telemetry_enabled;
+	std::string m_telemetry_endpoint;
+	std::string m_telemetry_service_name;
+	std::string m_telemetry_service_version;
+	ETelemetryLogMode m_telemetry_log_mode;
 };
 
 extern RuntimeConfiguration runtime_config;

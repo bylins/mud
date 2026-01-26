@@ -184,69 +184,42 @@ void log(const char *format, ...) {
 }
 
 void shop_log(const char *format, ...) {
-	const char *filename = "../log/shop.log";
-
-	FILE *file = fopen(filename, "a");
-	if (!file) {
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
-
 	if (!format)
-		format = "SYSERR: olc_log received a NULL format.";
+		format = "SYSERR: shop_log received a NULL format.";
 
-	write_time(file);
+	char buf[kMaxStringLength];
 	va_list args;
 	va_start(args, format);
-	vfprintf(file, format, args);
+	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
-	fprintf(file, "\n");
 
-	fclose(file);
+	logging::LogManager::Info(buf, {{"log_type", "shop"}});
 }
 
 void olc_log(const char *format, ...) {
-	const char *filename = "../log/olc.log";
-
-	FILE *file = fopen(filename, "a");
-	if (!file) {
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
-
 	if (!format)
 		format = "SYSERR: olc_log received a NULL format.";
 
-	write_time(file);
+	char buf[kMaxStringLength];
 	va_list args;
 	va_start(args, format);
-	vfprintf(file, format, args);
+	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
-	fprintf(file, "\n");
 
-	fclose(file);
+	logging::LogManager::Info(buf, {{"log_type", "olc"}});
 }
 
 void imm_log(const char *format, ...) {
-	const char *filename = "../log/imm.log";
-
-	FILE *file = fopen(filename, "a");
-	if (!file) {
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
-
 	if (!format)
 		format = "SYSERR: imm_log received a NULL format.";
 
-	write_time(file);
+	char buf[kMaxStringLength];
 	va_list args;
 	va_start(args, format);
-	vfprintf(file, format, args);
+	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
-	fprintf(file, "\n");
 
-	fclose(file);
+	logging::LogManager::Info(buf, {{"log_type", "imm"}});
 }
 
 void err_log(const char *format, ...) {
@@ -258,19 +231,12 @@ void err_log(const char *format, ...) {
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
+	logging::LogManager::Error(buf_, {{"log_type", "error"}});
 	mudlog(buf_, LGH, kLvlImmortal, SYSLOG, true);
 }
 
 void ip_log(const char *ip) {
-	FILE *iplog;
-
-	if (!(iplog = fopen("../log/ip.log", "a"))) {
-		log("SYSERR: ../log/ip.log");
-		return;
-	}
-
-	fprintf(iplog, "%s\n", ip);
-	fclose(iplog);
+	logging::LogManager::Info(ip, {{"log_type", "ip"}});
 }
 
 /*

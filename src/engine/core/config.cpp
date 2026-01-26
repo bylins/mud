@@ -22,6 +22,10 @@
 #include "engine/structs/meta_enum.h"
 
 #if CIRCLE_UNIX
+#ifdef WITH_OTEL
+#include "engine/observability/otel_provider.h"
+#endif
+using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
 #endif
 
@@ -690,7 +694,12 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_msdp_disabled(false),
 	m_msdp_debug(false),
 	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
-	m_changelog_format(Boards::constants::loader_formats::GIT) {
+	m_changelog_format(Boards::constants::loader_formats::GIT),
+	m_telemetry_enabled(false),
+	m_telemetry_endpoint("http://localhost:4318"),
+	m_telemetry_service_name("bylins-mud"),
+	m_telemetry_service_version("1.0.0"),
+	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -710,6 +719,8 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_boards_configuration(&root);
 		load_external_triggers(&root);
 		load_statistics_configuration(&root);
+		load_telemetry_configuration_impl(&root);
+		load_telemetry_configuration(&root);
 	}
 	catch (const std::exception &e) {
 		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << "\r\n";
@@ -760,4 +771,62 @@ bool CLogInfo::open() {
 
 RuntimeConfiguration runtime_config;
 
+void RuntimeConfiguration::load_telemetry_configuration_impl(const pugi::xml_node *root) {
+	const auto telemetry = root->child("telemetry");
+	if (!telemetry) {
+		return;
+	}
+
+	const auto enabled = telemetry.child("enabled");
+	if (enabled) {
+		const std::string value = enabled.child_value();
+		m_telemetry_enabled = (value == "true" || value == "1");
+	}
+
+	const auto otlp = telemetry.child("otlp");
+	if (otlp) {
+		const auto endpoint = otlp.child("endpoint");
+		if (endpoint) {
+			m_telemetry_endpoint = endpoint.child_value();
+		}
+	}
+
+	const auto service = telemetry.child("service");
+	if (service) {
+		const auto name = service.child("name");
+		if (name) {
+			m_telemetry_service_name = name.child_value();
+		}
+		const auto version = service.child("version");
+		if (version) {
+			m_telemetry_service_version = version.child_value();
+		}
+	}
+
+	const auto logs = telemetry.child("logs");
+	if (logs) {
+		const auto mode = logs.child("mode");
+		if (mode) {
+			const std::string mode_str = mode.child_value();
+			if (mode_str == "file-only") {
+				m_telemetry_log_mode = ETelemetryLogMode::kFileOnly;
+			} else if (mode_str == "otel-only") {
+				m_telemetry_log_mode = ETelemetryLogMode::kOtelOnly;
+			} else if (mode_str == "duplicate") {
+				m_telemetry_log_mode = ETelemetryLogMode::kDuplicate;
+			}
+		}
+	}
+}
+
+void RuntimeConfiguration::load_telemetry_configuration(const pugi::xml_node *) {
+#ifdef WITH_OTEL
+	if (m_telemetry_enabled) {
+		observability::OtelProvider::Instance().Initialize(
+			m_telemetry_endpoint,
+			m_telemetry_service_name,
+			m_telemetry_service_version);
+	}
+#endif
+}
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

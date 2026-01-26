@@ -123,4 +123,29 @@
 		</server>
 	</statistics>
 	-->
+
+	<telemetry>
+		<enabled>true</enabled>
+		
+		<otlp>
+			<endpoint>http://localhost:4318</endpoint>
+			<protocol>http</protocol>
+		</otlp>
+		
+		<service>
+			<name>bylins-mud</name>
+			<version>1.0.0</version>
+			<environment>development</environment>
+		</service>
+		
+		<logs>
+			<mode>file-only</mode>
+		</logs>
+		
+		<batch>
+			<max_queue_size>2048</max_queue_size>
+			<schedule_delay_millis>5000</schedule_delay_millis>
+			<max_export_batch_size>512</max_export_batch_size>
+		</batch>
+	</telemetry>
 </configuration>

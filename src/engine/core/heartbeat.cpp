@@ -26,6 +26,8 @@
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/cmd_god/do_set_all.h"
+#include "engine/observability/otel_traces.h"
+#include "engine/observability/otel_metrics.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
@@ -557,12 +559,34 @@ void Heartbeat::operator()(const int missed_pulses) {
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	m_measurements.add(label, pulse_number(), execution_time.count());
-	if (GlobalObjects::stats_sender().ready()) {
-		influxdb::Record record("heartbeat");
-		record.add_tag("pulse", pulse_number());
-		record.add_field("duration", execution_time.count());
-		GlobalObjects::stats_sender().send(record);
+
+#ifdef WITH_OTEL
+	static int debug_counter = 0;
+	if (++debug_counter % 250 == 0) {  // Every 10 seconds
+		char debug_buf[256];
+		snprintf(debug_buf, sizeof(debug_buf), "DEBUG: Heartbeat OTEL called, label.size=%zu, pulse_mod=%lld", 
+			label.size(), pulse_number() % 25);
+		mudlog(debug_buf, CMP, kLvlImmortal, SYSLOG, true);
 	}
+	// 1. Metrics for each executed step
+	for (const auto& [step_index, step_time] : label) {
+		if (step_index < m_steps.size()) {
+			std::map<std::string, std::string> step_attrs;
+			step_attrs["step"] = m_steps[step_index].name();
+			observability::OtelMetrics::RecordHistogram("heartbeat.step.duration", step_time, step_attrs);
+		}
+	}
+	
+	// 2. Total pulse duration with modulo
+	std::map<std::string, std::string> pulse_attrs;
+	pulse_attrs["pulse_mod"] = std::to_string(pulse_number() % 25);
+	observability::OtelMetrics::RecordHistogram("heartbeat.total.duration", execution_time.count(), pulse_attrs);
+	
+	// 3. Record missed pulses if any
+	if (missed_pulses > 0) {
+		observability::OtelMetrics::RecordCounter("heartbeat.missed_pulses_total", missed_pulses);
+	}
+#endif
 }
 
 long long Heartbeat::period() const {

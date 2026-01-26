@@ -46,7 +46,6 @@ struct GlobalObjectsStorage {
   	InspectRequestDeque inspect_request_deque;
 	BanList *ban;
 	Heartbeat heartbeat;
-	std::shared_ptr<influxdb::Sender> stats_sender;
 	ZoneTable zone_table;
 	DailyQuest::DailyQuestMap daily_quests;
 	Strengthening strengthening;
@@ -169,13 +168,8 @@ Heartbeat &GlobalObjects::heartbeat() {
 	return global_objects().heartbeat;
 }
 
-influxdb::Sender &GlobalObjects::stats_sender() {
-	if (!global_objects().stats_sender) {
-		global_objects().stats_sender = std::make_shared<influxdb::Sender>(
-			runtime_config.statistics().host(), runtime_config.statistics().port());
-	}
-
-	return *global_objects().stats_sender;
+observability::OtelProvider &GlobalObjects::otel_provider() {
+	return observability::OtelProvider::Instance();
 }
 
 OutputThread &GlobalObjects::output_thread() {

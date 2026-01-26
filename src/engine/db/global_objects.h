@@ -15,9 +15,10 @@
 #include "engine/ui/cmd_god/do_inspect.h"
 #include "engine/scripting/dg_event.h"
 #include "gameplay/economics/shops_implementation.h"
+#include "engine/observability/otel_provider.h"
 #include "world_objects.h"
 #include "world_characters.h"
-#include "influxdb.h"
+#include "engine/observability/otel_provider.h"
 #include "engine/entities/zone.h"
 #include "gameplay/quests/daily_quest.h"
 #include "gameplay/skills/skills_info.h"
@@ -69,7 +70,7 @@ class GlobalObjects {
 	static SetAllInspReqListType &setall_inspect_list();
 	static BanList *&ban();
 	static Heartbeat &heartbeat();
-	static influxdb::Sender &stats_sender();
+	static observability::OtelProvider &otel_provider();
 	static OutputThread &output_thread();
 	static ZoneTable &zone_table();
   	static RunestoneRoster &Runestones();
