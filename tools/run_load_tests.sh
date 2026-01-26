@@ -457,18 +457,42 @@ run_test() {
 
     # Wait for boot to complete (max 5 minutes)
     local waited=0
+    local boot_success=0
     while [ $waited -lt 300 ]; do
+        # Check if process is still alive
+        if ! kill -0 $pid 2>/dev/null; then
+            echo "  ✗ ERROR: Server process died unexpectedly"
+            echo "  Last 30 lines of syslog:"
+            tail -30 syslog 2>/dev/null || echo "  (no syslog found)"
+            cd "$MUD_DIR"
+            return 1
+        fi
+        
+        # Check if boot completed
         if LANG=C grep -qa "Boot db -- DONE" syslog 2>/dev/null; then
+            boot_success=1
             sleep 1
             break
         fi
+        
         sleep 1
         waited=$((waited + 1))
     done
 
-    # Kill server
-    kill $pid 2>/dev/null
-    wait $pid 2>/dev/null || true
+    # Kill server if still running
+    if kill -0 $pid 2>/dev/null; then
+        kill $pid 2>/dev/null
+        wait $pid 2>/dev/null || true
+    fi
+
+    # Check if boot succeeded
+    if [ $boot_success -eq 0 ]; then
+        echo "  ✗ ERROR: Boot timeout (5 minutes exceeded)"
+        echo "  Last 30 lines of syslog:"
+        tail -30 syslog 2>/dev/null || echo "  (no syslog found)"
+        cd "$MUD_DIR"
+        return 1
+    fi
 
     # Extract and display results
     if [ -f syslog ]; then
@@ -488,14 +512,14 @@ run_test() {
             echo "  $line"
         done
 
-        # Checksum timing (if enabled)
-        local chk_start=$(LANG=C grep -a "Calculating world checksums" syslog | head -1 | cut -d' ' -f2)
-        local chk_end=$(LANG=C grep -a "Detailed checksums saved" syslog | head -1 | cut -d' ' -f2)
-        if [ -n "$chk_start" ] && [ -n "$chk_end" ]; then
-            local chk_start_sec=$(echo "$chk_start" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
-            local chk_end_sec=$(echo "$chk_end" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
-            local chk_duration=$(echo "$chk_end_sec - $chk_start_sec" | bc)
-            echo "  Checksum time: ${chk_duration}s"
+        # Checksum calculation time
+        local cs_begin=$(LANG=C grep -a "Calculating world checksums" syslog | head -1 | cut -d' ' -f2)
+        local cs_done=$(LANG=C grep -a "Detailed buffers saved" syslog | head -1 | cut -d' ' -f2)
+        if [ -n "$cs_begin" ] && [ -n "$cs_done" ]; then
+            local cs_begin_sec=$(echo "$cs_begin" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
+            local cs_done_sec=$(echo "$cs_done" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
+            local cs_duration=$(echo "$cs_done_sec - $cs_begin_sec" | bc)
+            echo "  Checksum time: ${cs_duration}s"
         fi
 
         # Save checksums for comparison
@@ -507,6 +531,8 @@ run_test() {
         echo "  ERROR: Boot failed (no syslog)"
     fi
     echo ""
+    
+    cd "$MUD_DIR"
 }
 
 echo ""
