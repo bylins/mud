@@ -103,7 +103,10 @@ build_binary() {
     local cmake_opts="$2"
     local binary_name="$3"
     
-    echo "Building $binary_name..."
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Building: $binary_name"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     if [ ! -d "$build_dir" ]; then
         mkdir -p "$build_dir"
@@ -111,34 +114,47 @@ build_binary() {
     
     cd "$build_dir"
     
-    # Run cmake if CMakeCache.txt doesn't exist
+    # Run cmake if needed
     if [ ! -f CMakeCache.txt ]; then
-        echo "  Running cmake with options: $cmake_opts"
-        cmake $cmake_opts .. || {
-            echo "ERROR: cmake failed for $binary_name"
+        echo "[1/2] Configuring with CMake..."
+        echo "      Options: $cmake_opts"
+        cmake $cmake_opts .. > /tmp/build_${binary_name}_cmake.log 2>&1 || {
+            echo "✗ ERROR: CMake configuration failed"
+            echo "  Log: /tmp/build_${binary_name}_cmake.log"
             cd "$MUD_DIR"
             return 1
         }
+        echo "✓ CMake configuration complete"
+    else
+        echo "[1/2] Using cached CMake configuration"
     fi
     
-    # Build the binary
-    echo "  Compiling..."
+    # Build
+    echo "[2/2] Compiling (this may take a while)..."
+    echo "      Log: /tmp/build_${binary_name}.log"
+    echo "      Tip: Run 'tail -f /tmp/build_${binary_name}.log' in another terminal to watch progress"
+    echo ""
+    
     make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
-        echo "ERROR: Build failed for $binary_name"
-        echo "Log: /tmp/build_${binary_name}.log"
+        echo "✗ ERROR: Build failed"
+        echo "  Log: /tmp/build_${binary_name}.log"
+        echo "  Last 20 lines:"
+        tail -20 /tmp/build_${binary_name}.log
         cd "$MUD_DIR"
         return 1
     }
     
     cd "$MUD_DIR"
-    echo "  ✓ Built $build_dir/circle"
+    echo "✓ Successfully built $build_dir/circle"
+    echo ""
     return 0
 }
 
 
+
 # Function to setup small world (uses lib.template)
 setup_small_world() {
-    local loader="$1"  # legacy, sqlite, or yaml
+    local loader="$1"
     
     # Determine build directory
     if [ "$loader" = "legacy" ]; then
@@ -151,51 +167,67 @@ setup_small_world() {
     
     local dest_dir="$build_dir/small"
     
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Setting up: small world ($loader)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
     if [ "$loader" = "legacy" ]; then
-        # Legacy uses symlink to lib
-        rm -f "$dest_dir"  # Remove old symlink if exists
+        rm -f "$dest_dir"
         if [ ! -L "$dest_dir" ] && [ ! -d "$dest_dir" ]; then
-            echo "Setting up small_legacy (symlink to lib)..."
+            echo "Creating symlink: $dest_dir -> lib"
             ln -sf "$MUD_DIR/lib" "$dest_dir"
-            echo "  ✓ Created symlink $dest_dir -> lib"
+            echo "✓ Symlink created"
+        else
+            echo "✓ Already set up"
         fi
+        echo ""
         return 0
     fi
     
-    # For SQLite/YAML: convert from lib.template into build-specific directory
-    echo "Converting small world for $loader..."
+    # For SQLite/YAML: convert
+    echo "Converting from lib.template..."
+    echo "  Source: $MUD_DIR/lib.template"
+    echo "  Target: $dest_dir"
+    echo "  Format: $loader"
     
     mkdir -p "$dest_dir"
     
     if [ "$loader" = "sqlite" ]; then
+        echo "  Log: /tmp/convert_small_sqlite.log"
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
             -i "$MUD_DIR/lib.template" \
             -o "$dest_dir" \
             -f sqlite \
             --db "$dest_dir/world.db" > /tmp/convert_small_sqlite.log 2>&1 || {
-            echo "ERROR: SQLite conversion failed"
-            echo "Log: /tmp/convert_small_sqlite.log"
+            echo "✗ ERROR: Conversion failed"
+            echo "  Log: /tmp/convert_small_sqlite.log"
+            tail -10 /tmp/convert_small_sqlite.log
             return 1
         }
-        echo "  ✓ Created $dest_dir/world.db"
+        echo "✓ Created $dest_dir/world.db"
     elif [ "$loader" = "yaml" ]; then
+        echo "  Log: /tmp/convert_small_yaml.log"
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
             -i "$MUD_DIR/lib.template" \
             -o "$dest_dir" \
             -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
-            echo "ERROR: YAML conversion failed"
-            echo "Log: /tmp/convert_small_yaml.log"
+            echo "✗ ERROR: Conversion failed"
+            echo "  Log: /tmp/convert_small_yaml.log"
+            tail -10 /tmp/convert_small_yaml.log
             return 1
         }
-        echo "  ✓ Created $dest_dir/world/"
+        echo "✓ Created $dest_dir/world/"
     fi
     
+    echo ""
     return 0
 }
 
+
 # Function to setup full world (extracts from archive)
 setup_full_world() {
-    local loader="$1"  # legacy, sqlite, or yaml
+    local loader="$1"
     
     # Determine build directory
     if [ "$loader" = "legacy" ]; then
@@ -209,63 +241,82 @@ setup_full_world() {
     local dest_dir="$build_dir/full"
     
     if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
-        echo "WARNING: Full world archive not found: $FULL_WORLD_ARCHIVE"
-        echo "Set FULL_WORLD_ARCHIVE environment variable to override"
+        echo "⚠ WARNING: Full world archive not found: $FULL_WORLD_ARCHIVE"
+        echo "  Set FULL_WORLD_ARCHIVE environment variable to override"
         return 1
     fi
     
-    echo "Extracting full world for $loader..."
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Setting up: full world ($loader)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
-    # Extract directly to destination
+    echo "[1/3] Extracting archive..."
+    echo "      Source: $FULL_WORLD_ARCHIVE"
+    echo "      Target: $dest_dir"
+    
     mkdir -p "$dest_dir"
     tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" > /tmp/extract_full.log 2>&1 || {
-        echo "ERROR: Failed to extract $FULL_WORLD_ARCHIVE"
-        echo "Log: /tmp/extract_full.log"
+        echo "✗ ERROR: Extraction failed"
+        echo "  Log: /tmp/extract_full.log"
         return 1
     }
-    
-    echo "  ✓ Extracted to $dest_dir"
+    echo "✓ Extracted successfully"
     
     # Archive contains ./lib/ which extracts to $dest_dir/lib/
     if [ "$loader" = "legacy" ]; then
-        # For legacy: move lib/* up to dest_dir/ so world path is dest_dir/
+        echo "[2/3] Preparing legacy world..."
         mv "$dest_dir/lib/"* "$dest_dir/"
         rmdir "$dest_dir/lib"
-        echo "  ✓ Ready at $dest_dir"
-    elif [ "$loader" = "sqlite" ]; then
-        # For SQLite: convert and remove source
-        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
-            -i "$dest_dir/lib" \
-            -o "$dest_dir" \
-            -f sqlite \
-            --db "$dest_dir/world.db" > /tmp/convert_full_sqlite.log 2>&1 || {
-            echo "ERROR: SQLite conversion failed"
-            echo "Log: /tmp/convert_full_sqlite.log"
-            return 1
-        }
+        echo "✓ Ready at $dest_dir"
+    elif [ "$loader" = "sqlite" ] || [ "$loader" = "yaml" ]; then
+        echo "[2/3] Converting world data (this may take several minutes)..."
+        echo "      Format: $loader"
+        echo "      Log: /tmp/convert_full_${loader}.log"
+        echo "      Tip: Run 'tail -f /tmp/convert_full_${loader}.log' in another terminal to watch progress"
+        echo ""
+        
+        if [ "$loader" = "sqlite" ]; then
+            python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+                -i "$dest_dir/lib" \
+                -o "$dest_dir" \
+                -f sqlite \
+                --db "$dest_dir/world.db" > /tmp/convert_full_sqlite.log 2>&1 || {
+                echo "✗ ERROR: Conversion failed"
+                echo "  Log: /tmp/convert_full_sqlite.log"
+                tail -20 /tmp/convert_full_sqlite.log
+                return 1
+            }
+            echo "✓ Created $dest_dir/world.db"
+        else
+            python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+                -i "$dest_dir/lib" \
+                -o "$dest_dir" \
+                -f yaml > /tmp/convert_full_yaml.log 2>&1 || {
+                echo "✗ ERROR: Conversion failed"
+                echo "  Log: /tmp/convert_full_yaml.log"
+                tail -20 /tmp/convert_full_yaml.log
+                return 1
+            }
+            echo "✓ Created $dest_dir/world/"
+        fi
+        
+        echo "[3/3] Cleaning up..."
         rm -rf "$dest_dir/lib"
-        echo "  ✓ Created $dest_dir/world.db"
-    elif [ "$loader" = "yaml" ]; then
-        # For YAML: convert and remove source
-        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
-            -i "$dest_dir/lib" \
-            -o "$dest_dir" \
-            -f yaml > /tmp/convert_full_yaml.log 2>&1 || {
-            echo "ERROR: YAML conversion failed"
-            echo "Log: /tmp/convert_full_yaml.log"
-            return 1
-        }
-        rm -rf "$dest_dir/lib"
-        echo "  ✓ Created $dest_dir/world/"
+        echo "✓ Cleanup complete"
     fi
     
+    echo ""
     return 0
 }
 
-# Build all required binaries and setup worlds
-echo "=== Setting up prerequisites ==="
-echo ""
 
+# Build all required binaries and setup worlds
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  SETUP: Building binaries and preparing worlds"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
 # Determine which loaders are needed based on filters
 NEED_LEGACY=0
 NEED_SQLITE=0
@@ -458,6 +509,11 @@ run_test() {
     echo ""
 }
 
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Setup complete. Starting tests..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
 echo "=============================================="
 echo "World Loading Performance Tests"
 echo "Date: $(date)"
