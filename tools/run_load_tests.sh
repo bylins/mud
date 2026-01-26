@@ -46,7 +46,6 @@
 #
 
 MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-TEST_DIR="$MUD_DIR/test"
 LEGACY_BIN="$MUD_DIR/build_test/circle"
 SQLITE_BIN="$MUD_DIR/build_sqlite/circle"
 YAML_BIN="$MUD_DIR/build_yaml/circle"
@@ -136,14 +135,25 @@ build_binary() {
     return 0
 }
 
-# Function to setup small world (uses lib.template via symlinks)
+
+# Function to setup small world (uses lib.template)
 setup_small_world() {
-    local format="$1"  # legacy, sqlite, or yaml
+    local loader="$1"  # legacy, sqlite, or yaml
     
-    local dest_dir="$TEST_DIR/small_${format}"
+    # Determine build directory
+    if [ "$loader" = "legacy" ]; then
+        local build_dir="$MUD_DIR/build_test"
+    elif [ "$loader" = "sqlite" ]; then
+        local build_dir="$MUD_DIR/build_sqlite"
+    elif [ "$loader" = "yaml" ]; then
+        local build_dir="$MUD_DIR/build_yaml"
+    fi
     
-    if [ "$format" = "legacy" ]; then
-        # Legacy uses symlink to lib (created by CMake or setup_test_dirs.sh)
+    local dest_dir="$build_dir/small"
+    
+    if [ "$loader" = "legacy" ]; then
+        # Legacy uses symlink to lib
+        rm -f "$dest_dir"  # Remove old symlink if exists
         if [ ! -L "$dest_dir" ] && [ ! -d "$dest_dir" ]; then
             echo "Setting up small_legacy (symlink to lib)..."
             ln -sf "$MUD_DIR/lib" "$dest_dir"
@@ -152,13 +162,12 @@ setup_small_world() {
         return 0
     fi
     
-    # For SQLite/YAML: convert from lib.template into separate directory
-    # This prevents converted files from appearing in the repository
-    echo "Converting small world to $format..."
+    # For SQLite/YAML: convert from lib.template into build-specific directory
+    echo "Converting small world for $loader..."
     
     mkdir -p "$dest_dir"
     
-    if [ "$format" = "sqlite" ]; then
+    if [ "$loader" = "sqlite" ]; then
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
             --sqlite "$dest_dir/world.db" \
             "$MUD_DIR/lib.template" > /tmp/convert_small_sqlite.log 2>&1 || {
@@ -167,7 +176,7 @@ setup_small_world() {
             return 1
         }
         echo "  ✓ Created $dest_dir/world.db"
-    elif [ "$format" = "yaml" ]; then
+    elif [ "$loader" = "yaml" ]; then
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
             -o "$dest_dir" \
             -f yaml \
@@ -184,7 +193,18 @@ setup_small_world() {
 
 # Function to setup full world (extracts from archive)
 setup_full_world() {
-    local format="$1"  # legacy, sqlite, or yaml
+    local loader="$1"  # legacy, sqlite, or yaml
+    
+    # Determine build directory
+    if [ "$loader" = "legacy" ]; then
+        local build_dir="$MUD_DIR/build_test"
+    elif [ "$loader" = "sqlite" ]; then
+        local build_dir="$MUD_DIR/build_sqlite"
+    elif [ "$loader" = "yaml" ]; then
+        local build_dir="$MUD_DIR/build_yaml"
+    fi
+    
+    local dest_dir="$build_dir/full"
     
     if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
         echo "WARNING: Full world archive not found: $FULL_WORLD_ARCHIVE"
@@ -192,13 +212,11 @@ setup_full_world() {
         return 1
     fi
     
-    local dest_dir="$TEST_DIR/full_${format}"
-    
     # Extract archive to temporary location
     local temp_extract="/tmp/full_world_$$"
     mkdir -p "$temp_extract"
     
-    echo "Extracting full world for $format..."
+    echo "Extracting full world for $loader..."
     tar -xzf "$FULL_WORLD_ARCHIVE" -C "$temp_extract" > /tmp/extract_full.log 2>&1 || {
         echo "ERROR: Failed to extract $FULL_WORLD_ARCHIVE"
         echo "Log: /tmp/extract_full.log"
@@ -220,12 +238,12 @@ setup_full_world() {
     
     echo "  Extracted to $temp_extract"
     
-    if [ "$format" = "legacy" ]; then
+    if [ "$loader" = "legacy" ]; then
         # For legacy: just copy the extracted lib
         rm -rf "$dest_dir"
         cp -r "$extracted_lib" "$dest_dir"
         echo "  ✓ Copied to $dest_dir"
-    elif [ "$format" = "sqlite" ]; then
+    elif [ "$loader" = "sqlite" ]; then
         # For SQLite: convert to database
         mkdir -p "$dest_dir"
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
@@ -237,7 +255,7 @@ setup_full_world() {
             return 1
         }
         echo "  ✓ Created $dest_dir/world.db"
-    elif [ "$format" = "yaml" ]; then
+    elif [ "$loader" = "yaml" ]; then
         # For YAML: convert to YAML files
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
             -o "$dest_dir" \
@@ -305,13 +323,13 @@ fi
 
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
-    if [ $NEED_LEGACY -eq 1 ] && [ ! -e "$TEST_DIR/small_legacy" ]; then
+    if [ $NEED_LEGACY -eq 1 ] && [ ! -e "$MUD_DIR/build_test/small" ]; then
         setup_small_world "legacy" || exit 1
     fi
-    if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$TEST_DIR/small_sqlite/world.db" ]; then
+    if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ]; then
         setup_small_world "sqlite" || exit 1
     fi
-    if [ $NEED_YAML -eq 1 ] && [ ! -d "$TEST_DIR/small_yaml/world" ]; then
+    if [ $NEED_YAML -eq 1 ] && [ ! -d "$MUD_DIR/build_yaml/small/world" ]; then
         setup_small_world "yaml" || exit 1
     fi
 fi
@@ -321,13 +339,13 @@ if [ $NEED_FULL -eq 1 ]; then
         echo "WARNING: Full world tests skipped - archive not found: $FULL_WORLD_ARCHIVE"
         NEED_FULL=0
     else
-        if [ $NEED_LEGACY -eq 1 ] && [ ! -d "$TEST_DIR/full_legacy" ]; then
+        if [ $NEED_LEGACY -eq 1 ] && [ ! -d "$MUD_DIR/build_test/full" ]; then
             setup_full_world "legacy" || exit 1
         fi
-        if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$TEST_DIR/full_sqlite/world.db" ]; then
+        if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$MUD_DIR/build_sqlite/full/world.db" ]; then
             setup_full_world "sqlite" || exit 1
         fi
-        if [ $NEED_YAML -eq 1 ] && [ ! -d "$TEST_DIR/full_yaml/world" ]; then
+        if [ $NEED_YAML -eq 1 ] && [ ! -d "$MUD_DIR/build_yaml/full/world" ]; then
             setup_full_world "yaml" || exit 1
         fi
     fi
@@ -474,24 +492,24 @@ echo ""
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     echo "=== SMALL WORLD ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$TEST_DIR/small_legacy" ""
-    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$TEST_DIR/small_legacy" "-C"
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$TEST_DIR/small_sqlite" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$TEST_DIR/small_sqlite" "-C"
-    [ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/small_yaml" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$TEST_DIR/small_yaml" ""
-    [ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/small_yaml" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$TEST_DIR/small_yaml" "-C"
+    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
+    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-C"
+    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
+    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-C"
+    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
+    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-C"
 fi
 
 # Full World Tests
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo "=== FULL WORLD ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$TEST_DIR/full_legacy" ""
-    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$TEST_DIR/full_legacy" "-C"
-    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$TEST_DIR/full_sqlite" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$TEST_DIR/full_sqlite" "-C"
-    [ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/full_yaml" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$TEST_DIR/full_yaml" ""
-    [ -n "$YAML_BIN" ] && [ -d "$TEST_DIR/full_yaml" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$TEST_DIR/full_yaml" "-C"
+    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" ""
+    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "-C"
+    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
+    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "-C"
+    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
+    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-C"
 fi
 
 # Compare checksums (only if checksums were calculated)
