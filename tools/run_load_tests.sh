@@ -39,6 +39,7 @@
 #   --checksums       Run only tests WITH checksum calculation
 #   --no-checksums    Run only tests WITHOUT checksum calculation
 #   --quick           Run quick comparison: Small_Legacy_checksums vs Small_YAML_checksums
+#   --rebuild         Force full rebuild (make clean && make)
 #   --help            Show this help
 #
 # ENVIRONMENT VARIABLES:
@@ -55,6 +56,7 @@ FILTER_LOADER=""
 FILTER_WORLD=""
 FILTER_CHECKSUMS=""
 QUICK_MODE=0
+REBUILD_MODE=0
 
 for arg in "$@"; do
     case "$arg" in
@@ -72,6 +74,9 @@ for arg in "$@"; do
             ;;
         --quick)
             QUICK_MODE=1
+            ;;
+        --rebuild)
+            REBUILD_MODE=1
             ;;
         --help)
             head -n 46 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
@@ -134,17 +139,40 @@ build_binary() {
     echo "      Log: /tmp/build_${binary_name}.log"
     echo "      Tip: Run 'tail -f /tmp/build_${binary_name}.log' in another terminal to watch progress"
     echo ""
+    # Clean if rebuild requested
+    if [ $REBUILD_MODE -eq 1 ]; then
+        echo "      Running make clean (rebuild mode)..."
+        make clean > /tmp/build_${binary_name}.log 2>&1
+        make circle -j$(nproc) >> /tmp/build_${binary_name}.log 2>&1 || {
+            echo "✗ ERROR: Build failed"
+            echo "  Log: /tmp/build_${binary_name}.log"
+            echo "  Last 20 lines:"
+            tail -20 /tmp/build_${binary_name}.log
+            cd "$MUD_DIR"
+            return 1
+        }
+    else
+        make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
+            echo "✗ ERROR: Build failed"
+            echo "  Log: /tmp/build_${binary_name}.log"
+            echo "  Last 20 lines:"
+            tail -20 /tmp/build_${binary_name}.log
+            cd "$MUD_DIR"
+            return 1
+        }
+    fi
     
-    make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
-        echo "✗ ERROR: Build failed"
+    cd "$MUD_DIR"
+    
+    # Verify binary was created
+    if [ ! -x "$build_dir/circle" ]; then
+        echo "✗ ERROR: Binary not created despite successful make"
         echo "  Log: /tmp/build_${binary_name}.log"
         echo "  Last 20 lines:"
         tail -20 /tmp/build_${binary_name}.log
         cd "$MUD_DIR"
         return 1
-    }
-    
-    cd "$MUD_DIR"
+    fi
     echo "✓ Successfully built $build_dir/circle"
     echo ""
     return 0
@@ -185,13 +213,37 @@ setup_small_world() {
         return 0
     fi
     
-    # For SQLite/YAML: convert
-    echo "Converting from lib.template..."
-    echo "  Source: $MUD_DIR/lib.template"
-    echo "  Target: $dest_dir"
-    echo "  Format: $loader"
+    # For SQLite/YAML: reconfigure CMake to recreate small directory with symlinks
+    echo "Reconfiguring CMake to create small world structure..."
     
-    mkdir -p "$dest_dir"
+    cd "$build_dir"
+    if [ "$loader" = "sqlite" ]; then
+        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test .. > /tmp/cmake_small_sqlite.log 2>&1 || {
+            echo "✗ ERROR: CMake reconfiguration failed"
+            echo "  Log: /tmp/cmake_small_sqlite.log"
+            cd "$MUD_DIR"
+            return 1
+        }
+    elif [ "$loader" = "yaml" ]; then
+        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test .. > /tmp/cmake_small_yaml.log 2>&1 || {
+            echo "✗ ERROR: CMake reconfiguration failed"
+            echo "  Log: /tmp/cmake_small_yaml.log"
+            cd "$MUD_DIR"
+            return 1
+        }
+    fi
+    cd "$MUD_DIR"
+    echo "✓ CMake recreated $dest_dir with symlinks"
+    
+    # (lib.template is incomplete - missing text/help/ etc.)
+    for dir in text misc cfg; do
+        if [ -e "$MUD_DIR/lib/$dir" ]; then
+            ln -sfn "$MUD_DIR/lib/$dir" "$dest_dir/$dir"
+        fi
+    done
+    echo "✓ Fixed text/misc/cfg symlinks to use lib"
+    
+    echo "Converting world data to $loader format..."
     
     if [ "$loader" = "sqlite" ]; then
         echo "  Log: /tmp/convert_small_sqlite.log"
@@ -223,8 +275,6 @@ setup_small_world() {
     echo ""
     return 0
 }
-
-
 # Function to setup full world (extracts from archive)
 setup_full_world() {
     local loader="$1"
@@ -343,33 +393,33 @@ fi
 
 # Build binaries if needed
 if [ $NEED_LEGACY -eq 1 ]; then
-    if [ ! -x "$LEGACY_BIN" ]; then
-        build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Test" "legacy" || exit 1
-    fi
+    
+    build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Test" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
-    if [ ! -x "$SQLITE_BIN" ]; then
-        build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test" "sqlite" || exit 1
-    fi
+    
+    build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test" "sqlite" || exit 1
 fi
-
 if [ $NEED_YAML -eq 1 ]; then
-    if [ ! -x "$YAML_BIN" ]; then
-        build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test" "yaml" || exit 1
-    fi
-fi
+    
 
+    build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test" "yaml" || exit 1
+fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
     if [ $NEED_LEGACY -eq 1 ] && [ ! -e "$MUD_DIR/build_test/small" ]; then
         setup_small_world "legacy" || exit 1
     fi
-    if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ]; then
+    if [ $NEED_SQLITE -eq 1 ]; then
+        if [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ] || [ ! -L "$MUD_DIR/build_sqlite/small/cfg" ]; then
         setup_small_world "sqlite" || exit 1
+        fi
     fi
-    if [ $NEED_YAML -eq 1 ] && [ ! -d "$MUD_DIR/build_yaml/small/world" ]; then
+    if [ $NEED_YAML -eq 1 ]; then
+        if [ ! -d "$MUD_DIR/build_yaml/small/world" ] || [ ! -L "$MUD_DIR/build_yaml/small/cfg" ]; then
         setup_small_world "yaml" || exit 1
+        fi
     fi
 fi
 
@@ -448,28 +498,36 @@ run_test() {
 
     echo "--- $name ---"
 
-    cd "$test_dir"
-    rm -rf syslog checksums_detailed.txt checksums_buffers 2>/dev/null || true
+    local work_dir="$(dirname "$test_dir")"
+    local data_dir="$(basename "$test_dir")"
+    cd "$work_dir"
+    rm -rf "$data_dir/syslog" "$data_dir/checksums_detailed.txt" "$data_dir/checksums_buffers" 2>/dev/null || true
 
     # Start server in background
-    "$binary" $extra_flags 4000 > /dev/null 2>&1 &
-    local pid=$!
+    echo "  Running: $binary -d $data_dir $extra_flags 4000"
+    "$binary" -d "$data_dir" $extra_flags 4000 > "$data_dir/stdout.log" 2>&1 &
+
+    # Wait for syslog to appear (max 10 seconds)
+    local waited=0
+    while [ $waited -lt 60 ] && [ ! -f "$data_dir/syslog" ]; do
+        sleep 0.5
+        waited=$((waited + 1))
+    done
+    
+    if [ ! -f "$data_dir/syslog" ]; then
+        echo "  ✗ ERROR: Server did not create syslog"
+        cat "$data_dir/stdout.log" 2>/dev/null || echo "  (no stdout log)"
+        cd "$MUD_DIR"
+        return 1
+    fi
 
     # Wait for boot to complete (max 5 minutes)
-    local waited=0
+    waited=0
     local boot_success=0
     while [ $waited -lt 300 ]; do
-        # Check if process is still alive
-        if ! kill -0 $pid 2>/dev/null; then
-            echo "  ✗ ERROR: Server process died unexpectedly"
-            echo "  Last 30 lines of syslog:"
-            tail -30 syslog 2>/dev/null || echo "  (no syslog found)"
-            cd "$MUD_DIR"
-            return 1
-        fi
         
         # Check if boot completed
-        if LANG=C grep -qa "Boot db -- DONE" syslog 2>/dev/null; then
+        if LANG=C grep -qa "Boot db -- DONE" "$data_dir/syslog" 2>/dev/null; then
             boot_success=1
             sleep 1
             break
@@ -479,17 +537,19 @@ run_test() {
         waited=$((waited + 1))
     done
 
-    # Kill server if still running
-    if kill -0 $pid 2>/dev/null; then
-        kill $pid 2>/dev/null
-        wait $pid 2>/dev/null || true
+    # Kill server - find by port
+    local server_pid=$(lsof -t -i:4000 2>/dev/null)
+    if [ -n "$server_pid" ]; then
+        kill $server_pid 2>/dev/null
+        sleep 1
+        kill -9 $server_pid 2>/dev/null || true
     fi
 
     # Check if boot succeeded
     if [ $boot_success -eq 0 ]; then
         echo "  ✗ ERROR: Boot timeout (5 minutes exceeded)"
         echo "  Last 30 lines of syslog:"
-        tail -30 syslog 2>/dev/null || echo "  (no syslog found)"
+        tail -30 "$data_dir/syslog" 2>/dev/null || echo "  (no syslog found)"
         cd "$MUD_DIR"
         return 1
     fi
@@ -565,7 +625,7 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
     [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-C"
     [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-C"
+    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-C "
     [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
     [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-C"
 fi

@@ -364,29 +364,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	if (!data_source)
 	{
 #ifdef HAVE_YAML
-		const char *yaml_world_dir = "world";
-		if (access(yaml_world_dir, F_OK) == 0 && access((std::string(yaml_world_dir) + "/dictionaries").c_str(), F_OK) == 0)
-		{
-			data_source = world_loader::CreateYamlDataSource(yaml_world_dir);
-		}
-		else
-		{
-			log("SYSERR: HAVE_YAML is defined but world/dictionaries not found. Exiting.");
-			exit(1);
-		}
+		data_source = world_loader::CreateYamlDataSource("world");
 #elif defined(HAVE_SQLITE)
-		const char *world_db_path = "world.db";
-		if (access(world_db_path, F_OK) == 0)
-		{
-			data_source = world_loader::CreateSqliteDataSource(world_db_path);
-		}
-		else
-		{
-			log("SYSERR: HAVE_SQLITE is defined but world.db not found. Exiting.");
-			exit(1);
-		}
+		data_source = world_loader::CreateSqliteDataSource("world.db");
 #else
-		// No SQLite support, use legacy loader
 		data_source = world_loader::CreateLegacyDataSource();
 #endif
 	}
