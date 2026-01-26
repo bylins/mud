@@ -49,6 +49,9 @@ private:
 
 	// Get list of zone vnums from index.yaml
 	std::vector<int> GetZoneList();
+	std::vector<int> GetMobList();
+	std::vector<int> GetObjectList();
+	std::vector<int> GetTriggerList();
 
 	// Zone loading helpers
 	void LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node);

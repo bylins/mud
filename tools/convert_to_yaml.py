@@ -571,6 +571,9 @@ class YamlSaver(BaseSaver):
     def __init__(self, output_dir):
         self.output_dir = Path(output_dir) / 'world'
         self._zone_vnums = set()
+        self._mob_vnums = set()
+        self._obj_vnums = set()
+        self._trigger_vnums = set()
 
     def __enter__(self):
         self._generate_dictionaries()
@@ -649,6 +652,9 @@ class YamlSaver(BaseSaver):
         out_file = out_dir / f"{mob['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
+        # Track enabled mobs for index
+        if mob.get('enabled', 1):
+            self._mob_vnums.add(mob['vnum'])
 
     def save_object(self, obj):
         yaml_content = obj_to_yaml(obj)
@@ -656,6 +662,9 @@ class YamlSaver(BaseSaver):
         out_file = out_dir / f"{obj['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
+        # Track enabled objects for index
+        if obj.get('enabled', 1):
+            self._obj_vnums.add(obj['vnum'])
 
     def save_room(self, room):
         yaml_content = room_to_yaml(room)
@@ -685,22 +694,51 @@ class YamlSaver(BaseSaver):
         out_file = out_dir / f"{trigger['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
+        # Track enabled triggers for index
+        if trigger.get('enabled', 1):
+            self._trigger_vnums.add(trigger['vnum'])
 
     def finalize(self):
-        """Create zone index file."""
-        if not self._zone_vnums:
-            return
+        """Create index files for all entity types."""
+        # Create zones index
+        if self._zone_vnums:
+            zones_dir = self.output_dir / 'zones'
+            zones_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['zones'] = CommentedSeq(sorted(self._zone_vnums))
+            with open(zones_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
 
-        zones_dir = self.output_dir / 'zones'
-        zones_dir.mkdir(parents=True, exist_ok=True)
+        # Create mobs index
+        if self._mob_vnums:
+            mobs_dir = self.output_dir / 'mobs'
+            mobs_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['mobs'] = CommentedSeq(sorted(self._mob_vnums))
+            with open(mobs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created mobs/index.yaml with {len(self._mob_vnums)} mobs")
 
-        index_data = CommentedMap()
-        index_data['zones'] = CommentedSeq(sorted(self._zone_vnums))
+        # Create objects index
+        if self._obj_vnums:
+            objs_dir = self.output_dir / 'objects'
+            objs_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['objects'] = CommentedSeq(sorted(self._obj_vnums))
+            with open(objs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created objects/index.yaml with {len(self._obj_vnums)} objects")
 
-        with open(zones_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
-            get_main_yaml().dump(index_data, f)
-
-        print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
+        # Create triggers index
+        if self._trigger_vnums:
+            triggers_dir = self.output_dir / 'triggers'
+            triggers_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['triggers'] = CommentedSeq(sorted(self._trigger_vnums))
+            with open(triggers_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created triggers/index.yaml with {len(self._trigger_vnums)} triggers")
 
 
 class SqliteSaver(BaseSaver):

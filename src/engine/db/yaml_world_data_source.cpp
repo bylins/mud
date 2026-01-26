@@ -107,6 +107,81 @@ std::vector<int> YamlWorldDataSource::GetZoneList()
 	return zones;
 }
 
+std::vector<int> YamlWorldDataSource::GetMobList()
+{
+	std::vector<int> mobs;
+	std::string index_path = m_world_dir + "/mobs/index.yaml";
+
+	try
+	{
+		YAML::Node root = YAML::LoadFile(index_path);
+		if (root["mobs"] && root["mobs"].IsSequence())
+		{
+			for (const auto &mob_node : root["mobs"])
+			{
+				mobs.push_back(mob_node.as<int>());
+			}
+		}
+	}
+	catch (const YAML::Exception &e)
+	{
+		// Index file is optional, if missing load all mobs
+		return mobs;
+	}
+
+	return mobs;
+}
+
+std::vector<int> YamlWorldDataSource::GetObjectList()
+{
+	std::vector<int> objects;
+	std::string index_path = m_world_dir + "/objects/index.yaml";
+
+	try
+	{
+		YAML::Node root = YAML::LoadFile(index_path);
+		if (root["objects"] && root["objects"].IsSequence())
+		{
+			for (const auto &obj_node : root["objects"])
+			{
+				objects.push_back(obj_node.as<int>());
+			}
+		}
+	}
+	catch (const YAML::Exception &e)
+	{
+		// Index file is optional, if missing load all objects
+		return objects;
+	}
+
+	return objects;
+}
+
+std::vector<int> YamlWorldDataSource::GetTriggerList()
+{
+	std::vector<int> triggers;
+	std::string index_path = m_world_dir + "/triggers/index.yaml";
+
+	try
+	{
+		YAML::Node root = YAML::LoadFile(index_path);
+		if (root["triggers"] && root["triggers"].IsSequence())
+		{
+			for (const auto &trigger_node : root["triggers"])
+			{
+				triggers.push_back(trigger_node.as<int>());
+			}
+		}
+	}
+	catch (const YAML::Exception &e)
+	{
+		// Index file is optional, if missing load all triggers
+		return triggers;
+	}
+
+	return triggers;
+}
+
 std::string YamlWorldDataSource::ConvertToKoi8r(const std::string &utf8_str) const
 {
 	if (utf8_str.empty())
@@ -477,6 +552,11 @@ void YamlWorldDataSource::LoadTriggers()
 		return;
 	}
 
+	// Get list of indexed triggers from index.yaml
+	std::vector<int> indexed_triggers = GetTriggerList();
+	std::set<int> indexed_trigger_set(indexed_triggers.begin(), indexed_triggers.end());
+	bool has_index = !indexed_triggers.empty();
+
 	// Collect all trigger files from root-level triggers/ directory
 	std::vector<std::pair<int, std::string>> trigger_files;
 	std::string trg_dir = m_world_dir + "/triggers";
@@ -491,6 +571,10 @@ void YamlWorldDataSource::LoadTriggers()
 			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
 
 			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
+
+			// Skip triggers not in index (if index exists)
+			if (has_index && indexed_trigger_set.find(vnum) == indexed_trigger_set.end()) continue;
+
 			trigger_files.emplace_back(vnum, trg_entry.path().string());
 		}
 	}
@@ -860,6 +944,11 @@ void YamlWorldDataSource::LoadMobs()
 		return;
 	}
 
+	// Get list of indexed mobs from index.yaml
+	std::vector<int> indexed_mobs = GetMobList();
+	std::set<int> indexed_mob_set(indexed_mobs.begin(), indexed_mobs.end());
+	bool has_index = !indexed_mobs.empty();
+
 	// Collect all mob files from root-level mobs/ directory
 	std::vector<std::pair<int, std::string>> mob_files;
 	std::string mobs_dir = m_world_dir + "/mobs";
@@ -874,6 +963,10 @@ void YamlWorldDataSource::LoadMobs()
 			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
 
 			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
+
+			// Skip mobs not in index (if index exists)
+			if (has_index && indexed_mob_set.find(vnum) == indexed_mob_set.end()) continue;
+
 			mob_files.emplace_back(vnum, mob_entry.path().string());
 		}
 	}
@@ -1132,6 +1225,11 @@ void YamlWorldDataSource::LoadObjects()
 		return;
 	}
 
+	// Get list of indexed objects from index.yaml
+	std::vector<int> indexed_objects = GetObjectList();
+	std::set<int> indexed_obj_set(indexed_objects.begin(), indexed_objects.end());
+	bool has_index = !indexed_objects.empty();
+
 	// Collect all object files from root-level objects/ directory
 	std::vector<std::pair<int, std::string>> obj_files;
 	std::string objs_dir = m_world_dir + "/objects";
@@ -1146,6 +1244,10 @@ void YamlWorldDataSource::LoadObjects()
 			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
 
 			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
+
+			// Skip objects not in index (if index exists)
+			if (has_index && indexed_obj_set.find(vnum) == indexed_obj_set.end()) continue;
+
 			obj_files.emplace_back(vnum, obj_entry.path().string());
 		}
 	}
