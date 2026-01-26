@@ -218,14 +218,14 @@ setup_small_world() {
     
     cd "$build_dir"
     if [ "$loader" = "sqlite" ]; then
-        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test .. > /tmp/cmake_small_sqlite.log 2>&1 || {
+        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_sqlite.log 2>&1 || {
             echo "✗ ERROR: CMake reconfiguration failed"
             echo "  Log: /tmp/cmake_small_sqlite.log"
             cd "$MUD_DIR"
             return 1
         }
     elif [ "$loader" = "yaml" ]; then
-        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test .. > /tmp/cmake_small_yaml.log 2>&1 || {
+        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_yaml.log 2>&1 || {
             echo "✗ ERROR: CMake reconfiguration failed"
             echo "  Log: /tmp/cmake_small_yaml.log"
             cd "$MUD_DIR"
@@ -399,17 +399,17 @@ fi
 # Build binaries if needed
 if [ $NEED_LEGACY -eq 1 ]; then
     
-    build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Test" "legacy" || exit 1
+    build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Release" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
     
-    build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test" "sqlite" || exit 1
+    build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Release" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
     
 
-    build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test" "yaml" || exit 1
+    build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Release" "yaml" || exit 1
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
