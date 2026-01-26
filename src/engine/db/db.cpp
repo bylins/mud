@@ -743,6 +743,7 @@ void zone_traffic_load() {
 
 // body of the booting system
 void BootMudDataBase() {
+	auto boot_start = std::chrono::high_resolution_clock::now();
 	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
 
 	log("Boot db -- BEGIN.");
@@ -1128,6 +1129,10 @@ void BootMudDataBase() {
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
+
+	auto boot_end = std::chrono::high_resolution_clock::now();
+	auto boot_duration = std::chrono::duration<double>(boot_end - boot_start).count();
+	log("Boot db total time: %.3f seconds", boot_duration);
 
 }
 

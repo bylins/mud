@@ -350,10 +350,15 @@ setup_full_world() {
             }
             echo "✓ Created $dest_dir/world/"
         fi
+
+		# Move cfg, misc, text, etc from lib/ to root
+		for dir in cfg misc text etc plrstuff; do
+			if [ -d "$dest_dir/lib/$dir" ]; then
+				mv "$dest_dir/lib/$dir" "$dest_dir/"
+			fi
+		done
+		rm -rf "$dest_dir/lib"  # Remove now-empty lib/
         
-        echo "[3/3] Cleaning up..."
-        rm -rf "$dest_dir/lib"
-        echo "✓ Cleanup complete"
     fi
     
     echo ""
@@ -555,10 +560,10 @@ run_test() {
     fi
 
     # Extract and display results
-    if [ -f syslog ]; then
+    if [ -f "$data_dir/syslog" ]; then
         # Boot times
-        local begin=$(LANG=C grep -a "Boot db -- BEGIN" syslog | head -1 | cut -d' ' -f2)
-        local done_time=$(LANG=C grep -a "Boot db -- DONE" syslog | head -1 | cut -d' ' -f2)
+        local begin=$(LANG=C grep -a "Boot db -- BEGIN" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
+        local done_time=$(LANG=C grep -a "Boot db -- DONE" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
 
         if [ -n "$begin" ] && [ -n "$done_time" ]; then
             local begin_sec=$(echo "$begin" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
@@ -568,13 +573,13 @@ run_test() {
         fi
 
         # Object counts
-        LANG=C grep -aoE "(Zones:|Rooms:|Mobs:|Objects:|Triggers:).*" syslog | tail -5 | while read line; do
+        LANG=C grep -aoE "(Zones:|Rooms:|Mobs:|Objects:|Triggers:).*" "$data_dir/syslog" | tail -5 | while read line; do
             echo "  $line"
         done
 
         # Checksum calculation time
-        local cs_begin=$(LANG=C grep -a "Calculating world checksums" syslog | head -1 | cut -d' ' -f2)
-        local cs_done=$(LANG=C grep -a "Detailed buffers saved" syslog | head -1 | cut -d' ' -f2)
+        local cs_begin=$(LANG=C grep -a "Calculating world checksums" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
+        local cs_done=$(LANG=C grep -a "Detailed buffers saved" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
         if [ -n "$cs_begin" ] && [ -n "$cs_done" ]; then
             local cs_begin_sec=$(echo "$cs_begin" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
             local cs_done_sec=$(echo "$cs_done" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
@@ -583,9 +588,9 @@ run_test() {
         fi
 
         # Save checksums for comparison
-        if [ -f checksums_detailed.txt ]; then
+        if [ -f "$data_dir/checksums_detailed.txt" ]; then
             local fname=$(echo "$name" | tr ' ' '_')
-            cp checksums_detailed.txt "/tmp/${fname}_checksums.txt"
+            cp "$data_dir/checksums_detailed.txt" "/tmp/${fname}_checksums.txt"
         fi
     else
         echo "  ERROR: Boot failed (no syslog)"
