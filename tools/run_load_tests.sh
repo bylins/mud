@@ -169,8 +169,10 @@ setup_small_world() {
     
     if [ "$loader" = "sqlite" ]; then
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
-            --sqlite "$dest_dir/world.db" \
-            "$MUD_DIR/lib.template" > /tmp/convert_small_sqlite.log 2>&1 || {
+            -i "$MUD_DIR/lib.template" \
+            -o "$dest_dir" \
+            -f sqlite \
+            --db "$dest_dir/world.db" > /tmp/convert_small_sqlite.log 2>&1 || {
             echo "ERROR: SQLite conversion failed"
             echo "Log: /tmp/convert_small_sqlite.log"
             return 1
@@ -178,9 +180,9 @@ setup_small_world() {
         echo "  ✓ Created $dest_dir/world.db"
     elif [ "$loader" = "yaml" ]; then
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            -i "$MUD_DIR/lib.template" \
             -o "$dest_dir" \
-            -f yaml \
-            "$MUD_DIR/lib.template" > /tmp/convert_small_yaml.log 2>&1 || {
+            -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
             echo "ERROR: YAML conversion failed"
             echo "Log: /tmp/convert_small_yaml.log"
             return 1
@@ -247,8 +249,10 @@ setup_full_world() {
         # For SQLite: convert to database
         mkdir -p "$dest_dir"
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
-            --sqlite "$dest_dir/world.db" \
-            "$extracted_lib" > /tmp/convert_full_sqlite.log 2>&1 || {
+            -i "$extracted_lib" \
+            -o "$dest_dir" \
+            -f sqlite \
+            --db "$dest_dir/world.db" > /tmp/convert_full_sqlite.log 2>&1 || {
             echo "ERROR: SQLite conversion failed"
             echo "Log: /tmp/convert_full_sqlite.log"
             rm -rf "$temp_extract"
@@ -258,9 +262,9 @@ setup_full_world() {
     elif [ "$loader" = "yaml" ]; then
         # For YAML: convert to YAML files
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            -i "$extracted_lib" \
             -o "$dest_dir" \
-            -f yaml \
-            "$extracted_lib" > /tmp/convert_full_yaml.log 2>&1 || {
+            -f yaml > /tmp/convert_full_yaml.log 2>&1 || {
             echo "ERROR: YAML conversion failed"
             echo "Log: /tmp/convert_full_yaml.log"
             rm -rf "$temp_extract"
