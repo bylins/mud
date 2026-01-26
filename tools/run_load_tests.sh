@@ -200,24 +200,18 @@ setup_small_world() {
     echo "Setting up: small world ($loader)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
-    if [ "$loader" = "legacy" ]; then
-        rm -f "$dest_dir"
-        if [ ! -L "$dest_dir" ] && [ ! -d "$dest_dir" ]; then
-            echo "Creating symlink: $dest_dir -> lib"
-            ln -sf "$MUD_DIR/lib" "$dest_dir"
-            echo "✓ Symlink created"
-        else
-            echo "✓ Already set up"
-        fi
-        echo ""
-        return 0
-    fi
-    
-    # For SQLite/YAML: reconfigure CMake to recreate small directory with symlinks
+    # Reconfigure CMake to recreate small directory with symlinks
     echo "Reconfiguring CMake to create small world structure..."
-    
+
     cd "$build_dir"
-    if [ "$loader" = "sqlite" ]; then
+    if [ "$loader" = "legacy" ]; then
+        cmake -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_legacy.log 2>&1 || {
+            echo "✗ ERROR: CMake reconfiguration failed"
+            echo "  Log: /tmp/cmake_small_legacy.log"
+            cd "$MUD_DIR"
+            return 1
+        }
+    elif [ "$loader" = "sqlite" ]; then
         cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_sqlite.log 2>&1 || {
             echo "✗ ERROR: CMake reconfiguration failed"
             echo "  Log: /tmp/cmake_small_sqlite.log"
@@ -242,9 +236,15 @@ setup_small_world() {
         fi
     done
     echo "✓ Fixed text/misc/cfg symlinks to use lib"
-    
+
+    if [ "$loader" = "legacy" ]; then
+        echo "✓ Legacy world ready (using lib.template/world)"
+        echo ""
+        return 0
+    fi
+
     echo "Converting world data to $loader format..."
-    
+
     if [ "$loader" = "sqlite" ]; then
         echo "  Log: /tmp/convert_small_sqlite.log"
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
