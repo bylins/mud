@@ -1308,6 +1308,16 @@ void YamlWorldDataSource::LoadObjects()
 				}
 			}
 
+			// Match Legacy: remove transformed and ticktimer flags after loading
+			obj->unset_extraflag(EObjFlag::kTransformed);
+			obj->unset_extraflag(EObjFlag::kTicktimer);
+
+			// Match Legacy: override max_in_world for zonedecay/repop_decay objects
+			if (obj->has_flag(EObjFlag::kZonedacay) || obj->has_flag(EObjFlag::kRepopDecay))
+			{
+				obj->set_max_in_world(-1);
+			}
+
 			// Applies
 			int apply_idx = 0;
 			if (root["applies"] && root["applies"].IsSequence())
