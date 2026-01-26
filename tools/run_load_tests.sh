@@ -214,67 +214,51 @@ setup_full_world() {
         return 1
     fi
     
-    # Extract archive to temporary location
-    local temp_extract="/tmp/full_world_$$"
-    mkdir -p "$temp_extract"
-    
     echo "Extracting full world for $loader..."
-    tar -xzf "$FULL_WORLD_ARCHIVE" -C "$temp_extract" > /tmp/extract_full.log 2>&1 || {
+    
+    # Extract directly to destination
+    mkdir -p "$dest_dir"
+    tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" > /tmp/extract_full.log 2>&1 || {
         echo "ERROR: Failed to extract $FULL_WORLD_ARCHIVE"
         echo "Log: /tmp/extract_full.log"
-        rm -rf "$temp_extract"
         return 1
     }
     
-    # Find the extracted lib directory
-    local extracted_lib="$temp_extract/lib"
-    if [ ! -d "$extracted_lib" ]; then
-        # Maybe it extracted to world/lib or similar
-        extracted_lib=$(find "$temp_extract" -type d -name "lib" | head -1)
-        if [ -z "$extracted_lib" ]; then
-            echo "ERROR: Cannot find lib directory in extracted archive"
-            rm -rf "$temp_extract"
-            return 1
-        fi
-    fi
+    echo "  ✓ Extracted to $dest_dir"
     
-    echo "  Extracted to $temp_extract"
-    
+    # Archive contains ./lib/ which extracts to $dest_dir/lib/
     if [ "$loader" = "legacy" ]; then
-        # For legacy: just copy the extracted lib
-        rm -rf "$dest_dir"
-        cp -r "$extracted_lib" "$dest_dir"
-        echo "  ✓ Copied to $dest_dir"
+        # For legacy: move lib/* up to dest_dir/ so world path is dest_dir/
+        mv "$dest_dir/lib/"* "$dest_dir/"
+        rmdir "$dest_dir/lib"
+        echo "  ✓ Ready at $dest_dir"
     elif [ "$loader" = "sqlite" ]; then
-        # For SQLite: convert to database
-        mkdir -p "$dest_dir"
+        # For SQLite: convert and remove source
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
-            -i "$extracted_lib" \
+            -i "$dest_dir/lib" \
             -o "$dest_dir" \
             -f sqlite \
             --db "$dest_dir/world.db" > /tmp/convert_full_sqlite.log 2>&1 || {
             echo "ERROR: SQLite conversion failed"
             echo "Log: /tmp/convert_full_sqlite.log"
-            rm -rf "$temp_extract"
             return 1
         }
+        rm -rf "$dest_dir/lib"
         echo "  ✓ Created $dest_dir/world.db"
     elif [ "$loader" = "yaml" ]; then
-        # For YAML: convert to YAML files
+        # For YAML: convert and remove source
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
-            -i "$extracted_lib" \
+            -i "$dest_dir/lib" \
             -o "$dest_dir" \
             -f yaml > /tmp/convert_full_yaml.log 2>&1 || {
             echo "ERROR: YAML conversion failed"
             echo "Log: /tmp/convert_full_yaml.log"
-            rm -rf "$temp_extract"
             return 1
         }
+        rm -rf "$dest_dir/lib"
         echo "  ✓ Created $dest_dir/world/"
     fi
     
-    # Cleanup temp extraction
-    rm -rf "$temp_extract"
     return 0
 }
 
