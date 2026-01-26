@@ -569,6 +569,7 @@ void YamlWorldDataSource::LoadTriggers()
 			if (!trg_entry.is_regular_file()) continue;
 			std::string filename = trg_entry.path().filename().string();
 			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
+			if (filename == "index.yaml") continue; // Skip index file
 
 			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
 
@@ -961,6 +962,7 @@ void YamlWorldDataSource::LoadMobs()
 			if (!mob_entry.is_regular_file()) continue;
 			std::string filename = mob_entry.path().filename().string();
 			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
+			if (filename == "index.yaml") continue; // Skip index file
 
 			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
 
@@ -1242,6 +1244,7 @@ void YamlWorldDataSource::LoadObjects()
 			if (!obj_entry.is_regular_file()) continue;
 			std::string filename = obj_entry.path().filename().string();
 			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
+			if (filename == "index.yaml") continue; // Skip index file
 
 			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
 
