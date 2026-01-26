@@ -2,12 +2,12 @@
 #
 # Run world loading performance tests
 #
+# This script automatically builds required binaries and sets up test worlds.
+#
 # PREREQUISITES:
-#   1. Run ./tools/setup_test_dirs.sh to create test directories
-#   2. Build binaries:
-#      - build_test/circle (Legacy loader)
-#      - build_sqlite/circle (SQLite loader, with -DHAVE_SQLITE=ON)
-#      - build_yaml/circle (YAML loader, with -DHAVE_YAML=ON)
+#   - lib.template/ directory with small world data (from repository)
+#   - (Optional) Full world archive at ~/repos/world.tgz
+#     Override with: FULL_WORLD_ARCHIVE=/path/to/world.tgz ./tools/run_load_tests.sh
 #
 # USAGE:
 #   # Run all tests (default)
@@ -41,6 +41,9 @@
 #   --quick           Run quick comparison: Small_Legacy_checksums vs Small_YAML_checksums
 #   --help            Show this help
 #
+# ENVIRONMENT VARIABLES:
+#   FULL_WORLD_ARCHIVE   Path to full world archive (default: ~/repos/world.tgz)
+#
 
 MUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TEST_DIR="$MUD_DIR/test"
@@ -72,7 +75,7 @@ for arg in "$@"; do
             QUICK_MODE=1
             ;;
         --help)
-            grep "^#" "$0" | grep -v "^#!/" | sed 's/^# \?//'
+            head -n 46 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
             exit 0
             ;;
         *)
@@ -92,30 +95,248 @@ if [ $QUICK_MODE -eq 1 ]; then
     echo ""
 fi
 
-# Check prerequisites
-if [ ! -x "$LEGACY_BIN" ]; then
-    echo "WARNING: Legacy binary not found: $LEGACY_BIN"
-    echo "Run: cd build_test && make circle -j\$(nproc)"
-    LEGACY_BIN=""
+# Default location of full world archive
+FULL_WORLD_ARCHIVE="${FULL_WORLD_ARCHIVE:-$HOME/repos/world.tgz}"
+
+# Function to build a specific binary variant
+build_binary() {
+    local build_dir="$1"
+    local cmake_opts="$2"
+    local binary_name="$3"
+    
+    echo "Building $binary_name..."
+    
+    if [ ! -d "$build_dir" ]; then
+        mkdir -p "$build_dir"
+    fi
+    
+    cd "$build_dir"
+    
+    # Run cmake if CMakeCache.txt doesn't exist
+    if [ ! -f CMakeCache.txt ]; then
+        echo "  Running cmake with options: $cmake_opts"
+        cmake $cmake_opts .. || {
+            echo "ERROR: cmake failed for $binary_name"
+            cd "$MUD_DIR"
+            return 1
+        }
+    fi
+    
+    # Build the binary
+    echo "  Compiling..."
+    make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
+        echo "ERROR: Build failed for $binary_name"
+        echo "Log: /tmp/build_${binary_name}.log"
+        cd "$MUD_DIR"
+        return 1
+    }
+    
+    cd "$MUD_DIR"
+    echo "  ✓ Built $build_dir/circle"
+    return 0
+}
+
+# Function to setup small world (uses lib.template via symlinks)
+setup_small_world() {
+    local format="$1"  # legacy, sqlite, or yaml
+    
+    local dest_dir="$TEST_DIR/small_${format}"
+    
+    if [ "$format" = "legacy" ]; then
+        # Legacy uses symlink to lib (created by CMake or setup_test_dirs.sh)
+        if [ ! -L "$dest_dir" ] && [ ! -d "$dest_dir" ]; then
+            echo "Setting up small_legacy (symlink to lib)..."
+            ln -sf "$MUD_DIR/lib" "$dest_dir"
+            echo "  ✓ Created symlink $dest_dir -> lib"
+        fi
+        return 0
+    fi
+    
+    # For SQLite/YAML: convert from lib.template into separate directory
+    # This prevents converted files from appearing in the repository
+    echo "Converting small world to $format..."
+    
+    mkdir -p "$dest_dir"
+    
+    if [ "$format" = "sqlite" ]; then
+        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            --sqlite "$dest_dir/world.db" \
+            "$MUD_DIR/lib.template" > /tmp/convert_small_sqlite.log 2>&1 || {
+            echo "ERROR: SQLite conversion failed"
+            echo "Log: /tmp/convert_small_sqlite.log"
+            return 1
+        }
+        echo "  ✓ Created $dest_dir/world.db"
+    elif [ "$format" = "yaml" ]; then
+        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            -o "$dest_dir" \
+            -f yaml \
+            "$MUD_DIR/lib.template" > /tmp/convert_small_yaml.log 2>&1 || {
+            echo "ERROR: YAML conversion failed"
+            echo "Log: /tmp/convert_small_yaml.log"
+            return 1
+        }
+        echo "  ✓ Created $dest_dir/world/"
+    fi
+    
+    return 0
+}
+
+# Function to setup full world (extracts from archive)
+setup_full_world() {
+    local format="$1"  # legacy, sqlite, or yaml
+    
+    if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
+        echo "WARNING: Full world archive not found: $FULL_WORLD_ARCHIVE"
+        echo "Set FULL_WORLD_ARCHIVE environment variable to override"
+        return 1
+    fi
+    
+    local dest_dir="$TEST_DIR/full_${format}"
+    
+    # Extract archive to temporary location
+    local temp_extract="/tmp/full_world_$$"
+    mkdir -p "$temp_extract"
+    
+    echo "Extracting full world for $format..."
+    tar -xzf "$FULL_WORLD_ARCHIVE" -C "$temp_extract" > /tmp/extract_full.log 2>&1 || {
+        echo "ERROR: Failed to extract $FULL_WORLD_ARCHIVE"
+        echo "Log: /tmp/extract_full.log"
+        rm -rf "$temp_extract"
+        return 1
+    }
+    
+    # Find the extracted lib directory
+    local extracted_lib="$temp_extract/lib"
+    if [ ! -d "$extracted_lib" ]; then
+        # Maybe it extracted to world/lib or similar
+        extracted_lib=$(find "$temp_extract" -type d -name "lib" | head -1)
+        if [ -z "$extracted_lib" ]; then
+            echo "ERROR: Cannot find lib directory in extracted archive"
+            rm -rf "$temp_extract"
+            return 1
+        fi
+    fi
+    
+    echo "  Extracted to $temp_extract"
+    
+    if [ "$format" = "legacy" ]; then
+        # For legacy: just copy the extracted lib
+        rm -rf "$dest_dir"
+        cp -r "$extracted_lib" "$dest_dir"
+        echo "  ✓ Copied to $dest_dir"
+    elif [ "$format" = "sqlite" ]; then
+        # For SQLite: convert to database
+        mkdir -p "$dest_dir"
+        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            --sqlite "$dest_dir/world.db" \
+            "$extracted_lib" > /tmp/convert_full_sqlite.log 2>&1 || {
+            echo "ERROR: SQLite conversion failed"
+            echo "Log: /tmp/convert_full_sqlite.log"
+            rm -rf "$temp_extract"
+            return 1
+        }
+        echo "  ✓ Created $dest_dir/world.db"
+    elif [ "$format" = "yaml" ]; then
+        # For YAML: convert to YAML files
+        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            -o "$dest_dir" \
+            -f yaml \
+            "$extracted_lib" > /tmp/convert_full_yaml.log 2>&1 || {
+            echo "ERROR: YAML conversion failed"
+            echo "Log: /tmp/convert_full_yaml.log"
+            rm -rf "$temp_extract"
+            return 1
+        }
+        echo "  ✓ Created $dest_dir/world/"
+    fi
+    
+    # Cleanup temp extraction
+    rm -rf "$temp_extract"
+    return 0
+}
+
+# Build all required binaries and setup worlds
+echo "=== Setting up prerequisites ==="
+echo ""
+
+# Determine which loaders are needed based on filters
+NEED_LEGACY=0
+NEED_SQLITE=0
+NEED_YAML=0
+NEED_SMALL=0
+NEED_FULL=0
+
+if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "legacy" ]; then
+    NEED_LEGACY=1
+fi
+if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
+    NEED_SQLITE=1
+fi
+if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
+    NEED_YAML=1
 fi
 
-if [ ! -x "$SQLITE_BIN" ]; then
-    echo "WARNING: SQLite binary not found: $SQLITE_BIN"
-    echo "Run: cd build_sqlite && make circle -j\$(nproc)"
-    SQLITE_BIN=""
+if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
+    NEED_SMALL=1
+fi
+if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
+    NEED_FULL=1
 fi
 
-if [ ! -x "$YAML_BIN" ]; then
-    echo "WARNING: YAML binary not found: $YAML_BIN"
-    echo "Run: cd build_yaml && cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test .. && make circle -j\$(nproc)"
-    YAML_BIN=""
+# Build binaries if needed
+if [ $NEED_LEGACY -eq 1 ]; then
+    if [ ! -x "$LEGACY_BIN" ]; then
+        build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Test" "legacy" || exit 1
+    fi
 fi
 
-if [ ! -d "$TEST_DIR/small_legacy" ]; then
-    echo "ERROR: Test directories not set up"
-    echo "Run: ./tools/setup_test_dirs.sh"
-    exit 1
+if [ $NEED_SQLITE -eq 1 ]; then
+    if [ ! -x "$SQLITE_BIN" ]; then
+        build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test" "sqlite" || exit 1
+    fi
 fi
+
+if [ $NEED_YAML -eq 1 ]; then
+    if [ ! -x "$YAML_BIN" ]; then
+        build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test" "yaml" || exit 1
+    fi
+fi
+
+# Setup worlds
+if [ $NEED_SMALL -eq 1 ]; then
+    if [ $NEED_LEGACY -eq 1 ] && [ ! -e "$TEST_DIR/small_legacy" ]; then
+        setup_small_world "legacy" || exit 1
+    fi
+    if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$TEST_DIR/small_sqlite/world.db" ]; then
+        setup_small_world "sqlite" || exit 1
+    fi
+    if [ $NEED_YAML -eq 1 ] && [ ! -d "$TEST_DIR/small_yaml/world" ]; then
+        setup_small_world "yaml" || exit 1
+    fi
+fi
+
+if [ $NEED_FULL -eq 1 ]; then
+    if [ ! -f "$FULL_WORLD_ARCHIVE" ]; then
+        echo "WARNING: Full world tests skipped - archive not found: $FULL_WORLD_ARCHIVE"
+        NEED_FULL=0
+    else
+        if [ $NEED_LEGACY -eq 1 ] && [ ! -d "$TEST_DIR/full_legacy" ]; then
+            setup_full_world "legacy" || exit 1
+        fi
+        if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$TEST_DIR/full_sqlite/world.db" ]; then
+            setup_full_world "sqlite" || exit 1
+        fi
+        if [ $NEED_YAML -eq 1 ] && [ ! -d "$TEST_DIR/full_yaml/world" ]; then
+            setup_full_world "yaml" || exit 1
+        fi
+    fi
+fi
+
+echo ""
+echo "=== Prerequisites ready ==="
+echo ""
+
 
 # Function to check if test should run based on filters
 should_run_test() {
