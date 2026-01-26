@@ -26,6 +26,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <set>
 
 // External declarations
 extern ZoneTable &zone_table;
@@ -620,6 +621,15 @@ void YamlWorldDataSource::LoadRooms()
 		return;
 	}
 
+	// Get list of enabled zones from index.yaml
+	std::vector<int> zone_vnums = GetZoneList();
+	if (zone_vnums.empty())
+	{
+		log("No zones found in YAML index.");
+		return;
+	}
+	std::set<int> enabled_zones(zone_vnums.begin(), zone_vnums.end());
+
 	// Collect all room files
 	std::vector<std::pair<int, std::string>> room_files;
 	std::string zones_dir = m_world_dir + "/zones";
@@ -634,6 +644,9 @@ void YamlWorldDataSource::LoadRooms()
 		if (zone_dir_name.empty() || !std::isdigit(zone_dir_name[0])) continue;
 
 		int zone_vnum = std::stoi(zone_dir_name);
+
+		// Skip disabled zones (not in index.yaml)
+		if (enabled_zones.find(zone_vnum) == enabled_zones.end()) continue;
 
 		std::string rooms_dir = zone_entry.path().string() + "/rooms";
 		if (!fs::exists(rooms_dir)) continue;
