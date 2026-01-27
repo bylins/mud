@@ -351,13 +351,9 @@ setup_full_world() {
             echo "✓ Created $dest_dir/world/"
         fi
 
-		# Move cfg, misc, text, etc from lib/ to root
-		for dir in cfg misc text etc plrstuff; do
-			if [ -d "$dest_dir/lib/$dir" ]; then
-				mv "$dest_dir/lib/$dir" "$dest_dir/"
-			fi
-		done
-		rm -rf "$dest_dir/lib"  # Remove now-empty lib/
+		# Move all content from lib/ to root
+		mv "$dest_dir/lib/"* "$dest_dir/"
+		rm -rf "$dest_dir/lib"
         
     fi
     
