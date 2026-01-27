@@ -463,7 +463,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
 			cmd.arg2 = GetInt(cmd_node, "max");
 			cmd.arg3 = GetInt(cmd_node, "room_vnum");
-			cmd.arg4 = GetInt(cmd_node, "load_prob", 100);
+			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
 		}
 		else if (cmd_type == "GIVE_OBJ" || cmd_type == "G")
 		{
@@ -471,7 +471,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
 			cmd.arg2 = GetInt(cmd_node, "max");
 			cmd.arg3 = -1;
-			cmd.arg4 = GetInt(cmd_node, "load_prob", 100);
+			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
 		}
 		else if (cmd_type == "EQUIP_MOB" || cmd_type == "E")
 		{
@@ -479,7 +479,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
 			cmd.arg2 = GetInt(cmd_node, "max");
 			cmd.arg3 = GetInt(cmd_node, "wear_pos");
-			cmd.arg4 = GetInt(cmd_node, "load_prob", 100);
+			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
 		}
 		else if (cmd_type == "PUT_OBJ" || cmd_type == "P")
 		{
@@ -487,7 +487,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
 			cmd.arg2 = GetInt(cmd_node, "max");
 			cmd.arg3 = GetInt(cmd_node, "container_vnum");
-			cmd.arg4 = GetInt(cmd_node, "load_prob", 100);
+			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
 		}
 		else if (cmd_type == "DOOR" || cmd_type == "D")
 		{
@@ -524,6 +524,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 		{
 			cmd.command = 'Q';
 			cmd.arg1 = GetInt(cmd_node, "mob_vnum");
+		cmd.if_flag = 0; // Legacy loader forces if_flag = 0 for EXTRACT_MOB
 		}
 		else if (cmd_type == "FOLLOW" || cmd_type == "F")
 		{
@@ -552,38 +553,15 @@ void YamlWorldDataSource::LoadTriggers()
 		return;
 	}
 
-	// Get list of indexed triggers from index.yaml
-	std::vector<int> indexed_triggers = GetTriggerList();
-	std::set<int> indexed_trigger_set(indexed_triggers.begin(), indexed_triggers.end());
-	bool has_index = !indexed_triggers.empty();
-
-	// Collect all trigger files from root-level triggers/ directory
-	std::vector<std::pair<int, std::string>> trigger_files;
-	std::string trg_dir = m_world_dir + "/triggers";
-
-	namespace fs = std::filesystem;
-	if (fs::exists(trg_dir))
+	// Get list of triggers to load from index.yaml
+	std::vector<int> trigger_vnums = GetTriggerList();
+	if (trigger_vnums.empty())
 	{
-		for (const auto &trg_entry : fs::directory_iterator(trg_dir))
-		{
-			if (!trg_entry.is_regular_file()) continue;
-			std::string filename = trg_entry.path().filename().string();
-			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
-			if (filename == "index.yaml") continue; // Skip index file
-
-			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
-
-			// Skip triggers not in index (if index exists)
-			if (has_index && indexed_trigger_set.find(vnum) == indexed_trigger_set.end()) continue;
-
-			trigger_files.emplace_back(vnum, trg_entry.path().string());
-		}
+		log("No triggers found in YAML index.");
+		return;
 	}
 
-	// Sort by vnum
-	std::sort(trigger_files.begin(), trigger_files.end());
-
-	int trig_count = trigger_files.size();
+	int trig_count = trigger_vnums.size();
 	if (trig_count == 0)
 	{
 		log("No triggers found in YAML files.");
@@ -595,8 +573,9 @@ void YamlWorldDataSource::LoadTriggers()
 
 	top_of_trigt = 0;
 	int error_count = 0;
-	for (const auto &[vnum, filepath] : trigger_files)
+	for (int vnum : trigger_vnums)
 	{
+		std::string filepath = m_world_dir + "/triggers/" + std::to_string(vnum) + ".yaml";
 		try
 		{
 			YAML::Node root = YAML::LoadFile(filepath);
@@ -945,43 +924,15 @@ void YamlWorldDataSource::LoadMobs()
 		return;
 	}
 
-	// Get list of indexed mobs from index.yaml
-	std::vector<int> indexed_mobs = GetMobList();
-	std::set<int> indexed_mob_set(indexed_mobs.begin(), indexed_mobs.end());
-	bool has_index = !indexed_mobs.empty();
-
-	// Collect all mob files from root-level mobs/ directory
-	std::vector<std::pair<int, std::string>> mob_files;
-	std::string mobs_dir = m_world_dir + "/mobs";
-
-	namespace fs = std::filesystem;
-	if (fs::exists(mobs_dir))
+	// Get list of mobs to load from index.yaml
+	std::vector<int> mob_vnums = GetMobList();
+	if (mob_vnums.empty())
 	{
-		for (const auto &mob_entry : fs::directory_iterator(mobs_dir))
-		{
-			if (!mob_entry.is_regular_file()) continue;
-			std::string filename = mob_entry.path().filename().string();
-			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
-			if (filename == "index.yaml") continue; // Skip index file
-
-			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
-
-			// Skip mobs not in index (if index exists)
-			if (has_index && indexed_mob_set.find(vnum) == indexed_mob_set.end()) continue;
-
-			mob_files.emplace_back(vnum, mob_entry.path().string());
-		}
-	}
-
-	// Sort by vnum
-	std::sort(mob_files.begin(), mob_files.end());
-
-	int mob_count = mob_files.size();
-	if (mob_count == 0)
-	{
-		log("No mobs found in YAML files.");
+		log("No mobs found in YAML index.");
 		return;
 	}
+
+	int mob_count = mob_vnums.size();
 
 	mob_proto = new CharData[mob_count];
 	CREATE(mob_index, mob_count);
@@ -997,8 +948,9 @@ void YamlWorldDataSource::LoadMobs()
 
 	top_of_mobt = 0;
 	int error_count = 0;
-	for (const auto &[vnum, filepath] : mob_files)
+	for (int vnum : mob_vnums)
 	{
+		std::string filepath = m_world_dir + "/mobs/" + std::to_string(vnum) + ".yaml";
 		try
 		{
 			YAML::Node root = YAML::LoadFile(filepath);
@@ -1227,49 +1179,22 @@ void YamlWorldDataSource::LoadObjects()
 		return;
 	}
 
-	// Get list of indexed objects from index.yaml
-	std::vector<int> indexed_objects = GetObjectList();
-	std::set<int> indexed_obj_set(indexed_objects.begin(), indexed_objects.end());
-	bool has_index = !indexed_objects.empty();
-
-	// Collect all object files from root-level objects/ directory
-	std::vector<std::pair<int, std::string>> obj_files;
-	std::string objs_dir = m_world_dir + "/objects";
-
-	namespace fs = std::filesystem;
-	if (fs::exists(objs_dir))
+	// Get list of objects to load from index.yaml
+	std::vector<int> obj_vnums = GetObjectList();
+	if (obj_vnums.empty())
 	{
-		for (const auto &obj_entry : fs::directory_iterator(objs_dir))
-		{
-			if (!obj_entry.is_regular_file()) continue;
-			std::string filename = obj_entry.path().filename().string();
-			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
-			if (filename == "index.yaml") continue; // Skip index file
-
-			int vnum = std::stoi(filename.substr(0, filename.size() - 5));
-
-			// Skip objects not in index (if index exists)
-			if (has_index && indexed_obj_set.find(vnum) == indexed_obj_set.end()) continue;
-
-			obj_files.emplace_back(vnum, obj_entry.path().string());
-		}
-	}
-
-	// Sort by vnum
-	std::sort(obj_files.begin(), obj_files.end());
-
-	int obj_count = obj_files.size();
-	if (obj_count == 0)
-	{
-		log("No objects found in YAML files.");
+		log("No objects found in YAML index.");
 		return;
 	}
+
+	int obj_count = obj_vnums.size();
 
 	log("   %d objs.", obj_count);
 
 	int error_count = 0;
-	for (const auto &[vnum, filepath] : obj_files)
+	for (int vnum : obj_vnums)
 	{
+		std::string filepath = m_world_dir + "/objects/" + std::to_string(vnum) + ".yaml";
 		try
 		{
 			YAML::Node root = YAML::LoadFile(filepath);
@@ -1383,6 +1308,12 @@ void YamlWorldDataSource::LoadObjects()
 					{
 						wear_flags |= (1 << flag_val);
 					}
+					else if (flag_name.rfind("UNUSED_", 0) == 0)
+					{
+						int bit = std::stoi(flag_name.substr(7));
+						if (bit >= 0 && bit < 32)
+							wear_flags |= (1 << bit);
+					}
 				}
 				obj->set_wear_flags(wear_flags);
 			}
@@ -1397,6 +1328,13 @@ void YamlWorldDataSource::LoadObjects()
 					{
 						obj->set_no_flag(static_cast<ENoFlag>(IndexToBitvector(flag_val)));
 					}
+					else if (flag_name.rfind("UNUSED_", 0) == 0)
+					{
+						int bit = std::stoi(flag_name.substr(7));
+						size_t plane = bit / 30;
+						int bit_in_plane = bit % 30;
+						obj->toggle_no_flag(plane, 1 << bit_in_plane);
+					}
 				}
 			}
 
@@ -1410,6 +1348,13 @@ void YamlWorldDataSource::LoadObjects()
 					{
 						obj->set_anti_flag(static_cast<EAntiFlag>(IndexToBitvector(flag_val)));
 					}
+					else if (flag_name.rfind("UNUSED_", 0) == 0)
+					{
+						int bit = std::stoi(flag_name.substr(7));
+						size_t plane = bit / 30;
+						int bit_in_plane = bit % 30;
+						obj->toggle_anti_flag(plane, 1 << bit_in_plane);
+					}
 				}
 			}
 
@@ -1422,6 +1367,13 @@ void YamlWorldDataSource::LoadObjects()
 					if (flag_val >= 0)
 					{
 						obj->SetEWeaponAffectFlag(static_cast<EWeaponAffect>(IndexToBitvector(flag_val)));
+					}
+					else if (flag_name.rfind("UNUSED_", 0) == 0)
+					{
+						int bit = std::stoi(flag_name.substr(7));
+						size_t plane = bit / 30;
+						int bit_in_plane = bit % 30;
+						obj->toggle_affect_flag(plane, 1 << bit_in_plane);
 					}
 				}
 			}

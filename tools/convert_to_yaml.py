@@ -272,11 +272,13 @@ OBJ_TYPES = [
     "kCraftMaterial",   # 27
     "kBandage",         # 28
     "kLightArmor",      # 29
-    "kContainer2",      # 30
-    "kMaterial",        # 31
-    "kCraftbook",       # 32
-    "kMedal",           # 33
-    "kEnchant"          # 34
+    "kMediumArmor",     # 30
+    "kHeavyArmor",      # 31
+    "kEnchant",         # 32
+    "kMagicMaterial",   # 33
+    "kMagicArrow",      # 34
+    "kMagicContaner",   # 35
+    "kCraftMaterial2"   # 36
 ]
 
 # Extra flags (EObjFlag) - 50 flags total (30 in plane 0, 20 in plane 1)
@@ -437,15 +439,33 @@ SECTORS = [
 
 # Trigger types
 TRIGGER_TYPES = {
-    'g': 'kGreet', 'a': 'kGreetAll', 'e': 'kEntry', 'c': 'kCommand',
-    's': 'kSpeech', 'A': 'kAct', 'f': 'kFight', 'H': 'kHitPercent',
-    'b': 'kBribe', 'd': 'kDeath', 'l': 'kLoad', 'r': 'kRandom',
-    'i': 'kReceive', 'j': 'kDrop', 'G': 'kGive', 'w': 'kWear',
-    'R': 'kRemove', 'p': 'kPut', 'q': 'kGet', 'n': 'kIncome',
-    'O': 'kOpen', 'C': 'kClose', 'L': 'kLock', 'U': 'kUnlock',
-    'P': 'kPick', 'D': 'kDamage', 'u': 'kUse', 't': 'kTimer',
-    'h': 'kHour', 'S': 'kStart', 'I': 'kInvite', 'T': 'kTimeChange', 'z': 'kTime',
-    'k': 'kKill', 'Q': 'kCast', 'N': 'kNumber'
+    # Mob triggers (lowercase a-z = bits 0-25)
+    'a': 'kRandomGlobal',  # bit 0
+    'b': 'kRandom',        # bit 1
+    'c': 'kCommand',       # bit 2
+    'd': 'kSpeech',        # bit 3
+    'e': 'kAct',           # bit 4
+    'f': 'kDeath',         # bit 5
+    'g': 'kGreet',         # bit 6
+    'h': 'kGreetAll',      # bit 7
+    'i': 'kEntry',         # bit 8
+    'j': 'kReceive',       # bit 9
+    'k': 'kFight',         # bit 10
+    'l': 'kHitPercent',    # bit 11
+    'm': 'kBribe',         # bit 12
+    'n': 'kLoad',          # bit 13
+    'o': 'kKill',          # bit 14
+    'p': 'kDamage',        # bit 15
+    'q': 'kGreetPC',       # bit 16
+    'r': 'kGreetPCAll',    # bit 17
+    's': 'kIncome',        # bit 18
+    't': 'kIncomePC',      # bit 19
+    'u': 'kMobTrig20',     # bit 20
+    'v': 'kMobTrig21',     # bit 21
+    'w': 'kMobTrig22',     # bit 22
+    'x': 'kMobTrig23',     # bit 23
+    'y': 'kMobTrig24',     # bit 24
+    'z': 'kAuto',          # bit 25
 }
 
 
@@ -2135,6 +2155,9 @@ def obj_to_yaml(obj):
     # Max in world
     if 'max_in_world' in obj:
         data['max_in_world'] = obj['max_in_world']
+    # Minimum remorts
+    if obj.get('minimum_remorts') and obj['minimum_remorts'] != 0:
+        data['minimum_remorts'] = obj['minimum_remorts']
 
     # Triggers with name comments
     if obj.get('triggers'):
@@ -2509,7 +2532,7 @@ def trg_to_yaml(trigger):
     if 'attach_type' in trigger:
         data['attach_type'] = trigger['attach_type']
 
-    if trigger.get('trigger_types'):
+    if 'trigger_types' in trigger:
         types = CommentedSeq(trigger['trigger_types'])
         data['trigger_types'] = types
 
@@ -2868,6 +2891,8 @@ def zon_to_yaml(zone):
         data['mode'] = zone['mode']
     if 'zone_type' in zone:
         data['zone_type'] = zone['zone_type']
+    if zone.get('zone_group'):
+        data['zone_group'] = zone['zone_group']
     if 'entrance' in zone:
         data['entrance'] = zone['entrance']
     if 'lifespan' in zone:
@@ -2876,6 +2901,8 @@ def zon_to_yaml(zone):
         data['reset_mode'] = zone['reset_mode']
     if 'reset_idle' in zone:
         data['reset_idle'] = zone['reset_idle']
+    if zone.get('under_construction'):
+        data['under_construction'] = zone['under_construction']
 
     # Zone grouping lists
     if zone.get('typeA_list'):
@@ -2885,7 +2912,7 @@ def zon_to_yaml(zone):
             zone_name = get_zone_name(z)
             if zone_name:
                 typeA.yaml_add_eol_comment(zone_name, i)
-        data['typeA_list'] = typeA
+        data['typeA_zones'] = typeA
 
     if zone.get('typeB_list'):
         typeB = CommentedSeq()
@@ -2894,7 +2921,7 @@ def zon_to_yaml(zone):
             zone_name = get_zone_name(z)
             if zone_name:
                 typeB.yaml_add_eol_comment(zone_name, i)
-        data['typeB_list'] = typeB
+        data['typeB_zones'] = typeB
 
     # Commands with name comments
     if zone.get('commands'):

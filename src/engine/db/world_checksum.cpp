@@ -15,7 +15,6 @@
 #include <sstream>
 #include <vector>
 
-#include <fstream>
 #include <iomanip>
 
 namespace
@@ -104,6 +103,8 @@ std::string SerializeZone(const ZoneData &zone)
 			oss << ";";
 		}
 	}
+
+
 
 	return oss.str();
 }
@@ -349,6 +350,7 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 		oss << trig_vnum << ",";
 	}
 
+
 	return oss.str();
 }
 
@@ -387,6 +389,7 @@ std::string SerializeTrigger(int rnum)
 			cmd = cmd->next;
 		}
 	}
+
 
 	return oss.str();
 }
