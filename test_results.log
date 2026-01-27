@@ -1,0 +1,155 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SETUP: Building binaries and preparing worlds
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Building: legacy
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1/2] Using cached CMake configuration
+[2/2] Compiling (this may take a while)...
+      Log: /tmp/build_legacy.log
+      Tip: Run 'tail -f /tmp/build_legacy.log' in another terminal to watch progress
+
+✓ Successfully built /home/kvirund/repos/mud/build_test/circle
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Building: sqlite
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1/2] Using cached CMake configuration
+[2/2] Compiling (this may take a while)...
+      Log: /tmp/build_sqlite.log
+      Tip: Run 'tail -f /tmp/build_sqlite.log' in another terminal to watch progress
+
+✓ Successfully built /home/kvirund/repos/mud/build_sqlite/circle
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Building: yaml
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1/2] Using cached CMake configuration
+[2/2] Compiling (this may take a while)...
+      Log: /tmp/build_yaml.log
+      Tip: Run 'tail -f /tmp/build_yaml.log' in another terminal to watch progress
+
+✓ Successfully built /home/kvirund/repos/mud/build_yaml/circle
+
+
+=== Prerequisites ready ===
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Setup complete. Starting tests...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+==============================================
+World Loading Performance Tests
+Date: Mon Jan 26 21:47:06 CST 2026
+Filter: checksums=yes
+==============================================
+
+=== SMALL WORLD ===
+
+--- Small_Legacy_checksums ---
+  Running: /home/kvirund/repos/mud/build_test/circle -d small  4000
+  Boot time:     2.070s
+  Zones:    7C788E1F (55 zones)
+  Rooms:    8C0277A7 (5109 rooms)
+  Mobs:     CEBB697B (5123 mobs)
+  Objects:  7E2C7CC8 (5192 objects)
+  Triggers: 91924F29 (5064 triggers)
+  Checksum time: 1.223s
+
+--- Small_Legacy_no_checksums ---
+  Running: /home/kvirund/repos/mud/build_test/circle -d small -C 4000
+  Boot time:     .188s
+
+--- Small_SQLite_checksums ---
+  Running: /home/kvirund/repos/mud/build_sqlite/circle -d small  4000
+  Boot time:     1.406s
+  Zones:    7C788E1F (55 zones)
+  Rooms:    8C0277A7 (5109 rooms)
+  Mobs:     CEBB697B (5123 mobs)
+  Objects:  7E2C7CC8 (5192 objects)
+  Triggers: 91924F29 (5064 triggers)
+  Checksum time: 1.222s
+
+--- Small_SQLite_no_checksums ---
+  Running: /home/kvirund/repos/mud/build_sqlite/circle -d small -C  4000
+  Boot time:     .181s
+
+--- Small_YAML_checksums ---
+  Running: /home/kvirund/repos/mud/build_yaml/circle -d small  4000
+  Boot time:     1.692s
+  Zones:    7C788E1F (55 zones)
+  Rooms:    8C0277A7 (5109 rooms)
+  Mobs:     CEBB697B (5123 mobs)
+  Objects:  7E2C7CC8 (5192 objects)
+  Triggers: 91924F29 (5064 triggers)
+  Checksum time: 1.247s
+
+--- Small_YAML_no_checksums ---
+  Running: /home/kvirund/repos/mud/build_yaml/circle -d small -C 4000
+  Boot time:     .330s
+
+=== FULL WORLD ===
+
+--- Full_Legacy_checksums ---
+  Running: /home/kvirund/repos/mud/build_test/circle -d full  4000
+  Boot time:     29.037s
+  Zones:    94AC9F8C (640 zones)
+  Rooms:    6CFA6B50 (46542 rooms)
+  Mobs:     B146F876 (18757 mobs)
+  Objects:  EA7E36EA (22022 objects)
+  Triggers: E0FF0BE0 (16823 triggers)
+  Checksum time: 7.428s
+
+--- Full_Legacy_no_checksums ---
+  Running: /home/kvirund/repos/mud/build_test/circle -d full -C 4000
+  Boot time:     9.037s
+
+--- Full_SQLite_checksums ---
+  Running: /home/kvirund/repos/mud/build_sqlite/circle -d full  4000
+  Boot time:     15.834s
+  Zones:    94AC9F8C (640 zones)
+  Rooms:    6CFA6B50 (46542 rooms)
+  Mobs:     B146F876 (18757 mobs)
+  Objects:  EA7E36EA (22022 objects)
+  Triggers: E0FF0BE0 (16823 triggers)
+  Checksum time: 7.402s
+
+--- Full_SQLite_no_checksums ---
+  Running: /home/kvirund/repos/mud/build_sqlite/circle -d full -C 4000
+  Boot time:     8.324s
+
+--- Full_YAML_checksums ---
+  Running: /home/kvirund/repos/mud/build_yaml/circle -d full  4000
+  Boot time:     57.564s
+  Zones:    94AC9F8C (640 zones)
+  Rooms:    6CFA6B50 (46542 rooms)
+  Mobs:     B146F876 (18757 mobs)
+  Objects:  EA7E36EA (22022 objects)
+  Triggers: E0FF0BE0 (16823 triggers)
+  Checksum time: 7.552s
+
+--- Full_YAML_no_checksums ---
+  Running: /home/kvirund/repos/mud/build_yaml/circle -d full -C 4000
+  Boot time:     27.264s
+
+=== CHECKSUM COMPARISON ===
+
+Small world:
+Small_Legacy_checksums vs Small_SQLite_checksums: MATCH
+Small_Legacy_checksums vs Small_YAML_checksums: MATCH
+Small_SQLite_checksums vs Small_YAML_checksums: MATCH
+
+Full world:
+Full_Legacy_checksums vs Full_SQLite_checksums: MATCH
+Full_Legacy_checksums vs Full_YAML_checksums: MATCH
+Full_SQLite_checksums vs Full_YAML_checksums: MATCH
+
+==============================================
+Tests complete
+==============================================
