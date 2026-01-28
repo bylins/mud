@@ -5,133 +5,143 @@
 #include "otel_provider.h"
 #include "opentelemetry/logs/provider.h"
 #include "opentelemetry/logs/logger.h"
+#include "opentelemetry/trace/provider.h"
+#include "opentelemetry/trace/span.h"
+#include "opentelemetry/trace/span_context.h"
+#include "opentelemetry/trace/trace_id.h"
+#include "opentelemetry/trace/span_id.h"
+#include "opentelemetry/nostd/span.h"
+#include "opentelemetry/nostd/variant.h"
+#include "opentelemetry/context/runtime_context.h"
 
 namespace observability {
 
-static opentelemetry::logs::Severity to_otel_level(logging::LogLevel level) {
-    switch (level) {
-        case logging::LogLevel::DEBUG: return opentelemetry::logs::Severity::kDebug;
-        case logging::LogLevel::INFO: return opentelemetry::logs::Severity::kInfo;
-        case logging::LogLevel::WARN: return opentelemetry::logs::Severity::kWarn;
-        case logging::LogLevel::ERROR: return opentelemetry::logs::Severity::kError;
-        default: return opentelemetry::logs::Severity::kInfo;
-    }
+// Helper: extract trace_id and span_id from current active span
+static std::pair<std::string, std::string> GetCurrentTraceContext() {
+	// Get current active span from runtime context
+	auto context_value = opentelemetry::context::RuntimeContext::GetValue(opentelemetry::trace::kSpanKey);
+	auto span_ptr = opentelemetry::nostd::get_if<opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span>>(&context_value);
+
+	if (!span_ptr || !(*span_ptr)) {
+		return {"", ""};
+	}
+
+	auto span = *span_ptr;
+
+	auto span_context = span->GetContext();
+
+	// Check context validity
+	if (!span_context.IsValid()) {
+		return {"", ""};
+	}
+
+	// Extract trace_id (16 bytes = 32 hex chars)
+	char trace_id_hex[32];
+	span_context.trace_id().ToLowerBase16(
+		opentelemetry::nostd::span<char, 32>(trace_id_hex, 32)
+	);
+
+	// Extract span_id (8 bytes = 16 hex chars)
+	char span_id_hex[16];
+	span_context.span_id().ToLowerBase16(
+		opentelemetry::nostd::span<char, 16>(span_id_hex, 16)
+	);
+
+	// IMPORTANT: ToLowerBase16 doesn't add '\0'!
+	return {
+		std::string(trace_id_hex, 32),
+		std::string(span_id_hex, 16)
+	};
 }
 
+// Helper: add trace context and user attributes to log record
+static void AddAttributesToLogRecord(
+	opentelemetry::nostd::unique_ptr<opentelemetry::logs::LogRecord>& log_record,
+	const std::map<std::string, std::string>& user_attributes)
+{
+	if (!log_record) {
+		return;
+	}
+
+	// Add trace context (if there's an active span)
+	auto [trace_id, span_id] = GetCurrentTraceContext();
+	if (!trace_id.empty()) {
+		log_record->SetAttribute("trace_id", trace_id);
+		log_record->SetAttribute("span_id", span_id);
+	}
+
+	// Add user attributes
+	for (const auto& [key, value] : user_attributes) {
+		log_record->SetAttribute(key, value);
+	}
+}
+
+static opentelemetry::logs::Severity to_otel_level(logging::LogLevel level) {
+	switch (level) {
+		case logging::LogLevel::DEBUG: return opentelemetry::logs::Severity::kDebug;
+		case logging::LogLevel::INFO: return opentelemetry::logs::Severity::kInfo;
+		case logging::LogLevel::WARN: return opentelemetry::logs::Severity::kWarn;
+		case logging::LogLevel::ERROR: return opentelemetry::logs::Severity::kError;
+		default: return opentelemetry::logs::Severity::kInfo;
+	}
+}
+
+// Helper: log with any level
+static void LogWithLevel(logging::LogLevel level,
+						const std::string& message,
+						const std::map<std::string, std::string>& attributes) {
+	if (OtelProvider::Instance().IsEnabled()) {
+		auto logger = OtelProvider::Instance().GetLogger();
+		if (logger) {
+			auto log_record = logger->CreateLogRecord();
+			if (log_record) {
+				log_record->SetSeverity(to_otel_level(level));
+				log_record->SetBody(message);
+
+				// Automatically add trace context + user attributes
+				AddAttributesToLogRecord(log_record, attributes);
+
+				logger->EmitLogRecord(std::move(log_record));
+			}
+		}
+	}
+}
+
+// All methods now delegate to LogWithLevel
 void OtelLogSender::Debug(const std::string& message) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            logger->EmitLogRecord(to_otel_level(logging::LogLevel::DEBUG), message);
-        }
-    }
+	LogWithLevel(logging::LogLevel::DEBUG, message, {});
 }
 
 void OtelLogSender::Debug(const std::string& message,
-                         const std::map<std::string, std::string>& attributes) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            auto log_record = logger->CreateLogRecord();
-            if (log_record) {
-                log_record->SetSeverity(to_otel_level(logging::LogLevel::DEBUG));
-                log_record->SetBody(message);
-
-                for (const auto& [key, value] : attributes) {
-                    log_record->SetAttribute(key, value);
-                }
-
-                logger->EmitLogRecord(std::move(log_record));
-            }
-        }
-    }
+						 const std::map<std::string, std::string>& attributes) {
+	LogWithLevel(logging::LogLevel::DEBUG, message, attributes);
 }
 
 void OtelLogSender::Info(const std::string& message) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            logger->EmitLogRecord(to_otel_level(logging::LogLevel::INFO), message);
-        }
-    }
+	LogWithLevel(logging::LogLevel::INFO, message, {});
 }
 
 void OtelLogSender::Info(const std::string& message,
-                        const std::map<std::string, std::string>& attributes) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            auto log_record = logger->CreateLogRecord();
-            if (log_record) {
-                log_record->SetSeverity(to_otel_level(logging::LogLevel::INFO));
-                log_record->SetBody(message);
-
-                for (const auto& [key, value] : attributes) {
-                    log_record->SetAttribute(key, value);
-                }
-
-                logger->EmitLogRecord(std::move(log_record));
-            }
-        }
-    }
+						const std::map<std::string, std::string>& attributes) {
+	LogWithLevel(logging::LogLevel::INFO, message, attributes);
 }
 
 void OtelLogSender::Warn(const std::string& message) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            logger->EmitLogRecord(to_otel_level(logging::LogLevel::WARN), message);
-        }
-    }
+	LogWithLevel(logging::LogLevel::WARN, message, {});
 }
 
 void OtelLogSender::Warn(const std::string& message,
-                        const std::map<std::string, std::string>& attributes) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            auto log_record = logger->CreateLogRecord();
-            if (log_record) {
-                log_record->SetSeverity(to_otel_level(logging::LogLevel::WARN));
-                log_record->SetBody(message);
-
-                for (const auto& [key, value] : attributes) {
-                    log_record->SetAttribute(key, value);
-                }
-
-                logger->EmitLogRecord(std::move(log_record));
-            }
-        }
-    }
+						const std::map<std::string, std::string>& attributes) {
+	LogWithLevel(logging::LogLevel::WARN, message, attributes);
 }
 
 void OtelLogSender::Error(const std::string& message) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            logger->EmitLogRecord(to_otel_level(logging::LogLevel::ERROR), message);
-        }
-    }
+	LogWithLevel(logging::LogLevel::ERROR, message, {});
 }
 
 void OtelLogSender::Error(const std::string& message,
-                         const std::map<std::string, std::string>& attributes) {
-    if (OtelProvider::Instance().IsEnabled()) {
-        auto logger = OtelProvider::Instance().GetLogger();
-        if (logger) {
-            auto log_record = logger->CreateLogRecord();
-            if (log_record) {
-                log_record->SetSeverity(to_otel_level(logging::LogLevel::ERROR));
-                log_record->SetBody(message);
-
-                for (const auto& [key, value] : attributes) {
-                    log_record->SetAttribute(key, value);
-                }
-
-                logger->EmitLogRecord(std::move(log_record));
-            }
-        }
-    }
+						 const std::map<std::string, std::string>& attributes) {
+	LogWithLevel(logging::LogLevel::ERROR, message, attributes);
 }
 
 } // namespace observability

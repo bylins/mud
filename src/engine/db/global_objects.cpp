@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "administration/ban.h"
+#include "utils/logging/log_manager.h"
 
 namespace {
 // This struct defines order of creating and destroying global objects
@@ -11,6 +12,9 @@ struct GlobalObjectsStorage {
 
 	/// This object should be destroyed last because it serves all output operations. So I define it first.
 	std::shared_ptr<OutputThread> output_thread;
+
+	/// LogManager intentionally leaked (never destroyed) to serve log() calls from destructors
+	logging::LogManager* log_manager;
 
 	celebrates::CelebrateList mono_celebrates;
 	celebrates::CelebrateList poly_celebrates;
@@ -53,7 +57,9 @@ struct GlobalObjectsStorage {
 };
 
 GlobalObjectsStorage::GlobalObjectsStorage() :
-	ban(nullptr) {
+	ban(nullptr),
+	log_manager(new logging::LogManager()) {
+	// log_manager intentionally never deleted - will leak at shutdown
 }
 
 // This function ensures that global objects will be created at the moment of getting access to them
@@ -242,6 +248,10 @@ Strengthening &GlobalObjects::strengthening() {
 
 obj2triggers_t &GlobalObjects::obj_triggers() {
 	return global_objects().obj2triggers;
+}
+
+logging::LogManager &GlobalObjects::log_manager() {
+	return *global_objects().log_manager;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,6 +1,8 @@
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
 #include "backtrace.h"
+#include "logging/log_manager.h"
+#include "utils.h"
 
 #include <iostream>
 #include <chrono>
@@ -16,10 +18,10 @@
 #endif
 
 /**
-* Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
-* Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).
+* О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫.
+* О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ con_close).
 */
-// дескрипторы открытых файлов логов для сброса буфера при креше
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 std::list<FILE *> opened_files;
 
 void pers_log(CharData *ch, const char *format, ...) {
@@ -55,7 +57,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 	fprintf(ch->desc->pers_log, "\n");
 }
 
-// Файл для вывода
+// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 FILE *logfile = nullptr;
 
 std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
@@ -63,7 +65,7 @@ std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char 
     int timestamp_length = -1;
 
 #if HAS_TIME_ZONE
-    // Реализация с использованием std::chrono::time_zone
+    // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ std::chrono::time_zone
     const std::chrono::time_zone* time_zone;
     try {
         time_zone = std::chrono::current_zone();
@@ -78,7 +80,7 @@ std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char 
     const auto str = std::format("{:%Y-%m-%d %T}", now);
     timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
 #else
-    // Реализация без std::chrono::time_zone, используем std::chrono::local_time
+    // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ std::chrono::time_zone, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ std::chrono::local_time
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
         const auto time_t_now = std::chrono::system_clock::to_time_t(now);
         auto* local_tm = std::localtime(&time_t_now);
@@ -177,10 +179,25 @@ void log(FILE *log, const char *format, ...) {
 }
 
 void log(const char *format, ...) {
+	if (!runtime_config.logging_enabled()) {
+		return;
+	}
+
+	if (format == nullptr) {
+		format = "SYSERR: log() received a NULL format.";
+	}
+
+	char buffer[4096];
 	va_list args;
 	va_start(args, format);
-	vlog(format, args, ::logfile);
+	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
+
+	// Convert KOI8-R to UTF-8 for OTEL
+	char utf8_buffer[8192];
+	koi_to_utf8(buffer, utf8_buffer);
+
+	logging::LogManager::Instance().Info(utf8_buffer, {{"log_stream", "syslog"}});
 }
 
 void shop_log(const char *format, ...) {
@@ -193,7 +210,7 @@ void shop_log(const char *format, ...) {
 	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
 
-	logging::LogManager::Info(buf, {{"log_type", "shop"}});
+	logging::LogManager::Info(buf, {{"log_stream", "shop"}});
 }
 
 void olc_log(const char *format, ...) {
@@ -206,7 +223,7 @@ void olc_log(const char *format, ...) {
 	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
 
-	logging::LogManager::Info(buf, {{"log_type", "olc"}});
+	logging::LogManager::Info(buf, {{"log_stream", "olc"}});
 }
 
 void imm_log(const char *format, ...) {
@@ -219,7 +236,7 @@ void imm_log(const char *format, ...) {
 	vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
 
-	logging::LogManager::Info(buf, {{"log_type", "imm"}});
+	logging::LogManager::Info(buf, {{"log_stream", "imlog"}});
 }
 
 void err_log(const char *format, ...) {
@@ -231,8 +248,7 @@ void err_log(const char *format, ...) {
 	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
 	va_end(args);
 
-	logging::LogManager::Error(buf_, {{"log_type", "error"}});
-	mudlog(buf_, LGH, kLvlImmortal, SYSLOG, true);
+	mudlog(buf_, LGH, kLvlImmortal, ERRLOG, true);
 }
 
 void ip_log(const char *ip) {
@@ -240,7 +256,7 @@ void ip_log(const char *ip) {
 }
 
 /*
- * Перегрузка функции mudlog, которая первым параметром вместо char *, принимает строку
+ * О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ mudlog, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ char *, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
  */
 void mudlog(std::string str, LogMode type, int level, EOutputStream channel, bool file) {
 	mudlog(str.c_str(), type, level, channel, file);
@@ -248,7 +264,7 @@ void mudlog(std::string str, LogMode type, int level, EOutputStream channel, boo
 
 /*
 * mudlog -- log mud messages to a file & to online imm's syslogs
-* file - номер файла для вывода (0..NLOG), -1 не выводить в файл
+* file - О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (0..NLOG), -1 О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 */
 void mudlog(const char *str, LogMode type, int level, EOutputStream channel, bool file) {
 	char tmpbuf[kMaxStringLength];
@@ -263,8 +279,31 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, boo
 	}
 
 	if (file) {
-		const auto log = runtime_config.logs(channel).handle();
-		::log(log, "%s", str);
+		// п·п©я─п╣п╢п╣п╩п╦я┌я▄ п╦п╪я▐ п╨п╟п╫п╟п╩п╟ п╢п╩я▐ п╟я┌я─п╦п╠я┐я┌п╟ log_stream
+		const char* channel_name = nullptr;
+		switch (channel) {
+			case SYSLOG: channel_name = "syslog"; break;
+			case ERRLOG: channel_name = "errlog"; break;
+			case IMLOG:  channel_name = "imlog"; break;
+			case MSDP_LOG: channel_name = "msdp"; break;
+			case MONEY_LOG: channel_name = "money"; break;
+			default:     channel_name = "unknown"; break;
+		}
+		
+		// п п╬п╫п╡п╣я─я┌п╦я─п╬п╡п╟я┌я▄ KOI8-R п╡ UTF-8 п╢п╩я▐ OTEL
+		char koi_buffer[8192];
+		char utf8_buffer[8192];
+		strncpy(koi_buffer, str, sizeof(koi_buffer) - 1);
+		koi_buffer[sizeof(koi_buffer) - 1] = '\0';
+		
+		koi_to_utf8(koi_buffer, utf8_buffer);
+		
+		// п▓я▀п╥п╡п╟я┌я▄ LogManager
+		if (channel == ERRLOG || type == LGH) {
+			logging::LogManager::Instance().Error(utf8_buffer, {{"log_stream", channel_name}});
+		} else {
+			logging::LogManager::Instance().Info(utf8_buffer, {{"log_stream", channel_name}});
+		}
 	}
 
 	if (level < 0) {
@@ -328,7 +367,7 @@ void hexdump(FILE *file, const char *ptr, size_t buflen, const char *title/* = n
 	}
 }
 
-// * Чтобы не дублировать создание даты в каждом виде лога.
+// * О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.
 void write_time(FILE *file) {
 	char time_buf[20];
 	time_t ct = time(0);

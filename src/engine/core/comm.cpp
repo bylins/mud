@@ -37,6 +37,7 @@
 #include "engine/db/world_characters.h"
 #include "engine/entities/entities_constants.h"
 #include "administration/shutdown_parameters.h"
+#include "engine/observability/otel_provider.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "gameplay/clans/house.h"
@@ -786,6 +787,9 @@ void stop_game(ush_int port) {
 	log("Polling using select().");
 	game_loop(mother_desc);
 #endif
+
+	// Shutdown OTEL providers to flush remaining telemetry
+	observability::OtelProvider::Instance().Shutdown();
 
 	FlushPlayerIndex();
 
@@ -2023,8 +2027,7 @@ RETSIGTYPE checkpointing(int/* sig*/) {
 }
 
 RETSIGTYPE hupsig(int/* sig*/) {
-	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
-	exit(1);        // perhaps something more elegant should substituted
+	shutdown_parameters.shutdown_now();
 }
 
 #endif                // CIRCLE_UNIX

@@ -16,6 +16,7 @@
 #include "engine/scripting/dg_event.h"
 #include "gameplay/economics/shops_implementation.h"
 #include "engine/observability/otel_provider.h"
+#include "utils/logging/log_manager.h"
 #include "world_objects.h"
 #include "world_characters.h"
 #include "engine/observability/otel_provider.h"
@@ -72,6 +73,7 @@ class GlobalObjects {
 	static Heartbeat &heartbeat();
 	static observability::OtelProvider &otel_provider();
 	static OutputThread &output_thread();
+	static logging::LogManager &log_manager();
 	static ZoneTable &zone_table();
   	static RunestoneRoster &Runestones();
 

@@ -2,6 +2,8 @@
 #include "engine/core/config.h"
 #include "utils/logging/log_manager.h"
 #include "otel_log_sender.h"
+#include "otel_trace_sender.h"
+#include "utils/tracing/trace_manager.h"
 
 #ifdef WITH_OTEL
 #include "opentelemetry/sdk/trace/tracer_provider_factory.h"
@@ -39,7 +41,9 @@ OtelProvider::OtelProvider() {
     // See Initialize() for OTEL log sender registration
 }
 
-void OtelProvider::Initialize(const std::string& endpoint,
+void OtelProvider::Initialize(const std::string& metrics_endpoint,
+                             const std::string& traces_endpoint,
+                             const std::string& logs_endpoint,
                              const std::string& service_name,
                              const std::string& service_version) {
 #ifdef WITH_OTEL
@@ -58,7 +62,7 @@ void OtelProvider::Initialize(const std::string& endpoint,
         // Based on examples/otlp/http_log_main.cc
         {
             otel::exporter::otlp::OtlpHttpExporterOptions trace_options;
-            trace_options.url = endpoint + "/v1/traces";
+            trace_options.url = traces_endpoint;
 
             auto exporter = otel::exporter::otlp::OtlpHttpExporterFactory::Create(trace_options);
             auto processor = otel::sdk::trace::BatchSpanProcessorFactory::Create(std::move(exporter), {});
@@ -73,13 +77,13 @@ void OtelProvider::Initialize(const std::string& endpoint,
         // Based on examples/otlp/http_metric_main.cc
         {
             otel::exporter::otlp::OtlpHttpMetricExporterOptions metric_options;
-            metric_options.url = endpoint + "/v1/metrics";
+            metric_options.url = metrics_endpoint;
 
             auto exporter = otel::exporter::otlp::OtlpHttpMetricExporterFactory::Create(metric_options);
 
             otel::sdk::metrics::PeriodicExportingMetricReaderOptions reader_options;
             reader_options.export_interval_millis = std::chrono::milliseconds(5000);
-            reader_options.export_timeout_millis = std::chrono::milliseconds(30000);
+            reader_options.export_timeout_millis = std::chrono::milliseconds(3000);
 
             auto reader = otel::sdk::metrics::PeriodicExportingMetricReaderFactory::Create(
                 std::move(exporter), reader_options
@@ -102,7 +106,7 @@ void OtelProvider::Initialize(const std::string& endpoint,
         // Based on examples/otlp/http_log_main.cc
         {
             otel::exporter::otlp::OtlpHttpLogRecordExporterOptions log_options;
-            log_options.url = endpoint + "/v1/logs";
+            log_options.url = logs_endpoint;
 
             auto exporter = otel::exporter::otlp::OtlpHttpLogRecordExporterFactory::Create(log_options);
 
@@ -140,16 +144,35 @@ void OtelProvider::Initialize(const std::string& endpoint,
             std::cout << "Log mode: file-only (OTEL initialized but not used for logs)" << std::endl;
         }
 
+		// Initialize TraceManager with appropriate sender
+		tracing::TraceManager::Instance().SetSender(
+			std::make_unique<tracing::OtelTraceSender>()
+		);
+		std::cout << "TraceManager initialized with OtelTraceSender" << std::endl;
+
         m_enabled = true;
-        std::cout << "OpenTelemetry initialized successfully with endpoint: " << endpoint << std::endl;
+        std::cout << "OpenTelemetry initialized successfully:" << std::endl;
+        std::cout << "  Metrics: " << metrics_endpoint << std::endl;
+        std::cout << "  Traces: " << traces_endpoint << std::endl;
+        std::cout << "  Logs: " << logs_endpoint << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Failed to initialize OpenTelemetry: " << e.what() << std::endl;
         m_enabled = false;
+		// Initialize TraceManager with NoOp sender on error
+		tracing::TraceManager::Instance().SetSender(
+			std::make_unique<tracing::NoOpTraceSender>()
+		);
+		std::cout << "TraceManager initialized with NoOpTraceSender (OTEL init failed)" << std::endl;
     }
 #else
     (void)endpoint;
     (void)service_name;
     (void)service_version;
+	// Initialize TraceManager with NoOp sender (no OTEL)
+	tracing::TraceManager::Instance().SetSender(
+		std::make_unique<tracing::NoOpTraceSender>()
+	);
+	std::cout << "TraceManager initialized with NoOpTraceSender (no OTEL)" << std::endl;
 #endif
 }
 

@@ -1,11 +1,11 @@
 #include "log_manager.h"
 #include "file_log_sender.h"
+#include "engine/db/global_objects.h"
 
 namespace logging {
 
 LogManager& LogManager::Instance() {
-    static LogManager instance;
-    return instance;
+    return GlobalObjects::log_manager();
 }
 
 LogManager::LogManager() {

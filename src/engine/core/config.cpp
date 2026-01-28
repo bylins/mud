@@ -696,7 +696,9 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
 	m_changelog_format(Boards::constants::loader_formats::GIT),
 	m_telemetry_enabled(false),
-	m_telemetry_endpoint("http://localhost:4318"),
+	m_telemetry_metrics_endpoint("http://localhost:4318/v1/metrics"),
+	m_telemetry_traces_endpoint("http://localhost:4318/v1/traces"),
+	m_telemetry_logs_endpoint("http://localhost:4318/v1/logs"),
 	m_telemetry_service_name("bylins-mud"),
 	m_telemetry_service_version("1.0.0"),
 	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly) {
@@ -785,9 +787,28 @@ void RuntimeConfiguration::load_telemetry_configuration_impl(const pugi::xml_nod
 
 	const auto otlp = telemetry.child("otlp");
 	if (otlp) {
-		const auto endpoint = otlp.child("endpoint");
-		if (endpoint) {
-			m_telemetry_endpoint = endpoint.child_value();
+		const auto metrics = otlp.child("metrics");
+		if (metrics) {
+			const auto endpoint = metrics.child("endpoint");
+			if (endpoint) {
+				m_telemetry_metrics_endpoint = endpoint.child_value();
+			}
+		}
+		
+		const auto traces = otlp.child("traces");
+		if (traces) {
+			const auto endpoint = traces.child("endpoint");
+			if (endpoint) {
+				m_telemetry_traces_endpoint = endpoint.child_value();
+			}
+		}
+		
+		const auto logs_otlp = otlp.child("logs_otlp");
+		if (logs_otlp) {
+			const auto endpoint = logs_otlp.child("endpoint");
+			if (endpoint) {
+				m_telemetry_logs_endpoint = endpoint.child_value();
+			}
 		}
 	}
 
@@ -823,7 +844,9 @@ void RuntimeConfiguration::load_telemetry_configuration(const pugi::xml_node *) 
 #ifdef WITH_OTEL
 	if (m_telemetry_enabled) {
 		observability::OtelProvider::Instance().Initialize(
-			m_telemetry_endpoint,
+			m_telemetry_metrics_endpoint,
+			m_telemetry_traces_endpoint,
+			m_telemetry_logs_endpoint,
 			m_telemetry_service_name,
 			m_telemetry_service_version);
 	}

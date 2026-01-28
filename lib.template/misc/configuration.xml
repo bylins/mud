@@ -128,8 +128,18 @@
 		<enabled>true</enabled>
 		
 		<otlp>
-			<endpoint>http://localhost:4318</endpoint>
-			<protocol>http</protocol>
+			<metrics>
+				<endpoint>http://localhost:4318/v1/metrics</endpoint>
+				<protocol>http</protocol>
+			</metrics>
+			<traces>
+				<endpoint>http://localhost:4318/v1/traces</endpoint>
+				<protocol>http</protocol>
+			</traces>
+			<logs_otlp>
+				<endpoint>http://localhost:4318/v1/logs</endpoint>
+				<protocol>http</protocol>
+			</logs_otlp>
 		</otlp>
 		
 		<service>
@@ -139,7 +149,7 @@
 		</service>
 		
 		<logs>
-			<mode>file-only</mode>
+			<mode>duplicate</mode>
 		</logs>
 		
 		<batch>

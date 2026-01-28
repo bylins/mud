@@ -177,7 +177,9 @@ class RuntimeConfiguration {
 	const auto &statistics() const { return m_statistics; }
 
 	bool telemetry_enabled() const { return m_telemetry_enabled; }
-	const std::string &telemetry_endpoint() const { return m_telemetry_endpoint; }
+	const std::string &telemetry_metrics_endpoint() const { return m_telemetry_metrics_endpoint; }
+	const std::string &telemetry_traces_endpoint() const { return m_telemetry_traces_endpoint; }
+	const std::string &telemetry_logs_endpoint() const { return m_telemetry_logs_endpoint; }
 	const std::string &telemetry_service_name() const { return m_telemetry_service_name; }
 	const std::string &telemetry_service_version() const { return m_telemetry_service_version; }
 	enum class ETelemetryLogMode { kFileOnly, kOtelOnly, kDuplicate, kUndefined };
@@ -219,7 +221,9 @@ class RuntimeConfiguration {
 	StatisticsConfiguration m_statistics;
 	
 	bool m_telemetry_enabled;
-	std::string m_telemetry_endpoint;
+	std::string m_telemetry_metrics_endpoint;
+	std::string m_telemetry_traces_endpoint;
+	std::string m_telemetry_logs_endpoint;
 	std::string m_telemetry_service_name;
 	std::string m_telemetry_service_version;
 	ETelemetryLogMode m_telemetry_log_mode;

@@ -38,11 +38,13 @@ public:
     static void Error(const std::string& message,
                      const std::map<std::string, std::string>& attributes);
 
-private:
-    LogManager();
-    ~LogManager() = default;
     LogManager(const LogManager&) = delete;
     LogManager& operator=(const LogManager&) = delete;
+
+// Made public to allow GlobalObjects to manage lifetime
+public:
+    LogManager();
+    ~LogManager() = default;
 
     std::vector<std::unique_ptr<ILogSender>> m_senders;
 };

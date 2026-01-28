@@ -152,6 +152,8 @@ set(SOURCES
 		src/engine/structs/flags.hpp
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
+		src/utils/tracing/trace_manager.cpp
+		src/engine/observability/otel_trace_sender.cpp
 		src/gameplay/mechanics/title.cpp
 		src/gameplay/statistics/top.cpp
 		src/utils/utils.cpp
@@ -641,6 +643,10 @@ set(HEADERS
 		src/engine/core/sysdep.h
 		src/engine/network/telnet.h
 		src/utils/utils_time.h
+		src/utils/tracing/trace_sender.h
+		src/utils/tracing/noop_trace_sender.h
+		src/utils/tracing/trace_manager.h
+		src/engine/observability/otel_trace_sender.h
 		src/gameplay/mechanics/title.h
 		src/gameplay/statistics/top.h
 		src/utils/utils.h
@@ -1260,9 +1266,9 @@ set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 set(ASAN_FLAGS)
 if (UNIX AND NOT CYGWIN)
 	set(DEFAULT_WITH_ASAN YES)
-elseif ()
+else()
 	set(DEFAULT_WITH_ASAN NO)
-endif ()
+endif()
 option(WITH_ASAN "Compile with ASAN" ${DEFAULT_WITH_ASAN})
 
 if (WITH_ASAN)
