@@ -451,6 +451,7 @@ set(SOURCES
 		src/engine/observability/otel_provider.cpp
 		src/engine/observability/otel_traces.cpp
 		src/engine/observability/otel_metrics.cpp
+		src/engine/observability/otel_helpers.cpp
 		src/engine/observability/otel_log_sender.cpp)
 
 set(HEADERS
@@ -886,6 +887,7 @@ set(HEADERS
 		src/engine/observability/otel_provider.h
 		src/engine/observability/otel_traces.h
 		src/engine/observability/otel_metrics.h
+		src/engine/observability/otel_helpers.h
 		src/engine/observability/otel_log_sender.h
 		src/utils/logging/log_sender.h)
 

@@ -13,6 +13,8 @@
 #include "opentelemetry/nostd/span.h"
 #include "opentelemetry/nostd/variant.h"
 #include "opentelemetry/context/runtime_context.h"
+#include "opentelemetry/baggage/baggage.h"
+#include "opentelemetry/baggage/baggage_context.h"
 
 namespace observability {
 
@@ -69,6 +71,20 @@ static void AddAttributesToLogRecord(
 		log_record->SetAttribute("trace_id", trace_id);
 		log_record->SetAttribute("span_id", span_id);
 	}
+
+	// Add baggage values (combat_trace_id, quest_trace_id, etc.)
+	auto current_ctx = opentelemetry::context::RuntimeContext::GetCurrent();
+	auto baggage = opentelemetry::baggage::GetBaggage(current_ctx);
+	if (baggage) {
+		baggage->GetAllEntries([&log_record](opentelemetry::nostd::string_view key,
+		                                      opentelemetry::nostd::string_view value) {
+			std::string key_str(key.data(), key.size());
+			std::string value_str(value.data(), value.size());
+			log_record->SetAttribute(key_str, value_str);
+			return true; // continue iteration
+		});
+	}
+
 
 	// Add user attributes
 	for (const auto& [key, value] : user_attributes) {

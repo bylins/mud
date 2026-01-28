@@ -5,10 +5,14 @@
 #include "opentelemetry/trace/provider.h"
 
 namespace tracing {
-
 OtelSpan::OtelSpan(opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span)
 	: m_span(span)
 	, m_scope(span ? opentelemetry::nostd::unique_ptr<opentelemetry::trace::Scope>(
+		new opentelemetry::trace::Scope(span)) : nullptr) {}
+
+OtelSpan::OtelSpan(opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span, bool create_scope)
+	: m_span(span)
+	, m_scope(create_scope && span ? opentelemetry::nostd::unique_ptr<opentelemetry::trace::Scope>(
 		new opentelemetry::trace::Scope(span)) : nullptr) {}
 
 void OtelSpan::End() {

@@ -15,6 +15,7 @@ namespace tracing {
 class OtelSpan : public ISpan {
 public:
 	explicit OtelSpan(opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span);
+	OtelSpan(opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span, bool create_scope);
 
 	void End() override;
 	void AddEvent(const std::string& name) override;
