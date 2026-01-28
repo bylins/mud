@@ -2466,6 +2466,264 @@ YAML::Node YamlWorldDataSource::MobToYaml(const CharData &mob) const
 
 	return node;
 }
+YAML::Node YamlWorldDataSource::ObjectToYaml(const CObjectPrototype *obj) const
+{
+	if (!obj)
+	{
+		return YAML::Node();
+	}
+
+	YAML::Node node;
+
+	// Names (6 cases)
+	YAML::Node names;
+	names["aliases"] = ConvertToUtf8(obj->get_aliases());
+	names["nominative"] = ConvertToUtf8(obj->get_PName(ECase::kNom));
+	names["genitive"] = ConvertToUtf8(obj->get_PName(ECase::kGen));
+	names["dative"] = ConvertToUtf8(obj->get_PName(ECase::kDat));
+	names["accusative"] = ConvertToUtf8(obj->get_PName(ECase::kAcc));
+	names["instrumental"] = ConvertToUtf8(obj->get_PName(ECase::kIns));
+	names["prepositional"] = ConvertToUtf8(obj->get_PName(ECase::kPre));
+	node["names"] = names;
+
+	// Descriptions
+	if (!obj->get_description().empty())
+	{
+		node["short_desc"] = ConvertToUtf8(obj->get_description());
+	}
+	if (!obj->get_action_description().empty())
+	{
+		node["action_desc"] = ConvertToUtf8(obj->get_action_description());
+	}
+
+	// Type
+	std::string type_name = ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type()));
+	if (!type_name.empty())
+	{
+		node["type"] = type_name;
+	}
+	else
+	{
+		node["type"] = static_cast<int>(obj->get_type());
+	}
+
+	// Material
+	if (obj->get_material() != EObjMaterial::kUndefined)
+	{
+		node["material"] = static_cast<int>(obj->get_material());
+	}
+
+	// Values (object type-specific)
+	YAML::Node values;
+	values.push_back(obj->get_val(0));
+	values.push_back(obj->get_val(1));
+	values.push_back(obj->get_val(2));
+	values.push_back(obj->get_val(3));
+	node["values"] = values;
+
+	// Physical properties
+	node["weight"] = obj->get_weight();
+	node["cost"] = obj->get_cost();
+	if (obj->get_rent_off() != 0)
+	{
+		node["rent_off"] = obj->get_rent_off();
+	}
+	if (obj->get_rent_on() != 0)
+	{
+		node["rent_on"] = obj->get_rent_on();
+	}
+	if (obj->get_spec_param() != 0)
+	{
+		node["spec_param"] = obj->get_spec_param();
+	}
+
+	// Durability
+	if (obj->get_maximum_durability() != 100)
+	{
+		node["max_durability"] = obj->get_maximum_durability();
+	}
+	if (obj->get_current_durability() != 100)
+	{
+		node["cur_durability"] = obj->get_current_durability();
+	}
+
+	// Timer
+	if (obj->get_timer() != ObjData::SEVEN_DAYS)
+	{
+		node["timer"] = obj->get_timer();
+	}
+
+	// Spell
+	if (obj->get_spell() != -1)
+	{
+		node["spell"] = obj->get_spell();
+	}
+
+	// Level
+	if (obj->get_level() != 0)
+	{
+		node["level"] = obj->get_level();
+	}
+
+	// Sex
+	std::string sex_name = ReverseLookupEnum("genders", static_cast<int>(obj->get_sex()));
+	if (!sex_name.empty())
+	{
+		node["sex"] = sex_name;
+	}
+	else
+	{
+		node["sex"] = static_cast<int>(obj->get_sex());
+	}
+
+	// Max in world
+	if (obj->get_max_in_world() != -1)
+	{
+		node["max_in_world"] = obj->get_max_in_world();
+	}
+
+	// Minimum remorts
+	if (obj->get_minimum_remorts() != 0)
+	{
+		node["minimum_remorts"] = obj->get_minimum_remorts();
+	}
+
+	// Extra flags
+	FlagData extra_flags = obj->get_all_extraflag();
+	std::vector<std::string> extra_flag_names = ConvertFlagsToNames(extra_flags, "extra_flags");
+	if (!extra_flag_names.empty())
+	{
+		YAML::Node extra_flags_node;
+		for (const auto &fname : extra_flag_names)
+		{
+			extra_flags_node.push_back(fname);
+		}
+		node["extra_flags"] = extra_flags_node;
+	}
+
+	// Wear flags
+	int wear_flags = obj->get_wear_flags();
+	if (wear_flags != 0)
+	{
+		YAML::Node wear_flags_node;
+		for (int bit = 0; bit < 32; ++bit)
+		{
+			if (wear_flags & (1 << bit))
+			{
+				std::string flag_name = ReverseLookupEnum("wear_flags", bit);
+				if (!flag_name.empty())
+				{
+					wear_flags_node.push_back(flag_name);
+				}
+			}
+		}
+		if (wear_flags_node.size() > 0)
+		{
+			node["wear_flags"] = wear_flags_node;
+		}
+	}
+
+	// No flags
+	FlagData no_flags = obj->get_all_noflag();
+	std::vector<std::string> no_flag_names = ConvertFlagsToNames(no_flags, "no_flags");
+	if (!no_flag_names.empty())
+	{
+		YAML::Node no_flags_node;
+		for (const auto &fname : no_flag_names)
+		{
+			no_flags_node.push_back(fname);
+		}
+		node["no_flags"] = no_flags_node;
+	}
+
+	// Anti flags
+	FlagData anti_flags = obj->get_all_antiflag();
+	std::vector<std::string> anti_flag_names = ConvertFlagsToNames(anti_flags, "anti_flags");
+	if (!anti_flag_names.empty())
+	{
+		YAML::Node anti_flags_node;
+		for (const auto &fname : anti_flag_names)
+		{
+			anti_flags_node.push_back(fname);
+		}
+		node["anti_flags"] = anti_flags_node;
+	}
+
+	// Affect flags (weapon affects)
+	FlagData affect_flags = obj->get_all_affect_flags();
+	std::vector<std::string> affect_flag_names = ConvertFlagsToNames(affect_flags, "affect_flags");
+	if (!affect_flag_names.empty())
+	{
+		YAML::Node affect_flags_node;
+		for (const auto &fname : affect_flag_names)
+		{
+			affect_flags_node.push_back(fname);
+		}
+		node["affect_flags"] = affect_flags_node;
+	}
+
+	// Applies (affects)
+	YAML::Node applies_node;
+	for (int i = 0; i < kMaxObjAffect; ++i)
+	{
+		const auto &affect = obj->get_affected(i);
+		if (affect.location != EApply::kNone && affect.modifier != 0)
+		{
+			YAML::Node apply;
+			apply["location"] = static_cast<int>(affect.location);
+			apply["modifier"] = affect.modifier;
+			applies_node.push_back(apply);
+		}
+	}
+	if (applies_node.size() > 0)
+	{
+		node["applies"] = applies_node;
+	}
+
+	// Extra descriptions
+	if (obj->get_ex_description())
+	{
+		YAML::Node extras_node;
+		for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next)
+		{
+			YAML::Node ed_node;
+			if (!ex_desc->keyword.empty())
+			{
+				ed_node["keywords"] = ConvertToUtf8(ex_desc->keyword);
+			}
+			if (!ex_desc->description.empty())
+			{
+				ed_node["description"] = ConvertToUtf8(ex_desc->description);
+			}
+			extras_node.push_back(ed_node);
+		}
+		if (extras_node.size() > 0)
+		{
+			node["extra_descriptions"] = extras_node;
+		}
+	}
+
+	// Triggers
+	if (obj->get_script() && obj->get_script()->has_triggers())
+	{
+		YAML::Node triggers_node;
+		for (const auto &trig : obj->get_script()->trig_list)
+		{
+			if (trig && trig->get_rnum() >= 0 && trig->get_rnum() <= top_of_trigt)
+			{
+				int trig_vnum = trig_index[trig->get_rnum()]->vnum;
+				triggers_node.push_back(trig_vnum);
+			}
+		}
+		if (triggers_node.size() > 0)
+		{
+			node["triggers"] = triggers_node;
+		}
+	}
+
+	return node;
+}
+
 
 	std::string new_file = filename + ".new";
 	std::string old_file = filename + ".old";
