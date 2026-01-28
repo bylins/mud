@@ -1496,6 +1496,123 @@ void YamlWorldDataSource::LoadObjects()
 // Save methods (not implemented - read-only)
 // ============================================================================
 
+// ============================================================================
+// Save helper functions
+// ============================================================================
+
+std::string YamlWorldDataSource::ConvertToUtf8(const std::string &koi8r_str) const
+{
+	if (koi8r_str.empty())
+	{
+		return "";
+	}
+
+	static char buffer[65536];
+	char *input = const_cast<char*>(koi8r_str.c_str());
+	char *output = buffer;
+	koi_to_utf8(input, output);
+	return buffer;
+}
+
+void YamlWorldDataSource::WriteYamlAtomic(const std::string &filename, const YAML::Node &node) const
+{
+	std::string new_file = filename + ".new";
+	std::string old_file = filename + ".old";
+
+	// Step 1: Write to .new file
+	std::ofstream out(new_file);
+	if (!out)
+	{
+		log("SYSERR: Cannot open file for writing: %s", new_file.c_str());
+		return;
+	}
+
+	YAML::Emitter emitter;
+	emitter << node;
+	out << emitter.c_str();
+	out.close();
+
+	if (!out.good())
+	{
+		log("SYSERR: Error writing to file: %s", new_file.c_str());
+		std::filesystem::remove(new_file);
+		return;
+	}
+
+	// Step 2: Rename old file to .old (if exists)
+	if (std::filesystem::exists(filename))
+	{
+		std::error_code ec;
+		std::filesystem::rename(filename, old_file, ec);
+		if (ec)
+		{
+			log("SYSERR: Cannot rename %s to %s: %s", filename.c_str(), old_file.c_str(), ec.message().c_str());
+			std::filesystem::remove(new_file);
+			return;
+		}
+	}
+
+	// Step 3: Rename .new to target
+	{
+		std::error_code ec;
+		std::filesystem::rename(new_file, filename, ec);
+		if (ec)
+		{
+			log("SYSERR: Cannot rename %s to %s: %s", new_file.c_str(), filename.c_str(), ec.message().c_str());
+			// Try to restore .old
+			if (std::filesystem::exists(old_file))
+			{
+				std::filesystem::rename(old_file, filename);
+			}
+			return;
+		}
+	}
+
+	// Step 4: Remove .old backup
+	if (std::filesystem::exists(old_file))
+	{
+		std::filesystem::remove(old_file);
+	}
+}
+
+void YamlWorldDataSource::UpdateIndexYaml(const std::string &section, int vnum) const
+{
+	std::string index_file = m_world_dir + "/" + section + "/index.yaml";
+	std::set<int> vnums;
+
+	// Load existing index
+	if (std::filesystem::exists(index_file))
+	{
+		try
+		{
+			YAML::Node index = YAML::LoadFile(index_file);
+			if (index.IsSequence())
+			{
+				for (const auto &item : index)
+				{
+					vnums.insert(item.as<int>());
+				}
+			}
+		}
+		catch (const YAML::Exception &e)
+		{
+			log("SYSERR: Error loading %s: %s", index_file.c_str(), e.what());
+		}
+	}
+
+	// Add new vnum
+	vnums.insert(vnum);
+
+	// Write back
+	YAML::Node index_node;
+	for (int v : vnums)
+	{
+		index_node.push_back(v);
+	}
+
+	WriteYamlAtomic(index_file, index_node);
+}
+
 void YamlWorldDataSource::SaveZone(int zone_rnum)
 {
 	log("SYSERR: YAML data source is read-only. Cannot save zone %d.", zone_rnum);
