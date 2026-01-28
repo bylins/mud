@@ -1144,19 +1144,7 @@ void SqliteWorldDataSource::LoadRoomTriggers(const std::map<int, int> &vnum_to_r
 		auto it = vnum_to_rnum.find(room_vnum);
 		if (it == vnum_to_rnum.end()) continue;
 
-		if (!world[it->second]->proto_script)
-		{
-			world[it->second]->proto_script = std::make_shared<ObjData::triggers_list_t>();
-		}
-		// Only add trigger if it exists
-		if (GetTriggerRnum(trigger_vnum) >= 0)
-		{
-			world[it->second]->proto_script->push_back(trigger_vnum);
-		}
-		else
-		{
-			log("SYSERR: Room %d references non-existent trigger %d, skipping.", room_vnum, trigger_vnum);
-		}
+		AttachTriggerToRoom(it->second, trigger_vnum, room_vnum);
 	}
 	sqlite3_finalize(stmt);
 }
@@ -1539,19 +1527,7 @@ void SqliteWorldDataSource::LoadMobTriggers()
 		auto it = vnum_to_rnum.find(mob_vnum);
 		if (it == vnum_to_rnum.end()) continue;
 
-		if (!mob_proto[it->second].proto_script)
-		{
-			mob_proto[it->second].proto_script = std::make_shared<ObjData::triggers_list_t>();
-		}
-		// Only add trigger if it exists
-		if (GetTriggerRnum(trigger_vnum) >= 0)
-		{
-			mob_proto[it->second].proto_script->push_back(trigger_vnum);
-		}
-		else
-		{
-			log("SYSERR: Mob %d references non-existent trigger %d, skipping.", mob_vnum, trigger_vnum);
-		}
+		AttachTriggerToMob(it->second, trigger_vnum, mob_vnum);
 	}
 	sqlite3_finalize(stmt);
 }
@@ -2098,15 +2074,7 @@ void SqliteWorldDataSource::LoadObjectTriggers()
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum >= 0)
 		{
-			// Only add trigger if it exists
-			if (GetTriggerRnum(trigger_vnum) >= 0)
-			{
-				obj_proto[rnum]->add_proto_script(trigger_vnum);
-			}
-			else
-			{
-				log("SYSERR: Object %d references non-existent trigger %d, skipping.", obj_vnum, trigger_vnum);
-			}
+			AttachTriggerToObject(rnum, trigger_vnum, obj_vnum);
 		}
 	}
 	sqlite3_finalize(stmt);

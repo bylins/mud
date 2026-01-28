@@ -768,18 +768,7 @@ void YamlWorldDataSource::LoadRooms()
 				for (const auto &trig_node : root["triggers"])
 				{
 					int trigger_vnum = trig_node.as<int>();
-					if (!room->proto_script)
-					{
-						room->proto_script = std::make_shared<ObjData::triggers_list_t>();
-					}
-					if (GetTriggerRnum(trigger_vnum) >= 0)
-					{
-						room->proto_script->push_back(trigger_vnum);
-					}
-					else
-					{
-						log("SYSERR: Room %d references non-existent trigger %d, skipping.", vnum, trigger_vnum);
-					}
+					AttachTriggerToRoom(top_of_world, trigger_vnum, vnum);
 				}
 			}
 		}
@@ -1052,18 +1041,7 @@ void YamlWorldDataSource::LoadMobs()
 				for (const auto &trig_node : root["triggers"])
 				{
 					int trigger_vnum = trig_node.as<int>();
-					if (!mob.proto_script)
-					{
-						mob.proto_script = std::make_shared<ObjData::triggers_list_t>();
-					}
-					if (GetTriggerRnum(trigger_vnum) >= 0)
-					{
-						mob.proto_script->push_back(trigger_vnum);
-					}
-					else
-					{
-						log("SYSERR: Mob %d references non-existent trigger %d, skipping.", vnum, trigger_vnum);
-					}
+					AttachTriggerToMob(top_of_mobt, trigger_vnum, vnum);
 				}
 			}
 
@@ -1485,24 +1463,18 @@ void YamlWorldDataSource::LoadObjects()
 				}
 			}
 
-			// Triggers
+			// Add to proto first to get rnum
+			ObjRnum obj_rnum = obj_proto.add(obj, vnum);
+
+			// Triggers (after adding to proto so we have rnum)
 			if (root["triggers"] && root["triggers"].IsSequence())
 			{
 				for (const auto &trig_node : root["triggers"])
 				{
 					int trigger_vnum = trig_node.as<int>();
-					if (GetTriggerRnum(trigger_vnum) >= 0)
-					{
-						obj->add_proto_script(trigger_vnum);
-					}
-					else
-					{
-						log("SYSERR: Object %d references non-existent trigger %d, skipping.", vnum, trigger_vnum);
-					}
+					AttachTriggerToObject(obj_rnum, trigger_vnum, vnum);
 				}
 			}
-
-			obj_proto.add(obj, vnum);
 		}
 		catch (const YAML::Exception &e)
 		{
