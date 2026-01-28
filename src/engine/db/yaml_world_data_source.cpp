@@ -2824,28 +2824,228 @@ void YamlWorldDataSource::UpdateIndexYaml(const std::string &section, int vnum) 
 
 void YamlWorldDataSource::SaveZone(int zone_rnum)
 {
-	log("SYSERR: YAML data source is read-only. Cannot save zone %d.", zone_rnum);
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveZone", zone_rnum);
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	int zone_vnum = zone.vnum;
+
+	// Convert zone to YAML
+	YAML::Node zone_node = ZoneToYaml(zone);
+
+	// Write to zones/{vnum}/zone.yaml
+	std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum);
+	std::filesystem::create_directories(zone_dir);
+
+	std::string filepath = zone_dir + "/zone.yaml";
+	WriteYamlAtomic(filepath, zone_node);
+
+	log("Saved zone %d to %s", zone_vnum, filepath.c_str());
 }
 
 void YamlWorldDataSource::SaveTriggers(int zone_rnum)
 {
-	log("SYSERR: YAML data source is read-only. Cannot save triggers for zone %d.", zone_rnum);
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	
+	// Get trigger range for this zone
+	TrgRnum first_trig = zone.RnumTrigsLocation.first;
+	TrgRnum last_trig = zone.RnumTrigsLocation.second;
+
+	if (first_trig == -1 || last_trig == -1)
+	{
+		log("Zone %d has no triggers to save", zone.vnum);
+		return;
+	}
+
+	// Ensure triggers directory exists
+	std::string triggers_dir = m_world_dir + "/triggers";
+	std::filesystem::create_directories(triggers_dir);
+
+	int saved_count = 0;
+	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum <= top_of_trigt; ++trig_rnum)
+	{
+		if (!trig_index[trig_rnum])
+		{
+			continue;
+		}
+
+		int trig_vnum = trig_index[trig_rnum]->vnum;
+		Trigger *trig = trig_index[trig_rnum]->proto;
+
+		if (!trig)
+		{
+			continue;
+		}
+
+		// Convert trigger to YAML
+		YAML::Node trig_node = TriggerToYaml(trig);
+
+		// Write to triggers/{vnum}.yaml
+		std::string filepath = triggers_dir + "/" + std::to_string(trig_vnum) + ".yaml";
+		WriteYamlAtomic(filepath, trig_node);
+
+		// Update index
+		UpdateIndexYaml("triggers", trig_vnum);
+
+		++saved_count;
+	}
+
+	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
 }
 
 void YamlWorldDataSource::SaveRooms(int zone_rnum)
 {
-	log("SYSERR: YAML data source is read-only. Cannot save rooms for zone %d.", zone_rnum);
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveRooms", zone_rnum);
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	int zone_vnum = zone.vnum;
+
+	// Get room range for this zone  
+	RoomRnum first_room = zone.RnumRoomsLocation.first;
+	RoomRnum last_room = zone.RnumRoomsLocation.second;
+
+	if (first_room == -1 || last_room == -1)
+	{
+		log("Zone %d has no rooms to save", zone_vnum);
+		return;
+	}
+
+	// Ensure rooms directory exists
+	std::string rooms_dir = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/rooms";
+	std::filesystem::create_directories(rooms_dir);
+
+	int saved_count = 0;
+	for (RoomRnum room_rnum = first_room; room_rnum <= last_room && room_rnum <= top_of_world; ++room_rnum)
+	{
+		const RoomData *room = world[room_rnum];
+		if (!room || room->vnum < zone_vnum * 100 || room->vnum > zone.top)
+		{
+			continue;
+		}
+
+		// Convert room to YAML
+		YAML::Node room_node = RoomToYaml(room);
+
+		// Calculate relative room number (0-99 within zone)
+		int rel_num = room->vnum % 100;
+
+		// Write to zones/{zone_vnum}/rooms/{rel_num}.yaml
+		std::string filepath = rooms_dir + "/" + std::to_string(rel_num) + ".yaml";
+		WriteYamlAtomic(filepath, room_node);
+
+		++saved_count;
+	}
+
+	log("Saved %d rooms for zone %d", saved_count, zone_vnum);
 }
 
 void YamlWorldDataSource::SaveMobs(int zone_rnum)
 {
-	log("SYSERR: YAML data source is read-only. Cannot save mobs for zone %d.", zone_rnum);
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveMobs", zone_rnum);
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	
+	// Get mob range for this zone
+	MobRnum first_mob = zone.RnumMobsLocation.first;
+	MobRnum last_mob = zone.RnumMobsLocation.second;
+
+	if (first_mob == -1 || last_mob == -1)
+	{
+		log("Zone %d has no mobs to save", zone.vnum);
+		return;
+	}
+
+	// Ensure mobs directory exists
+	std::string mobs_dir = m_world_dir + "/mobs";
+	std::filesystem::create_directories(mobs_dir);
+
+	int saved_count = 0;
+	for (MobRnum mob_rnum = first_mob; mob_rnum <= last_mob && mob_rnum <= top_of_mobt; ++mob_rnum)
+	{
+		if (!mob_index[mob_rnum].vnum)
+		{
+			continue;
+		}
+
+		int mob_vnum = mob_index[mob_rnum].vnum;
+		const CharData &mob = mob_proto[mob_rnum];
+
+		// Convert mob to YAML
+		YAML::Node mob_node = MobToYaml(mob);
+
+		// Write to mobs/{vnum}.yaml
+		std::string filepath = mobs_dir + "/" + std::to_string(mob_vnum) + ".yaml";
+		WriteYamlAtomic(filepath, mob_node);
+
+		// Update index
+		UpdateIndexYaml("mobs", mob_vnum);
+
+		++saved_count;
+	}
+
+	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
 }
 
 void YamlWorldDataSource::SaveObjects(int zone_rnum)
 {
-	log("SYSERR: YAML data source is read-only. Cannot save objects for zone %d.", zone_rnum);
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveObjects", zone_rnum);
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	int zone_vnum = zone.vnum;
+
+	// Ensure objects directory exists
+	std::string objects_dir = m_world_dir + "/objects";
+	std::filesystem::create_directories(objects_dir);
+
+	// Iterate through all objects and save those in this zone's vnum range
+	int saved_count = 0;
+	int start_vnum = zone_vnum * 100;
+	int end_vnum = zone.top;
+
+	for (const auto &[obj_vnum, obj_proto] : obj_proto)
+	{
+		if (obj_vnum < start_vnum || obj_vnum > end_vnum)
+		{
+			continue;
+		}
+
+		// Convert object to YAML
+		YAML::Node obj_node = ObjectToYaml(obj_proto.get());
+
+		// Write to objects/{vnum}.yaml
+		std::string filepath = objects_dir + "/" + std::to_string(obj_vnum) + ".yaml";
+		WriteYamlAtomic(filepath, obj_node);
+
+		// Update index
+		UpdateIndexYaml("objects", obj_vnum);
+
+		++saved_count;
+	}
+
+	log("Saved %d objects for zone %d", saved_count, zone_vnum);
 }
+
 
 // ============================================================================
 // Factory function
