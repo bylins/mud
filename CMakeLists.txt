@@ -164,6 +164,8 @@ set(SOURCES
 		src/engine/db/world_data_source.h
 		src/engine/db/world_data_source_base.h
 		src/engine/db/world_data_source_base.cpp
+		src/engine/db/world_data_source_manager.h
+		src/engine/db/world_data_source_manager.cpp
 		src/engine/db/legacy_world_data_source.h
 		src/engine/db/legacy_world_data_source.cpp
 		# SQLite world data source (conditional)
