@@ -25,3 +25,9 @@ build/
 build_*/
 test/
 magic.mgc
+
+# Runtime data and temporary files
+/data/
+/docs/
+/misc/
+otel-integration-plan.md
