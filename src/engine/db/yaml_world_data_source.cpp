@@ -1497,6 +1497,104 @@ void YamlWorldDataSource::LoadObjects()
 // ============================================================================
 
 // ============================================================================
+// ============================================================================
+// Reverse lookup helpers: value Б├▓ name
+// ============================================================================
+
+// Get flag/enum name from numeric value using dictionary
+std::string YamlWorldDataSource::ReverseLookupEnum(const std::string &dict_name, int value) const
+{
+	auto &dm = DictionaryManager::Instance();
+	const auto *dict = dm.GetDictionary(dict_name);
+	if (!dict)
+	{
+		return "";
+	}
+
+	for (const auto &entry : dict->GetEntries())
+	{
+		if (entry.second == value)
+		{
+			return entry.first;
+		}
+	}
+	return "";
+}
+
+// Convert flag bitvector to list of flag names
+std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const
+{
+	std::vector<std::string> names;
+	auto &dm = DictionaryManager::Instance();
+	const auto *dict = dm.GetDictionary(dict_name);
+	if (!dict)
+	{
+		return names;
+	}
+
+	// Check each bit position
+	for (size_t plane = 0; plane < flags.plane_count(); ++plane)
+	{
+		Bitvector plane_flags = flags.get_plane(plane);
+		if (plane_flags == 0)
+		{
+			continue;
+		}
+
+		for (int bit = 0; bit < 30; ++bit)
+		{
+			if (plane_flags & (1 << bit))
+			{
+				long bit_pos = plane * 30 + bit;
+				// Find name for this bit position
+				for (const auto &entry : dict->GetEntries())
+				{
+					if (entry.second == bit_pos)
+					{
+						names.push_back(entry.first);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return names;
+}
+
+// Convert trigger type bitvector to list of trigger type names
+std::vector<std::string> YamlWorldDataSource::ConvertTriggerTypesToNames(long trigger_type) const
+{
+	std::vector<std::string> names;
+	auto &dm = DictionaryManager::Instance();
+	const auto *dict = dm.GetDictionary("trigger_types");
+	if (!dict)
+	{
+		return names;
+	}
+
+	for (int bit = 0; bit < 64; ++bit)
+	{
+		if (trigger_type & (1L << bit))
+		{
+			// Find name for this bit
+			for (const auto &entry : dict->GetEntries())
+			{
+				if (entry.second == bit)
+				{
+					names.push_back(entry.first);
+					break;
+				}
+			}
+		}
+	}
+
+	return names;
+}
+
+// Reverse lookup helpers: value Б├▓ name
+// ============================================================================
+
 // Save helper functions
 // ============================================================================
 
@@ -1516,6 +1614,859 @@ std::string YamlWorldDataSource::ConvertToUtf8(const std::string &koi8r_str) con
 
 void YamlWorldDataSource::WriteYamlAtomic(const std::string &filename, const YAML::Node &node) const
 {
+YAML::Node YamlWorldDataSource::ZoneCommandToYaml(const struct reset_com &cmd) const
+{
+	YAML::Node node;
+
+	// Set if_flag for all commands
+	if (cmd.if_flag != 0)
+	{
+		node["if_flag"] = cmd.if_flag;
+	}
+
+	switch (cmd.command)
+	{
+		case 'M':  // Load Mobile
+			node["type"] = "LOAD_MOB";
+			node["mob_vnum"] = cmd.arg1;
+			node["max_world"] = cmd.arg2;
+			node["room_vnum"] = cmd.arg3;
+			if (cmd.arg4 != -1)
+			{
+				node["max_room"] = cmd.arg4;
+			}
+			break;
+
+		case 'F':  // Follow
+			node["type"] = "FOLLOW";
+			node["room_vnum"] = cmd.arg1;
+			node["leader_mob_vnum"] = cmd.arg2;
+			node["follower_mob_vnum"] = cmd.arg3;
+			break;
+
+		case 'O':  // Load Object
+			node["type"] = "LOAD_OBJ";
+			node["obj_vnum"] = cmd.arg1;
+			node["max"] = cmd.arg2;
+			node["room_vnum"] = cmd.arg3;
+			if (cmd.arg4 != -1)
+			{
+				node["load_prob"] = cmd.arg4;
+			}
+			break;
+
+		case 'G':  // Give Object
+			node["type"] = "GIVE_OBJ";
+			node["obj_vnum"] = cmd.arg1;
+			node["max"] = cmd.arg2;
+			if (cmd.arg4 != -1)
+			{
+				node["load_prob"] = cmd.arg4;
+			}
+			break;
+
+		case 'E':  // Equip Mobile
+			node["type"] = "EQUIP_MOB";
+			node["obj_vnum"] = cmd.arg1;
+			node["max"] = cmd.arg2;
+			node["wear_pos"] = cmd.arg3;
+			if (cmd.arg4 != -1)
+			{
+				node["load_prob"] = cmd.arg4;
+			}
+			break;
+
+		case 'P':  // Put in container
+			node["type"] = "PUT_OBJ";
+			node["obj_vnum"] = cmd.arg1;
+			node["max"] = cmd.arg2;
+			node["container_vnum"] = cmd.arg3;
+			if (cmd.arg4 != -1)
+			{
+				node["load_prob"] = cmd.arg4;
+			}
+			break;
+
+		case 'D':  // Set door state
+			node["type"] = "DOOR";
+			node["room_vnum"] = cmd.arg1;
+			node["direction"] = cmd.arg2;
+			node["state"] = cmd.arg3;
+			break;
+
+		case 'R':  // Remove object
+			node["type"] = "REMOVE_OBJ";
+			node["room_vnum"] = cmd.arg1;
+			node["obj_vnum"] = cmd.arg2;
+			break;
+
+		case 'Q':  // Extract mobile (Purge)
+			node["type"] = "EXTRACT_MOB";
+			node["mob_vnum"] = cmd.arg1;
+			break;
+
+		case 'T':  // Attach trigger
+			node["type"] = "TRIGGER";
+			node["trigger_type"] = cmd.arg1;
+			node["trigger_vnum"] = cmd.arg2;
+			if (cmd.arg3 != -1)
+			{
+				node["room_vnum"] = cmd.arg3;
+			}
+			break;
+
+		case 'V':  // Set variable
+			node["type"] = "VARIABLE";
+			node["trigger_type"] = cmd.arg1;
+			node["context"] = cmd.arg2;
+			node["room_vnum"] = cmd.arg3;
+			if (cmd.sarg1)
+			{
+				node["var_name"] = ConvertToUtf8(cmd.sarg1);
+			}
+			if (cmd.sarg2)
+			{
+				node["var_value"] = ConvertToUtf8(cmd.sarg2);
+			}
+			break;
+
+		default:
+			// Unknown command - skip
+			return YAML::Node();
+	}
+
+	return node;
+}
+
+YAML::Node YamlWorldDataSource::ZoneToYaml(const ZoneData &zone) const
+{
+	YAML::Node node;
+
+	// Basic fields
+	node["vnum"] = zone.vnum;
+	node["name"] = ConvertToUtf8(zone.name);
+	node["top_room"] = zone.top;
+	node["lifespan"] = zone.lifespan;
+	node["reset_mode"] = zone.reset_mode;
+	
+	if (zone.reset_idle)
+	{
+		node["reset_idle"] = 1;
+	}
+	
+	node["zone_group"] = zone.group;
+	node["zone_type"] = zone.type;
+	node["mode"] = zone.level;
+	
+	if (zone.entrance != 0)
+	{
+		node["entrance"] = zone.entrance;
+	}
+	
+	if (zone.under_construction != 0)
+	{
+		node["under_construction"] = zone.under_construction;
+	}
+
+	// Metadata
+	YAML::Node metadata;
+	if (!zone.comment.empty())
+	{
+		metadata["comment"] = ConvertToUtf8(zone.comment);
+	}
+	if (!zone.location.empty())
+	{
+		metadata["location"] = ConvertToUtf8(zone.location);
+	}
+	if (!zone.author.empty())
+	{
+		metadata["author"] = ConvertToUtf8(zone.author);
+	}
+	if (!zone.description.empty())
+	{
+		metadata["description"] = ConvertToUtf8(zone.description);
+	}
+	if (metadata.size() > 0)
+	{
+		node["metadata"] = metadata;
+	}
+
+	// Zone groups (typeA and typeB)
+	if (zone.typeA_count > 0 && zone.typeA_list != nullptr)
+	{
+		YAML::Node typeA;
+		for (int i = 0; i < zone.typeA_count; ++i)
+		{
+			typeA.push_back(zone.typeA_list[i]);
+		}
+		node["typeA_zones"] = typeA;
+	}
+
+	if (zone.typeB_count > 0 && zone.typeB_list != nullptr)
+	{
+		YAML::Node typeB;
+		for (int i = 0; i < zone.typeB_count; ++i)
+		{
+			typeB.push_back(zone.typeB_list[i]);
+		}
+		node["typeB_zones"] = typeB;
+	}
+
+	// Zone commands
+	YAML::Node commands;
+	if (zone.cmd != nullptr)
+	{
+		for (int i = 0; zone.cmd[i].command != 'S'; ++i)
+		{
+			// Skip 'A' and 'B' commands - they're stored in typeA_zones/typeB_zones
+			if (zone.cmd[i].command == 'A' || zone.cmd[i].command == 'B')
+			{
+				continue;
+			}
+
+			YAML::Node cmd_node = ZoneCommandToYaml(zone.cmd[i]);
+			if (cmd_node.IsDefined() && cmd_node.size() > 0)
+			{
+				commands.push_back(cmd_node);
+			}
+		}
+	}
+	if (commands.size() > 0)
+	{
+		node["commands"] = commands;
+	}
+
+	return node;
+}
+
+YAML::Node YamlWorldDataSource::TriggerToYaml(const Trigger *trig) const
+{
+	if (!trig)
+	{
+		return YAML::Node();
+	}
+
+	YAML::Node node;
+
+	// Basic fields
+	node["name"] = ConvertToUtf8(trig->get_name());
+	
+	// Attach type
+	std::string attach_type_name = ReverseLookupEnum("attach_types", trig->get_attach_type());
+	if (!attach_type_name.empty())
+	{
+		node["attach_type"] = attach_type_name;
+	}
+	else
+	{
+		node["attach_type"] = static_cast<int>(trig->get_attach_type());
+	}
+
+	// Trigger types (bitvector)
+	std::vector<std::string> trigger_types = ConvertTriggerTypesToNames(trig->get_trigger_type());
+	if (!trigger_types.empty())
+	{
+		YAML::Node types_node;
+		for (const auto &type : trigger_types)
+		{
+			types_node.push_back(type);
+		}
+		node["trigger_types"] = types_node;
+	}
+
+	// Numeric argument
+	if (trig->narg != 0)
+	{
+		node["narg"] = trig->narg;
+	}
+
+	// Argument list
+	if (!trig->arglist.empty())
+	{
+		node["arglist"] = ConvertToUtf8(trig->arglist);
+	}
+
+	// Script - convert cmdlist to text
+	std::string script;
+	if (trig->cmdlist && *trig->cmdlist)
+	{
+		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
+		{
+			if (!script.empty())
+			{
+				script += "\n";
+			}
+			script += ConvertToUtf8(cmd->cmd);
+		}
+	}
+	if (!script.empty())
+	{
+		node["script"] = script;
+	}
+
+	return node;
+}
+
+YAML::Node YamlWorldDataSource::RoomToYaml(const RoomData *room) const
+{
+	if (!room)
+	{
+		return YAML::Node();
+	}
+
+	YAML::Node node;
+
+	// Basic fields
+	node["vnum"] = room->vnum;
+	node["name"] = ConvertToUtf8(room->name);
+
+	// Description
+	std::string desc = RoomDescription::get_desc(room->description_num);
+	if (!desc.empty())
+	{
+		node["description"] = ConvertToUtf8(desc);
+	}
+
+	// Sector type
+	std::string sector_name = ReverseLookupEnum("sectors", static_cast<int>(room->sector_type));
+	if (!sector_name.empty())
+	{
+		node["sector"] = sector_name;
+	}
+	else
+	{
+		node["sector"] = static_cast<int>(room->sector_type);
+	}
+
+	// Room flags
+	std::vector<std::string> flag_names;
+	for (const auto flag : kRoomFlags)
+	{
+		if (room->has_flag(flag))
+		{
+			long flag_val = static_cast<long>(flag);
+			// Find bit position for this flag value
+			int bit_pos = 0;
+			while (flag_val > 1)
+			{
+				flag_val >>= 1;
+				++bit_pos;
+			}
+			
+			std::string flag_name = ReverseLookupEnum("room_flags", bit_pos);
+			if (!flag_name.empty())
+			{
+				flag_names.push_back(flag_name);
+			}
+		}
+	}
+	if (!flag_names.empty())
+	{
+		YAML::Node flags_node;
+		for (const auto &fname : flag_names)
+		{
+			flags_node.push_back(fname);
+		}
+		node["flags"] = flags_node;
+	}
+
+	// Exits
+	YAML::Node exits_node;
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+	{
+		if (!room->dir_option_proto[dir])
+		{
+			continue;
+		}
+
+		const auto &exit = room->dir_option_proto[dir];
+		YAML::Node exit_node;
+
+		// Direction
+		std::string dir_name = ReverseLookupEnum("directions", dir);
+		if (!dir_name.empty())
+		{
+			exit_node["direction"] = dir_name;
+		}
+		else
+		{
+			exit_node["direction"] = dir;
+		}
+
+		// To room
+		if (exit->to_room() != -1)
+		{
+			exit_node["to_room"] = exit->to_room();
+		}
+
+		// Keywords
+		if (!exit->keyword.empty())
+		{
+			exit_node["keywords"] = ConvertToUtf8(exit->keyword);
+		}
+
+		// Description
+		if (!exit->general_description.empty())
+		{
+			exit_node["description"] = ConvertToUtf8(exit->general_description);
+		}
+
+		// Key
+		if (exit->key != -1)
+		{
+			exit_node["key"] = exit->key;
+		}
+
+		// Lock complexity
+		if (exit->lock_complexity != 0)
+		{
+			exit_node["lock_complexity"] = exit->lock_complexity;
+		}
+
+		// Exit flags
+		if (exit->exit_info != 0)
+		{
+			exit_node["exit_flags"] = exit->exit_info;
+		}
+
+		exits_node.push_back(exit_node);
+	}
+	if (exits_node.size() > 0)
+	{
+		node["exits"] = exits_node;
+	}
+
+	// Extra descriptions
+	if (room->ex_description)
+	{
+		YAML::Node extras_node;
+		for (auto ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
+		{
+			YAML::Node ed_node;
+			if (!ex_desc->keyword.empty())
+			{
+				ed_node["keywords"] = ConvertToUtf8(ex_desc->keyword);
+			}
+			if (!ex_desc->description.empty())
+			{
+				ed_node["description"] = ConvertToUtf8(ex_desc->description);
+			}
+			extras_node.push_back(ed_node);
+		}
+		if (extras_node.size() > 0)
+		{
+			node["extra_descriptions"] = extras_node;
+		}
+	}
+
+	// Triggers
+	if (room->get_script() && room->get_script()->has_triggers())
+	{
+		YAML::Node triggers_node;
+		for (const auto &trig : room->get_script()->trig_list)
+		{
+			// Get trigger vnum from index
+			if (trig && trig->get_rnum() >= 0 && trig->get_rnum() <= top_of_trigt)
+			{
+				int trig_vnum = trig_index[trig->get_rnum()]->vnum;
+				triggers_node.push_back(trig_vnum);
+			}
+		}
+		if (triggers_node.size() > 0)
+		{
+			node["triggers"] = triggers_node;
+		}
+	}
+
+	return node;
+}
+
+
+
+// MobToYaml converter
+YAML::Node YamlWorldDataSource::MobToYaml(const CharData &mob) const
+{
+	YAML::Node node;
+
+	// Names
+	YAML::Node names;
+	if (!mob.get_pc_name().empty())
+	{
+		names["aliases"] = ConvertToUtf8(mob.get_pc_name());
+	}
+	names["nominative"] = ConvertToUtf8(mob.player_data.PNames[ECase::kNom]);
+	names["genitive"] = ConvertToUtf8(mob.player_data.PNames[ECase::kGen]);
+	names["dative"] = ConvertToUtf8(mob.player_data.PNames[ECase::kDat]);
+	names["accusative"] = ConvertToUtf8(mob.player_data.PNames[ECase::kAcc]);
+	names["instrumental"] = ConvertToUtf8(mob.player_data.PNames[ECase::kIns]);
+	names["prepositional"] = ConvertToUtf8(mob.player_data.PNames[ECase::kPre]);
+	node["names"] = names;
+
+	// Descriptions
+	YAML::Node descs;
+	descs["short_desc"] = ConvertToUtf8(mob.player_data.long_descr);
+	descs["long_desc"] = ConvertToUtf8(mob.player_data.description);
+	node["descriptions"] = descs;
+
+	// Alignment
+	if (GET_ALIGNMENT(&mob) != 0)
+	{
+		node["alignment"] = GET_ALIGNMENT(&mob);
+	}
+
+	// Stats
+	YAML::Node stats;
+	stats["level"] = mob.GetLevel();
+	stats["hitroll_penalty"] = GET_HR(&mob);
+	stats["armor"] = GET_AC(&mob);
+
+	// HP
+	YAML::Node hp;
+	hp["dice_count"] = mob.mem_queue.total;
+	hp["dice_size"] = mob.mem_queue.stored;
+	hp["bonus"] = mob.get_hit();
+	stats["hp"] = hp;
+
+	// Damage
+	YAML::Node dmg;
+	dmg["dice_count"] = mob.mob_specials.damnodice;
+	dmg["dice_size"] = mob.mob_specials.damsizedice;
+	dmg["bonus"] = mob.real_abils.damroll;
+	stats["damage"] = dmg;
+	node["stats"] = stats;
+
+	// Gold
+	if (mob.mob_specials.GoldNoDs != 0 || mob.mob_specials.GoldSiDs != 0 || mob.get_gold() != 0)
+	{
+		YAML::Node gold;
+		gold["dice_count"] = mob.mob_specials.GoldNoDs;
+		gold["dice_size"] = mob.mob_specials.GoldSiDs;
+		gold["bonus"] = mob.get_gold();
+		node["gold"] = gold;
+	}
+
+	// Experience
+	if (mob.get_exp() != 0)
+	{
+		node["experience"] = mob.get_exp();
+	}
+
+	// Position
+	YAML::Node pos;
+	std::string default_pos_name = ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos));
+	if (!default_pos_name.empty())
+	{
+		pos["default"] = default_pos_name;
+	}
+	else
+	{
+		pos["default"] = static_cast<int>(mob.mob_specials.default_pos);
+	}
+	
+	std::string start_pos_name = ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition()));
+	if (!start_pos_name.empty())
+	{
+		pos["start"] = start_pos_name;
+	}
+	else
+	{
+		pos["start"] = static_cast<int>(mob.GetPosition());
+	}
+	node["position"] = pos;
+
+	// Sex
+	std::string sex_name = ReverseLookupEnum("genders", static_cast<int>(mob.get_sex()));
+	if (!sex_name.empty())
+	{
+		node["sex"] = sex_name;
+	}
+	else
+	{
+		node["sex"] = static_cast<int>(mob.get_sex());
+	}
+
+	// Physical attributes
+	if (GET_SIZE(&mob) != 0)
+	{
+		node["size"] = GET_SIZE(&mob);
+	}
+	if (GET_HEIGHT(&mob) != 0)
+	{
+		node["height"] = GET_HEIGHT(&mob);
+	}
+	if (GET_WEIGHT(&mob) != 0)
+	{
+		node["weight"] = GET_WEIGHT(&mob);
+	}
+
+	// Attributes (if not defaults)
+	if (mob.get_str() != 11 || mob.get_dex() != 11 || mob.get_int() != 11 ||
+		mob.get_wis() != 11 || mob.get_con() != 11 || mob.get_cha() != 11)
+	{
+		YAML::Node attrs;
+		attrs["strength"] = mob.get_str();
+		attrs["dexterity"] = mob.get_dex();
+		attrs["intelligence"] = mob.get_int();
+		attrs["wisdom"] = mob.get_wis();
+		attrs["constitution"] = mob.get_con();
+		attrs["charisma"] = mob.get_cha();
+		node["attributes"] = attrs;
+	}
+
+	// Action flags
+	std::vector<std::string> action_flags;
+	for (int flag_id = 0; flag_id < 100; ++flag_id)
+	{
+		if (mob.IsFlagged(static_cast<EMobFlag>(flag_id)))
+		{
+			std::string flag_name = ReverseLookupEnum("action_flags", flag_id);
+			if (!flag_name.empty())
+			{
+				action_flags.push_back(flag_name);
+			}
+		}
+	}
+	if (!action_flags.empty())
+	{
+		YAML::Node action_flags_node;
+		for (const auto &fname : action_flags)
+		{
+			action_flags_node.push_back(fname);
+		}
+		node["action_flags"] = action_flags_node;
+	}
+
+	// Affect flags
+	std::vector<std::string> affect_flags;
+	for (int flag_id = 0; flag_id < 200; ++flag_id)
+	{
+		if (AFF_FLAGS(&mob).test(flag_id))
+		{
+			std::string flag_name = ReverseLookupEnum("affect_flags", flag_id);
+			if (!flag_name.empty())
+			{
+				affect_flags.push_back(flag_name);
+			}
+		}
+	}
+	if (!affect_flags.empty())
+	{
+		YAML::Node affect_flags_node;
+		for (const auto &fname : affect_flags)
+		{
+			affect_flags_node.push_back(fname);
+		}
+		node["affect_flags"] = affect_flags_node;
+	}
+
+	// Skills
+	YAML::Node skills_node;
+	for (const auto &skill_pair : mob.get_skills())
+	{
+		if (skill_pair.second > 0)
+		{
+			YAML::Node skill;
+			skill["skill_id"] = static_cast<int>(skill_pair.first);
+			skill["value"] = skill_pair.second;
+			skills_node.push_back(skill);
+		}
+	}
+	if (skills_node.size() > 0)
+	{
+		node["skills"] = skills_node;
+	}
+
+	// Triggers
+	if (mob.get_script() && mob.get_script()->has_triggers())
+	{
+		YAML::Node triggers_node;
+		for (const auto &trig : mob.get_script()->trig_list)
+		{
+			if (trig && trig->get_rnum() >= 0 && trig->get_rnum() <= top_of_trigt)
+			{
+				int trig_vnum = trig_index[trig->get_rnum()]->vnum;
+				triggers_node.push_back(trig_vnum);
+			}
+		}
+		if (triggers_node.size() > 0)
+		{
+			node["triggers"] = triggers_node;
+		}
+	}
+
+	// Enhanced section
+	bool has_enhanced = (
+		mob.get_str_add() != 0 ||
+		mob.add_abils.hitreg != 0 ||
+		mob.add_abils.armour != 0 ||
+		mob.add_abils.manareg != 0 ||
+		mob.add_abils.cast_success != 0 ||
+		mob.add_abils.morale != 0 ||
+		mob.add_abils.initiative_add != 0 ||
+		mob.add_abils.absorb != 0 ||
+		mob.add_abils.aresist != 0 ||
+		mob.add_abils.mresist != 0 ||
+		mob.add_abils.presist != 0 ||
+		mob.mob_specials.attack_type != 0 ||
+		mob.mob_specials.like_work != 0 ||
+		mob.mob_specials.MaxFactor != 0 ||
+		mob.mob_specials.extra_attack != 0 ||
+		mob.get_remort() != 0 ||
+		!mob.mob_specials.npc_flags.empty() ||
+		mob.get_role().any() ||
+		!mob.summon_helpers.empty()
+	);
+
+	// Check arrays
+	for (const auto &val : mob.add_abils.apply_resistance)
+	{
+		if (val != 0) { has_enhanced = true; break; }
+	}
+	for (const auto &val : mob.add_abils.apply_saving_throw)
+	{
+		if (val != 0) { has_enhanced = true; break; }
+	}
+	if (mob.real_abils.Feats.any()) { has_enhanced = true; }
+	for (const auto &val : mob.real_abils.SplKnw)
+	{
+		if (val != 0) { has_enhanced = true; break; }
+	}
+	for (const auto &val : mob.mob_specials.dest)
+	{
+		if (val != 0) { has_enhanced = true; break; }
+	}
+
+	if (has_enhanced)
+	{
+		YAML::Node enhanced;
+
+		if (mob.get_str_add() != 0) enhanced["str_add"] = mob.get_str_add();
+		if (mob.add_abils.hitreg != 0) enhanced["hp_regen"] = mob.add_abils.hitreg;
+		if (mob.add_abils.armour != 0) enhanced["armour_bonus"] = mob.add_abils.armour;
+		if (mob.add_abils.manareg != 0) enhanced["mana_regen"] = mob.add_abils.manareg;
+		if (mob.add_abils.cast_success != 0) enhanced["cast_success"] = mob.add_abils.cast_success;
+		if (mob.add_abils.morale != 0) enhanced["morale"] = mob.add_abils.morale;
+		if (mob.add_abils.initiative_add != 0) enhanced["initiative_add"] = mob.add_abils.initiative_add;
+		if (mob.add_abils.absorb != 0) enhanced["absorb"] = mob.add_abils.absorb;
+		if (mob.add_abils.aresist != 0) enhanced["aresist"] = mob.add_abils.aresist;
+		if (mob.add_abils.mresist != 0) enhanced["mresist"] = mob.add_abils.mresist;
+		if (mob.add_abils.presist != 0) enhanced["presist"] = mob.add_abils.presist;
+		if (mob.mob_specials.attack_type != 0) enhanced["bare_hand_attack"] = mob.mob_specials.attack_type;
+		if (mob.mob_specials.like_work != 0) enhanced["like_work"] = mob.mob_specials.like_work;
+		if (mob.mob_specials.MaxFactor != 0) enhanced["max_factor"] = mob.mob_specials.MaxFactor;
+		if (mob.mob_specials.extra_attack != 0) enhanced["extra_attack"] = mob.mob_specials.extra_attack;
+		if (mob.get_remort() != 0) enhanced["mob_remort"] = mob.get_remort();
+
+		// special_bitvector
+		if (!mob.mob_specials.npc_flags.empty())
+		{
+			enhanced["special_bitvector"] = mob.mob_specials.npc_flags.to_string();
+		}
+
+		// role
+		if (mob.get_role().any())
+		{
+			enhanced["role"] = mob.get_role().to_string();
+		}
+
+		// Resistances
+		bool has_resistances = false;
+		for (const auto &val : mob.add_abils.apply_resistance)
+		{
+			if (val != 0) { has_resistances = true; break; }
+		}
+		if (has_resistances)
+		{
+			YAML::Node resistances;
+			for (const auto &val : mob.add_abils.apply_resistance)
+			{
+				resistances.push_back(val);
+			}
+			enhanced["resistances"] = resistances;
+		}
+
+		// Saves
+		bool has_saves = false;
+		for (const auto &val : mob.add_abils.apply_saving_throw)
+		{
+			if (val != 0) { has_saves = true; break; }
+		}
+		if (has_saves)
+		{
+			YAML::Node saves;
+			for (const auto &val : mob.add_abils.apply_saving_throw)
+			{
+				saves.push_back(val);
+			}
+			enhanced["saves"] = saves;
+		}
+
+		// Feats
+		if (mob.real_abils.Feats.any())
+		{
+			YAML::Node feats;
+			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
+			{
+				if (mob.real_abils.Feats.test(i))
+				{
+					feats.push_back(static_cast<int>(i));
+				}
+			}
+			enhanced["feats"] = feats;
+		}
+
+		// Spells
+		bool has_spells = false;
+		for (const auto &val : mob.real_abils.SplKnw)
+		{
+			if (val != 0) { has_spells = true; break; }
+		}
+		if (has_spells)
+		{
+			YAML::Node spells;
+			for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i)
+			{
+				if (mob.real_abils.SplKnw[i] != 0)
+				{
+					spells.push_back(static_cast<int>(i));
+				}
+			}
+			enhanced["spells"] = spells;
+		}
+
+		// Helpers
+		if (!mob.summon_helpers.empty())
+		{
+			YAML::Node helpers;
+			for (const auto &helper_vnum : mob.summon_helpers)
+			{
+				helpers.push_back(helper_vnum);
+			}
+			enhanced["helpers"] = helpers;
+		}
+
+		// Destinations
+		bool has_destinations = false;
+		for (const auto &val : mob.mob_specials.dest)
+		{
+			if (val != 0) { has_destinations = true; break; }
+		}
+		if (has_destinations)
+		{
+			YAML::Node destinations;
+			for (const auto &dest : mob.mob_specials.dest)
+			{
+				destinations.push_back(dest);
+			}
+			enhanced["destinations"] = destinations;
+		}
+
+		node["enhanced"] = enhanced;
+	}
+
+	return node;
+}
+
 	std::string new_file = filename + ".new";
 	std::string old_file = filename + ".old";
 

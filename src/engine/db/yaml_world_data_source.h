@@ -81,6 +81,11 @@ private:
 	std::string ConvertToKoi8r(const std::string &utf8_str) const;
 
 	// Save helpers - convert KOI8-R to UTF-8 for writing
+	// Reverse lookup helpers for saving
+	std::string ReverseLookupEnum(const std::string &dict_name, int value) const;
+	std::vector<std::string> ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const;
+	std::vector<std::string> ConvertTriggerTypesToNames(long trigger_type) const;
+
 	std::string ConvertToUtf8(const std::string &koi8r_str) const;
 
 	// Atomic file writing with .new/.old backup
