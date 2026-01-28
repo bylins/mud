@@ -546,6 +546,59 @@ DIRECTION_NAMES = {
 # Saver classes for output abstraction
 # ============================================================================
 
+# ============================================================================
+# Shared helper functions to eliminate code duplication
+# ============================================================================
+
+def extract_entity_names(entity_dict):
+    """Extract Russian case names from any entity."""
+    names = entity_dict.get('names', {})
+    return (
+        names.get('aliases'),
+        names.get('nominative'),
+        names.get('genitive'),
+        names.get('dative'),
+        names.get('accusative'),
+        names.get('instrumental'),
+        names.get('prepositional'),
+    )
+
+
+def insert_entity_flags(cursor, entity_type, vnum, flags_dict):
+    """Generic flag insertion for any entity type (mobs/objects/rooms)."""
+    table_name = f"{entity_type}_flags"
+    # Use correct column name for each entity type
+    vnum_column = f"{entity_type}_vnum"
+
+    for flag_category, flag_list in flags_dict.items():
+        for flag in flag_list:
+            cursor.execute(f'''
+                INSERT OR IGNORE INTO {table_name}
+                ({vnum_column}, flag_category, flag_name)
+                VALUES (?, ?, ?)
+            ''', (vnum, flag_category, flag))
+
+
+def insert_entity_triggers(cursor, entity_type, vnum, triggers_list):
+    """Insert triggers for any entity type (mob/obj/room)."""
+    for trig_order, trig_vnum in enumerate(triggers_list):
+        cursor.execute('''
+            INSERT INTO entity_triggers
+            (entity_type, entity_vnum, trigger_vnum, trigger_order)
+            VALUES (?, ?, ?, ?)
+        ''', (entity_type, vnum, trig_vnum, trig_order))
+
+
+def insert_extra_descriptions(cursor, entity_type, vnum, extra_descs_list):
+    """Insert extra descriptions for any entity type (obj/room)."""
+    for ed in extra_descs_list:
+        cursor.execute('''
+            INSERT INTO extra_descriptions
+            (entity_type, entity_vnum, keywords, description)
+            VALUES (?, ?, ?, ?)
+        ''', (entity_type, vnum, ed['keywords'], ed['description']))
+
+
 class BaseSaver:
     """Base class for savers."""
 
@@ -869,6 +922,7 @@ class SqliteSaver(BaseSaver):
         gold = mob.get('gold', {})
         pos = mob.get('position', {})
         attrs = mob.get('attributes', {})
+        enhanced = mob.get('enhanced', {})
 
         # Insert main mob record
         cursor.execute('''
@@ -878,17 +932,15 @@ class SqliteSaver(BaseSaver):
                 hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus,
                 gold_dice_count, gold_dice_size, gold_bonus, experience,
                 default_pos, start_pos, sex, size, height, weight, mob_class, race,
-                attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha,
+                attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale,
+                initiative_add, absorb, aresist, mresist, presist, bare_hand_attack,
+                like_work, max_factor, extra_attack, mob_remort, special_bitvector, role,
+                enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
-            names.get('aliases'),
-            names.get('nominative'),
-            names.get('genitive'),
-            names.get('dative'),
-            names.get('accusative'),
-            names.get('instrumental'),
-            names.get('prepositional'),
+            *extract_entity_names(mob),
             descs.get('short_desc'),
             descs.get('long_desc'),
             mob.get('alignment', 0),
@@ -920,21 +972,33 @@ class SqliteSaver(BaseSaver):
             attrs.get('wisdom', 11),
             attrs.get('constitution', 11),
             attrs.get('charisma', 11),
+            # Enhanced E-spec fields
+            enhanced.get('str_add', 0),
+            enhanced.get('hp_regen', 0),
+            enhanced.get('armour_bonus', 0),
+            enhanced.get('mana_regen', 0),
+            enhanced.get('cast_success', 0),
+            enhanced.get('morale', 0),
+            enhanced.get('initiative_add', 0),
+            enhanced.get('absorb', 0),
+            enhanced.get('aresist', 0),
+            enhanced.get('mresist', 0),
+            enhanced.get('presist', 0),
+            enhanced.get('bare_hand_attack', 0),
+            enhanced.get('like_work', 0),
+            enhanced.get('max_factor', 0),
+            enhanced.get('extra_attack', 0),
+            enhanced.get('mob_remort', 0),
+            enhanced.get('special_bitvector'),
+            enhanced.get('role'),
             mob.get('enabled', 1),
         ))
 
         # Insert flags
-        for flag in mob.get('action_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO mob_flags (mob_vnum, flag_category, flag_name)
-                VALUES (?, 'action', ?)
-            ''', (vnum, flag))
-
-        for flag in mob.get('affect_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO mob_flags (mob_vnum, flag_category, flag_name)
-                VALUES (?, 'affect', ?)
-            ''', (vnum, flag))
+        insert_entity_flags(cursor, 'mob', vnum, {
+            'action': mob.get('action_flags', []),
+            'affect': mob.get('affect_flags', []),
+        })
 
         # Insert skills
         for skill in mob.get('skills', []):
@@ -944,12 +1008,53 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, skill['skill_id'], skill['value']))
 
         # Insert triggers
-        for trig_order, trig_vnum in enumerate(mob.get('triggers', [])):
-            cursor.execute('''
-                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
-                VALUES ('mob', ?, ?, ?)
-            ''', (vnum, trig_vnum, trig_order))
+        insert_entity_triggers(cursor, 'mob', vnum, mob.get('triggers', []))
 
+        # Insert Enhanced array fields
+        enhanced = mob.get('enhanced', {})
+        
+        # Resistances
+        for idx, value in enumerate(enhanced.get('resistances', [])):
+            cursor.execute('''
+                INSERT OR REPLACE INTO mob_resistances (mob_vnum, resist_type, value)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, value))
+        
+        # Saves
+        for idx, value in enumerate(enhanced.get('saves', [])):
+            cursor.execute('''
+                INSERT OR REPLACE INTO mob_saves (mob_vnum, save_type, value)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, value))
+        
+        # Feats
+        for feat_id in enhanced.get('feats', []):
+            cursor.execute('''
+                INSERT OR IGNORE INTO mob_feats (mob_vnum, feat_id)
+                VALUES (?, ?)
+            ''', (vnum, feat_id))
+        
+        # Spells
+        for spell_id in enhanced.get('spells', []):
+            cursor.execute('''
+                INSERT OR IGNORE INTO mob_spells (mob_vnum, spell_id, count)
+                VALUES (?, ?, 1)
+                ON CONFLICT(mob_vnum, spell_id) DO UPDATE SET count = count + 1
+            ''', (vnum, spell_id))
+        
+        # Helpers
+        for helper_vnum in enhanced.get('helpers', []):
+            cursor.execute('''
+                INSERT OR IGNORE INTO mob_helpers (mob_vnum, helper_vnum)
+                VALUES (?, ?)
+            ''', (vnum, helper_vnum))
+        
+        # Destinations
+        for idx, room_vnum in enumerate(enhanced.get('destinations', [])):
+            cursor.execute('''
+                INSERT OR REPLACE INTO mob_destinations (mob_vnum, dest_order, room_vnum)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, room_vnum))
     def save_object(self, obj):
         """Save object dictionary to database."""
         cursor = self.conn.cursor()
@@ -969,13 +1074,7 @@ class SqliteSaver(BaseSaver):
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
-            names.get('aliases'),
-            names.get('nominative'),
-            names.get('genitive'),
-            names.get('dative'),
-            names.get('accusative'),
-            names.get('instrumental'),
-            names.get('prepositional'),
+            *extract_entity_names(obj),
             obj.get('short_desc'),
             obj.get('action_desc'),
             obj.get('type_id'),
@@ -1001,35 +1100,13 @@ class SqliteSaver(BaseSaver):
         ))
 
         # Insert flags
-        for flag in obj.get('extra_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'extra', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('wear_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'wear', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('affect_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'affect', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('no_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'no', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('anti_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'anti', ?)
-            ''', (vnum, flag))
+        insert_entity_flags(cursor, 'obj', vnum, {
+            'extra': obj.get('extra_flags', []),
+            'wear': obj.get('wear_flags', []),
+            'affect': obj.get('affect_flags', []),
+            'no': obj.get('no_flags', []),
+            'anti': obj.get('anti_flags', []),
+        })
 
         # Insert applies
         for apply in obj.get('applies', []):
@@ -1040,19 +1117,9 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, location_id, apply['modifier']))
 
         # Insert extra descriptions
-        for ed in obj.get('extra_descs', []):
-            cursor.execute('''
-                INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description)
-                VALUES ('obj', ?, ?, ?)
-            ''', (vnum, ed['keywords'], ed['description']))
-
+        insert_extra_descriptions(cursor, 'obj', vnum, obj.get('extra_descs', []))
         # Insert triggers
-        for trig_order, trig_vnum in enumerate(obj.get('triggers', [])):
-            cursor.execute('''
-                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
-                VALUES ('obj', ?, ?, ?)
-            ''', (vnum, trig_vnum, trig_order))
-
+        insert_entity_triggers(cursor, 'obj', vnum, obj.get('triggers', []))
     def save_room(self, room):
         """Save room dictionary to database."""
         cursor = self.conn.cursor()
@@ -1107,18 +1174,9 @@ class SqliteSaver(BaseSaver):
             ))
 
         # Insert extra descriptions
-        for ed in room.get('extra_descs', []):
-            cursor.execute('''
-                INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description)
-                VALUES ('room', ?, ?, ?)
-            ''', (vnum, ed['keywords'], ed['description']))
+        insert_extra_descriptions(cursor, 'room', vnum, room.get('extra_descs', []))
 
-        # Insert triggers
-        for trig_order, trig_vnum in enumerate(room.get('triggers', [])):
-            cursor.execute('''
-                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
-                VALUES ('room', ?, ?, ?)
-            ''', (vnum, trig_vnum, trig_order))
+        insert_entity_triggers(cursor, 'room', vnum, room.get('triggers', []))
 
     def save_zone(self, zone):
         """Save zone dictionary to database."""
@@ -1687,6 +1745,112 @@ def parse_mob_file(filepath):
                     mob['height'] = int(line[7:].strip())
                 elif line.startswith('Weight:'):
                     mob['weight'] = int(line[7:].strip())
+                elif line.startswith('StrAdd:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['str_add'] = int(line[7:].strip())
+                elif line.startswith('HPReg:') or line.startswith('HPreg:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['hp_regen'] = int(line.split(':', 1)[1].strip())
+                elif line.startswith('Armour:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['armour_bonus'] = int(line[7:].strip())
+                elif line.startswith('PlusMem:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['mana_regen'] = int(line[8:].strip())
+                elif line.startswith('CastSuccess:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['cast_success'] = int(line[12:].strip())
+                elif line.startswith('Success:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['morale'] = int(line[8:].strip())
+                elif line.startswith('Initiative:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['initiative_add'] = int(line[11:].strip())
+                elif line.startswith('Absorbe:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['absorb'] = int(line[8:].strip())
+                elif line.startswith('AResist:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['aresist'] = int(line[8:].strip())
+                elif line.startswith('MResist:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['mresist'] = int(line[8:].strip())
+                elif line.startswith('PResist:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['presist'] = int(line[8:].strip())
+                elif line.startswith('BareHandAttack:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['bare_hand_attack'] = int(line[15:].strip())
+                elif line.startswith('LikeWork:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['like_work'] = int(line[9:].strip())
+                elif line.startswith('MaxFactor:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['max_factor'] = int(line[10:].strip())
+                elif line.startswith('ExtraAttack:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['extra_attack'] = int(line[12:].strip())
+                elif line.startswith('MobRemort:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['mob_remort'] = int(line[10:].strip())
+                elif line.startswith('Special_Bitvector:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['special_bitvector'] = line[18:].strip()
+                elif line.startswith('Role:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['role'] = line[5:].strip()
+                elif line.startswith('Resistances:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    values = line[12:].strip().split()
+                    mob['enhanced']['resistances'] = [int(v) for v in values]
+                elif line.startswith('Saves:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    values = line[6:].strip().split()
+                    mob['enhanced']['saves'] = [int(v) for v in values]
+                elif line.startswith('Feat:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'feats' not in mob['enhanced']:
+                        mob['enhanced']['feats'] = []
+                    mob['enhanced']['feats'].append(int(line[5:].strip()))
+                elif line.startswith('Spell:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'spells' not in mob['enhanced']:
+                        mob['enhanced']['spells'] = []
+                    mob['enhanced']['spells'].append(int(line[6:].strip()))
+                elif line.startswith('Helper:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'helpers' not in mob['enhanced']:
+                        mob['enhanced']['helpers'] = []
+                    mob['enhanced']['helpers'].append(int(line[7:].strip()))
+                elif line.startswith('Destination:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'destinations' not in mob['enhanced']:
+                        mob['enhanced']['destinations'] = []
+                    mob['enhanced']['destinations'].append(int(line[12:].strip()))
                 elif line.startswith('Skill:'):
                     parts = line[6:].strip().split()
                     if len(parts) >= 2:
@@ -1835,6 +1999,66 @@ def mob_to_yaml(mob):
                 triggers.yaml_add_eol_comment(trig_name, i)
         data['triggers'] = triggers
 
+
+    # Enhanced E-spec fields
+    if mob.get('enhanced'):
+        enhanced = CommentedMap()
+        enh = mob['enhanced']
+        
+        # Scalar fields
+        if 'str_add' in enh:
+            enhanced['str_add'] = enh['str_add']
+        if 'hp_regen' in enh:
+            enhanced['hp_regen'] = enh['hp_regen']
+        if 'armour_bonus' in enh:
+            enhanced['armour_bonus'] = enh['armour_bonus']
+        if 'mana_regen' in enh:
+            enhanced['mana_regen'] = enh['mana_regen']
+        if 'cast_success' in enh:
+            enhanced['cast_success'] = enh['cast_success']
+        if 'morale' in enh:
+            enhanced['morale'] = enh['morale']
+        if 'initiative_add' in enh:
+            enhanced['initiative_add'] = enh['initiative_add']
+        if 'absorb' in enh:
+            enhanced['absorb'] = enh['absorb']
+        if 'aresist' in enh:
+            enhanced['aresist'] = enh['aresist']
+        if 'mresist' in enh:
+            enhanced['mresist'] = enh['mresist']
+        if 'presist' in enh:
+            enhanced['presist'] = enh['presist']
+        if 'bare_hand_attack' in enh:
+            enhanced['bare_hand_attack'] = enh['bare_hand_attack']
+        if 'like_work' in enh:
+            enhanced['like_work'] = enh['like_work']
+        if 'max_factor' in enh:
+            enhanced['max_factor'] = enh['max_factor']
+        if 'extra_attack' in enh:
+            enhanced['extra_attack'] = enh['extra_attack']
+        if 'mob_remort' in enh:
+            enhanced['mob_remort'] = enh['mob_remort']
+        if 'special_bitvector' in enh:
+            enhanced['special_bitvector'] = enh['special_bitvector']
+        if 'role' in enh:
+            enhanced['role'] = enh['role']
+        
+        # Array fields
+        if enh.get('resistances'):
+            enhanced['resistances'] = CommentedSeq(enh['resistances'])
+        if enh.get('saves'):
+            enhanced['saves'] = CommentedSeq(enh['saves'])
+        if enh.get('feats'):
+            enhanced['feats'] = CommentedSeq(enh['feats'])
+        if enh.get('spells'):
+            enhanced['spells'] = CommentedSeq(enh['spells'])
+        if enh.get('helpers'):
+            enhanced['helpers'] = CommentedSeq(enh['helpers'])
+        if enh.get('destinations'):
+            enhanced['destinations'] = CommentedSeq(enh['destinations'])
+        
+        if enhanced:
+            data['enhanced'] = enhanced
     return yaml_dump_to_string(data)
 
 

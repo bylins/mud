@@ -165,6 +165,25 @@ CREATE TABLE mobs (
     attr_wis INTEGER DEFAULT 11,
     attr_con INTEGER DEFAULT 11,
     attr_cha INTEGER DEFAULT 11,
+    -- Enhanced E-spec fields (COMPLETE support)
+    attr_str_add INTEGER DEFAULT 0,
+    hp_regen INTEGER DEFAULT 0,
+    armour_bonus INTEGER DEFAULT 0,
+    mana_regen INTEGER DEFAULT 0,
+    cast_success INTEGER DEFAULT 0,
+    morale INTEGER DEFAULT 0,
+    initiative_add INTEGER DEFAULT 0,
+    absorb INTEGER DEFAULT 0,
+    aresist INTEGER DEFAULT 0,
+    mresist INTEGER DEFAULT 0,
+    presist INTEGER DEFAULT 0,
+    bare_hand_attack INTEGER DEFAULT 0,
+    like_work INTEGER DEFAULT 0,
+    max_factor INTEGER DEFAULT 0,
+    extra_attack INTEGER DEFAULT 0,
+    mob_remort INTEGER DEFAULT 0,
+    special_bitvector TEXT,
+    role TEXT,
     enabled INTEGER DEFAULT 1
 );
 
@@ -185,6 +204,61 @@ CREATE TABLE mob_skills (
     PRIMARY KEY (mob_vnum, skill_id),
     FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE,
     FOREIGN KEY (skill_id) REFERENCES skills(id)
+);
+
+
+-- Enhanced mob array fields (separate tables)
+
+-- Mob resistances (Resistances: # # # # # # # #)
+CREATE TABLE mob_resistances (
+    mob_vnum INTEGER NOT NULL,
+    resist_type INTEGER NOT NULL,  -- 0-7+ index
+    value INTEGER NOT NULL,
+    PRIMARY KEY (mob_vnum, resist_type),
+    FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
+);
+
+-- Mob saves (Saves: # # # #)
+CREATE TABLE mob_saves (
+    mob_vnum INTEGER NOT NULL,
+    save_type INTEGER NOT NULL,  -- 0-3 (ESaving)
+    value INTEGER NOT NULL,
+    PRIMARY KEY (mob_vnum, save_type),
+    FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
+);
+
+-- Mob feats (Feat: #)
+CREATE TABLE mob_feats (
+    mob_vnum INTEGER NOT NULL,
+    feat_id INTEGER NOT NULL,
+    PRIMARY KEY (mob_vnum, feat_id),
+    FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
+);
+
+-- Mob spells (Spell: #)
+CREATE TABLE mob_spells (
+    mob_vnum INTEGER NOT NULL,
+    spell_id INTEGER NOT NULL,
+    count INTEGER DEFAULT 1,
+    PRIMARY KEY (mob_vnum, spell_id),
+    FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
+);
+
+-- Mob helpers (Helper: #)
+CREATE TABLE mob_helpers (
+    mob_vnum INTEGER NOT NULL,
+    helper_vnum INTEGER NOT NULL,
+    PRIMARY KEY (mob_vnum, helper_vnum),
+    FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
+);
+
+-- Mob patrol destinations (Destination: #)
+CREATE TABLE mob_destinations (
+    mob_vnum INTEGER NOT NULL,
+    dest_order INTEGER NOT NULL,
+    room_vnum INTEGER NOT NULL,
+    PRIMARY KEY (mob_vnum, dest_order),
+    FOREIGN KEY (mob_vnum) REFERENCES mobs(vnum) ON DELETE CASCADE
 );
 
 -- Objects

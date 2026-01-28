@@ -162,6 +162,8 @@ set(SOURCES
 		src/engine/db/obj_prototypes.cpp
 		src/engine/db/world_checksum.cpp
 		src/engine/db/world_data_source.h
+		src/engine/db/world_data_source_base.h
+		src/engine/db/world_data_source_base.cpp
 		src/engine/db/legacy_world_data_source.h
 		src/engine/db/legacy_world_data_source.cpp
 		# SQLite world data source (conditional)

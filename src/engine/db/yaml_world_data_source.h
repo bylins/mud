@@ -5,6 +5,8 @@
 #define YAML_WORLD_DATA_SOURCE_H_
 
 #include "world_data_source.h"
+#include "world_data_source_base.h"
+#include "world_data_source_base.h"
 
 #ifdef HAVE_YAML
 
@@ -22,7 +24,7 @@ namespace world_loader
 {
 
 // YAML implementation for human-readable world files
-class YamlWorldDataSource : public IWorldDataSource
+class YamlWorldDataSource : public WorldDataSourceBase
 {
 public:
 	explicit YamlWorldDataSource(const std::string &world_dir);

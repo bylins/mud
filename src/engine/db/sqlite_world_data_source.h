@@ -5,6 +5,7 @@
 #define SQLITE_WORLD_DATA_SOURCE_H_
 
 #include "world_data_source.h"
+#include "world_data_source_base.h"
 
 #ifdef HAVE_SQLITE
 
@@ -18,7 +19,7 @@ namespace world_loader
 {
 
 // SQLite implementation for fast world loading
-class SqliteWorldDataSource : public IWorldDataSource
+class SqliteWorldDataSource : public WorldDataSourceBase
 {
 public:
 	explicit SqliteWorldDataSource(const std::string &db_path);
@@ -59,6 +60,12 @@ private:
 	void LoadMobFlags();
 	void LoadMobSkills();
 	void LoadMobTriggers();
+	void LoadMobResistances();
+	void LoadMobSaves();
+	void LoadMobFeats();
+	void LoadMobSpells();
+	void LoadMobHelpers();
+	void LoadMobDestinations();
 
 	// Object loading helpers
 	void LoadObjectFlags();

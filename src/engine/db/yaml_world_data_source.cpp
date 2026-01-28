@@ -341,29 +341,9 @@ void YamlWorldDataSource::LoadZones()
 			zone.level = GetInt(root, "mode", 0);
 			zone.entrance = GetInt(root, "entrance", 0);
 
-			// Initialize runtime fields
-			zone.age = 0;
-			zone.time_awake = 0;
-			zone.traffic = 0;
-			zone.under_construction = GetInt(root, "under_construction", 0);
-			zone.locked = false;
-			zone.used = false;
-			zone.activity = 0;
-			zone.mob_level = 0;
-			zone.is_town = false;
-			zone.count_reset = 0;
-			zone.typeA_count = 0;
-			zone.typeA_list = nullptr;
-			zone.typeB_count = 0;
-			zone.typeB_list = nullptr;
-			zone.typeB_flag = nullptr;
-			zone.cmd = nullptr;
-			zone.RnumTrigsLocation.first = -1;
-			zone.RnumTrigsLocation.second = -1;
-			zone.RnumMobsLocation.first = -1;
-			zone.RnumMobsLocation.second = -1;
-			zone.RnumRoomsLocation.first = -1;
-			zone.RnumRoomsLocation.second = -1;
+		// Initialize runtime fields (uses base class method)
+		int under_construction = GetInt(root, "under_construction", 0);
+		InitializeZoneRuntimeFields(zone, under_construction);
 
 			// Load zone commands
 			if (root["commands"])
@@ -609,52 +589,14 @@ void YamlWorldDataSource::LoadTriggers()
 			GET_TRIG_NARG(trig) = narg;
 			trig->arglist = arglist;
 
-			// Parse script into cmdlist
-			if (!script.empty())
-			{
-				std::istringstream ss(script);
-				int indlev = 0;
-				std::string line;
-				cmdlist_element::shared_ptr head = nullptr;
-				cmdlist_element::shared_ptr tail = nullptr;
 
-				while (std::getline(ss, line))
-				{
-					if (line.empty() || line == "\r")
-					{
-						continue;
-					}
+		// Parse script into cmdlist (uses base class method)
+		ParseTriggerScript(trig, script);
 
-					utils::TrimRight(line);
-					auto cmd = std::make_shared<cmdlist_element>();
-					indent_trigger(line, &indlev);
-					cmd->cmd = line;
-					cmd->next = nullptr;
 
-					if (!head)
-					{
-						head = cmd;
-						tail = cmd;
-					}
-					else
-					{
-						tail->next = cmd;
-						tail = cmd;
-					}
-				}
+		// Create index entry (uses base class method)
+		CreateTriggerIndex(vnum, trig);
 
-				trig->cmdlist = std::make_shared<cmdlist_element::shared_ptr>(head);
-			}
-
-			// Create index entry
-			IndexData *index;
-			CREATE(index, 1);
-			index->vnum = vnum;
-			index->total_online = 0;
-			index->func = nullptr;
-			index->proto = trig;
-
-			trig_index[top_of_trigt++] = index;
 		}
 		catch (const YAML::Exception &e)
 		{
@@ -958,6 +900,9 @@ void YamlWorldDataSource::LoadMobs()
 
 			mob.player_specials = player_special_data::s_for_mobiles;
 			mob.SetNpcAttribute(true);
+			mob.player_specials->saved.NameGod = 1001; // Default for Russian name declension
+			mob.set_move(100);
+			mob.set_max_move(100);
 
 			// Names
 			YAML::Node names = root["names"];
@@ -1122,6 +1067,126 @@ void YamlWorldDataSource::LoadMobs()
 				}
 			}
 
+			// Enhanced E-spec fields
+			if (root["enhanced"])
+			{
+				YAML::Node enhanced = root["enhanced"];
+				
+				// Scalar fields
+				mob.set_str_add(GetInt(enhanced, "str_add", 0));
+				mob.add_abils.hitreg = GetInt(enhanced, "hp_regen", 0);
+				mob.add_abils.armour = GetInt(enhanced, "armour_bonus", 0);
+				mob.add_abils.manareg = GetInt(enhanced, "mana_regen", 0);
+				mob.add_abils.cast_success = GetInt(enhanced, "cast_success", 0);
+				mob.add_abils.morale = GetInt(enhanced, "morale", 0);
+				mob.add_abils.initiative_add = GetInt(enhanced, "initiative_add", 0);
+				mob.add_abils.absorb = GetInt(enhanced, "absorb", 0);
+				mob.add_abils.aresist = GetInt(enhanced, "aresist", 0);
+				mob.add_abils.mresist = GetInt(enhanced, "mresist", 0);
+				mob.add_abils.presist = GetInt(enhanced, "presist", 0);
+				mob.mob_specials.attack_type = GetInt(enhanced, "bare_hand_attack", 0);
+				mob.mob_specials.like_work = GetInt(enhanced, "like_work", 0);
+				mob.mob_specials.MaxFactor = GetInt(enhanced, "max_factor", 0);
+				mob.mob_specials.extra_attack = GetInt(enhanced, "extra_attack", 0);
+				mob.set_remort(GetInt(enhanced, "mob_remort", 0));
+				
+				// special_bitvector (FlagData)
+				if (enhanced["special_bitvector"])
+				{
+					std::string special_bv = enhanced["special_bitvector"].as<std::string>();
+					mob.mob_specials.npc_flags.from_string((char *)special_bv.c_str());
+				}
+				
+				// role (bitset<9>)
+				if (enhanced["role"])
+				{
+					std::string role_str = enhanced["role"].as<std::string>();
+					CharData::role_t role(role_str);
+					mob.set_role(role);
+				}
+				
+				// Resistances array
+				if (enhanced["resistances"] && enhanced["resistances"].IsSequence())
+				{
+					int idx = 0;
+					for (const auto &val_node : enhanced["resistances"])
+					{
+						int value = val_node.as<int>();
+						if (idx < static_cast<int>(mob.add_abils.apply_resistance.size()))
+						{
+							mob.add_abils.apply_resistance[idx] = value;
+						}
+						idx++;
+					}
+				}
+				
+				// Saves array
+				if (enhanced["saves"] && enhanced["saves"].IsSequence())
+				{
+					int idx = 0;
+					for (const auto &val_node : enhanced["saves"])
+					{
+						int value = val_node.as<int>();
+						if (idx < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
+						{
+							mob.add_abils.apply_saving_throw[idx] = value;
+						}
+						idx++;
+					}
+				}
+				
+				// Feats array
+				if (enhanced["feats"] && enhanced["feats"].IsSequence())
+				{
+					for (const auto &feat_node : enhanced["feats"])
+					{
+						int feat_id = feat_node.as<int>();
+						if (feat_id >= 0 && feat_id < static_cast<int>(mob.real_abils.Feats.size()))
+						{
+							mob.real_abils.Feats.set(feat_id);
+						}
+					}
+				}
+				
+				// Spells array
+				if (enhanced["spells"] && enhanced["spells"].IsSequence())
+				{
+					for (const auto &spell_node : enhanced["spells"])
+					{
+						int spell_id = spell_node.as<int>();
+						if (spell_id >= 0 && spell_id < static_cast<int>(mob.real_abils.SplKnw.size()))
+						{
+							mob.real_abils.SplKnw[spell_id] = 1;  // Mark spell as known
+						}
+					}
+				}
+				
+				// Helpers array
+				if (enhanced["helpers"] && enhanced["helpers"].IsSequence())
+				{
+					for (const auto &helper_node : enhanced["helpers"])
+					{
+						int helper_vnum = helper_node.as<int>();
+						mob.summon_helpers.push_back(helper_vnum);
+					}
+				}
+				
+				// Destinations array
+				if (enhanced["destinations"] && enhanced["destinations"].IsSequence())
+				{
+					int idx = 0;
+					for (const auto &dest_node : enhanced["destinations"])
+					{
+						int room_vnum = dest_node.as<int>();
+						if (idx < static_cast<int>(mob.mob_specials.dest.size()))
+						{
+							mob.mob_specials.dest[idx] = room_vnum;
+						}
+						idx++;
+					}
+				}
+			}
+
 			// Setup index
 			int zone_vnum = vnum / 100;
 			auto zone_it = zone_vnum_to_rnum.find(zone_vnum);
@@ -1142,6 +1207,9 @@ void YamlWorldDataSource::LoadMobs()
 			mob_index[top_of_mobt].proto = nullptr;
 			mob_index[top_of_mobt].set_idx = -1;
 
+			// Initialize test data if needed
+			if (mob.GetLevel() == 0)
+				SetTestData(&mob);
 			mob.set_rnum(top_of_mobt);
 			top_of_mobt++;
 		}
