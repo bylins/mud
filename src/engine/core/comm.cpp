@@ -746,6 +746,11 @@ void stop_game(ush_int port) {
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+	if (mother_desc < 0) {
+		log("SYSERR: Failed to bind to port %d. Server cannot start.", port);
+		log("Please check if another instance is running or if you have permission to use this port.");
+		exit(1);
+	}
 #if defined WITH_SCRIPTING
 	scripting::init();
 #endif
@@ -974,9 +979,9 @@ socket_t init_socket(ush_int port) {
 	sa.sin_addr = *(get_bind_addr());
 
 	if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-		perror("SYSERR: bind");
+		log("SYSERR: bind() failed - port %d is already in use or permission denied", port);
 		CLOSE_SOCKET(s);
-		exit(1);
+		return -1;
 	}
 	nonblock(s);
 	listen(s, 5);
