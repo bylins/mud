@@ -1295,7 +1295,7 @@ endif ()
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation ${DEBUG_CRYPT}")
-		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
+		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation ${ASAN_FLAGS} ${DEBUG_CRYPT}")
 		set(CMAKE_CXX_FLAGS_TEST     "-O3 -rdynamic -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "-Ofast -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS}")
 

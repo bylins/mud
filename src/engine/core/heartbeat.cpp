@@ -574,7 +574,7 @@ void Heartbeat::operator()(const int missed_pulses) {
 	static int debug_counter = 0;
 	if (++debug_counter % 250 == 0) {  // Every 10 seconds
 		char debug_buf[256];
-		snprintf(debug_buf, sizeof(debug_buf), "DEBUG: Heartbeat OTEL called, label.size=%zu, pulse_mod=%lld", 
+		snprintf(debug_buf, sizeof(debug_buf), "DEBUG: Heartbeat OTEL called, label.size=%zu, pulse_mod=%d", 
 			label.size(), pulse_number() % 25);
 		mudlog(debug_buf, CMP, kLvlImmortal, SYSLOG, true);
 	}
