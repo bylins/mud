@@ -14,6 +14,11 @@
 #include <map>
 
 class ZoneData;
+class RoomData;
+class CharData;
+class CObjectPrototype;
+class Trigger;
+struct reset_com;
 
 namespace world_loader
 {
@@ -72,6 +77,21 @@ private:
 	void LoadObjectApplies();
 	void LoadObjectTriggers();
 	void LoadObjectExtraDescriptions();
+
+	// Transaction helpers
+	bool BeginTransaction();
+	bool CommitTransaction();
+	bool RollbackTransaction();
+	bool ExecuteStatement(const std::string &sql, const std::string &operation);
+
+	// Save helpers
+	void SaveZoneRecord(const ZoneData &zone);
+	void SaveZoneCommands(int zone_vnum, const struct reset_com *commands);
+	void SaveZoneGroups(int zone_vnum, const ZoneData &zone);
+	void SaveRoomRecord(RoomData *room);
+	void SaveTriggerRecord(int trig_vnum, const Trigger *trig);
+	void SaveMobRecord(int mob_vnum, CharData &mob);
+	void SaveObjectRecord(int obj_vnum, CObjectPrototype *obj);
 
 	std::string m_db_path;
 	sqlite3 *m_db;

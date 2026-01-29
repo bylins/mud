@@ -65,6 +65,7 @@
 #ifdef HAVE_YAML
 #include "yaml_world_data_source.h"
 #endif
+#include "world_data_source_manager.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -373,22 +374,26 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	}
 	log("Using data source: %s", data_source->GetName().c_str());
 
+	// Register data source in manager for OLC access
+	auto* ds_ptr = data_source.get();
+	world_loader::WorldDataSourceManager::Instance().SetDataSource(std::move(data_source));
+
 	boot_profiler.next_step("Loading zone table");
-	data_source->LoadZones();
+	ds_ptr->LoadZones();
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	data_source->LoadTriggers();
+	ds_ptr->LoadTriggers();
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	data_source->LoadRooms();
+	ds_ptr->LoadRooms();
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -411,7 +416,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	data_source->LoadMobs();
+	ds_ptr->LoadMobs();
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -426,7 +431,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	data_source->LoadObjects();
+	ds_ptr->LoadObjects();
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");
