@@ -37,6 +37,9 @@
 #include "gameplay/mechanics/noob.h"
 #include "obj_prototypes.h"
 #include "engine/olc/olc.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include "gameplay/communication/offtop.h"
 #include "gameplay/communication/parcel.h"
 #include "administration/privilege.h"
@@ -2840,6 +2843,12 @@ void SetGodSkills(CharData *ch) {
 // по умолчанию reboot = 0 (пользуется только при ребуте)
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags) {
 	const auto player_i = char_element->load_char_ascii(name, load_flags);
+	// OpenTelemetry: Track player loading
+	auto load_span = tracing::TraceManager::Instance().StartSpan("Load Player");
+	load_span->SetAttribute("character_name", std::string(name));
+	
+	observability::ScopedMetric load_metric("player.load.duration");
+	
 	if (player_i > -1) {
 		char_element->set_pfilepos(player_i);
 	}

@@ -27,6 +27,9 @@
 #include "player_index.h"
 
 #include <sys/stat.h>
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 const int LOC_INVENTORY = 0;
@@ -2440,6 +2443,12 @@ int receptionist(CharData *ch, void *me, int cmd, char *argument) {
 
 void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
+	// OpenTelemetry: Track fractional save
+	auto save_span = tracing::TraceManager::Instance().StartSpan("Player Save (Fractional)");
+	save_span->SetAttribute("save_type", "frac");
+	save_span->SetAttribute("frac_part", static_cast<int64_t>(frac_part));
+	
+	int saved_count = 0;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if ((d->state == EConState::kPlaying) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
@@ -2454,12 +2463,24 @@ void Crash_frac_save_all(int frac_part) {
 			if (timer1.delta().count() > 0.1)
 				log("Crash_frac_save_all: save_char, timer %f, save player: %s", timer1.delta().count(), d->character->get_name().c_str());
 			d->character->UnsetFlag(EPlrFlag::kCrashSave);
+			saved_count++;
+			
+			// OpenTelemetry: Record save metrics
+			std::map<std::string, std::string> attrs;
+			attrs["save_type"] = "frac";
+			attrs["character"] = d->character->get_name();
+			
+			observability::OtelMetrics::RecordHistogram("player.save.duration", timer.delta().count(), attrs);
+			observability::OtelMetrics::RecordCounter("player.save.total", 1, attrs);
 		}
 	}
 }
 
 void Crash_save_all(void) {
 	DescriptorData *d;
+	auto save_span = tracing::TraceManager::Instance().StartSpan("Player Save (Full)");
+	save_span->SetAttribute("save_type", "full");
+
 	for (d = descriptor_list; d; d = d->next) {
 		if ((d->state == EConState::kPlaying) && d->character->IsFlagged(EPlrFlag::kCrashSave)) {
 			Crash_crashsave(d->character.get());
