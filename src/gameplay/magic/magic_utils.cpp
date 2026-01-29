@@ -27,6 +27,9 @@
 #include "gameplay/statistics/spell_usage.h"
 #include "utils/backtrace.h"
 
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 char cast_argument[kMaxStringLength];
@@ -341,6 +344,24 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
+	// OpenTelemetry: Track spell casting
+	auto spell_span = tracing::TraceManager::Instance().StartSpan("Spell Cast");
+	observability::ScopedMetric spell_metric("spell.cast.duration");
+	
+	// Set spell attributes
+	std::string spell_name = MUD::Spell(spell_id).GetCName();
+	spell_span->SetAttribute("spell_id", static_cast<int64_t>(to_underlying(spell_id)));
+	spell_span->SetAttribute("spell_name", spell_name);
+	spell_span->SetAttribute("caster_class", NAME_BY_ITEM(caster->GetClass()));
+	spell_span->SetAttribute("spell_level", static_cast<int64_t>(level));
+	
+	// Determine target type
+	std::string target_type = "none";
+	if (cvict) target_type = "char";
+	else if (ovict) target_type = "obj";
+	else if (rvict) target_type = "room";
+	spell_span->SetAttribute("target_type", target_type);
+	
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
@@ -368,6 +389,12 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	if (SpellUsage::is_active) {
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
+	
+	// OpenTelemetry: Record spell cast attempt
+	std::map<std::string, std::string> attrs;
+	attrs["spell_id"] = std::to_string(to_underlying(spell_id));
+	attrs["caster_class"] = NAME_BY_ITEM(caster->GetClass());
+	observability::OtelMetrics::RecordCounter("spell.cast.total", 1, attrs);
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));
