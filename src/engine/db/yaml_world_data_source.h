@@ -19,10 +19,6 @@
 
 class ZoneData;
 class RoomData;
-class CharData;
-class CObjectPrototype;
-class Trigger;
-struct reset_com;
 
 namespace world_loader
 {
@@ -80,27 +76,12 @@ private:
 	// Convert UTF-8 from YAML to KOI8-R
 	std::string ConvertToKoi8r(const std::string &utf8_str) const;
 
-	// Save helpers - convert KOI8-R to UTF-8 for writing
-	// Reverse lookup helpers for saving
-	std::string ReverseLookupEnum(const std::string &dict_name, int value) const;
-	std::vector<std::string> ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const;
-	std::vector<std::string> ConvertTriggerTypesToNames(long trigger_type) const;
-
+	// Helper methods for save operations
 	std::string ConvertToUtf8(const std::string &koi8r_str) const;
+	std::vector<std::string> ConvertFlagsToNames(const FlagData &flags, const std::string &dict_name) const;
+	std::string ReverseLookupEnum(const std::string &dict_name, int value) const;
+	bool WriteYamlAtomic(const std::string &filepath, const YAML::Node &node) const;
 
-	// Atomic file writing with .new/.old backup
-	void WriteYamlAtomic(const std::string &filename, const YAML::Node &node) const;
-
-	// Update index.yaml with zone/mob/obj/trigger vnum
-	void UpdateIndexYaml(const std::string &section, int vnum) const;
-
-	// Runtime Б├▓ YAML converters
-	YAML::Node ZoneToYaml(const ZoneData &zone) const;
-	YAML::Node ZoneCommandToYaml(const struct reset_com &cmd) const;
-	YAML::Node RoomToYaml(const RoomData *room) const;
-	YAML::Node MobToYaml(const CharData &mob) const;
-	YAML::Node ObjectToYaml(const CObjectPrototype *obj) const;
-	YAML::Node TriggerToYaml(const Trigger *trig) const;
 
 	std::string m_world_dir;
 	bool m_dictionaries_loaded = false;
