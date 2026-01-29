@@ -1614,6 +1614,66 @@ std::string YamlWorldDataSource::ConvertToUtf8(const std::string &koi8r_str) con
 
 void YamlWorldDataSource::WriteYamlAtomic(const std::string &filename, const YAML::Node &node) const
 {
+	std::string new_file = filename + ".new";
+	std::string old_file = filename + ".old";
+
+	// Step 1: Write to .new file
+	std::ofstream out(new_file);
+	if (!out)
+	{
+		log("SYSERR: Cannot open file for writing: %s", new_file.c_str());
+		return;
+	}
+
+	YAML::Emitter emitter;
+	emitter << node;
+	out << emitter.c_str();
+	out.close();
+
+	if (!out.good())
+	{
+		log("SYSERR: Error writing to file: %s", new_file.c_str());
+		std::filesystem::remove(new_file);
+		return;
+	}
+
+	// Step 2: Rename old file to .old (if exists)
+	if (std::filesystem::exists(filename))
+	{
+		std::error_code ec;
+		std::filesystem::rename(filename, old_file, ec);
+		if (ec)
+		{
+			log("SYSERR: Cannot rename %s to %s: %s", filename.c_str(), old_file.c_str(), ec.message().c_str());
+			std::filesystem::remove(new_file);
+			return;
+		}
+	}
+
+	// Step 3: Rename .new to target
+	{
+		std::error_code ec;
+		std::filesystem::rename(new_file, filename, ec);
+		if (ec)
+		{
+			log("SYSERR: Cannot rename %s to %s: %s", new_file.c_str(), filename.c_str(), ec.message().c_str());
+			// Try to restore .old
+			if (std::filesystem::exists(old_file))
+			{
+				std::filesystem::rename(old_file, filename);
+			}
+			return;
+		}
+	}
+
+	// Step 4: Remove .old backup
+	if (std::filesystem::exists(old_file))
+	{
+		std::filesystem::remove(old_file);
+	}
+}
+{
+
 YAML::Node YamlWorldDataSource::ZoneCommandToYaml(const struct reset_com &cmd) const
 {
 	YAML::Node node;
@@ -2722,65 +2782,6 @@ YAML::Node YamlWorldDataSource::ObjectToYaml(const CObjectPrototype *obj) const
 	}
 
 	return node;
-}
-
-
-	std::string new_file = filename + ".new";
-	std::string old_file = filename + ".old";
-
-	// Step 1: Write to .new file
-	std::ofstream out(new_file);
-	if (!out)
-	{
-		log("SYSERR: Cannot open file for writing: %s", new_file.c_str());
-		return;
-	}
-
-	YAML::Emitter emitter;
-	emitter << node;
-	out << emitter.c_str();
-	out.close();
-
-	if (!out.good())
-	{
-		log("SYSERR: Error writing to file: %s", new_file.c_str());
-		std::filesystem::remove(new_file);
-		return;
-	}
-
-	// Step 2: Rename old file to .old (if exists)
-	if (std::filesystem::exists(filename))
-	{
-		std::error_code ec;
-		std::filesystem::rename(filename, old_file, ec);
-		if (ec)
-		{
-			log("SYSERR: Cannot rename %s to %s: %s", filename.c_str(), old_file.c_str(), ec.message().c_str());
-			std::filesystem::remove(new_file);
-			return;
-		}
-	}
-
-	// Step 3: Rename .new to target
-	{
-		std::error_code ec;
-		std::filesystem::rename(new_file, filename, ec);
-		if (ec)
-		{
-			log("SYSERR: Cannot rename %s to %s: %s", new_file.c_str(), filename.c_str(), ec.message().c_str());
-			// Try to restore .old
-			if (std::filesystem::exists(old_file))
-			{
-				std::filesystem::rename(old_file, filename);
-			}
-			return;
-		}
-	}
-
-	// Step 4: Remove .old backup
-	if (std::filesystem::exists(old_file))
-	{
-		std::filesystem::remove(old_file);
 	}
 }
 

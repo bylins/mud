@@ -2917,9 +2917,13 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	FlagData act_flags = mob.char_specials.saved.act;
 	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
 
+	// Save mob affect flags
+	FlagData affect_flags = mob.char_specials.saved.affected_by;
+	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, affect_flags, mob_affect_flag_map, "affect");
+
 
 	// Save mob resistances
-	const char *resist_sql = "INSERT INTO mob_resistances (mob_vnum, resist_type, resist_value) VALUES (?, ?, ?)";
+	const char *resist_sql = "INSERT INTO mob_resistances (mob_vnum, resist_type, value) VALUES (?, ?, ?)";
 	for (size_t i = 0; i < mob.add_abils.apply_resistance.size(); ++i)
 	{
 		if (GET_RESIST(&mob, i) != 0)
@@ -2936,7 +2940,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	}
 
 	// Save mob saves
-	const char *save_sql = "INSERT INTO mob_saves (mob_vnum, save_type, save_value) VALUES (?, ?, ?)";
+	const char *save_sql = "INSERT INTO mob_saves (mob_vnum, save_type, value) VALUES (?, ?, ?)";
 	for (size_t i = 0; i < mob.add_abils.apply_saving_throw.size(); ++i)
 	{
 		if (mob.add_abils.apply_saving_throw[i] != 0)
@@ -2954,6 +2958,56 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 
 
 
+
+	// Save mob skills
+	const char *skill_sql = "INSERT INTO mob_skills (mob_vnum, skill_id, value) VALUES (?, ?, ?)";
+	for (ESkill skill = ESkill::kFirst; skill <= ESkill::kLast; ++skill)
+	{
+		int value = mob.GetSkill(skill);
+		if (value > 0)
+		{
+			if (sqlite3_prepare_v2(m_db, skill_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, to_underlying(skill));
+				sqlite3_bind_int(stmt, 3, value);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+
+	// Save mob feats
+	const char *feat_sql = "INSERT INTO mob_feats (mob_vnum, feat_id) VALUES (?, ?)";
+	for (size_t feat_id = 0; feat_id < mob.real_abils.Feats.size(); ++feat_id)
+	{
+		if (mob.real_abils.Feats.test(feat_id))
+		{
+			if (sqlite3_prepare_v2(m_db, feat_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, feat_id);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+
+	// Save mob spells
+	const char *spell_sql = "INSERT INTO mob_spells (mob_vnum, spell_id) VALUES (?, ?)";
+	for (size_t spell_id = 0; spell_id < mob.real_abils.SplKnw.size(); ++spell_id)
+	{
+		if (mob.real_abils.SplKnw[spell_id] > 0)
+		{
+			if (sqlite3_prepare_v2(m_db, spell_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, spell_id);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
 	// Save mob helpers
 	const char *helper_sql = "INSERT INTO mob_helpers (mob_vnum, helper_vnum) VALUES (?, ?)";
 	for (const auto &helper_vnum : mob.summon_helpers)
@@ -2970,7 +3024,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		}
 	}
 	// Save mob destinations
-	const char *dest_sql = "INSERT INTO mob_destinations (mob_vnum, dest_vnum) VALUES (?, ?)";
+	const char *dest_sql = "INSERT INTO mob_destinations (mob_vnum, dest_order, room_vnum) VALUES (?, ?, ?)";
 	for (size_t i = 0; i < mob.mob_specials.dest.size(); ++i)
 	{
 		if (mob.mob_specials.dest[i] != 0)
@@ -2978,7 +3032,8 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 			if (sqlite3_prepare_v2(m_db, dest_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, mob_vnum);
-				sqlite3_bind_int(stmt, 2, mob.mob_specials.dest[i]);
+				sqlite3_bind_int(stmt, 2, i);
+				sqlite3_bind_int(stmt, 3, mob.mob_specials.dest[i]);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
@@ -3146,9 +3201,32 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	// Save object extra flags
 	FlagData obj_flags = obj->get_extra_flags();
 	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj_flags, obj_extra_flag_map);
+	// Save object wear flags
+	int wear_flags = obj->get_wear_flags();
+	sqlite3_stmt *wear_stmt = nullptr;
+	const char *wear_sql = "INSERT INTO obj_flags (obj_vnum, flag_category, flag_name) VALUES (?, 'wear', ?)";
+	for (int bit = 0; bit < 32; ++bit)
+	{
+		if (wear_flags & (1 << bit))
+		{
+			Bitvector bit_value = (1 << bit);
+			std::string flag_name = ReverseLookupFlag(obj_wear_flag_map, bit_value);
+			if (!flag_name.empty())
+			{
+				if (sqlite3_prepare_v2(m_db, wear_sql, -1, &wear_stmt, nullptr) == SQLITE_OK)
+				{
+					sqlite3_bind_int(wear_stmt, 1, obj_vnum);
+					sqlite3_bind_text(wear_stmt, 2, flag_name.c_str(), -1, SQLITE_TRANSIENT);
+					sqlite3_step(wear_stmt);
+					sqlite3_finalize(wear_stmt);
+				}
+			}
+		}
+	}
+
 
 	// Save object applies (affects)
-	const char *apply_sql = "INSERT INTO obj_applies (obj_vnum, affect_location, affect_modifier) VALUES (?, ?, ?)";
+	const char *apply_sql = "INSERT INTO obj_applies (obj_vnum, location_id, modifier) VALUES (?, ?, ?)";
 	for (int i = 0; i < kMaxObjAffect; ++i)
 	{
 		if (obj->get_affected(i).location != EApply::kNone)
