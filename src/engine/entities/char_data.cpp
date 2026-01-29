@@ -17,6 +17,8 @@
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
+#include "utils/tracing/trace_sender.h"
+#include "engine/observability/otel_helpers.h"
 #include "engine/ui/alias.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -77,6 +79,78 @@ CharData::CharData() :
 	this->zero_init();
 	caching::character_cache.Add(this);
 	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
+}
+
+CharData::CharData(const CharData& other) 
+	: ProtectedCharData(other),
+	  chclass_(other.chclass_),
+	  role_(other.role_),
+	  in_room(other.in_room),
+	  m_wait(other.m_wait),
+	  m_master(other.m_master),
+	  proto_script(other.proto_script ? std::make_shared<ObjData::triggers_list_t>(*other.proto_script) : nullptr),
+	  script(other.script ? std::make_shared<Script>(*other.script) : nullptr),
+	  followers(nullptr),
+	  // OpenTelemetry combat tracing - NOT copied (these are instance-specific)
+	  m_combat_root_span(nullptr),
+	  m_combat_baggage_scope(nullptr),
+	  m_combat_id()
+{
+	// Copy all other fields using assignment
+	player_data = other.player_data;
+	add_abils = other.add_abils;
+	real_abils = other.real_abils;
+	points = other.points;
+	char_specials = other.char_specials;
+	mob_specials = other.mob_specials;
+	if (other.player_specials) {
+		player_specials = std::make_shared<player_special_data>(*other.player_specials);
+	}
+	
+	// Register in cache
+	caching::character_cache.Add(this);
+	
+	// Initialize global cooldown
+	skills[ESkill::kGlobalCooldown].skillLevel = 0;
+}
+CharData& CharData::operator=(const CharData& other) {
+	if (this == &other) {
+		return *this;
+	}
+	
+	// Call base class assignment
+	ProtectedCharData::operator=(other);
+	
+	// Copy all fields
+	chclass_ = other.chclass_;
+	role_ = other.role_;
+	in_room = other.in_room;
+	m_wait = other.m_wait;
+	m_master = other.m_master;
+	
+	proto_script = other.proto_script ? std::make_shared<ObjData::triggers_list_t>(*other.proto_script) : nullptr;
+	script = other.script ? std::make_shared<Script>(*other.script) : nullptr;
+	followers = nullptr; // Don't copy followers
+	
+	player_data = other.player_data;
+	add_abils = other.add_abils;
+	real_abils = other.real_abils;
+	points = other.points;
+	char_specials = other.char_specials;
+	mob_specials = other.mob_specials;
+	
+	if (other.player_specials) {
+		player_specials = std::make_shared<player_special_data>(*other.player_specials);
+	} else {
+		player_specials.reset();
+	}
+	
+	// OpenTelemetry combat tracing - NOT copied (these are instance-specific)
+	m_combat_root_span.reset();
+	m_combat_baggage_scope.reset();
+	m_combat_id.clear();
+	
+	return *this;
 }
 
 CharData::~CharData() {

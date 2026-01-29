@@ -37,6 +37,11 @@
 #include "gameplay/skills/slay.h"
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/classes/pc_classes.h"
+#include "engine/observability/otel_helpers.h"
+#include "utils/tracing/trace_manager.h"
+#include <chrono>
+#include "engine/observability/otel_metrics.h"
+#include "engine/observability/otel_trace_sender.h"
 #include "gameplay/core/base_stats.h"
 #include "utils/utils_time.h"
 #include "gameplay/skills/leadership.h"
@@ -178,9 +183,18 @@ void restore_battle_pos(CharData *ch) {
 	}
 }
 
-/**
+// Helper: Generate combat ID for tracing
+static std::string GenerateCombatId(const CharData *attacker, const CharData *defender) {
+	auto timestamp = std::chrono::system_clock::now().time_since_epoch().count();
+	return std::to_string(timestamp) + "_" + 
+	       std::string(GET_NAME(attacker)) + "_vs_" + 
+	       std::string(GET_NAME(defender));
+}
+
+/*
  * Start one char fighting another (yes, it is horrible, I know... )
  */
+
 void SetFighting(CharData *ch, CharData *vict) {
 	if (ch == vict)
 		return;
@@ -217,6 +231,46 @@ void SetFighting(CharData *ch, CharData *vict) {
 		AFF_FLAGS(ch).unset(EAffect::kSleep);
 	}
 	ch->SetEnemy(vict);
+
+	// OpenTelemetry: Create combat trace for this fight
+	if (!ch->m_combat_root_span) {
+		// Generate combat ID
+		ch->m_combat_id = GenerateCombatId(ch, vict);
+		
+		// Create root span for combat trace (without Scope - п╫п╣ п╡п╩п╦я▐п╣я┌ п╫п╟ runtime context)
+#ifdef WITH_OTEL
+		auto tracer = observability::OtelProvider::Instance().GetTracer();
+		if (tracer) {
+			std::string span_name = "Combat: " + std::string(GET_NAME(ch)) + " vs " + std::string(GET_NAME(vict));
+			
+			// Create root span without parent (invalid context)
+			opentelemetry::trace::StartSpanOptions options;
+			options.parent = opentelemetry::trace::SpanContext::GetInvalid();
+			
+			auto otel_span = tracer->StartSpan(span_name, {}, options);
+			ch->m_combat_root_span = std::make_unique<tracing::OtelSpan>(otel_span, false); // false = no Scope
+			
+			// Set attributes on combat root span
+			ch->m_combat_root_span->SetAttribute("combat_id", ch->m_combat_id);
+			ch->m_combat_root_span->SetAttribute("attacker", std::string(GET_NAME(ch)));
+			ch->m_combat_root_span->SetAttribute("defender", std::string(GET_NAME(vict)));
+			ch->m_combat_root_span->SetAttribute("is_pk", static_cast<int64_t>(!ch->IsNpc() && !vict->IsNpc()));
+			ch->m_combat_root_span->SetAttribute("start_pulse", static_cast<int64_t>(MUD::heartbeat().pulse_number()));
+			
+			// Get trace_id from combat span for logging
+			auto combat_trace_id = observability::GetTraceId(ch->m_combat_root_span.get());
+			
+			// Set baggage for automatic propagation to logs
+			ch->m_combat_baggage_scope = std::make_unique<observability::BaggageScope>("combat_trace_id", combat_trace_id);
+			ch->m_combat_baggage_scope = std::make_unique<observability::BaggageScope>("combat_id", ch->m_combat_id);
+		}
+#endif
+		
+		// Record metric: active combats count (increment)
+		static int active_combats = 0;
+		active_combats++;
+		observability::OtelMetrics::RecordGauge("combat.active.count", active_combats);
+	}
 
 	ch->battle_affects.clear();
 	ch->set_touching(nullptr);
@@ -275,6 +329,30 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->last_comm.clear();
 	ch->set_touching(nullptr);
 	ch->SetEnemy(nullptr);
+	
+	// OpenTelemetry: Close combat trace
+	if (ch->m_combat_root_span) {
+		// Set end attributes
+		ch->m_combat_root_span->SetAttribute("end_pulse", static_cast<int64_t>(MUD::heartbeat().pulse_number()));
+		
+		// Add event for how combat ended (we don't know the reason here, but span exists)
+		ch->m_combat_root_span->AddEvent("combat_ended");
+		
+		// Close the span
+		ch->m_combat_root_span->End();
+		ch->m_combat_root_span.reset();
+		
+		// Clean up baggage scope
+		ch->m_combat_baggage_scope.reset();
+		ch->m_combat_id.clear();
+		
+		// Record metric: active combats count (decrement)
+		static int active_combats = 0;
+		if (active_combats > 0) {
+			active_combats--;
+		}
+		observability::OtelMetrics::RecordGauge("combat.active.count", active_combats);
+	}
 	ch->initiative = 0;
 	ch->battle_counter = 0;
 	ch->round_counter = 0;
@@ -2090,6 +2168,38 @@ void perform_violence() {
 				continue;
 			}
 			utils::CExecutionTimer violence_timer;
+			
+			// OpenTelemetry: Create DualSpan for combat round (if this character has active combat trace)
+			std::unique_ptr<observability::DualSpan> round_span;
+			if (it.ch->m_combat_root_span && it.ch->m_combat_root_span->IsValid()) {
+#ifdef WITH_OTEL
+				// Get combat root span context
+				auto* otel_span = dynamic_cast<tracing::OtelSpan*>(it.ch->m_combat_root_span.get());
+				if (otel_span) {
+					auto combat_context = otel_span->GetContext();
+					
+					std::string round_name = "Round #" + std::to_string(it.ch->round_counter + 1);
+					round_span = std::make_unique<observability::DualSpan>(
+						"Combat round",  // name in heartbeat trace
+						round_name,      // name in combat trace
+						&combat_context  // parent for combat span
+					);
+					
+					// Set attributes on both spans
+					round_span->SetAttribute("round_number", static_cast<int64_t>(it.ch->round_counter + 1));
+					round_span->SetAttribute("heartbeat_pulse", static_cast<int64_t>(MUD::heartbeat().pulse_number()));
+					round_span->SetAttribute("attacker", std::string(GET_NAME(it.ch)));
+					if (it.ch->GetEnemy()) {
+						round_span->SetAttribute("defender", std::string(GET_NAME(it.ch->GetEnemy())));
+						round_span->SetAttribute("attacker_hp", static_cast<int64_t>(it.ch->get_hit()));
+						round_span->SetAttribute("defender_hp", static_cast<int64_t>(it.ch->GetEnemy()->get_hit()));
+					}
+					round_span->SetAttribute("initiative", static_cast<int64_t>(initiative));
+				}
+#endif
+			}
+			
+			utils::CExecutionTimer round_timer;
 			//* выполнение атак в раунде
 			if (it.ch->IsNpc()) {
 				process_npc_attack(it.ch);
@@ -2098,6 +2208,18 @@ void perform_violence() {
 			}
 			if (violence_timer.delta().count() > 0.001) {
 				log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
+			}
+			
+			// OpenTelemetry: Record combat round metrics
+			if (round_span) {
+				auto round_duration = round_timer.delta().count();
+				
+				std::map<std::string, std::string> attrs;
+				attrs["combatants_count"] = std::to_string(size);
+				attrs["is_pk"] = it.ch->GetEnemy() && !it.ch->IsNpc() && !it.ch->GetEnemy()->IsNpc() ? "true" : "false";
+				
+				observability::OtelMetrics::RecordHistogram("combat.round.duration", round_duration, attrs);
+				observability::OtelMetrics::RecordCounter("combat.rounds.total", 1, attrs);
 			}
 		}
 	}

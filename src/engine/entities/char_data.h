@@ -27,6 +27,10 @@
 #include <bitset>
 #include <list>
 #include <map>
+// Forward declarations for OpenTelemetry
+namespace tracing { class ISpan; }
+namespace observability { class BaggageScope; }
+
 
 // pernalty types
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
@@ -328,6 +332,8 @@ class CharData : public ProtectedCharData {
 	using followers_list_t = std::list<CharData *>;
 
 	CharData();
+	CharData(const CharData& other);
+	CharData& operator=(const CharData& other);
 	~CharData() override;
 
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
@@ -829,6 +835,11 @@ class CharData : public ProtectedCharData {
 	bool IsHorsePrevents();
 	void dismount();
 	bool IsLeader();
+
+	// OpenTelemetry combat tracing (instrumentation)
+	std::unique_ptr<tracing::ISpan> m_combat_root_span;
+	std::unique_ptr<observability::BaggageScope> m_combat_baggage_scope;
+	std::string m_combat_id;
 };
 
 # define MAX_FIRSTAID_REMOVE 17
