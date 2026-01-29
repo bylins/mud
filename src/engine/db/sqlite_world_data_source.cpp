@@ -450,6 +450,69 @@ static std::unordered_map<std::string, int> gender_map = {
 	{"kNeutral", static_cast<int>(EGender::kNeutral)},
 	{"kPoly", static_cast<int>(EGender::kPoly)},
 };
+// Helper: reverse lookup flag name by bit position (template version)
+template<typename T>
+std::string ReverseLookupFlag(const std::unordered_map<std::string, T> &flag_map, Bitvector bit_value)
+{
+	for (const auto &[name, value] : flag_map)
+	{
+		if (static_cast<Bitvector>(value) == bit_value)
+		{
+			return name;
+		}
+	}
+	return "";  // Not found
+}
+
+// Save flags helper (template version)
+template<typename T>
+void SaveFlagsToTable(sqlite3 *db, const std::string &table_name, const std::string &vnum_col,
+                      int vnum, const FlagData &flags,
+                      const std::unordered_map<std::string, T> &flag_map,
+                      const std::string &category = "")
+{
+	sqlite3_stmt *stmt = nullptr;
+	std::string sql;
+	if (category.empty())
+	{
+		sql = "INSERT INTO " + table_name + " (" + vnum_col + ", flag_name) VALUES (?, ?)";
+	}
+	else
+	{
+		sql = "INSERT INTO " + table_name + " (" + vnum_col + ", flag_category, flag_name) VALUES (?, ?, ?)";
+	}
+	
+	for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+	{
+		Bitvector plane_bits = flags.get_plane(plane);
+		if (plane_bits == 0) continue;
+		
+		for (int bit = 0; bit < 30; ++bit)
+		{
+			if (plane_bits & (1 << bit))
+			{
+				Bitvector bit_value = (plane << 30) | (1 << bit);
+				std::string flag_name = ReverseLookupFlag(flag_map, bit_value);
+				
+				if (!flag_name.empty())
+				{
+					if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK)
+					{
+						int col = 1;
+						sqlite3_bind_int(stmt, col++, vnum);
+						if (!category.empty())
+						{
+							sqlite3_bind_text(stmt, col++, category.c_str(), -1, SQLITE_TRANSIENT);
+						}
+						sqlite3_bind_text(stmt, col++, flag_name.c_str(), -1, SQLITE_TRANSIENT);
+						sqlite3_step(stmt);
+						sqlite3_finalize(stmt);
+					}
+				}
+			}
+		}
+	}
+}
 
 // ============================================================================
 // SqliteWorldDataSource implementation
@@ -2134,29 +2197,1058 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 // Save Methods (read-only)
 // ============================================================================
 
-void SqliteWorldDataSource::SaveZone(int)
+// ============================================================================
+// Transaction helpers
+// ============================================================================
+
+bool SqliteWorldDataSource::BeginTransaction()
 {
-	log("SYSERR: SQLite data source does not support saving zones.");
+	char *err_msg = nullptr;
+	int rc = sqlite3_exec(m_db, "BEGIN TRANSACTION", nullptr, nullptr, &err_msg);
+	if (rc != SQLITE_OK)
+	{
+		log("SYSERR: Failed to begin transaction: %s", err_msg);
+		sqlite3_free(err_msg);
+		return false;
+	}
+	return true;
 }
 
-void SqliteWorldDataSource::SaveTriggers(int)
+bool SqliteWorldDataSource::CommitTransaction()
 {
-	log("SYSERR: SQLite data source does not support saving triggers.");
+	char *err_msg = nullptr;
+	int rc = sqlite3_exec(m_db, "COMMIT", nullptr, nullptr, &err_msg);
+	if (rc != SQLITE_OK)
+	{
+		log("SYSERR: Failed to commit transaction: %s", err_msg);
+		sqlite3_free(err_msg);
+		return false;
+	}
+	return true;
 }
 
-void SqliteWorldDataSource::SaveRooms(int)
+bool SqliteWorldDataSource::RollbackTransaction()
 {
-	log("SYSERR: SQLite data source does not support saving rooms.");
+	char *err_msg = nullptr;
+	int rc = sqlite3_exec(m_db, "ROLLBACK", nullptr, nullptr, &err_msg);
+	if (rc != SQLITE_OK)
+	{
+		log("SYSERR: Failed to rollback transaction: %s", err_msg);
+		sqlite3_free(err_msg);
+		return false;
+	}
+	return true;
 }
 
-void SqliteWorldDataSource::SaveMobs(int)
+bool SqliteWorldDataSource::ExecuteStatement(const std::string &sql, const std::string &operation)
 {
-	log("SYSERR: SQLite data source does not support saving mobs.");
+	char *err_msg = nullptr;
+	int rc = sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &err_msg);
+	if (rc != SQLITE_OK)
+	{
+		log("SYSERR: Failed to %s: %s", operation.c_str(), err_msg);
+		log("SYSERR: SQL: %s", sql.c_str());
+		sqlite3_free(err_msg);
+		return false;
+	}
+	return true;
 }
 
-void SqliteWorldDataSource::SaveObjects(int)
+// ============================================================================
+// Save helper methods
+// ============================================================================
+
+void SqliteWorldDataSource::SaveZoneRecord(const ZoneData &zone)
 {
-	log("SYSERR: SQLite data source does not support saving objects.");
+	sqlite3_stmt *stmt = nullptr;
+	const char *sql = 
+		"REPLACE INTO zones (vnum, name, comment, location, author, description, "
+		"first_room, top_room, mode, zone_type, zone_group, entrance, "
+		"lifespan, reset_mode, reset_idle, under_construction, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+
+	int rc = sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr);
+	if (rc != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare zone insert: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	// Bind values
+	sqlite3_bind_int(stmt, 1, zone.vnum);
+	sqlite3_bind_text(stmt, 2, zone.name.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 3, zone.comment.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 4, zone.location.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 5, zone.author.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 6, zone.description.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_int(stmt, 7, zone.vnum * 100);  // first_room
+	sqlite3_bind_int(stmt, 8, zone.top);  // top_room
+	sqlite3_bind_int(stmt, 9, zone.level);  // mode
+	sqlite3_bind_int(stmt, 10, zone.type);  // zone_type
+	sqlite3_bind_int(stmt, 11, zone.group);  // zone_group
+	sqlite3_bind_int(stmt, 12, zone.entrance);
+	sqlite3_bind_int(stmt, 13, zone.lifespan);
+	sqlite3_bind_int(stmt, 14, zone.reset_mode);
+	sqlite3_bind_int(stmt, 15, zone.reset_idle ? 1 : 0);
+	sqlite3_bind_int(stmt, 16, zone.under_construction);
+
+	rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE)
+	{
+		log("SYSERR: Failed to insert zone %d: %s", zone.vnum, sqlite3_errmsg(m_db));
+	}
+
+	sqlite3_finalize(stmt);
+}
+
+void SqliteWorldDataSource::SaveZoneGroups(int zone_vnum, const ZoneData &zone)
+{
+	// Delete existing groups
+	std::string delete_sql = "DELETE FROM zone_groups WHERE zone_vnum = " + std::to_string(zone_vnum);
+	ExecuteStatement(delete_sql, "delete zone groups");
+
+	// Insert typeA groups
+	sqlite3_stmt *stmt = nullptr;
+	const char *insert_sql = "INSERT INTO zone_groups (zone_vnum, linked_zone_vnum, group_type) VALUES (?, ?, ?)";
+	
+	for (int i = 0; i < zone.typeA_count; ++i)
+	{
+		if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, zone_vnum);
+			sqlite3_bind_int(stmt, 2, zone.typeA_list[i]);
+			sqlite3_bind_text(stmt, 3, "A", -1, SQLITE_STATIC);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+
+	// Insert typeB groups
+	for (int i = 0; i < zone.typeB_count; ++i)
+	{
+		if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, zone_vnum);
+			sqlite3_bind_int(stmt, 2, zone.typeB_list[i]);
+			sqlite3_bind_text(stmt, 3, "B", -1, SQLITE_STATIC);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+}
+
+void SqliteWorldDataSource::SaveZoneCommands(int zone_vnum, const struct reset_com *commands)
+{
+	if (!commands)
+	{
+		return;
+	}
+
+	// Delete existing commands
+	std::string delete_sql = "DELETE FROM zone_commands WHERE zone_vnum = " + std::to_string(zone_vnum);
+	ExecuteStatement(delete_sql, "delete zone commands");
+
+	// Insert commands
+	sqlite3_stmt *stmt = nullptr;
+	const char *insert_sql = 
+		"INSERT INTO zone_commands (zone_vnum, command_order, command, if_flag, "
+		"arg1, arg2, arg3, arg4, sarg1, sarg2) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	int order = 0;
+	for (int i = 0; commands[i].command != 'S'; ++i)
+	{
+		// Skip A and B commands - they're in zone_groups
+		if (commands[i].command == 'A' || commands[i].command == 'B')
+		{
+			continue;
+		}
+
+		if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, zone_vnum);
+			sqlite3_bind_int(stmt, 2, order++);
+			
+			char cmd_str[2] = {commands[i].command, '\0'};
+			sqlite3_bind_text(stmt, 3, cmd_str, -1, SQLITE_TRANSIENT);
+			sqlite3_bind_int(stmt, 4, commands[i].if_flag);
+			sqlite3_bind_int(stmt, 5, commands[i].arg1);
+			sqlite3_bind_int(stmt, 6, commands[i].arg2);
+			sqlite3_bind_int(stmt, 7, commands[i].arg3);
+			sqlite3_bind_int(stmt, 8, commands[i].arg4);
+			
+			if (commands[i].sarg1)
+			{
+				sqlite3_bind_text(stmt, 9, commands[i].sarg1, -1, SQLITE_TRANSIENT);
+			}
+			else
+			{
+				sqlite3_bind_null(stmt, 9);
+			}
+			
+			if (commands[i].sarg2)
+			{
+				sqlite3_bind_text(stmt, 10, commands[i].sarg2, -1, SQLITE_TRANSIENT);
+			}
+			else
+			{
+				sqlite3_bind_null(stmt, 10);
+			}
+
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+}
+
+void SqliteWorldDataSource::SaveZone(int zone_rnum)
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveZone", zone_rnum);
+		return;
+	}
+
+	if (!m_db)
+	{
+		log("SYSERR: Database not open for SaveZone");
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+
+	if (!BeginTransaction())
+	{
+		return;
+	}
+
+	SaveZoneRecord(zone);
+	SaveZoneGroups(zone.vnum, zone);
+	SaveZoneCommands(zone.vnum, zone.cmd);
+
+	if (!CommitTransaction())
+	{
+		RollbackTransaction();
+		log("SYSERR: Failed to save zone %d", zone.vnum);
+		return;
+	}
+
+	log("Saved zone %d to SQLite database", zone.vnum);
+}
+
+
+void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig)
+{
+	if (!trig)
+	{
+		return;
+	}
+
+	// Delete existing trigger and bindings (CASCADE will handle trigger_type_bindings)
+	std::string delete_sql = "DELETE FROM triggers WHERE vnum = " + std::to_string(trig_vnum);
+	ExecuteStatement(delete_sql, "delete trigger");
+
+	// Insert trigger record
+	sqlite3_stmt *stmt = nullptr;
+	const char *insert_sql = 
+		"INSERT INTO triggers (vnum, name, attach_type_id, narg, arglist, script, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, 1)";
+
+	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare trigger insert: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	// Build script text from cmdlist
+	std::string script_text;
+	if (trig->cmdlist)
+	{
+		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
+		{
+			if (!cmd->cmd.empty())
+			{
+				script_text += cmd->cmd;
+				script_text += "\n";
+			}
+		}
+	}
+
+	sqlite3_bind_int(stmt, 1, trig_vnum);
+	sqlite3_bind_text(stmt, 2, trig->get_name().c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_int(stmt, 3, trig->get_attach_type());
+	sqlite3_bind_int(stmt, 4, GET_TRIG_NARG(trig));
+	sqlite3_bind_text(stmt, 5, trig->arglist.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 6, script_text.c_str(), -1, SQLITE_TRANSIENT);
+
+	int rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE)
+	{
+		log("SYSERR: Failed to insert trigger %d: %s", trig_vnum, sqlite3_errmsg(m_db));
+	}
+	sqlite3_finalize(stmt);
+
+	// Insert trigger type bindings
+	const char *binding_sql = "INSERT INTO trigger_type_bindings (trigger_vnum, type_char) VALUES (?, ?)";
+	
+	long trigger_type = GET_TRIG_TYPE(trig);
+	for (int bit = 0; bit < 52; ++bit)  // 26 lowercase + 26 uppercase
+	{
+		if (trigger_type & (1L << bit))
+		{
+			char type_ch = (bit < 26) ? ('a' + bit) : ('A' + (bit - 26));
+			
+			if (sqlite3_prepare_v2(m_db, binding_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, trig_vnum);
+				char ch_str[2] = {type_ch, '\0'};
+				sqlite3_bind_text(stmt, 2, ch_str, -1, SQLITE_TRANSIENT);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+}
+
+void SqliteWorldDataSource::SaveTriggers(int zone_rnum)
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
+		return;
+	}
+
+	if (!m_db)
+	{
+		log("SYSERR: Database not open for SaveTriggers");
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	
+	// Get trigger range for this zone
+	TrgRnum first_trig = zone.RnumTrigsLocation.first;
+	TrgRnum last_trig = zone.RnumTrigsLocation.second;
+
+	if (first_trig == -1 || last_trig == -1)
+	{
+		log("Zone %d has no triggers to save", zone.vnum);
+		return;
+	}
+
+	if (!BeginTransaction())
+	{
+		return;
+	}
+
+	int saved_count = 0;
+	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum <= top_of_trigt; ++trig_rnum)
+	{
+		if (!trig_index[trig_rnum])
+		{
+			continue;
+		}
+
+		int trig_vnum = trig_index[trig_rnum]->vnum;
+		Trigger *trig = trig_index[trig_rnum]->proto;
+
+		if (!trig)
+		{
+			continue;
+		}
+
+		SaveTriggerRecord(trig_vnum, trig);
+		++saved_count;
+	}
+
+	if (!CommitTransaction())
+	{
+		RollbackTransaction();
+		log("SYSERR: Failed to save triggers for zone %d", zone.vnum);
+		return;
+	}
+
+	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
+}
+
+
+void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
+{
+	if (!room)
+	{
+		return;
+	}
+
+	int room_vnum = room->vnum;
+	int zone_vnum = room->vnum / 100;  // Integer division gives zone vnum
+
+	// Delete existing room data (CASCADE will handle related tables)
+	std::string delete_sql = "DELETE FROM rooms WHERE vnum = " + std::to_string(room_vnum);
+	ExecuteStatement(delete_sql, "delete room");
+
+	// Insert room record
+	sqlite3_stmt *stmt = nullptr;
+	const char *insert_sql = 
+		"INSERT INTO rooms (vnum, zone_vnum, name, description, sector_id, enabled) "
+		"VALUES (?, ?, ?, ?, ?, 1)";
+
+	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare room insert: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	sqlite3_bind_int(stmt, 1, room_vnum);
+	sqlite3_bind_int(stmt, 2, zone_vnum);
+	sqlite3_bind_text(stmt, 3, room->name, -1, SQLITE_TRANSIENT);
+	
+	std::string description = RoomDescription::show_desc(room->description_num);
+	sqlite3_bind_text(stmt, 4, description.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_int(stmt, 5, static_cast<int>(room->sector_type));
+
+	int rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE)
+	{
+		log("SYSERR: Failed to insert room %d: %s", room_vnum, sqlite3_errmsg(m_db));
+	}
+	sqlite3_finalize(stmt);
+
+	// Save room flags
+	FlagData room_flags = room->read_flags();
+	SaveFlagsToTable(m_db, "room_flags", "room_vnum", room_vnum, room_flags, room_flag_map);
+
+	// Save room exits
+	const char *exit_sql = 
+		"INSERT INTO room_exits (room_vnum, direction_id, description, keywords, exit_flags, key_vnum, to_room, lock_complexity) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+	{
+		if (!room->dir_option[dir])
+		{
+			continue;
+		}
+
+		if (sqlite3_prepare_v2(m_db, exit_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, room_vnum);
+			sqlite3_bind_int(stmt, 2, dir);
+			
+			if (!room->dir_option[dir]->general_description.empty())
+			{
+				sqlite3_bind_text(stmt, 3, room->dir_option[dir]->general_description.c_str(), -1, SQLITE_TRANSIENT);
+			}
+			else
+			{
+				sqlite3_bind_null(stmt, 3);
+			}
+
+			if (room->dir_option[dir]->keyword)
+			{
+				sqlite3_bind_text(stmt, 4, room->dir_option[dir]->keyword, -1, SQLITE_TRANSIENT);
+			}
+			else
+			{
+				sqlite3_bind_null(stmt, 4);
+			}
+
+			// Save exit flags as string (numeric value)
+			std::string exit_flags_str = std::to_string(room->dir_option[dir]->exit_info);
+			if (!exit_flags_str.empty() && exit_flags_str != "0")
+			{
+				sqlite3_bind_text(stmt, 5, exit_flags_str.c_str(), -1, SQLITE_TRANSIENT);
+			}
+			else
+			{
+				sqlite3_bind_null(stmt, 5);
+			}
+
+			sqlite3_bind_int(stmt, 6, room->dir_option[dir]->key);
+			sqlite3_bind_int(stmt, 7, room->dir_option[dir]->to_room() != kNowhere ? world[room->dir_option[dir]->to_room()]->vnum : -1);
+			sqlite3_bind_int(stmt, 8, room->dir_option[dir]->lock_complexity);
+
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+
+	// Save extra descriptions
+	const char *extra_sql = 
+		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keyword, description) "
+		"VALUES ('room', ?, ?, ?)";
+
+	for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
+	{
+		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, room_vnum);
+			sqlite3_bind_text(stmt, 2, exdesc->keyword, -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmt, 3, exdesc->description, -1, SQLITE_TRANSIENT);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+
+	// Save room triggers
+	const char *trig_sql = 
+		"INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order) "
+		"VALUES ('room', ?, ?, ?)";
+
+	int trig_order = 0;
+	if (room->script && !room->script->script_trig_list.empty())
+	{
+		for (auto trig : room->script->script_trig_list)
+		{
+			if (sqlite3_prepare_v2(m_db, trig_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, room_vnum);
+				sqlite3_bind_int(stmt, 2, GET_TRIG_VNUM(trig));
+				sqlite3_bind_int(stmt, 3, trig_order++);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+}
+
+void SqliteWorldDataSource::SaveRooms(int zone_rnum)
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveRooms", zone_rnum);
+		return;
+	}
+
+	if (!m_db)
+	{
+		log("SYSERR: Database not open for SaveRooms");
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	
+	// Get room range for this zone  
+	RoomRnum first_room = zone.RnumRoomsLocation.first;
+	RoomRnum last_room = zone.RnumRoomsLocation.second;
+
+	if (first_room == -1 || last_room == -1)
+	{
+		log("Zone %d has no rooms to save", zone.vnum);
+		return;
+	}
+
+	if (!BeginTransaction())
+	{
+		return;
+	}
+
+	int saved_count = 0;
+	for (RoomRnum room_rnum = first_room; room_rnum <= last_room && room_rnum <= top_of_world; ++room_rnum)
+	{
+		RoomData *room = world[room_rnum];
+		if (!room || room->vnum < zone.vnum * 100 || room->vnum > zone.top)
+		{
+			continue;
+		}
+
+		SaveRoomRecord(room);
+		++saved_count;
+	}
+
+	if (!CommitTransaction())
+	{
+		RollbackTransaction();
+		log("SYSERR: Failed to save rooms for zone %d", zone.vnum);
+		return;
+	}
+
+	log("Saved %d rooms for zone %d", saved_count, zone.vnum);
+}
+
+
+void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
+{
+	// Delete existing mob data (CASCADE will handle related tables)
+	std::string delete_sql = "DELETE FROM mobs WHERE vnum = " + std::to_string(mob_vnum);
+	ExecuteStatement(delete_sql, "delete mob");
+
+	// Insert mob main record
+	sqlite3_stmt *stmt = nullptr;
+	const char *insert_sql = 
+		"INSERT INTO mobs (vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+		"short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor, "
+		"hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus, "
+		"gold_dice_count, gold_dice_size, gold_bonus, experience, default_pos, start_pos, "
+		"sex, size, height, weight, mob_class, race, "
+		"attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
+		"attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
+		"initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
+		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+
+	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare mob insert: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	int col = 1;
+	sqlite3_bind_int(stmt, col++, mob_vnum);
+	
+	// Names
+	sqlite3_bind_text(stmt, col++, GET_PC_NAME(&mob), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kAcc].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kIns].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kPre].c_str(), -1, SQLITE_TRANSIENT);
+	
+	// Descriptions
+	sqlite3_bind_text(stmt, col++, mob.player_data.long_descr.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, mob.player_data.description.c_str(), -1, SQLITE_TRANSIENT);
+	
+	// Base parameters
+	sqlite3_bind_int(stmt, col++, GET_ALIGNMENT(&mob));
+	
+	// Mob type (E or S)
+	std::string mob_type = (mob.get_str() > 0) ? "E" : "S";
+	sqlite3_bind_text(stmt, col++, mob_type.c_str(), -1, SQLITE_TRANSIENT);
+	
+	// Stats
+	sqlite3_bind_int(stmt, col++, mob.GetLevel());
+	sqlite3_bind_int(stmt, col++, GET_HR(&mob));
+	sqlite3_bind_int(stmt, col++, GET_AC(&mob));
+	
+	// HP dice (stored in mem_queue for dice, hit for bonus)
+	sqlite3_bind_int(stmt, col++, mob.mem_queue.total);
+	sqlite3_bind_int(stmt, col++, mob.mem_queue.stored);
+	sqlite3_bind_int(stmt, col++, mob.get_hit());
+	
+	// Damage dice
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.damnodice);
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.damsizedice);
+	sqlite3_bind_int(stmt, col++, mob.real_abils.damroll);
+	
+	// Gold dice
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.GoldNoDs);
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.GoldSiDs);
+	sqlite3_bind_int(stmt, col++, mob.get_gold());
+	
+	// Experience
+	sqlite3_bind_int(stmt, col++, mob.get_exp());
+	
+	// Position (need to convert enum to string)
+	// For now use numeric values, TODO: add lookup
+	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.mob_specials.default_pos));
+	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.GetPosition()));
+	
+	// Sex (need to convert enum to string)
+	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.get_sex()));
+	
+	// Physical attributes
+	sqlite3_bind_int(stmt, col++, GET_SIZE(&mob));
+	sqlite3_bind_int(stmt, col++, GET_HEIGHT(&mob));
+	sqlite3_bind_int(stmt, col++, GET_WEIGHT(&mob));
+	
+	// Class and race
+	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.GetClass()));
+	sqlite3_bind_int(stmt, col++, static_cast<int>(GET_RACE(&mob)));
+	
+	// Attributes (E-spec)
+	sqlite3_bind_int(stmt, col++, mob.get_str());
+	sqlite3_bind_int(stmt, col++, mob.get_dex());
+	sqlite3_bind_int(stmt, col++, mob.get_int());
+	sqlite3_bind_int(stmt, col++, mob.get_wis());
+	sqlite3_bind_int(stmt, col++, mob.get_con());
+	sqlite3_bind_int(stmt, col++, mob.get_cha());
+	
+	// Enhanced E-spec fields
+	sqlite3_bind_int(stmt, col++, mob.get_str_add());
+	sqlite3_bind_int(stmt, col++, mob.add_abils.hitreg);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.armour);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.manareg);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.cast_success);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.morale);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.initiative_add);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.absorb);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.aresist);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.mresist);
+	sqlite3_bind_int(stmt, col++, mob.add_abils.presist);
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.attack_type);
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.like_work);
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.MaxFactor);
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.extra_attack);
+	sqlite3_bind_int(stmt, col++, mob.get_remort());
+	
+	// special_bitvector (FlagData as TEXT)
+	char special_buf[kMaxStringLength];
+	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf);
+	if (special_buf[0] != '0' || special_buf[1] != 'a')
+	{
+		sqlite3_bind_text(stmt, col++, special_buf, -1, SQLITE_TRANSIENT);
+	}
+	else
+	{
+		sqlite3_bind_null(stmt, col++);
+	}
+	
+	
+	// Role (bitset<9> as TEXT)
+	std::string role_str = mob.get_role().to_string();
+	if (!role_str.empty() && role_str != "000000000")
+	{
+		sqlite3_bind_text(stmt, col++, role_str.c_str(), -1, SQLITE_TRANSIENT);
+	}
+	else
+	{
+		sqlite3_bind_null(stmt, col++);
+	}
+
+	int rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE)
+	{
+		log("SYSERR: Failed to insert mob %d: %s", mob_vnum, sqlite3_errmsg(m_db));
+	}
+	sqlite3_finalize(stmt);
+
+
+	// Save mob action flags
+	FlagData act_flags = mob.char_specials.saved.act;
+	SaveFlagsToTable(m_db, "mob_flags", "mob_vnum", mob_vnum, act_flags, mob_action_flag_map, "action");
+
+
+	// Save mob resistances
+	const char *resist_sql = "INSERT INTO mob_resistances (mob_vnum, resist_type, resist_value) VALUES (?, ?, ?)";
+	for (size_t i = 0; i < mob.add_abils.apply_resistance.size(); ++i)
+	{
+		if (GET_RESIST(&mob, i) != 0)
+		{
+			if (sqlite3_prepare_v2(m_db, resist_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, i);
+				sqlite3_bind_int(stmt, 3, GET_RESIST(&mob, i));
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+
+	// Save mob saves
+	const char *save_sql = "INSERT INTO mob_saves (mob_vnum, save_type, save_value) VALUES (?, ?, ?)";
+	for (size_t i = 0; i < mob.add_abils.apply_saving_throw.size(); ++i)
+	{
+		if (mob.add_abils.apply_saving_throw[i] != 0)
+		{
+			if (sqlite3_prepare_v2(m_db, save_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, i);
+				sqlite3_bind_int(stmt, 3, mob.add_abils.apply_saving_throw[i]);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+
+
+
+	// Save mob helpers
+	const char *helper_sql = "INSERT INTO mob_helpers (mob_vnum, helper_vnum) VALUES (?, ?)";
+	for (const auto &helper_vnum : mob.summon_helpers)
+	{
+		if (helper_vnum != 0)
+		{
+			if (sqlite3_prepare_v2(m_db, helper_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, helper_vnum);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+	// Save mob destinations
+	const char *dest_sql = "INSERT INTO mob_destinations (mob_vnum, dest_vnum) VALUES (?, ?)";
+	for (size_t i = 0; i < mob.mob_specials.dest.size(); ++i)
+	{
+		if (mob.mob_specials.dest[i] != 0)
+		{
+			if (sqlite3_prepare_v2(m_db, dest_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, mob.mob_specials.dest[i]);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+
+	// Save mob triggers
+	const char *trig_sql = 
+		"INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order) "
+		"VALUES ('mob', ?, ?, ?)";
+
+	int trig_order = 0;
+	if (mob.script && !mob.script->script_trig_list.empty())
+	{
+		for (auto trig : mob.script->script_trig_list)
+		{
+			if (sqlite3_prepare_v2(m_db, trig_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, mob_vnum);
+				sqlite3_bind_int(stmt, 2, GET_TRIG_VNUM(trig));
+				sqlite3_bind_int(stmt, 3, trig_order++);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+}
+
+void SqliteWorldDataSource::SaveMobs(int zone_rnum)
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveMobs", zone_rnum);
+		return;
+	}
+
+	if (!m_db)
+	{
+		log("SYSERR: Database not open for SaveMobs");
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	
+	// Get mob range for this zone
+	MobRnum first_mob = zone.RnumMobsLocation.first;
+	MobRnum last_mob = zone.RnumMobsLocation.second;
+
+	if (first_mob == -1 || last_mob == -1)
+	{
+		log("Zone %d has no mobs to save", zone.vnum);
+		return;
+	}
+
+	if (!BeginTransaction())
+	{
+		return;
+	}
+
+	int saved_count = 0;
+	for (MobRnum mob_rnum = first_mob; mob_rnum <= last_mob && mob_rnum <= top_of_mobt; ++mob_rnum)
+	{
+		if (!mob_index[mob_rnum].vnum)
+		{
+			continue;
+		}
+
+		int mob_vnum = mob_index[mob_rnum].vnum;
+		CharData &mob = mob_proto[mob_rnum];
+
+		SaveMobRecord(mob_vnum, mob);
+		++saved_count;
+	}
+
+	if (!CommitTransaction())
+	{
+		RollbackTransaction();
+		log("SYSERR: Failed to save mobs for zone %d", zone.vnum);
+		return;
+	}
+
+	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
+}
+
+
+void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj)
+{
+	if (!obj)
+	{
+		return;
+	}
+
+	// Delete existing object data (CASCADE will handle related tables)
+	std::string delete_sql = "DELETE FROM objects WHERE vnum = " + std::to_string(obj_vnum);
+	ExecuteStatement(delete_sql, "delete object");
+
+	// Insert object main record
+	sqlite3_stmt *stmt = nullptr;
+	const char *insert_sql = 
+		"INSERT INTO objects (vnum, aliases, name_nom, name_gen, name_dat, name_acc, name_ins, name_pre, "
+		"short_desc, action_desc, obj_type_id, material, value0, value1, value2, value3, "
+		"weight, cost, rent_off, rent_on, spec_param, max_durability, cur_durability, "
+		"timer, spell, level, sex, max_in_world, minimum_remorts, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+
+	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		log("SYSERR: Failed to prepare object insert: %s", sqlite3_errmsg(m_db));
+		return;
+	}
+
+	int col = 1;
+	sqlite3_bind_int(stmt, col++, obj_vnum);
+	
+	// Names
+	sqlite3_bind_text(stmt, col++, obj->get_aliases().c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kNom).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kGen).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kDat).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kAcc).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kIns).c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_PName(ECase::kPre).c_str(), -1, SQLITE_TRANSIENT);
+	
+	// Descriptions
+	sqlite3_bind_text(stmt, col++, obj->get_description().c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, obj->get_action_description().c_str(), -1, SQLITE_TRANSIENT);
+	
+	// Type and material
+	sqlite3_bind_int(stmt, col++, to_underlying(obj->get_type()));
+	sqlite3_bind_int(stmt, col++, to_underlying(obj->get_material()));
+	
+	// Values (store as strings)
+	std::string val0 = std::to_string(obj->get_val(0));
+	std::string val1 = std::to_string(obj->get_val(1));
+	std::string val2 = std::to_string(obj->get_val(2));
+	std::string val3 = std::to_string(obj->get_val(3));
+	sqlite3_bind_text(stmt, col++, val0.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, val1.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, val2.c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, val3.c_str(), -1, SQLITE_TRANSIENT);
+	
+	// Physical properties
+	sqlite3_bind_int(stmt, col++, obj->get_weight());
+	sqlite3_bind_int(stmt, col++, obj->get_cost());
+	sqlite3_bind_int(stmt, col++, obj->get_rent_off());
+	sqlite3_bind_int(stmt, col++, obj->get_rent_on());
+	sqlite3_bind_int(stmt, col++, obj->get_spec_param());
+	sqlite3_bind_int(stmt, col++, obj->get_maximum_durability());
+	sqlite3_bind_int(stmt, col++, obj->get_current_durability());
+	sqlite3_bind_int(stmt, col++, obj->get_timer());
+	sqlite3_bind_int(stmt, col++, to_underlying(obj->get_spell()));
+	sqlite3_bind_int(stmt, col++, obj->get_level());
+	sqlite3_bind_int(stmt, col++, to_underlying(obj->get_sex()));
+	sqlite3_bind_int(stmt, col++, obj->get_max_in_world());
+	sqlite3_bind_int(stmt, col++, obj->get_minimum_remorts());
+
+	int rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE)
+	{
+		log("SYSERR: Failed to insert object %d: %s", obj_vnum, sqlite3_errmsg(m_db));
+	}
+	sqlite3_finalize(stmt);
+
+
+	// Save object extra flags
+	FlagData obj_flags = obj->get_extra_flags();
+	SaveFlagsToTable(m_db, "obj_flags", "obj_vnum", obj_vnum, obj_flags, obj_extra_flag_map);
+
+	// Save object applies (affects)
+	const char *apply_sql = "INSERT INTO obj_applies (obj_vnum, affect_location, affect_modifier) VALUES (?, ?, ?)";
+	for (int i = 0; i < kMaxObjAffect; ++i)
+	{
+		if (obj->get_affected(i).location != EApply::kNone)
+		{
+			if (sqlite3_prepare_v2(m_db, apply_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, obj_vnum);
+				sqlite3_bind_int(stmt, 2, to_underlying(obj->get_affected(i).location));
+				sqlite3_bind_int(stmt, 3, obj->get_affected(i).modifier);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+
+	// Save object extra descriptions
+	const char *extra_sql = 
+		"INSERT INTO extra_descriptions (entity_type, entity_vnum, keyword, description) "
+		"VALUES ('obj', ?, ?, ?)";
+
+	for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
+	{
+		if (sqlite3_prepare_v2(m_db, extra_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, obj_vnum);
+			sqlite3_bind_text(stmt, 2, exdesc->keyword, -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmt, 3, exdesc->description, -1, SQLITE_TRANSIENT);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+	}
+
+	// Save object triggers
+	const char *trig_sql = 
+		"INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order) "
+		"VALUES ('obj', ?, ?, ?)";
+
+	int trig_order = 0;
+	for (const auto &trig_vnum : obj->get_proto_script())
+	{
+		if (trig_vnum > 0)
+		{
+			if (sqlite3_prepare_v2(m_db, trig_sql, -1, &stmt, nullptr) == SQLITE_OK)
+			{
+				sqlite3_bind_int(stmt, 1, obj_vnum);
+				sqlite3_bind_int(stmt, 2, trig_vnum);
+				sqlite3_bind_int(stmt, 3, trig_order++);
+				sqlite3_step(stmt);
+				sqlite3_finalize(stmt);
+			}
+		}
+	}
+}
+
+void SqliteWorldDataSource::SaveObjects(int zone_rnum)
+{
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
+	{
+		log("SYSERR: Invalid zone_rnum %d for SaveObjects", zone_rnum);
+		return;
+	}
+
+	if (!m_db)
+	{
+		log("SYSERR: Database not open for SaveObjects");
+		return;
+	}
+
+	const ZoneData &zone = zone_table[zone_rnum];
+	int zone_vnum = zone.vnum;
+
+	if (!BeginTransaction())
+	{
+		return;
+	}
+
+	// Iterate through all objects and save those in this zone's vnum range
+	int saved_count = 0;
+	int start_vnum = zone_vnum * 100;
+	int end_vnum = zone.top;
+
+	for (const auto &[obj_vnum, obj_rnum] : obj_proto.vnum2index())
+	{
+		if (obj_vnum < start_vnum || obj_vnum > end_vnum)
+		{
+			continue;
+		}
+
+		SaveObjectRecord(obj_vnum, obj_proto[obj_rnum].get());
+		++saved_count;
+	}
+
+	if (!CommitTransaction())
+	{
+		RollbackTransaction();
+		log("SYSERR: Failed to save objects for zone %d", zone_vnum);
+		return;
+	}
+
+	log("Saved %d objects for zone %d", saved_count, zone_vnum);
 }
 
 std::unique_ptr<IWorldDataSource> CreateSqliteDataSource(const std::string &db_path)
