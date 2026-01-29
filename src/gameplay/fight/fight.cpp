@@ -252,8 +252,8 @@ void SetFighting(CharData *ch, CharData *vict) {
 			
 			// Set attributes on combat root span
 			ch->m_combat_root_span->SetAttribute("combat_id", ch->m_combat_id);
-			ch->m_combat_root_span->SetAttribute("attacker", std::string(GET_NAME(ch)));
-			ch->m_combat_root_span->SetAttribute("defender", std::string(GET_NAME(vict)));
+			ch->m_combat_root_span->SetAttribute("attacker", observability::Koi8ToUtf8(GET_NAME(ch)));
+			ch->m_combat_root_span->SetAttribute("defender", observability::Koi8ToUtf8(GET_NAME(vict)));
 			ch->m_combat_root_span->SetAttribute("is_pk", static_cast<int64_t>(!ch->IsNpc() && !vict->IsNpc()));
 			ch->m_combat_root_span->SetAttribute("start_pulse", static_cast<int64_t>(MUD::heartbeat().pulse_number()));
 			
@@ -2188,9 +2188,9 @@ void perform_violence() {
 					// Set attributes on both spans
 					round_span->SetAttribute("round_number", static_cast<int64_t>(it.ch->round_counter + 1));
 					round_span->SetAttribute("heartbeat_pulse", static_cast<int64_t>(MUD::heartbeat().pulse_number()));
-					round_span->SetAttribute("attacker", std::string(GET_NAME(it.ch)));
+					round_span->SetAttribute("attacker", observability::Koi8ToUtf8(GET_NAME(it.ch)));
 					if (it.ch->GetEnemy()) {
-						round_span->SetAttribute("defender", std::string(GET_NAME(it.ch->GetEnemy())));
+						round_span->SetAttribute("defender", observability::Koi8ToUtf8(GET_NAME(it.ch->GetEnemy())));
 						round_span->SetAttribute("attacker_hp", static_cast<int64_t>(it.ch->get_hit()));
 						round_span->SetAttribute("defender_hp", static_cast<int64_t>(it.ch->GetEnemy()->get_hit()));
 					}

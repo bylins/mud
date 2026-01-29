@@ -1,6 +1,8 @@
 #include "otel_helpers.h"
 #include "utils/tracing/trace_manager.h"
 #include "utils/tracing/noop_trace_sender.h"
+#include "utils/utils.h"
+#include "engine/structs/structs.h"
 
 #ifdef WITH_OTEL
 #include "otel_trace_sender.h"
@@ -204,6 +206,25 @@ std::string GetBaggage(const std::string& key) {
 		return value;
 	}
 	return "";
+}
+
+std::string Koi8ToUtf8(const char* koi8r_str) {
+	if (!koi8r_str) {
+		return "";
+	}
+
+	// Buffer for UTF-8 output (KOI8-R char can expand to 2 bytes in UTF-8)
+	char utf8_buffer[kMaxSockBuf * 2];
+	char input_buffer[kMaxSockBuf * 2];
+
+	// Copy input to modifiable buffer (koi_to_utf8 modifies input pointer)
+	strncpy(input_buffer, koi8r_str, sizeof(input_buffer) - 1);
+	input_buffer[sizeof(input_buffer) - 1] = '\0';
+
+	// Convert using existing utility function
+	koi_to_utf8(input_buffer, utf8_buffer);
+
+	return std::string(utf8_buffer);
 }
 
 #endif // WITH_OTEL

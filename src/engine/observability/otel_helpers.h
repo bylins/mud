@@ -125,6 +125,15 @@ private:
  */
 std::string GetBaggage(const std::string& key);
 
+/**
+ * Convert KOI8-R string to UTF-8 for OpenTelemetry.
+ * OpenTelemetry protocol buffers require UTF-8 encoding.
+ *
+ * @param koi8r_str String in KOI8-R encoding (e.g., from GET_NAME)
+ * @return UTF-8 encoded string
+ */
+std::string Koi8ToUtf8(const char* koi8r_str);
+
 #endif // WITH_OTEL
 
 } // namespace observability
