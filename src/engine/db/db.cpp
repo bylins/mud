@@ -2690,6 +2690,7 @@ void ZoneReset::ResetZoneEssential() {
 	if (GetZoneRooms(m_zone_rnum, &rnum_start, &rnum_stop)) {
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
+		log("Paste mob&obj on reset");
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
 			RoomData *room = world[rnum];
 			reset_wtrigger(room);
