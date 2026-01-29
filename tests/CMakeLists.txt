@@ -81,6 +81,7 @@ set(TESTS
 		radix.trie.cpp
 		compact.trie.cpp
 		compact.trie.iterators.cpp
+		world_save_load_tests.cpp
 		compact.trie.prefixes.cpp)
 set(UTILITIES
 		char.utilities.hpp
