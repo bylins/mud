@@ -1879,6 +1879,11 @@ void ZoneUpdate() {
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
 	utils::CExecutionTimer timer_count;
+	// OpenTelemetry: Track zone updates
+	auto zone_span = tracing::TraceManager::Instance().StartSpan("Zone Update");
+	observability::ScopedMetric zone_metric("zone.update.duration");
+	
+	int zones_reset_count = 0;
 	if (((++timer * kPulseZone) / kPassesPerSec) >= 60)    // one minute has passed
 	{
 		/*
@@ -1939,6 +1944,14 @@ void ZoneUpdate() {
 				ss << zone_table[it].vnum << " ";
 				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
 					ResetZone(it);
+					zones_reset_count++;
+					
+					// OpenTelemetry: Record zone reset
+					std::map<std::string, std::string> attrs;
+					attrs["zone_vnum"] = std::to_string(zone_table[it].vnum);
+					attrs["reset_mode"] = std::to_string(zone_table[it].reset_mode);
+					
+					observability::OtelMetrics::RecordCounter("zone.reset.total", 1, attrs);
 				} else {
 					log("Закрываю брошенный dungeon %d", it);
 					dungeons::DungeonReset(it);
@@ -1964,6 +1977,9 @@ void ZoneUpdate() {
 			if (k >= kZonesReset)
 				break;
 		}
+	
+	// OpenTelemetry: Record total zones reset
+	zone_span->SetAttribute("zones_reset_count", static_cast<int64_t>(zones_reset_count));
 }
 
 bool CanBeReset(ZoneRnum zone) {
