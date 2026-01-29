@@ -237,7 +237,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 		// Generate combat ID
 		ch->m_combat_id = GenerateCombatId(ch, vict);
 		
-		// Create root span for combat trace (without Scope - п╫п╣ п╡п╩п╦я▐п╣я┌ п╫п╟ runtime context)
+		// Create root span for combat trace (without Scope - does not affect runtime context)
 #ifdef WITH_OTEL
 		auto tracer = observability::OtelProvider::Instance().GetTracer();
 		if (tracer) {
