@@ -1346,7 +1346,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			ExtractObjFromWorld(object);
+			ExtractObjFromWorld(object , true);
 		}
 		return true;
 	}
@@ -1358,7 +1358,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			ExtractObjFromWorld(object);
+			ExtractObjFromWorld(object, true);
 		}
 		return true;
 	}
@@ -1371,7 +1371,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
-			ExtractObjFromWorld(object);
+			ExtractObjFromWorld(object, true);
 		}
 		return true;
 	}
