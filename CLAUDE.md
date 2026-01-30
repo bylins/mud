@@ -38,7 +38,7 @@ make tests -j$(nproc)
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
-- **Debug** - Debug build with ASAN (-fsanitize=address, -D_GLIBCXX_DEBUG)
+- **Debug** - Debug build with ASAN (-fsanitize=address, NO _GLIBCXX_DEBUG due to yaml-cpp ABI compatibility)
 - **Test** - Test build with optimizations (-O3, -DTEST_BUILD, -DNOCRYPT)
 - **FastTest** - Fast test build (-Ofast, -DTEST_BUILD)
 
@@ -324,8 +324,19 @@ LANG=C sed -i 's/old_text/new_text/' file.cpp
 LANG=C sed -i '/pattern/a\
 new line here' file.cpp
 ```
-**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.** 
+**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.**
 Only use Edit for newly created files or files known to be pure ASCII.
+
+### _GLIBCXX_DEBUG Disabled in Debug Build
+**Important:** `_GLIBCXX_DEBUG` is intentionally **disabled** for Debug builds due to ABI incompatibility with external libraries (yaml-cpp, SQLite).
+
+**Why:**
+- External libraries (yaml-cpp) are compiled without `_GLIBCXX_DEBUG`
+- They return STL objects (`std::string`) to our code
+- If our code uses `_GLIBCXX_DEBUG`, ABI mismatch causes heap-buffer-overflow
+- Solution: disable the flag for all Debug builds
+
+**Trade-off:** We lose STL iterator/bounds checking in Debug mode, but gain ASAN (AddressSanitizer) which catches most memory errors.
 
 ### Directory Change Notifications
 Always explicitly notify the user before:
@@ -335,27 +346,59 @@ Always explicitly notify the user before:
 
 Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
 
-### SQLite World Database
-The project supports loading world data from SQLite database instead of legacy text files.
+### World Data Formats and Testing
 
-**Related repositories:**
-- `../mud-docs/` - Contains world conversion tools and SQLite schema:
-  - `convert_to_yaml.py` - Script to convert Legacy world files to SQLite database
-  - `world_schema.sql` - SQLite schema for world database
-  - `sqlite-world-schema.md` - Schema documentation
-  - `legacy-world-format.md` - Legacy file format documentation
+The project supports three world data formats:
+1. **Legacy** - Original CircleMUD text format (default, in lib/ + lib.template/)
+2. **SQLite** - World data in SQLite database (requires -DHAVE_SQLITE=ON)
+3. **YAML** - Human-readable YAML format (requires -DHAVE_YAML=ON)
 
-**To regenerate world.db:**
+**CRITICAL: Never use lib/ from repository directly!**
+- `lib/` contains base configuration files only (NOT complete world data)
+- `lib.template/` contains world files, player data, and additional configs
+- To get a working world: copy lib/ to build directory, then overlay lib.template/
+
+**Preparing world for conversion:**
 ```bash
-cd ../mud-docs
-python3 convert_to_yaml.py --sqlite ../mud/build_sqlite/small/world.db ../mud/build_sqlite/small/world
+# Create working copy (example for YAML build)
+mkdir -p build_yaml/small
+cp -r lib build_yaml/small/
+cp -r lib.template/* build_yaml/small/lib/
+
+# Now build_yaml/small/lib contains complete world data ready for conversion
 ```
 
+**Conversion Tool:**
+```bash
+# Convert legacy world to YAML (in-place conversion)
+./tools/convert_to_yaml.py --input build_yaml/small/lib/world --output build_yaml/small/world --format yaml --type all
+
+# Convert to SQLite database
+./tools/convert_to_yaml.py --input build_sqlite/small/lib/world --output build_sqlite/small/world.db --format sqlite --type all
+```
+
+**Automated Testing & Conversion:**
+```bash
+# Run world loading tests (automatically prepares and converts worlds)
+./tools/run_load_tests.sh              # Full test suite
+./tools/run_load_tests.sh --quick      # Quick test (Legacy + YAML checksums)
+./tools/run_load_tests.sh --help       # Show all options
+```
+
+The `run_load_tests.sh` script:
+- Builds all three variants (Legacy, SQLite, YAML) in separate build directories
+- Automatically prepares working worlds (copies lib + lib.template)
+- Converts worlds if missing or outdated
+- Runs boot tests with configurable timeout (default 5 minutes)
+- Calculates checksums (zones, rooms, mobs, objects, triggers) to verify correctness
+- Compares checksums between formats to detect discrepancies
+- Generates detailed reports with boot times and performance comparison
+
 **Important:**
-- Schema changes should be made in `../mud-docs/world_schema.sql` (primary source)
-- Copy to `tools/world_schema.sql` is for reference only
-- When fixing loader issues, check if the problem is in the converter or loader
-- String enum values (like "kWorm") are intentional for human readability - map them in loader
+- Schema/format changes should be tested with `run_load_tests.sh`
+- Conversion script is in `tools/convert_to_yaml.py`
+- String enum values (like "kWorm") in YAML/SQLite are intentional for human readability - map them in loader
+- When fixing loader issues, check if the problem is in converter or loader
 
 ### Editing Files with Patches
 For complex or multi-line changes to KOI8-R encoded files, generate unified patches instead of using sed:

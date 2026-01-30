@@ -40,6 +40,8 @@
 #   --no-checksums    Run only tests WITHOUT checksum calculation
 #   --quick           Run quick comparison: Small_Legacy_checksums vs Small_YAML_checksums
 #   --rebuild         Force full rebuild (make clean && make)
+#   --build-type=TYPE Set CMAKE_BUILD_TYPE (Release|Debug|Test|FastTest)
+#   --recreate-builds Delete and recreate all build directories (implies world recreation)
 #   --help            Show this help
 #
 # ENVIRONMENT VARIABLES:
@@ -57,6 +59,8 @@ FILTER_WORLD=""
 FILTER_CHECKSUMS=""
 QUICK_MODE=0
 REBUILD_MODE=0
+BUILD_TYPE=""
+RECREATE_BUILDS=0
 
 for arg in "$@"; do
     case "$arg" in
@@ -77,6 +81,12 @@ for arg in "$@"; do
             ;;
         --rebuild)
             REBUILD_MODE=1
+            ;;
+        --build-type=*)
+            BUILD_TYPE="${arg#*=}"
+            ;;
+        --recreate-builds)
+            RECREATE_BUILDS=1
             ;;
         --help)
             head -n 46 "$0" | grep "^#" | grep -v "^#!/" | sed 's/^# \?//'
@@ -107,29 +117,57 @@ build_binary() {
     local build_dir="$1"
     local cmake_opts="$2"
     local binary_name="$3"
+    local needs_reconfigure=0
     
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Building: $binary_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
+    # Check if we need to recreate or reconfigure
     if [ ! -d "$build_dir" ]; then
         mkdir -p "$build_dir"
+        needs_reconfigure=1
+    elif [ $RECREATE_BUILDS -eq 1 ]; then
+        echo "Recreating build directory (--recreate-builds)..."
+        rm -rf "$build_dir"
+        mkdir -p "$build_dir"
+        needs_reconfigure=1
+    elif [ -n "$BUILD_TYPE" ] && [ -f "$build_dir/CMakeCache.txt" ]; then
+        # Check if BUILD_TYPE changed
+        local current_type=$(grep "CMAKE_BUILD_TYPE:" "$build_dir/CMakeCache.txt" 2>/dev/null | cut -d= -f2)
+        if [ "$current_type" != "$BUILD_TYPE" ]; then
+            echo "Build type changed ($current_type -> $BUILD_TYPE), reconfiguring..."
+            needs_reconfigure=1
+        fi
+    elif [ ! -f "$build_dir/CMakeCache.txt" ]; then
+        needs_reconfigure=1
     fi
     
     cd "$build_dir"
     
+    # Apply BUILD_TYPE override if specified
+    local final_cmake_opts="$cmake_opts"
+    if [ -n "$BUILD_TYPE" ]; then
+        # Replace existing -DCMAKE_BUILD_TYPE or add if missing
+        if echo "$cmake_opts" | grep -q "CMAKE_BUILD_TYPE"; then
+            final_cmake_opts=$(echo "$cmake_opts" | sed "s/-DCMAKE_BUILD_TYPE=[^ ]*/-DCMAKE_BUILD_TYPE=$BUILD_TYPE/")
+        else
+            final_cmake_opts="$cmake_opts -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+        fi
+    fi
+    
     # Run cmake if needed
-    if [ ! -f CMakeCache.txt ]; then
+    if [ $needs_reconfigure -eq 1 ]; then
         echo "[1/2] Configuring with CMake..."
-        echo "      Options: $cmake_opts"
-        cmake $cmake_opts .. > /tmp/build_${binary_name}_cmake.log 2>&1 || {
-            echo "✗ ERROR: CMake configuration failed"
+        echo "      Options: $final_cmake_opts"
+        cmake $final_cmake_opts .. > /tmp/build_${binary_name}_cmake.log 2>&1 || {
+            echo "X ERROR: CMake configuration failed"
             echo "  Log: /tmp/build_${binary_name}_cmake.log"
             cd "$MUD_DIR"
             return 1
         }
-        echo "✓ CMake configuration complete"
+        echo " CMake configuration complete"
     else
         echo "[1/2] Using cached CMake configuration"
     fi
@@ -144,7 +182,7 @@ build_binary() {
         echo "      Running make clean (rebuild mode)..."
         make clean > /tmp/build_${binary_name}.log 2>&1
         make circle -j$(nproc) >> /tmp/build_${binary_name}.log 2>&1 || {
-            echo "✗ ERROR: Build failed"
+            echo "X ERROR: Build failed"
             echo "  Log: /tmp/build_${binary_name}.log"
             echo "  Last 20 lines:"
             tail -20 /tmp/build_${binary_name}.log
@@ -153,7 +191,7 @@ build_binary() {
         }
     else
         make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
-            echo "✗ ERROR: Build failed"
+            echo "X ERROR: Build failed"
             echo "  Log: /tmp/build_${binary_name}.log"
             echo "  Last 20 lines:"
             tail -20 /tmp/build_${binary_name}.log
@@ -166,14 +204,14 @@ build_binary() {
     
     # Verify binary was created
     if [ ! -x "$build_dir/circle" ]; then
-        echo "✗ ERROR: Binary not created despite successful make"
+        echo "X ERROR: Binary not created despite successful make"
         echo "  Log: /tmp/build_${binary_name}.log"
         echo "  Last 20 lines:"
         tail -20 /tmp/build_${binary_name}.log
         cd "$MUD_DIR"
         return 1
     fi
-    echo "✓ Successfully built $build_dir/circle"
+    echo " Successfully built $build_dir/circle"
     echo ""
     return 0
 }
@@ -205,29 +243,29 @@ setup_small_world() {
 
     cd "$build_dir"
     if [ "$loader" = "legacy" ]; then
-        cmake -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_legacy.log 2>&1 || {
-            echo "✗ ERROR: CMake reconfiguration failed"
+        cmake -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_legacy.log 2>&1 || {
+            echo "X ERROR: CMake reconfiguration failed"
             echo "  Log: /tmp/cmake_small_legacy.log"
             cd "$MUD_DIR"
             return 1
         }
     elif [ "$loader" = "sqlite" ]; then
-        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_sqlite.log 2>&1 || {
-            echo "✗ ERROR: CMake reconfiguration failed"
+        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_sqlite.log 2>&1 || {
+            echo "X ERROR: CMake reconfiguration failed"
             echo "  Log: /tmp/cmake_small_sqlite.log"
             cd "$MUD_DIR"
             return 1
         }
     elif [ "$loader" = "yaml" ]; then
-        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Release .. > /tmp/cmake_small_yaml.log 2>&1 || {
-            echo "✗ ERROR: CMake reconfiguration failed"
+        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_yaml.log 2>&1 || {
+            echo "X ERROR: CMake reconfiguration failed"
             echo "  Log: /tmp/cmake_small_yaml.log"
             cd "$MUD_DIR"
             return 1
         }
     fi
     cd "$MUD_DIR"
-    echo "✓ CMake recreated $dest_dir with symlinks"
+    echo " CMake recreated $dest_dir with symlinks"
     
     # (lib.template is incomplete - missing text/help/ etc.)
     for dir in text misc cfg; do
@@ -235,10 +273,10 @@ setup_small_world() {
             ln -sfn "$MUD_DIR/lib/$dir" "$dest_dir/$dir"
         fi
     done
-    echo "✓ Fixed text/misc/cfg symlinks to use lib"
+    echo " Fixed text/misc/cfg symlinks to use lib"
 
     if [ "$loader" = "legacy" ]; then
-        echo "✓ Legacy world ready (using lib.template/world)"
+        echo " Legacy world ready (using lib.template/world)"
         echo ""
         return 0
     fi
@@ -252,24 +290,24 @@ setup_small_world() {
             -o "$dest_dir" \
             -f sqlite \
             --db "$dest_dir/world.db" > /tmp/convert_small_sqlite.log 2>&1 || {
-            echo "✗ ERROR: Conversion failed"
+            echo "X ERROR: Conversion failed"
             echo "  Log: /tmp/convert_small_sqlite.log"
             tail -10 /tmp/convert_small_sqlite.log
             return 1
         }
-        echo "✓ Created $dest_dir/world.db"
+        echo " Created $dest_dir/world.db"
     elif [ "$loader" = "yaml" ]; then
         echo "  Log: /tmp/convert_small_yaml.log"
         python3 "$MUD_DIR/tools/convert_to_yaml.py" \
             -i "$MUD_DIR/lib.template" \
             -o "$dest_dir" \
             -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
-            echo "✗ ERROR: Conversion failed"
+            echo "X ERROR: Conversion failed"
             echo "  Log: /tmp/convert_small_yaml.log"
             tail -10 /tmp/convert_small_yaml.log
             return 1
         }
-        echo "✓ Created $dest_dir/world/"
+        echo " Created $dest_dir/world/"
     fi
     
     echo ""
@@ -307,18 +345,18 @@ setup_full_world() {
     
     mkdir -p "$dest_dir"
     tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" > /tmp/extract_full.log 2>&1 || {
-        echo "✗ ERROR: Extraction failed"
+        echo "X ERROR: Extraction failed"
         echo "  Log: /tmp/extract_full.log"
         return 1
     }
-    echo "✓ Extracted successfully"
+    echo " Extracted successfully"
     
     # Archive contains ./lib/ which extracts to $dest_dir/lib/
     if [ "$loader" = "legacy" ]; then
         echo "[2/3] Preparing legacy world..."
         mv "$dest_dir/lib/"* "$dest_dir/"
         rmdir "$dest_dir/lib"
-        echo "✓ Ready at $dest_dir"
+        echo " Ready at $dest_dir"
     elif [ "$loader" = "sqlite" ] || [ "$loader" = "yaml" ]; then
         echo "[2/3] Converting world data (this may take several minutes)..."
         echo "      Format: $loader"
@@ -332,23 +370,23 @@ setup_full_world() {
                 -o "$dest_dir" \
                 -f sqlite \
                 --db "$dest_dir/world.db" > /tmp/convert_full_sqlite.log 2>&1 || {
-                echo "✗ ERROR: Conversion failed"
+                echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_sqlite.log"
                 tail -20 /tmp/convert_full_sqlite.log
                 return 1
             }
-            echo "✓ Created $dest_dir/world.db"
+            echo " Created $dest_dir/world.db"
         else
             python3 "$MUD_DIR/tools/convert_to_yaml.py" \
                 -i "$dest_dir/lib" \
                 -o "$dest_dir" \
                 -f yaml > /tmp/convert_full_yaml.log 2>&1 || {
-                echo "✗ ERROR: Conversion failed"
+                echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_yaml.log"
                 tail -20 /tmp/convert_full_yaml.log
                 return 1
             }
-            echo "✓ Created $dest_dir/world/"
+            echo " Created $dest_dir/world/"
         fi
 
 		# Move all content from lib/ to root
@@ -395,30 +433,30 @@ fi
 # Build binaries if needed
 if [ $NEED_LEGACY -eq 1 ]; then
     
-    build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Release" "legacy" || exit 1
+    build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Debug" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
     
-    build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Release" "sqlite" || exit 1
+    build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
     
 
-    build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Release" "yaml" || exit 1
+    build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug" "yaml" || exit 1
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
-    if [ $NEED_LEGACY -eq 1 ] && [ ! -e "$MUD_DIR/build_test/small" ]; then
+    if [ $NEED_LEGACY -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -e "$MUD_DIR/build_test/small" ]); then
         setup_small_world "legacy" || exit 1
     fi
     if [ $NEED_SQLITE -eq 1 ]; then
-        if [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ] || [ ! -L "$MUD_DIR/build_sqlite/small/cfg" ]; then
+        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ] || [ ! -L "$MUD_DIR/build_sqlite/small/cfg" ]; then
         setup_small_world "sqlite" || exit 1
         fi
     fi
     if [ $NEED_YAML -eq 1 ]; then
-        if [ ! -d "$MUD_DIR/build_yaml/small/world" ] || [ ! -L "$MUD_DIR/build_yaml/small/cfg" ]; then
+        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/small/world" ] || [ ! -L "$MUD_DIR/build_yaml/small/cfg" ]; then
         setup_small_world "yaml" || exit 1
         fi
     fi
@@ -429,13 +467,13 @@ if [ $NEED_FULL -eq 1 ]; then
         echo "WARNING: Full world tests skipped - archive not found: $FULL_WORLD_ARCHIVE"
         NEED_FULL=0
     else
-        if [ $NEED_LEGACY -eq 1 ] && [ ! -d "$MUD_DIR/build_test/full" ]; then
+        if [ $NEED_LEGACY -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_test/full" ]); then
             setup_full_world "legacy" || exit 1
         fi
-        if [ $NEED_SQLITE -eq 1 ] && [ ! -f "$MUD_DIR/build_sqlite/full/world.db" ]; then
+        if [ $NEED_SQLITE -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/full/world.db" ]); then
             setup_full_world "sqlite" || exit 1
         fi
-        if [ $NEED_YAML -eq 1 ] && [ ! -d "$MUD_DIR/build_yaml/full/world" ]; then
+        if [ $NEED_YAML -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/full/world" ]); then
             setup_full_world "yaml" || exit 1
         fi
     fi
@@ -516,7 +554,7 @@ run_test() {
     done
     
     if [ ! -f "$data_dir/syslog" ]; then
-        echo "  ✗ ERROR: Server did not create syslog"
+        echo "  X ERROR: Server did not create syslog"
         cat "$data_dir/stdout.log" 2>/dev/null || echo "  (no stdout log)"
         cd "$MUD_DIR"
         return 1
@@ -548,7 +586,7 @@ run_test() {
 
     # Check if boot succeeded
     if [ $boot_success -eq 0 ]; then
-        echo "  ✗ ERROR: Boot timeout (5 minutes exceeded)"
+        echo "  X ERROR: Boot timeout (5 minutes exceeded)"
         echo "  Last 30 lines of syslog:"
         tail -30 "$data_dir/syslog" 2>/dev/null || echo "  (no syslog found)"
         cd "$MUD_DIR"

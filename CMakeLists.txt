@@ -166,6 +166,14 @@ set(SOURCES
 		src/engine/db/world_data_source_manager.cpp
 		src/engine/db/legacy_world_data_source.h
 		src/engine/db/legacy_world_data_source.cpp
+		src/engine/db/world_data_source_base.h
+		src/engine/db/world_data_source_base.cpp
+		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.h>
+		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.cpp>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/yaml_world_data_source.h>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/yaml_world_data_source.cpp>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/dictionary_loader.h>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/dictionary_loader.cpp>
 		# SQLite world data source (conditional)
 		src/engine/db/id.cpp
 		src/engine/db/utils_find_obj_id_by_vnum.cpp
@@ -1068,21 +1076,6 @@ else ()
 endif ()
 add_dependencies(circle.library versioning changelog)
 
-# World data source base library (without _GLIBCXX_DEBUG for ABI compatibility)
-add_library(circle.world_base STATIC
-	src/engine/db/world_data_source_base.h
-	src/engine/db/world_data_source_base.cpp
-)
-
-# Always disable _GLIBCXX_DEBUG for this library (ABI compatibility with loaders)
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_options(circle.world_base PRIVATE -U_GLIBCXX_DEBUG -U_GLIBCXX_DEBUG_PEDANTIC)
-	message(STATUS "World base library: Disabled _GLIBCXX_DEBUG (ABI compatibility)")
-endif()
-
-target_include_directories(circle.world_base PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(circle.library circle.world_base)
-
 # Linfort integration
 # Disable building tests and examples in libfort project
 set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
@@ -1172,21 +1165,9 @@ if (HAVE_SQLITE)
 	add_definitions(-DHAVE_SQLITE)
 	
 	# Create separate library for SQLite loader (without _GLIBCXX_DEBUG)
-	add_library(circle.sqlite STATIC
-		src/engine/db/sqlite_world_data_source.h
-		src/engine/db/sqlite_world_data_source.cpp
-	)
-	
-	# Disable _GLIBCXX_DEBUG for ABI compatibility with system SQLite
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		target_compile_options(circle.sqlite PRIVATE -U_GLIBCXX_DEBUG -U_GLIBCXX_DEBUG_PEDANTIC)
-		message(STATUS "SQLite library: Disabled _GLIBCXX_DEBUG (ABI compatibility)")
-	endif()
-	
-	target_include_directories(circle.sqlite PRIVATE ${CMAKE_SOURCE_DIR}/src ${SQLite3_INCLUDE_DIRS})
-	target_link_libraries(circle.sqlite circle.world_base SQLite::SQLite3)
-	target_link_libraries(circle.library circle.sqlite)
-	
+	include_directories(${SQLite3_INCLUDE_DIRS})
+	target_link_libraries(circle.library SQLite::SQLite3)
+	message(STATUS "SQLite is turned ON. Circle will support SQLite world data source.")
 	message(STATUS "SQLite is turned ON. Circle will support SQLite world data source.")
 else ()
 	message(STATUS "SQLite is turned off.")
@@ -1197,24 +1178,9 @@ if (HAVE_YAML)
 	find_package(yaml-cpp REQUIRED)
 	add_definitions(-DHAVE_YAML)
 	
-	# Create separate library for YAML loader (without _GLIBCXX_DEBUG)
-	add_library(circle.yaml STATIC
-		src/engine/db/yaml_world_data_source.h
-		src/engine/db/yaml_world_data_source.cpp
-		src/engine/db/dictionary_loader.h
-		src/engine/db/dictionary_loader.cpp
-	)
-	
-	# Disable _GLIBCXX_DEBUG for ABI compatibility with libyaml-cpp
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		target_compile_options(circle.yaml PRIVATE -U_GLIBCXX_DEBUG -U_GLIBCXX_DEBUG_PEDANTIC)
-		message(STATUS "YAML library: Disabled _GLIBCXX_DEBUG (ABI compatibility)")
-	endif()
-	
-	target_include_directories(circle.yaml PRIVATE ${CMAKE_SOURCE_DIR}/src ${YAML_CPP_INCLUDE_DIRS})
-	target_link_libraries(circle.yaml circle.world_base yaml-cpp)
-	target_link_libraries(circle.library circle.yaml)
-	
+	include_directories(${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(circle.library yaml-cpp)
+	message(STATUS "YAML is turned ON. Circle will support YAML world data source.")
 	message(STATUS "YAML is turned ON. Circle will support YAML world data source.")
 else ()
 	message(STATUS "YAML is turned off.")
@@ -1310,7 +1276,7 @@ endif ()
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation ${DEBUG_CRYPT}")
-		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
+		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation ${ASAN_FLAGS} ${DEBUG_CRYPT}")
 		set(CMAKE_CXX_FLAGS_TEST     "-O3 -rdynamic -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "-Ofast -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS}")
 
