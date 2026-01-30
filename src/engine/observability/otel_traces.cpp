@@ -18,7 +18,8 @@ void Span::End() {
 
 void Span::AddEvent(const std::string& name) {
     if (m_span) {
-        m_span->AddEvent(name);
+        std::string utf8_name = Koi8ToUtf8(name.c_str());
+        m_span->AddEvent(utf8_name);
     }
 }
 

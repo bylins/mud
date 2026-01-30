@@ -109,11 +109,12 @@ void DualSpan::SetAttribute(const std::string& key, double value) {
 }
 
 void DualSpan::AddEvent(const std::string& name) {
+	std::string utf8_name = Koi8ToUtf8(name.c_str());
 	if (m_heartbeat_span) {
-		m_heartbeat_span->AddEvent(name);
+		m_heartbeat_span->AddEvent(utf8_name);
 	}
 	if (m_secondary_span) {
-		m_secondary_span->AddEvent(name);
+		m_secondary_span->AddEvent(utf8_name);
 	}
 }
 
