@@ -3,6 +3,7 @@
 #ifdef WITH_OTEL
 
 #include "otel_provider.h"
+#include "otel_helpers.h"
 #include "opentelemetry/logs/provider.h"
 #include "opentelemetry/logs/logger.h"
 #include "opentelemetry/trace/provider.h"
@@ -86,9 +87,10 @@ static void AddAttributesToLogRecord(
 	}
 
 
-	// Add user attributes
+	// Add user attributes (convert KOI8-R to UTF-8)
 	for (const auto& [key, value] : user_attributes) {
-		log_record->SetAttribute(key, value);
+		std::string utf8_value = Koi8ToUtf8(value.c_str());
+		log_record->SetAttribute(key, utf8_value);
 	}
 }
 
@@ -112,7 +114,11 @@ static void LogWithLevel(logging::LogLevel level,
 			auto log_record = logger->CreateLogRecord();
 			if (log_record) {
 				log_record->SetSeverity(to_otel_level(level));
-				log_record->SetBody(message);
+				
+				// Convert KOI8-R to UTF-8 for OpenTelemetry
+				std::string utf8_message = Koi8ToUtf8(message.c_str());
+				
+				log_record->SetBody(utf8_message);
 
 				// Automatically add trace context + user attributes
 				AddAttributesToLogRecord(log_record, attributes);

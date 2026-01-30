@@ -99,7 +99,7 @@ DepotListType depot_list; // список личных хранилищ
 
 // * Капитально расширенная версия сислога для хранилищ.
 void depot_log(const char *format, ...) {
-	const char *filename = "../log/depot.log";
+	const char *filename = "log/depot.log";
 	static FILE *file = 0;
 	if (!file) {
 		file = fopen(filename, "a");

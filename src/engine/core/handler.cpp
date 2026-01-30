@@ -341,6 +341,10 @@ bool IsLabelledObjsStackable(ObjData *obj_one, ObjData *obj_two) {
 }
 
 bool IsObjsStackable(ObjData *obj_one, ObjData *obj_two) {
+	if (!obj_one || !obj_two) {
+		return false;
+	}
+	
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
 		|| strcmp(obj_one->get_short_description().c_str(), obj_two->get_short_description().c_str())
 		|| (obj_one->get_type() == EObjType::kLiquidContainer

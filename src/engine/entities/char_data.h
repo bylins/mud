@@ -22,13 +22,13 @@
 #include "gameplay/ai/mob_memory.h"
 #include "engine/network/logon.h"
 #include "gameplay/statistics/char_stat.h"
+#include "engine/observability/otel_helpers.h"
 
 #include <unordered_map>
 #include <bitset>
 #include <list>
 #include <map>
 // Forward declarations for OpenTelemetry
-namespace tracing { class ISpan; }
 namespace observability { class BaggageScope; }
 
 

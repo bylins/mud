@@ -4,6 +4,7 @@
 #include "otel_log_sender.h"
 #include "otel_trace_sender.h"
 #include "utils/tracing/trace_manager.h"
+#include "utils/timestamp_print.h"
 
 #ifdef WITH_OTEL
 #include "opentelemetry/sdk/trace/tracer_provider_factory.h"
@@ -28,6 +29,7 @@
 #include <iostream>
 #include <chrono>
 #endif
+
 
 namespace observability {
 
@@ -132,47 +134,49 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
         if (mode == RuntimeConfiguration::ETelemetryLogMode::kDuplicate) {
             // File sender already registered by LogManager constructor, add OTEL
             logging::LogManager::Instance().AddSender(std::make_unique<OtelLogSender>());
-            std::cout << "Log mode: duplicate (file + OTEL)" << std::endl;
+            print_with_timestamp("Log mode: duplicate (file + OTEL)");
         } else if (mode == RuntimeConfiguration::ETelemetryLogMode::kOtelOnly) {
             // Replace file sender with OTEL only
             logging::LogManager::Instance().ClearSenders();
             logging::LogManager::Instance().AddSender(std::make_unique<OtelLogSender>());
-            std::cout << "Log mode: otel-only" << std::endl;
+            print_with_timestamp("Log mode: otel-only");
         } else {
             // kFileOnly - no OTEL senders
             // File sender already registered by LogManager constructor, do nothing
-            std::cout << "Log mode: file-only (OTEL initialized but not used for logs)" << std::endl;
+            print_with_timestamp("Log mode: file-only (OTEL initialized but not used for logs)");
         }
 
 		// Initialize TraceManager with appropriate sender
 		tracing::TraceManager::Instance().SetSender(
 			std::make_unique<tracing::OtelTraceSender>()
 		);
-		std::cout << "TraceManager initialized with OtelTraceSender" << std::endl;
+		print_with_timestamp("TraceManager initialized with OtelTraceSender");
 
         m_enabled = true;
-        std::cout << "OpenTelemetry initialized successfully:" << std::endl;
-        std::cout << "  Metrics: " << metrics_endpoint << std::endl;
-        std::cout << "  Traces: " << traces_endpoint << std::endl;
-        std::cout << "  Logs: " << logs_endpoint << std::endl;
+        print_with_timestamp("OpenTelemetry initialized successfully:");
+        print_with_timestamp("  Metrics: " + metrics_endpoint);
+        print_with_timestamp("  Traces: " + traces_endpoint);
+        print_with_timestamp("  Logs: " + logs_endpoint);
     } catch (const std::exception& e) {
-        std::cerr << "Failed to initialize OpenTelemetry: " << e.what() << std::endl;
+        print_error_with_timestamp(std::string("Failed to initialize OpenTelemetry: ") + e.what());
         m_enabled = false;
 		// Initialize TraceManager with NoOp sender on error
 		tracing::TraceManager::Instance().SetSender(
 			std::make_unique<tracing::NoOpTraceSender>()
 		);
-		std::cout << "TraceManager initialized with NoOpTraceSender (OTEL init failed)" << std::endl;
+		print_with_timestamp("TraceManager initialized with NoOpTraceSender (OTEL init failed)");
     }
 #else
-    (void)endpoint;
+    (void)metrics_endpoint;
+    (void)traces_endpoint;
+    (void)logs_endpoint;
     (void)service_name;
     (void)service_version;
 	// Initialize TraceManager with NoOp sender (no OTEL)
 	tracing::TraceManager::Instance().SetSender(
 		std::make_unique<tracing::NoOpTraceSender>()
 	);
-	std::cout << "TraceManager initialized with NoOpTraceSender (no OTEL)" << std::endl;
+	print_with_timestamp("TraceManager initialized with NoOpTraceSender (no OTEL)");
 #endif
 }
 
@@ -200,7 +204,7 @@ void OtelProvider::Shutdown() {
         m_enabled = false;
         std::cout << "OpenTelemetry shutdown successfully" << std::endl;
     } catch (const std::exception& e) {
-        std::cerr << "Error during OpenTelemetry shutdown: " << e.what() << std::endl;
+        print_error_with_timestamp(std::string("Error during OpenTelemetry shutdown: ") + e.what());
     }
 #endif
 }

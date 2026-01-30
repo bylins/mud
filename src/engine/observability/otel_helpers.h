@@ -136,6 +136,20 @@ std::string Koi8ToUtf8(const char* koi8r_str);
 
 #endif // WITH_OTEL
 
+#ifndef WITH_OTEL
+// Noop implementation when OTEL is disabled
+class BaggageScope {
+public:
+	BaggageScope(const std::string&, const std::string&) {}
+	~BaggageScope() = default;
+
+	BaggageScope(const BaggageScope&) = delete;
+	BaggageScope& operator=(const BaggageScope&) = delete;
+};
+
+inline std::string Koi8ToUtf8(const char* koi8r_str) { return koi8r_str ? koi8r_str : ""; }
+#endif
+
 } // namespace observability
 
 #endif // BYLINS_OTEL_HELPERS_H

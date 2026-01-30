@@ -2861,7 +2861,7 @@ int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags
 	const auto player_i = char_element->load_char_ascii(name, load_flags);
 	// OpenTelemetry: Track player loading
 	auto load_span = tracing::TraceManager::Instance().StartSpan("Load Player");
-	load_span->SetAttribute("character_name", std::string(name));
+	load_span->SetAttribute("character_name", observability::Koi8ToUtf8(name));
 	
 	observability::ScopedMetric load_metric("player.load.duration");
 	

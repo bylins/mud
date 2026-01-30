@@ -30,6 +30,11 @@ void pers_log(CharData *ch, const char *format, ...) {
 		return;
 	}
 
+	if (!ch->desc) {
+		// Mobs don't have descriptors, so can't have personal logs
+		return;
+	}
+
 	if (!format) {
 		format = "SYSERR: pers_log received a NULL format.";
 	}
@@ -193,11 +198,13 @@ void log(const char *format, ...) {
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
-	// Convert KOI8-R to UTF-8 for OTEL
-	char utf8_buffer[8192];
-	koi_to_utf8(buffer, utf8_buffer);
-
-	logging::LogManager::Instance().Info(utf8_buffer, {{"log_stream", "syslog"}});
+	// Check if message is SYSERR and log at appropriate level
+	// Note: KOI8-R to UTF-8 conversion happens automatically in OtelLogSender
+	if (strncmp(buffer, "SYSERR:", 7) == 0) {
+		logging::LogManager::Error(buffer, {{"log_stream", "syslog"}});
+	} else {
+		logging::LogManager::Info(buffer, {{"log_stream", "syslog"}});
+	}
 }
 
 void shop_log(const char *format, ...) {

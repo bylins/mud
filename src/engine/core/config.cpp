@@ -30,6 +30,9 @@ using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #endif
 
 #include <iostream>
+#include "utils/timestamp_print.h"
+
+
 
 #define YES        1
 #define NO        0
@@ -492,7 +495,7 @@ void RuntimeConfiguration::setup_logs() {
 
 	setup_converters();
 
-	printf("Bylins server will use %schronous output into syslog file.\n",
+	printf_timestamp("Bylins server will use %schronous output into syslog file.\n",
 		   output_thread() ? "asyn" : "syn");
 }
 
@@ -759,7 +762,7 @@ bool CLogInfo::open() {
 		setvbuf(handle, m_buffer, buffered(), BUFFER_SIZE);
 
 		m_handle = handle;
-		printf("Using log file '%s' with %s buffering. Opening in %s mode.\n",
+		printf_timestamp("Using log file '%s' with %s buffering. Opening in %s mode.\n",
 			   filename().c_str(),
 			   NAME_BY_ITEM(buffered()).c_str(),
 			   NAME_BY_ITEM(this->mode()).c_str());

@@ -14,7 +14,7 @@ Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters &cl) : m_par
 }
 
 Characters::~Characters() {
-	log("~Characters()");
+	// log("~Characters()"); // Removed: causes crash during shutdown when OTEL already destroyed
 }
 
 void Characters::CL_RNumChangeObserver::notify(ProtectedCharData &character, const MobRnum old_rnum) {

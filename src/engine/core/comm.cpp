@@ -586,6 +586,8 @@ void gettimeofday(struct timeval *t, void *dummy)
 #endif                // CIRCLE_WINDOWS || CIRCLE_MACINTOSH
 
 #include <iostream>
+#include "utils/timestamp_print.h"
+
 
 int main_function(int argc, char **argv) {
 #ifdef TEST_BUILD
@@ -697,10 +699,10 @@ int main_function(int argc, char **argv) {
 	 * Moved here to distinguish command line options and to show up
 	 * in the log if stderr is redirected to a file.
 	 */
-	printf("%s\r\n", circlemud_version);
-	printf("%s\r\n", DG_SCRIPT_VERSION);
+	printf_timestamp("%s\r\n", circlemud_version);
+	printf_timestamp("%s\r\n", DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
-	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
+	printf_timestamp("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
 	if (chdir(dir) < 0) {
 		perror("\r\nSYSERR: Fatal error changing to data directory");
 		exit(1);
@@ -713,12 +715,12 @@ int main_function(int argc, char **argv) {
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();
 	log_code_date();
-	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
+	printf_timestamp("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
 		game_loader.BootWorld();
 		printf("Done.");
 	} else {
-		printf("Running game on port %d.\r\n", port);
+		printf_timestamp("Running game on port %d.\r\n", port);
 
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
@@ -1250,7 +1252,7 @@ void game_loop(int epoll, socket_t mother_desc)
 void game_loop(socket_t mother_desc)
 #endif
 {
-	printf("Game started.\n");
+	printf_timestamp("Game started.\n");
 
 #ifdef HAS_EPOLL
 	struct epoll_event *events;

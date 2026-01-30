@@ -894,6 +894,12 @@ void im_reset_room(RoomData *room, int level, int type) {
 		return;
 	}
 
+	// Check if zone_types is initialized (loaded from ztypes.lst)
+	if (!zone_types) {
+		log("SYSERR: zone_types is not initialized, skipping ingredient reset for room %d", room->vnum);
+		return;
+	}
+
 	if (!zone_types[type].ingr_qty
 		|| room->get_flag(ERoomFlag::kDeathTrap)) {
 		return;

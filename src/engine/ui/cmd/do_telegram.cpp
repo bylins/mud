@@ -73,9 +73,12 @@ bool TelegramBot::sendMessage(unsigned long chatId, const std::string &msg) {
 	if (chatId < 1 || msg.empty())
 		return false;
 	curl_easy_setopt(curl, CURLOPT_URL, this->uri.c_str());
+	
+	char* escaped_msg = curl_easy_escape(curl, msg.c_str(), msg.length());
 	snprintf(msgBuf, kMaxStringLength,
 			this->chatIdParam.c_str(), chatId,
-			this->textParam.c_str(), curl_easy_escape(curl, msg.c_str(), msg.length()));
+			this->textParam.c_str(), escaped_msg);
+	curl_free(escaped_msg);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, msgBuf);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, noop_cb);
 

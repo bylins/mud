@@ -13,12 +13,12 @@
 #include "utils/backtrace.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/liquid.h"
+#include "engine/observability/otel_helpers.h"
 #include "char_data.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/tracing/trace_sender.h"
-#include "engine/observability/otel_helpers.h"
 #include "engine/ui/alias.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -84,6 +84,7 @@ CharData::CharData() :
 CharData::CharData(const CharData& other) 
 	: ProtectedCharData(other),
 	  chclass_(other.chclass_),
+	  is_npc_(other.is_npc_),
 	  role_(other.role_),
 	  in_room(other.in_room),
 	  m_wait(other.m_wait),
@@ -91,10 +92,12 @@ CharData::CharData(const CharData& other)
 	  proto_script(other.proto_script ? std::make_shared<ObjData::triggers_list_t>(*other.proto_script) : nullptr),
 	  script(other.script ? std::make_shared<Script>(*other.script) : nullptr),
 	  followers(nullptr),
+	  // Instance-specific pointers must be cleared (not copied from prototype)
+	  protecting_(nullptr),    // FIXED: Was uninitialized
+	  touching_(nullptr),      // FIXED: Was uninitialized
+	  enemy_(nullptr),         // FIXED: Was uninitialized
+	  desc(nullptr)            // FIXED: Was uninitialized
 	  // OpenTelemetry combat tracing - NOT copied (these are instance-specific)
-	  m_combat_root_span(nullptr),
-	  m_combat_baggage_scope(nullptr),
-	  m_combat_id()
 {
 	// Copy all other fields using assignment
 	player_data = other.player_data;
@@ -103,6 +106,22 @@ CharData::CharData(const CharData& other)
 	points = other.points;
 	char_specials = other.char_specials;
 	mob_specials = other.mob_specials;
+
+	// IMPORTANT: Clear equipment array - shallow copy would create aliasing!
+	// Prototype equipment pointers must NOT be shared with instances.
+	// Equipment will be loaded separately by zone reset 'E' commands.
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
+		equipment[i] = nullptr;  // FIXED: Was not cleared, causing pointer aliasing
+	}
+	
+	// IMPORTANT: Clear inventory pointer - must NOT be shared with prototype!
+	// Inventory will be populated by zone reset or other game logic.
+	carrying = nullptr;
+	
+	// IMPORTANT: Clear other instance-specific pointers
+	timed = nullptr;
+	timed_feat = nullptr;
+	pk_list = nullptr;
 	if (other.player_specials) {
 		player_specials = std::make_shared<player_special_data>(*other.player_specials);
 	}
@@ -138,6 +157,21 @@ CharData& CharData::operator=(const CharData& other) {
 	points = other.points;
 	char_specials = other.char_specials;
 	mob_specials = other.mob_specials;
+
+	// IMPORTANT: Clear equipment array - shallow copy would create aliasing!
+	// Prototype equipment pointers must NOT be shared with instances.
+	// Equipment will be loaded separately by zone reset 'E' commands.
+	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
+		equipment[i] = nullptr;  // FIXED: Was not cleared, causing pointer aliasing
+	}
+	
+	// IMPORTANT: Clear inventory pointer - must NOT be shared!
+	carrying = nullptr;
+	
+	// IMPORTANT: Clear other instance-specific pointers
+	timed = nullptr;
+	timed_feat = nullptr;
+	pk_list = nullptr;
 	
 	if (other.player_specials) {
 		player_specials = std::make_shared<player_special_data>(*other.player_specials);
@@ -146,8 +180,6 @@ CharData& CharData::operator=(const CharData& other) {
 	}
 	
 	// OpenTelemetry combat tracing - NOT copied (these are instance-specific)
-	m_combat_root_span.reset();
-	m_combat_baggage_scope.reset();
 	m_combat_id.clear();
 	
 	return *this;
@@ -264,6 +296,11 @@ void CharData::reset() {
 	m_master = nullptr;
 	in_room = kNowhere;
 	carrying = nullptr;
+	
+	// IMPORTANT: Clear other instance-specific pointers
+	timed = nullptr;
+	timed_feat = nullptr;
+	pk_list = nullptr;
 	if (this->get_protecting()) {
 		remove_protecting();
 	}
@@ -415,6 +452,11 @@ void CharData::zero_init() {
 	timed = nullptr;
 	timed_feat = nullptr;
 	carrying = nullptr;
+	
+	// IMPORTANT: Clear other instance-specific pointers
+	timed = nullptr;
+	timed_feat = nullptr;
+	pk_list = nullptr;
 	desc = nullptr;
 	followers = nullptr;
 	m_master = nullptr;
