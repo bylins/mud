@@ -6,8 +6,7 @@
 inline bool IsUnableToAct(CharData *ch) {
 	return (AFF_FLAGGED(ch, EAffect::kStopFight) ||
 	AFF_FLAGGED(ch, EAffect::kMagicStopFight) ||
-	AFF_FLAGGED(ch, EAffect::kHold) ||
-	ch->get_wait());
+	AFF_FLAGGED(ch, EAffect::kHold));
 }
 
 int IsHaveNoExtraAttack(CharData *ch);
