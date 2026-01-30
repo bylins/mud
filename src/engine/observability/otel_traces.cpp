@@ -24,7 +24,8 @@ void Span::AddEvent(const std::string& name) {
 
 void Span::SetAttribute(const std::string& key, const std::string& value) {
     if (m_span) {
-        m_span->SetAttribute(key, value);
+        std::string utf8_value = Koi8ToUtf8(value.c_str());
+        m_span->SetAttribute(key, utf8_value);
     }
 }
 

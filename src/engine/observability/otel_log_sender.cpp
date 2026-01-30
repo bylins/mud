@@ -81,7 +81,8 @@ static void AddAttributesToLogRecord(
 		                                      opentelemetry::nostd::string_view value) {
 			std::string key_str(key.data(), key.size());
 			std::string value_str(value.data(), value.size());
-			log_record->SetAttribute(key_str, value_str);
+			std::string utf8_value = Koi8ToUtf8(value_str.c_str());
+			log_record->SetAttribute(key_str, utf8_value);
 			return true; // continue iteration
 		});
 	}
