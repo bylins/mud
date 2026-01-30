@@ -2,6 +2,7 @@
 
 #ifdef WITH_OTEL
 #include "otel_provider.h"
+#include "otel_helpers.h"
 #include "opentelemetry/trace/provider.h"
 
 namespace tracing {
@@ -23,14 +24,14 @@ void OtelSpan::End() {
 
 void OtelSpan::AddEvent(const std::string& name) {
 	if (m_span) {
-		std::string utf8_name = Koi8ToUtf8(name.c_str());
+		std::string utf8_name = observability::Koi8ToUtf8(name.c_str());
 		m_span->AddEvent(utf8_name);
 	}
 }
 
 void OtelSpan::SetAttribute(const std::string& key, const std::string& value) {
 	if (m_span) {
-		std::string utf8_value = Koi8ToUtf8(value.c_str());
+		std::string utf8_value = observability::Koi8ToUtf8(value.c_str());
 		m_span->SetAttribute(key, utf8_value);
 	}
 }
