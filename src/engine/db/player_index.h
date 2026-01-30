@@ -19,6 +19,7 @@
 class PlayerIndexElement {
  public:
   explicit PlayerIndexElement(std::string_view name);
+  ~PlayerIndexElement();
 
   char *mail{nullptr};
   char *last_ip{nullptr};

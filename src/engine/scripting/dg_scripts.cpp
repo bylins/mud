@@ -4211,6 +4211,8 @@ int process_foreach_done(const char *cond, void *, Script *, Trigger *trig, int)
 	char *var_list_pos_value = str_dup(var_list_pos.value.c_str());
 
 	if (!var_list_value || !var_list_pos_value) {
+		free(var_list_value);
+		free(var_list_pos_value);
 		trig_log(trig, "foreach utility vars not found");
 		return 0;
 	}
@@ -4224,6 +4226,9 @@ int process_foreach_done(const char *cond, void *, Script *, Trigger *trig, int)
 
 		snprintf(value, kMaxTrglineLength, "%s%s", name, FOREACH_LIST_POS_GUID);
 		remove_var_cntx(trig->var_list, value, 0);
+
+		free(var_list_value);
+		free(var_list_pos_value);
 
 		return 0;
 	}

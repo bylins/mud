@@ -95,8 +95,19 @@ RoomData::RoomData() : vnum(0),
 }
 
 RoomData::~RoomData() {
-	if (name != nullptr)
+	if (name != nullptr) {
 		free(name);
+	}
+	if (temp_description != nullptr) {
+		free(temp_description);
+	}
+	
+	// Free track list
+	while (track != nullptr) {
+		TrackData *next = track->next;
+		free(track);
+		track = next;
+	}
 }
 
 CharData *RoomData::first_character() const {

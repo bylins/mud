@@ -22,6 +22,16 @@ PlayerIndexElement::PlayerIndexElement(std::string_view name) {
 	set_name(name);
 }
 
+PlayerIndexElement::~PlayerIndexElement() {
+	if (mail) {
+		free(mail);
+	}
+	if (last_ip) {
+		free(last_ip);
+	}
+	delete timer;
+}
+
 void PlayerIndexElement::set_name(std::string_view name) {
 	name_ = name;
 	utils::ConvertToLow(name_);
