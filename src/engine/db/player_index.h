@@ -20,6 +20,9 @@ class PlayerIndexElement {
  public:
   explicit PlayerIndexElement(std::string_view name);
   ~PlayerIndexElement();
+  PlayerIndexElement(const PlayerIndexElement&) = delete;
+  PlayerIndexElement& operator=(const PlayerIndexElement&) = delete;
+  PlayerIndexElement(PlayerIndexElement&& other) noexcept;
 
   char *mail{nullptr};
   char *last_ip{nullptr};
@@ -50,7 +53,7 @@ class PlayersIndex : public std::vector<PlayerIndexElement> {
 
   ~PlayersIndex();
 
-  std::size_t Append(const PlayerIndexElement &element);
+  std::size_t Append(PlayerIndexElement &&element);
   [[nodiscard]] bool IsPlayerExists(long id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
   bool IsPlayerExists(const char *name) const { return NOT_FOUND != GetIndexByName(name); }
   std::size_t GetIndexByName(const char *name) const;

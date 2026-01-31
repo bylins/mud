@@ -32,6 +32,23 @@ PlayerIndexElement::~PlayerIndexElement() {
 	delete timer;
 }
 
+PlayerIndexElement::PlayerIndexElement(PlayerIndexElement&& other) noexcept
+	: mail(other.mail)
+	, last_ip(other.last_ip)
+	, level(other.level)
+	, remorts(other.remorts)
+	, plr_class(other.plr_class)
+	, last_logon(other.last_logon)
+	, activity(other.activity)
+	, timer(other.timer)
+	, uid_(other.uid_)
+	, name_(std::move(other.name_)) {
+	// Transfer ownership - nullify source pointers
+	other.mail = nullptr;
+	other.last_ip = nullptr;
+	other.timer = nullptr;
+}
+
 void PlayerIndexElement::set_name(std::string_view name) {
 	name_ = name;
 	utils::ConvertToLow(name_);
@@ -45,10 +62,10 @@ PlayersIndex::~PlayersIndex() {
 	log("~PlayersIndex()");
 }
 
-std::size_t PlayersIndex::Append(const PlayerIndexElement &element) {
+std::size_t PlayersIndex::Append(PlayerIndexElement &&element) {
 	const auto index = size();
 
-	push_back(element);
+	push_back(std::move(element));
 	m_id_to_index.emplace(element.uid(), index);
 	AddNameToIndex(element.name(), index);
 
@@ -285,7 +302,7 @@ void ActualizePlayersIndex(char *name) {
 				TopPlayer::Refresh(short_ch, true);
 
 				log("Adding new player %s", element.name().c_str());
-				player_table.Append(element);
+				player_table.Append(std::move(element));
 			} else {
 				log("Delete %s from account email: %s",
 					GET_NAME(short_ch),
