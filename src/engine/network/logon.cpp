@@ -24,7 +24,7 @@ void add_logon_record(DescriptorData *d) {
 									});
 
 	if (logon == LOGON_LIST(d->character).end()) {
-		const Logon cur_log = {str_dup(d->host), 1, time(nullptr), false};
+		const Logon cur_log = {d->host, 1, time(nullptr), false};
 		LOGON_LIST(d->character).push_back(cur_log);
 	} else {
 		++logon->count;

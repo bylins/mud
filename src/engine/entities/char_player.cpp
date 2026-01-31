@@ -1505,7 +1505,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						fbgetline(fl, line);
 						sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 						if (buf[0] != '~') {
-							const network::Logon cur_log = {str_dup(buf), lnum, lnum2, false};
+							const network::Logon cur_log = {buf, lnum, lnum2, false};
 							LOGON_LIST(this).push_back(cur_log);
 						} else break;
 					} while (true);

@@ -9,6 +9,7 @@
 #define BYLINS_SRC_ENGINE_NETWORK_LOGON_H_
 
 #include <ctime>
+#include <string>
 #include <vector>
 
 class DescriptorData;
@@ -16,7 +17,7 @@ class DescriptorData;
 namespace network {
 
 struct Logon {
-  char *ip;
+  std::string ip;
   long count;
   time_t lasttime;
   bool is_first;

@@ -2234,7 +2234,7 @@ void DoAfterPassword(DescriptorData *d) {
 
 	const uint32_t MASK = 16777215;
 	for (const auto &logon : LOGON_LIST(d->character)) {
-		uint32_t current_subnet = inet_addr(logon.ip) & MASK;
+		uint32_t current_subnet = inet_addr(logon.ip.c_str()) & MASK;
 		subnets.insert(current_subnet);
 	}
 
@@ -2398,7 +2398,7 @@ int create_entry(PlayerIndexElement &element) {
 	element.activity = number(0, kObjectSaveActivity - 1);
 	element.timer = nullptr;
 
-	return static_cast<int>(player_table.Append(element));
+	return static_cast<int>(player_table.Append(std::move(element)));
 }
 
 void DoAfterEmailConfirm(DescriptorData *d) {

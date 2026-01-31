@@ -64,10 +64,12 @@ PlayersIndex::~PlayersIndex() {
 
 std::size_t PlayersIndex::Append(PlayerIndexElement &&element) {
 	const auto index = size();
+	const auto uid = element.uid();
+	const std::string name = element.name();
 
 	push_back(std::move(element));
-	m_id_to_index.emplace(element.uid(), index);
-	AddNameToIndex(element.name(), index);
+	m_id_to_index.emplace(uid, index);
+	AddNameToIndex(name, index);
 
 	return index;
 }

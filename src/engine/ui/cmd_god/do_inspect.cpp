@@ -514,7 +514,7 @@ void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 												  kColorNrm));
 	vict_uid_ = vict->get_uid();
 	for (const auto &logon : LOGON_LIST(vict)) {
-		if (logon.ip && !kIgnoredIpChecklist.contains(logon.ip)) {
+		if (!logon.ip.empty() && !kIgnoredIpChecklist.contains(logon.ip)) {
 			victim_ip_log_.insert(logon.ip);
 		}
 	}
@@ -555,7 +555,7 @@ bool InspectRequestAll::IsIndexMatched(const PlayerIndexElement &index) {
 bool InspectRequestAll::IsLogonsIntersect(const CharData::shared_ptr &player) {
 	bool result{false};
 	for (const auto &logon : player->player_specials->logons) {
-		if (IsIpMatched(logon.ip)) {
+		if (IsIpMatched(logon.ip.c_str())) {
 			result = true;
 			NoteLogonInfo(logon);
 		}

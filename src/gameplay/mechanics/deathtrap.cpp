@@ -81,7 +81,7 @@ void deathtrap::activity() {
 
 // * Логирование в отдельный файл уходов в дт для интересу и мб статистики.
 void deathtrap::log_death_trap(CharData *ch) {
-	const char *filename = "../log/death_trap.log";
+	const char *filename = "log/death_trap.log";
 	static FILE *file = 0;
 	if (!file) {
 		file = fopen(filename, "a");
