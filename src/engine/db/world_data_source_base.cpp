@@ -20,6 +20,31 @@ extern int top_of_trigt;
 extern CharData *mob_proto;
 
 namespace world_loader
+
+#ifdef TEST_BUILD
+#include <vector>
+#include <string>
+
+static std::vector<std::string> g_boot_call_log;
+static bool g_boot_tracking_enabled = false;
+
+void TrackBootEvent(const std::string& event) {
+	if (g_boot_tracking_enabled) {
+		g_boot_call_log.push_back(event);
+	}
+}
+
+void EnableBootTracking(bool enable) {
+	g_boot_tracking_enabled = enable;
+	if (enable) {
+		g_boot_call_log.clear();
+	}
+}
+
+std::vector<std::string> GetBootCallLog() {
+	return g_boot_call_log;
+}
+#endif
 {
 
 // Parse trigger script from string into cmdlist
@@ -184,6 +209,31 @@ void WorldDataSourceBase::AssignTriggersToLoadedRooms()
 	}
 }
 } // namespace world_loader
+
+#ifdef TEST_BUILD
+#include <vector>
+#include <string>
+
+static std::vector<std::string> g_boot_call_log;
+static bool g_boot_tracking_enabled = false;
+
+void TrackBootEvent(const std::string& event) {
+	if (g_boot_tracking_enabled) {
+		g_boot_call_log.push_back(event);
+	}
+}
+
+void EnableBootTracking(bool enable) {
+	g_boot_tracking_enabled = enable;
+	if (enable) {
+		g_boot_call_log.clear();
+	}
+}
+
+std::vector<std::string> GetBootCallLog() {
+	return g_boot_call_log;
+}
+#endif
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

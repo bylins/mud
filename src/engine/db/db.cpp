@@ -68,6 +68,12 @@
 #endif
 #include "world_data_source_manager.h"
 
+#ifdef TEST_BUILD
+namespace world_loader {
+	void TrackBootEvent(const std::string& event);
+}
+#endif
+
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -396,7 +402,9 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	boot_profiler.next_step("Loading rooms");
 	ds_ptr->LoadRooms();
 
-	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+#ifdef TEST_BUILD
+	world_loader::TrackBootEvent("LoadRooms");
+#endif
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -1034,6 +1042,18 @@ void BootMudDataBase() {
 		ResetZone(i);
 	}
 	reset_q.head = reset_q.tail = nullptr;
+
+#ifdef TEST_BUILD
+	world_loader::TrackBootEvent("ResetZones");
+#endif
+
+	// Assign room triggers AFTER zone reset completes
+	boot_profiler.next_step("Assigning triggers to rooms");
+	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+
+#ifdef TEST_BUILD
+	world_loader::TrackBootEvent("AssignTriggersToLoadedRooms");
+#endif
 
 	// делается после резета зон, см камент к функции
 	boot_profiler.next_step("Loading depot chests");
