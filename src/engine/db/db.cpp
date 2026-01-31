@@ -57,9 +57,26 @@
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/communication/social.h"
 #include "player_index.h"
+#include "world_checksum.h"
+#include "legacy_world_data_source.h"
+#include "world_data_source_base.h"
+#ifdef HAVE_SQLITE
+#include "sqlite_world_data_source.h"
+#endif
+#ifdef HAVE_YAML
+#include "yaml_world_data_source.h"
+#endif
+#include "world_data_source_manager.h"
+
+#ifdef TEST_BUILD
+namespace world_loader {
+	void TrackBootEvent(const std::string& event);
+}
+#endif
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <memory>
 
@@ -99,6 +116,7 @@ int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
+bool no_world_checksum = false;	// disable world checksum calculation
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -127,7 +145,7 @@ const FlagData clear_flags;
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
-GameLoader world_loader;
+GameLoader game_loader;
 
 // local functions
 void LoadGlobalUid();
@@ -347,28 +365,46 @@ void ConvertObjValues() {
 	}
 }
 
-void GameLoader::BootWorld() {
+void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
+	// Create default data source if none provided
+	if (!data_source)
+	{
+#ifdef HAVE_YAML
+		data_source = world_loader::CreateYamlDataSource("world");
+#elif defined(HAVE_SQLITE)
+		data_source = world_loader::CreateSqliteDataSource("world.db");
+#else
+		data_source = world_loader::CreateLegacyDataSource();
+#endif
+	}
+	log("Using data source: %s", data_source->GetName().c_str());
+
+	// Register data source in manager for OLC access
+	auto* ds_ptr = data_source.get();
+	world_loader::WorldDataSourceManager::Instance().SetDataSource(std::move(data_source));
+
 	boot_profiler.next_step("Loading zone table");
-	log("Loading zone table.");
-	GameLoader::BootIndex(DB_BOOT_ZON);
+	ds_ptr->LoadZones();
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	log("Loading triggers and generating index.");
-	GameLoader::BootIndex(DB_BOOT_TRG);
+	ds_ptr->LoadTriggers();
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	log("Loading rooms.");
-	GameLoader::BootIndex(DB_BOOT_WLD);
+	ds_ptr->LoadRooms();
+
+#ifdef TEST_BUILD
+	world_loader::TrackBootEvent("LoadRooms");
+#endif
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -391,8 +427,7 @@ void GameLoader::BootWorld() {
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	log("Loading mobs and generating index.");
-	GameLoader::BootIndex(DB_BOOT_MOB);
+	ds_ptr->LoadMobs();
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -407,8 +442,7 @@ void GameLoader::BootWorld() {
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	log("Loading objs and generating index.");
-	GameLoader::BootIndex(DB_BOOT_OBJ);
+	ds_ptr->LoadObjects();
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");
@@ -439,6 +473,24 @@ void GameLoader::BootWorld() {
 	system_obj::init();
 
 	log("Init global_drop_obj.");
+
+	if (!no_world_checksum)
+	{
+		boot_profiler.next_step("Calculating world checksums");
+		log("Calculating world checksums...");
+		auto checksums = WorldChecksum::Calculate();
+		WorldChecksum::LogResult(checksums);
+		WorldChecksum::SaveDetailedChecksums("checksums_detailed.txt");
+		WorldChecksum::SaveDetailedBuffers("checksums_buffers");
+
+		// If BASELINE_DIR is set, compare with baseline checksums
+		const char *baseline_dir = getenv("BASELINE_DIR");
+		if (baseline_dir)
+		{
+			log("Comparing with baseline from: %s", baseline_dir);
+			WorldChecksum::CompareWithBaseline(baseline_dir);
+		}
+	}
 }
 
 void InitZoneTypes() {
@@ -707,6 +759,7 @@ void zone_traffic_load() {
 
 // body of the booting system
 void BootMudDataBase() {
+	auto boot_start = std::chrono::high_resolution_clock::now();
 	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
 
 	log("Boot db -- BEGIN.");
@@ -990,6 +1043,18 @@ void BootMudDataBase() {
 	}
 	reset_q.head = reset_q.tail = nullptr;
 
+#ifdef TEST_BUILD
+	world_loader::TrackBootEvent("ResetZones");
+#endif
+
+	// Assign room triggers AFTER zone reset completes
+	boot_profiler.next_step("Assigning triggers to rooms");
+	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+
+#ifdef TEST_BUILD
+	world_loader::TrackBootEvent("AssignTriggersToLoadedRooms");
+#endif
+
 	// делается после резета зон, см камент к функции
 	boot_profiler.next_step("Loading depot chests");
 	log("Load depot chests.");
@@ -1092,6 +1157,10 @@ void BootMudDataBase() {
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
+
+	auto boot_end = std::chrono::high_resolution_clock::now();
+	auto boot_duration = std::chrono::duration<double>(boot_end - boot_start).count();
+	log("Boot db total time: %.3f seconds", boot_duration);
 
 }
 

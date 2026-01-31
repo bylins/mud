@@ -61,6 +61,9 @@
 #include "engine/network/msdp/msdp_constants.h"
 #include "engine/entities/zone.h"
 #include "engine/db/db.h"
+#ifdef HAVE_SQLITE
+#include "engine/db/sqlite_world_data_source.h"
+#endif
 #include "utils/utils.h"
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
@@ -351,6 +354,7 @@ extern int num_invalid;
 extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
+extern bool no_world_checksum;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -371,7 +375,7 @@ DescriptorData *descriptor_list = nullptr;    // master desc list
 int no_specials = 0;        // Suppress ass. of special routines
 int max_players = 0;        // max descriptors available
 int tics = 0;            // for extern checkpointing
-int scheck = 0;            // for syntax checking mode
+int scheck = 0;
 struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
@@ -635,6 +639,10 @@ int main_function(int argc, char **argv) {
 			case 's': no_specials = 1;
 				puts("Suppressing assignment of special routines.");
 				break;
+			case 'C':
+				no_world_checksum = true;
+				puts("World checksum calculation disabled.");
+				break;
 			case 'd':
 				if (*(argv[pos] + 2))
 					dir = argv[pos] + 2;
@@ -653,7 +661,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+				   "\n"
+				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -663,7 +673,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+				   "\n"
+				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -688,6 +700,10 @@ int main_function(int argc, char **argv) {
 	printf("%s\r\n", DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
 	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
+	if (chdir(dir) < 0) {
+		perror("\r\nSYSERR: Fatal error changing to data directory");
+		exit(1);
+	}
 	runtime_config.load();
 	if (runtime_config.msdp_debug()) {
 		msdp::debug(true);
@@ -696,13 +712,9 @@ int main_function(int argc, char **argv) {
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();
 	log_code_date();
-	if (chdir(dir) < 0) {
-		perror("\r\nSYSERR: Fatal error changing to data directory");
-		exit(1);
-	}
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
-		world_loader.BootWorld();
+		game_loader.BootWorld();
 		printf("Done.");
 	} else {
 		printf("Running game on port %d.\r\n", port);

@@ -21,3 +21,7 @@ cmake-build-release-wsl/
 log/
 syslog
 cmake-build-*
+build/
+build_*/
+test/
+magic.mgc

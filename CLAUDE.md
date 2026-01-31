@@ -38,7 +38,7 @@ make tests -j$(nproc)
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
-- **Debug** - Debug build with ASAN (-fsanitize=address, -D_GLIBCXX_DEBUG)
+- **Debug** - Debug build with ASAN (-fsanitize=address, NO _GLIBCXX_DEBUG due to yaml-cpp ABI compatibility)
 - **Test** - Test build with optimizations (-O3, -DTEST_BUILD, -DNOCRYPT)
 - **FastTest** - Fast test build (-Ofast, -DTEST_BUILD)
 
@@ -301,3 +301,118 @@ The heartbeat system includes built-in profiling:
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
 - **Script Depth**: DG Scripts limited to 512 recursion depth to prevent stack overflow
 - **Runtime Encoding**: While source files are KOI8-R, runtime text can be multiple encodings (Alt, Win, UTF-8, KOI8-R) based on client settings
+
+## Claude Code Workflow Rules
+
+### Build Directory Convention
+Use separate build directories for different CMake configurations to avoid lengthy rebuilds:
+```
+build/        - default build (without optional features)
+build_sqlite/ - build with -DHAVE_SQLITE=ON
+build_debug/  - debug build with -DCMAKE_BUILD_TYPE=Debug
+build_test/   - test data and converted worlds (not for compilation)
+```
+**Always warn the user when changing build directories or running cmake/make in a different directory.**
+
+### File Encoding - CRITICAL
+The Edit tool corrupts KOI8-R encoding in source files. To safely modify existing source files:
+```bash
+# Use sed with LANG=C to preserve encoding
+LANG=C sed -i 's/old_text/new_text/' file.cpp
+
+# For multi-line changes, use sed with address ranges
+LANG=C sed -i '/pattern/a\
+new line here' file.cpp
+```
+**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.**
+Only use Edit for newly created files or files known to be pure ASCII.
+
+### _GLIBCXX_DEBUG Disabled in Debug Build
+**Important:** `_GLIBCXX_DEBUG` is intentionally **disabled** for Debug builds due to ABI incompatibility with external libraries (yaml-cpp, SQLite).
+
+**Why:**
+- External libraries (yaml-cpp) are compiled without `_GLIBCXX_DEBUG`
+- They return STL objects (`std::string`) to our code
+- If our code uses `_GLIBCXX_DEBUG`, ABI mismatch causes heap-buffer-overflow
+- Solution: disable the flag for all Debug builds
+
+**Trade-off:** We lose STL iterator/bounds checking in Debug mode, but gain ASAN (AddressSanitizer) which catches most memory errors.
+
+### Directory Change Notifications
+Always explicitly notify the user before:
+- Running cmake in a different build directory
+- Running make in a different build directory  
+- Changing the working directory for any build operation
+
+Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
+
+### World Data Formats and Testing
+
+The project supports three world data formats:
+1. **Legacy** - Original CircleMUD text format (default, in lib/ + lib.template/)
+2. **SQLite** - World data in SQLite database (requires -DHAVE_SQLITE=ON)
+3. **YAML** - Human-readable YAML format (requires -DHAVE_YAML=ON)
+
+**CRITICAL: Never use lib/ from repository directly!**
+- `lib/` contains base configuration files only (NOT complete world data)
+- `lib.template/` contains world files, player data, and additional configs
+- To get a working world: copy lib/ to build directory, then overlay lib.template/
+
+**Preparing world for conversion:**
+```bash
+# Create working copy (example for YAML build)
+mkdir -p build_yaml/small
+cp -r lib build_yaml/small/
+cp -r lib.template/* build_yaml/small/lib/
+
+# Now build_yaml/small/lib contains complete world data ready for conversion
+```
+
+**Conversion Tool:**
+```bash
+# Convert legacy world to YAML (in-place conversion)
+./tools/convert_to_yaml.py --input build_yaml/small/lib/world --output build_yaml/small/world --format yaml --type all
+
+# Convert to SQLite database
+./tools/convert_to_yaml.py --input build_sqlite/small/lib/world --output build_sqlite/small/world.db --format sqlite --type all
+```
+
+**Automated Testing & Conversion:**
+```bash
+# Run world loading tests (automatically prepares and converts worlds)
+./tools/run_load_tests.sh              # Full test suite
+./tools/run_load_tests.sh --quick      # Quick test (Legacy + YAML checksums)
+./tools/run_load_tests.sh --help       # Show all options
+```
+
+The `run_load_tests.sh` script:
+- Builds all three variants (Legacy, SQLite, YAML) in separate build directories
+- Automatically prepares working worlds (copies lib + lib.template)
+- Converts worlds if missing or outdated
+- Runs boot tests with configurable timeout (default 5 minutes)
+- Calculates checksums (zones, rooms, mobs, objects, triggers) to verify correctness
+- Compares checksums between formats to detect discrepancies
+- Generates detailed reports with boot times and performance comparison
+
+**Important:**
+- Schema/format changes should be tested with `run_load_tests.sh`
+- Conversion script is in `tools/convert_to_yaml.py`
+- String enum values (like "kWorm") in YAML/SQLite are intentional for human readability - map them in loader
+- When fixing loader issues, check if the problem is in converter or loader
+
+### Editing Files with Patches
+For complex or multi-line changes to KOI8-R encoded files, generate unified patches instead of using sed:
+```bash
+# Create patch and apply
+cat > /tmp/fix.patch << 'PATCH'
+--- a/src/file.cpp
++++ b/src/file.cpp
+@@ -10,3 +10,4 @@
+ existing line
+-old line
++new line
++added line
+PATCH
+patch -p1 < /tmp/fix.patch
+```
+This is more reliable than sed for complex edits and preserves encoding.

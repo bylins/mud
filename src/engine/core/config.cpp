@@ -669,7 +669,7 @@ const std::string &NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item) {
 	return EMode_name_by_value.at(item);
 }
 
-const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
+const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "misc/configuration.xml";
 
 const RuntimeConfiguration::logs_t LOGS({
 											CLogInfo("syslog", "СИСТЕМНЫЙ"),

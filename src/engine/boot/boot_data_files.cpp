@@ -294,6 +294,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	get_line(file(), line);
 
 	int attach_type = 0;
+	t = 0;  // Initialize narg to avoid undefined behavior when only 2 fields present
 	k = sscanf(line, "%d %s %d %d", &attach_type, flags, &t, &add_flag);
 
 	if (0 > attach_type
