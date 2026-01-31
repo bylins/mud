@@ -1100,7 +1100,7 @@ void SqliteWorldDataSource::LoadRooms()
 	// Load room extra descriptions
 	LoadRoomExtraDescriptions(room_vnum_to_rnum);
 
-	log("Loaded %d rooms from SQLite.", top_of_world);
+
 }
 
 void SqliteWorldDataSource::LoadRoomFlags(const std::map<int, int> &vnum_to_rnum)

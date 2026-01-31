@@ -161,6 +161,29 @@ void WorldDataSourceBase::AttachTriggerToObject(ObjRnum obj_rnum, int trigger_vn
 	}
 }
 
+
+// Assign triggers to all loaded rooms
+// Common post-processing step for all loaders
+void WorldDataSourceBase::AssignTriggersToLoadedRooms()
+{
+	log("Assigning triggers to rooms...");
+	int assigned_count = 0;
+
+	for (RoomRnum rnum = kFirstRoom; rnum <= top_of_world; ++rnum)
+	{
+		if (world[rnum]->proto_script && !world[rnum]->proto_script->empty())
+		{
+			assign_triggers(world[rnum], WLD_TRIGGER);
+			++assigned_count;
+		}
+	}
+
+	if (assigned_count > 0)
+	{
+		log("  Assigned triggers to %d rooms.", assigned_count);
+	}
+}
 } // namespace world_loader
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -785,7 +785,7 @@ void YamlWorldDataSource::LoadRooms()
 		exit(1);
 	}
 
-	log("Loaded %d rooms from YAML.", top_of_world);
+
 }
 
 void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_node, int room_vnum)

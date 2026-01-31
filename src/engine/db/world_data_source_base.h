@@ -20,6 +20,11 @@ namespace world_loader
 // Extracted to eliminate code duplication between YAML/SQLite loaders
 class WorldDataSourceBase : public IWorldDataSource
 {
+public:
+	// Assign triggers from proto_script to actual room scripts
+	// Call after all rooms are loaded - common post-processing step
+	static void AssignTriggersToLoadedRooms();
+
 protected:
 	// Parse trigger script from string into cmdlist
 	// Used by both YAML and SQLite loaders - 100% identical code
@@ -38,6 +43,7 @@ protected:
 	static void AttachTriggerToRoom(RoomRnum room_rnum, int trigger_vnum, RoomVnum room_vnum);
 	static void AttachTriggerToMob(MobRnum mob_rnum, int trigger_vnum, MobVnum mob_vnum);
 	static void AttachTriggerToObject(ObjRnum obj_rnum, int trigger_vnum, ObjVnum obj_vnum);
+
 };
 
 } // namespace world_loader

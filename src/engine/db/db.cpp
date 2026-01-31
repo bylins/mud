@@ -395,6 +395,8 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	boot_profiler.next_step("Loading rooms");
 	ds_ptr->LoadRooms();
 
+	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
 	dungeons::CreateBlankRoomDungeon();
