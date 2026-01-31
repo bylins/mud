@@ -329,6 +329,9 @@ void WorldObjects::AddToExtractedList(ObjData *obj) {
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
 	log("add obj to extracted list %s %d", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
+//	if (obj->get_vnum() == 33516) {
+//		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+//	}
 	obj->set_extracted_list(true);
 //	obj->get_script()->set_purged(true);
 	m_extracted_list.insert(obj);

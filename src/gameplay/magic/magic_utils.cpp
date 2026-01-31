@@ -199,14 +199,13 @@ ESpell FindSpellId(const char *name) {
 	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
-
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		char const *realname = (use_syn) ? MUD::Spell(spell_id).GetEngCName() : MUD::Spell(spell_id).GetCName();
 
 		if (!realname || !*realname) {
 			continue;
 		}
-		if (utils::IsEquivalent(name, realname)) {
+		if (utils::IsEqual(name, realname)) {
 			return spell_id;
 		}
 	}

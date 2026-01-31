@@ -315,7 +315,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 	zone_to.typeB_count = 0;
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
-	zone_to.group = zone_from.group;
+	zone_to.group = 1;
 /*
 	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить

@@ -1778,9 +1778,14 @@ void process_npc_attack(CharData *ch) {
 	}
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
-	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || ch->IsFlagged(EMobFlag::kTutelar))
-		&& ch->has_master() && ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
-		&& AWAKE(ch) && !IsUnableToAct(ch) && ch->GetPosition() >= EPosition::kFight) {
+	if ((AFF_FLAGGED(ch, EAffect::kCharmed) 
+				|| ch->IsFlagged(EMobFlag::kTutelar))
+				&& ch->has_master() 
+				&& ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
+				&& AWAKE(ch) 
+				&& !IsUnableToAct(ch) 
+				&& ch->get_wait() > 0
+				&& ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			for (const auto vict : world[ch->in_room]->people) {
@@ -1966,8 +1971,8 @@ bool stuff_before_round(CharData *ch) {
 		return false;
 
 	if (AFF_FLAGGED(ch, EAffect::kHold)
-		|| AFF_FLAGGED(ch, EAffect::kStopFight)
-		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
+			|| AFF_FLAGGED(ch, EAffect::kStopFight)
+			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
 		TryToRescueWithTutelar(ch);
 		return false;
 	}

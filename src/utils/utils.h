@@ -26,6 +26,7 @@
 #include "engine/core/config.h"
 #include "utils/id_converter.h"
 #include "utils_string.h"
+#include "logger.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -1039,6 +1040,7 @@ extern char smallBuf[kMaxRawInputLength];
 void sanity_check();
 
 inline void graceful_exit(int retcode) {
+	log("Exit with code %d (%s %s %d)", retcode, __FILE__, __func__, __LINE__);
 	_exit(retcode);
 }
 

@@ -647,16 +647,22 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 
 	if (!victim->IsNpc() || ch->IsNpc())
 		return (exp);
+	MobVnum vnum  = GET_MOB_VNUM(victim);
+	if (vnum >= dungeons::kZoneStartDungeons * 100) {
+		ZoneVnum zvn = vnum / 100;
+		MobVnum  mvn = vnum % 100;
+		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
+	}
 
 	ch->send_to_TC(false, true, false,
 				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
-				   mob_proto[victim->get_rnum()].mob_specials.MaxFactor,
+				   victim->mob_specials.MaxFactor,
 				   exp,
-				   ch->mobmax_get(GET_MOB_VNUM(victim)));
+				   ch->mobmax_get(vnum));
 
 	exp += static_cast<int>(exp * (ch->add_abils.percent_exp_add) / 100.0);
 	for (koef = 100, base = 0, diff =
-		ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor;
+		 ch->mobmax_get(vnum) - victim->mob_specials.MaxFactor;
 		 base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
 	// минимальный опыт при замаксе 15% от полного опыта
 	exp = exp * std::max(15, koef) / 100;

@@ -38,7 +38,7 @@
 #include "gameplay/core/game_limits.h"
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/armor.h"
-#include "gameplay/classes/recalc_mob_params_by_vnum.cpp"
+#include "gameplay/classes/recalc_mob_params_by_vnum.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -1728,7 +1728,7 @@ void find_replacement(void *go,
 			}
 			trig_log(trig, fmt::format("Пересчитываю зону {} {} {} {}", param[0], param[1], param[2], param[3]));
 			auto value = param[0] + " " +  param[1]+ " " + param[2] + " " +param[3];
-			do_recalc_zone(value.c_str());
+			DGRecalcZone(value.c_str());
 			UniqueList<ZoneRnum> zone_repop_list;
 			for (auto rrn = zone_table[zrn].RnumRoomsLocation.first; rrn <= zone_table[zrn].RnumRoomsLocation.second; rrn++) {
 				dungeons::ClearRoom(world[rrn]);
