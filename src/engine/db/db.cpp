@@ -59,6 +59,7 @@
 #include "player_index.h"
 #include "world_checksum.h"
 #include "legacy_world_data_source.h"
+#include "world_data_source_base.h"
 #ifdef HAVE_SQLITE
 #include "sqlite_world_data_source.h"
 #endif
