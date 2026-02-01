@@ -121,7 +121,7 @@ Small_Legacy_checksums vs Small_YAML_checksums: MATCH
 
 ## Test Directories
 
-After running `setup_test_dirs.sh`, you'll have:
+Test directories are created automatically by `run_load_tests.sh`:
 
 ```
 test/
@@ -150,8 +150,8 @@ If a binary is missing, tests for that loader are skipped with a warning.
 
 ## Troubleshooting
 
-### "Test directories not set up"
-Run `./tools/setup_test_dirs.sh` first.
+### Test directories missing
+They will be created automatically by `run_load_tests.sh`.
 
 ### "Binary not found"
 Build the missing binary:
@@ -199,6 +199,5 @@ To add support for a new loader:
 
 ## See Also
 
-- `setup_test_dirs.sh`: Creates test directory structure
 - `convert_to_yaml.py`: Converts legacy files to SQLite/YAML
 - `../src/engine/db/world_checksum.cpp`: Checksum calculation implementation
