@@ -232,19 +232,13 @@ setup_small_world() {
     fi
     
     local dest_dir="$build_dir/small"
-
+    
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Setting up: small world ($loader)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-    # Always remove old small world to ensure fresh copy
-    if [ -e "$dest_dir" ]; then
-        rm -rf "$dest_dir"
-        echo " Removed old small world"
-    fi
-
-    # Reconfigure CMake to recreate small directory with copies
+    
+    # Reconfigure CMake to recreate small directory with symlinks
     echo "Reconfiguring CMake to create small world structure..."
 
     cd "$build_dir"
@@ -453,15 +447,18 @@ if [ $NEED_YAML -eq 1 ]; then
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
-    # Always recreate small world for all loaders (ensures fresh, correct state)
-    if [ $NEED_LEGACY -eq 1 ]; then
+    if [ $NEED_LEGACY -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -e "$MUD_DIR/build_test/small" ]); then
         setup_small_world "legacy" || exit 1
     fi
     if [ $NEED_SQLITE -eq 1 ]; then
+        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ] || [ ! -L "$MUD_DIR/build_sqlite/small/cfg" ]; then
         setup_small_world "sqlite" || exit 1
+        fi
     fi
     if [ $NEED_YAML -eq 1 ]; then
+        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/small/world" ] || [ ! -L "$MUD_DIR/build_yaml/small/cfg" ]; then
         setup_small_world "yaml" || exit 1
+        fi
     fi
 fi
 

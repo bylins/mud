@@ -1363,33 +1363,29 @@ if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     # Setup small world directory (lib + lib.template)
     set(SMALL_WORLD_DIR "${CMAKE_BINARY_DIR}/small")
     
-    # Create small world directory by copying lib and lib.template
+    # Create small world directory with symlinks
     file(MAKE_DIRECTORY "${SMALL_WORLD_DIR}")
-
-    # Copy lib directory first (base configuration)
-    if (EXISTS "${CMAKE_SOURCE_DIR}/lib" AND NOT EXISTS "${SMALL_WORLD_DIR}/.lib_copied")
-        execute_process(
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
-            RESULT_VARIABLE copy_result
-        )
-        if (copy_result EQUAL 0)
-            file(TOUCH "${SMALL_WORLD_DIR}/.lib_copied")
-            message(STATUS "Copied lib to ${SMALL_WORLD_DIR}")
+    
+    # List of subdirectories to symlink from lib and lib.template
+    set(LIB_SUBDIRS cfg etc misc text world plralias plrobjs plrs plrstuff plrvars stat log)
+    
+    foreach(subdir ${LIB_SUBDIRS})
+        set(LINK_PATH "${SMALL_WORLD_DIR}/${subdir}")
+        # Prefer lib.template if exists, otherwise use lib
+        if (EXISTS "${CMAKE_SOURCE_DIR}/lib.template/${subdir}")
+            set(TARGET_PATH "${CMAKE_SOURCE_DIR}/lib.template/${subdir}")
+        elseif (EXISTS "${CMAKE_SOURCE_DIR}/lib/${subdir}")
+            set(TARGET_PATH "${CMAKE_SOURCE_DIR}/lib/${subdir}")
+        else()
+            set(TARGET_PATH "")
         endif()
-    endif()
-
-    # Overlay lib.template (don't overwrite existing files)
-    if (EXISTS "${CMAKE_SOURCE_DIR}/lib.template" AND NOT EXISTS "${SMALL_WORLD_DIR}/.lib_template_copied")
-        execute_process(
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib.template" "${SMALL_WORLD_DIR}"
-            RESULT_VARIABLE copy_result
-        )
-        if (copy_result EQUAL 0)
-            file(TOUCH "${SMALL_WORLD_DIR}/.lib_template_copied")
-            message(STATUS "Overlaid lib.template to ${SMALL_WORLD_DIR}")
+        
+        if (TARGET_PATH AND NOT EXISTS "${LINK_PATH}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${TARGET_PATH}" "${LINK_PATH}")
+            message(STATUS "Created symlink: ${LINK_PATH} -> ${TARGET_PATH}")
         endif()
-    endif()
-
+    endforeach()
+    
     message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
 
     # Create lib symlink for running server from build directory
