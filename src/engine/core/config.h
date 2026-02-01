@@ -44,12 +44,12 @@ EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EOutputStream>(const EOutputStream spell);
 
-/* PCCleanCriteria структура которая определяет через какой время
-   неактивности будет удален чар
+/* PCCleanCriteria О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+   О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
 */
 struct PCCleanCriteria {
-	int level = 0;	// max уровень для этого временного лимита //
-	int days = 0;	// временной лимит в днях        //
+	int level = 0;	// max О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ //
+	int days = 0;	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫        //
 };
 
 extern struct PCCleanCriteria pclean_criteria[];
@@ -176,6 +176,8 @@ class RuntimeConfiguration {
 
 	const auto &statistics() const { return m_statistics; }
 
+	size_t yaml_threads() const { return m_yaml_threads; }
+
  private:
 	static const char *CONFIGURATION_FILE_NAME;
 
@@ -193,6 +195,7 @@ class RuntimeConfiguration {
 	void load_boards_configuration(const pugi::xml_node *root);
 	void load_external_triggers(const pugi::xml_node *root);
 	void load_statistics_configuration(const pugi::xml_node *root);
+	void load_world_loader_configuration(const pugi::xml_node *root);
 
 	logs_t m_logs;
 	std::string m_log_stderr;
@@ -207,6 +210,8 @@ class RuntimeConfiguration {
 	std::string m_external_reboot_trigger_file_name;
 
 	StatisticsConfiguration m_statistics;
+
+	size_t m_yaml_threads;
 };
 
 extern RuntimeConfiguration runtime_config;

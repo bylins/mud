@@ -3,6 +3,7 @@
 
 #include "legacy_world_data_source.h"
 #include "db.h"
+#include "obj_prototypes.h"
 #include "utils/logger.h"
 
 // Forward declarations for OLC save functions

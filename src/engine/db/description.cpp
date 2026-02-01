@@ -6,40 +6,91 @@
 
 #include "utils/logger.h"
 
-std::vector<std::string> RoomDescription::_desc_list;
-RoomDescription::reboot_map_t RoomDescription::_reboot_map;
+// ========== LocalDescriptionIndex ==========
 
-/**
-* добавление описания в массив с проверкой на уникальность
-* \param text - описание комнаты
-* \return номер описания в глобальном массиве
-*/
-size_t RoomDescription::add_desc(const std::string &text) {
-	reboot_map_t::const_iterator it = _reboot_map.find(text);
-	if (it != _reboot_map.end()) {
+size_t LocalDescriptionIndex::add(const std::string &text)
+{
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	auto it = _desc_map.find(text);
+	if (it != _desc_map.end())
+	{
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -> О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 		return it->second;
-	} else {
+	}
+	else
+	{
+		// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -> О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+		size_t idx = _desc_list.size();  // 0-based!
 		_desc_list.push_back(text);
-		_reboot_map[text] = _desc_list.size();
-		return _desc_list.size();
+		_desc_map[text] = idx;
+		return idx;
 	}
 }
 
-const static std::string empty_string = "";
-
-/**
-* поиск описания по его порядковому номеру в массиве
-* \param desc_num - порядковый номер описания (descripton_num в room_data)
-* \return строка описания или пустая строка в случае невалидного номера
-*/
-const std::string &RoomDescription::show_desc(size_t desc_num) {
-	try {
-		return _desc_list.at(--desc_num);
+const std::string &LocalDescriptionIndex::get(size_t idx) const
+{
+	static const std::string empty_string = "";
+	try
+	{
+		return _desc_list.at(idx);
 	}
-	catch (const std::out_of_range &) {
-		log("SYSERROR : bad room description num '%zd' (%s %s %d)", desc_num, __FILE__, __func__, __LINE__);
+	catch (const std::out_of_range &)
+	{
+		log("SYSERR: bad local description index %zd (size=%zd)", idx, _desc_list.size());
 		return empty_string;
 	}
 }
 
+// ========== RoomDescriptions ==========
+
+size_t RoomDescriptions::add(const std::string &text)
+{
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	auto it = _desc_map.find(text);
+	if (it != _desc_map.end())
+	{
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ -> О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+		return it->second;
+	}
+	else
+	{
+		// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -> О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+		size_t idx = _desc_list.size();  // 0-based!
+		_desc_list.push_back(text);
+		_desc_map[text] = idx;
+		return idx;
+	}
+}
+
+const std::string &RoomDescriptions::get(size_t idx) const
+{
+	static const std::string empty_string = "";
+	try
+	{
+		return _desc_list.at(idx);  // О©╫О©╫О©╫О©╫О©╫О©╫ 0-based О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!
+	}
+	catch (const std::out_of_range &)
+	{
+		log("SYSERR: bad room description index %zd (size=%zd)", idx, _desc_list.size());
+		return empty_string;
+	}
+}
+
+std::vector<size_t> RoomDescriptions::merge(const LocalDescriptionIndex &local_index)
+{
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -> О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	std::vector<size_t> local_to_global;
+	local_to_global.reserve(local_index.size());
+
+	for (size_t local_idx = 0; local_idx < local_index.size(); ++local_idx)
+	{
+		const std::string &desc = local_index.get(local_idx);
+		size_t global_idx = add(desc);  // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!
+		local_to_global.push_back(global_idx);
+	}
+
+	return local_to_global;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+

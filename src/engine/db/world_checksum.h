@@ -14,6 +14,7 @@ namespace WorldChecksum
 
 struct ChecksumResult
 {
+	// Static data (loaded from disk)
 	uint32_t zones;
 	uint32_t rooms;
 	uint32_t mobs;
@@ -21,11 +22,25 @@ struct ChecksumResult
 	uint32_t triggers;
 	uint32_t combined;
 
+	// Runtime data (after initialization)
+	uint32_t room_scripts;      // Actual Script objects attached to rooms
+	uint32_t mob_scripts;        // Actual Script objects attached to mobs
+	uint32_t obj_scripts;        // Actual Script objects attached to objects
+	uint32_t door_rnums;         // Room door vnums converted to rnums
+	uint32_t zone_rnums_mobs;    // zone_rnum field in mob_proto
+	uint32_t zone_rnums_objects; // zone_rnum field in obj_proto
+	uint32_t zone_cmd_rnums;     // Zone commands with vnum->rnum conversions
+	uint32_t runtime_combined;   // Combined runtime checksum
+
 	size_t zones_count;
 	size_t rooms_count;
 	size_t mobs_count;
 	size_t objects_count;
 	size_t triggers_count;
+	
+	size_t rooms_with_scripts;   // Count of rooms with actual scripts
+	size_t mobs_with_scripts;    // Count of mobs with actual scripts
+	size_t objects_with_scripts; // Count of objects with actual scripts
 };
 
 ChecksumResult Calculate();

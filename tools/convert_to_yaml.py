@@ -204,6 +204,115 @@ OBJ_NAMES = {}     # vnum -> name
 TRIGGER_NAMES = {} # vnum -> name
 ZONE_NAMES = {}    # vnum -> name
 
+# Spell names (spell_id -> Russian name)
+SPELL_NAMES = {
+    1: "доспехи",
+    2: "телепортация",
+    3: "благословение",
+    4: "слепота",
+    5: "горящие руки",
+    6: "молния",
+    7: "очарование",
+    8: "ледяное прикосновение",
+    9: "клонирование",
+    10: "ледяные стрелы",
+    11: "изменение погоды",
+    12: "сотворение еды",
+    13: "сотворение воды",
+    14: "снять слепоту",
+    15: "тяжелое лечение",
+    16: "легкое лечение",
+    17: "проклятие",
+    18: "распознать мировоззрение",
+    19: "видеть невидимое",
+    20: "обнаружить магию",
+    21: "обнаружить яд",
+    22: "изгнание зла",
+    23: "землетрясение",
+    24: "зачаровать оружие",
+    25: "вытягивание жизни",
+    26: "огненный шар",
+    27: "вред",
+    28: "исцеление",
+    29: "невидимость",
+    30: "молния",
+    31: "найти предмет",
+    32: "волшебная стрела",
+    33: "яд",
+    34: "защита от зла",
+    35: "снять проклятие",
+    36: "святость",
+    37: "шоковая хватка",
+    38: "сон",
+    39: "сила",
+    40: "призвать",
+    41: "покровительство",
+    42: "слово возврата",
+    43: "снять яд",
+    44: "чувство жизни",
+    45: "оживить мертвых",
+    46: "изгнание добра",
+    47: "групповые доспехи",
+    48: "групповое исцеление",
+    49: "групповое возвращение",
+    50: "инфравидение",
+    51: "хождение по воде",
+    52: "среднее лечение",
+    53: "групповая сила",
+    54: "удержание",
+    55: "сильное удержание",
+    56: "массовое удержание",
+    57: "полет",
+    58: "разорванные цепи",
+    59: "запрет бегства",
+    60: "сотворение света",
+    61: "тьма",
+    62: "каменная кожа",
+    63: "затуманивание",
+    64: "молчание",
+    65: "свет",
+    66: "цепная молния",
+    67: "огненный взрыв",
+    68: "гнев богов",
+    69: "слабость",
+    70: "групповая невидимость",
+    71: "теневой плащ",
+    72: "кислота",
+    73: "починка",
+    74: "увеличение",
+    75: "страх",
+    76: "жертвоприношение",
+    77: "паутина",
+    78: "мерцание",
+    79: "снять удержание",
+    80: "маскировка",
+}
+
+# Material names (material_id -> Russian name)
+MATERIAL_NAMES = {
+    0: "бронза",
+    1: "железо",
+    2: "сталь",
+    3: "булат",
+    4: "кристалл",
+    5: "дерево",
+    6: "слоновая кость",
+    7: "обсидиан",
+    8: "кость",
+    9: "кожа",
+    10: "ткань",
+    11: "адамантит",
+    12: "драгоценный камень",
+    13: "камень",
+    14: "золото",
+    15: "серебро",
+    16: "платина",
+    17: "митрил",
+    18: "алмаз",
+    19: "глина",
+    20: "стекло",
+}
+
 # Action flags (MOB_x) - from constants.cpp action_bits[]
 ACTION_FLAGS = [
     "kSpec", "kSentinel", "kScavenger", "kIsNpc", "kAware", "kAggressive",
@@ -272,11 +381,13 @@ OBJ_TYPES = [
     "kCraftMaterial",   # 27
     "kBandage",         # 28
     "kLightArmor",      # 29
-    "kContainer2",      # 30
-    "kMaterial",        # 31
-    "kCraftbook",       # 32
-    "kMedal",           # 33
-    "kEnchant"          # 34
+    "kMediumArmor",     # 30
+    "kHeavyArmor",      # 31
+    "kEnchant",         # 32
+    "kMagicMaterial",   # 33
+    "kMagicArrow",      # 34
+    "kMagicContaner",   # 35
+    "kCraftMaterial2"   # 36
 ]
 
 # Extra flags (EObjFlag) - 50 flags total (30 in plane 0, 20 in plane 1)
@@ -437,15 +548,33 @@ SECTORS = [
 
 # Trigger types
 TRIGGER_TYPES = {
-    'g': 'kGreet', 'a': 'kGreetAll', 'e': 'kEntry', 'c': 'kCommand',
-    's': 'kSpeech', 'A': 'kAct', 'f': 'kFight', 'H': 'kHitPercent',
-    'b': 'kBribe', 'd': 'kDeath', 'l': 'kLoad', 'r': 'kRandom',
-    'i': 'kReceive', 'j': 'kDrop', 'G': 'kGive', 'w': 'kWear',
-    'R': 'kRemove', 'p': 'kPut', 'q': 'kGet', 'n': 'kIncome',
-    'O': 'kOpen', 'C': 'kClose', 'L': 'kLock', 'U': 'kUnlock',
-    'P': 'kPick', 'D': 'kDamage', 'u': 'kUse', 't': 'kTimer',
-    'h': 'kHour', 'S': 'kStart', 'I': 'kInvite', 'T': 'kTimeChange', 'z': 'kTime',
-    'k': 'kKill', 'Q': 'kCast', 'N': 'kNumber'
+    # Mob triggers (lowercase a-z = bits 0-25)
+    'a': 'kRandomGlobal',  # bit 0
+    'b': 'kRandom',        # bit 1
+    'c': 'kCommand',       # bit 2
+    'd': 'kSpeech',        # bit 3
+    'e': 'kAct',           # bit 4
+    'f': 'kDeath',         # bit 5
+    'g': 'kGreet',         # bit 6
+    'h': 'kGreetAll',      # bit 7
+    'i': 'kEntry',         # bit 8
+    'j': 'kReceive',       # bit 9
+    'k': 'kFight',         # bit 10
+    'l': 'kHitPercent',    # bit 11
+    'm': 'kBribe',         # bit 12
+    'n': 'kLoad',          # bit 13
+    'o': 'kKill',          # bit 14
+    'p': 'kDamage',        # bit 15
+    'q': 'kGreetPC',       # bit 16
+    'r': 'kGreetPCAll',    # bit 17
+    's': 'kIncome',        # bit 18
+    't': 'kIncomePC',      # bit 19
+    'u': 'kMobTrig20',     # bit 20
+    'v': 'kMobTrig21',     # bit 21
+    'w': 'kMobTrig22',     # bit 22
+    'x': 'kMobTrig23',     # bit 23
+    'y': 'kMobTrig24',     # bit 24
+    'z': 'kAuto',          # bit 25
 }
 
 
@@ -461,7 +590,7 @@ def numeric_flags_to_letters(n):
     return ''.join(result)
 
 # Attach types
-ATTACH_TYPES = {0: 'kMob', 1: 'kObj', 2: 'kRoom'}
+ATTACH_TYPES = {0: 'kMobTrigger', 1: 'kObjTrigger', 2: 'kRoomTrigger'}
 
 # Skill names from ESkill enum (for mob skills comments)
 SKILL_NAMES = {
@@ -526,6 +655,59 @@ DIRECTION_NAMES = {
 # Saver classes for output abstraction
 # ============================================================================
 
+# ============================================================================
+# Shared helper functions to eliminate code duplication
+# ============================================================================
+
+def extract_entity_names(entity_dict):
+    """Extract Russian case names from any entity."""
+    names = entity_dict.get('names', {})
+    return (
+        names.get('aliases'),
+        names.get('nominative'),
+        names.get('genitive'),
+        names.get('dative'),
+        names.get('accusative'),
+        names.get('instrumental'),
+        names.get('prepositional'),
+    )
+
+
+def insert_entity_flags(cursor, entity_type, vnum, flags_dict):
+    """Generic flag insertion for any entity type (mobs/objects/rooms)."""
+    table_name = f"{entity_type}_flags"
+    # Use correct column name for each entity type
+    vnum_column = f"{entity_type}_vnum"
+
+    for flag_category, flag_list in flags_dict.items():
+        for flag in flag_list:
+            cursor.execute(f'''
+                INSERT OR IGNORE INTO {table_name}
+                ({vnum_column}, flag_category, flag_name)
+                VALUES (?, ?, ?)
+            ''', (vnum, flag_category, flag))
+
+
+def insert_entity_triggers(cursor, entity_type, vnum, triggers_list):
+    """Insert triggers for any entity type (mob/obj/room)."""
+    for trig_order, trig_vnum in enumerate(triggers_list):
+        cursor.execute('''
+            INSERT INTO entity_triggers
+            (entity_type, entity_vnum, trigger_vnum, trigger_order)
+            VALUES (?, ?, ?, ?)
+        ''', (entity_type, vnum, trig_vnum, trig_order))
+
+
+def insert_extra_descriptions(cursor, entity_type, vnum, extra_descs_list):
+    """Insert extra descriptions for any entity type (obj/room)."""
+    for ed in extra_descs_list:
+        cursor.execute('''
+            INSERT INTO extra_descriptions
+            (entity_type, entity_vnum, keywords, description)
+            VALUES (?, ?, ?, ?)
+        ''', (entity_type, vnum, ed['keywords'], ed['description']))
+
+
 class BaseSaver:
     """Base class for savers."""
 
@@ -556,73 +738,189 @@ class BaseSaver:
 
 
 class YamlSaver(BaseSaver):
-    """Save world data to YAML files."""
+    """Save world data to YAML files with zone-based structure.
+
+    Creates:
+        world/dictionaries/*.yaml - Dictionary files
+        world/zones/{zone_vnum}/zone.yaml - Zone definition
+        world/zones/{zone_vnum}/rooms/{NN}.yaml - Room files (NN = 00-99)
+        world/mobs/{vnum}.yaml - Mob files
+        world/objects/{vnum}.yaml - Object files
+        world/triggers/{vnum}.yaml - Trigger files
+        world/zones/index.yaml - List of zones to load
+    """
 
     def __init__(self, output_dir):
         self.output_dir = Path(output_dir) / 'world'
-        self._saved_files = {'mob': [], 'obj': [], 'wld': [], 'zon': [], 'trg': []}
+        self._zone_vnums = set()
+        self._mob_vnums = set()
+        self._obj_vnums = set()
+        self._trigger_vnums = set()
 
-    def _ensure_dir(self, subdir):
-        dir_path = self.output_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        return dir_path
+    def __enter__(self):
+        self._generate_dictionaries()
+        return self
+
+    def _generate_dictionaries(self):
+        """Generate dictionary YAML files from the hardcoded constants."""
+        dict_dir = self.output_dir / 'dictionaries'
+        dict_dir.mkdir(parents=True, exist_ok=True)
+
+        def write_dict_from_list(filename, items):
+            data = {name: i for i, name in enumerate(items) if not name.startswith('UNUSED')}
+            with open(dict_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
+                for name, idx in sorted(data.items(), key=lambda x: x[1]):
+                    f.write(f"{name}: {idx}\n")
+
+        def write_dict_from_map(filename, mapping):
+            """Write dict with format {str_name: int_value}."""
+            with open(dict_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
+                for name, idx in sorted(mapping.items(), key=lambda x: x[1]):
+                    f.write(f"{name}: {idx}\n")
+
+        def write_dict_inverted(filename, mapping):
+            """Write dict that has {int: str} as {str: int}."""
+            inverted = {v: k for k, v in mapping.items()}
+            with open(dict_dir / filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
+                for name, idx in sorted(inverted.items(), key=lambda x: x[1]):
+                    f.write(f"{name}: {idx}\n")
+
+        def letter_to_bit(letter):
+            """Convert trigger type letter to bit position."""
+            if 'a' <= letter <= 'z':
+                return ord(letter) - ord('a')
+            elif 'A' <= letter <= 'Z':
+                return 26 + ord(letter) - ord('A')
+            return 0
+
+        write_dict_from_list('room_flags.yaml', ROOM_FLAGS)
+        write_dict_from_list('sectors.yaml', SECTORS)
+        write_dict_from_list('obj_types.yaml', OBJ_TYPES)
+        write_dict_from_list('positions.yaml', POSITIONS)
+        write_dict_from_list('genders.yaml', GENDERS)
+        write_dict_from_list('extra_flags.yaml', EXTRA_FLAGS)
+        write_dict_from_list('wear_flags.yaml', WEAR_FLAGS)
+        write_dict_from_list('action_flags.yaml', ACTION_FLAGS)
+        write_dict_from_list('anti_flags.yaml', ANTI_FLAGS)
+        write_dict_from_list('no_flags.yaml', NO_FLAGS)
+        write_dict_from_list('affect_flags.yaml', AFFECT_FLAGS)
+        write_dict_inverted('apply_locations.yaml', APPLY_LOCATIONS)
+        # TRIGGER_TYPES is {letter: kName}, convert to {kName: bit_position}
+        trigger_types_dict = {name: letter_to_bit(letter) for letter, name in TRIGGER_TYPES.items()}
+        write_dict_from_map('trigger_types.yaml', trigger_types_dict)
+        write_dict_from_map('directions.yaml', {name: id_ for id_, name in DIRECTION_NAMES.items()})
+        write_dict_from_map('attach_types.yaml', {'kMobTrigger': 0, 'kObjTrigger': 1, 'kRoomTrigger': 2})
+
+        print(f"Generated dictionaries in {dict_dir.relative_to(self.output_dir.parent)}")
+
+    def _ensure_root_dir(self, subdir):
+        """Ensure root-level directory exists."""
+        out_dir = self.output_dir / subdir
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return out_dir
+
+    def _ensure_zone_dir(self, zone_vnum, subdir):
+        """Ensure zone subdirectory exists."""
+        out_dir = self.output_dir / 'zones' / str(zone_vnum) / subdir
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return out_dir
 
     def save_mob(self, mob):
         yaml_content = mob_to_yaml(mob)
-        out_dir = self._ensure_dir('mob')
+        out_dir = self._ensure_root_dir('mobs')
         out_file = out_dir / f"{mob['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['mob'].append(out_file.name)
+        # Track enabled mobs for index
+        if mob.get('enabled', 1):
+            self._mob_vnums.add(mob['vnum'])
 
     def save_object(self, obj):
         yaml_content = obj_to_yaml(obj)
-        out_dir = self._ensure_dir('obj')
+        out_dir = self._ensure_root_dir('objects')
         out_file = out_dir / f"{obj['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['obj'].append(out_file.name)
+        # Track enabled objects for index
+        if obj.get('enabled', 1):
+            self._obj_vnums.add(obj['vnum'])
 
     def save_room(self, room):
         yaml_content = room_to_yaml(room)
-        out_dir = self._ensure_dir('wld')
-        out_file = out_dir / f"{room['vnum']}.yaml"
+        zone_vnum = room['vnum'] // 100
+        rel_num = room['vnum'] % 100
+        if room.get('enabled', 1):
+            self._zone_vnums.add(zone_vnum)
+        out_dir = self._ensure_zone_dir(zone_vnum, 'rooms')
+        out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['wld'].append(out_file.name)
 
     def save_zone(self, zone):
         yaml_content = zon_to_yaml(zone)
-        out_dir = self._ensure_dir('zon')
-        out_file = out_dir / f"{zone['vnum']}.yaml"
+        zone_vnum = zone['vnum']
+        if zone.get('enabled', 1):
+            self._zone_vnums.add(zone_vnum)
+        zone_dir = self.output_dir / 'zones' / str(zone_vnum)
+        zone_dir.mkdir(parents=True, exist_ok=True)
+        out_file = zone_dir / 'zone.yaml'
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['zon'].append(out_file.name)
 
     def save_trigger(self, trigger):
         yaml_content = trg_to_yaml(trigger)
-        out_dir = self._ensure_dir('trg')
+        out_dir = self._ensure_root_dir('triggers')
         out_file = out_dir / f"{trigger['vnum']}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        self._saved_files['trg'].append(out_file.name)
+        # Track enabled triggers for index
+        if trigger.get('enabled', 1):
+            self._trigger_vnums.add(trigger['vnum'])
 
     def finalize(self):
-        """Create index files for each entity type."""
-        for subdir, files in self._saved_files.items():
-            if not files:
-                continue
-            dir_path = self.output_dir / subdir
-            if not dir_path.exists():
-                continue
-
+        """Create index files for all entity types."""
+        # Create zones index
+        if self._zone_vnums:
+            zones_dir = self.output_dir / 'zones'
+            zones_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['vnums'] = CommentedSeq(sorted(files))
-
-            with open(dir_path / 'index.yaml', 'w', encoding='koi8-r') as f:
+            index_data['zones'] = CommentedSeq(sorted(self._zone_vnums))
+            with open(zones_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
+            print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
 
-            print(f"Created {subdir}/index.yaml with {len(files)} entries")
+        # Create mobs index
+        if self._mob_vnums:
+            mobs_dir = self.output_dir / 'mobs'
+            mobs_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['mobs'] = CommentedSeq(sorted(self._mob_vnums))
+            with open(mobs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created mobs/index.yaml with {len(self._mob_vnums)} mobs")
+
+        # Create objects index
+        if self._obj_vnums:
+            objs_dir = self.output_dir / 'objects'
+            objs_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['objects'] = CommentedSeq(sorted(self._obj_vnums))
+            with open(objs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created objects/index.yaml with {len(self._obj_vnums)} objects")
+
+        # Create triggers index
+        if self._trigger_vnums:
+            triggers_dir = self.output_dir / 'triggers'
+            triggers_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['triggers'] = CommentedSeq(sorted(self._trigger_vnums))
+            with open(triggers_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            print(f"Created triggers/index.yaml with {len(self._trigger_vnums)} triggers")
 
 
 class SqliteSaver(BaseSaver):
@@ -733,6 +1031,7 @@ class SqliteSaver(BaseSaver):
         gold = mob.get('gold', {})
         pos = mob.get('position', {})
         attrs = mob.get('attributes', {})
+        enhanced = mob.get('enhanced', {})
 
         # Insert main mob record
         cursor.execute('''
@@ -742,17 +1041,15 @@ class SqliteSaver(BaseSaver):
                 hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus,
                 gold_dice_count, gold_dice_size, gold_bonus, experience,
                 default_pos, start_pos, sex, size, height, weight, mob_class, race,
-                attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha,
+                attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale,
+                initiative_add, absorb, aresist, mresist, presist, bare_hand_attack,
+                like_work, max_factor, extra_attack, mob_remort, special_bitvector, role,
+                enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
-            names.get('aliases'),
-            names.get('nominative'),
-            names.get('genitive'),
-            names.get('dative'),
-            names.get('accusative'),
-            names.get('instrumental'),
-            names.get('prepositional'),
+            *extract_entity_names(mob),
             descs.get('short_desc'),
             descs.get('long_desc'),
             mob.get('alignment', 0),
@@ -784,21 +1081,33 @@ class SqliteSaver(BaseSaver):
             attrs.get('wisdom', 11),
             attrs.get('constitution', 11),
             attrs.get('charisma', 11),
+            # Enhanced E-spec fields
+            enhanced.get('str_add', 0),
+            enhanced.get('hp_regen', 0),
+            enhanced.get('armour_bonus', 0),
+            enhanced.get('mana_regen', 0),
+            enhanced.get('cast_success', 0),
+            enhanced.get('morale', 0),
+            enhanced.get('initiative_add', 0),
+            enhanced.get('absorb', 0),
+            enhanced.get('aresist', 0),
+            enhanced.get('mresist', 0),
+            enhanced.get('presist', 0),
+            enhanced.get('bare_hand_attack', 0),
+            enhanced.get('like_work', 0),
+            enhanced.get('max_factor', 0),
+            enhanced.get('extra_attack', 0),
+            enhanced.get('mob_remort', 0),
+            enhanced.get('special_bitvector'),
+            enhanced.get('role'),
             mob.get('enabled', 1),
         ))
 
         # Insert flags
-        for flag in mob.get('action_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO mob_flags (mob_vnum, flag_category, flag_name)
-                VALUES (?, 'action', ?)
-            ''', (vnum, flag))
-
-        for flag in mob.get('affect_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO mob_flags (mob_vnum, flag_category, flag_name)
-                VALUES (?, 'affect', ?)
-            ''', (vnum, flag))
+        insert_entity_flags(cursor, 'mob', vnum, {
+            'action': mob.get('action_flags', []),
+            'affect': mob.get('affect_flags', []),
+        })
 
         # Insert skills
         for skill in mob.get('skills', []):
@@ -808,12 +1117,53 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, skill['skill_id'], skill['value']))
 
         # Insert triggers
-        for trig_order, trig_vnum in enumerate(mob.get('triggers', [])):
-            cursor.execute('''
-                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
-                VALUES ('mob', ?, ?, ?)
-            ''', (vnum, trig_vnum, trig_order))
+        insert_entity_triggers(cursor, 'mob', vnum, mob.get('triggers', []))
 
+        # Insert Enhanced array fields
+        enhanced = mob.get('enhanced', {})
+        
+        # Resistances
+        for idx, value in enumerate(enhanced.get('resistances', [])):
+            cursor.execute('''
+                INSERT OR REPLACE INTO mob_resistances (mob_vnum, resist_type, value)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, value))
+        
+        # Saves
+        for idx, value in enumerate(enhanced.get('saves', [])):
+            cursor.execute('''
+                INSERT OR REPLACE INTO mob_saves (mob_vnum, save_type, value)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, value))
+        
+        # Feats
+        for feat_id in enhanced.get('feats', []):
+            cursor.execute('''
+                INSERT OR IGNORE INTO mob_feats (mob_vnum, feat_id)
+                VALUES (?, ?)
+            ''', (vnum, feat_id))
+        
+        # Spells
+        for spell_id in enhanced.get('spells', []):
+            cursor.execute('''
+                INSERT OR IGNORE INTO mob_spells (mob_vnum, spell_id, count)
+                VALUES (?, ?, 1)
+                ON CONFLICT(mob_vnum, spell_id) DO UPDATE SET count = count + 1
+            ''', (vnum, spell_id))
+        
+        # Helpers
+        for helper_vnum in enhanced.get('helpers', []):
+            cursor.execute('''
+                INSERT OR IGNORE INTO mob_helpers (mob_vnum, helper_vnum)
+                VALUES (?, ?)
+            ''', (vnum, helper_vnum))
+        
+        # Destinations
+        for idx, room_vnum in enumerate(enhanced.get('destinations', [])):
+            cursor.execute('''
+                INSERT OR REPLACE INTO mob_destinations (mob_vnum, dest_order, room_vnum)
+                VALUES (?, ?, ?)
+            ''', (vnum, idx, room_vnum))
     def save_object(self, obj):
         """Save object dictionary to database."""
         cursor = self.conn.cursor()
@@ -833,13 +1183,7 @@ class SqliteSaver(BaseSaver):
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
-            names.get('aliases'),
-            names.get('nominative'),
-            names.get('genitive'),
-            names.get('dative'),
-            names.get('accusative'),
-            names.get('instrumental'),
-            names.get('prepositional'),
+            *extract_entity_names(obj),
             obj.get('short_desc'),
             obj.get('action_desc'),
             obj.get('type_id'),
@@ -865,35 +1209,13 @@ class SqliteSaver(BaseSaver):
         ))
 
         # Insert flags
-        for flag in obj.get('extra_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'extra', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('wear_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'wear', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('affect_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'affect', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('no_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'no', ?)
-            ''', (vnum, flag))
-
-        for flag in obj.get('anti_flags', []):
-            cursor.execute('''
-                INSERT OR IGNORE INTO obj_flags (obj_vnum, flag_category, flag_name)
-                VALUES (?, 'anti', ?)
-            ''', (vnum, flag))
+        insert_entity_flags(cursor, 'obj', vnum, {
+            'extra': obj.get('extra_flags', []),
+            'wear': obj.get('wear_flags', []),
+            'affect': obj.get('affect_flags', []),
+            'no': obj.get('no_flags', []),
+            'anti': obj.get('anti_flags', []),
+        })
 
         # Insert applies
         for apply in obj.get('applies', []):
@@ -904,19 +1226,9 @@ class SqliteSaver(BaseSaver):
             ''', (vnum, location_id, apply['modifier']))
 
         # Insert extra descriptions
-        for ed in obj.get('extra_descs', []):
-            cursor.execute('''
-                INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description)
-                VALUES ('obj', ?, ?, ?)
-            ''', (vnum, ed['keywords'], ed['description']))
-
+        insert_extra_descriptions(cursor, 'obj', vnum, obj.get('extra_descs', []))
         # Insert triggers
-        for trig_order, trig_vnum in enumerate(obj.get('triggers', [])):
-            cursor.execute('''
-                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
-                VALUES ('obj', ?, ?, ?)
-            ''', (vnum, trig_vnum, trig_order))
-
+        insert_entity_triggers(cursor, 'obj', vnum, obj.get('triggers', []))
     def save_room(self, room):
         """Save room dictionary to database."""
         cursor = self.conn.cursor()
@@ -971,18 +1283,9 @@ class SqliteSaver(BaseSaver):
             ))
 
         # Insert extra descriptions
-        for ed in room.get('extra_descs', []):
-            cursor.execute('''
-                INSERT INTO extra_descriptions (entity_type, entity_vnum, keywords, description)
-                VALUES ('room', ?, ?, ?)
-            ''', (vnum, ed['keywords'], ed['description']))
+        insert_extra_descriptions(cursor, 'room', vnum, room.get('extra_descs', []))
 
-        # Insert triggers
-        for trig_order, trig_vnum in enumerate(room.get('triggers', [])):
-            cursor.execute('''
-                INSERT INTO entity_triggers (entity_type, entity_vnum, trigger_vnum, trigger_order)
-                VALUES ('room', ?, ?, ?)
-            ''', (vnum, trig_vnum, trig_order))
+        insert_entity_triggers(cursor, 'room', vnum, room.get('triggers', []))
 
     def save_zone(self, zone):
         """Save zone dictionary to database."""
@@ -1161,6 +1464,16 @@ def get_zone_name(vnum):
     """Get zone name by vnum from registry."""
     return ZONE_NAMES.get(vnum, '')
 
+
+
+def get_spell_name(spell_id):
+    """Get spell Russian name by spell_id."""
+    return SPELL_NAMES.get(spell_id, '')
+
+
+def get_material_name(material_id):
+    """Get material Russian name by material_id."""
+    return MATERIAL_NAMES.get(material_id, '')
 
 def load_name_from_yaml(filepath):
     """Load name from YAML file."""
@@ -1410,6 +1723,11 @@ def parse_mob_file(filepath):
             if idx < len(lines):
                 names_parts.append(lines[idx].rstrip('~'))
             mob['names'] = {'aliases': '\r\n'.join(names_parts)}
+            # Register mob name for cross-references
+            if mob['vnum'] and mob['names'].get('aliases'):
+                first_line = mob['names']['aliases'].split('\r\n')[0].strip()
+                if first_line:
+                    MOB_NAMES[mob['vnum']] = first_line
             idx += 1
 
             # Parse 6 case forms (each ending with ~)
@@ -1551,6 +1869,112 @@ def parse_mob_file(filepath):
                     mob['height'] = int(line[7:].strip())
                 elif line.startswith('Weight:'):
                     mob['weight'] = int(line[7:].strip())
+                elif line.startswith('StrAdd:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['str_add'] = int(line[7:].strip())
+                elif line.startswith('HPReg:') or line.startswith('HPreg:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['hp_regen'] = int(line.split(':', 1)[1].strip())
+                elif line.startswith('Armour:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['armour_bonus'] = int(line[7:].strip())
+                elif line.startswith('PlusMem:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['mana_regen'] = int(line[8:].strip())
+                elif line.startswith('CastSuccess:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['cast_success'] = int(line[12:].strip())
+                elif line.startswith('Success:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['morale'] = int(line[8:].strip())
+                elif line.startswith('Initiative:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['initiative_add'] = int(line[11:].strip())
+                elif line.startswith('Absorbe:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['absorb'] = int(line[8:].strip())
+                elif line.startswith('AResist:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['aresist'] = int(line[8:].strip())
+                elif line.startswith('MResist:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['mresist'] = int(line[8:].strip())
+                elif line.startswith('PResist:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['presist'] = int(line[8:].strip())
+                elif line.startswith('BareHandAttack:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['bare_hand_attack'] = int(line[15:].strip())
+                elif line.startswith('LikeWork:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['like_work'] = int(line[9:].strip())
+                elif line.startswith('MaxFactor:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['max_factor'] = int(line[10:].strip())
+                elif line.startswith('ExtraAttack:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['extra_attack'] = int(line[12:].strip())
+                elif line.startswith('MobRemort:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['mob_remort'] = int(line[10:].strip())
+                elif line.startswith('Special_Bitvector:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['special_bitvector'] = line[18:].strip()
+                elif line.startswith('Role:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    mob['enhanced']['role'] = line[5:].strip()
+                elif line.startswith('Resistances:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    values = line[12:].strip().split()
+                    mob['enhanced']['resistances'] = [int(v) for v in values]
+                elif line.startswith('Saves:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    values = line[6:].strip().split()
+                    mob['enhanced']['saves'] = [int(v) for v in values]
+                elif line.startswith('Feat:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'feats' not in mob['enhanced']:
+                        mob['enhanced']['feats'] = []
+                    mob['enhanced']['feats'].append(int(line[5:].strip()))
+                elif line.startswith('Spell:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'spells' not in mob['enhanced']:
+                        mob['enhanced']['spells'] = []
+                    mob['enhanced']['spells'].append(int(line[6:].strip()))
+                elif line.startswith('Helper:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'helpers' not in mob['enhanced']:
+                        mob['enhanced']['helpers'] = []
+                    mob['enhanced']['helpers'].append(int(line[7:].strip()))
+                elif line.startswith('Destination:'):
+                    if 'enhanced' not in mob:
+                        mob['enhanced'] = {}
+                    if 'destinations' not in mob['enhanced']:
+                        mob['enhanced']['destinations'] = []
+                    mob['enhanced']['destinations'].append(int(line[12:].strip()))
                 elif line.startswith('Skill:'):
                     parts = line[6:].strip().split()
                     if len(parts) >= 2:
@@ -1699,6 +2123,66 @@ def mob_to_yaml(mob):
                 triggers.yaml_add_eol_comment(trig_name, i)
         data['triggers'] = triggers
 
+
+    # Enhanced E-spec fields
+    if mob.get('enhanced'):
+        enhanced = CommentedMap()
+        enh = mob['enhanced']
+        
+        # Scalar fields
+        if 'str_add' in enh:
+            enhanced['str_add'] = enh['str_add']
+        if 'hp_regen' in enh:
+            enhanced['hp_regen'] = enh['hp_regen']
+        if 'armour_bonus' in enh:
+            enhanced['armour_bonus'] = enh['armour_bonus']
+        if 'mana_regen' in enh:
+            enhanced['mana_regen'] = enh['mana_regen']
+        if 'cast_success' in enh:
+            enhanced['cast_success'] = enh['cast_success']
+        if 'morale' in enh:
+            enhanced['morale'] = enh['morale']
+        if 'initiative_add' in enh:
+            enhanced['initiative_add'] = enh['initiative_add']
+        if 'absorb' in enh:
+            enhanced['absorb'] = enh['absorb']
+        if 'aresist' in enh:
+            enhanced['aresist'] = enh['aresist']
+        if 'mresist' in enh:
+            enhanced['mresist'] = enh['mresist']
+        if 'presist' in enh:
+            enhanced['presist'] = enh['presist']
+        if 'bare_hand_attack' in enh:
+            enhanced['bare_hand_attack'] = enh['bare_hand_attack']
+        if 'like_work' in enh:
+            enhanced['like_work'] = enh['like_work']
+        if 'max_factor' in enh:
+            enhanced['max_factor'] = enh['max_factor']
+        if 'extra_attack' in enh:
+            enhanced['extra_attack'] = enh['extra_attack']
+        if 'mob_remort' in enh:
+            enhanced['mob_remort'] = enh['mob_remort']
+        if 'special_bitvector' in enh:
+            enhanced['special_bitvector'] = enh['special_bitvector']
+        if 'role' in enh:
+            enhanced['role'] = enh['role']
+        
+        # Array fields
+        if enh.get('resistances'):
+            enhanced['resistances'] = CommentedSeq(enh['resistances'])
+        if enh.get('saves'):
+            enhanced['saves'] = CommentedSeq(enh['saves'])
+        if enh.get('feats'):
+            enhanced['feats'] = CommentedSeq(enh['feats'])
+        if enh.get('spells'):
+            enhanced['spells'] = CommentedSeq(enh['spells'])
+        if enh.get('helpers'):
+            enhanced['helpers'] = CommentedSeq(enh['helpers'])
+        if enh.get('destinations'):
+            enhanced['destinations'] = CommentedSeq(enh['destinations'])
+        
+        if enhanced:
+            data['enhanced'] = enhanced
     return yaml_dump_to_string(data)
 
 
@@ -1737,6 +2221,11 @@ def parse_obj_file(filepath):
             if idx < len(lines):
                 names_parts.append(lines[idx].rstrip('~'))
             obj['names'] = {'aliases': '\r\n'.join(names_parts)}
+            # Register object name for cross-references
+            if obj['vnum'] and obj['names'].get('aliases'):
+                first_line = obj['names']['aliases'].split('\r\n')[0].strip()
+                if first_line:
+                    OBJ_NAMES[obj['vnum']] = first_line
             idx += 1
 
             # Parse 6 case forms (each ending with ~)
@@ -1949,8 +2438,20 @@ def obj_to_yaml(obj):
     if obj.get('wear_flags'):
         flags = CommentedSeq(obj['wear_flags'])
         data['wear_flags'] = flags
+    if obj.get('no_flags'):
+        flags = CommentedSeq(obj['no_flags'])
+        data['no_flags'] = flags
+    if obj.get('anti_flags'):
+        flags = CommentedSeq(obj['anti_flags'])
+        data['anti_flags'] = flags
+    if obj.get('affect_flags'):
+        flags = CommentedSeq(obj['affect_flags'])
+        data['affect_flags'] = flags
     if 'material' in obj:
         data['material'] = obj['material']
+        material_name = get_material_name(obj['material'])
+        if material_name:
+            data.yaml_add_eol_comment(material_name, 'material')
 
     # Values
     if 'values' in obj:
@@ -1974,13 +2475,18 @@ def obj_to_yaml(obj):
     if 'cur_durability' in obj:
         data['cur_durability'] = obj['cur_durability']
 
-    # Timer/spell/level
+    # Timer/spell/level/sex
     if 'timer' in obj:
         data['timer'] = obj['timer']
     if 'spell' in obj:
         data['spell'] = obj['spell']
+        spell_name = get_spell_name(obj['spell'])
+        if spell_name:
+            data.yaml_add_eol_comment(spell_name, 'spell')
     if 'level' in obj:
         data['level'] = obj['level']
+    if 'sex' in obj:
+        data['sex'] = GENDERS[obj['sex']] if obj['sex'] < len(GENDERS) else obj['sex']
 
     # Applies with location name comments
     if obj.get('applies'):
@@ -2008,6 +2514,9 @@ def obj_to_yaml(obj):
     # Max in world
     if 'max_in_world' in obj:
         data['max_in_world'] = obj['max_in_world']
+    # Minimum remorts
+    if obj.get('minimum_remorts') and obj['minimum_remorts'] != 0:
+        data['minimum_remorts'] = obj['minimum_remorts']
 
     # Triggers with name comments
     if obj.get('triggers'):
@@ -2057,6 +2566,11 @@ def parse_wld_file(filepath):
             if idx < len(lines):
                 name_parts.append(lines[idx].rstrip('~'))
             room['name'] = '\r\n'.join(name_parts)  # Preserve newlines in multi-line names
+            # Register room name for cross-references
+            if room['vnum'] and room.get('name'):
+                first_line = room['name'].split('\r\n')[0].strip()
+                if first_line:
+                    ROOM_NAMES[room['vnum']] = first_line
             idx += 1
 
             # Description (until ~)
@@ -2215,7 +2729,7 @@ def room_to_yaml(room):
     # Room flags
     if room.get('room_flags'):
         flags = CommentedSeq(room['room_flags'])
-        data['room_flags'] = flags
+        data['flags'] = flags
 
     # Sector
     if 'sector' in room:
@@ -2309,6 +2823,11 @@ def parse_trg_file(filepath):
             if idx < len(lines):
                 name_parts.append(lines[idx].rstrip('~'))
             trigger['name'] = '\r\n'.join(name_parts)
+            # Register trigger name for cross-references
+            if trigger['vnum'] and trigger.get('name'):
+                first_line = trigger['name'].split('\r\n')[0].strip()
+                if first_line:
+                    TRIGGER_NAMES[trigger['vnum']] = first_line
             idx += 1
 
             # Attach type, trigger type, narg line
@@ -2382,7 +2901,7 @@ def trg_to_yaml(trigger):
     if 'attach_type' in trigger:
         data['attach_type'] = trigger['attach_type']
 
-    if trigger.get('trigger_types'):
+    if 'trigger_types' in trigger:
         types = CommentedSeq(trigger['trigger_types'])
         data['trigger_types'] = types
 
@@ -2430,6 +2949,9 @@ def parse_zon_file(filepath):
         if idx < len(lines):
             name_parts.append(lines[idx].rstrip('\n').rstrip('~'))
         zone['name'] = ' '.join(name_parts)
+        # Register zone name for cross-references
+        if zone['vnum'] and zone.get('name'):
+            ZONE_NAMES[zone['vnum']] = zone['name'].strip()
         idx += 1
 
         # Parse metadata lines (^, &, !, $) and optional builders until next #
@@ -2741,6 +3263,8 @@ def zon_to_yaml(zone):
         data['mode'] = zone['mode']
     if 'zone_type' in zone:
         data['zone_type'] = zone['zone_type']
+    if zone.get('zone_group'):
+        data['zone_group'] = zone['zone_group']
     if 'entrance' in zone:
         data['entrance'] = zone['entrance']
     if 'lifespan' in zone:
@@ -2749,6 +3273,8 @@ def zon_to_yaml(zone):
         data['reset_mode'] = zone['reset_mode']
     if 'reset_idle' in zone:
         data['reset_idle'] = zone['reset_idle']
+    if zone.get('under_construction'):
+        data['under_construction'] = zone['under_construction']
 
     # Zone grouping lists
     if zone.get('typeA_list'):
@@ -2758,7 +3284,7 @@ def zon_to_yaml(zone):
             zone_name = get_zone_name(z)
             if zone_name:
                 typeA.yaml_add_eol_comment(zone_name, i)
-        data['typeA_list'] = typeA
+        data['typeA_zones'] = typeA
 
     if zone.get('typeB_list'):
         typeB = CommentedSeq()
@@ -2767,7 +3293,7 @@ def zon_to_yaml(zone):
             zone_name = get_zone_name(z)
             if zone_name:
                 typeB.yaml_add_eol_comment(zone_name, i)
-        data['typeB_list'] = typeB
+        data['typeB_zones'] = typeB
 
     # Commands with name comments
     if zone.get('commands'):
@@ -3138,9 +3664,9 @@ def main():
                 print(f"Error: Cannot find world directory in {input_path}", file=sys.stderr)
                 sys.exit(1)
 
-        # Build name registries from output directory if it exists (only for YAML format)
-        if args.format == 'yaml' and output_path.exists():
-            build_name_registries(output_path / 'world')
+#         # Build name registries from output directory if it exists (only for YAML format)
+#         if args.format == 'yaml' and output_path.exists():
+#             build_name_registries(output_path / 'world')
 
         convert_directory(world_dir, output_path, delete_source=args.delete_source,
                          max_workers=args.workers, output_format=args.format,

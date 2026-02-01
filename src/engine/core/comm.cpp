@@ -354,7 +354,7 @@ extern int num_invalid;
 extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
-extern bool no_world_checksum;
+extern bool enable_world_checksum;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -637,11 +637,11 @@ int main_function(int argc, char **argv) {
 				break;
 
 			case 's': no_specials = 1;
-				puts("Suppressing assignment of special routines.");
-				break;
-			case 'C':
-				no_world_checksum = true;
-				puts("World checksum calculation disabled.");
+		puts("Suppressing assignment of special routines.");
+		break;
+	case 'W':
+		enable_world_checksum = true;
+		puts("World checksum calculation enabled.");
 				break;
 			case 'd':
 				if (*(argv[pos] + 2))
@@ -661,9 +661,7 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n"
-				   "\n"
-				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -673,9 +671,7 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n"
-				   "\n"
-				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n", argv[0]);
 				exit(1);
 			break;
 		}

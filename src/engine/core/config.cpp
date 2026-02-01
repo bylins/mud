@@ -26,6 +26,7 @@
 #endif
 
 #include <iostream>
+#include <cstdlib>
 
 #define YES        1
 #define NO        0
@@ -77,10 +78,10 @@ int dts_are_dumps = YES;
  */
 int load_into_inventory = YES;
 
-const char *OK = "Ладушки.\r\n";
-const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
-const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
-const char *nothing_string = "ничего";
+const char *OK = "О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n";
+const char *NOPERSON = "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.\r\n";
+const char *NOEFFECT = "О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n";
+const char *nothing_string = "О©╫О©╫О©╫О©╫О©╫О©╫";
 
 /*
  * You can define or not define TRACK_THOUGH_DOORS, depending on whether
@@ -118,19 +119,19 @@ int rent_file_timeout = 60;
 // The period of free rent after crash or forced-rent in hours
 int free_crashrent_period = 2;
 
-/* Система автоудаления
-   В этой структуре хранится информация которая определяет какаие игроки
-   автоудалятся при перезагрузке мада. Уровни должны следовать в
-   возрастающем порядке с невозможно малым уровнем в конце массива.
-   Уровень -1 определяет удаленных угроков - т.е. через сколько времени
-   они физически попуржатся.
-   Если количество дней равно -1, то не удалять никогда
+/* О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+   О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+   О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫
+   О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+   О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -1 О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫.О©╫. О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+   О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+   О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ -1, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 */
 struct PCCleanCriteria pclean_criteria[] =
 	{
-		//     УРОВЕНЬ           ДНИ
-		{-1, 0},        // Удаленные чары - удалять сразу
-		{0, 0},            // Чары 0го уровня никогда не войдут в игру, так что глюки удалять сразу
+		//     О©╫О©╫О©╫О©╫О©╫О©╫О©╫           О©╫О©╫О©╫
+		{-1, 0},        // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+		{0, 0},            // О©╫О©╫О©╫О©╫ 0О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 		{1, 7},
 		{2, 14},
 		{3, 21},
@@ -156,8 +157,8 @@ struct PCCleanCriteria pclean_criteria[] =
 		{23, 161},
 		{24, 168},
 		{25, 360},
-		{kLvlImplementator, -1},        // c 25го и дальше живут вечно
-		{-2, 0}            // Последняя обязательная строка
+		{kLvlImplementator, -1},        // c 25О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+		{-2, 0}            // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	};
 
 
@@ -255,34 +256,34 @@ int siteok_everyone = true;
 int nameserver_is_slow = YES;
 
 const char *MENU = "\r\n"
-				   "0) Отсоединиться.\r\n"
-				   "1) Начать игру.\r\n"
-				   "2) Ввести описание вашего персонажа.\r\n"
-				   "3) Узнать историю.\r\n"
-				   "4) Изменить пароль.\r\n"
-				   "5) Удалить персонажа.\r\n"
-				   "6) Изменить параметры персонажа.\r\n"
-				   "7) Включить/выключить режим слепого игрока.\r\n"
-				   "8) Посмотреть всех персонажей на данном email'e.\r\n"
+				   "0) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "1) О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.\r\n"
+				   "2) О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "3) О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "4) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "5) О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "6) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "7) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+				   "8) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ email'e.\r\n"
 				   "\r\n"
-				   "   Чего ваша душа желает? ";
+				   "   О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫? ";
 
 const char *WELC_MESSG =
 	"\r\n"
-	"  Добро пожаловать на землю Киевскую, богатую историей и самыми невероятными\r\n"
-	"приключениями. Возможно, вам они понравятся, и вы станете в один ряд с героями\r\n" "давно минувших дней.\r\n\r\n";
+	"  О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫\r\n"
+	"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫\r\n" "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.\r\n\r\n";
 
 const char *START_MESSG =
-	" Буде здравы, странник.\r\n"
-	" Вот и ты стал на тропу увлекательных приключений, которые, надеемся, ждут\r\n"
-	"тебя в нашем мире.\r\n"
-	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
-	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
+	" О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n"
+	" О©╫О©╫О©╫ О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫\r\n"
+	"О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.\r\n"
+	" О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫.\r\n"
+	" О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫...\r\n" "\r\n";
 
 int max_exp_gain_pc(CharData *ch) {
 	int result = 1;
 	if (!ch->IsNpc()) {
-		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //тут берем левел без плюсов от стафа
+		int max_per_lev = GetExpUntilNextLvl(ch, ch->GetLevel() + 1) - GetExpUntilNextLvl(ch, ch->GetLevel() + 0); //О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 		result = max_per_lev / (10 + GetRealRemort(ch));
 	}
 	return result;
@@ -566,6 +567,60 @@ void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node *r
 	m_statistics = StatisticsConfiguration(host, port);
 }
 
+// Helper: expand environment variables in format ${VAR:default}
+static std::string expand_env_vars(const std::string& str) {
+	std::string result = str;
+	size_t pos = 0;
+
+	while ((pos = result.find("${", pos)) != std::string::npos) {
+		size_t end = result.find("}", pos);
+		if (end == std::string::npos) {
+			break;  // Malformed, skip
+		}
+
+		std::string var_expr = result.substr(pos + 2, end - pos - 2);
+		std::string var_name;
+		std::string default_value;
+
+		// Check for ${VAR:default} syntax
+		size_t colon_pos = var_expr.find(':');
+		if (colon_pos != std::string::npos) {
+			var_name = var_expr.substr(0, colon_pos);
+			default_value = var_expr.substr(colon_pos + 1);
+		} else {
+			var_name = var_expr;
+		}
+
+		// Get environment variable value
+		const char* env_value = std::getenv(var_name.c_str());
+		std::string replacement = env_value ? env_value : default_value;
+
+		result.replace(pos, end - pos + 1, replacement);
+		pos += replacement.length();
+	}
+
+	return result;
+}
+
+void RuntimeConfiguration::load_world_loader_configuration(const pugi::xml_node *root) {
+	const auto world_loader = root->child("world_loader");
+	if (!world_loader) {
+		return;
+	}
+
+	const auto yaml_threads = world_loader.child("yaml_threads");
+	if (yaml_threads) {
+		std::string value = expand_env_vars(yaml_threads.child_value());
+
+		if (value == "auto" || value == "0" || value.empty()) {
+			m_yaml_threads = 0;  // Will use hardware_concurrency at runtime
+		} else {
+			int n = std::atoi(value.c_str());
+			m_yaml_threads = (n > 0) ? static_cast<size_t>(n) : 0;
+		}
+	}
+}
+
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
 typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
@@ -672,11 +727,11 @@ const std::string &NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item) {
 const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "misc/configuration.xml";
 
 const RuntimeConfiguration::logs_t LOGS({
-											CLogInfo("syslog", "СИСТЕМНЫЙ"),
-											CLogInfo("log/errlog.txt", "ОШИБКИ МИРА"),
-											CLogInfo("log/imlog.txt", "ИНГРЕДИЕНТНАЯ МАГИЯ"),
-											CLogInfo("log/msdp.txt", "лог MSDP пакетов"),
-											CLogInfo("log/money.txt", "лог обращения денег")
+											CLogInfo("syslog", "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫"),
+											CLogInfo("log/errlog.txt", "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫"),
+											CLogInfo("log/imlog.txt", "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫"),
+											CLogInfo("log/msdp.txt", "О©╫О©╫О©╫ MSDP О©╫О©╫О©╫О©╫О©╫О©╫О©╫"),
+											CLogInfo("log/money.txt", "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫")
 										});
 
 constexpr std::size_t RuntimeConfiguration::OUTPUT_QUEUE_SIZE;
@@ -690,7 +745,8 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_msdp_disabled(false),
 	m_msdp_debug(false),
 	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
-	m_changelog_format(Boards::constants::loader_formats::GIT) {
+	m_changelog_format(Boards::constants::loader_formats::GIT),
+	m_yaml_threads(0) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -710,6 +766,7 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_boards_configuration(&root);
 		load_external_triggers(&root);
 		load_statistics_configuration(&root);
+		load_world_loader_configuration(&root);
 	}
 	catch (const std::exception &e) {
 		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << "\r\n";

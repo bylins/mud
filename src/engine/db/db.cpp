@@ -59,9 +59,15 @@
 #include "player_index.h"
 #include "world_checksum.h"
 #include "legacy_world_data_source.h"
+#include "world_data_source_base.h"
 #ifdef HAVE_SQLITE
 #include "sqlite_world_data_source.h"
 #endif
+#ifdef HAVE_YAML
+#include "yaml_world_data_source.h"
+#endif
+#include "world_data_source_manager.h"
+
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
@@ -105,7 +111,7 @@ int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
-bool no_world_checksum = false;	// disable world checksum calculation
+bool enable_world_checksum = false;	// enable world checksum calculation
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -360,40 +366,37 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// Create default data source if none provided
 	if (!data_source)
 	{
-#ifdef HAVE_SQLITE
-		const char *world_db_path = "world.db";
-		if (access(world_db_path, F_OK) == 0)
-		{
-			data_source = world_loader::CreateSqliteDataSource(world_db_path);
-		}
-		else
-		{
-			log("SYSERR: HAVE_SQLITE is defined but world.db not found. Exiting.");
-			exit(1);
-		}
+#ifdef HAVE_YAML
+		data_source = world_loader::CreateYamlDataSource("world");
+#elif defined(HAVE_SQLITE)
+		data_source = world_loader::CreateSqliteDataSource("world.db");
 #else
-		// No SQLite support, use legacy loader
 		data_source = world_loader::CreateLegacyDataSource();
 #endif
 	}
 	log("Using data source: %s", data_source->GetName().c_str());
 
+	// Register data source in manager for OLC access
+	auto* ds_ptr = data_source.get();
+	world_loader::WorldDataSourceManager::Instance().SetDataSource(std::move(data_source));
+
 	boot_profiler.next_step("Loading zone table");
-	data_source->LoadZones();
+	ds_ptr->LoadZones();
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	data_source->LoadTriggers();
+	ds_ptr->LoadTriggers();
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	data_source->LoadRooms();
+	ds_ptr->LoadRooms();
+
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -416,7 +419,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	data_source->LoadMobs();
+	ds_ptr->LoadMobs();
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -431,7 +434,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	data_source->LoadObjects();
+	ds_ptr->LoadObjects();
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");
@@ -463,7 +466,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 
 	log("Init global_drop_obj.");
 
-	if (!no_world_checksum)
+	if (enable_world_checksum)
 	{
 		boot_profiler.next_step("Calculating world checksums");
 		log("Calculating world checksums...");
@@ -748,6 +751,7 @@ void zone_traffic_load() {
 
 // body of the booting system
 void BootMudDataBase() {
+	auto boot_start = std::chrono::high_resolution_clock::now();
 	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
 
 	log("Boot db -- BEGIN.");
@@ -1031,6 +1035,12 @@ void BootMudDataBase() {
 	}
 	reset_q.head = reset_q.tail = nullptr;
 
+
+	// Assign room triggers AFTER zone reset completes
+	boot_profiler.next_step("Assigning triggers to rooms");
+	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+
+
 	// делается после резета зон, см камент к функции
 	boot_profiler.next_step("Loading depot chests");
 	log("Load depot chests.");
@@ -1133,6 +1143,10 @@ void BootMudDataBase() {
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
+
+	auto boot_end = std::chrono::high_resolution_clock::now();
+	auto boot_duration = std::chrono::duration<double>(boot_end - boot_start).count();
+	log("Boot db total time: %.3f seconds", boot_duration);
 
 }
 
@@ -1417,7 +1431,7 @@ void AddVirtualRoomsToAllZones() {
 		new_room->zone_rn = rnum;
 		new_room->vnum = last_room;
 		new_room->set_name(std::string("Виртуальная комната"));
-		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
+		new_room->description_num = GlobalObjects::descriptions().add(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
 		new_room->sector_type = ESector::kSecret;
 

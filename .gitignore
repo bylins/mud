@@ -25,3 +25,14 @@ build/
 build_*/
 test/
 magic.mgc
+
+# Секретные данные - большой мир (только малый мир допустим)
+lib.template/world/mobs/*.yaml
+lib.template/world/objects/*.yaml
+lib.template/world/triggers/*.yaml
+lib.template/world/zones/*/
+!lib.template/world/zones/1/
+!lib.template/world/zones/2/
+!lib.template/world/zones/2000/
+!lib.template/world/zones/3/
+!lib.template/world/zones/40/

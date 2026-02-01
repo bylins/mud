@@ -422,7 +422,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	std::string desc = fread_string();
 	utils::TrimRightIf(desc, " _");
 	desc.shrink_to_fit();
-	world[room_realnum]->description_num = RoomDescription::add_desc(desc);
+	world[room_realnum]->description_num = GlobalObjects::descriptions().add(desc);
 
 	if (!get_line(file(), line)) {
 		log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);

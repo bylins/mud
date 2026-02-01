@@ -36,7 +36,7 @@ extern IndexData *mob_index;
 
 // TODO: Get rid of me
 char *dirty_indent_trigger(char *cmd, int *level) {
-	static std::stack<std::string> indent_stack;
+	thread_local std::stack<std::string> indent_stack;
 
 	*level = std::max(0, *level);
 	if (*level == 0) {

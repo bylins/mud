@@ -16,6 +16,7 @@
 #include "gameplay/core/constants.h"
 #include "gameplay/crafting/im.h"
 #include "engine/db/description.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
@@ -80,7 +81,7 @@ void redit_setup(DescriptorData *d, int real_num)
 	} else {
 		CopyRoom(room, world[real_num]);
 		// temp_description существует только на время редактирования комнаты в олц
-		room->temp_description = str_dup(RoomDescription::show_desc(world[real_num]->description_num).c_str());
+		room->temp_description = str_dup(GlobalObjects::descriptions().get(world[real_num]->description_num).c_str());
 	}
 
 	OLC_ROOM(d) = room;
@@ -100,7 +101,7 @@ void redit_save_internally(DescriptorData *d) {
 
 	rrn = GetRoomRnum(OLC_ROOM(d)->vnum);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
-	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
+	OLC_ROOM(d)->description_num = GlobalObjects::descriptions().add(OLC_ROOM(d)->temp_description);
 	// * Room exists: move contents over then free and replace it.
 	if (rrn != kNowhere) {
 		log("[REdit] Save room to mem %d", rrn);
@@ -299,7 +300,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 #endif
 
 			// * Remove the '\r\n' sequences from description.
-			strcpy(buf1, RoomDescription::show_desc(room->description_num).c_str());
+			strcpy(buf1, GlobalObjects::descriptions().get(room->description_num).c_str());
 			strip_string(buf1);
 
 			// * Forget making a buffer, lets just write the thing now.

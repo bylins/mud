@@ -2,7 +2,7 @@
  * \file recalc_mob_params_by_vnum.cpp - a part of the Bylins engine.
  * \authors Created by Svetodar.
  * \date 10.11.2025.
- * \brief Пересчёт параметров мобов по зонам/ролям.
+ * \brief О©╫О©╫О©╫О©╫О©╫чёО©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫.
  **/
 
 #include "gameplay/classes/mob_classes_info.h"
@@ -16,9 +16,9 @@ static constexpr int kWorstPossibleSaving = 300;
 static constexpr int kMaxMobResist = 95;
 static constexpr int kMaxMobMorale = 200;
 
-// ------------------------ Роли и уровень -------------------------------------
+// ------------------------ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -------------------------------------
 
-// Проверяет есть ли конкретная роль у моба
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 inline bool HasRole(const CharData* ch, EMobClass role) {
 	if (!ch) {
 		return false;
@@ -27,11 +27,11 @@ inline bool HasRole(const CharData* ch, EMobClass role) {
 		return false;
 	}
 	constexpr auto base  = (unsigned)EMobClass::kBoss;
-	const unsigned index = (unsigned)role - base;  // сдвиг к битсету
+	const unsigned index = (unsigned)role - base;  // О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	return ch->get_role(index);
 }
 
-// Заполняет массив ролей, возвращает количество в *count
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ *count
 static void EnumRoles(const CharData* ch, EMobClass* roles, int* count) {
 	*count = 0;
 
@@ -47,7 +47,7 @@ static void EnumRoles(const CharData* ch, EMobClass* roles, int* count) {
 	}
 }
 
-// Проверяет есть ли моба вообще какая-либо роль
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 static bool HasAnyMobRole(const CharData *ch) {
 	for (int u = (int)EMobClass::kBoss; u < (int)EMobClass::kTotal; ++u) {
 		if (HasRole(ch, (EMobClass)u)) {
@@ -57,13 +57,13 @@ static bool HasAnyMobRole(const CharData *ch) {
 	return false;
 }
 
-// Проставляет роль треша, если у моба вообще нет никакой роли
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 static void EnsureTrashRole(CharData *ch) {
 	if (HasAnyMobRole(ch)) {
 		return;
 	}
 
-	// role_.bitset index = role - kBoss (как в HasRole())
+	// role_.bitset index = role - kBoss (О©╫О©╫О©╫ О©╫ HasRole())
 	constexpr auto base = (unsigned)EMobClass::kBoss;
 	const unsigned index = (unsigned)EMobClass::kTrash - base;
 
@@ -71,10 +71,10 @@ static void EnsureTrashRole(CharData *ch) {
 }
 
 // =====================================
-//      ПРИМЕНЕНИЕ ПАРАМЕТРОВ
+//      О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 // =====================================
 
-// Расчёт базового значения проставляемого параметра
+// О©╫О©╫О©╫чёО©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 static int CalcBaseValue(const mob_classes::MobClassInfo::ParametersData *param_data, int level, int remorts) {
 	if (level < 1) level = 1;
 
@@ -96,7 +96,7 @@ static int CalcBaseValue(const mob_classes::MobClassInfo::ParametersData *param_
 	return (int)std::lround(raw);
 }
 
-// --- Отклонение ---
+// --- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ---
 static int ApplyDeviation(const mob_classes::MobClassInfo::ParametersData *param, int base_value) {
 	if (!param) {
 		return base_value;
@@ -122,7 +122,7 @@ static int ApplyDeviation(const mob_classes::MobClassInfo::ParametersData *param
 	return value;
 }
 
-// Находит описание класса моба
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 static const mob_classes::MobClassInfo *FindMobClassInfoPlain(EMobClass id) {
 	for (const auto & info : MUD::MobClasses()) {
 			if (info.GetId() == id && info.IsAvailable()) {
@@ -143,10 +143,10 @@ static void RemoveAllMobSpells(CharData *ch) {
 	}
 }
 
-// ------------------------ Хелперы для базовых статов ------------------------
+// ------------------------ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ ------------------------
 static void ApplyBaseStatToChar(CharData *ch, EBaseStat stat, int value) {
 
-	// Ограничения: минимум 1, максимум 100
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 100
 	if (value < 1) {
 		value = 1;
 	} else if (value > 100) {
@@ -195,15 +195,15 @@ static EBaseStat BaseStatByIndex(int idx) {
 		EBaseStat::kWis, EBaseStat::kInt, EBaseStat::kCha
 	};
 	if (idx < 0 || idx >= 6) {
-		return EBaseStat::kStr; // не должно случаться
+		return EBaseStat::kStr; // О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	}
 	return kOrder[idx];
 }
 
 
-// ------------------------ Основное применение к одному мобу ------------------
+// ------------------------ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ ------------------
 //
-// Возвращает true, если хоть что-то было применено.
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ true, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 //
 static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty) {
 	if (!ch || !ch->IsNpc() || IS_CHARMICE(ch)) {
@@ -215,13 +215,13 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		effective_remorts = 0;
 	}
 
-	// Сложность теперь повышает УРОВЕНЬ, а не морты
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	const int lvl_per_difficulty = mob_classes::GetLvlPerDifficulty();
 	const int boss_add_lvl = mob_classes::GetBossAddLvl();
 
 	int effective_level = level + difficulty * lvl_per_difficulty;
 
-	// Если моб - босс, добавляем бонусные уровни
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	if (HasRole(ch, EMobClass::kBoss)) {
 		effective_level += boss_add_lvl;
 	}
@@ -232,7 +232,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	ch->set_level(effective_level);
 
-	// Количество атак всегда фиксируем в 1
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ 1
 	ch->mob_specials.extra_attack = 0;
 
 	// Замакс делаем большой
@@ -270,7 +270,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		}
 	}
 
-	// Очищаем ненужные флаги и аффекты
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	AFF_FLAGS(ch).unset(EAffect::kFireShield);
 	AFF_FLAGS(ch).unset(EAffect::kIceShield);
 	AFF_FLAGS(ch).unset(EAffect::kAirShield);
@@ -289,21 +289,21 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	ch->UnsetFlag(EMobFlag::kProtect);
 
 
-	const int calc = effective_level;      // расчётный уровень с учётом difficulty и boss_add_lvl
+	const int calc = effective_level;      // О©╫О©╫О©╫чёО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫чёО©╫О©╫О©╫ difficulty О©╫ boss_add_lvl
 
 	GET_ABSORBE(ch) = 0;
 	GET_ARMOUR(ch) = 0;
 	GET_INITIATIVE(ch) = 0;
 
-	// Если есть стаб - проставляем роль разбойника
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	if (ch->GetSkill(ESkill::kBackstab) > 0) {
 		ch->set_role(static_cast<unsigned>(EMobClass::kRogue) -1, true);
 	}
 
-	// Если ролей нет - реально проставляем kTrash
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ kTrash
 	EnsureTrashRole(ch);
 
-	// Собираем роли в статический массив
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	EMobClass roles[MOB_ROLE_COUNT];
 	int role_count = 0;
 	EnumRoles(ch, roles, &role_count);
@@ -314,13 +314,13 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	int applied_any = 0;
 
-	// сбрасываем модификаторы сейвов (чтобы потом в итоге получить ровно то, что в конфиге)
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫)
 	SetSave(ch, ESaving::kWill, 0);
 	SetSave(ch, ESaving::kCritical, 0);
 	SetSave(ch, ESaving::kStability, 0);
 	SetSave(ch, ESaving::kReflex, 0);
 
-	// desired = ИТОГОВЫЕ ("полные") сейвы из конфига
+	// desired = О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ("О©╫О©╫О©╫О©╫О©╫О©╫") О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	int desired_will = kWorstPossibleSaving;
 	int desired_crit = kWorstPossibleSaving;
 	int desired_stab = kWorstPossibleSaving;
@@ -333,7 +333,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		has_base[i] = 0;
 	}
 
-	// --- План финальных навыков/заклинаний: выбираем лучшие (максимальные) из всех ролей ---
+	// --- О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫) О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ---
 	std::map<ESkill, int> planned_skills;
 	std::map<ESpell, int> planned_spells;
 	std::unordered_map<EFeat, bool> planned_feats;
@@ -344,7 +344,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	bool is_first_role_pass = true;
 
-	// Обходим роли
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 	for (int r = 0; r < role_count; ++r) {
 		EMobClass role = roles[r];
 		const mob_classes::MobClassInfo *info = FindMobClassInfoPlain(role);
@@ -354,7 +354,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 		const mob_classes::MobClassInfo::ParametersData *p_data;
 
-		// -------- Базовые статы --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ --------
 		for (const auto & it : info->base_stats_map) {
 			EBaseStat id = it.first;
 			p_data = &it.second;
@@ -374,7 +374,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		}
 
 
-		// -------- Сависы --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫ --------
 		for (const auto & it : info->savings_map) {
 			ESaving id = it.first;
 			p_data = &it.second;
@@ -382,7 +382,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			int base_value = CalcBaseValue(p_data, calc, effective_remorts);
 			base_value = ApplyDeviation(p_data, base_value);
 
-			// берём лучший, то есть минимальный
+			// О©╫О©╫рёО©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			switch (id) {
 			case ESaving::kWill:
 				if (base_value < desired_will) { desired_will = base_value; }
@@ -405,7 +405,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 		}
 
-		// -------- Резисты --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫ --------
 		for (const auto & it : info->resists_map) {
 			EResist id = it.first;
 			p_data = &it.second;
@@ -424,7 +424,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
-		// -------- Иные резисты (MR / PR / AR) --------
+		// -------- О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (MR / PR / AR) --------
 		if (info->has_magic_resist) {
 			p_data = &info->magic_resist;
 
@@ -476,7 +476,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
-		// -------- Прочие статы (броня / поглощение) --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫ / О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫) --------
 		if (info->has_armour) {
 			p_data = &info->armour;
 
@@ -512,7 +512,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
-		// -------- Кубики дамага --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ --------
 		if (info->has_dam_n_dice) {
 			p_data = &info->dam_n_dice;
 
@@ -559,7 +559,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
-		// -------- Хитролы/удача/каст --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫ --------
 		if (info->has_hitroll) {
 			p_data = &info->hitroll;
 
@@ -624,7 +624,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
-		// -------- HP / размер / exp / шанс применения умений --------
+		// -------- HP / О©╫О©╫О©╫О©╫О©╫О©╫ / exp / О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ --------
 
 		if (info->has_hit_points) {
 			p_data = &info->hit_points;
@@ -699,7 +699,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
-		// -------- Добавочные phys / spell дамаг --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ phys / spell О©╫О©╫О©╫О©╫О©╫ --------
 
 		if (info->has_phys_damage) {
 			p_data = &info->phys_damage;
@@ -734,9 +734,9 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		}
 
 
-		// -------- Умения (планируемые) --------
+		// -------- О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫) --------
 
-		// Значения умения по умолчанию (kUndefined) для данной роли
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (kUndefined) О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 		auto def_skill_it = info->mob_skills_map.find(ESkill::kUndefined);
 		if (def_skill_it != info->mob_skills_map.end()) {
 			const auto *p = &def_skill_it->second;
@@ -753,7 +753,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			ESkill id = it.first;
 
 			if (id == ESkill::kUndefined) {
-				continue; // служебное: дефолт
+				continue; // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫
 			}
 
 			p_data = &it.second;
@@ -765,15 +765,15 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			if (base_value > 0) {
 				auto pit = planned_skills.find(id);
 				if (pit == planned_skills.end() || base_value > pit->second) {
-					planned_skills[id] = base_value; // берём лучший по ролям
+					planned_skills[id] = base_value; // О©╫О©╫рёО©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 				}
 				applied_any = 1;
 			}
 		}
 
-		// ------- Заклинания (планируемые) --------
+		// ------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫) --------
 
-		// Значения заклинания по умолчанию (kUndefined) для данной роли
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (kUndefined) О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 		auto def_spell_it = info->mob_spells_map.find(ESpell::kUndefined);
 		if (def_spell_it != info->mob_spells_map.end()) {
 			const auto *p = &def_spell_it->second;
@@ -790,7 +790,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			ESpell spell_id = it.first;
 
 			if (spell_id == ESpell::kUndefined) {
-				continue; // служебное: дефолт
+				continue; // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫
 			}
 
 			p_data = &it.second;
@@ -802,7 +802,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			if (charges > 0) {
 				auto pit = planned_spells.find(spell_id);
 				if (pit == planned_spells.end() || charges > pit->second) {
-					planned_spells[spell_id] = charges; // берём лучший по ролям
+					planned_spells[spell_id] = charges; // О©╫О©╫рёО©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 				}
 				applied_any = 1;
 			}
@@ -821,17 +821,17 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		is_first_role_pass = false;
 	}
 
-	// --- Проставляем умения и заклинания ---
-	// Сначала затираем, чтобы была возможность проставить нужные значения тем умениям/заклинаниям, которые прописаны мобу, но не прописаны классу
+	// --- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ---
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	ch->clear_skills();
 	RemoveAllMobSpells(ch);
 
-	// Проставляем умения из конфига класса
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	for (const auto &key_value : planned_skills) {
 		ch->set_skill(key_value.first, key_value.second);
 	}
 
-	// Применяем значения по умолчанию для умений, которые есть у моба, но не прописаны в классе
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	if (best_default_skill > 0) {
 		for (ESkill id : old_skills) {
 			if (planned_skills.find(id) != planned_skills.end()) {
@@ -841,7 +841,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		}
 	}
 
-	// Проставляем заклинания из конфига класса
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	if (!planned_spells.empty()) {
 		ch->mob_specials.have_spell = true;
 		for (const auto &kv : planned_spells) {
@@ -849,7 +849,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		}
 	}
 
-	// Применяем значения по умолчанию для заклинаний, которые есть у моба, но не прописаны в классе
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	if (best_default_spell > 0) {
 		for (ESpell id : old_spells) {
 			if (planned_spells.find(id) != planned_spells.end()) {
@@ -866,7 +866,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		}
 	}
 
-	// --- Применяем окончательные сависы ---
+	// --- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ ---
 	int basic_saving = CalcSaving(ch, ch, ESaving::kWill, false);
 	SetSave(ch, ESaving::kWill, desired_will - basic_saving);
 
@@ -879,7 +879,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	basic_saving = CalcSaving(ch, ch, ESaving::kReflex, false);
 	SetSave(ch, ESaving::kReflex, desired_refl - basic_saving);
 
-	// --- Проставляем окончательные способности ---
+	// --- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ---
 	for (const auto &feat_pair : configured_feats) {
 		const EFeat feat_id = feat_pair.first;
 
@@ -897,7 +897,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	return applied_any != 0;
 }
 
-// --------------------- Пересчёт в зоне ---------------------------------------
+// --------------------- О©╫О©╫О©╫О©╫О©╫чёО©╫ О©╫ О©╫О©╫О©╫О©╫ ---------------------------------------
 
 void RecalcMobParamsInZone(int zone_vnum, int remorts, int level, int difficulty) {
 	ZoneRnum zrn = GetZoneRnum(zone_vnum);
@@ -909,7 +909,7 @@ void RecalcMobParamsInZone(int zone_vnum, int remorts, int level, int difficulty
 	}
 }
 
-// --------------------- Проставить уровни мобам ---------------------------
+// --------------------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ---------------------------
 void SetLevelsForInstancesInZone(int zone_vnum, int set_level) {
 	ZoneRnum zrn = GetZoneRnum(zone_vnum);
 	MobRnum mrn_first = zone_table[zrn].RnumMobsLocation.first;
@@ -920,7 +920,7 @@ void SetLevelsForInstancesInZone(int zone_vnum, int set_level) {
 	}
 }
 
-// --------------------- Комбинированный пересчёт ------------------------------
+// --------------------- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫чёО©╫ ------------------------------
 bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int remorts, int set_level, int difficulty) {
 	SetLevelsForInstancesInZone(zone_vnum, set_level);
 	RecalcMobParamsInZone(zone_vnum, remorts, set_level, difficulty);
@@ -953,11 +953,26 @@ void DGRecalcZone(const char *argument) {
 	}
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
-	//const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
-//	SendMsgToChar(ch,
-//		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
-//		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);
+}
 
+void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
+	constexpr size_t kBuf = 256;
+	char arg1[kBuf]{}; // zone_vnum
+	char arg2[kBuf]{}; // remorts
+	char arg3[kBuf]{}; // player_level
+	char arg4[kBuf]{}; // difficulty
+	std::string full_arg{argument};
+	// <zone_vnum> <remorts> <player_level> <difficulty>
+	argument = three_arguments(argument, arg1, arg2, arg3);
+	one_argument(argument, arg4);
+	
+	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
+		SendMsgToChar(ch,
+			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
+		return;
+	}
+	DGRecalcZone(full_arg.c_str());
+	SendMsgToChar(ch, "Zone recalc done. %s", full_arg.c_str());
 }
 
 void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {

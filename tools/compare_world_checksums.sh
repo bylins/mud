@@ -1,6 +1,11 @@
 #!/bin/bash
-# Script to compare world checksums between Legacy and SQLite builds
-# and dump detailed field differences for differing objects
+# DETAILED world checksum comparison between Legacy and SQLite builds
+#
+# This script provides field-level difference dumps for objects with mismatched checksums,
+# which is more detailed than run_load_tests.sh (which only reports checksum totals).
+#
+# For basic checksum comparison across all loaders, use: tools/run_load_tests.sh --checksums
+# For detailed field-level diff investigation, use this script.
 #
 # Usage: ./compare_world_checksums.sh [OPTIONS]
 #   --rebuild-legacy   Force rebuild of Legacy version

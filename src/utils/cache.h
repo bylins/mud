@@ -5,6 +5,7 @@
 #define CACHE_HPP_INCLUDED
 
 #include <unordered_map>
+#include <mutex>
 
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
@@ -23,12 +24,14 @@ class Cache {
 	~Cache() = default;
 
 	inline void Add(CashedType obj) {
+		std::lock_guard<std::mutex> lock{m_mutex};
 		IdType id = ++max_id;
 		id_map[id] = obj;
 		ptr_map[obj] = id;
 	}
 
 	inline void Remove(CashedType obj) {
+		std::lock_guard<std::mutex> lock{m_mutex};
 		auto it = ptr_map.find(obj);
 		if (it != ptr_map.end()) {
 			id_map.erase(it->second);
@@ -54,6 +57,7 @@ class Cache {
 	IdMap id_map;
 	PtrMap ptr_map;
 	static IdType max_id;
+	mutable std::mutex m_mutex;  // Protects id_map, ptr_map, and max_id from concurrent access
 };
 
 using CharacterCache = Cache<CharData *>;

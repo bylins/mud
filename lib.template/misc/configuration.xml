@@ -123,4 +123,26 @@
 		</server>
 	</statistics>
 	-->
+
+	<!-- конфигурация загрузки мира -->
+	<!--
+	Количество потоков для параллельной загрузки YAML мира.
+	
+	Значения:
+	  - 0 или auto: автоопределение (использует std::thread::hardware_concurrency())
+	  - 1: последовательная загрузка (без многопоточности)
+	  - N > 1: использовать N потоков
+	
+	По умолчанию: auto (рекомендуется для production)
+	
+	Можно переопределить через переменную окружения YAML_THREADS:
+	  export YAML_THREADS=4
+	  ./circle -d world
+	
+	Примечание: Многопоточная загрузка ускоряет загрузку мира в 2-3.5 раза.
+	-->
+	<world_loader>
+		<yaml_threads>${YAML_THREADS:auto}</yaml_threads>
+	</world_loader>
+
 </configuration>

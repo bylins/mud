@@ -38,7 +38,7 @@ make tests -j$(nproc)
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
-- **Debug** - Debug build with ASAN (-fsanitize=address, -D_GLIBCXX_DEBUG)
+- **Debug** - Debug build with ASAN (-fsanitize=address, NO _GLIBCXX_DEBUG due to yaml-cpp ABI compatibility)
 - **Test** - Test build with optimizations (-O3, -DTEST_BUILD, -DNOCRYPT)
 - **FastTest** - Fast test build (-Ofast, -DTEST_BUILD)
 
@@ -315,52 +315,10 @@ build_test/   - test data and converted worlds (not for compilation)
 **Always warn the user when changing build directories or running cmake/make in a different directory.**
 
 ### File Encoding - CRITICAL
-The Edit tool corrupts KOI8-R encoding in source files. To safely modify existing source files:
+The Edit tool corrupts KOI8-R encoding in source files. To safely modify existing source files, use **unified diff patches**:
+
 ```bash
-# Use sed with LANG=C to preserve encoding
-LANG=C sed -i 's/old_text/new_text/' file.cpp
-
-# For multi-line changes, use sed with address ranges
-LANG=C sed -i '/pattern/a\
-new line here' file.cpp
-```
-**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.** 
-Only use Edit for newly created files or files known to be pure ASCII.
-
-### Directory Change Notifications
-Always explicitly notify the user before:
-- Running cmake in a different build directory
-- Running make in a different build directory  
-- Changing the working directory for any build operation
-
-Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
-
-### SQLite World Database
-The project supports loading world data from SQLite database instead of legacy text files.
-
-**Related repositories:**
-- `../mud-docs/` - Contains world conversion tools and SQLite schema:
-  - `convert_to_yaml.py` - Script to convert Legacy world files to SQLite database
-  - `world_schema.sql` - SQLite schema for world database
-  - `sqlite-world-schema.md` - Schema documentation
-  - `legacy-world-format.md` - Legacy file format documentation
-
-**To regenerate world.db:**
-```bash
-cd ../mud-docs
-python3 convert_to_yaml.py --sqlite ../mud/build_sqlite/small/world.db ../mud/build_sqlite/small/world
-```
-
-**Important:**
-- Schema changes should be made in `../mud-docs/world_schema.sql` (primary source)
-- Copy to `tools/world_schema.sql` is for reference only
-- When fixing loader issues, check if the problem is in the converter or loader
-- String enum values (like "kWorm") are intentional for human readability - map them in loader
-
-### Editing Files with Patches
-For complex or multi-line changes to KOI8-R encoded files, generate unified patches instead of using sed:
-```bash
-# Create patch and apply
+# Create and apply a unified diff patch
 cat > /tmp/fix.patch << 'PATCH'
 --- a/src/file.cpp
 +++ b/src/file.cpp
@@ -372,4 +330,99 @@ cat > /tmp/fix.patch << 'PATCH'
 PATCH
 patch -p1 < /tmp/fix.patch
 ```
-This is more reliable than sed for complex edits and preserves encoding.
+
+**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.**
+Only use Edit for newly created files or files known to be pure ASCII.
+
+**NEVER use sed for editing source files.** Sed has tendency to:
+- Modify files in unexpected places (matching wrong lines)
+- Lead to file corruption detection and accidental `git checkout` (losing all uncommitted work)
+- Cause cumulative errors from multiple sed operations
+
+Example of sed problem:
+```
+Problem: GetConfiguredThreadCount() defined 11 times due to multiple sed insertions.
+...
+File corrupted from multiple sed operations. Rolling back to last working version:
+...
+git checkout src/engine/db/yaml_world_data_source.cpp
+...
+😔 Critical error - accidentally reverted ALL changes with git checkout, losing all
+   parallel loading code we implemented.
+```
+
+**Use unified diff patches instead** - they are more reliable, preserve encoding, and fail cleanly if the context doesn't match.
+
+### _GLIBCXX_DEBUG Disabled in Debug Build
+**Important:** `_GLIBCXX_DEBUG` is intentionally **disabled** for Debug builds due to ABI incompatibility with external libraries (yaml-cpp, SQLite).
+
+**Why:**
+- External libraries (yaml-cpp) are compiled without `_GLIBCXX_DEBUG`
+- They return STL objects (`std::string`) to our code
+- If our code uses `_GLIBCXX_DEBUG`, ABI mismatch causes heap-buffer-overflow
+- Solution: disable the flag for all Debug builds
+
+**Trade-off:** We lose STL iterator/bounds checking in Debug mode, but gain ASAN (AddressSanitizer) which catches most memory errors.
+
+### Directory Change Notifications
+Always explicitly notify the user before:
+- Running cmake in a different build directory
+- Running make in a different build directory  
+- Changing the working directory for any build operation
+
+Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
+
+### World Data Formats and Testing
+
+The project supports three world data formats:
+1. **Legacy** - Original CircleMUD text format (default, in lib/ + lib.template/)
+2. **SQLite** - World data in SQLite database (requires -DHAVE_SQLITE=ON)
+3. **YAML** - Human-readable YAML format (requires -DHAVE_YAML=ON)
+
+**CRITICAL: Never use lib/ from repository directly!**
+- `lib/` contains base configuration files only (NOT complete world data)
+- `lib.template/` contains world files, player data, and additional configs
+- To get a working world: copy lib/ to build directory, then overlay lib.template/
+
+**Preparing world for conversion:**
+```bash
+# Create working copy (example for YAML build)
+mkdir -p build_yaml/small
+cp -r lib build_yaml/small/
+cp -r lib.template/* build_yaml/small/lib/
+
+# Now build_yaml/small/lib contains complete world data ready for conversion
+```
+
+**Conversion Tool:**
+```bash
+# Convert legacy world to YAML (in-place conversion)
+./tools/convert_to_yaml.py --input build_yaml/small/lib/world --output build_yaml/small/world --format yaml --type all
+
+# Convert to SQLite database
+./tools/convert_to_yaml.py --input build_sqlite/small/lib/world --output build_sqlite/small/world.db --format sqlite --type all
+```
+
+**Automated Testing & Conversion:**
+```bash
+# Run world loading tests (automatically prepares and converts worlds)
+./tools/run_load_tests.sh              # Full test suite
+./tools/run_load_tests.sh --quick      # Quick test (Legacy + YAML checksums)
+./tools/run_load_tests.sh --help       # Show all options
+```
+
+The `run_load_tests.sh` script:
+- Builds all three variants (Legacy, SQLite, YAML) in separate build directories
+- Automatically prepares working worlds (copies lib + lib.template)
+- Converts worlds if missing or outdated
+- Runs boot tests with configurable timeout (default 5 minutes)
+- Calculates checksums (zones, rooms, mobs, objects, triggers) to verify correctness
+- Compares checksums between formats to detect discrepancies
+- Generates detailed reports with boot times and performance comparison
+
+**Important:**
+- Schema/format changes should be tested with `run_load_tests.sh`
+- Conversion script is in `tools/convert_to_yaml.py`
+- String enum values (like "kWorm") in YAML/SQLite are intentional for human readability - map them in loader
+- When fixing loader issues, check if the problem is in converter or loader
+
