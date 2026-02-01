@@ -567,6 +567,29 @@ void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node *r
 	m_statistics = StatisticsConfiguration(host, port);
 }
 
+void RuntimeConfiguration::load_world_loader_configuration(const pugi::xml_node *root) {
+	// Read YAML_THREADS environment variable (takes precedence)
+	const char* env_threads = std::getenv("YAML_THREADS");
+	if (env_threads) {
+		size_t threads = static_cast<size_t>(std::strtoul(env_threads, nullptr, 10));
+		if (threads > 0 && threads <= 64) {  // Sanity check
+			m_yaml_threads = threads;
+			return;
+		}
+	}
+
+	// Fall back to XML configuration if available
+	const auto world_loader = root->child("world_loader");
+	if (!world_loader) {
+		return;
+	}
+
+	const auto yaml_config = world_loader.child("yaml");
+	if (yaml_config) {
+		m_yaml_threads = static_cast<size_t>(std::strtoul(yaml_config.child_value("threads"), nullptr, 10));
+	}
+}
+
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
 typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
@@ -691,7 +714,8 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_msdp_disabled(false),
 	m_msdp_debug(false),
 	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
-	m_changelog_format(Boards::constants::loader_formats::GIT) {
+	m_changelog_format(Boards::constants::loader_formats::GIT),
+	m_yaml_threads(0) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -711,6 +735,7 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_boards_configuration(&root);
 		load_external_triggers(&root);
 		load_statistics_configuration(&root);
+		load_world_loader_configuration(&root);
 	}
 	catch (const std::exception &e) {
 		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << "\r\n";
