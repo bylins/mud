@@ -15,6 +15,7 @@
 #include "engine/entities/entities_constants.h"
 #include "engine/scripting/dg_scripts.h"
 #include "engine/db/description.h"
+#include "global_objects.h"
 #include "engine/structs/extra_description.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/scripting/dg_olc.h"
