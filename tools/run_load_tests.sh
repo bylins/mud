@@ -285,7 +285,7 @@ setup_small_world() {
 
     if [ "$loader" = "sqlite" ]; then
         echo "  Log: /tmp/convert_small_sqlite.log"
-        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+        python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
             -i "$MUD_DIR/lib.template" \
             -o "$dest_dir" \
             -f sqlite \
@@ -298,7 +298,7 @@ setup_small_world() {
         echo " Created $dest_dir/world.db"
     elif [ "$loader" = "yaml" ]; then
         echo "  Log: /tmp/convert_small_yaml.log"
-        python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+        python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
             -i "$MUD_DIR/lib.template" \
             -o "$dest_dir" \
             -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
@@ -365,7 +365,7 @@ setup_full_world() {
         echo ""
         
         if [ "$loader" = "sqlite" ]; then
-            python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
                 -i "$dest_dir/lib" \
                 -o "$dest_dir" \
                 -f sqlite \
@@ -377,7 +377,7 @@ setup_full_world() {
             }
             echo " Created $dest_dir/world.db"
         else
-            python3 "$MUD_DIR/tools/convert_to_yaml.py" \
+            python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
                 -i "$dest_dir/lib" \
                 -o "$dest_dir" \
                 -f yaml > /tmp/convert_full_yaml.log 2>&1 || {

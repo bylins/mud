@@ -456,7 +456,8 @@ void YamlWorldDataSource::LoadZones()
 	// Load dictionaries first (sequential, writes to singleton)
 	if (!LoadDictionaries())
 	{
-		return;
+		log("FATAL: Cannot continue without dictionaries. Aborting.");
+		exit(1);
 	}
 
 	// Get thread count and create thread pool
