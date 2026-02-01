@@ -265,15 +265,7 @@ setup_small_world() {
         }
     fi
     cd "$MUD_DIR"
-    echo " CMake recreated $dest_dir with symlinks"
-    
-    # (lib.template is incomplete - missing text/help/ etc.)
-    for dir in text misc cfg; do
-        if [ -e "$MUD_DIR/lib/$dir" ]; then
-            ln -sfn "$MUD_DIR/lib/$dir" "$dest_dir/$dir"
-        fi
-    done
-    echo " Fixed text/misc/cfg symlinks to use lib"
+    echo " CMake created $dest_dir (copied lib + lib.template)"
 
     if [ "$loader" = "legacy" ]; then
         echo " Legacy world ready (using lib.template/world)"
