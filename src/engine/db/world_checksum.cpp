@@ -419,6 +419,13 @@ ChecksumResult Calculate()
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
 		std::string serialized = SerializeRoom(world[i]);
+
+		// DEBUG: dump room 100
+		if (world[i] && world[i]->vnum == 100)
+		{
+			fprintf(stderr, "\n=== ROOM 100 BUFFER ===\n%s\n=== END BUFFER ===\n\n", serialized.c_str());
+		}
+
 		uint32_t crc = CRC32String(serialized);
 		rooms_xor ^= crc;
 		++result.rooms_count;

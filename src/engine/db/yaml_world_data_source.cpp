@@ -802,6 +802,23 @@ RoomData* YamlWorldDataSource::ParseRoomFile(const std::string &file_path, int z
 		LoadRoomExtraDescriptions(room, root["extra_descriptions"]);
 	}
 
+	// Load triggers
+	if (root["triggers"] && root["triggers"].IsSequence())
+	{
+		fprintf(stderr, "DEBUG: Loading triggers for room %d, count: %zu\n",
+			room->vnum, root["triggers"].size());
+		room->proto_script = std::make_shared<ObjData::triggers_list_t>();
+		for (const auto &trig_node : root["triggers"])
+		{
+			int trig_vnum = trig_node.as<int>();
+			room->proto_script->push_back(trig_vnum);
+		}
+	}
+	else
+	{
+		fprintf(stderr, "DEBUG: No triggers for room %d\n", room->vnum);
+	}
+
 	return room;
 }
 
