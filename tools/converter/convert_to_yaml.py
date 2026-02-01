@@ -78,10 +78,12 @@ def _init_yaml_libraries():
     if not _ruamel_initialized:
         from ruamel.yaml import YAML
         from ruamel.yaml.comments import CommentedMap, CommentedSeq
+        from ruamel.yaml.scalarstring import LiteralScalarString
         # Inject into module globals for use by to_yaml functions
         globals()['YAML'] = YAML
         globals()['CommentedMap'] = CommentedMap
         globals()['CommentedSeq'] = CommentedSeq
+        globals()['LiteralScalarString'] = LiteralScalarString
         _ruamel_yaml = YAML
         _ruamel_initialized = True
 
@@ -139,6 +141,20 @@ def get_yaml():
         y.preserve_quotes = True
         _thread_local.yaml = y
     return _thread_local.yaml
+
+
+def to_literal_block(text):
+    """Convert multiline string to YAML literal block scalar (|).
+
+    Replaces \\r\\n with actual newlines and wraps in LiteralScalarString
+    for pretty block formatting in YAML output.
+    """
+    if not text or '\\r\\n' not in text:
+        return text
+    # Replace \r\n with actual newlines
+    text = text.replace('\\r\\n', '\n')
+    # Wrap in LiteralScalarString for | block formatting
+    return LiteralScalarString(text)
 
 
 def _convert_to_plain(obj):
@@ -2016,7 +2032,7 @@ def mob_to_yaml(mob):
     if 'descriptions' in mob:
         descs = CommentedMap()
         for key, value in mob['descriptions'].items():
-            descs[key] = value
+            descs[key] = to_literal_block(value)
         data['descriptions'] = descs
 
     # Action flags
@@ -2423,9 +2439,9 @@ def obj_to_yaml(obj):
 
     # Descriptions
     if obj.get('short_desc'):
-        data['short_desc'] = obj['short_desc']
+        data['short_desc'] = to_literal_block(obj['short_desc'])
     if obj.get('action_desc'):
-        data['action_desc'] = obj['action_desc']
+        data['action_desc'] = to_literal_block(obj['action_desc'])
 
     # Type
     if 'type' in obj:
@@ -2507,7 +2523,7 @@ def obj_to_yaml(obj):
         for ed in obj['extra_descs']:
             e = CommentedMap()
             e['keywords'] = ed['keywords']
-            e['description'] = ed['description']
+            e['description'] = to_literal_block(ed['description'])
             eds.append(e)
         data['extra_descriptions'] = eds
 
@@ -2724,7 +2740,7 @@ def room_to_yaml(room):
         data['name'] = room['name']
 
     if 'description' in room:
-        data['description'] = room['description']
+        data['description'] = to_literal_block(room['description'])
 
     # Room flags
     if room.get('room_flags'):
@@ -2744,7 +2760,7 @@ def room_to_yaml(room):
             e['direction'] = DIRECTION_NAMES[direction] if direction < len(DIRECTION_NAMES) else direction
 
             if exit_data.get('description'):
-                e['description'] = exit_data['description']
+                e['description'] = to_literal_block(exit_data['description'])
             if exit_data.get('keywords'):
                 e['keywords'] = exit_data['keywords']
 
@@ -2771,7 +2787,7 @@ def room_to_yaml(room):
         for ed in room['extra_descs']:
             e = CommentedMap()
             e['keywords'] = ed['keywords']
-            e['description'] = ed['description']
+            e['description'] = to_literal_block(ed['description'])
             eds.append(e)
         data['extra_descriptions'] = eds
 
@@ -2912,7 +2928,7 @@ def trg_to_yaml(trigger):
         data['arglist'] = trigger['arglist']
 
     if 'script' in trigger:
-        data['script'] = trigger['script']
+        data['script'] = to_literal_block(trigger['script'])
 
     return yaml_dump_to_string(data)
 
@@ -3246,7 +3262,8 @@ def zon_to_yaml(zone):
         meta = CommentedMap()
         for key in ['comment', 'location', 'author', 'description']:
             if key in zone['metadata']:
-                meta[key] = zone['metadata'][key]
+                value = zone['metadata'][key]
+                meta[key] = to_literal_block(value) if key == 'description' else value
         if meta:
             data['metadata'] = meta
 
