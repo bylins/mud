@@ -19,13 +19,13 @@ void CompactTrieIterators::check(strings_t strings)
 {
 	std::sort(strings.begin(), strings.end());
 
-	for (const auto s : strings)
+	for (const auto &s : strings)
 	{
 		ASSERT_TRUE(trie.add_string(s));
 	}
 
 	size_t i = 0;
-	for (const auto subtree : trie)
+	for (const auto &subtree : trie)
 	{
 		const std::string& word = subtree.prefix();
 		ASSERT_TRUE(word == strings[i])
@@ -133,14 +133,14 @@ TEST_F(CompactTrieIterators, ManyElements_Subranges)
 		}
 	}
 
-	for (const auto subtree : trie)
+	for (const auto &subtree : trie)
 	{
 		const tree_t::const_iterator tree_i = tree.find(subtree.prefix());
 		if (tree_i != tree.end())
 		{
 			// check subtrie
 			size_t i = 0;
-			for (const auto r : subtree)
+			for (const auto &r : subtree)
 			{
 				const std::string& word = r.prefix();
 				if (subtree.prefix() == word)
