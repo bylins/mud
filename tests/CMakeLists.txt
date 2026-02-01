@@ -82,7 +82,7 @@ set(TESTS
 		compact.trie.cpp
 		compact.trie.iterators.cpp
 		world_save_load_tests.cpp
-	world_load_order.cpp
+		world_load_order.cpp
 		compact.trie.prefixes.cpp)
 set(UTILITIES
 		char.utilities.hpp
