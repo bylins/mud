@@ -394,6 +394,9 @@ void YamlWorldDataSource::LoadZonesParallel()
 	zone_table.resize(zone_count);
 	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
 
+	// Sort zone vnums to match Legacy loader order (CRITICAL for checksums)
+	std::sort(zone_vnums.begin(), zone_vnums.end());
+
 	// Build vnum to index mapping
 	std::map<int, size_t> vnum_to_idx;
 	for (size_t i = 0; i < zone_vnums.size(); ++i)
@@ -1362,6 +1365,9 @@ void YamlWorldDataSource::LoadMobsParallel()
 	{
 		zone_vnum_to_rnum[zone_table[i].vnum] = i;
 	}
+
+	// Sort mob vnums to match Legacy loader order (CRITICAL for checksums)
+	std::sort(mob_vnums.begin(), mob_vnums.end());
 
 	// Pre-allocate vnum to index mapping (sorted by vnum)
 	std::map<int, size_t> vnum_to_idx;
