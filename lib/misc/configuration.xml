@@ -8,6 +8,7 @@
 		Так, это могут быть: cp1251 или alt. Значение alt приведёт к конверсии вывода в cp866 (MS DOS).
 		-->
 		<!-- <log_stderr></log_stderr> -->
+		
 		<!--
 		Аналогично, если тег separate_thread присутствует, то весь вывод будет ставиться в блокирующую очередь
 		указанного размера. Основной тред не будет блокироваться до заполнения этой очереди. Треды вывода будет
@@ -17,9 +18,12 @@
 		
 		По умолчанию separate_thread считается отключённым (отсутствует тег).
 		-->
+		<!--
 		<separate_thread>
 			<queue_size>256</queue_size>
 		</separate_thread>
+		-->
+
 		<!--
 		Тег logging может содержать три подузла: syslog, errlog и imlog,
 		с конфигурацией соответствующего потока вывода.
@@ -47,22 +51,23 @@
 		Значением является число в восьмеричной системе счисления.
 		Например: 022 (новый файл получит права 644: rw-r--r--).
 		-->
+		
 		<syslog>
 			<filename>syslog</filename>
-			<buffered>NO</buffered>
+			<buffered>LINE</buffered>
 			<mode>APPEND</mode>
 			<umask>022</umask>
 		</syslog>
 		
 		<errlog>
 			<buffered>NO</buffered>
-			<mode>APPEND</mode>
 		</errlog>
 			
 		<imlog>
 			<buffered>FULL</buffered>
 		</imlog>
 	</logging>
+
 	<features>
 		<msdp>
 			<!--
@@ -75,10 +80,12 @@
 			-->
 		</msdp>
 	</features>
+
 	<boards>
 		<changelog>
 			<!--
 			Имя файла с историей изменений. Относительный путь отсчитывается от директории lib.
+
 			<filename>../bin/changelog</filename>
 			-->
 			<!--
@@ -87,6 +94,7 @@
 			-->
 		</changelog>
 	</boards>
+
 	<external_triggers>
 		<!--
 		Позволяет включить внешний триггер перезагрузки. По умолчанию такой триггер выключен.
@@ -100,6 +108,7 @@
 		<reboot>touch.me.for.reboot</reboot>
 		-->
 	</external_triggers>
+
 	<!--
 	Следующая группа позволяет включить отправку статистики на сервер статистики.
 	Какая именно статистика будет отправлена - зависит от кода, но если что-то и будет отправляться, то сюда.
@@ -114,4 +123,26 @@
 		</server>
 	</statistics>
 	-->
+
+	<!-- конфигурация загрузки мира -->
+	<!--
+	Количество потоков для параллельной загрузки YAML мира.
+	
+	Значения:
+	  - 0 или auto: автоопределение (использует std::thread::hardware_concurrency())
+	  - 1: последовательная загрузка (без многопоточности)
+	  - N > 1: использовать N потоков
+	
+	По умолчанию: auto (рекомендуется для production)
+	
+	Можно переопределить через переменную окружения YAML_THREADS:
+	  export YAML_THREADS=4
+	  ./circle -d world
+	
+	Примечание: Многопоточная загрузка ускоряет загрузку мира в 2-3.5 раза.
+	-->
+	<world_loader>
+		<yaml_threads>${YAML_THREADS:auto}</yaml_threads>
+	</world_loader>
+
 </configuration>
