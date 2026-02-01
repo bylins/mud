@@ -215,7 +215,7 @@ Threads | Boot Time | Speedup vs 1T | Efficiency | Notes
    - YAML's human-readability worth the tiny speed cost
 
 
-### YAML Thread Scaling - Full World (NEW)
+### YAML Thread Scaling - Full World 
 
 ```
 Threads | Boot Time | Speedup vs 1T | Efficiency | Notes
@@ -267,32 +267,6 @@ YAML    | 40.504s   | 0.74x (34% slower) | Human-readable, parsing overhead
 - 640 zones, 46,542 rooms, 18,757 mobs, 22,022 objects, 16,823 triggers
 - 10x larger than small world
 - More representative of production workload
-
-### YAML Thread Scaling - Full World
-
-```
-Threads | Boot Time | Speedup vs 1T | Efficiency | Analysis
---------|-----------|---------------|------------|-------------------------
-1       | 39.167s   | 1.00x         | 100.0%     | Baseline
-2       | 38.966s   | 1.00x         | 50.0%      | Minimal benefit (0.5%)
-4       | 38.839s   | 1.00x         | 25.0%      | Minimal benefit (0.8%)
-8       | 39.166s   | 1.00x         | 12.5%      | No benefit
-```
-
-**Analysis:**
-- **Surprising result:** Almost no speedup from multi-threading on full world
-- Possible bottlenecks:
-  1. **Sequential phases dominate:** Merge and trigger attachment not parallelized
-  2. **Disk I/O limited:** Reading YAML files from disk is the bottleneck
-  3. **Thread overhead:** Pool management costs outweigh benefits
-- **Recommendation:** Use default thread count (CPU cores), no benefit from 8+ threads
-
-**Thread Scaling Comparison:**
-
-| Dataset     | 4 Threads Speedup | 8 Threads Speedup | Bottleneck           |
-|-------------|-------------------|-------------------|----------------------|
-| Small World | 1.12x (12%)       | 1.18x (18%)       | Not enough data      |
-| Full World  | 1.00x (0.8%)      | 1.00x (0%)        | Disk I/O / Sequential phases |
 
 ### Performance Summary
 

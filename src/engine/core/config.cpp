@@ -693,7 +693,7 @@ const std::string &NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode item) {
 	return EMode_name_by_value.at(item);
 }
 
-const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "lib/misc/configuration.xml";
+const char *RuntimeConfiguration::CONFIGURATION_FILE_NAME = "misc/configuration.xml";
 
 const RuntimeConfiguration::logs_t LOGS({
 											CLogInfo("syslog", "СИСТЕМНЫЙ"),
@@ -738,10 +738,12 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_world_loader_configuration(&root);
 	}
 	catch (const std::exception &e) {
-		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << "\r\n";
+		std::cerr << "ERROR: Failed to load configuration file " << filename << ": " << e.what() << "\r\n";
+		std::cerr << "WARNING: Running with default configuration settings. YAML_THREADS will use hardware_concurrency().\r\n";
 	}
 	catch (...) {
-		std::cerr << "Unexpected error when loading configuration file " << filename << "\r\n";
+		std::cerr << "ERROR: Unexpected error when loading configuration file " << filename << "\r\n";
+		std::cerr << "WARNING: Running with default configuration settings.\r\n";
 	}
 }
 
