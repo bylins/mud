@@ -92,7 +92,7 @@ std::vector<size_t> RoomDescriptions::merge(const LocalDescriptionIndex &local_i
 
 	for (size_t local_idx = 0; local_idx < local_index.size(); ++local_idx)
 	{
-		const std::string &desc = local_index.get(local_idx);
+		const std::string &desc = local_index.get(local_idx + 1);  // Convert 0-based loop to 1-based index
 		size_t global_idx = add(desc);  // Deduplicates automatically!
 		local_to_global.push_back(global_idx);
 	}
