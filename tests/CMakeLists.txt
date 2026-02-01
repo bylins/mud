@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.10)
 
 enable_testing()
 
-# О©╫О©╫О©╫О©╫О©╫ GTest: О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ find_package (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫),
-# О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+# п÷п╬п╦я│п╨ GTest: я│п╫п╟я┤п╟п╩п╟ п©я─п╬п╠я┐п╣п╪ find_package (я─п╟п╠п╬я┌п╟п╣я┌ п╫п╟ п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╣ п╢п╦я│я┌я─п╦п╠я┐я┌п╦п╡п╬п╡),
+# п╥п╟я┌п╣п╪ я─я┐я┤п╫п╬п╧ п©п╬п╦я│п╨ п╢п╩я▐ п╫п╣я│я┌п╟п╫п╢п╟я─я┌п╫я▀я┘ я┐я│я┌п╟п╫п╬п╡п╬п╨
 if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
-	# О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ find_package
+	# п║п╫п╟я┤п╟п╩п╟ п©я─п╬п╠я┐п╣п╪ я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╧ п©п╬п╦я│п╨ я┤п╣я─п╣п╥ find_package
 	find_package(GTest QUIET)
 	if (GTest_FOUND OR GTEST_FOUND)
 		message(STATUS "GTest found via find_package")
-		# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ CMake (3.20+) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ GTest::gtest target
+		# п║п╬п╡я─п╣п╪п╣п╫п╫я▀п╧ CMake (3.20+) п╦я│п©п╬п╩я▄п╥я┐п╣я┌ GTest::gtest target
 		if (TARGET GTest::gtest)
 			set(GTEST_LIB GTest::gtest)
 			get_target_property(GTEST_INCLUDE GTest::gtest INTERFACE_INCLUDE_DIRECTORIES)
@@ -18,10 +18,10 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
 		endif ()
 	else ()
-		# О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		# п═я┐я┤п╫п╬п╧ п©п╬п╦я│п╨ п╢п╩я▐ п╫п╣я│я┌п╟п╫п╢п╟я─я┌п╫я▀я┘ я┐я│я┌п╟п╫п╬п╡п╬п╨
 		message(STATUS "GTest not found via find_package, trying manual search...")
 
-		# О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+		# п≤я┴п╣п╪ п╥п╟пЁп╬п╩п╬п╡п╬я┤п╫я▀п╣ я└п╟п╧п╩я▀
 		find_path(GTEST_INCLUDE_DIR gtest/gtest.h
 			PATHS
 				$ENV{GTEST_ROOT}/include
@@ -29,7 +29,7 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 				/usr/local/include
 		)
 
-		# О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+		# п≤я┴п╣п╪ п╠п╦п╠п╩п╦п╬я┌п╣п╨я┐ п╡ я│я┌п╟п╫п╢п╟я─я┌п╫я▀я┘ п©я┐я┌я▐я┘ п╢п╩я▐ я─п╟п╥п╫я▀я┘ п╢п╦я│я┌я─п╦п╠я┐я┌п╦п╡п╬п╡
 		find_library(GTEST_LIB gtest
 			PATHS
 				$ENV{GTEST_ROOT}/lib
@@ -82,7 +82,7 @@ set(TESTS
 		compact.trie.cpp
 		compact.trie.iterators.cpp
 		world_save_load_tests.cpp
-		world_load_order.cpp
+	world_load_order.cpp
 		compact.trie.prefixes.cpp)
 set(UTILITIES
 		char.utilities.hpp
@@ -105,7 +105,7 @@ add_test(all tests)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
-# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫)
+# п п╬п©п╦я─я┐п╣п╪ я┌п╣я│я┌п╬п╡я▀п╣ п╢п╟п╫п╫я▀п╣ п╡ п╨п╬я─п╣п╫я▄ п©я─п╬п╣п╨я┌п╟ (п╬я┌п╨я┐п╢п╟ п╥п╟п©я┐я│п╨п╟я▌я┌я│я▐ я┌п╣я│я┌я▀)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/misc
