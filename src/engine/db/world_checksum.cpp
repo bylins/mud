@@ -128,6 +128,17 @@ std::string SerializeRoom(const RoomData *room)
 	}
 	oss << "|";
 
+	// Serialize room description (actual text content)
+	if (room->temp_description)
+	{
+		oss << room->temp_description;
+	}
+	else
+	{
+		oss << GlobalObjects::descriptions().get(room->description_num);
+	}
+	oss << "|";
+
 	// Serialize room flags using safe dynamic buffer
 	std::vector<char> flag_buf(8192);
 	flag_buf[0] = '\0';
