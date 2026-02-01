@@ -10,9 +10,9 @@ std::vector<std::string> RoomDescription::_desc_list;
 RoomDescription::reboot_map_t RoomDescription::_reboot_map;
 
 /**
-* п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╬п©п╦я│п╟п╫п╦я▐ п╡ п╪п╟я│я│п╦п╡ я│ п©я─п╬п╡п╣я─п╨п╬п╧ п╫п╟ я┐п╫п╦п╨п╟п╩я▄п╫п╬я│я┌я▄
-* \param text - п╬п©п╦я│п╟п╫п╦п╣ п╨п╬п╪п╫п╟я┌я▀
-* \return п╫п╬п╪п╣я─ п╬п©п╦я│п╟п╫п╦я▐ п╡ пЁп╩п╬п╠п╟п╩я▄п╫п╬п╪ п╪п╟я│я│п╦п╡п╣
+* добавление описания в массив с проверкой на уникальность
+* \param text - описание комнаты
+* \return номер описания в глобальном массиве
 */
 size_t RoomDescription::add_desc(const std::string &text) {
 	reboot_map_t::const_iterator it = _reboot_map.find(text);
@@ -28,9 +28,9 @@ size_t RoomDescription::add_desc(const std::string &text) {
 const static std::string empty_string = "";
 
 /**
-* п©п╬п╦я│п╨ п╬п©п╦я│п╟п╫п╦я▐ п©п╬ п╣пЁп╬ п©п╬я─я▐п╢п╨п╬п╡п╬п╪я┐ п╫п╬п╪п╣я─я┐ п╡ п╪п╟я│я│п╦п╡п╣
-* \param desc_num - п©п╬я─я▐п╢п╨п╬п╡я▀п╧ п╫п╬п╪п╣я─ п╬п©п╦я│п╟п╫п╦я▐ (descripton_num п╡ room_data)
-* \return я│я┌я─п╬п╨п╟ п╬п©п╦я│п╟п╫п╦я▐ п╦п╩п╦ п©я┐я│я┌п╟я▐ я│я┌я─п╬п╨п╟ п╡ я│п╩я┐я┤п╟п╣ п╫п╣п╡п╟п╩п╦п╢п╫п╬пЁп╬ п╫п╬п╪п╣я─п╟
+* поиск описания по его порядковому номеру в массиве
+* \param desc_num - порядковый номер описания (descripton_num в room_data)
+* \return строка описания или пустая строка в случае невалидного номера
 */
 const std::string &RoomDescription::show_desc(size_t desc_num) {
 	try {

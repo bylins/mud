@@ -44,12 +44,12 @@ EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EOutputStream>(const EOutputStream spell);
 
-/* PCCleanCriteria я│я┌я─я┐п╨я┌я┐я─п╟ п╨п╬я┌п╬я─п╟я▐ п╬п©я─п╣п╢п╣п╩я▐п╣я┌ я┤п╣я─п╣п╥ п╨п╟п╨п╬п╧ п╡я─п╣п╪я▐
-   п╫п╣п╟п╨я┌п╦п╡п╫п╬я│я┌п╦ п╠я┐п╢п╣я┌ я┐п╢п╟п╩п╣п╫ я┤п╟я─
+/* PCCleanCriteria структура которая определяет через какой время
+   неактивности будет удален чар
 */
 struct PCCleanCriteria {
-	int level = 0;	// max я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ я█я┌п╬пЁп╬ п╡я─п╣п╪п╣п╫п╫п╬пЁп╬ п╩п╦п╪п╦я┌п╟ //
-	int days = 0;	// п╡я─п╣п╪п╣п╫п╫п╬п╧ п╩п╦п╪п╦я┌ п╡ п╢п╫я▐я┘        //
+	int level = 0;	// max уровень для этого временного лимита //
+	int days = 0;	// временной лимит в днях        //
 };
 
 extern struct PCCleanCriteria pclean_criteria[];
