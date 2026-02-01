@@ -28,7 +28,7 @@
 //External functions
 extern void ExtractTrigger(Trigger *trig);
 
-//О©╫О©╫О©╫О©╫_О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ : [О©╫О©╫О©╫О©╫_О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫_О©╫О©╫О©╫О©╫О©╫О©╫О©╫_О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫_О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ : [О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫)]]
+//внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
 trigger_to_owners_map_t owner_trig;
 
 extern int top_of_trigt;
@@ -45,7 +45,7 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 		indent_stack.swap(empty_stack);
 	}
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// уровни вложения
 	int currlev, nextlev;
 	currlev = nextlev = *level;
 
@@ -53,13 +53,13 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 		return cmd;
 	}
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+	// Удаляем впереди идущие пробелы.
 	char *ptr = cmd;
 	skip_spaces(&ptr);
 
-	// ptr О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+	// ptr содержит строку без первых пробелов.
 	if (!strn_cmp("case ", ptr, 5) || !strn_cmp("default", ptr, 7)) {
-		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ case (О©╫О©╫О©╫ default О©╫О©╫О©╫О©╫О©╫ case) О©╫О©╫О©╫ break
+		// последовательные case (или default после case) без break
 		if (!indent_stack.empty()
 			&& !strn_cmp("case ", indent_stack.top().c_str(), 5)) {
 			--currlev;
@@ -75,7 +75,7 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 		--currlev;
 	} else if (!strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3)
 		|| !strn_cmp("done", ptr, 4)) {
-		// О©╫ switch О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ break О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ done|end
+		// в switch завершающий break можно опускать и сразу писать done|end
 		if ((!strn_cmp("done", ptr, 4) || !strn_cmp("end", ptr, 3))
 			&& !indent_stack.empty()
 			&& (!strn_cmp("case ", indent_stack.top().c_str(), 5)
@@ -94,7 +94,7 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 	if (nextlev < 0) nextlev = 0;
 	if (currlev < 0) currlev = 0;
 
-	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// Вставляем дополнительные пробелы
 
 	char *tmp = (char *) malloc(currlev * 2 + 1);
 	memset(tmp, 0x20, currlev * 2);
@@ -139,9 +139,9 @@ Trigger *read_trigger(int nr) {
 	return trig;
 }
 
-// vnum_owner - О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
-// vnum_trig - О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
-// vnum - О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
+// vnum_owner - триг, который приаттачил данный триг
+// vnum_trig - внум приатаченного трига
+// vnum - к кому приатачился триг
 void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum) {
 		const auto &vnum_list = owner_trig[vnum_trig][vnum_owner];
 
@@ -282,7 +282,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 		if (featdiff)
 			return;
 		else {
-			sprintf(buf, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Feat(feat_id).GetCName());
+			sprintf(buf, "Вы утратили способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
 			SendMsgToChar(buf, ch);
 			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
 			ch->UnsetFeat(feat_id);
@@ -290,7 +290,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 	} else {
 		if (featdiff) {
 			if (MUD::Class(ch->GetClass()).feats.IsAvailable(feat_id)) {
-				sprintf(buf, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Feat(feat_id).GetCName());
+				sprintf(buf, "Вы обрели способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
 				SendMsgToChar(buf, ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d",
 					MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
@@ -306,11 +306,11 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 			return;
 		}
 		ch->set_skill(skill_id, 0);
-		SendMsgToChar(ch, "О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Skill(skill_id).GetName());
+		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skill(skill_id).GetName());
 		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), GET_NAME(ch));
 	} else if (skilldiff && MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 		ch->set_skill(skill_id, 5);
-		SendMsgToChar(ch, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Skill(skill_id).GetName());
+		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skill(skill_id).GetName());
 		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), GET_NAME(ch), vnum);
 	}
 }
@@ -322,17 +322,17 @@ void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
 	if (skill > ch->GetSkillBonus(skillnum)) {
-		SendMsgToChar(ch, "О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ '%s' О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", MUD::Skill(skillnum).GetName());
+		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
 			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	} else if (skill < ch->GetSkillBonus(skillnum)) {
-		SendMsgToChar(ch, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Skill(skillnum).GetName());
+		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skill(skillnum).GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
 			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	} else {
-		SendMsgToChar(ch, "О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ '%s' О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", MUD::Skill(skillnum).GetName());
+		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
 			ch->GetSkillBonus(skillnum), skilldiff, vnum);
@@ -354,11 +354,11 @@ void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
 		if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp))
 			GET_SPELL_MEM(ch, spell_id) = 0;
-		SendMsgToChar(ch, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+		SendMsgToChar(ch, "Вы начисто забыли заклинание '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		log("Remove %s from %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 	} else if (spelldiff) {
 		SET_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
-		SendMsgToChar(ch, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+		SendMsgToChar(ch, "Вы постигли заклинание '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 	}
 }
@@ -371,7 +371,7 @@ void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	}
 
 	temporary_spells::AddSpell(ch, spell_id, time(nullptr), spelldiff);
-	SendMsgToChar(ch, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s' О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫.\r\n",
+	SendMsgToChar(ch, "Вы дополнительно можете использовать заклинание '%s' некоторое время.\r\n",
 				  MUD::Spell(spell_id).GetCName());
 	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d",
 		MUD::Spell(spell_id).GetCName(), spelldiff, GET_NAME(ch), vnum);
@@ -385,15 +385,15 @@ void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 		if (GET_SPELL_MEM(ch, spell_id)) {
 			log("Remove custom spell %s to %s (trigspell) trigvnum %d",
 				MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
-			sprintf(buf, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		} else {
-			sprintf(buf, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 			log("Remove all spells %s to %s (trigspell) trigvnum %d",
 				MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 		}
 		SendMsgToChar(buf, ch);
 	} else if (spell < GET_SPELL_MEM(ch, spell_id)) {
-		SendMsgToChar(ch, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ '%s'.\r\n", MUD::Spell(spell_id).GetCName());
+		SendMsgToChar(ch, "Вы выучили несколько заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
 	}
 }
@@ -407,20 +407,20 @@ void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spel
 	if (!spelldiff) {
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), spell_type);
 		switch (spell_type) {
-			case ESpellType::kScrollCast: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫");
+			case ESpellType::kScrollCast: strcpy(type, "создания свитка");
 				break;
-			case ESpellType::kPotionCast: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
+			case ESpellType::kPotionCast: strcpy(type, "приготовления напитка");
 				break;
-			case ESpellType::kWandCast: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫");
+			case ESpellType::kWandCast: strcpy(type, "изготовления посоха");
 				break;
-			case ESpellType::kItemCast: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫");
+			case ESpellType::kItemCast: strcpy(type, "предметной магии");
 				break;
-			case ESpellType::kRunes: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫");
+			case ESpellType::kRunes: strcpy(type, "использования рун");
 				break;
 			default: break;
 		};
 		std::stringstream buffer;
-		buffer << "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ " << type << " '" << MUD::Spell(spell_id).GetName() << "'";
+		buffer << "Вы утратили умение " << type << " '" << MUD::Spell(spell_id).GetName() << "'";
 		SendMsgToChar(buffer.str(), ch);
 
 	} else {
@@ -429,26 +429,26 @@ void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spel
 			case ESpellType::kScrollCast:
 				if (!ch->GetSkill(ESkill::kCreateScroll))
 					ch->set_skill(ESkill::kCreateScroll, 5);
-				strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫");
+				strcpy(type, "создания свитка");
 				break;
 			case ESpellType::kPotionCast:
 				if (!ch->GetSkill(ESkill::kCreatePotion))
 					ch->set_skill(ESkill::kCreatePotion, 5);
-				strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
+				strcpy(type, "приготовления напитка");
 				break;
 			case ESpellType::kWandCast:
 				if (!ch->GetSkill(ESkill::kCreateWand))
 					ch->set_skill(ESkill::kCreateWand, 5);
-				strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫");
+				strcpy(type, "изготовления посоха");
 				break;
-			case ESpellType::kItemCast: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫");
+			case ESpellType::kItemCast: strcpy(type, "предметной магии");
 				break;
-			case ESpellType::kRunes: strcpy(type, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫");
+			case ESpellType::kRunes: strcpy(type, "использования рун");
 				break;
 			default: break;
 		}
 		std::stringstream buffer;
-		buffer << "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ " << type << " '" << MUD::Spell(spell_id).GetName() << "'";
+		buffer << "Вы приобрели умение " << type << " '" << MUD::Spell(spell_id).GetName() << "'";
 		SendMsgToChar(buffer.str(), ch);
 		CheckRecipeItems(ch, spell_id, spell_type, true);
 	}
