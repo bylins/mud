@@ -1,9 +1,0 @@
-# Trigger #4011
-vnum: 4011
-name: Тест портала
-attach_type: kRoomTrigger
-trigger_types:
-- kAuto
-narg: 100
-arglist: ''
-script: wportal 50040 2

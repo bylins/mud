@@ -1,9 +1,0 @@
-# Trigger #198
-vnum: 198
-name: подавление врат в аду
-attach_type: kRoomTrigger
-trigger_types:
-- kCommand
-narg: 1
-arglist: вра врат врата врата!
-script: "return 0\r\nwechoaround %actor% %actor.name% не смог%actor.q% открыть Врата.\r\nwsend %actor% Вы приложили максимум усилий, но ничего не произошло.\r\nlog &R %actor.name% пытался поставить врата из комнаты %self.vnum% !!!"

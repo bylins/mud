@@ -1,9 +1,0 @@
-# Trigger #196
-vnum: 196
-name: назначение целей палачу
-attach_type: kMobTrigger
-trigger_types:
-- kCommand
-narg: 0
-arglist: target1 target2 target3 target4 мо мол моло молот hu huk
-script: "if ( %cmd.mudcommand% == huk )\r\n  return 1\r\n  halt\r\nend\r\nif (%cmd.mudcommand% == молот)\r\n  return 1\r\n  halt\r\nend\r\nif ( %actor.vnum% != -1 )\r\n  halt\r\nend\r\nif ( %actor.level% < 31 )\r\n  halt\r\nend\r\nswitch %cmd%\r\n  case target1\r\n    set target1 %arg%\r\n    global target1\r\n  break\r\n  case target2\r\n    set target2 %arg%\r\n    global target2\r\n  break\r\n  case target3\r\n    set target3 %arg%\r\n    global target3\r\n  break\r\n  case target4\r\n    set target4 %arg%\r\n  break\r\ndone"

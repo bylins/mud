@@ -1,9 +1,0 @@
-# Zone #3
-vnum: 3
-name: Системная зона 3 (прототипы для кузнецов)
-top_room: 399
-mode: 1
-zone_type: 0
-lifespan: 0
-reset_mode: 0
-reset_idle: 0

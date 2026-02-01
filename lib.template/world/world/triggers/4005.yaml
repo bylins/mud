@@ -1,9 +1,0 @@
-# Trigger #4005
-vnum: 4005
-name: призовой триг на лисе
-attach_type: kMobTrigger
-trigger_types:
-- kCommand
-narg: 100
-arglist: тест
-script: "wait 1\r\nsay Actor position - %actor.position%\r\nif (%actor.position% < 5)\r\n  say проснуться\r\nend\r\nif (%actor.position% < 7)\r\n  say встать\r\nend"

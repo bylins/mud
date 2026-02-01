@@ -1,9 +1,0 @@
-# Trigger #4010
-vnum: 4010
-name: Подключение ПЬЯНКИ
-attach_type: kObjTrigger
-trigger_types:
-- kCommand
-narg: 2
-arglist: прочитать
-script: "if !%arg.contains(книгу)%\r\n  %send% %actor% чего читаете?\r\n  halt\r\nend\r\nosend %actor% Из раскрывшейся книги вам в нос ударила волна хмельных запахов...\r\noechoaround %actor% %actor.name% открыл%actor.g% книгу пьянки - крепкий винный запах ударил в нос.\r\nattach 4008 %actor.id%\r\nwait 1\r\nopurge %self%"

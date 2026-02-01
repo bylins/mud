@@ -1,9 +1,0 @@
-# Trigger #4002
-vnum: 4002
-name: входнапостой
-attach_type: kMobTrigger
-trigger_types:
-- kGreetPCAll
-narg: 100
-arglist: ''
-script: "wait 1\r\neval factor %self.people%\r\nwhile %factor%\r\n  eval pc %factor.next_in_room%\r\n  if (%factor.vnum% == -1) && (%factor.level%>19) && (%factor.level%<31)\r\n    if %factor.sex%==1\r\n      tell %factor.name% Вырос ты уже, нечего тебе здесь штаны просиживать.\r\n    else\r\n      tell %factor.name% Выросла ты уже, нечего тебе здесь юбку просиживать.\r\n    end\r\n    tell %factor.name% Не пушу я тебя здесь на постой, иди в город, там где большие нужны.\r\n    tell %factor.name% А от вас только проблемы здесь будут.\r\n    mechoaround %factor% Хозяин вытолкнул %factor.vname% на улицу.\r\n    msend %factor.name% Хозяин вытолкнул вас на улицу.\r\n    mteleport %factor.name% 4014\r\n    mteleport %factor.name% 4014\r\n    mteleport %factor.name% 4014\r\n    mteleport %factor.name% 4014\r\n    mteleport %factor.name% 4014\r\n    mteleport %factor.name% 4014\r\n    mteleport %factor.name% 4014\r\n    if %factor.sex%==1\r\n      mat 4014 mechoaround %factor% Немного взлохмаченный %factor.name% пришел с запада.\r\n    else\r\n      mat 4014 mechoaround %factor% Немного взлохмаченная %factor.name% пришла с запада.\r\n    end\r\n  end\r\n  if %pc.id% && %pc.id%!=%factor.id%\r\n    makeuid factor %pc.id%\r\n  else\r\n    unset factor\r\n  end\r\ndone"

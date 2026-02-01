@@ -1,9 +1,0 @@
-# Trigger #4015
-vnum: 4015
-name: Рента
-attach_type: kMobTrigger
-trigger_types:
-- kGreetPC
-narg: 100
-arglist: ''
-script: "wait 1\r\n%actor.loadroom(60036)%\r\nmteleport %actor% 60036\r\nlog Рента - %actor.name%"

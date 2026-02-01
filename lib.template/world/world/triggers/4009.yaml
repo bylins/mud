@@ -1,9 +1,0 @@
-# Trigger #4009
-vnum: 4009
-name: Скиллы
-attach_type: kObjTrigger
-trigger_types:
-- kCommand
-narg: 1
-arglist: скилл
-script: "log &CСработал триг на выдачу скиллов - %actor.name% - %actor.realroom%&n\r\noecho Чититят только колзы и педерасты."

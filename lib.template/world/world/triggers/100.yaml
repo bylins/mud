@@ -1,9 +1,0 @@
-# Trigger #100
-vnum: 100
-name: перемещение
-attach_type: kRoomTrigger
-trigger_types:
-- kCommand
-narg: 100
-arglist: шаг
-script: "wait 1\r\nif (%actor.vnum% != -1)\r\n  halt\r\nend\r\nif (%actor.level%<31)\r\n  halt\r\nend\r\nif %arg.contains(0)% || %arg.contains(трон)%\r\n  wteleport %actor% 100\r\nend\r\nif %arg.contains(1)% || %arg.contains(темница)%\r\n  wteleport %actor% 101\r\nend\r\nif %arg.contains(5)% || %arg.contains(имена)%\r\n  %echo% &Y БАММ!!! &n\r\n  *wteleport %actor% 105\r\nend"

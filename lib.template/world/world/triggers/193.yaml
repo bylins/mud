@@ -1,9 +1,0 @@
-# Trigger #193
-vnum: 193
-name: Кто-то что-то сказал в комнате с палачом
-attach_type: kMobTrigger
-trigger_types:
-- kSpeech
-narg: 0
-arglist: '*'
-script: "wait 1\r\nif %self.fighting%\r\n  halt\r\nend\r\nif ( %actor.name% == %target1%)\r\n  появ\r\n  say %actor.name%, cледуйте за мной!\r\n  force %actor% follow княжеский.палач\r\n  group all\r\n  mkill .%actor.name%\r\n  halt\r\nend\r\nif ( %actor.name% == %target2%)\r\n  появ\r\n  say %actor.name%, cледуйте за мной!\r\n  force %actor% follow княжеский.палач\r\n  group all\r\n  mkill .%actor.name%\r\n  halt\r\nend\r\nif ( %actor.name% == %target3%)\r\n  появ\r\n  say %actor.name%, cледуйте за мной!\r\n  force %actor% follow княжеский.палач\r\n  group all\r\n  mkill .%actor.name%\r\n  halt\r\nend\r\nif ( %actor.name% == %target4%)\r\n  появ\r\n  say %actor.name%, cледуйте за мной!\r\n  force %actor% follow княжеский.палач\r\n  group all\r\n  mkill .%actor.name%\r\n  halt\r\nend"

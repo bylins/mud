@@ -1,9 +1,0 @@
-# Trigger #140
-vnum: 140
-name: капля
-attach_type: kObjTrigger
-trigger_types:
-- kCommand
-narg: 1
-arglist: капля
-script: "eval victim %arg.car%\r\neval value %arg.cdr%\r\nforeach target %self.all%\r\n  eval string %target.iname%\r\n  set targetname %string.car%\r\n  if ( %targetname% == %victim% )\r\n    log %actor.name% окропила водой из Гьелль %victim%, он потерял %value% хитов.\r\n    %echoaround% %target%  &WХель&n окропила %target.vname% &Wледяной водой&n из реки Гьелль.\r\n    %echoaround% %target% %target.iname% бледнеет, кажется это действительно БОЛЬНО!\r\n    %send% %target%  &WХель&n взмахнула рукой, и на Вас полетели &Wледяные капли&n, прожигающие кожу.\r\n    %send% %target% О Боги, это действительно БОЛЬНО!\r\n    eval buffer %target.hitp(-%value%)%\r\n    odamage %target% %value%\r\n    halt\r\n  end\r\ndone"

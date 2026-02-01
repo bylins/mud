@@ -1,9 +1,0 @@
-# Trigger #180
-vnum: 180
-name: LAAAAAAAAG
-attach_type: kMobTrigger
-trigger_types:
-- kDeath
-narg: 100
-arglist: ''
-script: "if %random.1000% < 10\r\n  halt\r\nend\r\nmload mob 191\r\nreturn 0\r\n*if %actor.vnum% == -1\r\n* set target2 %actor%\r\n*else\r\n* set target2 %actor.leader%\r\n*end\r\nset target2 Такурусаву\r\nglobal target2\r\ncalcuid lag 191 mob\r\nremote target2 %lag%\r\nmforce lag1 хохот .%actor.name%"

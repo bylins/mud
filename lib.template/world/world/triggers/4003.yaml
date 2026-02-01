@@ -1,9 +1,0 @@
-# Trigger #4003
-vnum: 4003
-name: нападениежителя
-attach_type: kMobTrigger
-trigger_types:
-- kFight
-narg: 100
-arglist: ''
-script: "set name2 %actor%\r\nif %actor.leader%\r\n  set name1 %actor.leader%\r\n  if (%name1.vnum% == -1) && (%actor.vnum% != -1))\r\n    set name2 %actor.leader%\r\n  end\r\nend\r\nif !%name2.rentable%\r\n  msend %actor% %self.name% СМЕРТЕЛЬHО ударил%self.g% Вас.\r\n  mdamage %actor% 300\r\n  бежать\r\n  halt\r\nend\r\nг %name2.name%, у нас найдется управа на таких обидчиков!\r\nmsend %actor.name% Вдруг прибежал здоровый парень и оглушил вас.\r\nmechoaround %actor% Прибежал здоровый парень, оглушил %actor.rname% и куда-то уволок.\r\nwait 1\r\nmsend %name2.name% Вы потеряли сознание.\r\nwait 1\r\nmsend %name2.name% Вы пришли в сознание в глубокой яме от удара о землю.\r\nif %name2.hitp%>0\r\n  msend %name2% Кто-то сверху сильно руганулся, помянул всех ваших родственников до десятого колена.\r\n  msend %name2% Кто-то сверху сказал: Посиди здесь, пока не успокоишься.\r\n  msend %name2% Да, если хочешь выйти говори: простите меня дурака, может и выпущу.\r\n  mteleport %name2% 4058\r\n  *mat 4058 mechoaround %name2% Решетка в яме открылась и %name2.name% упал%name2.a% сверху в яму.\r\n  *mat 4058 mechoaround %name2% Кто-то сильно руганулся, помянул всех родственников %actor.rname% до десятого колена.\r\n  *mat 4058 mechoaround %name2% Кто-то сверху сказал: \r\n  *mat 4058 mechoaround %name2% Посиди здесь пока не успокоишься.\r\n  *wait 1\r\n  *if %name2.sex%==1\r\n  *mat 4058 mechoaround %name2% Да, если хочешь выйти говори: простите меня дурака, может и выпущу.\r\n  *else\r\n  *mat 4058 mechoaround %name2% Да, если хочешь выйти говори: простите меня дуру, может и выпущу.\r\n  *end\r\nend"
