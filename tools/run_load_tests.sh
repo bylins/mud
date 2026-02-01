@@ -286,28 +286,30 @@ setup_small_world() {
     if [ "$loader" = "sqlite" ]; then
         echo "  Log: /tmp/convert_small_sqlite.log"
         python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-            -i "$MUD_DIR/lib.template" \
+            -i "$dest_dir" \
             -o "$dest_dir" \
             -f sqlite \
-            --db "$dest_dir/world.db" > /tmp/convert_small_sqlite.log 2>&1 || {
+            --db "$dest_dir/world.db" \
+            --delete-source > /tmp/convert_small_sqlite.log 2>&1 || {
             echo "X ERROR: Conversion failed"
             echo "  Log: /tmp/convert_small_sqlite.log"
             tail -10 /tmp/convert_small_sqlite.log
             return 1
         }
-        echo " Created $dest_dir/world.db"
+        echo " Converted in-place to SQLite format"
     elif [ "$loader" = "yaml" ]; then
         echo "  Log: /tmp/convert_small_yaml.log"
         python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-            -i "$MUD_DIR/lib.template" \
+            -i "$dest_dir" \
             -o "$dest_dir" \
-            -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
+            -f yaml \
+            --delete-source > /tmp/convert_small_yaml.log 2>&1 || {
             echo "X ERROR: Conversion failed"
             echo "  Log: /tmp/convert_small_yaml.log"
             tail -10 /tmp/convert_small_yaml.log
             return 1
         }
-        echo " Created $dest_dir/world/"
+        echo " Converted in-place to YAML format"
     fi
     
     echo ""
@@ -369,24 +371,26 @@ setup_full_world() {
                 -i "$dest_dir/lib" \
                 -o "$dest_dir" \
                 -f sqlite \
-                --db "$dest_dir/world.db" > /tmp/convert_full_sqlite.log 2>&1 || {
+                --db "$dest_dir/world.db" \
+                --delete-source > /tmp/convert_full_sqlite.log 2>&1 || {
                 echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_sqlite.log"
                 tail -20 /tmp/convert_full_sqlite.log
                 return 1
             }
-            echo " Created $dest_dir/world.db"
+            echo " Converted to SQLite format"
         else
             python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
                 -i "$dest_dir/lib" \
                 -o "$dest_dir" \
-                -f yaml > /tmp/convert_full_yaml.log 2>&1 || {
+                -f yaml \
+                --delete-source > /tmp/convert_full_yaml.log 2>&1 || {
                 echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_yaml.log"
                 tail -20 /tmp/convert_full_yaml.log
                 return 1
             }
-            echo " Created $dest_dir/world/"
+            echo " Converted to YAML format"
         fi
 
 		# Move all content from lib/ to root
@@ -451,12 +455,12 @@ if [ $NEED_SMALL -eq 1 ]; then
         setup_small_world "legacy" || exit 1
     fi
     if [ $NEED_SQLITE -eq 1 ]; then
-        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ] || [ ! -L "$MUD_DIR/build_sqlite/small/cfg" ]; then
+        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ]; then
         setup_small_world "sqlite" || exit 1
         fi
     fi
     if [ $NEED_YAML -eq 1 ]; then
-        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/small/world" ] || [ ! -L "$MUD_DIR/build_yaml/small/cfg" ]; then
+        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/small/world/dictionaries" ]; then
         setup_small_world "yaml" || exit 1
         fi
     fi

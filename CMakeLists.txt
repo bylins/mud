@@ -1363,28 +1363,22 @@ if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     # Setup small world directory (lib + lib.template)
     set(SMALL_WORLD_DIR "${CMAKE_BINARY_DIR}/small")
     
-    # Create small world directory with symlinks
-    file(MAKE_DIRECTORY "${SMALL_WORLD_DIR}")
-    
-    # List of subdirectories to symlink from lib and lib.template
-    set(LIB_SUBDIRS cfg etc misc text world plralias plrobjs plrs plrstuff plrvars stat log)
-    
-    foreach(subdir ${LIB_SUBDIRS})
-        set(LINK_PATH "${SMALL_WORLD_DIR}/${subdir}")
-        # Prefer lib.template if exists, otherwise use lib
-        if (EXISTS "${CMAKE_SOURCE_DIR}/lib.template/${subdir}")
-            set(TARGET_PATH "${CMAKE_SOURCE_DIR}/lib.template/${subdir}")
-        elseif (EXISTS "${CMAKE_SOURCE_DIR}/lib/${subdir}")
-            set(TARGET_PATH "${CMAKE_SOURCE_DIR}/lib/${subdir}")
-        else()
-            set(TARGET_PATH "")
-        endif()
-        
-        if (TARGET_PATH AND NOT EXISTS "${LINK_PATH}")
-            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${TARGET_PATH}" "${LINK_PATH}")
-            message(STATUS "Created symlink: ${LINK_PATH} -> ${TARGET_PATH}")
-        endif()
-    endforeach()
+    # Create small world directory by copying lib and overlaying lib.template
+    # First copy lib (base configuration)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${SMALL_WORLD_DIR}")
+    execute_process(COMMAND cp -r "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
+        RESULT_VARIABLE copy_result)
+    if (NOT copy_result EQUAL 0)
+        message(FATAL_ERROR "Failed to copy lib directory")
+    endif()
+
+    # Overlay lib.template (don't overwrite existing files)
+    execute_process(COMMAND cp --update=none -r "${CMAKE_SOURCE_DIR}/lib.template/." "${SMALL_WORLD_DIR}/"
+        RESULT_VARIABLE copy_result)
+    if (NOT copy_result EQUAL 0)
+        message(FATAL_ERROR "Failed to overlay lib.template directory")
+    endif()
+    message(STATUS "Copied lib and overlaid lib.template to ${SMALL_WORLD_DIR}")
     
     message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
 
