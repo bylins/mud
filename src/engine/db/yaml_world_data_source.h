@@ -36,6 +36,7 @@ namespace world_loader
 struct ParsedRoomBatch {
 	LocalDescriptionIndex descriptions;  // Thread-local description index
 	std::vector<std::tuple<int, RoomData*, size_t>> rooms;  // (vnum, room, local_desc_idx)
+	std::map<int, std::vector<int>> triggers;  // Room triggers (room_vnum -> list of trigger vnums)
 };
 
 // YAML implementation for human-readable world files

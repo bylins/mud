@@ -707,19 +707,31 @@ void YamlWorldDataSource::LoadTriggersParallel()
 		exit(1);
 	}
 
-	// Merge results into trig_index (sequential)
+	// Merge results into trig_index (sequential, sorted by vnum)
+	// Collect all triggers into single vector and sort by vnum
+	std::vector<std::pair<int, Trigger*>> all_triggers;
+	for (auto &results : thread_results)
+	{
+		for (auto &trig_pair : results)
+		{
+			all_triggers.push_back(std::move(trig_pair));
+		}
+	}
+
+	// Sort by vnum to match Legacy loader order (required for binary search in GetTriggerRnum)
+	std::sort(all_triggers.begin(), all_triggers.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
+	// Add to trig_index in sorted order
 	CREATE(trig_index, trig_count);
 	top_of_trigt = 0;
 
-	for (auto &results : thread_results)
+	for (auto &[vnum, trig] : all_triggers)
 	{
-		for (auto &[vnum, trig] : results)
-		{
-			// Assign rnum
-			trig->set_rnum(top_of_trigt);
-			// Create index entry
-			CreateTriggerIndex(vnum, trig);
-		}
+		// Assign rnum
+		trig->set_rnum(top_of_trigt);
+		// Create index entry
+		CreateTriggerIndex(vnum, trig);
 	}
 
 	log("Loaded %d triggers from YAML (parallel).", top_of_trigt);
@@ -805,23 +817,6 @@ RoomData* YamlWorldDataSource::ParseRoomFile(const std::string &file_path, int z
 		LoadRoomExtraDescriptions(room, root["extra_descriptions"]);
 	}
 
-	// Load triggers
-	if (root["triggers"] && root["triggers"].IsSequence())
-	{
-		fprintf(stderr, "DEBUG: Loading triggers for room %d, count: %zu\n",
-			room->vnum, root["triggers"].size());
-		room->proto_script = std::make_shared<ObjData::triggers_list_t>();
-		for (const auto &trig_node : root["triggers"])
-		{
-			int trig_vnum = trig_node.as<int>();
-			room->proto_script->push_back(trig_vnum);
-		}
-	}
-	else
-	{
-		fprintf(stderr, "DEBUG: No triggers for room %d\n", room->vnum);
-	}
-
 	return room;
 }
 
@@ -891,9 +886,10 @@ void YamlWorldDataSource::LoadRoomsParallel()
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &error_count]() -> ParsedRoomBatch {
-			// LOCAL variable (not thread_local!)
+			// Thread-local variables
 			LocalDescriptionIndex local_index;
 			std::vector<std::tuple<int, RoomData*, size_t>> parsed_rooms;
+			std::map<int, std::vector<int>> local_triggers;
 
 			for (const auto &[vnum, filepath] : batches[thread_id])
 			{
@@ -910,6 +906,22 @@ void YamlWorldDataSource::LoadRoomsParallel()
 					size_t local_desc_idx = 0;
 					RoomData* room = ParseRoomFile(filepath, zone_rn, local_index, local_desc_idx);
 
+					// Load room triggers (if present)
+					YAML::Node root = YAML::LoadFile(filepath);
+					if (root["triggers"] && root["triggers"].IsSequence())
+					{
+						std::vector<int> trigger_list;
+						for (const auto &trig_node : root["triggers"])
+						{
+							int trigger_vnum = trig_node.as<int>();
+							trigger_list.push_back(trigger_vnum);
+						}
+						if (!trigger_list.empty())
+						{
+							local_triggers[vnum] = std::move(trigger_list);
+						}
+					}
+
 					// Store vnum, room, and local description index
 					parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
 				}
@@ -925,7 +937,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 				}
 			}
 
-			return ParsedRoomBatch{std::move(local_index), std::move(parsed_rooms)};
+			return ParsedRoomBatch{std::move(local_index), std::move(parsed_rooms), std::move(local_triggers)};
 		}));
 	}
 
@@ -1000,6 +1012,26 @@ void YamlWorldDataSource::LoadRoomsParallel()
 					zone_table[zone_rn].RnumRoomsLocation.first = i;
 				}
 				zone_table[zone_rn].RnumRoomsLocation.second = i;
+			}
+		}
+	}
+
+	// Merge thread-local trigger maps into single map
+	std::map<int, std::vector<int>> room_triggers;
+	for (auto &batch : parsed_batches)
+	{
+		room_triggers.insert(batch.triggers.begin(), batch.triggers.end());
+	}
+
+	// Attach triggers (sequential, after all rooms added to world)
+	for (const auto &[room_vnum, trigger_list] : room_triggers)
+	{
+		int room_rnum = GetRoomRnum(room_vnum);
+		if (room_rnum >= 0)
+		{
+			for (int trigger_vnum : trigger_list)
+			{
+				AttachTriggerToRoom(room_rnum, trigger_vnum, room_vnum);
 			}
 		}
 	}
@@ -1736,19 +1768,16 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	// Distribute objects into batches
 	auto batches = utils::DistributeBatches(obj_vnums, m_num_threads);
 
-	// Thread-local results (each thread collects its objects)
+	// Thread-local results (each thread collects its objects and triggers)
 	std::vector<std::vector<std::pair<int, CObjectPrototype*>>> thread_results(batches.size());
+	std::vector<std::map<int, std::vector<int>>> thread_triggers(batches.size());
 	std::atomic<int> error_count{0};
-
-	// Storage for object triggers (vnum -> list of trigger vnums)
-	std::mutex triggers_mutex;
-	std::map<int, std::vector<int>> object_triggers;
 
 	// Launch parallel loading
 	std::vector<std::future<void>> futures;
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count, &object_triggers, &triggers_mutex]() {
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
 			for (int vnum : batches[thread_id])
 			{
 				std::string filepath = m_world_dir + "/objects/" + std::to_string(vnum) + ".yaml";
@@ -1768,8 +1797,7 @@ void YamlWorldDataSource::LoadObjectsParallel()
 						}
 						if (!trigger_list.empty())
 						{
-							std::lock_guard<std::mutex> lock(triggers_mutex);
-							object_triggers[vnum] = std::move(trigger_list);
+							thread_triggers[thread_id][vnum] = std::move(trigger_list);
 						}
 					}
 
@@ -1826,12 +1854,20 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		loaded_count++;
 	}
 
+	// Merge thread-local trigger maps into single map
+	std::map<int, std::vector<int>> object_triggers;
+	for (auto &triggers_map : thread_triggers)
+	{
+		object_triggers.insert(triggers_map.begin(), triggers_map.end());
+	}
+
 	// Attach triggers (sequential, after all objects added to obj_proto)
 	for (const auto &[obj_vnum, trigger_list] : object_triggers)
 	{
 		int rnum = obj_proto.get_rnum(obj_vnum);
 		if (rnum >= 0)
 		{
+			log("DEBUG: Object %d has %zu triggers", obj_vnum, trigger_list.size());
 			for (int trigger_vnum : trigger_list)
 			{
 				AttachTriggerToObject(rnum, trigger_vnum, obj_vnum);
