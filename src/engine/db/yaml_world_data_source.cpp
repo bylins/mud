@@ -1514,7 +1514,13 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 			YAML::Node values = root["values"];
 			if (values && values.IsSequence() && values.size() >= 4)
 			{
-				obj_ptr->set_val(0, values[0].as<long>(0));
+			// Match Legacy: negative val[0] becomes 0
+			long val0 = values[0].as<long>(0);
+			if (val0 < 0)
+			{
+				val0 = 0;
+			}
+			obj_ptr->set_val(0, val0);
 				obj_ptr->set_val(1, values[1].as<long>(0));
 				obj_ptr->set_val(2, values[2].as<long>(0));
 				obj_ptr->set_val(3, values[3].as<long>(0));
@@ -1728,17 +1734,39 @@ void YamlWorldDataSource::LoadObjectsParallel()
 	std::vector<std::vector<std::pair<int, CObjectPrototype*>>> thread_results(batches.size());
 	std::atomic<int> error_count{0};
 
+	// Storage for object triggers (vnum -> list of trigger vnums)
+	std::mutex triggers_mutex;
+	std::map<int, std::vector<int>> object_triggers;
+
 	// Launch parallel loading
 	std::vector<std::future<void>> futures;
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count]() {
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &error_count, &object_triggers, &triggers_mutex]() {
 			for (int vnum : batches[thread_id])
 			{
 				std::string filepath = m_world_dir + "/objects/" + std::to_string(vnum) + ".yaml";
 				try
 				{
 					CObjectPrototype* obj = ParseObjectFile(filepath);
+
+					// Load object triggers (if present)
+					YAML::Node root = YAML::LoadFile(filepath);
+					if (root["triggers"] && root["triggers"].IsSequence())
+					{
+						std::vector<int> trigger_list;
+						for (const auto &trig_node : root["triggers"])
+						{
+							int trigger_vnum = trig_node.as<int>();
+							trigger_list.push_back(trigger_vnum);
+						}
+						if (!trigger_list.empty())
+						{
+							std::lock_guard<std::mutex> lock(triggers_mutex);
+							object_triggers[vnum] = std::move(trigger_list);
+						}
+					}
+
 					thread_results[thread_id].emplace_back(vnum, obj);
 				}
 				catch (const YAML::Exception &e)
@@ -1767,16 +1795,41 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		exit(1);
 	}
 
-	// Merge results into obj_proto (sequential)
-	int loaded_count = 0;
+	// Merge results into obj_proto (sequential, sorted by vnum)
+	// Collect all objects into single vector and sort by vnum
+	std::vector<std::pair<int, CObjectPrototype*>> all_objects;
 	for (auto &results : thread_results)
 	{
-		for (auto &[vnum, obj_raw_ptr] : results)
+		for (auto &obj_pair : results)
 		{
-			// Wrap in shared_ptr and add to obj_proto
-			auto obj = std::shared_ptr<CObjectPrototype>(obj_raw_ptr);
-			obj_proto.add(obj, vnum);
-			loaded_count++;
+			all_objects.push_back(std::move(obj_pair));
+		}
+	}
+
+	// Sort by vnum to match Legacy loader order
+	std::sort(all_objects.begin(), all_objects.end(),
+		[](const auto &a, const auto &b) { return a.first < b.first; });
+
+	// Add to obj_proto in sorted order
+	int loaded_count = 0;
+	for (auto &[vnum, obj_raw_ptr] : all_objects)
+	{
+		// Wrap in shared_ptr and add to obj_proto
+		auto obj = std::shared_ptr<CObjectPrototype>(obj_raw_ptr);
+		obj_proto.add(obj, vnum);
+		loaded_count++;
+	}
+
+	// Attach triggers (sequential, after all objects added to obj_proto)
+	for (const auto &[obj_vnum, trigger_list] : object_triggers)
+	{
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum >= 0)
+		{
+			for (int trigger_vnum : trigger_list)
+			{
+				AttachTriggerToObject(rnum, trigger_vnum, obj_vnum);
+			}
 		}
 	}
 
