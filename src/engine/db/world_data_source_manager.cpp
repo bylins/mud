@@ -6,6 +6,7 @@
  */
 
 #include "world_data_source_manager.h"
+#include "null_world_data_source.h"
 
 namespace world_loader
 {
@@ -23,7 +24,13 @@ void WorldDataSourceManager::SetDataSource(std::unique_ptr<IWorldDataSource> dat
 
 IWorldDataSource* WorldDataSourceManager::GetDataSource() const
 {
-	return data_source_.get();
+	if (data_source_) {
+		return data_source_.get();
+	}
+
+	// Return static NullDataSource as fallback
+	static NullWorldDataSource null_source;
+	return &null_source;
 }
 
 bool WorldDataSourceManager::HasDataSource() const

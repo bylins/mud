@@ -165,6 +165,7 @@ set(SOURCES
 		src/engine/db/world_data_source.h
 		src/engine/db/world_data_source_manager.h
 		src/engine/db/world_data_source_manager.cpp
+		src/engine/db/null_world_data_source.h
 		src/engine/db/legacy_world_data_source.h
 		src/engine/db/legacy_world_data_source.cpp
 		src/engine/db/world_data_source_base.h

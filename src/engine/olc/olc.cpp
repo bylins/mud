@@ -211,11 +211,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
-		if (data_source) {
 			data_source->SaveZone(OLC_ZNUM(d));
-		} else {
-			mudlog("SYSERR: OLC: No world data source available for saving!", BRF, kLvlImplementator, SYSLOG, true);
-		}
 		delete d->olc;
 		return;
 	}
@@ -228,11 +224,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
-		if (data_source) {
 			data_source->SaveZone(OLC_ZNUM(d));
-		} else {
-			mudlog("SYSERR: OLC: No world data source available for saving!", BRF, kLvlImplementator, SYSLOG, true);
-		}
 		delete d->olc;
 		return;
 	}
@@ -277,12 +269,6 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		mudlog(buf, LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
-		if (!data_source) {
-			SendMsgToChar("SYSERR: No world data source available for saving!\r\n", ch);
-			mudlog("SYSERR: OLC: No world data source available for saving!", BRF, kLvlImplementator, SYSLOG, true);
-			delete d->olc;
-			return;
-		}
 
 		switch (subcmd) {
 			case kScmdOlcRedit: data_source->SaveRooms(OLC_ZNUM(d));
