@@ -70,7 +70,6 @@ set(TESTS
 		act.makefood.cpp
 		utils.editor.cpp
 		utils.string.cpp
-		utils.encoding.cpp
 		fight.penalties.cpp
 		bonus.command.parser.cpp
 		quested.cpp
@@ -81,6 +80,7 @@ set(TESTS
 		radix.trie.cpp
 		compact.trie.cpp
 		compact.trie.iterators.cpp
+		utils.encoding.cpp
 		world_save_load_tests.cpp
 		world_load_order.cpp
 		compact.trie.prefixes.cpp)
@@ -109,19 +109,19 @@ add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/misc
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_BINARY_DIR}/misc/grouping
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_SOURCE_DIR}/misc/grouping
 		COMMENT "Copy lib/misc/grouping for tests.")
 set_target_properties(tests.misc.grouping PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.changelog_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/data/boards
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_BINARY_DIR}/data/boards/changelog.sample
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/changelog.sample ${CMAKE_SOURCE_DIR}/data/boards/changelog.sample
 		COMMENT "Copy tests/data/boards/changelog.sample for tests.")
 set_target_properties(tests.data.boards.changelog_sample PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.news_sample
 		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/data/boards
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_BINARY_DIR}/data/boards/news.sample
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_SOURCE_DIR}/data/boards/news.sample
 		COMMENT "Copy tests/data/boards/news.sample for tests.")
 set_target_properties(tests.data.boards.news_sample PROPERTIES FOLDER "Utility targets/Tests data")
 
