@@ -1,0 +1,118 @@
+# Loot tables for Zone 40 - Training area
+# Contains: bandits (razboniki), peasants, animals
+
+# Bandit Leader (ataman) - vnum 4000
+---
+id: "zone40_ataman"
+description: "Loot for the bandit leader (ataman razbonikov)"
+type: source_centric
+probability_width: 100
+allow_empty: true
+max_items: 2
+source_filters:
+  - type: vnum
+    vnum: 4000
+entries:
+  - type: currency
+    currency: gold
+    weight: 70
+    count:
+      min: 30
+      max: 80
+  - type: item
+    vnum: 4001
+    weight: 20
+  - type: item
+    vnum: 4002
+    weight: 15
+
+# Regular bandits - vnums 4001-4002
+---
+id: "zone40_bandits"
+description: "Loot for regular bandits"
+type: source_centric
+probability_width: 100
+allow_empty: true
+max_items: 1
+source_filters:
+  - type: vnum
+    vnum: 4001
+  - type: vnum
+    vnum: 4002
+entries:
+  - type: currency
+    currency: gold
+    weight: 60
+    count:
+      min: 5
+      max: 20
+  - type: item
+    vnum: 4003
+    weight: 10
+
+# Bear (medved) - typically higher level
+---
+id: "zone40_bear"
+description: "Bear loot - meat and pelts"
+type: source_centric
+probability_width: 100
+allow_empty: false
+source_filters:
+  - type: level_range
+    min_level: 8
+    max_level: 15
+  - type: zone
+    zone: 40
+entries:
+  - type: item
+    vnum: 4010
+    weight: 80
+    count:
+      min: 2
+      max: 4
+  - type: item
+    vnum: 4011
+    weight: 40
+
+# Small animals - geese, chickens, rabbits
+---
+id: "zone40_small_animals"
+description: "Loot from small animals"
+type: source_centric
+probability_width: 100
+allow_empty: true
+source_filters:
+  - type: level_range
+    min_level: 1
+    max_level: 5
+  - type: zone
+    zone: 40
+entries:
+  - type: item
+    vnum: 4020
+    weight: 50
+    count:
+      min: 1
+      max: 2
+  - type: item
+    vnum: 4021
+    weight: 30
+
+# Zone-wide rare drops for all mobs in zone 40
+---
+id: "zone40_rare"
+description: "Rare drops for any mob in zone 40"
+type: source_centric
+probability_width: 10000
+allow_empty: true
+max_items: 1
+source_filters:
+  - type: zone
+    zone: 40
+entries:
+  - type: item
+    vnum: 4099
+    weight: 5
+  - type: nested_table
+    table_id: "zone40_ataman"
+    weight: 1

@@ -2,8 +2,8 @@
 \file iosystem.cpp - a part of the Bylins engine.
 \authors Created by Sventovit.
 \date 15.09.2024.
-\brief Система ввода-вывода.
-\detail Сетевой ввод-вывод: получение команд от пользователей и отправка ответов сервера.
+\brief О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫.
+\detail О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 */
 
 #include "engine/core/iosystem.h"
@@ -182,7 +182,7 @@ int process_input(DescriptorData *t) {
 	read_point = t->inbuf + buf_length;
 	space_left = kMaxRawInputLength - buf_length - 1;
 
-	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
+	// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	if (t == nullptr) {
 		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
 							  __func__, __FILE__, __LINE__).c_str());
@@ -216,11 +216,11 @@ int process_input(DescriptorData *t) {
 			}
 
 			if (ptr[1] == (char) IAC) {
-				// последовательность IAC IAC
-				// следует заменить просто на один IAC, но
-				// для раскладок kCodePageWin/kCodePageWinz это произойдет ниже.
-				// Почему так сделано - не знаю, но заменять не буду.
-				// II: потому что второй IAC может прочитаться в другом socket_read
+				// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ IAC IAC
+				// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ IAC, О©╫О©╫
+				// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ kCodePageWin/kCodePageWinz О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.
+				// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫.
+				// II: О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ IAC О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ socket_read
 				++ptr;
 			} else if (ptr[1] == (char) DO) {
 				switch (ptr[2]) {
@@ -341,14 +341,14 @@ int process_input(DescriptorData *t) {
 		space_left = kMaxInputLength - 1;
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
-			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
+			// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫)
 			if (*ptr == ';'
 				&&  (t->state == EConState::kPlaying
 					||  t->state == EConState::kExdesc
 					||  t->state == EConState::kWriteboard
 					||  t->state == EConState::kWriteNote
 					||  t->state == EConState::kWriteMod)) {
-				// Иммам или морталам с EGodFlag::DEMIGOD разрешено использовать ";".
+				// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ EGodFlag::DEMIGOD О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ";".
 				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, EGf::kDemigod))
 					*ptr = ',';
 			}
@@ -417,12 +417,12 @@ int process_input(DescriptorData *t) {
 				space_left--;
 			}
 
-			// Для того чтобы работали все триги в старом zMUD, заменяем все вводимые 'z' на 'я'
-			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
+			// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ zMUD, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 'z' О©╫О©╫ 'О©╫'
+			// О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫. wizhelp, О©╫О©╫О©╫ "О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ zMUD"
 			if  (t->state == EConState::kPlaying ||  (t->state == EConState::kExdesc)) {
 				if (t->keytable == kCodePageWinzZ || t->keytable == kCodePageWinzOld) {
 					if (*(write_point - 1) == 'z') {
-						*(write_point - 1) = 'я';
+						*(write_point - 1) = 'О©╫';
 					}
 				}
 			}
@@ -455,18 +455,18 @@ int process_input(DescriptorData *t) {
 		}
 		if (t->snoop_by) {
 		iosystem::write_to_output("<< ", t->snoop_by);
-//		iosystem::write_to_output("% ", t->snoop_by); Попытаюсь сделать вменяемый вывод снупаемого трафика в отдельное окно
+//		iosystem::write_to_output("% ", t->snoop_by); О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 		iosystem::write_to_output(tmp, t->snoop_by);
 		iosystem::write_to_output("\r\n", t->snoop_by);
 		}
 		failed_subst = 0;
 
 		if ((tmp[0] == '~') && (tmp[1] == 0)) {
-			// очистка входной очереди
+			// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			int dummy;
 			tilde = 1;
 			while (get_from_q(&t->input, buf2, &dummy));
-		iosystem::write_to_output("Очередь очищена.\r\n", t);
+		iosystem::write_to_output("О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", t);
 			tmp[0] = 0;
 		} else if (*tmp == '!' && !(*(tmp + 1)))
 			// Redo last command.
@@ -696,19 +696,19 @@ bool write_to_descriptor_with_options(DescriptorData *t, const char *buffer, siz
  * the player's descriptor.
  */
 
-// \TODO Никакой чардаты тут быть не должно. Нужно сделать флаги/режимы для аккаунта или дескриптора
+// \TODO О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 int process_output(DescriptorData *t) {
 	char i[kMaxSockBuf * 2], o[kMaxSockBuf * 2 * 3], *pi, *po;
 	int written = 0, offset, result;
 
-	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
+	// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	if (t == nullptr) {
 		log("%s", fmt::format("SYSERR: NULL descriptor in {}() at {}:{}",
 							  __func__, __FILE__, __LINE__).c_str());
 		return -1;
 	}
 
-	// Отправляю данные снуперам
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	// handle snooping: prepend "% " and send to snooper
 	if (t->output && t->snoop_by) {
 	iosystem::write_to_output("% ", t->snoop_by);
@@ -726,7 +726,7 @@ int process_output(DescriptorData *t) {
 
 	// if we're in the overflow state, notify the user
 	if (t->bufptr == ~0ull) {
-		strcat(i, "***ПЕРЕПОЛНЕНИЕ***\r\n");
+		strcat(i, "***О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫***\r\n");
 	}
 
 	// add the extra CRLF if the person isn't in compact mode
@@ -735,8 +735,8 @@ int process_output(DescriptorData *t) {
 		strcat(i, "\r\n");
 	} else if  (t->state == EConState::kPlaying && t->character && !t->character->IsNpc()
 		&& t->character->IsFlagged(EPrf::kCompact)) {
-		// added by WorM (Видолюб)
-		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
+		// added by WorM (О©╫О©╫О©╫О©╫О©╫О©╫О©╫)
+		//О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ \r\n О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫
 		for (size_t c = strlen(i) - 1; c > 0; c--) {
 			if (*(i + c) == '\n' || *(i + c) == '\r')
 				break;
@@ -879,8 +879,11 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 #define write	socketwrite
 #endif
 
-#if defined(__APPLE__) || defined(__MACH__) || defined(__CYGWIN__)
+#if defined(CIRCLE_UNIX)
 #include <sys/socket.h>
+#endif
+
+#if defined(__APPLE__) || defined(__MACH__) || defined(__CYGWIN__)
 # ifndef MSG_NOSIGNAL
 #   define MSG_NOSIGNAL SO_NOSIGPIPE
 # endif
@@ -983,7 +986,7 @@ int mccp_start(DescriptorData *t, int ver) {
 	int derr;
 
 	if (t->deflate) {
-		return 1;    // компрессия уже включена
+		return 1;    // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	}
 
 	// Set up zlib structures.
@@ -1076,14 +1079,14 @@ void zlib_free(void * /*opaque*/, void *address) {
 
 #endif
 
-// \TODO Вообще, этому скорей место в UI. Надо подумать, как перенести.
+// \TODO О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ UI. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 std::string MakePrompt(DescriptorData *d) {
 	const auto& ch = d->character;
 	auto out = fmt::memory_buffer();
 	out.reserve(kMaxPromptLength);
 	if (d->showstr_count) {
 		fmt::format_to(std::back_inserter(out),
-				  "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы ({}/{}).",
+				  "\rО©╫О©╫О©╫О©╫О©╫О©╫О©╫ : <RETURN>, Q<О©╫>О©╫О©╫О©╫О©╫, R<О©╫>О©╫О©╫О©╫О©╫О©╫, B<О©╫>О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ ({}/{}).",
 				  d->showstr_page, d->showstr_count);
 	} else if (d->writer) {
 		fmt::format_to(std::back_inserter(out), "] ");
@@ -1104,7 +1107,7 @@ std::string MakePrompt(DescriptorData *d) {
 
 		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
 			int current_mana = 100 * ch->mem_queue.stored;
-			fmt::format_to(std::back_inserter(out), "{}э{}{} ",
+			fmt::format_to(std::back_inserter(out), "{}О©╫{}{} ",
 					  GetColdValueColor(current_mana, GET_MAX_MANA((ch).get())), ch->mem_queue.stored, kColorNrm);
 		}
 
@@ -1125,12 +1128,12 @@ std::string MakePrompt(DescriptorData *d) {
 					sec_hp = sec_hp*60/mana_gain;
 					int ch_hp = sec_hp/60;
 					sec_hp %= 60;
-					fmt::format_to(std::back_inserter(out), "Зауч:{}:{:02} ", ch_hp, sec_hp);
+					fmt::format_to(std::back_inserter(out), "О©╫О©╫О©╫О©╫:{}:{:02} ", ch_hp, sec_hp);
 				} else {
-					fmt::format_to(std::back_inserter(out), "Зауч:- ");
+					fmt::format_to(std::back_inserter(out), "О©╫О©╫О©╫О©╫:- ");
 				}
 			} else {
-				fmt::format_to(std::back_inserter(out), "Зауч:0 ");
+				fmt::format_to(std::back_inserter(out), "О©╫О©╫О©╫О©╫:0 ");
 			}
 		}
 
@@ -1180,8 +1183,8 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 
 			if (ch->IsFlagged(EPrf::kDispExits)) {
-				static const char *dirs[] = {"С", "В", "Ю", "З", "^", "v"};
-				fmt::format_to(std::back_inserter(out), "Вых:");
+				static const char *dirs[] = {"О©╫", "О©╫", "О©╫", "О©╫", "^", "v"};
+				fmt::format_to(std::back_inserter(out), "О©╫О©╫О©╫:");
 				if (!AFF_FLAGGED(ch, EAffect::kBlind)) {
 					for (auto dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 						if (EXIT(ch, dir) && EXIT(ch, dir)->to_room() != kNowhere &&
@@ -1213,18 +1216,18 @@ std::string MakePrompt(DescriptorData *d) {
 }
 
 char *show_state(CharData *ch, CharData *victim) {
-	static const char *WORD_STATE[12] = {"Смертельно ранен",
-										 "О.тяжело ранен",
-										 "О.тяжело ранен",
-										 "Тяжело ранен",
-										 "Тяжело ранен",
-										 "Ранен",
-										 "Ранен",
-										 "Ранен",
-										 "Легко ранен",
-										 "Легко ранен",
-										 "Слегка ранен",
-										 "Невредим"
+	static const char *WORD_STATE[12] = {"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫.О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫.О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫",
+										 "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫"
 	};
 
 	const int ch_hp = posi_value(victim->get_hit(), victim->get_real_max_hit()) + 1;
