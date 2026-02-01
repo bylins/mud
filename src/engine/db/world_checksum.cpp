@@ -5,6 +5,7 @@
 
 #include "db.h"
 #include "obj_prototypes.h"
+#include "global_objects.h"
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
