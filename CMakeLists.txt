@@ -57,6 +57,7 @@ set(SOURCES
 		src/engine/scripting/dg_comm.cpp
 		src/engine/scripting/dg_domination_helper.cpp
 		src/engine/scripting/dg_db_scripts.cpp
+		src/engine/scripting/trigger_indenter.cpp
 		src/engine/scripting/dg_event.cpp
 		src/engine/scripting/dg_handler.cpp
 		src/engine/scripting/dg_misc.cpp
@@ -561,6 +562,7 @@ set(HEADERS
 		src/gameplay/mechanics/depot.h
 		src/engine/db/description.h
 		src/engine/scripting/dg_db_scripts.h
+		src/engine/scripting/trigger_indenter.h
 		src/engine/scripting/dg_domination_helper.h
 		src/engine/scripting/dg_event.h
 		src/engine/scripting/dg_olc.h

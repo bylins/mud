@@ -143,7 +143,7 @@ TEST_F(CompactTriePrefixes, SequencialSearch)
 	ASSERT_EQ(PREFIX_VALUE_1, range2.prefix());
 
 	size_t i = 1;
-	for (const auto string : range2)
+	for (const auto &string : range2)
 	{
 		ASSERT_LT(i, strings.size());
 		ASSERT_EQ(string.prefix(), strings[i++]);
