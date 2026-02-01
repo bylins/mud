@@ -91,6 +91,32 @@ Proves: Thread-safety + Deterministic ordering ✅
 - Simpler (no deadlock risk)
 - Safer (no shared state)
 
+
+### 4. YAML_THREADS Environment Variable Fix (Critical)
+**File:** `src/engine/core/config.cpp:570-594, 714-741`
+
+**Issue:** YAML_THREADS environment variable was being ignored
+- RuntimeConfiguration::m_yaml_threads was never initialized
+- load_world_loader_configuration() function was not implemented
+- Configuration not loaded even when set via environment variable
+- Result: Always used hardware_concurrency() (8 threads) regardless of setting
+
+**Fix:** Implemented proper configuration loading
+- Initialize m_yaml_threads to 0 in RuntimeConfiguration constructor
+- Created load_world_loader_configuration() to read YAML_THREADS env var
+- Environment variable takes precedence over XML configuration
+- Fallback to XML <world_loader><yaml><threads>N</threads></yaml>
+- Sanity check: thread count must be between 1 and 64
+
+**Impact:** Thread scaling now works correctly
+- YAML_THREADS=1: Single-threaded for debugging
+- YAML_THREADS=2/4/8: Parallel loading with controlled thread count
+- Enables performance testing and optimization
+
+**Important:** Configuration file must exist at `lib/misc/configuration.xml` 
+relative to data directory. If missing, m_yaml_threads stays 0 and falls back 
+to hardware_concurrency().
+
 ## Technical Details
 
 ### Binary Search Requirement
@@ -152,13 +178,19 @@ YAML    | 2.103s    | 0.95x          | Human-readable format, ~5% slower
 ```
 Threads | Boot Time | Speedup vs 1T | Efficiency | Notes
 --------|-----------|---------------|------------|---------------------------
-1       | 2.502s    | 1.00x         | 100.0%     | Single-threaded baseline
-2       | (data)    | (data)        | (data)     | Missing measurement
-4       | 2.219s    | 1.12x         | 28.0%      | Modest speedup
-8       | 2.105s    | 1.18x         | 14.7%      | Diminishing returns
+1       | 1.386s    | 1.00x         | 100.0%     | Single-threaded baseline
+2       | 1.260s    | 1.10x         | 55.0%      | Minimal speedup
+4       | 1.229s    | 1.13x         | 28.2%      | Modest speedup
+8       | 1.227s    | 1.13x         | 14.1%      | Diminishing returns
 ```
 
 **Analysis:**
+- Multi-threading provides minimal speedup (10-13%) on small world
+- Low efficiency (14-55%) expected for small datasets
+- Small world doesn't have enough data to fully utilize multiple threads
+- For larger worlds (full world), thread scaling is much more effective (see below)
+- **Critical achievement:** Checksums remain identical across all thread counts
+- **YAML_THREADS environment variable now works correctly**
 - Multi-threading provides modest speedup (12-18% with 4-8 threads)
 - Low efficiency (28% with 4 threads) expected for small datasets
 - Small world doesn't have enough data to fully utilize multiple threads
@@ -181,6 +213,38 @@ Threads | Boot Time | Speedup vs 1T | Efficiency | Notes
    - ~2 second boot time for small world is excellent
    - Minimal performance difference between loaders (<5%)
    - YAML's human-readability worth the tiny speed cost
+
+
+### YAML Thread Scaling - Full World (NEW)
+
+```
+Threads | Boot Time | Speedup vs 1T | Efficiency | Notes
+--------|-----------|---------------|------------|---------------------------
+1       | 52.762s   | 1.00x         | 100.0%     | Single-threaded baseline
+2       | 32.466s   | 1.62x         | 81.2%      | Good speedup
+4       | 22.654s   | 2.33x         | 58.2%      | Excellent scaling
+8       | 18.196s   | 2.90x         | 36.2%      | Approaching 3x speedup
+```
+
+**Analysis:**
+- **Much better scaling than small world:** 2.90x speedup with 8 threads
+- Higher efficiency (36-81%) due to larger dataset with more parallelizable work
+- 1 thread: 52.8s, 2 threads: 32.5s, 4 threads: 22.7s, 8 threads: 18.2s
+- Thread scaling works correctly after YAML_THREADS fix
+- Production recommendation: Use 4-8 threads for full world loading
+
+**Comparison with previous benchmarks:**
+- Previous results showed 3.5x speedup with 8 threads (10.7s vs 37.9s)
+- Current results show 2.9x speedup (18.2s vs 52.8s)
+- Scaling ratio is similar, but absolute times are slower
+- Difference may be due to:
+  - Different world data size/complexity
+  - Different hardware configuration
+  - Debug/profiling overhead in code
+  - Different trigger/script parsing load
+
+**Key Achievement:** YAML_THREADS environment variable now works correctly,
+allowing full control over parallel loading performance.
 
 ### Loader Comparison - Full World
 
