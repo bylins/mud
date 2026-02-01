@@ -249,19 +249,23 @@ allowing full control over parallel loading performance.
 ### Loader Comparison - Full World
 
 ```
-Loader  | Boot Time | Relative Speed | Notes
---------|-----------|----------------|----------------------------
-Legacy  | 30.254s   | 1.00x (baseline) | Original CircleMUD format
-SQLite  | 27.715s   | 1.09x (9% faster!) | Database format, best performance
-YAML    | 40.504s   | 0.74x (34% slower) | Human-readable, parsing overhead
+Loader         | Boot Time | Relative Speed | Notes
+---------------|-----------|----------------|----------------------------
+YAML (8 thr)   | 18.196s   | 1.66x (66% faster!) | With YAML_THREADS=8, best performance
+SQLite         | 27.715s   | 1.09x (9% faster)   | Database format, good performance
+Legacy         | 30.254s   | 1.00x (baseline)    | Original CircleMUD format
+YAML (1 thr)   | 52.762s   | 0.57x (74% slower)  | Single-threaded, not recommended
 ```
 
 **Analysis:**
-- **SQLite fastest:** 27.7s, 9% faster than Legacy
-- **YAML slowest:** 40.5s, 34% slower than Legacy  
-- Full world shows more significant differences than small world
-- YAML parsing overhead more noticeable with large datasets
-- SQLite's database format provides performance advantage
+- **YAML with 8 threads is FASTEST:** 18.2s, 40% faster than Legacy!
+- **Multi-threading critical for YAML:** 2.90x speedup (52.8s → 18.2s)
+- **SQLite second fastest:** 27.7s, 9% faster than Legacy
+- **Legacy baseline:** 30.3s, solid performance without threading
+- **YAML without threading is slowest:** 52.8s, not recommended for production
+
+**Important:** YAML performance depends heavily on YAML_THREADS setting.
+Always use YAML_THREADS=4 or higher for production (8 recommended for full world).
 
 **Full World Stats:**
 - 640 zones, 46,542 rooms, 18,757 mobs, 22,022 objects, 16,823 triggers
@@ -271,20 +275,21 @@ YAML    | 40.504s   | 0.74x (34% slower) | Human-readable, parsing overhead
 ### Performance Summary
 
 **Small World (5K entities):**
-- All loaders ~2 seconds, negligible difference
-- YAML multi-threading shows modest gains (12-18%)
+- All loaders ~1-2 seconds, negligible difference
+- YAML multi-threading shows modest gains (10-13%)
 - Not representative of real workloads
 
 **Full World (104K entities):**
-- SQLite fastest (27.7s), Legacy mid (30.3s), YAML slowest (40.5s)
-- **YAML 34% slower but provides human-readability benefit**
-- Multi-threading provides minimal benefit (<1%)
-- Disk I/O likely the bottleneck
+- YAML (8 threads) fastest (18.2s), SQLite mid (27.7s), Legacy slower (30.3s)
+- **YAML with threading 40% faster than Legacy, provides human-readability AND performance**
+- **Multi-threading provides 2.9x speedup for YAML (critical for production)**
+- Thread count matters: 1→2 threads = 1.62x, 1→4 threads = 2.33x, 1→8 threads = 2.90x
 
 **Production Recommendations:**
-1. **Use SQLite** for best performance (~9% faster)
-2. **Use YAML** for human-editable world data (34% slower but acceptable)
-3. **Use Legacy** for compatibility (baseline performance)
-4. **Default thread count** (CPU cores) sufficient, no need for 8+ threads
-5. **40 seconds** boot time for 100K+ entities is excellent regardless of loader
+1. **Use YAML with YAML_THREADS=8** for best performance (40% faster) + human-readability
+2. **Use SQLite** if threading not available (9% faster than Legacy)
+3. **Use Legacy** for compatibility (solid baseline performance)
+4. **CRITICAL:** Always set YAML_THREADS=4 or higher for YAML loader in production
+5. **18 seconds** boot time for 100K+ entities with YAML (8 threads) is excellent
+
 
