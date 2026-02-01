@@ -1,0 +1,62 @@
+# Mob #4020
+vnum: 4020
+names:
+  aliases: паук
+  nominative: паук
+  genitive: паука
+  dative: пауку
+  accusative: паука
+  instrumental: пауком
+  prepositional: пауке
+descriptions:
+  short_desc: "Паук плетет здесь свою паутину.\r\n"
+  long_desc: "Обычный домашний паук.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kStayZone
+- kNoSleep
+affect_flags:
+- kDeleted
+alignment: 0
+mob_type: E
+stats:
+  level: 1
+  hitroll_penalty: 18
+  armor: 10
+  hp:
+    dice_count: 5
+    dice_size: 2
+    bonus: 15
+  damage:
+    dice_count: 1
+    dice_size: 3
+    bonus: 0
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 30
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 5
+  dexterity: 5
+  intelligence: 5
+  wisdom: 5
+  constitution: 5
+  charisma: 5
+size: 1
+mob_class: 103
+race: 107
+height: 1
+weight: 1
+skills:
+- skill_id: 136
+  value: 3
+enhanced:
+  bare_hand_attack: 4
+  max_factor: 10
+  special_bitvector: g0

@@ -1,0 +1,36 @@
+# Object #138
+vnum: 138
+names:
+  aliases: свиток познания
+  nominative: свиток познания
+  genitive: свитка познания
+  dative: свитку познания
+  accusative: свиток познания
+  instrumental: свитком познания
+  prepositional: свитке познания
+short_desc: Свиток познания лежит тут.
+type: kScroll
+wear_flags:
+- kTake
+- kHold
+material: 17
+values:
+- '0'
+- '351'
+- '-1'
+- '-1'
+weight: 1
+cost: 110
+rent_off: 110
+rent_on: 110
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: 201
+level: 30
+sex: kMale
+extra_descriptions:
+- keywords: свиток познания
+  description: "Вы видите свиток из бресты,\r\nпокрытый знакомыми символами.\r\n"
+max_in_world: -1

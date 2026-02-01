@@ -1,0 +1,36 @@
+# Object #4006
+vnum: 4006
+names:
+  aliases: рунный камень
+  nominative: рунный камень
+  genitive: рунного камня
+  dative: рунному камню
+  accusative: рунный камень
+  instrumental: рунным камнем
+  prepositional: рунном камне
+short_desc: Рунный камень вкопан десь в землю.
+type: kOther
+extra_flags:
+- kNoinvis
+- kNodecay
+material: 12
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 1000
+cost: 1000
+rent_off: 1
+rent_on: 1
+spec_param: 0
+max_durability: 1000
+cur_durability: 760
+timer: 1440
+spell: 0
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: рунный камень
+  description: "На источеной временем поверхности камня высечена руна:\r\n__\r\n_____ | /\r\n______|/\r\n_______|\r\n_______|\r\n"
+max_in_world: 1

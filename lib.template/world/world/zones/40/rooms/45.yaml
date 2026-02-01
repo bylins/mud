@@ -1,0 +1,17 @@
+# Room #4045
+vnum: 4045
+zone: 40
+name: Слезная гора
+description: "   Короток век людской, не успеешь оглянуться - обрядят тебя в одежды белые,\r\nда понесут на погост в колоде дубовой, обмывая языком твои делишки былые,\r\nда не загадывая путь твой упокойный. А пока носят тебя ноги - нечего дорогу\r\nмертвякам перебегать - не к добру это.\r\n"
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: 0
+  to_room: 4801
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4026
+  lock_complexity: 0

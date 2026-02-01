@@ -1,0 +1,227 @@
+# Mob #193
+vnum: 193
+names:
+  aliases: княжеский палач
+  nominative: княжеский палач
+  genitive: княжеского палача
+  dative: княжескому палачу
+  accusative: княжеского палача
+  instrumental: княжеским палачом
+  prepositional: княжеском палаче
+descriptions:
+  short_desc: "Княжеский палач стоит здесь, опираясь на громадный топор.\r\n"
+  long_desc: "Огромный, голый по пояс волосатый детина, с бугрящимися могучими мышцами руками.\r\nЕго голова вместе с шеей, как и часть груди, скрыта кожаной маской, выкрашенной в кроваво-красный цвет.\r\nЧто-то вам подсказывает, что не стоит связываться с представителем княжеской власти.\r\n"
+action_flags:
+- kIsNpc
+- kAware
+- kNoCharm
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTrack
+- kFireCreature
+- kWaterCreature
+- kEarthCreature
+- kProtected
+- kSwimming
+- kFlying
+affect_flags:
+- kIsNpc
+- kAware
+- kAggressive
+- kStayZone
+- kHelper
+- kNoSummoned
+- kNoSleep
+- kNoBlind
+- kFireCreature
+- kFlying
+- kScrStay
+- kNoHolder
+alignment: 600
+mob_type: E
+stats:
+  level: 30
+  hitroll_penalty: -30
+  armor: 8
+  hp:
+    dice_count: 30
+    dice_size: 125
+    bonus: 25000
+  damage:
+    dice_count: 4
+    dice_size: 4
+    bonus: 4
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 32
+  dexterity: 21
+  intelligence: 21
+  wisdom: 20
+  constitution: 32
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 7
+  value: 200
+- skill_id: 21
+  value: 50
+- skill_id: 22
+  value: 200
+- skill_id: 136
+  value: 90
+- skill_id: 140
+  value: 200
+- skill_id: 150
+  value: 120
+- skill_id: 156
+  value: 200
+- skill_id: 157
+  value: 120
+- skill_id: 158
+  value: 120
+- skill_id: 165
+  value: 200
+triggers:
+- 196
+- 195
+- 194
+- 193
+- 192
+enhanced:
+  bare_hand_attack: 3
+  like_work: 70
+  special_bitvector: h0j0
+  spells:
+  - 28
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 40
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 97
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119

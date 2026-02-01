@@ -1,0 +1,67 @@
+# Mob #4011
+vnum: 4011
+names:
+  aliases: скорняк продавец
+  nominative: скорняк
+  genitive: скорняка
+  dative: скорняку
+  accusative: скорняка
+  instrumental: скорняком
+  prepositional: скорняке
+descriptions:
+  short_desc: "Скорняк кроит шапку из шкуры бобра.\r\n"
+  long_desc: "Плотный мужчина с задубевшей от растворов кожей.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTerrainAttack
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: 600
+mob_type: E
+stats:
+  level: 30
+  hitroll_penalty: 10
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 400
+  damage:
+    dice_count: 3
+    dice_size: 3
+    bonus: 6
+gold:
+  dice_count: 10
+  dice_size: 10
+  bonus: 99999
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 30
+  dexterity: 30
+  intelligence: 15
+  wisdom: 15
+  constitution: 30
+  charisma: 15
+size: 50
+mob_class: 100
+race: 101
+height: 198
+weight: 100
+skills:
+- skill_id: 136
+  value: 90
+triggers:
+- 4000
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

@@ -1,0 +1,35 @@
+# Object #100
+vnum: 100
+names:
+  aliases: кусок мясо жареный
+  nominative: кусок жареного мяса
+  genitive: куска жареного мяса
+  dative: куску жареного мяса
+  accusative: кусок жареного мяса
+  instrumental: куском жареного мяса
+  prepositional: куске жареного мяса
+short_desc: Хорошо прожаренный кусок мяса лежит тут.
+type: kFood
+wear_flags:
+- kTake
+material: 0
+values:
+- '8'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 3
+rent_off: 1
+rent_on: 1
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 1000
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: кусок мясо жареный
+  description: "Вы видите ароматный, благоухающий кусок сочного мяса,\r\nслегка посоленного и готового к употреблению.\r\n"
+max_in_world: 100000

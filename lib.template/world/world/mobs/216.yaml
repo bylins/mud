@@ -1,0 +1,53 @@
+# Mob #216
+vnum: 216
+names:
+  aliases: чармис шестнадцатого уровня
+  nominative: чармис шестнадцатого уровня
+  genitive: чармиса шестнадцатого уровня
+  dative: чармису шестнадцатого уровня
+  accusative: чармиса шестнадцатого уровня
+  instrumental: чармисом шестнадцатого уровня
+  prepositional: чармисе шестнадцатого уровня
+descriptions:
+  short_desc: "Просто чармис шестнадцатого уровня.\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 16
+  hitroll_penalty: 7
+  armor: 4
+  hp:
+    dice_count: 10
+    dice_size: 25
+    bonus: 290
+  damage:
+    dice_count: 3
+    dice_size: 4
+    bonus: 4
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 15000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 46
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 48
+- skill_id: 137
+  value: 40
+enhanced:
+  special_bitvector: '0'

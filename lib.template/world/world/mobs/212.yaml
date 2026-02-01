@@ -1,0 +1,53 @@
+# Mob #212
+vnum: 212
+names:
+  aliases: чармис двенадцатого уровня
+  nominative: чармис двенадцатого уровня_танк
+  genitive: чармиса двенадцатого уровня
+  dative: чармису двенадцатого уровня
+  accusative: чармиса двенадцатого уровня
+  instrumental: чармисом двенадцатого уровня
+  prepositional: чармисе двенадцатого уровня
+descriptions:
+  short_desc: "чармис средних размеров обозревает окрестности\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 12
+  hitroll_penalty: 10
+  armor: 6
+  hp:
+    dice_count: 20
+    dice_size: 10
+    bonus: 190
+  damage:
+    dice_count: 2
+    dice_size: 4
+    bonus: 4
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 5000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 42
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 36
+- skill_id: 137
+  value: 28
+enhanced:
+  special_bitvector: '0'

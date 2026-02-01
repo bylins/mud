@@ -1,0 +1,72 @@
+# Mob #111
+vnum: 111
+names:
+  aliases: старик дед разсказчик сказочник
+  nominative: старик сказочник
+  genitive: старика сказочника
+  dative: старику сказочнику
+  accusative: старика сказочника
+  instrumental: стариком сказочником
+  prepositional: старике сказочнике
+descriptions:
+  short_desc: "Старик-сказочник мирно дремлет здесь.\r\n"
+  long_desc: "Выглядит достаточно незавершенно.\r\nСтарик забыл сказок больше, чем Вы слышали за всю жизнь\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+alignment: 0
+mob_type: E
+stats:
+  level: 1
+  hitroll_penalty: 20
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 1
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 0
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 136
+  value: 3
+triggers:
+- 102
+- 110
+- 111
+- 112
+- 113
+- 114
+- 115
+- 116
+- 117
+- 118
+- 119
+- 120
+- 121
+- 122
+- 123
+- 124
+- 125
+- 126
+- 127
+- 128
+- 129
+- 130
+enhanced:
+  special_bitvector: '0'

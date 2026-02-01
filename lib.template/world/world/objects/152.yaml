@@ -1,0 +1,37 @@
+# Object #152
+vnum: 152
+names:
+  aliases: свиток починки
+  nominative: свиток починки
+  genitive: свитка починки
+  dative: свитку починки
+  accusative: свиток починки
+  instrumental: свитком починки
+  prepositional: свитке починки
+short_desc: Перевязанный тесьмой свиток лежит тут.
+action_desc: "Легкое сияние окружило $n3 и медленно угасло.\r\n"
+type: kScroll
+wear_flags:
+- kTake
+- kHold
+material: 17
+values:
+- '30'
+- '73'
+- '0'
+- '0'
+weight: 1
+cost: 5000
+rent_off: 50
+rent_on: 5
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 45000
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: свиток обновления
+  description: "Тугой пергаментный свиток перетянутый синей тесемкой.\r\n"
+max_in_world: 10000

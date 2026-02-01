@@ -1,0 +1,45 @@
+# Object #197
+vnum: 197
+names:
+  aliases: огненный шар
+  nominative: огненный шар
+  genitive: огненного шара
+  dative: огненному шару
+  accusative: огненный шар
+  instrumental: огненным шаром
+  prepositional: огненном шаре
+short_desc: Яркий огнненый шар завис под потолком.
+type: kWorm
+wear_flags:
+- kFinger
+- kNeck
+- kBody
+- kHead
+- kLegs
+- kFeet
+- kHands
+- kArms
+- kShield
+- kShoulders
+- kWaist
+- kWrist
+- kWield
+- kHold
+- kBoth
+material: 16
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 1
+rent_off: 1
+rent_on: 1
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

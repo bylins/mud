@@ -1,0 +1,51 @@
+# Mob #204
+vnum: 204
+names:
+  aliases: моб четвертого уровня
+  nominative: моб четвертого уровня
+  genitive: моба четвертого уровня
+  dative: мобу четвертого уровня
+  accusative: моба четвертого уровня
+  instrumental: мобом четвертого уровня
+  prepositional: мобе четвертого уровня
+descriptions:
+  short_desc: "Пузатая немелочь расхаживает взад вперед\r\n"
+  long_desc: "Странно, подумали Вы, взглянув на это создание, что такое умное на вид\r\nсущество всего лишь четвертого уровня\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 4
+  hitroll_penalty: 17
+  armor: 9
+  hp:
+    dice_count: 20
+    dice_size: 3
+    bonus: 20
+  damage:
+    dice_count: 1
+    dice_size: 4
+    bonus: 3
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 180
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 34
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 12
+enhanced:
+  special_bitvector: '0'

@@ -1,0 +1,66 @@
+# Mob #112
+vnum: 112
+names:
+  aliases: пес Гарм
+  nominative: '&Kпес Гарм'
+  genitive: '&Kпса Гарма'
+  dative: '&Kпсу Гарму'
+  accusative: '&Kпса Гарма'
+  instrumental: '&Kпсом Гармом'
+  prepositional: '&Kпсе Гарме'
+descriptions:
+  short_desc: "_&KПес Гарм сидит здесь, охраняя вход в чертог.\r\n"
+  long_desc: "___Огромный четырехглазый пес прикован у входа в Хельхейм.\r\n"
+action_flags:
+- kIsNpc
+- kAirCreature
+affect_flags:
+- kIsNpc
+- kAggressive
+- kAirCreature
+alignment: 0
+mob_type: E
+stats:
+  level: 36
+  hitroll_penalty: -10
+  armor: 5
+  hp:
+    dice_count: 2
+    dice_size: 2
+    bonus: 3000
+  damage:
+    dice_count: 2
+    dice_size: 2
+    bonus: 30
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 1000000
+position:
+  default: kSitting
+  start: kSitting
+sex: kMale
+attributes:
+  strength: 50
+  dexterity: 50
+  intelligence: 30
+  wisdom: 30
+  constitution: 50
+  charisma: 3
+size: 90
+mob_class: 103
+race: 104
+height: 200
+weight: 200
+skills:
+- skill_id: 165
+  value: 200
+enhanced:
+  bare_hand_attack: 4
+  special_bitvector: '0'
+  saves:
+  - -30
+  - -30
+  - -30
+  - -30

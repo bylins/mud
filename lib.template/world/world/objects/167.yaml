@@ -1,0 +1,38 @@
+# Object #167
+vnum: 167
+names:
+  aliases: простой лук
+  nominative: простой лук
+  genitive: простого лука
+  dative: простому луку
+  accusative: простой лук
+  instrumental: простым луком
+  prepositional: простом луке
+short_desc: Небольшой простенький лук лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kBoth
+material: 9
+values:
+- '0'
+- '2'
+- '6'
+- '9'
+weight: 10
+cost: 20
+rent_off: 20
+rent_on: 0
+spec_param: 154
+max_durability: 75
+cur_durability: 75
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: простой лук
+  description: "Вы видите самый обыкновенный лук, сделанный из\r\nне очень подходящего дерева с тоненькой тетивой.\r\n"
+max_in_world: 100000

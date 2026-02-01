@@ -1,0 +1,33 @@
+# Object #147
+vnum: 147
+names:
+  aliases: настой болиголова
+  nominative: настой болиголова
+  genitive: настоя болиголова
+  dative: настою болиголова
+  accusative: настой болиголова
+  instrumental: настоем болиголова
+  prepositional: настое болиголова
+short_desc: Бутылочка с черным настоем стоит тут.
+action_desc: "\r\n"
+type: kPotion
+wear_flags:
+- kTake
+material: 0
+values:
+- '25'
+- '50'
+- '0'
+- '0'
+weight: 1
+cost: 50
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+max_in_world: 100000

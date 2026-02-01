@@ -1,0 +1,61 @@
+# Mob #4009
+vnum: 4009
+names:
+  aliases: трактирщик
+  nominative: трактирщик
+  genitive: трактирщика
+  dative: трактирщику
+  accusative: трактирщика
+  instrumental: трактирщиком
+  prepositional: трактирщике
+descriptions:
+  short_desc: "Огромный, с сизым носом, трактирщик отдыхает за стойкой.\r\n"
+  long_desc: "Крепкий мужик, не дурак выпить.\r\nС удовольствием за хорошие деньги угостит любого.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTerrainAttack
+alignment: 600
+mob_type: E
+stats:
+  level: 15
+  hitroll_penalty: 5
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 500
+  damage:
+    dice_count: 3
+    dice_size: 3
+    bonus: 10
+gold:
+  dice_count: 10
+  dice_size: 10
+  bonus: 200
+experience: 0
+position:
+  default: kSitting
+  start: kSitting
+sex: kMale
+attributes:
+  strength: 20
+  dexterity: 15
+  intelligence: 15
+  wisdom: 15
+  constitution: 22
+  charisma: 20
+size: 30
+mob_class: 100
+race: 101
+height: 180
+weight: 150
+skills:
+- skill_id: 136
+  value: 45
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

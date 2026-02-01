@@ -1,0 +1,51 @@
+# Mob #211
+vnum: 211
+names:
+  aliases: чармис одиннадцатого уровня
+  nominative: чармис одиннадцатого уровня_дамаг
+  genitive: чармиса одиннадцатого уровня
+  dative: чармису одиннадцатого уровня
+  accusative: чармиса одиннадцатого уровня
+  instrumental: чармисом одиннадцатого уровня
+  prepositional: чармисе одиннадцатого уровня
+descriptions:
+  short_desc: "чармис средних размеров глазеет на окружающих\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 11
+  hitroll_penalty: 9
+  armor: 6
+  hp:
+    dice_count: 25
+    dice_size: 7
+    bonus: 75
+  damage:
+    dice_count: 2
+    dice_size: 4
+    bonus: 5
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 4000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 41
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 33
+enhanced:
+  special_bitvector: '0'

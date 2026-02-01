@@ -1,0 +1,33 @@
+# Object #178
+vnum: 178
+names:
+  aliases: курительная трубка
+  nominative: курительная трубка
+  genitive: курительной трубки
+  dative: курительной трубке
+  accusative: курительную трубку
+  instrumental: курительной трубкой
+  prepositional: курительной трубке
+short_desc: Длинная изящная курительная трубка лежит здесь.
+type: kContainer
+wear_flags:
+- kTake
+- kHead
+- kHold
+material: 9
+values:
+- '2'
+- '0'
+- '-1'
+- '0'
+weight: 1
+cost: 1
+rent_off: 1
+rent_on: 1
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

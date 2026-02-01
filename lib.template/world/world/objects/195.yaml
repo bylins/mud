@@ -1,0 +1,32 @@
+# Object #195
+vnum: 195
+names:
+  aliases: щит короля скелетов.
+  nominative: щит короля скелетов
+  genitive: щита короля скелетов
+  dative: щиту короля скелетов
+  accusative: щит короля скелетов
+  instrumental: щитом короля скелетов
+  prepositional: щите короля скелетов
+short_desc: Круглый костянной щит лежит здесь.
+type: kWorm
+wear_flags:
+- kTake
+- kShield
+material: 13
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

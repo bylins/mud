@@ -1,0 +1,49 @@
+# Mob #113
+vnum: 113
+names:
+  aliases: '2'
+  nominative: юзается в коде, не трогать
+  genitive: неоконченного моба
+  dative: неоконченному мобу
+  accusative: неоконченного моба
+  instrumental: неоконченным мобом
+  prepositional: неоконченном мобе
+descriptions:
+  short_desc: "Неоконченный моб стоит тут.\r\n"
+  long_desc: "Выглядит достаточно незавершенно.\r\n"
+action_flags:
+- kIsNpc
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: 0
+mob_type: E
+stats:
+  level: 20
+  hitroll_penalty: 0
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 2000
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 20
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 40000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 30
+mob_class: 100
+race: 100
+height: 50
+weight: 200
+enhanced:
+  special_bitvector: '0'

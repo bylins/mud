@@ -1,0 +1,31 @@
+# Object #177
+vnum: 177
+names:
+  aliases: табак
+  nominative: табак
+  genitive: табака
+  dative: табаку
+  accusative: табак
+  instrumental: табаком
+  prepositional: табаке
+short_desc: Табак аккуратно собран в кучку.
+type: kTrap
+wear_flags:
+- kTake
+material: 16
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 1
+rent_off: 1
+rent_on: 0
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

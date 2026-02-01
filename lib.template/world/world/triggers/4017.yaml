@@ -1,0 +1,9 @@
+# Trigger #4017
+vnum: 4017
+name: Крыса спаит
+attach_type: kMobTrigger
+trigger_types:
+- kRandom
+narg: 14
+arglist: ''
+script: "wait 1\r\nswitch %random.8%\r\n  case 1\r\n    emot достала клочок бересты и прислушалась к разговорам дружины\r\n  break\r\n  case 2\r\n    emot отошла в сторонку, достала какую-то зеленую коробочку и начала тихо попискивать в нее\r\n    г пиип-пип-пип, пиип-пиип-пиип, пиип-пип, пип\r\n  break\r\n  case 3\r\n    emot уселась под доской с новостями дружины и стала быстро переписывать ее на клочок бересты\r\n  break\r\n  case 4\r\n    emot по локоть запустила лапу в хранилище Дружины и начала что-то там ощупывать\r\n  break\r\n  case 5\r\n    пищать\r\n  break\r\n  case 6\r\n    mecho Жирная крыса принялась искать чьи-то следы.\r\n  break\r\n  case 7\r\n    set target %random.pc%\r\n    emot тщательно обнюхала %target.vname%\r\n    гад\r\n  break\r\n  case 8\r\n    emot достала откуда-то три цветочных горшка и водрузила на подоконник\r\n  break\r\ndone"

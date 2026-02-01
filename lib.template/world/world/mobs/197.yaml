@@ -1,0 +1,119 @@
+# Mob #197
+vnum: 197
+names:
+  aliases: горыныч змей
+  nominative: '&Rзмей &gГорыныч&n'
+  genitive: '&Rзмея &gГорыныча&n'
+  dative: '&Rзмею &gГорынычу&n'
+  accusative: '&Rзмея &gГорыныча&n'
+  instrumental: '&Rзмеем &gГорынычем&n'
+  prepositional: '&Rзмее &gГорыныче&n'
+descriptions:
+  short_desc: "Трехголовый &gЗмей&R пролетает мимо, помахивая крыльями.&R\r\n"
+  long_desc: "Вы содрогнулись, оценив чудовищные размеры змея и увидев окруженные\r\nязыками пламени клыки в трех отверстых пастях.\r\n"
+action_flags:
+- kIsNpc
+- kAggressive
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTrack
+- kEarthCreature
+- kProgrammedLootGroup
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+- kNoSleep
+- kFireCreature
+- kProtected
+- kFlying
+alignment: -600
+mob_type: E
+stats:
+  level: 50
+  hitroll_penalty: 20
+  armor: 8
+  hp:
+    dice_count: 25
+    dice_size: 100
+    bonus: 30000
+  damage:
+    dice_count: 20
+    dice_size: 35
+    bonus: 25
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 36
+  dexterity: 25
+  intelligence: 20
+  wisdom: 36
+  constitution: 36
+  charisma: 3
+size: 70
+mob_class: 100
+race: 100
+height: 200
+weight: 200
+skills:
+- skill_id: 4
+  value: 120
+- skill_id: 21
+  value: 50
+- skill_id: 22
+  value: 150
+- skill_id: 132
+  value: 120
+- skill_id: 136
+  value: 150
+- skill_id: 158
+  value: 100
+triggers:
+- 1008
+enhanced:
+  bare_hand_attack: 2
+  special_bitvector: l0u0x0
+  spells:
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 56
+  - 56
+  - 56
+  - 56
+  - 56

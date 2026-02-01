@@ -1,0 +1,51 @@
+# Mob #130
+vnum: 130
+names:
+  aliases: белоснежный волк
+  nominative: белоснежный волк
+  genitive: белоснежного волка
+  dative: белоснежному волку
+  accusative: белоснежного волка
+  instrumental: белоснежным волком
+  prepositional: белоснежном волке
+descriptions:
+  short_desc: "Огромный волк с густой белоснежной шерстью развалился у подножья трона.\r\n"
+  long_desc: "Явно его родители были арктическими волками, но он был явно крупнее своих\r\nсородичей. Странные изумрудные глаза смотрят на Вас с подозрением, а острые\r\nклыки слегка сверкают в ощерившейся пасти.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kStayZone
+- kNoTerrainAttack
+alignment: 1
+mob_type: E
+stats:
+  level: 1
+  hitroll_penalty: 20
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 1
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 0
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 1
+experience: 0
+position:
+  default: kResting
+  start: kResting
+sex: kMale
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 136
+  value: 3
+enhanced:
+  special_bitvector: '0'

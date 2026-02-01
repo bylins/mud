@@ -1,0 +1,31 @@
+# Object #312
+vnum: 312
+names:
+  aliases: составной лук
+  nominative: составной лук
+  genitive: составного лука
+  dative: составному луку
+  accusative: составной лук
+  instrumental: составным луком
+  prepositional: составном луке
+short_desc: Составной лук лежит здесь.
+type: kWeapon
+wear_flags:
+- kTake
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '9'
+weight: 0
+cost: 150
+rent_off: 100
+rent_on: 75
+spec_param: 154
+max_durability: -1
+cur_durability: 0
+timer: 43200
+spell: -1
+level: 0
+sex: kMale

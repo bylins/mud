@@ -1,0 +1,33 @@
+# Object #333
+vnum: 333
+names:
+  aliases: короб хранения ингредиентов
+  nominative: короб для хранения ингредиентов
+  genitive: короба для хранения ингредиентов
+  dative: коробу для хранения ингредиентов
+  accusative: короб для хранения ингредиентов
+  instrumental: коробом для хранения ингредиентов
+  prepositional: коробе для хранения ингредиентов
+short_desc: Короб для хранения ингредиентов пристроен в углу.
+type: kContainer
+extra_flags:
+- kNoinvis
+- kNodecay
+- kNolocate
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 0
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 0
+cur_durability: 0
+timer: 10080
+spell: 0
+level: 0
+sex: kNeutral

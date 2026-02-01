@@ -1,0 +1,9 @@
+# Trigger #4012
+vnum: 4012
+name: Подобрали книжку
+attach_type: kObjTrigger
+trigger_types:
+- kGreet
+narg: 100
+arglist: ''
+script: "wait 1\r\noforce %actor% прочитать книгу\r\nosend %actor% Вы принялись читать книгу."

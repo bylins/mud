@@ -1,0 +1,9 @@
+# Trigger #199
+vnum: 199
+name: выдача чешуи триглаву
+attach_type: kMobTrigger
+trigger_types:
+- kCommand
+narg: 100
+arglist: дай
+script: "mload obj 91499\r\nдать чешуя триглав"

@@ -1,0 +1,35 @@
+# Object #266
+vnum: 266
+names:
+  aliases: красна цепь
+  nominative: красна цепь
+  genitive: красна цепь
+  dative: красна цепь
+  accusative: красна цепь
+  instrumental: красна цепь
+  prepositional: красна цепь
+short_desc: Длинное описание
+type: kWorm
+wear_flags:
+- kTake
+- kNeck
+material: 4
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 10
+rent_off: 100
+rent_on: 10
+spec_param: 0
+max_durability: 1000
+cur_durability: 0
+timer: 90000
+spell: 0
+level: 0
+sex: kNeutral
+applies:
+- location: 6
+  modifier: 10

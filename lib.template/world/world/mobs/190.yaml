@@ -1,0 +1,58 @@
+# Mob #190
+vnum: 190
+names:
+  aliases: попугай
+  nominative: попугай
+  genitive: попугая
+  dative: попугаю
+  accusative: попугая
+  instrumental: попугаем
+  prepositional: попугае
+descriptions:
+  short_desc: "Заморский птах сидит тут на жердочке.\r\n"
+  long_desc: "Ничего интересного на попе.. э.. то есть на попугае! Вы не заметили.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+affect_flags:
+- kIsNpc
+- kWimpy
+alignment: 0
+mob_type: E
+stats:
+  level: 30
+  hitroll_penalty: 10
+  armor: 1
+  hp:
+    dice_count: 1
+    dice_size: 10
+    bonus: 0
+  damage:
+    dice_count: 10
+    dice_size: 1
+    bonus: 10
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 22
+  dexterity: 15
+  intelligence: 22
+  wisdom: 22
+  constitution: 18
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 136
+  value: 90
+enhanced:
+  special_bitvector: '0'

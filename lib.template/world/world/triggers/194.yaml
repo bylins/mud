@@ -1,0 +1,9 @@
+# Trigger #194
+vnum: 194
+name: Палач зашел к жертве
+attach_type: kMobTrigger
+trigger_types:
+- kIncomePC
+narg: 100
+arglist: ''
+script: "wait 1\r\nforeach victim %self.pc%\r\n  if ( %victim.name% == %target1%)\r\n    force %victim% просн\r\n    force %victim% встать\r\n    появ\r\n    say %victim.name%, cледуйте за мной!\r\n    force %victim% follow княжеский.палач\r\n    group all\r\n    mkill .%victim.name%\r\n    halt\r\n  end\r\n  if ( %victim.name% == %target2%)\r\n    force %victim% просн\r\n    force %victim% встать\r\n    появ\r\n    say %victim.name%, cледуйте за мной!\r\n    force %victim% follow княжеский.палач\r\n    mkill .%victim.name%\r\n    halt\r\n  end\r\n  if ( %victim.name% == %target3%)\r\n    force %victim% просн\r\n    force %victim% встать\r\n    появ\r\n    say %victim.name%, cледуйте за мной!\r\n    force %victim% follow княжеский.палач\r\n    mkill .%victim.name%\r\n    halt\r\n  end\r\n  if ( %victim.name% == %target4%)\r\n    force %victim% просн\r\n    force %victim% встать\r\n    появ\r\n    say %victim.name%, cледуйте за мной!\r\n    force %victim% follow княжеский.палач\r\n    mkill .%victim.name%\r\n    halt\r\n  end\r\ndone"

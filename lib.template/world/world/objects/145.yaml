@@ -1,0 +1,36 @@
+# Object #145
+vnum: 145
+names:
+  aliases: медовый напиток
+  nominative: медовый напиток
+  genitive: медового напитка
+  dative: медовому напитку
+  accusative: медовый напиток
+  instrumental: медовым напитком
+  prepositional: медовом напитке
+short_desc: Глиняная корчага с источающим запах меда напитком стоит тут.
+type: kPotion
+wear_flags:
+- kTake
+- kHold
+material: 10
+values:
+- '25'
+- '103'
+- '0'
+- '0'
+weight: 1
+cost: 30
+rent_off: 5
+rent_on: 5
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 20160
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: ключ
+  description: "Вы видите обычный ключ.\r\n"
+max_in_world: 100000

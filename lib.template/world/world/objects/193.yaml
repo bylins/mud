@@ -1,0 +1,34 @@
+# Object #193
+vnum: 193
+names:
+  aliases: туфельки-лепестки в капельках росы
+  nominative: туфельки-лепестки в капельках росы
+  genitive: туфелек-лепестков в капельках росы
+  dative: туфелькам-лепесткам в капельках росы
+  accusative: туфельки-лепестки в капельках росы
+  instrumental: туфельками-лепестками в капельках росы
+  prepositional: туфельках-лепестках в капельках росы
+short_desc: Красивые туфельки из лепестков мягко парят над землей.
+type: kWorm
+extra_flags:
+- kFlying
+wear_flags:
+- kTake
+- kFeet
+material: 15
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 40000
+spell: -1
+level: 0
+sex: kNeutral

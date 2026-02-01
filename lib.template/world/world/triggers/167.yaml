@@ -1,0 +1,10 @@
+# Trigger #167
+vnum: 167
+name: вошли к кошмару
+attach_type: kMobTrigger
+trigger_types:
+- kGreet
+- kGreetPCAll
+narg: 100
+arglist: ''
+script: "wait 1s\r\nsay &GЗона на ремонте!&n\r\nsay &CЗайдите, &Wпожалуйста&C, позже!&n"

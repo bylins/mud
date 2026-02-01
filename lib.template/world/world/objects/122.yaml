@@ -1,0 +1,39 @@
+# Object #122
+vnum: 122
+names:
+  aliases: простой нож
+  nominative: простой нож
+  genitive: простого ножа
+  dative: простому ножу
+  accusative: простой нож
+  instrumental: простым ножом
+  prepositional: простом ноже
+short_desc: Обычный длинный нож лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+- kDecay
+wear_flags:
+- kTake
+- kWield
+- kHold
+material: 2
+values:
+- '0'
+- '1'
+- '4'
+- '11'
+weight: 6
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 144
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: простой нож
+  description: "Вы видите простой нож с обычной деревянной рукоятью.\r\n"

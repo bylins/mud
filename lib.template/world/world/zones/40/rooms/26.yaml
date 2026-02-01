@@ -1,0 +1,27 @@
+# Room #4026
+vnum: 4026
+zone: 40
+name: Бабичья улица
+description: "   Далеко разнесла людская молва весть о бабке Параскеве, обзывая и\r\nволхвицей, и вещуньей. Да и то правда - кто еще, окромя нее, сможет и рану\r\nзатянуть, да и от сглазу черного заговорить. Давно померла бабка, уже внучке\r\nее, тоже Параскеве, осьмой десяток пошел. А улица так и осталась - в память\r\nо ней. Только вот селится на ней народ тайный, к лихой ворожбе-заговорам\r\nпривычный.\r\n"
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: -1
+  to_room: 4042
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4025
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4063
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4045
+  lock_complexity: 0

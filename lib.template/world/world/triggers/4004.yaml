@@ -1,0 +1,9 @@
+# Trigger #4004
+vnum: 4004
+name: выходаизямы
+attach_type: kRoomTrigger
+trigger_types:
+- kSpeech
+narg: 0
+arglist: '"простите меня дурака" "простите меня дуру"'
+script: "wait 1\r\nif %random.10%<2\r\n  wecho Решетка в яме открылась, оттуда показалась здоровенная полубритая физиономия.\r\n  wecho Ладно, хватит хныкать, выпущу!\r\n  wecho В следующий раз думай, прежде чем жителей обижать наших!\r\n  if %actor.hitp%>0\r\n    wteleport %actor.name% 4000\r\n    wat 4000 wechoaround %actor% К решетке подошел здоровый парень, открыл замок.\r\n    wat 4000 wechoaround %actor% Поднял решетку и одним движением вытащил кого-то.\r\n    wat 4000 wechoaround %actor% Снова повесил массивный замок.\r\n    if (%actor.sex% == 1)\r\n      wat 4000 wechoaround %actor% %actor.name% размял кости, похоже в яме ему было неудобно.\r\n    else\r\n      wat 4000 wechoaround %actor% %actor.name% размяла кости, похоже в яме ей было неудобно.\r\n    end\r\n  end\r\nelse\r\n  wechoaround %actor% Никто не прореагировал на слова %actor.rname%.\r\n  wsend %actor% Никто не прореагировал на ваши слова.\r\n  wsend %actor% Наверное не очень искренне все прозвучало, повторите с чувством.\r\nend"

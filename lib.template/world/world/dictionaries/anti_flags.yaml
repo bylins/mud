@@ -1,0 +1,26 @@
+# Dictionary: anti_flags
+kMono: 0
+kPoly: 1
+kNeutral: 2
+kMage: 3
+kSorcerer: 4
+kThief: 5
+kWarrior: 6
+kAssasine: 7
+kGuard: 8
+kPaladine: 9
+kRanger: 10
+kVigilant: 11
+kMerchant: 12
+kMagus: 13
+kConjurer: 14
+kCharmer: 15
+kWizard: 16
+kNecromancer: 17
+kFighter: 18
+kKiller: 30
+kColored: 31
+kBattle: 32
+kMale: 66
+kFemale: 67
+kCharmice: 68

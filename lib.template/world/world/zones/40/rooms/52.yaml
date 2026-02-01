@@ -1,0 +1,16 @@
+# Room #4052
+vnum: 4052
+zone: 40
+name: Разбойный притон
+description: "   Потайное полуподпольное помещение, утонувшее в темноте, только скудное\r\nпламя очага отбрасывает на стены уродливые, колышущиеся тени.\r\n"
+flags:
+- kIndoors
+- kPeaceful
+- kForThieves
+sector: kCity
+exits:
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4004
+  lock_complexity: 0

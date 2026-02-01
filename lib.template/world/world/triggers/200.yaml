@@ -1,0 +1,9 @@
+# Trigger #200
+vnum: 200
+name: триггнаелке
+attach_type: kObjTrigger
+trigger_types:
+- kCommand
+narg: 100
+arglist: хоровод
+script: "osend %actor.name% Вы вспомнили детство и с радостью стали прыгать вокруг елочки.\r\nwait 2s\r\nif %actor.sex%==1\r\noechoaround %actor% %actor.name% вспомнил детство и с радостью стал прыгать вокруг елочки.\r\nelse\r\noechoaround %actor% %actor.name% вспомнила детство и с радостью стала прыгать вокруг елочки.\r\nend\r\neval mhitp %actor.maxhitp%-10\r\nif %actor.hitp% < %mhitp%\r\n%actor.hitp(+10)%\r\nosend %actor.name% Вдруг с елки упала на Вас иголка и вспыхнула.\r\nosend %actor.name% Вы почувстсвовали себя лучше.\r\nend\r\n"

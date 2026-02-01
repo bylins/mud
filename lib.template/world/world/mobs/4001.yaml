@@ -1,0 +1,63 @@
+# Mob #4001
+vnum: 4001
+names:
+  aliases: жена старейшина дородная женщина
+  nominative: жена старейшины
+  genitive: жены старейшины
+  dative: жене старейшины
+  accusative: жену старейшины
+  instrumental: женой старейшины
+  prepositional: жене старейшины
+descriptions:
+  short_desc: "Дородная румяная женщина стоит здесь.\r\n"
+  long_desc: "Почтенная хозяйка дома.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTerrainAttack
+affect_flags:
+- kNoSummoned
+alignment: 600
+mob_type: E
+stats:
+  level: 13
+  hitroll_penalty: 12
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 250
+  damage:
+    dice_count: 2
+    dice_size: 3
+    bonus: 5
+gold:
+  dice_count: 10
+  dice_size: 10
+  bonus: 100
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kFemale
+attributes:
+  strength: 16
+  dexterity: 16
+  intelligence: 20
+  wisdom: 20
+  constitution: 20
+  charisma: 20
+size: 30
+mob_class: 100
+race: 101
+height: 180
+weight: 150
+skills:
+- skill_id: 136
+  value: 39
+enhanced:
+  bare_hand_attack: 2
+  special_bitvector: '0'

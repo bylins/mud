@@ -1,0 +1,53 @@
+# Mob #206
+vnum: 206
+names:
+  aliases: чармис шестого уровня
+  nominative: чармис шестого уровня танк
+  genitive: чармиса шестого уровня
+  dative: чармису шестого уровня
+  accusative: чармиса шестого уровня
+  instrumental: чармисом шестого уровня
+  prepositional: чармисе шестого уровня
+descriptions:
+  short_desc: "чармис шестого уровня стоит тут\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 6
+  hitroll_penalty: 15
+  armor: 8
+  hp:
+    dice_count: 10
+    dice_size: 8
+    bonus: 50
+  damage:
+    dice_count: 2
+    dice_size: 2
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 720
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 36
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 18
+- skill_id: 137
+  value: 10
+enhanced:
+  special_bitvector: '0'

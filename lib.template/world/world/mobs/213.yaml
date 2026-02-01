@@ -1,0 +1,51 @@
+# Mob #213
+vnum: 213
+names:
+  aliases: чармис тринадцатого уровня
+  nominative: чармис тринадцатого уровня_дамаг
+  genitive: чармиса тринадцатого уровня
+  dative: чармису тринадцатого уровня
+  accusative: чармиса тринадцатого уровня
+  instrumental: чармисом тринадцатого уровня
+  prepositional: чармисе тринадцатого уровня
+descriptions:
+  short_desc: "Маленький чертенок считает до дюжины\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 13
+  hitroll_penalty: 9
+  armor: 5
+  hp:
+    dice_count: 20
+    dice_size: 11
+    bonus: 100
+  damage:
+    dice_count: 3
+    dice_size: 4
+    bonus: 3
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 10000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 43
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 39
+enhanced:
+  special_bitvector: '0'

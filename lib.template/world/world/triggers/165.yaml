@@ -1,0 +1,9 @@
+# Trigger #165
+vnum: 165
+name: тест
+attach_type: kMobTrigger
+trigger_types:
+- kSpeech
+narg: 0
+arglist: секс
+script: ''

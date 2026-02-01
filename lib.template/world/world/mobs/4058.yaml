@@ -1,0 +1,63 @@
+# Mob #4058
+vnum: 4058
+names:
+  aliases: сказитель
+  nominative: сказитель
+  genitive: сказителя
+  dative: сказителю
+  accusative: сказителя
+  instrumental: сказителем
+  prepositional: неоконченном мобе
+descriptions:
+  short_desc: "Седовласый сказитель готов поделиться с Вами интересной историей.\r\n"
+  long_desc: "Седовласый странник хранит в своей памяти сотни сказаний и былин.\r\nМожно попросить его рассказать сказку - авось не откажет.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoTerrainAttack
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: 200
+mob_type: E
+stats:
+  level: 30
+  hitroll_penalty: -1
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 600
+  damage:
+    dice_count: 5
+    dice_size: 5
+    bonus: 5
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 50
+  dexterity: 50
+  intelligence: 23
+  wisdom: 24
+  constitution: 23
+  charisma: 17
+size: 50
+mob_class: 100
+race: 101
+height: 168
+weight: 150
+triggers:
+- 4020
+enhanced:
+  like_work: 1
+  special_bitvector: '0'

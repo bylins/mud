@@ -1,0 +1,55 @@
+# Mob #134
+vnum: 134
+names:
+  aliases: воспитатель культуры общения
+  nominative: воспитатель культуры общения
+  genitive: воспитатель культуры общения
+  dative: воспитатель культуры общения
+  accusative: воспитатель культуры общения
+  instrumental: воспитатель культуры общения
+  prepositional: воспитатель культуры общения
+descriptions:
+  short_desc: "Воспитатель культуры общения стоит тут, полируя двуручный пневмопих.\r\n"
+  long_desc: "Ну что?! Есть кто, а?!!\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoTerrainAttack
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: 0
+mob_type: E
+stats:
+  level: 50
+  hitroll_penalty: 10
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 1000
+  damage:
+    dice_count: 10
+    dice_size: 1
+    bonus: 10
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 3
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+triggers:
+- 131
+enhanced:
+  special_bitvector: '0'

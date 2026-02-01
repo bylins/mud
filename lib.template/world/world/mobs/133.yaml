@@ -1,0 +1,145 @@
+# Mob #133
+vnum: 133
+names:
+  aliases: сильный раб
+  nominative: раб
+  genitive: раба
+  dative: рабу
+  accusative: раба
+  instrumental: рабом
+  prepositional: рабе
+descriptions:
+  short_desc: "Мужчина в лохмотьях, но с гордо поднятой головой стоит здесь.\r\n"
+  long_desc: "Наверное, беглый раб\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kAware
+- kWaterCreature
+- kSwimming
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+- kAirCreature
+- kFlying
+- kScrStay
+alignment: 0
+mob_type: E
+stats:
+  level: 25
+  hitroll_penalty: -30
+  armor: -1
+  hp:
+    dice_count: 10
+    dice_size: 100
+    bonus: 4000
+  damage:
+    dice_count: 30
+    dice_size: 10
+    bonus: 50
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 100000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 25
+  dexterity: 35
+  intelligence: 25
+  wisdom: 25
+  constitution: 45
+  charisma: 40
+size: 60
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 4
+  value: 200
+- skill_id: 22
+  value: 200
+- skill_id: 131
+  value: 150
+- skill_id: 132
+  value: 200
+- skill_id: 136
+  value: 90
+- skill_id: 137
+  value: 200
+- skill_id: 157
+  value: 100
+- skill_id: 160
+  value: 100
+- skill_id: 165
+  value: 100
+enhanced:
+  special_bitvector: p0
+  spells:
+  - 23
+  - 23
+  - 23
+  - 23
+  - 23
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 26
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 38
+  - 38
+  - 38
+  - 38
+  - 38
+  - 68
+  - 68
+  - 75
+  - 75
+  - 75
+  - 75
+  - 111
+  - 114
+  - 114
+  - 114
+  - 132
+  - 132

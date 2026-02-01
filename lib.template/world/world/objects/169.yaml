@@ -1,0 +1,38 @@
+# Object #169
+vnum: 169
+names:
+  aliases: бронзовый меч
+  nominative: бронзовый меч
+  genitive: бронзового меча
+  dative: бронзовому мечу
+  accusative: бронзовый меч
+  instrumental: бронзовым мечом
+  prepositional: бронзовом мече
+short_desc: Сделанный из бронзы меч с короткой деревянной рукояткой лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kWield
+material: 2
+values:
+- '0'
+- '1'
+- '6'
+- '7'
+weight: 17
+cost: 10
+rent_off: 10
+rent_on: 0
+spec_param: 143
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: бронзовый меч
+  description: "Вы видите средней длинны меч, выкованный из бронзы.\r\nНе очень хорошее оружие.\r\n"
+max_in_world: 100000

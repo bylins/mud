@@ -1,0 +1,37 @@
+# Object #175
+vnum: 175
+names:
+  aliases: простой самострел
+  nominative: простой самострел
+  genitive: простого самострела
+  dative: простому самострелу
+  accusative: простой самострел
+  instrumental: простым самострелом
+  prepositional: простом самостреле
+short_desc: Странное оружие с тетивой и курком на рукояти лежит тут.
+type: kWeapon
+wear_flags:
+- kTake
+- kWield
+- kBoth
+material: 8
+values:
+- '0'
+- '2'
+- '4'
+- '9'
+weight: 16
+cost: 100
+rent_off: 100
+rent_on: 10
+spec_param: 154
+max_durability: 75
+cur_durability: 75
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: простой самострел
+  description: "Вы видите мудреный механизм, похожий на лук,\r\nно он явно удобнее лука так как позволяет\r\nцелиться из него, используя только одну руку.\r\n"
+max_in_world: -1

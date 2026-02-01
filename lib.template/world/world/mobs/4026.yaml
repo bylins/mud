@@ -1,0 +1,59 @@
+# Mob #4026
+vnum: 4026
+names:
+  aliases: дочка ведуньи
+  nominative: дочка ведуньи
+  genitive: дочки ведуньи
+  dative: дочке ведуньи
+  accusative: дочку ведуньи
+  instrumental: дочкой ведуньи
+  prepositional: дочке ведуньи
+descriptions:
+  short_desc: "Уже взрослая дочка ведуньи стоит тут, торгуя магическими вещами.\r\n"
+  long_desc: "Придет время и она, вместо своей матери начнет помогать людям в своих\r\nпроблемах.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kStayZone
+- kNoSleep
+alignment: 0
+mob_type: E
+stats:
+  level: 9
+  hitroll_penalty: 15
+  armor: 0
+  hp:
+    dice_count: 30
+    dice_size: 30
+    bonus: 50
+  damage:
+    dice_count: 5
+    dice_size: 5
+    bonus: 0
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 4000
+position:
+  default: kStanding
+  start: kStanding
+sex: kFemale
+attributes:
+  strength: 3
+  dexterity: 3
+  intelligence: 3
+  wisdom: 3
+  constitution: 3
+  charisma: 3
+size: 50
+mob_class: 102
+race: 101
+height: 198
+weight: 200
+skills:
+- skill_id: 136
+  value: 3
+enhanced:
+  like_work: 50
+  special_bitvector: '0'

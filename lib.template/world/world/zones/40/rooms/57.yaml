@@ -1,0 +1,19 @@
+# Room #4057
+vnum: 4057
+zone: 40
+name: Тропа
+description: "   Вы вышли на неширокую, хорошо утоптанную дорожку, ведущую к болоту. \r\nУже отсюда слышно щебетание птиц и шум воды. На западе видны деревенские \r\nстроения.\r\n"
+flags:
+- kNoEntryMob
+sector: kField
+exits:
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4300
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4006
+  lock_complexity: 0

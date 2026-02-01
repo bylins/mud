@@ -1,0 +1,33 @@
+# Object #4000
+vnum: 4000
+names:
+  aliases: идол изваяние деревянный
+  nominative: идол
+  genitive: идола
+  dative: идолу
+  accusative: идол
+  instrumental: идолом
+  prepositional: идоле
+short_desc: Деревянное изваяние языческого бога стоит здесь посередине капища.
+type: kOther
+extra_flags:
+- kNoinvis
+- kNodecay
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 50
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: -1
+cur_durability: -1
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+max_in_world: 1

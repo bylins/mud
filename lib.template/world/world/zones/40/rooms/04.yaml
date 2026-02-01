@@ -1,0 +1,20 @@
+# Room #4004
+vnum: 4004
+zone: 40
+name: Голяцкий кабак
+description: "   Провонявшее тяжелым запахом полутемное помещение, заставленное столами и \r\nлавками, многие из которых поломаны. Это излюбленное место сбора местной\r\nголытьбы, бывают и лихие людишки сюда захаживают. Отовсюду слышатся громкие\r\nкрики и ругань.\r\n"
+flags:
+- kIndoors
+- kNohorse
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 16
+  key: -1
+  to_room: 4052
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4028
+  lock_complexity: 0

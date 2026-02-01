@@ -1,0 +1,32 @@
+# Object #302
+vnum: 302
+names:
+  aliases: сабля
+  nominative: сабля
+  genitive: сабли
+  dative: сабле
+  accusative: саблю
+  instrumental: саблей
+  prepositional: сабле
+short_desc: Сабля лежит здесь.
+type: kWeapon
+wear_flags:
+- kTake
+- kHold
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '7'
+weight: 0
+cost: 1
+rent_off: 80
+rent_on: 60
+spec_param: 144
+max_durability: -1
+cur_durability: 0
+timer: 30000
+spell: -1
+level: 0
+sex: kFemale

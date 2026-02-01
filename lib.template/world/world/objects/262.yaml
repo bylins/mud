@@ -1,0 +1,33 @@
+# Object #262
+vnum: 262
+names:
+  aliases: рубль
+  nominative: рубль
+  genitive: рубля
+  dative: рублю
+  accusative: рубль
+  instrumental: рублем
+  prepositional: рубле
+short_desc: Грязная бумажка валяется в пыли.
+action_desc: "\r\n"
+type: kTrash
+wear_flags:
+- kTake
+- kWield
+material: 17
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 0
+cost: 1
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: 0
+level: 0
+sex: kMale

@@ -1,0 +1,9 @@
+# Trigger #101
+vnum: 101
+name: тест1
+attach_type: kObjTrigger
+trigger_types:
+- kCommand
+narg: 1
+arglist: таймер
+script: otransform 1061

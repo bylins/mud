@@ -1,0 +1,31 @@
+# Object #230
+vnum: 230
+names:
+  aliases: руна отражения
+  nominative: Руна отражения
+  genitive: руны отражения
+  dative: руне отражения
+  accusative: руну отражения
+  instrumental: руной отражения
+  prepositional: руне отражения
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '230'
+- '1000'
+- '0'
+weight: 1
+cost: 100
+rent_off: 50
+rent_on: 50
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale

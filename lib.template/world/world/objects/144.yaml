@@ -1,0 +1,36 @@
+# Object #144
+vnum: 144
+names:
+  aliases: напиток всевидения
+  nominative: напиток всевидения
+  genitive: напитка всевидения
+  dative: напитку всевидения
+  accusative: напиток всевидения
+  instrumental: напитком всевидения
+  prepositional: напитке всевидения
+short_desc: Напиток всевидения лежит тут.
+type: kPotion
+wear_flags:
+- kTake
+- kHold
+material: 11
+values:
+- '0'
+- '19'
+- '20'
+- '50'
+weight: 1
+cost: 100
+rent_off: 100
+rent_on: 50
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: напиток всевидения
+  description: "Вы видите напиток всевидения, который слабо светится.\r\n"
+max_in_world: -1

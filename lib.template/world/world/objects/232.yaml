@@ -1,0 +1,32 @@
+# Object #232
+vnum: 232
+names:
+  aliases: руна благости
+  nominative: Руна благости
+  genitive: руны благости
+  dative: руне благости
+  accusative: руну благости
+  instrumental: руной благости
+  prepositional: руне благости
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '232'
+- '1000'
+- '0'
+weight: 1
+cost: 100
+rent_off: 50
+rent_on: 50
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale
+max_in_world: 50

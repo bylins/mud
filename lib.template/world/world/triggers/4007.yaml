@@ -1,0 +1,9 @@
+# Trigger #4007
+vnum: 4007
+name: Помощник заходик к ПКиллеру
+attach_type: kMobTrigger
+trigger_types:
+- kIncomePC
+narg: 100
+arglist: ''
+script: "wait 1\r\nif %actor.clan% != null\r\n  halt\r\nend\r\nforeach char %self.pc%\r\n  if %char.agressor% > 4000\r\n    if %char.agressor% < 4099\r\n      set target %char%\r\n    break\r\n  end\r\nend\r\nif %char.agressor% > 4300\r\n  if %char.agressor% < 4399\r\n    set target %char%\r\n  break\r\nend\r\nend\r\nif %char.agressor% > 4800\r\n  if %char.agressor% < 4899\r\n    set target %char%\r\n  break\r\nend\r\nend\r\ndone\r\nif !%target%\r\n  halt\r\nend\r\nif %target.sex% == 1\r\n  крича %target.name%, - вот он, убивец, хватай его! Вяжи его!\r\nelse\r\n  крича %target.name%, мерзавка, хватай ее! Вяжи ее!\r\nend\r\nКрича %target.name% - вот он%target.g% где, хватай, ребяты!\r\nпояв\r\nmforce %target.name% трепет\r\nmkill %target% "

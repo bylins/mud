@@ -1,0 +1,9 @@
+# Trigger #183
+vnum: 183
+name: НИИИИИЗЯ!
+attach_type: kMobTrigger
+trigger_types:
+- kCommand
+narg: 0
+arglist: зак зако закол заколо заколот заколоть b ba bac back backs backst nacksta backstab
+script: "if ((%cmd.mudcommand% == backstab) || (%cmd.mudcommand% == заколоть))\r\n  крича НИИИИЗЯ!!!\r\n  упрек .%actor.name%\r\n  return 0\r\n  halt\r\nend"

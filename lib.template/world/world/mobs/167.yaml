@@ -1,0 +1,49 @@
+# Mob #167
+vnum: 167
+names:
+  aliases: Звездочка
+  nominative: звездочка
+  genitive: звездочки
+  dative: звездочке
+  accusative: звездочку
+  instrumental: звездочкой
+  prepositional: звездочке
+descriptions:
+  short_desc: "&KМаленькая &mзвездочка &Kмерцает на небосклоне.&n\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+alignment: 1
+mob_type: E
+stats:
+  level: 1
+  hitroll_penalty: 19
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 1
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kFemale
+size: 30
+mob_class: 101
+race: 110
+height: 198
+weight: 200
+enhanced:
+  bare_hand_attack: 16
+  special_bitvector: '0'
+  destinations:
+  - 166

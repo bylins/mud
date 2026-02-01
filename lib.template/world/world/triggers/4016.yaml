@@ -1,0 +1,10 @@
+# Trigger #4016
+vnum: 4016
+name: Крысса жретЪ
+attach_type: kMobTrigger
+trigger_types:
+- kRandom
+- kReceive
+narg: 100
+arglist: ''
+script: "wait 1\r\nset items %self.objs%\r\nset item %items.car%\r\nif %item%\r\n  mecho Крыса сожрала %item.vname%.\r\n  wait 1\r\n  mpurge %item%\r\nend"

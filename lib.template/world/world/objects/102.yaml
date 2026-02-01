@@ -1,0 +1,35 @@
+# Object #102
+vnum: 102
+names:
+  aliases: вяленое мясо
+  nominative: вяленое мясо
+  genitive: вяленого мяса
+  dative: вяленому мясу
+  accusative: вяленое мясо
+  instrumental: вяленым мясом
+  prepositional: вяленом мясе
+short_desc: Большой кусок вяленого мяса лежит тут.
+type: kFood
+wear_flags:
+- kTake
+material: 0
+values:
+- '16'
+- '0'
+- '0'
+- '0'
+weight: 2
+cost: 10
+rent_off: 2
+rent_on: 2
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 2000
+spell: -1
+level: 1
+sex: kNeutral
+extra_descriptions:
+- keywords: вяленое мясо
+  description: "Вы видите кусок вяленого мяса, которое может\r\nдолго храниться и не потеряет своих\r\nвкусовых качеств.\r\n"
+max_in_world: 100000

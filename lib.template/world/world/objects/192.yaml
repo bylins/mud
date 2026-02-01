@@ -1,0 +1,34 @@
+# Object #192
+vnum: 192
+names:
+  aliases: креналиновый сарафан
+  nominative: креналиновый сарафан
+  genitive: креналиного сарафана
+  dative: креналиновому сарафану
+  accusative: креналиновый сарафан
+  instrumental: креналиновым сарафаном
+  prepositional: креналиновом сарафане
+short_desc: Полупрозрачная накидка лежит здесь, испуская зло.
+type: kArmor
+extra_flags:
+- kHum
+wear_flags:
+- kTake
+- kShoulders
+material: 14
+values:
+- '1'
+- '1'
+- '0'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

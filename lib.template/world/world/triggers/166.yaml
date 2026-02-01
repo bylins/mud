@@ -1,0 +1,9 @@
+# Trigger #166
+vnum: 166
+name: Тестим oecho
+attach_type: kObjTrigger
+trigger_types:
+- kReceive
+narg: 100
+arglist: ''
+script: oecho Это тест-тест-тест...

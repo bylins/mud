@@ -1,0 +1,61 @@
+# Mob #4008
+vnum: 4008
+names:
+  aliases: старец седой
+  nominative: седой старец
+  genitive: седого старца
+  dative: седому старцу
+  accusative: седого старца
+  instrumental: седым старцем
+  prepositional: седом старце
+descriptions:
+  short_desc: "Седой, как лунь, старец стоит здесь.\r\n"
+  long_desc: "Седоволосый старец в белых одеждах.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTerrainAttack
+alignment: 600
+mob_type: E
+stats:
+  level: 20
+  hitroll_penalty: 0
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 250
+  damage:
+    dice_count: 3
+    dice_size: 3
+    bonus: 6
+gold:
+  dice_count: 10
+  dice_size: 10
+  bonus: 100
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 15
+  dexterity: 15
+  intelligence: 30
+  wisdom: 30
+  constitution: 15
+  charisma: 25
+size: 30
+mob_class: 100
+race: 101
+height: 180
+weight: 150
+skills:
+- skill_id: 136
+  value: 60
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

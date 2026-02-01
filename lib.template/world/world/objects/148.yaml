@@ -1,0 +1,33 @@
+# Object #148
+vnum: 148
+names:
+  aliases: лучина
+  nominative: лучина
+  genitive: лучины
+  dative: лучине
+  accusative: лучину
+  instrumental: лучиной
+  prepositional: лучине
+short_desc: Лучина догорает здесь.
+type: kLightSource
+wear_flags:
+- kTake
+- kHold
+material: 8
+values:
+- '0'
+- '0'
+- '7'
+- '0'
+weight: 5
+cost: 15
+rent_off: 10
+rent_on: 7
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale
+max_in_world: 100000

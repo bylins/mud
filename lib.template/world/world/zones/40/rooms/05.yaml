@@ -1,0 +1,22 @@
+# Room #4005
+vnum: 4005
+zone: 40
+name: Поречная улица
+description: "   Поначалу, все городище стояло вдоль покатистого берега реки - и вода\r\nпоблизости, и обороняться от ворога - оно сподручней. Народишко все прибывал\r\nи прибывал, расселяясь все дальше и дальше в целинной степи, появлялись новые\r\nулицы и проулки, но эта так и осталась - самой старой, да самой тихой и\r\nпогожей улицей в растущем городе.\r\n"
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: -1
+  to_room: 4053
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4006
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4003
+  lock_complexity: 0

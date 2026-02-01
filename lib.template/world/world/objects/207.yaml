@@ -1,0 +1,31 @@
+# Object #207
+vnum: 207
+names:
+  aliases: руна тьмы
+  nominative: руна тьмы
+  genitive: руны тьмы
+  dative: руне тьмы
+  accusative: руну тьмы
+  instrumental: руной тьмы
+  prepositional: руне тьмы
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '207'
+- '1000'
+- '0'
+weight: 1
+cost: 100
+rent_off: 50
+rent_on: 50
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale

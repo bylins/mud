@@ -1,0 +1,53 @@
+# Mob #234
+vnum: 234
+names:
+  aliases: чармис тридцать четвертого уровня_танк
+  nominative: чармис тридцать четвертого уровня_танк
+  genitive: чармиса тридцатого уровня
+  dative: чармису тридцатого уровня
+  accusative: чармиса тридцатого уровня
+  instrumental: чармисом тридцатого уровня
+  prepositional: чармисе тридцатого уровня
+descriptions:
+  short_desc: "чармис тридцатого уровня стоит здесь и мается со скуки\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 34
+  hitroll_penalty: -3
+  armor: -4
+  hp:
+    dice_count: 100
+    dice_size: 7
+    bonus: 720
+  damage:
+    dice_count: 8
+    dice_size: 8
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 200000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 63
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 102
+- skill_id: 137
+  value: 94
+enhanced:
+  special_bitvector: '0'

@@ -1,0 +1,9 @@
+# Trigger #4018
+vnum: 4018
+name: Падальщик воет
+attach_type: kMobTrigger
+trigger_types:
+- kRandom
+narg: 15
+arglist: ''
+script: крича Ууууууууу!!!

@@ -1,0 +1,33 @@
+# Object #255
+vnum: 255
+names:
+  aliases: мортальный доска
+  nominative: мортальная доска
+  genitive: мортальной доски
+  dative: мортальной доске
+  accusative: мортальную доску
+  instrumental: мортальной доской
+  prepositional: мортальной доске
+short_desc: Сияющая доска для мортальных сообщений парит в воздухе
+type: kNote
+extra_flags:
+- kGlow
+- kMagic
+- kNodecay
+material: 9
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 0
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 150
+cur_durability: 150
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale

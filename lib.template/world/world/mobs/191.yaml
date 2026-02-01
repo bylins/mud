@@ -1,0 +1,167 @@
+# Mob #191
+vnum: 191
+names:
+  aliases: предупреждение Такурусаву
+  nominative: предупреждение Такурусаву
+  genitive: предупреждения Такурусаву
+  dative: предупреждению Такурусаву
+  accusative: предупреждение Такурусаву
+  instrumental: предупреждением Такурусаву
+  prepositional: предупреждении Такурусаву
+descriptions:
+  short_desc: "Предупреждение Такурусаву стоит тут. (многозначительно помахимивая нефиговым прибором)\r\n"
+  long_desc: "Страшный полуразложившийся труп, поднятый из земли темными чарами.\r\n"
+action_flags:
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kWaterCreature
+- kFlying
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: 600
+mob_type: E
+stats:
+  level: 15
+  hitroll_penalty: 4
+  armor: 10
+  hp:
+    dice_count: 1
+    dice_size: 1
+    bonus: 100
+  damage:
+    dice_count: 0
+    dice_size: 0
+    bonus: 1
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kNeutral
+attributes:
+  strength: 25
+  dexterity: 30
+  constitution: 25
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 136
+  value: 45
+triggers:
+- 180
+- 181
+- 182
+- 183
+enhanced:
+  special_bitvector: '0'
+  spells:
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 119
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125
+  - 125

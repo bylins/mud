@@ -1,0 +1,9 @@
+# Trigger #181
+vnum: 181
+name: ЛАГ2
+attach_type: kMobTrigger
+trigger_types:
+- kRandom
+narg: 30
+arglist: ''
+script: "wait 1\r\n*if %random.100% < 25\r\n* follow я\r\n*end\r\nif %target2%\r\n  set gde %target2.realroom%\r\n  if %self.realroom% != %gde%\r\n    cast !portal! .%target2.name%\r\n    войти пента\r\n  end\r\n  if %self.realroom% != %gde%\r\n    mgoto %target2.realroom%\r\n    mecho Предупреждение Такурусаву появился из пентаграммы.\r\n  end\r\nend\r\nif !%self.leader%\r\n  * set target %random.pc%\r\n  set target Такурусаву\r\n  if %target%\r\n    set target2 %target%\r\n    global target2\r\n    follow .%target.name%\r\n  end\r\nend"

@@ -1,0 +1,9 @@
+# Trigger #4001
+vnum: 4001
+name: 'триггер на хозяйке мельницы '
+attach_type: kMobTrigger
+trigger_types:
+- kGreetPC
+narg: 100
+arglist: ''
+script: "wait 1\r\nforeach victim %actor.group%\r\n  if (%victim.level% < 10 && (%victim.gold% < 20) && (%victim.bank% < 20) && (%actor% != %victim%))\r\n    msend %victim% Хозяйка сказала Вам:\r\n    msend %victim% - Эх ты горемычн%victim.w%, голодн%victim.w% наверное, %victim.name%.\r\n    взд\r\n    msend %victim% - У меня для голодного всегда кус хлеба найдется...\r\n    msend %victim% - Сейчас, подожди...\r\n    dg_cast 'насыщение' %victim.name%\r\n  end\r\ndone\r\n*интересно какой мудаг поломал списки... актор груп пуста, если группы нет :(\r\nif (%actor.level% < 10 && (%actor.gold% < 20) && (%actor.bank% < 20))\r\n  msend %actor% Хозяйка сказала Вам:\r\n  msend %actor% - Эх ты горемычн%actor.w%, голодн%actor.w% наверное, %actor.name%.\r\n  взд\r\n  msend %actor% - У меня для голодного всегда кус хлеба найдется...\r\n  msend %actor% - Сейчас, подожди...\r\n  dg_cast 'насыщение' %actor.name%\r\nend"

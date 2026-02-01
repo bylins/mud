@@ -1,0 +1,31 @@
+# Object #314
+vnum: 314
+names:
+  aliases: тетива
+  nominative: тетива
+  genitive: тетивы
+  dative: тетиве
+  accusative: тетиву
+  instrumental: тетивой
+  prepositional: тетиве
+short_desc: Тетива валяется здесь.
+type: kIngredient
+wear_flags:
+- kTake
+material: 9
+values:
+- '0'
+- '314'
+- '0'
+- '0'
+weight: 5
+cost: 10
+rent_off: 5
+rent_on: 5
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale

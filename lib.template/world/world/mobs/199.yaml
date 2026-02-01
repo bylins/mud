@@ -1,0 +1,118 @@
+# Mob #199
+vnum: 199
+names:
+  aliases: Змей Горыныч Трехголовый
+  nominative: Змей Горыныч
+  genitive: Змея Горыныча
+  dative: Змею Горынычу
+  accusative: Змея Горыныча
+  instrumental: Змеем Горынычем
+  prepositional: Змее Горыныче
+descriptions:
+  short_desc: "Змей Горыныч Трехголовый лениво пролетает мимо...\r\n"
+  long_desc: "Ужас обуял Вас, когда вы увидели это мощное, усеянное крупной чешуей и шипами\r\nтело\r\n"
+action_flags:
+- kIsNpc
+- kAggressive
+- kNoSleep
+- kNoBlind
+- kNoTrack
+- kFireCreature
+- kWaterCreature
+- kProtected
+- kSwimming
+- kProgrammedLootGroup
+affect_flags:
+- kScavenger
+- kIsNpc
+- kAggressive
+- kHelper
+- kProtected
+alignment: 1
+mob_type: E
+stats:
+  level: 28
+  hitroll_penalty: -30
+  armor: -5
+  hp:
+    dice_count: 30
+    dice_size: 1000
+    bonus: 7000
+  damage:
+    dice_count: 30
+    dice_size: 127
+    bonus: 50
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 200000
+experience: 150000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 50
+  dexterity: 35
+  intelligence: 35
+  wisdom: 25
+  constitution: 25
+  charisma: 3
+size: 50
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+skills:
+- skill_id: 1
+  value: 100
+- skill_id: 3
+  value: 100
+- skill_id: 132
+  value: 200
+- skill_id: 134
+  value: 100
+- skill_id: 136
+  value: 100
+- skill_id: 149
+  value: 100
+- skill_id: 150
+  value: 100
+- skill_id: 151
+  value: 100
+- skill_id: 157
+  value: 100
+- skill_id: 160
+  value: 100
+enhanced:
+  initiative_add: 100
+  aresist: 80
+  mresist: 80
+  bare_hand_attack: 2
+  special_bitvector: l0u0
+  saves:
+  - 50
+  - 50
+  - 50
+  - 50
+  spells:
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 28
+  - 48
+  - 48
+  - 48
+  - 48
+  - 48
+  - 48
+  - 48
+  - 48
+  - 48
+  - 48

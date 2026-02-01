@@ -1,0 +1,36 @@
+# Object #123
+vnum: 123
+names:
+  aliases: кольчуга
+  nominative: кольчуга
+  genitive: кольчуги
+  dative: кольчуге
+  accusative: кольчугу
+  instrumental: кольчугой
+  prepositional: кольчуге
+short_desc: Добротная кольчуга лежит тут.
+type: kArmor
+wear_flags:
+- kTake
+- kBody
+material: 3
+values:
+- '1'
+- '2'
+- '0'
+- '0'
+weight: 4
+cost: 90
+rent_off: 90
+rent_on: 6
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale
+extra_descriptions:
+- keywords: кольчуга
+  description: "Вы видите кольчугу, сшитую из легких и не очень\r\nпрочных колец.\r\n"
+max_in_world: -1

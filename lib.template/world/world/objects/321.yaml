@@ -1,0 +1,31 @@
+# Object #321
+vnum: 321
+names:
+  aliases: небольшой кусок мяса
+  nominative: небольшой кусок мяса
+  genitive: небольшого куска мяса
+  dative: небольшому куску мяса
+  accusative: небольшой кусок мяса
+  instrumental: небольшим куском мяса
+  prepositional: небольшом куске мяса
+short_desc: Небольшой кусок мяса лежит здесь.
+type: kFood
+wear_flags:
+- kTake
+material: 16
+values:
+- '8'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 2
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 1800
+spell: -1
+level: 0
+sex: kMale

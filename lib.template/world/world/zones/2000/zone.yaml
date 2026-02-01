@@ -1,0 +1,9 @@
+# Zone #2000
+vnum: 2000
+name: Системная зона 2000 -- Зарезервировано для craft'а (!OLC)
+top_room: 200099
+mode: 1
+zone_type: 0
+lifespan: 0
+reset_mode: 0
+reset_idle: 0

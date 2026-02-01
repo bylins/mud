@@ -1,0 +1,62 @@
+# Mob #4023
+vnum: 4023
+names:
+  aliases: конюх
+  nominative: конюх
+  genitive: конюха
+  dative: конюху
+  accusative: конюха
+  instrumental: конюхом
+  prepositional: конюхе
+descriptions:
+  short_desc: "Конюх стоит здесь, с интересом поглядывая по сторонам.\r\n"
+  long_desc: "Молодой парень с простодушным лицом.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kStayZone
+- kNoSleep
+- kNoBash
+- kNoBlind
+- kNoTerrainAttack
+alignment: 600
+mob_type: E
+stats:
+  level: 12
+  hitroll_penalty: 5
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 200
+  damage:
+    dice_count: 3
+    dice_size: 3
+    bonus: 6
+gold:
+  dice_count: 10
+  dice_size: 10
+  bonus: 100
+experience: 0
+position:
+  default: kSitting
+  start: kSitting
+sex: kMale
+attributes:
+  strength: 18
+  dexterity: 15
+  intelligence: 15
+  wisdom: 15
+  constitution: 18
+  charisma: 20
+size: 30
+mob_class: 100
+race: 101
+height: 180
+weight: 150
+skills:
+- skill_id: 136
+  value: 36
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

@@ -1,0 +1,36 @@
+# Object #141
+vnum: 141
+names:
+  aliases: красный пузырек
+  nominative: красный пузырек
+  genitive: красного пузырька
+  dative: красному пузырьку
+  accusative: красный пузырек
+  instrumental: красным пузырьком
+  prepositional: красном пузырьке
+short_desc: Пузырек красного цвета лежит тут.
+type: kPotion
+wear_flags:
+- kTake
+- kHold
+material: 11
+values:
+- '0'
+- '97'
+- '-1'
+- '-1'
+weight: 1
+cost: 300
+rent_off: 300
+rent_on: 100
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: красный пузырек
+  description: "Вы видите красный пузырек с неизвестным напитком.\r\n"
+max_in_world: -1

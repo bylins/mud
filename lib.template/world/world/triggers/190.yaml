@@ -1,0 +1,9 @@
+# Trigger #190
+vnum: 190
+name: й
+attach_type: kRoomTrigger
+trigger_types:
+- kCommand
+narg: 1
+arglist: cheat
+script: '*'

@@ -1,0 +1,50 @@
+# Mob #4052
+vnum: 4052
+names:
+  aliases: мышь
+  nominative: мышь
+  genitive: мышь
+  dative: мышь
+  accusative: мышь
+  instrumental: мышь
+  prepositional: мышь
+descriptions:
+  short_desc: "МЫШЬ бегает тут.\r\n"
+  long_desc: "Выглядит достаточно незавершенно.\r\n"
+action_flags:
+- kIsNpc
+alignment: 0
+mob_type: E
+stats:
+  level: 48
+  hitroll_penalty: 20
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+  damage:
+    dice_count: 2
+    dice_size: 1
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 10000000
+position:
+  default: kStanding
+  start: kStanding
+sex: kNeutral
+size: 30
+mob_class: 100
+race: 100
+height: 198
+weight: 200
+enhanced:
+  special_bitvector: '0'
+  saves:
+  - -78
+  - -78
+  - -78
+  - -78

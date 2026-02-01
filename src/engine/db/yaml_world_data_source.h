@@ -35,7 +35,7 @@ namespace world_loader
 // Result of parsing rooms in a single thread
 struct ParsedRoomBatch {
 	LocalDescriptionIndex descriptions;  // Thread-local description index
-	std::vector<std::pair<RoomData*, size_t>> rooms;  // (room, local_desc_idx)
+	std::vector<std::tuple<int, RoomData*, size_t>> rooms;  // (vnum, room, local_desc_idx)
 };
 
 // YAML implementation for human-readable world files

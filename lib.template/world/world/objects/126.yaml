@@ -1,0 +1,40 @@
+# Object #126
+vnum: 126
+names:
+  aliases: светящийся шарик
+  nominative: светящийся шарик
+  genitive: светящегося шарика
+  dative: светящемуся шарику
+  accusative: светящийся шарик
+  instrumental: светящимся шариком
+  prepositional: светящемся шарике
+short_desc: Если Вы это видите - у кодера какие-то проблемы.
+action_desc: "Вы зажгли шарик и взяли его в левую руку.\r\n"
+type: kLightSource
+extra_flags:
+- kNosell
+- kDecay
+wear_flags:
+- kTake
+- kHold
+material: 0
+values:
+- '0'
+- '0'
+- '24'
+- '0'
+weight: 1
+cost: 2
+rent_off: 2
+rent_on: 1
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: светящийся шарик
+  description: "Вы видите ярко светящийся шарик, созданный\r\nдивной магией.\r\n"
+max_in_world: 10000

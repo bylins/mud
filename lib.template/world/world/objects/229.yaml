@@ -1,0 +1,31 @@
+# Object #229
+vnum: 229
+names:
+  aliases: руна сознания
+  nominative: руна сознания
+  genitive: руны сознания
+  dative: руне сознания
+  accusative: руну сознания
+  instrumental: руной сознания
+  prepositional: руне сознания
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '229'
+- '1000'
+- '0'
+weight: 1
+cost: 100
+rent_off: 50
+rent_on: 50
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale

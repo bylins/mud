@@ -1,0 +1,21 @@
+# Room #4029
+vnum: 4029
+zone: 40
+name: За воротами
+description: "   За воротами одиноко и страшно, как будто вышел с родного порога и оказался\r\nв чужом незнакомом мире. Вокруг вместо родных глазу хижин бескрайние поля,\r\nгде-то  вдалеке ограниченные лесом.\r\n"
+flags:
+- kNoEntryMob
+sector: kCity
+exits:
+- direction: north
+  description: ворота
+  keywords: ворота|ворота
+  exit_flags: 1
+  key: -1
+  to_room: 4038
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4100
+  lock_complexity: 0

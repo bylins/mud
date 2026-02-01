@@ -1,0 +1,9 @@
+# Trigger #4014
+vnum: 4014
+name: Экспа
+attach_type: kMobTrigger
+trigger_types:
+- kDeath
+narg: 100
+arglist: ''
+script: log вызван читерный триггер на прибавление экспы, юзавший %actor.name%

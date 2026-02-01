@@ -1,0 +1,53 @@
+# Mob #218
+vnum: 218
+names:
+  aliases: чармис восемнадцатого уровня
+  nominative: чармис восемнадцатого уровня
+  genitive: чармиса восемнадцатого уровня
+  dative: чармису восемнадцатого уровня
+  accusative: чармиса восемнадцатого уровня
+  instrumental: чармисом восемнадцатого уровня
+  prepositional: чармисе восемнадцатого уровня
+descriptions:
+  short_desc: "Чармис восемнадцатого уровня просто стоит тут.\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 18
+  hitroll_penalty: 6
+  armor: 4
+  hp:
+    dice_count: 20
+    dice_size: 15
+    bonus: 300
+  damage:
+    dice_count: 4
+    dice_size: 4
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 175000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 48
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 54
+- skill_id: 137
+  value: 46
+enhanced:
+  special_bitvector: '0'

@@ -1,0 +1,32 @@
+# Object #225
+vnum: 225
+names:
+  aliases: руна воздуха
+  nominative: руна воздуха
+  genitive: руны воздуха
+  dative: руне воздуха
+  accusative: руну воздуха
+  instrumental: руной воздуха
+  prepositional: руне воздуха
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '225'
+- '1000'
+- '0'
+weight: 1
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale
+max_in_world: 100000

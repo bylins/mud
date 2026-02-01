@@ -1,0 +1,38 @@
+# Object #174
+vnum: 174
+names:
+  aliases: кистень
+  nominative: кистень
+  genitive: кистеня
+  dative: кистеню
+  accusative: кистень
+  instrumental: кистенем
+  prepositional: кистене
+short_desc: Плеть с металлическими гирьками лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kWield
+material: 8
+values:
+- '0'
+- '1'
+- '6'
+- '2'
+weight: 13
+cost: 10
+rent_off: 10
+rent_on: 0
+spec_param: 145
+max_durability: 75
+cur_durability: 75
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: кистень
+  description: "Вы видите длинную плеть с железными шариками, \r\nвисящими на конце.\r\n"
+max_in_world: 100000

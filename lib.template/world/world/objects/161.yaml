@@ -1,0 +1,34 @@
+# Object #161
+vnum: 161
+names:
+  aliases: бутылка мартини
+  nominative: бутылка "Мартини"
+  genitive: бутылки "Мартини"
+  dative: бутылке "Мартини"
+  accusative: бутылку "Мартини"
+  instrumental: бутылкой "Мартини"
+  prepositional: бутылке "Мартини"
+short_desc: Забытая кем-то бутылка "Мартини" стоит здесь.
+type: kFountain
+extra_flags:
+- kBless
+wear_flags:
+- kTake
+- kHold
+material: 11
+values:
+- '30'
+- '30'
+- '2'
+- '0'
+weight: 35
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale

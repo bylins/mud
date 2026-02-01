@@ -1,0 +1,34 @@
+# Object #154
+vnum: 154
+names:
+  aliases: статуя ленин
+  nominative: статуя вождя революции
+  genitive: статуи вождя революции
+  dative: статуе вождя революции
+  accusative: статую вождя революции
+  instrumental: статуей вождя революции
+  prepositional: статуе вождя революции
+short_desc: Зажав в левой руке кепку, правую длань выставив вперед, ВЕЛИКИЙ ВОЖДЬ смотрит на Вас с укором.
+type: kTrap
+extra_flags:
+- kNodecay
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 0
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 5000
+cur_durability: 5000
+timer: 40000
+spell: 0
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: ленин вождь
+  description: "Смерть скинхедам, всю власть советам!\r\n"

@@ -1,0 +1,41 @@
+# Object #112
+vnum: 112
+names:
+  aliases: простой меч
+  nominative: простой меч
+  genitive: простого меча
+  dative: простому мечу
+  accusative: простой меч
+  instrumental: простым мечом
+  prepositional: простом мече
+short_desc: Простой меч лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+- kDecay
+wear_flags:
+- kTake
+- kWield
+- kHold
+- kBoth
+material: 9
+values:
+- '0'
+- '1'
+- '5'
+- '7'
+weight: 5
+cost: 10
+rent_off: 0
+rent_on: 0
+spec_param: 143
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: простой меч
+  description: "Вы видите простой меч, неровно заточенный с обеих сторон.\r\n"
+max_in_world: 10000

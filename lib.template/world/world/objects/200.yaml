@@ -1,0 +1,31 @@
+# Object #200
+vnum: 200
+names:
+  aliases: руна твердыня
+  nominative: руна твердыни
+  genitive: руны твердыни
+  dative: руне твердыни
+  accusative: руну твердыни
+  instrumental: руной твердыни
+  prepositional: руне твердыни
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '200'
+- '1000'
+- '0'
+weight: 1
+cost: 100
+rent_off: 50
+rent_on: 50
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale

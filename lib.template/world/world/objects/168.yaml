@@ -1,0 +1,38 @@
+# Object #168
+vnum: 168
+names:
+  aliases: маленький топорик
+  nominative: маленький топорик
+  genitive: маленького топорика
+  dative: маленькому топорику
+  accusative: маленький топорик
+  instrumental: маленьким топориком
+  prepositional: маленьком топорике
+short_desc: Маленький топорик лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kWield
+material: 3
+values:
+- '0'
+- '1'
+- '6'
+- '3'
+weight: 13
+cost: 10
+rent_off: 10
+rent_on: 0
+spec_param: 142
+max_durability: 75
+cur_durability: 75
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: маленький топорик
+  description: "Вы видите маленький топорик, пригодный только\r\nчто для обрабоки не очень толстого дерева.\r\n"
+max_in_world: 100000

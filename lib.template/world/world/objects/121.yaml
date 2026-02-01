@@ -1,0 +1,38 @@
+# Object #121
+vnum: 121
+names:
+  aliases: простая палица
+  nominative: простая палица
+  genitive: простой палицы
+  dative: простой палице
+  accusative: простую палицу
+  instrumental: простой палицей
+  prepositional: простой палице
+short_desc: Палица лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+- kDecay
+wear_flags:
+- kTake
+- kWield
+material: 9
+values:
+- '0'
+- '1'
+- '5'
+- '5'
+weight: 5
+cost: 5
+rent_off: 0
+rent_on: 0
+spec_param: 141
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale
+extra_descriptions:
+- keywords: простая палица
+  description: "Вы видите самую обыкновенную грубую палицу,\r\nне очень хорошего качества.\r\n"

@@ -1,0 +1,60 @@
+# Mob #4016
+vnum: 4016
+names:
+  aliases: коза белый
+  nominative: коза
+  genitive: козы
+  dative: козе
+  accusative: козу
+  instrumental: козой
+  prepositional: козе
+descriptions:
+  short_desc: "Белая коза щиплет тут травку.\r\n"
+  long_desc: "Кто-то явно решил, что и на этом пустыре растет хорошая трава, нечего козу \r\nвыводить на пастбище.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoTerrainAttack
+alignment: 0
+mob_type: E
+stats:
+  level: 2
+  hitroll_penalty: 20
+  armor: 10
+  hp:
+    dice_count: 5
+    dice_size: 5
+    bonus: 20
+  damage:
+    dice_count: 1
+    dice_size: 2
+    bonus: 1
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 200
+position:
+  default: kStanding
+  start: kStanding
+sex: kFemale
+attributes:
+  strength: 10
+  dexterity: 10
+  intelligence: 10
+  wisdom: 10
+  constitution: 10
+  charisma: 10
+size: 15
+mob_class: 100
+race: 104
+height: 110
+weight: 50
+skills:
+- skill_id: 136
+  value: 3
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

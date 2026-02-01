@@ -1,0 +1,38 @@
+# Object #125
+vnum: 125
+names:
+  aliases: ломоть хлеб
+  nominative: ломоть хлеба
+  genitive: ломтя хлеба
+  dative: ломтю хлеба
+  accusative: ломоть хлеба
+  instrumental: ломтем хлеба
+  prepositional: ломоте хлеба
+short_desc: Небольшая краюшка хлеба лежит тут.
+type: kFood
+extra_flags:
+- kNosell
+- kDecay
+wear_flags:
+- kTake
+material: 0
+values:
+- '12'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 1
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 100
+cur_durability: 0
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: ломоть хлеба
+  description: "Вы видите небольшой кусок черного хлебушка.\r\nВряд-ли им можно наесться, но вприкуску с \r\nмясом будет очень даже ничего.\r\n"
+max_in_world: 10000

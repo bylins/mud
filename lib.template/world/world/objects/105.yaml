@@ -1,0 +1,35 @@
+# Object #105
+vnum: 105
+names:
+  aliases: четверть самогон
+  nominative: четверть
+  genitive: четверти
+  dative: четверти
+  accusative: четверть
+  instrumental: четвертью
+  prepositional: четверти
+short_desc: Четверть самогона (скорее всего пустая :) лежит тут.
+type: kLiquidContainer
+wear_flags:
+- kTake
+material: 0
+values:
+- '25'
+- '25'
+- '7'
+- '0'
+weight: 30
+cost: 20
+rent_off: 3
+rent_on: 3
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale
+extra_descriptions:
+- keywords: четверть самогон
+  description: "Вы видите большой кувшин для хранения жидкостей.\r\n"
+max_in_world: -1

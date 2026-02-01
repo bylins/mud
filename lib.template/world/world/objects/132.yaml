@@ -1,0 +1,38 @@
+# Object #132
+vnum: 132
+names:
+  aliases: легкий пояс
+  nominative: легкий пояс
+  genitive: легкого пояса
+  dative: легкому поясу
+  accusative: легкий пояс
+  instrumental: легким поясом
+  prepositional: легком поясе
+short_desc: Узкая полоска кожи валяется тут.
+type: kArmor
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kWaist
+material: 15
+values:
+- '0'
+- '1'
+- '0'
+- '0'
+weight: 1
+cost: 12
+rent_off: 12
+rent_on: 1
+spec_param: 0
+max_durability: 75
+cur_durability: 75
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+extra_descriptions:
+- keywords: легкий пояс
+  description: "Вы видите легкий пояс, изготовленный из\r\nкуска тонкой старой кожи.\r\n"
+max_in_world: 10000

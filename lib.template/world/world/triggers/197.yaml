@@ -1,0 +1,9 @@
+# Trigger #197
+vnum: 197
+name: Подавление агров и врат
+attach_type: kRoomTrigger
+trigger_types:
+- kCommand
+narg: 1
+arglist: '*'
+script: "if ( %cmd.mudcommand% == убить )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == атаковать )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == молот )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == пнуть )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == сбить )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == заколоть )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == подножка )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == оглушить )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == метнуть )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == сглазить )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == обезоружить )\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == украсть )\r\n  halt\r\nend\r\nset testcmd kill\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd attack\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd kick\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd bash\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd disarm\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd stupor\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd backstab\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd steal\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nset testcmd chopoff\r\nif %testcmd.contains(%cmd%)%\r\n  halt\r\nend\r\nif ( %cmd.mudcommand% == врата )\r\n  halt\r\nend\r\nreturn 0"

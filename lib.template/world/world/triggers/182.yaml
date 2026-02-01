@@ -1,0 +1,9 @@
+# Trigger #182
+vnum: 182
+name: LAG loaded
+attach_type: kMobTrigger
+trigger_types:
+- kLoad
+narg: 100
+arglist: ''
+script: "if %target2%\r\n  follow .%target2.name%\r\nelse\r\n  follow .Такурусаву\r\nend"

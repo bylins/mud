@@ -1,0 +1,62 @@
+# Mob #4017
+vnum: 4017
+names:
+  aliases: пес дворняжка
+  nominative: пес
+  genitive: пса
+  dative: псу
+  accusative: пса
+  instrumental: псом
+  prepositional: псе
+descriptions:
+  short_desc: "Дворовый пес пробегает мимо Вас.\r\n"
+  long_desc: "Рыжеватый ободранный пес.\r\n"
+action_flags:
+- kIsNpc
+- kNoSummoned
+- kNoSleep
+- kNoBash
+affect_flags:
+- kSwimming
+alignment: 0
+mob_type: E
+stats:
+  level: 21
+  hitroll_penalty: 18
+  armor: 10
+  hp:
+    dice_count: 5
+    dice_size: 5
+    bonus: 40
+  damage:
+    dice_count: 1
+    dice_size: 3
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 50000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 10
+  dexterity: 15
+  intelligence: 10
+  wisdom: 10
+  constitution: 7
+  charisma: 10
+size: 15
+mob_class: 101
+race: 110
+height: 80
+weight: 25
+skills:
+- skill_id: 136
+  value: 15
+enhanced:
+  bare_hand_attack: 4
+  max_factor: 10
+  special_bitvector: '0'

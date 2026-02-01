@@ -1,0 +1,16 @@
+# Room #4047
+vnum: 4047
+zone: 40
+name: Скотный двор
+description: "   Построенная из больших дубовых бревен дворовая постройка, в которой\r\nсодержат лошадей, коров и более мелкую домашнюю живность.\r\n"
+flags:
+- kIndoors
+- kPeaceful
+- kNoMagic
+sector: kCity
+exits:
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4046
+  lock_complexity: 0

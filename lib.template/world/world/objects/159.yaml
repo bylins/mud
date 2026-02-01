@@ -1,0 +1,32 @@
+# Object #159
+vnum: 159
+names:
+  aliases: бутылка кагор
+  nominative: бутылка "Кагора"
+  genitive: бутылки "Кагора"
+  dative: бутылке "Кагора"
+  accusative: бутылку "Кагора"
+  instrumental: бутылкой "Кагора"
+  prepositional: бутылке "Кагора"
+short_desc: Бутылка "Кагора" лежит здесь.
+type: kFountain
+wear_flags:
+- kTake
+- kHold
+material: 11
+values:
+- '20'
+- '10'
+- '2'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 200
+cur_durability: 200
+timer: 10000
+spell: -1
+level: 0
+sex: kNeutral

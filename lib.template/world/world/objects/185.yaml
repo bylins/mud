@@ -1,0 +1,35 @@
+# Object #185
+vnum: 185
+names:
+  aliases: лук повелитель ужас
+  nominative: лук Повелителя Ужасов
+  genitive: лука Повелителя Ужасов
+  dative: луку Повелителя Ужасов
+  accusative: лук Повелителя Ужасов
+  instrumental: луком Повелителя Ужасов
+  prepositional: луке Повелителя Ужасов
+short_desc: Огромный тяжелый лук, слово черное пятно, лежит здесь, испуская магические силы.
+action_desc: "Огромный, просто гиганский лук! Нужна большая сила, что бы хоть немного поднять его.\r\n"
+type: kWeapon
+wear_flags:
+- kTake
+- kWield
+- kHold
+- kBoth
+material: 7
+values:
+- '10'
+- '500'
+- '20'
+- '13'
+weight: 1
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 154
+max_durability: 1
+cur_durability: 1
+timer: 43200
+spell: -1
+level: 0
+sex: kNeutral

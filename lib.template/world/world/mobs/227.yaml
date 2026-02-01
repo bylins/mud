@@ -1,0 +1,51 @@
+# Mob #227
+vnum: 227
+names:
+  aliases: чармис двадцать седьмого уровня
+  nominative: чармис двадцать седьмого уровня_дамаг
+  genitive: чармиса двадцать седьмого уровня
+  dative: чармису двадцать седьмого уровня
+  accusative: чармиса двадцать седьмого уровня
+  instrumental: чармисом двадцать седьмого уровня
+  prepositional: чармисе двадцать седьмого уровня
+descriptions:
+  short_desc: "чармис двадцать седьмого уровня стоит здесь и мается со скуки\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 27
+  hitroll_penalty: 1
+  armor: 0
+  hp:
+    dice_count: 40
+    dice_size: 15
+    bonus: 310
+  damage:
+    dice_count: 6
+    dice_size: 6
+    bonus: 9
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 40000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 57
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 81
+enhanced:
+  special_bitvector: '0'

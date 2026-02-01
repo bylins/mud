@@ -1,0 +1,79 @@
+# Mob #4054
+vnum: 4054
+names:
+  aliases: r1guard помощник деревенского старосты
+  nominative: помощник деревенского старосты
+  genitive: помощника деревенского старосты
+  dative: помощнику деревенского старосты
+  accusative: помощника деревенского старосты
+  instrumental: помощником деревенского старосты
+  prepositional: помощнике деревенского старосты
+descriptions:
+  short_desc: "Крепкий плечистый крестьянин в нарядной одежде идет по улице.\r\n"
+  long_desc: "Крепкий плечистый мужик - помощник местного деревенского старосты\r\nв нелегком деле поддержания порядка в деревне.\r\n"
+action_flags:
+- kIsNpc
+- kAware
+- kNoSleep
+- kNoTrack
+- kFireCreature
+- kWaterCreature
+- kEarthCreature
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+- kNoSummoned
+- kNoSleep
+alignment: 600
+mob_type: E
+stats:
+  level: 20
+  hitroll_penalty: 4
+  armor: 0
+  hp:
+    dice_count: 10
+    dice_size: 100
+    bonus: 5000
+  damage:
+    dice_count: 5
+    dice_size: 10
+    bonus: 12
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 25
+  dexterity: 18
+  intelligence: 16
+  wisdom: 17
+  constitution: 23
+  charisma: 19
+size: 40
+mob_class: 104
+race: 104
+height: 180
+weight: 180
+skills:
+- skill_id: 3
+  value: 100
+- skill_id: 4
+  value: 60
+- skill_id: 136
+  value: 60
+triggers:
+- 4006
+- 4007
+enhanced:
+  like_work: 30
+  special_bitvector: '0'
+  spells:
+  - 28
+  - 28
+  - 28

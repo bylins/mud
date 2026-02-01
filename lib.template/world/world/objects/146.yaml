@@ -1,0 +1,32 @@
+# Object #146
+vnum: 146
+names:
+  aliases: маленький_бочонок бочонок_маленький
+  nominative: маленький_бочонок
+  genitive: маленького_бочонка
+  dative: маленькому_бочонку
+  accusative: маленький_бочонок
+  instrumental: маленьким_бочонком
+  prepositional: маленьком_бочонке
+short_desc: Маленький бочонок стоит тут.
+type: kLiquidContainer
+wear_flags:
+- kTake
+material: 9
+values:
+- '50'
+- '0'
+- '0'
+- '0'
+weight: 4
+cost: 30
+rent_off: 30
+rent_on: 30
+spec_param: 0
+max_durability: 80
+cur_durability: 80
+timer: 20160
+spell: 0
+level: 0
+sex: kMale
+max_in_world: 100000

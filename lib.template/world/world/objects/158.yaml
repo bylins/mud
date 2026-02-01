@@ -1,0 +1,32 @@
+# Object #158
+vnum: 158
+names:
+  aliases: крепкий_бочонок бочонок_крепкий
+  nominative: крепкий_бочонок
+  genitive: крепкого_бочонка
+  dative: крепкому_бочонку
+  accusative: крепкий_бочонок
+  instrumental: крепким_бочонком
+  prepositional: крепком_бочонке
+short_desc: Маленький крепкий бочонок перекатывается под ногами.
+type: kLiquidContainer
+wear_flags:
+- kTake
+material: 9
+values:
+- '50'
+- '0'
+- '0'
+- '0'
+weight: 4
+cost: 30
+rent_off: 30
+rent_on: 30
+spec_param: 0
+max_durability: 80
+cur_durability: 80
+timer: 20160
+spell: 0
+level: 0
+sex: kMale
+max_in_world: 100000

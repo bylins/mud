@@ -1,0 +1,32 @@
+# Object #150
+vnum: 150
+names:
+  aliases: стол
+  nominative: стол
+  genitive: стола
+  dative: столу
+  accusative: стол
+  instrumental: столом
+  prepositional: столе
+short_desc: Покрытый &Rалой скатертью&n &Yстол стоит здесь.&n
+type: kContainer
+extra_flags:
+- kNodecay
+material: 9
+values:
+- '200'
+- '3'
+- '-1'
+- '0'
+weight: 16
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 0
+sex: kNeutral
+max_in_world: 1

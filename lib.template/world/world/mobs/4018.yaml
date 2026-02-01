@@ -1,0 +1,62 @@
+# Mob #4018
+vnum: 4018
+names:
+  aliases: крестьянин
+  nominative: крестьянин
+  genitive: крестьянина
+  dative: крестьянину
+  accusative: крестьянина
+  instrumental: крестьянином
+  prepositional: крестьянине
+descriptions:
+  short_desc: "Крестьянин идет по своим делам.\r\n"
+  long_desc: "Работник полей явно сейчас свободен от пахоты, \r\nнаверняка он занимается домашними делами.\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+- kNoSleep
+- kNoBash
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 10
+  hitroll_penalty: 10
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 550
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+gold:
+  dice_count: 1
+  dice_size: 2
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 15
+  dexterity: 15
+  intelligence: 3
+  wisdom: 3
+  constitution: 17
+  charisma: 15
+size: 30
+mob_class: 102
+race: 101
+height: 180
+weight: 150
+skills:
+- skill_id: 136
+  value: 30
+triggers:
+- 4003
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

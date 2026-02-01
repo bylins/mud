@@ -1,0 +1,32 @@
+# Object #189
+vnum: 189
+names:
+  aliases: амулет зубов вампир
+  nominative: амулет из зубов вампира
+  genitive: амулета из зубов вампира
+  dative: амулету из зубов вампира
+  accusative: амулет из зубов вампира
+  instrumental: амулетом из зубов вампира
+  prepositional: амулете из зубов вампира
+short_desc: Амулет из страшных зубов лежит здесь.
+type: kWorm
+wear_flags:
+- kTake
+- kNeck
+material: 10
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

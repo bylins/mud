@@ -1,0 +1,41 @@
+# Room #152
+vnum: 152
+zone: 1
+name: Покои Свята
+description: "___Under сonstruction :)\r\n"
+flags:
+- kDeathTrap
+- kGodsRoom
+- kIceTrap
+sector: kInside
+exits:
+- direction: north
+  exit_flags: 0
+  key: 0
+  to_room: 101
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: 0
+  to_room: 103
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: 0
+  to_room: 0
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: 0
+  to_room: 105
+  lock_complexity: 0
+- direction: up
+  exit_flags: 0
+  key: 0
+  to_room: 100
+  lock_complexity: 0
+- direction: down
+  exit_flags: 0
+  key: 0
+  to_room: 0
+  lock_complexity: 0

@@ -1,0 +1,27 @@
+# Room #4016
+vnum: 4016
+zone: 40
+name: Базарная площадь
+description: "   Центр городища, получивший свое название по поводу проводимых на нем\r\nпразднеств и гуляний. Немноголюдная в будни, она оправдывает его по осени,\r\nпосле сбора урожая, когда весь рабочий да и гулящий люд не только с городища,\r\nда и с окрестных слобод и селений собирается сюда людей посмотреть, себя\r\nпоказать, потешить буйно головушку зеленым вином да завозными побасенками.\r\nНа восток отходит улица ремесленников.\r\n"
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: -1
+  to_room: 4015
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4017
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: 0
+  to_room: 0
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4013
+  lock_complexity: 0

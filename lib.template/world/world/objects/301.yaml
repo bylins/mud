@@ -1,0 +1,33 @@
+# Object #301
+vnum: 301
+names:
+  aliases: меч
+  nominative: меч
+  genitive: меча
+  dative: мечу
+  accusative: меч
+  instrumental: мечом
+  prepositional: мече
+short_desc: Меч валяется здесь.
+type: kWeapon
+wear_flags:
+- kTake
+- kWield
+- kBoth
+material: 3
+values:
+- '0'
+- '0'
+- '0'
+- '7'
+weight: 20
+cost: 100
+rent_off: 100
+rent_on: 75
+spec_param: 143
+max_durability: 100
+cur_durability: 100
+timer: 30000
+spell: -1
+level: 0
+sex: kMale

@@ -1,0 +1,61 @@
+# Mob #4057
+vnum: 4057
+names:
+  aliases: жирная крыса bigrat
+  nominative: жирная крыса
+  genitive: жирной крысы
+  dative: жирной крысе
+  accusative: жирную крысу
+  instrumental: жирной крысой
+  prepositional: жирной крысе
+descriptions:
+  short_desc: "Жирная крыса сидит здесь. (нагло ухмыляется)\r\n"
+  long_desc: "СПАЙ!!!\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: -100
+mob_type: E
+stats:
+  level: 34
+  hitroll_penalty: -10
+  armor: -2
+  hp:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1000
+  damage:
+    dice_count: 10
+    dice_size: 12
+    bonus: 10
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kFemale
+attributes:
+  strength: 20
+  dexterity: 35
+  intelligence: 30
+  wisdom: 20
+  constitution: 14
+  charisma: 3
+size: 30
+mob_class: 100
+race: 104
+height: 198
+weight: 200
+triggers:
+- 4017
+- 4016
+enhanced:
+  like_work: 100
+  special_bitvector: '0'

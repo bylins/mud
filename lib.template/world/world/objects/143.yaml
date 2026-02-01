@@ -1,0 +1,36 @@
+# Object #143
+vnum: 143
+names:
+  aliases: черное зелье
+  nominative: черное зелье
+  genitive: черного зелья
+  dative: черному зелью
+  accusative: черное зелье
+  instrumental: черным зельем
+  prepositional: черном зелье
+short_desc: Зелье черного цвета лежит тут.
+type: kPotion
+wear_flags:
+- kTake
+- kHold
+material: 11
+values:
+- '0'
+- '16'
+- '-1'
+- '-1'
+weight: 1
+cost: 15
+rent_off: 15
+rent_on: 10
+spec_param: 0
+max_durability: 10
+cur_durability: 10
+timer: 43200
+spell: -1
+level: 0
+sex: kNeutral
+extra_descriptions:
+- keywords: черное зелье
+  description: "Вы видите невиданное черное зелье.\r\n"
+max_in_world: -1

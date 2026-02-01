@@ -809,6 +809,10 @@ RoomData* YamlWorldDataSource::ParseRoomFile(const std::string &file_path, int z
 // Parallel room loading
 void YamlWorldDataSource::LoadRoomsParallel()
 {
+	// Creating empty world with kNowhere room (dummy room 0) - same as Legacy loader
+	world.push_back(new RoomData);
+	top_of_world = kNowhere;
+
 	std::vector<int> zone_vnums = GetZoneList();
 	if (zone_vnums.empty())
 	{
@@ -856,19 +860,9 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		return;
 	}
 
-	// Pre-allocate world vector
-	world.resize(room_count);
-	top_of_world = room_count - 1;
 	log("   %d rooms, %zd bytes.", room_count, sizeof(RoomData) * room_count);
 
-	// Build vnum to index map for parallel access
-	std::map<int, size_t> vnum_to_idx;
-	for (size_t i = 0; i < room_files.size(); ++i)
-	{
-		vnum_to_idx[room_files[i].first] = i;
-	}
-
-	// Distribute rooms into batches
+	// Distribute rooms into batches for parallel parsing
 	auto batches = utils::DistributeBatches(room_files, m_num_threads);
 	std::atomic<int> error_count{0};
 
@@ -876,10 +870,10 @@ void YamlWorldDataSource::LoadRoomsParallel()
 	std::vector<std::future<ParsedRoomBatch>> futures;
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &vnum_to_idx, &error_count]() -> ParsedRoomBatch {
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &error_count]() -> ParsedRoomBatch {
 			// LOCAL variable (not thread_local!)
 			LocalDescriptionIndex local_index;
-			std::vector<std::pair<RoomData*, size_t>> rooms_with_desc_idx;
+			std::vector<std::tuple<int, RoomData*, size_t>> parsed_rooms;
 
 			for (const auto &[vnum, filepath] : batches[thread_id])
 			{
@@ -893,15 +887,11 @@ void YamlWorldDataSource::LoadRoomsParallel()
 						zone_rn++;
 					}
 
-					size_t room_idx = vnum_to_idx.at(vnum);
 					size_t local_desc_idx = 0;
-					world[room_idx] = ParseRoomFile(filepath, zone_rn, local_index, local_desc_idx);
-					
-					// Store room + its local description index for later reindexing
-				if (local_desc_idx > 0)
-					{
-						rooms_with_desc_idx.push_back({world[room_idx], local_desc_idx});
-					}
+					RoomData* room = ParseRoomFile(filepath, zone_rn, local_index, local_desc_idx);
+
+					// Store vnum, room, and local description index
+					parsed_rooms.push_back(std::make_tuple(vnum, room, local_desc_idx));
 				}
 				catch (const YAML::Exception &e)
 				{
@@ -915,7 +905,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 				}
 			}
 
-			return ParsedRoomBatch{std::move(local_index), std::move(rooms_with_desc_idx)};
+			return ParsedRoomBatch{std::move(local_index), std::move(parsed_rooms)};
 		}));
 	}
 
@@ -933,7 +923,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		exit(1);
 	}
 
-	// Merge phase: convert all local description indices to global (single-threaded, no mutex!)
+	// Merge descriptions from all batches
 	auto &global_descriptions = GlobalObjects::descriptions();
 	std::vector<std::vector<size_t>> local_to_global(parsed_batches.size());
 
@@ -942,18 +932,39 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		local_to_global[batch_id] = global_descriptions.merge(parsed_batches[batch_id].descriptions);
 	}
 
-	// Update all rooms with global description indices
+	// Collect all rooms with their batch IDs for description reindexing
+	std::vector<std::tuple<int, RoomData*, size_t, size_t>> all_rooms;  // (vnum, room, batch_id, local_desc_idx)
 	for (size_t batch_id = 0; batch_id < parsed_batches.size(); ++batch_id)
 	{
-		for (auto [room, local_idx] : parsed_batches[batch_id].rooms)
+		for (auto &[vnum, room, local_desc_idx] : parsed_batches[batch_id].rooms)
 		{
-			if (local_idx < local_to_global[batch_id].size())
-			{
-				room->description_num = local_to_global[batch_id][local_idx];
-			}
+			all_rooms.push_back(std::make_tuple(vnum, room, batch_id, local_desc_idx));
 		}
 	}
 
+	// Sort rooms by vnum (CRITICAL for correct indexing)
+	std::sort(all_rooms.begin(), all_rooms.end(),
+		[](const auto &a, const auto &b) { return std::get<0>(a) < std::get<0>(b); });
+
+	// Add rooms to world vector in sorted order (sequential, using push_back like Legacy)
+	for (auto &[vnum, room, batch_id, local_desc_idx] : all_rooms)
+	{
+		// Update room's description_num with global index
+		// local_desc_idx is 1-based (0 = no description, 1 = first description)
+		// local_to_global is 0-indexed vector
+		if (local_desc_idx > 0)
+		{
+			size_t local_idx_0based = local_desc_idx - 1;
+			if (local_idx_0based < local_to_global[batch_id].size())
+			{
+				room->description_num = local_to_global[batch_id][local_idx_0based];
+			}
+		}
+
+		world.push_back(room);
+	}
+
+	top_of_world = world.size() - 1;
 	log("   Merged %zu unique room descriptions from %zu threads.", global_descriptions.size(), parsed_batches.size());
 
 	// Update zone_table.RnumRoomsLocation (sequential post-processing)

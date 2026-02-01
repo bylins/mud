@@ -1,0 +1,42 @@
+# Object #4005
+vnum: 4005
+names:
+  aliases: книга пьянки
+  nominative: книга пьянки
+  genitive: книги пьянки
+  dative: книге пьянки
+  accusative: книгу пьянки
+  instrumental: книгой пьянки
+  prepositional: книге пьянки
+short_desc: Испускающая крепкий запах браги пухлая книга лежит тут.
+type: kBook
+extra_flags:
+- kNorent
+- kNodonate
+- kNosell
+wear_flags:
+- kTake
+material: 17
+values:
+- '0'
+- '32'
+- '0'
+- '0'
+weight: 1
+cost: 5000
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 20
+cur_durability: 20
+timer: 120
+spell: 0
+level: 0
+sex: kFemale
+extra_descriptions:
+- keywords: книга пьянки
+  description: "Толстая засаленая книга испускающая\r\nзапах крепкой браги и медовухи.\r\nМожно попробовать ее &Yпрочитать&n\r\n"
+max_in_world: 10000
+triggers:
+- 4010
+- 4012

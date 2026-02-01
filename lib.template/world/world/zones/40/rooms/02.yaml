@@ -1,0 +1,18 @@
+# Room #4002
+vnum: 4002
+zone: 40
+name: Хижина охотника
+description: "   ___Вся хижина состоит из одной комнаты. На расположенных вдоль стен лавках\r\nпостелены звериные шкуры, такие же шкуры, только чуть посвежее, лежат и на\r\nкровати с пологом, где, по-видимому, спит хозяин. В дальнем конце комнаты\r\nнаходится громоздкая каменная печь, в которой тлеют несколько углей.  \r\n"
+flags:
+- kIndoors
+- kPeaceful
+- kForThieves
+- kForWarriors
+- kNohorse
+sector: kCity
+exits:
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4020
+  lock_complexity: 0

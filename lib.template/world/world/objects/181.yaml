@@ -1,0 +1,35 @@
+# Object #181
+vnum: 181
+names:
+  aliases: длинный нож
+  nominative: длинный нож
+  genitive: длинного ножа
+  dative: длинному ножу
+  accusative: длинный нож
+  instrumental: длинным ножом
+  prepositional: длинном ноже
+short_desc: Нож с длинным лезвием лежит перед Вами.
+type: kStaff
+wear_flags:
+- kTake
+- kHold
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '-1'
+weight: 0
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: -1
+cur_durability: -1
+timer: 500
+spell: -1
+level: 0
+sex: kNeutral
+applies:
+- location: 3
+  modifier: -4

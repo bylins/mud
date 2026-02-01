@@ -1,0 +1,53 @@
+# Mob #210
+vnum: 210
+names:
+  aliases: чармис десятого уровня
+  nominative: чармис десятого уровня_танк
+  genitive: чармиса десятого уровня
+  dative: чармису десятого уровня
+  accusative: чармиса десятого уровня
+  instrumental: чармисом десятого уровня
+  prepositional: чармисе десятого уровня
+descriptions:
+  short_desc: "Несколько обнаглевший чармис смотрит на Вас, не отрываясь.\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 10
+  hitroll_penalty: 11
+  armor: 7
+  hp:
+    dice_count: 40
+    dice_size: 4
+    bonus: 100
+  damage:
+    dice_count: 2
+    dice_size: 4
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 3000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 40
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 30
+- skill_id: 137
+  value: 22
+enhanced:
+  special_bitvector: '0'

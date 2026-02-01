@@ -1,0 +1,62 @@
+# Mob #4019
+vnum: 4019
+names:
+  aliases: крестьянка
+  nominative: крестьянка
+  genitive: крестьянки
+  dative: крестьянке
+  accusative: крестьянку
+  instrumental: крестьянкой
+  prepositional: крестьянке
+descriptions:
+  short_desc: "Крестьянка с корзинкой проходит мимо.\r\n"
+  long_desc: "Крестьянская женщина неспешно проходит здесь.\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+- kNoSleep
+- kNoBash
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 8
+  hitroll_penalty: 15
+  armor: 5
+  hp:
+    dice_count: 10
+    dice_size: 10
+    bonus: 550
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 1
+gold:
+  dice_count: 1
+  dice_size: 3
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kFemale
+attributes:
+  strength: 14
+  dexterity: 15
+  intelligence: 13
+  wisdom: 13
+  constitution: 15
+  charisma: 15
+size: 30
+mob_class: 102
+race: 101
+height: 180
+weight: 150
+skills:
+- skill_id: 136
+  value: 24
+triggers:
+- 4003
+enhanced:
+  max_factor: 10
+  special_bitvector: '0'

@@ -1,0 +1,36 @@
+# Object #261
+vnum: 261
+names:
+  aliases: колечко янтарное
+  nominative: янтарное колечко
+  genitive: янтарного колечка
+  dative: янтарному колечку
+  accusative: янтарное колечко
+  instrumental: янтарным колечком
+  prepositional: янтарном колечке
+short_desc: Красивое янтарное колечко сверкает на земле.
+type: kWorm
+extra_flags:
+- kNodecay
+wear_flags:
+- kTake
+- kFinger
+affect_flags:
+- kDetectAlign
+material: 18
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 1
+cost: 100
+rent_off: 10
+rent_on: 5
+spec_param: 0
+max_durability: 25
+cur_durability: 25
+timer: 86400
+spell: 0
+level: 0
+sex: kNeutral

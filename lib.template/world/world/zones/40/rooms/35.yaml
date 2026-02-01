@@ -1,0 +1,15 @@
+# Room #4035
+vnum: 4035
+zone: 40
+name: Хижина пахаря
+description: "   Уютный бревенчатый домик под соломенной крышей, с окнами из бычьего пузыря.\r\n \r\n"
+flags:
+- kIndoors
+- kNohorse
+sector: kCity
+exits:
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4034
+  lock_complexity: 0

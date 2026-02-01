@@ -1,0 +1,9 @@
+# Trigger #189
+vnum: 189
+name: Маты у заплечных дел мастера
+attach_type: kMobTrigger
+trigger_types:
+- kSpeech
+narg: 1
+arglist: '*'
+script: "wait 1\r\nif %speech.contains(пизд)% || %speech.contains(мудак)% || %speech.contains(пидор)% || %speech.contains(пидар)% || %speech.contains(хуй)% || %speech.contains(залуп)% || %speech.contains(ебан)% || %speech.contains(еблан)% || %speech.contains(сран)%\r\n  вмаз .%actor.name%\r\n  eval dmg %actor.hitp%/3\r\n  mdamage %actor% %dmg%\r\n  %actor.wait(5)%\r\nend"

@@ -1,0 +1,20 @@
+# Room #4050
+vnum: 4050
+zone: 40
+name: Прихожая
+description: "   Просторная светлая комната, двери которой ведут в хозяйскую гостиную. \r\n"
+flags:
+- kIndoors
+- kNohorse
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: -1
+  to_room: 4046
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4049
+  lock_complexity: 0

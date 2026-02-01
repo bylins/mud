@@ -1,0 +1,32 @@
+# Object #183
+vnum: 183
+names:
+  aliases: лунный обруч с сапфиром
+  nominative: лунный обруч с сапфиром
+  genitive: лунного обруча с сапфиром
+  dative: лунному обручу с сапфиром
+  accusative: лунный обруч с сапфиром
+  instrumental: лунным обручем с сапфиром
+  prepositional: лунном обруче с сапфиром
+short_desc: Изящный обруч с красивым камнем лежит здесь, блеская в свете луны
+type: kWorm
+wear_flags:
+- kTake
+- kHead
+material: 13
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 5
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 40000
+spell: -1
+level: 0
+sex: kNeutral

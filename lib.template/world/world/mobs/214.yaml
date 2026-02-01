@@ -1,0 +1,53 @@
+# Mob #214
+vnum: 214
+names:
+  aliases: чармис четырнадцатого уровня
+  nominative: чармис четырнадцатого уровня
+  genitive: чармиса четырнадцатого уровня
+  dative: чармису четырнадцатого уровня
+  accusative: чармиса четырнадцатого уровня
+  instrumental: чармисом четырнадцатого уровня
+  prepositional: чармисе четырнадцатого уровня
+descriptions:
+  short_desc: "Высокий дылда опирается на сучковатую дубину\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 14
+  hitroll_penalty: 8
+  armor: 5
+  hp:
+    dice_count: 20
+    dice_size: 12
+    bonus: 230
+  damage:
+    dice_count: 3
+    dice_size: 4
+    bonus: 2
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 13000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 44
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 42
+- skill_id: 137
+  value: 34
+enhanced:
+  special_bitvector: '0'

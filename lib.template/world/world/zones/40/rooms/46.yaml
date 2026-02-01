@@ -1,0 +1,23 @@
+# Room #4046
+vnum: 4046
+zone: 40
+name: Двор
+description: "   Вокруг широкого, покрытого навозом и сеном двора, стоят постройки -\r\nвыложенный из белого камня, ложенного сухой кладкой, дом, стены которого\r\nзаконопачены мхом, и катанная из дерева конюшня. Дорогу на восток, на улицу,\r\nперекрывают тяжелые дубовые ворота, запираемые тяжелой дубовой балкой.\r\n"
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: -1
+  to_room: 4047
+  lock_complexity: 0
+- direction: east
+  keywords: ворота|ворота
+  exit_flags: 1
+  key: -1
+  to_room: 4009
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4050
+  lock_complexity: 0

@@ -1,0 +1,62 @@
+# Mob #4070
+vnum: 4070
+names:
+  aliases: ямщик
+  nominative: ямщик
+  genitive: ямщика
+  dative: ямщику
+  accusative: ямщика
+  instrumental: ямщиком
+  prepositional: ямщике
+descriptions:
+  short_desc: "Ямщик готов помочь Вам доставить весточку родным и близким.\r\n"
+  long_desc: "Огромный мужик, хоть и немножко подвыпивший, но еще в состоянии понять, куда и\r\nкому вы хотите отправить письмо.    \r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kStayZone
+- kNoSleep
+- kNoBash
+- kNoTerrainAttack
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+- kNoMagicTerrainAttack
+- kFreemaker
+alignment: 0
+mob_type: E
+stats:
+  level: 30
+  hitroll_penalty: 15
+  armor: -10
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 500
+  damage:
+    dice_count: 1
+    dice_size: 1
+    bonus: 5
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 20
+  dexterity: 20
+size: 30
+mob_class: 102
+race: 101
+height: 198
+weight: 200
+skills:
+- skill_id: 136
+  value: 75
+enhanced:
+  special_bitvector: d1

@@ -1,0 +1,32 @@
+# Object #196
+vnum: 196
+names:
+  aliases: наручи покрытые льдом
+  nominative: наручи, покрытые льдом
+  genitive: наручей, покрытых льдом
+  dative: наручам, покрытым льдом
+  accusative: наручи, покрытые льдом
+  instrumental: наручами, покрытыми льдом
+  prepositional: наручах, покрытых льдом
+short_desc: Наручи, скованные во льду, лежат здесь.
+type: kWorm
+wear_flags:
+- kTake
+- kHands
+material: 7
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

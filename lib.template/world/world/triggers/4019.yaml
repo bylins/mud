@@ -1,0 +1,9 @@
+# Trigger #4019
+vnum: 4019
+name: Крыса жрет стаф
+attach_type: kMobTrigger
+trigger_types:
+- kCommand
+narg: 1
+arglist: тест
+script: "foreach item %self.objs%\r\n  mecho %item.name%\r\n  wait 1\r\ndone"

@@ -19,9 +19,9 @@ size_t LocalDescriptionIndex::add(const std::string &text)
 	}
 	else
 	{
-		// New description -> add to index
-		size_t idx = _desc_list.size();  // 0-based!
+		// New description -> add to index (1-based for compatibility with Legacy)
 		_desc_list.push_back(text);
+		size_t idx = _desc_list.size();  // 1-based! (0 = no description)
 		_desc_map[text] = idx;
 		return idx;
 	}
@@ -30,9 +30,13 @@ size_t LocalDescriptionIndex::add(const std::string &text)
 const std::string &LocalDescriptionIndex::get(size_t idx) const
 {
 	static const std::string empty_string = "";
+	if (idx == 0)
+	{
+		return empty_string;  // 0 means "no description"
+	}
 	try
 	{
-		return _desc_list.at(idx);
+		return _desc_list.at(idx - 1);  // Convert 1-based to 0-based
 	}
 	catch (const std::out_of_range &)
 	{
@@ -54,9 +58,9 @@ size_t RoomDescriptions::add(const std::string &text)
 	}
 	else
 	{
-		// New description -> add to global index
-		size_t idx = _desc_list.size();  // 0-based!
+		// New description -> add to global index (1-based for compatibility with Legacy)
 		_desc_list.push_back(text);
+		size_t idx = _desc_list.size();  // 1-based! (0 = no description)
 		_desc_map[text] = idx;
 		return idx;
 	}
@@ -65,9 +69,13 @@ size_t RoomDescriptions::add(const std::string &text)
 const std::string &RoomDescriptions::get(size_t idx) const
 {
 	static const std::string empty_string = "";
+	if (idx == 0)
+	{
+		return empty_string;  // 0 means "no description"
+	}
 	try
 	{
-		return _desc_list.at(idx);  // Using 0-based index, unchanged!
+		return _desc_list.at(idx - 1);  // Convert 1-based to 0-based
 	}
 	catch (const std::out_of_range &)
 	{

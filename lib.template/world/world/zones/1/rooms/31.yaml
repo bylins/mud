@@ -1,0 +1,41 @@
+# Room #131
+vnum: 131
+zone: 1
+name: Покои Милича
+description: "__Серый туман, окружающий вас со всех сторон, кажется пытается поглотить\r\nсаму вашу сущность. Но немного привыкнув вы понимаете, что стена тумана\r\nвовсе не рядом, а достаточно далеко, и даже просто дойти до него вам\r\nне удастся. В этой серой пустоте, иногда проскальзывают какие-то всполыхи,\r\nматериализуются чьи-то мысли, объекты. Вся эта мешанина образов давит на вас,\r\nвынуждая закрыть глаза, и пожелать оказаться в другом месте. Это не ваш мир.\r\n"
+flags:
+- kForMages
+- kNoSummonOut
+- kNoTeleportOut
+sector: kInside
+exits:
+- direction: north
+  exit_flags: 0
+  key: 0
+  to_room: 131
+  lock_complexity: 0
+- direction: east
+  exit_flags: 0
+  key: 0
+  to_room: 131
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: 0
+  to_room: 131
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: 0
+  to_room: 131
+  lock_complexity: 0
+- direction: up
+  exit_flags: 16
+  key: 0
+  to_room: 100
+  lock_complexity: 0
+- direction: down
+  exit_flags: 16
+  key: 0
+  to_room: 49987
+  lock_complexity: 0

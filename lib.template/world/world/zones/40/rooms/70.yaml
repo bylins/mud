@@ -1,0 +1,17 @@
+# Room #4070
+vnum: 4070
+zone: 40
+name: Яма
+description: "   На Руси почтовые станции назывались - ямами.  Здесь можно было сменить\r\nлошадей во время дальней дороги.  От \"ямы\" пошли и ямщики.  На них возлагались\r\nобязанности не только извозчиков, но и почтовых курьеров.    \r\n"
+flags:
+- kIndoors
+- kPeaceful
+- kNoMagic
+- kNoWeather
+sector: kInside
+exits:
+- direction: north
+  exit_flags: 0
+  key: 0
+  to_room: 4000
+  lock_complexity: 0

@@ -1,0 +1,36 @@
+# Object #332
+vnum: 332
+names:
+  aliases: короб склад снаряжения ватаги
+  nominative: склад снаряжения вашей ватаги
+  genitive: склад снаряжения вашей ватагий
+  dative: склад снаряжения вашей ватаги
+  accusative: склад снаряжения вашей ватаги
+  instrumental: склад снаряжения вашей ватаги
+  prepositional: склад снаряжения вашей ватаги
+short_desc: Короб для хранения снаряжения вашей ватаги пристроен в углу.
+type: kContainer
+extra_flags:
+- kNorent
+- kNodonate
+- kNoinvis
+- kNosell
+- kNodecay
+- kNolocate
+material: 0
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 0
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 0
+cur_durability: 0
+timer: 10000
+spell: 0
+level: 0
+sex: kNeutral

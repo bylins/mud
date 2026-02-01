@@ -1,0 +1,31 @@
+# Object #4007
+vnum: 4007
+names:
+  aliases: баночка
+  nominative: баночка
+  genitive: баночки
+  dative: баночке
+  accusative: баночку
+  instrumental: баночкой
+  prepositional: баночке
+short_desc: Баночка оставлена здесь кем-то.
+type: kLiquidContainer
+wear_flags:
+- kTake
+material: 11
+values:
+- '30'
+- '30'
+- '24'
+- '1'
+weight: 31
+cost: 100
+rent_off: 1
+rent_on: 1
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 5000
+spell: 0
+level: 0
+sex: kFemale

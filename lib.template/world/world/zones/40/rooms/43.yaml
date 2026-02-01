@@ -1,0 +1,20 @@
+# Room #4043
+vnum: 4043
+zone: 40
+name: Мельня
+description: "   Посреди комнаты, занимая ее почти всю, крутятся два тяжелых каменных\r\nколеса, приводимые в движение хитрым механизмом, установленным в реке.\r\nГул стоит такой, что ничего невозможно услышать на расстоянии вытянутой\r\nруки.\r\n"
+flags:
+- kIndoors
+- kSoundproof
+sector: kCity
+exits:
+- direction: east
+  exit_flags: 0
+  key: -1
+  to_room: 4051
+  lock_complexity: 0
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4000
+  lock_complexity: 0

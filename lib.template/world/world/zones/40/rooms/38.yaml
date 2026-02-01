@@ -1,0 +1,21 @@
+# Room #4038
+vnum: 4038
+zone: 40
+name: Застава у ворот
+description: "   Небольшая глинобитная хижина, крытая соломой, в которой несут стражу самые\r\nкрепкие деревенские мужики, на случай нашествия ворога.\r\n"
+flags:
+- kIndoors
+sector: kCity
+exits:
+- direction: south
+  description: ворота
+  keywords: ворота|ворота
+  exit_flags: 1
+  key: -1
+  to_room: 4029
+  lock_complexity: 0
+- direction: west
+  exit_flags: 0
+  key: -1
+  to_room: 4022
+  lock_complexity: 0

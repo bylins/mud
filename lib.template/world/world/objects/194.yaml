@@ -1,0 +1,32 @@
+# Object #194
+vnum: 194
+names:
+  aliases: поножи чешуек дракона
+  nominative: поножи из чешуек дракона
+  genitive: поножей из чешуек дракона
+  dative: поножам из чешуек дракона
+  accusative: поножи из чешуек дракона
+  instrumental: поножами из чешуек дракона
+  prepositional: поножах из чешуек дракона
+short_desc: Чешуйчатые поножи лежат здесь.
+type: kWorm
+wear_flags:
+- kTake
+- kLegs
+material: 16
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral

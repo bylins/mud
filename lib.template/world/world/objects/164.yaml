@@ -1,0 +1,38 @@
+# Object #164
+vnum: 164
+names:
+  aliases: простая палица
+  nominative: простая палица
+  genitive: простой палицы
+  dative: простой палице
+  accusative: простую палицу
+  instrumental: простой палицей
+  prepositional: простой палице
+short_desc: Небольших размеров деревянная дубина лежит тут.
+type: kWeapon
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kWield
+material: 8
+values:
+- '0'
+- '1'
+- '6'
+- '5'
+weight: 5
+cost: 9
+rent_off: 9
+rent_on: 0
+spec_param: 141
+max_durability: 50
+cur_durability: 50
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale
+extra_descriptions:
+- keywords: простая палица
+  description: "Вы видите самую обыкновенную грубую палицу,\r\nне очень хорошего качества.\r\n"
+max_in_world: 100000

@@ -1,0 +1,37 @@
+# Object #108
+vnum: 108
+names:
+  aliases: маленький топорик
+  nominative: маленький топорик
+  genitive: маленького топорика
+  dative: маленькому топорику
+  accusative: маленький топорик
+  instrumental: маленьким топориком
+  prepositional: маленьком топорике
+short_desc: Маленький бронзовый топорик лежит тут.
+type: kWeapon
+wear_flags:
+- kTake
+- kWield
+- kHold
+material: 2
+values:
+- '0'
+- '1'
+- '5'
+- '3'
+weight: 5
+cost: 10
+rent_off: 10
+rent_on: 5
+spec_param: 142
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: маленький топорик
+  description: "Вы видите маленький топорик, пригодный только\r\nчто для обрабоки не очень толстого дерева.\r\n"
+max_in_world: 10000

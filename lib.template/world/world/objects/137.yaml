@@ -1,0 +1,41 @@
+# Object #137
+vnum: 137
+names:
+  aliases: простой щит
+  nominative: простой щит
+  genitive: простого щита
+  dative: простому щиту
+  accusative: простой щит
+  instrumental: простым щитом
+  prepositional: простом щите
+short_desc: Немного неуклюжий простой щит лежит тут.
+type: kArmor
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kShield
+material: 9
+values:
+- '1'
+- '2'
+- '0'
+- '0'
+weight: 9
+cost: 10
+rent_off: 10
+rent_on: 1
+spec_param: 0
+max_durability: 50
+cur_durability: 50
+timer: 43200
+spell: -1
+level: 0
+sex: kMale
+applies:
+- location: 18
+  modifier: -1
+extra_descriptions:
+- keywords: простой щит
+  description: "Вы видите обыкновенный деревянный круглый щит.\r\n"
+max_in_world: 10000

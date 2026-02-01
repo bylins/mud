@@ -1,0 +1,21 @@
+# Room #4048
+vnum: 4048
+zone: 40
+name: Лежня
+description: "   Небольшая полутемная комната, с кроватью, покрытой пологом и убранной\r\nчистым льняным холстом.\r\n"
+flags:
+- kNoEntryMob
+- kIndoors
+- kPeaceful
+- kForMages
+- kForSorcerers
+- kForThieves
+- kForWarriors
+- kNohorse
+sector: kCity
+exits:
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4049
+  lock_complexity: 0

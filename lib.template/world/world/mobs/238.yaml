@@ -1,0 +1,53 @@
+# Mob #238
+vnum: 238
+names:
+  aliases: чармис тридцать восьмого уровня_танк
+  nominative: чармис тридцать восьмого уровня_танк
+  genitive: чармиса тридцатого уровня
+  dative: чармису тридцатого уровня
+  accusative: чармиса тридцатого уровня
+  instrumental: чармисом тридцатого уровня
+  prepositional: чармисе тридцатого уровня
+descriptions:
+  short_desc: "чармис тридцатого уровня стоит здесь и мается со скуки\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 38
+  hitroll_penalty: -6
+  armor: -6
+  hp:
+    dice_count: 100
+    dice_size: 7
+    bonus: 840
+  damage:
+    dice_count: 8
+    dice_size: 8
+    bonus: 6
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 200000
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 65
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 114
+- skill_id: 137
+  value: 106
+enhanced:
+  special_bitvector: '0'

@@ -1,0 +1,34 @@
+# Object #257
+vnum: 257
+names:
+  aliases: доска сообщений наказания
+  nominative: доска
+  genitive: доски
+  dative: доске
+  accusative: доску
+  instrumental: доской
+  prepositional: доске
+short_desc: Доска для сообщений об наказаниях вырезанна тут
+type: kNote
+extra_flags:
+- kHum
+- kMagic
+- kNodecay
+material: 9
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 0
+cost: 0
+rent_off: 0
+rent_on: 0
+spec_param: 0
+max_durability: 150
+cur_durability: 150
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale
+max_in_world: 1

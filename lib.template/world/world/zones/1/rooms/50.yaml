@@ -1,0 +1,14 @@
+# Room #150
+vnum: 150
+zone: 1
+name: Покои Прове
+description: "___Большая, красиво убранная комната. Лампа, чуть горя, слегка освещает комнату.\r\nВ центре стоит круглый стол, а в углу сундук. На полу постелен красивый ковер, а\r\nстены обшиты бархатным материалом.\r\n"
+flags:
+- kNoMagic
+sector: kInside
+exits:
+- direction: north
+  exit_flags: 0
+  key: 0
+  to_room: 152
+  lock_complexity: 0

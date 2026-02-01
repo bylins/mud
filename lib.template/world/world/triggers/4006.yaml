@@ -1,0 +1,9 @@
+# Trigger #4006
+vnum: 4006
+name: ПКиллер заходит к помощникам
+attach_type: kMobTrigger
+trigger_types:
+- kGreetPC
+narg: 80
+arglist: ''
+script: "wait 1\r\nif %actor.clan% != null\r\n  halt\r\nend\r\nif !%actor.agressor%\r\n  halt\r\nend\r\nif %actor.agressor% > 4000\r\n  if %actor.agressor% < 4099\r\n    set agr 1\r\n  end\r\nend\r\nif %actor.agressor% > 4300\r\n  if %actor.agressor% < 4399\r\n    set agr 1\r\n  end\r\nend\r\nif %actor.agressor% > 4800\r\n  if %actor.agressor% < 4899\r\n    set agr 1\r\n  end\r\nend\r\nif %agr% == 1\r\n  if %actor.sex% == 1\r\n    крича %actor.name%, - вот он, убивец, хватай его! Вяжи его!\r\n  else\r\n    крича %actor.name%, мерзавка, хватай ее! Вяжи ее!\r\n  end\r\n  Крича %actor.name% - вот он%actor.g% где, хватай, ребяты!\r\n  mkill %actor% \r\nend"

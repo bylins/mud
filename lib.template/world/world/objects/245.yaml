@@ -1,0 +1,32 @@
+# Object #245
+vnum: 245
+names:
+  aliases: руна грозы
+  nominative: Руна грозы
+  genitive: руны грозы
+  dative: руне грозы
+  accusative: руну грозы
+  instrumental: руной грозы
+  prepositional: руне грозы
+short_desc: Магическая руна лежит на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 3
+values:
+- '0'
+- '245'
+- '1000'
+- '0'
+weight: 2
+cost: 100
+rent_off: 20
+rent_on: 20
+spec_param: 19
+max_durability: 100
+cur_durability: 100
+timer: 44640
+spell: 0
+level: 0
+sex: kFemale
+max_in_world: 50

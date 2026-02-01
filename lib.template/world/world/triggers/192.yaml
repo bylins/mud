@@ -1,0 +1,9 @@
+# Trigger #192
+vnum: 192
+name: Дамадж триггер у палача.
+attach_type: kMobTrigger
+trigger_types:
+- kFight
+narg: 100
+arglist: ''
+script: "eval dmg %actor.hitp%/3\r\n%send% %actor% Княжеский палач СМЕРТЕЛЬНО рубанул Вас!\r\n%echoaround% %actor% Княжеский палач СМЕРТЕЛЬНО рубанул %actor.vname%!\r\n%damage% %actor% %dmg%"

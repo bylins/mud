@@ -1,0 +1,39 @@
+# Object #199
+vnum: 199
+names:
+  aliases: перчатки острыми шипами
+  nominative: перчатки с острыми шипами
+  genitive: перчаткок с острыми шипами
+  dative: перчаткам с острыми шипами
+  accusative: перчатки с острыми шипами
+  instrumental: перчатками с острыми шипами
+  prepositional: перчатках с острыми шипами
+short_desc: Перчатки поблескивают острыми шипами.
+type: kWorm
+wear_flags:
+- kTake
+- kHands
+material: 15
+values:
+- '0'
+- '0'
+- '0'
+- '0'
+weight: 10
+cost: 10
+rent_off: 10
+rent_on: 10
+spec_param: 0
+max_durability: 500
+cur_durability: 500
+timer: 2000
+spell: -1
+level: 0
+sex: kNeutral
+applies:
+- location: 29
+  modifier: 10
+- location: 33
+  modifier: 10
+- location: 4
+  modifier: 30

@@ -1,0 +1,32 @@
+# Object #238
+vnum: 238
+names:
+  aliases: руна живота
+  nominative: руна живота
+  genitive: руны живота
+  dative: руне живота
+  accusative: руну живота
+  instrumental: руной живота
+  prepositional: руне живота
+short_desc: Магическая руна лежит тут на земле.
+type: kIngredient
+wear_flags:
+- kTake
+material: 12
+values:
+- '0'
+- '238'
+- '1000'
+- '0'
+weight: 1
+cost: 100
+rent_off: 50
+rent_on: 50
+spec_param: 19
+max_durability: 100
+cur_durability: 90
+timer: 43200
+spell: -1
+level: 1
+sex: kFemale
+max_in_world: 50

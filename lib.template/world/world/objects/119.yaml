@@ -1,0 +1,38 @@
+# Object #119
+vnum: 119
+names:
+  aliases: кожаные наручи
+  nominative: кожаные наручи
+  genitive: кожаных наручей
+  dative: кожаным наручам
+  accusative: кожаные наручи
+  instrumental: кожаными наручами
+  prepositional: кожаных наручах
+short_desc: Кожаные наручи валяются тут.
+type: kArmor
+extra_flags:
+- kNosell
+wear_flags:
+- kTake
+- kArms
+material: 15
+values:
+- '0'
+- '1'
+- '5'
+- '11'
+weight: 1
+cost: 16
+rent_off: 16
+rent_on: 2
+spec_param: 147
+max_durability: 75
+cur_durability: 75
+timer: 43200
+spell: -1
+level: 1
+sex: kPoly
+extra_descriptions:
+- keywords: кожаные наручи
+  description: "Вы видите кожаные наручи, сделанные из\r\nтонкой старой кожи.\r\n"
+max_in_world: 10000

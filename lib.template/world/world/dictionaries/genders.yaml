@@ -1,0 +1,5 @@
+# Dictionary: genders
+kNeutral: 0
+kMale: 1
+kFemale: 2
+kPoly: 3

@@ -1,0 +1,64 @@
+# Mob #4056
+vnum: 4056
+names:
+  aliases: скупщик купец
+  nominative: скупщик
+  genitive: скупщика
+  dative: скупщику
+  accusative: скупщика
+  instrumental: скупщиком
+  prepositional: скупщике
+descriptions:
+  short_desc: "Заезжий купец скупает звериные шкурки у охотников.\r\n"
+  long_desc: "Крепкий жилистый мужик, облаченный в отороченный мехом кафтан.\r\n"
+action_flags:
+- kSentinel
+- kIsNpc
+- kNoSleep
+- kNoBash
+- kNoTerrainAttack
+affect_flags:
+- kIsNpc
+- kAggressive
+- kHelper
+alignment: 200
+mob_type: E
+stats:
+  level: 30
+  hitroll_penalty: -1
+  armor: 0
+  hp:
+    dice_count: 1
+    dice_size: 100
+    bonus: 600
+  damage:
+    dice_count: 5
+    dice_size: 5
+    bonus: 5
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 500000
+experience: 0
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 50
+  dexterity: 50
+  intelligence: 23
+  wisdom: 24
+  constitution: 23
+  charisma: 17
+size: 50
+mob_class: 100
+race: 101
+height: 168
+weight: 150
+skills:
+- skill_id: 136
+  value: 90
+enhanced:
+  like_work: 1
+  special_bitvector: '0'

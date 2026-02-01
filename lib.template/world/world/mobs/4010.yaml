@@ -1,0 +1,60 @@
+# Mob #4010
+vnum: 4010
+names:
+  aliases: пьяный мужчина
+  nominative: пьяница
+  genitive: пьяницы
+  dative: пьянице
+  accusative: пьяницу
+  instrumental: пьяницей
+  prepositional: пьянице
+descriptions:
+  short_desc: "Пьяный мужчина бредет потихоньку домой.\r\n"
+  long_desc: "Оборванный и грязный, с бутылками, торчащими из кармана, прется немолодой\r\nуже человек, не разбирая дороги.\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+- kNoSleep
+- kNoBash
+- kNoBlind
+alignment: 0
+mob_type: E
+stats:
+  level: 3
+  hitroll_penalty: 20
+  armor: 10
+  hp:
+    dice_count: 5
+    dice_size: 5
+    bonus: 100
+  damage:
+    dice_count: 1
+    dice_size: 3
+    bonus: 3
+gold:
+  dice_count: 1
+  dice_size: 2
+  bonus: 0
+experience: 350
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+attributes:
+  strength: 15
+  dexterity: 7
+  intelligence: 6
+  wisdom: 3
+  constitution: 20
+  charisma: 3
+size: 30
+mob_class: 102
+race: 101
+height: 170
+weight: 120
+skills:
+- skill_id: 136
+  value: 15
+enhanced:
+  max_factor: 10
+  special_bitvector: y0

@@ -1,0 +1,17 @@
+# Room #4042
+vnum: 4042
+zone: 40
+name: Хижина отшельника
+description: "   Вам пришлось низко пригнуться, прежде чем войти в эту лачугу, и разгрести\r\nкучу костей и всякой дряни, чтобы присесть на единственную лавку.\r\n"
+flags:
+- kIndoors
+- kPeaceful
+- kForMages
+- kNohorse
+sector: kCity
+exits:
+- direction: south
+  exit_flags: 0
+  key: -1
+  to_room: 4026
+  lock_complexity: 0

@@ -1,0 +1,51 @@
+# Mob #209
+vnum: 209
+names:
+  aliases: чармис девятого уровня
+  nominative: чармис девятого уровня_дамаг
+  genitive: чармиса девятого уровня
+  dative: чармису девятого уровня
+  accusative: чармиса девятого уровня
+  instrumental: чармисом девятого уровня
+  prepositional: чармисе девятого уровня
+descriptions:
+  short_desc: "Несколько раздобревший вширь и ввысь чармис стоит туточки\r\n"
+  long_desc: "\r\n"
+action_flags:
+- kIsNpc
+- kStayZone
+affect_flags:
+- kNoBlind
+alignment: 600
+mob_type: E
+stats:
+  level: 9
+  hitroll_penalty: 11
+  armor: 7
+  hp:
+    dice_count: 25
+    dice_size: 5
+    bonus: 50
+  damage:
+    dice_count: 2
+    dice_size: 4
+    bonus: 3
+gold:
+  dice_count: 0
+  dice_size: 0
+  bonus: 0
+experience: 2500
+position:
+  default: kStanding
+  start: kStanding
+sex: kMale
+size: 39
+mob_class: 100
+race: 100
+height: 198
+weight: 150
+skills:
+- skill_id: 136
+  value: 27
+enhanced:
+  special_bitvector: '0'

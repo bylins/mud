@@ -1,0 +1,37 @@
+# Object #129
+vnum: 129
+names:
+  aliases: походный мешок
+  nominative: походный мешок
+  genitive: походного мешка
+  dative: походному мешку
+  accusative: походный мешок
+  instrumental: походным мешком
+  prepositional: походном мешке
+short_desc: Походный мешок валяется у Вас под ногами.
+action_desc: "Вы забросили походный мешок на спину.\r\n"
+type: kContainer
+wear_flags:
+- kTake
+- kShoulders
+material: 14
+values:
+- '75'
+- '0'
+- '-1'
+- '0'
+weight: 1
+cost: 10
+rent_off: 10
+rent_on: 5
+spec_param: 0
+max_durability: 50
+cur_durability: 50
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: походный мешок
+  description: "Вы видите кожаный походный мешок с завязками.\r\n"
+max_in_world: -1

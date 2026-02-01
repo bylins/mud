@@ -1,0 +1,16 @@
+# Room #4063
+vnum: 4063
+zone: 40
+name: Капище
+description: "   Вы вышли на широкую, утоптанную площадку. Посередине стоит деревянное\r\nизваяние бога Стрибога, около него находится каменный жертвенник. Крестьяне\r\nмолятся здесь богам и приносят жертвы, желая получить милость или помощь \r\nот них.\r\n"
+flags:
+- kPeaceful
+- kForPoly
+- kForMaguses
+sector: kCity
+exits:
+- direction: north
+  exit_flags: 0
+  key: -1
+  to_room: 4026
+  lock_complexity: 0

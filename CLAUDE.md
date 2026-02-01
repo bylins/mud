@@ -49,6 +49,27 @@ docker run -d -p 4000:4000 -e MUD_PORT=4000 -v ./lib:/mud/lib --name mud mud-ser
 docker stop mud
 ```
 
+### Running the Server
+
+**CRITICAL**: Circle must ALWAYS be run from the build directory, NEVER from the source directory.
+
+**Correct usage**:
+```bash
+cd build_yaml        # Or build_legacy, build_sqlite, etc.
+./circle [-W] -d <world_directory> <port>
+```
+
+**Parameters**:
+- `-W` - Enable world checksum calculation (optional)
+- `-d <world_directory>` - Specify world data directory (e.g., `small`, `full`)
+- `<port>` - Port number to listen on (e.g., `4000`)
+
+**Example**:
+```bash
+cd build_yaml
+./circle -W -d small 4000
+```
+
 ### Running Tests
 ```bash
 # Run all tests

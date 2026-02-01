@@ -1,0 +1,37 @@
+# Object #4003
+vnum: 4003
+names:
+  aliases: тяжелая решетка с замком
+  nominative: тяжелая решетка с замком
+  genitive: тяжелой решетки с замком
+  dative: тяжелой решетке с замком
+  accusative: тяжелую решетку с замком
+  instrumental: тяжелой решеткой с замком
+  prepositional: тяжелой решетке с замком
+short_desc: Тяжелая решетка с замком закрывает что-то здесь.
+type: kOther
+extra_flags:
+- kNorent
+- kNodonate
+- kNoinvis
+- kNosell
+- kZonedecay
+- kNodecay
+material: 5
+values:
+- '0'
+- '1'
+- '5'
+- '11'
+weight: 200
+cost: 1000
+rent_off: 1000
+rent_on: 1000
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 0
+sex: kFemale
+max_in_world: 1

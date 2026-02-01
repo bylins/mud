@@ -1,0 +1,35 @@
+# Object #134
+vnum: 134
+names:
+  aliases: железный сундук
+  nominative: железный сундук
+  genitive: железного сундука
+  dative: железному сундуку
+  accusative: железный сундук
+  instrumental: железным сундуком
+  prepositional: железном сундуке
+short_desc: Большой железный сундук стоит у Вас под ногами.
+type: kContainer
+wear_flags:
+- kTake
+material: 3
+values:
+- '250'
+- '0'
+- '-1'
+- '0'
+weight: 5
+cost: 20
+rent_off: 20
+rent_on: 5
+spec_param: 0
+max_durability: 100
+cur_durability: 100
+timer: 43200
+spell: -1
+level: 1
+sex: kMale
+extra_descriptions:
+- keywords: железный сундук
+  description: "Вы видите крепкий сундук, окованный железом,\r\nв который можно поместить изрядное количество\r\nдобра.\r\n"
+max_in_world: -1
