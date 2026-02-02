@@ -145,17 +145,12 @@ def get_yaml():
 
 
 def to_literal_block(text):
-    """Convert multiline string to YAML literal block scalar (|).
+    """Return text as-is for YAML output.
 
-    Replaces \\r\\n with actual newlines and wraps in LiteralScalarString
-    for pretty block formatting in YAML output.
+    YAML will automatically handle escaping when writing quoted strings.
+    No conversion needed - just pass through the parsed text.
     """
-    if not text or '\\r\\n' not in text:
-        return text
-    # Replace \r\n with actual newlines
-    text = text.replace('\\r\\n', '\n')
-    # Wrap in LiteralScalarString for | block formatting
-    return LiteralScalarString(text)
+    return text
 
 
 def _convert_to_plain(obj):

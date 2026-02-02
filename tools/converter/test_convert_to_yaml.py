@@ -161,3 +161,113 @@ class TestObjectFlagsArrays(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
+
+class TestToLiteralBlock(unittest.TestCase):
+    """Test to_literal_block() function for multiline string handling."""
+
+    def test_embedded_backslash_rn(self):
+        """Object with embedded \\r\\n (4-char escape) from source file.
+
+        Example: Object 10700 has literal \\r\\n in legacy file.
+        Parser reads this as 4 characters: backslash, r, backslash, n.
+        to_literal_block() returns text as-is; YAML handles escaping on write.
+        """
+        from convert_to_yaml import to_literal_block
+
+        # Input: string with 4-char \r\n sequence (as parsed from legacy file)
+        input_text = 'Шарик.\\r\\n__продолжение'
+
+        # Verify input has 4-char sequence, not actual CR+LF
+        self.assertIn('\\r\\n', input_text)
+        self.assertNotIn('\r\n', input_text)  # No actual CR+LF
+
+        # Expected: text returned as-is (YAML will escape when writing)
+        expected = input_text
+
+        # Test
+        result = to_literal_block(input_text)
+        self.assertEqual(str(result), expected,
+                        "to_literal_block should return text as-is")
+
+    def test_multiline_actual_crlf(self):
+        """Multi-line description with actual CR+LF from '\\r\\n'.join().
+        
+        When parser joins multiple lines with '\\r\\n'.join(parts),
+        Python creates actual CR+LF bytes (0x0D 0x0A), not 4-char escape.
+        These should pass through unchanged for YAML to handle natively.
+        """
+        from convert_to_yaml import to_literal_block
+        
+        # Input: string with actual CR+LF bytes (as created by join)
+        parts = ['первая строка', 'вторая строка']
+        input_text = '\r\n'.join(parts)  # Creates actual bytes
+        
+        # Verify input has actual CR+LF, not 4-char sequence
+        self.assertIn('\r\n', input_text)  # Actual CR+LF
+        self.assertNotIn('\\r\\n', input_text)  # No 4-char escape
+        
+        # Expected: actual CR+LF passes through unchanged
+        # YAML will handle these natively (as newlines or quoted escapes)
+        expected = input_text
+        
+        # Test
+        result = to_literal_block(input_text)
+        self.assertEqual(str(result), expected,
+                        "Actual CR+LF bytes should pass through unchanged")
+
+    def test_real_object_10700(self):
+        """Integration test with real object 10700 from legacy file."""
+        from convert_to_yaml import parse_obj_file
+        import os
+        
+        # Find legacy file
+        legacy_file = '/home/kvirund/repos/mud/build_test/full/world/obj/107.obj'
+        if not os.path.exists(legacy_file):
+            self.skipTest(f"Legacy file not found: {legacy_file}")
+        
+        # Parse real object
+        objs = parse_obj_file(legacy_file)
+        obj = next((o for o in objs if o.get('vnum') == 10700), None)
+        self.assertIsNotNone(obj, "Object 10700 not found in legacy file")
+        
+        input_text = obj['short_desc']
+        
+        # Verify it has embedded 4-char \r\n, not actual bytes
+        self.assertEqual(len(input_text), 94, "Object 10700 should be 94 chars")
+        self.assertIn('\\r\\n', input_text, "Should have 4-char \\r\\n")
+        self.assertNotIn('\r\n', input_text, "Should NOT have actual CR+LF")
+        
+        # Test conversion
+        from convert_to_yaml import to_literal_block
+        result = to_literal_block(input_text)
+
+        # Result should be unchanged (YAML handles escaping on write)
+        self.assertEqual(str(result), input_text,
+                        "to_literal_block should return text as-is")
+
+        # Verify length unchanged
+        self.assertEqual(len(str(result)), 94,
+                        "Length should remain 94")
+
+    def test_no_backslashes(self):
+        """Text without backslashes should pass through unchanged."""
+        from convert_to_yaml import to_literal_block
+        
+        input_text = 'простой текст без экранирования'
+        result = to_literal_block(input_text)
+        
+        self.assertEqual(str(result), input_text,
+                        "Text without backslashes should be unchanged")
+
+    def test_empty_string(self):
+        """Empty string should be handled correctly."""
+        from convert_to_yaml import to_literal_block
+        
+        result = to_literal_block('')
+        self.assertEqual(str(result), '', "Empty string should remain empty")
+        
+        result = to_literal_block(None)
+        self.assertEqual(result, None, "None should remain None")
+
+
