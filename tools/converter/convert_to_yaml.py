@@ -144,6 +144,17 @@ def get_yaml():
     return _thread_local.yaml
 
 
+def escape_embedded_rn(text):
+    """Escape any existing \\r\\n sequences in text.
+    
+    This preserves literal \\r\\n that already exist in source data
+    (like object 10700) while allowing join-created \\r\\n to be
+    converted to actual newlines by to_literal_block.
+    """
+    if not text:
+        return text
+    return text.replace('\\r\\n', '\\\\r\\\\n')
+
 def to_literal_block(text):
     """Convert multiline string to YAML literal block scalar (|).
 
@@ -2269,7 +2280,7 @@ def parse_obj_file(filepath):
                 idx += 1
             if idx < len(lines):
                 desc_parts.append(lines[idx].rstrip('~'))
-            obj['short_desc'] = '\r\n'.join(desc_parts)
+            obj['short_desc'] = '\r\n'.join(escape_embedded_rn(p) for p in desc_parts)
             idx += 1
 
             # Action description (until ~)
