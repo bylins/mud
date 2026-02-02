@@ -150,10 +150,10 @@ def to_literal_block(text):
     Replaces \\r\\n with actual newlines and wraps in LiteralScalarString
     for pretty block formatting in YAML output.
     """
-    if not text or '\r\n' not in text:
+    if not text or '\\r\\n' not in text:
         return text
     # Replace \r\n with actual newlines
-    text = text.replace('\r\n', '\n')
+    text = text.replace('\\r\\n', '\n')
     # Wrap in LiteralScalarString for | block formatting
     return LiteralScalarString(text)
 
