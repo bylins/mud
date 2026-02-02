@@ -3655,8 +3655,8 @@ def main():
     default_workers = os.cpu_count() or 4
     parser.add_argument('--workers', '-w', type=int, default=default_workers,
                        help=f'Number of parallel workers (default: {default_workers})')
-    parser.add_argument('--yaml-lib', choices=['ruamel', 'pyyaml'], default='pyyaml',
-                       help='YAML library: ruamel (with comments, slow) or pyyaml (fast, default)')
+    parser.add_argument('--yaml-lib', choices=['ruamel', 'pyyaml'], default='ruamel',
+                       help='YAML library: ruamel (with comments, default) or pyyaml (fast, no literal blocks)')
 
     args = parser.parse_args()
 
