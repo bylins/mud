@@ -163,6 +163,9 @@ def _convert_to_plain(obj):
         return {k: _convert_to_plain(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [_convert_to_plain(v) for v in obj]
+    elif hasattr(obj, '__class__') and obj.__class__.__name__ == 'LiteralScalarString':
+        # Convert LiteralScalarString to plain string for PyYAML compatibility
+        return str(obj)
     else:
         return obj
 
