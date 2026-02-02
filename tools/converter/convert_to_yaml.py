@@ -31,16 +31,16 @@ Architecture:
     overhead. Parallelism is only beneficial for I/O-bound parsing.
 
 YAML Libraries:
-    - pyyaml (default): Fast (~3x faster), but no inline comments
-    - ruamel.yaml: Full comment support (skill names, trigger refs), but slower
+    - ruamel.yaml (default): Full comment support, literal blocks (|), proper formatting
+    - pyyaml: Fast (~3x faster), but limited output (no comments, no literal blocks)
 
 Output Formats:
     - YAML: One file per entity (vnum.yaml), with index.yaml per directory
     - SQLite: Single normalized database with views for convenient queries
 
 Usage:
-    python3 convert_to_yaml.py -i lib.template -o lib                    # YAML (pyyaml)
-    python3 convert_to_yaml.py -i lib.template -o lib --yaml-lib ruamel  # YAML with comments
+    python3 convert_to_yaml.py -i lib.template -o lib                    # YAML (ruamel, default)
+    python3 convert_to_yaml.py -i lib.template -o lib --yaml-lib pyyaml  # YAML (fast, limited)
     python3 convert_to_yaml.py -i lib.template -o lib -f sqlite          # SQLite database
 """
 
