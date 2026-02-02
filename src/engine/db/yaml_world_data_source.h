@@ -64,6 +64,9 @@ public:
 private:
 	// Initialize dictionaries
 	bool LoadDictionaries();
+	
+	// Load world configuration (line endings, etc)
+	bool LoadWorldConfig();
 
 	// Get list of zone vnums from index.yaml
 	std::vector<int> GetZoneList();
@@ -117,6 +120,7 @@ private:
 
 	std::string m_world_dir;
 	bool m_dictionaries_loaded = false;
+	bool m_convert_lf_to_crlf = false;  // Convert LF to CR+LF for DOS line endings
 
 	// Threading support
 	std::unique_ptr<utils::ThreadPool> m_thread_pool;

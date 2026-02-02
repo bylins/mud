@@ -65,6 +65,11 @@ inline Bitvector IndexToBitvector(long idx)
 YamlWorldDataSource::YamlWorldDataSource(const std::string &world_dir)
 	: m_world_dir(world_dir)
 {
+	// Load world configuration (required)
+	if (!LoadWorldConfig()) {
+		log("SYSERR: Failed to load world_config.yaml");
+		exit(1);
+	}
 }
 
 // Helper: get configured thread count from runtime config
@@ -77,6 +82,47 @@ size_t YamlWorldDataSource::GetConfiguredThreadCount() const
 		return (hw_threads > 0) ? hw_threads : 1;
 	}
 	return configured;
+}
+
+// Load world configuration from world_config.yaml
+bool YamlWorldDataSource::LoadWorldConfig()
+{
+	std::string config_path = m_world_dir + "/world_config.yaml";
+
+	// Config file is required
+	std::ifstream test_file(config_path);
+	if (!test_file.good()) {
+		log("SYSERR: World configuration file not found: %s", config_path.c_str());
+		return false;
+	}
+	test_file.close();
+
+	try {
+		YAML::Node config = YAML::LoadFile(config_path);
+
+		// Read line_endings setting (required)
+		if (!config["line_endings"]) {
+			log("SYSERR: Missing 'line_endings' in world_config.yaml");
+			return false;
+		}
+
+		std::string line_endings = config["line_endings"].as<std::string>();
+		if (line_endings == "dos") {
+			m_convert_lf_to_crlf = true;
+			log("World config: DOS line endings (LF -> CR+LF conversion enabled)");
+		} else if (line_endings == "unix") {
+			m_convert_lf_to_crlf = false;
+			log("World config: Unix line endings (no conversion)");
+		} else {
+			log("SYSERR: Invalid line_endings value '%s' (expected 'dos' or 'unix')", line_endings.c_str());
+			return false;
+		}
+
+		return true;
+	} catch (const YAML::Exception &e) {
+		log("SYSERR: Failed to parse world_config.yaml: %s", e.what());
+		return false;
+	}
 }
 
 bool YamlWorldDataSource::LoadDictionaries()
@@ -215,7 +261,23 @@ std::string YamlWorldDataSource::GetText(const YAML::Node &node, const std::stri
 	if (node[key])
 	{
 		// YAML files are already in KOI8-R, no conversion needed
-		return node[key].as<std::string>();
+		std::string text = node[key].as<std::string>();
+
+		// Convert line endings if configured for DOS format
+		if (m_convert_lf_to_crlf) {
+			std::string result;
+			result.reserve(text.size() * 2);  // Reserve space for worst case
+			for (size_t i = 0; i < text.size(); ++i) {
+				if (text[i] == '\n' && (i == 0 || text[i-1] != '\r')) {
+					result += "\r\n";
+				} else {
+					result += text[i];
+				}
+			}
+			return result;
+		}
+
+		return text;
 	}
 	return default_val;
 }
