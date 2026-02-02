@@ -67,7 +67,8 @@ _errors_count = 0
 
 # YAML library selection: 'ruamel' (with comments) or 'pyyaml' (fast, ~3x faster)
 # Note: Both are single-threaded due to GIL - parallelism is only in parsing
-_yaml_library = 'pyyaml'
+# Using ruamel for proper LiteralScalarString (| blocks) support
+_yaml_library = 'ruamel'
 
 
 def _init_yaml_libraries():
