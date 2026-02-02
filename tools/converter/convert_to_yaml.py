@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: koi8-r -*-
+# -*- coding: utf-8 -*-
 """
 Convert old MUD world format files to YAML or SQLite format.
 
