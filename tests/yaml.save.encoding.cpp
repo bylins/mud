@@ -2,38 +2,34 @@
 #include <fstream>
 #include <cstring>
 
-// Simple test to verify YAML files don't contain UTF-8 after ConvertToUtf8 removal
-// This is a regression test for encoding corruption bug
+// Проверка, что YAML файлы сохраняются в KOI8-R, а не в UTF-8
+// Регрессионный тест для бага с повреждением кодировки
 
-// Test: Check that a sample YAML file does NOT contain UTF-8 Russian text
-// If ConvertToUtf8 is used, Russian text will be in UTF-8 (0xD0/0xD1 multibyte)
-// If ConvertToUtf8 is removed, Russian text stays in KOI8-R (0xC0-0xFF single byte)
 TEST(YamlSaveEncoding, NoUtf8InSavedFiles) {
-	// This test verifies the fix for encoding corruption bug
-	// BEFORE fix: SaveObjects called ConvertToUtf8, creating UTF-8 files
-	// AFTER fix: SaveObjects keeps strings in KOI8-R
+	// Этот тест проверяет исправление бага с кодировкой
+	// ДО исправления: SaveObjects вызывал ConvertToUtf8, создавая UTF-8 файлы
+	// ПОСЛЕ исправления: SaveObjects сохраняет строки в KOI8-R
 	
-	// Sample KOI8-R text: "я┌п╣я│я┌" = 0xD4 0xC5 0xD3 0xD4
+	// Пример текста в KOI8-R: "тест" = 0xD4 0xC5 0xD3 0xD4
 	const unsigned char koi8r_bytes[] = {0xD4, 0xC5, 0xD3, 0xD4};
 	
-	// Sample UTF-8 text: "я┌п╣я│я┌" = 0xD1 0x82 0xD0 0xB5 0xD1 0x81 0xD1 0x82
+	// Пример текста в UTF-8: "тест" = 0xD1 0x82 0xD0 0xB5 0xD1 0x81 0xD1 0x82
 	const unsigned char utf8_bytes[] = {0xD1, 0x82, 0xD0, 0xB5, 0xD1, 0x81, 0xD1, 0x82};
 	
-	// Verify that KOI8-R and UTF-8 encodings are different
+	// Проверяем, что KOI8-R и UTF-8 кодируют русский текст по-разному
 	ASSERT_NE(koi8r_bytes[0], utf8_bytes[0]) 
 		<< "KOI8-R and UTF-8 should encode Russian text differently";
 	
-	// This test passes if YAML save functions preserve KOI8-R encoding
-	// Manual testing required: create object in game, save with oedit, check file
+	// Тест проходит, если Save функции сохраняют KOI8-R
+	// Ручное тестирование: создать объект, сохранить через oedit, проверить файл
 	SUCCEED() << "Encoding fix applied: ConvertToUtf8 removed from Save functions";
 }
 
-// Test: Document expected behavior
 TEST(YamlSaveEncoding, ExpectedBehavior) {
-	// After fix, YAML save functions should:
-	// 1. NOT call ConvertToUtf8
-	// 2. Save strings in KOI8-R (as loaded)
-	// 3. Load/save cycle preserves encoding
+	// После исправления, Save функции должны:
+	// 1. НЕ вызывать ConvertToUtf8
+	// 2. Сохранять строки в KOI8-R (как загружают)
+	// 3. Цикл load/save сохраняет кодировку
 	
 	SUCCEED() << "Save functions updated:\n"
 		<< "  - SaveObjects: removed ConvertToUtf8 (34 calls)\n"
@@ -44,18 +40,17 @@ TEST(YamlSaveEncoding, ExpectedBehavior) {
 		<< "Files now saved in KOI8-R, matching load behavior";
 }
 
-// Test: Document specific_vnum feature
 TEST(YamlSaveEncoding, SpecificVnumFeature) {
-	// After fix, Save functions accept specific_vnum parameter:
-	// - specific_vnum = -1 (default): save all entities in zone
-	// - specific_vnum = N: save only entity with vnum N
+	// После исправления, Save функции принимают параметр specific_vnum:
+	// - specific_vnum = -1 (по умолчанию): сохранить все сущности в зоне
+	// - specific_vnum = N: сохранить только сущность с vnum N
 	
-	// Example usage in OLC:
-	// - oedit 10700 Б├▓ edit Б├▓ save Б├▓ SaveObjects(zone, 10700)
-	//   Saves ONLY object 10700, not entire zone
+	// Пример использования в OLC:
+	// - oedit 10700 -> редактировать -> сохранить -> SaveObjects(zone, 10700)
+	//   Сохраняет ТОЛЬКО объект 10700, не всю зону
 	
-	// - oedit save 107 Б├▓ SaveObjects(zone, -1)
-	//   Saves ALL objects in zone 107
+	// - oedit save 107 -> SaveObjects(zone, -1)
+	//   Сохраняет ВСЕ объекты в зоне 107
 	
 	SUCCEED() << "Specific vnum feature:\n"
 		<< "  - SaveObjects(zone, vnum): saves one or all objects\n"
