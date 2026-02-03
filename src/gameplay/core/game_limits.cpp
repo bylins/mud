@@ -1309,6 +1309,7 @@ void obj_point_update() {
 	std::list<ObjData *> obj_destroy;
 	std::list<ObjData *> obj_decay_timer;
 
+	log("!!!obj_point_update!!!");
 	world_objects.foreach([&obj_destroy, &obj_decay_timer](const ObjData::shared_ptr &j) {
 		if (j->get_where_obj() == EWhereObj::kSeller) {
 			return;
