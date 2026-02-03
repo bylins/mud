@@ -11,6 +11,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
+#include "engine/db/world_data_source_manager.h"
 #include "olc.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/core/constants.h"
@@ -263,7 +264,9 @@ void redit_save_internally(DescriptorData *d) {
 	assign_triggers(world[rrn], WLD_TRIGGER);
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_ROOM);
 	RestoreRoomExitData(rrn);
-	redit_save_to_disk(OLC_ZNUM(d));
+	// Save only this specific room (vnum = OLC_NUM(d))
+	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	data_source->SaveRooms(OLC_ZNUM(d), OLC_NUM(d));
 }
 
 //------------------------------------------------------------------------

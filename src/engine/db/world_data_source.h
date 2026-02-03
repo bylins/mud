@@ -30,11 +30,13 @@ public:
 
 	// Save world data per zone (used by OLC)
 	// zone_rnum is the runtime zone index
+	// specific_vnum = -1 means save all entities in the zone
+	// specific_vnum >= 0 means save only that specific entity
 	virtual void SaveZone(int zone_rnum) = 0;
-	virtual void SaveTriggers(int zone_rnum) = 0;
-	virtual void SaveRooms(int zone_rnum) = 0;
-	virtual void SaveMobs(int zone_rnum) = 0;
-	virtual void SaveObjects(int zone_rnum) = 0;
+	virtual void SaveTriggers(int zone_rnum, int specific_vnum = -1) = 0;
+	virtual void SaveRooms(int zone_rnum, int specific_vnum = -1) = 0;
+	virtual void SaveMobs(int zone_rnum, int specific_vnum = -1) = 0;
+	virtual void SaveObjects(int zone_rnum, int specific_vnum = -1) = 0;
 };
 
 // Factory function type for creating data sources

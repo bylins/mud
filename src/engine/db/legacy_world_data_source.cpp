@@ -51,23 +51,27 @@ void LegacyWorldDataSource::SaveZone(int zone_rnum)
 	zedit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveTriggers(int zone_rnum)
+void LegacyWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	trigedit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveRooms(int zone_rnum)
+void LegacyWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	redit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveMobs(int zone_rnum)
+void LegacyWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	medit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveObjects(int zone_rnum)
+void LegacyWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	oedit_save_to_disk(zone_rnum);
 }
 

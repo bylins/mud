@@ -2086,14 +2086,14 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 
 	YAML::Node root;
 	root["vnum"] = zone.vnum;
-	root["name"] = ConvertToUtf8(zone.name);
+	root["name"] = zone.name;
 	root["zone_group"] = zone.group;
 
 	YAML::Node metadata;
-	if (!zone.comment.empty()) metadata["comment"] = ConvertToUtf8(zone.comment);
-	if (!zone.location.empty()) metadata["location"] = ConvertToUtf8(zone.location);
-	if (!zone.author.empty()) metadata["author"] = ConvertToUtf8(zone.author);
-	if (!zone.description.empty()) metadata["description"] = ConvertToUtf8(zone.description);
+	if (!zone.comment.empty()) metadata["comment"] = zone.comment;
+	if (!zone.location.empty()) metadata["location"] = zone.location;
+	if (!zone.author.empty()) metadata["author"] = zone.author;
+	if (!zone.description.empty()) metadata["description"] = zone.description;
 	if (metadata.size() > 0) root["metadata"] = metadata;
 
 	root["top_room"] = zone.top;
@@ -2193,8 +2193,8 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 				cmd_node["trigger_type"] = cmd.arg1;
 				cmd_node["context"] = cmd.arg2;
 				cmd_node["room_vnum"] = cmd.arg3;
-				if (cmd.sarg1) cmd_node["var_name"] = ConvertToUtf8(cmd.sarg1);
-				if (cmd.sarg2) cmd_node["var_value"] = ConvertToUtf8(cmd.sarg2);
+				if (cmd.sarg1) cmd_node["var_name"] = cmd.sarg1;
+				if (cmd.sarg2) cmd_node["var_value"] = cmd.sarg2;
 				break;
 			case 'Q':
 				cmd_node["type"] = "EXTRACT_MOB";
@@ -2225,7 +2225,7 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	log("Saved zone %d to YAML file", zone.vnum);
 }
 
-void YamlWorldDataSource::SaveTriggers(int zone_rnum)
+void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
@@ -2266,13 +2266,19 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum)
 			continue;
 		}
 
+		// If specific_vnum is set, save only that trigger
+		if (specific_vnum != -1 && trig_vnum != specific_vnum)
+		{
+			continue;
+		}
+
 		YAML::Node root;
-		root["name"] = ConvertToUtf8(GET_TRIG_NAME(trig));
+		root["name"] = GET_TRIG_NAME(trig);
 		root["attach_type"] = ReverseLookupEnum("attach_types", trig->get_attach_type());
 		root["narg"] = GET_TRIG_NARG(trig);
 		if (!trig->arglist.empty())
 		{
-			root["arglist"] = ConvertToUtf8(trig->arglist);
+			root["arglist"] = trig->arglist;
 		}
 
 		YAML::Node trigger_types;
@@ -2306,7 +2312,7 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum)
 		}
 		if (!script.empty())
 		{
-			root["script"] = ConvertToUtf8(script);
+			root["script"] = script;
 		}
 
 		std::string trig_file = trig_dir + "/" + std::to_string(trig_vnum) + ".yaml";
@@ -2321,7 +2327,7 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum)
 	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
 }
 
-void YamlWorldDataSource::SaveRooms(int zone_rnum)
+void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
@@ -2355,19 +2361,25 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum)
 			continue;
 		}
 
+		// If specific_vnum is set, save only that room
+		if (specific_vnum != -1 && room->vnum != specific_vnum)
+		{
+			continue;
+		}
+
 		YAML::Node root;
 		root["vnum"] = room->vnum;
 
 		if (room->name)
 		{
-			root["name"] = ConvertToUtf8(room->name);
+			root["name"] = room->name;
 		}
 
 		// description_num is size_t (unsigned), always >= 0
 		std::string desc = GlobalObjects::descriptions().get(room->description_num);
 		if (!desc.empty())
 		{
-			root["description"] = ConvertToUtf8(desc);
+			root["description"] = desc;
 		}
 
 		root["sector"] = ReverseLookupEnum("sectors", static_cast<int>(room->sector_type));
@@ -2414,12 +2426,12 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum)
 
 			if (!room->dir_option_proto[dir]->general_description.empty())
 			{
-				exit_node["description"] = ConvertToUtf8(room->dir_option_proto[dir]->general_description);
+				exit_node["description"] = room->dir_option_proto[dir]->general_description;
 			}
 
 			if (room->dir_option_proto[dir]->keyword)
 			{
-				exit_node["keywords"] = ConvertToUtf8(room->dir_option_proto[dir]->keyword);
+				exit_node["keywords"] = room->dir_option_proto[dir]->keyword;
 			}
 
 			if (room->dir_option_proto[dir]->exit_info != 0)
@@ -2452,11 +2464,11 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum)
 				YAML::Node ed_node;
 				if (exdesc->keyword)
 				{
-					ed_node["keywords"] = ConvertToUtf8(exdesc->keyword);
+					ed_node["keywords"] = exdesc->keyword;
 				}
 				if (exdesc->description)
 				{
-					ed_node["description"] = ConvertToUtf8(exdesc->description);
+					ed_node["description"] = exdesc->description;
 				}
 				extra_descs.push_back(ed_node);
 			}
@@ -2489,7 +2501,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum)
 	log("Saved %d rooms for zone %d", saved_count, zone.vnum);
 }
 
-void YamlWorldDataSource::SaveMobs(int zone_rnum)
+void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
@@ -2525,25 +2537,31 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum)
 		int mob_vnum = mob_index[mob_rnum].vnum;
 		CharData &mob = mob_proto[mob_rnum];
 
+		// If specific_vnum is set, save only that mob
+		if (specific_vnum != -1 && mob_vnum != specific_vnum)
+		{
+			continue;
+		}
+
 		YAML::Node root;
 
 		YAML::Node names;
 		const std::string &aliases = mob.get_npc_name();
 		if (!aliases.empty())
 		{
-			names["aliases"] = ConvertToUtf8(aliases);
+			names["aliases"] = aliases;
 		}
-		names["nominative"] = ConvertToUtf8(mob.player_data.PNames[ECase::kNom]);
-		names["genitive"] = ConvertToUtf8(mob.player_data.PNames[ECase::kGen]);
-		names["dative"] = ConvertToUtf8(mob.player_data.PNames[ECase::kDat]);
-		names["accusative"] = ConvertToUtf8(mob.player_data.PNames[ECase::kAcc]);
-		names["instrumental"] = ConvertToUtf8(mob.player_data.PNames[ECase::kIns]);
-		names["prepositional"] = ConvertToUtf8(mob.player_data.PNames[ECase::kPre]);
+		names["nominative"] = mob.player_data.PNames[ECase::kNom];
+		names["genitive"] = mob.player_data.PNames[ECase::kGen];
+		names["dative"] = mob.player_data.PNames[ECase::kDat];
+		names["accusative"] = mob.player_data.PNames[ECase::kAcc];
+		names["instrumental"] = mob.player_data.PNames[ECase::kIns];
+		names["prepositional"] = mob.player_data.PNames[ECase::kPre];
 		root["names"] = names;
 
 		YAML::Node descs;
-		descs["short_desc"] = ConvertToUtf8(mob.player_data.long_descr);
-		descs["long_desc"] = ConvertToUtf8(mob.player_data.description);
+		descs["short_desc"] = mob.player_data.long_descr;
+		descs["long_desc"] = mob.player_data.description;
 		root["descriptions"] = descs;
 
 		root["alignment"] = GET_ALIGNMENT(&mob);
@@ -2780,7 +2798,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum)
 	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
 }
 
-void YamlWorldDataSource::SaveObjects(int zone_rnum)
+void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
@@ -2808,27 +2826,33 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum)
 			continue;
 		}
 
+		// If specific_vnum is set, save only that object
+		if (specific_vnum != -1 && obj_vnum != specific_vnum)
+		{
+			continue;
+		}
+
 		auto obj = obj_proto[obj_rnum];
 		if (!obj)
 		{
 			continue;
 		}
 		YAML::Node names;
-		names["aliases"] = ConvertToUtf8(obj->get_aliases());
-		names["nominative"] = ConvertToUtf8(obj->get_PName(ECase::kNom));
+		names["aliases"] = obj->get_aliases();
+		names["nominative"] = obj->get_PName(ECase::kNom);
 
 		YAML::Node root;
-		names["genitive"] = ConvertToUtf8(obj->get_PName(ECase::kGen));
-		names["dative"] = ConvertToUtf8(obj->get_PName(ECase::kDat));
-		names["accusative"] = ConvertToUtf8(obj->get_PName(ECase::kAcc));
-		names["instrumental"] = ConvertToUtf8(obj->get_PName(ECase::kIns));
-		names["prepositional"] = ConvertToUtf8(obj->get_PName(ECase::kPre));
+		names["genitive"] = obj->get_PName(ECase::kGen);
+		names["dative"] = obj->get_PName(ECase::kDat);
+		names["accusative"] = obj->get_PName(ECase::kAcc);
+		names["instrumental"] = obj->get_PName(ECase::kIns);
+		names["prepositional"] = obj->get_PName(ECase::kPre);
 		root["names"] = names;
 
-		root["short_desc"] = ConvertToUtf8(obj->get_description());
+		root["short_desc"] = obj->get_description();
 		if (!obj->get_action_description().empty())
 		{
-			root["action_desc"] = ConvertToUtf8(obj->get_action_description());
+			root["action_desc"] = obj->get_action_description();
 		}
 
 		root["type"] = ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type()));
@@ -2945,11 +2969,11 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum)
 				YAML::Node ed_node;
 				if (exdesc->keyword)
 				{
-					ed_node["keywords"] = ConvertToUtf8(exdesc->keyword);
+					ed_node["keywords"] = exdesc->keyword;
 				}
 				if (exdesc->description)
 				{
-					ed_node["description"] = ConvertToUtf8(exdesc->description);
+					ed_node["description"] = exdesc->description;
 				}
 				extra_descs.push_back(ed_node);
 			}

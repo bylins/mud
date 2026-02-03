@@ -25,10 +25,10 @@ public:
 	void LoadObjects() override {}
 
 	void SaveZone(int zone_rnum) override { (void)zone_rnum; }
-	void SaveTriggers(int zone_rnum) override { (void)zone_rnum; }
-	void SaveRooms(int zone_rnum) override { (void)zone_rnum; }
-	void SaveMobs(int zone_rnum) override { (void)zone_rnum; }
-	void SaveObjects(int zone_rnum) override { (void)zone_rnum; }
+	void SaveTriggers(int zone_rnum, int specific_vnum = -1) override { (void)zone_rnum; (void)specific_vnum; }
+	void SaveRooms(int zone_rnum, int specific_vnum = -1) override { (void)zone_rnum; (void)specific_vnum; }
+	void SaveMobs(int zone_rnum, int specific_vnum = -1) override { (void)zone_rnum; (void)specific_vnum; }
+	void SaveObjects(int zone_rnum, int specific_vnum = -1) override { (void)zone_rnum; (void)specific_vnum; }
 };
 
 } // namespace world_loader

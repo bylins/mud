@@ -2511,8 +2511,9 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 	}
 }
 
-void SqliteWorldDataSource::SaveTriggers(int zone_rnum)
+void SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // SQLite format always saves entire zone
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
@@ -2712,8 +2713,9 @@ void SqliteWorldDataSource::SaveRoomRecord(RoomData *room)
 	}
 }
 
-void SqliteWorldDataSource::SaveRooms(int zone_rnum)
+void SqliteWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // SQLite format always saves entire zone
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveRooms", zone_rnum);
@@ -3063,8 +3065,9 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	}
 }
 
-void SqliteWorldDataSource::SaveMobs(int zone_rnum)
+void SqliteWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // SQLite format always saves entire zone
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveMobs", zone_rnum);
@@ -3282,8 +3285,9 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 	}
 }
 
-void SqliteWorldDataSource::SaveObjects(int zone_rnum)
+void SqliteWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // SQLite format always saves entire zone
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveObjects", zone_rnum);

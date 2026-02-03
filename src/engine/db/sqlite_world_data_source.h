@@ -40,10 +40,10 @@ public:
 
 	// Save methods (SQLite is read-only for now)
 	void SaveZone(int zone_rnum) override;
-	void SaveTriggers(int zone_rnum) override;
-	void SaveRooms(int zone_rnum) override;
-	void SaveMobs(int zone_rnum) override;
-	void SaveObjects(int zone_rnum) override;
+	void SaveTriggers(int zone_rnum, int specific_vnum = -1) override;
+	void SaveRooms(int zone_rnum, int specific_vnum = -1) override;
+	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
+	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 
 private:
 	bool OpenDatabase();

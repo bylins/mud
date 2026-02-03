@@ -82,6 +82,7 @@ set(TESTS
 		compact.trie.iterators.cpp
 		utils.encoding.cpp
 		world_load_order.cpp
+		yaml.save.encoding.cpp
 		compact.trie.prefixes.cpp)
 set(UTILITIES
 		char.utilities.hpp
