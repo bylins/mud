@@ -68,7 +68,7 @@ int perform_put(CharData *ch, ObjData::shared_ptr obj, ObjData *cont) {
 	else if (obj->has_flag(EObjFlag::kNodrop)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
-	else if (obj->has_flag(EObjFlag::kZonedacay) || obj->get_type() == EObjType::kKey) {
+	else if (obj->is_unrentable()) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj.get(), cont, kToChar);
 	}
 	else {

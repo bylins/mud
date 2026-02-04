@@ -829,7 +829,7 @@ void ObjectFile::parse_object(const int nr) {
 
 			case '$':
 			case '#': check_object(tobj);        // Anton Gorev (2015/12/29): do we need the result of this check?
-				if (tobj->has_flag(EObjFlag::kZonedacay)
+				if (tobj->has_flag(EObjFlag::kZonedecay)
 					|| tobj->has_flag(EObjFlag::kRepopDecay))
 					tobj->set_max_in_world(-1);
 				obj_proto.add(tobj, nr);

@@ -204,7 +204,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	if (obj->get_type() != EObjType::kBook) {
 		if (obj->has_flag(EObjFlag::kNorent)
 			|| obj->has_flag(EObjFlag::kNosell)
-			|| obj->has_flag(EObjFlag::kZonedacay)
+			|| obj->has_flag(EObjFlag::kZonedecay)
 			|| obj->has_flag(EObjFlag::kRepopDecay)
 			|| obj->get_rnum() < 0) {
 			SendMsgToChar("Этот предмет не предназначен для базара.\r\n", ch);

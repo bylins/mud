@@ -1366,7 +1366,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	}
 
 	if (object->has_flag(EObjFlag::kDecay) ||
-		(object->has_flag(EObjFlag::kZonedacay) &&
+		(object->has_flag(EObjFlag::kZonedecay) &&
 		object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
