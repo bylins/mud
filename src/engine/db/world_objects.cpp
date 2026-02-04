@@ -166,7 +166,7 @@ void WorldObjects::remove(ObjData *object) {
 	}
 
 	const ObjData::shared_ptr object_ptr = get_by_raw_ptr(object);
-
+	obj_proto.dec_number(object->get_rnum());
 	object_ptr->unsubscribe_from_id_change(m_id_change_observer);
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	object_ptr->unsubscribe_from_vnum_changes(m_vnum_change_observer);

@@ -555,7 +555,6 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 						 num, numToShow, print_value, item->get_price());
 			} 
 			if (tmp_obj) {
-				obj_proto.dec_number(tmp_obj->get_rnum());
 				world_objects.remove(tmp_obj);
 			}
 		} else {

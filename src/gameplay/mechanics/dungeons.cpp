@@ -1179,7 +1179,6 @@ ObjData *SwapOriginalObject(ObjData *obj) {
 		if (wearer) {
 			EquipObj(wearer, obj_original.get(), pos, CharEquipFlags());
 		}
-		obj_proto.dec_number(obj->get_rnum());
 		world_objects.remove(obj);
 		return obj_original.get();
 	}
