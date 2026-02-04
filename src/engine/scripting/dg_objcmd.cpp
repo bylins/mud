@@ -164,7 +164,6 @@ void do_oat(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *
 	auto tmp_obj = world_objects.create_from_prototype_by_vnum(obj->get_vnum());
 	tmp_obj->set_in_room(location);
 	obj_command_interpreter(tmp_obj.get(), argument, trig);
-	obj_proto.dec_number(tmp_obj->get_rnum());
 	world_objects.remove(tmp_obj);
 }
 
