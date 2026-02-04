@@ -1326,7 +1326,7 @@ void obj_point_update() {
 		}
 		if (j->get_destroyer() == 0
 				|| j->get_timer() == 0
-				|| (j->has_flag(EObjFlag::kZonedacay)
+				|| (j->has_flag(EObjFlag::kZonedecay)
 						&& j->get_vnum_zone_from()
 						&& up_obj_where(j.get()) != kNowhere
 						&& j->get_vnum_zone_from() != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
