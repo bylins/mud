@@ -25,6 +25,7 @@
 #include "utils/thread_pool.h"
 
 #include <yaml-cpp/yaml.h>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -56,6 +57,144 @@ inline Bitvector IndexToBitvector(long idx)
 	if (idx < 90)
 		return kIntTwo | (1u << (idx - 60));
 	return 1u << idx;
+}
+
+// ============================================================================
+// Koi8rYamlEmitter - Custom YAML emitter that preserves KOI8-R encoding
+// ============================================================================
+
+class Koi8rYamlEmitter {
+	std::ostream &out_;
+	int indent_;
+
+public:
+	Koi8rYamlEmitter(std::ostream &out) : out_(out), indent_(0) {}
+
+	std::string GetIndent() const {
+		return std::string(indent_, ' ');
+	}
+
+	void BeginMap() {
+		// Maps don't need special output, just increase indent for nested content
+	}
+
+	void EndMap() {
+		// Nothing to do
+	}
+
+	void Key(const std::string &key, const std::string &comment = "") {
+		out_ << GetIndent() << key << ":";
+		if (!comment.empty()) {
+			out_ << "  # " << comment;
+		}
+	}
+
+	void Value(const std::string &value, bool literal = false) {
+		if (literal && value.find('\n') != std::string::npos) {
+			// Literal block
+			out_ << " |" << std::endl;
+
+			// Remove \r, keep \n
+			std::string cleaned = value;
+			cleaned.erase(std::remove(cleaned.begin(), cleaned.end(), '\r'), cleaned.end());
+
+			std::istringstream iss(cleaned);
+			std::string line;
+			while (std::getline(iss, line)) {
+				out_ << GetIndent() << "  " << line << std::endl;
+			}
+		} else {
+			// Simple value - unquoted, KOI8-R passes through
+			out_ << " " << value << std::endl;
+		}
+	}
+
+	void Value(int value) {
+		out_ << " " << value << std::endl;
+	}
+
+	void Value(long value) {
+		out_ << " " << value << std::endl;
+	}
+
+	void BeginSequence() {
+		out_ << std::endl;
+	}
+
+	void SequenceItem(const std::string &value, const std::string &comment = "") {
+		out_ << GetIndent() << "- " << value;
+		if (!comment.empty()) {
+			out_ << "  # " << comment;
+		}
+		out_ << std::endl;
+	}
+
+	void SequenceItem(int value, const std::string &comment = "") {
+		out_ << GetIndent() << "- " << value;
+		if (!comment.empty()) {
+			out_ << "  # " << comment;
+		}
+		out_ << std::endl;
+	}
+
+	void IncreaseIndent() {
+		indent_ += 2;
+	}
+
+	void DecreaseIndent() {
+		indent_ -= 2;
+	}
+
+	void Comment(const std::string &text) {
+		out_ << GetIndent() << "# " << text << std::endl;
+	}
+
+	void EmptyLine() {
+		out_ << std::endl;
+	}
+};
+
+// ============================================================================
+// Helper functions for YAML comments
+// ============================================================================
+
+// Get trigger name by vnum (for trigger comments)
+std::string GetTriggerNameComment(int trigger_vnum) {
+	int rnum = GetTriggerRnum(trigger_vnum);
+	if (rnum >= 0 && rnum <= top_of_trigt) {
+		return trig_index[rnum]->proto->get_name();
+	}
+	return "";
+}
+
+// Get room name by rnum (for exit comments)
+std::string GetRoomNameComment(RoomRnum room_rnum) {
+	if (room_rnum >= 0 && room_rnum < static_cast<int>(world.size()) && world[room_rnum]) {
+		return world[room_rnum]->name ? world[room_rnum]->name : "";
+	}
+	return "";
+}
+
+// Get skill name by ID (for skill comments)
+std::string GetSkillNameComment(ESkill skill_id) {
+	return MUD::Skill(skill_id).GetName();
+}
+
+// Get spell name by ID (for spell comments)
+std::string GetSpellNameComment(ESpell spell_id) {
+	return MUD::Spell(spell_id).GetName();
+}
+
+// Get material name by ID (for material comments)
+std::string GetMaterialNameComment(int material_id) {
+	extern const char *material_name[];
+	return ::material_name[material_id];
+}
+
+// Get apply type name by ID (for apply location comments)
+std::string GetApplyTypeNameComment(int apply_id) {
+	extern const char *apply_types[];
+	return ::apply_types[apply_id];
 }
 
 // ============================================================================
@@ -2272,32 +2411,74 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 			continue;
 		}
 
-		YAML::Node root;
-		root["name"] = GET_TRIG_NAME(trig);
-		root["attach_type"] = ReverseLookupEnum("attach_types", trig->get_attach_type());
-		root["narg"] = GET_TRIG_NARG(trig);
-		if (!trig->arglist.empty())
+		// Open temp file for writing
+		std::string trig_file = trig_dir + "/" + std::to_string(trig_vnum) + ".yaml";
+		std::string temp_file = trig_file + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			root["arglist"] = trig->arglist;
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
 		}
 
-		YAML::Node trigger_types;
+		Koi8rYamlEmitter yaml(out);
+
+		// Header comment
+		yaml.Comment("Trigger #" + std::to_string(trig_vnum));
+		yaml.EmptyLine();
+
+		// Name
+		yaml.Key("name");
+		yaml.Value(GET_TRIG_NAME(trig));
+
+		// Attach type
+		yaml.Key("attach_type");
+		yaml.Value(ReverseLookupEnum("attach_types", trig->get_attach_type()));
+
+		// Narg
+		yaml.Key("narg");
+		yaml.Value(GET_TRIG_NARG(trig));
+
+		// Arglist (optional)
+		if (!trig->arglist.empty())
+		{
+			yaml.Key("arglist");
+			yaml.Value(trig->arglist);
+		}
+
+		// Trigger types
+		bool has_trigger_types = false;
 		for (int bit = 0; bit < 32; ++bit)
 		{
 			if (GET_TRIG_TYPE(trig) & (1L << bit))
 			{
-				std::string type_name = ReverseLookupEnum("trigger_types", bit);
-				if (!type_name.empty() && type_name != std::to_string(bit))
-				{
-					trigger_types.push_back(type_name);
-				}
+				has_trigger_types = true;
+				break;
 			}
 		}
-		if (trigger_types.size() > 0)
+
+		if (has_trigger_types)
 		{
-			root["trigger_types"] = trigger_types;
+			yaml.Key("trigger_types");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (int bit = 0; bit < 32; ++bit)
+			{
+				if (GET_TRIG_TYPE(trig) & (1L << bit))
+				{
+					std::string type_name = ReverseLookupEnum("trigger_types", bit);
+					if (!type_name.empty() && type_name != std::to_string(bit))
+					{
+						yaml.SequenceItem(type_name);
+					}
+				}
+			}
+
+			yaml.DecreaseIndent();
 		}
 
+		// Script (multiline literal block)
 		std::string script;
 		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
 		{
@@ -2310,17 +2491,21 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 				}
 			}
 		}
+
 		if (!script.empty())
 		{
-			root["script"] = script;
+			yaml.Key("script");
+			yaml.Value(script, true);  // literal=true
 		}
 
-		std::string trig_file = trig_dir + "/" + std::to_string(trig_vnum) + ".yaml";
-		if (!WriteYamlAtomic(trig_file, root))
+		// Close file and rename atomically
+		out.close();
+		if (std::rename(temp_file.c_str(), trig_file.c_str()) != 0)
 		{
-			log("SYSERR: Failed to save trigger %d", trig_vnum);
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), trig_file.c_str());
 			continue;
 		}
+
 		++saved_count;
 	}
 
@@ -2367,134 +2552,215 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 			continue;
 		}
 
-		YAML::Node root;
-		root["vnum"] = room->vnum;
-
-		if (room->name)
+		int rel_num = room->vnum % 100;
+		std::string room_file = rooms_dir + "/" + std::to_string(rel_num) + ".yaml";
+		std::string temp_file = room_file + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			root["name"] = room->name;
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
 		}
 
-		// description_num is size_t (unsigned), always >= 0
+		Koi8rYamlEmitter yaml(out);
+
+		// Header comment
+		yaml.Comment("Room #" + std::to_string(room->vnum));
+		yaml.EmptyLine();
+
+		// Vnum
+		yaml.Key("vnum");
+		yaml.Value(room->vnum);
+
+		// Name
+		if (room->name)
+		{
+			yaml.Key("name");
+			yaml.Value(room->name);
+		}
+
+		// Description
 		std::string desc = GlobalObjects::descriptions().get(room->description_num);
 		if (!desc.empty())
 		{
-			root["description"] = desc;
+			yaml.Key("description");
+			yaml.Value(desc, true);  // literal=true
 		}
 
-		root["sector"] = ReverseLookupEnum("sectors", static_cast<int>(room->sector_type));
+		// Sector
+		yaml.Key("sector");
+		yaml.Value(ReverseLookupEnum("sectors", static_cast<int>(room->sector_type)));
 
+		// Flags
 		FlagData room_flags = room->read_flags();
 		auto flag_names = ConvertFlagsToNames(room_flags, "room_flags");
 		if (!flag_names.empty())
 		{
-			YAML::Node flags;
+			yaml.Key("flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : flag_names)
 			{
-				flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["flags"] = flags;
+
+			yaml.DecreaseIndent();
 		}
 
-		YAML::Node exits;
+		// Exits (with to_room comments)
+		bool has_exits = false;
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
 		{
-			if (!room->dir_option_proto[dir])
+			if (room->dir_option_proto[dir])
 			{
-				continue;
+				has_exits = true;
+				break;
 			}
-
-			YAML::Node exit_node;
-			exit_node["direction"] = ReverseLookupEnum("directions", dir);
-
-			if (room->dir_option_proto[dir]->to_room() != kNowhere)
-			{
-				RoomRnum to_rnum = room->dir_option_proto[dir]->to_room();
-				if (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
-				{
-					exit_node["to_room"] = world[to_rnum]->vnum;
-				}
-				else
-				{
-					exit_node["to_room"] = -1;
-				}
-			}
-			else
-			{
-				exit_node["to_room"] = -1;
-			}
-
-			if (!room->dir_option_proto[dir]->general_description.empty())
-			{
-				exit_node["description"] = room->dir_option_proto[dir]->general_description;
-			}
-
-			if (room->dir_option_proto[dir]->keyword)
-			{
-				exit_node["keywords"] = room->dir_option_proto[dir]->keyword;
-			}
-
-			if (room->dir_option_proto[dir]->exit_info != 0)
-			{
-				exit_node["exit_flags"] = room->dir_option_proto[dir]->exit_info;
-			}
-
-			if (room->dir_option_proto[dir]->key != -1)
-			{
-				exit_node["key"] = room->dir_option_proto[dir]->key;
-			}
-
-			if (room->dir_option_proto[dir]->lock_complexity != 0)
-			{
-				exit_node["lock_complexity"] = room->dir_option_proto[dir]->lock_complexity;
-			}
-
-			exits.push_back(exit_node);
 		}
-		if (exits.size() > 0)
+
+		if (has_exits)
 		{
-			root["exits"] = exits;
+			yaml.Key("exits");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+			{
+				if (!room->dir_option_proto[dir])
+				{
+					continue;
+				}
+
+				out << yaml.GetIndent() << "- direction: ";
+				out << ReverseLookupEnum("directions", dir) << std::endl;
+
+				// to_room (with comment)
+				RoomRnum to_rnum = kNowhere;
+				int to_vnum = -1;
+				if (room->dir_option_proto[dir]->to_room() != kNowhere)
+				{
+					to_rnum = room->dir_option_proto[dir]->to_room();
+					if (to_rnum >= 0 && to_rnum <= top_of_world && world[to_rnum])
+					{
+						to_vnum = world[to_rnum]->vnum;
+					}
+				}
+
+				out << yaml.GetIndent() << "  to_room: " << to_vnum;
+				if (to_vnum != -1 && to_rnum != kNowhere)
+				{
+					std::string room_name = GetRoomNameComment(to_rnum);
+					if (!room_name.empty())
+					{
+						out << "  # " << room_name;
+					}
+				}
+				out << std::endl;
+
+				// Description (optional)
+				if (!room->dir_option_proto[dir]->general_description.empty())
+				{
+					std::string exit_desc = room->dir_option_proto[dir]->general_description;
+					out << yaml.GetIndent() << "  description: |" << std::endl;
+					
+					exit_desc.erase(std::remove(exit_desc.begin(), exit_desc.end(), '\r'), exit_desc.end());
+					std::istringstream iss(exit_desc);
+					std::string line;
+					while (std::getline(iss, line))
+					{
+						out << yaml.GetIndent() << "    " << line << std::endl;
+					}
+				}
+
+				// Keywords (optional)
+				if (room->dir_option_proto[dir]->keyword)
+				{
+					out << yaml.GetIndent() << "  keywords: ";
+					out << room->dir_option_proto[dir]->keyword << std::endl;
+				}
+
+				// Exit flags (optional)
+				if (room->dir_option_proto[dir]->exit_info != 0)
+				{
+					out << yaml.GetIndent() << "  exit_flags: ";
+					out << room->dir_option_proto[dir]->exit_info << std::endl;
+				}
+
+				// Key (optional)
+				if (room->dir_option_proto[dir]->key != -1)
+				{
+					out << yaml.GetIndent() << "  key: ";
+					out << room->dir_option_proto[dir]->key << std::endl;
+				}
+
+				// Lock complexity (optional)
+				if (room->dir_option_proto[dir]->lock_complexity != 0)
+				{
+					out << yaml.GetIndent() << "  lock_complexity: ";
+					out << room->dir_option_proto[dir]->lock_complexity << std::endl;
+				}
+			}
+
+			yaml.DecreaseIndent();
 		}
 
+		// Extra descriptions
 		if (room->ex_description)
 		{
-			YAML::Node extra_descs;
+			yaml.Key("extra_descriptions");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
 			{
-				YAML::Node ed_node;
 				if (exdesc->keyword)
 				{
-					ed_node["keywords"] = exdesc->keyword;
+					out << yaml.GetIndent() << "- keywords: " << exdesc->keyword << std::endl;
+					if (exdesc->description)
+					{
+						out << yaml.GetIndent() << "  description: |" << std::endl;
+						
+						std::string desc_text = exdesc->description;
+						desc_text.erase(std::remove(desc_text.begin(), desc_text.end(), '\r'), desc_text.end());
+						
+						std::istringstream iss(desc_text);
+						std::string line;
+						while (std::getline(iss, line))
+						{
+							out << yaml.GetIndent() << "    " << line << std::endl;
+						}
+					}
 				}
-				if (exdesc->description)
-				{
-					ed_node["description"] = exdesc->description;
-				}
-				extra_descs.push_back(ed_node);
 			}
-			if (extra_descs.size() > 0)
-			{
-				root["extra_descriptions"] = extra_descs;
-			}
+
+			yaml.DecreaseIndent();
 		}
 
+		// Triggers (with comments)
 		if (room->proto_script && !room->proto_script->empty())
 		{
-			YAML::Node triggers;
+			yaml.Key("triggers");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (auto trig_vnum : *room->proto_script)
 			{
-				triggers.push_back(trig_vnum);
+				std::string trig_comment = GetTriggerNameComment(trig_vnum);
+				yaml.SequenceItem(trig_vnum, trig_comment);
 			}
-			root["triggers"] = triggers;
+
+			yaml.DecreaseIndent();
 		}
 
-		int rel_num = room->vnum % 100;
-		std::string room_file = rooms_dir + "/" + std::to_string(rel_num) + ".yaml";
-		if (!WriteYamlAtomic(room_file, root))
+		// Close file and rename atomically
+		out.close();
+		if (std::rename(temp_file.c_str(), room_file.c_str()) != 0)
 		{
-			log("SYSERR: Failed to save room %d", room->vnum);
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), room_file.c_str());
 			continue;
 		}
+
 		++saved_count;
 	}
 
@@ -2543,261 +2809,544 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			continue;
 		}
 
-		YAML::Node root;
+		// Open temp file for writing
+		std::string mob_file = mobs_dir + "/" + std::to_string(mob_vnum) + ".yaml";
+		std::string temp_file = mob_file + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
+		{
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
+		}
 
-		YAML::Node names;
+		Koi8rYamlEmitter yaml(out);
+
+		// Header comment
+		yaml.Comment("Mob #" + std::to_string(mob_vnum));
+		yaml.EmptyLine();
+
+		// Names
+		yaml.Key("names");
+		out << std::endl;
+		yaml.IncreaseIndent();
+
 		const std::string &aliases = mob.get_npc_name();
 		if (!aliases.empty())
 		{
-			names["aliases"] = aliases;
+			yaml.Key("aliases");
+			yaml.Value(aliases);
 		}
-		names["nominative"] = mob.player_data.PNames[ECase::kNom];
-		names["genitive"] = mob.player_data.PNames[ECase::kGen];
-		names["dative"] = mob.player_data.PNames[ECase::kDat];
-		names["accusative"] = mob.player_data.PNames[ECase::kAcc];
-		names["instrumental"] = mob.player_data.PNames[ECase::kIns];
-		names["prepositional"] = mob.player_data.PNames[ECase::kPre];
-		root["names"] = names;
+		yaml.Key("nominative");
+		yaml.Value(mob.player_data.PNames[ECase::kNom]);
+		yaml.Key("genitive");
+		yaml.Value(mob.player_data.PNames[ECase::kGen]);
+		yaml.Key("dative");
+		yaml.Value(mob.player_data.PNames[ECase::kDat]);
+		yaml.Key("accusative");
+		yaml.Value(mob.player_data.PNames[ECase::kAcc]);
+		yaml.Key("instrumental");
+		yaml.Value(mob.player_data.PNames[ECase::kIns]);
+		yaml.Key("prepositional");
+		yaml.Value(mob.player_data.PNames[ECase::kPre]);
 
-		YAML::Node descs;
-		descs["short_desc"] = mob.player_data.long_descr;
-		descs["long_desc"] = mob.player_data.description;
-		root["descriptions"] = descs;
+		yaml.DecreaseIndent();
 
-		root["alignment"] = GET_ALIGNMENT(&mob);
+		// Descriptions
+		yaml.Key("descriptions");
+		out << std::endl;
+		yaml.IncreaseIndent();
 
-		YAML::Node stats;
-		stats["level"] = mob.GetLevel();
-		stats["hitroll_penalty"] = GET_HR(&mob);
-		stats["armor"] = GET_AC(&mob);
+		yaml.Key("short_desc");
+		yaml.Value(mob.player_data.long_descr, true);  // literal=true
 
-		YAML::Node hp;
-		hp["dice_count"] = mob.mem_queue.total;
-		hp["dice_size"] = mob.mem_queue.stored;
-		hp["bonus"] = mob.get_hit();
-		stats["hp"] = hp;
+		yaml.Key("long_desc");
+		yaml.Value(mob.player_data.description, true);  // literal=true
 
-		YAML::Node dmg;
-		dmg["dice_count"] = mob.mob_specials.damnodice;
-		dmg["dice_size"] = mob.mob_specials.damsizedice;
-		dmg["bonus"] = mob.real_abils.damroll;
-		stats["damage"] = dmg;
+		yaml.DecreaseIndent();
 
-		root["stats"] = stats;
+		// Alignment
+		yaml.Key("alignment");
+		yaml.Value(GET_ALIGNMENT(&mob));
 
-		YAML::Node gold;
-		gold["dice_count"] = mob.mob_specials.GoldNoDs;
-		gold["dice_size"] = mob.mob_specials.GoldSiDs;
-		gold["bonus"] = mob.get_gold();
-		root["gold"] = gold;
+		// Stats
+		yaml.Key("stats");
+		out << std::endl;
+		yaml.IncreaseIndent();
 
-		root["experience"] = mob.get_exp();
+		yaml.Key("level");
+		yaml.Value(mob.GetLevel());
 
-		YAML::Node pos;
-		pos["default"] = ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos));
-		pos["start"] = ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition()));
-		root["position"] = pos;
+		yaml.Key("hitroll_penalty");
+		yaml.Value(GET_HR(&mob));
 
-		root["sex"] = ReverseLookupEnum("genders", static_cast<int>(mob.get_sex()));
+		yaml.Key("armor");
+		yaml.Value(GET_AC(&mob));
 
-		root["size"] = GET_SIZE(&mob);
-		root["height"] = GET_HEIGHT(&mob);
-		root["weight"] = GET_WEIGHT(&mob);
+		// HP
+		yaml.Key("hp");
+		out << std::endl;
+		yaml.IncreaseIndent();
 
+		yaml.Key("dice_count");
+		yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte Б├▓ int
+
+		yaml.Key("dice_size");
+		yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte Б├▓ int
+
+		yaml.Key("bonus");
+		yaml.Value(mob.get_hit());
+
+		yaml.DecreaseIndent();
+
+		// Damage
+		yaml.Key("damage");
+		out << std::endl;
+		yaml.IncreaseIndent();
+
+		yaml.Key("dice_count");
+		yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte Б├▓ int
+
+		yaml.Key("dice_size");
+		yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte Б├▓ int
+
+		yaml.Key("bonus");
+		yaml.Value(mob.real_abils.damroll);
+
+		yaml.DecreaseIndent();
+		yaml.DecreaseIndent();  // stats
+
+		// Gold
+		yaml.Key("gold");
+		out << std::endl;
+		yaml.IncreaseIndent();
+
+		yaml.Key("dice_count");
+		yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte Б├▓ int
+
+		yaml.Key("dice_size");
+		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte Б├▓ int
+
+		yaml.Key("bonus");
+		yaml.Value(mob.get_gold());
+
+		yaml.DecreaseIndent();
+
+		// Experience
+		yaml.Key("experience");
+		yaml.Value(mob.get_exp());
+
+		// Position
+		yaml.Key("position");
+		out << std::endl;
+		yaml.IncreaseIndent();
+
+		yaml.Key("default");
+		yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.mob_specials.default_pos)));
+
+		yaml.Key("start");
+		yaml.Value(ReverseLookupEnum("positions", static_cast<int>(mob.GetPosition())));
+
+		yaml.DecreaseIndent();
+
+		// Sex
+		yaml.Key("sex");
+		yaml.Value(ReverseLookupEnum("genders", static_cast<int>(mob.get_sex())));
+
+		// Size, height, weight
+		yaml.Key("size");
+		yaml.Value(GET_SIZE(&mob));
+
+		yaml.Key("height");
+		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte Б├▓ int
+
+		yaml.Key("weight");
+		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte Б├▓ int
+
+		// Attributes (only if set)
 		if (mob.get_str() > 0)
 		{
-			YAML::Node attrs;
-			attrs["strength"] = mob.get_str();
-			attrs["dexterity"] = mob.get_dex();
-			attrs["intelligence"] = mob.get_int();
-			attrs["wisdom"] = mob.get_wis();
-			attrs["constitution"] = mob.get_con();
-			attrs["charisma"] = mob.get_cha();
-			root["attributes"] = attrs;
+			yaml.Key("attributes");
+			out << std::endl;
+			yaml.IncreaseIndent();
+
+			yaml.Key("strength");
+			yaml.Value(mob.get_str());
+
+			yaml.Key("dexterity");
+			yaml.Value(mob.get_dex());
+
+			yaml.Key("intelligence");
+			yaml.Value(mob.get_int());
+
+			yaml.Key("wisdom");
+			yaml.Value(mob.get_wis());
+
+			yaml.Key("constitution");
+			yaml.Value(mob.get_con());
+
+			yaml.Key("charisma");
+			yaml.Value(mob.get_cha());
+
+			yaml.DecreaseIndent();
 		}
 
+		// Action flags
 		auto act_flags = ConvertFlagsToNames(mob.char_specials.saved.act, "action_flags");
 		if (!act_flags.empty())
 		{
-			YAML::Node action_flags;
+			yaml.Key("action_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : act_flags)
 			{
-				action_flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["action_flags"] = action_flags;
+
+			yaml.DecreaseIndent();
 		}
 
+		// Affect flags
 		auto aff_flags = ConvertFlagsToNames(AFF_FLAGS(&mob), "affect_flags");
 		if (!aff_flags.empty())
 		{
-			YAML::Node affect_flags;
+			yaml.Key("affect_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : aff_flags)
 			{
-				affect_flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["affect_flags"] = affect_flags;
+
+			yaml.DecreaseIndent();
 		}
 
-		YAML::Node skills;
+		// Skills (with comments)
+		bool has_skills = false;
 		for (ESkill skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id)
 		{
-			int skill_value = mob.GetSkill(skill_id);
-			if (skill_value > 0)
+			if (mob.GetSkill(skill_id) > 0)
 			{
-				YAML::Node skill_node;
-				skill_node["skill_id"] = static_cast<int>(skill_id);
-				skill_node["value"] = skill_value;
-				skills.push_back(skill_node);
+				has_skills = true;
+				break;
 			}
 		}
-		if (skills.size() > 0)
+
+		if (has_skills)
 		{
-			root["skills"] = skills;
+			yaml.Key("skills");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (ESkill skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id)
+			{
+				int skill_value = mob.GetSkill(skill_id);
+				if (skill_value > 0)
+				{
+					out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
+					out << "  # " << GetSkillNameComment(skill_id) << std::endl;
+					out << yaml.GetIndent() << "  value: " << skill_value << std::endl;
+				}
+			}
+
+			yaml.DecreaseIndent();
 		}
 
+		// Triggers (with comments)
 		if (mob.proto_script && !mob.proto_script->empty())
 		{
-			YAML::Node triggers;
+			yaml.Key("triggers");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (auto trig_vnum : *mob.proto_script)
 			{
-				triggers.push_back(trig_vnum);
+				std::string trig_comment = GetTriggerNameComment(trig_vnum);
+				yaml.SequenceItem(trig_vnum, trig_comment);
 			}
-			root["triggers"] = triggers;
+
+			yaml.DecreaseIndent();
 		}
 
+		// Enhanced (optional mob stats)
 		if (mob.get_str() > 0)
 		{
-			YAML::Node enhanced;
+			bool has_enhanced = false;
+			
+			// Check if we have any enhanced stats
+			if (mob.get_str_add() != 0 || mob.add_abils.hitreg != 0 || mob.add_abils.armour != 0 ||
+				mob.add_abils.manareg != 0 || mob.add_abils.cast_success != 0 || mob.add_abils.morale != 0 ||
+				mob.add_abils.initiative_add != 0 || mob.add_abils.absorb != 0 || mob.add_abils.aresist != 0 ||
+				mob.add_abils.mresist != 0 || mob.add_abils.presist != 0 || mob.mob_specials.attack_type != 0 ||
+				mob.mob_specials.like_work != 0 || mob.mob_specials.MaxFactor != 0 ||
+				mob.mob_specials.extra_attack != 0 || mob.get_remort() != 0)
+			{
+				has_enhanced = true;
+			}
 
-			if (mob.get_str_add() != 0) enhanced["str_add"] = mob.get_str_add();
-			if (mob.add_abils.hitreg != 0) enhanced["hp_regen"] = mob.add_abils.hitreg;
-			if (mob.add_abils.armour != 0) enhanced["armour_bonus"] = mob.add_abils.armour;
-			if (mob.add_abils.manareg != 0) enhanced["mana_regen"] = mob.add_abils.manareg;
-			if (mob.add_abils.cast_success != 0) enhanced["cast_success"] = mob.add_abils.cast_success;
-			if (mob.add_abils.morale != 0) enhanced["morale"] = mob.add_abils.morale;
-			if (mob.add_abils.initiative_add != 0) enhanced["initiative_add"] = mob.add_abils.initiative_add;
-			if (mob.add_abils.absorb != 0) enhanced["absorb"] = mob.add_abils.absorb;
-			if (mob.add_abils.aresist != 0) enhanced["aresist"] = mob.add_abils.aresist;
-			if (mob.add_abils.mresist != 0) enhanced["mresist"] = mob.add_abils.mresist;
-			if (mob.add_abils.presist != 0) enhanced["presist"] = mob.add_abils.presist;
-			if (mob.mob_specials.attack_type != 0) enhanced["bare_hand_attack"] = mob.mob_specials.attack_type;
-			if (mob.mob_specials.like_work != 0) enhanced["like_work"] = mob.mob_specials.like_work;
-			if (mob.mob_specials.MaxFactor != 0) enhanced["max_factor"] = mob.mob_specials.MaxFactor;
-			if (mob.mob_specials.extra_attack != 0) enhanced["extra_attack"] = mob.mob_specials.extra_attack;
-			if (mob.get_remort() != 0) enhanced["mob_remort"] = mob.get_remort();
-
+			// Check special_bitvector
 			char special_buf[kMaxStringLength];
 			mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf);
 			if (special_buf[0] != '0' || special_buf[1] != 'a')
 			{
-				enhanced["special_bitvector"] = special_buf;
+				has_enhanced = true;
 			}
 
+			// Check role
 			std::string role_str = mob.get_role().to_string();
 			if (!role_str.empty() && role_str != "000000000")
 			{
-				enhanced["role"] = role_str;
+				has_enhanced = true;
 			}
 
-			bool has_resistances = false;
-			for (const auto &val : mob.add_abils.apply_resistance)
+			// Check resistances, saves, feats, spells, helpers, destinations
+			for (const auto &val : mob.add_abils.apply_resistance) { if (val != 0) { has_enhanced = true; break; } }
+			for (const auto &val : mob.add_abils.apply_saving_throw) { if (val != 0) { has_enhanced = true; break; } }
+			
+			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i) { if (mob.real_abils.Feats.test(i)) { has_enhanced = true; break; } }
+			for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i) { if (mob.real_abils.SplKnw[i] > 0) { has_enhanced = true; break; } }
+			
+			if (!mob.summon_helpers.empty()) { has_enhanced = true; }
+			for (int dest : mob.mob_specials.dest) { if (dest != 0) { has_enhanced = true; break; } }
+
+			if (has_enhanced)
 			{
-				if (val != 0) { has_resistances = true; break; }
-			}
-			if (has_resistances)
-			{
-				YAML::Node resistances;
+				yaml.Key("enhanced");
+				out << std::endl;
+				yaml.IncreaseIndent();
+
+				if (mob.get_str_add() != 0)
+				{
+					yaml.Key("str_add");
+					yaml.Value(mob.get_str_add());
+				}
+				if (mob.add_abils.hitreg != 0)
+				{
+					yaml.Key("hp_regen");
+					yaml.Value(mob.add_abils.hitreg);
+				}
+				if (mob.add_abils.armour != 0)
+				{
+					yaml.Key("armour_bonus");
+					yaml.Value(mob.add_abils.armour);
+				}
+				if (mob.add_abils.manareg != 0)
+				{
+					yaml.Key("mana_regen");
+					yaml.Value(mob.add_abils.manareg);
+				}
+				if (mob.add_abils.cast_success != 0)
+				{
+					yaml.Key("cast_success");
+					yaml.Value(mob.add_abils.cast_success);
+				}
+				if (mob.add_abils.morale != 0)
+				{
+					yaml.Key("morale");
+					yaml.Value(mob.add_abils.morale);
+				}
+				if (mob.add_abils.initiative_add != 0)
+				{
+					yaml.Key("initiative_add");
+					yaml.Value(mob.add_abils.initiative_add);
+				}
+				if (mob.add_abils.absorb != 0)
+				{
+					yaml.Key("absorb");
+					yaml.Value(mob.add_abils.absorb);
+				}
+				if (mob.add_abils.aresist != 0)
+				{
+					yaml.Key("aresist");
+					yaml.Value(mob.add_abils.aresist);
+				}
+				if (mob.add_abils.mresist != 0)
+				{
+					yaml.Key("mresist");
+					yaml.Value(mob.add_abils.mresist);
+				}
+				if (mob.add_abils.presist != 0)
+				{
+					yaml.Key("presist");
+					yaml.Value(mob.add_abils.presist);
+				}
+				if (mob.mob_specials.attack_type != 0)
+				{
+					yaml.Key("bare_hand_attack");
+					yaml.Value(mob.mob_specials.attack_type);
+				}
+				if (mob.mob_specials.like_work != 0)
+				{
+					yaml.Key("like_work");
+					yaml.Value(mob.mob_specials.like_work);
+				}
+				if (mob.mob_specials.MaxFactor != 0)
+				{
+					yaml.Key("max_factor");
+					yaml.Value(mob.mob_specials.MaxFactor);
+				}
+				if (mob.mob_specials.extra_attack != 0)
+				{
+					yaml.Key("extra_attack");
+					yaml.Value(mob.mob_specials.extra_attack);
+				}
+				if (mob.get_remort() != 0)
+				{
+					yaml.Key("mob_remort");
+					yaml.Value(mob.get_remort());
+				}
+
+				if (special_buf[0] != '0' || special_buf[1] != 'a')
+				{
+					yaml.Key("special_bitvector");
+					yaml.Value(special_buf);
+				}
+
+				if (!role_str.empty() && role_str != "000000000")
+				{
+					yaml.Key("role");
+					yaml.Value(role_str);
+				}
+
+				// Resistances
+				bool has_resistances = false;
 				for (const auto &val : mob.add_abils.apply_resistance)
 				{
-					resistances.push_back(val);
+					if (val != 0) { has_resistances = true; break; }
 				}
-				enhanced["resistances"] = resistances;
-			}
+				if (has_resistances)
+				{
+					yaml.Key("resistances");
+					yaml.BeginSequence();
+					yaml.IncreaseIndent();
 
-			bool has_saves = false;
-			for (const auto &val : mob.add_abils.apply_saving_throw)
-			{
-				if (val != 0) { has_saves = true; break; }
-			}
-			if (has_saves)
-			{
-				YAML::Node saves;
+					for (const auto &val : mob.add_abils.apply_resistance)
+					{
+						yaml.SequenceItem(val);
+					}
+
+					yaml.DecreaseIndent();
+				}
+
+				// Saves
+				bool has_saves = false;
 				for (const auto &val : mob.add_abils.apply_saving_throw)
 				{
-					saves.push_back(val);
+					if (val != 0) { has_saves = true; break; }
 				}
-				enhanced["saves"] = saves;
-			}
-
-			YAML::Node feats;
-			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
-			{
-				if (mob.real_abils.Feats.test(i))
+				if (has_saves)
 				{
-					feats.push_back(static_cast<int>(i));
-				}
-			}
-			if (feats.size() > 0)
-			{
-				enhanced["feats"] = feats;
-			}
+					yaml.Key("saves");
+					yaml.BeginSequence();
+					yaml.IncreaseIndent();
 
-			YAML::Node spells;
-			for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i)
-			{
-				if (mob.real_abils.SplKnw[i] > 0)
+					for (const auto &val : mob.add_abils.apply_saving_throw)
+					{
+						yaml.SequenceItem(val);
+					}
+
+					yaml.DecreaseIndent();
+				}
+
+				// Feats
+				bool has_feats = false;
+				for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
 				{
-					spells.push_back(static_cast<int>(i));
+					if (mob.real_abils.Feats.test(i)) { has_feats = true; break; }
 				}
-			}
-			if (spells.size() > 0)
-			{
-				enhanced["spells"] = spells;
-			}
-
-			if (!mob.summon_helpers.empty())
-			{
-				YAML::Node helpers;
-				for (int helper_vnum : mob.summon_helpers)
+				if (has_feats)
 				{
-					helpers.push_back(helper_vnum);
-				}
-				enhanced["helpers"] = helpers;
-			}
+					yaml.Key("feats");
+					yaml.BeginSequence();
+					yaml.IncreaseIndent();
 
-			bool has_destinations = false;
-			for (int dest : mob.mob_specials.dest)
-			{
-				if (dest != 0) { has_destinations = true; break; }
-			}
-			if (has_destinations)
-			{
-				YAML::Node destinations;
+					for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i)
+					{
+						if (mob.real_abils.Feats.test(i))
+						{
+							yaml.SequenceItem(static_cast<int>(i));
+						}
+					}
+
+					yaml.DecreaseIndent();
+				}
+
+				// Spells
+				bool has_spells = false;
+				for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i)
+				{
+					if (mob.real_abils.SplKnw[i] > 0) { has_spells = true; break; }
+				}
+				if (has_spells)
+				{
+					yaml.Key("spells");
+					yaml.BeginSequence();
+					yaml.IncreaseIndent();
+
+					for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i)
+					{
+						if (mob.real_abils.SplKnw[i] > 0)
+						{
+							yaml.SequenceItem(static_cast<int>(i));
+						}
+					}
+
+					yaml.DecreaseIndent();
+				}
+
+				// Helpers
+				if (!mob.summon_helpers.empty())
+				{
+					yaml.Key("helpers");
+					yaml.BeginSequence();
+					yaml.IncreaseIndent();
+
+					for (int helper_vnum : mob.summon_helpers)
+					{
+						yaml.SequenceItem(helper_vnum);
+					}
+
+					yaml.DecreaseIndent();
+				}
+
+				// Destinations
+				bool has_destinations = false;
 				for (int dest : mob.mob_specials.dest)
 				{
-					destinations.push_back(dest);
+					if (dest != 0) { has_destinations = true; break; }
 				}
-				enhanced["destinations"] = destinations;
-			}
+				if (has_destinations)
+				{
+					yaml.Key("destinations");
+					yaml.BeginSequence();
+					yaml.IncreaseIndent();
 
-			if (enhanced.size() > 0)
-			{
-				root["enhanced"] = enhanced;
+					for (int dest : mob.mob_specials.dest)
+					{
+						yaml.SequenceItem(dest);
+					}
+
+					yaml.DecreaseIndent();
+				}
+
+				yaml.DecreaseIndent();  // enhanced
 			}
 		}
 
-		std::string mob_file = mobs_dir + "/" + std::to_string(mob_vnum) + ".yaml";
-		if (!WriteYamlAtomic(mob_file, root))
+		// Close file and rename atomically
+		out.close();
+		if (std::rename(temp_file.c_str(), mob_file.c_str()) != 0)
 		{
-			log("SYSERR: Failed to save mob %d", mob_vnum);
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), mob_file.c_str());
 			continue;
 		}
+
 		++saved_count;
 	}
 
 	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
 }
-
 void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
@@ -2837,63 +3386,166 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		{
 			continue;
 		}
-		YAML::Node names;
-		names["aliases"] = obj->get_aliases();
-		names["nominative"] = obj->get_PName(ECase::kNom);
 
-		YAML::Node root;
-		names["genitive"] = obj->get_PName(ECase::kGen);
-		names["dative"] = obj->get_PName(ECase::kDat);
-		names["accusative"] = obj->get_PName(ECase::kAcc);
-		names["instrumental"] = obj->get_PName(ECase::kIns);
-		names["prepositional"] = obj->get_PName(ECase::kPre);
-		root["names"] = names;
-
-		root["short_desc"] = obj->get_description();
-		if (!obj->get_action_description().empty())
+		// Open temp file for writing
+		std::string obj_file = objs_dir + "/" + std::to_string(obj_vnum) + ".yaml";
+		std::string temp_file = obj_file + ".tmp";
+		std::ofstream out(temp_file);
+		if (!out.is_open())
 		{
-			root["action_desc"] = obj->get_action_description();
+			log("SYSERR: Failed to open %s for writing", temp_file.c_str());
+			continue;
 		}
 
-		root["type"] = ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type()));
-		root["material"] = static_cast<int>(obj->get_material());
+		Koi8rYamlEmitter yaml(out);
 
-		YAML::Node values;
-		values.push_back(obj->get_val(0));
-		values.push_back(obj->get_val(1));
-		values.push_back(obj->get_val(2));
-		values.push_back(obj->get_val(3));
-		root["values"] = values;
+		// Header comment
+		yaml.Comment("Object #" + std::to_string(obj_vnum));
+		yaml.EmptyLine();
 
-		root["weight"] = obj->get_weight();
-		root["cost"] = obj->get_cost();
-		root["rent_off"] = obj->get_rent_off();
-		root["rent_on"] = obj->get_rent_on();
-		if (obj->get_spec_param() != 0) root["spec_param"] = obj->get_spec_param();
-		root["max_durability"] = obj->get_maximum_durability();
-		root["cur_durability"] = obj->get_current_durability();
-		root["timer"] = obj->get_timer();
-		if (to_underlying(obj->get_spell()) >= 0) root["spell"] = to_underlying(obj->get_spell());
-		root["level"] = obj->get_level();
-		root["sex"] = ReverseLookupEnum("genders", static_cast<int>(obj->get_sex()));
-		if (obj->get_max_in_world() != -1) root["max_in_world"] = obj->get_max_in_world();
-		if (obj->get_minimum_remorts() != 0) root["minimum_remorts"] = obj->get_minimum_remorts();
+		// Names
+		yaml.Key("names");
+		out << std::endl;
+		yaml.IncreaseIndent();
 
+		yaml.Key("aliases");
+		yaml.Value(obj->get_aliases());
+
+		yaml.Key("nominative");
+		yaml.Value(obj->get_PName(ECase::kNom));
+
+		yaml.Key("genitive");
+		yaml.Value(obj->get_PName(ECase::kGen));
+
+		yaml.Key("dative");
+		yaml.Value(obj->get_PName(ECase::kDat));
+
+		yaml.Key("accusative");
+		yaml.Value(obj->get_PName(ECase::kAcc));
+
+		yaml.Key("instrumental");
+		yaml.Value(obj->get_PName(ECase::kIns));
+
+		yaml.Key("prepositional");
+		yaml.Value(obj->get_PName(ECase::kPre));
+
+		yaml.DecreaseIndent();
+
+		// Short description
+		yaml.Key("short_desc");
+		yaml.Value(obj->get_description(), true);  // literal=true
+
+		// Action description (optional)
+		if (!obj->get_action_description().empty())
+		{
+			yaml.Key("action_desc");
+			yaml.Value(obj->get_action_description(), true);  // literal=true
+		}
+
+		// Type
+		yaml.Key("type");
+		yaml.Value(ReverseLookupEnum("obj_types", static_cast<int>(obj->get_type())));
+
+		// Material (with comment)
+		int material_id = static_cast<int>(obj->get_material());
+		yaml.Key("material", GetMaterialNameComment(material_id));
+		yaml.Value(material_id);
+
+		// Values
+		yaml.Key("values");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
+		yaml.SequenceItem(obj->get_val(0));
+		yaml.SequenceItem(obj->get_val(1));
+		yaml.SequenceItem(obj->get_val(2));
+		yaml.SequenceItem(obj->get_val(3));
+
+		yaml.DecreaseIndent();
+
+		// Weight, cost, rent
+		yaml.Key("weight");
+		yaml.Value(obj->get_weight());
+
+		yaml.Key("cost");
+		yaml.Value(obj->get_cost());
+
+		yaml.Key("rent_off");
+		yaml.Value(obj->get_rent_off());
+
+		yaml.Key("rent_on");
+		yaml.Value(obj->get_rent_on());
+
+		// Spec param (optional)
+		if (obj->get_spec_param() != 0)
+		{
+			yaml.Key("spec_param");
+			yaml.Value(obj->get_spec_param());
+		}
+
+		// Durability and timer
+		yaml.Key("max_durability");
+		yaml.Value(obj->get_maximum_durability());
+
+		yaml.Key("cur_durability");
+		yaml.Value(obj->get_current_durability());
+
+		yaml.Key("timer");
+		yaml.Value(obj->get_timer());
+
+		// Spell (with comment)
+		if (to_underlying(obj->get_spell()) >= 0)
+		{
+			int spell_id = to_underlying(obj->get_spell());
+			yaml.Key("spell", GetSpellNameComment(static_cast<ESpell>(spell_id)));
+			yaml.Value(spell_id);
+		}
+
+		// Level and sex
+		yaml.Key("level");
+		yaml.Value(obj->get_level());
+
+		yaml.Key("sex");
+		yaml.Value(ReverseLookupEnum("genders", static_cast<int>(obj->get_sex())));
+
+		// Max in world (optional)
+		if (obj->get_max_in_world() != -1)
+		{
+			yaml.Key("max_in_world");
+			yaml.Value(obj->get_max_in_world());
+		}
+
+		// Minimum remorts (optional)
+		if (obj->get_minimum_remorts() != 0)
+		{
+			yaml.Key("minimum_remorts");
+			yaml.Value(obj->get_minimum_remorts());
+		}
+
+		// Extra flags
 		auto extra_flags = ConvertFlagsToNames(obj->get_extra_flags(), "extra_flags");
 		if (!extra_flags.empty())
 		{
-			YAML::Node flags;
+			yaml.Key("extra_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : extra_flags)
 			{
-				flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["extra_flags"] = flags;
+
+			yaml.DecreaseIndent();
 		}
 
+		// Wear flags
 		int wear_flags = obj->get_wear_flags();
 		if (wear_flags != 0)
 		{
-			YAML::Node wear;
+			yaml.Key("wear_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (int bit = 0; bit < 32; ++bit)
 			{
 				if (wear_flags & (1 << bit))
@@ -2901,104 +3553,155 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 					std::string flag_name = ReverseLookupEnum("wear_flags", bit);
 					if (!flag_name.empty() && flag_name != std::to_string(bit))
 					{
-						wear.push_back(flag_name);
+						yaml.SequenceItem(flag_name);
 					}
 					else
 					{
-						wear.push_back("UNUSED_" + std::to_string(bit));
+						yaml.SequenceItem("UNUSED_" + std::to_string(bit));
 					}
 				}
 			}
-			root["wear_flags"] = wear;
+
+			yaml.DecreaseIndent();
 		}
 
+		// No flags
 		auto no_flags = ConvertFlagsToNames(obj->get_no_flags(), "no_flags");
 		if (!no_flags.empty())
 		{
-			YAML::Node flags;
+			yaml.Key("no_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : no_flags)
 			{
-				flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["no_flags"] = flags;
+
+			yaml.DecreaseIndent();
 		}
 
+		// Anti flags
 		auto anti_flags = ConvertFlagsToNames(obj->get_anti_flags(), "anti_flags");
 		if (!anti_flags.empty())
 		{
-			YAML::Node flags;
+			yaml.Key("anti_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : anti_flags)
 			{
-				flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["anti_flags"] = flags;
+
+			yaml.DecreaseIndent();
 		}
 
+		// Affect flags
 		auto affect_flags = ConvertFlagsToNames(obj->get_affect_flags(), "affect_flags");
 		if (!affect_flags.empty())
 		{
-			YAML::Node flags;
+			yaml.Key("affect_flags");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (const auto &flag : affect_flags)
 			{
-				flags.push_back(flag);
+				yaml.SequenceItem(flag);
 			}
-			root["affect_flags"] = flags;
+
+			yaml.DecreaseIndent();
 		}
 
-		YAML::Node applies;
+		// Applies (with location comments)
+		bool has_applies = false;
 		for (int i = 0; i < kMaxObjAffect; ++i)
 		{
 			if (obj->get_affected(i).location != EApply::kNone)
 			{
-				YAML::Node apply_node;
-				apply_node["location"] = static_cast<int>(obj->get_affected(i).location);
-				apply_node["modifier"] = obj->get_affected(i).modifier;
-				applies.push_back(apply_node);
+				has_applies = true;
+				break;
 			}
 		}
-		if (applies.size() > 0)
+
+		if (has_applies)
 		{
-			root["applies"] = applies;
+			yaml.Key("applies");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (int i = 0; i < kMaxObjAffect; ++i)
+			{
+				if (obj->get_affected(i).location != EApply::kNone)
+				{
+					int location = static_cast<int>(obj->get_affected(i).location);
+					int modifier = obj->get_affected(i).modifier;
+
+					out << yaml.GetIndent() << "- location: " << location;
+					out << "  # " << GetApplyTypeNameComment(location) << std::endl;
+					out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
+				}
+			}
+
+			yaml.DecreaseIndent();
 		}
 
+		// Extra descriptions
 		if (obj->get_ex_description())
 		{
-			YAML::Node extra_descs;
+			yaml.Key("extra_descriptions");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
 			{
-				YAML::Node ed_node;
 				if (exdesc->keyword)
 				{
-					ed_node["keywords"] = exdesc->keyword;
+					out << yaml.GetIndent() << "- keywords: " << exdesc->keyword << std::endl;
+					if (exdesc->description)
+					{
+						out << yaml.GetIndent() << "  description: |" << std::endl;
+						
+						std::string desc = exdesc->description;
+						desc.erase(std::remove(desc.begin(), desc.end(), '\r'), desc.end());
+						
+						std::istringstream iss(desc);
+						std::string line;
+						while (std::getline(iss, line))
+						{
+							out << yaml.GetIndent() << "    " << line << std::endl;
+						}
+					}
 				}
-				if (exdesc->description)
-				{
-					ed_node["description"] = exdesc->description;
-				}
-				extra_descs.push_back(ed_node);
 			}
-			if (extra_descs.size() > 0)
-			{
-				root["extra_descriptions"] = extra_descs;
-			}
+
+			yaml.DecreaseIndent();
 		}
 
+		// Triggers (with comments)
 		if (obj->get_proto_script_ptr() && !obj->get_proto_script().empty())
 		{
-			YAML::Node triggers;
+			yaml.Key("triggers");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
 			for (auto trig_vnum : obj->get_proto_script())
 			{
-				triggers.push_back(trig_vnum);
+				std::string trig_comment = GetTriggerNameComment(trig_vnum);
+				yaml.SequenceItem(trig_vnum, trig_comment);
 			}
-			root["triggers"] = triggers;
+
+			yaml.DecreaseIndent();
 		}
 
-		std::string obj_file = objs_dir + "/" + std::to_string(obj_vnum) + ".yaml";
-		if (!WriteYamlAtomic(obj_file, root))
+		// Close file and rename atomically
+		out.close();
+		if (std::rename(temp_file.c_str(), obj_file.c_str()) != 0)
 		{
-			log("SYSERR: Failed to save object %d", obj_vnum);
+			log("SYSERR: Failed to rename %s to %s", temp_file.c_str(), obj_file.c_str());
 			continue;
 		}
+
 		++saved_count;
 	}
 
