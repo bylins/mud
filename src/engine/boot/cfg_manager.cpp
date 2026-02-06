@@ -1,9 +1,9 @@
 /*
  \authors Created by Sventovit
  \date 14.02.2022.
- \brief Менеджер файлов конфигурации.
- \details Менеджер файлов конфигурации должен хранить информацию об именах и местоположении файлов конфигурации,
- порядке их загрузки и управлять процессом загрузки данных из файлов по контейнерам.
+ \brief О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+ \details О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫,
+ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
  */
 
 #include "cfg_manager.h"
@@ -16,6 +16,11 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/skills/skills_info.h"
+
+#ifdef HAVE_YAML
+#include "gameplay/mechanics/loot_tables/loot_tables.h"
+#include "gameplay/mechanics/loot_tables/loot_loader.h"
+#endif
 
 namespace cfg_manager {
 
@@ -37,11 +42,16 @@ CfgManager::CfgManager() {
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
 								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
+
+#ifdef HAVE_YAML
+	loaders_.emplace("loot_tables", LoaderInfo("cfg/loot_tables",
+								  std::make_unique<loot_tables::LootTablesLoader>(&loot_tables::GetGlobalRegistry())));
+#endif
 }
 
 void CfgManager::ReloadCfg(const std::string &id) {
 	if (!loaders_.contains(id)) {
-		err_log("Неверный параметр перезагрузки файла конфигурации (%s)", id.c_str());
+		err_log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (%s)", id.c_str());
 		return;
 	}
 	const auto &loader_info = loaders_.at(id);
@@ -51,7 +61,7 @@ void CfgManager::ReloadCfg(const std::string &id) {
 
 void CfgManager::LoadCfg(const std::string &id) {
 	if (!loaders_.contains(id)) {
-		err_log("Неверный параметр загрузки файла конфигурации (%s)", id.c_str());
+		err_log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (%s)", id.c_str());
 		return;
 	}
 	const auto &loader_info = loaders_.at(id);

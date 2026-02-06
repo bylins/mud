@@ -6,9 +6,10 @@
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
-#include <format>
+#include <third_party_libs/fmt/include/fmt/format.h>
+#include <third_party_libs/fmt/include/fmt/chrono.h>
 
-#if defined(__clang__)
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 13)
 #define HAS_TIME_ZONE 0
 #else
 #define HAS_TIME_ZONE 1
@@ -75,7 +76,7 @@ std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char 
 
     const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     const auto now = std::chrono::zoned_time{time_zone, utc_now};
-    const auto str = std::format("{:%Y-%m-%d %T}", now);
+    const auto str = fmt::format("{:%Y-%m-%d %T}", now);
     timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
 #else
     // Реализация без std::chrono::time_zone, используем std::chrono::local_time

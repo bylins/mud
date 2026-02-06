@@ -48,6 +48,7 @@
 #include "engine/ui/cmd_god/do_liblist.h"
 #include "engine/ui/cmd_god/do_last.h"
 #include "engine/ui/cmd_god/do_load.h"
+#include "engine/ui/cmd_god/do_loottable.h"
 #include "engine/ui/cmd_god/do_loadstat.h"
 #include "engine/ui/cmd_god/do_beep.h"
 #include "engine/ui/cmd_god/do_overstuff.h"
@@ -881,6 +882,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"load", EPosition::kDead, DoLoad, 0, 0, 0},
 		{"loadstat", EPosition::kDead, DoLoadstat, kLvlImplementator, 0, 0},
+        {"loottable", EPosition::kDead, do_loottable, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, DoLook, 0, kScmdLook, 200},
 		{"lock", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"map", EPosition::kRest, do_map, 0, 0, 0},

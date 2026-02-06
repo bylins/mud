@@ -439,7 +439,23 @@ set(SOURCES
 		src/gameplay/classes/mob_classes_info.cpp
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp)
 
+# Loot tables module sources (requires yaml-cpp via HAVE_YAML option)
+set(LOOT_TABLES_SOURCES
+		src/gameplay/mechanics/loot_tables/loot_table_types.cpp
+		src/gameplay/mechanics/loot_tables/loot_table.cpp
+		src/gameplay/mechanics/loot_tables/loot_registry.cpp
+		src/gameplay/mechanics/loot_tables/loot_loader.cpp
+		src/gameplay/mechanics/loot_tables/loot_logger.cpp
+		src/engine/ui/cmd_god/do_loottable.cpp)
 
+set(LOOT_TABLES_HEADERS
+		src/gameplay/mechanics/loot_tables/loot_table_types.h
+		src/gameplay/mechanics/loot_tables/loot_table.h
+		src/gameplay/mechanics/loot_tables/loot_registry.h
+		src/gameplay/mechanics/loot_tables/loot_loader.h
+		src/gameplay/mechanics/loot_tables/loot_logger.h
+		src/gameplay/mechanics/loot_tables/loot_tables.h
+		src/engine/ui/cmd_god/do_loottable.h)
 
 set(HEADERS
 		src/engine/ui/cmd/do_flee.h
@@ -1142,6 +1158,19 @@ if (HAVE_ZLIB)
 	message(STATUS "ZLib is turned ON. Circle will be compiled with MCCP support.")
 else ()
 	message(STATUS "ZLib is turned off. Circle will NOT support MCCP.")
+endif ()
+
+# YAML support (for loot tables and world data)
+option(HAVE_YAML "Enable YAML support for loot tables configuration." OFF)
+if (HAVE_YAML)
+	find_package(yaml-cpp REQUIRED)
+	add_definitions(-DHAVE_YAML)
+	include_directories(${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(circle.library yaml-cpp)
+	target_sources(circle.library PRIVATE ${LOOT_TABLES_SOURCES} ${LOOT_TABLES_HEADERS})
+	message(STATUS "YAML is turned ON. Circle will support loot tables and YAML configuration.")
+else ()
+	message(STATUS "YAML is turned off. Loot tables module disabled.")
 endif ()
 
 # Iconv
