@@ -7,7 +7,7 @@
 #include <list>
 #include <string>
 
-#define LOAD_LOG_FOLDER "../log/"
+#define LOAD_LOG_FOLDER "log/"
 #define LOAD_LOG_FILE "profiler.log"
 
 namespace utils {

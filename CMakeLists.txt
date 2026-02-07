@@ -147,6 +147,7 @@ set(SOURCES
 		src/gameplay/communication/spam.cpp
 		src/gameplay/ai/spec_assign.cpp
 		src/gameplay/ai/spec_procs.cpp
+		src/engine/network/admin_api.cpp
 		src/engine/network/descriptor_data.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
@@ -642,6 +643,7 @@ set(HEADERS
 		src/gameplay/skills/skills.h
 		src/gameplay/skills/skills_info.h
 		src/gameplay/communication/spam.h
+		src/engine/network/admin_api.h
 		src/engine/network/descriptor_data.h
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
@@ -1153,6 +1155,7 @@ else ()
 endif ()
 option(HAVE_ZLIB "Should ZLib be compiled in. It is required to support MCCP." ${DEFAULT_HAVE_ZLIB})
 option(HAVE_SQLITE "Enable SQLite world data source for faster world loading." OFF)
+option(ENABLE_ADMIN_API "Enable Admin API via Unix socket" OFF)
 option(HAVE_YAML "Enable YAML world data source for human-readable world files." OFF)
 
 if (HAVE_ZLIB)
@@ -1164,6 +1167,15 @@ if (HAVE_ZLIB)
 	message(STATUS "ZLib is turned ON. Circle will be compiled with MCCP support.")
 else ()
 	message(STATUS "ZLib is turned off. Circle will NOT support MCCP.")
+endif ()
+
+# Admin API support
+if (ENABLE_ADMIN_API)
+	add_definitions(-DENABLE_ADMIN_API)
+	include_directories(src/third_party_libs)
+	message(STATUS "Admin API: ENABLED")
+else ()
+	message(STATUS "Admin API: DISABLED")
 endif ()
 
 # SQLite support

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Список mobs - Былины MUD{% endblock %}
+{% block content %}
+<h2>Список mobs (зона {{ zone }})</h2>
+<p>Всего: <b>{{ mobs|length }}</b></p>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Vnum</th>
+        <th>Название</th>
+        <th>Действия</th>
+    </tr>
+    {% for item in mobs %}
+    <tr>
+        <td>{{ item.vnum }}</td>
+        <td>{{ item.name|default('—') }}</td>
+        <td>
+            <a href="{{ url_for('mob_detail', vnum=item.vnum) }}">Просмотр</a> |
+            <a href="{{ url_for('mob_edit', vnum=item.vnum) }}">Редактировать</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<a href="{{ url_for('index') }}">[Главная]</a>
+{% endblock %}

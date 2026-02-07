@@ -82,6 +82,12 @@
 #include <sys/epoll.h>
 #endif
 
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#include <sys/un.h>
+#include <sys/stat.h>
+#endif
+
 #ifdef CIRCLE_MACINTOSH        // Includes for the Macintosh
 # define SIGPIPE 13
 # define SIGALRM 14
@@ -370,6 +376,9 @@ extern void log_code_date();
 
 // local globals
 DescriptorData *descriptor_list = nullptr;    // master desc list
+#ifdef ENABLE_ADMIN_API
+static socket_t admin_socket = -1;
+#endif
 
 
 int no_specials = 0;        // Suppress ass. of special routines
@@ -741,6 +750,18 @@ void stop_game(ush_int port) {
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+
+#ifdef ENABLE_ADMIN_API
+	if (runtime_config.admin_api_enabled()) {
+		const char *socket_path = runtime_config.admin_socket_path().c_str();
+		log("Admin API enabled, socket_path: %s", socket_path);
+		// Current working directory is the world directory after chdir(dir) above
+		admin_socket = init_unix_socket(socket_path);
+	} else {
+		log("Admin API disabled in configuration");
+	}
+#endif
+
 #if defined WITH_SCRIPTING
 	scripting::init();
 #endif
@@ -974,6 +995,79 @@ socket_t init_socket(ush_int port) {
 	listen(s, 5);
 	return (s);
 }
+
+#ifdef ENABLE_ADMIN_API
+socket_t init_unix_socket(const char *path) {
+	socket_t s;
+	struct sockaddr_un sa;
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		log("SYSERR: Error creating Unix domain socket: %s", strerror(errno));
+		exit(1);
+	}
+
+	memset(&sa, 0, sizeof(sa));
+	sa.sun_family = AF_UNIX;
+	strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+
+	unlink(path);
+
+	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+		log("SYSERR: Cannot bind Unix socket to %s: %s", path, strerror(errno));
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	chmod(path, 0600);
+	nonblock(s);
+
+	if (listen(s, 1) < 0) {
+		log("SYSERR: Cannot listen on Unix socket: %s", strerror(errno));
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	log("Admin API listening on Unix socket: %s", path);
+	return s;
+}
+
+int new_admin_descriptor(int epoll, socket_t s) {
+	socket_t desc;
+	DescriptorData *newd;
+
+	desc = accept(s, nullptr, nullptr);
+	if (desc == kInvalidSocket) {
+		return -1;
+	}
+
+	nonblock(desc);
+	CREATE(newd, 1);
+
+	newd->descriptor = desc;
+	newd->state = EConState::kAdminAPI;
+	newd->admin_api_mode = true;
+	newd->keytable = kCodePageUTF8;
+	strcpy(newd->host, "unix-socket");
+	newd->login_time = time(0);
+
+#ifdef HAS_EPOLL
+	struct epoll_event event;
+	event.data.ptr = newd;
+	event.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epoll, EPOLL_CTL_ADD, desc, &event);
+#endif
+
+	newd->next = descriptor_list;
+	descriptor_list = newd;
+
+	log("Admin API: new connection from Unix socket");
+
+	write_to_descriptor(desc, "{\"status\":\"ready\",\"version\":\"1.0\"}\n");
+
+	return 0;
+}
+#endif // ENABLE_ADMIN_API
 
 int get_max_players(void) {
 	return (max_playing);

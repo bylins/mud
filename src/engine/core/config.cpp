@@ -736,6 +736,9 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_external_triggers(&root);
 		load_statistics_configuration(&root);
 		load_world_loader_configuration(&root);
+#ifdef ENABLE_ADMIN_API
+		load_admin_api_configuration(&root);
+#endif
 	}
 	catch (const std::exception &e) {
 		std::cerr << "ERROR: Failed to load configuration file " << filename << ": " << e.what() << "\r\n";
@@ -789,3 +792,29 @@ bool CLogInfo::open() {
 RuntimeConfiguration runtime_config;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+#ifdef ENABLE_ADMIN_API
+void RuntimeConfiguration::load_admin_api_configuration(const pugi::xml_node *root) {
+	const auto admin_api = root->child("admin_api");
+	if (!admin_api) {
+		return;
+	}
+
+	const auto enabled = admin_api.child("enabled");
+	if (enabled) {
+		const std::string value = enabled.child_value();
+		m_admin_api_enabled = (value == "true" || value == "1" || value == "yes");
+	}
+
+	const auto socket_path = admin_api.child("socket_path");
+	if (socket_path) {
+		m_admin_socket_path = socket_path.child_value();
+	}
+
+	const auto require_auth = admin_api.child("require_auth");
+	if (require_auth) {
+		const std::string value = require_auth.child_value();
+		m_admin_require_auth = (value == "true" || value == "1" || value == "yes");
+	}
+}
+#endif

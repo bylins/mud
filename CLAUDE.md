@@ -22,7 +22,7 @@ cp --update=none -r lib.template/* lib
 mkdir build
 cd build
 cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
+make -j$(($(nproc)/2))
 cd ..
 ./build/circle 4000  # Start server on port 4000
 ```
@@ -32,9 +32,11 @@ cd ..
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Test ..
-make tests -j$(nproc)
+make tests -j$(($(nproc)/2))
 ./tests/tests  # Run all tests
 ```
+
+**Important:** Always use `-j$(($(nproc)/2))` for parallel builds to avoid overloading the system.
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
@@ -53,22 +55,38 @@ docker stop mud
 
 **CRITICAL**: Circle must ALWAYS be run from the build directory, NEVER from the source directory.
 
+**CRITICAL**: CMake automatically creates test world `small/` in the build directory. All world data and configs are in `small/` directory itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in cmake-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
+
 **Correct usage**:
 ```bash
-cd build_yaml        # Or build_legacy, build_sqlite, etc.
-./circle [-W] -d <world_directory> <port>
+cd build_debug       # Or build_yaml, build_sqlite, etc.
+./circle [-W] -d small <port>
 ```
 
 **Parameters**:
 - `-W` - Enable world checksum calculation (optional)
-- `-d <world_directory>` - Specify world data directory (e.g., `small`, `full`)
+- `-d <world_directory>` - Specify world data directory (e.g., `small`)
 - `<port>` - Port number to listen on (e.g., `4000`)
 
 **Example**:
 ```bash
-cd build_yaml
-./circle -W -d small 4000
+cd build_debug
+./circle -d small 4000
 ```
+
+**World Structure (cmake-generated):**
+```
+build_debug/
+├── circle           # Binary
+└── small/           # Test world (created by cmake)
+    ├── misc/
+    │   └── configuration.xml
+    ├── world/       # Zone files
+    ├── etc/         # Additional configs
+    └── admin_api.sock  # Unix socket (if Admin API enabled)
+```
+
+**NOTE**: Do NOT confuse with repository's `lib/` directory - that is completely separate and used only for production deployments.
 
 ### Running Tests
 ```bash
@@ -336,10 +354,35 @@ build_test/   - test data and converted worlds (not for compilation)
 **Always warn the user when changing build directories or running cmake/make in a different directory.**
 
 ### File Encoding - CRITICAL
-The Edit tool corrupts KOI8-R encoding in source files. To safely modify existing source files, use **unified diff patches**:
+**Proper workflow for editing KOI8-R files:**
+
+For files marked as `working-tree-encoding=KOI8-R` in .gitattributes (all files in /src/**, /tests/**):
 
 ```bash
-# Create and apply a unified diff patch
+# 1. Convert to UTF-8 for editing
+iconv -f koi8-r -t utf-8 src/file.cpp > /tmp/file_utf8.cpp
+
+# 2. Edit the UTF-8 version with Edit tool or text editor
+# (make your changes here)
+
+# 3. Convert back to KOI8-R
+iconv -f utf-8 -t koi8-r /tmp/file_utf8.cpp > src/file.cpp
+```
+
+**NEVER use the Edit tool directly on existing .cpp/.h files that contain Russian text.**
+Only use Edit for:
+- Newly created files that will be pure ASCII/English
+- Temporary UTF-8 converted files (in /tmp)
+- Files in .gitattributes marked as UTF-8 (e.g., Python files)
+
+**NEVER use sed for editing source files.** Sed has tendency to:
+- Modify files in unexpected places (matching wrong lines)
+- Lead to file corruption detection and accidental `git checkout` (losing all uncommitted work)
+- Cause cumulative errors from multiple sed operations
+- Corrupt KOI8-R encoding
+
+**Alternative: unified diff patches** - for small targeted changes:
+```bash
 cat > /tmp/fix.patch << 'PATCH'
 --- a/src/file.cpp
 +++ b/src/file.cpp
@@ -347,32 +390,10 @@ cat > /tmp/fix.patch << 'PATCH'
  existing line
 -old line
 +new line
-+added line
 PATCH
 patch -p1 < /tmp/fix.patch
 ```
-
-**NEVER use the Edit tool on existing .cpp/.h files that contain Russian text.**
-Only use Edit for newly created files or files known to be pure ASCII.
-
-**NEVER use sed for editing source files.** Sed has tendency to:
-- Modify files in unexpected places (matching wrong lines)
-- Lead to file corruption detection and accidental `git checkout` (losing all uncommitted work)
-- Cause cumulative errors from multiple sed operations
-
-Example of sed problem:
-```
-Problem: GetConfiguredThreadCount() defined 11 times due to multiple sed insertions.
-...
-File corrupted from multiple sed operations. Rolling back to last working version:
-...
-git checkout src/engine/db/yaml_world_data_source.cpp
-...
-😔 Critical error - accidentally reverted ALL changes with git checkout, losing all
-   parallel loading code we implemented.
-```
-
-**Use unified diff patches instead** - they are more reliable, preserve encoding, and fail cleanly if the context doesn't match.
+Patches preserve encoding and fail cleanly if context doesn't match.
 
 ### _GLIBCXX_DEBUG Disabled in Debug Build
 **Important:** `_GLIBCXX_DEBUG` is intentionally **disabled** for Debug builds due to ABI incompatibility with external libraries (yaml-cpp, SQLite).

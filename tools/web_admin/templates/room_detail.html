@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Комната {{ room.vnum }} - Былины MUD{% endblock %}
+{% block content %}
+<h2>Комната #{{ room.vnum }}</h2>
+<div class="block">
+    <table>
+        <tr><th width="30%">Vnum</th><td>{{ room.vnum }}</td></tr>
+        <tr><th>Название</th><td>{{ room.name }}</td></tr>
+    </table>
+</div>
+<a href="{{ url_for('rooms_list', zone=room.vnum // 100) }}"><button>Назад</button></a>
+{% endblock %}

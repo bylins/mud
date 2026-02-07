@@ -91,7 +91,8 @@ enum class EConState : uint8_t {
   kSedit = 54,            // sedit - редактирование сетов
   kResetReligion = 55,    // сброс религии из меню сброса статов
   kRandomNumber = 56,    // Verification code entry: where player enter the game from new location
-  kInit = 57                // just connected
+  kInit = 57,               // just connected
+  kAdminAPI = 58            // Admin API via Unix socket
 };
 // Номера оставлены, чтобы было удобней ориентироваться в списке описаний -- Svent
 // не забываем отражать новые состояния в connection_descriptions -- Krodo
@@ -172,6 +173,11 @@ struct DescriptorData {
 	std::array<int, ExtMoney::kTotalTypes> ext_money{}; // обмен доп.денег
 	std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp{}; // Для MXP
+#ifdef ENABLE_ADMIN_API
+	bool admin_api_mode{false};            // Flag for admin connection
+	bool admin_api_authenticated{false};   // Flag for authentication
+	long admin_user_id{-1};                // ID of authenticated imm/builder
+#endif
 
  private:
 	bool m_msdp_support;

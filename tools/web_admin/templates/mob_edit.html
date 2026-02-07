@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование моба {{ mob.vnum }} - Былины MUD{% endblock %}
+
+{% block content %}
+<h2>Редактирование моба #{{ mob.vnum }}</h2>
+
+<form method="POST">
+    <div class="block">
+        <div class="block-title">Основные параметры</div>
+
+        <div class="form-group">
+            <label for="level">Уровень:</label>
+            <input type="number" id="level" name="level" value="{{ mob.stats.level if mob.stats else '' }}">
+        </div>
+    </div>
+
+    <button type="submit">Сохранить</button>
+    <a href="{{ url_for('mob_detail', vnum=mob.vnum) }}"><button type="button">Отмена</button></a>
+</form>
+
+{% endblock %}

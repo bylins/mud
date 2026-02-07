@@ -178,6 +178,12 @@ class RuntimeConfiguration {
 
 	size_t yaml_threads() const { return m_yaml_threads; }
 
+#ifdef ENABLE_ADMIN_API
+	const auto &admin_socket_path() const { return m_admin_socket_path; }
+	bool admin_api_enabled() const { return m_admin_api_enabled; }
+	bool admin_require_auth() const { return m_admin_require_auth; }
+#endif
+
  private:
 	static const char *CONFIGURATION_FILE_NAME;
 
@@ -196,6 +202,9 @@ class RuntimeConfiguration {
 	void load_external_triggers(const pugi::xml_node *root);
 	void load_statistics_configuration(const pugi::xml_node *root);
 	void load_world_loader_configuration(const pugi::xml_node *root);
+#ifdef ENABLE_ADMIN_API
+	void load_admin_api_configuration(const pugi::xml_node *root);
+#endif
 
 	logs_t m_logs;
 	std::string m_log_stderr;
@@ -212,6 +221,12 @@ class RuntimeConfiguration {
 	StatisticsConfiguration m_statistics;
 
 	size_t m_yaml_threads;
+
+#ifdef ENABLE_ADMIN_API
+	std::string m_admin_socket_path{"admin_api.sock"};
+	bool m_admin_api_enabled{false};
+	bool m_admin_require_auth{true};
+#endif
 };
 
 extern RuntimeConfiguration runtime_config;
