@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Редактирование зоны {{ zone.vnum }}{% endblock %}
+{% block content %}
+<h2>Редактирование зоны {{ zone.vnum }}</h2>
+<form method="POST">
+    <table border="1" cellpadding="8">
+        <tr>
+            <td><b>Название:</b></td>
+            <td><input type="text" name="name" value="{{ zone.name }}" size="50"></td>
+        </tr>
+        <tr>
+            <td><b>Автор:</b></td>
+            <td><input type="text" name="author" value="{{ zone.author }}" size="30"></td>
+        </tr>
+        <tr>
+            <td><b>Комментарий:</b></td>
+            <td><input type="text" name="comment" value="{{ zone.comment }}" size="60"></td>
+        </tr>
+        <tr>
+            <td><b>Уровень:</b></td>
+            <td><input type="number" name="level" value="{{ zone.level }}"></td>
+        </tr>
+        <tr>
+            <td><b>Lifespan (мин):</b></td>
+            <td><input type="number" name="lifespan" value="{{ zone.lifespan }}"></td>
+        </tr>
+    </table>
+    <br>
+    <input type="submit" value="Сохранить">
+    <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}">[Отмена]</a>
+</form>
+{% endblock %}

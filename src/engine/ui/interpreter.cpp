@@ -15,6 +15,9 @@
 
 #include "interpreter.h"
 
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#endif
 #include "engine/core/char_movement.h"
 #include "administration/ban.h"
 #include "administration/karma.h"
@@ -2527,6 +2530,12 @@ void nanny(DescriptorData *d, char *argument) {
 			ShowEncodingPrompt(d, false);
 			d->state = EConState::kGetKeytable;
 			break;
+
+#ifdef ENABLE_ADMIN_API
+		case EConState::kAdminAPI:
+			admin_api_parse(d, argument);
+			break;
+#endif
 
 			//. OLC states .
 		case EConState::kOedit: oedit_parse(d, argument);

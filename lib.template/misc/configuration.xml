@@ -145,4 +145,23 @@
 		<yaml_threads>${YAML_THREADS:auto}</yaml_threads>
 	</world_loader>
 
+
+	<!-- Admin API (веб-интерфейс администрирования) -->
+	<!--
+	ВАЖНО: Admin API по умолчанию НЕ КОМПИЛИРУЕТСЯ в сборку.
+	Для работы требуется компиляция с флагом: -DENABLE_ADMIN_API=ON
+	
+	Эта настройка управляет runtime поведением только для сборок,
+	скомпилированных с Admin API.
+	
+	enabled - включить/выключить Admin API в runtime (true/false)
+	socket_path - путь к Unix socket файлу (относительно lib/)
+	
+	Безопасность: Unix socket с правами 0600, только локальный доступ.
+	-->
+	<admin_api>
+		<enabled>true</enabled>
+		<socket_path>admin_api.sock</socket_path>
+	</admin_api>
+
 </configuration>

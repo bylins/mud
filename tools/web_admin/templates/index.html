@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Былины MUD Админка{% endblock %}
+
+{% block content %}
+<h2>Добро пожаловать в админскую панель!</h2>
+
+<div class="block">
+    <div class="block-title">Быстрый доступ</div>
+    <table>
+        <tr>
+            <th width="30%">Раздел</th>
+            <th>Описание</th>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('zones_list') }}">Зоны</a></td>
+            <td>Просмотр и редактирование зон мира</td>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('mobs_list', zone=1) }}">Мобы</a></td>
+            <td>Управление мобами (NPC)</td>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('objects_list', zone=1) }}">Предметы</a></td>
+            <td>Управление предметами и экипировкой</td>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('rooms_list', zone=1) }}">Комнаты</a></td>
+            <td>Редактирование локаций и комнат</td>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('triggers_list', zone=1) }}">Триггеры</a></td>
+            <td>Скрипты и триггеры (DG Scripts)</td>
+        </tr>
+    </table>
+</div>
+
+<div class="separator"></div>
+
+{% if stats %}
+<div class="block">
+    <div class="block-title">Статистика сервера</div>
+    <table>
+        <tr>
+            <th width="40%">Параметр</th>
+            <th>Значение</th>
+        </tr>
+        <tr>
+            <td>Игроков онлайн</td>
+            <td><strong>{{ stats.players_online }}</strong></td>
+        </tr>
+        <tr>
+            <td>Зоны</td>
+            <td><strong>{{ stats.zones }}</strong></td>
+        </tr>
+        <tr>
+            <td>Мобы</td>
+            <td>{{ stats.mobs }}</td>
+        </tr>
+        <tr>
+            <td>Предметы</td>
+            <td>{{ stats.objects }}</td>
+        </tr>
+        <tr>
+            <td>Комнаты</td>
+            <td>{{ stats.rooms }}</td>
+        </tr>
+        <tr>
+            <td>Триггеры</td>
+            <td>{{ stats.triggers }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if stats.players_list %}
+<div class="separator"></div>
+
+<div class="block">
+    <div class="block-title">Игроки онлайн ({{ stats.players_online }})</div>
+    <table>
+        <tr>
+            <th width="50%">Имя</th>
+            <th width="25%">Уровень</th>
+            <th width="25%">Тип</th>
+        </tr>
+        {% for player in stats.players_list %}
+        <tr>
+            <td>{{ player.name }}</td>
+            <td>{{ player.level }}</td>
+            <td>{{ player.type }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+<div class="separator"></div>
+{% endif %}
+
+<div class="info">
+    <strong>Информация о системе</strong><br>
+    Версия OLC API: 1.0<br>
+    Режим: Тестовый (аутентификация отключена)<br>
+    Соединение: Unix Domain Socket<br>
+    Кодировка: UTF-8 ↔ KOI8-R
+</div>
+{% endblock %}

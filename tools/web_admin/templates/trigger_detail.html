@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Триггер {{ trig.vnum }} - Былины MUD{% endblock %}
+{% block content %}
+<h2>Триггер #{{ trig.vnum }}</h2>
+<div class="block">
+    <table>
+        <tr><th width="30%">Vnum</th><td>{{ trig.vnum }}</td></tr>
+        <tr><th>Название</th><td>{{ trig.name }}</td></tr>
+    </table>
+</div>
+<a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}"><button>Назад</button></a>
+{% endblock %}

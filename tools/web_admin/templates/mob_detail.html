@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Моб {{ mob.vnum }} - Былины MUD{% endblock %}
+
+{% block content %}
+<h2>Моб #{{ mob.vnum }}</h2>
+
+<div class="block">
+    <div class="block-title">Основная информация</div>
+    <table>
+        <tr>
+            <th width="30%">Параметр</th>
+            <th>Значение</th>
+        </tr>
+        <tr>
+            <td>Vnum</td>
+            <td><strong>{{ mob.vnum }}</strong></td>
+        </tr>
+        <tr>
+            <td>Алиасы</td>
+            <td>{{ mob.names.aliases }}</td>
+        </tr>
+        <tr>
+            <td>Именительный падеж</td>
+            <td>{{ mob.names.nominative }}</td>
+        </tr>
+        <tr>
+            <td>Уровень</td>
+            <td>{{ mob.stats.level }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="block">
+    <div class="block-title">Описание</div>
+    <p><strong>Краткое:</strong><br>{{ mob.descriptions.short_desc }}</p>
+    <p><strong>Полное:</strong><br>{{ mob.descriptions.long_desc }}</p>
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{{ url_for('mob_edit', vnum=mob.vnum) }}"><button>Редактировать</button></a>
+    <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}"><button>Назад к списку</button></a>
+</div>
+
+{% endblock %}

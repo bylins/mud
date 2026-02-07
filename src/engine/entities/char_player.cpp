@@ -65,12 +65,12 @@ Player::Player() :
 		start_stats_.at(i) = 0;
 	}
 
-	// на 64 битном центосе с оптимизацией - падает или прямо здесь,
-	// или в деструкторе чар-даты на делете самого класса в недрах шареда
-	// при сборке без оптимизаций - не падает
-	// и я не очень в теме, чем этот инит отличается от инита в чар-дате,
-	// с учетом того, что здесь у нас абсолютно пустой плеер и внутри set_morph
-	// на деле инит ровно тоже самое, может на перспективу это все было
+	// О©╫О©╫ 64 О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫,
+	// О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫ О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫-О©╫О©╫О©╫О©╫,
+	// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ set_morph
+	// О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 	//set_morph(NormalMorph::GetNormalMorph(this));
 
 	for (unsigned i = 0; i < ext_money_.size(); ++i) {
@@ -81,7 +81,7 @@ Player::Player() :
 		reset_stats_cnt_.at(i) = 0;
 	}
 
-	// чтобы не вываливать новому игроку все мессаги на досках как непрочитанные
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	const time_t now = time(nullptr);
 	board_date_.fill(now);
 }
@@ -212,31 +212,31 @@ void Player::sub_nogata(int value) {
 
 void Player::add_nogata(int value) {
 	this->nogata += value;
-	SendMsgToChar(this, "Вы получили %ld %s.\r\n", static_cast<long>(value),
+	SendMsgToChar(this, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %ld %s.\r\n", static_cast<long>(value),
 				  GetDeclensionInNumber(value, EWhat::kNogataU));
 
 }
 
 void Player::add_hryvn(int value) {
 	if (GetRealRemort(this) < 6) {
-		SendMsgToChar(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
+		SendMsgToChar(this, "О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫...\r\n");
 		return;
 	} 
 	if (zone_table[world[this->in_room]->zone_rn].under_construction) {
-		SendMsgToChar(this, "Зона тестовая, вашу гривну отобрали боги.\r\n");
+		SendMsgToChar(this, "О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.\r\n");
 		return;
 	}
 	if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
-		SendMsgToChar(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
+		SendMsgToChar(this, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ %ld %s, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫...\r\n",
 					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value > 0) {
-		SendMsgToChar(this, "Вы получили %ld %s.\r\n",
+		SendMsgToChar(this, "О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %ld %s.\r\n",
 					  static_cast<long>(value), GetDeclensionInNumber(value, EWhat::kTorcU));
 	} else if (value == 0) {
 		return;
 	}
-	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
+	log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %s О©╫О©╫О©╫О©╫О©╫О©╫О©╫ %d [О©╫О©╫О©╫О©╫О©╫О©╫].", GET_NAME(this), value);
 	this->hryvn += value;
 }
 
@@ -248,11 +248,11 @@ void Player::dquest(const int id) {
 	const auto quest = MUD::daily_quests().find(id);
 
 	if (quest == MUD::daily_quests().end()) {
-		log("Quest Id: %d - не найден", id);
+		log("Quest Id: %d - О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫", id);
 		return;
 	}
 	if (!this->account->quest_is_available(id)) {
-		SendMsgToChar(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+		SendMsgToChar(this, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n");
 		return;
 	}
 	int value = quest->second.reward + number(1, 3);
@@ -356,7 +356,7 @@ void Player::show_mobmax() {
 	int i = 0;
 	for (const auto &item : stats) {
 		SendMsgToChar(this,
-					  "%2d. Уровень: %d; Убито: %d; Всего до размакса: %d\n",
+					  "%2d. О©╫О©╫О©╫О©╫О©╫О©╫О©╫: %d; О©╫О©╫О©╫О©╫О©╫: %d; О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: %d\n",
 					  ++i,
 					  item.first,
 					  item.second,
@@ -380,12 +380,12 @@ void Player::dps_print_group_stats(CharData *ch, CharData *coder) {
 	dps_.PrintGroupStats(ch, coder);
 }
 
-// * Для dps_copy.
+// * О©╫О©╫О©╫ dps_copy.
 void Player::dps_set(DpsSystem::Dps *dps) {
 	dps_ = *dps;
 }
 
-// * Нужно только для копирования всего этого дела при передаче лидера.
+// * О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
 void Player::dps_copy(CharData *ch) {
 	ch->dps_set(&dps_);
 }
@@ -402,7 +402,7 @@ void Player::dps_add_exp(int exp, bool battle) {
 	}
 }
 
-// не дергать wear/remove триги при скрытом раздевании/одевании чара во время сейва
+// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ wear/remove О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 #define NO_EXTRANEOUS_TRIGGERS
 
 void Player::save_char() {
@@ -429,14 +429,14 @@ void Player::save_char() {
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
 
-	// Запись чара в новом формате
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	get_filename(GET_NAME(this), filename, kPlayersFile);
 	if (!(saved = fopen(filename, "w"))) {
 		perror("Unable open charfile");
 		return;
 	}
-	// подготовка
-	// снимаем все возможные аффекты
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
 		if (GET_EQ(this, i)) {
 			char_eq[i] = UnequipChar(this, i, CharEquipFlag::skip_total);
@@ -446,7 +446,7 @@ void Player::save_char() {
 		} else
 			char_eq[i] = nullptr;
 	}
-	// очистим аффекты, сохраним, потом восстановим
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	auto tmp_aff = this->affected;
 	affected.clear();
 
@@ -456,7 +456,7 @@ void Player::save_char() {
 	fprintf(saved, "Levl: %d\n", this->GetLevel());
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
-	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ last_ip, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if (player_table[this->get_pfilepos()].last_ip) {
 		strcpy(buf, player_table[this->get_pfilepos()].last_ip);
 	} else {
@@ -468,17 +468,17 @@ void Player::save_char() {
 	fprintf(saved, "Id  : %ld\n", this->get_uid());
 	fprintf(saved, "Exp : %ld\n", this->get_exp());
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
-	// флаги
+	// О©╫О©╫О©╫О©╫О©╫
 	*buf = '\0';
 	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Act : %s\n", buf);
-	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	if (GET_EMAIL(this))//edited WorM 2010.08.27 О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	{
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
 	}
-	// это пишем обязательно посленим, потому что после него ничего не прочитается
-	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
-	// дальше пишем как хотим и что хотим
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	fprintf(saved, "Rebt: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫\n\n");
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 
 	fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
 	fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
@@ -512,14 +512,14 @@ void Player::save_char() {
 	fprintf(saved, "Hite: %d\n", GET_HEIGHT(this));
 	fprintf(saved, "Wate: %d\n", GET_WEIGHT(this));
 	fprintf(saved, "Size: %d\n", GET_SIZE(this));
-	// структуры
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
 	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
-	// дальше не по порядку
-	// статсы
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫
 	fprintf(saved, "Str : %d\n", this->GetInbornStr());
 	fprintf(saved, "Int : %d\n", this->GetInbornInt());
 	fprintf(saved, "Wis : %d\n", this->GetInbornWis());
@@ -545,7 +545,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	// скилы
+	// О©╫О©╫О©╫О©╫О©╫
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "Skil:\n");
 		int skill_val;
@@ -560,10 +560,10 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	// города
+	// О©╫О©╫О©╫О©╫О©╫О©╫
 	fprintf(saved, "Cits: %s\n", this->cities_to_str().c_str());
 
-	// Задержки на скилы
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SkTm:\n");
 		for (skj = this->timed; skj; skj = skj->next) {
@@ -596,7 +596,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0 0\n");
 	}
 
-	// Замемленые спелы
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpMe:\n");
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
@@ -606,7 +606,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	// Мемящиеся спелы
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpTM:\n");
 		for (struct SpellMemQueueItem *qi = this->mem_queue.queue; qi != nullptr; qi = qi->next)
@@ -614,7 +614,7 @@ void Player::save_char() {
 		fprintf(saved, "0\n");
 	}
 
-	// Рецепты
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 //    if (GetRealLevel(this) < kLevelImmortal)
 	{
 		im_rskill *rs;
@@ -771,7 +771,7 @@ void Player::save_char() {
 		fprintf(saved, "0 0 0 0 0 0\n");
 	}
 
-	// порталы
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	std::ostringstream out;
 	this->player_specials->runestones.Serialize(out);
 	fprintf(saved, "%s", out.str().c_str());
@@ -822,12 +822,12 @@ void Player::save_char() {
 	fprintf(saved, "Exot: %llu\n", GetStatistic(CharStat::OtherRemortExpLost));
 	fprintf(saved, "Expt: %llu\n", GetStatistic(CharStat::PkRemortExpLost));
 
-	// не забываем рестить ману и при сейве
+	// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	this->set_who_mana(MIN(kWhoManaMax,
 						   this->get_who_mana() + (time(0) - this->get_who_last()) * kWhoManaRestPerSecond));
 	fprintf(saved, "Wman: %u\n", this->get_who_mana());
 
-	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
+	// added by WorM (О©╫О©╫О©╫О©╫О©╫О©╫О©╫) 2010.06.04 О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫(О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫)
 	i = 0;
 	if (this->followers
 		&& CanUseFeat(this, EFeat::kEmployer)
@@ -895,7 +895,7 @@ void Player::save_char() {
 					it->second.currRemortAvail,
 					it->second.isFavorite);
 		}
-		fprintf(saved, "0 0 0 0 0 0\n");// терминирующая строчка
+		fprintf(saved, "0 0 0 0 0 0\n");// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	}
 	fprintf(saved, "Tlgr: %lu\n", this->player_specials->saved.telegram_id);
 	fclose(saved);
@@ -906,7 +906,7 @@ void Player::save_char() {
 	}
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, this->get_uid());
 
-	// восстанавливаем аффекты
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	// add spell and eq affections back in now
 	this->affected = tmp_aff;
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -940,12 +940,12 @@ void Player::save_char() {
 
 #undef NO_EXTRANEOUS_TRIGGERS
 
-// на счет reboot: используется только при старте мада в вызовах из ActualizePlayersIndex
-// при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
-// поэтому при каких-то изменениях в ActualizePlayersIndex, MustBeDeleted и TopPlayer::Refresh следует
-// убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: EPlrFlag::FLAGS, GetClass(), GET_EXP, get_uid, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
-// * \param reboot - по дефолту = false
+// О©╫О©╫ О©╫О©╫О©╫О©╫ reboot: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ ActualizePlayersIndex
+// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ Rebt, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ ActualizePlayersIndex, MustBeDeleted О©╫ TopPlayer::Refresh О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫: EPlrFlag::FLAGS, GetClass(), GET_EXP, get_uid, LAST_LOGON, GetRealLevel, GET_NAME, GetRealRemort, GET_UNIQUE, GET_EMAIL
+// * \param reboot - О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ = false
 int Player::load_char_ascii(const char *name, const int load_flags) {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
@@ -979,7 +979,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ "Rebt", О©╫О©╫О©╫О©╫ reboot О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ = 1, О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	if (!this->player_specials) {
 		this->player_specials = std::make_shared<player_special_data>();
 	}
@@ -1082,7 +1082,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			strcpy(GET_LASTIP(this), line);
 	}
 
-	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
+	// О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
 	if (this->get_exp() < GetExpUntilNextLvl(this, GetRealLevel(this))) {
@@ -1102,7 +1102,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		fbclose(fl);
 		return id;
 	}
-	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
+	// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1131,7 +1131,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = nullptr;
 	POOFOUT(this) = nullptr;
-	GET_RSKILL(this) = nullptr;    // рецептов не знает
+	GET_RSKILL(this) = nullptr;    // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	this->char_specials.carry_weight = 0;
 	this->char_specials.carry_items = 0;
 	this->real_abils.armor = 100;
@@ -1415,7 +1415,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 
 			case 'F':
-				// Оставлено для совместимости со старым форматом наказаний
+				// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 				if (!strcmp(tag, "Frez"))
 					GET_FREEZE_LEV(this) = num;
 				else if (!strcmp(tag, "Feat")) {
@@ -1450,7 +1450,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					GCURSE_DURATION(this) = lnum;
 				else if (!strcmp(tag, "GdFl"))
 					this->player_specials->saved.GodsLike = lnum;
-					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
+					// added by WorM (О©╫О©╫О©╫О©╫О©╫О©╫О©╫) 2010.06.04 О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫(О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫)
 				else if (!strcmp(tag, "GldH")) {
 					if (num != 0 && !IS_IMMORTAL(this) && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
@@ -1488,7 +1488,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					ignores_loader.load_from_string(line);
 				} else if (!strcmp(tag, "ICur")) {
 					this->set_ice_currency(num);
-//				this->set_ice_currency(0); // чистка льда
+//				this->set_ice_currency(0); // О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 				}
 				break;
 
@@ -1845,7 +1845,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Tlgr")) {
 					if (lnum <= 10000000000000) {
 						this->player_specials->saved.telegram_id = lnum;
-					} else  // зачищаем остатки старой баги
+					} else  // О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 						this->player_specials->saved.telegram_id = 0;
 				} else if (!strcmp(tag, "TSpl")) {
 					do {
@@ -1881,7 +1881,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			default: sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
 	}
-	this->SetFlag(EPrf::kColor2); //всегда цвет полный
+	this->SetFlag(EPrf::kColor2); //О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
@@ -1922,9 +1922,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		this->set_hit(std::min(this->get_hit(), this->get_real_max_hit()));
 
 	fbclose(fl);
-	// здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
-	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
-	// и в любом случае при ребуте это все пересчитывать не нужно
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫,
+	// О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ crc О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫.О©╫. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
 		FileCRC::check_crc(filename, FileCRC::PLAYER, this->get_uid());
 	}
@@ -1992,7 +1992,7 @@ void Player::map_print_to_snooper(CharData *imm) {
 	MapSystem::Options tmp;
 	tmp = map_options_;
 	map_options_ = *(imm->get_map_options());
-	// подменяем флаги карты на снуперские перед распечаткой ему карты
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	MapSystem::print_map(this, imm);
 	map_options_ = tmp;
 }
@@ -2081,7 +2081,7 @@ void Player::add_value_cities(bool v) {
 void Player::reset_daily_quest() {
 	this->daily_quest.clear();
 	this->daily_quest_timed.clear();
-	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
+	log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: %s. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.", GET_NAME(this));
 }
 
 std::shared_ptr<Account> Player::get_account() {
@@ -2145,7 +2145,7 @@ void Player::set_board_date(Boards::BoardTypes type, time_t date) {
 namespace PlayerSystem {
 
 ///
-/// \return кол-во хп, втыкаемых чару от родного тела
+/// \return О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 ///
 int con_natural_hp(CharData *ch) {
 	double add_hp_per_level = MUD::Class(ch->GetClass()).applies.base_con
@@ -2155,7 +2155,7 @@ int con_natural_hp(CharData *ch) {
 }
 
 ///
-/// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
+/// \return О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 ///
 int con_add_hp(CharData *ch) {
 	int con_add = std::max(0, GetRealCon(ch) - ch->get_con());
@@ -2163,14 +2163,14 @@ int con_add_hp(CharData *ch) {
 }
 
 ///
-/// \return кол-во хп, втыкаемых чару от общего кол-ва тела
+/// \return О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫-О©╫О©╫ О©╫О©╫О©╫О©╫
 ///
 int con_total_hp(CharData *ch) {
 	return con_natural_hp(ch) + con_add_hp(ch);
 }
 
 ///
-/// \return величина минуса к дексе в случае перегруза (case -> проценты от макс)
+/// \return О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (case -> О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫)
 ///
 unsigned weight_dex_penalty(CharData *ch) {
 	int n = 0;
@@ -2189,10 +2189,10 @@ unsigned weight_dex_penalty(CharData *ch) {
 
 } // namespace PlayerSystem
 
-// апдейт истории, при почарме освежает в памяти
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 void Player::updateCharmee(int vnum, int gold) {
 	if (vnum < 1) {
-		log("[ERROR] Player::updateCharmee. Вызов функции с vnum < 1, %s", this->get_name().c_str());
+		log("[ERROR] Player::updateCharmee. О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ vnum < 1, %s", this->get_name().c_str());
 		return;
 	}
 	std::map<int, MERCDATA>::iterator it;

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибка - Былины MUD{% endblock %}
+
+{% block content %}
+<center>
+    <h2>❌ Ошибка</h2>
+    
+    <table width="60%" border="1" cellpadding="20" bordercolor="#8B0000" bgcolor="#FFE4E1">
+        <tr>
+            <td align="center">
+                <font color="#8B0000">
+                    <b>{{ error }}</b>
+                </font>
+            </td>
+        </tr>
+    </table>
+    
+    <br><br>
+    <a href="{{ url_for('index') }}">← Вернуться на главную</a>
+</center>
+{% endblock %}

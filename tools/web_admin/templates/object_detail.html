@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Объект {{ obj.vnum }} - Былины MUD{% endblock %}
+{% block content %}
+<h2>Объект #{{ obj.vnum }}</h2>
+<div class="block">
+    <table>
+        <tr><th width="30%">Vnum</th><td>{{ obj.vnum }}</td></tr>
+        <tr><th>Алиасы</th><td>{{ obj.aliases }}</td></tr>
+        <tr><th>Короткое описание</th><td>{{ obj.short_desc }}</td></tr>
+    </table>
+</div>
+<a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}"><button>Назад</button></a>
+{% endblock %}

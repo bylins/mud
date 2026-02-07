@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Зона {{ zone.vnum }} - Былины MUD{% endblock %}
+
+{% block content %}
+<h2>Зона {{ zone.vnum }}: {{ zone.name }}</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Параметр</th>
+        <th>Значение</th>
+    </tr>
+    <tr>
+        <td><b>Vnum:</b></td>
+        <td>{{ zone.vnum }}</td>
+    </tr>
+    <tr>
+        <td><b>Название:</b></td>
+        <td>{{ zone.name }}</td>
+    </tr>
+    <tr>
+        <td><b>Автор:</b></td>
+        <td>{{ zone.author|default('—') }}</td>
+    </tr>
+    <tr>
+        <td><b>Уровень:</b></td>
+        <td>{{ zone.level|default('—') }}</td>
+    </tr>
+    <tr>
+        <td><b>Lifespan:</b></td>
+        <td>{{ zone.lifespan|default('—') }} мин</td>
+    </tr>
+    <tr>
+        <td><b>Reset mode:</b></td>
+        <td>{{ zone.reset_mode|default('—') }}</td>
+    </tr>
+    {% if zone.comment %}
+    <tr>
+        <td><b>Комментарий:</b></td>
+        <td>{{ zone.comment }}</td>
+    </tr>
+    {% endif %}
+</table>
+
+<br>
+<a href="{{ url_for('zone_edit', vnum=zone.vnum) }}">[Редактировать]</a>
+<a href="{{ url_for('zones_list') }}">[К списку зон]</a>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - Былины Админ{% endblock %}
+
+{% block content %}
+<h2>Вход в панель администрирования</h2>
+
+{% if error %}
+<div class="message error">
+    {{ error }}
+</div>
+{% endif %}
+
+<form method="POST" action="{{ url_for('login') }}">
+    <div class="form-group">
+        <label for="username">Имя пользователя (имм/билдер):</label>
+        <input type="text" id="username" name="username" required autofocus>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+
+    <button type="submit">Войти</button>
+</form>
+
+<p style="margin-top: 20px; color: #666;">
+    Вход доступен только иммам и билдерам.<br>
+    Используйте ваши игровые учётные данные.
+</p>
+{% endblock %}

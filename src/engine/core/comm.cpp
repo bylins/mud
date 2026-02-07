@@ -82,6 +82,12 @@
 #include <sys/epoll.h>
 #endif
 
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#include <sys/un.h>
+#include <sys/stat.h>
+#endif
+
 #ifdef CIRCLE_MACINTOSH        // Includes for the Macintosh
 # define SIGPIPE 13
 # define SIGALRM 14
@@ -144,13 +150,13 @@
 # endif
 #endif
 
-// Строки
+// О©╫О©╫О©╫О©╫О©╫О©╫
 
 #define MXP_BEG "\x03"    /* becomes < */
 #define MXP_END "\x04"    /* becomes > */
 #define MXP_AMP "\x05"    /* becomes & */
 
-// Символы
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 
 #define MXP_BEGc '\x03'    /* becomes < */
 #define MXP_ENDc '\x04'    /* becomes > */
@@ -370,6 +376,9 @@ extern void log_code_date();
 
 // local globals
 DescriptorData *descriptor_list = nullptr;    // master desc list
+#ifdef ENABLE_ADMIN_API
+static socket_t admin_socket = -1;
+#endif
 
 
 int no_specials = 0;        // Suppress ass. of special routines
@@ -380,7 +389,7 @@ struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
 
-// внумы комнат, где ставятся елки
+// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 const int vnum_room_new_year[31] =
 	{4056,
 	 5000,
@@ -482,25 +491,25 @@ const int vnum_gifts[len_array_gifts] = {27113,
 };
 
 void gifts() {
-	// выбираем случайную комнату с елкой
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫
 	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
-	// выбираем  случайный подарок
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	ObjRnum rnum;
 	if ((rnum = GetObjRnum(rand_vnum)) < 0) {
-		log("Ошибка в таблице НГ подарков!");
+		log("О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫!");
 		return;
 	}
 
 	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 
-	// создаем упаковку для подарка
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	PlaceObjToRoom(obj_cont.get(), GetRoomRnum(rand_vnum_r));
 	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
 	CheckObjDecay(obj_cont.get());
-	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
+	log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫: %d, О©╫О©╫О©╫О©╫О©╫О©╫: %d", rand_vnum_r, rand_vnum);
 }
 
 // functions in this file
@@ -522,6 +531,11 @@ int new_descriptor(socket_t s);
 #endif
 
 socket_t init_socket(ush_int port);
+#ifdef ENABLE_ADMIN_API
+socket_t init_unix_socket(const char *path);
+int new_admin_descriptor(int epoll, socket_t s);
+void close_admin_descriptor(DescriptorData *d);
+#endif
 
 int get_max_players();
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
@@ -588,7 +602,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 
 int main_function(int argc, char **argv) {
 #ifdef TEST_BUILD
-	// для нормального вывода русского текста под cygwin 1.7 и выше
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ cygwin 1.7 О©╫ О©╫О©╫О©╫О©╫
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
 
@@ -708,6 +722,8 @@ int main_function(int argc, char **argv) {
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();
 	log_code_date();
+	log("DEBUG after load: admin_api_enabled = %d", runtime_config.admin_api_enabled());
+	log("DEBUG after load: admin_socket_path = %s", runtime_config.admin_socket_path().c_str());
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
 		game_loader.BootWorld();
@@ -715,9 +731,9 @@ int main_function(int argc, char **argv) {
 	} else {
 		printf("Running game on port %d.\r\n", port);
 
-		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
-		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
-		// по эксепшену для удобства отладки и штатного сброса сислога в файл, т.к. в коре будет фиг
+		// О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+		// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+		// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫, О©╫.О©╫. О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
 		stop_game(port);
 	}
 
@@ -741,6 +757,17 @@ void stop_game(ush_int port) {
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+#ifdef ENABLE_ADMIN_API
+	log("Admin API support compiled in");
+	if (runtime_config.admin_api_enabled()) {
+		const char *socket_path = runtime_config.admin_socket_path().c_str();
+		log("Admin API enabled, socket_path: %s", socket_path);
+		// Current working directory is the world directory after chdir(dir) above
+		admin_socket = init_unix_socket(socket_path);
+	} else {
+		log("Admin API disabled in configuration");
+	}
+#endif
 #if defined WITH_SCRIPTING
 	scripting::init();
 #endif
@@ -763,10 +790,10 @@ void stop_game(ush_int port) {
 							  __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
-	// необходимо, т.к. в event.data мы можем хранить либо ptr, либо fd.
-	// а поскольку для клиентских сокетов нам нужны ptr, то и для родительского
-	// дескриптора, где нам наоборот нужен fd, придется создать псевдоструктуру,
-	// в которой инициализируем только поле descriptor
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫.О©╫. О©╫ event.data О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ ptr, О©╫О©╫О©╫О©╫ fd.
+	// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ptr, О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ fd, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫,
+	// О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ descriptor
 	mother_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
 	mother_d->descriptor = mother_desc;
 	event.data.ptr = mother_d;
@@ -777,6 +804,20 @@ void stop_game(ush_int port) {
 		return;
 	}
 
+#ifdef ENABLE_ADMIN_API
+	if (admin_socket >= 0) {
+		DescriptorData *admin_d = new DescriptorData();
+		admin_d->descriptor = admin_socket;
+		event.data.ptr = admin_d;
+		event.events = EPOLLIN;
+		if (epoll_ctl(epoll, EPOLL_CTL_ADD, admin_socket, &event) == -1) {
+			perror(fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD admin_socket in {}() at {}:{}",
+								  __func__, __FILE__, __LINE__).c_str());
+			log("WARNING: Admin API socket will not accept connections");
+		}
+	}
+#endif
+
 	game_loop(epoll, mother_desc);
 #else
 	log("Polling using select().");
@@ -785,8 +826,8 @@ void stop_game(ush_int port) {
 
 	FlushPlayerIndex();
 
-	// храны надо сейвить до Crash_save_all_rent(), иначе будем брать бабло у чара при записи
-	// уже после его экстракта, и что там будет хз...
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ Crash_save_all_rent(), О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫...
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
 
@@ -810,7 +851,7 @@ void stop_game(ush_int port) {
 	Glory::save_glory();
 	GloryConst::save();
 	GloryMisc::save_log();
-	GlobalDrop::save();// сохраняем счетчики глобалдропа
+	GlobalDrop::save();// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
@@ -831,7 +872,7 @@ void stop_game(ush_int port) {
 	while (descriptor_list)
 		close_socket(descriptor_list, true);
 #endif
-	// должно идти после дисконекта плееров
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
@@ -975,6 +1016,110 @@ socket_t init_socket(ush_int port) {
 	return (s);
 }
 
+#ifdef ENABLE_ADMIN_API
+
+static int active_admin_connections = 0;
+static const int MAX_ADMIN_CONNECTIONS = 1;
+
+socket_t init_unix_socket(const char *path) {
+	socket_t s;
+	struct sockaddr_un sa;
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		log("SYSERR: Error creating Unix domain socket: %s", strerror(errno));
+		exit(1);
+	}
+
+	memset(&sa, 0, sizeof(sa));
+	sa.sun_family = AF_UNIX;
+	strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+	unlink(path);
+
+	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+		log("SYSERR: Cannot bind Unix socket to %s: %s", path, strerror(errno));
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	chmod(path, 0600);
+	nonblock(s);
+
+	if (listen(s, 1) < 0) {
+		log("SYSERR: Cannot listen on Unix socket: %s", strerror(errno));
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	log("Admin API listening on Unix socket: %s", path);
+	return s;
+}
+
+int new_admin_descriptor(int epoll, socket_t s) {
+	socket_t desc;
+	DescriptorData *newd;
+
+	if (active_admin_connections >= MAX_ADMIN_CONNECTIONS) {
+		desc = accept(s, nullptr, nullptr);
+		if (desc >= 0) {
+			const char *msg = "{\"status\":\"error\",\"error\":\"Max connections\"}\n";
+			write(desc, msg, strlen(msg));
+			CLOSE_SOCKET(desc);
+			log("Admin API: rejected connection (limit reached)");
+		}
+		return -1;
+	}
+
+	desc = accept(s, nullptr, nullptr);
+	if (desc < 0) {
+		return -1;
+	}
+
+	nonblock(desc);
+	newd = new DescriptorData();
+
+	newd->descriptor = desc;
+	newd->state = EConState::kAdminAPI;
+	newd->admin_api_mode = true;
+	strcpy(newd->host, "unix-socket");
+	
+	// Initialize output buffer and other critical fields (like in new_descriptor)
+	newd->output = newd->small_outbuf;
+	newd->bufspace = kSmallBufsize - 1;
+	*newd->output = '\0';
+	newd->bufptr = 0;
+	CREATE(newd->history, kHistorySize);
+	
+	newd->login_time = time(0);
+
+#ifdef HAS_EPOLL
+	struct epoll_event event;
+	event.data.ptr = newd;
+	event.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epoll, EPOLL_CTL_ADD, desc, &event);
+#endif
+
+	newd->next = descriptor_list;
+	descriptor_list = newd;
+	++active_admin_connections;
+
+	log("Admin API: new connection from Unix socket (active: %d)", active_admin_connections);
+	const char *greeting = "{\"status\":\"ready\",\"version\":\"1.0\"}\n";
+	iosystem::write_to_descriptor(desc, greeting, strlen(greeting));
+
+	return 0;
+}
+
+void close_admin_descriptor(DescriptorData *d) {
+	if (d->admin_api_mode && active_admin_connections > 0) {
+		--active_admin_connections;
+		log("Admin API: connection closed (active: %d)", active_admin_connections);
+	}
+}
+
+#endif
+
+
 int get_max_players(void) {
 	return (max_playing);
 }
@@ -1001,10 +1146,10 @@ int shutting_down(void) {
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0) {
 		if (shutdown_parameters.reboot_after_shutdown()) {
 			remove("../.crash");
-			sprintf(buf, "ПЕРЕЗАГРУЗКА через ");
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ");
 		} else {
 			remove("../.crash");
-			sprintf(buf, "ОСТАНОВКА через ");
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ");
 		}
 		if (wait < 60)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
@@ -1012,7 +1157,7 @@ int shutting_down(void) {
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
 		SendMsgToAll(buf);
 		lastmessage = time(nullptr);
-		// на десятой секунде засейвим нужное нам в сислог
+		// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 		if (wait == 10)
 			log_zone_count_reset();
 	}
@@ -1040,7 +1185,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #ifdef HAS_EPOLL
 	int n, i;
 
-	// неблокирующе получаем новые события
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	n = epoll_wait(epoll, events, MAXEVENTS, 0);
 	if (n == -1) {
 		perror(fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in {}() at {}:{}",
@@ -1053,28 +1198,59 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	}
 
 	for (i = 0; i < n; i++)
+	{
+		d = (DescriptorData *) events[i].data.ptr;
+		
+		// Check for connection close events (before checking EPOLLIN)
+		if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) {
+			log("EPOLL: Got close event %u for descriptor %d", 
+			    static_cast<unsigned>(events[i].events), d ? d->descriptor : -1);
+			if (d && d->descriptor != mother_desc && d->descriptor != admin_socket) {
+				log("EPOLL: Calling close_socket for descriptor %d", d->descriptor);
+				close_socket(d, false, epoll, events, n);
+			}
+			continue;
+		}
+		
 		if (events[i].events & EPOLLIN) {
-			d = (DescriptorData *) events[i].data.ptr;
+			
 			if (d == nullptr)
 				continue;
-			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
+			if (mother_desc == d->descriptor) // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ mother_desc: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			{
 				int desc;
 				do
 					desc = new_descriptor(epoll, mother_desc);
 				while (desc > 0 || desc == -3);
-			} else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
-			if (iosystem::process_input(d) < 0)
-				close_socket(d, false, epoll, events, n);
-		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
+#ifdef ENABLE_ADMIN_API
+			} else if (admin_socket >= 0 && admin_socket == d->descriptor) {
+				new_admin_descriptor(epoll, admin_socket);
+#endif
+			} else {
+				// Split processing by descriptor type
+#ifdef ENABLE_ADMIN_API
+				if (d->admin_api_mode) {
+					// Admin API: simple JSON buffering without encodings
+					if (admin_api_process_input(d) < 0)
+						close_socket(d, false, epoll, events, n);
+				} else
+#endif
+				{
+					// Game connections: telnet + encodings
+					if (iosystem::process_input(d) < 0) // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ EOF
+						close_socket(d, false, epoll, events, n);
+				}
+			}
+		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ in О©╫ out
 		{
-			// надо будет помониторить сислог на предмет этих сообщений
+			// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in {}() at %s:%s:%d",
 					 static_cast<unsigned>(events[i].events),
 					 __func__, __FILE__, __LINE__);
 			log("%s", tmp);
 		}
+	}
 #else
 	// Poll (without blocking) for new input, output, and exceptions
 	if (select(maxdesc + 1, &input_set, &output_set, &exc_set, &null_time)
@@ -1133,7 +1309,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				continue;
 			}
 		}
-		// Шоб в меню долго не сидели !
+		// О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ !
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (d->state != EConState::kPlaying &&
 				d->state != EConState::kDisconnect &&
@@ -1154,7 +1330,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(kNowhere);
-				act("$n вернул$u.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
+				act("$n О©╫О©╫О©╫О©╫О©╫О©╫$u.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1183,13 +1359,18 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		d = (DescriptorData *) events[i].data.ptr;
 		if (d == nullptr)
 			continue;
+#ifdef ENABLE_ADMIN_API
+		// Skip Admin API descriptors - they use direct write, not output buffer
+		if (d->admin_api_mode)
+			continue;
+#endif
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
-			if (iosystem::process_output(d) < 0) // сокет умер
+			if (iosystem::process_output(d) < 0) // О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 				close_socket(d, false, epoll, events, n);
 			else
-				d->has_prompt = 1;   // признак того, что промпт уже выводил
-			// следующий после команды или очередной
-			// порции вывода
+				d->has_prompt = 1;   // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 		}
 	}
 #else
@@ -1199,17 +1380,17 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (iosystem::process_output(d) < 0)
-				close_socket(d, false);	// закрыл соединение
+				close_socket(d, false);	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			else
-				d->has_prompt = 1;	// признак того, что промпт уже выводил
-			// следующий после команды или очередной
-			// порции вывода
+				d->has_prompt = 1;	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+			// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 		}
 	}
 #endif
 
-// тут был кусок старого кода в #if 0 ... #endif. убрал, чтобы меньше хлама было.
-// если понадобится, вернем из истории.
+// О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ #if 0 ... #endif. О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.
+// О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 
 	// Kick out folks in the CON_CLOSE or CON_DISCONNECT state
 	for (d = descriptor_list; d; d = next_d) {
@@ -1367,8 +1548,8 @@ void game_loop(socket_t mother_desc)
 		}
 
 		// If we missed more than 30 seconds worth of pulses, just do 30 secs
-		// изменили на 4 сек
-		// изменили на 1 сек -- слишком уж опасно лагает :)
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ 4 О©╫О©╫О©╫
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ 1 О©╫О©╫О©╫ -- О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ :)
 		if (missed_pulses > (1 * kPassesPerSec)) {
 			const auto missed_seconds = missed_pulses / kPassesPerSec;
 			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
@@ -1550,10 +1731,10 @@ int set_sendbuf(socket_t s) {
 	return (0);
 }
 
-// возвращает неотрицательное целое, если удалось создать сокет
-// возвращает -1, если accept() вернул EINTR, EAGAIN или EWOULDBLOCK
-// возвращает -2 при других ошибках сокета
-// возвращает -3, если в соединении было отказано движком
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -1, О©╫О©╫О©╫О©╫ accept() О©╫О©╫О©╫О©╫О©╫О©╫ EINTR, EAGAIN О©╫О©╫О©╫ EWOULDBLOCK
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -2 О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ -3, О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 #ifdef HAS_EPOLL
 int new_descriptor(int epoll, socket_t s)
 #else
@@ -1622,7 +1803,7 @@ int new_descriptor(socket_t s)
 		*(newd->host + kHostLength) = '\0';
 	}
 
-	// ип в виде числа
+	// О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	newd->ip = TxtToIp(newd->host);
 
 	// determine if the site is banned
@@ -1649,30 +1830,30 @@ int new_descriptor(socket_t s)
 
 #ifdef HAS_EPOLL
 	//
-	// Со следующей строкой связаны определенные проблемы.
+	// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 	//
-	// Когда случается очередное событие, то ему в поле data.ptr записывается
-	// то значение, которое мы ему здесь присваиваем. В данном случае это ссылка
-	// на область памяти, выделенную под структуру данного дескриптора.
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ data.ptr О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 	//
-	// Проблема здесь заключается в том, что в процессе выполнения цикла,
-	// обрабатывающего полученные в результате epoll_wait() события, мы
-	// потенциально можем оказаться в ситуации, когда в результате обработки
-	// первого события сокет был закрыт и память под структуру дескриптора
-	// освобождена. В этом случае значение data.ptr во всех последующих
-	// событиях для данного сокета становится уже невалидным, и при попытке
-	// обработки этих событий произойдет чудесный креш.
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫,
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ epoll_wait() О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ data.ptr О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫.
 	//
-	// Предотвращается этот возможный креш принудительной установкой data.ptr в nullptr
-	// для всех событий, пришедших от данного сокета. Это делается в close_socket(),
-	// которому для этой цели теперь передается ссылка на массив событий.
-	// Также добавлена проверка аргумента на nullptr в close_socket(), process_input()
-	// и process_output().
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ data.ptr О©╫ nullptr
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ close_socket(),
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ nullptr О©╫ close_socket(), process_input()
+	// О©╫ process_output().
 	//
-	// Для алгоритма с использованием select() это было неактуально, поскольку
-	// после вызова select() цикл проходил по списку дескрипторов, где они все заведомо
-	// валидны, а с epoll мы проходим по списку событий, валидность сохраненного в
-	// которых дескриптора надо контролировать дополнительно.
+	// О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ select() О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ select() О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫ epoll О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 	//
 	event.data.ptr = newd;
 	//
@@ -1729,10 +1910,10 @@ int new_descriptor(socket_t s)
 }
 
 /**
-* Ищем копии чара в глобальном чарактер-листе, они могут там появиться например
-* при вводе пароля (релогине). В данном случае это надо для определения, уводить
-* в оффлайн хранилище чара или нет, потому что втыкать это во всех случаях тупо,
-* а менять систему с пасами/дубликатами обламывает.
+* О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫-О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+* О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫). О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+* О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫,
+* О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
 */
 bool any_other_ch(CharData *ch) {
 	for (const auto &vict : character_list) {
@@ -1758,9 +1939,14 @@ void close_socket(DescriptorData * d, int direct)
 		return;
 	}
 
+#ifdef ENABLE_ADMIN_API
+	// Decrement admin connection counter if this is an admin connection
+	close_admin_descriptor(d);
+#endif
+
 	//if (!direct && d->character && NORENTABLE(d->character))
 	//	return;
-	// Нельзя делать лд при wait_state
+	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫ wait_state
 	if (d->character && !direct) {
 		if (d->character->get_wait() > 0)
 			return;
@@ -1770,7 +1956,7 @@ void close_socket(DescriptorData * d, int direct)
 #ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, nullptr) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
-	// см. комментарии в new_descriptor()
+	// О©╫О©╫. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ new_descriptor()
 	int i;
 	if (events != nullptr)
 		for (i = 0; i < n_ev; i++)
@@ -1785,7 +1971,7 @@ void close_socket(DescriptorData * d, int direct)
 		d->snooping->snoop_by = nullptr;
 
 	if (d->snoop_by) {
-		iosystem::write_to_output("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
+		iosystem::write_to_output("О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.\r\n", d->snoop_by);
 		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
@@ -1829,9 +2015,9 @@ void close_socket(DescriptorData * d, int direct)
 		}
 
 		if (d->state == EConState::kPlaying || d->state == EConState::kDisconnect) {
-			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
+			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 			if (d->character->GetEnemy() && d->character->IsFlagged(EPrf::kAntiDcMode)) {
-				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
+				snprintf(buf2, sizeof(buf2), "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
 				command_interpreter(d->character.get(), buf2);
 			}
 			if (!d->character->IsNpc()) {
@@ -1879,7 +2065,7 @@ void close_socket(DescriptorData * d, int direct)
 	}
 #endif
 
-	// TODO: деструктур не вызывается, пока у нас дескриптор не стал классом
+	// TODO: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 	d->board.reset();
 	d->message.reset();
 	d->clan_olc.reset();
@@ -1890,7 +2076,7 @@ void close_socket(DescriptorData * d, int direct)
 
 	if (d->pers_log) {
 		opened_files.remove(d->pers_log);
-		fclose(d->pers_log); // не забываем закрыть персональный лог
+		fclose(d->pers_log); // О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
 	}
 
 	delete d;
@@ -1996,7 +2182,7 @@ RETSIGTYPE reap(int/* sig*/) {
 
 RETSIGTYPE crash_handle(int/* sig*/) {
 	log("Crash detected !");
-	// Сливаем файловые буферы.
+	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
 	fflush(stdout);
 	fflush(stderr);
 
@@ -2364,7 +2550,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//суффикс глуп(ым,ой,ыми)
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫(О©╫О©╫,О©╫О©╫,О©╫О©╫О©╫)
 				case 'r': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 					break;
 				case 'R':
@@ -2374,7 +2560,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//суффикс как(ое,ой,ая,ие)
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫(О©╫О©╫,О©╫О©╫,О©╫О©╫,О©╫О©╫)
 				case 'x': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 					break;
 				case 'X':
@@ -2384,7 +2570,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//склонение местоимения Ваш(е,а,и)
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫(О©╫,О©╫,О©╫)
 				case 'z':
 					if (obj)
 						i = OYOU(obj);
@@ -2422,7 +2608,7 @@ void perform_act(const char *orig,
 			} else if (*(orig + 1) == 'n') {
 				*(buf++) = '\n';
 				orig += 2;
-			} else if (*(orig + 1) == 'u')//Следующая подстановка $... будет с большой буквы
+			} else if (*(orig + 1) == 'u')//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ $... О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 			{
 				cap = 1;
 				orig += 2;
@@ -2437,8 +2623,8 @@ void perform_act(const char *orig,
 	*(++buf) = '\0';
 
 	if (to->desc) {
-		// Делаем первый символ большим, учитывая &X
-		// в связи с нововведениями таких ключей может быть несколько пропустим их все
+		// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ &X
+		// О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫
 		if (lbuf[0] == '&') {
 			char *tmp;
 			tmp = lbuf;
@@ -2542,7 +2728,7 @@ void act(const char *str,
 		return;
 	}
 
-	// нужно чтоб не выводились сообщения только для арены лишний раз
+	// О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
 	if (type == kToNotVict || type == kToRoom || type == kToRoomSensors) {
 		int stop_counter = 0;
 		for (const auto to : world[room_number]->people) {
@@ -2572,25 +2758,25 @@ void act(const char *str,
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
-					utils::ReplaceFirst(buffer, "ся", GET_CH_SUF_2(ch));
+					utils::ReplaceFirst(buffer, "О©╫О©╫", GET_CH_SUF_2(ch));
 				}
-				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());
+				utils::ReplaceFirst(buffer, "О©╫О©╫О©╫-О©╫О©╫", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			} else {
 				perform_act(str, ch, obj, vict_obj, to, kick_type);
 			}
 		}
 	}
-	//Реализация флага слышно арену
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
-		// находим первую клетку в зоне
+		// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 		while ((int) world[arena_room_rnum - 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100)
 			arena_room_rnum--;
-		//пробегаемся по всем клеткам в зоне
+		//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫
 		while ((int) world[arena_room_rnum + 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100) {
-			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
+			// О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ERoomFlag::kTribune)) {
 				int stop_count = 0;
 				for (const auto to : world[arena_room_rnum]->people) {

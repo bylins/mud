@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Былины MUD - Админка{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Былины МПМ - Админская панель</h1>
+            <div class="subtitle">Онлайн редактор мира через OLC API</div>
+        </div>
+    </div>
+
+    <div class="navigation-wrapper">
+        <div class="navigation">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <a href="{{ url_for('zones_list') }}">Зоны</a>
+            <a href="{{ url_for('mobs_list', zone=1) }}">Мобы</a>
+            <a href="{{ url_for('objects_list', zone=1) }}">Предметы</a>
+            <a href="{{ url_for('rooms_list', zone=1) }}">Комнаты</a>
+            <a href="{{ url_for('triggers_list', zone=1) }}">Триггеры</a>
+            <a href="{{ url_for('logout') }}" style="margin-left: auto;">Выход</a>
+        </div>
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="footer">
+        Былины MUD Admin Panel © 2026 | Powered by Flask & OLC
+    </div>
+</body>
+</html>

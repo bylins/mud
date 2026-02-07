@@ -22,7 +22,7 @@ cp --update=none -r lib.template/* lib
 mkdir build
 cd build
 cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
+make -j$(($(nproc)/2))
 cd ..
 ./build/circle 4000  # Start server on port 4000
 ```
@@ -32,9 +32,11 @@ cd ..
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Test ..
-make tests -j$(nproc)
+make tests -j$(($(nproc)/2))
 ./tests/tests  # Run all tests
 ```
+
+**Important:** Always use `-j$(($(nproc)/2))` for parallel builds to avoid overloading the system.
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
@@ -53,22 +55,38 @@ docker stop mud
 
 **CRITICAL**: Circle must ALWAYS be run from the build directory, NEVER from the source directory.
 
+**CRITICAL**: CMake automatically creates test world `small/` in the build directory. All world data and configs are in `small/` directory itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in cmake-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
+
 **Correct usage**:
 ```bash
-cd build_yaml        # Or build_legacy, build_sqlite, etc.
-./circle [-W] -d <world_directory> <port>
+cd build_debug       # Or build_yaml, build_sqlite, etc.
+./circle [-W] -d small <port>
 ```
 
 **Parameters**:
 - `-W` - Enable world checksum calculation (optional)
-- `-d <world_directory>` - Specify world data directory (e.g., `small`, `full`)
+- `-d <world_directory>` - Specify world data directory (e.g., `small`)
 - `<port>` - Port number to listen on (e.g., `4000`)
 
 **Example**:
 ```bash
-cd build_yaml
-./circle -W -d small 4000
+cd build_debug
+./circle -d small 4000
 ```
+
+**World Structure (cmake-generated):**
+```
+build_debug/
+├── circle           # Binary
+└── small/           # Test world (created by cmake)
+    ├── misc/
+    │   └── configuration.xml
+    ├── world/       # Zone files
+    ├── etc/         # Additional configs
+    └── admin_api.sock  # Unix socket (if Admin API enabled)
+```
+
+**NOTE**: Do NOT confuse with repository's `lib/` directory - that is completely separate and used only for production deployments.
 
 ### Running Tests
 ```bash

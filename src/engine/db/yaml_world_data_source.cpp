@@ -26,6 +26,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <regex>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -104,8 +105,33 @@ public:
 				out_ << GetIndent() << "  " << line << std::endl;
 			}
 		} else {
-			// Simple value - unquoted, KOI8-R passes through
-			out_ << " " << value << std::endl;
+			// Simple value - quote if contains special YAML characters
+			bool needs_quoting = value.empty();
+			
+			if (!value.empty()) {
+				// Check for special YAML characters
+				if (value.find(':') != std::string::npos ||
+					value.find('#') != std::string::npos ||
+					value.find('[') != std::string::npos ||
+					value.find(']') != std::string::npos ||
+					value.find('{') != std::string::npos ||
+					value.find('}') != std::string::npos ||
+					value.find('|') != std::string::npos ||
+					value.find('>') != std::string::npos ||
+					value.find('\"') != std::string::npos ||
+					value.find('\'') != std::string::npos ||
+					value[0] == ' ' || value[0] == '-' || value[0] == '?' ||
+					value[0] == '@' || value[0] == '`') {
+					needs_quoting = true;
+				}
+			}
+			
+			if (needs_quoting) {
+				// Use single quotes, escape single quotes inside by doubling them
+				out_ << " '" << std::regex_replace(value, std::regex("'"), "''") << "'" << std::endl;
+			} else {
+				out_ << " " << value << std::endl;
+			}
 		}
 	}
 
@@ -187,13 +213,11 @@ std::string GetSpellNameComment(ESpell spell_id) {
 
 // Get material name by ID (for material comments)
 std::string GetMaterialNameComment(int material_id) {
-	extern const char *material_name[];
 	return ::material_name[material_id];
 }
 
 // Get apply type name by ID (for apply location comments)
 std::string GetApplyTypeNameComment(int apply_id) {
-	extern const char *apply_types[];
 	return ::apply_types[apply_id];
 }
 

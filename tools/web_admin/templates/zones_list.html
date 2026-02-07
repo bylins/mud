@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Список зон - Былины MUD{% endblock %}
+
+{% block content %}
+<h2>🗺️ Список всех зон</h2>
+
+<p>Всего зон: <b>{{ zones|length }}</b></p>
+
+<table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#8B4513">
+    <tr bgcolor="#D2B48C">
+        <th width="80">Vnum</th>
+        <th>Название</th>
+        <th width="100">Уровень</th>
+        <th width="120">Автор</th>
+        <th width="150">Действия</th>
+    </tr>
+    {% for zone in zones %}
+    <tr bgcolor="{% if loop.index % 2 == 0 %}#F5DEB3{% else %}#FAEBD7{% endif %}">
+        <td align="center">{{ zone.vnum }}</td>
+        <td>{{ zone.name }}</td>
+        <td align="center">{{ zone.level|default('—') }}</td>
+        <td>{{ zone.author|default('—') }}</td>
+        <td align="center">
+            <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}">[Просмотр]</a>
+            <a href="{{ url_for('zone_edit', vnum=zone.vnum) }}">[Редактировать]</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<center>
+    <a href="{{ url_for('index') }}">← Вернуться на главную</a>
+</center>
+{% endblock %}

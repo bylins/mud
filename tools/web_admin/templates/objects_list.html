@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Список objects - Былины MUD{% endblock %}
+{% block content %}
+<h2>Список objects (зона {{ zone }})</h2>
+<p>Всего: <b>{{ objects|length }}</b></p>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Vnum</th>
+        <th>Название</th>
+    </tr>
+    {% for item in objects %}
+    <tr>
+        <td>{{ item.vnum }}</td>
+        <td>{{ item.name|default('—') }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<a href="{{ url_for('index') }}">[Главная]</a>
+{% endblock %}
