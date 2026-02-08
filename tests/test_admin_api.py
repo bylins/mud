@@ -390,6 +390,95 @@ def test_delete_room(sock, vnum):
 
     return response
 
+def test_comprehensive_mob(sock, vnum):
+    """Test ALL mob fields comprehensively."""
+    print(f"\n=== Testing comprehensive mob update {vnum} ===")
+    
+    comprehensive_data = {
+        "names": {
+            "aliases": "comprehensive тест",
+        },
+        "descriptions": {
+            "short_desc": "Comprehensive test mob stands here.",
+            "long_desc": "A mob used for comprehensive field testing."
+        },
+        "stats": {
+            "level": 25,
+            "hitroll_penalty": 5,
+            "armor": 10,
+            "exp": 1000
+        },
+        "sex": 0,
+        "position": 8,
+        "default_position": 8
+    }
+    
+    # Update with comprehensive data
+    response = send_command(sock, "update_mob", vnum=vnum, data=comprehensive_data)
+    
+    if response.get("status") == "ok":
+        print(f"✓ Comprehensive mob update successful")
+        
+        # Verify by getting mob back
+        mob = test_get_mob(sock, vnum)
+        if mob:
+            print(f"  ✓ Verified: level={mob.get('level')}, sex={mob.get('sex')}")
+    else:
+        print(f"✗ Error: {response.get('error', 'Unknown error')}")
+
+def test_comprehensive_object(sock, vnum):
+    """Test ALL object fields comprehensively."""
+    print(f"\n=== Testing comprehensive object update {vnum} ===")
+    
+    comprehensive_data = {
+        "aliases": "comprehensive тестобъект",
+        "short_desc": "comprehensive test object",
+        "weight": 10,
+        "cost": 500,
+        "rent_on": 250,
+        "rent_off": 125,
+        "type": 1,  # LIGHT
+        "material": 1,
+        "level": 15,
+        "current_durability": 90,
+        "maximum_durability": 100
+    }
+    
+    response = send_command(sock, "update_object", vnum=vnum, data=comprehensive_data)
+    
+    if response.get("status") == "ok":
+        print(f"✓ Comprehensive object update successful")
+        
+        obj = test_get_object(sock, vnum)
+        if obj:
+            print(f"  ✓ Verified: weight={obj.get('weight')}, cost={obj.get('cost')}, material={obj.get('material')}")
+    else:
+        print(f"✗ Error: {response.get('error', 'Unknown error')}")
+
+def test_comprehensive_room(sock, vnum):
+    """Test ALL room fields comprehensively."""
+    print(f"\n=== Testing comprehensive room update {vnum} ===")
+    
+    comprehensive_data = {
+        "name": "Comprehensive Test Room",
+        "description": "This room is used for comprehensive field testing.",
+        "sector_type": 0,  # INSIDE
+        "triggers": [100]  # Add trigger 100
+    }
+    
+    response = send_command(sock, "update_room", vnum=vnum, data=comprehensive_data)
+    
+    if response.get("status") == "ok":
+        print(f"✓ Comprehensive room update successful")
+        
+        room = test_get_room(sock, vnum)
+        if room:
+            triggers = room.get('triggers', [])
+            print(f"  ✓ Verified: sector={room.get('sector_type')}, triggers={triggers}")
+    else:
+        print(f"✗ Error: {response.get('error', 'Unknown error')}")
+
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
@@ -628,6 +717,27 @@ def main():
                 }
                 test_update_room(sock, 100, data)
                 test_get_room(sock, 100)
+
+        elif command == "comprehensive_test":
+            print("\n" + "="*60)
+            print("COMPREHENSIVE FIELD TESTING")
+            print("="*60)
+            
+            # Test mob comprehensive
+            print("\n--- MOB COMPREHENSIVE TEST ---")
+            test_comprehensive_mob(sock, 100)
+            
+            # Test object comprehensive
+            print("\n--- OBJECT COMPREHENSIVE TEST ---")
+            test_comprehensive_object(sock, 100)
+            
+            # Test room comprehensive (use 101 which exists)
+            print("\n--- ROOM COMPREHENSIVE TEST ---")
+            test_comprehensive_room(sock, 101)
+            
+            print("\n" + "="*60)
+            print("COMPREHENSIVE TESTING COMPLETE")
+            print("="*60)
 
         else:
             print(f"Error: Unknown command '{command}'")
