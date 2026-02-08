@@ -989,6 +989,30 @@ function setNestedValue(obj, path, value) {
     current[keys[keys.length - 1]] = value;
 }
 
+// --- Remove empty objects recursively ---
+function cleanEmptyObjects(obj) {
+    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        return obj;
+    }
+
+    var cleaned = {};
+    for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) continue;
+
+        var value = obj[key];
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            var cleanedValue = cleanEmptyObjects(value);
+            // Only add if not empty object
+            if (Object.keys(cleanedValue).length > 0) {
+                cleaned[key] = cleanedValue;
+            }
+        } else {
+            cleaned[key] = value;
+        }
+    }
+    return cleaned;
+}
+
 // --- Main save function ---
 function saveMob() {
     var btn = document.getElementById('save-btn');
@@ -1043,10 +1067,15 @@ function saveMob() {
                 setNestedValue(data, name, numVal);
             }
         } else {
-            // String field
-            setNestedValue(data, name, value);
+            // String field - only set if non-empty
+            if (value && value.trim()) {
+                setNestedValue(data, name, value);
+            }
         }
     });
+
+    // Clean empty objects before sending
+    data = cleanEmptyObjects(data);
 
     // POST as JSON
     fetch('{{ url_for("mob_update", vnum=mob.vnum) }}', {

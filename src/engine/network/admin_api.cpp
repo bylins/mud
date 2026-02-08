@@ -249,9 +249,13 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 				response["status"] = "ok";
 				response["message"] = "Authentication successful";
 				admin_api_send_json(d, response.dump().c_str());
+
+			// Notify immortals about admin connection
+			mudlog(fmt::format("Admin API: {} connected and authenticated", username), BRF, kLvlImplementator, IMLOG, true);
 			} else {
 				admin_api_send_error(d, "Authentication failed");
 			}
+			mudlog(fmt::format("Admin API: authentication failed for user '{}'", username), BRF, kLvlGod, IMLOG, true);
 			return;
 		}
 
@@ -494,6 +498,9 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 
 	try {
 		json data = json::parse(json_data);
+
+		// Log incoming JSON for debugging
+		log("Admin API: update_mob %d, JSON: %s", mob_vnum, json_data);
 
 		// Get zone
 		int zone_vnum = mob_vnum / 100;
