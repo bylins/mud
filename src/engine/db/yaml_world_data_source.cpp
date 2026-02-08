@@ -83,11 +83,8 @@ public:
 		// Nothing to do
 	}
 
-	void Key(const std::string &key, const std::string &comment = "") {
+	void Key(const std::string &key) {
 		out_ << GetIndent() << key << ":";
-		if (!comment.empty()) {
-			out_ << "  # " << comment;
-		}
 	}
 
 	void Value(const std::string &value, bool literal = false) {
@@ -135,12 +132,20 @@ public:
 		}
 	}
 
-	void Value(int value) {
-		out_ << " " << value << std::endl;
+	void Value(int value, const std::string &comment = "") {
+		out_ << " " << value;
+		if (!comment.empty()) {
+			out_ << "  # " << comment;
+		}
+		out_ << std::endl;
 	}
 
-	void Value(long value) {
-		out_ << " " << value << std::endl;
+	void Value(long value, const std::string &comment = "") {
+		out_ << " " << value;
+		if (!comment.empty()) {
+			out_ << "  # " << comment;
+		}
+		out_ << std::endl;
 	}
 
 	void BeginSequence() {
@@ -2708,7 +2713,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 				if (room->dir_option_proto[dir]->exit_info != 0)
 				{
 					out << yaml.GetIndent() << "  exit_flags: ";
-					out << room->dir_option_proto[dir]->exit_info << std::endl;
+					out << static_cast<int>(room->dir_option_proto[dir]->exit_info) << std::endl;
 				}
 
 				// Key (optional)
@@ -2722,7 +2727,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 				if (room->dir_option_proto[dir]->lock_complexity != 0)
 				{
 					out << yaml.GetIndent() << "  lock_complexity: ";
-					out << room->dir_option_proto[dir]->lock_complexity << std::endl;
+					out << static_cast<int>(room->dir_option_proto[dir]->lock_complexity) << std::endl;
 				}
 			}
 
@@ -3457,7 +3462,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 
 		// Short description
 		yaml.Key("short_desc");
-		yaml.Value(obj->get_description(), true);  // literal=true
+		yaml.Value(obj->get_short_description(), true);  // literal=true
 
 		// Action description (optional)
 		if (!obj->get_action_description().empty())
@@ -3472,8 +3477,8 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 
 		// Material (with comment)
 		int material_id = static_cast<int>(obj->get_material());
-		yaml.Key("material", GetMaterialNameComment(material_id));
-		yaml.Value(material_id);
+		yaml.Key("material");
+		yaml.Value(material_id, GetMaterialNameComment(material_id));
 
 		// Values
 		yaml.Key("values");
@@ -3521,8 +3526,8 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		if (to_underlying(obj->get_spell()) >= 0)
 		{
 			int spell_id = to_underlying(obj->get_spell());
-			yaml.Key("spell", GetSpellNameComment(static_cast<ESpell>(spell_id)));
-			yaml.Value(spell_id);
+			yaml.Key("spell");
+			yaml.Value(spell_id, GetSpellNameComment(static_cast<ESpell>(spell_id)));
 		}
 
 		// Level and sex

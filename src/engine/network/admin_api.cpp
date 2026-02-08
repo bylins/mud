@@ -549,6 +549,103 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 			if (data["stats"].contains("hitroll_penalty")) {
 				mob->real_abils.hitroll = data["stats"]["hitroll_penalty"].get<int>();
 			}
+			// HP (dice format)
+			if (data["stats"].contains("hp")) {
+				auto hp = data["stats"]["hp"];
+				if (hp.contains("dice_count")) {
+					mob->mem_queue.total = hp["dice_count"].get<int>();
+				}
+				if (hp.contains("dice_size")) {
+					mob->mem_queue.stored = hp["dice_size"].get<int>();
+				}
+				if (hp.contains("bonus")) {
+					mob->set_hit(hp["bonus"].get<int>());
+				}
+			}
+			// Damage (dice format)
+			if (data["stats"].contains("damage")) {
+				auto dmg = data["stats"]["damage"];
+				if (dmg.contains("dice_count")) {
+					mob->mob_specials.damnodice = dmg["dice_count"].get<int>();
+				}
+				if (dmg.contains("dice_size")) {
+					mob->mob_specials.damsizedice = dmg["dice_size"].get<int>();
+				}
+				if (dmg.contains("bonus")) {
+					mob->real_abils.damroll = dmg["bonus"].get<int>();
+				}
+			}
+			// Experience
+			if (data["stats"].contains("exp")) {
+				mob->set_exp(data["stats"]["exp"].get<long>());
+			}
+			// Gold
+			if (data["stats"].contains("gold")) {
+				mob->set_gold(data["stats"]["gold"].get<long>(), false);
+			}
+			// Strength
+			if (data["stats"].contains("str")) {
+				mob->set_str(data["stats"]["str"].get<int>());
+			}
+			// Dexterity
+			if (data["stats"].contains("dex")) {
+				mob->set_dex(data["stats"]["dex"].get<int>());
+			}
+			// Constitution
+			if (data["stats"].contains("con")) {
+				mob->set_con(data["stats"]["con"].get<int>());
+			}
+			// Wisdom
+			if (data["stats"].contains("wis")) {
+				mob->set_wis(data["stats"]["wis"].get<int>());
+			}
+			// Intelligence
+			if (data["stats"].contains("int")) {
+				mob->set_int(data["stats"]["int"].get<int>());
+			}
+			// Charisma
+			if (data["stats"].contains("cha")) {
+				mob->set_cha(data["stats"]["cha"].get<int>());
+			}
+		}
+
+		// Update sex
+		if (data.contains("sex")) {
+			mob->set_sex(static_cast<EGender>(data["sex"].get<int>()));
+		}
+
+		// Update race
+		if (data.contains("race")) {
+			mob->set_race(data["race"].get<int>());
+		}
+
+		// Update class
+		if (data.contains("class")) {
+			mob->set_class(static_cast<ECharClass>(data["class"].get<int>()));
+		}
+
+		// Update position
+		if (data.contains("position")) {
+			mob->SetPosition(static_cast<EPosition>(data["position"].get<int>()));
+		}
+
+		// Update default position
+		if (data.contains("default_position")) {
+			mob->mob_specials.default_pos = static_cast<EPosition>(data["default_position"].get<int>());
+		}
+
+		// Update flags
+		if (data.contains("flags")) {
+			for (const auto &flag : data["flags"]) {
+				mob->SetFlag(static_cast<EMobFlag>(flag.get<int>()));
+			}
+		}
+
+		// Update NPC flags
+		if (data.contains("npc_flags")) {
+			for (const auto &flag : data["npc_flags"]) {
+				mob->SetFlag(static_cast<ENpcFlag>(flag.get<int>()));
+			}
 		}
 
 		// Save via OLC (updates mob_proto, live mobs, and saves to disk)
@@ -831,6 +928,89 @@ void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_d
 		if (data.contains("cost")) {
 			obj->set_cost(data["cost"].get<int>());
 		}
+		if (data.contains("rent_on")) {
+			obj->set_rent_on(data["rent_on"].get<int>());
+		}
+		if (data.contains("rent_off")) {
+			obj->set_rent_off(data["rent_off"].get<int>());
+		}
+
+		// Type
+		if (data.contains("type")) {
+			obj->set_type(static_cast<EObjType>(data["type"].get<int>()));
+		}
+
+		// Material
+		if (data.contains("material")) {
+			obj->set_material(static_cast<EObjMaterial>(data["material"].get<int>()));
+		}
+
+		// Sex
+		if (data.contains("sex")) {
+			obj->set_sex(static_cast<EGender>(data["sex"].get<int>()));
+		}
+
+		// Level
+		if (data.contains("level")) {
+			obj->set_level(data["level"].get<int>());
+		}
+
+		// Values
+		if (data.contains("values")) {
+			for (size_t i = 0; i < 4 && i < data["values"].size(); ++i) {
+				obj->set_val(i, data["values"][i].get<int>());
+			}
+		}
+
+		// Extra flags
+		if (data.contains("extra_flags")) {
+			for (const auto &flag : data["extra_flags"]) {
+				obj->set_extra_flag(static_cast<EObjFlag>(flag.get<int>()));
+			}
+		}
+
+		// Wear flags
+		if (data.contains("wear_flags")) {
+			for (const auto &flag : data["wear_flags"]) {
+				obj->set_wear_flag(static_cast<EWearFlag>(flag.get<int>()));
+			}
+		}
+
+		// Anti flags
+		if (data.contains("anti_flags")) {
+			for (const auto &flag : data["anti_flags"]) {
+				obj->set_anti_flag(static_cast<EAntiFlag>(flag.get<int>()));
+			}
+		}
+
+		// No flags
+		if (data.contains("no_flags")) {
+			for (const auto &flag : data["no_flags"]) {
+				obj->set_no_flag(static_cast<ENoFlag>(flag.get<int>()));
+			}
+		}
+
+		// Affects
+		if (data.contains("affects")) {
+			size_t idx = 0;
+			for (const auto &affect : data["affects"]) {
+				if (idx >= kMaxObjAffect) break;
+				if (affect.contains("location") && affect.contains("modifier")) {
+					obj->set_affected(idx,
+						static_cast<EApply>(affect["location"].get<int>()),
+						affect["modifier"].get<int>());
+					++idx;
+				}
+			}
+		}
+
+		// Durability
+		if (data.contains("current_durability")) {
+			obj->set_current_durability(data["current_durability"].get<int>());
+		}
+		if (data.contains("maximum_durability")) {
+			obj->set_maximum_durability(data["maximum_durability"].get<int>());
+		}
 
 		// Save via OLC (handles live object updates, disk save)
 		extern void oedit_save_internally(DescriptorData *d);
@@ -1106,6 +1286,51 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 		}
 		if (data.contains("sector_type")) {
 			room->sector_type = data["sector_type"].get<int>();
+		}
+
+		// Room flags
+		if (data.contains("flags")) {
+			room->clear_flags();
+			for (const auto &flag : data["flags"]) {
+				room->set_flag(flag.get<int>());
+			}
+		}
+
+		// Exits (array format: [{direction: 0, ...}, ...]) - internal format (numbers)
+		if (data.contains("exits")) {
+			for (const auto &exit_json : data["exits"]) {
+				// Parse direction as number (0-5)
+				if (!exit_json.contains("direction")) continue;
+				int dir = exit_json["direction"].get<int>();
+				if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
+
+				// Create exit if doesn't exist
+				if (!room->dir_option[dir]) {
+					room->dir_option[dir] = std::make_shared<ExitData>();
+				}
+
+				auto &exit = room->dir_option[dir];
+
+				// Update exit fields
+				if (exit_json.contains("to_room")) {
+					exit->to_room(exit_json["to_room"].get<int>());
+				}
+				if (exit_json.contains("general_description")) {
+					exit->general_description = utf8_to_koi8r(exit_json["general_description"].get<std::string>());
+				}
+				if (exit_json.contains("keyword")) {
+					exit->set_keyword(utf8_to_koi8r(exit_json["keyword"].get<std::string>()));
+				}
+				if (exit_json.contains("exit_info")) {
+					exit->exit_info = exit_json["exit_info"].get<int>();
+				}
+				if (exit_json.contains("key")) {
+					exit->key = exit_json["key"].get<int>();
+				}
+				if (exit_json.contains("lock_complexity")) {
+					exit->lock_complexity = exit_json["lock_complexity"].get<int>();
+				}
+			}
 		}
 
 		// Save via OLC (handles world update, disk save)

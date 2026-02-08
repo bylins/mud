@@ -26,6 +26,76 @@ def send_command(sock, command, **kwargs):
             line, buffer = buffer.split(b'\n', 1)
             return json.loads(line.decode('utf-8'))
 
+def verify_yaml_file(entity_type, vnum, expected_fields):
+    """Verify that YAML file was actually saved with expected values."""
+    import yaml
+    
+    # Map flat API fields to YAML structure
+    yaml_expected = {}
+    for key, value in expected_fields.items():
+        if key == 'aliases':
+            yaml_expected.setdefault('names', {})['aliases'] = value
+        elif key == 'short_desc':
+            if entity_type == 'mob':
+                yaml_expected.setdefault('descriptions', {})['short_desc'] = value
+            else:
+                yaml_expected['short_desc'] = value
+        elif key == 'long_desc':
+            if entity_type == 'mob':
+                yaml_expected.setdefault('descriptions', {})['long_desc'] = value
+            else:
+                yaml_expected['long_desc'] = value
+        else:
+            yaml_expected[key] = value
+    
+    expected_fields = yaml_expected
+    world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
+
+    if entity_type == 'mob':
+        yaml_path = f"{world_dir}/world/mobs/{vnum}.yaml"
+    elif entity_type == 'object':
+        yaml_path = f"{world_dir}/world/objects/{vnum}.yaml"
+    elif entity_type == 'room':
+        zone = vnum // 100
+        rel_num = vnum % 100
+        yaml_path = f"{world_dir}/world/zones/{zone}/rooms/{rel_num:02d}.yaml"
+    else:
+        return False, "Unknown entity type"
+
+    if not os.path.exists(yaml_path):
+        return False, f"YAML file not found: {yaml_path}"
+
+    try:
+        with open(yaml_path, 'r', encoding='koi8-r') as f:
+            data = yaml.safe_load(f)
+
+        def check_fields(expected, actual, prefix=""):
+            """Recursively check that expected fields are in actual data."""
+            for key, expected_val in expected.items():
+                field_name = f"{prefix}.{key}" if prefix else key
+                if key not in actual:
+                    return False, f"Field '{field_name}' not in YAML"
+                actual_val = actual[key]
+                # If expected is dict, recurse
+                if isinstance(expected_val, dict):
+                    if not isinstance(actual_val, dict):
+                        return False, f"Field '{field_name}' is not a dict in YAML"
+                    result, msg = check_fields(expected_val, actual_val, field_name)
+                    if not result:
+                        return result, msg
+                # Otherwise check value match
+                elif actual_val != expected_val:
+                    return False, f"Field '{field_name}': expected {expected_val}, got {actual_val}"
+            return True, "OK"
+
+        result, msg = check_fields(expected_fields, data)
+        if not result:
+            return False, msg
+
+        return True, "YAML verified"
+    except Exception as e:
+        return False, f"Error reading YAML: {e}"
+
 def test_get_mob(sock, vnum):
     """Test get_mob command."""
     print(f"\n=== Testing get_mob {vnum} ===")
@@ -48,6 +118,13 @@ def test_update_mob(sock, vnum, data):
 
     if response.get("status") == "ok":
         print(f"✓ Mob {vnum} updated successfully")
+
+        # Verify YAML file
+        success, msg = verify_yaml_file('mob', vnum, data)
+        if success:
+            print(f"  ✓ YAML file verified: {msg}")
+        else:
+            print(f"  ✗ YAML verification failed: {msg}")
     else:
         print(f"✗ Error: {response.get('error')}")
 
@@ -76,6 +153,13 @@ def test_update_object(sock, vnum, data):
 
     if response.get("status") == "ok":
         print(f"✓ Object {vnum} updated successfully")
+
+        # Verify YAML file
+        success, msg = verify_yaml_file('object', vnum, data)
+        if success:
+            print(f"  ✓ YAML file verified: {msg}")
+        else:
+            print(f"  ✗ YAML verification failed: {msg}")
     else:
         print(f"✗ Error: {response.get('error')}")
 
@@ -103,6 +187,13 @@ def test_update_room(sock, vnum, data):
 
     if response.get("status") == "ok":
         print(f"✓ Room {vnum} updated successfully")
+
+        # Verify YAML file
+        success, msg = verify_yaml_file('room', vnum, data)
+        if success:
+            print(f"  ✓ YAML file verified: {msg}")
+        else:
+            print(f"  ✗ YAML verification failed: {msg}")
     else:
         print(f"✗ Error: {response.get('error')}")
 
@@ -186,6 +277,15 @@ def test_create_mob(sock, zone, data):
         print(f"✓ Mob created with vnum {vnum}")
         if "olc_output" in response:
             print(f"  OLC output: {response['olc_output']}")
+
+        # Verify YAML file
+        if vnum != "?":
+            success, msg = verify_yaml_file('mob', vnum, data)
+            if success:
+                print(f"  ✓ YAML file verified: {msg}")
+            else:
+                print(f"  ✗ YAML verification failed: {msg}")
+
         return vnum
     else:
         print(f"✗ Error: {response.get('error')}")
@@ -213,6 +313,15 @@ def test_create_object(sock, zone, data):
         print(f"✓ Object created with vnum {vnum}")
         if "olc_output" in response:
             print(f"  OLC output: {response['olc_output']}")
+
+        # Verify YAML file
+        if vnum != "?":
+            success, msg = verify_yaml_file('object', vnum, data)
+            if success:
+                print(f"  ✓ YAML file verified: {msg}")
+            else:
+                print(f"  ✗ YAML verification failed: {msg}")
+
         return vnum
     else:
         print(f"✗ Error: {response.get('error')}")
@@ -240,6 +349,15 @@ def test_create_room(sock, zone, data):
         print(f"✓ Room created with vnum {vnum}")
         if "olc_output" in response:
             print(f"  OLC output: {response['olc_output']}")
+
+        # Verify YAML file
+        if vnum != "?":
+            success, msg = verify_yaml_file('room', vnum, data)
+            if success:
+                print(f"  ✓ YAML file verified: {msg}")
+            else:
+                print(f"  ✗ YAML verification failed: {msg}")
+
         return vnum
     else:
         print(f"✗ Error: {response.get('error')}")
