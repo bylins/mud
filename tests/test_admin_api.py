@@ -176,6 +176,31 @@ def test_list_zones(sock):
 
     return response
 
+def test_create_mob(sock, zone, data):
+    """Test create_mob command."""
+    print(f"\n=== Testing create_mob in zone {zone} ===")
+    response = send_command(sock, "create_mob", zone=zone, data=data)
+
+    if response.get("status") == "ok":
+        vnum = response.get("vnum", "?")
+        print(f"✓ Mob created with vnum {vnum}")
+        return vnum
+    else:
+        print(f"✗ Error: {response.get('error')}")
+        return None
+
+def test_delete_mob(sock, vnum):
+    """Test delete_mob command."""
+    print(f"\n=== Testing delete_mob {vnum} ===")
+    response = send_command(sock, "delete_mob", vnum=vnum)
+
+    if response.get("status") == "ok":
+        print(f"✓ Mob {vnum} deleted successfully")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
@@ -190,6 +215,7 @@ def main():
         print("  update_room <vnum>")
         print("  list_rooms <zone>")
         print("  list_zones")
+        print("  create_delete_test")
         print("  full_crud_test")
         sys.exit(1)
 
@@ -313,6 +339,31 @@ def main():
         elif command == "list_zones":
             test_list_zones(sock)
 
+        elif command == "create_delete_test":
+            # Test creating and deleting a mob
+            print("\n" + "="*60)
+            print("TESTING CREATE/DELETE MOB")
+            print("="*60)
+
+            data = {
+                "name": "тестмоб",
+                "short_desc": "тестовый моб для создания",
+                "level": 10
+            }
+            vnum = test_create_mob(sock, 1, data)
+            if vnum:
+                # Verify it exists
+                test_get_mob(sock, vnum)
+                # Delete it
+                test_delete_mob(sock, vnum)
+                # Verify it's gone
+                print(f"\nVerifying deletion...")
+                result = test_get_mob(sock, vnum)
+                if result.get("status") == "error":
+                    print(f"✓ Mob {vnum} successfully deleted (not found)")
+                else:
+                    print(f"✗ Mob {vnum} still exists after deletion!")
+
         elif command == "full_crud_test":
             # Test list commands
             print("\n" + "="*60)
@@ -382,6 +433,7 @@ def main():
             print("  update_room <vnum>")
             print("  list_rooms <zone>")
             print("  list_zones")
+            print("  create_delete_test")
             print("  full_crud_test")
             sys.exit(1)
 
