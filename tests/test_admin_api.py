@@ -81,6 +81,33 @@ def test_update_object(sock, vnum, data):
 
     return response
 
+def test_get_room(sock, vnum):
+    """Test get_room command."""
+    print(f"\n=== Testing get_room {vnum} ===")
+    response = send_command(sock, "get_room", vnum=vnum)
+
+    if response.get("status") == "ok":
+        room = response.get("room", {})
+        print(f"✓ Room {vnum}: {room.get('name', 'N/A')}")
+        print(f"  Description: {room.get('description', 'N/A')[:50]}...")
+        print(f"  Sector: {room.get('sector_type', 'N/A')}")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
+def test_update_room(sock, vnum, data):
+    """Test update_room command."""
+    print(f"\n=== Testing update_room {vnum} ===")
+    response = send_command(sock, "update_room", vnum=vnum, data=data)
+
+    if response.get("status") == "ok":
+        print(f"✓ Room {vnum} updated successfully")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
@@ -89,6 +116,8 @@ def main():
         print("  update_mob <vnum>")
         print("  get_object <vnum>")
         print("  update_object <vnum>")
+        print("  get_room <vnum>")
+        print("  update_room <vnum>")
         print("  full_crud_test")
         sys.exit(1)
 
@@ -175,6 +204,28 @@ def main():
             # Verify update
             test_get_object(sock, vnum)
 
+        elif command == "get_room":
+            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 3000
+            test_get_room(sock, vnum)
+
+        elif command == "update_room":
+            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 3000
+
+            # Get current room
+            room = test_get_room(sock, vnum)
+            if room.get("status") != "ok":
+                sys.exit(1)
+
+            # Update with test data
+            data = {
+                "name": "Тестовая комната (обновлена)",
+                "description": "Это тестовое описание комнаты."
+            }
+            test_update_room(sock, vnum, data)
+
+            # Verify update
+            test_get_room(sock, vnum)
+
         elif command == "full_crud_test":
             # Test mob CRUD
             print("\n" + "="*60)
@@ -208,8 +259,30 @@ def main():
                 test_update_object(sock, 100, data)
                 test_get_object(sock, 100)
 
+            # Test room CRUD
+            print("\n" + "="*60)
+            print("TESTING ROOM CRUD")
+            print("="*60)
+
+            room = test_get_room(sock, 100)
+            if room.get("status") == "ok":
+                data = {
+                    "name": "Тестовая комната CRUD",
+                    "description": "Описание тестовой комнаты для CRUD операций."
+                }
+                test_update_room(sock, 100, data)
+                test_get_room(sock, 100)
+
         else:
-            print(f"Unknown command: {command}")
+            print(f"Error: Unknown command '{command}'")
+            print("\nAvailable commands:")
+            print("  get_mob <vnum>")
+            print("  update_mob <vnum>")
+            print("  get_object <vnum>")
+            print("  update_object <vnum>")
+            print("  get_room <vnum>")
+            print("  update_room <vnum>")
+            print("  full_crud_test")
             sys.exit(1)
 
     finally:
