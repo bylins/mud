@@ -594,21 +594,68 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 			}
 		}
 
-		// Update class
+		// === RESISTANCES ===
+		if (data.contains("resistances")) {
+			if (data["resistances"].contains("fire")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kFire)] = data["resistances"]["fire"].get<int>();
+			}
+			if (data["resistances"].contains("air")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kAir)] = data["resistances"]["air"].get<int>();
+			}
+			if (data["resistances"].contains("water")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kWater)] = data["resistances"]["water"].get<int>();
+			}
+			if (data["resistances"].contains("earth")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kEarth)] = data["resistances"]["earth"].get<int>();
+			}
+			if (data["resistances"].contains("vitality")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kVitality)] = data["resistances"]["vitality"].get<int>();
+			}
+			if (data["resistances"].contains("mind")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kMind)] = data["resistances"]["mind"].get<int>();
+			}
+			if (data["resistances"].contains("immunity")) {
+				mob->add_abils.apply_resistance[to_underlying(EResist::kImmunity)] = data["resistances"]["immunity"].get<int>();
+			}
+		}
+
+		// === SAVINGS ===
+		if (data.contains("savings")) {
+			if (data["savings"].contains("will")) {
+				mob->add_abils.apply_saving_throw[to_underlying(ESaving::kWill)] = data["savings"]["will"].get<int>();
+			}
+			if (data["savings"].contains("stability")) {
+				mob->add_abils.apply_saving_throw[to_underlying(ESaving::kStability)] = data["savings"]["stability"].get<int>();
+			}
+			if (data["savings"].contains("reflex")) {
+				mob->add_abils.apply_saving_throw[to_underlying(ESaving::kReflex)] = data["savings"]["reflex"].get<int>();
+			}
+		}
+
+		// === POSITION (nested object) ===
+		if (data.contains("position") && data["position"].is_object()) {
+			if (data["position"].contains("default_position")) {
+				mob->mob_specials.default_pos = static_cast<EPosition>(data["position"]["default_position"].get<int>());
+			}
+			if (data["position"].contains("load_position")) {
+				mob->SetPosition(static_cast<EPosition>(data["position"]["load_position"].get<int>()));
+			}
+		}
+
+		// === BEHAVIOR ===
+		if (data.contains("behavior")) {
+			if (data["behavior"].contains("class")) {
+				mob->set_class(static_cast<ECharClass>(data["behavior"]["class"].get<int>()));
+			}
+			if (data["behavior"].contains("attack_type")) {
+				mob->mob_specials.attack_type = data["behavior"]["attack_type"].get<int>();
+			}
+		}
+
+		// Update class (legacy flat field, kept for backward compatibility)
 		if (data.contains("class")) {
 			mob->set_class(static_cast<ECharClass>(data["class"].get<int>()));
 		}
-
-		// Update position
-		if (data.contains("position")) {
-			mob->SetPosition(static_cast<EPosition>(data["position"].get<int>()));
-		}
-
-		// Update default position
-		if (data.contains("default_position")) {
-			mob->mob_specials.default_pos = static_cast<EPosition>(data["default_position"].get<int>());
-		}
-
 		// Update flags
 		if (data.contains("flags")) {
 			for (const auto &flag : data["flags"]) {

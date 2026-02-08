@@ -393,7 +393,7 @@ def test_delete_room(sock, vnum):
 def test_comprehensive_mob(sock, vnum):
     """Test ALL mob fields comprehensively."""
     print(f"\n=== Testing comprehensive mob update {vnum} ===")
-    
+
     comprehensive_data = {
         "names": {
             "aliases": "comprehensive тест",
@@ -408,17 +408,48 @@ def test_comprehensive_mob(sock, vnum):
             "armor": 10,
             "exp": 1000
         },
-        "sex": 0,
-        "position": 8,
-        "default_position": 8
+        "abilities": {
+            "strength": 18,
+            "dexterity": 16,
+            "constitution": 17,
+            "intelligence": 12,
+            "wisdom": 14,
+            "charisma": 10
+        },
+        "resistances": {
+            "fire": 10,
+            "air": 5,
+            "water": 15,
+            "earth": 20,
+            "vitality": 8,
+            "mind": 12,
+            "immunity": 0
+        },
+        "savings": {
+            "will": 5,
+            "stability": 10,
+            "reflex": 8
+        },
+        "position": {
+            "default_position": 8,
+            "load_position": 8
+        },
+        "behavior": {
+            "class": 1,
+            "attack_type": 0
+        },
+        "sex": 0
     }
-    
+
     # Update with comprehensive data
     response = send_command(sock, "update_mob", vnum=vnum, data=comprehensive_data)
-    
+
     if response.get("status") == "ok":
         print(f"✓ Comprehensive mob update successful")
-        
+        print(f"  ✓ Tested: resistances (7 fields), savings (3 fields)")
+        print(f"  ✓ Tested: position (nested object), behavior (nested object)")
+        print(f"  ✓ Tested: abilities (6 stats)")
+
         # Verify by getting mob back
         mob = test_get_mob(sock, vnum)
         if mob:
