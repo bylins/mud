@@ -261,6 +261,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			return;
 		}
 
+
+	// Log all API commands to immortals (except auth/ping)
+	mudlog(fmt::format("Admin API: {} executed '{}'", d->admin_user_name, command), BRF, kLvlImplementator, IMLOG, true);
 		// Commands requiring authentication
 		if (command == "list_mobs") {
 			std::string zone = request.value("zone", "");
