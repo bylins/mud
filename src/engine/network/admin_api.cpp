@@ -440,7 +440,63 @@ void admin_api_get_mob(DescriptorData *d, int mob_vnum) {
 	damage["bonus"] = mob.real_abils.damroll;
 	stats["damage"] = damage;
 
+	// Add sex, race, alignment to stats
+	stats["sex"] = static_cast<int>(mob.get_sex());
+	stats["race"] = mob.get_race();
+	stats["alignment"] = mob.char_specials.saved.alignment;
+
 	mob_obj["stats"] = stats;
+
+	// Abilities
+	json abilities;
+	abilities["strength"] = mob.get_str();
+	abilities["dexterity"] = mob.get_dex();
+	abilities["constitution"] = mob.get_con();
+	abilities["intelligence"] = mob.get_int();
+	abilities["wisdom"] = mob.get_wis();
+	abilities["charisma"] = mob.get_cha();
+	mob_obj["abilities"] = abilities;
+
+	// Resistances
+	json resistances;
+	resistances["fire"] = mob.add_abils.apply_resistance[to_underlying(EResist::kFire)];
+	resistances["air"] = mob.add_abils.apply_resistance[to_underlying(EResist::kAir)];
+	resistances["water"] = mob.add_abils.apply_resistance[to_underlying(EResist::kWater)];
+	resistances["earth"] = mob.add_abils.apply_resistance[to_underlying(EResist::kEarth)];
+	resistances["vitality"] = mob.add_abils.apply_resistance[to_underlying(EResist::kVitality)];
+	resistances["mind"] = mob.add_abils.apply_resistance[to_underlying(EResist::kMind)];
+	resistances["immunity"] = mob.add_abils.apply_resistance[to_underlying(EResist::kImmunity)];
+	mob_obj["resistances"] = resistances;
+
+	// Savings
+	json savings;
+	savings["will"] = mob.add_abils.apply_saving_throw[to_underlying(ESaving::kWill)];
+	savings["stability"] = mob.add_abils.apply_saving_throw[to_underlying(ESaving::kStability)];
+	savings["reflex"] = mob.add_abils.apply_saving_throw[to_underlying(ESaving::kReflex)];
+	mob_obj["savings"] = savings;
+
+	// Position (nested object)
+	json position;
+	position["default_position"] = static_cast<int>(mob.mob_specials.default_pos);
+	position["load_position"] = static_cast<int>(mob.GetPosition());
+	mob_obj["position"] = position;
+
+	// Behavior
+	json behavior;
+	behavior["class"] = static_cast<int>(mob.GetClass());
+	behavior["attack_type"] = mob.mob_specials.attack_type;
+	mob_obj["behavior"] = behavior;
+
+	// Triggers
+	if (mob.proto_script) {
+		json triggers = json::array();
+		for (const auto &trig_vnum : *mob.proto_script) {
+			triggers.push_back(trig_vnum);
+		}
+		mob_obj["triggers"] = triggers;
+	} else {
+		mob_obj["triggers"] = json::array();
+	}
 
 	json result;
 	result["status"] = "ok";
