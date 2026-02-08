@@ -28,6 +28,15 @@
 
 using json = nlohmann::json;
 
+// Helper function to convert KOI8-R to UTF-8
+static std::string koi8r_to_utf8(const char *koi_str) {
+	if (!koi_str) return "";
+
+	char utf8_buf[kMaxStringLength];
+	koi_to_utf8(const_cast<char*>(koi_str), utf8_buf);
+	return std::string(utf8_buf);
+}
+
 // Convert KOI8-R string to UTF-8 for JSON
 // Correct KOI8-R to UTF-8 conversion
 // Use existing koi_to_utf8 function from utils
@@ -132,9 +141,16 @@ int admin_api_process_input(DescriptorData *d) {
 	bytes_read = read(d->descriptor, read_point, space_left);
 
 	if (bytes_read < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			return 0;  // No data available yet, not an error
+		}
+		// Real error
+		log("Admin API: read error: %s", strerror(errno));
 		return -1;
 	} else if (bytes_read == 0) {
-		return 0;
+		// EOF - client disconnected
+		log("Admin API: client disconnected (EOF)");
+		return -1;
 	}
 
 	read_point[bytes_read] = '\0';

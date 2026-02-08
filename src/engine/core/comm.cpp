@@ -531,6 +531,9 @@ int new_descriptor(socket_t s);
 #endif
 
 socket_t init_socket(ush_int port);
+#ifdef ENABLE_ADMIN_API
+socket_t init_unix_socket(const char *path);
+#endif
 
 int get_max_players();
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
@@ -798,6 +801,19 @@ void stop_game(ush_int port) {
 		return;
 	}
 
+
+#ifdef ENABLE_ADMIN_API
+	if (admin_socket >= 0) {
+		DescriptorData *admin_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
+		admin_d->descriptor = admin_socket;
+		event.data.ptr = admin_d;
+		event.events = EPOLLIN;
+		if (epoll_ctl(epoll, EPOLL_CTL_ADD, admin_socket, &event) == -1) {
+			perror("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD admin_socket");
+			log("Warning: Admin API socket not added to epoll");
+		}
+	}
+#endif
 	game_loop(epoll, mother_desc);
 #else
 	log("Polling using select().");
@@ -1037,12 +1053,12 @@ int new_admin_descriptor(int epoll, socket_t s) {
 	DescriptorData *newd;
 
 	desc = accept(s, nullptr, nullptr);
-	if (desc == kInvalidSocket) {
+	if (desc == -1) {
 		return -1;
 	}
 
 	nonblock(desc);
-	CREATE(newd, 1);
+	NEWCREATE(newd);
 
 	newd->descriptor = desc;
 	newd->state = EConState::kAdminAPI;
@@ -1063,7 +1079,8 @@ int new_admin_descriptor(int epoll, socket_t s) {
 
 	log("Admin API: new connection from Unix socket");
 
-	write_to_descriptor(desc, "{\"status\":\"ready\",\"version\":\"1.0\"}\n");
+	const char *welcome = "{\"status\":\"ready\",\"version\":\"1.0\"}\n";
+	iosystem::write_to_descriptor(desc, welcome, strlen(welcome));
 
 	return 0;
 }
@@ -1157,9 +1174,21 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				do
 					desc = new_descriptor(epoll, mother_desc);
 				while (desc > 0 || desc == -3);
-			} else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
-			if (iosystem::process_input(d) < 0)
+			}
+#ifdef ENABLE_ADMIN_API
+			else if (admin_socket >= 0 && admin_socket == d->descriptor) {
+				new_admin_descriptor(epoll, admin_socket);
+			}
+#endif
+			else { // О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫: О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫ EOF
+#ifdef ENABLE_ADMIN_API
+				int result = (d->admin_api_mode) ? admin_api_process_input(d) : iosystem::process_input(d);
+				if (result < 0)
+#else
+				if (iosystem::process_input(d) < 0)
+#endif
 				close_socket(d, false, epoll, events, n);
+			}
 		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
 			// надо будет помониторить сислог на предмет этих сообщений

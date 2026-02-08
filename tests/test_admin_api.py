@@ -7,7 +7,7 @@ import json
 import sys
 import os
 
-SOCKET_PATH = "small/admin_api.sock"
+SOCKET_PATH = os.getenv("SOCKET_PATH", "admin_api.sock")
 
 def send_command(sock, command, **kwargs):
     """Send JSON command and receive response."""
