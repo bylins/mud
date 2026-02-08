@@ -1164,11 +1164,13 @@ int Crash_write_timer(const std::size_t index) {
 		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
 	}
 	fclose(fl);
+#ifndef CIRCLE_WINDOWS
 	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
 	return true;
 }
@@ -1977,11 +1979,13 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		write_buffer << "\n$\n$\n";
 		file << write_buffer.rdbuf();
 		file.close();
+#ifndef CIRCLE_WINDOWS
 		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 			std::stringstream ss;
 			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
+#endif
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, ch->get_uid());
 	} else {
 		Crash_delete_files(iplayer);

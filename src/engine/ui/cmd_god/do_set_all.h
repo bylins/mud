@@ -9,8 +9,15 @@
 #ifndef BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_SET_ALL_H_
 #define BYLINS_SRC_ENGINE_UI_CMD_GOD_DO_SET_ALL_H_
 
+
 #include <memory>
+#include <string>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 #include <map>
 
 struct setall_inspect_request {

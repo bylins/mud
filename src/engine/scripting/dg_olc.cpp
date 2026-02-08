@@ -560,11 +560,13 @@ void trigedit_save(DescriptorData *d) {
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
 	remove(buf);
 	rename(fname, buf);
+#ifndef CIRCLE_WINDOWS
 	if (chmod(buf, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");
 }

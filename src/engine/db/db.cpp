@@ -71,7 +71,9 @@
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include <memory>
 

@@ -899,11 +899,13 @@ void Player::save_char() {
 	}
 	fprintf(saved, "Tlgr: %lu\n", this->player_specials->saved.telegram_id);
 	fclose(saved);
+#ifndef CIRCLE_WINDOWS
 	if (chmod(filename, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, this->get_uid());
 
 	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫

@@ -49,7 +49,7 @@ public:
 	 * @return Future that can be used to wait for task completion and get result
 	 */
 	template<typename Func>
-	auto Enqueue(Func&& task) -> std::future<typename std::result_of<Func()>::type>;
+	auto Enqueue(Func&& task) -> std::future<std::invoke_result_t<Func>>;
 
 	/**
 	 * Wait for all currently enqueued tasks to complete.
@@ -90,8 +90,8 @@ private:
 
 // Template implementation
 template<typename Func>
-auto ThreadPool::Enqueue(Func&& task) -> std::future<typename std::result_of<Func()>::type> {
-	using return_type = typename std::result_of<Func()>::type;
+auto ThreadPool::Enqueue(Func&& task) -> std::future<std::invoke_result_t<Func>> {
+	using return_type = std::invoke_result_t<Func>;
 
 	auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(std::forward<Func>(task));
 	std::future<return_type> result = task_ptr->get_future();

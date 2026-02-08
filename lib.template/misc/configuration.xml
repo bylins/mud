@@ -162,6 +162,7 @@
 	<admin_api>
 		<enabled>true</enabled>
 		<socket_path>admin_api.sock</socket_path>
+		<port>4001</port>
 	</admin_api>
 
 </configuration>

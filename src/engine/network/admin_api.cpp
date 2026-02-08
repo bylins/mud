@@ -4,7 +4,9 @@
 */
 
 #ifdef ENABLE_ADMIN_API
-#include <sys/socket.h>
+#if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
+#include <sys/socket.h>  // for recv() on Unix
+#endif
 
 #include "admin_api.h"
 #include "engine/db/db.h"
@@ -129,7 +131,11 @@ int admin_api_process_input(DescriptorData *d) {
 		return -1;
 	}
 
+#ifdef CIRCLE_WINDOWS
+	bytes_read = recv(d->descriptor, read_point, static_cast<int>(space_left), 0);
+#else
 	bytes_read = read(d->descriptor, read_point, space_left);
+#endif
 
 	if (bytes_read < 0) {
 		return -1;

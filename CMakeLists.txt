@@ -1324,6 +1324,19 @@ elseif (CMAKE_HOST_WIN32)
 	# EPOLL>>> ...and suppose that Windows does not
 	option(HAS_EPOLL "Does system support epoll call?" OFF)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+		# Project source files are KOI8-R encoded, not UTF-8.
+		# 1) Replace vcpkg's /utf-8 with KOI8-R charset (local scope only, won't affect fmt/fort)
+		string(REGEX REPLACE "/utf-8|/source-charset:[^ ]*|/execution-charset:[^ ]*" "" _CXX_FLAGS_FIXED "${CMAKE_CXX_FLAGS}")
+		string(STRIP "${_CXX_FLAGS_FIXED}" _CXX_FLAGS_FIXED)
+		set(CMAKE_CXX_FLAGS "${_CXX_FLAGS_FIXED} /source-charset:koi8-r /execution-charset:koi8-r")
+		# 2) Strip /utf-8 from fmt's INTERFACE_COMPILE_OPTIONS (would override our charset)
+		get_target_property(_FMT_IOPTS fmt INTERFACE_COMPILE_OPTIONS)
+		if (_FMT_IOPTS)
+			list(FILTER _FMT_IOPTS EXCLUDE REGEX "utf-8")
+			set_property(TARGET fmt PROPERTY INTERFACE_COMPILE_OPTIONS "${_FMT_IOPTS}")
+		endif()
+		# 3) Disable fmt Unicode mode (incompatible with KOI8-R source charset)
+		target_compile_definitions(circle.library PRIVATE FMT_UNICODE=0)
 		target_link_libraries(circle.library DbgHelp)
 		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 		set(CMAKE_EXE_LINKER_FLAGS_TEST "/DEBUG")
@@ -1377,22 +1390,19 @@ if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     # Setup small world directory (lib + lib.template)
     set(SMALL_WORLD_DIR "${CMAKE_BINARY_DIR}/small")
     
-    # Create small world directory by copying lib and overlaying lib.template
-    # First copy lib (base configuration)
+    # Create small world directory by copying lib.template then overlaying lib (lib wins on conflicts)
     execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${SMALL_WORLD_DIR}")
-    execute_process(COMMAND cp -r "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib.template" "${SMALL_WORLD_DIR}"
         RESULT_VARIABLE copy_result)
     if (NOT copy_result EQUAL 0)
-        message(FATAL_ERROR "Failed to copy lib directory")
+        message(FATAL_ERROR "Failed to copy lib.template directory")
     endif()
-
-    # Overlay lib.template (don't overwrite existing files)
-    execute_process(COMMAND cp --update=none -r "${CMAKE_SOURCE_DIR}/lib.template/." "${SMALL_WORLD_DIR}/"
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
         RESULT_VARIABLE copy_result)
     if (NOT copy_result EQUAL 0)
-        message(FATAL_ERROR "Failed to overlay lib.template directory")
+        message(FATAL_ERROR "Failed to overlay lib directory")
     endif()
-    message(STATUS "Copied lib and overlaid lib.template to ${SMALL_WORLD_DIR}")
+    message(STATUS "Copied lib.template and overlaid lib to ${SMALL_WORLD_DIR}")
     
     message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
 

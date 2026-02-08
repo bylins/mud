@@ -687,11 +687,13 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(fname, buf2);
+#ifndef CIRCLE_WINDOWS
 	if (chmod(buf2, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_MOB);
 }
 

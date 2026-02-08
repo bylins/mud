@@ -44,12 +44,12 @@ EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EOutputStream>(const EOutputStream spell);
 
-/* PCCleanCriteria структура которая определяет через какой время
-   неактивности будет удален чар
+/* PCCleanCriteria О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+   О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
 */
 struct PCCleanCriteria {
-	int level = 0;	// max уровень для этого временного лимита //
-	int days = 0;	// временной лимит в днях        //
+	int level = 0;	// max О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ //
+	int days = 0;	// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫        //
 };
 
 extern struct PCCleanCriteria pclean_criteria[];
@@ -182,6 +182,7 @@ class RuntimeConfiguration {
 	const auto &admin_socket_path() const { return m_admin_socket_path; }
 	bool admin_api_enabled() const { return m_admin_api_enabled; }
 	bool admin_require_auth() const { return m_admin_require_auth; }
+	unsigned short admin_port() const { return m_admin_port; }
 #endif
 
  private:
@@ -226,6 +227,7 @@ class RuntimeConfiguration {
 	std::string m_admin_socket_path{"admin_api.sock"};
 	bool m_admin_api_enabled{false};
 	bool m_admin_require_auth{true};
+	unsigned short m_admin_port{4001};
 #endif
 };
 

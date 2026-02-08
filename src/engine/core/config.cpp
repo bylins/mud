@@ -787,6 +787,13 @@ void RuntimeConfiguration::load_admin_api_configuration(const pugi::xml_node *ro
 		m_admin_socket_path = socket_path_value;
 	}
 
+	const auto port_value = admin_api.child_value("port");
+	fprintf(stderr, "DEBUG: port_value = '%s'\n", port_value ? port_value : "NULL");
+	fflush(stderr);
+	if (port_value && strlen(port_value) > 0) {
+		m_admin_port = static_cast<unsigned short>(std::strtoul(port_value, nullptr, 10));
+	}
+
 	const auto require_auth_value = admin_api.child_value("require_auth");
 	fprintf(stderr, "DEBUG: require_auth_value = '%s'\n", require_auth_value ? require_auth_value : "NULL");
 	fflush(stderr);

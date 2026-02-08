@@ -84,8 +84,12 @@
 
 #ifdef ENABLE_ADMIN_API
 #include "engine/network/admin_api.h"
+#ifdef CIRCLE_UNIX
 #include <sys/un.h>
 #include <sys/stat.h>
+#else
+#include <winsock2.h>
+#endif
 #endif
 
 #ifdef CIRCLE_MACINTOSH        // Includes for the Macintosh
@@ -377,7 +381,11 @@ extern void log_code_date();
 // local globals
 DescriptorData *descriptor_list = nullptr;    // master desc list
 #ifdef ENABLE_ADMIN_API
+#ifdef CIRCLE_WINDOWS
+static socket_t admin_socket = INVALID_SOCKET;
+#else
 static socket_t admin_socket = -1;
+#endif
 #endif
 
 
@@ -532,8 +540,23 @@ int new_descriptor(socket_t s);
 
 socket_t init_socket(ush_int port);
 #ifdef ENABLE_ADMIN_API
-socket_t init_unix_socket(const char *path);
+#ifdef CIRCLE_UNIX
+socket_t init_admin_socket_unix(const char *path);
+#else
+socket_t init_admin_socket_tcp(unsigned short port);
+#endif
+static inline bool admin_socket_valid() {
+#ifdef CIRCLE_WINDOWS
+	return admin_socket != INVALID_SOCKET;
+#else
+	return admin_socket >= 0;
+#endif
+}
+#ifdef HAS_EPOLL
 int new_admin_descriptor(int epoll, socket_t s);
+#else
+int new_admin_descriptor(socket_t s);
+#endif
 void close_admin_descriptor(DescriptorData *d);
 #endif
 
@@ -760,10 +783,15 @@ void stop_game(ush_int port) {
 #ifdef ENABLE_ADMIN_API
 	log("Admin API support compiled in");
 	if (runtime_config.admin_api_enabled()) {
+#ifdef CIRCLE_UNIX
 		const char *socket_path = runtime_config.admin_socket_path().c_str();
 		log("Admin API enabled, socket_path: %s", socket_path);
-		// Current working directory is the world directory after chdir(dir) above
-		admin_socket = init_unix_socket(socket_path);
+		admin_socket = init_admin_socket_unix(socket_path);
+#else
+		unsigned short admin_port = runtime_config.admin_port();
+		log("Admin API enabled, TCP loopback port: %d", admin_port);
+		admin_socket = init_admin_socket_tcp(admin_port);
+#endif
 	} else {
 		log("Admin API disabled in configuration");
 	}
@@ -805,7 +833,7 @@ void stop_game(ush_int port) {
 	}
 
 #ifdef ENABLE_ADMIN_API
-	if (admin_socket >= 0) {
+	if (admin_socket_valid()) {
 		DescriptorData *admin_d = new DescriptorData();
 		admin_d->descriptor = admin_socket;
 		event.data.ptr = admin_d;
@@ -1021,7 +1049,8 @@ socket_t init_socket(ush_int port) {
 static int active_admin_connections = 0;
 static const int MAX_ADMIN_CONNECTIONS = 1;
 
-socket_t init_unix_socket(const char *path) {
+#ifdef CIRCLE_UNIX
+socket_t init_admin_socket_unix(const char *path) {
 	socket_t s;
 	struct sockaddr_un sa;
 
@@ -1054,8 +1083,49 @@ socket_t init_unix_socket(const char *path) {
 	log("Admin API listening on Unix socket: %s", path);
 	return s;
 }
+#else
+socket_t init_admin_socket_tcp(unsigned short port) {
+	socket_t s;
+	struct sockaddr_in sa;
 
+	s = socket(PF_INET, SOCK_STREAM, 0);
+	if (s == INVALID_SOCKET) {
+		log("SYSERR: Error creating Admin API TCP socket");
+		exit(1);
+	}
+
+	int opt = 1;
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
+
+	memset(&sa, 0, sizeof(sa));
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(port);
+	sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+		log("SYSERR: Cannot bind Admin API TCP socket to 127.0.0.1:%d", port);
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	nonblock(s);
+
+	if (listen(s, 1) < 0) {
+		log("SYSERR: Cannot listen on Admin API TCP socket");
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	log("Admin API listening on TCP 127.0.0.1:%d", port);
+	return s;
+}
+#endif
+
+#ifdef HAS_EPOLL
 int new_admin_descriptor(int epoll, socket_t s) {
+#else
+int new_admin_descriptor(socket_t s) {
+#endif
 	socket_t desc;
 	DescriptorData *newd;
 
@@ -1063,7 +1133,7 @@ int new_admin_descriptor(int epoll, socket_t s) {
 		desc = accept(s, nullptr, nullptr);
 		if (desc >= 0) {
 			const char *msg = "{\"status\":\"error\",\"error\":\"Max connections\"}\n";
-			write(desc, msg, strlen(msg));
+			iosystem::write_to_descriptor(desc, msg, strlen(msg));
 			CLOSE_SOCKET(desc);
 			log("Admin API: rejected connection (limit reached)");
 		}
@@ -1081,7 +1151,11 @@ int new_admin_descriptor(int epoll, socket_t s) {
 	newd->descriptor = desc;
 	newd->state = EConState::kAdminAPI;
 	newd->admin_api_mode = true;
+#ifdef CIRCLE_UNIX
 	strcpy(newd->host, "unix-socket");
+#else
+	strcpy(newd->host, "127.0.0.1");
+#endif
 	
 	// Initialize output buffer and other critical fields (like in new_descriptor)
 	newd->output = newd->small_outbuf;
@@ -1103,7 +1177,11 @@ int new_admin_descriptor(int epoll, socket_t s) {
 	descriptor_list = newd;
 	++active_admin_connections;
 
+#ifdef CIRCLE_UNIX
 	log("Admin API: new connection from Unix socket (active: %d)", active_admin_connections);
+#else
+	log("Admin API: new connection from TCP loopback (active: %d)", active_admin_connections);
+#endif
 	const char *greeting = "{\"status\":\"ready\",\"version\":\"1.0\"}\n";
 	iosystem::write_to_descriptor(desc, greeting, strlen(greeting));
 
@@ -1223,7 +1301,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					desc = new_descriptor(epoll, mother_desc);
 				while (desc > 0 || desc == -3);
 #ifdef ENABLE_ADMIN_API
-			} else if (admin_socket >= 0 && admin_socket == d->descriptor) {
+			} else if (admin_socket_valid() && admin_socket == d->descriptor) {
 				new_admin_descriptor(epoll, admin_socket);
 #endif
 			} else {
@@ -1263,6 +1341,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	if (FD_ISSET(mother_desc, &input_set))
 		new_descriptor(mother_desc);
 
+#ifdef ENABLE_ADMIN_API
+	if (admin_socket_valid() && FD_ISSET(admin_socket, &input_set))
+		new_admin_descriptor(admin_socket);
+#endif
+
 	// Kick out the freaky folks in the exception set and marked for close
 	for (d = descriptor_list; d; d = next_d)
 	{
@@ -1280,8 +1363,18 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	{
 		next_d = d->next;
 		if (FD_ISSET(d->descriptor, &input_set))
-			if (iosystem::process_input(d) < 0)
-				close_socket(d, false);
+		{
+#ifdef ENABLE_ADMIN_API
+			if (d->admin_api_mode) {
+				if (admin_api_process_input(d) < 0)
+					close_socket(d, false);
+			} else
+#endif
+			{
+				if (iosystem::process_input(d) < 0)
+					close_socket(d, false);
+			}
+		}
 	}
 #endif
 
@@ -1379,6 +1472,10 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		next_d = d->next;
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
+#ifdef ENABLE_ADMIN_API
+			if (d->admin_api_mode)
+				continue;
+#endif
 			if (iosystem::process_output(d) < 0)
 				close_socket(d, false);	// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 			else
@@ -1456,7 +1553,16 @@ void game_loop(socket_t mother_desc)
 #else
 				FD_ZERO(&input_set);
 				FD_SET(mother_desc, &input_set);
+#ifdef ENABLE_ADMIN_API
+				if (admin_socket_valid())
+					FD_SET(admin_socket, &input_set);
+				socket_t sleep_maxdesc = mother_desc;
+				if (admin_socket_valid() && admin_socket > sleep_maxdesc)
+					sleep_maxdesc = admin_socket;
+				if (select(sleep_maxdesc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, nullptr) < 0)
+#else
 				if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, nullptr) < 0)
+#endif
 #endif
 			{
 				if (errno == EINTR)
@@ -1481,6 +1587,15 @@ void game_loop(socket_t mother_desc)
 		FD_SET(mother_desc, &input_set);
 
 		maxdesc = mother_desc;
+#ifdef ENABLE_ADMIN_API
+		if (admin_socket_valid()) {
+			FD_SET(admin_socket, &input_set);
+#ifndef CIRCLE_WINDOWS
+			if (admin_socket > maxdesc)
+				maxdesc = admin_socket;
+#endif
+		}
+#endif
 		for (d = descriptor_list; d; d = d->next)
 		{
 #ifndef CIRCLE_WINDOWS
