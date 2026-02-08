@@ -1241,6 +1241,15 @@ void admin_api_get_room(DescriptorData *d, int room_vnum) {
 	}
 	room_obj["extra_descriptions"] = extra_descrs;
 
+	// Triggers (array of vnums from prototype)
+	json triggers = json::array();
+	if (room->proto_script && !room->proto_script->empty()) {
+		for (const auto &trig_vnum : *room->proto_script) {
+			triggers.push_back(trig_vnum);
+		}
+	}
+	room_obj["triggers"] = triggers;
+
 	json result;
 	result["status"] = "ok";
 	result["room"] = room_obj;
@@ -1330,6 +1339,26 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 				if (exit_json.contains("lock_complexity")) {
 					exit->lock_complexity = exit_json["lock_complexity"].get<int>();
 				}
+			}
+		}
+
+		// Update triggers (array of vnum integers)
+		if (data.contains("triggers")) {
+			// Clear existing triggers
+			room->proto_script->clear();
+			
+			// Add new triggers
+			for (const auto &trig_vnum_json : data["triggers"]) {
+				int trig_vnum = trig_vnum_json.get<int>();
+				
+				// Verify trigger exists
+				int trig_rnum = find_trig_rnum(trig_vnum);
+				if (trig_rnum < 0) {
+					log("Admin API: warning - trigger vnum %d not found, skipping", trig_vnum);
+					continue;
+				}
+				
+				room->proto_script->push_back(trig_vnum);
 			}
 		}
 
