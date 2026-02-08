@@ -365,6 +365,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			int vnum = request.value("vnum", -1);
 			admin_api_delete_trigger(d, vnum);
 		}
+		else if (command == "get_stats") {
+			admin_api_get_stats(d);
+		}
 		else {
 			admin_api_send_error(d, "Unknown command");
 		}
@@ -395,7 +398,17 @@ void admin_api_list_mobs(DescriptorData *d, const char *zone_vnum_str) {
 	MobRnum first_mob = zone.RnumMobsLocation.first;
 	MobRnum last_mob = zone.RnumMobsLocation.second;
 
-	for (MobRnum rnum = first_mob; rnum <= last_mob && rnum <= top_of_mobt; ++rnum) {
+	// Validate bounds before iteration
+	if (first_mob < 0 || first_mob > top_of_mobt) {
+		first_mob = 0;
+	}
+	if (last_mob < 0 || last_mob > top_of_mobt) {
+		last_mob = top_of_mobt;
+	}
+
+	for (MobRnum rnum = first_mob; rnum <= last_mob; ++rnum) {
+		// Double-check bounds before accessing mob_index
+		if (rnum < 0 || rnum > top_of_mobt) continue;
 		if (!mob_index[rnum].vnum) continue;
 
 		CharData &mob = mob_proto[rnum];
@@ -549,6 +562,18 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 			if (data["stats"].contains("hitroll_penalty")) {
 				mob->real_abils.hitroll = data["stats"]["hitroll_penalty"].get<int>();
 			}
+			// Sex (in stats from form)
+			if (data["stats"].contains("sex")) {
+				mob->set_sex(static_cast<EGender>(data["stats"]["sex"].get<int>()));
+			}
+			// Race (in stats from form)
+			if (data["stats"].contains("race")) {
+				mob->set_race(data["stats"]["race"].get<int>());
+			}
+			// Alignment
+			if (data["stats"].contains("alignment")) {
+				mob->char_specials.saved.alignment = data["stats"]["alignment"].get<int>();
+			}
 			// HP (dice format)
 			if (data["stats"].contains("hp")) {
 				auto hp = data["stats"]["hp"];
@@ -575,48 +600,28 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 					mob->real_abils.damroll = dmg["bonus"].get<int>();
 				}
 			}
-			// Experience
-			if (data["stats"].contains("exp")) {
-				mob->set_exp(data["stats"]["exp"].get<long>());
-			}
-			// Gold
-			if (data["stats"].contains("gold")) {
-				mob->set_gold(data["stats"]["gold"].get<long>(), false);
-			}
-			// Strength
-			if (data["stats"].contains("str")) {
-				mob->set_str(data["stats"]["str"].get<int>());
-			}
-			// Dexterity
-			if (data["stats"].contains("dex")) {
-				mob->set_dex(data["stats"]["dex"].get<int>());
-			}
-			// Constitution
-			if (data["stats"].contains("con")) {
-				mob->set_con(data["stats"]["con"].get<int>());
-			}
-			// Wisdom
-			if (data["stats"].contains("wis")) {
-				mob->set_wis(data["stats"]["wis"].get<int>());
-			}
-			// Intelligence
-			if (data["stats"].contains("int")) {
-				mob->set_int(data["stats"]["int"].get<int>());
-			}
-			// Charisma
-			if (data["stats"].contains("cha")) {
-				mob->set_cha(data["stats"]["cha"].get<int>());
-			}
 		}
 
-		// Update sex
-		if (data.contains("sex")) {
-			mob->set_sex(static_cast<EGender>(data["sex"].get<int>()));
-		}
-
-		// Update race
-		if (data.contains("race")) {
-			mob->set_race(data["race"].get<int>());
+		// Update abilities (separate section with full names)
+		if (data.contains("abilities")) {
+			if (data["abilities"].contains("strength")) {
+				mob->set_str(data["abilities"]["strength"].get<int>());
+			}
+			if (data["abilities"].contains("dexterity")) {
+				mob->set_dex(data["abilities"]["dexterity"].get<int>());
+			}
+			if (data["abilities"].contains("constitution")) {
+				mob->set_con(data["abilities"]["constitution"].get<int>());
+			}
+			if (data["abilities"].contains("intelligence")) {
+				mob->set_int(data["abilities"]["intelligence"].get<int>());
+			}
+			if (data["abilities"].contains("wisdom")) {
+				mob->set_wis(data["abilities"]["wisdom"].get<int>());
+			}
+			if (data["abilities"].contains("charisma")) {
+				mob->set_cha(data["abilities"]["charisma"].get<int>());
+			}
 		}
 
 		// Update class
@@ -645,6 +650,29 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 		if (data.contains("npc_flags")) {
 			for (const auto &flag : data["npc_flags"]) {
 				mob->SetFlag(static_cast<ENpcFlag>(flag.get<int>()));
+			}
+		}
+
+		// Update triggers (array of vnum integers)
+		if (data.contains("triggers")) {
+			// Initialize proto_script if needed
+			if (!mob->proto_script) {
+				mob->proto_script = std::make_shared<std::list<int>>();
+			}
+			mob->proto_script->clear();
+
+			// Add new triggers
+			for (const auto &trig_vnum_json : data["triggers"]) {
+				int trig_vnum = trig_vnum_json.get<int>();
+
+				// Verify trigger exists
+				int trig_rnum = find_trig_rnum(trig_vnum);
+				if (trig_rnum < 0) {
+					log("Admin API: warning - trigger vnum %d not found for mob %d", trig_vnum, mob_vnum);
+					continue;
+				}
+
+				mob->proto_script->push_back(trig_vnum);
 			}
 		}
 
@@ -1489,6 +1517,29 @@ void admin_api_delete_room(DescriptorData *d, int room_vnum) {
 
 
 
+// ==================== STATISTICS FUNCTIONS ====================
+
+void admin_api_get_stats(DescriptorData *d) {
+	json response;
+	response["status"] = "ok";
+
+	// Count zones
+	response["zones"] = static_cast<int>(zone_table.size());
+
+	// Count mob prototypes
+	response["mobs"] = top_of_mobt + 1;
+
+	// Count object prototypes
+	response["objects"] = obj_proto.size();
+
+	// Count rooms
+	response["rooms"] = world.size();
+
+	// Count trigger prototypes
+	response["triggers"] = top_of_trigt + 1;
+
+	admin_api_send_json(d, response.dump().c_str());
+}
 
 // ==================== ZONE FUNCTIONS ====================
 

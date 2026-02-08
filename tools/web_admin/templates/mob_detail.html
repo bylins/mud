@@ -1,45 +1,555 @@
 {% extends "base.html" %}
 
-{% block title %}Моб {{ mob.vnum }} - Былины MUD{% endblock %}
+{% block title %}Моб #{{ mob.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}">Мобы</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Моб #{{ mob.vnum }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-<h2>Моб #{{ mob.vnum }}</h2>
 
-<div class="block">
-    <div class="block-title">Основная информация</div>
-    <table>
-        <tr>
-            <th width="30%">Параметр</th>
-            <th>Значение</th>
-        </tr>
-        <tr>
-            <td>Vnum</td>
-            <td><strong>{{ mob.vnum }}</strong></td>
-        </tr>
-        <tr>
-            <td>Алиасы</td>
-            <td>{{ mob.names.aliases }}</td>
-        </tr>
-        <tr>
-            <td>Именительный падеж</td>
-            <td>{{ mob.names.nominative }}</td>
-        </tr>
-        <tr>
-            <td>Уровень</td>
-            <td>{{ mob.stats.level }}</td>
-        </tr>
-    </table>
-</div>
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display">
+                Моб <span class="text-amber-700">#{{ mob.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ mob.names.nominative if mob.names and mob.names.nominative else 'Без имени' }}
+            </p>
+        </div>
 
-<div class="block">
-    <div class="block-title">Описание</div>
-    <p><strong>Краткое:</strong><br>{{ mob.descriptions.short_desc }}</p>
-    <p><strong>Полное:</strong><br>{{ mob.descriptions.long_desc }}</p>
-</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ url_for('mob_edit', vnum=mob.vnum) }}" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Редактировать
+            </a>
+            <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                К списку
+            </a>
+        </div>
+    </div>
 
-<div style="margin-top: 20px;">
-    <a href="{{ url_for('mob_edit', vnum=mob.vnum) }}"><button>Редактировать</button></a>
-    <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}"><button>Назад к списку</button></a>
-</div>
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: Names -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Имена и падежи
+        </div>
+
+        <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
+            <div class="detail-field" style="grid-column: 1 / -1;">
+                <div class="detail-field-label">Ключевые слова (aliases)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.aliases %} empty{% endif %}">
+                    {{ mob.names.aliases if mob.names and mob.names.aliases else 'Не задано' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection-label">Падежи</div>
+
+        <div class="detail-grid detail-grid-3" style="margin-bottom: 16px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Именительный (кто?)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.nominative %} empty{% endif %}">
+                    {{ mob.names.nominative if mob.names and mob.names.nominative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Родительный (кого?)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.genitive %} empty{% endif %}">
+                    {{ mob.names.genitive if mob.names and mob.names.genitive else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Дательный (кому?)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.dative %} empty{% endif %}">
+                    {{ mob.names.dative if mob.names and mob.names.dative else '--' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">Винительный (кого?)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.accusative %} empty{% endif %}">
+                    {{ mob.names.accusative if mob.names and mob.names.accusative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Творительный (кем?)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.instrumental %} empty{% endif %}">
+                    {{ mob.names.instrumental if mob.names and mob.names.instrumental else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Предложный (о ком?)</div>
+                <div class="detail-field-value{% if not mob.names or not mob.names.prepositional %} empty{% endif %}">
+                    {{ mob.names.prepositional if mob.names and mob.names.prepositional else '--' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Descriptions -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Описания
+        </div>
+
+        <div class="detail-grid" style="margin-bottom: 16px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Краткое описание</div>
+                <div class="detail-field-value{% if not mob.descriptions or not mob.descriptions.short_desc %} empty{% endif %}">
+                    {{ mob.descriptions.short_desc if mob.descriptions and mob.descriptions.short_desc else 'Не задано' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-field">
+                <div class="detail-field-label">Полное описание</div>
+                <div class="detail-field-value multiline{% if not mob.descriptions or not mob.descriptions.long_desc %} empty{% endif %}">{{ mob.descriptions.long_desc if mob.descriptions and mob.descriptions.long_desc else 'Не задано' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Stats -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Характеристики
+        </div>
+
+        <div class="detail-grid detail-grid-4" style="margin-bottom: 20px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Уровень</div>
+                <div class="detail-field-value">{{ mob.stats.level if mob.stats else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Пол</div>
+                <div class="detail-field-value">
+                    {% if mob.stats %}
+                        {% if mob.stats.sex == 0 %}Нейтральный
+                        {% elif mob.stats.sex == 1 %}Мужской
+                        {% elif mob.stats.sex == 2 %}Женский
+                        {% elif mob.stats.sex == 3 %}Множественный
+                        {% else %}{{ mob.stats.sex }}
+                        {% endif %}
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Раса</div>
+                <div class="detail-field-value">{{ mob.stats.race if mob.stats else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Характер</div>
+                <div class="detail-field-value">{{ mob.stats.alignment if mob.stats else '--' }}</div>
+            </div>
+        </div>
+
+        <div class="detail-grid detail-grid-3" style="margin-bottom: 20px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Класс брони</div>
+                <div class="detail-field-value">{{ mob.stats.armor if mob.stats else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Штраф попадания</div>
+                <div class="detail-field-value">{{ mob.stats.hitroll_penalty if mob.stats else '--' }}</div>
+            </div>
+            <div class="detail-field"></div>
+        </div>
+
+        <!-- HP Dice -->
+        <div class="subsection-label">Очки жизни (HP)</div>
+        <div class="detail-field" style="margin-bottom: 16px;">
+            <div class="dice-display">
+                {% if mob.stats and mob.stats.hp %}
+                <span class="dice-part">{{ mob.stats.hp.dice_count }}</span>
+                <span class="dice-sep">d</span>
+                <span class="dice-part">{{ mob.stats.hp.dice_size }}</span>
+                <span class="dice-sep">+</span>
+                <span class="dice-part">{{ mob.stats.hp.bonus }}</span>
+                <span class="dice-avg">
+                    (средн. {{ ((mob.stats.hp.dice_count * (mob.stats.hp.dice_size + 1) / 2 + mob.stats.hp.bonus)|int) }})
+                </span>
+                {% else %}
+                <span style="color: #8a7b6b; font-style: italic;">Не задано</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Damage Dice -->
+        <div class="subsection-label">Урон (Damage)</div>
+        <div class="detail-field">
+            <div class="dice-display">
+                {% if mob.stats and mob.stats.damage %}
+                <span class="dice-part">{{ mob.stats.damage.dice_count }}</span>
+                <span class="dice-sep">d</span>
+                <span class="dice-part">{{ mob.stats.damage.dice_size }}</span>
+                <span class="dice-sep">+</span>
+                <span class="dice-part">{{ mob.stats.damage.bonus }}</span>
+                <span class="dice-avg">
+                    (средн. {{ ((mob.stats.damage.dice_count * (mob.stats.damage.dice_size + 1) / 2 + mob.stats.damage.bonus)|int) }})
+                </span>
+                {% else %}
+                <span style="color: #8a7b6b; font-style: italic;">Не задано</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4: Abilities -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Способности
+        </div>
+
+        <div class="detail-grid detail-grid-6">
+            <div class="detail-field">
+                <div class="detail-field-label">Сила</div>
+                <div class="detail-field-value">{{ mob.abilities.strength if mob.abilities else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Ловкость</div>
+                <div class="detail-field-value">{{ mob.abilities.dexterity if mob.abilities else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Телосложение</div>
+                <div class="detail-field-value">{{ mob.abilities.constitution if mob.abilities else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Интеллект</div>
+                <div class="detail-field-value">{{ mob.abilities.intelligence if mob.abilities else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Мудрость</div>
+                <div class="detail-field-value">{{ mob.abilities.wisdom if mob.abilities else '--' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Обаяние</div>
+                <div class="detail-field-value">{{ mob.abilities.charisma if mob.abilities else '--' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 5: Resistances -->
+    {% if mob.resistances %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+            </svg>
+            Сопротивления
+        </div>
+
+        <div class="detail-grid detail-grid-7">
+            <div class="detail-field">
+                <div class="detail-field-label">Огонь</div>
+                <div class="detail-field-value">{{ mob.resistances.fire|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Воздух</div>
+                <div class="detail-field-value">{{ mob.resistances.air|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Вода</div>
+                <div class="detail-field-value">{{ mob.resistances.water|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Земля</div>
+                <div class="detail-field-value">{{ mob.resistances.earth|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Жизнь</div>
+                <div class="detail-field-value">{{ mob.resistances.vitality|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Разум</div>
+                <div class="detail-field-value">{{ mob.resistances.mind|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Иммунитет</div>
+                <div class="detail-field-value">{{ mob.resistances.immunity|default(0) }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 6: Savings -->
+    {% if mob.savings %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Спасброски
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">Воля</div>
+                <div class="detail-field-value">{{ mob.savings.will|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Стойкость</div>
+                <div class="detail-field-value">{{ mob.savings.stability|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Рефлекс</div>
+                <div class="detail-field-value">{{ mob.savings.reflex|default(0) }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 7: Position -->
+    {% if mob.position %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+            Позиция
+        </div>
+
+        {% set positions = {0: 'Мертв', 1: 'Смертельно ранен', 2: 'Без сознания', 3: 'Оглушен', 4: 'Спит', 5: 'Отдыхает', 6: 'Сидит', 7: 'Сражается', 8: 'Стоит'} %}
+
+        <div class="detail-grid detail-grid-2">
+            <div class="detail-field">
+                <div class="detail-field-label">Позиция по умолчанию</div>
+                <div class="detail-field-value">{{ positions.get(mob.position.default_position, mob.position.default_position) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Позиция при загрузке</div>
+                <div class="detail-field-value">{{ positions.get(mob.position.load_position, mob.position.load_position) }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 8: Behavior -->
+    {% if mob.behavior %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Поведение
+        </div>
+
+        <div class="detail-grid detail-grid-4" style="margin-bottom: 20px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Класс NPC</div>
+                <div class="detail-field-value">{{ mob.behavior.class|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Спецпроцедура</div>
+                <div class="detail-field-value">{{ mob.behavior.special|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Тип атаки</div>
+                <div class="detail-field-value">{{ mob.behavior.attack_type|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Бонус опыта (%)</div>
+                <div class="detail-field-value">{{ mob.behavior.exp_bonus|default(0) }}</div>
+            </div>
+        </div>
+
+        {% if mob.behavior.gold %}
+        <div class="subsection-label">Золото</div>
+        <div class="detail-field" style="margin-bottom: 16px;">
+            <div class="dice-display">
+                <span class="dice-part">{{ mob.behavior.gold.dice_count|default(0) }}</span>
+                <span class="dice-sep">d</span>
+                <span class="dice-part">{{ mob.behavior.gold.dice_size|default(0) }}</span>
+                <span class="dice-sep">+</span>
+                <span class="dice-part">{{ mob.behavior.gold.bonus|default(0) }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if mob.behavior.helpers %}
+        <div class="subsection-label">Помощники</div>
+        <div class="tag-list">
+            {% for h in mob.behavior.helpers %}
+            <span class="tag">{{ h }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- SECTION 9: Flags -->
+    {% if mob.flags %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги
+        </div>
+
+        {% if mob.flags.mob_flags %}
+        <div class="subsection-label">MOB флаги</div>
+        <div class="tag-list" style="margin-bottom: 16px;">
+            {% for flag in mob.flags.mob_flags %}
+            <span class="tag">{{ flag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if mob.flags.affect_flags %}
+        <div class="subsection-label">AFF флаги</div>
+        <div class="tag-list" style="margin-bottom: 16px;">
+            {% for flag in mob.flags.affect_flags %}
+            <span class="tag">{{ flag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if mob.flags.npc_flags %}
+        <div class="subsection-label">NPC флаги</div>
+        <div class="tag-list">
+            {% for flag in mob.flags.npc_flags %}
+            <span class="tag">{{ flag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not mob.flags.mob_flags and not mob.flags.affect_flags and not mob.flags.npc_flags %}
+        <div class="font-inter text-sm text-ink-muted" style="font-style: italic;">Флаги не установлены</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- SECTION 10: Triggers -->
+    {% if mob.triggers %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры
+        </div>
+
+        <div class="tag-list">
+            {% for trig in mob.triggers %}
+            <span class="tag">{{ trig }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 11: Skills / Features / Spells -->
+    {% if mob.skills or mob.features or mob.spells %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Умения, особенности и заклинания
+        </div>
+
+        {% if mob.skills %}
+        <div class="subsection-label">Умения</div>
+        <div class="tag-list" style="margin-bottom: 16px;">
+            {% for skill_name, skill_val in mob.skills.items() %}
+            <span class="tag">{{ skill_name }}: {{ skill_val }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if mob.features %}
+        <div class="subsection-label">Особенности</div>
+        <div class="tag-list" style="margin-bottom: 16px;">
+            {% for feat_name in mob.features %}
+            <span class="tag">{{ feat_name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if mob.spells %}
+        <div class="subsection-label">Заклинания</div>
+        <div class="tag-list">
+            {% for spell_name in mob.spells %}
+            <span class="tag">{{ spell_name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('mob_edit', vnum=mob.vnum) }}" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Редактировать
+        </a>
+        <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад к списку
+        </a>
+    </div>
 
 {% endblock %}

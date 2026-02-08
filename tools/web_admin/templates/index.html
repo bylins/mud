@@ -3,105 +3,169 @@
 {% block title %}Главная - Былины MUD Админка{% endblock %}
 
 {% block content %}
-<h2>Добро пожаловать в админскую панель!</h2>
-
-<div class="block">
-    <div class="block-title">Быстрый доступ</div>
-    <table>
-        <tr>
-            <th width="30%">Раздел</th>
-            <th>Описание</th>
-        </tr>
-        <tr>
-            <td><a href="{{ url_for('zones_list') }}">Зоны</a></td>
-            <td>Просмотр и редактирование зон мира</td>
-        </tr>
-        <tr>
-            <td><a href="{{ url_for('mobs_list', zone=1) }}">Мобы</a></td>
-            <td>Управление мобами (NPC)</td>
-        </tr>
-        <tr>
-            <td><a href="{{ url_for('objects_list', zone=1) }}">Предметы</a></td>
-            <td>Управление предметами и экипировкой</td>
-        </tr>
-        <tr>
-            <td><a href="{{ url_for('rooms_list', zone=1) }}">Комнаты</a></td>
-            <td>Редактирование локаций и комнат</td>
-        </tr>
-        <tr>
-            <td><a href="{{ url_for('triggers_list', zone=1) }}">Триггеры</a></td>
-            <td>Скрипты и триггеры (DG Scripts)</td>
-        </tr>
-    </table>
+<!-- Greeting -->
+<div style="margin-bottom: 2rem;">
+    <h2 class="font-serif-display" style="font-size: 28px;">
+        Добро пожаловать{% if username %}, <span class="text-amber-700">{{ username }}</span>{% endif %}
+    </h2>
+    <p class="font-inter text-ink-light" style="font-size: 16px; line-height: 1.6; margin-top: 8px;">
+        Панель управления миром Былин. Выберите раздел для работы.
+    </p>
 </div>
 
-<div class="separator"></div>
-
-{% if stats %}
-<div class="block">
-    <div class="block-title">Статистика сервера</div>
-    <table>
-        <tr>
-            <th width="40%">Параметр</th>
-            <th>Значение</th>
-        </tr>
-        <tr>
-            <td>Игроков онлайн</td>
-            <td><strong>{{ stats.players_online }}</strong></td>
-        </tr>
-        <tr>
-            <td>Зоны</td>
-            <td><strong>{{ stats.zones }}</strong></td>
-        </tr>
-        <tr>
-            <td>Мобы</td>
-            <td>{{ stats.mobs }}</td>
-        </tr>
-        <tr>
-            <td>Предметы</td>
-            <td>{{ stats.objects }}</td>
-        </tr>
-        <tr>
-            <td>Комнаты</td>
-            <td>{{ stats.rooms }}</td>
-        </tr>
-        <tr>
-            <td>Триггеры</td>
-            <td>{{ stats.triggers }}</td>
-        </tr>
-    </table>
+<!-- Statistics Overview -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="font-inter text-xs font-medium text-ink-muted uppercase tracking-wider" style="letter-spacing: 0.06em;">Зоны</div>
+        <div class="font-serif-display text-2xl font-semibold text-ink mt-1">{{ stats.zones if stats and stats.status == 'ok' else '--' }}</div>
+        <div class="font-inter text-xs text-ink-muted mt-1">загружено</div>
+    </div>
+    <div class="stat-card">
+        <div class="font-inter text-xs font-medium text-ink-muted uppercase tracking-wider" style="letter-spacing: 0.06em;">Мобы</div>
+        <div class="font-serif-display text-2xl font-semibold text-ink mt-1">{{ stats.mobs if stats and stats.status == 'ok' else '--' }}</div>
+        <div class="font-inter text-xs text-ink-muted mt-1">прототипов</div>
+    </div>
+    <div class="stat-card">
+        <div class="font-inter text-xs font-medium text-ink-muted uppercase tracking-wider" style="letter-spacing: 0.06em;">Предметы</div>
+        <div class="font-serif-display text-2xl font-semibold text-ink mt-1">{{ stats.objects if stats and stats.status == 'ok' else '--' }}</div>
+        <div class="font-inter text-xs text-ink-muted mt-1">прототипов</div>
+    </div>
+    <div class="stat-card">
+        <div class="font-inter text-xs font-medium text-ink-muted uppercase tracking-wider" style="letter-spacing: 0.06em;">Комнаты</div>
+        <div class="font-serif-display text-2xl font-semibold text-ink mt-1">{{ stats.rooms if stats and stats.status == 'ok' else '--' }}</div>
+        <div class="font-inter text-xs text-ink-muted mt-1">в мире</div>
+    </div>
+    <div class="stat-card">
+        <div class="font-inter text-xs font-medium text-ink-muted uppercase tracking-wider" style="letter-spacing: 0.06em;">Триггеры</div>
+        <div class="font-serif-display text-2xl font-semibold text-ink mt-1">{{ stats.triggers if stats and stats.status == 'ok' else '--' }}</div>
+        <div class="font-inter text-xs text-ink-muted mt-1">скриптов</div>
+    </div>
 </div>
 
-{% if stats.players_list %}
-<div class="separator"></div>
-
-<div class="block">
-    <div class="block-title">Игроки онлайн ({{ stats.players_online }})</div>
-    <table>
-        <tr>
-            <th width="50%">Имя</th>
-            <th width="25%">Уровень</th>
-            <th width="25%">Тип</th>
-        </tr>
-        {% for player in stats.players_list %}
-        <tr>
-            <td>{{ player.name }}</td>
-            <td>{{ player.level }}</td>
-            <td>{{ player.type }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+<!-- Ornamental Divider -->
+<div class="ornament-divider">
+    <div class="ornament-divider-inner">
+        <div class="ornament-line ornament-line-wide ornament-line-left"></div>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+            <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+        </svg>
+        <div class="ornament-line ornament-line-wide ornament-line-right"></div>
+    </div>
 </div>
-{% endif %}
 
-<div class="separator"></div>
-{% endif %}
-
-<div class="info">
-    <strong>Информация о системе</strong><br>
-    Версия OLC API: 1.0<br>
-    Режим: Тестовый (аутентификация отключена)<br>
-    Соединение: Unix Domain Socket<br>
-    Кодировка: UTF-8 ↔ KOI8-R
+<!-- Section heading -->
+<div style="margin-bottom: 1.5rem;">
+    <h3 class="font-serif-display text-xl font-semibold text-ink">Разделы мира</h3>
 </div>
+
+<!-- Navigation Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; margin-bottom: 2rem;">
+
+    <!-- Zones -->
+    <a href="{{ url_for('zones_list') }}" class="nav-card-link">
+        <div class="nav-card">
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; background-color: rgba(180, 83, 9, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-serif-display" style="font-size: 20px; font-weight: 600; color: #2d241e; margin-bottom: 6px;">Зоны</div>
+                    <div class="font-inter" style="font-size: 14px; color: #5a4d3f; line-height: 1.5;">Просмотр и редактирование зон мира. Каждая зона объединяет комнаты, мобов и предметы определенной локации.</div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Mobs -->
+    <a href="{{ url_for('mobs_list', zone=1) }}" class="nav-card-link">
+        <div class="nav-card">
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; background-color: rgba(180, 83, 9, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-serif-display" style="font-size: 20px; font-weight: 600; color: #2d241e; margin-bottom: 6px;">Мобы</div>
+                    <div class="font-inter" style="font-size: 14px; color: #5a4d3f; line-height: 1.5;">Управление NPC -- торговцы, стражники, чудовища и прочие обитатели мира.</div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Objects -->
+    <a href="{{ url_for('objects_list', zone=1) }}" class="nav-card-link">
+        <div class="nav-card">
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; background-color: rgba(180, 83, 9, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-serif-display" style="font-size: 20px; font-weight: 600; color: #2d241e; margin-bottom: 6px;">Предметы</div>
+                    <div class="font-inter" style="font-size: 14px; color: #5a4d3f; line-height: 1.5;">Оружие, доспехи, зелья, свитки и другие предметы экипировки и инвентаря.</div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Rooms -->
+    <a href="{{ url_for('rooms_list', zone=1) }}" class="nav-card-link">
+        <div class="nav-card">
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; background-color: rgba(180, 83, 9, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-serif-display" style="font-size: 20px; font-weight: 600; color: #2d241e; margin-bottom: 6px;">Комнаты</div>
+                    <div class="font-inter" style="font-size: 14px; color: #5a4d3f; line-height: 1.5;">Локации мира -- описания, выходы, флаги секторов и свойства комнат.</div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Triggers -->
+    <a href="{{ url_for('triggers_list', zone=1) }}" class="nav-card-link">
+        <div class="nav-card">
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                <div style="flex-shrink: 0; width: 44px; height: 44px; background-color: rgba(180, 83, 9, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-serif-display" style="font-size: 20px; font-weight: 600; color: #2d241e; margin-bottom: 6px;">Триггеры</div>
+                    <div class="font-inter" style="font-size: 14px; color: #5a4d3f; line-height: 1.5;">DG-скрипты для мобов, предметов и комнат. Автоматизация событий и взаимодействий.</div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+<!-- Warning Banner -->
+<div class="msg-warning">
+    <div style="flex-shrink: 0; margin-top: 2px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+    </div>
+    <div>
+        <div class="msg-title">Внимание: работа с живыми данными</div>
+        <div class="msg-text">Все изменения, сделанные через эту панель, применяются непосредственно к работающему серверу. Будьте внимательны при редактировании.</div>
+    </div>
+</div>
+
 {% endblock %}

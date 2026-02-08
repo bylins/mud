@@ -2,21 +2,1083 @@
 
 {% block title %}Редактирование моба {{ mob.vnum }} - Былины MUD{% endblock %}
 
+{% block head %}
+<style>
+    /* Override base h2 border for this page */
+    .mob-edit-header h2 {
+        border-bottom: none;
+        margin: 0;
+        padding: 0;
+        color: #2d241e;
+    }
+
+    /* Parchment section cards */
+    .parchment-section {
+        background-color: #f4ead5;
+        border: 3px double rgba(120, 53, 15, 0.2);
+        border-radius: 8px;
+        padding: 28px;
+        margin-bottom: 24px;
+        box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+    }
+
+    .parchment-section-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d241e;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px double rgba(120, 53, 15, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .parchment-section-title svg {
+        flex-shrink: 0;
+        color: #b45309;
+    }
+
+    /* Form layout */
+    .form-row {
+        display: grid;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    .form-row-2 { grid-template-columns: 1fr 1fr; }
+    .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .form-row-6 { grid-template-columns: repeat(6, 1fr); }
+    .form-row-7 { grid-template-columns: repeat(7, 1fr); }
+
+    @media (max-width: 768px) {
+        .form-row-2, .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
+            grid-template-columns: 1fr;
+        }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    /* Form field styling */
+    .field-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .field-group label {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #5a4d3f;
+        margin-bottom: 6px;
+        letter-spacing: 0.01em;
+    }
+
+    .field-group .field-hint {
+        font-size: 11px;
+        color: #8a7b6b;
+        font-weight: 400;
+        margin-left: 4px;
+    }
+
+    .field-group input[type="text"],
+    .field-group input[type="number"],
+    .field-group textarea,
+    .field-group select {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        padding: 10px 12px;
+        border: 2px solid rgba(120, 53, 15, 0.15);
+        border-radius: 6px;
+        background-color: #fdf6e3;
+        color: #2d241e;
+        transition: all 0.15s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .field-group input:focus,
+    .field-group textarea:focus,
+    .field-group select:focus {
+        outline: none;
+        border-color: rgba(180, 83, 9, 0.4);
+        box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+    }
+
+    .field-group input:hover,
+    .field-group textarea:hover,
+    .field-group select:hover {
+        border-color: rgba(120, 53, 15, 0.25);
+    }
+
+    .field-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Dice row: NdS+B format */
+    .dice-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .dice-group input {
+        width: 70px;
+        text-align: center;
+    }
+    .dice-group .dice-sep {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: #8a7b6b;
+        user-select: none;
+    }
+
+    /* Ornamental divider */
+    .ornament-divider {
+        text-align: center;
+        margin: 28px 0;
+    }
+    .ornament-divider-inner {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(120, 53, 15, 0.3);
+    }
+    .ornament-line {
+        width: 60px;
+        height: 2px;
+    }
+    .ornament-line-left {
+        background: linear-gradient(to right, transparent, rgba(120, 53, 15, 0.25));
+    }
+    .ornament-line-right {
+        background: linear-gradient(to left, transparent, rgba(120, 53, 15, 0.25));
+    }
+
+    /* Action buttons */
+    .btn-primary {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 12px 28px;
+        background-color: #b45309;
+        color: #fdf6e3;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: 0 1px 3px rgba(139, 69, 19, 0.2);
+    }
+    .btn-primary:hover {
+        background-color: #92400e;
+        box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+    }
+    .btn-primary:active {
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 12px 28px;
+        background-color: transparent;
+        color: #5a4d3f;
+        border: 2px solid rgba(120, 53, 15, 0.2);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-decoration: none !important;
+    }
+    .btn-secondary:hover {
+        background-color: rgba(120, 53, 15, 0.05);
+        border-color: rgba(120, 53, 15, 0.3);
+        color: #2d241e;
+    }
+
+    /* Toast notifications */
+    .toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        padding: 16px 24px;
+        border-radius: 8px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(-12px);
+        transition: all 0.25s ease;
+        max-width: 420px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .toast-success {
+        background-color: #f4ead5;
+        border: 2px solid rgba(120, 100, 15, 0.3);
+        color: #5a4d3f;
+    }
+    .toast-error {
+        background-color: #fef2f2;
+        border: 2px solid rgba(185, 28, 28, 0.2);
+        color: #991b1b;
+    }
+
+    /* Spinner inside button */
+    .btn-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(253, 246, 227, 0.4);
+        border-top-color: #fdf6e3;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Collapsible sections */
+    .section-toggle {
+        cursor: pointer;
+        user-select: none;
+    }
+    .section-toggle::after {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid #8a7b6b;
+        border-bottom: 2px solid #8a7b6b;
+        transform: rotate(-45deg);
+        transition: transform 0.15s ease;
+        margin-left: auto;
+    }
+    .section-toggle.collapsed::after {
+        transform: rotate(45deg);
+    }
+    .section-body.collapsed {
+        display: none;
+    }
+
+    /* Sticky button bar */
+    .action-bar {
+        position: sticky;
+        bottom: 0;
+        background-color: #f4ead5;
+        border: 3px double rgba(120, 53, 15, 0.2);
+        border-radius: 8px;
+        padding: 16px 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08);
+        z-index: 100;
+    }
+
+    /* Subsection label */
+    .subsection-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #8a7b6b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 20px 0 10px 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Редактирование моба #{{ mob.vnum }}</h2>
 
-<form method="POST">
-    <div class="block">
-        <div class="block-title">Основные параметры</div>
+<!-- Header -->
+<div class="mob-edit-header" style="margin-bottom: 8px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+        <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" style="color: #8a7b6b; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 13px; transition: color 0.15s;"
+           onmouseover="this.style.color='#b45309'" onmouseout="this.style.color='#8a7b6b'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Список мобов
+        </a>
+        <span style="color: #d4c49a;">/</span>
+        <span style="color: #8a7b6b; font-family: 'Inter', sans-serif; font-size: 13px;">Моб #{{ mob.vnum }}</span>
+    </div>
+    <h2 class="font-serif-display" style="font-size: 28px; font-weight: 600; color: #2d241e; border: none; margin: 0; padding: 0;">
+        Редактирование моба <span style="color: #b45309;">#{{ mob.vnum }}</span>
+    </h2>
+    <p style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; margin-top: 4px;">
+        {{ mob.names.nominative if mob.names else 'Без имени' }}
+    </p>
+</div>
 
-        <div class="form-group">
-            <label for="level">Уровень:</label>
-            <input type="number" id="level" name="level" value="{{ mob.stats.level if mob.stats else '' }}">
+<!-- Ornamental divider -->
+<div class="ornament-divider">
+    <div class="ornament-divider-inner">
+        <div class="ornament-line ornament-line-left"></div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+            <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+        </svg>
+        <div class="ornament-line ornament-line-right"></div>
+    </div>
+</div>
+
+<form id="mob-edit-form" novalidate>
+
+<!-- ===== SECTION 1: Names (Имена) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Имена и падежи
+    </div>
+
+    <div class="form-row form-row-2" style="margin-bottom: 20px;">
+        <div class="field-group" style="grid-column: 1 / -1;">
+            <label for="names-aliases">Ключевые слова (aliases)</label>
+            <input type="text" id="names-aliases" name="names.aliases"
+                   value="{{ mob.names.aliases if mob.names else '' }}"
+                   placeholder="моб стражник guard">
         </div>
     </div>
 
-    <button type="submit">Сохранить</button>
-    <a href="{{ url_for('mob_detail', vnum=mob.vnum) }}"><button type="button">Отмена</button></a>
+    <div class="subsection-label">Падежи</div>
+
+    <div class="form-row form-row-3">
+        <div class="field-group">
+            <label for="names-nominative">Именительный <span class="field-hint">(кто?)</span></label>
+            <input type="text" id="names-nominative" name="names.nominative"
+                   value="{{ mob.names.nominative if mob.names else '' }}"
+                   placeholder="стражник">
+        </div>
+        <div class="field-group">
+            <label for="names-genitive">Родительный <span class="field-hint">(кого?)</span></label>
+            <input type="text" id="names-genitive" name="names.genitive"
+                   value="{{ mob.names.genitive if mob.names else '' }}"
+                   placeholder="стражника">
+        </div>
+        <div class="field-group">
+            <label for="names-dative">Дательный <span class="field-hint">(кому?)</span></label>
+            <input type="text" id="names-dative" name="names.dative"
+                   value="{{ mob.names.dative if mob.names else '' }}"
+                   placeholder="стражнику">
+        </div>
+    </div>
+
+    <div class="form-row form-row-3">
+        <div class="field-group">
+            <label for="names-accusative">Винительный <span class="field-hint">(кого?)</span></label>
+            <input type="text" id="names-accusative" name="names.accusative"
+                   value="{{ mob.names.accusative if mob.names else '' }}"
+                   placeholder="стражника">
+        </div>
+        <div class="field-group">
+            <label for="names-instrumental">Творительный <span class="field-hint">(кем?)</span></label>
+            <input type="text" id="names-instrumental" name="names.instrumental"
+                   value="{{ mob.names.instrumental if mob.names else '' }}"
+                   placeholder="стражником">
+        </div>
+        <div class="field-group">
+            <label for="names-prepositional">Предложный <span class="field-hint">(о ком?)</span></label>
+            <input type="text" id="names-prepositional" name="names.prepositional"
+                   value="{{ mob.names.prepositional if mob.names else '' }}"
+                   placeholder="стражнике">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 2: Descriptions (Описания) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Описания
+    </div>
+
+    <div class="form-row" style="margin-bottom: 16px;">
+        <div class="field-group">
+            <label for="desc-short">Краткое описание <span class="field-hint">(в комнате)</span></label>
+            <input type="text" id="desc-short" name="descriptions.short_desc"
+                   value="{{ mob.descriptions.short_desc if mob.descriptions else '' }}"
+                   placeholder="Суровый стражник стоит здесь, охраняя проход.">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="field-group">
+            <label for="desc-long">Полное описание <span class="field-hint">(при осмотре)</span></label>
+            <textarea id="desc-long" name="descriptions.long_desc" rows="4"
+                      placeholder="Перед вами стоит суровый стражник в кожаных доспехах...">{{ mob.descriptions.long_desc if mob.descriptions else '' }}</textarea>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 3: Stats (Характеристики) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        Характеристики
+    </div>
+
+    <div class="form-row form-row-4">
+        <div class="field-group">
+            <label for="stats-level">Уровень</label>
+            <input type="number" id="stats-level" name="stats.level" min="1" max="100"
+                   value="{{ mob.stats.level if mob.stats else 1 }}">
+        </div>
+        <div class="field-group">
+            <label for="stats-sex">Пол</label>
+            <select id="stats-sex" name="stats.sex">
+                <option value="0" {{ 'selected' if mob.stats and mob.stats.sex == 0 }}>Нейтральный</option>
+                <option value="1" {{ 'selected' if mob.stats and mob.stats.sex == 1 }}>Мужской</option>
+                <option value="2" {{ 'selected' if mob.stats and mob.stats.sex == 2 }}>Женский</option>
+                <option value="3" {{ 'selected' if mob.stats and mob.stats.sex == 3 }}>Множественный</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="stats-race">Раса</label>
+            <input type="number" id="stats-race" name="stats.race" min="0"
+                   value="{{ mob.stats.race if mob.stats else 0 }}">
+        </div>
+        <div class="field-group">
+            <label for="stats-alignment">Характер <span class="field-hint">(-1000..1000)</span></label>
+            <input type="number" id="stats-alignment" name="stats.alignment" min="-1000" max="1000"
+                   value="{{ mob.stats.alignment if mob.stats else 0 }}">
+        </div>
+    </div>
+
+    <div class="form-row form-row-3">
+        <div class="field-group">
+            <label for="stats-armor">Класс брони</label>
+            <input type="number" id="stats-armor" name="stats.armor"
+                   value="{{ mob.stats.armor if mob.stats else 100 }}">
+        </div>
+        <div class="field-group">
+            <label for="stats-hitroll">Штраф попадания</label>
+            <input type="number" id="stats-hitroll" name="stats.hitroll_penalty"
+                   value="{{ mob.stats.hitroll_penalty if mob.stats else 0 }}">
+        </div>
+        <div class="field-group"></div>
+    </div>
+
+    <!-- HP Dice -->
+    <div class="subsection-label">Очки жизни (HP)</div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+        <div class="field-group" style="width: 90px;">
+            <label for="hp-dice-count">Кубиков</label>
+            <input type="number" id="hp-dice-count" name="stats.hp.dice_count" min="0"
+                   value="{{ mob.stats.hp.dice_count if mob.stats and mob.stats.hp else 1 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">d</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="hp-dice-size">Размер</label>
+            <input type="number" id="hp-dice-size" name="stats.hp.dice_size" min="1"
+                   value="{{ mob.stats.hp.dice_size if mob.stats and mob.stats.hp else 10 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">+</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="hp-bonus">Бонус</label>
+            <input type="number" id="hp-bonus" name="stats.hp.bonus"
+                   value="{{ mob.stats.hp.bonus if mob.stats and mob.stats.hp else 0 }}"
+                   style="text-align: center;">
+        </div>
+        <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
+            = <span id="hp-preview">--</span> средн. HP
+        </div>
+    </div>
+
+    <!-- Damage Dice -->
+    <div class="subsection-label">Урон (Damage)</div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <div class="field-group" style="width: 90px;">
+            <label for="dmg-dice-count">Кубиков</label>
+            <input type="number" id="dmg-dice-count" name="stats.damage.dice_count" min="0"
+                   value="{{ mob.stats.damage.dice_count if mob.stats and mob.stats.damage else 1 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">d</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="dmg-dice-size">Размер</label>
+            <input type="number" id="dmg-dice-size" name="stats.damage.dice_size" min="1"
+                   value="{{ mob.stats.damage.dice_size if mob.stats and mob.stats.damage else 4 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">+</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="dmg-bonus">Бонус</label>
+            <input type="number" id="dmg-bonus" name="stats.damage.bonus"
+                   value="{{ mob.stats.damage.bonus if mob.stats and mob.stats.damage else 0 }}"
+                   style="text-align: center;">
+        </div>
+        <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
+            = <span id="dmg-preview">--</span> средн. урон
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 4: Abilities (Способности) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Способности <span class="field-hint">(3 - 50)</span>
+    </div>
+
+    <div class="form-row form-row-6">
+        <div class="field-group">
+            <label for="abil-str">Сила</label>
+            <input type="number" id="abil-str" name="abilities.strength" min="3" max="50"
+                   value="{{ mob.abilities.strength if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-dex">Ловкость</label>
+            <input type="number" id="abil-dex" name="abilities.dexterity" min="3" max="50"
+                   value="{{ mob.abilities.dexterity if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-con">Телосложение</label>
+            <input type="number" id="abil-con" name="abilities.constitution" min="3" max="50"
+                   value="{{ mob.abilities.constitution if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-int">Интеллект</label>
+            <input type="number" id="abil-int" name="abilities.intelligence" min="3" max="50"
+                   value="{{ mob.abilities.intelligence if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-wis">Мудрость</label>
+            <input type="number" id="abil-wis" name="abilities.wisdom" min="3" max="50"
+                   value="{{ mob.abilities.wisdom if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-cha">Обаяние</label>
+            <input type="number" id="abil-cha" name="abilities.charisma" min="3" max="50"
+                   value="{{ mob.abilities.charisma if mob.abilities else 11 }}">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 5: Resistances (Сопротивления) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+        </svg>
+        Сопротивления <span class="field-hint">(-200 .. 200)</span>
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-7">
+            <div class="field-group">
+                <label for="res-fire">Огонь</label>
+                <input type="number" id="res-fire" name="resistances.fire" min="-200" max="200"
+                       value="{{ mob.resistances.fire if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-air">Воздух</label>
+                <input type="number" id="res-air" name="resistances.air" min="-200" max="200"
+                       value="{{ mob.resistances.air if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-water">Вода</label>
+                <input type="number" id="res-water" name="resistances.water" min="-200" max="200"
+                       value="{{ mob.resistances.water if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-earth">Земля</label>
+                <input type="number" id="res-earth" name="resistances.earth" min="-200" max="200"
+                       value="{{ mob.resistances.earth if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-vitality">Жизнь</label>
+                <input type="number" id="res-vitality" name="resistances.vitality" min="-200" max="200"
+                       value="{{ mob.resistances.vitality if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-mind">Разум</label>
+                <input type="number" id="res-mind" name="resistances.mind" min="-200" max="200"
+                       value="{{ mob.resistances.mind if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-immunity">Иммунитет</label>
+                <input type="number" id="res-immunity" name="resistances.immunity" min="-200" max="200"
+                       value="{{ mob.resistances.immunity if mob.resistances else 0 }}">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 6: Savings (Спасброски) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Спасброски
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="save-will">Воля</label>
+                <input type="number" id="save-will" name="savings.will"
+                       value="{{ mob.savings.will if mob.savings else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="save-stability">Стойкость</label>
+                <input type="number" id="save-stability" name="savings.stability"
+                       value="{{ mob.savings.stability if mob.savings else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="save-reflex">Рефлекс</label>
+                <input type="number" id="save-reflex" name="savings.reflex"
+                       value="{{ mob.savings.reflex if mob.savings else 0 }}">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 7: Position (Позиция) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+        </svg>
+        Позиция
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-2">
+            <div class="field-group">
+                <label for="pos-default">Позиция по умолчанию</label>
+                <select id="pos-default" name="position.default_position">
+                    <option value="0" {{ 'selected' if mob.position and mob.position.default_position == 0 }}>0 - Мертв</option>
+                    <option value="1" {{ 'selected' if mob.position and mob.position.default_position == 1 }}>1 - Смертельно ранен</option>
+                    <option value="2" {{ 'selected' if mob.position and mob.position.default_position == 2 }}>2 - Без сознания</option>
+                    <option value="3" {{ 'selected' if mob.position and mob.position.default_position == 3 }}>3 - Оглушен</option>
+                    <option value="4" {{ 'selected' if mob.position and mob.position.default_position == 4 }}>4 - Спит</option>
+                    <option value="5" {{ 'selected' if mob.position and mob.position.default_position == 5 }}>5 - Отдыхает</option>
+                    <option value="6" {{ 'selected' if mob.position and mob.position.default_position == 6 }}>6 - Сидит</option>
+                    <option value="7" {{ 'selected' if mob.position and mob.position.default_position == 7 }}>7 - Сражается</option>
+                    <option value="8" {{ 'selected' if mob.position and mob.position.default_position == 8 }}>8 - Стоит</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="pos-load">Позиция при загрузке</label>
+                <select id="pos-load" name="position.load_position">
+                    <option value="0" {{ 'selected' if mob.position and mob.position.load_position == 0 }}>0 - Мертв</option>
+                    <option value="1" {{ 'selected' if mob.position and mob.position.load_position == 1 }}>1 - Смертельно ранен</option>
+                    <option value="2" {{ 'selected' if mob.position and mob.position.load_position == 2 }}>2 - Без сознания</option>
+                    <option value="3" {{ 'selected' if mob.position and mob.position.load_position == 3 }}>3 - Оглушен</option>
+                    <option value="4" {{ 'selected' if mob.position and mob.position.load_position == 4 }}>4 - Спит</option>
+                    <option value="5" {{ 'selected' if mob.position and mob.position.load_position == 5 }}>5 - Отдыхает</option>
+                    <option value="6" {{ 'selected' if mob.position and mob.position.load_position == 6 }}>6 - Сидит</option>
+                    <option value="7" {{ 'selected' if mob.position and mob.position.load_position == 7 }}>7 - Сражается</option>
+                    <option value="8" {{ 'selected' if mob.position and mob.position.load_position == 8 }}>8 - Стоит</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 8: Behavior (Поведение) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Поведение
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-4">
+            <div class="field-group">
+                <label for="beh-class">Класс NPC</label>
+                <input type="number" id="beh-class" name="behavior.class" min="0"
+                       value="{{ mob.behavior.class if mob.behavior else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="beh-special">Спецпроцедура</label>
+                <input type="number" id="beh-special" name="behavior.special" min="0"
+                       value="{{ mob.behavior.special if mob.behavior else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="beh-attack">Тип атаки</label>
+                <input type="number" id="beh-attack" name="behavior.attack_type" min="0"
+                       value="{{ mob.behavior.attack_type if mob.behavior else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="beh-exp">Бонус опыта <span class="field-hint">(%)</span></label>
+                <input type="number" id="beh-exp" name="behavior.exp_bonus"
+                       value="{{ mob.behavior.exp_bonus if mob.behavior else 0 }}">
+            </div>
+        </div>
+
+        <!-- Gold dice -->
+        <div class="subsection-label">Золото</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+            <div class="field-group" style="width: 90px;">
+                <label for="gold-dice-count">Кубиков</label>
+                <input type="number" id="gold-dice-count" name="behavior.gold.dice_count" min="0"
+                       value="{{ mob.behavior.gold.dice_count if mob.behavior and mob.behavior.gold else 0 }}"
+                       style="text-align: center;">
+            </div>
+            <span class="dice-sep" style="margin-top: 22px;">d</span>
+            <div class="field-group" style="width: 90px;">
+                <label for="gold-dice-size">Размер</label>
+                <input type="number" id="gold-dice-size" name="behavior.gold.dice_size" min="0"
+                       value="{{ mob.behavior.gold.dice_size if mob.behavior and mob.behavior.gold else 0 }}"
+                       style="text-align: center;">
+            </div>
+            <span class="dice-sep" style="margin-top: 22px;">+</span>
+            <div class="field-group" style="width: 90px;">
+                <label for="gold-bonus">Бонус</label>
+                <input type="number" id="gold-bonus" name="behavior.gold.bonus"
+                       value="{{ mob.behavior.gold.bonus if mob.behavior and mob.behavior.gold else 0 }}"
+                       style="text-align: center;">
+            </div>
+        </div>
+
+        <!-- Helpers -->
+        <div class="field-group">
+            <label for="beh-helpers">Помощники <span class="field-hint">(vnums через запятую)</span></label>
+            <input type="text" id="beh-helpers" name="behavior.helpers"
+                   value="{{ mob.behavior.helpers|join(', ') if mob.behavior and mob.behavior.helpers else '' }}"
+                   placeholder="100, 101, 102">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 9: Flags (Флаги) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+            <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+        Флаги
+    </div>
+
+    <div class="section-body">
+        <div class="field-group" style="margin-bottom: 16px;">
+            <label for="flags-mob">MOB флаги <span class="field-hint">(через запятую, напр: !SLEEP, !CHARM)</span></label>
+            <input type="text" id="flags-mob" name="flags.mob_flags"
+                   value="{{ mob.flags.mob_flags|join(', ') if mob.flags and mob.flags.mob_flags else '' }}"
+                   placeholder="!SLEEP, !CHARM, SENTINEL">
+        </div>
+
+        <div class="field-group" style="margin-bottom: 16px;">
+            <label for="flags-affect">AFF флаги <span class="field-hint">(через запятую)</span></label>
+            <input type="text" id="flags-affect" name="flags.affect_flags"
+                   value="{{ mob.flags.affect_flags|join(', ') if mob.flags and mob.flags.affect_flags else '' }}"
+                   placeholder="DETECT_INVIS, SANCTUARY">
+        </div>
+
+        <div class="field-group">
+            <label for="flags-npc">NPC флаги <span class="field-hint">(через запятую)</span></label>
+            <input type="text" id="flags-npc" name="flags.npc_flags"
+                   value="{{ mob.flags.npc_flags|join(', ') if mob.flags and mob.flags.npc_flags else '' }}"
+                   placeholder="INVIS, HIDDEN">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 10: Triggers (Триггеры) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Триггеры
+    </div>
+
+    <div class="field-group">
+        <label for="triggers">Vnums триггеров <span class="field-hint">(через запятую)</span></label>
+        <input type="text" id="triggers" name="triggers"
+               value="{{ mob.triggers|join(', ') if mob.triggers else '' }}"
+               placeholder="100, 101, 102">
+    </div>
+</div>
+
+<!-- ===== SECTION 11: Skills / Features / Spells (Умения / Особенности / Заклинания) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Умения, особенности и заклинания
+    </div>
+
+    <div class="section-body">
+        <div class="field-group" style="margin-bottom: 16px;">
+            <label for="skills">Умения <span class="field-hint">(формат: backstab:50, bash:30)</span></label>
+            <input type="text" id="skills" name="skills"
+                   value="{% if mob.skills %}{% for k, v in mob.skills.items() %}{{ k }}:{{ v }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                   placeholder="backstab:50, bash:30, kick:20">
+        </div>
+
+        <div class="field-group" style="margin-bottom: 16px;">
+            <label for="features">Особенности <span class="field-hint">(через запятую: dodge, parry)</span></label>
+            <input type="text" id="features" name="features"
+                   value="{% if mob.features %}{% for k, v in mob.features.items() %}{{ k }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                   placeholder="dodge, parry, double_attack">
+        </div>
+
+        <div class="field-group">
+            <label for="spells">Заклинания <span class="field-hint">(через запятую: fireball, heal)</span></label>
+            <input type="text" id="spells" name="spells"
+                   value="{% if mob.spells %}{% for k, v in mob.spells.items() %}{{ k }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                   placeholder="fireball, heal, blindness">
+        </div>
+    </div>
+</div>
+
 </form>
+
+<!-- Sticky action bar -->
+<div class="action-bar">
+    <button type="button" class="btn-primary" id="save-btn" onclick="saveMob()">
+        Сохранить
+    </button>
+    <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" class="btn-secondary">
+        Отмена
+    </a>
+    <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+</div>
+
+<!-- Toast container -->
+<div id="toast" class="toast"></div>
+
+<script>
+(function() {
+    'use strict';
+
+    // --- Dice preview calculator ---
+    function updateDicePreview(countId, sizeId, bonusId, previewId) {
+        var count = parseInt(document.getElementById(countId).value) || 0;
+        var size = parseInt(document.getElementById(sizeId).value) || 0;
+        var bonus = parseInt(document.getElementById(bonusId).value) || 0;
+        var avg = Math.round(count * (size + 1) / 2 + bonus);
+        document.getElementById(previewId).textContent = avg;
+    }
+
+    // HP preview
+    ['hp-dice-count', 'hp-dice-size', 'hp-bonus'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            updateDicePreview('hp-dice-count', 'hp-dice-size', 'hp-bonus', 'hp-preview');
+        });
+    });
+    updateDicePreview('hp-dice-count', 'hp-dice-size', 'hp-bonus', 'hp-preview');
+
+    // Damage preview
+    ['dmg-dice-count', 'dmg-dice-size', 'dmg-bonus'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            updateDicePreview('dmg-dice-count', 'dmg-dice-size', 'dmg-bonus', 'dmg-preview');
+        });
+    });
+    updateDicePreview('dmg-dice-count', 'dmg-dice-size', 'dmg-bonus', 'dmg-preview');
+})();
+
+// --- Collapsible sections ---
+function toggleSection(titleEl) {
+    titleEl.classList.toggle('collapsed');
+    var body = titleEl.nextElementSibling;
+    while (body && !body.classList.contains('section-body')) {
+        body = body.nextElementSibling;
+    }
+    if (body) {
+        body.classList.toggle('collapsed');
+    }
+}
+
+// --- Toast notifications ---
+function showToast(message, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast toast-' + type + ' show';
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 4000);
+}
+
+// --- Parse comma-separated string into trimmed array ---
+function parseCSV(str) {
+    if (!str || !str.trim()) return [];
+    return str.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+}
+
+// --- Parse comma-separated ints ---
+function parseIntCSV(str) {
+    if (!str || !str.trim()) return [];
+    return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
+}
+
+// --- Parse "key:value, key2:value2" into object ---
+function parseKeyValueCSV(str) {
+    if (!str || !str.trim()) return {};
+    var result = {};
+    str.split(',').forEach(function(pair) {
+        pair = pair.trim();
+        if (!pair) return;
+        var parts = pair.split(':');
+        if (parts.length === 2) {
+            var key = parts[0].trim();
+            var val = parseInt(parts[1].trim());
+            if (key && !isNaN(val)) {
+                result[key] = val;
+            }
+        }
+    });
+    return result;
+}
+
+// --- Parse "key, key2" into {key: true, key2: true} ---
+function parseBoolCSV(str) {
+    if (!str || !str.trim()) return {};
+    var result = {};
+    str.split(',').forEach(function(s) {
+        s = s.trim();
+        if (s) result[s] = true;
+    });
+    return result;
+}
+
+// --- Build nested object from flat "a.b.c" keys ---
+function setNestedValue(obj, path, value) {
+    var keys = path.split('.');
+    var current = obj;
+    for (var i = 0; i < keys.length - 1; i++) {
+        if (!(keys[i] in current)) {
+            current[keys[i]] = {};
+        }
+        current = current[keys[i]];
+    }
+    current[keys[keys.length - 1]] = value;
+}
+
+// --- Main save function ---
+function saveMob() {
+    var btn = document.getElementById('save-btn');
+    var statusEl = document.getElementById('save-status');
+
+    // Show loading state
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>Сохранение...';
+    statusEl.textContent = '';
+
+    // Collect all form fields
+    var form = document.getElementById('mob-edit-form');
+    var inputs = form.querySelectorAll('input, textarea, select');
+    var data = {};
+
+    inputs.forEach(function(input) {
+        var name = input.name;
+        if (!name) return;
+
+        var value = input.value;
+
+        // Special handling for specific field types
+        if (name === 'triggers') {
+            data.triggers = parseIntCSV(value);
+            return;
+        }
+        if (name === 'behavior.helpers') {
+            setNestedValue(data, name, parseIntCSV(value));
+            return;
+        }
+        if (name === 'flags.mob_flags' || name === 'flags.affect_flags' || name === 'flags.npc_flags') {
+            setNestedValue(data, name, parseCSV(value));
+            return;
+        }
+        if (name === 'skills') {
+            data.skills = parseKeyValueCSV(value);
+            return;
+        }
+        if (name === 'features') {
+            data.features = parseBoolCSV(value);
+            return;
+        }
+        if (name === 'spells') {
+            data.spells = parseBoolCSV(value);
+            return;
+        }
+
+        // Determine if this should be a number
+        if (input.type === 'number' || input.tagName === 'SELECT') {
+            var numVal = parseInt(value);
+            if (!isNaN(numVal)) {
+                setNestedValue(data, name, numVal);
+            }
+        } else {
+            // String field
+            setNestedValue(data, name, value);
+        }
+    });
+
+    // POST as JSON
+    fetch('{{ url_for("mob_update", vnum=mob.vnum) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(result) {
+        btn.disabled = false;
+        btn.innerHTML = 'Сохранить';
+
+        if (result.status === 'ok') {
+            showToast('Моб успешно сохранен', 'success');
+            statusEl.textContent = 'Сохранено';
+            setTimeout(function() { statusEl.textContent = ''; }, 3000);
+        } else {
+            showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+            statusEl.textContent = '';
+        }
+    })
+    .catch(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = 'Сохранить';
+        showToast('Ошибка сети: ' + err.message, 'error');
+        statusEl.textContent = '';
+    });
+}
+</script>
 
 {% endblock %}

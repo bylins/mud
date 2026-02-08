@@ -4,34 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Былины MUD - Админка{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif-display': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'inter': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    colors: {
+                        parchment: {
+                            50: '#fdf6e3',
+                            100: '#f9f0d6',
+                            200: '#f4ead5',
+                            300: '#e8d9b8',
+                            400: '#d4c49a',
+                        },
+                        ink: {
+                            DEFAULT: '#2d241e',
+                            light: '#5a4d3f',
+                            muted: '#8a7b6b',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
 </head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <h1>Былины МПМ - Админская панель</h1>
-            <div class="subtitle">Онлайн редактор мира через OLC API</div>
+<body class="bg-parchment-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#2a1f14] border-b-4 border-double border-amber-900/40">
+        <div class="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <!-- Logo / Brand Mark -->
+                <a href="{{ url_for('index') }}" class="w-10 h-10 rounded-lg bg-amber-800/30 flex items-center justify-center flex-shrink-0 hover:bg-amber-800/40 transition-colors" style="text-decoration: none;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4a853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="font-serif-display text-xl font-semibold text-[#e8d9b8] tracking-wide leading-tight">
+                        Былины МПМ
+                    </h1>
+                    <div class="font-inter text-xs text-[#a89478] tracking-wider uppercase mt-0.5">
+                        Админская панель
+                    </div>
+                </div>
+            </div>
+
+            {% if session.get('username') %}
+            <div class="flex items-center gap-4">
+                <div class="font-inter text-sm text-[#a89478]">
+                    <span class="text-[#d4a853]">{{ session.get('username') }}</span>
+                </div>
+                <a href="{{ url_for('logout') }}"
+                   class="font-inter text-xs font-medium text-[#a89478] hover:text-[#e8d9b8] border border-amber-800/30 hover:border-amber-700/50 rounded-md px-3 py-1.5 transition-all duration-150"
+                   style="text-decoration: none;">
+                    Выход
+                </a>
+            </div>
+            {% endif %}
         </div>
-    </div>
+    </header>
 
-    <div class="navigation-wrapper">
-        <div class="navigation">
-            <a href="{{ url_for('index') }}">Главная</a>
-            <a href="{{ url_for('zones_list') }}">Зоны</a>
-            <a href="{{ url_for('mobs_list', zone=1) }}">Мобы</a>
-            <a href="{{ url_for('objects_list', zone=1) }}">Предметы</a>
-            <a href="{{ url_for('rooms_list', zone=1) }}">Комнаты</a>
-            <a href="{{ url_for('triggers_list', zone=1) }}">Триггеры</a>
-            <a href="{{ url_for('logout') }}" style="margin-left: auto;">Выход</a>
+    {% if session.get('username') %}
+    <!-- Navigation -->
+    <nav class="bg-[#352a1e] border-b-2 border-amber-900/20 shadow-sm">
+        <div class="max-w-[1280px] mx-auto px-6">
+            <div class="flex items-center gap-1 overflow-x-auto">
+                {% set nav_items = [
+                    ('index', 'Главная', none),
+                    ('zones_list', 'Зоны', none),
+                    ('mobs_list', 'Мобы', {'zone': 1}),
+                    ('objects_list', 'Предметы', {'zone': 1}),
+                    ('rooms_list', 'Комнаты', {'zone': 1}),
+                    ('triggers_list', 'Триггеры', {'zone': 1}),
+                ] %}
+
+                {% for route, label, params in nav_items %}
+                <a href="{{ url_for(route, **(params or {})) }}"
+                   style="text-decoration: none;"
+                   class="font-inter text-sm font-medium px-4 py-3 text-[#c4b094] hover:text-[#e8d9b8] hover:bg-amber-900/15 border-b-2 border-transparent hover:border-[#d4a853]/60 transition-all duration-150 whitespace-nowrap
+                          {% if request.endpoint == route %} text-[#e8d9b8] border-[#d4a853]/80 bg-amber-900/10{% endif %}">
+                    {{ label }}
+                </a>
+                {% endfor %}
+            </div>
         </div>
-    </div>
+    </nav>
+    {% endif %}
 
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
+    <!-- Breadcrumbs -->
+    {% block breadcrumbs %}{% endblock %}
 
-    <div class="footer">
-        Былины MUD Admin Panel © 2026 | Powered by Flask & OLC
-    </div>
+    <!-- Main Content -->
+    <main class="flex-1">
+        <div class="max-w-[1280px] mx-auto px-6 py-8">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t-2 border-double border-amber-900/15 bg-[#f0e6cf]">
+        <div class="max-w-[1280px] mx-auto px-6 py-5">
+            <div class="flex items-center justify-between">
+                <div class="font-inter text-xs text-ink-muted">
+                    Былины MUD Admin Panel
+                </div>
+                <div class="font-inter text-xs text-ink-muted">
+                    Powered by Flask & OLC API
+                </div>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>

@@ -1,20 +1,77 @@
 {% extends "base.html" %}
-{% block title %}Список objects - Былины MUD{% endblock %}
+
+{% block title %}Предметы зоны {{ zone }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Предметы</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<h2>Список objects (зона {{ zone }})</h2>
-<p>Всего: <b>{{ objects|length }}</b></p>
-<table border="1" cellpadding="5">
-    <tr>
-        <th>Vnum</th>
-        <th>Название</th>
-    </tr>
-    {% for item in objects %}
-    <tr>
-        <td>{{ item.vnum }}</td>
-        <td>{{ item.name|default('—') }}</td>
-    </tr>
-    {% endfor %}
-</table>
-<br>
-<a href="{{ url_for('index') }}">[Главная]</a>
+
+    <!-- Page Header -->
+    <div class="page-header" style="align-items: flex-end;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Предметы зоны <span class="text-amber-700">{{ zone }}</span>
+            </h2>
+            <p class="page-subtitle">
+                {% if objects %}Найдено: {{ objects|length }}{% else %}Предметы не найдены{% endif %}
+            </p>
+        </div>
+
+        <div class="zone-filter">
+            <form method="GET" action="{{ url_for('objects_list') }}" style="display: flex; align-items: center; gap: 10px;">
+                <label class="font-inter text-sm text-ink-muted font-medium" for="zone-select">Зона:</label>
+                <select id="zone-select" name="zone" onchange="this.form.submit()">
+                    {% for z in range(0, 100) %}
+                    <option value="{{ z }}" {{ 'selected' if z == zone|int }}>{{ z }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    {% if objects %}
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 100px;">Vnum</th>
+                <th>Название</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in objects %}
+            <tr>
+                <td>
+                    <span class="vnum-badge">{{ item.vnum }}</span>
+                </td>
+                <td>
+                    <span style="font-weight: 500;">{{ item.name|default('--') }}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d4c49a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+        <div class="font-serif-display text-lg text-ink-light" style="margin-bottom: 8px;">Предметы не найдены</div>
+        <div class="font-inter text-sm text-ink-muted">В зоне {{ zone }} нет предметов. Попробуйте выбрать другую зону.</div>
+    </div>
+    {% endif %}
+
 {% endblock %}

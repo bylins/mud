@@ -2,35 +2,91 @@
 
 {% block title %}Список зон - Былины MUD{% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Зоны</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<h2>🗺️ Список всех зон</h2>
 
-<p>Всего зон: <b>{{ zones|length }}</b></p>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Список зон
+            </h2>
+            <p class="page-subtitle">
+                Всего зон: {{ zones|length }}
+            </p>
+        </div>
+    </div>
 
-<table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#8B4513">
-    <tr bgcolor="#D2B48C">
-        <th width="80">Vnum</th>
-        <th>Название</th>
-        <th width="100">Уровень</th>
-        <th width="120">Автор</th>
-        <th width="150">Действия</th>
-    </tr>
-    {% for zone in zones %}
-    <tr bgcolor="{% if loop.index % 2 == 0 %}#F5DEB3{% else %}#FAEBD7{% endif %}">
-        <td align="center">{{ zone.vnum }}</td>
-        <td>{{ zone.name }}</td>
-        <td align="center">{{ zone.level|default('—') }}</td>
-        <td>{{ zone.author|default('—') }}</td>
-        <td align="center">
-            <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}">[Просмотр]</a>
-            <a href="{{ url_for('zone_edit', vnum=zone.vnum) }}">[Редактировать]</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+    {% if zones %}
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">Vnum</th>
+                <th>Название</th>
+                <th style="width: 100px; text-align: center;">Уровень</th>
+                <th style="width: 120px;">Автор</th>
+                <th style="width: 200px; text-align: right;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zone in zones %}
+            <tr>
+                <td>
+                    <span class="vnum-badge">{{ zone.vnum }}</span>
+                </td>
+                <td>
+                    <span style="font-weight: 500;">{{ zone.name }}</span>
+                </td>
+                <td style="text-align: center;">
+                    <span class="font-inter text-sm text-ink-light">{{ zone.level|default('--') }}</span>
+                </td>
+                <td>
+                    <span class="font-inter text-sm text-ink-light">{{ zone.author|default('--') }}</span>
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="action-link action-link-view">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            Просмотр
+                        </a>
+                        <a href="{{ url_for('zone_edit', vnum=zone.vnum) }}" class="action-link action-link-edit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Редактировать
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d4c49a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <div class="font-serif-display text-lg text-ink-light" style="margin-bottom: 8px;">Зоны не найдены</div>
+        <div class="font-inter text-sm text-ink-muted">Список зон пуст.</div>
+    </div>
+    {% endif %}
 
-<br>
-<center>
-    <a href="{{ url_for('index') }}">← Вернуться на главную</a>
-</center>
 {% endblock %}

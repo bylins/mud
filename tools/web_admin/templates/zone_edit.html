@@ -1,32 +1,98 @@
 {% extends "base.html" %}
-{% block title %}Редактирование зоны {{ zone.vnum }}{% endblock %}
+
+{% block title %}Редактирование зоны {{ zone.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('zones_list') }}">Зоны</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}">Зона #{{ zone.vnum }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<h2>Редактирование зоны {{ zone.vnum }}</h2>
-<form method="POST">
-    <table border="1" cellpadding="8">
-        <tr>
-            <td><b>Название:</b></td>
-            <td><input type="text" name="name" value="{{ zone.name }}" size="50"></td>
-        </tr>
-        <tr>
-            <td><b>Автор:</b></td>
-            <td><input type="text" name="author" value="{{ zone.author }}" size="30"></td>
-        </tr>
-        <tr>
-            <td><b>Комментарий:</b></td>
-            <td><input type="text" name="comment" value="{{ zone.comment }}" size="60"></td>
-        </tr>
-        <tr>
-            <td><b>Уровень:</b></td>
-            <td><input type="number" name="level" value="{{ zone.level }}"></td>
-        </tr>
-        <tr>
-            <td><b>Lifespan (мин):</b></td>
-            <td><input type="number" name="lifespan" value="{{ zone.lifespan }}"></td>
-        </tr>
-    </table>
-    <br>
-    <input type="submit" value="Сохранить">
-    <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}">[Отмена]</a>
-</form>
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование зоны <span class="text-amber-700">#{{ zone.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ zone.name }}
+            </p>
+        </div>
+    </div>
+
+    <form method="POST">
+        <!-- Zone Info -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                Основные данные
+            </div>
+
+            <div class="form-row form-row-2" style="margin-bottom: 16px;">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="name">Название</label>
+                    <input type="text" id="name" name="name" value="{{ zone.name }}">
+                </div>
+            </div>
+
+            <div class="form-row form-row-2" style="margin-bottom: 16px;">
+                <div class="field-group">
+                    <label for="author">Автор</label>
+                    <input type="text" id="author" name="author" value="{{ zone.author }}">
+                </div>
+                <div class="field-group">
+                    <label for="comment">Комментарий</label>
+                    <input type="text" id="comment" name="comment" value="{{ zone.comment }}">
+                </div>
+            </div>
+
+            <div class="form-row form-row-2">
+                <div class="field-group">
+                    <label for="level">Уровень</label>
+                    <input type="number" id="level" name="level" value="{{ zone.level }}">
+                </div>
+                <div class="field-group">
+                    <label for="lifespan">Lifespan (мин)</label>
+                    <input type="number" id="lifespan" name="lifespan" value="{{ zone.lifespan }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display: flex; gap: 12px; padding-top: 8px;">
+            <button type="submit" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Сохранить
+            </button>
+            <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="btn-secondary">
+                Отмена
+            </a>
+        </div>
+    </form>
+
 {% endblock %}

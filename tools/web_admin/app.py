@@ -84,36 +84,10 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    """Main page - dashboard with statistics"""
-    # Get MUD client with session credentials
+    """Main page"""
     mud = get_mud_client()
-
-    # Get statistics from Admin API
-    stats_resp = mud.get_stats()
-    players_resp = mud.get_players()
-
-    stats = {}
-    if stats_resp.get('status') == 'ok':
-        stats['zones'] = stats_resp.get('zones', 0)
-        stats['mobs'] = stats_resp.get('mobs', 0)
-        stats['objects'] = stats_resp.get('objects', 0)
-        stats['rooms'] = stats_resp.get('rooms', 0)
-        stats['triggers'] = stats_resp.get('triggers', 0)
-    else:
-        stats['zones'] = 'N/A'
-        stats['mobs'] = 'N/A'
-        stats['objects'] = 'N/A'
-        stats['rooms'] = 'N/A'
-        stats['triggers'] = 'N/A'
-
-    if players_resp.get('status') == 'ok':
-        stats['players_online'] = players_resp.get('count', 0)
-        stats['players_list'] = players_resp.get('players', [])
-    else:
-        stats['players_online'] = 0
-        stats['players_list'] = []
-
-    return render_template('index.html', stats=stats)
+    stats = mud.get_stats()
+    return render_template('index.html', username=session.get('username'), stats=stats)
 
 
 @app.route('/zones')
@@ -199,32 +173,32 @@ def mob_detail(vnum):
         return render_template('error.html', error=resp.get('error', 'Mob not found'))
 
 
-@app.route('/mob/<int:vnum>/edit', methods=['GET', 'POST'])
+@app.route('/mob/<int:vnum>/edit', methods=['GET'])
 @login_required
 def mob_edit(vnum):
-    """Edit mob"""
+    """Edit mob - show form"""
     mud = get_mud_client()
-
-    if request.method == 'POST':
-        # Update mob
-        data = {
-            'stats': {
-                'level': int(request.form.get('level', 0))
-            }
-        }
-        resp = mud.update_mob(vnum, data)
-        if resp.get('status') == 'ok':
-            return redirect(url_for('mob_detail', vnum=vnum))
-        else:
-            return render_template('error.html', error=resp.get('error'))
-
-    # GET - show edit form
     resp = mud.get_mob(vnum)
     if resp.get('status') == 'ok':
         mob = resp.get('mob', {})
         return render_template('mob_edit.html', mob=mob)
     else:
         return render_template('error.html', error=resp.get('error'))
+
+
+@app.route('/mob/<int:vnum>/update', methods=['POST'])
+@login_required
+def mob_update(vnum):
+    """Update mob via JSON API - accepts full nested mob data structure"""
+    mud = get_mud_client()
+
+    # Accept JSON body from AJAX form
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'error': 'No JSON data received'}), 400
+
+    resp = mud.update_mob(vnum, data)
+    return jsonify(resp)
 
 
 @app.route('/objects')

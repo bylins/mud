@@ -1,13 +1,92 @@
 {% extends "base.html" %}
-{% block title %}Объект {{ obj.vnum }} - Былины MUD{% endblock %}
-{% block content %}
-<h2>Объект #{{ obj.vnum }}</h2>
-<div class="block">
-    <table>
-        <tr><th width="30%">Vnum</th><td>{{ obj.vnum }}</td></tr>
-        <tr><th>Алиасы</th><td>{{ obj.aliases }}</td></tr>
-        <tr><th>Короткое описание</th><td>{{ obj.short_desc }}</td></tr>
-    </table>
+
+{% block title %}Объект #{{ obj.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}">Предметы</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Объект #{{ obj.vnum }}</span>
+        </div>
+    </div>
 </div>
-<a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}"><button>Назад</button></a>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Объект <span class="text-amber-700">#{{ obj.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ obj.short_desc|default('Без описания') }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            К списку
+        </a>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <!-- Object Info -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+            Информация
+        </div>
+
+        <div class="detail-grid detail-grid-2">
+            <div class="detail-field">
+                <div class="detail-field-label">Vnum</div>
+                <div class="detail-field-value">{{ obj.vnum }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Алиасы</div>
+                <div class="detail-field-value{% if not obj.aliases %} empty{% endif %}">{{ obj.aliases|default('--') }}</div>
+            </div>
+            <div class="detail-field" style="grid-column: 1 / -1;">
+                <div class="detail-field-label">Короткое описание</div>
+                <div class="detail-field-value{% if not obj.short_desc %} empty{% endif %}">{{ obj.short_desc|default('Не задано') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад к списку
+        </a>
+    </div>
+
 {% endblock %}

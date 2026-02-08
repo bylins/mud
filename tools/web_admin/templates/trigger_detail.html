@@ -1,12 +1,86 @@
 {% extends "base.html" %}
-{% block title %}Триггер {{ trig.vnum }} - Былины MUD{% endblock %}
-{% block content %}
-<h2>Триггер #{{ trig.vnum }}</h2>
-<div class="block">
-    <table>
-        <tr><th width="30%">Vnum</th><td>{{ trig.vnum }}</td></tr>
-        <tr><th>Название</th><td>{{ trig.name }}</td></tr>
-    </table>
+
+{% block title %}Триггер #{{ trig.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}">Триггеры</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Триггер #{{ trig.vnum }}</span>
+        </div>
+    </div>
 </div>
-<a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}"><button>Назад</button></a>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Триггер <span class="text-amber-700">#{{ trig.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ trig.name|default('Без названия') }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            К списку
+        </a>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <!-- Trigger Info -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Информация
+        </div>
+
+        <div class="detail-grid detail-grid-2">
+            <div class="detail-field">
+                <div class="detail-field-label">Vnum</div>
+                <div class="detail-field-value">{{ trig.vnum }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Название</div>
+                <div class="detail-field-value{% if not trig.name %} empty{% endif %}">{{ trig.name|default('--') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад к списку
+        </a>
+    </div>
+
 {% endblock %}
