@@ -20,9 +20,9 @@
 #include <memory>
 
 class ZoneData;
-class RoomData;
+struct RoomData;
 class CharData;
-struct Trigger;
+class Trigger;
 class CObjectPrototype;
 
 namespace utils {

@@ -328,14 +328,14 @@ int count_char_vnum(MobVnum mvn) {
 	Characters::list_t mobs;
 
 	character_list.get_mobs_by_vnum(mvn, mobs);
-	return mobs.size();
+	return static_cast<int>(mobs.size());
 }
 
 int CountGameObjs(ObjRnum rnum) {
 	std::list<ObjData *> objs;
 
 	world_objects.GetObjListByRnum(rnum, objs);
-	return objs.size();
+	return static_cast<int>(objs.size());
 }
 
 // return room with UID n
@@ -852,7 +852,7 @@ static std::string print_variable_name(const std::string &name) {
 		const std::string &guid_name = text_mapping.first;
 		const std::string &print_text = text_mapping.second;
 
-		const int guid_start_offcet = name.length() - guid_name.length();
+		const auto guid_start_offcet = static_cast<int>(name.length()) - static_cast<int>(guid_name.length());
 		if (guid_start_offcet > 0 && guid_name == name.substr(guid_start_offcet)) {
 			if (display_state_vars) {
 				result = print_text;
@@ -1314,7 +1314,7 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str) {
 		return false;
 
 	if (!str_cmp(field, "strlen")) {
-		sprintf(str, "%lu", vd.value.size());
+		sprintf(str, "%zu", vd.value.size());
 		return true;
 	} else if (!str_cmp(field, "trim")) {
 		strcpy(str, utils::TrimCopy(vd.value).c_str());
@@ -1886,7 +1886,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "exact")) {
 				auto now = std::chrono::system_clock::now();
 				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-				sprintf(str, "%ld", now_ms.time_since_epoch().count());
+				sprintf(str, "%lld", static_cast<long long>(now_ms.time_since_epoch().count()));
 			} else if (!str_cmp(field, "yday")) {
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
@@ -2086,7 +2086,7 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 				} else {
 					size_t dst = std::distance(arr.begin(), result);
-					sprintf(str, "%ld", dst + 1);
+					sprintf(str, "%zu", dst + 1);
 				}
 				return;
 			} else if (!str_cmp(field, "remove")) {
@@ -3366,7 +3366,7 @@ void find_replacement(void *go,
 					out << it << "#";
 				}
 				if (out.str().size() > kMaxInputLength) {
-					sprintf(buf, "Список переменных переполнен, сократите на %ld символов", out.str().size() - kMaxInputLength);
+					sprintf(buf, "пазмер переменной превышен, лишнего на %zu знаков", out.str().size() - kMaxInputLength);
 					trig_log(trig, buf);
 				} else
 					o->set_dgscript_field(out.str());
@@ -4475,7 +4475,7 @@ void process_set(Script * /*sc*/, Trigger *trig, char *cmd) {
 		return;
 	}
 	if (strlen(name) > kMaxTrglineLength) {
-		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%ld), команда: '%s'", strlen(name), cmd);
+		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%zu), команда: '%s'", strlen(name), cmd);
 		trig_log(trig, buf2);
 	}
 	add_var_cntx(trig->var_list, name, value, 0);
@@ -4495,7 +4495,7 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	size_t len_expr = strlen(expr);
 
 	if (len_expr > kMaxTrglineLength) {
-		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%ld), команда: '%s'", len_expr, cmd);
+		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%zu), команда: '%s'", len_expr, cmd);
 		trig_log(trig, buf2);
 	}
 	eval_expr(expr, result, go, sc, trig, type);
@@ -4774,7 +4774,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 			trgtype = MOB_TRIGGER;
 			trggo = (void *) c;
 			runtrig->is_runned = true;
-			SCRIPT(c)->script_trig_list.add(runtrig, -1);
+			SCRIPT(c)->script_trig_list.add(runtrig, true);
 		}
 	} else if (o && o->get_script()->has_triggers()) {
 		auto tmp = o->get_script()->script_trig_list.find_by_vnum(num);
@@ -4783,7 +4783,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *) o;
 		runtrig->is_runned = true;
-		o->get_script()->script_trig_list.add(runtrig, -1);
+		o->get_script()->script_trig_list.add(runtrig, true);
 		}
 	} else if (r && SCRIPT(r)->has_triggers()) {
 		auto tmp = SCRIPT(r)->script_trig_list.find_by_vnum(num);
@@ -4792,7 +4792,7 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 			trgtype = WLD_TRIGGER;
 			trggo = (void *) r;
 			runtrig->is_runned = true;
-			SCRIPT(r)->script_trig_list.add(runtrig, -1);
+			SCRIPT(r)->script_trig_list.add(runtrig, true);
 		}
 	}
 	if (!runtrig) {

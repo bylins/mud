@@ -75,7 +75,7 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 	if (node.GoToChild("name")) {
 		try {
 			currency_info->gender_ = parse::ReadAsConstant<EGender>(node.GetValue("gender"));
-		} catch (std::exception &e) {}
+		} catch (std::exception &) {}
 		currency_info->names_ = grammar::ItemName::Build(node);
 	}
 

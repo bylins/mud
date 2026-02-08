@@ -199,8 +199,8 @@ std::vector<std::string> Split(const std::string s, char delimiter) {
 
 // первое слово разделенное маской
 std::string FirstWordOnString(std::string s, std::string mask) {
-	int pos = s.find_first_of(mask);
-	if (pos > 0)
+	auto pos = s.find_first_of(mask);
+	if (pos != std::string::npos && pos > 0)
 		s.erase(pos);
 	return s;
 }

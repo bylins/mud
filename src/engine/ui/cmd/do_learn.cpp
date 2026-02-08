@@ -321,15 +321,15 @@ void ProcessAlreadyKnownException(CharData *ch, ObjData *book, const AlreadyKnow
 void ProcessExceptions(CharData *ch, ObjData *book) {
 	try {
 		throw;
-	} catch (const LowRemortOrLvl &e) {
+	} catch (const LowRemortOrLvl &) {
 		ProcessLowRemortOrLevelException(ch, book);
-	} catch (const LearningFail &e) {
+	} catch (const LearningFail &) {
 		ProcessLearningFailException(ch, book);
 	} catch (const AlreadyKnown &e) {
 		ProcessAlreadyKnownException(ch, book, e);
-	} catch (const NotAvailable &e) {
+	} catch (const NotAvailable &) {
 		ProcessLearningNotAvailable(ch, book);
-	} catch (const LearningError &e) {
+	} catch (const LearningError &) {
 		// We don't need to do something in this case.
 	} catch (...) {
 		log("Unprocessed exception has been thrown in DoLearn!");
@@ -351,7 +351,7 @@ void DoLearn(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	try {
 		do_learn::LearnBook(ch, book);
 		ExtractObjFromWorld(book);
-	} catch (const std::exception &e) {
+	} catch (const std::exception &) {
 		do_learn::ProcessExceptions(ch, book);
 	}
 }

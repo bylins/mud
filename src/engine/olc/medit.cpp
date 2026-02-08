@@ -754,7 +754,7 @@ void medit_disp_resistances(DescriptorData *d) {
 				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
-	SendMsgToChar("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
+	SendMsgToChar("Введите номер и величину сопротивления (-100..100%) (0 - конец) : ", d->character.get());
 }
 
 // *  Display saves

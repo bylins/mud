@@ -1037,7 +1037,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 //					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
 				}
 			}
-			int rnd = number(0, rndcharmice.size() - 1);
+			int rnd = number(0, static_cast<int>(rndcharmice.size()) - 1);
 			if (std::find(rndcharmice.begin(), rndcharmice.end(), victim->get_type_charmice()) !=  rndcharmice.end()) {
 				type_mob = victim->get_type_charmice();
 //				SendMsgToChar(ch, "\r\n1Чармис старыйй, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());

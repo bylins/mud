@@ -346,7 +346,7 @@ std::vector<int> YamlWorldDataSource::GetMobList()
 			}
 		}
 	}
-	catch (const YAML::Exception &e)
+	catch (const YAML::Exception &)
 	{
 		// Index file is optional, if missing load all mobs
 		return mobs;
@@ -371,7 +371,7 @@ std::vector<int> YamlWorldDataSource::GetObjectList()
 			}
 		}
 	}
-	catch (const YAML::Exception &e)
+	catch (const YAML::Exception &)
 	{
 		// Index file is optional, if missing load all objects
 		return objects;
@@ -396,7 +396,7 @@ std::vector<int> YamlWorldDataSource::GetTriggerList()
 			}
 		}
 	}
-	catch (const YAML::Exception &e)
+	catch (const YAML::Exception &)
 	{
 		// Index file is optional, if missing load all triggers
 		return triggers;
@@ -578,7 +578,7 @@ ZoneData YamlWorldDataSource::ParseZoneFile(const std::string &file_path)
 	// Load zone groups (typeA and typeB)
 	if (root["typeA_zones"] && root["typeA_zones"].IsSequence())
 	{
-		zone.typeA_count = root["typeA_zones"].size();
+		zone.typeA_count = static_cast<int>(root["typeA_zones"].size());
 		CREATE(zone.typeA_list, zone.typeA_count);
 		int i = 0;
 		for (const auto &z : root["typeA_zones"])
@@ -589,7 +589,7 @@ ZoneData YamlWorldDataSource::ParseZoneFile(const std::string &file_path)
 
 	if (root["typeB_zones"] && root["typeB_zones"].IsSequence())
 	{
-		zone.typeB_count = root["typeB_zones"].size();
+		zone.typeB_count = static_cast<int>(root["typeB_zones"].size());
 		CREATE(zone.typeB_list, zone.typeB_count);
 		CREATE(zone.typeB_flag, zone.typeB_count);
 		int i = 0;
@@ -614,7 +614,7 @@ void YamlWorldDataSource::LoadZonesParallel()
 		return;
 	}
 
-	int zone_count = zone_vnums.size();
+	int zone_count = static_cast<int>(zone_vnums.size());
 	zone_table.reserve(zone_count + dungeons::kNumberOfZoneDungeons);
 	zone_table.resize(zone_count);
 	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
@@ -706,7 +706,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 		return;
 	}
 
-	int cmd_count = commands_node.size();
+	int cmd_count = static_cast<int>(commands_node.size());
 	CREATE(zone.cmd, cmd_count + 1);
 
 	int idx = 0;
@@ -877,7 +877,7 @@ void YamlWorldDataSource::LoadTriggersParallel()
 		return;
 	}
 
-	int trig_count = trigger_vnums.size();
+	int trig_count = static_cast<int>(trigger_vnums.size());
 	log("   %d triggers.", trig_count);
 
 	// Distribute triggers into batches
@@ -1093,7 +1093,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 
 	std::sort(room_files.begin(), room_files.end());
 
-	int room_count = room_files.size();
+	int room_count = static_cast<int>(room_files.size());
 	if (room_count == 0)
 	{
 		log("No rooms found in YAML files.");
@@ -1221,7 +1221,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		world.push_back(room);
 	}
 
-	top_of_world = world.size() - 1;
+	top_of_world = static_cast<RoomRnum>(world.size() - 1);
 	log("   Merged %zu unique room descriptions from %zu threads.", global_descriptions.size(), parsed_batches.size());
 
 	// Update zone_table.RnumRoomsLocation (sequential post-processing)
@@ -1234,9 +1234,9 @@ void YamlWorldDataSource::LoadRoomsParallel()
 			{
 				if (zone_table[zone_rn].RnumRoomsLocation.first == -1)
 				{
-					zone_table[zone_rn].RnumRoomsLocation.first = i;
+					zone_table[zone_rn].RnumRoomsLocation.first = static_cast<RoomRnum>(i);
 				}
-				zone_table[zone_rn].RnumRoomsLocation.second = i;
+				zone_table[zone_rn].RnumRoomsLocation.second = static_cast<RoomRnum>(i);
 			}
 		}
 	}
@@ -1610,7 +1610,7 @@ void YamlWorldDataSource::LoadMobsParallel()
 		return;
 	}
 
-	int mob_count = mob_vnums.size();
+	int mob_count = static_cast<int>(mob_vnums.size());
 	mob_proto = new CharData[mob_count];
 	CREATE(mob_index, mob_count);
 	log("   %d mobs, %zd bytes in index, %zd bytes in prototypes.",
@@ -1620,7 +1620,7 @@ void YamlWorldDataSource::LoadMobsParallel()
 	std::map<int, int> zone_vnum_to_rnum;
 	for (size_t i = 0; i < zone_table.size(); i++)
 	{
-		zone_vnum_to_rnum[zone_table[i].vnum] = i;
+		zone_vnum_to_rnum[zone_table[i].vnum] = static_cast<int>(i);
 	}
 
 	// Sort mob vnums to match Legacy loader order (CRITICAL for checksums)
@@ -1649,7 +1649,7 @@ void YamlWorldDataSource::LoadMobsParallel()
 				{
 					size_t mob_idx = vnum_to_idx.at(vnum);
 					mob_proto[mob_idx] = ParseMobFile(filepath);
-					mob_proto[mob_idx].set_rnum(mob_idx);
+					mob_proto[mob_idx].set_rnum(static_cast<MobRnum>(mob_idx));
 
 					// Attach triggers (thread-safe read from trig_index)
 					YAML::Node root = YAML::LoadFile(filepath);
@@ -1658,7 +1658,7 @@ void YamlWorldDataSource::LoadMobsParallel()
 						for (const auto &trig_node : root["triggers"])
 						{
 							int trigger_vnum = trig_node.as<int>();
-							AttachTriggerToMob(mob_idx, trigger_vnum, vnum);
+							AttachTriggerToMob(static_cast<MobRnum>(mob_idx), trigger_vnum, vnum);
 						}
 					}
 				}
@@ -1716,9 +1716,9 @@ void YamlWorldDataSource::LoadMobsParallel()
 		{
 			if (zone_table[zone_it->second].RnumMobsLocation.first == -1)
 			{
-				zone_table[zone_it->second].RnumMobsLocation.first = i;
+				zone_table[zone_it->second].RnumMobsLocation.first = static_cast<MobRnum>(i);
 			}
-			zone_table[zone_it->second].RnumMobsLocation.second = i;
+			zone_table[zone_it->second].RnumMobsLocation.second = static_cast<MobRnum>(i);
 		}
 	}
 
@@ -1987,7 +1987,7 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		return;
 	}
 
-	int obj_count = obj_vnums.size();
+	int obj_count = static_cast<int>(obj_vnums.size());
 	log("   %d objs.", obj_count);
 
 	// Distribute objects into batches
@@ -2150,7 +2150,7 @@ std::vector<std::string> YamlWorldDataSource::ConvertFlagsToNames(const FlagData
 		{
 			if (plane_bits & (1 << bit))
 			{
-				int bit_index = plane * 30 + bit;
+				int bit_index = static_cast<int>(plane * 30) + bit;
 
 				std::string flag_name;
 				for (const auto &[name, value] : entries)

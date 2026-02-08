@@ -884,7 +884,7 @@ std::string PrintNumberByDigits(long long num, const char separator) {
 			fmt::format_to(std::back_inserter(out), "{}{}", buffer.substr(0, modulo), separator);
 		}
 
-		unsigned pos = modulo;
+		size_t pos = modulo;
 		while (pos < buffer.size() - digits_num) {
 			fmt::format_to(std::back_inserter(out), "{}{}", buffer.substr(pos, digits_num), separator);
 			pos += digits_num;

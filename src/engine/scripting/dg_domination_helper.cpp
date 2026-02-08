@@ -162,8 +162,8 @@ void process_arena_round(Trigger *trig, char *cmd)
 
 	// загрузка мобов по комнатам
 	const int total_mob_counter = dd.mob_counter_per_round.at(dd.current_round - 1);
-	const int amount_mob_each_type = total_mob_counter / var_name_mob_list.size();
-	const int amount_mob_random = total_mob_counter % var_name_mob_list.size();
+	const int amount_mob_each_type = total_mob_counter / static_cast<int>(var_name_mob_list.size());
+	const int amount_mob_random = total_mob_counter % static_cast<int>(var_name_mob_list.size());
 	if (dd.debug_mode) {
 		snprintf(buf2, kMaxStringLength, "Общее количество загружаемых мобов: %d, каждого вида: %d(x%zu), случайных мобов: %d",
 				 total_mob_counter, amount_mob_each_type, var_name_mob_list.size(), amount_mob_random);
@@ -178,7 +178,7 @@ void process_arena_round(Trigger *trig, char *cmd)
 			if (vnumum_list.empty() || mob_vnum_list.empty()) {
 				continue;
 			}
-			const auto random_room_index = number(0, vnumum_list.size() - 1);
+			const auto random_room_index = number(0, static_cast<int>(vnumum_list.size()) - 1);
 			const auto mob_index = dd.current_round - 1;
 
 			const MobVnum mob_vn = mob_vnum_list.at(mob_index);
@@ -190,13 +190,13 @@ void process_arena_round(Trigger *trig, char *cmd)
 
 	// загрузка случайных мобов в количестве amount_mob_random
 	for (auto i = 0; i < amount_mob_random; i++) {
-		const int random_type_index = number(0, dd.mob_list_to_load.size() - 1);
+		const int random_type_index = number(0, static_cast<int>(dd.mob_list_to_load.size()) - 1);
 		const auto &mob_vnum_list = dd.mob_list_to_load[random_type_index].first;
 		const auto &vnumum_list = dd.mob_list_to_load[random_type_index].second;
 		if (vnumum_list.empty() || mob_vnum_list.empty()) {
 			continue;
 		}
-		const auto random_room_index = number(0, vnumum_list.size() - 1);
+		const auto random_room_index = number(0, static_cast<int>(vnumum_list.size()) - 1);
 		const auto mob_index = dd.current_round - 1;
 
 		const MobVnum mob_vn = mob_vnum_list.at(mob_index);

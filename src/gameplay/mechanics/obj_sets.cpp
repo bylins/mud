@@ -917,7 +917,7 @@ std::string print_activ_properties(const ActivNode &activ) {
 std::string print_activ_help(const SetNode &set) {
 	std::string out, prof_list;
 	char buf_[2048];
-	const int num = setidx_by_uid(set.uid) + 1;
+	const auto num = static_cast<int>(setidx_by_uid(set.uid)) + 1;
 	snprintf(buf_, sizeof(buf_),
 			 "--------------------------------------------------------------------------------\r\n"
 			 "%s%d) Набор предметов: %s%s%s%s\r\n",

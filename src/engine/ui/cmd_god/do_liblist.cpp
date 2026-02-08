@@ -196,7 +196,7 @@ int PrintOlist(const CharData *ch, int first, int last, std::string &out) {
 
 		if (GetRealLevel(ch) >= kLvlGreatGod
 			|| ch->IsFlagged(EPrf::kCoderinfo)) {
-			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", obj_proto.total_online(rnum), obj_proto.stored(rnum), GetObjMIW(rnum));
+			ss << fmt::format(" Игра:{} Пост:{} Макс:{}", static_cast<int>(obj_proto.total_online(rnum)), static_cast<int>(obj_proto.stored(rnum)), GetObjMIW(static_cast<ObjRnum>(rnum)));
 			const auto &script = prototype->get_proto_script();
 
 			if (!script.empty()) {

@@ -31,8 +31,8 @@ void SummonTutelar(CharData *ch) {
 		}
 	}
 
-	float base_success = 26.0;
-	float additional_success_for_charisma = 1.5; // 50 at 16 charisma, 101 at 50 charisma
+	float base_success = 26.0f;
+	float additional_success_for_charisma = 1.5f; // 50 at 16 charisma, 101 at 50 charisma
 
 	if (number(1, 100) > floorf(base_success + additional_success_for_charisma * eff_cha)) {
 		SendMsgToRoom("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
@@ -45,23 +45,23 @@ void SummonTutelar(CharData *ch) {
 
 	int base_hp = 360;
 	int additional_hp_for_charisma = 40;
-	//float base_shields = 0.0;
+	//float base_shields = 0.0f;
 	// 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
-	//float additional_shields_for_charisma = 0.0454;
+	//float additional_shields_for_charisma = 0.0454f;
 	float base_awake = 2;
 	float additional_awake_for_charisma = 4; // 64 awake on 16 charisma, 202 awake at 50 charisma
 	float base_multiparry = 2;
 	float additional_multiparry_for_charisma = 2; // 34 multiparry on 16 charisma, 102 multiparry at 50 charisma;
-	float base_rescue = 20.0;
-	float additional_rescue_for_charisma = 2.5; // 60 rescue at 16 charisma, 135 rescue at 50 charisma;
+	float base_rescue = 20.0f;
+	float additional_rescue_for_charisma = 2.5f; // 60 rescue at 16 charisma, 135 rescue at 50 charisma;
 	float base_heal = 0;
-	float additional_heal_for_charisma = 0.12; // 1 heal at 16 charisma,  6 heal at 50 charisma;
-	float base_ttl = 10.0;
-	float additional_ttl_for_charisma = 0.25; // 14 min at 16 chsrisma, 22 min at 50 charisma;
+	float additional_heal_for_charisma = 0.12f; // 1 heal at 16 charisma,  6 heal at 50 charisma;
+	float base_ttl = 10.0f;
+	float additional_ttl_for_charisma = 0.25f; // 14 min at 16 chsrisma, 22 min at 50 charisma;
 	float base_ac = 100;
 	float additional_ac_for_charisma = -2.5; //
 	float base_armour = 0;
-	float additional_armour_for_charisma = 0.5; // 8 armour for 16 charisma, 25 armour for 50 charisma
+	float additional_armour_for_charisma = 0.5f; // 8 armour for 16 charisma, 25 armour for 50 charisma
 
 	ClearMinionTalents(mob);
 	Affect<EApply> af;
@@ -83,8 +83,8 @@ void SummonTutelar(CharData *ch) {
 	affect_to_char(mob, af);
 
 	//Set shields
-	float base_shields = 0.0;
-	float additional_shields_for_charisma = 0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
+	float base_shields = 0.0f;
+	float additional_shields_for_charisma = 0.0454f; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
 		mob->SetFlag(EMobFlag::kNoHold);
@@ -126,12 +126,12 @@ void SummonTutelar(CharData *ch) {
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}
 
-	float additional_str_for_charisma = 0.6875;
-	float additional_dex_for_charisma = 1.0;
-	float additional_con_for_charisma = 1.0625;
-	float additional_int_for_charisma = 1.5625;
-	float additional_wis_for_charisma = 0.6;
-	float additional_cha_for_charisma = 1.375;
+	float additional_str_for_charisma = 0.6875f;
+	float additional_dex_for_charisma = 1.0f;
+	float additional_con_for_charisma = 1.0625f;
+	float additional_int_for_charisma = 1.5625f;
+	float additional_wis_for_charisma = 0.6f;
+	float additional_cha_for_charisma = 1.375f;
 
 	mob->set_str(1 + floorf(additional_str_for_charisma * eff_cha));
 	mob->set_dex(1 + floorf(additional_dex_for_charisma * eff_cha));

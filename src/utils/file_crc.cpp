@@ -65,7 +65,7 @@ unsigned int CRC32_function(const char *buf, unsigned long len) {
 
 // * Подсчет crc для строки.
 uint32_t calculate_str_crc(const std::string &text) {
-	return CRC32_function(text.c_str(), text.size());
+	return CRC32_function(text.c_str(), static_cast<unsigned long>(text.size()));
 }
 
 // * Подсчет crc для файла.

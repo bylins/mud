@@ -150,7 +150,7 @@ void CharClassInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 int ParseLevelDecrement(DataNode &node) {
 	try {
 		return std::max(kMinTalentLevelDecrement, parse::ReadAsInt(node.GetValue("level_decrement")));
-	} catch (std::exception &e) {
+	} catch (std::exception &) {
 		return kMinTalentLevelDecrement;
 	}
 }
@@ -172,7 +172,7 @@ void CharClassInfoBuilder::ParseFeats(ItemPtr &info, DataNode &node) {
 	try {
 		info->remorts_for_feat_slot_ =
 			std::clamp(parse::ReadAsInt(node.GetValue("remorts_for_slot")), 1, kMaxRemort) ;
-	} catch (std::exception &e) {
+	} catch (std::exception &) {
 		info->remorts_for_feat_slot_ = kMaxRemort;
 	}
 	info->feats.Reload(node.Children());

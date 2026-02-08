@@ -222,7 +222,7 @@ void generate_book_upgrd(ObjData *obj) {
 		ESkill::kOverwhelm, ESkill::kAddshot, ESkill::kAwake, ESkill::kNoParryHit,
 		ESkill::kWarcry, ESkill::kIronwind, ESkill::kStrangle);
 
-	auto skill_id = skill_list[number(0, skill_list.size() - 1)];
+	auto skill_id = skill_list[number(0, static_cast<int>(skill_list.size()) - 1)];
 	std::string book_name = MUD::Skill(skill_id).name;
 
 	obj->set_val(1, to_underlying(skill_id));

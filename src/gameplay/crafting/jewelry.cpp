@@ -398,7 +398,7 @@ std::string insert_wanted_gem::get_random_str_for(int gem_vnum) {
 	}
 
 	auto gem = content[gem_vnum];
-	int rnd = number(0, gem.size() - 1);
+	int rnd = number(0, static_cast<int>(gem.size()) - 1);
 
 	int count = 0;
 	for (const auto& kv : gem) {

@@ -99,10 +99,10 @@ bool DailyQuestLoader::do_load()
 		try {
 			id = std::stoi(attr_id);
 			reward = std::stoi(attr_reward);
-		} catch (const std::invalid_argument& ia) {
+		} catch (const std::invalid_argument&) {
 			m_log_msg << "Чтений файла дейликов прервано: найдено некорректное число";
 			return m_load_status;
-		} catch (const std::out_of_range& oor) {
+		} catch (const std::out_of_range&) {
 			m_log_msg << "Чтений файла дейликов прервано: слишком большое число";
 			return m_load_status;
 		}

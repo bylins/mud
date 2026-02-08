@@ -10,7 +10,7 @@
 
 #ifdef ENABLE_ADMIN_API
 
-class DescriptorData;
+struct DescriptorData;
 
 // Admin API command handler
 void admin_api_parse(DescriptorData *d, char *argument);
