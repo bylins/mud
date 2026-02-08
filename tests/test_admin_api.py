@@ -513,7 +513,7 @@ def test_comprehensive_room(sock, vnum):
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
-        print("Commands:")
+        print("\nIndividual commands:")
         print("  get_mob <vnum>")
         print("  update_mob <vnum>")
         print("  list_mobs <zone>")
@@ -524,8 +524,9 @@ def main():
         print("  update_room <vnum>")
         print("  list_rooms <zone>")
         print("  list_zones")
-        print("  create_delete_test")
-        print("  full_crud_test")
+        print("\nTest suites:")
+        print("  create_delete_test  - Test create/delete operations")
+        print("  full_crud_test      - Test all endpoints with comprehensive field data")
         sys.exit(1)
 
     command = sys.argv[1]
@@ -703,76 +704,31 @@ def main():
             test_list_objects(sock, "1")
             test_list_rooms(sock, "1")
 
-            # Test mob CRUD
+            # Test comprehensive mob CRUD (all fields)
             print("\n" + "="*60)
-            print("TESTING MOB CRUD")
+            print("TESTING MOB COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
-
-            mob = test_get_mob(sock, 100)
-            if mob.get("status") == "ok":
-                data = {
-                    "names": {
-                        "nominative": "тестовый моб CRUD"
-                    },
-                    "stats": {
-                        "level": 99
-                    }
-                }
-                test_update_mob(sock, 100, data)
-                test_get_mob(sock, 100)
-
-            # Test object CRUD
-            print("\n" + "="*60)
-            print("TESTING OBJECT CRUD")
-            print("="*60)
-
-            obj = test_get_object(sock, 100)
-            if obj.get("status") == "ok":
-                data = {
-                    "short_desc": "тестовый объект CRUD",
-                    "aliases": "тест объект crud"
-                }
-                test_update_object(sock, 100, data)
-                test_get_object(sock, 100)
-
-            # Test room CRUD
-            print("\n" + "="*60)
-            print("TESTING ROOM CRUD")
-            print("="*60)
-
-            room = test_get_room(sock, 100)
-            if room.get("status") == "ok":
-                data = {
-                    "name": "Тестовая комната CRUD",
-                    "description": "Описание тестовой комнаты для CRUD операций."
-                }
-                test_update_room(sock, 100, data)
-                test_get_room(sock, 100)
-
-        elif command == "comprehensive_test":
-            print("\n" + "="*60)
-            print("COMPREHENSIVE FIELD TESTING")
-            print("="*60)
-            
-            # Test mob comprehensive
-            print("\n--- MOB COMPREHENSIVE TEST ---")
             test_comprehensive_mob(sock, 100)
-            
-            # Test object comprehensive
-            print("\n--- OBJECT COMPREHENSIVE TEST ---")
-            test_comprehensive_object(sock, 100)
-            
-            # Test room comprehensive (use 101 which exists)
-            print("\n--- ROOM COMPREHENSIVE TEST ---")
-            test_comprehensive_room(sock, 101)
-            
+
+            # Test comprehensive object CRUD (all fields)
             print("\n" + "="*60)
-            print("COMPREHENSIVE TESTING COMPLETE")
+            print("TESTING OBJECT COMPREHENSIVE UPDATE (ALL FIELDS)")
+            print("="*60)
+            test_comprehensive_object(sock, 100)
+
+            # Test comprehensive room CRUD (all fields)
+            print("\n" + "="*60)
+            print("TESTING ROOM COMPREHENSIVE UPDATE (ALL FIELDS)")
+            print("="*60)
+            test_comprehensive_room(sock, 101)
+
+            print("\n" + "="*60)
+            print("FULL CRUD TEST COMPLETE")
             print("="*60)
 
         else:
             print(f"Error: Unknown command '{command}'")
-            print("\nAvailable commands:")
+            print("\nIndividual commands:")
             print("  get_mob <vnum>")
             print("  update_mob <vnum>")
             print("  list_mobs <zone>")
@@ -783,8 +739,9 @@ def main():
             print("  update_room <vnum>")
             print("  list_rooms <zone>")
             print("  list_zones")
-            print("  create_delete_test")
-            print("  full_crud_test")
+            print("\nTest suites:")
+            print("  create_delete_test  - Test create/delete operations")
+            print("  full_crud_test      - Test all endpoints with comprehensive field data")
             sys.exit(1)
 
     finally:
