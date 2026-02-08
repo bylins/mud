@@ -50,25 +50,7 @@ std::string koi8r_to_utf8(const std::string &koi8r) {
 	strncpy(koi8r_buf, koi8r.c_str(), sizeof(koi8r_buf) - 1);
 	koi8r_buf[sizeof(koi8r_buf) - 1] = 0;
 
-	// DEBUG: dump hex before conversion
-	std::string hex_before;
-	for (size_t i = 0; i < std::min(strlen(koi8r_buf), (size_t)20); i++) {
-		char tmp[8];
-		sprintf(tmp, " %02X", (unsigned char)koi8r_buf[i]);
-		hex_before += tmp;
-	}
-	log("koi8r->utf8 IN: [%s] hex:%s", koi8r_buf, hex_before.c_str());
-
 	koi_to_utf8(koi8r_buf, utf8_buf);
-
-	// DEBUG: dump hex after conversion
-	std::string hex_after;
-	for (size_t i = 0; i < std::min(strlen(utf8_buf), (size_t)30); i++) {
-		char tmp[8];
-		sprintf(tmp, " %02X", (unsigned char)utf8_buf[i]);
-		hex_after += tmp;
-	}
-	log("koi8r->utf8 OUT: [%s] hex:%s", utf8_buf, hex_after.c_str());
 
 	return std::string(utf8_buf);
 }
@@ -81,25 +63,7 @@ std::string utf8_to_koi8r(const std::string &utf8) {
 	strncpy(utf8_buf, utf8.c_str(), sizeof(utf8_buf) - 1);
 	utf8_buf[sizeof(utf8_buf) - 1] = '\0';
 
-	// DEBUG: dump hex before conversion
-	std::string hex_before;
-	for (size_t i = 0; i < std::min(strlen(utf8_buf), (size_t)30); i++) {
-		char tmp[8];
-		sprintf(tmp, " %02X", (unsigned char)utf8_buf[i]);
-		hex_before += tmp;
-	}
-	log("utf8->koi8r IN: [%s] hex:%s", utf8_buf, hex_before.c_str());
-
 	utf8_to_koi(utf8_buf, koi8r_buf);
-
-	// DEBUG: dump hex after conversion
-	std::string hex_after;
-	for (size_t i = 0; i < std::min(strlen(koi8r_buf), (size_t)20); i++) {
-		char tmp[8];
-		sprintf(tmp, " %02X", (unsigned char)koi8r_buf[i]);
-		hex_after += tmp;
-	}
-	log("utf8->koi8r OUT: [%s] hex:%s", koi8r_buf, hex_after.c_str());
 
 	return std::string(koi8r_buf);
 }
@@ -228,7 +192,6 @@ bool admin_api_is_authenticated(DescriptorData *d) {
 void admin_api_parse(DescriptorData *d, char *argument) {
 
 	try {
-		log("Admin API: Received command: %s", argument);
 		// Parse JSON command
 		json request = json::parse(argument);
 
@@ -707,7 +670,6 @@ void admin_api_create_mob(DescriptorData *d, int zone_vnum, const char *json_dat
 	extern void medit_mobile_init(CharData *mob);
 	extern void medit_save_internally(DescriptorData *d);
 
-	log("Admin API: create_mob via OLC for zone=%d", zone_vnum);
 
 	ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
 	if (zone_rnum < 0) {
@@ -807,7 +769,7 @@ void admin_api_create_mob(DescriptorData *d, int zone_vnum, const char *json_dat
 }
 
 void admin_api_delete_mob(DescriptorData *d, int mob_vnum) {
-	log("Admin API: delete_mob called for vnum=%d", mob_vnum);
+	(void)mob_vnum;  // Suppress unused parameter warning
 
 	// Delete is dangerous - requires:
 	// 1. Checking for live instances
@@ -892,7 +854,6 @@ void admin_api_get_object(DescriptorData *d, int obj_vnum) {
 }
 
 void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_data) {
-	log("Admin API: update_object via OLC for vnum=%d", obj_vnum);
 
 	ObjRnum rnum = GetObjRnum(obj_vnum);
 	if (rnum < 0) {
@@ -1068,7 +1029,6 @@ void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_d
 
 
 void admin_api_create_object(DescriptorData *d, int zone_vnum, const char *json_data) {
-	log("Admin API: create_object via OLC for zone=%d", zone_vnum);
 
 	ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
 	if (zone_rnum < 0) {
@@ -1177,7 +1137,7 @@ void admin_api_create_object(DescriptorData *d, int zone_vnum, const char *json_
 }
 
 void admin_api_delete_object(DescriptorData *d, int obj_vnum) {
-	log("Admin API: delete_object called for vnum=%d", obj_vnum);
+	(void)obj_vnum;  // Suppress unused parameter warning
 
 	// Delete is dangerous - requires:
 	// 1. Checking for live instances (in game, on ground, in inventories)
@@ -1290,7 +1250,6 @@ void admin_api_get_room(DescriptorData *d, int room_vnum) {
 }
 
 void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_data) {
-	log("Admin API: update_room via OLC for vnum=%d", room_vnum);
 
 	RoomRnum rnum = GetRoomRnum(room_vnum);
 	if (rnum == kNowhere) {
@@ -1417,7 +1376,6 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 }
 
 void admin_api_create_room(DescriptorData *d, int zone_vnum, const char *json_data) {
-	log("Admin API: create_room via OLC for zone=%d", zone_vnum);
 
 	try {
 		json data = json::parse(json_data);
@@ -1507,7 +1465,7 @@ void admin_api_create_room(DescriptorData *d, int zone_vnum, const char *json_da
 
 
 void admin_api_delete_room(DescriptorData *d, int room_vnum) {
-	log("Admin API: delete_room called for vnum=%d", room_vnum);
+	(void)room_vnum;  // Suppress unused parameter warning
 
 	// Room deletion is dangerous - requires:
 	// 1. Checking if mobs/objects are in the room
@@ -1614,7 +1572,6 @@ void admin_api_get_zone(DescriptorData *d, int zone_vnum) {
 }
 
 void admin_api_update_zone(DescriptorData *d, int zone_vnum, const char *json_data) {
-	log("Admin API: update_zone via OLC for vnum=%d", zone_vnum);
 
 	ZoneRnum zrn = GetZoneRnum(zone_vnum);
 	if (zrn == -1) {
@@ -1782,7 +1739,6 @@ void admin_api_get_trigger(DescriptorData *d, int trig_vnum) {
 }
 
 void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json_data) {
-	log("Admin API: update_trigger via OLC for vnum=%d", trig_vnum);
 
 	int rnum = find_trig_rnum(trig_vnum);
 	if (rnum < 0 || !trig_index[rnum] || !trig_index[rnum]->proto) {
@@ -1865,7 +1821,6 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 }
 
 void admin_api_create_trigger(DescriptorData *d, int zone_vnum, const char *json_data) {
-	log("Admin API: create_trigger via OLC for zone=%d", zone_vnum);
 
 	ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
 	if (zone_rnum < 0) {
@@ -1982,7 +1937,7 @@ void admin_api_create_trigger(DescriptorData *d, int zone_vnum, const char *json
 
 
 void admin_api_delete_trigger(DescriptorData *d, int trig_vnum) {
-	log("Admin API: delete_trigger called for vnum=%d", trig_vnum);
+	(void)trig_vnum;  // Suppress unused parameter warning
 
 	// Trigger deletion is dangerous - requires:
 	// 1. Checking if trigger is attached to any mobs/objects/rooms
