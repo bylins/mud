@@ -124,8 +124,85 @@ a:hover {
 }
 
 /* ============================================================
-   7. STAT CARDS (Dashboard)
+   7. STAT-NAV CARDS (Dashboard -- unified stat + navigation)
    ============================================================ */
+.stat-nav-card-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+}
+
+.stat-nav-card-link:hover {
+    text-decoration: none !important;
+}
+
+.stat-nav-card {
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+    transition: all 0.15s ease;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+}
+
+.stat-nav-card:hover {
+    background-color: #f0e4cb;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 4px 12px rgba(139, 69, 19, 0.1);
+}
+
+.stat-nav-card:active {
+    box-shadow: inset 0 2px 4px rgba(139, 69, 19, 0.12);
+}
+
+.stat-nav-card .stat-nav-icon {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(180, 83, 9, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    transition: background-color 0.15s ease;
+}
+
+.stat-nav-card:hover .stat-nav-icon {
+    background-color: rgba(180, 83, 9, 0.16);
+}
+
+.stat-nav-card .stat-nav-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #2d241e;
+    line-height: 1.2;
+}
+
+.stat-nav-card .stat-nav-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #5a4d3f;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.stat-nav-card .stat-nav-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+    line-height: 1.5;
+    margin-top: 4px;
+}
+
+/* Legacy alias */
 .stat-card {
     background-color: #f4ead5;
     border: 2px solid rgba(120, 53, 15, 0.12);
