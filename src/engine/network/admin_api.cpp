@@ -462,6 +462,9 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 	try {
 		json data = json::parse(json_data);
 
+		// DEBUG: Log incoming JSON to understand the error
+		log("Admin API: update_mob %d, incoming JSON: %s", mob_vnum, json_data);
+
 		// Get zone
 		int zone_vnum = mob_vnum / 100;
 		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);

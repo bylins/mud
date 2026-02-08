@@ -1077,6 +1077,13 @@ function saveMob() {
     // Clean empty objects before sending
     data = cleanEmptyObjects(data);
 
+    // Remove fields not supported by API yet (will be added later)
+    delete data.position;
+    delete data.behavior;
+    delete data.resistances;
+    delete data.savings;
+    delete data.flags;
+
     // POST as JSON
     fetch('{{ url_for("mob_update", vnum=mob.vnum) }}', {
         method: 'POST',
