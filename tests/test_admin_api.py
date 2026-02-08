@@ -108,16 +108,88 @@ def test_update_room(sock, vnum, data):
 
     return response
 
+def test_list_mobs(sock, zone):
+    """Test list_mobs command."""
+    print(f"\n=== Testing list_mobs zone {zone} ===")
+    response = send_command(sock, "list_mobs", zone=zone)
+
+    if response.get("status") == "ok":
+        mobs = response.get("mobs", [])
+        print(f"✓ Found {len(mobs)} mobs")
+        for mob in mobs[:5]:
+            print(f"  - {mob['vnum']}: {mob['name']} (level {mob['level']})")
+        if len(mobs) > 5:
+            print(f"  ... and {len(mobs) - 5} more")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
+def test_list_objects(sock, zone):
+    """Test list_objects command."""
+    print(f"\n=== Testing list_objects zone {zone} ===")
+    response = send_command(sock, "list_objects", zone=zone)
+
+    if response.get("status") == "ok":
+        objects = response.get("objects", [])
+        print(f"✓ Found {len(objects)} objects")
+        for obj in objects[:5]:
+            print(f"  - {obj['vnum']}: {obj['short_desc']}")
+        if len(objects) > 5:
+            print(f"  ... and {len(objects) - 5} more")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
+def test_list_rooms(sock, zone):
+    """Test list_rooms command."""
+    print(f"\n=== Testing list_rooms zone {zone} ===")
+    response = send_command(sock, "list_rooms", zone=zone)
+
+    if response.get("status") == "ok":
+        rooms = response.get("rooms", [])
+        print(f"✓ Found {len(rooms)} rooms")
+        for room in rooms[:5]:
+            print(f"  - {room['vnum']}: {room['name']}")
+        if len(rooms) > 5:
+            print(f"  ... and {len(rooms) - 5} more")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
+def test_list_zones(sock):
+    """Test list_zones command."""
+    print(f"\n=== Testing list_zones ===")
+    response = send_command(sock, "list_zones")
+
+    if response.get("status") == "ok":
+        zones = response.get("zones", [])
+        print(f"✓ Found {len(zones)} zones")
+        for zone in zones[:10]:
+            print(f"  - Zone {zone['vnum']}: {zone.get('name', 'N/A')}")
+        if len(zones) > 10:
+            print(f"  ... and {len(zones) - 10} more")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
         print("Commands:")
         print("  get_mob <vnum>")
         print("  update_mob <vnum>")
+        print("  list_mobs <zone>")
         print("  get_object <vnum>")
         print("  update_object <vnum>")
+        print("  list_objects <zone>")
         print("  get_room <vnum>")
         print("  update_room <vnum>")
+        print("  list_rooms <zone>")
+        print("  list_zones")
         print("  full_crud_test")
         sys.exit(1)
 
@@ -226,7 +298,31 @@ def main():
             # Verify update
             test_get_room(sock, vnum)
 
+        elif command == "list_mobs":
+            zone = sys.argv[2] if len(sys.argv) > 2 else "1"
+            test_list_mobs(sock, zone)
+
+        elif command == "list_objects":
+            zone = sys.argv[2] if len(sys.argv) > 2 else "1"
+            test_list_objects(sock, zone)
+
+        elif command == "list_rooms":
+            zone = sys.argv[2] if len(sys.argv) > 2 else "1"
+            test_list_rooms(sock, zone)
+
+        elif command == "list_zones":
+            test_list_zones(sock)
+
         elif command == "full_crud_test":
+            # Test list commands
+            print("\n" + "="*60)
+            print("TESTING LIST COMMANDS")
+            print("="*60)
+            test_list_zones(sock)
+            test_list_mobs(sock, "1")
+            test_list_objects(sock, "1")
+            test_list_rooms(sock, "1")
+
             # Test mob CRUD
             print("\n" + "="*60)
             print("TESTING MOB CRUD")
@@ -278,10 +374,14 @@ def main():
             print("\nAvailable commands:")
             print("  get_mob <vnum>")
             print("  update_mob <vnum>")
+            print("  list_mobs <zone>")
             print("  get_object <vnum>")
             print("  update_object <vnum>")
+            print("  list_objects <zone>")
             print("  get_room <vnum>")
             print("  update_room <vnum>")
+            print("  list_rooms <zone>")
+            print("  list_zones")
             print("  full_crud_test")
             sys.exit(1)
 
