@@ -2577,7 +2577,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 		}
 
 		int rel_num = room->vnum % 100;
-		std::string room_file = rooms_dir + "/" + std::to_string(rel_num) + ".yaml";
+		std::string room_file = rooms_dir + "/" + fmt::format("{:02d}", rel_num) + ".yaml";
 		std::string temp_file = room_file + ".tmp";
 		std::ofstream out(temp_file);
 		if (!out.is_open())

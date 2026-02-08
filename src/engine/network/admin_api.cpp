@@ -614,8 +614,16 @@ void admin_api_create_mob(DescriptorData *d, int zone_vnum, const char *json_dat
 		// Create temporary OLC descriptor
 		auto *temp_d = new DescriptorData();
 		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
 		temp_d->olc->number = vnum;
 		temp_d->olc->zone_num = zone_rnum;
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
 
 		// Create new mob with OLC defaults
 		temp_d->olc->mob = new CharData();
@@ -637,6 +645,12 @@ void admin_api_create_mob(DescriptorData *d, int zone_vnum, const char *json_dat
 		// Save via OLC (handles array expansion, indexing, disk save)
 		medit_save_internally(temp_d);
 
+		// Capture OLC output
+		std::string olc_output;
+		if (temp_d->output && temp_d->bufptr > 0) {
+			olc_output = koi8r_to_utf8(std::string(temp_d->output, temp_d->bufptr));
+		}
+
 		// Clean up temporary descriptor (mob freed by medit_save_internally)
 		delete temp_d->olc;
 		delete temp_d;
@@ -645,6 +659,9 @@ void admin_api_create_mob(DescriptorData *d, int zone_vnum, const char *json_dat
 		response["status"] = "ok";
 		response["message"] = "Mob created successfully via OLC";
 		response["vnum"] = vnum;
+		if (!olc_output.empty()) {
+			response["olc_output"] = olc_output;
+		}
 		admin_api_send_json(d, response.dump().c_str());
 	} catch (const json::exception &e) {
 		std::string error_msg = std::string("Create failed: ") + e.what();
@@ -872,8 +889,16 @@ void admin_api_create_object(DescriptorData *d, int zone_vnum, const char *json_
 		// Create temporary OLC descriptor
 		auto *temp_d = new DescriptorData();
 		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
 		temp_d->olc->number = vnum;
 		temp_d->olc->zone_num = zone_rnum;
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
 
 		// Create object with OLC defaults (matching oedit_setup for real_num == -1)
 		temp_d->olc->obj = new ObjData(vnum);
@@ -908,6 +933,12 @@ void admin_api_create_object(DescriptorData *d, int zone_vnum, const char *json_
 		extern void oedit_save_internally(DescriptorData *d);
 		oedit_save_internally(temp_d);
 
+		// Capture OLC output
+		std::string olc_output;
+		if (temp_d->output && temp_d->bufptr > 0) {
+			olc_output = koi8r_to_utf8(std::string(temp_d->output, temp_d->bufptr));
+		}
+
 		// Clean up temporary descriptor (object is freed by oedit_save_internally)
 		delete temp_d->olc;
 		delete temp_d;
@@ -916,6 +947,9 @@ void admin_api_create_object(DescriptorData *d, int zone_vnum, const char *json_
 		response["status"] = "ok";
 		response["message"] = "Object created successfully via OLC";
 		response["vnum"] = vnum;
+		if (!olc_output.empty()) {
+			response["olc_output"] = olc_output;
+		}
 		admin_api_send_json(d, response.dump().c_str());
 
 	} catch (const json::exception &e) {
@@ -1116,10 +1150,18 @@ void admin_api_create_room(DescriptorData *d, int zone_vnum, const char *json_da
 		// Create temporary OLC descriptor
 		auto *temp_d = new DescriptorData();
 		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
 		temp_d->olc->number = vnum;
 		temp_d->olc->zone_num = zone_rnum;
 		
 		// Initialize new room with defaults (redit_setup with kNowhere)
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
 		extern void redit_setup(DescriptorData *d, int real_num);
 		redit_setup(temp_d, kNowhere);
 		
@@ -1142,6 +1184,12 @@ void admin_api_create_room(DescriptorData *d, int zone_vnum, const char *json_da
 		// Save via OLC (handles world insertion, disk save)
 		extern void redit_save_internally(DescriptorData *d);
 		redit_save_internally(temp_d);
+
+		// Capture OLC output
+		std::string olc_output;
+		if (temp_d->output && temp_d->bufptr > 0) {
+			olc_output = koi8r_to_utf8(std::string(temp_d->output, temp_d->bufptr));
+		}
 		
 		// Clean up temporary descriptor (room is freed by redit_save_internally)
 		delete temp_d->olc;
@@ -1151,6 +1199,9 @@ void admin_api_create_room(DescriptorData *d, int zone_vnum, const char *json_da
 		response["status"] = "ok";
 		response["message"] = "Room created successfully via OLC";
 		response["vnum"] = vnum;
+		if (!olc_output.empty()) {
+			response["olc_output"] = olc_output;
+		}
 		admin_api_send_json(d, response.dump().c_str());
 		
 	} catch (const json::exception &e) {
@@ -1538,10 +1589,18 @@ void admin_api_create_trigger(DescriptorData *d, int zone_vnum, const char *json
 		// Create temporary OLC descriptor
 		auto *temp_d = new DescriptorData();
 		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
 		temp_d->olc->number = vnum;
 		temp_d->olc->zone_num = zone_rnum;
 		temp_d->character = d->character;  // For logging
 
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
 		// Create trigger with OLC defaults (matching trigedit_setup_new)
 		Trigger *trig = new Trigger(-1, "new trigger", MTRIG_GREET);
 		trig->narg = 100;
@@ -1577,6 +1636,12 @@ void admin_api_create_trigger(DescriptorData *d, int zone_vnum, const char *json
 		extern void trigedit_save(DescriptorData *d);
 		trigedit_save(temp_d);
 
+		// Capture OLC output
+		std::string olc_output;
+		if (temp_d->output && temp_d->bufptr > 0) {
+			olc_output = koi8r_to_utf8(std::string(temp_d->output, temp_d->bufptr));
+		}
+
 		// Clean up
 		if (temp_d->olc->storage) {
 			free(temp_d->olc->storage);
@@ -1588,6 +1653,9 @@ void admin_api_create_trigger(DescriptorData *d, int zone_vnum, const char *json
 		response["status"] = "ok";
 		response["message"] = "Trigger created successfully via OLC";
 		response["vnum"] = vnum;
+		if (!olc_output.empty()) {
+			response["olc_output"] = olc_output;
+		}
 		admin_api_send_json(d, response.dump().c_str());
 
 	} catch (const json::exception &e) {

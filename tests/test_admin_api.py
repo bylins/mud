@@ -184,6 +184,8 @@ def test_create_mob(sock, zone, data):
     if response.get("status") == "ok":
         vnum = response.get("vnum", "?")
         print(f"✓ Mob created with vnum {vnum}")
+        if "olc_output" in response:
+            print(f"  OLC output: {response['olc_output']}")
         return vnum
     else:
         print(f"✗ Error: {response.get('error')}")
@@ -209,6 +211,8 @@ def test_create_object(sock, zone, data):
     if response.get("status") == "ok":
         vnum = response.get("vnum", "?")
         print(f"✓ Object created with vnum {vnum}")
+        if "olc_output" in response:
+            print(f"  OLC output: {response['olc_output']}")
         return vnum
     else:
         print(f"✗ Error: {response.get('error')}")
@@ -234,6 +238,8 @@ def test_create_room(sock, zone, data):
     if response.get("status") == "ok":
         vnum = response.get("vnum", "?")
         print(f"✓ Room created with vnum {vnum}")
+        if "olc_output" in response:
+            print(f"  OLC output: {response['olc_output']}")
         return vnum
     else:
         print(f"✗ Error: {response.get('error')}")
