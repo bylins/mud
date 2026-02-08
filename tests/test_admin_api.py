@@ -201,6 +201,56 @@ def test_delete_mob(sock, vnum):
 
     return response
 
+def test_create_object(sock, zone, data):
+    """Test create_object command."""
+    print(f"\n=== Testing create_object in zone {zone} ===")
+    response = send_command(sock, "create_object", zone=zone, data=data)
+
+    if response.get("status") == "ok":
+        vnum = response.get("vnum", "?")
+        print(f"✓ Object created with vnum {vnum}")
+        return vnum
+    else:
+        print(f"✗ Error: {response.get('error')}")
+        return None
+
+def test_delete_object(sock, vnum):
+    """Test delete_object command."""
+    print(f"\n=== Testing delete_object {vnum} ===")
+    response = send_command(sock, "delete_object", vnum=vnum)
+
+    if response.get("status") == "ok":
+        print(f"✓ Object {vnum} deleted successfully")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
+def test_create_room(sock, zone, data):
+    """Test create_room command."""
+    print(f"\n=== Testing create_room in zone {zone} ===")
+    response = send_command(sock, "create_room", zone=zone, data=data)
+
+    if response.get("status") == "ok":
+        vnum = response.get("vnum", "?")
+        print(f"✓ Room created with vnum {vnum}")
+        return vnum
+    else:
+        print(f"✗ Error: {response.get('error')}")
+        return None
+
+def test_delete_room(sock, vnum):
+    """Test delete_room command."""
+    print(f"\n=== Testing delete_room {vnum} ===")
+    response = send_command(sock, "delete_room", vnum=vnum)
+
+    if response.get("status") == "ok":
+        print(f"✓ Room {vnum} deleted successfully")
+    else:
+        print(f"✗ Error: {response.get('error')}")
+
+    return response
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
@@ -340,29 +390,48 @@ def main():
             test_list_zones(sock)
 
         elif command == "create_delete_test":
-            # Test creating and deleting a mob
+            # Test creating and deleting entities
             print("\n" + "="*60)
             print("TESTING CREATE/DELETE MOB")
             print("="*60)
 
-            data = {
+            mob_data = {
                 "name": "тестмоб",
                 "short_desc": "тестовый моб для создания",
                 "level": 10
             }
-            vnum = test_create_mob(sock, 1, data)
-            if vnum:
-                # Verify it exists
-                test_get_mob(sock, vnum)
-                # Delete it
-                test_delete_mob(sock, vnum)
-                # Verify it's gone
-                print(f"\nVerifying deletion...")
-                result = test_get_mob(sock, vnum)
-                if result.get("status") == "error":
-                    print(f"✓ Mob {vnum} successfully deleted (not found)")
-                else:
-                    print(f"✗ Mob {vnum} still exists after deletion!")
+            mob_vnum = test_create_mob(sock, 1, mob_data)
+            if mob_vnum:
+                test_get_mob(sock, mob_vnum)
+                test_delete_mob(sock, mob_vnum)
+
+            print("\n" + "="*60)
+            print("TESTING CREATE/DELETE OBJECT")
+            print("="*60)
+
+            obj_data = {
+                "short_desc": "тестовый объект для создания",
+                "aliases": "тестобъект"
+            }
+            # Try zone 10 (less likely to be full)
+            obj_vnum = test_create_object(sock, 10, obj_data)
+            if obj_vnum:
+                test_get_object(sock, obj_vnum)
+                test_delete_object(sock, obj_vnum)
+
+            print("\n" + "="*60)
+            print("TESTING CREATE/DELETE ROOM")
+            print("="*60)
+
+            room_data = {
+                "vnum": 199,  # Explicit vnum (zone 1 range is 100-199)
+                "name": "Тестовая комната для создания",
+                "description": "Описание тестовой комнаты."
+            }
+            room_vnum = test_create_room(sock, 1, room_data)
+            if room_vnum:
+                test_get_room(sock, room_vnum)
+                test_delete_room(sock, room_vnum)
 
         elif command == "full_crud_test":
             # Test list commands
