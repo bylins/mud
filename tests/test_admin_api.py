@@ -30,10 +30,20 @@ def verify_yaml_file(entity_type, vnum, expected_fields):
     """Verify that YAML file was actually saved with expected values."""
     import yaml
     
+    # Remove vnum from expected_fields - it's not in YAML content
+    expected_fields = {k: v for k, v in expected_fields.items() if k != 'vnum'}
+    
     # Map flat API fields to YAML structure
     yaml_expected = {}
     for key, value in expected_fields.items():
-        if key == 'aliases':
+        if key == 'name':
+            # For mobs/objects, 'name' maps to 'names.aliases'
+            # For rooms/zones/triggers, 'name' stays in root
+            if entity_type in ['mob', 'object']:
+                yaml_expected.setdefault('names', {})['aliases'] = value
+            else:
+                yaml_expected['name'] = value
+        elif key == 'aliases':
             yaml_expected.setdefault('names', {})['aliases'] = value
         elif key == 'short_desc':
             if entity_type == 'mob':
@@ -45,6 +55,11 @@ def verify_yaml_file(entity_type, vnum, expected_fields):
                 yaml_expected.setdefault('descriptions', {})['long_desc'] = value
             else:
                 yaml_expected['long_desc'] = value
+        elif key == 'level':
+            if entity_type == 'mob':
+                yaml_expected.setdefault('stats', {})['level'] = value
+            else:
+                yaml_expected['level'] = value
         else:
             yaml_expected[key] = value
     
@@ -534,11 +549,12 @@ def main():
             print("="*60)
 
             obj_data = {
+                "vnum": 390,  # Explicit vnum to avoid "no available vnums"
                 "short_desc": "тестовый объект для создания",
                 "aliases": "тестобъект"
             }
             # Try zone 10 (less likely to be full)
-            obj_vnum = test_create_object(sock, 10, obj_data)
+            obj_vnum = test_create_object(sock, 3, obj_data)
             if obj_vnum:
                 test_get_object(sock, obj_vnum)
                 test_delete_object(sock, obj_vnum)
