@@ -764,10 +764,13 @@
             </div>
             <span class="dice-sep" style="margin-top: 22px;">+</span>
             <div class="field-group" style="width: 90px;">
-                <label for="gold-bonus">Бонус</label>
+                <label for="gold-bonus">Бonус</label>
                 <input type="number" id="gold-bonus" name="behavior.gold.bonus"
                        value="{{ mob.behavior.gold.bonus if mob.behavior and mob.behavior.gold else 0 }}"
                        style="text-align: center;">
+            </div>
+            <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
+                = <span id="gold-preview">--</span> средн. золото
             </div>
         </div>
 
@@ -910,6 +913,14 @@
         });
     });
     updateDicePreview('dmg-dice-count', 'dmg-dice-size', 'dmg-bonus', 'dmg-preview');
+
+    // Gold preview
+    ['gold-dice-count', 'gold-dice-size', 'gold-bonus'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            updateDicePreview('gold-dice-count', 'gold-dice-size', 'gold-bonus', 'gold-preview');
+        });
+    });
+    updateDicePreview('gold-dice-count', 'gold-dice-size', 'gold-bonus', 'gold-preview');
 })();
 
 // --- Collapsible sections ---
