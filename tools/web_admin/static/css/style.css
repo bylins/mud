@@ -281,6 +281,19 @@ select {
     transition: all 0.15s ease;
     width: 100%;
     box-sizing: border-box;
+    line-height: 1.5;
+}
+
+/* Select: match exact height of text inputs */
+select {
+    height: 42px;
+    padding: 0 16px 0 14px !important; /* More space for text and dropdown arrow */
+}
+
+/* Textarea: generous padding for multi-line content */
+textarea {
+    padding: 14px 16px !important; /* Prevent text from sticking to edges */
+    line-height: 1.6;
 }
 
 input[type="text"]:focus,
