@@ -87,9 +87,9 @@
             <div class="detail-field">
                 <div class="detail-field-label">Тип привязки (attach type)</div>
                 <div class="detail-field-value">
-                    {% if trig.attach_type == 0 %}К мобу (MOB)
-                    {% elif trig.attach_type == 1 %}К предмету (OBJ)
-                    {% elif trig.attach_type == 2 %}К комнате (WLD)
+                    {% if trig.attach_type == 0 %}0 - К мобу (MOB)
+                    {% elif trig.attach_type == 1 %}1 - К предмету (OBJ)
+                    {% elif trig.attach_type == 2 %}2 - К комнате (WLD)
                     {% else %}{{ trig.attach_type }}{% endif %}
                 </div>
             </div>

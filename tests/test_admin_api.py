@@ -531,6 +531,109 @@ def test_comprehensive_room(sock, vnum):
         return False
 
 
+def test_comprehensive_zone(sock, vnum):
+    """Test comprehensive zone update with all fields."""
+    print(f"\n[ZONE #{vnum}] Testing comprehensive update...")
+
+    # First get current zone
+    response = send_command(sock, "get_zone", vnum=vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Failed to get zone: {response.get('error')}")
+        return False
+
+    original = response.get('zone', {})
+    print(f"  ✓ Got zone: {original.get('name', 'unnamed')}")
+
+    # Update with all fields (14 fields total)
+    update_data = {
+        'name': 'COMPREHENSIVE TEST ZONE',
+        'author': 'Test Author',
+        'comment': 'Test comment for comprehensive zone test',
+        'location': 'Test Location',
+        'description': 'Comprehensive test zone description',
+        'level': 10,
+        'type': 1,
+        'lifespan': 25,
+        'reset_mode': 2,
+        'reset_idle': True,
+        'under_construction': False,
+        'group': 5,
+        'is_town': True,
+        'locked': False
+    }
+
+    print(f"  → Updating zone with all 14 fields...")
+    response = send_command(sock, "update_zone", vnum=vnum, data=update_data)
+
+    if response.get('status') != 'ok':
+        print(f"  ✗ Update failed: {response.get('error')}")
+        return False
+
+    print(f"  ✓ Update successful")
+
+    # Verify by getting again
+    response = send_command(sock, "get_zone", vnum=vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Failed to verify: {response.get('error')}")
+        return False
+
+    updated = response.get('zone', {})
+
+    # Check all fields
+    checks = [
+        ('name', update_data['name']),
+        ('author', update_data['author']),
+        ('comment', update_data['comment']),
+        ('location', update_data['location']),
+        ('description', update_data['description']),
+        ('level', update_data['level']),
+        ('type', update_data['type']),
+        ('lifespan', update_data['lifespan']),
+        ('reset_mode', update_data['reset_mode']),
+        ('reset_idle', update_data['reset_idle']),
+        ('under_construction', update_data['under_construction']),
+        ('group', update_data['group']),
+        ('is_town', update_data['is_town']),
+        ('locked', update_data['locked']),
+    ]
+
+    all_ok = True
+    for field, expected in checks:
+        actual = updated.get(field)
+        if actual == expected:
+            print(f"  ✓ Verified: {field}={actual}")
+        else:
+            print(f"  ✗ Mismatch: {field}={actual} (expected {expected})")
+            all_ok = False
+
+    if all_ok:
+        print(f"  ✅ ZONE UPDATE TEST PASSED")
+    else:
+        print(f"  ❌ ZONE UPDATE TEST FAILED")
+
+    # Restore original
+    print(f"  → Restoring original zone...")
+    restore_data = {
+        'name': original.get('name', ''),
+        'author': original.get('author', ''),
+        'comment': original.get('comment', ''),
+        'location': original.get('location', ''),
+        'description': original.get('description', ''),
+        'level': original.get('level', 1),
+        'type': original.get('type', 0),
+        'lifespan': original.get('lifespan', 20),
+        'reset_mode': original.get('reset_mode', 2),
+        'reset_idle': original.get('reset_idle', False),
+        'under_construction': original.get('under_construction', False),
+        'group': original.get('group', 1),
+        'is_town': original.get('is_town', False),
+        'locked': original.get('locked', False),
+    }
+    send_command(sock, "update_zone", vnum=vnum, data=restore_data)
+    print(f"  ✓ Restored original")
+
+    return all_ok
+
 
 def test_comprehensive_trigger(sock, vnum):
     """Test comprehensive trigger update with all fields."""
@@ -848,6 +951,13 @@ def main():
 
             # Track test results
             all_tests_passed = True
+
+            # Test comprehensive zone CRUD (all fields)
+            print("\n" + "="*60)
+            print("TESTING ZONE COMPREHENSIVE UPDATE (ALL FIELDS)")
+            print("="*60)
+            if not test_comprehensive_zone(sock, 1):
+                all_tests_passed = False
 
             # Test comprehensive mob CRUD (all fields)
             print("\n" + "="*60)

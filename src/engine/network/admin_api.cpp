@@ -1624,22 +1624,47 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 			}
 		}
 
+		// Extra descriptions (array format: [{keyword: "...", description: "..."}, ...])
+		if (data.contains("extra_descriptions") && data["extra_descriptions"].is_array()) {
+			// Clear existing extra descriptions
+			room->ex_description = nullptr;
+
+			// Build linked list from array (in reverse to maintain order)
+			ExtraDescription::shared_ptr prev = nullptr;
+			for (auto it = data["extra_descriptions"].rbegin(); it != data["extra_descriptions"].rend(); ++it) {
+				const auto &ed_data = *it;
+				if (!ed_data.contains("keyword") || !ed_data.contains("description")) {
+					continue;
+				}
+
+				auto ed = std::make_shared<ExtraDescription>();
+				ed->set_keyword(utf8_to_koi8r(ed_data["keyword"].get<std::string>()));
+				ed->set_description(utf8_to_koi8r(ed_data["description"].get<std::string>()));
+				ed->next = prev;
+				prev = ed;
+			}
+
+			if (prev) {
+				room->ex_description = prev;
+			}
+		}
+
 		// Update triggers (array of vnum integers)
 		if (data.contains("triggers")) {
 			// Clear existing triggers
 			room->proto_script->clear();
-			
+
 			// Add new triggers
 			for (const auto &trig_vnum_json : data["triggers"]) {
 				int trig_vnum = trig_vnum_json.get<int>();
-				
+
 				// Verify trigger exists
 				int trig_rnum = find_trig_rnum(trig_vnum);
 				if (trig_rnum < 0) {
 					log("Admin API: warning - trigger vnum %d not found, skipping", trig_vnum);
 					continue;
 				}
-				
+
 				room->proto_script->push_back(trig_vnum);
 			}
 		}

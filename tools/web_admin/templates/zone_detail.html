@@ -94,7 +94,7 @@
             <div class="detail-field">
                 <div class="detail-field-label">Тип зоны</div>
                 <div class="detail-field-value">
-                    {% set zone_types = {0: 'Город', 1: 'Лес', 2: 'Поле', 3: 'Горы', 4: 'Пустыня', 5: 'Болото', 6: 'Подземелье', 7: 'Вода', 8: 'Другое'} %}
+                    {% set zone_types = {0: '0 - Город', 1: '1 - Лес', 2: '2 - Поле', 3: '3 - Горы', 4: '4 - Пустыня', 5: '5 - Болото', 6: '6 - Подземелье', 7: '7 - Вода', 8: '8 - Другое'} %}
                     {{ zone_types.get(zone.type, zone.type)|default('--') }}
                 </div>
             </div>
@@ -161,8 +161,8 @@
                 <div class="detail-field-label">Режим сброса</div>
                 <div class="detail-field-value">
                     {% if zone.reset_mode is defined %}
-                        {% set reset_modes = {0: 'Никогда', 1: 'Когда нет игроков', 2: 'Всегда', 3: 'Сложный режим'} %}
-                        {{ zone.reset_mode }} - {{ reset_modes.get(zone.reset_mode, 'Неизвестно') }}
+                        {% set reset_modes = {0: '0 - Никогда', 1: '1 - Когда нет игроков', 2: '2 - Всегда', 3: '3 - Сложный режим'} %}
+                        {{ reset_modes.get(zone.reset_mode, zone.reset_mode) }}
                     {% else %}
                         --
                     {% endif %}

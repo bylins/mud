@@ -14,7 +14,11 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
                 <polyline points="9 18 15 12 9 6"/>
             </svg>
-            <span class="text-ink-light">Редактирование #{{ trig.vnum }}</span>
+            <a href="{{ url_for('trigger_detail', vnum=trig.vnum) }}">Триггер #{{ trig.vnum }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
         </div>
     </div>
 </div>
@@ -52,9 +56,9 @@
         </div>
     </div>
 
-    <form id="trigger-form" method="POST">
+    <form id="trigger-form" novalidate>
 
-        <!-- Basic Info Section -->
+        <!-- ===== SECTION 1: Basic Info ===== -->
         <div class="parchment-section">
             <div class="parchment-section-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -63,48 +67,114 @@
                 Основная информация
             </div>
 
-            <div class="form-grid form-grid-1">
-                <div class="form-field">
-                    <label for="name" class="form-label">Название (name)</label>
-                    <input type="text" id="name" name="name" class="form-input" value="{{ trig.name if trig.name else '' }}">
-                    <div class="form-help">Краткое имя триггера для идентификации</div>
+            <div class="form-row" style="margin-bottom: 16px;">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="name">Название (name)</label>
+                    <input type="text" id="name" name="name" value="{{ trig.name if trig.name else '' }}"
+                           placeholder="Краткое имя триггера для идентификации">
                 </div>
             </div>
 
-            <div class="form-grid form-grid-3">
-                <div class="form-field">
-                    <label for="attach_type" class="form-label">Тип привязки (attach type)</label>
-                    <select id="attach_type" name="attach_type" class="form-input">
-                        <option value="0" {% if trig.attach_type == 0 %}selected{% endif %}>К мобу (MOB)</option>
-                        <option value="1" {% if trig.attach_type == 1 %}selected{% endif %}>К предмету (OBJ)</option>
-                        <option value="2" {% if trig.attach_type == 2 %}selected{% endif %}>К комнате (WLD)</option>
+            <div class="form-row form-row-3" style="margin-bottom: 16px;">
+                <div class="field-group">
+                    <label for="attach_type">Тип привязки (attach type)</label>
+                    <select id="attach_type" name="attach_type" onchange="updateTriggerTypeFlags()">
+                        <option value="0" {% if trig.attach_type == 0 %}selected{% endif %}>0 - К мобу (MOB)</option>
+                        <option value="1" {% if trig.attach_type == 1 %}selected{% endif %}>1 - К предмету (OBJ)</option>
+                        <option value="2" {% if trig.attach_type == 2 %}selected{% endif %}>2 - К комнате (WLD)</option>
                     </select>
-                    <div class="form-help">Тип сущности, к которой привязан триггер</div>
                 </div>
 
-                <div class="form-field">
-                    <label for="trigger_type" class="form-label">Тип триггера (trigger type)</label>
-                    <input type="number" id="trigger_type" name="trigger_type" class="form-input" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}">
-                    <div class="form-help">Битовая маска. MOB: 1=Random Global, 2=Random, 4=Command, 8=Speech, 16=Act, 32=Death, 64=Greet, 128=Greet All, 256=Entry, 512=Receive, 1024=Fight, 2048=HitPrcnt, 4096=Bribe, 8192=Load, 16384=Kill, 32768=Damage. OBJ: 1=Random Global, 2=Random, 4=Command, 64=Get, 128=Drop, 256=Give, 512=Wear, 2048=Remove, 8192=Load. WLD: 1=Random Global, 2=Random, 4=Command, 8=Speech, 16=Enter PC, 32=Reset, 64=Enter.</div>
+                <div class="field-group">
+                    <label for="narg">Числовой аргумент (narg)</label>
+                    <input type="number" id="narg" name="narg" value="{{ trig.narg if trig.narg is defined else 0 }}">
                 </div>
 
-                <div class="form-field">
-                    <label for="narg" class="form-label">Числовой аргумент (narg)</label>
-                    <input type="number" id="narg" name="narg" class="form-input" value="{{ trig.narg if trig.narg is defined else 0 }}">
-                    <div class="form-help">Числовой аргумент триггера</div>
+                <div class="field-group">
+                    <label for="trigger_type_value">Итоговое значение (trigger type)</label>
+                    <input type="number" id="trigger_type_value" name="trigger_type" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}" readonly
+                           style="background-color: rgba(253, 246, 227, 0.6); cursor: default;">
                 </div>
             </div>
 
-            <div class="form-grid form-grid-1">
-                <div class="form-field">
-                    <label for="arglist" class="form-label">Текстовый аргумент (arglist)</label>
-                    <input type="text" id="arglist" name="arglist" class="form-input" value="{{ trig.arglist if trig.arglist else '' }}">
-                    <div class="form-help">Текстовый аргумент (например, ключевое слово для COMMAND триггера)</div>
+            <div class="form-row">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="arglist">Текстовый аргумент (arglist)</label>
+                    <input type="text" id="arglist" name="arglist" value="{{ trig.arglist if trig.arglist else '' }}"
+                           placeholder="Ключевое слово для COMMAND триггера и т.д.">
                 </div>
             </div>
         </div>
 
-        <!-- Script Section -->
+        <!-- ===== SECTION 2: Trigger Type Flags ===== -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                    <line x1="4" y1="22" x2="4" y2="15"/>
+                </svg>
+                Тип триггера (флаги)
+            </div>
+
+            <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-bottom: 16px;">
+                Выберите один или несколько флагов. Итоговое значение (битовая маска) рассчитывается автоматически.
+            </p>
+
+            <!-- MOB triggers -->
+            <div id="flags-mob" class="trigger-flags-group">
+                <div class="subsection-label" style="margin-top: 0;">MOB триггеры</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px;">
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1" onchange="recalcTriggerType()"> 1 - Random Global</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2" onchange="recalcTriggerType()"> 2 - Random</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4" onchange="recalcTriggerType()"> 4 - Command</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8" onchange="recalcTriggerType()"> 8 - Speech</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="16" onchange="recalcTriggerType()"> 16 - Act</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="32" onchange="recalcTriggerType()"> 32 - Death</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="64" onchange="recalcTriggerType()"> 64 - Greet</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="128" onchange="recalcTriggerType()"> 128 - Greet All</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="256" onchange="recalcTriggerType()"> 256 - Entry</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="512" onchange="recalcTriggerType()"> 512 - Receive</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1024" onchange="recalcTriggerType()"> 1024 - Fight</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2048" onchange="recalcTriggerType()"> 2048 - HitPrcnt</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4096" onchange="recalcTriggerType()"> 4096 - Bribe</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8192" onchange="recalcTriggerType()"> 8192 - Load</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="16384" onchange="recalcTriggerType()"> 16384 - Kill</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="32768" onchange="recalcTriggerType()"> 32768 - Damage</label>
+                </div>
+            </div>
+
+            <!-- OBJ triggers -->
+            <div id="flags-obj" class="trigger-flags-group" style="display: none;">
+                <div class="subsection-label" style="margin-top: 0;">OBJ триггеры</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px;">
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1" onchange="recalcTriggerType()"> 1 - Random Global</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2" onchange="recalcTriggerType()"> 2 - Random</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4" onchange="recalcTriggerType()"> 4 - Command</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="64" onchange="recalcTriggerType()"> 64 - Get</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="128" onchange="recalcTriggerType()"> 128 - Drop</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="256" onchange="recalcTriggerType()"> 256 - Give</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="512" onchange="recalcTriggerType()"> 512 - Wear</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2048" onchange="recalcTriggerType()"> 2048 - Remove</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8192" onchange="recalcTriggerType()"> 8192 - Load</label>
+                </div>
+            </div>
+
+            <!-- WLD triggers -->
+            <div id="flags-wld" class="trigger-flags-group" style="display: none;">
+                <div class="subsection-label" style="margin-top: 0;">WLD триггеры</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px;">
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1" onchange="recalcTriggerType()"> 1 - Random Global</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2" onchange="recalcTriggerType()"> 2 - Random</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4" onchange="recalcTriggerType()"> 4 - Command</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8" onchange="recalcTriggerType()"> 8 - Speech</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="16" onchange="recalcTriggerType()"> 16 - Enter PC</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="32" onchange="recalcTriggerType()"> 32 - Reset</label>
+                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="64" onchange="recalcTriggerType()"> 64 - Enter</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECTION 3: Script ===== -->
         <div class="parchment-section">
             <div class="parchment-section-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,125 +184,233 @@
                 Тело скрипта (DG commands)
             </div>
 
-            <div class="form-grid form-grid-1">
-                <div class="form-field">
-                    <label for="script" class="form-label">Скрипт (script)</label>
-                    <textarea id="script" name="script" class="form-input" rows="20" style="font-family: 'Courier New', monospace; font-size: 13px;">{% if trig.commands %}{% for cmd in trig.commands %}{{ cmd }}
+            <div class="field-group">
+                <label for="script">Скрипт (script)</label>
+                <textarea id="script" name="script" rows="20"
+                          style="font-family: 'Courier New', monospace; font-size: 13px; resize: vertical; min-height: 200px;"
+                          placeholder="Каждая команда с новой строки">{% if trig.commands %}{% for cmd in trig.commands %}{{ cmd }}
 {% endfor %}{% endif %}</textarea>
-                    <div class="form-help">Тело скрипта триггера (DG Script commands, каждая команда с новой строки)</div>
-                </div>
             </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div style="display: flex; gap: 12px; padding-top: 8px;">
-            <button type="submit" class="btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                Сохранить
-            </button>
-
-            <a href="{{ url_for('trigger_detail', vnum=trig.vnum) }}" class="btn-secondary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                    <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-                Отмена
-            </a>
         </div>
 
     </form>
 
-    <!-- Message Display -->
-    <div id="message" style="display: none; margin-top: 20px;"></div>
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="saveTrigger()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <a href="{{ url_for('trigger_detail', vnum=trig.vnum) }}" class="btn-secondary">
+            Отмена
+        </a>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
 
 {% endblock %}
 
 {% block scripts %}
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .trigger-flag-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #2d241e;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: background-color 0.1s ease;
+        user-select: none;
+    }
+
+    .trigger-flag-label:hover {
+        background-color: rgba(180, 83, 9, 0.06);
+    }
+
+    .trigger-flag-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #b45309;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .trigger-flags-group {
+        padding: 16px 20px;
+        background-color: rgba(253, 246, 227, 0.5);
+        border: 1px solid rgba(120, 53, 15, 0.1);
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+</style>
 <script>
-document.getElementById('trigger-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+(function() {
+    'use strict';
 
-    const formData = new FormData(this);
-    const data = {};
-
-    // Simple field mapping (no nested objects for triggers)
-    for (let [key, value] of formData.entries()) {
-        // Convert numbers
-        if (key === 'trigger_type' || key === 'narg' || key === 'attach_type') {
-            data[key] = parseInt(value) || 0;
-        }
-        // Keep as string
-        else {
-            data[key] = value;
-        }
-    }
-
-    try {
-        const response = await fetch('/trigger/{{ trig.vnum }}/update', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-        const messageDiv = document.getElementById('message');
-
-        if (result.status === 'ok') {
-            messageDiv.className = 'msg-success';
-            messageDiv.innerHTML = `
-                <div style="flex-shrink: 0; margin-top: 2px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="msg-title">Триггер сохранён</div>
-                    <div class="msg-text">Все изменения применены успешно.</div>
-                </div>
-            `;
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
         } else {
-            messageDiv.className = 'msg-error';
-            messageDiv.innerHTML = `
-                <div style="flex-shrink: 0; margin-top: 2px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="msg-title">Ошибка сохранения</div>
-                    <div class="msg-text">${result.error || 'Неизвестная ошибка'}</div>
-                </div>
-            `;
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Trigger type flags logic ---
+    var flagGroups = {
+        '0': document.getElementById('flags-mob'),
+        '1': document.getElementById('flags-obj'),
+        '2': document.getElementById('flags-wld')
+    };
+
+    // Show/hide the correct flag group based on attach_type
+    window.updateTriggerTypeFlags = function() {
+        var attachType = document.getElementById('attach_type').value;
+
+        // Hide all groups
+        for (var key in flagGroups) {
+            flagGroups[key].style.display = 'none';
+            // Uncheck all checkboxes in hidden groups
+            var checks = flagGroups[key].querySelectorAll('.trigger-flag');
+            for (var i = 0; i < checks.length; i++) {
+                checks[i].checked = false;
+            }
         }
 
-        messageDiv.style.display = 'flex';
+        // Show the relevant group
+        if (flagGroups[attachType]) {
+            flagGroups[attachType].style.display = '';
+        }
 
-        setTimeout(() => {
-            messageDiv.style.display = 'none';
-        }, 5000);
+        // Recalculate from the now-visible checkboxes (all unchecked after switch)
+        recalcTriggerType();
+    };
 
-    } catch (error) {
-        const messageDiv = document.getElementById('message');
-        messageDiv.className = 'msg-error';
-        messageDiv.innerHTML = `
-            <div style="flex-shrink: 0; margin-top: 2px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-            </div>
-            <div>
-                <div class="msg-title">Ошибка сохранения</div>
-                <div class="msg-text">${error}</div>
-            </div>
-        `;
-        messageDiv.style.display = 'flex';
+    // Recalculate the bitmask from checked checkboxes in the visible group
+    window.recalcTriggerType = function() {
+        var attachType = document.getElementById('attach_type').value;
+        var group = flagGroups[attachType];
+        if (!group) return;
+
+        var total = 0;
+        var checks = group.querySelectorAll('.trigger-flag');
+        for (var i = 0; i < checks.length; i++) {
+            if (checks[i].checked) {
+                total += parseInt(checks[i].getAttribute('data-bit'));
+            }
+        }
+        document.getElementById('trigger_type_value').value = total;
+    };
+
+    // Initialize: set checkboxes from the existing trigger_type value
+    function initFlags() {
+        var attachType = document.getElementById('attach_type').value;
+        var triggerType = parseInt(document.getElementById('trigger_type_value').value) || 0;
+
+        // Show the correct group
+        for (var key in flagGroups) {
+            flagGroups[key].style.display = (key === attachType) ? '' : 'none';
+        }
+
+        // Check the appropriate boxes in the visible group
+        var group = flagGroups[attachType];
+        if (group) {
+            var checks = group.querySelectorAll('.trigger-flag');
+            for (var i = 0; i < checks.length; i++) {
+                var bit = parseInt(checks[i].getAttribute('data-bit'));
+                checks[i].checked = (triggerType & bit) !== 0;
+            }
+        }
     }
-});
+
+    initFlags();
+
+    // Save icon SVG for button restore
+    var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+    // --- Main save function ---
+    window.saveTrigger = function() {
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('trigger-form');
+        var data = {};
+
+        var nameEl = form.querySelector('[name="name"]');
+        if (nameEl) data.name = nameEl.value;
+
+        var attachTypeEl = form.querySelector('[name="attach_type"]');
+        if (attachTypeEl) data.attach_type = parseInt(attachTypeEl.value) || 0;
+
+        var triggerTypeEl = form.querySelector('[name="trigger_type"]');
+        if (triggerTypeEl) data.trigger_type = parseInt(triggerTypeEl.value) || 0;
+
+        var nargEl = form.querySelector('[name="narg"]');
+        if (nargEl) data.narg = parseInt(nargEl.value) || 0;
+
+        var arglistEl = form.querySelector('[name="arglist"]');
+        if (arglistEl) data.arglist = arglistEl.value;
+
+        var scriptEl = form.querySelector('[name="script"]');
+        if (scriptEl) data.script = scriptEl.value;
+
+        // POST as JSON
+        fetch('/trigger/{{ trig.vnum }}/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+
+            if (result.status === 'ok') {
+                showToast('Триггер успешно сохранён', 'success');
+                statusEl.textContent = 'Сохранено';
+                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+})();
 </script>
 {% endblock %}
