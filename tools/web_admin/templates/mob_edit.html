@@ -459,9 +459,24 @@
             </select>
         </div>
         <div class="field-group">
-            <label for="stats-race">Раса</label>
-            <input type="number" id="stats-race" name="stats.race" min="0"
-                   value="{{ mob.stats.race if mob.stats else 0 }}">
+            <label for="stats-race">Раса (race)</label>
+            <select id="stats-race" name="stats.race">
+                <option value="100" {{ 'selected' if mob.stats and mob.stats.race == 100 }}>100 - Базовая (Basic)</option>
+                <option value="101" {{ 'selected' if mob.stats and mob.stats.race == 101 }}>101 - Человек (Human)</option>
+                <option value="102" {{ 'selected' if mob.stats and mob.stats.race == 102 }}>102 - Зверочеловек (Beastman)</option>
+                <option value="103" {{ 'selected' if mob.stats and mob.stats.race == 103 }}>103 - Птица (Bird)</option>
+                <option value="104" {{ 'selected' if mob.stats and mob.stats.race == 104 }}>104 - Животное (Animal)</option>
+                <option value="105" {{ 'selected' if mob.stats and mob.stats.race == 105 }}>105 - Рептилия (Reptile)</option>
+                <option value="106" {{ 'selected' if mob.stats and mob.stats.race == 106 }}>106 - Рыба (Fish)</option>
+                <option value="107" {{ 'selected' if mob.stats and mob.stats.race == 107 }}>107 - Насекомое (Insect)</option>
+                <option value="108" {{ 'selected' if mob.stats and mob.stats.race == 108 }}>108 - Растение (Plant)</option>
+                <option value="109" {{ 'selected' if mob.stats and mob.stats.race == 109 }}>109 - Конструкт (Construct)</option>
+                <option value="110" {{ 'selected' if mob.stats and mob.stats.race == 110 }}>110 - Зомби (Zombie)</option>
+                <option value="111" {{ 'selected' if mob.stats and mob.stats.race == 111 }}>111 - Призрак (Ghost)</option>
+                <option value="112" {{ 'selected' if mob.stats and mob.stats.race == 112 }}>112 - Домовой (Boggart)</option>
+                <option value="113" {{ 'selected' if mob.stats and mob.stats.race == 113 }}>113 - Дух (Spirit)</option>
+                <option value="114" {{ 'selected' if mob.stats and mob.stats.race == 114 }}>114 - Магическое существо (MagicCreature)</option>
+            </select>
         </div>
         <div class="field-group">
             <label for="stats-alignment">Характер <span class="field-hint">(-1000..1000)</span></label>
@@ -725,9 +740,24 @@
     <div class="section-body">
         <div class="form-row form-row-4">
             <div class="field-group">
-                <label for="beh-class">Класс NPC</label>
-                <input type="number" id="beh-class" name="behavior.class" min="0"
-                       value="{{ mob.behavior.class if mob.behavior else 0 }}">
+                <label for="beh-class">Класс NPC (class)</label>
+                <select id="beh-class" name="behavior.class">
+                    <option value="-1" {{ 'selected' if mob.behavior and mob.behavior.class == -1 }}>-1 - Не определён (Undefined)</option>
+                    <option value="0" {{ 'selected' if mob.behavior and mob.behavior.class == 0 }}>0 - Колдун (Sorcerer)</option>
+                    <option value="1" {{ 'selected' if mob.behavior and mob.behavior.class == 1 }}>1 - Волхв (Conjurer)</option>
+                    <option value="2" {{ 'selected' if mob.behavior and mob.behavior.class == 2 }}>2 - Вор (Thief)</option>
+                    <option value="3" {{ 'selected' if mob.behavior and mob.behavior.class == 3 }}>3 - Воин (Warrior)</option>
+                    <option value="4" {{ 'selected' if mob.behavior and mob.behavior.class == 4 }}>4 - Убийца (Assassine)</option>
+                    <option value="5" {{ 'selected' if mob.behavior and mob.behavior.class == 5 }}>5 - Дружинник (Guard)</option>
+                    <option value="6" {{ 'selected' if mob.behavior and mob.behavior.class == 6 }}>6 - Кудесник (Charmer)</option>
+                    <option value="7" {{ 'selected' if mob.behavior and mob.behavior.class == 7 }}>7 - Чародей (Wizard)</option>
+                    <option value="8" {{ 'selected' if mob.behavior and mob.behavior.class == 8 }}>8 - Некромант (Necromancer)</option>
+                    <option value="9" {{ 'selected' if mob.behavior and mob.behavior.class == 9 }}>9 - Витязь (Paladine)</option>
+                    <option value="10" {{ 'selected' if mob.behavior and mob.behavior.class == 10 }}>10 - Богатырь (Ranger)</option>
+                    <option value="11" {{ 'selected' if mob.behavior and mob.behavior.class == 11 }}>11 - Охотник (Vigilant)</option>
+                    <option value="12" {{ 'selected' if mob.behavior and mob.behavior.class == 12 }}>12 - Купец (Merchant)</option>
+                    <option value="13" {{ 'selected' if mob.behavior and mob.behavior.class == 13 }}>13 - Волшебник (Magus)</option>
+                </select>
             </div>
             <div class="field-group">
                 <label for="beh-special">Спецпроцедура</label>
@@ -735,9 +765,26 @@
                        value="{{ mob.behavior.special if mob.behavior else 0 }}">
             </div>
             <div class="field-group">
-                <label for="beh-attack">Тип атаки</label>
-                <input type="number" id="beh-attack" name="behavior.attack_type" min="0"
-                       value="{{ mob.behavior.attack_type if mob.behavior else 0 }}">
+                <label for="beh-attack">Тип атаки (attack_type)</label>
+                <select id="beh-attack" name="behavior.attack_type">
+                    <option value="0" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 0 }}>0 - Удар (hit)</option>
+                    <option value="1" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 1 }}>1 - Кожа (skin)</option>
+                    <option value="2" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 2 }}>2 - Кнут (whip)</option>
+                    <option value="3" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 3 }}>3 - Рубящий (slash)</option>
+                    <option value="4" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 4 }}>4 - Укус (bite)</option>
+                    <option value="5" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 5 }}>5 - Дубина (bludgeon)</option>
+                    <option value="6" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 6 }}>6 - Раздавить (crush)</option>
+                    <option value="7" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 7 }}>7 - Колотить (pound)</option>
+                    <option value="8" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 8 }}>8 - Коготь (claw)</option>
+                    <option value="9" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 9 }}>9 - Терзать (maul)</option>
+                    <option value="10" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 10 }}>10 - Молотить (thrash)</option>
+                    <option value="11" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 11 }}>11 - Прокол (pierce)</option>
+                    <option value="12" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 12 }}>12 - Взрыв (blast)</option>
+                    <option value="13" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 13 }}>13 - Кулак (punch)</option>
+                    <option value="14" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 14 }}>14 - Колоть (stab)</option>
+                    <option value="15" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 15 }}>15 - Пика (pick)</option>
+                    <option value="16" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 16 }}>16 - Жало (sting)</option>
+                </select>
             </div>
             <div class="field-group">
                 <label for="beh-exp">Бонус опыта <span class="field-hint">(%)</span></label>
