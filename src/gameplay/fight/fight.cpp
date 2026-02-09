@@ -1784,7 +1784,7 @@ void process_npc_attack(CharData *ch) {
 				&& ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
 				&& AWAKE(ch) 
 				&& !IsUnableToAct(ch) 
-				&& ch->get_wait() > 0
+				&& ch->get_wait() <= 0
 				&& ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {

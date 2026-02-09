@@ -246,7 +246,7 @@ void TryToRescueWithTutelar(CharData *ch) {
 			&& CAN_SEE(k->follower, ch)
 			&& AWAKE(k->follower)
 			&& !IsUnableToAct(k->follower)
-			&& ch->get_wait() > 0
+			&& k->follower->get_wait() <= 0
 			&& k->follower->GetPosition() >= EPosition::kFight) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch
