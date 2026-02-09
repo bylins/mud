@@ -2082,9 +2082,17 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 		// Create temporary OLC descriptor
 		auto *temp_d = new DescriptorData();
 		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
 		temp_d->olc->number = trig_vnum;
 		temp_d->olc->zone_num = zone_rnum;
-		temp_d->character = d->character;  // For logging
+
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
 
 		// Create trigger copy for editing
 		Trigger *trig = new Trigger(*trig_index[rnum]->proto);
