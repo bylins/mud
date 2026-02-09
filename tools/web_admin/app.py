@@ -216,6 +216,47 @@ def objects_list():
         return render_template('error.html', error=resp.get('error'))
 
 
+@app.route('/object/<int:vnum>')
+@login_required
+def object_detail(vnum):
+    """Object detail page"""
+    mud = get_mud_client()
+    resp = mud.get_object(vnum)
+    if resp.get('status') == 'ok':
+        obj = resp.get('object', {})
+        return render_template('object_detail.html', obj=obj)
+    else:
+        return render_template('error.html', error=resp.get('error', 'Object not found'))
+
+
+@app.route('/object/<int:vnum>/edit', methods=['GET'])
+@login_required
+def object_edit(vnum):
+    """Edit object - show form"""
+    mud = get_mud_client()
+    resp = mud.get_object(vnum)
+    if resp.get('status') == 'ok':
+        obj = resp.get('object', {})
+        return render_template('object_edit.html', obj=obj)
+    else:
+        return render_template('error.html', error=resp.get('error'))
+
+
+@app.route('/object/<int:vnum>/update', methods=['POST'])
+@login_required
+def object_update(vnum):
+    """Update object via JSON API - accepts full nested object data structure"""
+    mud = get_mud_client()
+
+    # Accept JSON body from AJAX form
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'error': 'No JSON data received'}), 400
+
+    resp = mud.update_object(vnum, data)
+    return jsonify(resp)
+
+
 @app.route('/rooms')
 @login_required
 def rooms_list():

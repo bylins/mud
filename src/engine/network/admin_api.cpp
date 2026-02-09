@@ -1010,6 +1010,73 @@ void admin_api_get_object(DescriptorData *d, int obj_vnum) {
 	obj_data["rent_on"] = obj->get_rent_on();
 	obj_data["rent_off"] = obj->get_rent_off();
 
+	// Names (7 case forms)
+	json names;
+	for (int c = ECase::kFirstCase; c <= ECase::kLastCase; ++c) {
+		ECase ecase = static_cast<ECase>(c);
+		std::string case_name;
+		switch (ecase) {
+			case ECase::kNom: case_name = "nominative"; break;
+			case ECase::kGen: case_name = "genitive"; break;
+			case ECase::kDat: case_name = "dative"; break;
+			case ECase::kAcc: case_name = "accusative"; break;
+			case ECase::kIns: case_name = "instrumental"; break;
+			case ECase::kPre: case_name = "prepositional"; break;
+			default: continue;
+		}
+		names[case_name] = koi8r_to_utf8(obj->get_PName(ecase));
+	}
+	obj_data["names"] = names;
+
+	// Additional stats
+	obj_data["level"] = obj->get_minimum_remorts();
+	obj_data["sex"] = static_cast<int>(obj->get_sex());
+	obj_data["material"] = static_cast<int>(obj->get_material());
+	obj_data["timer"] = obj->get_timer();
+
+	// Durability
+	json durability;
+	durability["current"] = obj->get_current_durability();
+	durability["maximum"] = obj->get_maximum_durability();
+	obj_data["durability"] = durability;
+
+	// Type-specific values (value0-3)
+	json type_specific;
+	type_specific["value0"] = obj->get_val(0);
+	type_specific["value1"] = obj->get_val(1);
+	type_specific["value2"] = obj->get_val(2);
+	type_specific["value3"] = obj->get_val(3);
+	obj_data["type_specific"] = type_specific;
+
+	// Affects (stat modifiers)
+	json affects = json::array();
+	for (int i = 0; i < kMaxObjAffect; ++i) {
+		if (obj->get_affected(i).location != EApply::kNone) {
+			json affect;
+			affect["location"] = static_cast<int>(obj->get_affected(i).location);
+			affect["modifier"] = obj->get_affected(i).modifier;
+			affects.push_back(affect);
+		}
+	}
+	obj_data["affects"] = affects;
+
+	// Extra descriptions (linked list)
+	json extra_descs = json::array();
+	for (auto ed = obj->get_ex_description(); ed; ed = ed->next) {
+		json extra;
+		extra["keywords"] = koi8r_to_utf8(ed->keyword ? ed->keyword : "");
+		extra["description"] = koi8r_to_utf8(ed->description ? ed->description : "");
+		extra_descs.push_back(extra);
+	}
+	obj_data["extra_descriptions"] = extra_descs;
+
+	// Triggers
+	json triggers = json::array();
+	for (const auto &trig_vnum : obj->get_proto_script()) {
+		triggers.push_back(trig_vnum);
+	}
+	obj_data["triggers"] = triggers;
+
 	json result;
 	result["status"] = "ok";
 	result["object"] = obj_data;
@@ -1058,24 +1125,26 @@ void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_d
 			obj->set_action_description(utf8_to_koi8r(data["action_desc"].get<std::string>()));
 		}
 
-		if (data.contains("pnames")) {
-			if (data["pnames"].contains("nominative")) {
-				obj->set_PName(ECase::kNom, utf8_to_koi8r(data["pnames"]["nominative"].get<std::string>()));
+		// Support both "pnames" and "names" keys
+		auto names_data = data.contains("names") ? data["names"] : (data.contains("pnames") ? data["pnames"] : json{});
+		if (!names_data.is_null()) {
+			if (names_data.contains("nominative")) {
+				obj->set_PName(ECase::kNom, utf8_to_koi8r(names_data["nominative"].get<std::string>()));
 			}
-			if (data["pnames"].contains("genitive")) {
-				obj->set_PName(ECase::kGen, utf8_to_koi8r(data["pnames"]["genitive"].get<std::string>()));
+			if (names_data.contains("genitive")) {
+				obj->set_PName(ECase::kGen, utf8_to_koi8r(names_data["genitive"].get<std::string>()));
 			}
-			if (data["pnames"].contains("dative")) {
-				obj->set_PName(ECase::kDat, utf8_to_koi8r(data["pnames"]["dative"].get<std::string>()));
+			if (names_data.contains("dative")) {
+				obj->set_PName(ECase::kDat, utf8_to_koi8r(names_data["dative"].get<std::string>()));
 			}
-			if (data["pnames"].contains("accusative")) {
-				obj->set_PName(ECase::kAcc, utf8_to_koi8r(data["pnames"]["accusative"].get<std::string>()));
+			if (names_data.contains("accusative")) {
+				obj->set_PName(ECase::kAcc, utf8_to_koi8r(names_data["accusative"].get<std::string>()));
 			}
-			if (data["pnames"].contains("instrumental")) {
-				obj->set_PName(ECase::kIns, utf8_to_koi8r(data["pnames"]["instrumental"].get<std::string>()));
+			if (names_data.contains("instrumental")) {
+				obj->set_PName(ECase::kIns, utf8_to_koi8r(names_data["instrumental"].get<std::string>()));
 			}
-			if (data["pnames"].contains("prepositional")) {
-				obj->set_PName(ECase::kPre, utf8_to_koi8r(data["pnames"]["prepositional"].get<std::string>()));
+			if (names_data.contains("prepositional")) {
+				obj->set_PName(ECase::kPre, utf8_to_koi8r(names_data["prepositional"].get<std::string>()));
 			}
 		}
 
@@ -1112,8 +1181,19 @@ void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_d
 			obj->set_level(data["level"].get<int>());
 		}
 
-		// Values
-		if (data.contains("values")) {
+		// Timer
+		if (data.contains("timer")) {
+			obj->set_timer(data["timer"].get<int>());
+		}
+
+		// Values (support both "values" array and "type_specific" object)
+		if (data.contains("type_specific") && data["type_specific"].is_object()) {
+			auto &ts = data["type_specific"];
+			if (ts.contains("value0")) obj->set_val(0, ts["value0"].get<int>());
+			if (ts.contains("value1")) obj->set_val(1, ts["value1"].get<int>());
+			if (ts.contains("value2")) obj->set_val(2, ts["value2"].get<int>());
+			if (ts.contains("value3")) obj->set_val(3, ts["value3"].get<int>());
+		} else if (data.contains("values")) {
 			for (size_t i = 0; i < 4 && i < data["values"].size(); ++i) {
 				obj->set_val(i, data["values"][i].get<int>());
 			}
@@ -1161,12 +1241,59 @@ void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_d
 			}
 		}
 
-		// Durability
-		if (data.contains("current_durability")) {
-			obj->set_current_durability(data["current_durability"].get<int>());
+		// Durability (support both object and separate fields)
+		if (data.contains("durability") && data["durability"].is_object()) {
+			auto &dur = data["durability"];
+			if (dur.contains("current")) {
+				obj->set_current_durability(dur["current"].get<int>());
+			}
+			if (dur.contains("maximum")) {
+				obj->set_maximum_durability(dur["maximum"].get<int>());
+			}
+		} else {
+			if (data.contains("current_durability")) {
+				obj->set_current_durability(data["current_durability"].get<int>());
+			}
+			if (data.contains("maximum_durability")) {
+				obj->set_maximum_durability(data["maximum_durability"].get<int>());
+			}
 		}
-		if (data.contains("maximum_durability")) {
-			obj->set_maximum_durability(data["maximum_durability"].get<int>());
+
+		// Extra descriptions
+		if (data.contains("extra_descriptions") && data["extra_descriptions"].is_array()) {
+			// Clear existing extra descriptions
+			obj->set_ex_description(nullptr);
+
+			// Build linked list from array (in reverse to maintain order)
+			ExtraDescription::shared_ptr prev = nullptr;
+			for (auto it = data["extra_descriptions"].rbegin(); it != data["extra_descriptions"].rend(); ++it) {
+				const auto &ed_data = *it;
+				if (!ed_data.contains("keywords") || !ed_data.contains("description")) {
+					continue;
+				}
+
+				auto ed = std::make_shared<ExtraDescription>();
+				ed->set_keyword(utf8_to_koi8r(ed_data["keywords"].get<std::string>()));
+				ed->set_description(utf8_to_koi8r(ed_data["description"].get<std::string>()));
+				ed->next = prev;
+				prev = ed;
+			}
+
+			if (prev) {
+				obj->set_ex_description(prev);
+			}
+		}
+
+		// Triggers
+		if (data.contains("triggers") && data["triggers"].is_array()) {
+			// Clear existing triggers and set new ones
+			std::list<int> trigger_list;
+			for (const auto &trig_vnum : data["triggers"]) {
+				if (trig_vnum.is_number_integer()) {
+					trigger_list.push_back(trig_vnum.get<int>());
+				}
+			}
+			obj->set_proto_script(trigger_list);
 		}
 
 		// Save via OLC (handles live object updates, disk save)

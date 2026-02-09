@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование объекта #{{ obj.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}">Предметы</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование #{{ obj.vnum }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование объекта <span class="text-amber-700">#{{ obj.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ obj.short_desc|default('Без описания') }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('object_detail', vnum=obj.vnum) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </a>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <form id="object-form" method="POST">
+
+        <!-- Names Section -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Имена (Names)
+            </div>
+
+            <div class="form-grid form-grid-1">
+                <div class="form-field">
+                    <label for="aliases" class="form-label">Aliases (ключевые слова)</label>
+                    <input type="text" id="aliases" name="aliases" class="form-input" value="{{ obj.aliases if obj.aliases else '' }}">
+                    <div class="form-help">Список имен для идентификации объекта в командах</div>
+                </div>
+            </div>
+
+            <div class="form-grid form-grid-2">
+                <div class="form-field">
+                    <label for="nominative" class="form-label">Именительный (кто? что?)</label>
+                    <input type="text" id="nominative" name="names.nominative" class="form-input" value="{{ obj.names.nominative if obj.names else '' }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="genitive" class="form-label">Родительный (кого? чего?)</label>
+                    <input type="text" id="genitive" name="names.genitive" class="form-input" value="{{ obj.names.genitive if obj.names else '' }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="dative" class="form-label">Дательный (кому? чему?)</label>
+                    <input type="text" id="dative" name="names.dative" class="form-input" value="{{ obj.names.dative if obj.names else '' }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="accusative" class="form-label">Винительный (кого? что?)</label>
+                    <input type="text" id="accusative" name="names.accusative" class="form-input" value="{{ obj.names.accusative if obj.names else '' }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="instrumental" class="form-label">Творительный (кем? чем?)</label>
+                    <input type="text" id="instrumental" name="names.instrumental" class="form-input" value="{{ obj.names.instrumental if obj.names else '' }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="prepositional" class="form-label">Предложный (о ком? о чём?)</label>
+                    <input type="text" id="prepositional" name="names.prepositional" class="form-input" value="{{ obj.names.prepositional if obj.names else '' }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Descriptions Section -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Описания (Descriptions)
+            </div>
+
+            <div class="form-grid form-grid-1">
+                <div class="form-field">
+                    <label for="short_desc" class="form-label">Short Description</label>
+                    <textarea id="short_desc" name="short_desc" class="form-input" rows="2">{{ obj.short_desc if obj.short_desc else '' }}</textarea>
+                    <div class="form-help">Короткое описание (в инвентаре, в комнате)</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" class="form-input" rows="4">{{ obj.description if obj.description else '' }}</textarea>
+                    <div class="form-help">Полное описание при осмотре</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="action_desc" class="form-label">Action Description</label>
+                    <textarea id="action_desc" name="action_desc" class="form-input" rows="2">{{ obj.action_desc if obj.action_desc else '' }}</textarea>
+                    <div class="form-help">Описание действия (при экипировке)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Характеристики (Stats)
+            </div>
+
+            <div class="form-grid form-grid-3">
+                <div class="form-field">
+                    <label for="type" class="form-label">Type (тип предмета)</label>
+                    <input type="number" id="type" name="type" class="form-input" value="{{ obj.type if obj.type is defined else 1 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="weight" class="form-label">Weight (вес)</label>
+                    <input type="number" id="weight" name="weight" class="form-input" value="{{ obj.weight if obj.weight is defined else 1 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="cost" class="form-label">Cost (цена)</label>
+                    <input type="number" id="cost" name="cost" class="form-input" value="{{ obj.cost if obj.cost is defined else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="rent_on" class="form-label">Rent On</label>
+                    <input type="number" id="rent_on" name="rent_on" class="form-input" value="{{ obj.rent_on if obj.rent_on is defined else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="rent_off" class="form-label">Rent Off</label>
+                    <input type="number" id="rent_off" name="rent_off" class="form-input" value="{{ obj.rent_off if obj.rent_off is defined else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="level" class="form-label">Level (мин. уровень)</label>
+                    <input type="number" id="level" name="level" class="form-input" value="{{ obj.level if obj.level is defined else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="sex" class="form-label">Sex (пол)</label>
+                    <select id="sex" name="sex" class="form-input">
+                        <option value="0" {% if obj.sex == 0 %}selected{% endif %}>Neutral</option>
+                        <option value="1" {% if obj.sex == 1 %}selected{% endif %}>Male</option>
+                        <option value="2" {% if obj.sex == 2 %}selected{% endif %}>Female</option>
+                        <option value="3" {% if obj.sex == 3 %}selected{% endif %}>Plural</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="material" class="form-label">Material (материал)</label>
+                    <input type="number" id="material" name="material" class="form-input" value="{{ obj.material if obj.material is defined else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="timer" class="form-label">Timer (таймер)</label>
+                    <input type="number" id="timer" name="timer" class="form-input" value="{{ obj.timer if obj.timer is defined else 0 }}">
+                </div>
+            </div>
+
+            <div class="form-grid form-grid-2">
+                <div class="form-field">
+                    <label for="durability_current" class="form-label">Durability Current</label>
+                    <input type="number" id="durability_current" name="durability.current" class="form-input" value="{{ obj.durability.current if obj.durability else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="durability_maximum" class="form-label">Durability Maximum</label>
+                    <input type="number" id="durability_maximum" name="durability.maximum" class="form-input" value="{{ obj.durability.maximum if obj.durability else 0 }}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Type-Specific Values -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+                Type-Specific Values
+            </div>
+
+            <div class="form-grid form-grid-4">
+                <div class="form-field">
+                    <label for="value0" class="form-label">Value 0</label>
+                    <input type="number" id="value0" name="type_specific.value0" class="form-input" value="{{ obj.type_specific.value0 if obj.type_specific else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="value1" class="form-label">Value 1</label>
+                    <input type="number" id="value1" name="type_specific.value1" class="form-input" value="{{ obj.type_specific.value1 if obj.type_specific else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="value2" class="form-label">Value 2</label>
+                    <input type="number" id="value2" name="type_specific.value2" class="form-input" value="{{ obj.type_specific.value2 if obj.type_specific else 0 }}">
+                </div>
+
+                <div class="form-field">
+                    <label for="value3" class="form-label">Value 3</label>
+                    <input type="number" id="value3" name="type_specific.value3" class="form-input" value="{{ obj.type_specific.value3 if obj.type_specific else 0 }}">
+                </div>
+            </div>
+
+            <div class="form-help" style="margin-top: 8px;">
+                Значения зависят от типа предмета (оружие, броня, контейнер и т.д.)
+            </div>
+        </div>
+
+        <!-- Triggers -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Триггеры (Triggers)
+            </div>
+
+            <div class="form-grid form-grid-1">
+                <div class="form-field">
+                    <label for="triggers" class="form-label">Trigger vnums</label>
+                    <input type="text" id="triggers" name="triggers" class="form-input"
+                           value="{% if obj.triggers %}{{ obj.triggers|join(', ') }}{% endif %}"
+                           placeholder="100, 101, 102">
+                    <div class="form-help">Введите vnums триггеров через запятую</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 12px; padding-top: 8px;">
+            <button type="submit" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Сохранить
+            </button>
+
+            <a href="{{ url_for('object_detail', vnum=obj.vnum) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Отмена
+            </a>
+        </div>
+
+    </form>
+
+    <!-- Message Display -->
+    <div id="message" style="display: none; margin-top: 20px;"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('object-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {};
+
+    // Parse nested fields (e.g., "names.nominative" -> data.names.nominative)
+    for (let [key, value] of formData.entries()) {
+        const parts = key.split('.');
+        let current = data;
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            if (!current[parts[i]]) current[parts[i]] = {};
+            current = current[parts[i]];
+        }
+
+        const lastKey = parts[parts.length - 1];
+
+        // Special handling for triggers (comma-separated list -> array of numbers)
+        if (lastKey === 'triggers') {
+            const triggers = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+            data.triggers = triggers;
+        }
+        // Convert numbers
+        else if (value && !isNaN(value) && value.trim() !== '') {
+            current[lastKey] = parseFloat(value);
+        }
+        // Keep as string
+        else {
+            current[lastKey] = value;
+        }
+    }
+
+    try {
+        const response = await fetch('/object/{{ obj.vnum }}/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        const messageDiv = document.getElementById('message');
+
+        if (result.status === 'ok') {
+            messageDiv.className = 'msg-success';
+            messageDiv.innerHTML = `
+                <div style="flex-shrink: 0; margin-top: 2px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="msg-title">Объект сохранён</div>
+                    <div class="msg-text">Все изменения применены успешно.</div>
+                </div>
+            `;
+        } else {
+            messageDiv.className = 'msg-error';
+            messageDiv.innerHTML = `
+                <div style="flex-shrink: 0; margin-top: 2px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="msg-title">Ошибка сохранения</div>
+                    <div class="msg-text">${result.error || 'Неизвестная ошибка'}</div>
+                </div>
+            `;
+        }
+
+        messageDiv.style.display = 'flex';
+
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+
+    } catch (error) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.className = 'msg-error';
+        messageDiv.innerHTML = `
+            <div style="flex-shrink: 0; margin-top: 2px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <div class="msg-title">Ошибка сохранения</div>
+                <div class="msg-text">${error}</div>
+            </div>
+        `;
+        messageDiv.style.display = 'flex';
+    }
+});
+</script>
+{% endblock %}
